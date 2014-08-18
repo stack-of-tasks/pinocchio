@@ -1,0 +1,230 @@
+body {
+    font-family: 'Lucida Grande','Lucida Sans Unicode',Verdana,Sans-Serif;
+    color: #5D5D5D;
+}
+
+dl {
+    border: 1.5px #82b6d7 solid;
+    width: 97%;
+    padding: 5px;
+    color: #330077;
+}
+
+code {
+    color: #3C9A35;
+}
+
+td.md {
+    color: #0066CC;
+}
+
+h1 {
+    padding-top: 50px;
+    padding: 0px;
+    font-family: 'Lucida Grande','Lucida Sans Unicode',Verdana,Sans-Serif;
+    font-variant: small-caps;
+    color:#0066CC;
+    text-align: center;
+}
+
+h2,h3,hr {
+    magin-top: 15px;
+    padding: 0px;
+    font-family: 'Lucida Grande','Lucida Sans Unicode',Verdana,Sans-Serif;
+    font-variant: small-caps;
+    color:#0066CC;
+}
+
+h4 {
+    color: #3C9A35;
+}
+
+a:link {
+    font-weight: bold;
+    text-decoration: none;
+    color:#0066CC
+}
+
+a:hover, a:active { 
+	text-decoration: underline; 
+	color: #3C9A35;
+}
+
+a:visited {
+    font-weight: bold;
+    color: #3C9A35;
+    text-decoration: none;
+}
+
+DIV.memitem
+{ 
+  spacing: 10px;
+  width:100%;
+  background:#FFFFFF;
+  font-size:100%;
+  line-height:normal;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #808080;
+  -moz-border-radius: 8px 8px 8px 8px;
+}
+
+DIV.memproto
+{ 
+  width:100%;
+  background:#F0F0F0;
+  font-size:100%;
+  line-height:normal;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #808080;
+  -moz-border-radius: 8px 8px 8px 8px;
+}
+
+DIV.memdoc
+{ 
+  padding: 10px;
+  width:100%;
+  font-size:100%;
+  line-height:normal;
+}
+
+DIV.tabs
+{
+   float            : left;
+   width            : 100%;
+   background       : url("tab_b.gif") repeat-x bottom;
+   margin-bottom    : 4px;
+}
+
+DIV.tabs UL
+{
+   margin           : 0px;
+   padding-left     : 10px;
+   list-style       : none;
+}
+
+DIV.tabs LI, DIV.tabs FORM
+{
+   display          : inline;
+   margin           : 0px;
+   padding          : 0px;
+}
+
+DIV.tabs FORM
+{
+   float            : right;
+}
+
+DIV.tabs A
+{
+   float            : left;
+   background       : url("tab_r.gif") no-repeat right top;
+   border-bottom    : 1px solid #84B0C7;
+   font-size        : x-small;
+   font-weight      : bold;
+   text-decoration  : none;
+}
+
+DIV.tabs A:hover
+{
+   background-position: 100% -150px;
+}
+
+DIV.tabs A:link, DIV.tabs A:visited,
+DIV.tabs A:active, DIV.tabs A:hover
+{
+       color: #1A419D;
+}
+
+DIV.tabs SPAN
+{
+   float            : left;
+   display          : block;
+   background       : url("tab_l.gif") no-repeat left top;
+   padding          : 5px 9px;
+   white-space      : nowrap;
+}
+
+DIV.tabs INPUT
+{
+   float            : right;
+   display          : inline;
+   font-size        : 1em;
+}
+
+DIV.tabs TD
+{
+   font-size        : x-small;
+   font-weight      : bold;
+   text-decoration  : none;
+}
+
+
+
+DIV.tabs SPAN {float : none;}
+
+DIV.tabs A:hover SPAN
+{
+   background-position: 0% -150px;
+}
+
+DIV.tabs LI#current A
+{
+   background-position: 100% -150px;
+   border-width     : 0px;
+}
+
+DIV.tabs LI#current SPAN
+{
+   background-position: 0% -150px;
+   padding-bottom   : 6px;
+}
+
+DIV.nav
+{
+   background       : none;
+   border           : none;
+   border-bottom    : 1px solid #84B0C7;
+}
+
+DIV.groupHeader
+{ 
+  padding-top: 30px;
+  padding-bottom: 20px;
+  background       : none;
+  border           : none;
+  border-bottom    : 1px solid #84B0C7;
+  font-family: 'Lucida Grande','Lucida Sans Unicode',Verdana,Sans-Serif;
+  font-variant: small-caps;
+  font-size: 14pt;
+  color:#0066CC;
+}
+
+.directory p 
+{ 
+    margin: 0px; 
+    white-space: nowrap; 
+    font-family: 'Lucida Grande','Lucida Sans Unicode',Verdana,Sans-Serif;
+    font-size: 10pt;
+    font-weight: normal;
+}
+
+
+.directory h3 
+{ 
+    font-family: 'Lucida Grande','Lucida Sans Unicode',Verdana,Sans-Serif;
+    margin: 0px; 
+    margin-top: 1em; 
+    padding-bottom: 20px;
+    font-size: 12pt; 
+    font-variant: small-caps;
+    text-align: center;
+}
+
+.directory a:visited {
+    font-weight: bold;
+    text-decoration: none;
+    color:#0066CC
+}
+

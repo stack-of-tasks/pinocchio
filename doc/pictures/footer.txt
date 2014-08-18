@@ -1,0 +1,2 @@
+Copy in this directory the image you wish to use in the footer of the documentation or edit file sot-core/doc/footer.html and
+remove this file.
