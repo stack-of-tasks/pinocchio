@@ -18,76 +18,42 @@ namespace se3
     typedef typename traits<JointData>::Transformation_t Transformation_t;
     typedef typename traits<JointData>::Velocity_t Velocity_t;
     typedef typename traits<JointData>::Bias_t Bias_t;
+    typedef typename traits<JointData>::JointMotion_t JointMotion_t;
 
-    const Constraint_t     & S() { return static_cast<JointData*>(this)->S; }
-    const Transformation_t & M() { return static_cast<JointData*>(this)->M; };
-    const Velocity_t       & v() { return static_cast<JointData*>(this)->v; };
-    const Bias_t           & c() { return static_cast<JointData*>(this)->c; };
+    JointData& derived() { return *static_cast<JointData*>(this); }
+    const JointData& derived() const { return *static_cast<JointData*>(this); }
+
+    const Constraint_t     & S()   { return static_cast<JointData*>(this)->S;   }
+    const Transformation_t & M()   { return static_cast<JointData*>(this)->M;   }
+    const Velocity_t       & v()   { return static_cast<JointData*>(this)->v;   }
+    const Bias_t           & c()   { return static_cast<JointData*>(this)->c;   }
+    const JointMotion_t    & qdd() { return static_cast<JointData*>(this)->qdd; }
   };
 
 
 
   template<typename Joint>
-  struct JointBase
+  struct JointModelBase
   {
     typedef typename traits<Joint>::JointData JointData;
-    typedef typename traits<Joint>::Placement_t Placement_t;
-    typedef typename traits<Joint>::Configuration_t Configuration_t;
-    typedef typename traits<Joint>::Velocity_t Velocity;
 
-    JointData createData() { return static_cast<Joint*>(this)->createData(); }
+    JointData createData() const { return static_cast<Joint*>(this)->createData(); }
+    void calc( JointData& data, 
+	       const Eigen::VectorXd & qs, 
+	       const Eigen::VectorXd & vs, 
+	       const Eigen::VectorXd & as ) const
+    { return static_cast<const Joint*>(this)->calc(data,qs,vs,as); }
+
+    int idx_q() const { return static_cast<const Joint *>(this)->idx_q; }
+    int idx_v() const { return static_cast<const Joint *>(this)->idx_v; }
+    int nq()    const { return static_cast<const Joint *>(this)->nq;    }
+    int nv()    const { return static_cast<const Joint *>(this)->nv;    }
   };
 
 
-
-  // struct JointRXData;
-  // template<>
-  // struct traits<JointRXData>
-  // {
-  //   typedef Eigen::Matrix<double,6,1> Constraint_t;
-  //   typedef se3::SE3 Transformation_t;
-  //   typedef Eigen::Matrix<double,6,1> Velocity_t;
-  //   typedef BiasZero Bias_t;
-  // };
-
-  // struct JointRXData : public JointDataBase<JointRXData>
-  // {
-  //   typedef typename traits<JointRXData>::Constraint_t Constraint_t;
-  //   typedef typename traits<JointRXData>::Transformation_t Transformation_t;
-  //   typedef typename traits<JointRXData>::Velocity_t Velocity_t;
-  //   typedef typename traits<JointRXData>::Bias_t Bias_t;
-
-  //   Constraint_t S;
-  //   Transformation_t M;
-  //   Velocity_t v;
-  //   Bias_t c;
-
-  //   JointRXData() { S << 0,0,0,1,0,0; }
-  // };
-
-  // struct JointRX;
-  // template<>
-  // struct traits<JointRX>
-  // {
-  //   typedef JointRXData JointData;
-  //   typedef SE3 Placement_t;
-  //   typedef double Configuration_t;
-  //   typedef double Velocity_t;
-  // };
-
-  // struct JointRX : public JointBase<JointRX>
-  // {
-  //   typedef traits<JointRX>::JointData JointData;
-
-  //   JointData createData() const { return JointData(); }
-  //   void calc( JointData& data, Configuration_t q, Configuration_t v )
-  //   {
-
-
-
-  //   }
-  // };
-
+  /* --- REVOLUTE X --------------------------------------------------------- */
+  /* --- REVOLUTE X --------------------------------------------------------- */
+  /* --- REVOLUTE X --------------------------------------------------------- */
   struct JointDataRX;
   struct JointModelRX;
 
@@ -106,21 +72,23 @@ namespace se3
     typedef Motion Velocity_t;
     typedef BiasZero Bias_t;
     typedef JointModelRX JointModel;
+    typedef Eigen::Matrix<double,1,1> JointMotion_t;
   };
 
-  struct JointDataRX
+  struct JointDataRX : public JointDataBase<JointDataRX>
   {
     typedef typename traits<JointDataRX>::Constraint_t Constraint_t;
     typedef typename traits<JointDataRX>::Transformation_t Transformation_t;
     typedef typename traits<JointDataRX>::Velocity_t Velocity_t;
     typedef typename traits<JointDataRX>::Bias_t Bias_t;
+    typedef typename traits<JointDataRX>::JointMotion_t JointMotion_t;
     typedef typename traits<JointDataRX>::JointModel JointModel;
-    //typedef typename traits<JointDataRX>::;
 
     Constraint_t S;
     Transformation_t M;
     Velocity_t v;
     Bias_t c;
+    JointMotion_t qdd;
 
     JointDataRX() : M(1)
    {
@@ -135,7 +103,7 @@ namespace se3
     typedef SE3 Placement_t;
   };
 
-  struct JointModelRX
+  struct JointModelRX : public JointModelBase<JointModelRX>
   {
     typedef traits<JointModelRX>::JointData JointData;
 
@@ -145,28 +113,33 @@ namespace se3
 
     JointModelRX() : idx_q(-1),idx_v(-1) {} // Default constructor for std::vector
     JointModelRX( int index_q,int index_v ) : idx_q(index_q),idx_v(index_v) {}
-    JointModelRX( int index_q,int index_v, const JointModelRX& ) : idx_q(index_q),idx_v(index_v) {}
 
     JointData createData() const { return JointData(); }
-    void calc( JointData& data, const Eigen::VectorXd & qs, const Eigen::VectorXd & vs )
+    void calc( JointData& data, 
+	       const Eigen::VectorXd & qs, 
+	       const Eigen::VectorXd & vs, 
+	       const Eigen::VectorXd & as ) const
     {
       const double & q = qs[idx_q];
       const double & v = vs[idx_v];
-      
-      //data.M.rotation(  Eigen::AngleAxis<double>(q, Eigen::Vector3d::UnitX()).matrix() );
-      double ca,sa; sincos(q,&sa,&ca);
+      data.qdd[0] = as[idx_q];
+
+      data.M.rotation(rotationX(q));
+      data.v.angular(Eigen::Vector3d(v,0,0));
+    }
+
+    static inline Eigen::Matrix3d rotationX(const double & angle) 
+    {
       Eigen::Matrix3d R3; 
+      double ca,sa; sincos(angle,&sa,&ca);
       R3 << 
 	1,0,0,
 	0,ca,sa,
 	0,-sa,ca;
-      data.M.rotation(R3);
-      Eigen::Vector3d v3; v3 << v,0,0; 
-      data.v.angular(v3);
+      return R3;
     }
+
   };
-
-
 
 
 } // namespace se3

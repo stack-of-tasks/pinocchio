@@ -7,6 +7,50 @@
 
 #include "pinocchio/tools/timer.hpp"
 
+template<typename JointModel>
+void rneaForwardStep(const se3::Model& model,
+		     se3::Data& data,
+		     const se3::JointModelBase<JointModel> & jmodel,
+		     se3::JointDataBase<typename JointModel::JointData> & jdata,
+		     int i,
+		     const Eigen::VectorXd & q,
+		     const Eigen::VectorXd & v,
+		     const Eigen::VectorXd & a)
+{
+  using namespace Eigen;
+  using namespace se3;
+
+  jmodel.calc(jdata.derived(),q,v,a);
+  
+  const Model::Index & parent = model.parents[i];
+  data.liMi[i] = model.jointPlacements[i]*jdata.M();
+  
+  if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
+  else         data.oMi[i] = data.liMi[i];
+  
+  data.v[i] = jdata.v();
+  if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
+
+  data.a[i] =  Motion(jdata.S()*jdata.qdd()) + jdata.c() + data.v[i].cross(jdata.v()); 
+  if(parent>0) data.a[i] += data.liMi[i].actInv(data.a[parent]);
+  
+  data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
+}
+
+template<typename JointModel>
+void rneaBackwardStep(const se3::Model& model,
+		      se3::Data& data,
+		      const se3::JointModelBase<JointModel> & jmodel,
+		      se3::JointDataBase<typename JointModel::JointData> & /*jdata*/,
+		      int i)
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  const Model::Index & parent = model.parents[i];      
+  data.tau.segment(jmodel.idx_v(),jmodel.nv()) = data.joints[i].S.transpose()*data.f[i].toVector();
+  if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
+}
 
 
 int main()
@@ -70,24 +114,24 @@ int main()
     {
   for( int i=1;i<model.nbody;++i )
     {
-      JointModelRX & jmodel = model.joints[i];
-      JointDataRX & jdata = data.joints[i];
-      jmodel.calc(jdata,q,v);
-      VectorBlock<VectorXd> qdd = a.segment(jmodel.idx_v,jmodel.nv);
+      // JointModelRX & jmodel = model.joints[i];
+      // JointDataRX & jdata = data.joints[i];
+      // jmodel.calc(jdata,q,v,a);
 
-      const Model::Index & parent = model.parents[i];
-      const SE3 & liMi = data.liMi[i] = model.jointPlacements[i]*jdata.M;
+      // const Model::Index & parent = model.parents[i];
+      // const SE3 & liMi = data.liMi[i] = model.jointPlacements[i]*jdata.M;
       
-      if(parent>0) data.oMi[i] = data.oMi[parent]*liMi;
-      else         data.oMi[i] = liMi;
+      // if(parent>0) data.oMi[i] = data.oMi[parent]*liMi;
+      // else         data.oMi[i] = liMi;
 
-      data.v[i] = jdata.v;
-      if(parent>0) data.v[i] += liMi.actInv(data.v[parent]);
+      // data.v[i] = jdata.v;
+      // if(parent>0) data.v[i] += liMi.actInv(data.v[parent]);
 
-      data.a[i] =  Motion(jdata.S*qdd) + jdata.c + data.v[i].cross(jdata.v); 
-      if(parent>0) data.a[i] += liMi.actInv(data.a[parent]);
+      // data.a[i] =  Motion(jdata.S*jdata.qdd) + jdata.c + data.v[i].cross(jdata.v); 
+      // if(parent>0) data.a[i] += liMi.actInv(data.a[parent]);
 
-      data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
+      // data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
+      rneaForwardStep(model,data,model.joints[i],data.joints[i],i,q,v,a);
     }
 
   for( int i=model.nbody-1;i>0;--i )
@@ -97,7 +141,7 @@ int main()
       
       data.tau.segment(jmodel.idx_v,jmodel.nv) = data.joints[i].S.transpose()*data.f[i].toVector();
       if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
-      
+      //rneaBackwardStep(model,data,model.joints[i],data.joints[i],i);
     }
     }
   timer.toc(std::cout,1000);
