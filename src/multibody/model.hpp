@@ -111,7 +111,7 @@ namespace se3
 
     Index idx = nbody ++;
 
-    joints         .push_back(JointModelRX(nq,nv,j));
+    joints         .push_back(JointModelRX(nq,nv));
     inertias       .push_back(Y);
     parents        .push_back(parent);
     jointPlacements.push_back(placement);
