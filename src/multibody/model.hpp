@@ -8,14 +8,11 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/multibody/joint.hpp"
-#include <Eigen/StdVector>
 
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3);
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Inertia);
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Force);
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion);
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointModelRX);
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointDataRX);
 
 namespace se3
 {
@@ -33,7 +30,8 @@ namespace se3
 
     std::vector<Inertia> inertias;
     std::vector<SE3> jointPlacements;
-    std::vector<JointModelRX> joints;
+    JointModelVector joints;
+    //std::vector<JointModelRX> joints;
     std::vector<Index> parents;
     std::vector<std::string> names;
 
@@ -53,7 +51,8 @@ namespace se3
     {
       names[0] = "universe";
     }
-    Index addBody( Index parent,const JointModelRX & j,const SE3 & placement,
+    template<typename D>
+    Index addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
 		   const Inertia & Y,const std::string & name = "" );
     Index getBodyId( const std::string & name ) const;
     const std::string& getBodyName( Index index ) const;
@@ -65,7 +64,8 @@ namespace se3
   public:
     
     const Model& model;
-    std::vector<JointDataRX> joints;
+    JointDataVector joints;
+    //std::vector<JointDataRX> joints;
     std::vector<Motion> a;                // Body acceleration
     std::vector<Motion> v;                // Body velocity
     std::vector<Force> f;                 // Body force
@@ -102,23 +102,27 @@ namespace se3
     return res;
 }
 
-  Model::Index Model::addBody( Index parent,const JointModelRX & j,const SE3 & placement,
+  template<typename D>
+  Model::Index Model::addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
 			       const Inertia & Y,const std::string & name )
   {
     assert( (nbody==(int)joints.size())&&(nbody==(int)inertias.size())
 	    &&(nbody==(int)parents.size())&&(nbody==(int)jointPlacements.size()) );
-    assert( (j.nq>=0)&&(j.nv>=0) );
+    assert( (j.nq()>=0)&&(j.nv()>=0) );
 
     Index idx = nbody ++;
 
-    joints         .push_back(JointModelRX(nq,nv));
+    joints         .push_back(j.derived()); 
+    boost::get<D&>(joints.back()).setIndex(nq,nv);
+    //joints.back().setIndex(nq,nv);
+
     inertias       .push_back(Y);
     parents        .push_back(parent);
     jointPlacements.push_back(placement);
     names          .push_back( (name!="")?name:random(8) );
 
-    nq += j.nq;
-    nv += j.nv;
+    nq += j.nq();
+    nv += j.nv();
     return idx;
   }
   Model::Index Model::getBodyId( const std::string & name ) const
@@ -144,7 +148,9 @@ namespace se3
     ,liMi(ref.nbody)
     ,tau(ref.nbody)
   {
-    for(int i=0;i<model.nbody;++i) joints.push_back(model.joints[i].createData());
+    for(int i=0;i<model.nbody;++i) 
+      //joints.push_back(model.joints[i].createData());
+      joints.push_back(CreateJointData::run(model.joints[i]));
   }
 
 

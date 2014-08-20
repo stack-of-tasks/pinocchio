@@ -41,16 +41,84 @@ template<typename JointModel>
 void rneaBackwardStep(const se3::Model& model,
 		      se3::Data& data,
 		      const se3::JointModelBase<JointModel> & jmodel,
-		      se3::JointDataBase<typename JointModel::JointData> & /*jdata*/,
+		      se3::JointDataBase<typename JointModel::JointData> & jdata,
 		      int i)
 {
   using namespace Eigen;
   using namespace se3;
   
   const Model::Index & parent = model.parents[i];      
-  data.tau.segment(jmodel.idx_v(),jmodel.nv()) = data.joints[i].S.transpose()*data.f[i].toVector();
+  data.tau.segment(jmodel.idx_v(),jmodel.nv()) = jdata.S().transpose()*data.f[i].toVector();
   if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
 }
+
+
+struct RneaForwardStepVisitor : public boost::static_visitor<>
+{
+  const se3::Model& model;
+  se3::Data& data;
+  se3::JointDataVariant & jdata;
+  int i;
+  const Eigen::VectorXd & q;
+  const Eigen::VectorXd & v;
+  const Eigen::VectorXd & a;
+
+  RneaForwardStepVisitor( const se3::Model& model,
+			  se3::Data& data,
+			  se3::JointDataVariant & jdata,
+			  int i,
+			  const Eigen::VectorXd & q,
+			  const Eigen::VectorXd & v,
+			  const Eigen::VectorXd & a)
+    : model(model),data(data),jdata(jdata),i(i),q(q),v(v),a(a) {}
+
+
+  template <typename D>
+  void operator()(const se3::JointModelBase<D> & jmodel) const
+  {
+    rneaForwardStep(model,data,jmodel,boost::get<typename D::JointData&>(jdata),i,q,v,a);
+  }
+
+  static void run( const se3::Model& model,
+		  se3::Data& data,
+		  const se3::JointModelVariant & jmodel, 
+		  se3::JointDataVariant & jdata,
+		  int i,
+		  const Eigen::VectorXd & q,
+		  const Eigen::VectorXd & v,
+		  const Eigen::VectorXd & a)
+  {  boost::apply_visitor( RneaForwardStepVisitor(model,data,jdata,i,q,v,a), jmodel ); }
+
+};
+
+struct RneaBackwardStepVisitor : public boost::static_visitor<>
+{
+  const se3::Model& model;
+  se3::Data& data;
+  se3::JointDataVariant & jdata;
+  int i;
+
+  RneaBackwardStepVisitor( const se3::Model& model,
+			  se3::Data& data,
+			  se3::JointDataVariant & jdata,
+			  int i)
+    : model(model),data(data),jdata(jdata),i(i) {}
+
+
+  template <typename D>
+  void operator()(const se3::JointModelBase<D> & jmodel) const
+  {
+    rneaBackwardStep(model,data,jmodel,boost::get<typename D::JointData&>(jdata),i);
+  }
+
+  static void run( const se3::Model& model,
+		  se3::Data& data,
+		  const se3::JointModelVariant & jmodel, 
+		  se3::JointDataVariant & jdata,
+		  int i)
+  {  boost::apply_visitor( RneaBackwardStepVisitor(model,data,jdata,i), jmodel ); }
+
+};
 
 
 int main()
@@ -114,12 +182,19 @@ int main()
     {
   for( int i=1;i<model.nbody;++i )
     {
-      rneaForwardStep(model,data,model.joints[i],data.joints[i],i,q,v,a);
+      //rneaForwardStep(model,data,model.joints[i],data.joints[i],i,q,v,a);
+
+      //rneaForwardStep(model,data,
+      //	      boost::get<const se3::JointModelRX&>(model.joints[i]),
+      //	      boost::get< se3::JointDataRX&>(data.joints[i]),
+      //	      i,q,v,a);
+      RneaForwardStepVisitor::run(model,data,model.joints[i],data.joints[i],i,q,v,a);
     }
 
   for( int i=model.nbody-1;i>0;--i )
     {
-      rneaBackwardStep(model,data,model.joints[i],data.joints[i],i);
+      //rneaBackwardStep(model,data,model.joints[i],data.joints[i],i);
+      //RneaBackwardStepVisitor::run(model,data,model.joints[i],data.joints[i],i);
     }
     }
   timer.toc(std::cout,1000);
