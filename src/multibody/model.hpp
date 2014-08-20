@@ -108,21 +108,20 @@ namespace se3
   {
     assert( (nbody==(int)joints.size())&&(nbody==(int)inertias.size())
 	    &&(nbody==(int)parents.size())&&(nbody==(int)jointPlacements.size()) );
-    assert( (j.nq()>=0)&&(j.nv()>=0) );
+    assert( (j.nq>=0)&&(j.nv>=0) );
 
     Index idx = nbody ++;
 
     joints         .push_back(j.derived()); 
-    boost::get<D&>(joints.back()).setIndex(nq,nv);
-    //joints.back().setIndex(nq,nv);
+    boost::get<D&>(joints.back()).setIndexes(nq,nv);
 
     inertias       .push_back(Y);
     parents        .push_back(parent);
     jointPlacements.push_back(placement);
     names          .push_back( (name!="")?name:random(8) );
 
-    nq += j.nq();
-    nv += j.nv();
+    nq += j.nq;
+    nv += j.nv;
     return idx;
   }
   Model::Index Model::getBodyId( const std::string & name ) const
@@ -146,7 +145,7 @@ namespace se3
     ,f(ref.nbody)
     ,oMi(ref.nbody)
     ,liMi(ref.nbody)
-    ,tau(ref.nbody)
+    ,tau(ref.nv)
   {
     for(int i=0;i<model.nbody;++i) 
       //joints.push_back(model.joints[i].createData());

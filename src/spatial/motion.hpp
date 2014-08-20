@@ -95,12 +95,6 @@ namespace se3
 	  m_w.cross(phi.angular())+m_v.cross(phi.linear()) );
     }
 
-
-    // template<typename S,int O>
-    // friend MotionTpl<S,O> operator^( const MotionTpl<S,O> &, const MotionTpl<S,O> & );
-    // template<typename S,int O>
-    // friend ForceTpl<S,O> operator^( const MotionTpl<S,O> &, const ForceTpl<S,O> & );
-
     MotionTpl se3Action(const SE3 & m) const
     {
       Vector3 Rw = static_cast<Vector3>(m.rotation() * angular());
@@ -112,9 +106,6 @@ namespace se3
       return MotionTpl(m.rotation().transpose()*(linear()-m.translation().cross(angular())),
 		       m.rotation().transpose()*angular());
     }
-
-
-
 
     friend std::ostream & operator << (std::ostream & os, const MotionTpl & mv)
     {
@@ -128,6 +119,11 @@ namespace se3
     Vector3 m_w;
     Vector3 m_v;
   };
+
+  template<typename S,int O>
+  MotionTpl<S,O> operator^( const MotionTpl<S,O> &m1, const MotionTpl<S,O> &m2 ) { return m1.cross(m2); }
+  template<typename S,int O>
+  ForceTpl<S,O> operator^( const MotionTpl<S,O> &m, const ForceTpl<S,O> &f ) { return m.cross(f); }
 
   typedef MotionTpl<double> Motion;
 
