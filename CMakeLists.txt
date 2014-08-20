@@ -36,6 +36,7 @@ SET(${PROJECT_NAME}_HEADERS
   spatial/inertia.hpp
   spatial/fwd.hpp
   spatial/skew.hpp
+  multibody/constraint.hpp
   multibody/joint.hpp
   multibody/model.hpp
   tools/timer.hpp
