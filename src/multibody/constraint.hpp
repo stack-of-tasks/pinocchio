@@ -14,35 +14,41 @@ namespace se3
   template<int _Dim, typename _Scalar, int _Options>
   class ConstraintTpl
   { 
+  public:
     enum { nv = _Dim, Options = _Options };
     typedef _Scalar Scalar;
-    typedef Eigen::Matrix<Scalar,nv,6> S;
 
     typedef Eigen::Matrix<Scalar,nv,1,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,nv,1,Options> JointForce;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
-
+    typedef Eigen::Matrix<Scalar,6,nv> DenseBase;
   public:
-    template<D>
-    ConstraintTpl( const Eigen::MatrixBase<D> & _S ) : S(_S)
-    {  EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(S,_S); }
+    template<typename D>
+    ConstraintTpl( const Eigen::MatrixBase<D> & _S ) : S(_S) {}
+    //{  EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(S,_S); }
 
-    ConstraintTpl() : S() { s.fill(nan); } 
+    ConstraintTpl() : S() { S.fill( NAN ); } 
 
 
-    Motion operator* (const JointMotion& vj)
+    Motion operator* (const JointMotion& vj) const
     { return Motion(S*vj); }
 
     struct Transpose
     {
-      ConstraintTpl & ref;
-      Transpose( ConstraintTpl & ref ) : ref(ref) {}
+      const ConstraintTpl & ref;
+      Transpose( const ConstraintTpl & ref ) : ref(ref) {}
 
-      Force operator* (const Force& f)
-      { return S.transpose()*f.toVector(); }
+      JointForce operator* (const Force& f) const
+      { return ref.S.transpose()*f.toVector(); }
     };
-    Transpose transpose() { return Transpose(*this); }
+    Transpose transpose() const { return Transpose(*this); }
+
+    DenseBase & matrix() { return S; }
+    const DenseBase & matrix() const { return S; }
+
+  private:
+    DenseBase S;
   };
 
 };

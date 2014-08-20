@@ -31,7 +31,7 @@ void rneaForwardStep(const se3::Model& model,
   data.v[i] = jdata.v();
   if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
 
-  data.a[i] =  Motion(jdata.S()*jdata.qdd()) + jdata.c() + data.v[i].cross(jdata.v()); 
+  data.a[i] =  jdata.S()*jdata.qdd() + jdata.c() + (data.v[i] ^ jdata.v()) ; 
   if(parent>0) data.a[i] += data.liMi[i].actInv(data.a[parent]);
   
   data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
@@ -48,9 +48,10 @@ void rneaBackwardStep(const se3::Model& model,
   using namespace se3;
   
   const Model::Index & parent = model.parents[i];      
-  data.tau.segment(jmodel.idx_v(),jmodel.nv()) = jdata.S().transpose()*data.f[i].toVector();
+  data.tau.segment(jmodel.idx_v(),jmodel.nv) = jdata.S().transpose()*data.f[i];
   if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
 }
+
 
 
 struct RneaForwardStepVisitor : public boost::static_visitor<>
@@ -128,7 +129,7 @@ int main()
 
 
   se3::Model model;
-  model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Random(),Inertia::Random(),"root");
+  model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Random(),Inertia::Random(),"root");
 
 
   model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg1");
@@ -194,7 +195,7 @@ int main()
   for( int i=model.nbody-1;i>0;--i )
     {
       //rneaBackwardStep(model,data,model.joints[i],data.joints[i],i);
-      //RneaBackwardStepVisitor::run(model,data,model.joints[i],data.joints[i],i);
+      RneaBackwardStepVisitor::run(model,data,model.joints[i],data.joints[i],i);
     }
     }
   timer.toc(std::cout,1000);
