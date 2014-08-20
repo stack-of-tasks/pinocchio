@@ -5,6 +5,8 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include <Eigen/Geometry>
+#include <Eigen/StdVector>
+#include <boost/variant.hpp>
 
 namespace se3
 {
@@ -21,7 +23,7 @@ namespace se3
     typedef typename traits<JointData>::JointMotion_t JointMotion_t;
 
     JointData& derived() { return *static_cast<JointData*>(this); }
-    const JointData& derived() const { return *static_cast<JointData*>(this); }
+    const JointData& derived() const { return *static_cast<const JointData*>(this); }
 
     const Constraint_t     & S()   { return static_cast<JointData*>(this)->S;   }
     const Transformation_t & M()   { return static_cast<JointData*>(this)->M;   }
@@ -32,22 +34,30 @@ namespace se3
 
 
 
-  template<typename Joint>
+  template<typename JointModel>
   struct JointModelBase
   {
-    typedef typename traits<Joint>::JointData JointData;
+    typedef typename traits<JointModel>::JointData JointData;
 
-    JointData createData() const { return static_cast<const Joint*>(this)->createData(); }
+    JointModel& derived() { return *static_cast<JointModel*>(this); }
+    const JointModel& derived() const { return *static_cast<const JointModel*>(this); }
+
+    JointData createData() const { return static_cast<const JointModel*>(this)->createData(); }
     void calc( JointData& data, 
 	       const Eigen::VectorXd & qs, 
 	       const Eigen::VectorXd & vs, 
 	       const Eigen::VectorXd & as ) const
-    { return static_cast<const Joint*>(this)->calc(data,qs,vs,as); }
+    { return static_cast<const JointModel*>(this)->calc(data,qs,vs,as); }
 
-    int idx_q() const { return static_cast<const Joint *>(this)->idx_q; }
-    int idx_v() const { return static_cast<const Joint *>(this)->idx_v; }
-    int nq()    const { return static_cast<const Joint *>(this)->nq;    }
-    int nv()    const { return static_cast<const Joint *>(this)->nv;    }
+    int idx_q() const { return static_cast<const JointModel *>(this)->idx_q; }
+    int idx_v() const { return static_cast<const JointModel *>(this)->idx_v; }
+    int nq()    const { return static_cast<const JointModel *>(this)->nq;    }
+    int nv()    const { return static_cast<const JointModel *>(this)->nv;    }
+    void setIndex(int q,int v)
+    {
+      derived().idx_q = q;
+      derived().idx_v = v;
+    }
   };
 
 
@@ -233,5 +243,36 @@ namespace se3
   };
 
 } // namespace se3
+
+namespace se3
+{
+  /* --- VARIANT ------------------------------------------------------------ */
+  /* --- VARIANT ------------------------------------------------------------ */
+  /* --- VARIANT ------------------------------------------------------------ */
+
+  typedef boost::variant< JointModelRX,JointModelFreeFlyer> JointModelVariant;
+  typedef boost::variant< JointDataRX,JointDataFreeFlyer> JointDataVariant;
+
+  typedef std::vector<JointModelVariant> JointModelVector;
+  typedef std::vector<JointDataVariant> JointDataVector;
+
+  class CreateJointData: public boost::static_visitor<JointDataVariant>
+  {
+  public:
+    template<typename D>
+    JointDataVariant operator()(const JointModelBase<D> & jmodel) const
+    { return JointDataVariant(jmodel.createData()); }
+    
+    static JointDataVariant run( const JointModelVariant & jmodel)
+    { return boost::apply_visitor( CreateJointData(), jmodel ); }
+  };
+
+} // namespace se3
+
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointModelRX);
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointDataRX);
+
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointModelVariant);
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointDataVariant);
 
 #endif // ifndef __se3_joint_hpp__
