@@ -37,7 +37,7 @@ namespace se3
   {
     typedef typename traits<Joint>::JointData JointData;
 
-    JointData createData() const { return static_cast<Joint*>(this)->createData(); }
+    JointData createData() const { return static_cast<const Joint*>(this)->createData(); }
     void calc( JointData& data, 
 	       const Eigen::VectorXd & qs, 
 	       const Eigen::VectorXd & vs, 
@@ -51,11 +51,17 @@ namespace se3
   };
 
 
-  /* --- REVOLUTE X --------------------------------------------------------- */
-  /* --- REVOLUTE X --------------------------------------------------------- */
-  /* --- REVOLUTE X --------------------------------------------------------- */
   struct JointDataRX;
   struct JointModelRX;
+
+  struct JointDataFreeFlyer;
+  struct JointModelFreeFlyer;
+
+
+
+  /* --- REVOLUTE X --------------------------------------------------------- */
+  /* --- REVOLUTE X --------------------------------------------------------- */
+  /* --- REVOLUTE X --------------------------------------------------------- */
 
   template<>
   struct traits<JointDataRX>
@@ -93,6 +99,8 @@ namespace se3
     JointDataRX() : M(1)
    {
       S << 0,0,0,1,0,0;
+      M.translation(SE3::Vector3::Zero());
+      v.linear(Motion::Vector3::Zero());
     }
   };
 
@@ -141,6 +149,88 @@ namespace se3
 
   };
 
+
+
+  /* --- REVOLUTE FF -------------------------------------------------------- */
+  /* --- REVOLUTE FF -------------------------------------------------------- */
+  /* --- REVOLUTE FF -------------------------------------------------------- */
+
+  template<>
+  struct traits<JointDataFreeFlyer>
+  {
+    struct BiasZero {};
+    friend const Motion & operator+ ( const Motion& v, const BiasZero&) { return v; }
+   
+    typedef Eigen::Matrix<double,6,6> Matrix6;
+    typedef Eigen::Quaternion<double> Quaternion;
+    typedef Eigen::Matrix<double,3,1> Vector3;
+
+    typedef Matrix6 Constraint_t;
+    typedef SE3 Transformation_t;
+    typedef Motion Velocity_t;
+    typedef BiasZero Bias_t;
+    typedef JointModelFreeFlyer JointModel;
+    typedef Eigen::Matrix<double,6,1> JointMotion_t;
+  };
+
+  struct JointDataFreeFlyer : public JointDataBase<JointDataFreeFlyer>
+  {
+    typedef typename traits<JointDataFreeFlyer>::Constraint_t Constraint_t;
+    typedef typename traits<JointDataFreeFlyer>::Transformation_t Transformation_t;
+    typedef typename traits<JointDataFreeFlyer>::Velocity_t Velocity_t;
+    typedef typename traits<JointDataFreeFlyer>::Bias_t Bias_t;
+    typedef typename traits<JointDataFreeFlyer>::JointMotion_t JointMotion_t;
+    typedef typename traits<JointDataFreeFlyer>::JointModel JointModel;
+
+    typedef Eigen::Matrix<double,6,6> Matrix6;
+    typedef Eigen::Quaternion<double> Quaternion;
+    typedef Eigen::Matrix<double,3,1> Vector3;
+    
+    Constraint_t S;
+    Transformation_t M;
+    Velocity_t v;
+    Bias_t c;
+    JointMotion_t qdd;
+
+    Quaternion rotation;
+
+    JointDataFreeFlyer() : M(1)
+    {
+     S = Eigen::Matrix<double,6,6>::Identity();
+    }
+  };
+
+  template<>
+  struct traits<JointModelFreeFlyer>
+  {
+    typedef JointDataFreeFlyer JointData;
+  };
+
+  struct JointModelFreeFlyer : public JointModelBase<JointModelFreeFlyer>
+  {
+    typedef traits<JointModelFreeFlyer>::JointData JointData;
+
+    static const int nq = 7;
+    static const int nv = 6;
+    int idx_q,idx_v;
+
+    JointModelFreeFlyer() : idx_q(-1),idx_v(-1) {} // Default constructor for std::vector
+    JointModelFreeFlyer( int index_q,int index_v ) : idx_q(index_q),idx_v(index_v) {}
+
+    JointData createData() const { return JointData(); }
+    void calc( JointData& data, 
+	       const Eigen::VectorXd & qs, 
+	       const Eigen::VectorXd & vs, 
+	       const Eigen::VectorXd & as ) const
+    {
+      Eigen::VectorXd::ConstFixedSegmentReturnType<nq>::Type q = qs.segment<nq>(idx_q);
+      data.v = vs .segment<nv>(idx_v);
+      data.qdd = as.segment<nv>(idx_v);
+
+      JointData::Quaternion quat(Eigen::Matrix<double,4,1>(q.tail(4)));
+      data.M = SE3(quat.matrix(),q.head<3>());
+    }
+  };
 
 } // namespace se3
 
