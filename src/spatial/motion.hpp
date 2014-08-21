@@ -48,8 +48,10 @@ namespace se3
     void linear (const Vector3 & v) { m_v=v; }
 
     // Arithmetic operators
-    MotionTpl & operator=(const Vector6 & v)
+    template<typename D>
+    MotionTpl & operator=(const Eigen::MatrixBase<D> & v)
     {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,6);
       m_w = v.template segment<3>(ANGULAR);
       m_v = v.template segment<3>(LINEAR);
       return *this;
