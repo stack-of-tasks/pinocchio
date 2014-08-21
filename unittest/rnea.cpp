@@ -20,7 +20,7 @@ void rneaForwardStep(const se3::Model& model,
   using namespace Eigen;
   using namespace se3;
 
-  jmodel.calc(jdata.derived(),q,v,a);
+  jmodel.calc(jdata.derived(),q,v);
   
   const Model::Index & parent = model.parents[i];
   data.liMi[i] = model.jointPlacements[i]*jdata.M();
@@ -31,7 +31,8 @@ void rneaForwardStep(const se3::Model& model,
   data.v[i] = jdata.v();
   if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
 
-  data.a[i] =  jdata.S()*jdata.qdd() + jdata.c() + (data.v[i] ^ jdata.v()) ; 
+  jmodel.jointMotion(a);
+  //data.a[i] =  jdata.S()*jmodel.jointMotion(a) + jdata.c() + (data.v[i] ^ jdata.v()) ; 
   if(parent>0) data.a[i] += data.liMi[i].actInv(data.a[parent]);
   
   data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
@@ -48,7 +49,7 @@ void rneaBackwardStep(const se3::Model& model,
   using namespace se3;
   
   const Model::Index & parent = model.parents[i];      
-  data.tau.segment(jmodel.idx_v(),jmodel.nv) = jdata.S().transpose()*data.f[i];
+  jmodel.jointForce(data.tau) = jdata.S().transpose()*data.f[i];
   if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
 }
 
@@ -131,7 +132,6 @@ int main()
   se3::Model model;
   model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Random(),Inertia::Random(),"root");
 
-
   model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg1");
   model.addBody(model.getBodyId("rleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg2");
   model.addBody(model.getBodyId("rleg2"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg3");
@@ -148,12 +148,12 @@ int main()
 
   model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"torso1");
   model.addBody(model.getBodyId("torso1"),JointModelRX(),SE3::Random(),Inertia::Random(),"torso2");
-  model.addBody(model.getBodyId("torso2"),JointModelRX(),SE3::Random(),Inertia::Random(),"torso3");
-  model.addBody(model.getBodyId("torso3"),JointModelRX(),SE3::Random(),Inertia::Random(),"neck1");
+  //model.addBody(model.getBodyId("torso2"),JointModelRX(),SE3::Random(),Inertia::Random(),"torso3");
+  model.addBody(model.getBodyId("torso2"),JointModelRX(),SE3::Random(),Inertia::Random(),"neck1");
   model.addBody(model.getBodyId("neck1"),JointModelRX(),SE3::Random(),Inertia::Random(),"neck2");
-  model.addBody(model.getBodyId("neck2"),JointModelRX(),SE3::Random(),Inertia::Random(),"neck3");
+  //model.addBody(model.getBodyId("neck2"),JointModelRX(),SE3::Random(),Inertia::Random(),"neck3");
 
-  model.addBody(model.getBodyId("torso3"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm1");
+  model.addBody(model.getBodyId("torso2"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm1");
   model.addBody(model.getBodyId("rarm1"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm2");
   model.addBody(model.getBodyId("rarm2"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm3");
   model.addBody(model.getBodyId("rarm3"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm4");
@@ -161,7 +161,7 @@ int main()
   model.addBody(model.getBodyId("rarm5"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm6");
   model.addBody(model.getBodyId("rarm6"),JointModelRX(),SE3::Random(),Inertia::Random(),"rgrip");
 
-  model.addBody(model.getBodyId("torso3"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm1");
+  model.addBody(model.getBodyId("torso2"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm1");
   model.addBody(model.getBodyId("larm1"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm2");
   model.addBody(model.getBodyId("larm2"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm3");
   model.addBody(model.getBodyId("larm3"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm4");
