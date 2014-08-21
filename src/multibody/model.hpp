@@ -24,19 +24,18 @@ namespace se3
   public:
     typedef int Index;
 
-    int nq;
-    int nv;
-    int nbody;
+    int nq;                            // Dimension of the configuration representation
+    int nv;                            // Dimension of the velocity vector space
+    int nbody;                         // Number of bodies (= number of joints + 1)
 
-    std::vector<Inertia> inertias;
-    std::vector<SE3> jointPlacements;
-    JointModelVector joints;
-    //std::vector<JointModelRX> joints;
-    std::vector<Index> parents;
-    std::vector<std::string> names;
+    std::vector<Inertia> inertias;     // Spatial inertias of the body <i> in the supporting joint frame <i>
+    std::vector<SE3> jointPlacements;  // Placement (SE3) of the input of joint <i> in parent joint output <li>
+    JointModelVector joints;           // Model of joint <i>
+    std::vector<Index> parents;        // Joint parent of joint <i>, denoted <li> (li==parents[i])
+    std::vector<std::string> names;    // name of the body attached to the output of joint <i>
 
-    Motion gravity;
-    static const Eigen::Vector3d gravity981;
+    Motion gravity;                    // Spatial gravity
+    static const Eigen::Vector3d gravity981; // Default 3D gravity (=(0,0,9.81))
 
     Model()
       : nq(0)
@@ -65,7 +64,6 @@ namespace se3
     
     const Model& model;
     JointDataVector joints;
-    //std::vector<JointDataRX> joints;
     std::vector<Motion> a;                // Body acceleration
     std::vector<Motion> v;                // Body velocity
     std::vector<Force> f;                 // Body force
@@ -127,7 +125,7 @@ namespace se3
   Model::Index Model::getBodyId( const std::string & name ) const
   {
     Index res = std::find(names.begin(),names.end(),name) - names.begin();
-    assert( (res>=0)&&(res<nbody) );
+    assert( (res>=0)&&(res<nbody)&&"The body name you asked do not exist" );
     return res;
   }
   
@@ -148,7 +146,6 @@ namespace se3
     ,tau(ref.nv)
   {
     for(int i=0;i<model.nbody;++i) 
-      //joints.push_back(model.joints[i].createData());
       joints.push_back(CreateJointData::run(model.joints[i]));
   }
 

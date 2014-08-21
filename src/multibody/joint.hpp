@@ -30,9 +30,8 @@ namespace se3
   typedef typename traits<Joint>::JointModel JointModel; \
   typedef typename traits<Joint>::Constraint_t Constraint_t; \
   typedef typename traits<Joint>::Transformation_t Transformation_t; \
-  typedef typename traits<Joint>::Velocity_t Velocity_t; \
+  typedef typename traits<Joint>::Motion_t Motion_t; \
   typedef typename traits<Joint>::Bias_t Bias_t; \
-  typedef typename traits<Joint>::JointMotion_t JointMotion_t; \
   enum { \
     nq = traits<Joint>::nq, \
     nv = traits<Joint>::nv \
@@ -49,9 +48,8 @@ namespace se3
 
     const Constraint_t     & S()   { return static_cast<JointData*>(this)->S;   }
     const Transformation_t & M()   { return static_cast<JointData*>(this)->M;   }
-    const Velocity_t       & v()   { return static_cast<JointData*>(this)->v;   }
+    const Motion_t       & v()   { return static_cast<JointData*>(this)->v;   }
     const Bias_t           & c()   { return static_cast<JointData*>(this)->c;   }
-    const JointMotion_t    & qdd() { return static_cast<JointData*>(this)->qdd; }
   };
 
 
@@ -68,9 +66,8 @@ namespace se3
     JointData createData() const { return static_cast<const JointModel*>(this)->createData(); }
     void calc( JointData& data, 
 	       const Eigen::VectorXd & qs, 
-	       const Eigen::VectorXd & vs, 
-	       const Eigen::VectorXd & as ) const
-    { return static_cast<const JointModel*>(this)->calc(data,qs,vs,as); }
+	       const Eigen::VectorXd & vs ) const
+    { return static_cast<const JointModel*>(this)->calc(data,qs,vs); }
 
   private:
     int i_q,i_v;
@@ -78,12 +75,30 @@ namespace se3
     const int & idx_q() const { return i_q; }
     const int & idx_v() const { return i_v; }
     void setIndexes(int q,int v) { i_q = q; i_v = v; }
+
+    // typename Eigen::VectorXd::ConstFixedSegmentReturnType<nv>::Type jointMotion(const Eigen::VectorXd & a) const 
+    // {
+    //   return a.template segment<nv>(i_v);
+    // }
+    // typename Eigen::VectorXd::FixedSegmentReturnType<nv>::Type jointForce(Eigen::VectorXd & tau) const 
+    // {
+    //   return tau.template segment<nv>(i_v);
+    // }
+
+    template<typename D>
+    typename D::template ConstFixedSegmentReturnType<nv>::Type jointMotion(const Eigen::MatrixBase<D>& a) const 
+    { return a.template segment<nv>(i_v); }
+    template<typename D>
+    typename D::template FixedSegmentReturnType<nv>::Type jointMotion(Eigen::MatrixBase<D>& a) const 
+    { return a.template segment<nv>(i_v); }
+    template<typename D>
+    typename D::template ConstFixedSegmentReturnType<nv>::Type jointForce(const Eigen::MatrixBase<D>& tau) const 
+    { return tau.template segment<nv>(i_v); }
+    template<typename D>
+    typename D::template FixedSegmentReturnType<nv>::Type jointForce(Eigen::MatrixBase<D>& tau) const 
+    { return tau.template segment<nv>(i_v); }
   };
 
-
-
-  struct JointDataFreeFlyer;
-  struct JointModelFreeFlyer;
 
 
 
@@ -110,6 +125,7 @@ namespace se3
 	return Motion(Motion::Vector3::Zero(),Motion::Vector3(wx,0,0));
       }
     }; // struct MotionRX
+
     friend const MotionRX& operator+ (const MotionRX& m, const BiasZero&) { return m; }
     friend Motion operator+( const MotionRX& m1, const Motion& m2)
     {
@@ -130,7 +146,7 @@ namespace se3
     }
 
     struct ConstraintRX
-   { 
+    { 
       template<typename D>
       MotionRX operator*( const Eigen::MatrixBase<D> & v ) const { return MotionRX(v[0]); }
 
@@ -148,14 +164,10 @@ namespace se3
   {
     typedef JointDataRX JointData;
     typedef JointModelRX JointModel;
-    //typedef ConstraintTpl<1,double,0> Constraint_t;
     typedef typename JointRX::ConstraintRX Constraint_t;
     typedef SE3 Transformation_t;
-    //typedef Motion Velocity_t;
-    typedef JointRX::MotionRX Velocity_t;
+    typedef JointRX::MotionRX Motion_t;
     typedef JointRX::BiasZero Bias_t;
-    //typedef Constraint_t::JointMotion JointMotion_t;
-    typedef Eigen::Matrix<double,1,1> JointMotion_t;
     enum {
       nq = 1,
       nv = 1
@@ -172,15 +184,12 @@ namespace se3
 
     Constraint_t S;
     Transformation_t M;
-    Velocity_t v;
+    Motion_t v;
     Bias_t c;
-    JointMotion_t qdd;
 
-    JointDataRX() : S(),M(1)
+    JointDataRX() : M(1)
     {
-      //S.matrix() << 0,0,0,1,0,0;
       M.translation(SE3::Vector3::Zero());
-      //v.linear(Motion::Vector3::Zero());
     }
   };
 
@@ -196,15 +205,12 @@ namespace se3
     JointData createData() const { return JointData(); }
     void calc( JointData& data, 
 	       const Eigen::VectorXd & qs, 
-	       const Eigen::VectorXd & vs, 
-	       const Eigen::VectorXd & as ) const
+	       const Eigen::VectorXd & vs ) const
     {
       const double & q = qs[idx_q()];
       const double & v = vs[idx_v()];
-      data.qdd[0] = as[idx_v()];
 
       data.M.rotation(rotationX(q));
-      //data.v.angular(Eigen::Vector3d(v,0,0));
       data.v.wx = v;
     }
 
@@ -226,6 +232,10 @@ namespace se3
   /* --- REVOLUTE FF -------------------------------------------------------- */
   /* --- REVOLUTE FF -------------------------------------------------------- */
   /* --- REVOLUTE FF -------------------------------------------------------- */
+
+
+  struct JointDataFreeFlyer;
+  struct JointModelFreeFlyer;
 
   struct JointFreeFlyer 
   {
@@ -258,9 +268,8 @@ namespace se3
     typedef JointModelFreeFlyer JointModel;
     typedef JointFreeFlyer::ConstraintIdentity Constraint_t;
     typedef SE3 Transformation_t;
-    typedef Motion Velocity_t;
+    typedef Motion Motion_t;
     typedef JointFreeFlyer::BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,1> JointMotion_t;
     enum {
       nq = 7,
       nv = 6
@@ -280,9 +289,8 @@ namespace se3
     
     Constraint_t S;
     Transformation_t M;
-    Velocity_t v;
+    Motion_t v;
     Bias_t c;
-    JointMotion_t qdd;
 
     JointDataFreeFlyer() : M(1)
     {
@@ -297,12 +305,10 @@ namespace se3
     JointData createData() const { return JointData(); }
     void calc( JointData& data, 
 	       const Eigen::VectorXd & qs, 
-	       const Eigen::VectorXd & vs, 
-	       const Eigen::VectorXd & as ) const
+	       const Eigen::VectorXd & vs ) const
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<nq>::Type q = qs.segment<nq>(idx_q());
       data.v = vs.segment<nv>(idx_v());
-      data.qdd = as.segment<nv>(idx_v());
 
       JointData::Quaternion quat(Eigen::Matrix<double,4,1>(q.tail(4))); // TODO
       data.M = SE3(quat.matrix(),q.head<3>());
