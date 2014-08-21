@@ -13,6 +13,18 @@ namespace se3
 {
   template<class C> struct traits {};
 
+  /*
+   * *** FORWARD ***
+   * J::calc()
+   * SE3    = SE3 * J::SE3
+   * Motion = J::Motion
+   * Motion = J::Constraint*J::JointMotion + J::Bias + Motion^J::Motion
+   * Force  = Inertia*Motion  + Inertia.vxiv(Motion)
+   *
+   * *** BACKWARD *** 
+   * J::JointForce = J::Constraint::Transpose*J::Force
+   */
+
 #define SE3_JOINT_TYPEDEF \
   typedef typename traits<Joint>::JointData JointData; \
   typedef typename traits<Joint>::JointModel JointModel; \
@@ -86,6 +98,49 @@ namespace se3
     struct BiasZero {};
     friend const Motion & operator+ ( const Motion& v, const BiasZero&) { return v; }
     friend const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
+
+    struct MotionRX 
+    {
+      MotionRX()                    : wx(NAN) {}
+      MotionRX( const double & wx ) : wx(wx)  {}
+      double wx;
+
+      operator Motion() const
+      { 
+	return Motion(Motion::Vector3::Zero(),Motion::Vector3(wx,0,0));
+      }
+    }; // struct MotionRX
+    friend const MotionRX& operator+ (const MotionRX& m, const BiasZero&) { return m; }
+    friend Motion operator+( const MotionRX& m1, const Motion& m2)
+    {
+      return Motion( m2.linear(),m2.angular()+Eigen::Vector3d::UnitX()*m1.wx); 
+    }    
+    friend Motion operator^( const Motion& m1, const MotionRX& m2)
+    {
+      /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
+       * nu1^(0,w2) = ( v1^w2      , w1^w2 )
+       * (x,y,z)^(0,0,w) = ( 0,zw,-yw )
+       * nu1^(0,wx) = ( 0,vz1 wx,-vy1 wx,    0,wz1 wx,-wy1 wx)
+       */
+      const Motion::Vector3& v = m1.linear();
+      const Motion::Vector3& w = m1.angular();
+      const double & wx = m2.wx;
+      return Motion( Motion::Vector3(0,v[2]*wx,-v[1]*wx),
+		     Motion::Vector3(0,w[2]*wx,-w[1]*wx) );
+    }
+
+    struct ConstraintRX
+   { 
+      template<typename D>
+      MotionRX operator*( const Eigen::MatrixBase<D> & v ) const { return MotionRX(v[0]); }
+
+      const ConstraintRX & transpose() const { return *this; }
+     //template<typename D> D operator*( const Force& f ) const
+     Force::Vector3::ConstFixedSegmentReturnType<1>::Type
+     operator*( const Force& f ) const
+     { return f.angular().head<1>(); }
+    }; // struct ConstraintRX
+
   };
 
   template<>
@@ -93,11 +148,14 @@ namespace se3
   {
     typedef JointDataRX JointData;
     typedef JointModelRX JointModel;
-    typedef ConstraintTpl<1,double,0> Constraint_t;
+    //typedef ConstraintTpl<1,double,0> Constraint_t;
+    typedef typename JointRX::ConstraintRX Constraint_t;
     typedef SE3 Transformation_t;
-    typedef Motion Velocity_t;
+    //typedef Motion Velocity_t;
+    typedef JointRX::MotionRX Velocity_t;
     typedef JointRX::BiasZero Bias_t;
-    typedef Constraint_t::JointMotion JointMotion_t;
+    //typedef Constraint_t::JointMotion JointMotion_t;
+    typedef Eigen::Matrix<double,1,1> JointMotion_t;
     enum {
       nq = 1,
       nv = 1
@@ -120,9 +178,9 @@ namespace se3
 
     JointDataRX() : S(),M(1)
     {
-      S.matrix() << 0,0,0,1,0,0;
+      //S.matrix() << 0,0,0,1,0,0;
       M.translation(SE3::Vector3::Zero());
-      v.linear(Motion::Vector3::Zero());
+      //v.linear(Motion::Vector3::Zero());
     }
   };
 
@@ -146,7 +204,8 @@ namespace se3
       data.qdd[0] = as[idx_v()];
 
       data.M.rotation(rotationX(q));
-      data.v.angular(Eigen::Vector3d(v,0,0));
+      //data.v.angular(Eigen::Vector3d(v,0,0));
+      data.v.wx = v;
     }
 
     static inline Eigen::Matrix3d rotationX(const double & angle) 
@@ -242,7 +301,7 @@ namespace se3
 	       const Eigen::VectorXd & as ) const
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<nq>::Type q = qs.segment<nq>(idx_q());
-      data.v = vs .segment<nv>(idx_v());
+      data.v = vs.segment<nv>(idx_v());
       data.qdd = as.segment<nv>(idx_v());
 
       JointData::Quaternion quat(Eigen::Matrix<double,4,1>(q.tail(4))); // TODO

@@ -72,6 +72,9 @@ PKG_CONFIG_USE_DEPENDENCY(tspatial eigenpy)
 ADD_EXECUTABLE(rnea EXCLUDE_FROM_ALL unittest/rnea.cpp)
 PKG_CONFIG_USE_DEPENDENCY(rnea eigenpy)
 
+ADD_EXECUTABLE(dg EXCLUDE_FROM_ALL unittest/dg.cpp)
+PKG_CONFIG_USE_DEPENDENCY(dg eigenpy)
+
 ADD_EXECUTABLE(variant EXCLUDE_FROM_ALL unittest/variant.cpp)
 PKG_CONFIG_USE_DEPENDENCY(variant eigenpy)
 
