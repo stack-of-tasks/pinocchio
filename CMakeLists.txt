@@ -39,6 +39,7 @@ SET(${PROJECT_NAME}_HEADERS
   multibody/constraint.hpp
   multibody/joint.hpp
   multibody/model.hpp
+  multibody/visitor.hpp
   tools/timer.hpp
 )
 
