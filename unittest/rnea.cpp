@@ -32,7 +32,7 @@ void rneaForwardStep(const se3::Model& model,
   if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
 
   jmodel.jointMotion(a);
-  //data.a[i] =  jdata.S()*jmodel.jointMotion(a) + jdata.c() + (data.v[i] ^ jdata.v()) ; 
+  data.a[i] =  jdata.S()*jmodel.jointMotion(a) + jdata.c() + (data.v[i] ^ jdata.v()) ; 
   if(parent>0) data.a[i] += data.liMi[i].actInv(data.a[parent]);
   
   data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
@@ -48,8 +48,8 @@ void rneaBackwardStep(const se3::Model& model,
   using namespace Eigen;
   using namespace se3;
   
-  const Model::Index & parent = model.parents[i];      
-  jmodel.jointForce(data.tau) = jdata.S().transpose()*data.f[i];
+  const Model::Index & parent  = model.parents[i];      
+  jmodel.jointForce(data.tau)  = jdata.S().transpose()*data.f[i];
   if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
 }
 
@@ -122,9 +122,19 @@ struct RneaBackwardStepVisitor : public boost::static_visitor<>
 
 };
 
+//#define __SSE3__
+#include <fenv.h>
+#ifdef __SSE3__
+#include <pmmintrin.h>
+#endif
 
 int main()
 {
+#ifdef __SSE3__
+_MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
+#endif
+
+
   using namespace Eigen;
   using namespace se3;
 
