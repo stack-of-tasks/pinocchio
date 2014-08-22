@@ -55,11 +55,8 @@ namespace se3
     template<typename D>
     void operator() (const JointModelBase<D> & jmodel) const
     {
-
-      bf::invoke( &RneaForwardStep::algo<D>,
-		  bf::push_front(bf::push_front(args,
-						boost::ref(boost::get<typename D::JointData&>(jdata))),
-				 boost::cref(jmodel)) );
+      bf::invoke(&RneaForwardStep::algo<D>,
+		 bf::append2(jmodel,boost::ref(boost::get<typename D::JointData&>(jdata)),args));
     }
 
     static void run(const JointModelVariant & jmodel,
@@ -67,7 +64,6 @@ namespace se3
 		    Args args)
     {
       return boost::apply_visitor( RneaForwardStep(jdata,args),jmodel );
-
     }
     
     template<typename JointModel>
@@ -104,23 +100,9 @@ namespace se3
   };
 
 
-template<typename JointModel>
-void rneaBackwardStep(const JointModelBase<JointModel> & jmodel,
-		      JointDataBase<typename JointModel::JointData> & jdata,
-		      const Model& model,
-		      Data& data,
-		      int i)
-{
-  using namespace Eigen;
-  using namespace se3;
-  
-  const Model::Index & parent  = model.parents[i];      
-  jmodel.jointForce(data.tau)  = jdata.S().transpose()*data.f[i];
-  if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
-}
 
 
-struct RneaBackwardStepVisitor : public boost::static_visitor<>
+struct RneaBackwardStep : public boost::static_visitor<>
 {
   typedef bf::vector<const Model& ,
 		     Data& ,
@@ -128,19 +110,32 @@ struct RneaBackwardStepVisitor : public boost::static_visitor<>
   JointDataVariant& jdata;
   Args args;
 
-  RneaBackwardStepVisitor( JointDataVariant& jdata, Args args)
+  RneaBackwardStep( JointDataVariant& jdata, Args args)
     : jdata(jdata),args(args) {}
 
   template <typename D>
   void operator()(const JointModelBase<D> & jmodel) const
   {
-    bf::invoke(&rneaBackwardStep<D>,bf::append2(jmodel,boost::ref(boost::get<typename D::JointData&>(jdata)),args));
+    bf::invoke(&RneaBackwardStep::algo<D>,
+	       bf::append2(jmodel,boost::ref(boost::get<typename D::JointData&>(jdata)),args));
   }
 
   static void run( const JointModelVariant & jmodel, 
 		   JointDataVariant & jdata,
 		   Args args)
-  {  boost::apply_visitor( RneaBackwardStepVisitor(jdata,args),jmodel ); }
+  {  boost::apply_visitor( RneaBackwardStep(jdata,args),jmodel ); }
+
+  template<typename JointModel>
+  static void algo(const JointModelBase<JointModel> & jmodel,
+	    JointDataBase<typename JointModel::JointData> & jdata,
+	    const Model& model,
+	    Data& data,
+	    int i)
+  {
+    const Model::Index & parent  = model.parents[i];      
+    jmodel.jointForce(data.tau)  = jdata.S().transpose()*data.f[i];
+    if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
+  }
 };
 
 } // namespace se3
@@ -216,23 +211,14 @@ _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
     {
   for( int i=1;i<model.nbody;++i )
     {
-      //rneaForwardStep(model,data,model.joints[i],data.joints[i],i,q,v,a);
-
-      //rneaForwardStep(model,data,
-      //	      boost::get<const se3::JointModelRX&>(model.joints[i]),
-      //	      boost::get< se3::JointDataRX&>(data.joints[i]),
-      //	      i,q,v,a);
-      //RneaForwardStepVisitor::run(model,data,model.joints[i],data.joints[i],i,q,v,a);
-
       RneaForwardStep::run(model.joints[i],data.joints[i],
 			   RneaForwardStep::Args(model,data,i,q,v,a));
     }
 
   for( int i=model.nbody-1;i>0;--i )
     {
-      //rneaBackwardStep(model,data,model.joints[i],data.joints[i],i);
-      RneaBackwardStepVisitor::run(model.joints[i],data.joints[i],
-				   RneaBackwardStepVisitor::Args(model,data,i));
+      RneaBackwardStep::run(model.joints[i],data.joints[i],
+			    RneaBackwardStep::Args(model,data,i));
     }
     }
   timer.toc(std::cout,1000);
