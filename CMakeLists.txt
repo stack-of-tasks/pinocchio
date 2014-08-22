@@ -75,6 +75,9 @@ PKG_CONFIG_USE_DEPENDENCY(rnea eigenpy)
 ADD_EXECUTABLE(dg EXCLUDE_FROM_ALL unittest/dg.cpp)
 PKG_CONFIG_USE_DEPENDENCY(dg eigenpy)
 
+ADD_EXECUTABLE(fusion EXCLUDE_FROM_ALL unittest/fusion.cpp)
+PKG_CONFIG_USE_DEPENDENCY(fusion eigenpy)
+
 ADD_EXECUTABLE(variant EXCLUDE_FROM_ALL unittest/variant.cpp)
 PKG_CONFIG_USE_DEPENDENCY(variant eigenpy)
 
