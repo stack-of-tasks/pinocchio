@@ -1,3 +1,7 @@
+
+#define     BOOST_FUSION_INVOKE_MAX_ARITY 10
+
+
 // #include "pinocchio/spatial/fwd.hpp"
 // #include "pinocchio/spatial/se3.hpp"
 // #include "pinocchio/multibody/joint.hpp"
@@ -75,46 +79,13 @@ typedef boost::variant<CRTPDerived,CRTPDerived2> CRTPVariant;
 #include <boost/fusion/container.hpp>
 
 
-using namespace boost::fusion;
-
-
-// template<typename D>
-// int algo(CRTPBase<D> & crtp, const double & x,const int & y, const Eigen::MatrixXd & z,const TestObj & a) 
-// {
-//   return crtp.hh(x,y,z,a);
-// }
-
-// #define CRTP_VARIANT(ReturnType,function)	\
-// template<typename Args> \
-// struct Launcher : public boost::static_visitor<ReturnType> \
-// { \
-//   Args args; \
-//   Launcher(Args args) : args(args) {} \
-// \
-//   template<typename D> \
-//   ReturnType operator()( CRTPBase<D> & dref )  const	\
-//   { \
-//     return invoke(&function<D>,join(make_vector(boost::ref(dref)),args));	\
-//   } \
-// }; \
-// template<typename Args> \
-// ReturnType function( CRTPVariant & crtp, Args args ) \
-// { \
-//   return boost::apply_visitor( Launcher<Args>(args),crtp );  \
-// }
-
-// CRTP_VARIANT(int,algo)
-
-
-template<typename D>
-int algo(CRTPBase<D> & crtp, const double & x,const int & y, const Eigen::MatrixXd & z,const TestObj & a) 
-{
-  return crtp.hh(x,y,z,a);
-}
+namespace bf = boost::fusion;
 
 struct Launcher : public boost::static_visitor<int>
 {
-  typedef vector<const double &,const int &, const Eigen::MatrixXd &,const TestObj &> Args;
+
+  typedef bf::vector<const double &,const int &, const Eigen::MatrixXd &,
+		     const Eigen::MatrixXd &,const Eigen::MatrixXd &,const TestObj &> Args;
   Args args;
 
   Launcher(Args args) : args(args) {}
@@ -122,28 +93,63 @@ struct Launcher : public boost::static_visitor<int>
   template<typename D>
   int operator() ( CRTPBase<D> & dref )  const
   {
-    return invoke(&algo<D>,push_front(args,boost::ref(dref)));
+    return bf::invoke(&Launcher::algo<D>,bf::push_front(args,boost::ref(dref)));
   }
 
   static int run(CRTPVariant & crtp, Args args )
   {
     return boost::apply_visitor( Launcher(args),crtp );
   }
+
+  template<typename D>
+  static int algo(CRTPBase<D> & crtp, const double & x,const int & y, const Eigen::MatrixXd & z,
+		  const Eigen::MatrixXd & ,const Eigen::MatrixXd & ,const TestObj & a) 
+  {
+    return crtp.hh(x,y,z,a);
+  }
 };
 
+namespace boost {
+  namespace fusion {
+    template<typename T,typename V>
+    typename result_of::push_front<V const, T>::type
+    append(T const& t,V const& v) { return push_front(v,t); }
+
+    template<typename T1,typename T2,typename V>
+    typename result_of::push_front<typename result_of::push_front<V const, T2>::type const, T1>::type
+    append2(T1 const& t1,T2 const& t2,V const& v) { return push_front(push_front(v,t2),t1); }
+
+
+    // template<typename t1,typename t2,typename v>
+
+
+    // typename result_of::push_front<Sequence, T>::type
+
+    // res append2(t1 a1,t2 a2,v a3) { return push_front(push_front(a3,a2),a1); }
+  }}
+  
 
 int main()
 {
   CRTPDerived d;
-  CRTPBase<CRTPDerived> & dref = d;
+  //CRTPBase<CRTPDerived> & dref = d;
   CRTPVariant v = d;
 
   //(CRTPBase<D> & crtp, const double & x,const int & y, const Eigen::MatrixXd & z,const TestObj & a)
   
 
   //Args args(1.0,1,Eigen::MatrixXd::Zero(3,3),TestObj(1));
-  Launcher::run(v,  Launcher::Args(1.0,1,Eigen::MatrixXd::Zero(3,3),TestObj(1)) );
+  Launcher::run(v,  Launcher::Args(1.0,1,Eigen::MatrixXd::Zero(3,3),Eigen::MatrixXd::Zero(3,3),
+				   Eigen::MatrixXd::Zero(3,3),TestObj(1)) );
 
+  int i,j; double k;
+  bf::vector<int&> arg = bf::make_vector(boost::ref(j));
+
+  bf::vector<double &,int &> arg1 = bf::append(boost::ref(k),arg);
+  bf::vector<int &,double &,int &> arg11 = bf::append(boost::ref(i),arg1);
+
+  bf::vector<int &,double &,int &> arg2 = bf::append2(boost::ref(i),boost::ref(k),arg);
+    //bf::push_front(bf::push_front(arg1,boost::ref(k)),boost::ref(j));
 
   return 0;
 }
