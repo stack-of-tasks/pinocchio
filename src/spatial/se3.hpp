@@ -89,7 +89,7 @@ namespace se3
       return SE3Tpl(rot.transpose(), -rot.transpose()*trans);
     }
 
-    void disp(std::ostream & os)
+    void disp(std::ostream & os) const
     {
       os << "  R =\n" << rot << std::endl
 	 << "  p =\n" << trans.transpose() << std::endl;
