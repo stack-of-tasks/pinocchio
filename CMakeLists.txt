@@ -25,6 +25,7 @@ SETUP_PROJECT()
 # --- DEPENDANCIES -----------------------------------
 # ----------------------------------------------------
 ADD_REQUIRED_DEPENDENCY("eigenpy >= v1.0.1")
+ADD_REQUIRED_DEPENDENCY("urdfdom >= v0.3.0")
 
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
@@ -76,8 +77,9 @@ PKG_CONFIG_USE_DEPENDENCY(rnea eigenpy)
 ADD_EXECUTABLE(dg EXCLUDE_FROM_ALL unittest/dg.cpp)
 PKG_CONFIG_USE_DEPENDENCY(dg eigenpy)
 
-ADD_EXECUTABLE(fusion EXCLUDE_FROM_ALL unittest/fusion.cpp)
-PKG_CONFIG_USE_DEPENDENCY(fusion eigenpy)
+ADD_EXECUTABLE(urdf EXCLUDE_FROM_ALL unittest/urdf.cpp)
+PKG_CONFIG_USE_DEPENDENCY(urdf eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(urdf urdfdom)
 
 ADD_EXECUTABLE(variant EXCLUDE_FROM_ALL unittest/variant.cpp)
 PKG_CONFIG_USE_DEPENDENCY(variant eigenpy)
