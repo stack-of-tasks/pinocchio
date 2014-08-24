@@ -52,8 +52,6 @@ namespace se3
     const Bias_t           & c()   { return static_cast<JointData*>(this)->c;   }
   };
 
-
-
   template<typename _JointModel>
   struct JointModelBase
   {
@@ -76,18 +74,8 @@ namespace se3
     const int & idx_v() const { return i_v; }
     void setIndexes(int q,int v) { i_q = q; i_v = v; }
 
-    // typename Eigen::VectorXd::ConstFixedSegmentReturnType<nv>::Type jointMotion(const Eigen::VectorXd & a) const 
-    // {
-    //   return a.template segment<nv>(i_v);
-    // }
-    // typename Eigen::VectorXd::FixedSegmentReturnType<nv>::Type jointForce(Eigen::VectorXd & tau) const 
-    // {
-    //   return tau.template segment<nv>(i_v);
-    // }
-
     template<typename D>
-    typename D::template ConstFixedSegmentReturnType<nv>::Type jointMotion(const Eigen::MatrixBase<D>& a) const 
-    { return a.template segment<nv>(i_v); }
+    typename D::template ConstFixedSegmentReturnType<nv>::Type jointMotion(const Eigen::MatrixBase<D>& a) const     { return a.template segment<nv>(i_v); }
     template<typename D>
     typename D::template FixedSegmentReturnType<nv>::Type jointMotion(Eigen::MatrixBase<D>& a) const 
     { return a.template segment<nv>(i_v); }
@@ -104,80 +92,163 @@ namespace se3
   /* --- REVOLUTE X --------------------------------------------------------- */
   /* --- REVOLUTE X --------------------------------------------------------- */
 
-  struct JointDataRX;
-  struct JointModelRX;
+  template<int axis> struct JointDataRevolute;
+  template<int axis> struct JointModelRevolute;
+  
+  template<int axis>
+  struct JointRevoluteHelper;
 
-  struct JointRX {
+  template<>
+  struct JointRevoluteHelper<0>
+  {
+    struct CartesianVector3
+    {
+      double w; 
+      CartesianVector3(const double & w) : w(w) {}
+      operator Eigen::Vector3d () { return Eigen::Vector3d(w,0,0); }
+      friend Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3 & w2)
+      { return Eigen::Vector3d(w1[0]+w2.w,w1[1],w1[2]); }
+    };
+  };
+
+  template<int axis> 
+  struct JointRevolute {
     struct BiasZero {};
     friend const Motion & operator+ ( const Motion& v, const BiasZero&) { return v; }
     friend const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
 
-    struct MotionRX 
+    struct MotionRevolute 
     {
-      MotionRX()                    : wx(NAN) {}
-      MotionRX( const double & wx ) : wx(wx)  {}
-      double wx;
+      MotionRevolute()                   : w(NAN) {}
+      MotionRevolute( const double & w ) : w(w)  {}
+      double w;
 
       operator Motion() const
       { 
-	return Motion(Motion::Vector3::Zero(),Motion::Vector3(wx,0,0));
+	return Motion(Motion::Vector3::Zero(),typename JointRevoluteHelper<axis>::CartesianVector3(w));
       }
-    }; // struct MotionRX
+    }; // struct MotionRevolute
 
-    friend const MotionRX& operator+ (const MotionRX& m, const BiasZero&) { return m; }
-    friend Motion operator+( const MotionRX& m1, const Motion& m2)
+    friend const MotionRevolute& operator+ (const MotionRevolute& m, const BiasZero&) { return m; }
+    friend Motion operator+( const MotionRevolute& m1, const Motion& m2)
     {
-      return Motion( m2.linear(),m2.angular()+Eigen::Vector3d::UnitX()*m1.wx); 
+      return Motion( m2.linear(),m2.angular()+typename JointRevoluteHelper<axis>::CartesianVector3(m1.w)); 
     }    
-    friend Motion operator^( const Motion& m1, const MotionRX& m2)
-    {
-      /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
-       * nu1^(0,w2) = ( v1^w2      , w1^w2 )
-       * (x,y,z)^(0,0,w) = ( 0,zw,-yw )
-       * nu1^(0,wx) = ( 0,vz1 wx,-vy1 wx,    0,wz1 wx,-wy1 wx)
-       */
-      const Motion::Vector3& v = m1.linear();
-      const Motion::Vector3& w = m1.angular();
-      const double & wx = m2.wx;
-      return Motion( Motion::Vector3(0,v[2]*wx,-v[1]*wx),
-		     Motion::Vector3(0,w[2]*wx,-w[1]*wx) );
-    }
-
-    struct ConstraintRX
+    struct ConstraintRevolute
     { 
       template<typename D>
-      MotionRX operator*( const Eigen::MatrixBase<D> & v ) const { return MotionRX(v[0]); }
+      MotionRevolute operator*( const Eigen::MatrixBase<D> & v ) const { return MotionRevolute(v[0]); }
 
-      const ConstraintRX & transpose() const { return *this; }
+      const ConstraintRevolute & transpose() const { return *this; }
      //template<typename D> D operator*( const Force& f ) const
      Force::Vector3::ConstFixedSegmentReturnType<1>::Type
      operator*( const Force& f ) const
      { return f.angular().head<1>(); }
-    }; // struct ConstraintRX
+    }; // struct ConstraintRevolute
 
+    static Eigen::Matrix3d cartesianRotation(const double & angle); 
   };
 
-  template<>
-  struct traits<JointRX>
+  Motion operator^( const Motion& m1, const JointRevolute<0>::MotionRevolute& m2)
   {
-    typedef JointDataRX JointData;
-    typedef JointModelRX JointModel;
-    typedef typename JointRX::ConstraintRX Constraint_t;
+    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
+     * nu1^(0,w2) = ( v1^w2      , w1^w2 )
+     * (x,y,z)^(w,0,0) = ( 0,zw,-yw )
+     * nu1^(0,wx) = ( 0,vz1 wx,-vy1 wx,    0,wz1 wx,-wy1 wx)
+     */
+    const Motion::Vector3& v = m1.linear();
+    const Motion::Vector3& w = m1.angular();
+    const double & wx = m2.w;
+    return Motion( Motion::Vector3(0,v[2]*wx,-v[1]*wx),
+		   Motion::Vector3(0,w[2]*wx,-w[1]*wx) );
+  }
+
+  Motion operator^( const Motion& m1, const JointRevolute<1>::MotionRevolute& m2)
+  {
+    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
+     * nu1^(0,w2) = ( v1^w2      , w1^w2 )
+     * (x,y,z)^(0,w,0) = ( -z,0,x )
+     * nu1^(0,wx) = ( -vz1 wx,0,vx1 wx,    -wz1 wx,0,wx1 wx)
+     */
+    const Motion::Vector3& v = m1.linear();
+    const Motion::Vector3& w = m1.angular();
+    const double & wx = m2.w;
+    return Motion( Motion::Vector3(-v[2]*wx,0, v[0]*wx),
+		   Motion::Vector3(-w[2]*wx,0, w[0]*wx) );
+  }
+
+  Motion operator^( const Motion& m1, const JointRevolute<2>::MotionRevolute& m2)
+  {
+    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
+     * nu1^(0,w2) = ( v1^w2      , w1^w2 )
+     * (x,y,z)^(0,0,w) = ( y,-x,0 )
+     * nu1^(0,wx) = ( vy1 wx,-vx1 wx,0,    wy1 wx,-wx1 wx,0 )
+     */
+    const Motion::Vector3& v = m1.linear();
+    const Motion::Vector3& w = m1.angular();
+    const double & wx = m2.w;
+    return Motion( Motion::Vector3(v[1]*wx,-v[0]*wx,0),
+		   Motion::Vector3(w[1]*wx,-w[0]*wx,0) );
+  }
+
+  template<>
+  Eigen::Matrix3d JointRevolute<0>::cartesianRotation(const double & angle) 
+    {
+      Eigen::Matrix3d R3; 
+      double ca,sa; sincos(angle,&sa,&ca);
+      R3 << 
+	1,0,0,
+	0,ca,-sa,
+	0,sa,ca;
+      return R3;
+    }
+  template<>
+  Eigen::Matrix3d JointRevolute<1>::cartesianRotation(const double & angle)
+    {
+      Eigen::Matrix3d R3; 
+      double ca,sa; sincos(angle,&sa,&ca);
+      R3 << 
+	ca, 0, sa,
+	0 , 1,  0,
+	-sa, 0,  ca;
+      return R3;
+    }
+  template<>
+  Eigen::Matrix3d JointRevolute<2>::cartesianRotation(const double & angle) 
+    {
+      Eigen::Matrix3d R3; 
+      double ca,sa; sincos(angle,&sa,&ca);
+      R3 << 
+	ca,-sa,0,
+	sa,ca,0,
+	0,0,1;
+      return R3;
+    }
+
+
+
+  template<int axis>
+  struct traits< JointRevolute<axis> >
+  {
+    typedef JointDataRevolute<axis> JointData;
+    typedef JointModelRevolute<axis> JointModel;
+    typedef typename JointRevolute<axis>::ConstraintRevolute Constraint_t;
     typedef SE3 Transformation_t;
-    typedef JointRX::MotionRX Motion_t;
-    typedef JointRX::BiasZero Bias_t;
+    typedef typename JointRevolute<axis>::MotionRevolute Motion_t;
+    typedef typename JointRevolute<axis>::BiasZero Bias_t;
     enum {
       nq = 1,
       nv = 1
     };
   };
 
-  template<> struct traits<JointDataRX> { typedef JointRX Joint; };
-  template<> struct traits<JointModelRX> { typedef JointRX Joint; };
+  template<int axis> struct traits< JointDataRevolute<axis> > { typedef JointRevolute<axis> Joint; };
+  template<int axis> struct traits< JointModelRevolute<axis> > { typedef JointRevolute<axis> Joint; };
 
-  struct JointDataRX : public JointDataBase<JointDataRX>
+  template<int axis>
+  struct JointDataRevolute : public JointDataBase< JointDataRevolute<axis> >
   {
-    typedef JointRX Joint;
+    typedef JointRevolute<axis> Joint;
     SE3_JOINT_TYPEDEF;
 
     Constraint_t S;
@@ -185,20 +256,21 @@ namespace se3
     Motion_t v;
     Bias_t c;
 
-    JointDataRX() : M(1)
+    JointDataRevolute() : M(1)
     {
       M.translation(SE3::Vector3::Zero());
     }
   };
 
-  struct JointModelRX : public JointModelBase<JointModelRX>
+  template<int axis>
+  struct JointModelRevolute : public JointModelBase< JointModelRevolute<axis> >
   {
-    typedef JointRX Joint;
+    typedef JointRevolute<axis> Joint;
     SE3_JOINT_TYPEDEF;
 
-    using JointModelBase<JointModelRX>::idx_q;
-    using JointModelBase<JointModelRX>::idx_v;
-    using JointModelBase<JointModelRX>::setIndexes;
+    using JointModelBase<JointModelRevolute>::idx_q;
+    using JointModelBase<JointModelRevolute>::idx_v;
+    using JointModelBase<JointModelRevolute>::setIndexes;
     
     JointData createData() const { return JointData(); }
     void calc( JointData& data, 
@@ -208,22 +280,143 @@ namespace se3
       const double & q = qs[idx_q()];
       const double & v = vs[idx_v()];
 
-      data.M.rotation(rotationX(q));
-      data.v.wx = v;
+      data.M.rotation(JointRevolute<axis>::cartesianRotation(q));
+      data.v.w = v;
     }
 
-    static inline Eigen::Matrix3d rotationX(const double & angle) 
-    {
-      Eigen::Matrix3d R3; 
-      double ca,sa; sincos(angle,&sa,&ca);
-      R3 << 
-	1,0,0,
-	0,ca,sa,
-	0,-sa,ca;
-      return R3;
-    }
 
   };
+
+
+  typedef JointDataRevolute<0> JointDataRX;
+  typedef JointModelRevolute<0> JointModelRX;
+
+  typedef JointDataRevolute<1> JointDataRY;
+  typedef JointModelRevolute<1> JointModelRY;
+
+  typedef JointDataRevolute<2> JointDataRZ;
+  typedef JointModelRevolute<2> JointModelRZ;
+
+  // struct JointDataRX;
+  // struct JointModelRX;
+
+  // struct JointRX {
+  //   struct BiasZero {};
+  //   friend const Motion & operator+ ( const Motion& v, const BiasZero&) { return v; }
+  //   friend const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
+
+  //   struct MotionRX 
+  //   {
+  //     MotionRX()                    : wx(NAN) {}
+  //     MotionRX( const double & wx ) : wx(wx)  {}
+  //     double wx;
+
+  //     operator Motion() const
+  //     { 
+  // 	return Motion(Motion::Vector3::Zero(),Motion::Vector3(wx,0,0));
+  //     }
+  //   }; // struct MotionRX
+
+  //   friend const MotionRX& operator+ (const MotionRX& m, const BiasZero&) { return m; }
+  //   friend Motion operator+( const MotionRX& m1, const Motion& m2)
+  //   {
+  //     return Motion( m2.linear(),m2.angular()+Eigen::Vector3d::UnitX()*m1.wx); 
+  //   }    
+  //   friend Motion operator^( const Motion& m1, const MotionRX& m2)
+  //   {
+  //     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
+  //      * nu1^(0,w2) = ( v1^w2      , w1^w2 )
+  //      * (x,y,z)^(0,0,w) = ( 0,zw,-yw )
+  //      * nu1^(0,wx) = ( 0,vz1 wx,-vy1 wx,    0,wz1 wx,-wy1 wx)
+  //      */
+  //     const Motion::Vector3& v = m1.linear();
+  //     const Motion::Vector3& w = m1.angular();
+  //     const double & wx = m2.wx;
+  //     return Motion( Motion::Vector3(0,v[2]*wx,-v[1]*wx),
+  // 		     Motion::Vector3(0,w[2]*wx,-w[1]*wx) );
+  //   }
+
+  //   struct ConstraintRX
+  //   { 
+  //     template<typename D>
+  //     MotionRX operator*( const Eigen::MatrixBase<D> & v ) const { return MotionRX(v[0]); }
+
+  //     const ConstraintRX & transpose() const { return *this; }
+  //    //template<typename D> D operator*( const Force& f ) const
+  //    Force::Vector3::ConstFixedSegmentReturnType<1>::Type
+  //    operator*( const Force& f ) const
+  //    { return f.angular().head<1>(); }
+  //   }; // struct ConstraintRX
+
+  // };
+
+  // template<>
+  // struct traits<JointRX>
+  // {
+  //   typedef JointDataRX JointData;
+  //   typedef JointModelRX JointModel;
+  //   typedef typename JointRX::ConstraintRX Constraint_t;
+  //   typedef SE3 Transformation_t;
+  //   typedef JointRX::MotionRX Motion_t;
+  //   typedef JointRX::BiasZero Bias_t;
+  //   enum {
+  //     nq = 1,
+  //     nv = 1
+  //   };
+  // };
+
+  // template<> struct traits<JointDataRX> { typedef JointRX Joint; };
+  // template<> struct traits<JointModelRX> { typedef JointRX Joint; };
+
+  // struct JointDataRX : public JointDataBase<JointDataRX>
+  // {
+  //   typedef JointRX Joint;
+  //   SE3_JOINT_TYPEDEF;
+
+  //   Constraint_t S;
+  //   Transformation_t M;
+  //   Motion_t v;
+  //   Bias_t c;
+
+  //   JointDataRX() : M(1)
+  //   {
+  //     M.translation(SE3::Vector3::Zero());
+  //   }
+  // };
+
+  // struct JointModelRX : public JointModelBase<JointModelRX>
+  // {
+  //   typedef JointRX Joint;
+  //   SE3_JOINT_TYPEDEF;
+
+  //   using JointModelBase<JointModelRX>::idx_q;
+  //   using JointModelBase<JointModelRX>::idx_v;
+  //   using JointModelBase<JointModelRX>::setIndexes;
+    
+  //   JointData createData() const { return JointData(); }
+  //   void calc( JointData& data, 
+  // 	       const Eigen::VectorXd & qs, 
+  // 	       const Eigen::VectorXd & vs ) const
+  //   {
+  //     const double & q = qs[idx_q()];
+  //     const double & v = vs[idx_v()];
+
+  //     data.M.rotation(rotationX(q));
+  //     data.v.wx = v;
+  //   }
+
+  //   static inline Eigen::Matrix3d rotationX(const double & angle) 
+  //   {
+  //     Eigen::Matrix3d R3; 
+  //     double ca,sa; sincos(angle,&sa,&ca);
+  //     R3 << 
+  // 	1,0,0,
+  // 	0,ca,sa,
+  // 	0,-sa,ca;
+  //     return R3;
+  //   }
+
+  // };
 
 
 
