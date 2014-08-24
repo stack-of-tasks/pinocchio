@@ -1,126 +1,87 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/joint.hpp"
+#include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 
 #include <iostream>
 
 #include "pinocchio/tools/timer.hpp"
 
-template<typename JointModel>
-void rneaForwardStep(const se3::Model& model,
-		     se3::Data& data,
-		     const se3::JointModelBase<JointModel> & jmodel,
-		     se3::JointDataBase<typename JointModel::JointData> & jdata,
-		     int i,
-		     const Eigen::VectorXd & q,
-		     const Eigen::VectorXd & v,
-		     const Eigen::VectorXd & a)
+  
+
+namespace se3
 {
-  using namespace Eigen;
-  using namespace se3;
 
-  jmodel.calc(jdata.derived(),q,v);
-  
-  const Model::Index & parent = model.parents[i];
-  data.liMi[i] = model.jointPlacements[i]*jdata.M();
-  
-  if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
-  else         data.oMi[i] = data.liMi[i];
-  
-  data.v[i] = jdata.v();
-  if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
-
-  jmodel.jointMotion(a);
-  data.a[i] =  jdata.S()*jmodel.jointMotion(a) + jdata.c() + (data.v[i] ^ jdata.v()) ; 
-  if(parent>0) data.a[i] += data.liMi[i].actInv(data.a[parent]);
-  
-  data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
-}
-
-template<typename JointModel>
-void rneaBackwardStep(const se3::Model& model,
-		      se3::Data& data,
-		      const se3::JointModelBase<JointModel> & jmodel,
-		      se3::JointDataBase<typename JointModel::JointData> & jdata,
-		      int i)
-{
-  using namespace Eigen;
-  using namespace se3;
-  
-  const Model::Index & parent  = model.parents[i];      
-  jmodel.jointForce(data.tau)  = jdata.S().transpose()*data.f[i];
-  if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
-}
-
-
-
-struct RneaForwardStepVisitor : public boost::static_visitor<>
-{
-  const se3::Model& model;
-  se3::Data& data;
-  se3::JointDataVariant & jdata;
-  int i;
-  const Eigen::VectorXd & q;
-  const Eigen::VectorXd & v;
-  const Eigen::VectorXd & a;
-
-  RneaForwardStepVisitor( const se3::Model& model,
-			  se3::Data& data,
-			  se3::JointDataVariant & jdata,
-			  int i,
-			  const Eigen::VectorXd & q,
-			  const Eigen::VectorXd & v,
-			  const Eigen::VectorXd & a)
-    : model(model),data(data),jdata(jdata),i(i),q(q),v(v),a(a) {}
-
-
-  template <typename D>
-  void operator()(const se3::JointModelBase<D> & jmodel) const
+  struct RneaForwardStep : public fusion::JointVisitor<RneaForwardStep>
   {
-    rneaForwardStep(model,data,jmodel,boost::get<typename D::JointData&>(jdata),i,q,v,a);
-  }
+    typedef boost::fusion::vector< const se3::Model&,
+			    se3::Data&,
+			    const int&,
+			    const Eigen::VectorXd &,
+			    const Eigen::VectorXd &,
+			    const Eigen::VectorXd &
+			    > ArgsType;
 
-  static void run( const se3::Model& model,
-		  se3::Data& data,
-		  const se3::JointModelVariant & jmodel, 
-		  se3::JointDataVariant & jdata,
-		  int i,
-		  const Eigen::VectorXd & q,
-		  const Eigen::VectorXd & v,
-		  const Eigen::VectorXd & a)
-  {  boost::apply_visitor( RneaForwardStepVisitor(model,data,jdata,i,q,v,a), jmodel ); }
+    JOINT_VISITOR_INIT(RneaForwardStep);
 
-};
+    template<typename JointModel>
+    static int algo(const se3::JointModelBase<JointModel> & jmodel,
+		    se3::JointDataBase<typename JointModel::JointData> & jdata,
+		    const se3::Model& model,
+		    se3::Data& data,
+		    const int &i,
+		    const Eigen::VectorXd & q,
+		    const Eigen::VectorXd & v,
+		    const Eigen::VectorXd & a)
+    {
+      using namespace Eigen;
+      using namespace se3;
+      
+      jmodel.calc(jdata.derived(),q,v);
+      
+      const Model::Index & parent = model.parents[i];
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      
+      if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
+      else         data.oMi[i] = data.liMi[i];
+      
+      data.v[i] = jdata.v();
+      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
+      
+      jmodel.jointMotion(a);
+      data.a[i] =  jdata.S()*jmodel.jointMotion(a) + jdata.c() + (data.v[i] ^ jdata.v()) ; 
+      if(parent>0) data.a[i] += data.liMi[i].actInv(data.a[parent]);
+      
+      data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
+      return 0;
+    }
 
-struct RneaBackwardStepVisitor : public boost::static_visitor<>
-{
-  const se3::Model& model;
-  se3::Data& data;
-  se3::JointDataVariant & jdata;
-  int i;
-
-  RneaBackwardStepVisitor( const se3::Model& model,
-			  se3::Data& data,
-			  se3::JointDataVariant & jdata,
-			  int i)
-    : model(model),data(data),jdata(jdata),i(i) {}
+  };
 
 
-  template <typename D>
-  void operator()(const se3::JointModelBase<D> & jmodel) const
+  struct RneaBackwardStep : public fusion::JointVisitor<RneaBackwardStep>
   {
-    rneaBackwardStep(model,data,jmodel,boost::get<typename D::JointData&>(jdata),i);
-  }
+    typedef boost::fusion::vector<const Model&,
+				  Data&,
+				  const int &>  ArgsType;
+    
+    JOINT_VISITOR_INIT(RneaBackwardStep);
 
-  static void run( const se3::Model& model,
-		  se3::Data& data,
-		  const se3::JointModelVariant & jmodel, 
-		  se3::JointDataVariant & jdata,
-		  int i)
-  {  boost::apply_visitor( RneaBackwardStepVisitor(model,data,jdata,i), jmodel ); }
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+		     JointDataBase<typename JointModel::JointData> & jdata,
+		     const Model& model,
+		     Data& data,
+		     int i)
+    {
+      const Model::Index & parent  = model.parents[i];      
+      jmodel.jointForce(data.tau)  = jdata.S().transpose()*data.f[i];
+      if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
+    }
+  };
 
-};
+} // namespace se3
 
 //#define __SSE3__
 #include <fenv.h>
@@ -131,7 +92,7 @@ struct RneaBackwardStepVisitor : public boost::static_visitor<>
 int main()
 {
 #ifdef __SSE3__
-_MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
+  _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
 #endif
 
 
@@ -191,22 +152,17 @@ _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
   StackTicToc timer(StackTicToc::US); timer.tic();
   SMOOTH(1000)
     {
-  for( int i=1;i<model.nbody;++i )
-    {
-      //rneaForwardStep(model,data,model.joints[i],data.joints[i],i,q,v,a);
+      for( int i=1;i<model.nbody;++i )
+	{
+	  RneaForwardStep::run(model.joints[i],data.joints[i],
+			       RneaForwardStep::ArgsType(model,data,i,q,v,a));
+	}
 
-      //rneaForwardStep(model,data,
-      //	      boost::get<const se3::JointModelRX&>(model.joints[i]),
-      //	      boost::get< se3::JointDataRX&>(data.joints[i]),
-      //	      i,q,v,a);
-      RneaForwardStepVisitor::run(model,data,model.joints[i],data.joints[i],i,q,v,a);
-    }
-
-  for( int i=model.nbody-1;i>0;--i )
-    {
-      //rneaBackwardStep(model,data,model.joints[i],data.joints[i],i);
-      RneaBackwardStepVisitor::run(model,data,model.joints[i],data.joints[i],i);
-    }
+      for( int i=model.nbody-1;i>0;--i )
+	{
+	  RneaBackwardStep::run(model.joints[i],data.joints[i],
+				RneaBackwardStep::ArgsType(model,data,i));
+	}
     }
   timer.toc(std::cout,1000);
 

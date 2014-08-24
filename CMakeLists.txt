@@ -44,6 +44,7 @@ SET(${PROJECT_NAME}_HEADERS
   multibody/joint/joint-free-flyer.hpp
   multibody/joint/joint-variant.hpp
   multibody/model.hpp
+  multibody/visitor.hpp
   tools/timer.hpp
 )
 
