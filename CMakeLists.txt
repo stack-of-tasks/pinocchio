@@ -46,6 +46,7 @@ SET(${PROJECT_NAME}_HEADERS
   multibody/model.hpp
   multibody/visitor.hpp
   tools/timer.hpp
+  algorithm/rnea.hpp
 )
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
@@ -53,6 +54,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 
 FOREACH(header ${${PROJECT_NAME}_HEADERS})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)
