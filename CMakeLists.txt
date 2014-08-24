@@ -48,6 +48,7 @@ SET(${PROJECT_NAME}_HEADERS
   multibody/parser/urdf.hpp
   tools/timer.hpp
   algorithm/rnea.hpp
+  algorithm/kinematics.hpp
 )
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
@@ -89,6 +90,10 @@ PKG_CONFIG_USE_DEPENDENCY(dg eigenpy)
 ADD_EXECUTABLE(urdf EXCLUDE_FROM_ALL unittest/urdf.cpp)
 PKG_CONFIG_USE_DEPENDENCY(urdf eigenpy)
 PKG_CONFIG_USE_DEPENDENCY(urdf urdfdom)
+
+ADD_EXECUTABLE(value EXCLUDE_FROM_ALL unittest/value.cpp)
+PKG_CONFIG_USE_DEPENDENCY(value eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(value urdfdom)
 
 ADD_EXECUTABLE(variant EXCLUDE_FROM_ALL unittest/variant.cpp)
 PKG_CONFIG_USE_DEPENDENCY(variant eigenpy)

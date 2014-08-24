@@ -61,7 +61,7 @@ namespace se3
      //template<typename D> D operator*( const Force& f ) const
      Force::Vector3::ConstFixedSegmentReturnType<1>::Type
      operator*( const Force& f ) const
-     { return f.angular().head<1>(); }
+     { return f.angular().segment<1>(axis); }
     }; // struct ConstraintRevolute
 
     static Eigen::Matrix3d cartesianRotation(const double & angle); 

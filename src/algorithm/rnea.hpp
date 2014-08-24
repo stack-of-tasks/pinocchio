@@ -53,9 +53,9 @@ namespace se3
       data.v[i] = jdata.v();
       if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
       
-      jmodel.jointMotion(a);
       data.a[i] =  jdata.S()*jmodel.jointMotion(a) + jdata.c() + (data.v[i] ^ jdata.v()) ; 
-      if(parent>0) data.a[i] += data.liMi[i].actInv(data.a[parent]);
+      //      if(parent>0)
+      data.a[i] += data.liMi[i].actInv(data.a[parent]);
       
       data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
       return 0;
