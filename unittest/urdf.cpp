@@ -75,7 +75,7 @@ void parseTree( urdf::LinkConstPtr link, const urdf::ModelInterfacePtr & model, 
       const se3::SE3 & jointPlacement = convertFromUrdf(joint->parent_to_joint_origin_transform);
 
       std::cout << "Parent = " << parent << std::endl;
-      std::cout << "Placement = " << jointPlacement << std::endl;
+      std::cout << "Placement = " << (se3::SE3::Matrix4)jointPlacement << std::endl;
 
       switch(joint->type)
 	{
@@ -88,8 +88,14 @@ void parseTree( urdf::LinkConstPtr link, const urdf::ModelInterfacePtr & model, 
 	      case AXIS_X:
 		multibody.addBody( parent, se3::JointModelRX(), jointPlacement, Y, joint->name );
 		break;
+	      case AXIS_Y:
+		multibody.addBody( parent, se3::JointModelRY(), jointPlacement, Y, joint->name );
+		break;
+	      case AXIS_Z:
+		multibody.addBody( parent, se3::JointModelRZ(), jointPlacement, Y, joint->name );
+		break;
 	      default:
-		std::cerr << "Axis = (" <<joint->axis.x<<","<<joint->axis.y
+		std::cerr << "Bad axis = (" <<joint->axis.x<<","<<joint->axis.y
 			  <<","<<joint->axis.z<<")" << std::endl;
 		assert(false && "Only X axis are accepted." );
 	      }
