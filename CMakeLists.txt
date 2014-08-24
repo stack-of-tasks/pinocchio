@@ -39,6 +39,10 @@ SET(${PROJECT_NAME}_HEADERS
   spatial/skew.hpp
   multibody/constraint.hpp
   multibody/joint.hpp
+  multibody/joint/joint-base.hpp
+  multibody/joint/joint-revolute.hpp
+  multibody/joint/joint-free-flyer.hpp
+  multibody/joint/joint-variant.hpp
   multibody/model.hpp
   tools/timer.hpp
 )
@@ -46,6 +50,7 @@ SET(${PROJECT_NAME}_HEADERS
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 
 FOREACH(header ${${PROJECT_NAME}_HEADERS})
