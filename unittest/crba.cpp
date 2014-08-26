@@ -32,9 +32,9 @@ int main(int argc, const char ** argv)
 
   se3::Model model;
 
-  // std::string filename = "/home/nmansard/src/metapod/data/simple_arm.urdf";
-  // if(argc>1) filename = argv[1];
-  // model = se3::buildModel(filename);
+  std::string filename = "/home/nmansard/src/metapod/data/simple_arm.urdf";
+  if(argc>1) filename = argv[1];
+  model = se3::buildModel(filename);
 
 
   // SIMPLE no FF
@@ -48,15 +48,15 @@ int main(int argc, const char ** argv)
 
 
   //SIMPLE with FF
-  model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"root");
+  // model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"root");
 
-  model.addBody(model.getBodyId("root"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg1");
-  model.addBody(model.getBodyId("rleg1"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg2");
-  model.addBody(model.getBodyId("rleg2"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg3");
+  // model.addBody(model.getBodyId("root"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg1");
+  // model.addBody(model.getBodyId("rleg1"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg2");
+  // model.addBody(model.getBodyId("rleg2"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg3");
 
-  model.addBody(model.getBodyId("root"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg1");
-  model.addBody(model.getBodyId("lleg1"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg2");
-  model.addBody(model.getBodyId("lleg2"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg3");
+  // model.addBody(model.getBodyId("root"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg1");
+  // model.addBody(model.getBodyId("lleg1"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg2");
+  // model.addBody(model.getBodyId("lleg2"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg3");
 
 
   se3::Data data(model);
@@ -64,7 +64,7 @@ int main(int argc, const char ** argv)
   VectorXd q = VectorXd::Zero(model.nq);
  
   StackTicToc timer(StackTicToc::US); timer.tic();
-  SMOOTH(1)
+  SMOOTH(1000)
     {
       crba(model,data,q);
     }
@@ -82,7 +82,6 @@ int main(int argc, const char ** argv)
 
     for(int i=0;i<model.nv;++i)
       { 
-	
 	M.col(i) = rnea(model,data,q,v,Eigen::VectorXd::Unit(model.nv,i)) - bias;
       }
     std::cout << "Mrne = [  " << M << " ]; " << std::endl;

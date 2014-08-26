@@ -8,6 +8,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/multibody/joint.hpp"
+#include "pinocchio/multibody/force-set.hpp"
 
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3);
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Inertia);
@@ -73,7 +74,7 @@ namespace se3
 
     std::vector<Inertia> Ycrb;            // Inertia of the sub-tree composit rigid body
     Eigen::MatrixXd M;                    // Joint Inertia
-    Eigen::MatrixXd Fcrb;                 // Spatial forces set, used in CRBA
+    ForceSet Fcrb;                        // Spatial forces set, used in CRBA
 
     std::vector<Model::Index> lastChild;  // Index of the last child (for CRBA)
     std::vector<int> nvSubtree;           // Dimension of the subtree motion space (for CRBA)
@@ -153,7 +154,7 @@ namespace se3
     ,tau(ref.nv)
     ,Ycrb(ref.nbody)
     ,M(ref.nv,ref.nv)
-    ,Fcrb(6,ref.nv)
+    ,Fcrb(ref.nv)
     ,lastChild(ref.nbody)
     ,nvSubtree(ref.nbody)
   {

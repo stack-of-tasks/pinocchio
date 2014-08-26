@@ -74,38 +74,51 @@ namespace se3
       Block( ForceSetTpl & ref, const int & idx, const int & len )
 	: ref(ref), idx(idx), len(len) {}
       
+      Eigen::Block<ForceSetTpl::Matrix3x> linear() { return ref.m_f.block(0,idx,3,len); }
+      Eigen::Block<ForceSetTpl::Matrix3x> angular() { return ref.m_n.block(0,idx,3,len); }
+      Eigen::Block<const ForceSetTpl::Matrix3x> linear()  const 
+      { return ((const ForceSetTpl::Matrix3x &)(ref.m_f)).block(0,idx,3,len); }
+      Eigen::Block<const ForceSetTpl::Matrix3x> angular() const 
+      { return ((const ForceSetTpl::Matrix3x &)(ref.m_n)).block(0,idx,3,len); }
+
+      ForceSetTpl::Matrix6x matrix() const
+      {
+	ForceSetTpl::Matrix6x res(6,len); res << linear(),angular(); 
+	return res;
+      }
+
       Block& operator= (const ForceSetTpl & copy)
       {
 	assert(copy.size == len);
-	ref.m_f.block(0,idx,3,len) = copy.m_f;
-	ref.m_n.block(0,idx,3,len) = copy.m_n;
+	linear() = copy.linear(); //ref.m_f.block(0,idx,3,len) = copy.m_f;
+	angular() = copy.angular(); //ref.m_n.block(0,idx,3,len) = copy.m_n;
 	return *this;
       }
 
       Block& operator= (const ForceSetTpl::Block & copy)
       {
 	assert(copy.len == len);
-	ref.m_f.block(0,idx,3,len) = copy.ref.m_f.block(0,copy.idx,3,copy.len);
-	ref.m_n.block(0,idx,3,len) = copy.ref.m_n.block(0,copy.idx,3,copy.len);
+	linear() = copy.linear(); //ref.m_f.block(0,idx,3,len) = copy.ref.m_f.block(0,copy.idx,3,copy.len);
+	angular() = copy.angular(); //ref.m_n.block(0,idx,3,len) = copy.ref.m_n.block(0,copy.idx,3,copy.len);
 	return *this;
       }
 
       /// af = aXb.act(bf)
       ForceSetTpl se3Action(const SE3 & m) const
       {
-	const Eigen::Block<const Matrix3x> linear = ref.linear().block(0,idx,3,len);
-	const Eigen::Block<const Matrix3x> angular = ref.angular().block(0,idx,3,len);
-	Matrix3x Rf = (m.rotation()*linear).eval();
-	return ForceSetTpl(Rf,skew(m.translation())*Rf+m.rotation()*angular);
+	// const Eigen::Block<const Matrix3x> linear = ref.linear().block(0,idx,3,len);
+	// const Eigen::Block<const Matrix3x> angular = ref.angular().block(0,idx,3,len);
+	Matrix3x Rf = (m.rotation()*linear()).eval();
+	return ForceSetTpl(Rf,skew(m.translation())*Rf+m.rotation()*angular());
 	// TODO check if nothing better than explicitely calling skew
       }
       /// bf = aXb.actInv(af)
       ForceSetTpl se3ActionInverse(const SE3 & m) const
       {
-	const Eigen::Block<const Matrix3x> linear = ref.linear().block(0,idx,3,len);
-	const Eigen::Block<const Matrix3x> angular = ref.angular().block(0,idx,3,len);
-	return ForceSetTpl(m.rotation().transpose()*linear,
-			   m.rotation().transpose()*(angular - skew(m.translation())*linear) );
+	// const Eigen::Block<const Matrix3x> linear = ref.linear().block(0,idx,3,len);
+	// const Eigen::Block<const Matrix3x> angular = ref.angular().block(0,idx,3,len);
+	return ForceSetTpl(m.rotation().transpose()*linear(),
+			   m.rotation().transpose()*(angular() - skew(m.translation())*linear()) );
 	// TODO check if nothing better than explicitely calling skew
       }
 

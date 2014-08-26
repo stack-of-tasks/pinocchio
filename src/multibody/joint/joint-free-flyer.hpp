@@ -44,10 +44,10 @@ namespace se3
   }
 
   /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
-  const ForceSet::Block &
+  ForceSet::Matrix6x
   operator*( const JointFreeFlyer::ConstraintIdentity &, const ForceSet::Block & F )
   {
-    return F;
+    return F.matrix(); // TODO try to avoid creation of a new MatrixXd
   }
 
 

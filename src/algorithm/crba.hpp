@@ -41,12 +41,7 @@ namespace se3
       
       jmodel.calc(jdata.derived(),q);
       
-      const Model::Index & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      
-      if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
-      else         data.oMi[i] = data.liMi[i];
-      
       data.Ycrb[i] = model.inertias[i];
     }
 
@@ -78,25 +73,22 @@ namespace se3
       const Model::Index & parent   = model.parents[i];
       const int &          nsubtree = data.nvSubtree[i];
 
-      ConstraintXd S = jdata.S();
-      data.Fcrb.block<6,JointModel::nv>(0,jmodel.idx_v()) = data.Ycrb[i].toMatrix() * S.matrix() ;
+      data.Fcrb.block(jmodel.idx_v(),JointModel::nv) = data.Ycrb[i] * jdata.S();
 
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),JointModel::nv,nsubtree)
-	= S.matrix().transpose() * data.Fcrb.block(0,jmodel.idx_v(), 6,nsubtree);
+       	= jdata.S().transpose() * data.Fcrb.block(jmodel.idx_v(),nsubtree);
 
-      std::cout << "*** joint " << i << std::endl;
-      std::cout << "iYi = " << (Inertia::Matrix6)data.Ycrb[i] << std::endl;
-      std::cout << "iSi = " << S.matrix() << std::endl;
-      std::cout << "iFi = " << data.Fcrb.block<6,JointModel::nv>(0,jmodel.idx_v()) << std::endl;
-      std::cout << "F = " <<  data.Fcrb << std::endl;
-      std::cout << "M = " <<  data.M << std::endl;
+      // std::cout << "*** joint " << i << std::endl;
+      // std::cout << "iYi = " << (Inertia::Matrix6)data.Ycrb[i] << std::endl;
+      // std::cout << "iSi = " << ConstraintXd(jdata.S()).matrix() << std::endl;
+      // std::cout << "iF = " << data.Fcrb.matrix() << std::endl;
+      // std::cout << "M = " <<  data.M << std::endl;
 
       if( parent>0 )
 	{
 	  data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
-	  SE3::Matrix6 ljXj = data.liMi[i];
-	  data.Fcrb.block(0,jmodel.idx_v(), 6,nsubtree)
-	    = ljXj.transpose().inverse() * data.Fcrb.block(0,jmodel.idx_v(), 6,nsubtree);
+	  data.Fcrb.block(jmodel.idx_v(), nsubtree) =
+	    data.liMi[i].act( data.Fcrb.block(jmodel.idx_v(), nsubtree) );
 	}
     }
   };
