@@ -12,9 +12,10 @@ namespace se3
 {
   template<class C> struct traits {};
 
-  /*
+  /* RNEA operations
+   *
    * *** FORWARD ***
-   * J::calc()
+   * J::calc(q,vq)
    * SE3    = SE3 * J::SE3
    * Motion = J::Motion
    * Motion = J::Constraint*J::JointMotion + J::Bias + Motion^J::Motion
@@ -22,6 +23,21 @@ namespace se3
    *
    * *** BACKWARD *** 
    * J::JointForce = J::Constraint::Transpose*J::Force
+   */
+
+  /* CRBA operations
+   *
+   * *** FORWARD ***
+   * J::calc(q)
+   * Inertia = Inertia
+   *
+   * *** BACKWARD *** 
+   * Inertia += SE3::act(Inertia)
+   * F = Inertia*J::Constraint
+   * JointInertia.block = J::Constraint::Transpose*F
+   * *** *** INNER ***
+   *     F = SE3::act(f)
+   *     JointInertia::block = J::Constraint::Transpose*F
    */
 
 #define SE3_JOINT_TYPEDEF \
@@ -36,6 +52,11 @@ namespace se3
     nv = traits<Joint>::nv \
   }
 
+#define SE3_JOINT_USE_INDEXES \
+    typedef JointModelBase<JointModel> Base; \
+    using Base::idx_q; \
+    using Base::idx_v
+
   template<typename _JointData>
   struct JointDataBase
   {
@@ -45,10 +66,10 @@ namespace se3
     JointData& derived() { return *static_cast<JointData*>(this); }
     const JointData& derived() const { return *static_cast<const JointData*>(this); }
 
-    const Constraint_t     & S()   { return static_cast<JointData*>(this)->S;   }
-    const Transformation_t & M()   { return static_cast<JointData*>(this)->M;   }
-    const Motion_t       & v()   { return static_cast<JointData*>(this)->v;   }
-    const Bias_t           & c()   { return static_cast<JointData*>(this)->c;   }
+    const Constraint_t     & S() const  { return static_cast<const JointData*>(this)->S;   }
+    const Transformation_t & M() const  { return static_cast<const JointData*>(this)->M;   }
+    const Motion_t         & v() const  { return static_cast<const JointData*>(this)->v;   }
+    const Bias_t           & c() const  { return static_cast<const JointData*>(this)->c;   }
   };
 
   template<typename _JointModel>
@@ -61,6 +82,9 @@ namespace se3
     const JointModel& derived() const { return *static_cast<const JointModel*>(this); }
 
     JointData createData() const { return static_cast<const JointModel*>(this)->createData(); }
+    void calc( JointData& data, 
+	       const Eigen::VectorXd & qs ) const
+    { return static_cast<const JointModel*>(this)->calc(data,qs); }
     void calc( JointData& data, 
 	       const Eigen::VectorXd & qs, 
 	       const Eigen::VectorXd & vs ) const

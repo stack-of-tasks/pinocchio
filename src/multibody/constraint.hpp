@@ -11,7 +11,7 @@
 
 namespace se3
 {
-  template<int _Dim, typename _Scalar, int _Options>
+  template<int _Dim, typename _Scalar, int _Options=0>
   class ConstraintTpl
   { 
   public:
@@ -51,8 +51,10 @@ namespace se3
     DenseBase S;
   };
 
-};
+  typedef ConstraintTpl<1,double,0> Constraint1d;
+  typedef ConstraintTpl<6,double,0> Constraint6d;
+  typedef ConstraintTpl<Eigen::Dynamic,double,0> ConstraintXd;
 
-
+} // namespace se3
 
 #endif // ifndef __se3_constraint_hpp__

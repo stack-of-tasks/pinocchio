@@ -103,7 +103,8 @@ For Featherstone, $E = \bRa =\aRb^T$ and $r = \apb$. Then:
 $$\bXa^* = \BIN \bRa & 0 \\ -\bRa \apb_\times & \bRa \BOUT = \BIN E & 0 \\ - E r_\times & E \BOUT $$
 $$\aXb^* = \BIN \bRa^T & 0 \\  \apb_\times \bRa^T & \bRa^T \BOUT = \BIN E^T & 0 \\ r_\times E^T & E^T \BOUT $$
 
-\section{Inertia application}
+\section{Inertia}
+\subsection{Inertia application}
 
 $$\aY: \avs \rightarrow \afs = \aY \avs$$
 
@@ -130,6 +131,14 @@ $$ Y \nu = \BIN m & mc_\times^T \\ mc_\times & I+mc_\times c_\times^T \BOUT \BIN
 Nota: the square of the cross product is:
 $$\BIN x\\y\\z\BOUT_ \times^2 = \BIN 0&-z&y \\ z&0&-x \\ -y&x&0 \BOUT^2 = \BIN -y^2-z^2&xy&xz \\ xy&-x^2-z^2&yz \\ xz&yz&-x^2-y^2 \BOUT$$
 There is no computational interest in using it.
+
+\subsection{Inertia addition}
+
+$$ Y_p = \BIN m_p &  m_p  p_\times^T \\ m_p p_\times &  I_p + m_p  p_\times p_\times^T \BOUT$$
+$$ Y_q = \BIN m_q &  m_q  q_\times^T \\ m_q q_\times &  I_q + m_q  q_\times q_\times^T \BOUT$$
+
+
+
 
 \section{Cross products}
 
