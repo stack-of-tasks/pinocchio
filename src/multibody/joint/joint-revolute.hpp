@@ -72,6 +72,7 @@ namespace se3
 	operator*( const Force& f ) const
 	{ return f.angular().segment<1>(axis); }
 
+	/* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
 	Eigen::Block<const typename ForceSet::Matrix3x>
 	operator*( const typename ForceSet::Block & F )
 	{
@@ -178,8 +179,6 @@ namespace se3
   ForceSet operator*( const Inertia& Y,const JointRevolute<0>::ConstraintRevolute & )
   { 
     /* Y(:,3) = ( 0,-z, y,  I00+yy+zz,  I01-xy   ,  I02-xz   ) */
-    /* Y(:,4) = ( z, 0,-x,  I10-xy   ,  I11+xx+zz,  I12-yz   ) */
-    /* Y(:,5) = (-y, x, 0,  I20-xz   ,  I21-yz   ,  I22+xx+yy) */
     const double 
       &m = Y.mass(),
       &x = Y.lever()[0],
@@ -191,8 +190,36 @@ namespace se3
 				     I(0,1)-m*x*y,
 				     I(0,2)-m*x*z) );
   }
-  /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
-  //template<int axis>
+  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
+  ForceSet operator*( const Inertia& Y,const JointRevolute<1>::ConstraintRevolute & )
+  { 
+    /* Y(:,4) = ( z, 0,-x,  I10-xy   ,  I11+xx+zz,  I12-yz   ) */
+    const double 
+      &m = Y.mass(),
+      &x = Y.lever()[0],
+      &y = Y.lever()[1],
+      &z = Y.lever()[2];
+    const Inertia::Symmetric3 & I = Y.inertia();
+    return ForceSet( Eigen::Vector3d(m*z,0,-m*x),
+		     Eigen::Vector3d(I(1,0)-m*x*y,
+				     I(1,1)+m*(x*x+z*z),
+				     I(1,2)-m*y*z) );
+  }
+  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
+  ForceSet operator*( const Inertia& Y,const JointRevolute<2>::ConstraintRevolute & )
+  { 
+    /* Y(:,5) = (-y, x, 0,  I20-xz   ,  I21-yz   ,  I22+xx+yy) */
+    const double 
+      &m = Y.mass(),
+      &x = Y.lever()[0],
+      &y = Y.lever()[1],
+      &z = Y.lever()[2];
+    const Inertia::Symmetric3 & I = Y.inertia();
+    return ForceSet( Eigen::Vector3d(-m*y,m*x,0),
+		     Eigen::Vector3d(I(2,0)-m*x*z,
+				     I(2,1)-m*y*z,
+				     I(2,2)+m*(x*x+y*y)) );
+  }
 
 
   template<int axis>
