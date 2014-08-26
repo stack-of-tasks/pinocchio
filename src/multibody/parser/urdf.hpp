@@ -66,7 +66,7 @@ namespace se3
     //   std::cout << "#" << link->parent_joint->name << std::endl;
     // else std::cout << "###ROOT" << std::endl;
  
-    assert(link->inertial && "The parser cannot accept trivial mass");
+    //assert(link->inertial && "The parser cannot accept trivial mass");
     const Inertia & Y = (link->inertial) ?
       convertFromUrdf(*link->inertial)
       : Inertia::Identity();
