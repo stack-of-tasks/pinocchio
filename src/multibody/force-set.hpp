@@ -82,6 +82,14 @@ namespace se3
 	return *this;
       }
 
+      Block& operator= (const ForceSetTpl::Block & copy)
+      {
+	assert(copy.len == len);
+	ref.m_f.block(0,idx,3,len) = copy.ref.m_f.block(0,copy.idx,3,copy.len);
+	ref.m_n.block(0,idx,3,len) = copy.ref.m_n.block(0,copy.idx,3,copy.len);
+	return *this;
+      }
+
       /// af = aXb.act(bf)
       ForceSetTpl se3Action(const SE3 & m) const
       {

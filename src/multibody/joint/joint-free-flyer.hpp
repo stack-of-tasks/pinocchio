@@ -35,6 +35,23 @@ namespace se3
     {  return phi.toVector();  }
   };
 
+
+  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
+  ForceSet operator*( const Inertia& Y,const JointFreeFlyer::ConstraintIdentity & )
+  {
+    const Inertia::Matrix6 matY = Y;
+    return ForceSet(matY.topRows<3>(), matY.bottomRows<3>() );
+  }
+
+  /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
+  const ForceSet::Block &
+  operator*( const JointFreeFlyer::ConstraintIdentity &, const ForceSet::Block & F )
+  {
+    return F;
+  }
+
+
+
   template<>
   struct traits<JointFreeFlyer>
   {
