@@ -76,6 +76,7 @@ namespace se3
     Eigen::MatrixXd Fcrb;                 // Spatial forces set, used in CRBA
 
     std::vector<Model::Index> lastChild;  // Index of the last child (for CRBA)
+    std::vector<int> nvSubtree;           // Dimension of the subtree motion space (for CRBA)
 
     Data( const Model& ref );
 
@@ -154,6 +155,7 @@ namespace se3
     ,M(ref.nv,ref.nv)
     ,Fcrb(6,ref.nv)
     ,lastChild(ref.nbody)
+    ,nvSubtree(ref.nbody)
   {
     for(int i=0;i<model.nbody;++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
@@ -173,6 +175,10 @@ namespace se3
 	if(lastChild[i] == -1) lastChild[i] = i;
 	const Index & parent = model.parents[i];
 	lastChild[parent] = std::max(lastChild[i],lastChild[parent]);
+
+	nvSubtree[i] 
+	  = Joint_idx_v::run(model.joints[lastChild[i]]) + Joint_nv::run(model.joints[lastChild[i]])
+	  - Joint_idx_v::run(model.joints[i]);
       }
   }
 
