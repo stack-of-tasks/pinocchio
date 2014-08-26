@@ -23,6 +23,50 @@ namespace se3
     { return boost::apply_visitor( CreateJointData(), jmodel ); }
   };
 
+  class Joint_nv: public boost::static_visitor<int>
+  {
+  public:
+    template<typename D>
+    int operator()(const JointModelBase<D> & ) const
+    { return D::nv; }
+    
+    static int run( const JointModelVariant & jmodel)
+    { return boost::apply_visitor( Joint_nv(), jmodel ); }
+  };
+
+  class Joint_nq: public boost::static_visitor<int>
+  {
+  public:
+    template<typename D>
+    int operator()(const JointModelBase<D> & ) const
+    { return D::nq; }
+    
+    static int run( const JointModelVariant & jmodel)
+    { return boost::apply_visitor( Joint_nq(), jmodel ); }
+  };
+
+  class Joint_idx_q: public boost::static_visitor<int>
+  {
+  public:
+    template<typename D>
+    int operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.idx_q(); }
+    
+    static int run( const JointModelVariant & jmodel)
+    { return boost::apply_visitor( Joint_idx_q(), jmodel ); }
+  };
+
+  class Joint_idx_v: public boost::static_visitor<int>
+  {
+  public:
+    template<typename D>
+    int operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.idx_v(); }
+    
+    static int run( const JointModelVariant & jmodel)
+    { return boost::apply_visitor( Joint_idx_v(), jmodel ); }
+  };
+
 } // namespace se3
 
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointModelVariant);

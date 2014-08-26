@@ -39,6 +39,7 @@ SET(${PROJECT_NAME}_HEADERS
   spatial/fwd.hpp
   spatial/skew.hpp
   multibody/constraint.hpp
+  multibody/force-set.hpp
   multibody/joint.hpp
   multibody/joint/joint-base.hpp
   multibody/joint/joint-revolute.hpp
@@ -83,6 +84,9 @@ ENDFOREACH(header)
 # ----------------------------------------------------
 ADD_EXECUTABLE(tspatial EXCLUDE_FROM_ALL unittest/tspatial.cpp)
 PKG_CONFIG_USE_DEPENDENCY(tspatial eigenpy)
+
+ADD_EXECUTABLE(constraint EXCLUDE_FROM_ALL unittest/constraint.cpp)
+PKG_CONFIG_USE_DEPENDENCY(constraint eigenpy)
 
 ADD_EXECUTABLE(rnea EXCLUDE_FROM_ALL unittest/rnea.cpp)
 PKG_CONFIG_USE_DEPENDENCY(rnea eigenpy)

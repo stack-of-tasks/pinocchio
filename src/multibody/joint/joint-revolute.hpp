@@ -3,6 +3,7 @@
 
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
+#include "pinocchio/multibody/force-set.hpp"
 
 namespace se3
 {
@@ -62,12 +63,30 @@ namespace se3
       template<typename D>
       MotionRevolute operator*( const Eigen::MatrixBase<D> & v ) const { return MotionRevolute(v[0]); }
 
-      const ConstraintRevolute & transpose() const { return *this; }
-     //template<typename D> D operator*( const Force& f ) const
-     Force::Vector3::ConstFixedSegmentReturnType<1>::Type
-     operator*( const Force& f ) const
-     { return f.angular().segment<1>(axis); }
+      struct TransposeConst
+      {
+	const ConstraintRevolute & ref; 
+	TransposeConst(const ConstraintRevolute & ref) : ref(ref) {} 
 
+	Force::Vector3::ConstFixedSegmentReturnType<1>::Type
+	operator*( const Force& f ) const
+	{ return f.angular().segment<1>(axis); }
+
+	Eigen::Block<const typename ForceSet::Matrix3x>
+	operator*( const typename ForceSet::Block & F )
+	{
+	  return F.ref.angular().block(axis,F.idx,1,F.len);
+	}
+
+      };
+      TransposeConst transpose() const { return TransposeConst(*this); }
+
+    /* CRBA joint operators
+     *   - ForceSet::Block = ForceSet
+     *   - ForceSet operator* (Inertia Y,Constraint S)
+     *   - MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
+     *   - SE3::act(ForceSet::Block)
+     */
       operator ConstraintXd () const
       {
 	Eigen::Matrix<double,6,1> S;
@@ -155,6 +174,25 @@ namespace se3
       return R3;
     }
 
+  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
+  ForceSet operator*( const Inertia& Y,const JointRevolute<0>::ConstraintRevolute & )
+  { 
+    /* Y(:,3) = ( 0,-z, y,  I00+yy+zz,  I01-xy   ,  I02-xz   ) */
+    /* Y(:,4) = ( z, 0,-x,  I10-xy   ,  I11+xx+zz,  I12-yz   ) */
+    /* Y(:,5) = (-y, x, 0,  I20-xz   ,  I21-yz   ,  I22+xx+yy) */
+    const double 
+      &m = Y.mass(),
+      &x = Y.lever()[0],
+      &y = Y.lever()[1],
+      &z = Y.lever()[2];
+    const Inertia::Symmetric3 & I = Y.inertia();
+    return ForceSet( Eigen::Vector3d(0,-m*z,m*y),
+		     Eigen::Vector3d(I(0,0)+m*(y*y+z*z),
+				     I(0,1)-m*x*y,
+				     I(0,2)-m*x*z) );
+  }
+  /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
+  //template<int axis>
 
 
   template<int axis>
@@ -224,12 +262,15 @@ namespace se3
 
   };
 
+  typedef JointRevolute<0> JointRX;
   typedef JointDataRevolute<0> JointDataRX;
   typedef JointModelRevolute<0> JointModelRX;
 
+  typedef JointRevolute<1> JointRY;
   typedef JointDataRevolute<1> JointDataRY;
   typedef JointModelRevolute<1> JointModelRY;
 
+  typedef JointRevolute<2> JointRZ;
   typedef JointDataRevolute<2> JointDataRZ;
   typedef JointModelRevolute<2> JointModelRZ;
 

@@ -68,57 +68,36 @@ namespace se3
 		     int i)
     {
       /*
-       * F = Yi*Si
-       * for j<i 
-       *    F = ljXj.act(F)
-       *    M.block(j,i,nvj,nvi) = Sj'*F
+       * F[:,i] = Yi*Si
+       * M[i,i:subtree] = Si'*F[:,i:substree]
+       * if li>0:
+       *    Yli += liMi.act(Yi)
+       *    F[:,i:subtree] = liMi.act(F[:,i:subtree])
        */
-      std::cout << "*** joint " << i << std::endl;
 
-      Model::Index parent = model.parents[i];
-      if( parent>0 )
-	data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+      const Model::Index & parent   = model.parents[i];
+      const int &          nsubtree = data.nvSubtree[i];
 
-      //std::cout << "liMi = " << (SE3::Matrix4)data.liMi[i] << std::endl;
-
-      Eigen::Matrix<double,6,JointModel::nv> F;
       ConstraintXd S = jdata.S();
-      F = data.Ycrb[i].toMatrix() * S.matrix() ;
+      data.Fcrb.block<6,JointModel::nv>(0,jmodel.idx_v()) = data.Ycrb[i].toMatrix() * S.matrix() ;
+
+      data.M.block(jmodel.idx_v(),jmodel.idx_v(),JointModel::nv,nsubtree)
+	= S.matrix().transpose() * data.Fcrb.block(0,jmodel.idx_v(), 6,nsubtree);
 
       std::cout << "*** joint " << i << std::endl;
       std::cout << "iYi = " << (Inertia::Matrix6)data.Ycrb[i] << std::endl;
       std::cout << "iSi = " << S.matrix() << std::endl;
-      std::cout << "iFi = " << F << std::endl;
+      std::cout << "iFi = " << data.Fcrb.block<6,JointModel::nv>(0,jmodel.idx_v()) << std::endl;
+      std::cout << "F = " <<  data.Fcrb << std::endl;
+      std::cout << "M = " <<  data.M << std::endl;
 
-      data.M.block<JointModel::nv,JointModel::nv>(jmodel.idx_v(),jmodel.idx_v())
-	= S.matrix().transpose() * F;
-
-      SE3::Matrix6 ljXj = data.liMi[i];
-      while(parent>0)
+      if( parent>0 )
 	{
-	  JointDataGeneric jdataparent( data.joints[parent] );
-	  JointModelGeneric jmodelparent( model.joints[parent] );
-
-	  F = ljXj.inverse().transpose()*F; // equivalent to ljF = ljMj.act(jF)
-	  const ConstraintXd::DenseBase & S = jdataparent.S.matrix();
-	  std::cout << "jFi = " << F <<std::endl;
-	  std::cout << "jS = " << S <<std::endl;
-
-	  data.M.block(jmodelparent.idx_v(),jmodel.idx_v(),S.cols(),JointModel::nv)
-	    = S.transpose() * F;
-
-	  std::cout << "\t\t on parent #i,j = " << i<<","<<parent << "   ... compute block "
-		    << jmodelparent.idx_v() << ":" 
-		    << jmodelparent.idx_v() + S.cols() << " x "
-		    << jmodel.idx_v() << ":"
-		    << jmodel.idx_v() + JointModel::nv << std::endl;
-	  std::cout << "jFi = " << F << std::endl;
-	  std::cout << "jSj = " << S << std::endl;
-
-	  ljXj = data.liMi[parent];
-	  parent = model.parents[parent];
+	  data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+	  SE3::Matrix6 ljXj = data.liMi[i];
+	  data.Fcrb.block(0,jmodel.idx_v(), 6,nsubtree)
+	    = ljXj.transpose().inverse() * data.Fcrb.block(0,jmodel.idx_v(), 6,nsubtree);
 	}
-
     }
   };
 

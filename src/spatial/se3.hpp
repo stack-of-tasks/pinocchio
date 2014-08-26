@@ -8,6 +8,12 @@
 namespace se3
 {
 
+  namespace internal 
+  {
+    template<typename D>
+    struct ActionReturn    { typedef D Type; };
+  }
+
   /** The rigid transform aMb can be seen in two ways: 
    *
    * - given a point p expressed in frame B by its coordinate vector Bp, aMb
@@ -100,9 +106,11 @@ namespace se3
     /* --- GROUP ACTIONS ON M6, F6 and I6 --- */
 
      /// ay = aXb.act(by)
-    template<typename D> D act   (const D & d) const { return d.se3Action(*this); }
+    template<typename D> typename internal::ActionReturn<D>::Type act   (const D & d) const 
+    { return d.se3Action(*this); }
     /// by = aXb.actInv(ay)
-    template<typename D> D actInv(const D & d) const { return d.se3ActionInverse(*this); }
+    template<typename D> typename internal::ActionReturn<D>::Type actInv(const D & d) const
+    { return d.se3ActionInverse(*this); }
 
     Vector3 act   (const Vector3& p) const { return (rot*p+trans).eval(); }
     Vector3 actInv(const Vector3& p) const { return (rot.transpose()*(p-trans)).eval(); }

@@ -100,13 +100,13 @@ namespace se3
     {
       const double & mm = m+other.m;
       const Matrix3 & X = skew((c-other.c).eval());
-      Matrix3 mmmXX = m*other.m/mm*X*X; // TODO clean this mess
+      Matrix3 mmmXX = (m*other.m/mm*X*X).eval(); // TODO clean this mess
       return InertiaTpl(mm, (m*c+other.m*other.c)/mm, dense_I+other.dense_I-mmmXX); // TODO: += in Eigen::Symmetric?
     }
     Inertia& operator+=(const InertiaTpl &other)
     {
       const Matrix3 & X = skew((c-other.c).eval());
-      Matrix3 mmXX = m*other.m*X*X; // TODO: clean this mess
+      Matrix3 mmXX = (m*other.m*X*X).eval(); // TODO: clean this mess
       c *=m; c+=other.m*other.c;
       m+=other.m; c/=m;  
       dense_I+=other.dense_I-mmXX/m; // TODO: += in Eigen::Symmetric?
