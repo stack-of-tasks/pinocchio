@@ -31,6 +31,7 @@ ADD_REQUIRED_DEPENDENCY("urdfdom >= v0.3.0")
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
 SET(${PROJECT_NAME}_HEADERS
+  exception.hpp
   spatial/se3.hpp
   spatial/motion.hpp
   spatial/force.hpp
@@ -43,11 +44,13 @@ SET(${PROJECT_NAME}_HEADERS
   multibody/joint/joint-revolute.hpp
   multibody/joint/joint-free-flyer.hpp
   multibody/joint/joint-variant.hpp
+  multibody/joint/joint-generic.hpp
   multibody/model.hpp
   multibody/visitor.hpp
   multibody/parser/urdf.hpp
   tools/timer.hpp
   algorithm/rnea.hpp
+  algorithm/crba.hpp
   algorithm/kinematics.hpp
 )
 
@@ -83,6 +86,10 @@ PKG_CONFIG_USE_DEPENDENCY(tspatial eigenpy)
 
 ADD_EXECUTABLE(rnea EXCLUDE_FROM_ALL unittest/rnea.cpp)
 PKG_CONFIG_USE_DEPENDENCY(rnea eigenpy)
+
+ADD_EXECUTABLE(crba EXCLUDE_FROM_ALL unittest/crba.cpp)
+PKG_CONFIG_USE_DEPENDENCY(crba eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(crba urdfdom)
 
 ADD_EXECUTABLE(dg EXCLUDE_FROM_ALL unittest/dg.cpp)
 PKG_CONFIG_USE_DEPENDENCY(dg eigenpy)

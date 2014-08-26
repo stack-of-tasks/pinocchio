@@ -67,9 +67,16 @@ namespace se3
     }
     static Inertia Random()
     {
+      /* We have to shoot "I" definite positive and not only symmetric. */
+      Matrix3 M3 = Matrix3::Random(); // TODO clean that mess
+      Matrix3 D = Vector3::Random().cwiseAbs().asDiagonal();
+      Matrix3 M3D2 = M3+2*D;
+      Matrix3 posdiag 
+	= M3D2.template selfadjointView<Eigen::Upper>();
       return InertiaTpl(Eigen::internal::random<Scalar>(),
 			Vector3::Random(),
-			Matrix3::Random().template selfadjointView<Eigen::Upper>());
+			//Matrix3::Random().template selfadjointView<Eigen::Upper>());
+			posdiag);
     }
 
     // Getters
@@ -91,7 +98,19 @@ namespace se3
     // Arithmetic operators
     Inertia operator+(const InertiaTpl &other) const
     {
-      return InertiaTpl(m+other.m, c+other.c, I+other.I);
+      const double & mm = m+other.m;
+      const Matrix3 & X = skew((c-other.c).eval());
+      Matrix3 mmmXX = m*other.m/mm*X*X; // TODO clean this mess
+      return InertiaTpl(mm, (m*c+other.m*other.c)/mm, dense_I+other.dense_I-mmmXX); // TODO: += in Eigen::Symmetric?
+    }
+    Inertia& operator+=(const InertiaTpl &other)
+    {
+      const Matrix3 & X = skew((c-other.c).eval());
+      Matrix3 mmXX = m*other.m*X*X; // TODO: clean this mess
+      c *=m; c+=other.m*other.c;
+      m+=other.m; c/=m;  
+      dense_I+=other.dense_I-mmXX/m; // TODO: += in Eigen::Symmetric?
+      return *this;
     }
 
     Force operator*(const Motion &v) const 

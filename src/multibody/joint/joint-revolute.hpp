@@ -2,6 +2,7 @@
 #define __se3_joint_revolute_hpp__
 
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/constraint.hpp"
 
 namespace se3
 {
@@ -16,6 +17,7 @@ namespace se3
     {
       double w; 
       CartesianVector3(const double & w) : w(w) {}
+      CartesianVector3() : w(1) {}
       operator Eigen::Vector3d (); // { return Eigen::Vector3d(w,0,0); }
     };
     template<>CartesianVector3<0>::operator Eigen::Vector3d () { return Eigen::Vector3d(w,0,0); }
@@ -31,7 +33,10 @@ namespace se3
 
   template<int axis> 
   struct JointRevolute {
-    struct BiasZero {};
+    struct BiasZero 
+    {
+      operator Motion () const { return Motion::Zero(); }
+    };
     friend const Motion & operator+ ( const Motion& v, const BiasZero&) { return v; }
     friend const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
 
@@ -62,6 +67,13 @@ namespace se3
      Force::Vector3::ConstFixedSegmentReturnType<1>::Type
      operator*( const Force& f ) const
      { return f.angular().segment<1>(axis); }
+
+      operator ConstraintXd () const
+      {
+	Eigen::Matrix<double,6,1> S;
+	S << Eigen::Vector3d::Zero(), (Eigen::Vector3d)revolute::CartesianVector3<axis>();
+	return ConstraintXd(S);
+      }
     }; // struct ConstraintRevolute
 
     static Eigen::Matrix3d cartesianRotation(const double & angle); 
@@ -191,6 +203,13 @@ namespace se3
     using JointModelBase<JointModelRevolute>::setIndexes;
     
     JointData createData() const { return JointData(); }
+    void calc( JointData& data, 
+	       const Eigen::VectorXd & qs ) const
+    {
+      const double & q = qs[idx_q()];
+      data.M.rotation(JointRevolute<axis>::cartesianRotation(q));
+    }
+
     void calc( JointData& data, 
 	       const Eigen::VectorXd & qs, 
 	       const Eigen::VectorXd & vs ) const

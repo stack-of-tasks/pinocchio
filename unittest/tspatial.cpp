@@ -221,6 +221,17 @@ bool testInertia()
   Force vxIv = aI.vxiv(v);
   assert( vxf.toVector().isApprox(vxIv.toVector()) );
 
+  // Test operator+
+  I1 = Inertia::Random();
+  Inertia I2 = Inertia::Random();
+  assert( (I1.toMatrix()+I2.toMatrix()).isApprox((I1+I2).toMatrix()) );
+  
+  Inertia I12 = I1;
+  I12 += I2;
+  assert( (I1.toMatrix()+I2.toMatrix()).isApprox(I12.toMatrix()) );
+
+
+
   return true;
 }
 

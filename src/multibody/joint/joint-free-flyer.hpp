@@ -2,6 +2,7 @@
 #define __se3_joint_free_flyer_hpp__
 
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/constraint.hpp"
 
 namespace se3
 {
@@ -11,13 +12,17 @@ namespace se3
 
   struct JointFreeFlyer 
   {
-    struct BiasZero {};
+    struct BiasZero 
+    {
+      operator Motion () const { return Motion::Zero(); }
+    };
     friend const Motion & operator+ ( const Motion& v, const BiasZero&) { return v; }
     friend const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
 
     struct ConstraintIdentity
     {
       const ConstraintIdentity& transpose() const { return *this; }
+      operator ConstraintXd () const { return ConstraintXd(Eigen::MatrixXd::Identity(6,6)); }
     };
     template<typename D>
     friend Motion operator* (const ConstraintIdentity&, const Eigen::MatrixBase<D>& v)
@@ -29,9 +34,6 @@ namespace se3
     friend Force::Vector6 operator* (const ConstraintIdentity&, const Force & phi)
     {  return phi.toVector();  }
   };
-
-  struct JointModelFreeFlyer;
-  struct JointDataFreeFlyer;
 
   template<>
   struct traits<JointFreeFlyer>
@@ -75,6 +77,13 @@ namespace se3
     SE3_JOINT_TYPEDEF;
 
     JointData createData() const { return JointData(); }
+    void calc( JointData& data, 
+	       const Eigen::VectorXd & qs) const
+    {
+      Eigen::VectorXd::ConstFixedSegmentReturnType<nq>::Type q = qs.segment<nq>(idx_q());
+      JointData::Quaternion quat(Eigen::Matrix<double,4,1>(q.tail(4))); // TODO
+      data.M = SE3(quat.matrix(),q.head<3>());
+    }
     void calc( JointData& data, 
 	       const Eigen::VectorXd & qs, 
 	       const Eigen::VectorXd & vs ) const

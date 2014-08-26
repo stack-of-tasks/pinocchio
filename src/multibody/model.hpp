@@ -71,9 +71,15 @@ namespace se3
     std::vector<SE3> liMi;                // Body relative placement (wrt parent)
     Eigen::VectorXd tau;                  // Joint forces
 
+    std::vector<Inertia> Ycrb;            // Inertia of the sub-tree composit rigid body
+    Eigen::MatrixXd M;                    // Joint Inertia
+    Eigen::MatrixXd Fcrb;                 // Spatial forces set, used in CRBA
+
+    std::vector<Model::Index> lastChild;  // Index of the last child (for CRBA)
+
     Data( const Model& ref );
 
-
+    void computeLastChild(const Model& model);
   };
 
   const Eigen::Vector3d Model::gravity981 (0,0,-9.81);
@@ -144,11 +150,31 @@ namespace se3
     ,oMi(ref.nbody)
     ,liMi(ref.nbody)
     ,tau(ref.nv)
+    ,Ycrb(ref.nbody)
+    ,M(ref.nv,ref.nv)
+    ,Fcrb(6,ref.nv)
+    ,lastChild(ref.nbody)
   {
     for(int i=0;i<model.nbody;++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
+    M.fill(NAN);
+    computeLastChild(ref);
   }
 
+  void Data::computeLastChild(const Model& model)
+  {
+    typedef Model::Index Index;
+    //lastChild.fill(-1);  TODO use fill algorithm
+    for( int i=0;i<model.nbody;++i ) lastChild[i] = -1;
+
+
+    for( int i=model.nbody-1;i>=0;--i )
+      {
+	if(lastChild[i] == -1) lastChild[i] = i;
+	const Index & parent = model.parents[i];
+	lastChild[parent] = std::max(lastChild[i],lastChild[parent]);
+      }
+  }
 
 } // namespace se3
 
