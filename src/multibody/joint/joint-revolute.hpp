@@ -3,6 +3,7 @@
 
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
+#include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/force-set.hpp"
 
 namespace se3
@@ -186,9 +187,9 @@ namespace se3
       &z = Y.lever()[2];
     const Inertia::Symmetric3 & I = Y.inertia();
     return ForceSet( Eigen::Vector3d(0,-m*z,m*y),
-		     Eigen::Vector3d(I(0,0)+m*(y*y+z*z),
-				     I(0,1)-m*x*y,
-				     I(0,2)-m*x*z) );
+    		     Eigen::Vector3d(I(0,0)+m*(y*y+z*z),
+    				     I(0,1)-m*x*y,
+    				     I(0,2)-m*x*z) );
   }
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   ForceSet operator*( const Inertia& Y,const JointRevolute<1>::ConstraintRevolute & )
@@ -201,9 +202,9 @@ namespace se3
       &z = Y.lever()[2];
     const Inertia::Symmetric3 & I = Y.inertia();
     return ForceSet( Eigen::Vector3d(m*z,0,-m*x),
-		     Eigen::Vector3d(I(1,0)-m*x*y,
-				     I(1,1)+m*(x*x+z*z),
-				     I(1,2)-m*y*z) );
+    		     Eigen::Vector3d(I(1,0)-m*x*y,
+    				     I(1,1)+m*(x*x+z*z),
+    				     I(1,2)-m*y*z) );
   }
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   ForceSet operator*( const Inertia& Y,const JointRevolute<2>::ConstraintRevolute & )
@@ -216,9 +217,9 @@ namespace se3
       &z = Y.lever()[2];
     const Inertia::Symmetric3 & I = Y.inertia();
     return ForceSet( Eigen::Vector3d(-m*y,m*x,0),
-		     Eigen::Vector3d(I(2,0)-m*x*z,
-				     I(2,1)-m*y*z,
-				     I(2,2)+m*(x*x+y*y)) );
+    		     Eigen::Vector3d(I(2,0)-m*x*z,
+    				     I(2,1)-m*y*z,
+    				     I(2,2)+m*(x*x+y*y)) );
   }
 
 
