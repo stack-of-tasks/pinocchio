@@ -74,7 +74,9 @@ namespace se3
 
     std::vector<Inertia> Ycrb;            // Inertia of the sub-tree composit rigid body
     Eigen::MatrixXd M;                    // Joint Inertia
-    ForceSet Fcrb;                        // Spatial forces set, used in CRBA
+
+    typedef Eigen::Matrix<double,6,Eigen::Dynamic> Matrix6x;
+    std::vector<Matrix6x> Fcrb;           // Spatial forces set, used in CRBA
 
     std::vector<Model::Index> lastChild;  // Index of the last child (for CRBA)
     std::vector<int> nvSubtree;           // Dimension of the subtree motion space (for CRBA)
@@ -161,6 +163,8 @@ namespace se3
     for(int i=0;i<model.nbody;++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
     M.fill(NAN);
+    for(int i=0;i<ref.nbody;++i ) { Fcrb[i].resize(6,model.nv); Fcrb[i].fill(NAN); }
+    //for(int i=0;i<ref.nbody;++i ) { Fcrb[i].resize(6,12); Fcrb[i].fill(0); }
     computeLastChild(ref);
   }
 

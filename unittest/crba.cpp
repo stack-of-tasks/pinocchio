@@ -4,6 +4,7 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/crba2.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/multibody/parser/urdf.hpp"
 
@@ -66,9 +67,12 @@ int main(int argc, const char ** argv)
   StackTicToc timer(StackTicToc::US); timer.tic();
   SMOOTH(1000)
     {
-      crba(model,data,q);
+      crba2(model,data,q);
     }
   timer.toc(std::cout,1000);
+
+  //std::cout << se3::internal::crbacounter << std::endl;
+  //std::cout << se3::internal::crba2counter << std::endl;
 
 #ifndef NDEBUG
   std::cout << "Mcrb = [ " << data.M << "  ];" << std::endl;
@@ -83,7 +87,7 @@ int main(int argc, const char ** argv)
 
     for(int i=0;i<model.nv;++i)
       { 
-	//M.col(i) = rnea(model,data,q,v,Eigen::VectorXd::Unit(model.nv,i)) - bias;
+	M.col(i) = rnea(model,data,q,v,Eigen::VectorXd::Unit(model.nv,i)) - bias;
       }
     std::cout << "Mrne = [  " << M << " ]; " << std::endl;
   }	

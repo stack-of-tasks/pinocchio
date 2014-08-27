@@ -52,6 +52,7 @@ SET(${PROJECT_NAME}_HEADERS
   tools/timer.hpp
   algorithm/rnea.hpp
   algorithm/crba.hpp
+  algorithm/crba2.hpp
   algorithm/kinematics.hpp
 )
 

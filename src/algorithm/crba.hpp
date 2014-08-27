@@ -53,6 +53,7 @@ namespace se3
     static Eigen::Matrix<double,6,D::ColsAtCompileTime>
     act( const SE3 & m, const Eigen::MatrixBase<D> & iF )
     {
+      std::cout << "This never happens." << std::endl;
       Eigen::Matrix<double,6,D::ColsAtCompileTime> jF(iF.rows(),iF.cols());
       
       typename D::template ConstNRowsBlockXpr<3>::Type linear  = iF.template topRows<3>();
@@ -64,9 +65,12 @@ namespace se3
       return jF;
     }
     
+    int crbacounter = 0;
+
     typedef Eigen::Matrix<double,6,1> Vector6;
     static Vector6 act( const SE3 & m, const Eigen::MatrixBase<Vector6> & iF )
     {
+      crbacounter += 1;
       Vector6 jF;
       
       Eigen::VectorBlock<const Vector6,3> linear = iF.head<3>();
@@ -131,15 +135,15 @@ namespace se3
       Model::Index  parent   = model.parents[i];
 
       jdata.F() = data.Ycrb[i] * jdata.S();
-      data.M.block(jmodel.idx_v(),jmodel.idx_v(),JointModel::nv,JointModel::nv)
-	= jdata.S().transpose()*jdata.F();
+      // data.M.block(jmodel.idx_v(),jmodel.idx_v(),JointModel::nv,JointModel::nv)
+      // 	= jdata.S().transpose()*jdata.F();
 
       // std::cout << "*** joint " << i << std::endl;
       // std::cout << "iFi = " << jdata.F() << std::endl;
 
       if(parent>0) 
 	{
-	  data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+	  // data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
 	  jdata.F() = internal::act(data.liMi[i],jdata.F());
 	}
       
@@ -147,13 +151,16 @@ namespace se3
       // std::cout << "iSi = " << ConstraintXd(jdata.S()).matrix() << std::endl;
       // std::cout << "liFi = " << jdata.F() << std::endl;
       
+      data.M(8,0) += 1;
+
       while(parent>0)
 	{
-	  CrbaInternalBackwardStep<typename JointModel::F_t>
-	    ::run( model.joints[parent],
-	  	   data.joints[parent],
-	  	   typename CrbaInternalBackwardStep<typename JointModel::F_t>
-	  	   ::ArgsType(model,data,jdata.F(),jmodel.idx_v(),JointModel::nv) );
+	  // std::cout << "i,parent =" << i<<","<<parent <<std::endl;
+	  // CrbaInternalBackwardStep<typename JointModel::F_t>
+	  //   ::run( model.joints[parent],
+	  // 	   data.joints[parent],
+	  // 	   typename CrbaInternalBackwardStep<typename JointModel::F_t>
+	  // 	   ::ArgsType(model,data,jdata.F(),jmodel.idx_v(),JointModel::nv) );
 
 	  jdata.F() = internal::act(data.liMi[parent],jdata.F());
 	  parent = model.parents[parent];
