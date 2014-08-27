@@ -47,6 +47,7 @@ namespace se3
   typedef typename traits<Joint>::Transformation_t Transformation_t; \
   typedef typename traits<Joint>::Motion_t Motion_t; \
   typedef typename traits<Joint>::Bias_t Bias_t; \
+  typedef typename traits<Joint>::F_t F_t; \
   enum { \
     nq = traits<Joint>::nq, \
     nv = traits<Joint>::nv \
@@ -70,6 +71,7 @@ namespace se3
     const Transformation_t & M() const  { return static_cast<const JointData*>(this)->M;   }
     const Motion_t         & v() const  { return static_cast<const JointData*>(this)->v;   }
     const Bias_t           & c() const  { return static_cast<const JointData*>(this)->c;   }
+    F_t& F()        { return static_cast<      JointData*>(this)->F; }
   };
 
   template<typename _JointModel>
