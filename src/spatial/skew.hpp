@@ -11,4 +11,18 @@ namespace se3
     m(2,0) = -v[1];  m(2,1) =  v[0];   m(2,2) =  0   ;
     return m;
   }
+
+  template <typename V,typename M>
+  inline Eigen::Matrix<typename M::Scalar,3,M::ColsAtCompileTime,M::Options>
+  cross(const Eigen::MatrixBase<V> & v,
+	const Eigen::MatrixBase<M> & m)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V,3);
+
+    Eigen::Matrix<typename M::Scalar,3,M::ColsAtCompileTime,M::Options> res (3,m.cols());
+    res.row(0) = v[1]*m.row(2) - v[2]*m.row(1);
+    res.row(1) = v[2]*m.row(0) - v[0]*m.row(2);
+    res.row(2) = v[0]*m.row(1) - v[1]*m.row(0);
+    return res;
+  }
 } // namespace se3
