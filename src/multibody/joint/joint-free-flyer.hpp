@@ -21,7 +21,12 @@ namespace se3
 
     struct ConstraintIdentity
     {
-      const ConstraintIdentity& transpose() const { return *this; }
+      struct TransposeConst 
+      {
+	Force::Vector6 operator* (const Force & phi)
+	{  return phi.toVector();  }
+      };
+      TransposeConst transpose() const { return TransposeConst(); }
       operator ConstraintXd () const { return ConstraintXd(Eigen::MatrixXd::Identity(6,6)); }
     };
     template<typename D>
@@ -31,23 +36,21 @@ namespace se3
       return Motion(v);
     }
 
-    friend Force::Vector6 operator* (const ConstraintIdentity&, const Force & phi)
-    {  return phi.toVector();  }
   };
 
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  ForceSet operator*( const Inertia& Y,const JointFreeFlyer::ConstraintIdentity & )
+  Inertia::Matrix6 operator*( const Inertia& Y,const JointFreeFlyer::ConstraintIdentity & )
   {
-    const Inertia::Matrix6 matY = Y;
-    return ForceSet(matY.topRows<3>(), matY.bottomRows<3>() );
+    return Y.toMatrix();
   }
 
   /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
-  ForceSet::Matrix6x
-  operator*( const JointFreeFlyer::ConstraintIdentity &, const ForceSet::Block & F )
+  template<typename D>
+  const Eigen::MatrixBase<D> & 
+  operator*( const JointFreeFlyer::ConstraintIdentity::TransposeConst &, const Eigen::MatrixBase<D> & F )
   {
-    return F.matrix(); // TODO try to avoid creation of a new MatrixXd
+    return F;
   }
 
 
@@ -61,6 +64,7 @@ namespace se3
     typedef SE3 Transformation_t;
     typedef Motion Motion_t;
     typedef JointFreeFlyer::BiasZero Bias_t;
+    typedef Eigen::Matrix<double,6,6> F_t;
     enum {
       nq = 7,
       nv = 6
@@ -83,6 +87,7 @@ namespace se3
     Motion_t v;
     Bias_t c;
 
+    F_t F; // TODO if not used anymore, clean F_t
     JointDataFreeFlyer() : M(1)
     {
     }

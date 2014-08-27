@@ -70,6 +70,7 @@ int main(int argc, const char ** argv)
     }
   timer.toc(std::cout,1000);
 
+#ifndef NDEBUG
   std::cout << "Mcrb = [ " << data.M << "  ];" << std::endl;
 
 #ifdef __se3_rnea_hpp__    
@@ -82,11 +83,12 @@ int main(int argc, const char ** argv)
 
     for(int i=0;i<model.nv;++i)
       { 
-	M.col(i) = rnea(model,data,q,v,Eigen::VectorXd::Unit(model.nv,i)) - bias;
+	//M.col(i) = rnea(model,data,q,v,Eigen::VectorXd::Unit(model.nv,i)) - bias;
       }
     std::cout << "Mrne = [  " << M << " ]; " << std::endl;
   }	
 #endif // ifdef __se3_rnea_hpp__    
+#endif // ifndef NDEBUG
 
 
   return 0;

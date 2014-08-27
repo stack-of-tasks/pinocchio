@@ -128,6 +128,7 @@ namespace se3
        * 13215467/eigen-best-way-to-evaluate-asa-transpose-and-store-the-result-in-a-symmetric .*/
       return Inertia( m,
 		      M.translation()+M.rotation()*c,
+		      //dense_I);
 		      M.rotation()*I*M.rotation().transpose());
     }
     /// bI = aXb.actInv(aI)
