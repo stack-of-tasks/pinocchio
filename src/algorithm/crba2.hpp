@@ -163,7 +163,7 @@ namespace se3
 	  Eigen::Block<typename Data::Matrix6x> jF
 	    = data.Fcrb[parent].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
 
-	  internal::act(data.liMi[i],
+	  internal::act_alt(data.liMi[i],
 			data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]),
 			jF);
 	}

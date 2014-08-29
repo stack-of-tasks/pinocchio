@@ -135,15 +135,15 @@ namespace se3
       Model::Index  parent   = model.parents[i];
 
       jdata.F() = data.Ycrb[i] * jdata.S();
-      // data.M.block(jmodel.idx_v(),jmodel.idx_v(),JointModel::nv,JointModel::nv)
-      // 	= jdata.S().transpose()*jdata.F();
+      data.M.block(jmodel.idx_v(),jmodel.idx_v(),JointModel::nv,JointModel::nv)
+      	= jdata.S().transpose()*jdata.F();
 
       // std::cout << "*** joint " << i << std::endl;
       // std::cout << "iFi = " << jdata.F() << std::endl;
 
       if(parent>0) 
 	{
-	  // data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+	  data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
 	  jdata.F() = internal::act(data.liMi[i],jdata.F());
 	}
       
@@ -156,11 +156,11 @@ namespace se3
       while(parent>0)
 	{
 	  // std::cout << "i,parent =" << i<<","<<parent <<std::endl;
-	  // CrbaInternalBackwardStep<typename JointModel::F_t>
-	  //   ::run( model.joints[parent],
-	  // 	   data.joints[parent],
-	  // 	   typename CrbaInternalBackwardStep<typename JointModel::F_t>
-	  // 	   ::ArgsType(model,data,jdata.F(),jmodel.idx_v(),JointModel::nv) );
+	  CrbaInternalBackwardStep<typename JointModel::F_t>
+	    ::run( model.joints[parent],
+	  	   data.joints[parent],
+	  	   typename CrbaInternalBackwardStep<typename JointModel::F_t>
+	  	   ::ArgsType(model,data,jdata.F(),jmodel.idx_v(),JointModel::nv) );
 
 	  jdata.F() = internal::act(data.liMi[parent],jdata.F());
 	  parent = model.parents[parent];
