@@ -32,6 +32,7 @@ ADD_REQUIRED_DEPENDENCY("urdfdom >= v0.3.0")
 # ----------------------------------------------------
 SET(${PROJECT_NAME}_HEADERS
   exception.hpp
+  spatial/symmetric3.hpp
   spatial/se3.hpp
   spatial/motion.hpp
   spatial/force.hpp
@@ -85,6 +86,9 @@ ENDFOREACH(header)
 # ----------------------------------------------------
 ADD_EXECUTABLE(tspatial EXCLUDE_FROM_ALL unittest/tspatial.cpp)
 PKG_CONFIG_USE_DEPENDENCY(tspatial eigenpy)
+
+ADD_EXECUTABLE(symmetric EXCLUDE_FROM_ALL unittest/symmetric.cpp)
+PKG_CONFIG_USE_DEPENDENCY(symmetric eigenpy)
 
 ADD_EXECUTABLE(constraint EXCLUDE_FROM_ALL unittest/constraint.cpp)
 PKG_CONFIG_USE_DEPENDENCY(constraint eigenpy)
