@@ -1,3 +1,5 @@
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -93,8 +95,7 @@ void testSym3()
     // (i,j)
     {
 	Matrix3 M = Matrix3::Random(); M = M*M.transpose();
-	M << 1,2,4,2,3,5,4,5,6 ;
-	Symmetric3 S(M); // = Symmetric3::RandomPositive();
+	Symmetric3 S(M);
 	for(int i=0;i<3;++i)
 	  for(int j=0;j<3;++j)
 	    assert( S(i,j) == M(i,j) );
@@ -142,7 +143,7 @@ void timeLTI(const metapod::Spatial::ltI<double>& S,
 	     const metapod::Spatial::RotationMatrixTpl<double>& R, 
 	     metapod::Spatial::ltI<double> & res)
 {
-  res = R.rotSymmetricMatrix(S);
+  res = R.rotTSymmetricMatrix(S);
 }
 
 void testLTI()
@@ -160,7 +161,6 @@ void testLTI()
 
   R.rotTSymmetricMatrix(S);
   timeLTI(S,R,S2);
-
   assert( S2.toMatrix().isApprox( R.toMatrix().transpose()*S.toMatrix()*R.toMatrix()) );
   
   const int NBT = 100000;
@@ -175,7 +175,6 @@ void testLTI()
       timeLTI(S,Rs[_smooth],Sres[_smooth]);
     }
   timer.toc(std::cout,NBT);
-  //std::cout << Rs[std::rand() % NBT] << std::endl;
   
 }
 
@@ -197,6 +196,10 @@ void testSelfAdj()
 
   Matrix3 M = Inertia::Matrix3::Random();
   Sym3 S(M);
+  {
+    Matrix3 Scp = S;
+    assert( Scp-Scp.transpose()==Matrix3::Zero());
+  }
 
   Matrix3 M2 = Inertia::Matrix3::Random();
   M.triangularView<Eigen::Upper>() = M2;
@@ -204,7 +207,12 @@ void testSelfAdj()
   Matrix3 A = Matrix3::Random(), ASA1, ASA2;
   ASA1.triangularView<Eigen::Upper>() = A * S * A.transpose();
   timeSelfAdj(A,M,ASA2);
-  assert(ASA1.isApprox(ASA2));
+
+  {
+    Matrix3 Masa1 = ASA1.selfadjointView<Eigen::Upper>();
+    Matrix3 Masa2 = ASA2.selfadjointView<Eigen::Upper>();
+    assert(Masa1.isApprox(Masa2));
+  }
 
   StackTicToc timer(StackTicToc::US); timer.tic();
   SMOOTH(1000000)
@@ -217,11 +225,9 @@ void testSelfAdj()
 
 int main()
 {
-  //testSelfAdj();
+  testSelfAdj();
   testLTI();
   testSym3();
-  testSym3();
-  testLTI();
   
   std::cout << std::endl;
   return 0;
