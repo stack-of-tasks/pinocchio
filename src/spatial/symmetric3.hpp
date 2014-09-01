@@ -48,13 +48,42 @@ namespace se3
     static Symmetric3Tpl Zero()     { return Symmetric3Tpl(Vector6::Zero()  );  }
     static Symmetric3Tpl Random()   { return Symmetric3Tpl(Vector6::Random().eval());  }
     static Symmetric3Tpl Identity() { return Symmetric3Tpl( 1, 0, 1, 0, 0, 1);  }
-    static Symmetric3Tpl SkewSq( const Vector3 & v )
-    { 
-      const double & x = v[0], & y = v[1], & z = v[2]; 
-      return Symmetric3Tpl( -y*y-z*z,
-			     x*y    ,  -x*x-z*z, 
-			     x*z    ,   y*z    ,  -x*x-y*y );
+
+    struct SkewSquare
+    {
+      const Vector3 & v;
+      SkewSquare( const Vector3 & v ) : v(v) {}
+      operator Symmetric3Tpl () const 
+      {
+	const double & x = v[0], & y = v[1], & z = v[2]; 
+	return Symmetric3Tpl( -y*y-z*z,
+			      x*y    ,  -x*x-z*z, 
+			      x*z    ,   y*z    ,  -x*x-y*y );
+      }
+    }; // struct SkewSquare 
+    Symmetric3Tpl operator- (const SkewSquare & v) const
+    {
+      const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
+      return Symmetric3Tpl( data[0]+y*y+z*z,
+			    data[1]-x*y    ,  data[2]+x*x+z*z, 
+			    data[3]-x*z    ,  data[4]-y*z    ,  data[5]+x*x+y*y );
     }
+    Symmetric3Tpl& operator-= (const SkewSquare & v)
+    {
+      const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
+      data[0]+=y*y+z*z;
+      data[1]-=x*y    ;  data[2]+=x*x+z*z; 
+      data[3]-=x*z    ;  data[4]-=y*z    ;  data[5]+=x*x+y*y;
+      return *this;
+    }
+    // static Symmetric3Tpl SkewSq( const Vector3 & v )
+    // { 
+    //   const double & x = v[0], & y = v[1], & z = v[2]; 
+    //   return Symmetric3Tpl( -y*y-z*z,
+    // 			    x*y    ,  -x*x-z*z, 
+    // 			    x*z    ,   y*z    ,  -x*x-y*y );
+    // }
+
     /* Shoot a positive definite matrix. */
     static Symmetric3Tpl RandomPositive() 
     { 
@@ -82,7 +111,7 @@ namespace se3
 
     Symmetric3Tpl operator+(const Symmetric3Tpl & s2) const
     {
-      return Symmetric3Tpl(data+s2.data);
+      return Symmetric3Tpl((data+s2.data).eval());
     }
 
     Symmetric3Tpl & operator+=(const Symmetric3Tpl & s2)
@@ -147,84 +176,42 @@ namespace se3
       return L;
     }
 
-
-    /* R*S*R' */
-    Symmetric3Tpl rotate(const Matrix3 & R) const
-    {
-      assert( (R.cols()==3) && (R.rows()==3) );
-      assert( (R.transpose()*R).isApprox(Matrix3::Identity()) );
-
-	Symmetric3Tpl Sres;
-	Matrix2 Y;
-	Matrix32 L;
-
-	// 4 a
-	L = decomposeltI();
-	
-	// Y = R' L   ===> (12 m + 8 a)
-	Y = R.template block<2,3>(1,0) * L;
-
-	// Sres= Y R  ===> (16 m + 8a)
-	Sres.data(1) = Y(0,0)*R(0,0) + Y(0,1)*R(0,1);
-	Sres.data(2) = Y(0,0)*R(1,0) + Y(0,1)*R(1,1);
-	Sres.data(3) = Y(1,0)*R(0,0) + Y(1,1)*R(0,1);
-	Sres.data(4) = Y(1,0)*R(1,0) + Y(1,1)*R(1,1);
-	Sres.data(5) = Y(1,0)*R(2,0) + Y(1,1)*R(2,1);
-
-	// r=R' v ( 6m + 3a)
-	 const Vector3 r( -R(0,0)*data(4) + R(0,1)*data(3),
-			  -R(1,0)*data(4) + R(1,1)*data(3),
-			  -R(2,0)*data(4) + R(2,1)*data(3) );
-
-	// Sres_11 (3a)
-	Sres.data(0) = L(0,0) + L(1,1) - Sres.data(2) - Sres.data(5);
-	
-	// Sres + D + (Ev)x ( 9a)
-	Sres.data(0) += data(5); 
-	Sres.data(1) += r(2);    Sres.data(2)+= data(5); 
-	Sres.data(3) +=-r(1);    Sres.data(4)+=    r(0); Sres.data(5) += data(5);
-
-	return Sres;
-    }
-
     /* R*S*R' */
     template<typename D>
-    Symmetric3Tpl rotateTpl(const Eigen::MatrixBase<D> & R) const
+    Symmetric3Tpl rotate(const Eigen::MatrixBase<D> & R) const
     {
       assert( (R.cols()==3) && (R.rows()==3) );
       assert( (R.transpose()*R).isApprox(Matrix3::Identity()) );
 
-	Symmetric3Tpl Sres;
-	Matrix2 Y;
-	Matrix32 L;
-
-	// 4 a
-	L = decomposeltI();
+      Symmetric3Tpl Sres;
+      
+      // 4 a
+      const Matrix32 & L = decomposeltI();
+      
+      // Y = R' L   ===> (12 m + 8 a)
+      const Matrix2 & Y = R.template block<2,3>(1,0) * L;
 	
-	// Y = R' L   ===> (12 m + 8 a)
-	Y = R.template block<2,3>(1,0) * L;
+      // Sres= Y R  ===> (16 m + 8a)
+      Sres.data(1) = Y(0,0)*R(0,0) + Y(0,1)*R(0,1);
+      Sres.data(2) = Y(0,0)*R(1,0) + Y(0,1)*R(1,1);
+      Sres.data(3) = Y(1,0)*R(0,0) + Y(1,1)*R(0,1);
+      Sres.data(4) = Y(1,0)*R(1,0) + Y(1,1)*R(1,1);
+      Sres.data(5) = Y(1,0)*R(2,0) + Y(1,1)*R(2,1);
 
-	// Sres= Y R  ===> (16 m + 8a)
-	Sres.data(1) = Y(0,0)*R(0,0) + Y(0,1)*R(0,1);
-	Sres.data(2) = Y(0,0)*R(1,0) + Y(0,1)*R(1,1);
-	Sres.data(3) = Y(1,0)*R(0,0) + Y(1,1)*R(0,1);
-	Sres.data(4) = Y(1,0)*R(1,0) + Y(1,1)*R(1,1);
-	Sres.data(5) = Y(1,0)*R(2,0) + Y(1,1)*R(2,1);
+      // r=R' v ( 6m + 3a)
+      const Vector3 r( -R(0,0)*data(4) + R(0,1)*data(3),
+		       -R(1,0)*data(4) + R(1,1)*data(3),
+		       -R(2,0)*data(4) + R(2,1)*data(3) );
 
-	// r=R' v ( 6m + 3a)
-	 const Vector3 r( -R(0,0)*data(4) + R(0,1)*data(3),
-			  -R(1,0)*data(4) + R(1,1)*data(3),
-			  -R(2,0)*data(4) + R(2,1)*data(3) );
-
-	// Sres_11 (3a)
-	Sres.data(0) = L(0,0) + L(1,1) - Sres.data(2) - Sres.data(5);
+      // Sres_11 (3a)
+      Sres.data(0) = L(0,0) + L(1,1) - Sres.data(2) - Sres.data(5);
 	
-	// Sres + D + (Ev)x ( 9a)
-	Sres.data(0) += data(5); 
-	Sres.data(1) += r(2);    Sres.data(2)+= data(5); 
-	Sres.data(3) +=-r(1);    Sres.data(4)+=    r(0); Sres.data(5) += data(5);
+      // Sres + D + (Ev)x ( 9a)
+      Sres.data(0) += data(5); 
+      Sres.data(1) += r(2);    Sres.data(2)+= data(5); 
+      Sres.data(3) +=-r(1);    Sres.data(4)+=    r(0); Sres.data(5) += data(5);
 
-	return Sres;
+      return Sres;
     }
 
 
