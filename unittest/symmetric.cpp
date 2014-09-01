@@ -2,7 +2,6 @@
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/tools/timer.hpp"
 
 #include <boost/random.hpp>
@@ -82,7 +81,7 @@ void testSym3()
     // Skew2
     {
       Vector3 v = Vector3::Random();
-      Symmetric3 vxvx = Symmetric3::SkewSq(v);
+      Symmetric3 vxvx = Symmetric3::SkewSquare(v);
 
       Vector3 p = Vector3::UnitX();
       assert( (vxvx*p).isApprox( v.cross(v.cross(p)) ));
@@ -90,6 +89,17 @@ void testSym3()
       assert( (vxvx*p).isApprox( v.cross(v.cross(p)) ));
       p = Vector3::UnitZ();
       assert( (vxvx*p).isApprox( v.cross(v.cross(p)) ));
+
+      Matrix3 vx = skew(v);
+      Matrix3 vxvx2 = (vx*vx).eval();
+      assert( vxvx.matrix().isApprox(vxvx2) );
+
+      Symmetric3 S = Symmetric3::RandomPositive();
+      assert( (S-Symmetric3::SkewSquare(v)).matrix()
+	      .isApprox( S.matrix()-vxvx2 ) );
+      Symmetric3 S2 = S;
+      S -= Symmetric3::SkewSquare(v);
+      assert(S.matrix().isApprox( S2.matrix()-vxvx2 ) );
     }
 
     // (i,j)
@@ -112,7 +122,6 @@ void testSym3()
 
     Symmetric3 RtSR = S.rotate(R.transpose());
     assert( RtSR.matrix().isApprox( R.transpose()*S.matrix()*R ));
-
   }
 
   // Time test 
@@ -182,7 +191,7 @@ void timeSelfAdj( const Eigen::Matrix3d & A,
 		  const Eigen::Matrix3d & Sdense,
 		  Eigen::Matrix3d & ASA )
 {
-  typedef se3::Inertia::Symmetric3 Sym3;
+  typedef Eigen::SelfAdjointView<Eigen::Matrix3d,Eigen::Upper> Sym3;
   Sym3 S(Sdense);
   ASA.triangularView<Eigen::Upper>()
     = A * S * A.transpose();
@@ -191,17 +200,17 @@ void timeSelfAdj( const Eigen::Matrix3d & A,
 void testSelfAdj()
 {
   using namespace se3;
-  typedef Inertia::Matrix3 Matrix3;
-  typedef Inertia::Symmetric3 Sym3;
+  typedef Eigen::Matrix3d Matrix3;
+  typedef Eigen::SelfAdjointView<Matrix3,Eigen::Upper> Sym3;
 
-  Matrix3 M = Inertia::Matrix3::Random();
+  Matrix3 M = Matrix3::Random();
   Sym3 S(M);
   {
     Matrix3 Scp = S;
     assert( Scp-Scp.transpose()==Matrix3::Zero());
   }
 
-  Matrix3 M2 = Inertia::Matrix3::Random();
+  Matrix3 M2 = Matrix3::Random();
   M.triangularView<Eigen::Upper>() = M2;
 
   Matrix3 A = Matrix3::Random(), ASA1, ASA2;

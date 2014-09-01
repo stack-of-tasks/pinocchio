@@ -1,6 +1,7 @@
 #ifndef __se3_inertia_hpp__
 #define __se3_inertia_hpp__
 
+#include "pinocchio/spatial/symmetric3.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/motion.hpp"
 
@@ -22,33 +23,30 @@ namespace se3
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef InertiaTpl<Scalar,Options> Inertia;
     enum { LINEAR = 0, ANGULAR = 3 };
-    typedef Eigen::SelfAdjointView<Matrix3,Eigen::Upper> Symmetric3;
+    typedef Symmetric3Tpl<Scalar,Options> Symmetric3;
     
   public:
     // Constructors
-    InertiaTpl() : m(), c(), dense_I(), I(dense_I) {}
+    InertiaTpl() : m(), c(), I() {}
     InertiaTpl(Scalar m_, 
 	       const Vector3 &c_, 
 	       const Matrix3 &I_)
       : m(m_),
 	c(c_),
-	dense_I(I_),
-	I(dense_I)  {}
+	I(I_)  {}
     InertiaTpl(Scalar _m, 
 	       const Vector3 &_c, 
 	       const Symmetric3 &_I)
       : m(_m),
 	c(_c),
-	dense_I(),
-	I(dense_I)   { I = _I; }
+	I(_I)   { }
     InertiaTpl(const InertiaTpl & clone)  // Clone constructor for std::vector 
       : m(clone.m),
 	c(clone.c),
-	dense_I(clone.dense_I),
-	I(dense_I)    {}
+	I(clone.I)    {}
     InertiaTpl& operator= (const InertiaTpl& clone) // Copy operator for std::vector 
     {
-      m=clone.m; c=clone.c; dense_I=clone.dense_I;    
+      m=clone.m; c=clone.c; I=clone.I;
       return *this;
     }
 
@@ -68,15 +66,9 @@ namespace se3
     static Inertia Random()
     {
       /* We have to shoot "I" definite positive and not only symmetric. */
-      Matrix3 M3 = Matrix3::Random(); // TODO clean that mess
-      Matrix3 D = Vector3::Random().cwiseAbs().asDiagonal();
-      Matrix3 M3D2 = M3+2*D;
-      Matrix3 posdiag 
-	= M3D2.template selfadjointView<Eigen::Upper>();
       return InertiaTpl(Eigen::internal::random<Scalar>(),
 			Vector3::Random(),
-			//Matrix3::Random().template selfadjointView<Eigen::Upper>());
-			posdiag);
+			Symmetric3::RandomPositive());
     }
 
     // Getters
@@ -84,32 +76,40 @@ namespace se3
     const Vector3 &    lever()   const { return c; }
     const Symmetric3 & inertia() const { return I; }
 
-    Matrix6 toMatrix() const
+    Matrix6 matrix() const
     {
       Matrix6 M;
       M.template block<3,3>(LINEAR, LINEAR ) =  m*Matrix3::Identity();
       M.template block<3,3>(LINEAR, ANGULAR) = -m*skew(c);
       M.template block<3,3>(ANGULAR,LINEAR ) =  m*skew(c);
-      M.template block<3,3>(ANGULAR,ANGULAR) =  (Matrix3)I - m*skew(c)*skew(c);
+      M.template block<3,3>(ANGULAR,ANGULAR) =  (Matrix3)(I - typename Symmetric3::SkewSquare(c));
       return M;
     }
-    operator Matrix6 () const { return toMatrix(); }
+    operator Matrix6 () const { return matrix(); }
 
     // Arithmetic operators
-    Inertia operator+(const InertiaTpl &other) const
+    friend Inertia operator+(const InertiaTpl &Ya, const InertiaTpl &Yb)
     {
-      const double & mm = m+other.m;
-      const Matrix3 & X = skew((c-other.c).eval());
-      Matrix3 mmmXX = (m*other.m/mm*X*X).eval(); // TODO clean this mess
-      return InertiaTpl(mm, (m*c+other.m*other.c)/mm, dense_I+other.dense_I-mmmXX); // TODO: += in Eigen::Symmetric?
+      /* Y_{a+b} = ( m_a+m_b,
+       *             (m_a*c_a + m_b*c_b ) / (m_a + m_b),
+       *             I_a + I_b - (m_a*m_b)/(m_a+m_b) * AB_x * AB_x )
+       */
+
+      const double & mab = Ya.m+Yb.m;
+      const Vector3 & mmmAB = ( ((Ya.m*Yb.m)/mab)*(Ya.c-Yb.c) ).eval();
+      return InertiaTpl( mab,
+			 (Ya.m*Ya.c+Yb.m*Yb.c)/mab,
+			 Ya.I+Yb.I - typename Symmetric3::SkewSquare(mmmAB));
     }
-    Inertia& operator+=(const InertiaTpl &other)
+
+    Inertia& operator+=(const InertiaTpl &Yb)
     {
-      const Matrix3 & X = skew((c-other.c).eval());
-      Matrix3 mmXX = (m*other.m*X*X).eval(); // TODO: clean this mess
-      c *=m; c+=other.m*other.c;
-      m+=other.m; c/=m;  
-      dense_I+=other.dense_I-mmXX/m; // TODO: += in Eigen::Symmetric?
+      const Inertia& Ya = *this;
+      const double & mab = Ya.m+Yb.m;
+      const Vector3 & mmmAB = ( ((Ya.m*Yb.m)/mab)*(Ya.c-Yb.c) ).eval();
+      c *= m; c += Yb.m*Yb.c; c /= mab;
+      I += Yb.I; I -= typename Symmetric3::SkewSquare(mmmAB);
+      m += Yb.m;
       return *this;
     }
 
@@ -128,22 +128,21 @@ namespace se3
        * 13215467/eigen-best-way-to-evaluate-asa-transpose-and-store-the-result-in-a-symmetric .*/
       return Inertia( m,
 		      M.translation()+M.rotation()*c,
-		      //dense_I);
-		      M.rotation()*I*M.rotation().transpose());
+		      I.rotate(M.rotation()) );
     }
     /// bI = aXb.actInv(aI)
     Inertia se3ActionInverse(const SE3 & M) const
     {
       return Inertia( m,
 		      M.rotation().transpose()*(c-M.translation()),
-		      M.rotation().transpose()*I*M.rotation());
+		      I.rotate(M.rotation().transpose()) );
     }
 
     //
     Force vxiv( const Motion& v ) const 
     {
-      Vector3 mcxw = m*c.cross(v.angular());
-      Vector3 mv_mcxw = m*v.linear()-mcxw;
+      const Vector3 & mcxw = m*c.cross(v.angular());
+      const Vector3 & mv_mcxw = m*v.linear()-mcxw;
       return Force( v.angular().cross(mv_mcxw),
 		    v.angular().cross(c.cross(mv_mcxw)+I*v.angular())-v.linear().cross(mcxw) );
     }
@@ -160,10 +159,8 @@ namespace se3
   private:
     Scalar m;
     Vector3 c;
-    Matrix3 dense_I;
     Symmetric3 I;
   };
-
 
   typedef InertiaTpl<double,0> Inertia;
     
