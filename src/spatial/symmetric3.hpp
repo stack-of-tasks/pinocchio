@@ -76,6 +76,38 @@ namespace se3
       data[3]-=x*z    ;  data[4]-=y*z    ;  data[5]+=x*x+y*y;
       return *this;
     }
+
+    struct AlphaSkewSquare
+    {
+      const double & m;  const Vector3 & v;
+      AlphaSkewSquare( const double & m, const SkewSquare & v ) : m(m),v(v.v) {}
+      operator Symmetric3Tpl () const 
+      {
+	const double & x = v[0], & y = v[1], & z = v[2]; 
+	return Symmetric3Tpl( -m*(y*y+z*z),
+			       m* x*y     ,  -m*(x*x+z*z), 
+			       m* x*z     ,   m* y*z     ,  -m*(x*x+y*y) );
+      }
+    };
+    friend AlphaSkewSquare operator* (const double & m, const SkewSquare & sk )
+    { return AlphaSkewSquare(m,sk); }
+    Symmetric3Tpl operator- (const AlphaSkewSquare & v) const
+    {
+      const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
+      return Symmetric3Tpl( data[0]+v.m*(y*y+z*z),
+			    data[1]-v.m* x*y     ,  data[2]+v.m*(x*x+z*z), 
+			    data[3]-v.m* x*z     ,  data[4]-v.m* y*z     ,  data[5]+v.m*(x*x+y*y) );
+    }
+    Symmetric3Tpl& operator-= (const AlphaSkewSquare & v)
+    {
+      const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
+      data[0]+=v.m*(y*y+z*z);
+      data[1]-=v.m* x*y     ;  data[2]+=v.m*(x*x+z*z); 
+      data[3]-=v.m* x*z     ;  data[4]-=v.m* y*z     ;  data[5]+=v.m*(x*x+y*y);
+      return *this;
+    }
+
+
     // static Symmetric3Tpl SkewSq( const Vector3 & v )
     // { 
     //   const double & x = v[0], & y = v[1], & z = v[2]; 

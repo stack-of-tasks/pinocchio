@@ -66,7 +66,7 @@ namespace se3
     static Inertia Random()
     {
       /* We have to shoot "I" definite positive and not only symmetric. */
-      return InertiaTpl(Eigen::internal::random<Scalar>(),
+      return InertiaTpl(Eigen::internal::random<Scalar>()+1,
 			Vector3::Random(),
 			Symmetric3::RandomPositive());
     }
@@ -82,7 +82,7 @@ namespace se3
       M.template block<3,3>(LINEAR, LINEAR ) =  m*Matrix3::Identity();
       M.template block<3,3>(LINEAR, ANGULAR) = -m*skew(c);
       M.template block<3,3>(ANGULAR,LINEAR ) =  m*skew(c);
-      M.template block<3,3>(ANGULAR,ANGULAR) =  (Matrix3)(I - typename Symmetric3::SkewSquare(c));
+      M.template block<3,3>(ANGULAR,ANGULAR) =  (Matrix3)(I - m*typename Symmetric3::SkewSquare(c));
       return M;
     }
     operator Matrix6 () const { return matrix(); }
@@ -96,19 +96,19 @@ namespace se3
        */
 
       const double & mab = Ya.m+Yb.m;
-      const Vector3 & mmmAB = ( ((Ya.m*Yb.m)/mab)*(Ya.c-Yb.c) ).eval();
+      const Vector3 & AB = (Ya.c-Yb.c).eval();
       return InertiaTpl( mab,
 			 (Ya.m*Ya.c+Yb.m*Yb.c)/mab,
-			 Ya.I+Yb.I - typename Symmetric3::SkewSquare(mmmAB));
+			 Ya.I+Yb.I - (Ya.m*Yb.m/mab)* typename Symmetric3::SkewSquare(AB));
     }
 
     Inertia& operator+=(const InertiaTpl &Yb)
     {
       const Inertia& Ya = *this;
       const double & mab = Ya.m+Yb.m;
-      const Vector3 & mmmAB = ( ((Ya.m*Yb.m)/mab)*(Ya.c-Yb.c) ).eval();
+      const Vector3 & AB = (Ya.c-Yb.c).eval();
       c *= m; c += Yb.m*Yb.c; c /= mab;
-      I += Yb.I; I -= typename Symmetric3::SkewSquare(mmmAB);
+      I += Yb.I; I -= (Ya.m*Yb.m/mab)* typename Symmetric3::SkewSquare(AB);
       m += Yb.m;
       return *this;
     }
@@ -149,9 +149,9 @@ namespace se3
 
     friend std::ostream & operator<< (std::ostream &os, const Inertia &I)
     {
-      os << "m =\n" << I.m << "\n"
-	 << "c =\n" << I.c << "\n"
-	 << "I =\n" << (Matrix3)I.I;
+      os << "m =" << I.m << ";\n"
+	 << "c = [\n" << I.c.transpose() << "]';\n"
+	 << "I = [\n" << (Matrix3)I.I << "];";
       return os;
     }
 

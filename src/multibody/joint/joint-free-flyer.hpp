@@ -42,7 +42,7 @@ namespace se3
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   Inertia::Matrix6 operator*( const Inertia& Y,const JointFreeFlyer::ConstraintIdentity & )
   {
-    return Y.toMatrix();
+    return Y.matrix();
   }
 
   /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
