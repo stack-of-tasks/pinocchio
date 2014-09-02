@@ -94,12 +94,22 @@ void testSym3()
       Matrix3 vxvx2 = (vx*vx).eval();
       assert( vxvx.matrix().isApprox(vxvx2) );
 
+      std::cout << "Sksq ... " << std::endl;
       Symmetric3 S = Symmetric3::RandomPositive();
       assert( (S-Symmetric3::SkewSquare(v)).matrix()
 	      .isApprox( S.matrix()-vxvx2 ) );
+      std::cout << "SmSq = " << (S-Symmetric3::SkewSquare(v)).matrix() << std::endl;
+      std::cout << "SmSq2 = " << S.matrix()-vxvx2 << std::endl;
+      double m = Eigen::internal::random<double>()+1;
+      assert( (S-m*Symmetric3::SkewSquare(v)).matrix()
+	      .isApprox( S.matrix()-m*vxvx2 ) );
+
       Symmetric3 S2 = S;
       S -= Symmetric3::SkewSquare(v);
       assert(S.matrix().isApprox( S2.matrix()-vxvx2 ) );
+      S = S2; S -= m*Symmetric3::SkewSquare(v);
+      assert(S.matrix().isApprox( S2.matrix()-m*vxvx2 ) );
+
     }
 
     // (i,j)
