@@ -4,7 +4,6 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/crba.hpp"
-#include "pinocchio/algorithm/crba2.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/multibody/parser/urdf.hpp"
 
@@ -35,7 +34,7 @@ int main(int argc, const char ** argv)
 
   std::string filename = "/home/nmansard/src/metapod/data/simple_arm.urdf";
   if(argc>1) filename = argv[1];
-  model = se3::buildModel(filename);
+  model = se3::buildModel(filename,argc>1);
 
 
   // SIMPLE no FF
@@ -67,12 +66,9 @@ int main(int argc, const char ** argv)
   StackTicToc timer(StackTicToc::US); timer.tic();
   SMOOTH(1000)
     {
-      crba2(model,data,q);
+      crba(model,data,q);
     }
   timer.toc(std::cout,1000);
-
-  //std::cout << se3::internal::crbacounter << std::endl;
-  //std::cout << se3::internal::crba2counter << std::endl;
 
 #ifndef NDEBUG
   std::cout << "Mcrb = [ " << data.M << "  ];" << std::endl;
