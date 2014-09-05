@@ -57,7 +57,7 @@ namespace se3
     return AXIS_ERROR;
   }
 
-  void parseTree( urdf::LinkConstPtr link, Model & model )
+  void parseTree( urdf::LinkConstPtr link, Model & model, bool freeFlyer )
   {
     urdf::JointConstPtr joint = link->parent_joint;
 
@@ -78,7 +78,9 @@ namespace se3
 	assert(link->getParent()!=NULL);
 	Model::Index parent 
 	  = (link->getParent()->parent_joint==NULL) ?
-	  1 : model.getBodyId( link->getParent()->parent_joint->name );
+	  (freeFlyer ? 1 : 0)
+	  : model.getBodyId( link->getParent()->parent_joint->name );
+	std::cout << joint->name << " === " << parent << std::endl;
 
 	const SE3 & jointPlacement = convertFromUrdf(joint->parent_to_joint_origin_transform);
 
@@ -118,24 +120,23 @@ namespace se3
 	    }
 	  }
       }
-    else /* (joint==NULL) */
+    else if(freeFlyer)/* (joint==NULL) */
       { /* The link is the root of the body. */
-	//std::cout << "Parent = 0 (universe)" << std::endl;
 	model.addBody( 0, JointModelFreeFlyer(), SE3::Identity(), Y, "root" );
       }
 
     BOOST_FOREACH(urdf::LinkConstPtr child,link->child_links)
       {
-	parseTree( child,model );
+	parseTree( child,model,freeFlyer );
       }
   }  
 
-  Model buildModel( const std::string & filename )
+  Model buildModel( const std::string & filename, bool freeFlyer = false )
   {
     Model model;
 
     urdf::ModelInterfacePtr urdfTree = urdf::parseURDFFile (filename);
-    parseTree(urdfTree->getRoot(),model);
+    parseTree(urdfTree->getRoot(),model,freeFlyer);
     return model;
   }
 
