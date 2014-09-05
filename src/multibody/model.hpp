@@ -9,11 +9,13 @@
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/multibody/joint.hpp"
 #include "pinocchio/multibody/force-set.hpp"
+#include <iostream>
 
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3);
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Inertia);
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Force);
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion);
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,Eigen::Dynamic>);
 
 namespace se3
 {
@@ -56,7 +58,6 @@ namespace se3
 		   const Inertia & Y,const std::string & name = "" );
     Index getBodyId( const std::string & name ) const;
     const std::string& getBodyName( Index index ) const;
-
   };
 
   class Data
@@ -81,6 +82,9 @@ namespace se3
     std::vector<Model::Index> lastChild;  // Index of the last child (for CRBA)
     std::vector<int> nvSubtree;           // Dimension of the subtree motion space (for CRBA)
 
+    Eigen::MatrixXd U;                    // Joint Inertia square root (upper triangle)
+    Eigen::VectorXd D;                    // Diagonal of UDUT inertia decomposition
+
     Data( const Model& ref );
 
     void computeLastChild(const Model& model);
@@ -91,12 +95,23 @@ namespace se3
 } // namespace se3
 
 
+
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 namespace se3
 {
-  
+  std::ostream& operator<< ( std::ostream & os, const Model& model )
+  {
+    os << "Nb bodies = " << model.nbody << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
+    for(int i=0;i<model.nbody;++i)
+      {
+	os << "  Joint "<<model.names[i] << ": parent=" << model.parents[i] << std::endl;
+      }
+
+    return os;
+  }
+
   std::string random(const int len)
   {
     std::string res;
@@ -156,15 +171,16 @@ namespace se3
     ,tau(ref.nv)
     ,Ycrb(ref.nbody)
     ,M(ref.nv,ref.nv)
-    ,Fcrb(ref.nv)
+    ,Fcrb(ref.nbody)
     ,lastChild(ref.nbody)
     ,nvSubtree(ref.nbody)
+    ,U(ref.nv,ref.nv)
+    ,D(ref.nv)
   {
     for(int i=0;i<model.nbody;++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
     M.fill(NAN);
     for(int i=0;i<ref.nbody;++i ) { Fcrb[i].resize(6,model.nv); Fcrb[i].fill(NAN); }
-    //for(int i=0;i<ref.nbody;++i ) { Fcrb[i].resize(6,12); Fcrb[i].fill(0); }
     computeLastChild(ref);
   }
 
