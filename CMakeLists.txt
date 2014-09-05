@@ -54,6 +54,7 @@ SET(${PROJECT_NAME}_HEADERS
   algorithm/rnea.hpp
   algorithm/crba.hpp
   algorithm/crba2.hpp
+  algorithm/cholesky.hpp
   algorithm/kinematics.hpp
 )
 
@@ -99,6 +100,10 @@ PKG_CONFIG_USE_DEPENDENCY(rnea eigenpy)
 ADD_EXECUTABLE(crba EXCLUDE_FROM_ALL unittest/crba.cpp)
 PKG_CONFIG_USE_DEPENDENCY(crba eigenpy)
 PKG_CONFIG_USE_DEPENDENCY(crba urdfdom)
+
+ADD_EXECUTABLE(cholesky EXCLUDE_FROM_ALL unittest/cholesky.cpp)
+PKG_CONFIG_USE_DEPENDENCY(cholesky eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(cholesky urdfdom)
 
 ADD_EXECUTABLE(dg EXCLUDE_FROM_ALL unittest/dg.cpp)
 PKG_CONFIG_USE_DEPENDENCY(dg eigenpy)
