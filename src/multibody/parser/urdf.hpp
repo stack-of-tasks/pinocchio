@@ -80,7 +80,7 @@ namespace se3
 	  = (link->getParent()->parent_joint==NULL) ?
 	  (freeFlyer ? 1 : 0)
 	  : model.getBodyId( link->getParent()->parent_joint->name );
-	std::cout << joint->name << " === " << parent << std::endl;
+	// std::cout << joint->name << " === " << parent << std::endl;
 
 	const SE3 & jointPlacement = convertFromUrdf(joint->parent_to_joint_origin_transform);
 
