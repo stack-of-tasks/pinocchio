@@ -28,7 +28,7 @@ namespace se3
   public:
     template<typename D>
     int operator()(const JointModelBase<D> & ) const
-    { return D::nv; }
+    { return D::NV; }
     
     static int run( const JointModelVariant & jmodel)
     { return boost::apply_visitor( Joint_nv(), jmodel ); }
@@ -39,7 +39,7 @@ namespace se3
   public:
     template<typename D>
     int operator()(const JointModelBase<D> & ) const
-    { return D::nq; }
+    { return D::NQ; }
     
     static int run( const JointModelVariant & jmodel)
     { return boost::apply_visitor( Joint_nq(), jmodel ); }

@@ -242,8 +242,8 @@ namespace se3
     typedef typename JointRevolute<axis>::BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,1> F_t;
     enum {
-      nq = 1,
-      nv = 1
+      NQ = 1,
+      NV = 1
     };
   };
 

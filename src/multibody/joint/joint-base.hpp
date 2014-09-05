@@ -49,8 +49,8 @@ namespace se3
   typedef typename traits<Joint>::Bias_t Bias_t; \
   typedef typename traits<Joint>::F_t F_t; \
   enum { \
-    nq = traits<Joint>::nq, \
-    nv = traits<Joint>::nv \
+    NQ = traits<Joint>::NQ, \
+    NV = traits<Joint>::NV \
   }
 
 #define SE3_JOINT_USE_INDEXES \
@@ -93,23 +93,30 @@ namespace se3
     { return static_cast<const JointModel*>(this)->calc(data,qs,vs); }
 
   private:
-    int i_q,i_v;
+    int i_id; // ID of the joint in the multibody list.
+    int i_q;  // Index of the joint configuration in the joint configuration vector.
+    int i_v;  // Index of the joint velocity in the joint velocity vector.
+
   public:
+          int   nv()    const { return NV; }
+          int   nq()    const { return NQ; }
     const int & idx_q() const { return i_q; }
     const int & idx_v() const { return i_v; }
-    void setIndexes(int q,int v) { i_q = q; i_v = v; }
+    const int & id()    const { return i_id; }
+
+    void setIndexes(int id,int q,int v) { i_id = id, i_q = q; i_v = v; }
 
     template<typename D>
-    typename D::template ConstFixedSegmentReturnType<nv>::Type jointMotion(const Eigen::MatrixBase<D>& a) const     { return a.template segment<nv>(i_v); }
+    typename D::template ConstFixedSegmentReturnType<NV>::Type jointMotion(const Eigen::MatrixBase<D>& a) const     { return a.template segment<NV>(i_v); }
     template<typename D>
-    typename D::template FixedSegmentReturnType<nv>::Type jointMotion(Eigen::MatrixBase<D>& a) const 
-    { return a.template segment<nv>(i_v); }
+    typename D::template FixedSegmentReturnType<NV>::Type jointMotion(Eigen::MatrixBase<D>& a) const 
+    { return a.template segment<NV>(i_v); }
     template<typename D>
-    typename D::template ConstFixedSegmentReturnType<nv>::Type jointForce(const Eigen::MatrixBase<D>& tau) const 
-    { return tau.template segment<nv>(i_v); }
+    typename D::template ConstFixedSegmentReturnType<NV>::Type jointForce(const Eigen::MatrixBase<D>& tau) const 
+    { return tau.template segment<NV>(i_v); }
     template<typename D>
-    typename D::template FixedSegmentReturnType<nv>::Type jointForce(Eigen::MatrixBase<D>& tau) const 
-    { return tau.template segment<nv>(i_v); }
+    typename D::template FixedSegmentReturnType<NV>::Type jointForce(Eigen::MatrixBase<D>& tau) const 
+    { return tau.template segment<NV>(i_v); }
   };
 
 } // namespace se3
