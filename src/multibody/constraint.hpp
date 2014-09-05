@@ -15,21 +15,24 @@ namespace se3
   class ConstraintTpl
   { 
   public:
-    enum { nv = _Dim, Options = _Options };
+    enum { NV = _Dim, Options = _Options };
     typedef _Scalar Scalar;
 
-    typedef Eigen::Matrix<Scalar,nv,1,Options> JointMotion;
-    typedef Eigen::Matrix<Scalar,nv,1,Options> JointForce;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> JointMotion;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> JointForce;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
-    typedef Eigen::Matrix<Scalar,6,nv> DenseBase;
+    typedef Eigen::Matrix<Scalar,6,NV> DenseBase;
   public:
     template<typename D>
     ConstraintTpl( const Eigen::MatrixBase<D> & _S ) : S(_S) {}
-    //{  EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(S,_S); }
 
-    ConstraintTpl() : S() { S.fill( NAN ); } 
-
+    ConstraintTpl() : S() 
+    {
+      EIGEN_STATIC_ASSERT_FIXED_SIZE(DenseBase);
+      S.fill( NAN ); 
+    } 
+    ConstraintTpl(const int dim) : S(dim,6)     {      S.fill( NAN );     } 
 
     Motion operator* (const JointMotion& vj) const
     { return Motion(S*vj); }
@@ -46,6 +49,8 @@ namespace se3
 
     DenseBase & matrix() { return S; }
     const DenseBase & matrix() const { return S; }
+
+    int nv() const { return NV; }
 
   private:
     DenseBase S;

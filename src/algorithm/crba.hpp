@@ -93,32 +93,6 @@ namespace se3
     
   } // namespace internal
 
-  template<typename D>
-  struct CrbaInternalBackwardStep : public fusion::JointVisitor<CrbaInternalBackwardStep<D> >
-  {
-    typedef boost::fusion::vector<const Model&,
-				  Data&,
-				  const Eigen::MatrixBase<D>&,
-				  const int &,
-				  const int &>  ArgsType;
-    
-    CrbaInternalBackwardStep( JointDataVariant & jdata,ArgsType args ) : jdata(jdata),args(args) {}
-    using fusion::JointVisitor< CrbaInternalBackwardStep<D> >::run;				       
-    JointDataVariant & jdata;
-    ArgsType args;
-
-    template<typename JointModel>
-    static void algo(const JointModelBase<JointModel> & jmodel,
-		     JointDataBase<typename JointModel::JointData> & jdata,
-		     const Model&,
-		     Data& data,
-		     const Eigen::MatrixBase<D> & F,
-		     const int & idx_v, const int & nv)
-    {
-      data.M.block(jmodel.idx_v(),idx_v,JointModel::nv,nv) = jdata.S().transpose()*F;
-    }
-  };
-
   struct CrbaBackwardStep : public fusion::JointVisitor<CrbaBackwardStep>
   {
     typedef boost::fusion::vector<const Model&,
@@ -142,9 +116,9 @@ namespace se3
        *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
        */
 
-      data.Fcrb[i].block<6,JointModel::nv>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
+      data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
 
-      data.M.block(jmodel.idx_v(),jmodel.idx_v(),JointModel::nv,data.nvSubtree[i]) 
+      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]) 
 	= jdata.S().transpose()*data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
 
       // std::cout << "*** joint " << i << std::endl;

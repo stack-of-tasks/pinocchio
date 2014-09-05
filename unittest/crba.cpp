@@ -36,31 +36,7 @@ int main(int argc, const char ** argv)
   if(argc>1) filename = argv[1];
   model = se3::buildModel(filename,argc>1);
 
-
-  // SIMPLE no FF
-  // model.addBody(model.getBodyId("universe"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg1");
-  // model.addBody(model.getBodyId("rleg1"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg2");
-  // model.addBody(model.getBodyId("rleg2"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg3");
-
-  // model.addBody(model.getBodyId("universe"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg1");
-  // model.addBody(model.getBodyId("lleg1"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg2");
-  // model.addBody(model.getBodyId("lleg2"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg3");
-
-
-  //SIMPLE with FF
-  // model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"root");
-
-  // model.addBody(model.getBodyId("root"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg1");
-  // model.addBody(model.getBodyId("rleg1"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg2");
-  // model.addBody(model.getBodyId("rleg2"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"rleg3");
-
-  // model.addBody(model.getBodyId("root"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg1");
-  // model.addBody(model.getBodyId("lleg1"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg2");
-  // model.addBody(model.getBodyId("lleg2"),JointModelRX(),SE3(I3,SE3::Vector3::Random()),Inertia::Random(),"lleg3");
-
-
   se3::Data data(model);
-
   VectorXd q = VectorXd::Zero(model.nq);
  
   StackTicToc timer(StackTicToc::US); timer.tic();

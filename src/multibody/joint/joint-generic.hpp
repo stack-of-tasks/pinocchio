@@ -22,8 +22,8 @@ namespace se3
     typedef Motion Motion_t;
     typedef Motion Bias_t;
     enum {
-      nq = -1,
-      nv = -1
+      NQ = -1,
+      NV = -1
     };
   };
   template<> struct traits<JointDataGeneric> { typedef JointGeneric Joint; };

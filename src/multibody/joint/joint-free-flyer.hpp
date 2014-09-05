@@ -66,8 +66,8 @@ namespace se3
     typedef JointFreeFlyer::BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,6> F_t;
     enum {
-      nq = 7,
-      nv = 6
+      NQ = 7,
+      NV = 6
     };
   };
   template<> struct traits<JointDataFreeFlyer> { typedef JointFreeFlyer Joint; };
@@ -102,7 +102,7 @@ namespace se3
     void calc( JointData& data, 
 	       const Eigen::VectorXd & qs) const
     {
-      Eigen::VectorXd::ConstFixedSegmentReturnType<nq>::Type q = qs.segment<nq>(idx_q());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
       JointData::Quaternion quat(Eigen::Matrix<double,4,1>(q.tail(4))); // TODO
       data.M = SE3(quat.matrix(),q.head<3>());
     }
@@ -110,8 +110,8 @@ namespace se3
 	       const Eigen::VectorXd & qs, 
 	       const Eigen::VectorXd & vs ) const
     {
-      Eigen::VectorXd::ConstFixedSegmentReturnType<nq>::Type q = qs.segment<nq>(idx_q());
-      data.v = vs.segment<nv>(idx_v());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
+      data.v = vs.segment<NV>(idx_v());
 
       JointData::Quaternion quat(Eigen::Matrix<double,4,1>(q.tail(4))); // TODO
       data.M = SE3(quat.matrix(),q.head<3>());
