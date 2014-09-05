@@ -19,10 +19,9 @@ namespace se3
   struct CrbaForwardStep : public fusion::JointVisitor<CrbaForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model&,
-			    se3::Data&,
-			    const int&,
-			    const Eigen::VectorXd &
-			    > ArgsType;
+				   se3::Data&,
+				   const Eigen::VectorXd &
+				   > ArgsType;
 
     JOINT_VISITOR_INIT(CrbaForwardStep);
 
@@ -31,12 +30,12 @@ namespace se3
 		     se3::JointDataBase<typename JointModel::JointData> & jdata,
 		     const se3::Model& model,
 		     se3::Data& data,
-		     const int &i,
 		     const Eigen::VectorXd & q)
     {
       using namespace Eigen;
       using namespace se3;
-      
+
+      const int & i = jmodel.id();
       jmodel.calc(jdata.derived(),q);
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
@@ -96,8 +95,7 @@ namespace se3
   struct CrbaBackwardStep : public fusion::JointVisitor<CrbaBackwardStep>
   {
     typedef boost::fusion::vector<const Model&,
-				  Data&,
-				  const int &>  ArgsType;
+				  Data&>  ArgsType;
     
     JOINT_VISITOR_INIT(CrbaBackwardStep);
 
@@ -105,8 +103,7 @@ namespace se3
     static void algo(const JointModelBase<JointModel> & jmodel,
 		     JointDataBase<typename JointModel::JointData> & jdata,
 		     const Model& model,
-		     Data& data,
-		     int i)
+		     Data& data)
     {
       /*
        * F[1:6,i] = Y*S
@@ -115,6 +112,7 @@ namespace se3
        *   Yli += liXi Yi
        *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
        */
+      const int & i = jmodel.id();
 
       data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
 
@@ -151,13 +149,13 @@ namespace se3
     for( int i=1;i<model.nbody;++i )
       {
 	CrbaForwardStep::run(model.joints[i],data.joints[i],
-			     CrbaForwardStep::ArgsType(model,data,i,q));
+			     CrbaForwardStep::ArgsType(model,data,q));
       }
     
     for( int i=model.nbody-1;i>0;--i )
       {
 	CrbaBackwardStep::run(model.joints[i],data.joints[i],
-			      CrbaBackwardStep::ArgsType(model,data,i));
+			      CrbaBackwardStep::ArgsType(model,data));
       }
 
     return data.M;
