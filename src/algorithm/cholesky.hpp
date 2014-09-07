@@ -22,183 +22,62 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 namespace se3 
 {
-  template<typename JointModel,typename D>
-  void udut( Eigen::MatrixBase<D> & U,
-	     const JointModel& )
-  {
-    /* TODO */
-  }
-
-
-  // struct CholeskyInnerStep : public fusion::JointVisitor<CholeskyInnerStep>
-  // {
-  //   typedef boost::fusion::vector<const Model&,
-  // 				  Data&,
-  // 				  const int &,
-  // 				  const int &>  ArgsType;
-    
-  //   JOINT_VISITOR_INIT(CholeskyOuterStep);
- 
-  //   template<typename JointModel>
-  //   static void algo(const JointModelBase<JointModel> & jmodel,
-  // 		     JointDataBase<typename JointModel::JointData> & ,
-  // 		     const Model& model,
-  // 		     Data& data,
-  // 		     int j)
-  //   {
-      
-  //   }
-  // };
-  
-  // struct CholeskyOuterStep : public fusion::JointVisitor<CholeskyOuterStep>
-  // {
-  //   typedef boost::fusion::vector<const Model&,
-  // 				  Data&,
-  // 				  const int &>  ArgsType;
-    
-  //   JOINT_VISITOR_INIT(CholeskyOuterStep);
-
-  //   template<typename JointModel>
-  //   static void algo(const JointModelBase<JointModel> & jmodel,
-  // 		     JointDataBase<typename JointModel::JointData> & ,
-  // 		     const Model& model,
-  // 		     Data& data,
-  // 		     int j)
-  //   {
-  //     typename Model::Index parent = jmodel.parents[j];
-  //     while( parent>0 )
-  // 	{
-	  
-  // 	}
-
-  //     const int 
-  // 	idx = jmodel.idx_v(),
-  // 	nv = JointModel::nv,
-  // 	idx_tree = idx+nv,
-  // 	nv_tree = data.nvSubtree[j];
-      
-  //     data.U.template block<nv,nv>(j,j)
-  // 	-= data.U.block(idx,idx_tree,nv,nv_tree)
-  // 	* data.D.segment(idx_tree,nv_tree).asDiagonal()
-  // 	* data.U.block(idx,idx_tree,nv,nv_tree).transpose();
-      
-  //     Eigen::Block<Eigen::MatrixXd,nv,nv> Ujj = data.U.template block<nv,nv>(j,j);
-  //     udut(Ujj,jmodel);
-  //   }
-  // };
-
- 
-  template<typename JointModel_k,typename JointModel_i>
-  struct CholeskyLoopJStep : public fusion::JointVisitor< CholeskyLoopJStep<JointModel_k,JointModel_i> >
-  {
-    typedef boost::fusion::vector<const JointModelBase<JointModel_k>&,
-				  const JointModelBase<JointModel_i>&,
-				  const Model&,
-				  Data&,
-				  const int &,
-				  const int &,
-				  const double &>  ArgsType;
-    
-    CholeskyLoopJStep( JointDataVariant & jdata,ArgsType args ) : jdata(jdata),args(args) {}
-    using fusion::JointVisitor< CholeskyLoopJStep<JointModel_k,JointModel_i>  >::run;
-    JointDataVariant & jdata;			
-    ArgsType args;
-
-    template<typename JointModel_j>
-    static void algo(const JointModelBase<JointModel_j> & jj_model,
-		     JointDataBase<typename JointModel_j::JointData> &,
-		     const JointModelBase<JointModel_k> & jk_model,
-		     const JointModelBase<JointModel_i> & ji_model,
-		     const Model& model,
-		     Data& data,
-		     const int & k,
-		     const int & i,
-		     const int & j)
-    {
-    }
-  };
-  
- 
-  template<typename JointModel_k>
-  struct CholeskyLoopIStep : public fusion::JointVisitor< CholeskyLoopIStep<JointModel_k> >
-  {
-    typedef boost::fusion::vector<const JointModelBase<JointModel_k>&,
-  				  const Model&,
-  				  Data&,
-  				  const int &,
-  				  const int &>  ArgsType;
-    
-    //JOINT_VISITOR_INIT(CholeskyLoopIStep);
-    CholeskyLoopIStep( JointDataVariant & jdata,ArgsType args ) : jdata(jdata),args(args) {}
-    using fusion::JointVisitor< CholeskyLoopIStep<JointModel_k>  >::run;				       
-    JointDataVariant & jdata;			
-    ArgsType args;
-
-
-    template<typename JointModel_i>
-    static void algo(const JointModelBase<JointModel_i> & ji_model,
-  		     JointDataBase<typename JointModel_i::JointData> &,
-  		     const JointModelBase<JointModel_k> & jk_model,
-  		     const Model& model,
-  		     Data& data,
-  		     const int & k,
-  		     const int & i)
-    {
-      
-      double a = data.M( jk_model.idx_v(),ji_model.idx_v() )/data.M(k,k);
-      typedef typename Model::Index Index;
-      for( Index j=i;j>0;j=model.parents[j])
-	{
-       	  CholeskyLoopJStep<JointModel_k,JointModel_i>
-	    ::run(model.joints[j],data.joints[j],
-		  typename CholeskyLoopJStep<JointModel_k,JointModel_i>
-		  ::ArgsType(jk_model,ji_model,model,data,k,i,a) );
-       	}
-    }
-  };
-  
   struct CholeskyLoopKStep : public fusion::JointVisitor<CholeskyLoopKStep>
   {
     typedef boost::fusion::vector<const Model&,
   				  Data&,
   				  const int &>  ArgsType;
-    
+   
     JOINT_VISITOR_INIT(CholeskyLoopKStep);
  
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jk_model,
-  		     JointDataBase<typename JointModel::JointData> & jk_data,
+  		     JointDataBase<typename JointModel::JointData> &,
   		     const Model& model,
   		     Data& data,
   		     const int & k )
     {
       typedef typename Model::Index Index;
+      Eigen::MatrixXd & U = data.U;
+      const int & _k = jk_model.idx_v();
+
       for( Index i=model.parents[k];i>0;i=model.parents[i])
-  	{
-  	  CholeskyLoopIStep<JointModel>
-  	    ::run(model.joints[i],data.joints[i],
-  	     	  typename CholeskyLoopIStep<JointModel>
-  		  ::ArgsType(jk_model,model,data,k,i) );
-  	}
+       	{
+       	  const int _i = idx_v(model.joints[i]);
+	  
+       	  const double a = 1/U(_k,_k) * U(_i,_k);
+       	  U(_i,_i) -= a * U(_i,_k);
+	  
+       	  for( Index j=model.parents[i];j>0;j=model.parents[j])
+       	    {
+       	      const int _j = idx_v(model.joints[j]);
+       	      U(_j,_i) -= a * U(_j,_k);
+       	    }
+	  
+       	  U(_i,_k) = a;
+       	}
     }
   };
   
-  /*
-   * U=zeros(n,n); D=zeros(n,1);
-   * for j=n:-1:1
-   *     for k=n:-1:j+1
-   *         subtree = k+1:n;
-   *         U(j,k) = inv(D(k)) * (A(j,k) - U(k,subtree)*diag(D(subtree))*U(j,subtree)');
-   *     end
-   *     subtree = j+1:n;
-   *     D(j) = A(j,j) - U(j,subtree)*diag(D(subtree))*U(j,subtree)';
-   * end
-   * U = U + diag(ones(n,1));
-   */
   inline const Eigen::MatrixXd&
   cholesky(const Model &           model, 
 	   Data&                   data )
   {
+    /* for k=n:-1:1
+     *   i=parent(k);
+     *   while i>0
+     *       a = M(i,k) / M(k,k);
+     *       M(i,i) = M(i,i) - a * M(i,k);
+     *       j = parent(i);
+     *       while j>0
+     *           M(j,i) = M(j,i) - a * M(j,k);
+     *          j=parent(j);
+     *       end
+     *       M(i,k) = a;
+     *       i=parent(i);
+     *   end
+     * end
+     */
     data.U = data.M;
     for( int j=model.nbody-1;j>=0;--j )
       {
@@ -206,6 +85,8 @@ namespace se3
 	 		       CholeskyLoopKStep::ArgsType(model,data,j));
 
        }
+    data.D = data.U.diagonal();
+    data.U.diagonal().fill(1);
 
     return data.U;
   }
