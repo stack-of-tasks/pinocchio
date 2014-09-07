@@ -22,39 +22,38 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 namespace se3 
 {
-  struct CholeskyLoopKStep : public fusion::JointVisitor<CholeskyLoopKStep>
+  struct CholeskyOuterLoopStep : public fusion::JointVisitor<CholeskyOuterLoopStep>
   {
     typedef boost::fusion::vector<const Model&,
-  				  Data&,
-  				  const int &>  ArgsType;
+  				  Data&>  ArgsType;
    
-    JOINT_VISITOR_INIT(CholeskyLoopKStep);
+    JOINT_VISITOR_INIT(CholeskyOuterLoopStep);
  
     template<typename JointModel>
-    static void algo(const JointModelBase<JointModel> & jk_model,
+    static void algo(const JointModelBase<JointModel> & jmodel,
   		     JointDataBase<typename JointModel::JointData> &,
   		     const Model& model,
-  		     Data& data,
-  		     const int & k )
+  		     Data& data)
     {
       typedef typename Model::Index Index;
+      Eigen::MatrixXd & M = data.M;
       Eigen::MatrixXd & U = data.U;
-      const int & _k = jk_model.idx_v();
+      Eigen::VectorXd & D = data.D;
+      const int j = jmodel.id();
+      enum { _j = JointModel::NV };
 
-      for( Index i=model.parents[k];i>0;i=model.parents[i])
+      D[_j] = (M(_j,_j) 
+	       - U.row(_j).segment(_j+1,_j+data.nvSubtree[j])  
+	       * D.segment(_j+1,_j+data.nvSubtree[j]).asDiagonal()
+	       * U.row(_j).segment(_j+1,_j+data.nvSubtree[j]).transpose());
+
+      for( Index i=model.parents[j];i>0;i=model.parents[i])
        	{
        	  const int _i = idx_v(model.joints[i]);
-	  
-       	  const double a = 1/U(_k,_k) * U(_i,_k);
-       	  U(_i,_i) -= a * U(_i,_k);
-	  
-       	  for( Index j=model.parents[i];j>0;j=model.parents[j])
-       	    {
-       	      const int _j = idx_v(model.joints[j]);
-       	      U(_j,_i) -= a * U(_j,_k);
-       	    }
-	  
-       	  U(_i,_k) = a;
+	  U(_i,_j) = (M(_i,_j)
+		      - U.row(_i).segment(_j+1,_j+data.nvSubtree[j])  
+		      * D.segment(_j+1,_j+data.nvSubtree[j]).asDiagonal()
+		      * U.row(_j).segment(_j+1,_j+data.nvSubtree[j]).transpose()) / D[_j];
        	}
     }
   };
@@ -63,30 +62,26 @@ namespace se3
   cholesky(const Model &           model, 
 	   Data&                   data )
   {
-    /* for k=n:-1:1
-     *   i=parent(k);
-     *   while i>0
-     *       a = M(i,k) / M(k,k);
-     *       M(i,i) = M(i,i) - a * M(i,k);
-     *       j = parent(i);
-     *       while j>0
-     *           M(j,i) = M(j,i) - a * M(j,k);
-     *          j=parent(j);
-     *       end
-     *       M(i,k) = a;
-     *       i=parent(i);
-     *   end
-     * end
+    /*  
+     *    D = zeros(n,1);
+     *    U = eye(n);
+     *    for j=n:-1:1
+     *      subtree = j+1:tree(j);
+     *      D(j) = M(j,j) - U(j,subtree)*diag(D(subtree))*U(j,subtree)';
+     *      i=parent(j);
+     *      while i>0
+     *          U(i,j) = (M(i,j) - U(i,subtree)*diag(D(subtree))*U(j,subtree)') / D(j);
+     *          i=parent(i);
+     *      end
+     *    end
      */
-    data.U = data.M;
+
+    data.U = Eigen::MatrixXd(model.nbody,model.nbody);
     for( int j=model.nbody-1;j>=0;--j )
       {
-	CholeskyLoopKStep::run(model.joints[j],data.joints[j],
-	 		       CholeskyLoopKStep::ArgsType(model,data,j));
-
+	CholeskyOuterLoopStep::run(model.joints[j],data.joints[j],
+				   CholeskyOuterLoopStep::ArgsType(model,data));
        }
-    data.D = data.U.diagonal();
-    data.U.diagonal().fill(1);
 
     return data.U;
   }

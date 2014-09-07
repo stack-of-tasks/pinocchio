@@ -102,6 +102,8 @@ int main(int argc, const char ** argv)
   //std::cout << "D = [\n" << data.D << "];" << std::endl;
   //std::cout << "UDU = [\n" << (data.U*data.D.asDiagonal()*data.U.transpose()) << "];" << std::endl;
   
+  //for
+
   assert((data.U*data.D.asDiagonal()*data.U.transpose()).isApprox(data.M));
 
 
