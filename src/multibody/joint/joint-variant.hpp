@@ -33,6 +33,7 @@ namespace se3
     static int run( const JointModelVariant & jmodel)
     { return boost::apply_visitor( Joint_nv(), jmodel ); }
   };
+  inline int nv(const JointModelVariant & jmodel) { return Joint_nv::run(jmodel); }
 
   class Joint_nq: public boost::static_visitor<int>
   {
@@ -66,6 +67,8 @@ namespace se3
     static int run( const JointModelVariant & jmodel)
     { return boost::apply_visitor( Joint_idx_v(), jmodel ); }
   };
+  inline int idx_v(const JointModelVariant & jmodel) { return Joint_idx_v::run(jmodel); }
+
 
 } // namespace se3
 
