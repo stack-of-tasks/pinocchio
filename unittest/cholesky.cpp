@@ -37,12 +37,13 @@ int main(int argc, const char ** argv)
   // model = se3::buildModel(filename,false);
 
 
-  model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff1");
-  model.addBody(model.getBodyId("ff1"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff2");
-  model.addBody(model.getBodyId("ff2"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff3");
-  model.addBody(model.getBodyId("ff3"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff4");
-  model.addBody(model.getBodyId("ff4"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff5");
-  model.addBody(model.getBodyId("ff5"),JointModelRX(),SE3::Random(),Inertia::Random(),"root");
+   // model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff1");
+   // model.addBody(model.getBodyId("ff1"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff2");
+   // model.addBody(model.getBodyId("ff2"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff3");
+   // model.addBody(model.getBodyId("ff3"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff4");
+   // model.addBody(model.getBodyId("ff4"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff5");
+   // model.addBody(model.getBodyId("ff5"),JointModelRX(),SE3::Random(),Inertia::Random(),"root");
+   model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Random(),Inertia::Random(),"root");
 
   model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg1");
   model.addBody(model.getBodyId("lleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg2");
@@ -98,15 +99,7 @@ int main(int argc, const char ** argv)
   se3::Data data(model);
   VectorXd q = VectorXd::Zero(model.nq);
   crba(model,data,q);
-  
-  //std::cout << "M = [\n" << data.M << "];" << std::endl;
-  for(int i=0;i<model.nv;++i)
-    for(int j=i;j<model.nv;++j)
-      {
-	data.M(i,j) = round(data.M(i,j))+1;
-	data.M(j,i) = data.M(i,j);
-      }
-	
+  	
   StackTicToc timer(StackTicToc::US); timer.tic();
 #ifdef NDEBUG
   SMOOTH(1000)
@@ -118,13 +111,20 @@ int main(int argc, const char ** argv)
 
   for(int i=0;i<model.nv;++i)
     for(int j=0;j<model.nv;++j)
-      if(isnan(data.M(i,j))) data.M(i,j) = 0;
+      {
+	if(isnan(data.M(i,j))) data.M(i,j) = 0;
+	data.M(j,i) = data.M(i,j);
+      }
 
-  // std::cout << "M = [\n" << data.M << "];" << std::endl;
-  // std::cout << "U = [\n" << data.U << "];" << std::endl;
-  // std::cout << "D = [\n" << data.D.transpose() << "];" << std::endl;
+  data.U.triangularView<Eigen::StrictlyLower>().fill(0);
+  data.U.diagonal().fill(1);
+
+#ifndef NDEBUG
+  std::cout << "M = [\n" << data.M << "];" << std::endl;
+  std::cout << "U = [\n" << data.U << "];" << std::endl;
+  std::cout << "D = [\n" << data.D.transpose() << "];" << std::endl;
   // std::cout << "UDU = [\n" << (data.U*data.D.asDiagonal()*data.U.transpose()) << "];" << std::endl;
-  
+#endif
       
   assert((data.U*data.D.asDiagonal()*data.U.transpose()).isApprox(data.M));
 
