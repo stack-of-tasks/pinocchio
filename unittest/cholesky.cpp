@@ -75,6 +75,24 @@ int main(int argc, const char ** argv)
   model.addBody(model.getBodyId("larm4"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm5");
   model.addBody(model.getBodyId("larm5"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm6");
 
+  // model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff1");
+  // model.addBody(model.getBodyId("ff1"),JointModelRX(),SE3::Random(),Inertia::Random(),"root");
+
+  // model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg1");
+  // model.addBody(model.getBodyId("lleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg2");
+
+  // model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg1");
+  // model.addBody(model.getBodyId("rleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg2");
+
+  // model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"torso1");
+  // model.addBody(model.getBodyId("torso1"),JointModelRX(),SE3::Random(),Inertia::Random(),"chest");
+
+  // model.addBody(model.getBodyId("chest"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm1");
+  // model.addBody(model.getBodyId("rarm1"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm2");
+
+  // model.addBody(model.getBodyId("chest"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm1");
+  // model.addBody(model.getBodyId("larm1"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm2");
+
   // std::cout << model << std::endl;
 
   se3::Data data(model);
@@ -88,7 +106,6 @@ int main(int argc, const char ** argv)
 	data.M(i,j) = round(data.M(i,j))+1;
 	data.M(j,i) = data.M(i,j);
       }
-  //std::cout << "M = [\n" << data.M << "];" << std::endl;
 	
   StackTicToc timer(StackTicToc::US); timer.tic();
 #ifdef NDEBUG
@@ -98,12 +115,17 @@ int main(int argc, const char ** argv)
       cholesky(model,data);
     }
   timer.toc(std::cout,1000);
-  //std::cout << "U = [\n" << data.U << "];" << std::endl;
-  //std::cout << "D = [\n" << data.D << "];" << std::endl;
-  //std::cout << "UDU = [\n" << (data.U*data.D.asDiagonal()*data.U.transpose()) << "];" << std::endl;
-  
-  //for
 
+  for(int i=0;i<model.nv;++i)
+    for(int j=0;j<model.nv;++j)
+      if(isnan(data.M(i,j))) data.M(i,j) = 0;
+
+  // std::cout << "M = [\n" << data.M << "];" << std::endl;
+  // std::cout << "U = [\n" << data.U << "];" << std::endl;
+  // std::cout << "D = [\n" << data.D.transpose() << "];" << std::endl;
+  // std::cout << "UDU = [\n" << (data.U*data.D.asDiagonal()*data.U.transpose()) << "];" << std::endl;
+  
+      
   assert((data.U*data.D.asDiagonal()*data.U.transpose()).isApprox(data.M));
 
 
