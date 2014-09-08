@@ -84,6 +84,7 @@ namespace se3
 
     Eigen::MatrixXd U;                    // Joint Inertia square root (upper triangle)
     Eigen::VectorXd D;                    // Diagonal of UDUT inertia decomposition
+    Eigen::VectorXd tmp;                  // Temporary of size NV used in Cholesky
 
     Data( const Model& ref );
 
@@ -176,6 +177,7 @@ namespace se3
     ,nvSubtree(ref.nbody)
     ,U(ref.nv,ref.nv)
     ,D(ref.nv)
+    ,tmp(ref.nv)
   {
     for(int i=0;i<model.nbody;++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
@@ -198,8 +200,8 @@ namespace se3
 	lastChild[parent] = std::max(lastChild[i],lastChild[parent]);
 
 	nvSubtree[i] 
-	  = Joint_idx_v::run(model.joints[lastChild[i]]) + Joint_nv::run(model.joints[lastChild[i]])
-	  - Joint_idx_v::run(model.joints[i]);
+	  = idx_v(model.joints[lastChild[i]]) + nv(model.joints[lastChild[i]])
+	  - idx_v(model.joints[i]);
       }
   }
 
