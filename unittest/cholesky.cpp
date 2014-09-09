@@ -38,7 +38,7 @@ int main(int argc, const char ** argv)
   // if(argc>1) filename = argv[1];
   // model = se3::buildModel(filename,false);
 
-  if( 1 ) // Without FF
+  if( 0 ) // Without FF
     {
        model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff1");
        model.addBody(model.getBodyId("ff1"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff2");
