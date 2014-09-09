@@ -32,6 +32,7 @@ ADD_REQUIRED_DEPENDENCY("urdfdom >= v0.3.0")
 # ----------------------------------------------------
 SET(${PROJECT_NAME}_HEADERS
   exception.hpp
+  assert.hpp
   spatial/symmetric3.hpp
   spatial/se3.hpp
   spatial/motion.hpp

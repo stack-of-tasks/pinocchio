@@ -6,4 +6,9 @@
 #include "pinocchio/multibody/joint/joint-free-flyer.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 
+namespace se3
+{
+  enum { MAX_JOINT_NV = 6 }; 
+}
+
 #endif // ifndef __se3_joint_hpp__

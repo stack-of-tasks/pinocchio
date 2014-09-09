@@ -1,6 +1,7 @@
 #ifndef __se3_cholesky_hpp__
 #define __se3_cholesky_hpp__
 
+#include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include <iostream>
@@ -82,22 +83,23 @@ namespace se3
   					 const int & j,
   					 const int & _j)
   {
-    typedef typename Model::Index Index;
+    /*typedef typename Model::Index Index;
     Eigen::MatrixXd & M = data.M;
     Eigen::MatrixXd & U = data.U;
     Eigen::VectorXd & D = data.D;
     const int NVT = data.nvSubtree[j] - NVJ;
 
-    Eigen::Block<Eigen::MatrixXd> DUt = U.block(NVJ,0,NVT,NVJ);
-    //DUt  = D.segment(_j+NVJ,NVT).asDiagonal() * U.block( _j,_j+NVJ,NVJ,NVT).transpose();
-    DUt  = U.block( _j,_j+NVJ,NVJ,NVT).transpose();
+    SE3_STATIC_ASSERT( NVJ<=MAX_JOINT_NV,
+		       THE_JOINT_MAX_NV_SIZE_IS_EXCEDEED__INCREASE_MAX_JOINT_NV );
+
+    Eigen::Block<Eigen::MatrixXd> DUt = data.tmp.block(0,0,NVT,NVJ);
+    DUt  = D.segment(_j+NVJ,NVT).asDiagonal() * U.block( _j,_j+NVJ,NVJ,NVT).transpose();
 
     Eigen::Block<Eigen::MatrixXd,NVJ,NVJ> Djj = U.template block<NVJ,NVJ>(_j,_j);
-    // Djj.template triangularView<Eigen::Upper>() 
-    //   = M.template block<NVJ,NVJ>(_j,_j) - U.block( _j,_j+NVJ,NVJ,NVT) * DUt;
-    //udut<NVJ>(Djj);
-    //D.template segment<NVJ>(_j) = Djj.diagonal();
-    //for(int i=0;i<NVJ;++i) D[_j+i] = Djj(i,i);
+    Djj.template triangularView<Eigen::Upper>() 
+      = M.template block<NVJ,NVJ>(_j,_j) - U.block( _j,_j+NVJ,NVJ,NVT) * DUt;
+    udut<NVJ>(Djj);
+    D.template segment<NVJ>(_j) = Djj.diagonal();
 
     /* The same following loop could be achieved using model.parents, however
      * this one fit much better the predictor of the CPU, saving 1/4 of cost. */
@@ -107,11 +109,15 @@ namespace se3
     // 	  = M.template block<1,NVJ>(_i,_j) - U.block(_i,_j+1,1,NVT) * DUt;
     // 	// TODO divide by Djj
     // 	assert(false && "TODO divide by Djj");
-    //   }
+    //   }*/
+
+    for( int k=NVJ-1;k>=0;--k )
+      algoSized<1>(model,data,j,_j+k);
+
   }
  
   template<>
-  void CholeskyOuterLoopStep::algoSized<1>( const Model& model,
+  void CholeskyOuterLoopStep::algoSized<1>( const Model&,
 					    Data& data,
 					    const int & j,
 					    const int & _j)
@@ -122,7 +128,8 @@ namespace se3
     Eigen::VectorXd & D = data.D;
     
     const int NVT = data.nvSubtree[j]-1;
-    Eigen::VectorXd::SegmentReturnType DUt = data.tmp.head(NVT);
+    typename Eigen::MatrixXd::ColXpr::SegmentReturnType DUt = data.tmp.col(0).head(NVT);
+
     if(NVT)
       DUt = U.row(_j).segment(_j+1,NVT).transpose()
 	.cwiseProduct(D.segment(_j+1,NVT));
@@ -133,7 +140,6 @@ namespace se3
      * this one fit much better the predictor of the CPU, saving 1/4 of cost. */
     for( int _i=data.parentsRow[_j];_i>=0;_i=data.parentsRow[_i] )
       U(_i,_j) = (M(_i,_j) - U.row(_i).segment(_j+1,NVT).dot(DUt)) / D[_j]; 
-
   }
  
 
