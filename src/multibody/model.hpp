@@ -85,10 +85,13 @@ namespace se3
     Eigen::MatrixXd U;                    // Joint Inertia square root (upper triangle)
     Eigen::VectorXd D;                    // Diagonal of UDUT inertia decomposition
     Eigen::VectorXd tmp;                  // Temporary of size NV used in Cholesky
+    std::vector<int> parentsRow;          // First previous non-zero row in M (used in Cholesky)
+    
 
     Data( const Model& ref );
 
     void computeLastChild(const Model& model);
+    void computeParentsRow(const Model& model);
   };
 
   const Eigen::Vector3d Model::gravity981 (0,0,-9.81);
@@ -178,12 +181,14 @@ namespace se3
     ,U(ref.nv,ref.nv)
     ,D(ref.nv)
     ,tmp(ref.nv)
+    ,parentsRow(ref.nv)
   {
     for(int i=0;i<model.nbody;++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
     M.fill(NAN);
     for(int i=0;i<ref.nbody;++i ) { Fcrb[i].resize(6,model.nv); Fcrb[i].fill(NAN); }
     computeLastChild(ref);
+    computeParentsRow(ref);
   }
 
   void Data::computeLastChild(const Model& model)
@@ -202,6 +207,20 @@ namespace se3
 	nvSubtree[i] 
 	  = idx_v(model.joints[lastChild[i]]) + nv(model.joints[lastChild[i]])
 	  - idx_v(model.joints[i]);
+      }
+  }
+
+  void Data::computeParentsRow( const Model& model )
+  {
+    for( int joint=1;joint<model.nbody;joint++)
+      {
+	const int & parent = model.parents[joint];
+	const int nvj    = nv   (model.joints[joint]);
+	const int idx_vj = idx_v(model.joints[joint]);
+
+	if(parent>0) parentsRow[idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
+	else         parentsRow[idx_vj] = -1;
+	for( int row=1;row<nvj;++row)   parentsRow[idx_vj+row] = idx_vj+row-1;
       }
   }
 
