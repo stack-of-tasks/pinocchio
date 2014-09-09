@@ -5,9 +5,11 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
-//#include "pinocchio/multibody/parser/urdf.hpp"
 
 #include <iostream>
+#ifdef NDEBUG
+#  include <Eigen/Cholesky>
+#endif
 
 #include "pinocchio/tools/timer.hpp"
 
@@ -36,14 +38,17 @@ int main(int argc, const char ** argv)
   // if(argc>1) filename = argv[1];
   // model = se3::buildModel(filename,false);
 
-
-   // model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff1");
-   // model.addBody(model.getBodyId("ff1"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff2");
-   // model.addBody(model.getBodyId("ff2"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff3");
-   // model.addBody(model.getBodyId("ff3"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff4");
-   // model.addBody(model.getBodyId("ff4"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff5");
-   // model.addBody(model.getBodyId("ff5"),JointModelRX(),SE3::Random(),Inertia::Random(),"root");
-   model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Random(),Inertia::Random(),"root");
+  if( 1 ) // Without FF
+    {
+       model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff1");
+       model.addBody(model.getBodyId("ff1"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff2");
+       model.addBody(model.getBodyId("ff2"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff3");
+       model.addBody(model.getBodyId("ff3"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff4");
+       model.addBody(model.getBodyId("ff4"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff5");
+       model.addBody(model.getBodyId("ff5"),JointModelRX(),SE3::Random(),Inertia::Random(),"root");
+    }
+  else
+    model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Random(),Inertia::Random(),"root");
 
   model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg1");
   model.addBody(model.getBodyId("lleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg2");
@@ -109,12 +114,34 @@ int main(int argc, const char ** argv)
     }
   timer.toc(std::cout,1000);
 
+
   for(int i=0;i<model.nv;++i)
     for(int j=0;j<model.nv;++j)
       {
 	if(isnan(data.M(i,j))) data.M(i,j) = 0;
 	data.M(j,i) = data.M(i,j);
       }
+
+
+#ifdef NDEBUG
+  Eigen::Matrix<double,33,33> M33 = data.M;
+  timer.tic();
+  SMOOTH(1000)
+    {
+      M33 = data.M;
+      //Eigen::LDLT <Eigen::MatrixXd> Mchol(data.M);
+      CholeskyOuterLoopStep::udut<33>(M33);
+    }
+  std::cout << "\t\t"; timer.toc(std::cout,1000);
+
+  timer.tic();
+  SMOOTH(1000)
+    {
+      Eigen::LDLT <Eigen::MatrixXd> Mchol(data.M);
+    }
+  std::cout << "\t\t"; timer.toc(std::cout,1000);
+#endif
+
 
   data.U.triangularView<Eigen::StrictlyLower>().fill(0);
   data.U.diagonal().fill(1);
