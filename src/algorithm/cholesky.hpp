@@ -67,14 +67,12 @@ namespace se3
     template<typename Mat>
     Mat & 
     Uv( const Model &                  model, 
-	Data&                          data ,
+	const Data&                    data ,
 	Eigen::MatrixBase<Mat> &   v)
     {
       assert(v.size() == model.nv);
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
-
       const Eigen::MatrixXd & U = data.U;
-      const Eigen::VectorXd & D = data.D;
 
       for( int j=0;j<model.nv;++j )
 	v[j] += U.row(j).segment(j+1,data.nvSubtree_fromRow[j]-1)
@@ -197,6 +195,15 @@ namespace se3
       return v.derived();
     }
 
+    
+    template<typename Mat>
+    Mat &
+    solve( const Model &                  model, 
+	   Data&                          data ,
+	   Eigen::MatrixBase<Mat> &   v)
+    {
+      return UtiDiv(model,data,Uiv(model,data,v));
+    }
 
   } //   namespace cholesky
 } // namespace se3 
