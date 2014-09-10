@@ -1,3 +1,7 @@
+#ifdef NDEBUG
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
+
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/joint.hpp"
@@ -30,6 +34,8 @@ void timings(const se3::Model & model, se3::Data& data, int flag = 1)
   const int NBT = 1;
 #endif
 
+  bool verbose = flag & (flag - 1); // True is two or more binaries of the flag are 1.
+
   if( flag & 1 )
     {
       timer.tic();
@@ -37,6 +43,7 @@ void timings(const se3::Model & model, se3::Data& data, int flag = 1)
       {
 	se3::cholesky::decompose(model,data);
       }
+      if(verbose) std::cout << "Decompose =\t";
       timer.toc(std::cout,NBT);
     }
 
@@ -47,8 +54,31 @@ void timings(const se3::Model & model, se3::Data& data, int flag = 1)
       {
 	Eigen::LDLT <Eigen::MatrixXd> Mchol(data.M);
       }
-      std::cout << "\t\t"; timer.toc(std::cout,1000);
+      if(verbose) std::cout << "Eigen::LDLt =\t";
+      timer.toc(std::cout,NBT);
     }
+
+  if( flag & 4 )
+    {
+      std::vector<Eigen::VectorXd> randvec(NBT);
+      for(int i=0;i<NBT;++i ) randvec[i] = Eigen::VectorXd::Random(model.nv);
+      Eigen::VectorXd zero = Eigen::VectorXd(model.nv);
+      Eigen::VectorXd res (model.nv);
+      timer.tic();
+      SMOOTH(NBT)
+      {
+	// se3::cholesky::Uv(model,data,randvec[_smooth]);
+	// se3::cholesky::Utv(model,data,randvec[_smooth]);
+	//se3::cholesky::DUtv(model,data,randvec[_smooth]);
+	// se3::cholesky::Uiv(model,data,randvec[_smooth]);
+	//se3::cholesky::Utiv(model,data,randvec[_smooth]);
+	se3::cholesky::UtiDiv(model,data,randvec[_smooth]);
+      }
+      if(verbose) std::cout << "Uv =\t\t";
+      timer.toc(std::cout,NBT);
+    }
+
+
 }
 
 void assertValues(const se3::Model & model, se3::Data& data)
@@ -72,9 +102,6 @@ void assertValues(const se3::Model & model, se3::Data& data)
   Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
   std::cout << "v = [" << v.transpose() << "]';" << std::endl;
 
-  // Eigen::VectorXd UDv = v; se3::cholesky::UDv(model,data,UDv);
-  // std::cout << "UDv = [" << UDv.transpose() << "]';" << std::endl;
-  // assert( UDv.isApprox(U*D.asDiagonal()*v));
   Eigen::VectorXd Uv = v; se3::cholesky::Uv(model,data,Uv);
   assert( Uv.isApprox(U*v));
 
@@ -90,7 +117,9 @@ void assertValues(const se3::Model & model, se3::Data& data)
   assert( Utiv.isApprox(U.transpose().inverse()*v));
   Eigen::VectorXd UtiDiv = v; se3::cholesky::UtiDiv(model,data,UtiDiv);
   assert( UtiDiv.isApprox(U.transpose().inverse()*D.asDiagonal().inverse()*v));
-  
+
+  Eigen::VectorXd Miv = v; se3::cholesky::solve(model,data,Miv);
+  assert( Miv.isApprox(M.inverse()*v));
 }
 
 int main()//int argc, const char ** argv)
@@ -106,8 +135,8 @@ int main()//int argc, const char ** argv)
   SE3::Matrix3 I3 = SE3::Matrix3::Identity();
 
   se3::Model model;
-  //se3::buildModels::humanoidSimple(model,true);
-  se3::buildModels::humanoid2d(model);
+  se3::buildModels::humanoidSimple(model,true);
+  //se3::buildModels::humanoid2d(model);
 
   se3::Data data(model);
   VectorXd q = VectorXd::Zero(model.nq);
@@ -117,7 +146,7 @@ int main()//int argc, const char ** argv)
 #ifndef NDEBUG 
   assertValues(model,data);
 #else
-  timings(model,data);
+  timings(model,data,1|4);
 #endif
 
   return 0;
