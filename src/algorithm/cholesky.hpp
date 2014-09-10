@@ -73,34 +73,10 @@ namespace se3
       assert(v.size() == model.nv);
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
       const Eigen::MatrixXd & U = data.U;
+      const std::vector<int> & nvt = data.nvSubtree_fromRow;
 
-      for( int j=0;j<model.nv;++j )
-	v[j] += U.row(j).segment(j+1,data.nvSubtree_fromRow[j]-1)
-	  * v.segment(j+1,data.nvSubtree_fromRow[j]-1);
-
-      return v.derived();
-    }
-  
-    /* Compute D*U'*v */
-    template<typename Mat>
-    Mat &
-    DUtv( const Model &                  model, 
-	  Data&                          data ,
-	  Eigen::MatrixBase<Mat> &   v)
-    {
-      assert(v.size() == model.nv);
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
-
-      const Eigen::MatrixXd & U = data.U;
-      const Eigen::VectorXd & D = data.D;
-      const std::vector<int> & parents = data.parents_fromRow;
-
-      for( int i=model.nv-1;i>=0;--i )
-	{
-	  for( Model::Index j = parents[i];j>=0;j=parents[j] )
-	    v[i] += U(j,i)*v[j];
-	  v[i] *= D[i];
-	}
+      for( int j=0;j<model.nv-1;++j ) // You can stop one step before nv
+	v[j] += U.row(j).segment(j+1,nvt[j]-1) * v.segment(j+1,nvt[j]-1);
 
       return v.derived();
     }
@@ -109,19 +85,17 @@ namespace se3
     template<typename Mat>
     Mat &
     Utv( const Model &                  model, 
-	 Data&                          data ,
+	 const Data&                          data ,
 	 Eigen::MatrixBase<Mat> &   v)
     {
       assert(v.size() == model.nv);
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
 
       const Eigen::MatrixXd & U = data.U;
-      const std::vector<int> & parents = data.parents_fromRow;
-
-      for( int i=model.nv-1;i>=0;--i )
-	for( Model::Index j = parents[i];j>=0;j=parents[j] )
-	  v[i] += U(j,i)*v[j];
-
+      const std::vector<int> & nvt = data.nvSubtree_fromRow;
+      for( int i=model.nv-2;i>=0;--i ) // You can start from nv-2 (no child in nv-1)
+	v.segment(i+1,nvt[i]-1) += U.row(i).segment(i+1,nvt[i]-1).transpose()*v[i];
+      
       return v.derived();
     }
   
@@ -131,7 +105,7 @@ namespace se3
     template<typename Mat>
     Mat &
     Uiv( const Model &                  model, 
-	 Data&                          data ,
+	 const Data&                          data ,
 	  Eigen::MatrixBase<Mat> &   v)
     {
       /* We search y s.t. v = U y. 
@@ -143,14 +117,14 @@ namespace se3
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
 
       for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
-	v[k] -= U.row(k).segment(k+1,nvt[k]-1).dot(v.segment(k+1,nvt[k]-1));
+	v[k] -= U.row(k).segment(k+1,nvt[k]-1) * v.segment(k+1,nvt[k]-1);
       return v.derived();
     }
 
     template<typename Mat>
     Mat &
     Utiv( const Model &                  model, 
-	  Data&                          data ,
+	  const  Data&                          data ,
 	  Eigen::MatrixBase<Mat> &   v)
     {
       /* We search y s.t. v = U' y. 
@@ -160,37 +134,9 @@ namespace se3
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
       
       const Eigen::MatrixXd & U = data.U;
-      const std::vector<int> & parents = data.parents_fromRow;
-
-      for( int k=1;k<model.nv;++k ) // You can start from 1 (no parents[0])
-	for( int m = parents[k];m>=0;m=parents[m] )
-	  v[k] -= U(m,k)*v[m];
-
-      return v.derived();
-    }
-
-    template<typename Mat>
-    Mat &
-    UtiDiv( const Model &                  model, 
-	    Data&                          data ,
-	    Eigen::MatrixBase<Mat> &   v)
-    {
-      /* We search y s.t. v = U' y. 
-       * For any k, v_k = y_k + sum_{m \in parent{k}} U(m,k) v(k). */
-
-      assert(v.size() == model.nv);
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
-      
-      const Eigen::MatrixXd & U = data.U;
-      const Eigen::VectorXd & D = data.D;
-      const std::vector<int> & parents = data.parents_fromRow;
-      
-      for( int k=0;k<model.nv;++k )
-	{
-	  v[k] /= D[k];
-	  for( int m = parents[k];m>=0;m=parents[m] )
-	    v[k] -= U(m,k)*v[m];
-	}
+      const std::vector<int> & nvt = data.nvSubtree_fromRow;
+      for( int i=0;i<model.nv-1;++i ) // You can stop one step before nv.
+	v.segment(i+1,nvt[i]-1) -= U.row(i).segment(i+1,nvt[i]-1).transpose()*v[i];
 
       return v.derived();
     }
@@ -198,11 +144,13 @@ namespace se3
     
     template<typename Mat>
     Mat &
-    solve( const Model &                  model, 
-	   Data&                          data ,
+    solve( const Model &              model, 
+	   const Data&                data ,
 	   Eigen::MatrixBase<Mat> &   v)
     {
-      return UtiDiv(model,data,Uiv(model,data,v));
+      Uiv(model,data,v);
+      for( int k=0;k<model.nv;++k ) v[k] /= data.D[k];
+      return Utiv(model,data,v);
     }
 
   } //   namespace cholesky
