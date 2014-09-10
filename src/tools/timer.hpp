@@ -7,7 +7,8 @@
 /* Return the time spent in secs. */
 inline double operator- (  const struct timeval & t1,const struct timeval & t0)
 {
-  return (t1.tv_sec - t0.tv_sec)+1e-6*(t1.tv_usec - t0.tv_usec);
+  /* TODO: double check the double conversion from long (on 64x). */
+  return double(t1.tv_sec - t0.tv_sec)+1e-6*double(t1.tv_usec - t0.tv_usec);
 }
 
 struct StackTicToc
