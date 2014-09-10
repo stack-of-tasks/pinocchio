@@ -76,11 +76,11 @@ int main()
   VectorXd a = VectorXd::Random(model.nv);
  
   StackTicToc timer(StackTicToc::US); timer.tic();
-  SMOOTH(1000)
+  SMOOTH(100000)
     {
       rnea(model,data,q,v,a);
     }
-  timer.toc(std::cout,1000);
+  timer.toc(std::cout,100000);
 
   return 0;
 }
