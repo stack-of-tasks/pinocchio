@@ -62,128 +62,98 @@ namespace se3
       return data.U;
     }
 
-    /* Compute U*D*v */
+    /* Compute U*v.
+     * Nota: there is no smart way of doing U*D*v, so it is not proposed. */
     template<typename Mat>
-    Eigen::VectorXd
-    UDv( const Model &                  model, 
-	 Data&                          data ,
-	 const Eigen::MatrixBase<Mat> &   v)
-    {
-      /* for i = n:1
-       *    res[i] = L(i,i) x[i]
-       *    while j>0
-       *       y[i] += L(i,j) x[j]
-       */
-      assert(v.size() == model.nv);
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
-
-      Eigen::MatrixXd & U = data.U;
-      Eigen::VectorXd & D = data.D;
-      Eigen::VectorXd res = D.asDiagonal()*v;
-
-      for( int j=0;j<model.nv;++j )
-	res[j] += U.row(j).segment(j+1,data.nvSubtree_fromRow[j]-1)
-	  * res.segment(j+1,data.nvSubtree_fromRow[j]-1);
-
-      return res;
-    }
-  
-    /* Compute U*v */
-    template<typename Mat>
-    Eigen::VectorXd
+    Mat & 
     Uv( const Model &                  model, 
 	Data&                          data ,
-	const Eigen::MatrixBase<Mat> &   v)
+	Eigen::MatrixBase<Mat> &   v)
     {
       assert(v.size() == model.nv);
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
 
-      Eigen::MatrixXd & U = data.U;
-      Eigen::VectorXd & D = data.D;
-      Eigen::VectorXd res = v;
+      const Eigen::MatrixXd & U = data.U;
+      const Eigen::VectorXd & D = data.D;
 
       for( int j=0;j<model.nv;++j )
-	res[j] += U.row(j).segment(j+1,data.nvSubtree_fromRow[j]-1)
-	  * res.segment(j+1,data.nvSubtree_fromRow[j]-1);
+	v[j] += U.row(j).segment(j+1,data.nvSubtree_fromRow[j]-1)
+	  * v.segment(j+1,data.nvSubtree_fromRow[j]-1);
 
-      return res;
+      return v.derived();
     }
   
     /* Compute D*U'*v */
     template<typename Mat>
-    Eigen::VectorXd
+    Mat &
     DUtv( const Model &                  model, 
 	  Data&                          data ,
-	  const Eigen::MatrixBase<Mat> &   v)
+	  Eigen::MatrixBase<Mat> &   v)
     {
       assert(v.size() == model.nv);
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
 
-      Eigen::MatrixXd & U = data.U;
-      Eigen::VectorXd & D = data.D;
-      Eigen::VectorXd res = v;
+      const Eigen::MatrixXd & U = data.U;
+      const Eigen::VectorXd & D = data.D;
       const std::vector<int> & parents = data.parents_fromRow;
 
       for( int i=model.nv-1;i>=0;--i )
 	{
 	  for( Model::Index j = parents[i];j>=0;j=parents[j] )
-	    res[i] += U(j,i)*v[j];
-	  res[i] *= D[i];
+	    v[i] += U(j,i)*v[j];
+	  v[i] *= D[i];
 	}
 
-      return res;
+      return v.derived();
     }
 
     /* Compute U'*v */
     template<typename Mat>
-    Eigen::VectorXd
+    Mat &
     Utv( const Model &                  model, 
 	 Data&                          data ,
-	 const Eigen::MatrixBase<Mat> &   v)
+	 Eigen::MatrixBase<Mat> &   v)
     {
       assert(v.size() == model.nv);
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
 
-      Eigen::MatrixXd & U = data.U;
-      Eigen::VectorXd & D = data.D;
-      Eigen::VectorXd res = v;
+      const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & parents = data.parents_fromRow;
 
       for( int i=model.nv-1;i>=0;--i )
 	for( Model::Index j = parents[i];j>=0;j=parents[j] )
-	  res[i] += U(j,i)*v[j];
+	  v[i] += U(j,i)*v[j];
 
-      return res;
+      return v.derived();
     }
   
     /* Compute U^{-1}*v 
      * Nota: there is no efficient way to compute D^{-1}U^{-1}v
      * in a single loop, so algorithm is not proposed.*/
     template<typename Mat>
-    Eigen::VectorXd
+    Mat &
     Uiv( const Model &                  model, 
 	 Data&                          data ,
-	 const Eigen::MatrixBase<Mat> &   v)
+	  Eigen::MatrixBase<Mat> &   v)
     {
       /* We search y s.t. v = U y. 
        * For any k, v_k = y_k + U_{k,k+1:} y_{k+1:} */
       assert(v.size() == model.nv);
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
 
-      Eigen::MatrixXd & U = data.U;
-      Eigen::VectorXd res = v;
+      const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
 
-      for( int k=model.nv-1;k>=0;--k )
-	res[k] -= U.row(k).segment(k+1,nvt[k]-1).dot(res.segment(k+1,nvt[k]-1));
-      return res;
+      for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
+	v[k] -= U.row(k).segment(k+1,nvt[k]-1).dot(v.segment(k+1,nvt[k]-1));
+      return v.derived();
     }
 
     template<typename Mat>
-    Eigen::VectorXd
+    Mat &
     Utiv( const Model &                  model, 
 	  Data&                          data ,
-	  const Eigen::MatrixBase<Mat> &   v)
+	  Eigen::MatrixBase<Mat> &   v)
     {
       /* We search y s.t. v = U' y. 
        * For any k, v_k = y_k + sum_{m \in parent{k}} U(m,k) v(k). */
@@ -191,22 +161,21 @@ namespace se3
       assert(v.size() == model.nv);
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
       
-      Eigen::MatrixXd & U = data.U;
-      Eigen::VectorXd res = v;
+      const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & parents = data.parents_fromRow;
 
-      for( int k=1;k<model.nv;++k )
+      for( int k=1;k<model.nv;++k ) // You can start from 1 (no parents[0])
 	for( int m = parents[k];m>=0;m=parents[m] )
-	  res[k] -= U(m,k)*res[m];
+	  v[k] -= U(m,k)*v[m];
 
-      return res;
+      return v.derived();
     }
 
     template<typename Mat>
-    Eigen::VectorXd
+    Mat &
     UtiDiv( const Model &                  model, 
 	    Data&                          data ,
-	    const Eigen::MatrixBase<Mat> &   v)
+	    Eigen::MatrixBase<Mat> &   v)
     {
       /* We search y s.t. v = U' y. 
        * For any k, v_k = y_k + sum_{m \in parent{k}} U(m,k) v(k). */
@@ -216,14 +185,16 @@ namespace se3
       
       const Eigen::MatrixXd & U = data.U;
       const Eigen::VectorXd & D = data.D;
-      Eigen::VectorXd res = v.cwiseQuotient(D);
       const std::vector<int> & parents = data.parents_fromRow;
+      
+      for( int k=0;k<model.nv;++k )
+	{
+	  v[k] /= D[k];
+	  for( int m = parents[k];m>=0;m=parents[m] )
+	    v[k] -= U(m,k)*v[m];
+	}
 
-      for( int k=1;k<model.nv;++k )
-	for( int m = parents[k];m>=0;m=parents[m] )
-	  res[k] -= U(m,k)*res[m];
-
-      return res;
+      return v.derived();
     }
 
 

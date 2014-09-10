@@ -70,24 +70,25 @@ void assertValues(const se3::Model & model, se3::Data& data)
   assert( M.isApprox(U*D.asDiagonal()*U.transpose()) );
 
   Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
-  const Eigen::VectorXd & UDv = se3::cholesky::UDv(model,data,v);
   std::cout << "v = [" << v.transpose() << "]';" << std::endl;
-  std::cout << "UDv = [" << UDv.transpose() << "]';" << std::endl;
-  assert( UDv.isApprox(U*D.asDiagonal()*v));
-  const Eigen::VectorXd & Uv = se3::cholesky::Uv(model,data,v);
+
+  // Eigen::VectorXd UDv = v; se3::cholesky::UDv(model,data,UDv);
+  // std::cout << "UDv = [" << UDv.transpose() << "]';" << std::endl;
+  // assert( UDv.isApprox(U*D.asDiagonal()*v));
+  Eigen::VectorXd Uv = v; se3::cholesky::Uv(model,data,Uv);
   assert( Uv.isApprox(U*v));
 
-  const Eigen::VectorXd & DUtv = se3::cholesky::DUtv(model,data,v);
-  assert( DUtv.isApprox(D.asDiagonal()*U.transpose()*v));
-  const Eigen::VectorXd & Utv = se3::cholesky::Utv(model,data,v);
+  Eigen::VectorXd Utv = v; se3::cholesky::Utv(model,data,Utv);
   assert( Utv.isApprox(U.transpose()*v));
+  Eigen::VectorXd DUtv = v; se3::cholesky::DUtv(model,data,DUtv);
+  assert( DUtv.isApprox(D.asDiagonal()*U.transpose()*v));
 
-  const Eigen::VectorXd & Uiv = se3::cholesky::Uiv(model,data,v);
+  Eigen::VectorXd Uiv = v; se3::cholesky::Uiv(model,data,Uiv);
   assert( Uiv.isApprox(U.inverse()*v));
 
-  const Eigen::VectorXd & Utiv = se3::cholesky::Utiv(model,data,v);
+  Eigen::VectorXd Utiv = v; se3::cholesky::Utiv(model,data,Utiv);
   assert( Utiv.isApprox(U.transpose().inverse()*v));
-  const Eigen::VectorXd & UtiDiv = se3::cholesky::UtiDiv(model,data,v);
+  Eigen::VectorXd UtiDiv = v; se3::cholesky::UtiDiv(model,data,UtiDiv);
   assert( UtiDiv.isApprox(U.transpose().inverse()*D.asDiagonal().inverse()*v));
   
 }
