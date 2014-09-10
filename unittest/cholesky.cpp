@@ -12,7 +12,7 @@
 #endif
 
 #include "pinocchio/tools/timer.hpp"
-
+#include "pinocchio/multibody/parser/sample-models.hpp"
 
 //#define __SSE3__
 #include <fenv.h>
@@ -20,7 +20,79 @@
 #include <pmmintrin.h>
 #endif
 
-int main(int argc, const char ** argv)
+
+void timings(const se3::Model & model, se3::Data& data, int flag = 1)
+{
+  StackTicToc timer(StackTicToc::US); 
+#ifdef NDEBUG
+  const int NBT = 1000*100;
+#else 
+  const int NBT = 1;
+#endif
+
+  if( flag & 1 )
+    {
+      timer.tic();
+      SMOOTH(NBT)
+      {
+	se3::cholesky::decompose(model,data);
+      }
+      timer.toc(std::cout,NBT);
+    }
+
+  if( flag & 2 )
+    {
+      timer.tic();
+      SMOOTH(NBT)
+      {
+	Eigen::LDLT <Eigen::MatrixXd> Mchol(data.M);
+      }
+      std::cout << "\t\t"; timer.toc(std::cout,1000);
+    }
+}
+
+void assertValues(const se3::Model & model, se3::Data& data)
+{
+  se3::cholesky::decompose(model,data);
+  data.M.triangularView<Eigen::StrictlyLower>() = 
+    data.M.triangularView<Eigen::StrictlyUpper>().transpose();
+  
+  const Eigen::MatrixXd & U = data.U;
+  const Eigen::VectorXd & D = data.D;
+  const Eigen::MatrixXd & M = data.M;
+
+#ifndef NDEBUG
+  std::cout << "M = [\n" << M << "];" << std::endl;
+  std::cout << "U = [\n" << U << "];" << std::endl;
+  std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
+#endif
+      
+  assert( M.isApprox(U*D.asDiagonal()*U.transpose()) );
+
+  Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+  const Eigen::VectorXd & UDv = se3::cholesky::UDv(model,data,v);
+  std::cout << "v = [" << v.transpose() << "]';" << std::endl;
+  std::cout << "UDv = [" << UDv.transpose() << "]';" << std::endl;
+  assert( UDv.isApprox(U*D.asDiagonal()*v));
+  const Eigen::VectorXd & Uv = se3::cholesky::Uv(model,data,v);
+  assert( Uv.isApprox(U*v));
+
+  const Eigen::VectorXd & DUtv = se3::cholesky::DUtv(model,data,v);
+  assert( DUtv.isApprox(D.asDiagonal()*U.transpose()*v));
+  const Eigen::VectorXd & Utv = se3::cholesky::Utv(model,data,v);
+  assert( Utv.isApprox(U.transpose()*v));
+
+  const Eigen::VectorXd & Uiv = se3::cholesky::Uiv(model,data,v);
+  assert( Uiv.isApprox(U.inverse()*v));
+
+  const Eigen::VectorXd & Utiv = se3::cholesky::Utiv(model,data,v);
+  assert( Utiv.isApprox(U.transpose().inverse()*v));
+  const Eigen::VectorXd & UtiDiv = se3::cholesky::UtiDiv(model,data,v);
+  assert( UtiDiv.isApprox(U.transpose().inverse()*D.asDiagonal().inverse()*v));
+  
+}
+
+int main()//int argc, const char ** argv)
 {
 #ifdef __SSE3__
   _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
@@ -33,128 +105,19 @@ int main(int argc, const char ** argv)
   SE3::Matrix3 I3 = SE3::Matrix3::Identity();
 
   se3::Model model;
-
-  // std::string filename = "/home/nmansard/src/metapod/data/simple_arm.urdf";
-  // if(argc>1) filename = argv[1];
-  // model = se3::buildModel(filename,false);
-
-  if( 0 ) // Without FF
-    {
-       model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff1");
-       model.addBody(model.getBodyId("ff1"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff2");
-       model.addBody(model.getBodyId("ff2"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff3");
-       model.addBody(model.getBodyId("ff3"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff4");
-       model.addBody(model.getBodyId("ff4"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff5");
-       model.addBody(model.getBodyId("ff5"),JointModelRX(),SE3::Random(),Inertia::Random(),"root");
-    }
-  else
-    model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Random(),Inertia::Random(),"root");
-
-  model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg1");
-  model.addBody(model.getBodyId("lleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg2");
-  model.addBody(model.getBodyId("lleg2"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg3");
-  model.addBody(model.getBodyId("lleg3"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg4");
-  model.addBody(model.getBodyId("lleg4"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg5");
-  model.addBody(model.getBodyId("lleg5"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg6");
-
-  model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg1");
-  model.addBody(model.getBodyId("rleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg2");
-  model.addBody(model.getBodyId("rleg2"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg3");
-  model.addBody(model.getBodyId("rleg3"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg4");
-  model.addBody(model.getBodyId("rleg4"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg5");
-  model.addBody(model.getBodyId("rleg5"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg6");
-
-  model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"torso1");
-  model.addBody(model.getBodyId("torso1"),JointModelRX(),SE3::Random(),Inertia::Random(),"chest");
-
-  model.addBody(model.getBodyId("chest"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm1");
-  model.addBody(model.getBodyId("rarm1"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm2");
-  model.addBody(model.getBodyId("rarm2"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm3");
-  model.addBody(model.getBodyId("rarm3"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm4");
-  model.addBody(model.getBodyId("rarm4"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm5");
-  model.addBody(model.getBodyId("rarm5"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm6");
-
-  model.addBody(model.getBodyId("chest"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm1");
-  model.addBody(model.getBodyId("larm1"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm2");
-  model.addBody(model.getBodyId("larm2"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm3");
-  model.addBody(model.getBodyId("larm3"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm4");
-  model.addBody(model.getBodyId("larm4"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm5");
-  model.addBody(model.getBodyId("larm5"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm6");
-
-  // model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff1");
-  // model.addBody(model.getBodyId("ff1"),JointModelRX(),SE3::Random(),Inertia::Random(),"root");
-
-  // model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg1");
-  // model.addBody(model.getBodyId("lleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg2");
-
-  // model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg1");
-  // model.addBody(model.getBodyId("rleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg2");
-
-  // model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"torso1");
-  // model.addBody(model.getBodyId("torso1"),JointModelRX(),SE3::Random(),Inertia::Random(),"chest");
-
-  // model.addBody(model.getBodyId("chest"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm1");
-  // model.addBody(model.getBodyId("rarm1"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm2");
-
-  // model.addBody(model.getBodyId("chest"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm1");
-  // model.addBody(model.getBodyId("larm1"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm2");
-
-  // std::cout << model << std::endl;
+  //se3::buildModels::humanoidSimple(model,true);
+  se3::buildModels::humanoid2d(model);
 
   se3::Data data(model);
   VectorXd q = VectorXd::Zero(model.nq);
+  data.M.fill(0);
   crba(model,data,q);
 
-  StackTicToc timer(StackTicToc::US); timer.tic();
-#ifdef NDEBUG
-  SMOOTH(1000)
+#ifndef NDEBUG 
+  assertValues(model,data);
+#else
+  timings(model,data);
 #endif
-    {
-      cholesky(model,data);
-    }
-  timer.toc(std::cout,1000);
-
-
-  for(int i=0;i<model.nv;++i)
-    for(int j=0;j<model.nv;++j)
-      {
-	if(isnan(data.M(i,j))) data.M(i,j) = 0;
-	data.M(j,i) = data.M(i,j);
-      }
-
-
-#ifdef NDEBUG
-  // Eigen::Matrix<double,33,33> M33 = data.M;
-  // timer.tic();
-  // SMOOTH(1000)
-  //   {
-  //     M33 = data.M;
-  //     //Eigen::LDLT <Eigen::MatrixXd> Mchol(data.M);
-  //     CholeskyOuterLoopStep::udut<33>(M33);
-  //   }
-  // std::cout << "\t\t"; timer.toc(std::cout,1000);
-
-  // timer.tic();
-  // SMOOTH(1000)
-  //   {
-  //     Eigen::LDLT <Eigen::MatrixXd> Mchol(data.M);
-  //   }
-  // std::cout << "\t\t"; timer.toc(std::cout,1000);
-#endif
-
-
-  data.U.triangularView<Eigen::StrictlyLower>().fill(0);
-  data.U.diagonal().fill(1);
-
-#ifndef NDEBUG
-  std::cout << "M = [\n" << data.M << "];" << std::endl;
-  std::cout << "U = [\n" << data.U << "];" << std::endl;
-  std::cout << "D = [\n" << data.D.transpose() << "];" << std::endl;
-  // std::cout << "UDU = [\n" << (data.U*data.D.asDiagonal()*data.U.transpose()) << "];" << std::endl;
-#endif
-      
-  assert((data.U*data.D.asDiagonal()*data.U.transpose()).isApprox(data.M));
-
 
   return 0;
 }
