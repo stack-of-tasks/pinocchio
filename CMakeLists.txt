@@ -51,6 +51,7 @@ SET(${PROJECT_NAME}_HEADERS
   multibody/model.hpp
   multibody/visitor.hpp
   multibody/parser/urdf.hpp
+  multibody/parser/sample-models.hpp
   tools/timer.hpp
   algorithm/rnea.hpp
   algorithm/crba.hpp
