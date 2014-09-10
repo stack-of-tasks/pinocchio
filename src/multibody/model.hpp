@@ -84,8 +84,7 @@ namespace se3
 
     Eigen::MatrixXd U;                    // Joint Inertia square root (upper triangle)
     Eigen::VectorXd D;                    // Diagonal of UDUT inertia decomposition
-    Eigen::VectorXd tmp;                // Temporary of size NV used in Cholesky
-    //Eigen::MatrixXd tmp;                  // Temporary of size NV used in Cholesky
+    Eigen::VectorXd tmp;                  // Temporary of size NV used in Cholesky
     std::vector<int> parents_fromRow;     // First previous non-zero row in M (used in Cholesky)
     std::vector<int> nvSubtree_fromRow;   // 
     
@@ -188,19 +187,21 @@ namespace se3
   {
     for(int i=0;i<model.nbody;++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
-    M.fill(NAN);
+
+    /* Init for CRBA */
+    M.fill(NAN);    
     for(int i=0;i<ref.nbody;++i ) { Fcrb[i].resize(6,model.nv); Fcrb[i].fill(NAN); }
     computeLastChild(ref);
+
+    /* Init for Cholesky */
+    U = Eigen::MatrixXd::Identity(ref.nv,ref.nv);
     computeParents_fromRow(ref);
   }
 
   void Data::computeLastChild(const Model& model)
   {
     typedef Model::Index Index;
-    //lastChild.fill(-1);  TODO use fill algorithm
-    for( int i=0;i<model.nbody;++i ) lastChild[i] = -1;
-
-
+    std::fill(lastChild.begin(),lastChild.end(),-1);
     for( int i=model.nbody-1;i>=0;--i )
       {
 	if(lastChild[i] == -1) lastChild[i] = i;
