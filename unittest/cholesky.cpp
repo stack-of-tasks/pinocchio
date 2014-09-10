@@ -104,7 +104,7 @@ int main(int argc, const char ** argv)
   se3::Data data(model);
   VectorXd q = VectorXd::Zero(model.nq);
   crba(model,data,q);
-  	
+
   StackTicToc timer(StackTicToc::US); timer.tic();
 #ifdef NDEBUG
   SMOOTH(1000)
@@ -124,22 +124,22 @@ int main(int argc, const char ** argv)
 
 
 #ifdef NDEBUG
-  Eigen::Matrix<double,33,33> M33 = data.M;
-  timer.tic();
-  SMOOTH(1000)
-    {
-      M33 = data.M;
-      //Eigen::LDLT <Eigen::MatrixXd> Mchol(data.M);
-      CholeskyOuterLoopStep::udut<33>(M33);
-    }
-  std::cout << "\t\t"; timer.toc(std::cout,1000);
+  // Eigen::Matrix<double,33,33> M33 = data.M;
+  // timer.tic();
+  // SMOOTH(1000)
+  //   {
+  //     M33 = data.M;
+  //     //Eigen::LDLT <Eigen::MatrixXd> Mchol(data.M);
+  //     CholeskyOuterLoopStep::udut<33>(M33);
+  //   }
+  // std::cout << "\t\t"; timer.toc(std::cout,1000);
 
-  timer.tic();
-  SMOOTH(1000)
-    {
-      Eigen::LDLT <Eigen::MatrixXd> Mchol(data.M);
-    }
-  std::cout << "\t\t"; timer.toc(std::cout,1000);
+  // timer.tic();
+  // SMOOTH(1000)
+  //   {
+  //     Eigen::LDLT <Eigen::MatrixXd> Mchol(data.M);
+  //   }
+  // std::cout << "\t\t"; timer.toc(std::cout,1000);
 #endif
 
 

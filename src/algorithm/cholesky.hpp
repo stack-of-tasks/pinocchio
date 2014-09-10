@@ -24,125 +24,6 @@ namespace se3
 
 namespace se3 
 {
-  struct CholeskyOuterLoopStep : public fusion::JointVisitor<CholeskyOuterLoopStep>
-  {
-    typedef boost::fusion::vector<const Model&,
-  				  Data&>  ArgsType;
-   
-    JOINT_VISITOR_INIT(CholeskyOuterLoopStep);
-
-
-    template<int nvj>
-    static void algoSized( const Model& model,
-			   Data& data,
-			   const int & j,
-			   const int & _j);
-   
-    template<int N,typename M_t>
-    static void udut( Eigen::MatrixBase<M_t> & M );
-
-    template<typename JointModel>
-    static void algo(const JointModelBase<JointModel> & jmodel,
-  		     JointDataBase<typename JointModel::JointData> &,
-  		     const Model& model,
-  		     Data& data)
-    {
-      algoSized<JointModel::NV>(model,data,jmodel.id(),jmodel.idx_v());
-    }
-  };
-  
-  
-  /* Compute the dense UDUt decomposition of M. */
-  template<int N,typename M_t>
-  void CholeskyOuterLoopStep::udut( Eigen::MatrixBase<M_t> & M )
-  {
-    typedef Eigen::Matrix<double,N,N> MatrixNd;
-    typedef Eigen::Matrix<double,1,N> VectorNd;
-    typedef typename M_t::DiagonalReturnType D_t;
-    typedef typename M_t::template TriangularViewReturnType<Eigen::StrictlyUpper>::Type U_t;
-
-    VectorNd tmp;
-    D_t D = M.diagonal();
-    U_t U = M.template triangularView<Eigen::StrictlyUpper>();
-
-    for(int j=N-1;j>=0;--j )
-      {
-	typename VectorNd::SegmentReturnType DUt = tmp.tail(N-j-1);
-	if( j<N-1 ) DUt = M.row(j).tail(N-j-1).transpose().cwiseProduct( D.tail(N-j-1) );
-
-	D[j] -= M.row(j).tail(N-j-1).dot(DUt);
-
-	for(int i=j-1;i>=0;--i)
-	  { U(i,j) -= M.row(i).tail(N-j-1).dot(DUt); U(i,j) /= D[j]; }
-      }
-  }
-  
-  template<int NVJ>
-  void CholeskyOuterLoopStep::algoSized( const Model& model,
-  					 Data& data,
-  					 const int & j,
-  					 const int & _j)
-  {
-    /*typedef typename Model::Index Index;
-    Eigen::MatrixXd & M = data.M;
-    Eigen::MatrixXd & U = data.U;
-    Eigen::VectorXd & D = data.D;
-    const int NVT = data.nvSubtree[j] - NVJ;
-
-    SE3_STATIC_ASSERT( NVJ<=MAX_JOINT_NV,
-		       THE_JOINT_MAX_NV_SIZE_IS_EXCEDEED__INCREASE_MAX_JOINT_NV );
-
-    Eigen::Block<Eigen::MatrixXd> DUt = data.tmp.block(0,0,NVT,NVJ);
-    DUt  = D.segment(_j+NVJ,NVT).asDiagonal() * U.block( _j,_j+NVJ,NVJ,NVT).transpose();
-
-    Eigen::Block<Eigen::MatrixXd,NVJ,NVJ> Djj = U.template block<NVJ,NVJ>(_j,_j);
-    Djj.template triangularView<Eigen::Upper>() 
-      = M.template block<NVJ,NVJ>(_j,_j) - U.block( _j,_j+NVJ,NVJ,NVT) * DUt;
-    udut<NVJ>(Djj);
-    D.template segment<NVJ>(_j) = Djj.diagonal();
-
-    /* The same following loop could be achieved using model.parents, however
-     * this one fit much better the predictor of the CPU, saving 1/4 of cost. */
-    // for( int _i=data.parentsRow[_j];_i>=0;_i=data.parentsRow[_i] )
-    //   {
-    // 	U.template block<1,NVJ>(_i,_j) 
-    // 	  = M.template block<1,NVJ>(_i,_j) - U.block(_i,_j+1,1,NVT) * DUt;
-    // 	// TODO divide by Djj
-    // 	assert(false && "TODO divide by Djj");
-    //   }*/
-
-    for( int k=NVJ-1;k>=0;--k )
-      algoSized<1>(model,data,j,_j+k);
-
-  }
- 
-  template<>
-  void CholeskyOuterLoopStep::algoSized<1>( const Model&,
-					    Data& data,
-					    const int & j,
-					    const int & _j)
-  {
-    typedef typename Model::Index Index;
-    Eigen::MatrixXd & M = data.M;
-    Eigen::MatrixXd & U = data.U;
-    Eigen::VectorXd & D = data.D;
-    
-    const int NVT = data.nvSubtree[j]-1;
-    typename Eigen::MatrixXd::ColXpr::SegmentReturnType DUt = data.tmp.col(0).head(NVT);
-
-    if(NVT)
-      DUt = U.row(_j).segment(_j+1,NVT).transpose()
-	.cwiseProduct(D.segment(_j+1,NVT));
-
-    D[_j] = M(_j,_j) - U.row(_j).segment(_j+1,NVT) * DUt;
-    
-    /* The same following loop could be achieved using model.parents, however
-     * this one fit much better the predictor of the CPU, saving 1/4 of cost. */
-    for( int _i=data.parentsRow[_j];_i>=0;_i=data.parentsRow[_i] )
-      U(_i,_j) = (M(_i,_j) - U.row(_i).segment(_j+1,NVT).dot(DUt)) / D[_j]; 
-  }
- 
-
 
   inline const Eigen::MatrixXd&
   cholesky(const Model &           model, 
@@ -162,11 +43,24 @@ namespace se3
      *    end
      */
 
-    data.U = Eigen::MatrixXd::Identity(model.nv,model.nv);
-    for( int j=model.nbody-1;j>=0;--j )
+    Eigen::MatrixXd & M = data.M;
+    Eigen::MatrixXd & U = data.U;
+    Eigen::VectorXd & D = data.D;
+
+    U = Eigen::MatrixXd::Identity(model.nv,model.nv);
+
+    for(int j=model.nv-1;j>=0;--j )
       {
-	CholeskyOuterLoopStep::run(model.joints[j],data.joints[j],
-				   CholeskyOuterLoopStep::ArgsType(model,data));
+	const int NVT = data.nvSubtree_fromRow[j]-1;
+	Eigen::VectorXd::SegmentReturnType DUt = data.tmp.head(NVT);
+	if(NVT)
+	  DUt = U.row(j).segment(j+1,NVT).transpose()
+	    .cwiseProduct(D.segment(j+1,NVT));
+	
+	D[j] = M(j,j) - U.row(j).segment(j+1,NVT) * DUt;
+	
+	for( int _i=data.parents_fromRow[j];_i>=0;_i=data.parents_fromRow[_i] )
+	  U(_i,j) = (M(_i,j) - U.row(_i).segment(j+1,NVT).dot(DUt)) / D[j]; 
       }
 
     return data.U;

@@ -25,7 +25,7 @@ namespace se3
   class Model
   {
   public:
-    typedef int Index;
+    typedef long int Index;
 
     int nq;                            // Dimension of the configuration representation
     int nv;                            // Dimension of the velocity vector space
@@ -84,15 +84,16 @@ namespace se3
 
     Eigen::MatrixXd U;                    // Joint Inertia square root (upper triangle)
     Eigen::VectorXd D;                    // Diagonal of UDUT inertia decomposition
-    //Eigen::VectorXd tmp;                  // Temporary of size NV used in Cholesky
-    Eigen::MatrixXd tmp;                  // Temporary of size NV used in Cholesky
-    std::vector<int> parentsRow;          // First previous non-zero row in M (used in Cholesky)
+    Eigen::VectorXd tmp;                // Temporary of size NV used in Cholesky
+    //Eigen::MatrixXd tmp;                  // Temporary of size NV used in Cholesky
+    std::vector<int> parents_fromRow;     // First previous non-zero row in M (used in Cholesky)
+    std::vector<int> nvSubtree_fromRow;   // 
     
 
     Data( const Model& ref );
 
     void computeLastChild(const Model& model);
-    void computeParentsRow(const Model& model);
+    void computeParents_fromRow(const Model& model);
   };
 
   const Eigen::Vector3d Model::gravity981 (0,0,-9.81);
@@ -181,15 +182,16 @@ namespace se3
     ,nvSubtree(ref.nbody)
     ,U(ref.nv,ref.nv)
     ,D(ref.nv)
-    ,tmp(ref.nv,int(MAX_JOINT_NV))
-    ,parentsRow(ref.nv)
+    ,tmp(ref.nv)
+    ,parents_fromRow(ref.nv)
+    ,nvSubtree_fromRow(ref.nv)
   {
     for(int i=0;i<model.nbody;++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
     M.fill(NAN);
     for(int i=0;i<ref.nbody;++i ) { Fcrb[i].resize(6,model.nv); Fcrb[i].fill(NAN); }
     computeLastChild(ref);
-    computeParentsRow(ref);
+    computeParents_fromRow(ref);
   }
 
   void Data::computeLastChild(const Model& model)
@@ -211,17 +213,23 @@ namespace se3
       }
   }
 
-  void Data::computeParentsRow( const Model& model )
+  void Data::computeParents_fromRow( const Model& model )
   {
     for( int joint=1;joint<model.nbody;joint++)
       {
-	const int & parent = model.parents[joint];
+	const Model::Index & parent = model.parents[joint];
 	const int nvj    = nv   (model.joints[joint]);
 	const int idx_vj = idx_v(model.joints[joint]);
 
-	if(parent>0) parentsRow[idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
-	else         parentsRow[idx_vj] = -1;
-	for( int row=1;row<nvj;++row)   parentsRow[idx_vj+row] = idx_vj+row-1;
+	if(parent>0) parents_fromRow[idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
+	else         parents_fromRow[idx_vj] = -1;
+	nvSubtree_fromRow[idx_vj] = nvSubtree[joint];
+
+	for( int row=1;row<nvj;++row)  
+	  {
+	    parents_fromRow[idx_vj+row] = idx_vj+row-1;
+	    nvSubtree_fromRow[idx_vj+row] = nvSubtree[joint]-row;
+	  }
       }
   }
 
