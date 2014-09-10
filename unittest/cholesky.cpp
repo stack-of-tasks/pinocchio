@@ -29,7 +29,7 @@ void timings(const se3::Model & model, se3::Data& data, int flag = 1)
 {
   StackTicToc timer(StackTicToc::US); 
 #ifdef NDEBUG
-  const int NBT = 1000*100;
+  const int NBT = 1000*1000;
 #else 
   const int NBT = 1;
 #endif
@@ -50,9 +50,12 @@ void timings(const se3::Model & model, se3::Data& data, int flag = 1)
   if( flag & 2 )
     {
       timer.tic();
+      Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+      Eigen::VectorXd res(model.nv);
       SMOOTH(NBT)
       {
 	Eigen::LDLT <Eigen::MatrixXd> Mchol(data.M);
+	res = Mchol.solve(v);
       }
       if(verbose) std::cout << "Eigen::LDLt =\t";
       timer.toc(std::cout,NBT);
@@ -67,12 +70,11 @@ void timings(const se3::Model & model, se3::Data& data, int flag = 1)
       timer.tic();
       SMOOTH(NBT)
       {
-	// se3::cholesky::Uv(model,data,randvec[_smooth]);
+	//se3::cholesky::Uv(model,data,randvec[_smooth]);
 	// se3::cholesky::Utv(model,data,randvec[_smooth]);
-	//se3::cholesky::DUtv(model,data,randvec[_smooth]);
-	// se3::cholesky::Uiv(model,data,randvec[_smooth]);
+	//se3::cholesky::Uiv(model,data,randvec[_smooth]);
 	//se3::cholesky::Utiv(model,data,randvec[_smooth]);
-	se3::cholesky::UtiDiv(model,data,randvec[_smooth]);
+	se3::cholesky::solve(model,data,randvec[_smooth]);
       }
       if(verbose) std::cout << "Uv =\t\t";
       timer.toc(std::cout,NBT);
@@ -107,16 +109,12 @@ void assertValues(const se3::Model & model, se3::Data& data)
 
   Eigen::VectorXd Utv = v; se3::cholesky::Utv(model,data,Utv);
   assert( Utv.isApprox(U.transpose()*v));
-  Eigen::VectorXd DUtv = v; se3::cholesky::DUtv(model,data,DUtv);
-  assert( DUtv.isApprox(D.asDiagonal()*U.transpose()*v));
 
   Eigen::VectorXd Uiv = v; se3::cholesky::Uiv(model,data,Uiv);
   assert( Uiv.isApprox(U.inverse()*v));
 
   Eigen::VectorXd Utiv = v; se3::cholesky::Utiv(model,data,Utiv);
   assert( Utiv.isApprox(U.transpose().inverse()*v));
-  Eigen::VectorXd UtiDiv = v; se3::cholesky::UtiDiv(model,data,UtiDiv);
-  assert( UtiDiv.isApprox(U.transpose().inverse()*D.asDiagonal().inverse()*v));
 
   Eigen::VectorXd Miv = v; se3::cholesky::solve(model,data,Miv);
   assert( Miv.isApprox(M.inverse()*v));
@@ -146,7 +144,7 @@ int main()//int argc, const char ** argv)
 #ifndef NDEBUG 
   assertValues(model,data);
 #else
-  timings(model,data,1|4);
+  timings(model,data,1|4|2);
 #endif
 
   return 0;
