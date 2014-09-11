@@ -162,7 +162,7 @@ namespace se3
 	    res.segment(k+1,nvt[k]-1) += M.row(k).segment(k+1,nvt[k]-1).transpose()*v[k];
 	  }
 
-	return v.derived();
+	return res;
       }
 
       template<typename Mat>
