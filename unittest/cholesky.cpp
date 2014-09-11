@@ -1,5 +1,6 @@
 #ifdef NDEBUG
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wunused-variable"
 #endif
 
 #include "pinocchio/spatial/fwd.hpp"
@@ -18,14 +19,16 @@
 #include "pinocchio/tools/timer.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
 
-//#define __SSE3__
-#include <fenv.h>
-#ifdef __SSE3__
-#include <pmmintrin.h>
-#endif
+#include <boost/utility/binary.hpp>
 
-
-void timings(const se3::Model & model, se3::Data& data, int flag = 1)
+/* The flag triger the following timers:
+ * 00001: sparse UDUt cholesky
+ * 00010: dense Eigen LDLt cholesky (with pivot)
+ * 00100: sparse resolution 
+ * 01000: sparse U*v multiplication
+ * 10000: sparse U'*v multiplication
+ */
+void timings(const se3::Model & model, se3::Data& data, long flag)
 {
   StackTicToc timer(StackTicToc::US); 
 #ifdef NDEBUG
@@ -34,9 +37,10 @@ void timings(const se3::Model & model, se3::Data& data, int flag = 1)
   const int NBT = 1;
 #endif
 
-  bool verbose = flag & (flag - 1); // True is two or more binaries of the flag are 1.
+  bool verbose = flag & (flag-1) ; // True is two or more binaries of the flag are 1.
+  if(verbose) std::cout <<"--" << std::endl;
 
-  if( flag & 1 )
+  if( flag >> 0 & 1 )
     {
       timer.tic();
       SMOOTH(NBT)
@@ -47,7 +51,7 @@ void timings(const se3::Model & model, se3::Data& data, int flag = 1)
       timer.toc(std::cout,NBT);
     }
 
-  if( flag & 2 )
+  if( flag >> 1 & 1 )
     {
       timer.tic();
       Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
@@ -61,26 +65,69 @@ void timings(const se3::Model & model, se3::Data& data, int flag = 1)
       timer.toc(std::cout,NBT);
     }
 
-  if( flag & 4 )
+
+  if( flag >> 2 & 31 )
     {
       std::vector<Eigen::VectorXd> randvec(NBT);
       for(int i=0;i<NBT;++i ) randvec[i] = Eigen::VectorXd::Random(model.nv);
       Eigen::VectorXd zero = Eigen::VectorXd(model.nv);
       Eigen::VectorXd res (model.nv);
-      timer.tic();
-      SMOOTH(NBT)
-      {
-	//se3::cholesky::Uv(model,data,randvec[_smooth]);
-	// se3::cholesky::Utv(model,data,randvec[_smooth]);
-	//se3::cholesky::Uiv(model,data,randvec[_smooth]);
-	//se3::cholesky::Utiv(model,data,randvec[_smooth]);
-	se3::cholesky::solve(model,data,randvec[_smooth]);
-      }
-      if(verbose) std::cout << "Uv =\t\t";
-      timer.toc(std::cout,NBT);
+
+
+      if( flag >> 2 & 1 )
+	{
+	  timer.tic();
+	  SMOOTH(NBT)
+	  {
+	    se3::cholesky::solve(model,data,randvec[_smooth]);
+	  }
+	  if(verbose) std::cout << "solve =\t\t";
+	  timer.toc(std::cout,NBT);
+	}
+
+      if( flag >> 3 & 1 )
+	{
+	  timer.tic();
+	  SMOOTH(NBT)
+	  {
+	    se3::cholesky::Uv(model,data,randvec[_smooth]);
+	  }
+	  if(verbose) std::cout << "Uv =\t\t";
+	  timer.toc(std::cout,NBT);
+	}
+
+      if( flag >> 4 & 1 )
+	{
+	  timer.tic();
+	  SMOOTH(NBT)
+	  {
+	    se3::cholesky::Uiv(model,data,randvec[_smooth]);
+	  }
+	  if(verbose) std::cout << "Uiv =\t\t";
+	  timer.toc(std::cout,NBT);
+	}
+      if( flag >> 5 & 1 )
+	{
+	  timer.tic();
+	  Eigen::VectorXd res;
+	  SMOOTH(NBT)
+	  {
+	    res = se3::cholesky::Mv(model,data,randvec[_smooth]);
+	  }
+	  if(verbose) std::cout << "Mv =\t\t";
+	  timer.toc(std::cout,NBT);
+	}
+      if( flag >> 6 & 1 )
+	{
+	  timer.tic();
+	  SMOOTH(NBT)
+	  {
+	    se3::cholesky::Mv(model,data,randvec[_smooth],true);
+	  }
+	  if(verbose) std::cout << "UDUtv =\t\t";
+	  timer.toc(std::cout,NBT);
+	}
     }
-
-
 }
 
 void assertValues(const se3::Model & model, se3::Data& data)
@@ -120,31 +167,23 @@ void assertValues(const se3::Model & model, se3::Data& data)
   assert( Miv.isApprox(M.inverse()*v));
 }
 
-int main()//int argc, const char ** argv)
+int main()
 {
-#ifdef __SSE3__
-  _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
-#endif
-
-
   using namespace Eigen;
   using namespace se3;
 
-  SE3::Matrix3 I3 = SE3::Matrix3::Identity();
-
   se3::Model model;
   se3::buildModels::humanoidSimple(model,true);
-  //se3::buildModels::humanoid2d(model);
 
   se3::Data data(model);
   VectorXd q = VectorXd::Zero(model.nq);
-  data.M.fill(0);
+  data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
   crba(model,data,q);
 
 #ifndef NDEBUG 
   assertValues(model,data);
 #else
-  timings(model,data,1|4|2);
+  timings(model,data,BOOST_BINARY(1000101));
 #endif
 
   return 0;
