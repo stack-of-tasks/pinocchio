@@ -24,11 +24,8 @@ int main(int argc, const char ** argv)
   _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
 #endif
 
-
   using namespace Eigen;
   using namespace se3;
-
-  SE3::Matrix3 I3 = SE3::Matrix3::Identity();
 
   se3::Model model;
 
