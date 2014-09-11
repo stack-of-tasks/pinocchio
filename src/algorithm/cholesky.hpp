@@ -11,8 +11,20 @@ namespace se3
   namespace cholesky
   {
     inline const Eigen::MatrixXd&
-    decompose(const Model &           model, 
-	      Data&                   data );
+    decompose(const Model & model, 
+	      Data&         data );
+
+    template<typename Mat>
+    Mat & solve( const Model &            model, 
+		 const Data&              data ,
+		 Eigen::MatrixBase<Mat> & v);
+
+    template<typename Mat>
+    Mat & Mv( const Model &              model, 
+	      const  Data&               data ,
+	      Eigen::MatrixBase<Mat> &   v,
+	      bool usingCholesky = false);
+
   } // namespace cholesky  
 } // namespace se3 
 
