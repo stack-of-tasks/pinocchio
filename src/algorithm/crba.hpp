@@ -46,21 +46,26 @@ namespace se3
 
   namespace internal 
   {
+    /* Compute jF = jXi * iF, where jXi is the dual action matrix associated with m,
+     * and iF, jF are vectors. */
     template<typename D,typename Dret>
     static void actVec( const SE3 & m, 
 			   const Eigen::MatrixBase<D> & iF,
 			   Eigen::MatrixBase<Dret> & jF )
-    {
-      // EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,6);
-      // EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Dret,6);
-
+    { 
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(D);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Dret);
       Eigen::VectorBlock<const D,3> linear = iF.template head<3>();
       Eigen::VectorBlock<const D,3> angular = iF.template tail<3>();
       
       jF.template head <3>() = m.rotation()*linear;
-      jF.template tail <3>() = m.translation().cross(jF.template head<3>()) + m.rotation()*angular;
+      jF.template tail <3>() = (m.translation().cross(jF.template head<3>())
+				+ m.rotation()*angular);
     }
 
+    /* Compute jF = jXi * iF, where jXi is the dual action matrix associated
+     * with m, and iF, jF are matrices whose columns are forces. The resolution
+     * is done column by column. */
     template<typename D,typename Dret>
     static void
     act_alt( const SE3 & m, 
@@ -74,7 +79,10 @@ namespace se3
 	}
     }
     
-
+    /* Compute jF = jXi * iF, where jXi is the dual action matrix associated
+     * with m, and iF, jF are matrices whose columns are forces. The resolution
+     * is done by block operation. It is less efficient than the colwise
+     * operation and should not be used. */
     template<typename D,typename Dret>
     static void
     act( const SE3 & m, 
@@ -114,23 +122,23 @@ namespace se3
        */
       const int & i = jmodel.id();
 
+      /* F[1:6,i] = Y*S */
       data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
 
+      /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]) 
 	= jdata.S().transpose()*data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
-
-      // std::cout << "*** joint " << i << std::endl;
-      // std::cout << "iFi = " << jdata.F() << std::endl;
 
       const Model::Index & parent   = model.parents[i];
       if(parent>0) 
 	{
-	  data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+	  /*   Yli += liXi Yi */
+ 	  data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
 
+	  /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
 	  Eigen::Block<typename Data::Matrix6x> jF
 	    = data.Fcrb[parent].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
-
-	  internal::act_alt(data.liMi[i],
+ 	  internal::act_alt(data.liMi[i],
 			data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]),
 			jF);
 	}

@@ -40,11 +40,11 @@ int main(int argc, const char ** argv)
   VectorXd q = VectorXd::Zero(model.nq);
  
   StackTicToc timer(StackTicToc::US); timer.tic();
-  SMOOTH(1000)
+  SMOOTH(1000*100)
     {
       crba(model,data,q);
     }
-  timer.toc(std::cout,1000);
+  timer.toc(std::cout,1000*100);
 
 #ifndef NDEBUG
   std::cout << "Mcrb = [ " << data.M << "  ];" << std::endl;
