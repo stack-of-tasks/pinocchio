@@ -25,7 +25,7 @@ namespace se3
   class Model
   {
   public:
-    typedef long int Index;
+    typedef int Index;
 
     int nq;                            // Dimension of the configuration representation
     int nv;                            // Dimension of the velocity vector space
@@ -154,7 +154,8 @@ namespace se3
   }
   Model::Index Model::getBodyId( const std::string & name ) const
   {
-    Index res = std::find(names.begin(),names.end(),name) - names.begin();
+    assert(name.size()<INT_MAX);
+    Index res = int(std::find(names.begin(),names.end(),name) - names.begin());
     assert( (res>=0)&&(res<nbody)&&"The body name you asked do not exist" );
     return res;
   }

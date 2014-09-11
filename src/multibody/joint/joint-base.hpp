@@ -40,17 +40,18 @@ namespace se3
    *     JointInertia::block = J::Constraint::Transpose*F
    */
 
-#define SE3_JOINT_TYPEDEF \
-  typedef typename traits<Joint>::JointData JointData; \
-  typedef typename traits<Joint>::JointModel JointModel; \
-  typedef typename traits<Joint>::Constraint_t Constraint_t; \
+#define SE3_JOINT_TYPEDEF					     \
+  typedef int Index;						     \
+  typedef typename traits<Joint>::JointData JointData;		     \
+  typedef typename traits<Joint>::JointModel JointModel;	     \
+  typedef typename traits<Joint>::Constraint_t Constraint_t;	     \
   typedef typename traits<Joint>::Transformation_t Transformation_t; \
-  typedef typename traits<Joint>::Motion_t Motion_t; \
-  typedef typename traits<Joint>::Bias_t Bias_t; \
-  typedef typename traits<Joint>::F_t F_t; \
-  enum { \
-    NQ = traits<Joint>::NQ, \
-    NV = traits<Joint>::NV \
+  typedef typename traits<Joint>::Motion_t Motion_t;		     \
+  typedef typename traits<Joint>::Bias_t Bias_t;		     \
+  typedef typename traits<Joint>::F_t F_t;			     \
+  enum {							     \
+    NQ = traits<Joint>::NQ,					     \
+    NV = traits<Joint>::NV					     \
   }
 
 #define SE3_JOINT_USE_INDEXES \
@@ -93,18 +94,18 @@ namespace se3
     { return static_cast<const JointModel*>(this)->calc(data,qs,vs); }
 
   private:
-    int i_id; // ID of the joint in the multibody list.
-    int i_q;  // Index of the joint configuration in the joint configuration vector.
-    int i_v;  // Index of the joint velocity in the joint velocity vector.
+    Index i_id; // ID of the joint in the multibody list.
+    int i_q;    // Index of the joint configuration in the joint configuration vector.
+    int i_v;    // Index of the joint velocity in the joint velocity vector.
 
   public:
-          int   nv()    const { return NV; }
-          int   nq()    const { return NQ; }
-    const int & idx_q() const { return i_q; }
-    const int & idx_v() const { return i_v; }
-    const int & id()    const { return i_id; }
+          int     nv()    const { return NV; }
+          int     nq()    const { return NQ; }
+    const int &   idx_q() const { return i_q; }
+    const int &   idx_v() const { return i_v; }
+    const Index & id()    const { return i_id; }
 
-    void setIndexes(int id,int q,int v) { i_id = id, i_q = q; i_v = v; }
+    void setIndexes(Index id,int q,int v) { i_id = id, i_q = q; i_v = v; }
 
     template<typename D>
     typename D::template ConstFixedSegmentReturnType<NV>::Type jointMotion(const Eigen::MatrixBase<D>& a) const     { return a.template segment<NV>(i_v); }
