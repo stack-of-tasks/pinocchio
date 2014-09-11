@@ -22,11 +22,12 @@
 #include <boost/utility/binary.hpp>
 
 /* The flag triger the following timers:
- * 00001: sparse UDUt cholesky
- * 00010: dense Eigen LDLt cholesky (with pivot)
- * 00100: sparse resolution 
- * 01000: sparse U*v multiplication
- * 10000: sparse U'*v multiplication
+ * 000001: sparse UDUt cholesky
+ * 000010: dense Eigen LDLt cholesky (with pivot)
+ * 000100: sparse resolution 
+ * 001000: sparse U*v multiplication
+ * 010000: sparse U\v substitution
+ * 100000: sparse M*v multiplication without Cholesky
  */
 void timings(const se3::Model & model, se3::Data& data, long flag)
 {
@@ -165,6 +166,11 @@ void assertValues(const se3::Model & model, se3::Data& data)
 
   Eigen::VectorXd Miv = v; se3::cholesky::solve(model,data,Miv);
   assert( Miv.isApprox(M.inverse()*v));
+
+  Eigen::VectorXd Mv = v; se3::cholesky::Mv(model,data,Mv,true);
+  assert( Mv.isApprox(M*v));
+  Mv = v;                 se3::cholesky::Mv(model,data,Mv,false);
+  assert( Mv.isApprox(M*v));
 }
 
 int main()
