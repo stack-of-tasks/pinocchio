@@ -75,8 +75,8 @@ namespace se3
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
 
-      for( int j=0;j<model.nv-1;++j ) // You can stop one step before nv
-	v[j] += U.row(j).segment(j+1,nvt[j]-1) * v.segment(j+1,nvt[j]-1);
+      for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv
+	v[k] += U.row(k).segment(k+1,nvt[k]-1) * v.segment(k+1,nvt[k]-1);
 
       return v.derived();
     }
@@ -106,7 +106,7 @@ namespace se3
     Mat &
     Uiv( const Model &                  model, 
 	 const Data&                          data ,
-	  Eigen::MatrixBase<Mat> &   v)
+	 Eigen::MatrixBase<Mat> &   v)
     {
       /* We search y s.t. v = U y. 
        * For any k, v_k = y_k + U_{k,k+1:} y_{k+1:} */
@@ -141,7 +141,53 @@ namespace se3
       return v.derived();
     }
 
-    
+    namespace internal
+    {
+      template<typename Mat>
+      Mat
+      Mv( const Model &                  model, 
+	  const  Data&                          data ,
+	  const Eigen::MatrixBase<Mat> &   v)
+      {
+	assert(v.size() == model.nv);
+	EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+      
+	const Eigen::MatrixXd & M = data.M;
+	const std::vector<int> & nvt = data.nvSubtree_fromRow;
+	Mat res(model.nv);
+
+	for( int k=model.nv-1;k>=0;--k ) 
+	  {
+	    res[k] = M.row(k).segment(k,nvt[k]) * v.segment(k,nvt[k]);
+	    res.segment(k+1,nvt[k]-1) += M.row(k).segment(k+1,nvt[k]-1).transpose()*v[k];
+	  }
+
+	return v.derived();
+      }
+
+      template<typename Mat>
+      Mat &
+      UDUtv( const Model &              model, 
+	     const Data&                data ,
+	     Eigen::MatrixBase<Mat> &   v)
+      {
+	Utv(model,data,v);
+	for( int k=0;k<model.nv;++k ) v[k] *= data.D[k];
+	return Uv(model,data,v);
+      }
+    } // internal
+  
+    template<typename Mat>
+    Mat &
+    Mv( const Model &                  model, 
+	const  Data&                          data ,
+	Eigen::MatrixBase<Mat> &   v,
+	bool usingCholesky = false)
+    {
+      if(usingCholesky) return internal::UDUtv(model,data,v);
+      else return v = internal::Mv(model,data,v);
+    }
+
     template<typename Mat>
     Mat &
     solve( const Model &              model, 
