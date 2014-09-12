@@ -45,9 +45,6 @@ namespace se3
       if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
       else         data.oMi[i] = data.liMi[i];
 
-      // std::cout << data.oMi[i] << std::endl << std::endl;
-      // std::cout << data.oMi[i].toActionMatrix() << std::endl << std::endl;
-      // std::cout << data.oMi[i].act(jdata.S()) << std::endl << std::endl;
       data.J.block(0,jmodel.idx_v(),6,jmodel.nv()) = data.oMi[i].act(jdata.S());
     }
 
@@ -81,8 +78,6 @@ namespace se3
 	if(! localFrame )   J.col(j) = data.J.col(j);
 	else                J.col(j) = oMjoint.actInv(Motion(data.J.col(j))).toVector();
       }
-    if(localFrame) 
-
   }
 
 } // namespace se3
