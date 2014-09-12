@@ -57,6 +57,7 @@ namespace se3
     Index addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
 		   const Inertia & Y,const std::string & name = "" );
     Index getBodyId( const std::string & name ) const;
+    bool existBodyName( const std::string & name ) const;
     const std::string& getBodyName( Index index ) const;
   };
 
@@ -154,10 +155,17 @@ namespace se3
   }
   Model::Index Model::getBodyId( const std::string & name ) const
   {
-    assert(name.size()<INT_MAX);
-    Index res = int(std::find(names.begin(),names.end(),name) - names.begin());
+    std::vector<std::string>::iterator::difference_type
+      res = std::find(names.begin(),names.end(),name) - names.begin();
+    assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
     assert( (res>=0)&&(res<nbody)&&"The body name you asked do not exist" );
-    return res;
+    return int(res);
+  }
+  bool Model::existBodyName( const std::string & name ) const
+  {
+    std::vector<std::string>::iterator::difference_type
+      res = std::find(names.begin(),names.end(),name) - names.begin();
+    return (res>=0)&&(res<nbody);
   }
   
   const std::string& Model::getBodyName( Model::Index index ) const
