@@ -10,38 +10,38 @@ namespace se3
 
     void  humanoid2d( Model& model)
     {
-      model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff1");
-      model.addBody(model.getBodyId("ff1"),JointModelRX(),SE3::Random(),Inertia::Random(),"root");
+      model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Identity(),Inertia::Random(),"ff1");
+      model.addBody(model.getBodyId("ff1"),JointModelRY(),SE3::Identity(),Inertia::Random(),"root");
 
-      model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg1");
-      model.addBody(model.getBodyId("lleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg2");
+      model.addBody(model.getBodyId("root"),JointModelRZ(),SE3::Random(),Inertia::Random(),"lleg1");
+      model.addBody(model.getBodyId("lleg1"),JointModelRY(),SE3::Random(),Inertia::Random(),"lleg2");
 
-      model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg1");
-      model.addBody(model.getBodyId("rleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"rleg2");
+      model.addBody(model.getBodyId("root"),JointModelRZ(),SE3::Random(),Inertia::Random(),"rleg1");
+      model.addBody(model.getBodyId("rleg1"),JointModelRY(),SE3::Random(),Inertia::Random(),"rleg2");
 
-      model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"torso1");
-      model.addBody(model.getBodyId("torso1"),JointModelRX(),SE3::Random(),Inertia::Random(),"chest");
+      model.addBody(model.getBodyId("root"),JointModelRY(),SE3::Random(),Inertia::Random(),"torso1");
+      model.addBody(model.getBodyId("torso1"),JointModelRZ(),SE3::Random(),Inertia::Random(),"chest");
 
       model.addBody(model.getBodyId("chest"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm1");
-      model.addBody(model.getBodyId("rarm1"),JointModelRX(),SE3::Random(),Inertia::Random(),"rarm2");
+      model.addBody(model.getBodyId("rarm1"),JointModelRZ(),SE3::Random(),Inertia::Random(),"rarm2");
 
       model.addBody(model.getBodyId("chest"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm1");
-      model.addBody(model.getBodyId("larm1"),JointModelRX(),SE3::Random(),Inertia::Random(),"larm2");
+      model.addBody(model.getBodyId("larm1"),JointModelRZ(),SE3::Random(),Inertia::Random(),"larm2");
     }
 
     void humanoidSimple( Model& model, bool usingFF = true)
     { 
       if(! usingFF ) 
 	{
-	  model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff1");
-	  model.addBody(model.getBodyId("ff1"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff2");
-	  model.addBody(model.getBodyId("ff2"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff3");
-	  model.addBody(model.getBodyId("ff3"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff4");
-	  model.addBody(model.getBodyId("ff4"),JointModelRX(),SE3::Random(),Inertia::Random(),"ff5");
-	  model.addBody(model.getBodyId("ff5"),JointModelRX(),SE3::Random(),Inertia::Random(),"root");
+	  model.addBody(model.getBodyId("universe"),JointModelRX(),SE3::Identity(),Inertia::Random(),"ff1");
+	  model.addBody(model.getBodyId("ff1"),JointModelRY(),SE3::Identity(),Inertia::Random(),"ff2");
+	  model.addBody(model.getBodyId("ff2"),JointModelRZ(),SE3::Identity(),Inertia::Random(),"ff3");
+	  model.addBody(model.getBodyId("ff3"),JointModelRZ(),SE3::Random(),Inertia::Random(),"ff4");
+	  model.addBody(model.getBodyId("ff4"),JointModelRY(),SE3::Identity(),Inertia::Random(),"ff5");
+	  model.addBody(model.getBodyId("ff5"),JointModelRX(),SE3::Identity(),Inertia::Random(),"root");
 	}
       else
-	model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Random(),Inertia::Random(),"root");
+	model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Identity(),Inertia::Random(),"root");
 
       model.addBody(model.getBodyId("root"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg1");
       model.addBody(model.getBodyId("lleg1"),JointModelRX(),SE3::Random(),Inertia::Random(),"lleg2");
