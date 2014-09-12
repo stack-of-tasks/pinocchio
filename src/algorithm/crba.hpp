@@ -1,8 +1,10 @@
-#ifndef __se3_crba2_hpp__
+#ifndef __se3_crba_hpp__
 #define __se3_crba_hpp__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/spatial/act-on-set.hpp"
+
 #include <iostream>
   
 namespace se3
@@ -44,74 +46,6 @@ namespace se3
 
   };
 
-  namespace internal 
-  {
-
-    template<typename Mat,typename MatRet, int NCOLS>
-    struct ForceSetSe3Action
-    {
-      /* Compute jF = jXi * iF, where jXi is the dual action matrix associated
-       * with m, and iF, jF are matrices whose columns are forces. The resolution
-       * is done by block operation. It is less efficient than the colwise
-       * operation and should not be used. */ 
-      static void run( const SE3 & m, 
-		       const Eigen::MatrixBase<Mat> & iF,
-		       Eigen::MatrixBase<MatRet> & jF );
-      // {
-      //   typename Mat::template ConstNRowsBlockXpr<3>::Type linear  = iF.template topRows<3>();
-      //   typename MatRet::template ConstNRowsBlockXpr<3>::Type angular = iF.template bottomRows<3>();
-      
-      //   jF.template topRows   <3>().noalias() = m.rotation()*linear;
-      //   jF.template bottomRows<3>().noalias()
-      // 	= skew(m.translation())*jF.template topRows<3>() +
-      //      m.rotation()*angular;
-      // }
-      
-    };
-
-    template<typename Mat,typename MatRet>
-    struct ForceSetSe3Action<Mat,MatRet,1>
-    {
-      /* Compute jF = jXi * iF, where jXi is the dual action matrix associated with m,
-       * and iF, jF are vectors. */
-      static void run( const SE3 & m, 
-		       const Eigen::MatrixBase<Mat> & iF,
-		       Eigen::MatrixBase<MatRet> & jF )
-      { 
-	EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
-	EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
-	Eigen::VectorBlock<const Mat,3> linear = iF.template head<3>();
-	Eigen::VectorBlock<const Mat,3> angular = iF.template tail<3>();
-	
-	jF.template head <3>() = m.rotation()*linear;
-	jF.template tail <3>() = (m.translation().cross(jF.template head<3>())
-				  + m.rotation()*angular);
-      }
-    };
-
-    template<typename Mat,typename MatRet>
-    static void se3Action( const SE3 & m, 
-			   const Eigen::MatrixBase<Mat> & iF,
-			   Eigen::MatrixBase<MatRet> & jF )
-    {
-      ForceSetSe3Action<Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iF,jF);
-    }
-
-    template<typename Mat,typename MatRet,int NCOLS>
-    void ForceSetSe3Action<Mat,MatRet,NCOLS>::
-    run( const SE3 & m, 
-	 const Eigen::MatrixBase<Mat> & iF,
-	 Eigen::MatrixBase<MatRet> & jF )
-    {
-      for(int col=0;col<jF.cols();++col) 
-	{
-	  typename MatRet::ColXpr jFc = jF.col(col);
-	  se3Action(m,iF.col(col),jFc);
-	}
-    }
-    
-  } // namespace internal
-
   struct CrbaBackwardStep : public fusion::JointVisitor<CrbaBackwardStep>
   {
     typedef boost::fusion::vector<const Model&,
@@ -150,7 +84,7 @@ namespace se3
 	  /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
 	  Eigen::Block<typename Data::Matrix6x> jF
 	    = data.Fcrb[parent].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
- 	  internal::se3Action(data.liMi[i],
+ 	  forceSet::se3Action(data.liMi[i],
 			      data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]),
 			      jF);
 	}
