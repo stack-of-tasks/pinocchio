@@ -40,6 +40,12 @@ namespace se3
    *     JointInertia::block = J::Constraint::Transpose*F
    */
 
+  /* Jacobian operations
+   *
+   * internal::ActionReturn<Constraint>::Type
+   * Constraint::se3Action
+   */
+
 #define SE3_JOINT_TYPEDEF					     \
   typedef int Index;						     \
   typedef typename traits<Joint>::JointData JointData;		     \
