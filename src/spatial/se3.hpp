@@ -54,6 +54,8 @@ namespace se3
 
     const Matrix3 & rotation()    const { return rot;   }
     const Vector3 & translation() const { return trans; }
+    Matrix3 & rotation()                { return rot;   }
+    Vector3 & translation()             { return trans; }
     void rotation(const Matrix3 & R)    { rot=R;   }
     void translation(const Vector3 & p) { trans=p; }
 
