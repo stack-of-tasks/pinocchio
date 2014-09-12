@@ -47,9 +47,6 @@ namespace se3
       const Model::Index & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       
-      if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
-      else         data.oMi[i] = data.liMi[i];
-      
       data.v[i] = jdata.v();
       if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
       
