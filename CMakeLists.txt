@@ -104,6 +104,10 @@ ADD_EXECUTABLE(crba EXCLUDE_FROM_ALL unittest/crba.cpp)
 PKG_CONFIG_USE_DEPENDENCY(crba eigenpy)
 PKG_CONFIG_USE_DEPENDENCY(crba urdfdom)
 
+ADD_EXECUTABLE(timings EXCLUDE_FROM_ALL unittest/timings.cpp)
+PKG_CONFIG_USE_DEPENDENCY(timings eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(timings urdfdom)
+
 ADD_EXECUTABLE(jacobian EXCLUDE_FROM_ALL unittest/jacobian.cpp)
 PKG_CONFIG_USE_DEPENDENCY(jacobian eigenpy)
 
