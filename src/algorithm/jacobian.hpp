@@ -4,7 +4,6 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include <iostream>
- #include <boost/utility/binary.hpp>
  
 namespace se3
 {
@@ -79,9 +78,11 @@ namespace se3
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
     for(int j=colRef;j>=0;j=data.parents_fromRow[j])
       {
-	if(! localFrame ) J.col(j) = data.J.col(j);
-	//	else              J.col(j) = oMi.actInv(Motion(data.J.col(j)));
+	if(! localFrame )   J.col(j) = data.J.col(j);
+	else                J.col(j) = oMjoint.actInv(Motion(data.J.col(j))).toVector();
       }
+    if(localFrame) 
+
   }
 
 } // namespace se3
