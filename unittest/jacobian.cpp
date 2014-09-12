@@ -1,12 +1,12 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
-#include <iostream>
-#include <boost/utility/binary.hpp>
-
+#include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/tools/timer.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
 
+#include <iostream>
+#include <boost/utility/binary.hpp>
 
 void timings(const se3::Model & model, se3::Data& data, long flag)
 {
@@ -46,6 +46,20 @@ void timings(const se3::Model & model, se3::Data& data, long flag)
       if(verbose) std::cout << "Copy =\t";
       timer.toc(std::cout,NBT);
     }
+  if( flag >> 2 & 1 )
+    {
+      computeJacobian(model,data,q);
+      Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
+      Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
+
+      timer.tic();
+      SMOOTH(NBT)
+      {
+	getJacobian<true>(model,data,idx,Jrh);
+      }
+      if(verbose) std::cout << "Change frame =\t";
+      timer.toc(std::cout,NBT);
+    }
 }
 
 void assertValues(const se3::Model & model, se3::Data& data)
@@ -60,12 +74,21 @@ void assertValues(const se3::Model & model, se3::Data& data)
   MatrixXd Jrh(6,model.nv); Jrh.fill(0);
   getJacobian<false>(model,data,idx,Jrh);
 
-  VectorXd qdot = VectorXd::Random(model.nv);
-  VectorXd qddot = VectorXd::Zero(model.nv);
-  rnea( model,data,q,qdot,qddot );
-  
-  Motion v = data.oMi[idx].act( data.v[idx] );
-  assert( v.toVector().isApprox( Jrh*qdot ));
+  { /* Test J*q == v */
+    VectorXd qdot = VectorXd::Random(model.nv);
+    VectorXd qddot = VectorXd::Zero(model.nv);
+    rnea( model,data,q,qdot,qddot );
+    Motion v = data.oMi[idx].act( data.v[idx] );
+    assert( v.toVector().isApprox( Jrh*qdot ));
+  }
+
+  { /* Test local jacobian: rhJrh == rhXo oJrh */ 
+    MatrixXd rhJrh(6,model.nv); rhJrh.fill(0);
+    getJacobian<true>(model,data,idx,rhJrh);
+    MatrixXd XJrh(6,model.nv); 
+    motionSet::se3Action( data.oMi[idx].inverse(), Jrh,XJrh );
+    assert( XJrh.isApprox(rhJrh) );
+  }
 
   std::cout << "Jrh = [ " << Jrh << " ];" << std::endl;
   std::cout << "J = [ " << data.J << " ];" << std::endl;
@@ -83,7 +106,7 @@ int main()
 #ifndef NDEBUG 
   assertValues(model,data);
 #else
-  timings(model,data,BOOST_BINARY(11));
+  timings(model,data,BOOST_BINARY(111));
 #endif
 
   return 0;
