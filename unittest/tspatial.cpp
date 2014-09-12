@@ -4,6 +4,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/spatial/act-on-set.hpp"
 
 #define TEST_SE3
 #define TEST_MOTION
@@ -241,12 +242,33 @@ bool testInertia()
   return true;
 }
 
+bool testActOnSet()
+{
+  const int N = 20;
+  typedef Eigen::Matrix<double,6,N> Matrix6N;
+  se3::SE3 jMi = se3::SE3::Random();
+
+  Matrix6N iF = Matrix6N::Random(),jF;
+  se3::forceSet::se3Action(jMi,iF,jF);
+  for( int k=0;k<N;++k )
+    assert( jMi.act(se3::Force(iF.col(k))).toVector().isApprox( jF.col(k) ));
+
+  Matrix6N iV = Matrix6N::Random(),jV;
+  se3::motionSet::se3Action(jMi,iV,jV);
+  for( int k=0;k<N;++k )
+    assert( jMi.act(se3::Motion(iV.col(k))).toVector().isApprox( jV.col(k) ));
+
+  return true;
+}
+
+
 int main()
 {
   testSE3();
   testMotion();
   testForce();
   testInertia();
+  testActOnSet();
   return 1;
 }
 

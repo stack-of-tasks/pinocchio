@@ -40,6 +40,7 @@ SET(${PROJECT_NAME}_HEADERS
   spatial/inertia.hpp
   spatial/fwd.hpp
   spatial/skew.hpp
+  spatial/act-on-set.hpp
   multibody/constraint.hpp
   multibody/force-set.hpp
   multibody/joint.hpp
