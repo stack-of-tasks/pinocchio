@@ -21,6 +21,8 @@ namespace se3
 
     struct ConstraintIdentity
     {
+      SE3::Matrix6 se3Action(const SE3 & m) const { return m.toActionMatrix(); }
+
       struct TransposeConst 
       {
 	Force::Vector6 operator* (const Force & phi)
@@ -38,7 +40,6 @@ namespace se3
 
   };
 
-
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   Inertia::Matrix6 operator*( const Inertia& Y,const JointFreeFlyer::ConstraintIdentity & )
   {
@@ -53,6 +54,12 @@ namespace se3
     return F;
   }
 
+  namespace internal
+  {
+    template<>
+    struct ActionReturn<JointFreeFlyer::ConstraintIdentity >  
+    { typedef SE3::Matrix6 Type; };
+  }
 
 
   template<>

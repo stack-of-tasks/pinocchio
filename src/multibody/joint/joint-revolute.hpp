@@ -54,7 +54,9 @@ namespace se3
       }
     }; // struct MotionRevolute
 
-    friend const MotionRevolute& operator+ (const MotionRevolute& m, const BiasZero&) { return m; }
+    friend const MotionRevolute& operator+ (const MotionRevolute& m, const BiasZero&)
+    { return m; }
+
     friend Motion operator+( const MotionRevolute& m1, const Motion& m2)
     {
       return Motion( m2.linear(),m2.angular()+typename revolute::CartesianVector3<axis>(m1.w)); 
@@ -62,7 +64,16 @@ namespace se3
     struct ConstraintRevolute
     { 
       template<typename D>
-      MotionRevolute operator*( const Eigen::MatrixBase<D> & v ) const { return MotionRevolute(v[0]); }
+      MotionRevolute operator*( const Eigen::MatrixBase<D> & v ) const
+      { return MotionRevolute(v[0]); }
+
+      Eigen::Matrix<double,6,1> se3Action(const SE3 & m) const
+      { 
+	Eigen::Matrix<double,6,1> res;
+	res.head<3>() = m.translation().cross( m.rotation().col(0));
+	res.tail<3>() = m.rotation().col(0);
+	return res;
+      }
 
       struct TransposeConst
       {
@@ -84,6 +95,7 @@ namespace se3
 
       };
       TransposeConst transpose() const { return TransposeConst(*this); }
+
 
     /* CRBA joint operators
      *   - ForceSet::Block = ForceSet
@@ -229,6 +241,21 @@ namespace se3
 				     I(2,2)+m*(x*x+y*y) ;
     return res;
   }
+
+  namespace internal 
+  {
+    // TODO: I am not able to write the next three lines as a template. Why?
+    template<>
+    struct ActionReturn<typename JointRevolute<0>::ConstraintRevolute >  
+    { typedef Eigen::Matrix<double,6,1> Type; };
+    template<>
+    struct ActionReturn<typename JointRevolute<1>::ConstraintRevolute >  
+    { typedef Eigen::Matrix<double,6,1> Type; };
+    template<>
+    struct ActionReturn<typename JointRevolute<2>::ConstraintRevolute >  
+    { typedef Eigen::Matrix<double,6,1> Type; };
+  }
+
 
 
   template<int axis>

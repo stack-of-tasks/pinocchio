@@ -55,7 +55,7 @@ SET(${PROJECT_NAME}_HEADERS
   tools/timer.hpp
   algorithm/rnea.hpp
   algorithm/crba.hpp
-  algorithm/crba2.hpp
+  algorithm/jacobian.hpp
   algorithm/cholesky.hpp
   algorithm/kinematics.hpp
 )
@@ -102,6 +102,9 @@ PKG_CONFIG_USE_DEPENDENCY(rnea eigenpy)
 ADD_EXECUTABLE(crba EXCLUDE_FROM_ALL unittest/crba.cpp)
 PKG_CONFIG_USE_DEPENDENCY(crba eigenpy)
 PKG_CONFIG_USE_DEPENDENCY(crba urdfdom)
+
+ADD_EXECUTABLE(jacobian EXCLUDE_FROM_ALL unittest/jacobian.cpp)
+PKG_CONFIG_USE_DEPENDENCY(jacobian eigenpy)
 
 ADD_EXECUTABLE(cholesky EXCLUDE_FROM_ALL unittest/cholesky.cpp)
 PKG_CONFIG_USE_DEPENDENCY(cholesky eigenpy)

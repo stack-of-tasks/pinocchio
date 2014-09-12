@@ -89,6 +89,7 @@ namespace se3
     std::vector<int> parents_fromRow;     // First previous non-zero row in M (used in Cholesky)
     std::vector<int> nvSubtree_fromRow;   // 
     
+    Eigen::MatrixXd J;                    // Jacobian of joint placement
 
     Data( const Model& ref );
 
@@ -193,6 +194,7 @@ namespace se3
     ,tmp(ref.nv)
     ,parents_fromRow(ref.nv)
     ,nvSubtree_fromRow(ref.nv)
+    ,J(6,ref.nv)
   {
     for(int i=0;i<model.nbody;++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
@@ -205,6 +207,9 @@ namespace se3
     /* Init for Cholesky */
     U = Eigen::MatrixXd::Identity(ref.nv,ref.nv);
     computeParents_fromRow(ref);
+
+    /* Init Jacobian */
+    J.fill(0);
   }
 
   void Data::computeLastChild(const Model& model)
