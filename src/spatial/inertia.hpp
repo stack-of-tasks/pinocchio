@@ -109,7 +109,7 @@ namespace se3
       const Vector3 & AB = (Ya.c-Yb.c).eval();
       c *= m; c += Yb.m*Yb.c; c /= mab;
       I += Yb.I; I -= (Ya.m*Yb.m/mab)* typename Symmetric3::SkewSquare(AB);
-      m += Yb.m;
+      m  = mab;
       return *this;
     }
 
