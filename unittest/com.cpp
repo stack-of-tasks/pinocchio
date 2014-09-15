@@ -64,23 +64,23 @@ void assertValues(const se3::Model & model, se3::Data& data)
   using namespace se3;
 
   VectorXd q = VectorXd::Zero(model.nq);
-  crba(model,data,q);
+  data.M.fill(0);  crba(model,data,q);
 
   { /* Test COM against CRBA*/
-    centerOfMass(model,data,q);
+    Vector3d com = centerOfMass(model,data,q);
     assert( data.com[0].isApprox( getComFromCrba(model,data) ));
 
   }
 
   { /* Test COM against Jcom (both use different way of compute the COM. */
-    Vector3d com = data.com[0];
-    data.M.fill(0);  crba(model,data,q);
+    Vector3d com = centerOfMass(model,data,q);
     jacobianCenterOfMass(model,data,q);
-    assert(com.isApprox(jacobianCenterOfMass(model,data,q)));
+    assert(com.isApprox(data.com[0]));
   }
 
   { /* Test Jcom against CRBA  */
-    assert(data.Jcom.isApprox(data.M.block(0,0,3,model.nv)/data.mass[0] ));
+    Eigen::MatrixXd Jcom = jacobianCenterOfMass(model,data,q);
+    assert( Jcom.isApprox( getJacobianComFromCrba(model,data) ));
   }
 
   std::cout << "com = [ " << data.com[0].transpose() << " ];" << std::endl;
