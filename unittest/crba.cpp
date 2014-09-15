@@ -6,23 +6,14 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/multibody/parser/urdf.hpp"
+#include "pinocchio/multibody/parser/sample-models.hpp"
 
 #include <iostream>
 
 #include "pinocchio/tools/timer.hpp"
 
-
-//#define __SSE3__
-#include <fenv.h>
-#ifdef __SSE3__
-#include <pmmintrin.h>
-#endif
-
 int main(int argc, const char ** argv)
 {
-#ifdef __SSE3__
-  _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
-#endif
 
   using namespace Eigen;
   using namespace se3;
@@ -31,13 +22,16 @@ int main(int argc, const char ** argv)
 
   std::string filename = "/home/nmansard/src/metapod/data/simple_arm.urdf";
   if(argc>1) filename = argv[1];
-  model = se3::buildModel(filename,argc>1);
+  se3::buildModels::humanoidSimple(model);
+  //model = se3::buildModel(filename,argc>1);
 
   se3::Data data(model);
   VectorXd q = VectorXd::Zero(model.nq);
  
   StackTicToc timer(StackTicToc::US); timer.tic();
+#ifdef NDEBUG
   SMOOTH(1000*100)
+#endif
     {
       crba(model,data,q);
     }
