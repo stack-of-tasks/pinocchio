@@ -7,14 +7,30 @@
  
 namespace se3
 {
-  // inline const Eigen::MatrixXd&
-  // centerOfMass(const Model & model, 
-  // 	   Data& data,
-  // 	   const Eigen::VectorXd & q);
+  const Eigen::Vector3d &
+  centerOfMass        (const Model & model, Data& data,
+		       const Eigen::VectorXd & q,
+		       const bool & computeSubtreeComs = true);
+  /* The Jcom algorithm also compute the center of mass, using a less efficient
+   * approach.  The com can be accessed afterward using data.com[0]. */
+  const  Eigen::Matrix<double,3,Eigen::Dynamic> &
+  jacobianCenterOfMass(const Model & model, Data& data,
+		       const Eigen::VectorXd & q,
+		       const bool & computeSubtreeComs = true);
 
+  /* If the CRBA has been run, then both COM and Jcom are easily available from
+   * the mass matrix. Use the following methods to access them. In that case,
+   * the COM subtrees (also easily available from CRBA data) are not
+   * explicitely set. Use data.Ycrb[i].lever() to get them. */
+  const Eigen::Vector3d & 
+  getComFromCrba        (const Model & model, Data& data);
+  const  Eigen::Matrix<double,3,Eigen::Dynamic> &
+  getJacobianComFromCrba(const Model & model, Data& data);
 } // namespace se3 
 
-/* --- Details -------------------------------------------------------------------- */
+/* --- DETAILS -------------------------------------------------------------------- */
+/* --- DETAILS -------------------------------------------------------------------- */
+/* --- DETAILS -------------------------------------------------------------------- */
 namespace se3 
 {
  
@@ -59,7 +75,7 @@ namespace se3
   const Eigen::Vector3d &
   centerOfMass(const Model & model, Data& data,
 	       const Eigen::VectorXd & q,
-	       bool computeSubtreeComs = true)
+	       const bool & computeSubtreeComs )
   {
     data.mass[0] = 0; 
     data.com[0]  = Eigen::Vector3d::Zero();
@@ -83,7 +99,7 @@ namespace se3
 
   const Eigen::Vector3d & getComFromCrba(const Model & , Data& data)
   {
-    return data.Ycrb[1].lever();
+    return data.com[0] = data.Ycrb[1].lever();
   }
 
   /* --- JACOBIAN ---------------------------------------------------------- */
@@ -154,13 +170,13 @@ namespace se3
 	= data.oMi[i].act(jdata.S());
 
       if( JointModel::NV==1 )
-	data.Jcom.col(jmodel.idx_v()) // Using head and tail would confuse g++
-	  = data.mass[i]*oSk.template topLeftCorner<3,1>() 
-	  - data.com[i].cross(oSk.template bottomLeftCorner<3,1>()) ;
+      	data.Jcom.col(jmodel.idx_v()) // Using head and tail would confuse g++
+      	  = data.mass[i]*oSk.template topLeftCorner<3,1>() 
+      	  - data.com[i].cross(oSk.template bottomLeftCorner<3,1>()) ;
       else
-	data.Jcom.template block<3,JointModel::NV>(0,jmodel.idx_v())
-	  = data.mass[i]*oSk.template topRows<3>() 
-	  - skew(data.com[i]) * oSk.template bottomRows<3>() ;
+      	data.Jcom.template block<3,JointModel::NV>(0,jmodel.idx_v())
+      	  = data.mass[i]*oSk.template topRows<3>() 
+      	  - skew(data.com[i]) * oSk.template bottomRows<3>() ;
 
       if(computeSubtreeComs)
 	data.com[i]       /= data.mass[i];
@@ -169,10 +185,10 @@ namespace se3
   };
 
   /* Compute the centerOfMass in the local frame. */
-  const Eigen::Vector3d &
+  const Eigen::Matrix<double,3,Eigen::Dynamic> &
   jacobianCenterOfMass(const Model & model, Data& data,
 		       const Eigen::VectorXd & q,
-		       const bool & computeSubtreeComs = true)
+		       const bool & computeSubtreeComs )
   {
     data.com[0] = Eigen::Vector3d::Zero();
     data.mass[0] = 0;
@@ -191,12 +207,14 @@ namespace se3
 
     data.com[0] /= data.mass[0];
     data.Jcom /=  data.mass[0];
-    return data.com[0];
+    return data.Jcom;
   }
 
-  const Eigen::Vector3d & getJacobianComFromCrba(const Model & , Data& data)
+  const Eigen::Matrix<double,3,Eigen::Dynamic> &
+  getJacobianComFromCrba(const Model & , Data& data)
   {
-    return data.Jcom = data.M.topRows<3>()/data.M(0,0);
+    data.Jcom = data.M.topRows<3>()/data.M(0,0);
+    return data.Jcom;
   }
 
 

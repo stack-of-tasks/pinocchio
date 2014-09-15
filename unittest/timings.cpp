@@ -7,6 +7,7 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
+#include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/multibody/parser/urdf.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
 
@@ -63,9 +64,16 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
     {
-      computeJacobian(model,data,q);
+      computeJacobians(model,data,q);
     }
   std::cout << "Jacobian = \t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+    {
+      jacobianCenterOfMass(model,data,q,false);
+    }
+  std::cout << "COM+Jcom = \t"; timer.toc(std::cout,NBT);
 
   std::cout << "--" << std::endl;
   return 0;
