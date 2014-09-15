@@ -59,6 +59,7 @@ SET(${PROJECT_NAME}_HEADERS
   algorithm/jacobian.hpp
   algorithm/cholesky.hpp
   algorithm/kinematics.hpp
+  algorithm/center-of-mass.hpp
 )
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
@@ -110,6 +111,9 @@ PKG_CONFIG_USE_DEPENDENCY(timings urdfdom)
 
 ADD_EXECUTABLE(jacobian EXCLUDE_FROM_ALL unittest/jacobian.cpp)
 PKG_CONFIG_USE_DEPENDENCY(jacobian eigenpy)
+
+ADD_EXECUTABLE(com EXCLUDE_FROM_ALL unittest/com.cpp)
+PKG_CONFIG_USE_DEPENDENCY(com eigenpy)
 
 ADD_EXECUTABLE(cholesky EXCLUDE_FROM_ALL unittest/cholesky.cpp)
 PKG_CONFIG_USE_DEPENDENCY(cholesky eigenpy)
