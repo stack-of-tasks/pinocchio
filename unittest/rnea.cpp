@@ -23,13 +23,11 @@ int main()
   _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
 #endif
 
-
   using namespace Eigen;
   using namespace se3;
 
   se3::Model model; buildModels::humanoidSimple(model);
   
-
   se3::Data data(model);
   data.v[0] = Motion::Zero();
   data.a[0] = -model.gravity;
