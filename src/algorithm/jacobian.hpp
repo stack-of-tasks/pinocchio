@@ -17,14 +17,14 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 namespace se3 
 {
-  struct JacobianForwardStep : public fusion::JointVisitor<JacobianForwardStep>
+  struct JacobiansForwardStep : public fusion::JointVisitor<JacobiansForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model&,
 				   se3::Data&,
 				   const Eigen::VectorXd &
 				   > ArgsType;
 
-    JOINT_VISITOR_INIT(JacobianForwardStep);
+    JOINT_VISITOR_INIT(JacobiansForwardStep);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -52,13 +52,13 @@ namespace se3
 
 
   inline const Eigen::MatrixXd&
-  computeJacobian(const Model & model, Data& data,
-		  const Eigen::VectorXd & q)
+  computeJacobians(const Model & model, Data& data,
+		   const Eigen::VectorXd & q)
   {
     for( int i=1;i<model.nbody;++i )
       {
-	JacobianForwardStep::run(model.joints[i],data.joints[i],
-			     JacobianForwardStep::ArgsType(model,data,q));
+	JacobiansForwardStep::run(model.joints[i],data.joints[i],
+				  JacobiansForwardStep::ArgsType(model,data,q));
       }
 
     return data.J;
@@ -79,6 +79,59 @@ namespace se3
 	else                J.col(j) = oMjoint.actInv(Motion(data.J.col(j))).toVector();
       }
   }
+
+
+  struct JacobianForwardStep : public fusion::JointVisitor<JacobianForwardStep>
+  {
+    typedef boost::fusion::vector< const se3::Model&,
+				   se3::Data&,
+				   const Eigen::VectorXd &
+				   > ArgsType;
+
+    JOINT_VISITOR_INIT(JacobianForwardStep);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+		     se3::JointDataBase<typename JointModel::JointData> & jdata,
+		     const se3::Model& model,
+		     se3::Data& data,
+		     const Eigen::VectorXd & q)
+    {
+      using namespace Eigen;
+      using namespace se3;
+
+      const Model::Index & i = jmodel.id();
+      const Model::Index & parent = model.parents[i];
+
+      jmodel.calc(jdata.derived(),q);
+      
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      data.iMf[parent] = data.liMi[i]*data.iMf[i];
+
+      data.J.block(0,jmodel.idx_v(),6,jmodel.nv()) = data.iMf[i].inverse().act(jdata.S());
+    }
+
+  };
+
+  /* Compute the jacobian in the local frame. */
+  const Eigen::MatrixXd&
+  jacobian(const Model & model, Data& data,
+	   const Eigen::VectorXd & q,
+	   const Model::Index & idx )
+  {
+    data.iMf[idx] = SE3::Identity();
+    for( int i=idx;i>0;i=model.parents[i] )
+      {
+	JacobianForwardStep::run(model.joints[i],data.joints[i],
+				 JacobianForwardStep::ArgsType(model,data,q));
+      }
+
+    return data.J;
+  }
+
+
+
+
 
 } // namespace se3
 

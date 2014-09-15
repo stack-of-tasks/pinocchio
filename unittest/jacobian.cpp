@@ -1,6 +1,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/tools/timer.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
@@ -27,14 +28,14 @@ void timings(const se3::Model & model, se3::Data& data, long flag)
       timer.tic();
       SMOOTH(NBT)
       {
-	computeJacobian(model,data,q);
+	computeJacobians(model,data,q);
       }
       if(verbose) std::cout << "Compute =\t";
       timer.toc(std::cout,NBT);
     }
   if( flag >> 1 & 1 )
     {
-      computeJacobian(model,data,q);
+      computeJacobians(model,data,q);
       Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
       Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
 
@@ -48,7 +49,7 @@ void timings(const se3::Model & model, se3::Data& data, long flag)
     }
   if( flag >> 2 & 1 )
     {
-      computeJacobian(model,data,q);
+      computeJacobians(model,data,q);
       Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
       Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
 
@@ -60,6 +61,20 @@ void timings(const se3::Model & model, se3::Data& data, long flag)
       if(verbose) std::cout << "Change frame =\t";
       timer.toc(std::cout,NBT);
     }
+  if( flag >> 2 & 1 )
+    {
+      computeJacobians(model,data,q);
+      Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
+      Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
+
+      timer.tic();
+      SMOOTH(NBT)
+      {
+	jacobian(model,data,q,idx);
+      }
+      if(verbose) std::cout << "Single jacobian =\t";
+      timer.toc(std::cout,NBT);
+    }
 }
 
 void assertValues(const se3::Model & model, se3::Data& data)
@@ -68,7 +83,7 @@ void assertValues(const se3::Model & model, se3::Data& data)
   using namespace se3;
 
   VectorXd q = VectorXd::Zero(model.nq);
-  computeJacobian(model,data,q);
+  computeJacobians(model,data,q);
 
   Model::Index idx = model.existBodyName("rarm2")?model.getBodyId("rarm2"):model.nbody-1; 
   MatrixXd Jrh(6,model.nv); Jrh.fill(0);
@@ -87,6 +102,10 @@ void assertValues(const se3::Model & model, se3::Data& data)
     getJacobian<true>(model,data,idx,rhJrh);
     MatrixXd XJrh(6,model.nv); 
     motionSet::se3Action( data.oMi[idx].inverse(), Jrh,XJrh );
+    assert( XJrh.isApprox(rhJrh) );
+
+    data.J.fill(0);
+    XJrh = jacobian(model,data,q,idx);
     assert( XJrh.isApprox(rhJrh) );
   }
 
