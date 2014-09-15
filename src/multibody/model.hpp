@@ -90,6 +90,11 @@ namespace se3
     std::vector<int> nvSubtree_fromRow;   // 
     
     Eigen::MatrixXd J;                    // Jacobian of joint placement
+    std::vector<SE3> iMf;                 // Body placement wrt to algorithm end effector.
+
+    std::vector<Eigen::Vector3d> com;     // Subtree com position.
+    std::vector<double> mass;             // Subtree total mass.
+    Eigen::Matrix<double,3,Eigen::Dynamic> Jcom; // Jacobian of center of mass.
 
     Data( const Model& ref );
 
@@ -195,6 +200,10 @@ namespace se3
     ,parents_fromRow(ref.nv)
     ,nvSubtree_fromRow(ref.nv)
     ,J(6,ref.nv)
+    ,iMf(ref.nbody)
+    ,com(ref.nbody)
+    ,mass(ref.nbody)
+    ,Jcom(3,ref.nv)
   {
     for(int i=0;i<model.nbody;++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
