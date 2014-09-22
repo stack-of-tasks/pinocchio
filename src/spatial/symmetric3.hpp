@@ -33,14 +33,23 @@ namespace se3
 
   public:    
     Symmetric3Tpl(): data() {}
-    Symmetric3Tpl(const Matrix3 &I) 
+    template<typename Sc,int N,int Opt>
+    explicit Symmetric3Tpl(const Eigen::Matrix<Sc,N,N,Opt> & I)
+    { 
+      assert( (I.rows()==3)&&(I.cols()==3) );
+      assert( (I-I.transpose()).isMuchSmallerThan(I) );
+      data(0) = I(0,0);
+      data(1) = I(1,0); data(2) = I(1,1);
+      data(3) = I(2,0); data(4) = I(2,1); data(5) = I(2,2);
+    }
+    explicit Symmetric3Tpl(const Eigen::MatrixBase<Matrix3> &I) 
     {
       assert( (I-I.transpose()).isMuchSmallerThan(I) );
       data(0) = I(0,0);
       data(1) = I(1,0); data(2) = I(1,1);
       data(3) = I(2,0); data(4) = I(2,1); data(5) = I(2,2);
     }
-    Symmetric3Tpl(const Vector6 &I) : data(I) {}
+    explicit Symmetric3Tpl(const Vector6 &I) : data(I) {}
     Symmetric3Tpl(const double & a0,const double & a1,const double & a2,
 		  const double & a3,const double & a4,const double & a5)
     { data << a0,a1,a2,a3,a4,a5; }

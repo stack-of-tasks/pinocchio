@@ -1,3 +1,5 @@
+#ifndef __se3_skew_hpp__
+#define __se3_skew_hpp__
 namespace se3
 {
   template <typename D>
@@ -26,3 +28,4 @@ namespace se3
     return res;
   }
 } // namespace se3
+#endif // ifndef __se3_skew_hpp__

@@ -25,10 +25,15 @@ namespace se3
   public:
     // Constructors
     MotionTpl() : m_w(), m_v() {}
-    MotionTpl(const Vector3 & v, const Vector3 & w) : m_w(w), m_v(v) {}
-    MotionTpl(const Vector6 & v) : 
+    template<typename v1,typename v2>
+    MotionTpl(const Eigen::MatrixBase<v1> & v, const Eigen::MatrixBase<v2> & w)
+      : m_w(w), m_v(v) {}
+    template<typename v6>
+    MotionTpl(const Eigen::MatrixBase<v6> & v) : 
       m_w(v.template segment<3>(ANGULAR)),
       m_v(v.template segment<3>(LINEAR)) {}
+    template<typename S2,int O2>
+    MotionTpl(const MotionTpl<S2,O2> & clone) : m_w(clone.angular()),m_v(clone.linear()) {}
 
     static MotionTpl Zero()   { return MotionTpl(Vector3::Zero(),  Vector3::Zero());   }
     static MotionTpl Random() { return MotionTpl(Vector3::Random(),Vector3::Random()); }
