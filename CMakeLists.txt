@@ -21,6 +21,13 @@ SET(CMAKE_VERBOSE_MAKEFILE True)
 project(${PROJECT_NAME})
 SETUP_PROJECT()
 
+IF(WIN32)
+  SET(LINK copy_if_different)
+ELSE(WIN32)
+  SET(LINK create_symlink)
+ENDIF(WIN32)
+
+
 # ----------------------------------------------------
 # --- DEPENDANCIES -----------------------------------
 # ----------------------------------------------------
@@ -30,7 +37,7 @@ ADD_REQUIRED_DEPENDENCY("urdfdom >= v0.3.0")
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
-SET(${PROJECT_NAME}_HEADERS
+SET(HEADERS
   exception.hpp
   assert.hpp
   spatial/symmetric3.hpp
@@ -76,31 +83,64 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/python")
 
-FOREACH(header ${${PROJECT_NAME}_HEADERS})
+FOREACH(header ${HEADERS})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)
-  IF(WIN32)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
-                    ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/${header})
-  ELSE(WIN32)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-                    ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
-                    ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/${header})
-  ENDIF(WIN32)
-  INSTALL(FILES ${${PROJECT_NAME}_SOURCE_DIR}/${header}
-	  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}
+  GET_FILENAME_COMPONENT(headerPath ${header} PATH)
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
+    ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
+    ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/${header})
+  INSTALL(FILES ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
+	  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${headerPath}
           PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
 ENDFOREACH(header)
 
 # ----------------------------------------------------
-# --- TARGETS ----------------------------------------
+# --- PYTHON -----------------------------------------
 # ----------------------------------------------------
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python")
+FINDPYTHON()
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}")
 
-ADD_LIBRARY(pynocchio SHARED src/python/module.cpp src/python/python.cpp)
-PKG_CONFIG_USE_DEPENDENCY(pynocchio eigenpy)
-SET_TARGET_PROPERTIES(pynocchio PROPERTIES PREFIX "")
-TARGET_LINK_LIBRARIES(pynocchio ${Boost_LIBRARIES} eigenpy)
+# --- COMPILE WRAPPER
+SET(PYWRAP ${PROJECT_NAME}_pywrap)
+ADD_LIBRARY(${PYWRAP} SHARED src/python/module.cpp src/python/python.cpp)
+PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} eigenpy)
+TARGET_LINK_LIBRARIES(${PYWRAP} ${Boost_LIBRARIES} eigenpy)
+SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/python/${PROJECT_NAME}")
+
+# --- INSTALL SCRIPTS 
+SET(PYTHON_FILES
+  python/__init__.py
+  python/utils.py
+)
+FOREACH(python ${PYTHON_FILES})
+  GET_FILENAME_COMPONENT(pythonFile ${python} NAME)
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
+    ${${PROJECT_NAME}_SOURCE_DIR}/src/${python}
+    ${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile})
+
+  # Tag pyc file as generated.
+  #SET_SOURCE_FILES_PROPERTIES(
+  #  "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${pythonFile}c"
+  #  PROPERTIES GENERATED TRUE)
+
+  # Clean generated files.
+  #SET_PROPERTY(
+  #  DIRECTORY APPEND PROPERTY
+  #  ADDITIONAL_MAKE_CLEAN_FILES
+  #  "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${pythonFile}c")
+
+  #INSTALL(CODE
+  #  "EXECUTE_PROCESS(COMMAND
+  #  \"${PYTHON_EXECUTABLE}\"
+  #  \"-m py_compile\"
+  #  \"${CMAKE_CURRENT_BINARY_DIR}/lib/python/${pythonFile}\")    ")
+
+  INSTALL(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}"
+  #  "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${pythonFile}c"
+    DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
+ENDFOREACH(python)
 
 # ----------------------------------------------------
 # --- UNITTESTS --------------------------------------
