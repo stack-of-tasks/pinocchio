@@ -49,19 +49,24 @@ namespace se3
       m=clone.m; c=clone.c; I=clone.I;
       return *this;
     }
+    template<typename S2,int O2>
+    InertiaTpl( const InertiaTpl<S2,O2> & clone )
+      : m(clone.mass()),
+	c(clone.lever()),
+	I(clone.inertia().matrix())    {}
 
     // Initializers
     static Inertia Zero() 
     {
       return InertiaTpl(0., 
 			Vector3::Zero(), 
-			Matrix3::Zero());
+			Symmetric3::Zero());
     }
     static Inertia Identity() 
     {
       return InertiaTpl(1., 
 			Vector3::Zero(), 
-			Matrix3::Identity());
+			Symmetric3::Identity());
     }
     static Inertia Random()
     {

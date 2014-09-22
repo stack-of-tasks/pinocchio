@@ -50,7 +50,8 @@ namespace se3
 
       operator Motion() const
       { 
-	return Motion(Motion::Vector3::Zero(),typename revolute::CartesianVector3<axis>(w));
+	return Motion(Motion::Vector3::Zero(),
+		      (Motion::Vector3)typename revolute::CartesianVector3<axis>(w));
       }
     }; // struct MotionRevolute
 

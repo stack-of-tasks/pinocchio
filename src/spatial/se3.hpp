@@ -49,8 +49,13 @@ namespace se3
   public:
     // Constructors
     SE3Tpl() : rot(), trans() {}
-    SE3Tpl(const Matrix3 & R, const Vector3 & p) : rot(R), trans(p) {}
+    template<typename M3,typename v3>
+    SE3Tpl(const Eigen::MatrixBase<M3> & R, const Eigen::MatrixBase<v3> & p) 
+      : rot(R), trans(p) {}
     SE3Tpl(int) : rot(Matrix3::Identity()), trans(Vector3::Zero()) {}
+    template<typename S2, int O2>
+    SE3Tpl( const SE3Tpl<S2,O2> clone ) 
+      : rot(clone.rotation()),trans(clone.translation()) {}
 
     const Matrix3 & rotation()    const { return rot;   }
     const Vector3 & translation() const { return trans; }

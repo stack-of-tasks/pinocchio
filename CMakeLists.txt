@@ -60,6 +60,11 @@ SET(${PROJECT_NAME}_HEADERS
   algorithm/cholesky.hpp
   algorithm/kinematics.hpp
   algorithm/center-of-mass.hpp
+  python/python.hpp
+  python/se3.hpp
+  python/force.hpp
+  python/motion.hpp
+  python/inertia.hpp
 )
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
@@ -69,6 +74,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint"
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/parser")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/python")
 
 FOREACH(header ${${PROJECT_NAME}_HEADERS})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)
@@ -88,6 +94,16 @@ ENDFOREACH(header)
 
 # ----------------------------------------------------
 # --- TARGETS ----------------------------------------
+# ----------------------------------------------------
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python")
+
+ADD_LIBRARY(pynocchio SHARED src/python/module.cpp src/python/python.cpp)
+PKG_CONFIG_USE_DEPENDENCY(pynocchio eigenpy)
+SET_TARGET_PROPERTIES(pynocchio PROPERTIES PREFIX "")
+TARGET_LINK_LIBRARIES(pynocchio ${Boost_LIBRARIES} eigenpy)
+
+# ----------------------------------------------------
+# --- UNITTESTS --------------------------------------
 # ----------------------------------------------------
 ADD_EXECUTABLE(tspatial EXCLUDE_FROM_ALL unittest/tspatial.cpp)
 PKG_CONFIG_USE_DEPENDENCY(tspatial eigenpy)

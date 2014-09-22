@@ -24,9 +24,15 @@ namespace se3
   public:
     // Constructors
     ForceTpl() : m_n(), m_f() {}
-    ForceTpl(const Vector3 & f,const Vector3 & n) : m_n(n), m_f(f) {}
-    ForceTpl(const Vector6 & v) : m_n(v.template segment<3>(ANGULAR)),
-				  m_f(v.template segment<3>(LINEAR)) {}
+    template<typename f_t,typename n_t>
+    ForceTpl(const Eigen::MatrixBase<f_t> & f,const Eigen::MatrixBase<n_t> & n)
+      : m_n(n), m_f(f) {}
+    template<typename f_t>
+    ForceTpl(const Eigen::MatrixBase<f_t> & v)
+      : m_n(v.template segment<3>(ANGULAR)),
+	m_f(v.template segment<3>(LINEAR)) {}
+    template<typename S2,int O2>
+    ForceTpl(const ForceTpl<S2,O2> & clone) : m_n(clone.angular()), m_f(clone.linear()) {}
 
     // initializers
     static ForceTpl Zero() { return ForceTpl(Vector3::Zero(), Vector3::Zero()); }
@@ -44,6 +50,8 @@ namespace se3
     // Getters
     const Vector3 & linear() const { return m_f; }
     const Vector3 & angular() const { return m_n; }
+    void linear(const Vector3 & f) { m_f = f; }
+    void angular(const Vector3 & n) { m_n = n; }
 
     // Arithmetic operators
     ForceTpl & operator=(const Vector6 & phi)
@@ -112,7 +120,7 @@ namespace se3
     Vector3 m_n;
     Vector3 m_f;
   };
-
+ 
   typedef ForceTpl<double> Force;
 
 } // namespace se3
