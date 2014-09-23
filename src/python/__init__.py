@@ -16,7 +16,9 @@ def SE3act(m,x):
     elif 'se3Action' in x.__class__.__dict__:
         return x.se3Action(m)
     else:
-        print 'Error: SE3 cannot act on the given object'
+        #print 'Error: SE3 cannot act on the given object'
+        return m.oldmult(x)
+setattr(se3.SE3,'oldmult',se3.SE3.__mul__)
 setattr(se3.SE3,'__mul__',SE3act)
 setattr(se3.SE3,'act',SE3act)
 

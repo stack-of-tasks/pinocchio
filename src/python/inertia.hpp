@@ -66,6 +66,7 @@ namespace se3
 	  .def("__str__",&InertiaPythonVisitor::toString)
 	  .def( bp::self + bp::self)
 	  .def( bp::self * bp::other<Motion_fx>() )
+	  .add_property("np",&Inertia_fx::matrix)
 
 	  .def("Identity",&Inertia_fx::Identity)
 	  .staticmethod("Identity")

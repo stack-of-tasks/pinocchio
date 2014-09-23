@@ -58,7 +58,9 @@ namespace se3
 	  .def("vector",&Force_fx::toVector)
 	  .def("se3Action",&Force_fx::se3Action)
 	  .def("se3ActionInverse",&Force_fx::se3ActionInverse)
+
 	  .def("__str__",&ForcePythonVisitor::toString)
+	  .add_property("np",&Force_fx::toVector)
 	  
 	  .def("Random",&Force_fx::Random)
 	  .staticmethod("Random")

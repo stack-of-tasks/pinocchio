@@ -74,7 +74,7 @@ namespace se3
 
 } // namespace se3
 
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointModelVariant);
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointDataVariant);
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointModelVariant)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointDataVariant)
 
 #endif // ifndef __se3_joint_variant_hpp__

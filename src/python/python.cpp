@@ -4,6 +4,9 @@
 #include "pinocchio/python/motion.hpp"
 #include "pinocchio/python/inertia.hpp"
 
+#include "pinocchio/python/model.hpp"
+#include "pinocchio/python/data.hpp"
+
 namespace se3
 {
   namespace python
@@ -24,12 +27,10 @@ namespace se3
     {
       InertiaPythonVisitor<Inertia>::expose();
     }
-    void exposeStatics()
+    void exposeModel()
     {
- 
-
+      ModelPythonVisitor::expose();
+      DataPythonVisitor::expose();
     }
-    
-    
 
   }} // namespace se3::python

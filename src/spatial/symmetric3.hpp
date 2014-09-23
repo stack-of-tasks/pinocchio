@@ -58,6 +58,9 @@ namespace se3
     static Symmetric3Tpl Random()   { return Symmetric3Tpl(Vector6::Random().eval());  }
     static Symmetric3Tpl Identity() { return Symmetric3Tpl( 1, 0, 1, 0, 0, 1);  }
 
+    /* Requiered by Inertia::operator== */
+    bool operator== (const Symmetric3Tpl & S2 ) { return data == S2.data; }
+    
     struct SkewSquare
     {
       const Vector3 & v;
