@@ -67,6 +67,8 @@ SET(HEADERS
   algorithm/cholesky.hpp
   algorithm/kinematics.hpp
   algorithm/center-of-mass.hpp
+  python/eigen_container.hpp
+  python/handler.hpp
   python/python.hpp
   python/se3.hpp
   python/force.hpp
