@@ -9,7 +9,9 @@ X = np.vstack( [ np.hstack([ R, skew(p)*R ]), np.hstack([ zero([3,3]), R ]) ])
 assert( isapprox(m.action(),X))
 M = np.vstack( [ np.hstack([R,p]), np.matrix('0 0 0 1',np.double) ] )
 assert( isapprox(m.homogeneous(),M) )
-
+m2 = se3.SE3.Random()
+assert(isapprox( (m*m2).homogeneous(),m.homogeneous()*m2.homogeneous() ))
+assert(isapprox( (~m).homogeneous(),npl.inv(m.homogeneous()) ))
 
 p = rand(3)
 assert(isapprox(m*p,m.rotation*p+m.translation))

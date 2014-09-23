@@ -49,6 +49,9 @@ namespace se3
       m=clone.m; c=clone.c; I=clone.I;
       return *this;
     }
+    /* Requiered by std::vector boost::python bindings. */
+    bool operator==( const InertiaTpl& Y2 ) 
+    { return (m==Y2.m) && (c==Y2.c) && (I==Y2.I); }
     template<typename S2,int O2>
     InertiaTpl( const InertiaTpl<S2,O2> & clone )
       : m(clone.mass()),

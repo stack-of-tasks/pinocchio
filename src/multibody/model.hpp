@@ -11,11 +11,11 @@
 #include "pinocchio/multibody/force-set.hpp"
 #include <iostream>
 
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3);
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Inertia);
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Force);
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion);
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,Eigen::Dynamic>);
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Inertia)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Force)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,Eigen::Dynamic>)
 
 namespace se3
 {
@@ -53,6 +53,7 @@ namespace se3
     {
       names[0] = "universe";
     }
+    ~Model() { std::cout << "Destroy model" << std::endl; }
     template<typename D>
     Index addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
 		   const Inertia & Y,const std::string & name = "" );
@@ -98,6 +99,7 @@ namespace se3
 
     Data( const Model& ref );
 
+  private:
     void computeLastChild(const Model& model);
     void computeParents_fromRow(const Model& model);
   };

@@ -72,6 +72,8 @@ SET(HEADERS
   python/force.hpp
   python/motion.hpp
   python/inertia.hpp
+  python/model.hpp
+  python/data.hpp
 )
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")

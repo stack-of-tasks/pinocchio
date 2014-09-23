@@ -69,6 +69,9 @@ namespace se3
 	  .def("actInv_se3", &SE3PythonVisitor::actInv_se3)
 	  
 	  .def("__str__",&SE3PythonVisitor::toString)
+	  .def("__invert__",&SE3_fx::inverse)
+	  .def(bp::self * bp::self)
+	  .add_property("np",&SE3_fx::toActionMatrix)
 
 	  .def("Identity",&SE3_fx::Identity)
 	  .staticmethod("Identity")

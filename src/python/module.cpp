@@ -22,5 +22,7 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   se3::python::exposeForce();
   se3::python::exposeMotion();
   se3::python::exposeInertia();
+
+  se3::python::exposeModel();
 }
  

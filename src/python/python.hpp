@@ -10,6 +10,8 @@ namespace se3
     void exposeMotion();
     void exposeInertia();
 
+    void exposeModel();
+
   }} // namespace se3::python
 
 #endif // ifndef __se3_python_python_hpp__
