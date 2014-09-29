@@ -28,15 +28,16 @@ namespace se3
     ForceTpl(const Eigen::MatrixBase<f3_t> & f,const Eigen::MatrixBase<n3_t> & n)
       : m_n(n), m_f(f) {}
     template<typename f6>
-    ForceTpl(const Eigen::MatrixBase<f6> & f)
-      : m_n(f.template segment<3>(ANGULAR)),
-	m_f(f.template segment<3>(LINEAR)) 
+    explicit ForceTpl(const Eigen::MatrixBase<f6> & f)
+      : m_n(f.template segment<3>(ANGULAR))
+      , m_f(f.template segment<3>(LINEAR)) 
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(f6);
       assert( f.size() == 6 );
     }
     template<typename S2,int O2>
-    ForceTpl(const ForceTpl<S2,O2> & clone) : m_n(clone.angular()), m_f(clone.linear()) {}
+    explicit ForceTpl(const ForceTpl<S2,O2> & clone)
+      : m_n(clone.angular()), m_f(clone.linear()) {}
 
     // initializers
     static ForceTpl Zero() { return ForceTpl(Vector3::Zero(), Vector3::Zero()); }
@@ -58,8 +59,10 @@ namespace se3
     void angular(const Vector3 & n) { m_n = n; }
 
     // Arithmetic operators
-    ForceTpl & operator=(const Vector6 & phi)
+    template<typename F6>
+    ForceTpl & operator=(const Eigen::MatrixBase<F6> & phi)
     {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(F6); assert(phi.size() == 6);
       m_n = phi.template segment<3>(ANGULAR);
       m_f = phi.template segment<3>(LINEAR);
       return *this;
