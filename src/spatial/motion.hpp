@@ -31,7 +31,11 @@ namespace se3
     template<typename v6>
     MotionTpl(const Eigen::MatrixBase<v6> & v) : 
       m_w(v.template segment<3>(ANGULAR)),
-      m_v(v.template segment<3>(LINEAR)) {}
+      m_v(v.template segment<3>(LINEAR)) 
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(v6);
+      assert( v.size() == 6 );
+    }
     template<typename S2,int O2>
     MotionTpl(const MotionTpl<S2,O2> & clone) : m_w(clone.angular()),m_v(clone.linear()) {}
 

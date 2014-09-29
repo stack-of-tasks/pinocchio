@@ -8,6 +8,7 @@
 namespace se3
 {
 
+  /* Type returned by the "se3Action" and "se3ActionInverse" functions. */
   namespace internal 
   {
     template<typename D>
@@ -130,7 +131,8 @@ namespace se3
     operator Matrix4() const { return toHomogeneousMatrix(); }
     operator Matrix6() const { return toActionMatrix(); }
     SE3Tpl operator*(const SE3Tpl & m2) const    { return this->act(m2); }
-    friend std::ostream & operator << (std::ostream & os,const SE3Tpl & X) { X.disp(os); return os; }
+    friend std::ostream & operator << (std::ostream & os,const SE3Tpl & X)
+    { X.disp(os); return os; }
 
   public:
   private:

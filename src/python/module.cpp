@@ -24,5 +24,6 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   se3::python::exposeInertia();
 
   se3::python::exposeModel();
+  se3::python::exposeAlgorithms();
 }
  

@@ -35,12 +35,22 @@ namespace se3
       }
 
       static EigenObject getItem( const stdVectorAligned & Ys,int i)
-      { return Ys[i]; }
+      {
+	assert( Ys.size()<INT_MAX );
+	if( i<0 ) i = int(Ys.size())+i;
+	assert( (i>=0) && (i<int(Ys.size())) );
+	return Ys[i]; 
+      }
 
       static void setItem( stdVectorAligned & Ys,
 			   int i,const EigenObject_fx & Y)
-      { Ys[i] = Y;  }
-      static int length( const stdVectorAligned & Ys )
+      { 
+	assert( Ys.size()<INT_MAX );
+	if( i<0 ) i = int(Ys.size())+i;
+	assert( (i>=0) && (i<int(Ys.size())) );
+	Ys[i] = Y; 
+      }
+      static typename stdVectorAligned::size_type length( const stdVectorAligned & Ys )
       { return Ys.size(); }
 
       static void expose(const std::string & className)

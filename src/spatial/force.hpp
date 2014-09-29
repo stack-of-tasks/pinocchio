@@ -24,13 +24,17 @@ namespace se3
   public:
     // Constructors
     ForceTpl() : m_n(), m_f() {}
-    template<typename f_t,typename n_t>
-    ForceTpl(const Eigen::MatrixBase<f_t> & f,const Eigen::MatrixBase<n_t> & n)
+    template<typename f3_t,typename n3_t>
+    ForceTpl(const Eigen::MatrixBase<f3_t> & f,const Eigen::MatrixBase<n3_t> & n)
       : m_n(n), m_f(f) {}
-    template<typename f_t>
-    ForceTpl(const Eigen::MatrixBase<f_t> & v)
-      : m_n(v.template segment<3>(ANGULAR)),
-	m_f(v.template segment<3>(LINEAR)) {}
+    template<typename f6>
+    ForceTpl(const Eigen::MatrixBase<f6> & f)
+      : m_n(f.template segment<3>(ANGULAR)),
+	m_f(f.template segment<3>(LINEAR)) 
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(f6);
+      assert( f.size() == 6 );
+    }
     template<typename S2,int O2>
     ForceTpl(const ForceTpl<S2,O2> & clone) : m_n(clone.angular()), m_f(clone.linear()) {}
 
