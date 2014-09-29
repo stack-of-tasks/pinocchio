@@ -19,3 +19,14 @@ assert( isapprox(model.gravity.np,np.matrix('0; 0; -9.81; 0; 0; 0')) )
 
 data = model.createData()
 
+
+q = zero(model.nq)
+qdot = zero(model.nv)
+qddot = zero(model.nv)
+for i in range(model.nbody): data.a[i] = se3.Motion.Zero()
+
+se3.rnea(model,data,q,qdot,qddot)
+for i in range(model.nbody):
+    assert( isapprox(data.v[i].np,zero(6)) )
+assert( isapprox(data.a[0].np,-model.gravity.np) )
+assert( isapprox(data.f[-1],model.inertias[-1]*data.a[-1]) )

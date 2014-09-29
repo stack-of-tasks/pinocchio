@@ -11,6 +11,7 @@ namespace se3
     void exposeInertia();
 
     void exposeModel();
+    void exposeAlgorithms();
 
   }} // namespace se3::python
 

@@ -65,7 +65,10 @@ namespace se3
   class Data
   {
   public:
+    typedef Eigen::Matrix<double,6,Eigen::Dynamic> Matrix6x;
+    typedef Eigen::Matrix<double,3,Eigen::Dynamic> Matrix3x;
     
+  public:
     const Model& model;
     JointDataVector joints;
     std::vector<Motion> a;                // Body acceleration
@@ -78,7 +81,6 @@ namespace se3
     std::vector<Inertia> Ycrb;            // Inertia of the sub-tree composit rigid body
     Eigen::MatrixXd M;                    // Joint Inertia
 
-    typedef Eigen::Matrix<double,6,Eigen::Dynamic> Matrix6x;
     std::vector<Matrix6x> Fcrb;           // Spatial forces set, used in CRBA
 
     std::vector<Model::Index> lastChild;  // Index of the last child (for CRBA)

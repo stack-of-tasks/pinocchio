@@ -10,6 +10,8 @@ def skew(p):
     return np.matrix([ [ 0,-z,y ], [ z,0,-x ], [ -y,x,0 ] ],np.double)
 
 def isapprox(a,b,epsilon=1e-6):
+    if "np" in a.__class__.__dict__: a = a.np
+    if "np" in b.__class__.__dict__: b = b.np
     if issubclass(a.__class__,np.ndarray) and issubclass(b.__class__,np.ndarray):
         return np.allclose(a,b,epsilon)
     else:
