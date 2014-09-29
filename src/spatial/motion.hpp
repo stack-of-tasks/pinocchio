@@ -29,18 +29,21 @@ namespace se3
     MotionTpl(const Eigen::MatrixBase<v1> & v, const Eigen::MatrixBase<v2> & w)
       : m_w(w), m_v(v) {}
     template<typename v6>
-    MotionTpl(const Eigen::MatrixBase<v6> & v) : 
-      m_w(v.template segment<3>(ANGULAR)),
-      m_v(v.template segment<3>(LINEAR)) 
+    explicit MotionTpl(const Eigen::MatrixBase<v6> & v)
+      : m_w(v.template segment<3>(ANGULAR))
+      , m_v(v.template segment<3>(LINEAR)) 
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(v6);
       assert( v.size() == 6 );
     }
     template<typename S2,int O2>
-    MotionTpl(const MotionTpl<S2,O2> & clone) : m_w(clone.angular()),m_v(clone.linear()) {}
+    explicit MotionTpl(const MotionTpl<S2,O2> & clone)
+      : m_w(clone.angular()),m_v(clone.linear()) {}
 
+    // initializers
     static MotionTpl Zero()   { return MotionTpl(Vector3::Zero(),  Vector3::Zero());   }
     static MotionTpl Random() { return MotionTpl(Vector3::Random(),Vector3::Random()); }
+
     Vector6 toVector() const
     {
       Vector6 v;
@@ -57,10 +60,10 @@ namespace se3
     void linear (const Vector3 & v) { m_v=v; }
 
     // Arithmetic operators
-    template<typename D>
-    MotionTpl & operator=(const Eigen::MatrixBase<D> & v)
+    template<typename V6>
+    MotionTpl & operator=(const Eigen::MatrixBase<V6> & v)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,6);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(V6); assert(v.size() == 6);
       m_w = v.template segment<3>(ANGULAR);
       m_v = v.template segment<3>(LINEAR);
       return *this;
