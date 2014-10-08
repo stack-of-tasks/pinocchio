@@ -36,12 +36,21 @@ int main()
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd a = VectorXd::Random(model.nv);
  
-  StackTicToc timer(StackTicToc::US); timer.tic();
-  SMOOTH(100000)
-    {
-      rnea(model,data,q,v,a);
-    }
-  timer.toc(std::cout,100000);
+	double duration = 0.;
+	int num_iterations = 1e6;
+	StackTicToc timer(StackTicToc::US); 
 
+	for(int i = 0; i < num_iterations; i++)
+	{
+		q = VectorXd::Random(model.nq);
+		v = VectorXd::Random(model.nv);
+		a = VectorXd::Random(model.nv);
+
+		timer.tic();
+		rnea(model,data,q,v,a);
+		duration += timer.toc (StackTicToc::US);
+	}
+
+	std::cout << "Duration : " << duration / (double) num_iterations <<  " us" << std::endl;
   return 0;
 }
