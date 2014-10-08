@@ -23,7 +23,7 @@ have to be available on your machine.
 
  - Libraries:
    - eigen3 (version >= 3.0.5)
-   - urdfdom (version > 0.3.0)
+   - urdfdom (version >= 0.3.0)
  - System tools:
    - CMake (>=2.6)
    - pkg-config
