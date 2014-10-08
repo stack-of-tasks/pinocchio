@@ -7,7 +7,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/cpack.cmake)
-INCLUDE(cmake/eigen.cmake)
 INCLUDE(cmake/python.cmake)
 
 SET(PROJECT_NAME pinocchio)
@@ -18,7 +17,6 @@ SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
 SET(CXX_DISABLE_WERROR True)
 SET(CMAKE_VERBOSE_MAKEFILE True)
 
-project(${PROJECT_NAME})
 SETUP_PROJECT()
 
 IF(WIN32)
@@ -33,71 +31,53 @@ ENDIF(WIN32)
 # ----------------------------------------------------
 ADD_REQUIRED_DEPENDENCY("eigenpy >= v1.0.1")
 ADD_REQUIRED_DEPENDENCY("urdfdom >= v0.3.0")
+ADD_REQUIRED_DEPENDENCY("eigen3 >= v3.0.5")
 
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
-SET(HEADERS
-  exception.hpp
-  assert.hpp
-  spatial/symmetric3.hpp
-  spatial/se3.hpp
-  spatial/motion.hpp
-  spatial/force.hpp
-  spatial/inertia.hpp
-  spatial/fwd.hpp
-  spatial/skew.hpp
-  spatial/act-on-set.hpp
-  multibody/constraint.hpp
-  multibody/force-set.hpp
-  multibody/joint.hpp
-  multibody/joint/joint-base.hpp
-  multibody/joint/joint-revolute.hpp
-  multibody/joint/joint-free-flyer.hpp
-  multibody/joint/joint-variant.hpp
-  multibody/joint/joint-generic.hpp
-  multibody/model.hpp
-  multibody/visitor.hpp
-  multibody/parser/urdf.hpp
-  multibody/parser/sample-models.hpp
-  tools/timer.hpp
-  algorithm/rnea.hpp
-  algorithm/crba.hpp
-  algorithm/jacobian.hpp
-  algorithm/cholesky.hpp
-  algorithm/kinematics.hpp
-  algorithm/center-of-mass.hpp
-  python/eigen_container.hpp
-  python/handler.hpp
-  python/python.hpp
-  python/se3.hpp
-  python/force.hpp
-  python/motion.hpp
-  python/inertia.hpp
-  python/model.hpp
-  python/data.hpp
-  python/algorithms.hpp
+SET(${PROJECT_NAME}_HEADERS
+  include/pinocchio/exception.hpp
+  include/pinocchio/assert.hpp
+  include/pinocchio/spatial/symmetric3.hpp
+  include/pinocchio/spatial/se3.hpp
+  include/pinocchio/spatial/motion.hpp
+  include/pinocchio/spatial/force.hpp
+  include/pinocchio/spatial/inertia.hpp
+  include/pinocchio/spatial/fwd.hpp
+  include/pinocchio/spatial/skew.hpp
+  include/pinocchio/spatial/act-on-set.hpp
+  include/pinocchio/multibody/constraint.hpp
+  include/pinocchio/multibody/force-set.hpp
+  include/pinocchio/multibody/joint.hpp
+  include/pinocchio/multibody/joint/joint-base.hpp
+  include/pinocchio/multibody/joint/joint-revolute.hpp
+  include/pinocchio/multibody/joint/joint-free-flyer.hpp
+  include/pinocchio/multibody/joint/joint-variant.hpp
+  include/pinocchio/multibody/joint/joint-generic.hpp
+  include/pinocchio/multibody/model.hpp
+  include/pinocchio/multibody/visitor.hpp
+  include/pinocchio/multibody/parser/urdf.hpp
+  include/pinocchio/multibody/parser/sample-models.hpp
+  include/pinocchio/tools/timer.hpp
+  include/pinocchio/algorithm/rnea.hpp
+  include/pinocchio/algorithm/crba.hpp
+  include/pinocchio/algorithm/jacobian.hpp
+  include/pinocchio/algorithm/cholesky.hpp
+  include/pinocchio/algorithm/kinematics.hpp
+  include/pinocchio/algorithm/center-of-mass.hpp
+  include/pinocchio/python/eigen_container.hpp
+  include/pinocchio/python/handler.hpp
+  include/pinocchio/python/python.hpp
+  include/pinocchio/python/se3.hpp
+  include/pinocchio/python/force.hpp
+  include/pinocchio/python/motion.hpp
+  include/pinocchio/python/inertia.hpp
+  include/pinocchio/python/model.hpp
+  include/pinocchio/python/data.hpp
+  include/pinocchio/python/algorithms.hpp
 )
 
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/spatial")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/parser")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/python")
-
-FOREACH(header ${HEADERS})
-  GET_FILENAME_COMPONENT(headerName ${header} NAME)
-  GET_FILENAME_COMPONENT(headerPath ${header} PATH)
-  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
-    ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
-    ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/${header})
-  INSTALL(FILES ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
-	  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${headerPath}
-          PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
-ENDFOREACH(header)
 
 # ----------------------------------------------------
 # --- PYTHON -----------------------------------------
@@ -105,11 +85,13 @@ ENDFOREACH(header)
 FINDPYTHON()
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}")
 
-# --- COMPILE WRAPPER
+# --- SET UP PYTHON WRAPPER LIBRARY
 SET(PYWRAP ${PROJECT_NAME}_pywrap)
-ADD_LIBRARY(${PYWRAP} SHARED src/python/module.cpp src/python/python.cpp)
+SET(${PYWRAP}_SOURCES src/python/module.cpp src/python/python.cpp) 
+
+ADD_LIBRARY(${PYWRAP} SHARED ${${PYWRAP}_SOURCES})
 PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} eigenpy)
-TARGET_LINK_LIBRARIES(${PYWRAP} ${Boost_LIBRARIES} eigenpy)
+TARGET_LINK_LIBRARIES(${PYWRAP} ${Boost_LIBRARIES})
 SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/python/${PROJECT_NAME}")
 
@@ -151,48 +133,48 @@ ENDFOREACH(python)
 # --- UNITTESTS --------------------------------------
 # ----------------------------------------------------
 ADD_EXECUTABLE(tspatial EXCLUDE_FROM_ALL unittest/tspatial.cpp)
-PKG_CONFIG_USE_DEPENDENCY(tspatial eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(tspatial eigen3)
 
 ADD_EXECUTABLE(symmetric EXCLUDE_FROM_ALL unittest/symmetric.cpp)
-PKG_CONFIG_USE_DEPENDENCY(symmetric eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(symmetric eigen3)
 
 ADD_EXECUTABLE(constraint EXCLUDE_FROM_ALL unittest/constraint.cpp)
-PKG_CONFIG_USE_DEPENDENCY(constraint eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(constraint eigen3)
 
 ADD_EXECUTABLE(rnea EXCLUDE_FROM_ALL unittest/rnea.cpp)
-PKG_CONFIG_USE_DEPENDENCY(rnea eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(rnea eigen3)
 
 ADD_EXECUTABLE(crba EXCLUDE_FROM_ALL unittest/crba.cpp)
-PKG_CONFIG_USE_DEPENDENCY(crba eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(crba eigen3)
 PKG_CONFIG_USE_DEPENDENCY(crba urdfdom)
 
 ADD_EXECUTABLE(timings EXCLUDE_FROM_ALL unittest/timings.cpp)
-PKG_CONFIG_USE_DEPENDENCY(timings eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(timings eigen3)
 PKG_CONFIG_USE_DEPENDENCY(timings urdfdom)
 
 ADD_EXECUTABLE(jacobian EXCLUDE_FROM_ALL unittest/jacobian.cpp)
-PKG_CONFIG_USE_DEPENDENCY(jacobian eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(jacobian eigen3)
 
 ADD_EXECUTABLE(com EXCLUDE_FROM_ALL unittest/com.cpp)
-PKG_CONFIG_USE_DEPENDENCY(com eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(com eigen3)
 
 ADD_EXECUTABLE(cholesky EXCLUDE_FROM_ALL unittest/cholesky.cpp)
-PKG_CONFIG_USE_DEPENDENCY(cholesky eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(cholesky eigen3)
 PKG_CONFIG_USE_DEPENDENCY(cholesky urdfdom)
 
-ADD_EXECUTABLE(dg EXCLUDE_FROM_ALL unittest/dg.cpp)
-PKG_CONFIG_USE_DEPENDENCY(dg eigenpy)
+#ADD_EXECUTABLE(dg EXCLUDE_FROM_ALL unittest/dg.cpp)
+#PKG_CONFIG_USE_DEPENDENCY(dg eigenpy)
 
 ADD_EXECUTABLE(urdf EXCLUDE_FROM_ALL unittest/urdf.cpp)
-PKG_CONFIG_USE_DEPENDENCY(urdf eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(urdf eigen3)
 PKG_CONFIG_USE_DEPENDENCY(urdf urdfdom)
 
 ADD_EXECUTABLE(value EXCLUDE_FROM_ALL unittest/value.cpp)
-PKG_CONFIG_USE_DEPENDENCY(value eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(value eigen3)
 PKG_CONFIG_USE_DEPENDENCY(value urdfdom)
 
 ADD_EXECUTABLE(variant EXCLUDE_FROM_ALL unittest/variant.cpp)
-PKG_CONFIG_USE_DEPENDENCY(variant eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(variant eigen3)
 
 SETUP_PROJECT_FINALIZE()
 SETUP_PROJECT_CPACK()
