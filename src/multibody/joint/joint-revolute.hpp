@@ -4,6 +4,7 @@
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/math/sincos.hpp"
 #include "pinocchio/multibody/force-set.hpp"
 
 namespace se3
@@ -161,7 +162,7 @@ namespace se3
   Eigen::Matrix3d JointRevolute<0>::cartesianRotation(const double & angle) 
     {
       Eigen::Matrix3d R3; 
-      double ca,sa; sincos(angle,&sa,&ca);
+      double ca,sa; SINCOS (angle,&sa,&ca);
       R3 << 
       	1,0,0,
       	0,ca,-sa,
@@ -172,7 +173,7 @@ namespace se3
   Eigen::Matrix3d JointRevolute<1>::cartesianRotation(const double & angle)
     {
       Eigen::Matrix3d R3; 
-      double ca,sa; sincos(angle,&sa,&ca);
+      double ca,sa; SINCOS (angle,&sa,&ca);
       R3 << 
 	 ca, 0,  sa,
 	  0, 1,   0,
@@ -183,7 +184,7 @@ namespace se3
   Eigen::Matrix3d JointRevolute<2>::cartesianRotation(const double & angle) 
     {
       Eigen::Matrix3d R3; 
-      double ca,sa; sincos(angle,&sa,&ca);
+      double ca,sa; SINCOS (angle,&sa,&ca);
       R3 << 
 	ca,-sa,0,
 	sa,ca,0,
