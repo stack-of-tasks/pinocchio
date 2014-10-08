@@ -40,6 +40,8 @@ ADD_REQUIRED_DEPENDENCY("urdfdom >= v0.3.0")
 SET(HEADERS
   exception.hpp
   assert.hpp
+  math/sincos.hpp
+  tools/timer.hpp
   spatial/symmetric3.hpp
   spatial/se3.hpp
   spatial/motion.hpp
@@ -60,7 +62,6 @@ SET(HEADERS
   multibody/visitor.hpp
   multibody/parser/urdf.hpp
   multibody/parser/sample-models.hpp
-  tools/timer.hpp
   algorithm/rnea.hpp
   algorithm/crba.hpp
   algorithm/jacobian.hpp
@@ -80,6 +81,7 @@ SET(HEADERS
 )
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/math")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint")
