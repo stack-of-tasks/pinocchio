@@ -39,6 +39,7 @@ ADD_REQUIRED_DEPENDENCY("eigen3 >= v3.0.5")
 SET(${PROJECT_NAME}_HEADERS
   include/pinocchio/exception.hpp
   include/pinocchio/assert.hpp
+  include/pinocchio/math/sincos.hpp
   include/pinocchio/spatial/symmetric3.hpp
   include/pinocchio/spatial/se3.hpp
   include/pinocchio/spatial/motion.hpp
