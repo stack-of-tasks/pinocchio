@@ -28,14 +28,20 @@ int main(int argc, const char ** argv)
   se3::Data data(model);
   VectorXd q = VectorXd::Zero(model.nq);
  
-  StackTicToc timer(StackTicToc::US); timer.tic();
-#ifdef NDEBUG
-  SMOOTH(1000*100)
-#endif
-    {
-      crba(model,data,q);
-    }
-  timer.toc(std::cout,1000*100);
+  StackTicToc timer(StackTicToc::US); 
+	double duration = 0.;
+	int num_iterations = 1e6;
+
+	for (int i = 0; i < num_iterations; i++) 
+  {
+		VectorXd q = VectorXd::Random(model.nq);
+
+		timer.tic();
+		crba(model,data,q);
+		duration += timer.toc (StackTicToc::US);
+  }
+
+	std::cout << "Mean duration of CRBA : " << duration / (double) num_iterations << " us" << std::endl;
 
 #ifndef NDEBUG
   std::cout << "Mcrb = [ " << data.M << "  ];" << std::endl;
@@ -56,7 +62,6 @@ int main(int argc, const char ** argv)
   }	
 #endif // ifdef __se3_rnea_hpp__    
 #endif // ifndef NDEBUG
-
 
   return 0;
 }
