@@ -20,9 +20,7 @@ int main(int argc, const char ** argv)
 {
   using namespace Eigen;
   using namespace se3;
-
-  StackTicToc timer(StackTicToc::US);
-  const int NBT = 1000*100;
+  
   se3::Model model;
 
   std::string filename = "../models/simple_humanoid.urdf";
@@ -39,41 +37,70 @@ int main(int argc, const char ** argv)
   VectorXd q = VectorXd::Random(model.nq);
   VectorXd qdot = VectorXd::Random(model.nv);
   VectorXd qddot = VectorXd::Random(model.nv);
+  
+  double duration = 0.;
+  int num_iterations = 1e5;
+  StackTicToc timer(StackTicToc::US);
+  
+  
+  
+  for(int i = 0; i < num_iterations; i++)
+  {
+    q = VectorXd::Random(model.nq);
+    qdot = VectorXd::Random(model.nv);
+    qddot = VectorXd::Random(model.nv);
+    
+    timer.tic();
+    rnea(model,data,q,qdot,qddot);
+    duration += timer.toc (StackTicToc::US);
+  }
+  std::cout << "RNEA = \t\t" << duration / (double) num_iterations << " us\n";
  
-  timer.tic();
-  SMOOTH(NBT)
-    {
-      rnea(model,data,q,qdot,qddot);
-    }
-  std::cout << "RNEA = \t\t"; timer.toc(std::cout,NBT);
+  duration = 0.;
+  for(int i = 0; i < num_iterations; i++)
+  {
+    q = VectorXd::Random(model.nq);
+    
+    timer.tic();
+    crba(model,data,q);
+    duration += timer.toc (StackTicToc::US);
+  }
+  std::cout << "CRBA = \t\t" << duration / (double) num_iterations << " us\n";
  
-  timer.tic();
-  SMOOTH(NBT)
-    {
-      crba(model,data,q);
-    }
-  std::cout << "CRBA = \t\t"; timer.toc(std::cout,NBT);
+  duration = 0.;
+  for(int i = 0; i < num_iterations; i++)
+  {
+    q = VectorXd::Random(model.nq);
+    
+    crba(model,data,q);
+    
+    timer.tic();
+    cholesky::decompose(model,data);
+    duration += timer.toc (StackTicToc::US);
+  }
+  std::cout << "Cholesky = \t\t" << duration / (double) num_iterations << " us\n";
  
-  timer.tic();
-  SMOOTH(NBT)
-    {
-      cholesky::decompose(model,data);
-    }
-  std::cout << "Cholesky = \t"; timer.toc(std::cout,NBT);
- 
-  timer.tic();
-  SMOOTH(NBT)
-    {
-      computeJacobians(model,data,q);
-    }
-  std::cout << "Jacobian = \t"; timer.toc(std::cout,NBT);
+  duration = 0.;
+  for(int i = 0; i < num_iterations; i++)
+  {
+    q = VectorXd::Random(model.nq);
+    
+    timer.tic();
+    computeJacobians(model,data,q);
+    duration += timer.toc (StackTicToc::US);
+  }
+  std::cout << "Jacobian = \t\t" << duration / (double) num_iterations << " us\n";
 
-  timer.tic();
-  SMOOTH(NBT)
-    {
-      jacobianCenterOfMass(model,data,q,false);
-    }
-  std::cout << "COM+Jcom = \t"; timer.toc(std::cout,NBT);
+  duration = 0.;
+  for(int i = 0; i < num_iterations; i++)
+  {
+    q = VectorXd::Random(model.nq);
+    
+    timer.tic();
+    jacobianCenterOfMass(model,data,q,false);
+    duration += timer.toc (StackTicToc::US);
+  }
+  std::cout << "COM+Jcom = \t\t" << duration / (double) num_iterations << " us\n";
 
   std::cout << "--" << std::endl;
   return 0;
