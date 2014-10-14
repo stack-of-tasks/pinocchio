@@ -43,7 +43,7 @@ namespace se3
 
       static PyObject* convert(Motion const& m)
       {
-	Motion_fx m_fx = m;
+	Motion_fx m_fx (m);
 	return boost::python::incref(boost::python::object(m_fx).ptr());
       }
 
