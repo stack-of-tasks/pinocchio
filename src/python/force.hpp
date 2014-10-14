@@ -40,7 +40,7 @@ namespace se3
 
       static PyObject* convert(Force const& m)
       {
-	Force_fx m_fx = m;
+	Force_fx m_fx (m);
 	return boost::python::incref(boost::python::object(m_fx).ptr());
       }
 

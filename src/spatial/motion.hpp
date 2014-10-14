@@ -60,6 +60,14 @@ namespace se3
     void linear (const Vector3 & v) { m_v=v; }
 
     // Arithmetic operators
+    template<typename S2, int O2>
+    MotionTpl & operator= (const MotionTpl<S2,O2> & other)
+    {
+      m_w = other.angular ();
+      m_v = other.linear ();
+      return *this;
+    }
+    
     template<typename V6>
     MotionTpl & operator=(const Eigen::MatrixBase<V6> & v)
     {
