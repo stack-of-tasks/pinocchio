@@ -34,6 +34,11 @@ ADD_REQUIRED_DEPENDENCY("urdfdom >= v0.3.0")
 ADD_REQUIRED_DEPENDENCY("eigen3 >= v3.0.5")
 
 # ----------------------------------------------------
+# --- BENCHMARKS -------------------------------------
+# ----------------------------------------------------
+OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
+
+# ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
 SET(${PROJECT_NAME}_HEADERS
@@ -130,52 +135,11 @@ FOREACH(python ${PYTHON_FILES})
     DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
 ENDFOREACH(python)
 
-# ----------------------------------------------------
-# --- UNITTESTS --------------------------------------
-# ----------------------------------------------------
-ADD_EXECUTABLE(tspatial EXCLUDE_FROM_ALL unittest/tspatial.cpp)
-PKG_CONFIG_USE_DEPENDENCY(tspatial eigen3)
+ADD_SUBDIRECTORY (unittest)
 
-ADD_EXECUTABLE(symmetric EXCLUDE_FROM_ALL unittest/symmetric.cpp)
-PKG_CONFIG_USE_DEPENDENCY(symmetric eigen3)
-
-ADD_EXECUTABLE(constraint EXCLUDE_FROM_ALL unittest/constraint.cpp)
-PKG_CONFIG_USE_DEPENDENCY(constraint eigen3)
-
-ADD_EXECUTABLE(rnea EXCLUDE_FROM_ALL unittest/rnea.cpp)
-PKG_CONFIG_USE_DEPENDENCY(rnea eigen3)
-
-ADD_EXECUTABLE(crba EXCLUDE_FROM_ALL unittest/crba.cpp)
-PKG_CONFIG_USE_DEPENDENCY(crba eigen3)
-PKG_CONFIG_USE_DEPENDENCY(crba urdfdom)
-
-ADD_EXECUTABLE(timings EXCLUDE_FROM_ALL unittest/timings.cpp)
-PKG_CONFIG_USE_DEPENDENCY(timings eigen3)
-PKG_CONFIG_USE_DEPENDENCY(timings urdfdom)
-
-ADD_EXECUTABLE(jacobian EXCLUDE_FROM_ALL unittest/jacobian.cpp)
-PKG_CONFIG_USE_DEPENDENCY(jacobian eigen3)
-
-ADD_EXECUTABLE(com EXCLUDE_FROM_ALL unittest/com.cpp)
-PKG_CONFIG_USE_DEPENDENCY(com eigen3)
-
-ADD_EXECUTABLE(cholesky EXCLUDE_FROM_ALL unittest/cholesky.cpp)
-PKG_CONFIG_USE_DEPENDENCY(cholesky eigen3)
-PKG_CONFIG_USE_DEPENDENCY(cholesky urdfdom)
-
-#ADD_EXECUTABLE(dg EXCLUDE_FROM_ALL unittest/dg.cpp)
-#PKG_CONFIG_USE_DEPENDENCY(dg eigenpy)
-
-ADD_EXECUTABLE(urdf EXCLUDE_FROM_ALL unittest/urdf.cpp)
-PKG_CONFIG_USE_DEPENDENCY(urdf eigen3)
-PKG_CONFIG_USE_DEPENDENCY(urdf urdfdom)
-
-ADD_EXECUTABLE(value EXCLUDE_FROM_ALL unittest/value.cpp)
-PKG_CONFIG_USE_DEPENDENCY(value eigen3)
-PKG_CONFIG_USE_DEPENDENCY(value urdfdom)
-
-ADD_EXECUTABLE(variant EXCLUDE_FROM_ALL unittest/variant.cpp)
-PKG_CONFIG_USE_DEPENDENCY(variant eigen3)
+IF (BUILD_BENCHMARK)
+	ADD_SUBDIRECTORY (benchmark)
+ENDIF (BUILD_BENCHMARK)
 
 SETUP_PROJECT_FINALIZE()
 SETUP_PROJECT_CPACK()
