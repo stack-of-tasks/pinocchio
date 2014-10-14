@@ -39,6 +39,6 @@ namespace se3
     }
     void exposeAlgorithms()
     {
-      AlgorithmsPythonVisitor::expose();
+      //AlgorithmsPythonVisitor::expose();
     }
   }} // namespace se3::python

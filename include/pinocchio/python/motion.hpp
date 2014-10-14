@@ -13,6 +13,7 @@ namespace eigenpy
   struct UnalignedEquivalent<se3::Motion>
   {
     typedef se3::MotionTpl<double,Eigen::DontAlign> type;
+    
   };
 } // namespace eigenpy
 
@@ -43,7 +44,7 @@ namespace se3
 
       static PyObject* convert(Motion const& m)
       {
-	Motion_fx m_fx = m;
+	Motion_fx m_fx (m);
 	return boost::python::incref(boost::python::object(m_fx).ptr());
       }
 

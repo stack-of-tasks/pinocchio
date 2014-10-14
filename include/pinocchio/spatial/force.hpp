@@ -59,6 +59,14 @@ namespace se3
     void angular(const Vector3 & n) { m_n = n; }
 
     // Arithmetic operators
+    template<typename S2, int O2>
+    ForceTpl & operator= (const ForceTpl<S2,O2> & other)
+    {
+      m_n = other.angular ();
+      m_f = other.linear ();
+      return *this;
+    }
+    
     template<typename F6>
     ForceTpl & operator=(const Eigen::MatrixBase<F6> & phi)
     {

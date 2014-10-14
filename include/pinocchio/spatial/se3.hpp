@@ -57,6 +57,14 @@ namespace se3
     template<typename S2, int O2>
     SE3Tpl( const SE3Tpl<S2,O2> clone ) 
       : rot(clone.rotation()),trans(clone.translation()) {}
+    
+    template<typename S2, int O2>
+    SE3Tpl & operator= (const SE3Tpl<S2,O2> & other)
+    {
+      rot = other.rotation ();
+      trans = other.translation ();
+      return *this;
+    }
 
     const Matrix3 & rotation()    const { return rot;   }
     const Vector3 & translation() const { return trans; }
