@@ -81,7 +81,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/pinocchio/python/inertia.hpp
   include/pinocchio/python/model.hpp
   include/pinocchio/python/data.hpp
-  include/pinocchio/python/algorithms.hpp
+#  include/pinocchio/python/algorithms.hpp
 )
 
 
