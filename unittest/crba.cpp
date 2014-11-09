@@ -23,7 +23,7 @@ int main(int argc, const char ** argv)
   std::string filename = "/home/nmansard/src/metapod/data/simple_arm.urdf";
   if(argc>1) filename = argv[1];
   se3::buildModels::humanoidSimple(model);
-  //model = se3::buildModel(filename,argc>1);
+  //model = se3::urdf::buildModel(filename,argc>1);
 
   se3::Data data(model);
   VectorXd q = VectorXd::Zero(model.nq);

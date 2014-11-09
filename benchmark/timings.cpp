@@ -28,11 +28,11 @@ int main(int argc, const char ** argv)
   std::string filename = "../models/simple_humanoid.urdf";
   if(argc>1) filename = argv[1];
   if( filename == "HS") 
-    se3::buildModels::humanoidSimple(model,true);
+    se3::urdf::buildModels::humanoidSimple(model,true);
   else if( filename == "H2" )
-    se3::buildModels::humanoid2d(model);
+    se3::urdf::buildModels::humanoid2d(model);
   else
-    model = se3::buildModel(filename,true);
+    model = se3::urdf::buildModel(filename,true);
   std::cout << "nq = " << model.nq << std::endl;
 
   se3::Data data(model);
