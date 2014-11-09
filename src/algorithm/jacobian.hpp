@@ -64,6 +64,9 @@ namespace se3
     return data.J;
   }
 
+  /* Return the jacobian of the output frame attached to joint <jointId> in the
+     world frame or in the local frame depending on the template argument. The
+     function computeJacobians should have been called first. */
   template<bool localFrame>
   void getJacobian(const Model & model, const Data& data,
 		   Model::Index jointId, Eigen::MatrixXd & J)
@@ -113,7 +116,7 @@ namespace se3
 
   };
 
-  /* Compute the jacobian in the local frame. */
+  /* Compute the jacobian of the output frame of the joint <idx> in the local frame. */
   const Eigen::MatrixXd&
   jacobian(const Model & model, Data& data,
 	   const Eigen::VectorXd & q,
