@@ -11,7 +11,7 @@ int main(int argc, const char**argv)
   std::string filename = "/home/nmansard/src/rbdl/rbdl_evaluate_performances/models/simple_humanoid.urdf";
   if(argc>1) filename = argv[1];
 
-  se3::Model model = se3::buildModel(filename);
+  se3::Model model = se3::urdf::buildModel(filename);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
   se3::Data data(model);
 

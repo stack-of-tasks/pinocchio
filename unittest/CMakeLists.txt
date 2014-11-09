@@ -11,7 +11,7 @@ ADD_EXECUTABLE(rnea EXCLUDE_FROM_ALL ./rnea.cpp)
 PKG_CONFIG_USE_DEPENDENCY(rnea eigen3)
 
 ADD_EXECUTABLE(crba EXCLUDE_FROM_ALL ./crba.cpp)
-PKG_CONFIG_USE_DEPENDENCY(crba eigen3)
+PKG_CONFIG_USE_DEPENDENCY(crba eigenpy) # Should be eigen3 as well. Problem of link with ROS.
 PKG_CONFIG_USE_DEPENDENCY(crba urdfdom)
 
 ADD_EXECUTABLE(jacobian EXCLUDE_FROM_ALL ./jacobian.cpp)
