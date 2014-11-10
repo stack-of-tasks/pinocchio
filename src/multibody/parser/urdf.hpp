@@ -79,11 +79,16 @@ namespace se3
       if(joint!=NULL)
 	{
 	  assert(link->getParent()!=NULL);
+	  if(joint->type != ::urdf::Joint::FIXED)
+	    {
+	      // This is a bypass to be corrected later. TODO
+
+
 	  Model::Index parent 
 	    = (link->getParent()->parent_joint==NULL) ?
 	    (freeFlyer ? 1 : 0)
 	    : model.getBodyId( link->getParent()->parent_joint->name );
-	  // std::cout << joint->name << " === " << parent << std::endl;
+	  //std::cout << joint->name << " === " << parent << std::endl;
 
 	  const SE3 & jointPlacement = convertFromUrdf(joint->parent_to_joint_origin_transform);
 
@@ -115,6 +120,12 @@ namespace se3
 		  }
 		break;
 	      }
+	    case ::urdf::Joint::FIXED:
+	      {
+		/* To fixed this, "spot" point should be added. TODO. */
+		//std::cerr << "For now, fixed joint are not accepted. " << std::endl;
+		break;
+	      }
 	    default:
 	      {
 		std::cerr << "The joint type " << joint->type << " is not supported." << std::endl;
@@ -122,7 +133,7 @@ namespace se3
 		break;
 	      }
 	    }
-	}
+	    }}
       else if(freeFlyer)/* (joint==NULL) */
 	{ /* The link is the root of the body. */
 	  model.addBody( 0, JointModelFreeFlyer(), SE3::Identity(), Y, "root" );
