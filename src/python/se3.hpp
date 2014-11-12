@@ -59,8 +59,8 @@ namespace se3
 
 	  .add_property("rotation",&SE3PythonVisitor::getRotation,&SE3PythonVisitor::setRotation)
 	  .add_property("translation",&SE3PythonVisitor::getTranslation,&SE3PythonVisitor::setTranslation)
-	  .def("homogeneous",&SE3_fx::toHomogeneousMatrix)
-	  .def("action",&SE3_fx::toActionMatrix)
+	  .add_property("homogeneous",&SE3_fx::toHomogeneousMatrix)
+	  .add_property("action",&SE3_fx::toActionMatrix)
 
 	  .def("inverse", &SE3_fx::inverse)
 	  .def("act_point", &SE3PythonVisitor::act_point)
