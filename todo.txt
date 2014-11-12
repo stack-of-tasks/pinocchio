@@ -1,0 +1,1 @@
+* Check commit 13f8e6f (conversion from long to double)
