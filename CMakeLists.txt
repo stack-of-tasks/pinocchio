@@ -84,6 +84,7 @@ SET(HEADERS
   python/model.hpp
   python/data.hpp
   python/algorithms.hpp
+  python/parsers.hpp
 )
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
@@ -117,6 +118,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}")
 SET(PYWRAP ${PROJECT_NAME}_pywrap)
 ADD_LIBRARY(${PYWRAP} SHARED src/python/module.cpp src/python/python.cpp)
 PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} eigenpy)
+PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} urdfdom)
 TARGET_LINK_LIBRARIES(${PYWRAP} ${Boost_LIBRARIES} eigenpy)
 SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/python/${PROJECT_NAME}")
@@ -128,6 +130,7 @@ INSTALL(FILES
 SET(PYTHON_FILES
   python/__init__.py
   python/utils.py
+  python/robot_wrapper.py
 )
 FOREACH(python ${PYTHON_FILES})
   GET_FILENAME_COMPONENT(pythonFile ${python} NAME)
