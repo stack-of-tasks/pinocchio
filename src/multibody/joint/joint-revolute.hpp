@@ -67,13 +67,13 @@ namespace se3
     { 
       template<typename D>
       MotionRevolute operator*( const Eigen::MatrixBase<D> & v ) const
-      { return MotionRevolute(v[0]); }
+      { return MotionRevolute(v[axis]); }
 
       Eigen::Matrix<double,6,1> se3Action(const SE3 & m) const
       { 
 	Eigen::Matrix<double,6,1> res;
-	res.head<3>() = m.translation().cross( m.rotation().col(0));
-	res.tail<3>() = m.rotation().col(0);
+	res.head<3>() = m.translation().cross( m.rotation().col(axis));
+	res.tail<3>() = m.rotation().col(axis);
 	return res;
       }
 
