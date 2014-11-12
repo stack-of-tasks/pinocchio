@@ -31,7 +31,10 @@ namespace se3
       static Eigen::MatrixXd crba_proxy( const ModelHandler& model, 
 					 DataHandler & data,
 					 const VectorXd_fx & q )
-      { return crba(*model,*data,q); }
+      {
+	data->M.fill(0);
+	return crba(*model,*data,q); 
+      }
 
       static Eigen::VectorXd com_proxy( const ModelHandler& model, 
 					DataHandler & data,
@@ -76,7 +79,7 @@ namespace se3
 			 "Acceleration qddot (size Model::nv)"),
 		"Compute the RNEA, put the result in Data and return it.");
 
-	bp::def("crba",rnea_proxy,
+	bp::def("crba",crba_proxy,
 		bp::args("Model","Data",
 			 "Configuration q (size Model::nq)"),
 		"Compute CRBA, put the result in Data and return it.");
