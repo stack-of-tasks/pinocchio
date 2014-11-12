@@ -131,6 +131,8 @@ SET(PYTHON_FILES
   python/__init__.py
   python/utils.py
   python/robot_wrapper.py
+  python/rpy.py
+  python/explog.py
 )
 FOREACH(python ${PYTHON_FILES})
   GET_FILENAME_COMPONENT(pythonFile ${python} NAME)
