@@ -7,6 +7,7 @@
 #include "pinocchio/python/model.hpp"
 #include "pinocchio/python/data.hpp"
 #include "pinocchio/python/algorithms.hpp"
+#include "pinocchio/python/parsers.hpp"
 
 namespace se3
 {
@@ -40,5 +41,9 @@ namespace se3
     void exposeAlgorithms()
     {
       AlgorithmsPythonVisitor::expose();
+    }
+    void exposeParsers()
+    {
+      ParsersPythonVisitor::expose();
     }
   }} // namespace se3::python
