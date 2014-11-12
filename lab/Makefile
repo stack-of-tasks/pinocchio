@@ -1,11 +1,8 @@
 SOURCES = \
 	inverse-kinematics \
 	optimal-control \
-	homogeneous-matrix \
 	solution1 \
 	solution2 \
-	solution3 \
-	solution4 \
 	solution9 \
 	solution11
 

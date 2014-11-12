@@ -11,7 +11,7 @@ position of one hand or enforcing static balance.
 
 Tutorial 1. Creating and displaying the robot
 ---------------------------------------------
-The stack of tasks will be controlled from a python terminal. The first action
+The labwork is based on the software Pinocchio, which will be controlled from a python terminal. The first action
 to perform is to open a python terminal:
 ....
 student@student-virtualbox:~$ py
@@ -32,17 +32,17 @@ Type CTRL-D to quit the python terminal (CTRL-C first to interrupt an on-going
 python execution). The script will be run without enterring the so-called interractive mode by:
 ....
 student@student-virtualbox:~$ python lab.py
->>> 
+student@student-virtualbox:~$ 
 ....
 
 
 Robot kinematic tree
 ~~~~~~~~~~~~~~~~~~~~
 
-The kinematic tree is represented by to C++ objects called Model (which
+The kinematic tree is represented by two C\++ objects called Model (which
 contains the model constants: lengths, masses, names, etc) and Data (which
-contains the working memory used by the model algorithms). Both C++ objects are
-contained in a unique Python object call RobotWrapper.
+contains the working memory used by the model algorithms). Both C\++ objects are
+contained in a unique Python class called RobotWrapper.
 
 Import the class +RobotWrapper+ and create an instance of this class in the
 python terminal. At initialization, RobotWrapper will read the model
@@ -205,7 +205,7 @@ Consider first the 33 last parameters. They are straightforward to integrate
 along time. Let us provide a constant angular velocity to the left shoulder.
 [source,python]
 ----
-q[2] = 1.3
+q = robot.q0
 qdot = zero(robot.nv)
 qdot[22] = 1
 dt = 5e-3
@@ -230,7 +230,7 @@ for i in range(100):
 
 *What happened?*
 
-The quaternion norm is bigger that one, which then leads to a non orthonormal
+The quaternion norm is bigger than one, which then leads to a non orthonormal
 matrix... the display explodes. We will integrate properly in Tutorial 3. First let do it for a single body.
 
 
@@ -242,10 +242,10 @@ Tutorial 2: Integration in a Lie Group
 Integration in SE(3)
 ~~~~~~~~~~~~~~~~~~~~
 
-To properly integrate, it is necessary to rely an the exponential map of SE(3),
+To properly integrate, it is necessary to rely on the exponential map of SE(3),
 that will produce a proper homogeneous matrix by integration of a constant
 se(3) velocity. The exponential map for both SE(3) and SO(3) is available in
-Pinocchio. First consider moving one body with a constant velocity. What would
+Pinocchio. First consider moving a single body with a constant velocity. What would
 be the corresponding trajectory?
 
 [source,python]
@@ -264,11 +264,11 @@ for i in range(N):
 ----
 
 The exponential map integrate the se(3) velocity expressed in the body
-frame. When the body rotate, the direction of the movement in the world frame
+frame. When the body rotates, the direction of the movement in the world frame
 rotates as well (since it is constant in the body frame).
 
 It is also possible to consider the velocity as constant in the world frame w_nu. In
-that case, the integration is done on the left, by M = s.exp(w_nu). Try to
+that case, the integration is done on the left, by M = se3.exp(w_nu). Try to
 imagine the resulting trajectory before executing it. Why is it not what you
 thought? Remember that w_nu is a se(3) element. What represents its linear component?
 
@@ -392,6 +392,8 @@ where [0:3,:] denotes the selection of the three first rows.
 	  error, compute a derivative of the configuration solution to
 	  the above equation.
 
+link:solution1.html[*Solution*]
+
 Tutorial 4: solving one vector-valued geometric task
 ----------------------------------------------------
 
@@ -404,12 +406,12 @@ With an objective in R^3
 Now, we want to bring the center of the left wrist at position (0,0,3)
 in the global frame.
 [latex]
-$\textbf{lw}^{goal} = (0,0,2)$
+$\textbf{lw}^{*} = (0,0,2)$
 
 We define the task error as the vector-valued difference between the wrist
 position in current configuration and the goal position.
 ["latex"]
-$\displaystyle{\textbf{e} (\textbf{q}) = \textbf{lw} (\textbf{q}) - \textbf{lw}^{goal}}$
+$\displaystyle{\textbf{e} (\textbf{q}) = \textbf{lw} (\textbf{q}) - \textbf{lw}^{*}}$
 
 We wish to impose
 ["latex"]
@@ -430,7 +432,7 @@ $\displaystyle{ J_{lw}(\textbf{q})\ \dot{\textbf{q}} = -k\ \textbf{e}}$
 	  error, compute a derivative of the configuration solution to
 	  the above equation.
 
-link:solution4.html[*Solution*]
+link:solution2.html[*Solution*]
 
 With an objective in SE(3)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -516,6 +518,6 @@ The corresponding error is defined by
 \textbf{e}_3 (\textbf {q}) &=& \textbf {q} - \textbf {q}^{*}
 \end{eqnarray*}
 
-where the desired posture is stored in +romeo.halfSitting+.
+where the desired posture is stored in +robot.q0+.
 
 *Question:* Add a posture task to the stack of tasks of Tutorial 6.
