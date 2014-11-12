@@ -53,7 +53,7 @@ namespace se3
     {
       names[0] = "universe";
     }
-    ~Model() { std::cout << "Destroy model" << std::endl; }
+    ~Model() {} // std::cout << "Destroy model" << std::endl; }
     template<typename D>
     Index addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
 		   const Inertia & Y,const std::string & name = "" );
