@@ -31,10 +31,10 @@ ENDIF(WIN32)
 # ----------------------------------------------------
 # --- DEPENDANCIES -----------------------------------
 # ----------------------------------------------------
-ADD_REQUIRED_DEPENDENCY("eigenpy >= v1.0.1")
+ADD_REQUIRED_DEPENDENCY("eigenpy >= v1.2.0")
 ADD_REQUIRED_DEPENDENCY("urdfdom >= v0.3.0")
 ADD_REQUIRED_DEPENDENCY("eigen3 >= v3.0.5")
- 
+
 # ----------------------------------------------------
 # --- BENCHMARKS -------------------------------------
 # ----------------------------------------------------
@@ -141,28 +141,25 @@ FOREACH(python ${PYTHON_FILES})
     ${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile})
 
   # Tag pyc file as generated.
-  #SET_SOURCE_FILES_PROPERTIES(
-  #  "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${pythonFile}c"
-  #  PROPERTIES GENERATED TRUE)
+  SET_SOURCE_FILES_PROPERTIES(
+    "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
+    PROPERTIES GENERATED TRUE)
+
+  EXECUTE_PROCESS(COMMAND
+    ${PYTHON_EXECUTABLE} -m py_compile
+    ${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile} )
 
   # Clean generated files.
-  #SET_PROPERTY(
-  #  DIRECTORY APPEND PROPERTY
-  #  ADDITIONAL_MAKE_CLEAN_FILES
-  #  "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${pythonFile}c")
-
-  #INSTALL(CODE
-  #  "EXECUTE_PROCESS(COMMAND
-  #  \"${PYTHON_EXECUTABLE}\"
-  #  \"-m py_compile\"
-  #  \"${CMAKE_CURRENT_BINARY_DIR}/lib/python/${pythonFile}\")    ")
+  SET_PROPERTY(
+    DIRECTORY APPEND PROPERTY
+    ADDITIONAL_MAKE_CLEAN_FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c")
 
   INSTALL(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}"
-  #  "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${pythonFile}c"
+    "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
     DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
 ENDFOREACH(python)
-
 
 ADD_SUBDIRECTORY(unittest)
 
