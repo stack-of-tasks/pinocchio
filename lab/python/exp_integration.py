@@ -6,7 +6,10 @@ interpolating SE(3) movements.
 
 import robotviewer
 viewer=robotviewer.client('XML-RPC')
-viewer.updateElementConfig('RomeoTrunkYaw',[1,0,0,0,0,0])
+try:
+    viewer.updateElementConfig('RomeoTrunkYaw',[1,0,0,0,0,0])
+except: 
+    viewer.updateElementConfig = lambda a,b: a
 
 def se3ToRpy(m):
     return M.translation.T.tolist()[0] + matrixToRpy(M.rotation).T.tolist()[0]
