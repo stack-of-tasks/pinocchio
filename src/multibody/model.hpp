@@ -8,7 +8,6 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/multibody/joint.hpp"
-#include "pinocchio/multibody/force-set.hpp"
 #include <iostream>
 
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3)

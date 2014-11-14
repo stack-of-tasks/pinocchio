@@ -5,7 +5,6 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/math/sincos.hpp"
-#include "pinocchio/multibody/force-set.hpp"
 
 namespace se3
 {
