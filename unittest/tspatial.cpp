@@ -109,7 +109,7 @@ bool testMotion()
   assert(vxv.toVector().tail(3).isMuchSmallerThan(1e-3));
 
   // Simple test for cross product vxf
-  Force f = bv.toVector();
+  Force f = Force(bv.toVector());
   Force vxf = bv.cross(f);
   assert( vxf.linear().isApprox( bv.angular().cross(f.linear())));
   assert( vxf.angular().isMuchSmallerThan(1e-3));

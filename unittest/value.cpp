@@ -8,7 +8,7 @@
 
 int main(int argc, const char**argv)
 {
-  std::string filename = "/home/nmansard/src/rbdl/rbdl_evaluate_performances/models/simple_humanoid.urdf";
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
   if(argc>1) filename = argv[1];
 
   se3::Model model = se3::urdf::buildModel(filename);

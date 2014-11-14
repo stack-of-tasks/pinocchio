@@ -5,11 +5,9 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
-
-#include <iostream>
-
 #include "pinocchio/tools/timer.hpp"
 
+#include <iostream>
 
 //#define __SSE3__
 #include <fenv.h>
@@ -36,12 +34,19 @@ int main()
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd a = VectorXd::Random(model.nv);
  
+#ifdef NDEBUG
+  int NBT = 10000;
+#else
+  int NBT = 1;
+  std::cout << "(the time score in debug mode is not relevant)  " ;
+#endif
+
   StackTicToc timer(StackTicToc::US); timer.tic();
-  SMOOTH(100000)
+  SMOOTH(NBT)
     {
       rnea(model,data,q,v,a);
     }
-  timer.toc(std::cout,100000);
+  timer.toc(std::cout,NBT);
 
   return 0;
 }

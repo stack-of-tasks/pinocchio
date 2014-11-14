@@ -1,4 +1,18 @@
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+/* --- Unitary test symmetric.cpp This code tests and compares three ways of
+ * expressing symmetric matrices. In addition to the unitary validation (test
+ * of the basic operations), the code is validating the computation
+ * performances of each methods.
+ *
+ * The three methods are:
+ * - Eigen SelfAdjoint (a mask atop of a classical dense matrix) ==> the least efficient.
+ * - Metapod Symmetric with LTI factorization.
+ * - Pinocchio rewritting of Metapod code with LTI factor as well and minor improvement.
+ *
+ * Expected time scores on a I7 2.1GHz:
+ * - Eigen: 2.5us
+ * - Metapod: 4us
+ * - Pinocchio: 6us
+ */
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -10,9 +24,12 @@
 #include "pinocchio/spatial/symmetric3.hpp"
 
 #include <Eigen/StdVector>
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION( Eigen::Matrix3d );
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix3d);
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Symmetric3);
 
+/* --- PINOCCHIO ------------------------------------------------------------ */
+/* --- PINOCCHIO ------------------------------------------------------------ */
+/* --- PINOCCHIO ------------------------------------------------------------ */
 void timeSym3(const se3::Symmetric3 & S,
 	      const se3::Symmetric3::Matrix3 & R,
 	      se3::Symmetric3 & res)
@@ -94,12 +111,9 @@ void testSym3()
       Matrix3 vxvx2 = (vx*vx).eval();
       assert( vxvx.matrix().isApprox(vxvx2) );
 
-      std::cout << "Sksq ... " << std::endl;
       Symmetric3 S = Symmetric3::RandomPositive();
       assert( (S-Symmetric3::SkewSquare(v)).matrix()
 	      .isApprox( S.matrix()-vxvx2 ) );
-      std::cout << "SmSq = " << (S-Symmetric3::SkewSquare(v)).matrix() << std::endl;
-      std::cout << "SmSq2 = " << S.matrix()-vxvx2 << std::endl;
       double m = Eigen::internal::random<double>()+1;
       assert( (S-m*Symmetric3::SkewSquare(v)).matrix()
 	      .isApprox( S.matrix()-m*vxvx2 ) );
@@ -144,6 +158,7 @@ void testSym3()
     for(int i=0;i<NBT;++i) 
       Rs[i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
 
+    std::cout << "Pinocchio: ";
     StackTicToc timer(StackTicToc::US); timer.tic();
     SMOOTH(NBT)
       {
@@ -152,9 +167,16 @@ void testSym3()
     timer.toc(std::cout,NBT);
   }
 }
-/* --- METAPOD ---------------------------------------------- */
+
+/* --- METAPOD -------------------------------------------------------------- */
+/* --- METAPOD -------------------------------------------------------------- */
+/* --- METAPOD -------------------------------------------------------------- */
+
+#ifdef WITH_METAPOD
+
 #include <metapod/tools/spatial/lti.hh>
 #include <metapod/tools/spatial/rm-general.hh>
+
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(metapod::Spatial::ltI<double>);
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(metapod::Spatial::RotationMatrixTpl<double>);
 
@@ -188,15 +210,27 @@ void testLTI()
   for(int i=0;i<NBT;++i) 
     Rs[i].randomInit();
   
+  std::cout << "Metapod: ";
   StackTicToc timer(StackTicToc::US); timer.tic();
   SMOOTH(NBT)
     {
       timeLTI(S,Rs[_smooth],Sres[_smooth]);
     }
   timer.toc(std::cout,NBT);
-  
 }
 
+#else // #ifdef WITH_METAPOD
+
+void testLTI()
+{
+  std::cout << "Metapod is not installed ... skipping this test. " << std::endl;
+}
+
+#endif // #ifdef WITH_METAPOD
+
+/* --- EIGEN SYMMETRIC ------------------------------------------------------ */
+/* --- EIGEN SYMMETRIC ------------------------------------------------------ */
+/* --- EIGEN SYMMETRIC ------------------------------------------------------ */
 void timeSelfAdj( const Eigen::Matrix3d & A,
 		  const Eigen::Matrix3d & Sdense,
 		  Eigen::Matrix3d & ASA )
@@ -233,12 +267,19 @@ void testSelfAdj()
     assert(Masa1.isApprox(Masa2));
   }
 
+  const int NBT = 100000;
+  std::vector<Eigen::Matrix3d> Sres (NBT);
+  std::vector<Eigen::Matrix3d> Rs (NBT);
+  for(int i=0;i<NBT;++i) 
+    Rs[i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
+
+  std::cout << "Eigen: ";
   StackTicToc timer(StackTicToc::US); timer.tic();
-  SMOOTH(1000000)
+  SMOOTH(NBT)
     {
-      timeSelfAdj(A,M,ASA2);
+      timeSelfAdj(Rs[_smooth],M,Sres[_smooth]);
     }
-  timer.toc(std::cout,1000000);
+  timer.toc(std::cout,NBT);
 }
 
 
@@ -248,6 +289,5 @@ int main()
   testLTI();
   testSym3();
   
-  std::cout << std::endl;
   return 0;
 }
