@@ -1,3 +1,16 @@
+/*
+ * Compare the value obtained with the RNEA with the values obtained from
+ * RBDL. The test is not complete. It only validates the RNEA for the revolute
+ * joints. The free-flyer is not tested. It should be extended to account for
+ * the free flyer and for the other algorithms.
+ *
+ * Additionnal notes: the RNEA is an algorithm that can be used to validate
+ * many others (in particular, the mass matrix (CRBA) can be numerically
+ * validated from the RNEA, then the center-of-mass jacobian can be validated
+ * from the mass matrix, etc.
+ *
+ */
+
 #include <iostream>
 #include <iomanip>
 
@@ -11,7 +24,7 @@ int main(int argc, const char**argv)
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
   if(argc>1) filename = argv[1];
 
-  se3::Model model = se3::urdf::buildModel(filename);
+  se3::Model model = se3::urdf::buildModel(filename,true);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
   se3::Data data(model);
 
@@ -41,7 +54,7 @@ int main(int argc, const char**argv)
     for(int i=6;i<model.nv;++i) v[i] = i/10.;
     a = Eigen::VectorXd::Zero(model.nv);
     rnea(model,data,q,v,a);
-    std::cout << (expected-data.tau).norm() << std::endl;
+    //std::cout << (expected-data.tau).norm() << std::endl;
     assert( expected.isApprox(data.tau,1e-6) && "Test # 0V0 failed" );
   }
 
@@ -90,13 +103,12 @@ int main(int argc, const char**argv)
   q.segment<4>(3) = Eigen::Quaterniond(R).coeffs();
 
 
-  std::cout << "R1 = " << ( Eigen::AngleAxisd(rpy[0],Eigen::Vector3d::UnitX())).matrix() << std::endl;
-  std::cout << "R12 = " << ( Eigen::AngleAxisd(rpy[1],Eigen::Vector3d::UnitY())
-			     * Eigen::AngleAxisd(rpy[0],Eigen::Vector3d::UnitX())).matrix() << std::endl;
+  // std::cout << "R1 = " << ( Eigen::AngleAxisd(rpy[0],Eigen::Vector3d::UnitX())).matrix() << std::endl;
+  // std::cout << "R12 = " << ( Eigen::AngleAxisd(rpy[1],Eigen::Vector3d::UnitY())
+  // 			     * Eigen::AngleAxisd(rpy[0],Eigen::Vector3d::UnitX())).matrix() << std::endl;
 
 
-  std::cout << "R123 = " << R << std::endl;
-  // for(int i=7;i<model.nq;++i) q[i] = (i-1)/10.;
+  // std::cout << "R123 = " << R << std::endl;
 
 
   //kinematics(model,data,q,v);
@@ -105,23 +117,23 @@ int main(int argc, const char**argv)
   using namespace Eigen;
   using namespace se3;
 
-  std::cout << std::setprecision(10);
+  // std::cout << std::setprecision(10);
 
-  std::cout << "Number of dof : " << model.nv << std::endl;
-  std::cout << "rnea(0,0,0) = g(0) = " << data.tau.transpose() << std::endl;
+  // std::cout << "Number of dof : " << model.nv << std::endl;
+  // std::cout << "rnea(0,0,0) = g(0) = " << data.tau.transpose() << std::endl;
 
-  for( int i=0;i<3/*model.nbody*/;++i )
-    {
-      if(model.parents[i]!=i-1)
-	std::cout << "************** END EFFECTOR" << std::endl;
+  // for( int i=0;i<3/*model.nbody*/;++i )
+  //   {
+  //     if(model.parents[i]!=i-1)
+  // 	std::cout << "************** END EFFECTOR" << std::endl;
 
-      std::cout << "\n\n === " << i << " ========================" << std::endl;
-      std::cout << "Joint "<<i<<" = " << model.names[i] << std::endl;
-      std::cout << "m"<<i<<" = \n" << (SE3::Matrix4)data.oMi[i] << std::endl;
-      std::cout << "v"<<i<<" = \n" << SE3::Vector6(data.v[i]).transpose()<< std::endl;
-      std::cout << "a"<<i<<" = \n" << SE3::Vector6(data.a[i]).transpose() << std::endl;
-      std::cout << "f"<<i<<" = \n" << SE3::Vector6(data.f[i]).transpose() << std::endl;
-    }
+  //     std::cout << "\n\n === " << i << " ========================" << std::endl;
+  //     std::cout << "Joint "<<i<<" = " << model.names[i] << std::endl;
+  //     std::cout << "m"<<i<<" = \n" << (SE3::Matrix4)data.oMi[i] << std::endl;
+  //     std::cout << "v"<<i<<" = \n" << SE3::Vector6(data.v[i]).transpose()<< std::endl;
+  //     std::cout << "a"<<i<<" = \n" << SE3::Vector6(data.a[i]).transpose() << std::endl;
+  //     std::cout << "f"<<i<<" = \n" << SE3::Vector6(data.f[i]).transpose() << std::endl;
+  //   }
 
   return 0;
 }

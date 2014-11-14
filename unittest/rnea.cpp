@@ -1,3 +1,10 @@
+/*
+ * Unittest of the RNE algorithm. The code simply test that the algorithm does
+ * not cause any serious errors. The numerical values are not cross validated
+ * in any way.
+ *
+ */
+
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/joint.hpp"

@@ -1,5 +1,13 @@
+/*
+ * Validate the sparse Cholesky decomposition of the mass matrix.  The code
+ * tests both the numerical value and the computation time. For a strong
+ * computation benchmark, see benchmark/timings.
+ *
+ */
+
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
@@ -130,16 +138,16 @@ void assertValues(const se3::Model & model, se3::Data& data)
   const Eigen::VectorXd & D = data.D;
   const Eigen::MatrixXd & M = data.M;
 
-  // #ifndef NDEBUG
-  //   std::cout << "M = [\n" << M << "];" << std::endl;
-  //   std::cout << "U = [\n" << U << "];" << std::endl;
-  //   std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
-  // #endif
+// #ifndef NDEBUG
+//   std::cout << "M = [\n" << M << "];" << std::endl;
+//   std::cout << "U = [\n" << U << "];" << std::endl;
+//   std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
+// #endif
       
   assert( M.isApprox(U*D.asDiagonal()*U.transpose()) );
 
   Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
-  // std::cout << "v = [" << v.transpose() << "]';" << std::endl;
+// std::cout << "v = [" << v.transpose() << "]';" << std::endl;
 
   Eigen::VectorXd Uv = v; se3::cholesky::Uv(model,data,Uv);
   assert( Uv.isApprox(U*v));
@@ -171,6 +179,10 @@ int main()
   se3::buildModels::humanoidSimple(model,true);
   se3::Data data(model);
 
+  VectorXd q = VectorXd::Zero(model.nq);
+  data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
+  crba(model,data,q);
+ 
   assertValues(model,data);
   timings(model,data,BOOST_BINARY(1000101));
 

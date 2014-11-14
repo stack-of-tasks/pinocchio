@@ -1,53 +1,45 @@
+# --- MACROS ------------------------------------------------------------------
+# --- MACROS ------------------------------------------------------------------
+# --- MACROS ------------------------------------------------------------------
+MACRO(ADD_UNIT_TEST NAME PKGS)
+  ADD_EXECUTABLE(${NAME} EXCLUDE_FROM_ALL ${NAME})
+  FOREACH(PKG ${PKGS})
+    PKG_CONFIG_USE_DEPENDENCY(${NAME} ${PKG})
+    MESSAGE(STATUS "PACKAGE "${PKG})
+  ENDFOREACH(PKG)
+  ADD_TEST(NAME ${NAME} COMMAND ${NAME})
+  ADD_DEPENDENCIES(check ${NAME})
+ENDMACRO(ADD_UNIT_TEST)
 
+MACRO(ADD_TEST_CFLAGS target flag)
+  GET_TARGET_PROPERTY(${target}_CFLAGS ${target} COMPILE_FLAGS) 
+  SET_PROPERTY(TARGET ${target} PROPERTY COMPILE_FLAGS "${${target}_CFLAGS} ${flag}")
+ENDMACRO(ADD_TEST_CFLAGS)
 
-ADD_EXECUTABLE(tspatial EXCLUDE_FROM_ALL tspatial.cpp)
-PKG_CONFIG_USE_DEPENDENCY(tspatial eigen3)
+# --- RULES -------------------------------------------------------------------
+# --- RULES -------------------------------------------------------------------
+# --- RULES -------------------------------------------------------------------
+ADD_CUSTOM_TARGET(check COMMAND ${CMAKE_CTEST_COMMAND})
 
-ADD_EXECUTABLE(symmetric EXCLUDE_FROM_ALL symmetric.cpp)
-PKG_CONFIG_USE_DEPENDENCY(symmetric eigen3)
+ADD_UNIT_TEST(tspatial eigen3)
+ADD_UNIT_TEST(symmetric eigen3)
 IF(METAPOD_FOUND)
-  GET_TARGET_PROPERTY(SYMMETRIC_CFLAGS symmetric COMPILE_FLAGS) 
-  SET_PROPERTY(TARGET symmetric 
-    PROPERTY COMPILE_FLAGS "${SYMMETRIC_CFLAGS} -DWITH_METAPOD")
+  ADD_TEST_CFLAGS(symmetric "-DWITH_METAPOD")
 ENDIF(METAPOD_FOUND)
-
-
-ADD_EXECUTABLE(rnea EXCLUDE_FROM_ALL rnea.cpp)
-PKG_CONFIG_USE_DEPENDENCY(rnea eigen3)
-
-ADD_EXECUTABLE(crba EXCLUDE_FROM_ALL crba.cpp)
-PKG_CONFIG_USE_DEPENDENCY(crba eigen3)
-
-ADD_EXECUTABLE(jacobian EXCLUDE_FROM_ALL jacobian.cpp)
-PKG_CONFIG_USE_DEPENDENCY(jacobian eigen3)
-
-ADD_EXECUTABLE(com EXCLUDE_FROM_ALL com.cpp)
-PKG_CONFIG_USE_DEPENDENCY(com eigen3)
-
-ADD_EXECUTABLE(cholesky EXCLUDE_FROM_ALL cholesky.cpp)
-PKG_CONFIG_USE_DEPENDENCY(cholesky eigen3)
+ADD_UNIT_TEST(rnea eigen3)
+ADD_UNIT_TEST(crba eigen3)
+ADD_UNIT_TEST(com eigen3)
+ADD_UNIT_TEST(jacobian eigen3)
+ADD_UNIT_TEST(cholesky eigen3)
 
 IF(URDFDOM_FOUND)
-  ADD_EXECUTABLE(urdf EXCLUDE_FROM_ALL urdf.cpp)
-  PKG_CONFIG_USE_DEPENDENCY(urdf eigen3)
-  PKG_CONFIG_USE_DEPENDENCY(urdf urdfdom)
+  ADD_UNIT_TEST(urdf "eigen3;urdfdom")
+  ADD_TEST_CFLAGS(urdf '-DPINOCCHIO_SOURCE_DIR=\\\"${${PROJECT_NAME}_SOURCE_DIR}\\\"')
 
-  # The following two lines should be simpler with APPEND, but bug on CMake 2.8.7 (U12.04).
-  GET_TARGET_PROPERTY(URDF_CFLAGS urdf COMPILE_FLAGS) 
-  SET_PROPERTY(TARGET urdf PROPERTY COMPILE_FLAGS "${URDF_CFLAGS} -DPINOCCHIO_SOURCE_DIR=\\\"${${PROJECT_NAME}_SOURCE_DIR}\\\"")
-  
-  ADD_EXECUTABLE(value EXCLUDE_FROM_ALL value.cpp)
-  PKG_CONFIG_USE_DEPENDENCY(value eigenpy)
-  PKG_CONFIG_USE_DEPENDENCY(value urdfdom)
-  GET_TARGET_PROPERTY(VALUE_CFLAGS value COMPILE_FLAGS) 
-  SET_PROPERTY(TARGET value PROPERTY COMPILE_FLAGS "${VALUE_CFLAGS} -DPINOCCHIO_SOURCE_DIR=\\\"${${PROJECT_NAME}_SOURCE_DIR}\\\"")
-
+  ADD_UNIT_TEST(value "eigen3;urdfdom")
+  ADD_TEST_CFLAGS(value '-DPINOCCHIO_SOURCE_DIR=\\\"${${PROJECT_NAME}_SOURCE_DIR}\\\"')
 ENDIF(URDFDOM_FOUND)
 
 # Work in progress
-
-#ADD_EXECUTABLE(constraint EXCLUDE_FROM_ALL constraint.cpp)
-#PKG_CONFIG_USE_DEPENDENCY(constraint eigen3)
-
-#ADD_EXECUTABLE(variant EXCLUDE_FROM_ALL variant.cpp)
-#PKG_CONFIG_USE_DEPENDENCY(variant eigen3)
+#ADD_UNIT_TEST(constraint eigen3)
+#ADD_UNIT_TEST(variant eigen3)

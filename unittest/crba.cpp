@@ -1,3 +1,11 @@
+/*
+ * Test the CRBA algorithm. The code validates both the computation times and
+ * the value by comparing the results of the CRBA with the reconstruction of
+ * the mass matrix using the RNEA.
+ * For a strong timing benchmark, see benchmark/timings.
+ *
+ */
+
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -27,6 +35,8 @@ void assertValues(const se3::Model & model, se3::Data& data)
   Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
   Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
   Eigen::VectorXd a = Eigen::VectorXd::Zero(model.nv);
+  data.M.fill(0);  crba(model,data,q);
+  data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
 
   /* Joint inertia from iterative crba. */
   const Eigen::VectorXd bias = rnea(model,data,q,v,a);
@@ -35,8 +45,8 @@ void assertValues(const se3::Model & model, se3::Data& data)
       M.col(i) = rnea(model,data,q,v,Eigen::VectorXd::Unit(model.nv,i)) - bias;
     }
 
-  std::cout << "Mcrb = [ " << data.M << "  ];" << std::endl;
-  std::cout << "Mrne = [  " << M << " ]; " << std::endl;
+  // std::cout << "Mcrb = [ " << data.M << "  ];" << std::endl;
+  // std::cout << "Mrne = [  " << M << " ]; " << std::endl;
   assert( M.isApprox(data.M) );
 }
 
