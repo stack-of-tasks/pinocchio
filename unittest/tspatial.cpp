@@ -269,6 +269,6 @@ int main()
   testForce();
   testInertia();
   testActOnSet();
-  return 1;
+  return 0;
 }
 
