@@ -1,0 +1,48 @@
+[global]
+version: 1.6
+background=1,1,1
+
+[object Romeoroot] 
+geometry=$HOME/.robotviewer/Waist.wrl
+[object RomeoTrunkYaw] 
+geometry=$HOME/.robotviewer/Torso.wrl
+[object RomeoNeckPitch] 
+geometry=$HOME/.robotviewer/NeckPitch.wrl
+[object RomeoHeadRoll] 
+geometry=$HOME/.robotviewer/HeadRoll.wrl
+[object RomeoLShoulderYaw] 
+geometry=$HOME/.robotviewer/LShoulderYaw.wrl
+[object RomeoLElbowYaw] 
+geometry=$HOME/.robotviewer/LElbowYaw.wrl
+[object RomeoLWristRoll] 
+geometry=$HOME/.robotviewer/LWristRoll.wrl
+[object RomeoLWristYaw] 
+geometry=$HOME/.robotviewer/WristYaw.wrl
+[object RomeoLWristPitch] 
+geometry=$HOME/.robotviewer/LWristPitch.wrl
+[object RomeoRShoulderYaw] 
+geometry=$HOME/.robotviewer/RShoulderYaw.wrl
+[object RomeoRElbowYaw] 
+geometry=$HOME/.robotviewer/RElbowYaw.wrl
+[object RomeoRWristRoll] 
+geometry=$HOME/.robotviewer/RWristRoll.wrl
+[object RomeoRWristYaw] 
+geometry=$HOME/.robotviewer/WristYaw.wrl
+[object RomeoRWristPitch] 
+geometry=$HOME/.robotviewer/RWristPitch.wrl
+[object RomeoLHipPitch] 
+geometry=$HOME/.robotviewer/LHipPitch.wrl
+[object RomeoLKneePitch] 
+geometry=$HOME/.robotviewer/LKneePitch.wrl
+[object RomeoLAnkleRoll] 
+geometry=$HOME/.robotviewer/LAnkleRollBasic.wrl
+[object RomeoRHipPitch] 
+geometry=$HOME/.robotviewer/RHipPitch.wrl
+[object RomeoRKneePitch] 
+geometry=$HOME/.robotviewer/RKneePitch.wrl
+[object RomeoRAnkleRoll] 
+geometry=$HOME/.robotviewer/RAnkleRollBasic.wrl
+
+[object floor]
+geometry: $HOME/.robotviewer/danceFloor.py
+position: 0 0 -0.05 0 0 0

@@ -1,0 +1,147 @@
+#VRML V2.0 utf8
+
+# Author: Aldebaran Robotics
+
+DEF RWristPitch_z Transform {
+	translation     0 0 0
+	rotation     1 0 0  0
+	children [
+		DEF RWristPitch Transform {
+			children [
+				Inline { url "RWristPitch.wrl" }
+			]
+		} # Transform RWristPitch
+		DEF RFinger11_y Transform {
+			translation     0.10937 -0.02468 0.00329
+			rotation     0.0607232967700526 0.992816999109058 -0.103087766051367  1.07096605079538
+			children [
+				DEF RFinger11 Transform {
+					children [
+						Inline { url "Phalax.wrl" }
+					]
+				} # Transform RFinger11
+				DEF RFinger12_y Transform {
+					translation     0.01818 0 0
+					rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+					children [
+						DEF RFinger12 Transform {
+							children [
+								Inline { url "Phalax.wrl" }
+							]
+						} # Transform RFinger12
+						DEF RFinger13_y Transform {
+							translation     0.01818 0 0
+							rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+							children [
+								DEF RFinger13 Transform {
+									children [
+										Inline { url "PhalaxEnd.wrl" }
+									]
+								} # Transform RFinger13
+							]
+						} # Transform RFinger13
+					]
+				} # Transform RFinger12
+			]
+		} # Transform RFinger11
+		DEF RFinger21_y Transform {
+			translation     0.11525 0 0.00329
+			rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+			children [
+				DEF RFinger21 Transform {
+					children [
+						Inline { url "Phalax.wrl" }
+					]
+				} # Transform RFinger21
+				DEF RFinger22_y Transform {
+					translation     0.01818 0 0
+					rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+					children [
+						DEF RFinger22 Transform {
+							children [
+								Inline { url "Phalax.wrl" }
+							]
+						} # Transform RFinger22
+						DEF RFinger23_y Transform {
+							translation     0.01818 0 0
+							rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+							children [
+								DEF RFinger23 Transform {
+									children [
+										Inline { url "PhalaxEnd.wrl" }
+									]
+								} # Transform RFinger23
+							]
+						} # Transform RFinger23
+					]
+				} # Transform RFinger22
+			]
+		} # Transform RFinger21
+		DEF RFinger31_y Transform {
+			translation     0.09936 0.02478 0.00329
+			rotation     -0.0607232404686444 0.992817005972153 0.103087733118338  1.07096604672357
+			children [
+				DEF RFinger31 Transform {
+					children [
+						Inline { url "Phalax.wrl" }
+					]
+				} # Transform RFinger31
+				DEF RFinger32_y Transform {
+					translation     0.01818 0 0
+					rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+					children [
+						DEF RFinger32 Transform {
+							children [
+								Inline { url "Phalax.wrl" }
+							]
+						} # Transform RFinger32
+						DEF RFinger33_y Transform {
+							translation     0.01818 0 0
+							rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+							children [
+								DEF RFinger33 Transform {
+									children [
+										Inline { url "PhalaxEnd.wrl" }
+									]
+								} # Transform RFinger33
+							]
+						} # Transform RFinger33
+					]
+				} # Transform RFinger32
+			]
+		} # Transform RFinger31
+		DEF RThumb1_y Transform {
+			translation     0.07115 0.02465 -0.01233
+			rotation     -0.623659484117037 0.196638082385488 0.756559523386382  2.67326242668054
+			children [
+				DEF RThumb1 Transform {
+					children [
+						Inline { url "RThumb.wrl" }
+					]
+				} # Transform RThumb1
+				DEF RThumb2_y Transform {
+					translation     0.01818 0 0
+					rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+					children [
+						DEF RThumb2 Transform {
+							children [
+								Inline { url "Phalax.wrl" }
+							]
+						} # Transform RThumb2
+						DEF RThumb3_y Transform {
+							translation     0.01818 0 0
+							rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+							children [
+								DEF RThumb3 Transform {
+									children [
+										Inline { url "PhalaxEnd.wrl" }
+									]
+								} # Transform RThumb3
+							]
+						} # Transform RThumb3
+					]
+				} # Transform RThumb2
+			]
+		} # Transform RThumb1
+	]
+} # Transform RWristPitch
