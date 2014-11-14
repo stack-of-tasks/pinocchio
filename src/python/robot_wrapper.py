@@ -1,7 +1,7 @@
 import numpy as np
 import libpinocchio_pywrap as se3
 import utils
-from exp import exp
+from explog import exp
 
 class RobotWrapper:
     def __init__(self,filename):
@@ -113,3 +113,5 @@ class RobotWrapper:
                                             [float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]), 
                                              float(rpy[0,0]), float(rpy[1,0]), float(rpy[2,0]) ])
 
+
+__all__ = [ 'RobotWrapper' ]
