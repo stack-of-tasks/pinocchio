@@ -55,7 +55,7 @@ bool testConstraintRX()
   Inertia Y = Inertia::Random();
   JointRX::ConstraintRevolute S;
 
-  std::cout << "Y = \n" << Y.toMatrix() << std::endl;
+  std::cout << "Y = \n" << Y.matrix() << std::endl;
   std::cout << "S = \n" << ((ConstraintXd)S).matrix() << std::endl;
 
   ForceSet F(1); F.block(0,1) = Y*S;

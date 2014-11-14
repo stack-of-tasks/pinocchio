@@ -8,9 +8,6 @@
 
 #include "pinocchio/tools/timer.hpp"
 
-
-
-
 int main()
 {
   using namespace Eigen;

@@ -20,6 +20,7 @@ void timings(const se3::Model & model, se3::Data& data, long flag)
   const int NBT = 1000*1000;
 #else 
   const int NBT = 1;
+  std::cout << "(the time score in debug mode is not relevant)  " ;
 #endif
 
   bool verbose = flag & (flag-1) ; // True is two or more binaries of the flag are 1.
@@ -43,7 +44,7 @@ void timings(const se3::Model & model, se3::Data& data, long flag)
       {
 	centerOfMass(model,data,q,false);
       }
-      if(verbose) std::cout << "Wo stree =\t";
+      if(verbose) std::cout << "Without sub-tree =\t";
       timer.toc(std::cout,NBT);
     }
   if( flag >> 2 & 1 )
@@ -69,7 +70,6 @@ void assertValues(const se3::Model & model, se3::Data& data)
   { /* Test COM against CRBA*/
     Vector3d com = centerOfMass(model,data,q);
     assert( data.com[0].isApprox( getComFromCrba(model,data) ));
-
   }
 
   { /* Test COM against Jcom (both use different way of compute the COM. */
@@ -98,11 +98,8 @@ int main()
   se3::buildModels::humanoidSimple(model);
   se3::Data data(model);
 
-#ifndef NDEBUG 
   assertValues(model,data);
-#else
-  timings(model,data,BOOST_BINARY(101));
-#endif
+  timings(model,data,BOOST_BINARY(111));
 
   return 0;
 }
