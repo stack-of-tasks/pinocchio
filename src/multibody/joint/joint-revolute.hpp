@@ -66,7 +66,7 @@ namespace se3
     { 
       template<typename D>
       MotionRevolute operator*( const Eigen::MatrixBase<D> & v ) const
-      { return MotionRevolute(v[axis]); }
+      { return MotionRevolute(v[0]); }
 
       Eigen::Matrix<double,6,1> se3Action(const SE3 & m) const
       { 
