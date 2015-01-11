@@ -36,6 +36,64 @@ student@student-virtualbox:~$
 ....
 
 
+Basic mathematical objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In the following, we will use numpy Matrix class to represent matrices and vectors. In numpy, vectors simply are matrices with one column. See the following example.
+[source, python]
+----
+import numpy as np
+A = np.matrix([ [1,2,3,4],[5,6,7,8]]) # Define a 6x4 matrix
+b = np.zeros([4,1])   # Define a 4 vector (ie a 4x1 matrix) initialized to 0.
+c = A*b               # Obtain c by multiplying A by b.
+----
+
+A bunch of useful functions are packages in the utils of pinocchio.
+
+[source,python]
+----
+from pinocchio.utils import *
+eye(6)                    # Return a 6x6 identity matrix
+zero(6)                   # Return a zero 6x1 vector
+zero([6,4])               # Return az zero 6x4 matrix
+rand(6)                   # Random 6x1 vector
+isapprox(zero(6),rand(6)) # Test epsilon equality
+mprint(rand([6,6]))       # Matlab-style print
+skew(rand(3))             # Skew "cross-product" 3x3 matrix from a 3x1 vector
+cross(rand(3),rand(3))    # Cross product of R^3
+rotate('x',0.4)           # Build a rotation matrix of 0.4rad around X.
+----
+
+Specific classes are defined to reprensent object of SE(3), se(3) and se(3)^*. Rigid displacement, elements of SE(3), are represented by the class SE3.
+[source,python]
+----
+import pinocchio as se3
+R = eye(3); p = zero(3)
+M0 = se3.SE3(R,p)
+M = se3.SE3.Random()
+M.translation = p; M.rotation = R
+----
+
+Spatial velocities, elements of se(3) = M^6, are represented by the class Motion.
+[source,python]
+
+----
+v = zero(3); w = zero(3)
+nu0 = se3.Motion(v,w)
+nu = se3.Motion.Random()
+nu.linear = v; nu.angular = w
+----
+
+Spatial forces, elements of se(3)^* = F^6, are represented by the class Force.
+
+[source,python]
+----
+f = zero(3); tau = zero(3)
+phi0 = se3.Force(f,tau)
+phi = se3.Force.Random()
+phi.linear = f; phi.angular = tau
+----
+
 Robot kinematic tree
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -55,25 +113,7 @@ from pinocchio.robot_wrapper import RobotWrapper
 
 robot = RobotWrapper('/home/student/src/pinocchio/models/romeo.urdf')
 ----
-
-Utils functions
-~~~~~~~~~~~~~~~
-
-A bunch of useful functions are packages in the utils of pinocchio.
-
-[source,python]
-----
-from pinocchio.utils import *
-eye(6)                    # Return a 6x6 identity matrix
-zero(6)                   # Return a zero 6x1 vector
-zero([6,4])               # Return az zero 6x4 matrix
-rand(6)                   # Random 6x1 vector
-isapprox(zero(6),rand(6)) # Test epsilon equality
-mprint(rand([6,6]))       # Matlab-style print
-skew(rand(3))             # Skew "cross-product" 3x3 matrix from a 3x1 vector
-cross(rand(3),rand(3))    # Cross product of R^3
-rotate('x',0.4)           # Build a rotation matrix of 0.4rad around X.
-----
+The code of the RobotWrapper class is in /home/student/src/pinocchio/src/python/robot_wrapper.py . Do not hesitate to have a look at it and to take inspiration from the implementation of the class functions.
 
 Exploring the model
 ~~~~~~~~~~~~~~~~~~~
@@ -110,6 +150,12 @@ idx = [ idx for idx,name in enumerate(robot.model.names) if name=="RWristPitch" 
 placement = robot.data.oMi[idx]
 ----
 
+Browse the list 'robot.model.names' to recognize the operation points needed in
+the end of this page. Shortcuts are implemented for the right wrist (rh), left
+wrist (lh), right ankle (rf) and left ankle (lf). You can get the placement
+corresponding to the right hand with robot.Mrh(q) and the corresponding
+Jacobian (6D, expressed in the body frame) with robot.Jrh.
+
 Finally, the classical functions with Model and Data have been wrapped in some
 python shortcuts, also available in RobotWrapper. The size of the robot
 configuration is given by nq. The dimension of its tangent space (velocity) is
@@ -124,7 +170,6 @@ v = rand(robot.nv)
 robot.com(q)            # Compute the robot center of mass.
 robot.position(q,23)    # Compute the placement of joint 23
 ----
-
 
 Launching RobotViewer
 ~~~~~~~~~~~~~~~~~~~~~
@@ -175,9 +220,20 @@ corresponding homogeneous matrix is given by M.homogeneous. A 3x3 rotation
 matrix can be converted to a roll-pitch-yaw vector using the rpy script:
 [source,python]
 ----
-from pinocchio.rpy import matrixToRpy
 M = robot.position(q,1)
 rpy = matrixToRpy(M.rotation)
+----
+Using the matrixToRpy function, the SE3 placement of the body can be converted
+to a 6-dimension vectors using the following se3ToPoseRPY function.
+
+[source,python]
+----
+def se3ToPoseRpy(M): 
+  '''Return a tuple of length 6 containing [X Y Z R P Y] corresponding to the input SE3 object.'''
+  xyz = M.translation
+  rpy = matrixToRpy(M.rotation)
+  return [ float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
+	   float(rpy[0,0]), float(rpy[1,0]), float(rpy[2,0]) ]
 ----
 
 *Question:* For each joint, get its name in robot.model.names, then its
@@ -231,7 +287,8 @@ for i in range(100):
 *What happened?*
 
 The quaternion norm is bigger than one, which then leads to a non orthonormal
-matrix... the display explodes. We will integrate properly in Tutorial 3. First let do it for a single body.
+matrix... the display explodes. We will integrate properly in the next Tutorial
+2. First let start to do it for a single body.
 
 
 Tutorial 2: Integration in a Lie Group
@@ -256,11 +313,11 @@ w = zero(3); w[1] = 1.0 / N
 nu = se3.Motion( v, w )
 
 M = se3.SE3.Identity()
-viewer.updateElementConfig('RomeoHeadRoll', se3ToRpy(M))
+viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
 
 for i in range(N):
     M = M*se3.exp(nu)
-    viewer.updateElementConfig('RomeoHeadRoll', se3ToRpy(M))
+    viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
 ----
 
 The exponential map integrate the se(3) velocity expressed in the body
@@ -291,7 +348,7 @@ nu = se3.log(M.inverse()*Mdes)
 
 for i in range(N):
     M = M*se3.exp(nu.vector()/N)
-    viewer.updateElementConfig('RomeoHeadRoll', se3ToRpy(M))
+    viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
 ----
 
 Here, nu is the applied velocity expressed in the body frame; we therefore integrate on the right.
@@ -303,13 +360,21 @@ would be more interesting within a non-linear optimization scheme, see below).
 
 [source,python]
 ----
+def errorInSE3( M,Mdes):
+  '''
+    Compute a 6-dim error vector (6x1 np.maptrix) caracterizing the difference 
+    between M and Mdes, both element of SE3. 
+  '''
+  error = se3.log(M.inverse()*Mdes)
+  return error.vector()    
+
 N = 1000
 Mdes = se3.SE3.Random()
-gain = 1e-3
+gain = 1.0 / N
 for i in range(N):
-    nu = se3.log(M.inverse()*Mdes)
-    M = M*se3.exp(nu.vector() * gain )
-    viewer.updateElementConfig('RomeoHeadRoll', se3ToRpy(M))
+    nu = gain*errorInSE3(M,Mdes)   # nu is the desired spatial velocity.
+    M = M*se3.exp(nu)
+    viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
 ----
 
 Integration of a non-trivial Lie Group
@@ -428,9 +493,10 @@ defines for any configuration an affine equation on the robot velocity.
 ["latex"]
 $\displaystyle{ J_{lw}(\textbf{q})\ \dot{\textbf{q}} = -k\ \textbf{e}}$
 
-*Question:* Given the Jacobian of the error, the gain, and the value of the
-	  error, compute a derivative of the configuration solution to
-	  the above equation.
+*Question:* Given the value of the error (given by
+	  'errorInSE3(robot.Mrh(q),Mdes)'), the Jacobian of the error (given by
+	  'robot.Jrh(q)') and the gain, compute a derivative of the
+	  configuration solution to the above equation.
 
 link:solution2.html[*Solution*]
 

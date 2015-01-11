@@ -33,12 +33,9 @@ xdes = np.matrix([3.0,1.0,2.0]).T
 
 for i in range(1000):
     Mrh = robot.Mrh(q)
-
     e = Mrh.translation[0:3,0] - xdes
     J = Mrh.rotation * robot.Jrh(q)[:3,:]
-
     qdot = -npl.pinv(J)*e
-    
     robot.increment(q,qdot*1e-2)
     robot.display(q)
 ----
