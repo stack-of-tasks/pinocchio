@@ -54,7 +54,7 @@ namespace se3
 	: smptr(cppobj), rawptr(NULL), smart(true) {}
       ~Handler()
       {    
-	std::cout << "Destroy cppobj handler " << std::endl;
+	//std::cout << "Destroy cppobj handler " << std::endl;
 	if( (!smart) && (rawptr!=NULL) ) delete rawptr;
       }
 

@@ -1,0 +1,589 @@
+Stack of Tasks lab: inverse kinematics
+======================================
+
+Objective
+---------
+
+The objective of this part is to build a model of humanoid robot, to
+display the robot in a graphical user interface, and then to control
+the robot in order to achieve geometric tasks like specifying the
+position of one hand or enforcing static balance.
+
+Tutorial 1. Creating and displaying the robot
+---------------------------------------------
+The labwork is based on the software Pinocchio, which will be controlled from a python terminal. The first action
+to perform is to open a python terminal:
+....
+student@student-virtualbox:~$ py
+>>> 
+....
+
+From the interactive interface, simply type commands or copy-paste them from an
+editor or from this page. From now on you can copy paste the code blocks from
+this page to the terminal. In a second time, the script is recorded as a python
+file, say lab.py, that you can run using the same shell command, with the
+python script or scripts as arguments:
+....
+student@student-virtualbox:~$ py lab.py
+>>> 
+....
+
+Type CTRL-D to quit the python terminal (CTRL-C first to interrupt an on-going
+python execution). The script will be run without enterring the so-called interractive mode by:
+....
+student@student-virtualbox:~$ python lab.py
+student@student-virtualbox:~$ 
+....
+
+
+Basic mathematical objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In the following, we will use numpy Matrix class to represent matrices and vectors. In numpy, vectors simply are matrices with one column. See the following example.
+[source, python]
+----
+import numpy as np
+A = np.matrix([ [1,2,3,4],[5,6,7,8]]) # Define a 6x4 matrix
+b = np.zeros([4,1])   # Define a 4 vector (ie a 4x1 matrix) initialized to 0.
+c = A*b               # Obtain c by multiplying A by b.
+----
+
+A bunch of useful functions are packages in the utils of pinocchio.
+
+[source,python]
+----
+from pinocchio.utils import *
+eye(6)                    # Return a 6x6 identity matrix
+zero(6)                   # Return a zero 6x1 vector
+zero([6,4])               # Return az zero 6x4 matrix
+rand(6)                   # Random 6x1 vector
+isapprox(zero(6),rand(6)) # Test epsilon equality
+mprint(rand([6,6]))       # Matlab-style print
+skew(rand(3))             # Skew "cross-product" 3x3 matrix from a 3x1 vector
+cross(rand(3),rand(3))    # Cross product of R^3
+rotate('x',0.4)           # Build a rotation matrix of 0.4rad around X.
+----
+
+Specific classes are defined to reprensent object of SE(3), se(3) and se(3)^*. Rigid displacement, elements of SE(3), are represented by the class SE3.
+[source,python]
+----
+import pinocchio as se3
+R = eye(3); p = zero(3)
+M0 = se3.SE3(R,p)
+M = se3.SE3.Random()
+M.translation = p; M.rotation = R
+----
+
+Spatial velocities, elements of se(3) = M^6, are represented by the class Motion.
+[source,python]
+
+----
+v = zero(3); w = zero(3)
+nu0 = se3.Motion(v,w)
+nu = se3.Motion.Random()
+nu.linear = v; nu.angular = w
+----
+
+Spatial forces, elements of se(3)^* = F^6, are represented by the class Force.
+
+[source,python]
+----
+f = zero(3); tau = zero(3)
+phi0 = se3.Force(f,tau)
+phi = se3.Force.Random()
+phi.linear = f; phi.angular = tau
+----
+
+Robot kinematic tree
+~~~~~~~~~~~~~~~~~~~~
+
+The kinematic tree is represented by two C\++ objects called Model (which
+contains the model constants: lengths, masses, names, etc) and Data (which
+contains the working memory used by the model algorithms). Both C\++ objects are
+contained in a unique Python class called RobotWrapper.
+
+Import the class +RobotWrapper+ and create an instance of this class in the
+python terminal. At initialization, RobotWrapper will read the model
+description in the URDF file given as argument. In the following, we will use
+the model of the Romeo robot, available in the directory "models" of Pinocchio.
+
+[source, python]
+----
+from pinocchio.robot_wrapper import RobotWrapper
+
+robot = RobotWrapper('/home/student/src/pinocchio/models/romeo.urdf')
+----
+The code of the RobotWrapper class is in /home/student/src/pinocchio/src/python/robot_wrapper.py . Do not hesitate to have a look at it and to take inspiration from the implementation of the class functions.
+
+Exploring the model
+~~~~~~~~~~~~~~~~~~~
+
+The robot model is available in robot.model. It contains the names of all the
+robot joint [names], the kinematic tree [parents] (i.e. the graph of parents, 0
+being the root and having no parents), the position of the current joint in the
+parent coordinate frame [jointPosition], the mass, inertia and
+center-of-gravity position of all the bodies (condensed in a spatial inertia
+6x6 matrix) [inertias] and the gravity of the associated world [gravity]. All
+these functions are documented and are available in the correponding class
+dictionnary.
+
+[source,python]
+----
+for name,function in robot.model.__class__.__dict__.items():
+  print " **** ", name, ": ", function.__doc__
+----
+
+Similarly, the robot data are available in robot.data. All the variables
+allocated by the classical rigid-body dynamics algorithms are stored in
+robot.data and are available through the python wrapping. Similarly to the
+model object, the function are documented and are available from the class
+dictionnary. The most useful in the following will be the placement of the
+frame associated which each joint output stored in robot.data.oMi. 
+
+For example, the right hand of Romeo corresponds to the output of the right
+wrist joint, called RWristPitch. The ID of the joint in the joint list can be
+recovered from its name, and then used to access its placement:
+
+[source,python]
+----
+idx = [ idx for idx,name in enumerate(robot.model.names) if name=="RWristPitch" ][0]
+placement = robot.data.oMi[idx]
+----
+
+Browse the list 'robot.model.names' to recognize the operation points needed in
+the end of this page. Shortcuts are implemented for the right wrist (rh), left
+wrist (lh), right ankle (rf) and left ankle (lf). You can get the placement
+corresponding to the right hand with robot.Mrh(q) and the corresponding
+Jacobian (6D, expressed in the body frame) with robot.Jrh.
+
+Finally, the classical functions with Model and Data have been wrapped in some
+python shortcuts, also available in RobotWrapper. The size of the robot
+configuration is given by nq. The dimension of its tangent space (velocity) is
+nv. The index of a joint in the tree can be accessed from its name by
+index. The classical algorithm are also binded: com, Jcom, mass, biais, joint
+gravity, position and velocity of each joint.
+
+[source,python]
+----
+q = zero(robot.nq)
+v = rand(robot.nv)
+robot.com(q)            # Compute the robot center of mass.
+robot.position(q,23)    # Compute the placement of joint 23
+----
+
+Launching RobotViewer
+~~~~~~~~~~~~~~~~~~~~~
+
+To display the robot, we need an external program called +Robot Viewer+. To launch this
+program, open a new terminal in an empty workspace.
+bash terminal
+....
+student@student-virtualbox:~$
+....
+In this terminal, type the following command
+....
+robotviewer -s XML-RPC
+....
+A Graphical User Interface appears. In the viewer, you can see the bodies of
+the robot all gathered at the origin. They do not respect (yet) the kinematic tree
+
+Publishing the robot configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*Objective:* Playing with SE3, displaying rigid bodies in the world, displaying the robot.
+
+In the Pinocchio python terminal, import +robotviewer+ class and create an instance.
+[source,python]
+----
+import robotviewer
+viewer=robotviewer.client('XML-RPC')
+----
+
+You can now move on body at a particular place, for example the head:
+[source,python]
+----
+viewer.updateElementConfig('RomeoHeadRoll',[0,0,2,0,0,0])
+----
+
+The placement is configured by 6 parameters: X (front), Y (left), Z (up), Roll,
+Pitch, Yaw. Here, we asked the head to flight two meters above the ground,
+aligned with the origin.
+
+Not all joints have a body representation attached to them (for example,
+LWristYaw has none). You can try to move other part of the robot. 
+
+Now, the correct placement of every joint (and corresponding body
+representation) are computed using the robot.position function. This function
+returns an object M of class se3.SE3 (print it). The two main fields are
+M.translation (3x1 vector) and M.rotation (3x3 orthogonal matrix). The
+corresponding homogeneous matrix is given by M.homogeneous. A 3x3 rotation
+matrix can be converted to a roll-pitch-yaw vector using the rpy script:
+[source,python]
+----
+M = robot.position(q,1)
+rpy = matrixToRpy(M.rotation)
+----
+Using the matrixToRpy function, the SE3 placement of the body can be converted
+to a 6-dimension vectors using the following se3ToPoseRPY function.
+
+[source,python]
+----
+def se3ToPoseRpy(M): 
+  '''Return a tuple of length 6 containing [X Y Z R P Y] corresponding to the input SE3 object.'''
+  xyz = M.translation
+  rpy = matrixToRpy(M.rotation)
+  return [ float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
+	   float(rpy[0,0]), float(rpy[1,0]), float(rpy[2,0]) ]
+----
+
+*Question:* For each joint, get its name in robot.model.names, then its
+placement with robot.position, and properly display romeo in RobotViewer.
+
+
+Moving the robot joints
+~~~~~~~~~~~~~~~~~~~~~~~
+
+*Objective:* Touch the difference between a simple integration in R^n and the
+ exponential map in SE3.
+
+The robot configuration q and velocity qdot do not have the same dimension. 
+
+*Why?*
+
+The placement of the robot hip in the world is given by 3 translation q[0,0],
+q[1,0], q[2,0] and a quaternion q[3:7], total 7 parameters. On the opposite,
+the hip velocity is given by the spatial velocity (element of the Lie Algebra
+se(3)) representing the relative movement of the world and the hip frames,
+written using the coordinate system of the world frame. This corresponds to 3
+linear velocities qdot[0:3] and 3 angular ones qdot[3:6]. Total, 6 parameters.
+
+Consider first the 33 last parameters. They are straightforward to integrate
+along time. Let us provide a constant angular velocity to the left shoulder.
+[source,python]
+----
+q = robot.q0
+qdot = zero(robot.nv)
+qdot[22] = 1
+dt = 5e-3
+robot.initDisplay()
+for i in range(1000):
+    q[7:] += qdot[6:]*dt
+    robot.display(q)
+----
+The last line is used to display the robot in RobotViewer, given that the 4th
+line has been called first (using a similar code as the one produced in
+Tutorial 1). Looking in the display, the robot left arm rotates around the shoulder. 
+
+This will not work for the rotation velocity. Try to increase directly the
+quaternion would lead to inconsistancy:
+[source,python]
+----
+qdot[3] = 10
+for i in range(100):
+    q[3] += qdot[3]*dt
+    robot.display(q)
+----
+
+*What happened?*
+
+The quaternion norm is bigger than one, which then leads to a non orthonormal
+matrix... the display explodes. We will integrate properly in the next Tutorial
+2. First let start to do it for a single body.
+
+
+Tutorial 2: Integration in a Lie Group
+--------------------------------------
+
+*Objectives:* Use the exponential of SE(3) to move one body in space.
+
+Integration in SE(3)
+~~~~~~~~~~~~~~~~~~~~
+
+To properly integrate, it is necessary to rely on the exponential map of SE(3),
+that will produce a proper homogeneous matrix by integration of a constant
+se(3) velocity. The exponential map for both SE(3) and SO(3) is available in
+Pinocchio. First consider moving a single body with a constant velocity. What would
+be the corresponding trajectory?
+
+[source,python]
+----
+N = 1000
+v = zero(3); v[2] = 1.0 / N
+w = zero(3); w[1] = 1.0 / N
+nu = se3.Motion( v, w )
+
+M = se3.SE3.Identity()
+viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
+
+for i in range(N):
+    M = M*se3.exp(nu)
+    viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
+----
+
+The exponential map integrate the se(3) velocity expressed in the body
+frame. When the body rotates, the direction of the movement in the world frame
+rotates as well (since it is constant in the body frame).
+
+It is also possible to consider the velocity as constant in the world frame w_nu. In
+that case, the integration is done on the left, by M = se3.exp(w_nu). Try to
+imagine the resulting trajectory before executing it. Why is it not what you
+thought? Remember that w_nu is a se(3) element. What represents its linear component?
+
+*Question:* During the integration, modify the body velocity so that the
+ linear movement of the body in the world is constant.
+
+Log in SE(3)
+~~~~~~~~~~~~
+
+Now, let us move the body to a given position Mdes. The velocity to be
+integrate during a unit time interval is given by the log. It is possible to
+interpolate the movement trivially, since the exponential of two colinear
+elements comutes. 
+
+[source,python]
+----
+N = 1000
+Mdes = se3.SE3.Random()
+nu = se3.log(M.inverse()*Mdes)
+
+for i in range(N):
+    M = M*se3.exp(nu.vector()/N)
+    viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
+----
+
+Here, nu is the applied velocity expressed in the body frame; we therefore integrate on the right.
+Double check that the obtained placement is exactly equals to the desired one.
+
+The same can be applied online in the loop to adapt the velocity to the current
+position (no interrest except scholar in the case of a perfect integration; it
+would be more interesting within a non-linear optimization scheme, see below).
+
+[source,python]
+----
+def errorInSE3( M,Mdes):
+  '''
+    Compute a 6-dim error vector (6x1 np.maptrix) caracterizing the difference 
+    between M and Mdes, both element of SE3. 
+  '''
+  error = se3.log(M.inverse()*Mdes)
+  return error.vector()    
+
+N = 1000
+Mdes = se3.SE3.Random()
+gain = 1.0 / N
+for i in range(N):
+    nu = gain*errorInSE3(M,Mdes)   # nu is the desired spatial velocity.
+    M = M*se3.exp(nu)
+    viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
+----
+
+Integration of a non-trivial Lie Group
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The 7 first components of q are the hip position and orientation (stored as a
+quaternion. The 6 first components of qdot are the se(3) velocity of the hip in
+the body frame. The velocity integrates on the right. 
+
+An additionnal step has to be added to obtain the SE(3) element from and back
+to quaternion. This can be done using the se3.Quaternion class.
+
+[source,python]
+----
+import pinocchio as se3
+def robotint(q,dq):
+    M = se3.SE3( se3.Quaternion(q[6,0],q[3,0],q[4,0],q[5,0]).matrix(), q[:3])
+    dM = exp(dq[:6])
+    M = M*dM
+    q[:3] = M.translation
+    q[3:7] = se3.Quaternion(M.rotation).coeffs()
+    q[7:] += dq[6:]
+----
+
+qd is an increment (i.e. qdot*dt). The class se3.Quaternion is initialized from
+the 4 components w,x,y,z of the quaternion (take care, this is not the same
+order than the coeffs in q, as w is arbitrarily stored in head or tail). The
+corresponding rotation matrix is obtained from quat.matrix(). It is composed
+with the results of the exponential map. The obtained placement is finally
+restored as a vector and stored in q. For the revolute joint parameters, the
+integration is straightforward.
+
+The integration function is available in the RobotWrapper class with
+increment(q,dq).
+
+
+Tutorial 3: solving one real-valued geometric task
+--------------------------------------------------
+
+*Objective:* Creating a motion from a real-valued geometric task and making the
+	     robot regulate the error to 0.
+
+Let us assume that we want to bring the center of the right wrist at abscissa 3
+in the global frame.
+[latex]
+$x_{rw}^* = 3$
+
+We define the task error as the difference between the wrist abscissa in current
+configuration and the goal abscissa.
+["latex"]
+$\displaystyle{e (\textbf{q}) = x_{rw} (\textbf{q}) - x_{rw}^{*}}$
+
+We wish to impose
+["latex"]
+$\displaystyle{\dot{e} = -k\ e}$
+
+where k is a scalar parameter called gain, so that the error converges to 0.
+
+As the error depends on the configuration, the variation of the error depends on
+the variation of the configuration through the gradient (considered as a row
+vector):
+["latex"]
+$\displaystyle{\dot{e} = \nabla x_{rw}(\textbf{q})\ \dot{\textbf{q}}}$
+
+Together with the proportional control of the error above, this latter equation
+defines for any configuration an affine equation on the robot velocity.
+
+["latex"]
+$\displaystyle{\nabla x_{rw}(\textbf{q})\ \dot{\textbf{q}} = -k\ e}$
+
+The gradient is obtained from the tangent to the map which from q gives the
+SE(3) placement of the hand. The tangent is available from the function
+robot.Jrh(q). The tangent is expressed in the body frame. We are interrested by
+the variation of the position (translation only) of the hand in the world. This
+is obtained by rotating the three first rows of the tangent to expressed it in the world:
+$\displaystyle{\frac{\partial (x,y,z)}{\partial q} = \ ^wR_{rw} \ ^{rw}J_{rw}[0:3,:]}$ 
+where [0:3,:] denotes the selection of the three first rows. 
+
+*Question:* Given the gradient of the error, the gain, and the value of the
+	  error, compute a derivative of the configuration solution to
+	  the above equation.
+
+link:solution1.html[*Solution*]
+
+Tutorial 4: solving one vector-valued geometric task
+----------------------------------------------------
+
+*Objective:* Creating a motion from a vector-valued geometric task and making
+	     the robot regulate the error to 0.
+
+With an objective in R^3
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Now, we want to bring the center of the left wrist at position (0,0,3)
+in the global frame.
+[latex]
+$\textbf{lw}^{*} = (0,0,2)$
+
+We define the task error as the vector-valued difference between the wrist
+position in current configuration and the goal position.
+["latex"]
+$\displaystyle{\textbf{e} (\textbf{q}) = \textbf{lw} (\textbf{q}) - \textbf{lw}^{*}}$
+
+We wish to impose
+["latex"]
+$\displaystyle{\dot{\textbf{e}} = -k\ \textbf{e}}$
+
+The variation of the error now depends on the variation of the configuration
+through the Jacobian matrix:
+["latex"]
+$\displaystyle{\dot{\textbf{e}} =  J_{lw}(\textbf{q})\ \dot{\textbf{q}}\ \ \ \ \ \mbox{where} \ \ \ \ \ J_{lw} = \frac{\partial \textbf{lw}}{\partial \textbf{q}}}$
+
+Together with the proportional control of the error above, this latter equation
+defines for any configuration an affine equation on the robot velocity.
+
+["latex"]
+$\displaystyle{ J_{lw}(\textbf{q})\ \dot{\textbf{q}} = -k\ \textbf{e}}$
+
+*Question:* Given the value of the error (given by
+	  'errorInSE3(robot.Mrh(q),Mdes)'), the Jacobian of the error (given by
+	  'robot.Jrh(q)') and the gain, compute a derivative of the
+	  configuration solution to the above equation.
+
+link:solution2.html[*Solution*]
+
+With an objective in SE(3)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Now combine the solution obtain for a SE(3) configuration in tutorial 2 to
+compute the desired se(3) velocity of the hand that will bring it toward a
+desired placement (position and orientation). The procedure is summarized as
+follow: compute the error between current and desired placement in SE(3);
+obtained the se(3) velocity to reduce this error using the logarithm; transform
+this se(3) velocity into a configuration velocity using the pseudo inverse of
+tangent map Jrh; integrate.
+
+Tutorial 5: Back on earth
+-------------------------
+
+*Objective:* Putting the robot in stable equilibrium by defining a composite
+	     task for the feet and the center of mass.
+
+The right and left ankle position and tangent are available using robot.Mrf,
+robot.Mlf, robot.Jrf, robot.Jlf. The center of mass position and tangent map
+are given by robot.com and robot.Jcom.
+
+
+*Question:* repeating tutorial 3, compute a motion moving the left ankle,
+	  the right ankle and the center of mass to the reference values given
+	  below.
+
+[TIP]
+To build a matrix by concatenating two matrix rows, you can use link:http://docs.scipy.org/doc/numpy/reference/generated/numpy.append.html[numpy.append].
+You might wish to initialize a matrix with 0 row and a given number of columns.
+you can use +matrix ([]).reshape (0, number_of_colums)+
+
+Tutorial 6: solving a hierarchy of tasks
+----------------------------------------
+
+*Objective:* implementing a hierarchy of tasks with two levels. The higher
+	     priority task is defined by the static balance task of Tutorial 5,
+	     and the lower priority task is defined by a reaching task of the
+	     right hand.
+
+We now respectively denote by
+["latex"]
+$\displaystyle{\textbf{e}_1\in\mathbb{R}^{m_1},\ \ \ \textbf{e}_2\in\mathbb{R}^{m_2},\ \ \ J_1\in\mathbb{R}^{m_1\times n},\ \ \ J_2\in\mathbb{R}^{m_2\times n}}$
+
+the higher and lower priority task errors and their Jacobian. For clarity, we do
+not express anymore the dependency in the configuration of the robot. For each
+task, we denote by
+["latex"]
+$\displaystyle{\dot{\textbf{e}}_1^{*}\in\mathbb{R}^{m_1},\ \ \ \dot{\textbf{e}}_2^{*}\in\mathbb{R}^{m_2}}$
+
+the desired error derivatives.
+
+The first task defines an affine equation on the configuration derivative:
+["latex"]
+$\displaystyle{J_1 \dot{\textbf{q}} = \dot{\textbf{e}}_{1}^{*}}$
+
+As in Tutorial 3, The set of solution is an affine subspace defined by the
+pseudo-inverse of the Jacobian:
+["latex"]
+$\displaystyle{\dot{\textbf{q}} = J_1^{+} \dot{\textbf{e}}_{1}^{*} + (I_n - J_1^{+}J_1)\textbf{u}\ \ \ \ \ \textbf{u}\in\mathbb{R}^n}$
+
+[black]*u* is a free parameter that will be chosen to satisfy task 2.
+
+*Question:* compute a configuration derivative in the sub-space of solutions of
+task 1 that satisfies task 2. Tasks are defined as follows:
+
+- Task 1: static balance, as in Tutorial 5,
+- Task 2: reaching task for right wrist as defined below.
+
+Tutorial 7: Adding a posture task
+---------------------------------
+
+We observe that the robot configuration is getting farther and farther from the
+initial configuration. One reason is that the number of degrees of freedom
+controlled by the two tasks of Tutorial 6 is still much smaller than the robot
+total number of degrees of freedom. As we do not take into account joint limits,
+this might lead to a joint moving beyond a limit. one simple way to overcome
+this issue is to add a posture task at the lowest priority level.
+
+The corresponding error is defined by
+["latex"]
+\begin{eqnarray*}
+\textbf{e}_3 (\textbf {q}) &=& \textbf {q} - \textbf {q}^{*}
+\end{eqnarray*}
+
+where the desired posture is stored in +robot.q0+.
+
+*Question:* Add a posture task to the stack of tasks of Tutorial 6.

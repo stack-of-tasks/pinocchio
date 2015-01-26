@@ -12,6 +12,7 @@ namespace se3
 
     void exposeModel();
     void exposeAlgorithms();
+    void exposeParsers();
 
   }} // namespace se3::python
 

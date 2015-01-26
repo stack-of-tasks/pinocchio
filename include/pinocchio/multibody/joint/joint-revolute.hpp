@@ -5,7 +5,6 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/math/sincos.hpp"
-#include "pinocchio/multibody/force-set.hpp"
 
 namespace se3
 {
@@ -72,8 +71,8 @@ namespace se3
       Eigen::Matrix<double,6,1> se3Action(const SE3 & m) const
       { 
 	Eigen::Matrix<double,6,1> res;
-	res.head<3>() = m.translation().cross( m.rotation().col(0));
-	res.tail<3>() = m.rotation().col(0);
+	res.head<3>() = m.translation().cross( m.rotation().col(axis));
+	res.tail<3>() = m.rotation().col(axis);
 	return res;
       }
 

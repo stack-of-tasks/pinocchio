@@ -15,92 +15,83 @@
 
 #include "pinocchio/tools/timer.hpp"
 
+#include <Eigen/StdVector>
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd);
 
 int main(int argc, const char ** argv)
 {
   using namespace Eigen;
   using namespace se3;
-  
+
+  StackTicToc timer(StackTicToc::US);
+  const int NBT = 1000*100;
   se3::Model model;
 
-  std::string filename = "../models/simple_humanoid.urdf";
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
   if(argc>1) filename = argv[1];
   if( filename == "HS") 
     se3::buildModels::humanoidSimple(model,true);
   else if( filename == "H2" )
     se3::buildModels::humanoid2d(model);
   else
-    model = se3::buildModel(filename,true);
+    model = se3::urdf::buildModel(filename,true);
   std::cout << "nq = " << model.nq << std::endl;
 
   se3::Data data(model);
   VectorXd q = VectorXd::Random(model.nq);
   VectorXd qdot = VectorXd::Random(model.nv);
   VectorXd qddot = VectorXd::Random(model.nv);
-  
-  double duration = 0.;
-  int num_iterations = 1e5;
-  StackTicToc timer(StackTicToc::US);
-  
-  
-  
-  for(int i = 0; i < num_iterations; i++)
-  {
-    q = VectorXd::Random(model.nq);
-    qdot = VectorXd::Random(model.nv);
-    qddot = VectorXd::Random(model.nv);
-    
-    timer.tic();
-    rnea(model,data,q,qdot,qddot);
-    duration += timer.toc (StackTicToc::US);
-  }
-  std::cout << "RNEA = \t\t" << duration / (double) num_iterations << " us\n";
- 
-  duration = 0.;
-  for(int i = 0; i < num_iterations; i++)
-  {
-    q = VectorXd::Random(model.nq);
-    
-    timer.tic();
-    crba(model,data,q);
-    duration += timer.toc (StackTicToc::US);
-  }
-  std::cout << "CRBA = \t\t" << duration / (double) num_iterations << " us\n";
- 
-  duration = 0.;
-  for(int i = 0; i < num_iterations; i++)
-  {
-    q = VectorXd::Random(model.nq);
-    
-    crba(model,data,q);
-    
-    timer.tic();
-    cholesky::decompose(model,data);
-    duration += timer.toc (StackTicToc::US);
-  }
-  std::cout << "Cholesky = \t\t" << duration / (double) num_iterations << " us\n";
- 
-  duration = 0.;
-  for(int i = 0; i < num_iterations; i++)
-  {
-    q = VectorXd::Random(model.nq);
-    
-    timer.tic();
-    computeJacobians(model,data,q);
-    duration += timer.toc (StackTicToc::US);
-  }
-  std::cout << "Jacobian = \t\t" << duration / (double) num_iterations << " us\n";
 
-  duration = 0.;
-  for(int i = 0; i < num_iterations; i++)
-  {
-    q = VectorXd::Random(model.nq);
-    
-    timer.tic();
-    jacobianCenterOfMass(model,data,q,false);
-    duration += timer.toc (StackTicToc::US);
-  }
-  std::cout << "COM+Jcom = \t\t" << duration / (double) num_iterations << " us\n";
+  std::vector<VectorXd> qs     (NBT);
+  std::vector<VectorXd> qdots  (NBT);
+  std::vector<VectorXd> qddots (NBT);
+  for(int i=0;i<NBT;++i) 
+    {
+      qs[i]     = Eigen::VectorXd::Random(model.nq);
+      qs[i].segment<4>(3) /= qs[i].segment<4>(3).norm();
+      qdots[i]  = Eigen::VectorXd::Random(model.nv);
+      qddots[i] = Eigen::VectorXd::Random(model.nv);
+    }
+
+ 
+  timer.tic();
+  SMOOTH(NBT)
+    {
+      rnea(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth]);
+    }
+  std::cout << "RNEA = \t\t"; timer.toc(std::cout,NBT);
+ 
+  timer.tic();
+  SMOOTH(NBT)
+    {
+      crba(model,data,qs[_smooth]);
+    }
+  std::cout << "CRBA = \t\t"; timer.toc(std::cout,NBT);
+  
+  double total = 0;
+  SMOOTH(NBT)
+    {
+      crba(model,data,qs[_smooth]);
+      timer.tic();
+      cholesky::decompose(model,data);
+      total += timer.toc(timer.DEFAULT_UNIT);
+    }
+  std::cout << "Cholesky = \t" << (total/NBT) 
+	    << timer.unitName(timer.DEFAULT_UNIT) <<std::endl; 
+ 
+  timer.tic();
+  SMOOTH(NBT)
+    {
+      computeJacobians(model,data,qs[_smooth]);
+    }
+  std::cout << "Jacobian = \t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+    {
+      jacobianCenterOfMass(model,data,qs[_smooth],false);
+    }
+  std::cout << "COM+Jcom = \t"; timer.toc(std::cout,NBT);
 
   std::cout << "--" << std::endl;
   return 0;

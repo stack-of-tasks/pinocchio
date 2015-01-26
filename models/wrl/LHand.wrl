@@ -1,0 +1,148 @@
+#VRML V2.0 utf8
+
+# Author: Aldebaran Robotics
+
+Transform	{
+	children [
+		Transform	{
+
+			children [
+				Inline { url "LWristPitch.wrl" }
+			]
+		} # Transform LWristPitch
+		Transform	{
+
+		
+			translation     0.10937 0.02468 0.00329
+			rotation     -0.0607232404686444 0.992817005972153 0.103087733118338  1.07096604672357
+			children [			
+				Transform {
+					children [
+						Inline { url "Phalax.wrl" }
+					]
+				} # Transform LFinger11
+				DEF LFinger12_y Transform {
+					translation     0.01818 0 0
+					rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+					children [
+						DEF LFinger12 Transform {
+							children [
+								Inline { url "Phalax.wrl" }
+							]
+						} # Transform LFinger12
+						DEF LFinger13_y Transform {
+							translation     0.01818 0 0
+							rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+							children [
+								DEF LFinger13 Transform {
+									children [
+										Inline { url "PhalaxEnd.wrl" }
+									]
+								} # Transform LFinger13
+							]
+						} # Transform LFinger13
+					]
+				} # Transform LFinger12
+			]
+		} # Transform LFinger11
+		DEF LFinger21_y Transform {
+			translation     0.11525 0 0.00329
+			rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+			children [
+				DEF LFinger21 Transform {
+					children [
+						Inline { url "Phalax.wrl" }
+					]
+				} # Transform LFinger21
+				DEF LFinger22_y Transform {
+					translation     0.01818 0 0
+					rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+					children [
+						DEF LFinger22 Transform {
+							children [
+								Inline { url "Phalax.wrl" }
+							]
+						} # Transform LFinger22
+						DEF LFinger23_y Transform {
+							translation     0.01818 0 0
+							rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+							children [
+								DEF LFinger23 Transform {
+									children [
+										Inline { url "PhalaxEnd.wrl" }
+									]
+								} # Transform LFinger23
+							]
+						} # Transform LFinger23
+					]
+				} # Transform LFinger22
+			]
+		} # Transform LFinger21
+		DEF LFinger31_y Transform {
+			translation     0.09936 -0.02478 0.00329
+			rotation     0.0607232967700526 0.992816999109058 -0.103087766051367  1.07096605079538
+			children [
+				DEF LFinger31 Transform {
+					children [
+						Inline { url "Phalax.wrl" }
+					]
+				} # Transform LFinger31
+				DEF LFinger32_y Transform {
+					translation     0.01818 0 0
+					rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+					children [
+						DEF LFinger32 Transform {
+							children [
+								Inline { url "Phalax.wrl" }
+							]
+						} # Transform LFinger32
+						DEF LFinger33_y Transform {
+							translation     0.01818 0 0
+							rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+							children [
+								DEF LFinger33 Transform {
+									children [
+										Inline { url "PhalaxEnd.wrl" }
+									]
+								} # Transform LFinger33
+							]
+						} # Transform LFinger33
+					]
+				} # Transform LFinger32
+			]
+		} # Transform LFinger31
+		DEF LThumb1_y Transform {
+			translation     0.07115 -0.02465 -0.01233
+			rotation     0.623659429817073 0.196638375123651 -0.756559492061909  2.67326196201807
+			children [
+				DEF LThumb1 Transform {
+					children [
+						Inline { url "LThumb.wrl" }
+					]
+				} # Transform LThumb1
+				DEF LThumb2_y Transform {
+					translation     0.01818 0 0
+					rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+					children [
+						DEF LThumb2 Transform {
+							children [
+								Inline { url "Phalax.wrl" }
+							]
+						} # Transform LThumb2
+						DEF LThumb3_y Transform {
+							translation     0.01818 0 0
+							rotation     1.038021994276e-08 0.999999999999999 4.40395434704007e-08  1.06465
+							children [
+								DEF LThumb3 Transform {
+									children [
+										Inline { url "PhalaxEnd.wrl" }
+									]
+								} # Transform LThumb3
+							]
+						} # Transform LThumb3
+					]
+				} # Transform LThumb2
+			]
+		} # Transform LThumb1
+	]
+} # Transform LWristPitch

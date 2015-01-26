@@ -1,0 +1,47 @@
+#VRML V2.0 utf8
+
+# Author: Aldebaran Robotics
+
+Transform {	#47
+	children [ 
+		Shape {
+			appearance Appearance {
+				material Material {
+					diffuseColor .953 0 .502
+					shininess .01
+					transparency 0
+				}
+			}
+			geometry IndexedFaceSet {
+				ccw FALSE
+				solid FALSE
+				creaseAngle 1.56207
+				coord Coordinate {
+					point [
+						-0.08  0.068  0.0,     0.1135  0.068  0.0,     0.1135  -0.053  0.0,     -0.08  -0.053  0.0,     
+						-0.08  0.068  -0.067,  0.1135  0.068  -0.067,  0.1135  -0.053  -0.067,  -0.08  -0.053  -0.067,  
+					]
+				}
+				coordIndex [
+					0,1,2,-1,
+					0,2,3,-1,
+
+					4,6,5,-1,
+					4,7,6,-1,
+			
+					0,4,5,-1,
+					0,5,1,-1,
+
+					2,6,7,-1,
+					2,7,3,-1,
+
+					1,5,6,-1,
+					1,6,2,-1,
+ 
+					0,3,7,-1,
+					0,7,4,-1,
+				]
+ 			}
+		}
+	]
+}

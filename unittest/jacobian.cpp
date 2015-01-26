@@ -1,10 +1,9 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
-#include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
-#include "pinocchio/tools/timer.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/tools/timer.hpp"
 
 #include <iostream>
 #include <boost/utility/binary.hpp>
@@ -17,6 +16,7 @@ void timings(const se3::Model & model, se3::Data& data, long flag)
   const int NBT = 1000*1000;
 #else 
   const int NBT = 1;
+  std::cout << "(the time score in debug mode is not relevant)  " ;
 #endif
 
   bool verbose = flag & (flag-1) ; // True is two or more binaries of the flag are 1.
@@ -61,7 +61,7 @@ void timings(const se3::Model & model, se3::Data& data, long flag)
       if(verbose) std::cout << "Change frame =\t";
       timer.toc(std::cout,NBT);
     }
-  if( flag >> 2 & 1 )
+  if( flag >> 3 & 1 )
     {
       computeJacobians(model,data,q);
       Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
@@ -108,9 +108,6 @@ void assertValues(const se3::Model & model, se3::Data& data)
     XJrh = jacobian(model,data,q,idx);
     assert( XJrh.isApprox(rhJrh) );
   }
-
-  std::cout << "Jrh = [ " << Jrh << " ];" << std::endl;
-  std::cout << "J = [ " << data.J << " ];" << std::endl;
 }
   
 int main()
@@ -122,11 +119,8 @@ int main()
   se3::buildModels::humanoidSimple(model);
   se3::Data data(model);
 
-#ifndef NDEBUG 
   assertValues(model,data);
-#else
-  timings(model,data,BOOST_BINARY(111));
-#endif
+  timings(model,data,BOOST_BINARY(1111));
 
   return 0;
 }
