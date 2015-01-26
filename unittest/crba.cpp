@@ -18,12 +18,20 @@ void timings(const se3::Model & model, se3::Data& data, int NBT = 100000)
 {
   Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
  
-  StackTicToc timer(StackTicToc::US); timer.tic();
-  SMOOTH(NBT)
-    {
-      crba(model,data,q);
-    }
-  timer.toc(std::cout,NBT);
+  StackTicToc timer(StackTicToc::US); 
+	double duration = 0.;
+	int num_iterations = 1e6;
+
+	for (int i = 0; i < num_iterations; i++) 
+  {
+		VectorXd q = VectorXd::Random(model.nq);
+
+		timer.tic();
+		crba(model,data,q);
+		duration += timer.toc (StackTicToc::US);
+  }
+
+	std::cout << "Mean duration of CRBA : " << duration / (double) num_iterations << " us" << std::endl;
 }
 
 void assertValues(const se3::Model & model, se3::Data& data)

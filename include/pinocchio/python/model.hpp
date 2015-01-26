@@ -86,7 +86,7 @@ namespace se3
       static std::vector<Model::Index> & parents( ModelHandler & m ) { return m->parents; }
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
       static Motion gravity( ModelHandler & m ) { return m->gravity; }
-      static void setGravity( ModelHandler & m,const Motion_fx & g ) { m->gravity = g; }
+      static void setGravity( ModelHandler & m,const Motion_fx & g ) { m->gravity = g.toVector (); }
 
       static ModelHandler maker_empty()
       {

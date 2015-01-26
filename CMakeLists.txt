@@ -7,7 +7,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/cpack.cmake)
-INCLUDE(cmake/eigen.cmake)
 INCLUDE(cmake/python.cmake)
 
 SET(PROJECT_NAME pinocchio)
@@ -18,7 +17,6 @@ SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
 SET(CXX_DISABLE_WERROR True)
 SET(CMAKE_VERBOSE_MAKEFILE True)
 
-project(${PROJECT_NAME})
 SETUP_PROJECT()
 
 IF(WIN32)
@@ -33,14 +31,21 @@ OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
 # ----------------------------------------------------
 # --- DEPENDANCIES -----------------------------------
 # ----------------------------------------------------
+
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
 ADD_OPTIONAL_DEPENDENCY("eigenpy >= 1.2.0")
 ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.10")
 
 # ----------------------------------------------------
+# --- BENCHMARKS -------------------------------------
+# ----------------------------------------------------
+OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
+
+# ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
+
 SET(HEADERS
   exception.hpp
   assert.hpp

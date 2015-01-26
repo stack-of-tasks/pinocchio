@@ -41,19 +41,22 @@ int main()
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd a = VectorXd::Random(model.nv);
  
-#ifdef NDEBUG
-  int NBT = 10000;
-#else
-  int NBT = 1;
-  std::cout << "(the time score in debug mode is not relevant)  " ;
-#endif
+	double duration = 0.;
+	int num_iterations = 1e6;
+	StackTicToc timer(StackTicToc::US); 
 
-  StackTicToc timer(StackTicToc::US); timer.tic();
-  SMOOTH(NBT)
-    {
-      rnea(model,data,q,v,a);
-    }
-  timer.toc(std::cout,NBT);
+	for(int i = 0; i < num_iterations; i++)
+	{
+		q = VectorXd::Random(model.nq);
+		v = VectorXd::Random(model.nv);
+		a = VectorXd::Random(model.nv);
+
+		timer.tic();
+		rnea(model,data,q,v,a);
+		duration += timer.toc (StackTicToc::US);
+	}
+
+	std::cout << "Duration : " << duration / (double) num_iterations <<  " us" << std::endl;
 
   return 0;
 }
