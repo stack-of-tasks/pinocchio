@@ -41,11 +41,17 @@ ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.10")
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
-SET(HEADERS
-  exception.hpp
-  assert.hpp
+
+
+SET(${PROJECT_NAME}_MATH_HEADERS
   math/sincos.hpp
+  )
+
+SET(${PROJECT_NAME}_TOOLS_HEADERS
   tools/timer.hpp
+  )
+
+SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/symmetric3.hpp
   spatial/se3.hpp
   spatial/motion.hpp
@@ -54,6 +60,9 @@ SET(HEADERS
   spatial/fwd.hpp
   spatial/skew.hpp
   spatial/act-on-set.hpp
+  )
+
+SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/constraint.hpp
   multibody/force-set.hpp
   multibody/joint.hpp
@@ -65,12 +74,19 @@ SET(HEADERS
   multibody/model.hpp
   multibody/visitor.hpp
   multibody/parser/sample-models.hpp
+  )
+
+SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/rnea.hpp
   algorithm/crba.hpp
   algorithm/jacobian.hpp
   algorithm/cholesky.hpp
   algorithm/kinematics.hpp
   algorithm/center-of-mass.hpp
+  )
+
+
+SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/eigen_container.hpp
   python/handler.hpp
   python/python.hpp
@@ -82,11 +98,24 @@ SET(HEADERS
   python/data.hpp
   python/algorithms.hpp
   python/parsers.hpp
-)
+  )
+
+SET(HEADERS
+  ${${PROJECT_NAME}_MATH_HEADERS}
+  ${${PROJECT_NAME}_TOOLS_HEADERS}
+  ${${PROJECT_NAME}_SPATIAL_HEADERS}
+  ${${PROJECT_NAME}_MULTIBODY_HEADERS}
+  ${${PROJECT_NAME}_ALGORITHM_HEADERS}
+  ${${PROJECT_NAME}_PYTHON_HEADERS}
+  exception.hpp
+  assert.hpp
+  )
 
 IF(URDFDOM_FOUND)
   LIST(APPEND HEADERS multibody/parser/urdf.hpp)
 ENDIF(URDFDOM_FOUND)
+
+PKG_CONFIG_APPEND_LIBS (${PROJECT_NAME})
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/math")
@@ -105,77 +134,11 @@ FOREACH(header ${HEADERS})
     ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/${header})
   INSTALL(FILES ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
-	  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${headerPath}
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${headerPath}
           PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
 ENDFOREACH(header)
 
-# ----------------------------------------------------
-# --- PYTHON -----------------------------------------
-# ----------------------------------------------------
-
-IF(EIGENPY_FOUND)
-  FINDPYTHON()
-  MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}")
-  
-  # --- COMPILE WRAPPER
-  SET(PYWRAP ${PROJECT_NAME}_pywrap)
-  ADD_LIBRARY(${PYWRAP} SHARED src/python/module.cpp src/python/python.cpp)
-  PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} eigenpy)
-  IF(URDFDOM_FOUND)
-    PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} urdfdom)
-    
-  ENDIF(URDFDOM_FOUND)
-  TARGET_LINK_LIBRARIES(${PYWRAP} ${Boost_LIBRARIES} eigenpy)
-  SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/python/${PROJECT_NAME}")
-  INSTALL(FILES
-    "${CMAKE_BINARY_DIR}/lib/python/${PROJECT_NAME}/lib${PYWRAP}.so"
-    DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
-  
-  # --- INSTALL SCRIPTS 
-  SET(PYTHON_FILES
-    python/__init__.py
-    python/utils.py
-    python/robot_wrapper.py
-    python/romeo_wrapper.py
-    python/rpy.py
-    python/explog.py
-    )
-  FOREACH(python ${PYTHON_FILES})
-    GET_FILENAME_COMPONENT(pythonFile ${python} NAME)
-    EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
-      ${${PROJECT_NAME}_SOURCE_DIR}/src/${python}
-      ${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile})
-    
-    # Tag pyc file as generated.
-    SET_SOURCE_FILES_PROPERTIES(
-      "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
-      PROPERTIES GENERATED TRUE)
-    
-    EXECUTE_PROCESS(COMMAND
-      ${PYTHON_EXECUTABLE} -m py_compile
-      ${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile} )
-    
-    # Clean generated files.
-    SET_PROPERTY(
-      DIRECTORY APPEND PROPERTY
-      ADDITIONAL_MAKE_CLEAN_FILES
-      "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c")
-    
-    INSTALL(FILES
-      "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}"
-      "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
-      DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
-  ENDFOREACH(python)
-ELSE()
-  string(ASCII 27 Esc)
-  set(ColourReset "${Esc}[m")
-  set(Red         "${Esc}[31m")
-  MESSAGE(WARNING "${Red}You don't have eigenpy installed. You will not be able to
-  use pinocchio through python wrapping. Please be sur you want to use
-  pinocchio only as a C++ library or install eigenpy and regenerate Makefile ${ColourReset}")
-ENDIF(EIGENPY_FOUND)
-
+ADD_SUBDIRECTORY(src)
 # --- EXECUTABLES --------------------------------------------------------------
 # --- EXECUTABLES --------------------------------------------------------------
 # --- EXECUTABLES --------------------------------------------------------------
@@ -186,4 +149,3 @@ ENDIF (BUILD_BENCHMARK)
 
 SETUP_PROJECT_FINALIZE()
 SETUP_PROJECT_CPACK()
-
