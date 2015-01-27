@@ -123,7 +123,7 @@ namespace se3
 
     Force operator*(const Motion &v) const 
     {
-      Vector3 mcxw = m*c.cross(v.angular());
+      const Vector3 & mcxw = m*c.cross(v.angular());
       return Force( m*v.linear()-mcxw,
 		    m*c.cross(v.linear()) + I*v.angular() - c.cross(mcxw) );
     }
