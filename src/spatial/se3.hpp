@@ -115,7 +115,7 @@ namespace se3
     void disp(std::ostream & os) const
     {
       os << "  R =\n" << rot << std::endl
-	 << "  p =\n" << trans.transpose() << std::endl;
+	 << "  p = " << trans.transpose() << std::endl;
     }
 
 

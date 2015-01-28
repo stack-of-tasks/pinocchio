@@ -56,6 +56,8 @@ namespace se3
     // Getters
     const Vector3 & angular() const { return m_w; }
     const Vector3 & linear()  const { return m_v; }
+    Vector3 & angular() { return m_w; }
+    Vector3 & linear()  { return m_v; }
     void angular(const Vector3 & w) { m_w=w; }
     void linear (const Vector3 & v) { m_v=v; }
 
@@ -131,8 +133,8 @@ namespace se3
 
     friend std::ostream & operator << (std::ostream & os, const MotionTpl & mv)
     {
-      os << "v =\n" << mv.linear() << std::endl
-      << "w =\n" << mv.angular() << std::endl;
+      os << "  v = " << mv.linear().transpose () << std::endl
+      << "  w = " << mv.angular().transpose () << std::endl;
       return os;
     }
 
