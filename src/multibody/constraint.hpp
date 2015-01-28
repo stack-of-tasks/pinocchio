@@ -32,7 +32,7 @@ namespace se3
       EIGEN_STATIC_ASSERT_FIXED_SIZE(DenseBase);
       S.fill( NAN ); 
     } 
-    ConstraintTpl(const int dim) : S(dim,6)     {      S.fill( NAN );     } 
+    ConstraintTpl(const int dim) : S(6,dim)     {      S.fill( NAN );     }
 
     Motion operator* (const JointMotion& vj) const
     { return Motion(S*vj); }
@@ -57,6 +57,7 @@ namespace se3
   };
 
   typedef ConstraintTpl<1,double,0> Constraint1d;
+  typedef ConstraintTpl<3,double,0> Constraint3d;
   typedef ConstraintTpl<6,double,0> Constraint6d;
   typedef ConstraintTpl<Eigen::Dynamic,double,0> ConstraintXd;
 
