@@ -8,6 +8,7 @@
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/multibody/parser/urdf.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
 
@@ -77,7 +78,7 @@ int main(int argc, const char ** argv)
       total += timer.toc(timer.DEFAULT_UNIT);
     }
   std::cout << "Cholesky = \t" << (total/NBT) 
-	    << timer.unitName(timer.DEFAULT_UNIT) <<std::endl; 
+	    << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
  
   timer.tic();
   SMOOTH(NBT)
@@ -92,6 +93,20 @@ int main(int argc, const char ** argv)
       jacobianCenterOfMass(model,data,qs[_smooth],false);
     }
   std::cout << "COM+Jcom = \t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    geometry(model,data,qs[_smooth]);
+  }
+  std::cout << "Geometry = \t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    kinematics(model,data,qs[_smooth],qdots[_smooth]);
+  }
+  std::cout << "Kinematics = \t"; timer.toc(std::cout,NBT);
 
   std::cout << "--" << std::endl;
   return 0;
