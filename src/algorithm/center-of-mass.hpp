@@ -78,7 +78,7 @@ namespace se3
 	       const bool & computeSubtreeComs )
   {
     data.mass[0] = 0; 
-    data.com[0]  = Eigen::Vector3d::Zero();
+    data.com[0].setZero ();
 
     for( int i=1;i<model.nbody;++i )
       {
@@ -190,7 +190,7 @@ namespace se3
 		       const Eigen::VectorXd & q,
 		       const bool & computeSubtreeComs )
   {
-    data.com[0] = Eigen::Vector3d::Zero();
+    data.com[0].setZero ();
     data.mass[0] = 0;
     for( int i=1;i<model.nbody;++i )
       {
