@@ -15,7 +15,8 @@ namespace se3
     struct BiasZero 
     {
       operator Motion () const { return Motion::Zero(); }
-    };
+    }; // struct BiasZero
+
     friend const Motion & operator+ ( const Motion& v, const BiasZero&) { return v; }
     friend const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
 
@@ -25,12 +26,14 @@ namespace se3
 
       struct TransposeConst 
       {
-	Force::Vector6 operator* (const Force & phi)
-	{  return phi.toVector();  }
+        Force::Vector6 operator* (const Force & phi)
+        {  return phi.toVector();  }
       };
+      
       TransposeConst transpose() const { return TransposeConst(); }
-      operator ConstraintXd () const { return ConstraintXd(Eigen::MatrixXd::Identity(6,6)); }
-    };
+      operator ConstraintXd () const { return ConstraintXd(SE3::Matrix6::Identity()); }
+    }; // struct ConstraintIdentity
+
     template<typename D>
     friend Motion operator* (const ConstraintIdentity&, const Eigen::MatrixBase<D>& v)
     {
@@ -38,7 +41,7 @@ namespace se3
       return Motion(v);
     }
 
-  };
+  }; // struct JointFreeFlyer
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   Inertia::Matrix6 operator*( const Inertia& Y,const JointFreeFlyer::ConstraintIdentity & )
@@ -106,12 +109,14 @@ namespace se3
     SE3_JOINT_TYPEDEF;
 
     JointData createData() const { return JointData(); }
-    void calc( JointData& data, 
+    void calc( JointData& data,
 	       const Eigen::VectorXd & qs) const
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
-      JointData::Quaternion quat(Eigen::Matrix<double,4,1>(q.tail(4))); // TODO
-      data.M = SE3(quat.matrix(),q.head<3>());
+      const JointData::Quaternion quat(Eigen::Matrix<double,4,1> (q.tail <4> ())); // TODO
+
+      data.M.rotation (quat.matrix());
+      data.M.translation (q.head<3>());
     }
     void calc( JointData& data, 
 	       const Eigen::VectorXd & qs, 
@@ -120,8 +125,10 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
       data.v = vs.segment<NV>(idx_v());
 
-      JointData::Quaternion quat(Eigen::Matrix<double,4,1>(q.tail(4))); // TODO
-      data.M = SE3(quat.matrix(),q.head<3>());
+      const JointData::Quaternion quat(Eigen::Matrix<double,4,1> (q.tail <4> ())); // TODO
+//      data.M = SE3(quat.matrix(),q.head<3>());
+      data.M.rotation (quat.matrix());
+      data.M.translation (q.head<3>());
     }
   };
 
