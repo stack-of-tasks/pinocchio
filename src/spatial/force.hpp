@@ -112,7 +112,7 @@ namespace se3
     /// af = aXb.act(bf)
     ForceTpl se3Action(const SE3 & m) const
     {
-      Vector3 Rf = static_cast<Vector3>(m.rotation()*linear());
+      Vector3 Rf (static_cast<Vector3>(m.rotation()*linear()));
       return ForceTpl(Rf,m.translation().cross(Rf)+m.rotation()*angular());
     }
     /// bf = aXb.actInv(af)
