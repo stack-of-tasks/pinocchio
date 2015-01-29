@@ -46,7 +46,7 @@ namespace se3
     /// af = aXb.act(bf)
     ForceSetTpl se3Action(const SE3 & m) const
     {
-      Matrix3x Rf = (m.rotation()*linear()).eval();
+      Matrix3x Rf (m.rotation()*linear());
       return ForceSetTpl(Rf,skew(m.translation())*Rf+m.rotation()*angular());
       // TODO check if nothing better than explicitely calling skew
     }
@@ -108,7 +108,7 @@ namespace se3
       {
 	// const Eigen::Block<const Matrix3x> linear = ref.linear().block(0,idx,3,len);
 	// const Eigen::Block<const Matrix3x> angular = ref.angular().block(0,idx,3,len);
-	Matrix3x Rf = (m.rotation()*linear()).eval();
+	Matrix3x Rf ((m.rotation()*linear());
 	return ForceSetTpl(Rf,skew(m.translation())*Rf+m.rotation()*angular());
 	// TODO check if nothing better than explicitely calling skew
       }
