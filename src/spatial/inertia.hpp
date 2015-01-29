@@ -87,10 +87,13 @@ namespace se3
     Matrix6 matrix() const
     {
       Matrix6 M;
-      M.template block<3,3>(LINEAR, LINEAR ) =  m*Matrix3::Identity();
-      M.template block<3,3>(LINEAR, ANGULAR) = -m*skew(c);
-      M.template block<3,3>(ANGULAR,LINEAR ) =  m*skew(c);
-      M.template block<3,3>(ANGULAR,ANGULAR) =  (Matrix3)(I - m*typename Symmetric3::SkewSquare(c));
+      const Matrix3 & c_cross = (skew(c));
+      M.template block<3,3>(LINEAR, LINEAR ).template setZero ();
+      M.template block<3,3>(LINEAR, LINEAR ).template diagonal ().template fill (m);
+      M.template block<3,3>(ANGULAR,LINEAR ) = m * c_cross;
+      M.template block<3,3>(LINEAR, ANGULAR) = -M.template block<3,3> (ANGULAR, LINEAR);
+      M.template block<3,3>(ANGULAR,ANGULAR) = (Matrix3)(I - M.template block<3,3>(ANGULAR, LINEAR) * c_cross);
+
       return M;
     }
     operator Matrix6 () const { return matrix(); }
