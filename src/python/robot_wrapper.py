@@ -10,18 +10,54 @@ class RobotWrapper:
         self.v0 = utils.zero(self.nv)
         self.q0 = np.matrix( [
             0, 0, 0.840252, 0, 0, 0, 1,                        # Free flyer
-            0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0,   # left leg   
-            0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0,   # right leg  
+            0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0,   # left leg
+            0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0,   # right leg
             0,                                               # chest
-            1.5, 0.6, -0.5, -1.05, -0.4, -0.3, -0.2,         # left arm   
+            1.5, 0.6, -0.5, -1.05, -0.4, -0.3, -0.2,         # left arm
             0, 0, 0, 0,                                      # head
-            1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2,          # right arm  
+            1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2,          # right arm
             ] ).T
         self.opCorrespondances = { "lh": "LWristPitch",
                                    "rh": "RWristPitch",
                                    "rf": "RAnkleRoll",
                                    "lf": "LAnkleRoll",
                                    }
+
+        #TODO Build it automatically when parsing ? (see gepettoviewer parsing)
+        self.bodiesAssociatedInViewer = {   "root": "body",#"root": {"root","body"},
+                                            "LHipYaw": None,
+                                            "LHipRoll": None,
+                                            "LHipPitch": "LHipPitchLink",
+                                            "LKneePitch": "LKneePitchLink",
+                                            "LAnklePitch": None,
+                                            "LAnkleRoll": "l_ankle",
+                                            "RHipYaw": None,
+                                            "RHipRoll": None,
+                                            "RHipPitch": "RHipPitchLink",
+                                            "RKneePitch": "RKneePitchLink",
+                                            "RAnklePitch": None,
+                                            "RAnkleRoll": "r_ankle",
+                                            "TrunkYaw": "torso",
+                                            "LShoulderPitch": None,
+                                            "LShoulderYaw": "LShoulderYawLink",
+                                            "LElbowRoll": None,
+                                            "LElbowYaw": "LElbowYawLink",
+                                            "LWristRoll": "LWristRollLink",
+                                            "LWristYaw": "LWristYawLink",
+                                            "LWristPitch": "l_wrist",
+                                            "NeckYaw": None,
+                                            "NeckPitch": "NeckPitchLink",
+                                            "HeadPitch": None,
+                                            "HeadRoll": "HeadRollLink",
+                                            "RShoulderPitch": None,
+                                            "RShoulderYaw": "RShoulderYawLink",
+                                            "RElbowRoll": None,
+                                            "RElbowYaw": "RElbowYawLink",
+                                            "RWristRoll": "RWristRollLink",
+                                            "RWristYaw": "RWristYawLink",
+                                            "RWristPitch": "r_wrist",
+                                            }
+
         for op,name in self.opCorrespondances.items():
             self.__dict__[op] = self.index(name)
 
@@ -35,18 +71,26 @@ class RobotWrapper:
 
     def index(self,name):
         return [ i for i,n in enumerate(self.model.names) if n == name ][0]
-                   
+
+    # Get the name of the body we want to move in Gepetto Viewer associated to the joint
+    def getAssociatedBody(self,nameJoint):
+        for jointName,viewBody  in self.bodiesAssociatedInViewer.items():
+            #print "**" + viewBody + ":" + jointName
+            if jointName == nameJoint :
+                return viewBody
+                break
+
     @property
-    def nq(self): 
+    def nq(self):
         return self.model.nq
     @property
-    def nv(self): 
+    def nv(self):
         return self.model.nv
 
     def com(self,q):
         return se3.centerOfMass(self.model,self.data,q)
     def Jcom(self,q):
-        return se3.centerOfMass(self.model,self.data,q)
+        return se3.jacobianCenterOfMass(self.model,self.data,q)
 
     def mass(self,q):
         return se3.crba(self.model,self.data,q)
@@ -89,29 +133,77 @@ class RobotWrapper:
     def Mrf(self,q):
         return self.position(q,self.rf)
 
+    def getJointByIndex(self,index):
+        for idx,name in enumerate(self.model.names):
+            if idx==index:
+                return name
+                break
 
     # --- VIEWER ---
-    def initDisplay(self):
-        import robotviewer
+    def convertJointToNode(self,joint):
+        jointNameInViewer = self.getAssociatedBody(joint)
+        if jointNameInViewer == None :
+            return None
+        else:
+            nodeNameGV = self.rootNodeGV + self.getAssociatedBody(joint)
+            return nodeNameGV
+
+    def initDisplay(self,rootNodeGV):
+        import gepetto.corbaserver
         try:
-            self.viewer=robotviewer.client('XML-RPC')
-            self.viewer.updateElementConfig('TEST',[0,]*6)
+            self.viewer=gepetto.corbaserver.Client()
+            self.rootNodeGV = rootNodeGV
+            #self.viewer.updateElementConfig('TEST',[0,]*6)
         except:
             if 'viewer' in self.__dict__: del self.viewer
             print "Error while starting the viewer client. "
-            print "Check wheter RobotViewer is properly started (as XML-RPC server)"
+            print "Check wheter gepetto-viewer is properly started"
 
-    def display(self,q):
+    def display(self,q): #Display full robot at configuration q
         if 'viewer' not in self.__dict__: return
         # Update the robot geometry.
-        se3.kinematics(self.model,self.data,q,self.v0)        
+        se3.kinematics(self.model,self.data,q,self.v0)
         # Iteratively place the robot bodies.
         for i in range(1,self.model.nbody):
             xyz = self.data.oMi[i].translation
-            rpy = utils.matrixToRpy(self.data.oMi[i].rotation)
-            self.viewer.updateElementConfig('Romeo'+self.model.names[i],
-                                            [float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]), 
-                                             float(rpy[0,0]), float(rpy[1,0]), float(rpy[2,0]) ])
+            quat = se3.Quaternion(self.data.oMi[i].rotation).coeffs()
+            jointToDisplay = self.getJointByIndex(i)
+            nodeNameGV = self.convertJointToNode(jointToDisplay)
+            if nodeNameGV == None :
+                pass
+            else:
+                nodeConfiguration = [   float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
+                                        float(quat[0,0]), float(quat[1,0]), float(quat[2,0]), float(quat[3,0]) ]
+                self.viewer.gui.applyConfiguration(nodeNameGV,nodeConfiguration)
+                self.viewer.gui.refresh()
 
+    # Display the placement of the body associated to the param joint given the robot generalized coordinates
+    def updateJointPlacement(self,q,joint):
+        if 'viewer' not in self.__dict__: return
+        # Update the robot geometry
+        se3.kinematics(self.model,self.data,q,self.v0)
+        jIdx = self.index(joint)
+        xyz = self.data.oMi[jIdx].translation
+        quat = se3.Quaternion(self.data.oMi[jIdx].rotation).coeffs()
+        nodeNameGV = self.convertJointToNode(joint)
+        if nodeNameGV == None :
+            print "No corresponding body"
+            pass
+        else:
+            nodeConfiguration = [   float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
+                                    float(quat[0,0]), float(quat[1,0]), float(quat[2,0]), float(quat[3,0]) ]
+            self.viewer.gui.applyConfiguration(nodeNameGV,nodeConfiguration)
+            self.viewer.gui.refresh()
+
+    # Update the placement of the body associated to the param joint given the vector [xyz,quaternion]
+    def updateJointConfiguration(self,config,joint):
+        if 'viewer' not in self.__dict__: return
+        nodeNameGV = self.convertJointToNode(joint)
+        if nodeNameGV == None :
+            print "No corresponding body"
+            pass
+        else:
+            self.viewer.gui.applyConfiguration(nodeNameGV,config)
+            self.viewer.gui.refresh()
 
 __all__ = [ 'RobotWrapper' ]
