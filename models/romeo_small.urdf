@@ -35,12 +35,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/NeckPitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/NeckPitch.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/NeckPitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/NeckPitch.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -73,12 +73,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/HeadRoll.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/HeadRoll.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/HeadRoll.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/HeadRoll.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -125,12 +125,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/LHipPitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/LHipPitch.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/LHipPitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/LHipPitch.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -149,12 +149,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/LKneePitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/LKneePitch.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/LKneePitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/LKneePitch.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -187,12 +187,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/LAnkleRoll.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/LAnkleRoll.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/LAnkleRoll.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/LAnkleRoll.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -245,12 +245,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/RHipPitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/RHipPitch.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/RHipPitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/RHipPitch.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -269,12 +269,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/RKneePitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/RKneePitch.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/RKneePitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/RKneePitch.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -307,12 +307,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/RAnkleRoll.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/RAnkleRoll.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/RAnkleRoll.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/RAnkleRoll.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -330,12 +330,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/Torso.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/Torso.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/Torso.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/Torso.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -354,12 +354,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/TrunkYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/TrunkYaw.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/TrunkYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/TrunkYaw.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -392,12 +392,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/LShoulderYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/LShoulderYaw.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/LShoulderYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/LShoulderYaw.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -430,12 +430,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/LElbowYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/LElbowYaw.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/LElbowYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/LElbowYaw.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -454,12 +454,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/LWristRoll.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/LWristRoll.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/LWristRoll.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/LWristRoll.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -478,12 +478,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/LWristYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/LWristYaw.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/LWristYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/LWristYaw.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -502,12 +502,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/LWristPitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/LWristPitch.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/LWristPitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/LWristPitch.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -540,12 +540,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/RShoulderYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/RShoulderYaw.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/RShoulderYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/RShoulderYaw.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -578,12 +578,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/RElbowYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/RElbowYaw.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/RElbowYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/RElbowYaw.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -602,12 +602,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/RWristRoll.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/RWristRoll.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/RWristRoll.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/RWristRoll.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -626,12 +626,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/RWristYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/RWristYaw.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/RWristYaw.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/RWristYaw.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
@@ -650,12 +650,12 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/visual/RWristPitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/visual/RWristPitch.dae" scale="1 1 1"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://romeo_description/meshes/V1/collision/RWristPitch.dae" scale="1 1 1"/>
+        <mesh filename="package://meshes/collision/RWristPitch.dae" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>

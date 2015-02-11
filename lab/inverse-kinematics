@@ -3,52 +3,54 @@ Stack of Tasks lab: inverse kinematics
 
 Objective
 ---------
+In this first series of exercises, we are going to take in hand the library Pinocchio in order to build a model
+of a robot, display this robot in a graphical user interface and control the robot to achieve geometric tasks.
+We will first try to achieve a positioning task for one hand, then we will enforce the static balance of the robot.
+Finally, we will implement a hierarchy of task in order to achieve both task : to reach a desired position for the hand
+ensuring we are in a statically balanced position.
 
-The objective of this part is to build a model of humanoid robot, to
-display the robot in a graphical user interface, and then to control
-the robot in order to achieve geometric tasks like specifying the
-position of one hand or enforcing static balance.
+The software Pinocchio is a C++ library provided with a python wrapping that allows us to control it with a python terminal.
+Let's see how it works.
 
-Tutorial 1. Creating and displaying the robot
----------------------------------------------
-The labwork is based on the software Pinocchio, which will be controlled from a python terminal. The first action
-to perform is to open a python terminal:
+Tutorial 0. Tips
+----------------
+Python
+~~~~~~
+We remind you that you can open a python terminal in your own shell. Simply type :
+bash terminal
 ....
-student@student-virtualbox:~$ py
->>> 
+student@student-virtualbox:~$ python
+>>>
+....
+Afterwards you'll just have to type your commands in this newly opened terminal.
+
+To close the python terminal, just type CTRL-D (CTRL-C first to interrupt any on-going execution).
+
+You can also write you command lines in a file and launch this script without entering the interactive mode
+(ie. without starting a new python terminal). In your shell, just type:
+bash terminal
+....
+student@student-virtualbox:~$ python script.py
+>>>
 ....
 
-From the interactive interface, simply type commands or copy-paste them from an
-editor or from this page. From now on you can copy paste the code blocks from
-this page to the terminal. In a second time, the script is recorded as a python
-file, say lab.py, that you can run using the same shell command, with the
-python script or scripts as arguments:
-....
-student@student-virtualbox:~$ py lab.py
->>> 
-....
-
-Type CTRL-D to quit the python terminal (CTRL-C first to interrupt an on-going
-python execution). The script will be run without enterring the so-called interractive mode by:
-....
-student@student-virtualbox:~$ python lab.py
-student@student-virtualbox:~$ 
-....
+Pinocchio
+~~~~~~~~~
 
 
-Basic mathematical objects
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+*Basic mathematical objects:*
 
-In the following, we will use numpy Matrix class to represent matrices and vectors. In numpy, vectors simply are matrices with one column. See the following example.
+In the following, we will use numpy Matrix class to represent matrices and vectors.
+In numpy, vectors simply are matrices with one column. See the following example.
 [source, python]
 ----
 import numpy as np
-A = np.matrix([ [1,2,3,4],[5,6,7,8]]) # Define a 6x4 matrix
-b = np.zeros([4,1])   # Define a 4 vector (ie a 4x1 matrix) initialized to 0.
+A = np.matrix([ [1,2,3,4],[5,6,7,8]]) # Define a 2x4 matrix
+b = np.zeros([4,1])   # Define a 4 vector (ie a 4x1 matrix) initialized with 0.
 c = A*b               # Obtain c by multiplying A by b.
 ----
 
-A bunch of useful functions are packages in the utils of pinocchio.
+A bunch of useful functions are packaged in the utils of pinocchio.
 
 [source,python]
 ----
@@ -64,7 +66,8 @@ cross(rand(3),rand(3))    # Cross product of R^3
 rotate('x',0.4)           # Build a rotation matrix of 0.4rad around X.
 ----
 
-Specific classes are defined to reprensent object of SE(3), se(3) and se(3)^*. Rigid displacement, elements of SE(3), are represented by the class SE3.
+Specific classes are defined to represent objects of SE(3), se(3) and se(3)^*. Rigid displacements, elements of SE(3), are represented by the class SE3.
+
 [source,python]
 ----
 import pinocchio as se3
@@ -75,8 +78,8 @@ M.translation = p; M.rotation = R
 ----
 
 Spatial velocities, elements of se(3) = M^6, are represented by the class Motion.
-[source,python]
 
+[source,python]
 ----
 v = zero(3); w = zero(3)
 nu0 = se3.Motion(v,w)
@@ -93,6 +96,10 @@ phi0 = se3.Force(f,tau)
 phi = se3.Force.Random()
 phi.linear = f; phi.angular = tau
 ----
+
+
+Tutorial 1. Creating and displaying the robot
+---------------------------------------------
 
 Robot kinematic tree
 ~~~~~~~~~~~~~~~~~~~~
@@ -111,9 +118,9 @@ the model of the Romeo robot, available in the directory "models" of Pinocchio.
 ----
 from pinocchio.robot_wrapper import RobotWrapper
 
-robot = RobotWrapper('/home/student/src/pinocchio/models/romeo.urdf')
+robot = RobotWrapper('path/to/urdf/romeo_small.urdf')
 ----
-The code of the RobotWrapper class is in /home/student/src/pinocchio/src/python/robot_wrapper.py . Do not hesitate to have a look at it and to take inspiration from the implementation of the class functions.
+The code of the RobotWrapper class is in /path/to/pinocchio//src/python/robot_wrapper.py . Do not hesitate to have a look at it and to take inspiration from the implementation of the class functions.
 
 Exploring the model
 ~~~~~~~~~~~~~~~~~~~
@@ -138,7 +145,7 @@ allocated by the classical rigid-body dynamics algorithms are stored in
 robot.data and are available through the python wrapping. Similarly to the
 model object, the function are documented and are available from the class
 dictionnary. The most useful in the following will be the placement of the
-frame associated which each joint output stored in robot.data.oMi. 
+frame associated which each joint output stored in robot.data.oMi.
 
 For example, the right hand of Romeo corresponds to the output of the right
 wrist joint, called RWristPitch. The ID of the joint in the joint list can be
@@ -146,22 +153,27 @@ recovered from its name, and then used to access its placement:
 
 [source,python]
 ----
-idx = [ idx for idx,name in enumerate(robot.model.names) if name=="RWristPitch" ][0]
+def index(self,name):
+   return [ idx for idx,name in enumerate(robot.model.names) if name=="RWristPitch" ][0]
+
+# Get the placement of joint number idx
 placement = robot.data.oMi[idx]
 ----
 
-Browse the list 'robot.model.names' to recognize the operation points needed in
-the end of this page. Shortcuts are implemented for the right wrist (rh), left
+Shortcuts are implemented for the right wrist (rh), left
 wrist (lh), right ankle (rf) and left ankle (lf). You can get the placement
 corresponding to the right hand with robot.Mrh(q) and the corresponding
 Jacobian (6D, expressed in the body frame) with robot.Jrh.
 
-Finally, the classical functions with Model and Data have been wrapped in some
-python shortcuts, also available in RobotWrapper. The size of the robot
-configuration is given by nq. The dimension of its tangent space (velocity) is
-nv. The index of a joint in the tree can be accessed from its name by
-index. The classical algorithm are also binded: com, Jcom, mass, biais, joint
-gravity, position and velocity of each joint.
+Finally, some recurring datas (used in Model and Data) have been wrapped to functions in some
+python shortcuts, also available in RobotWrapper:
++The size of the robot configuration is given by nq.
++The dimension of its tangent space (velocity) is nv.
++The index of a joint in the tree can be accessed from its name by index (see above).
++The classical algorithms are also binded: com, Jcom, mass, biais, joint gravity, position and velocity of each joint.
++Shortcuts are also implemented for the placement and the Jacobian (6D, expressed in the body frame) of
+the right wrist(rh), left wrist(lh), right ankle(rf), left ankle (lf).For example, you can access the right wrist
+placement and Jacobian with robot.Mrh(q) and robot.Jrh(q)
 
 [source,python]
 ----
@@ -171,73 +183,114 @@ robot.com(q)            # Compute the robot center of mass.
 robot.position(q,23)    # Compute the placement of joint 23
 ----
 
-Launching RobotViewer
-~~~~~~~~~~~~~~~~~~~~~
+Display the robot
+~~~~~~~~~~~~~~~~~
 
-To display the robot, we need an external program called +Robot Viewer+. To launch this
+To display the robot, we need an external program called +Gepetto Viewer+.
+If you completed the installation in the previous page, you can launch this
 program, open a new terminal in an empty workspace.
-bash terminal
+
 ....
-student@student-virtualbox:~$
+student@student-virtualbox:~$ gepetto-viewer-server
 ....
-In this terminal, type the following command
-....
-robotviewer -s XML-RPC
-....
-A Graphical User Interface appears. In the viewer, you can see the bodies of
-the robot all gathered at the origin. They do not respect (yet) the kinematic tree
+This will start a server waiting for instructions. We will now create a client that will ask
+the server to perform some requests (such as creating a window or displaying our robot)
+In a python terminal you can test the following :
+
+[source,python]
+----
+from gepetto.corbaserver import Client
+client = Client ()
+# open a new window
+client.gui.createWindow ("w")
+----
+
+This should have opened a window referenced as "w" in the gepetto-server. But this window is empty.
+In order to display the robot, we need to load its visual geometry. This can be performed with:
+
+[source,python]
+----
+from gepetto.corbaserver import Client
+client=Client()
+client.gui.createWindow("w")
+client.gui.createSceneWithFloor("world")
+client.gui.addSceneToWindow("world","w")
+client.gui.addURDF("world/romeo","/path/to/urdf//romeo_small.urdf","/path/to/meshes/dir/")
+----
+
+Be careful : Using the +addURDF+ method, you load the robot in memory and parse the urdf file.
+The representation in the viewver is such that it need to have a root node that need to be added to the world.
+That's why we set the root node as world/romeo in the above example. Moreover the kinematic chain in gepetto
+viewer is slightly different from the one in pinocchio. In the viewer, the bodies are stored as nodes
+whereas in Pinocchio we store the joints. You can get the list of the node links in gepetto viewer typing
+in your python terminal :
+[source,python]
+----
+client.gui.getNodeList()
+----
+This list will be printed in the terminal running the gepetto viewer.
+
+You will also note that all the bodies are displayed at the same location. In fact, the viewer only loads
+the meshes associated to the links of our robot. If you want to move these bodies, you can use
+ +applyConfiguration("node",config)+:
+[source,python]
+----
+q1 = [1,1,1,1,0,0,0]
+client.gui.applyConfiguration('world/romeo/HeadRollLink',q1)
+client.gui.refresh() # Refresh the window.
+----
+
 
 Publishing the robot configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Objective:* Playing with SE3, displaying rigid bodies in the world, displaying the robot.
+*Objectives:* Touch the difference between Pinocchio and Gepetto-viewer kinematic trees.
+Play with SE3, display rigid bodies in the world, compute and update the robot position.
 
-In the Pinocchio python terminal, import +robotviewer+ class and create an instance.
-[source,python]
-----
-import robotviewer
-viewer=robotviewer.client('XML-RPC')
-----
+Previously, we have seen how to load the robot model in Pinocchio and in the gepetto-viewer.
+And how to update the placement of a body in the viewer. Now we will see the correspondance
+between the model in Pinocchio and the one in the viewer.
 
-You can now move on body at a particular place, for example the head:
-[source,python]
-----
-viewer.updateElementConfig('RomeoHeadRoll',[0,0,2,0,0,0])
-----
-
-The placement is configured by 6 parameters: X (front), Y (left), Z (up), Roll,
-Pitch, Yaw. Here, we asked the head to flight two meters above the ground,
-aligned with the origin.
-
-Not all joints have a body representation attached to them (for example,
-LWristYaw has none). You can try to move other part of the robot. 
-
-Now, the correct placement of every joint (and corresponding body
-representation) are computed using the robot.position function. This function
-returns an object M of class se3.SE3 (print it). The two main fields are
-M.translation (3x1 vector) and M.rotation (3x3 orthogonal matrix). The
-corresponding homogeneous matrix is given by M.homogeneous. A 3x3 rotation
-matrix can be converted to a roll-pitch-yaw vector using the rpy script:
-[source,python]
-----
-M = robot.position(q,1)
-rpy = matrixToRpy(M.rotation)
-----
-Using the matrixToRpy function, the SE3 placement of the body can be converted
-to a 6-dimension vectors using the following se3ToPoseRPY function.
+The body origin is attached to the parent joint location (plus an offset). So to display the
+body attached to a joint (e.g the left arm attached to the left shoulder), we only need the coordinates
+of the joint.
+Hence, to display the Head in the viewer, we compute the position of the joint parent of the head link.
+This joint is 'HeadRoll'
 
 [source,python]
 ----
-def se3ToPoseRpy(M): 
-  '''Return a tuple of length 6 containing [X Y Z R P Y] corresponding to the input SE3 object.'''
-  xyz = M.translation
-  rpy = matrixToRpy(M.rotation)
-  return [ float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
-	   float(rpy[0,0]), float(rpy[1,0]), float(rpy[2,0]) ]
+head_joint_id = robot.index('HeadRoll')
+M = robot.position(robot.q0,head_joint_id)
+----
+The placement of every joint is computed using +robot.position+. This function returns an object M
+of class se3.SE3. The two main fields are M.translation (3x1 vector) and M.rotation (3x3 orthogonal matrix)
+. The corresponding homogeneous matrix is given by M.homogeneous. This matrix must be converted into a
+configuration vector of dimension 7 (x,y,z + a quaternion). You can perform it  with:
+
+[source,python]
+----
+robot.se3ToConfig(M)
 ----
 
-*Question:* For each joint, get its name in robot.model.names, then its
-placement with robot.position, and properly display romeo in RobotViewer.
+*Question:*  For each body in the gepetto-viewer, retrieve the associated joint then its placement
+and display the robot Romeo in the viewer.
+
+As all of the joints do not have a body representation (for exemple, HeadPitch), and that it is pretty heavy
+to compute and update the placement of each body by hand, a function has been implemented in the robotwrapper.
+
+[source,python]
+----
+robot.display(robot.q0)
+----
+
+This function compute the placement of each joints that have a body attached to them and
+update the body corresponding in the viewer (communicating the new position, orientation and refreshing the
+window). To do so, we bind the Pinocchio robot to the one in the gepetto viewer by initializint the
+connexion. The argument needed is the root node of the romeo tree in gepetto-viewer.
+[source,python]
+----
+robot.initDisplay("world/romeo/")
+----
 
 
 Moving the robot joints
@@ -246,7 +299,7 @@ Moving the robot joints
 *Objective:* Touch the difference between a simple integration in R^n and the
  exponential map in SE3.
 
-The robot configuration q and velocity qdot do not have the same dimension. 
+The robot configuration q and velocity qdot do not have the same dimension.
 
 *Why?*
 
@@ -257,22 +310,20 @@ se(3)) representing the relative movement of the world and the hip frames,
 written using the coordinate system of the world frame. This corresponds to 3
 linear velocities qdot[0:3] and 3 angular ones qdot[3:6]. Total, 6 parameters.
 
-Consider first the 33 last parameters. They are straightforward to integrate
+Consider first the 31 last parameters. They are straightforward to integrate
 along time. Let us provide a constant angular velocity to the left shoulder.
 [source,python]
 ----
+#Do not forget to launch the viewer and establish connexion with initDisplay
 q = robot.q0
 qdot = zero(robot.nv)
-qdot[22] = 1
+qdot[20] = 1
 dt = 5e-3
-robot.initDisplay()
 for i in range(1000):
     q[7:] += qdot[6:]*dt
     robot.display(q)
 ----
-The last line is used to display the robot in RobotViewer, given that the 4th
-line has been called first (using a similar code as the one produced in
-Tutorial 1). Looking in the display, the robot left arm rotates around the shoulder. 
+Looking in the display, the robot left arm rotates around the shoulder.
 
 This will not work for the rotation velocity. Try to increase directly the
 quaternion would lead to inconsistancy:
@@ -287,8 +338,7 @@ for i in range(100):
 *What happened?*
 
 The quaternion norm is bigger than one, which then leads to a non orthonormal
-matrix... the display explodes. We will integrate properly in the next Tutorial
-2. First let start to do it for a single body.
+matrix... the display explodes. We will integrate properly in the next Tutorial.
 
 
 Tutorial 2: Integration in a Lie Group
@@ -307,20 +357,21 @@ be the corresponding trajectory?
 
 [source,python]
 ----
+import pinocchio as se3
 N = 1000
 v = zero(3); v[2] = 1.0 / N
 w = zero(3); w[1] = 1.0 / N
 nu = se3.Motion( v, w )
 
 M = se3.SE3.Identity()
-viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
+robot.updateJointConfiguration(robot.se3ToConfig(M),'HeadRoll')
 
 for i in range(N):
-    M = M*se3.exp(nu)
-    viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
+   M = M*se3.exp(nu)
+   robot.updateJointConfiguration(robot.se3ToConfig(M),'HeadRoll')
 ----
 
-The exponential map integrate the se(3) velocity expressed in the body
+The exponential map integrates the se(3) velocity expressed in the body
 frame. When the body rotates, the direction of the movement in the world frame
 rotates as well (since it is constant in the body frame).
 
@@ -338,7 +389,7 @@ Log in SE(3)
 Now, let us move the body to a given position Mdes. The velocity to be
 integrate during a unit time interval is given by the log. It is possible to
 interpolate the movement trivially, since the exponential of two colinear
-elements comutes. 
+elements comutes.
 
 [source,python]
 ----
@@ -348,7 +399,7 @@ nu = se3.log(M.inverse()*Mdes)
 
 for i in range(N):
     M = M*se3.exp(nu.vector()/N)
-    viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
+    robot.updateJointConfiguration(robot.se3ToConfig(M),'HeadRoll')
 ----
 
 Here, nu is the applied velocity expressed in the body frame; we therefore integrate on the right.
@@ -362,11 +413,11 @@ would be more interesting within a non-linear optimization scheme, see below).
 ----
 def errorInSE3( M,Mdes):
   '''
-    Compute a 6-dim error vector (6x1 np.maptrix) caracterizing the difference 
-    between M and Mdes, both element of SE3. 
+    Compute a 6-dim error vector (6x1 np.maptrix) caracterizing the difference
+    between M and Mdes, both element of SE3.
   '''
   error = se3.log(M.inverse()*Mdes)
-  return error.vector()    
+  return error.vector()
 
 N = 1000
 Mdes = se3.SE3.Random()
@@ -374,7 +425,7 @@ gain = 1.0 / N
 for i in range(N):
     nu = gain*errorInSE3(M,Mdes)   # nu is the desired spatial velocity.
     M = M*se3.exp(nu)
-    viewer.updateElementConfig('RomeoHeadRoll', se3ToPoseRpy(M))
+    robot.updateJointConfiguration(robot.se3ToConfig(M),'HeadRoll')
 ----
 
 Integration of a non-trivial Lie Group
@@ -382,7 +433,7 @@ Integration of a non-trivial Lie Group
 
 The 7 first components of q are the hip position and orientation (stored as a
 quaternion. The 6 first components of qdot are the se(3) velocity of the hip in
-the body frame. The velocity integrates on the right. 
+the body frame. The velocity integrates on the right.
 
 An additionnal step has to be added to obtain the SE(3) element from and back
 to quaternion. This can be done using the se3.Quaternion class.
@@ -450,8 +501,8 @@ SE(3) placement of the hand. The tangent is available from the function
 robot.Jrh(q). The tangent is expressed in the body frame. We are interrested by
 the variation of the position (translation only) of the hand in the world. This
 is obtained by rotating the three first rows of the tangent to expressed it in the world:
-$\displaystyle{\frac{\partial (x,y,z)}{\partial q} = \ ^wR_{rw} \ ^{rw}J_{rw}[0:3,:]}$ 
-where [0:3,:] denotes the selection of the three first rows. 
+$\displaystyle{\frac{\partial (x,y,z)}{\partial q} = \ ^wR_{rw} \ ^{rw}J_{rw}[0:3,:]}$
+where [0:3,:] denotes the selection of the three first rows.
 
 *Question:* Given the gradient of the error, the gain, and the value of the
 	  error, compute a derivative of the configuration solution to
