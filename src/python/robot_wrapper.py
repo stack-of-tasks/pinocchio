@@ -9,7 +9,7 @@ class RobotWrapper:
         self.data = self.model.createData()
         self.v0 = utils.zero(self.nv)
         self.q0 = np.matrix( [
-            0, 0, 0.840252, 0, 0, 0, 1,                        # Free flyer
+            0, 0, 0.840252, 0, 0, 0, 1,                      # Free flyer
             0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0,   # left leg
             0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0,   # right leg
             0,                                               # chest
@@ -24,7 +24,7 @@ class RobotWrapper:
                                    }
 
         #TODO Build it automatically when parsing ? (see gepettoviewer parsing)
-        self.bodiesAssociatedInViewer = {   "root": "body",#"root": {"root","body"},
+        self.bodiesAssociatedInViewer = {   "root": "body",
                                             "LHipYaw": None,
                                             "LHipRoll": None,
                                             "LHipPitch": "LHipPitchLink",
@@ -148,6 +148,13 @@ class RobotWrapper:
             nodeNameGV = self.rootNodeGV + self.getAssociatedBody(joint)
             return nodeNameGV
 
+    def se3ToConfig(M):
+        xyz = M.translation
+        quat = se3.Quaternion(M.rotation).coeffs()
+        config = [  float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
+                    float(quat[3,0]), float(quat[0,0]), float(quat[1,0]), float(quat[2,0]) ]
+        return config
+
     def initDisplay(self,rootNodeGV):
         import gepetto.corbaserver
         try:
@@ -173,7 +180,7 @@ class RobotWrapper:
                 pass
             else:
                 nodeConfiguration = [   float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
-                                        float(quat[0,0]), float(quat[1,0]), float(quat[2,0]), float(quat[3,0]) ]
+                                        float(quat[3,0]), float(quat[0,0]), float(quat[1,0]), float(quat[2,0]) ]
                 self.viewer.gui.applyConfiguration(nodeNameGV,nodeConfiguration)
                 self.viewer.gui.refresh()
 
@@ -191,7 +198,7 @@ class RobotWrapper:
             pass
         else:
             nodeConfiguration = [   float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
-                                    float(quat[0,0]), float(quat[1,0]), float(quat[2,0]), float(quat[3,0]) ]
+                                    float(quat[3,0]), float(quat[0,0]), float(quat[1,0]), float(quat[2,0]) ]
             self.viewer.gui.applyConfiguration(nodeNameGV,nodeConfiguration)
             self.viewer.gui.refresh()
 
