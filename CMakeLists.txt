@@ -34,7 +34,7 @@ OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
 # --- DEPENDANCIES -----------------------------------
 # ----------------------------------------------------
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
-ADD_REQUIRED_DEPENDENCY("eigenpy >= 1.2.0")
+ADD_OPTIONAL_DEPENDENCY("eigenpy >= 1.2.0")
 ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.10")
 
@@ -166,6 +166,13 @@ IF(EIGENPY_FOUND)
       "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
       DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
   ENDFOREACH(python)
+ELSE()
+  string(ASCII 27 Esc)
+  set(ColourReset "${Esc}[m")
+  set(Red         "${Esc}[31m")
+  MESSAGE(WARNING "${Red}You don't have eigenpy installed. You will not be able to
+  use pinocchio through python wrapping. Please be sur you want to use
+  pinocchio only as a C++ library or install eigenpy and regenerate Makefile ${ColourReset}")
 ENDIF(EIGENPY_FOUND)
 
 # --- EXECUTABLES --------------------------------------------------------------
