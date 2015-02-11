@@ -10,8 +10,8 @@ class RobotWrapper:
         self.v0 = utils.zero(self.nv)
         self.q0 = np.matrix( [
             0, 0, 0.840252, 0, 0, 0, 1,                      # Free flyer
-            0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0,   # left leg
-            0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0,   # right leg
+            0, 0, -0.3490658, 0.6981317, -0.3490658, 0,   # left leg
+            0, 0, -0.3490658, 0.6981317, -0.3490658, 0,   # right leg
             0,                                               # chest
             1.5, 0.6, -0.5, -1.05, -0.4, -0.3, -0.2,         # left arm
             0, 0, 0, 0,                                      # head
@@ -148,7 +148,7 @@ class RobotWrapper:
             nodeNameGV = self.rootNodeGV + self.getAssociatedBody(joint)
             return nodeNameGV
 
-    def se3ToConfig(M):
+    def se3ToConfig(self,M):
         xyz = M.translation
         quat = se3.Quaternion(M.rotation).coeffs()
         config = [  float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
@@ -172,16 +172,13 @@ class RobotWrapper:
         se3.kinematics(self.model,self.data,q,self.v0)
         # Iteratively place the robot bodies.
         for i in range(1,self.model.nbody):
-            xyz = self.data.oMi[i].translation
-            quat = se3.Quaternion(self.data.oMi[i].rotation).coeffs()
             jointToDisplay = self.getJointByIndex(i)
             nodeNameGV = self.convertJointToNode(jointToDisplay)
             if nodeNameGV == None :
                 pass
             else:
-                nodeConfiguration = [   float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
-                                        float(quat[3,0]), float(quat[0,0]), float(quat[1,0]), float(quat[2,0]) ]
-                self.viewer.gui.applyConfiguration(nodeNameGV,nodeConfiguration)
+                M = self.data.oMi[i]
+                self.viewer.gui.applyConfiguration(nodeNameGV,self.se3ToConfig(M))
                 self.viewer.gui.refresh()
 
     # Display the placement of the body associated to the param joint given the robot generalized coordinates
@@ -190,16 +187,13 @@ class RobotWrapper:
         # Update the robot geometry
         se3.kinematics(self.model,self.data,q,self.v0)
         jIdx = self.index(joint)
-        xyz = self.data.oMi[jIdx].translation
-        quat = se3.Quaternion(self.data.oMi[jIdx].rotation).coeffs()
         nodeNameGV = self.convertJointToNode(joint)
         if nodeNameGV == None :
             print "No corresponding body"
             pass
         else:
-            nodeConfiguration = [   float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
-                                    float(quat[3,0]), float(quat[0,0]), float(quat[1,0]), float(quat[2,0]) ]
-            self.viewer.gui.applyConfiguration(nodeNameGV,nodeConfiguration)
+            M = self.data.oMi[jIdx]
+            self.viewer.gui.applyConfiguration(nodeNameGV,self.se3ToConfig(M))
             self.viewer.gui.refresh()
 
     # Update the placement of the body associated to the param joint given the vector [xyz,quaternion]
