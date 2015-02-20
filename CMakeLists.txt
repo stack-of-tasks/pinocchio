@@ -116,14 +116,14 @@ ENDFOREACH(header)
 IF(EIGENPY_FOUND)
   FINDPYTHON()
   MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}")
-  
+
   # --- COMPILE WRAPPER
   SET(PYWRAP ${PROJECT_NAME}_pywrap)
   ADD_LIBRARY(${PYWRAP} SHARED src/python/module.cpp src/python/python.cpp)
   PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} eigenpy)
   IF(URDFDOM_FOUND)
     PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} urdfdom)
-    
+
   ENDIF(URDFDOM_FOUND)
   TARGET_LINK_LIBRARIES(${PYWRAP} ${Boost_LIBRARIES} eigenpy)
   SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES
@@ -131,12 +131,13 @@ IF(EIGENPY_FOUND)
   INSTALL(FILES
     "${CMAKE_BINARY_DIR}/lib/python/${PROJECT_NAME}/lib${PYWRAP}.so"
     DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
-  
-  # --- INSTALL SCRIPTS 
+
+  # --- INSTALL SCRIPTS
   SET(PYTHON_FILES
     python/__init__.py
     python/utils.py
     python/robot_wrapper.py
+    python/romeo_wrapper.py
     python/rpy.py
     python/explog.py
     )
@@ -145,27 +146,34 @@ IF(EIGENPY_FOUND)
     EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
       ${${PROJECT_NAME}_SOURCE_DIR}/src/${python}
       ${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile})
-    
+
     # Tag pyc file as generated.
     SET_SOURCE_FILES_PROPERTIES(
       "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
       PROPERTIES GENERATED TRUE)
-    
+
     EXECUTE_PROCESS(COMMAND
       ${PYTHON_EXECUTABLE} -m py_compile
       ${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile} )
-    
+
     # Clean generated files.
     SET_PROPERTY(
       DIRECTORY APPEND PROPERTY
       ADDITIONAL_MAKE_CLEAN_FILES
       "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c")
-    
+
     INSTALL(FILES
       "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}"
       "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
       DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
   ENDFOREACH(python)
+ELSE()
+  string(ASCII 27 Esc)
+  set(ColourReset "${Esc}[m")
+  set(Red         "${Esc}[31m")
+  MESSAGE(WARNING "${Red}You don't have eigenpy installed. You will not be able to
+  use pinocchio through python wrapping. Please be sur you want to use
+  pinocchio only as a C++ library or install eigenpy and regenerate Makefile ${ColourReset}")
 ENDIF(EIGENPY_FOUND)
 
 # --- EXECUTABLES --------------------------------------------------------------
@@ -178,4 +186,3 @@ ENDIF (BUILD_BENCHMARK)
 
 SETUP_PROJECT_FINALIZE()
 SETUP_PROJECT_CPACK()
-

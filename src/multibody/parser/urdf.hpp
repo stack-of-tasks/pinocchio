@@ -83,7 +83,7 @@ namespace se3
 	    {
 	      // This is a bypass to be corrected later. TODO
 
-
+	    	bool visual = (link->visual) ? true : false;
 	  Model::Index parent 
 	    = (link->getParent()->parent_joint==NULL) ?
 	    (freeFlyer ? 1 : 0)
@@ -104,13 +104,13 @@ namespace se3
 		switch(axis)
 		  {
 		  case AXIS_X:
-		    model.addBody( parent, JointModelRX(), jointPlacement, Y, joint->name );
+		    model.addBody( parent, JointModelRX(), jointPlacement, Y, visual, joint->name,link->name );
 		    break;
 		  case AXIS_Y:
-		    model.addBody( parent, JointModelRY(), jointPlacement, Y, joint->name );
+		    model.addBody( parent, JointModelRY(), jointPlacement, Y, visual, joint->name,link->name  );
 		    break;
 		  case AXIS_Z:
-		    model.addBody( parent, JointModelRZ(), jointPlacement, Y, joint->name );
+		    model.addBody( parent, JointModelRZ(), jointPlacement, Y, visual, joint->name,link->name );
 		    break;
 		  default:
 		    std::cerr << "Bad axis = (" <<joint->axis.x<<","<<joint->axis.y
@@ -136,7 +136,7 @@ namespace se3
 	    }}
       else if(freeFlyer)/* (joint==NULL) */
 	{ /* The link is the root of the body. */
-	  model.addBody( 0, JointModelFreeFlyer(), SE3::Identity(), Y, "root" );
+	  model.addBody( 0, JointModelFreeFlyer(), SE3::Identity(), Y, true, "root", link->name );//"root"  );
 	}
 
       BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
