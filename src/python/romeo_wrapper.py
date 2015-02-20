@@ -3,12 +3,25 @@ import libpinocchio_pywrap as se3
 import utils
 from explog import exp
 
-class RobotWrapper:
+class RomeoWrapper:
     def __init__(self,filename):
         self.model = se3.buildModelFromUrdf(filename,True)
         self.data = self.model.createData()
         self.v0 = utils.zero(self.nv)
-        self.q0 = utils.zero(self.nq)
+        self.q0 = np.matrix( [
+            0, 0, 0.840252, 0, 0, 0, 1,                      # Free flyer
+            0, 0, -0.3490658, 0.6981317, -0.3490658, 0,   # left leg
+            0, 0, -0.3490658, 0.6981317, -0.3490658, 0,   # right leg
+            0,                                               # chest
+            1.5, 0.6, -0.5, -1.05, -0.4, -0.3, -0.2,         # left arm
+            0, 0, 0, 0,                                      # head
+            1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2,          # right arm
+            ] ).T
+        self.opCorrespondances = { "lh": "LWristPitch",
+                                   "rh": "RWristPitch",
+                                   "rf": "RAnkleRoll",
+                                   "lf": "LAnkleRoll",
+                                   }
 
         self.bodiesAssociatedInViewer = {}
 
@@ -20,6 +33,10 @@ class RobotWrapper:
             else:
                 viewerLinkName = None
             self.bodiesAssociatedInViewer[pinocchioJointName] = viewerLinkName
+
+
+        for op,name in self.opCorrespondances.items():
+            self.__dict__[op] = self.index(name)
 
     def increment(self,q,dq):
         M = se3.SE3( se3.Quaternion(q[6,0],q[3,0],q[4,0],q[5,0]).matrix(), q[:3])
@@ -69,15 +86,39 @@ class RobotWrapper:
         return se3.jacobian(self.model,self.data,index,q,True)
 
 
+    # --- SHORTCUTS ---
+    def Mrh(self,q):
+        return self.position(q,self.rh)
+    def Jrh(self,q):
+        return self.jacobian(q,self.rh)
+    def wJrh(self,q):
+        return se3.jacobian(self.model,self.data,self.rh,q,False)
+    def vrh(self,q,v):
+        return self.velocity(q,v,self.rh)
+
+    def Jlh(self,q):
+        return self.jacobian(q,self.lh)
+    def Mlh(self,q):
+        return self.position(q,self.lh)
+
+    def Jlf(self,q):
+        return self.jacobian(q,self.lf)
+    def Mlf(self,q):
+        return self.position(q,self.lf)
+    def Jrf(self,q):
+        return self.jacobian(q,self.rf)
+    def Mrf(self,q):
+        return self.position(q,self.rf)
+
+    def setInitialConfig(self,q):
+        assert(len(q)==self.nq)
+        self.q0 = q
+
     def getJointByIndex(self,index):
         for idx,name in enumerate(self.model.names):
             if idx==index:
                 return name
                 break
-
-    def setInitialConfig(self,q):
-        assert(len(q)==self.nq)
-        self.q0 = q
 
     # --- VIEWER ---
     def convertJointToNode(self,joint):

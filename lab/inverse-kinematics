@@ -107,20 +107,27 @@ Robot kinematic tree
 The kinematic tree is represented by two C\++ objects called Model (which
 contains the model constants: lengths, masses, names, etc) and Data (which
 contains the working memory used by the model algorithms). Both C\++ objects are
-contained in a unique Python class called RobotWrapper.
+contained in a unique Python class. Two classes are currently available.
+The first one is called RobotWrapper and is generic. This is the one you should use
+with your own urdf model.
+The second one is called RomeoWrapper and is correlated to the romeo_small.urdf provided with
+the package. It implements some shortcuts specifics to our model and specify a half-sitting
+configuration.
 
-Import the class +RobotWrapper+ and create an instance of this class in the
-python terminal. At initialization, RobotWrapper will read the model
+For the next steps, we are going to work with the RomeoWrapper.
+
+Import the class +RomeoWrapper+ and create an instance of this class in the
+python terminal. At initialization, RomeoWrapper will read the model
 description in the URDF file given as argument. In the following, we will use
 the model of the Romeo robot, available in the directory "models" of Pinocchio.
 
 [source, python]
 ----
-from pinocchio.robot_wrapper import RobotWrapper
+from pinocchio.romeo_wrapper import RomeoWrapper
 
-robot = RobotWrapper('path/to/urdf/romeo_small.urdf')
+robot = RomeoWrapper('path/to/urdf/romeo_small.urdf')
 ----
-The code of the RobotWrapper class is in /path/to/pinocchio//src/python/robot_wrapper.py . Do not hesitate to have a look at it and to take inspiration from the implementation of the class functions.
+The code of the RomeoWrapper class is in /path/to/pinocchio//src/python/romeo_wrapper.py . Do not hesitate to have a look at it and to take inspiration from the implementation of the class functions.
 
 Exploring the model
 ~~~~~~~~~~~~~~~~~~~
@@ -166,7 +173,7 @@ corresponding to the right hand with robot.Mrh(q) and the corresponding
 Jacobian (6D, expressed in the body frame) with robot.Jrh.
 
 Finally, some recurring datas (used in Model and Data) have been wrapped to functions in some
-python shortcuts, also available in RobotWrapper:
+python shortcuts, also available in RomeoWrapper:
 +The size of the robot configuration is given by nq.
 +The dimension of its tangent space (velocity) is nv.
 +The index of a joint in the tree can be accessed from its name by index (see above).
@@ -276,7 +283,7 @@ robot.se3ToConfig(M)
 and display the robot Romeo in the viewer.
 
 As all of the joints do not have a body representation (for exemple, HeadPitch), and that it is pretty heavy
-to compute and update the placement of each body by hand, a function has been implemented in the robotwrapper.
+to compute and update the placement of each body by hand, a function has been implemented in the romeowrapper.
 
 [source,python]
 ----
@@ -458,7 +465,7 @@ with the results of the exponential map. The obtained placement is finally
 restored as a vector and stored in q. For the revolute joint parameters, the
 integration is straightforward.
 
-The integration function is available in the RobotWrapper class with
+The integration function is available in the RomeoWrapper class with
 increment(q,dq).
 
 

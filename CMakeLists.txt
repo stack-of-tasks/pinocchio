@@ -137,6 +137,7 @@ IF(EIGENPY_FOUND)
     python/__init__.py
     python/utils.py
     python/robot_wrapper.py
+    python/romeo_wrapper.py
     python/rpy.py
     python/explog.py
     )
