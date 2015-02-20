@@ -23,40 +23,52 @@ class RobotWrapper:
                                    "lf": "LAnkleRoll",
                                    }
 
-        #TODO Build it automatically when parsing ? (see gepettoviewer parsing)
-        self.bodiesAssociatedInViewer = {   "root": "body",
-                                            "LHipYaw": None,
-                                            "LHipRoll": None,
-                                            "LHipPitch": "LHipPitchLink",
-                                            "LKneePitch": "LKneePitchLink",
-                                            "LAnklePitch": None,
-                                            "LAnkleRoll": "l_ankle",
-                                            "RHipYaw": None,
-                                            "RHipRoll": None,
-                                            "RHipPitch": "RHipPitchLink",
-                                            "RKneePitch": "RKneePitchLink",
-                                            "RAnklePitch": None,
-                                            "RAnkleRoll": "r_ankle",
-                                            "TrunkYaw": "torso",
-                                            "LShoulderPitch": None,
-                                            "LShoulderYaw": "LShoulderYawLink",
-                                            "LElbowRoll": None,
-                                            "LElbowYaw": "LElbowYawLink",
-                                            "LWristRoll": "LWristRollLink",
-                                            "LWristYaw": "LWristYawLink",
-                                            "LWristPitch": "l_wrist",
-                                            "NeckYaw": None,
-                                            "NeckPitch": "NeckPitchLink",
-                                            "HeadPitch": None,
-                                            "HeadRoll": "HeadRollLink",
-                                            "RShoulderPitch": None,
-                                            "RShoulderYaw": "RShoulderYawLink",
-                                            "RElbowRoll": None,
-                                            "RElbowYaw": "RElbowYawLink",
-                                            "RWristRoll": "RWristRollLink",
-                                            "RWristYaw": "RWristYawLink",
-                                            "RWristPitch": "r_wrist",
-                                            }
+        self.bodiesAssociatedInViewer = {}
+
+        # Build automatically the link - joint table
+        # for i,visual in enumerate(self.model.hasVisual):
+        for i in range(1,self.model.nbody):
+            pinocchioJointName = self.getJointByIndex(i)
+            if self.model.hasVisual[i] == 1 :
+                viewerLinkName = self.model.links[i]
+            else:
+                viewerLinkName = None
+            self.bodiesAssociatedInViewer[pinocchioJointName] = viewerLinkName
+
+        #TODO Suppress hard coding of bodiesAssociatedInViewer when sure automattic works
+        # self.bodiesAssociatedInViewer = {   "root": "body",
+        #                                     "LHipYaw": None,
+        #                                     "LHipRoll": None,
+        #                                     "LHipPitch": "LHipPitchLink",
+        #                                     "LKneePitch": "LKneePitchLink",
+        #                                     "LAnklePitch": None,
+        #                                     "LAnkleRoll": "l_ankle",
+        #                                     "RHipYaw": None,
+        #                                     "RHipRoll": None,
+        #                                     "RHipPitch": "RHipPitchLink",
+        #                                     "RKneePitch": "RKneePitchLink",
+        #                                     "RAnklePitch": None,
+        #                                     "RAnkleRoll": "r_ankle",
+        #                                     "TrunkYaw": "torso",
+        #                                     "LShoulderPitch": None,
+        #                                     "LShoulderYaw": "LShoulderYawLink",
+        #                                     "LElbowRoll": None,
+        #                                     "LElbowYaw": "LElbowYawLink",
+        #                                     "LWristRoll": "LWristRollLink",
+        #                                     "LWristYaw": "LWristYawLink",
+        #                                     "LWristPitch": "l_wrist",
+        #                                     "NeckYaw": None,
+        #                                     "NeckPitch": "NeckPitchLink",
+        #                                     "HeadPitch": None,
+        #                                     "HeadRoll": "HeadRollLink",
+        #                                     "RShoulderPitch": None,
+        #                                     "RShoulderYaw": "RShoulderYawLink",
+        #                                     "RElbowRoll": None,
+        #                                     "RElbowYaw": "RElbowYawLink",
+        #                                     "RWristRoll": "RWristRollLink",
+        #                                     "RWristYaw": "RWristYawLink",
+        #                                     "RWristPitch": "r_wrist",
+        #                                     }
 
         for op,name in self.opCorrespondances.items():
             self.__dict__[op] = self.index(name)
@@ -145,7 +157,7 @@ class RobotWrapper:
         if jointNameInViewer == None :
             return None
         else:
-            nodeNameGV = self.rootNodeGV + self.getAssociatedBody(joint)
+            nodeNameGV = self.rootNodeGV + jointNameInViewer
             return nodeNameGV
 
     def se3ToConfig(self,M):
