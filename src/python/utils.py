@@ -13,6 +13,14 @@ def skew(p):
     x=p[0];y=p[1];z=p[2]
     return np.matrix([ [ 0,-z,y ], [ z,0,-x ], [ -y,x,0 ] ],np.double)
 
+# Convert the input SE3 object to a 7D tuple of floats [X,Y,Z,Q1,Q2,Q3,Q4] .
+def se3ToXYZQUAT(M):
+    xyz = M.translation
+    quat = se3.Quaternion(M.rotation).coeffs()
+    config = [  float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
+                float(quat[3,0]), float(quat[0,0]), float(quat[1,0]), float(quat[2,0]) ]
+    return config
+
 def isapprox(a,b,epsilon=1e-6):
     if "np" in a.__class__.__dict__: a = a.np
     if "np" in b.__class__.__dict__: b = b.np
