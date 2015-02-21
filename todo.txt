@@ -1,1 +1,7 @@
 * Check commit 13f8e6f (conversion from long to double)
+* Create a .cpp for non template code:
+      - multibody/model.cpp
+      - multibody/parser/urdf.cpp
+* Re-organize the python modules, in eigenpy and pinocchio. Eigenpy should be a module (now loaded by pinocchio).
+
+ 
