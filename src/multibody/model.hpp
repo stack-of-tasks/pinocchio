@@ -34,7 +34,9 @@ namespace se3
     std::vector<SE3> jointPlacements;  // Placement (SE3) of the input of joint <i> in parent joint output <li>
     JointModelVector joints;           // Model of joint <i>
     std::vector<Index> parents;        // Joint parent of joint <i>, denoted <li> (li==parents[i])
-    std::vector<std::string> names;    // name of the body attached to the output of joint <i>
+    std::vector<std::string> names;    // Name of joint <i>
+    std::vector<std::string> bodyNames;// Name of the body attached to the output of joint <i>
+    std::vector<bool> hasVisual;       // True iff body <i> has a visual mesh.
 
     Motion gravity;                    // Spatial gravity
     static const Eigen::Vector3d gravity981; // Default 3D gravity (=(0,0,9.81))
@@ -48,14 +50,18 @@ namespace se3
       , joints(1)
       , parents(1)
       , names(1)
+      , bodyNames(1)
+      , hasVisual(1)
       , gravity( gravity981,Eigen::Vector3d::Zero() )
     {
-      names[0] = "universe";
+      names[0]     = "universe";     // Should be "universe joint (trivial)"
+      bodyNames[0] = "universe";
     }
     ~Model() {} // std::cout << "Destroy model" << std::endl; }
     template<typename D>
     Index addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
-		   const Inertia & Y,const std::string & name = "" );
+		   const Inertia & Y, const std::string & jointName = "",
+		   const std::string & bodyName = "", bool visual = false );
     Index getBodyId( const std::string & name ) const;
     bool existBodyName( const std::string & name ) const;
     const std::string& getBodyName( Index index ) const;
@@ -121,7 +127,8 @@ namespace se3
     os << "Nb bodies = " << model.nbody << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
     for(int i=0;i<model.nbody;++i)
       {
-	os << "  Joint "<<model.names[i] << ": parent=" << model.parents[i] << std::endl;
+	os << "  Joint "<<model.names[i] << ": parent=" << model.parents[i] 
+	   << ( model.hasVisual[i] ? " (has visual) " : "(doesnt have visual)" ) << std::endl;
       }
 
     return os;
@@ -142,7 +149,8 @@ namespace se3
 
   template<typename D>
   Model::Index Model::addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
-			       const Inertia & Y,const std::string & name )
+			       const Inertia & Y,const std::string & jointName, 
+			       const std::string & bodyName, bool visual )
   {
     assert( (nbody==(int)joints.size())&&(nbody==(int)inertias.size())
 	    &&(nbody==(int)parents.size())&&(nbody==(int)jointPlacements.size()) );
@@ -156,12 +164,14 @@ namespace se3
     inertias       .push_back(Y);
     parents        .push_back(parent);
     jointPlacements.push_back(placement);
-    names          .push_back( (name!="")?name:random(8) );
-
+    names          .push_back( (jointName!="")?jointName:random(8) );
+    hasVisual      .push_back(visual);
+    bodyNames      .push_back(bodyName);
     nq += j.nq();
     nv += j.nv();
     return idx;
   }
+
   Model::Index Model::getBodyId( const std::string & name ) const
   {
     std::vector<std::string>::iterator::difference_type
