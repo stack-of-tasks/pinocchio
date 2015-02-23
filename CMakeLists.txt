@@ -137,6 +137,7 @@ IF(EIGENPY_FOUND)
     python/__init__.py
     python/utils.py
     python/robot_wrapper.py
+    python/romeo_wrapper.py
     python/rpy.py
     python/explog.py
     )
@@ -166,6 +167,13 @@ IF(EIGENPY_FOUND)
       "${CMAKE_CURRENT_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
       DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
   ENDFOREACH(python)
+ELSE()
+  string(ASCII 27 Esc)
+  set(ColourReset "${Esc}[m")
+  set(Red         "${Esc}[31m")
+  MESSAGE(WARNING "${Red}You don't have eigenpy installed. You will not be able to
+  use pinocchio through python wrapping. Please be sur you want to use
+  pinocchio only as a C++ library or install eigenpy and regenerate Makefile ${ColourReset}")
 ENDIF(EIGENPY_FOUND)
 
 # --- EXECUTABLES --------------------------------------------------------------
