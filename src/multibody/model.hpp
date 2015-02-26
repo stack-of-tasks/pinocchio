@@ -167,7 +167,7 @@ namespace se3
     jointPlacements.push_back(placement);
     names          .push_back( (jointName!="")?jointName:random(8) );
     hasVisual      .push_back(visual);
-    bodyNames      .push_back(bodyName);
+    bodyNames      .push_back( (bodyName!="")?bodyName:random(8));
     nq += j.nq();
     nv += j.nv();
     return idx;

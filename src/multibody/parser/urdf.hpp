@@ -136,7 +136,7 @@ namespace se3
 	    }}
       else if(freeFlyer)
 	{ /* The link is the root of the body. */
-	  model.addBody( 0, JointModelFreeFlyer(), SE3::Identity(), Y, "root", link->name, visual );
+	  model.addBody( 0, JointModelFreeFlyer(), SE3::Identity(), Y, "root", link->name, true );
 	}
 
       BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
