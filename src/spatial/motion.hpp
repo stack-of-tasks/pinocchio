@@ -121,7 +121,7 @@ namespace se3
 
     MotionTpl se3Action(const SE3 & m) const
     {
-      Vector3 Rw = static_cast<Vector3>(m.rotation() * angular());
+      Vector3 Rw (static_cast<Vector3>(m.rotation() * angular()));
       return MotionTpl(m.rotation()*linear() + m.translation().cross(Rw), Rw);
     }
     /// bv = aXb.actInv(av)
@@ -138,6 +138,20 @@ namespace se3
       return os;
     }
 
+    /** \brief Compute the classical acceleration of point according to the spatial velocity and spatial acceleration of the frame centered on this point
+     */
+    static inline Vector3 computeLinearClassicalAcceleration (const MotionTpl & spatial_velocity, const MotionTpl & spatial_acceleration)
+    {
+      return spatial_acceleration.linear () + spatial_velocity.angular ().cross (spatial_velocity.linear ());
+    }
+
+    /**
+      \brief Compute the spatial motion quantity of the parallel frame translated by translation_vector */
+    MotionTpl translate (const Vector3 & translation_vector) const
+    {
+      return MotionTpl (m_v + m_w.cross (translation_vector), m_w);
+    }
+
   public:
   private:
     Vector3 m_w;
@@ -150,6 +164,8 @@ namespace se3
   ForceTpl<S,O> operator^( const MotionTpl<S,O> &m, const ForceTpl<S,O> &f ) { return m.cross(f); }
 
   typedef MotionTpl<double> Motion;
+
+
 
 } // namespace se3
 
