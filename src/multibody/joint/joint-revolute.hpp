@@ -91,7 +91,7 @@ namespace se3
 	operator*( const TransposeConst &, const Eigen::MatrixBase<D> & F )
 	{
 	  assert(F.rows()==6);
-	  return F.row(3+axis);
+    return F.row(Inertia::ANGULAR + axis);
 	}
 
       };
