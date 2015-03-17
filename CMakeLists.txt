@@ -67,10 +67,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/act-on-set.hpp
   )
 
-SET(${PROJECT_NAME}_MULTIBODY_HEADERS
-  multibody/constraint.hpp
-  multibody/force-set.hpp
-  multibody/joint.hpp
+SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-base.hpp
   multibody/joint/joint-revolute.hpp
   multibody/joint/joint-spherical.hpp
@@ -78,6 +75,12 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/joint/joint-free-flyer.hpp
   multibody/joint/joint-variant.hpp
   multibody/joint/joint-generic.hpp
+)
+
+SET(${PROJECT_NAME}_MULTIBODY_HEADERS
+  multibody/constraint.hpp
+  multibody/force-set.hpp
+  multibody/joint.hpp
   multibody/model.hpp
   multibody/visitor.hpp
   multibody/parser/sample-models.hpp
@@ -111,6 +114,7 @@ SET(HEADERS
   ${${PROJECT_NAME}_MATH_HEADERS}
   ${${PROJECT_NAME}_TOOLS_HEADERS}
   ${${PROJECT_NAME}_SPATIAL_HEADERS}
+  ${${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_HEADERS}
   ${${PROJECT_NAME}_ALGORITHM_HEADERS}
   ${${PROJECT_NAME}_PYTHON_HEADERS}
