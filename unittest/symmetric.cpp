@@ -235,7 +235,7 @@ void timeSelfAdj( const Eigen::Matrix3d & A,
 		  const Eigen::Matrix3d & Sdense,
 		  Eigen::Matrix3d & ASA )
 {
-  typedef Eigen::SelfAdjointView<Eigen::Matrix3d,Eigen::Upper> Sym3;
+  typedef Eigen::SelfAdjointView<const Eigen::Matrix3d,Eigen::Upper> Sym3;
   Sym3 S(Sdense);
   ASA.triangularView<Eigen::Upper>()
     = A * S * A.transpose();
