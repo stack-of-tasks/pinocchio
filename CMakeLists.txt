@@ -73,6 +73,7 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/joint.hpp
   multibody/joint/joint-base.hpp
   multibody/joint/joint-revolute.hpp
+  multibody/joint/joint-prismatic.hpp
   multibody/joint/joint-free-flyer.hpp
   multibody/joint/joint-variant.hpp
   multibody/joint/joint-generic.hpp
