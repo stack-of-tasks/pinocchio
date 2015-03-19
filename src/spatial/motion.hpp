@@ -88,6 +88,10 @@ namespace se3
     {
       return MotionTpl(m_v+v2.m_v,m_w+v2.m_w);
     }
+    MotionTpl operator-(const MotionTpl & v2) const
+    {
+      return MotionTpl(m_v-v2.m_v,m_w-v2.m_w);
+    }
     MotionTpl& operator+=(const MotionTpl & v2)
     {
       m_v+=v2.m_v;
