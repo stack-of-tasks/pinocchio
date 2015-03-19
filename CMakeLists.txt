@@ -71,6 +71,7 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-base.hpp
   multibody/joint/joint-revolute.hpp
   multibody/joint/joint-spherical.hpp
+  multibody/joint/joint-spherical-ZYX.hpp
   multibody/joint/joint-prismatic.hpp
   multibody/joint/joint-free-flyer.hpp
   multibody/joint/joint-variant.hpp

@@ -3,13 +3,14 @@
 
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
+#include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
 #include "pinocchio/multibody/joint/joint-prismatic.hpp"
 #include "pinocchio/multibody/joint/joint-free-flyer.hpp"
 
 namespace se3
 {
-  typedef boost::variant< JointModelRX,JointModelRY,JointModelRZ , JointModelSpherical, JointModelPX, JointModelPY, JointModelPZ, JointModelFreeFlyer> JointModelVariant;
-  typedef boost::variant< JointDataRX, JointDataRY, JointDataRZ  , JointDataSpherical, JointDataPX, JointDataPY, JointDataPZ, JointDataFreeFlyer > JointDataVariant;
+  typedef boost::variant< JointModelRX,JointModelRY,JointModelRZ , JointModelSpherical, JointModelSphericalZYX, JointModelPX, JointModelPY, JointModelPZ, JointModelFreeFlyer> JointModelVariant;
+  typedef boost::variant< JointDataRX, JointDataRY, JointDataRZ  , JointDataSpherical, JointDataSphericalZYX, JointDataPX, JointDataPY, JointDataPZ, JointDataFreeFlyer > JointDataVariant;
 
   typedef std::vector<JointModelVariant> JointModelVector;
   typedef std::vector<JointDataVariant> JointDataVector;

@@ -4,6 +4,7 @@
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
+#include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
 #include "pinocchio/multibody/joint/joint-prismatic.hpp"
 #include "pinocchio/multibody/joint/joint-free-flyer.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
