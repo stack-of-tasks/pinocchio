@@ -5,6 +5,7 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
+#include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint/joint-prismatic.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -412,6 +413,223 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 
   q << 3;
 
+  crba (model, data, q);
+  
+  is_matrix_closed (M_expected, data.M, 1e-10);
+}
+
+BOOST_AUTO_TEST_SUITE_END ()
+
+BOOST_AUTO_TEST_SUITE ( JointSpherical )
+
+BOOST_AUTO_TEST_CASE ( test_kinematics )
+{
+  using namespace se3;
+
+  typedef Motion::Vector3 Vector3;
+  typedef Eigen::Matrix <double, 4, 1> Vector4;
+  typedef Motion::Vector6 Vector6;
+
+  Motion expected_v_J (Motion::Zero ());
+  Motion expected_c_J (Motion::Zero ());
+
+  SE3 expected_configuration (SE3::Identity ());
+
+  JointDataSpherical joint_data;
+  JointModelSpherical joint_model;
+
+  joint_model.setIndexes (0, 0, 0);
+
+  Vector4 q (Vector4::Zero());
+  Vector3 q_dot (Vector3::Zero());
+
+  // -------
+  q = Vector4 (0., 0, 0., 1.); q.normalize();
+  q_dot = Vector3 (0., 0., 0.);
+
+  joint_model.calc (joint_data, q, q_dot);
+
+  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
+
+  is_matrix_closed (expected_configuration.rotation (), joint_data.M.rotation());
+  is_matrix_closed (expected_configuration.translation (), joint_data.M.translation ());
+  is_matrix_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector());
+  is_matrix_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector());
+
+  // -------
+  q = Vector4 (1., 0, 0., 1.); q.normalize();
+  q_dot = Vector3 (1., 0., 0.);
+
+  joint_model.calc (joint_data, q, q_dot);
+
+  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
+
+  expected_configuration.rotation ().transpose () <<
+  1,                   0,                   0,
+  0, 2.2204460492503e-16,                   1,
+  0,                  -1, 2.2204460492503e-16;
+
+  expected_v_J.angular () << 1., 0., 0.;
+
+  is_matrix_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
+  is_matrix_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
+  is_matrix_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
+  is_matrix_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+
+  // -------
+  q = Vector4 (0., 1., 0., 1.); q.normalize();
+  q_dot = Vector3 (0., 1., 0.);
+
+  joint_model.calc (joint_data, q, q_dot);
+
+  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
+
+  expected_configuration.rotation ().transpose () <<
+  2.2204460492503e-16,                   0,                  -1,
+  0,                   1,                   0,
+  1,                   0, 2.2204460492503e-16;
+
+  expected_v_J.angular () << 0., 1., 0.;
+
+  is_matrix_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
+  is_matrix_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
+  is_matrix_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
+  is_matrix_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+
+  // -------
+  q = Vector4 (0., 0, 1., 1.); q.normalize();
+  q_dot = Vector3 (0., 0., 1.);
+
+  joint_model.calc (joint_data, q, q_dot);
+
+  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
+
+  expected_configuration.rotation ().transpose () <<
+  2.2204460492503e-16,                   1,                   0,
+  -1, 2.2204460492503e-16,                   0,
+  0,                   0,                   1;
+
+  expected_v_J.angular () << 0., 0., 1.;
+
+  is_matrix_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
+  is_matrix_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
+  is_matrix_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
+  is_matrix_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+
+  // -------
+  q = Vector4 (1., 1., 1., 1.); q.normalize();
+  q_dot = Vector3 (1., 1., 1.);
+
+  joint_model.calc (joint_data, q, q_dot);
+
+  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
+
+  expected_configuration.rotation ().transpose () <<
+  0, 1, 0,
+  0, 0, 1,
+  1, 0, 0;
+
+  expected_v_J.angular () << 1., 1., 1.;
+
+  is_matrix_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-10);
+  is_matrix_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-10);
+  is_matrix_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-10);
+  is_matrix_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-10);
+
+  // -------
+  q = Vector4 (1., 1.5, 1.9, 1.); q.normalize();
+  q_dot = Vector3 (2., 3., 1.);
+
+  joint_model.calc (joint_data, q, q_dot);
+
+  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
+
+  expected_configuration.rotation ().transpose () <<
+  -0.4910941475827,  0.86513994910942,  0.10178117048346,
+  -0.10178117048346, -0.17302798982188,  0.97964376590331,
+  0.86513994910942,  0.47073791348601,  0.17302798982188;
+
+  expected_v_J.angular () = q_dot;
+
+  is_matrix_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-10);
+  is_matrix_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-10);
+  is_matrix_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-10);
+  is_matrix_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-10);
+}
+
+BOOST_AUTO_TEST_CASE ( test_rnea )
+{
+  using namespace se3;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+
+  Model model;
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+
+  model.addBody (model.getBodyId("universe"), JointModelSpherical (), SE3::Identity (), inertia, "root");
+
+  Data data (model);
+
+  Eigen::VectorXd q (Eigen::VectorXd::Zero (model.nq));
+  Eigen::VectorXd v (Eigen::VectorXd::Zero (model.nv));
+  Eigen::VectorXd a (Eigen::VectorXd::Zero (model.nv));
+
+  rnea (model, data, q, v, a);
+  Vector3 tau_expected (Vector3::Zero ());
+
+  tau_expected  <<  0, -4.905,      0;
+
+  is_matrix_closed (tau_expected, data.tau, 1e-14);
+
+  q = Eigen::VectorXd::Ones (model.nq); q.normalize ();
+  v = Eigen::VectorXd::Ones (model.nv);
+  a = Eigen::VectorXd::Ones (model.nv);
+
+  rnea (model, data, q, v, a);
+  tau_expected << 1,     1, 6.405;
+
+  is_matrix_closed (tau_expected, data.tau, 1e-12);
+
+  q << 3, 2, 1, 1; q.normalize ();
+  v = Eigen::VectorXd::Ones (model.nv);
+  a = Eigen::VectorXd::Ones (model.nv);
+
+  rnea (model, data, q, v, a);
+  tau_expected << 1, 4.597,  4.77;
+
+  is_matrix_closed (tau_expected, data.tau, 1e-12);
+}
+
+BOOST_AUTO_TEST_CASE ( test_crba )
+{
+  using namespace se3;
+  using namespace std;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+
+  Model model;
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+
+  model.addBody (model.getBodyId("universe"), JointModelSpherical (), SE3::Identity (), inertia, "root");
+
+  Data data (model);
+
+  Eigen::VectorXd q (Eigen::VectorXd::Zero (model.nq)); q(3) = 1.; q.normalize();
+  Eigen::MatrixXd M_expected (model.nv,model.nv);
+
+  crba (model, data, q);
+  M_expected = Matrix3::Identity ();
+  M_expected(1,1) = 1.25; M_expected(2,2) = 1.25;
+
+  is_matrix_closed (M_expected, data.M, 1e-14);
+
+  q = Eigen::VectorXd::Ones (model.nq); q.normalize();
+
+  crba (model, data, q);
+
+  is_matrix_closed (M_expected, data.M, 1e-12);
+  q << 3, 2, 1, 1; q.normalize();
+  
   crba (model, data, q);
   
   is_matrix_closed (M_expected, data.M, 1e-10);
