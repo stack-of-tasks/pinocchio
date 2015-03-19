@@ -5,6 +5,7 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
+#include "pinocchio/multibody/joint/joint-revolute.hpp"
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
 #include "pinocchio/multibody/joint/joint-prismatic.hpp"
@@ -232,7 +233,6 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   tau_expected << 0.73934458094049,  2.7804530848031, 0.50684940972146;
 
   is_matrix_closed (tau_expected, data.tau, 1e-12);
-
 }
 
 BOOST_AUTO_TEST_CASE ( test_crba )
@@ -336,7 +336,6 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   is_matrix_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
   is_matrix_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
   is_matrix_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
-
 }
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
@@ -420,6 +419,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
+
 
 BOOST_AUTO_TEST_SUITE ( JointSpherical )
 
@@ -634,6 +634,151 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   crba (model, data, q);
   
   is_matrix_closed (M_expected, data.M, 1e-10);
+}
+
+BOOST_AUTO_TEST_SUITE_END ()
+
+
+BOOST_AUTO_TEST_SUITE ( JointRevoluteUnaligned )
+
+BOOST_AUTO_TEST_CASE ( test_kinematics )
+{
+  using namespace se3;
+
+  typedef Motion::Vector3 Vector3;
+  typedef Eigen::Matrix <double, 4, 1> Vector4;
+  typedef Motion::Vector6 Vector6;
+
+  Motion expected_v_J (Motion::Zero ());
+  Motion expected_c_J (Motion::Zero ());
+
+  SE3 expected_configuration (SE3::Identity ());
+
+  Eigen::Vector3d axis;
+  axis << 1.0, 0.0, 0.0;
+
+  JointModelRU joint_model_RU(axis);
+  JointDataRU joint_data_RU(axis);
+
+  JointModelRX joint_model_RX;
+  JointDataRX joint_data_RX;
+
+  joint_model_RU.setIndexes (0, 0, 0);
+  joint_model_RX.setIndexes (0, 0, 0);
+
+  Eigen::VectorXd q (Eigen::VectorXd::Zero (1));
+  Eigen::VectorXd q_dot (Eigen::VectorXd::Zero (1));
+
+  // -------
+  q << 0.;
+  q_dot << 0.;
+
+  joint_model_RU.calc (joint_data_RU, q, q_dot);
+  joint_model_RX.calc (joint_data_RX, q, q_dot);
+
+  printOutJointData <JointDataRU> (q, q_dot, joint_data_RU);
+
+  is_matrix_closed (joint_data_RU.M.rotation(), joint_data_RX.M.rotation());
+  is_matrix_closed (joint_data_RU.M.translation (), joint_data_RX.M.translation ());
+  is_matrix_closed (((Motion) joint_data_RU.v).toVector(), ((Motion) joint_data_RX.v).toVector());
+  is_matrix_closed (((Motion) joint_data_RU.c).toVector(), ((Motion) joint_data_RX.c).toVector());
+
+  
+}
+
+BOOST_AUTO_TEST_CASE ( test_rnea )
+{
+  using namespace se3;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+
+  Model modelRX;
+  Model modelRU;
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+
+  Eigen::Vector3d axis;
+  axis << 1.0, 0.0, 0.0;
+
+  modelRX.addBody (modelRX.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertia, "root");
+  modelRU.addBody (modelRU.getBodyId("universe"), JointModelRU (axis), SE3::Identity (), inertia, "root");
+
+  Data dataRX (modelRX);
+  Data dataRU (modelRU);
+
+  assert(modelRU.nq == modelRX.nq && modelRU.nv == modelRX.nv && "models don't have same dof");
+
+  Eigen::VectorXd q (Eigen::VectorXd::Zero (modelRU.nq));
+  Eigen::VectorXd v (Eigen::VectorXd::Zero (modelRU.nv));
+  Eigen::VectorXd a (Eigen::VectorXd::Zero (modelRU.nv));
+
+  rnea (modelRX, dataRX, q, v, a);
+  rnea (modelRU, dataRU, q, v, a);
+
+  is_matrix_closed (dataRX.tau, dataRU.tau, 1e-14);
+
+  q = Eigen::VectorXd::Ones (modelRU.nq); //q.normalize ();
+  v = Eigen::VectorXd::Ones (modelRU.nv);
+  a = Eigen::VectorXd::Ones (modelRU.nv);
+
+  rnea (modelRX, dataRX, q, v, a);
+  rnea (modelRU, dataRU, q, v, a);
+
+  is_matrix_closed (dataRX.tau, dataRU.tau, 1e-12);
+
+  q << 3.;
+  v = Eigen::VectorXd::Ones (modelRU.nv);
+  a = Eigen::VectorXd::Ones (modelRU.nv);
+
+  rnea (modelRX, dataRX, q, v, a);
+  rnea (modelRU, dataRU, q, v, a);
+
+  is_matrix_closed (dataRX.tau, dataRU.tau, 1e-12);
+}
+
+BOOST_AUTO_TEST_CASE ( test_crba )
+{
+  using namespace se3;
+  using namespace std;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+
+  Model modelRX;
+  Model modelRU;
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+
+  Eigen::Vector3d axis;
+  axis << 1.0, 0.0, 0.0;
+
+  modelRX.addBody (modelRX.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertia, "root");
+  modelRU.addBody (modelRU.getBodyId("universe"), JointModelRU (axis), SE3::Identity (), inertia, "root");
+
+  Data dataRX (modelRX);
+  Data dataRU (modelRU);
+
+  assert(modelRU.nq == modelRX.nq && modelRU.nv == modelRX.nv && "models don't have same dof");
+
+  Eigen::VectorXd q (Eigen::VectorXd::Zero (modelRU.nq));
+
+  crba (modelRX, dataRX, q);
+  crba (modelRU, dataRU, q);
+
+  is_matrix_closed (dataRX.M, dataRU.M, 1e-14);
+
+  // ----
+  q = Eigen::VectorXd::Ones (modelRU.nq);
+
+  crba (modelRX, dataRX, q);
+  crba (modelRU, dataRU, q);
+
+  is_matrix_closed (dataRX.M, dataRU.M, 1e-14);
+
+  // ----
+  q << 3;
+  
+  crba (modelRX, dataRX, q);
+  crba (modelRU, dataRU, q);
+
+  is_matrix_closed (dataRX.M, dataRU.M, 1e-14);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
