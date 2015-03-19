@@ -103,6 +103,8 @@ namespace se3
 	  .def(DataPythonVisitor());
     
 	bp::to_python_converter< DataHandler::SmartPtr_t,DataPythonVisitor >();
+	bp::class_< std::vector<Eigen::Vector3d> >("StdVec_vec3d")
+	  .def(bp::vector_indexing_suite< std::vector<Eigen::Vector3d> >());
       }
 
     };

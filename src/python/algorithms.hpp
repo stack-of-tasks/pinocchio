@@ -33,7 +33,10 @@ namespace se3
 					 const VectorXd_fx & q )
       {
 	data->M.fill(0);
-	return crba(*model,*data,q); 
+	crba(*model,*data,q); 
+	data->M.triangularView<Eigen::StrictlyLower>()
+	  = data->M.transpose().triangularView<Eigen::StrictlyLower>();
+	return data->M;
       }
 
       static Eigen::VectorXd com_proxy( const ModelHandler& model, 

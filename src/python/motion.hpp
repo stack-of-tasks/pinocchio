@@ -64,7 +64,9 @@ namespace se3
 
 	  .def("cross_motion",&MotionPythonVisitor::cross_motion)
 	  .def("cross_force",&MotionPythonVisitor::cross_force)
-	  
+
+	  .def("__add__",&MotionPythonVisitor::add)
+	  .def("__sub__",&MotionPythonVisitor::add)
 	  .def("__str__",&MotionPythonVisitor::toString)
 	  .add_property("np",&Motion_fx::toVector)
 
@@ -80,6 +82,8 @@ namespace se3
       static Vector3_fx getAngular( const Motion_fx & self ) { return self.angular(); }
       static void setAngular( Motion_fx & self, const Vector3_fx & R ) { self.angular(R); }
       
+      static Motion_fx add( const Motion_fx& m1,const Motion_fx& m2 ) { return m1+m2; }     
+      static Motion_fx subst( const Motion_fx& m1,const Motion_fx& m2 ) { return m1-m2; }     
       static Motion_fx cross_motion( const Motion_fx& m1,const Motion_fx& m2 ) { return m1.cross(m2); }
       static Force_fx cross_force( const Motion_fx& m,const Force_fx& f ) { return m.cross(f); }
 

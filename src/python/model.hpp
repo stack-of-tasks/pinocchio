@@ -117,9 +117,11 @@ namespace se3
 	  .def(bp::vector_indexing_suite< std::vector<Index> >());
 	bp::class_< std::vector<std::string> >("StdVec_StdString")
 	  .def(bp::vector_indexing_suite< std::vector<std::string> >());
-  bp::class_< std::vector<bool> >("StdVec_Bool")
-    .def(bp::vector_indexing_suite< std::vector<bool> >());
-
+	bp::class_< std::vector<bool> >("StdVec_Bool")
+	  .def(bp::vector_indexing_suite< std::vector<bool> >());
+	bp::class_< std::vector<double> >("StdVec_double")
+	  .def(bp::vector_indexing_suite< std::vector<double> >());
+	
 	bp::class_<ModelHandler>("Model",
 				 "Articulated rigid body model (const)",
 				 bp::no_init)
