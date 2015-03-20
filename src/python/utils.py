@@ -21,6 +21,14 @@ def se3ToXYZQUAT(M):
                 float(quat[3,0]), float(quat[0,0]), float(quat[1,0]), float(quat[2,0]) ]
     return config
 
+# Reverse function of se3ToXYZQUAT: convert [X,Y,Z,Q1,Q2,Q3,Q4] to a homogeneous matrix.
+def XYZQUATToSe3(xyzq):
+    if isinstance(xyzq,tuple) or isinstance(xyzq,list):
+        xyzq = np.matrix(xyzq,np.float).T
+    return se3.SE3(
+        se3.Quaternion( xyzq[6,0],xyzq[3,0],xyzq[4,0],xyzq[5,0]).matrix(),
+        xyzq[:3] )
+
 def isapprox(a,b,epsilon=1e-6):
     if "np" in a.__class__.__dict__: a = a.np
     if "np" in b.__class__.__dict__: b = b.np
@@ -69,4 +77,5 @@ from rpy import *
 
 __all__ = [ 'np','npl','eye','zero','rand','isapprox','mprint',
             'skew', 'cross',
-            'npToTTuple','npToTuple','rotate','rpyToMatrix','matrixToRpy' ]
+            'npToTTuple','npToTuple','rotate',
+            'rpyToMatrix','matrixToRpy','se3ToXYZQUAT' ,'XYZQUATToSe3' ]
