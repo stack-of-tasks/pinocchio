@@ -62,6 +62,7 @@ namespace se3
     Index addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
 		   const Inertia & Y, const std::string & jointName = "",
 		   const std::string & bodyName = "", bool visual = false );
+    void mergeFixedBody(Index parent, const SE3 & placement, const Inertia & Y);
     Index getBodyId( const std::string & name ) const;
     bool existBodyName( const std::string & name ) const;
     const std::string& getBodyName( Index index ) const;
@@ -170,6 +171,12 @@ namespace se3
     nq += j.nq();
     nv += j.nv();
     return idx;
+  }
+
+  void Model::mergeFixedBody(Index parent, const SE3 & placement, const Inertia & Y)
+  {
+    const Inertia & iYf = Y.se3Action(placement); //TODO
+    inertias[parent] += iYf;
   }
 
   Model::Index Model::getBodyId( const std::string & name ) const

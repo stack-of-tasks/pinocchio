@@ -683,7 +683,6 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   is_matrix_closed (((Motion) joint_data_RU.v).toVector(), ((Motion) joint_data_RX.v).toVector());
   is_matrix_closed (((Motion) joint_data_RU.c).toVector(), ((Motion) joint_data_RX.c).toVector());
 
-  
 }
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
@@ -779,6 +778,42 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   crba (modelRU, dataRU, q);
 
   is_matrix_closed (dataRX.M, dataRU.M, 1e-14);
+}
+
+BOOST_AUTO_TEST_SUITE_END ()
+
+
+
+BOOST_AUTO_TEST_SUITE ( caseJointFixed )
+
+BOOST_AUTO_TEST_CASE ( test_merge_body )
+{
+  using namespace se3;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+
+  Model model;
+  Inertia inertiaRoot (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+  //Inertia inertiaFixedBodyAtCom (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+  Inertia inertiaFixedBodyAtJoint (1., Vector3 (0.75, 0., 0.0), Matrix3::Identity ());
+  SE3 liMi(Matrix3::Identity(),Vector3(1.0, 1.0, 0.0));
+  //SE3 liMi(Matrix3::Identity(),Vector3d::Zero());
+
+  model.addBody (model.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertiaRoot, "root");
+  model.mergeFixedBody(model.getBodyId("root"), liMi, inertiaFixedBodyAtJoint);
+
+  Inertia mergedInertia(model.inertias[model.getBodyId("root")]);
+
+  double expected_mass=2;
+  Eigen::Vector3d expected_com(Eigen::Vector3d::Zero());expected_com << 1.125, 0.5, 0.;
+  Eigen::Matrix3d expectedBodyInertia; expectedBodyInertia << 2.5,    -0.625,   0.,
+                                                              -0.625, 2.78125,  0.,
+                                                              0.,     0.,       3.28125;
+
+  assert (mergedInertia.mass()== expected_mass);
+  is_matrix_closed (mergedInertia.lever(), expected_com);
+  is_matrix_closed (mergedInertia.inertia().matrix(), expectedBodyInertia);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
