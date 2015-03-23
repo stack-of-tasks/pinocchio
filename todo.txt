@@ -1,0 +1,4 @@
+1/ Finish index.html (features & add carrousel if needed, see in showcase how it is done + _data/index_carrousel.yml)
+2/ Complete showcase.html (to do it complete: _data/projects.yml & _data/papers.yml)
+3/ In getting-started: conflict between the TOCs of inverse kinematics & optimal-control. Impossible to properly display both. Bypassed with only one.
+4/ Create a new page python binding ? ( currently commented in nav_bar)
