@@ -1,0 +1,6 @@
+- name: pg-ellipses
+  title: Non-Inclusive Contacts
+  description: "Integration of Non-Inclusive Contacts in Posture Generation."
+  image: ellipses.png
+  url: http://hal.archives-ouvertes.fr/hal-01016319
+

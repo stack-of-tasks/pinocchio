@@ -1,0 +1,75 @@
+---
+layout: default
+title: Showcase
+group: "navigation"
+disqus: no
+---
+
+<h1 id="showcase" class="page-header">{{ page.title }}</h1>
+
+<h2>Gallery</h2>
+
+<div style="padding: 2em"></div>
+
+  {% include carrousel.html carrousel=site.data.projects %}
+
+<div style="padding: 2em"></div>
+
+<h2>Papers</h2>
+
+<div class="table-responsive">
+  <table class="table table-condensed" id="status">
+    <thead>
+      <tr>
+        <td>Title</td>
+        <td>Authors</td>
+        <td>Conference/Book</td>
+        <td>Year</td>
+        <td>File</td>
+      </tr>
+    </thead>
+    <tbody>
+      {% for paper in site.data.papers %}
+        <tr id="{{ paper.id }}">
+          <td id="{{ paper.id }}-title">{{ paper.title }}</td>
+          <td id="{{ paper.id }}-authors">
+            {% for author in paper.author %}
+              <!-- Given names like Jean-Paul become J.-P. -->
+              <!-- TODO: remove extra whitespace, i.e. J. -P. -->
+              {% assign given_names = author.given | split:'-' %}
+              {% for n in given_names  %}
+                {% if forloop.index > 1 %}
+                  -{{ n | truncate: 2, '.' }}
+                {% else %}
+                  {{ n | truncate: 2, '.' }}
+                {% endif %}
+              {% endfor %}
+              {% if forloop.index < forloop.length %}
+                {{author.family}},
+              {% else %}
+                {{author.family}}
+              {% endif %}
+            {% endfor %}
+          </td>
+          {% if paper.container-title %}
+            <td id="{{ paper.id }}-book-title">{{paper.container-title}}</td>
+          {% else if paper.type == 'thesis' %}
+            <td id="{{ paper.id }}-thesis">Thesis</td>
+          {% endif %}
+          <td id="{{ paper.id }}-year">{{paper.year}}</td>
+          <td id="{{ paper.id }}-url">
+            {% if paper.URL %}
+              <a href="{{ paper.URL }}" target="_blank">
+                <span class='glyphicon glyphicon-file'></span>
+              </a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div style="padding: 10em"></div>
+
+<!-- vim: set ts=2 sw=2 ft=liquid si: -->

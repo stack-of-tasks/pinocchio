@@ -1,0 +1,22 @@
+
+
+
+#### Examples of format to use. Remember : 1 image or 1 video. not both
+# - name: pg-ellipses
+#   title: Non-Inclusive Contacts
+#   description: "Integration of Non-Inclusive Contacts in Posture Generation."
+#   image: ellipses.png
+#   url: http://hal.archives-ouvertes.fr/hal-01016319
+
+# - name: roboptim-capsule
+#   title: RobOptim Capsule
+#   description: "An automated optimal capsule generator over polyhedrons."
+#   url: https://github.com/roboptim/roboptim-capsule
+#   image: capsule.png
+
+# - name: humanoids2012
+#   title: Multi-contact planning
+#   description: "Exploring humanoid robot locomotion capabilities in virtual disaster response scenarios."
+#   url: http://hal-lirmm.ccsd.cnrs.fr/lirmm-00765817
+#   video:
+#     youtube_id: lJoUsCVJGxE

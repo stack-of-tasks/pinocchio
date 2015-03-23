@@ -1,0 +1,34 @@
+---
+layout: default
+title: Getting Started
+group: navigation
+disqus: no
+---
+
+<h1 id="getting-started" class="page-header">{{ page.title }}</h1>
+
+We currently provide two tutorials to help you to get started with Pinocchio, and particularly with the python wrapping.
+The first one focus on inverse kinematics, whereas the second is more about optimal control and how to make romeo walk.
+
+<ul class="nav nav-tabs" id="howto">
+  <li class="active"><a href="#IK" data-toggle="tab"> Inverse Kinematics</a></li>
+  <li><a href="#OC" data-toggle="tab"> Optimal control</a></li> 
+</ul>
+
+<div class="tab-content" style="padding-top: 1.75em">
+
+	<div class="tab-pane active" id="IK">
+		{% include doc/inverse-kinematics.html %}
+	</div>
+
+
+	<div class="tab-pane" id="OC">
+		{% include doc/optimal-control.html %}
+	</div>
+</div>
+
+<script type="text/javascript">
+  $(function () { $('#howto a:last').tab('show') })
+</script>
+
+<div style="padding: 2em"></div>
