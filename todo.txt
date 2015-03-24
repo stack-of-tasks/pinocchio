@@ -3,6 +3,6 @@
       - multibody/model.cpp
       - multibody/parser/urdf.cpp
 * Re-organize the python modules, in eigenpy and pinocchio. Eigenpy should be a module (now loaded by pinocchio).
-
+* Add boost test suite to all tests (crba, rnea etc..) 
  
-Replace int type with Data::Index where it is necessary. The idea is to be able to switch between int and long according to the current architecture.
+* Replace int type with Data::Index where it is necessary. The idea is to be able to switch between int and long according to the current architecture.
