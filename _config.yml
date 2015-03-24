@@ -1,4 +1,4 @@
-name: RobOptim
+name: Pinocchio
 markdown: redcarpet
 highlighter: pygments
 gems:
