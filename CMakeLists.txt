@@ -38,7 +38,7 @@ ADD_OPTIONAL_DEPENDENCY("eigenpy >= 1.2.0")
 ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.10")
 
-SET(BOOST_COMPONENTS filesystem log log_setup unit_test_framework)
+SET(BOOST_COMPONENTS filesystem unit_test_framework)
 SEARCH_FOR_BOOST()
 # Path to boost headers
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
