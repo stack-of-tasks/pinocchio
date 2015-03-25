@@ -69,19 +69,23 @@ class RobotWrapper:
             if 'viewer' in self.__dict__: del self.viewer
             print "Error while starting the viewer client. "
             print "Check wheter gepetto-viewer is properly started"
+        
 
     # Create the scene displaying the robot meshes in Gepetto-viewer.
     def loadDisplayModel(self, nodeName, windowName = "pinocchio", meshDir = None):
         import os
-        if not self.viewer.gui.createWindow (windowName):
-            print "Warning: window '"+windowName+"' already created. Cannot (re-)load the model."
-            return
-        if not meshDir: meshDir = os.path.dirname(self.modelFileName)+"/"
-        self.viewer.gui.createSceneWithFloor("world")
-        self.viewer.gui.addSceneToWindow("world",windowName)
-        self.viewer.gui.addURDF(nodeName,
-                                self.modelFileName,
-                                meshDir)
+        try:
+          self.windowID = self.viewer.gui.getWindowID (windowName)
+          print "Warning: window '"+windowName+"' already created. Cannot (re-)load the model."
+          return
+        except:
+          self.windowID = self.viewer.gui.createWindow (windowName)
+          if not meshDir: meshDir = os.path.dirname(self.modelFileName)+"/"
+          self.viewer.gui.createSceneWithFloor("world")
+          self.viewer.gui.addSceneToWindow("world",self.windowID)
+          self.viewer.gui.addURDF(nodeName,
+                                  self.modelFileName,
+                                  meshDir)
 
     # Display in gepetto-view the robot at configuration q, by placing all the bodies.
     def display(self,q): 
