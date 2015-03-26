@@ -5,7 +5,7 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
-#include "pinocchio/multibody/joint/joint-revolute.hpp"
+#include "pinocchio/multibody/joint/joint-revolute-unaligned.hpp"
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
 #include "pinocchio/multibody/joint/joint-prismatic.hpp"
@@ -657,8 +657,8 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   Eigen::Vector3d axis;
   axis << 1.0, 0.0, 0.0;
 
-  JointModelRU joint_model_RU(axis);
-  JointDataRU joint_data_RU(axis);
+  JointModelRevoluteUnaligned joint_model_RU(axis);
+  JointDataRevoluteUnaligned joint_data_RU(axis);
 
   JointModelRX joint_model_RX;
   JointDataRX joint_data_RX;
@@ -676,7 +676,7 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   joint_model_RU.calc (joint_data_RU, q, q_dot);
   joint_model_RX.calc (joint_data_RX, q, q_dot);
 
-  printOutJointData <JointDataRU> (q, q_dot, joint_data_RU);
+  printOutJointData <JointDataRevoluteUnaligned> (q, q_dot, joint_data_RU);
 
   is_matrix_closed (joint_data_RU.M.rotation(), joint_data_RX.M.rotation());
   is_matrix_closed (joint_data_RU.M.translation (), joint_data_RX.M.translation ());
@@ -699,7 +699,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   axis << 1.0, 0.0, 0.0;
 
   modelRX.addBody (modelRX.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertia, "root");
-  modelRU.addBody (modelRU.getBodyId("universe"), JointModelRU (axis), SE3::Identity (), inertia, "root");
+  modelRU.addBody (modelRU.getBodyId("universe"), JointModelRevoluteUnaligned (axis), SE3::Identity (), inertia, "root");
 
   Data dataRX (modelRX);
   Data dataRU (modelRU);
@@ -749,7 +749,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   axis << 1.0, 0.0, 0.0;
 
   modelRX.addBody (modelRX.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertia, "root");
-  modelRU.addBody (modelRU.getBodyId("universe"), JointModelRU (axis), SE3::Identity (), inertia, "root");
+  modelRU.addBody (modelRU.getBodyId("universe"), JointModelRevoluteUnaligned (axis), SE3::Identity (), inertia, "root");
 
   Data dataRX (modelRX);
   Data dataRU (modelRU);

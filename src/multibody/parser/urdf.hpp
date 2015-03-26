@@ -45,7 +45,7 @@ namespace se3
       return SE3( Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix(), Eigen::Vector3d(p.x,p.y,p.z));
     }
 
-    enum AxisCartesian { AXIS_X, AXIS_Y, AXIS_Z, AXIS_ERROR };
+    enum AxisCartesian { AXIS_X, AXIS_Y, AXIS_Z, AXIS_UNALIGNED };
     AxisCartesian extractCartesianAxis( const ::urdf::Vector3 & axis )
     {
       if( (axis.x==1.0)&&(axis.y==0.0)&&(axis.z==0.0) )
@@ -54,10 +54,8 @@ namespace se3
 	return AXIS_Y;
       else if( (axis.x==0.0)&&(axis.y==0.0)&&(axis.z==1.0) )
 	return AXIS_Z;
-
-      std::cerr << "Axis = (" <<axis.x<<","<<axis.y<<","<<axis.z<<")" << std::endl;
-      assert( false && "Only cartesian axis are accepted." );
-      return AXIS_ERROR;
+      else
+	return AXIS_UNALIGNED;
     }
 
     void parseTree( ::urdf::LinkConstPtr link, Model & model, bool freeFlyer )
@@ -100,6 +98,7 @@ namespace se3
 	    case ::urdf::Joint::REVOLUTE:
 	    case ::urdf::Joint::CONTINUOUS: // Revolute with no joint limits
 	      {
+	    Eigen::Vector3d jointAxis(Eigen::Vector3d::Zero());
 		AxisCartesian axis = extractCartesianAxis(joint->axis);
 		switch(axis)
 		  {
@@ -112,10 +111,14 @@ namespace se3
 		  case AXIS_Z:
 		    model.addBody( parent, JointModelRZ(), jointPlacement, Y, joint->name,link->name, visual );
 		    break;
+		  case AXIS_UNALIGNED:
+		  	jointAxis= Eigen::Vector3d( joint->axis.x,joint->axis.y,joint->axis.z );
+		    jointAxis.normalize();
+		    model.addBody( parent, JointModelRevoluteUnaligned(jointAxis), 
+				   jointPlacement, Y, joint->name,link->name, visual );
+		  	break;
 		  default:
-		    std::cerr << "Bad axis = (" <<joint->axis.x<<","<<joint->axis.y
-			      <<","<<joint->axis.z<<")" << std::endl;
-		    assert(false && "Only X, Y or Z axis are accepted." );
+		    assert( false && "Fatal Error while extracting revolute joint axis");
 		    break;
 		  }
 		break;
