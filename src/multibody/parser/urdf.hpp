@@ -78,9 +78,6 @@ namespace se3
       if(joint!=NULL)
 	{
 	  assert(link->getParent()!=NULL);
-	  if(joint->type != ::urdf::Joint::FIXED)
-	    {
-	      // This is a bypass to be corrected later. TODO
 
 	  Model::Index parent 
 	    = (link->getParent()->parent_joint==NULL) ?
@@ -150,8 +147,9 @@ namespace se3
 	      }
 	    case ::urdf::Joint::FIXED:
 	      {
-		/* To fixed this, "spot" point should be added. TODO. */
-		//std::cerr << "For now, fixed joint are not accepted. " << std::endl;
+	    model.mergeFixedBody(parent, jointPlacement, Y);
+	    assert( (link->child_links.empty()) && "Fixed body has joint child. Shouldn't happen");
+	    // For the moment, fixed bodies are handled only if end of chain (and only once)
 		break;
 	      }
 	    
@@ -162,7 +160,7 @@ namespace se3
 		break;
 	      }
 	    }
-	    }}
+	    }
       else if(freeFlyer)
 	{ /* The link is the root of the body. */
 	  model.addBody( 0, JointModelFreeFlyer(), SE3::Identity(), Y, "root", link->name, true );
