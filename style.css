@@ -1,6 +1,10 @@
 /* Side notes for calling out things
 -------------------------------------------------- */
 
+p{
+	text-align: justify;
+}
+
 /* Base styles (regardless of theme) */
 .bs-callout {
 margin: 20px 0;
