@@ -8,10 +8,9 @@ sitemap:
 ---
 <div class="container">
   <div class="jumbotron">
-    <h1>Fast Forward Dynamic for Multibody Systems</h1>
+    <h1>Pinocchio</h1>
 
-    <p> Pinocchio is a C++ library for dynamic computations focusing on robotic's applications. </br>
-        Provided with a python wrapping and vizualisation tool
+    <p> Fast Forward Dynamic for Multibody Systems
     </p>
 
     <p>
@@ -28,11 +27,25 @@ sitemap:
 
   
 
-
    <div class="container marketing">
       <hr class="featurette-divider">
 
-      <div class="row featurette">
+       <div class="row featurette">
+        <div class="col-md-7">
+          <h2 class="featurette-heading">Rigid multi-body dynamics in C++ and Python</h2>
+          <p class="lead">Pinocchio is a C++ library for dynamic computations
+        focusing on robotic, computer animation and biomechanical
+        applications. </br> It is based on the dynamic multi-body computations formalized by Featherstone in his book. </br> The software comes with a python wrapping and vizualisation
+        tool.
+	  </p>
+        </div>
+        <div class="col-md-5">
+          &nbsp;
+        </div>
+      </div>
+
+      <hr class="featurette-divider">
+     <div class="row featurette">
         <div class="col-md-5">
           <img src="assets/entracte-logo.png" alt="logo entracte" />
         </div>
@@ -43,34 +56,37 @@ sitemap:
         
       </div>
 
-      <hr class="featurette-divider">
 
+       <hr class="featurette-divider">
 
-      <div class="row featurette">
+            <div class="row featurette">
         <div class="col-md-7">
-          <h2 class="featurette-heading">Features</h2>
-          <p class="lead">What we can do thanks to this feature</p>
+          <h2 class="featurette-heading">Library features</h2>
+          <p class="lead">The following algorithms are implemented.
+	    <li>Recursive Newton-Euler algorithm (RNEA, i.e inverse dynamics)
+	    <li>Composite Rigid Body algorithm (CRBA, i.e generalized inertia matrix)
+	    <li>Sparse Cholsky decomposition of the inertia matrix (for constrained forward-dynamics resolution)
+	    <li>Placement Jacobians (i.e application from configuration velocities to end-effector spatial velocities), along with computation of body placements, velocities and accelerations.
+	    <li>Center of mass and its Jacobian
+	  </p>
+	  <p>The model can be parsed from a URDF format. The following joint models are implemented.
+	    <li>Revolute X, Y, Z (optimized) and unaligned with Cartesian directions
+	    <li>Prismatic X, Y, Z
+	    <li>Sperical (quaternion representation)
+	    <li>Free (i.e. no constraint, for mobile robots like humanoids -- using quaternion representation for the rotation)
+	  </p>
+	  <p>Tutorials are proposed (see the corresponding item in the menu
+	  atop the page): generate your first humanoid walk in 20 hours of
+	  work, while discovering Python, the Pinocchio interface, inverse
+	  kinematics and LQR.
+	  </p>
+
         </div>
         <div class="col-md-5">
           &nbsp;
         </div>
       </div>
-
-      <hr class="featurette-divider">
-
-      <div class="row featurette">
-        <div class="col-md-5">
-	  &nbsp;
-        </div>
-        <div class="col-md-7">
-          <h2 class="featurette-heading">Another feature</h2>
-	   <p class="lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam scelerisque pretium mauris non posuere. Maecenas tincidunt est non elit commodo, eget imperdiet velit faucibus. Phasellus ex ligula, condimentum eget suscipit non, tincidunt et enim. Quisque eget lacus fringilla, vulputate ex ac, fringilla enim</p>
-	 </div>
-       </div>
-
-       <hr class="featurette-divider">
-
-       
+ 
 
       <!-- /END THE FEATURETTES -->
    </div>
