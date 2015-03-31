@@ -5,12 +5,14 @@
     {% for project in {{include.carrousel}} %}
       {% if project.image %}
         {% if project.thumbnail %}
-          <li data-thumb="assets/showcase/{{ project.thumbnail }}"> <!-- utility ? -->
+          <li data-thumb="assets/{{ project.thumbnail }}"> <!-- utility ? -->
         {% else %}
-          <li data-thumb="assets/showcase/{{ project.image }}">
+          <li data-thumb="assets/{{ project.image }}">
         {% endif %}
+        {% if project.url%}
         <a href="{{ project.url }}" target="_blank">
-        <img src="assets/showcase/{{ project.image }}"
+        {% endif %}
+        <img src="assets/{{ project.image }}"
              alt="{{ project.title }}"
              title="{{ project.title }}"/>
         </a>
