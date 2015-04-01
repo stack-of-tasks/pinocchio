@@ -14,7 +14,6 @@ namespace urdf
   typedef boost::shared_ptr<const Joint> JointConstPtr;
   typedef boost::shared_ptr<const Link> LinkConstPtr;
   typedef boost::shared_ptr<Link> LinkPtr;
-
   typedef boost::shared_ptr<const Inertial> InertialConstPtr;
 }
 
@@ -44,6 +43,21 @@ namespace se3
       const ::urdf::Rotation & q = M.rotation;
       return SE3( Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix(), Eigen::Vector3d(p.x,p.y,p.z));
     }
+    
+    ::urdf::Pose convertToUrdf (Eigen::Quaterniond quat, Eigen::Translation<double,3> transl)
+    {
+				::urdf::Pose p;
+				p.rotation.setFromQuaternion(quat.x(),
+											 quat.y(),
+											 quat.z(),
+											 quat.w());
+												
+				p.position=::urdf::Vector3(	transl.x(),
+											transl.y(),
+											transl.z());	
+		return p;
+	}
+    
 
     enum AxisCartesian { AXIS_X, AXIS_Y, AXIS_Z, AXIS_UNALIGNED };
     AxisCartesian extractCartesianAxis( const ::urdf::Vector3 & axis )
@@ -147,10 +161,40 @@ namespace se3
 	      }
 	    case ::urdf::Joint::FIXED:
 	      {
-	    model.mergeFixedBody(parent, jointPlacement, Y);
-	    assert( (link->child_links.empty()) && "Fixed body has joint child. Shouldn't happen");
-	    // For the moment, fixed bodies are handled only if end of chain (and only once)
-		break;
+			/* In case of fixed join: 	-add the inertia of the link to his parent
+			 * 							-let all the children become children of parent 
+			 * 							-edit the placement of child
+			 * */
+				  
+			model.mergeFixedBody(parent, jointPlacement, Y); //Modify the parent inertia 
+			BOOST_FOREACH(::urdf::LinkPtr child_link,link->child_links) 
+			{
+				child_link->setParent(link->getParent()); 	//skip the fixed generation
+				
+				//work in SE3
+				SE3 ptjot12_se3 = convertFromUrdf(      link->parent_joint->parent_to_joint_origin_transform);   
+				SE3 ptjot23_se3 = convertFromUrdf(child_link->parent_joint->parent_to_joint_origin_transform);  
+
+				//transformation
+				SE3 ptjot13_se3 = ptjot12_se3*ptjot23_se3;
+					/*
+					std::cout <<"_________________________"<< std::endl;
+					std::cout <<"ptjot12_se3="<< ptjot12_se3 << std::endl;
+					std::cout <<"ptjot23_se3="<< ptjot23_se3 << std::endl;
+					std::cout <<"ptjot13_se3="<< ptjot13_se3 << std::endl;
+					*/
+				//extract quaternion and position
+				Eigen::Quaterniond 				quat(ptjot13_se3.rotation()   );
+				Eigen::Translation<double,3> 	tran(ptjot13_se3.translation());
+				
+
+				//back to urdf Pose
+				::urdf::Pose p = convertToUrdf(quat,tran);
+
+				//apply transformation changes
+				child_link->parent_joint->parent_to_joint_origin_transform=p; 
+			}
+			break;
 	      }
 	    
 	    default:
