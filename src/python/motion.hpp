@@ -66,7 +66,7 @@ namespace se3
 	  .def("cross_force",&MotionPythonVisitor::cross_force)
 
 	  .def("__add__",&MotionPythonVisitor::add)
-	  .def("__sub__",&MotionPythonVisitor::add)
+	  .def("__sub__",&MotionPythonVisitor::subst)
 	  .def("__str__",&MotionPythonVisitor::toString)
 	  .add_property("np",&Motion_fx::toVector)
 
