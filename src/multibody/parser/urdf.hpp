@@ -21,7 +21,6 @@ namespace se3
 {
   namespace urdf
   {
-  
     Inertia convertFromUrdf( const ::urdf::Inertial& Y )
     {
       const ::urdf::Vector3 & p = Y.origin.position;
@@ -33,7 +32,6 @@ namespace se3
       Eigen::Matrix3d I; I << Y.ixx,Y.ixy,Y.ixz
 			   ,  Y.ixy,Y.iyy,Y.iyz
 			   ,  Y.ixz,Y.iyz,Y.izz;
-
       return Inertia(Y.mass,com,R*I*R.transpose());
     }
 
@@ -43,21 +41,6 @@ namespace se3
       const ::urdf::Rotation & q = M.rotation;
       return SE3( Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix(), Eigen::Vector3d(p.x,p.y,p.z));
     }
-    
-    ::urdf::Pose convertToUrdf (Eigen::Quaterniond quat, Eigen::Translation<double,3> transl)
-    {
-				::urdf::Pose p;
-				p.rotation.setFromQuaternion(quat.x(),
-											 quat.y(),
-											 quat.z(),
-											 quat.w());
-												
-				p.position=::urdf::Vector3(	transl.x(),
-											transl.y(),
-											transl.z());	
-		return p;
-	}
-    
 
     enum AxisCartesian { AXIS_X, AXIS_Y, AXIS_Z, AXIS_UNALIGNED };
     AxisCartesian extractCartesianAxis( const ::urdf::Vector3 & axis )
@@ -72,20 +55,25 @@ namespace se3
 	return AXIS_UNALIGNED;
     }
 
-    void parseTree( ::urdf::LinkConstPtr link, Model & model, bool freeFlyer )
+    void parseTree( ::urdf::LinkConstPtr link, Model & model, bool freeFlyer, SE3 placementOffset = SE3::Identity() )
     {
+
       ::urdf::JointConstPtr joint = link->parent_joint;
+      SE3 nextPlacementOffset=SE3::Identity(); // in most cases, no offset for the next link
 
       // std::cout << " *** " << link->name << "    < attached by joint ";
       // if(joint)
       //   std::cout << "#" << link->parent_joint->name << std::endl;
       // else std::cout << "###ROOT" << std::endl;
+
+      //std::cout << " *** " << link->name << "    < attached by joint ";
  
       //assert(link->inertial && "The parser cannot accept trivial mass");
       const Inertia & Y = (link->inertial) ?
 	convertFromUrdf(*link->inertial)
 	: Inertia::Identity();
-      //std::cout << "Inertia: " << Y << std::endl;
+
+     // std::cout << "placementOffset: " << placementOffset << std::endl;
 
       bool visual = (link->visual) ? true : false;
 
@@ -99,7 +87,7 @@ namespace se3
 	    : model.getBodyId( link->getParent()->parent_joint->name );
 	  //std::cout << joint->name << " === " << parent << std::endl;
 
-	  const SE3 & jointPlacement = convertFromUrdf(joint->parent_to_joint_origin_transform);
+      const SE3 & jointPlacement = placementOffset*convertFromUrdf(joint->parent_to_joint_origin_transform);
 
 	  //std::cout << "Parent = " << parent << std::endl;
 	  //std::cout << "Placement = " << (Matrix4)jointPlacement << std::endl;
@@ -161,38 +149,17 @@ namespace se3
 	      }
 	    case ::urdf::Joint::FIXED:
 	      {
-			/* In case of fixed join: 	-add the inertia of the link to his parent
+            /* In case of fixed join: 	-add the inertia of the link to his parent in the model
 			 * 							-let all the children become children of parent 
-			 * 							-edit the placement of child
+             * 							-inform the parser of the offset to apply
 			 * */
-				  
-			model.mergeFixedBody(parent, jointPlacement, Y); //Modify the parent inertia 
+            model.mergeFixedBody(parent, jointPlacement, Y); //Modify the parent inertia in the model
+            SE3 ptjot_se3 = convertFromUrdf(link->parent_joint->parent_to_joint_origin_transform);
+            //transformation of the current placement offset (important if several fixed join following)
+            nextPlacementOffset=placementOffset*ptjot_se3;
 			BOOST_FOREACH(::urdf::LinkPtr child_link,link->child_links) 
 			{
-				child_link->setParent(link->getParent()); 	//skip the fixed generation
-				
-				//work in SE3
-				SE3 ptjot12_se3 = convertFromUrdf(      link->parent_joint->parent_to_joint_origin_transform);   
-				SE3 ptjot23_se3 = convertFromUrdf(child_link->parent_joint->parent_to_joint_origin_transform);  
-
-				//transformation
-				SE3 ptjot13_se3 = ptjot12_se3*ptjot23_se3;
-					/*
-					std::cout <<"_________________________"<< std::endl;
-					std::cout <<"ptjot12_se3="<< ptjot12_se3 << std::endl;
-					std::cout <<"ptjot23_se3="<< ptjot23_se3 << std::endl;
-					std::cout <<"ptjot13_se3="<< ptjot13_se3 << std::endl;
-					*/
-				//extract quaternion and position
-				Eigen::Quaterniond 				quat(ptjot13_se3.rotation()   );
-				Eigen::Translation<double,3> 	tran(ptjot13_se3.translation());
-				
-
-				//back to urdf Pose
-				::urdf::Pose p = convertToUrdf(quat,tran);
-
-				//apply transformation changes
-				child_link->parent_joint->parent_to_joint_origin_transform=p; 
+                child_link->setParent(link->getParent() ); 	//skip the fixed generation
 			}
 			break;
 	      }
@@ -210,9 +177,10 @@ namespace se3
 	  model.addBody( 0, JointModelFreeFlyer(), SE3::Identity(), Y, "root", link->name, true );
 	}
 
-      BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
+
+    BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
 	{
-	  parseTree( child,model,freeFlyer );
+      parseTree( child,model,freeFlyer,nextPlacementOffset );
 	}
     }  
 
