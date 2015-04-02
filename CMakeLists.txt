@@ -95,6 +95,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/cholesky.hpp
   algorithm/kinematics.hpp
   algorithm/center-of-mass.hpp
+  algorithm/non-linear-effects.hpp
   )
 
 

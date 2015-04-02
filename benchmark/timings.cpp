@@ -5,6 +5,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/non-linear-effects.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
@@ -61,6 +62,20 @@ int main(int argc, const char ** argv)
       rnea(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth]);
     }
   std::cout << "RNEA = \t\t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    nonLinearEffects(model,data,qs[_smooth],qdots[_smooth]);
+  }
+  std::cout << "NLE = \t\t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    rnea(model,data,qs[_smooth],qdots[_smooth],Eigen::VectorXd::Zero(model.nv));
+  }
+  std::cout << "NLE via RNEA = \t\t"; timer.toc(std::cout,NBT);
  
   timer.tic();
   SMOOTH(NBT)
