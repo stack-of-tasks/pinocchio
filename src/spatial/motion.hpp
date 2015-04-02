@@ -18,6 +18,7 @@ namespace se3
     typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
     typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
     typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
+    typedef Matrix6 ActionMatrix;
     typedef ForceTpl<Scalar,Options> Force;
     typedef SE3Tpl<Scalar,Options> SE3;
     enum { LINEAR = 0, ANGULAR = 3 };
@@ -44,6 +45,9 @@ namespace se3
     static MotionTpl Zero()   { return MotionTpl(Vector3::Zero(),  Vector3::Zero());   }
     static MotionTpl Random() { return MotionTpl(Vector3::Random(),Vector3::Random()); }
 
+    MotionTpl & setZero () { m_v.setZero (); m_w.setZero (); return *this; }
+    MotionTpl & setRandom () { m_v.setRandom (); m_w.setRandom (); return *this; }
+
     Vector6 toVector() const
     {
       Vector6 v;
@@ -52,6 +56,16 @@ namespace se3
       return v;
     }
     operator Vector6 () const { return toVector(); }
+
+    ActionMatrix toActionMatrix () const
+    {
+      ActionMatrix X;
+      X.block <3,3> (ANGULAR, ANGULAR) = X.block <3,3> (LINEAR, LINEAR) = skew (m_w);
+      X.block <3,3> (LINEAR, ANGULAR) = skew (m_v);
+      X.block <3,3> (ANGULAR, LINEAR).setZero ();
+
+      return X;
+    }
 
     // Getters
     const Vector3 & angular() const { return m_w; }

@@ -84,6 +84,17 @@ namespace se3
       return SE3Tpl(q.matrix(),Vector3::Random());
     }
 
+    SE3Tpl & setIdentity () { rot.setIdentity (); trans.setZero (); return *this;}
+    SE3Tpl & setRandom ()
+    {
+      Quaternion q(Vector4::Random());
+      q.normalize ();
+      rot = q.matrix ();
+      trans.setRandom ();
+
+      return *this;
+    }
+
     Eigen::Matrix<Scalar,4,4,Options> toHomogeneousMatrix() const
     {
       Eigen::Matrix<Scalar,4,4,Options> M;
