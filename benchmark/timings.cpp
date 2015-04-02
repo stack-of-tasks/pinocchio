@@ -9,6 +9,7 @@
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
+#include "pinocchio/simulation/compute-all-terms.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/multibody/parser/urdf.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
@@ -83,6 +84,13 @@ int main(int argc, const char ** argv)
       crba(model,data,qs[_smooth]);
     }
   std::cout << "CRBA = \t\t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
+  }
+  std::cout << "computeAllTerms = \t\t"; timer.toc(std::cout,NBT);
   
   double total = 0;
   SMOOTH(NBT)
