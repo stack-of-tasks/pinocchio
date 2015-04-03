@@ -1,0 +1,23 @@
+language: cpp
+compiler:
+- clang
+- gcc
+env:
+global:
+- secure: "SnIBG/xLIHX3CSvUbqqsX8xTVqIqQ7fFS6HWO6KZQVBsT6yugTwYHbyhNiU531JejYJ/I3ZrDhXfYH3qFZiYxnH1sifvwV+fnTtMXpPN7qPZwIymkjcmm6gJF51e0C7VOfUbvKFv0ngwj+ul21rgZSMuoEvxPK0WxtE3/ZSfn9c="
+- APT_DEPENDENCIES="doxygen doxygen-latex libboost-all-dev libeigen3-dev liblapack-dev libblas-dev gfortran python-dev python-sphinx"
+- DEBSIGN_KEYID=5AE5CD75
+notifications:
+email:
+- hpp-source@laas.fr
+branches:
+only:
+- master
+- debian
+matrix:
+allow_failures:
+- compiler: clang
+script: ./.travis/run build
+after_success: ./.travis/run after_success
+after_failure: ./.travis/run after_failure
+before_install: ./.travis/run before_install
