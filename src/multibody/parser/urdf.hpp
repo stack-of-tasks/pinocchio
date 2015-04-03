@@ -59,14 +59,13 @@ namespace se3
     {
 
       ::urdf::JointConstPtr joint = link->parent_joint;
-      SE3 nextPlacementOffset=SE3::Identity(); // in most cases, no offset for the next link
+      SE3 nextPlacementOffset = SE3::Identity(); // OffSet of the next link. In case we encounter a fixed joint, we need to propagate the length of its attached body to next joint.
 
       // std::cout << " *** " << link->name << "    < attached by joint ";
       // if(joint)
       //   std::cout << "#" << link->parent_joint->name << std::endl;
       // else std::cout << "###ROOT" << std::endl;
 
-      //std::cout << " *** " << link->name << "    < attached by joint ";
  
       //assert(link->inertial && "The parser cannot accept trivial mass");
       const Inertia & Y = (link->inertial) ?
@@ -149,14 +148,21 @@ namespace se3
 	      }
 	    case ::urdf::Joint::FIXED:
 	      {
-            /* In case of fixed join: 	-add the inertia of the link to his parent in the model
-			 * 							-let all the children become children of parent 
-             * 							-inform the parser of the offset to apply
-			 * */
+            // In case of fixed join:
+            //		-add the inertia of the link to his parent in the model
+            //		-let all the children become children of parent 
+            //		-inform the parser of the offset to apply
+            //		-add fixed body in model to display it in gepetto-viewer
+
             model.mergeFixedBody(parent, jointPlacement, Y); //Modify the parent inertia in the model
             SE3 ptjot_se3 = convertFromUrdf(link->parent_joint->parent_to_joint_origin_transform);
-            //transformation of the current placement offset (important if several fixed join following)
-            nextPlacementOffset=placementOffset*ptjot_se3;
+
+            //transformation of the current placement offset
+            nextPlacementOffset = placementOffset*ptjot_se3;
+
+            //add the fixed Body in the model for the viewer
+            model.addFixedBody(parent,nextPlacementOffset,link->name,visual);
+
 			BOOST_FOREACH(::urdf::LinkPtr child_link,link->child_links) 
 			{
                 child_link->setParent(link->getParent() ); 	//skip the fixed generation

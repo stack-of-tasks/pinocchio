@@ -38,6 +38,12 @@ namespace se3
     std::vector<std::string> bodyNames;// Name of the body attached to the output of joint <i>
     std::vector<bool> hasVisual;       // True iff body <i> has a visual mesh.
 
+    int nFixBody;                      // Number of fixed-bodies (= number of fixed-joints)
+    std::vector<SE3> fix_lmpMi;        // Fixed-body relative placement (wrt last moving parent)
+    std::vector<Model::Index> fix_lastMovingParent; // Fixed-body index of the last moving parent
+    std::vector<bool> fix_hasVisual;   // True iff fixed-body <i> has a visual mesh.
+    std::vector<std::string> fix_bodyNames;// Name of fixed-joint <i>
+
     Motion gravity;                    // Spatial gravity
     static const Eigen::Vector3d gravity981; // Default 3D gravity (=(0,0,9.81))
 
@@ -45,6 +51,7 @@ namespace se3
       : nq(0)
       , nv(0)
       , nbody(1)
+      , nFixBody(0)
       , inertias(1)
       , jointPlacements(1)
       , joints(1)
@@ -62,6 +69,10 @@ namespace se3
     Index addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
 		   const Inertia & Y, const std::string & jointName = "",
 		   const std::string & bodyName = "", bool visual = false );
+    Index addFixedBody( Index fix_lastMovingParent,
+                        const SE3 & placementFromLastMoving,
+                        const std::string &jointName = "",
+                        bool visual=false);
     void mergeFixedBody(Index parent, const SE3 & placement, const Inertia & Y);
     Index getBodyId( const std::string & name ) const;
     bool existBodyName( const std::string & name ) const;
@@ -105,12 +116,12 @@ namespace se3
     std::vector<Eigen::Vector3d> com;     // Subtree com position.
     std::vector<double> mass;             // Subtree total mass.
     Eigen::Matrix<double,3,Eigen::Dynamic> Jcom; // Jacobian of center of mass.
-
     Data( const Model& ref );
 
   private:
     void computeLastChild(const Model& model);
     void computeParents_fromRow(const Model& model);
+
   };
 
   const Eigen::Vector3d Model::gravity981 (0,0,-9.81);
@@ -171,6 +182,20 @@ namespace se3
     bodyNames      .push_back( (bodyName!="")?bodyName:random(8));
     nq += j.nq();
     nv += j.nv();
+    return idx;
+  }
+
+  Model::Index Model::addFixedBody( Index lastMovingParent,
+                                    const SE3 & placementFromLastMoving,
+                                    const std::string & bodyName,
+                                    bool visual )
+  {
+
+    Index idx = nFixBody++;
+    fix_lastMovingParent.push_back(lastMovingParent);
+    fix_lmpMi      .push_back(placementFromLastMoving);
+    fix_hasVisual  .push_back(visual);
+    fix_bodyNames  .push_back( (bodyName!="")?bodyName:random(8));
     return idx;
   }
 
@@ -271,7 +296,7 @@ namespace se3
 	else         parents_fromRow[idx_vj] = -1;
 	nvSubtree_fromRow[idx_vj] = nvSubtree[joint];
 
-	for( int row=1;row<nvj;++row)  
+    for( int row=1;row<nvj;++row)
 	  {
 	    parents_fromRow[idx_vj+row] = idx_vj+row-1;
 	    nvSubtree_fromRow[idx_vj+row] = nvSubtree[joint]-row;

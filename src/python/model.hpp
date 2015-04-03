@@ -70,8 +70,14 @@ namespace se3
     .add_property("hasVisual",
       bp::make_function(&ModelPythonVisitor::hasVisual,
             bp::return_internal_reference<>())  )
-	  .add_property("gravity",&ModelPythonVisitor::gravity,&ModelPythonVisitor::setGravity)
 
+      .add_property("nFixBody", &ModelPythonVisitor::nFixBody)
+      .add_property("fix_lmpMi", bp::make_function(&ModelPythonVisitor::fix_lmpMi, bp::return_internal_reference<>()) )
+      .add_property("fix_lastMovingParent",bp::make_function(&ModelPythonVisitor::fix_lastMovingParent,bp::return_internal_reference<>()) )
+      .add_property("fix_hasVisual", bp::make_function(&ModelPythonVisitor::fix_hasVisual, bp::return_internal_reference<>())  )
+      .add_property("fix_bodyNames", bp::make_function(&ModelPythonVisitor::fix_bodyNames, bp::return_internal_reference<>())  )
+
+      .add_property("gravity",&ModelPythonVisitor::gravity,&ModelPythonVisitor::setGravity)
 	  .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
 	  .staticmethod("BuildEmptyModel")
 	  .def("BuildHumanoidSimple",&ModelPythonVisitor::maker_humanoidSimple)
@@ -93,8 +99,16 @@ namespace se3
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
       static std::vector<std::string> & bodyNames ( ModelHandler & m ) { return m->bodyNames; }
       static std::vector<bool> & hasVisual ( ModelHandler & m ) { return m->hasVisual; }
+
+      static int nFixBody( ModelHandler & m )                                     { return m->nFixBody; }
+      static std::vector<SE3>          & fix_lmpMi           ( ModelHandler & m ) { return m->fix_lmpMi; }
+      static std::vector<Model::Index> & fix_lastMovingParent( ModelHandler & m ) { return m->fix_lastMovingParent; }
+      static std::vector<bool> & fix_hasVisual ( ModelHandler & m ) { return m->fix_hasVisual; }
+      static std::vector<std::string> & fix_bodyNames ( ModelHandler & m ) { return m->fix_bodyNames; }
+
       static Motion gravity( ModelHandler & m ) { return m->gravity; }
       static void setGravity( ModelHandler & m,const Motion_fx & g ) { m->gravity = g; }
+
 
       static ModelHandler maker_empty()
       {
