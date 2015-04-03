@@ -66,7 +66,6 @@ namespace se3
       //   std::cout << "#" << link->parent_joint->name << std::endl;
       // else std::cout << "###ROOT" << std::endl;
 
-      //std::cout << " *** " << link->name << "    < attached by joint ";
  
       //assert(link->inertial && "The parser cannot accept trivial mass");
       const Inertia & Y = (link->inertial) ?
@@ -152,11 +151,14 @@ namespace se3
             /* In case of fixed join: 	-add the inertia of the link to his parent in the model
 			 * 							-let all the children become children of parent 
              * 							-inform the parser of the offset to apply
+             *                          -add fixed body in model to display it in gepetto-viewer
 			 * */
             model.mergeFixedBody(parent, jointPlacement, Y); //Modify the parent inertia in the model
             SE3 ptjot_se3 = convertFromUrdf(link->parent_joint->parent_to_joint_origin_transform);
-            //transformation of the current placement offset (important if several fixed join following)
+            //transformation of the current placement offset
             nextPlacementOffset=placementOffset*ptjot_se3;
+            //add the fixed Body in the model for the viewer
+            model.addFixedBody(parent,nextPlacementOffset,link->name,visual);
 			BOOST_FOREACH(::urdf::LinkPtr child_link,link->child_links) 
 			{
                 child_link->setParent(link->getParent() ); 	//skip the fixed generation
