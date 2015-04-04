@@ -15,6 +15,7 @@ branches:
 only:
 - master
 - debian
+- topic/travis
 matrix:
 allow_failures:
 - compiler: clang
