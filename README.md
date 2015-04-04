@@ -1,5 +1,7 @@
 Pinocchio
 ===========
+[![Build Status](https://travis-ci.org/stack-of-tasks/pinocchio.png?branch=master)](https://travis-ci.org/stack-of-tasks/pinocchio)
+[![Coverage Status](https://coveralls.io/repos/stack-of-tasks/pinocchio/badge.png)](https://coveralls.io/r/stack-of-tasks/pinocchio)
 
 Setup
 -----
