@@ -22,6 +22,4 @@ allow_failures:
 script: ./.travis/run build
 after_success: ./.travis/run after_success
 after_failure: ./.travis/run after_failure
-before_install: 
-- "APT_DEPENDENCIES=doxygen doxygen-latex libboost-all-dev libeigen3-dev liblapack-dev libblas-dev gfortran python-dev python-sphinx"
-- ./.travis/run before_install
+before_install: ./travis_custom/custom_before_install

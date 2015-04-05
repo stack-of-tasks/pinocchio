@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+# Set debug mode
+set -x
+set -v
+
+
+# Setup environment variables.
+export APT_DEPENDENCIES="doxygen doxygen-latex libboost-all-dev libeigen3-dev liblapack-dev libblas-dev gfortran python-dev python-sphinx"
+. ./.travis/run before_install
+
+# End debug mode
+set +v
+set +x
