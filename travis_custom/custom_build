@@ -9,7 +9,7 @@ set -v
 export CMAKE_ADDITIONAL_OPTIONS="-DBUILD_BENCHMARK=\"ON\""
 
 # Setup environment variables.
-. ./.travis/run build
+. ./.travis/run ../.travis/build
 
 # End debug mode
 set +v
