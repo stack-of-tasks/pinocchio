@@ -7,6 +7,7 @@ set -v
 
 # Setup environment variables.
 export CMAKE_ADDITIONAL_OPTIONS="-DBUILD_BENCHMARK=\"ON\""
+export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/opt/openrobots/lib/pkgconfig"
 
 # Setup environment variables.
 . ./.travis/run ../.travis/build
