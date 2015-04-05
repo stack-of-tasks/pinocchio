@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+# Set debug mode
+set -x
+set -v
+
+# Setup environment variables.
+export CMAKE_ADDITIONAL_OPTIONS="-DBUILD_BENCHMARK=\"ON\""
+
+# Setup environment variables.
+. ./.travis/run build
+
+# End debug mode
+set +v
+set +x
