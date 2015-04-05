@@ -10,6 +10,7 @@ sudo add-apt-repository -y "deb http://robotpkg.openrobots.org/packages/debian p
 
 # Setup environment variables.
 export APT_DEPENDENCIES="doxygen doxygen-latex libboost-all-dev libeigen3-dev liblapack-dev libblas-dev gfortran python-dev python-sphinx robotpkg-urdfdom"
+curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -
 . ./.travis/run before_install
 
 # End debug mode
