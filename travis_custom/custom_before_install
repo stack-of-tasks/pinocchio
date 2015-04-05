@@ -6,7 +6,7 @@ set -x
 set -v
 
 # Add robotpkg 
-sudo add-apt-repository -y "deb http://robotpkg.openrobots.org/packages/debian precise robotpkg"
+sudo sh -c "echo \"deb http://robotpkg.openrobots.org/packages/debian precise robotpkg\" >> /etc/apt/sources.list "
 
 # Setup environment variables.
 export APT_DEPENDENCIES="doxygen doxygen-latex libboost-all-dev libeigen3-dev liblapack-dev libblas-dev gfortran python-dev python-sphinx robotpkg-urdfdom"
