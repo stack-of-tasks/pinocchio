@@ -6,24 +6,11 @@ set -x
 set -v
 
 # Setup environment variables.
-export CMAKE_ADDITIONAL_OPTIONS="-DBUILD_BENCHMARK=\"ON\""
+export CMAKE_ADDITIONAL_OPTIONS="-DBUILD_BENCHMARK=\"ON\" -DCOMPILE_UNIT_TESTS=1"
 export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/opt/openrobots/lib/pkgconfig"
 
 # Setup environment variables.
 . ./.travis/run ../.travis/build
-
-# Build unittest
-make tspatial
-make symmetric
-make rnea
-make crba
-make com
-make jacobian
-make cholesky
-
-make urdf 
-make value
-make joints
 
 # End debug mode
 set +v
