@@ -6,7 +6,7 @@ set -x
 set -v
 
 # Setup environment variables.
-export CMAKE_ADDITIONAL_OPTIONS="-DBUILD_BENCHMARK=\"ON\""
+export CMAKE_ADDITIONAL_OPTIONS="-DBUILD_BENCHMARK=\"ON\" -DCOMPILE_UNIT_TESTS=1"
 export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/opt/openrobots/lib/pkgconfig"
 
 # Setup environment variables.
