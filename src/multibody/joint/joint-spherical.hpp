@@ -38,7 +38,7 @@ namespace se3
       }
     }; // struct MotionSpherical
 
-    friend const MotionSpherical operator+ (const MotionSpherical & m, const BiasZero & c)
+    friend const MotionSpherical operator+ (const MotionSpherical & m, const BiasZero & )
     { return m; }
 
     friend Motion operator+ (const MotionSpherical & m1, const Motion & m2)
@@ -100,7 +100,7 @@ namespace se3
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix <double, 6, 3> operator* (const Inertia & Y, const JointSpherical::ConstraintRotationalSubspace & S)
+  Eigen::Matrix <double, 6, 3> operator* (const Inertia & Y, const JointSpherical::ConstraintRotationalSubspace & )
   {
     Eigen::Matrix <double, 6, 3> M;
     //    M.block <3,3> (Inertia::LINEAR, 0) = - Y.mass () * skew(Y.lever ());

@@ -55,8 +55,8 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i      = jmodel.id();
-      const Model::Index & parent = model.parents[i];
+      const std::size_t & i      = jmodel.id();
+      const std::size_t & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
       
