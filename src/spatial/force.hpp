@@ -43,6 +43,9 @@ namespace se3
     static ForceTpl Zero() { return ForceTpl(Vector3::Zero(), Vector3::Zero()); }
     static ForceTpl Random() { return ForceTpl(Vector3::Random(), Vector3::Random()); }
 
+    ForceTpl & setZero () { m_n.setZero (); m_f.setZero (); return *this; }
+    ForceTpl & setRandom () { m_n.setRandom (); m_f.setRandom (); return *this; }
+
     Vector6 toVector() const
     {
       Vector6 f;

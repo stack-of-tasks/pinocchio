@@ -194,7 +194,7 @@ namespace se3
     Mv( const Model &                  model, 
 	const  Data&                          data ,
 	Eigen::MatrixBase<Mat> &   v,
-	bool usingCholesky = false)
+	bool usingCholesky)
     {
       if(usingCholesky) return internal::UDUtv(model,data,v);
       else return v = internal::Mv(model,data,v);

@@ -8,6 +8,7 @@
 #include "pinocchio/python/data.hpp"
 
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/non-linear-effects.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
@@ -27,6 +28,12 @@ namespace se3
 			      const VectorXd_fx & qd,
 			      const VectorXd_fx & qdd )
       { return rnea(*model,*data,q,qd,qdd); }
+
+      static Eigen::VectorXd nle_proxy( const ModelHandler& model,
+                                        DataHandler & data,
+                                        const VectorXd_fx & q,
+                                        const VectorXd_fx & qd )
+      { return nonLinearEffects(*model,*data,q,qd); }
 
       static Eigen::MatrixXd crba_proxy( const ModelHandler& model, 
 					 DataHandler & data,
@@ -70,6 +77,13 @@ namespace se3
 	kinematics( *model,*data,q,qdot );
       }
 
+      static void geometry_proxy(const ModelHandler & model,
+                                 DataHandler & data,
+                                 const VectorXd_fx & q)
+      {
+        geometry(*model,*data,q);
+      }
+
 
 
       /* --- Expose --------------------------------------------------------- */
@@ -81,6 +95,12 @@ namespace se3
 			 "Velocity qdot (size Model::nv)",
 			 "Acceleration qddot (size Model::nv)"),
 		"Compute the RNEA, put the result in Data and return it.");
+
+  bp::def("nle",nle_proxy,
+    bp::args("Model","Data",
+        "Configuration q (size Model::nq)",
+        "Velocity qdot (size Model::nv)"),
+        "Compute the Non Linear Effects (coriolis, centrifugal and gravitational effects), put the result in Data and return it.");
 
 	bp::def("crba",crba_proxy,
 		bp::args("Model","Data",
@@ -103,6 +123,12 @@ namespace se3
 			 "Velocity qdot (size Model::nv)"),
 		"Compute the placements and spatial velocities of all the frames of the kinematic "
 		"tree and put the results in data.");
+
+  bp::def("geometry",geometry_proxy,
+    bp::args("Model","Data",
+        "Configuration q (size Model::nq)"),
+        "Compute the placements of all the frames of the kinematic "
+        "tree and put the results in data.");
 
 	bp::def("jacobian",jacobian_proxy,
 		bp::args("Model","Data",

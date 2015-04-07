@@ -95,8 +95,12 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/cholesky.hpp
   algorithm/kinematics.hpp
   algorithm/center-of-mass.hpp
+  algorithm/non-linear-effects.hpp
   )
 
+SET(${PROJECT_NAME}_SIMULATION_HEADERS
+  simulation/compute-all-terms.hpp
+  )
 
 SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/eigen_container.hpp
@@ -119,6 +123,7 @@ SET(HEADERS
   ${${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_HEADERS}
   ${${PROJECT_NAME}_ALGORITHM_HEADERS}
+  ${${PROJECT_NAME}_SIMULATION_HEADERS}
   ${${PROJECT_NAME}_PYTHON_HEADERS}
   exception.hpp
   assert.hpp
@@ -138,6 +143,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint"
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/parser")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/simulation")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/python")
 
 FOREACH(header ${HEADERS})

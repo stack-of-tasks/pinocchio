@@ -5,9 +5,11 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/non-linear-effects.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
+#include "pinocchio/simulation/compute-all-terms.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/multibody/parser/urdf.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
@@ -61,6 +63,20 @@ int main(int argc, const char ** argv)
       rnea(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth]);
     }
   std::cout << "RNEA = \t\t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    nonLinearEffects(model,data,qs[_smooth],qdots[_smooth]);
+  }
+  std::cout << "NLE = \t\t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    rnea(model,data,qs[_smooth],qdots[_smooth],Eigen::VectorXd::Zero(model.nv));
+  }
+  std::cout << "NLE via RNEA = \t\t"; timer.toc(std::cout,NBT);
  
   timer.tic();
   SMOOTH(NBT)
@@ -68,6 +84,13 @@ int main(int argc, const char ** argv)
       crba(model,data,qs[_smooth]);
     }
   std::cout << "CRBA = \t\t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
+  }
+  std::cout << "computeAllTerms = \t\t"; timer.toc(std::cout,NBT);
   
   double total = 0;
   SMOOTH(NBT)

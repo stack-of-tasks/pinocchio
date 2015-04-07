@@ -83,6 +83,7 @@ namespace se3
     std::vector<SE3> oMi;                 // Body absolute placement (wrt world)
     std::vector<SE3> liMi;                // Body relative placement (wrt parent)
     Eigen::VectorXd tau;                  // Joint forces
+    Eigen::VectorXd nle;                  // Non linear effects
 
     std::vector<Inertia> Ycrb;            // Inertia of the sub-tree composit rigid body
     Eigen::MatrixXd M;                    // Joint Inertia
@@ -209,6 +210,7 @@ namespace se3
     ,oMi(ref.nbody)
     ,liMi(ref.nbody)
     ,tau(ref.nv)
+    ,nle(ref.nv)
     ,Ycrb(ref.nbody)
     ,M(ref.nv,ref.nv)
     ,Fcrb(ref.nbody)
