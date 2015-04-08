@@ -17,7 +17,7 @@
 #include "pinocchio/tools/timer.hpp"
 
 #include <Eigen/StdVector>
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd);
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
 
 int main(int argc, const char ** argv)
 {
