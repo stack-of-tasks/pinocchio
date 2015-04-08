@@ -21,9 +21,16 @@
 //#define VERBOSE
 
 template <typename JoinData_t>
-void printOutJointData (const Eigen::VectorXd & q,
+void printOutJointData (
+#ifdef VERBOSE
+                        const Eigen::VectorXd & q,
                         const Eigen::VectorXd & q_dot,
                         const JoinData_t & joint_data
+#else
+                        const Eigen::VectorXd & ,
+                        const Eigen::VectorXd & ,
+                        const JoinData_t & 
+#endif
                         )
 {
   using namespace std;
@@ -811,9 +818,12 @@ BOOST_AUTO_TEST_CASE ( test_merge_body )
                                                               0.,     0.,       3.28125;
 
   assert (mergedInertia.mass()== expected_mass);
+  if (mergedInertia.mass()!= expected_mass)
+    exit(-1);
   is_matrix_closed (mergedInertia.lever(), expected_com);
   is_matrix_closed (mergedInertia.inertia().matrix(), expectedBodyInertia);
-
+  
+  exit(0);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
