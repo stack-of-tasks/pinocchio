@@ -138,14 +138,14 @@ void assertValues(const se3::Model & model, se3::Data& data)
   data.M.triangularView<Eigen::StrictlyLower>() = 
     data.M.triangularView<Eigen::StrictlyUpper>().transpose();
   
-  //const Eigen::MatrixXd & U = data.U;
-  //const Eigen::VectorXd & D = data.D;
-  //const Eigen::MatrixXd & M = data.M;
+  const Eigen::MatrixXd & U = data.U;
+  const Eigen::VectorXd & D = data.D;
+  const Eigen::MatrixXd & M = data.M;
 
 // #ifndef NDEBUG
-//   std::cout << "M = [\n" << M << "];" << std::endl;
-//   std::cout << "U = [\n" << U << "];" << std::endl;
-//   std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
+  std::cout << "M = [\n" << M << "];" << std::endl;
+  std::cout << "U = [\n" << U << "];" << std::endl;
+  std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
 // #endif
       
   assert( M.isApprox(U*D.asDiagonal()*U.transpose()) );
