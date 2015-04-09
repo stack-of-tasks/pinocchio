@@ -18,9 +18,9 @@
 #include "pinocchio/tools/timer.hpp"
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE NLETests
+#define BOOST_TEST_MODULE CATTests
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include "pinocchio/tools/matrix-comparison.hpp"
 
 #include <iostream>
 
@@ -29,23 +29,6 @@
 #ifdef __SSE3__
 #include <pmmintrin.h>
 #endif
-
-inline void is_matrix_closed (const Eigen::MatrixXd & M1,
-                              const Eigen::MatrixXd & M2,
-                              double tolerance = std::numeric_limits <Eigen::MatrixXd::Scalar>::epsilon ()
-                              )
-{
-  BOOST_REQUIRE_EQUAL (M1.rows (), M2.rows ());
-  BOOST_REQUIRE_EQUAL (M1.cols (), M2.cols ());
-
-  for (Eigen::MatrixXd::Index i = 0; i < M1.rows (); i++)
-  {
-    for (Eigen::MatrixXd::Index j = 0; j < M1.cols (); j++)
-    {
-      BOOST_CHECK_CLOSE (M1 (i,j), M2 (i,j), tolerance);
-    }
-  }
-}
 
 
 BOOST_AUTO_TEST_SUITE ( ComputeAllTerms )
@@ -72,9 +55,9 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
 
-  is_matrix_closed (data.nle, data_other.nle);
-  is_matrix_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
-  is_matrix_closed (data.J, data_other.J);
+  is_matrix_absolutely_closed (data.nle, data_other.nle);
+  is_matrix_absolutely_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
+  is_matrix_absolutely_closed (data.J, data_other.J);
 
   // -------
   q.setZero ();
@@ -86,9 +69,9 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
 
-  is_matrix_closed (data.nle, data_other.nle);
-  is_matrix_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
-  is_matrix_closed (data.J, data_other.J);
+  is_matrix_absolutely_closed (data.nle, data_other.nle);
+  is_matrix_absolutely_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
+  is_matrix_absolutely_closed (data.J, data_other.J);
 
   // -------
   q.setOnes ();
@@ -100,9 +83,9 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
 
-  is_matrix_closed (data.nle, data_other.nle);
-  is_matrix_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
-  is_matrix_closed (data.J, data_other.J);
+  is_matrix_absolutely_closed (data.nle, data_other.nle);
+  is_matrix_absolutely_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
+  is_matrix_absolutely_closed (data.J, data_other.J);
 
   // -------
   q.setRandom ();
@@ -114,9 +97,9 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
 
-  is_matrix_closed (data.nle, data_other.nle);
-  is_matrix_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
-  is_matrix_closed (data.J, data_other.J);
+  is_matrix_absolutely_closed (data.nle, data_other.nle);
+  is_matrix_absolutely_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
+  is_matrix_absolutely_closed (data.J, data_other.J);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

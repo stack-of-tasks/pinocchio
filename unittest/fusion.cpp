@@ -12,6 +12,11 @@
 #include "pinocchio/tools/timer.hpp"
 #include <Eigen/Core>
 
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE FusionTest
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
+
 struct TestObj
 {
   int i;
@@ -127,11 +132,14 @@ namespace boost {
 
     // res append2(t1 a1,t2 a2,v a3) { return push_front(push_front(a3,a2),a1); }
   }}
-  
 
-int main()
+
+
+BOOST_AUTO_TEST_SUITE ( FusionTest)
+
+BOOST_AUTO_TEST_CASE ( test_fusion )
 {
-  CRTPDerived d;
+	CRTPDerived d;
   //CRTPBase<CRTPDerived> & dref = d;
   CRTPVariant v = d;
 
@@ -150,6 +158,7 @@ int main()
 
   bf::vector<int &,double &,int &> arg2 = bf::append2(boost::ref(i),boost::ref(k),arg);
     //bf::push_front(bf::push_front(arg1,boost::ref(k)),boost::ref(j));
-
-  return 0;
 }
+
+BOOST_AUTO_TEST_SUITE_END ()
+
