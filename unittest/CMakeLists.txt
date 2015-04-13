@@ -2,7 +2,11 @@
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
 MACRO(ADD_UNIT_TEST NAME PKGS)
-  ADD_EXECUTABLE(${NAME} EXCLUDE_FROM_ALL ${NAME})
+  IF (COMPILE_UNIT_TESTS)
+    ADD_EXECUTABLE(${NAME} ${NAME})
+  ELSE (COMPILE_UNIT_TESTS)
+    ADD_EXECUTABLE(${NAME} EXCLUDE_FROM_ALL ${NAME})
+  ENDIF (COMPILE_UNIT_TESTS)
   FOREACH(PKG ${PKGS})
     PKG_CONFIG_USE_DEPENDENCY(${NAME} ${PKG})
   ENDFOREACH(PKG)

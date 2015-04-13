@@ -30,7 +30,11 @@ void timings(const se3::Model & model, se3::Data& data, long flag)
 {
   StackTicToc timer(StackTicToc::US); 
 #ifdef NDEBUG
+#ifdef _INTENSE_TESTING_
   const int NBT = 1000*1000;
+#else
+  const int NBT = 10;
+#endif
 #else 
   const int NBT = 1;
   std::cout << "(the time score in debug mode is not relevant)  " ;
@@ -139,9 +143,9 @@ void assertValues(const se3::Model & model, se3::Data& data)
   const Eigen::MatrixXd & M = data.M;
 
 // #ifndef NDEBUG
-//   std::cout << "M = [\n" << M << "];" << std::endl;
-//   std::cout << "U = [\n" << U << "];" << std::endl;
-//   std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
+  std::cout << "M = [\n" << M << "];" << std::endl;
+  std::cout << "U = [\n" << U << "];" << std::endl;
+  std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
 // #endif
       
   assert( M.isApprox(U*D.asDiagonal()*U.transpose()) );

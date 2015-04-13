@@ -17,7 +17,12 @@ void timings(const se3::Model & model, se3::Data& data, long flag)
   using namespace se3;
   StackTicToc timer(StackTicToc::US); 
 #ifdef NDEBUG
+#ifdef _INTENSE_TESTING_
   const int NBT = 1000*1000;
+#else
+  const int NBT = 10;
+#endif
+
 #else 
   const int NBT = 1;
   std::cout << "(the time score in debug mode is not relevant)  " ;
