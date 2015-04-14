@@ -141,7 +141,7 @@ namespace se3
 		    assert(false && "Only X, Y or Z axis are accepted." );
 		  	break;
 		  default:
-		    assert( false && "Fatal Error while extracting revolute joint axis");
+		    assert( false && "Fatal Error while extracting prismatic joint axis");
 		    break;
 		  }
 		break;
@@ -173,13 +173,13 @@ namespace se3
 	    default:
 	      {
 		std::cerr << "The joint type " << joint->type << " is not supported." << std::endl;
-		assert(false && "Only revolute joint are accepted." );
+		assert(false && "Only revolute, prismatic and fixed joints are accepted." );
 		break;
 	      }
 	    }
 	    }
       else if(freeFlyer)
-	{ /* The link is the root of the body. */
+	{ // The link is the root of the body.
 	  model.addBody( 0, JointModelFreeFlyer(), SE3::Identity(), Y, "root", link->name, true );
 	}
 
