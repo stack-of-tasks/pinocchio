@@ -14,7 +14,6 @@ namespace urdf
   typedef boost::shared_ptr<const Joint> JointConstPtr;
   typedef boost::shared_ptr<const Link> LinkConstPtr;
   typedef boost::shared_ptr<Link> LinkPtr;
-
   typedef boost::shared_ptr<const Inertial> InertialConstPtr;
 }
 
@@ -22,7 +21,6 @@ namespace se3
 {
   namespace urdf
   {
-  
     Inertia convertFromUrdf( const ::urdf::Inertial& Y )
     {
       const ::urdf::Vector3 & p = Y.origin.position;
@@ -34,7 +32,6 @@ namespace se3
       Eigen::Matrix3d I; I << Y.ixx,Y.ixy,Y.ixz
 			   ,  Y.ixy,Y.iyy,Y.iyz
 			   ,  Y.ixz,Y.iyz,Y.izz;
-
       return Inertia(Y.mass,com,R*I*R.transpose());
     }
 
@@ -58,20 +55,24 @@ namespace se3
 	return AXIS_UNALIGNED;
     }
 
-    void parseTree( ::urdf::LinkConstPtr link, Model & model, bool freeFlyer )
+    void parseTree( ::urdf::LinkConstPtr link, Model & model, bool freeFlyer, SE3 placementOffset = SE3::Identity() )
     {
+
       ::urdf::JointConstPtr joint = link->parent_joint;
+      SE3 nextPlacementOffset = SE3::Identity(); // OffSet of the next link. In case we encounter a fixed joint, we need to propagate the length of its attached body to next joint.
 
       // std::cout << " *** " << link->name << "    < attached by joint ";
       // if(joint)
       //   std::cout << "#" << link->parent_joint->name << std::endl;
       // else std::cout << "###ROOT" << std::endl;
+
  
       //assert(link->inertial && "The parser cannot accept trivial mass");
       const Inertia & Y = (link->inertial) ?
 	convertFromUrdf(*link->inertial)
 	: Inertia::Identity();
-      //std::cout << "Inertia: " << Y << std::endl;
+
+     // std::cout << "placementOffset: " << placementOffset << std::endl;
 
       bool visual = (link->visual) ? true : false;
 
@@ -85,7 +86,7 @@ namespace se3
 	    : model.getBodyId( link->getParent()->parent_joint->name );
 	  //std::cout << joint->name << " === " << parent << std::endl;
 
-	  const SE3 & jointPlacement = convertFromUrdf(joint->parent_to_joint_origin_transform);
+      const SE3 & jointPlacement = placementOffset*convertFromUrdf(joint->parent_to_joint_origin_transform);
 
 	  //std::cout << "Parent = " << parent << std::endl;
 	  //std::cout << "Placement = " << (Matrix4)jointPlacement << std::endl;
@@ -140,35 +141,52 @@ namespace se3
 		    assert(false && "Only X, Y or Z axis are accepted." );
 		  	break;
 		  default:
-		    assert( false && "Fatal Error while extracting revolute joint axis");
+		    assert( false && "Fatal Error while extracting prismatic joint axis");
 		    break;
 		  }
 		break;
 	      }
 	    case ::urdf::Joint::FIXED:
 	      {
-	    model.mergeFixedBody(parent, jointPlacement, Y);
-	    assert( (link->child_links.empty()) && "Fixed body has joint child. Shouldn't happen");
-	    // For the moment, fixed bodies are handled only if end of chain (and only once)
-		break;
+            // In case of fixed join:
+            //		-add the inertia of the link to his parent in the model
+            //		-let all the children become children of parent 
+            //		-inform the parser of the offset to apply
+            //		-add fixed body in model to display it in gepetto-viewer
+
+            model.mergeFixedBody(parent, jointPlacement, Y); //Modify the parent inertia in the model
+            SE3 ptjot_se3 = convertFromUrdf(link->parent_joint->parent_to_joint_origin_transform);
+
+            //transformation of the current placement offset
+            nextPlacementOffset = placementOffset*ptjot_se3;
+
+            //add the fixed Body in the model for the viewer
+            model.addFixedBody(parent,nextPlacementOffset,link->name,visual);
+
+			BOOST_FOREACH(::urdf::LinkPtr child_link,link->child_links) 
+			{
+                child_link->setParent(link->getParent() ); 	//skip the fixed generation
+			}
+			break;
 	      }
 	    
 	    default:
 	      {
 		std::cerr << "The joint type " << joint->type << " is not supported." << std::endl;
-		assert(false && "Only revolute joint are accepted." );
+		assert(false && "Only revolute, prismatic and fixed joints are accepted." );
 		break;
 	      }
 	    }
 	    }
       else if(freeFlyer)
-	{ /* The link is the root of the body. */
+	{ // The link is the root of the body.
 	  model.addBody( 0, JointModelFreeFlyer(), SE3::Identity(), Y, "root", link->name, true );
 	}
 
-      BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
+
+    BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
 	{
-	  parseTree( child,model,freeFlyer );
+      parseTree( child,model,freeFlyer,nextPlacementOffset );
 	}
     }  
 

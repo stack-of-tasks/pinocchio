@@ -58,6 +58,11 @@ class RobotWrapper:
         assert( self.model.hasVisual[index] )
         return self.viewerRootNodeName+'/'+self.model.bodyNames[index]
 
+    def viewerFixedNodeNames(self,index):
+        assert( self.model.fix_hasVisual[index] )
+        return self.viewerRootNodeName+'/'+self.model.fix_bodyNames[index]
+
+
     def initDisplay(self,viewerRootNodeName = "world/pinocchio", loadModel = False):
         import gepetto.corbaserver
         try:
@@ -92,12 +97,20 @@ class RobotWrapper:
         if 'viewer' not in self.__dict__: return
         # Update the robot geometry.
         se3.kinematics(self.model,self.data,q,self.v0)
-        # Iteratively place the robot bodies.
+        # Iteratively place the moving robot bodies.
         for i in range(1,self.model.nbody):
             if self.model.hasVisual[i]:
                 M = self.data.oMi[i]
                 self.viewer.gui.applyConfiguration(self.viewerNodeNames(i),
                                                    utils.se3ToXYZQUAT(M))
+        # Iteratively place the fixed robot bodies.                                                   
+        for i in range(0,self.model.nFixBody):
+            if self.model.fix_hasVisual[i]:
+                index_last_movable=self.model.fix_lastMovingParent[i]
+                oMlmp = self.data.oMi[index_last_movable]
+                lmpMi = self.model.fix_lmpMi[i]
+                M     =  oMlmp * lmpMi
+                self.viewer.gui.applyConfiguration(self.viewerFixedNodeNames(i),utils.se3ToXYZQUAT(M))
         self.viewer.gui.refresh()
 
 __all__ = [ 'RobotWrapper' ]
