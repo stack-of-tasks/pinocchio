@@ -23,13 +23,13 @@
 template <typename JoinData_t>
 void printOutJointData (
 #ifdef VERBOSE
-                        const Eigen::VectorXd & q,
-                        const Eigen::VectorXd & q_dot,
-                        const JoinData_t & joint_data
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & q_dot,
+  const JoinData_t & joint_data
 #else
-                        const Eigen::VectorXd & ,
-                        const Eigen::VectorXd & ,
-                        const JoinData_t & 
+  const Eigen::VectorXd & ,
+  const Eigen::VectorXd & ,
+  const JoinData_t & 
 #endif
                         )
 {

@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_SUITE ( Rnea )
 BOOST_AUTO_TEST_CASE ( test_rnea )
 {
   #ifdef __SSE3__
-  _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
+    _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
   #endif
   using namespace Eigen;
   using namespace se3;

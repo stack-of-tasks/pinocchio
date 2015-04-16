@@ -66,73 +66,75 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   long flag = BOOST_BINARY(1111);
   StackTicToc timer(StackTicToc::US); 
   #ifdef NDEBUG
-#ifdef _INTENSE_TESTING_
-    const int NBT = 1000*1000;
-#else
-  const int NBT = 10;
-#endif
-
-#else 
-  const int NBT = 1;
-  std::cout << "(the time score in debug mode is not relevant)  " ;
-#endif
+    #ifdef _INTENSE_TESTING_
+      const int NBT = 1000*1000;
+    #else
+      const int NBT = 10;
+    #endif
+  #else 
+    const int NBT = 1;
+    std::cout << "(the time score in debug mode is not relevant)  " ;
+  #endif
 
   bool verbose = flag & (flag-1) ; // True is two or more binaries of the flag are 1.
   if(verbose) std::cout <<"--" << std::endl;
   Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
 
   if( flag >> 0 & 1 )
+  {
+    timer.tic();
+    SMOOTH(NBT)
     {
-      timer.tic();
-      SMOOTH(NBT)
-      {
-	computeJacobians(model,data,q);
-      }
-      if(verbose) std::cout << "Compute =\t";
-      timer.toc(std::cout,NBT);
+      computeJacobians(model,data,q);
     }
+    if(verbose) std::cout << "Compute =\t";
+    timer.toc(std::cout,NBT);
+  }
+
   if( flag >> 1 & 1 )
-    {
-      computeJacobians(model,data,q);
-      Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
-      Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
+  {
+    computeJacobians(model,data,q);
+    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
+    Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
 
-      timer.tic();
-      SMOOTH(NBT)
-      {
-	getJacobian<false>(model,data,idx,Jrh);
-      }
-      if(verbose) std::cout << "Copy =\t";
-      timer.toc(std::cout,NBT);
+    timer.tic();
+    SMOOTH(NBT)
+    {
+      getJacobian<false>(model,data,idx,Jrh);
     }
+    if(verbose) std::cout << "Copy =\t";
+    timer.toc(std::cout,NBT);
+  }
+  
   if( flag >> 2 & 1 )
-    {
-      computeJacobians(model,data,q);
-      Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
-      Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
+  {
+    computeJacobians(model,data,q);
+    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
+    Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
 
-      timer.tic();
-      SMOOTH(NBT)
-      {
-	getJacobian<true>(model,data,idx,Jrh);
-      }
-      if(verbose) std::cout << "Change frame =\t";
-      timer.toc(std::cout,NBT);
+    timer.tic();
+    SMOOTH(NBT)
+    {
+      getJacobian<true>(model,data,idx,Jrh);
     }
+    if(verbose) std::cout << "Change frame =\t";
+    timer.toc(std::cout,NBT);
+  }
+  
   if( flag >> 3 & 1 )
-    {
-      computeJacobians(model,data,q);
-      Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
-      Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
+  {
+    computeJacobians(model,data,q);
+    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
+    Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
 
-      timer.tic();
-      SMOOTH(NBT)
-      {
-	jacobian(model,data,q,idx);
-      }
-      if(verbose) std::cout << "Single jacobian =\t";
-      timer.toc(std::cout,NBT);
+    timer.tic();
+    SMOOTH(NBT)
+    {
+      jacobian(model,data,q,idx);
     }
+    if(verbose) std::cout << "Single jacobian =\t";
+    timer.toc(std::cout,NBT);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

@@ -36,8 +36,8 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix3d)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Symmetric3)
 
 void timeSym3(const se3::Symmetric3 & S,
-	      const se3::Symmetric3::Matrix3 & R,
-	      se3::Symmetric3 & res)
+        const se3::Symmetric3::Matrix3 & R,
+        se3::Symmetric3 & res)
 {
   res = S.rotate(R);
 }
@@ -51,8 +51,8 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(metapod::Spatial::ltI<double>)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(metapod::Spatial::RotationMatrixTpl<double>)
 
 void timeLTI(const metapod::Spatial::ltI<double>& S,
-	     const metapod::Spatial::RotationMatrixTpl<double>& R, 
-	     metapod::Spatial::ltI<double> & res)
+       const metapod::Spatial::RotationMatrixTpl<double>& R, 
+       metapod::Spatial::ltI<double> & res)
 {
   res = R.rotTSymmetricMatrix(S);
 }
@@ -60,8 +60,8 @@ void timeLTI(const metapod::Spatial::ltI<double>& S,
 #endif
 
 void timeSelfAdj( const Eigen::Matrix3d & A,
-		  const Eigen::Matrix3d & Sdense,
-		  Eigen::Matrix3d & ASA )
+      const Eigen::Matrix3d & Sdense,
+      Eigen::Matrix3d & ASA )
 {
   typedef Eigen::SelfAdjointView<const Eigen::Matrix3d,Eigen::Upper> Sym3;
   Sym3 S(Sdense);
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_SUITE ( symmetricTest)
 /* --- PINOCCHIO ------------------------------------------------------------ */
 BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
 {
-	using namespace se3;
+  using namespace se3;
   typedef Symmetric3::Matrix3 Matrix3;
   typedef Symmetric3::Vector3 Vector3;
   
@@ -86,13 +86,13 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
       Matrix3 M = Matrix3::Random(); M = M*M.transpose();
       Symmetric3 S(M);
       is_matrix_absolutely_closed(S.matrix(), M, 1e-12);
-		}
-		
+    }
+    
     // S += S
     {
       Symmetric3
-	S = Symmetric3::Random(),
-	S2 = Symmetric3::Random();
+      S = Symmetric3::Random(),
+      S2 = Symmetric3::Random();
       Symmetric3 Scopy = S;
       S+=S2;
       is_matrix_absolutely_closed(S.matrix(), S2.matrix()+Scopy.matrix(), 1e-12);
@@ -120,12 +120,12 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
 
     // Random
     for(int i=0;i<100;++i )
-      {
-	Matrix3 M = Matrix3::Random(); M = M*M.transpose();
-	Symmetric3 S = Symmetric3::RandomPositive();
-	Vector3 v = Vector3::Random();
-	BOOST_CHECK_GT( (v.transpose()*(S*v))[0] , 0);
-      }
+    {
+      Matrix3 M = Matrix3::Random(); M = M*M.transpose();
+      Symmetric3 S = Symmetric3::RandomPositive();
+      Vector3 v = Vector3::Random();
+      BOOST_CHECK_GT( (v.transpose()*(S*v))[0] , 0);
+    }
 
     // Identity
     { 
@@ -152,11 +152,11 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
 
       Symmetric3 S = Symmetric3::RandomPositive();
       is_matrix_absolutely_closed((S-Symmetric3::SkewSquare(v)).matrix(), 
-      															S.matrix()-vxvx2, 1e-12);
+                                    S.matrix()-vxvx2, 1e-12);
 
       double m = Eigen::internal::random<double>()+1;
       is_matrix_absolutely_closed((S-m*Symmetric3::SkewSquare(v)).matrix(), 
-      															S.matrix()-m*vxvx2, 1e-12);
+                                    S.matrix()-m*vxvx2, 1e-12);
 
 
       Symmetric3 S2 = S;
@@ -170,44 +170,44 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
 
     // (i,j)
     {
-	Matrix3 M = Matrix3::Random(); M = M*M.transpose();
-	Symmetric3 S(M);
-	for(int i=0;i<3;++i)
-	  for(int j=0;j<3;++j)
-	    BOOST_CHECK_EQUAL(S(i,j), M(i,j) );
-    }
-  }
-
-  // SRS
-  {
-    Symmetric3 S = Symmetric3::RandomPositive();
-    Matrix3 R = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
-    
-    Symmetric3 RSRt = S.rotate(R);
-    is_matrix_absolutely_closed(RSRt.matrix(), R*S.matrix()*R.transpose(), 1e-12);
-
-    Symmetric3 RtSR = S.rotate(R.transpose());
-    is_matrix_absolutely_closed(RtSR.matrix(), R.transpose()*S.matrix()*R, 1e-12);
-  }
-
-  // Time test 
-  {
-    const int NBT = 100000;
-    Symmetric3 S = Symmetric3::RandomPositive();
-
-    std::vector<Symmetric3> Sres (NBT);
-    std::vector<Matrix3> Rs (NBT);
-    for(int i=0;i<NBT;++i) 
-      Rs[i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
-
-    std::cout << "Pinocchio: ";
-    StackTicToc timer(StackTicToc::US); timer.tic();
-    SMOOTH(NBT)
-      {
-	timeSym3(S,Rs[_smooth],Sres[_smooth]);
+      Matrix3 M = Matrix3::Random(); M = M*M.transpose();
+      Symmetric3 S(M);
+      for(int i=0;i<3;++i)
+        for(int j=0;j<3;++j)
+          BOOST_CHECK_EQUAL(S(i,j), M(i,j) );
       }
-    timer.toc(std::cout,NBT);
-  }
+    }
+
+    // SRS
+    {
+      Symmetric3 S = Symmetric3::RandomPositive();
+      Matrix3 R = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
+      
+      Symmetric3 RSRt = S.rotate(R);
+      is_matrix_absolutely_closed(RSRt.matrix(), R*S.matrix()*R.transpose(), 1e-12);
+
+      Symmetric3 RtSR = S.rotate(R.transpose());
+      is_matrix_absolutely_closed(RtSR.matrix(), R.transpose()*S.matrix()*R, 1e-12);
+    }
+
+    // Time test 
+    {
+      const int NBT = 100000;
+      Symmetric3 S = Symmetric3::RandomPositive();
+
+      std::vector<Symmetric3> Sres (NBT);
+      std::vector<Matrix3> Rs (NBT);
+      for(int i=0;i<NBT;++i) 
+        Rs[i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
+
+      std::cout << "Pinocchio: ";
+      StackTicToc timer(StackTicToc::US); timer.tic();
+      SMOOTH(NBT)
+      {
+        timeSym3(S,Rs[_smooth],Sres[_smooth]);
+      }
+      timer.toc(std::cout,NBT);
+    }
 }
 
 /* --- METAPOD -------------------------------------------------------------- */
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
 BOOST_AUTO_TEST_CASE ( test_metapod_LTI )
 {
 #ifdef WITH_METAPOD
-using namespace metapod::Spatial;
+  using namespace metapod::Spatial;
 
   typedef ltI<double> Sym3;
   typedef Eigen::Matrix3d Matrix3;
@@ -241,12 +241,12 @@ using namespace metapod::Spatial;
   std::cout << "Metapod: ";
   StackTicToc timer(StackTicToc::US); timer.tic();
   SMOOTH(NBT)
-    {
-      timeLTI(S, Rs[_smooth], Sres[_smooth]);
-    }
+  {
+    timeLTI(S, Rs[_smooth], Sres[_smooth]);
+  }
   timer.toc(std::cout,NBT);
 #else
-std::cout << "Metapod is not installed ... skipping this test. " << std::endl;
+  std::cout << "Metapod is not installed ... skipping this test. " << std::endl;
 #endif
 }
 
@@ -256,7 +256,7 @@ std::cout << "Metapod is not installed ... skipping this test. " << std::endl;
 
 BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
 {
-	using namespace se3;
+  using namespace se3;
   typedef Eigen::Matrix3d Matrix3;
   typedef Eigen::SelfAdjointView<Matrix3,Eigen::Upper> Sym3;
 
@@ -289,9 +289,9 @@ BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
   std::cout << "Eigen: ";
   StackTicToc timer(StackTicToc::US); timer.tic();
   SMOOTH(NBT)
-    {
-      timeSelfAdj(Rs[_smooth],M,Sres[_smooth]);
-    }
+  {
+    timeSelfAdj(Rs[_smooth],M,Sres[_smooth]);
+  }
   timer.toc(std::cout,NBT);
 }
 BOOST_AUTO_TEST_SUITE_END ()

@@ -28,8 +28,8 @@ BOOST_AUTO_TEST_SUITE ( CholeskyTest)
 
 BOOST_AUTO_TEST_CASE ( test_cholesky )
 {
-	using namespace Eigen;
-	using namespace se3;
+  using namespace Eigen;
+  using namespace se3;
 
   se3::Model model;
   se3::buildModels::humanoidSimple(model,true);
@@ -47,11 +47,11 @@ BOOST_AUTO_TEST_CASE ( test_cholesky )
   const Eigen::VectorXd & D = data.D;
   const Eigen::MatrixXd & M = data.M;
 
-// #ifndef NDEBUG
-  std::cout << "M = [\n" << M << "];" << std::endl;
-  std::cout << "U = [\n" << U << "];" << std::endl;
-  std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
-// #endif
+  #ifndef NDEBUG
+    std::cout << "M = [\n" << M << "];" << std::endl;
+    std::cout << "U = [\n" << U << "];" << std::endl;
+    std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
+  #endif
       
   is_matrix_absolutely_closed(M, U*D.asDiagonal()*U.transpose() , 1e-12);
 
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE ( test_cholesky )
  */
 BOOST_AUTO_TEST_CASE ( test_timings )
 {
-	using namespace Eigen;
+  using namespace Eigen;
   using namespace se3;
 
   se3::Model model;
@@ -106,18 +106,17 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   long flag = BOOST_BINARY(1000101);
   StackTicToc timer(StackTicToc::US); 
   #ifdef NDEBUG
-#ifdef _INTENSE_TESTING_
-    const int NBT = 1000*1000;
-#else
-  const int NBT = 10;
-#endif
+    #ifdef _INTENSE_TESTING_
+      const int NBT = 1000*1000;
+    #else
+      const int NBT = 10;
+    #endif
+  #else 
+    const int NBT = 1;
+    std::cout << "(the time score in debug mode is not relevant)  " ;
+  #endif
 
-#else 
-  const int NBT = 1;
-  std::cout << "(the time score in debug mode is not relevant)  " ;
-#endif
-
-	bool verbose = flag & (flag-1) ; // True is two or more binaries of the flag are 1.
+  bool verbose = flag & (flag-1) ; // True is two or more binaries of the flag are 1.
   if(verbose) std::cout <<"--" << std::endl;
 
   if( flag >> 0 & 1 )

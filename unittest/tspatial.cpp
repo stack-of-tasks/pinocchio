@@ -36,30 +36,30 @@ using namespace se3;
   Matrix4 bMa = amb.inverse();
   is_matrix_absolutely_closed(bMa, aMb.inverse(), 1e-12);
 
-	// Test point action
-    Vector3 p = Vector3::Random();
-    Eigen::Matrix<double,4,1> p4; p4.head(3) = p; p4[3] = 1;
+  // Test point action
+  Vector3 p = Vector3::Random();
+  Eigen::Matrix<double,4,1> p4; p4.head(3) = p; p4[3] = 1;
 
-    Vector3 Mp = (aMb*p4).head(3);
-    is_matrix_absolutely_closed(amb.act(p), Mp, 1e-12);
+  Vector3 Mp = (aMb*p4).head(3);
+  is_matrix_absolutely_closed(amb.act(p), Mp, 1e-12);
 
-    Vector3 Mip = (aMb.inverse()*p4).head(3);
-    is_matrix_absolutely_closed(amb.actInv(p), Mip, 1e-12);
+  Vector3 Mip = (aMb.inverse()*p4).head(3);
+  is_matrix_absolutely_closed(amb.actInv(p), Mip, 1e-12);
 
 
-	// Test action matrix
-    Matrix6 aXb = amb;
-    Matrix6 bXc = bmc;
-    Matrix6 aXc = amc;
-    is_matrix_absolutely_closed(aXc, aXb*bXc, 1e-12);
+  // Test action matrix
+  Matrix6 aXb = amb;
+  Matrix6 bXc = bmc;
+  Matrix6 aXc = amc;
+  is_matrix_absolutely_closed(aXc, aXb*bXc, 1e-12);
 
-    Matrix6 bXa = amb.inverse();
-    is_matrix_absolutely_closed(bXa, aXb.inverse(), 1e-12);
+  Matrix6 bXa = amb.inverse();
+  is_matrix_absolutely_closed(bXa, aXb.inverse(), 1e-12);
 }
 
 BOOST_AUTO_TEST_CASE ( test_Motion )
 {
-using namespace se3;
+  using namespace se3;
   typedef SE3::Matrix6 Matrix6;
   typedef Motion::Vector6 Vector6;
 
@@ -137,7 +137,7 @@ using namespace se3;
 
 BOOST_AUTO_TEST_CASE ( test_Force )
 {
-	using namespace se3;
+  using namespace se3;
   typedef SE3::Matrix6 Matrix6;
   typedef Force::Vector6 Vector6;
 
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE ( test_Force )
 
 BOOST_AUTO_TEST_CASE ( test_Inertia )
 {
-using namespace se3;
+  using namespace se3;
   typedef Inertia::Matrix6 Matrix6;
   typedef Inertia::Matrix3 Matrix3;
 
@@ -204,7 +204,7 @@ using namespace se3;
 
   BOOST_CHECK_SMALL((matI-matI.transpose()).norm(),matI.norm()); //previously ensure that( (matI-matI.transpose()).isMuchSmallerThan(matI) );
   BOOST_CHECK_SMALL((matI.topRightCorner<3,3>()*aI.lever()).norm(),
-  					aI.lever().norm()); //previously ensure that( (matI.topRightCorner<3,3>()*aI.lever()).isMuchSmallerThan(aI.lever()) );
+            aI.lever().norm()); //previously ensure that( (matI.topRightCorner<3,3>()*aI.lever()).isMuchSmallerThan(aI.lever()) );
 
   Inertia I1 = Inertia::Identity();
   is_matrix_absolutely_closed(I1.matrix(), Matrix6::Identity(), 1e-12); 
@@ -219,13 +219,13 @@ using namespace se3;
   Inertia bI = bma.act(aI);
   Matrix6 bXa = bma;
   is_matrix_absolutely_closed((bma.rotation()*aI.inertia().matrix()*bma.rotation().transpose()),
-  														 (Matrix3)bI.inertia(), 1e-12); 
+                               (Matrix3)bI.inertia(), 1e-12); 
   is_matrix_absolutely_closed((bXa.transpose().inverse() * aI.matrix() * bXa.inverse()),
-  														bI.matrix(), 1e-12); 
+                              bI.matrix(), 1e-12); 
 
   // Test inverse action
   is_matrix_absolutely_closed((bXa.transpose() * bI.matrix() * bXa),
-  														bma.actInv(bI).matrix(), 1e-12);
+                              bma.actInv(bI).matrix(), 1e-12);
 
   // Test vxIv cross product
   v = Motion::Random(); 

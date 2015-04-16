@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE ( Constraint )
 
 BOOST_AUTO_TEST_CASE ( test_ForceSet )
 {
-	using namespace se3;
+  using namespace se3;
   typedef Eigen::Matrix<double,4,4> Matrix4;
   typedef SE3::Matrix6 Matrix6;
   typedef SE3::Vector3 Vector3;
@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
   ForceSet F2( Eigen::Matrix<double,3,9>::Random(),Eigen::Matrix<double,3,9>::Random() );
   Eigen::MatrixXd StF2 = S.transpose()*F2.block(5,3);
   is_matrix_absolutely_closed(StF2,
-  														ConstraintXd(S).matrix().transpose()*F2.matrix().block(0,5,6,3),
-  														1e-12);
+                              ConstraintXd(S).matrix().transpose()*F2.matrix().block(0,5,6,3),
+                              1e-12);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

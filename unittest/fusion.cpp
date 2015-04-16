@@ -65,7 +65,7 @@ struct CRTPDerived2 : public CRTPBase<CRTPDerived2>
 //   ReturnType operator()( const CRTP<D> & crtp )  const 
 //   {
 //     return static_cast<D*>(this)->algo(crtp,
-// 				       static_cast<D*>(this)->args);
+//               static_cast<D*>(this)->args);
 //   }
 
 //   static 
@@ -90,7 +90,7 @@ struct Launcher : public boost::static_visitor<int>
 {
 
   typedef bf::vector<const double &,const int &, const Eigen::MatrixXd &,
-		     const Eigen::MatrixXd &,const Eigen::MatrixXd &,const TestObj &> Args;
+         const Eigen::MatrixXd &,const Eigen::MatrixXd &,const TestObj &> Args;
   Args args;
 
   Launcher(Args args) : args(args) {}
@@ -108,7 +108,7 @@ struct Launcher : public boost::static_visitor<int>
 
   template<typename D>
   static int algo(CRTPBase<D> & crtp, const double & x,const int & y, const Eigen::MatrixXd & z,
-		  const Eigen::MatrixXd & ,const Eigen::MatrixXd & ,const TestObj & a) 
+      const Eigen::MatrixXd & ,const Eigen::MatrixXd & ,const TestObj & a) 
   {
     return crtp.hh(x,y,z,a);
   }
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_SUITE ( FusionTest)
 
 BOOST_AUTO_TEST_CASE ( test_fusion )
 {
-	CRTPDerived d;
+  CRTPDerived d;
   //CRTPBase<CRTPDerived> & dref = d;
   CRTPVariant v = d;
 
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE ( test_fusion )
 
   //Args args(1.0,1,Eigen::MatrixXd::Zero(3,3),TestObj(1));
   Launcher::run(v,  Launcher::Args(1.0,1,Eigen::MatrixXd::Zero(3,3),Eigen::MatrixXd::Zero(3,3),
-				   Eigen::MatrixXd::Zero(3,3),TestObj(1)) );
+           Eigen::MatrixXd::Zero(3,3),TestObj(1)) );
 
   int i,j; double k;
   bf::vector<int&> arg = bf::make_vector(boost::ref(j));
