@@ -29,6 +29,7 @@ namespace se3
     int nq;                            // Dimension of the configuration representation
     int nv;                            // Dimension of the velocity vector space
     int nbody;                         // Number of bodies (= number of joints + 1)
+    int nFixBody;                      // Number of fixed-bodies (= number of fixed-joints)
 
     std::vector<Inertia> inertias;     // Spatial inertias of the body <i> in the supporting joint frame <i>
     std::vector<SE3> jointPlacements;  // Placement (SE3) of the input of joint <i> in parent joint output <li>
@@ -38,7 +39,6 @@ namespace se3
     std::vector<std::string> bodyNames;// Name of the body attached to the output of joint <i>
     std::vector<bool> hasVisual;       // True iff body <i> has a visual mesh.
 
-    int nFixBody;                      // Number of fixed-bodies (= number of fixed-joints)
     std::vector<SE3> fix_lmpMi;        // Fixed-body relative placement (wrt last moving parent)
     std::vector<Model::Index> fix_lastMovingParent; // Fixed-body index of the last moving parent
     std::vector<bool> fix_hasVisual;   // True iff fixed-body <i> has a visual mesh.
