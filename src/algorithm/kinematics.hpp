@@ -24,7 +24,7 @@ namespace se3
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
-                                  const int &,
+                                  const size_t,
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
@@ -35,7 +35,7 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     const int & i,
+                     const size_t i,
                      const Eigen::VectorXd & q)
     {
       using namespace se3;
@@ -46,7 +46,7 @@ namespace se3
       data.liMi[i] = model.jointPlacements[i] * jdata.M ();
 
       if (parent>0)
-        data.oMi[i] = data.oMi[parent] * data.liMi[i];
+        data.oMi[i] = data.oMi[(size_t) parent] * data.liMi[i];
       else
         data.oMi[i] = data.liMi[i];
     }
@@ -71,7 +71,7 @@ namespace se3
   {
     typedef boost::fusion::vector< const se3::Model&,
 				   se3::Data&,
-				   const int&,
+				   const size_t,
 				   const Eigen::VectorXd &,
 				   const Eigen::VectorXd &
 				   > ArgsType;
@@ -83,7 +83,7 @@ namespace se3
 		    se3::JointDataBase<typename JointModel::JointData> & jdata,
 		    const se3::Model& model,
 		    se3::Data& data,
-		    const int &i,
+		    const size_t i,
 		    const Eigen::VectorXd & q,
 		    const Eigen::VectorXd & v)
     {
@@ -98,8 +98,8 @@ namespace se3
       
       if(parent>0)
       {
-        data.oMi[i] = data.oMi[parent]*data.liMi[i];
-        data.v[i] += data.liMi[i].actInv(data.v[parent]);
+        data.oMi[i] = data.oMi[(size_t) parent]*data.liMi[i];
+        data.v[i] += data.liMi[i].actInv(data.v[(size_t) parent]);
       }
       else
         data.oMi[i] = data.liMi[i];
@@ -114,7 +114,7 @@ namespace se3
   {
     data.v[0] = Motion::Zero();
 
-    for( int i=1;i<model.nbody;++i )
+    for( size_t i=1; i<(size_t) model.nbody; ++i )
       {
 	KinematicsStep::run(model.joints[i],data.joints[i],
 			    KinematicsStep::ArgsType(model,data,i,q,v));
