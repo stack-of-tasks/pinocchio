@@ -13,10 +13,73 @@
 #include "pinocchio/tools/timer.hpp"
 
 #include <iostream>
-#include <boost/utility/binary.hpp>
 #ifdef NDEBUG
 #  include <Eigen/Cholesky>
 #endif
+
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE CholeskyTest
+#include <boost/test/unit_test.hpp>
+#include "pinocchio/tools/matrix-comparison.hpp"
+#include <boost/utility/binary.hpp>
+
+
+BOOST_AUTO_TEST_SUITE ( CholeskyTest)
+
+BOOST_AUTO_TEST_CASE ( test_cholesky )
+{
+  using namespace Eigen;
+  using namespace se3;
+
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model,true);
+  se3::Data data(model);
+
+  VectorXd q = VectorXd::Zero(model.nq);
+  data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
+  crba(model,data,q);
+ 
+  se3::cholesky::decompose(model,data);
+  data.M.triangularView<Eigen::StrictlyLower>() = 
+  data.M.triangularView<Eigen::StrictlyUpper>().transpose();
+  
+  const Eigen::MatrixXd & U = data.U;
+  const Eigen::VectorXd & D = data.D;
+  const Eigen::MatrixXd & M = data.M;
+
+  #ifndef NDEBUG
+    std::cout << "M = [\n" << M << "];" << std::endl;
+    std::cout << "U = [\n" << U << "];" << std::endl;
+    std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
+  #endif
+      
+  is_matrix_absolutely_closed(M, U*D.asDiagonal()*U.transpose() , 1e-12);
+
+  Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+// std::cout << "v = [" << v.transpose() << "]';" << std::endl;
+
+  Eigen::VectorXd Uv = v; se3::cholesky::Uv(model,data,Uv);
+  is_matrix_absolutely_closed(Uv, U*v, 1e-12);
+
+  Eigen::VectorXd Utv = v; se3::cholesky::Utv(model,data,Utv);
+  is_matrix_absolutely_closed(Utv, U.transpose()*v, 1e-12);
+
+  Eigen::VectorXd Uiv = v; se3::cholesky::Uiv(model,data,Uiv);
+  is_matrix_absolutely_closed(Uiv, U.inverse()*v, 1e-12);
+
+
+  Eigen::VectorXd Utiv = v; se3::cholesky::Utiv(model,data,Utiv);
+  is_matrix_absolutely_closed(Utiv, U.transpose().inverse()*v, 1e-12);
+
+  Eigen::VectorXd Miv = v; se3::cholesky::solve(model,data,Miv);
+  is_matrix_absolutely_closed(Miv, M.inverse()*v, 1e-12);
+
+  Eigen::VectorXd Mv = v; se3::cholesky::Mv(model,data,Mv,true);
+  is_matrix_absolutely_closed(Mv, M*v, 1e-12);
+  Mv = v;                 se3::cholesky::Mv(model,data,Mv,false);
+  is_matrix_absolutely_closed(Mv, M*v, 1e-12);
+}
+
 
 /* The flag triger the following timers:
  * 000001: sparse UDUt cholesky
@@ -26,19 +89,32 @@
  * 010000: sparse U\v substitution
  * 100000: sparse M*v multiplication without Cholesky
  */
-void timings(const se3::Model & model, se3::Data& data, long flag)
+BOOST_AUTO_TEST_CASE ( test_timings )
 {
+  using namespace Eigen;
+  using namespace se3;
+
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model,true);
+  se3::Data data(model);
+
+  VectorXd q = VectorXd::Zero(model.nq);
+  data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
+  crba(model,data,q);
+  
+
+  long flag = BOOST_BINARY(1000101);
   StackTicToc timer(StackTicToc::US); 
-#ifdef NDEBUG
-#ifdef _INTENSE_TESTING_
-  const int NBT = 1000*1000;
-#else
-  const int NBT = 10;
-#endif
-#else 
-  const int NBT = 1;
-  std::cout << "(the time score in debug mode is not relevant)  " ;
-#endif
+  #ifdef NDEBUG
+    #ifdef _INTENSE_TESTING_
+      const int NBT = 1000*1000;
+    #else
+      const int NBT = 10;
+    #endif
+  #else 
+    const int NBT = 1;
+    std::cout << "(the time score in debug mode is not relevant)  " ;
+  #endif
 
   bool verbose = flag & (flag-1) ; // True is two or more binaries of the flag are 1.
   if(verbose) std::cout <<"--" << std::endl;
@@ -130,65 +206,7 @@ void timings(const se3::Model & model, se3::Data& data, long flag)
 	  timer.toc(std::cout,NBT);
 	}
     }
+
 }
 
-void assertValues(const se3::Model & model, se3::Data& data)
-{
-  se3::cholesky::decompose(model,data);
-  data.M.triangularView<Eigen::StrictlyLower>() = 
-    data.M.triangularView<Eigen::StrictlyUpper>().transpose();
-  
-  const Eigen::MatrixXd & U = data.U;
-  const Eigen::VectorXd & D = data.D;
-  const Eigen::MatrixXd & M = data.M;
-
-// #ifndef NDEBUG
-  std::cout << "M = [\n" << M << "];" << std::endl;
-  std::cout << "U = [\n" << U << "];" << std::endl;
-  std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
-// #endif
-      
-  assert( M.isApprox(U*D.asDiagonal()*U.transpose()) );
-
-  Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
-// std::cout << "v = [" << v.transpose() << "]';" << std::endl;
-
-  Eigen::VectorXd Uv = v; se3::cholesky::Uv(model,data,Uv);
-  assert( Uv.isApprox(U*v));
-
-  Eigen::VectorXd Utv = v; se3::cholesky::Utv(model,data,Utv);
-  assert( Utv.isApprox(U.transpose()*v));
-
-  Eigen::VectorXd Uiv = v; se3::cholesky::Uiv(model,data,Uiv);
-  assert( Uiv.isApprox(U.inverse()*v));
-
-  Eigen::VectorXd Utiv = v; se3::cholesky::Utiv(model,data,Utiv);
-  assert( Utiv.isApprox(U.transpose().inverse()*v));
-
-  Eigen::VectorXd Miv = v; se3::cholesky::solve(model,data,Miv);
-  assert( Miv.isApprox(M.inverse()*v));
-
-  Eigen::VectorXd Mv = v; se3::cholesky::Mv(model,data,Mv,true);
-  assert( Mv.isApprox(M*v));
-  Mv = v;                 se3::cholesky::Mv(model,data,Mv,false);
-  assert( Mv.isApprox(M*v));
-}
-
-int main()
-{
-  using namespace Eigen;
-  using namespace se3;
-
-  se3::Model model;
-  se3::buildModels::humanoidSimple(model,true);
-  se3::Data data(model);
-
-  VectorXd q = VectorXd::Zero(model.nq);
-  data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
-  crba(model,data,q);
- 
-  assertValues(model,data);
-  timings(model,data,BOOST_BINARY(1000101));
-
-  return 0;
-}
+BOOST_AUTO_TEST_SUITE_END ()

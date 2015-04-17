@@ -18,7 +18,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE NLETests
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include "pinocchio/tools/matrix-comparison.hpp"
 
 #include <iostream>
 
@@ -28,22 +28,6 @@
 #include <pmmintrin.h>
 #endif
 
-inline void is_matrix_closed (const Eigen::MatrixXd & M1,
-                              const Eigen::MatrixXd & M2,
-                              double tolerance = std::numeric_limits <Eigen::MatrixXd::Scalar>::epsilon ()
-                              )
-{
-  BOOST_REQUIRE_EQUAL (M1.rows (), M2.rows ());
-  BOOST_REQUIRE_EQUAL (M1.cols (), M2.cols ());
-
-  for (Eigen::MatrixXd::Index i = 0; i < M1.rows (); i++)
-  {
-    for (Eigen::MatrixXd::Index j = 0; j < M1.cols (); j++)
-    {
-      BOOST_CHECK_CLOSE (M1 (i,j), M2 (i,j), tolerance);
-    }
-  }
-}
 
 
 BOOST_AUTO_TEST_SUITE ( NLE )
@@ -70,7 +54,7 @@ BOOST_AUTO_TEST_CASE ( test_against_rnea )
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
 
-  is_matrix_closed (tau_nle, tau_rnea);
+  is_matrix_absolutely_closed (tau_nle, tau_rnea);
 
   // -------
   q.setZero ();
@@ -79,7 +63,7 @@ BOOST_AUTO_TEST_CASE ( test_against_rnea )
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
 
-  is_matrix_closed (tau_nle, tau_rnea);
+  is_matrix_absolutely_closed (tau_nle, tau_rnea);
 
   // -------
   q.setOnes ();
@@ -88,7 +72,7 @@ BOOST_AUTO_TEST_CASE ( test_against_rnea )
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
 
-  is_matrix_closed (tau_nle, tau_rnea);
+  is_matrix_absolutely_closed (tau_nle, tau_rnea);
 
   // -------
   q.setRandom ();
@@ -97,7 +81,7 @@ BOOST_AUTO_TEST_CASE ( test_against_rnea )
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
 
-  is_matrix_closed (tau_nle, tau_rnea);
+  is_matrix_absolutely_closed (tau_nle, tau_rnea);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

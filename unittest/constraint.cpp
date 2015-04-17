@@ -7,7 +7,15 @@
 #include "pinocchio/multibody/force-set.hpp"
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
 
-bool testForceSet()
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE ConstraintTest
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
+#include "pinocchio/tools/matrix-comparison.hpp"
+
+BOOST_AUTO_TEST_SUITE ( Constraint )
+
+BOOST_AUTO_TEST_CASE ( test_ForceSet )
 {
   using namespace se3;
   typedef Eigen::Matrix<double,4,4> Matrix4;
@@ -22,7 +30,7 @@ bool testForceSet()
   ForceSet F(12);
   ForceSet F2(Eigen::Matrix<double,3,2>::Zero(),Eigen::Matrix<double,3,2>::Zero());
   F.block(10,2) = F2;
-  assert( F.matrix().col(10).norm() == 0.0 );
+  BOOST_CHECK_EQUAL(F.matrix().col(10).norm() , 0.0 );
   assert( isnan(F.matrix()(0,9)) );
 
   std::cout << "F10 = " << F2.matrix() << std::endl;
@@ -31,24 +39,25 @@ bool testForceSet()
   ForceSet F3(Eigen::Matrix<double,3,12>::Random(),Eigen::Matrix<double,3,12>::Random());
   ForceSet F4 = amb.act(F3);
   SE3::Matrix6 aXb= amb;
-  assert( (aXb.transpose().inverse()*F3.matrix()).isApprox(F4.matrix()) );
+  is_matrix_absolutely_closed((aXb.transpose().inverse()*F3.matrix()), F4.matrix(), 1e-12);
+
 
   ForceSet bF = bmc.act(F3);
   ForceSet aF = amb.act(bF); 
   ForceSet aF2 = amc.act(F3);
-  assert( aF.matrix().isApprox( aF2.matrix() ) );
+  is_matrix_absolutely_closed(aF.matrix(), aF2.matrix(), 1e-12);
 
   ForceSet F36 = amb.act(F3.block(3,6));
-  assert( (aXb.transpose().inverse()*F3.matrix().block(0,3,6,6)).isApprox(F36.matrix()) );
+  is_matrix_absolutely_closed((aXb.transpose().inverse()*F3.matrix().block(0,3,6,6)), F36.matrix(), 1e-12);
+
   
   ForceSet F36full(12); F36full.block(3,6) = amb.act(F3.block(3,6)); 
-  assert( (aXb.transpose().inverse()*F3.matrix().block(0,3,6,6))
-	  .isApprox(F36full.matrix().block(0,3,6,6)) );
-
-  return true;
+  is_matrix_absolutely_closed((aXb.transpose().inverse()*F3.matrix().block(0,3,6,6)),
+  														F36full.matrix().block(0,3,6,6),
+  														1e-12);
 }
 
-bool testConstraintRX()
+BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
 {
   using namespace se3;
 
@@ -61,19 +70,15 @@ bool testConstraintRX()
   ForceSet F(1); F.block(0,1) = Y*S;
   std::cout << "Y*S = \n" << (Y*S).matrix() << std::endl;
   std::cout << "F=Y*S = \n" << F.matrix() << std::endl;
-  assert( F.matrix().isApprox( Y.toMatrix().col(3) ) );
+  is_matrix_absolutely_closed(F.matrix(), Y.toMatrix().col(3), 1e-12);
 
   ForceSet F2( Eigen::Matrix<double,3,9>::Random(),Eigen::Matrix<double,3,9>::Random() );
   Eigen::MatrixXd StF2 = S.transpose()*F2.block(5,3);
-  assert( StF2.isApprox( ConstraintXd(S).matrix().transpose()*F2.matrix().block(0,5,6,3) ) );
-
-  return true;
+  is_matrix_absolutely_closed(StF2,
+                              ConstraintXd(S).matrix().transpose()*F2.matrix().block(0,5,6,3),
+                              1e-12);
 }
 
-int main()
-{
-  testForceSet();
-  testConstraintRX();
-  return 1;
-}
+BOOST_AUTO_TEST_SUITE_END ()
+
 

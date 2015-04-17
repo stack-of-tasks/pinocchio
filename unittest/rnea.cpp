@@ -18,16 +18,24 @@
 
 //#define __SSE3__
 #include <fenv.h>
+
 #ifdef __SSE3__
 #include <pmmintrin.h>
 #endif
 
-int main()
-{
-#ifdef __SSE3__
-  _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
-#endif
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE RneaTest
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
+#include "pinocchio/tools/matrix-comparison.hpp"
 
+BOOST_AUTO_TEST_SUITE ( Rnea )
+
+BOOST_AUTO_TEST_CASE ( test_rnea )
+{
+  #ifdef __SSE3__
+    _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
+  #endif
   using namespace Eigen;
   using namespace se3;
 
@@ -40,13 +48,13 @@ int main()
   VectorXd q = VectorXd::Random(model.nq);
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd a = VectorXd::Random(model.nv);
- 
-#ifdef NDEBUG
-  int NBT = 10000;
-#else
-  int NBT = 1;
-  std::cout << "(the time score in debug mode is not relevant)  " ;
-#endif
+
+  #ifdef NDEBUG
+    int NBT = 10000;
+  #else
+    int NBT = 1;
+    std::cout << "(the time score in debug mode is not relevant)  " ;
+  #endif
 
   StackTicToc timer(StackTicToc::US); timer.tic();
   SMOOTH(NBT)
@@ -55,5 +63,5 @@ int main()
     }
   timer.toc(std::cout,NBT);
 
-  return 0;
 }
+BOOST_AUTO_TEST_SUITE_END ()
