@@ -97,27 +97,23 @@ namespace se3
 
         //const Force::Vector3 
         const Eigen::CoeffBasedProduct<
-          const Eigen::Matrix<double, 3, 3>&, 
-          const Eigen::Matrix<double, 3, 1>&, 6>::PlainObject &
+          Eigen::Transpose<Eigen::Matrix<double, 3, 3> >&,
+          const Eigen::Matrix<double, 3, 1>&
+          ,6>::PlainObject
         operator* (const Force & phi)
         {
-          const Matrix3 tS_min=ref.S_minimal.transpose ();
-          const Eigen::CoeffBasedProduct<
-            const Eigen::Matrix<double, 3, 3>&, 
-            const Eigen::Matrix<double, 3, 1>&, 6>::PlainObject &
-          res = tS_min * phi.angular ();
-          return res;
+          return ref.S_minimal.transpose () * phi.angular ();
         }
 
 
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
         template<typename D>
         friend 
-        //typename Eigen::Matrix <typename Eigen::MatrixBase<D>::Scalar, 3, -1>
-        const typename Eigen::GeneralProduct<
-          Eigen::Transpose<const Eigen::Matrix<double, 3, 3> >, 
-          Eigen::Block<const Eigen::Block<Eigen::Matrix<double, 6, -0x00000000000000001, 0, 6, -0x00000000000000001>, -0x00000000000000001, -0x00000000000000001, false, true>, 
-                       3, -0x00000000000000001, false, true>, 5>::PlainObject &
+//        typename Eigen::Matrix <typename Eigen::MatrixBase<D>::Scalar, 3, -1>
+        const typename Eigen::ProductReturnType<
+        Eigen::Transpose<const Eigen::Matrix<typename Eigen::MatrixBase<D>::Scalar, 3, 3> >,
+        Eigen::Block<const Eigen::Block<Eigen::Matrix<typename Eigen::MatrixBase<D>::Scalar,6,-1>,-1,-1>, 3, -1>
+        >::Type
         operator*( const ConstraintTranspose & constraint_transpose, const Eigen::MatrixBase<D> & F )
         {
           assert(F.rows()==6);
@@ -130,16 +126,17 @@ namespace se3
 
       operator ConstraintXd () const
       {
+        typedef Eigen::Matrix<_Scalar,6,3,_Options> Matrix63;
         Eigen::Matrix<_Scalar,6,3,_Options> S;
-        (S.block <3,3> (Inertia::LINEAR, 0)).setZero ();
-        S.block <3,3> (Inertia::ANGULAR, 0) = S_minimal;
+        (S.template block <3,3> (Inertia::LINEAR, 0)).setZero ();
+        S.template block <3,3> (Inertia::ANGULAR, 0) = S_minimal;
         return ConstraintXd(S);
       }
 
       //Eigen::Matrix <Scalar,6,3> 
       const typename 
       Eigen::CoeffBasedProduct<const Eigen::Matrix<double, 6, 3>&, 
-                               const Eigen::Matrix<double, 3, 3>&, 6>::PlainObject &
+                               const Eigen::Matrix<double, 3, 3>&, 6>::PlainObject
       se3Action (const SE3 & m) const
       {
         Eigen::Matrix <Scalar,6,3> X_subspace;
@@ -174,7 +171,7 @@ namespace se3
   //  Eigen::Matrix <_Scalar, 6, 3,_Options> 
   const typename Eigen::CoeffBasedProduct<
     Eigen::Matrix < _Scalar, 6, 3, _Options >,
-    Eigen::Matrix < _Scalar, 3, 3, _Options >, 6 >::PlainObject &
+    Eigen::Matrix < _Scalar, 3, 3, _Options >, 6 >::PlainObject
   operator* (const InertiaTpl<_Scalar,_Options> & Y, 
                                            const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
   {
