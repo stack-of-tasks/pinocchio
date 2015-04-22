@@ -631,11 +631,6 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   using namespace se3;
 
 
-  Motion expected_v_J (Motion::Zero ());
-  Motion expected_c_J (Motion::Zero ());
-
-  SE3 expected_configuration (SE3::Identity ());
-
   Eigen::Vector3d axis;
   axis << 1.0, 0.0, 0.0;
 
@@ -788,7 +783,7 @@ BOOST_AUTO_TEST_CASE ( test_merge_body )
   model.addBody (model.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertiaRoot, "root");
   model.mergeFixedBody(model.getBodyId("root"), liMi, inertiaFixedBodyAtJoint);
 
-  Inertia mergedInertia(model.inertias[model.getBodyId("root")]);
+  Inertia mergedInertia(model.inertias[(size_t)(model.getBodyId("root"))]);
 
   double expected_mass=2;
   Eigen::Vector3d expected_com(Eigen::Vector3d::Zero());expected_com << 1.125, 0.5, 0.;

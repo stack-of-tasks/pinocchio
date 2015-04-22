@@ -18,8 +18,8 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,Eigen::Dynamic>)
 
 namespace se3
 {
-  struct Model;
-  struct Data;
+  class Model;
+  class Data;
 
   class Model
   {
@@ -140,8 +140,8 @@ namespace se3
     os << "Nb bodies = " << model.nbody << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
     for(int i=0;i<model.nbody;++i)
       {
-	os << "  Joint "<<model.names[i] << ": parent=" << model.parents[i] 
-	   << ( model.hasVisual[i] ? " (has visual) " : "(doesnt have visual)" ) << std::endl;
+	os << "  Joint "<<model.names[(std::size_t)i] << ": parent=" << model.parents[(std::size_t)i] 
+	   << ( model.hasVisual[(std::size_t)i] ? " (has visual) " : "(doesnt have visual)" ) << std::endl;
       }
 
     return os;
@@ -156,7 +156,7 @@ namespace se3
         "abcdefghijklmnopqrstuvwxyz";
 
     for (int i=0; i<len;++i)
-      res += alphanum[std::rand() % (sizeof(alphanum) - 1)];
+      res += alphanum[(std::rand() % (sizeof(alphanum) - 1))];
     return res;
 }
 
@@ -202,7 +202,7 @@ namespace se3
   void Model::mergeFixedBody(Index parent, const SE3 & placement, const Inertia & Y)
   {
     const Inertia & iYf = Y.se3Action(placement); //TODO
-    inertias[parent] += iYf;
+    inertias[(std::size_t)parent] += iYf;
   }
 
   Model::Index Model::getBodyId( const std::string & name ) const
@@ -223,41 +223,41 @@ namespace se3
   const std::string& Model::getBodyName( Model::Index index ) const
   {
     assert( (index>=0)&&(index<nbody) );
-    return names[index];
+    return names[(std::size_t)index];
   }  
 
   Data::Data( const Model& ref )
     :model(ref)
     ,joints(0)
-    ,a(ref.nbody)
-    ,v(ref.nbody)
-    ,f(ref.nbody)
-    ,oMi(ref.nbody)
-    ,liMi(ref.nbody)
+    ,a((std::size_t)ref.nbody)
+    ,v((std::size_t)ref.nbody)
+    ,f((std::size_t)ref.nbody)
+    ,oMi((std::size_t)ref.nbody)
+    ,liMi((std::size_t)ref.nbody)
     ,tau(ref.nv)
     ,nle(ref.nv)
-    ,Ycrb(ref.nbody)
+    ,Ycrb((std::size_t)ref.nbody)
     ,M(ref.nv,ref.nv)
-    ,Fcrb(ref.nbody)
-    ,lastChild(ref.nbody)
-    ,nvSubtree(ref.nbody)
+    ,Fcrb((std::size_t)ref.nbody)
+    ,lastChild((std::size_t)ref.nbody)
+    ,nvSubtree((std::size_t)ref.nbody)
     ,U(ref.nv,ref.nv)
     ,D(ref.nv)
     ,tmp(ref.nv)
-    ,parents_fromRow(ref.nv)
-    ,nvSubtree_fromRow(ref.nv)
+    ,parents_fromRow((std::size_t)ref.nv)
+    ,nvSubtree_fromRow((std::size_t)ref.nv)
     ,J(6,ref.nv)
-    ,iMf(ref.nbody)
-    ,com(ref.nbody)
-    ,mass(ref.nbody)
+    ,iMf((std::size_t)ref.nbody)
+    ,com((std::size_t)ref.nbody)
+    ,mass((std::size_t)ref.nbody)
     ,Jcom(3,ref.nv)
   {
     for(int i=0;i<model.nbody;++i) 
-      joints.push_back(CreateJointData::run(model.joints[i]));
+      joints.push_back(CreateJointData::run(model.joints[(std::size_t)i]));
 
     /* Init for CRBA */
     M.fill(NAN);    
-    for(int i=0;i<ref.nbody;++i ) { Fcrb[i].resize(6,model.nv); Fcrb[i].fill(NAN); }
+    for(int i=0;i<ref.nbody;++i ) { Fcrb[(std::size_t)i].resize(6,model.nv); Fcrb[(std::size_t)i].fill(NAN); }
     computeLastChild(ref);
 
     /* Init for Cholesky */
@@ -274,13 +274,13 @@ namespace se3
     std::fill(lastChild.begin(),lastChild.end(),-1);
     for( int i=model.nbody-1;i>=0;--i )
       {
-	if(lastChild[i] == -1) lastChild[i] = i;
-	const Index & parent = model.parents[i];
-	lastChild[parent] = std::max(lastChild[i],lastChild[parent]);
+	if(lastChild[(std::size_t)i] == -1) lastChild[(std::size_t)i] = i;
+	const Index & parent = model.parents[(std::size_t)i];
+	lastChild[(std::size_t)parent] = std::max(lastChild[(std::size_t)i],lastChild[(std::size_t)parent]);
 
-	nvSubtree[i] 
-	  = idx_v(model.joints[lastChild[i]]) + nv(model.joints[lastChild[i]])
-	  - idx_v(model.joints[i]);
+	nvSubtree[(std::size_t)i] 
+	  = idx_v(model.joints[(std::size_t)lastChild[(std::size_t)i]]) + nv(model.joints[(std::size_t)lastChild[(std::size_t)i]])
+	  - idx_v(model.joints[(std::size_t)i]);
       }
   }
 
@@ -288,18 +288,18 @@ namespace se3
   {
     for( int joint=1;joint<model.nbody;joint++)
       {
-	const Model::Index & parent = model.parents[joint];
-	const int nvj    = nv   (model.joints[joint]);
-	const int idx_vj = idx_v(model.joints[joint]);
+	const Model::Index & parent = model.parents[(std::size_t)joint];
+	const int nvj    = nv   (model.joints[(std::size_t)joint]);
+	const int idx_vj = idx_v(model.joints[(std::size_t)joint]);
 
-	if(parent>0) parents_fromRow[idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
-	else         parents_fromRow[idx_vj] = -1;
-	nvSubtree_fromRow[idx_vj] = nvSubtree[joint];
+	if(parent>0) parents_fromRow[(std::size_t)idx_vj] = idx_v(model.joints[(std::size_t)parent])+nv(model.joints[(std::size_t)parent])-1;
+	else         parents_fromRow[(std::size_t)idx_vj] = -1;
+	nvSubtree_fromRow[(std::size_t)idx_vj] = nvSubtree[(std::size_t)joint];
 
     for( int row=1;row<nvj;++row)
 	  {
-	    parents_fromRow[idx_vj+row] = idx_vj+row-1;
-	    nvSubtree_fromRow[idx_vj+row] = nvSubtree[joint]-row;
+	    parents_fromRow[(std::size_t)(idx_vj+row)] = idx_vj+row-1;
+	    nvSubtree_fromRow[(std::size_t)(idx_vj+row)] = nvSubtree[(std::size_t)joint]-row;
 	  }
       }
   }

@@ -59,7 +59,7 @@ namespace se3
 
       for(int j=model.nv-1;j>=0;--j )
 	{
-	  const int NVT = data.nvSubtree_fromRow[j]-1;
+	  const int NVT = data.nvSubtree_fromRow[(std::size_t)j]-1;
 	  Eigen::VectorXd::SegmentReturnType DUt = data.tmp.head(NVT);
 	  if(NVT)
 	    DUt = U.row(j).segment(j+1,NVT).transpose()
@@ -67,7 +67,7 @@ namespace se3
 	
 	  D[j] = M(j,j) - U.row(j).segment(j+1,NVT) * DUt;
 	
-	  for( int _i=data.parents_fromRow[j];_i>=0;_i=data.parents_fromRow[_i] )
+	  for( int _i=data.parents_fromRow[(std::size_t)j];_i>=0;_i=data.parents_fromRow[(std::size_t)_i] )
 	    U(_i,j) = (M(_i,j) - U.row(_i).segment(j+1,NVT).dot(DUt)) / D[j]; 
 	}
 
@@ -88,7 +88,7 @@ namespace se3
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
 
       for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv
-	v[k] += U.row(k).segment(k+1,nvt[k]-1) * v.segment(k+1,nvt[k]-1);
+	v[k] += U.row(k).segment(k+1,nvt[(std::size_t)k]-1) * v.segment(k+1,nvt[(std::size_t)k]-1);
 
       return v.derived();
     }
@@ -106,7 +106,7 @@ namespace se3
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
       for( int i=model.nv-2;i>=0;--i ) // You can start from nv-2 (no child in nv-1)
-	v.segment(i+1,nvt[i]-1) += U.row(i).segment(i+1,nvt[i]-1).transpose()*v[i];
+	v.segment(i+1,nvt[(std::size_t)i]-1) += U.row(i).segment(i+1,nvt[(std::size_t)i]-1).transpose()*v[i];
       
       return v.derived();
     }
@@ -129,7 +129,7 @@ namespace se3
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
 
       for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
-	v[k] -= U.row(k).segment(k+1,nvt[k]-1) * v.segment(k+1,nvt[k]-1);
+	v[k] -= U.row(k).segment(k+1,nvt[(std::size_t)k]-1) * v.segment(k+1,nvt[(std::size_t)k]-1);
       return v.derived();
     }
 
@@ -148,7 +148,7 @@ namespace se3
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
       for( int i=0;i<model.nv-1;++i ) // You can stop one step before nv.
-	v.segment(i+1,nvt[i]-1) -= U.row(i).segment(i+1,nvt[i]-1).transpose()*v[i];
+	v.segment(i+1,nvt[(std::size_t)i]-1) -= U.row(i).segment(i+1,nvt[(std::size_t)i]-1).transpose()*v[i];
 
       return v.derived();
     }
@@ -170,8 +170,8 @@ namespace se3
 
 	for( int k=model.nv-1;k>=0;--k ) 
 	  {
-	    res[k] = M.row(k).segment(k,nvt[k]) * v.segment(k,nvt[k]);
-	    res.segment(k+1,nvt[k]-1) += M.row(k).segment(k+1,nvt[k]-1).transpose()*v[k];
+	    res[k] = M.row(k).segment(k,nvt[(std::size_t)k]) * v.segment(k,nvt[(std::size_t)k]);
+	    res.segment(k+1,nvt[(std::size_t)k]-1) += M.row(k).segment(k+1,nvt[(std::size_t)k]-1).transpose()*v[k];
 	  }
 
 	return res;

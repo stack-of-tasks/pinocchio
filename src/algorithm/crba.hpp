@@ -40,8 +40,8 @@ namespace se3
       const typename JointModel::Index & i = jmodel.id();
       jmodel.calc(jdata.derived(),q);
       
-      data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      data.Ycrb[i] = model.inertias[i];
+      data.liMi[(std::size_t)i] = model.jointPlacements[(std::size_t)i]*jdata.M();
+      data.Ycrb[(std::size_t)i] = model.inertias[(std::size_t)i];
     }
 
   };
@@ -69,23 +69,23 @@ namespace se3
       const Model::Index & i = jmodel.id();
 
       /* F[1:6,i] = Y*S */
-      data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
+      data.Fcrb[(std::size_t)i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[(std::size_t)i] * jdata.S();
 
       /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
-      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]) 
-	= jdata.S().transpose()*data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
+      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[(std::size_t)i]) 
+	= jdata.S().transpose()*data.Fcrb[(std::size_t)i].block(0,jmodel.idx_v(),6,data.nvSubtree[(std::size_t)i]);
 
-      const Model::Index & parent   = model.parents[i];
+      const Model::Index & parent   = model.parents[(std::size_t)i];
       if(parent>0) 
 	{
 	  /*   Yli += liXi Yi */
- 	  data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+ 	  data.Ycrb[(std::size_t)parent] += data.liMi[(std::size_t)i].act(data.Ycrb[(std::size_t)i]);
 
 	  /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
 	  Eigen::Block<typename Data::Matrix6x> jF
-	    = data.Fcrb[parent].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
- 	  forceSet::se3Action(data.liMi[i],
-			      data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]),
+	    = data.Fcrb[(std::size_t)parent].block(0,jmodel.idx_v(),6,data.nvSubtree[(std::size_t)i]);
+ 	  forceSet::se3Action(data.liMi[(std::size_t)i],
+			      data.Fcrb[(std::size_t)i].block(0,jmodel.idx_v(),6,data.nvSubtree[(std::size_t)i]),
 			      jF);
 	}
       
@@ -102,13 +102,13 @@ namespace se3
   {
     for( int i=1;i<model.nbody;++i )
       {
-	CrbaForwardStep::run(model.joints[i],data.joints[i],
+	CrbaForwardStep::run(model.joints[(std::size_t)i],data.joints[(std::size_t)i],
 			     CrbaForwardStep::ArgsType(model,data,q));
       }
     
     for( int i=model.nbody-1;i>0;--i )
       {
-	CrbaBackwardStep::run(model.joints[i],data.joints[i],
+	CrbaBackwardStep::run(model.joints[(std::size_t)i],data.joints[(std::size_t)i],
 			      CrbaBackwardStep::ArgsType(model,data));
       }
 

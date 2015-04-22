@@ -96,7 +96,7 @@ namespace se3
       const Model::Index & parent = model.parents[(size_t) i];
 
       /* F[1:6,i] = Y*S */
-      data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[(size_t) i] * jdata.S();
+      data.Fcrb[(std::size_t)i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[(size_t) i] * jdata.S();
 
       /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[(size_t) i])
@@ -111,7 +111,7 @@ namespace se3
 
         /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
         Eigen::Block<typename Data::Matrix6x> jF
-        = data.Fcrb[parent].block(0,jmodel.idx_v(),6,data.nvSubtree[(size_t) i]);
+        = data.Fcrb[(std::size_t)parent].block(0,jmodel.idx_v(),6,data.nvSubtree[(size_t) i]);
         forceSet::se3Action(data.liMi[(size_t) i],
                             data.Fcrb[(size_t) i].block(0,jmodel.idx_v(),6,data.nvSubtree[(size_t) i]),
                             jF);

@@ -44,16 +44,16 @@ namespace se3
       
       jmodel.calc(jdata.derived(),q,v);
       
-      const Model::Index & parent = model.parents[i];
-      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      const Model::Index & parent = model.parents[(std::size_t)i];
+      data.liMi[(std::size_t)i] = model.jointPlacements[(std::size_t)i]*jdata.M();
       
-      data.v[i] = jdata.v();
-      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
+      data.v[(std::size_t)i] = jdata.v();
+      if(parent>0) data.v[(std::size_t)i] += data.liMi[(std::size_t)i].actInv(data.v[(std::size_t)parent]);
       
-      data.a[i]  = jdata.S()*jmodel.jointMotion(a) + jdata.c() + (data.v[i] ^ jdata.v()) ; 
-      data.a[i] += data.liMi[i].actInv(data.a[parent]);
+      data.a[(std::size_t)i]  = jdata.S()*jmodel.jointMotion(a) + jdata.c() + (data.v[(std::size_t)i] ^ jdata.v()) ; 
+      data.a[(std::size_t)i] += data.liMi[(std::size_t)i].actInv(data.a[(std::size_t)parent]);
       
-      data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
+      data.f[(std::size_t)i] = model.inertias[(std::size_t)i]*data.a[(std::size_t)i] + model.inertias[(std::size_t)i].vxiv(data.v[(std::size_t)i]); // -f_ext
       return 0;
     }
 
@@ -74,9 +74,9 @@ namespace se3
 		     Data& data,
 		     int i)
     {
-      const Model::Index & parent  = model.parents[i];      
-      jmodel.jointForce(data.tau)  = jdata.S().transpose()*data.f[i];
-      if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
+      const Model::Index & parent  = model.parents[(std::size_t)i];      
+      jmodel.jointForce(data.tau)  = jdata.S().transpose()*data.f[(std::size_t)i];
+      if(parent>0) data.f[(std::size_t)parent] += data.liMi[(std::size_t)i].act(data.f[(std::size_t)i]);
     }
   };
 
@@ -91,13 +91,13 @@ namespace se3
 
     for( int i=1;i<model.nbody;++i )
       {
-	RneaForwardStep::run(model.joints[i],data.joints[i],
+	RneaForwardStep::run(model.joints[(std::size_t)i],data.joints[(std::size_t)i],
 			     RneaForwardStep::ArgsType(model,data,i,q,v,a));
       }
     
     for( int i=model.nbody-1;i>0;--i )
       {
-	RneaBackwardStep::run(model.joints[i],data.joints[i],
+	RneaBackwardStep::run(model.joints[(std::size_t)i],data.joints[(std::size_t)i],
 	 		      RneaBackwardStep::ArgsType(model,data,i));
       }
 
