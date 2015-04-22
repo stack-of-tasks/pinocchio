@@ -55,8 +55,8 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const std::size_t & i      = jmodel.id();
-      const std::size_t & parent = model.parents[i];
+      const Model::Index & i      = (Model::Index) jmodel.id();
+      const Model::Index & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
       
@@ -80,13 +80,13 @@ namespace se3
     data.mass[0] = 0; 
     data.com[0].setZero ();
 
-    for( int i=1;i<model.nbody;++i )
+    for( Model::Index i=1;i<(Model::Index)(model.nbody);++i )
       {
 	data.com[i]  = model.inertias[i].mass()*model.inertias[i].lever();
 	data.mass[i] = model.inertias[i].mass();
       }
 
-    for( int i=model.nbody-1;i>0;--i )
+    for( Model::Index i=(Model::Index)(model.nbody-1);i>0;--i )
       {
 	CenterOfMassForwardStep
 	  ::run(model.joints[i],data.joints[i],
@@ -125,7 +125,7 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i      = jmodel.id();
+      const Model::Index & i      = (Model::Index) jmodel.id();
       const Model::Index & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
@@ -160,7 +160,7 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i      = jmodel.id();
+      const Model::Index & i      = (Model::Index) jmodel.id();
       const Model::Index & parent = model.parents[i];
 
       data.com[parent]  += data.com[i];
@@ -192,13 +192,13 @@ namespace se3
   {
     data.com[0].setZero ();
     data.mass[0] = 0;
-    for( int i=1;i<model.nbody;++i )
+    for( Model::Index i=1;i<(Model::Index)model.nbody;++i )
       {
 	JacobianCenterOfMassForwardStep
 	  ::run(model.joints[i],data.joints[i],
 		JacobianCenterOfMassForwardStep::ArgsType(model,data,q));
       }
-    for( int i=model.nbody-1;i>0;--i )
+    for( Model::Index i= (Model::Index) (model.nbody-1);i>0;--i )
       {
 	JacobianCenterOfMassBackwardStep
 	  ::run(model.joints[i],data.joints[i],

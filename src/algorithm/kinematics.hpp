@@ -46,7 +46,7 @@ namespace se3
       data.liMi[i] = model.jointPlacements[i] * jdata.M ();
 
       if (parent>0)
-        data.oMi[i] = data.oMi[(size_t) parent] * data.liMi[i];
+        data.oMi[i] = data.oMi[parent] * data.liMi[i];
       else
         data.oMi[i] = data.liMi[i];
     }
@@ -98,8 +98,8 @@ namespace se3
       
       if(parent>0)
       {
-        data.oMi[i] = data.oMi[(size_t) parent]*data.liMi[i];
-        data.v[i] += data.liMi[i].actInv(data.v[(size_t) parent]);
+        data.oMi[i] = data.oMi[parent]*data.liMi[i];
+        data.v[i] += data.liMi[i].actInv(data.v[parent]);
       }
       else
         data.oMi[i] = data.liMi[i];

@@ -198,13 +198,13 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
       std::vector<Symmetric3> Sres (NBT);
       std::vector<Matrix3> Rs (NBT);
       for(int i=0;i<NBT;++i) 
-        Rs[i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
+        Rs[(std::size_t)i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
 
       std::cout << "Pinocchio: ";
       StackTicToc timer(StackTicToc::US); timer.tic();
       SMOOTH(NBT)
       {
-        timeSym3(S,Rs[_smooth],Sres[_smooth]);
+        timeSym3(S,Rs[(std::size_t)_smooth],Sres[(std::size_t)_smooth]);
       }
       timer.toc(std::cout,NBT);
     }
@@ -284,13 +284,13 @@ BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
   std::vector<Eigen::Matrix3d> Sres (NBT);
   std::vector<Eigen::Matrix3d> Rs (NBT);
   for(int i=0;i<NBT;++i) 
-    Rs[i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
+    Rs[(std::size_t)i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
 
   std::cout << "Eigen: ";
   StackTicToc timer(StackTicToc::US); timer.tic();
   SMOOTH(NBT)
   {
-    timeSelfAdj(Rs[_smooth],M,Sres[_smooth]);
+    timeSelfAdj(Rs[(std::size_t)_smooth],M,Sres[(std::size_t)_smooth]);
   }
   timer.toc(std::cout,NBT);
 }

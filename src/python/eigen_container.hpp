@@ -39,7 +39,7 @@ namespace se3
 	assert( Ys.size()<INT_MAX );
 	if( i<0 ) i = int(Ys.size())+i;
 	assert( (i>=0) && (i<int(Ys.size())) );
-	return Ys[i]; 
+	return Ys[(std::size_t)i]; 
       }
 
       static void setItem( stdVectorAligned & Ys,
@@ -48,7 +48,7 @@ namespace se3
 	assert( Ys.size()<INT_MAX );
 	if( i<0 ) i = int(Ys.size())+i;
 	assert( (i>=0) && (i<int(Ys.size())) );
-	Ys[i] = Y; 
+	Ys[(std::size_t)i] = Y; 
       }
       static typename stdVectorAligned::size_type length( const stdVectorAligned & Ys )
       { return Ys.size(); }

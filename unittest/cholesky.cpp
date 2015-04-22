@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   if( flag >> 2 & 31 )
     {
       std::vector<Eigen::VectorXd> randvec(NBT);
-      for(int i=0;i<NBT;++i ) randvec[i] = Eigen::VectorXd::Random(model.nv);
+      for(int i=0;i<NBT;++i ) randvec[(std::size_t)i] = Eigen::VectorXd::Random(model.nv);
       Eigen::VectorXd zero = Eigen::VectorXd(model.nv);
       Eigen::VectorXd res (model.nv);
 
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  timer.tic();
 	  SMOOTH(NBT)
 	  {
-	    se3::cholesky::solve(model,data,randvec[_smooth]);
+	    se3::cholesky::solve(model,data,randvec[(std::size_t)_smooth]);
 	  }
 	  if(verbose) std::cout << "solve =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  timer.tic();
 	  SMOOTH(NBT)
 	  {
-	    se3::cholesky::Uv(model,data,randvec[_smooth]);
+	    se3::cholesky::Uv(model,data,randvec[(std::size_t)_smooth]);
 	  }
 	  if(verbose) std::cout << "Uv =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  timer.tic();
 	  SMOOTH(NBT)
 	  {
-	    se3::cholesky::Uiv(model,data,randvec[_smooth]);
+	    se3::cholesky::Uiv(model,data,randvec[(std::size_t)_smooth]);
 	  }
 	  if(verbose) std::cout << "Uiv =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  Eigen::VectorXd res;
 	  SMOOTH(NBT)
 	  {
-	    res = se3::cholesky::Mv(model,data,randvec[_smooth]);
+	    res = se3::cholesky::Mv(model,data,randvec[(std::size_t)_smooth]);
 	  }
 	  if(verbose) std::cout << "Mv =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  timer.tic();
 	  SMOOTH(NBT)
 	  {
-	    se3::cholesky::Mv(model,data,randvec[_smooth],true);
+	    se3::cholesky::Mv(model,data,randvec[(std::size_t)_smooth],true);
 	  }
 	  if(verbose) std::cout << "UDUtv =\t\t";
 	  timer.toc(std::cout,NBT);
