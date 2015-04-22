@@ -78,7 +78,11 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-free-flyer.hpp
   multibody/joint/joint-variant.hpp
   multibody/joint/joint-generic.hpp
-)
+  ) 
+
+SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
+  multibody/parser/sample-models.hpp
+  )
 
 SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/constraint.hpp
@@ -86,7 +90,6 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/joint.hpp
   multibody/model.hpp
   multibody/visitor.hpp
-  multibody/parser/sample-models.hpp
   )
 
 SET(${PROJECT_NAME}_ALGORITHM_HEADERS
@@ -122,16 +125,21 @@ SET(HEADERS
   ${${PROJECT_NAME}_TOOLS_HEADERS}
   ${${PROJECT_NAME}_SPATIAL_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS}
+  ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_HEADERS}
   ${${PROJECT_NAME}_ALGORITHM_HEADERS}
   ${${PROJECT_NAME}_SIMULATION_HEADERS}
   ${${PROJECT_NAME}_PYTHON_HEADERS}
   exception.hpp
   assert.hpp
-  )
+ )
 
 IF(URDFDOM_FOUND)
   LIST(APPEND HEADERS multibody/parser/urdf.hpp)
+  SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
+    ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
+    multibody/parser/urdf.hpp
+    )
 ENDIF(URDFDOM_FOUND)
 
 PKG_CONFIG_APPEND_LIBS (${PROJECT_NAME})
