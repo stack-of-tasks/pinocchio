@@ -14,6 +14,8 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 
+#include "pinocchio/simulation/compute-all-terms.hpp"
+
 namespace se3
 {
   namespace python
@@ -84,6 +86,14 @@ namespace se3
         geometry(*model,*data,q);
       }
 
+      static void computeAllTerms_proxy(const ModelHandler & model,
+                                        DataHandler & data,
+                                        const VectorXd_fx & q,
+                                        const VectorXd_fx & v)
+      {
+        computeAllTerms(*model,*data,q,v);
+      }
+
 
 
       /* --- Expose --------------------------------------------------------- */
@@ -129,6 +139,13 @@ namespace se3
         "Configuration q (size Model::nq)"),
         "Compute the placements of all the frames of the kinematic "
         "tree and put the results in data.");
+
+  bp::def("geometry",computeAllTerms_proxy,
+    bp::args("Model","Data",
+             "Configuration q (size Model::nq)",
+             "Velocity v (size Model::nv)"),
+             "Compute all the terms M, non linear effects and Jacobians in"
+             "in the same loop and put the results in data.");
 
 	bp::def("jacobian",jacobian_proxy,
 		bp::args("Model","Data",
