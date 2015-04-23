@@ -24,7 +24,7 @@ namespace se3
   class Model
   {
   public:
-    typedef int Index;
+    typedef std::size_t Index;
 
     int nq;                            // Dimension of the configuration representation
     int nv;                            // Dimension of the velocity vector space
@@ -101,7 +101,7 @@ namespace se3
 
     std::vector<Matrix6x> Fcrb;           // Spatial forces set, used in CRBA
 
-    std::vector<Model::Index> lastChild;  // Index of the last child (for CRBA)
+    std::vector<int> lastChild;  // Index of the last child (for CRBA)
     std::vector<int> nvSubtree;           // Dimension of the subtree motion space (for CRBA)
 
     Eigen::MatrixXd U;                    // Joint Inertia square root (upper triangle)
