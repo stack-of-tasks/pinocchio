@@ -256,7 +256,7 @@ namespace se3
   struct JointDataPrismatic : public JointDataBase< JointDataPrismatic<axis> >
   { //TODO : check. 
     typedef JointPrismatic<axis> Joint;
-    SE3_JOINT_TYPEDEF;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
     Constraint_t S;
     Transformation_t M;
@@ -275,7 +275,7 @@ namespace se3
   struct JointModelPrismatic : public JointModelBase< JointModelPrismatic<axis> >
   { //TODO
     typedef JointPrismatic<axis> Joint;
-    SE3_JOINT_TYPEDEF;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
     using JointModelBase<JointModelPrismatic>::idx_q;
     using JointModelBase<JointModelPrismatic>::idx_v;

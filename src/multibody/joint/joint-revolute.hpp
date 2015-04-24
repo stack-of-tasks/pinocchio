@@ -282,7 +282,7 @@ namespace se3
   struct JointDataRevolute : public JointDataBase< JointDataRevolute<axis> >
   {
     typedef JointRevolute<axis> Joint;
-    SE3_JOINT_TYPEDEF;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
     Constraint_t S;
     Transformation_t M;
@@ -301,7 +301,7 @@ namespace se3
   struct JointModelRevolute : public JointModelBase< JointModelRevolute<axis> >
   {
     typedef JointRevolute<axis> Joint;
-    SE3_JOINT_TYPEDEF;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
     using JointModelBase<JointModelRevolute>::idx_q;
     using JointModelBase<JointModelRevolute>::idx_v;

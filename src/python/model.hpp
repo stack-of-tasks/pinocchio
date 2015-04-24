@@ -24,7 +24,7 @@ namespace se3
     {
     public:
       typedef Model::Index Index;
-      typedef typename eigenpy::UnalignedEquivalent<Motion>::type Motion_fx;
+      typedef eigenpy::UnalignedEquivalent<Motion>::type Motion_fx;
 
     public:
 
