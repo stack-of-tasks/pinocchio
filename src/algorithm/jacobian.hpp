@@ -36,16 +36,16 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i = jmodel.id();
-      const Model::Index & parent = model.parents[(std::size_t)i];
+      const Model::Index & i = (Model::Index) jmodel.id();
+      const Model::Index & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
       
-      data.liMi[(std::size_t)i] = model.jointPlacements[(std::size_t)i]*jdata.M();
-      if(parent>0) data.oMi[(std::size_t)i] = data.oMi[(std::size_t)parent]*data.liMi[(std::size_t)i];
-      else         data.oMi[(std::size_t)i] = data.liMi[(std::size_t)i];
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
+      else         data.oMi[i] = data.liMi[i];
 
-      data.J.block(0,jmodel.idx_v(),6,jmodel.nv()) = data.oMi[(std::size_t)i].act(jdata.S());
+      data.J.block(0,jmodel.idx_v(),6,jmodel.nv()) = data.oMi[i].act(jdata.S());
     }
 
   };
@@ -55,7 +55,7 @@ namespace se3
   computeJacobians(const Model & model, Data& data,
 		   const Eigen::VectorXd & q)
   {
-    for( std::size_t i=1; i< (std::size_t) model.nbody;++i )
+    for( Model::Index i=1; i< (Model::Index) model.nbody;++i )
       {
 	JacobiansForwardStep::run(model.joints[i],data.joints[i],
 				  JacobiansForwardStep::ArgsType(model,data,q));
@@ -74,9 +74,9 @@ namespace se3
     assert( J.rows() == data.J.rows() );
     assert( J.cols() == data.J.cols() );
 
-    const SE3 & oMjoint = data.oMi[(std::size_t)jointId];
-    int colRef = nv(model.joints[(std::size_t)jointId])+idx_v(model.joints[(std::size_t)jointId])-1;
-    for(int j=colRef;j>=0;j=data.parents_fromRow[(std::size_t)j])
+    const SE3 & oMjoint = data.oMi[jointId];
+    int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
+    for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
       {
 	if(! localFrame )   J.col(j) = data.J.col(j);
 	else                J.col(j) = oMjoint.actInv(Motion(data.J.col(j))).toVector();
@@ -103,15 +103,15 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i = jmodel.id();
-      const Model::Index & parent = model.parents[(std::size_t)i];
+      const Model::Index & i = (Model::Index) jmodel.id();
+      const Model::Index & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
       
-      data.liMi[(std::size_t)i] = model.jointPlacements[(std::size_t)i]*jdata.M();
-      data.iMf[(std::size_t)parent] = data.liMi[(std::size_t)i]*data.iMf[(std::size_t)i];
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      data.iMf[parent] = data.liMi[i]*data.iMf[i];
 
-      data.J.block(0,jmodel.idx_v(),6,jmodel.nv()) = data.iMf[(std::size_t)i].inverse().act(jdata.S());
+      data.J.block(0,jmodel.idx_v(),6,jmodel.nv()) = data.iMf[i].inverse().act(jdata.S());
     }
 
   };
@@ -122,10 +122,10 @@ namespace se3
 	   const Eigen::VectorXd & q,
 	   const Model::Index & idx )
   {
-    data.iMf[(std::size_t)idx] = SE3::Identity();
-    for( int i=idx;i>0;i=model.parents[(std::size_t)i] )
+    data.iMf[idx] = SE3::Identity();
+    for( Model::Index i=idx;i>0;i=model.parents[i] )
       {
-	JacobianForwardStep::run(model.joints[(std::size_t)i],data.joints[(std::size_t)i],
+	JacobianForwardStep::run(model.joints[i],data.joints[i],
 				 JacobianForwardStep::ArgsType(model,data,q));
       }
 

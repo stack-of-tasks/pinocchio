@@ -138,10 +138,10 @@ namespace se3
   std::ostream& operator<< ( std::ostream & os, const Model& model )
   {
     os << "Nb bodies = " << model.nbody << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
-    for(int i=0;i<model.nbody;++i)
+    for(Model::Index i=0;i<(Model::Index)(model.nbody);++i)
       {
-	os << "  Joint "<<model.names[(std::size_t)i] << ": parent=" << model.parents[(std::size_t)i] 
-	   << ( model.hasVisual[(std::size_t)i] ? " (has visual) " : "(doesnt have visual)" ) << std::endl;
+	os << "  Joint "<<model.names[i] << ": parent=" << model.parents[i] 
+	   << ( model.hasVisual[i] ? " (has visual) " : "(doesnt have visual)" ) << std::endl;
       }
 
     return os;
@@ -169,10 +169,10 @@ namespace se3
 	    &&(nbody==(int)parents.size())&&(nbody==(int)jointPlacements.size()) );
     assert( (j.nq()>=0)&&(j.nv()>=0) );
 
-    Index idx = nbody ++;
+    Model::Index idx = (Model::Index) (nbody ++);
 
     joints         .push_back(j.derived()); 
-    boost::get<D&>(joints.back()).setIndexes(idx,nq,nv);
+    boost::get<D&>(joints.back()).setIndexes((int)idx,nq,nv);
 
     inertias       .push_back(Y);
     parents        .push_back(parent);
@@ -191,7 +191,7 @@ namespace se3
                                     bool visual )
   {
 
-    Index idx = nFixBody++;
+    Model::Index idx = (Model::Index) (nFixBody++);
     fix_lastMovingParent.push_back(lastMovingParent);
     fix_lmpMi      .push_back(placementFromLastMoving);
     fix_hasVisual  .push_back(visual);
@@ -202,7 +202,7 @@ namespace se3
   void Model::mergeFixedBody(Index parent, const SE3 & placement, const Inertia & Y)
   {
     const Inertia & iYf = Y.se3Action(placement); //TODO
-    inertias[(std::size_t)parent] += iYf;
+    inertias[parent] += iYf;
   }
 
   Model::Index Model::getBodyId( const std::string & name ) const
@@ -211,7 +211,7 @@ namespace se3
       res = std::find(names.begin(),names.end(),name) - names.begin();
     assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
     assert( (res>=0)&&(res<nbody)&&"The body name you asked do not exist" );
-    return int(res);
+    return Model::Index(res);
   }
   bool Model::existBodyName( const std::string & name ) const
   {
@@ -222,8 +222,8 @@ namespace se3
   
   const std::string& Model::getBodyName( Model::Index index ) const
   {
-    assert( (index>=0)&&(index<nbody) );
-    return names[(std::size_t)index];
+    assert( (index>=0)&&(index < (Model::Index)nbody) );
+    return names[index];
   }  
 
   Data::Data( const Model& ref )
@@ -252,12 +252,12 @@ namespace se3
     ,mass((std::size_t)ref.nbody)
     ,Jcom(3,ref.nv)
   {
-    for(int i=0;i<model.nbody;++i) 
-      joints.push_back(CreateJointData::run(model.joints[(std::size_t)i]));
+    for(Model::Index i=0;i<(Model::Index)(model.nbody);++i) 
+      joints.push_back(CreateJointData::run(model.joints[i]));
 
     /* Init for CRBA */
     M.fill(NAN);    
-    for(int i=0;i<ref.nbody;++i ) { Fcrb[(std::size_t)i].resize(6,model.nv); Fcrb[(std::size_t)i].fill(NAN); }
+    for(Model::Index i=0;i<(Model::Index)(ref.nbody);++i ) { Fcrb[i].resize(6,model.nv); Fcrb[i].fill(NAN); }
     computeLastChild(ref);
 
     /* Init for Cholesky */
@@ -274,32 +274,32 @@ namespace se3
     std::fill(lastChild.begin(),lastChild.end(),-1);
     for( int i=model.nbody-1;i>=0;--i )
       {
-	if(lastChild[(std::size_t)i] == -1) lastChild[(std::size_t)i] = i;
-	const Index & parent = model.parents[(std::size_t)i];
-	lastChild[(std::size_t)parent] = std::max(lastChild[(std::size_t)i],lastChild[(std::size_t)parent]);
+	if(lastChild[(Model::Index)i] == -1) lastChild[(Model::Index)i] = i;
+	const Index & parent = model.parents[(Model::Index)i];
+	lastChild[parent] = std::max(lastChild[(Model::Index)i],lastChild[parent]);
 
-	nvSubtree[(std::size_t)i] 
-	  = idx_v(model.joints[(std::size_t)lastChild[(std::size_t)i]]) + nv(model.joints[(std::size_t)lastChild[(std::size_t)i]])
-	  - idx_v(model.joints[(std::size_t)i]);
+	nvSubtree[(Model::Index)i] 
+	  = idx_v(model.joints[(Model::Index)lastChild[(Model::Index)i]]) + nv(model.joints[(Model::Index)lastChild[(Model::Index)i]])
+	  - idx_v(model.joints[(Model::Index)i]);
       }
   }
 
   void Data::computeParents_fromRow( const Model& model )
   {
-    for( int joint=1;joint<model.nbody;joint++)
+    for( Model::Index joint=1;joint<(Model::Index)(model.nbody);joint++)
       {
-	const Model::Index & parent = model.parents[(std::size_t)joint];
-	const int nvj    = nv   (model.joints[(std::size_t)joint]);
-	const int idx_vj = idx_v(model.joints[(std::size_t)joint]);
+	const Model::Index & parent = model.parents[joint];
+	const int nvj    = nv   (model.joints[joint]);
+	const int idx_vj = idx_v(model.joints[joint]);
 
-	if(parent>0) parents_fromRow[(std::size_t)idx_vj] = idx_v(model.joints[(std::size_t)parent])+nv(model.joints[(std::size_t)parent])-1;
-	else         parents_fromRow[(std::size_t)idx_vj] = -1;
-	nvSubtree_fromRow[(std::size_t)idx_vj] = nvSubtree[(std::size_t)joint];
+	if(parent>0) parents_fromRow[(Model::Index)idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
+	else         parents_fromRow[(Model::Index)idx_vj] = -1;
+	nvSubtree_fromRow[(Model::Index)idx_vj] = nvSubtree[joint];
 
     for( int row=1;row<nvj;++row)
 	  {
-	    parents_fromRow[(std::size_t)(idx_vj+row)] = idx_vj+row-1;
-	    nvSubtree_fromRow[(std::size_t)(idx_vj+row)] = nvSubtree[(std::size_t)joint]-row;
+	    parents_fromRow[(Model::Index)(idx_vj+row)] = idx_vj+row-1;
+	    nvSubtree_fromRow[(Model::Index)(idx_vj+row)] = nvSubtree[joint]-row;
 	  }
       }
   }

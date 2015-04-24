@@ -55,18 +55,18 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i      = jmodel.id();
-      const Model::Index & parent = model.parents[(std::size_t)i];
+      const Model::Index & i      = (Model::Index) jmodel.id();
+      const Model::Index & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
       
-      data.liMi[(std::size_t)i]      = model.jointPlacements[(std::size_t)i]*jdata.M();
-      data.com[(std::size_t)parent]  += (data.liMi[(std::size_t)i].rotation()*data.com[(std::size_t)i]
-			    +data.mass[(std::size_t)i]*data.liMi[(std::size_t)i].translation());
-      data.mass[(std::size_t)parent] += data.mass[(std::size_t)i];  
+      data.liMi[i]      = model.jointPlacements[i]*jdata.M();
+      data.com[parent]  += (data.liMi[i].rotation()*data.com[i]
+			    +data.mass[i]*data.liMi[i].translation());
+      data.mass[parent] += data.mass[i];  
 
       if( computeSubtreeComs )
-	data.com[(std::size_t)i] /= data.mass[(std::size_t)i]; 
+	data.com[i] /= data.mass[i]; 
     }
 
   };
@@ -80,16 +80,16 @@ namespace se3
     data.mass[0] = 0; 
     data.com[0].setZero ();
 
-    for( int i=1;i<model.nbody;++i )
+    for( Model::Index i=1;i<(Model::Index)(model.nbody);++i )
       {
-	data.com[(std::size_t)i]  = model.inertias[(std::size_t)i].mass()*model.inertias[(std::size_t)i].lever();
-	data.mass[(std::size_t)i] = model.inertias[(std::size_t)i].mass();
+	data.com[i]  = model.inertias[i].mass()*model.inertias[i].lever();
+	data.mass[i] = model.inertias[i].mass();
       }
 
-    for( int i=model.nbody-1;i>0;--i )
+    for( Model::Index i=(Model::Index)(model.nbody-1);i>0;--i )
       {
 	CenterOfMassForwardStep
-	  ::run(model.joints[(std::size_t)i],data.joints[(std::size_t)i],
+	  ::run(model.joints[i],data.joints[i],
 		CenterOfMassForwardStep::ArgsType(model,data,q,computeSubtreeComs));
       }
     data.com[0] /= data.mass[0];
@@ -125,17 +125,17 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i      = jmodel.id();
-      const Model::Index & parent = model.parents[(std::size_t)i];
+      const Model::Index & i      = (Model::Index) jmodel.id();
+      const Model::Index & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
       
-      data.liMi[(std::size_t)i]      = model.jointPlacements[(std::size_t)i]*jdata.M();
-      if(parent>0) data.oMi[(std::size_t)i] = data.oMi[(std::size_t)parent]*data.liMi[(std::size_t)i];
-      else         data.oMi[(std::size_t)i] = data.liMi[(std::size_t)i];
+      data.liMi[i]      = model.jointPlacements[i]*jdata.M();
+      if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
+      else         data.oMi[i] = data.liMi[i];
       
-      data.com[(std::size_t)i]   = model.inertias[(std::size_t)i].mass()*data.oMi[(std::size_t)i].act(model.inertias[(std::size_t)i].lever());
-      data.mass[(std::size_t)i]  = model.inertias[(std::size_t)i].mass();
+      data.com[i]   = model.inertias[i].mass()*data.oMi[i].act(model.inertias[i].lever());
+      data.mass[i]  = model.inertias[i].mass();
     }
 
   };
@@ -160,26 +160,26 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i      = jmodel.id();
-      const Model::Index & parent = model.parents[(std::size_t)i];
+      const Model::Index & i      = (Model::Index) jmodel.id();
+      const Model::Index & parent = model.parents[i];
 
-      data.com[(std::size_t)parent]  += data.com[(std::size_t)i];
-      data.mass[(std::size_t)parent] += data.mass[(std::size_t)i];
+      data.com[parent]  += data.com[i];
+      data.mass[parent] += data.mass[i];
 
       const Eigen::Matrix<double,6,JointModel::NV> & oSk
-	= data.oMi[(std::size_t)i].act(jdata.S());
+	= data.oMi[i].act(jdata.S());
 
       if( JointModel::NV==1 )
       	data.Jcom.col(jmodel.idx_v()) // Using head and tail would confuse g++
-      	  = data.mass[(std::size_t)i]*oSk.template topLeftCorner<3,1>() 
-      	  - data.com[(std::size_t)i].cross(oSk.template bottomLeftCorner<3,1>()) ;
+      	  = data.mass[i]*oSk.template topLeftCorner<3,1>() 
+      	  - data.com[i].cross(oSk.template bottomLeftCorner<3,1>()) ;
       else
       	data.Jcom.template block<3,JointModel::NV>(0,jmodel.idx_v())
-      	  = data.mass[(std::size_t)i]*oSk.template topRows<3>() 
-      	  - skew(data.com[(std::size_t)i]) * oSk.template bottomRows<3>() ;
+      	  = data.mass[i]*oSk.template topRows<3>() 
+      	  - skew(data.com[i]) * oSk.template bottomRows<3>() ;
 
       if(computeSubtreeComs)
-	data.com[(std::size_t)i]       /= data.mass[(std::size_t)i];
+	data.com[i]       /= data.mass[i];
     }
 
   };
@@ -192,16 +192,16 @@ namespace se3
   {
     data.com[0].setZero ();
     data.mass[0] = 0;
-    for( int i=1;i<model.nbody;++i )
+    for( Model::Index i=1;i<(Model::Index)model.nbody;++i )
       {
 	JacobianCenterOfMassForwardStep
-	  ::run(model.joints[(std::size_t)i],data.joints[(std::size_t)i],
+	  ::run(model.joints[i],data.joints[i],
 		JacobianCenterOfMassForwardStep::ArgsType(model,data,q));
       }
-    for( int i=model.nbody-1;i>0;--i )
+    for( Model::Index i= (Model::Index) (model.nbody-1);i>0;--i )
       {
 	JacobianCenterOfMassBackwardStep
-	  ::run(model.joints[(std::size_t)i],data.joints[(std::size_t)i],
+	  ::run(model.joints[i],data.joints[i],
 		JacobianCenterOfMassBackwardStep::ArgsType(model,data,computeSubtreeComs));
       }
 

@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   VectorXd q = VectorXd::Zero(model.nq);
   computeJacobians(model,data,q);
 
-  Model::Index idx = model.existBodyName("rarm2")?model.getBodyId("rarm2"):model.nbody-1; 
+  Model::Index idx = model.existBodyName("rarm2")?model.getBodyId("rarm2"):(Model::Index)(model.nbody-1); 
   MatrixXd Jrh(6,model.nv); Jrh.fill(0);
   getJacobian<false>(model,data,idx,Jrh);
 
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   if( flag >> 1 & 1 )
   {
     computeJacobians(model,data,q);
-    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
+    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):(Model::Index)(model.nbody-1); 
     Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
 
     timer.tic();
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   if( flag >> 2 & 1 )
   {
     computeJacobians(model,data,q);
-    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
+    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):(Model::Index)(model.nbody-1); 
     Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
 
     timer.tic();
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   if( flag >> 3 & 1 )
   {
     computeJacobians(model,data,q);
-    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
+    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):(Model::Index)(model.nbody-1); 
     Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
 
     timer.tic();

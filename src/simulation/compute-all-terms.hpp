@@ -41,33 +41,33 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const typename JointModel::Index & i = jmodel.id();
-      const Model::Index & parent = model.parents[(size_t) i];
+      const Model::Index & i = (Model::Index) jmodel.id();
+      const Model::Index & parent = model.parents[i];
       jmodel.calc(jdata.derived(),q,v);
 
       // CRBA
-      data.liMi[(size_t) i] = model.jointPlacements[(size_t) i]*jdata.M();
-      data.Ycrb[(size_t) i] = model.inertias[(size_t) i];
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      data.Ycrb[i] = model.inertias[i];
 
       // Jacobian + NLE
-      data.v[(size_t) i] = jdata.v();
+      data.v[i] = jdata.v();
 
       if(parent>0)
       {
-        data.oMi[(size_t) i] = data.oMi[(size_t) parent]*data.liMi[(size_t) i];
-        data.v[(size_t) i] += data.liMi[(size_t) i].actInv(data.v[(size_t) parent]);
+        data.oMi[i] = data.oMi[parent]*data.liMi[i];
+        data.v[i] += data.liMi[i].actInv(data.v[parent]);
       }
       else
       {
-        data.oMi[(size_t) i] = data.liMi[(size_t) i];
+        data.oMi[i] = data.liMi[i];
       }
 
-      data.J.block(0,jmodel.idx_v(),6,jmodel.nv()) = data.oMi[(size_t) i].act(jdata.S());
+      data.J.block(0,jmodel.idx_v(),6,jmodel.nv()) = data.oMi[i].act(jdata.S());
 
-      data.a[(size_t) i]  = jdata.c() + (data.v[(size_t) i] ^ jdata.v());
-      data.a[(size_t) i] += data.liMi[(size_t) i].actInv(data.a[(size_t) parent]);
+      data.a[i]  = jdata.c() + (data.v[i] ^ jdata.v());
+      data.a[i] += data.liMi[i].actInv(data.a[parent]);
 
-      data.f[(size_t) i] = model.inertias[(size_t) i]*data.a[(size_t) i] + model.inertias[(size_t) i].vxiv(data.v[(size_t) i]); // -f_ext
+      data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
     }
 
   };
@@ -92,31 +92,31 @@ namespace se3
        *   Yli += liXi Yi
        *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
        */
-      const Model::Index & i = jmodel.id();
-      const Model::Index & parent = model.parents[(size_t) i];
+      const Model::Index & i = (Model::Index) jmodel.id();
+      const Model::Index & parent = model.parents[i];
 
       /* F[1:6,i] = Y*S */
-      data.Fcrb[(std::size_t)i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[(size_t) i] * jdata.S();
+      data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
 
       /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
-      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[(size_t) i])
-      = jdata.S().transpose()*data.Fcrb[(size_t) i].block(0,jmodel.idx_v(),6,data.nvSubtree[(size_t) i]);
+      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i])
+      = jdata.S().transpose()*data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
 
 
-      jmodel.jointForce(data.nle)  = jdata.S().transpose()*data.f[(size_t) i];
+      jmodel.jointForce(data.nle)  = jdata.S().transpose()*data.f[i];
       if(parent>0)
       {
         /*   Yli += liXi Yi */
-        data.Ycrb[(size_t) parent] += data.liMi[(size_t) i].act(data.Ycrb[(size_t) i]);
+        data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
 
         /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
         Eigen::Block<typename Data::Matrix6x> jF
-        = data.Fcrb[(std::size_t)parent].block(0,jmodel.idx_v(),6,data.nvSubtree[(size_t) i]);
-        forceSet::se3Action(data.liMi[(size_t) i],
-                            data.Fcrb[(size_t) i].block(0,jmodel.idx_v(),6,data.nvSubtree[(size_t) i]),
+        = data.Fcrb[parent].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
+        forceSet::se3Action(data.liMi[i],
+                            data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]),
                             jF);
 
-        data.f[(size_t) parent] += data.liMi[(size_t) i].act(data.f[(size_t) i]);
+        data.f[parent] += data.liMi[i].act(data.f[i]);
       }
     }
   };
@@ -130,13 +130,13 @@ namespace se3
     data.v[0].setZero ();
     data.a[0] = -model.gravity;
 
-    for(size_t i=1;i<(size_t) model.nbody;++i)
+    for(Model::Index i=1;i<(Model::Index) model.nbody;++i)
     {
       CATForwardStep::run(model.joints[i],data.joints[i],
                            CATForwardStep::ArgsType(model,data,q,v));
     }
 
-    for(size_t i=(size_t)(model.nbody-1);i>0;--i)
+    for(Model::Index i=(Model::Index)(model.nbody-1);i>0;--i)
     {
       CATBackwardStep::run(model.joints[i],data.joints[i],
                             CATBackwardStep::ArgsType(model,data));
