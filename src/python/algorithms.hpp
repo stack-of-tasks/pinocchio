@@ -22,7 +22,7 @@ namespace se3
   {
     struct AlgorithmsPythonVisitor
     {
-      typedef typename eigenpy::UnalignedEquivalent<Eigen::VectorXd>::type VectorXd_fx;
+      typedef eigenpy::UnalignedEquivalent<Eigen::VectorXd>::type VectorXd_fx;
 
       static Eigen::VectorXd rnea_proxy( const ModelHandler& model, 
 			      DataHandler & data,

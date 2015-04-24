@@ -46,19 +46,22 @@ namespace se3
    * Constraint::se3Action
    */
 
-#define SE3_JOINT_TYPEDEF					     \
+#define SE3_JOINT_TYPEDEF_ARG(prefix)					     \
   typedef int Index;						     \
-  typedef typename traits<Joint>::JointData JointData;		     \
-  typedef typename traits<Joint>::JointModel JointModel;	     \
-  typedef typename traits<Joint>::Constraint_t Constraint_t;	     \
-  typedef typename traits<Joint>::Transformation_t Transformation_t; \
-  typedef typename traits<Joint>::Motion_t Motion_t;		     \
-  typedef typename traits<Joint>::Bias_t Bias_t;		     \
-  typedef typename traits<Joint>::F_t F_t;			     \
+  typedef prefix traits<Joint>::JointData JointData;		     \
+  typedef prefix traits<Joint>::JointModel JointModel;	     \
+  typedef prefix traits<Joint>::Constraint_t Constraint_t;	     \
+  typedef prefix traits<Joint>::Transformation_t Transformation_t; \
+  typedef prefix traits<Joint>::Motion_t Motion_t;		     \
+  typedef prefix traits<Joint>::Bias_t Bias_t;		     \
+  typedef prefix traits<Joint>::F_t F_t;			     \
   enum {							     \
     NQ = traits<Joint>::NQ,					     \
     NV = traits<Joint>::NV					     \
   }
+
+#define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
+#define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
 
 #define SE3_JOINT_USE_INDEXES \
     typedef JointModelBase<JointModel> Base; \
@@ -69,7 +72,7 @@ namespace se3
   struct JointDataBase
   {
     typedef typename traits<_JointData>::Joint Joint;
-    SE3_JOINT_TYPEDEF;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
     JointData& derived() { return *static_cast<JointData*>(this); }
     const JointData& derived() const { return *static_cast<const JointData*>(this); }
@@ -85,7 +88,7 @@ namespace se3
   struct JointModelBase
   {
     typedef typename traits<_JointModel>::Joint Joint;
-    SE3_JOINT_TYPEDEF;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
     JointModel& derived() { return *static_cast<JointModel*>(this); }
     const JointModel& derived() const { return *static_cast<const JointModel*>(this); }
