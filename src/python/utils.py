@@ -18,7 +18,7 @@ def se3ToXYZQUAT(M):
     xyz = M.translation
     quat = se3.Quaternion(M.rotation).coeffs()
     config = [  float(xyz[0,0]), float(xyz[1,0]), float(xyz[2,0]),
-                float(quat[3,0]), float(quat[0,0]), float(quat[1,0]), float(quat[2,0]) ]
+                float(quat[0,0]), float(quat[1,0]), float(quat[2,0]), float(quat[3,0]) ]
     return config
 
 # Reverse function of se3ToXYZQUAT: convert [X,Y,Z,Q1,Q2,Q3,Q4] to a homogeneous matrix.
@@ -28,6 +28,22 @@ def XYZQUATToSe3(xyzq):
     return se3.SE3(
         se3.Quaternion( xyzq[6,0],xyzq[3,0],xyzq[4,0],xyzq[5,0]).matrix(),
         xyzq[:3] )
+
+# Convert the input 7D vector [X,Y,Z,b,c,d,a] to 7D vector [X,Y,Y,a,b,c,d]
+def XYZQUATToViewerConfiguration(xyzq):
+    if isinstance(xyzq,tuple) or isinstance(xyzq,list):
+        xyzq = np.matrix(xyzq,np.float).T
+    VConf = [   float(xyzq[0,0]), float(xyzq[1,0]), float(xyzq[2,0]),
+                float(xyzq[6,0]), float(xyzq[3,0]), float(xyzq[4,0]), float(xyzq[5,0])  ]
+    return VConf
+
+# Reverse function of XYZQUATToViewerConfiguration : convert [X,Y,Z,a,b,c,d] to
+def ViewerConfigurationToXYZQUAT(vconf):
+    if isinstance(vconf,tuple) or isinstance(vconf,list):
+        vconf = np.matrix(vconf,np.float).T
+    xyzq = [    float(vconf[0,0]), float(vconf[1,0]), float(vconf[2,0]),
+                float(vconf[6,0]), float(vconf[3,0]), float(vconf[4,0]), float(vconf[5,0])  ]
+    return xyzq
 
 def isapprox(a,b,epsilon=1e-6):
     if "np" in a.__class__.__dict__: a = a.np
@@ -78,4 +94,6 @@ from rpy import *
 __all__ = [ 'np','npl','eye','zero','rand','isapprox','mprint',
             'skew', 'cross',
             'npToTTuple','npToTuple','rotate',
-            'rpyToMatrix','matrixToRpy','se3ToXYZQUAT' ,'XYZQUATToSe3' ]
+            'rpyToMatrix','matrixToRpy',
+            'se3ToXYZQUAT' ,'XYZQUATToSe3',
+            'XYZQUATToViewerConfiguration', 'ViewerConfigurationToXYZQUAT' ]
