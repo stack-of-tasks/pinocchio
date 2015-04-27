@@ -202,15 +202,20 @@ namespace se3
         std::string joint_type;
         if (model_table["frames"][i]["joint"].exists())
         {
-          if (model_table["frames"][i]["joint"].length() == 1)
+          if (model_table["frames"][i]["joint"].length() == 0)
+            joint_type = "JointTypeFixed";
+          else if (model_table["frames"][i]["joint"].length() == 1)
             joint_type = model_table["frames"][i]["joint"][1].getDefault<std::string> ("");
           else
-            std::cerr << "Joint compouned not implemented yet. Take only the first joint." << std::endl;
+          {
+            joint_type = model_table["frames"][i]["joint"][1].getDefault<std::string> ("");
+            std::cerr << "Joint compouned not yet implemented. Take only the first joint." << std::endl;
+          }
         }
         else if (i == 1) // first body of the tree
         {
           if (freeFlyer)
-            joint_type = "jointFreeFlyer";
+            joint_type = "JointTypeFloatbase";
           else
           {
             std::cerr << "The first segment is defined without any definition of joint type relatily to the world." << std::endl;
@@ -226,43 +231,43 @@ namespace se3
 
         Model::Index body_id;
         bool is_body_fixed = false;
-        if (joint_type == "jointRX")
+        if (joint_type == "JointTypeRevoluteX")
         {
           body_id = model.addBody (parent_id, JointModelRX (), global_placement, Y, joint_name, body_name, false);
         }
-        else if (joint_type == "jointRY")
+        else if (joint_type == "JointTypeRevoluteY")
         {
           body_id = model.addBody (parent_id, JointModelRY (), global_placement, Y, joint_name, body_name, false);
         }
-        else if (joint_type == "jointRZ")
+        else if (joint_type == "JointTypeRevoluteZ")
         {
           body_id = model.addBody (parent_id, JointModelRZ (), global_placement, Y, joint_name, body_name, false);
         }
-        else if (joint_type == "jointPX")
+        else if (joint_type == "JointTypePrismaticX")
         {
           body_id = model.addBody (parent_id, JointModelPX (), global_placement, Y, joint_name, body_name, false);
         }
-        else if (joint_type == "jointPY")
+        else if (joint_type == "JointTypePrismaticY")
         {
           body_id = model.addBody (parent_id, JointModelPY (), global_placement, Y, joint_name, body_name, false);
         }
-        else if (joint_type == "jointPZ")
+        else if (joint_type == "JointTypePrismaticZ")
         {
           body_id = model.addBody (parent_id, JointModelPZ (), global_placement, Y, joint_name, body_name, false);
         }
-        else if (joint_type == "jointFreeFlyer")
+        else if (joint_type == "JointTypeFloatingBase" || joint_type == "JointTypeFloatbase")
         {
           body_id = model.addBody (parent_id, JointModelFreeFlyer (), global_placement, Y, joint_name, body_name, false);
         }
-        else if (joint_type == "jointSpherical")
+        else if (joint_type == "JointTypeSpherical")
         {
           body_id = model.addBody (parent_id, JointModelSpherical (), global_placement, Y, joint_name, body_name, false);
         }
-        else if (joint_type == "jointSphericalZYX")
+        else if (joint_type == "JointTypeEulerZYX")
         {
           body_id = model.addBody (parent_id, JointModelSphericalZYX (), global_placement, Y, joint_name, body_name, false);
         }
-        else if (joint_type == "jointFixed")
+        else if (joint_type == "JointTypeFixed")
         {
           model.mergeFixedBody(parent_id, global_placement, Y);
 

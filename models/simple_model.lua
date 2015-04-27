@@ -19,18 +19,16 @@ bodies = {
 
 joints = {
 	freeflyer = {
-    'jointFreeFlyer'
+    'JointTypeFloatingBase'
 	},
 	spherical_zyx = {
-    'jointSphericalZYX'
+    'JointTypeEulerZYX'
 	},
 	rotational_y = {
-    'jointRY'
+    'JointTypeRevoluteY'
 	},
 
-	fixed = {
-    'jointFixed'
-  },
+	fixed = {},
 }
 
 model = {
