@@ -18,6 +18,36 @@ MACRO(ADD_SOURCE_GROUP FILENAMES)
   ADD_GROUP("Source Files" ${FILENAMES})
 ENDMACRO(ADD_SOURCE_GROUP FILENAMES)
 
+# ----------------------------------------------------
+# --- C++ --------------------------------------------
+# ----------------------------------------------------
+
+IF(LUA5_1_FOUND)
+  SET(${PROJECT_NAME}_MULTIBODY_PARSER_LUA_SOURCES 
+      multibody/parser/lua/lua_tables.cpp
+      multibody/parser/lua.cpp
+    )
+ENDIF(LUA5_1_FOUND)
+
+SET(${PROJECT_NAME}_SOURCES ${${PROJECT_NAME}_MULTIBODY_PARSER_LUA_SOURCES}) 
+
+IF (UNIX )  
+    # Create target libpinocchio.so
+    ADD_LIBRARY ( ${PROJECT_NAME} SHARED ${HEADERS} ${${PROJECT_NAME}_SOURCES} )
+		SET_TARGET_PROPERTIES( ${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+    IF(LUA5_1_FOUND)
+      PKG_CONFIG_USE_DEPENDENCY(${PROJECT_NAME} lua5.1)
+    ENDIF(LUA5_1_FOUND)
+    
+    ADD_HEADER_GROUP(HEADERS)  
+    ADD_SOURCE_GROUP(${PROJECT_NAME}_SOURCES)  
+
+    # Install target libpinocchio.so
+    INSTALL(FILES
+      "${CMAKE_BINARY_DIR}/src/lib${PROJECT_NAME}.so"
+      DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ENDIF ( )
 
 # ----------------------------------------------------
 # --- PYTHON -----------------------------------------
@@ -33,9 +63,11 @@ IF(EIGENPY_FOUND)
   PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} eigenpy)
   IF(URDFDOM_FOUND)
     PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} urdfdom)
-      
   ENDIF(URDFDOM_FOUND)
-  TARGET_LINK_LIBRARIES(${PYWRAP} ${Boost_LIBRARIES} eigenpy)
+  IF(LUA5_1_FOUND)
+    PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} lua5.1)
+  ENDIF(LUA5_1_FOUND)
+  TARGET_LINK_LIBRARIES(${PYWRAP} ${Boost_LIBRARIES} ${PROJECT_NAME})
   SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/python/${PROJECT_NAME}")
   INSTALL(FILES
@@ -81,17 +113,3 @@ IF(EIGENPY_FOUND)
 
 ENDIF(EIGENPY_FOUND)
 
-IF (UNIX )  
-    # Create target libpinocchio.so
-    ADD_LIBRARY ( ${PROJECT_NAME} SHARED ${HEADERS} ${${PROJECT_NAME}_SOURCES} )
-		SET_TARGET_PROPERTIES( ${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-    
-		ADD_HEADER_GROUP(HEADERS)  
-		ADD_SOURCE_GROUP(${PROJECT_NAME}_SOURCES)  
-
-    # Install target libpinocchio.so
-    INSTALL(FILES
-      "${CMAKE_BINARY_DIR}/src/lib${PROJECT_NAME}.so"
-      DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-ENDIF ( )

@@ -37,6 +37,7 @@ ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
 ADD_OPTIONAL_DEPENDENCY("eigenpy >= 1.2.0")
 ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.10")
+ADD_OPTIONAL_DEPENDENCY("lua5.1")
 
 SET(BOOST_COMPONENTS filesystem unit_test_framework)
 SEARCH_FOR_BOOST()
@@ -142,6 +143,18 @@ IF(URDFDOM_FOUND)
     )
 ENDIF(URDFDOM_FOUND)
 
+IF(LUA5_1_FOUND)
+  LIST(APPEND HEADERS 
+    multibody/parser/lua.hpp
+    multibody/parser/lua/lua_tables.hpp
+    )
+
+  SET(${PROJECT_NAME}_MULTIBODY_PARSER_LUA_HEADERS
+    multibody/parser/lua.hpp
+    multibody/parser/lua/lua_tables.hpp
+    )
+ENDIF(LUA5_1_FOUND)
+
 PKG_CONFIG_APPEND_LIBS (${PROJECT_NAME})
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
@@ -150,6 +163,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/parser")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/parser/lua")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/simulation")
