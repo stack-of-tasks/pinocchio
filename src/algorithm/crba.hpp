@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #ifndef __se3_crba_hpp__
 #define __se3_crba_hpp__
 
@@ -37,7 +54,7 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const typename JointModel::Index & i = jmodel.id();
+      const Model::Index & i = (Model::Index) jmodel.id();
       jmodel.calc(jdata.derived(),q);
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
@@ -66,7 +83,7 @@ namespace se3
        *   Yli += liXi Yi
        *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
        */
-      const Model::Index & i = jmodel.id();
+      const Model::Index & i = (Model::Index) jmodel.id();
 
       /* F[1:6,i] = Y*S */
       data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
@@ -100,13 +117,13 @@ namespace se3
   crba(const Model & model, Data& data,
        const Eigen::VectorXd & q)
   {
-    for( int i=1;i<model.nbody;++i )
+    for( Model::Index i=1;i<(Model::Index)(model.nbody);++i )
       {
 	CrbaForwardStep::run(model.joints[i],data.joints[i],
 			     CrbaForwardStep::ArgsType(model,data,q));
       }
     
-    for( int i=model.nbody-1;i>0;--i )
+    for( Model::Index i=(Model::Index)(model.nbody-1);i>0;--i )
       {
 	CrbaBackwardStep::run(model.joints[i],data.joints[i],
 			      CrbaBackwardStep::ArgsType(model,data));

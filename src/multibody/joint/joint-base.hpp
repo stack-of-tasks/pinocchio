@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #ifndef __se3_joint_base_hpp__
 #define __se3_joint_base_hpp__
 
@@ -45,20 +62,45 @@ namespace se3
    * internal::ActionReturn<Constraint>::Type
    * Constraint::se3Action
    */
+#ifdef __clang__
 
-#define SE3_JOINT_TYPEDEF					     \
+#define SE3_JOINT_TYPEDEF_ARG(prefix)					     \
   typedef int Index;						     \
-  typedef typename traits<Joint>::JointData JointData;		     \
-  typedef typename traits<Joint>::JointModel JointModel;	     \
-  typedef typename traits<Joint>::Constraint_t Constraint_t;	     \
-  typedef typename traits<Joint>::Transformation_t Transformation_t; \
-  typedef typename traits<Joint>::Motion_t Motion_t;		     \
-  typedef typename traits<Joint>::Bias_t Bias_t;		     \
-  typedef typename traits<Joint>::F_t F_t;			     \
+  typedef prefix traits<Joint>::JointData JointData;		     \
+  typedef prefix traits<Joint>::JointModel JointModel;	     \
+  typedef prefix traits<Joint>::Constraint_t Constraint_t;	     \
+  typedef prefix traits<Joint>::Transformation_t Transformation_t; \
+  typedef prefix traits<Joint>::Motion_t Motion_t;		     \
+  typedef prefix traits<Joint>::Bias_t Bias_t;		     \
+  typedef prefix traits<Joint>::F_t F_t;			     \
   enum {							     \
     NQ = traits<Joint>::NQ,					     \
     NV = traits<Joint>::NV					     \
   }
+
+#define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
+#define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
+
+#else
+
+#define SE3_JOINT_TYPEDEF_ARG()              \
+  typedef int Index;                 \
+  typedef typename traits<Joint>::JointData JointData;         \
+  typedef typename traits<Joint>::JointModel JointModel;       \
+  typedef typename traits<Joint>::Constraint_t Constraint_t;       \
+  typedef typename traits<Joint>::Transformation_t Transformation_t; \
+  typedef typename traits<Joint>::Motion_t Motion_t;         \
+  typedef typename traits<Joint>::Bias_t Bias_t;         \
+  typedef typename traits<Joint>::F_t F_t;           \
+  enum {                   \
+    NQ = traits<Joint>::NQ,              \
+    NV = traits<Joint>::NV               \
+  }
+
+#define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
+#define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG()
+
+#endif
 
 #define SE3_JOINT_USE_INDEXES \
     typedef JointModelBase<JointModel> Base; \
@@ -69,7 +111,7 @@ namespace se3
   struct JointDataBase
   {
     typedef typename traits<_JointData>::Joint Joint;
-    SE3_JOINT_TYPEDEF;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
     JointData& derived() { return *static_cast<JointData*>(this); }
     const JointData& derived() const { return *static_cast<const JointData*>(this); }
@@ -85,7 +127,7 @@ namespace se3
   struct JointModelBase
   {
     typedef typename traits<_JointModel>::Joint Joint;
-    SE3_JOINT_TYPEDEF;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
     JointModel& derived() { return *static_cast<JointModel*>(this); }
     const JointModel& derived() const { return *static_cast<const JointModel*>(this); }

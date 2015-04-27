@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 /*
  * Validate the sparse Cholesky decomposition of the mass matrix.  The code
  * tests both the numerical value and the computation time. For a strong
@@ -147,7 +164,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   if( flag >> 2 & 31 )
     {
       std::vector<Eigen::VectorXd> randvec(NBT);
-      for(int i=0;i<NBT;++i ) randvec[i] = Eigen::VectorXd::Random(model.nv);
+      for(int i=0;i<NBT;++i ) randvec[(std::size_t)i] = Eigen::VectorXd::Random(model.nv);
       Eigen::VectorXd zero = Eigen::VectorXd(model.nv);
       Eigen::VectorXd res (model.nv);
 
@@ -157,7 +174,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  timer.tic();
 	  SMOOTH(NBT)
 	  {
-	    se3::cholesky::solve(model,data,randvec[_smooth]);
+	    se3::cholesky::solve(model,data,randvec[(std::size_t)_smooth]);
 	  }
 	  if(verbose) std::cout << "solve =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -168,7 +185,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  timer.tic();
 	  SMOOTH(NBT)
 	  {
-	    se3::cholesky::Uv(model,data,randvec[_smooth]);
+	    se3::cholesky::Uv(model,data,randvec[(std::size_t)_smooth]);
 	  }
 	  if(verbose) std::cout << "Uv =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -179,7 +196,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  timer.tic();
 	  SMOOTH(NBT)
 	  {
-	    se3::cholesky::Uiv(model,data,randvec[_smooth]);
+	    se3::cholesky::Uiv(model,data,randvec[(std::size_t)_smooth]);
 	  }
 	  if(verbose) std::cout << "Uiv =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -190,7 +207,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  Eigen::VectorXd res;
 	  SMOOTH(NBT)
 	  {
-	    res = se3::cholesky::Mv(model,data,randvec[_smooth]);
+	    res = se3::cholesky::Mv(model,data,randvec[(std::size_t)_smooth]);
 	  }
 	  if(verbose) std::cout << "Mv =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -200,7 +217,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  timer.tic();
 	  SMOOTH(NBT)
 	  {
-	    se3::cholesky::Mv(model,data,randvec[_smooth],true);
+	    se3::cholesky::Mv(model,data,randvec[(std::size_t)_smooth],true);
 	  }
 	  if(verbose) std::cout << "UDUtv =\t\t";
 	  timer.toc(std::cout,NBT);

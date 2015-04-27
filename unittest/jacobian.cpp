@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -27,7 +44,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   VectorXd q = VectorXd::Zero(model.nq);
   computeJacobians(model,data,q);
 
-  Model::Index idx = model.existBodyName("rarm2")?model.getBodyId("rarm2"):model.nbody-1; 
+  Model::Index idx = model.existBodyName("rarm2")?model.getBodyId("rarm2"):(Model::Index)(model.nbody-1); 
   MatrixXd Jrh(6,model.nv); Jrh.fill(0);
   getJacobian<false>(model,data,idx,Jrh);
 
@@ -35,7 +52,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   VectorXd qdot = VectorXd::Random(model.nv);
   VectorXd qddot = VectorXd::Zero(model.nv);
   rnea( model,data,q,qdot,qddot );
-  Motion v = data.oMi[idx].act( data.v[idx] );
+  Motion v = data.oMi[(std::size_t)idx].act( data.v[(std::size_t)idx] );
   is_matrix_absolutely_closed(v.toVector(),Jrh*qdot,1e-12);
 
 
@@ -43,7 +60,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   MatrixXd rhJrh(6,model.nv); rhJrh.fill(0);
   getJacobian<true>(model,data,idx,rhJrh);
   MatrixXd XJrh(6,model.nv); 
-  motionSet::se3Action( data.oMi[idx].inverse(), Jrh,XJrh );
+  motionSet::se3Action( data.oMi[(std::size_t)idx].inverse(), Jrh,XJrh );
   is_matrix_absolutely_closed(XJrh,rhJrh,1e-12);
 
 
@@ -94,7 +111,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   if( flag >> 1 & 1 )
   {
     computeJacobians(model,data,q);
-    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
+    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):(Model::Index)(model.nbody-1); 
     Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
 
     timer.tic();
@@ -109,7 +126,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   if( flag >> 2 & 1 )
   {
     computeJacobians(model,data,q);
-    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
+    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):(Model::Index)(model.nbody-1); 
     Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
 
     timer.tic();
@@ -124,7 +141,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   if( flag >> 3 & 1 )
   {
     computeJacobians(model,data,q);
-    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):model.nbody-1; 
+    Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):(Model::Index)(model.nbody-1); 
     Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
 
     timer.tic();

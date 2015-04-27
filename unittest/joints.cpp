@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #include <iostream>
 
 #include "pinocchio/spatial/force.hpp"
@@ -631,11 +648,6 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   using namespace se3;
 
 
-  Motion expected_v_J (Motion::Zero ());
-  Motion expected_c_J (Motion::Zero ());
-
-  SE3 expected_configuration (SE3::Identity ());
-
   Eigen::Vector3d axis;
   axis << 1.0, 0.0, 0.0;
 
@@ -788,7 +800,7 @@ BOOST_AUTO_TEST_CASE ( test_merge_body )
   model.addBody (model.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertiaRoot, "root");
   model.mergeFixedBody(model.getBodyId("root"), liMi, inertiaFixedBodyAtJoint);
 
-  Inertia mergedInertia(model.inertias[model.getBodyId("root")]);
+  Inertia mergedInertia(model.inertias[(size_t)(model.getBodyId("root"))]);
 
   double expected_mass=2;
   Eigen::Vector3d expected_com(Eigen::Vector3d::Zero());expected_com << 1.125, 0.5, 0.;
