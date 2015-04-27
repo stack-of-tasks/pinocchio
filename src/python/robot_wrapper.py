@@ -117,8 +117,10 @@ class RobotWrapper:
         for i in range(1,self.model.nbody):
             if self.model.hasVisual[i]:
                 M = self.data.oMi[i]
+                pinocchioConf = utils.se3ToXYZQUAT(M)
+                viewerConf = utils.XYZQUATToViewerConfiguration(pinocchioConf)
                 self.viewer.gui.applyConfiguration(self.viewerNodeNames(i),
-                                                   utils.se3ToXYZQUAT(M))
+                                                   viewerConf)
         # Iteratively place the fixed robot bodies.                                                   
         for i in range(0,self.model.nFixBody):
             if self.model.fix_hasVisual[i]:
@@ -126,7 +128,9 @@ class RobotWrapper:
                 oMlmp = self.data.oMi[index_last_movable]
                 lmpMi = self.model.fix_lmpMi[i]
                 M     =  oMlmp * lmpMi
-                self.viewer.gui.applyConfiguration(self.viewerFixedNodeNames(i),utils.se3ToXYZQUAT(M))
+                pinocchioConf = utils.se3ToXYZQUAT(M)
+                viewerConf = utils.XYZQUATToViewerConfiguration(pinocchioConf)
+                self.viewer.gui.applyConfiguration(self.viewerFixedNodeNames(i),viewerConf)
         self.viewer.gui.refresh()
 
 __all__ = [ 'RobotWrapper' ]
