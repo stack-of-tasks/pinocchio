@@ -213,7 +213,7 @@ namespace se3
             joint_type = "jointFreeFlyer";
           else
           {
-            std::cerr << "The first segment is defined without any definition of joint type relatily to the environment." << std::endl;
+            std::cerr << "The first segment is defined without any definition of joint type relatily to the world." << std::endl;
             abort ();
           }
         }
