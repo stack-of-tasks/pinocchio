@@ -37,6 +37,7 @@ ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
 ADD_OPTIONAL_DEPENDENCY("eigenpy >= 1.2.0")
 ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.10")
+ADD_OPTIONAL_DEPENDENCY("lua5.1")
 
 SET(BOOST_COMPONENTS filesystem unit_test_framework)
 SEARCH_FOR_BOOST()
@@ -78,7 +79,11 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-free-flyer.hpp
   multibody/joint/joint-variant.hpp
   multibody/joint/joint-generic.hpp
-)
+  ) 
+
+SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
+  multibody/parser/sample-models.hpp
+  )
 
 SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/constraint.hpp
@@ -86,7 +91,6 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/joint.hpp
   multibody/model.hpp
   multibody/visitor.hpp
-  multibody/parser/sample-models.hpp
   )
 
 SET(${PROJECT_NAME}_ALGORITHM_HEADERS
@@ -122,17 +126,34 @@ SET(HEADERS
   ${${PROJECT_NAME}_TOOLS_HEADERS}
   ${${PROJECT_NAME}_SPATIAL_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS}
+  ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_HEADERS}
   ${${PROJECT_NAME}_ALGORITHM_HEADERS}
   ${${PROJECT_NAME}_SIMULATION_HEADERS}
   ${${PROJECT_NAME}_PYTHON_HEADERS}
   exception.hpp
   assert.hpp
-  )
+ )
 
 IF(URDFDOM_FOUND)
   LIST(APPEND HEADERS multibody/parser/urdf.hpp)
+  SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
+    ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
+    multibody/parser/urdf.hpp
+    )
 ENDIF(URDFDOM_FOUND)
+
+IF(LUA5_1_FOUND)
+  LIST(APPEND HEADERS 
+    multibody/parser/lua.hpp
+    multibody/parser/lua/lua_tables.hpp
+    )
+
+  SET(${PROJECT_NAME}_MULTIBODY_PARSER_LUA_HEADERS
+    multibody/parser/lua.hpp
+    multibody/parser/lua/lua_tables.hpp
+    )
+ENDIF(LUA5_1_FOUND)
 
 PKG_CONFIG_APPEND_LIBS (${PROJECT_NAME})
 
@@ -142,6 +163,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/parser")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/parser/lua")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/simulation")
