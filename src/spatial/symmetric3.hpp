@@ -32,34 +32,34 @@ namespace se3
     typedef Eigen::Matrix<Scalar,3,2,Options> Matrix32;
 
   public:    
-    Symmetric3Tpl(): data() {}
+    Symmetric3Tpl(): data_() {}
     template<typename Sc,int N,int Opt>
     explicit Symmetric3Tpl(const Eigen::Matrix<Sc,N,N,Opt> & I)
     { 
       assert( (I.rows()==3)&&(I.cols()==3) );
       assert( (I-I.transpose()).isMuchSmallerThan(I) );
-      data(0) = I(0,0);
-      data(1) = I(1,0); data(2) = I(1,1);
-      data(3) = I(2,0); data(4) = I(2,1); data(5) = I(2,2);
+      data_(0) = I(0,0);
+      data_(1) = I(1,0); data_(2) = I(1,1);
+      data_(3) = I(2,0); data_(4) = I(2,1); data_(5) = I(2,2);
     }
     explicit Symmetric3Tpl(const Eigen::MatrixBase<Matrix3> &I) 
     {
       assert( (I-I.transpose()).isMuchSmallerThan(I) );
-      data(0) = I(0,0);
-      data(1) = I(1,0); data(2) = I(1,1);
-      data(3) = I(2,0); data(4) = I(2,1); data(5) = I(2,2);
+      data_(0) = I(0,0);
+      data_(1) = I(1,0); data_(2) = I(1,1);
+      data_(3) = I(2,0); data_(4) = I(2,1); data_(5) = I(2,2);
     }
-    explicit Symmetric3Tpl(const Vector6 &I) : data(I) {}
+    explicit Symmetric3Tpl(const Vector6 &I) : data_(I) {}
     Symmetric3Tpl(const double & a0,const double & a1,const double & a2,
 		  const double & a3,const double & a4,const double & a5)
-    { data << a0,a1,a2,a3,a4,a5; }
+    { data_ << a0,a1,a2,a3,a4,a5; }
 
     static Symmetric3Tpl Zero()     { return Symmetric3Tpl(Vector6::Zero()  );  }
     static Symmetric3Tpl Random()   { return Symmetric3Tpl(Vector6::Random().eval());  }
     static Symmetric3Tpl Identity() { return Symmetric3Tpl( 1, 0, 1, 0, 0, 1);  }
 
     /* Requiered by Inertia::operator== */
-    bool operator== (const Symmetric3Tpl & S2 ) { return data == S2.data; }
+    bool operator== (const Symmetric3Tpl & S2 ) { return data_ == S2.data_; }
     
     struct SkewSquare
     {
@@ -76,16 +76,16 @@ namespace se3
     Symmetric3Tpl operator- (const SkewSquare & v) const
     {
       const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
-      return Symmetric3Tpl( data[0]+y*y+z*z,
-			    data[1]-x*y    ,  data[2]+x*x+z*z, 
-			    data[3]-x*z    ,  data[4]-y*z    ,  data[5]+x*x+y*y );
+      return Symmetric3Tpl( data_[0]+y*y+z*z,
+			    data_[1]-x*y    ,  data_[2]+x*x+z*z, 
+			    data_[3]-x*z    ,  data_[4]-y*z    ,  data_[5]+x*x+y*y );
     }
     Symmetric3Tpl& operator-= (const SkewSquare & v)
     {
       const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
-      data[0]+=y*y+z*z;
-      data[1]-=x*y    ;  data[2]+=x*x+z*z; 
-      data[3]-=x*z    ;  data[4]-=y*z    ;  data[5]+=x*x+y*y;
+      data_[0]+=y*y+z*z;
+      data_[1]-=x*y    ;  data_[2]+=x*x+z*z; 
+      data_[3]-=x*z    ;  data_[4]-=y*z    ;  data_[5]+=x*x+y*y;
       return *this;
     }
 
@@ -106,20 +106,22 @@ namespace se3
     Symmetric3Tpl operator- (const AlphaSkewSquare & v) const
     {
       const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
-      return Symmetric3Tpl( data[0]+v.m*(y*y+z*z),
-			    data[1]-v.m* x*y     ,  data[2]+v.m*(x*x+z*z), 
-			    data[3]-v.m* x*z     ,  data[4]-v.m* y*z     ,  data[5]+v.m*(x*x+y*y) );
+      return Symmetric3Tpl( data_[0]+v.m*(y*y+z*z),
+			    data_[1]-v.m* x*y     ,  data_[2]+v.m*(x*x+z*z), 
+			    data_[3]-v.m* x*z     ,  data_[4]-v.m* y*z     ,  data_[5]+v.m*(x*x+y*y) );
     }
     Symmetric3Tpl& operator-= (const AlphaSkewSquare & v)
     {
       const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
-      data[0]+=v.m*(y*y+z*z);
-      data[1]-=v.m* x*y     ;  data[2]+=v.m*(x*x+z*z); 
-      data[3]-=v.m* x*z     ;  data[4]-=v.m* y*z     ;  data[5]+=v.m*(x*x+y*y);
+      data_[0]+=v.m*(y*y+z*z);
+      data_[1]-=v.m* x*y     ;  data_[2]+=v.m*(x*x+z*z); 
+      data_[3]-=v.m* x*z     ;  data_[4]-=v.m* y*z     ;  data_[5]+=v.m*(x*x+y*y);
       return *this;
     }
 
-
+    const Vector6 & data () const {return data_;}
+    Vector6 & data () {return data_;}
+    
     // static Symmetric3Tpl SkewSq( const Vector3 & v )
     // { 
     //   const double & x = v[0], & y = v[1], & z = v[2]; 
@@ -146,29 +148,29 @@ namespace se3
     Matrix3 matrix() const
     {
       Matrix3 res;
-      res(0,0) = data(0); res(0,1) = data(1); res(0,2) = data(3);
-      res(1,0) = data(1); res(1,1) = data(2); res(1,2) = data(4);
-      res(2,0) = data(3); res(2,1) = data(4); res(2,2) = data(5);
+      res(0,0) = data_(0); res(0,1) = data_(1); res(0,2) = data_(3);
+      res(1,0) = data_(1); res(1,1) = data_(2); res(1,2) = data_(4);
+      res(2,0) = data_(3); res(2,1) = data_(4); res(2,2) = data_(5);
       return res;
     }
     operator Matrix3 () const { return matrix(); }
 
     Symmetric3Tpl operator+(const Symmetric3Tpl & s2) const
     {
-      return Symmetric3Tpl((data+s2.data).eval());
+      return Symmetric3Tpl((data_+s2.data_).eval());
     }
 
     Symmetric3Tpl & operator+=(const Symmetric3Tpl & s2)
     {
-      data += s2.data; return *this;
+      data_ += s2.data_; return *this;
     }
 
     Vector3 operator*(const Vector3 &v) const
     {
       return Vector3(
-		     data(0) * v(0) + data(1) * v(1) + data(3) * v(2),
-		     data(1) * v(0) + data(2) * v(1) + data(4) * v(2),
-		     data(3) * v(0) + data(4) * v(1) + data(5) * v(2)
+		     data_(0) * v(0) + data_(1) * v(1) + data_(3) * v(2),
+		     data_(1) * v(0) + data_(2) * v(1) + data_(4) * v(2),
+		     data_(3) * v(0) + data_(4) * v(1) + data_(5) * v(2)
 		     );		     
     }
 
@@ -177,32 +179,32 @@ namespace se3
     //   Matrix3 r;
     //   for(unsigned int i=0; i<3; ++i)
     //     {
-    //       r(0,i) = data(0) * a(0,i) + data(1) * a(1,i) + data(3) * a(2,i);
-    //       r(1,i) = data(1) * a(0,i) + data(2) * a(1,i) + data(4) * a(2,i);
-    //       r(2,i) = data(3) * a(0,i) + data(4) * a(1,i) + data(5) * a(2,i);
+    //       r(0,i) = data_(0) * a(0,i) + data_(1) * a(1,i) + data_(3) * a(2,i);
+    //       r(1,i) = data_(1) * a(0,i) + data_(2) * a(1,i) + data_(4) * a(2,i);
+    //       r(2,i) = data_(3) * a(0,i) + data_(4) * a(1,i) + data_(5) * a(2,i);
     //     }
     //   return r;
     // }
 
     const Scalar& operator()(const int &i,const int &j) const
     {
-      return ((i!=2)&&(j!=2)) ? data[i+j] : data[i+j+1];
+      return ((i!=2)&&(j!=2)) ? data_[i+j] : data_[i+j+1];
     }
 
     Symmetric3Tpl operator-(const Matrix3 &S) const
     {
       assert( (S-S.transpose()).isMuchSmallerThan(S) );
-      return Symmetric3Tpl( data(0)-S(0,0),
-			    data(1)-S(1,0), data(2)-S(1,1),
-			    data(3)-S(2,0), data(4)-S(2,1), data(5)-S(2,2) );
+      return Symmetric3Tpl( data_(0)-S(0,0),
+			    data_(1)-S(1,0), data_(2)-S(1,1),
+			    data_(3)-S(2,0), data_(4)-S(2,1), data_(5)-S(2,2) );
     }
 
     Symmetric3Tpl operator+(const Matrix3 &S) const
     {
       assert( (S-S.transpose()).isMuchSmallerThan(S) );
-      return Symmetric3Tpl( data(0)+S(0,0),
-			    data(1)+S(1,0), data(2)+S(1,1),
-			    data(3)+S(2,0), data(4)+S(2,1), data(5)+S(2,2) );
+      return Symmetric3Tpl( data_(0)+S(0,0),
+			    data_(1)+S(1,0), data_(2)+S(1,1),
+			    data_(3)+S(2,0), data_(4)+S(2,1), data_(5)+S(2,2) );
     }
 
     /* --- Symmetric R*S*R' and R'*S*R products --- */
@@ -214,9 +216,9 @@ namespace se3
     {
       Matrix32 L;
       L << 
-	data(0) - data(5),    data(1),
-	data(1),              data(2) - data(5),
-	2*data(3),            data(4) + data(4);
+	data_(0) - data_(5),    data_(1),
+	data_(1),              data_(2) - data_(5),
+	2*data_(3),            data_(4) + data_(4);
       return L;
     }
 
@@ -236,32 +238,32 @@ namespace se3
       const Matrix2 & Y = R.template block<2,3>(1,0) * L;
 	
       // Sres= Y R  ===> (16 m + 8a)
-      Sres.data(1) = Y(0,0)*R(0,0) + Y(0,1)*R(0,1);
-      Sres.data(2) = Y(0,0)*R(1,0) + Y(0,1)*R(1,1);
-      Sres.data(3) = Y(1,0)*R(0,0) + Y(1,1)*R(0,1);
-      Sres.data(4) = Y(1,0)*R(1,0) + Y(1,1)*R(1,1);
-      Sres.data(5) = Y(1,0)*R(2,0) + Y(1,1)*R(2,1);
+      Sres.data_(1) = Y(0,0)*R(0,0) + Y(0,1)*R(0,1);
+      Sres.data_(2) = Y(0,0)*R(1,0) + Y(0,1)*R(1,1);
+      Sres.data_(3) = Y(1,0)*R(0,0) + Y(1,1)*R(0,1);
+      Sres.data_(4) = Y(1,0)*R(1,0) + Y(1,1)*R(1,1);
+      Sres.data_(5) = Y(1,0)*R(2,0) + Y(1,1)*R(2,1);
 
       // r=R' v ( 6m + 3a)
-      const Vector3 r( -R(0,0)*data(4) + R(0,1)*data(3),
-		       -R(1,0)*data(4) + R(1,1)*data(3),
-		       -R(2,0)*data(4) + R(2,1)*data(3) );
+      const Vector3 r( -R(0,0)*data_(4) + R(0,1)*data_(3),
+		       -R(1,0)*data_(4) + R(1,1)*data_(3),
+		       -R(2,0)*data_(4) + R(2,1)*data_(3) );
 
       // Sres_11 (3a)
-      Sres.data(0) = L(0,0) + L(1,1) - Sres.data(2) - Sres.data(5);
+      Sres.data_(0) = L(0,0) + L(1,1) - Sres.data_(2) - Sres.data_(5);
 	
       // Sres + D + (Ev)x ( 9a)
-      Sres.data(0) += data(5); 
-      Sres.data(1) += r(2);    Sres.data(2)+= data(5); 
-      Sres.data(3) +=-r(1);    Sres.data(4)+=    r(0); Sres.data(5) += data(5);
+      Sres.data_(0) += data_(5); 
+      Sres.data_(1) += r(2);    Sres.data_(2)+= data_(5); 
+      Sres.data_(3) +=-r(1);    Sres.data_(4)+=    r(0); Sres.data_(5) += data_(5);
 
       return Sres;
     }
 
 
-  public: //todo: make private
+  private:
 
-    Vector6 data; 
+    Vector6 data_; 
   };
 
   typedef Symmetric3Tpl<double,0> Symmetric3;

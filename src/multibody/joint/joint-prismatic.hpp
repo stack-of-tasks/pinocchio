@@ -4,7 +4,6 @@
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
-#include "pinocchio/math/sincos.hpp"
 
 namespace se3
 {
@@ -19,12 +18,12 @@ namespace se3
     {
       double v; 
       CartesianVector3(const double & v) : v(v) {}
-      CartesianVector3() : v(1) {}
-      operator Eigen::Vector3d (); // { return Eigen::Vector3d(w,0,0); }
+      CartesianVector3() : v(NAN) {}
+      operator Eigen::Vector3d () const; // { return Eigen::Vector3d(w,0,0); }
     };
-    template<>CartesianVector3<0>::operator Eigen::Vector3d () { return Eigen::Vector3d(v,0,0); }
-    template<>CartesianVector3<1>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,v,0); }
-    template<>CartesianVector3<2>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,0,v); }
+    template<>CartesianVector3<0>::operator Eigen::Vector3d () const { return Eigen::Vector3d(v,0,0); }
+    template<>CartesianVector3<1>::operator Eigen::Vector3d () const { return Eigen::Vector3d(0,v,0); }
+    template<>CartesianVector3<2>::operator Eigen::Vector3d () const { return Eigen::Vector3d(0,0,v); }
     Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<0> & vx)
     { return Eigen::Vector3d(v1[0]+vx.v,v1[1],v1[2]); }
     Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<1> & vy)
@@ -67,7 +66,10 @@ namespace se3
     { 
       template<typename D>
       MotionPrismatic operator*( const Eigen::MatrixBase<D> & v ) const
-      { return MotionPrismatic(v[0]); }
+      {
+//        EIGEN_STATIC_ASSERT_SIZE_1x1(D); // There is actually a bug in Eigen with such a macro
+        return MotionPrismatic(v[0]);
+      }
 
       Eigen::Matrix<double,6,1> se3Action(const SE3 & m) const
       { 
