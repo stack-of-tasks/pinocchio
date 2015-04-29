@@ -8,7 +8,10 @@
 #include "pinocchio/python/data.hpp"
 
 #include "pinocchio/multibody/parser/urdf.hpp"
-#include "pinocchio/multibody/parser/lua.hpp"
+
+#ifdef WITH_LUA
+  #include "pinocchio/multibody/parser/lua.hpp"
+#endif // #ifdef WITH_LUA
 
 namespace se3
 {
@@ -24,6 +27,7 @@ namespace se3
 	return ModelHandler(model,true);
       }
 
+#ifdef WITH_LUA
       static ModelHandler buildModelFromLua(const std::string & filename,
                                             bool ff,
                                             bool verbose
@@ -33,6 +37,7 @@ namespace se3
         *model = se3::lua::buildModel (filename, ff, verbose);
         return ModelHandler (model,true);
       }
+#endif // #ifdef WITH_LUA
 
       /* --- Expose --------------------------------------------------------- */
       static void expose()
@@ -43,17 +48,19 @@ namespace se3
 		"Parse the urdf file given in input and return a proper pinocchio model "
 		"(remember to create the corresponding data structure).");
 
+#ifdef WITH_LUA
         bp::def("buildModelFromLua",buildModelFromLua,
                 bp::args("Filename (string)",
                          "Free flyer (bool, false for a fixed robot)",
                          "Verbose option "),
                 "Parse the urdf file given in input and return a proper pinocchio model "
                 "(remember to create the corresponding data structure).");
+#endif // #ifdef WITH_LUA
       }
 
     };
     
   }} // namespace se3::python
 
-#endif // ifndef __se3_python_data_hpp__
+#endif // ifndef __se3_python_parsers_hpp__
 
