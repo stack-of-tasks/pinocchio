@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #ifndef __se3_cholesky_hpp__
 #define __se3_cholesky_hpp__
 
@@ -59,7 +76,7 @@ namespace se3
 
       for(int j=model.nv-1;j>=0;--j )
 	{
-	  const int NVT = data.nvSubtree_fromRow[j]-1;
+	  const int NVT = data.nvSubtree_fromRow[(Model::Index)j]-1;
 	  Eigen::VectorXd::SegmentReturnType DUt = data.tmp.head(NVT);
 	  if(NVT)
 	    DUt = U.row(j).segment(j+1,NVT).transpose()
@@ -67,7 +84,7 @@ namespace se3
 	
 	  D[j] = M(j,j) - U.row(j).segment(j+1,NVT) * DUt;
 	
-	  for( int _i=data.parents_fromRow[j];_i>=0;_i=data.parents_fromRow[_i] )
+	  for( int _i=data.parents_fromRow[(Model::Index)j];_i>=0;_i=data.parents_fromRow[(Model::Index)_i] )
 	    U(_i,j) = (M(_i,j) - U.row(_i).segment(j+1,NVT).dot(DUt)) / D[j]; 
 	}
 
@@ -88,7 +105,7 @@ namespace se3
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
 
       for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv
-	v[k] += U.row(k).segment(k+1,nvt[k]-1) * v.segment(k+1,nvt[k]-1);
+	v[k] += U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v.segment(k+1,nvt[(Model::Index)k]-1);
 
       return v.derived();
     }
@@ -106,7 +123,7 @@ namespace se3
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
       for( int i=model.nv-2;i>=0;--i ) // You can start from nv-2 (no child in nv-1)
-	v.segment(i+1,nvt[i]-1) += U.row(i).segment(i+1,nvt[i]-1).transpose()*v[i];
+	v.segment(i+1,nvt[(Model::Index)i]-1) += U.row(i).segment(i+1,nvt[(Model::Index)i]-1).transpose()*v[i];
       
       return v.derived();
     }
@@ -129,7 +146,7 @@ namespace se3
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
 
       for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
-	v[k] -= U.row(k).segment(k+1,nvt[k]-1) * v.segment(k+1,nvt[k]-1);
+	v[k] -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v.segment(k+1,nvt[(Model::Index)k]-1);
       return v.derived();
     }
 
@@ -148,7 +165,7 @@ namespace se3
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
       for( int i=0;i<model.nv-1;++i ) // You can stop one step before nv.
-	v.segment(i+1,nvt[i]-1) -= U.row(i).segment(i+1,nvt[i]-1).transpose()*v[i];
+	v.segment(i+1,nvt[(Model::Index)i]-1) -= U.row(i).segment(i+1,nvt[(Model::Index)i]-1).transpose()*v[i];
 
       return v.derived();
     }
@@ -170,8 +187,8 @@ namespace se3
 
 	for( int k=model.nv-1;k>=0;--k ) 
 	  {
-	    res[k] = M.row(k).segment(k,nvt[k]) * v.segment(k,nvt[k]);
-	    res.segment(k+1,nvt[k]-1) += M.row(k).segment(k+1,nvt[k]-1).transpose()*v[k];
+	    res[k] = M.row(k).segment(k,nvt[(Model::Index)k]) * v.segment(k,nvt[(Model::Index)k]);
+	    res.segment(k+1,nvt[(Model::Index)k]-1) += M.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v[k];
 	  }
 
 	return res;

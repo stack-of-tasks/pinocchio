@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #ifndef __se3_kinematics_hpp__
 #define __se3_kinematics_hpp__
 
@@ -24,7 +41,7 @@ namespace se3
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
-                                  const int &,
+                                  const Model::Index,
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
@@ -35,7 +52,7 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     const int & i,
+                     const Model::Index i,
                      const Eigen::VectorXd & q)
     {
       using namespace se3;
@@ -58,7 +75,7 @@ namespace se3
            Data & data,
            const Eigen::VectorXd & q)
   {
-    for (size_t i=1; i < (size_t) model.nbody; ++i)
+    for (Model::Index i=1; i < (Model::Index) model.nbody; ++i)
     {
       GeometryStep::run(model.joints[i],
                         data.joints[i],
@@ -71,7 +88,7 @@ namespace se3
   {
     typedef boost::fusion::vector< const se3::Model&,
 				   se3::Data&,
-				   const int&,
+				   const Model::Index,
 				   const Eigen::VectorXd &,
 				   const Eigen::VectorXd &
 				   > ArgsType;
@@ -83,7 +100,7 @@ namespace se3
 		    se3::JointDataBase<typename JointModel::JointData> & jdata,
 		    const se3::Model& model,
 		    se3::Data& data,
-		    const int &i,
+		    const Model::Index i,
 		    const Eigen::VectorXd & q,
 		    const Eigen::VectorXd & v)
     {
@@ -114,7 +131,7 @@ namespace se3
   {
     data.v[0] = Motion::Zero();
 
-    for( int i=1;i<model.nbody;++i )
+    for( Model::Index i=1; i<(Model::Index) model.nbody; ++i )
       {
 	KinematicsStep::run(model.joints[i],data.joints[i],
 			    KinematicsStep::ArgsType(model,data,i,q,v));

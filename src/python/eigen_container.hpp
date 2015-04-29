@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #ifndef __se3_python_eigen_container_hpp__
 #define __se3_python_eigen_container_hpp__
 
@@ -39,7 +56,7 @@ namespace se3
 	assert( Ys.size()<INT_MAX );
 	if( i<0 ) i = int(Ys.size())+i;
 	assert( (i>=0) && (i<int(Ys.size())) );
-	return Ys[i]; 
+	return Ys[(std::size_t)i]; 
       }
 
       static void setItem( stdVectorAligned & Ys,
@@ -48,7 +65,7 @@ namespace se3
 	assert( Ys.size()<INT_MAX );
 	if( i<0 ) i = int(Ys.size())+i;
 	assert( (i>=0) && (i<int(Ys.size())) );
-	Ys[i] = Y; 
+	Ys[(std::size_t)i] = Y; 
       }
       static typename stdVectorAligned::size_type length( const stdVectorAligned & Ys )
       { return Ys.size(); }

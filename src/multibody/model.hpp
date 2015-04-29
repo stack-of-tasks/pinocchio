@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #ifndef __se3_model_hpp__
 #define __se3_model_hpp__
 
@@ -18,17 +35,18 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,Eigen::Dynamic>)
 
 namespace se3
 {
-  struct Model;
-  struct Data;
+  class Model;
+  class Data;
 
   class Model
   {
   public:
-    typedef int Index;
+    typedef std::size_t Index;
 
     int nq;                            // Dimension of the configuration representation
     int nv;                            // Dimension of the velocity vector space
     int nbody;                         // Number of bodies (= number of joints + 1)
+    int nFixBody;                      // Number of fixed-bodies (= number of fixed-joints)
 
     std::vector<Inertia> inertias;     // Spatial inertias of the body <i> in the supporting joint frame <i>
     std::vector<SE3> jointPlacements;  // Placement (SE3) of the input of joint <i> in parent joint output <li>
@@ -38,7 +56,6 @@ namespace se3
     std::vector<std::string> bodyNames;// Name of the body attached to the output of joint <i>
     std::vector<bool> hasVisual;       // True iff body <i> has a visual mesh.
 
-    int nFixBody;                      // Number of fixed-bodies (= number of fixed-joints)
     std::vector<SE3> fix_lmpMi;        // Fixed-body relative placement (wrt last moving parent)
     std::vector<Model::Index> fix_lastMovingParent; // Fixed-body index of the last moving parent
     std::vector<bool> fix_hasVisual;   // True iff fixed-body <i> has a visual mesh.
@@ -101,7 +118,7 @@ namespace se3
 
     std::vector<Matrix6x> Fcrb;           // Spatial forces set, used in CRBA
 
-    std::vector<Model::Index> lastChild;  // Index of the last child (for CRBA)
+    std::vector<int> lastChild;  // Index of the last child (for CRBA)
     std::vector<int> nvSubtree;           // Dimension of the subtree motion space (for CRBA)
 
     Eigen::MatrixXd U;                    // Joint Inertia square root (upper triangle)
@@ -138,7 +155,7 @@ namespace se3
   std::ostream& operator<< ( std::ostream & os, const Model& model )
   {
     os << "Nb bodies = " << model.nbody << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
-    for(int i=0;i<model.nbody;++i)
+    for(Model::Index i=0;i<(Model::Index)(model.nbody);++i)
       {
 	os << "  Joint "<<model.names[i] << ": parent=" << model.parents[i] 
 	   << ( model.hasVisual[i] ? " (has visual) " : "(doesnt have visual)" ) << std::endl;
@@ -156,7 +173,7 @@ namespace se3
         "abcdefghijklmnopqrstuvwxyz";
 
     for (int i=0; i<len;++i)
-      res += alphanum[std::rand() % (sizeof(alphanum) - 1)];
+      res += alphanum[(std::rand() % (sizeof(alphanum) - 1))];
     return res;
 }
 
@@ -169,10 +186,10 @@ namespace se3
 	    &&(nbody==(int)parents.size())&&(nbody==(int)jointPlacements.size()) );
     assert( (j.nq()>=0)&&(j.nv()>=0) );
 
-    Index idx = nbody ++;
+    Model::Index idx = (Model::Index) (nbody ++);
 
     joints         .push_back(j.derived()); 
-    boost::get<D&>(joints.back()).setIndexes(idx,nq,nv);
+    boost::get<D&>(joints.back()).setIndexes((int)idx,nq,nv);
 
     inertias       .push_back(Y);
     parents        .push_back(parent);
@@ -191,7 +208,7 @@ namespace se3
                                     bool visual )
   {
 
-    Index idx = nFixBody++;
+    Model::Index idx = (Model::Index) (nFixBody++);
     fix_lastMovingParent.push_back(lastMovingParent);
     fix_lmpMi      .push_back(placementFromLastMoving);
     fix_hasVisual  .push_back(visual);
@@ -211,7 +228,7 @@ namespace se3
       res = std::find(names.begin(),names.end(),name) - names.begin();
     assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
     assert( (res>=0)&&(res<nbody)&&"The body name you asked do not exist" );
-    return int(res);
+    return Model::Index(res);
   }
   bool Model::existBodyName( const std::string & name ) const
   {
@@ -222,42 +239,42 @@ namespace se3
   
   const std::string& Model::getBodyName( Model::Index index ) const
   {
-    assert( (index>=0)&&(index<nbody) );
+    assert( (index>=0)&&(index < (Model::Index)nbody) );
     return names[index];
   }  
 
   Data::Data( const Model& ref )
     :model(ref)
     ,joints(0)
-    ,a(ref.nbody)
-    ,v(ref.nbody)
-    ,f(ref.nbody)
-    ,oMi(ref.nbody)
-    ,liMi(ref.nbody)
+    ,a((std::size_t)ref.nbody)
+    ,v((std::size_t)ref.nbody)
+    ,f((std::size_t)ref.nbody)
+    ,oMi((std::size_t)ref.nbody)
+    ,liMi((std::size_t)ref.nbody)
     ,tau(ref.nv)
     ,nle(ref.nv)
-    ,Ycrb(ref.nbody)
+    ,Ycrb((std::size_t)ref.nbody)
     ,M(ref.nv,ref.nv)
-    ,Fcrb(ref.nbody)
-    ,lastChild(ref.nbody)
-    ,nvSubtree(ref.nbody)
+    ,Fcrb((std::size_t)ref.nbody)
+    ,lastChild((std::size_t)ref.nbody)
+    ,nvSubtree((std::size_t)ref.nbody)
     ,U(ref.nv,ref.nv)
     ,D(ref.nv)
     ,tmp(ref.nv)
-    ,parents_fromRow(ref.nv)
-    ,nvSubtree_fromRow(ref.nv)
+    ,parents_fromRow((std::size_t)ref.nv)
+    ,nvSubtree_fromRow((std::size_t)ref.nv)
     ,J(6,ref.nv)
-    ,iMf(ref.nbody)
-    ,com(ref.nbody)
-    ,mass(ref.nbody)
+    ,iMf((std::size_t)ref.nbody)
+    ,com((std::size_t)ref.nbody)
+    ,mass((std::size_t)ref.nbody)
     ,Jcom(3,ref.nv)
   {
-    for(int i=0;i<model.nbody;++i) 
+    for(Model::Index i=0;i<(Model::Index)(model.nbody);++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
 
     /* Init for CRBA */
     M.fill(NAN);    
-    for(int i=0;i<ref.nbody;++i ) { Fcrb[i].resize(6,model.nv); Fcrb[i].fill(NAN); }
+    for(Model::Index i=0;i<(Model::Index)(ref.nbody);++i ) { Fcrb[i].resize(6,model.nv); Fcrb[i].fill(NAN); }
     computeLastChild(ref);
 
     /* Init for Cholesky */
@@ -274,32 +291,32 @@ namespace se3
     std::fill(lastChild.begin(),lastChild.end(),-1);
     for( int i=model.nbody-1;i>=0;--i )
       {
-	if(lastChild[i] == -1) lastChild[i] = i;
-	const Index & parent = model.parents[i];
-	lastChild[parent] = std::max(lastChild[i],lastChild[parent]);
+	if(lastChild[(Model::Index)i] == -1) lastChild[(Model::Index)i] = i;
+	const Index & parent = model.parents[(Model::Index)i];
+	lastChild[parent] = std::max(lastChild[(Model::Index)i],lastChild[parent]);
 
-	nvSubtree[i] 
-	  = idx_v(model.joints[lastChild[i]]) + nv(model.joints[lastChild[i]])
-	  - idx_v(model.joints[i]);
+	nvSubtree[(Model::Index)i] 
+	  = idx_v(model.joints[(Model::Index)lastChild[(Model::Index)i]]) + nv(model.joints[(Model::Index)lastChild[(Model::Index)i]])
+	  - idx_v(model.joints[(Model::Index)i]);
       }
   }
 
   void Data::computeParents_fromRow( const Model& model )
   {
-    for( int joint=1;joint<model.nbody;joint++)
+    for( Model::Index joint=1;joint<(Model::Index)(model.nbody);joint++)
       {
 	const Model::Index & parent = model.parents[joint];
 	const int nvj    = nv   (model.joints[joint]);
 	const int idx_vj = idx_v(model.joints[joint]);
 
-	if(parent>0) parents_fromRow[idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
-	else         parents_fromRow[idx_vj] = -1;
-	nvSubtree_fromRow[idx_vj] = nvSubtree[joint];
+	if(parent>0) parents_fromRow[(Model::Index)idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
+	else         parents_fromRow[(Model::Index)idx_vj] = -1;
+	nvSubtree_fromRow[(Model::Index)idx_vj] = nvSubtree[joint];
 
     for( int row=1;row<nvj;++row)
 	  {
-	    parents_fromRow[idx_vj+row] = idx_vj+row-1;
-	    nvSubtree_fromRow[idx_vj+row] = nvSubtree[joint]-row;
+	    parents_fromRow[(Model::Index)(idx_vj+row)] = idx_vj+row-1;
+	    nvSubtree_fromRow[(Model::Index)(idx_vj+row)] = nvSubtree[joint]-row;
 	  }
       }
   }

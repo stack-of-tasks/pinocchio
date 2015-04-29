@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #ifndef __se3_python_data_hpp__
 #define __se3_python_data_hpp__
 
@@ -60,7 +77,7 @@ namespace se3
 	  .ADD_DATA_PROPERTY(std::vector<Inertia>,Ycrb,"Inertia of the sub-tree composit rigid body")
 	  .ADD_DATA_PROPERTY_CONST(Eigen::MatrixXd,M,"Joint Inertia")
 	  .ADD_DATA_PROPERTY_CONST(std::vector<Matrix6x>,Fcrb,"Spatial forces set, used in CRBA")
-	  .ADD_DATA_PROPERTY(std::vector<Model::Index>,lastChild,"Index of the last child (for CRBA)")
+	  .ADD_DATA_PROPERTY(std::vector<int>,lastChild,"Index of the last child (for CRBA)")
 	  .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree,"Dimension of the subtree motion space (for CRBA)")
 	  .ADD_DATA_PROPERTY_CONST(Eigen::MatrixXd,U,"Joint Inertia square root (upper triangle)")
 	  .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,D,"Diagonal of UDUT inertia decomposition")
@@ -84,7 +101,7 @@ namespace se3
       IMPL_DATA_PROPERTY(std::vector<Inertia>,Ycrb,"Inertia of the sub-tree composit rigid body")
       IMPL_DATA_PROPERTY_CONST(Eigen::MatrixXd,M,"Joint Inertia")
       IMPL_DATA_PROPERTY_CONST(std::vector<Matrix6x>,Fcrb,"Spatial forces set, used in CRBA")
-      IMPL_DATA_PROPERTY(std::vector<Model::Index>,lastChild,"Index of the last child (for CRBA)")
+      IMPL_DATA_PROPERTY(std::vector<int>,lastChild,"Index of the last child (for CRBA)")
       IMPL_DATA_PROPERTY(std::vector<int>,nvSubtree,"Dimension of the subtree motion space (for CRBA)")
       IMPL_DATA_PROPERTY_CONST(Eigen::MatrixXd,U,"Joint Inertia square root (upper triangle)")
       IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,D,"Diagonal of UDUT inertia decomposition")

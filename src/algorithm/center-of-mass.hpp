@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #ifndef __se3_center_of_mass_hpp__
 #define __se3_center_of_mass_hpp__
 
@@ -55,8 +72,8 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const std::size_t & i      = jmodel.id();
-      const std::size_t & parent = model.parents[i];
+      const Model::Index & i      = (Model::Index) jmodel.id();
+      const Model::Index & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
       
@@ -80,13 +97,13 @@ namespace se3
     data.mass[0] = 0; 
     data.com[0].setZero ();
 
-    for( int i=1;i<model.nbody;++i )
+    for( Model::Index i=1;i<(Model::Index)(model.nbody);++i )
       {
 	data.com[i]  = model.inertias[i].mass()*model.inertias[i].lever();
 	data.mass[i] = model.inertias[i].mass();
       }
 
-    for( int i=model.nbody-1;i>0;--i )
+    for( Model::Index i=(Model::Index)(model.nbody-1);i>0;--i )
       {
 	CenterOfMassForwardStep
 	  ::run(model.joints[i],data.joints[i],
@@ -125,7 +142,7 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i      = jmodel.id();
+      const Model::Index & i      = (Model::Index) jmodel.id();
       const Model::Index & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
@@ -160,7 +177,7 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i      = jmodel.id();
+      const Model::Index & i      = (Model::Index) jmodel.id();
       const Model::Index & parent = model.parents[i];
 
       data.com[parent]  += data.com[i];
@@ -192,13 +209,13 @@ namespace se3
   {
     data.com[0].setZero ();
     data.mass[0] = 0;
-    for( int i=1;i<model.nbody;++i )
+    for( Model::Index i=1;i<(Model::Index)model.nbody;++i )
       {
 	JacobianCenterOfMassForwardStep
 	  ::run(model.joints[i],data.joints[i],
 		JacobianCenterOfMassForwardStep::ArgsType(model,data,q));
       }
-    for( int i=model.nbody-1;i>0;--i )
+    for( Model::Index i= (Model::Index) (model.nbody-1);i>0;--i )
       {
 	JacobianCenterOfMassBackwardStep
 	  ::run(model.joints[i],data.joints[i],

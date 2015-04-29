@@ -1,3 +1,19 @@
+#
+# Copyright (c) 2015 CNRS
+#
+# This file is part of Pinocchio
+# Pinocchio is free software: you can redistribute it
+# and/or modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation, either version
+# 3 of the License, or (at your option) any later version.
+# Pinocchio is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Lesser Public License for more details. You should have
+# received a copy of the GNU Lesser General Public License along with
+# Pinocchio If not, see
+# <http://www.gnu.org/licenses/>.
+
 import numpy as np
 import libpinocchio_pywrap as se3
 import utils
@@ -101,8 +117,10 @@ class RobotWrapper:
         for i in range(1,self.model.nbody):
             if self.model.hasVisual[i]:
                 M = self.data.oMi[i]
+                pinocchioConf = utils.se3ToXYZQUAT(M)
+                viewerConf = utils.XYZQUATToViewerConfiguration(pinocchioConf)
                 self.viewer.gui.applyConfiguration(self.viewerNodeNames(i),
-                                                   utils.se3ToXYZQUAT(M))
+                                                   viewerConf)
         # Iteratively place the fixed robot bodies.                                                   
         for i in range(0,self.model.nFixBody):
             if self.model.fix_hasVisual[i]:
@@ -110,7 +128,9 @@ class RobotWrapper:
                 oMlmp = self.data.oMi[index_last_movable]
                 lmpMi = self.model.fix_lmpMi[i]
                 M     =  oMlmp * lmpMi
-                self.viewer.gui.applyConfiguration(self.viewerFixedNodeNames(i),utils.se3ToXYZQUAT(M))
+                pinocchioConf = utils.se3ToXYZQUAT(M)
+                viewerConf = utils.XYZQUATToViewerConfiguration(pinocchioConf)
+                self.viewer.gui.applyConfiguration(self.viewerFixedNodeNames(i),viewerConf)
         self.viewer.gui.refresh()
 
 __all__ = [ 'RobotWrapper' ]

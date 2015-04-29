@@ -3,14 +3,11 @@
       - multibody/model.cpp
       - multibody/parser/urdf.cpp
 * Re-organize the python modules, in eigenpy and pinocchio. Eigenpy should be a module (now loaded by pinocchio).
-* Add boost test suite to all tests (crba, rnea etc..) 
- 
-Replace int type with Data::Index where it is necessary. The idea is to be able to switch between int and long according to the current architecture.
 
-* Replace int type with Data::Index where it is necessary. The idea is to be able to switch between int and long according to the current architecture.
 * Add computation of 3d jacobian
 * Add algo to compute the velocity, acceleration of a point attached to a body
-* Add computation of non linear effects
-* Add global computation of M, b, and J in the same loop
 * Add computation of dM/dq, db/dq, db/dqdot, etc
-* Add additionnal in data structure to avoid useless computations 
+* Add additionnal in data structure to avoid useless computations
+
+* Add joint limit ( probably in joint-base ) and modify parser consequently
+* Switch between int and long depend on the architecture ?

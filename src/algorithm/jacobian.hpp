@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #ifndef __se3_jacobian_hpp__
 #define __se3_jacobian_hpp__
 
@@ -36,7 +53,7 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i = jmodel.id();
+      const Model::Index & i = (Model::Index) jmodel.id();
       const Model::Index & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
@@ -55,7 +72,7 @@ namespace se3
   computeJacobians(const Model & model, Data& data,
 		   const Eigen::VectorXd & q)
   {
-    for( int i=1;i<model.nbody;++i )
+    for( Model::Index i=1; i< (Model::Index) model.nbody;++i )
       {
 	JacobiansForwardStep::run(model.joints[i],data.joints[i],
 				  JacobiansForwardStep::ArgsType(model,data,q));
@@ -76,7 +93,7 @@ namespace se3
 
     const SE3 & oMjoint = data.oMi[jointId];
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
-    for(int j=colRef;j>=0;j=data.parents_fromRow[j])
+    for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
       {
 	if(! localFrame )   J.col(j) = data.J.col(j);
 	else                J.col(j) = oMjoint.actInv(Motion(data.J.col(j))).toVector();
@@ -103,7 +120,7 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i = jmodel.id();
+      const Model::Index & i = (Model::Index) jmodel.id();
       const Model::Index & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
@@ -123,7 +140,7 @@ namespace se3
 	   const Model::Index & idx )
   {
     data.iMf[idx] = SE3::Identity();
-    for( int i=idx;i>0;i=model.parents[i] )
+    for( Model::Index i=idx;i>0;i=model.parents[i] )
       {
 	JacobianForwardStep::run(model.joints[i],data.joints[i],
 				 JacobianForwardStep::ArgsType(model,data,q));
