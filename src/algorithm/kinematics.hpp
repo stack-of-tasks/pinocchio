@@ -41,7 +41,7 @@ namespace se3
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
-                                  const size_t,
+                                  const Model::Index,
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
@@ -52,7 +52,7 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     const size_t i,
+                     const Model::Index i,
                      const Eigen::VectorXd & q)
     {
       using namespace se3;
@@ -75,7 +75,7 @@ namespace se3
            Data & data,
            const Eigen::VectorXd & q)
   {
-    for (size_t i=1; i < (size_t) model.nbody; ++i)
+    for (Model::Index i=1; i < (Model::Index) model.nbody; ++i)
     {
       GeometryStep::run(model.joints[i],
                         data.joints[i],
@@ -88,7 +88,7 @@ namespace se3
   {
     typedef boost::fusion::vector< const se3::Model&,
 				   se3::Data&,
-				   const size_t,
+				   const Model::Index,
 				   const Eigen::VectorXd &,
 				   const Eigen::VectorXd &
 				   > ArgsType;
@@ -100,7 +100,7 @@ namespace se3
 		    se3::JointDataBase<typename JointModel::JointData> & jdata,
 		    const se3::Model& model,
 		    se3::Data& data,
-		    const size_t i,
+		    const Model::Index i,
 		    const Eigen::VectorXd & q,
 		    const Eigen::VectorXd & v)
     {
@@ -131,7 +131,7 @@ namespace se3
   {
     data.v[0] = Motion::Zero();
 
-    for( size_t i=1; i<(size_t) model.nbody; ++i )
+    for( Model::Index i=1; i<(Model::Index) model.nbody; ++i )
       {
 	KinematicsStep::run(model.joints[i],data.joints[i],
 			    KinematicsStep::ArgsType(model,data,i,q,v));
