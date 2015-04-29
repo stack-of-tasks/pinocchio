@@ -136,22 +136,23 @@ SET(HEADERS
  )
 
 IF(URDFDOM_FOUND)
-  LIST(APPEND HEADERS multibody/parser/urdf.hpp)
   SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
     ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
     multibody/parser/urdf.hpp
     )
+  LIST(APPEND HEADERS
+    ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
+    )
 ENDIF(URDFDOM_FOUND)
 
 IF(LUA5_1_FOUND)
-  LIST(APPEND HEADERS 
+  SET(${PROJECT_NAME}_MULTIBODY_PARSER_LUA_HEADERS
     multibody/parser/lua.hpp
     multibody/parser/lua/lua_tables.hpp
     )
 
-  SET(${PROJECT_NAME}_MULTIBODY_PARSER_LUA_HEADERS
-    multibody/parser/lua.hpp
-    multibody/parser/lua/lua_tables.hpp
+  LIST(APPEND HEADERS 
+    ${${PROJECT_NAME}_MULTIBODY_PARSER_LUA_HEADERS}
     )
 ENDIF(LUA5_1_FOUND)
 
