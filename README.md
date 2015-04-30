@@ -3,6 +3,16 @@ Pinocchio
 [![Build Status](https://travis-ci.org/olivier-stasse/pinocchio.png?branch=master)](https://travis-ci.org/stack-of-tasks/pinocchio)
 [![Coverage Status](https://coveralls.io/repos/olivier-stasse/pinocchio/badge.png)](https://coveralls.io/r/stack-of-tasks/pinocchio)
 
+**Warning:** This repository contains [Git
+submodules][git-submodules]. Please clone this repository using the
+`git clone --recursive` command. If you already have cloned the
+repository, you can run `git submodule init && git submodule update`
+to retrieve the submodules.
+
+
+For general information about the project, please refer to its
+homepage: http://stack-of-tasks.github.io/pinocchio/
+
 Setup
 -----
 

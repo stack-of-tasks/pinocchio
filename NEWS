@@ -1,0 +1,6 @@
+New in 1.0.1, 04/30/2015:
+* Added computation of non-linear-effects
+* Now handle fixed joint when parsing urdf files and keep trace of fixed bodies
+* Added Lua parser to build models
+* Added planar and translation joints
+* Fixed function se3ToXYZQUAT used with python
