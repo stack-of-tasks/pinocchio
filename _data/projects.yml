@@ -8,6 +8,12 @@
   description: "Step generation for walking with romeo "
   image: showcase/romeo.png
 
+- name: pinocchio-showcase
+  title: Pinocchio demonstration
+  description: "Differents features that can be achieved through Pinocchio "
+  video:
+    youtube_id: cNfS-CDH76s
+  
 # - name: reem-c
 #   title: 
 #   description: ""
