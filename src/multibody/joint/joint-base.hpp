@@ -24,6 +24,7 @@
 #include <Eigen/Geometry>
 #include <Eigen/StdVector>
 #include <boost/variant.hpp>
+#include <limits>
 
 namespace se3
 {
@@ -146,6 +147,12 @@ namespace se3
     int i_q;    // Index of the joint configuration in the joint configuration vector.
     int i_v;    // Index of the joint velocity in the joint velocity vector.
 
+    Eigen::Matrix<double,NQ,1> position_lower;
+    Eigen::Matrix<double,NQ,1> position_upper;
+
+    Eigen::Matrix<double,NQ,1> effortMax;
+    Eigen::Matrix<double,NV,1> velocityMax;
+
   public:
           int     nv()    const { return NV; }
           int     nq()    const { return NQ; }
@@ -153,7 +160,47 @@ namespace se3
     const int &   idx_v() const { return i_v; }
     const Index & id()    const { return i_id; }
 
+    const Eigen::Matrix<double,NQ,1> & lowerPosLimit() const { return position_lower;}
+    const Eigen::Matrix<double,NQ,1> & upperPosLimit() const { return position_upper;}
+
+    const Eigen::Matrix<double,NQ,1> & maxEffortLimit() const { return effortMax;}
+    const Eigen::Matrix<double,NV,1> & maxVelocityLimit() const { return velocityMax;}
+
+
     void setIndexes(Index id,int q,int v) { i_id = id, i_q = q; i_v = v; }
+
+    void setLowerPositionLimit(const Eigen::VectorXd & lowerPos)
+    {
+      if (lowerPos.rows() == NQ)
+        position_lower = lowerPos;
+      else
+        position_lower.fill(-std::numeric_limits<double>::infinity());
+    }
+
+    void setUpperPositionLimit(const Eigen::VectorXd & upperPos)
+    {
+      if (upperPos.rows() == NQ)
+        position_upper = upperPos;
+      else
+        position_upper.fill(std::numeric_limits<double>::infinity());
+    }
+
+    void setMaxEffortLimit(const Eigen::VectorXd & effort)
+    {
+      if (effort.rows() == NQ)
+        effortMax = effort;
+      else
+        effortMax.fill(std::numeric_limits<double>::infinity());
+    }
+
+    void setMaxVelocityLimit(const Eigen::VectorXd & v)
+    {
+      if (v.rows() == NV)
+        velocityMax = v;
+      else
+        velocityMax.fill(std::numeric_limits<double>::infinity());
+    }
+
 
     template<typename D>
     typename D::template ConstFixedSegmentReturnType<NV>::Type jointMotion(const Eigen::MatrixBase<D>& a) const     { return a.template segment<NV>(i_v); }
@@ -166,6 +213,21 @@ namespace se3
     template<typename D>
     typename D::template FixedSegmentReturnType<NV>::Type jointForce(Eigen::MatrixBase<D>& tau) const 
     { return tau.template segment<NV>(i_v); }
+
+    template<typename D>
+    typename D::template ConstFixedSegmentReturnType<NQ>::Type jointLimit(const Eigen::MatrixBase<D>& limit) const 
+    { return limit.template segment<NQ>(i_q); }
+    template<typename D>
+    typename D::template FixedSegmentReturnType<NQ>::Type jointLimit(Eigen::MatrixBase<D>& limit) const 
+    { return limit.template segment<NQ>(i_q); }
+
+    template<typename D>
+    typename D::template ConstFixedSegmentReturnType<NV>::Type jointTangentLimit(const Eigen::MatrixBase<D>& limit) const 
+    { return limit.template segment<NV>(i_v); }
+    template<typename D>
+    typename D::template FixedSegmentReturnType<NV>::Type jointTangentLimit(Eigen::MatrixBase<D>& limit) const 
+    { return limit.template segment<NV>(i_v); }
+
   };
 
 } // namespace se3
