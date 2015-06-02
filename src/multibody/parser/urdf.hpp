@@ -113,24 +113,55 @@ namespace se3
 	    case ::urdf::Joint::REVOLUTE:
 	    case ::urdf::Joint::CONTINUOUS: // Revolute with no joint limits
 	      {
+          // const double maxEffort         = (joint->limits) ?
+          //                                 (joint->limits->effort)
+          //                                 : std::numeric_limits<double>::infinity();
+          // const double lowerPosition  = (joint->limits) ?
+          //                                 (joint->limits->lower != 0. ?
+          //                                   joint->limits->lower
+          //                                   : -std::numeric_limits<double>::infinity()
+          //                                 )
+          //                                 : -std::numeric_limits<double>::infinity();
+
+          Eigen::VectorXd maxEffort;
+          Eigen::VectorXd velocity;
+          Eigen::VectorXd lowerPosition;
+          Eigen::VectorXd upperPosition;
+
+          if (joint->limits)
+          {
+            maxEffort.resize(1);      maxEffort     << joint->limits->effort;
+            velocity.resize(1);       velocity      << joint->limits->velocity;
+            lowerPosition.resize(1);  lowerPosition << joint->limits->lower;
+            upperPosition.resize(1);  upperPosition << joint->limits->upper;
+          }
+
 	    Eigen::Vector3d jointAxis(Eigen::Vector3d::Zero());
 		AxisCartesian axis = extractCartesianAxis(joint->axis);
 		switch(axis)
 		  {
 		  case AXIS_X:
-		    model.addBody( parent, JointModelRX(), jointPlacement, Y, joint->name,link->name, visual );
+		    model.addBody(  parent, JointModelRX(), jointPlacement, Y,
+                        maxEffort, velocity, lowerPosition, upperPosition,
+                        joint->name,link->name, visual );
 		    break;
 		  case AXIS_Y:
-		    model.addBody( parent, JointModelRY(), jointPlacement, Y, joint->name,link->name, visual );
+		    model.addBody(  parent, JointModelRY(), jointPlacement, Y,
+                        maxEffort, velocity, lowerPosition, upperPosition,
+                        joint->name,link->name, visual );
 		    break;
 		  case AXIS_Z:
-		    model.addBody( parent, JointModelRZ(), jointPlacement, Y, joint->name,link->name, visual );
+		    model.addBody(  parent, JointModelRZ(), jointPlacement, Y,
+                        maxEffort, velocity, lowerPosition, upperPosition,
+                        joint->name,link->name, visual );
 		    break;
 		  case AXIS_UNALIGNED:
 		  	jointAxis= Eigen::Vector3d( joint->axis.x,joint->axis.y,joint->axis.z );
 		    jointAxis.normalize();
-		    model.addBody( parent, JointModelRevoluteUnaligned(jointAxis), 
-				   jointPlacement, Y, joint->name,link->name, visual );
+		    model.addBody(  parent, JointModelRevoluteUnaligned(jointAxis), 
+				                jointPlacement, Y,
+                        maxEffort, velocity, lowerPosition, upperPosition,
+                        joint->name,link->name, visual );
 		  	break;
 		  default:
 		    assert( false && "Fatal Error while extracting revolute joint axis");
@@ -140,17 +171,35 @@ namespace se3
 	      }
 	    case ::urdf::Joint::PRISMATIC:
 	      {
+          Eigen::VectorXd maxEffort = Eigen::VectorXd(0.);
+          Eigen::VectorXd velocity = Eigen::VectorXd(0.);
+          Eigen::VectorXd lowerPosition = Eigen::VectorXd(0.);
+          Eigen::VectorXd upperPosition = Eigen::VectorXd(0.);
+
+          if (joint->limits)
+          {
+            maxEffort.resize(1);      maxEffort     << joint->limits->effort;
+            velocity.resize(1);       velocity      << joint->limits->velocity;
+            lowerPosition.resize(1);  lowerPosition << joint->limits->lower;
+            upperPosition.resize(1);  upperPosition << joint->limits->upper;
+          }
 	    AxisCartesian axis = extractCartesianAxis(joint->axis);  	
 		switch(axis)
 		  {
 		  case AXIS_X:
-		    model.addBody( parent, JointModelPX(), jointPlacement, Y, joint->name,link->name, visual );
+		    model.addBody(  parent, JointModelPX(), jointPlacement, Y,
+                        maxEffort, velocity, lowerPosition, upperPosition,
+                        joint->name,link->name, visual );
 		    break;
 		  case AXIS_Y:
-		    model.addBody( parent, JointModelPY(), jointPlacement, Y, joint->name,link->name, visual );
+		    model.addBody(  parent, JointModelPY(), jointPlacement, Y,
+                        maxEffort, velocity, lowerPosition, upperPosition,
+                        joint->name,link->name, visual );
 		    break;
 		  case AXIS_Z:
-		    model.addBody( parent, JointModelPZ(), jointPlacement, Y, joint->name,link->name, visual );
+		    model.addBody(  parent, JointModelPZ(), jointPlacement, Y,
+                        maxEffort, velocity, lowerPosition, upperPosition,
+                        joint->name,link->name, visual );
 		    break;
 		  case AXIS_UNALIGNED:
 		  	std::cerr << "Bad axis = (" <<joint->axis.x<<","<<joint->axis.y
