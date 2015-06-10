@@ -35,7 +35,8 @@ namespace se3
   exp3(const Eigen::MatrixBase<D> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,3);
-    return Eigen::AngleAxis<typename D::Scalar>(v.norm(), v).matrix();
+    typename D::Scalar nv = v.norm();
+    return Eigen::AngleAxis<typename D::Scalar>(nv, v / nv).matrix();
   }
 
   /// \brief Log: SO3 -> so3.
@@ -81,13 +82,12 @@ namespace se3
   /// \brief Exp: se3 -> SE3.
   ///
   /// Return the integral of the input spatial velocity during time 1.
-  template <typename D> Eigen::Matrix<typename D::Scalar,6,6,D::Options>
+  template <typename D> SE3Tpl<typename D::Scalar, D::Options>
   exp6(const Eigen::MatrixBase<D> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,6);
     MotionTpl<typename D::Scalar,D::Options> nu(v);
-    SE3Tpl<typename D::Scalar,D::Options> m(exp6(nu));
-    return m.toActionMatrix();
+    return exp6(nu);
   }
 
   /// \brief Log: SE3 -> se3.
@@ -123,23 +123,17 @@ namespace se3
   /// \brief Log: SE3 -> se3.
   ///
   /// Pseudo-inverse of exp from SE3 -> { v,w \in se3, ||w|| < 2pi }.
-  template <typename D> Eigen::Matrix<typename D::Scalar,6,1,D::Options>
+  template <typename D> MotionTpl<typename D::Scalar,D::Options>
   log6(const Eigen::MatrixBase<D> & M)
   {
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D, 6, 6);
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D, 4, 4);
     typedef typename SE3Tpl<typename D::Scalar,D::Options>::Vector3 Vector3;
     typedef typename SE3Tpl<typename D::Scalar,D::Options>::Matrix3 Matrix3;
-    enum {
-      LINEAR = SE3Tpl<typename D::Scalar,D::Options>::LINEAR,
-      ANGULAR = SE3Tpl<typename D::Scalar,D::Options>::ANGULAR
-    };
 
-    Matrix3 rot(M.template block<3,3>(ANGULAR,ANGULAR));
-    Matrix3 skew(M.template block<3,3>(LINEAR,ANGULAR) * rot.transpose());
-    Vector3 trans(skew(2,1), skew(0,2), skew(1,0));
+    Matrix3 rot(M.template block<3,3>(0,0));
+    Vector3 trans(M.template block<3,1>(0,3));
     SE3Tpl<typename D::Scalar,D::Options> m(rot, trans);
-    MotionTpl<typename D::Scalar,D::Options> nu(log6(m));
-    return nu.toVector();
+    return log6(m);
   }
 } // namespace se3
 

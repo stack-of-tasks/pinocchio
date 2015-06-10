@@ -134,6 +134,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/data.hpp
   python/algorithms.hpp
   python/parsers.hpp
+  python/explog.hpp
   )
 
 SET(HEADERS
