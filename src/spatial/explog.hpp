@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __math_explog_hpp__
-# define __math_explog_hpp__
+#ifndef __spatial_explog_hpp__
+# define __spatial_explog_hpp__
 
 # include <Eigen/Geometry>
 

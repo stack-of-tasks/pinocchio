@@ -61,7 +61,6 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
 
 SET(${PROJECT_NAME}_MATH_HEADERS
-  math/explog.hpp
   math/sincos.hpp
   )
 
@@ -79,6 +78,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/fwd.hpp
   spatial/skew.hpp
   spatial/act-on-set.hpp
+  spatial/explog.hpp
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
