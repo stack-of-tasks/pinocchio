@@ -22,6 +22,7 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
+#include "pinocchio/spatial/explog.hpp"
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE tspatialTest
@@ -279,6 +280,44 @@ BOOST_AUTO_TEST_CASE ( test_ActOnSet )
   for( int k=0;k<N;++k )
     is_matrix_absolutely_closed(jMi.act(se3::Motion(iV.col(k))).toVector(), jV.col(k), 1e-12);
 
+}
+
+BOOST_AUTO_TEST_CASE ( test_Explog )
+{
+  typedef se3::SE3::Vector3 Vector3;
+  typedef se3::SE3::Matrix3 Matrix3;
+  typedef Eigen::Matrix4d Matrix4;
+  typedef se3::Motion::Vector6 Vector6;
+
+  const double EPSILON = 1e-12;
+
+  // exp3 and log3.
+  Vector3 v3(Vector3::Random());
+  Matrix3 R(se3::exp3(v3));
+  is_matrix_absolutely_closed(R.transpose(), R.inverse(), EPSILON);
+  BOOST_CHECK_SMALL(R.determinant() - 1.0, EPSILON);
+  Vector3 v3FromLog(se3::log3(R));
+  is_matrix_absolutely_closed(v3, v3FromLog, EPSILON);
+
+  // exp6 and log6.
+  se3::Motion nu = se3::Motion::Random();
+  se3::SE3 m = se3::exp6(nu);
+  is_matrix_absolutely_closed(m.rotation().transpose(), m.rotation().inverse(),
+                              EPSILON);
+  BOOST_CHECK_SMALL(m.rotation().determinant() - 1.0, EPSILON);
+  se3::Motion nuFromLog(se3::log6(m));
+  is_matrix_absolutely_closed(nu.linear(), nuFromLog.linear(), EPSILON);
+  is_matrix_absolutely_closed(nu.angular(), nuFromLog.angular(), EPSILON);
+
+  Vector6 v6(Vector6::Random());
+  se3::SE3 m2(se3::exp6(v6));
+  is_matrix_absolutely_closed(m2.rotation().transpose(), m2.rotation().inverse(),
+                              EPSILON);
+  BOOST_CHECK_SMALL(m2.rotation().determinant() - 1.0, EPSILON);
+  Matrix4 M = m2.toHomogeneousMatrix();
+  se3::Motion nu2FromLog(se3::log6(M));
+  Vector6 v6FromLog(nu2FromLog.toVector());
+  is_matrix_absolutely_closed(v6, v6FromLog, EPSILON);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
