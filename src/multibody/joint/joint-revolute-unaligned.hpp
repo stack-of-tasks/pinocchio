@@ -45,8 +45,8 @@ namespace se3
 
       operator Motion() const
       { 
-	return Motion(Motion::Vector3::Zero(),
-		      (Motion::Vector3)(axis*w));
+        return Motion(Motion::Vector3::Zero(),
+                      axis*w);
       }
 
       Motion::Vector3 axis; 
@@ -56,7 +56,7 @@ namespace se3
     friend const MotionRevoluteUnaligned& operator+ (const MotionRevoluteUnaligned& m, const BiasZero&)
     { return m; }
 
-    friend Motion operator+( const MotionRevoluteUnaligned& m1, const Motion& m2)
+    friend Motion operator+ (const MotionRevoluteUnaligned& m1, const Motion& m2)
     {
       return Motion( m2.linear(), m1.w*m1.axis+m2.angular() );
     }
@@ -76,12 +76,11 @@ namespace se3
 
       Eigen::Matrix<double,6,1> se3Action(const SE3 & m) const
       { 
-	/* X*S = [ R pxR ; 0 R ] [ 0 ; a ] = [ px(Ra) ; Ra ] */
-	Eigen::Matrix<double,6,1> res;
-	const Eigen::Vector3d & Rx = m.rotation()* axis;
-	res.head<3>() = m.translation().cross(Rx);
-	res.tail<3>() = Rx;
-	return res;
+        /* X*S = [ R pxR ; 0 R ] [ 0 ; a ] = [ px(Ra) ; Ra ] */
+        Eigen::Matrix<double,6,1> res;
+        res.tail<3>() = m.rotation() * axis;
+        res.head<3>() = m.translation().cross(res.tail<3>());
+        return res;
       }
 
       struct TransposeConst
@@ -95,17 +94,18 @@ namespace se3
 	  return ref.axis.transpose()*f.angular();
 	}
 
-	/* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
-	template<typename D>
-	friend typename Eigen::Matrix<double,1,D::ColsAtCompileTime>
-	operator*( const TransposeConst & tc, const Eigen::MatrixBase<D> & F )
-	{
-	  /* Return ax.T * F[3:end,:] */
-	  assert(F.rows()==6); //TODO 
-	  Motion::Vector3 ax(tc.ref.axis);
-	  return Eigen::Matrix<double,1,D::ColsAtCompileTime>
-	    (ax.transpose()*F.template bottomRows<3>());
-	}
+        /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
+        template<typename D>
+        friend
+        typename Eigen::ProductReturnType<
+        Eigen::Transpose<const Eigen::Matrix<typename Eigen::MatrixBase<D>::Scalar, 3, 1> >,
+        Eigen::Block<const Eigen::Block<Eigen::Matrix<typename Eigen::MatrixBase<D>::Scalar,6,-1>,-1,-1>, 3, -1>
+        >::Type
+        operator* (const TransposeConst & tc, const Eigen::MatrixBase<D> & F)
+        {
+          /* Return ax.T * F[3:end,:] */
+          return tc.ref.axis.transpose () * F.template bottomRows<3> ();
+        }
 
       };
       TransposeConst transpose() const { return TransposeConst(*this); }
@@ -146,12 +146,12 @@ namespace se3
     const Inertia::Vector3 & c      = Y.lever();
     const Inertia::Symmetric3 & I   = Y.inertia();
 
-    const Motion::Vector3 mcxw = m*c.cross(cru.axis);
     Eigen::Matrix<double,6,1> res;
-    res.head<3>() = -mcxw;
-    res.tail<3>() = I*cru.axis - c.cross(mcxw);
+    res.head<3>() = -m*c.cross(cru.axis);
+    res.tail<3>() = I*cru.axis + c.cross(res.head<3>());
     return res;
   }
+  
   namespace internal 
   {
     template<>
@@ -190,21 +190,15 @@ namespace se3
     Bias_t c;
 
     F_t F;
-    /* It should not be necessary to copy axis in jdata, however a current bug
-     * in the fusion visitor prevents a proper access to jmodel::axis. A
-     * by-pass is to access to a copy of it in jdata. */
-    Eigen::Vector3d axis;
     Eigen::AngleAxisd angleaxis;
 
     /* The empty constructor is needed for the variant. */
     JointDataRevoluteUnaligned() 
       : M(1),S(Eigen::Vector3d::Constant(NAN)),v(Eigen::Vector3d::Constant(NAN),NAN)
-      , axis(Eigen::Vector3d::Constant(NAN))
       , angleaxis( NAN,Eigen::Vector3d::Constant(NAN))
     {}
     JointDataRevoluteUnaligned(const Motion::Vector3 & axis) 
       : M(1),S(axis),v(axis,NAN)
-      ,axis(axis)
       ,angleaxis(NAN,axis)
     {}
   };
