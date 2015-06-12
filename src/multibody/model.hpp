@@ -43,25 +43,25 @@ namespace se3
   public:
     typedef std::size_t Index;
 
-    int nq;                            // Dimension of the configuration representation
-    int nv;                            // Dimension of the velocity vector space
-    int nbody;                         // Number of bodies (= number of joints + 1)
-    int nFixBody;                      // Number of fixed-bodies (= number of fixed-joints)
+    int nq;                               // Dimension of the configuration representation
+    int nv;                               // Dimension of the velocity vector space
+    int nbody;                            // Number of bodies (= number of joints + 1)
+    int nFixBody;                         // Number of fixed-bodies (= number of fixed-joints)
 
-    std::vector<Inertia> inertias;     // Spatial inertias of the body <i> in the supporting joint frame <i>
-    std::vector<SE3> jointPlacements;  // Placement (SE3) of the input of joint <i> in parent joint output <li>
-    JointModelVector joints;           // Model of joint <i>
-    std::vector<Index> parents;        // Joint parent of joint <i>, denoted <li> (li==parents[i])
-    std::vector<std::string> names;    // Name of joint <i>
-    std::vector<std::string> bodyNames;// Name of the body attached to the output of joint <i>
-    std::vector<bool> hasVisual;       // True iff body <i> has a visual mesh.
+    std::vector<Inertia> inertias;        // Spatial inertias of the body <i> in the supporting joint frame <i>
+    std::vector<SE3> jointPlacements;     // Placement (SE3) of the input of joint <i> in parent joint output <li>
+    JointModelVector joints;              // Model of joint <i>
+    std::vector<Index> parents;           // Joint parent of joint <i>, denoted <li> (li==parents[i])
+    std::vector<std::string> names;       // Name of joint <i>
+    std::vector<std::string> bodyNames;   // Name of the body attached to the output of joint <i>
+    std::vector<bool> hasVisual;          // True iff body <i> has a visual mesh.
 
-    std::vector<SE3> fix_lmpMi;        // Fixed-body relative placement (wrt last moving parent)
+    std::vector<SE3> fix_lmpMi;           // Fixed-body relative placement (wrt last moving parent)
     std::vector<Model::Index> fix_lastMovingParent; // Fixed-body index of the last moving parent
-    std::vector<bool> fix_hasVisual;   // True iff fixed-body <i> has a visual mesh.
+    std::vector<bool> fix_hasVisual;      // True iff fixed-body <i> has a visual mesh.
     std::vector<std::string> fix_bodyNames;// Name of fixed-joint <i>
 
-    Motion gravity;                    // Spatial gravity
+    Motion gravity;                       // Spatial gravity
     static const Eigen::Vector3d gravity981; // Default 3D gravity (=(0,0,9.81))
 
     Model()
@@ -83,9 +83,17 @@ namespace se3
     }
     ~Model() {} // std::cout << "Destroy model" << std::endl; }
     template<typename D>
-    Index addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
-		   const Inertia & Y, const std::string & jointName = "",
-		   const std::string & bodyName = "", bool visual = false );
+    Index addBody(  Index parent,const JointModelBase<D> & j,const SE3 & placement,
+		                const Inertia & Y,
+                    const std::string & jointName = "", const std::string & bodyName = "",
+                    bool visual = false);
+    template<typename D>
+    Index addBody(  Index parent,const JointModelBase<D> & j,const SE3 & placement,
+                    const Inertia & Y,
+                    const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
+                    const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
+                    const std::string & jointName = "", const std::string & bodyName = "",
+                    bool visual = false);
     Index addFixedBody( Index fix_lastMovingParent,
                         const SE3 & placementFromLastMoving,
                         const std::string &jointName = "",
@@ -133,6 +141,13 @@ namespace se3
     std::vector<Eigen::Vector3d> com;     // Subtree com position.
     std::vector<double> mass;             // Subtree total mass.
     Eigen::Matrix<double,3,Eigen::Dynamic> Jcom; // Jacobian of center of mass.
+
+    Eigen::VectorXd effortLimit;          // Joint max effort
+    Eigen::VectorXd velocityLimit;        // Joint max velocity
+
+    Eigen::VectorXd lowerPositionLimit;   // limit for joint lower position
+    Eigen::VectorXd upperPositionLimit;   // limit for joint upper position
+
     Data( const Model& ref );
 
   private:
@@ -179,8 +194,36 @@ namespace se3
 
   template<typename D>
   Model::Index Model::addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
-			       const Inertia & Y,const std::string & jointName, 
-			       const std::string & bodyName, bool visual )
+             const Inertia & Y,const std::string & jointName, 
+             const std::string & bodyName, bool visual)
+  {
+    assert( (nbody==(int)joints.size())&&(nbody==(int)inertias.size())
+      &&(nbody==(int)parents.size())&&(nbody==(int)jointPlacements.size()) );
+    assert( (j.nq()>=0)&&(j.nv()>=0) );
+
+    Model::Index idx = (Model::Index) (nbody ++);
+
+    joints         .push_back(j.derived()); 
+    boost::get<D&>(joints.back()).setIndexes((int)idx,nq,nv);
+
+    inertias       .push_back(Y);
+    parents        .push_back(parent);
+    jointPlacements.push_back(placement);
+    names          .push_back( (jointName!="")?jointName:random(8) );
+    hasVisual      .push_back(visual);
+    bodyNames      .push_back( (bodyName!="")?bodyName:random(8));
+    nq += j.nq();
+    nv += j.nv();
+    return idx;
+  }
+
+  template<typename D>
+  Model::Index Model::addBody( Index parent,const JointModelBase<D> & j,const SE3 & placement,
+			      const Inertia & Y,
+            const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
+            const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
+            const std::string & jointName, 
+			      const std::string & bodyName, bool visual)
   {
     assert( (nbody==(int)joints.size())&&(nbody==(int)inertias.size())
 	    &&(nbody==(int)parents.size())&&(nbody==(int)jointPlacements.size()) );
@@ -190,6 +233,12 @@ namespace se3
 
     joints         .push_back(j.derived()); 
     boost::get<D&>(joints.back()).setIndexes((int)idx,nq,nv);
+
+    boost::get<D&>(joints.back()).setMaxEffortLimit(effort);
+    boost::get<D&>(joints.back()).setMaxVelocityLimit(velocity);
+
+    boost::get<D&>(joints.back()).setLowerPositionLimit(lowPos);
+    boost::get<D&>(joints.back()).setUpperPositionLimit(upPos);
 
     inertias       .push_back(Y);
     parents        .push_back(parent);
@@ -268,6 +317,10 @@ namespace se3
     ,com((std::size_t)ref.nbody)
     ,mass((std::size_t)ref.nbody)
     ,Jcom(3,ref.nv)
+    ,effortLimit(ref.nq)
+    ,velocityLimit(ref.nv)
+    ,lowerPositionLimit(ref.nq)
+    ,upperPositionLimit(ref.nq)
   {
     for(Model::Index i=0;i<(Model::Index)(model.nbody);++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));

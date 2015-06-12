@@ -114,6 +114,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/kinematics.hpp
   algorithm/center-of-mass.hpp
   algorithm/non-linear-effects.hpp
+  algorithm/joint-limits.hpp
   )
 
 SET(${PROJECT_NAME}_SIMULATION_HEADERS
