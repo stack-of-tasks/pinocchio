@@ -141,14 +141,14 @@ namespace se3
   Eigen::Matrix<double,6,1>
   operator*( const Inertia& Y,const JointRevoluteUnaligned::ConstraintRevoluteUnaligned & cru)
   { 
-    /* YS = [ m mcx ; -mcx I-mcxcx ] [ 0 ; w ] = [ mcxw ; Iw -mcxcxw ] */
+    /* YS = [ m -mcx ; mcx I-mcxcx ] [ 0 ; w ] = [ mcxw ; Iw -mcxcxw ] */
     const double &m                 = Y.mass();
     const Inertia::Vector3 & c      = Y.lever();
     const Inertia::Symmetric3 & I   = Y.inertia();
 
     const Motion::Vector3 mcxw = m*c.cross(cru.axis);
     Eigen::Matrix<double,6,1> res;
-    res.head<3>() = mcxw;
+    res.head<3>() = -mcxw;
     res.tail<3>() = I*cru.axis - c.cross(mcxw);
     return res;
   }
