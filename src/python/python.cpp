@@ -25,6 +25,7 @@
 #include "pinocchio/python/data.hpp"
 #include "pinocchio/python/algorithms.hpp"
 #include "pinocchio/python/parsers.hpp"
+#include "pinocchio/python/explog.hpp"
 
 namespace se3
 {
@@ -62,5 +63,9 @@ namespace se3
     void exposeParsers()
     {
       ParsersPythonVisitor::expose();
+    }
+    void exposeExplog()
+    {
+      ExplogPythonVisitor::expose();
     }
   }} // namespace se3::python

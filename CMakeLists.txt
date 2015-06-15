@@ -78,6 +78,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/fwd.hpp
   spatial/skew.hpp
   spatial/act-on-set.hpp
+  spatial/explog.hpp
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
@@ -133,6 +134,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/data.hpp
   python/algorithms.hpp
   python/parsers.hpp
+  python/explog.hpp
   )
 
 SET(HEADERS
