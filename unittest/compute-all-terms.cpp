@@ -72,9 +72,10 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
 
-  is_matrix_absolutely_closed (data.nle, data_other.nle);
-  is_matrix_absolutely_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
-  is_matrix_absolutely_closed (data.J, data_other.J);
+  BOOST_CHECK( data.nle.isApprox(data_other.nle,1e-12) );
+  BOOST_CHECK( Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
+	       .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()),1e-12) );
+  BOOST_CHECK( data.J.isApprox(data_other.J,1e-12) );
 
   // -------
   q.setZero ();
@@ -86,9 +87,10 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
 
-  is_matrix_absolutely_closed (data.nle, data_other.nle);
-  is_matrix_absolutely_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
-  is_matrix_absolutely_closed (data.J, data_other.J);
+  BOOST_CHECK( data.nle.isApprox(data_other.nle,1e-12) );
+  BOOST_CHECK( Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
+	       .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()),1e-12) );
+  BOOST_CHECK( data.J.isApprox(data_other.J,1e-12) );
 
   // -------
   q.setOnes ();
@@ -100,9 +102,10 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
 
-  is_matrix_absolutely_closed (data.nle, data_other.nle);
-  is_matrix_absolutely_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
-  is_matrix_absolutely_closed (data.J, data_other.J);
+  BOOST_CHECK( data.nle.isApprox(data_other.nle,1e-12) );
+  BOOST_CHECK( Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
+	       .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()),1e-12) );
+  BOOST_CHECK( data.J.isApprox(data_other.J,1e-12) );
 
   // -------
   q.setRandom ();
@@ -114,9 +117,10 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
 
-  is_matrix_absolutely_closed (data.nle, data_other.nle);
-  is_matrix_absolutely_closed (data.M.triangularView<Eigen::Upper>(), data_other.M.triangularView<Eigen::Upper>());
-  is_matrix_absolutely_closed (data.J, data_other.J);
+  BOOST_CHECK( data.nle.isApprox(data_other.nle,1e-12) );
+  BOOST_CHECK( Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
+	       .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()),1e-12) );
+  BOOST_CHECK( data.J.isApprox(data_other.J,1e-12) );
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

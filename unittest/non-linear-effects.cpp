@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE ( test_against_rnea )
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
 
-  is_matrix_absolutely_closed (tau_nle, tau_rnea);
+  BOOST_CHECK( tau_nle.isApprox(tau_rnea,1e-12) );
 
   // -------
   q.setZero ();
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE ( test_against_rnea )
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
 
-  is_matrix_absolutely_closed (tau_nle, tau_rnea);
+  BOOST_CHECK( tau_nle.isApprox(tau_rnea,1e-12) );
 
   // -------
   q.setOnes ();
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE ( test_against_rnea )
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
 
-  is_matrix_absolutely_closed (tau_nle, tau_rnea);
+  BOOST_CHECK( tau_nle.isApprox(tau_rnea,1e-12) );
 
   // -------
   q.setRandom ();
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE ( test_against_rnea )
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
 
-  is_matrix_absolutely_closed (tau_nle, tau_rnea);
+  BOOST_CHECK( tau_nle.isApprox(tau_rnea,1e-12) );
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

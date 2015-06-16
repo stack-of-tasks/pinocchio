@@ -48,30 +48,30 @@ using namespace se3;
 
   // Test internal product
   Matrix4 aMc = amc;
-  is_matrix_absolutely_closed(aMc, aMb*bMc, 1e-12);
+  BOOST_CHECK( aMc.isApprox(aMb*bMc,1e-12) );
 
   Matrix4 bMa = amb.inverse();
-  is_matrix_absolutely_closed(bMa, aMb.inverse(), 1e-12);
+  BOOST_CHECK( bMa.isApprox(aMb.inverse(),1e-12) );
 
   // Test point action
   Vector3 p = Vector3::Random();
   Eigen::Matrix<double,4,1> p4; p4.head(3) = p; p4[3] = 1;
 
   Vector3 Mp = (aMb*p4).head(3);
-  is_matrix_absolutely_closed(amb.act(p), Mp, 1e-12);
+  BOOST_CHECK( amb.act(p).isApprox(Mp,1e-12) );
 
   Vector3 Mip = (aMb.inverse()*p4).head(3);
-  is_matrix_absolutely_closed(amb.actInv(p), Mip, 1e-12);
+  BOOST_CHECK( amb.actInv(p).isApprox(Mip,1e-12) );
 
 
   // Test action matrix
   Matrix6 aXb = amb;
   Matrix6 bXc = bmc;
   Matrix6 aXc = amc;
-  is_matrix_absolutely_closed(aXc, aXb*bXc, 1e-12);
+  BOOST_CHECK( aXc.isApprox(aXb*bXc,1e-12) );
 
   Matrix6 bXa = amb.inverse();
-  is_matrix_absolutely_closed(bXa, aXb.inverse(), 1e-12);
+  BOOST_CHECK( bXa.isApprox(aXb.inverse(),1e-12) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_Motion )
@@ -92,36 +92,36 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   
   // Test .+.
   Vector6 bvPbv2_vec = bv+bv2;
-  is_matrix_absolutely_closed(bvPbv2_vec, bv_vec+bv2_vec, 1e-12);
+  BOOST_CHECK( bvPbv2_vec.isApprox(bv_vec+bv2_vec,1e-12) );
 
   // Test -.
   Vector6 Mbv_vec = -bv;
-  is_matrix_absolutely_closed( Mbv_vec, -bv_vec, 1e-12);
+  BOOST_CHECK(  Mbv_vec.isApprox(-bv_vec,1e-12) );
 
   // Test .+=.
   Motion bv3 = bv; bv3 += bv2;
-  is_matrix_absolutely_closed( bv3.toVector(), bv_vec+bv2_vec, 1e-12);
+  BOOST_CHECK(  bv3.toVector().isApprox(bv_vec+bv2_vec,1e-12) );
 
   // Test .=V6
   bv3 = bv2_vec;
-  is_matrix_absolutely_closed( bv3.toVector(), bv2_vec, 1e-12);
+  BOOST_CHECK(  bv3.toVector().isApprox(bv2_vec,1e-12) );
 
   // Test constructor from V6
   Motion bv4(bv2_vec);
-  is_matrix_absolutely_closed( bv4.toVector(), bv2_vec, 1e-12);
+  BOOST_CHECK(  bv4.toVector().isApprox(bv2_vec,1e-12) );
 
   // Test action
   Matrix6 aXb = amb;
-  is_matrix_absolutely_closed(amb.act(bv).toVector(), aXb*bv_vec, 1e-12);
+  BOOST_CHECK( amb.act(bv).toVector().isApprox(aXb*bv_vec,1e-12) );
 
   // Test action inverse
   Matrix6 bXc = bmc;
-  is_matrix_absolutely_closed(bmc.actInv(bv).toVector(), bXc.inverse()*bv_vec, 1e-12);
+  BOOST_CHECK( bmc.actInv(bv).toVector().isApprox(bXc.inverse()*bv_vec,1e-12) );
 
   // Test double action
   Motion cv = Motion::Random();
   bv = bmc.act(cv);
-  is_matrix_absolutely_closed(amb.act(bv).toVector(), amc.act(cv).toVector(), 1e-12);
+  BOOST_CHECK( amb.act(bv).toVector().isApprox(amc.act(cv).toVector(),1e-12) );
 
   // Simple test for cross product vxv
   Motion vxv = bv.cross(bv);
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   // Simple test for cross product vxf
   Force f = Force(bv.toVector());
   Force vxf = bv.cross(f);
-  is_matrix_absolutely_closed(vxf.linear(), bv.angular().cross(f.linear()), 1e-12);
+  BOOST_CHECK( vxf.linear().isApprox(bv.angular().cross(f.linear()),1e-12) );
   BOOST_CHECK_SMALL(vxf.angular().norm(), 1e-3);//previously ensure that ( vxf.angular().isMuchSmallerThan(1e-3));
 
   // Test frame change for vxf
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   Force bf = amb.actInv(af);
   Force avxf = av.cross(af);
   Force bvxf = bv.cross(bf);
-  is_matrix_absolutely_closed(avxf.toVector(), amb.act(bvxf).toVector(), 1e-12);
+  BOOST_CHECK( avxf.toVector().isApprox(amb.act(bvxf).toVector(),1e-12) );
 
   // Test frame change for vxv
   av = Motion::Random();
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   Motion bw = amb.actInv(aw);
   Motion avxw = av.cross(aw);
   Motion bvxw = bv.cross(bw);
-  is_matrix_absolutely_closed(avxw.toVector(), amb.act(bvxw).toVector(), 1e-12);
+  BOOST_CHECK( avxw.toVector().isApprox(amb.act(bvxw).toVector(),1e-12) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_Force )
@@ -170,37 +170,37 @@ BOOST_AUTO_TEST_CASE ( test_Force )
   
   // Test .+.
   Vector6 bfPbf2_vec = bf+bf2;
-  is_matrix_absolutely_closed(bfPbf2_vec, bf_vec+bf2_vec, 1e-12);
+  BOOST_CHECK( bfPbf2_vec.isApprox(bf_vec+bf2_vec,1e-12) );
 
   // Test -.
   Vector6 Mbf_vec = -bf;
-  is_matrix_absolutely_closed(Mbf_vec, -bf_vec, 1e-12);
+  BOOST_CHECK( Mbf_vec.isApprox(-bf_vec,1e-12) );
 
   // Test .+=.
   Force bf3 = bf; bf3 += bf2;
-  is_matrix_absolutely_closed(bf3.toVector(), bf_vec+bf2_vec, 1e-12);
+  BOOST_CHECK( bf3.toVector().isApprox(bf_vec+bf2_vec,1e-12) );
 
   // Test .= V6
   bf3 = bf2_vec;
-  is_matrix_absolutely_closed(bf3.toVector(), bf2_vec, 1e-12);
+  BOOST_CHECK( bf3.toVector().isApprox(bf2_vec,1e-12) );
 
   // Test constructor from V6
   Force bf4(bf2_vec);
-  is_matrix_absolutely_closed(bf4.toVector(), bf2_vec, 1e-12);
+  BOOST_CHECK( bf4.toVector().isApprox(bf2_vec,1e-12) );
 
 
   // Test action
   Matrix6 aXb = amb;
-  is_matrix_absolutely_closed(amb.act(bf).toVector(), aXb.inverse().transpose()*bf_vec, 1e-12);
+  BOOST_CHECK( amb.act(bf).toVector().isApprox(aXb.inverse().transpose()*bf_vec,1e-12) );
 
   // Test action inverse
   Matrix6 bXc = bmc;
-  is_matrix_absolutely_closed(bmc.actInv(bf).toVector(), bXc.transpose()*bf_vec, 1e-12);
+  BOOST_CHECK( bmc.actInv(bf).toVector().isApprox(bXc.transpose()*bf_vec,1e-12) );
 
   // Test double action
   Force cf = Force::Random();
   bf = bmc.act(cf);
-  is_matrix_absolutely_closed(amb.act(bf).toVector(), amc.act(cf).toVector(), 1e-12);
+  BOOST_CHECK( amb.act(bf).toVector().isApprox(amc.act(cf).toVector(),1e-12) );
 
   // Simple test for cross product
   // Force vxv = bf.cross(bf);
@@ -224,42 +224,42 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
             aI.lever().norm()); //previously ensure that( (matI.topRightCorner<3,3>()*aI.lever()).isMuchSmallerThan(aI.lever()) );
 
   Inertia I1 = Inertia::Identity();
-  is_matrix_absolutely_closed(I1.matrix(), Matrix6::Identity(), 1e-12); 
+  BOOST_CHECK( I1.matrix().isApprox(Matrix6::Identity(),1e-12) ); 
 
   // Test motion-to-force map
   Motion v = Motion::Random();
   Force f = I1 * v;
-  is_matrix_absolutely_closed(f.toVector(), v.toVector(), 1e-12); 
+  BOOST_CHECK( f.toVector().isApprox(v.toVector(),1e-12) ); 
   
   // Test Inertia group application
   SE3 bma = SE3::Random(); 
   Inertia bI = bma.act(aI);
   Matrix6 bXa = bma;
-  is_matrix_absolutely_closed((bma.rotation()*aI.inertia().matrix()*bma.rotation().transpose()),
-                               (Matrix3)bI.inertia(), 1e-12); 
-  is_matrix_absolutely_closed((bXa.transpose().inverse() * aI.matrix() * bXa.inverse()),
-                              bI.matrix(), 1e-12); 
+  BOOST_CHECK( (bma.rotation()*aI.inertia().matrix()*bma.rotation().transpose())
+	       .isApprox((Matrix3)bI.inertia(),1e-12) ); 
+  BOOST_CHECK( (bXa.transpose().inverse() * aI.matrix() * bXa.inverse())
+	       .isApprox(bI.matrix(),1e-12) ); 
 
   // Test inverse action
-  is_matrix_absolutely_closed((bXa.transpose() * bI.matrix() * bXa),
-                              bma.actInv(bI).matrix(), 1e-12);
+  BOOST_CHECK( (bXa.transpose() * bI.matrix() * bXa)
+	       .isApprox(bma.actInv(bI).matrix(),1e-12) );
 
   // Test vxIv cross product
   v = Motion::Random(); 
   f = aI*v;
   Force vxf = v.cross(f);
   Force vxIv = aI.vxiv(v);
-  is_matrix_absolutely_closed(vxf.toVector(), vxIv.toVector(), 1e-12);
+  BOOST_CHECK( vxf.toVector().isApprox(vxIv.toVector(),1e-12) );
 
   // Test operator+
   I1 = Inertia::Random();
   Inertia I2 = Inertia::Random();
-  is_matrix_absolutely_closed(I1.matrix()+I2.matrix(), (I1+I2).matrix(), 1e-12);
+  BOOST_CHECK( (I1.matrix()+I2.matrix()).isApprox((I1+I2).matrix(),1e-12) );
 
   // operator +=
   Inertia I12 = I1;
   I12 += I2;
-  is_matrix_absolutely_closed(I1.matrix()+I2.matrix(), I12.matrix(), 1e-12);
+  BOOST_CHECK( (I1.matrix()+I2.matrix()).isApprox(I12.matrix(),1e-12) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )
@@ -271,13 +271,13 @@ BOOST_AUTO_TEST_CASE ( test_ActOnSet )
   Matrix6N iF = Matrix6N::Random(),jF;
   se3::forceSet::se3Action(jMi,iF,jF);
   for( int k=0;k<N;++k )
-    is_matrix_absolutely_closed(jMi.act(se3::Force(iF.col(k))).toVector(), jF.col(k), 1e-12);
+    BOOST_CHECK( jMi.act(se3::Force(iF.col(k))).toVector().isApprox(jF.col(k),1e-12) );
     
 
   Matrix6N iV = Matrix6N::Random(),jV;
   se3::motionSet::se3Action(jMi,iV,jV);
   for( int k=0;k<N;++k )
-    is_matrix_absolutely_closed(jMi.act(se3::Motion(iV.col(k))).toVector(), jV.col(k), 1e-12);
+    BOOST_CHECK( jMi.act(se3::Motion(iV.col(k))).toVector().isApprox(jV.col(k),1e-12) );
 
 }
 
