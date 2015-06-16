@@ -51,17 +51,17 @@ BOOST_AUTO_TEST_CASE ( test_com )
 
 	/* Test COM against CRBA*/
   Vector3d com = centerOfMass(model,data,q);
-  is_matrix_absolutely_closed(data.com[0], getComFromCrba(model,data), 1e-12);
+  BOOST_CHECK( data.com[0].isApprox(getComFromCrba(model,data),1e-12) );
 
 
 	/* Test COM against Jcom (both use different way of compute the COM. */
   com = centerOfMass(model,data,q);
   jacobianCenterOfMass(model,data,q);
-  is_matrix_absolutely_closed(com, data.com[0], 1e-12);
+  BOOST_CHECK( com.isApprox(data.com[0],1e-12) );
 
 	/* Test Jcom against CRBA  */
   Eigen::MatrixXd Jcom = jacobianCenterOfMass(model,data,q);
-  is_matrix_absolutely_closed(Jcom, getJacobianComFromCrba(model,data), 1e-12);
+  BOOST_CHECK( Jcom.isApprox(getJacobianComFromCrba(model,data),1e-12) );
 
 
   std::cout << "com = [ " << data.com[0].transpose() << " ];" << std::endl;

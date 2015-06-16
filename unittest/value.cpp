@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE ( test_000 )
   v = Eigen::VectorXd::Zero(model.nv);
   a = Eigen::VectorXd::Zero(model.nv);
   rnea(model,data,q,v,a);
-  is_matrix_absolutely_closed (expected,data.tau,1e-12);
+  BOOST_CHECK( expected.isApprox(data.tau,1e-12) );
 }
 
 
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( test_0V0 )
   a = Eigen::VectorXd::Zero(model.nv);
   rnea(model,data,q,v,a);
   //std::cout << (expected-data.tau).norm() << std::endl;
-  is_matrix_absolutely_closed (expected,data.tau,1e-7);
+  BOOST_CHECK( expected.isApprox(data.tau,1e-7) );
 }
 
 BOOST_AUTO_TEST_CASE( test_0VA )
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( test_0VA )
   for(int i=6;i<model.nv;++i) v[i] = i/100.;
   for(int i=6;i<model.nv;++i) a[i] = i/10.;
   rnea(model,data,q,v,a);
-  is_matrix_absolutely_closed (expected,data.tau,1e-6);
+  BOOST_CHECK( expected.isApprox(data.tau,1e-6) );
 }
 
 BOOST_AUTO_TEST_CASE( test_Q00 )
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( test_Q00 )
   std::cout << expected << "\n ---------------- \n"
             << data.tau << std::endl;
 
-    is_matrix_absolutely_closed (expected,data.tau,1e-6);
+    BOOST_CHECK( expected.isApprox(data.tau,1e-6) );
   
 }
 
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( test_QVA )
   for(int i=6;i<model.nv;++i) v[i] = i/100.;
   for(int i=6;i<model.nv;++i) a[i] = i/100.;
   rnea(model,data,q,v,a);
-  is_matrix_absolutely_closed (expected,data.tau,1e-7);  
+  BOOST_CHECK( expected.isApprox(data.tau,1e-7) );  
 }
 BOOST_AUTO_TEST_SUITE_END ()
 

@@ -93,10 +93,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   printOutJointData <JointDataSphericalZYX> (q, q_dot, joint_data);
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation());
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation ());
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector());
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector());
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector3 (1., 0., 0.);
@@ -113,10 +113,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.angular () << 0., 0., 1.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector3 (0., 1., 0.);
@@ -133,10 +133,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.angular () << 0., 1., 0.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector3 (0., 0., 1.);
@@ -153,10 +153,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.angular () << 1., 0., 0.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector3 (1., 1., 1.);
@@ -174,10 +174,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   expected_v_J.angular () << 0.1585290151921,  0.99495101928098, -0.54954440308147;
   expected_c_J.angular () << -0.54030230586814,   -1.257617821355,  -1.4495997326938;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-10);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-10);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-10);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-10);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-10) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-10) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-10) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-10) );
 
   // -------
   q = Vector3 (1., 1.5, 1.9);
@@ -195,10 +195,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   expected_v_J.angular () << -0.99498997320811, -0.83599146030869,  -2.8846374616388;
   expected_c_J.angular () << -0.42442321000622,  -8.5482150213859,   2.7708697933151;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-10);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-10);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-10);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-10);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-10) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-10) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-10) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-10) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (model, data, q, v, a);
   Vector3 tau_expected (0., -4.905, 0.);
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-14);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-14) );
 
   q = Eigen::VectorXd::Ones (model.nq);
   v = Eigen::VectorXd::Ones (model.nv);
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (model, data, q, v, a);
   tau_expected << -0.53611600195085, -0.74621832606188, -0.38177329067604;
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-12);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-12) );
 
   q << 3, 2, 1;
   v = Eigen::VectorXd::Ones (model.nv);
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (model, data, q, v, a);
   tau_expected << 0.73934458094049,  2.7804530848031, 0.50684940972146;
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-12);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-12) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_crba )
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   0, 1.25,    0,
   0,    0,    1;
 
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-14);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-14) );
 
   q = Eigen::VectorXd::Ones (model.nq);
 
@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   -5.5511151231258e-17,                 1.25,                    0,
   -0.8414709848079,                    0,                    1;
 
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-12);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-12) );
 
   q << 3, 2, 1;
 
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   0,                1.25,                   0,
   -0.90929742682568,                   0,                  1;
 
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-10);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-10) );
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
@@ -319,10 +319,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   printOutJointData <JointDataPX> (q, q_dot, joint_data);
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation());
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation ());
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector());
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector());
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q << 1.;
@@ -337,10 +337,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.linear () << 1., 0., 0.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   Eigen::VectorXd tau_expected (Eigen::VectorXd::Zero (model.nq));
   tau_expected  << 0;
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-14);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-14) );
 
   // -----
   q = Eigen::VectorXd::Ones (model.nq);
@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (model, data, q, v, a);
   tau_expected << 1;
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-12);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-12) );
 
   q << 3;
   v = Eigen::VectorXd::Ones (model.nv);
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (model, data, q, v, a);
   tau_expected << 1;
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-12);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-12) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_crba )
@@ -407,19 +407,19 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   crba (model, data, q);
   M_expected << 1.0;
 
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-14);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-14) );
 
   q = Eigen::VectorXd::Ones (model.nq);
 
   crba (model, data, q);
 
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-12);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-12) );
 
   q << 3;
 
   crba (model, data, q);
   
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-10);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-10) );
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
@@ -454,10 +454,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   printOutJointData <JointDataTranslation> (q, q_dot, joint_data);
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation());
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation ());
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector());
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector());
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector3 (1., 0., 0.);
@@ -471,10 +471,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.linear () << 1., 0., 0.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector3 (0., 1., 0.);
@@ -488,10 +488,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.linear () << 0., 1., 0.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector3 (0., 0., 1.);
@@ -505,10 +505,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.linear () << 0., 0., 1.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector3 (1., 1., 1.);
@@ -521,10 +521,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   expected_configuration.translation () << 1., 1., 1.;
   expected_v_J.linear () << 1., 1., 1.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-10);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-10);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-10);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-10);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-10) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-10) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-10) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-10) );
 
   // -------
   q = Vector3 (1., 1.5, 1.9);
@@ -537,10 +537,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   expected_configuration.translation () = q;
   expected_v_J.linear () = q_dot;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-10);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-10);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-10);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-10);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-10) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-10) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-10) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-10) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
@@ -565,7 +565,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
 
   tau_expected  << 0,    0, 9.81;
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-14);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-14) );
 
   q = Eigen::VectorXd::Ones (model.nq);
   v = Eigen::VectorXd::Ones (model.nv);
@@ -574,7 +574,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (model, data, q, v, a);
   tau_expected << 1,     1, 10.81;
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-12);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-12) );
 
   q << 3, 2, 1;
   v = Eigen::VectorXd::Ones (model.nv);
@@ -583,7 +583,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (model, data, q, v, a);
   tau_expected << 1,     1, 10.81;
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-12);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-12) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_crba )
@@ -606,19 +606,19 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   crba (model, data, q);
   M_expected = Matrix3::Identity ();
 
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-14);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-14) );
 
   q = Eigen::VectorXd::Ones (model.nq);
 
   crba (model, data, q);
 
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-12);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-12) );
 
   q << 3, 2, 1;
   
   crba (model, data, q);
   
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-10);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-10) );
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
@@ -654,10 +654,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation());
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation ());
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector());
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector());
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector4 (1., 0, 0., 1.); q.normalize();
@@ -674,10 +674,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.angular () << 1., 0., 0.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector4 (0., 1., 0., 1.); q.normalize();
@@ -694,10 +694,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.angular () << 0., 1., 0.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector4 (0., 0, 1., 1.); q.normalize();
@@ -714,10 +714,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.angular () << 0., 0., 1.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-12);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-12);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-12);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-12);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-12) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-12) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-12) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-12) );
 
   // -------
   q = Vector4 (1., 1., 1., 1.); q.normalize();
@@ -734,10 +734,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.angular () << 1., 1., 1.;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-10);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-10);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-10);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-10);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-10) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-10) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-10) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-10) );
 
   // -------
   q = Vector4 (1., 1.5, 1.9, 1.); q.normalize();
@@ -754,10 +754,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   expected_v_J.angular () = q_dot;
 
-  is_matrix_absolutely_closed (expected_configuration.rotation (), joint_data.M.rotation(), 1e-10);
-  is_matrix_absolutely_closed (expected_configuration.translation (), joint_data.M.translation (), 1e-10);
-  is_matrix_absolutely_closed (expected_v_J.toVector (), ((Motion) joint_data.v).toVector(), 1e-10);
-  is_matrix_absolutely_closed (expected_c_J.toVector (), ((Motion) joint_data.c).toVector(), 1e-10);
+  BOOST_CHECK( expected_configuration.rotation ().isApprox(joint_data.M.rotation(),1e-10) );
+  BOOST_CHECK( expected_configuration.translation ().isApprox(joint_data.M.translation (),1e-10) );
+  BOOST_CHECK( expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(),1e-10) );
+  BOOST_CHECK( expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(),1e-10) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
@@ -782,7 +782,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
 
   tau_expected  <<  0, -4.905,      0;
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-14);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-14) );
 
   q = Eigen::VectorXd::Ones (model.nq); q.normalize ();
   v = Eigen::VectorXd::Ones (model.nv);
@@ -791,7 +791,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (model, data, q, v, a);
   tau_expected << 1,     1, 6.405;
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-12);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-12) );
 
   q << 3, 2, 1, 1; q.normalize ();
   v = Eigen::VectorXd::Ones (model.nv);
@@ -800,7 +800,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (model, data, q, v, a);
   tau_expected << 1, 4.597,  4.77;
 
-  is_matrix_absolutely_closed (tau_expected, data.tau, 1e-12);
+  BOOST_CHECK( tau_expected.isApprox(data.tau,1e-12) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_crba )
@@ -824,18 +824,18 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   M_expected = Matrix3::Identity ();
   M_expected(1,1) = 1.25; M_expected(2,2) = 1.25;
 
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-14);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-14) );
 
   q = Eigen::VectorXd::Ones (model.nq); q.normalize();
 
   crba (model, data, q);
 
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-12);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-12) );
   q << 3, 2, 1, 1; q.normalize();
   
   crba (model, data, q);
   
-  is_matrix_absolutely_closed (M_expected, data.M, 1e-10);
+  BOOST_CHECK( M_expected.isApprox(data.M,1e-10) );
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
@@ -872,10 +872,10 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   printOutJointData <JointDataRevoluteUnaligned> (q, q_dot, joint_data_RU);
 
-  is_matrix_absolutely_closed (joint_data_RU.M.rotation(), joint_data_RX.M.rotation());
-  is_matrix_absolutely_closed (joint_data_RU.M.translation (), joint_data_RX.M.translation ());
-  is_matrix_absolutely_closed (((Motion) joint_data_RU.v).toVector(), ((Motion) joint_data_RX.v).toVector());
-  is_matrix_absolutely_closed (((Motion) joint_data_RU.c).toVector(), ((Motion) joint_data_RX.c).toVector());
+  BOOST_CHECK( joint_data_RU.M.rotation().isApprox(joint_data_RX.M.rotation(),1e-12) );
+  BOOST_CHECK( joint_data_RU.M.translation ().isApprox(joint_data_RX.M.translation (),1e-12) );
+  BOOST_CHECK( ((Motion) joint_data_RU.v).toVector().isApprox(((Motion) joint_data_RX.v).toVector(),1e-12) );
+  BOOST_CHECK( ((Motion) joint_data_RU.c).toVector().isApprox(((Motion) joint_data_RX.c).toVector(),1e-12) );
 
 }
 
@@ -909,7 +909,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (modelRX, dataRX, q, v, a);
   rnea (modelRU, dataRU, q, v, a);
 
-  is_matrix_absolutely_closed (dataRX.tau, dataRU.tau, 1e-14);
+  BOOST_CHECK( dataRX.tau.isApprox(dataRU.tau,1e-14) );
 
   q = Eigen::VectorXd::Ones (modelRU.nq); //q.normalize ();
   v = Eigen::VectorXd::Ones (modelRU.nv);
@@ -918,7 +918,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (modelRX, dataRX, q, v, a);
   rnea (modelRU, dataRU, q, v, a);
 
-  is_matrix_absolutely_closed (dataRX.tau, dataRU.tau, 1e-12);
+  BOOST_CHECK( dataRX.tau.isApprox(dataRU.tau,1e-12) );
 
   q << 3.;
   v = Eigen::VectorXd::Ones (modelRU.nv);
@@ -927,7 +927,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   rnea (modelRX, dataRX, q, v, a);
   rnea (modelRU, dataRU, q, v, a);
 
-  is_matrix_absolutely_closed (dataRX.tau, dataRU.tau, 1e-12);
+  BOOST_CHECK( dataRX.tau.isApprox(dataRU.tau,1e-12) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_crba )
@@ -959,7 +959,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   crba (modelRX, dataRX, q);
   crba (modelRU, dataRU, q);
 
-  is_matrix_absolutely_closed (dataRX.M, dataRU.M, 1e-14);
+  BOOST_CHECK( dataRX.M.isApprox(dataRU.M,1e-14) );
 
   // ----
   q = Eigen::VectorXd::Ones (modelRU.nq);
@@ -967,7 +967,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   crba (modelRX, dataRX, q);
   crba (modelRU, dataRU, q);
 
-  is_matrix_absolutely_closed (dataRX.M, dataRU.M, 1e-14);
+  BOOST_CHECK( dataRX.M.isApprox(dataRU.M,1e-14) );
 
   // ----
   q << 3;
@@ -975,7 +975,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   crba (modelRX, dataRX, q);
   crba (modelRU, dataRU, q);
 
-  is_matrix_absolutely_closed (dataRX.M, dataRU.M, 1e-14);
+  BOOST_CHECK( dataRX.M.isApprox(dataRU.M,1e-14) );
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
@@ -1009,8 +1009,8 @@ BOOST_AUTO_TEST_CASE ( test_merge_body )
                                                               0.,     0.,       3.28125;
 
   BOOST_CHECK_EQUAL(mergedInertia.mass(), expected_mass);
-  is_matrix_absolutely_closed (mergedInertia.lever(), expected_com);
-  is_matrix_absolutely_closed (mergedInertia.inertia().matrix(), expectedBodyInertia);
+  BOOST_CHECK( mergedInertia.lever().isApprox(expected_com,1e-12) );
+  BOOST_CHECK( mergedInertia.inertia().matrix().isApprox(expectedBodyInertia,1e-12) );
   
   exit(0);
 }

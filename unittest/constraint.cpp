@@ -56,22 +56,21 @@ BOOST_AUTO_TEST_CASE ( test_ForceSet )
   ForceSet F3(Eigen::Matrix<double,3,12>::Random(),Eigen::Matrix<double,3,12>::Random());
   ForceSet F4 = amb.act(F3);
   SE3::Matrix6 aXb= amb;
-  is_matrix_absolutely_closed((aXb.transpose().inverse()*F3.matrix()), F4.matrix(), 1e-12);
+  BOOST_CHECK( (aXb.transpose().inverse()*F3.matrix()).isApprox(F4.matrix(),1e-12) );
 
 
   ForceSet bF = bmc.act(F3);
   ForceSet aF = amb.act(bF); 
   ForceSet aF2 = amc.act(F3);
-  is_matrix_absolutely_closed(aF.matrix(), aF2.matrix(), 1e-12);
+  BOOST_CHECK( aF.matrix().isApprox(aF2.matrix(),1e-12) );
 
   ForceSet F36 = amb.act(F3.block(3,6));
-  is_matrix_absolutely_closed((aXb.transpose().inverse()*F3.matrix().block(0,3,6,6)), F36.matrix(), 1e-12);
+  BOOST_CHECK( (aXb.transpose().inverse()*F3.matrix().block(0,3,6,6)).isApprox(F36.matrix(),1e-12) );
 
   
   ForceSet F36full(12); F36full.block(3,6) = amb.act(F3.block(3,6)); 
-  is_matrix_absolutely_closed((aXb.transpose().inverse()*F3.matrix().block(0,3,6,6)),
-  														F36full.matrix().block(0,3,6,6),
-  														1e-12);
+  BOOST_CHECK( aXb.transpose().inverse()*F3.matrix().block(0,3,6,6)
+	       .isApprox(F36full.matrix().block(0,3,6,6),1e-12) );
 }
 
 BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
@@ -87,13 +86,12 @@ BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
   ForceSet F(1); F.block(0,1) = Y*S;
   std::cout << "Y*S = \n" << (Y*S).matrix() << std::endl;
   std::cout << "F=Y*S = \n" << F.matrix() << std::endl;
-  is_matrix_absolutely_closed(F.matrix(), Y.toMatrix().col(3), 1e-12);
+  BOOST_CHECK( F.matrix().isApprox(Y.toMatrix().col(3),1e-12) );
 
   ForceSet F2( Eigen::Matrix<double,3,9>::Random(),Eigen::Matrix<double,3,9>::Random() );
   Eigen::MatrixXd StF2 = S.transpose()*F2.block(5,3);
-  is_matrix_absolutely_closed(StF2,
-                              ConstraintXd(S).matrix().transpose()*F2.matrix().block(0,5,6,3),
-                              1e-12);
+  BOOST_CHECK( StF2.isApprox
+	       (ConstraintXd(S).matrix().transpose()*F2.matrix().block(0,5,6,3),1e-12) );
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
