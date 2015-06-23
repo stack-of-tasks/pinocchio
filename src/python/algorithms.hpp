@@ -78,15 +78,24 @@ namespace se3
 
       static Eigen::MatrixXd jacobian_proxy( const ModelHandler& model, 
                DataHandler & data,
-               Model::Index jointId,
                const VectorXd_fx & q,
-               bool local )
+               Model::Index jointId,
+               bool local,
+							 bool update_geometry )
       {
   Eigen::MatrixXd J( 6,model->nv ); J.setZero();
-  computeJacobians( *model,*data,q );
+	if (update_geometry)
+  	computeJacobians( *model,*data,q );
   if(local) getJacobian<true> (*model, *data, jointId, J);
   else getJacobian<false> (*model, *data, jointId, J);
   return J;
+      }
+      
+      static void compute_jacobians_proxy(const ModelHandler& model, 
+               DataHandler & data,
+               const VectorXd_fx & q)
+      {
+        computeJacobians( *model,*data,q );
       }
 
       static void kinematics_proxy( const ModelHandler& model, 
@@ -94,7 +103,7 @@ namespace se3
             const VectorXd_fx & q,
             const VectorXd_fx & qdot )
       {
-  kinematics( *model,*data,q,qdot );
+        kinematics( *model,*data,q,qdot );
       }
 
       static void geometry_proxy(const ModelHandler & model,
@@ -176,11 +185,17 @@ namespace se3
     bp::args("Model","Data",
        "Configuration q (size Model::nq)",
        "Joint ID (int)",
-       "frame (true = local, false = world)"),
+       "frame (true = local, false = world)",
+       "update_geometry (true = update the value of the total jacobian)"),
     "Calling computeJacobians then getJacobian, return the result. Attention: the "
     "function computes indeed all the jacobians of the model, even if just outputing "
-    "the demanded one. It is therefore outrageously costly wrt a dedicated "
+    "the demanded one if update_geometry is set to false. It is therefore outrageously costly wrt a dedicated "
     "call. Function to be used only for prototyping.");
+
+  bp::def("computeJacobians",compute_jacobians_proxy,
+    bp::args("Model","Data",
+       "Configuration q (size Model::nq)"),
+    "Calling computeJacobians");
 
   bp::def("jointLimits",jointLimits_proxy,
     bp::args("Model","Data",

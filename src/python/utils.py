@@ -37,7 +37,7 @@ def se3ToXYZQUAT(M):
                 float(quat[0,0]), float(quat[1,0]), float(quat[2,0]), float(quat[3,0]) ]
     return config
 
-# Reverse function of se3ToXYZQUAT: convert [X,Y,Z,Q1,Q2,Q3,Q4] to a homogeneous matrix.
+# Reverse function of se3ToXYZQUAT: convert [X,Y,Z,Q1,Q2,Q3,Q4] to a SE3 element
 def XYZQUATToSe3(xyzq):
     if isinstance(xyzq,tuple) or isinstance(xyzq,list):
         xyzq = np.matrix(xyzq,np.float).T
@@ -45,7 +45,7 @@ def XYZQUATToSe3(xyzq):
         se3.Quaternion( xyzq[6,0],xyzq[3,0],xyzq[4,0],xyzq[5,0]).matrix(),
         xyzq[:3] )
 
-# Convert the input 7D vector [X,Y,Z,b,c,d,a] to 7D vector [X,Y,Y,a,b,c,d]
+# Convert the input 7D vector [X,Y,Z,b,c,d,a] to 7D vector [X,Y,Z,a,b,c,d]
 def XYZQUATToViewerConfiguration(xyzq):
     if isinstance(xyzq,tuple) or isinstance(xyzq,list):
         xyzq = np.matrix(xyzq,np.float).T
