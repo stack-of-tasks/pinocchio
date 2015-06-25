@@ -36,7 +36,6 @@ namespace se3
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
-                                  const Model::Index,
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
@@ -44,11 +43,10 @@ namespace se3
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointData> & jdata,
-                     const se3::Model & model,
+                     se3::JointDataBase<typename JointModel::JointData> &,
+                     const se3::Model &,
                      se3::Data & data,
-                     const Model::Index i,
-                     const Eigen::VectorXd & q)
+                     const Eigen::VectorXd &) // TODO: make joint limits depend explicitely on the current state (q,v)
     {
       using namespace Eigen;
       using namespace se3;
@@ -73,7 +71,7 @@ namespace se3
     {
       JointLimitsStep::run(model.joints[i],
                         data.joints[i],
-                        JointLimitsStep::ArgsType (model,data,i,q)
+                        JointLimitsStep::ArgsType (model,data,q)
                         );
     }
   }
