@@ -81,7 +81,7 @@ namespace se3
         bp::def("log3",log3_proxy,
                 bp::args("Rotation matrix (double size 3x3)"),
                 "Log: SO3 -> so3. Pseudo-inverse of log from SO3"
-                " -> { v \in so3, ||v|| < 2pi }.Exp: so3 -> SO3.");
+                " -> { v in so3, ||v|| < 2pi }.Exp: so3 -> SO3.");
         bp::def("exp6FromMotion",exp6FromMotion_proxy,
                 bp::args("Spatial velocity (se3.Motion)"),
                 "Exp: se3 -> SE3. Return the integral of the input"
@@ -93,11 +93,11 @@ namespace se3
         bp::def("log6FromSE3",log6FromSE3_proxy,
                 bp::args("Spatial transform (se3.SE3)"),
                 "Log: SE3 -> se3. Pseudo-inverse of exp from SE3"
-                " -> { v,w \in se3, ||w|| < 2pi }.");
+                " -> { v,w in se3, ||w|| < 2pi }.");
         bp::def("log6FromMatrix",log6FromMatrix_proxy,
                 bp::args("Spatial transform (double size 4x4)"),
                 "Log: SE3 -> se3. Pseudo-inverse of exp from SE3"
-                " -> { v,w \in se3, ||w|| < 2pi }.");
+                " -> { v,w in se3, ||w|| < 2pi }.");
       }
     };
   } // namespace python

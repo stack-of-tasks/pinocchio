@@ -190,7 +190,7 @@ namespace se3
         "abcdefghijklmnopqrstuvwxyz";
 
     for (int i=0; i<len;++i)
-      res += alphanum[(std::rand() % (sizeof(alphanum) - 1))];
+      res += alphanum[((size_t)std::rand() % (sizeof(alphanum) - 1))];
     return res;
 }
 
