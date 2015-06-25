@@ -20,14 +20,21 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
 #include <iostream>
  
 namespace se3
 {
   const Eigen::Vector3d &
-  centerOfMass        (const Model & model, Data& data,
-		       const Eigen::VectorXd & q,
-		       const bool & computeSubtreeComs = true);
+  centerOfMass (const Model & model, Data& data,
+                const Eigen::VectorXd & q,
+                const bool & computeSubtreeComs = true);
+  
+  void centerOfMassAcceleration(const Model & model, Data & data,
+                                const Eigen::VectorXd & q,
+                                const Eigen::VectorXd & v,
+                                const Eigen::VectorXd & a,
+                                const bool & computeSubtreeComs = true);
   /* The Jcom algorithm also compute the center of mass, using a less efficient
    * approach.  The com can be accessed afterward using data.com[0]. */
   const  Eigen::Matrix<double,3,Eigen::Dynamic> &
@@ -80,7 +87,7 @@ namespace se3
       data.liMi[i]      = model.jointPlacements[i]*jdata.M();
       data.com[parent]  += (data.liMi[i].rotation()*data.com[i]
 			    +data.mass[i]*data.liMi[i].translation());
-      data.mass[parent] += data.mass[i];  
+      data.mass[parent] += data.mass[i];
 
       if( computeSubtreeComs )
 	data.com[i] /= data.mass[i]; 
@@ -101,6 +108,8 @@ namespace se3
       {
 	data.com[i]  = model.inertias[i].mass()*model.inertias[i].lever();
 	data.mass[i] = model.inertias[i].mass();
+        
+        
       }
 
     for( Model::Index i=(Model::Index)(model.nbody-1);i>0;--i )
@@ -108,10 +117,73 @@ namespace se3
 	CenterOfMassForwardStep
 	  ::run(model.joints[i],data.joints[i],
 		CenterOfMassForwardStep::ArgsType(model,data,q,computeSubtreeComs));
+        
+        
       }
     data.com[0] /= data.mass[0];
 
     return data.com[0];
+  }
+  
+  /* Compute the centerOfMass velocity in the local frame. */
+  void
+  centerOfMassAcceleration(const Model & model, Data & data,
+                           const Eigen::VectorXd & q,
+                           const Eigen::VectorXd & v,
+                           const Eigen::VectorXd & a,
+                           const bool & computeSubtreeComs)
+  {
+    using namespace se3;
+    
+    data.mass[0] = 0;
+    data.com[0].setZero ();
+    data.vcom[0].setZero ();
+    data.acom[0].setZero ();
+    
+    // Forward Step
+    dynamics(model, data, q, v, a);
+    for(Model::Index i=1;i<(Model::Index)(model.nbody);++i)
+    {
+      const double mass = model.inertias[i].mass();
+      const SE3::Vector3 & lever = model.inertias[i].lever();
+      
+      const Motion & v = data.v[i];
+      const Motion & a = data.a[i];
+      
+      data.com[i]  = mass * lever;
+      data.mass[i] = mass;
+      
+      SE3::Vector3 vcom_local (v.angular().cross(lever) + v.linear());
+      data.vcom[i] = mass * (vcom_local);
+      data.acom[i] = mass * (a.angular().cross(lever) + a.linear() + v.angular().cross(vcom_local)); // take into accound the coriolis part of the acceleration
+      
+    }
+    
+    // Backward Step
+    for(Model::Index i=(Model::Index)(model.nbody-1); i>0; --i)
+    {
+      const Model::Index & parent = model.parents[i];
+      
+      const SE3 & liMi = data.liMi[i];
+      
+      data.com[parent] += (liMi.rotation()*data.com[i]
+                           + data.mass[i] * liMi.translation());
+      
+      data.vcom[parent] += liMi.rotation()*data.vcom[i];
+      data.acom[parent] += liMi.rotation()*data.acom[i];
+      data.mass[parent] += data.mass[i];
+      
+      if( computeSubtreeComs )
+      {
+        data.com[i] /= data.mass[i];
+        data.vcom[i] /= data.mass[i];
+        data.acom[i] /= data.mass[i];
+      }
+    }
+    
+    data.com[0] /= data.mass[0];
+    data.vcom[0] /= data.mass[0];
+    data.acom[0] /= data.mass[0];
   }
 
   const Eigen::Vector3d & getComFromCrba(const Model & , Data& data)
