@@ -86,6 +86,8 @@ namespace se3
 	  .ADD_DATA_PROPERTY_CONST(Eigen::MatrixXd,J,"Jacobian of joint placement")
 	  .ADD_DATA_PROPERTY(std::vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
 	  .ADD_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,com,"Subtree com position.")
+    .ADD_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,vcom,"Subtree com velocity.")
+    .ADD_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,acom,"Subtree com acceleration.")
 	  .ADD_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
 	  .ADD_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
 
@@ -116,6 +118,8 @@ namespace se3
       IMPL_DATA_PROPERTY_CONST(Eigen::MatrixXd,J,"Jacobian of joint placement")
       IMPL_DATA_PROPERTY(std::vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
       IMPL_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,com,"Subtree com position.")
+      IMPL_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,vcom,"Subtree com velocity.")
+      IMPL_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,acom,"Subtree com acceleration.")
       IMPL_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
       IMPL_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
 

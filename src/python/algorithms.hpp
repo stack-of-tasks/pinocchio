@@ -70,6 +70,13 @@ namespace se3
           DataHandler & data,
           const VectorXd_fx & q )
       { return centerOfMass(*model,*data,q); }
+      
+      static void com_acceleration_proxy(const ModelHandler& model,
+                                         DataHandler & data,
+                                         const VectorXd_fx & q,
+                                         const VectorXd_fx & v,
+                                         const VectorXd_fx & a)
+      { return centerOfMassAcceleration(*model,*data,q,v,a); }
 
       static Eigen::MatrixXd Jcom_proxy( const ModelHandler& model, 
            DataHandler & data,
@@ -97,6 +104,13 @@ namespace se3
       {
         computeJacobians( *model,*data,q );
       }
+      
+      static void geometry_proxy(const ModelHandler & model,
+                                 DataHandler & data,
+                                 const VectorXd_fx & q)
+      {
+        geometry(*model,*data,q);
+      }
 
       static void kinematics_proxy( const ModelHandler& model, 
             DataHandler & data,
@@ -106,11 +120,13 @@ namespace se3
         kinematics( *model,*data,q,qdot );
       }
 
-      static void geometry_proxy(const ModelHandler & model,
+      static void dynamics_proxy(const ModelHandler& model,
                                  DataHandler & data,
-                                 const VectorXd_fx & q)
+                                 const VectorXd_fx & q,
+                                 const VectorXd_fx & v,
+                                 const VectorXd_fx & a)
       {
-        geometry(*model,*data,q);
+        dynamics(*model,*data,q,v,a);
       }
 
       static void computeAllTerms_proxy(const ModelHandler & model,
@@ -155,6 +171,13 @@ namespace se3
     bp::args("Model","Data",
        "Configuration q (size Model::nq)"),
     "Compute the center of mass, putting the result in Data and return it.");
+        
+  bp::def("centerOfMassAcceleration",com_acceleration_proxy,
+    bp::args("Model","Data",
+    "Configuration q (size Model::nq)",
+    "Velocity v (size Model::nv)",
+    "Acceleration a (size Model::nv)"),
+    "Compute the center of mass position, velocity and acceleration andputting the result in Data.");
 
   bp::def("jacobianCenterOfMass",Jcom_proxy,
     bp::args("Model","Data",
@@ -164,7 +187,7 @@ namespace se3
   bp::def("kinematics",kinematics_proxy,
     bp::args("Model","Data",
        "Configuration q (size Model::nq)",
-       "Velocity qdot (size Model::nv)"),
+       "Velocity v (size Model::nv)"),
     "Compute the placements and spatial velocities of all the frames of the kinematic "
     "tree and put the results in data.");
 
@@ -173,6 +196,14 @@ namespace se3
         "Configuration q (size Model::nq)"),
         "Compute the placements of all the frames of the kinematic "
         "tree and put the results in data.");
+        
+        bp::def("dynamics",dynamics_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)",
+                         "Acceleration a (size Model::nv)"),
+                "Compute the placements, spatial velocities and spatial accelerations of all the frames of the kinematic "
+                "tree and put the results in data.");
 
   bp::def("computeAllTerms",computeAllTerms_proxy,
     bp::args("Model","Data",
