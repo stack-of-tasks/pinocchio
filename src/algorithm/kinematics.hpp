@@ -192,7 +192,7 @@ namespace se3
            const Eigen::VectorXd & a)
   {
     data.v[0].setZero();
-    data.a[0] = -model.gravity;
+    data.a[0].setZero();
     
     for( Model::Index i=1; i < (Model::Index) model.nbody; ++i )
     {
