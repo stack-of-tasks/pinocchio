@@ -26,6 +26,30 @@ namespace se3
   template<typename _Scalar, int _Options=0> class MotionTpl;
   template<typename _Scalar, int _Options=0> class ForceTpl;
   template<typename _Scalar, int _Options=0> class InertiaTpl;
+  template<typename _Scalar, int _Options=0> class Symmetric3Tpl;
+
+  template<class C> struct traits {};
+
+  #define SPATIAL_TYPEDEF_ARG(derived)              \
+  typedef typename traits<derived>::Scalar_t Scalar_t; \
+  typedef typename traits<derived>::Vector3 Vector3; \
+  typedef typename traits<derived>::Vector4 Vector4; \
+  typedef typename traits<derived>::Vector6 Vector6; \
+  typedef typename traits<derived>::Matrix3 Matrix3; \
+  typedef typename traits<derived>::Matrix4 Matrix4; \
+  typedef typename traits<derived>::Matrix6 Matrix6; \
+  typedef typename traits<derived>::Angular_t Angular_t; \
+  typedef typename traits<derived>::Linear_t Linear_t; \
+  typedef typename traits<derived>::ActionMatrix_t ActionMatrix_t; \
+  typedef typename traits<derived>::Quaternion_t Quaternion_t; \
+  typedef typename traits<derived>::SE3 SE3; \
+  typedef typename traits<derived>::Force Force; \
+  typedef typename traits<derived>::Motion Motion; \
+  typedef typename traits<derived>::Symmetric3 Symmetric3; \
+  enum {  \
+    LINEAR = traits<derived>::LINEAR,  \
+    ANGULAR = traits<derived>::ANGULAR   \
+  }
 
 } // namespace se3
 
