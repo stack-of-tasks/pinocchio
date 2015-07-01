@@ -27,7 +27,13 @@ int main(int argc, const char ** argv)
   using namespace se3;
 
   StackTicToc timer(StackTicToc::US);
+  #ifdef NDEBUG
   const int NBT = 1000*100;
+  #else
+    const int NBT = 1;
+    std::cout << "(the time score in debug mode is not relevant) " << std::endl;
+  #endif
+    
   se3::Model model;
 
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
