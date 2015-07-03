@@ -51,6 +51,8 @@ namespace se3
     ANGULAR = traits<derived>::ANGULAR   \
   }
 
+
+
 } // namespace se3
 
 #endif // ifndef __se3_fwd_hpp__
