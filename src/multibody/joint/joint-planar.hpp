@@ -163,9 +163,9 @@ namespace se3
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix <Inertia::Scalar, 6, 3> operator* (const Inertia & Y, const JointPlanar::ConstraintPlanar &)
+  Eigen::Matrix <Inertia::Scalar_t, 6, 3> operator* (const Inertia & Y, const JointPlanar::ConstraintPlanar &)
   {
-    Eigen::Matrix <Inertia::Scalar, 6, 3> M;
+    Eigen::Matrix <Inertia::Scalar_t, 6, 3> M;
     const double mass = Y.mass ();
     const Inertia::Vector3 & com = Y.lever ();
     const Symmetric3 & inertia = Y.inertia ();
