@@ -26,6 +26,10 @@ SET(PROJECT_NAME pinocchio)
 SET(PROJECT_DESCRIPTION "Rigid multi body dynamics algorithms")
 SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
 
+IF(APPLE)
+  SET(CMAKE_MACOSX_RPATH 1)
+ENDIF(APPLE)
+
 # Disable -Werror on Unix for now.
 SET(CXX_DISABLE_WERROR True)
 SET(CMAKE_VERBOSE_MAKEFILE True)
