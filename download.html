@@ -28,7 +28,17 @@ disqus: no
   
   <div class="tab-pane active" id="debian">
 
-    <p> Under construction ...</p>
+    <p> Debian packages will come soon. Meanwhile, we propose a <a href="{{site.baseurl}}/assets/Makefile">Makefile</a>*. </br>
+
+        Along the installation procedure with Makefile, some environment variables are
+        defined. It is recommended to include these definitions into an
+        initialization file like `.tcshrc` or `.bashrc` so that they will be
+        defined at each new session.
+        To complete the installation, you'll need a specific arborescence : a devel direcotry with two subdirectories : install/ and src/.
+        An environment variable (<code>DEVEL_DIR</code> must be defined and the Makefile run from <code>$DEVEL_DIR/src/</code> :
+        <code>cd $DEVEL_DIR && make</code> 
+    </p>
+    <p>* : This Makefile is still in Beta. Do not hesitate to contact us to report any problems.</p>
     <!-- <p>If you are using Debian or Ubuntu, please open a terminal and run the following command:</p>
 
     {% highlight bash %}
