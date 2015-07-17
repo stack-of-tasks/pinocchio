@@ -740,7 +740,7 @@ asciidoc.install(2);
 <div class="paragraph"><p>In this first series of exercises, we are going to take in hand the library Pinocchio in order to build a model
 of a robot, display this robot in a graphical user interface and control the robot to achieve geometric tasks.
 We will first try to achieve a positioning task for one hand, then we will enforce the static balance of the robot.
-Finally, we will implement a hierarchy of task in order to achieve both task : to reach a desired position for the hand
+Finally, we will implement a hierarchy of task in order to achieve both tasks : to reach a desired position for the hand
 ensuring we are in a statically balanced position.</p></div>
 <div class="paragraph"><p>The software Pinocchio is a C++ library provided with a python wrapping that allows us to control it with a python terminal.
 Let&#8217;s see how it works.</p></div>
@@ -751,8 +751,7 @@ Let&#8217;s see how it works.</p></div>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_python">Python</h3>
-<div class="paragraph"><p>We remind you that you can open a python terminal in your own shell. Simply type :
-bash terminal</p></div>
+<div class="paragraph"><p>We remind you that you can open a python terminal in your own shell. Simply type: </p></div>
 <div class="literalblock">
 <div class="content">
 <pre><code>student@student-virtualbox:~$ python
@@ -761,8 +760,7 @@ bash terminal</p></div>
 <div class="paragraph"><p>Afterwards you&#8217;ll just have to type your commands in this newly opened terminal.</p></div>
 <div class="paragraph"><p>To close the python terminal, just type CTRL-D (CTRL-C first to interrupt any on-going execution).</p></div>
 <div class="paragraph"><p>You can also write you command lines in a file and launch this script without entering the interactive mode
-(ie. without starting a new python terminal). In your shell, just type:
-bash terminal</p></div>
+(ie. without starting a new python terminal). In your shell:</p></div>
 <div class="literalblock">
 <div class="content">
 <pre><code>student@student-virtualbox:~$ python script.py
@@ -799,7 +797,8 @@ http://www.gnu.org/software/src-highlite -->
 <span style="font-weight: bold"><span style="color: #000000">skew</span></span><span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #000000">rand</span></span><span style="color: #990000">(</span><span style="color: #993399">3</span><span style="color: #990000">))</span>             <span style="font-style: italic"><span style="color: #9A1900"># Skew "cross-product" 3x3 matrix from a 3x1 vector</span></span>
 <span style="font-weight: bold"><span style="color: #000000">cross</span></span><span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #000000">rand</span></span><span style="color: #990000">(</span><span style="color: #993399">3</span><span style="color: #990000">),</span><span style="font-weight: bold"><span style="color: #000000">rand</span></span><span style="color: #990000">(</span><span style="color: #993399">3</span><span style="color: #990000">))</span>    <span style="font-style: italic"><span style="color: #9A1900"># Cross product of R^3</span></span>
 <span style="font-weight: bold"><span style="color: #000000">rotate</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'x'</span><span style="color: #990000">,</span><span style="color: #993399">0.4</span><span style="color: #990000">)</span>           <span style="font-style: italic"><span style="color: #9A1900"># Build a rotation matrix of 0.4rad around X.</span></span></tt></pre></div></div>
-<div class="paragraph"><p>Specific classes are defined to represent objects of SE(3), se(3) and se(3)^*. Rigid displacements, elements of SE(3), are represented by the class SE3.</p></div>
+<div class="paragraph"><p>Specific classes are defined to represent objects of SE(3), se(3) and se(3)^*.
+Rigid displacements, elements of SE(3), are represented by the class SE3.</p></div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 3.1.6
 by Lorenzo Bettini
@@ -810,7 +809,7 @@ R <span style="color: #990000">=</span> <span style="font-weight: bold"><span st
 M0 <span style="color: #990000">=</span> se3<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">SE3</span></span><span style="color: #990000">(</span>R<span style="color: #990000">,</span>p<span style="color: #990000">)</span>
 M <span style="color: #990000">=</span> se3<span style="color: #990000">.</span>SE3<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">Random</span></span><span style="color: #990000">()</span>
 M<span style="color: #990000">.</span>translation <span style="color: #990000">=</span> p<span style="color: #990000">;</span> M<span style="color: #990000">.</span>rotation <span style="color: #990000">=</span> R</tt></pre></div></div>
-<div class="paragraph"><p>Spatial velocities, elements of se(3) = M^6, are represented by the class Motion.</p></div>
+<div class="paragraph"><p>Spatial velocities, elements of se(3) = M<sup>6</sup>, are represented by the class Motion.</p></div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 3.1.6
 by Lorenzo Bettini
@@ -820,7 +819,7 @@ http://www.gnu.org/software/src-highlite -->
 nu0 <span style="color: #990000">=</span> se3<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">Motion</span></span><span style="color: #990000">(</span>v<span style="color: #990000">,</span>w<span style="color: #990000">)</span>
 nu <span style="color: #990000">=</span> se3<span style="color: #990000">.</span>Motion<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">Random</span></span><span style="color: #990000">()</span>
 nu<span style="color: #990000">.</span>linear <span style="color: #990000">=</span> v<span style="color: #990000">;</span> nu<span style="color: #990000">.</span>angular <span style="color: #990000">=</span> w</tt></pre></div></div>
-<div class="paragraph"><p>Spatial forces, elements of se(3)<sup>* = F</sup>6, are represented by the class Force.</p></div>
+<div class="paragraph"><p>Spatial forces, elements of se(3)<sup>*</sup> = F<sup>6</sup>, are represented by the class Force.</p></div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 3.1.6
 by Lorenzo Bettini
@@ -844,7 +843,7 @@ contains the working memory used by the model algorithms). Both C\++ objects are
 contained in a unique Python class. Two classes are currently available.
 The first one is called RobotWrapper and is generic. This is the one you should use
 with your own urdf model.
-The second one is called RomeoWrapper and is correlated to the romeo_small.urdf provided with
+The second one is called RomeoWrapper and is correlated to the romeo.urdf provided with
 the package. It implements some shortcuts specifics to our model and specify a half-sitting
 configuration.</p></div>
 <div class="paragraph"><p>For the next steps, we are going to work with the RomeoWrapper.</p></div>
@@ -859,19 +858,17 @@ http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-weight: bold"><span style="color: #000080">from</span></span> pinocchio<span style="color: #990000">.</span>romeo_wrapper <span style="font-weight: bold"><span style="color: #000080">import</span></span> RomeoWrapper
 
-robot <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #000000">RomeoWrapper</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'path/to/urdf/romeo_small.urdf'</span><span style="color: #990000">)</span></tt></pre></div></div>
-<div class="paragraph"><p>The code of the RomeoWrapper class is in /path/to/pinocchio//src/python/romeo_wrapper.py . Do not hesitate to have a look at it and to take inspiration from the implementation of the class functions.</p></div>
+robot <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #000000">RomeoWrapper</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'path/to/urdf/romeo.urdf'</span><span style="color: #990000">)</span></tt></pre></div></div>
+<div class="paragraph"><p>The code of the robot wrapper class is in /path/to/pinocchio//src/python/romeo_wrapper.py . Do not hesitate to have a look at it and to take inspiration from the implementation of the class functions.</p></div>
 </div>
 <div class="sect2">
 <h3 id="_exploring_the_model">Exploring the model</h3>
-<div class="paragraph"><p>The robot model is available in robot.model. It contains the names of all the
-robot joint [names], the kinematic tree [parents] (i.e. the graph of parents, 0
+<div class="paragraph"><p>Once created, the robot model is available in <code>robot.model</code>. It contains the names of all the
+robot joints [names], the kinematic tree [parents] (i.e. the graph of parents, 0
 being the root and having no parents), the position of the current joint in the
 parent coordinate frame [jointPosition], the mass, inertia and
-center-of-gravity position of all the bodies (condensed in a spatial inertia
-6x6 matrix) [inertias] and the gravity of the associated world [gravity]. All
-these functions are documented and are available in the correponding class
-dictionnary.</p></div>
+center-of-gravity position of all the bodies (condensed as a spatial inertia) [inertias] and the gravity of the associated world [gravity]. All
+these functions are documented and are available in the correponding class dictionnary.</p></div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 3.1.6
 by Lorenzo Bettini
@@ -879,7 +876,7 @@ http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-weight: bold"><span style="color: #0000FF">for</span></span> name<span style="color: #990000">,</span>function <span style="font-weight: bold"><span style="color: #0000FF">in</span></span> robot<span style="color: #990000">.</span>model<span style="color: #990000">.</span>__class__<span style="color: #990000">.</span>__dict__<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">items</span></span><span style="color: #990000">():</span>
   <span style="font-weight: bold"><span style="color: #0000FF">print</span></span> <span style="color: #FF0000">" **** "</span><span style="color: #990000">,</span> name<span style="color: #990000">,</span> <span style="color: #FF0000">": "</span><span style="color: #990000">,</span> function<span style="color: #990000">.</span>__doc__</tt></pre></div></div>
-<div class="paragraph"><p>Similarly, the robot data are available in robot.data. All the variables
+<div class="paragraph"><p>Similarly, the robot data are available in <code>robot.data</code>. All the variables
 allocated by the classical rigid-body dynamics algorithms are stored in
 robot.data and are available through the python wrapping. Similarly to the
 model object, the function are documented and are available from the class
@@ -894,9 +891,10 @@ by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-weight: bold"><span style="color: #0000FF">def</span></span> <span style="font-weight: bold"><span style="color: #000000">index</span></span><span style="color: #990000">(</span>self<span style="color: #990000">,</span>name<span style="color: #990000">):</span>
-   <span style="font-weight: bold"><span style="color: #0000FF">return</span></span> <span style="color: #990000">[</span> idx <span style="font-weight: bold"><span style="color: #0000FF">for</span></span> idx<span style="color: #990000">,</span>name <span style="font-weight: bold"><span style="color: #0000FF">in</span></span> <span style="font-weight: bold"><span style="color: #000000">enumerate</span></span><span style="color: #990000">(</span>robot<span style="color: #990000">.</span>model<span style="color: #990000">.</span>names<span style="color: #990000">)</span> <span style="font-weight: bold"><span style="color: #0000FF">if</span></span> name<span style="color: #990000">==</span><span style="color: #FF0000">"RWristPitch"</span> <span style="color: #990000">][</span><span style="color: #993399">0</span><span style="color: #990000">]</span>
+   <span style="font-weight: bold"><span style="color: #0000FF">return</span></span> <span style="color: #990000">[</span> i <span style="font-weight: bold"><span style="color: #0000FF">for</span></span> i<span style="color: #990000">,</span>n <span style="font-weight: bold"><span style="color: #0000FF">in</span></span> <span style="font-weight: bold"><span style="color: #000000">enumerate</span></span><span style="color: #990000">(</span>robot<span style="color: #990000">.</span>model<span style="color: #990000">.</span>names<span style="color: #990000">)</span> <span style="font-weight: bold"><span style="color: #0000FF">if</span></span> n<span style="color: #990000">==</span><span style="color: #FF0000">"name"</span> <span style="color: #990000">][</span><span style="color: #993399">0</span><span style="color: #990000">]</span>
 
 <span style="font-style: italic"><span style="color: #9A1900"># Get the placement of joint number idx</span></span>
+idx <span style="color: #990000">=</span> robot<span style="color: #990000">.</span>index <span style="color: #990000">(</span><span style="color: #FF0000">" RWristPitch "</span> <span style="color: #990000">)</span>
 placement <span style="color: #990000">=</span> robot<span style="color: #990000">.</span>data<span style="color: #990000">.</span>oMi<span style="color: #990000">[</span>idx<span style="color: #990000">]</span></tt></pre></div></div>
 <div class="paragraph"><p>Shortcuts are implemented for the right wrist (rh), left
 wrist (lh), right ankle (rf) and left ankle (lf). You can get the placement
@@ -904,33 +902,38 @@ corresponding to the right hand with robot.Mrh(q) and the corresponding
 Jacobian (6D, expressed in the body frame) with robot.Jrh.</p></div>
 <div class="paragraph"><p>Finally, some recurring datas (used in Model and Data) have been wrapped to functions in some
 python shortcuts, also available in RomeoWrapper:
-+The size of the robot configuration is given by nq.
-+The dimension of its tangent space (velocity) is nv.
-+The index of a joint in the tree can be accessed from its name by index (see above).
-+The classical algorithms are also binded: com, Jcom, mass, biais, joint gravity, position and velocity of each joint.
-+Shortcuts are also implemented for the placement and the Jacobian (6D, expressed in the body frame) of
+<ul> 
+<li>The size of the robot configuration is given by nq.</li>
+<li>The dimension of its tangent space (velocity) is nv.</li>
+<li>The index of a joint in the tree can be accessed from its name by index (see above).</li>
+<li>The classical algorithms are also binded: com, Jcom, mass, biais, joint gravity, position and velocity of each joint.</li>
+<li>Shortcuts are also implemented for the placement and the Jacobian (6D, expressed in the body frame) of
 the right wrist(rh), left wrist(lh), right ankle(rf), left ankle (lf).For example, you can access the right wrist
-placement and Jacobian with robot.Mrh(q) and robot.Jrh(q)</p></div>
+placement and Jacobian with robot.Mrh(q) and robot.Jrh(q)</li>
+</ul> 
+</p></div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 3.1.6
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
-<pre><tt>q <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #000000">zero</span></span><span style="color: #990000">(</span>robot<span style="color: #990000">.</span>nq<span style="color: #990000">)</span>
+<pre><tt><span style="font-weight: bold"><span style="color: #000080">from</span></span> pinocchio<span style="color: #990000">.</span>utils <span style="font-weight: bold"><span style="color: #000080">import</span></span> <span style="color: #990000">*</span>
+q <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #000000">zero</span></span><span style="color: #990000">(</span>robot<span style="color: #990000">.</span>nq<span style="color: #990000">)</span>
 v <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #000000">rand</span></span><span style="color: #990000">(</span>robot<span style="color: #990000">.</span>nv<span style="color: #990000">)</span>
 robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">com</span></span><span style="color: #990000">(</span>q<span style="color: #990000">)</span>            <span style="font-style: italic"><span style="color: #9A1900"># Compute the robot center of mass.</span></span>
 robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">position</span></span><span style="color: #990000">(</span>q<span style="color: #990000">,</span><span style="color: #993399">23</span><span style="color: #990000">)</span>    <span style="font-style: italic"><span style="color: #9A1900"># Compute the placement of joint 23</span></span></tt></pre></div></div>
 </div>
 <div class="sect2">
 <h3 id="_display_the_robot">Display the robot</h3>
-<div class="paragraph"><p>To display the robot, we need an external program called <code>Gepetto Viewer</code>.
+<div class="paragraph"><p>To display the robot, we need an external application called <code>Gepetto Viewer</code>.
 If you completed the installation in the previous page, you can launch this
-program, open a new terminal in an empty workspace.</p></div>
+program. Open a new terminal and start the server.</p></div>
 <div class="literalblock">
 <div class="content">
 <pre><code>student@student-virtualbox:~$ gepetto-viewer-server</code></pre>
 </div></div>
-<div class="paragraph"><p>This will start a server waiting for instructions. We will now create a client that will ask
+<div class="paragraph"><p>Depending on where you installed the software, you may need to go to the binary location or create a shortcut to match this line.
+This will start a server waiting for instructions. We will now create a client that will ask
 the server to perform some requests (such as creating a window or displaying our robot)
 In a python terminal you can test the following :</p></div>
 <div class="listingblock">
@@ -951,12 +954,13 @@ http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-weight: bold"><span style="color: #000080">from</span></span> gepetto<span style="color: #990000">.</span>corbaserver <span style="font-weight: bold"><span style="color: #000080">import</span></span> Client
 client<span style="color: #990000">=</span><span style="font-weight: bold"><span style="color: #000000">Client</span></span><span style="color: #990000">()</span>
-client<span style="color: #990000">.</span>gui<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">createWindow</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"w"</span><span style="color: #990000">)</span>
+wId <span style="color: #990000">=</span> client<span style="color: #990000">.</span>gui<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">createWindow</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"w"</span><span style="color: #990000">)</span>
 client<span style="color: #990000">.</span>gui<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">createSceneWithFloor</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"world"</span><span style="color: #990000">)</span>
-client<span style="color: #990000">.</span>gui<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">addSceneToWindow</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"world"</span><span style="color: #990000">,</span><span style="color: #FF0000">"w"</span><span style="color: #990000">)</span>
-client<span style="color: #990000">.</span>gui<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">addURDF</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"world/romeo"</span><span style="color: #990000">,</span><span style="color: #FF0000">"/path/to/urdf//romeo_small.urdf"</span><span style="color: #990000">,</span><span style="color: #FF0000">"/path/to/meshes/dir/"</span><span style="color: #990000">)</span></tt></pre></div></div>
-<div class="paragraph"><p>Be careful : Using the <code>addURDF</code> method, you load the robot in memory and parse the urdf file.
-The representation in the viewver is such that it need to have a root node that need to be added to the world.
+client<span style="color: #990000">.</span>gui<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">addSceneToWindow</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"world"</span><span style="color: #990000">, wId</span><span style="color: #990000">)</span>
+client<span style="color: #990000">.</span>gui<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">addURDF</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"world/romeo"</span><span style="color: #990000">,</span><span style="color: #FF0000">"/path/to/urdf//romeo.urdf"</span><span style="color: #990000">,</span><span style="color: #FF0000">"/path/to/meshes/dir/"</span><span style="color: #990000">)</span></tt></pre></div></div>
+<div class="paragraph"><p>The meshes directory MUST finish by <code>/</code>
+Be careful : Using the <code>addURDF</code> method, you load the robot in memory and parse the urdf file.
+The representation in the viewver is such that it need to have a root node that needs to be added to the world.
 That&#8217;s why we set the root node as world/romeo in the above example. Moreover the kinematic chain in gepetto
 viewer is slightly different from the one in pinocchio. In the viewer, the bodies are stored as nodes
 whereas in Pinocchio we store the joints. You can get the list of the node links in gepetto viewer typing
@@ -985,11 +989,10 @@ client<span style="color: #990000">.</span>gui<span style="color: #990000">.</sp
 <div class="paragraph"><p><strong>Objectives:</strong> Touch the difference between Pinocchio and Gepetto-viewer kinematic trees.
 Play with SE3, display rigid bodies in the world, compute and update the robot position.</p></div>
 <div class="paragraph"><p>Previously, we have seen how to load the robot model in Pinocchio and in the gepetto-viewer.
-And how to update the placement of a body in the viewer. Now we will see the correspondance
+These operations are completely independents.We have also seen how to move a node of the model stored by the viewer. Now we will see the correspondance
 between the model in Pinocchio and the one in the viewer.</p></div>
 <div class="paragraph"><p>The body origin is attached to the parent joint location (plus an offset). So to display the
-body attached to a joint (e.g the left arm attached to the left shoulder), we only need the coordinates
-of the joint.
+body attached to a joint, we only need the coordinates of the joint.
 Hence, to display the Head in the viewer, we compute the position of the joint parent of the head link.
 This joint is <em>HeadRoll</em></p></div>
 <div class="listingblock">
@@ -999,7 +1002,7 @@ http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt>head_joint_id <span style="color: #990000">=</span> robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">index</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'HeadRoll'</span><span style="color: #990000">)</span>
 M <span style="color: #990000">=</span> robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">position</span></span><span style="color: #990000">(</span>robot<span style="color: #990000">.</span>q0<span style="color: #990000">,</span>head_joint_id<span style="color: #990000">)</span></tt></pre></div></div>
-<div class="paragraph"><p>The placement of every joint is computed using <code>robot.position</code>. This function returns an object M
+<div class="paragraph"><p>The placement of a joint is computed using <code>robot.position</code>. This function returns an object M
 of class se3.SE3. The two main fields are M.translation (3x1 vector) and M.rotation (3x3 orthogonal matrix)
 . The corresponding homogeneous matrix is given by M.homogeneous. This matrix must be converted into a
 configuration vector of dimension 7 (x,y,z + a quaternion). You can perform it  with:</p></div>
@@ -1008,28 +1011,37 @@ configuration vector of dimension 7 (x,y,z + a quaternion). You can perform it  
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
-<pre><tt>robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">se3ToConfig</span></span><span style="color: #990000">(</span>M<span style="color: #990000">)</span></tt></pre></div></div>
-<div class="paragraph"><p><strong>Question:</strong>  For each body in the gepetto-viewer, retrieve the associated joint then its placement
+<pre><tt>robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">se3ToXYZQUAT</span></span><span style="color: #990000">(</span>M<span style="color: #990000">)</span></tt></pre></div></div>
+<div class="paragraph"><p><strong>Question:</strong>  For each body in the gepetto-viewer, retrieve the associated joint (in Pinocchio Model), then its placement
 and display the robot Romeo in the viewer.</p></div>
-<div class="paragraph"><p>As all of the joints do not have a body representation (for exemple, HeadPitch), and that it is pretty heavy
-to compute and update the placement of each body by hand, a function has been implemented in the romeowrapper.</p></div>
-<div class="listingblock">
-<div class="content"><!-- Generator: GNU source-highlight 3.1.6
-by Lorenzo Bettini
-http://www.lorenzobettini.it
-http://www.gnu.org/software/src-highlite -->
-<pre><tt>robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">display</span></span><span style="color: #990000">(</span>robot<span style="color: #990000">.</span>q0<span style="color: #990000">)</span></tt></pre></div></div>
-<div class="paragraph"><p>This function compute the placement of each joints that have a body attached to them and
+<div class="paragraph"><p>It can be a little bit hard to display each part separately, playing with the different kinematic trees.
+Moreover, all of the joints do not have a body representation (for exemple, HeadPitch) but each body is associated to a joint !
+To facilitate things, a function has been impemented in the RobotWrapper that computes and updates the placement of each body.</p></div>
+<div class="paragraph"><p>This function computes the placement of each joints that have a body attached to them and
 update the body corresponding in the viewer (communicating the new position, orientation and refreshing the
-window). To do so, we bind the Pinocchio robot to the one in the gepetto viewer by initializint the
+window). To do so, we bind the Pinocchio robot to the one in the gepetto viewer by initializing the
 connexion. The argument needed is the root node of the romeo tree in gepetto-viewer.</p></div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 3.1.6
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
-<pre><tt>robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">initDisplay</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"world/romeo/"</span><span style="color: #990000">)</span></tt></pre></div></div>
-</div>
+<pre><tt>robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">initDisplay</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"world/romeo/"</span><span style="color: #990000">)</span>
+robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">display</span></span><span style="color: #990000">(</span>robot<span style="color: #990000">.</span>q0<span style="color: #990000">)</span></tt></pre></div></div>
+<div class="paragraph"><p>Tip: Instead of creating by hand a Corbaserver Client, a new window for displaying etc, we have binded all this stuff in the RobotWrapper.
+You'll just have to do:</p></div>
+
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #000080">from</span></span> pinocchio<span style="color: #990000">.</span>romeo_wrapper <span style="font-weight: bold"><span style="color: #000080">import</span></span> RomeoWrapper
+robot <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #000000">RomeoWrapper</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'path/to/urdf/romeo.urdf'</span><span style="color: #990000">)</span>
+robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">initDisplay</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"world/romeo/"</span><span style="color: #990000">)</span>
+robot<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">display</span></span><span style="color: #990000">(</span>robot<span style="color: #990000">.</span>q0<span style="color: #990000">)</span></tt></pre></div></div>
+<div class="paragraph"><p> and let the magic happens.</p></div>
+
 <div class="sect2">
 <h3 id="_moving_the_robot_joints">Moving the robot joints</h3>
 <div class="paragraph"><p><strong>Objective:</strong> Touch the difference between a simple integration in R^n and the
@@ -1081,6 +1093,7 @@ matrix&#8230; the display explodes. We will integrate properly in the next Tutor
 <div class="paragraph"><p><strong>Objectives:</strong> Use the exponential of SE(3) to move one body in space.</p></div>
 <div class="sect2">
 <h3 id="_integration_in_se_3">Integration in SE(3)</h3>
+<div class="paragraph"><p><strong>Question:</strong> In the following, you will need a function <code>updateJointconfiguration</code>. The skeleton of this method is already in RobotWrapper. Fill it in a way that it can display in the viewer only the joint given as argument.</p></div>
 <div class="paragraph"><p>To properly integrate, it is necessary to rely on the exponential map of SE(3),
 that will produce a proper homogeneous matrix by integration of a constant
 se(3) velocity. The exponential map for both SE(3) and SO(3) is available in
