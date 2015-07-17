@@ -14,7 +14,7 @@ disqus: no
   </br>
   There is currently no released binary package.
   </br>
-  To install Pinocchio from sources, you will first need to perform installations of other packages themselves dependant on other ones. To facilitate the procedure, you will find in the tab "Source" all you need to install Pinocchio and
+  To install Pinocchio from sources, you will first need to perform installations of other packages themselves dependent on other ones. To facilitate the procedure, you will find in the tab "Source" all you need to install Pinocchio and
   Gepetto viewer (ie the 3D-vizualisation tool we advice to use in complement of Pinocchio if you need to display your robots)
 </p>
 
@@ -67,88 +67,69 @@ $ git submodule update
     <p>
       Following this procedure, you may have problems finding the libraries when compiling. If so, we advice you to check the paths where to search for theses libraries/packages. Three environement variables are to be checked : <code>PYTHONPATH</code>,<code>PKG_CONFIG_PATH</code>and <code>LD_LIBRARY_PATH</code>
     </p>
+
+    <h3>Installing from Git</h3>
+
+    <p> The following procedure is almost repeated for each package.</p>
+    {% highlight bash %}
+    $ git clone --recursive <git_url>
+    # Move to the newly created directory
+    $ cd <package>
+    # Create build directory
+    $ mkdir build && cd build
+    # Run cmake or ccmake and set the installation options as needed
+    $ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/your/install/prefix ..
+    # Build the software
+    $ make
+    # Install the software
+    $ make install
+    {% endhighlight %}
+
     <h3>Full Installation</h3>
 
-    <h4> Standalone Urdf</h4>
-      In order to read urdf files (see <a href="http://wiki.ros.org/urdf">http://wiki.ros.org/urdf</a> for the description), we have to install the urdfdom package which can come either along ROS library or be installed as a standalone library. Next section describes the second procedure.
+    <p> It is important to install the following packages in the order indicated because of dependencies. EigenPy is not mandatory if you only want the C++ library.
+        In case you want the python wrapping provided with Pinocchio, you will need to install it along with Gepetto Viewer.
+    </p>
 
-      Urdfdom depends on both console_bridge and urdfdom_headers. The installation of both dependencies can be done with the following command lines in a terminal :
+    <ul>
+      <li>console_bridge (<a href="https://github.com/ros/console_bridge.git">github</a>)</li>
+      <li>urdfdom_headers (<a href="https://github.com/ros/urdfdom_headers.git">github</a>)</li>
+      <li>urdfdom (<a href="https://github.com/ros/urdfdom.git">github</a>)</li> 
+      <li>EigenPy (<a href="https://github.com/stack-of-tasks/eigenpy.git">github</a>) </br>
+           Depending on your version of NumPy, you may have errors at compilation of eigenpy. If so, you can modify directly /usr/include/python2.7/numpy/ndarraytypes.h and remove the trailing comma at lines 159 and 211 to have:
 
-  {% highlight bash %}
-  $ git clone git://github.com/ros/console_bridge.git && cd console_bridge && mkdir build && cd build && cmake .. && make && sudo make install
-$ git clone git://github.com/ros/urdfdom_headers && cd urdfdom_headers && mkdir build && cd build && cmake .. && make && sudo make install
-  {% endhighlight %}
+            {% highlight Cpp %}
+            typedef enum {
+                NPY_INTROSELECT=0
+                } NPY_SELECTKIND;
+            {% endhighlight %}
 
-      You can then install urdfdom:
+            and 
+            {% highlight Cpp %}
+            NPY_INTERNAL_UNSAFE_CASTING_BUT_WARN_UNLESS_SAME_KIND = 100
+                } NPY_CASTING;
+            {% endhighlight %}
+      </li>
+      <li>Pinocchio (<a href="https://github.com/stack-of-tasks/pinocchio.git">github</a>) : You can either get the master branch or the development one.</li>
+    </ul>
 
-  {% highlight bash %}
-  $ git clone git://github.com/ros/urdfdom && cd urdfdom && mkdir build && cd build && cmake .. && make && sudo make install
-  {% endhighlight %}
+    <ul>
+      <li>Collada-dom (<a href="https://github.com/humanoid-path-planner/collada-dom.git">github</a>)</li>
+      <li>OpenSceneGraph : </br>
+          1. Install the dependencies required for OSG  <code><pre>sudo apt-get build-dep openscenegraph`</pre></code>
+          2. Get the source files <code><pre>wget http://www.openscenegraph.org/downloads/developer_releases/OpenSceneGraph-3.2.1.zip</pre></code>
+          3. Unzip </br>
+          4. In a terminal, go to the unzipped directory and type : <code><pre> ./configure && make && make install</pre></code>
 
-    <h4>EigenPy</h4>
-    
-    Get the released version v1.2.0 of <a href="https://github.com/stack-of-tasks/eigenpy"> EigenPy</a>:
-
-  {% highlight bash %}
-  $ git clone --branch v1.2.0 git@github.com:stack-of-tasks/eigenpy.git
-  {% endhighlight %}
-
-  Depending on your version of NumPy, you may have errors at compilation of eigenpy. If so, you can modify directly /usr/include/python2.7/numpy/ndarraytypes.h and remove the trailing comma at lines 159 and 211 to have:
-
-  {% highlight Cpp %}
-  typedef enum {
-      NPY_INTROSELECT=0
-      } NPY_SELECTKIND;
-  {% endhighlight %}
-
-  and 
-  {% highlight Cpp %}
-  NPY_INTERNAL_UNSAFE_CASTING_BUT_WARN_UNLESS_SAME_KIND = 100
-      } NPY_CASTING;
-  {% endhighlight %}
-
-
-    <h4>Pinocchio</h4>
-
-    Get the pre-release version of <a href="https://github.com/stack-of-tasks/pinocchio"> Pinocchio</a> . You can also get the
-development version <a href="https:://github.com/fvalenza/pinocchio">here </a> 
-  {% highlight bash %}
-  # Master pre-release
-$ git clone --recursive https:://github.com/stack-of-tasks/pinocchio.git
-# Or development branch
-$ git clone --recursive --branch beta https://github.com/fvalenza/pinocchio.git
-  {% endhighlight %}
-
-
-    <h4>Collada-dom</h4>
-    Clone the repository from <a href = "https://github.com/humanoid-path-planner/collada-dom"> github</a></p>
-    {% highlight bash %}
-  $ cd collada-dom
-$ mkdir -p build
-$ cd build/
-$ cmake [OPTIONS] ..
-$ make install
-  {% endhighlight %}
-
-    <h4>OpenSceneGraph</h4>
-      1. Install the dependencies required for OSG  <code><pre>sudo apt-get build-dep openscenegraph`</pre></code>
-2. Get the source files <code><pre>wget http://www.openscenegraph.org/downloads/developer_releases/OpenSceneGraph-3.2.1.zip</pre></code>
-3. Unzip </br>
-4. In a terminal, go to the unzipped directory and type : <code><pre> ./configure && make && make install</pre></code>
-
-      <div class="bs-callout bs-callout-danger">
-        <p><span class='glyphicon glyphicon-warning-sign'></span>
-          pkg_config may have problems to find the path to libcollada. Check that the CMAKE_libcollada_path is correctly set.
-        </p>
-      </div>
-
-    <h4>Gepetto-viewer</h4>
-
-    Clone and install the repository from <a href="https://github.com/humanoid-path-planner/gepetto-viewer.git">github </a>. The release v1.0.0 is compatible with Pinocchio
-
-    <h4>Gepetto-viewer-corba</h4>
-
-    Clone and install the repository from <a href="https://github.com/humanoid-path-planner/gepetto-viewer-corba.git">github </a>. Until the next release, you must clone the branch 'Pinocchio'.
+          <div class="bs-callout bs-callout-danger">
+            <p><span class='glyphicon glyphicon-warning-sign'></span>
+            pkg_config may have problems to find the path to libcollada. Check that the CMAKE_libcollada_path is correctly set.
+            </p>
+          </div>
+      </li>
+      <li>Gepetto-viewer (<a href="https://github.com/humanoid-path-planner/gepetto-viewer.git">github</a>)</li>
+      <li>Gepetto-viewer-corba (<a href="https://github.com/humanoid-path-planner/gepetto-viewer-corba.git">github </a>) </li>
+    </ul>
 
   </div>
 </div>
