@@ -70,6 +70,13 @@ namespace se3
           DataHandler & data,
           const VectorXd_fx & q )
       { return centerOfMass(*model,*data,q); }
+      
+      static void com_acceleration_proxy(const ModelHandler& model,
+                                         DataHandler & data,
+                                         const VectorXd_fx & q,
+                                         const VectorXd_fx & v,
+                                         const VectorXd_fx & a)
+      { return centerOfMassAcceleration(*model,*data,q,v,a); }
 
       static Eigen::MatrixXd Jcom_proxy( const ModelHandler& model, 
            DataHandler & data,
@@ -78,15 +85,31 @@ namespace se3
 
       static Eigen::MatrixXd jacobian_proxy( const ModelHandler& model, 
                DataHandler & data,
-               Model::Index jointId,
                const VectorXd_fx & q,
-               bool local )
+               Model::Index jointId,
+               bool local,
+							 bool update_geometry )
       {
   Eigen::MatrixXd J( 6,model->nv ); J.setZero();
-  computeJacobians( *model,*data,q );
+	if (update_geometry)
+  	computeJacobians( *model,*data,q );
   if(local) getJacobian<true> (*model, *data, jointId, J);
   else getJacobian<false> (*model, *data, jointId, J);
   return J;
+      }
+      
+      static void compute_jacobians_proxy(const ModelHandler& model, 
+               DataHandler & data,
+               const VectorXd_fx & q)
+      {
+        computeJacobians( *model,*data,q );
+      }
+      
+      static void geometry_proxy(const ModelHandler & model,
+                                 DataHandler & data,
+                                 const VectorXd_fx & q)
+      {
+        geometry(*model,*data,q);
       }
 
       static void kinematics_proxy( const ModelHandler& model, 
@@ -94,14 +117,16 @@ namespace se3
             const VectorXd_fx & q,
             const VectorXd_fx & qdot )
       {
-  kinematics( *model,*data,q,qdot );
+        kinematics( *model,*data,q,qdot );
       }
 
-      static void geometry_proxy(const ModelHandler & model,
+      static void dynamics_proxy(const ModelHandler& model,
                                  DataHandler & data,
-                                 const VectorXd_fx & q)
+                                 const VectorXd_fx & q,
+                                 const VectorXd_fx & v,
+                                 const VectorXd_fx & a)
       {
-        geometry(*model,*data,q);
+        dynamics(*model,*data,q,v,a);
       }
 
       static void computeAllTerms_proxy(const ModelHandler & model,
@@ -146,6 +171,13 @@ namespace se3
     bp::args("Model","Data",
        "Configuration q (size Model::nq)"),
     "Compute the center of mass, putting the result in Data and return it.");
+        
+  bp::def("centerOfMassAcceleration",com_acceleration_proxy,
+    bp::args("Model","Data",
+    "Configuration q (size Model::nq)",
+    "Velocity v (size Model::nv)",
+    "Acceleration a (size Model::nv)"),
+    "Compute the center of mass position, velocity and acceleration andputting the result in Data.");
 
   bp::def("jacobianCenterOfMass",Jcom_proxy,
     bp::args("Model","Data",
@@ -155,7 +187,7 @@ namespace se3
   bp::def("kinematics",kinematics_proxy,
     bp::args("Model","Data",
        "Configuration q (size Model::nq)",
-       "Velocity qdot (size Model::nv)"),
+       "Velocity v (size Model::nv)"),
     "Compute the placements and spatial velocities of all the frames of the kinematic "
     "tree and put the results in data.");
 
@@ -164,6 +196,14 @@ namespace se3
         "Configuration q (size Model::nq)"),
         "Compute the placements of all the frames of the kinematic "
         "tree and put the results in data.");
+        
+        bp::def("dynamics",dynamics_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)",
+                         "Acceleration a (size Model::nv)"),
+                "Compute the placements, spatial velocities and spatial accelerations of all the frames of the kinematic "
+                "tree and put the results in data.");
 
   bp::def("computeAllTerms",computeAllTerms_proxy,
     bp::args("Model","Data",
@@ -176,11 +216,17 @@ namespace se3
     bp::args("Model","Data",
        "Configuration q (size Model::nq)",
        "Joint ID (int)",
-       "frame (true = local, false = world)"),
+       "frame (true = local, false = world)",
+       "update_geometry (true = update the value of the total jacobian)"),
     "Calling computeJacobians then getJacobian, return the result. Attention: the "
     "function computes indeed all the jacobians of the model, even if just outputing "
-    "the demanded one. It is therefore outrageously costly wrt a dedicated "
+    "the demanded one if update_geometry is set to false. It is therefore outrageously costly wrt a dedicated "
     "call. Function to be used only for prototyping.");
+
+  bp::def("computeJacobians",compute_jacobians_proxy,
+    bp::args("Model","Data",
+       "Configuration q (size Model::nq)"),
+    "Calling computeJacobians");
 
   bp::def("jointLimits",jointLimits_proxy,
     bp::args("Model","Data",

@@ -18,6 +18,7 @@ import numpy as np
 import libpinocchio_pywrap as se3
 import utils
 from explog import exp
+import time
 
 class RobotWrapper:
     def __init__(self,filename):
@@ -42,26 +43,50 @@ class RobotWrapper:
     def nv(self):
         return self.model.nv
 
-    def com(self,q):
-        return se3.centerOfMass(self.model,self.data,q)
+    def com(self,*args):
+        if len(args) == 3:
+            q = args[0]
+            v = args[1]
+            a = args[2]
+            se3.centerOfMassAcceleration(self.model,self.data,q,v,a)
+            return self.data.com_pos(0), self.data.com_vel(0), self.data.com_acc(0)
+        return se3.centerOfMass(self.model,self.data,args[0])
+
     def Jcom(self,q):
         return se3.jacobianCenterOfMass(self.model,self.data,q)
 
     def mass(self,q):
         return se3.crba(self.model,self.data,q)
     def biais(self,q,v):
-        return se3.rnea(self.model,self.data,q,v,self.v0)
+        return se3.nle(self.model,self.data,q,v)
     def gravity(self,q):
         return se3.rnea(self.model,self.data,q,self.v0,self.v0)
+    
+    def geometry(self,q):
+        se3.geometry(self.model, self.data, q)
+    def kinematics(self,q,v):
+        se3.kinematics(self.model, self.data, q, v)
+    def dynamics(self,q,v,a):
+        se3.dynamics(self.model, self.data, q, v, a)
 
-    def position(self,q,index):
-        se3.kinematics(self.model,self.data,q,self.v0)
+    def position(self,q,index, update_geometry = True):
+        if update_geometry:
+            se3.geometry(self.model,self.data,q)
+
         return self.data.oMi[index]
-    def velocity(self,q,v,index):
-        se3.kinematics(self.model,self.data,q,v)
+    def velocity(self,q,v,index, update_kinematics = True):
+        if update_kinematics:
+            se3.kinematics(self.model,self.data,q,v)
+
         return self.data.v[index]
-    def jacobian(self,q,index):
-        return se3.jacobian(self.model,self.data,index,q,True)
+    def acceleration(self,q,v,a,index, update_acceleration = True):
+        if update_acceleration:
+          se3.dynamics(self.model,self.data,q,v,a)
+        return self.data.a[index]
+    def jacobian(self,q,index, update_geometry = True):
+        return se3.jacobian(self.model,self.data,q,index,True,update_geometry)
+    def computeJacobians(self,q):
+        return se3.computeJacobians(self.model,self.data,q)
 
     # --- ACCESS TO NAMES ----
     # Return the index of the joint whose name is given in argument.
@@ -92,7 +117,7 @@ class RobotWrapper:
             print "Check wheter gepetto-viewer is properly started"
         
 
-    # Create the scene displaying the robot meshes in Gepetto-viewer.
+    # Create the scene displaying the robot meshes in gepetto-viewer
     def loadDisplayModel(self, nodeName, windowName = "pinocchio", meshDir = None):
         import os
         try:
@@ -112,7 +137,7 @@ class RobotWrapper:
     def display(self,q): 
         if 'viewer' not in self.__dict__: return
         # Update the robot geometry.
-        se3.kinematics(self.model,self.data,q,self.v0)
+        se3.geometry(self.model,self.data,q)
         # Iteratively place the moving robot bodies.
         for i in range(1,self.model.nbody):
             if self.model.hasVisual[i]:
@@ -132,5 +157,16 @@ class RobotWrapper:
                 viewerConf = utils.XYZQUATToViewerConfiguration(pinocchioConf)
                 self.viewer.gui.applyConfiguration(self.viewerFixedNodeNames(i),viewerConf)
         self.viewer.gui.refresh()
+
+    def play(self,q_trajectory,dt):
+        _,N = q_trajectory.shape
+
+        for k in range(N):
+            t0 = time.time()
+            self.display(q_trajectory[:,k])
+            t1 = time.time()
+            elapsed_time = t1-t0
+            if elapsed_time < dt:
+              time.sleep(dt - elapsed_time)
 
 __all__ = [ 'RobotWrapper' ]

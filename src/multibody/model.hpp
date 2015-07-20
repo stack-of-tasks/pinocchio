@@ -139,6 +139,8 @@ namespace se3
     std::vector<SE3> iMf;                 // Body placement wrt to algorithm end effector.
 
     std::vector<Eigen::Vector3d> com;     // Subtree com position.
+    std::vector<Eigen::Vector3d> vcom;    // Subtree com velocity.
+    std::vector<Eigen::Vector3d> acom;    // Subtree com acceleration.
     std::vector<double> mass;             // Subtree total mass.
     Eigen::Matrix<double,3,Eigen::Dynamic> Jcom; // Jacobian of center of mass.
 
@@ -188,7 +190,7 @@ namespace se3
         "abcdefghijklmnopqrstuvwxyz";
 
     for (int i=0; i<len;++i)
-      res += alphanum[(std::rand() % (sizeof(alphanum) - 1))];
+      res += alphanum[((size_t)std::rand() % (sizeof(alphanum) - 1))];
     return res;
 }
 
@@ -315,6 +317,8 @@ namespace se3
     ,J(6,ref.nv)
     ,iMf((std::size_t)ref.nbody)
     ,com((std::size_t)ref.nbody)
+    ,vcom((std::size_t)ref.nbody)
+    ,acom((std::size_t)ref.nbody)
     ,mass((std::size_t)ref.nbody)
     ,Jcom(3,ref.nv)
     ,effortLimit(ref.nq)

@@ -37,6 +37,8 @@ namespace se3
     {
       typedef Data::Matrix6x Matrix6x;
       typedef Data::Matrix3x Matrix3x;
+      
+      typedef eigenpy::UnalignedEquivalent<Eigen::Vector3d>::type Vector3d_fx;
 
     public:
 
@@ -67,6 +69,7 @@ namespace se3
       void visit(PyClass& cl) const 
       {
 	cl
+
 	  .ADD_DATA_PROPERTY(std::vector<Motion>,a,"Body acceleration")
 	  .ADD_DATA_PROPERTY(std::vector<Motion>,v,"Body velocity")
 	  .ADD_DATA_PROPERTY(std::vector<Force>,f,"Body force")
@@ -85,13 +88,18 @@ namespace se3
 	  .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree_fromRow,"")
 	  .ADD_DATA_PROPERTY_CONST(Eigen::MatrixXd,J,"Jacobian of joint placement")
 	  .ADD_DATA_PROPERTY(std::vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
-	  .ADD_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,com,"Subtree com position.")
+//	  .ADD_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,com,"Subtree com position.")
+//    .ADD_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,vcom,"Subtree com velocity.")
+//    .ADD_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,acom,"Subtree com acceleration.")
+        .def("com_pos",&DataPythonVisitor::com_pos,"Subtree com position.")
+        .def("com_vel",&DataPythonVisitor::com_vel,"Subtree com velocity.")
+        .def("com_acc",&DataPythonVisitor::com_acc,"Subtree com acceleration.")
 	  .ADD_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
 	  .ADD_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
 
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,effortLimit,"Joint max effort")
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,velocityLimit,"Joint max velocity")
-
+        
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,lowerPositionLimit,"Limit for joint lower position")
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,upperPositionLimit,"Limit for joint upper position")
 	  ;
@@ -116,6 +124,8 @@ namespace se3
       IMPL_DATA_PROPERTY_CONST(Eigen::MatrixXd,J,"Jacobian of joint placement")
       IMPL_DATA_PROPERTY(std::vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
       IMPL_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,com,"Subtree com position.")
+      IMPL_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,vcom,"Subtree com velocity.")
+      IMPL_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,acom,"Subtree com acceleration.")
       IMPL_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
       IMPL_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
 
@@ -124,6 +134,10 @@ namespace se3
 
       IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,lowerPositionLimit,"Limit for joint lower position")
       IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,upperPositionLimit,"Limit for joint upper position")
+      
+      static Vector3d_fx com_pos (DataHandler & d, int i) { return d->com[(size_t) i]; }
+      static Vector3d_fx com_vel (DataHandler & d, int i) { return d->vcom[(size_t) i]; }
+      static Vector3d_fx com_acc (DataHandler & d, int i) { return d->acom[(size_t) i]; }
 
       /* --- Expose --------------------------------------------------------- */
       static void expose()
