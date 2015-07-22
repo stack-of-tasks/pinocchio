@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2014 CNRS-LAAS
-# Author: Florent Lamiraux
+# Copyright (c) 2015 CNRS-LAAS
+# Authors: Florent Lamiraux, Florian Valenza
 #
 
 ROS_REPO=https://github.com/ros
@@ -12,8 +12,8 @@ HPP_REPO=https://github.com/humanoid-path-planner
 SRC_DIR=${DEVEL_DIR}/src
 BUILD_TYPE=Debug
 
-console-bridge_branch=master
-console-bridge_repository=$(ROS_REPO)
+console_bridge_branch=master
+console_bridge_repository=$(ROS_REPO)
 
 urdfdom_headers_branch=master
 urdfdom_headers_repository=$(ROS_REPO)
@@ -43,11 +43,11 @@ viewer_repository=${HPP_REPO}
 OpenSceneGraph-3.2.1_extra_flags= -DCOLLADA_DYNAMIC_LIBRARY=${DEVEL_DIR}/install/lib/libcollada14dom.so -DCOLLADA_INCLUDE_DIR=${DEVEL_DIR}/install/include/collada-dom -DLIB_POSTFIX=""
 
 all: gepetto-viewer-corba.install \
-	# pinocchio.install
+	 pinocchio.install
 
-console-bridge.configure.dep: console-bridge.checkout
+console_bridge.configure.dep: console_bridge.checkout
 urdfdom_headers.configure.dep: urdfdom_headers.checkout
-urdfdom.configure.dep: urdfdom_headers.install console-bridge.install \
+urdfdom.configure.dep: urdfdom_headers.install console_bridge.install \
 	urdfdom.checkout
 eigenpy.configure.dep: eigenpy.checkout
 pinocchio.configure.dep: eigenpy.install urdfdom.install \
@@ -101,11 +101,17 @@ update:
 	git branch -D bce46g;\
 	git submodule update
 
+eigenpy.configure:eigenpy.configure.dep
+	cd ${SRC_DIR}/$(@:.configure=);\
+	mkdir -p build; \
+	cd ${SRC_DIR}/$(@:.configure=)/build; \
+	cmake -DCMAKE_INSTALL_PREFIX=${DEVEL_DIR}/install -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-g -O3 -DNDEBUG" -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ${$(@:.configure=)_extra_flags} ..
+
 %.configure:%.configure.dep
 	cd ${SRC_DIR}/$(@:.configure=);\
 	mkdir -p build; \
 	cd ${SRC_DIR}/$(@:.configure=)/build; \
-	cmake -DCMAKE_INSTALL_PREFIX=${DEVEL_DIR}/install -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-g -O3 -DNDEBUG" ${$(@:.configure=)_extra_flags} ..
+	cmake -DCMAKE_INSTALL_PREFIX=${DEVEL_DIR}/install -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-g -O3 -DNDEBUG" -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ${$(@:.configure=)_extra_flags} ..
 
 %.install:%.configure
 	cd ${SRC_DIR}/$(@:.install=)/build;\

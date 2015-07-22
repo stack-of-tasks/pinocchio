@@ -33,10 +33,13 @@ disqus: no
         Along the installation procedure with Makefile, some environment variables are
         defined. It is recommended to include these definitions into an
         initialization file like `.tcshrc` or `.bashrc` so that they will be
-        defined at each new session.
-        To complete the installation, you'll need a specific arborescence : a devel direcotry with two subdirectories : install/ and src/.
-        An environment variable (<code>DEVEL_DIR</code> must be defined and the Makefile run from <code>$DEVEL_DIR/src/</code> :
-        <code>cd $DEVEL_DIR && make</code> 
+        defined at each new session. We propose to you minimal variables: 
+        {% highlight bash %}
+          export DEVEL_DIR=/your/devel/dir
+          export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$DEVEL_DIR/install/lib64/pkgconfig:$DEVEL_DIR/install/lib/pkgconfig
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64:$DEVEL_DIR/install/lib64:$DEVEL_DIR/install/lib
+          export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages:$DEVEL_DIR/install/lib64:$DEVEL_DIR/install/lib/python2.7/site-packages
+      {% endhighlight %}
     </p>
     <p>* : This Makefile is still in Beta. Do not hesitate to contact us to report any problems.</p>
     <!-- <p>If you are using Debian or Ubuntu, please open a terminal and run the following command:</p>
@@ -70,12 +73,18 @@ $ git submodule update
     </p>
 
     {% highlight bash %}
-    sudo apt-get install libboost-dev libboost-doc libboost-thread-dev libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-python-dev libboost-program-options-dev libtinyxml-dev libopenthreads14 libeigen3-dev libeigen3-doc libomniorb4-dev omniorb-nameserver omniidl omniidl-python pkg-config
+    sudo apt-get install libboost-dev libboost-doc libboost-thread-dev libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-python-dev libboost-program-options-dev libtinyxml-dev libopenthreads14 libeigen3-dev libeigen3-doc libomniorb4-dev omniorb-nameserver omniidl omniidl-python pkg-config python-numpy clang cmake git g++
     {% endhighlight %}
 
 
     <p>
-      Following this procedure, you may have problems finding the libraries when compiling. If so, we advice you to check the paths where to search for theses libraries/packages. Three environement variables are to be checked : <code>PYTHONPATH</code>,<code>PKG_CONFIG_PATH</code>and <code>LD_LIBRARY_PATH</code>
+      Following this procedure, you may have problems finding the libraries when compiling. If so, we advice you to check the paths where to search for theses libraries/packages. Three environement variables are to be checked : <code>PYTHONPATH</code>,<code>PKG_CONFIG_PATH</code>and <code>LD_LIBRARY_PATH</code>. We propose to you minimal variables: 
+      {% highlight bash %}
+        export DEVEL_DIR=/your/devel/dir
+        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$DEVEL_DIR/install/lib64/pkgconfig:$DEVEL_DIR/install/lib/pkgconfig
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib64:$DEVEL_DIR/install/lib64:$DEVEL_DIR/install/lib
+        export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python2.7/site-packages:$DEVEL_DIR/install/lib64:$DEVEL_DIR/install/lib/python2.7/site-packages
+      {% endhighlight %}
     </p>
 
     <h3>Installing from Git</h3>
@@ -126,7 +135,7 @@ $ git submodule update
     <ul>
       <li>Collada-dom (<a href="https://github.com/humanoid-path-planner/collada-dom.git">github</a>)</li>
       <li>OpenSceneGraph : </br>
-          1. Install the dependencies required for OSG  <code><pre>sudo apt-get build-dep openscenegraph`</pre></code>
+          1. Install the dependencies required for OSG  <code><pre>sudo apt-get build-dep openscenegraph</pre></code>
           2. Get the source files <code><pre>wget http://www.openscenegraph.org/downloads/developer_releases/OpenSceneGraph-3.2.1.zip</pre></code>
           3. Unzip </br>
           4. In a terminal, go to the unzipped directory and type : <code><pre> ./configure && make && make install</pre></code>
