@@ -165,10 +165,10 @@ namespace se3
   {
     typedef JointDataRevoluteUnaligned JointData;
     typedef JointModelRevoluteUnaligned JointModel;
-    typedef typename JointRevoluteUnaligned::ConstraintRevoluteUnaligned Constraint_t;
+    typedef JointRevoluteUnaligned::ConstraintRevoluteUnaligned Constraint_t;
     typedef SE3 Transformation_t;
-    typedef typename JointRevoluteUnaligned::MotionRevoluteUnaligned Motion_t;
-    typedef typename JointRevoluteUnaligned::BiasZero Bias_t;
+    typedef JointRevoluteUnaligned::MotionRevoluteUnaligned Motion_t;
+    typedef JointRevoluteUnaligned::BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,1> F_t;
     enum {
       NQ = 1,
