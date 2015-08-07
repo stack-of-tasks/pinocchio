@@ -52,7 +52,7 @@ namespace se3
 
 	bf::invoke(&Visitor::template algo<D>,
 		   bf::append2(jmodel,
-			       boost::ref(boost::get<typename D::JointData&>(jdataSpec)),
+			       boost::ref(boost::get<typename D::JointData>(jdataSpec)),
 			       static_cast<const Visitor*>(this)->args));
       }
 
