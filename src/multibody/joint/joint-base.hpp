@@ -82,6 +82,39 @@ namespace se3
 #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
 #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
 
+#elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 4) && (__GNUC_PATCHLEVEL__ == 2)
+
+#define SE3_JOINT_TYPEDEF_NOARG()				\
+  typedef int Index;						\
+  typedef traits<Joint>::JointData JointData;			\
+  typedef traits<Joint>::JointModel JointModel;			\
+  typedef traits<Joint>::Constraint_t Constraint_t;		\
+  typedef traits<Joint>::Transformation_t Transformation_t;	\
+  typedef traits<Joint>::Motion_t Motion_t;			\
+  typedef traits<Joint>::Bias_t Bias_t;				\
+  typedef traits<Joint>::F_t F_t;				\
+  enum {							\
+    NQ = traits<Joint>::NQ,					\
+    NV = traits<Joint>::NV					\
+  }
+
+#define SE3_JOINT_TYPEDEF_ARG(prefix)					\
+  typedef int Index;							\
+  typedef prefix traits<Joint>::JointData JointData;			\
+  typedef prefix traits<Joint>::JointModel JointModel;			\
+  typedef prefix traits<Joint>::Constraint_t Constraint_t;		\
+  typedef prefix traits<Joint>::Transformation_t Transformation_t;	\
+  typedef prefix traits<Joint>::Motion_t Motion_t;			\
+  typedef prefix traits<Joint>::Bias_t Bias_t;				\
+  typedef prefix traits<Joint>::F_t F_t;				\
+  enum {								\
+    NQ = traits<Joint>::NQ,						\
+    NV = traits<Joint>::NV						\
+  }
+
+#define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_NOARG()
+#define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
+
 #else
 
 #define SE3_JOINT_TYPEDEF_ARG()              \
