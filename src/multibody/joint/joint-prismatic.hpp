@@ -240,13 +240,13 @@ namespace se3
   {
     // TODO: I am not able to write the next three lines as a template. Why?
     template<>
-    struct ActionReturn<typename JointPrismatic<0>::ConstraintPrismatic >  
+    struct ActionReturn<JointPrismatic<0>::ConstraintPrismatic >
     { typedef Eigen::Matrix<double,6,1> Type; };
     template<>
-    struct ActionReturn<typename JointPrismatic<1>::ConstraintPrismatic >  
+    struct ActionReturn<JointPrismatic<1>::ConstraintPrismatic >
     { typedef Eigen::Matrix<double,6,1> Type; };
     template<>
-    struct ActionReturn<typename JointPrismatic<2>::ConstraintPrismatic >  
+    struct ActionReturn<JointPrismatic<2>::ConstraintPrismatic >
     { typedef Eigen::Matrix<double,6,1> Type; };
   }
 
