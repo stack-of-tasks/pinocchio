@@ -24,6 +24,8 @@
 #define SINCOS sincos
 #elif __APPLE__
 #define SINCOS __sincos
+#elif __QNXNTO__
+#define SINCOS(a,sa,ca) (*sa) = std::sin(a); (*ca) = std::cos(a)
 #endif
 
 #endif //#ifndef __math_sincos_hpp__
