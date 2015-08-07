@@ -67,9 +67,10 @@ namespace se3
     {
       Matrix3 R(exp3(w));
       Matrix3 S(skew(w));
+      double ct,st; SINCOS (t,&st,&ct);
       Matrix3 V(
         Matrix3::Identity() +
-        (1 - cos(t)) / (t * t) * S + (t - sin(t)) / (t * t * t) * S * S);
+        (1 - ct) / (t * t) * S + (t - st) / (t * t * t) * S * S);
       Vector3 p(V * v);
       return SE3Tpl<_Scalar, _Options>(R, p);
     }
@@ -108,9 +109,10 @@ namespace se3
     if (t > 1e-15)
     {
       Matrix3 S(skew(w));
+      double ct,st; SINCOS (t,&st,&ct);
       Matrix3 V(
         Matrix3::Identity() +
-        (1 - cos(t)) / (t * t) * S + (t - sin(t)) / (t * t * t) * S * S);
+        (1 - ct) / (t * t) * S + (t - st) / (t * t * t) * S * S);
       v = V.inverse() * p;
     }
     else

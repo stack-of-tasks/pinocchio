@@ -206,7 +206,7 @@ namespace se3
     Model::Index idx = (Model::Index) (nbody ++);
 
     joints         .push_back(j.derived()); 
-    boost::get<D&>(joints.back()).setIndexes((int)idx,nq,nv);
+    boost::get<D>(joints.back()).setIndexes((int)idx,nq,nv);
 
     inertias       .push_back(Y);
     parents        .push_back(parent);
@@ -234,13 +234,13 @@ namespace se3
     Model::Index idx = (Model::Index) (nbody ++);
 
     joints         .push_back(j.derived()); 
-    boost::get<D&>(joints.back()).setIndexes((int)idx,nq,nv);
+    boost::get<D>(joints.back()).setIndexes((int)idx,nq,nv);
 
-    boost::get<D&>(joints.back()).setMaxEffortLimit(effort);
-    boost::get<D&>(joints.back()).setMaxVelocityLimit(velocity);
+    boost::get<D>(joints.back()).setMaxEffortLimit(effort);
+    boost::get<D>(joints.back()).setMaxVelocityLimit(velocity);
 
-    boost::get<D&>(joints.back()).setLowerPositionLimit(lowPos);
-    boost::get<D&>(joints.back()).setUpperPositionLimit(upPos);
+    boost::get<D>(joints.back()).setLowerPositionLimit(lowPos);
+    boost::get<D>(joints.back()).setUpperPositionLimit(upPos);
 
     inertias       .push_back(Y);
     parents        .push_back(parent);
