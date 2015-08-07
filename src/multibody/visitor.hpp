@@ -70,7 +70,7 @@ namespace se3
 
 #define JOINT_VISITOR_INIT(VISITOR)					\
   VISITOR( JointDataVariant & jdata,ArgsType args ) : jdata(jdata),args(args) {} \
-  using JointVisitor< VISITOR >::run;					\
+  using se3::fusion::JointVisitor< VISITOR >::run;			\
   JointDataVariant & jdata;						\
   ArgsType args
 
