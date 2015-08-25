@@ -26,20 +26,75 @@
 // S   : v   \in M^6              -> v_J \in lie(Q) ~= R^nv
 // S^T : f_J \in lie(Q)^* ~= R^nv -> f    \in F^6
 
+
 namespace se3
 {
-  template<int _Dim, typename _Scalar, int _Options=0>
-  class ConstraintTpl
+  template<int _Dim, typename _Scalar, int _Options=0> class ConstraintTpl;
+
+  template< class Derived>
+  class ConstraintBase
+  {
+  protected:
+    typedef Derived  Derived_t;
+    SPATIAL_TYPEDEF_ARG(Derived_t);
+    typedef typename traits<Derived_t>::JointMotion JointMotion;
+    typedef typename traits<Derived_t>::JointForce JointForce;
+    typedef typename traits<Derived_t>::DenseBase DenseBase;
+
+  public:
+    Derived_t & derived() { return *static_cast<Derived_t*>(this); }
+    const Derived_t& derived() const { return *static_cast<const Derived_t*>(this); }
+
+    Motion operator* (const JointMotion& vj) const { return derived().__mult__(vj); }
+
+    DenseBase & matrix()  { return derived().matrix_impl(); }
+    const DenseBase & matrix() const  { return derived().matrix_impl(); }
+    int nv() const { return derived().nv_impl(); }
+
+
+  };
+
+  template<int D, typename T, int U>
+  struct traits< ConstraintTpl<D, T, U> >
+  {
+    typedef T Scalar_t;
+    typedef Eigen::Matrix<T,3,1,U> Vector3;
+    typedef Eigen::Matrix<T,4,1,U> Vector4;
+    typedef Eigen::Matrix<T,6,1,U> Vector6;
+    typedef Eigen::Matrix<T,3,3,U> Matrix3;
+    typedef Eigen::Matrix<T,4,4,U> Matrix4;
+    typedef Eigen::Matrix<T,6,6,U> Matrix6;
+    typedef Matrix3 Angular_t;
+    typedef Vector3 Linear_t;
+    typedef Matrix6 ActionMatrix_t;
+    typedef Eigen::Quaternion<T,U> Quaternion_t;
+    typedef SE3Tpl<T,U> SE3;
+    typedef ForceTpl<T,U> Force;
+    typedef MotionTpl<T,U> Motion;
+    typedef Symmetric3Tpl<T,U> Symmetric3;
+    enum {
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+    typedef Eigen::Matrix<Scalar_t,D,1,U> JointMotion;
+    typedef Eigen::Matrix<Scalar_t,D,1,U> JointForce;
+    typedef Eigen::Matrix<Scalar_t,6,D> DenseBase;
+  };
+
+  template<int _Dim, typename _Scalar, int _Options>
+  class ConstraintTpl : ConstraintBase<ConstraintTpl < _Dim, _Scalar, _Options > >
   { 
   public:
-    enum { NV = _Dim, Options = _Options };
-    typedef _Scalar Scalar;
 
-    typedef Eigen::Matrix<Scalar,NV,1,Options> JointMotion;
-    typedef Eigen::Matrix<Scalar,NV,1,Options> JointForce;
-    typedef MotionTpl<Scalar,Options> Motion;
-    typedef ForceTpl<Scalar,Options> Force;
-    typedef Eigen::Matrix<Scalar,6,NV> DenseBase;
+    friend class ConstraintBase< ConstraintTpl< _Dim, _Scalar, _Options > >;
+    SPATIAL_TYPEDEF_ARG(ConstraintTpl);
+    
+    enum { NV = _Dim, Options = _Options };
+
+    typedef typename traits<ConstraintTpl>::JointMotion JointMotion;
+    typedef typename traits<ConstraintTpl>::JointForce JointForce;
+    typedef typename traits<ConstraintTpl>::DenseBase DenseBase;
+
   public:
     template<typename D>
     ConstraintTpl( const Eigen::MatrixBase<D> & _S ) : S(_S) {}
@@ -49,10 +104,17 @@ namespace se3
       EIGEN_STATIC_ASSERT_FIXED_SIZE(DenseBase);
       S.fill( NAN ); 
     } 
-    ConstraintTpl(const int dim) : S(6,dim)     {      S.fill( NAN );     }
 
-    Motion operator* (const JointMotion& vj) const
-    { return Motion(S*vj); }
+    ConstraintTpl(const int dim) : S(6,dim)
+    {
+      S.fill( NAN );
+    }
+
+    Motion __mult__(const JointMotion& vj) const 
+    {
+      return Motion(S*vj);
+    }
+
 
     struct Transpose
     {
@@ -64,10 +126,10 @@ namespace se3
     };
     Transpose transpose() const { return Transpose(*this); }
 
-    DenseBase & matrix() { return S; }
-    const DenseBase & matrix() const { return S; }
+    DenseBase & matrix_impl() { return S; }
+    const DenseBase & matrix_impl() const { return S; }
 
-    int nv() const { return NV; }
+    int nv_impl() const { return NV; }
 
   private:
     DenseBase S;
