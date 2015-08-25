@@ -31,7 +31,7 @@ namespace se3
   class MotionBase
   {
   protected:
-  
+
 
     typedef Derived  Derived_t;
     SPATIAL_TYPEDEF_ARG(Derived_t);
@@ -48,16 +48,16 @@ namespace se3
     void linear(const Linear_t & R) { static_cast< Derived_t*>(this)->linear_impl(R); }
 
     Vector6 toVector() const
-      {
-        return derived().toVector_impl();
-      }
+    {
+      return derived().toVector_impl();
+    }
 
     operator Vector6 () const { return toVector(); }
 
     ActionMatrix_t toActionMatrix() const
-      {
-        return derived().toActionMatrix_impl();
-      }
+    {
+      return derived().toActionMatrix_impl();
+    }
 
     operator Matrix6 () const { return toActionMatrix(); }
 
@@ -91,10 +91,10 @@ namespace se3
     }
 
     void disp(std::ostream & os) const
-      {
-        os << "base disp" << std::endl;
-        derived().disp_impl(os);
-      }
+    {
+      os << "base disp" << std::endl;
+      derived().disp_impl(os);
+    }
 
     friend std::ostream & operator << (std::ostream & os, const MotionBase<Derived_t> & mv)
     {
@@ -144,12 +144,12 @@ namespace se3
 
     template<typename v1,typename v2>
     MotionTpl(const Eigen::MatrixBase<v1> & v, const Eigen::MatrixBase<v2> & w)
-      : m_w(w), m_v(v) {}
+    : m_w(w), m_v(v) {}
 
     template<typename v6>
     explicit MotionTpl(const Eigen::MatrixBase<v6> & v)
-      : m_w(v.template segment<3>(ANGULAR))
-      , m_v(v.template segment<3>(LINEAR)) 
+    : m_w(v.template segment<3>(ANGULAR))
+    , m_v(v.template segment<3>(LINEAR)) 
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(v6);
       assert( v.size() == 6 );
@@ -158,7 +158,7 @@ namespace se3
 
     template<typename S2,int O2>
     explicit MotionTpl(const MotionTpl<S2,O2> & clone)
-      : m_w(clone.angular()),m_v(clone.linear()) {}
+    : m_w(clone.angular()),m_v(clone.linear()) {}
 
     // initializers
     static MotionTpl Zero()   { return MotionTpl(Vector3::Zero(),  Vector3::Zero());   }
@@ -247,26 +247,26 @@ namespace se3
     MotionTpl cross(const MotionTpl& v2) const
     {
       return MotionTpl( m_v.cross(v2.m_w)+m_w.cross(v2.m_v),
-			m_w.cross(v2.m_w) );
+                        m_w.cross(v2.m_w) );
     }
 
     Force cross(const Force& phi) const
     {
-      return Force
-	( m_w.cross(phi.linear()),
-	  m_w.cross(phi.angular())+m_v.cross(phi.linear()) );
+      return Force( m_w.cross(phi.linear()),
+                    m_w.cross(phi.angular())+m_v.cross(phi.linear()) );
     }
 
     MotionTpl se3Action_impl(const SE3 & m) const
     {
       Vector3 Rw (static_cast<Vector3>(m.rotation() * angular_impl()));
-      return MotionTpl(m.rotation()*linear_impl() + m.translation().cross(Rw), Rw);
+      return MotionTpl( m.rotation()*linear_impl() + m.translation().cross(Rw),
+                        Rw);
     }
     /// bv = aXb.actInv(av)
     MotionTpl se3ActionInverse_impl(const SE3 & m) const
     {
-      return MotionTpl(m.rotation().transpose()*(linear_impl()-m.translation().cross(angular_impl())),
-		       m.rotation().transpose()*angular_impl());
+      return MotionTpl( m.rotation().transpose()*(linear_impl()-m.translation().cross(angular_impl())),
+                        m.rotation().transpose()*angular_impl());
     }
 
     void disp_impl(std::ostream & os) const
@@ -283,7 +283,8 @@ namespace se3
     }
 
     /**
-      \brief Compute the spatial motion quantity of the parallel frame translated by translation_vector */
+      \brief Compute the spatial motion quantity of the parallel frame translated by translation_vector
+     */
     MotionTpl translate (const Vector3 & translation_vector) const
     {
       return MotionTpl (m_v + m_w.cross (translation_vector), m_w);
@@ -293,7 +294,7 @@ namespace se3
   private:
     Vector3 m_w;
     Vector3 m_v;
-  };
+  }; // class MotionTpl
 
   template<typename S,int O>
   MotionTpl<S,O> operator^( const MotionTpl<S,O> &m1, const MotionTpl<S,O> &m2 ) { return m1.cross(m2); }
@@ -303,35 +304,36 @@ namespace se3
   typedef MotionTpl<double> Motion;
 
 
-struct BiasZero;
-template<>
-struct traits< BiasZero >
-{
-typedef double Scalar_t;
-typedef Eigen::Matrix<double,3,1,0> Vector3;
-typedef Eigen::Matrix<double,4,1,0> Vector4;
-typedef Eigen::Matrix<double,6,1,0> Vector6;
-typedef Eigen::Matrix<double,3,3,0> Matrix3;
-typedef Eigen::Matrix<double,4,4,0> Matrix4;
-typedef Eigen::Matrix<double,6,6,0> Matrix6;
-typedef Matrix6 ActionMatrix_t;
-typedef Vector3 Angular_t;
-typedef Vector3 Linear_t;
-typedef Eigen::Quaternion<double,0> Quaternion_t;
-typedef SE3Tpl<double,0> SE3;
-typedef ForceTpl<double,0> Force;
-typedef MotionTpl<double,0> Motion;
-typedef Symmetric3Tpl<double,0> Symmetric3;
-enum {
-LINEAR = 0,
-ANGULAR = 3
-};
-};
+  struct BiasZero;
 
-struct BiasZero : public MotionBase< BiasZero >
-{
-operator Motion () const { return Motion::Zero(); }
-}; // struct BiasZero
+  template<>
+  struct traits< BiasZero >
+  {
+    typedef double Scalar_t;
+    typedef Eigen::Matrix<double,3,1,0> Vector3;
+    typedef Eigen::Matrix<double,4,1,0> Vector4;
+    typedef Eigen::Matrix<double,6,1,0> Vector6;
+    typedef Eigen::Matrix<double,3,3,0> Matrix3;
+    typedef Eigen::Matrix<double,4,4,0> Matrix4;
+    typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef Matrix6 ActionMatrix_t;
+    typedef Vector3 Angular_t;
+    typedef Vector3 Linear_t;
+    typedef Eigen::Quaternion<double,0> Quaternion_t;
+    typedef SE3Tpl<double,0> SE3;
+    typedef ForceTpl<double,0> Force;
+    typedef MotionTpl<double,0> Motion;
+    typedef Symmetric3Tpl<double,0> Symmetric3;
+    enum {
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+  };
+
+  struct BiasZero : public MotionBase< BiasZero >
+  {
+    operator Motion () const { return Motion::Zero(); }
+  }; // struct BiasZero
 
 const Motion & operator+( const Motion& v, const BiasZero&) { return v; }
 const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
