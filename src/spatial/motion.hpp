@@ -303,6 +303,38 @@ namespace se3
   typedef MotionTpl<double> Motion;
 
 
+struct BiasZero;
+template<>
+struct traits< BiasZero >
+{
+typedef double Scalar_t;
+typedef Eigen::Matrix<double,3,1,0> Vector3;
+typedef Eigen::Matrix<double,4,1,0> Vector4;
+typedef Eigen::Matrix<double,6,1,0> Vector6;
+typedef Eigen::Matrix<double,3,3,0> Matrix3;
+typedef Eigen::Matrix<double,4,4,0> Matrix4;
+typedef Eigen::Matrix<double,6,6,0> Matrix6;
+typedef Matrix6 ActionMatrix_t;
+typedef Vector3 Angular_t;
+typedef Vector3 Linear_t;
+typedef Eigen::Quaternion<double,0> Quaternion_t;
+typedef SE3Tpl<double,0> SE3;
+typedef ForceTpl<double,0> Force;
+typedef MotionTpl<double,0> Motion;
+typedef Symmetric3Tpl<double,0> Symmetric3;
+enum {
+LINEAR = 0,
+ANGULAR = 3
+};
+};
+
+struct BiasZero : public MotionBase< BiasZero >
+{
+operator Motion () const { return Motion::Zero(); }
+}; // struct BiasZero
+
+const Motion & operator+( const Motion& v, const BiasZero&) { return v; }
+const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
 
 } // namespace se3
 

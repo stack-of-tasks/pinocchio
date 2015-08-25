@@ -52,12 +52,6 @@ namespace se3
 
   template<int axis> 
   struct JointRevolute {
-    struct BiasZero 
-    {
-      operator Motion () const { return Motion::Zero(); }
-    };
-    friend const Motion & operator+ ( const Motion& v, const BiasZero&) { return v; }
-    friend const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
 
     struct MotionRevolute 
     {
@@ -284,7 +278,7 @@ namespace se3
     typedef typename JointRevolute<axis>::ConstraintRevolute Constraint_t;
     typedef SE3 Transformation_t;
     typedef typename JointRevolute<axis>::MotionRevolute Motion_t;
-    typedef typename JointRevolute<axis>::BiasZero Bias_t;
+    typedef BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,1> F_t;
     enum {
       NQ = 1,
