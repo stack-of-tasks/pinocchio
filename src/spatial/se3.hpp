@@ -114,7 +114,7 @@ namespace se3
         return os;
       }
 
-  };
+  }; // class SE3Base
 
 
   template<typename T, int U>
@@ -139,7 +139,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-  };
+  }; // traits SE3Tpl
 
   template<typename _Scalar, int _Options>
   class SE3Tpl : public SE3Base< SE3Tpl< _Scalar, _Options > >
@@ -270,7 +270,8 @@ namespace se3
   protected:
     Angular_t rot;
     Linear_t trans;
-  };
+    
+  }; // class SE3Tpl
 
   typedef SE3Tpl<double,0> SE3;
 

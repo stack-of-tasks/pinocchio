@@ -82,7 +82,7 @@ namespace se3
       return os;
     }
 
-  };
+  }; // class InertiaBase
 
 
   template<typename T, int U>
@@ -107,7 +107,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-  };
+  }; // traits InertiaTpl
 
   template<typename _Scalar, int _Options>
   class InertiaTpl : public InertiaBase< InertiaTpl< _Scalar, _Options > >
@@ -195,100 +195,101 @@ namespace se3
       return M;
     }
 
-      // Arithmetic operators
-      InertiaTpl& __equl__ (const InertiaTpl& clone) // Copy operator for std::vector 
-      {
-        m=clone.m; c=clone.c; I=clone.I;
-        return *this;
-      }
+    // Arithmetic operators
+    InertiaTpl& __equl__ (const InertiaTpl& clone) // Copy operator for std::vector 
+    {
+      m=clone.m; c=clone.c; I=clone.I;
+      return *this;
+    }
 
-      // Requiered by std::vector boost::python bindings. 
-      bool isEqual( const InertiaTpl& Y2 ) 
-      { 
-        return (m==Y2.m) && (c==Y2.c) && (I==Y2.I);
-      }
+    // Requiered by std::vector boost::python bindings. 
+    bool isEqual( const InertiaTpl& Y2 ) 
+    { 
+      return (m==Y2.m) && (c==Y2.c) && (I==Y2.I);
+    }
 
-      InertiaTpl __plus__(const InertiaTpl &Yb) const
-      {
-        /* Y_{a+b} = ( m_a+m_b,
-         *             (m_a*c_a + m_b*c_b ) / (m_a + m_b),
-         *             I_a + I_b - (m_a*m_b)/(m_a+m_b) * AB_x * AB_x )
-         */
+    InertiaTpl __plus__(const InertiaTpl &Yb) const
+    {
+      /* Y_{a+b} = ( m_a+m_b,
+       *             (m_a*c_a + m_b*c_b ) / (m_a + m_b),
+       *             I_a + I_b - (m_a*m_b)/(m_a+m_b) * AB_x * AB_x )
+       */
 
-        const double & mab = m+Yb.m;
-        const Vector3 & AB = (c-Yb.c).eval();
-        return InertiaTpl( mab,
-                           (m*c+Yb.m*Yb.c)/mab,
-                           I+Yb.I - (m*Yb.m/mab)* typename Symmetric3::SkewSquare(AB));
-      }
+      const double & mab = m+Yb.m;
+      const Vector3 & AB = (c-Yb.c).eval();
+      return InertiaTpl( mab,
+                         (m*c+Yb.m*Yb.c)/mab,
+                         I+Yb.I - (m*Yb.m/mab)* typename Symmetric3::SkewSquare(AB));
+    }
 
-      InertiaTpl& __pequ__(const InertiaTpl &Yb)
-      {
-        const InertiaTpl& Ya = *this;
-        const double & mab = Ya.m+Yb.m;
-        const Vector3 & AB = (Ya.c-Yb.c).eval();
-        c *= m; c += Yb.m*Yb.c; c /= mab;
-        I += Yb.I; I -= (Ya.m*Yb.m/mab)* typename Symmetric3::SkewSquare(AB);
-        m  = mab;
-        return *this;
-      }
+    InertiaTpl& __pequ__(const InertiaTpl &Yb)
+    {
+      const InertiaTpl& Ya = *this;
+      const double & mab = Ya.m+Yb.m;
+      const Vector3 & AB = (Ya.c-Yb.c).eval();
+      c *= m; c += Yb.m*Yb.c; c /= mab;
+      I += Yb.I; I -= (Ya.m*Yb.m/mab)* typename Symmetric3::SkewSquare(AB);
+      m  = mab;
+      return *this;
+    }
 
-      Force __mult__(const Motion &v) const 
-      {
-        const Vector3 & mcxw = m*c.cross(v.angular());
-        return Force( m*v.linear()-mcxw,
-                      m*c.cross(v.linear()) + I*v.angular() - c.cross(mcxw) );
-      }
+    Force __mult__(const Motion &v) const 
+    {
+      const Vector3 & mcxw = m*c.cross(v.angular());
+      return Force( m*v.linear()-mcxw,
+                    m*c.cross(v.linear()) + I*v.angular() - c.cross(mcxw) );
+    }
 
-      // Getters
-      Scalar_t           mass()    const { return m; }
-      const Vector3 &    lever()   const { return c; }
-      const Symmetric3 & inertia() const { return I; }
-
-
+    // Getters
+    Scalar_t           mass()    const { return m; }
+    const Vector3 &    lever()   const { return c; }
+    const Symmetric3 & inertia() const { return I; }
 
 
-      /// aI = aXb.act(bI)
-      InertiaTpl se3Action_impl(const SE3 & M) const
-      {
-        /* The multiplication RIR' has a particular form that could be used, however it
-         * does not seems to be more efficient, see http://stackoverflow.com/questions/
-         * 13215467/eigen-best-way-to-evaluate-asa-transpose-and-store-the-result-in-a-symmetric .*/
-         return InertiaTpl( m,
-                            M.translation()+M.rotation()*c,
-                            I.rotate(M.rotation()) );
-       }
 
-      ///bI = aXb.actInv(aI)
-      InertiaTpl se3ActionInverse_impl(const SE3 & M) const
-      {
-        return InertiaTpl(m,
-                          M.rotation().transpose()*(c-M.translation()),
-                          I.rotate(M.rotation().transpose()) );
-      }
 
-      Force vxiv( const Motion& v ) const 
-      {
-        const Vector3 & mcxw = m*c.cross(v.angular());
-        const Vector3 & mv_mcxw = m*v.linear()-mcxw;
-        return Force( v.angular().cross(mv_mcxw),
-                      v.angular().cross(c.cross(mv_mcxw)+I*v.angular())-v.linear().cross(mcxw) );
-      }
+    /// aI = aXb.act(bI)
+    InertiaTpl se3Action_impl(const SE3 & M) const
+    {
+      /* The multiplication RIR' has a particular form that could be used, however it
+       * does not seems to be more efficient, see http://stackoverflow.com/questions/
+       * 13215467/eigen-best-way-to-evaluate-asa-transpose-and-store-the-result-in-a-symmetric .*/
+       return InertiaTpl( m,
+                          M.translation()+M.rotation()*c,
+                          I.rotate(M.rotation()) );
+     }
 
-      void disp_impl(std::ostream &os) const
-      {
-        os  << "m =" << m << ";\n"
-        << "c = [\n" << c.transpose() << "]';\n"
-        << "I = [\n" << (Matrix3)I << "];";
-      }
+    ///bI = aXb.actInv(aI)
+    InertiaTpl se3ActionInverse_impl(const SE3 & M) const
+    {
+      return InertiaTpl(m,
+                        M.rotation().transpose()*(c-M.translation()),
+                        I.rotate(M.rotation().transpose()) );
+    }
 
-    private:
-      Scalar_t m;
-      Vector3 c;
-      Symmetric3 I;
-    };
+    Force vxiv( const Motion& v ) const 
+    {
+      const Vector3 & mcxw = m*c.cross(v.angular());
+      const Vector3 & mv_mcxw = m*v.linear()-mcxw;
+      return Force( v.angular().cross(mv_mcxw),
+                    v.angular().cross(c.cross(mv_mcxw)+I*v.angular())-v.linear().cross(mcxw) );
+    }
 
-    typedef InertiaTpl<double,0> Inertia;
+    void disp_impl(std::ostream &os) const
+    {
+      os  << "m =" << m << ";\n"
+      << "c = [\n" << c.transpose() << "]';\n"
+      << "I = [\n" << (Matrix3)I << "];";
+    }
+
+  private:
+    Scalar_t m;
+    Vector3 c;
+    Symmetric3 I;
+    
+  }; // class InertiaTpl
+
+  typedef InertiaTpl<double,0> Inertia;
     
 } // namespace se3
 

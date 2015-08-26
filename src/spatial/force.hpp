@@ -85,7 +85,7 @@ namespace se3
       return os;
     }
 
-  };
+  }; // class ForceBase
 
 
   template<typename T, int U>
@@ -110,7 +110,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-  };
+  }; // traits ForceTpl
 
   template<typename _Scalar, int _Options>
   class ForceTpl : public ForceBase< ForceTpl< _Scalar, _Options > >
@@ -267,7 +267,8 @@ namespace se3
   protected:
     Angular_t m_n;
     Linear_t m_f;
-  };
+
+  }; // class ForceTpl
 
 
   typedef ForceTpl<double,0> Force;
