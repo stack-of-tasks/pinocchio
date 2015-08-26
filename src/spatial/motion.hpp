@@ -332,6 +332,7 @@ namespace se3
 
   struct BiasZero : public MotionBase< BiasZero >
   {
+    SPATIAL_TYPEDEF_ARG(BiasZero);
     operator Motion () const { return Motion::Zero(); }
   }; // struct BiasZero
 
