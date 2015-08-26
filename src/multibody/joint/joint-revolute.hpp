@@ -104,58 +104,92 @@ namespace se3
       return Motion( m2.linear(),m2.angular()+typename revolute::CartesianVector3<axis>(m1.w)); 
     }
 
-    template<int axis> 
-  struct JointRevolute {
+    template<int axis> struct ConstraintRevolute;
 
-    struct ConstraintRevolute
+    template<int axis>
+    struct traits< ConstraintRevolute<axis> >
+    {
+      typedef double Scalar_t;
+      typedef Eigen::Matrix<double,3,1,0> Vector3;
+      typedef Eigen::Matrix<double,4,1,0> Vector4;
+      typedef Eigen::Matrix<double,6,1,0> Vector6;
+      typedef Eigen::Matrix<double,3,3,0> Matrix3;
+      typedef Eigen::Matrix<double,4,4,0> Matrix4;
+      typedef Eigen::Matrix<double,6,6,0> Matrix6;
+      typedef Matrix3 Angular_t;
+      typedef Vector3 Linear_t;
+      typedef Matrix6 ActionMatrix_t;
+      typedef Eigen::Quaternion<double,0> Quaternion_t;
+      typedef SE3Tpl<double,0> SE3;
+      typedef ForceTpl<double,0> Force;
+      typedef MotionTpl<double,0> Motion;
+      typedef Symmetric3Tpl<double,0> Symmetric3;
+      enum {
+        LINEAR = 0,
+        ANGULAR = 3
+      };
+      typedef Eigen::Matrix<Scalar_t,1,1,0> JointMotion;
+      typedef Eigen::Matrix<Scalar_t,1,1,0> JointForce;
+      typedef Eigen::Matrix<Scalar_t,6,1> DenseBase;
+    };
+
+    template<int axis>
+    struct ConstraintRevolute : ConstraintBase < ConstraintRevolute <axis > >
     { 
+      SPATIAL_TYPEDEF_ARG(ConstraintRevolute);
+
       template<typename D>
       MotionRevolute<axis> operator*( const Eigen::MatrixBase<D> & v ) const
       { return MotionRevolute<axis>(v[0]); }
 
       Eigen::Matrix<double,6,1> se3Action(const SE3 & m) const
       { 
-	Eigen::Matrix<double,6,1> res;
-	res.head<3>() = m.translation().cross( m.rotation().col(axis));
-	res.tail<3>() = m.rotation().col(axis);
-	return res;
+        Eigen::Matrix<double,6,1> res;
+        res.head<3>() = m.translation().cross( m.rotation().col(axis));
+        res.tail<3>() = m.rotation().col(axis);
+        return res;
       }
 
+      // template<int axis>
       struct TransposeConst
       {
-	const ConstraintRevolute & ref; 
-	TransposeConst(const ConstraintRevolute & ref) : ref(ref) {} 
+        const ConstraintRevolute<axis> & ref; 
+        TransposeConst(const ConstraintRevolute<axis> & ref) : ref(ref) {} 
 
-	Force::Vector3::ConstFixedSegmentReturnType<1>::Type
-	operator*( const Force& f ) const
-	{ return f.angular().segment<1>(axis); }
+        typename Force::Vector3::template ConstFixedSegmentReturnType<1>::Type
+        operator*( const Force& f ) const
+        { return f.angular().template segment<1>(axis); }
 
-	/* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
-	template<typename D>
-	friend typename Eigen::MatrixBase<D>::ConstRowXpr
-	operator*( const TransposeConst &, const Eigen::MatrixBase<D> & F )
-	{
-	  assert(F.rows()==6);
-    return F.row(Inertia::ANGULAR + axis);
-	}
+        /// [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
+        template<typename D>
+        friend typename Eigen::MatrixBase<D>::ConstRowXpr
+        operator*( const TransposeConst &, const Eigen::MatrixBase<D> & F )
+        {
+          assert(F.rows()==6);
+          return F.row(Inertia::ANGULAR + axis);
+        }
 
       };
+
       TransposeConst transpose() const { return TransposeConst(*this); }
 
 
-    /* CRBA joint operators
-     *   - ForceSet::Block = ForceSet
-     *   - ForceSet operator* (Inertia Y,Constraint S)
-     *   - MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
-     *   - SE3::act(ForceSet::Block)
-     */
+      /* CRBA joint operators
+       *   - ForceSet::Block = ForceSet
+       *   - ForceSet operator* (Inertia Y,Constraint S)
+       *   - MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
+       *   - SE3::act(ForceSet::Block)
+       */
       operator ConstraintXd () const
       {
-	Eigen::Matrix<double,6,1> S;
-	S << Eigen::Vector3d::Zero(), (Eigen::Vector3d)revolute::CartesianVector3<axis>();
-	return ConstraintXd(S);
+        Eigen::Matrix<double,6,1> S;
+        S << Eigen::Vector3d::Zero(), (Eigen::Vector3d)revolute::CartesianVector3<axis>();
+        return ConstraintXd(S);
       }
     }; // struct ConstraintRevolute
+
+  template<int axis> 
+  struct JointRevolute {
 
     static Eigen::Matrix3d cartesianRotation(const double & angle); 
   };
@@ -171,7 +205,7 @@ namespace se3
     const Motion::Vector3& w = m1.angular();
     const double & wx = m2.w;
     return Motion( Motion::Vector3(0,v[2]*wx,-v[1]*wx),
-		   Motion::Vector3(0,w[2]*wx,-w[1]*wx) );
+       Motion::Vector3(0,w[2]*wx,-w[1]*wx) );
   }
 
   Motion operator^( const Motion& m1, const MotionRevolute<1>& m2)
@@ -185,7 +219,7 @@ namespace se3
     const Motion::Vector3& w = m1.angular();
     const double & wx = m2.w;
     return Motion( Motion::Vector3(-v[2]*wx,0, v[0]*wx),
-		   Motion::Vector3(-w[2]*wx,0, w[0]*wx) );
+       Motion::Vector3(-w[2]*wx,0, w[0]*wx) );
   }
 
   Motion operator^( const Motion& m1, const MotionRevolute<2>& m2)
@@ -199,7 +233,7 @@ namespace se3
     const Motion::Vector3& w = m1.angular();
     const double & wx = m2.w;
     return Motion( Motion::Vector3(v[1]*wx,-v[0]*wx,0),
-		   Motion::Vector3(w[1]*wx,-w[0]*wx,0) );
+       Motion::Vector3(w[1]*wx,-w[0]*wx,0) );
   }
 
   template<>
@@ -208,9 +242,9 @@ namespace se3
       Eigen::Matrix3d R3; 
       double ca,sa; SINCOS (angle,&sa,&ca);
       R3 << 
-      	1,0,0,
-      	0,ca,-sa,
-      	0,sa,ca;
+        1,0,0,
+        0,ca,-sa,
+        0,sa,ca;
       return R3;
     }
   template<>
@@ -219,9 +253,9 @@ namespace se3
       Eigen::Matrix3d R3; 
       double ca,sa; SINCOS (angle,&sa,&ca);
       R3 << 
-	 ca, 0,  sa,
-	  0, 1,   0,
-	-sa, 0,  ca;
+   ca, 0,  sa,
+    0, 1,   0,
+  -sa, 0,  ca;
       return R3;
     }
   template<>
@@ -230,15 +264,15 @@ namespace se3
       Eigen::Matrix3d R3; 
       double ca,sa; SINCOS (angle,&sa,&ca);
       R3 << 
-	ca,-sa,0,
-	sa,ca,0,
-	0,0,1;
+  ca,-sa,0,
+  sa,ca,0,
+  0,0,1;
       return R3;
     }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   Eigen::Matrix<double,6,1>
-  operator*( const Inertia& Y,const JointRevolute<0>::ConstraintRevolute & )
+  operator*( const Inertia& Y,const ConstraintRevolute<0> & )
   { 
     /* Y(:,3) = ( 0,-z, y,  I00+yy+zz,  I01-xy   ,  I02-xz   ) */
     const double 
@@ -248,14 +282,14 @@ namespace se3
       &z = Y.lever()[2];
     const Inertia::Symmetric3 & I = Y.inertia();
     Eigen::Matrix<double,6,1> res; res << 0.0,-m*z,m*y,
-				     I(0,0)+m*(y*y+z*z),
-    				     I(0,1)-m*x*y,
-    				     I(0,2)-m*x*z ;
+             I(0,0)+m*(y*y+z*z),
+                 I(0,1)-m*x*y,
+                 I(0,2)-m*x*z ;
     return res;
   }
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   Eigen::Matrix<double,6,1>
-  operator*( const Inertia& Y,const JointRevolute<1>::ConstraintRevolute & )
+  operator*( const Inertia& Y,const ConstraintRevolute<1> & )
   { 
     /* Y(:,4) = ( z, 0,-x,  I10-xy   ,  I11+xx+zz,  I12-yz   ) */
     const double 
@@ -265,14 +299,14 @@ namespace se3
       &z = Y.lever()[2];
     const Inertia::Symmetric3 & I = Y.inertia();
     Eigen::Matrix<double,6,1> res; res << m*z,0,-m*x,
-				     I(1,0)-m*x*y,
-    				     I(1,1)+m*(x*x+z*z),
-				     I(1,2)-m*y*z ;
+             I(1,0)-m*x*y,
+                 I(1,1)+m*(x*x+z*z),
+             I(1,2)-m*y*z ;
     return res;
   }
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   Eigen::Matrix<double,6,1>
-  operator*( const Inertia& Y,const JointRevolute<2>::ConstraintRevolute & )
+  operator*( const Inertia& Y,const ConstraintRevolute<2> & )
   { 
     /* Y(:,5) = (-y, x, 0,  I20-xz   ,  I21-yz   ,  I22+xx+yy) */
     const double 
@@ -282,9 +316,9 @@ namespace se3
       &z = Y.lever()[2];
     const Inertia::Symmetric3 & I = Y.inertia();
     Eigen::Matrix<double,6,1> res; res << -m*y,m*x,0,
-				     I(2,0)-m*x*z,
-				     I(2,1)-m*y*z,
-				     I(2,2)+m*(x*x+y*y) ;
+             I(2,0)-m*x*z,
+             I(2,1)-m*y*z,
+             I(2,2)+m*(x*x+y*y) ;
     return res;
   }
 
@@ -292,13 +326,13 @@ namespace se3
   {
     // TODO: I am not able to write the next three lines as a template. Why?
     template<>
-    struct ActionReturn<JointRevolute<0>::ConstraintRevolute >
+    struct ActionReturn<ConstraintRevolute<0> >
     { typedef Eigen::Matrix<double,6,1> Type; };
     template<>
-    struct ActionReturn<JointRevolute<1>::ConstraintRevolute >
+    struct ActionReturn<ConstraintRevolute<1> >
     { typedef Eigen::Matrix<double,6,1> Type; };
     template<>
-    struct ActionReturn<JointRevolute<2>::ConstraintRevolute >
+    struct ActionReturn<ConstraintRevolute<2> >
     { typedef Eigen::Matrix<double,6,1> Type; };
   }
 
@@ -309,7 +343,7 @@ namespace se3
   {
     typedef JointDataRevolute<axis> JointData;
     typedef JointModelRevolute<axis> JointModel;
-    typedef typename JointRevolute<axis>::ConstraintRevolute Constraint_t;
+    typedef ConstraintRevolute<axis> Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionRevolute<axis> Motion_t;
     typedef BiasZero Bias_t;
@@ -354,15 +388,15 @@ namespace se3
     
     JointData createData() const { return JointData(); }
     void calc( JointData& data, 
-	       const Eigen::VectorXd & qs ) const
+         const Eigen::VectorXd & qs ) const
     {
       const double & q = qs[idx_q()];
       data.M.rotation(JointRevolute<axis>::cartesianRotation(q));
     }
 
     void calc( JointData& data, 
-	       const Eigen::VectorXd & qs, 
-	       const Eigen::VectorXd & vs ) const
+         const Eigen::VectorXd & qs, 
+         const Eigen::VectorXd & vs ) const
     {
       const double & q = qs[idx_q()];
       const double & v = vs[idx_v()];
