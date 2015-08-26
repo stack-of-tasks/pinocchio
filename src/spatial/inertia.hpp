@@ -33,7 +33,7 @@ namespace se3
   protected:
 
     typedef Derived  Derived_t;
-    SPATIAL_TYPEDEF_ARG(Derived_t);
+    SPATIAL_TYPEDEF_TEMPLATE(Derived_t);
 
   public:
     Derived_t & derived() { return *static_cast<Derived_t*>(this); }
@@ -114,7 +114,7 @@ namespace se3
   {
   public:
     friend class InertiaBase< InertiaTpl< _Scalar, _Options > >;
-    SPATIAL_TYPEDEF_ARG(InertiaTpl);
+    SPATIAL_TYPEDEF_TEMPLATE(InertiaTpl);
     
   public:
     // Constructors

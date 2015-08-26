@@ -32,7 +32,7 @@ namespace se3
   protected:
 
     typedef Derived  Derived_t;
-    SPATIAL_TYPEDEF_ARG(Derived_t);
+    SPATIAL_TYPEDEF_TEMPLATE(Derived_t);
 
   public:
     Derived_t & derived() { return *static_cast<Derived_t*>(this); }
@@ -118,7 +118,7 @@ namespace se3
 
   public:
     friend class ForceBase< ForceTpl< _Scalar, _Options > >;
-    SPATIAL_TYPEDEF_ARG(ForceTpl);
+    SPATIAL_TYPEDEF_TEMPLATE(ForceTpl);
 
 
   public:

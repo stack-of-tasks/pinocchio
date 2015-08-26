@@ -36,7 +36,7 @@ namespace se3
   {
   protected:
     typedef Derived  Derived_t;
-    SPATIAL_TYPEDEF_ARG(Derived_t);
+    SPATIAL_TYPEDEF_TEMPLATE(Derived_t);
     typedef typename traits<Derived_t>::JointMotion JointMotion;
     typedef typename traits<Derived_t>::JointForce JointForce;
     typedef typename traits<Derived_t>::DenseBase DenseBase;
@@ -87,7 +87,7 @@ namespace se3
   public:
 
     friend class ConstraintBase< ConstraintTpl< _Dim, _Scalar, _Options > >;
-    SPATIAL_TYPEDEF_ARG(ConstraintTpl);
+    SPATIAL_TYPEDEF_TEMPLATE(ConstraintTpl);
     
     enum { NV = _Dim, Options = _Options };
 

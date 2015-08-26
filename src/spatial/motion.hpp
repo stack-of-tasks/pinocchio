@@ -34,7 +34,7 @@ namespace se3
 
 
     typedef Derived  Derived_t;
-    SPATIAL_TYPEDEF_ARG(Derived_t);
+    SPATIAL_TYPEDEF_TEMPLATE(Derived_t);
 
   public:
     Derived_t & derived() { return *static_cast<Derived_t*>(this); }
@@ -135,7 +135,7 @@ namespace se3
   class MotionTpl : public MotionBase< MotionTpl< _Scalar, _Options > >
   {
   public:
-    SPATIAL_TYPEDEF_ARG(MotionTpl);
+    SPATIAL_TYPEDEF_TEMPLATE(MotionTpl);
 
 
   public:
@@ -332,7 +332,7 @@ namespace se3
 
   struct BiasZero : public MotionBase< BiasZero >
   {
-    SPATIAL_TYPEDEF_ARG(BiasZero);
+    SPATIAL_TYPEDEF_NO_TEMPLATE(BiasZero);
     operator Motion () const { return Motion::Zero(); }
   }; // struct BiasZero
 

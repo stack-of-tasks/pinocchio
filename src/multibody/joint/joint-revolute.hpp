@@ -81,7 +81,7 @@ namespace se3
     template<int axis>
     struct MotionRevolute : MotionBase < MotionRevolute <axis > >
     {
-      SPATIAL_TYPEDEF_ARG(MotionRevolute);
+      SPATIAL_TYPEDEF_TEMPLATE(MotionRevolute);
       MotionRevolute()                   : w(NAN) {}
       MotionRevolute( const double & w ) : w(w)  {}
       double w;
@@ -136,7 +136,7 @@ namespace se3
     template<int axis>
     struct ConstraintRevolute : ConstraintBase < ConstraintRevolute <axis > >
     { 
-      SPATIAL_TYPEDEF_ARG(ConstraintRevolute);
+      SPATIAL_TYPEDEF_TEMPLATE(ConstraintRevolute);
 
       template<typename D>
       MotionRevolute<axis> operator*( const Eigen::MatrixBase<D> & v ) const
