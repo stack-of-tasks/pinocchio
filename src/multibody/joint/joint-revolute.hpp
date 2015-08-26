@@ -50,34 +50,68 @@ namespace se3
     { return Eigen::Vector3d(w1[0],w1[1],w1[2]+wz.w); }
   } // namespace revolute
 
-  template<int axis> 
-  struct JointRevolute {
+  template<int axis> struct MotionRevolute;
 
-    struct MotionRevolute 
+  template<int axis>
+  struct traits< MotionRevolute < axis > >
+  {
+    typedef double Scalar_t;
+    typedef Eigen::Matrix<double,3,1,0> Vector3;
+    typedef Eigen::Matrix<double,4,1,0> Vector4;
+    typedef Eigen::Matrix<double,6,1,0> Vector6;
+    typedef Eigen::Matrix<double,3,3,0> Matrix3;
+    typedef Eigen::Matrix<double,4,4,0> Matrix4;
+    typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef Vector3 Angular_t;
+    typedef Vector3 Linear_t;
+    typedef Matrix6 ActionMatrix_t;
+    typedef Eigen::Quaternion<double,0> Quaternion_t;
+    typedef SE3Tpl<double,0> SE3;
+    typedef ForceTpl<double,0> Force;
+    typedef MotionTpl<double,0> Motion;
+    typedef Symmetric3Tpl<double,0> Symmetric3;
+    enum {
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+  };
+
+
+  
+    template<int axis>
+    struct MotionRevolute : MotionBase < MotionRevolute <axis > >
     {
+      SPATIAL_TYPEDEF_ARG(MotionRevolute);
       MotionRevolute()                   : w(NAN) {}
       MotionRevolute( const double & w ) : w(w)  {}
       double w;
 
       operator Motion() const
-      { 
-	return Motion(Motion::Vector3::Zero(),
-		      (Motion::Vector3)typename revolute::CartesianVector3<axis>(w));
+      {
+        return Motion(  Motion::Vector3::Zero(),
+                        (Vector3)typename revolute::CartesianVector3<axis>(w)
+                      );
       }
     }; // struct MotionRevolute
 
-    friend const MotionRevolute& operator+ (const MotionRevolute& m, const BiasZero&)
+    template <int axis >
+    const MotionRevolute<axis>& operator+ (const MotionRevolute<axis>& m, const BiasZero&)
     { return m; }
 
-    friend Motion operator+( const MotionRevolute& m1, const Motion& m2)
+    template<int axis >
+    Motion operator+( const MotionRevolute<axis>& m1, const Motion& m2)
     {
       return Motion( m2.linear(),m2.angular()+typename revolute::CartesianVector3<axis>(m1.w)); 
-    }    
+    }
+
+    template<int axis> 
+  struct JointRevolute {
+
     struct ConstraintRevolute
     { 
       template<typename D>
-      MotionRevolute operator*( const Eigen::MatrixBase<D> & v ) const
-      { return MotionRevolute(v[0]); }
+      MotionRevolute<axis> operator*( const Eigen::MatrixBase<D> & v ) const
+      { return MotionRevolute<axis>(v[0]); }
 
       Eigen::Matrix<double,6,1> se3Action(const SE3 & m) const
       { 
@@ -126,7 +160,7 @@ namespace se3
     static Eigen::Matrix3d cartesianRotation(const double & angle); 
   };
 
-  Motion operator^( const Motion& m1, const JointRevolute<0>::MotionRevolute& m2)
+  Motion operator^( const Motion& m1, const MotionRevolute<0>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(0,w2) = ( v1^w2      , w1^w2 )
@@ -140,7 +174,7 @@ namespace se3
 		   Motion::Vector3(0,w[2]*wx,-w[1]*wx) );
   }
 
-  Motion operator^( const Motion& m1, const JointRevolute<1>::MotionRevolute& m2)
+  Motion operator^( const Motion& m1, const MotionRevolute<1>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(0,w2) = ( v1^w2      , w1^w2 )
@@ -154,7 +188,7 @@ namespace se3
 		   Motion::Vector3(-w[2]*wx,0, w[0]*wx) );
   }
 
-  Motion operator^( const Motion& m1, const JointRevolute<2>::MotionRevolute& m2)
+  Motion operator^( const Motion& m1, const MotionRevolute<2>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(0,w2) = ( v1^w2      , w1^w2 )
@@ -277,7 +311,7 @@ namespace se3
     typedef JointModelRevolute<axis> JointModel;
     typedef typename JointRevolute<axis>::ConstraintRevolute Constraint_t;
     typedef SE3 Transformation_t;
-    typedef typename JointRevolute<axis>::MotionRevolute Motion_t;
+    typedef MotionRevolute<axis> Motion_t;
     typedef BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,1> F_t;
     enum {
