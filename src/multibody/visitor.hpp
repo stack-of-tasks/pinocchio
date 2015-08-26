@@ -52,7 +52,7 @@ namespace se3
 
 	bf::invoke(&Visitor::template algo<D>,
 		   bf::append2(jmodel,
-			       boost::ref(boost::get<typename D::JointData&>(jdataSpec)),
+			       boost::ref(boost::get<typename D::JointData>(jdataSpec)),
 			       static_cast<const Visitor*>(this)->args));
       }
 
@@ -70,7 +70,7 @@ namespace se3
 
 #define JOINT_VISITOR_INIT(VISITOR)					\
   VISITOR( JointDataVariant & jdata,ArgsType args ) : jdata(jdata),args(args) {} \
-  using JointVisitor< VISITOR >::run;					\
+  using se3::fusion::JointVisitor< VISITOR >::run;			\
   JointDataVariant & jdata;						\
   ArgsType args
 

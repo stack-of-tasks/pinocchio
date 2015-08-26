@@ -19,7 +19,7 @@
 #include <iostream>
 #include <stack>
 
-#define SMOOTH(s) for(int _smooth=0;_smooth<s;++_smooth) 
+#define SMOOTH(s) for(size_t _smooth=0;_smooth<s;++_smooth) 
 
 /* Return the time spent in secs. */
 inline double operator- (  const struct timeval & t1,const struct timeval & t0)

@@ -94,6 +94,54 @@ namespace se3
   };
   inline int idx_v(const JointModelVariant & jmodel) { return Joint_idx_v::run(jmodel); }
 
+  class Joint_lowerPosLimit: public boost::static_visitor<Eigen::MatrixXd>
+  {
+  public:
+    template<typename D>
+    Eigen::MatrixXd operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.lowerPosLimit(); }
+    
+    static Eigen::MatrixXd run( const JointModelVariant & jmodel)
+    { return boost::apply_visitor( Joint_lowerPosLimit(), jmodel ); }
+  };
+  inline Eigen::MatrixXd lowerPosLimit(const JointModelVariant & jmodel) { return Joint_lowerPosLimit::run(jmodel); }
+
+  class Joint_upperPosLimit: public boost::static_visitor<Eigen::MatrixXd>
+  {
+  public:
+    template<typename D>
+    Eigen::MatrixXd operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.upperPosLimit(); }
+    
+    static Eigen::MatrixXd run( const JointModelVariant & jmodel)
+    { return boost::apply_visitor( Joint_upperPosLimit(), jmodel ); }
+  };
+  inline Eigen::MatrixXd upperPosLimit(const JointModelVariant & jmodel) { return Joint_upperPosLimit::run(jmodel); }
+
+  class Joint_maxEffortLimit: public boost::static_visitor<Eigen::MatrixXd>
+  {
+  public:
+    template<typename D>
+    Eigen::MatrixXd operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.maxEffortLimit(); }
+    
+    static Eigen::MatrixXd run( const JointModelVariant & jmodel)
+    { return boost::apply_visitor( Joint_maxEffortLimit(), jmodel ); }
+  };
+  inline Eigen::MatrixXd maxEffortLimit(const JointModelVariant & jmodel) { return Joint_maxEffortLimit::run(jmodel); }
+
+  class Joint_maxVelocityLimit: public boost::static_visitor<Eigen::MatrixXd>
+  {
+  public:
+    template<typename D>
+    Eigen::MatrixXd operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.maxVelocityLimit(); }
+    
+    static Eigen::MatrixXd run( const JointModelVariant & jmodel)
+    { return boost::apply_visitor( Joint_maxVelocityLimit(), jmodel ); }
+  };
+  inline Eigen::MatrixXd maxVelocityLimit(const JointModelVariant & jmodel) { return Joint_maxVelocityLimit::run(jmodel); }
+
 
 } // namespace se3
 

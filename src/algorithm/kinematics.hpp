@@ -28,9 +28,15 @@ namespace se3
                        const Eigen::VectorXd & q);
 
   inline void kinematics(const Model & model,
-			 Data & data,
-			 const Eigen::VectorXd & q,
-			 const Eigen::VectorXd & v);
+                         Data & data,
+                         const Eigen::VectorXd & q,
+                         const Eigen::VectorXd & v);
+  
+  inline void dynamics(const Model & model,
+                       Data & data,
+                       const Eigen::VectorXd & q,
+                       const Eigen::VectorXd & v,
+                       const Eigen::VectorXd & a);
 
 } // namespace se3 
 
@@ -129,13 +135,70 @@ namespace se3
 	     const Eigen::VectorXd & q,
 	     const Eigen::VectorXd & v)
   {
-    data.v[0] = Motion::Zero();
+    data.v[0].setZero();
 
     for( Model::Index i=1; i<(Model::Index) model.nbody; ++i )
       {
 	KinematicsStep::run(model.joints[i],data.joints[i],
 			    KinematicsStep::ArgsType(model,data,i,q,v));
       }
+  }
+  
+  struct DynamicsStep : public fusion::JointVisitor<DynamicsStep>
+  {
+    typedef boost::fusion::vector< const se3::Model&,
+    se3::Data&,
+    const Model::Index,
+    const Eigen::VectorXd &,
+    const Eigen::VectorXd &,
+    const Eigen::VectorXd &
+    > ArgsType;
+    
+    JOINT_VISITOR_INIT(DynamicsStep);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointData> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Model::Index i,
+                     const Eigen::VectorXd & q,
+                     const Eigen::VectorXd & v,
+                     const Eigen::VectorXd & a)
+    {
+      jmodel.calc(jdata.derived(),q,v);
+      
+      const Model::Index & parent = model.parents[i];
+      data.v[i] = jdata.v();
+      data.liMi[i] = model.jointPlacements[i] * jdata.M();
+      
+      if(parent>0)
+      {
+        data.oMi[i] = data.oMi[parent] * data.liMi[i];
+        data.v[i] += data.liMi[i].actInv(data.v[parent]);
+      }
+      else
+        data.oMi[i] = data.liMi[i];
+      
+      data.a[i]  = jdata.S() * jmodel.jointMotion(a) + jdata.c() + (data.v[i] ^ jdata.v()) ;
+      data.a[i] += data.liMi[i].actInv(data.a[parent]);
+    }
+  };
+  
+  inline void
+  dynamics(const Model & model, Data & data,
+           const Eigen::VectorXd & q,
+           const Eigen::VectorXd & v,
+           const Eigen::VectorXd & a)
+  {
+    data.v[0].setZero();
+    data.a[0].setZero();
+    
+    for( Model::Index i=1; i < (Model::Index) model.nbody; ++i )
+    {
+      DynamicsStep::run(model.joints[i],data.joints[i],
+                        DynamicsStep::ArgsType(model,data,i,q,v,a));
+    }
   }
 } // namespace se3
 

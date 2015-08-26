@@ -47,88 +47,96 @@ BOOST_AUTO_TEST_CASE ( test_com )
   se3::Data data(model);
 
   VectorXd q = VectorXd::Zero(model.nq);
+  VectorXd v = VectorXd::Ones(model.nv);
+  VectorXd a = VectorXd::Ones(model.nv);
   data.M.fill(0);  crba(model,data,q);
 
 	/* Test COM against CRBA*/
   Vector3d com = centerOfMass(model,data,q);
   is_matrix_absolutely_closed(data.com[0], getComFromCrba(model,data), 1e-12);
 
-
 	/* Test COM against Jcom (both use different way of compute the COM. */
   com = centerOfMass(model,data,q);
   jacobianCenterOfMass(model,data,q);
   is_matrix_absolutely_closed(com, data.com[0], 1e-12);
 
+	/* Test COM against Jcom (both use different way of compute the COM. */
+  centerOfMassAcceleration(model,data,q,v,a);
+  is_matrix_absolutely_closed(com, data.com[0], 1e-12);
+
 	/* Test Jcom against CRBA  */
   Eigen::MatrixXd Jcom = jacobianCenterOfMass(model,data,q);
   is_matrix_absolutely_closed(Jcom, getJacobianComFromCrba(model,data), 1e-12);
-
-
-  std::cout << "com = [ " << data.com[0].transpose() << " ];" << std::endl;
-  std::cout << "mass = [ " << data.mass[0] << " ];" << std::endl;
-  std::cout << "Jcom = [ " << data.Jcom << " ];" << std::endl;
-  std::cout << "M3 = [ " << data.M.topRows<3>() << " ];" << std::endl;
-}
-
-
-BOOST_AUTO_TEST_CASE ( test_timings )
-{
-  using namespace Eigen;
-  using namespace se3;
-
-  se3::Model model;
-  se3::buildModels::humanoidSimple(model);
-  se3::Data data(model);
-
-  long flag = BOOST_BINARY(1111);
-  StackTicToc timer(StackTicToc::US); 
-  #ifdef NDEBUG
-    #ifdef _INTENSE_TESTING_
-      const int NBT = 1000*1000;
-    #else
-      const int NBT = 10;
-    #endif
-  #else 
-    const int NBT = 1;
-    std::cout << "(the time score in debug mode is not relevant)  " ;
-  #endif
-
-  bool verbose = flag & (flag-1) ; // True is two or more binaries of the flag are 1.
-  if(verbose) std::cout <<"--" << std::endl;
-  Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
-
-  if( flag >> 0 & 1 )
-  {
-    timer.tic();
-    SMOOTH(NBT)
-    {
-      centerOfMass(model,data,q);
-    }
-    if(verbose) std::cout << "COM =\t";
-    timer.toc(std::cout,NBT);
-  }
-
-  if( flag >> 1 & 1 )
-  {
-    timer.tic();
-    SMOOTH(NBT)
-    {
-      centerOfMass(model,data,q,false);
-    }
-    if(verbose) std::cout << "Without sub-tree =\t";
-    timer.toc(std::cout,NBT);
-  }
   
-  if( flag >> 2 & 1 )
-  {
-    timer.tic();
-    SMOOTH(NBT)
-    {
-      jacobianCenterOfMass(model,data,q);
-    }
-    if(verbose) std::cout << "Jcom =\t";
-    timer.toc(std::cout,NBT);
-  }
+  /* Test CoM vecolity againt jacobianCenterOfMass */
+  is_matrix_absolutely_closed(Jcom * v, data.vcom[0], 1e-12);
+
+
+//  std::cout << "com = [ " << data.com[0].transpose() << " ];" << std::endl;
+//  std::cout << "mass = [ " << data.mass[0] << " ];" << std::endl;
+//  std::cout << "Jcom = [ " << data.Jcom << " ];" << std::endl;
+//  std::cout << "M3 = [ " << data.M.topRows<3>() << " ];" << std::endl;
 }
+
+
+//BOOST_AUTO_TEST_CASE ( test_timings )
+//{
+//  using namespace Eigen;
+//  using namespace se3;
+//
+//  se3::Model model;
+//  se3::buildModels::humanoidSimple(model);
+//  se3::Data data(model);
+//
+//  long flag = BOOST_BINARY(1111);
+//  StackTicToc timer(StackTicToc::US); 
+//  #ifdef NDEBUG
+//    #ifdef _INTENSE_TESTING_
+//      const int NBT = 1000*1000;
+//    #else
+//      const int NBT = 10;
+//    #endif
+//  #else 
+//    const int NBT = 1;
+//    std::cout << "(the time score in debug mode is not relevant)  " ;
+//  #endif
+//
+//  bool verbose = flag & (flag-1) ; // True is two or more binaries of the flag are 1.
+//  if(verbose) std::cout <<"--" << std::endl;
+//  Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
+//
+//  if( flag >> 0 & 1 )
+//  {
+//    timer.tic();
+//    SMOOTH(NBT)
+//    {
+//      centerOfMass(model,data,q);
+//    }
+//    if(verbose) std::cout << "COM =\t";
+//    timer.toc(std::cout,NBT);
+//  }
+//
+//  if( flag >> 1 & 1 )
+//  {
+//    timer.tic();
+//    SMOOTH(NBT)
+//    {
+//      centerOfMass(model,data,q,false);
+//    }
+//    if(verbose) std::cout << "Without sub-tree =\t";
+//    timer.toc(std::cout,NBT);
+//  }
+//  
+//  if( flag >> 2 & 1 )
+//  {
+//    timer.tic();
+//    SMOOTH(NBT)
+//    {
+//      jacobianCenterOfMass(model,data,q);
+//    }
+//    if(verbose) std::cout << "Jcom =\t";
+//    timer.toc(std::cout,NBT);
+//  }
+//}
 
 BOOST_AUTO_TEST_SUITE_END ()

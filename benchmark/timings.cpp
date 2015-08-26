@@ -27,7 +27,13 @@ int main(int argc, const char ** argv)
   using namespace se3;
 
   StackTicToc timer(StackTicToc::US);
+  #ifdef NDEBUG
   const int NBT = 1000*100;
+  #else
+    const int NBT = 1;
+    std::cout << "(the time score in debug mode is not relevant) " << std::endl;
+  #endif
+    
   se3::Model model;
 
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
@@ -48,7 +54,7 @@ int main(int argc, const char ** argv)
   std::vector<VectorXd> qs     (NBT);
   std::vector<VectorXd> qdots  (NBT);
   std::vector<VectorXd> qddots (NBT);
-  for(int i=0;i<NBT;++i) 
+  for(size_t i=0;i<NBT;++i)
     {
       qs[i]     = Eigen::VectorXd::Random(model.nq);
       qs[i].segment<4>(3) /= qs[i].segment<4>(3).norm();
@@ -116,6 +122,13 @@ int main(int argc, const char ** argv)
       jacobianCenterOfMass(model,data,qs[_smooth],false);
     }
   std::cout << "COM+Jcom = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    centerOfMassAcceleration(model,data,qs[_smooth], qdots[_smooth], qddots[_smooth], false);
+  }
+  std::cout << "COM+vCOM+aCOM = \t"; timer.toc(std::cout,NBT);
 
   timer.tic();
   SMOOTH(NBT)
@@ -130,6 +143,13 @@ int main(int argc, const char ** argv)
     kinematics(model,data,qs[_smooth],qdots[_smooth]);
   }
   std::cout << "Kinematics = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    dynamics(model,data,qs[_smooth],qdots[_smooth], qddots[_smooth]);
+  }
+  std::cout << "Dynamics = \t"; timer.toc(std::cout,NBT);
 
   std::cout << "--" << std::endl;
   return 0;

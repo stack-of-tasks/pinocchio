@@ -35,13 +35,16 @@ have to be available on your machine.
 
  - Libraries:
    - eigen3 (version >= 3.0.5)
-   - urdfdom (version >= 0.3.0)
+   - boost unit_test_framework filesystem 
+   - Optional:
+      - urdfdom (version >= 0.3.0)
+      - LUA (version == 5.1)
  - System tools:
    - CMake (>=2.6)
    - pkg-config
    - usual compilation tools (GCC/G++, make, etc.)
- - Python 2.7
- - Boost python
+ - Bindings:
+   - Python: Python 2.7 + Numpy + Boost python + EigenPy (https://github.com/stack-of-tasks/eigenpy.git)
  
 ### Install standalone urdfdom
 

@@ -26,11 +26,14 @@ SET(PROJECT_NAME pinocchio)
 SET(PROJECT_DESCRIPTION "Rigid multi body dynamics algorithms")
 SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
 
+IF(APPLE)
+  SET(CMAKE_MACOSX_RPATH 1)
+ENDIF(APPLE)
+
 # Disable -Werror on Unix for now.
 SET(CXX_DISABLE_WERROR True)
 SET(CMAKE_VERBOSE_MAKEFILE True)
 
-project(${PROJECT_NAME})
 SETUP_PROJECT()
 
 IF(WIN32)
@@ -79,6 +82,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/fwd.hpp
   spatial/skew.hpp
   spatial/act-on-set.hpp
+  spatial/explog.hpp
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
@@ -115,6 +119,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/kinematics.hpp
   algorithm/center-of-mass.hpp
   algorithm/non-linear-effects.hpp
+  algorithm/joint-limits.hpp
   )
 
 SET(${PROJECT_NAME}_SIMULATION_HEADERS
@@ -133,6 +138,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/data.hpp
   python/algorithms.hpp
   python/parsers.hpp
+  python/explog.hpp
   )
 
 SET(HEADERS
@@ -205,4 +211,3 @@ IF (BUILD_BENCHMARK)
 ENDIF (BUILD_BENCHMARK)
 
 SETUP_PROJECT_FINALIZE()
-SETUP_PROJECT_CPACK()

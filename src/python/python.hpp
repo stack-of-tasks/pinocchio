@@ -26,6 +26,7 @@ namespace se3
     void exposeForce();
     void exposeMotion();
     void exposeInertia();
+    void exposeExplog();
 
     void exposeModel();
     void exposeAlgorithms();
