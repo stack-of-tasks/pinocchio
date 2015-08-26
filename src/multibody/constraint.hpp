@@ -51,8 +51,7 @@ namespace se3
     const DenseBase & matrix() const  { return derived().matrix_impl(); }
     int nv() const { return derived().nv_impl(); }
 
-
-  };
+  }; // class ConstraintBase
 
   template<int D, typename T, int U>
   struct traits< ConstraintTpl<D, T, U> >
@@ -79,7 +78,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar_t,D,1,U> JointMotion;
     typedef Eigen::Matrix<Scalar_t,D,1,U> JointForce;
     typedef Eigen::Matrix<Scalar_t,6,D> DenseBase;
-  };
+
+  }; // traits ConstraintTpl
 
   template<int _Dim, typename _Scalar, int _Options>
   class ConstraintTpl : ConstraintBase<ConstraintTpl < _Dim, _Scalar, _Options > >
@@ -133,7 +133,7 @@ namespace se3
 
   private:
     DenseBase S;
-  };
+  }; // class ConstraintTpl
 
   typedef ConstraintTpl<1,double,0> Constraint1d;
   typedef ConstraintTpl<3,double,0> Constraint3d;

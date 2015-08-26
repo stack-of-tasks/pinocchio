@@ -103,7 +103,7 @@ namespace se3
       return os;
     }
 
-  };
+  }; // class MotionBase
 
 
   template<typename T, int U>
@@ -128,7 +128,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-  };
+  }; // traits MotionTpl
 
 
   template<typename _Scalar, int _Options>
@@ -294,6 +294,7 @@ namespace se3
   private:
     Vector3 m_w;
     Vector3 m_v;
+
   }; // class MotionTpl
 
   template<typename S,int O>
@@ -304,6 +305,7 @@ namespace se3
   typedef MotionTpl<double> Motion;
 
 
+  ///////////////   BiasZero  ///////////////
   struct BiasZero;
 
   template<>
@@ -328,7 +330,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-  };
+  }; // traits BiasZero
 
   struct BiasZero : public MotionBase< BiasZero >
   {
