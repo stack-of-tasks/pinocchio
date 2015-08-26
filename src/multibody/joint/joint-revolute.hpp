@@ -331,15 +331,8 @@ namespace se3
 
   namespace internal 
   {
-    // TODO: I am not able to write the next three lines as a template. Why?
-    template<>
-    struct ActionReturn<ConstraintRevolute<0> >
-    { typedef Eigen::Matrix<double,6,1> Type; };
-    template<>
-    struct ActionReturn<ConstraintRevolute<1> >
-    { typedef Eigen::Matrix<double,6,1> Type; };
-    template<>
-    struct ActionReturn<ConstraintRevolute<2> >
+    template<int axis>
+    struct ActionReturn<ConstraintRevolute<axis> >
     { typedef Eigen::Matrix<double,6,1> Type; };
   }
 
