@@ -27,18 +27,44 @@ namespace se3
   struct JointDataFreeFlyer;
   struct JointModelFreeFlyer;
 
-  struct JointFreeFlyer 
+  struct ConstraintIdentity;
+
+  template <>
+  struct traits< ConstraintIdentity >
   {
-    struct BiasZero 
-    {
-      operator Motion () const { return Motion::Zero(); }
-    }; // struct BiasZero
+    typedef double Scalar_t;
+    typedef Eigen::Matrix<double,3,1,0> Vector3;
+    typedef Eigen::Matrix<double,4,1,0> Vector4;
+    typedef Eigen::Matrix<double,6,1,0> Vector6;
+    typedef Eigen::Matrix<double,3,3,0> Matrix3;
+    typedef Eigen::Matrix<double,4,4,0> Matrix4;
+    typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef Matrix3 Angular_t;
+    typedef Vector3 Linear_t;
+    typedef Matrix6 ActionMatrix_t;
+    typedef Eigen::Quaternion<double,0> Quaternion_t;
+    typedef SE3Tpl<double,0> SE3;
+    typedef ForceTpl<double,0> Force;
+    typedef MotionTpl<double,0> Motion;
+    typedef Symmetric3Tpl<double,0> Symmetric3;
+    enum {
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+    typedef Eigen::Matrix<Scalar_t,1,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar_t,1,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar_t,6,1> DenseBase;
+  }; // traits ConstraintRevolute
 
-    friend const Motion & operator+ ( const Motion& v, const BiasZero&) { return v; }
-    friend const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
 
-    struct ConstraintIdentity
+    struct ConstraintIdentity : ConstraintBase < ConstraintIdentity >
     {
+      SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintIdentity);
+      enum { NV = 6, Options = 0 };
+      typedef traits<ConstraintIdentity>::JointMotion JointMotion;
+      typedef traits<ConstraintIdentity>::JointForce JointForce;
+      typedef traits<ConstraintIdentity>::DenseBase DenseBase;
+
       SE3::Matrix6 se3Action(const SE3 & m) const { return m.toActionMatrix(); }
 
       struct TransposeConst 
@@ -52,16 +78,15 @@ namespace se3
     }; // struct ConstraintIdentity
 
     template<typename D>
-    friend Motion operator* (const ConstraintIdentity&, const Eigen::MatrixBase<D>& v)
+    Motion operator* (const ConstraintIdentity&, const Eigen::MatrixBase<D>& v)
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,6);
       return Motion(v);
     }
 
-  }; // struct JointFreeFlyer
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Inertia::Matrix6 operator*( const Inertia& Y,const JointFreeFlyer::ConstraintIdentity & )
+  Inertia::Matrix6 operator*( const Inertia& Y,const ConstraintIdentity & )
   {
     return Y.matrix();
   }
@@ -69,7 +94,7 @@ namespace se3
   /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
   template<typename D>
   const Eigen::MatrixBase<D> & 
-  operator*( const JointFreeFlyer::ConstraintIdentity::TransposeConst &, const Eigen::MatrixBase<D> & F )
+  operator*( const ConstraintIdentity::TransposeConst &, const Eigen::MatrixBase<D> & F )
   {
     return F;
   }
@@ -77,20 +102,23 @@ namespace se3
   namespace internal
   {
     template<>
-    struct ActionReturn<JointFreeFlyer::ConstraintIdentity >  
+    struct ActionReturn<ConstraintIdentity >  
     { typedef SE3::Matrix6 Type; };
   }
 
+  struct JointFreeFlyer{
+
+  };
 
   template<>
   struct traits<JointFreeFlyer>
   {
     typedef JointDataFreeFlyer JointData;
     typedef JointModelFreeFlyer JointModel;
-    typedef JointFreeFlyer::ConstraintIdentity Constraint_t;
+    typedef ConstraintIdentity Constraint_t;
     typedef SE3 Transformation_t;
     typedef Motion Motion_t;
-    typedef JointFreeFlyer::BiasZero Bias_t;
+    typedef BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,6> F_t;
     enum {
       NQ = 7,
