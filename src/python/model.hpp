@@ -94,6 +94,12 @@ namespace se3
       .add_property("fix_hasVisual", bp::make_function(&ModelPythonVisitor::fix_hasVisual, bp::return_internal_reference<>())  )
       .add_property("fix_bodyNames", bp::make_function(&ModelPythonVisitor::fix_bodyNames, bp::return_internal_reference<>())  )
 
+	  // Add here some access of joint data (to be modified when the joints will be binded).
+          .def("joint_nq",    bp::make_function(&ModelPythonVisitor::joint_nq) )
+          .def("joint_nv",    bp::make_function(&ModelPythonVisitor::joint_nv) )
+          .def("joint_idx_q", bp::make_function(&ModelPythonVisitor::joint_idx_q) )
+          .def("joint_idx_v", bp::make_function(&ModelPythonVisitor::joint_idx_v) )
+
       .add_property("gravity",&ModelPythonVisitor::gravity,&ModelPythonVisitor::setGravity)
 	  .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
 	  .staticmethod("BuildEmptyModel")
@@ -122,6 +128,11 @@ namespace se3
       static std::vector<Model::Index> & fix_lastMovingParent( ModelHandler & m ) { return m->fix_lastMovingParent; }
       static std::vector<bool> & fix_hasVisual ( ModelHandler & m ) { return m->fix_hasVisual; }
       static std::vector<std::string> & fix_bodyNames ( ModelHandler & m ) { return m->fix_bodyNames; }
+
+      static int joint_nq( ModelHandler & m,const Model::Index & idx ) { return se3::nq( m->joints[idx] ); }
+      static int joint_nv( ModelHandler & m,const Model::Index & idx ) { return se3::nv( m->joints[idx] ); }
+      static int joint_idx_q( ModelHandler & m,const Model::Index & idx ) { return se3::idx_q( m->joints[idx] ); }
+      static int joint_idx_v( ModelHandler & m,const Model::Index & idx ) { return se3::idx_v( m->joints[idx] ); }
 
       static Motion gravity( ModelHandler & m ) { return m->gravity; }
       static void setGravity( ModelHandler & m,const Motion_fx & g ) { m->gravity = g; }

@@ -134,7 +134,10 @@ namespace se3
                                         const VectorXd_fx & q,
                                         const VectorXd_fx & v)
       {
+	data->M.fill(0);
         computeAllTerms(*model,*data,q,v);
+	data->M.triangularView<Eigen::StrictlyLower>()
+	  = data->M.transpose().triangularView<Eigen::StrictlyLower>();
       }
 
       static void jointLimits_proxy(const ModelHandler & model,
