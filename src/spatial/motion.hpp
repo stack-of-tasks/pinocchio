@@ -92,13 +92,11 @@ namespace se3
 
     void disp(std::ostream & os) const
     {
-      os << "base disp" << std::endl;
       derived().disp_impl(os);
     }
 
     friend std::ostream & operator << (std::ostream & os, const MotionBase<Derived_t> & mv)
     {
-      os << "base <<" << std::endl;
       mv.disp(os);
       return os;
     }
@@ -290,7 +288,6 @@ namespace se3
       return MotionTpl (m_v + m_w.cross (translation_vector), m_w);
     }
 
-  public:
   private:
     Vector3 m_w;
     Vector3 m_v;

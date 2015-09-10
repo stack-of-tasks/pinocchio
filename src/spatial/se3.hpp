@@ -23,10 +23,6 @@
 #include "pinocchio/spatial/skew.hpp"
 
 
-
-
-
-
 namespace se3
 {
 
@@ -84,7 +80,6 @@ namespace se3
 
       void disp(std::ostream & os) const
       {
-        os << "base disp" << std::endl;
         static_cast<const Derived_t*>(this)->disp_impl(os);
       }
 
@@ -109,7 +104,6 @@ namespace se3
 
       friend std::ostream & operator << (std::ostream & os,const SE3Base<Derived> & X)
       { 
-        os << "base <<" << std::endl;
         X.disp(os);
         return os;
       }
@@ -150,7 +144,6 @@ namespace se3
     SPATIAL_TYPEDEF_TEMPLATE(SE3Tpl);
 
 
-  public:
     SE3Tpl(): rot(), trans() {};
 
 
@@ -207,7 +200,6 @@ namespace se3
   public:
     Matrix4 toHomogeneousMatrix_impl() const
     {
-      // std::cout << "2Homo derived" << std::endl;
       Matrix4 M;
       M.template block<3,3>(LINEAR,LINEAR) = rot;
       M.template block<3,1>(LINEAR,ANGULAR) = trans;
@@ -230,7 +222,6 @@ namespace se3
 
     void disp_impl(std::ostream & os) const
     {
-      os << "SE3Tpl disp" << std::endl;
       os << "  R =\n" << rot << std::endl
       << "  p = " << trans.transpose() << std::endl;
     }

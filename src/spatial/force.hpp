@@ -55,7 +55,6 @@ namespace se3
 
     void disp(std::ostream & os) const
     {
-      os << "base disp" << std::endl;
       static_cast<const Derived_t*>(this)->disp_impl(os);
     }
 
@@ -80,7 +79,6 @@ namespace se3
 
     friend std::ostream & operator << (std::ostream & os,const ForceBase<Derived> & X)
     { 
-      os << "base <<" << std::endl;
       X.disp(os);
       return os;
     }
@@ -121,7 +119,6 @@ namespace se3
     SPATIAL_TYPEDEF_TEMPLATE(ForceTpl);
 
 
-  public:
     ForceTpl() : m_n(), m_f() {}
 
 
@@ -160,7 +157,6 @@ namespace se3
     ForceTpl & setRandom () { m_n.setRandom (); m_f.setRandom (); return *this; }
 
 
-  public:
     Vector6 toVector_impl() const
     {
       Vector6 f;
@@ -256,7 +252,6 @@ namespace se3
     }
 
 
-  public:
     const Angular_t & angular_impl() const { return m_n; }
     Angular_t & angular_impl() { return m_n; }
     void angular_impl(const Angular_t & R) { m_n = R; }

@@ -37,11 +37,12 @@ namespace se3
       double w; 
       CartesianVector3(const double & w) : w(w) {}
       CartesianVector3() : w(1) {}
-      operator Eigen::Vector3d (); // { return Eigen::Vector3d(w,0,0); }
-    };
+      operator Eigen::Vector3d ();
+    }; // struct CartesianVector3
     template<>CartesianVector3<0>::operator Eigen::Vector3d () { return Eigen::Vector3d(w,0,0); }
     template<>CartesianVector3<1>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,w,0); }
     template<>CartesianVector3<2>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,0,w); }
+
     Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<0> & wx)
     { return Eigen::Vector3d(w1[0]+wx.w,w1[1],w1[2]); }
     Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<1> & wy)
@@ -51,7 +52,6 @@ namespace se3
   } // namespace revolute
 
   template<int axis> struct MotionRevolute;
-
   template<int axis>
   struct traits< MotionRevolute < axis > >
   {
@@ -106,7 +106,6 @@ namespace se3
   }
 
   template<int axis> struct ConstraintRevolute;
-
   template<int axis>
   struct traits< ConstraintRevolute<axis> >
   {
@@ -183,8 +182,8 @@ namespace se3
      *   - MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
      *   - SE3::act(ForceSet::Block)
      */
-     operator ConstraintXd () const
-     {
+    operator ConstraintXd () const
+    {
       Eigen::Matrix<double,6,1> S;
       S << Eigen::Vector3d::Zero(), (Eigen::Vector3d)revolute::CartesianVector3<axis>();
       return ConstraintXd(S);

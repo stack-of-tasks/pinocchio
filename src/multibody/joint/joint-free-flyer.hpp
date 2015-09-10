@@ -57,32 +57,32 @@ namespace se3
   }; // traits ConstraintRevolute
 
 
-    struct ConstraintIdentity : ConstraintBase < ConstraintIdentity >
+  struct ConstraintIdentity : ConstraintBase < ConstraintIdentity >
+  {
+    SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintIdentity);
+    enum { NV = 6, Options = 0 };
+    typedef traits<ConstraintIdentity>::JointMotion JointMotion;
+    typedef traits<ConstraintIdentity>::JointForce JointForce;
+    typedef traits<ConstraintIdentity>::DenseBase DenseBase;
+
+    SE3::Matrix6 se3Action(const SE3 & m) const { return m.toActionMatrix(); }
+
+    struct TransposeConst 
     {
-      SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintIdentity);
-      enum { NV = 6, Options = 0 };
-      typedef traits<ConstraintIdentity>::JointMotion JointMotion;
-      typedef traits<ConstraintIdentity>::JointForce JointForce;
-      typedef traits<ConstraintIdentity>::DenseBase DenseBase;
+      Force::Vector6 operator* (const Force & phi)
+      {  return phi.toVector();  }
+    };
+    
+    TransposeConst transpose() const { return TransposeConst(); }
+    operator ConstraintXd () const { return ConstraintXd(SE3::Matrix6::Identity()); }
+  }; // struct ConstraintIdentity
 
-      SE3::Matrix6 se3Action(const SE3 & m) const { return m.toActionMatrix(); }
-
-      struct TransposeConst 
-      {
-        Force::Vector6 operator* (const Force & phi)
-        {  return phi.toVector();  }
-      };
-      
-      TransposeConst transpose() const { return TransposeConst(); }
-      operator ConstraintXd () const { return ConstraintXd(SE3::Matrix6::Identity()); }
-    }; // struct ConstraintIdentity
-
-    template<typename D>
-    Motion operator* (const ConstraintIdentity&, const Eigen::MatrixBase<D>& v)
-    {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,6);
-      return Motion(v);
-    }
+  template<typename D>
+  Motion operator* (const ConstraintIdentity&, const Eigen::MatrixBase<D>& v)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,6);
+    return Motion(v);
+  }
 
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
@@ -106,10 +106,7 @@ namespace se3
     { typedef SE3::Matrix6 Type; };
   }
 
-  struct JointFreeFlyer{
-
-  };
-
+  struct JointFreeFlyer;
   template<>
   struct traits<JointFreeFlyer>
   {
@@ -146,7 +143,7 @@ namespace se3
     JointDataFreeFlyer() : M(1)
     {
     }
-  };
+  }; // Struct JointDataFreeFlyer
 
   struct JointModelFreeFlyer : public JointModelBase<JointModelFreeFlyer>
   {
@@ -154,6 +151,7 @@ namespace se3
     SE3_JOINT_TYPEDEF;
 
     JointData createData() const { return JointData(); }
+
     void calc( JointData& data,
 	       const Eigen::VectorXd & qs) const
     {
@@ -163,6 +161,7 @@ namespace se3
       data.M.rotation (quat.matrix());
       data.M.translation (q.head<3>());
     }
+
     void calc( JointData& data, 
 	       const Eigen::VectorXd & qs, 
 	       const Eigen::VectorXd & vs ) const
@@ -175,7 +174,7 @@ namespace se3
       data.M.rotation (quat.matrix());
       data.M.translation (q.head<3>());
     }
-  };
+  }; // Struct JointModelFreeFlyer
 
 } // namespace se3
 

@@ -71,13 +71,11 @@ namespace se3
 
     void disp(std::ostream & os) const
     {
-      os << "base disp" << std::endl;
       static_cast<const Derived_t*>(this)->disp_impl(os);
     }
 
     friend std::ostream & operator << (std::ostream & os,const InertiaBase<Derived_t> & X)
     { 
-      os << "base <<" << std::endl;
       X.disp(os);
       return os;
     }
@@ -196,7 +194,7 @@ namespace se3
     }
 
     // Arithmetic operators
-    InertiaTpl& __equl__ (const InertiaTpl& clone) // Copy operator for std::vector 
+    InertiaTpl& __equl__ (const InertiaTpl& clone)
     {
       m=clone.m; c=clone.c; I=clone.I;
       return *this;
