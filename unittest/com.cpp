@@ -92,12 +92,12 @@ BOOST_AUTO_TEST_CASE ( test_com )
 //  StackTicToc timer(StackTicToc::US); 
 //  #ifdef NDEBUG
 //    #ifdef _INTENSE_TESTING_
-//      const int NBT = 1000*1000;
+//      const size_t NBT = 1000*1000;
 //    #else
-//      const int NBT = 10;
+//      const size_t NBT = 10;
 //    #endif
 //  #else 
-//    const int NBT = 1;
+//    const size_t NBT = 1;
 //    std::cout << "(the time score in debug mode is not relevant)  " ;
 //  #endif
 //

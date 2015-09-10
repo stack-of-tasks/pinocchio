@@ -290,7 +290,7 @@ namespace se3
   
   const std::string& Model::getBodyName( Model::Index index ) const
   {
-    assert( (index>=0)&&(index < (Model::Index)nbody) );
+    assert( index < (Model::Index)nbody );
     return names[index];
   }  
 

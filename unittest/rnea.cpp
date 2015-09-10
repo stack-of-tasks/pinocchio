@@ -67,9 +67,9 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   VectorXd a = VectorXd::Random(model.nv);
 
   #ifdef NDEBUG
-    int NBT = 10000;
+    const size_t NBT = 10000;
   #else
-    int NBT = 1;
+    const size_t NBT = 1;
     std::cout << "(the time score in debug mode is not relevant)  " ;
   #endif
 

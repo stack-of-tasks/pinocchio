@@ -47,9 +47,9 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   
   #ifdef NDEBUG
     #ifdef _INTENSE_TESTING_
-      const int NBT = 1000*1000;
+      const size_t NBT = 1000*1000;
     #else
-      const int NBT = 10;
+      const size_t NBT = 10;
     #endif
 
     Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
     timer.toc(std::cout,NBT);
   
   #else
-    int NBT = 1;
+    const size_t NBT = 1;
     using namespace Eigen;
     using namespace se3;
 

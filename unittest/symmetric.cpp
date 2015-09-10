@@ -209,19 +209,19 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
 
     // Time test 
     {
-      const int NBT = 100000;
+      const size_t NBT = 100000;
       Symmetric3 S = Symmetric3::RandomPositive();
 
       std::vector<Symmetric3> Sres (NBT);
       std::vector<Matrix3> Rs (NBT);
-      for(int i=0;i<NBT;++i) 
-        Rs[(std::size_t)i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
+      for(size_t i=0;i<NBT;++i) 
+        Rs[i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
 
       std::cout << "Pinocchio: ";
       StackTicToc timer(StackTicToc::US); timer.tic();
       SMOOTH(NBT)
       {
-        timeSym3(S,Rs[(std::size_t)_smooth],Sres[(std::size_t)_smooth]);
+        timeSym3(S,Rs[_smooth],Sres[_smooth]);
       }
       timer.toc(std::cout,NBT);
     }
@@ -249,10 +249,10 @@ BOOST_AUTO_TEST_CASE ( test_metapod_LTI )
   timeLTI(S,R,S2);
   is_matrix_absolutely_closed(S2.toMatrix(), R.toMatrix().transpose()*S.toMatrix()*R.toMatrix(), 1e-12);
   
-  const int NBT = 100000;
+  const size_t NBT = 100000;
   std::vector<Sym3> Sres (NBT);
   std::vector<R3> Rs (NBT);
-  for(int i=0;i<NBT;++i) 
+  for(size_t i=0;i<NBT;++i) 
     Rs[i].randomInit();
   
   std::cout << "Metapod: ";
@@ -297,17 +297,17 @@ BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
     is_matrix_absolutely_closed(Masa1, Masa2, 1e-16);
   }
 
-  const int NBT = 100000;
+  const size_t NBT = 100000;
   std::vector<Eigen::Matrix3d> Sres (NBT);
   std::vector<Eigen::Matrix3d> Rs (NBT);
-  for(int i=0;i<NBT;++i) 
-    Rs[(std::size_t)i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
+  for(size_t i=0;i<NBT;++i) 
+    Rs[i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
 
   std::cout << "Eigen: ";
   StackTicToc timer(StackTicToc::US); timer.tic();
   SMOOTH(NBT)
   {
-    timeSelfAdj(Rs[(std::size_t)_smooth],M,Sres[(std::size_t)_smooth]);
+    timeSelfAdj(Rs[_smooth],M,Sres[_smooth]);
   }
   timer.toc(std::cout,NBT);
 }

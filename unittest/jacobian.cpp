@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   VectorXd qdot = VectorXd::Random(model.nv);
   VectorXd qddot = VectorXd::Zero(model.nv);
   rnea( model,data,q,qdot,qddot );
-  Motion v = data.oMi[(std::size_t)idx].act( data.v[(std::size_t)idx] );
+  Motion v = data.oMi[idx].act( data.v[idx] );
   is_matrix_absolutely_closed(v.toVector(),Jrh*qdot,1e-12);
 
 
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   MatrixXd rhJrh(6,model.nv); rhJrh.fill(0);
   getJacobian<true>(model,data,idx,rhJrh);
   MatrixXd XJrh(6,model.nv); 
-  motionSet::se3Action( data.oMi[(std::size_t)idx].inverse(), Jrh,XJrh );
+  motionSet::se3Action( data.oMi[idx].inverse(), Jrh,XJrh );
   is_matrix_absolutely_closed(XJrh,rhJrh,1e-12);
 
 
@@ -84,12 +84,12 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   StackTicToc timer(StackTicToc::US); 
   #ifdef NDEBUG
     #ifdef _INTENSE_TESTING_
-      const int NBT = 1000*1000;
+      const size_t NBT = 1000*1000;
     #else
-      const int NBT = 10;
+      const size_t NBT = 10;
     #endif
   #else 
-    const int NBT = 1;
+    const size_t NBT = 1;
     std::cout << "(the time score in debug mode is not relevant)  " ;
   #endif
 

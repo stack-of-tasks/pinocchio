@@ -27,7 +27,7 @@ int main(int argc, const char ** argv)
   using namespace se3;
 
   StackTicToc timer(StackTicToc::US);
-  const int NBT = 1000*100;
+  const size_t NBT = 1000*100;
   se3::Model model;
 
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
