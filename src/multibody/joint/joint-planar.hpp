@@ -30,126 +30,170 @@ namespace se3
   struct JointDataPlanar;
   struct JointModelPlanar;
 
-  struct JointPlanar
+  struct MotionPlanar;
+  template <>
+  struct traits< MotionPlanar >
   {
-    struct BiasZero
+    typedef double Scalar_t;
+    typedef Eigen::Matrix<double,3,1,0> Vector3;
+    typedef Eigen::Matrix<double,4,1,0> Vector4;
+    typedef Eigen::Matrix<double,6,1,0> Vector6;
+    typedef Eigen::Matrix<double,3,3,0> Matrix3;
+    typedef Eigen::Matrix<double,4,4,0> Matrix4;
+    typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef Vector3 Angular_t;
+    typedef Vector3 Linear_t;
+    typedef Matrix6 ActionMatrix_t;
+    typedef Eigen::Quaternion<double,0> Quaternion_t;
+    typedef SE3Tpl<double,0> SE3;
+    typedef ForceTpl<double,0> Force;
+    typedef MotionTpl<double,0> Motion;
+    typedef Symmetric3Tpl<double,0> Symmetric3;
+    enum {
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+  }; // traits MotionPlanar
+
+  struct MotionPlanar : MotionBase < MotionPlanar >
+  {
+    SPATIAL_TYPEDEF_NO_TEMPLATE(MotionPlanar);
+
+    MotionPlanar () : x_dot_(NAN), y_dot_(NAN), theta_dot_(NAN)      {}
+    MotionPlanar (Scalar_t x_dot, Scalar_t y_dot, Scalar_t theta_dot) : x_dot_(x_dot), y_dot_(y_dot), theta_dot_(theta_dot)  {}
+    Scalar_t x_dot_;
+    Scalar_t y_dot_;
+    Scalar_t theta_dot_;
+
+    operator Motion() const
     {
-      operator Motion () const { return Motion::Zero(); }
-    }; // struct BiasZero
-
-    friend const Motion & operator+ ( const Motion& v, const BiasZero&) { return v; }
-    friend const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
-
-    struct MotionPlanar
-    {
-      typedef double Scalar_t;
-      typedef MotionTpl<Scalar_t> Motion;
-
-      Scalar_t x_dot_, y_dot_, theta_dot_;
-
-      MotionPlanar () : x_dot_(NAN), y_dot_(NAN), theta_dot_(NAN)      {}
-      MotionPlanar (Scalar_t x_dot, Scalar_t y_dot, Scalar_t theta_dot) : x_dot_(x_dot), y_dot_(y_dot), theta_dot_(theta_dot)  {}
-
-      operator Motion() const
-      {
-        return Motion (Motion::Vector3(x_dot_, y_dot_, 0.), Motion::Vector3(0., 0., theta_dot_));
-      }
-    }; // struct MotionPlanar
-
-    friend const MotionPlanar operator+ (const MotionPlanar & m, const BiasZero &)
-    { return m; }
-
-    friend Motion operator+ (const MotionPlanar & m1, const Motion & m2)
-    {
-      Motion result (m2);
-      result.linear ()[0] += m1.x_dot_;
-      result.linear ()[1] += m1.y_dot_;
-
-      result.angular ()[2] += m1.theta_dot_;
-
-      return result;
+      return Motion (Motion::Vector3(x_dot_, y_dot_, 0.), Motion::Vector3(0., 0., theta_dot_));
     }
 
-    struct ConstraintPlanar
+  }; // struct MotionPlanar
+
+  const MotionPlanar operator+ (const MotionPlanar & m, const BiasZero &)
+  { return m; }
+
+  
+  Motion operator+ (const MotionPlanar & m1, const Motion & m2)
+  {
+    Motion result (m2);
+    result.linear ()[0] += m1.x_dot_;
+    result.linear ()[1] += m1.y_dot_;
+
+    result.angular ()[2] += m1.theta_dot_;
+
+    return result;
+  }
+
+
+  struct ConstraintPlanar;
+  template <>
+  struct traits < ConstraintPlanar >
+  {
+    typedef double Scalar_t;
+    typedef Eigen::Matrix<double,3,1,0> Vector3;
+    typedef Eigen::Matrix<double,4,1,0> Vector4;
+    typedef Eigen::Matrix<double,6,1,0> Vector6;
+    typedef Eigen::Matrix<double,3,3,0> Matrix3;
+    typedef Eigen::Matrix<double,4,4,0> Matrix4;
+    typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef Matrix3 Angular_t;
+    typedef Vector3 Linear_t;
+    typedef Matrix6 ActionMatrix_t;
+    typedef Eigen::Quaternion<double,0> Quaternion_t;
+    typedef SE3Tpl<double,0> SE3;
+    typedef ForceTpl<double,0> Force;
+    typedef MotionTpl<double,0> Motion;
+    typedef Symmetric3Tpl<double,0> Symmetric3;
+    enum {
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+    typedef Eigen::Matrix<Scalar_t,1,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar_t,1,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar_t,6,1> DenseBase;
+  }; // struct traits ConstraintPlanar
+
+
+  struct ConstraintPlanar : ConstraintBase < ConstraintPlanar >
+  {
+
+    SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintPlanar);
+    typedef traits<ConstraintPlanar>::JointMotion JointMotion;
+    typedef traits<ConstraintPlanar>::JointForce JointForce;
+    typedef traits<ConstraintPlanar>::DenseBase DenseBase;
+
+
+    Motion operator* (const MotionPlanar & vj) const
+    { return vj; }
+
+
+    struct ConstraintTranspose
     {
-    public:
-      typedef double Scalar_t;
-      typedef MotionTpl<Scalar_t> Motion;
-      typedef ForceTpl<Scalar_t> Force;
-      typedef Motion::Matrix3 Matrix3;
-      typedef Motion::Vector3 Vector3;
+      const ConstraintPlanar & ref;
+      ConstraintTranspose(const ConstraintPlanar & ref) : ref(ref) {}
 
-    public:
-
-      Motion operator* (const MotionPlanar & vj) const
-      { return vj; }
-
-
-      struct ConstraintTranspose
+      Force::Vector3 operator* (const Force & phi)
       {
-        const ConstraintPlanar & ref;
-        ConstraintTranspose(const ConstraintPlanar & ref) : ref(ref) {}
-
-        Force::Vector3 operator* (const Force & phi)
-        {
-          return Force::Vector3 (phi.linear()[0], phi.linear()[1], phi.angular()[2]);
-        }
-
-        /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
-        template<typename D>
-        friend typename Eigen::Matrix <typename Eigen::MatrixBase<D>::Scalar, 3, -1>
-        operator*( const ConstraintTranspose &, const Eigen::MatrixBase<D> & F )
-        {
-          typedef Eigen::Matrix<typename Eigen::MatrixBase<D>::Scalar, 3, -1> MatrixReturnType;
-          assert(F.rows()==6);
-
-          MatrixReturnType result (3, F.cols ());
-          result.template topRows <2> () = F.template topRows <2> ();
-          result.template bottomRows <1> () = F.template bottomRows <1> ();
-          return result;
-        }
-      }; // struct ConstraintTranspose
-
-      ConstraintTranspose transpose () const { return ConstraintTranspose(*this); }
-
-      operator ConstraintXd () const
-      {
-        Eigen::Matrix<Scalar_t,6,3> S;
-        S.block <3,3> (Inertia::LINEAR, 0).setZero ();
-        S.block <3,3> (Inertia::ANGULAR, 0).setZero ();
-        S(Inertia::LINEAR + 0,0) = 1.;
-        S(Inertia::LINEAR + 1,1) = 1.;
-        S(Inertia::ANGULAR + 2,2) = 1.;
-        return ConstraintXd(S);
+        return Force::Vector3 (phi.linear()[0], phi.linear()[1], phi.angular()[2]);
       }
 
-      Eigen::Matrix <Scalar_t,6,3> se3Action (const SE3 & m) const
+      /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
+      template<typename D>
+      friend typename Eigen::Matrix <typename Eigen::MatrixBase<D>::Scalar, 3, -1>
+      operator*( const ConstraintTranspose &, const Eigen::MatrixBase<D> & F )
       {
-        Eigen::Matrix <double,6,3> X_subspace;
-        X_subspace.block <3,2> (Motion::LINEAR, 0) = skew (m.translation ()) * m.rotation ().leftCols <2> ();
-        X_subspace.block <3,1> (Motion::LINEAR, 2) = m.rotation ().rightCols <1> ();
+        typedef Eigen::Matrix<typename Eigen::MatrixBase<D>::Scalar, 3, -1> MatrixReturnType;
+        assert(F.rows()==6);
 
-        X_subspace.block <3,2> (Motion::ANGULAR, 0) = m.rotation ().leftCols <2> ();
-        X_subspace.block <3,1> (Motion::ANGULAR, 2).setZero ();
-
-        return X_subspace;
+        MatrixReturnType result (3, F.cols ());
+        result.template topRows <2> () = F.template topRows <2> ();
+        result.template bottomRows <1> () = F.template bottomRows <1> ();
+        return result;
       }
+    }; // struct ConstraintTranspose
 
-    }; // struct ConstraintPlanar
+    ConstraintTranspose transpose () const { return ConstraintTranspose(*this); }
 
-    template<typename D>
-    friend Motion operator* (const ConstraintPlanar &, const Eigen::MatrixBase<D> & v)
+    operator ConstraintXd () const
     {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,3);
-      Motion result (Motion::Zero ());
-      result.linear ().template head<2> () = v.template topRows<2> ();
-      result.angular ().template tail<1> () = v.template bottomRows<1> ();
-      return result;
+      Eigen::Matrix<Scalar_t,6,3> S;
+      S.block <3,3> (Inertia::LINEAR, 0).setZero ();
+      S.block <3,3> (Inertia::ANGULAR, 0).setZero ();
+      S(Inertia::LINEAR + 0,0) = 1.;
+      S(Inertia::LINEAR + 1,1) = 1.;
+      S(Inertia::ANGULAR + 2,2) = 1.;
+      return ConstraintXd(S);
     }
 
-  }; // struct JointPlanar
+    Eigen::Matrix <Scalar_t,6,3> se3Action (const SE3 & m) const
+    {
+      Eigen::Matrix <double,6,3> X_subspace;
+      X_subspace.block <3,2> (Motion::LINEAR, 0) = skew (m.translation ()) * m.rotation ().leftCols <2> ();
+      X_subspace.block <3,1> (Motion::LINEAR, 2) = m.rotation ().rightCols <1> ();
 
-  Motion operator^ (const Motion & m1, const JointPlanar::MotionPlanar & m2)
+      X_subspace.block <3,2> (Motion::ANGULAR, 0) = m.rotation ().leftCols <2> ();
+      X_subspace.block <3,1> (Motion::ANGULAR, 2).setZero ();
+
+      return X_subspace;
+    }
+
+  }; // struct ConstraintPlanar
+
+  template<typename D>
+  Motion operator* (const ConstraintPlanar &, const Eigen::MatrixBase<D> & v)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,3);
+    Motion result (Motion::Zero ());
+    result.linear ().template head<2> () = v.template topRows<2> ();
+    result.angular ().template tail<1> () = v.template bottomRows<1> ();
+    return result;
+  }
+
+
+  Motion operator^ (const Motion & m1, const MotionPlanar & m2)
   {
     Motion result;
 
@@ -163,7 +207,7 @@ namespace se3
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix <Inertia::Scalar_t, 6, 3> operator* (const Inertia & Y, const JointPlanar::ConstraintPlanar &)
+  Eigen::Matrix <Inertia::Scalar_t, 6, 3> operator* (const Inertia & Y, const ConstraintPlanar &)
   {
     Eigen::Matrix <Inertia::Scalar_t, 6, 3> M;
     const double mass = Y.mass ();
@@ -187,19 +231,20 @@ namespace se3
   namespace internal
   {
     template<>
-    struct ActionReturn<JointPlanar::ConstraintPlanar >
+    struct ActionReturn<ConstraintPlanar >
     { typedef Eigen::Matrix<double,6,3> Type; };
   }
 
+  struct JointPlanar;
   template<>
   struct traits<JointPlanar>
   {
     typedef JointDataPlanar JointData;
     typedef JointModelPlanar JointModel;
-    typedef JointPlanar::ConstraintPlanar Constraint_t;
+    typedef ConstraintPlanar Constraint_t;
     typedef SE3 Transformation_t;
-    typedef JointPlanar::MotionPlanar Motion_t;
-    typedef JointPlanar::BiasZero Bias_t;
+    typedef MotionPlanar Motion_t;
+    typedef BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,3> F_t;
     enum {
       NQ = 3,
@@ -213,12 +258,6 @@ namespace se3
   {
     typedef JointPlanar Joint;
     SE3_JOINT_TYPEDEF;
-
-    typedef Motion::Scalar_t Scalar;
-
-    typedef Eigen::Matrix<Scalar,6,6> Matrix6;
-    typedef Eigen::Matrix<Scalar,3,3> Matrix3;
-    typedef Eigen::Matrix<Scalar,3,1> Vector3;
     
     Constraint_t S;
     Transformation_t M;
@@ -226,7 +265,7 @@ namespace se3
     Bias_t c;
 
     JointDataPlanar () : M(1) {}
-  };
+  }; // struct JointDataPlanar
 
   struct JointModelPlanar : public JointModelBase<JointModelPlanar>
   {
@@ -263,7 +302,7 @@ namespace se3
       data.v.y_dot_ = q_dot(1);
       data.v.theta_dot_ = q_dot(2);
     }
-  };
+  }; // struct JointModelPlanar
 
 } // namespace se3
 
