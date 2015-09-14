@@ -111,6 +111,7 @@ namespace se3
   struct ConstraintRotationalSubspace
   {
     SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintRotationalSubspace);
+    enum { NV = 3, Options = 0 };
     typedef traits<ConstraintRotationalSubspace>::JointMotion JointMotion;
     typedef traits<ConstraintRotationalSubspace>::JointForce JointForce;
     typedef traits<ConstraintRotationalSubspace>::DenseBase DenseBase;
@@ -119,6 +120,8 @@ namespace se3
     // Motion operator* (const MotionSpherical & vj) const
     // { return ??; }
 
+    int nv_impl() const { return NV; }
+    
     struct TransposeConst
     {
       Force::Vector3 operator* (const Force & phi)
@@ -218,14 +221,30 @@ namespace se3
     Motion_t v;
     Bias_t c;
 
+    F_t F;
+
     JointDataSpherical () : M(1)
     {}
+
+    JointDataDense<NQ, NV> toDense_impl() const
+    {
+      return JointDataDense<NQ, NV>(S, M, v, c, F);
+    }
   }; // struct JointDataSpherical
 
   struct JointModelSpherical : public JointModelBase<JointModelSpherical>
   {
     typedef JointSpherical Joint;
     SE3_JOINT_TYPEDEF;
+
+    using JointModelBase<JointModelSpherical>::id;
+    using JointModelBase<JointModelSpherical>::idx_q;
+    using JointModelBase<JointModelSpherical>::idx_v;
+    using JointModelBase<JointModelSpherical>::lowerPosLimit;
+    using JointModelBase<JointModelSpherical>::upperPosLimit;
+    using JointModelBase<JointModelSpherical>::maxEffortLimit;
+    using JointModelBase<JointModelSpherical>::maxVelocityLimit;
+    using JointModelBase<JointModelSpherical>::setIndexes;
 
     JointData createData() const { return JointData(); }
 
@@ -248,6 +267,23 @@ namespace se3
 
       const JointData::Quaternion quat(Eigen::Matrix<double,4,1> (q.tail <4> ())); // TODO
       data.M.rotation (quat.matrix ());
+    }
+
+    JointModelDense<NQ, NV> toDense_impl() const
+    {
+      return JointModelDense<NQ, NV>( id(),
+                                      idx_q(),
+                                      idx_v(),
+                                      lowerPosLimit(),
+                                      upperPosLimit(),
+                                      maxEffortLimit(),
+                                      maxVelocityLimit()
+                                    );
+    }
+
+    bool operator == (const JointModelSpherical& /*Ohter*/) const
+    {
+      return true; // TODO ?? used to bind variant in python
     }
   }; // struct JointModelSpherical
 

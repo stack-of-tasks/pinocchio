@@ -121,6 +121,7 @@ namespace se3
   {
 
     SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintPlanar);
+    enum { NV = 3, Options = 0 }; // to check
     typedef traits<ConstraintPlanar>::JointMotion JointMotion;
     typedef traits<ConstraintPlanar>::JointForce JointForce;
     typedef traits<ConstraintPlanar>::DenseBase DenseBase;
@@ -128,6 +129,8 @@ namespace se3
 
     Motion operator* (const MotionPlanar & vj) const
     { return vj; }
+
+    int nv_impl() const { return NV; }
 
 
     struct ConstraintTranspose
@@ -264,13 +267,29 @@ namespace se3
     Motion_t v;
     Bias_t c;
 
+    F_t F; // TODO if not used anymore, clean F_t
+
     JointDataPlanar () : M(1) {}
+
+    JointDataDense<NQ, NV> toDense_impl() const
+    {
+      return JointDataDense<NQ, NV>(S, M, v, c, F);
+    }
   }; // struct JointDataPlanar
 
   struct JointModelPlanar : public JointModelBase<JointModelPlanar>
   {
     typedef JointPlanar Joint;
     SE3_JOINT_TYPEDEF;
+
+    using JointModelBase<JointModelPlanar>::id;
+    using JointModelBase<JointModelPlanar>::idx_q;
+    using JointModelBase<JointModelPlanar>::idx_v;
+    using JointModelBase<JointModelPlanar>::lowerPosLimit;
+    using JointModelBase<JointModelPlanar>::upperPosLimit;
+    using JointModelBase<JointModelPlanar>::maxEffortLimit;
+    using JointModelBase<JointModelPlanar>::maxVelocityLimit;
+    using JointModelBase<JointModelPlanar>::setIndexes;
 
     JointData createData() const { return JointData(); }
 
@@ -301,6 +320,23 @@ namespace se3
       data.v.x_dot_ = q_dot(0);
       data.v.y_dot_ = q_dot(1);
       data.v.theta_dot_ = q_dot(2);
+    }
+
+    JointModelDense<NQ, NV> toDense_impl() const
+    {
+      return JointModelDense<NQ, NV>( id(),
+                                      idx_q(),
+                                      idx_v(),
+                                      lowerPosLimit(),
+                                      upperPosLimit(),
+                                      maxEffortLimit(),
+                                      maxVelocityLimit()
+                                    );
+    }
+
+    bool operator == (const JointModelPlanar& /*Ohter*/) const
+    {
+      return true; // TODO ?? used to bind variant in python
     }
   }; // struct JointModelPlanar
 
