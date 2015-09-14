@@ -113,6 +113,10 @@ namespace se3
     struct ConstraintRevoluteUnaligned : ConstraintBase < ConstraintRevoluteUnaligned >
     {
       SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintRevoluteUnaligned);
+      enum { NV = 1, Options = 0 };
+      typedef traits<ConstraintRevoluteUnaligned>::JointMotion JointMotion;
+      typedef traits<ConstraintRevoluteUnaligned>::JointForce JointForce;
+      typedef traits<ConstraintRevoluteUnaligned>::DenseBase DenseBase;
 
       ConstraintRevoluteUnaligned() : axis(Eigen::Vector3d::Constant(NAN)) {}
       ConstraintRevoluteUnaligned(const Motion::Vector3 & _axis) : axis(_axis) {}
@@ -133,6 +137,8 @@ namespace se3
         res.head<3>() = m.translation().cross(res.tail<3>());
         return res;
       }
+
+      int nv_impl() const { return NV; }
 
       struct TransposeConst
       {
@@ -250,6 +256,11 @@ namespace se3
       : M(1),S(axis),v(axis,NAN)
       ,angleaxis(NAN,axis)
     {}
+
+    JointDataDense<NQ, NV> toDense_impl() const
+    {
+      return JointDataDense<NQ, NV>(S, M, v, c, F);
+    }
   };
 
   struct JointModelRevoluteUnaligned : public JointModelBase< JointModelRevoluteUnaligned >
@@ -257,8 +268,13 @@ namespace se3
     typedef JointRevoluteUnaligned Joint;
     SE3_JOINT_TYPEDEF;
 
+    using JointModelBase<JointModelRevoluteUnaligned>::id;
     using JointModelBase<JointModelRevoluteUnaligned>::idx_q;
     using JointModelBase<JointModelRevoluteUnaligned>::idx_v;
+    using JointModelBase<JointModelRevoluteUnaligned>::lowerPosLimit;
+    using JointModelBase<JointModelRevoluteUnaligned>::upperPosLimit;
+    using JointModelBase<JointModelRevoluteUnaligned>::maxEffortLimit;
+    using JointModelBase<JointModelRevoluteUnaligned>::maxVelocityLimit;
     using JointModelBase<JointModelRevoluteUnaligned>::setIndexes;
     
     JointModelRevoluteUnaligned() : axis(Eigen::Vector3d::Constant(NAN))   {}
@@ -296,6 +312,23 @@ namespace se3
     }
 
     Eigen::Vector3d axis;
+
+    JointModelDense<NQ, NV> toDense_impl() const
+    {
+      return JointModelDense<NQ, NV>( id(),
+                                      idx_q(),
+                                      idx_v(),
+                                      lowerPosLimit(),
+                                      upperPosLimit(),
+                                      maxEffortLimit(),
+                                      maxVelocityLimit()
+                                    );
+    }
+
+    bool operator == (const JointModelRevoluteUnaligned& /*Ohter*/) const
+    {
+      return true; // TODO ?? used to bind variant in python
+    }
   };
 
 } //namespace se3
