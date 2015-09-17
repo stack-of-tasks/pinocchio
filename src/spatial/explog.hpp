@@ -36,7 +36,10 @@ namespace se3
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,3);
     typename D::Scalar nv = v.norm();
-    return Eigen::AngleAxis<typename D::Scalar>(nv, v / nv).matrix();
+    if (nv > 1e-14)
+      return Eigen::AngleAxis<typename D::Scalar>(nv, v / nv).matrix();
+    else
+      return Eigen::Matrix<typename D::Scalar,3,3,D::Options>::Identity();
   }
 
   /// \brief Log: SO3 -> so3.
