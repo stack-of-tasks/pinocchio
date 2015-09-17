@@ -28,7 +28,7 @@
 
 namespace se3
 {
-  template<class C> struct traits {};
+  // template<class C> struct traits {};
 
   /* RNEA operations
    *

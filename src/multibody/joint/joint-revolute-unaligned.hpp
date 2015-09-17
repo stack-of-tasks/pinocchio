@@ -28,50 +28,101 @@ namespace se3
 
   struct JointDataRevoluteUnaligned;
   struct JointModelRevoluteUnaligned;
-  
-  struct JointRevoluteUnaligned {
-    struct BiasZero 
-    {
-      operator Motion () const { return Motion::Zero(); }
+
+  struct MotionRevoluteUnaligned;
+  template <>
+  struct traits < MotionRevoluteUnaligned >
+  {
+    typedef double Scalar_t;
+    typedef Eigen::Matrix<double,3,1,0> Vector3;
+    typedef Eigen::Matrix<double,4,1,0> Vector4;
+    typedef Eigen::Matrix<double,6,1,0> Vector6;
+    typedef Eigen::Matrix<double,3,3,0> Matrix3;
+    typedef Eigen::Matrix<double,4,4,0> Matrix4;
+    typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef Vector3 Angular_t;
+    typedef Vector3 Linear_t;
+    typedef Matrix6 ActionMatrix_t;
+    typedef Eigen::Quaternion<double,0> Quaternion_t;
+    typedef SE3Tpl<double,0> SE3;
+    typedef ForceTpl<double,0> Force;
+    typedef MotionTpl<double,0> Motion;
+    typedef Symmetric3Tpl<double,0> Symmetric3;
+    enum {
+      LINEAR = 0,
+      ANGULAR = 3
     };
-    friend const Motion & operator+ ( const Motion& v, const BiasZero&) { return v; }
-    friend const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
+  }; // traits MotionRevoluteUnaligned
 
-    struct MotionRevoluteUnaligned 
-    {
-      // Empty constructor needed for now to avoid compilation errors
-      MotionRevoluteUnaligned() : axis(Motion::Vector3::Constant(NAN)), w(NAN) {} 
-      MotionRevoluteUnaligned( const Motion::Vector3 & axis, const double & w ) : axis(axis), w(w)  {}
+  struct MotionRevoluteUnaligned : MotionBase < MotionRevoluteUnaligned >
+  {
+    SPATIAL_TYPEDEF_NO_TEMPLATE(MotionRevoluteUnaligned);
 
-      operator Motion() const
-      { 
-        return Motion(Motion::Vector3::Zero(),
-                      axis*w);
-      }
+    MotionRevoluteUnaligned() : axis(Motion::Vector3::Constant(NAN)), w(NAN) {} 
+    MotionRevoluteUnaligned( const Motion::Vector3 & axis, const double & w ) : axis(axis), w(w)  {}
 
-      Motion::Vector3 axis; 
-      double w;
-    }; // struct MotionRevoluteUnaligned
+    Motion::Vector3 axis; 
+    double w;
 
-    friend const MotionRevoluteUnaligned& operator+ (const MotionRevoluteUnaligned& m, const BiasZero&)
-    { return m; }
-
-    friend Motion operator+ (const MotionRevoluteUnaligned& m1, const Motion& m2)
-    {
-      return Motion( m2.linear(), m1.w*m1.axis+m2.angular() );
-    }
-
-    struct ConstraintRevoluteUnaligned
+    operator Motion() const
     { 
-      // Empty constructor needed to avoid compilation error for now.
+      return Motion(Motion::Vector3::Zero(),
+                    axis*w);
+    }
+  }; // struct MotionRevoluteUnaligned
+  
+  const MotionRevoluteUnaligned& operator+ (const MotionRevoluteUnaligned& m, const BiasZero&)
+  { return m; }
+
+  Motion operator+ (const MotionRevoluteUnaligned& m1, const Motion& m2)
+  {
+    return Motion( m2.linear(), m1.w*m1.axis+m2.angular() );
+  }
+
+  struct ConstraintRevoluteUnaligned;
+  template <>
+  struct traits < ConstraintRevoluteUnaligned >
+  {
+    typedef double Scalar_t;
+    typedef Eigen::Matrix<double,3,1,0> Vector3;
+    typedef Eigen::Matrix<double,4,1,0> Vector4;
+    typedef Eigen::Matrix<double,6,1,0> Vector6;
+    typedef Eigen::Matrix<double,3,3,0> Matrix3;
+    typedef Eigen::Matrix<double,4,4,0> Matrix4;
+    typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef Matrix3 Angular_t;
+    typedef Vector3 Linear_t;
+    typedef Matrix6 ActionMatrix_t;
+    typedef Eigen::Quaternion<double,0> Quaternion_t;
+    typedef SE3Tpl<double,0> SE3;
+    typedef ForceTpl<double,0> Force;
+    typedef MotionTpl<double,0> Motion;
+    typedef Symmetric3Tpl<double,0> Symmetric3;
+    enum {
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+    typedef Eigen::Matrix<Scalar_t,1,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar_t,1,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar_t,6,1> DenseBase;
+  }; // traits ConstraintRevoluteUnaligned
+
+
+    
+
+    struct ConstraintRevoluteUnaligned : ConstraintBase < ConstraintRevoluteUnaligned >
+    {
+      SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintRevoluteUnaligned);
+
       ConstraintRevoluteUnaligned() : axis(Eigen::Vector3d::Constant(NAN)) {}
       ConstraintRevoluteUnaligned(const Motion::Vector3 & _axis) : axis(_axis) {}
-      
-      template<typename D> //todo : check operator is good
+      Motion::Vector3 axis; 
+
+      template<typename D>
       MotionRevoluteUnaligned operator*( const Eigen::MatrixBase<D> & v ) const
       { 
-	EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,1);
-	return MotionRevoluteUnaligned(axis,v[0]); 
+      	EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,1);
+      	return MotionRevoluteUnaligned(axis,v[0]); 
       }
 
       Eigen::Matrix<double,6,1> se3Action(const SE3 & m) const
@@ -85,14 +136,14 @@ namespace se3
 
       struct TransposeConst
       {
-	const ConstraintRevoluteUnaligned & ref; 
-	TransposeConst(const ConstraintRevoluteUnaligned & ref) : ref(ref) {} 
+      	const ConstraintRevoluteUnaligned & ref; 
+      	TransposeConst(const ConstraintRevoluteUnaligned & ref) : ref(ref) {} 
 
-	const Eigen::Matrix<double, 1, 1>
-	operator*( const Force& f ) const
-	{
-	  return ref.axis.transpose()*f.angular();
-	}
+      	const Eigen::Matrix<double, 1, 1>
+      	operator*( const Force& f ) const
+      	{
+      	  return ref.axis.transpose()*f.angular();
+      	}
 
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
         template<typename D>
@@ -119,62 +170,61 @@ namespace se3
        */
       operator ConstraintXd () const
       {
-	Eigen::Matrix<double,6,1> S;
-	S << Eigen::Vector3d::Zero(), axis;
-	return ConstraintXd(S);
+      	Eigen::Matrix<double,6,1> S;
+      	S << Eigen::Vector3d::Zero(), axis;
+      	return ConstraintXd(S);
       }
-      Motion::Vector3 axis; 
+      
     }; // struct ConstraintRevoluteUnaligned
 
-  }; // struct JoinRevoluteUnaligned
 
-  Motion operator^( const Motion& m1, const JointRevoluteUnaligned::MotionRevoluteUnaligned & m2)
-  {
-    /* m1xm2 = [ v1xw2 + w1xv2; w1xw2 ] = [ v1xw2; w1xw2 ] */
-    const Motion::Vector3& v1 = m1.linear();
-    const Motion::Vector3& w1 = m1.angular();
-    const Motion::Vector3& w2 = m2.axis * m2.w ;
-    return Motion( v1.cross(w2),w1.cross(w2));
-  }
+    Motion operator^( const Motion& m1, const MotionRevoluteUnaligned & m2)
+    {
+      /* m1xm2 = [ v1xw2 + w1xv2; w1xw2 ] = [ v1xw2; w1xw2 ] */
+      const Motion::Vector3& v1 = m1.linear();
+      const Motion::Vector3& w1 = m1.angular();
+      const Motion::Vector3& w2 = m2.axis * m2.w ;
+      return Motion( v1.cross(w2),w1.cross(w2));
+    }
 
-  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix<double,6,1>
-  operator*( const Inertia& Y,const JointRevoluteUnaligned::ConstraintRevoluteUnaligned & cru)
-  { 
-    /* YS = [ m -mcx ; mcx I-mcxcx ] [ 0 ; w ] = [ mcxw ; Iw -mcxcxw ] */
-    const double &m                 = Y.mass();
-    const Inertia::Vector3 & c      = Y.lever();
-    const Inertia::Symmetric3 & I   = Y.inertia();
+    /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
+    Eigen::Matrix<double,6,1>
+    operator*( const Inertia& Y,const ConstraintRevoluteUnaligned & cru)
+    { 
+      /* YS = [ m -mcx ; mcx I-mcxcx ] [ 0 ; w ] = [ mcxw ; Iw -mcxcxw ] */
+      const double &m                 = Y.mass();
+      const Inertia::Vector3 & c      = Y.lever();
+      const Inertia::Symmetric3 & I   = Y.inertia();
 
-    Eigen::Matrix<double,6,1> res;
-    res.head<3>() = -m*c.cross(cru.axis);
-    res.tail<3>() = I*cru.axis + c.cross(res.head<3>());
-    return res;
-  }
+      Eigen::Matrix<double,6,1> res;
+      res.head<3>() = -m*c.cross(cru.axis);
+      res.tail<3>() = I*cru.axis + c.cross(res.head<3>());
+      return res;
+    }
   
-  namespace internal 
-  {
+    namespace internal 
+    {
+      template<>
+      struct ActionReturn<ConstraintRevoluteUnaligned >  
+      { typedef Eigen::Matrix<double,6,1> Type; };
+    }
+
+    struct JointRevoluteUnaligned;
     template<>
-    struct ActionReturn<JointRevoluteUnaligned::ConstraintRevoluteUnaligned >  
-    { typedef Eigen::Matrix<double,6,1> Type; };
-  }
-
-
-  template<>
-  struct traits< JointRevoluteUnaligned >
-  {
-    typedef JointDataRevoluteUnaligned JointData;
-    typedef JointModelRevoluteUnaligned JointModel;
-    typedef JointRevoluteUnaligned::ConstraintRevoluteUnaligned Constraint_t;
-    typedef SE3 Transformation_t;
-    typedef JointRevoluteUnaligned::MotionRevoluteUnaligned Motion_t;
-    typedef JointRevoluteUnaligned::BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,1> F_t;
-    enum {
-      NQ = 1,
-      NV = 1
+    struct traits< JointRevoluteUnaligned >
+    {
+      typedef JointDataRevoluteUnaligned JointData;
+      typedef JointModelRevoluteUnaligned JointModel;
+      typedef ConstraintRevoluteUnaligned Constraint_t;
+      typedef SE3 Transformation_t;
+      typedef MotionRevoluteUnaligned Motion_t;
+      typedef BiasZero Bias_t;
+      typedef Eigen::Matrix<double,6,1> F_t;
+      enum {
+        NQ = 1,
+        NV = 1
+      };
     };
-  };
 
   template<> struct traits<JointDataRevoluteUnaligned> { typedef JointRevoluteUnaligned Joint; };
   template<> struct traits<JointModelRevoluteUnaligned> { typedef JointRevoluteUnaligned Joint; };
@@ -192,7 +242,6 @@ namespace se3
     F_t F;
     Eigen::AngleAxisd angleaxis;
 
-    /* The empty constructor is needed for the variant. */
     JointDataRevoluteUnaligned() 
       : M(1),S(Eigen::Vector3d::Constant(NAN)),v(Eigen::Vector3d::Constant(NAN),NAN)
       , angleaxis( NAN,Eigen::Vector3d::Constant(NAN))
@@ -212,7 +261,6 @@ namespace se3
     using JointModelBase<JointModelRevoluteUnaligned>::idx_v;
     using JointModelBase<JointModelRevoluteUnaligned>::setIndexes;
     
-    /* The empty constructor is needed for the variant. */
     JointModelRevoluteUnaligned() : axis(Eigen::Vector3d::Constant(NAN))   {}
     JointModelRevoluteUnaligned( const Motion::Vector3 & axis ) : axis(axis)
     {
@@ -247,7 +295,6 @@ namespace se3
       data.v.w = v;
     }
 
-    //protected: TODO
     Eigen::Vector3d axis;
   };
 

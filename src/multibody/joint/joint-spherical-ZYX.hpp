@@ -231,7 +231,7 @@ namespace se3
     typedef JointSphericalZYX Joint;
     SE3_JOINT_TYPEDEF;
 
-    typedef Motion::Scalar Scalar;
+    typedef Motion::Scalar_t Scalar;
 
     typedef Eigen::Matrix<Scalar,6,6> Matrix6;
     typedef Eigen::Matrix<Scalar,3,3> Matrix3;
