@@ -19,8 +19,8 @@ import numpy as np
 
 class RomeoWrapper(RobotWrapper):
 
-    def __init__(self,filename):
-        RobotWrapper.__init__(self,filename)
+    def __init__(self, filename, root_joint = None):
+        RobotWrapper.__init__(self, filename, root_joint)
         self.q0 = np.matrix( [
             0, 0, 0.840252, 0, 0, 0, 1,                      # Free flyer
             0, 0, -0.3490658, 0.6981317, -0.3490658, 0,      # left leg
