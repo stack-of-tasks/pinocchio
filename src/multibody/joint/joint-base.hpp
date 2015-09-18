@@ -165,6 +165,39 @@ public:
 
   };
 
+  template<int NV>
+  struct SizeDepType
+  {
+    template<class Mat>
+    struct SegmentReturn 
+    {
+      typedef typename Mat::template FixedSegmentReturnType<NV>::Type Type;
+      typedef typename Mat::template ConstFixedSegmentReturnType<NV>::Type ConstType;
+    };
+    template<class Mat>
+    struct ColsReturn
+    {
+      typedef typename Mat::template NColsBlockXpr<NV>::Type Type;
+      typedef typename Mat::template ConstNColsBlockXpr<NV>::Type ConstType;
+    };
+  };
+  template<>
+  struct SizeDepType<Eigen::Dynamic>
+  {
+    template<class Mat>
+    struct SegmentReturn 
+    {
+      typedef typename Mat::SegmentReturnType Type;
+      typedef typename Mat::ConstSegmentReturnType ConstType;
+    };
+    template<class Mat>
+    struct ColsReturn
+    {
+      typedef typename Mat::ColsBlockXpr Type;
+      typedef typename Mat::ConstColsBlockXpr ConstType;
+    };
+  };
+
   template<typename _JointModel>
   struct JointModelBase
   {
@@ -196,8 +229,12 @@ public:
 
   public:
     
-    int     nv()    const { return NV; }
-    int     nq()    const { return NQ; }
+    int     nv()    const { return derived().nv_impl(); }
+    int     nq()    const { return derived().nq_impl(); }
+    // Both _impl methods are reimplemented by dynamic-size joints.
+    int     nv_impl() const { return NV; }
+    int     nq_impl() const { return NQ; }
+
     const int &   idx_q() const { return i_q; }
     const int &   idx_v() const { return i_v; }
     const Index & id()    const { return i_id; }
@@ -208,68 +245,104 @@ public:
     const Eigen::Matrix<double,NQ,1> & maxEffortLimit() const { return effortMax;}
     const Eigen::Matrix<double,NV,1> & maxVelocityLimit() const { return velocityMax;}
 
-
     void setIndexes(Index id,int q,int v) { i_id = id, i_q = q; i_v = v; }
 
     void setLowerPositionLimit(const Eigen::VectorXd & lowerPos)
     {
-      if (lowerPos.rows() == NQ)
-        position_lower = lowerPos;
-      else
-        position_lower.fill(-std::numeric_limits<double>::infinity());
+      position_lower = lowerPos;
     }
 
     void setUpperPositionLimit(const Eigen::VectorXd & upperPos)
     {
-      if (upperPos.rows() == NQ)
-        position_upper = upperPos;
-      else
-        position_upper.fill(std::numeric_limits<double>::infinity());
+      position_upper = upperPos;
     }
 
     void setMaxEffortLimit(const Eigen::VectorXd & effort)
     {
-      if (effort.rows() == NV)
-        effortMax = effort;
-      else
-        effortMax.fill(std::numeric_limits<double>::infinity());
+      effortMax = effort;
     }
 
     void setMaxVelocityLimit(const Eigen::VectorXd & v)
     {
-      if (v.rows() == NV)
-        velocityMax = v;
-      else
-        velocityMax.fill(std::numeric_limits<double>::infinity());
+      velocityMax = v;
     }
 
+    /* Acces to dedicated segment in robot config velocity.  */
+    // Const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
+    jointMotion(const Eigen::MatrixBase<D>& a) const       { return derived().jointMotion_impl(a); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
+    jointMotion_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NV>(i_v); }
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type 
+    jointMotion( Eigen::MatrixBase<D>& a) const { return derived().jointMotion_impl(a); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type 
+    jointMotion_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
+
+    /* Acces to dedicated segment in robot joint torques.  */
+    // Const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
+    jointForce(const Eigen::MatrixBase<D>& a) const { return derived().jointForce_impl(a); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
+    jointForce_impl(const Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type 
+    jointForce( Eigen::MatrixBase<D>& a) const { return derived().jointForce_impl(a); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type 
+    jointForce_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
+
+    /* Acces to dedicated segment in robot config limit. */
+    // Const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
+    jointLimit (const Eigen::MatrixBase<D>& a) const { return derived().jointLimit_impl(a); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
+    jointLimit_impl(const Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type 
+    jointLimit( Eigen::MatrixBase<D>& a) const { return derived().jointLimit_impl(a); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type 
+    jointLimit_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
+
+    /* Acces to dedicated segment in robot config velocityLimit. */
+    // Const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
+    jointVelocityLimit (const Eigen::MatrixBase<D>& a) const { return derived().jointVelocityLimit_impl(a); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
+    jointVelocityLimit_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NV>(i_v); }
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type 
+    jointVelocityLimit( Eigen::MatrixBase<D>& a) const { return derived().jointVelocityLimit_impl(a); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type 
+    jointVelocityLimit_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
 
     template<typename D>
-    typename D::template ConstFixedSegmentReturnType<NV>::Type jointMotion(const Eigen::MatrixBase<D>& a) const     { return a.template segment<NV>(i_v); }
+    typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
+    jointCols(const Eigen::MatrixBase<D>& A) const       { return derived().jointCols_impl(A); }
     template<typename D>
-    typename D::template FixedSegmentReturnType<NV>::Type jointMotion(Eigen::MatrixBase<D>& a) const 
-    { return a.template segment<NV>(i_v); }
+    typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
+    jointCols_impl(const Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
     template<typename D>
-    typename D::template ConstFixedSegmentReturnType<NV>::Type jointForce(const Eigen::MatrixBase<D>& tau) const 
-    { return tau.template segment<NV>(i_v); }
+    typename SizeDepType<NV>::template ColsReturn<D>::Type 
+    jointCols(Eigen::MatrixBase<D>& A) const       { return derived().jointCols_impl(A); }
     template<typename D>
-    typename D::template FixedSegmentReturnType<NV>::Type jointForce(Eigen::MatrixBase<D>& tau) const 
-    { return tau.template segment<NV>(i_v); }
-
-    template<typename D>
-    typename D::template ConstFixedSegmentReturnType<NQ>::Type jointLimit(const Eigen::MatrixBase<D>& limit) const 
-    { return limit.template segment<NQ>(i_q); }
-    template<typename D>
-    typename D::template FixedSegmentReturnType<NQ>::Type jointLimit(Eigen::MatrixBase<D>& limit) const 
-    { return limit.template segment<NQ>(i_q); }
-
-    template<typename D>
-    typename D::template ConstFixedSegmentReturnType<NV>::Type jointTangentLimit(const Eigen::MatrixBase<D>& limit) const 
-    { return limit.template segment<NV>(i_v); }
-    template<typename D>
-    typename D::template FixedSegmentReturnType<NV>::Type jointTangentLimit(Eigen::MatrixBase<D>& limit) const 
-    { return limit.template segment<NV>(i_v); }
-
+    typename SizeDepType<NV>::template ColsReturn<D>::Type 
+    jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
 
     JointModelDense<NQ, NV> toDense() const  { return static_cast<const JointModel*>(this)->toDense_impl();   }
   };
@@ -316,6 +389,8 @@ public:
     //   M.translation(SE3::Vector3::Zero());
     // }
 
+    JointDataDense() {};
+
     JointDataDense( Constraint_t S,
                     Transformation_t M,
                     Motion_t v,
@@ -350,10 +425,14 @@ public:
     using JointModelBase<JointModelDense<_NQ, _NV > >::setMaxEffortLimit;
     using JointModelBase<JointModelDense<_NQ, _NV > >::setMaxVelocityLimit;
     using JointModelBase<JointModelDense<_NQ, _NV > >::setIndexes;
+    using JointModelBase<JointModelDense<_NQ, _NV > >::i_v;
+    using JointModelBase<JointModelDense<_NQ, _NV > >::i_q;
+
+    int nv_dyn,nq_dyn;
     
     JointData createData() const
     {
-      assert(false && "JointModelDense is read-only, should not createData");
+      //assert(false && "JointModelDense is read-only, should not createData");
       return JointData();
     }
     void calc( JointData& , 
@@ -393,6 +472,41 @@ public:
       setMaxVelocityLimit(maxVel);
     }
 
+    int     nv_impl() const { return nv_dyn; }
+    int     nq_impl() const { return nq_dyn; }
+
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
+    jointMotion_impl(const Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type
+    jointMotion_impl( Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
+    jointForce_impl(const Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type
+    jointForce_impl( Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
+    jointLimit_impl(const Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type
+    jointLimit_impl( Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
+    jointVelocityLimit_impl(const Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type
+    jointVelocityLimit_impl( Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
+
+    template<typename D>
+    typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
+    jointCols_impl(const Eigen::MatrixBase<D>& A) const { return A.template middleCols<NV>(i_v); }
+    template<typename D>
+    typename SizeDepType<NV>::template ColsReturn<D>::Type 
+    jointCols_impl(Eigen::MatrixBase<D>& A) const { return A.template middleCols<NV>(i_v); }
+
     JointModelDense<_NQ, _NV> toDense_impl() const
     {
       assert(false && "Trying to convert a jointModelDense to JointModelDense : useless"); // disapear with release optimizations
@@ -400,6 +514,58 @@ public:
     }
 
   }; // struct JointModelDense
+
+  template<>
+  template<typename D>
+  typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
+  JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
+  jointMotion_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
+  template<>
+  template<typename D>
+  typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
+  JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
+  jointMotion_impl(Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
+  template<>
+  template<typename D>
+  typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
+  JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
+  jointForce_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
+  template<>
+  template<typename D>
+  typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
+  JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
+  jointForce_impl(Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
+  template<>
+  template<typename D>
+  typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
+  JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
+  jointLimit_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
+  template<>
+  template<typename D>
+  typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
+  JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
+  jointLimit_impl(Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
+  template<>
+  template<typename D>
+  typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
+  JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
+  jointVelocityLimit_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
+  template<>
+  template<typename D>
+  typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
+  JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
+  jointVelocityLimit_impl(Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
+
+  template<>
+  template<typename D>
+  typename SizeDepType<Eigen::Dynamic>::template ColsReturn<D>::ConstType 
+  JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
+  jointCols_impl(const Eigen::MatrixBase<D>& A) const { return A.middleCols(i_v,nv_dyn); }
+  template<>
+  template<typename D>
+  typename SizeDepType<Eigen::Dynamic>::template ColsReturn<D>::Type 
+  JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
+  jointCols_impl(Eigen::MatrixBase<D>& A) const { return A.middleCols(i_v,nv_dyn); }
 
 } // namespace se3
 

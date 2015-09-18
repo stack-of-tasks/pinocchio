@@ -263,7 +263,8 @@ namespace se3
       	  = data.mass[i]*oSk.template topLeftCorner<3,1>() 
       	  - data.com[i].cross(oSk.template bottomLeftCorner<3,1>()) ;
       else
-      	data.Jcom.template block<3,JointModel::NV>(0,jmodel.idx_v())
+      	jmodel.jointCols(data.Jcom)
+          //data.Jcom.template block<3,JointModel::NV>(0,jmodel.idx_v())
       	  = data.mass[i]*oSk.template topRows<3>() 
       	  - skew(data.com[i]) * oSk.template bottomRows<3>() ;
 

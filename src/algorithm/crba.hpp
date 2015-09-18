@@ -86,7 +86,8 @@ namespace se3
       const Model::Index & i = (Model::Index) jmodel.id();
 
       /* F[1:6,i] = Y*S */
-      data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
+      //data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
+      jmodel.jointCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
 
       /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]) 

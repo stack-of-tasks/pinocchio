@@ -81,8 +81,15 @@ namespace se3
 
   }; // traits ConstraintTpl
 
+  namespace internal
+  {  
+    template<int Dim, typename Scalar, int Options>
+    struct ActionReturn<ConstraintTpl<Dim,Scalar,Options> >
+    { typedef Eigen::Matrix<Scalar,6,Dim> Type; };
+  }
+
   template<int _Dim, typename _Scalar, int _Options>
-  class ConstraintTpl : ConstraintBase<ConstraintTpl < _Dim, _Scalar, _Options > >
+  class ConstraintTpl : public ConstraintBase<ConstraintTpl < _Dim, _Scalar, _Options > >
   { 
   public:
 
@@ -101,13 +108,16 @@ namespace se3
 
     ConstraintTpl() : S() 
     {
-      EIGEN_STATIC_ASSERT_FIXED_SIZE(DenseBase);
+#ifndef NDEBUG
       S.fill( NAN ); 
+#endif
     } 
 
     ConstraintTpl(const int dim) : S(6,dim)
     {
+#ifndef NDEBUG
       S.fill( NAN );
+#endif
     }
 
     Motion __mult__(const JointMotion& vj) const 
@@ -123,6 +133,14 @@ namespace se3
 
       JointForce operator* (const Force& f) const
       { return ref.S.transpose()*f.toVector(); }
+
+      template<typename D>
+      typename Eigen::Matrix<_Scalar,NV,Eigen::Dynamic>
+      operator*( const Eigen::MatrixBase<D> & F )
+      {
+        return ref.S.transpose()*F;
+      }
+
     };
     Transpose transpose() const { return Transpose(*this); }
 
@@ -131,9 +149,23 @@ namespace se3
 
     int nv_impl() const { return NV; }
 
+    //template<int Dim,typename Scalar,int Options>
+    friend Eigen::Matrix<_Scalar,6,_Dim>
+    operator*( const InertiaTpl<_Scalar,_Options> & Y,const ConstraintTpl<_Dim,_Scalar,_Options> & S)
+    { return Y.matrix()*S.S; }
+
+    Eigen::Matrix<_Scalar,6,NV> se3Action(const SE3 & m) const
+    {
+      return m.toActionMatrix()*S;
+    }
+
+
   private:
     DenseBase S;
   }; // class ConstraintTpl
+
+
+
 
   typedef ConstraintTpl<1,double,0> Constraint1d;
   typedef ConstraintTpl<3,double,0> Constraint3d;

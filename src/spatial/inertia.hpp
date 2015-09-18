@@ -184,8 +184,8 @@ namespace se3
     {
       Matrix6 M;
       const Matrix3 & c_cross = (skew(c));
-      M.template block<3,3>(LINEAR, LINEAR ).template setZero ();
-      M.template block<3,3>(LINEAR, LINEAR ).template diagonal ().template fill (m);
+      M.template block<3,3>(LINEAR, LINEAR ).setZero ();
+      M.template block<3,3>(LINEAR, LINEAR ).diagonal ().fill (m);
       M.template block<3,3>(ANGULAR,LINEAR ) = m * c_cross;
       M.template block<3,3>(LINEAR, ANGULAR) = -M.template block<3,3> (ANGULAR, LINEAR);
       M.template block<3,3>(ANGULAR,ANGULAR) = (Matrix3)(I - M.template block<3,3>(ANGULAR, LINEAR) * c_cross);

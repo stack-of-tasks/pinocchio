@@ -62,7 +62,7 @@ namespace se3
       if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
       else         data.oMi[i] = data.liMi[i];
 
-      data.J.block(0,jmodel.idx_v(),6,jmodel.nv()) = data.oMi[i].act(jdata.S());
+      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
     }
 
   };
@@ -128,7 +128,7 @@ namespace se3
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       data.iMf[parent] = data.liMi[i]*data.iMf[i];
 
-      data.J.block(0,jmodel.idx_v(),6,jmodel.nv()) = data.iMf[i].inverse().act(jdata.S());
+      jmodel.jointCols(data.J) = data.iMf[i].inverse().act(jdata.S());
     }
 
   };

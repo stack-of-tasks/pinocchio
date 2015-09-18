@@ -79,7 +79,7 @@ namespace se3
         data.oMi[i] = data.liMi[i];
       }
 
-      data.J.block(0,jmodel.idx_v(),6,jmodel.nv()) = data.oMi[i].act(jdata.S());
+      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
 
       data.a[i]  = jdata.c() + (data.v[i] ^ jdata.v());
       data.a[i] += data.liMi[i].actInv(data.a[parent]);
@@ -113,7 +113,7 @@ namespace se3
       const Model::Index & parent = model.parents[i];
 
       /* F[1:6,i] = Y*S */
-      data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
+      jmodel.jointCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
 
       /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i])
