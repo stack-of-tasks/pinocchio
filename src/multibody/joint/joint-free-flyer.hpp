@@ -18,6 +18,7 @@
 #ifndef __se3_joint_free_flyer_hpp__
 #define __se3_joint_free_flyer_hpp__
 
+#include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 
@@ -57,32 +58,34 @@ namespace se3
   }; // traits ConstraintRevolute
 
 
-  struct ConstraintIdentity : ConstraintBase < ConstraintIdentity >
-  {
-    SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintIdentity);
-    enum { NV = 6, Options = 0 };
-    typedef traits<ConstraintIdentity>::JointMotion JointMotion;
-    typedef traits<ConstraintIdentity>::JointForce JointForce;
-    typedef traits<ConstraintIdentity>::DenseBase DenseBase;
-
-    SE3::Matrix6 se3Action(const SE3 & m) const { return m.toActionMatrix(); }
-
-    struct TransposeConst 
+    struct ConstraintIdentity : ConstraintBase < ConstraintIdentity >
     {
-      Force::Vector6 operator* (const Force & phi)
-      {  return phi.toVector();  }
-    };
-    
-    TransposeConst transpose() const { return TransposeConst(); }
-    operator ConstraintXd () const { return ConstraintXd(SE3::Matrix6::Identity()); }
-  }; // struct ConstraintIdentity
+      SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintIdentity);
+      enum { NV = 6, Options = 0 };
+      typedef traits<ConstraintIdentity>::JointMotion JointMotion;
+      typedef traits<ConstraintIdentity>::JointForce JointForce;
+      typedef traits<ConstraintIdentity>::DenseBase DenseBase;
 
-  template<typename D>
-  Motion operator* (const ConstraintIdentity&, const Eigen::MatrixBase<D>& v)
-  {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,6);
-    return Motion(v);
-  }
+      SE3::Matrix6 se3Action(const SE3 & m) const { return m.toActionMatrix(); }
+
+      int nv_impl() const { return NV; }
+
+      struct TransposeConst 
+      {
+        Force::Vector6 operator* (const Force & phi)
+        {  return phi.toVector();  }
+      };
+      
+      TransposeConst transpose() const { return TransposeConst(); }
+      operator ConstraintXd () const { return ConstraintXd(SE3::Matrix6::Identity()); }
+    }; // struct ConstraintIdentity
+
+    template<typename D>
+    Motion operator* (const ConstraintIdentity&, const Eigen::MatrixBase<D>& v)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,6);
+      return Motion(v);
+    }
 
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
@@ -106,7 +109,10 @@ namespace se3
     { typedef SE3::Matrix6 Type; };
   }
 
-  struct JointFreeFlyer;
+  struct JointFreeFlyer{
+
+  };
+
   template<>
   struct traits<JointFreeFlyer>
   {
@@ -143,17 +149,30 @@ namespace se3
     JointDataFreeFlyer() : M(1)
     {
     }
-  }; // Struct JointDataFreeFlyer
+
+    JointDataDense<NQ, NV> toDense_impl() const
+    {
+      return JointDataDense<NQ, NV>(S, M, v, c, F);
+    }
+  };
 
   struct JointModelFreeFlyer : public JointModelBase<JointModelFreeFlyer>
   {
     typedef JointFreeFlyer Joint;
     SE3_JOINT_TYPEDEF;
 
-    JointData createData() const { return JointData(); }
+    using JointModelBase<JointModelFreeFlyer>::id;
+    using JointModelBase<JointModelFreeFlyer>::idx_q;
+    using JointModelBase<JointModelFreeFlyer>::idx_v;
+    using JointModelBase<JointModelFreeFlyer>::lowerPosLimit;
+    using JointModelBase<JointModelFreeFlyer>::upperPosLimit;
+    using JointModelBase<JointModelFreeFlyer>::maxEffortLimit;
+    using JointModelBase<JointModelFreeFlyer>::maxVelocityLimit;
+    using JointModelBase<JointModelFreeFlyer>::setIndexes;
 
+    JointData createData() const { return JointData(); }
     void calc( JointData& data,
-	       const Eigen::VectorXd & qs) const
+         const Eigen::VectorXd & qs) const
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
       const JointData::Quaternion quat(Eigen::Matrix<double,4,1> (q.tail <4> ())); // TODO
@@ -161,10 +180,9 @@ namespace se3
       data.M.rotation (quat.matrix());
       data.M.translation (q.head<3>());
     }
-
     void calc( JointData& data, 
-	       const Eigen::VectorXd & qs, 
-	       const Eigen::VectorXd & vs ) const
+         const Eigen::VectorXd & qs, 
+         const Eigen::VectorXd & vs ) const
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
       data.v = vs.segment<NV>(idx_v());
@@ -174,7 +192,24 @@ namespace se3
       data.M.rotation (quat.matrix());
       data.M.translation (q.head<3>());
     }
-  }; // Struct JointModelFreeFlyer
+
+    JointModelDense<NQ, NV> toDense_impl() const
+    {
+      return JointModelDense<NQ, NV>( id(),
+                                      idx_q(),
+                                      idx_v(),
+                                      lowerPosLimit(),
+                                      upperPosLimit(),
+                                      maxEffortLimit(),
+                                      maxVelocityLimit()
+                                    );
+    }
+
+    bool operator == (const JointModelFreeFlyer& /*Ohter*/) const
+    {
+      return true; // TODO ?? used to bind variant in python
+    }
+  };
 
 } // namespace se3
 
