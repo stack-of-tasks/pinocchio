@@ -120,7 +120,7 @@ namespace se3
       = jdata.S().transpose()*data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
 
 
-      jmodel.jointForce(data.nle)  = jdata.S().transpose()*data.f[i];
+      jmodel.jointVelocitySpace(data.nle)  = jdata.S().transpose()*data.f[i];
       if(parent>0)
       {
         /*   Yli += liXi Yi */
