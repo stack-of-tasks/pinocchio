@@ -19,6 +19,7 @@
 #define __se3_joint_hpp__
 
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
 #include "pinocchio/multibody/joint/joint-revolute-unaligned.hpp"
 #include "pinocchio/multibody/joint/joint-spherical.hpp"

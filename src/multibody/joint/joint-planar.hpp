@@ -19,6 +19,7 @@
 #define __se3_joint_planar_hpp__
 
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/motion.hpp"
