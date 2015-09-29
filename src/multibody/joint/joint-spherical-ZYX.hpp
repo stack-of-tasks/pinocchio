@@ -90,13 +90,11 @@ namespace se3
 
     struct ConstraintRotationalSubspace
     {
-    public:
       enum { NV = 3, Options = 0 };
       typedef _Scalar Scalar;
       typedef Eigen::Matrix <_Scalar,3,3,_Options> Matrix3;
       typedef Eigen::Matrix <_Scalar,3,1,_Options> Vector3;
 
-    public:
       Matrix3 S_minimal;
 
       Motion operator* (const MotionSpherical & vj) const
@@ -259,7 +257,7 @@ namespace se3
     {
       return JointDataDense<NQ, NV>(S, M, v, c, F);
     }
-  };
+  }; // strcut JointDataSphericalZYX
 
   struct JointModelSphericalZYX : public JointModelBase<JointModelSphericalZYX>
   {
@@ -347,7 +345,7 @@ namespace se3
       return true; // TODO ?? used to bind variant in python
     }
 
-  };
+  }; // struct JointModelSphericalZYX
 
 } // namespace se3
 

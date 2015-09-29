@@ -109,9 +109,7 @@ namespace se3
     { typedef SE3::Matrix6 Type; };
   }
 
-  struct JointFreeFlyer{
-
-  };
+  struct JointFreeFlyer;
 
   template<>
   struct traits<JointFreeFlyer>
@@ -154,7 +152,7 @@ namespace se3
     {
       return JointDataDense<NQ, NV>(S, M, v, c, F);
     }
-  };
+  }; // struct JointDataFreeFlyer
 
   struct JointModelFreeFlyer : public JointModelBase<JointModelFreeFlyer>
   {
@@ -209,7 +207,7 @@ namespace se3
     {
       return true; // TODO ?? used to bind variant in python
     }
-  };
+  }; // struct JointModelFreeFlyer
 
 } // namespace se3
 

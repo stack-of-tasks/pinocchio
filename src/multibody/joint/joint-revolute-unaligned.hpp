@@ -262,7 +262,7 @@ namespace se3
     {
       return JointDataDense<NQ, NV>(S, M, v, c, F);
     }
-  };
+  }; // struct JointDataRevoluteUnaligned
 
   struct JointModelRevoluteUnaligned : public JointModelBase< JointModelRevoluteUnaligned >
   {
@@ -330,7 +330,7 @@ namespace se3
     {
       return true; // TODO ?? used to bind variant in python
     }
-  };
+  }; // struct JointModelRevoluteUnaligned
 
 } //namespace se3
 

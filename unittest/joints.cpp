@@ -1045,26 +1045,18 @@ BOOST_AUTO_TEST_CASE ( toJointModelDense )
 
 BOOST_AUTO_TEST_CASE ( toJointDataDense )
 {
-  // using namespace se3;
+  using namespace se3;
 
-  // JointModelRX jmodel;
-  // jmodel.setIndexes (2, 0, 0);
+  JointModelRX jmodel;
+  jmodel.setIndexes (2, 0, 0);
 
-  // JointDataRX jdata;
+  JointDataRX jdata;
 
-  // JointDataDense< JointDataBase<JointModelRX::JointData>::NQ,
-  //                 JointDataBase<JointModelRX::JointData>::NV
-  //                                                                     > jdd = jdata.toDense(); (void) jdd;
+  JointDataDense< JointDataBase<JointModelRX::JointData>::NQ,
+                  JointDataBase<JointModelRX::JointData>::NV
+                                                                      > jdd = jdata.toDense();
 
-  // asert(jdata.S().nv() == jdd.S().nv() && "");
+  assert(jdata.S.nv() == jdd.S.nv() && "");
 
-  
-      // JointDataBase<JointDataDense> & jddb = jdd;
-
-      // std::cout << "S nv: \t" ;
-      // std::cout << jdata.S().nv() << std::endl;
-      // JointDataDense::Transformation_t mm = jdd.M1();
-      // std::cout //<< "M\t" << mm << std::endl;
-                // << jdd.S << std::endl;
 }
 BOOST_AUTO_TEST_SUITE_END ()

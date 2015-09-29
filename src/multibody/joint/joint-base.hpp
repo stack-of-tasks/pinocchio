@@ -163,7 +163,7 @@ namespace se3
 
     JointDataDense<NQ, NV> toDense() const  { return static_cast<const JointData*>(this)->toDense_impl();   }
 
-  };
+  }; // struct JointDataBase
 
   template<int NV>
   struct SizeDepType
@@ -312,7 +312,7 @@ namespace se3
     jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
 
     JointModelDense<NQ, NV> toDense() const  { return static_cast<const JointModel*>(this)->toDense_impl();   }
-  };
+  }; // struct JointModelBase
 
 } // namespace se3
 

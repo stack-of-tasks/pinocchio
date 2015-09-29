@@ -18,7 +18,6 @@
 #ifndef __se3_joint_revolute_hpp__
 #define __se3_joint_revolute_hpp__
 
-// #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
