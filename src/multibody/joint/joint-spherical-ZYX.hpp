@@ -19,6 +19,7 @@
 #define __se3_joint_spherical_ZYX_hpp__
 #include <iostream>
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -50,6 +51,8 @@ namespace se3
       //BiasSpherical (const Motion::Vector3 & c_J) c_J (c_J) {}
 
       operator Motion () const { return Motion (Motion::Vector3::Zero (), c_J); }
+
+      operator BiasZero() const { return BiasZero();}
 
       typename MotionTpl<Scalar,Options>::Vector3 & operator() () { return c_J; }
       const typename MotionTpl<Scalar,Options>::Vector3 & operator() () const { return c_J; }
@@ -87,12 +90,11 @@ namespace se3
 
     struct ConstraintRotationalSubspace
     {
-    public:
+      enum { NV = 3, Options = 0 };
       typedef _Scalar Scalar;
       typedef Eigen::Matrix <_Scalar,3,3,_Options> Matrix3;
       typedef Eigen::Matrix <_Scalar,3,1,_Options> Vector3;
 
-    public:
       Matrix3 S_minimal;
 
       Motion operator* (const MotionSpherical & vj) const
@@ -106,6 +108,8 @@ namespace se3
 
       Matrix3 &  matrix () { return S_minimal; }
       const Matrix3 & matrix () const { return S_minimal; }
+
+      int nv_impl() const { return NV; }
 
       struct ConstraintTranspose
       {
@@ -242,16 +246,32 @@ namespace se3
     Motion_t v;
     Bias_t c;
 
+    F_t F;
+
     JointDataSphericalZYX () : M(1)
     {
       M.translation (Transformation_t::Vector3::Zero ());
     }
-  };
+
+    JointDataDense<NQ, NV> toDense_impl() const
+    {
+      return JointDataDense<NQ, NV>(S, M, v, c, F);
+    }
+  }; // strcut JointDataSphericalZYX
 
   struct JointModelSphericalZYX : public JointModelBase<JointModelSphericalZYX>
   {
     typedef JointSphericalZYX Joint;
     SE3_JOINT_TYPEDEF;
+
+    using JointModelBase<JointModelSphericalZYX>::id;
+    using JointModelBase<JointModelSphericalZYX>::idx_q;
+    using JointModelBase<JointModelSphericalZYX>::idx_v;
+    using JointModelBase<JointModelSphericalZYX>::lowerPosLimit;
+    using JointModelBase<JointModelSphericalZYX>::upperPosLimit;
+    using JointModelBase<JointModelSphericalZYX>::maxEffortLimit;
+    using JointModelBase<JointModelSphericalZYX>::maxVelocityLimit;
+    using JointModelBase<JointModelSphericalZYX>::setIndexes;
 
     JointData createData() const { return JointData(); }
 
@@ -307,7 +327,25 @@ namespace se3
       data.c ()(1) = -s1 * s2 * q_dot (0) * q_dot (1) + c1 * c2 * q_dot (0) * q_dot (2) - s2 * q_dot (1) * q_dot (2);
       data.c ()(2) = -s1 * c2 * q_dot (0) * q_dot (1) - c1 * s2 * q_dot (0) * q_dot (2) - c2 * q_dot (1) * q_dot (2);
     }
-  };
+
+    JointModelDense<NQ, NV> toDense_impl() const
+    {
+      return JointModelDense<NQ, NV>( id(),
+                                      idx_q(),
+                                      idx_v(),
+                                      lowerPosLimit(),
+                                      upperPosLimit(),
+                                      maxEffortLimit(),
+                                      maxVelocityLimit()
+                                    );
+    }
+
+    bool operator == (const JointModelSphericalZYX& /*Ohter*/) const
+    {
+      return true; // TODO ?? used to bind variant in python
+    }
+
+  }; // struct JointModelSphericalZYX
 
 } // namespace se3
 

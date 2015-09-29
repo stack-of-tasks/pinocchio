@@ -88,7 +88,7 @@ namespace se3
 		     const size_t i)
     {
       const Model::Index & parent  = model.parents[i];      
-      jmodel.jointForce(data.nle)  = jdata.S().transpose()*data.f[i];
+      jmodel.jointVelocitySelector(data.nle)  = jdata.S().transpose()*data.f[i];
       if(parent>0) data.f[(size_t) parent] += data.liMi[i].act(data.f[i]);
     }
   };

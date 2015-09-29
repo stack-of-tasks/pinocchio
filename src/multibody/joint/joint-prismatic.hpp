@@ -19,6 +19,7 @@
 #define __se3_joint_prismatic_hpp__
 
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 
@@ -153,6 +154,8 @@ namespace se3
      res.tail<3>() = Motion::Vector3::Zero();
      return res;
     }
+
+    int nv_impl() const { return NV; }
 
     struct TransposeConst
     {
@@ -346,6 +349,12 @@ namespace se3
     {
       M.rotation(SE3::Matrix3::Identity());
     }
+
+    JointDataDense<NQ, NV> toDense_impl() const
+    {
+      return JointDataDense<NQ, NV>(S, M, v, c, F);
+    }
+
   }; // struct JointDataPrismatic
 
   template<int axis>
@@ -354,8 +363,13 @@ namespace se3
     typedef JointPrismatic<axis> Joint;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
+    using JointModelBase<JointModelPrismatic>::id;
     using JointModelBase<JointModelPrismatic>::idx_q;
     using JointModelBase<JointModelPrismatic>::idx_v;
+    using JointModelBase<JointModelPrismatic>::lowerPosLimit;
+    using JointModelBase<JointModelPrismatic>::upperPosLimit;
+    using JointModelBase<JointModelPrismatic>::maxEffortLimit;
+    using JointModelBase<JointModelPrismatic>::maxVelocityLimit;
     using JointModelBase<JointModelPrismatic>::setIndexes;
     
     JointData createData() const { return JointData(); }
@@ -375,6 +389,23 @@ namespace se3
 
       data.M.translation(JointPrismatic<axis>::cartesianTranslation(q));
       data.v.v = v;
+    }
+
+    JointModelDense<NQ, NV> toDense_impl() const
+    {
+      return JointModelDense<NQ, NV>( id(),
+                                      idx_q(),
+                                      idx_v(),
+                                      lowerPosLimit(),
+                                      upperPosLimit(),
+                                      maxEffortLimit(),
+                                      maxVelocityLimit()
+                                    );
+    }
+
+    bool operator == (const JointModelPrismatic& /*Ohter*/) const
+    {
+      return true; // TODO ?? used to bind variant in python
     }
   }; // struct JointModelPrismatic
 

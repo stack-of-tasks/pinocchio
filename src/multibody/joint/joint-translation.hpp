@@ -19,6 +19,7 @@
 #define __se3_joint_translation_hpp__
 
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
@@ -117,6 +118,7 @@ namespace se3
   struct ConstraintTranslationSubspace : ConstraintBase < ConstraintTranslationSubspace >
   {
     SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintTranslationSubspace);
+    enum { NV = 3, Options = 0 };
     typedef traits<ConstraintTranslationSubspace>::JointMotion JointMotion;
     typedef traits<ConstraintTranslationSubspace>::JointForce JointForce;
     typedef traits<ConstraintTranslationSubspace>::DenseBase DenseBase;
@@ -125,6 +127,7 @@ namespace se3
     Motion operator* (const MotionTranslation & vj) const
     { return Motion (vj (), Motion::Vector3::Zero ()); }
 
+    int nv_impl() const { return NV; }
 
     struct ConstraintTranspose
     {
@@ -235,13 +238,29 @@ namespace se3
     Motion_t v;
     Bias_t c;
 
+    F_t F; // TODO if not used anymore, clean F_t
+
     JointDataTranslation () : M(1) {}
+
+    JointDataDense<NQ, NV> toDense_impl() const
+    {
+      return JointDataDense<NQ, NV>(S, M, v, c, F);
+    }
   }; // struct JointDataTranslation
 
   struct JointModelTranslation : public JointModelBase<JointModelTranslation>
   {
     typedef JointTranslation Joint;
     SE3_JOINT_TYPEDEF;
+
+    using JointModelBase<JointModelTranslation>::id;
+    using JointModelBase<JointModelTranslation>::idx_q;
+    using JointModelBase<JointModelTranslation>::idx_v;
+    using JointModelBase<JointModelTranslation>::lowerPosLimit;
+    using JointModelBase<JointModelTranslation>::upperPosLimit;
+    using JointModelBase<JointModelTranslation>::maxEffortLimit;
+    using JointModelBase<JointModelTranslation>::maxVelocityLimit;
+    using JointModelBase<JointModelTranslation>::setIndexes;
 
     JointData createData() const { return JointData(); }
 
@@ -256,6 +275,23 @@ namespace se3
     {
       data.M.translation (qs.segment<NQ> (idx_q ()));
       data.v () = vs.segment<NQ> (idx_v ());
+    }
+
+    JointModelDense<NQ, NV> toDense_impl() const
+    {
+      return JointModelDense<NQ, NV>( id(),
+                                      idx_q(),
+                                      idx_v(),
+                                      lowerPosLimit(),
+                                      upperPosLimit(),
+                                      maxEffortLimit(),
+                                      maxVelocityLimit()
+                                    );
+    }
+
+    bool operator == (const JointModelTranslation& /*Ohter*/) const
+    {
+      return true; // TODO ?? used to bind variant in python
     }
   }; // struct JointModelTranslation
   

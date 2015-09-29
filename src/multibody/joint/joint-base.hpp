@@ -18,8 +18,8 @@
 #ifndef __se3_joint_base_hpp__
 #define __se3_joint_base_hpp__
 
-#include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/motion.hpp"
+#include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include <Eigen/Geometry>
 #include <Eigen/StdVector>
@@ -65,18 +65,18 @@ namespace se3
    */
 #ifdef __clang__
 
-#define SE3_JOINT_TYPEDEF_ARG(prefix)					     \
-  typedef int Index;						     \
-  typedef prefix traits<Joint>::JointData JointData;		     \
-  typedef prefix traits<Joint>::JointModel JointModel;	     \
-  typedef prefix traits<Joint>::Constraint_t Constraint_t;	     \
-  typedef prefix traits<Joint>::Transformation_t Transformation_t; \
-  typedef prefix traits<Joint>::Motion_t Motion_t;		     \
-  typedef prefix traits<Joint>::Bias_t Bias_t;		     \
-  typedef prefix traits<Joint>::F_t F_t;			     \
-  enum {							     \
-    NQ = traits<Joint>::NQ,					     \
-    NV = traits<Joint>::NV					     \
+#define SE3_JOINT_TYPEDEF_ARG(prefix)              \
+   typedef int Index;                \
+   typedef prefix traits<Joint>::JointData JointData;        \
+   typedef prefix traits<Joint>::JointModel JointModel;      \
+   typedef prefix traits<Joint>::Constraint_t Constraint_t;      \
+   typedef prefix traits<Joint>::Transformation_t Transformation_t; \
+   typedef prefix traits<Joint>::Motion_t Motion_t;        \
+   typedef prefix traits<Joint>::Bias_t Bias_t;        \
+   typedef prefix traits<Joint>::F_t F_t;          \
+   enum {                  \
+    NQ = traits<Joint>::NQ,              \
+    NV = traits<Joint>::NV               \
   }
 
 #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
@@ -84,32 +84,32 @@ namespace se3
 
 #elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 4) && (__GNUC_PATCHLEVEL__ == 2)
 
-#define SE3_JOINT_TYPEDEF_NOARG()				\
-  typedef int Index;						\
-  typedef traits<Joint>::JointData JointData;			\
-  typedef traits<Joint>::JointModel JointModel;			\
-  typedef traits<Joint>::Constraint_t Constraint_t;		\
-  typedef traits<Joint>::Transformation_t Transformation_t;	\
-  typedef traits<Joint>::Motion_t Motion_t;			\
-  typedef traits<Joint>::Bias_t Bias_t;				\
-  typedef traits<Joint>::F_t F_t;				\
-  enum {							\
-    NQ = traits<Joint>::NQ,					\
-    NV = traits<Joint>::NV					\
+#define SE3_JOINT_TYPEDEF_NOARG()       \
+  typedef int Index;            \
+  typedef traits<Joint>::JointData JointData;     \
+  typedef traits<Joint>::JointModel JointModel;     \
+  typedef traits<Joint>::Constraint_t Constraint_t;   \
+  typedef traits<Joint>::Transformation_t Transformation_t; \
+  typedef traits<Joint>::Motion_t Motion_t;     \
+  typedef traits<Joint>::Bias_t Bias_t;       \
+  typedef traits<Joint>::F_t F_t;       \
+  enum {              \
+    NQ = traits<Joint>::NQ,         \
+    NV = traits<Joint>::NV          \
   }
 
-#define SE3_JOINT_TYPEDEF_ARG(prefix)					\
-  typedef int Index;							\
-  typedef prefix traits<Joint>::JointData JointData;			\
-  typedef prefix traits<Joint>::JointModel JointModel;			\
-  typedef prefix traits<Joint>::Constraint_t Constraint_t;		\
-  typedef prefix traits<Joint>::Transformation_t Transformation_t;	\
-  typedef prefix traits<Joint>::Motion_t Motion_t;			\
-  typedef prefix traits<Joint>::Bias_t Bias_t;				\
-  typedef prefix traits<Joint>::F_t F_t;				\
-  enum {								\
-    NQ = traits<Joint>::NQ,						\
-    NV = traits<Joint>::NV						\
+#define SE3_JOINT_TYPEDEF_ARG(prefix)         \
+  typedef int Index;              \
+  typedef prefix traits<Joint>::JointData JointData;      \
+  typedef prefix traits<Joint>::JointModel JointModel;      \
+  typedef prefix traits<Joint>::Constraint_t Constraint_t;    \
+  typedef prefix traits<Joint>::Transformation_t Transformation_t;  \
+  typedef prefix traits<Joint>::Motion_t Motion_t;      \
+  typedef prefix traits<Joint>::Bias_t Bias_t;        \
+  typedef prefix traits<Joint>::F_t F_t;        \
+  enum {                \
+    NQ = traits<Joint>::NQ,           \
+    NV = traits<Joint>::NV            \
   }
 
 #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_NOARG()
@@ -137,9 +137,14 @@ namespace se3
 #endif
 
 #define SE3_JOINT_USE_INDEXES \
-    typedef JointModelBase<JointModel> Base; \
-    using Base::idx_q; \
-    using Base::idx_v
+  typedef JointModelBase<JointModel> Base; \
+  using Base::idx_q; \
+  using Base::idx_v
+
+
+  template <int _NQ, int _NV> struct JointDataDense;
+  template <int _NQ, int _NV> struct JointModelDense;
+  template <int _NQ, int _NV> struct JointDense;
 
   template<typename _JointData>
   struct JointDataBase
@@ -155,6 +160,42 @@ namespace se3
     const Motion_t         & v() const  { return static_cast<const JointData*>(this)->v;   }
     const Bias_t           & c() const  { return static_cast<const JointData*>(this)->c;   }
     F_t& F()        { return static_cast<      JointData*>(this)->F; }
+
+    JointDataDense<NQ, NV> toDense() const  { return static_cast<const JointData*>(this)->toDense_impl();   }
+
+  }; // struct JointDataBase
+
+  template<int NV>
+  struct SizeDepType
+  {
+    template<class Mat>
+    struct SegmentReturn 
+    {
+      typedef typename Mat::template FixedSegmentReturnType<NV>::Type Type;
+      typedef typename Mat::template ConstFixedSegmentReturnType<NV>::Type ConstType;
+    };
+    template<class Mat>
+    struct ColsReturn
+    {
+      typedef typename Mat::template NColsBlockXpr<NV>::Type Type;
+      typedef typename Mat::template ConstNColsBlockXpr<NV>::Type ConstType;
+    };
+  };
+  template<>
+  struct SizeDepType<Eigen::Dynamic>
+  {
+    template<class Mat>
+    struct SegmentReturn 
+    {
+      typedef typename Mat::SegmentReturnType Type;
+      typedef typename Mat::ConstSegmentReturnType ConstType;
+    };
+    template<class Mat>
+    struct ColsReturn
+    {
+      typedef typename Mat::ColsBlockXpr Type;
+      typedef typename Mat::ConstColsBlockXpr ConstType;
+    };
   };
 
   template<typename _JointModel>
@@ -168,14 +209,13 @@ namespace se3
 
     JointData createData() const { return static_cast<const JointModel*>(this)->createData(); }
     void calc( JointData& data, 
-	       const Eigen::VectorXd & qs ) const
+      const Eigen::VectorXd & qs ) const
     { return static_cast<const JointModel*>(this)->calc(data,qs); }
     void calc( JointData& data, 
-	       const Eigen::VectorXd & qs, 
-	       const Eigen::VectorXd & vs ) const
+      const Eigen::VectorXd & qs, 
+      const Eigen::VectorXd & vs ) const
     { return static_cast<const JointModel*>(this)->calc(data,qs,vs); }
 
-  private:
     Index i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.
     int i_v;    // Index of the joint velocity in the joint velocity vector.
@@ -183,12 +223,16 @@ namespace se3
     Eigen::Matrix<double,NQ,1> position_lower;
     Eigen::Matrix<double,NQ,1> position_upper;
 
-    Eigen::Matrix<double,NQ,1> effortMax;
+    Eigen::Matrix<double,NV,1> effortMax;
     Eigen::Matrix<double,NV,1> velocityMax;
 
-  public:
-          int     nv()    const { return NV; }
-          int     nq()    const { return NQ; }
+    
+    int     nv()    const { return derived().nv_impl(); }
+    int     nq()    const { return derived().nq_impl(); }
+    // Both _impl methods are reimplemented by dynamic-size joints.
+    int     nv_impl() const { return NV; }
+    int     nq_impl() const { return NQ; }
+
     const int &   idx_q() const { return i_q; }
     const int &   idx_v() const { return i_v; }
     const Index & id()    const { return i_id; }
@@ -196,72 +240,79 @@ namespace se3
     const Eigen::Matrix<double,NQ,1> & lowerPosLimit() const { return position_lower;}
     const Eigen::Matrix<double,NQ,1> & upperPosLimit() const { return position_upper;}
 
-    const Eigen::Matrix<double,NQ,1> & maxEffortLimit() const { return effortMax;}
+    const Eigen::Matrix<double,NV,1> & maxEffortLimit() const { return effortMax;}
     const Eigen::Matrix<double,NV,1> & maxVelocityLimit() const { return velocityMax;}
-
 
     void setIndexes(Index id,int q,int v) { i_id = id, i_q = q; i_v = v; }
 
     void setLowerPositionLimit(const Eigen::VectorXd & lowerPos)
     {
-      if (lowerPos.rows() == NQ)
-        position_lower = lowerPos;
-      else
-        position_lower.fill(-std::numeric_limits<double>::infinity());
+      position_lower = lowerPos;
     }
 
     void setUpperPositionLimit(const Eigen::VectorXd & upperPos)
     {
-      if (upperPos.rows() == NQ)
-        position_upper = upperPos;
-      else
-        position_upper.fill(std::numeric_limits<double>::infinity());
+      position_upper = upperPos;
     }
 
     void setMaxEffortLimit(const Eigen::VectorXd & effort)
     {
-      if (effort.rows() == NQ)
-        effortMax = effort;
-      else
-        effortMax.fill(std::numeric_limits<double>::infinity());
+      effortMax = effort;
     }
 
     void setMaxVelocityLimit(const Eigen::VectorXd & v)
     {
-      if (v.rows() == NV)
-        velocityMax = v;
-      else
-        velocityMax.fill(std::numeric_limits<double>::infinity());
+      velocityMax = v;
     }
 
+    /* Acces to dedicated segment in robot config space.  */
+    // Const access
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType 
+    jointConfigSelector(const Eigen::MatrixBase<D>& a) const       { return derived().jointConfigSelector_impl(a); }
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType 
+    jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NQ>(i_q); }
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::Type 
+    jointConfigSelector( Eigen::MatrixBase<D>& a) const { return derived().jointConfigSelector_impl(a); }
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::Type 
+    jointConfigSelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NQ>(i_q); }
+
+    /* Acces to dedicated segment in robot config velocity space.  */
+    // Const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
+    jointVelocitySelector(const Eigen::MatrixBase<D>& a) const       { return derived().jointVelocitySelector_impl(a); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
+    jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NV>(i_v); }
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type 
+    jointVelocitySelector( Eigen::MatrixBase<D>& a) const { return derived().jointVelocitySelector_impl(a); }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type 
+    jointVelocitySelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
+
 
     template<typename D>
-    typename D::template ConstFixedSegmentReturnType<NV>::Type jointMotion(const Eigen::MatrixBase<D>& a) const     { return a.template segment<NV>(i_v); }
+    typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
+    jointCols(const Eigen::MatrixBase<D>& A) const       { return derived().jointCols_impl(A); }
     template<typename D>
-    typename D::template FixedSegmentReturnType<NV>::Type jointMotion(Eigen::MatrixBase<D>& a) const 
-    { return a.template segment<NV>(i_v); }
+    typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
+    jointCols_impl(const Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
     template<typename D>
-    typename D::template ConstFixedSegmentReturnType<NV>::Type jointForce(const Eigen::MatrixBase<D>& tau) const 
-    { return tau.template segment<NV>(i_v); }
+    typename SizeDepType<NV>::template ColsReturn<D>::Type 
+    jointCols(Eigen::MatrixBase<D>& A) const       { return derived().jointCols_impl(A); }
     template<typename D>
-    typename D::template FixedSegmentReturnType<NV>::Type jointForce(Eigen::MatrixBase<D>& tau) const 
-    { return tau.template segment<NV>(i_v); }
+    typename SizeDepType<NV>::template ColsReturn<D>::Type 
+    jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
 
-    template<typename D>
-    typename D::template ConstFixedSegmentReturnType<NQ>::Type jointLimit(const Eigen::MatrixBase<D>& limit) const 
-    { return limit.template segment<NQ>(i_q); }
-    template<typename D>
-    typename D::template FixedSegmentReturnType<NQ>::Type jointLimit(Eigen::MatrixBase<D>& limit) const 
-    { return limit.template segment<NQ>(i_q); }
-
-    template<typename D>
-    typename D::template ConstFixedSegmentReturnType<NV>::Type jointTangentLimit(const Eigen::MatrixBase<D>& limit) const 
-    { return limit.template segment<NV>(i_v); }
-    template<typename D>
-    typename D::template FixedSegmentReturnType<NV>::Type jointTangentLimit(Eigen::MatrixBase<D>& limit) const 
-    { return limit.template segment<NV>(i_v); }
-
-  };
+    JointModelDense<NQ, NV> toDense() const  { return static_cast<const JointModel*>(this)->toDense_impl();   }
+  }; // struct JointModelBase
 
 } // namespace se3
 

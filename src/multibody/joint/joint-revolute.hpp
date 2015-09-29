@@ -18,10 +18,10 @@
 #ifndef __se3_joint_revolute_hpp__
 #define __se3_joint_revolute_hpp__
 
-#include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/constraint.hpp"
-#include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/math/sincos.hpp"
+#include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/joint-dense.hpp"
 
 namespace se3
 {
@@ -37,12 +37,11 @@ namespace se3
       double w; 
       CartesianVector3(const double & w) : w(w) {}
       CartesianVector3() : w(1) {}
-      operator Eigen::Vector3d ();
-    }; // struct CartesianVector3
+      operator Eigen::Vector3d (); // { return Eigen::Vector3d(w,0,0); }
+    };
     template<>CartesianVector3<0>::operator Eigen::Vector3d () { return Eigen::Vector3d(w,0,0); }
     template<>CartesianVector3<1>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,w,0); }
     template<>CartesianVector3<2>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,0,w); }
-
     Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<0> & wx)
     { return Eigen::Vector3d(w1[0]+wx.w,w1[1],w1[2]); }
     Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<1> & wy)
@@ -52,6 +51,7 @@ namespace se3
   } // namespace revolute
 
   template<int axis> struct MotionRevolute;
+
   template<int axis>
   struct traits< MotionRevolute < axis > >
   {
@@ -106,6 +106,7 @@ namespace se3
   }
 
   template<int axis> struct ConstraintRevolute;
+
   template<int axis>
   struct traits< ConstraintRevolute<axis> >
   {
@@ -154,6 +155,8 @@ namespace se3
       return res;
     }
 
+    int nv_impl() const { return NV; }
+    
     struct TransposeConst
     {
       const ConstraintRevolute<axis> & ref; 
@@ -182,8 +185,8 @@ namespace se3
      *   - MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
      *   - SE3::act(ForceSet::Block)
      */
-    operator ConstraintXd () const
-    {
+     operator ConstraintXd () const
+     {
       Eigen::Matrix<double,6,1> S;
       S << Eigen::Vector3d::Zero(), (Eigen::Vector3d)revolute::CartesianVector3<axis>();
       return ConstraintXd(S);
@@ -373,6 +376,11 @@ namespace se3
     {
       M.translation(SE3::Vector3::Zero());
     }
+
+    JointDataDense<NQ, NV> toDense_impl() const
+    {
+      return JointDataDense<NQ, NV>(S, M, v, c, F);
+    }
   }; // struct JointDataRevolute
 
   template<int axis>
@@ -381,8 +389,13 @@ namespace se3
     typedef JointRevolute<axis> Joint;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
+    using JointModelBase<JointModelRevolute>::id;
     using JointModelBase<JointModelRevolute>::idx_q;
     using JointModelBase<JointModelRevolute>::idx_v;
+    using JointModelBase<JointModelRevolute>::lowerPosLimit;
+    using JointModelBase<JointModelRevolute>::upperPosLimit;
+    using JointModelBase<JointModelRevolute>::maxEffortLimit;
+    using JointModelBase<JointModelRevolute>::maxVelocityLimit;
     using JointModelBase<JointModelRevolute>::setIndexes;
     
     JointData createData() const { return JointData(); }
@@ -404,6 +417,22 @@ namespace se3
       data.v.w = v;
     }
 
+    JointModelDense<NQ, NV> toDense_impl() const
+    {
+      return JointModelDense<NQ, NV>( id(),
+                                      idx_q(),
+                                      idx_v(),
+                                      lowerPosLimit(),
+                                      upperPosLimit(),
+                                      maxEffortLimit(),
+                                      maxVelocityLimit()
+                                    );
+    }
+
+    bool operator == (const JointModelRevolute<axis>& /*Other*/) const
+    {
+      return true; // TODO ??
+    }
 
   }; // struct JointModelRevolute
 
