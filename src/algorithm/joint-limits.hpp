@@ -52,11 +52,11 @@ namespace se3
       using namespace se3;
       
       // TODO: as limits are static, no need of q, nor computations
-      jmodel.jointVelocitySpace(data.effortLimit) = jmodel.maxEffortLimit();
-      jmodel.jointVelocitySpace(data.velocityLimit) = jmodel.maxVelocityLimit();
+      jmodel.jointVelocitySelector(data.effortLimit) = jmodel.maxEffortLimit();
+      jmodel.jointVelocitySelector(data.velocityLimit) = jmodel.maxVelocityLimit();
 
-      jmodel.jointConfigSpace(data.lowerPositionLimit) = jmodel.lowerPosLimit(); // if computation needed, do it here, or may be in lowerPosLimit
-      jmodel.jointConfigSpace(data.upperPositionLimit) = jmodel.upperPosLimit();
+      jmodel.jointConfigSelector(data.lowerPositionLimit) = jmodel.lowerPosLimit(); // if computation needed, do it here, or may be in lowerPosLimit
+      jmodel.jointConfigSelector(data.upperPositionLimit) = jmodel.upperPosLimit();
     }
 
   };

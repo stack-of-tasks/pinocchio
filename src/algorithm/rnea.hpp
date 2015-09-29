@@ -67,7 +67,7 @@ namespace se3
       data.v[(Model::Index)i] = jdata.v();
       if(parent>0) data.v[(Model::Index)i] += data.liMi[(Model::Index)i].actInv(data.v[parent]);
       
-      data.a[(Model::Index)i]  = jdata.S()*jmodel.jointVelocitySpace(a) + jdata.c() + (data.v[(Model::Index)i] ^ jdata.v()) ; 
+      data.a[(Model::Index)i]  = jdata.S()*jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[(Model::Index)i] ^ jdata.v()) ; 
       data.a[(Model::Index)i] += data.liMi[(Model::Index)i].actInv(data.a[parent]);
       
       data.f[(Model::Index)i] = model.inertias[(Model::Index)i]*data.a[(Model::Index)i] + model.inertias[(Model::Index)i].vxiv(data.v[(Model::Index)i]); // -f_ext
@@ -92,7 +92,7 @@ namespace se3
 		     int i)
     {
       const Model::Index & parent  = model.parents[(Model::Index)i];      
-      jmodel.jointVelocitySpace(data.tau)  = jdata.S().transpose()*data.f[(Model::Index)i];
+      jmodel.jointVelocitySelector(data.tau)  = jdata.S().transpose()*data.f[(Model::Index)i];
       if(parent>0) data.f[(Model::Index)parent] += data.liMi[(Model::Index)i].act(data.f[(Model::Index)i]);
     }
   };

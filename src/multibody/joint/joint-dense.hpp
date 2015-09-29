@@ -150,17 +150,17 @@ namespace se3
 
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
-    jointConfigSpace_impl(const Eigen::MatrixBase<D>& a) const { return a.template segment(i_q,nq_dyn); }
+    jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const { return a.template segment(i_q,nq_dyn); }
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type
-    jointConfigSpace_impl( Eigen::MatrixBase<D>& a) const { return a.template segment(i_q,nq_dyn); }
+    jointConfigSelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment(i_q,nq_dyn); }
 
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointVelocitySpace_impl(const Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
+    jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointVelocitySpace_impl( Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
+    jointVelocitySelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment(i_v,nv_dyn); }
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
@@ -171,7 +171,7 @@ namespace se3
 
     JointModelDense<_NQ, _NV> toDense_impl() const
     {
-      assert(false && "Trying to convert a jointModelDense to JointModelDense : useless"); // disapear with release optimizations
+      assert(false && "Trying to convert a jointModelDense to JointModelDense : useless");
       return *this;
     }
 
@@ -181,22 +181,22 @@ namespace se3
   template<typename D>
   typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
   JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
-  jointConfigSpace_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(i_q,nq_dyn); }
+  jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(i_q,nq_dyn); }
   template<>
   template<typename D>
   typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
   JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
-  jointConfigSpace_impl(Eigen::MatrixBase<D>& a) const { return a.segment(i_q,nq_dyn); }
+  jointConfigSelector_impl(Eigen::MatrixBase<D>& a) const { return a.segment(i_q,nq_dyn); }
   template<>
   template<typename D>
   typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
   JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
-  jointVelocitySpace_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
+  jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
   template<>
   template<typename D>
   typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
   JointModelDense<Eigen::Dynamic,Eigen::Dynamic>::
-  jointVelocitySpace_impl(Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
+  jointVelocitySelector_impl(Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv_dyn); }
 
   template<>
   template<typename D>

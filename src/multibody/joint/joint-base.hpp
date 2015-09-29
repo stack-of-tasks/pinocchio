@@ -269,33 +269,33 @@ namespace se3
     // Const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType 
-    jointConfigSpace(const Eigen::MatrixBase<D>& a) const       { return derived().jointConfigSpace_impl(a); }
+    jointConfigSelector(const Eigen::MatrixBase<D>& a) const       { return derived().jointConfigSelector_impl(a); }
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType 
-    jointConfigSpace_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NQ>(i_q); }
+    jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NQ>(i_q); }
     // Non-const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type 
-    jointConfigSpace( Eigen::MatrixBase<D>& a) const { return derived().jointConfigSpace_impl(a); }
+    jointConfigSelector( Eigen::MatrixBase<D>& a) const { return derived().jointConfigSelector_impl(a); }
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type 
-    jointConfigSpace_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NQ>(i_q); }
+    jointConfigSelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NQ>(i_q); }
 
     /* Acces to dedicated segment in robot config velocity space.  */
     // Const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
-    jointVelocitySpace(const Eigen::MatrixBase<D>& a) const       { return derived().jointVelocitySpace_impl(a); }
+    jointVelocitySelector(const Eigen::MatrixBase<D>& a) const       { return derived().jointVelocitySelector_impl(a); }
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
-    jointVelocitySpace_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NV>(i_v); }
+    jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NV>(i_v); }
     // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
-    jointVelocitySpace( Eigen::MatrixBase<D>& a) const { return derived().jointVelocitySpace_impl(a); }
+    jointVelocitySelector( Eigen::MatrixBase<D>& a) const { return derived().jointVelocitySelector_impl(a); }
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
-    jointVelocitySpace_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
+    jointVelocitySelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
 
 
     template<typename D>
