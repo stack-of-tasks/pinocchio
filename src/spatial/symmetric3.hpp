@@ -231,10 +231,10 @@ namespace se3
       Symmetric3Tpl Sres;
       
       // 4 a
-      const Matrix32 & L = decomposeltI();
+      const Matrix32 L( decomposeltI() );
       
       // Y = R' L   ===> (12 m + 8 a)
-      const Matrix2 & Y = R.template block<2,3>(1,0) * L;
+      const Matrix2 Y( R.template block<2,3>(1,0) * L );
 	
       // Sres= Y R  ===> (16 m + 8a)
       Sres.data_(1) = Y(0,0)*R(0,0) + Y(0,1)*R(0,1);
