@@ -429,9 +429,23 @@ namespace se3
                                     );
     }
 
-    bool operator == (const JointModelRevolute<axis>& /*Other*/) const
+    static const std::string shortname();
+
+    template <class D>
+    bool operator == (const JointModelBase<D> &) const
     {
-      return true; // TODO ??
+      return false;
+    }
+    
+    bool operator == (const JointModelBase<JointModelRevolute <axis> > & jmodel) const
+    {
+      return jmodel.id() == id()
+              && jmodel.idx_q() == idx_q()
+              && jmodel.idx_v() == idx_v()
+              && jmodel.lowerPosLimit() == lowerPosLimit()
+              && jmodel.upperPosLimit() == upperPosLimit()
+              && jmodel.maxEffortLimit() == maxEffortLimit()
+              && jmodel.maxVelocityLimit() == maxVelocityLimit();
     }
 
   }; // struct JointModelRevolute
@@ -440,13 +454,31 @@ namespace se3
   typedef JointDataRevolute<0> JointDataRX;
   typedef JointModelRevolute<0> JointModelRX;
 
+  template<>
+  const std::string JointModelRevolute<0>::shortname()
+  {
+    return std::string("JointModelRX") ;
+  }
+
   typedef JointRevolute<1> JointRY;
   typedef JointDataRevolute<1> JointDataRY;
   typedef JointModelRevolute<1> JointModelRY;
 
+  template<>
+  const std::string JointModelRevolute<1>::shortname()
+  {
+    return std::string("JointModelRY") ;
+  }
+
   typedef JointRevolute<2> JointRZ;
   typedef JointDataRevolute<2> JointDataRZ;
   typedef JointModelRevolute<2> JointModelRZ;
+
+  template<>
+  const std::string JointModelRevolute<2>::shortname()
+  {
+    return std::string("JointModelRZ") ;
+  }
 
 } //namespace se3
 

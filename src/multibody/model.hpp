@@ -21,10 +21,10 @@
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/spatial/inertia.hpp"
-#include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
-#include "pinocchio/multibody/joint.hpp"
+#include "pinocchio/spatial/motion.hpp"
+#include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/multibody/joint/joint-variant.hpp"
 #include <iostream>
 
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3)

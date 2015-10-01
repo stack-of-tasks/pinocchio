@@ -20,6 +20,8 @@
 #include "pinocchio/python/force.hpp"
 #include "pinocchio/python/motion.hpp"
 #include "pinocchio/python/inertia.hpp"
+#include "pinocchio/python/joint-dense.hpp"
+#include "pinocchio/python/joints-variant.hpp"
 
 #include "pinocchio/python/model.hpp"
 #include "pinocchio/python/data.hpp"
@@ -50,6 +52,10 @@ namespace se3
     {
       InertiaPythonVisitor<Inertia>::expose();
       PyWraperForAlignedStdVector<Inertia>::expose("StdVec_Inertia");
+    }
+    void exposeJoints()
+    {
+      exposeVariants();
     }
     void exposeModel()
     {

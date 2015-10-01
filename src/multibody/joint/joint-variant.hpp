@@ -18,14 +18,7 @@
 #ifndef __se3_joint_variant_hpp__
 #define __se3_joint_variant_hpp__
 
-#include "pinocchio/multibody/joint/joint-revolute.hpp"
-#include "pinocchio/multibody/joint/joint-revolute-unaligned.hpp"
-#include "pinocchio/multibody/joint/joint-spherical.hpp"
-#include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
-#include "pinocchio/multibody/joint/joint-prismatic.hpp"
-#include "pinocchio/multibody/joint/joint-planar.hpp"
-#include "pinocchio/multibody/joint/joint-translation.hpp"
-#include "pinocchio/multibody/joint/joint-free-flyer.hpp"
+#include "pinocchio/multibody/joint.hpp"
 
 namespace se3
 {

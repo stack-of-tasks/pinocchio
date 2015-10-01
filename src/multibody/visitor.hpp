@@ -21,6 +21,7 @@
 #define     BOOST_FUSION_INVOKE_MAX_ARITY 10
 #include <boost/fusion/include/invoke.hpp>
 #include <boost/fusion/include/algorithm.hpp>
+#include "pinocchio/multibody/joint/joint-variant.hpp"
 
 
 namespace boost {

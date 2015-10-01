@@ -289,9 +289,26 @@ namespace se3
                                     );
     }
 
-    bool operator == (const JointModelTranslation& /*Ohter*/) const
+    static const std::string shortname()
     {
-      return true; // TODO ?? used to bind variant in python
+      return std::string("JointModelTranslation");
+    }
+
+    template <class D>
+    bool operator == (const JointModelBase<D> &) const
+    {
+      return false;
+    }
+    
+    bool operator == (const JointModelBase<JointModelTranslation> & jmodel) const
+    {
+      return jmodel.id() == id()
+              && jmodel.idx_q() == idx_q()
+              && jmodel.idx_v() == idx_v()
+              && jmodel.lowerPosLimit() == lowerPosLimit()
+              && jmodel.upperPosLimit() == upperPosLimit()
+              && jmodel.maxEffortLimit() == maxEffortLimit()
+              && jmodel.maxVelocityLimit() == maxVelocityLimit();
     }
   }; // struct JointModelTranslation
   
