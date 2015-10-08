@@ -32,8 +32,7 @@ MACRO(ADD_UNIT_TEST NAME PKGS)
 ENDMACRO(ADD_UNIT_TEST)
 
 MACRO(ADD_TEST_CFLAGS target flag)
-  GET_TARGET_PROPERTY(${target}_CFLAGS ${target} COMPILE_FLAGS) 
-  SET_PROPERTY(TARGET ${target} PROPERTY COMPILE_FLAGS "${${target}_CFLAGS} ${flag}")
+  SET_PROPERTY(TARGET ${target} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
 ENDMACRO(ADD_TEST_CFLAGS)
 
 # --- RULES -------------------------------------------------------------------
