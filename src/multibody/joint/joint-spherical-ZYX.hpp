@@ -60,8 +60,8 @@ namespace se3
 
     }; // struct BiasSpherical
 
-    friend const Motion operator+ (const Motion & v, const BiasSpherical & c) { return Motion (v.linear (), v.angular () + c ()); }
-    friend const Motion operator+ (const BiasSpherical & c, const Motion & v) { return Motion (v.linear (), v.angular () + c ()); }
+    inline friend const Motion operator+ (const Motion & v, const BiasSpherical & c) { return Motion (v.linear (), v.angular () + c ()); }
+    inline friend const Motion operator+ (const BiasSpherical & c, const Motion & v) { return Motion (v.linear (), v.angular () + c ()); }
 
     struct MotionSpherical
     {
@@ -79,7 +79,7 @@ namespace se3
       }
     }; // struct MotionSpherical
 
-    friend const MotionSpherical operator+ (const MotionSpherical & m, const BiasSpherical & c)
+    inline friend const MotionSpherical operator+ (const MotionSpherical & m, const BiasSpherical & c)
     { return MotionSpherical (m.w + c.c_J); }
 
     friend MotionTpl<_Scalar,_Options> operator+ (const MotionSpherical & m1, 
@@ -180,7 +180,7 @@ namespace se3
 
   typedef JointSphericalZYXTpl<double,0> JointSphericalZYX;
 
-  Motion operator^ (const Motion & m1, const JointSphericalZYX::MotionSpherical & m2)
+  inline Motion operator^ (const Motion & m1, const JointSphericalZYX::MotionSpherical & m2)
   {
 //    const Motion::Matrix3 m2_cross (skew (Motion::Vector3 (-m2.w)));
 //    return Motion(m2_cross * m1.linear (), m2_cross * m1.angular ());

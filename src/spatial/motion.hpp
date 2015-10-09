@@ -335,8 +335,8 @@ namespace se3
     operator Motion () const { return Motion::Zero(); }
   }; // struct BiasZero
 
-const Motion & operator+( const Motion& v, const BiasZero&) { return v; }
-const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
+inline const Motion & operator+( const Motion& v, const BiasZero&) { return v; }
+inline const Motion & operator+ ( const BiasZero&,const Motion& v) { return v; }
 
 } // namespace se3
 

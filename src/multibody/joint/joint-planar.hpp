@@ -73,11 +73,11 @@ namespace se3
 
   }; // struct MotionPlanar
 
-  const MotionPlanar operator+ (const MotionPlanar & m, const BiasZero &)
+  inline const MotionPlanar operator+ (const MotionPlanar & m, const BiasZero &)
   { return m; }
 
   
-  Motion operator+ (const MotionPlanar & m1, const Motion & m2)
+  inline Motion operator+ (const MotionPlanar & m1, const Motion & m2)
   {
     Motion result (m2);
     result.linear ()[0] += m1.x_dot_;
@@ -197,7 +197,7 @@ namespace se3
   }
 
 
-  Motion operator^ (const Motion & m1, const MotionPlanar & m2)
+  inline Motion operator^ (const Motion & m1, const MotionPlanar & m2)
   {
     Motion result;
 
@@ -211,7 +211,7 @@ namespace se3
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix <Inertia::Scalar_t, 6, 3> operator* (const Inertia & Y, const ConstraintPlanar &)
+  inline Eigen::Matrix <Inertia::Scalar_t, 6, 3> operator* (const Inertia & Y, const ConstraintPlanar &)
   {
     Eigen::Matrix <Inertia::Scalar_t, 6, 3> M;
     const double mass = Y.mass ();

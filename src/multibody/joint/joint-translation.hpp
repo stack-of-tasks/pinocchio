@@ -79,10 +79,10 @@ namespace se3
     }
   }; // struct MotionTranslation
 
-  const MotionTranslation operator+ (const MotionTranslation & m, const BiasZero &)
+  inline const MotionTranslation operator+ (const MotionTranslation & m, const BiasZero &)
   { return m; }
 
-  Motion operator+ (const MotionTranslation & m1, const Motion & m2)
+  inline Motion operator+ (const MotionTranslation & m1, const Motion & m2)
   {
     return Motion (m2.linear () + m1.v, m2.angular ());
   }
@@ -179,13 +179,13 @@ namespace se3
   }
 
 
-  Motion operator^ (const Motion & m1, const MotionTranslation & m2)
+  inline Motion operator^ (const Motion & m1, const MotionTranslation & m2)
   {
     return Motion (m1.angular ().cross (m2.v), Motion::Vector3::Zero ());
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix <double, 6, 3> operator* (const Inertia & Y, const ConstraintTranslationSubspace &)
+  inline Eigen::Matrix <double, 6, 3> operator* (const Inertia & Y, const ConstraintTranslationSubspace &)
   {
     Eigen::Matrix <double, 6, 3> M;
     M.block <3,3> (Inertia::ANGULAR, 0) = alphaSkew(Y.mass (), Y.lever ());

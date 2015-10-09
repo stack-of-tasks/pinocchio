@@ -39,15 +39,15 @@ namespace se3
       CartesianVector3() : v(NAN) {}
       operator Eigen::Vector3d () const; 
     }; // struct CartesianVector3
-    template<>CartesianVector3<0>::operator Eigen::Vector3d () const { return Eigen::Vector3d(v,0,0); }
-    template<>CartesianVector3<1>::operator Eigen::Vector3d () const { return Eigen::Vector3d(0,v,0); }
-    template<>CartesianVector3<2>::operator Eigen::Vector3d () const { return Eigen::Vector3d(0,0,v); }
+    template<> inline CartesianVector3<0>::operator Eigen::Vector3d () const { return Eigen::Vector3d(v,0,0); }
+    template<> inline CartesianVector3<1>::operator Eigen::Vector3d () const { return Eigen::Vector3d(0,v,0); }
+    template<> inline CartesianVector3<2>::operator Eigen::Vector3d () const { return Eigen::Vector3d(0,0,v); }
     
-    Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<0> & vx)
+    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<0> & vx)
     { return Eigen::Vector3d(v1[0]+vx.v,v1[1],v1[2]); }
-    Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<1> & vy)
+    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<1> & vy)
     { return Eigen::Vector3d(v1[0],v1[1]+vy.v,v1[2]); }
-    Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<2> & vz)
+    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<2> & vz)
     { return Eigen::Vector3d(v1[0],v1[1],v1[2]+vz.v); }
   } // namespace prismatic
 
@@ -203,7 +203,7 @@ namespace se3
     static Eigen::Vector3d cartesianTranslation(const double & shift); 
   };
 
-  Motion operator^( const Motion& m1, const MotionPrismatic<0>& m2)
+  inline Motion operator^( const Motion& m1, const MotionPrismatic<0>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
@@ -216,7 +216,7 @@ namespace se3
        Motion::Vector3::Zero());
    }
 
-   Motion operator^( const Motion& m1, const MotionPrismatic<1>& m2)
+   inline Motion operator^( const Motion& m1, const MotionPrismatic<1>& m2)
    {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
@@ -229,7 +229,7 @@ namespace se3
        Motion::Vector3::Zero());
    }
 
-   Motion operator^( const Motion& m1, const MotionPrismatic<2>& m2)
+   inline Motion operator^( const Motion& m1, const MotionPrismatic<2>& m2)
    {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
@@ -242,24 +242,24 @@ namespace se3
        Motion::Vector3::Zero());
    }
 
-  template<>
+  template<> inline
   Eigen::Vector3d JointPrismatic<0>::cartesianTranslation(const double & shift) 
   {
     return Motion::Vector3(shift,0,0);
   }
-  template<>
+  template<> inline
   Eigen::Vector3d JointPrismatic<1>::cartesianTranslation(const double & shift) 
   {
     return Motion::Vector3(0,shift,0);
   }
-  template<>
+  template<> inline
   Eigen::Vector3d JointPrismatic<2>::cartesianTranslation(const double & shift) 
   {
     return Motion::Vector3(0,0,shift);
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix<double,6,1>
+  inline Eigen::Matrix<double,6,1>
   operator*( const Inertia& Y,const ConstraintPrismatic<0> & )
   { 
     /* Y(:,0) = ( 1,0, 0, 0 , z , -y ) */
@@ -274,7 +274,7 @@ namespace se3
     return res;
   }
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix<double,6,1>
+  inline Eigen::Matrix<double,6,1>
   operator*( const Inertia& Y,const ConstraintPrismatic<1> & )
   { 
     /* Y(:,1) = ( 0,1, 0, -z , 0 , x) */
@@ -289,7 +289,7 @@ namespace se3
     return res;
   }
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix<double,6,1>
+  inline Eigen::Matrix<double,6,1>
   operator*( const Inertia& Y,const ConstraintPrismatic<2> & )
   { 
     /* Y(:,2) = ( 0,0, 1, y , -x , 0) */

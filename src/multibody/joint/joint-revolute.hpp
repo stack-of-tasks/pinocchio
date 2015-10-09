@@ -39,14 +39,14 @@ namespace se3
       CartesianVector3() : w(1) {}
       operator Eigen::Vector3d (); // { return Eigen::Vector3d(w,0,0); }
     };
-    template<>CartesianVector3<0>::operator Eigen::Vector3d () { return Eigen::Vector3d(w,0,0); }
-    template<>CartesianVector3<1>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,w,0); }
-    template<>CartesianVector3<2>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,0,w); }
-    Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<0> & wx)
+    template<> inline CartesianVector3<0>::operator Eigen::Vector3d () { return Eigen::Vector3d(w,0,0); }
+    template<> inline CartesianVector3<1>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,w,0); }
+    template<> inline CartesianVector3<2>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,0,w); }
+    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<0> & wx)
     { return Eigen::Vector3d(w1[0]+wx.w,w1[1],w1[2]); }
-    Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<1> & wy)
+    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<1> & wy)
     { return Eigen::Vector3d(w1[0],w1[1]+wy.w,w1[2]); }
-    Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<2> & wz)
+    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<2> & wz)
     { return Eigen::Vector3d(w1[0],w1[1],w1[2]+wz.w); }
   } // namespace revolute
 
@@ -198,7 +198,7 @@ namespace se3
       static Eigen::Matrix3d cartesianRotation(const double & angle); 
   };
 
-  Motion operator^( const Motion& m1, const MotionRevolute<0>& m2)
+  inline Motion operator^( const Motion& m1, const MotionRevolute<0>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(0,w2) = ( v1^w2      , w1^w2 )
@@ -213,7 +213,7 @@ namespace se3
                  );
   }
 
-  Motion operator^( const Motion& m1, const MotionRevolute<1>& m2)
+  inline Motion operator^( const Motion& m1, const MotionRevolute<1>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(0,w2) = ( v1^w2      , w1^w2 )
@@ -228,7 +228,7 @@ namespace se3
                  );
   }
 
-  Motion operator^( const Motion& m1, const MotionRevolute<2>& m2)
+  inline Motion operator^( const Motion& m1, const MotionRevolute<2>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(0,w2) = ( v1^w2      , w1^w2 )
@@ -243,7 +243,7 @@ namespace se3
                  );
     }
 
-  template<>
+  template<> inline
   Eigen::Matrix3d JointRevolute<0>::cartesianRotation(const double & angle) 
   {
     Eigen::Matrix3d R3; 
@@ -255,7 +255,7 @@ namespace se3
     return R3;
   }
 
-  template<>
+  template<> inline
   Eigen::Matrix3d JointRevolute<1>::cartesianRotation(const double & angle)
   {
     Eigen::Matrix3d R3; 
@@ -267,7 +267,7 @@ namespace se3
     return R3;
   }
 
-  template<>
+  template<> inline
   Eigen::Matrix3d JointRevolute<2>::cartesianRotation(const double & angle) 
   {
     Eigen::Matrix3d R3; 
@@ -280,7 +280,7 @@ namespace se3
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix<double,6,1>
+  Eigen::Matrix<double,6,1> inline
   operator*( const Inertia& Y,const ConstraintRevolute<0> & )
   { 
     /* Y(:,3) = ( 0,-z, y,  I00+yy+zz,  I01-xy   ,  I02-xz   ) */
@@ -297,7 +297,7 @@ namespace se3
     return res;
   }
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix<double,6,1>
+  Eigen::Matrix<double,6,1> inline
   operator*( const Inertia& Y,const ConstraintRevolute<1> & )
   { 
     /* Y(:,4) = ( z, 0,-x,  I10-xy   ,  I11+xx+zz,  I12-yz   ) */
@@ -314,7 +314,7 @@ namespace se3
     return res;
   }
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Eigen::Matrix<double,6,1>
+  Eigen::Matrix<double,6,1> inline
   operator*( const Inertia& Y,const ConstraintRevolute<2> & )
   { 
     /* Y(:,5) = (-y, x, 0,  I20-xz   ,  I21-yz   ,  I22+xx+yy) */

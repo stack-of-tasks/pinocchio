@@ -169,7 +169,7 @@ namespace se3
 /* --- Details -------------------------------------------------------------- */
 namespace se3
 {
-  std::ostream& operator<< ( std::ostream & os, const Model& model )
+  inline std::ostream& operator<< ( std::ostream & os, const Model& model )
   {
     os << "Nb bodies = " << model.nbody << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
     for(Model::Index i=0;i<(Model::Index)(model.nbody);++i)
@@ -181,7 +181,7 @@ namespace se3
     return os;
   }
 
-  std::string random(const int len)
+  inline std::string random(const int len)
   {
     std::string res;
     static const char alphanum[] =
@@ -253,10 +253,10 @@ namespace se3
     return idx;
   }
 
-  Model::Index Model::addFixedBody( Index lastMovingParent,
-                                    const SE3 & placementFromLastMoving,
-                                    const std::string & bodyName,
-                                    bool visual )
+  inline Model::Index Model::addFixedBody( Index lastMovingParent,
+                                           const SE3 & placementFromLastMoving,
+                                           const std::string & bodyName,
+                                           bool visual )
   {
 
     Model::Index idx = (Model::Index) (nFixBody++);
@@ -267,13 +267,13 @@ namespace se3
     return idx;
   }
 
-  void Model::mergeFixedBody(Index parent, const SE3 & placement, const Inertia & Y)
+  inline void Model::mergeFixedBody(Index parent, const SE3 & placement, const Inertia & Y)
   {
     const Inertia & iYf = Y.se3Action(placement); //TODO
     inertias[parent] += iYf;
   }
 
-  Model::Index Model::getBodyId( const std::string & name ) const
+  inline Model::Index Model::getBodyId( const std::string & name ) const
   {
     std::vector<std::string>::iterator::difference_type
       res = std::find(names.begin(),names.end(),name) - names.begin();
@@ -281,20 +281,20 @@ namespace se3
     assert( (res>=0)&&(res<nbody)&&"The body name you asked do not exist" );
     return Model::Index(res);
   }
-  bool Model::existBodyName( const std::string & name ) const
+  inline bool Model::existBodyName( const std::string & name ) const
   {
     std::vector<std::string>::iterator::difference_type
       res = std::find(names.begin(),names.end(),name) - names.begin();
     return (res>=0)&&(res<nbody);
   }
   
-  const std::string& Model::getBodyName( Model::Index index ) const
+  inline const std::string& Model::getBodyName( Model::Index index ) const
   {
     assert( index < (Model::Index)nbody );
     return names[index];
   }  
 
-  Data::Data( const Model& ref )
+  inline Data::Data( const Model& ref )
     :model(ref)
     ,joints(0)
     ,a((std::size_t)ref.nbody)
@@ -342,7 +342,7 @@ namespace se3
     J.fill(0);
   }
 
-  void Data::computeLastChild(const Model& model)
+  inline void Data::computeLastChild(const Model& model)
   {
     typedef Model::Index Index;
     std::fill(lastChild.begin(),lastChild.end(),-1);
@@ -358,7 +358,7 @@ namespace se3
       }
   }
 
-  void Data::computeParents_fromRow( const Model& model )
+  inline void Data::computeParents_fromRow( const Model& model )
   {
     for( Model::Index joint=1;joint<(Model::Index)(model.nbody);joint++)
       {

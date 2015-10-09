@@ -71,11 +71,11 @@ namespace se3
                     axis*w);
     }
   }; // struct MotionRevoluteUnaligned
-  
-  const MotionRevoluteUnaligned& operator+ (const MotionRevoluteUnaligned& m, const BiasZero&)
+
+  inline const MotionRevoluteUnaligned& operator+ (const MotionRevoluteUnaligned& m, const BiasZero&)
   { return m; }
 
-  Motion operator+ (const MotionRevoluteUnaligned& m1, const Motion& m2)
+  inline Motion operator+ (const MotionRevoluteUnaligned& m1, const Motion& m2)
   {
     return Motion( m2.linear(), m1.w*m1.axis+m2.angular() );
   }
@@ -185,7 +185,7 @@ namespace se3
     }; // struct ConstraintRevoluteUnaligned
 
 
-    Motion operator^( const Motion& m1, const MotionRevoluteUnaligned & m2)
+    inline Motion operator^( const Motion& m1, const MotionRevoluteUnaligned & m2)
     {
       /* m1xm2 = [ v1xw2 + w1xv2; w1xw2 ] = [ v1xw2; w1xw2 ] */
       const Motion::Vector3& v1 = m1.linear();
@@ -195,7 +195,7 @@ namespace se3
     }
 
     /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-    Eigen::Matrix<double,6,1>
+    inline Eigen::Matrix<double,6,1>
     operator*( const Inertia& Y,const ConstraintRevoluteUnaligned & cru)
     { 
       /* YS = [ m -mcx ; mcx I-mcxcx ] [ 0 ; w ] = [ mcxw ; Iw -mcxcxw ] */

@@ -89,7 +89,7 @@ namespace se3
 
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  Inertia::Matrix6 operator*( const Inertia& Y,const ConstraintIdentity & )
+  inline Inertia::Matrix6 operator*( const Inertia& Y,const ConstraintIdentity & )
   {
     return Y.matrix();
   }
