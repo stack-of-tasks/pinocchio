@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015 CNRS
+// Copyright (c) 2015 Wandercraft
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -100,7 +101,7 @@ namespace se3
 	  Model::Index parent 
 	    = (link->getParent()->parent_joint==NULL) ?
 	    (freeFlyer ? 1 : 0)
-	    : model.getBodyId( link->getParent()->parent_joint->name );
+	    : model.getJointId( link->getParent()->parent_joint->name );
 	  //std::cout << joint->name << " === " << parent << std::endl;
 
       const SE3 & jointPlacement = placementOffset*convertFromUrdf(joint->parent_to_joint_origin_transform);
