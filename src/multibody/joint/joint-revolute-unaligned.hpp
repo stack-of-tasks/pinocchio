@@ -279,6 +279,12 @@ namespace se3
     using JointModelBase<JointModelRevoluteUnaligned>::setIndexes;
     
     JointModelRevoluteUnaligned() : axis(Eigen::Vector3d::Constant(NAN))   {}
+    JointModelRevoluteUnaligned(double x, double y, double z)
+    {
+      axis << x, y, z ;
+      axis.normalize();
+      assert(axis.isUnitary() && "Rotation axis is not unitary");
+    }
     JointModelRevoluteUnaligned( const Motion::Vector3 & axis ) : axis(axis)
     {
       assert(axis.isUnitary() && "Rotation axis is not unitary");
@@ -326,9 +332,26 @@ namespace se3
                                     );
     }
 
-    bool operator == (const JointModelRevoluteUnaligned& /*Ohter*/) const
+    static const std::string shortname()
     {
-      return true; // TODO ?? used to bind variant in python
+      return std::string("JointModelRevoluteUnaligned");
+    }
+
+    template <class D>
+    bool operator == (const JointModelBase<D> &) const
+    {
+      return false;
+    }
+    
+    bool operator == (const JointModelBase<JointModelRevoluteUnaligned> & jmodel) const
+    {
+      return jmodel.id() == id()
+              && jmodel.idx_q() == idx_q()
+              && jmodel.idx_v() == idx_v()
+              && jmodel.lowerPosLimit() == lowerPosLimit()
+              && jmodel.upperPosLimit() == upperPosLimit()
+              && jmodel.maxEffortLimit() == maxEffortLimit()
+              && jmodel.maxVelocityLimit() == maxVelocityLimit();
     }
   }; // struct JointModelRevoluteUnaligned
 

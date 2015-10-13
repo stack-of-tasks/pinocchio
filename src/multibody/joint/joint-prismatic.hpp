@@ -403,9 +403,23 @@ namespace se3
                                     );
     }
 
-    bool operator == (const JointModelPrismatic& /*Ohter*/) const
+    static const std::string shortname();
+
+    template <class D>
+    bool operator == (const JointModelBase<D> &) const
     {
-      return true; // TODO ?? used to bind variant in python
+      return false;
+    }
+    
+    bool operator == (const JointModelBase<JointModelPrismatic> & jmodel) const
+    {
+      return jmodel.id() == id()
+              && jmodel.idx_q() == idx_q()
+              && jmodel.idx_v() == idx_v()
+              && jmodel.lowerPosLimit() == lowerPosLimit()
+              && jmodel.upperPosLimit() == upperPosLimit()
+              && jmodel.maxEffortLimit() == maxEffortLimit()
+              && jmodel.maxVelocityLimit() == maxVelocityLimit();
     }
   }; // struct JointModelPrismatic
 
@@ -413,13 +427,31 @@ namespace se3
   typedef JointDataPrismatic<0> JointDataPX;
   typedef JointModelPrismatic<0> JointModelPX;
 
+  template<>
+  const std::string JointModelPrismatic<0>::shortname()
+  {
+    return std::string("JointModelPX");
+  }
+
   typedef JointPrismatic<1> JointPY;
   typedef JointDataPrismatic<1> JointDataPY;
   typedef JointModelPrismatic<1> JointModelPY;
 
+  template<>
+  const std::string JointModelPrismatic<1>::shortname()
+  {
+    return std::string("JointModelPY");
+  }
+
   typedef JointPrismatic<2> JointPZ;
   typedef JointDataPrismatic<2> JointDataPZ;
   typedef JointModelPrismatic<2> JointModelPZ;
+
+  template<>
+  const std::string JointModelPrismatic<2>::shortname()
+  {
+    return std::string("JointModelPZ");
+  }
 
 } //namespace se3
 

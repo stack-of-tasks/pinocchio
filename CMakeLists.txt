@@ -135,6 +135,9 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/force.hpp
   python/motion.hpp
   python/inertia.hpp
+  python/joint-dense.hpp
+  python/joints-models.hpp
+  python/joints-variant.hpp
   python/model.hpp
   python/data.hpp
   python/algorithms.hpp

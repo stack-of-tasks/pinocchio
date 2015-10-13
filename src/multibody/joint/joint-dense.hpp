@@ -92,8 +92,13 @@ namespace se3
     typedef JointDense<_NQ, _NV > Joint;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
+    using JointModelBase<JointModelDense<_NQ, _NV > >::id;
     using JointModelBase<JointModelDense<_NQ, _NV > >::idx_q;
     using JointModelBase<JointModelDense<_NQ, _NV > >::idx_v;
+    using JointModelBase<JointModelDense<_NQ, _NV > >::lowerPosLimit;
+    using JointModelBase<JointModelDense<_NQ, _NV > >::upperPosLimit;
+    using JointModelBase<JointModelDense<_NQ, _NV > >::maxEffortLimit;
+    using JointModelBase<JointModelDense<_NQ, _NV > >::maxVelocityLimit;
     using JointModelBase<JointModelDense<_NQ, _NV > >::setLowerPositionLimit;
     using JointModelBase<JointModelDense<_NQ, _NV > >::setUpperPositionLimit;
     using JointModelBase<JointModelDense<_NQ, _NV > >::setMaxEffortLimit;
@@ -173,6 +178,28 @@ namespace se3
     {
       assert(false && "Trying to convert a jointModelDense to JointModelDense : useless");
       return *this;
+    }
+
+    static const std::string shortname()
+    {
+      return std::string("JointModelDense");
+    }
+
+    template <class D>
+    bool operator == (const JointModelBase<D> &) const
+    {
+      return false;
+    }
+    
+    bool operator == (const JointModelBase<JointModelDense> & jmodel) const
+    {
+      return jmodel.id() == id()
+              && jmodel.idx_q() == idx_q()
+              && jmodel.idx_v() == idx_v()
+              && jmodel.lowerPosLimit() == lowerPosLimit()
+              && jmodel.upperPosLimit() == upperPosLimit()
+              && jmodel.maxEffortLimit() == maxEffortLimit()
+              && jmodel.maxVelocityLimit() == maxVelocityLimit();
     }
 
   }; // struct JointModelDense
