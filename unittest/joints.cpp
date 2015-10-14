@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015 CNRS
+// Copyright (c) 2015 Wandercraft
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -997,10 +998,11 @@ BOOST_AUTO_TEST_CASE ( test_merge_body )
   SE3 liMi(Matrix3::Identity(),Vector3(1.0, 1.0, 0.0));
   //SE3 liMi(Matrix3::Identity(),Vector3d::Zero());
 
-  model.addBody (model.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertiaRoot, "root");
-  model.mergeFixedBody(model.getBodyId("root"), liMi, inertiaFixedBodyAtJoint);
+  model.addBody (model.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertiaRoot,
+                 "root_joint", "root_body");
+  model.mergeFixedBody(model.getBodyId("root_body"), liMi, inertiaFixedBodyAtJoint);
 
-  Inertia mergedInertia(model.inertias[(size_t)(model.getBodyId("root"))]);
+  Inertia mergedInertia(model.inertias[(size_t)(model.getBodyId("root_body"))]);
 
   double expected_mass=2;
   Eigen::Vector3d expected_com(Eigen::Vector3d::Zero());expected_com << 1.125, 0.5, 0.;

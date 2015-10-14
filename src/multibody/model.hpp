@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015 CNRS
+// Copyright (c) 2015 Wandercraft
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -102,6 +103,9 @@ namespace se3
     Index getBodyId( const std::string & name ) const;
     bool existBodyName( const std::string & name ) const;
     const std::string& getBodyName( Index index ) const;
+    Index getJointId( const std::string & name ) const;
+    bool existJointName( const std::string & name ) const;
+    const std::string& getJointName( Index index ) const;
   };
 
   class Data
@@ -276,23 +280,40 @@ namespace se3
   inline Model::Index Model::getBodyId( const std::string & name ) const
   {
     std::vector<std::string>::iterator::difference_type
-      res = std::find(names.begin(),names.end(),name) - names.begin();
+      res = std::find(bodyNames.begin(),bodyNames.end(),name) - bodyNames.begin();
     assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
     assert( (res>=0)&&(res<nbody)&&"The body name you asked do not exist" );
     return Model::Index(res);
   }
   inline bool Model::existBodyName( const std::string & name ) const
   {
-    std::vector<std::string>::iterator::difference_type
-      res = std::find(names.begin(),names.end(),name) - names.begin();
-    return (res>=0)&&(res<nbody);
+    return (bodyNames.end() != std::find(bodyNames.begin(),bodyNames.end(),name));
   }
-  
+
   inline const std::string& Model::getBodyName( Model::Index index ) const
   {
     assert( index < (Model::Index)nbody );
+    return bodyNames[index];
+  }
+
+  inline Model::Index Model::getJointId( const std::string & name ) const
+  {
+    std::vector<std::string>::iterator::difference_type
+      res = std::find(names.begin(),names.end(),name) - names.begin();
+    assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
+    assert( (res>=0)&&(res<joints.size())&&"The joint name you asked do not exist" );
+    return Model::Index(res);
+  }
+  inline bool Model::existJointName( const std::string & name ) const
+  {
+    return (names.end() != std::find(names.begin(),names.end(),name));
+  }
+
+  inline const std::string& Model::getJointName( Model::Index index ) const
+  {
+    assert( index < (Model::Index)joints.size() );
     return names[index];
-  }  
+  }
 
   inline Data::Data( const Model& ref )
     :model(ref)
