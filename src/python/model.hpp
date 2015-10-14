@@ -107,6 +107,9 @@ namespace se3
 	  .add_property("jointPlacements",
 			bp::make_function(&ModelPythonVisitor::jointPlacements,
 					  bp::return_internal_reference<>())  )
+    .add_property("joints",
+      bp::make_function(&ModelPythonVisitor::joints,
+            bp::return_internal_reference<>())  )
 	  .add_property("parents", 
 			bp::make_function(&ModelPythonVisitor::parents,
 					  bp::return_internal_reference<>())  )
