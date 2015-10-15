@@ -428,7 +428,7 @@ namespace se3
   typedef JointDataPrismatic<0> JointDataPX;
   typedef JointModelPrismatic<0> JointModelPX;
 
-  template<>
+  template<> inline
   const std::string JointModelPrismatic<0>::shortname()
   {
     return std::string("JointModelPX");
@@ -438,7 +438,7 @@ namespace se3
   typedef JointDataPrismatic<1> JointDataPY;
   typedef JointModelPrismatic<1> JointModelPY;
 
-  template<>
+  template<> inline
   const std::string JointModelPrismatic<1>::shortname()
   {
     return std::string("JointModelPY");
@@ -448,7 +448,7 @@ namespace se3
   typedef JointDataPrismatic<2> JointDataPZ;
   typedef JointModelPrismatic<2> JointModelPZ;
 
-  template<>
+  template<> inline
   const std::string JointModelPrismatic<2>::shortname()
   {
     return std::string("JointModelPZ");
