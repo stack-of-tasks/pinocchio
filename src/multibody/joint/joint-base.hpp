@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015 CNRS
+// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
