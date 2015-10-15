@@ -455,7 +455,7 @@ namespace se3
   typedef JointDataRevolute<0> JointDataRX;
   typedef JointModelRevolute<0> JointModelRX;
 
-  template<>
+  template<> inline
   const std::string JointModelRevolute<0>::shortname()
   {
     return std::string("JointModelRX") ;
@@ -465,7 +465,7 @@ namespace se3
   typedef JointDataRevolute<1> JointDataRY;
   typedef JointModelRevolute<1> JointModelRY;
 
-  template<>
+  template<> inline
   const std::string JointModelRevolute<1>::shortname()
   {
     return std::string("JointModelRY") ;
@@ -475,7 +475,7 @@ namespace se3
   typedef JointDataRevolute<2> JointDataRZ;
   typedef JointModelRevolute<2> JointModelRZ;
 
-  template<>
+  template<> inline
   const std::string JointModelRevolute<2>::shortname()
   {
     return std::string("JointModelRZ") ;
