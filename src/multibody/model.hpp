@@ -162,7 +162,7 @@ namespace se3
 
   };
 
-  const Eigen::Vector3d Model::gravity981 (0,0,-9.81);
+  
 
 } // namespace se3
 
