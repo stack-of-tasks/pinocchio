@@ -43,17 +43,24 @@ ENDMACRO(ADD_TARGET_CFLAGS)
 # --- C++ --------------------------------------------
 # ----------------------------------------------------
 
+SET(${PROJECT_NAME}_MULTIBODY_SOURCES
+  multibody/model.cpp
+  )
+
+SET(${PROJECT_NAME}_SOURCES
+  ${${PROJECT_NAME}_MULTIBODY_SOURCES}
+  )
+
 IF(LUA5_1_FOUND)
   SET(${PROJECT_NAME}_MULTIBODY_PARSER_LUA_SOURCES 
       multibody/parser/lua/lua_tables.cpp
       multibody/parser/lua.cpp
     )
-  SET(BUILD_MAIN_LIBRARY True)
+  LIST(APPEND ${PROJECT_NAME}_SOURCES ${PROJECT_NAME}_MULTIBODY_PARSER_LUA_SOURCES)
 ENDIF(LUA5_1_FOUND)
 
-SET(${PROJECT_NAME}_SOURCES ${${PROJECT_NAME}_MULTIBODY_PARSER_LUA_SOURCES}) 
 
-IF (UNIX AND BUILD_MAIN_LIBRARY)
+IF (UNIX)
     # Create target libpinocchio.so
     ADD_LIBRARY ( ${PROJECT_NAME} SHARED ${HEADERS} ${${PROJECT_NAME}_SOURCES} )
 		SET_TARGET_PROPERTIES( ${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
