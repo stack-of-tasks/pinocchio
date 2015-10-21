@@ -38,13 +38,34 @@ namespace se3
   {
     struct ParsersPythonVisitor
     {
-
+      
 #ifdef WITH_URDFDOM
-      static ModelHandler buildModelFromUrdf( const std::string & filename,
-					      bool ff )
+      struct build_model_visitor : public boost::static_visitor<ModelHandler>
+      {
+        const std::string& _filename;
+
+        build_model_visitor(const std::string& filename): _filename(filename){}
+
+        template <typename T> ModelHandler operator()( T & operand ) const
+        {
+          Model * model = new Model();
+          *model = se3::urdf::buildModel(_filename, operand);
+          return ModelHandler(model,true);
+        }
+      };
+
+      static ModelHandler buildModelFromUrdfWithRoot( const std::string & filename,
+                                      bp::object o
+                                      )
+      {
+        JointModelVariant variant = bp::extract<JointModelVariant> (o);
+        return boost::apply_visitor(build_model_visitor(filename), variant);
+      }
+
+      static ModelHandler buildModelFromUrdf( const std::string & filename)
       {
 	Model * model = new Model();
-	*model = se3::urdf::buildModel(filename,ff);
+	*model = se3::urdf::buildModel(filename);
 	return ModelHandler(model,true);
       }
 #endif
@@ -64,11 +85,15 @@ namespace se3
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-        
+        bp::def("buildModelFromUrdfWithRoot",buildModelFromUrdfWithRoot,
+          bp::args("Filename (string)",
+              "Root Joint Model"),
+          "Parse the urdf file given in input and return a proper pinocchio model "
+          "(remember to create the corresponding data structure).");
+
 #ifdef WITH_URDFDOM
 	bp::def("buildModelFromUrdf",buildModelFromUrdf,
-		bp::args("Filename (string)",
-			 "Free flyer (bool, false for a fixed robot)"),
+		bp::args("Filename (string)"),
 		"Parse the urdf file given in input and return a proper pinocchio model "
 		"(remember to create the corresponding data structure).");
 #endif

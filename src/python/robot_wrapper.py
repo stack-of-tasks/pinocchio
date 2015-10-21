@@ -21,9 +21,12 @@ from explog import exp
 import time
 
 class RobotWrapper:
-    def __init__(self,filename):
+    def __init__(self,filename, root_joint = None):
         self.modelFileName = filename
-        self.model = se3.buildModelFromUrdf(filename,True)
+        if(root_joint is None):
+            self.model = se3.buildModelFromUrdf(filename)
+        else:
+            self.model = se3.buildModelFromUrdfWithRoot(filename, root_joint)
         self.data = self.model.createData()
         self.v0 = utils.zero(self.nv)
         self.q0 = utils.zero(self.nq)
@@ -168,5 +171,7 @@ class RobotWrapper:
             elapsed_time = t1-t0
             if elapsed_time < dt:
               time.sleep(dt - elapsed_time)
+
+
 
 __all__ = [ 'RobotWrapper' ]

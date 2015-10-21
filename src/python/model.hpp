@@ -24,6 +24,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/python/se3.hpp"
 #include "pinocchio/python/eigen_container.hpp"
 #include "pinocchio/python/handler.hpp"
 
@@ -42,6 +43,37 @@ namespace se3
     public:
       typedef Model::Index Index;
       typedef eigenpy::UnalignedEquivalent<Motion>::type Motion_fx;
+      typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
+      typedef eigenpy::UnalignedEquivalent<Inertia>::type Inertia_fx;
+
+      struct add_body_visitor : public boost::static_visitor<Model::Index>
+      {
+        ModelHandler & _model;
+        Model::Index & _index;
+        const SE3_fx & _placement;
+        const Inertia_fx & _inertia;
+        const std::string & _jName;
+        const std::string & _bName;
+        bool _visual;
+
+        add_body_visitor( ModelHandler & model,
+                          Model::Index & idx, const SE3_fx & placement,
+                          const Inertia_fx & Y, const std::string & jointName,
+                          const std::string & bodyName, bool visual)
+                        : _model(model)
+                        , _index(idx)
+                        , _placement(placement)
+                        , _inertia(Y)
+                        , _jName(jointName)
+                        , _bName(bodyName)
+                        , _visual(visual)
+        {}
+
+        template <typename T> Model::Index operator()( T & operand ) const
+        {
+          return _model->addBody(_index, operand, _placement, _inertia, _jName, _bName, _visual);
+        }
+      };
 
     public:
 
@@ -75,6 +107,9 @@ namespace se3
 	  .add_property("jointPlacements",
 			bp::make_function(&ModelPythonVisitor::jointPlacements,
 					  bp::return_internal_reference<>())  )
+    .add_property("joints",
+      bp::make_function(&ModelPythonVisitor::joints,
+            bp::return_internal_reference<>())  )
 	  .add_property("parents", 
 			bp::make_function(&ModelPythonVisitor::parents,
 					  bp::return_internal_reference<>())  )
@@ -87,6 +122,8 @@ namespace se3
     .add_property("hasVisual",
       bp::make_function(&ModelPythonVisitor::hasVisual,
             bp::return_internal_reference<>())  )
+
+    .def("addBody",&ModelPythonVisitor::addJointToModel)
 
       .add_property("nFixBody", &ModelPythonVisitor::nFixBody)
       .add_property("fix_lmpMi", bp::make_function(&ModelPythonVisitor::fix_lmpMi, bp::return_internal_reference<>()) )
@@ -118,6 +155,18 @@ namespace se3
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
       static std::vector<std::string> & bodyNames ( ModelHandler & m ) { return m->bodyNames; }
       static std::vector<bool> & hasVisual ( ModelHandler & m ) { return m->hasVisual; }
+
+      static Model::Index addJointToModel(  ModelHandler & modelPtr,
+                                    Model::Index idx, bp::object joint,
+                                    const SE3_fx & placement,
+                                    const Inertia_fx & Y,
+                                    const std::string & jointName,
+                                    const std::string & bodyName,
+                                    bool visual=false)
+      { 
+        JointModelVariant variant = bp::extract<JointModelVariant> (joint);
+        return boost::apply_visitor(add_body_visitor(modelPtr, idx, placement, Y, jointName, bodyName, visual), variant);
+      }
 
       static int nFixBody( ModelHandler & m )                                     { return m->nFixBody; }
       static std::vector<SE3>          & fix_lmpMi           ( ModelHandler & m ) { return m->fix_lmpMi; }
