@@ -45,6 +45,7 @@ ENDMACRO(ADD_TARGET_CFLAGS)
 
 SET(${PROJECT_NAME}_MULTIBODY_SOURCES
   multibody/model.cpp
+  multibody/parser/sample-models.cpp
   )
 
 SET(${PROJECT_NAME}_SOURCES
