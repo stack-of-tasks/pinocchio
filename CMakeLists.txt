@@ -29,6 +29,7 @@ SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
 
 IF(APPLE)
   SET(CMAKE_MACOSX_RPATH 1)
+  SET(CMAKE_OSX_DEPLOYMENT_TARGET 10.10)
 ENDIF(APPLE)
 
 # Disable -Werror on Unix for now.
