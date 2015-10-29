@@ -262,7 +262,13 @@ void parseTree( ::urdf::LinkConstPtr link, Model & model,SE3 placementOffset = S
       Model model;
 
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
-      parseTree(urdfTree->getRoot(), model, SE3::Identity(), root_joint);
+      if (urdfTree)
+        parseTree(urdfTree->getRoot(), model, SE3::Identity(), root_joint);
+      else
+      {
+        std::cerr << "The URDF tree seems to be empty" << std::endl; // In future, raise exception instead
+      }
+      
       return model;
     }
 
@@ -271,7 +277,13 @@ void parseTree( ::urdf::LinkConstPtr link, Model & model,SE3 placementOffset = S
       Model model;
 
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
-      parseTree(urdfTree->getRoot(), model, SE3::Identity());
+      if (urdfTree)
+        parseTree(urdfTree->getRoot(), model, SE3::Identity());
+      else
+      {
+        std::cerr << "The URDF tree seems to be empty" << std::endl; // In future, raise exception instead
+      }
+
       return model;
     }
 
