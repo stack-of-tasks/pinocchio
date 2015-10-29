@@ -95,7 +95,7 @@ namespace se3
 
   };
 
-  /* Compute the centerOfMass in the local frame. */
+  /* Compute the centerOfMass in the local frame of the root joint. */
   const Eigen::Vector3d &
   centerOfMass(const Model & model, Data& data,
 	       const Eigen::VectorXd & q,
@@ -125,7 +125,7 @@ namespace se3
     return data.com[0];
   }
   
-  /* Compute the centerOfMass velocity in the local frame. */
+  /* Compute the centerOfMass position, velocity and acceleration in the local frame of the root joint. */
   void
   centerOfMassAcceleration(const Model & model, Data & data,
                            const Eigen::VectorXd & q,
@@ -274,7 +274,7 @@ namespace se3
 
   };
 
-  /* Compute the centerOfMass in the local frame. */
+  /* Compute the centerOfMass in the local frame of the root joint. */
   const Eigen::Matrix<double,3,Eigen::Dynamic> &
   jacobianCenterOfMass(const Model & model, Data& data,
 		       const Eigen::VectorXd & q,
