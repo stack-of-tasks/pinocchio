@@ -18,9 +18,12 @@
 #ifndef __se3_inertia_hpp__
 #define __se3_inertia_hpp__
 
+#include <Eigen/Dense>
+
 #include "pinocchio/spatial/symmetric3.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/motion.hpp"
+#include "pinocchio/spatial/skew.hpp"
 
 
 
