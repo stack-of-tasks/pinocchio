@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015 CNRS
+// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -192,20 +193,46 @@ namespace se3
       static std::string toString(const ModelHandler& m) 
       {	  std::ostringstream s; s << *m; return s.str();       }
 
+      ///
+      /// \brief Provide equivalent to python list index function for
+      ///        vectors.
+      ///
+      /// \param[in] x The input vector.
+      /// \param[in] v The value of to look for in the vector.
+      ///
+      /// \return The index of the matching element of the vector. If
+      ///         no element is found, return -1.
+      ///
+      template<typename T>
+      static Model::Index index(std::vector<T> const& x,
+                                typename std::vector<T>::value_type const& v)
+      {
+        Model::Index i = 0;
+        for(typename std::vector<T>::const_iterator it = x.begin(); it != x.end(); ++it, ++i)
+        {
+          if(*it == v)
+          {
+            return i;
+          }
+        }
+        return -1;
+      }
+
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-	bp::class_< std::vector<Index> >("StdVec_Index")
-	  .def(bp::vector_indexing_suite< std::vector<Index> >());
-	bp::class_< std::vector<std::string> >("StdVec_StdString")
-	  .def(bp::vector_indexing_suite< std::vector<std::string> >());
-	bp::class_< std::vector<bool> >("StdVec_Bool")
-	  .def(bp::vector_indexing_suite< std::vector<bool> >());
-	bp::class_< std::vector<double> >("StdVec_double")
-	  .def(bp::vector_indexing_suite< std::vector<double> >());
-  bp::class_< JointModelVector >("StdVec_JointModelVector")
-    .def(bp::vector_indexing_suite< JointModelVector, true >());
-  
+        bp::class_< std::vector<Index> >("StdVec_Index")
+          .def(bp::vector_indexing_suite< std::vector<Index> >());
+        bp::class_< std::vector<std::string> >("StdVec_StdString")
+          .def(bp::vector_indexing_suite< std::vector<std::string> >())
+          .def("index", &ModelPythonVisitor::index<std::string>);
+        bp::class_< std::vector<bool> >("StdVec_Bool")
+          .def(bp::vector_indexing_suite< std::vector<bool> >());
+        bp::class_< std::vector<double> >("StdVec_double")
+          .def(bp::vector_indexing_suite< std::vector<double> >());
+        bp::class_< JointModelVector >("StdVec_JointModelVector")
+          .def(bp::vector_indexing_suite< JointModelVector, true >());
+
   bp::class_<ModelHandler>("Model",
          "Articulated rigid body model (const)",
          bp::no_init)
