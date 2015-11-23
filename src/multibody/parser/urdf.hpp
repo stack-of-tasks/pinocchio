@@ -88,6 +88,7 @@ void parseTree( ::urdf::LinkConstPtr link, Model & model,SE3 placementOffset = S
 
 
   //assert(link->inertial && "The parser cannot accept trivial mass");
+  // FIXME: Inertia must not be set to identity when link has no inertial tag.
   const Inertia & Y = (link->inertial) ?  convertFromUrdf(*link->inertial) :
                                           Inertia::Identity();
 
@@ -204,13 +205,18 @@ void parseTree( ::urdf::LinkConstPtr link, Model & model,SE3 placementOffset = S
       }
       case ::urdf::Joint::FIXED:
       {
-        // In case of fixed join:
+        // In case of fixed joint, if link has inertial tag:
         //    -add the inertia of the link to his parent in the model
-        //    -let all the children become children of parent 
+        // Otherwise do nothing.
+        // In all cases:
+        //    -let all the children become children of parent
         //    -inform the parser of the offset to apply
         //    -add fixed body in model to display it in gepetto-viewer
+        if (link->inertial)
+        {
+          model.mergeFixedBody(parent, jointPlacement, Y); //Modify the parent inertia in the model
+        }
 
-        model.mergeFixedBody(parent, jointPlacement, Y); //Modify the parent inertia in the model
         SE3 ptjot_se3 = convertFromUrdf(link->parent_joint->parent_to_joint_origin_transform);
 
         //transformation of the current placement offset
@@ -219,7 +225,7 @@ void parseTree( ::urdf::LinkConstPtr link, Model & model,SE3 placementOffset = S
         //add the fixed Body in the model for the viewer
         model.addFixedBody(parent,nextPlacementOffset,link->name,visual);
 
-        BOOST_FOREACH(::urdf::LinkPtr child_link,link->child_links) 
+        BOOST_FOREACH(::urdf::LinkPtr child_link,link->child_links)
         {
           child_link->setParent(link->getParent() );  //skip the fixed generation
         }
