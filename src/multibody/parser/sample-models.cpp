@@ -75,65 +75,121 @@ namespace se3
       }
       else
       {
-        model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Identity(),
-                      Inertia::Random(),"root_joint", "root_body");
+        model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),
+                      SE3::Identity(),Inertia::Random(),
+                      Eigen::VectorXd::Zero(6), 1e3 * (Eigen::VectorXd::Random(6).array() + 1),
+                      1e3 * (Eigen::VectorXd::Random(7).array() - 1),
+                      1e3 * (Eigen::VectorXd::Random(7).array() + 1),
+                      "root_joint", "root_body");
       }
 
       model.addBody(model.getBodyId("root_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "lleg1_joint", "lleg1_body");
       model.addBody(model.getBodyId("lleg1_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "lleg2_joint", "lleg2_body");
       model.addBody(model.getBodyId("lleg2_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "lleg3_joint", "lleg3_body");
       model.addBody(model.getBodyId("lleg3_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "lleg4_joint", "lleg4_body");
       model.addBody(model.getBodyId("lleg4_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "lleg5_joint", "lleg5_body");
       model.addBody(model.getBodyId("lleg5_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "lleg6_joint", "lleg6_body");
 
       model.addBody(model.getBodyId("root_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rleg1_joint", "rleg1_body");
       model.addBody(model.getBodyId("rleg1_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rleg2_joint", "rleg2_body");
       model.addBody(model.getBodyId("rleg2_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rleg3_joint", "rleg3_body");
       model.addBody(model.getBodyId("rleg3_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rleg4_joint", "rleg4_body");
       model.addBody(model.getBodyId("rleg4_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rleg5_joint", "rleg5_body");
       model.addBody(model.getBodyId("rleg5_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rleg6_joint", "rleg6_body");
 
       model.addBody(model.getBodyId("root_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "torso1_joint", "torso1_body");
       model.addBody(model.getBodyId("torso1_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "chest_joint", "chest_body");
 
       model.addBody(model.getBodyId("chest_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rarm1_joint", "rarm1_body");
       model.addBody(model.getBodyId("rarm1_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rarm2_joint", "rarm2_body");
       model.addBody(model.getBodyId("rarm2_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rarm3_joint", "rarm3_body");
       model.addBody(model.getBodyId("rarm3_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rarm4_joint", "rarm4_body");
       model.addBody(model.getBodyId("rarm4_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rarm5_joint", "rarm5_body");
       model.addBody(model.getBodyId("rarm5_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "rarm6_joint", "rarm6_body");
 
       model.addBody(model.getBodyId("chest_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "larm1_joint", "larm1_body");
       model.addBody(model.getBodyId("larm1_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "larm2_joint", "larm2_body");
       model.addBody(model.getBodyId("larm2_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "larm3_joint", "larm3_body");
       model.addBody(model.getBodyId("larm3_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "larm4_joint", "larm4_body");
       model.addBody(model.getBodyId("larm4_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "larm5_joint", "larm5_body");
       model.addBody(model.getBodyId("larm5_body"),JointModelRX(),SE3::Random(),Inertia::Random(),
+                    Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
+                    Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "larm6_joint", "larm6_body");
     }
 
