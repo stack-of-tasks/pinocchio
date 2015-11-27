@@ -73,7 +73,7 @@ $ git submodule update
     </p>
 
     {% highlight bash %}
-    sudo apt-get install libboost-dev libboost-doc libboost-thread-dev libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-python-dev libboost-program-options-dev libtinyxml-dev libopenthreads14 libeigen3-dev libeigen3-doc libomniorb4-dev omniorb-nameserver omniidl omniidl-python pkg-config python-numpy clang cmake git g++
+    sudo apt-get install libboost-dev libboost-doc libboost-thread-dev libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-python-dev libboost-program-options-dev libtinyxml-dev libopenthreads14 libeigen3-dev libeigen3-doc libomniorb4-dev omniorb-nameserver omniidl omniidl-python pkg-config python-numpy doxygen liblua5.1-0-dev clang cmake git g++
     {% endhighlight %}
 
 
@@ -136,9 +136,9 @@ $ git submodule update
       <li>Collada-dom (<a href="https://github.com/humanoid-path-planner/collada-dom.git">github</a>)</li>
       <li>OpenSceneGraph : </br>
           1. Install the dependencies required for OSG  <code><pre>sudo apt-get build-dep openscenegraph</pre></code>
-          2. Get the source files <code><pre>wget http://www.openscenegraph.org/downloads/developer_releases/OpenSceneGraph-3.2.1.zip</pre></code>
+          2. Get the source files <code><pre>wget http://trac.openscenegraph.org/downloads/developer_releases/OpenSceneGraph-3.2.1.zip</pre></code>
           3. Unzip </br>
-          4. In a terminal, go to the unzipped directory and type : <code><pre> ./configure && make && make install</pre></code>
+          4. In a terminal, go to the unzipped directory and type : <code><pre> ./configure -DCMAKE_INSTALL_PREFIX=/your/install/prefix && make && make install</pre></code>
 
           <div class="bs-callout bs-callout-danger">
             <p><span class='glyphicon glyphicon-warning-sign'></span>
