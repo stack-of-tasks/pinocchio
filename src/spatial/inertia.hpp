@@ -245,9 +245,10 @@ namespace se3
     Scalar_t           mass()    const { return m; }
     const Vector3 &    lever()   const { return c; }
     const Symmetric3 & inertia() const { return I; }
-
-
-
+    
+    Scalar_t &   mass()    { return m; }
+    Vector3 &    lever()   { return c; }
+    Symmetric3 & inertia() { return I; }
 
     /// aI = aXb.act(bI)
     InertiaTpl se3Action_impl(const SE3 & M) const
@@ -283,7 +284,7 @@ namespace se3
       << "I = [\n" << (Matrix3)I << "];";
     }
 
-  private:
+  protected:
     Scalar_t m;
     Vector3 c;
     Symmetric3 I;
