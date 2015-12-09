@@ -347,12 +347,12 @@ namespace se3
     ,lowerPositionLimit(ref.nq)
     ,upperPositionLimit(ref.nq)
   {
+    /* Create data strcture associated to the joints */
     for(Model::Index i=0;i<(Model::Index)(model.nbody);++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
 
     /* Init for CRBA */
-    M.fill(NAN);    
-    for(Model::Index i=0;i<(Model::Index)(ref.nbody);++i ) { Fcrb[i].resize(6,model.nv); Fcrb[i].fill(NAN); }
+    for(Model::Index i=0;i<(Model::Index)(ref.nbody);++i ) { Fcrb[i].resize(6,model.nv); }
     computeLastChild(ref);
 
     /* Init for Cholesky */
@@ -361,6 +361,14 @@ namespace se3
 
     /* Init Jacobian */
     J.fill(0);
+    
+    /* Init universe states relatively to itself */
+    
+    a[0].setZero();
+    v[0].setZero();
+    f[0].setZero();
+    oMi[0].setIdentity();
+    liMi[0].setIdentity();
   }
 
   inline void Data::computeLastChild(const Model& model)

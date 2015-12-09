@@ -46,6 +46,13 @@ ENDIF(WIN32)
 
 # --- OPTIONS ----------------------------------------
 OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
+OPTION (INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
+
+IF (INITIALIZE_WITH_NAN)
+  MESSAGE (STATUS "Initialize with NaN all the Eigen entries")
+  ADD_DEFINITIONS(-DEIGEN_INITIALIZE_MATRICES_BY_NAN)
+  #LIST(APPEND CMAKE_CXX_FLAGS "-DEIGEN_INITIALIZE_MATRICES_BY_NAN")
+ENDIF (INITIALIZE_WITH_NAN)
 
 # ----------------------------------------------------
 # --- DEPENDANCIES -----------------------------------
