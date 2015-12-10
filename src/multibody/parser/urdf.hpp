@@ -26,6 +26,8 @@
 #include <boost/foreach.hpp>
 #include "pinocchio/multibody/model.hpp"
 
+#include <exception>
+
 namespace urdf
 {
   typedef boost::shared_ptr<ModelInterface> ModelInterfacePtr;
@@ -74,7 +76,7 @@ namespace se3
     }
 
 
-    void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset = SE3::Identity()) 
+    void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset = SE3::Identity()) throw (std::invalid_argument)
 {
 
 
@@ -86,25 +88,29 @@ namespace se3
   //   std::cout << "#" << link->parent_joint->name << std::endl;
   // else std::cout << "###ROOT" << std::endl;
 
-
-  //assert(link->inertial && "The parser cannot accept trivial mass");
-  // FIXME: Inertia must not be set to identity when link has no inertial tag.
-  const Inertia & Y = (link->inertial) ?  convertFromUrdf(*link->inertial) :
-                                          Inertia::Identity();
-
   // std::cout << "placementOffset: " << placementOffset << std::endl;
-
-  bool visual = (link->visual) ? true : false;
 
   if(joint!=NULL)
   {
     assert(link->getParent()!=NULL);
+    
+    if (!link->inertial && joint->type != ::urdf::Joint::FIXED)
+    {
+      const std::string exception_message (link->name + " - spatial inertia information missing.");
+      throw std::invalid_argument(exception_message);
+    }
 
     Model::Index parent = (link->getParent()->parent_joint==NULL) ? (model.existJointName("root_joint") ? model.getJointId("root_joint") : 0) :
                                                                     model.getJointId( link->getParent()->parent_joint->name );
     //std::cout << joint->name << " === " << parent << std::endl;
 
     const SE3 & jointPlacement = placementOffset*convertFromUrdf(joint->parent_to_joint_origin_transform);
+    
+    const Inertia & Y = (link->inertial) ?  convertFromUrdf(*link->inertial) :
+    Inertia::Identity();
+    
+    bool visual = (link->visual) ? true : false;
+
 
     //std::cout << "Parent = " << parent << std::endl;
     //std::cout << "Placement = " << (Matrix4)jointPlacement << std::endl;
@@ -238,8 +244,13 @@ namespace se3
         break;
       }
     }
+          
   }
-
+          else if (link->getParent() != NULL)
+          {
+            const std::string exception_message (link->name + " - joint information missing.");
+            throw std::invalid_argument(exception_message);
+          }
 
 
   BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
