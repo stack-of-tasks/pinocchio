@@ -74,7 +74,7 @@ namespace se3
     }
 
 
-void parseTree( ::urdf::LinkConstPtr link, Model & model,SE3 placementOffset = SE3::Identity())
+    void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset = SE3::Identity()) 
 {
 
 
@@ -249,7 +249,7 @@ void parseTree( ::urdf::LinkConstPtr link, Model & model,SE3 placementOffset = S
 }
 
     template <typename D>
-    void parseTree( ::urdf::LinkConstPtr link, Model & model,SE3 placementOffset , const JointModelBase<D> &  root_joint  )
+    void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset , const JointModelBase<D> &  root_joint  )
     {
       const Inertia & Y = (link->inertial) ?
       convertFromUrdf(*link->inertial)
