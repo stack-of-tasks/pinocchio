@@ -284,7 +284,8 @@ inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & pla
         parseTree(urdfTree->getRoot(), model, SE3::Identity(), root_joint);
       else
       {
-        std::cerr << "The URDF tree seems to be empty" << std::endl; // In future, raise exception instead
+        const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
+        throw std::invalid_argument(exception_message);
       }
       
       return model;
@@ -299,7 +300,8 @@ inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & pla
         parseTree(urdfTree->getRoot(), model, SE3::Identity());
       else
       {
-        std::cerr << "The URDF tree seems to be empty" << std::endl; // In future, raise exception instead
+        const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
+        throw std::invalid_argument(exception_message);
       }
 
       return model;
