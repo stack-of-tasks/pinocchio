@@ -23,6 +23,8 @@
 #include <urdf_parser/urdf_parser.h>
 
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <boost/foreach.hpp>
 #include "pinocchio/multibody/model.hpp"
 
@@ -76,8 +78,7 @@ namespace se3
     }
 
 
-
-inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset = SE3::Identity()) throw (std::invalid_argument)
+    inline void parseTree(::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset = SE3::Identity(), bool verbose = false) throw (std::invalid_argument)
 {
 
 
@@ -95,6 +96,10 @@ inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & pla
   {
     assert(link->getParent()!=NULL);
     
+    const std::string & joint_name = joint->name;
+    const std::string & link_name = link->name;
+    const std::string & parent_link_name = link->getParent()->name;
+    std::string joint_info = "";
     if (!link->inertial && joint->type != ::urdf::Joint::FIXED)
     {
       const std::string exception_message (link->name + " - spatial inertia information missing.");
@@ -119,9 +124,70 @@ inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & pla
     switch(joint->type)
     {
       case ::urdf::Joint::REVOLUTE:
+      {
+        joint_info = "joint REVOLUTE with axis";
+        Eigen::VectorXd maxEffort;
+        Eigen::VectorXd velocity;
+        Eigen::VectorXd lowerPosition;
+        Eigen::VectorXd upperPosition;
+        
+        if (joint->limits)
+        {
+          maxEffort.resize(1);      maxEffort     << joint->limits->effort;
+          velocity.resize(1);       velocity      << joint->limits->velocity;
+          lowerPosition.resize(1);  lowerPosition << joint->limits->lower;
+          upperPosition.resize(1);  upperPosition << joint->limits->upper;
+        }
+        
+        Eigen::Vector3d jointAxis(Eigen::Vector3d::Zero());
+        AxisCartesian axis = extractCartesianAxis(joint->axis);
+          
+        switch(axis)
+        {
+          case AXIS_X:
+            joint_info += " along X";
+            model.addBody(  parent_joint_id, JointModelRX(), jointPlacement, Y,
+                          maxEffort, velocity, lowerPosition, upperPosition,
+                          joint->name,link->name, has_visual );
+            break;
+          case AXIS_Y:
+            joint_info += " along Y";
+            model.addBody(  parent_joint_id, JointModelRY(), jointPlacement, Y,
+                          maxEffort, velocity, lowerPosition, upperPosition,
+                          joint->name,link->name, has_visual );
+            break;
+          case AXIS_Z:
+            joint_info += " along Z";
+            model.addBody(  parent_joint_id, JointModelRZ(), jointPlacement, Y,
+                          maxEffort, velocity, lowerPosition, upperPosition,
+                          joint->name,link->name, has_visual );
+            break;
+          case AXIS_UNALIGNED:
+          {
+            
+            std::stringstream axis_value;
+            axis_value << std::setprecision(5);
+            axis_value << "(" << joint->axis.x <<"," << joint->axis.y << "," << joint->axis.z << ")";
+            joint_info += " unaligned " + axis_value.str();
+        
+            jointAxis = Eigen::Vector3d( joint->axis.x,joint->axis.y,joint->axis.z );
+            jointAxis.normalize();
+            model.addBody(  parent_joint_id, JointModelRevoluteUnaligned(jointAxis),
+                          jointPlacement, Y,
+                          maxEffort, velocity, lowerPosition, upperPosition,
+                          joint->name,link->name, has_visual );
+            break;
+          }
+          default:
+            assert( false && "Fatal Error while extracting revolute joint axis");
+            break;
+        }
+        break;
+      }
       case ::urdf::Joint::CONTINUOUS: // Revolute with no joint limits
       {
 
+        joint_info = "joint CONTINUOUS with axis";
         Eigen::VectorXd maxEffort;
         Eigen::VectorXd velocity;
         Eigen::VectorXd lowerPosition;
@@ -141,27 +207,37 @@ inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & pla
         {
           case AXIS_X:
             model.addBody(  parent, JointModelRX(), jointPlacement, Y,
+            joint_info += " along X";
                             maxEffort, velocity, lowerPosition, upperPosition,
                             joint->name,link->name, visual );
             break;
           case AXIS_Y:
             model.addBody(  parent, JointModelRY(), jointPlacement, Y,
+            joint_info += " along Y";
                             maxEffort, velocity, lowerPosition, upperPosition,
                             joint->name,link->name, visual );
             break;
           case AXIS_Z:
             model.addBody(  parent, JointModelRZ(), jointPlacement, Y,
+            joint_info += " along Z";
                             maxEffort, velocity, lowerPosition, upperPosition,
                             joint->name,link->name, visual );
             break;
           case AXIS_UNALIGNED:
-            jointAxis= Eigen::Vector3d( joint->axis.x,joint->axis.y,joint->axis.z );
+          {
+            std::stringstream axis_value;
+            axis_value << std::setprecision(5);
+            axis_value << "(" << joint->axis.x <<"," << joint->axis.y << "," << joint->axis.z << ")";
+            joint_info += " unaligned " + axis_value.str();
+            
+            jointAxis = Eigen::Vector3d( joint->axis.x,joint->axis.y,joint->axis.z );
             jointAxis.normalize();
             model.addBody(  parent, JointModelRevoluteUnaligned(jointAxis), 
                             jointPlacement, Y,
                             maxEffort, velocity, lowerPosition, upperPosition,
                             joint->name,link->name, visual );
             break;
+          }
           default:
             assert( false && "Fatal Error while extracting revolute joint axis");
             break;
@@ -170,6 +246,7 @@ inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & pla
       }
       case ::urdf::Joint::PRISMATIC:
       {
+        joint_info = "joint PRISMATIC with axis";
         Eigen::VectorXd maxEffort = Eigen::VectorXd(0.);
         Eigen::VectorXd velocity = Eigen::VectorXd(0.);
         Eigen::VectorXd lowerPosition = Eigen::VectorXd(0.);
@@ -201,9 +278,15 @@ inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & pla
                             joint->name,link->name, visual );
             break;
           case AXIS_UNALIGNED:
-            std::cerr << "Bad axis = (" << joint->axis.x <<"," << joint->axis.y << "," << joint->axis.z << ")" << std::endl;
+          {
+            std::stringstream axis_value;
+            axis_value << std::setprecision(5);
+            axis_value << "(" << joint->axis.x <<"," << joint->axis.y << "," << joint->axis.z << ")";
+            joint_info += " unaligned " + axis_value.str();
+            std::cerr << "Bad axis = " << axis_value << std::endl;
             assert(false && "Only X, Y or Z axis are accepted." );
             break;
+          }
           default:
             assert( false && "Fatal Error while extracting prismatic joint axis");
             break;
@@ -245,6 +328,18 @@ inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & pla
         break;
       }
     }
+
+          if (verbose)
+          {
+            std::cout << "Adding Body" << std::endl;
+            std::cout << "\"" << link_name << "\" connected to " << "\"" << parent_link_name << "\" throw joint " << "\"" << joint_name << "\"" << std::endl;
+            std::cout << "joint type: " << joint_info << std::endl;
+            std::cout << "joint placement:\n" << jointPlacement;
+            std::cout << "body info: " << std::endl;
+            std::cout << "  " << "mass: " << Y.mass() << std::endl;
+            std::cout << "  " << "lever: " << Y.lever().transpose() << std::endl;
+            std::cout << "  " << "inertia elements (Ixx,Iyx,Iyy,Izx,Izy,Izz): " << Y.inertia().data().transpose() << std::endl << std::endl;
+          }
           
   }
           else if (link->getParent() != NULL)
@@ -256,12 +351,12 @@ inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & pla
 
   BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
   {
-    parseTree(child, model, nextPlacementOffset);
+    parseTree(child, model, nextPlacementOffset, verbose);
   }
 }
 
     template <typename D>
-    void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset , const JointModelBase<D> &  root_joint  )
+    void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset, const JointModelBase<D> & root_joint, const bool verbose = false) throw (std::invalid_argument)
     {
       const Inertia & Y = (link->inertial) ?
       convertFromUrdf(*link->inertial)
@@ -269,19 +364,19 @@ inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & pla
       model.addBody( 0, root_joint, placementOffset, Y , "root_joint", link->name, true );
       BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
       {
-        parseTree(child, model, SE3::Identity());
+        parseTree(child, model, SE3::Identity(), verbose);
       }
     }
 
 
     template <typename D>
-    Model buildModel( const std::string & filename, const JointModelBase<D> &  root_joint )
+    Model buildModel(const std::string & filename, const JointModelBase<D> & root_joint, bool verbose = false) throw (std::invalid_argument)
     {
       Model model;
 
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       if (urdfTree)
-        parseTree(urdfTree->getRoot(), model, SE3::Identity(), root_joint);
+        parseTree(urdfTree->getRoot(), model, SE3::Identity(), root_joint, verbose);
       else
       {
         const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
@@ -291,13 +386,13 @@ inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & pla
       return model;
     }
 
-    inline Model buildModel( const std::string & filename)
+    inline Model buildModel(const std::string & filename, const bool verbose = false) throw (std::invalid_argument)
     {
       Model model;
 
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       if (urdfTree)
-        parseTree(urdfTree->getRoot(), model, SE3::Identity());
+        parseTree(urdfTree->getRoot(), model, SE3::Identity(), verbose);
       else
       {
         const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
