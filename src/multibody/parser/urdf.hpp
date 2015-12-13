@@ -115,18 +115,13 @@ namespace se3
     inline void parseTree(::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset = SE3::Identity(), bool verbose = false) throw (std::invalid_argument)
 {
 
-
+  // Parent joint of the current body
   ::urdf::JointConstPtr joint = link->parent_joint;
-  SE3 nextPlacementOffset = SE3::Identity(); // OffSet of the next link. In case we encounter a fixed joint, we need to propagate the length of its attached body to next joint.
+  
+  // OffSet of the next link. In case we encounter a fixed joint, we need to propagate the offset placement of its attached body to next joint.
+  SE3 nextPlacementOffset = SE3::Identity();
 
-  // std::cout << " *** " << link->name << "    < attached by joint ";
-  // if(joint)
-  //   std::cout << "#" << link->parent_joint->name << std::endl;
-  // else std::cout << "###ROOT" << std::endl;
-
-  // std::cout << "placementOffset: " << placementOffset << std::endl;
-
-  if(joint!=NULL)
+  if(joint != NULL) // if the link is not the root of the tree
   {
     assert(link->getParent()!=NULL);
     
@@ -134,26 +129,24 @@ namespace se3
     const std::string & link_name = link->name;
     const std::string & parent_link_name = link->getParent()->name;
     std::string joint_info = "";
+    
+    // check if inertial information is provided
     if (!link->inertial && joint->type != ::urdf::Joint::FIXED)
     {
-      const std::string exception_message (link->name + " - spatial inertia information missing.");
+      const std::string exception_message (link->name + " - spatial inertial information missing.");
       throw std::invalid_argument(exception_message);
     }
 
-    Model::Index parent = (link->getParent()->parent_joint==NULL) ? (model.existJointName("root_joint") ? model.getJointId("root_joint") : 0) :
+    Model::Index parent_joint_id = (link->getParent()->parent_joint==NULL) ? (model.existJointName("root_joint") ? model.getJointId("root_joint") : 0) :
                                                                     model.getJointId( link->getParent()->parent_joint->name );
-    //std::cout << joint->name << " === " << parent << std::endl;
 
+    // Transformation from the parent link to the joint origin
     const SE3 & jointPlacement = placementOffset*convertFromUrdf(joint->parent_to_joint_origin_transform);
     
-    const Inertia & Y = (link->inertial) ?  convertFromUrdf(*link->inertial) :
-    Inertia::Identity();
+    const Inertia & Y = (link->inertial) ? convertFromUrdf(*link->inertial) :
+    Inertia::Zero();
     
-    bool visual = (link->visual) ? true : false;
-
-
-    //std::cout << "Parent = " << parent << std::endl;
-    //std::cout << "Placement = " << (Matrix4)jointPlacement << std::endl;
+    const bool has_visual = (link->visual) ? true : false;
 
     switch(joint->type)
     {
@@ -220,7 +213,6 @@ namespace se3
       }
       case ::urdf::Joint::CONTINUOUS: // Revolute with no joint limits
       {
-
         joint_info = "joint CONTINUOUS with axis";
         Eigen::VectorXd maxEffort;
         Eigen::VectorXd velocity;
@@ -237,25 +229,26 @@ namespace se3
 
         Eigen::Vector3d jointAxis(Eigen::Vector3d::Zero());
         AxisCartesian axis = extractCartesianAxis(joint->axis);
+        
         switch(axis)
         {
           case AXIS_X:
-            model.addBody(  parent, JointModelRX(), jointPlacement, Y,
             joint_info += " along X";
+            model.addBody(  parent_joint_id, JointModelRX(), jointPlacement, Y,
                             maxEffort, velocity, lowerPosition, upperPosition,
-                            joint->name,link->name, visual );
+                            joint->name,link->name, has_visual );
             break;
           case AXIS_Y:
-            model.addBody(  parent, JointModelRY(), jointPlacement, Y,
             joint_info += " along Y";
+            model.addBody(  parent_joint_id, JointModelRY(), jointPlacement, Y,
                             maxEffort, velocity, lowerPosition, upperPosition,
-                            joint->name,link->name, visual );
+                            joint->name,link->name, has_visual );
             break;
           case AXIS_Z:
-            model.addBody(  parent, JointModelRZ(), jointPlacement, Y,
             joint_info += " along Z";
+            model.addBody(  parent_joint_id, JointModelRZ(), jointPlacement, Y,
                             maxEffort, velocity, lowerPosition, upperPosition,
-                            joint->name,link->name, visual );
+                            joint->name,link->name, has_visual );
             break;
           case AXIS_UNALIGNED:
           {
@@ -266,10 +259,10 @@ namespace se3
             
             jointAxis = Eigen::Vector3d( joint->axis.x,joint->axis.y,joint->axis.z );
             jointAxis.normalize();
-            model.addBody(  parent, JointModelRevoluteUnaligned(jointAxis), 
+            model.addBody(  parent_joint_id, JointModelRevoluteUnaligned(jointAxis),
                             jointPlacement, Y,
                             maxEffort, velocity, lowerPosition, upperPosition,
-                            joint->name,link->name, visual );
+                            joint->name,link->name, has_visual );
             break;
           }
           default:
@@ -297,19 +290,22 @@ namespace se3
         switch(axis)
         {
           case AXIS_X:
-            model.addBody(  parent, JointModelPX(), jointPlacement, Y,
+            joint_info += " along X";
+            model.addBody(  parent_joint_id, JointModelPX(), jointPlacement, Y,
                             maxEffort, velocity, lowerPosition, upperPosition,
-                            joint->name,link->name, visual );
+                            joint->name,link->name, has_visual );
             break;
           case AXIS_Y:
-            model.addBody(  parent, JointModelPY(), jointPlacement, Y,
+            joint_info += " along Y";
+            model.addBody(  parent_joint_id, JointModelPY(), jointPlacement, Y,
                             maxEffort, velocity, lowerPosition, upperPosition,
-                            joint->name,link->name, visual );
+                            joint->name,link->name, has_visual );
             break;
           case AXIS_Z:
-            model.addBody(  parent, JointModelPZ(), jointPlacement, Y,
+            joint_info += " along Z";
+            model.addBody(  parent_joint_id, JointModelPZ(), jointPlacement, Y,
                             maxEffort, velocity, lowerPosition, upperPosition,
-                            joint->name,link->name, visual );
+                            joint->name,link->name, has_visual );
             break;
           case AXIS_UNALIGNED:
           {
@@ -336,22 +332,24 @@ namespace se3
         //    -let all the children become children of parent
         //    -inform the parser of the offset to apply
         //    -add fixed body in model to display it in gepetto-viewer
+        
+        joint_info = "fixed joint";
         if (link->inertial)
         {
-          model.mergeFixedBody(parent, jointPlacement, Y); //Modify the parent inertia in the model
+          model.mergeFixedBody(parent_joint_id, jointPlacement, Y); //Modify the parent inertia in the model
         }
 
-        SE3 ptjot_se3 = convertFromUrdf(link->parent_joint->parent_to_joint_origin_transform);
-
         //transformation of the current placement offset
-        nextPlacementOffset = placementOffset*ptjot_se3;
+        nextPlacementOffset = jointPlacement;
 
         //add the fixed Body in the model for the viewer
-        model.addFixedBody(parent,nextPlacementOffset,link->name,visual);
-
-        BOOST_FOREACH(::urdf::LinkPtr child_link,link->child_links)
+        model.addFixedBody(parent_joint_id, nextPlacementOffset, link->name, has_visual);
+        
+        //for the children of the current link, set their parent to be
+        //the the parent of the current link.
+        BOOST_FOREACH(::urdf::LinkPtr child_link, link->child_links)
         {
-          child_link->setParent(link->getParent() );  //skip the fixed generation
+          child_link->setParent(link->getParent() );
         }
         break;
       }
@@ -361,7 +359,7 @@ namespace se3
         assert(false && "Only revolute, prismatic and fixed joints are accepted." );
         break;
       }
-    }
+          }
 
           if (verbose)
           {
@@ -469,4 +467,3 @@ namespace se3
 } // namespace se3
 
 #endif // ifndef __se3_urdf_hpp__
-
