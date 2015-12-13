@@ -401,10 +401,16 @@ namespace se3
     template <typename D>
     void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset, const JointModelBase<D> & root_joint, const bool verbose = false) throw (std::invalid_argument)
     {
-      const Inertia & Y = (link->inertial) ?
-      convertFromUrdf(*link->inertial)
-      : Inertia::Identity();
-      model.addBody( 0, root_joint, placementOffset, Y , "root_joint", link->name, true );
+      if (!link->inertial)
+      {
+        const std::string exception_message (link->name + " - spatial inertia information missing.");
+        throw std::invalid_argument(exception_message);
+      }
+      
+      const Inertia & Y = convertFromUrdf(*link->inertial);
+      const bool has_visual = (link->visual) ? true : false;
+      model.addBody(0, root_joint, placementOffset, Y , "root_joint", link->name, has_visual);
+      
       BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
       {
         parseTree(child, model, SE3::Identity(), verbose);
