@@ -43,6 +43,14 @@ namespace se3
 {
   namespace urdf
   {
+
+    ///
+    /// \brief Convert URDF Inertial quantity to Spatial Inertia.
+    ///
+    /// \param[in] Y The input URDF Inertia.
+    ///
+    /// \return The converted Spatial Inertia se3::Inertia.
+    ///
     inline Inertia convertFromUrdf( const ::urdf::Inertial& Y )
     {
       const ::urdf::Vector3 & p = Y.origin.position;
@@ -57,6 +65,13 @@ namespace se3
       return Inertia(Y.mass,com,R*I*R.transpose());
     }
 
+    ///
+    /// \brief Convert URDF Pose quantity to SE3.
+    ///
+    /// \param[in] M The input URDF Pose.
+    ///
+    /// \return The converted pose/transform se3::SE3.
+    ///
     inline SE3 convertFromUrdf( const ::urdf::Pose & M )
     {
       const ::urdf::Vector3 & p = M.position;
@@ -64,7 +79,19 @@ namespace se3
       return SE3( Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix(), Eigen::Vector3d(p.x,p.y,p.z));
     }
 
+    ///
+    /// \brief The four possible cartesian types of an 3D axis.
+    ///
     enum AxisCartesian { AXIS_X, AXIS_Y, AXIS_Z, AXIS_UNALIGNED };
+
+   
+    ///
+    /// \brief Extract the cartesian property of a particular 3D axis.
+    ///
+    /// \param[in] axis The input URDF axis.
+    ///
+    /// \return The property of the particular axis se3::urdf::AxisCartesian.
+    ///
     inline AxisCartesian extractCartesianAxis( const ::urdf::Vector3 & axis )
     {
       if( (axis.x==1.0)&&(axis.y==0.0)&&(axis.z==0.0) )
@@ -77,7 +104,14 @@ namespace se3
 	return AXIS_UNALIGNED;
     }
 
-
+    ///
+    /// \brief Recursive procedure for reading the URDF tree.
+    ///        The function returns an exception as soon as a necessary Inertia or Joint information are missing.
+    ///
+    /// \param[in] link The current URDF link.
+    /// \param[in] model The model where the link must be added.
+    /// \param[in] placementOffset The relative placement of the link relative to the closer non fixed joint in the tree.
+    ///
     inline void parseTree(::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset = SE3::Identity(), bool verbose = false) throw (std::invalid_argument)
 {
 
@@ -355,6 +389,15 @@ namespace se3
   }
 }
 
+          ///
+          /// \brief Parse a tree with a specific root joint linking the model to the environment.
+          ///        The function returns an exception as soon as a necessary Inertia or Joint information are missing.
+          ///
+          /// \param[in] link The current URDF link.
+          /// \param[in] model The model where the link must be added.
+          /// \param[in] placementOffset The relative placement of the link relative to the closer non fixed joint in the tree.
+          /// \param[in] root_joint The specific root joint.
+          ///
     template <typename D>
     void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset, const JointModelBase<D> & root_joint, const bool verbose = false) throw (std::invalid_argument)
     {
@@ -368,7 +411,14 @@ namespace se3
       }
     }
 
-
+    ///
+    /// \brief Build the model from a URDF file with a particular joint as root of the model tree.
+    ///
+    /// \param[in] filemane The URDF complete file path.
+    /// \param[in] root_joint The joint at the root of the model tree.
+    ///
+    /// \return The se3::Model of the URDF file.
+    ///
     template <typename D>
     Model buildModel(const std::string & filename, const JointModelBase<D> & root_joint, bool verbose = false) throw (std::invalid_argument)
     {
@@ -385,7 +435,14 @@ namespace se3
       
       return model;
     }
-
+          
+    ///
+    /// \brief Build the model from a URDF file with a fixed joint as root of the model tree.
+    ///
+    /// \param[in] filemane The URDF complete file path.
+    ///
+    /// \return The se3::Model of the URDF file.
+    ///
     inline Model buildModel(const std::string & filename, const bool verbose = false) throw (std::invalid_argument)
     {
       Model model;
