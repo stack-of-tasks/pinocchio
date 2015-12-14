@@ -20,12 +20,23 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
-  
+#ifdef WITH_HPP_FCL
+  #include "pinocchio/multibody/geometry.hpp"
+#endif
+
 namespace se3
 {
   inline void geometry(const Model & model,
                        Data & data,
                        const Eigen::VectorXd & q);
+
+  #ifdef WITH_HPP_FCL
+  inline void updateCollisionGeometry(const Model & model,
+                       Data & data,
+                       const GeometryModel& geom,
+                       GeometryData& data_geom,
+                       const Eigen::VectorXd & q);
+  #endif
 
   inline void kinematics(const Model & model,
                          Data & data,
@@ -90,6 +101,56 @@ namespace se3
     }
   }
 
+#ifdef WITH_HPP_FCL
+  struct CollisionGeometryStep : public fusion::JointVisitor<CollisionGeometryStep>
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+                                  se3::Data &,
+                                  const se3::GeometryModel &,
+                                  se3::GeometryData &,
+                                  const Model::Index,
+                                  const Eigen::VectorXd &
+                                  > ArgsType;
+
+    JOINT_VISITOR_INIT (CollisionGeometryStep);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & ,
+                     se3::JointDataBase<typename JointModel::JointData> & ,
+                     const se3::Model & ,
+                     se3::Data & data,
+                     const se3::GeometryModel & model_geom,
+                     se3::GeometryData & data_geom,
+                     const Model::Index i,
+                     const Eigen::VectorXd & )
+    {
+      using namespace se3;
+
+      const Model::Index & parent = model_geom.geom_parents[i];
+      data_geom.oMg[i] =  (data.oMi[parent] * model_geom.geometryPlacement[i]);
+      data_geom.oMg_fcl[i] =  toFclTransform3f(data_geom.oMg[i]);
+
+    }
+    
+  };
+
+  inline void
+  updateCollisionGeometry(const Model & model,
+           Data & data,
+           const GeometryModel & model_geom,
+           GeometryData & data_geom,
+           const Eigen::VectorXd & q)
+  {
+    for (GeometryData::Index i=0; i < (GeometryData::Index) data_geom.model_geom.ngeom; ++i)
+    {
+      CollisionGeometryStep::run( model.joints[i],
+                                  data.joints[i],
+                                  CollisionGeometryStep::ArgsType (model,data,model_geom,data_geom,i,q) 
+                                );
+    }
+  }
+
+#endif
   struct KinematicsStep : public fusion::JointVisitor<KinematicsStep>
   {
     typedef boost::fusion::vector< const se3::Model&,
