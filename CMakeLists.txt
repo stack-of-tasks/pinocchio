@@ -63,6 +63,9 @@ ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.10")
 ADD_OPTIONAL_DEPENDENCY("lua5.1")
 ADD_OPTIONAL_DEPENDENCY("hpp-fcl")
+IF(HPP_FCL_FOUND AND URDFDOM_FOUND)
+  ADD_REQUIRED_DEPENDENCY("assimp")
+ENDIF(HPP_FCL_FOUND AND URDFDOM_FOUND)
 
 SET(BOOST_COMPONENTS filesystem unit_test_framework)
 SEARCH_FOR_BOOST()
@@ -178,6 +181,15 @@ IF(URDFDOM_FOUND)
     multibody/parser/urdf.hpp
     multibody/parser/urdf.hxx
     )
+  
+  IF(HPP_FCL_FOUND )
+    SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
+    ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
+    multibody/parser/from-collada-to-fcl.hpp
+    multibody/parser/urdf-with-geometry.hpp
+    )
+  ENDIF(HPP_FCL_FOUND)
+
   LIST(APPEND HEADERS
     ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
     )
