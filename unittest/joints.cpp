@@ -27,6 +27,7 @@
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
 #include "pinocchio/multibody/joint/joint-prismatic.hpp"
+#include "pinocchio/multibody/joint/joint-prismatic-unaligned.hpp"
 #include "pinocchio/multibody/joint/joint-translation.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -981,6 +982,144 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 
 BOOST_AUTO_TEST_SUITE_END ()
 
+BOOST_AUTO_TEST_SUITE ( JointPrismaticUnaligned )
+
+BOOST_AUTO_TEST_CASE ( test_kinematics )
+{
+  using namespace se3;
+  
+  
+  Eigen::Vector3d axis;
+  axis << 1.0, 0.0, 0.0;
+  
+  JointModelPrismaticUnaligned joint_model_PU(axis);
+  JointDataPrismaticUnaligned joint_data_PU(axis);
+  
+  JointModelPX joint_model_PX;
+  JointDataPX joint_data_PX;
+  
+  joint_model_PU.setIndexes (0, 0, 0);
+  joint_model_PX.setIndexes (0, 0, 0);
+  
+  Eigen::VectorXd q (Eigen::VectorXd::Zero (1));
+  Eigen::VectorXd q_dot (Eigen::VectorXd::Zero (1));
+  
+  // -------
+  q << 0.;
+  q_dot << 0.;
+  
+  joint_model_PU.calc (joint_data_PU, q, q_dot);
+  joint_model_PX.calc (joint_data_PX, q, q_dot);
+  
+  printOutJointData <JointDataPrismaticUnaligned> (q, q_dot, joint_data_PU);
+  
+  is_matrix_absolutely_closed (joint_data_PU.M.rotation(), joint_data_PX.M.rotation());
+  is_matrix_absolutely_closed (joint_data_PU.M.translation (), joint_data_PX.M.translation ());
+  is_matrix_absolutely_closed (((Motion) joint_data_PU.v).toVector(), ((Motion) joint_data_PX.v).toVector());
+  is_matrix_absolutely_closed (((Motion) joint_data_PU.c).toVector(), ((Motion) joint_data_PX.c).toVector());
+  
+}
+
+BOOST_AUTO_TEST_CASE ( test_rnea )
+{
+  using namespace se3;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+  
+  Model modelPX;
+  Model modelPU;
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+  
+  Eigen::Vector3d axis;
+  axis << 1.0, 0.0, 0.0;
+  
+  modelPX.addBody (modelPX.getBodyId("universe"), JointModelPX (), SE3::Identity (), inertia, "root");
+  modelPU.addBody (modelPU.getBodyId("universe"), JointModelPrismaticUnaligned (axis), SE3::Identity (), inertia, "root");
+  
+  Data dataRX (modelPX);
+  Data dataRU (modelPU);
+  
+  BOOST_CHECK_EQUAL(modelPU.nq,modelPX.nq);
+  BOOST_CHECK_EQUAL(modelPU.nv,modelPX.nv);
+  
+  
+  Eigen::VectorXd q (Eigen::VectorXd::Zero (modelPU.nq));
+  Eigen::VectorXd v (Eigen::VectorXd::Zero (modelPU.nv));
+  Eigen::VectorXd a (Eigen::VectorXd::Zero (modelPU.nv));
+  
+  rnea (modelPX, dataRX, q, v, a);
+  rnea (modelPU, dataRU, q, v, a);
+  
+  is_matrix_absolutely_closed (dataRX.tau, dataRU.tau, 1e-14);
+  
+  q = Eigen::VectorXd::Ones (modelPU.nq); //q.normalize ();
+  v = Eigen::VectorXd::Ones (modelPU.nv);
+  a = Eigen::VectorXd::Ones (modelPU.nv);
+  
+  rnea (modelPX, dataRX, q, v, a);
+  rnea (modelPU, dataRU, q, v, a);
+  
+  is_matrix_absolutely_closed (dataRX.tau, dataRU.tau, 1e-12);
+  
+  q << 3.;
+  v = Eigen::VectorXd::Ones (modelPU.nv);
+  a = Eigen::VectorXd::Ones (modelPU.nv);
+  
+  rnea (modelPX, dataRX, q, v, a);
+  rnea (modelPU, dataRU, q, v, a);
+  
+  is_matrix_absolutely_closed (dataRX.tau, dataRU.tau, 1e-12);
+}
+
+BOOST_AUTO_TEST_CASE ( test_crba )
+{
+  using namespace se3;
+  using namespace std;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+  
+  Model modelPX;
+  Model modelPU;
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+  
+  Eigen::Vector3d axis;
+  axis << 1.0, 0.0, 0.0;
+  
+  modelPX.addBody (modelPX.getBodyId("universe"), JointModelPX (), SE3::Identity (), inertia, "root");
+  modelPU.addBody (modelPU.getBodyId("universe"), JointModelPrismaticUnaligned (axis), SE3::Identity (), inertia, "root");
+  
+  Data dataRX (modelPX);
+  Data dataRU (modelPU);
+  
+  BOOST_CHECK_EQUAL(modelPU.nq,modelPX.nq);
+  BOOST_CHECK_EQUAL(modelPU.nv,modelPX.nv);
+  
+  
+  Eigen::VectorXd q (Eigen::VectorXd::Zero (modelPU.nq));
+  
+  crba (modelPX, dataRX, q);
+  crba (modelPU, dataRU, q);
+  
+  is_matrix_absolutely_closed (dataRX.M, dataRU.M, 1e-14);
+  
+  // ----
+  q = Eigen::VectorXd::Ones (modelPU.nq);
+  
+  crba (modelPX, dataRX, q);
+  crba (modelPU, dataRU, q);
+  
+  is_matrix_absolutely_closed (dataRX.M, dataRU.M, 1e-14);
+  
+  // ----
+  q << 3;
+  
+  crba (modelPX, dataRX, q);
+  crba (modelPU, dataRU, q);
+  
+  is_matrix_absolutely_closed (dataRX.M, dataRU.M, 1e-14);
+}
+
+BOOST_AUTO_TEST_SUITE_END ()
 
 
 BOOST_AUTO_TEST_SUITE ( caseJointFixed )
