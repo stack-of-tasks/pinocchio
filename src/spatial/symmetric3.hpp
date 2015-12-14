@@ -60,6 +60,16 @@ namespace se3
     /* Requiered by Inertia::operator== */
     bool operator== (const Symmetric3Tpl & S2 ) { return data_ == S2.data_; }
     
+    void setIdentity()
+    {
+      data_[0] = data_[2] = data_[5] = 1.;
+      data_[1] = data_[3] = data_[4] = 0.;
+    }
+    
+    void setZero() { data_.fill(0); }
+    
+    void fill(Scalar value) { data_.fill(value); }
+    
     struct SkewSquare
     {
       const Vector3 & v;

@@ -54,6 +54,9 @@ namespace se3
       typedef typename Inertia_fx::Vector6 Vector6_fx;
       typedef typename Inertia_fx::Vector3 Vector3_fx;
       typedef typename Inertia_fx::Motion  Motion_fx ;
+      
+      typedef typename Inertia_fx::Scalar_t Scalar_t;
+      
     public:
 
       static PyObject* convert(Inertia const& m)
@@ -72,9 +75,9 @@ namespace se3
 	   			    (bp::arg("mass"),bp::arg("lever"),bp::arg("inertia"))),
 	       "Initialize from mass, lever and 3d inertia.")
 
-	  .add_property("mass",&Inertia_fx::mass)
-	  .add_property("lever",&InertiaPythonVisitor::lever)
-	  .add_property("inertia",&InertiaPythonVisitor::inertia)
+      .add_property("mass", &InertiaPythonVisitor::getMass, &InertiaPythonVisitor::setMass)
+	  .add_property("lever", &InertiaPythonVisitor::getLever, &InertiaPythonVisitor::setLever)
+	  .add_property("inertia", &InertiaPythonVisitor::getInertia, &InertiaPythonVisitor::setInertia)
 
 	  .def("matrix",&Inertia_fx::matrix)
 	  .def("se3Action",&Inertia_fx::se3Action)
@@ -93,6 +96,15 @@ namespace se3
 	  .staticmethod("Random")
 	  ;
 	  }
+      
+      static Scalar_t getMass( const Inertia_fx & self ) { return self.mass(); }
+      static void setMass( Inertia_fx & self, Scalar_t mass ) { self.mass() = mass; }
+      
+      static Vector3_fx getLever( const Inertia_fx & self ) { return self.lever(); }
+      static void setLever( Inertia_fx & self, const Vector3_fx & lever ) { self.lever() = lever; }
+      
+      static Matrix3_fx getInertia( const Inertia_fx & self ) { return self.inertia().matrix(); }
+      static void setInertia( Inertia_fx & self, const Vector6_fx & minimal_inertia ) { self.inertia().data() = minimal_inertia; }
 
       static Inertia_fx* makeFromMCI(const double & mass,
 				     const Vector3_fx & lever,
@@ -106,8 +118,6 @@ namespace se3
 	  throw eigenpy::Exception("The 3d inertia should be positive.");
 	return new Inertia_fx(mass,lever,inertia); 
       }
-      static Matrix3_fx inertia(const Inertia_fx& Y) { return Y.inertia().matrix(); }
-      static Vector3_fx lever(const Inertia_fx& Y) { return Y.lever(); }
       static std::string toString(const Inertia_fx& m) 
       {	  std::ostringstream s; s << m; return s.str();       }
 
@@ -124,7 +134,7 @@ namespace se3
     }
 
 
-    };
+    }; // struct InertiaPythonVisitor
     
 
 

@@ -22,6 +22,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/non-linear-effects.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/tools/timer.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
@@ -50,6 +51,7 @@ BOOST_AUTO_TEST_CASE ( test_com )
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
   data.M.fill(0);  crba(model,data,q);
+  
 
 	/* Test COM against CRBA*/
   Vector3d com = centerOfMass(model,data,q);
@@ -63,6 +65,14 @@ BOOST_AUTO_TEST_CASE ( test_com )
 	/* Test COM against Jcom (both use different way of compute the COM. */
   centerOfMassAcceleration(model,data,q,v,a);
   is_matrix_absolutely_closed(com, data.com[0], 1e-12);
+  
+  /* Test vCoM againt nle algorithm without gravity field */
+  a.setZero();
+  model.gravity.setZero();
+  centerOfMassAcceleration(model,data,q,v,a);
+  nonLinearEffects(model, data, q, v);
+  
+  is_matrix_absolutely_closed(data.nle.head <3> ()/data.mass[0], data.acom[0], 1e-12);
 
 	/* Test Jcom against CRBA  */
   Eigen::MatrixXd Jcom = jacobianCenterOfMass(model,data,q);

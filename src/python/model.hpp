@@ -201,7 +201,7 @@ namespace se3
       /// \param[in] v The value of to look for in the vector.
       ///
       /// \return The index of the matching element of the vector. If
-      ///         no element is found, return -1.
+      ///         no element is found, return the size of the vector.
       ///
       template<typename T>
       static Model::Index index(std::vector<T> const& x,
@@ -215,7 +215,7 @@ namespace se3
             return i;
           }
         }
-        return -1;
+        return x.size();
       }
 
       /* --- Expose --------------------------------------------------------- */
