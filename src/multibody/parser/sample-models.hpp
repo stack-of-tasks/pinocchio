@@ -21,6 +21,10 @@
 
 #include "pinocchio/multibody/model.hpp"
 
+#ifdef WITH_HPP_FCL
+#include "pinocchio/multibody/geometry.hpp"
+#endif
+
 namespace se3
 {
   namespace buildModels
@@ -29,6 +33,10 @@ namespace se3
     void humanoid2d(Model& model);
 
     void humanoidSimple(Model& model, bool usingFF = true);
+
+    #ifdef WITH_HPP_FCL
+    void collisionModel( Model& model, GeometryModel& geom);
+    #endif
 
   } // namespace buildModels
 } // namespace se3

@@ -18,6 +18,10 @@
 
 #include "pinocchio/multibody/parser/sample-models.hpp"
 
+#ifdef WITH_HPP_FCL
+#include <hpp/fcl/shape/geometric_shapes.h>
+#endif
+
 namespace se3
 {
   namespace buildModels
@@ -192,6 +196,25 @@ namespace se3
                     Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
                     "larm6_joint", "larm6_body");
     }
+
+    #ifdef WITH_HPP_FCL
+    void collisionModel( Model& model, GeometryModel& model_geom)
+    {
+      model.addBody(model.getBodyId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+                    "planar1_joint", "planar1_body");
+      model.addBody(model.getBodyId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+                    "planar2_joint", "planar2_body");
+
+      boost::shared_ptr<fcl::Box> Sample(new fcl::Box(1));
+      fcl::CollisionObject box1(Sample, fcl::Transform3f());
+      model_geom.addGeomObject(model.getJointId("planar1_joint"),box1, SE3::Identity(),  "ff1_collision_object"); 
+
+      boost::shared_ptr<fcl::Box> Sample2(new fcl::Box(1));
+      fcl::CollisionObject box2(Sample, fcl::Transform3f());
+      model_geom.addGeomObject(model.getJointId("planar2_joint"),box2, SE3::Identity(),  "ff2_collision_object");
+
+    }
+    #endif
 
   } // namespace buildModels
 } // namespace se3
