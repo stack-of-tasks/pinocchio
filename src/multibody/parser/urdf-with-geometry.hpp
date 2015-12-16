@@ -94,25 +94,29 @@ fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & lin
   //   std::cout << "#" << link->parent_joint->name << std::endl;
   // else std::cout << "###ROOT" << std::endl;
 
-
-  //assert(link->inertial && "The parser cannot accept trivial mass");
-  const Inertia & Y = (link->inertial) ?  convertFromUrdf(*link->inertial) :
-                                          Inertia::Identity();
-
   // std::cout << "placementOffset: " << placementOffset << std::endl;
-
-  bool visual = (link->visual) ? true : false;
-  // bool collision = (link->collision) ? true  : false;
 
   if(joint!=NULL)
   {
     assert(link->getParent()!=NULL);
+
+    if (!link->inertial && joint->type != ::urdf::Joint::FIXED)
+    {
+      const std::string exception_message (link->name + " - spatial inertia information missing.");
+      throw std::invalid_argument(exception_message);
+    }
 
     Model::Index parent = (link->getParent()->parent_joint==NULL) ? (model.existJointName("root_joint") ? model.getJointId("root_joint") : 0) :
                                                                     model.getJointId( link->getParent()->parent_joint->name );
     //std::cout << joint->name << " === " << parent << std::endl;
 
     const SE3 & jointPlacement = placementOffset*convertFromUrdf(joint->parent_to_joint_origin_transform);
+
+    const Inertia & Y = (link->inertial) ?  convertFromUrdf(*link->inertial) :
+                                          Inertia::Identity();
+
+    bool visual = (link->visual) ? true : false;
+
 
     //std::cout << "Parent = " << parent << std::endl;
     //std::cout << "Placement = " << (Matrix4)jointPlacement << std::endl;
@@ -213,13 +217,18 @@ fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & lin
       }
       case ::urdf::Joint::FIXED:
       {
-        // In case of fixed join:
+        // In case of fixed joint, if link has inertial tag:
         //    -add the inertia of the link to his parent in the model
-        //    -let all the children become children of parent 
+        // Otherwise do nothing.
+        // In all cases:
+        //    -let all the children become children of parent
         //    -inform the parser of the offset to apply
         //    -add fixed body in model to display it in gepetto-viewer
+        if (link->inertial)
+        {
+          model.mergeFixedBody(parent, jointPlacement, Y); //Modify the parent inertia in the model
+        }
 
-        model.mergeFixedBody(parent, jointPlacement, Y); //Modify the parent inertia in the model
         SE3 ptjot_se3 = convertFromUrdf(link->parent_joint->parent_to_joint_origin_transform);
 
         //transformation of the current placement offset
@@ -249,7 +258,11 @@ fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & lin
       model_geom.addGeomObject(model.getJointId(joint->name), collision_object, geomPlacement, collision_object_name);
     }      
   }
-
+  else if (link->getParent() != NULL)
+  {
+    const std::string exception_message (link->name + " - joint information missing.");
+    throw std::invalid_argument(exception_message);
+  }
 
   BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
   {
