@@ -29,6 +29,7 @@
 #include "pinocchio/multibody/model.hpp"
 
 #include <exception>
+#include <limits>
 
 namespace urdf
 {
@@ -150,20 +151,50 @@ namespace se3
 
     switch(joint->type)
     {
+      case ::urdf::Joint::FLOATING:
+      {
+        joint_info = "joint FreeFlyer";
+      
+        typedef JointModelFreeFlyer::ConfigVector_t ConfigVector_t;
+        typedef JointModelFreeFlyer::TangentVector_t TangentVector_t;
+        typedef ConfigVector_t::Scalar Scalar_t;
+      
+      
+        ConfigVector_t lower_position;
+        lower_position.fill(std::numeric_limits<Scalar_t>::min());
+      
+        ConfigVector_t upper_position;
+        upper_position.fill(std::numeric_limits<Scalar_t>::max());
+      
+        TangentVector_t max_effort;
+        max_effort.fill(std::numeric_limits<Scalar_t>::max());
+      
+        TangentVector_t max_velocity;
+        max_velocity.fill(std::numeric_limits<Scalar_t>::max());
+      
+        model.addBody(parent_joint_id, JointModelFreeFlyer(), jointPlacement, Y,
+                      max_effort, max_velocity, lower_position, upper_position,
+                      joint->name, link->name, has_visual);
+        break;
+      }
       case ::urdf::Joint::REVOLUTE:
       {
         joint_info = "joint REVOLUTE with axis";
-        Eigen::VectorXd maxEffort;
-        Eigen::VectorXd velocity;
-        Eigen::VectorXd lowerPosition;
-        Eigen::VectorXd upperPosition;
+      
+        typedef JointModelRX::ConfigVector_t ConfigVector_t;
+        typedef JointModelRX::TangentVector_t TangentVector_t;
+      
+        TangentVector_t max_effort;
+        TangentVector_t max_velocity;
+        ConfigVector_t lower_position;
+        ConfigVector_t upper_position;
         
         if (joint->limits)
         {
-          maxEffort.resize(1);      maxEffort     << joint->limits->effort;
-          velocity.resize(1);       velocity      << joint->limits->velocity;
-          lowerPosition.resize(1);  lowerPosition << joint->limits->lower;
-          upperPosition.resize(1);  upperPosition << joint->limits->upper;
+          max_effort << joint->limits->effort;
+          max_velocity << joint->limits->velocity;
+          lower_position << joint->limits->lower;
+          upper_position << joint->limits->upper;
         }
         
         Eigen::Vector3d jointAxis(Eigen::Vector3d::Zero());
@@ -174,19 +205,19 @@ namespace se3
           case AXIS_X:
             joint_info += " along X";
             model.addBody(  parent_joint_id, JointModelRX(), jointPlacement, Y,
-                          maxEffort, velocity, lowerPosition, upperPosition,
+                          max_effort, max_velocity, lower_position, upper_position,
                           joint->name,link->name, has_visual );
             break;
           case AXIS_Y:
             joint_info += " along Y";
             model.addBody(  parent_joint_id, JointModelRY(), jointPlacement, Y,
-                          maxEffort, velocity, lowerPosition, upperPosition,
+                          max_effort, max_velocity, lower_position, upper_position,
                           joint->name,link->name, has_visual );
             break;
           case AXIS_Z:
             joint_info += " along Z";
             model.addBody(  parent_joint_id, JointModelRZ(), jointPlacement, Y,
-                          maxEffort, velocity, lowerPosition, upperPosition,
+                          max_effort, max_velocity, lower_position, upper_position,
                           joint->name,link->name, has_visual );
             break;
           case AXIS_UNALIGNED:
@@ -201,7 +232,7 @@ namespace se3
             jointAxis.normalize();
             model.addBody(  parent_joint_id, JointModelRevoluteUnaligned(jointAxis),
                           jointPlacement, Y,
-                          maxEffort, velocity, lowerPosition, upperPosition,
+                          max_effort, max_velocity, lower_position, upper_position,
                           joint->name,link->name, has_visual );
             break;
           }
@@ -214,17 +245,21 @@ namespace se3
       case ::urdf::Joint::CONTINUOUS: // Revolute with no joint limits
       {
         joint_info = "joint CONTINUOUS with axis";
-        Eigen::VectorXd maxEffort;
-        Eigen::VectorXd velocity;
-        Eigen::VectorXd lowerPosition;
-        Eigen::VectorXd upperPosition;
+      
+        typedef JointModelRX::ConfigVector_t ConfigVector_t;
+        typedef JointModelRX::TangentVector_t TangentVector_t;
+        
+        TangentVector_t max_effort;
+        TangentVector_t max_velocity;
+        ConfigVector_t lower_position;
+        ConfigVector_t upper_position;
 
         if (joint->limits)
         {
-          maxEffort.resize(1);      maxEffort     << joint->limits->effort;
-          velocity.resize(1);       velocity      << joint->limits->velocity;
-          lowerPosition.resize(1);  lowerPosition << joint->limits->lower;
-          upperPosition.resize(1);  upperPosition << joint->limits->upper;
+          max_effort << joint->limits->effort;
+          max_velocity << joint->limits->velocity;
+          lower_position << joint->limits->lower;
+          upper_position << joint->limits->upper;
         }
 
         Eigen::Vector3d jointAxis(Eigen::Vector3d::Zero());
@@ -235,19 +270,19 @@ namespace se3
           case AXIS_X:
             joint_info += " along X";
             model.addBody(  parent_joint_id, JointModelRX(), jointPlacement, Y,
-                            maxEffort, velocity, lowerPosition, upperPosition,
+                            max_effort, max_velocity, lower_position, upper_position,
                             joint->name,link->name, has_visual );
             break;
           case AXIS_Y:
             joint_info += " along Y";
             model.addBody(  parent_joint_id, JointModelRY(), jointPlacement, Y,
-                            maxEffort, velocity, lowerPosition, upperPosition,
+                            max_effort, max_velocity, lower_position, upper_position,
                             joint->name,link->name, has_visual );
             break;
           case AXIS_Z:
             joint_info += " along Z";
             model.addBody(  parent_joint_id, JointModelRZ(), jointPlacement, Y,
-                            maxEffort, velocity, lowerPosition, upperPosition,
+                            max_effort, max_velocity, lower_position, upper_position,
                             joint->name,link->name, has_visual );
             break;
           case AXIS_UNALIGNED:
@@ -261,7 +296,7 @@ namespace se3
             jointAxis.normalize();
             model.addBody(  parent_joint_id, JointModelRevoluteUnaligned(jointAxis),
                             jointPlacement, Y,
-                            maxEffort, velocity, lowerPosition, upperPosition,
+                            max_effort, max_velocity, lower_position, upper_position,
                             joint->name,link->name, has_visual );
             break;
           }
@@ -274,37 +309,42 @@ namespace se3
       case ::urdf::Joint::PRISMATIC:
       {
         joint_info = "joint PRISMATIC with axis";
-        Eigen::VectorXd maxEffort = Eigen::VectorXd(0.);
-        Eigen::VectorXd velocity = Eigen::VectorXd(0.);
-        Eigen::VectorXd lowerPosition = Eigen::VectorXd(0.);
-        Eigen::VectorXd upperPosition = Eigen::VectorXd(0.);
+      
+        typedef JointModelRX::ConfigVector_t ConfigVector_t;
+        typedef JointModelRX::TangentVector_t TangentVector_t;
+        
+        TangentVector_t max_effort;
+        TangentVector_t max_velocity;
+        ConfigVector_t lower_position;
+        ConfigVector_t upper_position;
 
         if (joint->limits)
-        {
-          maxEffort.resize(1);      maxEffort     << joint->limits->effort;
-          velocity.resize(1);       velocity      << joint->limits->velocity;
-          lowerPosition.resize(1);  lowerPosition << joint->limits->lower;
-          upperPosition.resize(1);  upperPosition << joint->limits->upper;
+          {
+          max_effort << joint->limits->effort;
+          max_velocity << joint->limits->velocity;
+          lower_position << joint->limits->lower;
+          upper_position << joint->limits->upper;
         }
+      
         AxisCartesian axis = extractCartesianAxis(joint->axis);   
         switch(axis)
         {
           case AXIS_X:
             joint_info += " along X";
             model.addBody(  parent_joint_id, JointModelPX(), jointPlacement, Y,
-                            maxEffort, velocity, lowerPosition, upperPosition,
+                            max_effort, max_velocity, lower_position, upper_position,
                             joint->name,link->name, has_visual );
             break;
           case AXIS_Y:
             joint_info += " along Y";
             model.addBody(  parent_joint_id, JointModelPY(), jointPlacement, Y,
-                            maxEffort, velocity, lowerPosition, upperPosition,
+                            max_effort, max_velocity, lower_position, upper_position,
                             joint->name,link->name, has_visual );
             break;
           case AXIS_Z:
             joint_info += " along Z";
             model.addBody(  parent_joint_id, JointModelPZ(), jointPlacement, Y,
-                            maxEffort, velocity, lowerPosition, upperPosition,
+                            max_effort, max_velocity, lower_position, upper_position,
                             joint->name,link->name, has_visual );
             break;
           case AXIS_UNALIGNED:

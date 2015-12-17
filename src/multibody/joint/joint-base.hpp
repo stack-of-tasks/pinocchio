@@ -204,6 +204,9 @@ namespace se3
   {
     typedef typename traits<_JointModel>::Joint Joint;
     SE3_JOINT_TYPEDEF_TEMPLATE;
+  
+    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
 
     JointModel& derived() { return *static_cast<JointModel*>(this); }
     const JointModel& derived() const { return *static_cast<const JointModel*>(this); }
@@ -221,12 +224,11 @@ namespace se3
     int i_q;    // Index of the joint configuration in the joint configuration vector.
     int i_v;    // Index of the joint velocity in the joint velocity vector.
 
-    Eigen::Matrix<double,NQ,1> position_lower;
-    Eigen::Matrix<double,NQ,1> position_upper;
+    ConfigVector_t position_lower;
+    ConfigVector_t position_upper;
 
-    Eigen::Matrix<double,NV,1> effortMax;
-    Eigen::Matrix<double,NV,1> velocityMax;
-
+    TangentVector_t effortMax;
+    TangentVector_t velocityMax;
     
     int     nv()    const { return derived().nv_impl(); }
     int     nq()    const { return derived().nq_impl(); }
@@ -238,30 +240,30 @@ namespace se3
     const int &   idx_v() const { return i_v; }
     const Index & id()    const { return i_id; }
 
-    const Eigen::Matrix<double,NQ,1> & lowerPosLimit() const { return position_lower;}
-    const Eigen::Matrix<double,NQ,1> & upperPosLimit() const { return position_upper;}
+    const ConfigVector_t & lowerPosLimit() const { return position_lower;}
+    const ConfigVector_t & upperPosLimit() const { return position_upper;}
 
-    const Eigen::Matrix<double,NV,1> & maxEffortLimit() const { return effortMax;}
-    const Eigen::Matrix<double,NV,1> & maxVelocityLimit() const { return velocityMax;}
+    const TangentVector_t & maxEffortLimit() const { return effortMax;}
+    const TangentVector_t & maxVelocityLimit() const { return velocityMax;}
 
     void setIndexes(Index id,int q,int v) { i_id = id, i_q = q; i_v = v; }
 
-    void setLowerPositionLimit(const Eigen::VectorXd & lowerPos)
+    void setLowerPositionLimit(const ConfigVector_t & lowerPos)
     {
       position_lower = lowerPos;
     }
 
-    void setUpperPositionLimit(const Eigen::VectorXd & upperPos)
+    void setUpperPositionLimit(const ConfigVector_t & upperPos)
     {
       position_upper = upperPos;
     }
 
-    void setMaxEffortLimit(const Eigen::VectorXd & effort)
+    void setMaxEffortLimit(const TangentVector_t & effort)
     {
       effortMax = effort;
     }
 
-    void setMaxVelocityLimit(const Eigen::VectorXd & v)
+    void setMaxVelocityLimit(const TangentVector_t & v)
     {
       velocityMax = v;
     }
