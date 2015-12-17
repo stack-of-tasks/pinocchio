@@ -34,10 +34,49 @@
 #include <hpp/fcl/distance.h>
 #include <map>
 #include <list>
+#include <utility>
 
 
 namespace se3
 {
+  class IsSameCollisionPair
+  {
+  typedef Model::Index Index;
+  typedef std::pair < Index, Index > CollisionPair;
+  public:
+  IsSameCollisionPair( CollisionPair pair): _pair(pair) {}
+
+  bool operator()(CollisionPair pair) const
+  {
+    return (pair == _pair);
+  }
+  private:
+  CollisionPair _pair;
+  };
+
+  // Result of distance computation between two CollisionObject.
+  struct DistanceResult
+  {
+    typedef Model::Index Index;
+
+    DistanceResult(fcl::DistanceResult dist_fcl, Index o1, Index o2)
+    : fcl(dist_fcl), object1(o1), object2(o2)
+    {}
+
+    // Get distance between objects
+    const double & distance () const { return fcl.min_distance; }
+
+    // Get closest point on inner object in global frame,
+    const Eigen::Vector3d closestPointInner () const { return toVector3d(fcl.nearest_points [0]); }
+    
+    // Get closest point on outer object in global frame,
+    const Eigen::Vector3d closestPointOuter () const { return toVector3d(fcl.nearest_points [1]); }
+    
+    fcl::DistanceResult fcl;
+    std::size_t object1;
+    std::size_t object2;
+  }; // struct DistanceResult 
+  
   class GeometryModel
   {
   public:
@@ -83,6 +122,7 @@ namespace se3
   {
   public:
     typedef Model::Index Index;
+    typedef std::pair < Index, Index > CollisionPair;
 
     Data& data_ref;
     GeometryModel& model_geom;
@@ -90,20 +130,44 @@ namespace se3
     std::vector<se3::SE3> oMg;
     std::vector<fcl::Transform3f> oMg_fcl;
 
+    std::vector < CollisionPair > collision_pairs;
+    std::vector < DistanceResult > distances_;
+
     GeometryData(Data& data, GeometryModel& model_geom)
         : data_ref(data)
         , model_geom(model_geom)
         , oMg(model_geom.ngeom)
         , oMg_fcl(model_geom.ngeom)
+        , collision_pairs()
+        , distances_()
     {
     }
 
     ~GeometryData() {};
 
+    void addCollisionPair (const Index& co1, const Index& co2);
+    void addCollisionPair (const CollisionPair& pair);
+    void removeCollisionPair (const Index& co1, const Index& co2);
+    void removeCollisionPair (const CollisionPair& pair);
+    bool isCollisionPair (const Index& co1, const Index& co2);
+    bool isCollisionPair (const CollisionPair& pair);
+    void fillAllPairsAsCollisions();
+
     bool collide(const Index& co1, const Index& co2);
+    bool isColliding();
 
     fcl::DistanceResult computeDistance(const Index& co1, const Index& co2);
+    void computeDistances ();
 
+    std::vector < DistanceResult > distanceResults(); //TODO : to keep or not depending of public or not for distances_
+
+    void displayCollisionPairs()
+    {
+      for (std::vector<CollisionPair>::iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
+      {
+        std::cout << it-> first << "\t" << it->second << std::endl;
+      }
+    }
     friend std::ostream& operator<<(std::ostream& os, const GeometryData& data_geom);
   private:
     
@@ -174,6 +238,62 @@ namespace se3
     return os;
   }
 
+  inline void GeometryData::addCollisionPair (const Index& co1, const Index& co2)
+  {
+    assert ( co1 < co2);
+    assert ( co2 < model_geom.ngeom);
+    CollisionPair pair(co1, co2);
+    
+    addCollisionPair(pair);
+  }
+
+  inline void GeometryData::addCollisionPair (const CollisionPair& pair)
+  {
+    assert(pair.first < pair.second);
+    assert(pair.second < model_geom.ngeom);
+    collision_pairs.push_back(pair);
+  }
+
+  inline void GeometryData::removeCollisionPair (const Index& co1, const Index& co2)
+  {
+    assert(co1 < co2);
+    assert(co2 < model_geom.ngeom);
+    assert(isCollisionPair(co1,co2));
+
+    removeCollisionPair (CollisionPair(co1,co2));
+  }
+
+  inline void GeometryData::removeCollisionPair (const CollisionPair& pair)
+  {
+    assert(pair.first < pair.second);
+    assert(pair.second < model_geom.ngeom);
+    assert(isCollisionPair(pair));
+
+    collision_pairs.erase(std::remove(collision_pairs.begin(), collision_pairs.end(), pair), collision_pairs.end());
+  }
+
+  inline bool GeometryData::isCollisionPair (const Index& co1, const Index& co2)
+  {
+    return isCollisionPair(CollisionPair(co1,co2));
+  }
+
+  inline bool GeometryData::isCollisionPair (const CollisionPair& pair)
+  {
+    return (std::find_if (  collision_pairs.begin(), collision_pairs.end(),
+                            IsSameCollisionPair(pair)) != collision_pairs.end());
+
+  }
+
+  inline void GeometryData::fillAllPairsAsCollisions()
+  {
+    for (Index i = 0; i < model_geom.ngeom; ++i)
+    {
+      for (Index j = i+1; j < model_geom.ngeom; ++j)
+      {
+        addCollisionPair(i,j);
+      }
+    }
+  }
 
   inline bool GeometryData::collide(const Index& co1, const Index& co2) 
   {
@@ -190,6 +310,18 @@ namespace se3
     return false;
   }
 
+  inline bool GeometryData::isColliding()
+  {
+    for (std::vector<CollisionPair>::iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
+    {
+      if (collide(it->first, it->second))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
   inline fcl::DistanceResult GeometryData::computeDistance(const Index& co1, const Index& co2)
   {
     fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
@@ -198,6 +330,15 @@ namespace se3
                     model_geom.collision_objects[co2].collisionGeometry().get(), oMg_fcl[co2],
                     distanceRequest, result);
     return result;
+  }
+
+  inline void GeometryData::computeDistances ()
+  {
+    distances_.clear();
+    for (std::vector<CollisionPair>::iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
+    {
+      distances_.push_back( DistanceResult(computeDistance(it->first, it->second), it->first, it->second));
+    }
   }
 
 } // namespace se3

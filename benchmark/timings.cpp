@@ -150,6 +150,7 @@ int main(int argc, const char ** argv)
   se3::GeometryModel romeo_model_geom = romeo.second;
   Data romeo_data(romeo_model);
   GeometryData romeo_data_geom(romeo_data, romeo_model_geom);
+  romeo_data_geom.fillAllPairsAsCollisions();
 
   VectorXd q_romeo = VectorXd::Random(romeo_model.nq);
   VectorXd qdot_romeo = VectorXd::Random(romeo_model.nv);
@@ -193,9 +194,26 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
+    romeo_data_geom.isColliding();
+  }
+  std::cout << "Collision Test for all collision pairs = \t"; timer.toc(std::cout,NBT);
+
+
+  timer.tic();
+  SMOOTH(2000)
+  {
     romeo_data_geom.computeDistance(1, 10);
   }
-  std::cout << "Compute Distance between two geometry objects = \t"; timer.toc(std::cout,NBT);
+  std::cout << "Compute Distance between two geometry objects = \t"; timer.toc(std::cout,2000);
+
+  timer.tic();
+  SMOOTH(2000)
+  {
+    romeo_data_geom.computeDistances();
+  }
+  std::cout << "Compute Distances for all collision pairs = \t"; timer.toc(std::cout,2000);
+
+
 #endif
 
   timer.tic();
