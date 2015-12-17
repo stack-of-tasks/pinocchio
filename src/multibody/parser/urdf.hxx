@@ -308,8 +308,14 @@ namespace se3
               axis_value << std::setprecision(5);
               axis_value << "(" << joint->axis.x <<"," << joint->axis.y << "," << joint->axis.z << ")";
               joint_info += " unaligned " + axis_value.str();
-              std::cerr << "Bad axis = " << axis_value << std::endl;
-              assert(false && "Only X, Y or Z axis are accepted." );
+    
+              Eigen::Vector3d jointAxis(Eigen::Vector3d(joint->axis.x,joint->axis.y,joint->axis.z));
+              jointAxis.normalize();
+              model.addBody(parent_joint_id, JointModelPrismaticUnaligned(jointAxis),
+                            jointPlacement, Y,
+                            max_effort, max_velocity, lower_position, upper_position,
+                            joint->name,link->name, has_visual);
+              
               break;
             }
             default:
