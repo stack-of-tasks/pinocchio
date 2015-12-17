@@ -17,6 +17,14 @@
 #ifdef WITH_HPP_FCL
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/multibody/parser/urdf-with-geometry.hpp"
+  #ifdef WITH_HPP_MODEL_URDF
+  #include <hpp/util/debug.hh>
+  #include <hpp/model/device.hh>
+  #include <hpp/model/body.hh>
+  #include <hpp/model/collision-object.hh>
+  #include <hpp/model/joint.hh>
+  #include <hpp/model/urdf/util.hh>
+  #endif
 #endif
 
 #include <iostream>
@@ -200,20 +208,65 @@ int main(int argc, const char ** argv)
 
 
   timer.tic();
-  SMOOTH(2000)
+  SMOOTH(1000)
   {
     romeo_data_geom.computeDistance(1, 10);
   }
-  std::cout << "Compute Distance between two geometry objects = \t"; timer.toc(std::cout,2000);
+  std::cout << "Compute Distance between two geometry objects = \t"; timer.toc(std::cout,1000);
 
   timer.tic();
-  SMOOTH(2000)
+  SMOOTH(1000)
   {
     romeo_data_geom.computeDistances();
   }
-  std::cout << "Compute Distances for all collision pairs = \t"; timer.toc(std::cout,2000);
+  std::cout << "Compute Distances for all collision pairs = \t"; timer.toc(std::cout,1000);
+
+  #ifdef WITH_HPP_MODEL_URDF
 
 
+  std::string filenameHRP2 = PINOCCHIO_SOURCE_DIR"/models/hrp2_14_reduced.urdf";
+  std::string meshDirHRP2  = "/local/fvalenza/devel/install/share/";
+  std::pair < Model, GeometryModel > robotHRP2 = se3::urdf::buildModelAndGeom(filenameHRP2, meshDirHRP2, se3::JointModelFreeFlyer());
+
+  Data dataHRP2(robotHRP2.first);
+  GeometryData data_geomHRP2(dataHRP2, robotHRP2.second);
+
+  // Configuration to be tested
+  Eigen::VectorXd q_pino(robotHRP2.first.nq);
+  Eigen::VectorXd q_hpp(robotHRP2.first.nq);
+  q_pino <<   0.7832759914634781, -0.6287488328607549, 0.6556417293694411, 0.0, 0.0, 0.9708378748503661, 0.23973698245374014, -0.05964761341484225, -0.07981055048413252, 0.16590322948375874, -0.004144442702387867, 0.26483964517748976, 0.26192191007679017, -0.050295369867256, -0.37034363990486474, 0.02150198818252944, 0.1266227625588889, 0.38, -0.38, 0.38, -0.38, 0.38, -0.38, -0.3899134972725518, -0.5925498643189667, -0.19613681199200853, -1.2401320912584846, 0.2763998757815979, -0.027768398868772835, 0.75, -0.75, 0.75, -0.75, 0.75, -0.75, 0.031489444476891226, -0.012849646226002981;
+  q_hpp  <<   0.7832759914634781, -0.6287488328607549, 0.6556417293694411, 0.23973698245374014, 0.0, 0.0, 0.9708378748503661, -0.05964761341484225, -0.07981055048413252, 0.16590322948375874, -0.004144442702387867, 0.26483964517748976, 0.26192191007679017, -0.050295369867256, -0.37034363990486474, 0.02150198818252944, 0.1266227625588889, 0.38, -0.38, 0.38, -0.38, 0.38, -0.38, -0.3899134972725518, -0.5925498643189667, -0.19613681199200853, -1.2401320912584846, 0.2763998757815979, -0.027768398868772835, 0.75, -0.75, 0.75, -0.75, 0.75, -0.75, 0.031489444476891226, -0.012849646226002981;
+
+
+  se3::geometry(robotHRP2.first, dataHRP2, q_pino);
+  se3::updateCollisionGeometry(robotHRP2.first, dataHRP2, robotHRP2.second, data_geomHRP2, q_pino);
+
+
+  /// *************  HPP  ************* /// 
+  /// ********************************* ///
+
+
+  hpp::model::HumanoidRobotPtr_t humanoidRobot =
+    hpp::model::HumanoidRobot::create ("hrp2_14");
+  hpp::model::urdf::loadHumanoidModel(humanoidRobot, "freeflyer",
+              "hrp2_14_description", "hrp2_14_reduced",
+              "", "");
+
+
+
+  humanoidRobot->currentConfiguration (q_hpp);
+  humanoidRobot->computeForwardKinematics ();
+
+
+  timer.tic();
+  SMOOTH(5)
+  {
+    humanoidRobot->computeDistances ();
+  }
+  std::cout << "Compute Distances HPP - disabled pairs by srdf = \t"; timer.toc(std::cout,5);
+
+
+  #endif
 #endif
 
   timer.tic();
