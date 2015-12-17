@@ -29,6 +29,7 @@
 #include "pinocchio/multibody/model.hpp"
 
 #include <exception>
+#include <limits>
 
 namespace urdf
 {
@@ -150,6 +151,32 @@ namespace se3
 
     switch(joint->type)
     {
+      case ::urdf::Joint::FLOATING:
+      {
+        joint_info = "joint FreeFlyer";
+      
+        typedef JointModelFreeFlyer::ConfigVector_t ConfigVector_t;
+        typedef JointModelFreeFlyer::TangentVector_t TangentVector_t;
+        typedef ConfigVector_t::Scalar Scalar_t;
+      
+      
+        ConfigVector_t lower_position;
+        lower_position.fill(std::numeric_limits<Scalar_t>::min());
+      
+        ConfigVector_t upper_position;
+        upper_position.fill(std::numeric_limits<Scalar_t>::max());
+      
+        TangentVector_t max_effort;
+        max_effort.fill(std::numeric_limits<Scalar_t>::max());
+      
+        TangentVector_t max_velocity;
+        max_velocity.fill(std::numeric_limits<Scalar_t>::max());
+      
+        model.addBody(parent_joint_id, JointModelFreeFlyer(), jointPlacement, Y,
+                      max_effort, max_velocity, lower_position, upper_position,
+                      joint->name, link->name, has_visual);
+        break;
+      }
       case ::urdf::Joint::REVOLUTE:
       {
         joint_info = "joint REVOLUTE with axis";
