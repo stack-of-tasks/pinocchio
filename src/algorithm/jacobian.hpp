@@ -134,10 +134,10 @@ namespace se3
   };
 
   /* Compute the jacobian of the output frame of the joint <idx> in the local frame. */
-  const Eigen::MatrixXd&
+  inline const Eigen::MatrixXd&
   jacobian(const Model & model, Data& data,
-	   const Eigen::VectorXd & q,
-	   const Model::Index & idx )
+		  const Eigen::VectorXd & q,
+		  const Model::Index & idx )
   {
     data.iMf[idx] = SE3::Identity();
     for( Model::Index i=idx;i>0;i=model.parents[i] )

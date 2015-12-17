@@ -41,7 +41,7 @@ namespace se3
 {
   namespace urdf
   {
-    Inertia convertFromUrdf( const ::urdf::Inertial& Y )
+    inline Inertia convertFromUrdf( const ::urdf::Inertial& Y )
     {
       const ::urdf::Vector3 & p = Y.origin.position;
       const ::urdf::Rotation & q = Y.origin.rotation;
@@ -55,7 +55,7 @@ namespace se3
       return Inertia(Y.mass,com,R*I*R.transpose());
     }
 
-    SE3 convertFromUrdf( const ::urdf::Pose & M )
+    inline SE3 convertFromUrdf( const ::urdf::Pose & M )
     {
       const ::urdf::Vector3 & p = M.position;
       const ::urdf::Rotation & q = M.rotation;
@@ -63,7 +63,7 @@ namespace se3
     }
 
     enum AxisCartesian { AXIS_X, AXIS_Y, AXIS_Z, AXIS_UNALIGNED };
-    AxisCartesian extractCartesianAxis( const ::urdf::Vector3 & axis )
+    inline AxisCartesian extractCartesianAxis( const ::urdf::Vector3 & axis )
     {
       if( (axis.x==1.0)&&(axis.y==0.0)&&(axis.z==0.0) )
 	return AXIS_X;
@@ -76,7 +76,8 @@ namespace se3
     }
 
 
-    void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset = SE3::Identity()) throw (std::invalid_argument)
+
+inline void parseTree( ::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset = SE3::Identity()) throw (std::invalid_argument)
 {
 
 
@@ -289,7 +290,7 @@ namespace se3
       return model;
     }
 
-    Model buildModel( const std::string & filename)
+    inline Model buildModel( const std::string & filename)
     {
       Model model;
 
