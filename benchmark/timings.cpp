@@ -151,19 +151,33 @@ int main(int argc, const char ** argv)
   Data romeo_data(romeo_model);
   GeometryData romeo_data_geom(romeo_data, romeo_model_geom);
 
+  VectorXd q_romeo = VectorXd::Random(romeo_model.nq);
+  VectorXd qdot_romeo = VectorXd::Random(romeo_model.nv);
+  VectorXd qddot_romeo = VectorXd::Random(romeo_model.nv);
+
+  std::vector<VectorXd> qs_romeo     (NBT);
+  std::vector<VectorXd> qdots_romeo  (NBT);
+  std::vector<VectorXd> qddots_romeo (NBT);
+  for(size_t i=0;i<NBT;++i)
+  {
+    qs_romeo[i]     = Eigen::VectorXd::Random(romeo_model.nq);
+    qs_romeo[i].segment<4>(3) /= qs[i].segment<4>(3).norm();
+    qdots_romeo[i]  = Eigen::VectorXd::Random(romeo_model.nv);
+    qddots_romeo[i] = Eigen::VectorXd::Random(romeo_model.nv);
+  }
 
   timer.tic();
   SMOOTH(NBT)
   {
-    geometry(romeo_model,romeo_data,qs[_smooth]);
+    geometry(romeo_model,romeo_data,qs_romeo[_smooth]);
   }
   double geom_time = timer.toc(StackTicToc::US)/NBT;
 
   timer.tic();
   SMOOTH(NBT)
   {
-    se3::geometry(romeo_model, romeo_data, qs[_smooth]);
-    updateCollisionGeometry(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs[_smooth]);
+    se3::geometry(romeo_model, romeo_data, qs_romeo[_smooth]);
+    updateCollisionGeometry(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo[_smooth]);
   }
   std::cout << "Update Collision Geometry = \t";
   std::cout << timer.toc(StackTicToc::US)/NBT - geom_time
