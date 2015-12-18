@@ -135,6 +135,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/cholesky.hpp
   algorithm/kinematics.hpp
   algorithm/center-of-mass.hpp
+  algorithm/center-of-mass.hxx
   algorithm/non-linear-effects.hpp
   algorithm/joint-limits.hpp
   algorithm/energy.hpp
