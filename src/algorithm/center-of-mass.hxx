@@ -116,9 +116,8 @@ namespace se3
       data.com[i]  = mass * lever;
       data.mass[i] = mass;
 
-      SE3::Vector3 vcom_local (v.angular().cross(lever) + v.linear());
-      data.vcom[i] = mass * (vcom_local);
-      data.acom[i] = mass * (a.angular().cross(lever) + a.linear() + v.angular().cross(vcom_local)); // take into accound the coriolis part of the acceleration
+      data.vcom[i] = mass * (v.angular().cross(lever) + v.linear());
+      data.acom[i] = mass * (a.angular().cross(lever) + a.linear()) + v.angular().cross(data.vcom[i]); // take into accound the coriolis part of the acceleration
     }
     
     // Backward Step
