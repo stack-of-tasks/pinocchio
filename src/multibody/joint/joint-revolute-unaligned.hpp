@@ -23,7 +23,6 @@
 #include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
-#include "pinocchio/math/sincos.hpp"
 
 namespace se3
 {

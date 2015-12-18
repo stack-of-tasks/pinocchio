@@ -102,6 +102,7 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-spherical.hpp
   multibody/joint/joint-spherical-ZYX.hpp
   multibody/joint/joint-prismatic.hpp
+  multibody/joint/joint-prismatic-unaligned.hpp
   multibody/joint/joint-planar.hpp
   multibody/joint/joint-translation.hpp
   multibody/joint/joint-free-flyer.hpp
@@ -119,6 +120,7 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/force-set.hpp
   multibody/joint.hpp
   multibody/model.hpp
+  multibody/model.hxx
   multibody/visitor.hpp
   )
 
@@ -173,6 +175,7 @@ IF(URDFDOM_FOUND)
   SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
     ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
     multibody/parser/urdf.hpp
+    multibody/parser/urdf.hxx
     )
   LIST(APPEND HEADERS
     ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
