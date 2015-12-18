@@ -23,29 +23,27 @@
 
 namespace se3
 {
-  inline void geometry(const Model & model,
-                       Data & data,
-                       const Eigen::VectorXd & q);
+  inline void forwardKinematics(const Model & model,
+                                Data & data,
+                                const Eigen::VectorXd & q);
 
-
-
-  inline void kinematics(const Model & model,
-                         Data & data,
-                         const Eigen::VectorXd & q,
-                         const Eigen::VectorXd & v);
+  inline void forwardKinematics(const Model & model,
+                                Data & data,
+                                const Eigen::VectorXd & q,
+                                const Eigen::VectorXd & v);
   
-  inline void dynamics(const Model & model,
-                       Data & data,
-                       const Eigen::VectorXd & q,
-                       const Eigen::VectorXd & v,
-                       const Eigen::VectorXd & a);
+  inline void forwardKinematics(const Model & model,
+                                Data & data,
+                                const Eigen::VectorXd & q,
+                                const Eigen::VectorXd & v,
+                                const Eigen::VectorXd & a);
 
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
 namespace se3 
 {
-  struct GeometryStep : public fusion::JointVisitor<GeometryStep>
+  struct ForwardKinematicZeroStep : public fusion::JointVisitor<ForwardKinematicZeroStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
@@ -53,7 +51,7 @@ namespace se3
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_VISITOR_INIT (GeometryStep);
+    JOINT_VISITOR_INIT (ForwardKinematicZeroStep);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -79,21 +77,20 @@ namespace se3
   };
 
   inline void
-  geometry(const Model & model,
-           Data & data,
-           const Eigen::VectorXd & q)
+  forwardKinematics(const Model & model,
+                    Data & data,
+                    const Eigen::VectorXd & q)
   {
     for (Model::Index i=1; i < (Model::Index) model.nbody; ++i)
     {
-      GeometryStep::run(model.joints[i],
+      ForwardKinematicZeroStep::run(model.joints[i],
                         data.joints[i],
-                        GeometryStep::ArgsType (model,data,i,q)
+                        ForwardKinematicZeroStep::ArgsType (model,data,i,q)
                         );
     }
   }
 
-
-  struct KinematicsStep : public fusion::JointVisitor<KinematicsStep>
+  struct ForwardKinematicFirstStep : public fusion::JointVisitor<ForwardKinematicFirstStep>
   {
     typedef boost::fusion::vector< const se3::Model&,
 				   se3::Data&,
@@ -102,7 +99,7 @@ namespace se3
 				   const Eigen::VectorXd &
 				   > ArgsType;
 
-    JOINT_VISITOR_INIT(KinematicsStep);
+    JOINT_VISITOR_INIT(ForwardKinematicFirstStep);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -134,20 +131,20 @@ namespace se3
   };
 
   inline void
-  kinematics(const Model & model, Data& data,
-	     const Eigen::VectorXd & q,
-	     const Eigen::VectorXd & v)
+  forwardKinematics(const Model & model, Data & data,
+                    const Eigen::VectorXd & q,
+                    const Eigen::VectorXd & v)
   {
     data.v[0].setZero();
 
     for( Model::Index i=1; i<(Model::Index) model.nbody; ++i )
       {
-	KinematicsStep::run(model.joints[i],data.joints[i],
-			    KinematicsStep::ArgsType(model,data,i,q,v));
+	ForwardKinematicFirstStep::run(model.joints[i],data.joints[i],
+			    ForwardKinematicFirstStep::ArgsType(model,data,i,q,v));
       }
   }
   
-  struct DynamicsStep : public fusion::JointVisitor<DynamicsStep>
+  struct ForwardKinematicSecondStep : public fusion::JointVisitor<ForwardKinematicSecondStep>
   {
     typedef boost::fusion::vector< const se3::Model&,
     se3::Data&,
@@ -157,7 +154,7 @@ namespace se3
     const Eigen::VectorXd &
     > ArgsType;
     
-    JOINT_VISITOR_INIT(DynamicsStep);
+    JOINT_VISITOR_INIT(ForwardKinematicSecondStep);
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -189,18 +186,18 @@ namespace se3
   };
   
   inline void
-  dynamics(const Model & model, Data & data,
-           const Eigen::VectorXd & q,
-           const Eigen::VectorXd & v,
-           const Eigen::VectorXd & a)
+  forwardKinematics(const Model & model, Data & data,
+                    const Eigen::VectorXd & q,
+                    const Eigen::VectorXd & v,
+                    const Eigen::VectorXd & a)
   {
     data.v[0].setZero();
     data.a[0].setZero();
     
     for( Model::Index i=1; i < (Model::Index) model.nbody; ++i )
     {
-      DynamicsStep::run(model.joints[i],data.joints[i],
-                        DynamicsStep::ArgsType(model,data,i,q,v,a));
+      ForwardKinematicSecondStep::run(model.joints[i],data.joints[i],
+                        ForwardKinematicSecondStep::ArgsType(model,data,i,q,v,a));
     }
   }
 } // namespace se3

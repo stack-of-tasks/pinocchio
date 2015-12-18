@@ -104,7 +104,7 @@ namespace se3
     data.acom[0].setZero ();
 
     // Forward Step
-    dynamics(model, data, q, v, a);
+    forwardKinematics(model, data, q, v, a);
     for(Model::Index i=1;i<(Model::Index)(model.nbody);++i)
     {
       const double mass = model.inertias[i].mass();

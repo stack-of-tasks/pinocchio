@@ -151,7 +151,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    geometry(model,data,qs[_smooth]);
+    forwardKinematics(model,data,qs[_smooth]);
   }
   std::cout << "Geometry = \t"; timer.toc(std::cout,NBT);
 
@@ -159,16 +159,16 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    kinematics(model,data,qs[_smooth],qdots[_smooth]);
+    forwardKinematics(model,data,qs[_smooth],qdots[_smooth]);
   }
-  std::cout << "Kinematics = \t"; timer.toc(std::cout,NBT);
+  std::cout << "First Order Kinematics = \t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
   {
-    dynamics(model,data,qs[_smooth],qdots[_smooth], qddots[_smooth]);
+    forwardKinematics(model,data,qs[_smooth],qdots[_smooth], qddots[_smooth]);
   }
-  std::cout << "Dynamics = \t"; timer.toc(std::cout,NBT);
+  std::cout << "Second Order Kinematics = \t"; timer.toc(std::cout,NBT);
 
   std::cout << "--" << std::endl;
   return 0;
