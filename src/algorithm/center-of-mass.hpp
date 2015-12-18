@@ -37,7 +37,7 @@ namespace se3
   ///
   /// \return The center of mass position of the rigid body system expressed in the world frame (vector 3).
   ///
-  const Eigen::Vector3d &
+  inline const Eigen::Vector3d &
   centerOfMass(const Model & model, Data& data,
                const Eigen::VectorXd & q,
                const bool & computeSubtreeComs = true);
@@ -54,11 +54,11 @@ namespace se3
   /// \param[in] a The joint acceleration vector (dim model.nv).
   /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
   ///
-  void centerOfMassAcceleration(const Model & model, Data & data,
-                                const Eigen::VectorXd & q,
-                                const Eigen::VectorXd & v,
-                                const Eigen::VectorXd & a,
-                                const bool & computeSubtreeComs = true);
+  inline void centerOfMassAcceleration(const Model & model, Data & data,
+                                       const Eigen::VectorXd & q,
+                                       const Eigen::VectorXd & v,
+                                       const Eigen::VectorXd & a,
+                                       const bool & computeSubtreeComs = true);
   
   ///
   /// \brief Computes both the jacobian and the the center of mass position of a given model according to a particular joint configuration.
@@ -72,7 +72,7 @@ namespace se3
   ///
   /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
   ///
-  const Eigen::Matrix<double,3,Eigen::Dynamic> &
+  inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
                        const bool & computeSubtreeComs = true);
@@ -89,7 +89,7 @@ namespace se3
   ///
   /// \return The center of mass position of the rigid body system expressed in the world frame (vector 3).
   ///
-  const Eigen::Vector3d & 
+  inline const Eigen::Vector3d &
   getComFromCrba(const Model & model, Data & data);
   
   ///
@@ -101,7 +101,7 @@ namespace se3
   ///
   /// \return The jacobian of the CoM expressed in the world frame (matrix 3 x model.nv).
   ///
-  const Eigen::Matrix<double,3,Eigen::Dynamic> &
+  inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
   getJacobianComFromCrba(const Model & model, Data & data);
   
 } // namespace se3 

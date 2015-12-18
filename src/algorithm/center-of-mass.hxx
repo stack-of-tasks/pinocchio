@@ -59,7 +59,7 @@ namespace se3
   };
   
   /* Compute the centerOfMass in the local frame of the root joint. */
-  const Eigen::Vector3d &
+  inline const Eigen::Vector3d &
   centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
                const bool & computeSubtreeComs)
@@ -89,7 +89,7 @@ namespace se3
   }
   
   /* Compute the centerOfMass position, velocity and acceleration in the local frame of the root joint. */
-  void
+  inline void
   centerOfMassAcceleration(const Model & model, Data & data,
                            const Eigen::VectorXd & q,
                            const Eigen::VectorXd & v,
@@ -147,7 +147,7 @@ namespace se3
     data.acom[0] /= data.mass[0];
   }
 
-  const Eigen::Vector3d & getComFromCrba(const Model &, Data & data)
+  inline const Eigen::Vector3d & getComFromCrba(const Model &, Data & data)
   {
     return data.com[0] = data.liMi[1].act(data.Ycrb[1].lever());
   }
@@ -235,7 +235,7 @@ namespace se3
 
   };
 
-  const Eigen::Matrix<double,3,Eigen::Dynamic> &
+  inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
                        const bool & computeSubtreeComs)
@@ -260,7 +260,7 @@ namespace se3
     return data.Jcom;
   }
 
-  const Eigen::Matrix<double,3,Eigen::Dynamic> &
+  inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
   getJacobianComFromCrba(const Model &, Data & data)
   {
     const SE3 & oM1 = data.liMi[1];
