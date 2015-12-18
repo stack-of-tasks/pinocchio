@@ -242,7 +242,7 @@ namespace se3
 
   const Eigen::Vector3d & getComFromCrba(const Model & , Data& data)
   {
-    return data.com[0] = data.Ycrb[1].lever();
+    return data.com[0] = data.liMi[1].act(data.Ycrb[1].lever());
   }
 
   /* --- JACOBIAN ---------------------------------------------------------- */
@@ -355,9 +355,15 @@ namespace se3
   }
 
   const Eigen::Matrix<double,3,Eigen::Dynamic> &
-  getJacobianComFromCrba(const Model & , Data& data)
+  getJacobianComFromCrba(const Model &, Data & data)
   {
-    data.Jcom = data.M.topRows<3>()/data.M(0,0);
+    const SE3 & oM1 = data.liMi[1];
+  
+    // As the 6 first rows of M*a is a wrench, we just need to multiply by the
+    // relative rotation between the first joint and the world
+    const SE3::Matrix3 & oR1_over_m = oM1.rotation() / data.M(0,0);
+  
+    data.Jcom = oR1_over_m * data.M.topRows<3> ();
     return data.Jcom;
   }
 
