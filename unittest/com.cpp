@@ -47,10 +47,12 @@ BOOST_AUTO_TEST_CASE ( test_com )
   se3::buildModels::humanoidSimple(model);
   se3::Data data(model);
 
-  VectorXd q = VectorXd::Zero(model.nq);
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.middleRows<4> (3).normalize();
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
-  data.M.fill(0);  crba(model,data,q);
+  
+  crba(model,data,q);
   
 
 	/* Test COM against CRBA*/
@@ -65,19 +67,20 @@ BOOST_AUTO_TEST_CASE ( test_com )
 	/* Test COM against Jcom (both use different way of compute the COM. */
   centerOfMassAcceleration(model,data,q,v,a);
   is_matrix_absolutely_closed(com, data.com[0], 1e-12);
-  
+
   /* Test vCoM againt nle algorithm without gravity field */
   a.setZero();
   model.gravity.setZero();
   centerOfMassAcceleration(model,data,q,v,a);
   nonLinearEffects(model, data, q, v);
   
-  is_matrix_absolutely_closed(data.nle.head <3> ()/data.mass[0], data.acom[0], 1e-12);
+  se3::SE3::Vector3 acom_from_nle (data.nle.head <3> ()/data.mass[0]);
+  is_matrix_absolutely_closed(data.liMi[1].rotation() * acom_from_nle, data.acom[0], 1e-12);
 
 	/* Test Jcom against CRBA  */
   Eigen::MatrixXd Jcom = jacobianCenterOfMass(model,data,q);
-  is_matrix_absolutely_closed(Jcom, getJacobianComFromCrba(model,data), 1e-12);
-  
+  is_matrix_absolutely_closed(data.Jcom, getJacobianComFromCrba(model,data), 1e-12);
+
   /* Test CoM vecolity againt jacobianCenterOfMass */
   is_matrix_absolutely_closed(Jcom * v, data.vcom[0], 1e-12);
 
