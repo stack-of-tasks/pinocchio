@@ -132,6 +132,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/rnea.hpp
   algorithm/crba.hpp
   algorithm/jacobian.hpp
+  algorithm/jacobian.hxx
   algorithm/cholesky.hpp
   algorithm/kinematics.hpp
   algorithm/center-of-mass.hpp
