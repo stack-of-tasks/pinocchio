@@ -26,8 +26,24 @@
   
 namespace se3
 {
-  inline const Eigen::MatrixXd&
-  crba(const Model & model, Data& data,
+  ///
+  /// \brief Computes the upper triangular part of the joint space inertia matrix M by
+  ///        using the Composite Rigid Body Algorithm (Chapter 6, Rigid-Body Dynamics Algorithms, R. Featherstone, 2008).
+  ///        The result is accessible throw data.M.
+  ///
+  /// \note You can easly get data.M symetric by copying the stricly upper trinangular part
+  ///       in the stricly lower tringular part with
+  ///       data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  ///
+  /// \return The joint space inertia matrix with only the upper triangular part computed.
+  ///
+  inline const Eigen::MatrixXd &
+  crba(const Model & model,
+       Data & data,
        const Eigen::VectorXd & q);
 
 } // namespace se3 
