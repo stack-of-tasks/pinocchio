@@ -180,10 +180,10 @@ namespace se3
   inline const Eigen::MatrixXd&
   jacobian(const Model & model, Data& data,
 		  const Eigen::VectorXd & q,
-		  const Model::Index & idx )
+		  const Model::Index & jointId)
   {
-    data.iMf[idx] = SE3::Identity();
-    for( Model::Index i=idx;i>0;i=model.parents[i] )
+    data.iMf[jointId] = SE3::Identity();
+    for( Model::Index i=jointId;i>0;i=model.parents[i] )
       {
 	JacobianForwardStep::run(model.joints[i],data.joints[i],
 				 JacobianForwardStep::ArgsType(model,data,q));
