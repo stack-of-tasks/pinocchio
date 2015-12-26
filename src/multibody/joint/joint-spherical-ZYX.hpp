@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -148,8 +148,8 @@ namespace se3
 
       operator ConstraintXd () const
       {
-        typedef Eigen::Matrix<_Scalar,6,3,_Options> Matrix63;
-        Eigen::Matrix<_Scalar,6,3,_Options> S;
+        typedef Eigen::Matrix<Scalar,6,3,_Options> Matrix63;
+        Matrix63 S;
         (S.template block <3,3> (Inertia::LINEAR, 0)).setZero ();
         S.template block <3,3> (Inertia::ANGULAR, 0) = S_minimal;
         return ConstraintXd(S);
