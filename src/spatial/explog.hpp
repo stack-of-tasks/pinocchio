@@ -31,6 +31,11 @@ namespace se3
   /// \brief Exp: so3 -> SO3.
   ///
   /// Return the integral of the input angular velocity during time 1.
+  ///
+  /// \param[in] v The angular velocity vector.
+  ///
+  /// \return The rotational matrix associated to the integration of the angular velocity during time 1.
+  ///
   template <typename D> Eigen::Matrix<typename D::Scalar,3,3,D::Options>
   exp3(const Eigen::MatrixBase<D> & v)
   {
@@ -45,6 +50,11 @@ namespace se3
   /// \brief Log: SO3 -> so3.
   ///
   /// Pseudo-inverse of log from SO3 -> { v \in so3, ||v|| < 2pi }.
+  ///
+  /// \param[in] R The rotation matrix.
+  ///
+  /// \return The angular velocity vector associated to the rotation matrix.
+  ///
   template <typename D> Eigen::Matrix<typename D::Scalar,3,1,D::Options>
   log3(const Eigen::MatrixBase<D> & R)
   {
@@ -55,7 +65,12 @@ namespace se3
 
   /// \brief Exp: se3 -> SE3.
   ///
-  /// Return the integral of the input spatial velocity during time 1.
+  /// Return the integral of the input twist during time 1.
+  ///
+  /// \param[in] nu The input twist.
+  ///
+  /// \return The rigid transformation associated to the integration of the twist during time 1.
+  ///
   template <typename _Scalar, int _Options> SE3Tpl<_Scalar, _Options>
   exp6(const MotionTpl<_Scalar,_Options> & nu)
   {
@@ -84,6 +99,11 @@ namespace se3
   /// \brief Exp: se3 -> SE3.
   ///
   /// Return the integral of the input spatial velocity during time 1.
+  ///
+  /// \param[in] v The twist represented by a vector.
+  ///
+  /// \return The rigid transformation associated to the integration of the twist vector during time 1..
+  ///
   template <typename D> SE3Tpl<typename D::Scalar, D::Options>
   exp6(const Eigen::MatrixBase<D> & v)
   {
@@ -95,15 +115,21 @@ namespace se3
   /// \brief Log: SE3 -> se3.
   ///
   /// Pseudo-inverse of exp from SE3 -> { v,w \in se3, ||w|| < 2pi }.
-  template <typename _Scalar, int _Options> MotionTpl<_Scalar,_Options>
-  log6(const SE3Tpl<_Scalar, _Options> & m)
+  ///
+  /// \param[in] M The rigid transformation.
+  ///
+  /// \return The twist associated to the rigid transformation during time 1.
+  ///
+  template <typename _Scalar, int _Options>
+  MotionTpl<_Scalar,_Options>
+  log6(const SE3Tpl<_Scalar, _Options> & M)
   {
     typedef _Scalar Scalar;
     typedef typename SE3Tpl<Scalar,_Options>::Vector3 Vector3;
     typedef typename SE3Tpl<Scalar,_Options>::Matrix3 Matrix3;
 
-    const Matrix3 & R = m.rotation();
-    const Vector3 & p = m.translation();
+    const Matrix3 & R = M.rotation();
+    const Vector3 & p = M.translation();
     Vector3 w(log3(R));
     Scalar t = w.norm();
     if (t > 1e-15)
@@ -122,6 +148,11 @@ namespace se3
   /// \brief Log: SE3 -> se3.
   ///
   /// Pseudo-inverse of exp from SE3 -> { v,w \in se3, ||w|| < 2pi }.
+  ///
+  /// \param[in] R The rigid transformation represented as an homogenous matrix.
+  ///
+  /// \return The twist associated to the rigid transformation during time 1.
+  ///
   template <typename D> MotionTpl<typename D::Scalar,D::Options>
   log6(const Eigen::MatrixBase<D> & M)
   {
