@@ -68,14 +68,12 @@ namespace se3
     Scalar t = w.norm();
     if (t > 1e-15)
     {
-      Matrix3 R(exp3(w));
-      Matrix3 S(skew(w));
+      Matrix3 S(skew(w/t));
       double ct,st; SINCOS (t,&st,&ct);
-      Matrix3 V(
-        Matrix3::Identity() +
-        (1 - ct) / (t * t) * S + (t - st) / (t * t * t) * S * S);
+      Matrix3 V((1. - ct)/t * S + (1. - st/t) * S * S);
+      V.diag() += 1.;
       Vector3 p(V * v);
-      return SE3Tpl<_Scalar, _Options>(R, p);
+      return SE3Tpl<_Scalar, _Options>(exp3(w), p);
     }
     else
     {
@@ -107,22 +105,18 @@ namespace se3
     const Matrix3 & R = m.rotation();
     const Vector3 & p = m.translation();
     Vector3 w(log3(R));
-    Vector3 v;
     Scalar t = w.norm();
     if (t > 1e-15)
     {
-      Matrix3 S(skew(w));
+      Matrix3 S(skew(w/t));
       double ct,st; SINCOS (t,&st,&ct);
-      Matrix3 V(
-        Matrix3::Identity() +
-        (1 - ct) / (t * t) * S + (t - st) / (t * t * t) * S * S);
-      v = V.inverse() * p;
+      Matrix3 V((1. - ct)/t * S + (1. - st/t) * S * S);
+      V.diag() += 1.;
+      return MotionTpl<_Scalar,_Options>(V.inverse() * p, w);
     }
     else
-    {
-      v = p;
-    }
-    return MotionTpl<_Scalar,_Options>(v, w);
+      return MotionTpl<_Scalar,_Options>(p, w);
+    
   }
 
   /// \brief Log: SE3 -> se3.
