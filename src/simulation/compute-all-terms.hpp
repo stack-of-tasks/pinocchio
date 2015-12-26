@@ -129,9 +129,9 @@ namespace se3
         /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
         Eigen::Block<typename Data::Matrix6x> jF
         = data.Fcrb[parent].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
-        forceSet::se3Action(data.liMi[i],
-                            data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]),
-                            jF);
+        Eigen::Block<typename Data::Matrix6x> iF
+        = data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
+        forceSet::se3Action(data.liMi[i], iF, jF);
 
         data.f[parent] += data.liMi[i].act(data.f[i]);
       }
