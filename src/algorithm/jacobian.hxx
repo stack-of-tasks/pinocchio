@@ -57,7 +57,7 @@ namespace se3
   };
   
   
-  inline const Eigen::MatrixXd&
+  inline const Data::Matrix6x &
   computeJacobians(const Model & model, Data & data,
                    const Eigen::VectorXd & q)
   {
@@ -124,7 +124,7 @@ namespace se3
   
   };
   
-  inline const Eigen::MatrixXd &
+  inline const Data::Matrix6x &
   jacobian(const Model & model, Data & data,
            const Eigen::VectorXd & q,
            const Model::Index & jointId)

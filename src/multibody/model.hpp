@@ -139,14 +139,14 @@ namespace se3
     std::vector<int> parents_fromRow;     // First previous non-zero row in M (used in Cholesky)
     std::vector<int> nvSubtree_fromRow;   // 
     
-    Eigen::MatrixXd J;                    // Jacobian of joint placement
+    Matrix6x J;                    // Jacobian of joint placement
     std::vector<SE3> iMf;                 // Body placement wrt to algorithm end effector.
 
     std::vector<Eigen::Vector3d> com;     // Subtree com position.
     std::vector<Eigen::Vector3d> vcom;    // Subtree com velocity.
     std::vector<Eigen::Vector3d> acom;    // Subtree com acceleration.
     std::vector<double> mass;             // Subtree total mass.
-    Eigen::Matrix<double,3,Eigen::Dynamic> Jcom; // Jacobian of center of mass.
+    Matrix3x Jcom; // Jacobian of center of mass.
 
     Eigen::VectorXd effortLimit;          // Joint max effort
     Eigen::VectorXd velocityLimit;        // Joint max velocity
