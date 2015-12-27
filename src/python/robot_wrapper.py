@@ -52,7 +52,7 @@ class RobotWrapper:
             v = args[1]
             a = args[2]
             se3.centerOfMassAcceleration(self.model,self.data,q,v,a)
-            return self.data.com_pos(0), self.data.com_vel(0), self.data.com_acc(0)
+            return self.data.com[0], self.data.vcom[0], self.data.acom[0]
         return se3.centerOfMass(self.model,self.data,args[0])
 
     def Jcom(self,q):
