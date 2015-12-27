@@ -92,7 +92,7 @@ namespace se3
     .ADD_DATA_PROPERTY(std::vector<Vector3>,vcom,"Subtree com velocity.")
     .ADD_DATA_PROPERTY(std::vector<Vector3>,acom,"Subtree com acceleration.")
 	  .ADD_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
-	  .ADD_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
+	  .ADD_DATA_PROPERTY(Matrix3x,Jcom,"Jacobian of center of mass.")
 
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,effortLimit,"Joint max effort")
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,velocityLimit,"Joint max velocity")
@@ -128,7 +128,7 @@ namespace se3
       IMPL_DATA_PROPERTY(std::vector<Vector3>,vcom,"Subtree com velocity.")
       IMPL_DATA_PROPERTY(std::vector<Vector3>,acom,"Subtree com acceleration.")
       IMPL_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
-      IMPL_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
+      IMPL_DATA_PROPERTY(Matrix3x,Jcom,"Jacobian of center of mass.")
 
       IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,effortLimit,"Joint max effort")
       IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,velocityLimit,"Joint max velocity")
