@@ -33,6 +33,7 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Inertia)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Force)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,Eigen::Dynamic>)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3::Vector3)
 
 namespace se3
 {
@@ -113,6 +114,7 @@ namespace se3
   public:
     typedef Eigen::Matrix<double,6,Eigen::Dynamic> Matrix6x;
     typedef Eigen::Matrix<double,3,Eigen::Dynamic> Matrix3x;
+    typedef SE3::Vector3 Vector3;
     
   public:
     const Model& model;
