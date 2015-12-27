@@ -29,6 +29,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
     typedef Eigen::Matrix<Scalar,2,2,Options> Matrix2;
     typedef Eigen::Matrix<Scalar,3,2,Options> Matrix32;
+    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   public:    
     Symmetric3Tpl(): data_() {}

@@ -116,6 +116,7 @@ namespace se3
   public:
     friend class InertiaBase< InertiaTpl< _Scalar, _Options > >;
     SPATIAL_TYPEDEF_TEMPLATE(InertiaTpl);
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
   public:
     // Constructors

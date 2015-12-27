@@ -117,6 +117,7 @@ namespace se3
   public:
     friend class ForceBase< ForceTpl< _Scalar, _Options > >;
     SPATIAL_TYPEDEF_TEMPLATE(ForceTpl);
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 
     ForceTpl() : m_n(), m_f() {}

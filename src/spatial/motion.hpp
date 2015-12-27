@@ -135,6 +135,7 @@ namespace se3
   {
   public:
     SPATIAL_TYPEDEF_TEMPLATE(MotionTpl);
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 
   public:
