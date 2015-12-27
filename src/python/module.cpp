@@ -32,13 +32,13 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
 
   typedef Eigen::Matrix<double,6,6> Matrix6d;
   typedef Eigen::Matrix<double,6,1> Vector6d;
-  typedef Eigen::Matrix<double,3,1> Vector3d;
   typedef Eigen::Matrix<double,6,Eigen::Dynamic> Matrix6x;
+  typedef Eigen::Matrix<double,3,Eigen::Dynamic> Matrix3x;
   
   eigenpy::enableEigenPySpecific<Matrix6d,Matrix6d>();
   eigenpy::enableEigenPySpecific<Vector6d,Vector6d>();
-  eigenpy::enableEigenPySpecific<Vector3d,Vector3d>();
   eigenpy::enableEigenPySpecific<Matrix6x,Matrix6x>();
+  eigenpy::enableEigenPySpecific<Matrix3x,Matrix3x>();
 
   se3::python::exposeSE3();
   se3::python::exposeForce();
