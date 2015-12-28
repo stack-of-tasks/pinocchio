@@ -33,13 +33,15 @@ namespace se3
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
+  /// \param[in] updateKinematics If true, the algorithm updates first the geometry of the tree. Otherwise, it uses the current kinematics stored in data.
   ///
   /// \return The center of mass position of the rigid body system expressed in the world frame (vector 3).
   ///
   inline const Eigen::Vector3d &
   centerOfMass(const Model & model, Data& data,
                const Eigen::VectorXd & q,
-               const bool & computeSubtreeComs = true);
+               const bool computeSubtreeComs = true,
+               const bool updateKinematics = true);
   
   ///
   /// \brief Computes the center of mass position, velocity and acceleration of a given model according to a particular joint configuration, velocity and acceleration.
@@ -52,12 +54,14 @@ namespace se3
   /// \param[in] v The joint velocity vector (dim model.nv).
   /// \param[in] a The joint acceleration vector (dim model.nv).
   /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
+  /// \param[in] updateKinematics If true, the algorithm updates first the second order kinematics of the tree. Otherwise, it uses the current kinematics stored in data.
   ///
   inline void centerOfMassAcceleration(const Model & model, Data & data,
                                        const Eigen::VectorXd & q,
                                        const Eigen::VectorXd & v,
                                        const Eigen::VectorXd & a,
-                                       const bool & computeSubtreeComs = true);
+                                       const bool computeSubtreeComs = true,
+                                       const bool updateKinematics = true);
   
   ///
   /// \brief Computes both the jacobian and the the center of mass position of a given model according to a particular joint configuration.
@@ -74,7 +78,7 @@ namespace se3
   inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
-                       const bool & computeSubtreeComs = true);
+                       const bool computeSubtreeComs = true);
 
   /* If the CRBA has been run, then both COM and Jcom are easily available from
    * the mass matrix. Use the following methods to access them. In that case,
