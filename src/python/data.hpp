@@ -70,6 +70,7 @@ namespace se3
 	cl
 
 	  .ADD_DATA_PROPERTY(std::vector<Motion>,a,"Body acceleration")
+    .ADD_DATA_PROPERTY(std::vector<Motion>,a_gf,"Body acceleration containing also the gravity acceleration")
 	  .ADD_DATA_PROPERTY(std::vector<Motion>,v,"Body velocity")
 	  .ADD_DATA_PROPERTY(std::vector<Force>,f,"Body force")
 	  .ADD_DATA_PROPERTY(std::vector<SE3>,oMi,"Body absolute placement (wrt world)")
@@ -106,6 +107,7 @@ namespace se3
       }
 
       IMPL_DATA_PROPERTY(std::vector<Motion>,a,"Body acceleration")
+      IMPL_DATA_PROPERTY(std::vector<Motion>,a_gf,"Body acceleration containing also the gravity acceleration")
       IMPL_DATA_PROPERTY(std::vector<Motion>,v,"Body velocity")
       IMPL_DATA_PROPERTY(std::vector<Force>,f,"Body force")
       IMPL_DATA_PROPERTY(std::vector<SE3>,oMi,"Body absolute placement (wrt world)")

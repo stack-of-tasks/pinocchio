@@ -120,6 +120,7 @@ namespace se3
     const Model& model;
     JointDataVector joints;
     std::vector<Motion> a;                // Body acceleration
+    std::vector<Motion> a_gf;             // Body acceleration with gravity
     std::vector<Motion> v;                // Body velocity
     std::vector<Force> f;                 // Body force
     std::vector<SE3> oMi;                 // Body absolute placement (wrt world)
