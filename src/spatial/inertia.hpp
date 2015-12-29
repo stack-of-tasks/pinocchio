@@ -246,9 +246,10 @@ namespace se3
 
     Force __mult__(const Motion &v) const 
     {
-      const Vector3 & mcxw = m*c.cross(v.angular());
-      return Force( m*v.linear()-mcxw,
-                    m*c.cross(v.linear()) + I*v.angular() - c.cross(mcxw) );
+      Force f;
+      f.linear() = m*(v.linear() - c.cross(v.angular()));
+      f.angular() = c.cross(f.linear()) + I*v.angular();
+      return f;
     }
     
     Scalar_t vtiv_impl(const Motion & v) const
