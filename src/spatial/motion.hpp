@@ -289,7 +289,7 @@ namespace se3
       return MotionTpl (m_v + m_w.cross (translation_vector), m_w);
     }
 
-  private:
+  protected:
     Vector3 m_w;
     Vector3 m_v;
 
