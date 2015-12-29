@@ -240,15 +240,19 @@ namespace se3
   }
 
   inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
-  getJacobianComFromCrba(const Model &, Data & data)
+  getJacobianComFromCrba(const Model & model, Data & data)
   {
     const SE3 & oM1 = data.liMi[1];
     
     // As the 6 first rows of M*a are a wrench, we just need to multiply by the
     // relative rotation between the first joint and the world
-    const SE3::Matrix3 & oR1_over_m = oM1.rotation() / data.M(0,0);
+    const SE3::Matrix3 oR1_over_m (oM1.rotation() / data.M(0,0));
     
-    data.Jcom = oR1_over_m * data.M.topRows<3> ();
+    // I don't know why, but the colwise multiplication is much more faster
+    // than the direct Eigen multiplication
+    for (long k=0; k<model.nv;++k)
+      data.Jcom.col(k) = oR1_over_m * data.M.topRows<3> ().col(k);
+//    data.Jcom = oR1_over_m * data.M.topRows<3> ();
     return data.Jcom;
   }
 
