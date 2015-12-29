@@ -21,6 +21,7 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
+#include "pinocchio/algorithm/center-of-mass.hpp"
 
 #include <iostream>
 
@@ -162,6 +163,9 @@ namespace se3
       CATBackwardStep::run(model.joints[i],data.joints[i],
                             CATBackwardStep::ArgsType(model,data));
     }
+    
+    getJacobianComFromCrba(model, data);
+    centerOfMassAcceleration(model, data, q, v, v, true, false);
 
   }
 } // namespace se3
