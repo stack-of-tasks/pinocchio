@@ -216,7 +216,7 @@ namespace se3
     computeLastChild(ref);
 
     /* Init for Cholesky */
-    U = Eigen::MatrixXd::Identity(ref.nv,ref.nv);
+    U.setIdentity();
     computeParents_fromRow(ref);
 
     /* Init Jacobian */
