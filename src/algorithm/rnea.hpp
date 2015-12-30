@@ -47,7 +47,7 @@ namespace se3
     JOINT_VISITOR_INIT(RneaForwardStep);
 
     template<typename JointModel>
-    static int algo(const se3::JointModelBase<JointModel> & jmodel,
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
 		    se3::JointDataBase<typename JointModel::JointData> & jdata,
 		    const se3::Model& model,
 		    se3::Data& data,
@@ -71,7 +71,6 @@ namespace se3
       data.a_gf[(Model::Index)i] += data.liMi[(Model::Index)i].actInv(data.a_gf[parent]);
       
       data.f[(Model::Index)i] = model.inertias[(Model::Index)i]*data.a_gf[(Model::Index)i] + model.inertias[(Model::Index)i].vxiv(data.v[(Model::Index)i]); // -f_ext
-      return 0;
     }
 
   };
