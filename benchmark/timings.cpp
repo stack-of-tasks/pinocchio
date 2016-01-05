@@ -187,15 +187,23 @@ int main(int argc, const char ** argv)
     updateCollisionGeometry<true>(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo[_smooth]);
   }
   std::cout << "Update Collision Geometry = \t";
-  std::cout << timer.toc(StackTicToc::US)/NBT - geom_time
+  std::cout << timer.toc(StackTicToc::US)/NBT - geom_time << " "
                        << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
   timer.tic();
   SMOOTH(NBT)
   {
-    romeo_data_geom.collide(1,10);
+    for (std::vector<se3::GeometryData::CollisionPair_t>::iterator it = romeo_data_geom.collision_pairs.begin(); it != romeo_data_geom.collision_pairs.end(); ++it)
+    {
+      romeo_data_geom.collide(it->first, it->second);
+    }
   }
-  std::cout << "Collision Test between two geometry objects = \t"; timer.toc(std::cout,NBT);
+  double collideTime = timer.toc(StackTicToc::US)/NBT;
+  std::cout << "Collision test between two geometry objects (mean time) = \t" << collideTime / romeo_data_geom.nCollisionPairs
+            << StackTicToc::unitName(StackTicToc::US) << std::endl;
+  std::cout << "Collision tests for " << romeo_data_geom.nCollisionPairs <<"  collision pairs = \t" 
+            <<  collideTime << StackTicToc::unitName(StackTicToc::US) <<std::endl;
+
 
   timer.tic();
   SMOOTH(NBT)
@@ -208,16 +216,13 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(1000)
   {
-    romeo_data_geom.computeDistance(1, 10);
-  }
-  std::cout << "Compute Distance between two geometry objects = \t"; timer.toc(std::cout,1000);
-
-  timer.tic();
-  SMOOTH(1000)
-  {
     romeo_data_geom.computeDistances();
   }
-  std::cout << "Compute Distances for all collision pairs = \t"; timer.toc(std::cout,1000);
+  double computeDistancesTime = timer.toc(StackTicToc::US)/1000;
+  std::cout << "Compute distance between two geometry objects (mean time) = \t" << computeDistancesTime / romeo_data_geom.nCollisionPairs
+            << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;
+  std::cout << "Compute Distances for " << romeo_data_geom.nCollisionPairs <<"  collision pairs = \t" 
+            << " " <<  computeDistancesTime << StackTicToc::unitName(StackTicToc::US) <<std::endl;
 
   #ifdef WITH_HPP_MODEL_URDF
 
