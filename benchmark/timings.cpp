@@ -184,8 +184,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    se3::geometry(romeo_model, romeo_data, qs_romeo[_smooth]);
-    updateCollisionGeometry(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo[_smooth]);
+    updateCollisionGeometry<true>(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo[_smooth]);
   }
   std::cout << "Update Collision Geometry = \t";
   std::cout << timer.toc(StackTicToc::US)/NBT - geom_time
@@ -237,8 +236,7 @@ int main(int argc, const char ** argv)
   q_hpp  <<   0.7832759914634781, -0.6287488328607549, 0.6556417293694411, 0.23973698245374014, 0.0, 0.0, 0.9708378748503661, -0.05964761341484225, -0.07981055048413252, 0.16590322948375874, -0.004144442702387867, 0.26483964517748976, 0.26192191007679017, -0.050295369867256, -0.37034363990486474, 0.02150198818252944, 0.1266227625588889, 0.38, -0.38, 0.38, -0.38, 0.38, -0.38, -0.3899134972725518, -0.5925498643189667, -0.19613681199200853, -1.2401320912584846, 0.2763998757815979, -0.027768398868772835, 0.75, -0.75, 0.75, -0.75, 0.75, -0.75, 0.031489444476891226, -0.012849646226002981;
 
 
-  se3::geometry(robotHRP2.first, dataHRP2, q_pino);
-  se3::updateCollisionGeometry(robotHRP2.first, dataHRP2, robotHRP2.second, data_geomHRP2, q_pino);
+  se3::updateCollisionGeometry<true>(robotHRP2.first, dataHRP2, robotHRP2.second, data_geomHRP2, q_pino);
 
 
   /// *************  HPP  ************* /// 

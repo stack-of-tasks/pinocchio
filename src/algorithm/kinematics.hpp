@@ -31,6 +31,7 @@ namespace se3
                        const Eigen::VectorXd & q);
 
   #ifdef WITH_HPP_FCL
+  template < bool computeGeometry >
   inline void updateCollisionGeometry(const Model & model,
                        Data & data,
                        const GeometryModel& geom,
@@ -102,51 +103,22 @@ namespace se3
   }
 
 #ifdef WITH_HPP_FCL
-  struct CollisionGeometryStep : public fusion::JointVisitor<CollisionGeometryStep>
+  
+  template < bool computeGeometry >
+  inline void  updateCollisionGeometry(const Model & model,
+                                       Data & data,
+                                       const GeometryModel & model_geom,
+                                       GeometryData & data_geom,
+                                       const Eigen::VectorXd & q)
   {
-    typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &,
-                                  const se3::GeometryModel &,
-                                  se3::GeometryData &,
-                                  const Model::Index,
-                                  const Eigen::VectorXd &
-                                  > ArgsType;
+    using namespace se3;
 
-    JOINT_VISITOR_INIT (CollisionGeometryStep);
-
-    template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & ,
-                     se3::JointDataBase<typename JointModel::JointData> & ,
-                     const se3::Model & ,
-                     se3::Data & data,
-                     const se3::GeometryModel & model_geom,
-                     se3::GeometryData & data_geom,
-                     const Model::Index i,
-                     const Eigen::VectorXd & )
+    if (computeGeometry) geometry(model, data, q);
+    for (GeometryData::Index i=0; i < (GeometryData::Index) data_geom.model_geom.ngeom; ++i)
     {
-      using namespace se3;
-
       const Model::Index & parent = model_geom.geom_parents[i];
       data_geom.oMg[i] =  (data.oMi[parent] * model_geom.geometryPlacement[i]);
       data_geom.oMg_fcl[i] =  toFclTransform3f(data_geom.oMg[i]);
-
-    }
-    
-  };
-
-  inline void
-  updateCollisionGeometry(const Model & model,
-           Data & data,
-           const GeometryModel & model_geom,
-           GeometryData & data_geom,
-           const Eigen::VectorXd & q)
-  {
-    for (GeometryData::Index i=0; i < (GeometryData::Index) data_geom.model_geom.ngeom; ++i)
-    {
-      CollisionGeometryStep::run( model.joints[i],
-                                  data.joints[i],
-                                  CollisionGeometryStep::ArgsType (model,data,model_geom,data_geom,i,q) 
-                                );
     }
   }
 
