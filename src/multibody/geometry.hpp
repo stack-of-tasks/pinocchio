@@ -131,6 +131,7 @@ namespace se3
     std::vector<fcl::Transform3f> oMg_fcl;
 
     std::vector < CollisionPair_t > collision_pairs;
+    std::size_t nCollisionPairs;
     std::vector < DistanceResult > distances;
 
     GeometryData(Data& data, GeometryModel& model_geom)
@@ -139,8 +140,12 @@ namespace se3
         , oMg(model_geom.ngeom)
         , oMg_fcl(model_geom.ngeom)
         , collision_pairs()
+        , nCollisionPairs(0)
         , distances()
     {
+      initializeListOfCollisionPairs();
+      distances.resize(nCollisionPairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
+
     }
 
     ~GeometryData() {};
@@ -152,11 +157,14 @@ namespace se3
     bool isCollisionPair (Index co1, Index co2);
     bool isCollisionPair (const CollisionPair_t& pair);
     void fillAllPairsAsCollisions();
+    void desactivateCollisionPairs();
+    void initializeListOfCollisionPairs();
 
     bool collide(Index co1, Index co2);
     bool isColliding();
 
     fcl::DistanceResult computeDistance(Index co1, Index co2);
+    void resetDistances();
     void computeDistances ();
 
     std::vector < DistanceResult > distanceResults(); //TODO : to keep or not depending of public or not for distances
@@ -252,6 +260,7 @@ namespace se3
     assert(pair.first < pair.second);
     assert(pair.second < model_geom.ngeom);
     collision_pairs.push_back(pair);
+    nCollisionPairs++;
   }
 
   inline void GeometryData::removeCollisionPair (Index co1, Index co2)
@@ -270,6 +279,7 @@ namespace se3
     assert(isCollisionPair(pair));
 
     collision_pairs.erase(std::remove(collision_pairs.begin(), collision_pairs.end(), pair), collision_pairs.end());
+    nCollisionPairs--;
   }
 
   inline bool GeometryData::isCollisionPair (Index co1, Index co2)
@@ -293,6 +303,20 @@ namespace se3
         addCollisionPair(i,j);
       }
     }
+  }
+
+  // TODO :  give a srdf file as argument, read it, and remove corresponding
+  // pairs from list collision_pairs
+  inline void GeometryData::desactivateCollisionPairs()
+  {
+
+  }
+
+  inline void GeometryData::initializeListOfCollisionPairs()
+  {
+    fillAllPairsAsCollisions();
+    desactivateCollisionPairs();
+    assert(nCollisionPairs == collision_pairs.size());
   }
 
   inline bool GeometryData::collide(Index co1, Index co2) 
@@ -332,12 +356,18 @@ namespace se3
     return result;
   }
 
+  inline void GeometryData::resetDistances()
+  {
+    std::fill(distances.begin(), distances.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
+  }
+
   inline void GeometryData::computeDistances ()
   {
-    distances.clear();
+    std::size_t cpt = 0;
     for (std::vector<CollisionPair_t>::iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
     {
-      distances.push_back( DistanceResult(computeDistance(it->first, it->second), it->first, it->second));
+      distances[cpt] = DistanceResult(computeDistance(it->first, it->second), it->first, it->second);
+      cpt++;
     }
   }
 
