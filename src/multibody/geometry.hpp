@@ -154,24 +154,24 @@ namespace se3
     void addCollisionPair (const CollisionPair_t& pair);
     void removeCollisionPair (Index co1, Index co2);
     void removeCollisionPair (const CollisionPair_t& pair);
-    bool isCollisionPair (Index co1, Index co2);
-    bool isCollisionPair (const CollisionPair_t& pair);
+    bool isCollisionPair (Index co1, Index co2) const ;
+    bool isCollisionPair (const CollisionPair_t& pair) const;
     void fillAllPairsAsCollisions();
     void desactivateCollisionPairs();
     void initializeListOfCollisionPairs();
 
-    bool collide(Index co1, Index co2);
-    bool isColliding();
+    bool collide(Index co1, Index co2) const;
+    bool isColliding() const;
 
-    fcl::DistanceResult computeDistance(Index co1, Index co2);
+    fcl::DistanceResult computeDistance(Index co1, Index co2) const;
     void resetDistances();
     void computeDistances ();
 
     std::vector < DistanceResult > distanceResults(); //TODO : to keep or not depending of public or not for distances
 
-    void displayCollisionPairs()
+    void displayCollisionPairs() const
     {
-      for (std::vector<CollisionPair_t>::iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
+      for (std::vector<CollisionPair_t>::const_iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
       {
         std::cout << it-> first << "\t" << it->second << std::endl;
       }
@@ -282,12 +282,12 @@ namespace se3
     nCollisionPairs--;
   }
 
-  inline bool GeometryData::isCollisionPair (Index co1, Index co2)
+  inline bool GeometryData::isCollisionPair (Index co1, Index co2) const
   {
     return isCollisionPair(CollisionPair_t(co1,co2));
   }
 
-  inline bool GeometryData::isCollisionPair (const CollisionPair_t& pair)
+  inline bool GeometryData::isCollisionPair (const CollisionPair_t& pair) const
   {
     return (std::find_if (  collision_pairs.begin(), collision_pairs.end(),
                             IsSameCollisionPair(pair)) != collision_pairs.end());
@@ -319,7 +319,7 @@ namespace se3
     assert(nCollisionPairs == collision_pairs.size());
   }
 
-  inline bool GeometryData::collide(Index co1, Index co2) 
+  inline bool GeometryData::collide(Index co1, Index co2) const
   {
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;
@@ -334,9 +334,9 @@ namespace se3
     return false;
   }
 
-  inline bool GeometryData::isColliding()
+  inline bool GeometryData::isColliding() const
   {
-    for (std::vector<CollisionPair_t>::iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
+    for (std::vector<CollisionPair_t>::const_iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
     {
       if (collide(it->first, it->second))
       {
@@ -346,7 +346,7 @@ namespace se3
     return false;
   }
 
-  inline fcl::DistanceResult GeometryData::computeDistance(Index co1, Index co2)
+  inline fcl::DistanceResult GeometryData::computeDistance(Index co1, Index co2) const
   {
     fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
     fcl::DistanceResult result;
