@@ -161,6 +161,48 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/explog.hpp
   )
 
+IF(HPP_FCL_FOUND)
+  LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
+      python/geometry-model.hpp
+      python/geometry-data.hpp
+    )
+ENDIF(HPP_FCL_FOUND)
+
+IF(URDFDOM_FOUND)
+  LIST(APPEND ${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
+    multibody/parser/urdf.hpp
+    multibody/parser/urdf.hxx
+    )
+  
+  IF(HPP_FCL_FOUND )
+    LIST(APPEND ${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
+      multibody/parser/from-collada-to-fcl.hpp
+      multibody/parser/urdf-with-geometry.hpp
+      )
+  ENDIF(HPP_FCL_FOUND)
+
+  ADD_DEFINITIONS(-DWITH_URDFDOM)
+ENDIF(URDFDOM_FOUND)
+
+IF(HPP_FCL_FOUND)
+  LIST(APPEND ${PROJECT_NAME}_SPATIAL_HEADERS
+    spatial/fcl-pinocchio-conversions.hpp
+    )
+  LIST(APPEND ${PROJECT_NAME}_MULTIBODY_HEADERS
+    multibody/geometry.hpp
+    )
+ENDIF(HPP_FCL_FOUND)
+
+IF(LUA5_1_FOUND)
+  LIST(APPEND ${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
+    multibody/parser/lua.hpp
+    multibody/parser/lua/lua_tables.hpp
+    )
+
+  ADD_DEFINITIONS(-DWITH_LUA)
+ENDIF(LUA5_1_FOUND)
+
+
 SET(HEADERS
   ${${PROJECT_NAME}_MATH_HEADERS}
   ${${PROJECT_NAME}_TOOLS_HEADERS}
@@ -174,53 +216,7 @@ SET(HEADERS
   exception.hpp
   assert.hpp
  )
-
-IF(URDFDOM_FOUND)
-  SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
-    ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
-    multibody/parser/urdf.hpp
-    multibody/parser/urdf.hxx
-    )
-  
-  IF(HPP_FCL_FOUND )
-    SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
-    ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
-    multibody/parser/from-collada-to-fcl.hpp
-    multibody/parser/urdf-with-geometry.hpp
-    )
-  ENDIF(HPP_FCL_FOUND)
-
-  LIST(APPEND HEADERS
-    ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
-    )
-  ADD_DEFINITIONS(-DWITH_URDFDOM)
-ENDIF(URDFDOM_FOUND)
-
-IF(HPP_FCL_FOUND)
-  SET(${PROJECT_NAME}_SPATIAL_HEADERS
-    ${${PROJECT_NAME}_SPATIAL_HEADERS}
-    spatial/fcl-pinocchio-conversions.hpp
-    )
-  SET(${PROJECT_NAME}_MULTIBODY_HEADERS
-    ${${PROJECT_NAME}_MULTIBODY_HEADERS}
-    multibody/geometry.hpp
-    )
-  LIST(APPEND HEADERS
-    ${${PROJECT_NAME}_MULTIBODY_HEADERS}
-    )
-ENDIF(HPP_FCL_FOUND)
-
-IF(LUA5_1_FOUND)
-  SET(${PROJECT_NAME}_MULTIBODY_PARSER_LUA_HEADERS
-    multibody/parser/lua.hpp
-    multibody/parser/lua/lua_tables.hpp
-    )
-
-  LIST(APPEND HEADERS 
-    ${${PROJECT_NAME}_MULTIBODY_PARSER_LUA_HEADERS}
-    )
-  ADD_DEFINITIONS(-DWITH_LUA)
-ENDIF(LUA5_1_FOUND)
+LIST(REMOVE_DUPLICATES HEADERS)
 
 PKG_CONFIG_APPEND_LIBS (${PROJECT_NAME})
 
@@ -235,6 +231,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/simulation")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/python")
+
 
 FOREACH(header ${HEADERS})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)

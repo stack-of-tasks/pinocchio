@@ -72,6 +72,14 @@ namespace se3
     // Get closest point on outer object in global frame,
     Eigen::Vector3d closestPointOuter () const { return toVector3d(fcl_distance_result.nearest_points [1]); }
     
+    bool operator == (const DistanceResult & other) const
+    {
+      return (distance() == other.distance()
+        && closestPointInner() == other.closestPointInner()
+        && closestPointOuter() == other.closestPointOuter()
+        && object1 == other.object1
+        && object2 == other.object2);
+    }
     fcl::DistanceResult fcl_distance_result;
     std::size_t object1;
     std::size_t object2;
