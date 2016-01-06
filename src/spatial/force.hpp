@@ -171,8 +171,8 @@ namespace se3
     void disp_impl(std::ostream & os) const
     {
       os
-      << "f =\n" << m_f << std::endl
-      << "tau =\n" << m_n << std::endl;
+      << "f = " << linear_impl().transpose() << std::endl
+      << "tau = " << angular_impl().transpose() << std::endl;
     }
 
     /// af = aXb.act(bf)
