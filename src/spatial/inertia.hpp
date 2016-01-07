@@ -123,14 +123,22 @@ namespace se3
     // Constructors
     InertiaTpl() : m(), c(), I() {}
 
-    InertiaTpl(Scalar_t m_, 
-     const Vector3 &c_, 
-     const Matrix3 &I_)
-    : m(m_),
-    c(c_),
-    I(I_)
+    InertiaTpl(const Scalar_t m_, const Vector3 &c_, const Matrix3 &I_)
+    : m(m_), c(c_), I(I_)
+    {}
+    
+    InertiaTpl(const Matrix6 & I6)
     {
-
+      assert((I6 - I6.transpose()).isMushSmallerThan(I6));
+      m = I6(LINEAR, LINEAR);
+      const Matrix3 & mc_cross = I6.template block <3,3> (ANGULAR,LINEAR);
+      c = skewInv(mc_cross);
+      c /= m;
+      
+      Matrix3 I3 (mc_cross * mc_cross);
+      I3 /= m;
+      I3 += I6.template block<3,3>(ANGULAR,ANGULAR);
+      I = Symmetric3(I3);
     }
 
     InertiaTpl(Scalar_t _m, 

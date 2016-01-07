@@ -267,6 +267,10 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   double kinetic_ref = v.toVector().transpose() * aI.matrix() * v.toVector();
   double kinetic = aI.vtiv(v);
   BOOST_CHECK_SMALL(kinetic_ref - kinetic, 1e-12);
+
+  // Test constructor (Matrix6)
+  Inertia I1_bis(I1.matrix());
+  is_matrix_absolutely_closed(I1.matrix(), I1_bis.matrix(), 1e-12);
 }
 
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )
