@@ -19,6 +19,7 @@
 #define __se3_inertia_hpp__
 
 #include <Eigen/Dense>
+#include <iostream>
 
 #include "pinocchio/spatial/symmetric3.hpp"
 #include "pinocchio/spatial/force.hpp"
@@ -76,11 +77,7 @@ namespace se3
       return derived().se3ActionInverse_impl(M);
     }
 
-    void disp(std::ostream & os) const
-    {
-      static_cast<const Derived_t*>(this)->disp_impl(os);
-    }
-
+    void disp(std::ostream & os) const { static_cast<const Derived_t*>(this)->disp_impl(os); }
     friend std::ostream & operator << (std::ostream & os,const InertiaBase<Derived_t> & X)
     { 
       X.disp(os);
@@ -301,11 +298,11 @@ namespace se3
                     v.angular().cross(c.cross(mv_mcxw)+I*v.angular())-v.linear().cross(mcxw) );
     }
 
-    void disp_impl(std::ostream &os) const
+    void disp_impl(std::ostream & os) const
     {
-      os  << "m =" << m << ";\n"
-      << "c = [\n" << c.transpose() << "]';\n"
-      << "I = [\n" << (Matrix3)I << "];";
+      os  << "  m = " << m << "\n"
+      << "  c = " << c.transpose() << "\n"
+      << "  I = \n" << (Matrix3)I << "";
     }
 
   protected:
