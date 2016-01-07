@@ -43,8 +43,11 @@ namespace se3
     const Derived_t& derived() const { return *static_cast<const Derived_t*>(this); }
 
     Scalar_t           mass()    const { return static_cast<const Derived_t*>(this)->mass(); }
+    Scalar_t &         mass() { return static_cast<const Derived_t*>(this)->mass(); }
     const Vector3 &    lever()   const { return static_cast<const Derived_t*>(this)->lever(); }
+    Vector3 &          lever() { return static_cast<const Derived_t*>(this)->lever(); }
     const Symmetric3 & inertia() const { return static_cast<const Derived_t*>(this)->inertia(); }
+    Symmetric3 &       inertia() { return static_cast<const Derived_t*>(this)->inertia(); }
 
     Matrix6 matrix() const
     {
