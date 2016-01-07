@@ -129,10 +129,10 @@ namespace se3
     
     InertiaTpl(const Matrix6 & I6)
     {
-      assert((I6 - I6.transpose()).isMushSmallerThan(I6));
+      assert((I6 - I6.transpose()).isMuchSmallerThan(I6));
       m = I6(LINEAR, LINEAR);
       const Matrix3 & mc_cross = I6.template block <3,3> (ANGULAR,LINEAR);
-      c = skewInv(mc_cross);
+      c = unSkew(mc_cross);
       c /= m;
       
       Matrix3 I3 (mc_cross * mc_cross);

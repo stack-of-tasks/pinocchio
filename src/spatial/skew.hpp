@@ -19,6 +19,14 @@
 #define __se3_skew_hpp__
 namespace se3
 {
+  ///
+  /// \brief Computes the skew representation of a given 3D vector,
+  ///        i.e. the antisymmetric matrix representation of the cross product operator.
+  ///
+  /// \param[in] v A vector of dimension 3.
+  ///
+  /// \return The skew matrix representation of v.
+  ///
   template <typename D>
   inline Eigen::Matrix<typename D::Scalar,3,3,D::Options>
   skew(const Eigen::MatrixBase<D> & v)
@@ -29,6 +37,28 @@ namespace se3
     m(1,0) =  v[2];  m(1,1) =  0   ;   m(1,2) = -v[0];
     m(2,0) = -v[1];  m(2,1) =  v[0];   m(2,2) =  0   ;
     return m;
+  }
+  
+  ///
+  /// \brief Inverse operation related to skew. From a given skew-symmetric matrix M
+  /// of dimension 3x3, it extracts the supporting vector, i.e. the entries of M.
+  ///
+  /// \param[in] M A 3x3 matrix.
+  ///
+  /// \return The vector entries of the skew-symmetric matrix.
+  ///
+  template <typename D>
+  inline Eigen::Matrix<typename D::Scalar,3,1,D::Options>
+  unSkew(const Eigen::MatrixBase<D> & M)
+  {
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
+    assert((M + M.transpose()).isMuchSmallerThan(M));
+    Eigen::Matrix<typename D::Scalar,3,1,D::Options> v;
+    
+    v[0] = 0.5 * (M(2,1) - M(1,2));
+    v[1] = 0.5 * (M(0,2) - M(2,0));
+    v[2] = 0.5 * (M(1,0) - M(0,1));
+    return v;
   }
 
   template <typename D>
