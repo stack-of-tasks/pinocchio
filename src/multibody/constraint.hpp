@@ -168,8 +168,7 @@ namespace se3
     
     void disp_impl(std::ostream & os) const { os << "S =\n" << S << std::endl;}
 
-
-  private:
+  protected:
     DenseBase S;
   }; // class ConstraintTpl
 
