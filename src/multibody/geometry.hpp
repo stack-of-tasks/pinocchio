@@ -336,7 +336,6 @@ namespace se3
                       model_geom.collision_objects[co2].collisionGeometry().get(), oMg_fcl[co2],
                       collisionRequest, collisionResult) != 0)
     {
-      std::cout << "Collision between " << model_geom.getGeomName(co1) << " and " << model_geom.getGeomName(co2) << std::endl;;
       return true;
     }
     return false;
