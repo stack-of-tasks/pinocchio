@@ -178,6 +178,7 @@ IF(URDFDOM_FOUND)
     LIST(APPEND ${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
       multibody/parser/from-collada-to-fcl.hpp
       multibody/parser/urdf-with-geometry.hpp
+      multibody/parser/urdf-with-geometry.hxx
       )
   ENDIF(HPP_FCL_FOUND)
 
@@ -190,6 +191,7 @@ IF(HPP_FCL_FOUND)
     )
   LIST(APPEND ${PROJECT_NAME}_MULTIBODY_HEADERS
     multibody/geometry.hpp
+    multibody/geometry.hxx
     )
 ENDIF(HPP_FCL_FOUND)
 

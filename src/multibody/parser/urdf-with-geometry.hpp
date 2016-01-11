@@ -47,95 +47,61 @@ namespace se3
   {
 
 
-fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link, std::string meshRootDir)
-  {
-    boost::shared_ptr < ::urdf::Collision> collision = link->collision;
-    boost::shared_ptr < fcl::CollisionGeometry > geometry;
+    /**
+     * @brief      Get a CollisionObject from an urdf link, reading the
+     *             corresponding mesh
+     *
+     * @param[in]  link         The input urdf link
+     * @param[in]  meshRootDir  Root path to the directory where meshes are located
+     *
+     * @return     The mesh converted as a fcl::CollisionObject
+     */
+    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link, std::string meshRootDir);
 
-    // Handle the case where collision geometry is a mesh
-    if (collision->geometry->type == ::urdf::Geometry::MESH)
-    {
-      boost::shared_ptr < ::urdf::Mesh> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Mesh> (collision->geometry);
-      std::string collisionFilename = collisionGeometry->filename;
-
-      std::string full_path = fromURDFMeshPathToAbsolutePath(collisionFilename, meshRootDir);
-
-      ::urdf::Vector3 scale = collisionGeometry->scale;
-
-      // Create FCL mesh by parsing Collada file.
-      PolyhedronPtrType  polyhedron (new PolyhedronType);
-
-      loadPolyhedronFromResource (full_path, scale, polyhedron);
-      geometry = polyhedron;
-    }
     
-
-    // Compute body position in world frame.
-    // MatrixHomogeneousType position = computeBodyAbsolutePosition (link, collision->origin);
-    if (!geometry)
-    {
-      throw std::runtime_error(std::string("The polyhedron retrived is empty"));
-    }
-    fcl::CollisionObject collisionObject (geometry, fcl::Transform3f());
-
-    return collisionObject; // TO CHECK: what happens if geometry is empty ?
-    
-  }
-
-    void parseTreeForGeom( ::urdf::LinkConstPtr link, Model & model,GeometryModel & model_geom, std::string meshRootDir) throw (std::invalid_argument)
-{
-
-  ::urdf::JointConstPtr joint = link->parent_joint;
-
-  if(joint!=NULL)
-  {
-    assert(link->getParent()!=NULL);
-
-    if (link->collision)
-    {
-      fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, meshRootDir);
-      SE3 geomPlacement = convertFromUrdf(link->collision->origin);
-      std::string collision_object_name = link->name ;
-      model_geom.addGeomObject(model.getJointId(joint->name), collision_object, geomPlacement, collision_object_name);
-    }      
-  }
-  else if (link->getParent() != NULL)
-  {
-    const std::string exception_message (link->name + " - joint information missing.");
-    throw std::invalid_argument(exception_message);
-  }
-
-  BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
-  {
-    parseTreeForGeom(child, model, model_geom, meshRootDir);
-  }
-}
+    /**
+     * @brief      Recursive procedure for reading the URDF tree, looking for geometries
+     *             This function fill the geometric model whith geometry objects retrieved from the URDF tree
+     *
+     * @param[in]  link         The current URDF link
+     * @param      model        The model to which is the Geometry Model associated
+     * @param      model_geom   The Geometry Model where the Collision Objects must be added
+     * @param[in]  meshRootDir  Root path to the directory where meshes are located
+     */
+    inline void parseTreeForGeom( ::urdf::LinkConstPtr link, Model & model,GeometryModel & model_geom, std::string meshRootDir) throw (std::invalid_argument);
 
 
 
+    /**
+     * @brief      Build The Model and GeometryModel from a URDF file with a particular joint as root of the model tree
+     *
+     * @param[in]  filename     The URDF complete file path
+     * @param[in]  meshRootDir  Root path to the directory where meshes are located
+     *
+     * @return     The pair <se3::Model, se3::GeometryModel> the Model tree and its geometric model associated
+     */
     template <typename D>
-    std::pair<Model, GeometryModel > buildModelAndGeom( const std::string & filename, const std::string & meshRootDir, const JointModelBase<D> &  root_joint )
-    {
-      Model model; GeometryModel model_geom;
+    std::pair<Model, GeometryModel > buildModelAndGeom( const std::string & filename, const std::string & meshRootDir, const JointModelBase<D> &  root_joint );
 
-      ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
-      parseTree(urdfTree->getRoot(), model, SE3::Identity(), root_joint);
-      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, meshRootDir);
-      return std::make_pair(model, model_geom);
-    }
 
-    std::pair<Model, GeometryModel > buildModelAndGeom( const std::string & filename, const std::string & meshRootDir)
-    {
-      Model model; GeometryModel model_geom;
-
-      ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
-      parseTree(urdfTree->getRoot(), model, SE3::Identity());
-      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, meshRootDir);
-      return std::make_pair(model, model_geom);
-    }
+    /**
+     * @brief      Build The Model and GeometryModel from a URDF file with no root joint added to the model tree
+     *
+     * @param[in]  filename     The URDF complete file path
+     * @param[in]  meshRootDir  Root path to the directory where meshes are located
+     *
+     * @return     The pair <se3::Model, se3::GeometryModel> the Model tree and its geometric model associated
+     */
+    inline std::pair<Model, GeometryModel > buildModelAndGeom( const std::string & filename, const std::string & meshRootDir);
 
   } // namespace urdf
 } // namespace se3
+
+
+/* --- Details -------------------------------------------------------------- */
+/* --- Details -------------------------------------------------------------- */
+/* --- Details -------------------------------------------------------------- */
+#include "pinocchio/multibody/parser/urdf-with-geometry.hxx"
 
 #endif // ifndef __se3_urdf_geom_hpp__
 

@@ -15,6 +15,10 @@
 // received a copy of the GNU Lesser General Public License along with
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
+
+#ifndef __se3_collada_to_fcl_hpp__
+#define __se3_collada_to_fcl_hpp__
+
 #include <limits>
 
 #include <boost/filesystem/fstream.hpp>
@@ -47,7 +51,18 @@ struct TriangleAndVertices
   std::vector <fcl::Triangle> triangles_;
 };
 
-void buildMesh (const ::urdf::Vector3& scale, const aiScene* scene, const aiNode* node,
+
+/**
+ * @brief      Recursive procedure for building a mesh
+ *
+ * @param[in]  scale           Scale to apply when reading the ressource
+ * @param[in]  scene           Pointer to the assimp scene
+ * @param[in]  node            Current node of the scene
+ * @param      subMeshIndexes  Submesh triangles indexes interval
+ * @param[in]  mesh            The mesh that must be built
+ * @param      tv              Triangles and Vertices of the mesh submodels
+ */
+inline void buildMesh (const ::urdf::Vector3& scale, const aiScene* scene, const aiNode* node,
                         std::vector<unsigned>& subMeshIndexes, const PolyhedronPtrType& mesh,
                         TriangleAndVertices& tv)
 {
@@ -109,7 +124,16 @@ void buildMesh (const ::urdf::Vector3& scale, const aiScene* scene, const aiNode
 }
 
 
-void meshFromAssimpScene (const std::string& name, const ::urdf::Vector3& scale,
+
+/**
+ * @brief      Convert an assimp scene to a mesh
+ *
+ * @param[in]  name   File (ressource) transformed into an assimp scene in loa
+ * @param[in]  scale  Scale to apply when reading the ressource
+ * @param[in]  scene  Pointer to the assimp scene
+ * @param[in]  mesh   The mesh that must be built
+ */
+inline void meshFromAssimpScene (const std::string& name, const ::urdf::Vector3& scale,
                                     const aiScene* scene,const PolyhedronPtrType& mesh)
   {
     TriangleAndVertices tv;
@@ -138,7 +162,15 @@ void meshFromAssimpScene (const std::string& name, const ::urdf::Vector3& scale,
     mesh->endModel ();
   }
 
-void loadPolyhedronFromResource ( const std::string& resource_path, const ::urdf::Vector3& scale,
+
+/**
+ * @brief      Read a mesh file and convert it to a polyhedral mesh
+ *
+ * @param[in]  resource_path  Path to the ressource mesh file to be read
+ * @param[in]  scale          Scale to apply when reading the ressource
+ * @param[in]  polyhedron     The resulted polyhedron
+ */
+inline void loadPolyhedronFromResource ( const std::string& resource_path, const ::urdf::Vector3& scale,
                                           const PolyhedronPtrType& polyhedron)
 {
   Assimp::Importer importer;
@@ -154,7 +186,16 @@ void loadPolyhedronFromResource ( const std::string& resource_path, const ::urdf
   meshFromAssimpScene (resource_path, scale, scene, polyhedron);
 }
 
-std::string fromURDFMeshPathToAbsolutePath(std::string & urdf_mesh_path, std::string meshRootDir)
+
+/**
+ * @brief      Transform a cURL readable path (package://..) to an absolute path for urdf collision path
+ *
+ * @param      urdf_mesh_path  The path given in the urdf file (package://..)
+ * @param[in]  meshRootDir     Root path to the directory where meshes are located
+ *
+ * @return     The absolute path to the mesh file
+ */
+inline std::string fromURDFMeshPathToAbsolutePath(std::string & urdf_mesh_path, std::string meshRootDir)
 { 
 
   std::string absolutePath = std::string(meshRootDir +  
@@ -163,3 +204,4 @@ std::string fromURDFMeshPathToAbsolutePath(std::string & urdf_mesh_path, std::st
   return absolutePath;
 }
 
+#endif // __se3_collada_to_fcl_hpp__
