@@ -39,7 +39,7 @@ namespace se3
   {
 
 
-    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link, std::string meshRootDir)
+    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link, const std::string & meshRootDir)
     {
       boost::shared_ptr < ::urdf::Collision> collision = link->collision;
       boost::shared_ptr < fcl::CollisionGeometry > geometry;
@@ -71,7 +71,7 @@ namespace se3
     }
 
 
-    inline void parseTreeForGeom( ::urdf::LinkConstPtr link, Model & model,GeometryModel & model_geom, std::string meshRootDir) throw (std::invalid_argument)
+    inline void parseTreeForGeom( ::urdf::LinkConstPtr link, Model & model,GeometryModel & model_geom, const std::string & meshRootDir) throw (std::invalid_argument)
     {
 
       ::urdf::JointConstPtr joint = link->parent_joint;

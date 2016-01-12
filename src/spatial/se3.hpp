@@ -104,12 +104,12 @@ namespace se3
       Derived_t actInv(const Derived_t& m2) const { return derived().actInv_impl(m2); }
 
 
-      bool operator == (Derived_t other) const
+      bool operator == (const Derived_t & other) const
       {
         return derived().__equal__(other);
       }
 
-      bool isApprox (Derived_t other) const
+      bool isApprox (const Derived_t & other) const
       {
         return derived().isApprox_impl(other);
       }

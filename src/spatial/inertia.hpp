@@ -55,7 +55,7 @@ namespace se3
 
 
     Derived_t& operator= (const Derived_t& clone){return derived().__equl__(clone);}
-    Derived_t& operator== (const Derived_t& other){return derived().isEqual(other);}
+    bool operator== (const Derived_t& other) const {return derived().isEqual(other);}
     Derived_t& operator+= (const Derived_t & Yb) { return derived().__pequ__(Yb); }
     Derived_t operator+(const Derived_t & Yb) const { return derived().__plus__(Yb); }
     Force operator*(const Motion & v) const    { return derived().__mult__(v); }
@@ -204,7 +204,7 @@ namespace se3
     }
 
     // Requiered by std::vector boost::python bindings. 
-    bool isEqual( const InertiaTpl& Y2 ) 
+    bool isEqual( const InertiaTpl& Y2 ) const
     { 
       return (m==Y2.m) && (c==Y2.c) && (I==Y2.I);
     }
