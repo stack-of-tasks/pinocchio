@@ -20,9 +20,6 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
-#ifdef WITH_HPP_FCL
-  #include "pinocchio/multibody/geometry.hpp"
-#endif
 
 namespace se3
 {
@@ -30,14 +27,7 @@ namespace se3
                        Data & data,
                        const Eigen::VectorXd & q);
 
-  #ifdef WITH_HPP_FCL
-  template < bool computeGeometry >
-  inline void updateCollisionGeometry(const Model & model,
-                       Data & data,
-                       const GeometryModel& geom,
-                       GeometryData& data_geom,
-                       const Eigen::VectorXd & q);
-  #endif
+
 
   inline void kinematics(const Model & model,
                          Data & data,
@@ -102,27 +92,7 @@ namespace se3
     }
   }
 
-#ifdef WITH_HPP_FCL
-  
-  template < bool computeGeometry >
-  inline void  updateCollisionGeometry(const Model & model,
-                                       Data & data,
-                                       const GeometryModel & model_geom,
-                                       GeometryData & data_geom,
-                                       const Eigen::VectorXd & q)
-  {
-    using namespace se3;
 
-    if (computeGeometry) geometry(model, data, q);
-    for (GeometryData::Index i=0; i < (GeometryData::Index) data_geom.model_geom.ngeom; ++i)
-    {
-      const Model::Index & parent = model_geom.geom_parents[i];
-      data_geom.oMg[i] =  (data.oMi[parent] * model_geom.geometryPlacement[i]);
-      data_geom.oMg_fcl[i] =  toFclTransform3f(data_geom.oMg[i]);
-    }
-  }
-
-#endif
   struct KinematicsStep : public fusion::JointVisitor<KinematicsStep>
   {
     typedef boost::fusion::vector< const se3::Model&,

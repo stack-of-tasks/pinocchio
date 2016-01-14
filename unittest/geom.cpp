@@ -34,6 +34,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/collisions.hpp"
 #include "pinocchio/multibody/parser/urdf.hpp"
 #include "pinocchio/spatial/explog.hpp"
 
@@ -164,21 +165,21 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   q <<  2, 0, 0,
         0, 0, 0 ;
 
-  se3::updateCollisionGeometry<true>(model, data, model_geom, data_geom, q);
+  se3::updateCollisionGeometry(model, data, model_geom, data_geom, q, true);
   std::cout << data_geom;
   assert(data_geom.collide(0,1) == false && "");
 
   q <<  0.99, 0, 0,
         0, 0, 0 ;
 
-  se3::updateCollisionGeometry<true>(model, data, model_geom, data_geom, q);
+  se3::updateCollisionGeometry(model, data, model_geom, data_geom, q, true);
   std::cout << data_geom;
   assert(data_geom.collide(0,1) == true && "");
 
   q <<  1.01, 0, 0,
         0, 0, 0 ;
 
-  se3::updateCollisionGeometry<true>(model, data, model_geom, data_geom, q);
+  se3::updateCollisionGeometry(model, data, model_geom, data_geom, q, true);
   std::cout << data_geom;
   assert(data_geom.collide(0,1) == false && "");
 }
@@ -204,7 +205,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
        0.6981317, -0.3490658, 0, 0, 1.5, 0.6, -0.5, -1.05, -0.4, -0.3, -0.2, 0, 0, 0, 0,
        1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2 ;
 
-  se3::updateCollisionGeometry<true>(robot.first, data, robot.second, data_geom, q);
+  se3::updateCollisionGeometry(robot.first, data, robot.second, data_geom, q, true);
 
   assert(data_geom.collide(1,10) == false && "");
 }
@@ -244,7 +245,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_joints_meshes_positions )
 
   assert(q_pino.size() == robot.first.nq && "wrong config size");
 
-  se3::updateCollisionGeometry<true>(robot.first, data, robot.second, data_geom, q_pino);
+  se3::updateCollisionGeometry(robot.first, data, robot.second, data_geom, q_pino, true);
 
 
   /// *************  HPP  ************* /// 
@@ -344,7 +345,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
   assert(q_pino.size() == robot.first.nq && "wrong config size");
 
-  se3::updateCollisionGeometry<true>(robot.first, data, robot.second, data_geom, q_pino);
+  se3::updateCollisionGeometry(robot.first, data, robot.second, data_geom, q_pino, true);
 
 
   /// *************  HPP  ************* /// 

@@ -75,14 +75,14 @@ namespace se3
     .add_property("distances",
       bp::make_function(&GeometryDataPythonVisitor::distances,
             bp::return_internal_reference<>())  )
+    .add_property("collisions",
+      bp::make_function(&GeometryDataPythonVisitor::collisions,
+            bp::return_internal_reference<>())  )
 
     .def("addCollisionPair",&GeometryDataPythonVisitor::isCollisionPair)
     .def("removeCollisionPair",&GeometryDataPythonVisitor::isCollisionPair)
     .def("isCollisionPair",&GeometryDataPythonVisitor::isCollisionPair)
     .def("collide",&GeometryDataPythonVisitor::collide)
-    .def("isColliding",&GeometryDataPythonVisitor::isColliding)
-    .def("computeDistances",&GeometryDataPythonVisitor::computeDistances)
- 
 
     .def("__str__",&GeometryDataPythonVisitor::toString)
 
@@ -95,16 +95,13 @@ namespace se3
       static std::vector<SE3> & oMg( GeometryDataHandler & m ) { return m->oMg; }
       static std::vector<CollisionPair_t> & collision_pairs( GeometryDataHandler & m ) { return m->collision_pairs; }
       static std::vector<DistanceResult> & distances( GeometryDataHandler & m ) { return m->distances; }
+      static std::vector<bool> & collisions( GeometryDataHandler & m ) { return m->collisions; }
 
       static void addCollisionPair (GeometryDataHandler & m, Index co1, Index co2) { m -> addCollisionPair(co1, co2);}
       static void removeCollisionPair (GeometryDataHandler & m, Index co1, Index co2) { m -> removeCollisionPair(co1, co2);}
       static bool isCollisionPair (const GeometryDataHandler & m, Index co1, Index co2) { return m -> isCollisionPair(co1, co2);}
 
       static bool collide(const GeometryDataHandler & m, Index co1, Index co2) { return m -> collide(co1, co2); };
-      static bool isColliding(const GeometryDataHandler & m ) { return m -> isColliding(); };
-
-      static void computeDistances (GeometryDataHandler & m) { m -> computeDistances(); }
-
       
  
 

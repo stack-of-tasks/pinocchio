@@ -139,8 +139,10 @@ namespace se3
     std::vector<fcl::Transform3f> oMg_fcl;
 
     std::vector < CollisionPair_t > collision_pairs;
-    std::size_t nCollisionPairs;
+    Index nCollisionPairs;
+
     std::vector < DistanceResult > distances;
+    std::vector < bool > collisions;
 
     GeometryData(Data& data, GeometryModel& model_geom)
         : data_ref(data)
@@ -150,9 +152,11 @@ namespace se3
         , collision_pairs()
         , nCollisionPairs(0)
         , distances()
+        , collisions()
     {
       initializeListOfCollisionPairs();
       distances.resize(nCollisionPairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
+      collisions.resize(nCollisionPairs, false );
 
     }
 
@@ -169,11 +173,9 @@ namespace se3
     void initializeListOfCollisionPairs();
 
     bool collide(Index co1, Index co2) const;
-    bool isColliding() const;
 
     fcl::DistanceResult computeDistance(Index co1, Index co2) const;
     void resetDistances();
-    void computeDistances ();
 
     std::vector < DistanceResult > distanceResults(); //TODO : to keep or not depending of public or not for distances
 

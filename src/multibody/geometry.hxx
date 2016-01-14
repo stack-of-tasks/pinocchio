@@ -195,17 +195,6 @@ namespace se3
     return false;
   }
 
-  inline bool GeometryData::isColliding() const
-  {
-    for (std::vector<CollisionPair_t>::const_iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
-    {
-      if (collide(it->first, it->second))
-      {
-        return true;
-      }
-    }
-    return false;
-  }
 
   inline fcl::DistanceResult GeometryData::computeDistance(Index co1, Index co2) const
   {
@@ -222,15 +211,6 @@ namespace se3
     std::fill(distances.begin(), distances.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
   }
 
-  inline void GeometryData::computeDistances ()
-  {
-    std::size_t cpt = 0;
-    for (std::vector<CollisionPair_t>::iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
-    {
-      distances[cpt] = DistanceResult(computeDistance(it->first, it->second), it->first, it->second);
-      cpt++;
-    }
-  }
 
 } // namespace se3
 

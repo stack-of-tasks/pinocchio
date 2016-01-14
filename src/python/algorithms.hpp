@@ -34,6 +34,13 @@
 
 #include "pinocchio/simulation/compute-all-terms.hpp"
 
+#ifdef WITH_HPP_FCL
+#include "pinocchio/multibody/geometry.hpp"
+#include "pinocchio/python/geometry-model.hpp"
+#include "pinocchio/python/geometry-data.hpp"
+#include "pinocchio/algorithm/collisions.hpp"
+#endif
+
 namespace se3
 {
   namespace python
@@ -147,6 +154,39 @@ namespace se3
         jointLimits(*model,*data,q);
       }
 
+#ifdef WITH_HPP_FCL
+      static bool computeCollisions_proxy(GeometryDataHandler & data_geom,
+                                          const bool stopAtFirstCollision)
+      {
+        return computeCollisions(*data_geom, stopAtFirstCollision);
+      }
+
+      static bool computeGeometryAndCollisions_proxy(const ModelHandler & model,
+                                    DataHandler & data,
+                                    const GeometryModelHandler & model_geom,
+                                    GeometryDataHandler & data_geom,
+                                    const VectorXd_fx & q,
+                                    const bool & stopAtFirstCollision)
+      {
+        return computeCollisions(*model,*data,*model_geom, *data_geom, q, stopAtFirstCollision);
+      }
+
+      static void computeDistances_proxy(GeometryDataHandler & data_geom)
+      {
+        computeDistances(*data_geom);
+      }
+
+      static void computeGeometryAndDistances_proxy( const ModelHandler & model,
+                                    DataHandler & data,
+                                    const GeometryModelHandler & model_geom,
+                                    GeometryDataHandler & data_geom,
+                                    const Eigen::VectorXd & q
+                                    )
+      {
+        computeDistances(*model, *data, *model_geom, *data_geom, q);
+      }
+
+#endif
 
 
       /* --- Expose --------------------------------------------------------- */
@@ -236,8 +276,32 @@ namespace se3
         "Configuration q (size Model::nq)"),
         "Compute the maximum limits of all the joints of the model "
         "and put the results in data.");
-      }
 
+#ifdef WITH_HPP_FCL
+  bp::def("computeCollisions",computeCollisions_proxy,
+    bp::args("GeometryData","bool"),
+        "Determine if collisions pairs are effectively in collision."
+        );
+
+  bp::def("computeGeometryAndCollisions",computeGeometryAndCollisions_proxy,
+    bp::args("Model","Data","GeometryModel","GeometryData","Configuration q (size Model::nq)", "bool"),
+        "Update the geometry for a given configuration and"
+        "determine if collision pars are effectively in collision"
+        );
+
+  bp::def("computeDistances",computeDistances_proxy,
+    bp::args("GeometryData"),
+        "Compute the distance between each collision pairs."
+        );
+
+  bp::def("computeGeometryAndDistances",computeGeometryAndDistances_proxy,
+    bp::args("Model","Data","GeometryModel","GeometryData","Configuration q (size Model::nq)"),
+        "Update the geometry for a given configuration and"
+        "compute the distance between each collision pairs"
+        );
+
+      }
+#endif
     };
     
   }} // namespace se3::python

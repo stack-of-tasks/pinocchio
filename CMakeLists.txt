@@ -193,6 +193,9 @@ IF(HPP_FCL_FOUND)
     multibody/geometry.hpp
     multibody/geometry.hxx
     )
+  LIST(APPEND ${PROJECT_NAME}_ALGORITHM_HEADERS
+    algorithm/collisions.hpp
+    )
 ENDIF(HPP_FCL_FOUND)
 
 IF(LUA5_1_FOUND)
