@@ -68,7 +68,7 @@ namespace se3
      * @param      model_geom   The Geometry Model where the Collision Objects must be added
      * @param[in]  meshRootDir  Root path to the directory where meshes are located
      */
-    inline void parseTreeForGeom( ::urdf::LinkConstPtr link, Model & model,GeometryModel & model_geom, const std::string & meshRootDir) throw (std::invalid_argument);
+    inline void parseTreeForGeom( ::urdf::LinkConstPtr link, Model & model,GeometryModel & model_geom, const std::string & meshRootDir, const bool rootJointAdded) throw (std::invalid_argument);
 
 
 

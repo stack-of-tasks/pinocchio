@@ -71,32 +71,49 @@ namespace se3
     }
 
 
-    inline void parseTreeForGeom( ::urdf::LinkConstPtr link, Model & model,GeometryModel & model_geom, const std::string & meshRootDir) throw (std::invalid_argument)
+    inline void parseTreeForGeom( ::urdf::LinkConstPtr link, Model & model,GeometryModel & model_geom, const std::string & meshRootDir, const bool rootJointAdded) throw (std::invalid_argument)
     {
 
-      ::urdf::JointConstPtr joint = link->parent_joint;
-
-      if(joint!=NULL)
+      // start with first link that is not empty
+      if(link->inertial)
       {
-        assert(link->getParent()!=NULL);
+        ::urdf::JointConstPtr joint = link->parent_joint;
 
-        if (link->collision)
+        if (joint == NULL && rootJointAdded )
         {
-          fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, meshRootDir);
-          SE3 geomPlacement = convertFromUrdf(link->collision->origin);
-          std::string collision_object_name = link->name ;
-          model_geom.addGeomObject(model.getJointId(joint->name), collision_object, geomPlacement, collision_object_name);
-        }      
-      }
-      else if (link->getParent() != NULL)
-      {
-        const std::string exception_message (link->name + " - joint information missing.");
-        throw std::invalid_argument(exception_message);
-      }
+          
+          if (link->collision)
+          {
+            fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, meshRootDir);
+            SE3 geomPlacement = convertFromUrdf(link->collision->origin);
+            std::string collision_object_name = link->name ;
+            model_geom.addGeomObject(model.getJointId("root_joint"), collision_object, geomPlacement, collision_object_name);
+          }
+        }
 
+        if(joint!=NULL)
+        {
+          assert(link->getParent()!=NULL);
+
+          if (link->collision)
+          {
+            fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, meshRootDir);
+            SE3 geomPlacement = convertFromUrdf(link->collision->origin);
+            std::string collision_object_name = link->name ;
+            model_geom.addGeomObject(model.getJointId(joint->name), collision_object, geomPlacement, collision_object_name);
+          }      
+        }
+        else if (link->getParent() != NULL)
+        {
+          const std::string exception_message (link->name + " - joint information missing.");
+          throw std::invalid_argument(exception_message);
+        }
+
+      }
+      
       BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
       {
-        parseTreeForGeom(child, model, model_geom, meshRootDir);
+        parseTreeForGeom(child, model, model_geom, meshRootDir, rootJointAdded);
       }
     }
 
@@ -109,7 +126,7 @@ namespace se3
 
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       parseTree(urdfTree->getRoot(), model, SE3::Identity(), root_joint);
-      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, meshRootDir);
+      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, meshRootDir, true);
       return std::make_pair(model, model_geom);
     }
 
@@ -119,7 +136,7 @@ namespace se3
 
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       parseTree(urdfTree->getRoot(), model, SE3::Identity());
-      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, meshRootDir);
+      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, meshRootDir, false);
       return std::make_pair(model, model_geom);
     }
 
