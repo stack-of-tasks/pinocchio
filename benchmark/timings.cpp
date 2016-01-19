@@ -21,6 +21,7 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/non-linear-effects.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
@@ -169,6 +170,13 @@ int main(int argc, const char ** argv)
     forwardKinematics(model,data,qs[_smooth],qdots[_smooth], qddots[_smooth]);
   }
   std::cout << "Second Order Kinematics = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    aba(model,data,qs[_smooth],qdots[_smooth], qddots[_smooth]);
+  }
+  std::cout << "ABA = \t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
