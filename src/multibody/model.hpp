@@ -159,6 +159,7 @@ namespace se3
     
     /// \brief Vector of absolute joint placements (wrt the world).
     std::vector<SE3> oMi;
+
     /// \brief Vector of relative joint placements (wrt the body parent).
     std::vector<SE3> liMi;
     
@@ -178,6 +179,16 @@ namespace se3
     
     /// \brief The joint space inertia matrix (a square matrix of dim model.nv).
     Eigen::MatrixXd M;
+    
+    /// \brief The joint accelerations computed from ABA
+    Eigen::VectorXd ddq;
+    
+    // ABA internal data
+    /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA]
+    std::vector<Inertia::Matrix6> Yaba;
+    
+    /// \brief Intermediate quantity corresponding to apparent torque [ABA]
+    Eigen::VectorXd u;
 
     std::vector<Matrix6x> Fcrb;           // Spatial forces set, used in CRBA
 
