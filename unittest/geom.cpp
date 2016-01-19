@@ -69,7 +69,7 @@ GeometryPositionsMap_t fillHppGeometryPositions(const hpp::model::HumanoidRobotP
 #endif
 std::vector<std::string> getBodiesList();
 
-
+#ifdef WITH_HPP_MODEL_URDF
 class IsDistanceResultPair
 {
 typedef std::string string;
@@ -127,7 +127,7 @@ struct Distance_t
   // Distance and closest points on bodies.
   double d_, x0_, y0_, z0_, x1_, y1_, z1_;
 }; // struct Distance_t
-
+#endif
 std::ostream& operator<<(std::ostream& os, const std::pair < se3::Model, se3::GeometryModel >& robot)
 {
   os << "Nb collision objects = " << robot.second.ngeom << std::endl;
@@ -230,18 +230,24 @@ BOOST_AUTO_TEST_CASE ( hrp2_joints_meshes_positions )
   /// ********************************* ///
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/hrp2_14_full.urdf";
-  std::string meshDir  = "/local/fvalenza/devel/install/share/";
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
+  std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   std::pair < Model, GeometryModel > robot = se3::urdf::buildModelAndGeom(filename, meshDir, se3::JointModelFreeFlyer());
 
   Data data(robot.first);
   GeometryData data_geom(data, robot.second);
 
   // Configuration to be tested
-  Eigen::VectorXd q_pino(robot.first.nq);
-  Eigen::VectorXd q_hpp(robot.first.nq);
-  q_pino <<   0.7832759914634781, -0.6287488328607549, 0.6556417293694411, 0.0, 0.0, 0.9708378748503661, 0.23973698245374014, -0.05964761341484225, -0.07981055048413252, 0.16590322948375874, -0.004144442702387867, 0.26483964517748976, 0.26192191007679017, -0.050295369867256, -0.37034363990486474, 0.02150198818252944, 0.1266227625588889, 0.38, -0.38, 0.38, -0.38, 0.38, -0.38, -0.3899134972725518, -0.5925498643189667, -0.19613681199200853, -1.2401320912584846, 0.2763998757815979, -0.027768398868772835, 0.75, -0.75, 0.75, -0.75, 0.75, -0.75, 0.031489444476891226, -0.012849646226002981, -0.4429796164539539, 0.8176013848056326, -0.3746217737072531, 0.012849649901645105, 0.031489445877715766, -0.0129470969613853, -0.44536550586899665, 0.8087943898553672, -0.3634288825007756, 0.012947096434125274;
-  q_hpp  <<   0.7832759914634781, -0.6287488328607549, 0.6556417293694411, 0.23973698245374014, 0.0, 0.0, 0.9708378748503661, -0.05964761341484225, -0.07981055048413252, 0.16590322948375874, -0.004144442702387867, 0.26483964517748976, 0.26192191007679017, -0.050295369867256, -0.37034363990486474, 0.02150198818252944, 0.1266227625588889, 0.38, -0.38, 0.38, -0.38, 0.38, -0.38, -0.3899134972725518, -0.5925498643189667, -0.19613681199200853, -1.2401320912584846, 0.2763998757815979, -0.027768398868772835, 0.75, -0.75, 0.75, -0.75, 0.75, -0.75, 0.031489444476891226, -0.012849646226002981, -0.4429796164539539, 0.8176013848056326, -0.3746217737072531, 0.012849649901645105, 0.031489445877715766, -0.0129470969613853, -0.44536550586899665, 0.8087943898553672, -0.3634288825007756, 0.012947096434125274;
+  
+
+  Eigen::VectorXd q_pino(Eigen::VectorXd::Random(robot.first.nq));
+  q_pino.segment<4>(3) /= q_pino.segment<4>(3).norm();
+
+  Eigen::VectorXd q_hpp(q_pino);
+  Eigen::Vector4d quaternion;
+  quaternion <<  q_pino[6], q_pino[3], q_pino[4], q_pino[5];
+  q_hpp.segment<4>(3) = quaternion ;
+
 
   assert(q_pino.size() == robot.first.nq && "wrong config size");
 
@@ -253,9 +259,9 @@ BOOST_AUTO_TEST_CASE ( hrp2_joints_meshes_positions )
 
 
   hpp::model::HumanoidRobotPtr_t humanoidRobot =
-    hpp::model::HumanoidRobot::create ("hrp2_14");
+    hpp::model::HumanoidRobot::create ("romeo");
   hpp::model::urdf::loadHumanoidModel(humanoidRobot, "freeflyer",
-              "hrp2_14_description", "hrp2_14_full",
+              "romeo_pinocchio", "romeo",
               "", "");
 
 
@@ -328,20 +334,24 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   /// ********************************* ///
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/hrp2_14_reduced.urdf";
-  std::string meshDir  = "/local/fvalenza/devel/install/share/";
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
+  std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   std::pair < Model, GeometryModel > robot = se3::urdf::buildModelAndGeom(filename, meshDir, se3::JointModelFreeFlyer());
 
   Data data(robot.first);
   GeometryData data_geom(data, robot.second);
 
   // Configuration to be tested
-  Eigen::VectorXd q_pino(robot.first.nq);
-  Eigen::VectorXd q_hpp(robot.first.nq);
-  // q_pino <<   0.7832759914634781, -0.6287488328607549, 0.6556417293694411, 0.0, 0.0, 0.9708378748503661, 0.23973698245374014, -0.05964761341484225, -0.07981055048413252, 0.16590322948375874, -0.004144442702387867, 0.26483964517748976, 0.26192191007679017, -0.050295369867256, -0.37034363990486474, 0.02150198818252944, 0.1266227625588889, 0.38, -0.38, 0.38, -0.38, 0.38, -0.38, -0.3899134972725518, -0.5925498643189667, -0.19613681199200853, -1.2401320912584846, 0.2763998757815979, -0.027768398868772835, 0.75, -0.75, 0.75, -0.75, 0.75, -0.75, 0.031489444476891226, -0.012849646226002981, -0.4429796164539539, 0.8176013848056326, -0.3746217737072531, 0.012849649901645105, 0.031489445877715766, -0.0129470969613853, -0.44536550586899665, 0.8087943898553672, -0.3634288825007756, 0.012947096434125274;
-  // q_hpp  <<   0.7832759914634781, -0.6287488328607549, 0.6556417293694411, 0.23973698245374014, 0.0, 0.0, 0.9708378748503661, -0.05964761341484225, -0.07981055048413252, 0.16590322948375874, -0.004144442702387867, 0.26483964517748976, 0.26192191007679017, -0.050295369867256, -0.37034363990486474, 0.02150198818252944, 0.1266227625588889, 0.38, -0.38, 0.38, -0.38, 0.38, -0.38, -0.3899134972725518, -0.5925498643189667, -0.19613681199200853, -1.2401320912584846, 0.2763998757815979, -0.027768398868772835, 0.75, -0.75, 0.75, -0.75, 0.75, -0.75, 0.031489444476891226, -0.012849646226002981, -0.4429796164539539, 0.8176013848056326, -0.3746217737072531, 0.012849649901645105, 0.031489445877715766, -0.0129470969613853, -0.44536550586899665, 0.8087943898553672, -0.3634288825007756, 0.012947096434125274;
-  q_pino <<   0.7832759914634781, -0.6287488328607549, 0.6556417293694411, 0.0, 0.0, 0.9708378748503661, 0.23973698245374014, -0.05964761341484225, -0.07981055048413252, 0.16590322948375874, -0.004144442702387867, 0.26483964517748976, 0.26192191007679017, -0.050295369867256, -0.37034363990486474, 0.02150198818252944, 0.1266227625588889, 0.38, -0.38, 0.38, -0.38, 0.38, -0.38, -0.3899134972725518, -0.5925498643189667, -0.19613681199200853, -1.2401320912584846, 0.2763998757815979, -0.027768398868772835, 0.75, -0.75, 0.75, -0.75, 0.75, -0.75, 0.031489444476891226, -0.012849646226002981;
-  q_hpp  <<   0.7832759914634781, -0.6287488328607549, 0.6556417293694411, 0.23973698245374014, 0.0, 0.0, 0.9708378748503661, -0.05964761341484225, -0.07981055048413252, 0.16590322948375874, -0.004144442702387867, 0.26483964517748976, 0.26192191007679017, -0.050295369867256, -0.37034363990486474, 0.02150198818252944, 0.1266227625588889, 0.38, -0.38, 0.38, -0.38, 0.38, -0.38, -0.3899134972725518, -0.5925498643189667, -0.19613681199200853, -1.2401320912584846, 0.2763998757815979, -0.027768398868772835, 0.75, -0.75, 0.75, -0.75, 0.75, -0.75, 0.031489444476891226, -0.012849646226002981;
+  
+
+  Eigen::VectorXd q_pino(Eigen::VectorXd::Random(robot.first.nq));
+  q_pino.segment<4>(3) /= q_pino.segment<4>(3).norm();
+
+  Eigen::VectorXd q_hpp(q_pino);
+  Eigen::Vector4d quaternion;
+  quaternion <<  q_pino[6], q_pino[3], q_pino[4], q_pino[5];
+  q_hpp.segment<4>(3) = quaternion ;
+
 
   assert(q_pino.size() == robot.first.nq && "wrong config size");
 
@@ -353,9 +363,9 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
 
   hpp::model::HumanoidRobotPtr_t humanoidRobot =
-    hpp::model::HumanoidRobot::create ("hrp2_14");
+    hpp::model::HumanoidRobot::create ("romeo");
   hpp::model::urdf::loadHumanoidModel(humanoidRobot, "freeflyer",
-              "hrp2_14_description", "hrp2_14_reduced",
+              "romeo_pinocchio", "romeo",
               "", "");
 
 

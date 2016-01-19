@@ -6,6 +6,12 @@
 <!-- Aldebaran file comes from                                                               --> 
 <!-- https://github.com/ros-aldebaran/romeo_robot/blob/master/romeo_description/urdf/romeoV1_generated_urdf/romeo.urdf -->
 <robot name="romeoH37V1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <link name="base_link"/>
+  <joint name="waist" type="fixed">
+    <parent link="base_link"/>
+    <child link="body"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
   <joint name="NeckYaw" type="revolute">
     <parent link="torso"/>
     <child link="NeckYawLink"/>

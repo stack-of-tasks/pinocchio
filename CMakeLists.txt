@@ -48,6 +48,7 @@ ENDIF(WIN32)
 OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
 OPTION (BUILD_UTILS "Build the utils" OFF)
 OPTION (INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
+OPTION (BUILD_TESTS_WITH_HPP "Build geom tests and benchmarks with hpp to do comparisons" OFF)
 
 IF (INITIALIZE_WITH_NAN)
   MESSAGE (STATUS "Initialize with NaN all the Eigen entries")
