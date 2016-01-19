@@ -26,17 +26,22 @@ namespace se3
   template<int _NQ, int _NV>
   struct traits< JointDense<_NQ, _NV > >
   {
+    enum {
+      NQ = _NQ, // pb
+      NV = _NV
+    };
     typedef JointDataDense<_NQ, _NV> JointData;
     typedef JointModelDense<_NQ, _NV> JointModel;
     typedef ConstraintXd Constraint_t;
     typedef SE3 Transformation_t;
     typedef Motion Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,Eigen::Dynamic> F_t;
-    enum {
-      NQ = _NQ, // pb 
-      NV = _NV
-    };
+    typedef Eigen::Matrix<double,6,NV> F_t;
+    
+    // [ABA]
+    typedef Eigen::Matrix<double,6,NV> U_t;
+    typedef Eigen::Matrix<double,NV,NV> D_t;
+    typedef Eigen::Matrix<double,6,NV> UD_t;
   };
 
   template<int _NQ, int _NV> struct traits< JointDataDense<_NQ, _NV > > { typedef JointDense<_NQ,_NV > Joint; };
@@ -54,6 +59,11 @@ namespace se3
     Bias_t c;
 
     F_t F;
+    
+    // [ABA] specific data
+    U_t U;
+    D_t Dinv;
+    UD_t UDinv;
 
     /// Removed Default constructor of JointDataDense because it was calling default constructor of
     /// ConstraintXd -> eigen_static_assert

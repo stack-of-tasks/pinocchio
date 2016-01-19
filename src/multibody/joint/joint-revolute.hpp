@@ -29,6 +29,9 @@ namespace se3
 
   template<int axis> struct JointDataRevolute;
   template<int axis> struct JointModelRevolute;
+  
+  template<int axis> struct SE3Revolute;
+  template<int axis> struct MotionRevolute;
 
   namespace revolute
   {
@@ -36,9 +39,9 @@ namespace se3
     struct CartesianVector3
     {
       double w; 
-      CartesianVector3(const double & w) : w(w) {}
-      CartesianVector3() : w(1) {}
-      operator Eigen::Vector3d (); // { return Eigen::Vector3d(w,0,0); }
+      CartesianVector3(const double w) : w(w) {}
+      CartesianVector3() : w(NAN) {}
+      operator Eigen::Vector3d ();
     };
     template<> inline CartesianVector3<0>::operator Eigen::Vector3d () { return Eigen::Vector3d(w,0,0); }
     template<> inline CartesianVector3<1>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,w,0); }
@@ -51,7 +54,6 @@ namespace se3
     { return Eigen::Vector3d(w1[0],w1[1],w1[2]+wz.w); }
   } // namespace revolute
 
-  template<int axis> struct MotionRevolute;
 
   template<int axis>
   struct traits< MotionRevolute < axis > >
@@ -77,8 +79,6 @@ namespace se3
     };
   }; // traits MotionRevolute
 
-
-  
   template<int axis>
   struct MotionRevolute : MotionBase < MotionRevolute <axis > >
   {
@@ -331,6 +331,21 @@ namespace se3
     I(2,2)+m*(x*x+y*y) ;
     return res;
   }
+  
+  /* [ABA] I*S operator (Inertia Y,Constraint S) */
+  template<int axis>
+  inline const Eigen::MatrixBase<const Inertia::Matrix6>::ColXpr
+  operator*(const Inertia::Matrix6 & Y,const ConstraintRevolute<axis> & )
+  {
+    return Y.col(Inertia::ANGULAR + axis);
+  }
+  
+  template<int axis>
+  inline Eigen::MatrixBase<Inertia::Matrix6>::ColXpr
+  operator*(Inertia::Matrix6 & Y,const ConstraintRevolute<axis> & )
+  {
+    return Y.col(Inertia::ANGULAR + axis);
+  }
 
   namespace internal 
   {
@@ -344,17 +359,23 @@ namespace se3
   template<int axis>
   struct traits< JointRevolute<axis> >
   {
+    enum {
+      NQ = 1,
+      NV = 1
+    };
+    
     typedef JointDataRevolute<axis> JointData;
     typedef JointModelRevolute<axis> JointModel;
     typedef ConstraintRevolute<axis> Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionRevolute<axis> Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,1> F_t;
-    enum {
-      NQ = 1,
-      NV = 1
-    };
+    typedef Eigen::Matrix<double,6,NV> F_t;
+    
+    // [ABA]
+    typedef Eigen::Matrix<double,6,NV> U_t;
+    typedef Eigen::Matrix<double,NV,NV> D_t;
+    typedef Eigen::Matrix<double,6,NV> UD_t;
   };
 
   template<int axis> struct traits< JointDataRevolute<axis> > { typedef JointRevolute<axis> Joint; };
@@ -370,13 +391,15 @@ namespace se3
     Transformation_t M;
     Motion_t v;
     Bias_t c;
-
     F_t F;
 
-    JointDataRevolute() : M(1)
-    {
-      M.translation(SE3::Vector3::Zero());
-    }
+    // [ABA] specific data
+    U_t U;
+    D_t Dinv;
+    UD_t UDinv;
+
+    JointDataRevolute() : M(1), U(), Dinv(), UDinv()
+    {}
 
     JointDataDense<NQ, NV> toDense_impl() const
     {
@@ -416,6 +439,16 @@ namespace se3
 
       data.M.rotation(JointRevolute<axis>::cartesianRotation(q));
       data.v.w = v;
+    }
+    
+    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    {
+      data.U = I.col(Inertia::ANGULAR + axis);
+      data.Dinv[0] = 1./I(Inertia::ANGULAR + axis,Inertia::ANGULAR + axis);
+      data.UDinv = data.U * data.Dinv[0];
+      
+      if (update_I)
+        I -= data.UDinv * data.U.transpose();
     }
 
     JointModelDense<NQ, NV> toDense_impl() const

@@ -20,11 +20,11 @@
 #define __se3_joint_base_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/spatial/motion.hpp"
+#include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include <Eigen/Geometry>
-#include <Eigen/StdVector>
-#include <boost/variant.hpp>
 #include <limits>
 
 namespace se3
@@ -75,6 +75,9 @@ namespace se3
    typedef prefix traits<Joint>::Motion_t Motion_t;        \
    typedef prefix traits<Joint>::Bias_t Bias_t;        \
    typedef prefix traits<Joint>::F_t F_t;          \
+   typedef prefix traits<Joint>::U_t U_t;       \
+   typedef prefix traits<Joint>::D_t D_t;       \
+   typedef prefix traits<Joint>::UD_t UD_t;       \
    enum {                  \
     NQ = traits<Joint>::NQ,              \
     NV = traits<Joint>::NV               \
@@ -94,6 +97,9 @@ namespace se3
   typedef traits<Joint>::Motion_t Motion_t;     \
   typedef traits<Joint>::Bias_t Bias_t;       \
   typedef traits<Joint>::F_t F_t;       \
+  typedef traits<Joint>::U_t U_t;       \
+  typedef traits<Joint>::D_t D_t;       \
+  typedef traits<Joint>::UD_t UD_t;       \
   enum {              \
     NQ = traits<Joint>::NQ,         \
     NV = traits<Joint>::NV          \
@@ -108,6 +114,9 @@ namespace se3
   typedef prefix traits<Joint>::Motion_t Motion_t;      \
   typedef prefix traits<Joint>::Bias_t Bias_t;        \
   typedef prefix traits<Joint>::F_t F_t;        \
+  typedef prefix traits<Joint>::U_t U_t;       \
+  typedef prefix traits<Joint>::D_t D_t;       \
+  typedef prefix traits<Joint>::UD_t UD_t;       \
   enum {                \
     NQ = traits<Joint>::NQ,           \
     NV = traits<Joint>::NV            \
@@ -127,6 +136,9 @@ namespace se3
   typedef typename traits<Joint>::Motion_t Motion_t;         \
   typedef typename traits<Joint>::Bias_t Bias_t;         \
   typedef typename traits<Joint>::F_t F_t;           \
+  typedef typename traits<Joint>::U_t U_t;       \
+  typedef typename traits<Joint>::D_t D_t;       \
+  typedef typename traits<Joint>::UD_t UD_t;       \
   enum {                   \
     NQ = traits<Joint>::NQ,              \
     NV = traits<Joint>::NV               \
@@ -160,7 +172,13 @@ namespace se3
     const Transformation_t & M() const  { return static_cast<const JointData*>(this)->M;   }
     const Motion_t         & v() const  { return static_cast<const JointData*>(this)->v;   }
     const Bias_t           & c() const  { return static_cast<const JointData*>(this)->c;   }
-    F_t& F()        { return static_cast<      JointData*>(this)->F; }
+    F_t & F()        { return static_cast<      JointData*>(this)->F; }
+    
+    // [ABA CCRBA]
+    const U_t & U() const { return static_cast<const JointData*>(this)->U; }
+    U_t & U() { return static_cast<JointData*>(this)->U; }
+    const D_t & Dinv() const { return static_cast<const JointData*>(this)->Dinv; }
+    const UD_t & UDinv() const { return static_cast<const JointData*>(this)->UDinv; }
 
     JointDataDense<NQ, NV> toDense() const  { return static_cast<const JointData*>(this)->toDense_impl();   }
 
@@ -219,6 +237,11 @@ namespace se3
       const Eigen::VectorXd & qs, 
       const Eigen::VectorXd & vs ) const
     { return static_cast<const JointModel*>(this)->calc(data,qs,vs); }
+    
+    void calc_aba(JointData & data,
+                  Inertia::Matrix6 & I,
+                  const bool update_I = false) const
+    { return static_cast<const JointModel*>(this)->calc_aba(data, I, update_I); }
 
     Index i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.

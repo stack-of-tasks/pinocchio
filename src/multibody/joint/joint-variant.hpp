@@ -19,6 +19,8 @@
 #define __se3_joint_variant_hpp__
 
 #include "pinocchio/multibody/joint.hpp"
+#include <Eigen/StdVector>
+#include <boost/variant.hpp>
 
 namespace se3
 {

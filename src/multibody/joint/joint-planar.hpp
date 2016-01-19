@@ -113,9 +113,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,1> DenseBase;
+    typedef Eigen::Matrix<Scalar_t,3,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar_t,3,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar_t,6,3> DenseBase;
   }; // struct traits ConstraintPlanar
 
 
@@ -158,6 +158,7 @@ namespace se3
         result.template bottomRows <1> () = F.template bottomRows <1> ();
         return result;
       }
+      
     }; // struct ConstraintTranspose
 
     ConstraintTranspose transpose () const { return ConstraintTranspose(*this); }
@@ -232,6 +233,23 @@ namespace se3
 
     return M;
   }
+  
+  /* [ABA] Y*S operator (Inertia Y,Constraint S) */
+  //  inline Eigen::Matrix<double,6,1>
+  inline
+  Eigen::Matrix<Inertia::Scalar_t, 6, 3>
+  operator* (const Inertia::Matrix6 & Y, const ConstraintPlanar &)
+  {
+    typedef Eigen::Matrix<Inertia::Scalar_t, 6, 3> Matrix63;
+    Matrix63 IS;
+    
+    IS.leftCols(2) = Y.leftCols(2);
+    IS.rightCols(1) = Y.rightCols(1);
+    
+    return IS;
+  }
+  
+  
 
   namespace internal
   {
@@ -244,17 +262,22 @@ namespace se3
   template<>
   struct traits<JointPlanar>
   {
+    enum {
+      NQ = 3,
+      NV = 3
+    };
     typedef JointDataPlanar JointData;
     typedef JointModelPlanar JointModel;
     typedef ConstraintPlanar Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionPlanar Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,3> F_t;
-    enum {
-      NQ = 3,
-      NV = 3
-    };
+    typedef Eigen::Matrix<double,6,NV> F_t;
+    
+    // [ABA]
+    typedef Eigen::Matrix<double,6,NV> U_t;
+    typedef Eigen::Matrix<double,NV,NV> D_t;
+    typedef Eigen::Matrix<double,6,NV> UD_t;
   };
   template<> struct traits<JointDataPlanar> { typedef JointPlanar Joint; };
   template<> struct traits<JointModelPlanar> { typedef JointPlanar Joint; };
@@ -270,8 +293,13 @@ namespace se3
     Bias_t c;
 
     F_t F; // TODO if not used anymore, clean F_t
+    
+    // [ABA] specific data
+    U_t U;
+    D_t Dinv;
+    UD_t UDinv;
 
-    JointDataPlanar () : M(1) {}
+    JointDataPlanar () : M(1), U(), Dinv(), UDinv() {}
 
     JointDataDense<NQ, NV> toDense_impl() const
     {
@@ -322,6 +350,20 @@ namespace se3
       data.v.x_dot_ = q_dot(0);
       data.v.y_dot_ = q_dot(1);
       data.v.theta_dot_ = q_dot(2);
+    }
+    
+    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    {
+      data.U.leftCols<2> () = I.leftCols<2> ();
+      data.U.rightCols<1> () = I.rightCols<1> ();
+      Inertia::Matrix3 tmp;
+      tmp.leftCols<2> () = data.U.topRows<2> ().transpose();
+      tmp.rightCols<1> () = data.U.bottomRows<1> ();
+      data.Dinv = tmp.inverse();
+      data.UDinv = data.U * data.Dinv;
+      
+      if (update_I)
+        I -= data.UDinv * data.U.transpose();
     }
 
     JointModelDense<NQ, NV> toDense_impl() const

@@ -304,6 +304,14 @@ namespace se3
     0.0;
     return res;
   }
+  
+  /* [ABA] operator* (Inertia Y,Constraint S) */
+  template<int axis>
+  inline const Eigen::MatrixBase<const Inertia::Matrix6>::ColXpr
+  operator*(const Inertia::Matrix6 & Y, const ConstraintPrismatic<axis> & )
+  {
+    return Y.col(Inertia::LINEAR + axis);
+  }
 
   namespace internal 
   {
@@ -317,17 +325,22 @@ namespace se3
   template<int axis>
   struct traits< JointPrismatic<axis> >
   {
+    enum {
+      NQ = 1,
+      NV = 1
+    };
     typedef JointDataPrismatic<axis> JointData;
     typedef JointModelPrismatic<axis> JointModel;
     typedef ConstraintPrismatic<axis> Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionPrismatic<axis> Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,1> F_t;
-    enum {
-      NQ = 1,
-      NV = 1
-    };
+    typedef Eigen::Matrix<double,6,NV> F_t;
+    
+    // [ABA]
+    typedef Eigen::Matrix<double,6,NV> U_t;
+    typedef Eigen::Matrix<double,NV,NV> D_t;
+    typedef Eigen::Matrix<double,6,NV> UD_t;
   };
 
   template<int axis> struct traits< JointDataPrismatic<axis> > { typedef JointPrismatic<axis> Joint; };
@@ -345,11 +358,14 @@ namespace se3
     Bias_t c;
 
     F_t F;
+    
+    // [ABA] specific data
+    U_t U;
+    D_t Dinv;
+    UD_t UDinv;
 
-    JointDataPrismatic() : M(1) // Etat initial de la liaison ?
-    {
-      M.rotation(SE3::Matrix3::Identity());
-    }
+    JointDataPrismatic() : M(1), U(), Dinv(), UDinv()
+    {}
 
     JointDataDense<NQ, NV> toDense_impl() const
     {
@@ -390,6 +406,16 @@ namespace se3
 
       data.M.translation(JointPrismatic<axis>::cartesianTranslation(q));
       data.v.v = v;
+    }
+    
+    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    {
+      data.U = I.col(Inertia::LINEAR + axis);
+      data.Dinv[0] = 1./I(Inertia::LINEAR + axis, Inertia::LINEAR + axis);
+      data.UDinv = data.U * data.Dinv[0];
+      
+      if (update_I)
+        I -= data.UDinv * data.U.transpose();
     }
 
     JointModelDense<NQ, NV> toDense_impl() const
