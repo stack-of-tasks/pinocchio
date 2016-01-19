@@ -56,21 +56,29 @@ namespace se3
     { data_ << a0,a1,a2,a3,a4,a5; }
 
     static Symmetric3Tpl Zero()     { return Symmetric3Tpl(Vector6::Zero()  );  }
-    static Symmetric3Tpl Random()   { return Symmetric3Tpl(Vector6::Random().eval());  }
-    static Symmetric3Tpl Identity() { return Symmetric3Tpl( 1, 0, 1, 0, 0, 1);  }
+    void setZero() { data_.setZero(); }
+    
+    static Symmetric3Tpl Random()   { return RandomPositive();  }
+    void setRandom()
+    {
+      double
+      a = double(std::rand())/RAND_MAX*2.0-1.0,
+      b = double(std::rand())/RAND_MAX*2.0-1.0,
+      c = double(std::rand())/RAND_MAX*2.0-1.0,
+      d = double(std::rand())/RAND_MAX*2.0-1.0,
+      e = double(std::rand())/RAND_MAX*2.0-1.0,
+      f = double(std::rand())/RAND_MAX*2.0-1.0;
+      
+      data_ << a, b, c, d, e, f;
+    }
+    
+    static Symmetric3Tpl Identity() { return Symmetric3Tpl(1, 0, 1, 0, 0, 1);  }
+    void setIndentity() { data_ << 1, 0, 1, 0, 0, 1; }
 
     /* Requiered by Inertia::operator== */
     bool operator== (const Symmetric3Tpl & S2 ) const { return data_ == S2.data_; }
     
-    void setIdentity()
-    {
-      data_[0] = data_[2] = data_[5] = 1.;
-      data_[1] = data_[3] = data_[4] = 0.;
-    }
-    
-    void setZero() { data_.fill(0); }
-    
-    void fill(Scalar value) { data_.fill(value); }
+    void fill(const Scalar value) { data_.fill(value); }
     
     struct SkewSquare
     {
@@ -155,6 +163,7 @@ namespace se3
 			   a*b+b*c+d*e, b*b+c*c+e*e,
 			   a*d+b*e+d*f, b*d+c*e+e*f,  d*d+e*e+f*f );
     }
+    
 
     Matrix3 matrix() const
     {
