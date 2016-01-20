@@ -149,13 +149,13 @@ namespace se3
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
+#ifdef WITH_URDFDOM
         bp::def("buildModelFromUrdfWithRoot",buildModelFromUrdfWithRoot,
           bp::args("Filename (string)",
               "Root Joint Model"),
           "Parse the urdf file given in input and return a proper pinocchio model "
           "(remember to create the corresponding data structure).");
 
-#ifdef WITH_URDFDOM
 	bp::def("buildModelFromUrdf",buildModelFromUrdf,
 		bp::args("Filename (string)"),
 		"Parse the urdf file given in input and return a proper pinocchio model "

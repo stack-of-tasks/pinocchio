@@ -1,3 +1,20 @@
+//
+// Copyright (c) 2015 - 2016 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/joint.hpp"
@@ -41,9 +58,11 @@ int main()
 
   StackTicToc timer(StackTicToc::US);
   #ifdef NDEBUG
-  const int NBT = 1000*100;
+  const unsigned int NBT = 1000*100;
+  const unsigned int NBD = 1000; // for heavy tests, like computeDistances()
   #else
-    const int NBT = 1;
+    const unsigned int NBT = 1;
+    const unsigned int NBD = 1;
     std::cout << "(the time score in debug mode is not relevant) " << std::endl;
   #endif
     
@@ -109,11 +128,11 @@ int main()
 
 
   timer.tic();
-  SMOOTH(1000)
+  SMOOTH(NBT)
   {
     computeDistances(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo[_smooth]);
   }
-  double computeDistancesTime = timer.toc(StackTicToc::US)/1000 - (update_col_time + geom_time);
+  double computeDistancesTime = timer.toc(StackTicToc::US)/NBT - (update_col_time + geom_time);
   std::cout << "Compute distance between two geometry objects (mean time) = \t" << computeDistancesTime / romeo_data_geom.nCollisionPairs
             << " " << StackTicToc::unitName(StackTicToc::US) << " " << romeo_data_geom.nCollisionPairs << " col pairs" << std::endl;
 
@@ -122,12 +141,11 @@ int main()
 #ifdef WITH_HPP_MODEL_URDF
 
 
-  const unsigned int NBD = 10; // nb of distances test
 
-  std::vector<VectorXd> qs_romeo_pino     (NBD); 
-  std::vector<VectorXd> qdots_romeo_pino  (NBD); 
-  std::vector<VectorXd> qddots_romeo_pino (NBD); 
-  for(size_t i=0;i<NBD;++i)
+  std::vector<VectorXd> qs_romeo_pino     (NBT); 
+  std::vector<VectorXd> qdots_romeo_pino  (NBT); 
+  std::vector<VectorXd> qddots_romeo_pino (NBT); 
+  for(size_t i=0;i<NBT;++i)
   {
     qs_romeo_pino[i]     = Eigen::VectorXd::Random(romeo_model.nq);
     qs_romeo_pino[i].segment<4>(3) /= qs_romeo_pino[i].segment<4>(3).norm();
@@ -138,7 +156,7 @@ int main()
   std::vector<VectorXd> qdots_romeo_hpp  (qdots_romeo_pino);
   std::vector<VectorXd> qddots_romeo_hpp (qddots_romeo_pino);
 
-  for (size_t i = 0; i < NBD; ++i)
+  for (size_t i = 0; i < NBT; ++i)
   {
     Vector4d quaternion;
     quaternion <<  qs_romeo_pino[i][6], qs_romeo_pino[i][3], qs_romeo_pino[i][4], qs_romeo_pino[i][5];
@@ -161,100 +179,100 @@ hpp::model::HumanoidRobotPtr_t humanoidRobot =
 
 
   timer.tic();
-  SMOOTH(NBD)
+  SMOOTH(NBT)
   {
     updateCollisionGeometry(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo_pino[_smooth], true);
   }
-  double compute_forward_kinematics_time = timer.toc(StackTicToc::US)/NBD;
+  double compute_forward_kinematics_time = timer.toc(StackTicToc::US)/NBT;
   std::cout << "Update Collision Geometry < true > (K) = \t" << compute_forward_kinematics_time << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
   timer.tic();
-  SMOOTH(NBD)
+  SMOOTH(NBT)
   {
     humanoidRobot->currentConfiguration (qs_romeo_hpp[_smooth]);
     humanoidRobot->computeForwardKinematics ();
   }
-  double compute_forward_kinematics_time_hpp = timer.toc(StackTicToc::US)/NBD;
+  double compute_forward_kinematics_time_hpp = timer.toc(StackTicToc::US)/NBT;
   std::cout << "HPP - Compute Forward Kinematics (K) = \t" << compute_forward_kinematics_time_hpp
             << StackTicToc::unitName(StackTicToc::US) << std::endl;
   
   timer.tic();
-  SMOOTH(NBD)
+  SMOOTH(NBT)
   {
     computeCollisions(romeo_data_geom, true);
   }
-  double is_romeo_colliding_time_pino = timer.toc(StackTicToc::US)/NBD;
+  double is_romeo_colliding_time_pino = timer.toc(StackTicToc::US)/NBT;
   std::cout << "Pinocchio - Collision Test : robot in collision? (G) = \t" << is_romeo_colliding_time_pino
             << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
   timer.tic();
-  SMOOTH(NBD)
+  SMOOTH(NBT)
   {
     humanoidRobot->collisionTest();
   }
-  double is_romeo_colliding_time_hpp = timer.toc(StackTicToc::US)/NBD;
+  double is_romeo_colliding_time_hpp = timer.toc(StackTicToc::US)/NBT;
   std::cout << "HPP - Collision Test : robot in collision? (G)= \t" << is_romeo_colliding_time_hpp
             << StackTicToc::unitName(StackTicToc::US) << std::endl;
   
   timer.tic();
-  SMOOTH(NBD)
+  SMOOTH(NBT)
   {
     computeCollisions(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo_pino[_smooth], true);
   }
-  is_romeo_colliding_time_pino = timer.toc(StackTicToc::US)/NBD;
+  is_romeo_colliding_time_pino = timer.toc(StackTicToc::US)/NBT;
   std::cout << "Pinocchio - Collision Test : update + robot in collision? (K+G)= \t" << is_romeo_colliding_time_pino
             << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
 
   timer.tic();
-  SMOOTH(NBD)
+  SMOOTH(NBT)
   {
     humanoidRobot->currentConfiguration (qs_romeo_hpp[_smooth]);
     humanoidRobot->computeForwardKinematics ();
     humanoidRobot->collisionTest();
   }
-  is_romeo_colliding_time_hpp = timer.toc(StackTicToc::US)/NBD;
+  is_romeo_colliding_time_hpp = timer.toc(StackTicToc::US)/NBT;
   std::cout << "HPP - Collision Test : update + robot in collision? (K+G) = \t" << is_romeo_colliding_time_hpp
             << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
 
 
   timer.tic();
-  SMOOTH(NBD)
+  SMOOTH(NBT)
   {
     computeDistances(romeo_data_geom);
   }
-  computeDistancesTime = timer.toc(StackTicToc::US)/NBD ;
+  computeDistancesTime = timer.toc(StackTicToc::US)/NBT ;
   std::cout << "Pinocchio - Compute distances (D) " << romeo_data_geom.nCollisionPairs << " col pairs\t" << computeDistancesTime 
             << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
   timer.tic();
-  SMOOTH(NBD)
+  SMOOTH(NBT)
   {
     humanoidRobot->computeDistances ();
   }
-  double hpp_compute_distances = timer.toc(StackTicToc::US)/NBD ;
+  double hpp_compute_distances = timer.toc(StackTicToc::US)/NBT ;
   std::cout << "HPP - Compute distances (D) " << humanoidRobot->distanceResults().size() << " col pairs\t" << hpp_compute_distances 
             << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;
   
   timer.tic();
-  SMOOTH(NBD)
+  SMOOTH(NBT)
   {
     computeDistances(romeo_model, romeo_data, romeo_model_geom, romeo_data_geom, qs_romeo_pino[_smooth]);
   }
-  computeDistancesTime = timer.toc(StackTicToc::US)/NBD ;
+  computeDistancesTime = timer.toc(StackTicToc::US)/NBT ;
   std::cout << "Pinocchio - Update + Compute distances (K+D) " << romeo_data_geom.nCollisionPairs << " col pairs\t" << computeDistancesTime 
             << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
 
   timer.tic();
-  SMOOTH(NBD)
+  SMOOTH(NBT)
   {
     humanoidRobot->currentConfiguration (qs_romeo_hpp[_smooth]);
     humanoidRobot->computeForwardKinematics ();
     humanoidRobot->computeDistances ();
   }
-  hpp_compute_distances = timer.toc(StackTicToc::US)/NBD ;
+  hpp_compute_distances = timer.toc(StackTicToc::US)/NBT ;
   std::cout << "HPP - Update + Compute distances (K+D) " << humanoidRobot->distanceResults().size() << " col pairs\t" << hpp_compute_distances 
             << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;
 

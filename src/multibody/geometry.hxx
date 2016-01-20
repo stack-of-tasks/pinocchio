@@ -76,12 +76,18 @@ namespace se3
 
   inline void GeometryModel::addInnerObject(Index joint, Index inner_object)
   {
-    innerObjects[joint].push_back(inner_object);
+    if (std::find(innerObjects[joint].begin(), innerObjects[joint].end(),inner_object)==innerObjects[joint].end())
+      innerObjects[joint].push_back(inner_object);
+    else
+      std::cout << "inner object already added" << std::endl;
   }
 
   inline void GeometryModel::addOutterObject(Index joint, Index outer_object)
   {
-    outerObjects[joint].push_back(outer_object);
+    if (std::find(outerObjects[joint].begin(), outerObjects[joint].end(),outer_object)==outerObjects[joint].end())
+      outerObjects[joint].push_back(outer_object);
+    else
+      std::cout << "outer object already added" << std::endl;
   }
 
   inline std::ostream& operator<<(std::ostream& os, const GeometryModel& model_geom)
