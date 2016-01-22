@@ -300,8 +300,8 @@ namespace se3
         "compute the distance between each collision pairs"
         );
 
-      }
 #endif
+      }
     };
     
   }} // namespace se3::python
