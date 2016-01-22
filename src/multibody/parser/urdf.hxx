@@ -389,23 +389,46 @@ namespace se3
   }
   
   
-            template <typename D>
+  template <typename D>
   void parseTree (::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset, const JointModelBase<D> & root_joint, const bool verbose) throw (std::invalid_argument)
   {
     if (!link->inertial)
     {
-      const std::string exception_message (link->name + " - spatial inertia information missing.");
-      throw std::invalid_argument(exception_message);
+      // If the root link has only one child
+      if (link->child_links.size() == 1)
+      {
+        ::urdf::LinkPtr child_link = link->child_links[0];
+        const Inertia & Y = convertFromUrdf(*child_link->inertial);
+        const bool has_visual = (child_link->visual) ? true : false;
+        model.addBody(0, root_joint, placementOffset, Y, "root_joint", child_link->name, has_visual);
+      
+        // Change the name of the parent joint
+        child_link->parent_joint->name = "root_joint";
+      
+        BOOST_FOREACH(::urdf::LinkConstPtr child, child_link->child_links)
+        {
+          parseTree(child, model, SE3::Identity(), verbose);
+        }
+      }
+      else
+      {
+        const std::string exception_message (link->name + " - spatial inertial information missing with more than one child.");
+        throw std::invalid_argument(exception_message);
+      }
+    
     }
-    
-    const Inertia & Y = convertFromUrdf(*link->inertial);
-    const bool has_visual = (link->visual) ? true : false;
-    model.addBody(0, root_joint, placementOffset, Y , "root_joint", link->name, has_visual);
-    
-    BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
+    else
     {
-      parseTree(child, model, SE3::Identity(), verbose);
+      const Inertia & Y = convertFromUrdf(*link->inertial);
+      const bool has_visual = (link->visual) ? true : false;
+      model.addBody(0, root_joint, placementOffset, Y , "root_joint", link->name, has_visual);
+    
+      BOOST_FOREACH(::urdf::LinkConstPtr child, link->child_links)
+      {
+        parseTree(child, model, SE3::Identity(), verbose);
+      }
     }
+  
   }
   
   

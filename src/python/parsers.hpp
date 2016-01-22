@@ -26,6 +26,11 @@
 
 #ifdef WITH_URDFDOM
   #include "pinocchio/multibody/parser/urdf.hpp"
+#ifdef WITH_HPP_FCL
+  #include "pinocchio/python/geometry-model.hpp"
+  #include "pinocchio/python/geometry-data.hpp"
+  #include "pinocchio/multibody/parser/urdf-with-geometry.hpp"
+#endif
 #endif
 
 #ifdef WITH_LUA
@@ -38,6 +43,14 @@ namespace se3
   {
     struct ParsersPythonVisitor
     {
+
+      template<class T1, class T2>
+      struct PairToTupleConverter {
+        static PyObject* convert(const std::pair<T1, T2>& pair) {
+          return boost::python::incref(boost::python::make_tuple(pair.first, pair.second).ptr());
+        }
+      };
+
       
 #ifdef WITH_URDFDOM
       struct build_model_visitor : public boost::static_visitor<ModelHandler>
@@ -68,6 +81,57 @@ namespace se3
 	*model = se3::urdf::buildModel(filename);
 	return ModelHandler(model,true);
       }
+
+
+#ifdef WITH_HPP_FCL
+      struct build_model_and_geom_visitor : public boost::static_visitor<std::pair<ModelHandler, GeometryModelHandler> >
+      {
+        const std::string& _filenameUrdf;
+        const std::string& _filenameMeshRootDir;
+
+        build_model_and_geom_visitor(const std::string& filenameUrdf,
+                                     const std::string& filenameMeshRootDir): _filenameUrdf(filenameUrdf)
+                                                                            , _filenameMeshRootDir(filenameMeshRootDir)
+        {}
+
+        template <typename T> std::pair<ModelHandler, GeometryModelHandler> operator()( T & operand ) const
+        {
+
+
+          Model * model = new Model();
+          GeometryModel * geometry_model = new GeometryModel();
+          std::pair < Model, GeometryModel > models = se3::urdf::buildModelAndGeom(_filenameUrdf, _filenameMeshRootDir, operand);
+          *model = models.first;
+          *geometry_model = models.second;
+          return std::pair<ModelHandler, GeometryModelHandler> ( ModelHandler(model, true),
+                                                                 GeometryModelHandler(geometry_model, true)
+                                                               );
+        }
+      };
+
+      static std::pair<ModelHandler, GeometryModelHandler> buildModelAndGeomFromUrdfWithRoot( const std::string & filenameUrdf,
+                                                      const std::string & filenameMeshRootDir,
+                                                      bp::object o
+                                                      )
+      {
+        JointModelVariant variant = bp::extract<JointModelVariant> (o);
+        return boost::apply_visitor(build_model_and_geom_visitor(filenameUrdf, filenameMeshRootDir), variant);
+      }
+
+      static std::pair<ModelHandler, GeometryModelHandler> buildModelAndGeomFromUrdf( const std::string & filenameUrdf,
+                                                                                      const std::string & filenameMeshRootDir)
+      {
+        Model * model = new Model();
+        GeometryModel * geometry_model = new GeometryModel();
+        std::pair < Model, GeometryModel > models = se3::urdf::buildModelAndGeom(filenameUrdf, filenameMeshRootDir);
+        *model = models.first;
+        *geometry_model = models.second;
+        return std::pair<ModelHandler, GeometryModelHandler> ( ModelHandler(model, true),
+                                                               GeometryModelHandler(geometry_model, true)
+                                                             );
+      }
+#endif
+
 #endif
 
 #ifdef WITH_LUA
@@ -85,17 +149,32 @@ namespace se3
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
+#ifdef WITH_URDFDOM
         bp::def("buildModelFromUrdfWithRoot",buildModelFromUrdfWithRoot,
           bp::args("Filename (string)",
               "Root Joint Model"),
           "Parse the urdf file given in input and return a proper pinocchio model "
           "(remember to create the corresponding data structure).");
 
-#ifdef WITH_URDFDOM
 	bp::def("buildModelFromUrdf",buildModelFromUrdf,
 		bp::args("Filename (string)"),
 		"Parse the urdf file given in input and return a proper pinocchio model "
 		"(remember to create the corresponding data structure).");
+  #ifdef WITH_HPP_FCL
+
+      bp::to_python_converter<std::pair<ModelHandler, GeometryModelHandler>, PairToTupleConverter<ModelHandler, GeometryModelHandler> >();
+
+      bp::def("buildModelAndGeomFromUrdfWithRoot",buildModelAndGeomFromUrdfWithRoot,
+          bp::args("FilenameUrdf (string)", "FilenameMeshRootDirhRootDir string) ", 
+              "Root Joint Model"),
+          "Parse the urdf file given in input and return a proper pinocchio model starting with a given root joint and geometry model "
+          "(remember to create the corresponding data structures).");
+
+      bp::def("buildModelAndGeomFromUrdf",buildModelAndGeomFromUrdf,
+          bp::args("Filename (string)"), "FilenameMeshRootDirhRootDir string) ",
+          "Parse the urdf file given in input and return a proper pinocchio model and geometry model"
+          "(remember to create the corresponding data structures).");
+  #endif
 #endif
 
 #ifdef WITH_LUA

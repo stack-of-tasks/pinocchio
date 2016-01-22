@@ -30,6 +30,11 @@
 #include "pinocchio/python/parsers.hpp"
 #include "pinocchio/python/explog.hpp"
 
+#ifdef WITH_HPP_FCL
+#include "pinocchio/python/geometry-model.hpp"
+#include "pinocchio/python/geometry-data.hpp"
+#endif
+
 namespace se3
 {
   namespace python
@@ -62,6 +67,10 @@ namespace se3
     {
       ModelPythonVisitor::expose();
       DataPythonVisitor::expose();
+#ifdef WITH_HPP_FCL      
+      GeometryModelPythonVisitor::expose();
+      GeometryDataPythonVisitor::expose();
+#endif      
     }
     void exposeAlgorithms()
     {

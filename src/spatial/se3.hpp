@@ -78,6 +78,7 @@ namespace se3
       operator Matrix6() const { return toActionMatrix(); }
 
 
+
       void disp(std::ostream & os) const
       {
         static_cast<const Derived_t*>(this)->disp_impl(os);
@@ -101,6 +102,17 @@ namespace se3
 
       Derived_t act   (const Derived_t& m2) const { return derived().act_impl(m2); }
       Derived_t actInv(const Derived_t& m2) const { return derived().actInv_impl(m2); }
+
+
+      bool operator == (const Derived_t & other) const
+      {
+        return derived().__equal__(other);
+      }
+
+      bool isApprox (const Derived_t & other) const
+      {
+        return derived().isApprox_impl(other);
+      }
 
       friend std::ostream & operator << (std::ostream & os,const SE3Base<Derived> & X)
       { 
@@ -153,11 +165,18 @@ namespace se3
     {
     }
 
+    template<typename M4>
+    SE3Tpl(const Eigen::MatrixBase<M4> & m) 
+    : rot(m.template block<3,3>(LINEAR,LINEAR)), trans(m.template block<3,1>(LINEAR,ANGULAR))
+    {
+    }
+
     SE3Tpl(int) : rot(Matrix3::Identity()), trans(Vector3::Zero()) {}
 
     template<typename S2, int O2>
     SE3Tpl( const SE3Tpl<S2,O2> & clone )
     : rot(clone.rotation()),trans(clone.translation()) {}
+
 
     template<typename S2, int O2>
     SE3Tpl & operator= (const SE3Tpl<S2,O2> & other)
@@ -220,6 +239,7 @@ namespace se3
       return M;
     }
 
+
     void disp_impl(std::ostream & os) const
     {
       os << "  R =\n" << rot << std::endl
@@ -249,6 +269,18 @@ namespace se3
 
     SE3Tpl __mult__(const SE3Tpl & m2) const { return this->act(m2);}
 
+    bool __equal__( const SE3Tpl & m2 ) const
+    {
+      return (rotation_impl() == m2.rotation() && translation_impl() == m2.translation());
+    }
+
+    bool isApprox_impl( const SE3Tpl & m2 ) const
+    {
+      Matrix4 diff( toHomogeneousMatrix_impl() - 
+                              m2.toHomogeneousMatrix_impl());
+      return (diff.isMuchSmallerThan(toHomogeneousMatrix_impl(), 1e-14)
+              && diff.isMuchSmallerThan(m2.toHomogeneousMatrix_impl(), 1e-14) );
+    }
 
   public:
     const Angular_t & rotation_impl() const { return rot; }

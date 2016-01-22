@@ -20,12 +20,14 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
-  
+
 namespace se3
 {
   inline void geometry(const Model & model,
                        Data & data,
                        const Eigen::VectorXd & q);
+
+
 
   inline void kinematics(const Model & model,
                          Data & data,
@@ -89,6 +91,7 @@ namespace se3
                         );
     }
   }
+
 
   struct KinematicsStep : public fusion::JointVisitor<KinematicsStep>
   {
