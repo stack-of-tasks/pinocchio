@@ -29,7 +29,7 @@ namespace eigenpy
   template<>
   struct UnalignedEquivalent<se3::Motion>
   {
-    typedef se3::MotionTpl<double,Eigen::DontAlign> type;
+    typedef se3::MotionTpl<se3::Motion::Scalar_t,Eigen::DontAlign> type;
   };
 } // namespace eigenpy
 

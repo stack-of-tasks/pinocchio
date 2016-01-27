@@ -28,7 +28,7 @@ namespace eigenpy
   template<>
   struct UnalignedEquivalent<se3::SE3>
   {
-    typedef se3::SE3Tpl<double,Eigen::DontAlign> type;
+    typedef se3::SE3Tpl<se3::SE3::Scalar_t,Eigen::DontAlign> type;
   };
 } // namespace eigenpy
 
