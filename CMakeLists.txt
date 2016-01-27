@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 CNRS
+# Copyright (c) 2015-2016 CNRS
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 # This file is part of Pinocchio
@@ -29,7 +29,6 @@ SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
 
 IF(APPLE)
   SET(CMAKE_MACOSX_RPATH 1)
-  SET(CMAKE_OSX_DEPLOYMENT_TARGET 10.10)
 ENDIF(APPLE)
 
 # Disable -Werror on Unix for now.
