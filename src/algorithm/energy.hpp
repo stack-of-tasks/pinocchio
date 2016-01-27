@@ -74,7 +74,7 @@ namespace se3
     data.kinetic_energy = 0.;
     
     if (update_kinematics)
-      kinematics(model,data,q,v);
+      forwardKinematics(model,data,q,v);
     
     for(Model::Index i=1;i<(Model::Index)(model.nbody);++i)
       data.kinetic_energy += model.inertias[i].vtiv(data.v[i]);
@@ -93,7 +93,7 @@ namespace se3
     const Motion::ConstLinear_t & g = model.gravity.linear();
     
     if (update_kinematics)
-      geometry(model,data,q);
+      forwardKinematics(model,data,q);
     
     for(Model::Index i=1;i<(Model::Index)(model.nbody);++i)
       data.potential_energy += model.inertias[i].mass() * data.oMi[i].translation().dot(g);

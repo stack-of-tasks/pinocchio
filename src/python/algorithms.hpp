@@ -113,28 +113,28 @@ namespace se3
         computeJacobians( *model,*data,q );
       }
       
-      static void geometry_proxy(const ModelHandler & model,
-                                 DataHandler & data,
-                                 const VectorXd_fx & q)
+      static void fk_0_proxy(const ModelHandler & model,
+                           DataHandler & data,
+                           const VectorXd_fx & q)
       {
-        geometry(*model,*data,q);
+        forwardKinematics(*model,*data,q);
       }
 
-      static void kinematics_proxy( const ModelHandler& model, 
-            DataHandler & data,
-            const VectorXd_fx & q,
-            const VectorXd_fx & qdot )
+      static void fk_1_proxy( const ModelHandler& model,
+                           DataHandler & data,
+                           const VectorXd_fx & q,
+                           const VectorXd_fx & qdot )
       {
-        kinematics( *model,*data,q,qdot );
+        forwardKinematics(*model,*data,q,qdot);
       }
 
-      static void dynamics_proxy(const ModelHandler& model,
-                                 DataHandler & data,
-                                 const VectorXd_fx & q,
-                                 const VectorXd_fx & v,
-                                 const VectorXd_fx & a)
+      static void fk_2_proxy(const ModelHandler& model,
+                           DataHandler & data,
+                           const VectorXd_fx & q,
+                           const VectorXd_fx & v,
+                           const VectorXd_fx & a)
       {
-        dynamics(*model,*data,q,v,a);
+        forwardKinematics(*model,*data,q,v,a);
       }
 
       static void computeAllTerms_proxy(const ModelHandler & model,
@@ -245,20 +245,20 @@ namespace se3
        "Configuration q (size Model::nq)"),
     "Compute the jacobian of the center of mass, put the result in Data and return it.");
 
-  bp::def("kinematics",kinematics_proxy,
+  bp::def("kinematics",fk_1_proxy,
     bp::args("Model","Data",
        "Configuration q (size Model::nq)",
        "Velocity v (size Model::nv)"),
     "Compute the placements and spatial velocities of all the frames of the kinematic "
     "tree and put the results in data.");
 
-  bp::def("geometry",geometry_proxy,
+  bp::def("geometry",fk_0_proxy,
     bp::args("Model","Data",
         "Configuration q (size Model::nq)"),
         "Compute the placements of all the frames of the kinematic "
         "tree and put the results in data.");
         
-        bp::def("dynamics",dynamics_proxy,
+        bp::def("dynamics",fk_2_proxy,
                 bp::args("Model","Data",
                          "Configuration q (size Model::nq)",
                          "Velocity v (size Model::nv)",
