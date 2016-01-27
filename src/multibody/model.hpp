@@ -63,7 +63,7 @@ namespace se3
     std::vector<std::string> fix_bodyNames;// Name of fixed-joint <i>
 
     Motion gravity;                       // Spatial gravity
-    static const Eigen::Vector3d gravity981; // Default 3D gravity (=(0,0,9.81))
+    static const Eigen::Vector3d gravity981; // Default 3D gravity (=(0,0,-9.81))
 
     Model()
       : nq(0)
