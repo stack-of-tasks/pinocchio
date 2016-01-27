@@ -83,11 +83,10 @@ namespace se3
     Scalar t = w.norm();
     if (t > 1e-15)
     {
-      Matrix3 S(skew(w/t));
+      Matrix3 S(alphaSkew(1./t, w));
       double ct,st; SINCOS (t,&st,&ct);
       Matrix3 V((1. - ct)/t * S + (1. - st/t) * S * S);
-      V.diag() += 1.;
-      Vector3 p(V * v);
+      Vector3 p(v + V * v);
       return SE3Tpl<_Scalar, _Options>(exp3(w), p);
     }
     else
@@ -134,10 +133,10 @@ namespace se3
     Scalar t = w.norm();
     if (t > 1e-15)
     {
-      Matrix3 S(skew(w/t));
+      Matrix3 S(alphaSkew(1./t, w));
       double ct,st; SINCOS (t,&st,&ct);
-      Matrix3 V((1. - ct)/t * S + (1. - st/t) * S * S);
-      V.diag() += 1.;
+      Matrix3 V(Matrix3::Identity() + (1. - ct)/t * S + (1. - st/t) * S * S);
+   
       return MotionTpl<_Scalar,_Options>(V.inverse() * p, w);
     }
     else
