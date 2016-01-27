@@ -22,6 +22,18 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 
 namespace se3 {
+  
+  ///
+  /// \brief Computes the kinetic energy of the system.
+  ///        The result is accessible throw data.kinetic_energy.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  ///
+  /// \return The kinetic energy of the system in [J].
+  ///
   inline double
   kineticEnergy(const Model & model,
                 Data & data,
