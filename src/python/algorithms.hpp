@@ -163,6 +163,14 @@ namespace se3
       {
         return kineticEnergy(*model,*data,q,v,update_kinematics);
       }
+      
+      static double potentialEnergy_proxy(const ModelHandler & model,
+                                          DataHandler & data,
+                                          const VectorXd_fx & q,
+                                          const bool update_kinematics = true)
+      {
+        return potentialEnergy(*model,*data,q,update_kinematics);
+      }
 
 #ifdef WITH_HPP_FCL
       static bool computeCollisions_proxy(GeometryDataHandler & data_geom,
@@ -295,6 +303,14 @@ namespace se3
                 "Compute the kinematic energy of the model for the "
                 "given joint configuration and velocity and store it "
                 " in data.kinetic_energy. By default, the kinematics of model is updated.");
+        
+        bp::def("potentialEnergy",potentialEnergy_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Update kinematics (bool)"),
+                "Compute the potential energy of the model for the "
+                "given the joint configuration and store it "
+                " in data.potential_energy. By default, the kinematics of model is updated.");
 
 #ifdef WITH_HPP_FCL
   bp::def("computeCollisions",computeCollisions_proxy,
