@@ -63,7 +63,7 @@ namespace se3
     std::vector<std::string> fix_bodyNames;// Name of fixed-joint <i>
 
     Motion gravity;                       // Spatial gravity
-    static const Eigen::Vector3d gravity981; // Default 3D gravity (=(0,0,9.81))
+    static const Eigen::Vector3d gravity981; // Default 3D gravity (=(0,0,-9.81))
 
     Model()
       : nq(0)
@@ -155,6 +155,7 @@ namespace se3
     Eigen::VectorXd upperPositionLimit;   // limit for joint upper position
     
     double kinetic_energy; // kinetic energy of the model
+    double potential_energy; // potential energy of the model
 
     Data( const Model& ref );
 

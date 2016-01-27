@@ -104,6 +104,7 @@ namespace se3
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,upperPositionLimit,"Limit for joint upper position")
         
         .ADD_DATA_PROPERTY_CONST(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
+        .ADD_DATA_PROPERTY_CONST(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
 	  ;
       }
 
@@ -138,6 +139,7 @@ namespace se3
       IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,upperPositionLimit,"Limit for joint upper position")
       
       IMPL_DATA_PROPERTY_CONST(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
+      IMPL_DATA_PROPERTY_CONST(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
       
       static Vector3d_fx com_pos (DataHandler & d, int i) { return d->com[(size_t) i]; }
       static Vector3d_fx com_vel (DataHandler & d, int i) { return d->vcom[(size_t) i]; }
