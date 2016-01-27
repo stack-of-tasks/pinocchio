@@ -155,6 +155,7 @@ namespace se3
     Eigen::VectorXd upperPositionLimit;   // limit for joint upper position
     
     double kinetic_energy; // kinetic energy of the model
+    double potential_energy; // potential energy of the model
 
     Data( const Model& ref );
 

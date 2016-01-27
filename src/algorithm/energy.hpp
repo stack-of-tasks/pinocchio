@@ -40,8 +40,26 @@ namespace se3 {
                 const Eigen::VectorXd & q,
                 const Eigen::VectorXd & v,
                 const bool update_kinematics = true);
+  
+  ///
+  /// \brief Computes the potential energy of the system, i.e. the potential energy linked to the gravity field.
+  ///        The result is accessible throw data.potential_energy.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  ///
+  /// \return The potential energy of the system in [J].
+  ///
+  inline double
+  potentialEnergy(const Model & model,
+                  Data & data,
+                  const Eigen::VectorXd & q,
+                  const bool update_kinematics = true);
 }
 
+/* --- Details -------------------------------------------------------------------- */
+/* --- Details -------------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------------- */
 namespace se3
 {
@@ -63,6 +81,24 @@ namespace se3
     
     data.kinetic_energy *= .5;
     return data.kinetic_energy;
+  }
+  
+  inline double
+  potentialEnergy(const Model & model,
+                  Data & data,
+                  const Eigen::VectorXd & q,
+                  const bool update_kinematics)
+  {
+    data.potential_energy = 0.;
+    const Motion::ConstLinear_t & g = model.gravity.linear();
+    
+    if (update_kinematics)
+      geometry(model,data,q);
+    
+    for(Model::Index i=1;i<(Model::Index)(model.nbody);++i)
+      data.potential_energy += model.inertias[i].mass() * data.oMi[i].translation().dot(g);
+    
+    return data.potential_energy;
   }
 }
 #endif // __se3_energy_hpp__
