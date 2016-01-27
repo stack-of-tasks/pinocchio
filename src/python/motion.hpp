@@ -116,14 +116,14 @@ namespace se3
 
       static void expose()
       {
-	bp::class_<Motion_fx>("Motion",
-			     "Motion vectors, in se3* == F^6.\n\n"
-			     "Supported operations ...",
-			     bp::init<>())
-	  .def(MotionPythonVisitor<Motion>())
-	;
-    
-	bp::to_python_converter< Motion,MotionPythonVisitor<Motion> >();
+        bp::class_<Motion_fx>("Motion",
+                              "Motion vectors, in se3 == M^6.\n\n"
+                              "Supported operations ...",
+                              bp::init<>())
+        .def(MotionPythonVisitor<Motion>())
+        ;
+        
+        bp::to_python_converter< Motion,MotionPythonVisitor<Motion> >();
     }
 
 
