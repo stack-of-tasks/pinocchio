@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -153,6 +153,8 @@ namespace se3
 
     Eigen::VectorXd lowerPositionLimit;   // limit for joint lower position
     Eigen::VectorXd upperPositionLimit;   // limit for joint upper position
+    
+    double kinetic_energy; // kinetic energy of the model
 
     Data( const Model& ref );
 
