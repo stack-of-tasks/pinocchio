@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -67,45 +67,52 @@ namespace se3
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
-	cl
-	  .def(bp::init<Vector3_fx,Vector3_fx>
-	       ((bp::arg("linear"),bp::arg("angular")),
-		"Initialize from linear and angular components (dont mix the order)."))
-	  .def(bp::init<Vector6_fx>((bp::arg("Vector 6d")),"Init from vector 6 [f,n]"))
+        cl
+        .def(bp::init<Vector3_fx,Vector3_fx>
+             ((bp::arg("linear"),bp::arg("angular")),
+              "Initialize from linear and angular components (dont mix the order)."))
+        .def(bp::init<Vector6_fx>((bp::arg("Vector 6d")),"Init from vector 6 [v,w]"))
+        
+        .add_property("linear",&MotionPythonVisitor::getLinear,&MotionPythonVisitor::setLinear)
+        .add_property("angular",&MotionPythonVisitor::getAngular,&MotionPythonVisitor::setAngular)
+        .add_property("vector",&MotionPythonVisitor::getVector,&MotionPythonVisitor::setVector)
+        .add_property("np",&MotionPythonVisitor::getVector)
+        
+        .def("se3Action",&Motion_fx::se3Action)
+        .def("se3ActionInverse",&Motion_fx::se3ActionInverse)
+        
+        .def("setZero",&MotionPythonVisitor::setZero)
+        .def("setRandom",&MotionPythonVisitor::setRandom)
+        
+        .def("cross_motion",&MotionPythonVisitor::cross_motion)
+        .def("cross_force",&MotionPythonVisitor::cross_force)
+        
+        .def("__add__",&MotionPythonVisitor::add)
+        .def("__sub__",&MotionPythonVisitor::subst)
+        .def(bp::self_ns::str(bp::self_ns::self))
+        
+        .def("Random",&Motion_fx::Random)
+        .staticmethod("Random")
+        .def("Zero",&Motion_fx::Zero)
+        .staticmethod("Zero")
+        ;
+      }
 
-	  .add_property("linear",&MotionPythonVisitor::getLinear,&MotionPythonVisitor::setLinear)
-	  .add_property("angular",&MotionPythonVisitor::getAngular,&MotionPythonVisitor::setAngular)
-	  .def("vector",&Motion_fx::toVector)
-	  .def("se3Action",&Motion_fx::se3Action)
-	  .def("se3ActionInverse",&Motion_fx::se3ActionInverse)
-
-	  .def("cross_motion",&MotionPythonVisitor::cross_motion)
-	  .def("cross_force",&MotionPythonVisitor::cross_force)
-
-	  .def("__add__",&MotionPythonVisitor::add)
-	  .def("__sub__",&MotionPythonVisitor::subst)
-	  .def("__str__",&MotionPythonVisitor::toString)
-	  .add_property("np",&Motion_fx::toVector)
-
-	  .def("Random",&Motion_fx::Random)
-	  .staticmethod("Random")
-	  .def("Zero",&Motion_fx::Zero)
-	  .staticmethod("Zero")
-	  ;
-	  }
-
-      static Vector3_fx getLinear( const Motion_fx & self ) { return self.linear(); }
-      static void setLinear( Motion_fx & self, const Vector3_fx & R ) { self.linear(R); }
-      static Vector3_fx getAngular( const Motion_fx & self ) { return self.angular(); }
-      static void setAngular( Motion_fx & self, const Vector3_fx & R ) { self.angular(R); }
+      static Vector3_fx getLinear(const Motion_fx & self) { return self.linear(); }
+      static void setLinear (Motion_fx & self, const Vector3_fx & v) { self.linear(v); }
+      static Vector3_fx getAngular(const Motion_fx & self) { return self.angular(); }
+      static void setAngular(Motion_fx & self, const Vector3_fx & w) { self.angular(w); }
+      
+      static Vector6_fx getVector(const Motion_fx & self) { return self.toVector(); }
+      static void setVector(Motion_fx & self, const Vector6_fx & v) { self = v; }
+      
+      static void setZero(Motion_fx & self) { self.setZero(); }
+      static void setRandom(Motion_fx & self) { self.setRandom(); }
       
       static Motion_fx add( const Motion_fx& m1,const Motion_fx& m2 ) { return m1+m2; }     
       static Motion_fx subst( const Motion_fx& m1,const Motion_fx& m2 ) { return m1-m2; }     
       static Motion_fx cross_motion( const Motion_fx& m1,const Motion_fx& m2 ) { return m1.cross(m2); }
       static Force_fx cross_force( const Motion_fx& m,const Force_fx& f ) { return m.cross(f); }
-
-      static std::string toString(const Motion_fx& m) 
-      {	  std::ostringstream s; s << m; return s.str();       }
 
       static void expose()
       {

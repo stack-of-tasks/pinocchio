@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -31,14 +31,15 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/joint-limits.hpp"
+#include "pinocchio/algorithm/energy.hpp"
 
 #include "pinocchio/simulation/compute-all-terms.hpp"
 
 #ifdef WITH_HPP_FCL
-#include "pinocchio/multibody/geometry.hpp"
-#include "pinocchio/python/geometry-model.hpp"
-#include "pinocchio/python/geometry-data.hpp"
-#include "pinocchio/algorithm/collisions.hpp"
+  #include "pinocchio/multibody/geometry.hpp"
+  #include "pinocchio/python/geometry-model.hpp"
+  #include "pinocchio/python/geometry-data.hpp"
+  #include "pinocchio/algorithm/collisions.hpp"
 #endif
 
 namespace se3
@@ -152,6 +153,15 @@ namespace se3
                                     const VectorXd_fx & q)
       {
         jointLimits(*model,*data,q);
+      }
+      
+      static double kineticEnergy_proxy(const ModelHandler & model,
+                                        DataHandler & data,
+                                        const VectorXd_fx & q,
+                                        const VectorXd_fx & v,
+                                        const bool update_kinematics = true)
+      {
+        return kineticEnergy(*model,*data,q,v,update_kinematics);
       }
 
 #ifdef WITH_HPP_FCL
@@ -275,7 +285,16 @@ namespace se3
     bp::args("Model","Data",
         "Configuration q (size Model::nq)"),
         "Compute the maximum limits of all the joints of the model "
-        "and put the results in data.");
+          "and put the results in data.");
+        
+        bp::def("kineticEnergy",kineticEnergy_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)",
+                         "Update kinematics (bool)"),
+                "Compute the kinematic energy of the model for the "
+                "given joint configuration and velocity and store it "
+                " in data.kinetic_energy. By default, the kinematics of model is updated.");
 
 #ifdef WITH_HPP_FCL
   bp::def("computeCollisions",computeCollisions_proxy,

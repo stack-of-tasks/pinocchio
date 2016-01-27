@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -102,6 +102,8 @@ namespace se3
         
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,lowerPositionLimit,"Limit for joint lower position")
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,upperPositionLimit,"Limit for joint upper position")
+        
+        .ADD_DATA_PROPERTY_CONST(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
 	  ;
       }
 
@@ -134,6 +136,8 @@ namespace se3
 
       IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,lowerPositionLimit,"Limit for joint lower position")
       IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,upperPositionLimit,"Limit for joint upper position")
+      
+      IMPL_DATA_PROPERTY_CONST(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
       
       static Vector3d_fx com_pos (DataHandler & d, int i) { return d->com[(size_t) i]; }
       static Vector3d_fx com_vel (DataHandler & d, int i) { return d->vcom[(size_t) i]; }

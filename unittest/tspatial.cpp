@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -262,6 +262,11 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   Inertia I12 = I1;
   I12 += I2;
   is_matrix_absolutely_closed(I1.matrix()+I2.matrix(), I12.matrix(), 1e-12);
+  
+  // Test operator vtiv
+  double kinetic_ref = v.toVector().transpose() * aI.matrix() * v.toVector();
+  double kinetic = aI.vtiv(v);
+  BOOST_CHECK_SMALL(kinetic_ref - kinetic, 1e-12);
 }
 
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )

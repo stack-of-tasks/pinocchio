@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -155,10 +155,10 @@ namespace se3
 
   inline Model::Index Model::getJointId (const std::string & name) const
   {
-    std::vector<std::string>::iterator::difference_type
-      res = std::find(names.begin(),names.end(),name) - names.begin();
+    typedef std::vector<std::string>::iterator::difference_type it_diff_t;
+    it_diff_t res = std::find(names.begin(),names.end(),name) - names.begin();
     assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
-    assert( (res>=0)&&(res<joints.size()) && "The joint name you asked does not exist" );
+    assert( (res>=0)&&(res<(it_diff_t) joints.size()) && "The joint name you asked does not exist" );
     return Model::Index(res);
   }
   

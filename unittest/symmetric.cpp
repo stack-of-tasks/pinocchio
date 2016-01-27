@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -206,8 +206,17 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
       Symmetric3 RtSR = S.rotate(R.transpose());
       is_matrix_absolutely_closed(RtSR.matrix(), R.transpose()*S.matrix()*R, 1e-12);
     }
+  
+  // Test operator vtiv
+  {
+    Symmetric3 S = Symmetric3::RandomPositive();
+    Vector3 v = Vector3::Random();
+    double kinetic_ref = v.transpose() * S.matrix() * v;
+    double kinetic = S.vtiv(v);
+    BOOST_CHECK_SMALL(kinetic_ref - kinetic, 1e-12);
+  }
 
-    // Time test 
+    // Time test
     {
       const size_t NBT = 100000;
       Symmetric3 S = Symmetric3::RandomPositive();

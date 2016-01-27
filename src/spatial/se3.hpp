@@ -154,6 +154,7 @@ namespace se3
   public:
     friend class SE3Base< SE3Tpl< _Scalar, _Options > >;
     SPATIAL_TYPEDEF_TEMPLATE(SE3Tpl);
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 
     SE3Tpl(): rot(), trans() {};

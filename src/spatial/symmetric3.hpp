@@ -1,5 +1,5 @@
 
-// Copyright LAAS-CNRS, 2014
+// Copyright LAAS-CNRS, 2014-2016
 
 // This file is originally copied from metapod/tools/spatial/lti.hh.
 // Authors: Olivier Stasse (LAAS, CNRS) and Sébastien Barthélémy (Aldebaran Robotics)
@@ -29,6 +29,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
     typedef Eigen::Matrix<Scalar,2,2,Options> Matrix2;
     typedef Eigen::Matrix<Scalar,3,2,Options> Matrix32;
+    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   public:    
     Symmetric3Tpl(): data_() {}
@@ -163,6 +165,22 @@ namespace se3
       return res;
     }
     operator Matrix3 () const { return matrix(); }
+    
+    Scalar vtiv (const Vector3 & v) const
+    {
+      const Scalar & x = v[0];
+      const Scalar & y = v[1];
+      const Scalar & z = v[2];
+      
+      const Scalar xx = x*x;
+      const Scalar xy = x*y;
+      const Scalar xz = x*z;
+      const Scalar yy = y*y;
+      const Scalar yz = y*z;
+      const Scalar zz = z*z;
+      
+      return data_(0)*xx + data_(2)*yy + data_(5)*zz + 2.*(data_(1)*xy + data_(3)*xz + data_(4)*yz);
+    }
 
     Symmetric3Tpl operator+(const Symmetric3Tpl & s2) const
     {

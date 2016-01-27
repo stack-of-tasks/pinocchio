@@ -24,6 +24,10 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/force.hpp"
 
+#define MOTION_SPECIFIC_TYPEDEF \
+typedef typename Eigen::VectorBlock<const Vector6,3> ConstLinear_t; \
+typedef ConstLinear_t ConstAngular_t;
+
 namespace se3
 {
 
@@ -32,70 +36,43 @@ namespace se3
   class MotionBase
   {
   protected:
-
-
     typedef Derived  Derived_t;
     SPATIAL_TYPEDEF_TEMPLATE(Derived_t);
-
+    MOTION_SPECIFIC_TYPEDEF
+    
   public:
     Derived_t & derived() { return *static_cast<Derived_t*>(this); }
     const Derived_t& derived() const { return *static_cast<const Derived_t*>(this); }
 
-    const Angular_t & angular() const  { return static_cast<const Derived_t*>(this)->angular_impl(); }
-    const Linear_t & linear() const  { return static_cast<const Derived_t*>(this)->linear_impl(); }
-    Angular_t & angular()  { return static_cast<Derived_t*>(this)->angular_impl(); }
-    Linear_t & linear()   { return static_cast<Derived_t*>(this)->linear_impl(); }
-    void angular(const Angular_t & R) { static_cast< Derived_t*>(this)->angular_impl(R); }
-    void linear(const Linear_t & R) { static_cast< Derived_t*>(this)->linear_impl(R); }
+    ConstAngular_t angular() const  { return static_cast<const Derived_t*>(this)->angular_impl(); }
+    ConstLinear_t linear() const  { return static_cast<const Derived_t*>(this)->linear_impl(); }
+    Angular_t angular()  { return static_cast<Derived_t*>(this)->angular_impl(); }
+    Linear_t linear()   { return static_cast<Derived_t*>(this)->linear_impl(); }
+    
+    template<typename D>
+    void angular(const Eigen::MatrixBase<D> & w) { static_cast< Derived_t*>(this)->angular_impl(w); }
+    template<typename D>
+    void linear(const Eigen::MatrixBase<D> & v) { static_cast< Derived_t*>(this)->linear_impl(v); }
 
-    Vector6 toVector() const
-    {
-      return derived().toVector_impl();
-    }
-
+    const Vector6 & toVector() const { return derived().toVector_impl(); }
+    Vector6 & toVector() { return derived().toVector_impl(); }
     operator Vector6 () const { return toVector(); }
 
-    ActionMatrix_t toActionMatrix() const
-    {
-      return derived().toActionMatrix_impl();
-    }
-
+    ActionMatrix_t toActionMatrix() const { return derived().toActionMatrix_impl(); }
     operator Matrix6 () const { return toActionMatrix(); }
 
+    bool operator== (const Derived_t & other) const {return derived().isEqual(other);}
+    Derived_t operator-() const { return derived().__minus__(); }
+    Derived_t operator+(const Derived_t & v2) const { return derived().__plus__(v2); }
+    Derived_t operator-(const Derived_t & v2) const { return derived().__minus__(v2); }
+    Derived_t & operator+=(const Derived_t & v2) { return derived().__pequ__(v2); }
 
-    Derived_t operator-() const
-    {
-      return derived().__minus__();
-    }
+    Derived_t se3Action(const SE3 & m) const { return derived().se3Action_impl(m); }
+    Derived_t se3ActionInverse(const SE3 & m) const { return derived().se3ActionInverse_impl(m); }
+    
+    Scalar_t dot(const Force & f) const { return static_cast<Derived_t*>(this)->dot(f); }
 
-    Derived_t operator+(const Derived_t & v2) const
-    {
-      return derived().__plus__(v2);
-    }
-    Derived_t operator-(const Derived_t & v2) const
-    {
-      return derived().__minus__(v2);
-    }
-    Derived_t& operator+=(const Derived_t & v2)
-    {
-      return derived().__pequ__(v2);
-    }
-
-    Derived_t se3Action(const SE3 & m) const
-    {
-      return derived().se3Action_impl(m);
-    }
-    /// bv = aXb.actInv(av)
-    Derived_t se3ActionInverse(const SE3 & m) const
-    {
-      return derived().se3ActionInverse_impl(m);
-    }
-
-    void disp(std::ostream & os) const
-    {
-      derived().disp_impl(os);
-    }
-
+    void disp(std::ostream & os) const { derived().disp_impl(os); }
     friend std::ostream & operator << (std::ostream & os, const MotionBase<Derived_t> & mv)
     {
       mv.disp(os);
@@ -116,8 +93,8 @@ namespace se3
     typedef Eigen::Matrix<T,4,4,U> Matrix4;
     typedef Eigen::Matrix<T,6,6,U> Matrix6;
     typedef Matrix6 ActionMatrix_t;
-    typedef Vector3 Angular_t;
-    typedef Vector3 Linear_t;
+    typedef typename Eigen::VectorBlock<Vector6,3> Linear_t;
+    typedef Linear_t Angular_t;
     typedef Eigen::Quaternion<T,U> Quaternion_t;
     typedef SE3Tpl<T,U> SE3;
     typedef ForceTpl<T,U> Force;
@@ -135,20 +112,22 @@ namespace se3
   {
   public:
     SPATIAL_TYPEDEF_TEMPLATE(MotionTpl);
-
-
+    MOTION_SPECIFIC_TYPEDEF
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
   public:
     // Constructors
-    MotionTpl() : m_w(), m_v() {}
+    MotionTpl() : data() {}
 
     template<typename v1,typename v2>
     MotionTpl(const Eigen::MatrixBase<v1> & v, const Eigen::MatrixBase<v2> & w)
-    : m_w(w), m_v(v) {}
+    {
+      data << v, w;
+    }
 
     template<typename v6>
     explicit MotionTpl(const Eigen::MatrixBase<v6> & v)
-    : m_w(v.template segment<3>(ANGULAR))
-    , m_v(v.template segment<3>(LINEAR)) 
+    : data(v)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(v6);
       assert( v.size() == 6 );
@@ -157,49 +136,47 @@ namespace se3
 
     template<typename S2,int O2>
     explicit MotionTpl(const MotionTpl<S2,O2> & clone)
-    : m_w(clone.angular()),m_v(clone.linear()) {}
+    : data(clone.toVector())
+    {}
 
     // initializers
-    static MotionTpl Zero()   { return MotionTpl(Vector3::Zero(),  Vector3::Zero());   }
-    static MotionTpl Random() { return MotionTpl(Vector3::Random(),Vector3::Random()); }
+    static MotionTpl Zero()   { return MotionTpl(Vector6::Zero());   }
+    static MotionTpl Random() { return MotionTpl(Vector6::Random()); }
 
-    MotionTpl & setZero () { m_v.setZero (); m_w.setZero (); return *this; }
-    MotionTpl & setRandom () { m_v.setRandom (); m_w.setRandom (); return *this; }
+    MotionTpl & setZero () { data.setZero (); return *this; }
+    MotionTpl & setRandom () { data.setRandom (); return *this; }
 
-
-    Vector6 toVector_impl() const
-    {
-      Vector6 v;
-      v.template segment<3>(ANGULAR) = m_w;
-      v.template segment<3>(LINEAR)  = m_v;
-      return v;
-    }
-    
+    const Vector6 & toVector_impl() const { return data; }
+    Vector6 & toVector_impl() { return data; }
 
     ActionMatrix_t toActionMatrix_impl () const
     {
       ActionMatrix_t X;
-      X.block <3,3> (ANGULAR, ANGULAR) = X.block <3,3> (LINEAR, LINEAR) = skew (m_w);
-      X.block <3,3> (LINEAR, ANGULAR) = skew (m_v);
+      X.block <3,3> (ANGULAR, ANGULAR) = X.block <3,3> (LINEAR, LINEAR) = skew (angular_impl());
+      X.block <3,3> (LINEAR, ANGULAR) = skew (linear_impl());
       X.block <3,3> (ANGULAR, LINEAR).setZero ();
 
       return X;
     }
 
     // Getters
-    const Vector3 & angular_impl() const { return m_w; }
-    const Vector3 & linear_impl()  const { return m_v; }
-    Vector3 & angular_impl() { return m_w; }
-    Vector3 & linear_impl()  { return m_v; }
-    void angular_impl(const Vector3 & w) { m_w=w; }
-    void linear_impl(const Vector3 & v) { m_v=v; }
+    ConstAngular_t angular_impl() const { return data.template segment<3> (ANGULAR); }
+    ConstLinear_t linear_impl()  const { return data.template segment<3> (LINEAR); }
+    Angular_t angular_impl() { return data.template segment<3> (ANGULAR); }
+    Linear_t linear_impl()  { return data.template segment<3> (LINEAR); }
+    
+    template<typename D>
+    void angular_impl(const Eigen::MatrixBase<D> & w) { data.template segment<3> (ANGULAR)=w; }
+    template<typename D>
+    void linear_impl(const Eigen::MatrixBase<D> & v) { data.template segment<3> (LINEAR)=v; }
 
+    bool isEqual (const MotionTpl & other) const { return data == other.data; }
+    
     // Arithmetic operators
     template<typename S2, int O2>
     MotionTpl & operator= (const MotionTpl<S2,O2> & other)
     {
-      m_w = other.angular ();
-      m_v = other.linear ();
+      data = other.toVector();
       return *this;
     }
     
@@ -207,52 +184,27 @@ namespace se3
     MotionTpl & operator=(const Eigen::MatrixBase<V6> & v)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(V6); assert(v.size() == 6);
-      m_w = v.template segment<3>(ANGULAR);
-      m_v = v.template segment<3>(LINEAR);
+      data = v;
       return *this;
     }
 
-    MotionTpl __minus__() const
-    {
-      return MotionTpl(-m_v, -m_w);
-    }
-
-    MotionTpl __plus__(const MotionTpl & v2) const
-    {
-      return MotionTpl(m_v+v2.m_v,m_w+v2.m_w);
-    }
-    MotionTpl __minus__(const MotionTpl & v2) const
-    {
-      return MotionTpl(m_v-v2.m_v,m_w-v2.m_w);
-    }
-    MotionTpl& __pequ__(const MotionTpl & v2)
-    {
-      m_v+=v2.m_v;
-      m_w+=v2.m_w;
-      return *this;
-    }
-
-
-    // MotionTpl operator*(Scalar a) const
-    // {
-    //   return MotionTpl(m_w*a, m_v*a);
-    // }
-
-    // friend MotionTpl operator*(Scalar a, const MotionTpl & mv)
-    // {
-    //   return MotionTpl(mv.w()*a, mv.v()*a);
-    // }
+    MotionTpl __minus__() const { return MotionTpl(-data); }
+    MotionTpl __plus__(const MotionTpl & v2) const { return MotionTpl(data + v2.data); }
+    MotionTpl __minus__(const MotionTpl & v2) const { return MotionTpl(data - v2.data); }
+    MotionTpl& __pequ__(const MotionTpl & v2) { data += v2.data; return *this; }
+    
+    Scalar_t dot(const Force & f) const { return data.dot(f.toVector()); }
 
     MotionTpl cross(const MotionTpl& v2) const
     {
-      return MotionTpl( m_v.cross(v2.m_w)+m_w.cross(v2.m_v),
-                        m_w.cross(v2.m_w) );
+      return MotionTpl( linear_impl().cross(v2.angular_impl())+angular_impl().cross(v2.linear_impl()),
+                        angular_impl().cross(v2.angular_impl()) );
     }
 
     Force cross(const Force& phi) const
     {
-      return Force( m_w.cross(phi.linear()),
-                    m_w.cross(phi.angular())+m_v.cross(phi.linear()) );
+      return Force( angular_impl().cross(phi.linear_impl()),
+                    angular_impl().cross(phi.angular_impl())+linear_impl().cross(phi.linear_impl()) );
     }
 
     MotionTpl se3Action_impl(const SE3 & m) const
@@ -274,24 +226,23 @@ namespace se3
       << "  w = " << angular_impl().transpose () << std::endl;
     }
 
-    /** \brief Compute the classical acceleration of point according to the spatial velocity and spatial acceleration of the frame centered on this point
-     */
-    static inline Vector3 computeLinearClassicalAcceleration (const MotionTpl & spatial_velocity, const MotionTpl & spatial_acceleration)
-    {
-      return spatial_acceleration.linear () + spatial_velocity.angular ().cross (spatial_velocity.linear ());
-    }
+//    /** \brief Compute the classical acceleration of point according to the spatial velocity and spatial acceleration of the frame centered on this point
+//     */
+//    static inline Vector3 computeLinearClassicalAcceleration (const MotionTpl & spatial_velocity, const MotionTpl & spatial_acceleration)
+//    {
+//      return spatial_acceleration.linear () + spatial_velocity.angular ().cross (spatial_velocity.linear ());
+//    }
+//
+//    /**
+//      \brief Compute the spatial motion quantity of the parallel frame translated by translation_vector
+//     */
+//    MotionTpl translate (const Vector3 & translation_vector) const
+//    {
+//      return MotionTpl (linear() + angular().cross (translation_vector), angular());
+//    }
 
-    /**
-      \brief Compute the spatial motion quantity of the parallel frame translated by translation_vector
-     */
-    MotionTpl translate (const Vector3 & translation_vector) const
-    {
-      return MotionTpl (m_v + m_w.cross (translation_vector), m_w);
-    }
-
-  private:
-    Vector3 m_w;
-    Vector3 m_v;
+  protected:
+    Vector6 data;
 
   }; // class MotionTpl
 
@@ -300,7 +251,7 @@ namespace se3
   template<typename S,int O>
   ForceTpl<S,O> operator^( const MotionTpl<S,O> &m, const ForceTpl<S,O> &f ) { return m.cross(f); }
 
-  typedef MotionTpl<double> Motion;
+  typedef MotionTpl<double,0> Motion;
 
 
   ///////////////   BiasZero  ///////////////
@@ -318,7 +269,9 @@ namespace se3
     typedef Eigen::Matrix<double,6,6,0> Matrix6;
     typedef Matrix6 ActionMatrix_t;
     typedef Vector3 Angular_t;
+    typedef const Vector3 ConstAngular_t;
     typedef Vector3 Linear_t;
+    typedef const Vector3 ConstLinear_t;
     typedef Eigen::Quaternion<double,0> Quaternion_t;
     typedef SE3Tpl<double,0> SE3;
     typedef ForceTpl<double,0> Force;

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -55,44 +55,57 @@ namespace se3
 
     public:
 
-      static PyObject* convert(Force const& m)
+      static PyObject* convert(Force const& f)
       {
-	Force_fx m_fx (m);
-	return boost::python::incref(boost::python::object(m_fx).ptr());
+        Force_fx f_fx (f);
+        return boost::python::incref(boost::python::object(f_fx).ptr());
       }
 
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
-	cl
-	  .def(bp::init<Vector3_fx,Vector3_fx>
-	       ((bp::arg("linear"),bp::arg("angular")),
-		"Initialize from linear and angular components (dont mix the order)."))
-	  .def(bp::init<Vector6_fx>((bp::arg("Vector 6d")),"Init from vector 6 [f,n]"))
+        cl
+        .def(bp::init<Vector3_fx,Vector3_fx>
+             ((bp::arg("linear"),bp::arg("angular")),
+              "Initialize from linear and angular components (dont mix the order)."))
+        .def(bp::init<Vector6_fx>((bp::arg("Vector 6d")),"Init from vector 6 [f,n]"))
+        
+        .add_property("linear",&ForcePythonVisitor::getLinear,&ForcePythonVisitor::setLinear)
+        .add_property("angular",&ForcePythonVisitor::getAngular,&ForcePythonVisitor::setAngular)
+        .add_property("vector",&ForcePythonVisitor::getVector,&ForcePythonVisitor::setVector)
+        .add_property("np",&ForcePythonVisitor::getVector)
+        
+        .def("se3Action",&Force_fx::se3Action)
+        .def("se3ActionInverse",&Force_fx::se3ActionInverse)
+        
+        .def("setZero",&ForcePythonVisitor::setZero)
+        .def("setRandom",&ForcePythonVisitor::setRandom)
+        
+        .def("__add__",&ForcePythonVisitor::add)
+        .def("__sub__",&ForcePythonVisitor::subst)
+        .def(bp::self_ns::str(bp::self_ns::self))
+        .def(bp::self_ns::repr(bp::self_ns::self))
+        
+        .def("Random",&Force_fx::Random)
+        .staticmethod("Random")
+        .def("Zero",&Force_fx::Zero)
+        .staticmethod("Zero")
+        ;
+      }
 
-	  .add_property("linear",&ForcePythonVisitor::getLinear,&ForcePythonVisitor::setLinear)
-	  .add_property("angular",&ForcePythonVisitor::getAngular,&ForcePythonVisitor::setAngular)
-	  .def("vector",&Force_fx::toVector)
-	  .def("se3Action",&Force_fx::se3Action)
-	  .def("se3ActionInverse",&Force_fx::se3ActionInverse)
-
-	  .def("__str__",&ForcePythonVisitor::toString)
-	  .add_property("np",&Force_fx::toVector)
-	  
-	  .def("Random",&Force_fx::Random)
-	  .staticmethod("Random")
-	  .def("Zero",&Force_fx::Zero)
-	  .staticmethod("Zero")
-	  ;
-	  }
-
-      static Vector3_fx getLinear( const Force_fx & self ) { return self.linear(); }
-      static void setLinear( Force_fx & self, const Vector3_fx & R ) { self.linear(R); }
-      static Vector3_fx getAngular( const Force_fx & self ) { return self.angular(); }
-      static void setAngular( Force_fx & self, const Vector3_fx & R ) { self.angular(R); }
-      static std::string toString(const Force_fx& m) 
-      {	  std::ostringstream s; s << m; return s.str();       }
-
+      static Vector3_fx getLinear(const Force_fx & self ) { return self.linear(); }
+      static void setLinear(Force_fx & self, const Vector3_fx & f) { self.linear(f); }
+      static Vector3_fx getAngular(const Force_fx & self) { return self.angular(); }
+      static void setAngular(Force_fx & self, const Vector3_fx & n) { self.angular(n); }
+      
+      static void setZero(Force_fx & self) { self.setZero(); }
+      static void setRandom(Force_fx & self) { self.setRandom(); }
+      
+      static Vector6_fx getVector(const Force_fx & self) { return self.toVector(); }
+      static void setVector(Force_fx & self, const Vector6_fx & f) { self = f; }
+      
+      static Force_fx add(const Force_fx & f1, const Force_fx & f2) { return f1+f2; }
+      static Force_fx subst(const Force_fx & f1, const Force_fx & f2) { return f1-f2; }
 
       static void expose()
       {

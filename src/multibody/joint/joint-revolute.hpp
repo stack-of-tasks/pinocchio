@@ -163,8 +163,8 @@ namespace se3
       const ConstraintRevolute<axis> & ref; 
       TransposeConst(const ConstraintRevolute<axis> & ref) : ref(ref) {} 
 
-      typename Force::Vector3::template ConstFixedSegmentReturnType<1>::Type
-      operator*( const Force& f ) const
+      typename Force::ConstAngular_t::template FixedSegmentReturnType<1>::Type
+      operator* (const Force & f) const
       { return f.angular().template segment<1>(axis); }
 
         /// [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)

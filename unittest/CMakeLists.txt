@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 CNRS
+# Copyright (c) 2015-2016 CNRS
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 # This file is part of Pinocchio
@@ -86,3 +86,4 @@ ENDIF(LUA5_1_FOUND)
 #ADD_UNIT_TEST(variant eigen3)
 ADD_UNIT_TEST(joints eigen3)
 ADD_UNIT_TEST(compute-all-terms eigen3)
+ADD_UNIT_TEST(energy eigen3)
