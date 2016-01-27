@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -59,6 +59,7 @@ namespace se3
     Derived_t& operator+= (const Derived_t & Yb) { return derived().__pequ__(Yb); }
     Derived_t operator+(const Derived_t & Yb) const { return derived().__plus__(Yb); }
     Force operator*(const Motion & v) const    { return derived().__mult__(v); }
+    Scalar_t vtiv(const Motion & v) const { return derived().vtiv_impl(v); }
 
     /// aI = aXb.act(bI)
     Derived_t se3Action(const SE3 & M) const
@@ -240,6 +241,17 @@ namespace se3
       const Vector3 & mcxw = m*c.cross(v.angular());
       return Force( m*v.linear()-mcxw,
                     m*c.cross(v.linear()) + I*v.angular() - c.cross(mcxw) );
+    }
+    
+    Scalar_t vtiv_impl(const Motion & v) const
+    {
+      const Vector3 cxw (c.cross(v.angular()));
+      Scalar_t res = m * (v.linear().squaredNorm() - 2.*v.linear().dot(cxw));
+      const Vector3 mcxcxw (-m*c.cross(cxw));
+      res += v.angular().dot(mcxcxw);
+      res += I.vtiv(v.angular());
+      
+      return res;
     }
 
     // Getters
