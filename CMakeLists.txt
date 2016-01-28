@@ -95,6 +95,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/skew.hpp
   spatial/act-on-set.hpp
   spatial/explog.hpp
+  spatial/frame.hpp
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
@@ -156,6 +157,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/joint-dense.hpp
   python/joints-models.hpp
   python/joints-variant.hpp
+  python/frame.hpp
   python/model.hpp
   python/data.hpp
   python/algorithms.hpp
