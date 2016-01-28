@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -74,7 +74,7 @@ inline void  updateCollisionGeometry(const Model & model,
 {
   using namespace se3;
 
-  if (computeGeometry) geometry(model, data, q);
+  if (computeGeometry) forwardKinematics(model, data, q);
   for (GeometryData::Index i=0; i < (GeometryData::Index) data_geom.model_geom.ngeom; ++i)
   {
     const Model::Index & parent = model_geom.geom_parents[i];
