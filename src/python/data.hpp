@@ -37,8 +37,7 @@ namespace se3
     {
       typedef Data::Matrix6x Matrix6x;
       typedef Data::Matrix3x Matrix3x;
-      
-      typedef eigenpy::UnalignedEquivalent<Eigen::Vector3d>::type Vector3d_fx;
+      typedef Data::Vector3 Vector3;
 
     public:
 
@@ -71,6 +70,7 @@ namespace se3
 	cl
 
 	  .ADD_DATA_PROPERTY(std::vector<Motion>,a,"Body acceleration")
+    .ADD_DATA_PROPERTY(std::vector<Motion>,a_gf,"Body acceleration containing also the gravity acceleration")
 	  .ADD_DATA_PROPERTY(std::vector<Motion>,v,"Body velocity")
 	  .ADD_DATA_PROPERTY(std::vector<Force>,f,"Body force")
 	  .ADD_DATA_PROPERTY(std::vector<SE3>,oMi,"Body absolute placement (wrt world)")
@@ -86,16 +86,14 @@ namespace se3
 	  .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,D,"Diagonal of UDUT inertia decomposition")
 	  .ADD_DATA_PROPERTY(std::vector<int>,parents_fromRow,"First previous non-zero row in M (used in Cholesky)")
 	  .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree_fromRow,"")
-	  .ADD_DATA_PROPERTY_CONST(Eigen::MatrixXd,J,"Jacobian of joint placement")
+	  .ADD_DATA_PROPERTY_CONST(Matrix6x,J,"Jacobian of joint placement")
 	  .ADD_DATA_PROPERTY(std::vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
-//	  .ADD_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,com,"Subtree com position.")
-//    .ADD_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,vcom,"Subtree com velocity.")
-//    .ADD_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,acom,"Subtree com acceleration.")
-        .def("com_pos",&DataPythonVisitor::com_pos,"Subtree com position.")
-        .def("com_vel",&DataPythonVisitor::com_vel,"Subtree com velocity.")
-        .def("com_acc",&DataPythonVisitor::com_acc,"Subtree com acceleration.")
+        
+	  .ADD_DATA_PROPERTY(std::vector<Vector3>,com,"Subtree com position.")
+    .ADD_DATA_PROPERTY(std::vector<Vector3>,vcom,"Subtree com velocity.")
+    .ADD_DATA_PROPERTY(std::vector<Vector3>,acom,"Subtree com acceleration.")
 	  .ADD_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
-	  .ADD_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
+	  .ADD_DATA_PROPERTY(Matrix3x,Jcom,"Jacobian of center of mass.")
 
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,effortLimit,"Joint max effort")
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,velocityLimit,"Joint max velocity")
@@ -109,6 +107,7 @@ namespace se3
       }
 
       IMPL_DATA_PROPERTY(std::vector<Motion>,a,"Body acceleration")
+      IMPL_DATA_PROPERTY(std::vector<Motion>,a_gf,"Body acceleration containing also the gravity acceleration")
       IMPL_DATA_PROPERTY(std::vector<Motion>,v,"Body velocity")
       IMPL_DATA_PROPERTY(std::vector<Force>,f,"Body force")
       IMPL_DATA_PROPERTY(std::vector<SE3>,oMi,"Body absolute placement (wrt world)")
@@ -124,13 +123,14 @@ namespace se3
       IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,D,"Diagonal of UDUT inertia decomposition")
       IMPL_DATA_PROPERTY(std::vector<int>,parents_fromRow,"First previous non-zero row in M (used in Cholesky)")
       IMPL_DATA_PROPERTY(std::vector<int>,nvSubtree_fromRow,"")
-      IMPL_DATA_PROPERTY_CONST(Eigen::MatrixXd,J,"Jacobian of joint placement")
+      IMPL_DATA_PROPERTY_CONST(Matrix6x,J,"Jacobian of joint placement")
       IMPL_DATA_PROPERTY(std::vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
-      IMPL_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,com,"Subtree com position.")
-      IMPL_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,vcom,"Subtree com velocity.")
-      IMPL_DATA_PROPERTY_CONST(std::vector<Eigen::Vector3d>,acom,"Subtree com acceleration.")
+      
+      IMPL_DATA_PROPERTY(std::vector<Vector3>,com,"Subtree com position.")
+      IMPL_DATA_PROPERTY(std::vector<Vector3>,vcom,"Subtree com velocity.")
+      IMPL_DATA_PROPERTY(std::vector<Vector3>,acom,"Subtree com acceleration.")
       IMPL_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
-      IMPL_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
+      IMPL_DATA_PROPERTY(Matrix3x,Jcom,"Jacobian of center of mass.")
 
       IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,effortLimit,"Joint max effort")
       IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,velocityLimit,"Joint max velocity")
@@ -141,21 +141,17 @@ namespace se3
       IMPL_DATA_PROPERTY_CONST(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
       IMPL_DATA_PROPERTY_CONST(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
       
-      static Vector3d_fx com_pos (DataHandler & d, int i) { return d->com[(size_t) i]; }
-      static Vector3d_fx com_vel (DataHandler & d, int i) { return d->vcom[(size_t) i]; }
-      static Vector3d_fx com_acc (DataHandler & d, int i) { return d->acom[(size_t) i]; }
-
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-	bp::class_<DataHandler>("Data",
-				"Articulated rigid body data (const)",
-				bp::no_init)
-	  .def(DataPythonVisitor());
-    
-	bp::to_python_converter< DataHandler::SmartPtr_t,DataPythonVisitor >();
-	bp::class_< std::vector<Eigen::Vector3d> >("StdVec_vec3d")
-	  .def(bp::vector_indexing_suite< std::vector<Eigen::Vector3d> >());
+        bp::class_<DataHandler>("Data",
+                                "Articulated rigid body data (const)",
+                                bp::no_init)
+        .def(DataPythonVisitor());
+        
+        bp::to_python_converter< DataHandler::SmartPtr_t,DataPythonVisitor >();
+        bp::class_< std::vector<Vector3> >("StdVec_vec3d")
+        .def(bp::vector_indexing_suite< std::vector<Vector3>, true >());
       }
 
     };

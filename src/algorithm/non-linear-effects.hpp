@@ -64,10 +64,10 @@ namespace se3
       data.v[i] = jdata.v();
       if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[(size_t) parent]);
       
-      data.a[i]  = jdata.c() + (data.v[i] ^ jdata.v());
-      data.a[i] += data.liMi[i].actInv(data.a[(size_t) parent]);
+      data.a_gf[i]  = jdata.c() + (data.v[i] ^ jdata.v());
+      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[(size_t) parent]);
       
-      data.f[i] = model.inertias[i]*data.a[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
+      data.f[i] = model.inertias[i]*data.a_gf[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
     }
 
   };
@@ -99,7 +99,7 @@ namespace se3
        const Eigen::VectorXd & v)
   {
     data.v[0].setZero ();
-    data.a[0] = -model.gravity;
+    data.a_gf[0] = -model.gravity;
 
     for( size_t i=1;i<(size_t) model.nbody;++i )
       {

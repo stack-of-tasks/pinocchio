@@ -21,80 +21,57 @@
 namespace se3
 {
 
-  struct CenterOfMassForwardStep : public fusion::JointVisitor<CenterOfMassForwardStep>
-  {
-    typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &,
-                                  const Eigen::VectorXd &,
-                                  const bool &
-                                  > ArgsType;
-
-    JOINT_VISITOR_INIT(CenterOfMassForwardStep);
-
-    template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointData> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q,
-                     const bool & computeSubtreeComs)
-    {
-      using namespace Eigen;
-      using namespace se3;
-
-      const Model::Index & i      = (Model::Index) jmodel.id();
-      const Model::Index & parent = model.parents[i];
-
-      jmodel.calc(jdata.derived(),q);
-
-      data.liMi[i]      = model.jointPlacements[i]*jdata.M();
-      data.com[parent]  += (data.liMi[i].rotation()*data.com[i]
-        +data.mass[i]*data.liMi[i].translation());
-      data.mass[parent] += data.mass[i];
-
-      if( computeSubtreeComs )
-        data.com[i] /= data.mass[i];
-    }
-
-  };
-  
-  /* Compute the centerOfMass in the local frame of the root joint. */
   inline const Eigen::Vector3d &
   centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
-               const bool & computeSubtreeComs)
+               const bool computeSubtreeComs,
+               const bool updateKinematics)
   {
     data.mass[0] = 0;
     data.com[0].setZero ();
+    
+    // Forward Step
+    if (updateKinematics)
+      forwardKinematics(model, data, q);
 
-    for( Model::Index i=1;i<(Model::Index)(model.nbody);++i )
+    for(Model::Index i=1;i<(Model::Index)(model.nbody);++i)
     {
-      data.com[i]  = model.inertias[i].mass()*model.inertias[i].lever();
-      data.mass[i] = model.inertias[i].mass();
-
-
+      const double mass = model.inertias[i].mass();
+      const SE3::Vector3 & lever = model.inertias[i].lever();
+      
+      data.com[i]  = mass * lever;
+      data.mass[i] = mass;
     }
-
-    for( Model::Index i=(Model::Index)(model.nbody-1);i>0;--i )
+    
+    // Backward Step
+    for(Model::Index i=(Model::Index)(model.nbody-1); i>0; --i)
     {
-      CenterOfMassForwardStep
-      ::run(model.joints[i],data.joints[i],
-        CenterOfMassForwardStep::ArgsType(model,data,q,computeSubtreeComs));
-
-
+      const Model::Index & parent = model.parents[i];
+      
+      const SE3 & liMi = data.liMi[i];
+      
+      data.com[parent] += (liMi.rotation()*data.com[i]
+                           + data.mass[i] * liMi.translation());
+      data.mass[parent] += data.mass[i];
+      
+      if(computeSubtreeComs)
+      {
+        data.com[i] /= data.mass[i];
+      }
     }
+    
     data.com[0] /= data.mass[0];
 
     return data.com[0];
   }
   
-  /* Compute the centerOfMass position, velocity and acceleration in the local frame of the root joint. */
   inline void
   centerOfMassAcceleration(const Model & model, Data & data,
                            const Eigen::VectorXd & q,
                            const Eigen::VectorXd & v,
                            const Eigen::VectorXd & a,
-                           const bool & computeSubtreeComs)
+                           const bool computeSubtreeComs,
+                           const bool updateKinematics)
   {
     using namespace se3;
 
@@ -104,7 +81,9 @@ namespace se3
     data.acom[0].setZero ();
 
     // Forward Step
-    forwardKinematics(model, data, q, v, a);
+    if (updateKinematics)
+      forwardKinematics(model, data, q, v, a);
+    
     for(Model::Index i=1;i<(Model::Index)(model.nbody);++i)
     {
       const double mass = model.inertias[i].mass();
@@ -195,7 +174,7 @@ namespace se3
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
-                                  const bool &
+                                  const bool
                                   > ArgsType;
   
     JOINT_VISITOR_INIT(JacobianCenterOfMassBackwardStep);
@@ -205,7 +184,7 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model& model,
                      se3::Data& data,
-                     const bool & computeSubtreeComs )
+                     const bool computeSubtreeComs )
     {
       using namespace Eigen;
       using namespace se3;
@@ -238,7 +217,7 @@ namespace se3
   inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
-                       const bool & computeSubtreeComs)
+                       const bool computeSubtreeComs)
   {
     data.com[0].setZero ();
     data.mass[0] = 0;
@@ -261,15 +240,19 @@ namespace se3
   }
 
   inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
-  getJacobianComFromCrba(const Model &, Data & data)
+  getJacobianComFromCrba(const Model & model, Data & data)
   {
     const SE3 & oM1 = data.liMi[1];
     
     // As the 6 first rows of M*a are a wrench, we just need to multiply by the
     // relative rotation between the first joint and the world
-    const SE3::Matrix3 & oR1_over_m = oM1.rotation() / data.M(0,0);
+    const SE3::Matrix3 oR1_over_m (oM1.rotation() / data.M(0,0));
     
-    data.Jcom = oR1_over_m * data.M.topRows<3> ();
+    // I don't know why, but the colwise multiplication is much more faster
+    // than the direct Eigen multiplication
+    for (long k=0; k<model.nv;++k)
+      data.Jcom.col(k) = oR1_over_m * data.M.topRows<3> ().col(k);
+//    data.Jcom = oR1_over_m * data.M.topRows<3> ();
     return data.Jcom;
   }
 

@@ -35,7 +35,7 @@ namespace se3
   ///
   /// \return The full model jacobian (matrix 6 x model.nv).
   ///
-  inline const Eigen::MatrixXd &
+  inline const Data::Matrix6x &
   computeJacobians(const Model & model,
                    Data & data,
                    const Eigen::VectorXd & q);
@@ -65,7 +65,7 @@ namespace se3
   ///
   /// \return The jacobian of the specific joint frame expressed in the local frame of the joint (matrix 6 x model.nv).
   ///
-  inline const Eigen::MatrixXd &
+  inline const Data::Matrix6x &
   jacobian(const Model & model,
            Data & data,
            const Eigen::VectorXd & q,

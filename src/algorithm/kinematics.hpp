@@ -23,6 +23,15 @@
 
 namespace se3
 {
+    ///
+    /// \brief Browse through the model tree structure with an empty step
+    ///
+    /// \param[in] model The model structure of the rigid body system.
+    /// \param[in] data The data structure of the rigid body system.
+    ///
+  inline void emptyForwardPass(const Model & model,
+                               Data & data);
+  
   inline void forwardKinematics(const Model & model,
                                 Data & data,
                                 const Eigen::VectorXd & q);
@@ -43,6 +52,37 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 namespace se3 
 {
+  
+  struct emptyForwardStep : public fusion::JointVisitor<emptyForwardStep>
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+                                  se3::Data &
+                                  > ArgsType;
+    
+    JOINT_VISITOR_INIT (emptyForwardStep);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> &,
+                     se3::JointDataBase<typename JointModel::JointData> &,
+                     const se3::Model &,
+                     se3::Data &)
+    { // do nothing
+    }
+    
+  };
+  
+  inline void emptyForwardPass(const Model & model,
+                               Data & data)
+  {
+    for (Model::Index i=1; i < (Model::Index) model.nbody; ++i)
+    {
+      emptyForwardStep::run(model.joints[i],
+                            data.joints[i],
+                            emptyForwardStep::ArgsType (model,data)
+                            );
+    }
+  }
+  
   struct ForwardKinematicZeroStep : public fusion::JointVisitor<ForwardKinematicZeroStep>
   {
     typedef boost::fusion::vector<const se3::Model &,

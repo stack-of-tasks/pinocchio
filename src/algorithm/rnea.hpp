@@ -47,7 +47,7 @@ namespace se3
     JOINT_VISITOR_INIT(RneaForwardStep);
 
     template<typename JointModel>
-    static int algo(const se3::JointModelBase<JointModel> & jmodel,
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
 		    se3::JointDataBase<typename JointModel::JointData> & jdata,
 		    const se3::Model& model,
 		    se3::Data& data,
@@ -67,11 +67,10 @@ namespace se3
       data.v[(Model::Index)i] = jdata.v();
       if(parent>0) data.v[(Model::Index)i] += data.liMi[(Model::Index)i].actInv(data.v[parent]);
       
-      data.a[(Model::Index)i]  = jdata.S()*jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[(Model::Index)i] ^ jdata.v()) ; 
-      data.a[(Model::Index)i] += data.liMi[(Model::Index)i].actInv(data.a[parent]);
+      data.a_gf[(Model::Index)i] = jdata.S()*jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[(Model::Index)i] ^ jdata.v()) ;
+      data.a_gf[(Model::Index)i] += data.liMi[(Model::Index)i].actInv(data.a_gf[parent]);
       
-      data.f[(Model::Index)i] = model.inertias[(Model::Index)i]*data.a[(Model::Index)i] + model.inertias[(Model::Index)i].vxiv(data.v[(Model::Index)i]); // -f_ext
-      return 0;
+      data.f[(Model::Index)i] = model.inertias[(Model::Index)i]*data.a_gf[(Model::Index)i] + model.inertias[(Model::Index)i].vxiv(data.v[(Model::Index)i]); // -f_ext
     }
 
   };
@@ -103,8 +102,8 @@ namespace se3
        const Eigen::VectorXd & v,
        const Eigen::VectorXd & a)
   {
-    data.v[0] = Motion::Zero();
-    data.a[0] = -model.gravity;
+    data.v[0].setZero();
+    data.a_gf[0] = -model.gravity;
 
     for( int i=1;i<model.nbody;++i )
       {

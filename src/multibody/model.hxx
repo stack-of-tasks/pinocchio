@@ -177,6 +177,7 @@ namespace se3
     :model(ref)
     ,joints(0)
     ,a((std::size_t)ref.nbody)
+    ,a_gf((std::size_t)ref.nbody)
     ,v((std::size_t)ref.nbody)
     ,f((std::size_t)ref.nbody)
     ,oMi((std::size_t)ref.nbody)
@@ -215,7 +216,7 @@ namespace se3
     computeLastChild(ref);
 
     /* Init for Cholesky */
-    U = Eigen::MatrixXd::Identity(ref.nv,ref.nv);
+    U.setIdentity();
     computeParents_fromRow(ref);
 
     /* Init Jacobian */
@@ -225,6 +226,7 @@ namespace se3
     
     a[0].setZero();
     v[0].setZero();
+    a_gf[0] = -model.gravity;
     f[0].setZero();
     oMi[0].setIdentity();
     liMi[0].setIdentity();

@@ -19,6 +19,7 @@
 #define __se3_inertia_hpp__
 
 #include <Eigen/Dense>
+#include <iostream>
 
 #include "pinocchio/spatial/symmetric3.hpp"
 #include "pinocchio/spatial/force.hpp"
@@ -43,8 +44,11 @@ namespace se3
     const Derived_t& derived() const { return *static_cast<const Derived_t*>(this); }
 
     Scalar_t           mass()    const { return static_cast<const Derived_t*>(this)->mass(); }
+    Scalar_t &         mass() { return static_cast<const Derived_t*>(this)->mass(); }
     const Vector3 &    lever()   const { return static_cast<const Derived_t*>(this)->lever(); }
+    Vector3 &          lever() { return static_cast<const Derived_t*>(this)->lever(); }
     const Symmetric3 & inertia() const { return static_cast<const Derived_t*>(this)->inertia(); }
+    Symmetric3 &       inertia() { return static_cast<const Derived_t*>(this)->inertia(); }
 
     Matrix6 matrix() const
     {
@@ -73,11 +77,7 @@ namespace se3
       return derived().se3ActionInverse_impl(M);
     }
 
-    void disp(std::ostream & os) const
-    {
-      static_cast<const Derived_t*>(this)->disp_impl(os);
-    }
-
+    void disp(std::ostream & os) const { static_cast<const Derived_t*>(this)->disp_impl(os); }
     friend std::ostream & operator << (std::ostream & os,const InertiaBase<Derived_t> & X)
     { 
       X.disp(os);
@@ -123,14 +123,22 @@ namespace se3
     // Constructors
     InertiaTpl() : m(), c(), I() {}
 
-    InertiaTpl(Scalar_t m_, 
-     const Vector3 &c_, 
-     const Matrix3 &I_)
-    : m(m_),
-    c(c_),
-    I(I_)
+    InertiaTpl(const Scalar_t m_, const Vector3 &c_, const Matrix3 &I_)
+    : m(m_), c(c_), I(I_)
+    {}
+    
+    InertiaTpl(const Matrix6 & I6)
     {
-
+      assert((I6 - I6.transpose()).isMuchSmallerThan(I6));
+      m = I6(LINEAR, LINEAR);
+      const Matrix3 & mc_cross = I6.template block <3,3> (ANGULAR,LINEAR);
+      c = unSkew(mc_cross);
+      c /= m;
+      
+      Matrix3 I3 (mc_cross * mc_cross);
+      I3 /= m;
+      I3 += I6.template block<3,3>(ANGULAR,ANGULAR);
+      I = Symmetric3(I3);
     }
 
     InertiaTpl(Scalar_t _m, 
@@ -238,9 +246,10 @@ namespace se3
 
     Force __mult__(const Motion &v) const 
     {
-      const Vector3 & mcxw = m*c.cross(v.angular());
-      return Force( m*v.linear()-mcxw,
-                    m*c.cross(v.linear()) + I*v.angular() - c.cross(mcxw) );
+      Force f;
+      f.linear() = m*(v.linear() - c.cross(v.angular()));
+      f.angular() = c.cross(f.linear()) + I*v.angular();
+      return f;
     }
     
     Scalar_t vtiv_impl(const Motion & v) const
@@ -290,11 +299,11 @@ namespace se3
                     v.angular().cross(c.cross(mv_mcxw)+I*v.angular())-v.linear().cross(mcxw) );
     }
 
-    void disp_impl(std::ostream &os) const
+    void disp_impl(std::ostream & os) const
     {
-      os  << "m =" << m << ";\n"
-      << "c = [\n" << c.transpose() << "]';\n"
-      << "I = [\n" << (Matrix3)I << "];";
+      os  << "  m = " << m << "\n"
+      << "  c = " << c.transpose() << "\n"
+      << "  I = \n" << (Matrix3)I << "";
     }
 
   protected:

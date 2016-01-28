@@ -28,7 +28,7 @@ namespace eigenpy
   template<>
   struct UnalignedEquivalent<se3::SE3>
   {
-    typedef se3::SE3Tpl<double,Eigen::DontAlign> type;
+    typedef se3::SE3Tpl<se3::SE3::Scalar_t,Eigen::DontAlign> type;
   };
 } // namespace eigenpy
 
@@ -78,6 +78,9 @@ namespace se3
 	  .add_property("translation",&SE3PythonVisitor::getTranslation,&SE3PythonVisitor::setTranslation)
 	  .add_property("homogeneous",&SE3_fx::toHomogeneousMatrix)
 	  .add_property("action",&SE3_fx::toActionMatrix)
+        
+    .def("setIdentity",&SE3PythonVisitor::setIdentity)
+    .def("setRandom",&SE3PythonVisitor::setRandom)
 
 	  .def("inverse", &SE3_fx::inverse)
 	  .def("act_point", &SE3PythonVisitor::act_point)
@@ -101,6 +104,9 @@ namespace se3
       static void setRotation( SE3_fx & self, const Matrix3_fx & R ) { self.rotation(R); }
       static Vector3_fx getTranslation( const SE3_fx & self ) { return self.translation(); }
       static void setTranslation( SE3_fx & self, const Vector3_fx & p ) { self.translation(p); }
+      
+      static void setIdentity(SE3_fx & self) { self.setIdentity(); }
+      static void setRandom(SE3_fx & self) { self.setRandom(); }
 
       static Vector3_fx act_point( const SE3_fx & self, const Vector3_fx & pt ) { return self.act(pt); }
       static Vector3_fx actInv_point( const SE3_fx & self, const Vector3_fx & pt ) { return self.actInv(pt); }

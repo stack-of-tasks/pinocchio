@@ -169,6 +169,13 @@ int main(int argc, const char ** argv)
     forwardKinematics(model,data,qs[_smooth],qdots[_smooth], qddots[_smooth]);
   }
   std::cout << "Second Order Kinematics = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    emptyForwardPass(model,data);
+  }
+  std::cout << "Empty Forward Pass = \t"; timer.toc(std::cout,NBT);
 
   std::cout << "--" << std::endl;
   return 0;

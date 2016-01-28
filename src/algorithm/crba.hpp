@@ -111,17 +111,17 @@ namespace se3
 
       const Model::Index & parent   = model.parents[i];
       if(parent>0) 
-	{
-	  /*   Yli += liXi Yi */
- 	  data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
-
-	  /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
-	  Eigen::Block<typename Data::Matrix6x> jF
-	    = data.Fcrb[parent].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
- 	  forceSet::se3Action(data.liMi[i],
-			      data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]),
-			      jF);
-	}
+      {
+        /*   Yli += liXi Yi */
+        data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+        
+        /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
+        Eigen::Block<typename Data::Matrix6x> jF
+        = data.Fcrb[parent].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
+        Eigen::Block<typename Data::Matrix6x> iF
+        = data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
+        forceSet::se3Action(data.liMi[i], iF, jF);
+      }
       
       // std::cout << "iYi = " << (Inertia::Matrix6)data.Ycrb[i] << std::endl;
       // std::cout << "iSi = " << ConstraintXd(jdata.S()).matrix() << std::endl;
