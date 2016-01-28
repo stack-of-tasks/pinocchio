@@ -27,6 +27,8 @@
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 #include <iostream>
 
+#include <boost/bind.hpp>
+
 namespace se3
 {
   inline std::ostream& operator<< (std::ostream & os, const Model & model)
@@ -172,6 +174,67 @@ namespace se3
     assert( index < (Model::Index)joints.size() );
     return names[index];
   }
+
+  inline Model::Index Model::getFrameId ( const std::string & name ) const
+  {
+    std::vector<Frame>::const_iterator it = std::find_if( extra_frames.begin()
+                                                        , extra_frames.end()
+                                                        , boost::bind(&Frame::name, _1) == name
+                                                        );
+    return Model::Index(it - extra_frames.begin());
+  }
+
+  inline bool Model::existFrame ( const std::string & name ) const
+  {
+    return std::find_if( extra_frames.begin(), extra_frames.end(), boost::bind(&Frame::name, _1) == name) != extra_frames.end();
+  }
+
+  inline const std::string & Model::getFrameName ( Index index ) const
+  {
+    return extra_frames[index].name;
+  }
+
+  inline const Model::Index& Model::getFrameParent( const std::string & name ) const
+  {
+    std::vector<Frame>::const_iterator it = std::find_if( extra_frames.begin()
+                                                        , extra_frames.end()
+                                                        , boost::bind(&Frame::name, _1) == name
+                                                        );
+    return it->parent_id;
+  }
+
+  inline const Model::Index& Model::getFrameParent( Model::Index index ) const
+  {
+    return extra_frames[index].parent_id;
+  }
+
+  inline const SE3 & Model::getJointToFrameTransform( const std::string & name) const
+  {
+    assert(existFrame(name) && "The Frame you requested does not exist");
+    std::vector<Frame>::const_iterator it = std::find_if( extra_frames.begin()
+                                                        , extra_frames.end()
+                                                        , boost::bind(&Frame::name, _1) == name
+                                                        );
+    return it->frame_placement;
+  }
+
+  inline const SE3 & Model::getJointToFrameTransform( Model::Index index ) const
+  {
+    return extra_frames[index].frame_placement;
+  }
+
+  inline void Model::addFrame ( const Frame & frame )
+  {
+    if( !existFrame(frame.name) )
+      extra_frames.push_back(frame);nExtraFrames++;
+  }
+
+  inline void Model::addFrame ( const std::string & name, Index index, const SE3 & placement)
+  {
+    if( !existFrame(name) )
+      addFrame(Frame(name, index, placement));
+  }
+
 
   inline Data::Data (const Model & ref)
     :model(ref)

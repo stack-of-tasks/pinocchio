@@ -157,6 +157,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/joint-dense.hpp
   python/joints-models.hpp
   python/joints-variant.hpp
+  python/frame.hpp
   python/model.hpp
   python/data.hpp
   python/algorithms.hpp

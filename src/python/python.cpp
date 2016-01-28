@@ -24,6 +24,7 @@
 #include "pinocchio/python/joint-dense.hpp"
 #include "pinocchio/python/joints-variant.hpp"
 
+#include "pinocchio/python/frame.hpp"
 #include "pinocchio/python/model.hpp"
 #include "pinocchio/python/data.hpp"
 #include "pinocchio/python/algorithms.hpp"
@@ -65,6 +66,7 @@ namespace se3
     }
     void exposeModel()
     {
+      FramePythonVisitor::expose();
       ModelPythonVisitor::expose();
       DataPythonVisitor::expose();
 #ifdef WITH_HPP_FCL      
