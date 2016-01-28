@@ -91,12 +91,16 @@ namespace se3
   {
     data.potential_energy = 0.;
     const Motion::ConstLinear_t & g = model.gravity.linear();
+    SE3::Vector3 com_global;
     
     if (update_kinematics)
       forwardKinematics(model,data,q);
     
     for(Model::Index i=1;i<(Model::Index)(model.nbody);++i)
-      data.potential_energy += model.inertias[i].mass() * data.oMi[i].translation().dot(g);
+    {
+      com_global = data.oMi[i].translation() + data.oMi[i].rotation() * model.inertias[i].lever();
+      data.potential_energy += model.inertias[i].mass() * com_global.dot(g);
+    }
     
     return data.potential_energy;
   }
