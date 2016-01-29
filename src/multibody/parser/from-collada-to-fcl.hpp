@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio and is mainly inspired
 // by software hpp-model-urdf
@@ -25,13 +25,12 @@
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 
-#include <assimp/DefaultLogger.h>
-
-#include <assimp/assimp.hpp>
-#include <assimp/aiScene.h>
-#include <assimp/aiPostProcess.h>
-#include <assimp/IOStream.h>
-#include <assimp/IOSystem.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/IOStream.hpp>
+#include <assimp/IOSystem.hpp>
+#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 
 
 #include <hpp/fcl/BV/OBBRSS.h>
