@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio and is mainly inspired
 // by software hpp-model-urdf
@@ -25,13 +25,12 @@
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 
-#include <assimp/DefaultLogger.h>
-
-#include <assimp/assimp.hpp>
-#include <assimp/aiScene.h>
-#include <assimp/aiPostProcess.h>
-#include <assimp/IOStream.h>
-#include <assimp/IOSystem.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/IOStream.hpp>
+#include <assimp/IOSystem.hpp>
+#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 
 
 #include <hpp/fcl/BV/OBBRSS.h>
@@ -62,9 +61,12 @@ struct TriangleAndVertices
  * @param[in]  mesh            The mesh that must be built
  * @param      tv              Triangles and Vertices of the mesh submodels
  */
-inline void buildMesh (const ::urdf::Vector3& scale, const aiScene* scene, const aiNode* node,
-                        std::vector<unsigned>& subMeshIndexes, const PolyhedronPtrType& mesh,
-                        TriangleAndVertices& tv)
+inline void buildMesh (const ::urdf::Vector3 & scale,
+                       const aiScene* scene,
+                       const aiNode* node,
+                       std::vector<unsigned> & subMeshIndexes,
+                       const PolyhedronPtrType & mesh,
+                       TriangleAndVertices & tv)
 {
   if (!node) return;
 
@@ -133,8 +135,10 @@ inline void buildMesh (const ::urdf::Vector3& scale, const aiScene* scene, const
  * @param[in]  scene  Pointer to the assimp scene
  * @param[in]  mesh   The mesh that must be built
  */
-inline void meshFromAssimpScene (const std::string& name, const ::urdf::Vector3& scale,
-                                    const aiScene* scene,const PolyhedronPtrType& mesh)
+inline void meshFromAssimpScene (const std::string & name,
+                                 const ::urdf::Vector3 & scale,
+                                 const aiScene* scene,
+                                 const PolyhedronPtrType & mesh)
   {
     TriangleAndVertices tv;
 
@@ -170,8 +174,9 @@ inline void meshFromAssimpScene (const std::string& name, const ::urdf::Vector3&
  * @param[in]  scale          Scale to apply when reading the ressource
  * @param[in]  polyhedron     The resulted polyhedron
  */
-inline void loadPolyhedronFromResource ( const std::string& resource_path, const ::urdf::Vector3& scale,
-                                          const PolyhedronPtrType& polyhedron)
+inline void loadPolyhedronFromResource (const std::string & resource_path,
+                                        const ::urdf::Vector3 & scale,
+                                        const PolyhedronPtrType & polyhedron)
 {
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(resource_path.c_str(), aiProcess_SortByPType| aiProcess_GenNormals|
@@ -190,12 +195,12 @@ inline void loadPolyhedronFromResource ( const std::string& resource_path, const
 /**
  * @brief      Transform a cURL readable path (package://..) to an absolute path for urdf collision path
  *
- * @param      urdf_mesh_path  The path given in the urdf file (package://..)
+ * @param[in]      urdf_mesh_path  The path given in the urdf file (package://..)
  * @param[in]  meshRootDir     Root path to the directory where meshes are located
  *
  * @return     The absolute path to the mesh file
  */
-inline std::string fromURDFMeshPathToAbsolutePath(std::string & urdf_mesh_path, std::string meshRootDir)
+inline std::string fromURDFMeshPathToAbsolutePath(const std::string & urdf_mesh_path, const std::string & meshRootDir)
 { 
 
   std::string absolutePath = std::string(meshRootDir +  
