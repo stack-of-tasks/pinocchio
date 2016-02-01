@@ -58,7 +58,7 @@ ENDIF (INITIALIZE_WITH_NAN)
 # --- DEPENDANCIES -----------------------------------
 # ----------------------------------------------------
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
-ADD_OPTIONAL_DEPENDENCY("eigenpy >= 1.2.0")
+ADD_OPTIONAL_DEPENDENCY("eigenpy >= 1.3.0")
 ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.10")
 ADD_OPTIONAL_DEPENDENCY("lua5.1")
