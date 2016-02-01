@@ -147,7 +147,7 @@ namespace se3
     Eigen::VectorXd tau;                  // Joint forces
     Eigen::VectorXd nle;                  // Non linear effects
 
-    std::vector<SE3> oMef;                // Absolute position of extra frames
+    std::vector<SE3> oMof;                // Absolute position of extra frames
 
     std::vector<Inertia> Ycrb;            // Inertia of the sub-tree composit rigid body
     Eigen::MatrixXd M;                    // Joint Inertia

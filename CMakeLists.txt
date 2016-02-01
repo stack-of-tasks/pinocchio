@@ -140,6 +140,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/non-linear-effects.hpp
   algorithm/joint-limits.hpp
   algorithm/energy.hpp
+  algorithm/operational-frames.hpp
   )
 
 SET(${PROJECT_NAME}_SIMULATION_HEADERS
