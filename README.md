@@ -1,7 +1,7 @@
 Pinocchio
 ===========
-[![Build Status](https://travis-ci.org/stack-of-tasks/pinocchio.png?branch=master)](https://travis-ci.org/stack-of-tasks/pinocchio)
-[![Coverage Status](https://coveralls.io/repos/github/stack-of-tasks/pinocchio/badge.svg)](https://coveralls.io/github/stack-of-tasks/pinocchio)
+[![Build Status](https://travis-ci.org/stack-of-tasks/pinocchio.png?branch=devel)](https://travis-ci.org/stack-of-tasks/pinocchio)
+[![Coverage Status](https://coveralls.io/repos/github/stack-of-tasks/pinocchio/badge.svg?branch=devel)](https://coveralls.io/github/stack-of-tasks/pinocchio?branch=devel)
 
 
 **Warning:** This repository contains [Git
