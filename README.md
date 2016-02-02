@@ -1,7 +1,8 @@
 Pinocchio
 ===========
 [![Build Status](https://travis-ci.org/stack-of-tasks/pinocchio.png?branch=master)](https://travis-ci.org/stack-of-tasks/pinocchio)
-[![Coverage Status](https://coveralls.io/repos/stack-of-tasks/pinocchio/badge.png)](https://coveralls.io/r/stack-of-tasks/pinocchio)
+[![Coverage Status](https://coveralls.io/repos/github/stack-of-tasks/pinocchio/badge.svg)](https://coveralls.io/github/stack-of-tasks/pinocchio)
+
 
 **Warning:** This repository contains [Git
 submodules][git-submodules]. Please clone this repository using the
