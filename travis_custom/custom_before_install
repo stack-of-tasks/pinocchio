@@ -14,7 +14,7 @@ sudo free -m -t
 # Setup environment variables.
 export APT_DEPENDENCIES="doxygen libboost-dev libboost-doc libboost-thread-dev libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-python-dev libboost-program-options-dev libeigen3-dev libtinyxml-dev robotpkg-urdfdom "
 curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -
-. ./.travis/run before_install
+. ./.travis/run ./.travis/before_install
 
 # End debug mode
 set +v
