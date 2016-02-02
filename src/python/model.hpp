@@ -132,10 +132,6 @@ namespace se3
       .add_property("fix_hasVisual", bp::make_function(&ModelPythonVisitor::fix_hasVisual, bp::return_internal_reference<>())  )
       .add_property("fix_bodyNames", bp::make_function(&ModelPythonVisitor::fix_bodyNames, bp::return_internal_reference<>())  )
 
-      .def("getFrameParentJoint", &ModelPythonVisitor::getFrameParent)
-      .def("getFramePositionInParent", &ModelPythonVisitor::getJointToFrameTransform)
-      .def("addExtraFrame", &ModelPythonVisitor::addExtraFrame)
-      .add_property("extra_frames", bp::make_function(&ModelPythonVisitor::extraFrames, bp::return_internal_reference<>()) )
 
       .add_property("gravity",&ModelPythonVisitor::gravity,&ModelPythonVisitor::setGravity)
 	  .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
@@ -178,14 +174,6 @@ namespace se3
       static std::vector<Model::Index> & fix_lastMovingParent( ModelHandler & m ) { return m->fix_lastMovingParent; }
       static std::vector<bool> & fix_hasVisual ( ModelHandler & m ) { return m->fix_hasVisual; }
       static std::vector<std::string> & fix_bodyNames ( ModelHandler & m ) { return m->fix_bodyNames; }
-
-      static Model::Index  getFrameParent( ModelHandler & m, const std::string & name ) { return m->getFrameParent(name); }
-      static SE3  getJointToFrameTransform( ModelHandler & m, const std::string & name ) { return m->getJointToFrameTransform(name); }
-      static void  addExtraFrame( ModelHandler & m, const std::string & frameName, Index parent, const SE3_fx & placementWrtParent )
-      {
-        m->addFrame(frameName, parent, placementWrtParent);
-      }
-      static std::vector<Frame> & extraFrames (ModelHandler & m ) { return m->extra_frames;}
 
       static Motion gravity( ModelHandler & m ) { return m->gravity; }
       static void setGravity( ModelHandler & m,const Motion_fx & g ) { m->gravity = g; }
@@ -244,8 +232,6 @@ namespace se3
           .def(bp::vector_indexing_suite< std::vector<double> >());
         bp::class_< JointModelVector >("StdVec_JointModelVector")
           .def(bp::vector_indexing_suite< JointModelVector, true >());
-        bp::class_< std::vector<Frame> >("StdVec_FrameVector")
-          .def(bp::vector_indexing_suite< std::vector<Frame> >());
 
   bp::class_<ModelHandler>("Model",
          "Articulated rigid body model (const)",

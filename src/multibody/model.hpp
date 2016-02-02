@@ -39,26 +39,6 @@ namespace se3
 {
   class Model;
   class Data;
-  struct Frame
-  {
-    typedef std::size_t Index;
-    
-    Frame(const std::string & name, Index parent, const SE3 & placement): name(name)
-                                                                        , parent_id(parent)
-                                                                        , frame_placement(placement)
-    {
-    }
-
-    bool operator == (const Frame & other) const
-    {
-      return name == other.name && parent_id == other.parent_id
-              && frame_placement == other.frame_placement ;
-    }
-
-    std::string name;
-    Index parent_id;
-    SE3 frame_placement;
-  };
 
   class Model
   {
@@ -69,7 +49,6 @@ namespace se3
     int nv;                               // Dimension of the velocity vector space
     int nbody;                            // Number of bodies (= number of joints + 1)
     int nFixBody;                         // Number of fixed-bodies (= number of fixed-joints)
-    int nExtraFrames;                     // Number of extra frames
 
     std::vector<Inertia> inertias;        // Spatial inertias of the body <i> in the supporting joint frame <i>
     std::vector<SE3> jointPlacements;     // Placement (SE3) of the input of joint <i> in parent joint output <li>
@@ -84,8 +63,6 @@ namespace se3
     std::vector<bool> fix_hasVisual;      // True iff fixed-body <i> has a visual mesh.
     std::vector<std::string> fix_bodyNames;// Name of fixed-joint <i>
 
-    std::vector<Frame> extra_frames;
-
     Motion gravity;                       // Spatial gravity
     static const Eigen::Vector3d gravity981; // Default 3D gravity (=(0,0,-9.81))
 
@@ -94,7 +71,6 @@ namespace se3
       , nv(0)
       , nbody(1)
       , nFixBody(0)
-      , nExtraFrames(0)
       , inertias(1)
       , jointPlacements(1)
       , joints(1)
@@ -131,18 +107,6 @@ namespace se3
     Index getJointId( const std::string & name ) const;
     bool existJointName( const std::string & name ) const;
     const std::string& getJointName( Index index ) const;
-
-    Index getFrameId ( const std::string & name ) const;
-    bool existFrame ( const std::string & name ) const;
-    const std::string & getFrameName ( Index index ) const;
-    const Index& getFrameParent( const std::string & name ) const;
-    const Index& getFrameParent( Index index ) const;
-    const SE3 & getJointToFrameTransform( const std::string & name ) const;
-    const SE3 & getJointToFrameTransform( Index index ) const;
-
-    void addFrame ( const Frame & frame );
-    void addFrame ( const std::string & name, Index index, const SE3 & placement );
-
   };
 
   class Data
@@ -163,8 +127,6 @@ namespace se3
     std::vector<SE3> liMi;                // Body relative placement (wrt parent)
     Eigen::VectorXd tau;                  // Joint forces
     Eigen::VectorXd nle;                  // Non linear effects
-
-    std::vector<SE3> oMef;                // Absolute position of extra frames
 
     std::vector<Inertia> Ycrb;            // Inertia of the sub-tree composit rigid body
     Eigen::MatrixXd M;                    // Joint Inertia
