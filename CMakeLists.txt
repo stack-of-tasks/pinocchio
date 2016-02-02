@@ -140,7 +140,6 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/non-linear-effects.hpp
   algorithm/joint-limits.hpp
   algorithm/energy.hpp
-  algorithm/extra-frames.hpp
   )
 
 SET(${PROJECT_NAME}_SIMULATION_HEADERS
@@ -158,7 +157,6 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/joint-dense.hpp
   python/joints-models.hpp
   python/joints-variant.hpp
-  python/frame.hpp
   python/model.hpp
   python/data.hpp
   python/algorithms.hpp
