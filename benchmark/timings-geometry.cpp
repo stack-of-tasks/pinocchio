@@ -91,7 +91,7 @@ int main()
   timer.tic();
   SMOOTH(NBT)
   {
-    geometry(romeo_model,romeo_data,qs_romeo[_smooth]);
+    forwardKinematics(romeo_model,romeo_data,qs_romeo[_smooth]);
   }
   double geom_time = timer.toc(StackTicToc::US)/NBT;
 
