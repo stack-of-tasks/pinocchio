@@ -247,6 +247,7 @@ namespace se3
     ,liMi((std::size_t)ref.nbody)
     ,tau(ref.nv)
     ,nle(ref.nv)
+    ,oMef((std::size_t)ref.nExtraFrames)
     ,Ycrb((std::size_t)ref.nbody)
     ,M(ref.nv,ref.nv)
     ,Fcrb((std::size_t)ref.nbody)
