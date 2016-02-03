@@ -28,7 +28,6 @@
 #define BOOST_TEST_MODULE JacobianTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
-#include "pinocchio/tools/matrix-comparison.hpp"
 
 BOOST_AUTO_TEST_SUITE ( JacobianTest)
 
@@ -53,7 +52,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   VectorXd qddot = VectorXd::Zero(model.nv);
   rnea( model,data,q,qdot,qddot );
   Motion v = data.oMi[idx].act( data.v[idx] );
-  is_matrix_absolutely_closed(v.toVector(),Jrh*qdot,1e-12);
+  BOOST_CHECK(v.toVector().isApprox(Jrh*qdot,1e-12));
 
 
   /* Test local jacobian: rhJrh == rhXo oJrh */ 
@@ -61,12 +60,12 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   getJacobian<true>(model,data,idx,rhJrh);
   MatrixXd XJrh(6,model.nv); 
   motionSet::se3Action( data.oMi[idx].inverse(), Jrh,XJrh );
-  is_matrix_absolutely_closed(XJrh,rhJrh,1e-12);
+  BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
 
 
   data.J.fill(0);
   XJrh = jacobian(model,data,q,idx);
-  is_matrix_absolutely_closed(XJrh,rhJrh,1e-12);
+  BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
 
 }
 

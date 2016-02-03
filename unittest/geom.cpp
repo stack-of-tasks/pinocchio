@@ -55,7 +55,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE GeomTest
 #include <boost/test/unit_test.hpp>
-#include "pinocchio/tools/matrix-comparison.hpp"
 
 typedef std::map <std::string, se3::SE3> PositionsMap_t;
 typedef std::map <std::string, se3::SE3> JointPositionsMap_t;

@@ -37,7 +37,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE CholeskyTest
 #include <boost/test/unit_test.hpp>
-#include "pinocchio/tools/matrix-comparison.hpp"
 #include <boost/utility/binary.hpp>
 
 
@@ -70,31 +69,31 @@ BOOST_AUTO_TEST_CASE ( test_cholesky )
     std::cout << "D = [\n" << D.transpose() << "];" << std::endl;
   #endif
       
-  is_matrix_absolutely_closed(M, U*D.asDiagonal()*U.transpose() , 1e-12);
+  BOOST_CHECK(M.isApprox(U*D.asDiagonal()*U.transpose() , 1e-12));
 
   Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
 // std::cout << "v = [" << v.transpose() << "]';" << std::endl;
 
   Eigen::VectorXd Uv = v; se3::cholesky::Uv(model,data,Uv);
-  is_matrix_absolutely_closed(Uv, U*v, 1e-12);
+  BOOST_CHECK(Uv.isApprox(U*v, 1e-12));
 
   Eigen::VectorXd Utv = v; se3::cholesky::Utv(model,data,Utv);
-  is_matrix_absolutely_closed(Utv, U.transpose()*v, 1e-12);
+  BOOST_CHECK(Utv.isApprox(U.transpose()*v, 1e-12));
 
   Eigen::VectorXd Uiv = v; se3::cholesky::Uiv(model,data,Uiv);
-  is_matrix_absolutely_closed(Uiv, U.inverse()*v, 1e-12);
+  BOOST_CHECK(Uiv.isApprox(U.inverse()*v, 1e-12));
 
 
   Eigen::VectorXd Utiv = v; se3::cholesky::Utiv(model,data,Utiv);
-  is_matrix_absolutely_closed(Utiv, U.transpose().inverse()*v, 1e-12);
+  BOOST_CHECK(Utiv.isApprox(U.transpose().inverse()*v, 1e-12));
 
   Eigen::VectorXd Miv = v; se3::cholesky::solve(model,data,Miv);
-  is_matrix_absolutely_closed(Miv, M.inverse()*v, 1e-12);
+  BOOST_CHECK(Miv.isApprox(M.inverse()*v, 1e-12));
 
   Eigen::VectorXd Mv = v; se3::cholesky::Mv(model,data,Mv,true);
-  is_matrix_absolutely_closed(Mv, M*v, 1e-12);
+  BOOST_CHECK(Mv.isApprox(M*v, 1e-12));
   Mv = v;                 se3::cholesky::Mv(model,data,Mv,false);
-  is_matrix_absolutely_closed(Mv, M*v, 1e-12);
+  BOOST_CHECK(Mv.isApprox(M*v, 1e-12));
 }
 
 
