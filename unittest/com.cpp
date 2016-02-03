@@ -33,7 +33,6 @@
 #define BOOST_TEST_MODULE ComTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
-#include "pinocchio/tools/matrix-comparison.hpp"
 
 
 BOOST_AUTO_TEST_SUITE ( ComTest)
@@ -57,16 +56,16 @@ BOOST_AUTO_TEST_CASE ( test_com )
 
 	/* Test COM against CRBA*/
   Vector3d com = centerOfMass(model,data,q);
-  is_matrix_absolutely_closed(data.com[0], getComFromCrba(model,data), 1e-12);
+  BOOST_CHECK(data.com[0].isApprox(getComFromCrba(model,data), 1e-12));
 
 	/* Test COM against Jcom (both use different way of compute the COM. */
   com = centerOfMass(model,data,q);
   jacobianCenterOfMass(model,data,q);
-  is_matrix_absolutely_closed(com, data.com[0], 1e-12);
+  BOOST_CHECK(com.isApprox(data.com[0], 1e-12));
 
 	/* Test COM against Jcom (both use different way of compute the COM. */
   centerOfMassAcceleration(model,data,q,v,a);
-  is_matrix_absolutely_closed(com, data.com[0], 1e-12);
+  BOOST_CHECK(com.isApprox(data.com[0], 1e-12));
 
   /* Test vCoM againt nle algorithm without gravity field */
   a.setZero();
@@ -75,14 +74,14 @@ BOOST_AUTO_TEST_CASE ( test_com )
   nonLinearEffects(model, data, q, v);
   
   se3::SE3::Vector3 acom_from_nle (data.nle.head <3> ()/data.mass[0]);
-  is_matrix_absolutely_closed(data.liMi[1].rotation() * acom_from_nle, data.acom[0], 1e-12);
+  BOOST_CHECK((data.liMi[1].rotation() * acom_from_nle).isApprox(data.acom[0], 1e-12));
 
 	/* Test Jcom against CRBA  */
   Eigen::MatrixXd Jcom = jacobianCenterOfMass(model,data,q);
-  is_matrix_absolutely_closed(data.Jcom, getJacobianComFromCrba(model,data), 1e-12);
+  BOOST_CHECK(data.Jcom.isApprox(getJacobianComFromCrba(model,data), 1e-12));
 
   /* Test CoM vecolity againt jacobianCenterOfMass */
-  is_matrix_absolutely_closed(Jcom * v, data.vcom[0], 1e-12);
+  BOOST_CHECK((Jcom * v).isApprox(data.vcom[0], 1e-12));
 
 
 //  std::cout << "com = [ " << data.com[0].transpose() << " ];" << std::endl;

@@ -35,7 +35,6 @@
 #define BOOST_TEST_MODULE CrbaTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
-#include "pinocchio/tools/matrix-comparison.hpp"
 
 BOOST_AUTO_TEST_SUITE ( CrbaTest)
 
@@ -82,7 +81,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 
     // std::cout << "Mcrb = [ " << data.M << "  ];" << std::endl;
     // std::cout << "Mrne = [  " << M << " ]; " << std::endl;
-    is_matrix_absolutely_closed(M,data.M,1e-12);
+    BOOST_CHECK(M.isApprox(data.M,1e-12));
     
     std::cout << "(the time score in debug mode is not relevant)  " ;
     

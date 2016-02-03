@@ -45,7 +45,6 @@
 #define BOOST_TEST_MODULE symmetricTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
-#include "pinocchio/tools/matrix-comparison.hpp"
 
 
 #include <Eigen/StdVector>
@@ -102,7 +101,7 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
     {
       Matrix3 M = Matrix3::Random(); M = M*M.transpose();
       Symmetric3 S(M);
-      is_matrix_absolutely_closed(S.matrix(), M, 1e-12);
+      BOOST_CHECK(S.matrix().isApprox(M, 1e-12));
     }
     
     // S += S
@@ -112,7 +111,7 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
       S2 = Symmetric3::Random();
       Symmetric3 Scopy = S;
       S+=S2;
-      is_matrix_absolutely_closed(S.matrix(), S2.matrix()+Scopy.matrix(), 1e-12);
+      BOOST_CHECK(S.matrix().isApprox(S2.matrix()+Scopy.matrix(), 1e-12));
     }
 
     // S + M
@@ -121,10 +120,10 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
       Matrix3 M = Matrix3::Random(); M = M*M.transpose();
 
       Symmetric3 S2 = S + M;
-      is_matrix_absolutely_closed(S2.matrix(), S.matrix()+M, 1e-12);
+      BOOST_CHECK(S2.matrix().isApprox(S.matrix()+M, 1e-12));
 
       S2 = S - M;
-      is_matrix_absolutely_closed(S2.matrix(), S.matrix()-M, 1e-12);
+      BOOST_CHECK(S2.matrix().isApprox(S.matrix()-M, 1e-12));
     }
 
     // S*v
@@ -132,7 +131,7 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
       Symmetric3 S = Symmetric3::Random();
       Vector3 v = Vector3::Random(); 
       Vector3 Sv = S*v;
-      is_matrix_absolutely_closed(Sv, S.matrix()*v, 1e-12);
+      BOOST_CHECK(Sv.isApprox(S.matrix()*v, 1e-12));
     }
 
     // Random
@@ -146,7 +145,7 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
 
     // Identity
     { 
-      is_matrix_absolutely_closed(Symmetric3::Identity().matrix(), Matrix3::Identity(), 1e-12);
+      BOOST_CHECK(Symmetric3::Identity().matrix().isApprox(Matrix3::Identity(), 1e-12));
     }
 
     // Skew2
@@ -155,33 +154,33 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
       Symmetric3 vxvx = Symmetric3::SkewSquare(v);
 
       Vector3 p = Vector3::UnitX();
-      is_matrix_absolutely_closed(vxvx*p, v.cross(v.cross(p)), 1e-12);
+      BOOST_CHECK((vxvx*p).isApprox(v.cross(v.cross(p)), 1e-12));
 
       p = Vector3::UnitY();
-      is_matrix_absolutely_closed(vxvx*p, v.cross(v.cross(p)), 1e-12);
+      BOOST_CHECK((vxvx*p).isApprox(v.cross(v.cross(p)), 1e-12));
 
       p = Vector3::UnitZ();
-      is_matrix_absolutely_closed(vxvx*p, v.cross(v.cross(p)), 1e-12);
+      BOOST_CHECK((vxvx*p).isApprox(v.cross(v.cross(p)), 1e-12));
 
       Matrix3 vx = skew(v);
       Matrix3 vxvx2 = (vx*vx).eval();
-      is_matrix_absolutely_closed(vxvx.matrix(), vxvx2, 1e-12);
+      BOOST_CHECK(vxvx.matrix().isApprox(vxvx2, 1e-12));
 
       Symmetric3 S = Symmetric3::RandomPositive();
-      is_matrix_absolutely_closed((S-Symmetric3::SkewSquare(v)).matrix(), 
-                                    S.matrix()-vxvx2, 1e-12);
+      BOOST_CHECK((S-Symmetric3::SkewSquare(v)).matrix()
+                                        .isApprox(S.matrix()-vxvx2, 1e-12));
 
       double m = Eigen::internal::random<double>()+1;
-      is_matrix_absolutely_closed((S-m*Symmetric3::SkewSquare(v)).matrix(), 
-                                    S.matrix()-m*vxvx2, 1e-12);
+      BOOST_CHECK((S-m*Symmetric3::SkewSquare(v)).matrix()
+                                        .isApprox(S.matrix()-m*vxvx2, 1e-12));
 
 
       Symmetric3 S2 = S;
       S -= Symmetric3::SkewSquare(v);
-      is_matrix_absolutely_closed(S.matrix(), S2.matrix()-vxvx2, 1e-12);
+      BOOST_CHECK(S.matrix().isApprox(S2.matrix()-vxvx2, 1e-12));
 
       S = S2; S -= m*Symmetric3::SkewSquare(v);
-      is_matrix_absolutely_closed(S.matrix(), S2.matrix()-m*vxvx2, 1e-12);
+      BOOST_CHECK(S.matrix().isApprox(S2.matrix()-m*vxvx2, 1e-12));
 
     }
 
@@ -201,10 +200,10 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
       Matrix3 R = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
       
       Symmetric3 RSRt = S.rotate(R);
-      is_matrix_absolutely_closed(RSRt.matrix(), R*S.matrix()*R.transpose(), 1e-12);
+      BOOST_CHECK(RSRt.matrix().isApprox(R*S.matrix()*R.transpose(), 1e-12));
 
       Symmetric3 RtSR = S.rotate(R.transpose());
-      is_matrix_absolutely_closed(RtSR.matrix(), R.transpose()*S.matrix()*R, 1e-12);
+      BOOST_CHECK(RtSR.matrix().isApprox(R.transpose()*S.matrix()*R, 1e-12));
     }
   
   // Test operator vtiv
@@ -256,7 +255,7 @@ BOOST_AUTO_TEST_CASE ( test_metapod_LTI )
 
   R.rotTSymmetricMatrix(S);
   timeLTI(S,R,S2);
-  is_matrix_absolutely_closed(S2.toMatrix(), R.toMatrix().transpose()*S.toMatrix()*R.toMatrix(), 1e-12);
+  BOOST_CHECK(S2.toMatrix().isApprox(R.toMatrix().transpose()*S.toMatrix()*R.toMatrix(), 1e-12));
   
   const size_t NBT = 100000;
   std::vector<Sym3> Sres (NBT);
@@ -290,7 +289,7 @@ BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
   Sym3 S(M);
   {
     Matrix3 Scp = S;
-    is_matrix_absolutely_closed(Scp-Scp.transpose(), Matrix3::Zero(), 1e-16);
+    BOOST_CHECK((Scp-Scp.transpose()).isApprox(Matrix3::Zero(), 1e-16));
   }
 
   Matrix3 M2 = Matrix3::Random();
@@ -303,7 +302,7 @@ BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
   {
     Matrix3 Masa1 = ASA1.selfadjointView<Eigen::Upper>();
     Matrix3 Masa2 = ASA2.selfadjointView<Eigen::Upper>();
-    is_matrix_absolutely_closed(Masa1, Masa2, 1e-16);
+    BOOST_CHECK(Masa1.isApprox(Masa2, 1e-16));
   }
 
   const size_t NBT = 100000;

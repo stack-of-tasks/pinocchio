@@ -24,7 +24,6 @@
 #define BOOST_TEST_MODULE ComTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
-#include "pinocchio/tools/matrix-comparison.hpp"
 #include <boost/test/floating_point_comparison.hpp>
 
 BOOST_AUTO_TEST_SUITE(EnergyTest)
