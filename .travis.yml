@@ -27,7 +27,7 @@ allow_failures:
 script:
   - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE}"
   - sudo free -m -t
-  - travis_wait ./.travis_os/run ../travis_custom/custom_build
-after_success: ./.travis_os/run after_success
-after_failure: ./.travis_os/run after_failure
+  - travis_wait ./.travis/run ../travis_custom/custom_build
+after_success: ./.travis/run after_success
+after_failure: ./.travis/run after_failure
 before_install: ./travis_custom/custom_before_install
