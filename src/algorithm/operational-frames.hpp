@@ -119,7 +119,7 @@ inline void getFrameJacobian(const Model & model, const Data& data,
 
   for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
     {
-      if(! localFrame )   J.col(j) = data.J.col(j);
+      if(! localFrame )   J.col(j) = model.operational_frames[frame_id].frame_placement.actInv(Motion(data.J.col(j))).toVector();
       else                J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
     }
 }
