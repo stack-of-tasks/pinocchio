@@ -8,7 +8,7 @@ env:
     - secure: "SnIBG/xLIHX3CSvUbqqsX8xTVqIqQ7fFS6HWO6KZQVBsT6yugTwYHbyhNiU531JejYJ/I3ZrDhXfYH3qFZiYxnH1sifvwV+fnTtMXpPN7qPZwIymkjcmm6gJF51e0C7VOfUbvKFv0ngwj+ul21rgZSMuoEvxPK0WxtE3/ZSfn9c="
     - APT_DEPENDENCIES="doxygen libeigen3-dev "
     - DEBSIGN_KEYID=5AE5CD75
-    - LCOV_IGNORE_RULES="*unittest*"
+    - LCOV_IGNORE_RULES="*unittest* /opt/openrobots/*"
   matrix:
     # - BUILDTYPE=Release
     # - BUILDTYPE=Debug
