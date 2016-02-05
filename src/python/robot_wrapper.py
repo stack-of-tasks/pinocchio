@@ -26,7 +26,7 @@ class RobotWrapper:
         if(root_joint is None):
             self.model = se3.buildModelFromUrdf(filename)
         else:
-            self.model = se3.buildModelFromUrdfWithRoot(filename, root_joint)
+            self.model = se3.buildModelFromUrdf(filename, root_joint)
         self.data = self.model.createData()
         self.v0 = utils.zero(self.nv)
         self.q0 = utils.zero(self.nq)
