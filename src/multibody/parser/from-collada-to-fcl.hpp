@@ -32,14 +32,13 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
-
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
 #include <exception>
 
 typedef fcl::BVHModel< fcl::OBBRSS > PolyhedronType;
-typedef boost::shared_ptr <PolyhedronType> PolyhedronPtrType;
+typedef boost::shared_ptr <PolyhedronType> Polyhedron_ptr;
 
 struct TriangleAndVertices
 {
@@ -67,7 +66,7 @@ inline void buildMesh (const ::urdf::Vector3 & scale,
                        const aiScene* scene,
                        const aiNode* node,
                        std::vector<unsigned> & subMeshIndexes,
-                       const PolyhedronPtrType & mesh,
+                       const Polyhedron_ptr & mesh,
                        TriangleAndVertices & tv)
 {
   if (!node) return;
@@ -89,8 +88,8 @@ inline void buildMesh (const ::urdf::Vector3 & scale,
   {
     aiMesh* input_mesh = scene->mMeshes[node->mMeshes[i]];
 
-    unsigned oldNbPoints = mesh->num_vertices;
-    unsigned oldNbTriangles = mesh->num_tris;
+    unsigned oldNbPoints = (unsigned) mesh->num_vertices;
+    unsigned oldNbTriangles = (unsigned) mesh->num_tris;
 
     // Add the vertices
     for (uint32_t j = 0; j < input_mesh->mNumVertices; j++)
@@ -204,7 +203,8 @@ inline void loadPolyhedronFromResource (const std::string & resource_path,
  *
  * @return     The absolute path to the mesh file
  */
-inline std::string fromURDFMeshPathToAbsolutePath(const std::string & urdf_mesh_path, const std::string & meshRootDir)
+inline std::string fromURDFMeshPathToAbsolutePath(const std::string & urdf_mesh_path,
+                                                  const std::string & meshRootDir)
 { 
 
   std::string absolutePath = std::string(meshRootDir +  
