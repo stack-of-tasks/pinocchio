@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -32,13 +32,11 @@
 
 #include <exception>
 
-
 namespace se3
 {
   namespace urdf
   {
-
-
+    
     inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link, const std::string & meshRootDir)
     {
       boost::shared_ptr < ::urdf::Collision> collision = link->collision;
@@ -55,7 +53,7 @@ namespace se3
         ::urdf::Vector3 scale = collisionGeometry->scale;
 
         // Create FCL mesh by parsing Collada file.
-        PolyhedronPtrType  polyhedron (new PolyhedronType);
+        Polyhedron_ptr polyhedron (new PolyhedronType);
 
         loadPolyhedronFromResource (full_path, scale, polyhedron);
         geometry = polyhedron;

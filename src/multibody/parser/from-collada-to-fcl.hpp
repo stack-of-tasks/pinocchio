@@ -32,12 +32,13 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
-
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
+#include <exception>
+
 typedef fcl::BVHModel< fcl::OBBRSS > PolyhedronType;
-typedef boost::shared_ptr <PolyhedronType> PolyhedronPtrType;
+typedef boost::shared_ptr <PolyhedronType> Polyhedron_ptr;
 
 struct TriangleAndVertices
 {
@@ -65,7 +66,7 @@ inline void buildMesh (const ::urdf::Vector3 & scale,
                        const aiScene* scene,
                        const aiNode* node,
                        std::vector<unsigned> & subMeshIndexes,
-                       const PolyhedronPtrType & mesh,
+                       const Polyhedron_ptr & mesh,
                        TriangleAndVertices & tv)
 {
   if (!node) return;
@@ -87,8 +88,8 @@ inline void buildMesh (const ::urdf::Vector3 & scale,
   {
     aiMesh* input_mesh = scene->mMeshes[node->mMeshes[i]];
 
-    unsigned oldNbPoints = mesh->num_vertices;
-    unsigned oldNbTriangles = mesh->num_tris;
+    unsigned oldNbPoints = (unsigned) mesh->num_vertices;
+    unsigned oldNbTriangles = (unsigned) mesh->num_tris;
 
     // Add the vertices
     for (uint32_t j = 0; j < input_mesh->mNumVertices; j++)
@@ -133,18 +134,18 @@ inline void buildMesh (const ::urdf::Vector3 & scale,
  * @param[in]  name   File (ressource) transformed into an assimp scene in loa
  * @param[in]  scale  Scale to apply when reading the ressource
  * @param[in]  scene  Pointer to the assimp scene
- * @param[in]  mesh   The mesh that must be built
+ * @param[out] mesh  The mesh that must be built
  */
 inline void meshFromAssimpScene (const std::string & name,
                                  const ::urdf::Vector3 & scale,
                                  const aiScene* scene,
-                                 const PolyhedronPtrType & mesh)
+                                 const Polyhedron_ptr & mesh) throw (std::invalid_argument)
   {
     TriangleAndVertices tv;
 
     if (!scene->HasMeshes())
     {
-      throw std::runtime_error (std::string ("No meshes found in file ")+
+      throw std::invalid_argument (std::string ("No meshes found in file ")+
         name);
     }
 
@@ -172,11 +173,11 @@ inline void meshFromAssimpScene (const std::string & name,
  *
  * @param[in]  resource_path  Path to the ressource mesh file to be read
  * @param[in]  scale          Scale to apply when reading the ressource
- * @param[in]  polyhedron     The resulted polyhedron
+ * @param[out] polyhedron     The resulted polyhedron
  */
 inline void loadPolyhedronFromResource (const std::string & resource_path,
                                         const ::urdf::Vector3 & scale,
-                                        const PolyhedronPtrType & polyhedron)
+                                        const Polyhedron_ptr & polyhedron) throw (std::invalid_argument)
 {
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(resource_path.c_str(), aiProcess_SortByPType| aiProcess_GenNormals|
@@ -184,8 +185,10 @@ inline void loadPolyhedronFromResource (const std::string & resource_path,
                                                           aiProcess_FlipUVs);
   if (!scene)
   {
-    throw std::runtime_error (std::string ("Could not load resource ") + resource_path + std::string ("\n") +
-                              importer.GetErrorString ());
+    const std::string exception_message (std::string ("Could not load resource ") + resource_path + std::string("\n") +
+                                         importer.GetErrorString () + std::string("\n") +
+                                         "Hint: the mesh directory may be wrong.");
+    throw std::invalid_argument(exception_message);
   }
 
   meshFromAssimpScene (resource_path, scale, scene, polyhedron);
@@ -200,7 +203,8 @@ inline void loadPolyhedronFromResource (const std::string & resource_path,
  *
  * @return     The absolute path to the mesh file
  */
-inline std::string fromURDFMeshPathToAbsolutePath(const std::string & urdf_mesh_path, const std::string & meshRootDir)
+inline std::string fromURDFMeshPathToAbsolutePath(const std::string & urdf_mesh_path,
+                                                  const std::string & meshRootDir)
 { 
 
   std::string absolutePath = std::string(meshRootDir +  
