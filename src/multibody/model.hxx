@@ -43,18 +43,7 @@ namespace se3
     return os;
   }
 
-  inline std::string random (const int len)
-  {
-    std::string res;
-    static const char alphanum[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
-
-    for (int i=0; i<len;++i)
-      res += alphanum[((size_t)std::rand() % (sizeof(alphanum) - 1))];
-    return res;
-  }
+  
 
   template<typename D>
   Model::Index Model::addBody (Index parent, const JointModelBase<D> & j, const SE3 & placement,

@@ -83,6 +83,7 @@ SET(${PROJECT_NAME}_MATH_HEADERS
 
 SET(${PROJECT_NAME}_TOOLS_HEADERS
   tools/timer.hpp
+  tools/string-generator.hpp
   )
 
 SET(${PROJECT_NAME}_SPATIAL_HEADERS

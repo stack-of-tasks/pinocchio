@@ -23,6 +23,7 @@
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/tools/string-generator.hpp"
 #include <iostream>
 
 namespace se3
@@ -31,7 +32,7 @@ struct Frame
 {
   typedef std::size_t Index;
   
-  Frame() : name(), parent_id(), frame_placement()
+  Frame() : name(random(8)), parent_id(), frame_placement()
   {
 
   }
