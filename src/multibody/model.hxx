@@ -223,16 +223,26 @@ namespace se3
     return operational_frames[index].frame_placement;
   }
 
-  inline void Model::addFrame ( const Frame & frame )
+  inline bool Model::addFrame ( const Frame & frame )
   {
     if( !existFrame(frame.name) )
-      operational_frames.push_back(frame);nOperationalFrames++;
+    {
+      operational_frames.push_back(frame);
+      nOperationalFrames++;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
 
-  inline void Model::addFrame ( const std::string & name, Index index, const SE3 & placement)
+  inline bool Model::addFrame ( const std::string & name, Index index, const SE3 & placement)
   {
     if( !existFrame(name) )
-      addFrame(Frame(name, index, placement));
+      return addFrame(Frame(name, index, placement));
+    else
+      return false;
   }
 
 

@@ -49,16 +49,19 @@ namespace se3
           .def(bp::init<const std::string&,Index, const SE3_fx&> ((bp::arg("name"),bp::arg("parent id"), bp::arg("placement")),
                 "Initialize from name, parent id and placement wrt parent joint."))
 
-          .def("name", &FramePythonVisitor::getName)
-          .def("parent_id", &FramePythonVisitor::getParentId)
-          .def("placement", &FramePythonVisitor::getPlcaementWrtParentJoint)
+          .add_property("name", &FramePythonVisitor::getName, &FramePythonVisitor::setName)
+          .add_property("parent_id", &FramePythonVisitor::getParentId, &FramePythonVisitor::setParentId)
+          .add_property("placement", &FramePythonVisitor::getPlacementWrtParentJoint, &FramePythonVisitor::getPlacementWrtParentJoint)
           ;
       }
 
 
       static std::string getName( const Frame & self) { return self.name; }
+      static void setName(Frame & self, const std::string & name) { self.name = name; }
       static Index getParentId( const Frame & self) { return self.parent_id; }
-      static SE3_fx getPlcaementWrtParentJoint( const Frame & self) { return self.frame_placement; }
+      static void setParentId(Frame & self, Index & parent_id) { self.parent_id = parent_id; }
+      static SE3_fx getPlacementWrtParentJoint( const Frame & self) { return self.frame_placement; }
+      static void setPlacementWrtParentJoint(Frame & self, const SE3_fx & placement) { self.frame_placement = placement; }
 
       static void expose()
       {

@@ -123,8 +123,8 @@ namespace se3
     const SE3 & getJointToFrameTransform( const std::string & name ) const;
     const SE3 & getJointToFrameTransform( Index index ) const;
 
-    void addFrame ( const Frame & frame );
-    void addFrame ( const std::string & name, Index index, const SE3 & placement );
+    bool addFrame ( const Frame & frame );
+    bool addFrame ( const std::string & name, Index index, const SE3 & placement );
 
   };
 
