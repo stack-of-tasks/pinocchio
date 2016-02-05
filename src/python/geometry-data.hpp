@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -22,7 +22,6 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-// #include "pinocchio/multibody/parser/sample-models.hpp"
 #include "pinocchio/python/se3.hpp"
 #include "pinocchio/python/eigen_container.hpp"
 #include "pinocchio/python/handler.hpp"
@@ -121,10 +120,7 @@ namespace se3
           .def(bp::vector_indexing_suite< std::vector<CollisionPair_t> >());
     bp::class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
           .def(bp::vector_indexing_suite< std::vector<DistanceResult> >());
-      
-	/* Not sure if it is a good idea to enable automatic
-	 * conversion. Prevent it for now */
-	//bp::to_python_converter< Model,GeometryDataPythonVisitor >();
+     
 	bp::to_python_converter< GeometryDataHandler::SmartPtr_t,GeometryDataPythonVisitor >();
       }
 

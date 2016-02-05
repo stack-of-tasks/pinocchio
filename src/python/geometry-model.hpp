@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -22,7 +22,6 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-// #include "pinocchio/multibody/parser/sample-models.hpp"
 #include "pinocchio/python/se3.hpp"
 #include "pinocchio/python/eigen_container.hpp"
 #include "pinocchio/python/handler.hpp"
@@ -112,9 +111,6 @@ namespace se3
          bp::no_init)
     .def(GeometryModelPythonVisitor());
       
-	/* Not sure if it is a good idea to enable automatic
-	 * conversion. Prevent it for now */
-	//bp::to_python_converter< Model,GeometryModelPythonVisitor >();
 	bp::to_python_converter< GeometryModelHandler::SmartPtr_t,GeometryModelPythonVisitor >();
       }
 
