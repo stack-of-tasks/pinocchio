@@ -36,6 +36,8 @@
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
+#include <exception>
+
 typedef fcl::BVHModel< fcl::OBBRSS > PolyhedronType;
 typedef boost::shared_ptr <PolyhedronType> PolyhedronPtrType;
 
@@ -138,13 +140,13 @@ inline void buildMesh (const ::urdf::Vector3 & scale,
 inline void meshFromAssimpScene (const std::string & name,
                                  const ::urdf::Vector3 & scale,
                                  const aiScene* scene,
-                                 const PolyhedronPtrType & mesh)
+                                 const Polyhedron_ptr & mesh) throw (std::invalid_argument)
   {
     TriangleAndVertices tv;
 
     if (!scene->HasMeshes())
     {
-      throw std::runtime_error (std::string ("No meshes found in file ")+
+      throw std::invalid_argument (std::string ("No meshes found in file ")+
         name);
     }
 
@@ -176,7 +178,7 @@ inline void meshFromAssimpScene (const std::string & name,
  */
 inline void loadPolyhedronFromResource (const std::string & resource_path,
                                         const ::urdf::Vector3 & scale,
-                                        const PolyhedronPtrType & polyhedron)
+                                        const Polyhedron_ptr & polyhedron) throw (std::invalid_argument)
 {
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(resource_path.c_str(), aiProcess_SortByPType| aiProcess_GenNormals|
@@ -184,8 +186,10 @@ inline void loadPolyhedronFromResource (const std::string & resource_path,
                                                           aiProcess_FlipUVs);
   if (!scene)
   {
-    throw std::runtime_error (std::string ("Could not load resource ") + resource_path + std::string ("\n") +
-                              importer.GetErrorString ());
+    const std::string exception_message (std::string ("Could not load resource ") + resource_path + std::string("\n") +
+                                         importer.GetErrorString () + std::string("\n") +
+                                         "Hint: the mesh directory may be wrong.");
+    throw std::invalid_argument(exception_message);
   }
 
   meshFromAssimpScene (resource_path, scale, scene, polyhedron);
