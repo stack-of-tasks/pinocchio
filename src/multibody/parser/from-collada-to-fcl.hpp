@@ -135,7 +135,7 @@ inline void buildMesh (const ::urdf::Vector3 & scale,
  * @param[in]  name   File (ressource) transformed into an assimp scene in loa
  * @param[in]  scale  Scale to apply when reading the ressource
  * @param[in]  scene  Pointer to the assimp scene
- * @param[in]  mesh   The mesh that must be built
+ * @param[out] mesh  The mesh that must be built
  */
 inline void meshFromAssimpScene (const std::string & name,
                                  const ::urdf::Vector3 & scale,
@@ -174,7 +174,7 @@ inline void meshFromAssimpScene (const std::string & name,
  *
  * @param[in]  resource_path  Path to the ressource mesh file to be read
  * @param[in]  scale          Scale to apply when reading the ressource
- * @param[in]  polyhedron     The resulted polyhedron
+ * @param[out] polyhedron     The resulted polyhedron
  */
 inline void loadPolyhedronFromResource (const std::string & resource_path,
                                         const ::urdf::Vector3 & scale,
