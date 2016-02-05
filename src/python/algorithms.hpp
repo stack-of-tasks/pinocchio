@@ -107,7 +107,7 @@ namespace se3
   return J;
       }
       
-      static Eigen::MatrixXd frame_jacobian_proxy(const ModelHandler& model, 
+      static Data::Matrix6x frame_jacobian_proxy(const ModelHandler& model, 
                                                         DataHandler & data,
                                                         const VectorXd_fx & q,
                                                         Model::Index frame_id,
@@ -115,7 +115,7 @@ namespace se3
                                                         bool update_geometry
                                                         )
       {
-        Eigen::MatrixXd J( 6,model->nv ); J.setZero();
+        Data::Matrix6x J( 6,model->nv ); J.setZero();
 
         if (update_geometry)
           computeJacobians( *model,*data,q );
@@ -149,12 +149,12 @@ namespace se3
       }
 
 
-      static void kinematics_proxy(const ModelHandler& model, 
+      static void frames_fk_0_proxy(const ModelHandler& model, 
                                    DataHandler & data,
                                    const VectorXd_fx & q
                                    )
       {
-        FramesForwardKinematic( *model,*data,q );
+        framesForwardKinematic( *model,*data,q );
       }
 
       static void fk_2_proxy(const ModelHandler& model,
@@ -293,10 +293,9 @@ namespace se3
     "tree and put the results in data.");
 
 
-  bp::def("FramesKinematics",frames_kinematics_proxy,
+  bp::def("framesKinematics",frames_fk_0_proxy,
     bp::args("Model","Data",
-       "Configuration q (size Model::nq)",
-       "Velocity v (size Model::nv)"),
+       "Configuration q (size Model::nq)"),
     "Compute the placements and spatial velocities of all the operational frames "
     "and put the results in data.");
 
