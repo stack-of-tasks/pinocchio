@@ -113,8 +113,8 @@ namespace se3
     typedef Model::Index Index;
     typedef std::pair < Index, Index > CollisionPair_t;
 
-    Data& data_ref;
-    GeometryModel& model_geom;
+    const Data & data_ref;
+    const GeometryModel & model_geom;
 
     std::vector<se3::SE3> oMg;
     std::vector<fcl::Transform3f> oMg_fcl;
@@ -125,7 +125,7 @@ namespace se3
     std::vector < DistanceResult > distances;
     std::vector < bool > collisions;
 
-    GeometryData(Data& data, GeometryModel& model_geom)
+    GeometryData(const Data & data, const GeometryModel & model_geom)
         : data_ref(data)
         , model_geom(model_geom)
         , oMg(model_geom.ngeom)
