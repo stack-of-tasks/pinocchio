@@ -167,10 +167,47 @@ namespace se3
     
     void removeCollisionPair (const Index co1, const Index co2);
     void removeCollisionPair (const CollisionPair_t& pair);
+   
+    ///
+    /// \brief Check if a CollisionPair given by the index of the two colliding geometries exists in collision_pairs.
+    ///        See also findCollisitionPair(const Index co1, const Index co2).
+    ///
+    /// \param[in] co1 Index of the first colliding geometry.
+    /// \param[in] co2 Index of the second colliding geometry.
+    ///
+    /// \return True if the CollisionPair exists, false otherwise.
+    ///
     bool existCollisionPair (const Index co1, const Index co2) const ;
+    
+    ///
+    /// \brief Check if a CollisionPair given by the index of the two colliding geometries exists in collision_pairs.
+    ///        See also findCollisitionPair(const CollisionPair_t & pair).
+    ///
+    /// \param[in] pair The CollisionPair.
+    ///
+    /// \return True if the CollisionPair exists, false otherwise.
+    ///
     bool existCollisionPair (const CollisionPair_t & pair) const;
+    
+    ///
+    /// \brief Return the index in collision_pairs of a CollisionPair given by the index of the two colliding geometries.
+    ///
+    /// \param[in] co1 Index of the first colliding geometry.
+    /// \param[in] co2 Index of the second colliding geometry.
+    ///
+    /// \return The index of the collision pair in collision_pairs.
+    ///
     Index findCollisionPair (const Index co1, const Index co2) const;
+    
+    ///
+    /// \brief Return the index of a given CollisionPair in collision_pairs.
+    ///
+    /// \param[in] pair The CollisionPair.
+    ///
+    /// \return The index of the CollisionPair in collision_pairs.
+    ///
     Index findCollisionPair (const CollisionPair_t & pair) const;
+    
     void fillAllPairsAsCollisions();
     void desactivateCollisionPairs();
     void initializeListOfCollisionPairs();
