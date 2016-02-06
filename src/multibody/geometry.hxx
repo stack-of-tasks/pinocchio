@@ -160,6 +160,16 @@ namespace se3
     return (std::find_if (  collision_pairs.begin(), collision_pairs.end(),
                             IsSameCollisionPair(pair)) != collision_pairs.end());
 
+  inline GeometryData::Index GeometryData::findCollisionPair (const Index co1, const Index co2) const
+  {
+    return findCollisionPair(CollisionPair_t(co1,co2));
+  }
+  
+  inline GeometryData::Index GeometryData::findCollisionPair (const CollisionPair_t & pair) const
+  {
+    CollisionPairsVector_t::const_iterator it = std::find(collision_pairs.begin(), collision_pairs.end(), pair);
+    
+    return (Index) distance(collision_pairs.begin(), it);
   }
 
   inline void GeometryData::fillAllPairsAsCollisions()

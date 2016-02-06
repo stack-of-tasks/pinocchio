@@ -169,6 +169,8 @@ namespace se3
     void removeCollisionPair (const CollisionPair_t& pair);
     bool existCollisionPair (const Index co1, const Index co2) const ;
     bool existCollisionPair (const CollisionPair_t & pair) const;
+    Index findCollisionPair (const Index co1, const Index co2) const;
+    Index findCollisionPair (const CollisionPair_t & pair) const;
     void fillAllPairsAsCollisions();
     void desactivateCollisionPairs();
     void initializeListOfCollisionPairs();
