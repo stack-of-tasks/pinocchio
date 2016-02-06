@@ -111,7 +111,8 @@ namespace se3
   struct GeometryData
   {
     typedef Model::Index Index;
-    typedef std::pair < Index, Index > CollisionPair_t;
+    typedef std::pair<Index,Index> CollisionPair_t;
+    typedef std::vector<CollisionPair_t> CollisionPairsVector_t;
 
     const Data & data_ref;
     const GeometryModel & model_geom;
@@ -119,7 +120,7 @@ namespace se3
     std::vector<se3::SE3> oMg;
     std::vector<fcl::Transform3f> oMg_fcl;
 
-    std::vector < CollisionPair_t > collision_pairs;
+    CollisionPairsVector_t collision_pairs;
     Index nCollisionPairs;
 
     std::vector < DistanceResult > distances;
