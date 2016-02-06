@@ -123,16 +123,49 @@ namespace se3
     typedef std::pair<Index,Index> CollisionPair_t;
     typedef std::vector<CollisionPair_t> CollisionPairsVector_t;
 
+    ///
+    /// \brief A const reference to the data associated to the robot model.
+    ///        See class Data.
+    ///
     const Data & data_ref;
+    
+    ///
+    /// \brief A const reference to the model storing all the geometries.
+    ///        See class GeometryModel.
+    ///
     const GeometryModel & model_geom;
 
+    ///
+    /// \brief Vector gathering the SE3 placements of the geometries relative to the world.
+    ///        See updateCollisionGeometry to update the placements.
+    ///
     std::vector<se3::SE3> oMg;
+    
+    ///
+    /// \brief Same as oMg but using fcl::Transform3f to store placement.
+    ///        This pre-allocation avoids dynamic allocation during collision checking or distance computations.
+    ///
     std::vector<fcl::Transform3f> oMg_fcl;
 
+    ///
+    /// \brief Vector of collision pairs.
+    ///        See addCollisionPair, removeCollisionPair to fill or remove elements in the vector.
+    ///
     CollisionPairsVector_t collision_pairs;
+    
+    ///
+    /// \brief Number of collision pairs stored in collision_pairs.
+    ///
     Index nCollisionPairs;
 
+    ///
+    /// \brief Vector gathering the result of the distance computations for all the collision pairs.
+    ///
     std::vector <DistanceResult> distances;
+    
+    ///
+    /// \brief Vector gathering the result of the collision computations for all the collision pairs.
+    ///
     std::vector <bool> collisions;
 
     GeometryData(const Data & data, const GeometryModel & model_geom)
@@ -152,10 +185,36 @@ namespace se3
 
     ~GeometryData() {};
 
+    ///
+    /// \brief Add a CollisionPair given by the index of the two colliding geometries into the vector of collision_pairs.
+    ///        The method check before if the given CollisionPair is already included.
+    ///
+    /// \param[in] co1 Index of the first colliding geometry.
+    /// \param[in] co2 Index of the second colliding geometry.
+    ///
     void addCollisionPair (const Index co1, const Index co2);
-    void addCollisionPair (const CollisionPair_t & pair);
     
+    ///
+    /// \brief Add a CollisionPair into the vector of collision_pairs.
+    ///        The method check before if the given CollisionPair is already included.
+    ///
+    /// \param[in] pair The CollisionPair to add.
+    ///
+    void addCollisionPair (const CollisionPair_t & pair);
+   
+    ///
+    /// \brief Remove if exists the CollisionPair given by the index of the two colliding geometries from the vector of collision_pairs.
+    ///
+    /// \param[in] co1 Index of the first colliding geometry.
+    /// \param[in] co2 Index of the second colliding geometry.
+    ///
     void removeCollisionPair (const Index co1, const Index co2);
+    
+    ///
+    /// \brief Remove if exists the CollisionPair from the vector collision_pairs.
+    ///
+    /// \param[in] pair The CollisionPair to remove.
+    ///
     void removeCollisionPair (const CollisionPair_t& pair);
    
     ///
@@ -170,7 +229,7 @@ namespace se3
     bool existCollisionPair (const Index co1, const Index co2) const ;
     
     ///
-    /// \brief Check if a CollisionPair given by the index of the two colliding geometries exists in collision_pairs.
+    /// \brief Check if a CollisionPair exists in collision_pairs.
     ///        See also findCollisitionPair(const CollisionPair_t & pair).
     ///
     /// \param[in] pair The CollisionPair.
@@ -202,8 +261,24 @@ namespace se3
     void desactivateCollisionPairs();
     void initializeListOfCollisionPairs();
 
+    ///
+    /// \brief Compute the collision checking between two collision objects given by their indexes.
+    ///
+    /// \param[in] co1 Index of the first collision object.
+    /// \param[in] co2 Index of the second collision object.
+    ///
+    /// \return Return true is the collision objects are colliding.
+    ///
     bool collide(const Index co1, const Index co2) const;
 
+    ///
+    /// \brief Compute the minimal distance between two collision objects given by their indexes.
+    ///
+    /// \param[in] co1 Index of the first collision object.
+    /// \param[in] co2 Index of the second collision object.
+    ///
+    /// \return An fcl struct containing the distance result.
+    ///
     fcl::DistanceResult computeDistance(const Index co1, const Index co2) const;
     void resetDistances();
 
