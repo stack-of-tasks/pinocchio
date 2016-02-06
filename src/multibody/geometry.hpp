@@ -203,8 +203,6 @@ namespace se3
     fcl::DistanceResult computeDistance(const Index co1, const Index co2) const;
     void resetDistances();
 
-    std::vector < DistanceResult > distanceResults(); //TODO : to keep or not depending of public or not for distances
-
     void displayCollisionPairs() const
     {
       for (std::vector<CollisionPair_t>::const_iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
