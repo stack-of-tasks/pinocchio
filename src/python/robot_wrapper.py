@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 CNRS
+# Copyright (c) 2015-2016 CNRS
 #
 # This file is part of Pinocchio
 # Pinocchio is free software: you can redistribute it
@@ -30,6 +30,20 @@ class RobotWrapper:
         self.data = self.model.createData()
         self.v0 = utils.zero(self.nv)
         self.q0 = utils.zero(self.nq)
+
+    def __init__(self,filename, mesh_dir, root_joint = None):
+        if not "buildModelAndGeomFromUrdf" in dir(se3):
+          raise Exception('It seems that the Geometry Module has not been compiled with Pinocchio') 
+        self.modelFileName = filename
+        if(root_joint is None):
+            self.model, self.geometry_model = se3.buildModelAndGeomFromUrdf(filename,mesh_dir)
+        else:
+            self.model, self.geometry_model = se3.buildModelAndGeomFromUrdf(filename,mesh_dir,root_joint)
+        self.data = self.model.createData()
+        self.geometry_data = se3.GeometryData(self.data, self.geometry_model)
+        self.v0 = utils.zero(self.nv)
+        self.q0 = utils.zero(self.nq)
+
 
     def increment(self,q,dq):
         M = se3.SE3( se3.Quaternion(q[6,0],q[3,0],q[4,0],q[5,0]).matrix(), q[:3])
