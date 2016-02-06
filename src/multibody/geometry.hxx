@@ -157,9 +157,10 @@ namespace se3
 
   inline bool GeometryData::existCollisionPair (const CollisionPair_t & pair) const
   {
-    return (std::find_if (  collision_pairs.begin(), collision_pairs.end(),
-                            IsSameCollisionPair(pair)) != collision_pairs.end());
-
+    return (std::find(collision_pairs.begin(), collision_pairs.end(), pair)
+            != collision_pairs.end());
+  }
+  
   inline GeometryData::Index GeometryData::findCollisionPair (const Index co1, const Index co2) const
   {
     return findCollisionPair(CollisionPair_t(co1,co2));

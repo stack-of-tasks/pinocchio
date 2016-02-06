@@ -39,20 +39,6 @@
 
 namespace se3
 {
-  class IsSameCollisionPair
-  {
-  typedef Model::Index Index;
-  typedef std::pair < Index, Index > CollisionPair_t;
-  public:
-  IsSameCollisionPair( CollisionPair_t pair): _pair(pair) {}
-
-  bool operator()(CollisionPair_t pair) const
-  {
-    return (pair == _pair);
-  }
-  private:
-  CollisionPair_t _pair;
-  };
 
   // Result of distance computation between two CollisionObject.
   struct DistanceResult
