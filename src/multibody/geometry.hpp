@@ -101,13 +101,13 @@ namespace se3
 
     ~GeometryModel() {};
 
-    Index addGeomObject(  Index parent,const fcl::CollisionObject & co, const SE3 & placement, const std::string & geoName = "");
-    Index getGeomId( const std::string & name ) const;
-    bool existGeomName( const std::string & name ) const;
-    const std::string& getGeomName( Index index ) const;
+    Index addGeomObject(const Index parent, const fcl::CollisionObject & co, const SE3 & placement, const std::string & geoName = "");
+    Index getGeomId(const std::string & name) const;
+    bool existGeomName(const std::string & name) const;
+    const std::string & getGeomName(const Index index) const;
 
-    void addInnerObject(Index joint, Index inner_object);
-    void addOutterObject(Index joint, Index outer_object);
+    void addInnerObject(const Index joint, const Index inner_object);
+    void addOutterObject(const Index joint, const Index outer_object);
 
     friend std::ostream& operator<<(std::ostream& os, const GeometryModel& model_geom);
   };

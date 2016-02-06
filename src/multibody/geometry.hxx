@@ -40,7 +40,10 @@
 namespace se3
 {
 
-  inline GeometryModel::Index GeometryModel::addGeomObject(  Index parent,const fcl::CollisionObject & co, const SE3 & placement, const std::string & geoName )
+  inline GeometryModel::Index GeometryModel::addGeomObject (const Index parent,
+                                                            const fcl::CollisionObject & co,
+                                                            const SE3 & placement,
+                                                            const std::string & geoName)
   {
 
     Index idx = (Index) (ngeom ++);
@@ -59,7 +62,7 @@ namespace se3
     std::vector<std::string>::iterator::difference_type
       res = std::find(geom_names.begin(),geom_names.end(),name) - geom_names.begin();
     assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
-    assert( (res>=0)&&(res<(long)collision_objects.size())&&"The joint name you asked do not exist" );
+    assert( (res>=0)&&(res<(long)collision_objects.size())&&"The joint name you asked does not exist" );
     return Index(res);
   }
 
@@ -68,13 +71,13 @@ namespace se3
     return (geom_names.end() != std::find(geom_names.begin(),geom_names.end(),name));
   }
   
-  inline const std::string& GeometryModel::getGeomName( Index index ) const
+  inline const std::string& GeometryModel::getGeomName (const Index index) const
   {
     assert( index < (Index)collision_objects.size() );
     return geom_names[index];
   }
 
-  inline void GeometryModel::addInnerObject(Index joint, Index inner_object)
+  inline void GeometryModel::addInnerObject (const Index joint, const Index inner_object)
   {
     if (std::find(innerObjects[joint].begin(), innerObjects[joint].end(),inner_object)==innerObjects[joint].end())
       innerObjects[joint].push_back(inner_object);
@@ -82,7 +85,7 @@ namespace se3
       std::cout << "inner object already added" << std::endl;
   }
 
-  inline void GeometryModel::addOutterObject(Index joint, Index outer_object)
+  inline void GeometryModel::addOutterObject (const Index joint, const Index outer_object)
   {
     if (std::find(outerObjects[joint].begin(), outerObjects[joint].end(),outer_object)==outerObjects[joint].end())
       outerObjects[joint].push_back(outer_object);
