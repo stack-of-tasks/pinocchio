@@ -67,8 +67,12 @@ namespace se3
         && object2 == other.object2);
     }
     fcl::DistanceResult fcl_distance_result;
-    std::size_t object1;
-    std::size_t object2;
+    
+    /// Index of the first colision object
+    Index object1;
+    /// Index of the second colision object
+    Index object2;
+    
   }; // struct DistanceResult 
   
   struct GeometryModel
