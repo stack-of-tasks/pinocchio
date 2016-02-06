@@ -40,7 +40,7 @@
 namespace se3
 {
 
-  // Result of distance computation between two CollisionObject.
+  // Result of distance computation between two CollisionObjects.
   struct DistanceResult
   {
     typedef Model::Index Index;
@@ -52,10 +52,14 @@ namespace se3
     // Get distance between objects
     double distance () const { return fcl_distance_result.min_distance; }
 
-    // Get closest point on inner object in global frame,
+    ///
+    /// \brief Return the witness point on the inner object expressed in global frame.
+    ///
     Eigen::Vector3d closestPointInner () const { return toVector3d(fcl_distance_result.nearest_points [0]); }
     
-    // Get closest point on outer object in global frame,
+    ///
+    /// \brief Return the witness point on the outer object expressed in global frame.
+    ///
     Eigen::Vector3d closestPointOuter () const { return toVector3d(fcl_distance_result.nearest_points [1]); }
     
     bool operator == (const DistanceResult & other) const
@@ -66,6 +70,7 @@ namespace se3
         && object1 == other.object1
         && object2 == other.object2);
     }
+    
     fcl::DistanceResult fcl_distance_result;
     
     /// Index of the first colision object
@@ -109,8 +114,8 @@ namespace se3
     void addInnerObject(const Index joint, const Index inner_object);
     void addOutterObject(const Index joint, const Index outer_object);
 
-    friend std::ostream& operator<<(std::ostream& os, const GeometryModel& model_geom);
-  };
+    friend std::ostream& operator<<(std::ostream & os, const GeometryModel & model_geom);
+  }; // struct GeometryModel
 
   struct GeometryData
   {
@@ -127,8 +132,8 @@ namespace se3
     CollisionPairsVector_t collision_pairs;
     Index nCollisionPairs;
 
-    std::vector < DistanceResult > distances;
-    std::vector < bool > collisions;
+    std::vector <DistanceResult> distances;
+    std::vector <bool> collisions;
 
     GeometryData(const Data & data, const GeometryModel & model_geom)
         : data_ref(data)
@@ -143,7 +148,6 @@ namespace se3
       initializeListOfCollisionPairs();
       distances.resize(nCollisionPairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
       collisions.resize(nCollisionPairs, false );
-
     }
 
     ~GeometryData() {};
@@ -210,9 +214,9 @@ namespace se3
         std::cout << it-> first << "\t" << it->second << std::endl;
       }
     }
-    friend std::ostream& operator<<(std::ostream& os, const GeometryData& data_geom);
+    friend std::ostream & operator<<(std::ostream & os, const GeometryData & data_geom);
     
-  };
+  }; // struct GeometryData
 
 } // namespace se3
 

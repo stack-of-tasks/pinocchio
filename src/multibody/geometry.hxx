@@ -51,13 +51,13 @@ namespace se3
 
     collision_objects    .push_back(co);
     geom_parents         .push_back(parent);
-    geometryPlacement                  .push_back(placement);
+    geometryPlacement    .push_back(placement);
     geom_names           .push_back( (geoName!="")?geoName:random(8));
 
     return idx;
   }
 
-  inline GeometryModel::Index GeometryModel::getGeomId( const std::string & name ) const
+  inline GeometryModel::Index GeometryModel::getGeomId (const std::string & name) const
   {
     std::vector<std::string>::iterator::difference_type
       res = std::find(geom_names.begin(),geom_names.end(),name) - geom_names.begin();
@@ -66,7 +66,7 @@ namespace se3
     return Index(res);
   }
 
-  inline bool GeometryModel::existGeomName( const std::string & name ) const
+  inline bool GeometryModel::existGeomName (const std::string & name) const
   {
     return (geom_names.end() != std::find(geom_names.begin(),geom_names.end(),name));
   }
@@ -93,25 +93,25 @@ namespace se3
       std::cout << "outer object already added" << std::endl;
   }
 
-  inline std::ostream& operator<<(std::ostream& os, const GeometryModel& model_geom)
+  inline std::ostream & operator<< (std::ostream & os, const GeometryModel & model_geom)
   {
     os << "Nb collision objects = " << model_geom.ngeom << std::endl;
     
     for(GeometryModel::Index i=0;i<(GeometryModel::Index)(model_geom.ngeom);++i)
     {
-      os  << "Object n " << i << " : " << model_geom.geom_names[i] << ": attached to joint = " << model_geom.geom_parents[i]
+      os  << "Collision object " << i << " : " << model_geom.geom_names[i] << ": attached to joint = " << model_geom.geom_parents[i]
           << "\nwith offset \n" << model_geom.geometryPlacement[i] <<std::endl;
     }
 
     return os;
   }
 
-  inline std::ostream& operator<<(std::ostream& os, const GeometryData& data_geom)
+  inline std::ostream & operator<< (std::ostream & os, const GeometryData & data_geom)
   {
 
     for(GeometryData::Index i=0;i<(GeometryData::Index)(data_geom.model_geom.ngeom);++i)
     {
-      os << "collision object oMi " << data_geom.oMg[i] << std::endl;
+      os << "collision object in position " << data_geom.oMg[i] << std::endl;
     }
 
     return os;
@@ -143,7 +143,7 @@ namespace se3
     removeCollisionPair (CollisionPair_t(co1,co2));
   }
 
-  inline void GeometryData::removeCollisionPair (const CollisionPair_t& pair)
+  inline void GeometryData::removeCollisionPair (const CollisionPair_t & pair)
   {
     assert(pair.first < pair.second);
     assert(pair.second < model_geom.ngeom);
