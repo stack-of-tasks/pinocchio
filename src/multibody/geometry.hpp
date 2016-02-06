@@ -71,9 +71,8 @@ namespace se3
     std::size_t object2;
   }; // struct DistanceResult 
   
-  class GeometryModel
+  struct GeometryModel
   {
-  public:
     typedef Model::Index Index;
 
     Index ngeom;
@@ -107,14 +106,10 @@ namespace se3
     void addOutterObject(Index joint, Index outer_object);
 
     friend std::ostream& operator<<(std::ostream& os, const GeometryModel& model_geom);
-
-  private:
-    
   };
 
-  class GeometryData
+  struct GeometryData
   {
-  public:
     typedef Model::Index Index;
     typedef std::pair < Index, Index > CollisionPair_t;
 
@@ -213,7 +208,6 @@ namespace se3
       }
     }
     friend std::ostream& operator<<(std::ostream& os, const GeometryData& data_geom);
-  private:
     
   };
 
