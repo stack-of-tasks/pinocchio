@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -59,8 +59,8 @@ namespace se3
   {
     typedef Model::Index Index;
 
-    DistanceResult(fcl::DistanceResult dist_fcl, Index o1, Index o2)
-    : fcl_distance_result(dist_fcl), object1(o1), object2(o2)
+    DistanceResult(fcl::DistanceResult dist_fcl, const Index co1, const Index co2)
+    : fcl_distance_result(dist_fcl), object1(co1), object2(co2)
     {}
 
     // Get distance between objects
@@ -162,19 +162,20 @@ namespace se3
 
     ~GeometryData() {};
 
-    void addCollisionPair (Index co1, Index co2);
-    void addCollisionPair (const CollisionPair_t& pair);
-    void removeCollisionPair (Index co1, Index co2);
+    void addCollisionPair (const Index co1, const Index co2);
+    void addCollisionPair (const CollisionPair_t & pair);
+    
+    void removeCollisionPair (const Index co1, const Index co2);
     void removeCollisionPair (const CollisionPair_t& pair);
-    bool isCollisionPair (Index co1, Index co2) const ;
-    bool isCollisionPair (const CollisionPair_t& pair) const;
+    bool existCollisionPair (const Index co1, const Index co2) const ;
+    bool existCollisionPair (const CollisionPair_t & pair) const;
     void fillAllPairsAsCollisions();
     void desactivateCollisionPairs();
     void initializeListOfCollisionPairs();
 
-    bool collide(Index co1, Index co2) const;
+    bool collide(const Index co1, const Index co2) const;
 
-    fcl::DistanceResult computeDistance(Index co1, Index co2) const;
+    fcl::DistanceResult computeDistance(const Index co1, const Index co2) const;
     void resetDistances();
 
     std::vector < DistanceResult > distanceResults(); //TODO : to keep or not depending of public or not for distances

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -114,7 +114,7 @@ namespace se3
     return os;
   }
 
-  inline void GeometryData::addCollisionPair (Index co1, Index co2)
+  inline void GeometryData::addCollisionPair (const Index co1, const Index co2)
   {
     assert ( co1 < co2);
     assert ( co2 < model_geom.ngeom);
@@ -131,11 +131,11 @@ namespace se3
     nCollisionPairs++;
   }
 
-  inline void GeometryData::removeCollisionPair (Index co1, Index co2)
+  inline void GeometryData::removeCollisionPair (const Index co1, const Index co2)
   {
     assert(co1 < co2);
     assert(co2 < model_geom.ngeom);
-    assert(isCollisionPair(co1,co2));
+    assert(existCollisionPair(co1,co2));
 
     removeCollisionPair (CollisionPair_t(co1,co2));
   }
@@ -144,18 +144,18 @@ namespace se3
   {
     assert(pair.first < pair.second);
     assert(pair.second < model_geom.ngeom);
-    assert(isCollisionPair(pair));
+    assert(existCollisionPair(pair));
 
     collision_pairs.erase(std::remove(collision_pairs.begin(), collision_pairs.end(), pair), collision_pairs.end());
     nCollisionPairs--;
   }
 
-  inline bool GeometryData::isCollisionPair (Index co1, Index co2) const
+  inline bool GeometryData::existCollisionPair (const Index co1, const Index co2) const
   {
-    return isCollisionPair(CollisionPair_t(co1,co2));
+    return existCollisionPair(CollisionPair_t(co1,co2));
   }
 
-  inline bool GeometryData::isCollisionPair (const CollisionPair_t& pair) const
+  inline bool GeometryData::existCollisionPair (const CollisionPair_t & pair) const
   {
     return (std::find_if (  collision_pairs.begin(), collision_pairs.end(),
                             IsSameCollisionPair(pair)) != collision_pairs.end());
@@ -187,7 +187,7 @@ namespace se3
     assert(nCollisionPairs == collision_pairs.size());
   }
 
-  inline bool GeometryData::collide(Index co1, Index co2) const
+  inline bool GeometryData::collide(const Index co1, const Index co2) const
   {
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;
@@ -202,7 +202,7 @@ namespace se3
   }
 
 
-  inline fcl::DistanceResult GeometryData::computeDistance(Index co1, Index co2) const
+  inline fcl::DistanceResult GeometryData::computeDistance(const Index co1, const Index co2) const
   {
     fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
     fcl::DistanceResult result;
