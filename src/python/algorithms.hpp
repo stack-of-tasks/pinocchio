@@ -321,18 +321,18 @@ namespace se3
   bp::def("computeGeometryAndCollisions",computeGeometryAndCollisions_proxy,
     bp::args("Model","Data","GeometryModel","GeometryData","Configuration q (size Model::nq)", "bool"),
         "Update the geometry for a given configuration and"
-        "determine if collision pars are effectively in collision"
+        "determine if all collision pairs are effectively in collision or not."
         );
 
   bp::def("computeDistances",computeDistances_proxy,
     bp::args("GeometryData"),
-        "Compute the distance between each collision pairs."
+        "Compute the distance between each collision pair."
         );
 
   bp::def("computeGeometryAndDistances",computeGeometryAndDistances_proxy,
     bp::args("Model","Data","GeometryModel","GeometryData","Configuration q (size Model::nq)"),
         "Update the geometry for a given configuration and"
-        "compute the distance between each collision pairs"
+        "compute the distance between each collision pair"
         );
 
 #endif
