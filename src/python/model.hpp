@@ -233,15 +233,15 @@ namespace se3
         bp::class_< JointModelVector >("StdVec_JointModelVector")
           .def(bp::vector_indexing_suite< JointModelVector, true >());
 
-  bp::class_<ModelHandler>("Model",
-         "Articulated rigid body model (const)",
-         bp::no_init)
-    .def(ModelPythonVisitor());
+        bp::class_<ModelHandler>("Model",
+                                 "Articulated rigid body model (const)",
+                                 bp::no_init)
+        .def(ModelPythonVisitor());
       
-	/* Not sure if it is a good idea to enable automatic
-	 * conversion. Prevent it for now */
-	//bp::to_python_converter< Model,ModelPythonVisitor >();
-	bp::to_python_converter< ModelHandler::SmartPtr_t,ModelPythonVisitor >();
+        /* Not sure if it is a good idea to enable automatic
+         * conversion. Prevent it for now */
+        //bp::to_python_converter< Model,ModelPythonVisitor >();
+        bp::to_python_converter< ModelHandler::SmartPtr_t,ModelPythonVisitor >();
       }
 
 
