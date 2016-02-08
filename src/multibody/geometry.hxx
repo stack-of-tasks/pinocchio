@@ -213,6 +213,14 @@ namespace se3
 
   inline bool GeometryData::computeCollision(const Index co1, const Index co2) const
   {
+    return computeCollision(CollisionPair_t(co1,co2));
+  }
+  
+  inline bool GeometryData::computeCollision(const CollisionPair_t & pair) const
+  {
+    const Index & co1 = pair.first;
+    const Index & co2 = pair.second;
+    
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;
 
@@ -221,6 +229,25 @@ namespace se3
                       collisionRequest, collisionResult) != 0)
     {
       return true;
+    }
+    return false;
+  }
+  
+  inline void GeometryData::computeAllCollisions()
+  {
+    for(size_t i = 0; i<nCollisionPairs; ++i)
+    {
+      const CollisionPair_t & pair = collision_pairs[i];
+      collision_results[i] = computeCollision(pair.first, pair.second);
+    }
+  }
+  
+  inline bool GeometryData::isColliding() const
+  {
+    for(CollisionPairsVector_t::const_iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
+    {
+      if (computeCollision(it->first, it->second))
+        return true;
     }
     return false;
   }

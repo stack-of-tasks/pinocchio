@@ -300,7 +300,7 @@ namespace se3
     void initializeListOfCollisionPairs();
 
     ///
-    /// \brief Compute the collision checking between two collision objects given by their indexes.
+    /// \brief Compute the collision status between two collision objects given by their indexes.
     ///
     /// \param[in] co1 Index of the first collision object.
     /// \param[in] co2 Index of the second collision object.
@@ -308,6 +308,27 @@ namespace se3
     /// \return Return true is the collision objects are colliding.
     ///
     bool computeCollision(const Index co1, const Index co2) const;
+    
+    ///
+    /// \brief Compute the collision status between two collision objects of a given collision pair.
+    ///
+    /// \param[in] pair The collsion pair.
+    ///
+    /// \return Return true is the collision objects are colliding.
+    ///
+    bool computeCollision(const CollisionPair_t & pair) const;
+    
+    ///
+    /// \brief Compute the collision result of all the collision pairs according to
+    ///        the current placements of the geometires stored in GeometryData::oMg.
+    ///        The results are stored in the vector GeometryData::collision_results.
+    ///
+    void computeAllCollisions();
+    
+    ///
+    /// \brief Check if at least one of the collision pairs has its two collision objects in collision.
+    ///
+    bool isColliding() const;
 
     ///
     /// \brief Compute the minimal distance between two collision objects given by their indexes.

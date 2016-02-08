@@ -180,6 +180,9 @@ namespace se3
       {
         return m->computeCollision(co1, co2);
       }
+      static bool isColliding(const GeometryDataHandler & m) { return m->isColliding(); }
+      static void computeAllCollisions(GeometryDataHandler & m) { m->computeAllCollisions(); }
+      
       static DistanceResult computeDistance(const GeometryDataHandler & m, const Index co1, const Index co2)
       {
         return m->computeDistance(co1, co2);
