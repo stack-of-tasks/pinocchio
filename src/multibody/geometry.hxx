@@ -119,19 +119,23 @@ namespace se3
 
   inline void GeometryData::addCollisionPair (const Index co1, const Index co2)
   {
-    assert ( co1 < co2);
+    assert ( co1 != co2);
     assert ( co2 < model_geom.ngeom);
     CollisionPair_t pair(co1, co2);
     
     addCollisionPair(pair);
   }
 
-  inline void GeometryData::addCollisionPair (const CollisionPair_t& pair)
+  inline void GeometryData::addCollisionPair (const CollisionPair_t & pair)
   {
     assert(pair.first < pair.second);
     assert(pair.second < model_geom.ngeom);
-    collision_pairs.push_back(pair);
-    nCollisionPairs++;
+    
+    if (!existCollisionPair(pair))
+    {
+      collision_pairs.push_back(pair);
+      nCollisionPairs++;
+    }
   }
   
   inline void GeometryData::addAllCollisionPairs()
@@ -154,12 +158,14 @@ namespace se3
 
   inline void GeometryData::removeCollisionPair (const CollisionPair_t & pair)
   {
-    assert(pair.first < pair.second);
     assert(pair.second < model_geom.ngeom);
-    assert(existCollisionPair(pair));
 
-    collision_pairs.erase(std::remove(collision_pairs.begin(), collision_pairs.end(), pair), collision_pairs.end());
-    nCollisionPairs--;
+    CollisionPairsVector_t::const_iterator it = std::find(collision_pairs.begin(), collision_pairs.end(), pair);
+    if (it != collision_pairs.end())
+    {
+      collision_pairs.erase(it);
+      nCollisionPairs--;
+    }
   }
   
   inline void GeometryData::removeAllCollisionPairs ()
