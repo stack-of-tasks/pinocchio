@@ -188,14 +188,14 @@ namespace se3
     Index nCollisionPairs;
 
     ///
-    /// \brief Vector gathering the result of the distance computations for all the collision pairs.
+    /// \brief Vector gathering the result of the distance computation for all the collision pairs.
     ///
-    std::vector <DistanceResult> distances;
+    std::vector <DistanceResult> distance_results;
     
     ///
-    /// \brief Vector gathering the result of the collision computations for all the collision pairs.
+    /// \brief Vector gathering the result of the collision computation for all the collision pairs.
     ///
-    std::vector <bool> collisions;
+    std::vector <bool> collision_results;
 
     GeometryData(const Data & data, const GeometryModel & model_geom)
         : data_ref(data)
@@ -204,13 +204,13 @@ namespace se3
         , oMg_fcl(model_geom.ngeom)
         , collision_pairs()
         , nCollisionPairs(0)
-        , distances()
-        , collisions()
+        , distance_results()
+        , collision_results()
     {
       const std::size_t num_max_collision_pairs = (model_geom.ngeom * (model_geom.ngeom-1))/2;
       collision_pairs.reserve(num_max_collision_pairs);
-      distances.resize(num_max_collision_pairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
-      collisions.resize(num_max_collision_pairs, false);
+      distance_results.resize(num_max_collision_pairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
+      collision_results.resize(num_max_collision_pairs, false);
     }
 
     ~GeometryData() {};

@@ -232,7 +232,7 @@ namespace se3
 
   inline void GeometryData::resetDistances()
   {
-    std::fill(distances.begin(), distances.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
+    std::fill(distance_results.begin(), distance_results.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
   }
 
 

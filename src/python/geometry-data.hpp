@@ -100,12 +100,12 @@ namespace se3
                       bp::make_function(&GeometryDataPythonVisitor::collision_pairs,
                                         bp::return_internal_reference<>()),
                       "Vector of collision pairs.")
-        .add_property("distances",
-                      bp::make_function(&GeometryDataPythonVisitor::distances,
+        .add_property("distance_results",
+                      bp::make_function(&GeometryDataPythonVisitor::distance_results,
                                         bp::return_internal_reference<>()),
                       "Vector of distance results computed in ")
-        .add_property("collisions",
-                      bp::make_function(&GeometryDataPythonVisitor::collisions,
+        .add_property("collision_results",
+                      bp::make_function(&GeometryDataPythonVisitor::collision_results,
                                         bp::return_internal_reference<>())  )
         
         .def("addCollisionPair",&GeometryDataPythonVisitor::addCollisionPair,
@@ -146,8 +146,8 @@ namespace se3
       
       static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
       static std::vector<CollisionPair_t> & collision_pairs( GeometryDataHandler & m ) { return m->collision_pairs; }
-      static std::vector<DistanceResult> & distances( GeometryDataHandler & m ) { return m->distances; }
-      static std::vector<bool> & collisions( GeometryDataHandler & m ) { return m->collisions; }
+      static std::vector<DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distance_results; }
+      static std::vector<bool> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }
 
       static void addCollisionPair (GeometryDataHandler & m, const Index co1, const Index co2)
       {
