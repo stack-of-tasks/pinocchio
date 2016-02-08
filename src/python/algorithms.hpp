@@ -173,6 +173,17 @@ namespace se3
       }
 
 #ifdef WITH_HPP_FCL
+      
+      static void updateGeometryPlacements_proxy(const ModelHandler & model,
+                                                 DataHandler & data,
+                                                 const GeometryModelHandler & geom_model,
+                                                 GeometryDataHandler & geom_data,
+                                                 const VectorXd_fx & q
+                                                 )
+      {
+        return updateGeometryPlacements(*model, *data, *geom_model, *geom_data, q);
+      }
+      
       static bool computeCollisions_proxy(GeometryDataHandler & data_geom,
                                           const bool stopAtFirstCollision)
       {
@@ -334,6 +345,13 @@ namespace se3
         "Update the geometry for a given configuration and"
         "compute the distance between each collision pair"
         );
+        
+        bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,
+                bp::args("Model", "Data", "GeometryModel", "GeometryData", "Configuration q (size Model::nq)"),
+                "Update the placement of the collision objects according to the current configuration."
+                "The algorithm also updates the current placement of the joint in Data."
+                );
+        
 
 #endif
       }

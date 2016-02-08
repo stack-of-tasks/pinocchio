@@ -166,7 +166,7 @@ namespace se3
 
     ///
     /// \brief Vector gathering the SE3 placements of the geometries relative to the world.
-    ///        See updateCollisionGeometry to update the placements.
+    ///        See updateGeometryPlacements to update the placements.
     ///
     std::vector<se3::SE3> oMg;
     
