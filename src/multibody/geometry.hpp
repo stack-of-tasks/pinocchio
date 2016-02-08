@@ -221,6 +221,10 @@ namespace se3
     /// \param[in] pair The CollisionPair to remove.
     ///
     void removeCollisionPair (const CollisionPair_t& pair);
+    
+    ///
+    /// \brief Remove all collision pairs from collision_pairs. Same as collision_pairs.clear().
+    void removeAllCollisionPairs ();
    
     ///
     /// \brief Check if a collision pair given by the index of the two colliding geometries exists in collision_pairs.

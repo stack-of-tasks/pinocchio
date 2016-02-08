@@ -161,6 +161,12 @@ namespace se3
     collision_pairs.erase(std::remove(collision_pairs.begin(), collision_pairs.end(), pair), collision_pairs.end());
     nCollisionPairs--;
   }
+  
+  inline void GeometryData::removeAllCollisionPairs ()
+  {
+    collision_pairs.clear();
+    nCollisionPairs = 0;
+  }
 
   inline bool GeometryData::existCollisionPair (const Index co1, const Index co2) const
   {
