@@ -187,6 +187,7 @@ namespace se3
       {
         return m->computeDistance(co1, co2);
       }
+      static void computeAllDistances(GeometryDataHandler & m) { m->computeAllDistances(); }
       
       static std::string toString(const GeometryDataHandler& m)
       {	  std::ostringstream s; s << *m; return s.str();       }

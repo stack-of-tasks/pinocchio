@@ -254,12 +254,30 @@ namespace se3
 
   inline DistanceResult GeometryData::computeDistance(const Index co1, const Index co2) const
   {
+    return computeDistance(CollisionPair_t(co1,co2));
+  }
+  
+  inline DistanceResult GeometryData::computeDistance(const CollisionPair_t & pair) const
+  {
+    const Index & co1 = pair.first;
+    const Index & co2 = pair.second;
+    
     fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
     fcl::DistanceResult result;
     fcl::distance ( model_geom.collision_objects[co1].collisionGeometry().get(), oMg_fcl[co1],
                     model_geom.collision_objects[co2].collisionGeometry().get(), oMg_fcl[co2],
                     distanceRequest, result);
-    return result;
+    
+    return DistanceResult (result, co1, co2);
+  }
+  
+  inline void GeometryData::computeAllDistances ()
+  {
+    for(size_t i = 0; i<nCollisionPairs; ++i)
+    {
+      const CollisionPair_t & pair = collision_pairs[i];
+      distance_results[i] = computeDistance(pair.first, pair.second);
+    }
   }
 
   inline void GeometryData::resetDistances()

@@ -339,6 +339,23 @@ namespace se3
     /// \return An fcl struct containing the distance result.
     ///
     DistanceResult computeDistance(const Index co1, const Index co2) const;
+    
+    ///
+    /// \brief Compute the minimal distance between collision objects of a collison pair
+    ///
+    /// \param[in] pair The collsion pair.
+    ///
+    /// \return An fcl struct containing the distance result.
+    ///
+    DistanceResult computeDistance(const CollisionPair_t & pair) const;
+    
+    ///
+    /// \brief Compute the distance result for all collision pairs according to
+    ///        the current placements of the geometries stored in GeometryData::oMg.
+    ///        The results are stored in the vector GeometryData::distance_results.
+    ///
+    void computeAllDistances();
+    
     void resetDistances();
 
     void displayCollisionPairs() const
