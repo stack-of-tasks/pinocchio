@@ -317,7 +317,7 @@ namespace se3
     ///
     /// \return An fcl struct containing the distance result.
     ///
-    fcl::DistanceResult computeDistance(const Index co1, const Index co2) const;
+    DistanceResult computeDistance(const Index co1, const Index co2) const;
     void resetDistances();
 
     void displayCollisionPairs() const

@@ -225,8 +225,7 @@ namespace se3
     return false;
   }
 
-
-  inline fcl::DistanceResult GeometryData::computeDistance(const Index co1, const Index co2) const
+  inline DistanceResult GeometryData::computeDistance(const Index co1, const Index co2) const
   {
     fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
     fcl::DistanceResult result;

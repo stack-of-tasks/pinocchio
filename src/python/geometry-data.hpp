@@ -180,6 +180,10 @@ namespace se3
       {
         return m->computeCollision(co1, co2);
       }
+      static DistanceResult computeDistance(const GeometryDataHandler & m, const Index co1, const Index co2)
+      {
+        return m->computeDistance(co1, co2);
+      }
       
       static std::string toString(const GeometryDataHandler& m)
       {	  std::ostringstream s; s << *m; return s.str();       }
