@@ -211,7 +211,7 @@ namespace se3
     assert(nCollisionPairs == collision_pairs.size());
   }
 
-  inline bool GeometryData::collide(const Index co1, const Index co2) const
+  inline bool GeometryData::computeCollision(const Index co1, const Index co2) const
   {
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;

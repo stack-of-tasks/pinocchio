@@ -128,13 +128,13 @@ namespace se3
              bp::args("co1 (index)","co2 (index)"),
              "Return the index of a collision pair given by the index of the two collision objects exists or not."
              " Remark: co1 < co2")
-        .def("collide",&GeometryDataPythonVisitor::collide,
+        .def("computeCollision",&GeometryDataPythonVisitor::computeCollision,
              bp::args("co1 (index)","co2 (index)"),
              "Check if the two collision objects of a collision pair are in collision."
              "The collision pair is given by the two index of the collision objects.")
         
         .def("__str__",&GeometryDataPythonVisitor::toString)
-	  ;
+        ;
       }
       
       static GeometryDataHandler* makeDefault(const DataHandler & data, const GeometryModelHandler & geometry_model)
@@ -176,7 +176,10 @@ namespace se3
         return m->findCollisionPair(co1, co2);
       }
 
-      static bool collide(const GeometryDataHandler & m, const Index co1, const Index co2) { return m -> collide(co1, co2); };
+      static bool computeCollision(const GeometryDataHandler & m, const Index co1, const Index co2)
+      {
+        return m->computeCollision(co1, co2);
+      }
       
       static std::string toString(const GeometryDataHandler& m)
       {	  std::ostringstream s; s << *m; return s.str();       }

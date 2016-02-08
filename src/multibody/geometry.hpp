@@ -307,7 +307,7 @@ namespace se3
     ///
     /// \return Return true is the collision objects are colliding.
     ///
-    bool collide(const Index co1, const Index co2) const;
+    bool computeCollision(const Index co1, const Index co2) const;
 
     ///
     /// \brief Compute the minimal distance between two collision objects given by their indexes.
