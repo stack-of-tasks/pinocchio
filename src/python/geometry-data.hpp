@@ -33,6 +33,27 @@ namespace se3
   namespace python
   {
     namespace bp = boost::python;
+    
+    struct CollisionPairPythonVisitor
+    : public boost::python::def_visitor<CollisionPairPythonVisitor>
+    {
+      typedef CollisionPair::Index Index;
+      static void expose()
+      {
+        bp::class_<CollisionPair> ("CollisionPair",
+                                   "Pair of ordered index defining a pair of collisions",
+                                   bp::init<const Index &, const Index &> (bp::args("co1 (index)", "co2 (index)"),
+                                                                           "Initializer of collision pair"))
+        .def("__str__",&CollisionPairPythonVisitor::toString);
+        
+        bp::class_< std::vector<CollisionPair> >("StdVec_CollisionPair")
+        .def(bp::vector_indexing_suite< std::vector<CollisionPair> >());
+      }
+      
+      static std::string toString(const CollisionPair & cp)
+      {	std::ostringstream s; s << cp; return s.str(); }
+      
+    }; // struct CollisionPairPythonVisitor
 
     typedef Handler<GeometryData> GeometryDataHandler;
 
@@ -164,8 +185,6 @@ namespace se3
       static void expose()
       {
         
-        bp::class_< std::vector<CollisionPair_t> >("StdVec_CollisionPair_t")
-        .def(bp::vector_indexing_suite< std::vector<CollisionPair_t> >());
         bp::class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
         .def(bp::vector_indexing_suite< std::vector<DistanceResult> >());
   

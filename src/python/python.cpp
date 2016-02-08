@@ -68,6 +68,7 @@ namespace se3
       ModelPythonVisitor::expose();
       DataPythonVisitor::expose();
 #ifdef WITH_HPP_FCL      
+      CollisionPairPythonVisitor::expose();
       GeometryModelPythonVisitor::expose();
       GeometryDataPythonVisitor::expose();
 #endif      

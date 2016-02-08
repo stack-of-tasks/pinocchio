@@ -35,10 +35,39 @@
 #include <map>
 #include <list>
 #include <utility>
+#include <assert.h>
 
 
 namespace se3
 {
+  
+  struct CollisionPair: public std::pair<Model::Index, Model::Index>
+  {
+    typedef Model::Index Index;
+    typedef std::pair<Model::Index, Model::Index> Base;
+   
+    ///
+    /// \brief Default constructor of a collision pair from two collision object indexes.
+    ///        The indexes must be ordered such that co1 < co2. If not, the constructor reverts the indexes.
+    ///
+    /// \param[in] co1 Index of the first collision object
+    /// \param[in] co2 Index of the second collision object
+    ///
+    CollisionPair(const Index co1, const Index co2) : Base(co1,co2)
+    {
+      assert(co1 != co2 && "The index of collision objects must not be equal.");
+      if (co1 > co2)
+      {
+        first = co2; second = co1;
+      }
+    }
+    
+    void disp(std::ostream & os) const { os << "collision pair (" << first << "," << second << ")\n"; }
+    friend std::ostream & operator << (std::ostream & os, const CollisionPair & X)
+    {
+      X.disp(os); return os;
+    }
+  }; // struct CollisionPair
 
   // Result of distance computation between two CollisionObjects.
   struct DistanceResult
@@ -120,7 +149,7 @@ namespace se3
   struct GeometryData
   {
     typedef Model::Index Index;
-    typedef std::pair<Index,Index> CollisionPair_t;
+    typedef CollisionPair CollisionPair_t;
     typedef std::vector<CollisionPair_t> CollisionPairsVector_t;
 
     ///
