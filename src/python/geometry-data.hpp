@@ -60,14 +60,11 @@ namespace se3
     struct GeometryDataPythonVisitor
       : public boost::python::def_visitor< GeometryDataPythonVisitor >
     {
-    public:
       typedef GeometryData::Index Index;
       typedef GeometryData::CollisionPair_t CollisionPair_t;
       typedef se3::DistanceResult DistanceResult;
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       
-    public:
-
       /* --- Convert From C++ to Python ------------------------------------- */
       // static PyObject* convert(Model const& modelConstRef)
       // {
@@ -80,8 +77,8 @@ namespace se3
       }
 
       /* --- Exposing C++ API to python through the handler ----------------- */
-    template<class PyClass>
-      void visit(PyClass& cl) const 
+      template<class PyClass>
+      void visit(PyClass& cl) const
       {
         cl
         .def("__init__",
@@ -204,14 +201,11 @@ namespace se3
                                  bp::no_init)
         .def(GeometryDataPythonVisitor());
      
-	bp::to_python_converter< GeometryDataHandler::SmartPtr_t,GeometryDataPythonVisitor >();
+        bp::to_python_converter< GeometryDataHandler::SmartPtr_t,GeometryDataPythonVisitor >();
       }
-
 
     };
     
-
-
   }} // namespace se3::python
 
 #endif // ifndef __se3_python_geometry_data_hpp__

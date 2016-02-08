@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_geom_hxx__
-#define __se3_geom_hxx__
+#ifndef __se3_geometry_hxx__
+#define __se3_geometry_hxx__
 
 
 #include "pinocchio/spatial/fwd.hpp"
@@ -128,7 +128,6 @@ namespace se3
 
   inline void GeometryData::addCollisionPair (const CollisionPair_t & pair)
   {
-    assert(pair.first < pair.second);
     assert(pair.second < model_geom.ngeom);
     
     if (!existCollisionPair(pair))
@@ -288,4 +287,4 @@ namespace se3
 
 } // namespace se3
 
-#endif // ifndef __se3_geom_hxx__
+#endif // ifndef __se3_geometry_hxx__
