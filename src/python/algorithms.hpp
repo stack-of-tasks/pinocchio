@@ -195,7 +195,7 @@ namespace se3
                                     const GeometryModelHandler & model_geom,
                                     GeometryDataHandler & data_geom,
                                     const VectorXd_fx & q,
-                                    const bool & stopAtFirstCollision)
+                                    const bool stopAtFirstCollision)
       {
         return computeCollisions(*model,*data,*model_geom, *data_geom, q, stopAtFirstCollision);
       }
@@ -324,27 +324,6 @@ namespace se3
                 " in data.potential_energy. By default, the kinematics of model is updated.");
 
 #ifdef WITH_HPP_FCL
-  bp::def("computeCollisions",computeCollisions_proxy,
-    bp::args("GeometryData","bool"),
-        "Determine if collisions pairs are effectively in collision."
-        );
-
-  bp::def("computeGeometryAndCollisions",computeGeometryAndCollisions_proxy,
-    bp::args("Model","Data","GeometryModel","GeometryData","Configuration q (size Model::nq)", "bool"),
-        "Update the geometry for a given configuration and"
-        "determine if all collision pairs are effectively in collision or not."
-        );
-
-  bp::def("computeDistances",computeDistances_proxy,
-    bp::args("GeometryData"),
-        "Compute the distance between each collision pair."
-        );
-
-  bp::def("computeGeometryAndDistances",computeGeometryAndDistances_proxy,
-    bp::args("Model","Data","GeometryModel","GeometryData","Configuration q (size Model::nq)"),
-        "Update the geometry for a given configuration and"
-        "compute the distance between each collision pair"
-        );
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,
                 bp::args("Model", "Data", "GeometryModel", "GeometryData", "Configuration q (size Model::nq)"),
@@ -352,6 +331,27 @@ namespace se3
                 "The algorithm also updates the current placement of the joint in Data."
                 );
         
+        bp::def("computeCollisions",computeCollisions_proxy,
+                bp::args("GeometryData","bool"),
+                "Determine if collision pairs are effectively in collision."
+                );
+        
+        bp::def("computeGeometryAndCollisions",computeGeometryAndCollisions_proxy,
+                bp::args("Model","Data","GeometryModel","GeometryData","Configuration q (size Model::nq)", "bool"),
+                "Update the geometry for a given configuration and"
+                "determine if all collision pairs are effectively in collision or not."
+                );
+        
+        bp::def("computeDistances",computeDistances_proxy,
+                bp::args("GeometryData"),
+                "Compute the distance between each collision pair."
+                );
+        
+        bp::def("computeGeometryAndDistances",computeGeometryAndDistances_proxy,
+                bp::args("Model","Data","GeometryModel","GeometryData","Configuration q (size Model::nq)"),
+                "Update the geometry for a given configuration and"
+                "compute the distance between each collision pair"
+                );
 
 #endif
       }

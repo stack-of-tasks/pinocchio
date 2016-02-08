@@ -109,71 +109,57 @@ namespace se3
       data_geom.oMg_fcl[i] =  toFclTransform3f(data_geom.oMg[i]);
     }
   }
-}
-
-inline bool computeCollisions(GeometryData & data_geom,
-                              const bool stopAtFirstCollision
-                              )
-{
-  using namespace se3;
-
-  bool isColliding = false;
-
-  for (std::size_t cpt = 0; cpt < data_geom.collision_pairs.size(); ++cpt)
-  {
-    data_geom.collisions[cpt] = data_geom.collide(data_geom.collision_pairs[cpt].first, data_geom.collision_pairs[cpt].second);
-    isColliding = data_geom.collisions[cpt];
-    if(isColliding && stopAtFirstCollision)
-    {
-      return true;
-    }
-  }
-  return isColliding;
-}
-
-// WARNING, if stopAtFirstcollision = true, then the collisions vector will not be fulfilled.
-inline bool computeCollisions(const Model & model,
-                              Data & data,
-                              const GeometryModel & model_geom,
-                              GeometryData & data_geom,
-                              const Eigen::VectorXd & q,
-                              const bool stopAtFirstCollision
-                              )
-{
-  using namespace se3;
-
-
-  updateCollisionGeometry (model, data, model_geom, data_geom, q, true);
-
   
-  return computeCollisions(data_geom, stopAtFirstCollision);
-
-}
-
-
-inline void computeDistances(GeometryData & data_geom)
-{
-  for (std::size_t cpt = 0; cpt < data_geom.collision_pairs.size(); ++cpt)
+  inline bool computeCollisions(GeometryData & data_geom,
+                                const bool stopAtFirstCollision
+                                )
   {
-    data_geom.distances[cpt] = DistanceResult(data_geom.computeDistance(data_geom.collision_pairs[cpt].first, data_geom.collision_pairs[cpt].second),
-                                              data_geom.collision_pairs[cpt].first,
-                                              data_geom.collision_pairs[cpt].second
-                                              );
+    bool isColliding = false;
+    
+    for (std::size_t cpt = 0; cpt < data_geom.collision_pairs.size(); ++cpt)
+    {
+      data_geom.collision_results[cpt] = data_geom.computeCollision(data_geom.collision_pairs[cpt].first, data_geom.collision_pairs[cpt].second);
+      isColliding |= data_geom.collision_results[cpt];
+      if(data_geom.collision_results[cpt] && stopAtFirstCollision)
+        return true;
+    }
+    
+    return isColliding;
   }
-}
-
-inline void computeDistances(const Model & model,
-                            Data & data,
-                            const GeometryModel & model_geom,
-                            GeometryData & data_geom,
-                            const Eigen::VectorXd & q
-                            )
-{
-  updateCollisionGeometry (model, data, model_geom, data_geom, q, true);
-
-  computeDistances(data_geom);
-}
+  
+  // WARNING, if stopAtFirstcollision = true, then the collisions vector will not be fulfilled.
+  inline bool computeCollisions(const Model & model,
+                                Data & data,
+                                const GeometryModel & model_geom,
+                                GeometryData & data_geom,
+                                const Eigen::VectorXd & q,
+                                const bool stopAtFirstCollision
+                                )
+  {
+    updateGeometryPlacements (model, data, model_geom, data_geom, q);
+    
+    return computeCollisions(data_geom, stopAtFirstCollision);
+  }
+  
+  
+  inline void computeDistances(GeometryData & data_geom)
+  {
+    for (std::size_t cpt = 0; cpt < data_geom.collision_pairs.size(); ++cpt)
+      data_geom.distance_results[cpt] = data_geom.computeDistance(data_geom.collision_pairs[cpt].first,
+                                                                  data_geom.collision_pairs[cpt].second);
+  }
+  
+  inline void computeDistances(const Model & model,
+                               Data & data,
+                               const GeometryModel & model_geom,
+                               GeometryData & data_geom,
+                               const Eigen::VectorXd & q
+                               )
+  {
+    updateGeometryPlacements (model, data, model_geom, data_geom, q);
+    computeDistances(data_geom);
+  }
+  
 } // namespace se3
 
 #endif // ifndef __se3_collisions_hpp__
-
