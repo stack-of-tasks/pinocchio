@@ -186,7 +186,7 @@ namespace se3
     ~GeometryData() {};
 
     ///
-    /// \brief Add a CollisionPair given by the index of the two colliding geometries into the vector of collision_pairs.
+    /// \brief Add a collision pair given by the index of the two colliding geometries into the vector of collision_pairs.
     ///        The method check before if the given CollisionPair is already included.
     ///
     /// \param[in] co1 Index of the first colliding geometry.
@@ -195,15 +195,20 @@ namespace se3
     void addCollisionPair (const Index co1, const Index co2);
     
     ///
-    /// \brief Add a CollisionPair into the vector of collision_pairs.
+    /// \brief Add a collision pair into the vector of collision_pairs.
     ///        The method check before if the given CollisionPair is already included.
     ///
     /// \param[in] pair The CollisionPair to add.
     ///
     void addCollisionPair (const CollisionPair_t & pair);
+    
+    ///
+    /// \brief Add all possible collision pairs.
+    ///
+    void addAllCollisionPairs();
    
     ///
-    /// \brief Remove if exists the CollisionPair given by the index of the two colliding geometries from the vector of collision_pairs.
+    /// \brief Remove if exists the collision pair given by the index of the two colliding geometries from the vector of collision_pairs.
     ///
     /// \param[in] co1 Index of the first colliding geometry.
     /// \param[in] co2 Index of the second colliding geometry.
@@ -218,7 +223,7 @@ namespace se3
     void removeCollisionPair (const CollisionPair_t& pair);
    
     ///
-    /// \brief Check if a CollisionPair given by the index of the two colliding geometries exists in collision_pairs.
+    /// \brief Check if a collision pair given by the index of the two colliding geometries exists in collision_pairs.
     ///        See also findCollisitionPair(const Index co1, const Index co2).
     ///
     /// \param[in] co1 Index of the first colliding geometry.
@@ -229,7 +234,7 @@ namespace se3
     bool existCollisionPair (const Index co1, const Index co2) const ;
     
     ///
-    /// \brief Check if a CollisionPair exists in collision_pairs.
+    /// \brief Check if a collision pair exists in collision_pairs.
     ///        See also findCollisitionPair(const CollisionPair_t & pair).
     ///
     /// \param[in] pair The CollisionPair.
@@ -249,7 +254,7 @@ namespace se3
     Index findCollisionPair (const Index co1, const Index co2) const;
     
     ///
-    /// \brief Return the index of a given CollisionPair in collision_pairs.
+    /// \brief Return the index of a given collision pair in collision_pairs.
     ///
     /// \param[in] pair The CollisionPair.
     ///
@@ -257,7 +262,6 @@ namespace se3
     ///
     Index findCollisionPair (const CollisionPair_t & pair) const;
     
-    void fillAllPairsAsCollisions();
     void desactivateCollisionPairs();
     void initializeListOfCollisionPairs();
 

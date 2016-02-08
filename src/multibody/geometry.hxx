@@ -133,7 +133,16 @@ namespace se3
     collision_pairs.push_back(pair);
     nCollisionPairs++;
   }
-
+  
+  inline void GeometryData::addAllCollisionPairs()
+  {
+    removeAllCollisionPairs();
+    collision_pairs.reserve((model_geom.ngeom * (model_geom.ngeom-1))/2);
+    for (Index i = 0; i < model_geom.ngeom; ++i)
+      for (Index j = i+1; j < model_geom.ngeom; ++j)
+        addCollisionPair(i,j);
+  }
+  
   inline void GeometryData::removeCollisionPair (const Index co1, const Index co2)
   {
     assert(co1 < co2);
@@ -176,17 +185,6 @@ namespace se3
     return (Index) distance(collision_pairs.begin(), it);
   }
 
-  inline void GeometryData::fillAllPairsAsCollisions()
-  {
-    for (Index i = 0; i < model_geom.ngeom; ++i)
-    {
-      for (Index j = i+1; j < model_geom.ngeom; ++j)
-      {
-        addCollisionPair(i,j);
-      }
-    }
-  }
-
   // TODO :  give a srdf file as argument, read it, and remove corresponding
   // pairs from list collision_pairs
   inline void GeometryData::desactivateCollisionPairs()
@@ -196,7 +194,7 @@ namespace se3
 
   inline void GeometryData::initializeListOfCollisionPairs()
   {
-    fillAllPairsAsCollisions();
+    addAllCollisionPairs();
     desactivateCollisionPairs();
     assert(nCollisionPairs == collision_pairs.size());
   }
