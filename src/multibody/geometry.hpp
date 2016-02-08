@@ -178,9 +178,10 @@ namespace se3
         , distances()
         , collisions()
     {
-      initializeListOfCollisionPairs();
-      distances.resize(nCollisionPairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
-      collisions.resize(nCollisionPairs, false );
+      const std::size_t num_max_collision_pairs = (model_geom.ngeom * (model_geom.ngeom-1))/2;
+      collision_pairs.reserve(num_max_collision_pairs);
+      distances.resize(num_max_collision_pairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
+      collisions.resize(num_max_collision_pairs, false);
     }
 
     ~GeometryData() {};
