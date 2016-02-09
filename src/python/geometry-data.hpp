@@ -44,7 +44,9 @@ namespace se3
                                    "Pair of ordered index defining a pair of collisions",
                                    bp::init<const Index &, const Index &> (bp::args("co1 (index)", "co2 (index)"),
                                                                            "Initializer of collision pair"))
-        .def("__str__",&CollisionPairPythonVisitor::toString);
+        .def("__str__",&CollisionPairPythonVisitor::toString)
+        .def_readwrite("first",&CollisionPair::first)
+        .def_readwrite("second",&CollisionPair::second);
         
         bp::class_< std::vector<CollisionPair> >("StdVec_CollisionPair")
         .def(bp::vector_indexing_suite< std::vector<CollisionPair> >());
@@ -111,12 +113,14 @@ namespace se3
              " Remark: co1 < co2")
         .def("addAllCollisionPairs",&GeometryDataPythonVisitor::addAllCollisionPairs,
              "Add all collision pairs.")
+        
         .def("removeCollisionPair",&GeometryDataPythonVisitor::removeCollisionPair,
              bp::args("co1 (index)","co2 (index)"),
              "Remove a collision pair given by the index of the two collision objects."
              " Remark: co1 < co2")
         .def("removeAllCollisionPairs",&GeometryDataPythonVisitor::removeAllCollisionPairs,
              "Remove all collision pairs.")
+        
         .def("existCollisionPair",&GeometryDataPythonVisitor::existCollisionPair,
              bp::args("co1 (index)","co2 (index)"),
              "Check if a collision pair given by the index of the two collision objects exists or not."
@@ -125,10 +129,24 @@ namespace se3
              bp::args("co1 (index)","co2 (index)"),
              "Return the index of a collision pair given by the index of the two collision objects exists or not."
              " Remark: co1 < co2")
+        
         .def("computeCollision",&GeometryDataPythonVisitor::computeCollision,
              bp::args("co1 (index)","co2 (index)"),
              "Check if the two collision objects of a collision pair are in collision."
              "The collision pair is given by the two index of the collision objects.")
+        .def("computeAllCollisions",&GeometryDataPythonVisitor::computeAllCollisions,
+             "Same as computeCollision. It applies computeCollision to all collision pairs contained collision_pairs."
+             "The results are stored in collision_results.")
+        .def("isColliding",&GeometryDataPythonVisitor::isColliding,
+             "Check if at least one of the collision pairs is in collision.")
+        
+        .def("computeDistance",&GeometryDataPythonVisitor::computeDistance,
+             bp::args("co1 (index)","co2 (index)"),
+             "Compute the distance result between two collision objects of a collision pair."
+             "The collision pair is given by the two index of the collision objects.")
+        .def("computeAllDistances",&GeometryDataPythonVisitor::computeAllDistances,
+             "Same as computeDistance. It applies computeDistance to all collision pairs contained collision_pairs."
+             "The results are stored in collision_distances.")
         
         .def("__str__",&GeometryDataPythonVisitor::toString)
         ;
