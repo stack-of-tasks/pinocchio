@@ -42,7 +42,7 @@ namespace se3
                                           );
 
   /**
-   * @brief      Compute Kinematics of full model, then the position of each extra frame
+   * @brief      Compute Kinematics of full model, then the position of each operational frame
    *
    * @param[in]  model                    The kinematic model
    * @param      data                     Data associated to model

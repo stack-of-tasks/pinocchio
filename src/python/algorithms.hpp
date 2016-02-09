@@ -115,7 +115,7 @@ namespace se3
                                                         bool update_geometry
                                                         )
       {
-        Data::Matrix6x J( 6,model->nv ); J.setZero();
+        Eigen::MatrixXd J( 6,model->nv ); J.setZero();
 
         if (update_geometry)
           computeJacobians( *model,*data,q );

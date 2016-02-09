@@ -51,7 +51,7 @@ namespace se3
 
           .add_property("name", &FramePythonVisitor::getName, &FramePythonVisitor::setName)
           .add_property("parent_id", &FramePythonVisitor::getParentId, &FramePythonVisitor::setParentId)
-          .add_property("placement", &FramePythonVisitor::getPlacementWrtParentJoint, &FramePythonVisitor::getPlacementWrtParentJoint)
+          .add_property("framePlacement", &FramePythonVisitor::getPlacementWrtParentJoint, &FramePythonVisitor::getPlacementWrtParentJoint)
           ;
       }
 
@@ -59,7 +59,7 @@ namespace se3
       static std::string getName( const Frame & self) { return self.name; }
       static void setName(Frame & self, const std::string & name) { self.name = name; }
       static Index getParentId( const Frame & self) { return self.parent_id; }
-      static void setParentId(Frame & self, Index & parent_id) { self.parent_id = parent_id; }
+      static void setParentId(Frame & self, const Index parent_id) { self.parent_id = parent_id; }
       static SE3_fx getPlacementWrtParentJoint( const Frame & self) { return self.frame_placement; }
       static void setPlacementWrtParentJoint(Frame & self, const SE3_fx & placement) { self.frame_placement = placement; }
 

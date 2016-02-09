@@ -132,8 +132,8 @@ namespace se3
       .add_property("fix_hasVisual", bp::make_function(&ModelPythonVisitor::fix_hasVisual, bp::return_internal_reference<>())  )
       .add_property("fix_bodyNames", bp::make_function(&ModelPythonVisitor::fix_bodyNames, bp::return_internal_reference<>())  )
 
-      .def("getFrameParentJoint", &ModelPythonVisitor::getFrameParent)
-      .def("getFramePositionInParent", &ModelPythonVisitor::getJointToFrameTransform)
+      .def("getFrameParent", &ModelPythonVisitor::getFrameParent)
+      .def("getFramePlacement", &ModelPythonVisitor::getJointToFrameTransform)
       .def("addExtraFrame", &ModelPythonVisitor::addExtraFrame)
       .add_property("operational_frames", bp::make_function(&ModelPythonVisitor::extraFrames, bp::return_internal_reference<>()) )
 
