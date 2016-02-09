@@ -70,34 +70,44 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
+  VectorXd q_dot = VectorXd::Ones(model.nv);
   framesForwardKinematic(model, data, q);
 
 
   computeJacobians(model,data,q);
 
 
-  MatrixXd expected(6,model.nv); expected.fill(0);
-  Matrix6x Jof(6,model.nv); Jof.fill(0);
+  /// In global frame
+
+  MatrixXd Joj(6,model.nv); Joj.fill(0);
+  MatrixXd Jof(6,model.nv); Jof.fill(0);
   Model::Index idx = model.getFrameId(frame_name);
 
   getFrameJacobian<false>(model,data,idx,Jof);
-  getJacobian<false>(model, data, parent_idx, expected);
-  expected = frame_placement.inverse().toActionMatrix() * expected;
+  getJacobian<false>(model, data, parent_idx, Joj);
+  // expected = frame_placement.inverse().toActionMatrix() * expected;
 
-  BOOST_CHECK(Jof.isApprox(expected, 1e-12));
+  Motion nu_frame(Jof*q_dot);
+  Motion nu_joint(Joj*q_dot);
+
+  Motion nu_frame_from_nu_joint(nu_joint);
+  nu_frame_from_nu_joint.linear() += frame_placement.translation().cross(nu_joint.angular());
 
 
-  expected.fill(0); Jof.fill(0);
-  getFrameJacobian<true>(model,data,idx,Jof);
-  getJacobian<true>(model, data, parent_idx, expected);
+  BOOST_CHECK(nu_frame.toVector().isApprox(nu_frame_from_nu_joint.toVector(), 1e-12));
 
-  expected = frame_placement.inverse().toActionMatrix() * expected;
 
-  // std::cout << Jof << std::endl;
-  // std::cout << "----" << std::endl;
-  // std::cout << frame_placement << std::endl;
-  // std::cout << expected << std::endl;
-  BOOST_CHECK(Jof.isApprox(expected, 1e-12));
+  /// In local frame
+
+  MatrixXd Jjj(6,model.nv); Jjj.fill(0);
+  MatrixXd Jff(6,model.nv); Jff.fill(0);
+  getFrameJacobian<true>(model,data,idx,Jff);
+  getJacobian<true>(model, data, parent_idx, Jjj);
+
+  nu_frame = Jff*q_dot;
+  nu_joint = Jjj*q_dot;
+
+  BOOST_CHECK(nu_frame.toVector().isApprox(frame_placement.actInv(nu_joint).toVector(), 1e-12));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

@@ -20,8 +20,10 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/spatial/skew.hpp"
 
 #include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/jacobian.hpp"
 
 namespace se3
 {
@@ -107,20 +109,29 @@ inline void  framesForwardKinematic(const Model & model,
 
 template<bool localFrame>
 inline void getFrameJacobian(const Model & model, const Data& data,
-     Model::Index frame_id, Data::Matrix6x & J)
+     Model::Index frame_id, Eigen::MatrixXd & J)
 {
   assert( J.rows() == data.J.rows() );
   assert( J.cols() == data.J.cols() );
 
   const Model::Index & parent = model.operational_frames[frame_id].parent_id;
   const SE3 & oMframe = data.oMof[frame_id];
-
+  
   int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
 
+  Eigen::Matrix3d c_cross = skew(model.operational_frames[frame_id].frame_placement.translation());
+
+  if (!localFrame) getJacobian<localFrame>(model, data, parent, J);
   for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
     {
-      if(! localFrame )   J.col(j) = model.operational_frames[frame_id].frame_placement.actInv(Motion(data.J.col(j))).toVector();
-      else                J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
+      if(! localFrame )
+      {
+        J.col(j).topRows<3>() += c_cross *  J.col(j).bottomRows<3>();
+      }  
+      else
+      {
+        J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
+      }
     }
 }
 
