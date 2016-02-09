@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   std::cout << model_geom;
   std::cout << "------ DataGeom ------ " << std::endl;
   std::cout << data_geom;
-  assert(data_geom.collide(0,1) == true && "");
+  assert(data_geom.computeCollision(0,1) == true && "");
 
   Eigen::VectorXd q(model.nq);
   q <<  2, 0, 0,
@@ -166,21 +166,21 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  assert(data_geom.collide(0,1) == false && "");
+  assert(data_geom.computeCollision(0,1) == false && "");
 
   q <<  0.99, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  assert(data_geom.collide(0,1) == true && "");
+  assert(data_geom.computeCollision(0,1) == true && "");
 
   q <<  1.01, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  assert(data_geom.collide(0,1) == false && "");
+  assert(data_geom.computeCollision(0,1) == false && "");
 }
 
 BOOST_AUTO_TEST_CASE ( loading_model )
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 
   se3::updateGeometryPlacements(robot.first, data, robot.second, data_geom, q);
 
-  assert(data_geom.collide(1,10) == false && "");
+  assert(data_geom.computeCollision(1,10) == false && "");
 }
 
 #ifdef WITH_HPP_MODEL_URDF
