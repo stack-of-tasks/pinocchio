@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_geom_hxx__
-#define __se3_geom_hxx__
+#ifndef __se3_geometry_hxx__
+#define __se3_geometry_hxx__
 
 
 #include "pinocchio/spatial/fwd.hpp"
@@ -119,19 +119,22 @@ namespace se3
 
   inline void GeometryData::addCollisionPair (const Index co1, const Index co2)
   {
-    assert ( co1 < co2);
+    assert ( co1 != co2);
     assert ( co2 < model_geom.ngeom);
     CollisionPair_t pair(co1, co2);
     
     addCollisionPair(pair);
   }
 
-  inline void GeometryData::addCollisionPair (const CollisionPair_t& pair)
+  inline void GeometryData::addCollisionPair (const CollisionPair_t & pair)
   {
-    assert(pair.first < pair.second);
     assert(pair.second < model_geom.ngeom);
-    collision_pairs.push_back(pair);
-    nCollisionPairs++;
+    
+    if (!existCollisionPair(pair))
+    {
+      collision_pairs.push_back(pair);
+      nCollisionPairs++;
+    }
   }
   
   inline void GeometryData::addAllCollisionPairs()
@@ -154,12 +157,14 @@ namespace se3
 
   inline void GeometryData::removeCollisionPair (const CollisionPair_t & pair)
   {
-    assert(pair.first < pair.second);
     assert(pair.second < model_geom.ngeom);
-    assert(existCollisionPair(pair));
 
-    collision_pairs.erase(std::remove(collision_pairs.begin(), collision_pairs.end(), pair), collision_pairs.end());
-    nCollisionPairs--;
+    CollisionPairsVector_t::const_iterator it = std::find(collision_pairs.begin(), collision_pairs.end(), pair);
+    if (it != collision_pairs.end())
+    {
+      collision_pairs.erase(it);
+      nCollisionPairs--;
+    }
   }
   
   inline void GeometryData::removeAllCollisionPairs ()
@@ -205,8 +210,16 @@ namespace se3
     assert(nCollisionPairs == collision_pairs.size());
   }
 
-  inline bool GeometryData::collide(const Index co1, const Index co2) const
+  inline bool GeometryData::computeCollision(const Index co1, const Index co2) const
   {
+    return computeCollision(CollisionPair_t(co1,co2));
+  }
+  
+  inline bool GeometryData::computeCollision(const CollisionPair_t & pair) const
+  {
+    const Index & co1 = pair.first;
+    const Index & co2 = pair.second;
+    
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;
 
@@ -218,24 +231,60 @@ namespace se3
     }
     return false;
   }
-
-
-  inline fcl::DistanceResult GeometryData::computeDistance(const Index co1, const Index co2) const
+  
+  inline void GeometryData::computeAllCollisions()
   {
+    for(size_t i = 0; i<nCollisionPairs; ++i)
+    {
+      const CollisionPair_t & pair = collision_pairs[i];
+      collision_results[i] = computeCollision(pair.first, pair.second);
+    }
+  }
+  
+  inline bool GeometryData::isColliding() const
+  {
+    for(CollisionPairsVector_t::const_iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
+    {
+      if (computeCollision(it->first, it->second))
+        return true;
+    }
+    return false;
+  }
+
+  inline DistanceResult GeometryData::computeDistance(const Index co1, const Index co2) const
+  {
+    return computeDistance(CollisionPair_t(co1,co2));
+  }
+  
+  inline DistanceResult GeometryData::computeDistance(const CollisionPair_t & pair) const
+  {
+    const Index & co1 = pair.first;
+    const Index & co2 = pair.second;
+    
     fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
     fcl::DistanceResult result;
     fcl::distance ( model_geom.collision_objects[co1].collisionGeometry().get(), oMg_fcl[co1],
                     model_geom.collision_objects[co2].collisionGeometry().get(), oMg_fcl[co2],
                     distanceRequest, result);
-    return result;
+    
+    return DistanceResult (result, co1, co2);
+  }
+  
+  inline void GeometryData::computeAllDistances ()
+  {
+    for(size_t i = 0; i<nCollisionPairs; ++i)
+    {
+      const CollisionPair_t & pair = collision_pairs[i];
+      distance_results[i] = computeDistance(pair.first, pair.second);
+    }
   }
 
   inline void GeometryData::resetDistances()
   {
-    std::fill(distances.begin(), distances.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
+    std::fill(distance_results.begin(), distance_results.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
   }
 
 
 } // namespace se3
 
-#endif // ifndef __se3_geom_hxx__
+#endif // ifndef __se3_geometry_hxx__

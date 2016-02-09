@@ -35,10 +35,39 @@
 #include <map>
 #include <list>
 #include <utility>
+#include <assert.h>
 
 
 namespace se3
 {
+  
+  struct CollisionPair: public std::pair<Model::Index, Model::Index>
+  {
+    typedef Model::Index Index;
+    typedef std::pair<Model::Index, Model::Index> Base;
+   
+    ///
+    /// \brief Default constructor of a collision pair from two collision object indexes.
+    ///        The indexes must be ordered such that co1 < co2. If not, the constructor reverts the indexes.
+    ///
+    /// \param[in] co1 Index of the first collision object
+    /// \param[in] co2 Index of the second collision object
+    ///
+    CollisionPair(const Index co1, const Index co2) : Base(co1,co2)
+    {
+      assert(co1 != co2 && "The index of collision objects must not be equal.");
+      if (co1 > co2)
+      {
+        first = co2; second = co1;
+      }
+    }
+    
+    void disp(std::ostream & os) const { os << "collision pair (" << first << "," << second << ")\n"; }
+    friend std::ostream & operator << (std::ostream & os, const CollisionPair & X)
+    {
+      X.disp(os); return os;
+    }
+  }; // struct CollisionPair
 
   // Result of distance computation between two CollisionObjects.
   struct DistanceResult
@@ -120,7 +149,7 @@ namespace se3
   struct GeometryData
   {
     typedef Model::Index Index;
-    typedef std::pair<Index,Index> CollisionPair_t;
+    typedef CollisionPair CollisionPair_t;
     typedef std::vector<CollisionPair_t> CollisionPairsVector_t;
 
     ///
@@ -137,7 +166,7 @@ namespace se3
 
     ///
     /// \brief Vector gathering the SE3 placements of the geometries relative to the world.
-    ///        See updateCollisionGeometry to update the placements.
+    ///        See updateGeometryPlacements to update the placements.
     ///
     std::vector<se3::SE3> oMg;
     
@@ -159,14 +188,14 @@ namespace se3
     Index nCollisionPairs;
 
     ///
-    /// \brief Vector gathering the result of the distance computations for all the collision pairs.
+    /// \brief Vector gathering the result of the distance computation for all the collision pairs.
     ///
-    std::vector <DistanceResult> distances;
+    std::vector <DistanceResult> distance_results;
     
     ///
-    /// \brief Vector gathering the result of the collision computations for all the collision pairs.
+    /// \brief Vector gathering the result of the collision computation for all the collision pairs.
     ///
-    std::vector <bool> collisions;
+    std::vector <bool> collision_results;
 
     GeometryData(const Data & data, const GeometryModel & model_geom)
         : data_ref(data)
@@ -175,13 +204,13 @@ namespace se3
         , oMg_fcl(model_geom.ngeom)
         , collision_pairs()
         , nCollisionPairs(0)
-        , distances()
-        , collisions()
+        , distance_results()
+        , collision_results()
     {
       const std::size_t num_max_collision_pairs = (model_geom.ngeom * (model_geom.ngeom-1))/2;
       collision_pairs.reserve(num_max_collision_pairs);
-      distances.resize(num_max_collision_pairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
-      collisions.resize(num_max_collision_pairs, false);
+      distance_results.resize(num_max_collision_pairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
+      collision_results.resize(num_max_collision_pairs, false);
     }
 
     ~GeometryData() {};
@@ -271,14 +300,35 @@ namespace se3
     void initializeListOfCollisionPairs();
 
     ///
-    /// \brief Compute the collision checking between two collision objects given by their indexes.
+    /// \brief Compute the collision status between two collision objects given by their indexes.
     ///
     /// \param[in] co1 Index of the first collision object.
     /// \param[in] co2 Index of the second collision object.
     ///
     /// \return Return true is the collision objects are colliding.
     ///
-    bool collide(const Index co1, const Index co2) const;
+    bool computeCollision(const Index co1, const Index co2) const;
+    
+    ///
+    /// \brief Compute the collision status between two collision objects of a given collision pair.
+    ///
+    /// \param[in] pair The collsion pair.
+    ///
+    /// \return Return true is the collision objects are colliding.
+    ///
+    bool computeCollision(const CollisionPair_t & pair) const;
+    
+    ///
+    /// \brief Compute the collision result of all the collision pairs according to
+    ///        the current placements of the geometires stored in GeometryData::oMg.
+    ///        The results are stored in the vector GeometryData::collision_results.
+    ///
+    void computeAllCollisions();
+    
+    ///
+    /// \brief Check if at least one of the collision pairs has its two collision objects in collision.
+    ///
+    bool isColliding() const;
 
     ///
     /// \brief Compute the minimal distance between two collision objects given by their indexes.
@@ -288,7 +338,24 @@ namespace se3
     ///
     /// \return An fcl struct containing the distance result.
     ///
-    fcl::DistanceResult computeDistance(const Index co1, const Index co2) const;
+    DistanceResult computeDistance(const Index co1, const Index co2) const;
+    
+    ///
+    /// \brief Compute the minimal distance between collision objects of a collison pair
+    ///
+    /// \param[in] pair The collsion pair.
+    ///
+    /// \return An fcl struct containing the distance result.
+    ///
+    DistanceResult computeDistance(const CollisionPair_t & pair) const;
+    
+    ///
+    /// \brief Compute the distance result for all collision pairs according to
+    ///        the current placements of the geometries stored in GeometryData::oMg.
+    ///        The results are stored in the vector GeometryData::distance_results.
+    ///
+    void computeAllDistances();
+    
     void resetDistances();
 
     void displayCollisionPairs() const

@@ -33,20 +33,40 @@ namespace se3
   namespace python
   {
     namespace bp = boost::python;
+    
+    struct CollisionPairPythonVisitor
+    : public boost::python::def_visitor<CollisionPairPythonVisitor>
+    {
+      typedef CollisionPair::Index Index;
+      static void expose()
+      {
+        bp::class_<CollisionPair> ("CollisionPair",
+                                   "Pair of ordered index defining a pair of collisions",
+                                   bp::init<const Index &, const Index &> (bp::args("co1 (index)", "co2 (index)"),
+                                                                           "Initializer of collision pair"))
+        .def("__str__",&CollisionPairPythonVisitor::toString)
+        .def_readwrite("first",&CollisionPair::first)
+        .def_readwrite("second",&CollisionPair::second);
+        
+        bp::class_< std::vector<CollisionPair> >("StdVec_CollisionPair")
+        .def(bp::vector_indexing_suite< std::vector<CollisionPair> >());
+      }
+      
+      static std::string toString(const CollisionPair & cp)
+      {	std::ostringstream s; s << cp; return s.str(); }
+      
+    }; // struct CollisionPairPythonVisitor
 
     typedef Handler<GeometryData> GeometryDataHandler;
 
     struct GeometryDataPythonVisitor
       : public boost::python::def_visitor< GeometryDataPythonVisitor >
     {
-    public:
       typedef GeometryData::Index Index;
       typedef GeometryData::CollisionPair_t CollisionPair_t;
       typedef se3::DistanceResult DistanceResult;
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       
-    public:
-
       /* --- Convert From C++ to Python ------------------------------------- */
       // static PyObject* convert(Model const& modelConstRef)
       // {
@@ -59,8 +79,8 @@ namespace se3
       }
 
       /* --- Exposing C++ API to python through the handler ----------------- */
-    template<class PyClass>
-      void visit(PyClass& cl) const 
+      template<class PyClass>
+      void visit(PyClass& cl) const
       {
         cl
         .def("__init__",
@@ -79,12 +99,12 @@ namespace se3
                       bp::make_function(&GeometryDataPythonVisitor::collision_pairs,
                                         bp::return_internal_reference<>()),
                       "Vector of collision pairs.")
-        .add_property("distances",
-                      bp::make_function(&GeometryDataPythonVisitor::distances,
+        .add_property("distance_results",
+                      bp::make_function(&GeometryDataPythonVisitor::distance_results,
                                         bp::return_internal_reference<>()),
                       "Vector of distance results computed in ")
-        .add_property("collisions",
-                      bp::make_function(&GeometryDataPythonVisitor::collisions,
+        .add_property("collision_results",
+                      bp::make_function(&GeometryDataPythonVisitor::collision_results,
                                         bp::return_internal_reference<>())  )
         
         .def("addCollisionPair",&GeometryDataPythonVisitor::addCollisionPair,
@@ -93,12 +113,14 @@ namespace se3
              " Remark: co1 < co2")
         .def("addAllCollisionPairs",&GeometryDataPythonVisitor::addAllCollisionPairs,
              "Add all collision pairs.")
+        
         .def("removeCollisionPair",&GeometryDataPythonVisitor::removeCollisionPair,
              bp::args("co1 (index)","co2 (index)"),
              "Remove a collision pair given by the index of the two collision objects."
              " Remark: co1 < co2")
         .def("removeAllCollisionPairs",&GeometryDataPythonVisitor::removeAllCollisionPairs,
              "Remove all collision pairs.")
+        
         .def("existCollisionPair",&GeometryDataPythonVisitor::existCollisionPair,
              bp::args("co1 (index)","co2 (index)"),
              "Check if a collision pair given by the index of the two collision objects exists or not."
@@ -107,13 +129,27 @@ namespace se3
              bp::args("co1 (index)","co2 (index)"),
              "Return the index of a collision pair given by the index of the two collision objects exists or not."
              " Remark: co1 < co2")
-        .def("collide",&GeometryDataPythonVisitor::collide,
+        
+        .def("computeCollision",&GeometryDataPythonVisitor::computeCollision,
              bp::args("co1 (index)","co2 (index)"),
              "Check if the two collision objects of a collision pair are in collision."
              "The collision pair is given by the two index of the collision objects.")
+        .def("computeAllCollisions",&GeometryDataPythonVisitor::computeAllCollisions,
+             "Same as computeCollision. It applies computeCollision to all collision pairs contained collision_pairs."
+             "The results are stored in collision_results.")
+        .def("isColliding",&GeometryDataPythonVisitor::isColliding,
+             "Check if at least one of the collision pairs is in collision.")
+        
+        .def("computeDistance",&GeometryDataPythonVisitor::computeDistance,
+             bp::args("co1 (index)","co2 (index)"),
+             "Compute the distance result between two collision objects of a collision pair."
+             "The collision pair is given by the two index of the collision objects.")
+        .def("computeAllDistances",&GeometryDataPythonVisitor::computeAllDistances,
+             "Same as computeDistance. It applies computeDistance to all collision pairs contained collision_pairs."
+             "The results are stored in collision_distances.")
         
         .def("__str__",&GeometryDataPythonVisitor::toString)
-	  ;
+        ;
       }
       
       static GeometryDataHandler* makeDefault(const DataHandler & data, const GeometryModelHandler & geometry_model)
@@ -125,8 +161,8 @@ namespace se3
       
       static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
       static std::vector<CollisionPair_t> & collision_pairs( GeometryDataHandler & m ) { return m->collision_pairs; }
-      static std::vector<DistanceResult> & distances( GeometryDataHandler & m ) { return m->distances; }
-      static std::vector<bool> & collisions( GeometryDataHandler & m ) { return m->collisions; }
+      static std::vector<DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distance_results; }
+      static std::vector<bool> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }
 
       static void addCollisionPair (GeometryDataHandler & m, const Index co1, const Index co2)
       {
@@ -155,7 +191,18 @@ namespace se3
         return m->findCollisionPair(co1, co2);
       }
 
-      static bool collide(const GeometryDataHandler & m, const Index co1, const Index co2) { return m -> collide(co1, co2); };
+      static bool computeCollision(const GeometryDataHandler & m, const Index co1, const Index co2)
+      {
+        return m->computeCollision(co1, co2);
+      }
+      static bool isColliding(const GeometryDataHandler & m) { return m->isColliding(); }
+      static void computeAllCollisions(GeometryDataHandler & m) { m->computeAllCollisions(); }
+      
+      static DistanceResult computeDistance(const GeometryDataHandler & m, const Index co1, const Index co2)
+      {
+        return m->computeDistance(co1, co2);
+      }
+      static void computeAllDistances(GeometryDataHandler & m) { m->computeAllDistances(); }
       
       static std::string toString(const GeometryDataHandler& m)
       {	  std::ostringstream s; s << *m; return s.str();       }
@@ -164,8 +211,6 @@ namespace se3
       static void expose()
       {
         
-        bp::class_< std::vector<CollisionPair_t> >("StdVec_CollisionPair_t")
-        .def(bp::vector_indexing_suite< std::vector<CollisionPair_t> >());
         bp::class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
         .def(bp::vector_indexing_suite< std::vector<DistanceResult> >());
   
@@ -174,14 +219,11 @@ namespace se3
                                  bp::no_init)
         .def(GeometryDataPythonVisitor());
      
-	bp::to_python_converter< GeometryDataHandler::SmartPtr_t,GeometryDataPythonVisitor >();
+        bp::to_python_converter< GeometryDataHandler::SmartPtr_t,GeometryDataPythonVisitor >();
       }
-
 
     };
     
-
-
   }} // namespace se3::python
 
 #endif // ifndef __se3_python_geometry_data_hpp__
