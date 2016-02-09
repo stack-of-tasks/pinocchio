@@ -119,14 +119,13 @@ inline void getFrameJacobian(const Model & model, const Data& data,
   
   int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
 
-  Eigen::Matrix3d c_cross = skew(model.operational_frames[frame_id].frame_placement.translation());
 
   if (!localFrame) getJacobian<localFrame>(model, data, parent, J);
   for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
     {
       if(! localFrame )
       {
-        J.col(j).topRows<3>() += c_cross *  J.col(j).bottomRows<3>();
+        J.col(j).topRows<3>() += model.operational_frames[frame_id].frame_placement.inverse().translation().cross( J.col(j).bottomRows<3>());
       }  
       else
       {

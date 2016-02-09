@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   Motion nu_joint(Joj*q_dot);
 
   Motion nu_frame_from_nu_joint(nu_joint);
-  nu_frame_from_nu_joint.linear() += frame_placement.translation().cross(nu_joint.angular());
+  nu_frame_from_nu_joint.linear() += frame_placement.inverse().translation().cross(nu_joint.angular());
 
 
   BOOST_CHECK(nu_frame.toVector().isApprox(nu_frame_from_nu_joint.toVector(), 1e-12));
