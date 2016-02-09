@@ -256,9 +256,8 @@ ADD_SUBDIRECTORY(src)
 # --- EXECUTABLES --------------------------------------------------------------
 # --- EXECUTABLES --------------------------------------------------------------
 ADD_SUBDIRECTORY(unittest)
-IF (BUILD_BENCHMARK)
-  ADD_SUBDIRECTORY (benchmark)
-ENDIF (BUILD_BENCHMARK)
+ADD_SUBDIRECTORY (benchmark)
+
 IF (BUILD_UTILS)
   ADD_SUBDIRECTORY (utils)
 ENDIF (BUILD_UTILS)
