@@ -185,11 +185,14 @@ namespace se3
 
   inline const Model::Index& Model::getFrameParent( const std::string & name ) const
   {
+    assert(existFrame(name) && "The Frame you requested does not exist");
     std::vector<Frame>::const_iterator it = std::find_if( operational_frames.begin()
                                                         , operational_frames.end()
                                                         , boost::bind(&Frame::name, _1) == name
                                                         );
-    return it->parent_id;
+    
+    std::vector<Frame>::iterator::difference_type it_diff = it - operational_frames.begin();
+    return getFrameParent(Model::Index(it_diff));
   }
 
   inline const Model::Index& Model::getFrameParent( Model::Index index ) const
@@ -204,7 +207,9 @@ namespace se3
                                                         , operational_frames.end()
                                                         , boost::bind(&Frame::name, _1) == name
                                                         );
-    return it->frame_placement;
+    
+    std::vector<Frame>::iterator::difference_type it_diff = it - operational_frames.begin();
+    return getJointToFrameTransform(Model::Index(it_diff));
   }
 
   inline const SE3 & Model::getJointToFrameTransform( Model::Index index ) const
