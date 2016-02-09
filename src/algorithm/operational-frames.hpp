@@ -109,7 +109,7 @@ inline void  framesForwardKinematic(const Model & model,
 
 template<bool localFrame>
 inline void getFrameJacobian(const Model & model, const Data& data,
-     Model::Index frame_id, Eigen::MatrixXd & J)
+     Model::Index frame_id, Data::Matrix6x & J)
 {
   assert( J.rows() == data.J.rows() );
   assert( J.cols() == data.J.cols() );

@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 
   /// In global frame
 
-  MatrixXd Joj(6,model.nv); Joj.fill(0);
-  MatrixXd Jof(6,model.nv); Jof.fill(0);
+  Data::Matrix6x Joj(6,model.nv); Joj.fill(0);
+  Data::Matrix6x Jof(6,model.nv); Jof.fill(0);
   Model::Index idx = model.getFrameId(frame_name);
 
   getFrameJacobian<false>(model,data,idx,Jof);
@@ -99,8 +99,8 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 
   /// In local frame
 
-  MatrixXd Jjj(6,model.nv); Jjj.fill(0);
-  MatrixXd Jff(6,model.nv); Jff.fill(0);
+  Data::Matrix6x Jjj(6,model.nv); Jjj.fill(0);
+  Data::Matrix6x Jff(6,model.nv); Jff.fill(0);
   getFrameJacobian<true>(model,data,idx,Jff);
   getJacobian<true>(model, data, parent_idx, Jjj);
 

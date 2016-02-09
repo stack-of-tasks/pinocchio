@@ -92,14 +92,14 @@ namespace se3
            const VectorXd_fx & q )
       { return jacobianCenterOfMass(*model,*data,q); }
 
-      static Eigen::MatrixXd jacobian_proxy( const ModelHandler& model, 
+      static Data::Matrix6x jacobian_proxy( const ModelHandler& model, 
                DataHandler & data,
                const VectorXd_fx & q,
                Model::Index jointId,
                bool local,
 							 bool update_geometry )
       {
-  Eigen::MatrixXd J( 6,model->nv ); J.setZero();
+  Data::Matrix6x J( 6,model->nv ); J.setZero();
 	if (update_geometry)
   	computeJacobians( *model,*data,q );
   if(local) getJacobian<true> (*model, *data, jointId, J);
@@ -115,7 +115,7 @@ namespace se3
                                                         bool update_geometry
                                                         )
       {
-        Eigen::MatrixXd J( 6,model->nv ); J.setZero();
+        Data::Matrix6x J( 6,model->nv ); J.setZero();
 
         if (update_geometry)
           computeJacobians( *model,*data,q );

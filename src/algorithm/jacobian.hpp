@@ -53,7 +53,7 @@ namespace se3
   void getJacobian(const Model & model,
                    const Data & data,
                    Model::Index jointId,
-                   Eigen::MatrixXd & J);
+                   Data::Matrix6x & J);
   
   ///
   /// \brief Computes the jacobian of a specific joint frame expressed in the local frame of the joint. The result is stored in data.J.
