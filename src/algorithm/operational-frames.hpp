@@ -119,13 +119,14 @@ inline void getFrameJacobian(const Model & model, const Data& data,
   
   int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
 
+  SE3::Vector3 lever(data.oMi[parent].rotation() * (model.operational_frames[frame_id].frame_placement.translation()));
 
   if (!localFrame) getJacobian<localFrame>(model, data, parent, J);
   for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
     {
       if(! localFrame )
       {
-        J.col(j).topRows<3>() += model.operational_frames[frame_id].frame_placement.inverse().translation().cross( J.col(j).bottomRows<3>());
+        J.col(j).topRows<3>() -= lever.cross( J.col(j).bottomRows<3>());
       }  
       else
       {
