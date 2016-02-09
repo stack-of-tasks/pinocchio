@@ -69,7 +69,7 @@ IF(HPP_FCL_FOUND AND URDFDOM_FOUND)
   ADD_REQUIRED_DEPENDENCY("assimp")
 ENDIF(HPP_FCL_FOUND AND URDFDOM_FOUND)
 
-SET(BOOST_COMPONENTS filesystem unit_test_framework)
+SET(BOOST_COMPONENTS filesystem unit_test_framework system)
 SEARCH_FOR_BOOST()
 # Path to boost headers
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
