@@ -41,10 +41,11 @@
 namespace se3
 {
   
-  struct CollisionPair: public std::pair<Model::Index, Model::Index>
+  struct CollisionPair: public std::pair<Model::GeomIndex, Model::GeomIndex>
   {
     typedef Model::Index Index;
-    typedef std::pair<Model::Index, Model::Index> Base;
+    typedef Model::GeomIndex GeomIndex;
+    typedef std::pair<Model::GeomIndex, Model::GeomIndex> Base;
    
     ///
     /// \brief Default constructor of a collision pair from two collision object indexes.
@@ -53,7 +54,7 @@ namespace se3
     /// \param[in] co1 Index of the first collision object
     /// \param[in] co2 Index of the second collision object
     ///
-    CollisionPair(const Index co1, const Index co2) : Base(co1,co2)
+    CollisionPair(const GeomIndex co1, const GeomIndex co2) : Base(co1,co2)
     {
       assert(co1 != co2 && "The index of collision objects must not be equal.");
       if (co1 > co2)
@@ -73,8 +74,9 @@ namespace se3
   struct DistanceResult
   {
     typedef Model::Index Index;
+    typedef Model::GeomIndex GeomIndex;
 
-    DistanceResult(fcl::DistanceResult dist_fcl, const Index co1, const Index co2)
+    DistanceResult(fcl::DistanceResult dist_fcl, const GeomIndex co1, const GeomIndex co2)
     : fcl_distance_result(dist_fcl), object1(co1), object2(co2)
     {}
 
@@ -103,24 +105,26 @@ namespace se3
     fcl::DistanceResult fcl_distance_result;
     
     /// Index of the first colision object
-    Index object1;
+    GeomIndex object1;
     /// Index of the second colision object
-    Index object2;
+    GeomIndex object2;
     
   }; // struct DistanceResult 
   
   struct GeometryModel
   {
     typedef Model::Index Index;
+    typedef Model::JointIndex JointIndex;
+    typedef Model::GeomIndex GeomIndex;
 
     Index ngeom;
     std::vector<fcl::CollisionObject> collision_objects;
     std::vector<std::string> geom_names;
-    std::vector<Index> geom_parents;                          // Joint parent of body <i>, denoted <li> (li==parents[i])
+    std::vector<JointIndex> geom_parents;                          // Joint parent of body <i>, denoted <li> (li==parents[i])
     std::vector<SE3> geometryPlacement;                       // Position of geometry object in parent joint's frame
     
-    std::map < Index, std::list<Index> >  innerObjects;       // Associate a list of CollisionObjects to a given joint Id 
-    std::map < Index, std::list<Index> >  outerObjects;       // Associate a list of CollisionObjects to a given joint Id 
+    std::map < JointIndex, std::list<GeomIndex> >  innerObjects;       // Associate a list of CollisionObjects to a given joint Id 
+    std::map < JointIndex, std::list<GeomIndex> >  outerObjects;       // Associate a list of CollisionObjects to a given joint Id 
 
     GeometryModel()
       : ngeom(0)
@@ -135,13 +139,13 @@ namespace se3
 
     ~GeometryModel() {};
 
-    Index addGeomObject(const Index parent, const fcl::CollisionObject & co, const SE3 & placement, const std::string & geoName = "");
-    Index getGeomId(const std::string & name) const;
+    GeomIndex addGeomObject(const JointIndex parent, const fcl::CollisionObject & co, const SE3 & placement, const std::string & geoName = "");
+    GeomIndex getGeomId(const std::string & name) const;
     bool existGeomName(const std::string & name) const;
-    const std::string & getGeomName(const Index index) const;
+    const std::string & getGeomName(const GeomIndex index) const;
 
-    void addInnerObject(const Index joint, const Index inner_object);
-    void addOutterObject(const Index joint, const Index outer_object);
+    void addInnerObject(const JointIndex joint, const GeomIndex inner_object);
+    void addOutterObject(const JointIndex joint, const GeomIndex outer_object);
 
     friend std::ostream& operator<<(std::ostream & os, const GeometryModel & model_geom);
   }; // struct GeometryModel
@@ -149,6 +153,7 @@ namespace se3
   struct GeometryData
   {
     typedef Model::Index Index;
+    typedef Model::GeomIndex GeomIndex;
     typedef CollisionPair CollisionPair_t;
     typedef std::vector<CollisionPair_t> CollisionPairsVector_t;
 
@@ -222,7 +227,7 @@ namespace se3
     /// \param[in] co1 Index of the first colliding geometry.
     /// \param[in] co2 Index of the second colliding geometry.
     ///
-    void addCollisionPair (const Index co1, const Index co2);
+    void addCollisionPair (const GeomIndex co1, const GeomIndex co2);
     
     ///
     /// \brief Add a collision pair into the vector of collision_pairs.
@@ -243,7 +248,7 @@ namespace se3
     /// \param[in] co1 Index of the first colliding geometry.
     /// \param[in] co2 Index of the second colliding geometry.
     ///
-    void removeCollisionPair (const Index co1, const Index co2);
+    void removeCollisionPair (const GeomIndex co1, const GeomIndex co2);
     
     ///
     /// \brief Remove if exists the CollisionPair from the vector collision_pairs.
@@ -258,14 +263,14 @@ namespace se3
    
     ///
     /// \brief Check if a collision pair given by the index of the two colliding geometries exists in collision_pairs.
-    ///        See also findCollisitionPair(const Index co1, const Index co2).
+    ///        See also findCollisitionPair(const GeomIndex co1, const GeomIndex co2).
     ///
     /// \param[in] co1 Index of the first colliding geometry.
     /// \param[in] co2 Index of the second colliding geometry.
     ///
     /// \return True if the CollisionPair exists, false otherwise.
     ///
-    bool existCollisionPair (const Index co1, const Index co2) const ;
+    bool existCollisionPair (const GeomIndex co1, const GeomIndex co2) const ;
     
     ///
     /// \brief Check if a collision pair exists in collision_pairs.
@@ -285,7 +290,7 @@ namespace se3
     ///
     /// \return The index of the collision pair in collision_pairs.
     ///
-    Index findCollisionPair (const Index co1, const Index co2) const;
+    Index findCollisionPair (const GeomIndex co1, const GeomIndex co2) const;
     
     ///
     /// \brief Return the index of a given collision pair in collision_pairs.
@@ -307,7 +312,7 @@ namespace se3
     ///
     /// \return Return true is the collision objects are colliding.
     ///
-    bool computeCollision(const Index co1, const Index co2) const;
+    bool computeCollision(const GeomIndex co1, const GeomIndex co2) const;
     
     ///
     /// \brief Compute the collision status between two collision objects of a given collision pair.
@@ -338,7 +343,7 @@ namespace se3
     ///
     /// \return An fcl struct containing the distance result.
     ///
-    DistanceResult computeDistance(const Index co1, const Index co2) const;
+    DistanceResult computeDistance(const GeomIndex co1, const GeomIndex co2) const;
     
     ///
     /// \brief Compute the minimal distance between collision objects of a collison pair

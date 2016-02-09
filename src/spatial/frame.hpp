@@ -27,13 +27,15 @@
 
 namespace se3
 {
+
   ///
   /// \brief What is a frame? TODO: complete this description.
   ///
   struct Frame
   {
     typedef std::size_t Index;
-    
+    typedef Index JointIndex;
+      
     Frame() : name(random(8)), parent_id(), framePlacement() {} // needed by EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION
     
     ///

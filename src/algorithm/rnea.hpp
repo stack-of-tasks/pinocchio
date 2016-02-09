@@ -38,7 +38,7 @@ namespace se3
   {
     typedef boost::fusion::vector< const se3::Model&,
 			    se3::Data&,
-			    const int&,
+			    const Model::Index,
 			    const Eigen::VectorXd &,
 			    const Eigen::VectorXd &,
 			    const Eigen::VectorXd &
@@ -51,7 +51,7 @@ namespace se3
 		    se3::JointDataBase<typename JointModel::JointData> & jdata,
 		    const se3::Model& model,
 		    se3::Data& data,
-		    const int &i,
+		    const Model::Index i,
 		    const Eigen::VectorXd & q,
 		    const Eigen::VectorXd & v,
 		    const Eigen::VectorXd & a)
@@ -61,16 +61,16 @@ namespace se3
       
       jmodel.calc(jdata.derived(),q,v);
       
-      const Model::Index & parent = model.parents[(Model::Index)i];
-      data.liMi[(Model::Index)i] = model.jointPlacements[(Model::Index)i]*jdata.M();
+      const Model::JointIndex & parent = model.parents[i];
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
       
-      data.v[(Model::Index)i] = jdata.v();
-      if(parent>0) data.v[(Model::Index)i] += data.liMi[(Model::Index)i].actInv(data.v[parent]);
+      data.v[i] = jdata.v();
+      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
       
-      data.a_gf[(Model::Index)i] = jdata.S()*jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[(Model::Index)i] ^ jdata.v()) ;
-      data.a_gf[(Model::Index)i] += data.liMi[(Model::Index)i].actInv(data.a_gf[parent]);
+      data.a_gf[i] = jdata.S()*jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v()) ;
+      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
       
-      data.f[(Model::Index)i] = model.inertias[(Model::Index)i]*data.a_gf[(Model::Index)i] + model.inertias[(Model::Index)i].vxiv(data.v[(Model::Index)i]); // -f_ext
+      data.f[i] = model.inertias[i]*data.a_gf[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
     }
 
   };
@@ -79,7 +79,7 @@ namespace se3
   {
     typedef boost::fusion::vector<const Model&,
 				  Data&,
-				  const int &>  ArgsType;
+				  const Model::Index>  ArgsType;
     
     JOINT_VISITOR_INIT(RneaBackwardStep);
 
@@ -88,11 +88,11 @@ namespace se3
 		     JointDataBase<typename JointModel::JointData> & jdata,
 		     const Model& model,
 		     Data& data,
-		     int i)
+		     Model::Index i)
     {
-      const Model::Index & parent  = model.parents[(Model::Index)i];      
-      jmodel.jointVelocitySelector(data.tau)  = jdata.S().transpose()*data.f[(Model::Index)i];
-      if(parent>0) data.f[(Model::Index)parent] += data.liMi[(Model::Index)i].act(data.f[(Model::Index)i]);
+      const Model::JointIndex & parent  = model.parents[i];      
+      jmodel.jointVelocitySelector(data.tau)  = jdata.S().transpose()*data.f[i];
+      if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
     }
   };
 
@@ -105,15 +105,15 @@ namespace se3
     data.v[0].setZero();
     data.a_gf[0] = -model.gravity;
 
-    for( int i=1;i<model.nbody;++i )
+    for( Model::JointIndex i=1;i<(Model::JointIndex)model.nbody;++i )
       {
-	RneaForwardStep::run(model.joints[(Model::Index)i],data.joints[(Model::Index)i],
+	RneaForwardStep::run(model.joints[i],data.joints[i],
 			     RneaForwardStep::ArgsType(model,data,i,q,v,a));
       }
     
-    for( int i=model.nbody-1;i>0;--i )
+    for( Model::JointIndex i=(Model::JointIndex)model.nbody-1;i>0;--i )
       {
-	RneaBackwardStep::run(model.joints[(Model::Index)i],data.joints[(Model::Index)i],
+	RneaBackwardStep::run(model.joints[i],data.joints[i],
 	 		      RneaBackwardStep::ArgsType(model,data,i));
       }
 

@@ -59,8 +59,8 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i = (Model::Index) jmodel.id();
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
       jmodel.calc(jdata.derived(),q,v);
 
       // CRBA
@@ -113,8 +113,8 @@ namespace se3
        *   Yli += liXi Yi
        *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
        */
-      const Model::Index & i = (Model::Index) jmodel.id();
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
 
       /* F[1:6,i] = Y*S */
       jmodel.jointCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
@@ -152,13 +152,13 @@ namespace se3
     data.a[0].setZero();
     data.a_gf[0] = -model.gravity;
 
-    for(Model::Index i=1;i<(Model::Index) model.nbody;++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex) model.nbody;++i)
     {
       CATForwardStep::run(model.joints[i],data.joints[i],
                            CATForwardStep::ArgsType(model,data,q,v));
     }
 
-    for(Model::Index i=(Model::Index)(model.nbody-1);i>0;--i)
+    for(Model::JointIndex i=(Model::JointIndex)(model.nbody-1);i>0;--i)
     {
       CATBackwardStep::run(model.joints[i],data.joints[i],
                             CATBackwardStep::ArgsType(model,data));

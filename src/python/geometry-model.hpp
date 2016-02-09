@@ -41,6 +41,8 @@ namespace se3
     {
     public:
       typedef GeometryModel::Index Index;
+      typedef GeometryModel::JointIndex JointIndex;
+      typedef GeometryModel::GeomIndex GeomIndex;
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       
     public:
@@ -84,11 +86,11 @@ namespace se3
 
       static GeometryModel::Index ngeom( GeometryModelHandler & m ) { return m->ngeom; }
 
-      static Model::Index getGeomId( const GeometryModelHandler & gmodelPtr, const std::string & name )
+      static Model::GeomIndex getGeomId( const GeometryModelHandler & gmodelPtr, const std::string & name )
       { return  gmodelPtr->getGeomId(name); }
       
       static std::vector<SE3> & geometryPlacement( GeometryModelHandler & m ) { return m->geometryPlacement; }
-      static std::vector<Model::Index> & geom_parents( GeometryModelHandler & m ) { return m->geom_parents; }
+      static std::vector<Model::JointIndex> & geom_parents( GeometryModelHandler & m ) { return m->geom_parents; }
       static std::vector<std::string> & geom_names ( GeometryModelHandler & m ) { return m->geom_names; }
 
       

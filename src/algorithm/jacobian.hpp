@@ -53,7 +53,7 @@ namespace se3
   template<bool localFrame>
   void getJacobian(const Model & model,
                    const Data & data,
-                   const Model::Index jointId,
+                   const Model::JointIndex jointId,
                    Data::Matrix6x & J);
   
   ///
@@ -70,7 +70,7 @@ namespace se3
   jacobian(const Model & model,
            Data & data,
            const Eigen::VectorXd & q,
-           const Model::Index jointId);
+           const Model::JointIndex jointId);
 
 } // namespace se3 
 

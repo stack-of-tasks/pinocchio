@@ -43,6 +43,8 @@ namespace se3
     {
     public:
       typedef Model::Index Index;
+      typedef Model::JointIndex JointIndex;
+      typedef Model::FrameIndex FrameIndex;
       typedef eigenpy::UnalignedEquivalent<Motion>::type Motion_fx;
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       typedef eigenpy::UnalignedEquivalent<Inertia>::type Inertia_fx;
@@ -50,7 +52,7 @@ namespace se3
       struct add_body_visitor : public boost::static_visitor<Model::Index>
       {
         ModelHandler & _model;
-        Model::Index & _index;
+        Model::JointIndex & _index_parent;
         const SE3_fx & _placement;
         const Inertia_fx & _inertia;
         const std::string & _jName;
@@ -58,11 +60,11 @@ namespace se3
         bool _visual;
 
         add_body_visitor( ModelHandler & model,
-                          Model::Index & idx, const SE3_fx & placement,
+                          Model::JointIndex & idx, const SE3_fx & placement,
                           const Inertia_fx & Y, const std::string & jointName,
                           const std::string & bodyName, bool visual)
                         : _model(model)
-                        , _index(idx)
+                        , _index_parent(idx)
                         , _placement(placement)
                         , _inertia(Y)
                         , _jName(jointName)
@@ -72,7 +74,7 @@ namespace se3
 
         template <typename T> Model::Index operator()( T & operand ) const
         {
-          return _model->addBody(_index, operand, _placement, _inertia, _jName, _bName, _visual);
+          return _model->addBody(_index_parent, operand, _placement, _inertia, _jName, _bName, _visual);
         }
       };
 
@@ -156,13 +158,13 @@ namespace se3
       static std::vector<Inertia> & inertias( ModelHandler & m ) { return m->inertias; }
       static std::vector<SE3> & jointPlacements( ModelHandler & m ) { return m->jointPlacements; }
       static JointModelVector & joints( ModelHandler & m ) { return m->joints; }
-      static std::vector<Model::Index> & parents( ModelHandler & m ) { return m->parents; }
+      static std::vector<Model::JointIndex> & parents( ModelHandler & m ) { return m->parents; }
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
       static std::vector<std::string> & bodyNames ( ModelHandler & m ) { return m->bodyNames; }
       static std::vector<bool> & hasVisual ( ModelHandler & m ) { return m->hasVisual; }
 
       static Model::Index addJointToModel(  ModelHandler & modelPtr,
-                                    Model::Index idx, bp::object joint,
+                                    Model::JointIndex idx, bp::object joint,
                                     const SE3_fx & placement,
                                     const Inertia_fx & Y,
                                     const std::string & jointName,
@@ -175,13 +177,13 @@ namespace se3
 
       static int nFixBody( ModelHandler & m )                                     { return m->nFixBody; }
       static std::vector<SE3>          & fix_lmpMi           ( ModelHandler & m ) { return m->fix_lmpMi; }
-      static std::vector<Model::Index> & fix_lastMovingParent( ModelHandler & m ) { return m->fix_lastMovingParent; }
+      static std::vector<Model::JointIndex> & fix_lastMovingParent( ModelHandler & m ) { return m->fix_lastMovingParent; }
       static std::vector<bool> & fix_hasVisual ( ModelHandler & m ) { return m->fix_hasVisual; }
       static std::vector<std::string> & fix_bodyNames ( ModelHandler & m ) { return m->fix_bodyNames; }
 
-      static Model::Index  getFrameParent( ModelHandler & m, const std::string & name ) { return m->getFrameParent(name); }
+      static Model::JointIndex  getFrameParent( ModelHandler & m, const std::string & name ) { return m->getFrameParent(name); }
       static SE3  getFramePlacement( ModelHandler & m, const std::string & name ) { return m->getFramePlacement(name); }
-      static void  addFrame( ModelHandler & m, const std::string & frameName, const Index parent, const SE3_fx & placementWrtParent )
+      static void  addFrame( ModelHandler & m, const std::string & frameName, const JointIndex parent, const SE3_fx & placementWrtParent )
       {
         m->addFrame(frameName, parent, placementWrtParent);
       }

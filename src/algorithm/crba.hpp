@@ -70,7 +70,7 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i = (Model::Index) jmodel.id();
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       jmodel.calc(jdata.derived(),q);
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
@@ -99,7 +99,7 @@ namespace se3
        *   Yli += liXi Yi
        *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
        */
-      const Model::Index & i = (Model::Index) jmodel.id();
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
 
       /* F[1:6,i] = Y*S */
       //data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
@@ -109,7 +109,7 @@ namespace se3
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]) 
 	= jdata.S().transpose()*data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
 
-      const Model::Index & parent   = model.parents[i];
+      const Model::JointIndex & parent   = model.parents[i];
       if(parent>0) 
       {
         /*   Yli += liXi Yi */
@@ -134,13 +134,13 @@ namespace se3
   crba(const Model & model, Data& data,
        const Eigen::VectorXd & q)
   {
-    for( Model::Index i=1;i<(Model::Index)(model.nbody);++i )
+    for( Model::JointIndex i=1;i<(Model::JointIndex)(model.nbody);++i )
       {
 	CrbaForwardStep::run(model.joints[i],data.joints[i],
 			     CrbaForwardStep::ArgsType(model,data,q));
       }
     
-    for( Model::Index i=(Model::Index)(model.nbody-1);i>0;--i )
+    for( Model::JointIndex i=(Model::JointIndex)(model.nbody-1);i>0;--i )
       {
 	CrbaBackwardStep::run(model.joints[i],data.joints[i],
 			      CrbaBackwardStep::ArgsType(model,data));

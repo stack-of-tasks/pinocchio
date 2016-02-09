@@ -67,7 +67,7 @@ namespace se3
               const Eigen::VectorXd & q)
   {
 
-    for( Model::Index i=1; i<(Model::Index) model.nbody; ++i )
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
     {
       JointLimitsStep::run(model.joints[i],
                         data.joints[i],

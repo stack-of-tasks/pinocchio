@@ -37,6 +37,8 @@ namespace se3
     {
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       typedef Model::Index Index;
+      typedef Model::JointIndex JointIndex;
+      typedef Model::FrameIndex FrameIndex;
 
     public:
 
@@ -49,7 +51,7 @@ namespace se3
       void visit(PyClass& cl) const 
       {
         cl
-          .def(bp::init<const std::string&,const Index, const SE3_fx&> ((bp::arg("name (string)"),bp::arg("parent_id (index)"), bp::arg("SE3 placement")),
+          .def(bp::init<const std::string&,const JointIndex, const SE3_fx&> ((bp::arg("name (string)"),bp::arg("parent_id (index)"), bp::arg("SE3 placement")),
                 "Initialize from name, parent id and placement wrt parent joint."))
 
           .add_property("name", &FramePythonVisitor::getName, &FramePythonVisitor::setName)
@@ -61,8 +63,8 @@ namespace se3
 
       static std::string getName( const Frame & self) { return self.name; }
       static void setName(Frame & self, const std::string & name) { self.name = name; }
-      static Index getParentId( const Frame & self) { return self.parent_id; }
-      static void setParentId(Frame & self, const Index parent_id) { self.parent_id = parent_id; }
+      static JointIndex getParentId( const Frame & self) { return self.parent_id; }
+      static void setParentId(Frame & self, const JointIndex parent_id) { self.parent_id = parent_id; }
       static SE3_fx getPlacementWrtParentJoint( const Frame & self) { return self.frame_placement; }
       static void setPlacementWrtParentJoint(Frame & self, const SE3_fx & placement) { self.frame_placement = placement; }
 

@@ -165,7 +165,7 @@ namespace se3
           abort();
         }
 
-        Model::Index parent_id;
+        Model::JointIndex parent_id;
         SE3 fixed_placement_offset (SE3::Identity());;
 
         if (body_table_id_map.find (parent_name) != body_table_id_map.end ())
@@ -229,7 +229,7 @@ namespace se3
         }
 
 
-        Model::Index body_id;
+        Model::JointIndex body_id;
         bool is_body_fixed = false;
         if (joint_type == "JointTypeRevoluteX")
         {

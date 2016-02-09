@@ -102,9 +102,9 @@ namespace se3
                                        GeometryData & data_geom
                                        )
   {
-    for (GeometryData::Index i=0; i < (GeometryData::Index) data_geom.model_geom.ngeom; ++i)
+    for (GeometryData::GeomIndex i=0; i < (GeometryData::GeomIndex) data_geom.model_geom.ngeom; ++i)
     {
-      const Model::Index & parent = model_geom.geom_parents[i];
+      const Model::JointIndex & parent = model_geom.geom_parents[i];
       data_geom.oMg[i] =  (data.oMi[parent] * model_geom.geometryPlacement[i]);
       data_geom.oMg_fcl[i] =  toFclTransform3f(data_geom.oMg[i]);
     }

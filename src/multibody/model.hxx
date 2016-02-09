@@ -48,7 +48,7 @@ namespace se3
   
 
   template<typename D>
-  Model::Index Model::addBody (Index parent, const JointModelBase<D> & j, const SE3 & placement,
+  Model::JointIndex Model::addBody (JointIndex parent, const JointModelBase<D> & j, const SE3 & placement,
                                const Inertia & Y, const std::string & jointName,
                                const std::string & bodyName, bool visual)
   {
@@ -56,7 +56,7 @@ namespace se3
       &&(nbody==(int)parents.size())&&(nbody==(int)jointPlacements.size()) );
     assert( (j.nq()>=0)&&(j.nv()>=0) );
 
-    Model::Index idx = (Model::Index) (nbody ++);
+    Model::JointIndex idx = (Model::JointIndex) (nbody ++);
 
     joints         .push_back(j.derived()); 
     boost::get<D>(joints.back()).setIndexes((int)idx,nq,nv);
@@ -73,7 +73,7 @@ namespace se3
   }
 
   template<typename D>
-  Model::Index Model::addBody (Index parent, const JointModelBase<D> & j, const SE3 & placement,
+  Model::JointIndex Model::addBody (JointIndex parent, const JointModelBase<D> & j, const SE3 & placement,
                                const Inertia & Y,
                                const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
                                const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
@@ -84,7 +84,7 @@ namespace se3
 	    &&(nbody==(int)parents.size())&&(nbody==(int)jointPlacements.size()) );
     assert( (j.nq()>=0)&&(j.nv()>=0) );
 
-    Model::Index idx = (Model::Index) (nbody ++);
+    Model::JointIndex idx = (Model::JointIndex) (nbody ++);
 
     joints         .push_back(j.derived()); 
     boost::get<D>(joints.back()).setIndexes((int)idx,nq,nv);
@@ -106,13 +106,13 @@ namespace se3
     return idx;
   }
 
-  inline Model::Index Model::addFixedBody (Index lastMovingParent,
+  inline Model::JointIndex Model::addFixedBody (JointIndex lastMovingParent,
                                            const SE3 & placementFromLastMoving,
                                            const std::string & bodyName,
                                            bool visual)
   {
 
-    Model::Index idx = (Model::Index) (nFixBody++);
+    Model::JointIndex idx = (Model::JointIndex) (nFixBody++);
     fix_lastMovingParent.push_back(lastMovingParent);
     fix_lmpMi      .push_back(placementFromLastMoving);
     fix_hasVisual  .push_back(visual);
@@ -120,19 +120,19 @@ namespace se3
     return idx;
   }
 
-  inline void Model::mergeFixedBody (Index parent, const SE3 & placement, const Inertia & Y)
+  inline void Model::mergeFixedBody (JointIndex parent, const SE3 & placement, const Inertia & Y)
   {
     const Inertia & iYf = Y.se3Action(placement); //TODO
     inertias[parent] += iYf;
   }
 
-  inline Model::Index Model::getBodyId (const std::string & name) const
+  inline Model::JointIndex Model::getBodyId (const std::string & name) const
   {
     std::vector<std::string>::iterator::difference_type
       res = std::find(bodyNames.begin(),bodyNames.end(),name) - bodyNames.begin();
     assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
     assert( (res>=0)&&(res<nbody) && "The body name you asked does not exist" );
-    return Model::Index(res);
+    return Model::JointIndex(res);
   }
   
   inline bool Model::existBodyName (const std::string & name) const
@@ -140,19 +140,19 @@ namespace se3
     return (bodyNames.end() != std::find(bodyNames.begin(),bodyNames.end(),name));
   }
 
-  inline const std::string& Model::getBodyName (const Index index) const
+  inline const std::string& Model::getBodyName (const Model::JointIndex index) const
   {
     assert( index < (Model::Index)nbody );
     return bodyNames[index];
   }
 
-  inline Model::Index Model::getJointId (const std::string & name) const
+  inline Model::JointIndex Model::getJointId (const std::string & name) const
   {
     typedef std::vector<std::string>::iterator::difference_type it_diff_t;
     it_diff_t res = std::find(names.begin(),names.end(),name) - names.begin();
     assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
     assert( (res>=0)&&(res<(it_diff_t) joints.size()) && "The joint name you asked does not exist" );
-    return Model::Index(res);
+    return Model::JointIndex(res);
   }
   
   inline bool Model::existJointName (const std::string & name) const
@@ -160,19 +160,19 @@ namespace se3
     return (names.end() != std::find(names.begin(),names.end(),name));
   }
 
-  inline const std::string& Model::getJointName (const Index index) const
+  inline const std::string& Model::getJointName (const JointIndex index) const
   {
-    assert( index < (Model::Index)joints.size() );
+    assert( index < (Model::JointIndex)joints.size() );
     return names[index];
   }
 
-  inline Model::Index Model::getFrameId ( const std::string & name ) const
+  inline Model::FrameIndex Model::getFrameId ( const std::string & name ) const
   {
     std::vector<Frame>::const_iterator it = std::find_if( operational_frames.begin()
                                                         , operational_frames.end()
                                                         , boost::bind(&Frame::name, _1) == name
                                                         );
-    return Model::Index(it - operational_frames.begin());
+    return Model::FrameIndex(it - operational_frames.begin());
   }
 
   inline bool Model::existFrame ( const std::string & name ) const
@@ -180,12 +180,12 @@ namespace se3
     return std::find_if( operational_frames.begin(), operational_frames.end(), boost::bind(&Frame::name, _1) == name) != operational_frames.end();
   }
 
-  inline const std::string & Model::getFrameName ( const Index index ) const
+  inline const std::string & Model::getFrameName ( const FrameIndex index ) const
   {
     return operational_frames[index].name;
   }
 
-  inline const Model::Index& Model::getFrameParent( const std::string & name ) const
+  inline const Model::JointIndex& Model::getFrameParent( const std::string & name ) const
   {
     assert(existFrame(name) && "The Frame you requested does not exist");
     std::vector<Frame>::const_iterator it = std::find_if( operational_frames.begin()
@@ -194,10 +194,10 @@ namespace se3
                                                         );
     
     std::vector<Frame>::iterator::difference_type it_diff = it - operational_frames.begin();
-    return getFrameParent(Model::Index(it_diff));
+    return getFrameParent(Model::JointIndex(it_diff));
   }
 
-  inline const Model::Index& Model::getFrameParent( const Index index ) const
+  inline const Model::JointIndex& Model::getFrameParent( const FrameIndex index ) const
   {
     return operational_frames[index].parent_id;
   }
@@ -214,7 +214,7 @@ namespace se3
     return getFramePlacement(Model::Index(it_diff));
   }
 
-  inline const SE3 & Model::getFramePlacement( const Index index ) const
+  inline const SE3 & Model::getFramePlacement( const FrameIndex index ) const
   {
     return operational_frames[index].framePlacement;
   }
@@ -233,7 +233,7 @@ namespace se3
     }
   }
 
-  inline bool Model::addFrame ( const std::string & name, Index index, const SE3 & placement)
+  inline bool Model::addFrame ( const std::string & name, JointIndex index, const SE3 & placement)
   {
     if( !existFrame(name) )
       return addFrame(Frame(name, index, placement));
@@ -277,7 +277,7 @@ namespace se3
     ,upperPositionLimit(ref.nq)
   {
     /* Create data strcture associated to the joints */
-    for(Model::Index i=0;i<(Model::Index)(model.nbody);++i) 
+    for(Model::Index i=0;i<(Model::JointIndex)(model.nbody);++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
 
     /* Init for CRBA */

@@ -36,7 +36,7 @@ namespace se3
     if (updateKinematics)
       forwardKinematics(model, data, q);
 
-    for(Model::Index i=1;i<(Model::Index)(model.nbody);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.nbody);++i)
     {
       const double mass = model.inertias[i].mass();
       const SE3::Vector3 & lever = model.inertias[i].lever();
@@ -46,9 +46,9 @@ namespace se3
     }
     
     // Backward Step
-    for(Model::Index i=(Model::Index)(model.nbody-1); i>0; --i)
+    for(Model::JointIndex i=(Model::JointIndex)(model.nbody-1); i>0; --i)
     {
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & parent = model.parents[i];
       
       const SE3 & liMi = data.liMi[i];
       
@@ -86,7 +86,7 @@ namespace se3
     if (updateKinematics)
       forwardKinematics(model, data, q, v, a);
     
-    for(Model::Index i=1;i<(Model::Index)(model.nbody);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.nbody);++i)
     {
       const double mass = model.inertias[i].mass();
       const SE3::Vector3 & lever = model.inertias[i].lever();
@@ -102,9 +102,9 @@ namespace se3
     }
     
     // Backward Step
-    for(Model::Index i=(Model::Index)(model.nbody-1); i>0; --i)
+    for(Model::JointIndex i=(Model::JointIndex)(model.nbody-1); i>0; --i)
     {
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & parent = model.parents[i];
       
       const SE3 & liMi = data.liMi[i];
       
@@ -156,8 +156,8 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i      = (Model::Index) jmodel.id();
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & i      = (Model::JointIndex) jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
 
       jmodel.calc(jdata.derived(),q);
 
@@ -191,8 +191,8 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
 
-      const Model::Index & i      = (Model::Index) jmodel.id();
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & i      = (Model::JointIndex) jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
 
       data.com[parent]  += data.com[i];
       data.mass[parent] += data.mass[i];
@@ -223,13 +223,13 @@ namespace se3
   {
     data.com[0].setZero ();
     data.mass[0] = 0;
-    for( Model::Index i=1;i<(Model::Index)model.nbody;++i )
+    for( Model::JointIndex i=1;i<(Model::JointIndex)model.nbody;++i )
       {
       JacobianCenterOfMassForwardStep
       ::run(model.joints[i],data.joints[i],
             JacobianCenterOfMassForwardStep::ArgsType(model,data,q));
       }
-    for( Model::Index i= (Model::Index) (model.nbody-1);i>0;--i )
+    for( Model::JointIndex i= (Model::JointIndex) (model.nbody-1);i>0;--i )
       {
       JacobianCenterOfMassBackwardStep
       ::run(model.joints[i],data.joints[i],

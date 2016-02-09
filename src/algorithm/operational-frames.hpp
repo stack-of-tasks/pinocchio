@@ -69,7 +69,7 @@ namespace se3
   template<bool localFrame>
   inline void getFrameJacobian(const Model & model,
                                     const Data& data,
-                                    Model::Index frame_id,
+                                    Model::FrameIndex frame_id,
                                     Data::Matrix6x & J
                                     );
  
@@ -86,9 +86,9 @@ inline void  framesForwardKinematic(const Model & model,
 {
   using namespace se3;
 
-  for (Model::Index i=0; i < (Model::Index) model.nOperationalFrames; ++i)
+  for (Model::FrameIndex i=0; i < (Model::FrameIndex) model.nOperationalFrames; ++i)
   {
-    const Model::Index & parent = model.operational_frames[i].parent_id;
+    const Model::JointIndex & parent = model.operational_frames[i].parent_id;
     data.oMof[i] = (data.oMi[parent] * model.operational_frames[i].framePlacement);
   }
 }
@@ -109,12 +109,12 @@ inline void  framesForwardKinematic(const Model & model,
 
 template<bool localFrame>
 inline void getFrameJacobian(const Model & model, const Data& data,
-     Model::Index frame_id, Data::Matrix6x & J)
+     Model::FrameIndex frame_id, Data::Matrix6x & J)
 {
   assert( J.rows() == data.J.rows() );
   assert( J.cols() == data.J.cols() );
 
-  const Model::Index & parent = model.operational_frames[frame_id].parent_id;
+  const Model::JointIndex & parent = model.operational_frames[frame_id].parent_id;
   const SE3 & oMframe = data.oMof[frame_id];
   
   int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
