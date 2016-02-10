@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_joints_meshes_positions )
         ++it_pin)
   {
     it_hpp = geom_hpp.find(it_pin->first);
-    if (it_hpp != joints_hpp.end())
+    if (it_hpp != geom_hpp.end())
     {
       assert(it_pin->second.isApprox(it_hpp->second) && "geometry objects positions are not equal");
     }
