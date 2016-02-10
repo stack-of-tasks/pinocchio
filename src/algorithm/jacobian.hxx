@@ -77,7 +77,7 @@ namespace se3
   void getJacobian(const Model & model,
                    const Data & data,
                    Model::Index jointId,
-                   Eigen::MatrixXd & J)
+                   Data::Matrix6x & J)
   {
     assert( J.rows() == data.J.rows() );
     assert( J.cols() == data.J.cols() );

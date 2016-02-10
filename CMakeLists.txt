@@ -83,6 +83,7 @@ SET(${PROJECT_NAME}_MATH_HEADERS
 
 SET(${PROJECT_NAME}_TOOLS_HEADERS
   tools/timer.hpp
+  tools/string-generator.hpp
   )
 
 SET(${PROJECT_NAME}_SPATIAL_HEADERS
@@ -95,6 +96,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/skew.hpp
   spatial/act-on-set.hpp
   spatial/explog.hpp
+  spatial/frame.hpp
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
@@ -139,6 +141,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/non-linear-effects.hpp
   algorithm/joint-limits.hpp
   algorithm/energy.hpp
+  algorithm/operational-frames.hpp
   )
 
 SET(${PROJECT_NAME}_SIMULATION_HEADERS
@@ -156,6 +159,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/joint-dense.hpp
   python/joints-models.hpp
   python/joints-variant.hpp
+  python/frame.hpp
   python/model.hpp
   python/data.hpp
   python/algorithms.hpp

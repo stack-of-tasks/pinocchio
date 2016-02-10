@@ -345,6 +345,9 @@ namespace se3
           
           //add the fixed Body in the model for the viewer
           model.addFixedBody(parent_joint_id, nextPlacementOffset, link->name, has_visual);
+
+          // Add a frame in the model to keep trace of this fixed joint
+          model.addFrame(joint->name, parent_joint_id, nextPlacementOffset);
           
           //for the children of the current link, set their parent to be
           //the the parent of the current link.

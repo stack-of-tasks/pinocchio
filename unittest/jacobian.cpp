@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   computeJacobians(model,data,q);
 
   Model::Index idx = model.existBodyName("rarm2")?model.getBodyId("rarm2"):(Model::Index)(model.nbody-1); 
-  MatrixXd Jrh(6,model.nv); Jrh.fill(0);
+  Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
   getJacobian<false>(model,data,idx,Jrh);
 
    /* Test J*q == v */
@@ -56,9 +56,9 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 
 
   /* Test local jacobian: rhJrh == rhXo oJrh */ 
-  MatrixXd rhJrh(6,model.nv); rhJrh.fill(0);
+  Data::Matrix6x rhJrh(6,model.nv); rhJrh.fill(0);
   getJacobian<true>(model,data,idx,rhJrh);
-  MatrixXd XJrh(6,model.nv); 
+  Data::Matrix6x XJrh(6,model.nv); 
   motionSet::se3Action( data.oMi[idx].inverse(), Jrh,XJrh );
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
 
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   {
     computeJacobians(model,data,q);
     Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):(Model::Index)(model.nbody-1); 
-    Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
+    Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
 
     timer.tic();
     SMOOTH(NBT)
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   {
     computeJacobians(model,data,q);
     Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):(Model::Index)(model.nbody-1); 
-    Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
+    Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
 
     timer.tic();
     SMOOTH(NBT)
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   {
     computeJacobians(model,data,q);
     Model::Index idx = model.existBodyName("rarm6")?model.getBodyId("rarm6"):(Model::Index)(model.nbody-1); 
-    Eigen::MatrixXd Jrh(6,model.nv); Jrh.fill(0);
+    Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
 
     timer.tic();
     SMOOTH(NBT)

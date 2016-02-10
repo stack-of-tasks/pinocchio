@@ -29,6 +29,7 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
+#include "pinocchio/algorithm/operational-frames.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/joint-limits.hpp"
 #include "pinocchio/algorithm/energy.hpp"
@@ -91,14 +92,14 @@ namespace se3
            const VectorXd_fx & q )
       { return jacobianCenterOfMass(*model,*data,q); }
 
-      static Eigen::MatrixXd jacobian_proxy( const ModelHandler& model, 
+      static Data::Matrix6x jacobian_proxy( const ModelHandler& model, 
                DataHandler & data,
                const VectorXd_fx & q,
                Model::Index jointId,
                bool local,
 							 bool update_geometry )
       {
-  Eigen::MatrixXd J( 6,model->nv ); J.setZero();
+  Data::Matrix6x J( 6,model->nv ); J.setZero();
 	if (update_geometry)
   	computeJacobians( *model,*data,q );
   if(local) getJacobian<true> (*model, *data, jointId, J);
@@ -106,6 +107,25 @@ namespace se3
   return J;
       }
       
+      static Data::Matrix6x frame_jacobian_proxy(const ModelHandler& model, 
+                                                        DataHandler & data,
+                                                        const VectorXd_fx & q,
+                                                        Model::Index frame_id,
+                                                        bool local,
+                                                        bool update_geometry
+                                                        )
+      {
+        Data::Matrix6x J( 6,model->nv ); J.setZero();
+
+        if (update_geometry)
+          computeJacobians( *model,*data,q );
+
+        if(local) getFrameJacobian<true> (*model, *data, frame_id, J);
+        else getFrameJacobian<false> (*model, *data, frame_id, J);
+        
+        return J;
+      }
+
       static void compute_jacobians_proxy(const ModelHandler& model, 
                DataHandler & data,
                const VectorXd_fx & q)
@@ -126,6 +146,15 @@ namespace se3
                            const VectorXd_fx & qdot )
       {
         forwardKinematics(*model,*data,q,qdot);
+      }
+
+
+      static void frames_fk_0_proxy(const ModelHandler& model, 
+                                   DataHandler & data,
+                                   const VectorXd_fx & q
+                                   )
+      {
+        framesForwardKinematic( *model,*data,q );
       }
 
       static void fk_2_proxy(const ModelHandler& model,
@@ -263,6 +292,13 @@ namespace se3
     "Compute the placements and spatial velocities of all the frames of the kinematic "
     "tree and put the results in data.");
 
+
+  bp::def("framesKinematics",frames_fk_0_proxy,
+    bp::args("Model","Data",
+       "Configuration q (size Model::nq)"),
+    "Compute the placements and spatial velocities of all the operational frames "
+    "and put the results in data.");
+
   bp::def("geometry",fk_0_proxy,
     bp::args("Model","Data",
         "Configuration q (size Model::nq)"),
@@ -294,6 +330,18 @@ namespace se3
     "function computes indeed all the jacobians of the model, even if just outputing "
     "the demanded one if update_geometry is set to false. It is therefore outrageously costly wrt a dedicated "
     "call. Function to be used only for prototyping.");
+
+  bp::def("Framejacobian",frame_jacobian_proxy,
+    bp::args("Model","Data",
+       "Configuration q (size Model::nq)",
+       "Operational frame ID (int)",
+       "frame (true = local, false = world)",
+       "update_geometry (true = recompute the kinematics)"),
+    "Call computeJacobians if update_geometry is true. If not, user should call computeJacobians first."
+    "Then call getJacobian and return the resulted jacobian matrix. Attention: if update_geometry is true, the "
+    "function computes all the jacobians of the model, even if just outputing "
+    "the demanded one. It is therefore outrageously costly wrt a dedicated "
+    "call. Use only with update_geometry for prototyping.");
 
   bp::def("computeJacobians",compute_jacobians_proxy,
     bp::args("Model","Data",

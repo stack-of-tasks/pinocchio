@@ -27,6 +27,8 @@
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 #include <iostream>
 
+#include <boost/bind.hpp>
+
 namespace se3
 {
   inline std::ostream& operator<< (std::ostream & os, const Model & model)
@@ -41,18 +43,7 @@ namespace se3
     return os;
   }
 
-  inline std::string random (const int len)
-  {
-    std::string res;
-    static const char alphanum[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
-
-    for (int i=0; i<len;++i)
-      res += alphanum[((size_t)std::rand() % (sizeof(alphanum) - 1))];
-    return res;
-  }
+  
 
   template<typename D>
   Model::Index Model::addBody (Index parent, const JointModelBase<D> & j, const SE3 & placement,
@@ -173,6 +164,82 @@ namespace se3
     return names[index];
   }
 
+  inline Model::Index Model::getFrameId ( const std::string & name ) const
+  {
+    std::vector<Frame>::const_iterator it = std::find_if( operational_frames.begin()
+                                                        , operational_frames.end()
+                                                        , boost::bind(&Frame::name, _1) == name
+                                                        );
+    return Model::Index(it - operational_frames.begin());
+  }
+
+  inline bool Model::existFrame ( const std::string & name ) const
+  {
+    return std::find_if( operational_frames.begin(), operational_frames.end(), boost::bind(&Frame::name, _1) == name) != operational_frames.end();
+  }
+
+  inline const std::string & Model::getFrameName ( Index index ) const
+  {
+    return operational_frames[index].name;
+  }
+
+  inline const Model::Index& Model::getFrameParent( const std::string & name ) const
+  {
+    assert(existFrame(name) && "The Frame you requested does not exist");
+    std::vector<Frame>::const_iterator it = std::find_if( operational_frames.begin()
+                                                        , operational_frames.end()
+                                                        , boost::bind(&Frame::name, _1) == name
+                                                        );
+    
+    std::vector<Frame>::iterator::difference_type it_diff = it - operational_frames.begin();
+    return getFrameParent(Model::Index(it_diff));
+  }
+
+  inline const Model::Index& Model::getFrameParent( Model::Index index ) const
+  {
+    return operational_frames[index].parent_id;
+  }
+
+  inline const SE3 & Model::getJointToFrameTransform( const std::string & name) const
+  {
+    assert(existFrame(name) && "The Frame you requested does not exist");
+    std::vector<Frame>::const_iterator it = std::find_if( operational_frames.begin()
+                                                        , operational_frames.end()
+                                                        , boost::bind(&Frame::name, _1) == name
+                                                        );
+    
+    std::vector<Frame>::iterator::difference_type it_diff = it - operational_frames.begin();
+    return getJointToFrameTransform(Model::Index(it_diff));
+  }
+
+  inline const SE3 & Model::getJointToFrameTransform( Model::Index index ) const
+  {
+    return operational_frames[index].frame_placement;
+  }
+
+  inline bool Model::addFrame ( const Frame & frame )
+  {
+    if( !existFrame(frame.name) )
+    {
+      operational_frames.push_back(frame);
+      nOperationalFrames++;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  inline bool Model::addFrame ( const std::string & name, Index index, const SE3 & placement)
+  {
+    if( !existFrame(name) )
+      return addFrame(Frame(name, index, placement));
+    else
+      return false;
+  }
+
+
   inline Data::Data (const Model & ref)
     :model(ref)
     ,joints(0)
@@ -184,6 +251,7 @@ namespace se3
     ,liMi((std::size_t)ref.nbody)
     ,tau(ref.nv)
     ,nle(ref.nv)
+    ,oMof((std::size_t)ref.nOperationalFrames)
     ,Ycrb((std::size_t)ref.nbody)
     ,M(ref.nv,ref.nv)
     ,Fcrb((std::size_t)ref.nbody)

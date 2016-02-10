@@ -51,7 +51,6 @@ namespace se3
         }
       };
       
-      typedef std::pair<ModelHandler, GeometryModelHandler> ModelGeometryHandlerPair_t;
       
 #ifdef WITH_URDFDOM
       struct build_model_visitor : public boost::static_visitor<ModelHandler>
@@ -85,6 +84,7 @@ namespace se3
 
 
 #ifdef WITH_HPP_FCL
+      typedef std::pair<ModelHandler, GeometryModelHandler> ModelGeometryHandlerPair_t;
       struct build_model_and_geom_visitor : public boost::static_visitor<std::pair<ModelHandler, GeometryModelHandler> >
       {
         const std::string& _filenameUrdf;
