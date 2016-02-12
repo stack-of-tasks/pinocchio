@@ -55,12 +55,12 @@ namespace se3
     return res;
   }
 
-  fcl::Transform3f toFclTransform3f(const se3::SE3 & m)
+  inline fcl::Transform3f toFclTransform3f(const se3::SE3 & m)
   {
     return fcl::Transform3f(toFclMatrix3f(m.rotation()), toFclVec3f(m.translation()));
   }
 
-  se3::SE3 toPinocchioSE3(const fcl::Transform3f & tf)
+  inline se3::SE3 toPinocchioSE3(const fcl::Transform3f & tf)
   {
     return se3::SE3(toMatrix3d(tf.getRotation()), toVector3d(tf.getTranslation()));
   }
