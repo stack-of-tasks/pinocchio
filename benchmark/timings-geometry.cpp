@@ -182,7 +182,7 @@ hpp::model::HumanoidRobotPtr_t humanoidRobot =
   timer.tic();
   SMOOTH(NBT)
   {
-    updateCollisionGeometry(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo_pino[_smooth], true);
+    updateGeometryPlacements(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo_pino[_smooth]);
   }
   double compute_forward_kinematics_time = timer.toc(StackTicToc::US)/NBT;
   std::cout << "Update Collision Geometry < true > (K) = \t" << compute_forward_kinematics_time << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;

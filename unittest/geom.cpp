@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
 
   /// **********  Pinocchio  ********** /// 
-  /// ********************************* ///
+  /// ********************************* /// 
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
@@ -399,10 +399,10 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
         std::cout << "comparison between " << body1 << " and " << body2 << std::endl;
 
-        fcl::DistanceResult dist_pin = data_geom.computeDistance( robot.second.getGeomId(body1),
+        se3::DistanceResult dist_pin = data_geom.computeDistance( robot.second.getGeomId(body1),
                                                                   robot.second.getGeomId(body2));
 
-        Distance_t distance_pin ( dist_pin);
+        Distance_t distance_pin(dist_pin.fcl_distance_result);
         distance_hpp.checkClose(distance_pin);
       }
     }
@@ -415,7 +415,7 @@ BOOST_AUTO_TEST_SUITE_END ()
 JointPositionsMap_t fillPinocchioJointPositions(const se3::Data & data)
 {
   JointPositionsMap_t result;
-  for (int i = 0; i < data.model.nbody; ++i)
+  for (se3::Model::Index i = 0; i < (se3::Model::Index)data.model.nbody; ++i)
   {
     result[data.model.getJointName(i)] = data.oMi[i];
   }
