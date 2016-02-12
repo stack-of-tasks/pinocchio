@@ -34,8 +34,11 @@ To load an urdf file in C++ code, copy the following lines:
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/multibody/parser/urdf.hpp>
 #include <pinocchio/multibody/parser/utils.hpp>
+#include <pinocchio/multibody/joint.hpp>
 bool verbose = false;
-se3::Model model = se3::urdf::buildModel (filename, verbose);
+se3::JointModelFreeflyer rootJoint;
+se3::Model model = se3::urdf::buildModel (filename, rootJoint, verbose);
+se3::Data data (model);
 \endcode
 
 \subsection pinocchio_page_loading_lua Format lua
@@ -45,8 +48,11 @@ To load an lua file in C++ code, copy the following lines:
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/multibody/parser/lua.hpp>
 #include <pinocchio/multibody/parser/utils.hpp>
-bool verbose = false;
-se3::Model model = se3::lua::buildModel (filename, false, verbose);
+#include <pinocchio/multibody/joint.hpp>
+
+bool freeflyer = true;
+se3::Model model = se3::lua::buildModel (filename, freeflyer);
+se3::Data data (model);
 \endcode
 
  */
