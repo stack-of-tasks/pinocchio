@@ -67,6 +67,7 @@ namespace se3
       typedef GeometryData::GeomIndex GeomIndex;
       typedef GeometryData::CollisionPair_t CollisionPair_t;
       typedef se3::DistanceResult DistanceResult;
+      typedef se3::CollisionResult CollisionResult;
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       
       /* --- Convert From C++ to Python ------------------------------------- */
@@ -164,7 +165,7 @@ namespace se3
       static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
       static std::vector<CollisionPair_t> & collision_pairs( GeometryDataHandler & m ) { return m->collision_pairs; }
       static std::vector<DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distance_results; }
-      static std::vector<bool> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }
+      static std::vector<CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }
 
       static void addCollisionPair (GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
@@ -193,7 +194,7 @@ namespace se3
         return m->findCollisionPair(co1, co2);
       }
 
-      static bool computeCollision(const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
+      static CollisionResult computeCollision(const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
         return m->computeCollision(co1, co2);
       }
@@ -216,6 +217,9 @@ namespace se3
         bp::class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
         .def(bp::vector_indexing_suite< std::vector<DistanceResult> >());
   
+        bp::class_< std::vector<CollisionResult> >("StdVec_CollisionResult")
+        .def(bp::vector_indexing_suite< std::vector<CollisionResult> >());
+
         bp::class_<GeometryDataHandler>("GeometryData",
                                  "Geometry data linked to a geometry model",
                                  bp::no_init)

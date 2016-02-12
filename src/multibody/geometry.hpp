@@ -111,6 +111,31 @@ namespace se3
     
   }; // struct DistanceResult 
   
+  struct CollisionResult
+  {
+    typedef Model::Index Index;
+    typedef Model::GeomIndex GeomIndex;
+
+    CollisionResult(fcl::CollisionResult coll_fcl, const GeomIndex co1, const GeomIndex co2)
+    : fcl_collision_result(coll_fcl), object1(co1), object2(co2)
+    {}
+
+    bool operator == (const CollisionResult & other) const
+    {
+      return (fcl_collision_result == other.fcl_collision_result
+              && object1 == other.object1
+              && object2 == other.object2);
+    }
+    fcl::CollisionResult fcl_collision_result;
+
+    // Index of the first collision object
+    GeomIndex object1;
+    //Index of the second collision object
+    GeomIndex object2;
+
+  }; // struct CollisionResult
+  
+
   struct GeometryModel
   {
     typedef Model::Index Index;
@@ -200,7 +225,7 @@ namespace se3
     ///
     /// \brief Vector gathering the result of the collision computation for all the collision pairs.
     ///
-    std::vector <bool> collision_results;
+    std::vector <CollisionResult> collision_results;
 
     GeometryData(const Data & data, const GeometryModel & model_geom)
         : data_ref(data)
@@ -215,7 +240,7 @@ namespace se3
       const std::size_t num_max_collision_pairs = (model_geom.ngeom * (model_geom.ngeom-1))/2;
       collision_pairs.reserve(num_max_collision_pairs);
       distance_results.resize(num_max_collision_pairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
-      collision_results.resize(num_max_collision_pairs, false);
+      collision_results.resize(num_max_collision_pairs, CollisionResult( fcl::CollisionResult(), 0, 0));
     }
 
     ~GeometryData() {};
@@ -312,7 +337,7 @@ namespace se3
     ///
     /// \return Return true is the collision objects are colliding.
     ///
-    bool computeCollision(const GeomIndex co1, const GeomIndex co2) const;
+    CollisionResult computeCollision(const GeomIndex co1, const GeomIndex co2) const;
     
     ///
     /// \brief Compute the collision status between two collision objects of a given collision pair.
@@ -321,7 +346,7 @@ namespace se3
     ///
     /// \return Return true is the collision objects are colliding.
     ///
-    bool computeCollision(const CollisionPair_t & pair) const;
+    CollisionResult computeCollision(const CollisionPair_t & pair) const;
     
     ///
     /// \brief Compute the collision result of all the collision pairs according to

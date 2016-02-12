@@ -211,12 +211,12 @@ namespace se3
     assert(nCollisionPairs == collision_pairs.size());
   }
 
-  inline bool GeometryData::computeCollision(const GeomIndex co1, const GeomIndex co2) const
+  inline CollisionResult GeometryData::computeCollision(const GeomIndex co1, const GeomIndex co2) const
   {
     return computeCollision(CollisionPair_t(co1,co2));
   }
   
-  inline bool GeometryData::computeCollision(const CollisionPair_t & pair) const
+  inline CollisionResult GeometryData::computeCollision(const CollisionPair_t & pair) const
   {
     const Index & co1 = pair.first;
     const Index & co2 = pair.second;
@@ -224,13 +224,11 @@ namespace se3
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;
 
-    if (fcl::collide (model_geom.collision_objects[co1].collisionGeometry().get(), oMg_fcl[co1],
-                      model_geom.collision_objects[co2].collisionGeometry().get(), oMg_fcl[co2],
-                      collisionRequest, collisionResult) != 0)
-    {
-      return true;
-    }
-    return false;
+    fcl::collide (model_geom.collision_objects[co1].collisionGeometry().get(), oMg_fcl[co1],
+                  model_geom.collision_objects[co2].collisionGeometry().get(), oMg_fcl[co2],
+                  collisionRequest, collisionResult);
+
+    return CollisionResult (collisionResult, co1, co2);
   }
   
   inline void GeometryData::computeAllCollisions()
@@ -246,7 +244,7 @@ namespace se3
   {
     for(CollisionPairsVector_t::const_iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
     {
-      if (computeCollision(it->first, it->second))
+      if (computeCollision(it->first, it->second).fcl_collision_result.isCollision())
         return true;
     }
     return false;

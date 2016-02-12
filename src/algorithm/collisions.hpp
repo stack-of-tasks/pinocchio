@@ -119,8 +119,8 @@ namespace se3
     for (std::size_t cpt = 0; cpt < data_geom.collision_pairs.size(); ++cpt)
     {
       data_geom.collision_results[cpt] = data_geom.computeCollision(data_geom.collision_pairs[cpt].first, data_geom.collision_pairs[cpt].second);
-      isColliding |= data_geom.collision_results[cpt];
-      if(data_geom.collision_results[cpt] && stopAtFirstCollision)
+      isColliding |= data_geom.collision_results[cpt].fcl_collision_result.isCollision();
+      if(isColliding && stopAtFirstCollision)
         return true;
     }
     
