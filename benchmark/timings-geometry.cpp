@@ -98,7 +98,7 @@ int main()
   timer.tic();
   SMOOTH(NBT)
   {
-    updateCollisionGeometry(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo[_smooth], true);
+    updateGeometryPlacements(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo[_smooth]);
   }
   double update_col_time = timer.toc(StackTicToc::US)/NBT - geom_time;
   std::cout << "Update Collision Geometry < false > = \t" << update_col_time << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;
@@ -106,10 +106,10 @@ int main()
   timer.tic();
   SMOOTH(NBT)
   {
-    updateCollisionGeometry(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo[_smooth], true);
+    updateGeometryPlacements(romeo_model,romeo_data,romeo_model_geom,romeo_data_geom,qs_romeo[_smooth]);
     for (std::vector<se3::GeometryData::CollisionPair_t>::iterator it = romeo_data_geom.collision_pairs.begin(); it != romeo_data_geom.collision_pairs.end(); ++it)
     {
-      romeo_data_geom.collide(it->first, it->second);
+      romeo_data_geom.computeCollision(it->first, it->second);
     }
   }
   double collideTime = timer.toc(StackTicToc::US)/NBT - (update_col_time + geom_time);
