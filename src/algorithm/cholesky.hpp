@@ -18,10 +18,7 @@
 #ifndef __se3_cholesky_hpp__
 #define __se3_cholesky_hpp__
 
-#include "pinocchio/assert.hpp"
-#include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
-#include <iostream>
   
 namespace se3
 {
