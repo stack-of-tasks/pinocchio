@@ -137,21 +137,46 @@ namespace se3
     typedef SE3::Vector3 Vector3;
     
   public:
-    const Model& model;
+    /// \brief A const reference to the reference model.
+    const Model & model;
+    
+    /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model.
     JointDataVector joints;
-    std::vector<Motion> a;                // Body acceleration
-    std::vector<Motion> a_gf;             // Body acceleration with gravity
-    std::vector<Motion> v;                // Body velocity
-    std::vector<Force> f;                 // Body force
-    std::vector<SE3> oMi;                 // Body absolute placement (wrt world)
-    std::vector<SE3> liMi;                // Body relative placement (wrt parent)
-    Eigen::VectorXd tau;                  // Joint forces
-    Eigen::VectorXd nle;                  // Non linear effects
+    
+    /// \brief Vector of joint accelerations.
+    std::vector<Motion> a;
+    
+    /// \brief Vector of joint accelerations due to the gravity field.
+    std::vector<Motion> a_gf;
+    
+    /// \brief Vector of joint velocities.
+    std::vector<Motion> v;
+    
+    /// \brief Vector of body forces. For each body, the force represents the sum of
+    ///        all external forces acting on the body.
+    std::vector<Force> f;
+    
+    /// \brief Vector of absolute joint placements (wrt the world).
+    std::vector<SE3> oMi;
+    /// \brief Vector of relative joint placements (wrt the body parent).
+    std::vector<SE3> liMi;
+    
+    /// \brief Vector of joint torques (dim model.nv).
+    Eigen::VectorXd tau;
+    
+    /// \brief Vector of Non Linear Effects (dim model.nv). It corresponds to the Coriolis, centrifugal and gravitational effects.
+    /// \note  In the equation \f$ M\ddot{q} + b = \tau \f$,
+    ///        the non linear effects are associated to the \f$b\f$ term.
+    Eigen::VectorXd nle;
 
-    std::vector<SE3> oMof;                // Absolute position of extra frames
+    /// \brief Vector of absolute operationnel frame placements (wrt the world).
+    std::vector<SE3> oMof;
 
-    std::vector<Inertia> Ycrb;            // Inertia of the sub-tree composit rigid body
-    Eigen::MatrixXd M;                    // Joint Inertia
+    /// \brief Vector of sub-tree composite rigid body inertias, i.e. the apparent inertia of the subtree supported by the joint.
+    std::vector<Inertia> Ycrb;
+    
+    /// \brief The joint space inertia matrix (a square matrix of dim model.nv).
+    Eigen::MatrixXd M;
 
     std::vector<Matrix6x> Fcrb;           // Spatial forces set, used in CRBA
 
@@ -164,14 +189,28 @@ namespace se3
     std::vector<int> parents_fromRow;     // First previous non-zero row in M (used in Cholesky)
     std::vector<int> nvSubtree_fromRow;   // 
     
-    Matrix6x J;                    // Jacobian of joint placement
-    std::vector<SE3> iMf;                 // Body placement wrt to algorithm end effector.
+    /// \brief Jacobian of joint placements.
+    /// \note The columns of J corresponds to the basis of the spatial velocities of each joint and expressed at the origin of the inertial frame. In other words, if \f$ v_{J_{i}} = S_{i} \dot{q}_{i}\f$ is the relative velocity of the joint i regarding to its parent, then \f$J = \begin{bmatrix} ^{0}X_{1} S_{1} & \cdots & ^{0}X_{i} S_{i} & \cdots & ^{0}X_{\text{nj}} S_{\text{nj}} \end{bmatrix} \f$. This Jacobian has no special meaning. To get the jacobian of a precise joint, you need to call se3::getJacobian
+    Matrix6x J;
+    
+    /// \brief Vector of joint placements wrt to algorithm end effector.
+    std::vector<SE3> iMf;
 
-    std::vector<Eigen::Vector3d> com;     // Subtree com position.
-    std::vector<Eigen::Vector3d> vcom;    // Subtree com velocity.
-    std::vector<Eigen::Vector3d> acom;    // Subtree com acceleration.
-    std::vector<double> mass;             // Subtree total mass.
-    Matrix3x Jcom; // Jacobian of center of mass.
+    /// \brief Vector of subtree center of mass positions expressed in the root joint of the subtree. In other words, com[j] is the CoM position of the subtree supported by joint \f$ j \f$ and expressed in the joint frame \f$ j \f$. The element com[0] corresponds to the center of mass position of the whole model and expressed in the global frame.
+    std::vector<Eigen::Vector3d> com;
+    
+    /// \brief Vector of subtree center of mass linear velocities expressed in the root joint of the subtree. In other words, vcom[j] is the CoM linear velocity of the subtree supported by joint \f$ j \f$ and expressed in the joint frame \f$ j \f$. The element vcom[0] corresponds to the velocity of the CoM of the whole model expressed in the global frame.
+    std::vector<Eigen::Vector3d> vcom;
+    
+    /// \brief Vector of subtree center of mass linear accelerations expressed in the root joint of the subtree. In other words, acom[j] is the CoM linear acceleration of the subtree supported by joint \f$ j \f$ and expressed in the joint frame \f$ j \f$. The element acom[0] corresponds to the acceleration of the CoM of the whole model expressed in the global frame.
+    std::vector<Eigen::Vector3d> acom;
+    
+    /// \brief Vector of subtree mass. In other words, mass[j] is the mass of the subtree supported by joint \f$ j \f$. The element mass[0] corrresponds to the total mass of the model.
+    std::vector<double> mass;
+    
+    /// \brief Jacobien of center of mass.
+    /// \note This Jacobian maps the joint velocity vector to the velocity of the center of mass, expressed in the inertia frame. In other words, \f$ v_{\text{CoM}} = J_{\text{CoM}} \dot{q}\f$.
+    Matrix3x Jcom;
 
     Eigen::VectorXd effortLimit;          // Joint max effort
     Eigen::VectorXd velocityLimit;        // Joint max velocity
@@ -182,7 +221,10 @@ namespace se3
     double kinetic_energy; // kinetic energy of the model
     double potential_energy; // potential energy of the model
 
-    Data( const Model& ref );
+    /// \brief Default constructor of se3::Data from a se3::Model.
+    ///
+    /// \param[in] model The model structure of the rigid body system.
+    Data (const Model & model);
 
   private:
     void computeLastChild(const Model& model);
