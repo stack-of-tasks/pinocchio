@@ -24,16 +24,16 @@
 namespace se3
 {
   ///
-  /// \brief Computes the full model jacobian, i.e. the stack of all motion subspace expressed in the world frame.
+  /// \brief Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.
   ///        The result is accessible throw data.J.
   ///
-  /// \note This jacobian does not correspond to a specific joint frame jacobian. From this jacobian, it is then possible to easily extract the jacobian of a specific joint frame.
+  /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Hacobian, it is then possible to easily extract the Jacobian of a specific joint frame.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   ///
-  /// \return The full model jacobian (matrix 6 x model.nv).
+  /// \return The full model Jacobian (matrix 6 x model.nv).
   ///
   inline const Data::Matrix6x &
   computeJacobians(const Model & model,
@@ -41,35 +41,36 @@ namespace se3
                    const Eigen::VectorXd & q);
   
   ///
-  /// \brief Computes the jacobian of a specific joint frame expressed either in the world frame or in the local frame of the joint. This jacobian is extracted from data.J. Please first run once se3::computeJacobians before.
+  /// \brief Computes the Jacobian of a specific joint frame expressed either in the world frame or in the local frame of the joint.
+  /// \note This jacobian is extracted from data.J. You have to run se3::computeJacobians before calling it.
   ///
-  /// \param[in] localFrame Expressed the jacobian in the local frame or world frame coordinates system.
+  /// \param[in] localFrame Expressed the Jacobian in the local frame or world frame coordinates system.
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] jointId The id of the joint.
-  /// \param[in] J A reference on the jacobian matrix where the results will be stored in (dim 6 x model.nv).
+  /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv).
   ///
   template<bool localFrame>
   void getJacobian(const Model & model,
                    const Data & data,
-                   Model::Index jointId,
+                   const Model::Index jointId,
                    Data::Matrix6x & J);
   
   ///
-  /// \brief Computes the jacobian of a specific joint frame expressed in the local frame of the joint. The result is stored in data.J.
+  /// \brief Computes the Jacobian of a specific joint frame expressed in the local frame of the joint. The result is stored in data.J.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] jointId The id of the joint.
   ///
-  /// \return The jacobian of the specific joint frame expressed in the local frame of the joint (matrix 6 x model.nv).
+  /// \return The Jacobian of the specific joint frame expressed in the local frame of the joint (matrix 6 x model.nv).
   ///
   inline const Data::Matrix6x &
   jacobian(const Model & model,
            Data & data,
            const Eigen::VectorXd & q,
-           const Model::Index & jointId);
+           const Model::Index jointId);
 
 } // namespace se3 
 

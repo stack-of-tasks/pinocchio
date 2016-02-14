@@ -35,8 +35,8 @@ namespace se3
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
-                     const se3::Model& model,
-                     se3::Data& data,
+                     const se3::Model & model,
+                     se3::Data & data,
                      const Eigen::VectorXd & q)
     {
       using namespace Eigen;
@@ -76,7 +76,7 @@ namespace se3
   template<bool localFrame>
   void getJacobian(const Model & model,
                    const Data & data,
-                   Model::Index jointId,
+                   const Model::Index jointId,
                    Data::Matrix6x & J)
   {
     assert( J.rows() == data.J.rows() );
@@ -127,7 +127,7 @@ namespace se3
   inline const Data::Matrix6x &
   jacobian(const Model & model, Data & data,
            const Eigen::VectorXd & q,
-           const Model::Index & jointId)
+           const Model::Index jointId)
   {
     data.iMf[jointId].setIdentity();
     for( Model::Index i=jointId;i>0;i=model.parents[i] )
