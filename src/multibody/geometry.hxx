@@ -159,7 +159,7 @@ namespace se3
   {
     assert(pair.second < model_geom.ngeom);
 
-    CollisionPairsVector_t::const_iterator it = std::find(collision_pairs.begin(), collision_pairs.end(), pair);
+    CollisionPairsVector_t::iterator it = std::find(collision_pairs.begin(), collision_pairs.end(), pair);
     if (it != collision_pairs.end())
     {
       collision_pairs.erase(it);
