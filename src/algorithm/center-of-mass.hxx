@@ -18,6 +18,8 @@
 #ifndef __se3_center_of_mass_hxx__
 #define __se3_center_of_mass_hxx__
 
+/// @cond DEV
+
 namespace se3
 {
 
@@ -257,5 +259,7 @@ namespace se3
   }
 
 } // namespace se3
+
+/// @endcond
 
 #endif // ifndef __se3_center_of_mass_hxx__

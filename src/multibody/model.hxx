@@ -29,6 +29,8 @@
 
 #include <boost/bind.hpp>
 
+/// @cond DEV
+
 namespace se3
 {
   inline std::ostream& operator<< (std::ostream & os, const Model & model)
@@ -337,5 +339,7 @@ namespace se3
   }
 
 } // namespace se3
+
+/// @endcond
 
 #endif // ifndef __se3_model_hxx__

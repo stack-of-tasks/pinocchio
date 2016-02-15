@@ -21,6 +21,8 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 
+/// @cond DEV
+
 namespace se3
 {
   struct JacobiansForwardStep : public fusion::JointVisitor<JacobiansForwardStep>
@@ -140,5 +142,7 @@ namespace se3
   }
   
 } // namespace se3
+
+/// @endcond
 
 #endif // ifndef __se3_jacobian_hxx__

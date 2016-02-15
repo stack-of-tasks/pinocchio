@@ -36,6 +36,7 @@
 #include <list>
 #include <utility>
 
+/// @cond DEV
 
 namespace se3
 {
@@ -286,5 +287,7 @@ namespace se3
 
 
 } // namespace se3
+
+/// @endcond
 
 #endif // ifndef __se3_geometry_hxx__
