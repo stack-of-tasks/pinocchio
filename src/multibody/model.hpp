@@ -111,18 +111,19 @@ namespace se3
     void mergeFixedBody(Index parent, const SE3 & placement, const Inertia & Y);
     Index getBodyId( const std::string & name ) const;
     bool existBodyName( const std::string & name ) const;
-    const std::string& getBodyName( Index index ) const;
+    const std::string& getBodyName( const Index index ) const;
     Index getJointId( const std::string & name ) const;
     bool existJointName( const std::string & name ) const;
-    const std::string& getJointName( Index index ) const;
+    const std::string& getJointName( const Index index ) const;
 
     Index getFrameId ( const std::string & name ) const;
     bool existFrame ( const std::string & name ) const;
-    const std::string & getFrameName ( Index index ) const;
+    const std::string & getFrameName ( const Index index ) const;
     const Index& getFrameParent( const std::string & name ) const;
     const Index& getFrameParent( Index index ) const;
     const SE3 & getJointToFrameTransform( const std::string & name ) const;
     const SE3 & getJointToFrameTransform( Index index ) const;
+    const Index& getFrameParent( const Index index ) const;
 
     bool addFrame ( const Frame & frame );
     bool addFrame ( const std::string & name, Index index, const SE3 & placement );

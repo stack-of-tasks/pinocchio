@@ -140,7 +140,7 @@ namespace se3
     return (bodyNames.end() != std::find(bodyNames.begin(),bodyNames.end(),name));
   }
 
-  inline const std::string& Model::getBodyName (Model::Index index) const
+  inline const std::string& Model::getBodyName (const Index index) const
   {
     assert( index < (Model::Index)nbody );
     return bodyNames[index];
@@ -160,7 +160,7 @@ namespace se3
     return (names.end() != std::find(names.begin(),names.end(),name));
   }
 
-  inline const std::string& Model::getJointName (Model::Index index) const
+  inline const std::string& Model::getJointName (const Index index) const
   {
     assert( index < (Model::Index)joints.size() );
     return names[index];
@@ -180,7 +180,7 @@ namespace se3
     return std::find_if( operational_frames.begin(), operational_frames.end(), boost::bind(&Frame::name, _1) == name) != operational_frames.end();
   }
 
-  inline const std::string & Model::getFrameName ( Index index ) const
+  inline const std::string & Model::getFrameName ( const Index index ) const
   {
     return operational_frames[index].name;
   }
@@ -197,7 +197,7 @@ namespace se3
     return getFrameParent(Model::Index(it_diff));
   }
 
-  inline const Model::Index& Model::getFrameParent( Model::Index index ) const
+  inline const Model::Index& Model::getFrameParent( const Index index ) const
   {
     return operational_frames[index].parent_id;
   }
