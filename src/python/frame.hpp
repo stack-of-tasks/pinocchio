@@ -51,7 +51,7 @@ namespace se3
 
           .add_property("name", &FramePythonVisitor::getName, &FramePythonVisitor::setName)
           .add_property("parent_id", &FramePythonVisitor::getParentId, &FramePythonVisitor::setParentId)
-          .add_property("framePlacement", &FramePythonVisitor::getPlacementWrtParentJoint, &FramePythonVisitor::getPlacementWrtParentJoint)
+          .add_property("framePlacement", &FramePythonVisitor::getPlacementWrtParentJoint, &FramePythonVisitor::setPlacementWrtParentJoint)
           ;
       }
 
