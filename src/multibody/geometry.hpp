@@ -70,7 +70,10 @@ namespace se3
     }
   }; // struct CollisionPair
 
-  // Result of distance computation between two CollisionObjects.
+  
+  /**
+   * @brief      Result of distance computation between two CollisionObjects
+   */
   struct DistanceResult
   {
     typedef Model::Index Index;
@@ -80,7 +83,10 @@ namespace se3
     : fcl_distance_result(dist_fcl), object1(co1), object2(co2)
     {}
 
-    // Get distance between objects
+
+    ///
+    /// @brief Return the minimal distance between two geometry objects
+    ///
     double distance () const { return fcl_distance_result.min_distance; }
 
     ///
@@ -102,20 +108,33 @@ namespace se3
         && object2 == other.object2);
     }
     
+    /// \brief The FCL result of the distance computation
     fcl::DistanceResult fcl_distance_result;
     
-    /// Index of the first colision object
+    /// \brief Index of the first colision object
     GeomIndex object1;
-    /// Index of the second colision object
+
+    /// \brief Index of the second colision object
     GeomIndex object2;
     
   }; // struct DistanceResult 
   
+
+  /**
+   * @brief      Result of collision computation between two CollisionObjects
+   */
   struct CollisionResult
   {
     typedef Model::Index Index;
     typedef Model::GeomIndex GeomIndex;
 
+    /**
+     * @brief      Default constrcutor of a CollisionResult
+     *
+     * @param[in]  coll_fcl  The FCL collision result
+     * @param[in]  co1       Index of the first geometry object involved in the computation
+     * @param[in]  co2       Index of the second geometry object involved in the computation
+     */
     CollisionResult(fcl::CollisionResult coll_fcl, const GeomIndex co1, const GeomIndex co2)
     : fcl_collision_result(coll_fcl), object1(co1), object2(co2)
     {}
@@ -126,11 +145,14 @@ namespace se3
               && object1 == other.object1
               && object2 == other.object2);
     }
+
+    /// \brief The FCL result of the collision computation
     fcl::CollisionResult fcl_collision_result;
 
-    // Index of the first collision object
+    /// \brief Index of the first collision object
     GeomIndex object1;
-    //Index of the second collision object
+
+    /// \brief Index of the second collision object
     GeomIndex object2;
 
   }; // struct CollisionResult

@@ -29,7 +29,7 @@ namespace se3
 {
 
   ///
-  /// \brief What is a frame? TODO: complete this description.
+  /// \brief A Plucker coordinate frame attached to a parent joint inside a kinematic tree
   ///
   struct Frame
   {
