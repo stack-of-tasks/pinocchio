@@ -65,8 +65,8 @@ namespace se3
       static void setName(Frame & self, const std::string & name) { self.name = name; }
       static JointIndex getParentId( const Frame & self) { return self.parent_id; }
       static void setParentId(Frame & self, const JointIndex parent_id) { self.parent_id = parent_id; }
-      static SE3_fx getPlacementWrtParentJoint( const Frame & self) { return self.frame_placement; }
-      static void setPlacementWrtParentJoint(Frame & self, const SE3_fx & placement) { self.frame_placement = placement; }
+      static SE3_fx getPlacementWrtParentJoint( const Frame & self) { return self.framePlacement; }
+      static void setPlacementWrtParentJoint(Frame & self, const SE3_fx & placement) { self.framePlacement = placement; }
 
       static void expose()
       {
