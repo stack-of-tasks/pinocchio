@@ -120,10 +120,9 @@ namespace se3
     bool existFrame ( const std::string & name ) const;
     const std::string & getFrameName ( const Index index ) const;
     const Index& getFrameParent( const std::string & name ) const;
-    const Index& getFrameParent( Index index ) const;
-    const SE3 & getJointToFrameTransform( const std::string & name ) const;
-    const SE3 & getJointToFrameTransform( Index index ) const;
     const Index& getFrameParent( const Index index ) const;
+    const SE3 & getFramePlacement( const std::string & name ) const;
+    const SE3 & getFramePlacement( const Index index ) const;
 
     bool addFrame ( const Frame & frame );
     bool addFrame ( const std::string & name, Index index, const SE3 & placement );

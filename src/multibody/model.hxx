@@ -202,7 +202,7 @@ namespace se3
     return operational_frames[index].parent_id;
   }
 
-  inline const SE3 & Model::getJointToFrameTransform( const std::string & name) const
+  inline const SE3 & Model::getFramePlacement( const std::string & name) const
   {
     assert(existFrame(name) && "The Frame you requested does not exist");
     std::vector<Frame>::const_iterator it = std::find_if( operational_frames.begin()
@@ -211,10 +211,10 @@ namespace se3
                                                         );
     
     std::vector<Frame>::iterator::difference_type it_diff = it - operational_frames.begin();
-    return getJointToFrameTransform(Model::Index(it_diff));
+    return getFramePlacement(Model::Index(it_diff));
   }
 
-  inline const SE3 & Model::getJointToFrameTransform( Model::Index index ) const
+  inline const SE3 & Model::getFramePlacement( const Index index ) const
   {
     return operational_frames[index].frame_placement;
   }
