@@ -23,7 +23,8 @@ This library implements highly efficient kinematic and dynamic algorithms for mu
 
 \section pinocchio_section_installation Installation
 
-Please refer to the GitHub page of the project for installation details:
+The full installation procedure can be found at https://github.com/stack-of-tasks/pinocchio/wiki/Installation.
+For further details about the project, please visit the GitHub page:
 https://github.com/stack-of-tasks/pinocchio 
 
 \section pinocchio_section_introduction Introduction

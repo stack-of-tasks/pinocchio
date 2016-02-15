@@ -18,7 +18,7 @@
 
 /** \page pinocchio_page_crtp Curiously recurring template pattern
 
-Like Eigen, Pinocchio library makes intensive use of the so called CRTP design
+Similarly to Eigen, Pinocchio library makes intensive use of the so called CRTP design
 pattern. This pattern is used for performance reasons in the
 implementation of static polymorphism, avoiding dynamic casts and calls to virtual methods.
 All in all, CRTP plays a central role in the performance of Pinocchio.
