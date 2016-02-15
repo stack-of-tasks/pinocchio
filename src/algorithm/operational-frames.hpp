@@ -89,7 +89,7 @@ inline void  framesForwardKinematic(const Model & model,
   for (Model::Index i=0; i < (Model::Index) model.nOperationalFrames; ++i)
   {
     const Model::Index & parent = model.operational_frames[i].parent_id;
-    data.oMof[i] = (data.oMi[parent] * model.operational_frames[i].frame_placement);
+    data.oMof[i] = (data.oMi[parent] * model.operational_frames[i].framePlacement);
   }
 }
 
@@ -119,7 +119,7 @@ inline void getFrameJacobian(const Model & model, const Data& data,
   
   int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
 
-  SE3::Vector3 lever(data.oMi[parent].rotation() * (model.operational_frames[frame_id].frame_placement.translation()));
+  SE3::Vector3 lever(data.oMi[parent].rotation() * (model.operational_frames[frame_id].framePlacement.translation()));
 
   if (!localFrame) getJacobian<localFrame>(model, data, parent, J);
   for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])

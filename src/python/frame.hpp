@@ -20,6 +20,9 @@
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
+
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+
 #include "pinocchio/multibody/model.hpp"
 
 
@@ -46,12 +49,12 @@ namespace se3
       void visit(PyClass& cl) const 
       {
         cl
-          .def(bp::init<const std::string&,Index, const SE3_fx&> ((bp::arg("name"),bp::arg("parent id"), bp::arg("placement")),
+          .def(bp::init<const std::string&,const Index, const SE3_fx&> ((bp::arg("name (string)"),bp::arg("parent_id (index)"), bp::arg("SE3 placement")),
                 "Initialize from name, parent id and placement wrt parent joint."))
 
           .add_property("name", &FramePythonVisitor::getName, &FramePythonVisitor::setName)
           .add_property("parent_id", &FramePythonVisitor::getParentId, &FramePythonVisitor::setParentId)
-          .add_property("framePlacement", &FramePythonVisitor::getPlacementWrtParentJoint, &FramePythonVisitor::getPlacementWrtParentJoint)
+          .add_property("framePlacement", &FramePythonVisitor::getPlacementWrtParentJoint, &FramePythonVisitor::setPlacementWrtParentJoint)
           ;
       }
 
@@ -66,13 +69,15 @@ namespace se3
       static void expose()
       {
         bp::class_<Frame>("Frame",
-                           "ExtraFrames.\n\n",
+                           "A Plucker coordinate frame related to a parent joint inside a kinematic tree.\n\n",
 	                         bp::no_init
                          )
 	                       .def(FramePythonVisitor())
 	                       ;
     
-        bp::to_python_converter< Frame,FramePythonVisitor >();
+//        bp::to_python_converter< Frame,FramePythonVisitor >();
+        bp::class_< std::vector<Frame> >("StdVec_Frame")
+        .def(bp::vector_indexing_suite< std::vector<Frame> >());
       }
 
 

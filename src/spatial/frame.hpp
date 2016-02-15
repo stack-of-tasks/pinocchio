@@ -20,39 +20,59 @@
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/spatial/force.hpp"
-#include "pinocchio/spatial/motion.hpp"
-#include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/tools/string-generator.hpp"
+
+#include <Eigen/StdVector>
 #include <iostream>
 
 namespace se3
 {
-struct Frame
-{
-  typedef std::size_t Index;
-  
-  Frame() : name(random(8)), parent_id(), frame_placement()
+  ///
+  /// \brief What is a frame? TODO: complete this description.
+  ///
+  struct Frame
   {
+    typedef std::size_t Index;
+    
+    Frame() : name(random(8)), parent_id(), framePlacement() {} // needed by EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION
+    
+    ///
+    /// \brief Default constructor of a Frame
+    ///
+    /// \param[in] name Name of the frame.
+    /// \param[in] parent_id Index of the parent joint in the kinematic tree.
+    /// \param[in] frame_placement Placement of the frame wrt the parent joint frame.
+    ///
+    Frame(const std::string & name, const Index parent_id, const SE3 & frame_placement):
+    name(name)
+    , parent_id(parent_id)
+    , framePlacement(frame_placement)
+    {}
+    
+    ///
+    /// \brief Compare the current Frame with another frame. Return true if all properties match.
+    ///
+    /// \param[in] other The frame to which the current frame is compared.
+    ///
+    bool operator == (const Frame & other) const
+    {
+      return name == other.name && parent_id == other.parent_id
+      && framePlacement == other.framePlacement ;
+    }
+    
+    /// \brief Name of the frame.
+    std::string name;
+    
+    /// \brief Index of the parent joint.
+    Index parent_id;
+    
+    /// \brief Placement of the frame wrt the parent joint.
+    SE3 framePlacement;
+    
+  }; // struct Frame
 
-  }
+} // namespace se3
 
-  Frame(const std::string & name, Index parent, const SE3 & placement): name(name)
-                                                                      , parent_id(parent)
-                                                                      , frame_placement(placement)
-  {
-  }
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Frame)
 
-  bool operator == (const Frame & other) const
-  {
-    return name == other.name && parent_id == other.parent_id
-            && frame_placement == other.frame_placement ;
-  }
-
-  std::string name;
-  Index parent_id;
-  SE3 frame_placement;
-};
-
-}
 #endif // ifndef __se3_frame_hpp__

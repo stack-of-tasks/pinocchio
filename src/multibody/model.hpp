@@ -19,7 +19,6 @@
 #ifndef __se3_model_hpp__
 #define __se3_model_hpp__
 
-
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
@@ -36,13 +35,11 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Force)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,Eigen::Dynamic>)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3::Vector3)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Frame)
 
 namespace se3
 {
   class Model;
   class Data;
-  
 
   class Model
   {
@@ -111,18 +108,18 @@ namespace se3
     void mergeFixedBody(Index parent, const SE3 & placement, const Inertia & Y);
     Index getBodyId( const std::string & name ) const;
     bool existBodyName( const std::string & name ) const;
-    const std::string& getBodyName( Index index ) const;
+    const std::string& getBodyName( const Index index ) const;
     Index getJointId( const std::string & name ) const;
     bool existJointName( const std::string & name ) const;
-    const std::string& getJointName( Index index ) const;
+    const std::string& getJointName( const Index index ) const;
 
     Index getFrameId ( const std::string & name ) const;
     bool existFrame ( const std::string & name ) const;
-    const std::string & getFrameName ( Index index ) const;
+    const std::string & getFrameName ( const Index index ) const;
     const Index& getFrameParent( const std::string & name ) const;
-    const Index& getFrameParent( Index index ) const;
-    const SE3 & getJointToFrameTransform( const std::string & name ) const;
-    const SE3 & getJointToFrameTransform( Index index ) const;
+    const Index& getFrameParent( const Index index ) const;
+    const SE3 & getFramePlacement( const std::string & name ) const;
+    const SE3 & getFramePlacement( const Index index ) const;
 
     bool addFrame ( const Frame & frame );
     bool addFrame ( const std::string & name, Index index, const SE3 & placement );
