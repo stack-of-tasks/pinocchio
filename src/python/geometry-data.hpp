@@ -38,11 +38,12 @@ namespace se3
     : public boost::python::def_visitor<CollisionPairPythonVisitor>
     {
       typedef CollisionPair::Index Index;
+      typedef CollisionPair::GeomIndex GeomIndex;
       static void expose()
       {
         bp::class_<CollisionPair> ("CollisionPair",
                                    "Pair of ordered index defining a pair of collisions",
-                                   bp::init<const Index &, const Index &> (bp::args("co1 (index)", "co2 (index)"),
+                                   bp::init<const GeomIndex &, const GeomIndex &> (bp::args("co1 (index)", "co2 (index)"),
                                                                            "Initializer of collision pair"))
         .def("__str__",&CollisionPairPythonVisitor::toString)
         .def_readwrite("first",&CollisionPair::first)
@@ -63,8 +64,10 @@ namespace se3
       : public boost::python::def_visitor< GeometryDataPythonVisitor >
     {
       typedef GeometryData::Index Index;
+      typedef GeometryData::GeomIndex GeomIndex;
       typedef GeometryData::CollisionPair_t CollisionPair_t;
       typedef se3::DistanceResult DistanceResult;
+      typedef se3::CollisionResult CollisionResult;
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       
       /* --- Convert From C++ to Python ------------------------------------- */
@@ -162,9 +165,9 @@ namespace se3
       static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
       static std::vector<CollisionPair_t> & collision_pairs( GeometryDataHandler & m ) { return m->collision_pairs; }
       static std::vector<DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distance_results; }
-      static std::vector<bool> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }
+      static std::vector<CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }
 
-      static void addCollisionPair (GeometryDataHandler & m, const Index co1, const Index co2)
+      static void addCollisionPair (GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
         m->addCollisionPair(co1, co2);
       }
@@ -173,7 +176,7 @@ namespace se3
         m->addAllCollisionPairs();
       }
       
-      static void removeCollisionPair (GeometryDataHandler & m, const Index co1, const Index co2)
+      static void removeCollisionPair (GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
         m->removeCollisionPair(co1, co2);
       }
@@ -182,23 +185,23 @@ namespace se3
         m->removeAllCollisionPairs();
       }
       
-      static bool existCollisionPair (const GeometryDataHandler & m, const Index co1, const Index co2)
+      static bool existCollisionPair (const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
         return m->existCollisionPair(co1, co2);
       }
-      static GeometryData::Index findCollisionPair (const GeometryDataHandler & m, const Index co1, const Index co2)
+      static GeometryData::Index findCollisionPair (const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
         return m->findCollisionPair(co1, co2);
       }
 
-      static bool computeCollision(const GeometryDataHandler & m, const Index co1, const Index co2)
+      static CollisionResult computeCollision(const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
         return m->computeCollision(co1, co2);
       }
       static bool isColliding(const GeometryDataHandler & m) { return m->isColliding(); }
       static void computeAllCollisions(GeometryDataHandler & m) { m->computeAllCollisions(); }
       
-      static DistanceResult computeDistance(const GeometryDataHandler & m, const Index co1, const Index co2)
+      static DistanceResult computeDistance(const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
         return m->computeDistance(co1, co2);
       }
@@ -214,6 +217,9 @@ namespace se3
         bp::class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
         .def(bp::vector_indexing_suite< std::vector<DistanceResult> >());
   
+        bp::class_< std::vector<CollisionResult> >("StdVec_CollisionResult")
+        .def(bp::vector_indexing_suite< std::vector<CollisionResult> >());
+
         bp::class_<GeometryDataHandler>("GeometryData",
                                  "Geometry data linked to a geometry model",
                                  bp::no_init)

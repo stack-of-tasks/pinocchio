@@ -94,7 +94,7 @@ namespace se3
           throw std::invalid_argument(exception_message);
         }
 
-        Model::Index parent_joint_id = (link->getParent()->parent_joint==NULL) ? (model.existJointName("root_joint") ? model.getJointId("root_joint") : 0) :
+        Model::JointIndex parent_joint_id = (link->getParent()->parent_joint==NULL) ? (model.existJointName("root_joint") ? model.getJointId("root_joint") : 0) :
         model.getJointId( link->getParent()->parent_joint->name );
 
         // Transformation from the parent link to the joint origin

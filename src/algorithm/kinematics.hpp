@@ -74,7 +74,7 @@ namespace se3
   inline void emptyForwardPass(const Model & model,
                                Data & data)
   {
-    for (Model::Index i=1; i < (Model::Index) model.nbody; ++i)
+    for (Model::JointIndex i=1; i < (Model::JointIndex) model.nbody; ++i)
     {
       emptyForwardStep::run(model.joints[i],
                             data.joints[i],
@@ -87,7 +87,7 @@ namespace se3
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
-                                  const Model::Index,
+                                  const Model::JointIndex,
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
@@ -98,14 +98,14 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     const Model::Index i,
+                     const Model::JointIndex i,
                      const Eigen::VectorXd & q)
     {
       using namespace se3;
 
       jmodel.calc (jdata.derived (), q);
 
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i] * jdata.M ();
 
       if (parent>0)
@@ -121,7 +121,7 @@ namespace se3
                     Data & data,
                     const Eigen::VectorXd & q)
   {
-    for (Model::Index i=1; i < (Model::Index) model.nbody; ++i)
+    for (Model::JointIndex i=1; i < (Model::JointIndex) model.nbody; ++i)
     {
       ForwardKinematicZeroStep::run(model.joints[i],
                         data.joints[i],
@@ -134,7 +134,7 @@ namespace se3
   {
     typedef boost::fusion::vector< const se3::Model&,
 				   se3::Data&,
-				   const Model::Index,
+				   const Model::JointIndex,
 				   const Eigen::VectorXd &,
 				   const Eigen::VectorXd &
 				   > ArgsType;
@@ -146,7 +146,7 @@ namespace se3
 		    se3::JointDataBase<typename JointModel::JointData> & jdata,
 		    const se3::Model& model,
 		    se3::Data& data,
-		    const Model::Index i,
+		    const Model::JointIndex i,
 		    const Eigen::VectorXd & q,
 		    const Eigen::VectorXd & v)
     {
@@ -155,7 +155,7 @@ namespace se3
       
       jmodel.calc(jdata.derived(),q,v);
       
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & parent = model.parents[i];
       data.v[i] = jdata.v();
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       
@@ -177,7 +177,7 @@ namespace se3
   {
     data.v[0].setZero();
 
-    for( Model::Index i=1; i<(Model::Index) model.nbody; ++i )
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
       {
 	ForwardKinematicFirstStep::run(model.joints[i],data.joints[i],
 			    ForwardKinematicFirstStep::ArgsType(model,data,i,q,v));
@@ -188,7 +188,7 @@ namespace se3
   {
     typedef boost::fusion::vector< const se3::Model&,
     se3::Data&,
-    const Model::Index,
+    const Model::JointIndex,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &
@@ -201,14 +201,14 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     const Model::Index i,
+                     const Model::JointIndex i,
                      const Eigen::VectorXd & q,
                      const Eigen::VectorXd & v,
                      const Eigen::VectorXd & a)
     {
       jmodel.calc(jdata.derived(),q,v);
       
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & parent = model.parents[i];
       data.v[i] = jdata.v();
       data.liMi[i] = model.jointPlacements[i] * jdata.M();
       
@@ -234,7 +234,7 @@ namespace se3
     data.v[0].setZero();
     data.a[0].setZero();
     
-    for( Model::Index i=1; i < (Model::Index) model.nbody; ++i )
+    for( Model::JointIndex i=1; i < (Model::JointIndex) model.nbody; ++i )
     {
       ForwardKinematicSecondStep::run(model.joints[i],data.joints[i],
                         ForwardKinematicSecondStep::ArgsType(model,data,i,q,v,a));

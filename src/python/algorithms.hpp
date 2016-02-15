@@ -95,7 +95,7 @@ namespace se3
       static Data::Matrix6x jacobian_proxy( const ModelHandler& model, 
                DataHandler & data,
                const VectorXd_fx & q,
-               Model::Index jointId,
+               Model::JointIndex jointId,
                bool local,
 							 bool update_geometry )
       {
@@ -110,7 +110,7 @@ namespace se3
       static Data::Matrix6x frame_jacobian_proxy(const ModelHandler& model, 
                                                         DataHandler & data,
                                                         const VectorXd_fx & q,
-                                                        Model::Index frame_id,
+                                                        Model::FrameIndex frame_id,
                                                         bool local,
                                                         bool update_geometry
                                                         )

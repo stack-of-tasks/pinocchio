@@ -44,8 +44,8 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
       
-      const Model::Index & i = (Model::Index) jmodel.id();
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
       
       jmodel.calc(jdata.derived(),q);
       
@@ -63,7 +63,7 @@ namespace se3
   computeJacobians(const Model & model, Data & data,
                    const Eigen::VectorXd & q)
   {
-    for( Model::Index i=1; i< (Model::Index) model.nbody;++i )
+    for( Model::JointIndex i=1; i< (Model::JointIndex) model.nbody;++i )
     {
       JacobiansForwardStep::run(model.joints[i],data.joints[i],
                                 JacobiansForwardStep::ArgsType(model,data,q));
@@ -78,7 +78,7 @@ namespace se3
   template<bool localFrame>
   void getJacobian(const Model & model,
                    const Data & data,
-                   const Model::Index jointId,
+                   const Model::JointIndex jointId,
                    Data::Matrix6x & J)
   {
     assert( J.rows() == data.J.rows() );
@@ -113,8 +113,8 @@ namespace se3
       using namespace Eigen;
       using namespace se3;
       
-      const Model::Index & i = (Model::Index) jmodel.id();
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
       
       jmodel.calc(jdata.derived(),q);
       
@@ -129,10 +129,10 @@ namespace se3
   inline const Data::Matrix6x &
   jacobian(const Model & model, Data & data,
            const Eigen::VectorXd & q,
-           const Model::Index jointId)
+           const Model::JointIndex jointId)
   {
     data.iMf[jointId].setIdentity();
-    for( Model::Index i=jointId;i>0;i=model.parents[i] )
+    for( Model::JointIndex i=jointId;i>0;i=model.parents[i] )
     {
       JacobianForwardStep::run(model.joints[i],data.joints[i],
                                JacobianForwardStep::ArgsType(model,data,q));

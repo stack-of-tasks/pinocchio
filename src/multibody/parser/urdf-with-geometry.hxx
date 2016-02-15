@@ -59,13 +59,47 @@ namespace se3
         geometry = polyhedron;
       }
 
+      // Handle the case where collision geometry is a cylinder
+      // Use FCL capsules for cylinders
+      else if (collision->geometry->type == ::urdf::Geometry::CYLINDER)
+      {
+        boost::shared_ptr < ::urdf::Cylinder> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Cylinder> (collision->geometry);
+  
+        double radius = collisionGeometry->radius;
+        double length = collisionGeometry->length;
+  
+        // Create fcl capsule geometry.
+        geometry = boost::shared_ptr < fcl::CollisionGeometry >(new fcl::Capsule (radius, length));
+      }
+      // Handle the case where collision geometry is a box.
+      else if (collision->geometry->type == ::urdf::Geometry::BOX) 
+      {
+        boost::shared_ptr < ::urdf::Box> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Box> (collision->geometry);
+  
+        double x = collisionGeometry->dim.x;
+        double y = collisionGeometry->dim.y;
+        double z = collisionGeometry->dim.z;
+  
+        geometry = boost::shared_ptr < fcl::CollisionGeometry > (new fcl::Box (x, y, z));
+      }
+      // Handle the case where collision geometry is a sphere.
+      else if (collision->geometry->type == ::urdf::Geometry::SPHERE)
+      {
+        boost::shared_ptr < ::urdf::Sphere> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Sphere> (collision->geometry);
+
+        double radius = collisionGeometry->radius;
+
+        geometry = boost::shared_ptr < fcl::CollisionGeometry > (new fcl::Sphere (radius));
+      }
+      else throw std::runtime_error (std::string ("Unknown geometry type :"));
+
       if (!geometry)
       {
         throw std::runtime_error(std::string("The polyhedron retrived is empty"));
       }
       fcl::CollisionObject collisionObject (geometry, fcl::Transform3f());
 
-      return collisionObject; // TO CHECK: what happens if geometry is empty ?
+      return collisionObject;
     }
 
 

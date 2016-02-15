@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   std::cout << model_geom;
   std::cout << "------ DataGeom ------ " << std::endl;
   std::cout << data_geom;
-  assert(data_geom.computeCollision(0,1) == true && "");
+  assert(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == true && "");
 
   Eigen::VectorXd q(model.nq);
   q <<  2, 0, 0,
@@ -166,21 +166,21 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  assert(data_geom.computeCollision(0,1) == false && "");
+  assert(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == false && "");
 
   q <<  0.99, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  assert(data_geom.computeCollision(0,1) == true && "");
+  assert(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == true && "");
 
   q <<  1.01, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  assert(data_geom.computeCollision(0,1) == false && "");
+  assert(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == false && "");
 }
 
 BOOST_AUTO_TEST_CASE ( loading_model )
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 
   se3::updateGeometryPlacements(robot.first, data, robot.second, data_geom, q);
 
-  assert(data_geom.computeCollision(1,10) == false && "");
+  assert(data_geom.computeCollision(1,10).fcl_collision_result.isCollision() == false && "");
 }
 
 #ifdef WITH_HPP_MODEL_URDF
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_joints_meshes_positions )
         ++it_pin)
   {
     it_hpp = geom_hpp.find(it_pin->first);
-    if (it_hpp != joints_hpp.end())
+    if (it_hpp != geom_hpp.end())
     {
       assert(it_pin->second.isApprox(it_hpp->second) && "geometry objects positions are not equal");
     }
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
 
   /// **********  Pinocchio  ********** /// 
-  /// ********************************* ///
+  /// ********************************* /// 
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
@@ -399,10 +399,10 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
         std::cout << "comparison between " << body1 << " and " << body2 << std::endl;
 
-        fcl::DistanceResult dist_pin = data_geom.computeDistance( robot.second.getGeomId(body1),
+        se3::DistanceResult dist_pin = data_geom.computeDistance( robot.second.getGeomId(body1),
                                                                   robot.second.getGeomId(body2));
 
-        Distance_t distance_pin ( dist_pin);
+        Distance_t distance_pin(dist_pin.fcl_distance_result);
         distance_hpp.checkClose(distance_pin);
       }
     }
@@ -415,7 +415,7 @@ BOOST_AUTO_TEST_SUITE_END ()
 JointPositionsMap_t fillPinocchioJointPositions(const se3::Data & data)
 {
   JointPositionsMap_t result;
-  for (int i = 0; i < data.model.nbody; ++i)
+  for (se3::Model::Index i = 0; i < (se3::Model::Index)data.model.nbody; ++i)
   {
     result[data.model.getJointName(i)] = data.oMi[i];
   }

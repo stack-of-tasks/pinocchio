@@ -45,6 +45,9 @@ namespace se3
   {
   public:
     typedef std::size_t Index;
+    typedef Index JointIndex;              // For better comprehension of what object we are working with
+    typedef Index GeomIndex;              //
+    typedef Index FrameIndex;             //
 
     int nq;                               // Dimension of the configuration representation
     int nv;                               // Dimension of the velocity vector space
@@ -55,13 +58,13 @@ namespace se3
     std::vector<Inertia> inertias;        // Spatial inertias of the body <i> in the supporting joint frame <i>
     std::vector<SE3> jointPlacements;     // Placement (SE3) of the input of joint <i> in parent joint output <li>
     JointModelVector joints;              // Model of joint <i>
-    std::vector<Index> parents;           // Joint parent of joint <i>, denoted <li> (li==parents[i])
+    std::vector<JointIndex> parents;           // Joint parent of joint <i>, denoted <li> (li==parents[i])
     std::vector<std::string> names;       // Name of joint <i>
     std::vector<std::string> bodyNames;   // Name of the body attached to the output of joint <i>
     std::vector<bool> hasVisual;          // True iff body <i> has a visual mesh.
 
     std::vector<SE3> fix_lmpMi;           // Fixed-body relative placement (wrt last moving parent)
-    std::vector<Model::Index> fix_lastMovingParent; // Fixed-body index of the last moving parent
+    std::vector<Model::JointIndex> fix_lastMovingParent; // Fixed-body index of the last moving parent
     std::vector<bool> fix_hasVisual;      // True iff fixed-body <i> has a visual mesh.
     std::vector<std::string> fix_bodyNames;// Name of fixed-joint <i>
 
@@ -90,39 +93,39 @@ namespace se3
     }
     ~Model() {} // std::cout << "Destroy model" << std::endl; }
     template<typename D>
-    Index addBody(  Index parent,const JointModelBase<D> & j,const SE3 & placement,
+    JointIndex addBody(  JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
 		                const Inertia & Y,
                     const std::string & jointName = "", const std::string & bodyName = "",
                     bool visual = false);
     template<typename D>
-    Index addBody(  Index parent,const JointModelBase<D> & j,const SE3 & placement,
+    JointIndex addBody(  JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
                     const Inertia & Y,
                     const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
                     const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
                     const std::string & jointName = "", const std::string & bodyName = "",
                     bool visual = false);
-    Index addFixedBody( Index fix_lastMovingParent,
+    JointIndex addFixedBody( JointIndex fix_lastMovingParent,
                         const SE3 & placementFromLastMoving,
                         const std::string &jointName = "",
                         bool visual=false);
-    void mergeFixedBody(Index parent, const SE3 & placement, const Inertia & Y);
-    Index getBodyId( const std::string & name ) const;
+    void mergeFixedBody(JointIndex parent, const SE3 & placement, const Inertia & Y);
+    JointIndex getBodyId( const std::string & name ) const;
     bool existBodyName( const std::string & name ) const;
-    const std::string& getBodyName( const Index index ) const;
-    Index getJointId( const std::string & name ) const;
+    const std::string& getBodyName( const JointIndex index ) const;
+    JointIndex getJointId( const std::string & name ) const;
     bool existJointName( const std::string & name ) const;
-    const std::string& getJointName( const Index index ) const;
+    const std::string& getJointName( const JointIndex index ) const;
 
-    Index getFrameId ( const std::string & name ) const;
+    FrameIndex getFrameId ( const std::string & name ) const;
     bool existFrame ( const std::string & name ) const;
-    const std::string & getFrameName ( const Index index ) const;
-    const Index& getFrameParent( const std::string & name ) const;
-    const Index& getFrameParent( const Index index ) const;
+    const std::string & getFrameName ( const FrameIndex index ) const;
+    const JointIndex& getFrameParent( const std::string & name ) const;
+    const JointIndex& getFrameParent( const FrameIndex index ) const;
     const SE3 & getFramePlacement( const std::string & name ) const;
-    const SE3 & getFramePlacement( const Index index ) const;
+    const SE3 & getFramePlacement( const FrameIndex index ) const;
 
     bool addFrame ( const Frame & frame );
-    bool addFrame ( const std::string & name, Index index, const SE3 & placement );
+    bool addFrame ( const std::string & name, JointIndex index_parent, const SE3 & placement );
 
   };
 

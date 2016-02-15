@@ -58,7 +58,7 @@ namespace se3
       
       jmodel.calc(jdata.derived(),q,v);
       
-      const Model::Index & parent = model.parents[i];
+      const Model::JointIndex & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       
       data.v[i] = jdata.v();
@@ -87,7 +87,7 @@ namespace se3
 		     Data & data,
 		     const size_t i)
     {
-      const Model::Index & parent  = model.parents[i];      
+      const Model::JointIndex & parent  = model.parents[i];      
       jmodel.jointVelocitySelector(data.nle)  = jdata.S().transpose()*data.f[i];
       if(parent>0) data.f[(size_t) parent] += data.liMi[i].act(data.f[i]);
     }

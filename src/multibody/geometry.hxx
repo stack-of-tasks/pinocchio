@@ -41,7 +41,7 @@
 namespace se3
 {
 
-  inline GeometryModel::Index GeometryModel::addGeomObject (const Index parent,
+  inline GeometryModel::GeomIndex GeometryModel::addGeomObject (const JointIndex parent,
                                                             const fcl::CollisionObject & co,
                                                             const SE3 & placement,
                                                             const std::string & geoName)
@@ -58,13 +58,13 @@ namespace se3
     return idx;
   }
 
-  inline GeometryModel::Index GeometryModel::getGeomId (const std::string & name) const
+  inline GeometryModel::GeomIndex GeometryModel::getGeomId (const std::string & name) const
   {
     std::vector<std::string>::iterator::difference_type
       res = std::find(geom_names.begin(),geom_names.end(),name) - geom_names.begin();
     assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
     assert( (res>=0)&&(res<(long)collision_objects.size())&&"The joint name you asked does not exist" );
-    return Index(res);
+    return GeomIndex(res);
   }
 
   inline bool GeometryModel::existGeomName (const std::string & name) const
@@ -72,13 +72,13 @@ namespace se3
     return (geom_names.end() != std::find(geom_names.begin(),geom_names.end(),name));
   }
   
-  inline const std::string& GeometryModel::getGeomName (const Index index) const
+  inline const std::string& GeometryModel::getGeomName (const GeomIndex index) const
   {
-    assert( index < (Index)collision_objects.size() );
+    assert( index < (GeomIndex)collision_objects.size() );
     return geom_names[index];
   }
 
-  inline void GeometryModel::addInnerObject (const Index joint, const Index inner_object)
+  inline void GeometryModel::addInnerObject (const GeomIndex joint, const GeomIndex inner_object)
   {
     if (std::find(innerObjects[joint].begin(), innerObjects[joint].end(),inner_object)==innerObjects[joint].end())
       innerObjects[joint].push_back(inner_object);
@@ -86,7 +86,7 @@ namespace se3
       std::cout << "inner object already added" << std::endl;
   }
 
-  inline void GeometryModel::addOutterObject (const Index joint, const Index outer_object)
+  inline void GeometryModel::addOutterObject (const GeomIndex joint, const GeomIndex outer_object)
   {
     if (std::find(outerObjects[joint].begin(), outerObjects[joint].end(),outer_object)==outerObjects[joint].end())
       outerObjects[joint].push_back(outer_object);
@@ -118,7 +118,7 @@ namespace se3
     return os;
   }
 
-  inline void GeometryData::addCollisionPair (const Index co1, const Index co2)
+  inline void GeometryData::addCollisionPair (const GeomIndex co1, const GeomIndex co2)
   {
     assert ( co1 != co2);
     assert ( co2 < model_geom.ngeom);
@@ -147,7 +147,7 @@ namespace se3
         addCollisionPair(i,j);
   }
   
-  inline void GeometryData::removeCollisionPair (const Index co1, const Index co2)
+  inline void GeometryData::removeCollisionPair (const GeomIndex co1, const GeomIndex co2)
   {
     assert(co1 < co2);
     assert(co2 < model_geom.ngeom);
@@ -174,7 +174,7 @@ namespace se3
     nCollisionPairs = 0;
   }
 
-  inline bool GeometryData::existCollisionPair (const Index co1, const Index co2) const
+  inline bool GeometryData::existCollisionPair (const GeomIndex co1, const GeomIndex co2) const
   {
     return existCollisionPair(CollisionPair_t(co1,co2));
   }
@@ -185,7 +185,7 @@ namespace se3
             != collision_pairs.end());
   }
   
-  inline GeometryData::Index GeometryData::findCollisionPair (const Index co1, const Index co2) const
+  inline GeometryData::Index GeometryData::findCollisionPair (const GeomIndex co1, const GeomIndex co2) const
   {
     return findCollisionPair(CollisionPair_t(co1,co2));
   }
@@ -211,12 +211,12 @@ namespace se3
     assert(nCollisionPairs == collision_pairs.size());
   }
 
-  inline bool GeometryData::computeCollision(const Index co1, const Index co2) const
+  inline CollisionResult GeometryData::computeCollision(const GeomIndex co1, const GeomIndex co2) const
   {
     return computeCollision(CollisionPair_t(co1,co2));
   }
   
-  inline bool GeometryData::computeCollision(const CollisionPair_t & pair) const
+  inline CollisionResult GeometryData::computeCollision(const CollisionPair_t & pair) const
   {
     const Index & co1 = pair.first;
     const Index & co2 = pair.second;
@@ -224,13 +224,11 @@ namespace se3
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;
 
-    if (fcl::collide (model_geom.collision_objects[co1].collisionGeometry().get(), oMg_fcl[co1],
-                      model_geom.collision_objects[co2].collisionGeometry().get(), oMg_fcl[co2],
-                      collisionRequest, collisionResult) != 0)
-    {
-      return true;
-    }
-    return false;
+    fcl::collide (model_geom.collision_objects[co1].collisionGeometry().get(), oMg_fcl[co1],
+                  model_geom.collision_objects[co2].collisionGeometry().get(), oMg_fcl[co2],
+                  collisionRequest, collisionResult);
+
+    return CollisionResult (collisionResult, co1, co2);
   }
   
   inline void GeometryData::computeAllCollisions()
@@ -246,13 +244,13 @@ namespace se3
   {
     for(CollisionPairsVector_t::const_iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
     {
-      if (computeCollision(it->first, it->second))
+      if (computeCollision(it->first, it->second).fcl_collision_result.isCollision())
         return true;
     }
     return false;
   }
 
-  inline DistanceResult GeometryData::computeDistance(const Index co1, const Index co2) const
+  inline DistanceResult GeometryData::computeDistance(const GeomIndex co1, const GeomIndex co2) const
   {
     return computeDistance(CollisionPair_t(co1,co2));
   }
