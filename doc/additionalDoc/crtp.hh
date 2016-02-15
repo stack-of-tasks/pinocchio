@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2016 CNRS
-// Author: Florent Lamiraux
+// Author: Florent Lamiraux, Justin Carpentier
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,9 +18,10 @@
 
 /** \page pinocchio_page_crtp Curiously recurring template pattern
 
-Pinocchio library makes intensive use of the so called CRTP desing
-pattern. This patterns is used for performance reasons in the
-implementation of static polymorphism.
+Similarly to Eigen, Pinocchio library makes intensive use of the so called CRTP design
+pattern. This pattern is used for performance reasons in the
+implementation of static polymorphism, avoiding dynamic casts and calls to virtual methods.
+All in all, CRTP plays a central role in the performance of Pinocchio.
 
-\sa https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
+We refer to  https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern for further explanations.
  */

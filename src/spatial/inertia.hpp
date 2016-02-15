@@ -26,8 +26,6 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/skew.hpp"
 
-
-
 namespace se3
 {
 
@@ -50,13 +48,8 @@ namespace se3
     const Symmetric3 & inertia() const { return static_cast<const Derived_t*>(this)->inertia(); }
     Symmetric3 &       inertia() { return static_cast<const Derived_t*>(this)->inertia(); }
 
-    Matrix6 matrix() const
-    {
-      return derived().matrix_impl();
-    }
-
+    Matrix6 matrix() const { return derived().matrix_impl(); }
     operator Matrix6 () const { return matrix(); }
-
 
     Derived_t& operator= (const Derived_t& clone){return derived().__equl__(clone);}
     bool operator== (const Derived_t& other) const {return derived().isEqual(other);}
@@ -66,16 +59,10 @@ namespace se3
     Scalar_t vtiv(const Motion & v) const { return derived().vtiv_impl(v); }
 
     /// aI = aXb.act(bI)
-    Derived_t se3Action(const SE3 & M) const
-    {
-      return derived().se3Action_impl(M);
-    }
+    Derived_t se3Action(const SE3 & M) const { return derived().se3Action_impl(M); }
 
     /// bI = aXb.actInv(aI)
-    Derived_t se3ActionInverse(const SE3 & M) const
-    {
-      return derived().se3ActionInverse_impl(M);
-    }
+    Derived_t se3ActionInverse(const SE3 & M) const { return derived().se3ActionInverse_impl(M); }
 
     void disp(std::ostream & os) const { static_cast<const Derived_t*>(this)->disp_impl(os); }
     friend std::ostream & operator << (std::ostream & os,const InertiaBase<Derived_t> & X)
@@ -191,7 +178,6 @@ namespace se3
                         Vector3::Random(),
                         Symmetric3::RandomPositive());
     }
-
 
     Matrix6 matrix_impl() const
     {

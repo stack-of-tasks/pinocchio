@@ -27,6 +27,8 @@ SET(PROJECT_NAME pinocchio)
 SET(PROJECT_DESCRIPTION "Rigid multi body dynamics algorithms")
 SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
 
+SET(DOXYGEN_USE_MATHJAX YES)
+
 IF(APPLE)
   SET(CMAKE_MACOSX_RPATH 1)
 ENDIF(APPLE)
@@ -135,6 +137,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/jacobian.hpp
   algorithm/jacobian.hxx
   algorithm/cholesky.hpp
+  algorithm/cholesky.hxx
   algorithm/kinematics.hpp
   algorithm/center-of-mass.hpp
   algorithm/center-of-mass.hxx
