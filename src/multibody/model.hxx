@@ -216,7 +216,7 @@ namespace se3
 
   inline const SE3 & Model::getFramePlacement( const Index index ) const
   {
-    return operational_frames[index].frame_placement;
+    return operational_frames[index].framePlacement;
   }
 
   inline bool Model::addFrame ( const Frame & frame )

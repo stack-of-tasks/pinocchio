@@ -41,15 +41,15 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   se3::buildModels::humanoidSimple(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.nbody-1);
   const std::string & frame_name = std::string( model.getJointName(parent_idx)+ "_frame");
-  const SE3 & frame_placement = SE3::Random();
-  model.addFrame(frame_name, parent_idx, frame_placement);
+  const SE3 & framePlacement = SE3::Random();
+  model.addFrame(frame_name, parent_idx, framePlacement);
   se3::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
   framesForwardKinematic(model, data, q);
 
-  BOOST_CHECK(data.oMof[model.getFrameId(frame_name)].isApprox(data.oMi[parent_idx]*frame_placement));
+  BOOST_CHECK(data.oMof[model.getFrameId(frame_name)].isApprox(data.oMi[parent_idx]*framePlacement));
 
 }
 
@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   se3::buildModels::humanoidSimple(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.nbody-1);
   const std::string & frame_name = std::string( model.getJointName(parent_idx)+ "_frame");
-  const SE3 & frame_placement = SE3::Random();
-  model.addFrame(frame_name, parent_idx, frame_placement);
+  const SE3 & framePlacement = SE3::Random();
+  model.addFrame(frame_name, parent_idx, framePlacement);
   se3::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   Motion nu_joint(Joj*q_dot);
 
   Motion nu_frame_from_nu_joint(nu_joint);
-  nu_frame_from_nu_joint.linear() -= (data.oMi[parent_idx].rotation() *frame_placement.translation()).cross(nu_joint.angular());
+  nu_frame_from_nu_joint.linear() -= (data.oMi[parent_idx].rotation() *framePlacement.translation()).cross(nu_joint.angular());
 
 
   BOOST_CHECK(nu_frame.toVector().isApprox(nu_frame_from_nu_joint.toVector(), 1e-12));
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   nu_frame = Jff*q_dot;
   nu_joint = Jjj*q_dot;
 
-  BOOST_CHECK(nu_frame.toVector().isApprox(frame_placement.actInv(nu_joint).toVector(), 1e-12));
+  BOOST_CHECK(nu_frame.toVector().isApprox(framePlacement.actInv(nu_joint).toVector(), 1e-12));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
