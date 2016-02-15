@@ -20,6 +20,9 @@
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
+
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+
 #include "pinocchio/multibody/model.hpp"
 
 
@@ -72,7 +75,9 @@ namespace se3
 	                       .def(FramePythonVisitor())
 	                       ;
     
-        bp::to_python_converter< Frame,FramePythonVisitor >();
+//        bp::to_python_converter< Frame,FramePythonVisitor >();
+        bp::class_< std::vector<Frame> >("StdVec_Frame")
+        .def(bp::vector_indexing_suite< std::vector<Frame> >());
       }
 
 

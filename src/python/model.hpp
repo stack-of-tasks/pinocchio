@@ -244,8 +244,6 @@ namespace se3
           .def(bp::vector_indexing_suite< std::vector<double> >());
         bp::class_< JointModelVector >("StdVec_JointModelVector")
           .def(bp::vector_indexing_suite< JointModelVector, true >());
-        bp::class_< std::vector<Frame> >("StdVec_FrameVector")
-          .def(bp::vector_indexing_suite< std::vector<Frame> >());
 
         bp::class_<ModelHandler>("Model",
                                  "Articulated rigid body model (const)",
