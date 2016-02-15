@@ -24,6 +24,8 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/tools/string-generator.hpp"
+
+#include <Eigen/StdVector>
 #include <iostream>
 
 namespace se3
@@ -53,6 +55,7 @@ struct Frame
   Index parent_id;
   SE3 frame_placement;
 };
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Frame)
 
 }
 #endif // ifndef __se3_frame_hpp__

@@ -19,7 +19,6 @@
 #ifndef __se3_model_hpp__
 #define __se3_model_hpp__
 
-
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
@@ -36,13 +35,11 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Force)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,Eigen::Dynamic>)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3::Vector3)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Frame)
 
 namespace se3
 {
   class Model;
   class Data;
-  
 
   class Model
   {
