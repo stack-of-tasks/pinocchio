@@ -20,6 +20,7 @@
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/tools/string-generator.hpp"
 
 #include <Eigen/StdVector>
@@ -33,8 +34,7 @@ namespace se3
   ///
   struct Frame
   {
-    typedef std::size_t Index;
-    typedef Index JointIndex;
+    typedef JointIndex JointIndex;
       
     Frame() : name(random(8)), parent_id(), framePlacement() {} // needed by EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION
     
@@ -45,7 +45,7 @@ namespace se3
     /// \param[in] parent_id Index of the parent joint in the kinematic tree.
     /// \param[in] frame_placement Placement of the frame wrt the parent joint frame.
     ///
-    Frame(const std::string & name, const Index parent_id, const SE3 & frame_placement):
+    Frame(const std::string & name, const JointIndex parent_id, const SE3 & frame_placement):
     name(name)
     , parent_id(parent_id)
     , framePlacement(frame_placement)
@@ -66,7 +66,7 @@ namespace se3
     std::string name;
     
     /// \brief Index of the parent joint.
-    Index parent_id;
+    JointIndex parent_id;
     
     /// \brief Placement of the frame wrt the parent joint.
     SE3 framePlacement;

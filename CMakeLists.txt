@@ -123,6 +123,7 @@ SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_HEADERS
+  multibody/fwd.hpp
   multibody/constraint.hpp
   multibody/force-set.hpp
   multibody/joint.hpp
