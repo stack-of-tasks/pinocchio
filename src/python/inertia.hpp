@@ -83,6 +83,10 @@ namespace se3
         .def("se3Action",&Inertia_fx::se3Action)
         .def("se3ActionInverse",&Inertia_fx::se3ActionInverse)
         
+        .def("setIdentity",&Inertia_fx::setIdentity)
+        .def("setZero",&Inertia_fx::setZero)
+        .def("setRandom",&Inertia_fx::setRandom)
+        
         .def("__str__",&InertiaPythonVisitor::toString)
         .def( bp::self + bp::self)
         .def( bp::self * bp::other<Motion_fx>() )

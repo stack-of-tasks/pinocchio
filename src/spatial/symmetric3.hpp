@@ -73,7 +73,7 @@ namespace se3
     }
     
     static Symmetric3Tpl Identity() { return Symmetric3Tpl(1, 0, 1, 0, 0, 1);  }
-    void setIndentity() { data_ << 1, 0, 1, 0, 0, 1; }
+    void setIdentity() { data_ << 1, 0, 1, 0, 0, 1; }
 
     /* Requiered by Inertia::operator== */
     bool operator== (const Symmetric3Tpl & S2 ) const { return data_ == S2.data_; }
