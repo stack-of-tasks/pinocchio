@@ -22,24 +22,49 @@
 
 namespace se3
 {
-    ///
-    /// \brief Browse through the model tree structure with an empty step
-    ///
-    /// \param[in] model The model structure of the rigid body system.
-    /// \param[in] data The data structure of the rigid body system.
-    ///
+  ///
+  /// \brief Browse through the kinematic structure with a void step.
+  ///
+  /// \note This void step allows to quantify the time spent in the rollout.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
   inline void emptyForwardPass(const Model & model,
                                Data & data);
   
+  ///
+  /// \brief Update the joint placement according to the current joint configuration.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration (vector dim model.nq).
+  ///
   inline void forwardKinematics(const Model & model,
                                 Data & data,
                                 const Eigen::VectorXd & q);
 
+  ///
+  /// \brief Update the joint placement according to the current joint configuration and velocity.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration (vector dim model.nq).
+  /// \param[in] v The joint velocity (vector dim model.nv).
+  ///
   inline void forwardKinematics(const Model & model,
                                 Data & data,
                                 const Eigen::VectorXd & q,
                                 const Eigen::VectorXd & v);
-  
+  ///
+  /// \brief Update the joint placement according to the current joint configuration, velocity and acceleration.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration (vector dim model.nq).
+  /// \param[in] v The joint velocity (vector dim model.nv).
+  /// \param[in] a The joint acceleration (vector dim model.nv).
+  ///
   inline void forwardKinematics(const Model & model,
                                 Data & data,
                                 const Eigen::VectorXd & q,
