@@ -18,7 +18,6 @@
 #ifndef __se3_jacobian_hpp__
 #define __se3_jacobian_hpp__
 
-#include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 
 namespace se3
