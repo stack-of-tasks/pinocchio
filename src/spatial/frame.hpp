@@ -34,7 +34,7 @@ namespace se3
   ///
   struct Frame
   {
-    typedef JointIndex JointIndex;
+    typedef se3::JointIndex JointIndex;
       
     Frame() : name(random(8)), parent_id(), framePlacement() {} // needed by EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION
     

@@ -45,10 +45,10 @@ namespace se3
   class Model
   {
   public:
-    typedef Index Index;
-    typedef JointIndex JointIndex;
-    typedef GeomIndex GeomIndex;
-    typedef FrameIndex FrameIndex;
+    typedef se3::Index Index;
+    typedef se3::JointIndex JointIndex;
+    typedef se3::GeomIndex GeomIndex;
+    typedef se3::FrameIndex FrameIndex;
 
     int nq;                               // Dimension of the configuration representation
     int nv;                               // Dimension of the velocity vector space
