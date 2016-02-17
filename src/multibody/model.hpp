@@ -25,6 +25,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/frame.hpp"
+#include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 #include "pinocchio/tools/string-generator.hpp"
 #include <iostream>
@@ -40,20 +41,20 @@ namespace se3
 {
   class Model;
   class Data;
-
+  
   class Model
   {
   public:
-    typedef std::size_t Index;
-    typedef Index JointIndex;              // For better comprehension of what object we are working with
-    typedef Index GeomIndex;              //
-    typedef Index FrameIndex;             //
+    typedef se3::Index Index;
+    typedef se3::JointIndex JointIndex;
+    typedef se3::GeomIndex GeomIndex;
+    typedef se3::FrameIndex FrameIndex;
 
     int nq;                               // Dimension of the configuration representation
     int nv;                               // Dimension of the velocity vector space
     int nbody;                            // Number of bodies (= number of joints + 1)
     int nFixBody;                         // Number of fixed-bodies (= number of fixed-joints)
-    int nOperationalFrames;                     // Number of extra frames
+    int nOperationalFrames;               // Number of operational frames
 
     std::vector<Inertia> inertias;        // Spatial inertias of the body <i> in the supporting joint frame <i>
     std::vector<SE3> jointPlacements;     // Placement (SE3) of the input of joint <i> in parent joint output <li>

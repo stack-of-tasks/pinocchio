@@ -231,12 +231,16 @@ namespace se3
     /// Vb.toVector() = bXa.toMatrix() * Va.toVector()
     Matrix6 toActionMatrix_impl() const
     {
+      typedef Eigen::Block<Matrix6,3,3> Block3;
       Matrix6 M;
       M.template block<3,3>(ANGULAR,ANGULAR)
       = M.template block<3,3>(LINEAR,LINEAR) = rot;
       M.template block<3,3>(ANGULAR,LINEAR).setZero();
-      M.template block<3,3>(LINEAR,ANGULAR)
-      = skew(trans) * M.template block<3,3>(ANGULAR,ANGULAR);
+      Block3 B = M.template block<3,3>(LINEAR,ANGULAR);
+      
+      B.col(0) = trans.cross(rot.col(0));
+      B.col(1) = trans.cross(rot.col(1));
+      B.col(2) = trans.cross(rot.col(2));
       return M;
     }
 

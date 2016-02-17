@@ -150,11 +150,11 @@ namespace se3
 
 
       static void frames_fk_0_proxy(const ModelHandler& model, 
-                                   DataHandler & data,
-                                   const VectorXd_fx & q
-                                   )
+                                    DataHandler & data,
+                                    const VectorXd_fx & q
+                                    )
       {
-        framesForwardKinematic( *model,*data,q );
+        framesForwardKinematics( *model,*data,q );
       }
 
       static void fk_2_proxy(const ModelHandler& model,

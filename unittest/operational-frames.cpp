@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
-  framesForwardKinematic(model, data, q);
+  framesForwardKinematics(model, data, q);
 
   BOOST_CHECK(data.oMof[model.getFrameId(frame_name)].isApprox(data.oMi[parent_idx]*framePlacement));
 
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
   VectorXd q_dot = VectorXd::Ones(model.nv);
-  framesForwardKinematic(model, data, q);
+  framesForwardKinematics(model, data, q);
 
 
   computeJacobians(model,data,q);

@@ -19,7 +19,6 @@
 #define __se3_jacobian_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
-#include "pinocchio/multibody/model.hpp"
 
 /// @cond DEV
 

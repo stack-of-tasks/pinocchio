@@ -20,6 +20,7 @@
 
 #include <Eigen/Dense>
 #include <iostream>
+#include <cstdlib>
 
 #include "pinocchio/spatial/symmetric3.hpp"
 #include "pinocchio/spatial/force.hpp"
@@ -39,7 +40,7 @@ namespace se3
 
   public:
     Derived_t & derived() { return *static_cast<Derived_t*>(this); }
-    const Derived_t& derived() const { return *static_cast<const Derived_t*>(this); }
+    const Derived_t & derived() const { return *static_cast<const Derived_t*>(this); }
 
     Scalar_t           mass()    const { return static_cast<const Derived_t*>(this)->mass(); }
     Scalar_t &         mass() { return static_cast<const Derived_t*>(this)->mass(); }
@@ -56,7 +57,12 @@ namespace se3
     Derived_t& operator+= (const Derived_t & Yb) { return derived().__pequ__(Yb); }
     Derived_t operator+(const Derived_t & Yb) const { return derived().__plus__(Yb); }
     Force operator*(const Motion & v) const    { return derived().__mult__(v); }
+
     Scalar_t vtiv(const Motion & v) const { return derived().vtiv_impl(v); }
+
+    void setZero() { derived().setZero(); }
+    void setIdentity() { derived().setIdentity(); }
+    void setRandom() { derived().setRandom(); }
 
     /// aI = aXb.act(bI)
     Derived_t se3Action(const SE3 & M) const { return derived().se3Action_impl(M); }
@@ -154,8 +160,6 @@ namespace se3
 
     }
 
-
-
     // Initializers
     static InertiaTpl Zero() 
     {
@@ -163,6 +167,8 @@ namespace se3
                         Vector3::Zero(), 
                         Symmetric3::Zero());
     }
+    
+    void setZero() { m = 0.; c.setZero(); I.setZero(); }
 
     static InertiaTpl Identity() 
     {
@@ -170,6 +176,8 @@ namespace se3
                         Vector3::Zero(), 
                         Symmetric3::Identity());
     }
+    
+    void setIdentity () { m = 1.; c.setZero(); I.setIdentity(); }
 
     static InertiaTpl Random()
     {
@@ -177,6 +185,12 @@ namespace se3
       return InertiaTpl(Eigen::internal::random<Scalar_t>()+1,
                         Vector3::Random(),
                         Symmetric3::RandomPositive());
+    }
+    
+    void setRandom()
+    {
+      m = static_cast<Scalar_t> (std::rand()) / static_cast<Scalar_t> (RAND_MAX);
+      c.setRandom(); I.setRandom();
     }
 
     Matrix6 matrix_impl() const

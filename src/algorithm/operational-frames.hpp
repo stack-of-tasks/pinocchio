@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,17 +18,13 @@
 #ifndef __se3_operational_frames_hpp__
 #define __se3_operational_frames_hpp__
 
-#include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/spatial/skew.hpp"
 
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 
 namespace se3
 {
-
-
 
   /**
    * @brief      Update the position of each extra frame
@@ -37,9 +33,9 @@ namespace se3
    * @param      data   Data associated to model
    * @warning    One of the algorithms forwardKinematics should have been called first
    */
-  inline void framesForwardKinematic(const Model & model,
-                                          Data & data
-                                          );
+  inline void framesForwardKinematics(const Model & model,
+                                      Data & data
+                                      );
 
   /**
    * @brief      Compute Kinematics of full model, then the position of each operational frame
@@ -48,10 +44,10 @@ namespace se3
    * @param      data                     Data associated to model
    * @param[in]  q                        Configuration vector
    */
-  inline void framesForwardKinematic(const Model & model,
-                                          Data & data,
-                                          const Eigen::VectorXd & q
-                                          );
+  inline void framesForwardKinematics(const Model & model,
+                                      Data & data,
+                                      const Eigen::VectorXd & q
+                                      );
 
   /**
    * @brief      Return the jacobian of the extra frame in the world frame or
@@ -68,72 +64,67 @@ namespace se3
    */
   template<bool localFrame>
   inline void getFrameJacobian(const Model & model,
-                                    const Data& data,
-                                    Model::FrameIndex frame_id,
-                                    Data::Matrix6x & J
-                                    );
+                               const Data& data,
+                               const Model::FrameIndex frame_id,
+                               Data::Matrix6x & J
+                               );
  
-} // namespace se3 
+} // namespace se3
 
 /* --- Details -------------------------------------------------------------------- */
 namespace se3 
 {
   
   
-inline void  framesForwardKinematic(const Model & model,
-                                         Data & data
-                                         )
-{
-  using namespace se3;
-
-  for (Model::FrameIndex i=0; i < (Model::FrameIndex) model.nOperationalFrames; ++i)
+  inline void framesForwardKinematics(const Model & model,
+                                      Data & data
+                                      )
   {
-    const Model::JointIndex & parent = model.operational_frames[i].parent_id;
-    data.oMof[i] = (data.oMi[parent] * model.operational_frames[i].framePlacement);
+    for (Model::FrameIndex i=0; i < (Model::FrameIndex) model.nOperationalFrames; ++i)
+    {
+      const Model::JointIndex & parent = model.operational_frames[i].parent_id;
+      data.oMof[i] = (data.oMi[parent] * model.operational_frames[i].framePlacement);
+    }
   }
-}
-
-inline void  framesForwardKinematic(const Model & model,
-                                         Data & data,
-                                         const Eigen::VectorXd & q
-                                         )
-{
-  using namespace se3;
-
-  forwardKinematics(model, data, q);
-
-  framesForwardKinematic(model, data);
-}
-
-
-
-template<bool localFrame>
-inline void getFrameJacobian(const Model & model, const Data& data,
-     Model::FrameIndex frame_id, Data::Matrix6x & J)
-{
-  assert( J.rows() == data.J.rows() );
-  assert( J.cols() == data.J.cols() );
-
-  const Model::JointIndex & parent = model.operational_frames[frame_id].parent_id;
-  const SE3 & oMframe = data.oMof[frame_id];
   
-  int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
-
-  SE3::Vector3 lever(data.oMi[parent].rotation() * (model.operational_frames[frame_id].framePlacement.translation()));
-
-  if (!localFrame) getJacobian<localFrame>(model, data, parent, J);
-  for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
+  inline void framesForwardKinematics(const Model & model,
+                                      Data & data,
+                                      const Eigen::VectorXd & q
+                                      )
+  {
+    forwardKinematics(model, data, q);
+    framesForwardKinematics(model, data);
+  }
+  
+  
+  
+  template<bool localFrame>
+  inline void getFrameJacobian(const Model & model,
+                               const Data & data,
+                               const Model::FrameIndex frame_id,
+                               Data::Matrix6x & J)
+  {
+    assert( J.rows() == data.J.rows() );
+    assert( J.cols() == data.J.cols() );
+    
+    const Model::JointIndex & parent = model.operational_frames[frame_id].parent_id;
+    const SE3 & oMframe = data.oMof[frame_id];
+    const Frame & frame = model.operational_frames[frame_id];
+    
+    const int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
+    
+    // Lever between the joint center and the frame center expressed in the global frame
+    const SE3::Vector3 lever(data.oMi[parent].rotation() * (frame.framePlacement.translation()));
+    
+    getJacobian<localFrame>(model, data, parent, J);
+    for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
     {
       if(! localFrame )
-      {
-        J.col(j).topRows<3>() -= lever.cross( J.col(j).bottomRows<3>());
-      }  
+        J.col(j).topRows<3>() -= lever.cross(J.col(j).bottomRows<3>());
       else
-      {
         J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
-      }
     }
-}
+  }
 
 } // namespace se3
 

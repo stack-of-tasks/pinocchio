@@ -18,7 +18,6 @@
 #ifndef __se3_jacobian_hpp__
 #define __se3_jacobian_hpp__
 
-#include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 
 namespace se3
@@ -48,7 +47,7 @@ namespace se3
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] jointId The id of the joint.
-  /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv).
+  /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
   ///
   template<bool localFrame>
   void getJacobian(const Model & model,

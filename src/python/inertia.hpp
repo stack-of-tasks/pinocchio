@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -28,7 +28,7 @@ namespace eigenpy
   template<>
   struct UnalignedEquivalent<se3::Inertia>
   {
-    typedef se3::InertiaTpl<double,Eigen::DontAlign> type;
+    typedef se3::InertiaTpl<se3::Inertia::Scalar_t,Eigen::DontAlign> type;
   };
 
 } // namespace eigenpy
@@ -68,33 +68,37 @@ namespace se3
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
-	cl
-	  .def("__init__",
-	       bp::make_constructor(&InertiaPythonVisitor::makeFromMCI,
-	   			    bp::default_call_policies(),
-	   			    (bp::arg("mass"),bp::arg("lever"),bp::arg("inertia"))),
-	       "Initialize from mass, lever and 3d inertia.")
-
-      .add_property("mass", &InertiaPythonVisitor::getMass, &InertiaPythonVisitor::setMass)
-	  .add_property("lever", &InertiaPythonVisitor::getLever, &InertiaPythonVisitor::setLever)
-	  .add_property("inertia", &InertiaPythonVisitor::getInertia, &InertiaPythonVisitor::setInertia)
-
-	  .def("matrix",&Inertia_fx::matrix)
-	  .def("se3Action",&Inertia_fx::se3Action)
-	  .def("se3ActionInverse",&Inertia_fx::se3ActionInverse)
-
-	  .def("__str__",&InertiaPythonVisitor::toString)
-	  .def( bp::self + bp::self)
-	  .def( bp::self * bp::other<Motion_fx>() )
-	  .add_property("np",&Inertia_fx::matrix)
-
-	  .def("Identity",&Inertia_fx::Identity)
-	  .staticmethod("Identity")
-	  .def("Zero",&Inertia_fx::Zero)
-	  .staticmethod("Zero")
-	  .def("Random",&Inertia_fx::Random)
-	  .staticmethod("Random")
-	  ;
+        cl
+        .def("__init__",
+             bp::make_constructor(&InertiaPythonVisitor::makeFromMCI,
+                                  bp::default_call_policies(),
+                                  (bp::arg("mass"),bp::arg("lever"),bp::arg("inertia"))),
+             "Initialize from mass, lever and 3d inertia.")
+        
+        .add_property("mass", &InertiaPythonVisitor::getMass, &InertiaPythonVisitor::setMass)
+        .add_property("lever", &InertiaPythonVisitor::getLever, &InertiaPythonVisitor::setLever)
+        .add_property("inertia", &InertiaPythonVisitor::getInertia, &InertiaPythonVisitor::setInertia)
+        
+        .def("matrix",&Inertia_fx::matrix)
+        .def("se3Action",&Inertia_fx::se3Action)
+        .def("se3ActionInverse",&Inertia_fx::se3ActionInverse)
+        
+        .def("setIdentity",&Inertia_fx::setIdentity)
+        .def("setZero",&Inertia_fx::setZero)
+        .def("setRandom",&Inertia_fx::setRandom)
+        
+        .def("__str__",&InertiaPythonVisitor::toString)
+        .def( bp::self + bp::self)
+        .def( bp::self * bp::other<Motion_fx>() )
+        .add_property("np",&Inertia_fx::matrix)
+        
+        .def("Identity",&Inertia_fx::Identity)
+        .staticmethod("Identity")
+        .def("Zero",&Inertia_fx::Zero)
+        .staticmethod("Zero")
+        .def("Random",&Inertia_fx::Random)
+        .staticmethod("Random")
+        ;
 	  }
       
       static Scalar_t getMass( const Inertia_fx & self ) { return self.mass(); }
@@ -110,34 +114,33 @@ namespace se3
 				     const Vector3_fx & lever,
 				     const Matrix3_fx & inertia) 
       {
-	if(! inertia.isApprox(inertia.transpose()) ) 
-	   throw eigenpy::Exception("The 3d inertia should be symmetric.");
-	if( (Eigen::Vector3d::UnitX().transpose()*inertia*Eigen::Vector3d::UnitX()<0)
-	    || (Eigen::Vector3d::UnitY().transpose()*inertia*Eigen::Vector3d::UnitY()<0)
-	    || (Eigen::Vector3d::UnitZ().transpose()*inertia*Eigen::Vector3d::UnitZ()<0) )
-	  throw eigenpy::Exception("The 3d inertia should be positive.");
-	return new Inertia_fx(mass,lever,inertia); 
+        if(! inertia.isApprox(inertia.transpose()) )
+          throw eigenpy::Exception("The 3d inertia should be symmetric.");
+        if( (Eigen::Vector3d::UnitX().transpose()*inertia*Eigen::Vector3d::UnitX()<0)
+           || (Eigen::Vector3d::UnitY().transpose()*inertia*Eigen::Vector3d::UnitY()<0)
+           || (Eigen::Vector3d::UnitZ().transpose()*inertia*Eigen::Vector3d::UnitZ()<0) )
+          throw eigenpy::Exception("The 3d inertia should be positive.");
+        return new Inertia_fx(mass,lever,inertia);
       }
-      static std::string toString(const Inertia_fx& m) 
+      
+      static std::string toString(const Inertia_fx& m)
       {	  std::ostringstream s; s << m; return s.str();       }
-
+      
       static void expose()
       {
-	bp::class_<Inertia_fx>("Inertia",
-			     "Inertia matrix, in L(se3,se3*) == R^6x6.\n\n"
-			     "Supported operations ...",
-			     bp::init<>())
-	  .def(InertiaPythonVisitor<Inertia>())
-	;
-    
-	bp::to_python_converter< Inertia,InertiaPythonVisitor<Inertia> >();
-    }
+        bp::class_<Inertia_fx>("Inertia",
+                               "Inertia matrix, in L(se3,se3*) == R^6x6.\n\n"
+                               "Supported operations ...",
+                               bp::init<>())
+        .def(InertiaPythonVisitor<Inertia>())
+        ;
+        
+        bp::to_python_converter< Inertia,InertiaPythonVisitor<Inertia> >();
+      }
 
 
     }; // struct InertiaPythonVisitor
     
-
-
   }} // namespace se3::python
 
 #endif // ifndef __se3_python_se3_hpp__

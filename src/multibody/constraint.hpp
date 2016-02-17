@@ -50,6 +50,13 @@ namespace se3
     DenseBase & matrix()  { return derived().matrix_impl(); }
     const DenseBase & matrix() const  { return derived().matrix_impl(); }
     int nv() const { return derived().nv_impl(); }
+    
+    void disp(std::ostream & os) const { static_cast<const Derived_t*>(this)->disp_impl(os); }
+    friend std::ostream & operator << (std::ostream & os,const ConstraintBase<Derived> & X)
+    {
+      X.disp(os);
+      return os;
+    }
 
   }; // class ConstraintBase
 
@@ -158,14 +165,12 @@ namespace se3
     {
       return m.toActionMatrix()*S;
     }
+    
+    void disp_impl(std::ostream & os) const { os << "S =\n" << S << std::endl;}
 
-
-  private:
+  protected:
     DenseBase S;
   }; // class ConstraintTpl
-
-
-
 
   typedef ConstraintTpl<1,double,0> Constraint1d;
   typedef ConstraintTpl<3,double,0> Constraint3d;

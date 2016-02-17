@@ -18,29 +18,53 @@
 #ifndef __se3_kinematics_hpp__
 #define __se3_kinematics_hpp__
 
-#include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 
 namespace se3
 {
-    ///
-    /// \brief Browse through the model tree structure with an empty step
-    ///
-    /// \param[in] model The model structure of the rigid body system.
-    /// \param[in] data The data structure of the rigid body system.
-    ///
+  ///
+  /// \brief Browse through the kinematic structure with a void step.
+  ///
+  /// \note This void step allows to quantify the time spent in the rollout.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
   inline void emptyForwardPass(const Model & model,
                                Data & data);
   
+  ///
+  /// \brief Update the joint placement according to the current joint configuration.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration (vector dim model.nq).
+  ///
   inline void forwardKinematics(const Model & model,
                                 Data & data,
                                 const Eigen::VectorXd & q);
 
+  ///
+  /// \brief Update the joint placement according to the current joint configuration and velocity.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration (vector dim model.nq).
+  /// \param[in] v The joint velocity (vector dim model.nv).
+  ///
   inline void forwardKinematics(const Model & model,
                                 Data & data,
                                 const Eigen::VectorXd & q,
                                 const Eigen::VectorXd & v);
-  
+  ///
+  /// \brief Update the joint placement according to the current joint configuration, velocity and acceleration.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration (vector dim model.nq).
+  /// \param[in] v The joint velocity (vector dim model.nv).
+  /// \param[in] a The joint acceleration (vector dim model.nv).
+  ///
   inline void forwardKinematics(const Model & model,
                                 Data & data,
                                 const Eigen::VectorXd & q,
@@ -50,197 +74,9 @@ namespace se3
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
-namespace se3 
-{
-  
-  struct emptyForwardStep : public fusion::JointVisitor<emptyForwardStep>
-  {
-    typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &
-                                  > ArgsType;
-    
-    JOINT_VISITOR_INIT (emptyForwardStep);
-    
-    template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> &,
-                     se3::JointDataBase<typename JointModel::JointData> &,
-                     const se3::Model &,
-                     se3::Data &)
-    { // do nothing
-    }
-    
-  };
-  
-  inline void emptyForwardPass(const Model & model,
-                               Data & data)
-  {
-    for (Model::JointIndex i=1; i < (Model::JointIndex) model.nbody; ++i)
-    {
-      emptyForwardStep::run(model.joints[i],
-                            data.joints[i],
-                            emptyForwardStep::ArgsType (model,data)
-                            );
-    }
-  }
-  
-  struct ForwardKinematicZeroStep : public fusion::JointVisitor<ForwardKinematicZeroStep>
-  {
-    typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &,
-                                  const Model::JointIndex,
-                                  const Eigen::VectorXd &
-                                  > ArgsType;
+/* --- Details -------------------------------------------------------------------- */
+/* --- Details -------------------------------------------------------------------- */
+#include "pinocchio/algorithm/kinematics.hxx"
 
-    JOINT_VISITOR_INIT (ForwardKinematicZeroStep);
-
-    template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointData> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Model::JointIndex i,
-                     const Eigen::VectorXd & q)
-    {
-      using namespace se3;
-
-      jmodel.calc (jdata.derived (), q);
-
-      const Model::JointIndex & parent = model.parents[i];
-      data.liMi[i] = model.jointPlacements[i] * jdata.M ();
-
-      if (parent>0)
-        data.oMi[i] = data.oMi[parent] * data.liMi[i];
-      else
-        data.oMi[i] = data.liMi[i];
-    }
-    
-  };
-
-  inline void
-  forwardKinematics(const Model & model,
-                    Data & data,
-                    const Eigen::VectorXd & q)
-  {
-    for (Model::JointIndex i=1; i < (Model::JointIndex) model.nbody; ++i)
-    {
-      ForwardKinematicZeroStep::run(model.joints[i],
-                        data.joints[i],
-                        ForwardKinematicZeroStep::ArgsType (model,data,i,q)
-                        );
-    }
-  }
-
-  struct ForwardKinematicFirstStep : public fusion::JointVisitor<ForwardKinematicFirstStep>
-  {
-    typedef boost::fusion::vector< const se3::Model&,
-				   se3::Data&,
-				   const Model::JointIndex,
-				   const Eigen::VectorXd &,
-				   const Eigen::VectorXd &
-				   > ArgsType;
-
-    JOINT_VISITOR_INIT(ForwardKinematicFirstStep);
-
-    template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-		    se3::JointDataBase<typename JointModel::JointData> & jdata,
-		    const se3::Model& model,
-		    se3::Data& data,
-		    const Model::JointIndex i,
-		    const Eigen::VectorXd & q,
-		    const Eigen::VectorXd & v)
-    {
-      using namespace Eigen;
-      using namespace se3;
-      
-      jmodel.calc(jdata.derived(),q,v);
-      
-      const Model::JointIndex & parent = model.parents[i];
-      data.v[i] = jdata.v();
-      data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      
-      if(parent>0)
-      {
-        data.oMi[i] = data.oMi[parent]*data.liMi[i];
-        data.v[i] += data.liMi[i].actInv(data.v[parent]);
-      }
-      else
-        data.oMi[i] = data.liMi[i];
-    }
-
-  };
-
-  inline void
-  forwardKinematics(const Model & model, Data & data,
-                    const Eigen::VectorXd & q,
-                    const Eigen::VectorXd & v)
-  {
-    data.v[0].setZero();
-
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
-      {
-	ForwardKinematicFirstStep::run(model.joints[i],data.joints[i],
-			    ForwardKinematicFirstStep::ArgsType(model,data,i,q,v));
-      }
-  }
-  
-  struct ForwardKinematicSecondStep : public fusion::JointVisitor<ForwardKinematicSecondStep>
-  {
-    typedef boost::fusion::vector< const se3::Model&,
-    se3::Data&,
-    const Model::JointIndex,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &
-    > ArgsType;
-    
-    JOINT_VISITOR_INIT(ForwardKinematicSecondStep);
-    
-    template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointData> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Model::JointIndex i,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v,
-                     const Eigen::VectorXd & a)
-    {
-      jmodel.calc(jdata.derived(),q,v);
-      
-      const Model::JointIndex & parent = model.parents[i];
-      data.v[i] = jdata.v();
-      data.liMi[i] = model.jointPlacements[i] * jdata.M();
-      
-      if(parent>0)
-      {
-        data.oMi[i] = data.oMi[parent] * data.liMi[i];
-        data.v[i] += data.liMi[i].actInv(data.v[parent]);
-      }
-      else
-        data.oMi[i] = data.liMi[i];
-      
-      data.a[i]  = jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v()) ;
-      data.a[i] += data.liMi[i].actInv(data.a[parent]);
-    }
-  };
-  
-  inline void
-  forwardKinematics(const Model & model, Data & data,
-                    const Eigen::VectorXd & q,
-                    const Eigen::VectorXd & v,
-                    const Eigen::VectorXd & a)
-  {
-    data.v[0].setZero();
-    data.a[0].setZero();
-    
-    for( Model::JointIndex i=1; i < (Model::JointIndex) model.nbody; ++i )
-    {
-      ForwardKinematicSecondStep::run(model.joints[i],data.joints[i],
-                        ForwardKinematicSecondStep::ArgsType(model,data,i,q,v,a));
-    }
-  }
-} // namespace se3
 
 #endif // ifndef __se3_kinematics_hpp__
-

@@ -123,6 +123,7 @@ SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_HEADERS
+  multibody/fwd.hpp
   multibody/constraint.hpp
   multibody/force-set.hpp
   multibody/joint.hpp
@@ -139,6 +140,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/cholesky.hpp
   algorithm/cholesky.hxx
   algorithm/kinematics.hpp
+  algorithm/kinematics.hxx
   algorithm/center-of-mass.hpp
   algorithm/center-of-mass.hxx
   algorithm/non-linear-effects.hpp
