@@ -313,7 +313,7 @@ namespace se3
     }
       
     // Open file
-    std::ifstream srdf_stream(filename);
+    std::ifstream srdf_stream(filename.c_str());
     if (! srdf_stream.is_open())
     {
       const std::string exception_message (filename + " does not seem to be a valid file.");
