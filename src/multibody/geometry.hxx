@@ -41,10 +41,10 @@
 namespace se3
 {
 
-  inline GeometryModel::GeomIndex GeometryModel::addGeomObject (const JointIndex parent,
-                                                            const fcl::CollisionObject & co,
-                                                            const SE3 & placement,
-                                                            const std::string & geoName)
+  inline GeometryModel::GeomIndex GeometryModel::addGeomObject(const JointIndex parent,
+                                                               const fcl::CollisionObject & co,
+                                                               const SE3 & placement,
+                                                               const std::string & geoName)
   {
 
     Index idx = (Index) (ngeom ++);
@@ -54,6 +54,8 @@ namespace se3
     geom_parents         .push_back(parent);
     geometryPlacement    .push_back(placement);
     geom_names           .push_back( (geoName!="")?geoName:random(8));
+    
+    addInnerObject(parent, idx);
 
     return idx;
   }
