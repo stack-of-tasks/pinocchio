@@ -78,15 +78,15 @@ namespace se3
     return geom_names[index];
   }
 
-  inline void GeometryModel::addInnerObject (const GeomIndex joint, const GeomIndex inner_object)
+  inline void GeometryModel::addInnerObject (const JointIndex joint_id, const GeomIndex inner_object)
   {
-    if (std::find(innerObjects[joint].begin(), innerObjects[joint].end(),inner_object)==innerObjects[joint].end())
-      innerObjects[joint].push_back(inner_object);
+    if (std::find(innerObjects[joint_id].begin(), innerObjects[joint_id].end(),inner_object)==innerObjects[joint_id].end())
+      innerObjects[joint_id].push_back(inner_object);
     else
       std::cout << "inner object already added" << std::endl;
   }
 
-  inline void GeometryModel::addOutterObject (const GeomIndex joint, const GeomIndex outer_object)
+  inline void GeometryModel::addOutterObject (const JointIndex joint, const GeomIndex outer_object)
   {
     if (std::find(outerObjects[joint].begin(), outerObjects[joint].end(),outer_object)==outerObjects[joint].end())
       outerObjects[joint].push_back(outer_object);
