@@ -304,16 +304,24 @@ namespace se3
   void GeometryData::addCollisionPairsFromSrdf(const std::string & filename,
                                                const bool verbose) throw (std::invalid_argument)
   {
+    // Check extension
+    const std::string extension = filename.substr(filename.find_last_of('.')+1);
+    if (extension != "srdf")
+    {
+      const std::string exception_message (filename + " does not have the right extension.");
+      throw std::invalid_argument(exception_message);
+    }
+      
+    // Open file
     std::ifstream srdf_stream(filename);
     if (! srdf_stream.is_open())
     {
-      const std::string exception_message (filename + " seems not to be a valid file.");
+      const std::string exception_message (filename + " does not seem to be a valid file.");
       throw std::invalid_argument(exception_message);
     }
     
     // Add all collision pairs
     addAllCollisionPairs();
-    std::cout << "Num collision pairs " << nCollisionPairs << std::endl;
     
     // Read xml stream
     using boost::property_tree::ptree;
@@ -358,9 +366,6 @@ namespace se3
         
       } // BOOST_FOREACH
     }
-    
-    
-    std::cout << "Num collision pairs " << nCollisionPairs << std::endl;
   }
 
 
