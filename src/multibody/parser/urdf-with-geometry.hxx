@@ -21,16 +21,10 @@
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>
 
-#include <iostream>
 #include <boost/foreach.hpp>
 #include "pinocchio/multibody/model.hpp"
 
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
 #include "pinocchio/multibody/parser/from-collada-to-fcl.hpp"
-
-#include <exception>
 
 namespace se3
 {

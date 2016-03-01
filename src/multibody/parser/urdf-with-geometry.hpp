@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,28 +18,15 @@
 #ifndef __se3_urdf_geom_hpp__
 #define __se3_urdf_geom_hpp__
 
-#include <urdf_model/model.h>
-#include <urdf_parser/urdf_parser.h>
-
 #include <iostream>
-#include <boost/foreach.hpp>
+#include <exception>
 #include "pinocchio/multibody/model.hpp"
 
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#include "pinocchio/multibody/parser/from-collada-to-fcl.hpp"
 
-#include <exception>
-
-namespace urdf
-{
-  typedef boost::shared_ptr<ModelInterface> ModelInterfacePtr;
-  typedef boost::shared_ptr<const Joint> JointConstPtr;
-  typedef boost::shared_ptr<const Link> LinkConstPtr;
-  typedef boost::shared_ptr<Link> LinkPtr;
-  typedef boost::shared_ptr<const Inertial> InertialConstPtr;
-}
+#include "pinocchio/multibody/parser/urdf.hpp"
 
 namespace se3
 {
@@ -69,7 +56,11 @@ namespace se3
      * @param      model_geom   The Geometry Model where the Collision Objects must be added
      * @param[in]  meshRootDir  Root path to the directory where meshes are located
      */
-    inline void parseTreeForGeom( ::urdf::LinkConstPtr link, Model & model,GeometryModel & model_geom, const std::string & meshRootDir, const bool rootJointAdded) throw (std::invalid_argument);
+    inline void parseTreeForGeom(::urdf::LinkConstPtr link,
+                                 const Model & model,
+                                 GeometryModel & model_geom,
+                                 const std::string & meshRootDir,
+                                 const bool rootJointAdded) throw (std::invalid_argument);
 
 
 
@@ -82,7 +73,9 @@ namespace se3
      * @return     The pair <se3::Model, se3::GeometryModel> the Model tree and its geometric model associated
      */
     template <typename D>
-    std::pair<Model, GeometryModel > buildModelAndGeom( const std::string & filename, const std::string & meshRootDir, const JointModelBase<D> &  root_joint );
+    std::pair<Model, GeometryModel > buildModelAndGeom(const std::string & filename,
+                                                       const std::string & meshRootDir,
+                                                       const JointModelBase<D> & root_joint);
 
 
     /**
@@ -93,7 +86,8 @@ namespace se3
      *
      * @return     The pair <se3::Model, se3::GeometryModel> the Model tree and its geometric model associated
      */
-    inline std::pair<Model, GeometryModel > buildModelAndGeom( const std::string & filename, const std::string & meshRootDir);
+    inline std::pair<Model, GeometryModel > buildModelAndGeom(const std::string & filename,
+                                                              const std::string & meshRootDir);
 
   } // namespace urdf
 } // namespace se3
