@@ -36,15 +36,21 @@
 #include <list>
 #include <utility>
 
+// Read XML file with boost
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <fstream>
+#include <boost/foreach.hpp>
+
 /// @cond DEV
 
 namespace se3
 {
 
-  inline GeometryModel::GeomIndex GeometryModel::addGeomObject (const JointIndex parent,
-                                                            const fcl::CollisionObject & co,
-                                                            const SE3 & placement,
-                                                            const std::string & geoName)
+  inline GeometryModel::GeomIndex GeometryModel::addGeomObject(const JointIndex parent,
+                                                               const fcl::CollisionObject & co,
+                                                               const SE3 & placement,
+                                                               const std::string & geoName)
   {
 
     Index idx = (Index) (ngeom ++);
@@ -54,6 +60,8 @@ namespace se3
     geom_parents         .push_back(parent);
     geometryPlacement    .push_back(placement);
     geom_names           .push_back( (geoName!="")?geoName:random(8));
+    
+    addInnerObject(parent, idx);
 
     return idx;
   }
@@ -78,15 +86,15 @@ namespace se3
     return geom_names[index];
   }
 
-  inline void GeometryModel::addInnerObject (const GeomIndex joint, const GeomIndex inner_object)
+  inline void GeometryModel::addInnerObject (const JointIndex joint_id, const GeomIndex inner_object)
   {
-    if (std::find(innerObjects[joint].begin(), innerObjects[joint].end(),inner_object)==innerObjects[joint].end())
-      innerObjects[joint].push_back(inner_object);
+    if (std::find(innerObjects[joint_id].begin(), innerObjects[joint_id].end(),inner_object)==innerObjects[joint_id].end())
+      innerObjects[joint_id].push_back(inner_object);
     else
       std::cout << "inner object already added" << std::endl;
   }
 
-  inline void GeometryModel::addOutterObject (const GeomIndex joint, const GeomIndex outer_object)
+  inline void GeometryModel::addOutterObject (const JointIndex joint, const GeomIndex outer_object)
   {
     if (std::find(outerObjects[joint].begin(), outerObjects[joint].end(),outer_object)==outerObjects[joint].end())
       outerObjects[joint].push_back(outer_object);
@@ -196,6 +204,16 @@ namespace se3
     
     return (Index) distance(collision_pairs.begin(), it);
   }
+  
+//  std::vector<Index> GeometryData::findCollisionPairsSupportedBy(const JointIndex joint_id) const
+//  {
+////    std::vector<Index> collision_pairs;
+////    for(CollisionPairsVector_t::const_iterator it = collision_pairs.begin();
+////        it != collision_pairs.end(); ++it)
+////    {
+////      if (geom_model.it->first )
+////    }
+//  }
 
   // TODO :  give a srdf file as argument, read it, and remove corresponding
   // pairs from list collision_pairs
@@ -281,6 +299,73 @@ namespace se3
   inline void GeometryData::resetDistances()
   {
     std::fill(distance_results.begin(), distance_results.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
+  }
+  
+  void GeometryData::addCollisionPairsFromSrdf(const std::string & filename,
+                                               const bool verbose) throw (std::invalid_argument)
+  {
+    // Check extension
+    const std::string extension = filename.substr(filename.find_last_of('.')+1);
+    if (extension != "srdf")
+    {
+      const std::string exception_message (filename + " does not have the right extension.");
+      throw std::invalid_argument(exception_message);
+    }
+      
+    // Open file
+    std::ifstream srdf_stream(filename.c_str());
+    if (! srdf_stream.is_open())
+    {
+      const std::string exception_message (filename + " does not seem to be a valid file.");
+      throw std::invalid_argument(exception_message);
+    }
+    
+    // Add all collision pairs
+    addAllCollisionPairs();
+    
+    // Read xml stream
+    using boost::property_tree::ptree;
+    ptree pt;
+    read_xml(srdf_stream, pt);
+    
+    // Iterate over collision pairs
+    const se3::Model & model = data_ref.model;
+    BOOST_FOREACH(const ptree::value_type & v, pt.get_child("robot"))
+    {
+      if (v.first == "disable_collisions")
+      {
+        const std::string link1 = v.second.get<std::string>("<xmlattr>.link1");
+        const std::string link2 = v.second.get<std::string>("<xmlattr>.link2");
+        
+        // Check first if the two bodies exist in model
+        if (!model.existBodyName(link1) || !model.existBodyName(link2))
+        {
+          if (verbose)
+            std::cout << "It seems that " << link1 << " or " << link2 << " do not exist in model. Skip." << std::endl;
+          continue;
+        }
+        
+        const Model::JointIndex id1 = model.getBodyId(link1);
+        const Model::JointIndex id2 = model.getBodyId(link2);
+        
+        typedef GeometryModel::GeomIndexList GeomIndexList;
+        const GeomIndexList & innerObject1 = model_geom.innerObjects.at(id1);
+        const GeomIndexList & innerObject2 = model_geom.innerObjects.at(id2);
+        
+        for(GeomIndexList::const_iterator it1 = innerObject1.begin();
+            it1 != innerObject1.end();
+            ++it1)
+        {
+          for(GeomIndexList::const_iterator it2 = innerObject2.begin();
+              it2 != innerObject2.end();
+              ++it2)
+          {
+            removeCollisionPair(CollisionPair(*it1, *it2));
+          }
+        }
+        
+      } // BOOST_FOREACH
+    }
   }
 
 

@@ -163,6 +163,8 @@ namespace se3
     typedef Model::Index Index;
     typedef Model::JointIndex JointIndex;
     typedef Model::GeomIndex GeomIndex;
+    
+    typedef std::list<GeomIndex> GeomIndexList;
 
     Index ngeom;
     std::vector<fcl::CollisionObject> collision_objects;
@@ -170,8 +172,8 @@ namespace se3
     std::vector<JointIndex> geom_parents;                          // Joint parent of body <i>, denoted <li> (li==parents[i])
     std::vector<SE3> geometryPlacement;                       // Position of geometry object in parent joint's frame
     
-    std::map < JointIndex, std::list<GeomIndex> >  innerObjects;       // Associate a list of CollisionObjects to a given joint Id 
-    std::map < JointIndex, std::list<GeomIndex> >  outerObjects;       // Associate a list of CollisionObjects to a given joint Id 
+    std::map < JointIndex, GeomIndexList >  innerObjects;       // Associate a list of CollisionObjects to a given joint Id
+    std::map < JointIndex, GeomIndexList >  outerObjects;       // Associate a list of CollisionObjects to a given joint Id
 
     GeometryModel()
       : ngeom(0)
@@ -350,6 +352,16 @@ namespace se3
     
     void desactivateCollisionPairs();
     void initializeListOfCollisionPairs();
+    
+    ///
+    /// \brief Active all possible collision pairs except those mentioned in the SRDF file.
+    ///        It throws if the SRDF file is incorrect.
+    ///
+    /// \param[in] filename The complete path to the SRDF file.
+    /// \param[in] verbose Verbosity mode.
+    ///
+    void addCollisionPairsFromSrdf(const std::string & filename,
+                                   const bool verbose = false) throw (std::invalid_argument);
 
     ///
     /// \brief Compute the collision status between two collision objects given by their indexes.

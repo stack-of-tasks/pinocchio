@@ -151,11 +151,11 @@ class RobotWrapper:
           return
         except:
           self.windowID = self.viewer.gui.createWindow (windowName)
-          if not meshDir: meshDir = os.path.dirname(self.modelFileName)+"/"
+          if not meshDir: meshDir = os.path.dirname(self.model_filename)+"/"
           self.viewer.gui.createSceneWithFloor("world")
           self.viewer.gui.addSceneToWindow("world",self.windowID)
           self.viewer.gui.addURDF(nodeName,
-                                  self.modelFileName,
+                                  self.model_filename,
                                   meshDir)
 
     # Display in gepetto-view the robot at configuration q, by placing all the bodies.
