@@ -175,7 +175,7 @@ namespace se3
     }
 
     inline std::pair<Model, GeometryModel> buildModelAndGeom(const std::string & filename,
-                                                              const std::string & meshRootDir)
+                                                             const std::string & meshRootDir)
     {
       // Read model
       Model model;
