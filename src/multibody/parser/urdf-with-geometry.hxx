@@ -37,7 +37,8 @@ namespace se3
   namespace urdf
   {
     
-    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link, const std::string & meshRootDir)
+    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link,
+                                                           const std::string & meshRootDir)
     {
       boost::shared_ptr < ::urdf::Collision> collision = link->collision;
       boost::shared_ptr < fcl::CollisionGeometry > geometry;
@@ -104,7 +105,7 @@ namespace se3
 
 
     inline void parseTreeForGeom(::urdf::LinkConstPtr link,
-                                 Model & model,
+                                 const Model & model,
                                  GeometryModel & model_geom,
                                  const std::string & meshRootDir,
                                  const bool rootJointAdded) throw (std::invalid_argument)
@@ -121,8 +122,8 @@ namespace se3
           if (link->collision)
           {
             fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, meshRootDir);
-            SE3 geomPlacement = convertFromUrdf(link->collision->origin);
-            std::string collision_object_name = link->name ;
+            const SE3 geomPlacement = convertFromUrdf(link->collision->origin);
+            const std::string & collision_object_name = link->name ;
             model_geom.addGeomObject(model.getJointId("root_joint"), collision_object, geomPlacement, collision_object_name);
           }
         }
@@ -134,8 +135,8 @@ namespace se3
           if (link->collision)
           {
             fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, meshRootDir);
-            SE3 geomPlacement = convertFromUrdf(link->collision->origin);
-            std::string collision_object_name = link->name ;
+            const SE3 geomPlacement = convertFromUrdf(link->collision->origin);
+            const std::string & collision_object_name = link->name ;
             model_geom.addGeomObject(model.getJointId(joint->name), collision_object, geomPlacement, collision_object_name);
           }      
         }

@@ -56,7 +56,8 @@ namespace se3
      *
      * @return     The mesh converted as a fcl::CollisionObject
      */
-    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link, const std::string & meshRootDir);
+    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link,
+                                                           const std::string & meshRootDir);
 
     
     /**
