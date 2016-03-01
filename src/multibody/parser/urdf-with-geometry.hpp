@@ -65,31 +65,20 @@ namespace se3
 
 
     /**
-     * @brief      Build The Model and GeometryModel from a URDF file with a particular joint as root of the model tree
+     * @brief      Build the GeometryModel from a URDF file.
      *
-     * @param[in]  filename     The URDF complete file path
-     * @param[in]  meshRootDir  Root path to the directory where meshes are located
+     * @param[in]  model     The model of the robot, built with urdf::buildModel.
+     * @param[in]  filename     The complete path to the URDF model.
+     * @param[in]  meshRootDir  Root path pointing to the directory where meshes are located.
      *
-     * @return     The pair <se3::Model, se3::GeometryModel> the Model tree and its geometric model associated
+     * @return     The geometric model.
      */
-    template <typename D>
-    std::pair<Model, GeometryModel > buildModelAndGeom(const std::string & filename,
-                                                       const std::string & meshRootDir,
-                                                       const JointModelBase<D> & root_joint);
-
-
-    /**
-     * @brief      Build The Model and GeometryModel from a URDF file with no root joint added to the model tree
-     *
-     * @param[in]  filename     The URDF complete file path
-     * @param[in]  meshRootDir  Root path to the directory where meshes are located
-     *
-     * @return     The pair <se3::Model, se3::GeometryModel> the Model tree and its geometric model associated
-     */
-    inline std::pair<Model, GeometryModel > buildModelAndGeom(const std::string & filename,
-                                                              const std::string & meshRootDir);
+    GeometryModel buildGeom(const Model & model,
+                            const std::string & filename,
+                            const std::string & meshRootDir);
 
   } // namespace urdf
+  
 } // namespace se3
 
 
