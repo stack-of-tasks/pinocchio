@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_SUITE ( GeomTest )
 BOOST_AUTO_TEST_CASE ( simple_boxes )
 {
   se3::Model model;
-  se3::GeometryModel model_geom;
+  se3::GeometryModel model_geom(model);
 
   se3::buildModels::collisionModel(model, model_geom);
 

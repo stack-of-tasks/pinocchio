@@ -166,6 +166,7 @@ namespace se3
     
     typedef std::list<GeomIndex> GeomIndexList;
 
+    const se3::Model & model;
     Index ngeom;
     std::vector<fcl::CollisionObject> collision_objects;
     std::vector<std::string> geom_names;
@@ -175,16 +176,16 @@ namespace se3
     std::map < JointIndex, GeomIndexList >  innerObjects;       // Associate a list of CollisionObjects to a given joint Id
     std::map < JointIndex, GeomIndexList >  outerObjects;       // Associate a list of CollisionObjects to a given joint Id
 
-    GeometryModel()
-      : ngeom(0)
+    GeometryModel(const se3::Model & model)
+      : model(model)
+      , ngeom(0)
       , collision_objects()
       , geom_names(0)
       , geom_parents(0)
       , geometryPlacement(0)
       , innerObjects()
       , outerObjects()
-    {
-    }
+    {}
 
     ~GeometryModel() {};
 

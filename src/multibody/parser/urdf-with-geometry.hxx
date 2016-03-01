@@ -103,7 +103,11 @@ namespace se3
     }
 
 
-    inline void parseTreeForGeom( ::urdf::LinkConstPtr link, Model & model,GeometryModel & model_geom, const std::string & meshRootDir, const bool rootJointAdded) throw (std::invalid_argument)
+    inline void parseTreeForGeom(::urdf::LinkConstPtr link,
+                                 Model & model,
+                                 GeometryModel & model_geom,
+                                 const std::string & meshRootDir,
+                                 const bool rootJointAdded) throw (std::invalid_argument)
     {
 
       // start with first link that is not empty
@@ -152,23 +156,37 @@ namespace se3
 
 
     template <typename D>
-    std::pair<Model, GeometryModel > buildModelAndGeom( const std::string & filename, const std::string & meshRootDir, const JointModelBase<D> &  root_joint )
+    std::pair<Model, GeometryModel>
+    buildModelAndGeom(const std::string & filename,
+                      const std::string & meshRootDir,
+                      const JointModelBase<D> & root_joint)
     {
-      Model model; GeometryModel model_geom;
-
+      // Read model
+      Model model;
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       parseTree(urdfTree->getRoot(), model, SE3::Identity(), root_joint);
+      
+      // Read geometries
+      GeometryModel model_geom(model);
       parseTreeForGeom(urdfTree->getRoot(), model, model_geom, meshRootDir, true);
+      
+      // Return a pair containing the kinematic tree and the geometries
       return std::make_pair(model, model_geom);
     }
 
-    inline std::pair<Model, GeometryModel > buildModelAndGeom( const std::string & filename, const std::string & meshRootDir)
+    inline std::pair<Model, GeometryModel> buildModelAndGeom(const std::string & filename,
+                                                              const std::string & meshRootDir)
     {
-      Model model; GeometryModel model_geom;
-
+      // Read model
+      Model model;
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       parseTree(urdfTree->getRoot(), model, SE3::Identity());
+      
+      // Read geometries
+      GeometryModel model_geom (model);
       parseTreeForGeom(urdfTree->getRoot(), model, model_geom, meshRootDir, false);
+      
+      // Return a pair containing the kinematic tree and the geometries
       return std::make_pair(model, model_geom);
     }
 

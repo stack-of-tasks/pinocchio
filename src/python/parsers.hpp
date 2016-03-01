@@ -98,16 +98,13 @@ namespace se3
         template <typename JointModel>
         ModelGeometryHandlerPair_t operator() (const JointModel & root_joint) const
         {
-
-
-          Model * model = new Model();
-          GeometryModel * geometry_model = new GeometryModel();
           std::pair < Model, GeometryModel > models = se3::urdf::buildModelAndGeom(_filenameUrdf, _filenameMeshRootDir, root_joint);
-          *model = models.first;
-          *geometry_model = models.second;
-          return std::pair<ModelHandler, GeometryModelHandler> ( ModelHandler(model, true),
-                                                                 GeometryModelHandler(geometry_model, true)
-                                                               );
+          Model * model = new Model (models.first);
+          GeometryModel * geometry_model = new GeometryModel (models.second);
+          
+          return std::pair<ModelHandler, GeometryModelHandler> (ModelHandler(model, true),
+                                                                GeometryModelHandler(geometry_model, true)
+                                                                );
         }
       };
 
@@ -125,15 +122,15 @@ namespace se3
       buildModelAndGeomFromUrdf(const std::string & filename,
                                 const std::string & mesh_dir)
       {
-        Model * model = new Model();
-        GeometryModel * geometry_model = new GeometryModel();
         std::pair < Model, GeometryModel > models = se3::urdf::buildModelAndGeom(filename, mesh_dir);
-        *model = models.first;
-        *geometry_model = models.second;
-        return std::pair<ModelHandler, GeometryModelHandler> ( ModelHandler(model, true),
-                                                               GeometryModelHandler(geometry_model, true)
+        Model * model = new Model(models.first);
+        GeometryModel * geometry_model = new GeometryModel(models.second);
+        
+        return std::pair<ModelHandler, GeometryModelHandler> (ModelHandler(model, true),
+                                                              GeometryModelHandler(geometry_model, true)
                                                              );
       }
+      
 #endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
 
