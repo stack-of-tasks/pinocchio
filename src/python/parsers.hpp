@@ -90,24 +90,21 @@ namespace se3
         const std::string& _filenameUrdf;
         const std::string& _filenameMeshRootDir;
 
-        build_model_and_geom_visitor(const std::string& filenameUrdf,
-                                     const std::string& filenameMeshRootDir): _filenameUrdf(filenameUrdf)
-                                                                            , _filenameMeshRootDir(filenameMeshRootDir)
+        build_model_and_geom_visitor(const std::string & filenameUrdf,
+                                     const std::string & filenameMeshRootDir)
+          : _filenameUrdf(filenameUrdf)
+          , _filenameMeshRootDir(filenameMeshRootDir)
         {}
 
         template <typename JointModel>
         ModelGeometryHandlerPair_t operator() (const JointModel & root_joint) const
         {
-
-
-          Model * model = new Model();
-          GeometryModel * geometry_model = new GeometryModel();
-          std::pair < Model, GeometryModel > models = se3::urdf::buildModelAndGeom(_filenameUrdf, _filenameMeshRootDir, root_joint);
-          *model = models.first;
-          *geometry_model = models.second;
-          return std::pair<ModelHandler, GeometryModelHandler> ( ModelHandler(model, true),
-                                                                 GeometryModelHandler(geometry_model, true)
-                                                               );
+          Model * model = new Model(se3::urdf::buildModel(_filenameUrdf, root_joint));
+          GeometryModel * geometry_model = new GeometryModel (se3::urdf::buildGeom(*model, _filenameUrdf, _filenameMeshRootDir));
+          
+          return std::pair<ModelHandler, GeometryModelHandler> (ModelHandler(model, true),
+                                                                GeometryModelHandler(geometry_model, true)
+                                                                );
         }
       };
 
@@ -125,15 +122,14 @@ namespace se3
       buildModelAndGeomFromUrdf(const std::string & filename,
                                 const std::string & mesh_dir)
       {
-        Model * model = new Model();
-        GeometryModel * geometry_model = new GeometryModel();
-        std::pair < Model, GeometryModel > models = se3::urdf::buildModelAndGeom(filename, mesh_dir);
-        *model = models.first;
-        *geometry_model = models.second;
-        return std::pair<ModelHandler, GeometryModelHandler> ( ModelHandler(model, true),
-                                                               GeometryModelHandler(geometry_model, true)
-                                                             );
+        Model * model = new Model(se3::urdf::buildModel(filename));
+        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename, mesh_dir));
+        
+        return ModelGeometryHandlerPair_t (ModelHandler(model, true),
+                                           GeometryModelHandler(geometry_model, true)
+                                           );
       }
+      
 #endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
 

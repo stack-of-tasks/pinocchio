@@ -21,23 +21,18 @@
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>
 
-#include <iostream>
 #include <boost/foreach.hpp>
 #include "pinocchio/multibody/model.hpp"
 
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
 #include "pinocchio/multibody/parser/from-collada-to-fcl.hpp"
-
-#include <exception>
 
 namespace se3
 {
   namespace urdf
   {
     
-    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link, const std::string & meshRootDir)
+    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link,
+                                                           const std::string & meshRootDir)
     {
       boost::shared_ptr < ::urdf::Collision> collision = link->collision;
       boost::shared_ptr < fcl::CollisionGeometry > geometry;
@@ -103,37 +98,34 @@ namespace se3
     }
 
 
-    inline void parseTreeForGeom( ::urdf::LinkConstPtr link, Model & model,GeometryModel & model_geom, const std::string & meshRootDir, const bool rootJointAdded) throw (std::invalid_argument)
+    inline void parseTreeForGeom(::urdf::LinkConstPtr link,
+                                 const Model & model,
+                                 GeometryModel & geom_model,
+                                 const std::string & meshRootDir,
+                                 const bool rootJointAdded) throw (std::invalid_argument)
     {
 
       // start with first link that is not empty
-      if(link->inertial)
+      if(link->collision)
       {
         ::urdf::JointConstPtr joint = link->parent_joint;
 
-        if (joint == NULL && rootJointAdded )
+        if (joint == NULL && rootJointAdded)
         {
-          
-          if (link->collision)
-          {
             fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, meshRootDir);
-            SE3 geomPlacement = convertFromUrdf(link->collision->origin);
-            std::string collision_object_name = link->name ;
-            model_geom.addGeomObject(model.getJointId("root_joint"), collision_object, geomPlacement, collision_object_name);
-          }
+            const SE3 geomPlacement = convertFromUrdf(link->collision->origin);
+            const std::string & collision_object_name = link->name ;
+            geom_model.addGeomObject(model.getJointId("root_joint"), collision_object, geomPlacement, collision_object_name);
+          
         }
-
-        if(joint!=NULL)
+        else if(joint!=NULL)
         {
           assert(link->getParent()!=NULL);
 
-          if (link->collision)
-          {
-            fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, meshRootDir);
-            SE3 geomPlacement = convertFromUrdf(link->collision->origin);
-            std::string collision_object_name = link->name ;
-            model_geom.addGeomObject(model.getJointId(joint->name), collision_object, geomPlacement, collision_object_name);
-          }      
+          fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, meshRootDir);
+          const SE3 geomPlacement = convertFromUrdf(link->collision->origin);
+          const std::string & collision_object_name = link->name ;
+          geom_model.addGeomObject(model.getJointId(joint->name), collision_object, geomPlacement, collision_object_name);
         }
         else if (link->getParent() != NULL)
         {
@@ -141,35 +133,34 @@ namespace se3
           throw std::invalid_argument(exception_message);
         }
 
-      }
+      } // if(link->inertial)
       
       BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
       {
-        parseTreeForGeom(child, model, model_geom, meshRootDir, rootJointAdded);
+        parseTreeForGeom(child, model, geom_model, meshRootDir, rootJointAdded);
       }
     }
 
-
-
-    template <typename D>
-    std::pair<Model, GeometryModel > buildModelAndGeom( const std::string & filename, const std::string & meshRootDir, const JointModelBase<D> &  root_joint )
+    GeometryModel buildGeom(const Model & model,
+                            const std::string & filename,
+                            const std::string & meshRootDir)
     {
-      Model model; GeometryModel model_geom;
-
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
-      parseTree(urdfTree->getRoot(), model, SE3::Identity(), root_joint);
-      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, meshRootDir, true);
-      return std::make_pair(model, model_geom);
-    }
-
-    inline std::pair<Model, GeometryModel > buildModelAndGeom( const std::string & filename, const std::string & meshRootDir)
-    {
-      Model model; GeometryModel model_geom;
-
-      ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
-      parseTree(urdfTree->getRoot(), model, SE3::Identity());
-      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, meshRootDir, false);
-      return std::make_pair(model, model_geom);
+      ::urdf::LinkConstPtr root_link = urdfTree->getRoot();
+      if (!root_link->inertial) // if the first body is just a base_link, i.e. with no inertial info
+      {
+        ::urdf::LinkPtr child_link = root_link->child_links[0];
+        
+        // Change the name of the parent joint
+        child_link->parent_joint->name = "root_joint";
+      }
+      
+      // Read geometries
+      GeometryModel geom_model (model);
+      parseTreeForGeom(urdfTree->getRoot(), model, geom_model, meshRootDir, true);
+      
+      // Return a pair containing the kinematic tree and the geometries
+      return geom_model;
     }
 
   } // namespace urdf

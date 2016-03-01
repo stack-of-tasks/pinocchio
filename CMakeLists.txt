@@ -130,6 +130,7 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/model.hpp
   multibody/model.hxx
   multibody/visitor.hpp
+  multibody/parser/srdf.hpp
   )
 
 SET(${PROJECT_NAME}_ALGORITHM_HEADERS

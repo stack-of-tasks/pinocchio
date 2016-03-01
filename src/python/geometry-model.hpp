@@ -79,8 +79,8 @@ namespace se3
 
     .def("__str__",&GeometryModelPythonVisitor::toString)
 
-	  .def("BuildEmptyGeometryModel",&GeometryModelPythonVisitor::maker_empty)
-	  .staticmethod("BuildEmptyGeometryModel")
+	  .def("BuildGeometryModel",&GeometryModelPythonVisitor::maker_default)
+	  .staticmethod("BuildGeometryModel")
 	  ;
       }
 
@@ -95,9 +95,9 @@ namespace se3
 
       
 
-      static GeometryModelHandler maker_empty()
+      static GeometryModelHandler maker_default(const ModelHandler & model)
       {
-	return GeometryModelHandler( new GeometryModel(),true );
+        return GeometryModelHandler(new GeometryModel(*model), true);
       }
  
 
