@@ -146,8 +146,21 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
 {
   se3::Model model;
   se3::GeometryModel model_geom(model);
+  
+  using namespace se3;
 
-  se3::buildModels::collisionModel(model, model_geom);
+  model.addBody(model.getBodyId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+                "planar1_joint", "planar1_body");
+  model.addBody(model.getBodyId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+                "planar2_joint", "planar2_body");
+  
+  boost::shared_ptr<fcl::Box> Sample(new fcl::Box(1));
+  fcl::CollisionObject box1(Sample, fcl::Transform3f());
+  model_geom.addGeomObject(model.getJointId("planar1_joint"),box1, SE3::Identity(),  "ff1_collision_object");
+  
+  boost::shared_ptr<fcl::Box> Sample2(new fcl::Box(1));
+  fcl::CollisionObject box2(Sample, fcl::Transform3f());
+  model_geom.addGeomObject(model.getJointId("planar2_joint"),box2, SE3::Identity(),  "ff2_collision_object");
 
   se3::Data data(model);
   se3::GeometryData data_geom(data, model_geom);
@@ -193,24 +206,24 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
-  std::pair < Model, GeometryModel > robot = se3::urdf::buildModelAndGeom(filename, meshDir, se3::JointModelFreeFlyer());
-  std::cout << robot.first << std::endl;
+  Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
+  GeometryModel geometry_model = se3::urdf::buildGeom(model, filename, meshDir);
 
-  Data data(robot.first);
-  GeometryData data_geom(data, robot.second);
+  Data data(model);
+  GeometryData geometry_data(data, geometry_model);
 
-  Eigen::VectorXd q(robot.first.nq);
+  Eigen::VectorXd q(model.nq);
   q << 0, 0, 0.840252, 0, 0, 0, 1, 0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0, 0, -0.3490658,
        0.6981317, -0.3490658, 0, 0, 1.5, 0.6, -0.5, -1.05, -0.4, -0.3, -0.2, 0, 0, 0, 0,
        1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2 ;
 
-  se3::updateGeometryPlacements(robot.first, data, robot.second, data_geom, q);
+  se3::updateGeometryPlacements(model, data, geometry_model, geometry_data, q);
 
-  assert(data_geom.computeCollision(1,10).fcl_collision_result.isCollision() == false && "");
+  assert(geometry_data.computeCollision(1,10).fcl_collision_result.isCollision() == false && "");
 }
 
 #ifdef WITH_HPP_MODEL_URDF
-BOOST_AUTO_TEST_CASE ( hrp2_joints_meshes_positions )
+BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
 {
   typedef se3::Model Model;
   typedef se3::GeometryModel GeometryModel;
