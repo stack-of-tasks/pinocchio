@@ -102,26 +102,31 @@ class RobotWrapper:
     def gravity(self,q):
         return se3.rnea(self.model,self.data,q,self.v0,self.v0)
     
-    def geometry(self,q):
-        se3.geometry(self.model, self.data, q)
-    def kinematics(self,q,v):
-        se3.kinematics(self.model, self.data, q, v)
-    def dynamics(self,q,v,a):
-        se3.dynamics(self.model, self.data, q, v, a)
+    def forwardKinematics(self,*args):
+        q = args[0]
+        if len(args) >= 2:
+            v = args[1]
+            if len(args) == 3:
+                a = args[2]
+                se3.forwardKinematics(self.model, self.data, q, v, a)
+            else:
+                se3.forwardKinematics(self.model, self.data, q, v)
+        else:
+            se3.forwardKinematics(self.model, self.data, q)
 
     def position(self,q,index, update_geometry = True):
         if update_geometry:
-            se3.geometry(self.model,self.data,q)
+            se3.forwardKinematics(self.model,self.data,q)
 
         return self.data.oMi[index]
     def velocity(self,q,v,index, update_kinematics = True):
         if update_kinematics:
-            se3.kinematics(self.model,self.data,q,v)
+            se3.forwardKinematics(self.model,self.data,q,v)
 
         return self.data.v[index]
     def acceleration(self,q,v,a,index, update_acceleration = True):
         if update_acceleration:
-          se3.dynamics(self.model,self.data,q,v,a)
+          se3.forwardKinematics(self.model,self.data,q,v,a)
         return self.data.a[index]
     def jacobian(self,q,index, update_geometry = True):
         return se3.jacobian(self.model,self.data,q,index,True,update_geometry)
