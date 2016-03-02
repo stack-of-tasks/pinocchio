@@ -75,7 +75,7 @@ namespace se3
   ///
   /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
   ///
-  inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
+  inline const Data::Matrix3x &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
                        const bool computeSubtreeComs = true);
@@ -92,7 +92,7 @@ namespace se3
   ///
   /// \return The center of mass position of the rigid body system expressed in the world frame (vector 3).
   ///
-  inline const Eigen::Vector3d &
+  inline const SE3::Vector3 &
   getComFromCrba(const Model & model, Data & data);
   
   ///
@@ -104,7 +104,7 @@ namespace se3
   ///
   /// \return The jacobian of the CoM expressed in the world frame (matrix 3 x model.nv).
   ///
-  inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
+  inline const Data::Matrix3x &
   getJacobianComFromCrba(const Model & model, Data & data);
   
 } // namespace se3 

@@ -128,7 +128,8 @@ namespace se3
     data.acom[0] /= data.mass[0];
   }
 
-  inline const Eigen::Vector3d & getComFromCrba(const Model &, Data & data)
+  inline const SE3::Vector3 &
+  getComFromCrba(const Model &, Data & data)
   {
     return data.com[0] = data.liMi[1].act(data.Ycrb[1].lever());
   }
@@ -216,7 +217,7 @@ namespace se3
 
   };
 
-  inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
+  inline const Data::Matrix3x &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
                        const bool computeSubtreeComs)
@@ -241,7 +242,7 @@ namespace se3
     return data.Jcom;
   }
 
-  inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
+  inline const Data::Matrix3x &
   getJacobianComFromCrba(const Model & model, Data & data)
   {
     const SE3 & oM1 = data.liMi[1];
