@@ -52,11 +52,11 @@ namespace se3
       typedef eigenpy::UnalignedEquivalent<Eigen::VectorXd>::type VectorXd_fx;
 
       static Eigen::VectorXd rnea_proxy( const ModelHandler& model, 
-            DataHandler & data,
-            const VectorXd_fx & q,
-            const VectorXd_fx & qd,
-            const VectorXd_fx & qdd )
-      { return rnea(*model,*data,q,qd,qdd); }
+                                        DataHandler & data,
+                                        const VectorXd_fx & q,
+                                        const VectorXd_fx & v,
+                                        const VectorXd_fx & a )
+      { return rnea(*model,*data,q,v,a); }
 
       static Eigen::VectorXd nle_proxy( const ModelHandler& model,
                                         DataHandler & data,
@@ -64,15 +64,15 @@ namespace se3
                                         const VectorXd_fx & qd )
       { return nonLinearEffects(*model,*data,q,qd); }
 
-      static Eigen::MatrixXd crba_proxy( const ModelHandler& model, 
-           DataHandler & data,
-           const VectorXd_fx & q )
+      static Eigen::MatrixXd crba_proxy(const ModelHandler& model,
+                                        DataHandler & data,
+                                        const VectorXd_fx & q)
       {
-  data->M.fill(0);
-  crba(*model,*data,q); 
-  data->M.triangularView<Eigen::StrictlyLower>()
-    = data->M.transpose().triangularView<Eigen::StrictlyLower>();
-  return data->M;
+        data->M.fill(0);
+        crba(*model,*data,q);
+        data->M.triangularView<Eigen::StrictlyLower>()
+        = data->M.transpose().triangularView<Eigen::StrictlyLower>();
+        return data->M;
       }
 
       static SE3::Vector3
@@ -117,28 +117,29 @@ namespace se3
                  const VectorXd_fx & q)
       { return jacobianCenterOfMass(*model,*data,q); }
 
-      static Data::Matrix6x jacobian_proxy( const ModelHandler& model, 
-               DataHandler & data,
-               const VectorXd_fx & q,
-               Model::JointIndex jointId,
-               bool local,
-							 bool update_geometry )
+      static Data::Matrix6x
+      jacobian_proxy(const ModelHandler & model,
+                     DataHandler & data,
+                     const VectorXd_fx & q,
+                     Model::JointIndex jointId,
+                     bool local,
+                     bool update_geometry)
       {
-  Data::Matrix6x J( 6,model->nv ); J.setZero();
-	if (update_geometry)
-  	computeJacobians( *model,*data,q );
-  if(local) getJacobian<true> (*model, *data, jointId, J);
-  else getJacobian<false> (*model, *data, jointId, J);
-  return J;
+        Data::Matrix6x J( 6,model->nv ); J.setZero();
+        if (update_geometry)
+          computeJacobians( *model,*data,q );
+        if(local) getJacobian<true> (*model, *data, jointId, J);
+        else getJacobian<false> (*model, *data, jointId, J);
+        return J;
       }
       
-      static Data::Matrix6x frame_jacobian_proxy(const ModelHandler& model, 
-                                                        DataHandler & data,
-                                                        const VectorXd_fx & q,
-                                                        Model::FrameIndex frame_id,
-                                                        bool local,
-                                                        bool update_geometry
-                                                        )
+      static Data::Matrix6x frame_jacobian_proxy(const ModelHandler & model, 
+                                                 DataHandler & data,
+                                                 const VectorXd_fx & q,
+                                                 Model::FrameIndex frame_id,
+                                                 bool local,
+                                                 bool update_geometry
+                                                 )
       {
         Data::Matrix6x J( 6,model->nv ); J.setZero();
 
@@ -151,9 +152,9 @@ namespace se3
         return J;
       }
 
-      static void compute_jacobians_proxy(const ModelHandler& model, 
-               DataHandler & data,
-               const VectorXd_fx & q)
+      static void compute_jacobians_proxy(const ModelHandler& model,
+                                          DataHandler & data,
+                                          const VectorXd_fx & q)
       {
         computeJacobians( *model,*data,q );
       }
@@ -196,10 +197,10 @@ namespace se3
                                         const VectorXd_fx & q,
                                         const VectorXd_fx & v)
       {
-	data->M.fill(0);
+        data->M.fill(0);
         computeAllTerms(*model,*data,q,v);
-	data->M.triangularView<Eigen::StrictlyLower>()
-	  = data->M.transpose().triangularView<Eigen::StrictlyLower>();
+        data->M.triangularView<Eigen::StrictlyLower>()
+        = data->M.transpose().triangularView<Eigen::StrictlyLower>();
       }
 
       static void jointLimits_proxy(const ModelHandler & model,
@@ -348,46 +349,46 @@ namespace se3
                          "Acceleration a (size Model::nv)"),
                 "Compute the placements, spatial velocities and spatial accelerations of all the frames of the kinematic "
                 "tree and put the results in data.");
-
-  bp::def("computeAllTerms",computeAllTerms_proxy,
-    bp::args("Model","Data",
-             "Configuration q (size Model::nq)",
-             "Velocity v (size Model::nv)"),
-             "Compute all the terms M, non linear effects and Jacobians in"
-             "in the same loop and put the results in data.");
-
-  bp::def("jacobian",jacobian_proxy,
-    bp::args("Model","Data",
-       "Configuration q (size Model::nq)",
-       "Joint ID (int)",
-       "frame (true = local, false = world)",
-       "update_geometry (true = update the value of the total jacobian)"),
-    "Calling computeJacobians then getJacobian, return the result. Attention: the "
-    "function computes indeed all the jacobians of the model, even if just outputing "
-    "the demanded one if update_geometry is set to false. It is therefore outrageously costly wrt a dedicated "
-    "call. Function to be used only for prototyping.");
-
-  bp::def("Framejacobian",frame_jacobian_proxy,
-    bp::args("Model","Data",
-       "Configuration q (size Model::nq)",
-       "Operational frame ID (int)",
-       "frame (true = local, false = world)",
-       "update_geometry (true = recompute the kinematics)"),
-    "Call computeJacobians if update_geometry is true. If not, user should call computeJacobians first."
-    "Then call getJacobian and return the resulted jacobian matrix. Attention: if update_geometry is true, the "
-    "function computes all the jacobians of the model, even if just outputing "
-    "the demanded one. It is therefore outrageously costly wrt a dedicated "
-    "call. Use only with update_geometry for prototyping.");
-
-  bp::def("computeJacobians",compute_jacobians_proxy,
-    bp::args("Model","Data",
-       "Configuration q (size Model::nq)"),
-    "Calling computeJacobians");
-
-  bp::def("jointLimits",jointLimits_proxy,
-    bp::args("Model","Data",
-        "Configuration q (size Model::nq)"),
-        "Compute the maximum limits of all the joints of the model "
+        
+        bp::def("computeAllTerms",computeAllTerms_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)"),
+                "Compute all the terms M, non linear effects and Jacobians in"
+                "in the same loop and put the results in data.");
+        
+        bp::def("jacobian",jacobian_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Joint ID (int)",
+                         "frame (true = local, false = world)",
+                         "update_geometry (true = update the value of the total jacobian)"),
+                "Calling computeJacobians then getJacobian, return the result. Attention: the "
+                "function computes indeed all the jacobians of the model, even if just outputing "
+                "the demanded one if update_geometry is set to false. It is therefore outrageously costly wrt a dedicated "
+                "call. Function to be used only for prototyping.");
+        
+        bp::def("Framejacobian",frame_jacobian_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Operational frame ID (int)",
+                         "frame (true = local, false = world)",
+                         "update_geometry (true = recompute the kinematics)"),
+                "Call computeJacobians if update_geometry is true. If not, user should call computeJacobians first."
+                "Then call getJacobian and return the resulted jacobian matrix. Attention: if update_geometry is true, the "
+                "function computes all the jacobians of the model, even if just outputing "
+                "the demanded one. It is therefore outrageously costly wrt a dedicated "
+                "call. Use only with update_geometry for prototyping.");
+        
+        bp::def("computeJacobians",compute_jacobians_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)"),
+                "Calling computeJacobians");
+        
+        bp::def("jointLimits",jointLimits_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)"),
+                "Compute the maximum limits of all the joints of the model "
           "and put the results in data.");
         
         bp::def("kineticEnergy",kineticEnergy_proxy,

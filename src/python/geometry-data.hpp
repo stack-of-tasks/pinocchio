@@ -231,8 +231,8 @@ namespace se3
         .def(bp::vector_indexing_suite< std::vector<CollisionResult> >());
 
         bp::class_<GeometryDataHandler>("GeometryData",
-                                 "Geometry data linked to a geometry model",
-                                 bp::no_init)
+                                        "Geometry data linked to a geometry model and data struct.",
+                                        bp::no_init)
         .def(GeometryDataPythonVisitor());
      
         bp::to_python_converter< GeometryDataHandler::SmartPtr_t,GeometryDataPythonVisitor >();
