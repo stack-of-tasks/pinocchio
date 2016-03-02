@@ -23,7 +23,7 @@
 namespace se3
 {
 
-  inline const Eigen::Vector3d &
+  inline const SE3::Vector3 &
   centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
                const bool computeSubtreeComs,
@@ -67,13 +67,69 @@ namespace se3
     return data.com[0];
   }
   
-  inline void
-  centerOfMassAcceleration(const Model & model, Data & data,
-                           const Eigen::VectorXd & q,
-                           const Eigen::VectorXd & v,
-                           const Eigen::VectorXd & a,
-                           const bool computeSubtreeComs,
-                           const bool updateKinematics)
+  inline const SE3::Vector3 &
+  centerOfMass(const Model & model, Data & data,
+               const Eigen::VectorXd & q,
+               const Eigen::VectorXd & v,
+               const bool computeSubtreeComs,
+               const bool updateKinematics)
+  {
+    using namespace se3;
+    
+    data.mass[0] = 0;
+    data.com[0].setZero ();
+    data.vcom[0].setZero ();
+    
+    // Forward Step
+    if (updateKinematics)
+      forwardKinematics(model, data, q, v);
+    
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.nbody);++i)
+    {
+      const double mass = model.inertias[i].mass();
+      const SE3::Vector3 & lever = model.inertias[i].lever();
+      
+      const Motion & v = data.v[i];
+      
+      data.com[i]  = mass * lever;
+      data.mass[i] = mass;
+      
+      data.vcom[i] = mass * (v.angular().cross(lever) + v.linear());
+    }
+    
+    // Backward Step
+    for(Model::JointIndex i=(Model::JointIndex)(model.nbody-1); i>0; --i)
+    {
+      const Model::JointIndex & parent = model.parents[i];
+      
+      const SE3 & liMi = data.liMi[i];
+      
+      data.com[parent] += (liMi.rotation()*data.com[i]
+                           + data.mass[i] * liMi.translation());
+      
+      data.vcom[parent] += liMi.rotation()*data.vcom[i];
+      data.mass[parent] += data.mass[i];
+      
+      if( computeSubtreeComs )
+      {
+        data.com[i] /= data.mass[i];
+        data.vcom[i] /= data.mass[i];
+      }
+    }
+    
+    data.com[0] /= data.mass[0];
+    data.vcom[0] /= data.mass[0];
+    
+    return data.com[0];
+  }
+  
+  inline const SE3::Vector3 &
+  centerOfMass(const Model & model, Data & data,
+               const Eigen::VectorXd & q,
+               const Eigen::VectorXd & v,
+               const Eigen::VectorXd & a,
+               const bool computeSubtreeComs,
+               const bool updateKinematics)
   {
     using namespace se3;
 
@@ -126,6 +182,8 @@ namespace se3
     data.com[0] /= data.mass[0];
     data.vcom[0] /= data.mass[0];
     data.acom[0] /= data.mass[0];
+    
+    return data.com[0];
   }
 
   inline const SE3::Vector3 &

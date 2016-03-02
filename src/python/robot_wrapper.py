@@ -69,13 +69,28 @@ class RobotWrapper:
         return self.model.nv
 
     def com(self,*args):
-        if len(args) == 3:
-            q = args[0]
-            v = args[1]
-            a = args[2]
-            se3.centerOfMassAcceleration(self.model,self.data,q,v,a)
-            return self.data.com[0], self.data.vcom[0], self.data.acom[0]
-        return se3.centerOfMass(self.model,self.data,args[0])
+        q = args[0]
+        update_kinematics = True
+        if len(args)>=2:
+            if isinstance(args[1], bool):
+                update_kinematics = args[1]
+                return se3.centerOfMass(self.model,self.data,q,update_kinematics)
+            else:
+                v = args[1]
+        
+                if len(args) >= 3:
+                    if isinstance(args[2], bool):
+                        update_kinematics = args[2]
+                        se3.centerOfMass(self.model,self.data,q,v,update_kinematics)
+                        return self.data.com[0], self.data.vcom[0]
+                    else:
+                        a = args[2]
+                        if len(args) == 4:
+                            update_kinematics = args[3]
+                        se3.centerOfMass(self.model,self.data,q,v,a,update_kinematics)
+                        return self.data.com[0], self.data.vcom[0], data.acom[0]
+        else:
+            return se3.centerOfMass(self.model,self.data,q,update_kinematics)
 
     def Jcom(self,q):
         return se3.jacobianCenterOfMass(self.model,self.data,q)

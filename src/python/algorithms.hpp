@@ -75,21 +75,46 @@ namespace se3
   return data->M;
       }
 
-      static Eigen::VectorXd com_proxy( const ModelHandler& model, 
-          DataHandler & data,
-          const VectorXd_fx & q )
-      { return centerOfMass(*model,*data,q); }
+      static SE3::Vector3
+      com_0_proxy(const ModelHandler& model,
+                DataHandler & data,
+                const VectorXd_fx & q,
+                const bool updateKinematics = true)
+      {
+        return centerOfMass(*model,*data,q,
+                            true,
+                            updateKinematics);
+      }
       
-      static void com_acceleration_proxy(const ModelHandler& model,
-                                         DataHandler & data,
-                                         const VectorXd_fx & q,
-                                         const VectorXd_fx & v,
-                                         const VectorXd_fx & a)
-      { return centerOfMassAcceleration(*model,*data,q,v,a); }
+      static SE3::Vector3
+      com_1_proxy(const ModelHandler& model,
+                  DataHandler & data,
+                  const VectorXd_fx & q,
+                  const VectorXd_fx & v,
+                  const bool updateKinematics = true)
+      {
+        return centerOfMass(*model,*data,q,v,
+                            true,
+                            updateKinematics);
+      }
+      
+      static SE3::Vector3
+      com_2_proxy(const ModelHandler & model,
+                             DataHandler & data,
+                             const VectorXd_fx & q,
+                             const VectorXd_fx & v,
+                             const VectorXd_fx & a,
+                             const bool updateKinematics = true)
+      {
+        return centerOfMass(*model,*data,q,v,a,
+                            true,
+                            updateKinematics);
+      }
 
-      static Eigen::MatrixXd Jcom_proxy( const ModelHandler& model, 
-           DataHandler & data,
-           const VectorXd_fx & q )
+      static Data::Matrix3x
+      Jcom_proxy(const ModelHandler& model,
+                 DataHandler & data,
+                 const VectorXd_fx & q)
       { return jacobianCenterOfMass(*model,*data,q); }
 
       static Data::Matrix6x jacobian_proxy( const ModelHandler& model, 
@@ -250,28 +275,58 @@ namespace se3
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-  bp::def("rnea",rnea_proxy,
-    bp::args("Model","Data",
-       "Configuration q (size Model::nq)",
-       "Velocity qdot (size Model::nv)",
-       "Acceleration qddot (size Model::nv)"),
-    "Compute the RNEA, put the result in Data and return it.");
+        bp::def("rnea",rnea_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)",
+                         "Acceleration a (size Model::nv)"),
+                "Compute the RNEA, put the result in Data and return it.");
+        
+        bp::def("nle",nle_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)"),
+                "Compute the Non Linear Effects (coriolis, centrifugal and gravitational effects), put the result in Data and return it.");
+        
+        bp::def("crba",crba_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)"),
+                "Compute CRBA, put the result in Data and return it.");
+        
+        bp::def("centerOfMass",com_0_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Update kinematics"),
+                "Compute the center of mass, putting the result in Data and return it.");
+        
+        bp::def("centerOfMass",com_1_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)",
+                         "Update kinematics"),
+                "Compute the center of mass position and velocuty by storing the result in Data"
+                "and return the center of mass position of the full model expressed in the world frame.");
+        
+        bp::def("centerOfMass",com_2_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)",
+                         "Acceleration a (size Model::nv)",
+                         "Update kinematics"),
+                "Compute the center of mass position, velocity and acceleration by storing the result in Data"
+                "and return the center of mass position of the full model expressed in the world frame.");
 
-  bp::def("nle",nle_proxy,
-    bp::args("Model","Data",
-        "Configuration q (size Model::nq)",
-        "Velocity qdot (size Model::nv)"),
-        "Compute the Non Linear Effects (coriolis, centrifugal and gravitational effects), put the result in Data and return it.");
-
-  bp::def("crba",crba_proxy,
-    bp::args("Model","Data",
-       "Configuration q (size Model::nq)"),
-    "Compute CRBA, put the result in Data and return it.");
-
-  bp::def("centerOfMass",com_proxy,
-    bp::args("Model","Data",
-       "Configuration q (size Model::nq)"),
-    "Compute the center of mass, putting the result in Data and return it.");
+        bp::def("jacobianCenterOfMass",Jcom_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)"),
+                "Compute the jacobian of the center of mass, put the result in Data and return it.");
+        
+        
+        bp::def("framesKinematics",frames_fk_0_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)"),
+                "Compute the placements and spatial velocities of all the operational frames "
+                "and put the results in data.");
         
   bp::def("centerOfMassAcceleration",com_acceleration_proxy,
     bp::args("Model","Data",
