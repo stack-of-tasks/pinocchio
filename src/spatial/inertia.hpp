@@ -192,6 +192,26 @@ namespace se3
                         Symmetric3::RandomPositive());
     }
 
+    static InertiaTpl FromSphere(const Scalar_t m, const Scalar_t r)
+    {
+      Scalar_t i = m * r*r * 2 / 5;
+      return InertiaTpl(m, Vector3::Zero(), Symmetric3(i, 0, i, 0, 0, i));
+    }
+
+    static InertiaTpl FromCylinder(const Scalar_t m, const Scalar_t r, const Scalar_t l)
+    {
+      Scalar_t a = m * (r*r / 4 + l*l / 12);
+      Scalar_t c = m * (r*r / 2);
+      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, a, 0, 0, c));
+    }
+
+    static InertiaTpl FromBox(const Scalar_t m, const Scalar_t w, const Scalar_t h, const Scalar_t d)
+    {
+      Scalar_t a = m * (h*h + d*d) / 12;
+      Scalar_t b = m * (w*w + d*d) / 12;
+      Scalar_t c = m * (h*h + w*w) / 12;
+      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, b, 0, 0, c));
+    }
 
     Matrix6 matrix_impl() const
     {

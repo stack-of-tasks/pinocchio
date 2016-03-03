@@ -94,6 +94,16 @@ namespace se3
 	  .staticmethod("Zero")
 	  .def("Random",&Inertia_fx::Random)
 	  .staticmethod("Random")
+    .def("FromSphere",&Inertia_fx::FromSphere, bp::default_call_policies(),
+        (bp::arg("mass"), bp::arg("radius")))
+    .staticmethod("FromSphere")
+    .def("FromCylinder",&Inertia_fx::FromCylinder, bp::default_call_policies(),
+        (bp::arg("mass"), bp::arg("radius"), bp::arg("length")))
+    .staticmethod("FromCylinder")
+    .def("FromBox",&Inertia_fx::FromBox, bp::default_call_policies(),
+        (bp::arg("mass"), bp::arg("width"), bp::arg("height"),
+         bp::arg("depth")))
+    .staticmethod("FromBox")
 	  ;
 	  }
 
