@@ -79,7 +79,7 @@ namespace se3
 
     void disp(std::ostream & os) const { static_cast<const Derived_t*>(this)->disp_impl(os); }
     friend std::ostream & operator << (std::ostream & os,const InertiaBase<Derived_t> & X)
-    { 
+    {
       X.disp(os);
       return os;
     }
@@ -118,7 +118,7 @@ namespace se3
     friend class InertiaBase< InertiaTpl< _Scalar, _Options > >;
     SPATIAL_TYPEDEF_TEMPLATE(InertiaTpl);
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    
+
   public:
     // Constructors
     InertiaTpl() : m(), c(), I() {}
@@ -126,7 +126,7 @@ namespace se3
     InertiaTpl(const Scalar_t m_, const Vector3 &c_, const Matrix3 &I_)
     : m(m_), c(c_), I(I_)
     {}
-    
+
     InertiaTpl(const Matrix6 & I6)
     {
       assert((I6 - I6.transpose()).isMuchSmallerThan(I6));
@@ -134,15 +134,15 @@ namespace se3
       const Matrix3 & mc_cross = I6.template block <3,3> (ANGULAR,LINEAR);
       c = unSkew(mc_cross);
       c /= m;
-      
+
       Matrix3 I3 (mc_cross * mc_cross);
       I3 /= m;
       I3 += I6.template block<3,3>(ANGULAR,ANGULAR);
       I = Symmetric3(I3);
     }
 
-    InertiaTpl(Scalar_t _m, 
-     const Vector3 &_c, 
+    InertiaTpl(Scalar_t _m,
+     const Vector3 &_c,
      const Symmetric3 &_I)
     : m(_m),
     c(_c),
@@ -150,10 +150,10 @@ namespace se3
     {
 
     }
-    InertiaTpl(const InertiaTpl & clone)  // Clone constructor for std::vector 
+    InertiaTpl(const InertiaTpl & clone)  // Clone constructor for std::vector
     : m(clone.m),
     c(clone.c),
-    I(clone.I)    
+    I(clone.I)
     {
 
     }
@@ -170,17 +170,17 @@ namespace se3
 
 
     // Initializers
-    static InertiaTpl Zero() 
+    static InertiaTpl Zero()
     {
-      return InertiaTpl(0., 
-                        Vector3::Zero(), 
+      return InertiaTpl(0.,
+                        Vector3::Zero(),
                         Symmetric3::Zero());
     }
 
-    static InertiaTpl Identity() 
+    static InertiaTpl Identity()
     {
-      return InertiaTpl(1., 
-                        Vector3::Zero(), 
+      return InertiaTpl(1.,
+                        Vector3::Zero(),
                         Symmetric3::Identity());
     }
 
@@ -213,9 +213,9 @@ namespace se3
       return *this;
     }
 
-    // Requiered by std::vector boost::python bindings. 
+    // Requiered by std::vector boost::python bindings.
     bool isEqual( const InertiaTpl& Y2 ) const
-    { 
+    {
       return (m==Y2.m) && (c==Y2.c) && (I==Y2.I);
     }
 
@@ -244,14 +244,14 @@ namespace se3
       return *this;
     }
 
-    Force __mult__(const Motion &v) const 
+    Force __mult__(const Motion &v) const
     {
       Force f;
       f.linear() = m*(v.linear() - c.cross(v.angular()));
       f.angular() = c.cross(f.linear()) + I*v.angular();
       return f;
     }
-    
+
     Scalar_t vtiv_impl(const Motion & v) const
     {
       const Vector3 cxw (c.cross(v.angular()));
@@ -259,7 +259,7 @@ namespace se3
       const Vector3 mcxcxw (-m*c.cross(cxw));
       res += v.angular().dot(mcxcxw);
       res += I.vtiv(v.angular());
-      
+
       return res;
     }
 
@@ -267,7 +267,7 @@ namespace se3
     Scalar_t           mass()    const { return m; }
     const Vector3 &    lever()   const { return c; }
     const Symmetric3 & inertia() const { return I; }
-    
+
     Scalar_t &   mass()    { return m; }
     Vector3 &    lever()   { return c; }
     Symmetric3 & inertia() { return I; }
@@ -291,7 +291,7 @@ namespace se3
                         I.rotate(M.rotation().transpose()) );
     }
 
-    Force vxiv( const Motion& v ) const 
+    Force vxiv( const Motion& v ) const
     {
       const Vector3 & mcxw = m*c.cross(v.angular());
       const Vector3 & mv_mcxw = m*v.linear()-mcxw;
@@ -310,11 +310,11 @@ namespace se3
     Scalar_t m;
     Vector3 c;
     Symmetric3 I;
-    
+
   }; // class InertiaTpl
 
   typedef InertiaTpl<double,0> Inertia;
-    
+
 } // namespace se3
 
 #endif // ifndef __se3_inertia_hpp__

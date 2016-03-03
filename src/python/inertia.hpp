@@ -54,9 +54,9 @@ namespace se3
       typedef typename Inertia_fx::Vector6 Vector6_fx;
       typedef typename Inertia_fx::Vector3 Vector3_fx;
       typedef typename Inertia_fx::Motion  Motion_fx ;
-      
+
       typedef typename Inertia_fx::Scalar_t Scalar_t;
-      
+
     public:
 
       static PyObject* convert(Inertia const& m)
@@ -66,7 +66,7 @@ namespace se3
       }
 
       template<class PyClass>
-      void visit(PyClass& cl) const 
+      void visit(PyClass& cl) const
       {
 	cl
 	  .def("__init__",
@@ -96,29 +96,29 @@ namespace se3
 	  .staticmethod("Random")
 	  ;
 	  }
-      
+
       static Scalar_t getMass( const Inertia_fx & self ) { return self.mass(); }
       static void setMass( Inertia_fx & self, Scalar_t mass ) { self.mass() = mass; }
-      
+
       static Vector3_fx getLever( const Inertia_fx & self ) { return self.lever(); }
       static void setLever( Inertia_fx & self, const Vector3_fx & lever ) { self.lever() = lever; }
-      
+
       static Matrix3_fx getInertia( const Inertia_fx & self ) { return self.inertia().matrix(); }
       static void setInertia( Inertia_fx & self, const Vector6_fx & minimal_inertia ) { self.inertia().data() = minimal_inertia; }
 
       static Inertia_fx* makeFromMCI(const double & mass,
 				     const Vector3_fx & lever,
-				     const Matrix3_fx & inertia) 
+				     const Matrix3_fx & inertia)
       {
-	if(! inertia.isApprox(inertia.transpose()) ) 
+	if(! inertia.isApprox(inertia.transpose()) )
 	   throw eigenpy::Exception("The 3d inertia should be symmetric.");
 	if( (Eigen::Vector3d::UnitX().transpose()*inertia*Eigen::Vector3d::UnitX()<0)
 	    || (Eigen::Vector3d::UnitY().transpose()*inertia*Eigen::Vector3d::UnitY()<0)
 	    || (Eigen::Vector3d::UnitZ().transpose()*inertia*Eigen::Vector3d::UnitZ()<0) )
 	  throw eigenpy::Exception("The 3d inertia should be positive.");
-	return new Inertia_fx(mass,lever,inertia); 
+	return new Inertia_fx(mass,lever,inertia);
       }
-      static std::string toString(const Inertia_fx& m) 
+      static std::string toString(const Inertia_fx& m)
       {	  std::ostringstream s; s << m; return s.str();       }
 
       static void expose()
@@ -129,13 +129,13 @@ namespace se3
 			     bp::init<>())
 	  .def(InertiaPythonVisitor<Inertia>())
 	;
-    
+
 	bp::to_python_converter< Inertia,InertiaPythonVisitor<Inertia> >();
     }
 
 
     }; // struct InertiaPythonVisitor
-    
+
 
 
   }} // namespace se3::python
