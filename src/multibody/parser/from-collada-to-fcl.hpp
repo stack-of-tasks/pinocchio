@@ -206,7 +206,7 @@ namespace se3
    *
    * @return     The absolute path to the mesh file
    */
-   inline std::string fromURDFMeshPathToAbsolutePathPack(const std::string & urdf_mesh_path,
+   inline std::string convertURDFMeshPathToAbsolutePath(const std::string & urdf_mesh_path,
                                                          const std::vector<std::string> & package_dirs)
    {
     // if exists p1/mesh, absolutePath = p1/mesh,
@@ -227,16 +227,6 @@ namespace se3
     }
     return absolutePath;
    }
-
-  inline std::string fromURDFMeshPathToAbsolutePath(const std::string & urdf_mesh_path,
-                                                    const std::string & meshRootDir)
-  {
-    
-    std::string absolutePath = std::string(meshRootDir +
-                                           urdf_mesh_path.substr(10, urdf_mesh_path.size()));
-    
-    return absolutePath;
-  }
 
 } // namespace se3
 

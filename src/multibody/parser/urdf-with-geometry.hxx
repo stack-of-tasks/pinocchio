@@ -42,7 +42,7 @@ namespace se3
         boost::shared_ptr < ::urdf::Mesh> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Mesh> (collision->geometry);
         std::string collisionFilename = collisionGeometry->filename;
 
-        std::string full_path = fromURDFMeshPathToAbsolutePathPack(collisionFilename, package_dirs);
+        std::string full_path = convertURDFMeshPathToAbsolutePath(collisionFilename, package_dirs);
 
         ::urdf::Vector3 scale = collisionGeometry->scale;
 
