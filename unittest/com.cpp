@@ -64,13 +64,13 @@ BOOST_AUTO_TEST_CASE ( test_com )
   BOOST_CHECK(com.isApprox(data.com[0], 1e-12));
 
 	/* Test COM against Jcom (both use different way of compute the COM. */
-  centerOfMassAcceleration(model,data,q,v,a);
+  centerOfMass(model,data,q,v,a);
   BOOST_CHECK(com.isApprox(data.com[0], 1e-12));
 
   /* Test vCoM againt nle algorithm without gravity field */
   a.setZero();
   model.gravity.setZero();
-  centerOfMassAcceleration(model,data,q,v,a);
+  centerOfMass(model,data,q,v,a);
   nonLinearEffects(model, data, q, v);
   
   se3::SE3::Vector3 acom_from_nle (data.nle.head <3> ()/data.mass[0]);
@@ -80,6 +80,11 @@ BOOST_AUTO_TEST_CASE ( test_com )
   Eigen::MatrixXd Jcom = jacobianCenterOfMass(model,data,q);
   BOOST_CHECK(data.Jcom.isApprox(getJacobianComFromCrba(model,data), 1e-12));
 
+  /* Test CoM vecolity againt jacobianCenterOfMass */
+  BOOST_CHECK((Jcom * v).isApprox(data.vcom[0], 1e-12));
+  
+  
+  centerOfMass(model,data,q,v);
   /* Test CoM vecolity againt jacobianCenterOfMass */
   BOOST_CHECK((Jcom * v).isApprox(data.vcom[0], 1e-12));
 

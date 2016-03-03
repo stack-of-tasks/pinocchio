@@ -35,11 +35,32 @@ namespace se3
   /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
   /// \param[in] updateKinematics If true, the algorithm updates first the geometry of the tree. Otherwise, it uses the current kinematics stored in data.
   ///
-  /// \return The center of mass position of the rigid body system expressed in the world frame (vector 3).
+  /// \return The center of mass position of the full rigid body system expressed in the world frame.
   ///
-  inline const Eigen::Vector3d &
-  centerOfMass(const Model & model, Data& data,
+  inline const SE3::Vector3 &
+  centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
+               const bool computeSubtreeComs = true,
+               const bool updateKinematics = true);
+  
+  ///
+  /// \brief Computes the center of mass position, velocity and acceleration of a given model according to a particular joint configuration, velocity and acceleration.
+  ///        The result is accessible throw data.com[0], data.vcom[0], data.acom[0] for the full body com position, velocity and acceleation.
+  ///        And data.com[i], data.vcom[i] and data.acom[i] for the subtree supported by joint i (expressed in the joint i frame).
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
+  /// \param[in] updateKinematics If true, the algorithm updates first the second order kinematics of the tree. Otherwise, it uses the current kinematics stored in data.
+  ///
+  /// \return The center of mass position of the full rigid body system expressed in the world frame.
+  ///
+  inline const SE3::Vector3 &
+  centerOfMass(const Model & model, Data & data,
+               const Eigen::VectorXd & q,
+               const Eigen::VectorXd & v,
                const bool computeSubtreeComs = true,
                const bool updateKinematics = true);
   
@@ -56,12 +77,15 @@ namespace se3
   /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
   /// \param[in] updateKinematics If true, the algorithm updates first the second order kinematics of the tree. Otherwise, it uses the current kinematics stored in data.
   ///
-  inline void centerOfMassAcceleration(const Model & model, Data & data,
-                                       const Eigen::VectorXd & q,
-                                       const Eigen::VectorXd & v,
-                                       const Eigen::VectorXd & a,
-                                       const bool computeSubtreeComs = true,
-                                       const bool updateKinematics = true);
+  /// \return The center of mass position of the full rigid body system expressed in the world frame.
+  ///
+  inline const SE3::Vector3 &
+  centerOfMass(const Model & model, Data & data,
+               const Eigen::VectorXd & q,
+               const Eigen::VectorXd & v,
+               const Eigen::VectorXd & a,
+               const bool computeSubtreeComs = true,
+               const bool updateKinematics = true);
   
   ///
   /// \brief Computes both the jacobian and the the center of mass position of a given model according to a particular joint configuration.
@@ -75,7 +99,7 @@ namespace se3
   ///
   /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
   ///
-  inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
+  inline const Data::Matrix3x &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
                        const bool computeSubtreeComs = true);
@@ -92,7 +116,7 @@ namespace se3
   ///
   /// \return The center of mass position of the rigid body system expressed in the world frame (vector 3).
   ///
-  inline const Eigen::Vector3d &
+  inline const SE3::Vector3 &
   getComFromCrba(const Model & model, Data & data);
   
   ///
@@ -104,7 +128,7 @@ namespace se3
   ///
   /// \return The jacobian of the CoM expressed in the world frame (matrix 3 x model.nv).
   ///
-  inline const Eigen::Matrix<double,3,Eigen::Dynamic> &
+  inline const Data::Matrix3x &
   getJacobianComFromCrba(const Model & model, Data & data);
   
 } // namespace se3 

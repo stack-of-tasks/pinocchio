@@ -165,7 +165,7 @@ namespace se3
     }
     
     getJacobianComFromCrba(model, data);
-    centerOfMassAcceleration(model, data, q, v, v, true, false);
+    centerOfMass(model, data, q, v, true, false);
 
   }
 } // namespace se3

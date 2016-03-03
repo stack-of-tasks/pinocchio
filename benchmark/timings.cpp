@@ -144,7 +144,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    centerOfMassAcceleration(model,data,qs[_smooth], qdots[_smooth], qddots[_smooth], false);
+    centerOfMass(model,data,qs[_smooth], qdots[_smooth], qddots[_smooth], false);
   }
   std::cout << "COM+vCOM+aCOM = \t"; timer.toc(std::cout,NBT);
 

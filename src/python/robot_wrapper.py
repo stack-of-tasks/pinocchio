@@ -69,13 +69,28 @@ class RobotWrapper:
         return self.model.nv
 
     def com(self,*args):
-        if len(args) == 3:
-            q = args[0]
-            v = args[1]
-            a = args[2]
-            se3.centerOfMassAcceleration(self.model,self.data,q,v,a)
-            return self.data.com[0], self.data.vcom[0], self.data.acom[0]
-        return se3.centerOfMass(self.model,self.data,args[0])
+        q = args[0]
+        update_kinematics = True
+        if len(args)>=2:
+            if isinstance(args[1], bool):
+                update_kinematics = args[1]
+                return se3.centerOfMass(self.model,self.data,q,update_kinematics)
+            else:
+                v = args[1]
+        
+                if len(args) >= 3:
+                    if isinstance(args[2], bool):
+                        update_kinematics = args[2]
+                        se3.centerOfMass(self.model,self.data,q,v,update_kinematics)
+                        return self.data.com[0], self.data.vcom[0]
+                    else:
+                        a = args[2]
+                        if len(args) == 4:
+                            update_kinematics = args[3]
+                        se3.centerOfMass(self.model,self.data,q,v,a,update_kinematics)
+                        return self.data.com[0], self.data.vcom[0], data.acom[0]
+        else:
+            return se3.centerOfMass(self.model,self.data,q,update_kinematics)
 
     def Jcom(self,q):
         return se3.jacobianCenterOfMass(self.model,self.data,q)
@@ -87,26 +102,31 @@ class RobotWrapper:
     def gravity(self,q):
         return se3.rnea(self.model,self.data,q,self.v0,self.v0)
     
-    def geometry(self,q):
-        se3.geometry(self.model, self.data, q)
-    def kinematics(self,q,v):
-        se3.kinematics(self.model, self.data, q, v)
-    def dynamics(self,q,v,a):
-        se3.dynamics(self.model, self.data, q, v, a)
+    def forwardKinematics(self,*args):
+        q = args[0]
+        if len(args) >= 2:
+            v = args[1]
+            if len(args) == 3:
+                a = args[2]
+                se3.forwardKinematics(self.model, self.data, q, v, a)
+            else:
+                se3.forwardKinematics(self.model, self.data, q, v)
+        else:
+            se3.forwardKinematics(self.model, self.data, q)
 
     def position(self,q,index, update_geometry = True):
         if update_geometry:
-            se3.geometry(self.model,self.data,q)
+            se3.forwardKinematics(self.model,self.data,q)
 
         return self.data.oMi[index]
     def velocity(self,q,v,index, update_kinematics = True):
         if update_kinematics:
-            se3.kinematics(self.model,self.data,q,v)
+            se3.forwardKinematics(self.model,self.data,q,v)
 
         return self.data.v[index]
     def acceleration(self,q,v,a,index, update_acceleration = True):
         if update_acceleration:
-          se3.dynamics(self.model,self.data,q,v,a)
+          se3.forwardKinematics(self.model,self.data,q,v,a)
         return self.data.a[index]
     def jacobian(self,q,index, update_geometry = True):
         return se3.jacobian(self.model,self.data,q,index,True,update_geometry)
