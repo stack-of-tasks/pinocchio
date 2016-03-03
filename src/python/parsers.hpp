@@ -53,11 +53,11 @@ namespace se3
       
       
 #ifdef WITH_URDFDOM
-      struct build_model_visitor : public boost::static_visitor<ModelHandler>
+      struct BuildModelVisitor : public boost::static_visitor<ModelHandler>
       {
         const std::string& _filename;
 
-        build_model_visitor(const std::string& filename): _filename(filename){}
+        BuildModelVisitor(const std::string& filename): _filename(filename){}
 
         template <typename JointModel> ModelHandler operator()(const JointModel & root_joint) const
         {
@@ -72,7 +72,7 @@ namespace se3
                                              )
       {
         JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object);
-        return boost::apply_visitor(build_model_visitor(filename), root_joint);
+        return boost::apply_visitor(BuildModelVisitor(filename), root_joint);
       }
 
       static ModelHandler buildModelFromUrdf(const std::string & filename)
@@ -85,12 +85,12 @@ namespace se3
 
 #ifdef WITH_HPP_FCL
       typedef std::pair<ModelHandler, GeometryModelHandler> ModelGeometryHandlerPair_t;
-      struct build_model_and_geom_visitor : public boost::static_visitor<std::pair<ModelHandler, GeometryModelHandler> >
+      struct BuildModelAndGeomVisitor : public boost::static_visitor<std::pair<ModelHandler, GeometryModelHandler> >
       {
         const std::string& _filenameUrdf;
         const std::vector<std::string> & _package_dirs;
 
-        build_model_and_geom_visitor(const std::string & filenameUrdf,
+        BuildModelAndGeomVisitor(const std::string & filenameUrdf,
                                      const std::vector<std::string> & package_dirs)
           : _filenameUrdf(filenameUrdf)
           , _package_dirs(package_dirs)
@@ -115,7 +115,7 @@ namespace se3
                                 )
       {
         JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object);
-        return boost::apply_visitor(build_model_and_geom_visitor(filename, package_dirs), root_joint);
+        return boost::apply_visitor(BuildModelAndGeomVisitor(filename, package_dirs), root_joint);
       }
 
       static ModelGeometryHandlerPair_t
