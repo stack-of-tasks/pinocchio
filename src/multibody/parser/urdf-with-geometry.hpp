@@ -35,47 +35,62 @@ namespace se3
 
 
     /**
-     * @brief      Get a CollisionObject from an urdf link, reading the
-     *             corresponding mesh
+     * @brief      Get a CollisionObject from an urdf link, searching
+     *             for it in specified package directories
      *
-     * @param[in]  link         The input urdf link
-     * @param[in]  meshRootDir  Root path to the directory where meshes are located
+     * @param[in]  link          The input urdf link
+     * @param[in]  package_dirs  A vector containing the different directories where to search for packages
      *
      * @return     The mesh converted as a fcl::CollisionObject
      */
-    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link,
-                                                           const std::string & meshRootDir);
+    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link, const std::vector < std::string > & package_dirs);
 
     
     /**
      * @brief      Recursive procedure for reading the URDF tree, looking for geometries
      *             This function fill the geometric model whith geometry objects retrieved from the URDF tree
-     *
-     * @param[in]  link         The current URDF link
-     * @param      model        The model to which is the Geometry Model associated
-     * @param      model_geom   The Geometry Model where the Collision Objects must be added
-     * @param[in]  meshRootDir  Root path to the directory where meshes are located
+     * 
+     * @param[in]  link            The current URDF link
+     * @param      model           The model to which is the GeometryModel associated
+     * @param      model_geom      The GeometryModel where the Collision Objects must be added
+     * @param[in]  package_dirs    A vector containing the different directories where to search for packages
+     * @param[in]  rootJointAdded  If a root joint was added at the begining of the urdf kinematic chain by user when constructing the Model
      */
-    inline void parseTreeForGeom(::urdf::LinkConstPtr link,
-                                 const Model & model,
-                                 GeometryModel & model_geom,
-                                 const std::string & meshRootDir,
-                                 const bool rootJointAdded) throw (std::invalid_argument);
+    inline void parseTreeForGeom( ::urdf::LinkConstPtr link,
+                                const Model & model,
+                                GeometryModel & model_geom,
+                                const std::vector<std::string> & package_dirs,
+                                const bool rootJointAdded) throw (std::invalid_argument);
 
 
 
     /**
-     * @brief      Build the GeometryModel from a URDF file.
+     * @brief      Build The GeometryModel from a URDF file 
      *
-     * @param[in]  model     The model of the robot, built with urdf::buildModel.
-     * @param[in]  filename     The complete path to the URDF model.
-     * @param[in]  meshRootDir  Root path pointing to the directory where meshes are located.
+     * @param      model         The model of the robot, built with urdf::buildModel
+     * @param[in]  filename      The URDF complete (absolute) file path
+     * @param[in]  package_dirs  A vector containing the different directories where to search for packages
+     * @param[in]  root_joint    If we added a root joint to the Model in addition to the urdf kinematic chain
      *
-     * @return     The geometric model.
+     * @return     The GeometryModel associated to the urdf file and the Model given
      */
-    GeometryModel buildGeom(const Model & model,
-                            const std::string & filename,
-                            const std::string & meshRootDir);
+    inline GeometryModel buildGeom(const Model & model,
+                                  const std::string & filename,
+                                  const std::vector<std::string> & package_dirs,
+                                  const bool root_joint = false );
+
+    /**
+     * @brief      Build The GeometryModel from a URDF file 
+     *
+     * @param      model         The model of the robot, built with urdf::buildModel
+     * @param[in]  filename      The URDF complete (absolute) file path
+     * @param[in]  root_joint    If we added a root joint to the Model in addition to the urdf kinematic chain
+     *
+     * @return     The GeometryModel associated to the urdf file and the Model given
+     */
+    inline GeometryModel buildGeom(const Model & model,
+                                  const std::string & filename,
+                                  const bool root_joint = false );
 
   } // namespace urdf
   

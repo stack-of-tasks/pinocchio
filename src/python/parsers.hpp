@@ -88,19 +88,19 @@ namespace se3
       struct build_model_and_geom_visitor : public boost::static_visitor<std::pair<ModelHandler, GeometryModelHandler> >
       {
         const std::string& _filenameUrdf;
-        const std::string& _filenameMeshRootDir;
+        const std::vector<std::string> & _package_dirs;
 
         build_model_and_geom_visitor(const std::string & filenameUrdf,
-                                     const std::string & filenameMeshRootDir)
+                                     const std::vector<std::string> & package_dirs)
           : _filenameUrdf(filenameUrdf)
-          , _filenameMeshRootDir(filenameMeshRootDir)
+          , _package_dirs(package_dirs)
         {}
 
         template <typename JointModel>
         ModelGeometryHandlerPair_t operator() (const JointModel & root_joint) const
         {
           Model * model = new Model(se3::urdf::buildModel(_filenameUrdf, root_joint));
-          GeometryModel * geometry_model = new GeometryModel (se3::urdf::buildGeom(*model, _filenameUrdf, _filenameMeshRootDir));
+          GeometryModel * geometry_model = new GeometryModel (se3::urdf::buildGeom(*model, _filenameUrdf, _package_dirs));
           
           return std::pair<ModelHandler, GeometryModelHandler> (ModelHandler(model, true),
                                                                 GeometryModelHandler(geometry_model, true)
@@ -110,20 +110,20 @@ namespace se3
 
       static ModelGeometryHandlerPair_t
       buildModelAndGeomFromUrdf(const std::string & filename,
-                                const std::string & mesh_dir,
+                                const std::vector<std::string> & package_dirs,
                                 bp::object & root_joint_object
                                 )
       {
         JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object);
-        return boost::apply_visitor(build_model_and_geom_visitor(filename, mesh_dir), root_joint);
+        return boost::apply_visitor(build_model_and_geom_visitor(filename, package_dirs), root_joint);
       }
 
       static ModelGeometryHandlerPair_t
       buildModelAndGeomFromUrdf(const std::string & filename,
-                                const std::string & mesh_dir)
+                                const std::vector<std::string> & package_dirs)
       {
         Model * model = new Model(se3::urdf::buildModel(filename));
-        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename, mesh_dir));
+        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename, package_dirs));
         
         return ModelGeometryHandlerPair_t (ModelHandler(model, true),
                                            GeometryModelHandler(geometry_model, true)
@@ -173,15 +173,15 @@ namespace se3
       bp::to_python_converter<std::pair<ModelHandler, GeometryModelHandler>, PairToTupleConverter<ModelHandler, GeometryModelHandler> >();
       
       bp::def("buildModelAndGeomFromUrdf",
-              static_cast <ModelGeometryHandlerPair_t (*) (const std::string &, const std::string &, bp::object &)> (&ParsersPythonVisitor::buildModelAndGeomFromUrdf),
-              bp::args("filename (string)", "mesh_dir (string)",
+              static_cast <ModelGeometryHandlerPair_t (*) (const std::string &, const std::vector<std::string> &, bp::object &)> (&ParsersPythonVisitor::buildModelAndGeomFromUrdf),
+              bp::args("filename (string)", "package_dirs (vector of strings)",
                        "Root Joint Model"),
               "Parse the urdf file given in input and return a proper pinocchio model starting with a given root joint and geometry model "
               "(remember to create the corresponding data structures).");
       
       bp::def("buildModelAndGeomFromUrdf",
-              static_cast <ModelGeometryHandlerPair_t (*) (const std::string &, const std::string &)> (&ParsersPythonVisitor::buildModelAndGeomFromUrdf),
-              bp::args("filename (string)", "mesh_dir (string)"),
+              static_cast <ModelGeometryHandlerPair_t (*) (const std::string &, const std::vector<std::string> &)> (&ParsersPythonVisitor::buildModelAndGeomFromUrdf),
+              bp::args("filename (string)", "package_dirs (vector of strings)"),
               "Parse the urdf file given in input and return a proper pinocchio model and geometry model "
               "(remember to create the corresponding data structures).");
       

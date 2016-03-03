@@ -35,6 +35,8 @@
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>
 
+#include "pinocchio/tools/file-explorer.hpp"
+
 #include <exception>
 
 namespace se3
@@ -196,13 +198,36 @@ namespace se3
   
   
   /**
-   * @brief      Transform a cURL readable path (package://..) to an absolute path for urdf collision path
+   * @brief      Transform a package://.. mesh path to an absolute path, searching for a valid file 
+   *             in a list of package directories
    *
-   * @param[in]      urdf_mesh_path  The path given in the urdf file (package://..)
-   * @param[in]  meshRootDir     Root path to the directory where meshes are located
+   * @param[in]  urdf_mesh_path  The path given in the urdf file
+   * @param[in]  package_dirs    A list of packages directories where to search for meshes
    *
    * @return     The absolute path to the mesh file
    */
+   inline std::string fromURDFMeshPathToAbsolutePathPack(const std::string & urdf_mesh_path,
+                                                         const std::vector<std::string> & package_dirs)
+   {
+    // if exists p1/mesh, absolutePath = p1/mesh,
+    // else if exists p2/mesh, absolutePath = p2/mesh
+    // else return an empty string that will provoke an error in loadPolyhedronFromResource()
+    namespace bf = boost::filesystem;
+
+    std::string absolutePath;
+    // concatenate package_path with mesh filename
+    for (int i = 0; i < package_dirs.size(); ++i)
+    {
+      if ( bf::exists( bf::path(package_dirs[i] +  urdf_mesh_path.substr(9, urdf_mesh_path.size()))))
+      {
+          absolutePath = std::string( package_dirs[i] + urdf_mesh_path.substr(9, urdf_mesh_path.size())
+                                       );
+        break;
+      }
+    }
+    return absolutePath;
+   }
+
   inline std::string fromURDFMeshPathToAbsolutePath(const std::string & urdf_mesh_path,
                                                     const std::string & meshRootDir)
   {
