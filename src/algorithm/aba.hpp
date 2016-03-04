@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -23,6 +23,17 @@
 
 namespace se3
 {
+  ///
+  /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  /// \param[in] tau The joint torque vector (dim model.nv).
+  ///
+  /// \return The current joint acceleration stored in data.ddq.
+  ///
   inline const Eigen::VectorXd &
   aba(const Model & model,
       Data & data,
