@@ -186,6 +186,33 @@ namespace se3
                         Vector3::Random(),
                         Symmetric3::RandomPositive());
     }
+
+    static InertiaTpl FromEllipsoid(
+        const Scalar_t m, const Scalar_t x, const Scalar_t y, const Scalar_t z)
+    {
+      Scalar_t a = m * (y*y + z*z) / 5;
+      Scalar_t b = m * (x*x + z*z) / 5;
+      Scalar_t c = m * (y*y + x*x) / 5;
+      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, b, 0, 0, c));
+    }
+
+    static InertiaTpl FromCylinder(
+        const Scalar_t m, const Scalar_t r, const Scalar_t l)
+    {
+      Scalar_t a = m * (r*r / 4 + l*l / 12);
+      Scalar_t c = m * (r*r / 2);
+      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, a, 0, 0, c));
+    }
+
+    static InertiaTpl FromBox(
+        const Scalar_t m, const Scalar_t x, const Scalar_t y, const Scalar_t z)
+    {
+      Scalar_t a = m * (y*y + z*z) / 12;
+      Scalar_t b = m * (x*x + z*z) / 12;
+      Scalar_t c = m * (y*y + x*x) / 12;
+      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, b, 0, 0, c));
+    }
+
     
     void setRandom()
     {

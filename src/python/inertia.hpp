@@ -98,6 +98,18 @@ namespace se3
         .staticmethod("Zero")
         .def("Random",&Inertia_fx::Random)
         .staticmethod("Random")
+        .def("FromEllipsoid", &Inertia_fx::FromEllipsoid,
+            bp::default_call_policies(), (bp::arg("mass"),
+              bp::arg("length_x"), bp::arg("length_y"), bp::arg("length_z")))
+        .staticmethod("FromEllipsoid")
+        .def("FromCylinder", &Inertia_fx::FromCylinder,
+            bp::default_call_policies(), (bp::arg("mass"),
+              bp::arg("radius"), bp::arg("length")))
+        .staticmethod("FromCylinder")
+        .def("FromBox", &Inertia_fx::FromBox,
+            bp::default_call_policies(), (bp::arg("mass"),
+              bp::arg("length_x"), bp::arg("length_y"), bp::arg("length_z")))
+        .staticmethod("FromBox")
         ;
 	  }
       
