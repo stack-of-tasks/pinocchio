@@ -27,6 +27,7 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/non-linear-effects.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/operational-frames.hpp"
@@ -73,6 +74,16 @@ namespace se3
         data->M.triangularView<Eigen::StrictlyLower>()
         = data->M.transpose().triangularView<Eigen::StrictlyLower>();
         return data->M;
+      }
+      
+      static Eigen::MatrixXd aba_proxy(const ModelHandler & model,
+                                       DataHandler & data,
+                                       const VectorXd_fx & q,
+                                       const VectorXd_fx & v,
+                                       const VectorXd_fx & tau)
+      {
+        aba(*model,*data,q,v,tau);
+        return data->ddq;
       }
 
       static SE3::Vector3
@@ -293,6 +304,13 @@ namespace se3
                 bp::args("Model","Data",
                          "Configuration q (size Model::nq)"),
                 "Compute CRBA, put the result in Data and return it.");
+        
+        bp::def("aba",aba_proxy,
+                bp::args("Model","Data",
+                         "Joint configuration q (size Model::nq)",
+                         "Joint velocity v (size Model::nv)",
+                         "Joint torque tau (size Model::nv)"),
+                "Compute ABA, put the result in Data::ddq and return it.");
         
         bp::def("centerOfMass",com_0_proxy,
                 bp::args("Model","Data",
