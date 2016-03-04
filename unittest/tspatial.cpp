@@ -213,7 +213,6 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   using namespace se3;
   typedef Inertia::Matrix6 Matrix6;
   typedef Inertia::Matrix3 Matrix3;
-  typedef SE3::Vector3 Vector3;
 
   Inertia aI = Inertia::Random();
   Matrix6 matI = aI;
@@ -274,21 +273,24 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
 
   // Test Inertia from ellipsoid
   I1 = Inertia::FromEllipsoid(2., 3., 4., 5.);
-  BOOST_CHECK_EQUAL(I1.mass(), 2.);
-  BOOST_CHECK_EQUAL(I1.lever(), Vector3::Zero());
-  BOOST_CHECK_EQUAL(I1.inertia(), Symmetric3(16.4, 0., 13.6, 0., 0., 10.));
+  BOOST_CHECK_SMALL(I1.mass() - 2, 1e-12);
+  BOOST_CHECK_SMALL(I1.lever().norm(), 1e-12);
+  BOOST_CHECK(I1.inertia().matrix().isApprox(Symmetric3(
+          16.4, 0., 13.6, 0., 0., 10.).matrix(), 1e-12));
 
   // Test Inertia from Cylinder
   I1 = Inertia::FromCylinder(2., 4., 6.);
-  BOOST_CHECK_EQUAL(I1.mass(), 2.);
-  BOOST_CHECK_EQUAL(I1.lever(), Vector3::Zero());
-  BOOST_CHECK_EQUAL(I1.inertia(), Symmetric3(14., 0., 14., 0., 0., 16.));
+  BOOST_CHECK_SMALL(I1.mass() - 2, 1e-12);
+  BOOST_CHECK_SMALL(I1.lever().norm(), 1e-12);
+  BOOST_CHECK(I1.inertia().matrix().isApprox(Symmetric3(
+        14., 0., 14., 0., 0., 16.).matrix(), 1e-12));
 
   // Test Inertia from Box
   I1 = Inertia::FromBox(2., 6., 12., 18.);
-  BOOST_CHECK_EQUAL(I1.mass(), 2.);
-  BOOST_CHECK_EQUAL(I1.lever(), Vector3::Zero());
-  BOOST_CHECK_EQUAL(I1.inertia(), Symmetric3(78., 0., 60., 0., 0., 30.));
+  BOOST_CHECK_SMALL(I1.mass() - 2, 1e-12);
+  BOOST_CHECK_SMALL(I1.lever().norm(), 1e-12);
+  BOOST_CHECK(I1.inertia().matrix().isApprox(Symmetric3(
+        78., 0., 60., 0., 0., 30.).matrix(), 1e-12));
 }
 
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )
