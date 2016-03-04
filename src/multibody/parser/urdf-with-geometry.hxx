@@ -105,33 +105,26 @@ namespace se3
     {
 
       // start with first link that is not empty
-      if(link->inertial)
+      if(link->collision)
       {
         ::urdf::JointConstPtr joint = link->parent_joint;
 
         if (joint == NULL && rootJointAdded )
         {
-          
-          if (link->collision)
-          {
             fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, package_dirs);
             SE3 geomPlacement = convertFromUrdf(link->collision->origin);
             std::string collision_object_name = link->name ;
             geom_model.addGeomObject(model.getJointId("root_joint"), collision_object, geomPlacement, collision_object_name);
-          }
         }
 
-        if(joint!=NULL)
+        else if(joint!=NULL)
         {
           assert(link->getParent()!=NULL);
 
-          if (link->collision)
-          {
             fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, package_dirs);
             SE3 geomPlacement = convertFromUrdf(link->collision->origin);
             std::string collision_object_name = link->name ;
-            geom_model.addGeomObject(model.getJointId(joint->name), collision_object, geomPlacement, collision_object_name);
-          }      
+            geom_model.addGeomObject(model.getJointId(joint->name), collision_object, geomPlacement, collision_object_name);     
         }
         else if (link->getParent() != NULL)
         {
@@ -139,7 +132,7 @@ namespace se3
           throw std::invalid_argument(exception_message);
         }
 
-      }
+      } // if(link->inertial)
       
       BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
       {
