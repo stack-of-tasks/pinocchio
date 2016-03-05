@@ -205,6 +205,17 @@ namespace se3
       return res;
     }
   
+  /* [ABA] Y*S operator (Inertia Y,Constraint S) */
+  inline Eigen::Matrix<double,6,1>
+//  inline
+//  Eigen::ProductReturnType<const Eigen::Block<const Inertia::Matrix6,6,3>,
+//                           const ConstraintPrismaticUnaligned::Vector3>::Type
+  operator*(const Inertia::Matrix6 & Y, const ConstraintPrismaticUnaligned & cpu)
+  {
+    return Y.block<6,3> (0,Inertia::LINEAR) * cpu.axis;
+  }
+
+  
     namespace internal 
     {
       template<>
@@ -216,17 +227,22 @@ namespace se3
     template<>
     struct traits<JointPrismaticUnaligned>
     {
+      enum {
+        NQ = 1,
+        NV = 1
+      };
       typedef JointDataPrismaticUnaligned JointData;
       typedef JointModelPrismaticUnaligned JointModel;
       typedef ConstraintPrismaticUnaligned Constraint_t;
       typedef SE3 Transformation_t;
       typedef MotionPrismaticUnaligned Motion_t;
       typedef BiasZero Bias_t;
-      typedef Eigen::Matrix<double,6,1> F_t;
-      enum {
-        NQ = 1,
-        NV = 1
-      };
+      typedef Eigen::Matrix<double,6,NV> F_t;
+      
+      // [ABA]
+      typedef Eigen::Matrix<double,6,NV> U_t;
+      typedef Eigen::Matrix<double,NV,NV> D_t;
+      typedef Eigen::Matrix<double,6,NV> UD_t;
     };
 
   template<> struct traits<JointDataPrismaticUnaligned> { typedef JointPrismaticUnaligned Joint; };
@@ -243,17 +259,24 @@ namespace se3
     Bias_t c;
 
     F_t F;
+    
+    // [ABA] specific data
+    U_t U;
+    D_t Dinv;
+    UD_t UDinv;
 
     JointDataPrismaticUnaligned() :
       M(1),
       S(Eigen::Vector3d::Constant(NAN)),
-      v(Eigen::Vector3d::Constant(NAN),NAN)
+      v(Eigen::Vector3d::Constant(NAN),NAN),
+      U(), Dinv(), UDinv()
     {}
     
     JointDataPrismaticUnaligned(const Motion_t::Vector3 & axis) :
       M(1),
       S(axis),
-      v(axis,NAN)
+      v(axis,NAN),
+      U(), Dinv(), UDinv()
     {}
 
     JointDataDense<NQ, NV> toDense_impl() const
@@ -316,8 +339,16 @@ namespace se3
       data.M.translation() = axis * q;
       data.v.v = v;
     }
-
-    Vector3 axis;
+    
+    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    {
+      data.U = I.block<6,3> (0,Inertia::LINEAR) * axis;
+      data.Dinv[0] = 1./axis.dot(data.U.segment <3> (Inertia::LINEAR));
+      data.UDinv = data.U * data.Dinv;
+      
+      if (update_I)
+        I -= data.UDinv * data.U.transpose();
+    }
 
     JointModelDense<NQ, NV> toDense_impl() const
     {
@@ -352,6 +383,9 @@ namespace se3
               && jmodel.maxEffortLimit() == maxEffortLimit()
               && jmodel.maxVelocityLimit() == maxVelocityLimit();
     }
+    
+  protected:
+    Vector3 axis;
   }; // struct JointModelPrismaticUnaligned
 
 } //namespace se3

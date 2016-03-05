@@ -95,6 +95,7 @@ namespace se3
       typedef _Scalar Scalar;
       typedef Eigen::Matrix <_Scalar,3,3,_Options> Matrix3;
       typedef Eigen::Matrix <_Scalar,3,1,_Options> Vector3;
+      typedef Eigen::Matrix <_Scalar,6,3,_Options> ConstraintDense;
 
       Matrix3 S_minimal;
 
@@ -107,7 +108,7 @@ namespace se3
       Matrix3 & operator() () { return S_minimal; }
       const Matrix3 & operator() () const { return S_minimal; }
 
-      Matrix3 &  matrix () { return S_minimal; }
+      Matrix3 & matrix () { return S_minimal; }
       const Matrix3 & matrix () const { return S_minimal; }
 
       int nv_impl() const { return NV; }
@@ -205,6 +206,19 @@ namespace se3
 
     return M * S.matrix ();
   }
+  
+  /* [ABA] Y*S operator (Inertia Y,Constraint S) */
+  //  inline Eigen::Matrix<double,6,3>
+  template <typename _Scalar, int _Options>
+  typename Eigen::ProductReturnType<
+  const Eigen::Block<const Inertia::Matrix6,6,3>,
+  const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
+  >::Type
+  operator*(const typename InertiaTpl<_Scalar,_Options>::Matrix6 & Y,
+            const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
+  {
+    return Y.template block<6,3> (0,Inertia::ANGULAR,0,3) * S.S_minimal;
+  }
 
   namespace internal
   {
@@ -216,17 +230,22 @@ namespace se3
   template<>
   struct traits<JointSphericalZYX>
   {
+    enum {
+      NQ = 3,
+      NV = 3
+    };
     typedef JointDataSphericalZYX JointData;
     typedef JointModelSphericalZYX JointModel;
     typedef JointSphericalZYX::ConstraintRotationalSubspace Constraint_t;
     typedef SE3 Transformation_t;
     typedef JointSphericalZYX::MotionSpherical Motion_t;
     typedef JointSphericalZYX::BiasSpherical Bias_t;
-    typedef Eigen::Matrix<double,6,3> F_t;
-    enum {
-      NQ = 3,
-      NV = 3
-    };
+    typedef Eigen::Matrix<double,6,NV> F_t;
+    
+    // [ABA]
+    typedef Eigen::Matrix<double,6,NV> U_t;
+    typedef Eigen::Matrix<double,NV,NV> D_t;
+    typedef Eigen::Matrix<double,6,NV> UD_t;
   };
   template<> struct traits<JointDataSphericalZYX> { typedef JointSphericalZYX Joint; };
   template<> struct traits<JointModelSphericalZYX> { typedef JointSphericalZYX Joint; };
@@ -248,12 +267,14 @@ namespace se3
     Bias_t c;
 
     F_t F;
+    
+    // [ABA] specific data
+    U_t U;
+    D_t Dinv;
+    UD_t UDinv;
 
-    JointDataSphericalZYX () : M(1)
-    {
-      M.translation (Transformation_t::Vector3::Zero ());
-    }
-
+    JointDataSphericalZYX () : M(1), U(), Dinv(), UDinv() {}
+    
     JointDataDense<NQ, NV> toDense_impl() const
     {
       return JointDataDense<NQ, NV>(S, M, v, c, F);
@@ -327,6 +348,17 @@ namespace se3
       data.c ()(0) = -c1 * q_dot (0) * q_dot (1);
       data.c ()(1) = -s1 * s2 * q_dot (0) * q_dot (1) + c1 * c2 * q_dot (0) * q_dot (2) - s2 * q_dot (1) * q_dot (2);
       data.c ()(2) = -s1 * c2 * q_dot (0) * q_dot (1) - c1 * s2 * q_dot (0) * q_dot (2) - c2 * q_dot (1) * q_dot (2);
+    }
+    
+    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    {
+      data.U = I.middleCols<3> (Inertia::ANGULAR) * data.S.matrix();
+      Inertia::Matrix3 tmp (data.S.matrix().transpose() * data.U.middleRows<3> (Inertia::ANGULAR));
+      data.Dinv = tmp.inverse();
+      data.UDinv = data.U * data.Dinv;
+      
+      if (update_I)
+        I -= data.UDinv * data.U.transpose();
     }
 
     JointModelDense<NQ, NV> toDense_impl() const

@@ -53,9 +53,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,1> DenseBase;
+    typedef Eigen::Matrix<Scalar_t,6,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar_t,6,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar_t,6,6> DenseBase;
   }; // traits ConstraintRevolute
 
 
@@ -90,7 +90,23 @@ namespace se3
 
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  inline Inertia::Matrix6 operator*( const Inertia& Y,const ConstraintIdentity & )
+  inline Inertia::Matrix6 operator* (const Inertia & Y, const ConstraintIdentity &)
+  {
+    return Y.matrix();
+  }
+  
+  /* [ABA] Y*S operator*/
+  inline const Inertia::Matrix6 & operator* (const Inertia::Matrix6 & Y, const ConstraintIdentity &)
+  {
+    return Y;
+  }
+  
+  inline Inertia::Matrix6 & operator* (Inertia::Matrix6 & Y, const ConstraintIdentity &)
+  {
+    return Y;
+  }
+  
+  inline Inertia::Matrix6 operator* (const ConstraintIdentity::TransposeConst &, const Inertia & Y)
   {
     return Y.matrix();
   }
@@ -115,17 +131,22 @@ namespace se3
   template<>
   struct traits<JointFreeFlyer>
   {
+    enum {
+      NQ = 7,
+      NV = 6
+    };
     typedef JointDataFreeFlyer JointData;
     typedef JointModelFreeFlyer JointModel;
     typedef ConstraintIdentity Constraint_t;
     typedef SE3 Transformation_t;
     typedef Motion Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,6> F_t;
-    enum {
-      NQ = 7,
-      NV = 6
-    };
+    typedef Eigen::Matrix<double,6,NV> F_t;
+    
+    // [ABA]
+    typedef Eigen::Matrix<double,6,NV> U_t;
+    typedef Eigen::Matrix<double,NV,NV> D_t;
+    typedef Eigen::Matrix<double,6,NV> UD_t;
   };
   template<> struct traits<JointDataFreeFlyer> { typedef JointFreeFlyer Joint; };
   template<> struct traits<JointModelFreeFlyer> { typedef JointFreeFlyer Joint; };
@@ -145,9 +166,13 @@ namespace se3
     Bias_t c;
 
     F_t F; // TODO if not used anymore, clean F_t
-    JointDataFreeFlyer() : M(1)
-    {
-    }
+    
+    // [ABA] specific data
+    U_t U;
+    D_t Dinv;
+    UD_t UDinv;
+    
+    JointDataFreeFlyer() : M(1), U(), Dinv(), UDinv(UD_t::Identity()) {}
 
     JointDataDense<NQ, NV> toDense_impl() const
     {
@@ -174,7 +199,7 @@ namespace se3
          const Eigen::VectorXd & qs) const
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
-      const JointData::Quaternion quat(Eigen::Matrix<double,4,1> (q.tail <4> ())); // TODO
+      const JointData::Quaternion quat(q.tail<4> ()); // TODO
 
       data.M.rotation (quat.matrix());
       data.M.translation (q.head<3>());
@@ -186,10 +211,19 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
       data.v = vs.segment<NV>(idx_v());
 
-      const JointData::Quaternion quat(Eigen::Matrix<double,4,1> (q.tail <4> ())); // TODO
-//      data.M = SE3(quat.matrix(),q.head<3>());
+      const JointData::Quaternion quat(q.tail<4> ()); // TODO
+      
       data.M.rotation (quat.matrix());
       data.M.translation (q.head<3>());
+    }
+    
+    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    {
+      data.U = I;
+      data.Dinv = I.inverse();
+      
+      if (update_I)
+        I.setZero();
     }
 
     JointModelDense<NQ, NV> toDense_impl() const

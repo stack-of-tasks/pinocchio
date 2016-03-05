@@ -105,9 +105,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,1> DenseBase;
+    typedef Eigen::Matrix<Scalar_t,3,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar_t,3,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar_t,6,3> DenseBase;
   }; // struct traits struct ConstraintRotationalSubspace
 
   struct ConstraintRotationalSubspace
@@ -194,17 +194,22 @@ namespace se3
   template<>
   struct traits<JointSpherical>
   {
+    enum {
+      NQ = 4,
+      NV = 3
+    };
     typedef JointDataSpherical JointData;
     typedef JointModelSpherical JointModel;
     typedef ConstraintRotationalSubspace Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionSpherical Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,3> F_t;
-    enum {
-      NQ = 4,
-      NV = 3
-    };
+    typedef Eigen::Matrix<double,6,NV> F_t;
+    
+    // [ABA]
+    typedef Eigen::Matrix<double,6,NV> U_t;
+    typedef Eigen::Matrix<double,NV,NV> D_t;
+    typedef Eigen::Matrix<double,6,NV> UD_t;
   };
   template<> struct traits<JointDataSpherical> { typedef JointSpherical Joint; };
   template<> struct traits<JointModelSpherical> { typedef JointSpherical Joint; };
@@ -224,9 +229,13 @@ namespace se3
     Bias_t c;
 
     F_t F;
+    
+    // [ABA] specific data
+    U_t U;
+    D_t Dinv;
+    UD_t UDinv;
 
-    JointDataSpherical () : M(1)
-    {}
+    JointDataSpherical () : M(1), U(), Dinv(), UDinv() {}
 
     JointDataDense<NQ, NV> toDense_impl() const
     {
@@ -269,6 +278,21 @@ namespace se3
 
       const JointData::Quaternion quat(Eigen::Matrix<double,4,1> (q.tail <4> ())); // TODO
       data.M.rotation (quat.matrix ());
+    }
+    
+    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    {
+      data.U = I.block<6,3> (0,Inertia::ANGULAR);
+      data.Dinv = I.block<3,3> (Inertia::ANGULAR,Inertia::ANGULAR).inverse();
+      data.UDinv.middleRows<3> (Inertia::ANGULAR).setIdentity(); // can be put in data constructor
+      data.UDinv.middleRows<3> (Inertia::LINEAR) = data.U.block<3,3> (Inertia::LINEAR, 0) * data.Dinv;
+      
+      if (update_I)
+      {
+        I.block<6,3> (0,Inertia::ANGULAR).setZero();
+        I.block<3,3> (Inertia::ANGULAR,Inertia::LINEAR).setZero();
+        I.block<3,3> (Inertia::LINEAR,Inertia::LINEAR) -= data.UDinv.middleRows<3> (Inertia::LINEAR) * I.block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
+      }
     }
 
     JointModelDense<NQ, NV> toDense_impl() const

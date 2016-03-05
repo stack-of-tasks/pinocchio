@@ -134,6 +134,7 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   )
 
 SET(${PROJECT_NAME}_ALGORITHM_HEADERS
+  algorithm/aba.hpp
   algorithm/rnea.hpp
   algorithm/crba.hpp
   algorithm/jacobian.hpp

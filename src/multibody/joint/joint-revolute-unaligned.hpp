@@ -119,7 +119,7 @@ namespace se3
       typedef traits<ConstraintRevoluteUnaligned>::JointForce JointForce;
       typedef traits<ConstraintRevoluteUnaligned>::DenseBase DenseBase;
 
-      ConstraintRevoluteUnaligned() : axis(Eigen::Vector3d::Constant(NAN)) {}
+      ConstraintRevoluteUnaligned() : axis(Motion::Vector3::Constant(NAN)) {}
       ConstraintRevoluteUnaligned(const Motion::Vector3 & _axis) : axis(_axis) {}
       Motion::Vector3 axis; 
 
@@ -209,7 +209,17 @@ namespace se3
       return res;
     }
   
-    namespace internal 
+  /* [ABA] Y*S operator (Inertia Y,Constraint S) */
+  inline Eigen::Matrix<double,6,1>
+//  inline
+//  Eigen::ProductReturnType<const Eigen::Block<const Inertia::Matrix6,6,3>,
+//                           const ConstraintRevoluteUnaligned::Vector3>::Type
+  operator*(const Inertia::Matrix6 & Y, const ConstraintRevoluteUnaligned & cru)
+  {
+    return Y.block<6,3> (0,Inertia::ANGULAR) * cru.axis;
+  }
+  
+    namespace internal
     {
       template<>
       struct ActionReturn<ConstraintRevoluteUnaligned >  
@@ -220,17 +230,24 @@ namespace se3
     template<>
     struct traits< JointRevoluteUnaligned >
     {
+      enum {
+        NQ = 1,
+        NV = 1
+      };
+      
       typedef JointDataRevoluteUnaligned JointData;
       typedef JointModelRevoluteUnaligned JointModel;
       typedef ConstraintRevoluteUnaligned Constraint_t;
       typedef SE3 Transformation_t;
       typedef MotionRevoluteUnaligned Motion_t;
       typedef BiasZero Bias_t;
-      typedef Eigen::Matrix<double,6,1> F_t;
-      enum {
-        NQ = 1,
-        NV = 1
-      };
+      typedef Eigen::Matrix<double,6,NV> F_t;
+      
+      // [ABA]
+      typedef Eigen::Matrix<double,6,NV> U_t;
+      typedef Eigen::Matrix<double,NV,NV> D_t;
+      typedef Eigen::Matrix<double,6,NV> UD_t;
+      
     };
 
   template<> struct traits<JointDataRevoluteUnaligned> { typedef JointRevoluteUnaligned Joint; };
@@ -248,14 +265,22 @@ namespace se3
 
     F_t F;
     Eigen::AngleAxisd angleaxis;
+    
+    // [ABA] specific data
+    U_t U;
+    D_t Dinv;
+    UD_t UDinv;
 
     JointDataRevoluteUnaligned() 
       : M(1),S(Eigen::Vector3d::Constant(NAN)),v(Eigen::Vector3d::Constant(NAN),NAN)
       , angleaxis( NAN,Eigen::Vector3d::Constant(NAN))
+      , U(), Dinv(), UDinv()
     {}
+    
     JointDataRevoluteUnaligned(const Motion::Vector3 & axis) 
       : M(1),S(axis),v(axis,NAN)
-      ,angleaxis(NAN,axis)
+      , angleaxis(NAN,axis)
+      , U(), Dinv(), UDinv()
     {}
 
     JointDataDense<NQ, NV> toDense_impl() const
@@ -279,7 +304,7 @@ namespace se3
     using JointModelBase<JointModelRevoluteUnaligned>::setIndexes;
     
     JointModelRevoluteUnaligned() : axis(Eigen::Vector3d::Constant(NAN))   {}
-    JointModelRevoluteUnaligned(double x, double y, double z)
+    JointModelRevoluteUnaligned(const double x, const double y, const double z)
     {
       axis << x, y, z ;
       axis.normalize();
@@ -317,8 +342,16 @@ namespace se3
       data.M.rotation(data.angleaxis.toRotationMatrix());
       data.v.w = v;
     }
-
-    Eigen::Vector3d axis;
+    
+    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    {
+      data.U = I.block<6,3> (0,Inertia::ANGULAR) * axis;
+      data.Dinv[0] = 1./axis.dot(data.U.segment <3> (Inertia::ANGULAR));
+      data.UDinv = data.U * data.Dinv;
+      
+      if (update_I)
+        I -= data.UDinv * data.U.transpose();
+    }
 
     JointModelDense<NQ, NV> toDense_impl() const
     {
@@ -353,6 +386,9 @@ namespace se3
               && jmodel.maxEffortLimit() == maxEffortLimit()
               && jmodel.maxVelocityLimit() == maxVelocityLimit();
     }
+    
+  protected:
+    Motion::Vector3 axis;
   }; // struct JointModelRevoluteUnaligned
 
 } //namespace se3
