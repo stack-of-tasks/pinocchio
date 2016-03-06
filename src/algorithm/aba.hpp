@@ -95,8 +95,8 @@ namespace se3
   struct AbaBackwardStep : public fusion::JointVisitor<AbaBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
-    Data &,
-    const Model::Index>  ArgsType;
+                                  Data &,
+                                  const Model::Index> ArgsType;
 
     JOINT_VISITOR_INIT(AbaBackwardStep);
 
@@ -191,9 +191,9 @@ namespace se3
   struct AbaForwardStep2 : public fusion::JointVisitor<AbaForwardStep2>
   {
     typedef boost::fusion::vector<const se3::Model &,
-    se3::Data &,
-    const Model::Index
-    > ArgsType;
+                                  se3::Data &,
+                                  const Model::Index
+                                  > ArgsType;
 
     JOINT_VISITOR_INIT(AbaForwardStep2);
 
@@ -238,7 +238,6 @@ namespace se3
     {
       AbaBackwardStep::run(model.joints[i],data.joints[i],
                            AbaBackwardStep::ArgsType(model,data,i));
-
     }
 
     for(Model::Index i=1;i<(Model::Index)model.nbody;++i)

@@ -62,8 +62,8 @@ namespace se3
       static Eigen::VectorXd nle_proxy( const ModelHandler& model,
                                         DataHandler & data,
                                         const VectorXd_fx & q,
-                                        const VectorXd_fx & qd )
-      { return nonLinearEffects(*model,*data,q,qd); }
+                                        const VectorXd_fx & v)
+      { return nonLinearEffects(*model,*data,q,v); }
 
       static Eigen::MatrixXd crba_proxy(const ModelHandler& model,
                                         DataHandler & data,
@@ -74,6 +74,15 @@ namespace se3
         data->M.triangularView<Eigen::StrictlyLower>()
         = data->M.transpose().triangularView<Eigen::StrictlyLower>();
         return data->M;
+      }
+      
+      static Data::Matrix6x ccrba_proxy(const ModelHandler& model,
+                                        DataHandler & data,
+                                        const VectorXd_fx & q,
+                                        const VectorXd_fx & v)
+      {
+        ccrba(*model,*data,q,v);
+        return data->Ag;
       }
       
       static Eigen::MatrixXd aba_proxy(const ModelHandler & model,
@@ -304,6 +313,12 @@ namespace se3
                 bp::args("Model","Data",
                          "Configuration q (size Model::nq)"),
                 "Compute CRBA, put the result in Data and return it.");
+        
+        bp::def("ccrba",ccrba_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)"),
+                "Compute the centroidal mapping, the centroidal momentum and the Centroidal Composite Rigid Body Inertia, put the result in Data and return the centroidal mapping.");
         
         bp::def("aba",aba_proxy,
                 bp::args("Model","Data",

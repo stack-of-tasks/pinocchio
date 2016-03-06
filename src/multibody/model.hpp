@@ -188,9 +188,19 @@ namespace se3
     std::vector<Inertia::Matrix6> Yaba;
     
     /// \brief Intermediate quantity corresponding to apparent torque [ABA]
-    Eigen::VectorXd u;
+    Eigen::VectorXd u;                  // Joint Inertia
+    
+    // CCRBA return quantities
+    /// \brief Centroidal Momentum Matrix (map the joint velocity set to the centroidal momentum hg=Ag*v)
+    Matrix6x Ag;
+    
+    /// \brief Centroidal momentum (expressed in the frame centered at the CoM and aligned with the inertial frame)
+    Force hg;
+    
+    /// \brief Centroidal Composite Rigid Body Inertia
+    Inertia Ig;
 
-    std::vector<Matrix6x> Fcrb;           // Spatial forces set, used in CRBA
+    std::vector<Matrix6x> Fcrb;           // Spatial forces set, used in CRBA and CCRBA
 
     std::vector<int> lastChild;  // Index of the last child (for CRBA)
     std::vector<int> nvSubtree;           // Dimension of the subtree motion space (for CRBA)

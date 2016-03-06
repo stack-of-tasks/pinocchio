@@ -259,6 +259,7 @@ namespace se3
     ,ddq(ref.nv)
     ,Yaba((std::size_t)ref.nbody)
     ,u(ref.nv)
+    ,Ag(6, ref.nv)
     ,Fcrb((std::size_t)ref.nbody)
     ,lastChild((std::size_t)ref.nbody)
     ,nvSubtree((std::size_t)ref.nbody)

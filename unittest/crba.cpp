@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -26,6 +26,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
 
@@ -66,7 +67,8 @@ BOOST_AUTO_TEST_CASE ( test_crba )
     using namespace se3;
 
     Eigen::MatrixXd M(model.nv,model.nv);
-    Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
+    Eigen::VectorXd q = Eigen::VectorXd::Ones(model.nq);
+    q.segment <4> (3).normalize();
     Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
     Eigen::VectorXd a = Eigen::VectorXd::Zero(model.nv);
     data.M.fill(0);  crba(model,data,q);
@@ -75,9 +77,9 @@ BOOST_AUTO_TEST_CASE ( test_crba )
     /* Joint inertia from iterative crba. */
     const Eigen::VectorXd bias = rnea(model,data,q,v,a);
     for(int i=0;i<model.nv;++i)
-      { 
-        M.col(i) = rnea(model,data,q,v,Eigen::VectorXd::Unit(model.nv,i)) - bias;
-      }
+    {
+      M.col(i) = rnea(model,data,q,v,Eigen::VectorXd::Unit(model.nv,i)) - bias;
+    }
 
     // std::cout << "Mcrb = [ " << data.M << "  ];" << std::endl;
     // std::cout << "Mrne = [  " << M << " ]; " << std::endl;
@@ -89,13 +91,43 @@ BOOST_AUTO_TEST_CASE ( test_crba )
    
     StackTicToc timer(StackTicToc::US); timer.tic();
     SMOOTH(NBT)
-      {
-        crba(model,data,q);
-      }
+    {
+      crba(model,data,q);
+    }
     timer.toc(std::cout,NBT);
   
   #endif // ifndef NDEBUG
 
+}
+  
+BOOST_AUTO_TEST_CASE (test_ccrb)
+{
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model);
+  se3::Data data(model), data_ref(model);
+  
+  Eigen::VectorXd q = Eigen::VectorXd::Ones(model.nq);
+  q.segment <4> (3).normalize();
+  Eigen::VectorXd v = Eigen::VectorXd::Ones(model.nv);
+  
+  crba(model,data_ref,q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  data_ref.Ycrb[0] = data_ref.liMi[1].act(data_ref.Ycrb[1]);
+  
+  se3::SE3 cMo (se3::SE3::Matrix3::Identity(), -getComFromCrba(model, data_ref));
+  
+  ccrba(model, data, q, v);
+  BOOST_CHECK(data.com[0].isApprox(-cMo.translation(),1e-12));
+  BOOST_CHECK(data.Ycrb[0].matrix().isApprox(data_ref.Ycrb[0].matrix(),1e-12));
+  
+  se3::Inertia Ig_ref (cMo.act(data.Ycrb[0]));
+  BOOST_CHECK(data.Ig.matrix().isApprox(Ig_ref.matrix(),1e-12));
+  
+  se3::SE3 oM1 (data_ref.liMi[1]);
+  se3::SE3 cM1 (cMo * oM1);
+  
+  se3::Data::Matrix6x Ag_ref (cM1.inverse().toActionMatrix().transpose() * data_ref.M.topRows <6> ());
+  BOOST_CHECK(data.Ag.isApprox(Ag_ref,1e-12));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

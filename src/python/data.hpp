@@ -80,7 +80,7 @@ namespace se3
     .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,nle,"Non Linear Effects")
         .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,ddq,"Joint accelerations")
 	  .ADD_DATA_PROPERTY(std::vector<Inertia>,Ycrb,"Inertia of the sub-tree composit rigid body")
-	  .ADD_DATA_PROPERTY_CONST(Eigen::MatrixXd,M,"Joint Inertia")
+	  .ADD_DATA_PROPERTY_CONST(Eigen::MatrixXd,M,"Joint Inertia matrix")
 	  .ADD_DATA_PROPERTY_CONST(std::vector<Matrix6x>,Fcrb,"Spatial forces set, used in CRBA")
 	  .ADD_DATA_PROPERTY(std::vector<int>,lastChild,"Index of the last child (for CRBA)")
 	  .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree,"Dimension of the subtree motion space (for CRBA)")
@@ -90,6 +90,13 @@ namespace se3
 	  .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree_fromRow,"")
 	  .ADD_DATA_PROPERTY_CONST(Matrix6x,J,"Jacobian of joint placement")
 	  .ADD_DATA_PROPERTY(std::vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
+        
+        .ADD_DATA_PROPERTY_CONST(Matrix6x,Ag,
+                                 "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
+        .ADD_DATA_PROPERTY_CONST(Force,hg,
+                                 "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the inertial frame).")
+        .ADD_DATA_PROPERTY_CONST(Inertia,Ig,
+                                 "Centroidal Composite Rigid Body Inertia.")
         
 	  .ADD_DATA_PROPERTY(std::vector<Vector3>,com,"Subtree com position.")
     .ADD_DATA_PROPERTY(std::vector<Vector3>,vcom,"Subtree com velocity.")
@@ -129,6 +136,13 @@ namespace se3
       IMPL_DATA_PROPERTY(std::vector<int>,nvSubtree_fromRow,"")
       IMPL_DATA_PROPERTY_CONST(Matrix6x,J,"Jacobian of joint placement")
       IMPL_DATA_PROPERTY(std::vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
+      
+      IMPL_DATA_PROPERTY_CONST(Matrix6x,Ag,
+                               "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
+      IMPL_DATA_PROPERTY_CONST(Force,hg,
+                               "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the inertial frame).")
+      IMPL_DATA_PROPERTY_CONST(Inertia,Ig,
+                               "Centroidal Composite Rigid Body Inertia.")
       
       IMPL_DATA_PROPERTY(std::vector<Vector3>,com,"Subtree com position.")
       IMPL_DATA_PROPERTY(std::vector<Vector3>,vcom,"Subtree com velocity.")
