@@ -7,13 +7,18 @@ set -v
 
 # Add robotpkg 
 sudo sh -c "echo \"deb http://robotpkg.openrobots.org/packages/debian precise robotpkg\" >> /etc/apt/sources.list "
+curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -
 
 # show memory usage before install
 sudo free -m -t
 
 # Setup environment variables.
-export APT_DEPENDENCIES="doxygen libboost-dev libboost-doc libboost-thread-dev libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-python-dev libboost-program-options-dev libeigen3-dev libtinyxml-dev robotpkg-urdfdom "
-curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -
+export APT_DEPENDENCIES="doxygen libboost-dev libboost-doc libboost-thread-dev libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-python-dev libboost-program-options-dev libeigen3-dev libtinyxml-dev robotpkg-urdfdom"
+# Add Python dependency
+export APT_DEPENDENCIES=$APT_DEPENDENCIES" python-numpy robotpkg-eigenpy"
+# Add Geometry dependencies
+#export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-hpp-fcl robotpkg-assimp robotpkg-octomap"
+
 # When this script is called the current directory is ./custom_travis
 . ./.travis/run ../.travis/before_install
 
