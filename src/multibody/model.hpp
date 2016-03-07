@@ -50,30 +50,63 @@ namespace se3
     typedef se3::GeomIndex GeomIndex;
     typedef se3::FrameIndex FrameIndex;
 
-    int nq;                               // Dimension of the configuration representation
-    int nv;                               // Dimension of the velocity vector space
-    int nbody;                            // Number of bodies (= number of joints + 1)
-    int nFixBody;                         // Number of fixed-bodies (= number of fixed-joints)
-    int nOperationalFrames;               // Number of operational frames
+    /// \brief Dimension of the configuration vector representation.
+    int nq;
+    
+    /// \brief Dimension of the velocity vector space.
+    int nv;
+    
+    /// \brief Number of bodies (= number of joints + 1).
+    int nbody;
+    
+    /// \brief Number of fixed-bodies (= number of fixed-joints).
+    int nFixBody;
+    
+    /// \brief Number of operational frames.
+    int nOperationalFrames;
 
-    std::vector<Inertia> inertias;        // Spatial inertias of the body <i> in the supporting joint frame <i>
-    std::vector<SE3> jointPlacements;     // Placement (SE3) of the input of joint <i> in parent joint output <li>
-    JointModelVector joints;              // Model of joint <i>
-    std::vector<JointIndex> parents;           // Joint parent of joint <i>, denoted <li> (li==parents[i])
-    std::vector<std::string> names;       // Name of joint <i>
-    std::vector<std::string> bodyNames;   // Name of the body attached to the output of joint <i>
-    std::vector<bool> hasVisual;          // True iff body <i> has a visual mesh.
+    /// \brief Spatial inertias of the body <i> expressed in the supporting joint frame <i>.
+    std::vector<Inertia> inertias;
+    
+    /// \brief Placement (SE3) of the input of joint <i> regarding to the parent joint output <li>.
+    std::vector<SE3> jointPlacements;
+    
+    /// \brief Model of joint <i>.
+    JointModelVector joints;
+    
+    /// \brief Joint parent of joint <i>, denoted <li> (li==parents[i]).
+    std::vector<JointIndex> parents;
+    
+    /// \brief Name of joint <i>
+    std::vector<std::string> names;
+    
+    /// \brief Name of the body attached to the output of joint <i>.
+    std::vector<std::string> bodyNames;
+    
+    /// \brief True iff body <i> has a visual mesh.
+    std::vector<bool> hasVisual;
 
-    std::vector<SE3> fix_lmpMi;           // Fixed-body relative placement (wrt last moving parent)
-    std::vector<Model::JointIndex> fix_lastMovingParent; // Fixed-body index of the last moving parent
-    std::vector<bool> fix_hasVisual;      // True iff fixed-body <i> has a visual mesh.
-    std::vector<std::string> fix_bodyNames;// Name of fixed-joint <i>
+    /// \brief Fixed-body relative placement (wrt last moving parent)
+    std::vector<SE3> fix_lmpMi;
+    
+    /// \brief Fixed-body index of the last moving parent
+    std::vector<Model::JointIndex> fix_lastMovingParent;
+    
+    /// \brief True iff fixed-body <i> has a visual mesh.
+    std::vector<bool> fix_hasVisual;
+    
+    /// \brief Name of fixed-joint <i>.
+    std::vector<std::string> fix_bodyNames;
 
+    /// \brief Vector of operational frames registered on the model.
     std::vector<Frame> operational_frames;
 
-    Motion gravity;                       // Spatial gravity
-    static const Eigen::Vector3d gravity981; // Default 3D gravity (=(0,0,-9.81))
+    /// \brief Spatial gravity
+    Motion gravity;
+    /// \brief Default 3D gravity vector (=(0,0,-9.81)).
+    static const Eigen::Vector3d gravity981;
 
+    /// \brief Default constructor
     Model()
       : nq(0)
       , nv(0)
@@ -93,40 +126,211 @@ namespace se3
       bodyNames[0] = "universe";
     }
     ~Model() {} // std::cout << "Destroy model" << std::endl; }
+    
+    ///
+    /// \brief Add a body to the kinematic tree.
+    ///
+    /// \param[in] parent Index of the parent joint.
+    /// \param[in] j The joint model.
+    /// \param[in] placement The relative placement of the joint j regarding to the parent joint.
+    /// \param[in] Y Spatial inertia of the body.
+    /// \param[in] jointName Name of the joint.
+    /// \param[in] bodyName Name of the body.
+    /// \param[in] visual Inform if the current body has a visual or not.
+    ///
+    /// \return The index of the new added joint.
+    ///
     template<typename D>
-    JointIndex addBody(  JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
-		                const Inertia & Y,
-                    const std::string & jointName = "", const std::string & bodyName = "",
-                    bool visual = false);
+    JointIndex addBody(JointIndex parent, const JointModelBase<D> & j, const SE3 & placement,
+                       const Inertia & Y,
+                       const std::string & jointName = "", const std::string & bodyName = "",
+                       bool visual = false);
+    
+    ///
+    /// \brief Add a body to the kinematic tree.
+    ///
+    /// \param[in] parent Index of the parent joint.
+    /// \param[in] j The joint model.
+    /// \param[in] placement The relative placement of the joint j regarding to the parent joint.
+    /// \param[in] Y Spatial inertia of the body.
+    /// \param[in] effort Maximal joint torque.
+    /// \param[in] velocity Maximal joint velocity.
+    /// \param[in] lowPos Lower joint configuration.
+    /// \param[in] upPos Upper joint configuration.
+    /// \param[in] jointName Name of the joint.
+    /// \param[in] bodyName Name of the body.
+    /// \param[in] visual Inform if the current body has a visual or not.
+    ///
+    /// \return The index of the new added joint.
+    ///
     template<typename D>
-    JointIndex addBody(  JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
-                    const Inertia & Y,
-                    const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
-                    const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
-                    const std::string & jointName = "", const std::string & bodyName = "",
-                    bool visual = false);
-    JointIndex addFixedBody( JointIndex fix_lastMovingParent,
-                        const SE3 & placementFromLastMoving,
-                        const std::string &jointName = "",
-                        bool visual=false);
-    void mergeFixedBody(JointIndex parent, const SE3 & placement, const Inertia & Y);
-    JointIndex getBodyId( const std::string & name ) const;
-    bool existBodyName( const std::string & name ) const;
-    const std::string& getBodyName( const JointIndex index ) const;
-    JointIndex getJointId( const std::string & name ) const;
-    bool existJointName( const std::string & name ) const;
-    const std::string& getJointName( const JointIndex index ) const;
+    JointIndex addBody(JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
+                       const Inertia & Y,
+                       const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
+                       const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
+                       const std::string & jointName = "", const std::string & bodyName = "",
+                       bool visual = false);
+    
+    /// Need modifications
+    /// \brief Add a body to the kinematic tree.
+    ///
+    /// \param[in] fix_lastMovingParent Index of the closest movable parent joint.
+    /// \param[in] placementFromLastMoving Placement regarding to the closest movable parent joint.
+    /// \param[in] jointName Name of the joint.
+    /// \param[in] visual Inform if the current body has a visual or not.
+    ///
+    /// \return The index of the new added joint.
+    ///
+    JointIndex addFixedBody(JointIndex fix_lastMovingParent,
+                            const SE3 & placementFromLastMoving,
+                            const std::string & jointName = "",
+                            bool visual=false);
+    
+    ///
+    /// \brief Merge a body to a parent body in the kinematic tree.
+    ///
+    /// \param[in] parent Index of the parent body to merge with.
+    /// \param[in] placement Relative placement between the body and its parent body.
+    /// \param[in] Y Spatial inertia of the body.
+    ///
+    void mergeFixedBody(const JointIndex parent, const SE3 & placement, const Inertia & Y);
+    
+    ///
+    /// \brief Return the index of a body given by its name.
+    ///
+    /// \param[in] name Name of the body.
+    ///
+    /// \return Index of the body.
+    ///
+    JointIndex getBodyId(const std::string & name) const;
+    
+    ///
+    /// \brief Check if a body given by its name exists.
+    ///
+    /// \param[in] name Name of the body.
+    ///
+    /// \return True if the body exists in the kinematic tree.
+    ///
+    bool existBodyName(const std::string & name) const;
+    
+    ///
+    /// \brief Get the name of a body given by its index.
+    ///
+    /// \param[in] index Index of the body.
+    ///
+    /// \return Name of the body.
+    ///
+    const std::string & getBodyName(const JointIndex index) const;
+    
+    ///
+    /// \brief Return the index of a joint given by its name.
+    ///
+    /// \param[in] index Index of the joint.
+    ///
+    /// \return Index of the joint.
+    ///
+    JointIndex getJointId(const std::string & name) const;
+    
+    ///
+    /// \brief Check if a joint given by its name exists.
+    ///
+    /// \param[in] name Name of the joint.
+    ///
+    /// \return True if the joint exists in the kinematic tree.
+    ///
+    bool existJointName(const std::string & name) const;
+    
+    ///
+    /// \brief Get the name of a joint given by its index.
+    ///
+    /// \param[in] index Index of the joint.
+    ///
+    /// \return Name of the joint.
+    ///
+    const std::string & getJointName(const JointIndex index) const;
 
-    FrameIndex getFrameId ( const std::string & name ) const;
-    bool existFrame ( const std::string & name ) const;
-    const std::string & getFrameName ( const FrameIndex index ) const;
-    const JointIndex& getFrameParent( const std::string & name ) const;
-    const JointIndex& getFrameParent( const FrameIndex index ) const;
-    const SE3 & getFramePlacement( const std::string & name ) const;
-    const SE3 & getFramePlacement( const FrameIndex index ) const;
+    ///
+    /// \brief Return the index of a frame given by its name.
+    ///
+    /// \param[in] index Index of the frame.
+    ///
+    /// \return Index of the frame.
+    ///
+    FrameIndex getFrameId (const std::string & name) const;
+    
+    ///
+    /// \brief Check if a frame given by its name exists.
+    ///
+    /// \param[in] name Name of the frame.
+    ///
+    /// \return Return true if the frame exists.
+    ///
+    bool existFrame (const std::string & name) const;
+    
+    ///
+    /// \brief Get the name of a frame given by its index.
+    ///
+    /// \param[in] index Index of the frame.
+    ///
+    /// \return The name of the frame.
+    ///
+    const std::string & getFrameName (const FrameIndex index) const;
+    
+    ///
+    /// \brief Get the index of the joint supporting the frame given by its name.
+    ///
+    /// \param[in] name Name of the frame.
+    ///
+    /// \return
+    ///
+    JointIndex getFrameParent(const std::string & name) const;
+    
+    ///
+    /// \brief Get the index of the joint supporting the frame given by its index.
+    ///
+    /// \param[in] index Index of the frame.
+    ///
+    /// \return
+    ///
+    JointIndex getFrameParent(const FrameIndex index) const;
+    
+    ///
+    /// \brief Return the relative placement between a frame and its supporting joint.
+    ///
+    /// \param[in] name Name of the frame.
+    ///
+    /// \return The frame placement regarding the supporing joint.
+    ///
+    const SE3 & getFramePlacement(const std::string & name) const;
+    
+    ///
+    /// \brief Return the relative placement between a frame and its supporting joint.
+    ///
+    /// \param[in] index Index of the frame.
+    ///
+    /// \return The frame placement regarding the supporing joint.
+    ///
+    const SE3 & getFramePlacement(const FrameIndex index) const;
 
-    bool addFrame ( const Frame & frame );
-    bool addFrame ( const std::string & name, JointIndex index_parent, const SE3 & placement );
+    ///
+    /// \brief Add a frame to the kinematic tree.
+    ///
+    /// \param[in] frame The frame to add to the kinematic tree.
+    ///
+    /// \return Return true if the frame has been successfully added.
+    ///
+    bool addFrame(const Frame & frame);
+    
+    ///
+    /// \brief Create and add a frame to the kinematic tree.
+    ///
+    /// \param[in] name Name of the frame.
+    /// \param[in] parent Index of the supporting joint.
+    /// \param[in] placement Placement of the frame regarding to the joint frame.
+    ///
+    /// \return Return true if the frame has been successfully added.
+    ///
+    bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement);
 
   };
 
