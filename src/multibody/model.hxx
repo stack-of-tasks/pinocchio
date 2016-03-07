@@ -120,7 +120,7 @@ namespace se3
     return idx;
   }
 
-  inline void Model::mergeFixedBody (JointIndex parent, const SE3 & placement, const Inertia & Y)
+  inline void Model::mergeFixedBody (const JointIndex parent, const SE3 & placement, const Inertia & Y)
   {
     const Inertia & iYf = Y.se3Action(placement); //TODO
     inertias[parent] += iYf;
@@ -185,7 +185,7 @@ namespace se3
     return operational_frames[index].name;
   }
 
-  inline const Model::JointIndex& Model::getFrameParent( const std::string & name ) const
+  inline Model::JointIndex Model::getFrameParent( const std::string & name ) const
   {
     assert(existFrame(name) && "The Frame you requested does not exist");
     std::vector<Frame>::const_iterator it = std::find_if( operational_frames.begin()
@@ -197,7 +197,7 @@ namespace se3
     return getFrameParent(Model::JointIndex(it_diff));
   }
 
-  inline const Model::JointIndex& Model::getFrameParent( const FrameIndex index ) const
+  inline Model::JointIndex Model::getFrameParent( const FrameIndex index ) const
   {
     return operational_frames[index].parent_id;
   }
