@@ -133,7 +133,9 @@ namespace se3
   class Data
   {
   public:
+    /// \brief The 6d jacobian type (temporary)
     typedef Eigen::Matrix<double,6,Eigen::Dynamic> Matrix6x;
+    /// \brief The 3d jacobian type (temporary)
     typedef Eigen::Matrix<double,3,Eigen::Dynamic> Matrix3x;
     typedef SE3::Vector3 Vector3;
     
@@ -191,25 +193,41 @@ namespace se3
     Eigen::VectorXd u;                  // Joint Inertia
     
     // CCRBA return quantities
-    /// \brief Centroidal Momentum Matrix (map the joint velocity set to the centroidal momentum hg=Ag*v)
+    /// \brief Centroidal Momentum Matrix
+    /// \note \f$ hg = Ag \dot{q}\f$ maps the joint velocity set to the centroidal momentum.
     Matrix6x Ag;
     
-    /// \brief Centroidal momentum (expressed in the frame centered at the CoM and aligned with the inertial frame)
+    /// \brief Centroidal momentum quantity.
+    /// \note The centroidal momentum is expressed in the frame centered at the CoM and aligned with the inertial frame.
+    ///
     Force hg;
     
-    /// \brief Centroidal Composite Rigid Body Inertia
+    /// \brief Centroidal Composite Rigid Body Inertia.
+    /// \note \f$ hg = Ig v_{\text{mean}}\f$ map a mean velocity to the current centroil momentum quantity.
     Inertia Ig;
 
-    std::vector<Matrix6x> Fcrb;           // Spatial forces set, used in CRBA and CCRBA
+    /// \brief Spatial forces set, used in CRBA and CCRBA
+    std::vector<Matrix6x> Fcrb;
 
-    std::vector<int> lastChild;  // Index of the last child (for CRBA)
-    std::vector<int> nvSubtree;           // Dimension of the subtree motion space (for CRBA)
+    /// \brief Index of the last child (for CRBA)
+    std::vector<int> lastChild;
+    /// \brief Dimension of the subtree motion space (for CRBA)
+    std::vector<int> nvSubtree;
 
-    Eigen::MatrixXd U;                    // Joint Inertia square root (upper triangle)
-    Eigen::VectorXd D;                    // Diagonal of UDUT inertia decomposition
-    Eigen::VectorXd tmp;                  // Temporary of size NV used in Cholesky
-    std::vector<int> parents_fromRow;     // First previous non-zero row in M (used in Cholesky)
-    std::vector<int> nvSubtree_fromRow;   // 
+    /// \brief Joint space intertia matrix square root (upper trianglular part) computed with a Cholesky Decomposition.
+    Eigen::MatrixXd U;
+    
+    /// \brief Diagonal of the joint space intertia matrix obtained by a Cholesky Decomposition.
+    Eigen::VectorXd D;
+    
+    /// \brief Temporary of size NV used in Cholesky Decomposition.
+    Eigen::VectorXd tmp;
+    
+    /// \brief First previous non-zero row in M (used in Cholesky Decomposition).
+    std::vector<int> parents_fromRow;
+    
+    /// \brief Subtree of the current row index (used in Cholesky Decomposition).
+    std::vector<int> nvSubtree_fromRow;
     
     /// \brief Jacobian of joint placements.
     /// \note The columns of J corresponds to the basis of the spatial velocities of each joint and expressed at the origin of the inertial frame. In other words, if \f$ v_{J_{i}} = S_{i} \dot{q}_{i}\f$ is the relative velocity of the joint i regarding to its parent, then \f$J = \begin{bmatrix} ^{0}X_{1} S_{1} & \cdots & ^{0}X_{i} S_{i} & \cdots & ^{0}X_{\text{nj}} S_{\text{nj}} \end{bmatrix} \f$. This Jacobian has no special meaning. To get the jacobian of a precise joint, you need to call se3::getJacobian
@@ -234,18 +252,27 @@ namespace se3
     /// \note This Jacobian maps the joint velocity vector to the velocity of the center of mass, expressed in the inertia frame. In other words, \f$ v_{\text{CoM}} = J_{\text{CoM}} \dot{q}\f$.
     Matrix3x Jcom;
 
-    Eigen::VectorXd effortLimit;          // Joint max effort
-    Eigen::VectorXd velocityLimit;        // Joint max velocity
+    /// \brief Vector of maximal joint torques
+    Eigen::VectorXd effortLimit;
+    /// \brief Vector of maximal joint velocities
+    Eigen::VectorXd velocityLimit;
 
-    Eigen::VectorXd lowerPositionLimit;   // limit for joint lower position
-    Eigen::VectorXd upperPositionLimit;   // limit for joint upper position
+    /// \brief Lower joint configuration limit
+    Eigen::VectorXd lowerPositionLimit;
+    /// \brief Upper joint configuration limit
+    Eigen::VectorXd upperPositionLimit;
     
-    double kinetic_energy; // kinetic energy of the model
-    double potential_energy; // potential energy of the model
-
+    /// \brief Kinetic energy of the model.
+    double kinetic_energy;
+    
+    /// \brief Potential energy of the model.
+    double potential_energy;
+    
+    ///
     /// \brief Default constructor of se3::Data from a se3::Model.
     ///
     /// \param[in] model The model structure of the rigid body system.
+    ///
     Data (const Model & model);
 
   private:
