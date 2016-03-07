@@ -65,28 +65,38 @@ namespace se3
 
 
     /**
-     * @brief      Build The GeometryModel from a URDF file 
+     * @brief      Build The GeometryModel from a URDF file. Search for meshes
+     *             in the directories specified by the user first and then in
+     *             the environment variable ROS_PACKAGE_PATH
      *
-     * @param      model         The model of the robot, built with urdf::buildModel
+     * @param      model         The model of the robot, built with
+     *                           urdf::buildModel
      * @param[in]  filename      The URDF complete (absolute) file path
-     * @param[in]  package_dirs  A vector containing the different directories where to search for packages
-     * @param[in]  root_joint    If we added a root joint to the Model in addition to the urdf kinematic chain
+     * @param[in]  package_dirs  A vector containing the different directories
+     *                           where to search for packages
+     * @param[in]  root_joint    If we added a root joint to the Model in
+     *                           addition to the urdf kinematic chain
      *
-     * @return     The GeometryModel associated to the urdf file and the Model given
+     * @return     The GeometryModel associated to the urdf file and the Model
+     *             given
      */
     inline GeometryModel buildGeom(const Model & model,
                                   const std::string & filename,
-                                  const std::vector<std::string> & package_dirs,
+                                  std::vector<std::string> & package_dirs,
                                   const bool root_joint = false );
 
     /**
-     * @brief      Build The GeometryModel from a URDF file 
+     * @brief      Build The GeometryModel from a URDF file. Search for meshes
+     *             in the environment variable ROS_PACKAGE_PATH
      *
-     * @param      model         The model of the robot, built with urdf::buildModel
+     * @param      model       The model of the robot, built with
+     *                         urdf::buildModel
      * @param[in]  filename      The URDF complete (absolute) file path
-     * @param[in]  root_joint    If we added a root joint to the Model in addition to the urdf kinematic chain
+     * @param[in]  root_joint  If we added a root joint to the Model in addition
+     *                         to the urdf kinematic chain
      *
-     * @return     The GeometryModel associated to the urdf file and the Model given
+     * @return     The GeometryModel associated to the urdf file and the Model
+     *             given
      */
     inline GeometryModel buildGeom(const Model & model,
                                   const std::string & filename,

@@ -28,13 +28,13 @@ namespace se3
 {
 
     /**
-     * @brief      Parse env variable ROS_PACKAGE_PATH to extract paths
+     * @brief      Parse env variable ROS_PACKAGE_PATH to extract paths and append them
+     *              in the package_dirs variable
      *
-     * @return     The different paths in ROS_PACKAGE_PATH
+     * @param[in][out]  paths  { The package directories where to search for meshes }
      */
-    inline std::vector < std::string > getRosPackagePaths()
+    void appendRosPackagePaths(std::vector<std::string> & package_dirs)
     {
-        std::vector<std::string> results;
 
         std::string delimiter = ":";
         std::string policyStr = std::getenv("ROS_PACKAGE_PATH");
@@ -44,14 +44,13 @@ namespace se3
         {
             size_t offset = policyStr.find_first_of(delimiter, lastOffset);
             if (offset < policyStr.size())
-              results.push_back(policyStr.substr(lastOffset, offset - lastOffset));
+              package_dirs.push_back(policyStr.substr(lastOffset, offset - lastOffset));
             if (offset == std::string::npos)
                 break;
             else
                 lastOffset = offset + 1; // add one to skip the delimiter
         }
 
-        return results;
     }
 
 }

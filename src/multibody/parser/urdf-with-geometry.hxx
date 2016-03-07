@@ -144,11 +144,12 @@ namespace se3
 
     inline GeometryModel buildGeom(const Model & model,
                                   const std::string & filename,
-                                  const std::vector<std::string> & package_dirs,
+                                  std::vector<std::string> & package_dirs,
                                   const bool root_joint)
     {
       GeometryModel model_geom(model);
 
+      appendRosPackagePaths(package_dirs);
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       parseTreeForGeom(urdfTree->getRoot(), model, model_geom, package_dirs, root_joint);
       return model_geom;
@@ -160,8 +161,11 @@ namespace se3
     {
       GeometryModel model_geom(model);
 
+      std::vector<std::string> package_dirs;
+      appendRosPackagePaths(package_dirs);
+
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
-      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, getRosPackagePaths(), root_joint);
+      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, package_dirs, root_joint);
       return model_geom;
     }
 

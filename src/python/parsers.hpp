@@ -100,7 +100,7 @@ namespace se3
       static GeometryModelHandler
       buildGeomFromUrdf(const ModelHandler & model,
                         const std::string & filename,
-                        const std::vector<std::string> & package_dirs,
+                        std::vector<std::string> & package_dirs,
                         const bool root_added
                         )
       {
@@ -152,7 +152,7 @@ namespace se3
       bp::to_python_converter<std::pair<ModelHandler, GeometryModelHandler>, PairToTupleConverter<ModelHandler, GeometryModelHandler> >();
       
       bp::def("buildGeomFromUrdf",
-              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &, const std::vector<std::string> &, const bool)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &, std::vector<std::string> &, const bool)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)",
                        "bool stating if we added a custom root joint to the Model"),
               "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model "
