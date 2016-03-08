@@ -149,7 +149,15 @@ namespace se3
     {
       GeometryModel model_geom(model);
 
-      appendRosPackagePaths(package_dirs);
+      try
+      {
+        appendRosPackagePaths(package_dirs);
+      }
+      catch (std::runtime_error & e)
+      {
+        std::cout << "ROS_PACKAGE_PATH environment variable is empty. Meshes may not be found when looking for geometry" << std::endl;
+        assert(!package_dirs.empty() && "You did not specify any package directory. Geometric parsing will crash" );
+      }
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       parseTreeForGeom(urdfTree->getRoot(), model, model_geom, package_dirs, root_joint);
       return model_geom;
@@ -162,7 +170,15 @@ namespace se3
       GeometryModel model_geom(model);
 
       std::vector<std::string> package_dirs;
-      appendRosPackagePaths(package_dirs);
+      try
+      {
+        appendRosPackagePaths(package_dirs);
+      }
+      catch (std::runtime_error & e)
+      {
+        std::cout << "ROS_PACKAGE_PATH environment variable is empty. Meshes may not be found when looking for geometry" << std::endl;
+        assert(false && "You did not specify any package directory. Geometric parsing will crash" );
+      }
 
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       parseTreeForGeom(urdfTree->getRoot(), model, model_geom, package_dirs, root_joint);
