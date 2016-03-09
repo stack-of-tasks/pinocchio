@@ -21,6 +21,8 @@
 
 #include <cmath>
 
+# include <Eigen/Geometry>
+
 #ifdef __linux__
   #define SINCOS sincos
 #elif __APPLE__
@@ -28,5 +30,25 @@
 #else // if sincos specialization does not exist
   #define SINCOS(a,sa,ca) (*sa) = std::sin(a); (*ca) = std::cos(a)
 #endif
+
+/// Compute quaternion and angle from a SO(3) joint configuration
+///
+/// \param q1, q2, robot configurations
+/// \param index index of joint configuration in robot configuration vector
+/// \param unit quaternion corresponding to both joint configuration
+/// \return angle between both joint configuration
+template <typename D>
+static double angleBetweenQuaternions(const Eigen::MatrixBase<D> & q1,
+                                      const Eigen::MatrixBase<D> & q2)
+{
+  EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,4);
+
+  double innerprod = q1.dot(q2);
+  assert (fabs (innerprod) < 1.0001);
+  if (innerprod < -1) innerprod = -1;
+  if (innerprod >  1) innerprod =  1;
+  double theta = acos (innerprod);
+  return theta;
+}
 
 #endif //#ifndef __math_sincos_hpp__
