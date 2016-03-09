@@ -22,6 +22,7 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
+#include "pinocchio/spatial/explog.hpp"
 
 namespace se3
 {
@@ -147,6 +148,9 @@ namespace se3
     typedef Eigen::Matrix<double,6,NV> U_t;
     typedef Eigen::Matrix<double,NV,NV> D_t;
     typedef Eigen::Matrix<double,6,NV> UD_t;
+
+    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
   template<> struct traits<JointDataFreeFlyer> { typedef JointFreeFlyer Joint; };
   template<> struct traits<JointModelFreeFlyer> { typedef JointFreeFlyer Joint; };
@@ -193,6 +197,8 @@ namespace se3
     using JointModelBase<JointModelFreeFlyer>::maxEffortLimit;
     using JointModelBase<JointModelFreeFlyer>::maxVelocityLimit;
     using JointModelBase<JointModelFreeFlyer>::setIndexes;
+    typedef Motion::Vector3 Vector3;
+    typedef double Scalar_t;
 
     JointData createData() const { return JointData(); }
     void calc( JointData& data,
@@ -225,6 +231,122 @@ namespace se3
       if (update_I)
         I.setZero();
     }
+
+    const ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
+
+      // Translational part
+      Motion_t::Vector3 translation_result(q.segment<3>(0) + q_dot.segment<3>(0));
+
+      // Quaternion part
+      Motion_t::Quaternion_t quat(q.segment<4>(3));
+      Motion_t::Vector3 omega(q_dot.segment<3> (3));
+
+      Motion_t::Vector3 omega_2(omega); // exp3 doesn't compile with omega cause no member named 'Options' in type
+      Motion_t::Quaternion_t pOmega(se3::exp3(omega_2));
+
+      Motion_t::Quaternion_t quaternion_result(pOmega*quat);
+
+      // Concatenation
+      ConfigVector_t result;
+      result << translation_result[0],
+                translation_result[1],
+                translation_result[2],
+                quaternion_result.x(),
+                quaternion_result.y(),
+                quaternion_result.z(),
+                quaternion_result.w();
+      return result; 
+    } 
+
+    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, double u) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      // Translational part
+      // Motion_t::Vector3 translation_result((1-u)*q_1.segment(0,3) + u * q_2.segment(0,3));
+      Motion_t::Vector3 translation_result((1-u)*q_1.head<3>() + u * q_2.head<3>());
+
+      //Quaternion part
+      double theta = angleBetweenQuaternions (q_1.segment<4>(3), q_2.segment<4>(3));
+      Motion_t::Vector4 quaternion_result;
+
+      if (fabs (theta) > 1e-6)
+      {
+        quaternion_result = (sin ((1-u)*theta)/sin (theta)) * q_1.segment<4>(3) +
+                 (sin (u*theta)/sin (theta)) * q_2.segment<4>(3);
+      } 
+      else
+      {
+        quaternion_result = (1-u) * q_1.segment<4>(3)+ u * q_2.segment<4>(3);
+      }
+
+      // Concatenation
+      ConfigVector_t result;
+      result << translation_result[0],
+                translation_result[1],
+                translation_result[2],
+                quaternion_result.x(),
+                quaternion_result.y(),
+                quaternion_result.z(),
+                quaternion_result.w();
+      return result; 
+    }
+
+    const ConfigVector_t random_impl() const
+    { return ConfigVector_t(); } 
+
+    const TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      // Translational part
+      Motion_t::Vector3 translation_result(q_1.segment<3>(0) - q_2.segment<3>(0));
+
+      // Quaternion part
+      // Compute rotation vector between q2 and q1.
+      Motion_t::Quaternion_t p1 (q_1.segment<4>(3));
+      Motion_t::Quaternion_t p2 (q_2.segment<4>(3));
+
+      Motion_t::Quaternion_t p (p1.conjugate());
+      p*=p2;
+      Eigen::AngleAxis<Scalar_t> angle_axis(p);
+
+      Motion_t::Vector3 quaternion_result(angle_axis.angle() * angle_axis.axis());
+
+      // Concatenation
+      TangentVector_t result;
+      result << translation_result[0],
+                translation_result[1],
+                translation_result[2],
+                quaternion_result[0],
+                quaternion_result[1],
+                quaternion_result[2];
+      return result; 
+    } 
+
+    double distance_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      
+      // Translational part
+      double translation_result = (q_1.segment<3>(0) - q_2.segment<3>(0)).norm() ;
+      // Quaternion part
+      double theta = angleBetweenQuaternions (q_1.segment<4>(3), q_2.segment<4>(3));
+
+      assert (theta >= 0);
+
+      // Concatenation
+      
+      return sqrt(pow(translation_result,2) + pow(theta,2));
+    } 
 
     JointModelDense<NQ, NV> toDense_impl() const
     {

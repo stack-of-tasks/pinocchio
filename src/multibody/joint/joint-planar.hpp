@@ -278,6 +278,9 @@ namespace se3
     typedef Eigen::Matrix<double,6,NV> U_t;
     typedef Eigen::Matrix<double,NV,NV> D_t;
     typedef Eigen::Matrix<double,6,NV> UD_t;
+
+    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
   template<> struct traits<JointDataPlanar> { typedef JointPlanar Joint; };
   template<> struct traits<JointModelPlanar> { typedef JointPlanar Joint; };
@@ -364,6 +367,41 @@ namespace se3
       
       if (update_I)
         I -= data.UDinv * data.U.transpose();
+    }
+
+    const ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
+    {
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
+
+      return ConfigVector_t(q + q_dot);
+    }
+
+    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, double u) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return ConfigVector_t((1-u) * q_1 + u * q_2);
+    }
+
+    const ConfigVector_t random_impl() const
+    { return ConfigVector_t(); } 
+
+    const TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return TangentVector_t(q_1 - q_2);
+    } 
+
+    double distance_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return (q_1-q_2).norm();
     }
 
     JointModelDense<NQ, NV> toDense_impl() const

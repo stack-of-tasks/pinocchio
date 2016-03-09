@@ -81,7 +81,9 @@ namespace se3
    enum {                  \
     NQ = traits<Joint>::NQ,              \
     NV = traits<Joint>::NV               \
-  }
+  };                        \
+  typedef prefix traits<Joint>::ConfigVector_t ConfigVector_t;        \
+  typedef prefix traits<Joint>::TangentVector_t TangentVector_t
 
 #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
 #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
@@ -103,7 +105,9 @@ namespace se3
   enum {              \
     NQ = traits<Joint>::NQ,         \
     NV = traits<Joint>::NV          \
-  }
+  };                        \
+  typedef traits<Joint>::ConfigVector_t ConfigVector_t;        \
+  typedef traits<Joint>::TangentVector_t TangentVector_t
 
 #define SE3_JOINT_TYPEDEF_ARG(prefix)         \
   typedef int Index;              \
@@ -120,7 +124,9 @@ namespace se3
   enum {                \
     NQ = traits<Joint>::NQ,           \
     NV = traits<Joint>::NV            \
-  }
+  };                        \
+  typedef prefix traits<Joint>::ConfigVector_t ConfigVector_t;        \
+  typedef prefix traits<Joint>::TangentVector_t TangentVector_t
 
 #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_NOARG()
 #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
@@ -142,7 +148,9 @@ namespace se3
   enum {                   \
     NQ = traits<Joint>::NQ,              \
     NV = traits<Joint>::NV               \
-  }
+  };                        \
+  typedef typename traits<Joint>::ConfigVector_t ConfigVector_t;        \
+  typedef typename traits<Joint>::TangentVector_t TangentVector_t
 
 #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
 #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG()
@@ -223,8 +231,8 @@ namespace se3
     typedef typename traits<_JointModel>::Joint Joint;
     SE3_JOINT_TYPEDEF_TEMPLATE;
   
-    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
+    // typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+    // typedef Eigen::Matrix<double,NV,1> TangentVector_t;
 
     JointModel& derived() { return *static_cast<JointModel*>(this); }
     const JointModel& derived() const { return *static_cast<const JointModel*>(this); }
@@ -242,6 +250,21 @@ namespace se3
                   Inertia::Matrix6 & I,
                   const bool update_I = false) const
     { return static_cast<const JointModel*>(this)->calc_aba(data, I, update_I); }
+
+    const ConfigVector_t integrate(const Eigen::VectorXd & q,const Eigen::VectorXd & v) const
+    { return derived().integrate_impl(q, v); } 
+
+    const ConfigVector_t interpolate(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, double u) const
+    { return derived().interpolate_impl(q1, q2, u); }
+
+    const ConfigVector_t random() const
+    { return derived().random_impl(); } 
+
+    const TangentVector_t difference(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { return derived().difference_impl(q1, q2); } 
+
+    double distance(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { return derived().distance_impl(q1, q2); } 
 
     Index i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.

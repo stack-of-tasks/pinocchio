@@ -247,6 +247,9 @@ namespace se3
       typedef Eigen::Matrix<double,6,NV> U_t;
       typedef Eigen::Matrix<double,NV,NV> D_t;
       typedef Eigen::Matrix<double,6,NV> UD_t;
+
+      typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+      typedef Eigen::Matrix<double,NV,1> TangentVector_t;
       
     };
 
@@ -302,6 +305,8 @@ namespace se3
     using JointModelBase<JointModelRevoluteUnaligned>::maxEffortLimit;
     using JointModelBase<JointModelRevoluteUnaligned>::maxVelocityLimit;
     using JointModelBase<JointModelRevoluteUnaligned>::setIndexes;
+    typedef Motion::Vector3 Vector3;
+    typedef double Scalar_t;
     
     JointModelRevoluteUnaligned() : axis(Eigen::Vector3d::Constant(NAN))   {}
     JointModelRevoluteUnaligned(const double x, const double y, const double z)
@@ -351,6 +356,47 @@ namespace se3
       
       if (update_I)
         I -= data.UDinv * data.U.transpose();
+    }
+
+    const ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
+    {
+      const Scalar_t & q = qs[idx_q()];
+      const Scalar_t & v = vs[idx_v()];
+
+      ConfigVector_t result;
+      result << (q + v);
+      return result; 
+    }
+
+    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, double u) const
+    { 
+      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar_t & q_2 = q2[idx_q()];
+
+      ConfigVector_t result;
+      result << ((1-u) * q_1 + u * q_2);
+      return result; 
+    }
+
+    const ConfigVector_t random_impl() const
+    { return ConfigVector_t(); } 
+
+    const TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar_t & q_2 = q2[idx_q()];
+
+      ConfigVector_t result;
+      result << (q_1 - q_2);
+      return result; 
+    } 
+
+    double distance_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar_t & q_2 = q2[idx_q()];
+
+      return (q_1-q_2);
     }
 
     JointModelDense<NQ, NV> toDense_impl() const
