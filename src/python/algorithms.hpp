@@ -35,7 +35,7 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/joint-limits.hpp"
 #include "pinocchio/algorithm/energy.hpp"
-
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/simulation/compute-all-terms.hpp"
 
 #ifdef WITH_HPP_FCL
@@ -261,6 +261,14 @@ namespace se3
         return potentialEnergy(*model,*data,q,update_kinematics);
       }
 
+      static void integrateModel_proxy(const ModelHandler & model,
+                                      DataHandler & data,
+                                      const VectorXd_fx & q,
+                                      const VectorXd_fx & v,
+                                      Eigen::VectorXd & result)
+      {
+        integrateModel(*model,*data,q,v,result);
+      }
 #ifdef WITH_HPP_FCL
       
       static void updateGeometryPlacements_proxy(const ModelHandler & model,
@@ -465,6 +473,12 @@ namespace se3
                 "given the joint configuration and store it "
                 " in data.potential_energy. By default, the kinematics of model is updated.");
 
+        bp::def("integrateModel",integrateModel_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)",
+                         "resulting Configuration result (size Model::nq)"),
+                "Integrate the model for a constant derivative during unit time .");
 #ifdef WITH_HPP_FCL
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,
