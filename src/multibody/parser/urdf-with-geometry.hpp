@@ -59,8 +59,7 @@ namespace se3
     inline void parseTreeForGeom( ::urdf::LinkConstPtr link,
                                 const Model & model,
                                 GeometryModel & model_geom,
-                                const std::vector<std::string> & package_dirs,
-                                const bool rootJointAdded) throw (std::invalid_argument);
+                                const std::vector<std::string> & package_dirs) throw (std::invalid_argument);
 
 
 
@@ -82,8 +81,7 @@ namespace se3
      */
     inline GeometryModel buildGeom(const Model & model,
                                   const std::string & filename,
-                                  std::vector<std::string> & package_dirs,
-                                  const bool root_joint = false );
+                                  std::vector<std::string> & package_dirs);
 
     /**
      * @brief      Build The GeometryModel from a URDF file. Search for meshes
@@ -99,8 +97,7 @@ namespace se3
      *             given
      */
     inline GeometryModel buildGeom(const Model & model,
-                                  const std::string & filename,
-                                  const bool root_joint = false );
+                                  const std::string & filename);
 
   } // namespace urdf
   

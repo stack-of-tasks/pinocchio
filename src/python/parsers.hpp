@@ -88,11 +88,10 @@ namespace se3
       
       static GeometryModelHandler
       buildGeomFromUrdf(const ModelHandler & model,
-                        const std::string & filename,
-                        const bool root_added
+                        const std::string & filename
                         )
       {
-        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename, root_added));
+        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename));
         
         return GeometryModelHandler(geometry_model, true);
       }
@@ -100,11 +99,10 @@ namespace se3
       static GeometryModelHandler
       buildGeomFromUrdf(const ModelHandler & model,
                         const std::string & filename,
-                        std::vector<std::string> & package_dirs,
-                        const bool root_added
+                        std::vector<std::string> & package_dirs
                         )
       {
-        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename, package_dirs, root_added));
+        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename, package_dirs));
         
         return GeometryModelHandler(geometry_model, true);
       }
@@ -152,15 +150,15 @@ namespace se3
       bp::to_python_converter<std::pair<ModelHandler, GeometryModelHandler>, PairToTupleConverter<ModelHandler, GeometryModelHandler> >();
       
       bp::def("buildGeomFromUrdf",
-              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &, std::vector<std::string> &, const bool)> (&ParsersPythonVisitor::buildGeomFromUrdf),
-              bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)",
-                       "bool stating if we added a custom root joint to the Model"),
+              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &, std::vector<std::string> &)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)"
+                       ),
               "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model "
               "(remember to create the corresponding data structures).");
       
       bp::def("buildGeomFromUrdf",
-              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &, const bool)> (&ParsersPythonVisitor::buildGeomFromUrdf),
-              bp::args("Model to assosiate the Geometry","filename (string)", "bool stating if we added a custom root joint to the Model"),
+              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              bp::args("Model to assosiate the Geometry","filename (string)"),
               "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model "
               "(remember to create the corresponding data structures).");
       

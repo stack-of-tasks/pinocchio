@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
   package_dirs.push_back(meshDir);
 
   Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
-  GeometryModel geometry_model = se3::urdf::buildGeom(model, filename, package_dirs, true);
+  GeometryModel geometry_model = se3::urdf::buildGeom(model, filename, package_dirs);
 
   Data data(model);
   GeometryData geometry_data(data, geometry_model);
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   package_dirs.push_back(meshDir);
 
   se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
-  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs,  true);
+  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs);
   std::cout << model << std::endl;
 
 
@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   package_dirs.push_back(meshDir);
 
   se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
-  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs,  true);
+  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs);
   std::cout << model << std::endl;
 
 

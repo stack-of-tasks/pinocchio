@@ -74,7 +74,7 @@ int main()
   package_dirs.push_back(romeo_meshDir);
 
   se3::Model model = se3::urdf::buildModel(romeo_filename, se3::JointModelFreeFlyer());
-  se3::GeometryModel geom_model = se3::urdf::buildGeom(romeo_model, romeo_filename, package_dirs,  true);
+  se3::GeometryModel geom_model = se3::urdf::buildGeom(model, romeo_filename, package_dirs);
    
   Data data(model);
   GeometryData geom_data(data, geom_model);
