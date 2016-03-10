@@ -237,27 +237,24 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
 
+      ConfigVector_t result;
       // Translational part
-      Motion_t::Vector3 translation_result(q.segment<3>(0) + q_dot.segment<3>(0));
+      result.head<3>() =  (q.head<3>() + q_dot.head<3>());
 
       // Quaternion part
-      Motion_t::Quaternion_t quat(q.segment<4>(3));
-      Motion_t::Vector3 omega(q_dot.segment<3> (3));
+      Motion_t::Quaternion_t quat(q.tail<4>());
+      Motion_t::Vector3 omega(q_dot.tail<3>());
 
       Motion_t::Vector3 omega_2(omega); // exp3 doesn't compile with omega cause no member named 'Options' in type
       Motion_t::Quaternion_t pOmega(se3::exp3(omega_2));
 
       Motion_t::Quaternion_t quaternion_result(pOmega*quat);
 
-      // Concatenation
-      ConfigVector_t result;
-      result << translation_result[0],
-                translation_result[1],
-                translation_result[2],
-                quaternion_result.x(),
-                quaternion_result.y(),
-                quaternion_result.z(),
-                quaternion_result.w();
+      result[3] = quaternion_result.x();
+      result[4] = quaternion_result.y();
+      result[5] = quaternion_result.z();
+      result[6] = quaternion_result.w();
+
       return result; 
     } 
 
@@ -266,9 +263,9 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
 
+      ConfigVector_t result;
       // Translational part
-      // Motion_t::Vector3 translation_result((1-u)*q_1.segment(0,3) + u * q_2.segment(0,3));
-      Motion_t::Vector3 translation_result((1-u)*q_1.head<3>() + u * q_2.head<3>());
+      result.head<3>() << ((1-u)*q_1.head<3>() + u * q_2.head<3>());
 
       //Quaternion part
       double theta = angleBetweenQuaternions (q_1.segment<4>(3), q_2.segment<4>(3));
@@ -284,15 +281,8 @@ namespace se3
         quaternion_result = (1-u) * q_1.segment<4>(3)+ u * q_2.segment<4>(3);
       }
 
-      // Concatenation
-      ConfigVector_t result;
-      result << translation_result[0],
-                translation_result[1],
-                translation_result[2],
-                quaternion_result.x(),
-                quaternion_result.y(),
-                quaternion_result.z(),
-                quaternion_result.w();
+      result.tail<4>() << quaternion_result;
+
       return result; 
     }
 
@@ -304,8 +294,9 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
 
+      TangentVector_t result;
       // Translational part
-      Motion_t::Vector3 translation_result(q_1.segment<3>(0) - q_2.segment<3>(0));
+      result.head<3>() << (q_1.segment<3>(0) - q_2.segment<3>(0));
 
       // Quaternion part
       // Compute rotation vector between q2 and q1.
@@ -316,16 +307,8 @@ namespace se3
       p*=p2;
       Eigen::AngleAxis<Scalar_t> angle_axis(p);
 
-      Motion_t::Vector3 quaternion_result(angle_axis.angle() * angle_axis.axis());
+      result.tail<3>() << angle_axis.angle() * angle_axis.axis() ;
 
-      // Concatenation
-      TangentVector_t result;
-      result << translation_result[0],
-                translation_result[1],
-                translation_result[2],
-                quaternion_result[0],
-                quaternion_result[1],
-                quaternion_result[2];
       return result; 
     } 
 
