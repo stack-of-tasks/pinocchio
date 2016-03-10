@@ -34,7 +34,7 @@ namespace se3
      *
      * @param[in][out]  paths  { The package directories where to search for meshes }
      */
-    void appendRosPackagePaths(std::vector<std::string> & package_dirs)
+    inline void appendRosPackagePaths(std::vector<std::string> & package_dirs)
     {
 
         std::string delimiter = ":";
