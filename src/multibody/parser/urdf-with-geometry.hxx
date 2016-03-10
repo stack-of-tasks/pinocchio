@@ -133,44 +133,24 @@ namespace se3
 
     inline GeometryModel buildGeom(const Model & model,
                                   const std::string & filename,
-                                  std::vector<std::string> & package_dirs)
+                                  const std::vector<std::string> & package_dirs)
     {
       GeometryModel model_geom(model);
 
-      try
-      {
-        appendRosPackagePaths(package_dirs);
-      }
-      catch (std::runtime_error & e)
-      {
-        std::cout << "ROS_PACKAGE_PATH environment variable is empty. Meshes may not be found when looking for geometry" << std::endl;
-        assert(!package_dirs.empty() && "You did not specify any package directory. Geometric parsing will crash" );
-      }
-      ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
-      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, package_dirs);
-      return model_geom;
-    }
+      std::vector<std::string> hint_directories(package_dirs);
 
-    inline GeometryModel buildGeom(const Model & model,
-                                  const std::string & filename)
-    {
-      GeometryModel model_geom(model);
+      appendRosPackagePaths(hint_directories);
 
-      std::vector<std::string> package_dirs;
-      try
+      if(hint_directories.empty())
       {
-        appendRosPackagePaths(package_dirs);
-      }
-      catch (std::runtime_error & e)
-      {
-        std::cout << "ROS_PACKAGE_PATH environment variable is empty. Meshes may not be found when looking for geometry" << std::endl;
-        assert(false && "You did not specify any package directory. Geometric parsing will crash" );
+        throw std::runtime_error("You did not specify any package directory and ROS_PACKAGE_PATH is empty. Geometric parsing will crash");
       }
 
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
-      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, package_dirs);
+      parseTreeForGeom(urdfTree->getRoot(), model, model_geom, hint_directories);
       return model_geom;
     }
+
 
   } // namespace urdf
 } // namespace se3

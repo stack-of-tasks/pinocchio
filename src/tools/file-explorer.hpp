@@ -34,17 +34,13 @@ namespace se3
      *
      * @param[in][out]  paths  { The package directories where to search for meshes }
      */
-    void appendRosPackagePaths(std::vector<std::string> & package_dirs) throw (std::runtime_error)
+    void appendRosPackagePaths(std::vector<std::string> & package_dirs)
     {
 
         std::string delimiter = ":";
         std::string policyStr = std::getenv("ROS_PACKAGE_PATH");
         size_t lastOffset = 0;
 
-        if(policyStr.empty())
-        {
-          throw std::runtime_error("ROS_PACKAGE_PATH environment variable is empty");
-        }
         while(true)
         {
             size_t offset = policyStr.find_first_of(delimiter, lastOffset);

@@ -81,23 +81,7 @@ namespace se3
      */
     inline GeometryModel buildGeom(const Model & model,
                                   const std::string & filename,
-                                  std::vector<std::string> & package_dirs);
-
-    /**
-     * @brief      Build The GeometryModel from a URDF file. Search for meshes
-     *             in the environment variable ROS_PACKAGE_PATH
-     *
-     * @param      model       The model of the robot, built with
-     *                         urdf::buildModel
-     * @param[in]  filename      The URDF complete (absolute) file path
-     * @param[in]  root_joint  If we added a root joint to the Model in addition
-     *                         to the urdf kinematic chain
-     *
-     * @return     The GeometryModel associated to the urdf file and the Model
-     *             given
-     */
-    inline GeometryModel buildGeom(const Model & model,
-                                  const std::string & filename);
+                                  const std::vector<std::string> & package_dirs = std::vector<std::string>());
 
   } // namespace urdf
   
