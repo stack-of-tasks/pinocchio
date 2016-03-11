@@ -104,6 +104,11 @@ def mprint(M,name = "ans"):
             print ""
         print ""
 
+def fromListToVectorOfString(list):
+    vector = se3.StdVec_StdString()
+    vector.extend(item for item in list)
+    return vector
+
 
 from rpy import *
 
@@ -112,4 +117,4 @@ __all__ = [ 'np','npl','eye','zero','rand','isapprox','mprint',
             'npToTTuple','npToTuple','rotate',
             'rpyToMatrix','matrixToRpy',
             'se3ToXYZQUAT' ,'XYZQUATToSe3',
-            'XYZQUATToViewerConfiguration', 'ViewerConfigurationToXYZQUAT' ]
+            'XYZQUATToViewerConfiguration', 'ViewerConfigurationToXYZQUAT', 'fromListToVectorOfString' ]

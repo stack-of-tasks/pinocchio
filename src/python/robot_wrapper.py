@@ -22,32 +22,26 @@ import time
 
 class RobotWrapper:
 
-    def __init__(self, filename, mesh_dir = None, root_joint = None):
-        if isinstance(mesh_dir, basestring):
-          build_model_and_geom = True
-        else: # Only load the model
-          build_model_and_geom = False
-          root_joint = mesh_dir
-      
-        self.model_filename = filename
-        if build_model_and_geom:
-          # Check if the module geometry of Pinocchio has been compiled
-          if not "buildModelAndGeomFromUrdf" in dir(se3):
-            raise Exception('It seems that the Geometry Module has not been compiled with Pinocchio') 
-          if(root_joint is None):
-              self.model, self.geometry_model = se3.buildModelAndGeomFromUrdf(filename,mesh_dir)
-          else:
-              self.model, self.geometry_model = se3.buildModelAndGeomFromUrdf(filename,mesh_dir,root_joint)
-
-          self.data = self.model.createData()
-          self.geometry_data = se3.GeometryData(self.data, self.geometry_model)
-        else:
-          if(root_joint is None):
+    def __init__(self, filename, package_dirs = None, root_joint = None):
+        if(root_joint is None):
               self.model = se3.buildModelFromUrdf(filename)
-          else:
+        else:
               self.model = se3.buildModelFromUrdf(filename, root_joint)
-          
-          self.data = self.model.createData()
+
+        self.data = self.model.createData()
+
+        if not "buildGeomFromUrdf" in dir(se3):
+            raise Exception('It seems that the Geometry Module has not been compiled with Pinocchio. No geometry model')
+        else:
+            if (package_dirs is None):
+                self.geometry_model = se3.buildGeomFromUrdf(self.model, filename)
+                self.geometry_data = se3.GeometryData(self.data, self.geometry_model)
+            else:
+                if not all(isinstance(item,basestring) for item in package_dirs):
+                    raise Exception('The list of package directories is wrong. At least one is not a string')
+                else:
+                    self.geometry_model = se3.buildGeomFromUrdf(self.model, filename, utils.fromListToVectorOfString(package_dirs))
+                    self.geometry_data = se3.GeometryData(self.data, self.geometry_model)
 
         self.v0 = utils.zero(self.nv)
         self.q0 = utils.zero(self.nq)

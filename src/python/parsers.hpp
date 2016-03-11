@@ -53,11 +53,11 @@ namespace se3
       
       
 #ifdef WITH_URDFDOM
-      struct build_model_visitor : public boost::static_visitor<ModelHandler>
+      struct BuildModelVisitor : public boost::static_visitor<ModelHandler>
       {
         const std::string& _filename;
 
-        build_model_visitor(const std::string& filename): _filename(filename){}
+        BuildModelVisitor(const std::string& filename): _filename(filename){}
 
         template <typename JointModel> ModelHandler operator()(const JointModel & root_joint) const
         {
@@ -72,7 +72,7 @@ namespace se3
                                              )
       {
         JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object);
-        return boost::apply_visitor(build_model_visitor(filename), root_joint);
+        return boost::apply_visitor(BuildModelVisitor(filename), root_joint);
       }
 
       static ModelHandler buildModelFromUrdf(const std::string & filename)
@@ -85,49 +85,26 @@ namespace se3
 
 #ifdef WITH_HPP_FCL
       typedef std::pair<ModelHandler, GeometryModelHandler> ModelGeometryHandlerPair_t;
-      struct build_model_and_geom_visitor : public boost::static_visitor<std::pair<ModelHandler, GeometryModelHandler> >
+      
+      static GeometryModelHandler
+      buildGeomFromUrdf(const ModelHandler & model,
+                        const std::string & filename
+                        )
       {
-        const std::string& _filenameUrdf;
-        const std::string& _filenameMeshRootDir;
-
-        build_model_and_geom_visitor(const std::string & filenameUrdf,
-                                     const std::string & filenameMeshRootDir)
-          : _filenameUrdf(filenameUrdf)
-          , _filenameMeshRootDir(filenameMeshRootDir)
-        {}
-
-        template <typename JointModel>
-        ModelGeometryHandlerPair_t operator() (const JointModel & root_joint) const
-        {
-          Model * model = new Model(se3::urdf::buildModel(_filenameUrdf, root_joint));
-          GeometryModel * geometry_model = new GeometryModel (se3::urdf::buildGeom(*model, _filenameUrdf, _filenameMeshRootDir));
-          
-          return std::pair<ModelHandler, GeometryModelHandler> (ModelHandler(model, true),
-                                                                GeometryModelHandler(geometry_model, true)
-                                                                );
-        }
-      };
-
-      static ModelGeometryHandlerPair_t
-      buildModelAndGeomFromUrdf(const std::string & filename,
-                                const std::string & mesh_dir,
-                                bp::object & root_joint_object
-                                )
-      {
-        JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object);
-        return boost::apply_visitor(build_model_and_geom_visitor(filename, mesh_dir), root_joint);
+        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename));
+        
+        return GeometryModelHandler(geometry_model, true);
       }
 
-      static ModelGeometryHandlerPair_t
-      buildModelAndGeomFromUrdf(const std::string & filename,
-                                const std::string & mesh_dir)
+      static GeometryModelHandler
+      buildGeomFromUrdf(const ModelHandler & model,
+                        const std::string & filename,
+                        std::vector<std::string> & package_dirs
+                        )
       {
-        Model * model = new Model(se3::urdf::buildModel(filename));
-        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename, mesh_dir));
+        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename, package_dirs));
         
-        return ModelGeometryHandlerPair_t (ModelHandler(model, true),
-                                           GeometryModelHandler(geometry_model, true)
-                                           );
+        return GeometryModelHandler(geometry_model, true);
       }
       
 #endif // #ifdef WITH_HPP_FCL
@@ -172,17 +149,17 @@ namespace se3
       
       bp::to_python_converter<std::pair<ModelHandler, GeometryModelHandler>, PairToTupleConverter<ModelHandler, GeometryModelHandler> >();
       
-      bp::def("buildModelAndGeomFromUrdf",
-              static_cast <ModelGeometryHandlerPair_t (*) (const std::string &, const std::string &, bp::object &)> (&ParsersPythonVisitor::buildModelAndGeomFromUrdf),
-              bp::args("filename (string)", "mesh_dir (string)",
-                       "Root Joint Model"),
-              "Parse the urdf file given in input and return a proper pinocchio model starting with a given root joint and geometry model "
+      bp::def("buildGeomFromUrdf",
+              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &, std::vector<std::string> &)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)"
+                       ),
+              "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model "
               "(remember to create the corresponding data structures).");
       
-      bp::def("buildModelAndGeomFromUrdf",
-              static_cast <ModelGeometryHandlerPair_t (*) (const std::string &, const std::string &)> (&ParsersPythonVisitor::buildModelAndGeomFromUrdf),
-              bp::args("filename (string)", "mesh_dir (string)"),
-              "Parse the urdf file given in input and return a proper pinocchio model and geometry model "
+      bp::def("buildGeomFromUrdf",
+              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              bp::args("Model to assosiate the Geometry","filename (string)"),
+              "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model "
               "(remember to create the corresponding data structures).");
       
 #endif // #ifdef WITH_HPP_FCL

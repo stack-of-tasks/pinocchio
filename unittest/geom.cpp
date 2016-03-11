@@ -205,9 +205,12 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 
 
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
+  std::vector < std::string > package_dirs;
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
+  package_dirs.push_back(meshDir);
+
   Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
-  GeometryModel geometry_model = se3::urdf::buildGeom(model, filename, meshDir);
+  GeometryModel geometry_model = se3::urdf::buildGeom(model, filename, package_dirs);
 
   Data data(model);
   GeometryData geometry_data(data, geometry_model);
@@ -243,16 +246,22 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
+  std::vector < std::string > package_dirs;
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
-  std::pair < Model, GeometryModel > robot = se3::urdf::buildModelAndGeom(filename, meshDir, se3::JointModelFreeFlyer());
+  package_dirs.push_back(meshDir);
 
-  Data data(robot.first);
-  GeometryData data_geom(data, robot.second);
+  se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
+  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs);
+  std::cout << model << std::endl;
+
+
+  Data data(model);
+  GeometryData data_geom(data, geom);
 
   // Configuration to be tested
   
 
-  Eigen::VectorXd q_pino(Eigen::VectorXd::Random(robot.first.nq));
+  Eigen::VectorXd q_pino(Eigen::VectorXd::Random(model.nq));
   q_pino.segment<4>(3) /= q_pino.segment<4>(3).norm();
 
   Eigen::VectorXd q_hpp(q_pino);
@@ -261,9 +270,9 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   q_hpp.segment<4>(3) = quaternion ;
 
 
-  assert(q_pino.size() == robot.first.nq && "wrong config size");
+  assert(q_pino.size() == model.nq && "wrong config size");
 
-  se3::updateGeometryPlacements(robot.first, data, robot.second, data_geom, q_pino);
+  se3::updateGeometryPlacements(model, data, geom, data_geom, q_pino);
 
 
   /// *************  HPP  ************* /// 
@@ -277,7 +286,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
               "", "");
 
 
-  assert(robot.first.nq == humanoidRobot->configSize () && "Pinocchio model & HPP model config sizes are not the same ");
+  assert(model.nq == humanoidRobot->configSize () && "Pinocchio model & HPP model config sizes are not the same ");
 
   humanoidRobot->currentConfiguration (q_hpp);
   humanoidRobot->computeForwardKinematics ();
@@ -347,16 +356,22 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
+  std::vector < std::string > package_dirs;
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
-  std::pair < Model, GeometryModel > robot = se3::urdf::buildModelAndGeom(filename, meshDir, se3::JointModelFreeFlyer());
+  package_dirs.push_back(meshDir);
 
-  Data data(robot.first);
-  GeometryData data_geom(data, robot.second);
+  se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
+  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs);
+  std::cout << model << std::endl;
+
+
+  Data data(model);
+  GeometryData data_geom(data, geom);
 
   // Configuration to be tested
   
 
-  Eigen::VectorXd q_pino(Eigen::VectorXd::Random(robot.first.nq));
+  Eigen::VectorXd q_pino(Eigen::VectorXd::Random(model.nq));
   q_pino.segment<4>(3) /= q_pino.segment<4>(3).norm();
 
   Eigen::VectorXd q_hpp(q_pino);
@@ -365,9 +380,9 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   q_hpp.segment<4>(3) = quaternion ;
 
 
-  assert(q_pino.size() == robot.first.nq && "wrong config size");
+  assert(q_pino.size() == model.nq && "wrong config size");
 
-  se3::updateGeometryPlacements(robot.first, data, robot.second, data_geom, q_pino);
+  se3::updateGeometryPlacements(model, data, geom, data_geom, q_pino);
 
 
   /// *************  HPP  ************* /// 
@@ -381,7 +396,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
               "", "");
 
 
-  assert(robot.first.nq == humanoidRobot->configSize () && "Pinocchio model & HPP model config sizes are not the same ");
+  assert(model.nq == humanoidRobot->configSize () && "Pinocchio model & HPP model config sizes are not the same ");
 
   humanoidRobot->currentConfiguration (q_hpp);
   humanoidRobot->computeForwardKinematics ();
@@ -412,8 +427,8 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
         std::cout << "comparison between " << body1 << " and " << body2 << std::endl;
 
-        se3::DistanceResult dist_pin = data_geom.computeDistance( robot.second.getGeomId(body1),
-                                                                  robot.second.getGeomId(body2));
+        se3::DistanceResult dist_pin = data_geom.computeDistance( geom.getGeomId(body1),
+                                                                  geom.getGeomId(body2));
 
         Distance_t distance_pin(dist_pin.fcl_distance_result);
         distance_hpp.checkClose(distance_pin);
