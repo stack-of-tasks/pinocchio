@@ -29,6 +29,13 @@ namespace se3
                              const Eigen::VectorXd & v,
                              Eigen::VectorXd & result);
 
+  inline void interpolateModel(const Model & model,
+                               Data & data,
+                               const Eigen::VectorXd & q1,
+                               const Eigen::VectorXd & q2,
+                               const double u,
+                               Eigen::VectorXd & result);
+
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
@@ -75,6 +82,55 @@ namespace se3
       IntegrateModelStep::run(model.joints[i],
                               data.joints[i],
                               IntegrateModelStep::ArgsType (model, data, q, v, result)
+                              );
+    }
+  }
+
+
+  struct InterpolateModelStep : public fusion::JointVisitor<InterpolateModelStep>
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+                                  se3::Data &,
+                                  const Eigen::VectorXd &,
+                                  const Eigen::VectorXd &,
+                                  const double,
+                                  Eigen::VectorXd &
+                                  > ArgsType;
+
+    JOINT_VISITOR_INIT(InterpolateModelStep);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointData> &,
+                     const se3::Model &,
+                     se3::Data &,
+                     const Eigen::VectorXd & q1,
+                     const Eigen::VectorXd & q2,
+                     const double u,
+                     Eigen::VectorXd & result) 
+    {
+      using namespace Eigen;
+      using namespace se3;
+      
+      jmodel.jointConfigSelector(result) = jmodel.interpolate(q1, q2, u);
+    }
+
+  };
+
+  inline void
+  interpolateModel(const Model & model,
+                   Data & data,
+                   const Eigen::VectorXd & q1,
+                   const Eigen::VectorXd & q2,
+                   const double u,
+                   Eigen::VectorXd & result)
+  {
+
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
+    {
+      InterpolateModelStep::run(model.joints[i],
+                              data.joints[i],
+                              InterpolateModelStep::ArgsType (model, data, q1, q2, u, result)
                               );
     }
   }

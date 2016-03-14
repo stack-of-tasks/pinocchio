@@ -269,6 +269,16 @@ namespace se3
       {
         integrateModel(*model,*data,q,v,result);
       }
+
+      static void interpolateModel_proxy(const ModelHandler & model,
+                                        DataHandler & data,
+                                        const VectorXd_fx & q1,
+                                        const VectorXd_fx & q2,
+                                        const double u,
+                                        Eigen::VectorXd & result)
+      {
+        interpolateModel(*model,*data,q1,q2,u,result);
+      }
 #ifdef WITH_HPP_FCL
       
       static void updateGeometryPlacements_proxy(const ModelHandler & model,
@@ -479,6 +489,14 @@ namespace se3
                          "Velocity v (size Model::nv)",
                          "resulting Configuration result (size Model::nq)"),
                 "Integrate the model for a constant derivative during unit time .");
+
+        bp::def("interpolateModel",interpolateModel_proxy,
+                bp::args("Model","Data",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)",
+                         "Double u",
+                         "resulting Configuration result (size Model::nq)"),
+                "Integrate the model between two configurations.");
 #ifdef WITH_HPP_FCL
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,

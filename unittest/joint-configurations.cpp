@@ -46,6 +46,34 @@
 #include <boost/test/unit_test.hpp>
 
 
+Eigen::Quaterniond slerp(const Eigen::Quaterniond & q1, const Eigen::Quaterniond & q2,double t)
+{
+    double theta = acos(q1.dot(q2));
+    double mult1,mult2,sintheta;
+    // lorsque theta est très petit,on fait une LERP
+    // cela permet d'éviter la division par 0
+    if (theta > 0.000001)
+    {
+        sintheta=sin(theta);
+        mult1 = sin( (1-t)*theta );
+        mult2 = sin( t*theta );
+    }
+    else
+    {
+        mult1 = 1 - t;
+        mult2 = t;
+        sintheta=1;
+    }
+    mult1 /= sintheta;
+    mult2 /= sintheta;
+
+    Eigen::Quaterniond quat_interpolation(mult1 * q1.w() + mult2*q2.w(),
+                                          mult1 * q1.x() + mult2*q2.x(),
+                                          mult1 * q1.y() + mult2*q2.y(),
+                                          mult1 * q1.z() + mult2*q2.z()
+                                          );
+    return quat_interpolation;
+}
 
 BOOST_AUTO_TEST_SUITE ( JointConfigurationsTest )
 
@@ -100,9 +128,109 @@ BOOST_AUTO_TEST_CASE ( integration )
 
   integrateModel(model, data,q,q_dot,result);
 
-  std::cout << "-- full model -- " << std::endl;
-  std::cout << "result : \n " << result << std::endl;
-  std::cout << "expected : \n " << expected << std::endl << std::endl;
   assert(result.isApprox(expected) && "integration of freeflyer joint - wrong results");
+}
+
+BOOST_AUTO_TEST_CASE ( interpolation )
+{
+  se3::Model model;
+  
+  using namespace se3;
+
+  model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Identity(),Inertia::Random(),
+                "freeflyer_joint", "freeflyer_body");
+  model.addBody(model.getBodyId("freeflyer_body"),JointModelSpherical(),SE3::Identity(),Inertia::Random(),
+                "spherical_joint", "spherical_body");
+  model.addBody(model.getBodyId("spherical_body"),JointModelRX(),SE3::Identity(),Inertia::Random(),
+                "revolute_joint", "revolute_body");
+  model.addBody(model.getBodyId("revolute_body"),JointModelPX(),SE3::Identity(),Inertia::Random(),
+                "px_joint", "px_body");
+  model.addBody(model.getBodyId("px_body"),JointModelPrismaticUnaligned(Eigen::Vector3d(1,0,0)),SE3::Identity(),Inertia::Random(),
+                "pu_joint", "pu_body");
+  model.addBody(model.getBodyId("pu_body"),JointModelRevoluteUnaligned(Eigen::Vector3d(0,0,1)),SE3::Identity(),Inertia::Random(),
+                "ru_joint", "ru_body");
+  model.addBody(model.getBodyId("ru_body"),JointModelSphericalZYX(),SE3::Identity(),Inertia::Random(),
+                "sphericalZYX_joint", "sphericalZYX_body");
+  model.addBody(model.getBodyId("sphericalZYX_body"),JointModelTranslation(),SE3::Identity(),Inertia::Random(),
+                "translation_joint", "translation_body");
+  model.addBody(model.getBodyId("translation_body"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+                "planar_joint", "planar_body");
+  
+  se3::Data data(model);
+
+  Eigen::VectorXd q1(Eigen::VectorXd::Random(model.nq));
+  Eigen::VectorXd q2(Eigen::VectorXd::Random(model.nq));
+  double u = 0.1;
+  q1.segment<4>(3) /= q1.segment<4>(3).norm(); q2.segment<4>(3) /= q2.segment<4>(3).norm();// normalize quaternion of freeflyer
+  q1.segment<4>(7) /= q1.segment<4>(7).norm(); q2.segment<4>(7) /= q2.segment<4>(7).norm();// normalize quaternion of spherical joint
+  Eigen::Quaterniond quat_ff_1(q1[6],q1[3],q1[4],q1[5]);
+  Eigen::Quaterniond quat_spherical_1(q1[10],q1[7],q1[8],q1[9]);
+  Eigen::Quaterniond quat_ff_2(q2[6],q2[3],q2[4],q2[5]);
+  Eigen::Quaterniond quat_spherical_2(q2[10],q2[7],q2[8],q2[9]);
+
+  Eigen::VectorXd result(model.nq);
+  Eigen::VectorXd expected(model.nq);
+
+
+  // u between 0 and 1
+  Eigen::Quaterniond quat_ff__int = slerp(quat_ff_1, quat_ff_2, u);
+  Eigen::Quaterniond quat_spherical_int = slerp(quat_spherical_1, quat_spherical_2, u);
+
+  expected.head<3>() = (1-u) * q1.head<3>() + u*q2.head<3>();
+  expected[3] = quat_ff__int.x();expected[4] = quat_ff__int.y(); expected[5] = quat_ff__int.z(); expected[6] = quat_ff__int.w(); 
+  expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
+  expected.tail<13>() = (1-u)* q1.tail<13>() + u*q2.tail<13>();
+
+  interpolateModel(model, data,q1,q2,u,result);
+
+  assert(result.isApprox(expected) && "interpolation full model for u = 0.1 - wrong results");
+  
+  // u = 0 -> q_interpolate = q1
+  u = 0;
+  quat_ff__int = Eigen::Quaterniond((1-u) * quat_ff_1.w() + u*quat_ff_2.w(),
+                                    (1-u) * quat_ff_1.x() + u*quat_ff_2.x(),
+                                    (1-u) * quat_ff_1.y() + u*quat_ff_2.y(),
+                                    (1-u) * quat_ff_1.z() + u*quat_ff_2.z()
+                                    );
+  quat_ff__int.normalize();
+  quat_spherical_int = Eigen::Quaterniond((1-u) * quat_spherical_1.w() + u*quat_spherical_2.w(),
+                                          (1-u) * quat_spherical_1.x() + u*quat_spherical_2.x(),
+                                          (1-u) * quat_spherical_1.y() + u*quat_spherical_2.y(),
+                                          (1-u) * quat_spherical_1.z() + u*quat_spherical_2.z()
+                                          );
+  quat_spherical_int.normalize();
+
+  expected.head<3>() = (1-u) * q1.head<3>() + u*q2.head<3>();
+  expected[3] = quat_ff__int.x();expected[4] = quat_ff__int.y(); expected[5] = quat_ff__int.z(); expected[6] = quat_ff__int.w(); 
+  expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
+  expected.tail<13>() = (1-u)* q1.tail<13>() + u*q2.tail<13>();
+
+  interpolateModel(model, data,q1,q2,u,result);
+
+  assert(result.isApprox(q1) && "interpolation with u = 0 - wrong results");
+  
+  // u = 1 -> q_interpolate = q2
+  u = 1;
+  quat_ff__int = Eigen::Quaterniond((1-u) * quat_ff_1.w() + u*quat_ff_2.w(),
+                                    (1-u) * quat_ff_1.x() + u*quat_ff_2.x(),
+                                    (1-u) * quat_ff_1.y() + u*quat_ff_2.y(),
+                                    (1-u) * quat_ff_1.z() + u*quat_ff_2.z()
+                                    );
+  quat_ff__int.normalize();
+  quat_spherical_int = Eigen::Quaterniond((1-u) * quat_spherical_1.w() + u*quat_spherical_2.w(),
+                                          (1-u) * quat_spherical_1.x() + u*quat_spherical_2.x(),
+                                          (1-u) * quat_spherical_1.y() + u*quat_spherical_2.y(),
+                                          (1-u) * quat_spherical_1.z() + u*quat_spherical_2.z()
+                                          );
+  quat_spherical_int.normalize();
+
+  expected.head<3>() = (1-u) * q1.head<3>() + u*q2.head<3>();
+  expected[3] = quat_ff__int.x();expected[4] = quat_ff__int.y(); expected[5] = quat_ff__int.z(); expected[6] = quat_ff__int.w(); 
+  expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
+  expected.tail<13>() = (1-u)* q1.tail<13>() + u*q2.tail<13>();
+
+  interpolateModel(model, data,q1,q2,u,result);
+
+  assert(result.isApprox(q2) && "interpolation with u = 1 - wrong results");
 }
 BOOST_AUTO_TEST_SUITE_END ()
