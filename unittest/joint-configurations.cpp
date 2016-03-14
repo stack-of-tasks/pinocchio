@@ -233,4 +233,74 @@ BOOST_AUTO_TEST_CASE ( interpolation )
 
   assert(result.isApprox(q2) && "interpolation with u = 1 - wrong results");
 }
+
+BOOST_AUTO_TEST_CASE ( differentiate )
+{
+  se3::Model model;
+  
+  using namespace se3;
+
+  model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Identity(),Inertia::Random(),
+                "freeflyer_joint", "freeflyer_body");
+  model.addBody(model.getBodyId("freeflyer_body"),JointModelSpherical(),SE3::Identity(),Inertia::Random(),
+                "spherical_joint", "spherical_body");
+  model.addBody(model.getBodyId("spherical_body"),JointModelRX(),SE3::Identity(),Inertia::Random(),
+                "revolute_joint", "revolute_body");
+  model.addBody(model.getBodyId("revolute_body"),JointModelPX(),SE3::Identity(),Inertia::Random(),
+                "px_joint", "px_body");
+  model.addBody(model.getBodyId("px_body"),JointModelPrismaticUnaligned(Eigen::Vector3d(1,0,0)),SE3::Identity(),Inertia::Random(),
+                "pu_joint", "pu_body");
+  model.addBody(model.getBodyId("pu_body"),JointModelRevoluteUnaligned(Eigen::Vector3d(0,0,1)),SE3::Identity(),Inertia::Random(),
+                "ru_joint", "ru_body");
+  model.addBody(model.getBodyId("ru_body"),JointModelSphericalZYX(),SE3::Identity(),Inertia::Random(),
+                "sphericalZYX_joint", "sphericalZYX_body");
+  model.addBody(model.getBodyId("sphericalZYX_body"),JointModelTranslation(),SE3::Identity(),Inertia::Random(),
+                "translation_joint", "translation_body");
+  model.addBody(model.getBodyId("translation_body"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+                "planar_joint", "planar_body");
+  
+  se3::Data data(model);
+
+  Eigen::VectorXd q1(Eigen::VectorXd::Random(model.nq));
+  Eigen::VectorXd q2(Eigen::VectorXd::Random(model.nq));
+  q1.segment<4>(3) /= q1.segment<4>(3).norm(); q2.segment<4>(3) /= q2.segment<4>(3).norm();// normalize quaternion of freeflyer
+  q1.segment<4>(7) /= q1.segment<4>(7).norm(); q2.segment<4>(7) /= q2.segment<4>(7).norm();// normalize quaternion of spherical joint
+  Eigen::Quaterniond quat_ff_1(q1[6],q1[3],q1[4],q1[5]);
+  Eigen::Quaterniond quat_spherical_1(q1[10],q1[7],q1[8],q1[9]);
+  Eigen::Quaterniond quat_ff_2(q2[6],q2[3],q2[4],q2[5]);
+  Eigen::Quaterniond quat_spherical_2(q2[10],q2[7],q2[8],q2[9]);
+
+  Eigen::VectorXd result(model.nv);
+  Eigen::VectorXd expected(model.nv);
+
+  // Quaternion freeflyer
+  // Compute rotation vector between q2 and q1.
+  Motion::Quaternion_t p_ff_1 (quat_ff_1);
+  Motion::Quaternion_t p_ff_2 (quat_ff_2);
+
+  Motion::Quaternion_t p_ff (p_ff_1.conjugate());
+  p_ff*=p_ff_2;
+  Eigen::AngleAxis<double> angle_axis_ff(p_ff);
+
+  Eigen::Vector3d quat_ff__diff( angle_axis_ff.angle() * angle_axis_ff.axis());
+
+  // Quaternion spherical
+  Motion::Quaternion_t p_spherical_1 (quat_spherical_1);
+  Motion::Quaternion_t p_spherical_2 (quat_spherical_2);
+
+  Motion::Quaternion_t p_spherical (p_spherical_1.conjugate());
+  p_spherical*=p_spherical_2;
+  Eigen::AngleAxis<double> angle_axis_spherical(p_spherical);
+
+  Eigen::Vector3d quat_spherical_diff( angle_axis_spherical.angle() * angle_axis_spherical.axis());
+
+  expected.head<3>() = q1.head<3>() - q2.head<3>();
+  expected[3] = quat_ff__diff[0];expected[4] = quat_ff__diff[1]; expected[5] = quat_ff__diff[2]; 
+  expected[6] = quat_spherical_diff[0];expected[7] = quat_spherical_diff[1]; expected[8] = quat_spherical_diff[2];
+  expected.tail<13>() = q1.tail<13>() - q2.tail<13>();
+
+  differentiateModel(model, data,q1,q2,result);
+
+  assert(result.isApprox(expected) && "Differentiation of full model - wrong results");
+}
 BOOST_AUTO_TEST_SUITE_END ()

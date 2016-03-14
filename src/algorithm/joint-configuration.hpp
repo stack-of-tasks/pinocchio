@@ -36,6 +36,12 @@ namespace se3
                                const double u,
                                Eigen::VectorXd & result);
 
+  inline void differentiateModel(const Model & model,
+                                 Data & data,
+                                 const Eigen::VectorXd & q1,
+                                 const Eigen::VectorXd & q2,
+                                 Eigen::VectorXd & result);
+
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
@@ -131,6 +137,51 @@ namespace se3
       InterpolateModelStep::run(model.joints[i],
                               data.joints[i],
                               InterpolateModelStep::ArgsType (model, data, q1, q2, u, result)
+                              );
+    }
+  }
+
+  struct DifferentiateModelStep : public fusion::JointVisitor<DifferentiateModelStep>
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+                                  se3::Data &,
+                                  const Eigen::VectorXd &,
+                                  const Eigen::VectorXd &,
+                                  Eigen::VectorXd &
+                                  > ArgsType;
+
+    JOINT_VISITOR_INIT(DifferentiateModelStep);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointData> &,
+                     const se3::Model &,
+                     se3::Data &,
+                     const Eigen::VectorXd & q1,
+                     const Eigen::VectorXd & q2,
+                     Eigen::VectorXd & result) 
+    {
+      using namespace Eigen;
+      using namespace se3;
+      
+      jmodel.jointVelocitySelector(result) = jmodel.difference(q1, q2);
+    }
+
+  };
+
+  inline void
+  differentiateModel(const Model & model,
+                     Data & data,
+                     const Eigen::VectorXd & q1,
+                     const Eigen::VectorXd & q2,
+                     Eigen::VectorXd & result)
+  {
+
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
+    {
+      DifferentiateModelStep::run(model.joints[i],
+                              data.joints[i],
+                              DifferentiateModelStep::ArgsType (model, data, q1, q2, result)
                               );
     }
   }

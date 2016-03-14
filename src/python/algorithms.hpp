@@ -279,6 +279,15 @@ namespace se3
       {
         interpolateModel(*model,*data,q1,q2,u,result);
       }
+
+      static void differentiateModel_proxy(const ModelHandler & model,
+                                           DataHandler & data,
+                                           const VectorXd_fx & q1,
+                                           const VectorXd_fx & q2,
+                                           Eigen::VectorXd & result)
+      {
+        differentiateModel(*model,*data,q1,q2,u,result);
+      }
 #ifdef WITH_HPP_FCL
       
       static void updateGeometryPlacements_proxy(const ModelHandler & model,
@@ -497,6 +506,13 @@ namespace se3
                          "Double u",
                          "resulting Configuration result (size Model::nq)"),
                 "Integrate the model between two configurations.");
+        bp::def("differentiateModel",differentiateModel_proxy,
+                bp::args("Model","Data",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)",
+                         "Velocity result (size Model::nv)"),
+                "Difference between two configuration, ie. the constant derivative that must be integrated during unit time"
+                "to go from q2 to q1");
 #ifdef WITH_HPP_FCL
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,
