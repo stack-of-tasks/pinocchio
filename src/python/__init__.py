@@ -34,9 +34,9 @@ def SE3act(m, x):
         if x.shape[0] == 3:
             return m.rotation * x + m.translation
         if x.shape[0] == 4:
-            return m.homogeneous() * x
+            return m.homogeneous * x
         if x.shape[0] == 6:
-            return m.action() * x
+            return m.action * x
         raise ValueError('Error: m can only act on linear object of size 3, 4 and 6.')
     if 'se3Action' in x.__class__.__dict__:
         return x.se3Action(m)
@@ -53,9 +53,9 @@ def SE3actinv(m, x):
         if x.shape[0] == 3:
             return m.rotation.T * x - m.rotation.T * m.translation
         if x.shape[0] == 4:
-            return m.inverse().homogeneous() * x
+            return m.inverse().homogeneous * x
         if x.shape[0] == 6:
-            return m.inverse().action() * x
+            return m.inverse().action * x
         raise ValueError('Error: m can only act on linear object of size 3, 4 and 6.')
     if 'se3Action' in x.__class__.__dict__:
         return x.se3ActionInverse(m)
