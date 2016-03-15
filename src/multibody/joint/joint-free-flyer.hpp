@@ -327,7 +327,8 @@ namespace se3
       assert (theta >= 0);
 
       // Concatenation
-      
+      std::cout << "translation ff dist : \t" << translation_result << std::endl;
+      std::cout << "quaternion ff dist : \t" << theta << std::endl;
       return sqrt(pow(translation_result,2) + pow(theta,2));
     } 
 

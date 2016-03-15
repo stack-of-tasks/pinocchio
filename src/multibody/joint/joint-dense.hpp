@@ -170,7 +170,7 @@ namespace se3
 
     double distance_impl(const Eigen::VectorXd &,const Eigen::VectorXd &) const
     { 
-      ConfigVector_t result;
+      double result = 0;
       assert(false && "JointModelDense is read-only, should not perform any calc");
       return result; 
     }

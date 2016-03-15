@@ -42,6 +42,11 @@ namespace se3
                                  const Eigen::VectorXd & q2,
                                  Eigen::VectorXd & result);
 
+  inline void distanceModel(const Model & model,
+                            Data & data,
+                            const Eigen::VectorXd & q1,
+                            const Eigen::VectorXd & q2,
+                            Eigen::VectorXd & distances);
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
@@ -182,6 +187,53 @@ namespace se3
       DifferentiateModelStep::run(model.joints[i],
                               data.joints[i],
                               DifferentiateModelStep::ArgsType (model, data, q1, q2, result)
+                              );
+    }
+  }
+
+  struct DistanceModelStep : public fusion::JointVisitor<DistanceModelStep>
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+                                  se3::Data &,
+                                  const Model::JointIndex,
+                                  const Eigen::VectorXd &,
+                                  const Eigen::VectorXd &,
+                                  Eigen::VectorXd &
+                                  > ArgsType;
+
+    JOINT_VISITOR_INIT(DistanceModelStep);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointData> &,
+                     const se3::Model &,
+                     se3::Data &,
+                     const Model::JointIndex i,
+                     const Eigen::VectorXd & q1,
+                     const Eigen::VectorXd & q2,
+                     Eigen::VectorXd & distances) 
+    {
+      using namespace Eigen;
+      using namespace se3;
+      
+      distances[(long)i] = jmodel.distance(q1, q2);
+    }
+
+  };
+
+  inline void
+  distanceModel(const Model & model,
+               Data & data,
+               const Eigen::VectorXd & q1,
+               const Eigen::VectorXd & q2,
+               Eigen::VectorXd & distances)
+  {
+    assert(distances.size() == model.nbody-1);
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
+    {
+      DistanceModelStep::run(model.joints[i],
+                              data.joints[i],
+                              DistanceModelStep::ArgsType (model, data, i-1, q1, q2, distances)
                               );
     }
   }
