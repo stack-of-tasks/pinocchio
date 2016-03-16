@@ -388,4 +388,37 @@ BOOST_AUTO_TEST_CASE ( distance )
   assert(result.isApprox(expected) && "Distance between two configs of full model - wrong results");
 }
 
+BOOST_AUTO_TEST_CASE ( random )
+{
+  se3::Model model;
+  
+  using namespace se3;
+
+  model.addBody(model.getBodyId("universe"),JointModelFreeFlyer(),SE3::Identity(),Inertia::Random(),
+                "freeflyer_joint", "freeflyer_body");
+  model.addBody(model.getBodyId("freeflyer_body"),JointModelSpherical(),SE3::Identity(),Inertia::Random(),
+                "spherical_joint", "spherical_body");
+  model.addBody(model.getBodyId("spherical_body"),JointModelRX(),SE3::Identity(),Inertia::Random(),
+                "revolute_joint", "revolute_body");
+  model.addBody(model.getBodyId("revolute_body"),JointModelPX(),SE3::Identity(),Inertia::Random(),
+                "px_joint", "px_body");
+  model.addBody(model.getBodyId("px_body"),JointModelPrismaticUnaligned(Eigen::Vector3d(1,0,0)),SE3::Identity(),Inertia::Random(),
+                "pu_joint", "pu_body");
+  model.addBody(model.getBodyId("pu_body"),JointModelRevoluteUnaligned(Eigen::Vector3d(0,0,1)),SE3::Identity(),Inertia::Random(),
+                "ru_joint", "ru_body");
+  model.addBody(model.getBodyId("ru_body"),JointModelSphericalZYX(),SE3::Identity(),Inertia::Random(),
+                "sphericalZYX_joint", "sphericalZYX_body");
+  model.addBody(model.getBodyId("sphericalZYX_body"),JointModelTranslation(),SE3::Identity(),Inertia::Random(),
+                "translation_joint", "translation_body");
+  model.addBody(model.getBodyId("translation_body"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+                "planar_joint", "planar_body");
+  
+  se3::Data data(model);
+
+  Eigen::VectorXd q1(model.nq);
+  
+  randomModel(model, data,q1);
+
+}
+
 BOOST_AUTO_TEST_SUITE_END ()

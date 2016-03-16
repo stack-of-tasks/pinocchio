@@ -288,6 +288,22 @@ namespace se3
       {
         differentiateModel(*model,*data,q1,q2,result);
       }
+
+      static void distanceModel_proxy(const ModelHandler & model,
+                                      DataHandler & data,
+                                      const VectorXd_fx & q1,
+                                      const VectorXd_fx & q2,
+                                      Eigen::VectorXd & result)
+      {
+        distanceModel(*model,*data,q1,q2,result);
+      }
+
+      // static void randomModel_proxy(const ModelHandler & model,
+      //                               DataHandler & data,
+      //                               Eigen::VectorXd & result)
+      // {
+      //   randomModel(*model,*data,result);
+      // }
 #ifdef WITH_HPP_FCL
       
       static void updateGeometryPlacements_proxy(const ModelHandler & model,
@@ -513,6 +529,16 @@ namespace se3
                          "Velocity result (size Model::nv)"),
                 "Difference between two configuration, ie. the constant derivative that must be integrated during unit time"
                 "to go from q2 to q1");
+        bp::def("distanceModel",distanceModel_proxy,
+                bp::args("Model","Data",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)",
+                         "Velocity result (size Model::nv)"),
+                "Distance between two configuration ");
+        // bp::def("randomModel",randomModel_proxy,
+        //         bp::args("Model","Data",
+        //                  "Configuration result (size Model::nq)"),
+        //         "Generate a random configuration (taking into account quaternions) ");
 #ifdef WITH_HPP_FCL
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,

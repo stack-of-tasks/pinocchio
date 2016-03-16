@@ -47,6 +47,10 @@ namespace se3
                             const Eigen::VectorXd & q1,
                             const Eigen::VectorXd & q2,
                             Eigen::VectorXd & distances);
+
+  inline void randomModel(const Model & model,
+                          Data & data,
+                          Eigen::VectorXd & config);
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
@@ -235,6 +239,44 @@ namespace se3
                               data.joints[i],
                               DistanceModelStep::ArgsType (model, data, i-1, q1, q2, distances)
                               );
+    }
+  }
+
+  struct RandomModelStep : public fusion::JointVisitor<RandomModelStep>
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+                                  se3::Data &,
+                                  Eigen::VectorXd &
+                                  > ArgsType;
+
+    JOINT_VISITOR_INIT(RandomModelStep);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointData> &,
+                     const se3::Model &,
+                     se3::Data &,
+                     Eigen::VectorXd & config) 
+    {
+      using namespace Eigen;
+      using namespace se3;
+      
+      jmodel.jointConfigSelector(config) = jmodel.random();
+    }
+
+  };
+
+  inline void
+  randomModel(const Model & model,
+               Data & data,
+               Eigen::VectorXd & config)
+  {
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
+    {
+      RandomModelStep::run(model.joints[i],
+                           data.joints[i],
+                           RandomModelStep::ArgsType (model, data, config)
+                           );
     }
   }
 } // namespace se3

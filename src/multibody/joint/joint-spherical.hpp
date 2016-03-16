@@ -341,7 +341,11 @@ namespace se3
     }
 
     const ConfigVector_t random_impl() const
-    { return ConfigVector_t(); } 
+    { 
+      ConfigVector_t q = ConfigVector_t::Random();
+      q /= q.norm();
+      return q;
+    } 
 
     const TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
     { 
