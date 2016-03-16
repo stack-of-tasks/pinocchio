@@ -372,19 +372,15 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
 
 
-      ConfigVector_t result;
-      result << (q + q_dot);
-      return result; 
+      return(q + q_dot);
     }
 
-    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, double u) const
+    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, const double u) const
     { 
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
 
-      ConfigVector_t result;
-      result << ((1-u) * q_1 + u * q_2);
-      return result; 
+      return ((1-u) * q_1 + u * q_2);
     }
 
     const ConfigVector_t random_impl() const
@@ -397,9 +393,7 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
 
-      ConfigVector_t result;
-      result << ( q_1 - q_2);
-      return result; 
+      return ( q_1 - q_2);
 
     } 
 

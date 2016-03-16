@@ -278,8 +278,7 @@ BOOST_AUTO_TEST_CASE ( differentiate )
   Motion::Quaternion_t p_ff_1 (quat_ff_1);
   Motion::Quaternion_t p_ff_2 (quat_ff_2);
 
-  Motion::Quaternion_t p_ff (p_ff_1.conjugate());
-  p_ff*=p_ff_2;
+  Motion::Quaternion_t p_ff (p_ff_1*p_ff_2.conjugate());
   Eigen::AngleAxis<double> angle_axis_ff(p_ff);
 
   Eigen::Vector3d quat_ff__diff( angle_axis_ff.angle() * angle_axis_ff.axis());
@@ -288,8 +287,7 @@ BOOST_AUTO_TEST_CASE ( differentiate )
   Motion::Quaternion_t p_spherical_1 (quat_spherical_1);
   Motion::Quaternion_t p_spherical_2 (quat_spherical_2);
 
-  Motion::Quaternion_t p_spherical (p_spherical_1.conjugate());
-  p_spherical*=p_spherical_2;
+  Motion::Quaternion_t p_spherical (p_spherical_1*p_spherical_2.conjugate());
   Eigen::AngleAxis<double> angle_axis_spherical(p_spherical);
 
   Eigen::Vector3d quat_spherical_diff( angle_axis_spherical.angle() * angle_axis_spherical.axis());

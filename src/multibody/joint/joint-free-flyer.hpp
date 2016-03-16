@@ -245,8 +245,7 @@ namespace se3
       Motion_t::Quaternion_t quat(q.tail<4>());
       Motion_t::Vector3 omega(q_dot.tail<3>());
 
-      Motion_t::Vector3 omega_2(omega); // exp3 doesn't compile with omega cause no member named 'Options' in type
-      Motion_t::Quaternion_t pOmega(se3::exp3(omega_2));
+      Motion_t::Quaternion_t pOmega(se3::exp3(omega));
 
       Motion_t::Quaternion_t quaternion_result(pOmega*quat);
 
@@ -258,7 +257,7 @@ namespace se3
       return result; 
     } 
 
-    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, double u) const
+    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, const double u) const
     { 
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
@@ -273,12 +272,13 @@ namespace se3
 
       if (fabs (theta) > 1e-6)
       {
-        quaternion_result = (sin ((1-u)*theta)/sin (theta)) * q_1.segment<4>(3) +
-                 (sin (u*theta)/sin (theta)) * q_2.segment<4>(3);
+        double sin_theta = sin(theta);
+        quaternion_result = (sin ((1-u)*theta)/sin_theta) * q_1.segment<4>(3) 
+                              + (sin (u*theta)/sin_theta) * q_2.segment<4>(3);
       } 
       else
       {
-        quaternion_result = (1-u) * q_1.segment<4>(3)+ u * q_2.segment<4>(3);
+        quaternion_result = (1-u) * q_1.segment<4>(3) + u * q_2.segment<4>(3);
       }
 
       result.tail<4>() << quaternion_result;
@@ -303,12 +303,11 @@ namespace se3
       result.head<3>() << (q_1.segment<3>(0) - q_2.segment<3>(0));
 
       // Quaternion part
-      // Compute rotation vector between q2 and q1.
+      // Compute relative rotation between q2 and q1.
       Motion_t::Quaternion_t p1 (q_1.segment<4>(3));
       Motion_t::Quaternion_t p2 (q_2.segment<4>(3));
 
-      Motion_t::Quaternion_t p (p1.conjugate());
-      p*=p2;
+      Motion_t::Quaternion_t p (p1*p2.conjugate());
       Eigen::AngleAxis<Scalar_t> angle_axis(p);
 
       result.tail<3>() << angle_axis.angle() * angle_axis.axis() ;

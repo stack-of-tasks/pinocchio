@@ -304,23 +304,22 @@ namespace se3
 
     const ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {
-      // Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
       Motion_t::Quaternion_t q(qs.segment<NQ>(idx_q()));
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & omega = vs.segment<NV> (idx_v ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
 
-      Motion_t::Vector3 omega_2(omega); // exp3 doesn't compile with omega cause no member named 'Options' in type
-      Motion_t::Quaternion_t pOmega(se3::exp3(omega_2));
+      Motion_t::Vector3 omega(q_dot);
+      Motion_t::Quaternion_t pOmega(se3::exp3(omega));
 
       Motion_t::Quaternion_t quaternion_result(pOmega*q);
-      ConfigVector_t result;
-      result << quaternion_result.x(),
-                quaternion_result.y(),
-                quaternion_result.z(),
-                quaternion_result.w();
+      ConfigVector_t result(quaternion_result.x(),
+                            quaternion_result.y(),
+                            quaternion_result.z(),
+                            quaternion_result.w()
+                            );
       return result; 
     }
 
-    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, double u) const
+    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, const double u) const
     { 
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
@@ -353,8 +352,7 @@ namespace se3
       Motion_t::Quaternion_t p1 (q1.segment<NQ>(idx_q()));
       Motion_t::Quaternion_t p2 (q2.segment<NQ>(idx_q()));
 
-      Motion_t::Quaternion_t p (p1.conjugate());
-      p*=p2;
+      Motion_t::Quaternion_t p (p1*p2.conjugate());
       Eigen::AngleAxis<Scalar_t> angle_axis(p);
 
       TangentVector_t result(angle_axis.angle() * angle_axis.axis());

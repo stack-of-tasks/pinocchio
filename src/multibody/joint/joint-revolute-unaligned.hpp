@@ -368,7 +368,7 @@ namespace se3
       return result; 
     }
 
-    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, double u) const
+    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, const double u) const
     { 
       const Scalar_t & q_1 = q1[idx_q()];
       const Scalar_t & q_2 = q2[idx_q()];
