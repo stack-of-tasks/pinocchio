@@ -71,13 +71,13 @@ namespace se3
              const Data & data,
              Eigen::MatrixBase<Mat> & v)
     {
-      assert(v.size() == model.nv);
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+      assert(v.rows() == model.nv);
+      
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
       
       for(int k=0;k < model.nv-1;++k) // You can stop one step before nv
-        v[k] += U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v.segment(k+1,nvt[(Model::Index)k]-1);
+        v.row(k) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v.middleRows(k+1,nvt[(Model::Index)k]-1);
       
       return v.derived();
     }
@@ -88,13 +88,12 @@ namespace se3
               const Data & data,
               Eigen::MatrixBase<Mat> & v)
     {
-      assert(v.size() == model.nv);
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+      assert(v.rows() == model.nv);
       
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
-      for( int i=model.nv-2;i>=0;--i ) // You can start from nv-2 (no child in nv-1)
-        v.segment(i+1,nvt[(Model::Index)i]-1) += U.row(i).segment(i+1,nvt[(Model::Index)i]-1).transpose()*v[i];
+      for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
+        v.middleRows(k+1,nvt[(Model::Index)k]-1) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
       
       return v.derived();
     }
@@ -109,14 +108,13 @@ namespace se3
     {
       /* We search y s.t. v = U y. 
        * For any k, v_k = y_k + U_{k,k+1:} y_{k+1:} */
-      assert(v.size() == model.nv);
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+      assert(v.rows() == model.nv);
       
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
       
       for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
-        v[k] -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v.segment(k+1,nvt[(Model::Index)k]-1);
+        v.row(k) -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v.middleRows(k+1,nvt[(Model::Index)k]-1);
       return v.derived();
     }
 
@@ -127,13 +125,12 @@ namespace se3
     {
       /* We search y s.t. v = U' y. 
        * For any k, v_k = y_k + sum_{m \in parent{k}} U(m,k) v(k). */
-      assert(v.size() == model.nv);
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+      assert(v.rows() == model.nv);
       
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
-      for( int i=0;i<model.nv-1;++i ) // You can stop one step before nv.
-        v.segment(i+1,nvt[(Model::Index)i]-1) -= U.row(i).segment(i+1,nvt[(Model::Index)i]-1).transpose()*v[i];
+      for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv.
+        v.middleRows(k+1,nvt[(Model::Index)k]-1) -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
 
       return v.derived();
     }
@@ -145,8 +142,7 @@ namespace se3
              const Data & data,
              const Eigen::MatrixBase<Mat> & v)
       {
-        assert(v.size() == model.nv);
-        EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+        assert(v.rows() == model.nv);
         
         const Eigen::MatrixXd & M = data.M;
         const std::vector<int> & nvt = data.nvSubtree_fromRow;
@@ -154,8 +150,8 @@ namespace se3
         
         for(int k=model.nv-1;k>=0;--k)
         {
-          res[k] = M.row(k).segment(k,nvt[(Model::Index)k]) * v.segment(k,nvt[(Model::Index)k]);
-          res.segment(k+1,nvt[(Model::Index)k]-1) += M.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v[k];
+          res.row(k) = M.row(k).segment(k,nvt[(Model::Index)k]) * v.middleRows(k,nvt[(Model::Index)k]);
+          res.middleRows(k+1,nvt[(Model::Index)k]-1) += M.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
         }
         
         return res;
@@ -167,7 +163,7 @@ namespace se3
                   Eigen::MatrixBase<Mat> & v)
       {
         Utv(model,data,v);
-        for( int k=0;k<model.nv;++k ) v[k] *= data.D[k];
+        for( int k=0;k<model.nv;++k ) v.row(k) *= data.D[k];
         return Uv(model,data,v);
       }
     } // internal
@@ -188,7 +184,7 @@ namespace se3
                 Eigen::MatrixBase<Mat> & v)
     {
       Uiv(model,data,v);
-      for(int k=0;k<model.nv;++k) v[k] /= data.D[k];
+      for(int k=0;k<model.nv;++k) v.row(k) /= data.D[k];
       return Utiv(model,data,v);
     }
 
