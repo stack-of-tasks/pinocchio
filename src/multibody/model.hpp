@@ -29,6 +29,7 @@
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 #include "pinocchio/tools/string-generator.hpp"
 #include <iostream>
+#include <Eigen/Cholesky>
 
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Inertia)
@@ -471,6 +472,23 @@ namespace se3
     
     /// \brief Potential energy of the model.
     double potential_energy;
+    
+    // Temporary variables used in forward dynamics
+    
+    /// \brief Inverse of the operational-space inertia matrix
+    Eigen::MatrixXd JMinvJt;
+    
+    /// \brief Cholesky decompostion of \JMinvJt.
+    Eigen::LLT<Eigen::MatrixXd> llt_JMinvJt;
+    
+    /// \brief Lagrange Multipliers corresponding to contact forces.
+    Eigen::VectorXd lambda;
+    
+    /// \brief Temporary corresponding to \f$ \sqrt{D} U^{-1} J^{\top} \f$.
+    Eigen::MatrixXd sDUiJt;
+    
+    /// \brief Temporary corresponding to the residual torque \f$ \tau - b(q,\dot{q}) \f$.
+    Eigen::VectorXd torque_residual;
     
     ///
     /// \brief Default constructor of se3::Data from a se3::Model.

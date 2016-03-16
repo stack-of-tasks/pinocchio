@@ -279,6 +279,11 @@ namespace se3
     ,velocityLimit(ref.nv)
     ,lowerPositionLimit(ref.nq)
     ,upperPositionLimit(ref.nq)
+    ,JMinvJt()
+    ,llt_JMinvJt()
+    ,lambda()
+    ,sDUiJt(ref.nv,ref.nv)
+    ,torque_residual(ref.nv)
   {
     /* Create data strcture associated to the joints */
     for(Model::Index i=0;i<(Model::JointIndex)(model.nbody);++i) 
