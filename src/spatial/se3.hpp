@@ -164,12 +164,15 @@ namespace se3
     SE3Tpl(const Eigen::MatrixBase<M3> & R, const Eigen::MatrixBase<v3> & p) 
     : rot(R), trans(p)
     {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(v3,3)
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M3,3,3)
     }
 
     template<typename M4>
     SE3Tpl(const Eigen::MatrixBase<M4> & m) 
     : rot(m.template block<3,3>(LINEAR,LINEAR)), trans(m.template block<3,1>(LINEAR,ANGULAR))
     {
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M4,4,4);
     }
 
     SE3Tpl(int) : rot(Matrix3::Identity()), trans(Vector3::Zero()) {}
