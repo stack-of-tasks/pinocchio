@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -109,9 +109,9 @@ namespace se3
         return derived().__equal__(other);
       }
 
-      bool isApprox (const Derived_t & other) const
+      bool isApprox (const Derived_t & other, const Scalar_t & prec = Eigen::NumTraits<Scalar_t>::dummy_precision()) const
       {
-        return derived().isApprox_impl(other);
+        return derived().isApprox_impl(other, prec);
       }
 
       friend std::ostream & operator << (std::ostream & os,const SE3Base<Derived> & X)
@@ -279,12 +279,9 @@ namespace se3
       return (rotation_impl() == m2.rotation() && translation_impl() == m2.translation());
     }
 
-    bool isApprox_impl( const SE3Tpl & m2 ) const
+    bool isApprox_impl (const SE3Tpl & m2, const Scalar_t & prec = Eigen::NumTraits<Scalar_t>::dummy_precision()) const
     {
-      Matrix4 diff( toHomogeneousMatrix_impl() - 
-                              m2.toHomogeneousMatrix_impl());
-      return (diff.isMuchSmallerThan(toHomogeneousMatrix_impl(), 1e-14)
-              && diff.isMuchSmallerThan(m2.toHomogeneousMatrix_impl(), 1e-14) );
+      return rot.isApprox(m2.rot, prec) && trans.isApprox(m2.trans, prec);
     }
 
   public:
