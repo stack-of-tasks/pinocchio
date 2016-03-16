@@ -28,6 +28,7 @@
 #include "pinocchio/algorithm/non-linear-effects.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/aba.hpp"
+#include "pinocchio/algorithm/dynamics.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/operational-frames.hpp"
@@ -92,6 +93,19 @@ namespace se3
                                        const VectorXd_fx & tau)
       {
         aba(*model,*data,q,v,tau);
+        return data->ddq;
+      }
+      
+      static Eigen::MatrixXd fd_llt_proxy(const ModelHandler & model,
+                                          DataHandler & data,
+                                          const VectorXd_fx & q,
+                                          const VectorXd_fx & v,
+                                          const VectorXd_fx & tau,
+                                          const eigenpy::MatrixXd_fx & J,
+                                          const VectorXd_fx & gamma,
+                                          const bool update_kinematics = true)
+      {
+        forwardDynamics(*model,*data,q,v,tau,J,gamma,update_kinematics);
         return data->ddq;
       }
 
@@ -326,6 +340,16 @@ namespace se3
                          "Joint velocity v (size Model::nv)",
                          "Joint torque tau (size Model::nv)"),
                 "Compute ABA, put the result in Data::ddq and return it.");
+        
+        bp::def("forwardDynamics",fd_llt_proxy,
+                bp::args("Model","Data",
+                         "Joint configuration q (size Model::nq)",
+                         "Joint velocity v (size Model::nv)",
+                         "Joint torque tau (size Model::nv)",
+                         "Contact Jacobian J (size nb_constraint * Model::nv)",
+                         "Contact drift gamma (size nb_constraint)",
+                         "Update kinematics (if true, it updates the dynamic variable according to the current state)"),
+                "Solve the forward dynamics problem with contacts, put the result in Data::ddq and return it.");
         
         bp::def("centerOfMass",com_0_proxy,
                 bp::args("Model","Data",
