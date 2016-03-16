@@ -40,6 +40,8 @@ namespace se3
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     ///
+    /// \return A reference to the upper triangular matrix \f$U\f$.
+    ///
     inline const Eigen::MatrixXd &
     decompose(const Model & model,
               Data & data);
