@@ -286,7 +286,7 @@ namespace se3
                                            const VectorXd_fx & q2,
                                            Eigen::VectorXd & result)
       {
-        differentiateModel(*model,*data,q1,q2,u,result);
+        differentiateModel(*model,*data,q1,q2,result);
       }
 #ifdef WITH_HPP_FCL
       
