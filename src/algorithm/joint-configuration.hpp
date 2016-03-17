@@ -33,7 +33,7 @@ namespace se3
    * @param[in]  v       Velocity (size model.nv)
    * @param      result  Resulting configuration result (size model.nq)
    */
-  inline void integrateModel(const Model & model,
+  inline void integrate(const Model & model,
                              Data & data,
                              const Eigen::VectorXd & q,
                              const Eigen::VectorXd & v,
@@ -50,7 +50,7 @@ namespace se3
    * @param[in]  u       u in [0;1] position along the interpolation.
    * @param      result  The interpolated configuration (q1 if u = 0, q2 if u = 1)
    */
-  inline void interpolateModel(const Model & model,
+  inline void interpolate(const Model & model,
                                Data & data,
                                const Eigen::VectorXd & q1,
                                const Eigen::VectorXd & q2,
@@ -67,7 +67,7 @@ namespace se3
    * @param[in]  q2      Initial configuration (size model.nq)
    * @param      result  The corresponding velocity (size model.nv)
    */
-  inline void differentiateModel(const Model & model,
+  inline void differentiate(const Model & model,
                                  Data & data,
                                  const Eigen::VectorXd & q1,
                                  const Eigen::VectorXd & q2,
@@ -83,7 +83,7 @@ namespace se3
    * @param[in]  q2         Configuration 2 (size model.nq)
    * @param      distances  The corresponding distances for each joint (size model.nbody-1 = number of joints)
    */
-  inline void distanceModel(const Model & model,
+  inline void distance(const Model & model,
                             Data & data,
                             const Eigen::VectorXd & q1,
                             const Eigen::VectorXd & q2,
@@ -97,7 +97,7 @@ namespace se3
    * @param      data    Corresponding Data to the Model
    * @param      config  The resulted configuration vector (size model.nq)
    */
-  inline void randomModel(const Model & model,
+  inline void random(const Model & model,
                           Data & data,
                           Eigen::VectorXd & config);
 } // namespace se3 
@@ -105,7 +105,7 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 namespace se3 
 {
-  struct IntegrateModelStep : public fusion::JointVisitor<IntegrateModelStep>
+  struct IntegrateStep : public fusion::JointVisitor<IntegrateStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
@@ -114,7 +114,7 @@ namespace se3
                                   Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_VISITOR_INIT(IntegrateModelStep);
+    JOINT_VISITOR_INIT(IntegrateStep);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -134,7 +134,7 @@ namespace se3
   };
 
   inline void
-  integrateModel(const Model & model,
+  integrate(const Model & model,
                  Data & data,
                  const Eigen::VectorXd & q,
                  const Eigen::VectorXd & v,
@@ -143,15 +143,15 @@ namespace se3
 
     for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
     {
-      IntegrateModelStep::run(model.joints[i],
+      IntegrateStep::run(model.joints[i],
                               data.joints[i],
-                              IntegrateModelStep::ArgsType (model, data, q, v, result)
+                              IntegrateStep::ArgsType (model, data, q, v, result)
                               );
     }
   }
 
 
-  struct InterpolateModelStep : public fusion::JointVisitor<InterpolateModelStep>
+  struct InterpolateStep : public fusion::JointVisitor<InterpolateStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
@@ -161,7 +161,7 @@ namespace se3
                                   Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_VISITOR_INIT(InterpolateModelStep);
+    JOINT_VISITOR_INIT(InterpolateStep);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -182,7 +182,7 @@ namespace se3
   };
 
   inline void
-  interpolateModel(const Model & model,
+  interpolate(const Model & model,
                    Data & data,
                    const Eigen::VectorXd & q1,
                    const Eigen::VectorXd & q2,
@@ -192,14 +192,14 @@ namespace se3
 
     for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
     {
-      InterpolateModelStep::run(model.joints[i],
+      InterpolateStep::run(model.joints[i],
                               data.joints[i],
-                              InterpolateModelStep::ArgsType (model, data, q1, q2, u, result)
+                              InterpolateStep::ArgsType (model, data, q1, q2, u, result)
                               );
     }
   }
 
-  struct DifferentiateModelStep : public fusion::JointVisitor<DifferentiateModelStep>
+  struct DifferentiateStep : public fusion::JointVisitor<DifferentiateStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
@@ -208,7 +208,7 @@ namespace se3
                                   Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_VISITOR_INIT(DifferentiateModelStep);
+    JOINT_VISITOR_INIT(DifferentiateStep);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -228,7 +228,7 @@ namespace se3
   };
 
   inline void
-  differentiateModel(const Model & model,
+  differentiate(const Model & model,
                      Data & data,
                      const Eigen::VectorXd & q1,
                      const Eigen::VectorXd & q2,
@@ -237,14 +237,14 @@ namespace se3
 
     for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
     {
-      DifferentiateModelStep::run(model.joints[i],
+      DifferentiateStep::run(model.joints[i],
                               data.joints[i],
-                              DifferentiateModelStep::ArgsType (model, data, q1, q2, result)
+                              DifferentiateStep::ArgsType (model, data, q1, q2, result)
                               );
     }
   }
 
-  struct DistanceModelStep : public fusion::JointVisitor<DistanceModelStep>
+  struct DistanceStep : public fusion::JointVisitor<DistanceStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
@@ -254,7 +254,7 @@ namespace se3
                                   Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_VISITOR_INIT(DistanceModelStep);
+    JOINT_VISITOR_INIT(DistanceStep);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -275,7 +275,7 @@ namespace se3
   };
 
   inline void
-  distanceModel(const Model & model,
+  distance(const Model & model,
                Data & data,
                const Eigen::VectorXd & q1,
                const Eigen::VectorXd & q2,
@@ -284,21 +284,21 @@ namespace se3
     assert(distances.size() == model.nbody-1);
     for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
     {
-      DistanceModelStep::run(model.joints[i],
+      DistanceStep::run(model.joints[i],
                               data.joints[i],
-                              DistanceModelStep::ArgsType (model, data, i-1, q1, q2, distances)
+                              DistanceStep::ArgsType (model, data, i-1, q1, q2, distances)
                               );
     }
   }
 
-  struct RandomModelStep : public fusion::JointVisitor<RandomModelStep>
+  struct RandomStep : public fusion::JointVisitor<RandomStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
                                   Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_VISITOR_INIT(RandomModelStep);
+    JOINT_VISITOR_INIT(RandomStep);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -316,15 +316,15 @@ namespace se3
   };
 
   inline void
-  randomModel(const Model & model,
+  random(const Model & model,
                Data & data,
                Eigen::VectorXd & config)
   {
     for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
     {
-      RandomModelStep::run(model.joints[i],
+      RandomStep::run(model.joints[i],
                            data.joints[i],
-                           RandomModelStep::ArgsType (model, data, config)
+                           RandomStep::ArgsType (model, data, config)
                            );
     }
   }

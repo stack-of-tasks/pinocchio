@@ -77,7 +77,7 @@ Eigen::Quaterniond slerp(const Eigen::Quaterniond & q1, const Eigen::Quaterniond
 
 BOOST_AUTO_TEST_SUITE ( JointConfigurationsTest )
 
-BOOST_AUTO_TEST_CASE ( integration )
+BOOST_AUTO_TEST_CASE ( integration_test )
 {
   se3::Model model;
   
@@ -126,12 +126,12 @@ BOOST_AUTO_TEST_CASE ( integration )
   expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
   expected.tail<13>() = q.tail<13>() + q_dot.tail<13>();
 
-  integrateModel(model, data,q,q_dot,result);
+  integrate(model, data,q,q_dot,result);
 
   assert(result.isApprox(expected) && "integration of freeflyer joint - wrong results");
 }
 
-BOOST_AUTO_TEST_CASE ( interpolation )
+BOOST_AUTO_TEST_CASE ( interpolation_test )
 {
   se3::Model model;
   
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE ( interpolation )
   expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
   expected.tail<13>() = (1-u)* q1.tail<13>() + u*q2.tail<13>();
 
-  interpolateModel(model, data,q1,q2,u,result);
+  interpolate(model, data,q1,q2,u,result);
 
   assert(result.isApprox(expected) && "interpolation full model for u = 0.1 - wrong results");
   
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE ( interpolation )
   expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
   expected.tail<13>() = (1-u)* q1.tail<13>() + u*q2.tail<13>();
 
-  interpolateModel(model, data,q1,q2,u,result);
+  interpolate(model, data,q1,q2,u,result);
 
   assert(result.isApprox(q1) && "interpolation with u = 0 - wrong results");
   
@@ -229,12 +229,12 @@ BOOST_AUTO_TEST_CASE ( interpolation )
   expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
   expected.tail<13>() = (1-u)* q1.tail<13>() + u*q2.tail<13>();
 
-  interpolateModel(model, data,q1,q2,u,result);
+  interpolate(model, data,q1,q2,u,result);
 
   assert(result.isApprox(q2) && "interpolation with u = 1 - wrong results");
 }
 
-BOOST_AUTO_TEST_CASE ( differentiate )
+BOOST_AUTO_TEST_CASE ( differentiation_test )
 {
   se3::Model model;
   
@@ -297,12 +297,12 @@ BOOST_AUTO_TEST_CASE ( differentiate )
   expected[6] = quat_spherical_diff[0];expected[7] = quat_spherical_diff[1]; expected[8] = quat_spherical_diff[2];
   expected.tail<13>() = q1.tail<13>() - q2.tail<13>();
 
-  differentiateModel(model, data,q1,q2,result);
+  differentiate(model, data,q1,q2,result);
 
   assert(result.isApprox(expected) && "Differentiation of full model - wrong results");
 }
 
-BOOST_AUTO_TEST_CASE ( distance )
+BOOST_AUTO_TEST_CASE ( distance_computation_test )
 {
   se3::Model model;
   
@@ -378,12 +378,12 @@ BOOST_AUTO_TEST_CASE ( distance )
               (q1.segment<3>(15) - q2.segment<3>(15)).norm(),
               (q1.segment<3>(18) - q2.segment<3>(18)).norm(),
               (q1.segment<3>(21) - q2.segment<3>(21)).norm();
-  distanceModel(model, data,q1,q2,result);
+  distance(model, data,q1,q2,result);
 
   assert(result.isApprox(expected) && "Distance between two configs of full model - wrong results");
 }
 
-BOOST_AUTO_TEST_CASE ( random )
+BOOST_AUTO_TEST_CASE ( randomization_test )
 {
   se3::Model model;
   
@@ -412,7 +412,7 @@ BOOST_AUTO_TEST_CASE ( random )
 
   Eigen::VectorXd q1(model.nq);
   
-  randomModel(model, data,q1);
+  random(model, data,q1);
 
 }
 

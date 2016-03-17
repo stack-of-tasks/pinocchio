@@ -261,48 +261,48 @@ namespace se3
         return potentialEnergy(*model,*data,q,update_kinematics);
       }
 
-      static void integrateModel_proxy(const ModelHandler & model,
+      static void integrate_proxy(const ModelHandler & model,
                                       DataHandler & data,
                                       const VectorXd_fx & q,
                                       const VectorXd_fx & v,
                                       Eigen::VectorXd & result)
       {
-        integrateModel(*model,*data,q,v,result);
+        integrate(*model,*data,q,v,result);
       }
 
-      static void interpolateModel_proxy(const ModelHandler & model,
+      static void interpolate_proxy(const ModelHandler & model,
                                         DataHandler & data,
                                         const VectorXd_fx & q1,
                                         const VectorXd_fx & q2,
                                         const double u,
                                         Eigen::VectorXd & result)
       {
-        interpolateModel(*model,*data,q1,q2,u,result);
+        interpolate(*model,*data,q1,q2,u,result);
       }
 
-      static void differentiateModel_proxy(const ModelHandler & model,
+      static void differentiate_proxy(const ModelHandler & model,
                                            DataHandler & data,
                                            const VectorXd_fx & q1,
                                            const VectorXd_fx & q2,
                                            Eigen::VectorXd & result)
       {
-        differentiateModel(*model,*data,q1,q2,result);
+        differentiate(*model,*data,q1,q2,result);
       }
 
-      static void distanceModel_proxy(const ModelHandler & model,
+      static void distance_proxy(const ModelHandler & model,
                                       DataHandler & data,
                                       const VectorXd_fx & q1,
                                       const VectorXd_fx & q2,
                                       Eigen::VectorXd & result)
       {
-        distanceModel(*model,*data,q1,q2,result);
+        distance(*model,*data,q1,q2,result);
       }
 
-      static void randomModel_proxy(const ModelHandler & model,
+      static void random_proxy(const ModelHandler & model,
                                     DataHandler & data,
                                     Eigen::VectorXd & result)
       {
-        randomModel(*model,*data,result);
+        random(*model,*data,result);
       }
 #ifdef WITH_HPP_FCL
       
@@ -508,34 +508,34 @@ namespace se3
                 "given the joint configuration and store it "
                 " in data.potential_energy. By default, the kinematics of model is updated.");
 
-        bp::def("integrateModel",integrateModel_proxy,
+        bp::def("integrate",integrate_proxy,
                 bp::args("Model","Data",
                          "Configuration q (size Model::nq)",
                          "Velocity v (size Model::nv)",
                          "resulting Configuration result (size Model::nq)"),
                 "Integrate the model for a constant derivative during unit time .");
 
-        bp::def("interpolateModel",interpolateModel_proxy,
+        bp::def("interpolate",interpolate_proxy,
                 bp::args("Model","Data",
                          "Configuration q1 (size Model::nq)",
                          "Configuration q2 (size Model::nq)",
                          "Double u",
                          "resulting Configuration result (size Model::nq)"),
                 "Interpolate the model between two configurations.");
-        bp::def("differentiateModel",differentiateModel_proxy,
+        bp::def("differentiate",differentiate_proxy,
                 bp::args("Model","Data",
                          "Configuration q1 (size Model::nq)",
                          "Configuration q2 (size Model::nq)",
                          "Velocity result (size Model::nv)"),
                 "Difference between two configuration, ie. the constant derivative that must be integrated during unit time"
                 "to go from q2 to q1");
-        bp::def("distanceModel",distanceModel_proxy,
+        bp::def("distance",distance_proxy,
                 bp::args("Model","Data",
                          "Configuration q1 (size Model::nq)",
                          "Configuration q2 (size Model::nq)",
                          "Velocity result (size Model::nv)"),
                 "Distance between two configuration ");
-        bp::def("randomModel",randomModel_proxy,
+        bp::def("random",random_proxy,
                 bp::args("Model","Data",
                          "Configuration result (size Model::nq)"),
                 "Generate a random configuration (taking into account quaternions) ");
