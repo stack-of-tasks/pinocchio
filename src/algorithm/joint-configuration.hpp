@@ -23,12 +23,33 @@
   
 namespace se3
 {
+
+  /**
+   * @brief      Integrate the model for a constant derivative during unit time
+   *
+   * @param[in]  model   Model that must be integrated
+   * @param      data    Corresponding Data to the Model
+   * @param[in]  q       Initial configuration (size model.nq)
+   * @param[in]  v       Velocity (size model.nv)
+   * @param      result  Resulting configuration result (size model.nq)
+   */
   inline void integrateModel(const Model & model,
                              Data & data,
                              const Eigen::VectorXd & q,
                              const Eigen::VectorXd & v,
                              Eigen::VectorXd & result);
 
+
+  /**
+   * @brief      Interpolate the model between two configurations
+   *
+   * @param[in]  model   Model to be interpolated
+   * @param      data    Corresponding Data to the Model
+   * @param[in]  q1      Initial configuration vector (size model.nq)
+   * @param[in]  q2      Final configuration vector (size model.nq)
+   * @param[in]  u       u in [0;1] position along the interpolation.
+   * @param      result  The interpolated configuration (q1 if u = 0, q2 if u = 1)
+   */
   inline void interpolateModel(const Model & model,
                                Data & data,
                                const Eigen::VectorXd & q1,
@@ -36,18 +57,46 @@ namespace se3
                                const double u,
                                Eigen::VectorXd & result);
 
+
+  /**
+   * @brief      the constant derivative that must be integrated during unit time to go from q2 to q1
+   *
+   * @param[in]  model   Model to be differentiated
+   * @param      data    Corresponding Data to the Model
+   * @param[in]  q1      Wished configuration (size model.nq)
+   * @param[in]  q2      Initial configuration (size model.nq)
+   * @param      result  The corresponding velocity (size model.nv)
+   */
   inline void differentiateModel(const Model & model,
                                  Data & data,
                                  const Eigen::VectorXd & q1,
                                  const Eigen::VectorXd & q2,
                                  Eigen::VectorXd & result);
 
+
+  /**
+   * @brief      Distance between two configuration vectors
+   *
+   * @param[in]  model      Model we want to compute the distance
+   * @param      data       Corresponding Data to the Model
+   * @param[in]  q1         Configuration 1 (size model.nq)
+   * @param[in]  q2         Configuration 2 (size model.nq)
+   * @param      distances  The corresponding distances for each joint (size model.nbody-1 = number of joints)
+   */
   inline void distanceModel(const Model & model,
                             Data & data,
                             const Eigen::VectorXd & q1,
                             const Eigen::VectorXd & q2,
                             Eigen::VectorXd & distances);
 
+
+  /**
+   * @brief      Generate a random configuration vector.
+   *
+   * @param[in]  model   Model we want to generate a configuration vector of
+   * @param      data    Corresponding Data to the Model
+   * @param      config  The resulted configuration vector (size model.nq)
+   */
   inline void randomModel(const Model & model,
                           Data & data,
                           Eigen::VectorXd & config);

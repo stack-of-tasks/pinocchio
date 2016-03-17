@@ -249,18 +249,63 @@ namespace se3
                   const bool update_I = false) const
     { return static_cast<const JointModel*>(this)->calc_aba(data, I, update_I); }
 
+
+    /**
+     * @brief      Integrate joint's configuration for a constant derivative during unit time
+     *
+     * @param[in]  q     initatial configuration  (size jmodel.nq)
+     * @param[in]  v     joint velocity (size jmodel.nv)
+     *
+     * @return     The configuration integrated
+     */
     const ConfigVector_t integrate(const Eigen::VectorXd & q,const Eigen::VectorXd & v) const
     { return derived().integrate_impl(q, v); } 
 
+
+    /**
+     * @brief      Interpolation between two joint's configurations
+     *
+     * @param[in]  q1    Initial configuration to interpolate
+     * @param[in]  q2    Final configuration to interpolate
+     * @param[in]  u     u in [0;1] position along the interpolation.
+     *
+     * @return     The interpolated configuration (q1 if u = 0, q2 if u = 1)
+     */
     const ConfigVector_t interpolate(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, double u) const
     { return derived().interpolate_impl(q1, q2, u); }
 
+
+    /**
+     * @brief      Generate a random joint configuration. Take into account quaternions
+     *
+     * \warning Do not take yet into account the joint limits
+     *
+     * @return     The joint configuration
+     */
     const ConfigVector_t random() const
     { return derived().random_impl(); } 
 
+
+    
+    /**
+     * @brief      the constant derivative that must be integrated during unit time to go from q2 to q1
+     *
+     * @param[in]  q1    Wished configuration
+     * @param[in]  q2    Initial configuration
+     *
+     * @return     The corresponding velocity
+     */
     const TangentVector_t difference(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
     { return derived().difference_impl(q1, q2); } 
 
+    /**
+     * @brief      Distance between two configurations of the joint
+     *
+     * @param[in]  q1    Configuration 1
+     * @param[in]  q2    Configuration 2
+     *
+     * @return     The corresponding distance
+     */
     double distance(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
     { return derived().distance_impl(q1, q2); } 
 

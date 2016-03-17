@@ -298,12 +298,12 @@ namespace se3
         distanceModel(*model,*data,q1,q2,result);
       }
 
-      // static void randomModel_proxy(const ModelHandler & model,
-      //                               DataHandler & data,
-      //                               Eigen::VectorXd & result)
-      // {
-      //   randomModel(*model,*data,result);
-      // }
+      static void randomModel_proxy(const ModelHandler & model,
+                                    DataHandler & data,
+                                    Eigen::VectorXd & result)
+      {
+        randomModel(*model,*data,result);
+      }
 #ifdef WITH_HPP_FCL
       
       static void updateGeometryPlacements_proxy(const ModelHandler & model,
@@ -521,7 +521,7 @@ namespace se3
                          "Configuration q2 (size Model::nq)",
                          "Double u",
                          "resulting Configuration result (size Model::nq)"),
-                "Integrate the model between two configurations.");
+                "Interpolate the model between two configurations.");
         bp::def("differentiateModel",differentiateModel_proxy,
                 bp::args("Model","Data",
                          "Configuration q1 (size Model::nq)",
@@ -535,10 +535,10 @@ namespace se3
                          "Configuration q2 (size Model::nq)",
                          "Velocity result (size Model::nv)"),
                 "Distance between two configuration ");
-        // bp::def("randomModel",randomModel_proxy,
-        //         bp::args("Model","Data",
-        //                  "Configuration result (size Model::nq)"),
-        //         "Generate a random configuration (taking into account quaternions) ");
+        bp::def("randomModel",randomModel_proxy,
+                bp::args("Model","Data",
+                         "Configuration result (size Model::nq)"),
+                "Generate a random configuration (taking into account quaternions) ");
 #ifdef WITH_HPP_FCL
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,
