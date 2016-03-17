@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -109,9 +109,9 @@ namespace se3
         return derived().__equal__(other);
       }
 
-      bool isApprox (const Derived_t & other) const
+      bool isApprox (const Derived_t & other, const Scalar_t & prec = Eigen::NumTraits<Scalar_t>::dummy_precision()) const
       {
-        return derived().isApprox_impl(other);
+        return derived().isApprox_impl(other, prec);
       }
 
       friend std::ostream & operator << (std::ostream & os,const SE3Base<Derived> & X)
@@ -164,12 +164,15 @@ namespace se3
     SE3Tpl(const Eigen::MatrixBase<M3> & R, const Eigen::MatrixBase<v3> & p) 
     : rot(R), trans(p)
     {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(v3,3)
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M3,3,3)
     }
 
     template<typename M4>
     SE3Tpl(const Eigen::MatrixBase<M4> & m) 
     : rot(m.template block<3,3>(LINEAR,LINEAR)), trans(m.template block<3,1>(LINEAR,ANGULAR))
     {
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M4,4,4);
     }
 
     SE3Tpl(int) : rot(Matrix3::Identity()), trans(Vector3::Zero()) {}
@@ -216,8 +219,7 @@ namespace se3
 
       return *this;
     }
-
-  public:
+    
     Matrix4 toHomogeneousMatrix_impl() const
     {
       Matrix4 M;
@@ -244,7 +246,6 @@ namespace se3
       return M;
     }
 
-
     void disp_impl(std::ostream & os) const
     {
       os << "  R =\n" << rot << std::endl
@@ -265,8 +266,8 @@ namespace se3
       return d.se3ActionInverse(*this);
     }
 
-    Vector3 act_impl   (const Vector3& p) const { return (rot*p+trans).eval(); }
-    Vector3 actInv_impl(const Vector3& p) const { return (rot.transpose()*(p-trans)).eval(); }
+    Vector3 act_impl   (const Vector3& p) const { return rot*p+trans; }
+    Vector3 actInv_impl(const Vector3& p) const { return rot.transpose()*(p-trans); }
 
     SE3Tpl act_impl    (const SE3Tpl& m2) const { return SE3Tpl( rot*m2.rot,trans+rot*m2.trans);}
     SE3Tpl actInv_impl (const SE3Tpl& m2) const { return SE3Tpl( rot.transpose()*m2.rot, rot.transpose()*(m2.trans-trans));}
@@ -279,15 +280,11 @@ namespace se3
       return (rotation_impl() == m2.rotation() && translation_impl() == m2.translation());
     }
 
-    bool isApprox_impl( const SE3Tpl & m2 ) const
+    bool isApprox_impl (const SE3Tpl & m2, const Scalar_t & prec = Eigen::NumTraits<Scalar_t>::dummy_precision()) const
     {
-      Matrix4 diff( toHomogeneousMatrix_impl() - 
-                              m2.toHomogeneousMatrix_impl());
-      return (diff.isMuchSmallerThan(toHomogeneousMatrix_impl(), 1e-14)
-              && diff.isMuchSmallerThan(m2.toHomogeneousMatrix_impl(), 1e-14) );
+      return rot.isApprox(m2.rot, prec) && trans.isApprox(m2.trans, prec);
     }
 
-  public:
     const Angular_t & rotation_impl() const { return rot; }
     Angular_t & rotation_impl() { return rot; }
     void rotation_impl(const Angular_t & R) { rot = R; }

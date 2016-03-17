@@ -112,6 +112,8 @@ namespace se3
         
         .ADD_DATA_PROPERTY_CONST(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
         .ADD_DATA_PROPERTY_CONST(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
+        
+        .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,lambda,"Lagrange Multipliers linked to contact forces")
 	  ;
       }
 
@@ -158,6 +160,8 @@ namespace se3
       
       IMPL_DATA_PROPERTY_CONST(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
       IMPL_DATA_PROPERTY_CONST(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
+      
+      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,lambda,"Lagrange Multipliers linked to contact forces")
       
       /* --- Expose --------------------------------------------------------- */
       static void expose()

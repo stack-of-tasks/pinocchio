@@ -40,6 +40,8 @@ namespace se3
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     ///
+    /// \return A reference to the upper triangular matrix \f$U\f$.
+    ///
     inline const Eigen::MatrixXd &
     decompose(const Model & model,
               Data & data);
@@ -54,7 +56,7 @@ namespace se3
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
-    /// \param[inout] y The input vector to inverse which also contains the result \f$x\f$ of the inversion.
+    /// \param[inout] y The input matrix to inverse which also contains the result \f$x\f$ of the inversion.
     ///
     template<typename Mat>
     Mat & solve(const Model & model, const Data & data,
@@ -65,7 +67,7 @@ namespace se3
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
-    /// \param[inout] v The input vector to multiply with data.M and storing the result.
+    /// \param[inout] v The input matrix to multiply with data.M and storing the result.
     /// \param[in] usingCholesky If true, use the Cholesky decomposition stored in data. Exploit the sparsity of the kinematic tree.
     ///
     /// \return A reference to the result of \f$ Mv \f$.
@@ -80,7 +82,7 @@ namespace se3
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
-    /// \param[inout] v The input vector to multiply with data.U and also storing the result.
+    /// \param[inout] v The input matrix to multiply with data.U and also storing the result.
     ///
     /// \return A reference to the result of \f$ Uv \f$ stored in v.
     ///
@@ -94,7 +96,7 @@ namespace se3
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
-    /// \param[inout] v The input vector to multiply with data.U.tranpose() and also storing the result.
+    /// \param[inout] v The input matrix to multiply with data.U.tranpose() and also storing the result.
     ///
     /// \return A reference to the result of \f$ U^{\top}v \f$ stored in v.
     ///
@@ -108,7 +110,7 @@ namespace se3
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
-    /// \param[inout] v The input vector to multiply with data.U^{-1} and also storing the result.
+    /// \param[inout] v The input matrix to multiply with data.U^{-1} and also storing the result.
     ///
     /// \return A reference to the result of \f$ U^{-1}v \f$ stored in v.
     ///
@@ -124,7 +126,7 @@ namespace se3
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
-    /// \param[inout] v The input vector to multiply with data.U^{-\top} and also storing the result.
+    /// \param[inout] v The input matrix to multiply with data.U^{-\top} and also storing the result.
     ///
     /// \return A reference to the result of \f$ U^{-\top}v \f$ stored in v.
     ///
@@ -140,7 +142,7 @@ namespace se3
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
-    /// \param[inout] v The input vector to multiply with data.M^{-1} and also storing the result.
+    /// \param[inout] v The input matrix to multiply with data.M^{-1} and also storing the result.
     ///
     /// \return A reference to the result of \f$ M^{-1}v \f$ stored in v.
     ///
