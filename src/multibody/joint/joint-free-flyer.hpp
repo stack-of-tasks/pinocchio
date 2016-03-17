@@ -23,6 +23,7 @@
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/explog.hpp"
+#include "pinocchio/math/quaternion.hpp"
 
 namespace se3
 {

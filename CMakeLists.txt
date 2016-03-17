@@ -81,6 +81,7 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
 SET(${PROJECT_NAME}_MATH_HEADERS
   math/sincos.hpp
+  math/quaternion.hpp
   )
 
 SET(${PROJECT_NAME}_TOOLS_HEADERS
