@@ -231,8 +231,6 @@ namespace se3
     typedef typename traits<_JointModel>::Joint Joint;
     SE3_JOINT_TYPEDEF_TEMPLATE;
   
-    // typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
-    // typedef Eigen::Matrix<double,NV,1> TangentVector_t;
 
     JointModel& derived() { return *static_cast<JointModel*>(this); }
     const JointModel& derived() const { return *static_cast<const JointModel*>(this); }

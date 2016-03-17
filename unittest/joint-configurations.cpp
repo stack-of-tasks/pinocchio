@@ -351,13 +351,14 @@ BOOST_AUTO_TEST_CASE ( distance )
   double angle_acos = acos( (p_ff_1.dot(p_ff_2)) / (p_ff_1.norm()*p_ff_2.norm()));
   double dist_ff = sqrt(pow((q1.head<3>() - q2.head<3>()).norm(),2) + pow(angle_acos,2) );
 
+  // Other ways to compute quaternion angle :
+  // 1/
   // Eigen::AngleAxis<double> angle_axis_ff(p_ff);
   // double dist_quat_ff = angle_axis_ff.angle();
-  // double ang = acos( (p_ff_1.dot(p_ff_2)) / (p_ff_1.norm()*p_ff_2.norm()));
+  // 2/
   // double angle_acos = 2 * acos(p_ff.w());
+  // 3/
   // double angatan = 2*atan2(p_ff.vec().norm(), p_ff.w());
-  // std::cout << "transl ff dist : \t" << sqrt(pow((q1.head<3>() - q2.head<3>()).norm(),2)) << std::endl;
-  // std::cout << "quater ff dist : \t" << dist_quat_ff << " acos : " << ang <<  " atan " << angatan << "angacos : " << angacos << std::endl;
 
   // Quaternion spherical
   Motion::Quaternion_t p_spherical_1 (quat_spherical_1);
@@ -367,8 +368,6 @@ BOOST_AUTO_TEST_CASE ( distance )
   p_spherical*=p_spherical_2;
   double angle_acos_spherical = acos( (p_spherical_1.dot(p_spherical_2)) / (p_spherical_1.norm()*p_spherical_2.norm()));
   double dist_quat_spherical = angle_acos_spherical;
-  // Eigen::AngleAxis<double> angle_axis_spherical(p_spherical);
-  // double dist_quat_spherical = angle_axis_spherical.angle();
 
   expected << dist_ff,
               dist_quat_spherical,
@@ -381,8 +380,6 @@ BOOST_AUTO_TEST_CASE ( distance )
               (q1.segment<3>(21) - q2.segment<3>(21)).norm();
   distanceModel(model, data,q1,q2,result);
 
-  std::cout << "result \n" << result << std::endl;
-  std::cout << "expected \n" << expected << std::endl;
   assert(result.isApprox(expected) && "Distance between two configs of full model - wrong results");
 }
 
