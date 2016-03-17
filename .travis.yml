@@ -1,4 +1,6 @@
-language: cpp
+language: python
+python:
+- "2.7"
 sudo: required
 compiler:
 - gcc
@@ -28,6 +30,9 @@ script:
   - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE}"
   - sudo free -m -t
   - travis_wait ./.travis/run ../travis_custom/custom_build
+  - export PYTHONPATH=/tmp/_ci/install/lib/python2.7/site-packages
+  - python ./python/bindings.py
+  - python ./python/test_model.py
 after_success: ./.travis/run after_success
 after_failure: ./.travis/run after_failure
 before_install: ./travis_custom/custom_before_install

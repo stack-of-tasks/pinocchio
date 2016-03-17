@@ -19,23 +19,32 @@ import libpinocchio_pywrap as se3
 import numpy as np
 import math
 
+
 def exp(x):
-    if isinstance(x,se3.Motion): return se3.exp6FromMotion(x)
-    elif np.isscalar(x): return math.exp(x)
-    elif isinstance(x,np.matrix):
-        if len(x)==6: return se3.exp6FromVector(x)
-        elif len(x)==3: return se3.exp3(x)
-        else: print 'Error only 3 and 6 vectors are allowed.'
-    else: print 'Error exp is only defined for real, vector3, vector6 and se3.Motion objects.'
+    if isinstance(x, se3.Motion):
+        return se3.exp6FromMotion(x)
+    if np.isscalar(x):
+        return math.exp(x)
+    if isinstance(x, np.matrix):
+        if len(x) == 6:
+            return se3.exp6FromVector(x)
+        if len(x) == 3:
+            return se3.exp3(x)
+        raise ValueError('Error only 3 and 6 vectors are allowed.')
+    raise ValueError('Error exp is only defined for real, vector3, vector6 and se3.Motion objects.')
+
 
 def log(x):
-    if isinstance(x,se3.SE3): return se3.log6FromSE3(x)
-    elif np.isscalar(x): return math.log(x)
-    elif isinstance(x,np.matrix):
-        if len(x)==4: return se3.log6FromMatrix(x)
-        elif len(x)==3: return se3.log3(x)
-        else: print 'Error only 3 and 4 matrices are allowed.'
-    else: print 'Error log is only defined for real, matrix3, matrix4 and se3.SE3 objects.'
+    if isinstance(x, se3.SE3):
+        return se3.log6FromSE3(x)
+    if np.isscalar(x):
+        return math.log(x)
+    if isinstance(x, np.matrix):
+        if len(x) == 4:
+            return se3.log6FromMatrix(x)
+        if len(x) == 3:
+            return se3.log3(x)
+        raise ValueError('Error only 3 and 4 matrices are allowed.')
+    raise ValueError('Error log is only defined for real, matrix3, matrix4 and se3.SE3 objects.')
 
-
-__all__ = [ 'exp','log' ]
+__all__ = ['exp', 'log']
