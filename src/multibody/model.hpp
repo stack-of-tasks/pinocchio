@@ -84,6 +84,16 @@ namespace se3
     /// \brief Name of the body attached to the output of joint <i>.
     std::vector<std::string> bodyNames;
     
+    /// \brief Vector of maximal joint torques
+    Eigen::VectorXd effortLimit;
+    /// \brief Vector of maximal joint velocities
+    Eigen::VectorXd velocityLimit;
+
+    /// \brief Lower joint configuration limit
+    Eigen::VectorXd lowerPositionLimit;
+    /// \brief Upper joint configuration limit
+    Eigen::VectorXd upperPositionLimit;
+
     /// \brief True iff body <i> has a visual mesh.
     std::vector<bool> hasVisual;
 
@@ -457,15 +467,6 @@ namespace se3
     /// \note This Jacobian maps the joint velocity vector to the velocity of the center of mass, expressed in the inertia frame. In other words, \f$ v_{\text{CoM}} = J_{\text{CoM}} \dot{q}\f$.
     Matrix3x Jcom;
 
-    /// \brief Vector of maximal joint torques
-    Eigen::VectorXd effortLimit;
-    /// \brief Vector of maximal joint velocities
-    Eigen::VectorXd velocityLimit;
-
-    /// \brief Lower joint configuration limit
-    Eigen::VectorXd lowerPositionLimit;
-    /// \brief Upper joint configuration limit
-    Eigen::VectorXd upperPositionLimit;
     
     /// \brief Kinetic energy of the model.
     double kinetic_energy;

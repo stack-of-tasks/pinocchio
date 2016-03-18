@@ -134,6 +134,11 @@ namespace se3
       .add_property("fix_hasVisual", bp::make_function(&ModelPythonVisitor::fix_hasVisual, bp::return_internal_reference<>())  )
       .add_property("fix_bodyNames", bp::make_function(&ModelPythonVisitor::fix_bodyNames, bp::return_internal_reference<>())  )
 
+      .add_property("effortLimit", bp::make_function(&ModelPythonVisitor::effortLimit, bp::return_internal_reference<>()), "Joint max effort")
+      .add_property("velocityLimit", bp::make_function(&ModelPythonVisitor::velocityLimit, bp::return_internal_reference<>()), "Joint max velocity")
+      .add_property("lowerPositionLimit", bp::make_function(&ModelPythonVisitor::lowerPositionLimit, bp::return_internal_reference<>()), "Limit for joint lower position")
+      .add_property("upperPositionLimit", bp::make_function(&ModelPythonVisitor::upperPositionLimit, bp::return_internal_reference<>()), "Limit for joint upper position")
+
       .def("getFrameParent", &ModelPythonVisitor::getFrameParent)
       .def("getFramePlacement", &ModelPythonVisitor::getFramePlacement)
       .def("addFrame", &ModelPythonVisitor::addFrame)
@@ -180,6 +185,11 @@ namespace se3
       static std::vector<Model::JointIndex> & fix_lastMovingParent( ModelHandler & m ) { return m->fix_lastMovingParent; }
       static std::vector<bool> & fix_hasVisual ( ModelHandler & m ) { return m->fix_hasVisual; }
       static std::vector<std::string> & fix_bodyNames ( ModelHandler & m ) { return m->fix_bodyNames; }
+
+      static Eigen::VectorXd & effortLimit(ModelHandler & m) {return m->effortLimit;}
+      static Eigen::VectorXd & velocityLimit(ModelHandler & m) {return m->velocityLimit;}
+      static Eigen::VectorXd & lowerPositionLimit(ModelHandler & m) {return m->lowerPositionLimit;}
+      static Eigen::VectorXd & upperPositionLimit(ModelHandler & m) {return m->upperPositionLimit;}
 
       static Model::JointIndex  getFrameParent( ModelHandler & m, const std::string & name ) { return m->getFrameParent(name); }
       static SE3  getFramePlacement( ModelHandler & m, const std::string & name ) { return m->getFramePlacement(name); }

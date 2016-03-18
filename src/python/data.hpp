@@ -104,11 +104,6 @@ namespace se3
 	  .ADD_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
 	  .ADD_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
 
-    .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,effortLimit,"Joint max effort")
-    .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,velocityLimit,"Joint max velocity")
-        
-    .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,lowerPositionLimit,"Limit for joint lower position")
-    .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,upperPositionLimit,"Limit for joint upper position")
         
         .ADD_DATA_PROPERTY_CONST(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
         .ADD_DATA_PROPERTY_CONST(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
@@ -152,11 +147,6 @@ namespace se3
       IMPL_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
       IMPL_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
 
-      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,effortLimit,"Joint max effort")
-      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,velocityLimit,"Joint max velocity")
-
-      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,lowerPositionLimit,"Limit for joint lower position")
-      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,upperPositionLimit,"Limit for joint upper position")
       
       IMPL_DATA_PROPERTY_CONST(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
       IMPL_DATA_PROPERTY_CONST(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")

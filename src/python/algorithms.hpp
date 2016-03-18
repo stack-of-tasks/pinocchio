@@ -237,12 +237,6 @@ namespace se3
         = data->M.transpose().triangularView<Eigen::StrictlyLower>();
       }
 
-      static void jointLimits_proxy(const ModelHandler & model,
-                                    DataHandler & data,
-                                    const VectorXd_fx & q)
-      {
-        jointLimits(*model,*data,q);
-      }
       
       static double kineticEnergy_proxy(const ModelHandler & model,
                                         DataHandler & data,
@@ -485,11 +479,6 @@ namespace se3
                          "Configuration q (size Model::nq)"),
                 "Calling computeJacobians");
         
-        bp::def("jointLimits",jointLimits_proxy,
-                bp::args("Model","Data",
-                         "Configuration q (size Model::nq)"),
-                "Compute the maximum limits of all the joints of the model "
-          "and put the results in data.");
         
         bp::def("kineticEnergy",kineticEnergy_proxy,
                 bp::args("Model","Data",
