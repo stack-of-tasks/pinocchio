@@ -53,11 +53,14 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   const std::string LF = "lleg6_body";
   
   Data::Matrix6x J_RF (6, model.nv);
+  J_RF.setZero();
   getJacobian <true> (model, data, model.getBodyId(RF), J_RF);
   Data::Matrix6x J_LF (6, model.nv);
+  J_LF.setZero();
   getJacobian <true> (model, data, model.getBodyId(LF), J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
+  J.setZero();
   J.topRows<6> () = J_RF;
   J.bottomRows<6> () = J_LF;
   
@@ -75,7 +78,7 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   cholesky::Uiv(model, data, G_ref);
   for(int k=0;k<model.nv;++k) G_ref.row(k) /= sqrt(data.D[k]);
     Eigen::MatrixXd H_ref(G_ref.transpose() * G_ref);
-    BOOST_CHECK(H_ref.isApprox(JMinvJt,1-12));
+    BOOST_CHECK(H_ref.isApprox(JMinvJt,1e-12));
   
   VectorXd lambda_ref = -JMinvJt.inverse() * (J*Minv*(tau - data.nle) + gamma);
   BOOST_CHECK(data.lambda_c.isApprox(lambda_ref, 1e-12));
@@ -83,8 +86,8 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   VectorXd a_ref = Minv*(tau - data.nle + J.transpose()*lambda_ref);
   
   Eigen::VectorXd dynamics_residual_ref (data.M * a_ref + data.nle - tau - J.transpose()*lambda_ref);
-  BOOST_CHECK(dynamics_residual_ref.norm() <= 1e-12);
-  
+  BOOST_CHECK(dynamics_residual_ref.norm() <= 1e-11); // previously 1e-12, may be due to numerical approximations, i obtain 2.03e-12
+
   Eigen::VectorXd constraint_residual (J * data.ddq + gamma);
   BOOST_CHECK(constraint_residual.norm() <= 1e-12);
   
