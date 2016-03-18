@@ -362,13 +362,7 @@ namespace se3
 
     double distance_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
     { 
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
-
-      double theta = angleBetweenQuaternions (q_1, q_2);
-
-      assert (theta >= 0);
-      return theta;
+      return difference_impl(q1, q2).norm();
     }
 
     JointModelDense<NQ, NV> toDense_impl() const

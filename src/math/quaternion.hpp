@@ -28,17 +28,18 @@
 /// \param q1, q2, unit quaternions
 /// \return angle between both quaternions
 template <typename D>
-static double angleBetweenQuaternions(const Eigen::MatrixBase<D> & q1,
-                                      const Eigen::MatrixBase<D> & q2)
+static typename D::Scalar angleBetweenQuaternions(const Eigen::MatrixBase<D> & q1,
+                                                  const Eigen::MatrixBase<D> & q2)
 {
   EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,4);
 
-  double innerprod = q1.dot(q2);
-  assert (fabs (innerprod) < 1.0001);
-  if (innerprod < -1) innerprod = -1;
-  if (innerprod >  1) innerprod =  1;
-  double theta = acos (innerprod);
-  return theta;
+  Eigen::Quaternion<typename D::Scalar> p1 (q1);
+  Eigen::Quaternion<typename D::Scalar> p2 (q2);
+
+  Eigen::Quaternion<typename D::Scalar> p (p1*p2.conjugate());
+  Eigen::AngleAxis<typename D::Scalar> angle_axis(p);
+
+  return (angle_axis.angle() * angle_axis.axis()).norm();
 }
 
 #endif //#ifndef __math_quaternion_hpp__

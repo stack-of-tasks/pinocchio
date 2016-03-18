@@ -48,7 +48,9 @@
 
 Eigen::Quaterniond slerp(const Eigen::Quaterniond & q1, const Eigen::Quaterniond & q2,double t)
 {
-    double theta = acos(q1.dot(q2));
+    double theta = angleBetweenQuaternions(Eigen::Vector4d(q1.x(),q1.y(),q1.z(),q1.w()),
+                                            Eigen::Vector4d(q2.x(),q2.y(),q2.z(),q2.w())
+                                            );
     double mult1,mult2,sintheta;
     // lorsque theta est très petit,on fait une LERP
     // cela permet d'éviter la division par 0
@@ -346,28 +348,22 @@ BOOST_AUTO_TEST_CASE ( distance_computation_test )
   Motion::Quaternion_t p_ff_1 (quat_ff_1);
   Motion::Quaternion_t p_ff_2 (quat_ff_2);
 
-  Motion::Quaternion_t p_ff (p_ff_2);
-  p_ff*=p_ff_1.conjugate();
-  double angle_acos = acos( (p_ff_1.dot(p_ff_2)) / (p_ff_1.norm()*p_ff_2.norm()));
-  double dist_ff = sqrt(pow((q1.head<3>() - q2.head<3>()).norm(),2) + pow(angle_acos,2) );
-
+  Motion::Quaternion_t p_ff (p_ff_1*p_ff_2.conjugate());
+  Eigen::AngleAxis<double> angle_axis_ff(p_ff);
+  double angle_quat_ff = angle_axis_ff.angle();
+  double dist_ff = sqrt(pow((q1.head<3>() - q2.head<3>()).norm(),2) + pow(angle_quat_ff,2) );
   // Other ways to compute quaternion angle :
   // 1/
-  // Eigen::AngleAxis<double> angle_axis_ff(p_ff);
-  // double dist_quat_ff = angle_axis_ff.angle();
-  // 2/
   // double angle_acos = 2 * acos(p_ff.w());
-  // 3/
+  // 2/
   // double angatan = 2*atan2(p_ff.vec().norm(), p_ff.w());
 
   // Quaternion spherical
   Motion::Quaternion_t p_spherical_1 (quat_spherical_1);
   Motion::Quaternion_t p_spherical_2 (quat_spherical_2);
 
-  Motion::Quaternion_t p_spherical (p_spherical_1.conjugate());
-  p_spherical*=p_spherical_2;
-  double angle_acos_spherical = acos( (p_spherical_1.dot(p_spherical_2)) / (p_spherical_1.norm()*p_spherical_2.norm()));
-  double dist_quat_spherical = angle_acos_spherical;
+  Motion::Quaternion_t p_spherical (p_spherical_1*p_spherical_2.conjugate());
+  double dist_quat_spherical = 2*atan2(p_spherical.vec().norm(), p_spherical.w());;
 
   expected << dist_ff,
               dist_quat_spherical,
