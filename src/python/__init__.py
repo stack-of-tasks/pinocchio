@@ -37,7 +37,7 @@ def SE3act(m, x):
             return m.homogeneous * x
         if x.shape[0] == 6:
             return m.action * x
-        raise ValueError('Error: m can only act on linear object of size 3, 4 and 6.')
+        raise ValueError('m can only act on linear object of size 3, 4 and 6.')
     if 'se3Action' in x.__class__.__dict__:
         return x.se3Action(m)
     return m.oldmult(x)
@@ -56,10 +56,10 @@ def SE3actinv(m, x):
             return m.inverse().homogeneous * x
         if x.shape[0] == 6:
             return m.inverse().action * x
-        raise ValueError('Error: m can only act on linear object of size 3, 4 and 6.')
+        raise ValueError('m can only act on linear object of size 3, 4 and 6.')
     if 'se3Action' in x.__class__.__dict__:
         return x.se3ActionInverse(m)
-    raise ValueError('Error: SE3 cannot act on the given object')
+    raise ValueError('SE3 cannot act on the given object')
 
 setattr(se3.SE3, 'actInv', SE3actinv)
 
@@ -71,7 +71,7 @@ def SE3cross(self, y):
         return self.cross_motion(y)
     if isinstance(y, se3.Force):
         return self.cross_force(y)
-    raise ValueException('Error: SE3 cross product only apply on M6xM6 or M6xF6.')
+    raise ValueError('SE3 cross product only apply on M6xM6 or M6xF6.')
 
 setattr(se3.Motion, '__pow__', SE3cross)
 setattr(se3.Motion, 'cross', SE3cross)
