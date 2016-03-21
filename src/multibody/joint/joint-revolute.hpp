@@ -419,10 +419,6 @@ namespace se3
     using JointModelBase<JointModelRevolute>::id;
     using JointModelBase<JointModelRevolute>::idx_q;
     using JointModelBase<JointModelRevolute>::idx_v;
-    using JointModelBase<JointModelRevolute>::lowerPosLimit;
-    using JointModelBase<JointModelRevolute>::upperPosLimit;
-    using JointModelBase<JointModelRevolute>::maxEffortLimit;
-    using JointModelBase<JointModelRevolute>::maxVelocityLimit;
     using JointModelBase<JointModelRevolute>::setIndexes;
     typedef Motion::Vector3 Vector3;
     typedef double Scalar_t;
@@ -503,11 +499,7 @@ namespace se3
     {
       return JointModelDense<NQ, NV>( id(),
                                       idx_q(),
-                                      idx_v(),
-                                      lowerPosLimit(),
-                                      upperPosLimit(),
-                                      maxEffortLimit(),
-                                      maxVelocityLimit()
+                                      idx_v()
                                     );
     }
 
@@ -523,11 +515,7 @@ namespace se3
     {
       return jmodel.id() == id()
               && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v()
-              && jmodel.lowerPosLimit() == lowerPosLimit()
-              && jmodel.upperPosLimit() == upperPosLimit()
-              && jmodel.maxEffortLimit() == maxEffortLimit()
-              && jmodel.maxVelocityLimit() == maxVelocityLimit();
+              && jmodel.idx_v() == idx_v();
     }
 
   }; // struct JointModelRevolute

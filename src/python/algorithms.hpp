@@ -33,7 +33,6 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/operational-frames.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
-#include "pinocchio/algorithm/joint-limits.hpp"
 #include "pinocchio/algorithm/energy.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/simulation/compute-all-terms.hpp"

@@ -98,11 +98,6 @@ namespace se3
     joints         .push_back(j.derived()); 
     boost::get<D>(joints.back()).setIndexes((int)idx,nq,nv);
 
-    boost::get<D>(joints.back()).setMaxEffortLimit(effort);
-    boost::get<D>(joints.back()).setMaxVelocityLimit(velocity);
-
-    boost::get<D>(joints.back()).setLowerPositionLimit(lowPos);
-    boost::get<D>(joints.back()).setUpperPositionLimit(upPos);
 
     inertias       .push_back(Y);
     parents        .push_back(parent);

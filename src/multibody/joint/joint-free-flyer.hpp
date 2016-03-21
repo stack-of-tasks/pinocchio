@@ -193,10 +193,6 @@ namespace se3
     using JointModelBase<JointModelFreeFlyer>::id;
     using JointModelBase<JointModelFreeFlyer>::idx_q;
     using JointModelBase<JointModelFreeFlyer>::idx_v;
-    using JointModelBase<JointModelFreeFlyer>::lowerPosLimit;
-    using JointModelBase<JointModelFreeFlyer>::upperPosLimit;
-    using JointModelBase<JointModelFreeFlyer>::maxEffortLimit;
-    using JointModelBase<JointModelFreeFlyer>::maxVelocityLimit;
     using JointModelBase<JointModelFreeFlyer>::setIndexes;
     typedef Motion::Vector3 Vector3;
     typedef double Scalar_t;
@@ -317,11 +313,7 @@ namespace se3
     {
       return JointModelDense<NQ, NV>( id(),
                                       idx_q(),
-                                      idx_v(),
-                                      lowerPosLimit(),
-                                      upperPosLimit(),
-                                      maxEffortLimit(),
-                                      maxVelocityLimit()
+                                      idx_v()
                                     );
     }
 
@@ -340,11 +332,7 @@ namespace se3
     {
       return jmodel.id() == id()
               && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v()
-              && jmodel.lowerPosLimit() == lowerPosLimit()
-              && jmodel.upperPosLimit() == upperPosLimit()
-              && jmodel.maxEffortLimit() == maxEffortLimit()
-              && jmodel.maxVelocityLimit() == maxVelocityLimit();
+              && jmodel.idx_v() == idx_v();
     }
   }; // struct JointModelFreeFlyer
 
