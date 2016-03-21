@@ -527,14 +527,14 @@ namespace se3
                          "Configuration q1 (size Model::nq)",
                          "Configuration q2 (size Model::nq)",
                          "Velocity result (size Model::nv)"),
-                "Difference between two configuration, ie. the constant derivative that must be integrated during unit time"
+                "Difference between two configurations, ie. the constant derivative that must be integrated during unit time"
                 "to go from q2 to q1");
         bp::def("distance",distance_proxy,
                 bp::args("Model","Data",
                          "Configuration q1 (size Model::nq)",
                          "Configuration q2 (size Model::nq)",
                          "Velocity result (size Model::nv)"),
-                "Distance between two configuration ");
+                "Distance between two configurations ");
         bp::def("random",random_proxy,
                 bp::args("Model","Data",
                          "Configuration result (size Model::nq)"),
