@@ -28,8 +28,8 @@
 /// \param q1, q2, unit quaternions
 /// \return angle between both quaternions
 template <typename D>
-static typename D::Scalar angleBetweenQuaternions(const Eigen::MatrixBase<D> & q1,
-                                                  const Eigen::MatrixBase<D> & q2)
+typename D::Scalar angleBetweenQuaternions(const Eigen::MatrixBase<D> & q1,
+                                            const Eigen::MatrixBase<D> & q2)
 {
   EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,4);
 
