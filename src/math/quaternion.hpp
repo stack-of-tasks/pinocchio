@@ -28,16 +28,14 @@
 /// \param q1, q2, unit quaternions
 /// \return angle between both quaternions
 template <typename D>
-typename D::Scalar angleBetweenQuaternions(const Eigen::MatrixBase<D> & q1,
-                                            const Eigen::MatrixBase<D> & q2)
+typename D::Scalar angleBetweenQuaternions(const Eigen::Quaternion<typename D::Scalar> & q1,
+                                            const Eigen::Quaternion<typename D::Scalar> & q2)
 {
   EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,4);
 
-  Eigen::Quaternion<typename D::Scalar> p1 (q1);
-  Eigen::Quaternion<typename D::Scalar> p2 (q2);
 
-  Eigen::Quaternion<typename D::Scalar> p (p1*p2.conjugate());
-  Eigen::AngleAxis<typename D::Scalar> angle_axis(p);
+  Eigen::Quaternion<typename D::Scalar> q (q1*q2.conjugate());
+  Eigen::AngleAxis<typename D::Scalar> angle_axis(q);
 
   return (angle_axis.angle() * angle_axis.axis()).norm();
 }
