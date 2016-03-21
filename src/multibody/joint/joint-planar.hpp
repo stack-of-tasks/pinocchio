@@ -381,9 +381,17 @@ namespace se3
       return ConfigVector_t((1-u) * q_1 + u * q_2);
     }
 
-    ConfigVector_t random_impl() const
+    ConfigVector_t random_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const
     { 
-      return ConfigVector_t::Random();
+      ConfigVector_t result(ConfigVector_t::Random());
+      for (long i = 0; i < result.size(); i++)
+      {
+        if( *(result.data()+i) < lower_pos_limit[i])
+          *(result.data()+i) = lower_pos_limit[i];
+        if( *(result.data()+i) > upper_pos_limit[i])
+          *(result.data()+i) = upper_pos_limit[i];
+      }
+      return result;
     } 
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const

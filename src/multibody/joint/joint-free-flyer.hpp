@@ -275,7 +275,7 @@ namespace se3
       return result; 
     }
 
-    ConfigVector_t random_impl() const
+    ConfigVector_t random_impl(const ConfigVector_t & , const ConfigVector_t & ) const
     { 
       ConfigVector_t q(ConfigVector_t::Random());
       q.segment<4>(3).normalize();// /= q.segment<4>(3).norm();

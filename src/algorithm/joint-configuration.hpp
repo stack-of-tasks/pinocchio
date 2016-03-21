@@ -303,14 +303,16 @@ namespace se3
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointData> &,
-                     const se3::Model &,
+                     const se3::Model & model,
                      se3::Data &,
                      Eigen::VectorXd & config) 
     {
       using namespace Eigen;
       using namespace se3;
       
-      jmodel.jointConfigSelector(config) = jmodel.random();
+      jmodel.jointConfigSelector(config) = jmodel.random(jmodel.jointConfigSelector(model.lowerPositionLimit),
+                                                          jmodel.jointConfigSelector(model.upperPositionLimit)
+                                                          );
     }
 
   };

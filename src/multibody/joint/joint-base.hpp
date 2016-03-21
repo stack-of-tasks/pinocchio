@@ -282,8 +282,8 @@ namespace se3
      *
      * @return     The joint configuration
      */
-    ConfigVector_t random() const
-    { return derived().random_impl(); } 
+    ConfigVector_t random(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit) const
+    { return derived().random_impl(lower_pos_limit, upper_pos_limit); } 
 
 
     
