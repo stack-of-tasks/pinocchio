@@ -21,8 +21,6 @@
 
 #include <cmath>
 
-# include <Eigen/Geometry>
-
 #ifdef __linux__
   #define SINCOS sincos
 #elif __APPLE__
