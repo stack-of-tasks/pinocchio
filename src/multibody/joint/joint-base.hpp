@@ -258,7 +258,7 @@ namespace se3
      *
      * @return     The configuration integrated
      */
-    const ConfigVector_t integrate(const Eigen::VectorXd & q,const Eigen::VectorXd & v) const
+    ConfigVector_t integrate(const Eigen::VectorXd & q,const Eigen::VectorXd & v) const
     { return derived().integrate_impl(q, v); } 
 
 
@@ -271,7 +271,7 @@ namespace se3
      *
      * @return     The interpolated configuration (q1 if u = 0, q2 if u = 1)
      */
-    const ConfigVector_t interpolate(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, double u) const
+    ConfigVector_t interpolate(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, double u) const
     { return derived().interpolate_impl(q1, q2, u); }
 
 
@@ -282,7 +282,7 @@ namespace se3
      *
      * @return     The joint configuration
      */
-    const ConfigVector_t random() const
+    ConfigVector_t random() const
     { return derived().random_impl(); } 
 
 
@@ -295,7 +295,7 @@ namespace se3
      *
      * @return     The corresponding velocity
      */
-    const TangentVector_t difference(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    TangentVector_t difference(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
     { return derived().difference_impl(q1, q2); } 
 
     /**

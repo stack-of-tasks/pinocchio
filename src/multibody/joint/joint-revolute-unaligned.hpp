@@ -358,7 +358,7 @@ namespace se3
         I -= data.UDinv * data.U.transpose();
     }
 
-    const ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
+    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {
       const Scalar_t & q = qs[idx_q()];
       const Scalar_t & v = vs[idx_v()];
@@ -368,7 +368,7 @@ namespace se3
       return result; 
     }
 
-    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, const double u) const
+    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, const double u) const
     { 
       const Scalar_t & q_1 = q1[idx_q()];
       const Scalar_t & q_2 = q2[idx_q()];
@@ -378,12 +378,12 @@ namespace se3
       return result; 
     }
 
-    const ConfigVector_t random_impl() const
+    ConfigVector_t random_impl() const
     { 
       return ConfigVector_t::Random();
     }
 
-    const TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
     { 
       const Scalar_t & q_1 = q1[idx_q()];
       const Scalar_t & q_2 = q2[idx_q()];

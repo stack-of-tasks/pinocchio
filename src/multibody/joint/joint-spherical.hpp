@@ -303,7 +303,7 @@ namespace se3
       }
     }
 
-    const ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
+    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {
       Motion_t::Quaternion_t q(qs.segment<NQ>(idx_q()));
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
@@ -320,7 +320,7 @@ namespace se3
       return result; 
     }
 
-    const ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, const double u) const
+    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, const double u) const
     { 
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
@@ -340,14 +340,14 @@ namespace se3
       return result;
     }
 
-    const ConfigVector_t random_impl() const
+    ConfigVector_t random_impl() const
     { 
       ConfigVector_t q(ConfigVector_t::Random());
       q.normalize();
       return q;
     } 
 
-    const TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
     { 
       // Compute rotation vector between q2 and q1.
       Motion_t::Quaternion_t p1 (q1.segment<NQ>(idx_q()));

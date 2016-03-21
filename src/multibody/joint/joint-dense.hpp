@@ -140,28 +140,28 @@ namespace se3
       assert(false && "JointModelDense is read-only, should not perform any calc");
     }
 
-    const ConfigVector_t integrate_impl(const Eigen::VectorXd &,const Eigen::VectorXd &) const
+    ConfigVector_t integrate_impl(const Eigen::VectorXd &,const Eigen::VectorXd &) const
     { 
       ConfigVector_t result;
       assert(false && "JointModelDense is read-only, should not perform any calc");
       return result; 
     } 
 
-    const ConfigVector_t interpolate_impl(const Eigen::VectorXd &,const Eigen::VectorXd &, double) const
+    ConfigVector_t interpolate_impl(const Eigen::VectorXd &,const Eigen::VectorXd &, double) const
     { 
       ConfigVector_t result;
       assert(false && "JointModelDense is read-only, should not perform any calc");
       return result; 
     }
 
-    const ConfigVector_t random_impl() const
+    ConfigVector_t random_impl() const
     { 
       ConfigVector_t result;
       assert(false && "JointModelDense is read-only, should not perform any calc");
       return result; 
     } 
 
-    const TangentVector_t difference_impl(const Eigen::VectorXd &,const Eigen::VectorXd &) const
+    TangentVector_t difference_impl(const Eigen::VectorXd &,const Eigen::VectorXd &) const
     { 
       TangentVector_t result;
       assert(false && "JointModelDense is read-only, should not perform any calc");
