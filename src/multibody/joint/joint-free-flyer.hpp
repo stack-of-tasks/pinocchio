@@ -267,19 +267,14 @@ namespace se3
       result.head<3>() << ((1-u)*q_1.head<3>() + u * q_2.head<3>());
 
       //Quaternion part
-      double theta = angleBetweenQuaternions (q_1.segment<4>(3), q_2.segment<4>(3));
-      Motion_t::Vector4 quaternion_result;
-
-      if (fabs (theta) > 1e-6)
-      {
-        double sin_theta = sin(theta);
-        result.tail<4>() << (sin ((1-u)*theta)/sin_theta) * q_1.segment<4>(3) 
-                              + (sin (u*theta)/sin_theta) * q_2.segment<4>(3);
-      } 
-      else
-      {
-        result.tail<4>() << (1-u) * q_1.segment<4>(3) + u * q_2.segment<4>(3);
-      }
+      Motion_t::Quaternion_t p1 (q_1.segment<4>(3));
+      Motion_t::Quaternion_t p2 (q_2.segment<4>(3));
+      Motion_t::Quaternion_t quaternion_result(p1.slerp(u, p2));
+      
+      result[3] = quaternion_result.x();
+      result[4] = quaternion_result.y();
+      result[5] = quaternion_result.z();
+      result[6] = quaternion_result.w();
 
       return result; 
     }

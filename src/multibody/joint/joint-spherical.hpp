@@ -325,18 +325,15 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
 
-      double theta = angleBetweenQuaternions (q_1, q_2);
-      ConfigVector_t result;
+      Motion_t::Quaternion_t p1 (q_1.segment<4>(3));
+      Motion_t::Quaternion_t p2 (q_2.segment<4>(3));
+      Motion_t::Quaternion_t quaternion_result(p1.slerp(u, p2));
 
-      if (fabs (theta) > 1e-6)
-      {
-        result = (sin ((1-u)*theta)/sin (theta)) * q_1 +
-                 (sin (u*theta)/sin (theta)) * q_2;
-      } 
-      else
-      {
-        result = (1-u) * q_1+ u * q_2;
-      }
+      ConfigVector_t result(quaternion_result.x(),
+                            quaternion_result.y(),
+                            quaternion_result.z(),
+                            quaternion_result.w());
+
       return result;
     }
 

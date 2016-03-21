@@ -46,37 +46,6 @@
 #include <boost/test/unit_test.hpp>
 
 
-Eigen::Quaterniond slerp(const Eigen::Quaterniond & q1, const Eigen::Quaterniond & q2,double t)
-{
-    double theta = angleBetweenQuaternions(Eigen::Vector4d(q1.x(),q1.y(),q1.z(),q1.w()),
-                                            Eigen::Vector4d(q2.x(),q2.y(),q2.z(),q2.w())
-                                            );
-    double mult1,mult2,sintheta;
-    // lorsque theta est très petit,on fait une LERP
-    // cela permet d'éviter la division par 0
-    if (theta > 0.000001)
-    {
-        sintheta=sin(theta);
-        mult1 = sin( (1-t)*theta );
-        mult2 = sin( t*theta );
-    }
-    else
-    {
-        mult1 = 1 - t;
-        mult2 = t;
-        sintheta=1;
-    }
-    mult1 /= sintheta;
-    mult2 /= sintheta;
-
-    Eigen::Quaterniond quat_interpolation(mult1 * q1.w() + mult2*q2.w(),
-                                          mult1 * q1.x() + mult2*q2.x(),
-                                          mult1 * q1.y() + mult2*q2.y(),
-                                          mult1 * q1.z() + mult2*q2.z()
-                                          );
-    return quat_interpolation;
-}
-
 BOOST_AUTO_TEST_SUITE ( JointConfigurationsTest )
 
 BOOST_AUTO_TEST_CASE ( integration_test )
@@ -175,8 +144,8 @@ BOOST_AUTO_TEST_CASE ( interpolation_test )
 
 
   // u between 0 and 1
-  Eigen::Quaterniond quat_ff__int = slerp(quat_ff_1, quat_ff_2, u);
-  Eigen::Quaterniond quat_spherical_int = slerp(quat_spherical_1, quat_spherical_2, u);
+  Eigen::Quaterniond quat_ff__int = quat_ff_1.slerp(u, quat_ff_2);
+  Eigen::Quaterniond quat_spherical_int = quat_spherical_1.slerp(u, quat_spherical_2);
 
   expected.head<3>() = (1-u) * q1.head<3>() + u*q2.head<3>();
   expected[3] = quat_ff__int.x();expected[4] = quat_ff__int.y(); expected[5] = quat_ff__int.z(); expected[6] = quat_ff__int.w(); 
