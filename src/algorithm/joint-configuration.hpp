@@ -28,7 +28,7 @@ namespace se3
    * @brief      Integrate the model for a constant derivative during unit time
    *
    * @param[in]  model   Model that must be integrated
-   * @param      data    Corresponding Data to the Model
+   * @param[in]  data    Corresponding Data to the Model
    * @param[in]  q       Initial configuration (size model.nq)
    * @param[in]  v       Velocity (size model.nv)
    * @param      result  Resulting configuration result (size model.nq)
@@ -44,7 +44,7 @@ namespace se3
    * @brief      Interpolate the model between two configurations
    *
    * @param[in]  model   Model to be interpolated
-   * @param      data    Corresponding Data to the Model
+   * @param[in]  data    Corresponding Data to the Model
    * @param[in]  q1      Initial configuration vector (size model.nq)
    * @param[in]  q2      Final configuration vector (size model.nq)
    * @param[in]  u       u in [0;1] position along the interpolation.
@@ -62,7 +62,7 @@ namespace se3
    * @brief      the constant derivative that must be integrated during unit time to go from q2 to q1
    *
    * @param[in]  model   Model to be differentiated
-   * @param      data    Corresponding Data to the Model
+   * @param[in]  data    Corresponding Data to the Model
    * @param[in]  q1      Wished configuration (size model.nq)
    * @param[in]  q2      Initial configuration (size model.nq)
    * @param      result  The corresponding velocity (size model.nv)
@@ -78,7 +78,7 @@ namespace se3
    * @brief      Distance between two configuration vectors
    *
    * @param[in]  model      Model we want to compute the distance
-   * @param      data       Corresponding Data to the Model
+   * @param[in]  data       Corresponding Data to the Model
    * @param[in]  q1         Configuration 1 (size model.nq)
    * @param[in]  q2         Configuration 2 (size model.nq)
    * @param      distances  The corresponding distances for each joint (size model.nbody-1 = number of joints)
@@ -94,7 +94,7 @@ namespace se3
    * @brief      Generate a random configuration vector.
    *
    * @param[in]  model   Model we want to generate a configuration vector of
-   * @param      data    Corresponding Data to the Model
+   * @param[in]  data    Corresponding Data to the Model
    * @param      config  The resulted configuration vector (size model.nq)
    */
   inline void random(const Model & model,
