@@ -342,8 +342,8 @@ namespace se3
 
     const ConfigVector_t random_impl() const
     { 
-      ConfigVector_t q = ConfigVector_t::Random();
-      q /= q.norm();
+      ConfigVector_t q(ConfigVector_t::Random());
+      q.normalize();
       return q;
     } 
 

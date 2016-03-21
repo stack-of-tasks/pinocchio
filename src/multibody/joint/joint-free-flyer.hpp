@@ -244,9 +244,8 @@ namespace se3
 
       // Quaternion part
       Motion_t::Quaternion_t quat(q.tail<4>());
-      Motion_t::Vector3 omega(q_dot.tail<3>());
 
-      Motion_t::Quaternion_t pOmega(se3::exp3(omega));
+      Motion_t::Quaternion_t pOmega(se3::exp3(Motion_t::Vector3(q_dot.tail<3>())));
 
       Motion_t::Quaternion_t quaternion_result(pOmega*quat);
 
@@ -274,23 +273,21 @@ namespace se3
       if (fabs (theta) > 1e-6)
       {
         double sin_theta = sin(theta);
-        quaternion_result = (sin ((1-u)*theta)/sin_theta) * q_1.segment<4>(3) 
+        result.tail<4>() << (sin ((1-u)*theta)/sin_theta) * q_1.segment<4>(3) 
                               + (sin (u*theta)/sin_theta) * q_2.segment<4>(3);
       } 
       else
       {
-        quaternion_result = (1-u) * q_1.segment<4>(3) + u * q_2.segment<4>(3);
+        result.tail<4>() << (1-u) * q_1.segment<4>(3) + u * q_2.segment<4>(3);
       }
-
-      result.tail<4>() << quaternion_result;
 
       return result; 
     }
 
     const ConfigVector_t random_impl() const
     { 
-      ConfigVector_t q = ConfigVector_t::Random();
-      q.segment<4>(3) /= q.segment<4>(3).norm();
+      ConfigVector_t q(ConfigVector_t::Random());
+      q.segment<4>(3).normalize();// /= q.segment<4>(3).norm();
       return q;
     } 
 
