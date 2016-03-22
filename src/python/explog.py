@@ -15,9 +15,11 @@
 # Pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
 
-import libpinocchio_pywrap as se3
-import numpy as np
 import math
+
+import numpy as np
+
+import libpinocchio_pywrap as se3
 
 
 def exp(x):
@@ -25,10 +27,10 @@ def exp(x):
         return se3.exp6FromMotion(x)
     if np.isscalar(x):
         return math.exp(x)
-    if isinstance(x, np.matrix):
-        if len(x) == 6:
+    if isinstance(x, np.ndarray):
+        if x.shape == (6, 1):
             return se3.exp6FromVector(x)
-        if len(x) == 3:
+        if x.shape == (3, 1):
             return se3.exp3(x)
         raise ValueError('Error only 3 and 6 vectors are allowed.')
     raise ValueError('Error exp is only defined for real, vector3, vector6 and se3.Motion objects.')
@@ -39,7 +41,7 @@ def log(x):
         return se3.log6FromSE3(x)
     if np.isscalar(x):
         return math.log(x)
-    if isinstance(x, np.matrix):
+    if isinstance(x, np.ndarray):
         if len(x) == 4:
             return se3.log6FromMatrix(x)
         if len(x) == 3:

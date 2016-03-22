@@ -1,9 +1,9 @@
-language: python
+language: cpp
 python:
-- "2.7"
+  - "2.7"
 sudo: required
 compiler:
-- gcc
+  - gcc
 # - clang
 env:
   global:
@@ -17,22 +17,28 @@ env:
     - BUILDTYPE=Minsizerel
 notifications:
 email:
-- hpp-source@laas.fr
+  - hpp-source@laas.fr
 branches:
 only:
-- master
-- debian
-- devel
+  - master
+  - debian
+  - devel
 matrix:
 allow_failures:
-- compiler:
+  - compiler:
+before_install: ./travis_custom/custom_before_install
+install:
+  - pip install --user coveralls
 script:
   - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE}"
   - sudo free -m -t
   - travis_wait ./.travis/run ../travis_custom/custom_build
-  - export PYTHONPATH=/tmp/_ci/install/lib/python2.7/site-packages
-  - python ./python/bindings.py
-  - python ./python/test_model.py
-after_success: ./.travis/run after_success
 after_failure: ./.travis/run after_failure
-before_install: ./travis_custom/custom_before_install
+after_success:
+  - ./.travis/run after_success
+  #- export PYTHONPATH=$install_dir/lib/python2.7/site-packages
+  #- coveralls-lcov -v -n $build_dir/coverage.info > coverage.json
+  - export PYTHONPATH=/tmp/_ci/install/lib/python2.7/site-packages
+  - coveralls-lcov -v -n /tmp/_ci/build/coverage.info > coverage.json
+  - coverage run ./python/tests.py
+  - coveralls --merge=coverage.json
