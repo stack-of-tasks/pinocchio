@@ -37,6 +37,7 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/multibody/parser/urdf.hpp"
 #include "pinocchio/spatial/explog.hpp"
+#include "pinocchio/math/quaternion.hpp"
 
 #include <vector>
 
@@ -317,9 +318,7 @@ BOOST_AUTO_TEST_CASE ( distance_computation_test )
   Motion::Quaternion_t p_ff_1 (quat_ff_1);
   Motion::Quaternion_t p_ff_2 (quat_ff_2);
 
-  Motion::Quaternion_t p_ff (p_ff_1*p_ff_2.conjugate());
-  Eigen::AngleAxis<double> angle_axis_ff(p_ff);
-  double angle_quat_ff = angle_axis_ff.angle();
+  double angle_quat_ff = 2*angleBetweenQuaternions(p_ff_1, p_ff_2);
   double dist_ff = sqrt(pow((q1.head<3>() - q2.head<3>()).norm(),2) + pow(angle_quat_ff,2) );
   // Other ways to compute quaternion angle :
   // 1/

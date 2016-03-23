@@ -15,24 +15,16 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __math_quaternion_hpp__
-#define __math_quaternion_hpp__
+#ifndef __math_fwd_hpp__
+#define __math_fwd_hpp__
 
-#include "pinocchio/math/fwd.hpp"
+#include <cmath>
 
-/// Compute minimal angle between q1 and q2 or between q1 and -q2
-///
-/// \param q1, q2, unit quaternions
-/// \return angle between both quaternions
-template <typename D>
-D angleBetweenQuaternions(const Eigen::Quaternion< D> & q1,
-                          const Eigen::Quaternion< D> & q2)
-{
-  double innerprod = q1.dot(q2);
-  double theta = acos(innerprod);
-  if (innerprod < 0)
-    theta = PI - theta;
-  return theta;
-}
+# include <Eigen/Geometry>
+#include <boost/math/constants/constants.hpp>
 
-#endif //#ifndef __math_quaternion_hpp__
+
+static const double PI = boost::math::constants::pi<double>();
+
+
+#endif //#ifndef __math_fwd_hpp__
