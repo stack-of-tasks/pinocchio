@@ -347,7 +347,7 @@ namespace se3
     TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
     { 
       // Compute relative rotation between q2 and q1.
-      const int invertor = (q1.segment<4>(3).dot(q2.segment<4>(3)) < 0 ) ? -1: 1 ;
+      const int invertor = (q1.segment<NQ> (idx_q ()).dot(q2.segment<NQ> (idx_q ())) < 0 ) ? -1: 1 ;
       Motion_t::Quaternion_t p1 (invertor * q1.segment<NQ>(idx_q()));
       Motion_t::Quaternion_t p2 (q2.segment<NQ>(idx_q()));
 
