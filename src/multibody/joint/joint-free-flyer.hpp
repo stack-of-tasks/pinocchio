@@ -297,14 +297,14 @@ namespace se3
 
       // Quaternion part
       // Compute relative rotation between q2 and q1.
-      Motion_t::Quaternion_t p1 (q_1.segment<4>(3));
+      const int invertor = (q_1.segment<4>(3).dot(q_2.segment<4>(3)) < 0 ) ? -1: 1 ;
+      Motion_t::Quaternion_t p1 (invertor * q_1.segment<4>(3));
       Motion_t::Quaternion_t p2 (q_2.segment<4>(3));
 
       Motion_t::Quaternion_t p (p1*p2.conjugate());
       Eigen::AngleAxis<Scalar_t> angle_axis(p);
 
       result.tail<3>() << angle_axis.angle() * angle_axis.axis() ;
-
       return result; 
     } 
 

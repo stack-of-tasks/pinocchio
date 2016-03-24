@@ -42,6 +42,27 @@
 #include <vector>
 
 
+bool quaternion_are_same_rotation(const Eigen::VectorXd & quat1, const Eigen::VectorXd & quat2)
+{
+  return (quat1 == quat2 || quat1 == -quat2 );
+}
+
+bool configurations_are_equals(const Eigen::VectorXd & conf1, const Eigen::VectorXd & conf2)
+{
+  if ( ! conf1.segment<3>(0).isApprox(conf2.segment<3>(0)) )
+    return false;
+  if( ! quaternion_are_same_rotation(conf1.segment<4>(3), conf2.segment<4>(3)))
+    return false;
+  if( ! quaternion_are_same_rotation(conf1.segment<4>(7), conf2.segment<4>(7)))
+    return false;
+  for (int i = 11; i < conf1.size(); ++i)
+  {
+    if (conf1[i] != conf2[i])
+      return false;
+  }
+  return true;
+}
+
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE JointConfigurationsTest
 #include <boost/test/unit_test.hpp>
@@ -203,7 +224,7 @@ BOOST_AUTO_TEST_CASE ( interpolation_test )
 
   interpolate(model, data,q1,q2,u,result);
 
-  assert(result.isApprox(q2) && "interpolation with u = 1 - wrong results");
+  assert(configurations_are_equals(result, q2)  && "interpolation with u = 1 - wrong results" );
 }
 
 BOOST_AUTO_TEST_CASE ( differentiation_test )
@@ -331,7 +352,7 @@ BOOST_AUTO_TEST_CASE ( distance_computation_test )
   Motion::Quaternion_t p_spherical_2 (quat_spherical_2);
 
   Motion::Quaternion_t p_spherical (p_spherical_1*p_spherical_2.conjugate());
-  double dist_quat_spherical = 2*atan2(p_spherical.vec().norm(), p_spherical.w());;
+  double dist_quat_spherical = 2*angleBetweenQuaternions(p_spherical_1, p_spherical_2);
 
   expected << dist_ff,
               dist_quat_spherical,
