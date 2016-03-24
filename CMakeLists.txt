@@ -80,7 +80,9 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
 
 SET(${PROJECT_NAME}_MATH_HEADERS
+  math/fwd.hpp
   math/sincos.hpp
+  math/quaternion.hpp
   )
 
 SET(${PROJECT_NAME}_TOOLS_HEADERS
@@ -148,7 +150,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/center-of-mass.hpp
   algorithm/center-of-mass.hxx
   algorithm/non-linear-effects.hpp
-  algorithm/joint-limits.hpp
+  algorithm/joint-configuration.hpp
   algorithm/energy.hpp
   algorithm/operational-frames.hpp
   )

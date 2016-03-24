@@ -1,6 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,18 +15,16 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __math_sincos_hpp__
-#define __math_sincos_hpp__
+#ifndef __math_fwd_hpp__
+#define __math_fwd_hpp__
 
 #include <cmath>
 
-#ifdef __linux__
-  #define SINCOS sincos
-#elif __APPLE__
-  #define SINCOS __sincos
-#else // if sincos specialization does not exist
-  #define SINCOS(a,sa,ca) (*sa) = std::sin(a); (*ca) = std::cos(a)
-#endif
+# include <Eigen/Geometry>
+#include <boost/math/constants/constants.hpp>
 
 
-#endif //#ifndef __math_sincos_hpp__
+static const double PI = boost::math::constants::pi<double>();
+
+
+#endif //#ifndef __math_fwd_hpp__

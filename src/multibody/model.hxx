@@ -69,6 +69,11 @@ namespace se3
     bodyNames      .push_back( (bodyName!="")?bodyName:random(8));
     nq += j.nq();
     nv += j.nv();
+
+    effortLimit.conservativeResize(nv);effortLimit.bottomRows<D::NV>().fill(std::numeric_limits<double>::infinity());
+    velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>().fill(std::numeric_limits<double>::infinity());
+    lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>().fill(-std::numeric_limits<double>::infinity());
+    upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows<D::NQ>().fill(std::numeric_limits<double>::infinity());
     return idx;
   }
 
@@ -83,17 +88,16 @@ namespace se3
     assert( (nbody==(int)joints.size())&&(nbody==(int)inertias.size())
 	    &&(nbody==(int)parents.size())&&(nbody==(int)jointPlacements.size()) );
     assert( (j.nq()>=0)&&(j.nv()>=0) );
+    
+    assert( effort.size() == j.nv() && velocity.size() == j.nv()
+      && lowPos.size() == j.nq() && upPos.size() == j.nq() );
+
 
     Model::JointIndex idx = (Model::JointIndex) (nbody ++);
 
     joints         .push_back(j.derived()); 
     boost::get<D>(joints.back()).setIndexes((int)idx,nq,nv);
 
-    boost::get<D>(joints.back()).setMaxEffortLimit(effort);
-    boost::get<D>(joints.back()).setMaxVelocityLimit(velocity);
-
-    boost::get<D>(joints.back()).setLowerPositionLimit(lowPos);
-    boost::get<D>(joints.back()).setUpperPositionLimit(upPos);
 
     inertias       .push_back(Y);
     parents        .push_back(parent);
@@ -103,6 +107,11 @@ namespace se3
     bodyNames      .push_back( (bodyName!="")?bodyName:random(8));
     nq += j.nq();
     nv += j.nv();
+
+    effortLimit.conservativeResize(nv);effortLimit.bottomRows<D::NV>() = effort;
+    velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>() = velocity;
+    lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>() = lowPos;
+    upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows<D::NQ>() = upPos;
     return idx;
   }
 
@@ -275,10 +284,6 @@ namespace se3
     ,acom((std::size_t)ref.nbody)
     ,mass((std::size_t)ref.nbody)
     ,Jcom(3,ref.nv)
-    ,effortLimit(ref.nq)
-    ,velocityLimit(ref.nv)
-    ,lowerPositionLimit(ref.nq)
-    ,upperPositionLimit(ref.nq)
     ,JMinvJt()
     ,llt_JMinvJt()
     ,lambda()

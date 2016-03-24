@@ -1,6 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,18 +15,24 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __math_sincos_hpp__
-#define __math_sincos_hpp__
+#ifndef __math_quaternion_hpp__
+#define __math_quaternion_hpp__
 
-#include <cmath>
+#include "pinocchio/math/fwd.hpp"
 
-#ifdef __linux__
-  #define SINCOS sincos
-#elif __APPLE__
-  #define SINCOS __sincos
-#else // if sincos specialization does not exist
-  #define SINCOS(a,sa,ca) (*sa) = std::sin(a); (*ca) = std::cos(a)
-#endif
+/// Compute minimal angle between q1 and q2 or between q1 and -q2
+///
+/// \param q1, q2, unit quaternions
+/// \return angle between both quaternions
+template <typename D>
+D angleBetweenQuaternions(const Eigen::Quaternion< D> & q1,
+                          const Eigen::Quaternion< D> & q2)
+{
+  double innerprod = q1.dot(q2);
+  double theta = acos(innerprod);
+  if (innerprod < 0)
+    theta = PI - theta;
+  return theta;
+}
 
-
-#endif //#ifndef __math_sincos_hpp__
+#endif //#ifndef __math_quaternion_hpp__

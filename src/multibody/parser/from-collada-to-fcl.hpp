@@ -216,7 +216,7 @@ namespace se3
 
     std::string absolutePath;
     // concatenate package_path with mesh filename
-    for (int i = 0; i < package_dirs.size(); ++i)
+    for (std::size_t i = 0; i < package_dirs.size(); ++i)
     {
       if ( bf::exists( bf::path(package_dirs[i] +  urdf_mesh_path.substr(9, urdf_mesh_path.size()))))
       {

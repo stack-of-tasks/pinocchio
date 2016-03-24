@@ -26,6 +26,8 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
 
+#include <stdexcept>
+
 namespace se3
 {
 
@@ -246,6 +248,9 @@ namespace se3
     typedef Eigen::Matrix<double,6,NV> U_t;
     typedef Eigen::Matrix<double,NV,NV> D_t;
     typedef Eigen::Matrix<double,6,NV> UD_t;
+
+    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
   template<> struct traits<JointDataSphericalZYX> { typedef JointSphericalZYX Joint; };
   template<> struct traits<JointModelSphericalZYX> { typedef JointSphericalZYX Joint; };
@@ -289,11 +294,9 @@ namespace se3
     using JointModelBase<JointModelSphericalZYX>::id;
     using JointModelBase<JointModelSphericalZYX>::idx_q;
     using JointModelBase<JointModelSphericalZYX>::idx_v;
-    using JointModelBase<JointModelSphericalZYX>::lowerPosLimit;
-    using JointModelBase<JointModelSphericalZYX>::upperPosLimit;
-    using JointModelBase<JointModelSphericalZYX>::maxEffortLimit;
-    using JointModelBase<JointModelSphericalZYX>::maxVelocityLimit;
     using JointModelBase<JointModelSphericalZYX>::setIndexes;
+    typedef Motion::Vector3 Vector3;
+    typedef double Scalar_t;
 
     JointData createData() const { return JointData(); }
 
@@ -361,15 +364,69 @@ namespace se3
         I -= data.UDinv * data.U.transpose();
     }
 
+    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
+    {
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
+
+
+      return(q + q_dot);
+    }
+
+    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, const double u) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return ((1-u) * q_1 + u * q_2);
+    }
+
+    ConfigVector_t random_impl() const
+    { 
+      ConfigVector_t result(ConfigVector_t::Random());
+      return result;
+    } 
+
+    ConfigVector_t uniformlySample_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const
+    { 
+      ConfigVector_t result;
+      for (int i = 0; i < result.size(); ++i)
+      {
+        if(lower_pos_limit[i] == -std::numeric_limits<double>::infinity() || 
+            upper_pos_limit[i] == std::numeric_limits<double>::infinity() )
+        {
+          std::ostringstream error;
+          error << "non bounded limit. Cannot uniformly sample joint nb " << id() ;
+          assert(false && "non bounded limit. Cannot uniformly sample joint spherical ZYX");
+          throw std::runtime_error(error.str());
+        }
+        result[i] = lower_pos_limit[i] + ( upper_pos_limit[i] - lower_pos_limit[i]) * rand()/RAND_MAX;
+      }
+      return result;
+    } 
+
+    TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return ( q_1 - q_2);
+
+    } 
+
+    double distance_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return (q_1 - q_2).norm();
+    }
+    
     JointModelDense<NQ, NV> toDense_impl() const
     {
       return JointModelDense<NQ, NV>( id(),
                                       idx_q(),
-                                      idx_v(),
-                                      lowerPosLimit(),
-                                      upperPosLimit(),
-                                      maxEffortLimit(),
-                                      maxVelocityLimit()
+                                      idx_v()
                                     );
     }
 
@@ -388,11 +445,7 @@ namespace se3
     {
       return jmodel.id() == id()
               && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v()
-              && jmodel.lowerPosLimit() == lowerPosLimit()
-              && jmodel.upperPosLimit() == upperPosLimit()
-              && jmodel.maxEffortLimit() == maxEffortLimit()
-              && jmodel.maxVelocityLimit() == maxVelocityLimit();
+              && jmodel.idx_v() == idx_v();
     }
 
   }; // struct JointModelSphericalZYX

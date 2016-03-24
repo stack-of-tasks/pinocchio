@@ -22,6 +22,11 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
+#include "pinocchio/spatial/explog.hpp"
+#include "pinocchio/math/fwd.hpp"
+#include "pinocchio/math/quaternion.hpp"
+
+#include <stdexcept>
 
 namespace se3
 {
@@ -147,6 +152,9 @@ namespace se3
     typedef Eigen::Matrix<double,6,NV> U_t;
     typedef Eigen::Matrix<double,NV,NV> D_t;
     typedef Eigen::Matrix<double,6,NV> UD_t;
+
+    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
   template<> struct traits<JointDataFreeFlyer> { typedef JointFreeFlyer Joint; };
   template<> struct traits<JointModelFreeFlyer> { typedef JointFreeFlyer Joint; };
@@ -188,11 +196,9 @@ namespace se3
     using JointModelBase<JointModelFreeFlyer>::id;
     using JointModelBase<JointModelFreeFlyer>::idx_q;
     using JointModelBase<JointModelFreeFlyer>::idx_v;
-    using JointModelBase<JointModelFreeFlyer>::lowerPosLimit;
-    using JointModelBase<JointModelFreeFlyer>::upperPosLimit;
-    using JointModelBase<JointModelFreeFlyer>::maxEffortLimit;
-    using JointModelBase<JointModelFreeFlyer>::maxVelocityLimit;
     using JointModelBase<JointModelFreeFlyer>::setIndexes;
+    typedef Motion::Vector3 Vector3;
+    typedef double Scalar_t;
 
     JointData createData() const { return JointData(); }
     void calc( JointData& data,
@@ -226,15 +232,120 @@ namespace se3
         I.setZero();
     }
 
+    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
+
+      ConfigVector_t result;
+      // Translational part
+      result.head<3>() =  (q.head<3>() + q_dot.head<3>());
+
+      // Quaternion part
+      Motion_t::Quaternion_t quat(q.tail<4>());
+
+      Motion_t::Quaternion_t pOmega(se3::exp3(Motion_t::Vector3(q_dot.tail<3>())));
+
+      Motion_t::Quaternion_t quaternion_result(pOmega*quat);
+
+      result[3] = quaternion_result.x();
+      result[4] = quaternion_result.y();
+      result[5] = quaternion_result.z();
+      result[6] = quaternion_result.w();
+
+      return result; 
+    } 
+
+    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, const double u) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      ConfigVector_t result;
+      // Translational part
+      result.head<3>() << ((1-u)*q_1.head<3>() + u * q_2.head<3>());
+
+      //Quaternion part
+      Motion_t::Quaternion_t p1 (q_1.segment<4>(3));
+      Motion_t::Quaternion_t p2 (q_2.segment<4>(3));
+      Motion_t::Quaternion_t quaternion_result(p1.slerp(u, p2));
+      
+      result[3] = quaternion_result.x();
+      result[4] = quaternion_result.y();
+      result[5] = quaternion_result.z();
+      result[6] = quaternion_result.w();
+
+      return result; 
+    }
+
+    ConfigVector_t random_impl() const
+    { 
+      ConfigVector_t q(ConfigVector_t::Random());
+      q.segment<4>(3).normalize();// /= q.segment<4>(3).norm();
+      return q;
+    } 
+
+    ConfigVector_t uniformlySample_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const
+    {
+      ConfigVector_t result;
+      // Translational Part
+      for (int i = 0; i < 3; ++i)
+      {
+        if(lower_pos_limit[i] == -std::numeric_limits<double>::infinity() || 
+            upper_pos_limit[i] == std::numeric_limits<double>::infinity() )
+        {
+          std::ostringstream error;
+          error << "non bounded limit. Cannot uniformly sample joint nb " << id() ;
+          assert(false && "non bounded limit. Cannot uniformly sample joint freeflyer" );
+          throw std::runtime_error(error.str());
+        }
+        result[i] = lower_pos_limit[i] + ( upper_pos_limit[i] - lower_pos_limit[i]) * rand()/RAND_MAX;
+      }
+
+      // Quaternion Part
+      double u1 = (double)rand() / RAND_MAX;
+      double u2 = (double)rand() / RAND_MAX;
+      double u3 = (double)rand() / RAND_MAX;
+      
+      result.segment<4>(3) << sqrt (1-u1)*sin(2*PI*u2),
+                              sqrt (1-u1)*cos(2*PI*u2),
+                              sqrt (u1) * sin(2*PI*u3),
+                              sqrt (u1) * cos(2*PI*u3);
+      return result;
+    }
+
+    TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      TangentVector_t result;
+      // Translational part
+      result.head<3>() << (q_1.segment<3>(0) - q_2.segment<3>(0));
+
+      // Quaternion part
+      // Compute relative rotation between q2 and q1.
+      const int invertor = (q_1.segment<4>(3).dot(q_2.segment<4>(3)) < 0 ) ? -1: 1 ;
+      Motion_t::Quaternion_t p1 (invertor * q_1.segment<4>(3));
+      Motion_t::Quaternion_t p2 (q_2.segment<4>(3));
+
+      Motion_t::Quaternion_t p (p1*p2.conjugate());
+      Eigen::AngleAxis<Scalar_t> angle_axis(p);
+
+      result.tail<3>() << angle_axis.angle() * angle_axis.axis() ;
+      return result; 
+    } 
+
+    double distance_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+      return difference_impl(q1,q2).norm();
+    } 
+
     JointModelDense<NQ, NV> toDense_impl() const
     {
       return JointModelDense<NQ, NV>( id(),
                                       idx_q(),
-                                      idx_v(),
-                                      lowerPosLimit(),
-                                      upperPosLimit(),
-                                      maxEffortLimit(),
-                                      maxVelocityLimit()
+                                      idx_v()
                                     );
     }
 
@@ -253,11 +364,7 @@ namespace se3
     {
       return jmodel.id() == id()
               && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v()
-              && jmodel.lowerPosLimit() == lowerPosLimit()
-              && jmodel.upperPosLimit() == upperPosLimit()
-              && jmodel.maxEffortLimit() == maxEffortLimit()
-              && jmodel.maxVelocityLimit() == maxVelocityLimit();
+              && jmodel.idx_v() == idx_v();
     }
   }; // struct JointModelFreeFlyer
 

@@ -33,9 +33,8 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/operational-frames.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
-#include "pinocchio/algorithm/joint-limits.hpp"
 #include "pinocchio/algorithm/energy.hpp"
-
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/simulation/compute-all-terms.hpp"
 
 #ifdef WITH_HPP_FCL
@@ -237,12 +236,6 @@ namespace se3
         = data->M.transpose().triangularView<Eigen::StrictlyLower>();
       }
 
-      static void jointLimits_proxy(const ModelHandler & model,
-                                    DataHandler & data,
-                                    const VectorXd_fx & q)
-      {
-        jointLimits(*model,*data,q);
-      }
       
       static double kineticEnergy_proxy(const ModelHandler & model,
                                         DataHandler & data,
@@ -261,6 +254,56 @@ namespace se3
         return potentialEnergy(*model,*data,q,update_kinematics);
       }
 
+      static void integrate_proxy(const ModelHandler & model,
+                                      DataHandler & data,
+                                      const VectorXd_fx & q,
+                                      const VectorXd_fx & v,
+                                      Eigen::VectorXd & result)
+      {
+        integrate(*model,*data,q,v,result);
+      }
+
+      static void interpolate_proxy(const ModelHandler & model,
+                                        DataHandler & data,
+                                        const VectorXd_fx & q1,
+                                        const VectorXd_fx & q2,
+                                        const double u,
+                                        Eigen::VectorXd & result)
+      {
+        interpolate(*model,*data,q1,q2,u,result);
+      }
+
+      static void differentiate_proxy(const ModelHandler & model,
+                                           DataHandler & data,
+                                           const VectorXd_fx & q1,
+                                           const VectorXd_fx & q2,
+                                           Eigen::VectorXd & result)
+      {
+        differentiate(*model,*data,q1,q2,result);
+      }
+
+      static void distance_proxy(const ModelHandler & model,
+                                      DataHandler & data,
+                                      const VectorXd_fx & q1,
+                                      const VectorXd_fx & q2,
+                                      Eigen::VectorXd & result)
+      {
+        distance(*model,*data,q1,q2,result);
+      }
+
+      static void random_proxy(const ModelHandler & model,
+                                    DataHandler & data,
+                                    Eigen::VectorXd & result)
+      {
+        random(*model,*data,result);
+      }
+
+      static void uniformlySample_proxy(const ModelHandler & model,
+                                        DataHandler & data,
+                                        Eigen::VectorXd & result)
+      {
+        uniformlySample(*model,*data,result);
+      }
 #ifdef WITH_HPP_FCL
       
       static void updateGeometryPlacements_proxy(const ModelHandler & model,
@@ -442,11 +485,6 @@ namespace se3
                          "Configuration q (size Model::nq)"),
                 "Calling computeJacobians");
         
-        bp::def("jointLimits",jointLimits_proxy,
-                bp::args("Model","Data",
-                         "Configuration q (size Model::nq)"),
-                "Compute the maximum limits of all the joints of the model "
-          "and put the results in data.");
         
         bp::def("kineticEnergy",kineticEnergy_proxy,
                 bp::args("Model","Data",
@@ -465,6 +503,41 @@ namespace se3
                 "given the joint configuration and store it "
                 " in data.potential_energy. By default, the kinematics of model is updated.");
 
+        bp::def("integrate",integrate_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)",
+                         "resulting Configuration result (size Model::nq)"),
+                "Integrate the model for a constant derivative during unit time .");
+
+        bp::def("interpolate",interpolate_proxy,
+                bp::args("Model","Data",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)",
+                         "Double u",
+                         "resulting Configuration result (size Model::nq)"),
+                "Interpolate the model between two configurations.");
+        bp::def("differentiate",differentiate_proxy,
+                bp::args("Model","Data",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)",
+                         "Velocity result (size Model::nv)"),
+                "Difference between two configurations, ie. the constant derivative that must be integrated during unit time"
+                "to go from q2 to q1");
+        bp::def("distance",distance_proxy,
+                bp::args("Model","Data",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)",
+                         "Velocity result (size Model::nv)"),
+                "Distance between two configurations ");
+        bp::def("random",random_proxy,
+                bp::args("Model","Data",
+                         "Configuration result (size Model::nq)"),
+                "Generate a random configuration (taking into account quaternions) ");
+        bp::def("uniformlySample",uniformlySample_proxy,
+                bp::args("Model","Data",
+                         "Configuration result (size Model::nq)"),
+                "Generate a random configuration ensuring joint limits are respected(taking into account quaternions) ");
 #ifdef WITH_HPP_FCL
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,
