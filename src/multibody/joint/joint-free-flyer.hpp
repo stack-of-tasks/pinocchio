@@ -23,7 +23,10 @@
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/explog.hpp"
+#include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/quaternion.hpp"
+
+#include <stdexcept>
 
 namespace se3
 {
@@ -275,12 +278,41 @@ namespace se3
       return result; 
     }
 
-    ConfigVector_t random_impl(const ConfigVector_t & , const ConfigVector_t & ) const
+    ConfigVector_t random_impl() const
     { 
       ConfigVector_t q(ConfigVector_t::Random());
       q.segment<4>(3).normalize();// /= q.segment<4>(3).norm();
       return q;
     } 
+
+    ConfigVector_t uniformlySample_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const
+    {
+      ConfigVector_t result;
+      // Translational Part
+      for (int i = 0; i < 3; ++i)
+      {
+        if(lower_pos_limit[i] == -std::numeric_limits<double>::infinity() || 
+            upper_pos_limit[i] == std::numeric_limits<double>::infinity() )
+        {
+          std::ostringstream error;
+          error << "non bounded limit. Cannot uniformly sample joint nb " << id() ;
+          assert(false && "non bounded limit. Cannot uniformly sample joint freeflyer" );
+          throw std::runtime_error(error.str());
+        }
+        result[i] = lower_pos_limit[i] + ( upper_pos_limit[i] - lower_pos_limit[i]) * rand()/RAND_MAX;
+      }
+
+      // Quaternion Part
+      double u1 = (double)rand() / RAND_MAX;
+      double u2 = (double)rand() / RAND_MAX;
+      double u3 = (double)rand() / RAND_MAX;
+      
+      result.segment<4>(3) << sqrt (1-u1)*sin(2*PI*u2),
+                              sqrt (1-u1)*cos(2*PI*u2),
+                              sqrt (u1) * sin(2*PI*u3),
+                              sqrt (u1) * cos(2*PI*u3);
+      return result;
+    }
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
     { 

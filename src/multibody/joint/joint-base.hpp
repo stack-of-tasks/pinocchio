@@ -276,15 +276,24 @@ namespace se3
 
 
     /**
-     * @brief      Generate a random joint configuration. Take into account quaternions
+     * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
      *
-     * \warning Do not take yet into account the joint limits
+     * \warning    Do not take into account the joint limits. To shoot a configuration uniformingly
+     *             depending on joint limits, see uniformySample
      *
      * @return     The joint configuration
      */
-    ConfigVector_t random(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit) const
-    { return derived().random_impl(lower_pos_limit, upper_pos_limit); } 
+    ConfigVector_t random() const
+    { return derived().random_impl(); } 
 
+    /**
+     * @brief      Uniformly sample the configuration space of the joint
+     *
+     *
+     * @return     The joint configuration
+     */
+    ConfigVector_t uniformlySample(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit) const
+    { return derived().uniformlySample_impl(lower_pos_limit, upper_pos_limit); } 
 
     
     /**

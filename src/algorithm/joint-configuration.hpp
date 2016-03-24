@@ -91,7 +91,7 @@ namespace se3
 
 
   /**
-   * @brief      Generate a random configuration vector.
+   * @brief      Generate a random configuration vector uniformly sampled among joint limits
    *
    * @param[in]  model   Model we want to generate a configuration vector of
    * @param[in]  data    Corresponding Data to the Model
@@ -100,6 +100,18 @@ namespace se3
   inline void random(const Model & model,
                           Data & data,
                           Eigen::VectorXd & config);
+
+  /**
+   * @brief      Generate a random configuration vector.
+   *
+   * @param[in]  model   Model we want to generate a configuration vector of
+   * @param[in]  data    Corresponding Data to the Model
+   * @param      config  The resulted configuration vector (size model.nq)
+   */
+  inline void uniformlySample(const Model & model,
+                                  Data & data,
+                                  Eigen::VectorXd & config);
+
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
@@ -303,16 +315,14 @@ namespace se3
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointData> &,
-                     const se3::Model & model,
+                     const se3::Model & ,
                      se3::Data &,
                      Eigen::VectorXd & config) 
     {
       using namespace Eigen;
       using namespace se3;
       
-      jmodel.jointConfigSelector(config) = jmodel.random(jmodel.jointConfigSelector(model.lowerPositionLimit),
-                                                          jmodel.jointConfigSelector(model.upperPositionLimit)
-                                                          );
+      jmodel.jointConfigSelector(config) = jmodel.random();
     }
 
   };
@@ -327,6 +337,46 @@ namespace se3
       RandomStep::run(model.joints[i],
                            data.joints[i],
                            RandomStep::ArgsType (model, data, config)
+                           );
+    }
+  }
+
+  struct UniformlySample : public fusion::JointVisitor<UniformlySample>
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+                                  se3::Data &,
+                                  Eigen::VectorXd &
+                                  > ArgsType;
+
+    JOINT_VISITOR_INIT(UniformlySample);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointData> &,
+                     const se3::Model & model,
+                     se3::Data &,
+                     Eigen::VectorXd & config) 
+    {
+      using namespace Eigen;
+      using namespace se3;
+      
+      jmodel.jointConfigSelector(config) = jmodel.uniformlySample(jmodel.jointConfigSelector(model.lowerPositionLimit),
+                                                                  jmodel.jointConfigSelector(model.upperPositionLimit)
+                                                                  );
+    }
+
+  };
+
+  inline void
+  uniformlySample(const Model & model,
+               Data & data,
+               Eigen::VectorXd & config)
+  {
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
+    {
+      UniformlySample::run(model.joints[i],
+                           data.joints[i],
+                           UniformlySample::ArgsType (model, data, config)
                            );
     }
   }

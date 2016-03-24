@@ -333,12 +333,27 @@ namespace se3
       return result;
     }
 
-    ConfigVector_t random_impl(const ConfigVector_t & , const ConfigVector_t & ) const
+    ConfigVector_t random_impl() const
     { 
       ConfigVector_t q(ConfigVector_t::Random());
       q.normalize();
       return q;
     } 
+
+    ConfigVector_t uniformlySample_impl(const ConfigVector_t & , const ConfigVector_t & ) const
+    {
+      ConfigVector_t result;
+
+      double u1 = (double)rand() / RAND_MAX;
+      double u2 = (double)rand() / RAND_MAX;
+      double u3 = (double)rand() / RAND_MAX;
+      
+      result << sqrt (1-u1)*sin(2*PI*u2),
+                sqrt (1-u1)*cos(2*PI*u2),
+                sqrt (u1) * sin(2*PI*u3),
+                sqrt (u1) * cos(2*PI*u3);
+      return result;
+    }
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
     { 

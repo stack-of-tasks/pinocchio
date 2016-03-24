@@ -146,12 +146,19 @@ namespace se3
       return result; 
     }
 
-    ConfigVector_t random_impl(const ConfigVector_t & , const ConfigVector_t & ) const
+    ConfigVector_t random_impl() const
     { 
       ConfigVector_t result;
       assert(false && "JointModelDense is read-only, should not perform any calc");
       return result; 
-    } 
+    }
+
+    ConfigVector_t uniformlySample_impl(const ConfigVector_t & , const ConfigVector_t & ) const
+    { 
+      ConfigVector_t result;
+      assert(false && "JointModelDense is read-only, should not perform any calc");
+      return result; 
+    }  
 
     TangentVector_t difference_impl(const Eigen::VectorXd &,const Eigen::VectorXd &) const
     { 

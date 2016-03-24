@@ -26,6 +26,8 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
 
+#include <stdexcept>
+
 namespace se3
 {
 
@@ -379,15 +381,26 @@ namespace se3
       return ((1-u) * q_1 + u * q_2);
     }
 
-    ConfigVector_t random_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const
+    ConfigVector_t random_impl() const
     { 
       ConfigVector_t result(ConfigVector_t::Random());
-      for (long i = 0; i < result.size(); i++)
+      return result;
+    } 
+
+    ConfigVector_t uniformlySample_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const
+    { 
+      ConfigVector_t result;
+      for (int i = 0; i < result.size(); ++i)
       {
-        if( *(result.data()+i) < lower_pos_limit[i])
-          *(result.data()+i) = lower_pos_limit[i];
-        if( *(result.data()+i) > upper_pos_limit[i])
-          *(result.data()+i) = upper_pos_limit[i];
+        if(lower_pos_limit[i] == -std::numeric_limits<double>::infinity() || 
+            upper_pos_limit[i] == std::numeric_limits<double>::infinity() )
+        {
+          std::ostringstream error;
+          error << "non bounded limit. Cannot uniformly sample joint nb " << id() ;
+          assert(false && "non bounded limit. Cannot uniformly sample joint spherical ZYX");
+          throw std::runtime_error(error.str());
+        }
+        result[i] = lower_pos_limit[i] + ( upper_pos_limit[i] - lower_pos_limit[i]) * rand()/RAND_MAX;
       }
       return result;
     } 

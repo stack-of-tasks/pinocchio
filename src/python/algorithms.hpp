@@ -297,6 +297,13 @@ namespace se3
       {
         random(*model,*data,result);
       }
+
+      static void uniformlySample_proxy(const ModelHandler & model,
+                                        DataHandler & data,
+                                        Eigen::VectorXd & result)
+      {
+        uniformlySample(*model,*data,result);
+      }
 #ifdef WITH_HPP_FCL
       
       static void updateGeometryPlacements_proxy(const ModelHandler & model,
@@ -527,6 +534,10 @@ namespace se3
                 bp::args("Model","Data",
                          "Configuration result (size Model::nq)"),
                 "Generate a random configuration (taking into account quaternions) ");
+        bp::def("uniformlySample",uniformlySample_proxy,
+                bp::args("Model","Data",
+                         "Configuration result (size Model::nq)"),
+                "Generate a random configuration ensuring joint limits are respected(taking into account quaternions) ");
 #ifdef WITH_HPP_FCL
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,
