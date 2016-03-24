@@ -109,8 +109,8 @@ class RobotWrapper(object):
             se3.forwardKinematics(self.model, self.data, q, v, a)
         return self.data.a[index]
 
-    def jacobian(self, q, index, update_geometry=True):
-        return se3.jacobian(self.model, self.data, q, index, True, update_geometry)
+    def jacobian(self, q, index, update_geometry=True, local_frame=True):
+        return se3.jacobian(self.model, self.data, q, index, local_frame, update_geometry)
 
     def computeJacobians(self, q):
         return se3.computeJacobians(self.model, self.data, q)
