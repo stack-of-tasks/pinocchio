@@ -42,6 +42,9 @@ namespace se3
     typedef Eigen::Matrix<double,6,NV> U_t;
     typedef Eigen::Matrix<double,NV,NV> D_t;
     typedef Eigen::Matrix<double,6,NV> UD_t;
+
+    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
 
   template<int _NQ, int _NV> struct traits< JointDataDense<_NQ, _NV > > { typedef JointDense<_NQ,_NV > Joint; };
@@ -135,6 +138,41 @@ namespace se3
      const Eigen::VectorXd &  ) const
     {
       assert(false && "JointModelDense is read-only, should not perform any calc");
+    }
+
+    ConfigVector_t integrate_impl(const Eigen::VectorXd &,const Eigen::VectorXd &) const
+    { 
+      ConfigVector_t result;
+      assert(false && "JointModelDense is read-only, should not perform any calc");
+      return result; 
+    } 
+
+    ConfigVector_t interpolate_impl(const Eigen::VectorXd &,const Eigen::VectorXd &, double) const
+    { 
+      ConfigVector_t result;
+      assert(false && "JointModelDense is read-only, should not perform any calc");
+      return result; 
+    }
+
+    ConfigVector_t random_impl() const
+    { 
+      ConfigVector_t result;
+      assert(false && "JointModelDense is read-only, should not perform any calc");
+      return result; 
+    } 
+
+    TangentVector_t difference_impl(const Eigen::VectorXd &,const Eigen::VectorXd &) const
+    { 
+      TangentVector_t result;
+      assert(false && "JointModelDense is read-only, should not perform any calc");
+      return result; 
+    } 
+
+    double distance_impl(const Eigen::VectorXd &,const Eigen::VectorXd &) const
+    { 
+      double result = 0;
+      assert(false && "JointModelDense is read-only, should not perform any calc");
+      return result; 
     }
 
     JointModelDense()

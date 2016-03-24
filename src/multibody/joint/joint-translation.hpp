@@ -225,6 +225,9 @@ namespace se3
     typedef Eigen::Matrix<double,6,NV> U_t;
     typedef Eigen::Matrix<double,NV,NV> D_t;
     typedef Eigen::Matrix<double,6,NV> UD_t;
+
+    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   }; // traits JointTranslation
   
   template<> struct traits<JointDataTranslation> { typedef JointTranslation Joint; };
@@ -272,6 +275,8 @@ namespace se3
     using JointModelBase<JointModelTranslation>::maxEffortLimit;
     using JointModelBase<JointModelTranslation>::maxVelocityLimit;
     using JointModelBase<JointModelTranslation>::setIndexes;
+    typedef Motion::Vector3 Vector3;
+    typedef double Scalar_t;
 
     JointData createData() const { return JointData(); }
 
@@ -303,6 +308,44 @@ namespace se3
       }
     }
 
+    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
+    {
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
+
+
+      return (q + q_dot);
+    }
+
+    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2, const double u) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return ((1-u) * q_1 + u * q_2);
+    }
+
+    ConfigVector_t random_impl() const
+    { 
+      return ConfigVector_t::Random();
+    }
+
+    TangentVector_t difference_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return ( q_1 - q_2);
+    } 
+
+    double distance_impl(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return (q_1 - q_2).norm();
+    }
+    
     JointModelDense<NQ, NV> toDense_impl() const
     {
       return JointModelDense<NQ, NV>( id(),
