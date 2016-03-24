@@ -42,18 +42,13 @@
 #include <vector>
 
 
-bool quaternion_are_same_rotation(const Eigen::VectorXd & quat1, const Eigen::VectorXd & quat2)
-{
-  return (quat1 == quat2 || quat1 == -quat2 );
-}
-
 bool configurations_are_equals(const Eigen::VectorXd & conf1, const Eigen::VectorXd & conf2)
 {
   if ( ! conf1.segment<3>(0).isApprox(conf2.segment<3>(0)) )
     return false;
-  if( ! quaternion_are_same_rotation(conf1.segment<4>(3), conf2.segment<4>(3)))
+  if( ! quaternion_are_same_rotation( Eigen::Quaterniond(conf1.segment<4>(3)), Eigen::Quaterniond(conf2.segment<4>(3))))
     return false;
-  if( ! quaternion_are_same_rotation(conf1.segment<4>(7), conf2.segment<4>(7)))
+  if( ! quaternion_are_same_rotation(Eigen::Quaterniond(conf1.segment<4>(7)), Eigen::Quaterniond(conf2.segment<4>(7))))
     return false;
   for (int i = 11; i < conf1.size(); ++i)
   {

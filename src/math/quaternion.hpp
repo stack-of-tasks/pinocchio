@@ -35,4 +35,11 @@ D angleBetweenQuaternions(const Eigen::Quaternion< D> & q1,
   return theta;
 }
 
+template <typename D>
+bool quaternion_are_same_rotation(const Eigen::Quaternion< D> & q1,
+                                  const Eigen::Quaternion< D> & q2)
+{
+  return (q1.coeffs() == q2.coeffs() || q1.coeffs() == -q2.coeffs() );
+}
+
 #endif //#ifndef __math_quaternion_hpp__
