@@ -24,6 +24,8 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 
+#include <stdexcept>
+
 namespace se3
 {
 
@@ -247,6 +249,9 @@ namespace se3
       typedef Eigen::Matrix<double,6,NV> U_t;
       typedef Eigen::Matrix<double,NV,NV> D_t;
       typedef Eigen::Matrix<double,6,NV> UD_t;
+
+      typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+      typedef Eigen::Matrix<double,NV,1> TangentVector_t;
       
     };
 
@@ -298,6 +303,8 @@ namespace se3
     using JointModelBase<JointModelRevoluteUnaligned>::idx_q;
     using JointModelBase<JointModelRevoluteUnaligned>::idx_v;
     using JointModelBase<JointModelRevoluteUnaligned>::setIndexes;
+    typedef Motion::Vector3 Vector3;
+    typedef double Scalar_t;
     
     JointModelRevoluteUnaligned() : axis(Eigen::Vector3d::Constant(NAN))   {}
     JointModelRevoluteUnaligned(const double x, const double y, const double z)
@@ -347,6 +354,68 @@ namespace se3
       
       if (update_I)
         I -= data.UDinv * data.U.transpose();
+    }
+
+    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
+    {
+      const Scalar_t & q = qs[idx_q()];
+      const Scalar_t & v = vs[idx_v()];
+
+      ConfigVector_t result;
+      result << (q + v);
+      return result; 
+    }
+
+    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
+    { 
+      const Scalar_t & q_0 = q0[idx_q()];
+      const Scalar_t & q_1 = q1[idx_q()];
+
+      ConfigVector_t result;
+      result << ((1-u) * q_0 + u * q_1);
+      return result; 
+    }
+
+    ConfigVector_t random_impl() const
+    { 
+      ConfigVector_t result(ConfigVector_t::Random());
+      return result;
+    } 
+
+    ConfigVector_t uniformlySample_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const throw (std::runtime_error)
+    { 
+      ConfigVector_t result;
+      for (int i = 0; i < result.size(); ++i)
+      {
+        if(lower_pos_limit[i] == -std::numeric_limits<double>::infinity() || 
+            upper_pos_limit[i] == std::numeric_limits<double>::infinity() )
+        {
+          std::ostringstream error;
+          error << "non bounded limit. Cannot uniformly sample joint nb " << id() ;
+          assert(false && "non bounded limit. Cannot uniformly sample joint reolute unaligned");
+          throw std::runtime_error(error.str());
+        }
+        result[i] = lower_pos_limit[i] + ( upper_pos_limit[i] - lower_pos_limit[i]) * rand()/RAND_MAX;
+      }
+      return result;
+    } 
+
+    TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
+    { 
+      const Scalar_t & q_0 = q0[idx_q()];
+      const Scalar_t & q_1 = q1[idx_q()];
+
+      ConfigVector_t result;
+      result << (q_1 - q_0);
+      return result; 
+    } 
+
+    double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
+    { 
+      const Scalar_t & q_0 = q0[idx_q()];
+      const Scalar_t & q_1 = q1[idx_q()];
+
+      return (q_1-q_0);
     }
 
     JointModelDense<NQ, NV> toDense_impl() const

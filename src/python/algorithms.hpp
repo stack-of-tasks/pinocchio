@@ -34,6 +34,7 @@
 #include "pinocchio/algorithm/operational-frames.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/energy.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/simulation/compute-all-terms.hpp"
 
 #ifdef WITH_HPP_FCL
@@ -253,6 +254,50 @@ namespace se3
         return potentialEnergy(*model,*data,q,update_kinematics);
       }
 
+      static Eigen::VectorXd integrate_proxy(const ModelHandler & model,
+                                      DataHandler & data,
+                                      const VectorXd_fx & q,
+                                      const VectorXd_fx & v)
+      {
+        return integrate(*model,*data,q,v);
+      }
+
+      static Eigen::VectorXd interpolate_proxy(const ModelHandler & model,
+                                        DataHandler & data,
+                                        const VectorXd_fx & q1,
+                                        const VectorXd_fx & q2,
+                                        const double u)
+      {
+        return interpolate(*model,*data,q1,q2,u);
+      }
+
+      static Eigen::VectorXd differentiate_proxy(const ModelHandler & model,
+                                           DataHandler & data,
+                                           const VectorXd_fx & q1,
+                                           const VectorXd_fx & q2)
+      {
+        return differentiate(*model,*data,q1,q2);
+      }
+
+      static Eigen::VectorXd distance_proxy(const ModelHandler & model,
+                                      DataHandler & data,
+                                      const VectorXd_fx & q1,
+                                      const VectorXd_fx & q2)
+      {
+        return distance(*model,*data,q1,q2);
+      }
+
+      static Eigen::VectorXd random_proxy(const ModelHandler & model,
+                                    DataHandler & data)
+      {
+        return random(*model,*data);
+      }
+
+      static Eigen::VectorXd uniformlySample_proxy(const ModelHandler & model,
+                                        DataHandler & data)
+      {
+        return uniformlySample(*model,*data);
+      }
 #ifdef WITH_HPP_FCL
       
       static void updateGeometryPlacements_proxy(const ModelHandler & model,
@@ -452,6 +497,35 @@ namespace se3
                 "given the joint configuration and store it "
                 " in data.potential_energy. By default, the kinematics of model is updated.");
 
+        bp::def("integrate",integrate_proxy,
+                bp::args("Model","Data",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)"),
+                "Integrate the model for a constant derivative during one unit time .");
+
+        bp::def("interpolate",interpolate_proxy,
+                bp::args("Model","Data",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)",
+                         "Double u"),
+                "Interpolate the model between two configurations.");
+        bp::def("differentiate",differentiate_proxy,
+                bp::args("Model","Data",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)"),
+                "Difference between two configurations, ie. the constant derivative that must be integrated during one unit time"
+                "to go from q1 to q2");
+        bp::def("distance",distance_proxy,
+                bp::args("Model","Data",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)"),
+                "Distance between two configurations ");
+        bp::def("random",random_proxy,
+                bp::args("Model","Data"),
+                "Generate a random configuration (taking into account quaternions) ");
+        bp::def("uniformlySample",uniformlySample_proxy,
+                bp::args("Model","Data"),
+                "Generate a random configuration ensuring joint limits are respected(taking into account quaternions) ");
 #ifdef WITH_HPP_FCL
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,
