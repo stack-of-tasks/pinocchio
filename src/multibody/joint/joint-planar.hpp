@@ -315,10 +315,6 @@ namespace se3
     using JointModelBase<JointModelPlanar>::id;
     using JointModelBase<JointModelPlanar>::idx_q;
     using JointModelBase<JointModelPlanar>::idx_v;
-    using JointModelBase<JointModelPlanar>::lowerPosLimit;
-    using JointModelBase<JointModelPlanar>::upperPosLimit;
-    using JointModelBase<JointModelPlanar>::maxEffortLimit;
-    using JointModelBase<JointModelPlanar>::maxVelocityLimit;
     using JointModelBase<JointModelPlanar>::setIndexes;
 
     JointData createData() const { return JointData(); }
@@ -370,11 +366,7 @@ namespace se3
     {
       return JointModelDense<NQ, NV>( id(),
                                       idx_q(),
-                                      idx_v(),
-                                      lowerPosLimit(),
-                                      upperPosLimit(),
-                                      maxEffortLimit(),
-                                      maxVelocityLimit()
+                                      idx_v()
                                     );
     }
 
@@ -393,11 +385,7 @@ namespace se3
     {
       return jmodel.id() == id()
               && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v()
-              && jmodel.lowerPosLimit() == lowerPosLimit()
-              && jmodel.upperPosLimit() == upperPosLimit()
-              && jmodel.maxEffortLimit() == maxEffortLimit()
-              && jmodel.maxVelocityLimit() == maxVelocityLimit();
+              && jmodel.idx_v() == idx_v();
     }
   }; // struct JointModelPlanar
 

@@ -33,9 +33,7 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/operational-frames.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
-#include "pinocchio/algorithm/joint-limits.hpp"
 #include "pinocchio/algorithm/energy.hpp"
-
 #include "pinocchio/simulation/compute-all-terms.hpp"
 
 #ifdef WITH_HPP_FCL
@@ -237,12 +235,6 @@ namespace se3
         = data->M.transpose().triangularView<Eigen::StrictlyLower>();
       }
 
-      static void jointLimits_proxy(const ModelHandler & model,
-                                    DataHandler & data,
-                                    const VectorXd_fx & q)
-      {
-        jointLimits(*model,*data,q);
-      }
       
       static double kineticEnergy_proxy(const ModelHandler & model,
                                         DataHandler & data,
@@ -442,11 +434,6 @@ namespace se3
                          "Configuration q (size Model::nq)"),
                 "Calling computeJacobians");
         
-        bp::def("jointLimits",jointLimits_proxy,
-                bp::args("Model","Data",
-                         "Configuration q (size Model::nq)"),
-                "Compute the maximum limits of all the joints of the model "
-          "and put the results in data.");
         
         bp::def("kineticEnergy",kineticEnergy_proxy,
                 bp::args("Model","Data",

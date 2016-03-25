@@ -105,14 +105,6 @@ namespace se3
     using JointModelBase<JointModelDense<_NQ, _NV > >::id;
     using JointModelBase<JointModelDense<_NQ, _NV > >::idx_q;
     using JointModelBase<JointModelDense<_NQ, _NV > >::idx_v;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::lowerPosLimit;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::upperPosLimit;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::maxEffortLimit;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::maxVelocityLimit;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::setLowerPositionLimit;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::setUpperPositionLimit;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::setMaxEffortLimit;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::setMaxVelocityLimit;
     using JointModelBase<JointModelDense<_NQ, _NV > >::setIndexes;
     using JointModelBase<JointModelDense<_NQ, _NV > >::i_v;
     using JointModelBase<JointModelDense<_NQ, _NV > >::i_q;
@@ -139,25 +131,13 @@ namespace se3
 
     JointModelDense()
     {
-      setLowerPositionLimit(Eigen::Matrix<double,NQ,1>(1));
-      setUpperPositionLimit(Eigen::Matrix<double,NQ,1>(1));
-      setMaxEffortLimit(Eigen::Matrix<double,NV,1>(1));
-      setMaxVelocityLimit(Eigen::Matrix<double,NV,1>(1));
     }
     JointModelDense(  Index idx,
                       int idx_q,
-                      int idx_v,
-                      Eigen::Matrix<double,NQ,1> lowPos,
-                      Eigen::Matrix<double,NQ,1> upPos,
-                      Eigen::Matrix<double,NV,1> maxEff,
-                      Eigen::Matrix<double,NV,1> maxVel
+                      int idx_v
                     )
     {
       setIndexes(idx, idx_q, idx_v);
-      setLowerPositionLimit(lowPos);
-      setUpperPositionLimit(upPos);
-      setMaxEffortLimit(maxEff);
-      setMaxVelocityLimit(maxVel);
     }
 
     int     nv_impl() const { return nv_dyn; }
@@ -205,11 +185,7 @@ namespace se3
     {
       return jmodel.id() == id()
               && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v()
-              && jmodel.lowerPosLimit() == lowerPosLimit()
-              && jmodel.upperPosLimit() == upperPosLimit()
-              && jmodel.maxEffortLimit() == maxEffortLimit()
-              && jmodel.maxVelocityLimit() == maxVelocityLimit();
+              && jmodel.idx_v() == idx_v();
     }
 
   }; // struct JointModelDense

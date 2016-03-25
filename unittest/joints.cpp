@@ -1175,8 +1175,7 @@ BOOST_AUTO_TEST_CASE ( toJointModelDense )
   JointModelRX jmodel;
   jmodel.setIndexes (2, 0, 0);
 
-  JointModelDense<JointModelBase<JointModelRX>::NQ, JointModelBase<JointModelRX>::NV> jmd(jmodel.id(), jmodel.idx_q(), jmodel.idx_v(), jmodel.lowerPosLimit(),
-                          jmodel.upperPosLimit(), jmodel.maxEffortLimit(), jmodel.maxVelocityLimit());
+  JointModelDense<JointModelBase<JointModelRX>::NQ, JointModelBase<JointModelRX>::NV> jmd(jmodel.id(), jmodel.idx_q(), jmodel.idx_v());
   JointModelDense<JointModelBase<JointModelRX>::NQ, JointModelBase<JointModelRX>::NV> jmd2 = jmodel.toDense();
   (void)jmd; (void)jmd2;
 

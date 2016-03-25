@@ -247,11 +247,7 @@ namespace se3
     int i_q;    // Index of the joint configuration in the joint configuration vector.
     int i_v;    // Index of the joint velocity in the joint velocity vector.
 
-    ConfigVector_t position_lower;
-    ConfigVector_t position_upper;
 
-    TangentVector_t effortMax;
-    TangentVector_t velocityMax;
     
     int     nv()    const { return derived().nv_impl(); }
     int     nq()    const { return derived().nq_impl(); }
@@ -263,33 +259,8 @@ namespace se3
     const int &   idx_v() const { return i_v; }
     const Index & id()    const { return i_id; }
 
-    const ConfigVector_t & lowerPosLimit() const { return position_lower;}
-    const ConfigVector_t & upperPosLimit() const { return position_upper;}
-
-    const TangentVector_t & maxEffortLimit() const { return effortMax;}
-    const TangentVector_t & maxVelocityLimit() const { return velocityMax;}
-
     void setIndexes(Index id,int q,int v) { i_id = id, i_q = q; i_v = v; }
 
-    void setLowerPositionLimit(const ConfigVector_t & lowerPos)
-    {
-      position_lower = lowerPos;
-    }
-
-    void setUpperPositionLimit(const ConfigVector_t & upperPos)
-    {
-      position_upper = upperPos;
-    }
-
-    void setMaxEffortLimit(const TangentVector_t & effort)
-    {
-      effortMax = effort;
-    }
-
-    void setMaxVelocityLimit(const TangentVector_t & v)
-    {
-      velocityMax = v;
-    }
 
     /* Acces to dedicated segment in robot config space.  */
     // Const access

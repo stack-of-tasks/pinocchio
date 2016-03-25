@@ -289,10 +289,6 @@ namespace se3
     using JointModelBase<JointModelSphericalZYX>::id;
     using JointModelBase<JointModelSphericalZYX>::idx_q;
     using JointModelBase<JointModelSphericalZYX>::idx_v;
-    using JointModelBase<JointModelSphericalZYX>::lowerPosLimit;
-    using JointModelBase<JointModelSphericalZYX>::upperPosLimit;
-    using JointModelBase<JointModelSphericalZYX>::maxEffortLimit;
-    using JointModelBase<JointModelSphericalZYX>::maxVelocityLimit;
     using JointModelBase<JointModelSphericalZYX>::setIndexes;
 
     JointData createData() const { return JointData(); }
@@ -365,11 +361,7 @@ namespace se3
     {
       return JointModelDense<NQ, NV>( id(),
                                       idx_q(),
-                                      idx_v(),
-                                      lowerPosLimit(),
-                                      upperPosLimit(),
-                                      maxEffortLimit(),
-                                      maxVelocityLimit()
+                                      idx_v()
                                     );
     }
 
@@ -388,11 +380,7 @@ namespace se3
     {
       return jmodel.id() == id()
               && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v()
-              && jmodel.lowerPosLimit() == lowerPosLimit()
-              && jmodel.upperPosLimit() == upperPosLimit()
-              && jmodel.maxEffortLimit() == maxEffortLimit()
-              && jmodel.maxVelocityLimit() == maxVelocityLimit();
+              && jmodel.idx_v() == idx_v();
     }
 
   }; // struct JointModelSphericalZYX

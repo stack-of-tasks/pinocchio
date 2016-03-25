@@ -383,10 +383,6 @@ namespace se3
     using JointModelBase<JointModelPrismatic>::id;
     using JointModelBase<JointModelPrismatic>::idx_q;
     using JointModelBase<JointModelPrismatic>::idx_v;
-    using JointModelBase<JointModelPrismatic>::lowerPosLimit;
-    using JointModelBase<JointModelPrismatic>::upperPosLimit;
-    using JointModelBase<JointModelPrismatic>::maxEffortLimit;
-    using JointModelBase<JointModelPrismatic>::maxVelocityLimit;
     using JointModelBase<JointModelPrismatic>::setIndexes;
     
     JointData createData() const { return JointData(); }
@@ -422,11 +418,7 @@ namespace se3
     {
       return JointModelDense<NQ, NV>( id(),
                                       idx_q(),
-                                      idx_v(),
-                                      lowerPosLimit(),
-                                      upperPosLimit(),
-                                      maxEffortLimit(),
-                                      maxVelocityLimit()
+                                      idx_v()
                                     );
     }
 
@@ -442,11 +434,7 @@ namespace se3
     {
       return jmodel.id() == id()
               && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v()
-              && jmodel.lowerPosLimit() == lowerPosLimit()
-              && jmodel.upperPosLimit() == upperPosLimit()
-              && jmodel.maxEffortLimit() == maxEffortLimit()
-              && jmodel.maxVelocityLimit() == maxVelocityLimit();
+              && jmodel.idx_v() == idx_v();
     }
   }; // struct JointModelPrismatic
 
