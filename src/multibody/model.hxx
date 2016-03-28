@@ -281,7 +281,7 @@ namespace se3
     ,upperPositionLimit(ref.nq)
     ,JMinvJt()
     ,llt_JMinvJt()
-    ,lambda()
+    ,lambda_c()
     ,sDUiJt(ref.nv,ref.nv)
     ,torque_residual(ref.nv)
   {

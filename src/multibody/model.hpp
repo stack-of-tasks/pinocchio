@@ -482,7 +482,7 @@ namespace se3
     Eigen::LLT<Eigen::MatrixXd> llt_JMinvJt;
     
     /// \brief Lagrange Multipliers corresponding to contact forces.
-    Eigen::VectorXd lambda;
+    Eigen::VectorXd lambda_c;
     
     /// \brief Temporary corresponding to \f$ \sqrt{D} U^{-1} J^{\top} \f$.
     Eigen::MatrixXd sDUiJt;

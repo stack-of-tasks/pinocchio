@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE ( test_FD )
     BOOST_CHECK(H_ref.isApprox(JMinvJt,1-12));
   
   VectorXd lambda_ref = -JMinvJt.inverse() * (J*Minv*(tau - data.nle) + gamma);
-  BOOST_CHECK(data.lambda.isApprox(lambda_ref, 1e-12));
+  BOOST_CHECK(data.lambda_c.isApprox(lambda_ref, 1e-12));
     
   VectorXd a_ref = Minv*(tau - data.nle + J.transpose()*lambda_ref);
   
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   Eigen::VectorXd constraint_residual (J * data.ddq + gamma);
   BOOST_CHECK(constraint_residual.norm() <= 1e-12);
   
-  Eigen::VectorXd dynamics_residual (data.M * data.ddq + data.nle - tau - J.transpose()*data.lambda);
+  Eigen::VectorXd dynamics_residual (data.M * data.ddq + data.nle - tau - J.transpose()*data.lambda_c);
   BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
 }
 

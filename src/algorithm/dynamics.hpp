@@ -43,7 +43,7 @@ namespace se3
   /// \param[in] gamma The drift of the constraints (dim nb_constraints).
   /// \param[in] updateKinematics If true, the algorithm calls first se3::computeAllTerms. Otherwise, it uses the current dynamic values stored in data.
   ///
-  /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda vector.
+  /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
   ///
   inline const Eigen::VectorXd & forwardDynamics(const Model & model,
                                                  Data & data,
@@ -62,7 +62,7 @@ namespace se3
     assert(J.rows() == gamma.size());
     
     Eigen::VectorXd & a = data.ddq;
-    Eigen::VectorXd & lambda = data.lambda;
+    Eigen::VectorXd & lambda_c = data.lambda_c;
     
     if (updateKinematics)
       computeAllTerms(model, data, q, v);
@@ -83,11 +83,11 @@ namespace se3
     data.llt_JMinvJt.compute(data.JMinvJt);
     
     // Compute the Lagrange Multipliers
-    lambda = -gamma -J*data.torque_residual;
-    data.llt_JMinvJt.solveInPlace (lambda);
+    lambda_c = -gamma -J*data.torque_residual;
+    data.llt_JMinvJt.solveInPlace (lambda_c);
     
     // Compute the joint acceleration
-    a = J.transpose() * lambda;
+    a = J.transpose() * lambda_c;
     cholesky::solve (model, data, a);
     a += data.torque_residual;
     
