@@ -66,6 +66,27 @@ namespace se3
 	return boost::apply_visitor( Visitor(jdata,args),jmodel );
       }
     };
+
+
+    template<typename Visitor>
+    struct JointModelVisitor : public boost::static_visitor<>
+    {
+      template<typename D>
+      void operator() (const JointModelBase<D> & jmodel) const
+      {
+
+  bf::invoke(&Visitor::template algo<D>,
+       bf::append(jmodel,
+             static_cast<const Visitor*>(this)->args));
+      }
+
+      template<typename ArgsTmp>
+      static void run(const JointModelVariant & jmodel,
+          ArgsTmp args)
+      {
+  return boost::apply_visitor( Visitor(args),jmodel );
+      }
+    };
   
   } // namespace fusion
 } // namespace se3
@@ -74,6 +95,12 @@ namespace se3
   VISITOR( JointDataVariant & jdata,ArgsType args ) : jdata(jdata),args(args) {} \
   using se3::fusion::JointVisitor< VISITOR >::run;			\
   JointDataVariant & jdata;						\
+  ArgsType args
+
+
+#define JOINT_MODEL_VISITOR_INIT(VISITOR)         \
+  VISITOR(ArgsType args ) : args(args) {} \
+  using se3::fusion::JointModelVisitor< VISITOR >::run;      \
   ArgsType args
 
 #endif // ifndef __se3_visitor_hpp__

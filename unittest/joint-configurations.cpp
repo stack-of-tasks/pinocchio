@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE ( integration_test )
   expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
   expected.tail<13>() = q.tail<13>() + q_dot.tail<13>();
 
-  Eigen::VectorXd result(integrate(model, data,q,q_dot));
+  Eigen::VectorXd result(integrate(model,q,q_dot));
 
   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "integration of freeflyer joint - wrong results");
 }
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE ( interpolation_test )
   expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
   expected.tail<13>() = (1-u)* q1.tail<13>() + u*q2.tail<13>();
 
-  Eigen::VectorXd result(interpolate(model, data,q1,q2,u));
+  Eigen::VectorXd result(interpolate(model,q1,q2,u));
 
   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "interpolation full model for u = 0.1 - wrong results");
   
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE ( interpolation_test )
   expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
   expected.tail<13>() = (1-u)* q1.tail<13>() + u*q2.tail<13>();
 
-  result = interpolate(model, data,q1,q2,u);
+  result = interpolate(model,q1,q2,u);
 
   BOOST_CHECK_MESSAGE(result.isApprox(q1, 1e-12), "interpolation with u = 0 - wrong results");
   
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE ( interpolation_test )
   expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
   expected.tail<13>() = (1-u)* q1.tail<13>() + u*q2.tail<13>();
 
-  result = interpolate(model, data,q1,q2,u);
+  result = interpolate(model,q1,q2,u);
 
   BOOST_CHECK_MESSAGE(configurations_are_equals(result, q2), "interpolation with u = 1 - wrong results");
 }
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE ( differentiation_test )
   expected[6] = quat_spherical_diff[0];expected[7] = quat_spherical_diff[1]; expected[8] = quat_spherical_diff[2];
   expected.tail<13>() = q2.tail<13>() - q1.tail<13>();
 
-  Eigen::VectorXd result(differentiate(model, data,q1,q2));
+  Eigen::VectorXd result(differentiate(model,q1,q2));
 
   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Differentiation of full model - wrong results");
 }
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE ( distance_computation_test )
               (q2.segment<3>(18) - q1.segment<3>(18)).norm(),
               (q2.segment<3>(21) - q1.segment<3>(21)).norm();
 
-  Eigen::VectorXd result(distance(model, data,q1,q2));
+  Eigen::VectorXd result(distance(model,q1,q2));
 
   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Distance between two configs of full model - wrong results");
 }
@@ -383,7 +383,8 @@ BOOST_AUTO_TEST_CASE ( randomization_test )
   
   se3::Data data(model);
 
-  Eigen::VectorXd q1(random(model, data));
+  Eigen::VectorXd q1(random(model));
+  
 
 }
 
@@ -435,8 +436,8 @@ BOOST_AUTO_TEST_CASE ( uniform_sampling_test )
 
   se3::Data data(model);
 
-  Eigen::VectorXd q1(uniformlySample(model, data));
-
+  Eigen::VectorXd q1(uniformlySample(model));
+  
   for (int i = 0; i < q1.size(); ++i)
   {
     BOOST_CHECK_MESSAGE(q1[i] >= model.lowerPositionLimit[i] && q1[i] <= model.upperPositionLimit[i], " UniformlySample : Generated config not in bounds");
@@ -492,10 +493,10 @@ BOOST_AUTO_TEST_CASE ( integrate_difference_test )
 
   se3::Data data(model);
 
-  Eigen::VectorXd q1(random(model, data));
-  Eigen::VectorXd q2(random(model, data));
+  Eigen::VectorXd q1(random(model));
+  Eigen::VectorXd q2(random(model));
 
-  BOOST_CHECK_MESSAGE(configurations_are_equals(integrate(model, data, q1, differentiate(model, data, q1,q2)), q2), "relation between integrate and differentiate");
+  BOOST_CHECK_MESSAGE(configurations_are_equals(integrate(model, q1, differentiate(model, q1,q2)), q2), "relation between integrate and differentiate");
 
 }
 
