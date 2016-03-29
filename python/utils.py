@@ -22,11 +22,10 @@ class TestUtils(TestCase):
         self.assertApprox(se3ToXYZQUAT(m), [1., 2., 3., sqrt(2) / 2, 0, 0, sqrt(2) / 2])
         self.assertApprox(XYZQUATToSe3([1., 2., 3., sqrt(2) / 2, 0, 0, sqrt(2) / 2]), m)
 
-    # def test_XYZQUATToViewerConfiguration_ViewerConfigurationToXYZQUAT(self):
-        # TODO
-        # v = [float(i + 1) for i in range(7)]
-        # self.assertEqual(XYZQUATToViewerConfiguration(ViewerConfigurationToXYZQUAT(v)), v)
-        # self.assertEqual(ViewerConfigurationToXYZQUAT(XYZQUATToViewerConfiguration(v)), v)
+    def test_XYZQUATToViewerConfiguration_ViewerConfigurationToXYZQUAT(self):
+        v = [float(i + 1) for i in range(7)]
+        self.assertEqual(XYZQUATToViewerConfiguration(ViewerConfigurationToXYZQUAT(v)), v)
+        self.assertEqual(ViewerConfigurationToXYZQUAT(XYZQUATToViewerConfiguration(v)), v)
 
     def test_isapprox(self):
         self.assertFalse(isapprox(1, 2))

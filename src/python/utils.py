@@ -57,7 +57,7 @@ def XYZQUATToSe3(xyzq):
 
 def XYZQUATToViewerConfiguration(xyzq):
     '''
-    Convert the input 7D vector [X,Y,Z,b,c,d,a] to 7D vector [X,Y,Z,a,b,c,d]
+    Convert the input 7D vector [X,Y,Z,x,y,z,w] to 7D vector [X,Y,Z,w,x,y,z]
     '''
     if isinstance(xyzq, (tuple, list)):
         xyzq = np.matrix(xyzq, np.float).T
@@ -67,12 +67,12 @@ def XYZQUATToViewerConfiguration(xyzq):
 
 def ViewerConfigurationToXYZQUAT(vconf):
     '''
-    Reverse function of XYZQUATToViewerConfiguration : convert [X,Y,Z,a,b,c,d] to
+    Reverse function of XYZQUATToViewerConfiguration : convert [X,Y,Z,w,x,y,z] to [X,Y,Z,x,y,z,w]
     '''
     if isinstance(vconf, (tuple, list)):
         vconf = np.matrix(vconf, np.float).T
     return [float(vconf[0, 0]), float(vconf[1, 0]), float(vconf[2, 0]),
-            float(vconf[6, 0]), float(vconf[3, 0]), float(vconf[4, 0]), float(vconf[5, 0])]
+            float(vconf[4, 0]), float(vconf[5, 0]), float(vconf[6, 0]), float(vconf[3, 0])]
 
 
 def isapprox(a, b, epsilon=1e-6):
