@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015 - 2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -36,7 +36,7 @@ namespace se3
   ///
   /// \return The rotational matrix associated to the integration of the angular velocity during time 1.
   ///
-  template <typename D> Eigen::Matrix<typename D::Scalar,3,3,D::Options>
+  template <typename D> Eigen::Matrix<typename D::Scalar,3,3,Eigen::internal::traits<D>::Options>
   exp3(const Eigen::MatrixBase<D> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,3);
@@ -44,7 +44,7 @@ namespace se3
     if (nv > 1e-14)
       return Eigen::AngleAxis<typename D::Scalar>(nv, v / nv).matrix();
     else
-      return Eigen::Matrix<typename D::Scalar,3,3,D::Options>::Identity();
+      return Eigen::Matrix<typename D::Scalar,3,3, Eigen::internal::traits<D>::Options>::Identity();
   }
 
   /// \brief Log: SO3 -> so3.
@@ -55,7 +55,7 @@ namespace se3
   ///
   /// \return The angular velocity vector associated to the rotation matrix.
   ///
-  template <typename D> Eigen::Matrix<typename D::Scalar,3,1,D::Options>
+  template <typename D> Eigen::Matrix<typename D::Scalar,3,1,Eigen::internal::traits<D>::Options>
   log3(const Eigen::MatrixBase<D> & R)
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D, 3, 3);
@@ -103,11 +103,11 @@ namespace se3
   ///
   /// \return The rigid transformation associated to the integration of the twist vector during time 1..
   ///
-  template <typename D> SE3Tpl<typename D::Scalar, D::Options>
+  template <typename D> SE3Tpl<typename D::Scalar, Eigen::internal::traits<D>::Options>
   exp6(const Eigen::MatrixBase<D> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,6);
-    MotionTpl<typename D::Scalar,D::Options> nu(v);
+    MotionTpl<typename D::Scalar,Eigen::internal::traits<D>::Options> nu(v);
     return exp6(nu);
   }
 
@@ -152,7 +152,7 @@ namespace se3
   ///
   /// \return The twist associated to the rigid transformation during time 1.
   ///
-  template <typename D> MotionTpl<typename D::Scalar,D::Options>
+  template <typename D> MotionTpl<typename D::Scalar,Eigen::internal::traits<D>::Options>
   log6(const Eigen::MatrixBase<D> & M)
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D, 4, 4);
@@ -161,7 +161,7 @@ namespace se3
 
     Matrix3 rot(M.template block<3,3>(0,0));
     Vector3 trans(M.template block<3,1>(0,3));
-    SE3Tpl<typename D::Scalar,D::Options> m(rot, trans);
+    SE3Tpl<typename D::Scalar,Eigen::internal::traits<D>::Options> m(rot, trans);
     return log6(m);
   }
 } // namespace se3

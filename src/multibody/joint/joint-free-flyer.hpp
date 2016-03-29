@@ -244,7 +244,7 @@ namespace se3
       // Quaternion part
       Motion_t::Quaternion_t quat(q.tail<4>());
 
-      Motion_t::Quaternion_t pOmega(se3::exp3(Motion_t::Vector3(q_dot.tail<3>())));
+      Motion_t::Quaternion_t pOmega(se3::exp3(q_dot.tail<3>()));
 
       Motion_t::Quaternion_t quaternion_result(pOmega*quat);
 
