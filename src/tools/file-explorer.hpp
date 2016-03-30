@@ -21,38 +21,42 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <exception>
-
-#include "boost/filesystem.hpp"
 
 namespace se3
 {
 
-    /**
-     * @brief      Parse env variable ROS_PACKAGE_PATH to extract paths and append them
-     *              in the package_dirs variable
-     *
-     * @param[in][out]  paths  { The package directories where to search for meshes }
-     */
-    inline void appendRosPackagePaths(std::vector<std::string> & package_dirs)
+  /**
+   * @brief      Parse an environment variable if exists and extract paths according to the delimiter.
+   *
+   * @param[in]  env_var_name The name of the environment variable.
+   * @param[in]  delimiter The delimiter between two consecutive paths.
+   *
+   * @return The vector of paths extracted from the environment variable value.
+   */
+  inline std::vector<std::string> extractPathFromEnvVar(const std::string & env_var_name, const std::string & delimiter = ":")
+  {
+    const char * env_var_value = std::getenv(env_var_name.c_str());
+    std::vector<std::string> env_var_paths;
+    
+    if (env_var_value != NULL)
     {
-
-        std::string delimiter = ":";
-        std::string policyStr = std::getenv("ROS_PACKAGE_PATH");
-        size_t lastOffset = 0;
-
-        while(true)
-        {
-            size_t offset = policyStr.find_first_of(delimiter, lastOffset);
-            if (offset < policyStr.size())
-              package_dirs.push_back(policyStr.substr(lastOffset, offset - lastOffset));
-            if (offset == std::string::npos)
-                break;
-            else
-                lastOffset = offset + 1; // add one to skip the delimiter
-        }
-
+      std::string policyStr (env_var_value);
+      size_t lastOffset = 0;
+      
+      while(true)
+      {
+        size_t offset = policyStr.find_first_of(delimiter, lastOffset);
+        if (offset < policyStr.size())
+          env_var_paths.push_back(policyStr.substr(lastOffset, offset - lastOffset));
+        if (offset == std::string::npos)
+          break;
+        else
+          lastOffset = offset + 1; // add one to skip the delimiter
+      }
     }
+    
+    return env_var_paths;
+  }
 
 }
 

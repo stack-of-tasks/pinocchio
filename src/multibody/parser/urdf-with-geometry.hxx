@@ -132,14 +132,16 @@ namespace se3
 
 
     inline GeometryModel buildGeom(const Model & model,
-                                  const std::string & filename,
-                                  const std::vector<std::string> & package_dirs)
+                                   const std::string & filename,
+                                   const std::vector<std::string> & package_dirs)
     {
       GeometryModel model_geom(model);
 
       std::vector<std::string> hint_directories(package_dirs);
 
-      appendRosPackagePaths(hint_directories);
+      // Append the ROS_PACKAGE_PATH
+      std::vector<std::string> ros_pkg_paths = extractPathFromEnvVar("ROS_PACKAGE_PATH");
+      hint_directories.insert(hint_directories.end(), ros_pkg_paths.begin(), ros_pkg_paths.end());
 
       if(hint_directories.empty())
       {
