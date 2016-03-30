@@ -133,7 +133,7 @@ namespace se3
 
     inline GeometryModel buildGeom(const Model & model,
                                    const std::string & filename,
-                                   const std::vector<std::string> & package_dirs)
+                                   const std::vector<std::string> & package_dirs) throw(std::invalid_argument)
     {
       GeometryModel model_geom(model);
 
