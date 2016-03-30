@@ -285,7 +285,7 @@ namespace se3
       return q;
     } 
 
-    ConfigVector_t uniformlySample_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const throw (std::runtime_error)
+    ConfigVector_t randomConfiguration_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const throw (std::runtime_error)
     {
       ConfigVector_t result;
       // Translational Part

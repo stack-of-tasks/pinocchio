@@ -251,7 +251,7 @@ namespace se3
 
 
     /**
-     * @brief      Integrate joint's configuration for a constant derivative during one unit time
+     * @brief      Integrate joint's configuration for a tangent vector during one unit time
      *
      * @param[in]  q     initatial configuration  (size jmodel.nq)
      * @param[in]  v     joint velocity (size jmodel.nv)
@@ -287,17 +287,20 @@ namespace se3
     { return derived().random_impl(); } 
 
     /**
-     * @brief      Uniformly sample the configuration space of the joint
+     * @brief      Generate a configuration vector uniformly sampled among
+     *             provided limits.
      *
+     * @param[in]  lower_pos_limit  lower joint limit
+     * @param[in]  upper_pos_limit  upper joint limit
      *
      * @return     The joint configuration
      */
-    ConfigVector_t uniformlySample(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit) const
-    { return derived().uniformlySample_impl(lower_pos_limit, upper_pos_limit); } 
+    ConfigVector_t randomConfiguration(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit) const
+    { return derived().randomConfiguration_impl(lower_pos_limit, upper_pos_limit); } 
 
     
     /**
-     * @brief      the constant derivative that must be integrated during one unit time to go from q0 to q1
+     * @brief      the tangent vector that must be integrated during one unit time to go from q0 to q1
      *
      * @param[in]  q0    Initial configuration
      * @param[in]  q1    Wished configuration

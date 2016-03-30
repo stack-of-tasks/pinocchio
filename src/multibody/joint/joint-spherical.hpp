@@ -340,7 +340,7 @@ namespace se3
       return q;
     } 
 
-    ConfigVector_t uniformlySample_impl(const ConfigVector_t & , const ConfigVector_t & ) const
+    ConfigVector_t randomConfiguration_impl(const ConfigVector_t & , const ConfigVector_t & ) const
     {
       ConfigVector_t result;
 

@@ -25,80 +25,85 @@ namespace se3
 {
 
   /**
-   * @brief      Integrate a configuration for the specified model for a constant derivative during one unit time
+   * @brief      Integrate a configuration for the specified model for a tangent vector during one unit time
    *
    * @param[in]  model   Model that must be integrated
-   * @param[in]  data    Corresponding Data to the Model
    * @param[in]  q       Initial configuration (size model.nq)
    * @param[in]  v       Velocity (size model.nv)
    * @return     The integrated configuration (size model.nq)
    */
   inline Eigen::VectorXd integrate(const Model & model,
-                             const Eigen::VectorXd & q,
-                             const Eigen::VectorXd & v);
+                                   const Eigen::VectorXd & q,
+                                   const Eigen::VectorXd & v);
 
 
   /**
    * @brief      Interpolate the model between two configurations
    *
    * @param[in]  model   Model to be interpolated
-   * @param[in]  data    Corresponding Data to the Model
    * @param[in]  q0      Initial configuration vector (size model.nq)
    * @param[in]  q1      Final configuration vector (size model.nq)
    * @param[in]  u       u in [0;1] position along the interpolation.
    * @return     The interpolated configuration (q0 if u = 0, q1 if u = 1)
    */
   inline Eigen::VectorXd interpolate(const Model & model,
-                               const Eigen::VectorXd & q0,
-                               const Eigen::VectorXd & q1,
-                               const double u);
+                                     const Eigen::VectorXd & q0,
+                                     const Eigen::VectorXd & q1,
+                                     const double u);
 
 
   /**
-   * @brief      the constant derivative that must be integrated during unit time to go from q0 to q1
+   * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
    * @param[in]  model   Model to be differentiated
-   * @param[in]  data    Corresponding Data to the Model
    * @param[in]  q0      Initial configuration (size model.nq)
    * @param[in]  q1      Wished configuration (size model.nq)
    * @return     The corresponding velocity (size model.nv)
    */
   inline Eigen::VectorXd differentiate(const Model & model,
-                                 const Eigen::VectorXd & q0,
-                                 const Eigen::VectorXd & q1);
+                                       const Eigen::VectorXd & q0,
+                                       const Eigen::VectorXd & q1);
 
 
   /**
    * @brief      Distance between two configuration vectors
    *
    * @param[in]  model      Model we want to compute the distance
-   * @param[in]  data       Corresponding Data to the Model
    * @param[in]  q0         Configuration 0 (size model.nq)
    * @param[in]  q1         Configuration 1 (size model.nq)
    * @return     The corresponding distances for each joint (size model.nbody-1 = number of joints)
    */
   inline Eigen::VectorXd distance(const Model & model,
-                            const Eigen::VectorXd & q0,
-                            const Eigen::VectorXd & q1);
+                                  const Eigen::VectorXd & q0,
+                                  const Eigen::VectorXd & q1);
 
 
   /**
-   * @brief      Generate a random configuration vector uniformly sampled among joint limits
+   * @brief      Generate a configuration vector uniformly sampled among provided limits.
    *
-   * @param[in]  model   Model we want to generate a configuration vector of
-   * @param[in]  data    Corresponding Data to the Model
+   *\warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
+   *             
+   * @param[in]  model        Model we want to generate a configuration vector of
+   * @param[in]  lowerLimits  Joints lower limits
+   * @param[in]  upperLimits  Joints upper limits
+   *
    * @return     The resulted configuration vector (size model.nq)
    */
-  inline Eigen::VectorXd random(const Model & model);
+  inline Eigen::VectorXd randomConfiguration(const Model & model,
+                                             const Eigen::VectorXd & lowerLimits,
+                                             const Eigen::VectorXd & upperLimits);
 
   /**
-   * @brief      Generate a random configuration vector.
+   * @brief      Generate a configuration vector uniformly sampled among the joint limits of the specified Model.
    *
+   *\warning     If limits are infinite (no one specified when adding a body or no modification directly in my_model.{lowerPositionLimit,upperPositionLimit},
+   *             exceptions may be thrown in the joint implementation of uniformlySample
+   *             
    * @param[in]  model   Model we want to generate a configuration vector of
-   * @param[in]  data    Corresponding Data to the Model
    * @return     The resulted configuration vector (size model.nq)
    */
-  inline Eigen::VectorXd uniformlySample(const Model & model);
+  inline Eigen::VectorXd randomConfiguration(const Model & model);
+
 
 } // namespace se3 
 
@@ -121,7 +126,7 @@ namespace se3
                      Eigen::VectorXd & result) 
     {
      
-      jmodel.jointConfigSelector(result) = jmodel.integrate(q, v); // if computation needed, do it here, or may be in lowerPosLimit
+      jmodel.jointConfigSelector(result) = jmodel.integrate(q, v);
     }
 
   };
@@ -252,67 +257,48 @@ namespace se3
     return distances;
   }
 
-  struct RandomStep : public fusion::JointModelVisitor<RandomStep>
+
+  struct RandomConfiguration : public fusion::JointModelVisitor<RandomConfiguration>
   {
-    typedef boost::fusion::vector<Eigen::VectorXd &
+    typedef boost::fusion::vector<Eigen::VectorXd &,
+                                  const Eigen::VectorXd &,
+                                  const Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_MODEL_VISITOR_INIT(RandomStep);
+    JOINT_MODEL_VISITOR_INIT(RandomConfiguration);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     Eigen::VectorXd & q) 
+                     Eigen::VectorXd & q,
+                     const Eigen::VectorXd & lowerLimits,
+                     const Eigen::VectorXd & upperLimits) 
     {
-      jmodel.jointConfigSelector(q) = jmodel.random();
+      jmodel.jointConfigSelector(q) = jmodel.randomConfiguration(jmodel.jointConfigSelector(lowerLimits),
+                                                                  jmodel.jointConfigSelector(upperLimits)
+                                                                  );
     }
 
   };
 
   inline Eigen::VectorXd
-  random(const Model & model)
+  randomConfiguration(const Model & model, const Eigen::VectorXd & lowerLimits, const Eigen::VectorXd & upperLimits)
   {
     Eigen::VectorXd q(model.nq);
     for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
     {
-      RandomStep::run(model.joints[i],
-                       RandomStep::ArgsType (q)
-                       );
+      RandomConfiguration::run(model.joints[i],
+                               RandomConfiguration::ArgsType ( q, lowerLimits, upperLimits)
+                               );
     }
     return q;
   }
-
-  struct UniformlySample : public fusion::JointModelVisitor<UniformlySample>
-  {
-    typedef boost::fusion::vector<const se3::Model &,
-                                  Eigen::VectorXd &
-                                  > ArgsType;
-
-    JOINT_MODEL_VISITOR_INIT(UniformlySample);
-
-    template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     const se3::Model & model,
-                     Eigen::VectorXd & q) 
-    {
-      jmodel.jointConfigSelector(q) = jmodel.uniformlySample(jmodel.jointConfigSelector(model.lowerPositionLimit),
-                                                              jmodel.jointConfigSelector(model.upperPositionLimit)
-                                                              );
-    }
-
-  };
 
   inline Eigen::VectorXd
-  uniformlySample(const Model & model)
+  randomConfiguration(const Model & model)
   {
-    Eigen::VectorXd q(model.nq);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
-    {
-      UniformlySample::run(model.joints[i],
-                           UniformlySample::ArgsType (model, q)
-                           );
-    }
-    return q;
+    return randomConfiguration(model, model.lowerPositionLimit, model.upperPositionLimit);
   }
+
 } // namespace se3
 
 #endif // ifndef __se3_joint_configuration_hpp__

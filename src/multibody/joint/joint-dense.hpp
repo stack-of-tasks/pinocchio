@@ -153,7 +153,7 @@ namespace se3
       return result; 
     }
 
-    ConfigVector_t uniformlySample_impl(const ConfigVector_t & , const ConfigVector_t & ) const
+    ConfigVector_t randomConfiguration_impl(const ConfigVector_t & , const ConfigVector_t & ) const
     { 
       ConfigVector_t result;
       assert(false && "JointModelDense is read-only, should not perform any calc");

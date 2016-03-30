@@ -283,15 +283,13 @@ namespace se3
         return distance(*model,q1,q2);
       }
 
-      static Eigen::VectorXd random_proxy(const ModelHandler & model)
+      static Eigen::VectorXd randomConfiguration_proxy(const ModelHandler & model,
+                                                       const VectorXd_fx & lowerPosLimit,
+                                                       const VectorXd_fx & upperPosLimit)
       {
-        return random(*model);
+        return randomConfiguration(*model, lowerPosLimit, upperPosLimit);
       }
 
-      static Eigen::VectorXd uniformlySample_proxy(const ModelHandler & model)
-      {
-        return uniformlySample(*model);
-      }
 #ifdef WITH_HPP_FCL
       
       static void updateGeometryPlacements_proxy(const ModelHandler & model,
@@ -495,7 +493,7 @@ namespace se3
                 bp::args("Model",
                          "Configuration q (size Model::nq)",
                          "Velocity v (size Model::nv)"),
-                "Integrate the model for a constant derivative during one unit time .");
+                "Integrate the model for a tangent vector during one unit time .");
 
         bp::def("interpolate",interpolate_proxy,
                 bp::args("Model",
@@ -507,19 +505,21 @@ namespace se3
                 bp::args("Model",
                          "Configuration q1 (size Model::nq)",
                          "Configuration q2 (size Model::nq)"),
-                "Difference between two configurations, ie. the constant derivative that must be integrated during one unit time"
+                "Difference between two configurations, ie. the tangent vector that must be integrated during one unit time"
                 "to go from q1 to q2");
         bp::def("distance",distance_proxy,
                 bp::args("Model",
                          "Configuration q1 (size Model::nq)",
                          "Configuration q2 (size Model::nq)"),
                 "Distance between two configurations ");
-        bp::def("random",random_proxy,
-                bp::args("Model"),
-                "Generate a random configuration (taking into account quaternions) ");
-        bp::def("uniformlySample",uniformlySample_proxy,
-                bp::args("Model"),
-                "Generate a random configuration ensuring joint limits are respected(taking into account quaternions) ");
+        bp::def("randomConfiguration",randomConfiguration_proxy,
+                bp::args("Model",
+                         "Joint lower limits (size Model::nq)",
+                         "Joint upper limits (size Model::nq)"),
+                "Generate a random configuration ensuring provied joint limits are respected ");
+        // bp::def("randomConfiguration",randomConfiguration_proxy,
+        //         bp::args("Model"),
+        //         "Generate a random configuration ensuring Model's joint limits are respected ");
 #ifdef WITH_HPP_FCL
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,
