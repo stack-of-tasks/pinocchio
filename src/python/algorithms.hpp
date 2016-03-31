@@ -33,9 +33,8 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/operational-frames.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
-#include "pinocchio/algorithm/joint-limits.hpp"
 #include "pinocchio/algorithm/energy.hpp"
-
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/simulation/compute-all-terms.hpp"
 
 #ifdef WITH_HPP_FCL
@@ -237,12 +236,6 @@ namespace se3
         = data->M.transpose().triangularView<Eigen::StrictlyLower>();
       }
 
-      static void jointLimits_proxy(const ModelHandler & model,
-                                    DataHandler & data,
-                                    const VectorXd_fx & q)
-      {
-        jointLimits(*model,*data,q);
-      }
       
       static double kineticEnergy_proxy(const ModelHandler & model,
                                         DataHandler & data,
@@ -259,6 +252,42 @@ namespace se3
                                           const bool update_kinematics = true)
       {
         return potentialEnergy(*model,*data,q,update_kinematics);
+      }
+
+      static Eigen::VectorXd integrate_proxy(const ModelHandler & model,
+                                      const VectorXd_fx & q,
+                                      const VectorXd_fx & v)
+      {
+        return integrate(*model,q,v);
+      }
+
+      static Eigen::VectorXd interpolate_proxy(const ModelHandler & model,
+                                        const VectorXd_fx & q1,
+                                        const VectorXd_fx & q2,
+                                        const double u)
+      {
+        return interpolate(*model,q1,q2,u);
+      }
+
+      static Eigen::VectorXd differentiate_proxy(const ModelHandler & model,
+                                           const VectorXd_fx & q1,
+                                           const VectorXd_fx & q2)
+      {
+        return differentiate(*model,q1,q2);
+      }
+
+      static Eigen::VectorXd distance_proxy(const ModelHandler & model,
+                                      const VectorXd_fx & q1,
+                                      const VectorXd_fx & q2)
+      {
+        return distance(*model,q1,q2);
+      }
+
+      static Eigen::VectorXd randomConfiguration_proxy(const ModelHandler & model,
+                                                       const VectorXd_fx & lowerPosLimit,
+                                                       const VectorXd_fx & upperPosLimit)
+      {
+        return randomConfiguration(*model, lowerPosLimit, upperPosLimit);
       }
 
 #ifdef WITH_HPP_FCL
@@ -442,11 +471,6 @@ namespace se3
                          "Configuration q (size Model::nq)"),
                 "Calling computeJacobians");
         
-        bp::def("jointLimits",jointLimits_proxy,
-                bp::args("Model","Data",
-                         "Configuration q (size Model::nq)"),
-                "Compute the maximum limits of all the joints of the model "
-          "and put the results in data.");
         
         bp::def("kineticEnergy",kineticEnergy_proxy,
                 bp::args("Model","Data",
@@ -465,6 +489,37 @@ namespace se3
                 "given the joint configuration and store it "
                 " in data.potential_energy. By default, the kinematics of model is updated.");
 
+        bp::def("integrate",integrate_proxy,
+                bp::args("Model",
+                         "Configuration q (size Model::nq)",
+                         "Velocity v (size Model::nv)"),
+                "Integrate the model for a tangent vector during one unit time .");
+
+        bp::def("interpolate",interpolate_proxy,
+                bp::args("Model",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)",
+                         "Double u"),
+                "Interpolate the model between two configurations.");
+        bp::def("differentiate",differentiate_proxy,
+                bp::args("Model",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)"),
+                "Difference between two configurations, ie. the tangent vector that must be integrated during one unit time"
+                "to go from q1 to q2");
+        bp::def("distance",distance_proxy,
+                bp::args("Model",
+                         "Configuration q1 (size Model::nq)",
+                         "Configuration q2 (size Model::nq)"),
+                "Distance between two configurations ");
+        bp::def("randomConfiguration",randomConfiguration_proxy,
+                bp::args("Model",
+                         "Joint lower limits (size Model::nq)",
+                         "Joint upper limits (size Model::nq)"),
+                "Generate a random configuration ensuring provied joint limits are respected ");
+        // bp::def("randomConfiguration",randomConfiguration_proxy,
+        //         bp::args("Model"),
+        //         "Generate a random configuration ensuring Model's joint limits are respected ");
 #ifdef WITH_HPP_FCL
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,

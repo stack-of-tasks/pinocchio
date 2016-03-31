@@ -26,6 +26,9 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
 
+#include "pinocchio/spatial/explog.hpp"
+#include "pinocchio/math/quaternion.hpp"
+
 namespace se3
 {
 
@@ -210,6 +213,9 @@ namespace se3
     typedef Eigen::Matrix<double,6,NV> U_t;
     typedef Eigen::Matrix<double,NV,NV> D_t;
     typedef Eigen::Matrix<double,6,NV> UD_t;
+
+    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
   template<> struct traits<JointDataSpherical> { typedef JointSpherical Joint; };
   template<> struct traits<JointModelSpherical> { typedef JointSpherical Joint; };
@@ -251,11 +257,9 @@ namespace se3
     using JointModelBase<JointModelSpherical>::id;
     using JointModelBase<JointModelSpherical>::idx_q;
     using JointModelBase<JointModelSpherical>::idx_v;
-    using JointModelBase<JointModelSpherical>::lowerPosLimit;
-    using JointModelBase<JointModelSpherical>::upperPosLimit;
-    using JointModelBase<JointModelSpherical>::maxEffortLimit;
-    using JointModelBase<JointModelSpherical>::maxVelocityLimit;
     using JointModelBase<JointModelSpherical>::setIndexes;
+    typedef Motion::Vector3 Vector3;
+    typedef double Scalar_t;
 
     JointData createData() const { return JointData(); }
 
@@ -295,15 +299,86 @@ namespace se3
       }
     }
 
+    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
+    {
+      Motion_t::Quaternion_t q(qs.segment<NQ>(idx_q()));
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
+
+      Motion_t::Vector3 omega(q_dot);
+      Motion_t::Quaternion_t pOmega(se3::exp3(omega));
+
+      Motion_t::Quaternion_t quaternion_result(pOmega*q);
+      ConfigVector_t result(quaternion_result.x(),
+                            quaternion_result.y(),
+                            quaternion_result.z(),
+                            quaternion_result.w()
+                            );
+      return result; 
+    }
+
+    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
+    { 
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+
+      Motion_t::Quaternion_t p0 (q_0);
+      Motion_t::Quaternion_t p1 (q_1);
+      Motion_t::Quaternion_t quaternion_result(p0.slerp(u, p1));
+
+      ConfigVector_t result(quaternion_result.x(),
+                            quaternion_result.y(),
+                            quaternion_result.z(),
+                            quaternion_result.w());
+
+      return result;
+    }
+
+    ConfigVector_t random_impl() const
+    { 
+      ConfigVector_t q(ConfigVector_t::Random());
+      q.normalize();
+      return q;
+    } 
+
+    ConfigVector_t randomConfiguration_impl(const ConfigVector_t & , const ConfigVector_t & ) const
+    {
+      ConfigVector_t result;
+
+      double u1 = (double)rand() / RAND_MAX;
+      double u2 = (double)rand() / RAND_MAX;
+      double u3 = (double)rand() / RAND_MAX;
+      
+      result << sqrt (1-u1)*sin(2*PI*u2),
+                sqrt (1-u1)*cos(2*PI*u2),
+                sqrt (u1) * sin(2*PI*u3),
+                sqrt (u1) * cos(2*PI*u3);
+      return result;
+    }
+
+    TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
+    { 
+      // Compute relative rotation between q2 and q1.
+      const int invertor = (q0.segment<NQ> (idx_q ()).dot(q1.segment<NQ> (idx_q ())) < 0 ) ? -1: 1 ;
+      Motion_t::Quaternion_t p0 (invertor * q0.segment<NQ>(idx_q()));
+      Motion_t::Quaternion_t p1 (q1.segment<NQ>(idx_q()));
+
+      Motion_t::Quaternion_t p (p1*p0.conjugate());
+      Eigen::AngleAxis<Scalar_t> angle_axis(p);
+
+      TangentVector_t result(angle_axis.angle() * angle_axis.axis());
+      return result;
+    } 
+
+    double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
+    { 
+      return difference_impl(q0, q1).norm();
+    }
+
     JointModelDense<NQ, NV> toDense_impl() const
     {
       return JointModelDense<NQ, NV>( id(),
                                       idx_q(),
-                                      idx_v(),
-                                      lowerPosLimit(),
-                                      upperPosLimit(),
-                                      maxEffortLimit(),
-                                      maxVelocityLimit()
+                                      idx_v()
                                     );
     }
 
@@ -322,11 +397,7 @@ namespace se3
     {
       return jmodel.id() == id()
               && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v()
-              && jmodel.lowerPosLimit() == lowerPosLimit()
-              && jmodel.upperPosLimit() == upperPosLimit()
-              && jmodel.maxEffortLimit() == maxEffortLimit()
-              && jmodel.maxVelocityLimit() == maxVelocityLimit();
+              && jmodel.idx_v() == idx_v();
     }
   }; // struct JointModelSpherical
 
