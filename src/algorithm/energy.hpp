@@ -25,7 +25,7 @@ namespace se3 {
   
   ///
   /// \brief Computes the kinetic energy of the system.
-  ///        The result is accessible throw data.kinetic_energy.
+  ///        The result is accessible through data.kinetic_energy.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -43,7 +43,7 @@ namespace se3 {
   
   ///
   /// \brief Computes the potential energy of the system, i.e. the potential energy linked to the gravity field.
-  ///        The result is accessible throw data.potential_energy.
+  ///        The result is accessible through data.potential_energy.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.

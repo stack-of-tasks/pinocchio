@@ -27,7 +27,7 @@ namespace se3
   
   ///
   /// \brief Computes the center of mass position of a given model according to a particular joint configuration.
-  ///        The result is accessible throw data.com[0] for the full body com and data.com[i] for the subtree supported by joint i (expressed in the joint i frame).
+  ///        The result is accessible through data.com[0] for the full body com and data.com[i] for the subtree supported by joint i (expressed in the joint i frame).
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -45,7 +45,7 @@ namespace se3
   
   ///
   /// \brief Computes the center of mass position, velocity and acceleration of a given model according to a particular joint configuration, velocity and acceleration.
-  ///        The result is accessible throw data.com[0], data.vcom[0], data.acom[0] for the full body com position, velocity and acceleation.
+  ///        The result is accessible through data.com[0], data.vcom[0], data.acom[0] for the full body com position, velocity and acceleation.
   ///        And data.com[i], data.vcom[i] and data.acom[i] for the subtree supported by joint i (expressed in the joint i frame).
   ///
   /// \param[in] model The model structure of the rigid body system.
@@ -66,7 +66,7 @@ namespace se3
   
   ///
   /// \brief Computes the center of mass position, velocity and acceleration of a given model according to a particular joint configuration, velocity and acceleration.
-  ///        The result is accessible throw data.com[0], data.vcom[0], data.acom[0] for the full body com position, velocity and acceleation.
+  ///        The result is accessible through data.com[0], data.vcom[0], data.acom[0] for the full body com position, velocity and acceleation.
   ///        And data.com[i], data.vcom[i] and data.acom[i] for the subtree supported by joint i (expressed in the joint i frame).
   ///
   /// \param[in] model The model structure of the rigid body system.
@@ -89,7 +89,7 @@ namespace se3
   
   ///
   /// \brief Computes both the jacobian and the the center of mass position of a given model according to a particular joint configuration.
-  ///        The results are accessible throw data.Jcom and data.com[0] and are both expressed in the world frame.
+  ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame.
   ///        And data.com[i] gives the center of mass of the subtree supported by joint i (expressed in the joint i frame).
   ///
   /// \param[in] model The model structure of the rigid body system.
@@ -121,7 +121,7 @@ namespace se3
   
   ///
   /// \brief Extracts both the jacobian of the center of mass (CoM) and the CoM position from the joint space inertia matrix (also called the mass matrix).
-  ///        The results are accessible throw data.Jcom and data.com[0] and are both expressed in the world frame.
+  ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
