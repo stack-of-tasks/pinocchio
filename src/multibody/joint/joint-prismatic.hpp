@@ -190,7 +190,7 @@ namespace se3
     operator ConstraintXd () const
     {
       Eigen::Matrix<double,6,1> S;
-      S << (Eigen::Vector3d)prismatic::CartesianVector3<axis>(), Eigen::Vector3d::Zero() ;
+      S << (Eigen::Vector3d)prismatic::CartesianVector3<axis>(1), Eigen::Vector3d::Zero() ;
       return ConstraintXd(S);
     }
 
