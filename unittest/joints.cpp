@@ -1179,14 +1179,14 @@ BOOST_AUTO_TEST_CASE ( toJointModelDense )
   JointModelDense<JointModelBase<JointModelRX>::NQ, JointModelBase<JointModelRX>::NV> jmd2 = jmodel.toDense();
   (void)jmd; (void)jmd2;
 
-  assert(jmd.idx_q() == jmodel.idx_q() && "The comparison of the joint index in configuration space failed");
-  assert(jmd.idx_q() == jmd2.idx_q() && "The comparison of the joint index in  configuration space failed");
+  BOOST_CHECK_MESSAGE(jmd.idx_q() == jmodel.idx_q() , "The comparison of the joint index in configuration space failed");
+  BOOST_CHECK_MESSAGE(jmd.idx_q() == jmd2.idx_q() , "The comparison of the joint index in  configuration space failed");
 
-  assert(jmd.idx_v() == jmodel.idx_v() && "The comparison of the joint index in velocity space failed");
-  assert(jmd.idx_v() == jmd2.idx_v() && "The comparison of the joint index in  velocity space failed");
+  BOOST_CHECK_MESSAGE(jmd.idx_v() == jmodel.idx_v() , "The comparison of the joint index in velocity space failed");
+  BOOST_CHECK_MESSAGE(jmd.idx_v() == jmd2.idx_v() , "The comparison of the joint index in  velocity space failed");
 
-  assert(jmd.id() == jmodel.id() && "The comparison of the joint index in model's kinematic tree failed");
-  assert(jmd.id() == jmd2.id() && "The comparison of the joint index in model's kinematic tree failed");
+  BOOST_CHECK_MESSAGE(jmd.id() == jmodel.id() , "The comparison of the joint index in model's kinematic tree failed");
+  BOOST_CHECK_MESSAGE(jmd.id() == jmd2.id() , "The comparison of the joint index in model's kinematic tree failed");
 
 }
 
@@ -1203,7 +1203,7 @@ BOOST_AUTO_TEST_CASE ( toJointDataDense )
                   JointDataBase<JointModelRX::JointData>::NV
                                                                       > jdd = jdata.toDense();
 
-  assert(jdata.S.nv() == jdd.S.nv() && "");
+  BOOST_CHECK(jdata.S.nv() == jdd.S.nv());
 
 }
 BOOST_AUTO_TEST_SUITE_END ()
