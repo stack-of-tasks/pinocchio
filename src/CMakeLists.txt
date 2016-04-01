@@ -94,7 +94,7 @@ ENDIF ( )
 # ----------------------------------------------------
 
 IF(EIGENPY_FOUND)
-  FINDPYTHON()
+  FINDPYTHON(2.7 EXACT REQUIRED) 
   MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}")
   
   # --- COMPILE WRAPPER
