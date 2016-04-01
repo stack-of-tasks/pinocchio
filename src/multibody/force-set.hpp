@@ -120,12 +120,22 @@ namespace se3
 	return *this;
       }
 
+      template <typename D>
+      Block& operator= (const Eigen::MatrixBase<D> & m)
+      {
+        assert(m.rows() == 6);
+        assert(m.cols() == len);
+        linear() = m.template topRows<3>();
+        angular() = m.template bottomRows<3>();
+        return *this;
+      }
+
       /// af = aXb.act(bf)
       ForceSetTpl se3Action(const SE3 & m) const
       {
 	// const Eigen::Block<const Matrix3x> linear = ref.linear().block(0,idx,3,len);
 	// const Eigen::Block<const Matrix3x> angular = ref.angular().block(0,idx,3,len);
-	Matrix3x Rf ((m.rotation()*linear());
+	Matrix3x Rf ((m.rotation()*linear()));
 	return ForceSetTpl(Rf,skew(m.translation())*Rf+m.rotation()*angular());
 	// TODO check if nothing better than explicitely calling skew
       }

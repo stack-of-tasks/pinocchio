@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE ( test_ForceSet )
   ForceSet F2(Eigen::Matrix<double,3,2>::Zero(),Eigen::Matrix<double,3,2>::Zero());
   F.block(10,2) = F2;
   BOOST_CHECK_EQUAL(F.matrix().col(10).norm() , 0.0 );
-  assert( isnan(F.matrix()(0,9)) );
+  BOOST_CHECK(isnan(F.matrix()(0,9)));
 
   std::cout << "F10 = " << F2.matrix() << std::endl;
   std::cout << "F = " << F.matrix() << std::endl;
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
   using namespace se3;
 
   Inertia Y = Inertia::Random();
-  JointRX::ConstraintRevolute S;
+  JointDataRX::Constraint_t S;
 
   std::cout << "Y = \n" << Y.matrix() << std::endl;
   std::cout << "S = \n" << ((ConstraintXd)S).matrix() << std::endl;
@@ -85,10 +85,10 @@ BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
   ForceSet F(1); F.block(0,1) = Y*S;
   std::cout << "Y*S = \n" << (Y*S).matrix() << std::endl;
   std::cout << "F=Y*S = \n" << F.matrix() << std::endl;
-  BOOST_CHECK(F.matrix().isApprox(Y.toMatrix().col(3), 1e-12));
+  BOOST_CHECK(F.matrix().isApprox(Y.matrix().col(3), 1e-12));
 
   ForceSet F2( Eigen::Matrix<double,3,9>::Random(),Eigen::Matrix<double,3,9>::Random() );
-  Eigen::MatrixXd StF2 = S.transpose()*F2.block(5,3);
+  Eigen::MatrixXd StF2 = S.transpose()*F2.block(5,3).matrix();
   BOOST_CHECK(StF2.isApprox(ConstraintXd(S).matrix().transpose()*F2.matrix().block(0,5,6,3)
                             , 1e-12));
 }
