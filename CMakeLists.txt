@@ -47,6 +47,7 @@ ENDIF(WIN32)
 
 # --- OPTIONS ----------------------------------------
 OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
+OPTION (BUILD_UNIT_TESTS "Build the unitary tests" ON)
 OPTION (BUILD_UTILS "Build the utils" OFF)
 OPTION (INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 OPTION (BUILD_TESTS_WITH_HPP "Build geom tests and benchmarks with hpp to do comparisons" OFF)
