@@ -95,6 +95,65 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
 }
 
+BOOST_AUTO_TEST_CASE ( test_ID )
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model,true);
+  se3::Data data(model);
+  
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.segment <4> (3).normalize();
+  
+  se3::computeJacobians(model, data, q);
+  
+  VectorXd v_before = VectorXd::Ones(model.nv);
+  
+  const std::string RF = "rleg6_body";
+  const std::string LF = "lleg6_body";
+  
+  Data::Matrix6x J_RF (6, model.nv);
+  J_RF.setZero();
+  getJacobian <true> (model, data, model.getBodyId(RF), J_RF);
+  Data::Matrix6x J_LF (6, model.nv);
+  J_LF.setZero();
+  getJacobian <true> (model, data, model.getBodyId(LF), J_LF);
+  
+  Eigen::MatrixXd J (12, model.nv);
+  J.setZero();
+  J.topRows<6> () = J_RF;
+  J.bottomRows<6> () = J_LF;
+  
+  const double r_coeff = 1.;
+  
+  Eigen::MatrixXd H(J.transpose());
+  
+  se3::impulseDynamics(model, data, q, v_before, J, r_coeff, true);
+  data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  MatrixXd Minv (data.M.inverse());
+  MatrixXd JMinvJt (J * Minv * J.transpose());
+  
+  Eigen::MatrixXd G_ref(J.transpose());
+  cholesky::Uiv(model, data, G_ref);
+  for(int k=0;k<model.nv;++k) G_ref.row(k) /= sqrt(data.D[k]);
+  Eigen::MatrixXd H_ref(G_ref.transpose() * G_ref);
+  BOOST_CHECK(H_ref.isApprox(JMinvJt,1e-12));
+  
+  VectorXd lambda_ref = JMinvJt.inverse() * (-r_coeff * J * v_before - J * v_before);
+  BOOST_CHECK(data.impulse_c.isApprox(lambda_ref, 1e-12));
+  
+  VectorXd v_after_ref = Minv*(data.M * v_before + J.transpose()*lambda_ref);
+  
+  Eigen::VectorXd constraint_residual (J * data.dq_after + r_coeff * J * v_before);
+  BOOST_CHECK(constraint_residual.norm() <= 1e-12);
+  
+  Eigen::VectorXd dynamics_residual (data.M * data.dq_after - data.M * v_before - J.transpose()*data.impulse_c);
+  BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
+}
+
 BOOST_AUTO_TEST_CASE (timings_fd_llt)
 {
   using namespace Eigen;
