@@ -108,7 +108,7 @@ namespace se3
   /// \param[in] q The joint configuration (vector dim model.nq).
   /// \param[in] v_before The joint velocity before impact (vector dim model.nv).
   /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
-  /// \param[in] r_coeff The coefficient of restitution
+  /// \param[in] r_coeff The coefficient of restitution. Must be in [0;1].
   /// \param[in] updateKinematics If true, the algorithm calls first se3::crba. Otherwise, it uses the current mass matrix value stored in data.
   ///
   /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.

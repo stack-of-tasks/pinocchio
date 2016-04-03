@@ -51,6 +51,7 @@ namespace se3
     struct AlgorithmsPythonVisitor
     {
       typedef eigenpy::UnalignedEquivalent<Eigen::VectorXd>::type VectorXd_fx;
+      typedef eigenpy::UnalignedEquivalent<Eigen::MatrixXd>::type MatrixXd_fx;
 
       static Eigen::VectorXd rnea_proxy( const ModelHandler& model, 
                                         DataHandler & data,
@@ -106,6 +107,18 @@ namespace se3
       {
         forwardDynamics(*model,*data,q,v,tau,J,gamma,update_kinematics);
         return data->ddq;
+      }
+      
+      static Eigen::MatrixXd id_llt_proxy(const ModelHandler & model,
+                                          DataHandler & data,
+                                          const VectorXd_fx & q,
+                                          const VectorXd_fx & v_before,
+                                          const eigenpy::MatrixXd_fx & J,
+                                          const double r_coeff,
+                                          const bool update_kinematics = true)
+      {
+        impulseDynamics(*model,*data,q,v_before,J,r_coeff,update_kinematics);
+        return data->dq_after;
       }
 
       static SE3::Vector3
@@ -378,7 +391,16 @@ namespace se3
                          "Contact Jacobian J (size nb_constraint * Model::nv)",
                          "Contact drift gamma (size nb_constraint)",
                          "Update kinematics (if true, it updates the dynamic variable according to the current state)"),
-                "Solve the forward dynamics problem with contacts, put the result in Data::ddq and return it.");
+                "Solve the forward dynamics problem with contacts, put the result in Data::ddq and return it. The contact forces are stored in data.lambda_c");
+        
+        bp::def("impactDynamics",id_llt_proxy,
+                bp::args("Model","Data",
+                         "Joint configuration q (size Model::nq)",
+                         "Joint velocity before impact v_before (size Model::nv)",
+                         "Contact Jacobian J (size nb_constraint * Model::nv)",
+                         "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact.",
+                         "Update kinematics (if true, it updates only the joint space inertia matrix)"),
+                "Solve the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c");
         
         bp::def("centerOfMass",com_0_proxy,
                 bp::args("Model","Data",
@@ -412,7 +434,7 @@ namespace se3
         bp::def("framesKinematics",frames_fk_0_proxy,
                 bp::args("Model","Data",
                          "Configuration q (size Model::nq)"),
-                "Compute the placements and spatial velocities of all the operational frames "
+                "Compute the placements of all the operational frames "
                 "and put the results in data.");
         
         bp::def("forwardKinematics",fk_0_proxy,
@@ -454,7 +476,7 @@ namespace se3
                 "the demanded one if update_geometry is set to false. It is therefore outrageously costly wrt a dedicated "
                 "call. Function to be used only for prototyping.");
         
-        bp::def("Framejacobian",frame_jacobian_proxy,
+        bp::def("frameJacobian",frame_jacobian_proxy,
                 bp::args("Model","Data",
                          "Configuration q (size Model::nq)",
                          "Operational frame ID (int)",
@@ -462,8 +484,7 @@ namespace se3
                          "update_geometry (true = recompute the kinematics)"),
                 "Call computeJacobians if update_geometry is true. If not, user should call computeJacobians first."
                 "Then call getJacobian and return the resulted jacobian matrix. Attention: if update_geometry is true, the "
-                "function computes all the jacobians of the model, even if just outputing "
-                "the demanded one. It is therefore outrageously costly wrt a dedicated "
+                "function computes all the jacobians of the model. It is therefore outrageously costly wrt a dedicated "
                 "call. Use only with update_geometry for prototyping.");
         
         bp::def("computeJacobians",compute_jacobians_proxy,
