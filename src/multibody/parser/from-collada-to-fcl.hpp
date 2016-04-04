@@ -36,6 +36,7 @@
 #include <hpp/fcl/BVH/BVH_model.h>
 
 #include "pinocchio/tools/file-explorer.hpp"
+#include <boost/filesystem.hpp>
 
 #include <exception>
 

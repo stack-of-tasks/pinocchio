@@ -482,7 +482,7 @@ namespace se3
     /// \brief Cholesky decompostion of \JMinvJt.
     Eigen::LLT<Eigen::MatrixXd> llt_JMinvJt;
     
-    /// \brief Lagrange Multipliers corresponding to contact forces.
+    /// \brief Lagrange Multipliers corresponding to the contact forces in se3::forwardDynamics.
     Eigen::VectorXd lambda_c;
     
     /// \brief Temporary corresponding to \f$ \sqrt{D} U^{-1} J^{\top} \f$.
@@ -490,6 +490,12 @@ namespace se3
     
     /// \brief Temporary corresponding to the residual torque \f$ \tau - b(q,\dot{q}) \f$.
     Eigen::VectorXd torque_residual;
+    
+    /// \brief Generalized velocity after impact.
+    Eigen::VectorXd dq_after;
+    
+    /// \brief Lagrange Multipliers corresponding to the contact impulses in se3::impulseDynamics.
+    Eigen::VectorXd impulse_c;
     
     ///
     /// \brief Default constructor of se3::Data from a se3::Model.

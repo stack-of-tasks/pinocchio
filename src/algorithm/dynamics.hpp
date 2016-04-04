@@ -21,6 +21,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/simulation/compute-all-terms.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
+#include "pinocchio/algorithm/crba.hpp"
 
 #include <Eigen/Cholesky>
 namespace se3
@@ -92,6 +93,67 @@ namespace se3
     a += data.torque_residual;
     
     return a;
+  }
+  
+  ///
+  /// \brief Compute the impulse dynamics with contact constraints.
+  /// \note It computes the following problem: <BR>
+  ///       <CENTER> \f$ \begin{eqnarray} \underset{\dot{q}^{+}}{\min} & & \| \dot{q}^{+} - \dot{q}^{-}} \|_{M(q)} \\
+  ///           \text{s.t.} & & J (q) \dot{q}^{+} = - \epsilon J (q) \dot{q}^{-}  \end{eqnarray} \f$ </CENTER> <BR>
+  ///       where \f$ \dot{q}^{-}} \f$ is the generalized velocity before impact,
+  ///       \f$ M \f$ is the joint space mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \epsilon \f$ is the coefficient of restitution (1 for a fully elastic impact or 0 for a rigid impact).
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration (vector dim model.nq).
+  /// \param[in] v_before The joint velocity before impact (vector dim model.nv).
+  /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
+  /// \param[in] r_coeff The coefficient of restitution
+  /// \param[in] updateKinematics If true, the algorithm calls first se3::crba. Otherwise, it uses the current mass matrix value stored in data.
+  ///
+  /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.
+  ///
+  inline const Eigen::VectorXd & impulseDynamics(const Model & model,
+                                                 Data & data,
+                                                 const Eigen::VectorXd & q,
+                                                 const Eigen::VectorXd & v_before,
+                                                 const Eigen::MatrixXd & J,
+                                                 const double r_coeff = 0.,
+                                                 const bool updateKinematics = true
+                                                 )
+  {
+    assert(q.size() == model.nq);
+    assert(v_before.size() == model.nv);
+    assert(J.cols() == model.nv);
+    
+    Eigen::VectorXd & impulse_c = data.impulse_c;
+    Eigen::VectorXd & dq_after = data.dq_after;
+    
+    // Compute the mass matrix
+    if (updateKinematics)
+      crba(model, data, q);
+    
+    // Compute the UDUt decomposition of data.M
+    cholesky::decompose(model, data);
+    
+    data.sDUiJt = J.transpose();
+    // Compute U^-1 * J.T
+    cholesky::Uiv(model, data, data.sDUiJt);
+    for(int k=0;k<model.nv;++k) data.sDUiJt.row(k) /= sqrt(data.D[k]);
+    
+    data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
+    data.llt_JMinvJt.compute(data.JMinvJt);
+    
+    // Compute the Lagrange Multipliers related to the contact impulses
+    impulse_c = (-r_coeff - 1.) * (J * v_before);
+    data.llt_JMinvJt.solveInPlace (impulse_c);
+    
+    // Compute the joint velocity after impacts
+    dq_after = J.transpose() * impulse_c;
+    cholesky::solve (model, data, dq_after);
+    dq_after += v_before;
+    
+    return dq_after;
   }
 } // namespace se3
 

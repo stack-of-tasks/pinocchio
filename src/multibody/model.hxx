@@ -289,6 +289,8 @@ namespace se3
     ,lambda_c()
     ,sDUiJt(ref.nv,ref.nv)
     ,torque_residual(ref.nv)
+    ,dq_after(model.nv)
+    ,impulse_c()
   {
     /* Create data strcture associated to the joints */
     for(Model::Index i=0;i<(Model::JointIndex)(model.nbody);++i) 
