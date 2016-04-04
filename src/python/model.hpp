@@ -97,6 +97,7 @@ namespace se3
       {
 	cl
 	  .def("getBodyId",&ModelPythonVisitor::getBodyId)
+    .def("getJointId",&ModelPythonVisitor::getJointId)
 	  .def("createData",&ModelPythonVisitor::createData)
 
 	  .def("__str__",&ModelPythonVisitor::toString)
@@ -154,6 +155,8 @@ namespace se3
 
       static Model::Index getBodyId( const ModelHandler & modelPtr, const std::string & name )
       { return  modelPtr->getBodyId(name); }
+      static Model::Index getJointId( const ModelHandler & modelPtr, const std::string & name )
+      { return  modelPtr->getJointId(name); }
       static boost::shared_ptr<Data> createData(const ModelHandler& m )
       {	return boost::shared_ptr<Data>( new Data(*m) );      } 
       
