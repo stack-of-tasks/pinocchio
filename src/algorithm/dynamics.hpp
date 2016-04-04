@@ -98,9 +98,9 @@ namespace se3
   ///
   /// \brief Compute the impulse dynamics with contact constraints.
   /// \note It computes the following problem: <BR>
-  ///       <CENTER> \f$ \begin{eqnarray} \underset{\dot{q}^{+}}{\min} & & \| \dot{q}^{+} - \dot{q}^{-}} \|_{M(q)} \\
+  ///       <CENTER> \f$ \begin{eqnarray} \underset{\dot{q}^{+}}{\min} & & \| \dot{q}^{+} - \dot{q}^{-} \|_{M(q)} \\
   ///           \text{s.t.} & & J (q) \dot{q}^{+} = - \epsilon J (q) \dot{q}^{-}  \end{eqnarray} \f$ </CENTER> <BR>
-  ///       where \f$ \dot{q}^{-}} \f$ is the generalized velocity before impact,
+  ///       where \f$ \dot{q}^{-} \f$ is the generalized velocity before impact,
   ///       \f$ M \f$ is the joint space mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \epsilon \f$ is the coefficient of restitution (1 for a fully elastic impact or 0 for a rigid impact).
   ///
   /// \param[in] model The model structure of the rigid body system.
