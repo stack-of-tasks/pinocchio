@@ -1160,7 +1160,6 @@ BOOST_AUTO_TEST_CASE ( test_merge_body )
   BOOST_CHECK (mergedInertia.lever().isApprox(expected_com, 1e-12));
   BOOST_CHECK (mergedInertia.inertia().matrix().isApprox(expectedBodyInertia, 1e-12));
   
-  exit(0);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
@@ -1197,13 +1196,15 @@ BOOST_AUTO_TEST_CASE ( toJointDataDense )
   JointModelRX jmodel;
   jmodel.setIndexes (2, 0, 0);
 
-  JointDataRX jdata;
+  JointDataRX jdata = jmodel.createData();
 
   JointDataDense< JointDataBase<JointModelRX::JointData>::NQ,
                   JointDataBase<JointModelRX::JointData>::NV
-                                                                      > jdd = jdata.toDense();
+                  > jdd = jdata.toDense();
 
-  BOOST_CHECK(jdata.S.nv() == jdd.S.nv());
+  std::cout << ConstraintXd(jdata.S) << std::endl;
+  std::cout << jdd.S << std::endl;
+  BOOST_CHECK(ConstraintXd(jdata.S).matrix().isApprox(jdd.S.matrix()));
 
 }
 BOOST_AUTO_TEST_SUITE_END ()
