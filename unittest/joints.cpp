@@ -18,6 +18,7 @@
 
 #include <iostream>
 
+#include "pinocchio/math/fwd.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -31,7 +32,10 @@
 #include "pinocchio/multibody/joint/joint-translation.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/jacobian.hpp"
+#include "pinocchio/simulation/compute-all-terms.hpp"
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE JointsTest
@@ -1160,7 +1164,6 @@ BOOST_AUTO_TEST_CASE ( test_merge_body )
   BOOST_CHECK (mergedInertia.lever().isApprox(expected_com, 1e-12));
   BOOST_CHECK (mergedInertia.inertia().matrix().isApprox(expectedBodyInertia, 1e-12));
   
-  exit(0);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
@@ -1179,14 +1182,14 @@ BOOST_AUTO_TEST_CASE ( toJointModelDense )
   JointModelDense<JointModelBase<JointModelRX>::NQ, JointModelBase<JointModelRX>::NV> jmd2 = jmodel.toDense();
   (void)jmd; (void)jmd2;
 
-  assert(jmd.idx_q() == jmodel.idx_q() && "The comparison of the joint index in configuration space failed");
-  assert(jmd.idx_q() == jmd2.idx_q() && "The comparison of the joint index in  configuration space failed");
+  BOOST_CHECK_MESSAGE(jmd.idx_q() == jmodel.idx_q() , "The comparison of the joint index in configuration space failed");
+  BOOST_CHECK_MESSAGE(jmd.idx_q() == jmd2.idx_q() , "The comparison of the joint index in  configuration space failed");
 
-  assert(jmd.idx_v() == jmodel.idx_v() && "The comparison of the joint index in velocity space failed");
-  assert(jmd.idx_v() == jmd2.idx_v() && "The comparison of the joint index in  velocity space failed");
+  BOOST_CHECK_MESSAGE(jmd.idx_v() == jmodel.idx_v() , "The comparison of the joint index in velocity space failed");
+  BOOST_CHECK_MESSAGE(jmd.idx_v() == jmd2.idx_v() , "The comparison of the joint index in  velocity space failed");
 
-  assert(jmd.id() == jmodel.id() && "The comparison of the joint index in model's kinematic tree failed");
-  assert(jmd.id() == jmd2.id() && "The comparison of the joint index in model's kinematic tree failed");
+  BOOST_CHECK_MESSAGE(jmd.id() == jmodel.id() , "The comparison of the joint index in model's kinematic tree failed");
+  BOOST_CHECK_MESSAGE(jmd.id() == jmd2.id() , "The comparison of the joint index in model's kinematic tree failed");
 
 }
 
@@ -1197,13 +1200,111 @@ BOOST_AUTO_TEST_CASE ( toJointDataDense )
   JointModelRX jmodel;
   jmodel.setIndexes (2, 0, 0);
 
-  JointDataRX jdata;
+  JointDataRX jdata = jmodel.createData();
 
   JointDataDense< JointDataBase<JointModelRX::JointData>::NQ,
                   JointDataBase<JointModelRX::JointData>::NV
-                                                                      > jdd = jdata.toDense();
+                  > jdd = jdata.toDense();
 
-  assert(jdata.S.nv() == jdd.S.nv() && "");
+  BOOST_CHECK(ConstraintXd(jdata.S).matrix().isApprox(jdd.S.matrix()));
+
+}
+BOOST_AUTO_TEST_SUITE_END ()
+
+BOOST_AUTO_TEST_SUITE (JointPlanar)
+
+BOOST_AUTO_TEST_CASE (vsFreeFlyer)
+{
+  using namespace se3;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 6, 1> Vector6;
+  typedef Eigen::Matrix <double, 7, 1> VectorFF;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+
+  Model modelPlanar, modelFreeflyer;
+
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
+
+
+  modelPlanar.addBody (0, JointModelPlanar (), pos, inertia, "planar");
+  modelFreeflyer.addBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
+
+  Data dataPlanar(modelPlanar);
+  Data dataFreeFlyer(modelFreeflyer);
+
+
+  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelPlanar.nq);q[2] = PI /2;  VectorFF qff; qff << 1, 1, 0, 0, 0, sqrt(2)/2, sqrt(2)/2 ; 
+  Eigen::VectorXd v = Eigen::VectorXd::Ones (modelPlanar.nv);               Vector6 vff; vff << 1, 1, 0, 0, 0, 1;
+  Eigen::VectorXd tauPlanar = Eigen::VectorXd::Ones (modelPlanar.nv);       Eigen::VectorXd tauff = Eigen::VectorXd::Ones (modelFreeflyer.nv);
+  Eigen::VectorXd aPlanar = Eigen::VectorXd::Ones (modelPlanar.nv);         Eigen::VectorXd aff(vff);
+  
+
+
+  forwardKinematics(modelPlanar, dataPlanar, q, v);
+  forwardKinematics(modelFreeflyer, dataFreeFlyer, qff, vff);
+
+  computeAllTerms(modelPlanar, dataPlanar, q, v);
+  computeAllTerms(modelFreeflyer, dataFreeFlyer, qff, vff);
+
+  BOOST_CHECK(dataFreeFlyer.oMi[1].isApprox(dataPlanar.oMi[1]));
+  BOOST_CHECK(dataFreeFlyer.liMi[1].isApprox(dataPlanar.liMi[1]));
+  BOOST_CHECK(dataFreeFlyer.Ycrb[1].matrix().isApprox(dataPlanar.Ycrb[1].matrix()));
+  BOOST_CHECK(dataFreeFlyer.f[1].toVector().isApprox(dataPlanar.f[1].toVector()));
+  
+  Eigen::VectorXd nle_expected_ff(3); nle_expected_ff << dataFreeFlyer.nle[0],
+                                                         dataFreeFlyer.nle[1],
+                                                         dataFreeFlyer.nle[5]
+                                                         ;
+  BOOST_CHECK(nle_expected_ff.isApprox(dataPlanar.nle));
+  BOOST_CHECK(dataFreeFlyer.com[0].isApprox(dataPlanar.com[0]));
+
+
+
+  // InverseDynamics == rnea
+  tauPlanar = rnea(modelPlanar, dataPlanar, q, v, aPlanar);
+  tauff = rnea(modelFreeflyer, dataFreeFlyer, qff, vff, aff);
+
+  Vector3 tau_expected; tau_expected << tauff(0), tauff(1), tauff(5);
+  BOOST_CHECK(tauPlanar.isApprox(tau_expected));
+
+  // ForwardDynamics == aba
+  Eigen::VectorXd aAbaPlanar = aba(modelPlanar,dataPlanar, q, v, tauPlanar);
+  Eigen::VectorXd aAbaFreeFlyer = aba(modelFreeflyer,dataFreeFlyer, qff, vff, tauff);
+  Vector3 a_expected; a_expected << aAbaFreeFlyer[0],
+                                    aAbaFreeFlyer[1],
+                                    aAbaFreeFlyer[5]
+                                    ;
+  BOOST_CHECK(aAbaPlanar.isApprox(a_expected));
+
+  // crba
+  crba(modelPlanar, dataPlanar,q);
+  crba(modelFreeflyer, dataFreeFlyer, qff);
+
+  Eigen::Matrix<double, 3, 3> M_expected;
+  M_expected.block<2,2>(0,0) = dataFreeFlyer.M.block<2,2>(0,0);
+  M_expected.block<1,2>(2,0) = dataFreeFlyer.M.block<1,2>(5,0);
+  M_expected.block<2,1>(0,2) = dataFreeFlyer.M.col(5).head<2>();
+  M_expected.block<1,1>(2,2) = dataFreeFlyer.M.col(5).tail<1>();
+
+  BOOST_CHECK(dataPlanar.M.isApprox(M_expected));
+   
+  // Jacobian
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_planar;jacobian_planar.resize(6,3); jacobian_planar.setZero();
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
+  computeJacobians(modelPlanar, dataPlanar, q);
+  computeJacobians(modelFreeflyer, dataFreeFlyer, qff);
+  getJacobian<true>(modelPlanar, dataPlanar, 1, jacobian_planar);
+  getJacobian<true>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
+
+
+  Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(0),
+                                                                      jacobian_ff.col(1),
+                                                                      jacobian_ff.col(5)
+                                                                      ;
+
+  BOOST_CHECK(jacobian_planar.isApprox(jacobian_expected));
+
 
 }
 BOOST_AUTO_TEST_SUITE_END ()

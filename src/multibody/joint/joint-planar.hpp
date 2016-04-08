@@ -179,11 +179,11 @@ namespace se3
     Eigen::Matrix <Scalar_t,6,3> se3Action (const SE3 & m) const
     {
       Eigen::Matrix <double,6,3> X_subspace;
-      X_subspace.block <3,2> (Motion::LINEAR, 0) = skew (m.translation ()) * m.rotation ().leftCols <2> ();
-      X_subspace.block <3,1> (Motion::LINEAR, 2) = m.rotation ().rightCols <1> ();
+      X_subspace.block <3,2> (Motion::LINEAR, 0) = m.rotation ().leftCols <2> ();
+      X_subspace.block <3,1> (Motion::LINEAR, 2) = skew (m.translation ()) * m.rotation ().rightCols <1> ();
 
-      X_subspace.block <3,2> (Motion::ANGULAR, 0) = m.rotation ().leftCols <2> ();
-      X_subspace.block <3,1> (Motion::ANGULAR, 2).setZero ();
+      X_subspace.block <3,2> (Motion::ANGULAR, 0).setZero ();
+      X_subspace.block <3,1> (Motion::ANGULAR, 2) = m.rotation ().rightCols <1> ();
 
       return X_subspace;
     }
@@ -226,12 +226,13 @@ namespace se3
     M.topLeftCorner <2,2> ().diagonal ().fill (mass);
 
     Inertia::Vector3 mc (mass * com);
-    M.rightCols <1> ().head <2> () << mc(1), - mc(0);
+    M.rightCols <1> ().head <2> () << -mc(1), mc(0);
 
-    M.bottomLeftCorner <3,2> () << 0., mc(2), - mc(1), 0., mc(1), -mc(0);
+    M.bottomLeftCorner <3,2> () << 0., -mc(2), mc(2), 0., -mc(1), mc(0);
     M.rightCols <1> ().tail <3> () = inertia.data ().tail <3> ();
-    M.rightCols <1> ().head <2> () = mc.head <2> () * com(2);
-    M.rightCols <1> ().tail <1> () = -mc.head <2> ().transpose () * com.head <2> ();
+    M.rightCols <1> ()[3] -= mc(0)*com(2);
+    M.rightCols <1> ()[4] -= mc(1)*com(2);
+    M.rightCols <1> ()[5] += mass*(com(0)*com(0) + com(1)*com(1));
 
     return M;
   }

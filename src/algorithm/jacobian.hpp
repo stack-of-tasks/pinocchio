@@ -24,7 +24,7 @@ namespace se3
 {
   ///
   /// \brief Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.
-  ///        The result is accessible throw data.J.
+  ///        The result is accessible through data.J.
   ///
   /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Hacobian, it is then possible to easily extract the Jacobian of a specific joint frame.
   ///

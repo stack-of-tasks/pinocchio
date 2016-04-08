@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   std::cout << model_geom;
   std::cout << "------ DataGeom ------ " << std::endl;
   std::cout << data_geom;
-  assert(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == true && "");
+  BOOST_CHECK(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == true);
 
   Eigen::VectorXd q(model.nq);
   q <<  2, 0, 0,
@@ -179,21 +179,21 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  assert(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == false && "");
+  BOOST_CHECK(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == false);
 
   q <<  0.99, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  assert(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == true && "");
+  BOOST_CHECK(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == true);
 
   q <<  1.01, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  assert(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == false && "");
+  BOOST_CHECK(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == false);
 }
 
 BOOST_AUTO_TEST_CASE ( loading_model )
@@ -221,8 +221,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
        1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2 ;
 
   se3::updateGeometryPlacements(model, data, geometry_model, geometry_data, q);
-
-  assert(geometry_data.computeCollision(1,10).fcl_collision_result.isCollision() == false && "");
+  BOOST_CHECK(geometry_data.computeCollision(1,10).fcl_collision_result.isCollision() == false);
 }
 
 #ifdef WITH_HPP_MODEL_URDF
@@ -269,8 +268,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   quaternion <<  q_pino[6], q_pino[3], q_pino[4], q_pino[5];
   q_hpp.segment<4>(3) = quaternion ;
 
-
-  assert(q_pino.size() == model.nq && "wrong config size");
+  BOOST_CHECK_MESSAGE(q_pino.size() == model.nq , "wrong config size" );
 
   se3::updateGeometryPlacements(model, data, geom, data_geom, q_pino);
 
@@ -285,8 +283,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
               "romeo_pinocchio", "romeo",
               "", "");
 
-
-  assert(model.nq == humanoidRobot->configSize () && "Pinocchio model & HPP model config sizes are not the same ");
+  BOOST_CHECK_MESSAGE(model.nq == humanoidRobot->configSize () , "Pinocchio model & HPP model config sizes are not the same ");
 
   humanoidRobot->currentConfiguration (q_hpp);
   humanoidRobot->computeForwardKinematics ();
@@ -308,7 +305,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   // Comparing position of joints
   se3::SE3 ff_pin = joints_pin["root_joint"];
   se3::SE3 ff_hpp = joints_hpp["base_joint_SO3"];
-  assert( ff_pin.isApprox(ff_hpp) && "ff_hpp and ff_pin are not ==");
+  BOOST_CHECK_MESSAGE(ff_pin.isApprox(ff_hpp) , "ff_hpp and ff_pin are not ==");
 
   for (it_pin = joints_pin.begin(); it_pin != joints_pin.end();
         ++it_pin)
@@ -316,7 +313,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
     it_hpp = joints_hpp.find(it_pin->first);
     if (it_hpp != joints_hpp.end())
     {
-      assert(it_pin->second.isApprox(it_hpp->second) && "joint positions are not equal");
+      BOOST_CHECK_MESSAGE(it_pin->second.isApprox(it_hpp->second) , "joint positions are not equal");
       // se3::Motion nu = se3::log6(it_pin->second.inverse() * it_hpp->second);
     }
   }
@@ -328,7 +325,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
     it_hpp = geom_hpp.find(it_pin->first);
     if (it_hpp != geom_hpp.end())
     {
-      assert(it_pin->second.isApprox(it_hpp->second) && "geometry objects positions are not equal");
+      BOOST_CHECK_MESSAGE(it_pin->second.isApprox(it_hpp->second) , "geometry objects positions are not equal");
     }
   }
 
@@ -379,8 +376,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   quaternion <<  q_pino[6], q_pino[3], q_pino[4], q_pino[5];
   q_hpp.segment<4>(3) = quaternion ;
 
-
-  assert(q_pino.size() == model.nq && "wrong config size");
+  BOOST_CHECK_MESSAGE(q_pino.size() == model.nq , "wrong config size");
 
   se3::updateGeometryPlacements(model, data, geom, data_geom, q_pino);
 
@@ -395,8 +391,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
               "romeo_pinocchio", "romeo",
               "", "");
 
-
-  assert(model.nq == humanoidRobot->configSize () && "Pinocchio model & HPP model config sizes are not the same ");
+  BOOST_CHECK_MESSAGE(model.nq == humanoidRobot->configSize () , "Pinocchio model & HPP model config sizes are not the same ");
 
   humanoidRobot->currentConfiguration (q_hpp);
   humanoidRobot->computeForwardKinematics ();

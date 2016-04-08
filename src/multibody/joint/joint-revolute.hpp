@@ -191,7 +191,7 @@ namespace se3
      operator ConstraintXd () const
      {
       Eigen::Matrix<double,6,1> S;
-      S << Eigen::Vector3d::Zero(), (Eigen::Vector3d)revolute::CartesianVector3<axis>();
+      S << Eigen::Vector3d::Zero(), (Eigen::Vector3d)revolute::CartesianVector3<axis>(1);
       return ConstraintXd(S);
     }
   }; // struct ConstraintRevolute

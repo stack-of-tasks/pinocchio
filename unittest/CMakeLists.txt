@@ -84,7 +84,7 @@ IF(LUA5_1_FOUND)
 ENDIF(LUA5_1_FOUND)
 
 # Work in progress
-#ADD_UNIT_TEST(constraint eigen3)
+ADD_UNIT_TEST(constraint eigen3)
 #ADD_UNIT_TEST(variant eigen3)
 ADD_UNIT_TEST(joints eigen3)
 ADD_UNIT_TEST(compute-all-terms eigen3)

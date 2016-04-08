@@ -50,12 +50,12 @@ namespace se3
                                       );
 
   /**
-   * @brief      Return the jacobian of the extra frame in the world frame or
+   * @brief      Return the jacobian of the operational frame in the world frame or
      in the local frame depending on the template argument.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
-   * @param[in]  frame_id    Id of the extra frame we want to compute the jacobian
+   * @param[in]  frame_id    Id of the operational frame we want to compute the jacobian
    * @param      J           The filled Jacobian Matrix
    *
    * @tparam     localFrame  Express the jacobian in the local or global frame
