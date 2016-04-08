@@ -83,74 +83,74 @@ namespace se3
       /* --- Convert From C++ to Python ------------------------------------- */
       // static PyObject* convert(Model const& modelConstRef)
       // {
-      // 	Model * ptr = const_cast<Model*>(&modelConstRef);
-      // 	return boost::python::incref(boost::python::object(ModelHandler(ptr)).ptr());
+      //  Model * ptr = const_cast<Model*>(&modelConstRef);
+      //  return boost::python::incref(boost::python::object(ModelHandler(ptr)).ptr());
       // }
       static PyObject* convert(ModelHandler::SmartPtr_t const& ptr)
       {
-	return boost::python::incref(boost::python::object(ModelHandler(ptr)).ptr());
+        return boost::python::incref(boost::python::object(ModelHandler(ptr)).ptr());
       }
 
       /* --- Exposing C++ API to python through the handler ----------------- */
-    template<class PyClass>
+      template<class PyClass>
       void visit(PyClass& cl) const 
       {
-	cl
-	  .def("getBodyId",&ModelPythonVisitor::getBodyId)
-    .def("getJointId",&ModelPythonVisitor::getJointId)
-	  .def("createData",&ModelPythonVisitor::createData)
+        cl
+          .def("getBodyId",&ModelPythonVisitor::getBodyId)
+          .def("getJointId",&ModelPythonVisitor::getJointId)
+          .def("createData",&ModelPythonVisitor::createData)
 
-	  .def("__str__",&ModelPythonVisitor::toString)
+          .def("__str__",&ModelPythonVisitor::toString)
 
-	  .add_property("nq", &ModelPythonVisitor::nq)
-	  .add_property("nv", &ModelPythonVisitor::nv)
-	  .add_property("nbody", &ModelPythonVisitor::nbody)
-	  .add_property("inertias",
-			bp::make_function(&ModelPythonVisitor::inertias,
-					  bp::return_internal_reference<>())  )
-	  .add_property("jointPlacements",
-			bp::make_function(&ModelPythonVisitor::jointPlacements,
-					  bp::return_internal_reference<>())  )
-    .add_property("joints",
-      bp::make_function(&ModelPythonVisitor::joints,
-            bp::return_internal_reference<>())  )
-	  .add_property("parents", 
-			bp::make_function(&ModelPythonVisitor::parents,
-					  bp::return_internal_reference<>())  )
-	  .add_property("names",
-			bp::make_function(&ModelPythonVisitor::names,
-					  bp::return_internal_reference<>())  )
-    .add_property("bodyNames",
-		  bp::make_function(&ModelPythonVisitor::bodyNames,
-            bp::return_internal_reference<>())  )
-    .add_property("hasVisual",
-      bp::make_function(&ModelPythonVisitor::hasVisual,
-            bp::return_internal_reference<>())  )
+          .add_property("nq", &ModelPythonVisitor::nq)
+          .add_property("nv", &ModelPythonVisitor::nv)
+          .add_property("nbody", &ModelPythonVisitor::nbody)
+          .add_property("inertias",
+            bp::make_function(&ModelPythonVisitor::inertias,
+                  bp::return_internal_reference<>())  )
+          .add_property("jointPlacements",
+            bp::make_function(&ModelPythonVisitor::jointPlacements,
+                  bp::return_internal_reference<>())  )
+          .add_property("joints",
+            bp::make_function(&ModelPythonVisitor::joints,
+                  bp::return_internal_reference<>())  )
+          .add_property("parents", 
+            bp::make_function(&ModelPythonVisitor::parents,
+                  bp::return_internal_reference<>())  )
+          .add_property("names",
+            bp::make_function(&ModelPythonVisitor::names,
+                  bp::return_internal_reference<>())  )
+          .add_property("bodyNames",
+            bp::make_function(&ModelPythonVisitor::bodyNames,
+                  bp::return_internal_reference<>())  )
+          .add_property("hasVisual",
+            bp::make_function(&ModelPythonVisitor::hasVisual,
+                  bp::return_internal_reference<>())  )
 
-    .def("addBody",&ModelPythonVisitor::addJointToModel)
+          .def("addBody",&ModelPythonVisitor::addJointToModel)
 
-      .add_property("nFixBody", &ModelPythonVisitor::nFixBody)
-      .add_property("fix_lmpMi", bp::make_function(&ModelPythonVisitor::fix_lmpMi, bp::return_internal_reference<>()) )
-      .add_property("fix_lastMovingParent",bp::make_function(&ModelPythonVisitor::fix_lastMovingParent,bp::return_internal_reference<>()) )
-      .add_property("fix_hasVisual", bp::make_function(&ModelPythonVisitor::fix_hasVisual, bp::return_internal_reference<>())  )
-      .add_property("fix_bodyNames", bp::make_function(&ModelPythonVisitor::fix_bodyNames, bp::return_internal_reference<>())  )
+          .add_property("nFixBody", &ModelPythonVisitor::nFixBody)
+          .add_property("fix_lmpMi", bp::make_function(&ModelPythonVisitor::fix_lmpMi, bp::return_internal_reference<>()) )
+          .add_property("fix_lastMovingParent",bp::make_function(&ModelPythonVisitor::fix_lastMovingParent,bp::return_internal_reference<>()) )
+          .add_property("fix_hasVisual", bp::make_function(&ModelPythonVisitor::fix_hasVisual, bp::return_internal_reference<>())  )
+          .add_property("fix_bodyNames", bp::make_function(&ModelPythonVisitor::fix_bodyNames, bp::return_internal_reference<>())  )
 
-      .add_property("effortLimit", bp::make_function(&ModelPythonVisitor::effortLimit, bp::return_internal_reference<>()), "Joint max effort")
-      .add_property("velocityLimit", bp::make_function(&ModelPythonVisitor::velocityLimit, bp::return_internal_reference<>()), "Joint max velocity")
-      .add_property("lowerPositionLimit", bp::make_function(&ModelPythonVisitor::lowerPositionLimit, bp::return_internal_reference<>()), "Limit for joint lower position")
-      .add_property("upperPositionLimit", bp::make_function(&ModelPythonVisitor::upperPositionLimit, bp::return_internal_reference<>()), "Limit for joint upper position")
+          .add_property("effortLimit", bp::make_function(&ModelPythonVisitor::effortLimit, bp::return_internal_reference<>()), "Joint max effort")
+          .add_property("velocityLimit", bp::make_function(&ModelPythonVisitor::velocityLimit, bp::return_internal_reference<>()), "Joint max velocity")
+          .add_property("lowerPositionLimit", bp::make_function(&ModelPythonVisitor::lowerPositionLimit, bp::return_internal_reference<>()), "Limit for joint lower position")
+          .add_property("upperPositionLimit", bp::make_function(&ModelPythonVisitor::upperPositionLimit, bp::return_internal_reference<>()), "Limit for joint upper position")
 
-      .def("getFrameParent", &ModelPythonVisitor::getFrameParent)
-      .def("getFramePlacement", &ModelPythonVisitor::getFramePlacement)
-      .def("addFrame", &ModelPythonVisitor::addFrame)
-        .add_property("operational_frames", bp::make_function(&ModelPythonVisitor::operationalFrames, bp::return_internal_reference<>()) )
+          .def("getFrameParent", &ModelPythonVisitor::getFrameParent)
+          .def("getFramePlacement", &ModelPythonVisitor::getFramePlacement)
+          .def("addFrame", &ModelPythonVisitor::addFrame)
+          .add_property("operational_frames", bp::make_function(&ModelPythonVisitor::operationalFrames, bp::return_internal_reference<>()) )
 
-      .add_property("gravity",&ModelPythonVisitor::gravity,&ModelPythonVisitor::setGravity)
-	  .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
-	  .staticmethod("BuildEmptyModel")
-	  .def("BuildHumanoidSimple",&ModelPythonVisitor::maker_humanoidSimple)
-	  .staticmethod("BuildHumanoidSimple")
-	  ;
+          .add_property("gravity",&ModelPythonVisitor::gravity,&ModelPythonVisitor::setGravity)
+          .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
+          .staticmethod("BuildEmptyModel")
+          .def("BuildHumanoidSimple",&ModelPythonVisitor::maker_humanoidSimple)
+          .staticmethod("BuildHumanoidSimple")
+          ;
       }
 
       static Model::Index getBodyId( const ModelHandler & modelPtr, const std::string & name )
@@ -158,7 +158,7 @@ namespace se3
       static Model::Index getJointId( const ModelHandler & modelPtr, const std::string & name )
       { return  modelPtr->getJointId(name); }
       static boost::shared_ptr<Data> createData(const ModelHandler& m )
-      {	return boost::shared_ptr<Data>( new Data(*m) );      } 
+      { return boost::shared_ptr<Data>( new Data(*m) );      } 
       
       static int nq( ModelHandler & m ) { return m->nq; }
       static int nv( ModelHandler & m ) { return m->nv; }
@@ -171,13 +171,13 @@ namespace se3
       static std::vector<std::string> & bodyNames ( ModelHandler & m ) { return m->bodyNames; }
       static std::vector<bool> & hasVisual ( ModelHandler & m ) { return m->hasVisual; }
 
-      static Model::Index addJointToModel(  ModelHandler & modelPtr,
-                                    Model::JointIndex idx, bp::object joint,
-                                    const SE3_fx & placement,
-                                    const Inertia_fx & Y,
-                                    const std::string & jointName,
-                                    const std::string & bodyName,
-                                    bool visual=false)
+      static Model::Index addJointToModel(ModelHandler & modelPtr,
+                                          Model::JointIndex idx, bp::object joint,
+                                          const SE3_fx & placement,
+                                          const Inertia_fx & Y,
+                                          const std::string & jointName,
+                                          const std::string & bodyName,
+                                          bool visual=false)
       { 
         JointModelVariant variant = bp::extract<JointModelVariant> (joint);
         return boost::apply_visitor(add_body_visitor(modelPtr, idx, placement, Y, jointName, bodyName, visual), variant);
@@ -208,17 +208,17 @@ namespace se3
 
       static ModelHandler maker_empty()
       {
-	return ModelHandler( new Model(),true );
+        return ModelHandler( new Model(),true );
       }
       static ModelHandler maker_humanoidSimple()
       {
-	Model * model = new Model();
-	buildModels::humanoidSimple(*model);
-	return ModelHandler( model,true );
+        Model * model = new Model();
+        buildModels::humanoidSimple(*model);
+        return ModelHandler( model,true );
       }
 
       static std::string toString(const ModelHandler& m) 
-      {	  std::ostringstream s; s << *m; return s.str();       }
+      {   std::ostringstream s; s << *m; return s.str();       }
 
       ///
       /// \brief Provide equivalent to python list index function for
@@ -263,7 +263,7 @@ namespace se3
         bp::class_<ModelHandler>("Model",
                                  "Articulated rigid body model (const)",
                                  bp::no_init)
-        .def(ModelPythonVisitor());
+          .def(ModelPythonVisitor());
       
         /* Not sure if it is a good idea to enable automatic
          * conversion. Prevent it for now */
