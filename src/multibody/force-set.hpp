@@ -123,7 +123,7 @@ namespace se3
       template <typename D>
       Block& operator= (const Eigen::MatrixBase<D> & m)
       {
-        assert(m.rows() == 6);
+        eigen_assert(D::ColsAtCompileTime == 6);
         assert(m.cols() == len);
         linear() = m.template topRows<3>();
         angular() = m.template bottomRows<3>();
