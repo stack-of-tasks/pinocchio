@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -23,10 +23,21 @@
   
 namespace se3
 {
+  ///
+  /// \brief Computes the non-linear effects (Corriolis, centrifual and gravitationnal effects), also called the biais terms of the Lagrangian dynamics:
+  /// <CENTER> \f$ \begin{eqnarray} M \ddot{q} + b(q, \dot{q}) = \tau  \end{eqnarray} \f$ </CENTER> <BR>
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  ///
+  /// \return The biais terms stored in data.nle.
+  ///
   inline const Eigen::VectorXd &
   nonLinearEffects(const Model & model, Data & data,
-       const Eigen::VectorXd & q,
-       const Eigen::VectorXd & v);
+                   const Eigen::VectorXd & q,
+                   const Eigen::VectorXd & v);
 
 } // namespace se3 
 
