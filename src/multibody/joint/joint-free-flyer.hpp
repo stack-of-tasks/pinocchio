@@ -203,23 +203,28 @@ namespace se3
     typedef double Scalar_t;
 
     JointData createData() const { return JointData(); }
-    void calc( JointData& data,
-         const Eigen::VectorXd & qs) const
+    void calc(JointData & data,
+              const Eigen::VectorXd & qs) const
     {
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
-      const JointData::Quaternion quat(q.tail<4> ()); // TODO
+      ConstQuaternionMap_t quat(q.tail<4> ().data());
 
       data.M.rotation (quat.matrix());
       data.M.translation (q.head<3>());
     }
-    void calc( JointData& data, 
-         const Eigen::VectorXd & qs, 
-         const Eigen::VectorXd & vs ) const
+    
+    void calc(JointData & data,
+              const Eigen::VectorXd & qs,
+              const Eigen::VectorXd & vs ) const
     {
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
       data.v = vs.segment<NV>(idx_v());
 
-      const JointData::Quaternion quat(q.tail<4> ()); // TODO
+      ConstQuaternionMap_t quat(q.tail<4> ().data());
       
       data.M.rotation (quat.matrix());
       data.M.translation (q.head<3>());
@@ -234,8 +239,11 @@ namespace se3
         I.setZero();
     }
 
-    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
-    { 
+    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const
+    {
+      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
 
@@ -244,38 +252,34 @@ namespace se3
       result.head<3>() =  (q.head<3>() + q_dot.head<3>());
 
       // Quaternion part
-      Motion_t::Quaternion_t quat(q.tail<4>());
-
+      ConstQuaternionMap_t quat(q.tail<4>().data());
       Motion_t::Quaternion_t pOmega(se3::exp3(q_dot.tail<3>()));
-
-      Motion_t::Quaternion_t quaternion_result(pOmega*quat);
-
-      result[3] = quaternion_result.x();
-      result[4] = quaternion_result.y();
-      result[5] = quaternion_result.z();
-      result[6] = quaternion_result.w();
+      
+      QuaternionMap_t quat_result (result.tail<4>().data());
+      
+      quat_result = pOmega*quat;
 
       return result; 
     } 
 
-    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
-    { 
+    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1, const double u) const
+    {
+      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
       ConfigVector_t result;
       // Translational part
-      result.head<3>() << ((1-u)*q_0.head<3>() + u * q_1.head<3>());
+      result.head<3> () << ((1-u)*q_0.head<3>() + u * q_1.head<3>());
 
       //Quaternion part
-      Motion_t::Quaternion_t p0 (q_0.segment<4>(3));
-      Motion_t::Quaternion_t p1 (q_1.segment<4>(3));
-      Motion_t::Quaternion_t quaternion_result(p0.slerp(u, p1));
+      ConstQuaternionMap_t p0 (q_0.segment<4>(3).data());
+      ConstQuaternionMap_t p1 (q_1.segment<4>(3).data());
+      QuaternionMap_t quat_result (result.tail<4>().data());
       
-      result[3] = quaternion_result.x();
-      result[4] = quaternion_result.y();
-      result[5] = quaternion_result.z();
-      result[6] = quaternion_result.w();
+      quat_result = p0.slerp(u, p1);
 
       return result; 
     }
@@ -290,55 +294,65 @@ namespace se3
     ConfigVector_t randomConfiguration_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const throw (std::runtime_error)
     {
       ConfigVector_t result;
-      // Translational Part
+      // Translational part
       for (Index i = 0; i < 3; ++i)
       {
-        if(lower_pos_limit[i] == -std::numeric_limits<double>::infinity() || 
-            upper_pos_limit[i] == std::numeric_limits<double>::infinity() )
+        if(lower_pos_limit[i] == -std::numeric_limits<double>::infinity() ||
+           upper_pos_limit[i] == std::numeric_limits<double>::infinity() )
         {
           std::ostringstream error;
-          error << "non bounded limit. Cannot uniformly sample joint nb " << id() ;
-          assert(false && "non bounded limit. Cannot uniformly sample joint freeflyer" );
+          error << "non bounded limit. Cannot uniformly sample joint nb " << id();
           throw std::runtime_error(error.str());
         }
-        result[i] = lower_pos_limit[i] + ( upper_pos_limit[i] - lower_pos_limit[i]) * rand()/RAND_MAX;
+          
+        result[i] = lower_pos_limit[i] + (upper_pos_limit[i] - lower_pos_limit[i]) * (Scalar_t)(rand())/RAND_MAX;
       }
-
-      // Quaternion Part
-      double u1 = (double)rand() / RAND_MAX;
-      double u2 = (double)rand() / RAND_MAX;
-      double u3 = (double)rand() / RAND_MAX;
-
-      double mult1 = sqrt (1-u1);
-      double mult2 = sqrt (u1);
+          
+      // Rotational part
+      const Scalar_t u1 = (Scalar_t)rand() / RAND_MAX;
+      const Scalar_t u2 = (Scalar_t)rand() / RAND_MAX;
+      const Scalar_t u3 = (Scalar_t)rand() / RAND_MAX;
       
-      result.segment<4>(3) << mult1 * sin(2*PI*u2),
-                              mult1 * cos(2*PI*u2),
-                              mult2 * sin(2*PI*u3),
-                              mult2 * cos(2*PI*u3);
+      const Scalar_t mult1 = sqrt (1-u1);
+      const Scalar_t mult2 = sqrt (u1);
+      
+      Scalar_t s2,c2; SINCOS(2.*PI*u2,&s2,&c2);
+      Scalar_t s3,c3; SINCOS(2.*PI*u3,&s3,&c3);
+      
+      
+      result.segment<4>(3) << mult1 * s2,
+                              mult1 * c2,
+                              mult2 * s3,
+                              mult2 * c3;
       return result;
     }
 
-    TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
-    { 
+    TangentVector_t difference_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1) const
+    {
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      using std::acos;
+      
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
       TangentVector_t result;
       // Translational part
-      result.head<3>() << (q_1.segment<3>(0) - q_0.segment<3>(0));
+      result.head<3>() << q_1.head<3> () - q_0.head<3> ();
 
       // Quaternion part
-      // Compute relative rotation between q2 and q1.
-      const int invertor = (q_0.segment<4>(3).dot(q_1.segment<4>(3)) < 0 ) ? -1: 1 ;
-      Motion_t::Quaternion_t p0 (invertor * q_0.segment<4>(3));
-      Motion_t::Quaternion_t p1 (q_1.segment<4>(3));
+      // Compute relative rotation between q0 and q1.
+      ConstQuaternionMap_t quat0 (q_0.segment<4>(3).data());
+      ConstQuaternionMap_t quat1 (q_1.segment<4>(3).data());
+      
+      const Motion_t::Quaternion_t quat_relatif (quat1*quat0.conjugate());
+      const Scalar_t theta = 2.*acos(quat_relatif.w());
+      
+      if (quat0.dot(quat1) >= 0.)
+        result.tail<3>() << theta * quat_relatif.vec().normalized();
+      else
+        result.tail<3>() << -(2*PI-theta) * quat_relatif.vec().normalized();
 
-      Motion_t::Quaternion_t p (p1*p0.conjugate());
-      Eigen::AngleAxis<Scalar_t> angle_axis(p);
-
-      result.tail<3>() << angle_axis.angle() * angle_axis.axis() ;
-      return result; 
+      return result;
     } 
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const

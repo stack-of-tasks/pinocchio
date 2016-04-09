@@ -270,10 +270,11 @@ namespace se3
     void calc (JointData & data,
                const Eigen::VectorXd & qs) const
     {
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ>(idx_q ());
-
-      const JointData::Quaternion quat(Eigen::Matrix<double,4,1> (q.tail <4> ())); // TODO
-
+      
+      ConstQuaternionMap_t quat(q.data());
       data.M.rotation (quat.matrix());
     }
 
@@ -281,10 +282,12 @@ namespace se3
                const Eigen::VectorXd & qs,
                const Eigen::VectorXd & vs ) const
     {
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
       data.v () = vs.segment<NV> (idx_v ());
 
-      const JointData::Quaternion quat(Eigen::Matrix<double,4,1> (q.tail <4> ())); // TODO
+      ConstQuaternionMap_t quat(q.data());
       data.M.rotation (quat.matrix ());
     }
     
@@ -305,36 +308,29 @@ namespace se3
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {
-      Motion_t::Quaternion_t q(qs.segment<NQ>(idx_q()));
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      
+      ConstQuaternionMap_t q(qs.segment<NQ>(idx_q()).data());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
 
-      Motion_t::Vector3 omega(q_dot);
-      Motion_t::Quaternion_t pOmega(se3::exp3(omega));
-
+      Motion_t::Quaternion_t pOmega(se3::exp3(q_dot));
       Motion_t::Quaternion_t quaternion_result(pOmega*q);
-      ConfigVector_t result(quaternion_result.x(),
-                            quaternion_result.y(),
-                            quaternion_result.z(),
-                            quaternion_result.w()
-                            );
-      return result; 
+      
+      return quaternion_result.coeffs();
     }
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
-    { 
+    {
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
-      Motion_t::Quaternion_t p0 (q_0);
-      Motion_t::Quaternion_t p1 (q_1);
+      ConstQuaternionMap_t p0 (q_0.data());
+      ConstQuaternionMap_t p1 (q_1.data());
       Motion_t::Quaternion_t quaternion_result(p0.slerp(u, p1));
 
-      ConfigVector_t result(quaternion_result.x(),
-                            quaternion_result.y(),
-                            quaternion_result.z(),
-                            quaternion_result.w());
-
-      return result;
+      return quaternion_result.coeffs();
     }
 
     ConfigVector_t random_impl() const
@@ -344,33 +340,45 @@ namespace se3
       return q;
     } 
 
-    ConfigVector_t randomConfiguration_impl(const ConfigVector_t & , const ConfigVector_t & ) const
+    ConfigVector_t randomConfiguration_impl(const ConfigVector_t &, const ConfigVector_t &) const
     {
       ConfigVector_t result;
 
-      double u1 = (double)rand() / RAND_MAX;
-      double u2 = (double)rand() / RAND_MAX;
-      double u3 = (double)rand() / RAND_MAX;
+      // Rotational part
+      const Scalar_t u1 = (Scalar_t)rand() / RAND_MAX;
+      const Scalar_t u2 = (Scalar_t)rand() / RAND_MAX;
+      const Scalar_t u3 = (Scalar_t)rand() / RAND_MAX;
       
-      result << sqrt (1-u1)*sin(2*PI*u2),
-                sqrt (1-u1)*cos(2*PI*u2),
-                sqrt (u1) * sin(2*PI*u3),
-                sqrt (u1) * cos(2*PI*u3);
+      const Scalar_t mult1 = sqrt (1-u1);
+      const Scalar_t mult2 = sqrt (u1);
+      
+      Scalar_t s2,c2; SINCOS(2.*PI*u2,&s2,&c2);
+      Scalar_t s3,c3; SINCOS(2.*PI*u3,&s3,&c3);
+      
+      result << mult1 * s2,
+                mult1 * c2,
+                mult2 * s3,
+                mult2 * c3;
+      
       return result;
     }
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
-    { 
-      // Compute relative rotation between q2 and q1.
-      const int invertor = (q0.segment<NQ> (idx_q ()).dot(q1.segment<NQ> (idx_q ())) < 0 ) ? -1: 1 ;
-      Motion_t::Quaternion_t p0 (invertor * q0.segment<NQ>(idx_q()));
-      Motion_t::Quaternion_t p1 (q1.segment<NQ>(idx_q()));
-
-      Motion_t::Quaternion_t p (p1*p0.conjugate());
-      Eigen::AngleAxis<Scalar_t> angle_axis(p);
-
-      TangentVector_t result(angle_axis.angle() * angle_axis.axis());
-      return result;
+    {
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      using std::acos;
+      
+      ConstQuaternionMap_t quat0 (q0.segment<NQ> (idx_q ()).data());
+      ConstQuaternionMap_t quat1 (q1.segment<NQ> (idx_q ()).data());
+      
+      const Motion_t::Quaternion_t quat_relatif (quat1*quat0.conjugate());
+      Scalar_t theta;
+      if (quat0.dot(quat1) >= 0.)
+        theta = 2.*acos(quat_relatif.w());
+      else
+        theta = -2.*(PI - acos(quat_relatif.w()));
+      
+      return theta * quat_relatif.vec().normalized();
     } 
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
