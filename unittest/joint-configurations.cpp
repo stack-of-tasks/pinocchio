@@ -59,6 +59,7 @@ bool configurations_are_equals(const Eigen::VectorXd & conf1, const Eigen::Vecto
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE JointConfigurationsTest
 #include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
 
 
 BOOST_AUTO_TEST_SUITE ( JointConfigurationsTest )

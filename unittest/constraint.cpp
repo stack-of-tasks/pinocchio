@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -49,9 +49,6 @@ BOOST_AUTO_TEST_CASE ( test_ForceSet )
   BOOST_CHECK_EQUAL(F.matrix().col(10).norm() , 0.0 );
   BOOST_CHECK(isnan(F.matrix()(0,9)));
 
-  std::cout << "F10 = " << F2.matrix() << std::endl;
-  std::cout << "F = " << F.matrix() << std::endl;
-
   ForceSet F3(Eigen::Matrix<double,3,12>::Random(),Eigen::Matrix<double,3,12>::Random());
   ForceSet F4 = amb.act(F3);
   SE3::Matrix6 aXb= amb;
@@ -79,12 +76,7 @@ BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
   Inertia Y = Inertia::Random();
   JointDataRX::Constraint_t S;
 
-  std::cout << "Y = \n" << Y.matrix() << std::endl;
-  std::cout << "S = \n" << ((ConstraintXd)S).matrix() << std::endl;
-
   ForceSet F(1); F.block(0,1) = Y*S;
-  std::cout << "Y*S = \n" << (Y*S).matrix() << std::endl;
-  std::cout << "F=Y*S = \n" << F.matrix() << std::endl;
   BOOST_CHECK(F.matrix().isApprox(Y.matrix().col(3), 1e-12));
 
   ForceSet F2( Eigen::Matrix<double,3,9>::Random(),Eigen::Matrix<double,3,9>::Random() );
