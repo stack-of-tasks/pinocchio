@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -22,8 +22,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
-
-#include <iostream>
+#include "pinocchio/algorithm/energy.hpp"
 
 namespace se3
 {
@@ -61,8 +60,9 @@ namespace se3
 
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
+      
       jmodel.calc(jdata.derived(),q,v);
-
+      
       // CRBA
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       data.Ycrb[i] = model.inertias[i];
@@ -76,9 +76,7 @@ namespace se3
         data.v[i] += data.liMi[i].actInv(data.v[parent]);
       }
       else
-      {
         data.oMi[i] = data.liMi[i];
-      }
 
       jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
 
@@ -89,6 +87,15 @@ namespace se3
       data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
 
       data.f[i] = model.inertias[i]*data.a_gf[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
+      
+      // CoM
+      const double mass = model.inertias[i].mass();
+      const SE3::Vector3 & lever = model.inertias[i].lever();
+      
+      data.com[i]  = mass * lever;
+      data.mass[i] = mass;
+
+      data.vcom[i] = mass * (data.v[i].angular().cross(lever) + data.v[i].linear());
     }
 
   };
@@ -115,6 +122,7 @@ namespace se3
        */
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
+      const SE3 & oMi = data.oMi[i];
 
       /* F[1:6,i] = Y*S */
       jmodel.jointCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
@@ -139,6 +147,34 @@ namespace se3
 
         data.f[parent] += data.liMi[i].act(data.f[i]);
       }
+      
+      // CoM
+      const SE3 & liMi = data.liMi[i];
+      
+      data.com[parent] += (liMi.rotation()*data.com[i]
+                           + data.mass[i] * liMi.translation());
+      
+      SE3::Vector3 com_in_world (oMi.rotation() * data.com[i] + data.mass[i] * oMi.translation());
+      
+      data.vcom[parent] += liMi.rotation()*data.vcom[i];
+      data.mass[parent] += data.mass[i];
+      
+      typedef Data::Matrix6x Matrix6x;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
+      
+      ColBlock Jcols = jmodel.jointCols(data.J);
+      
+      if( JointModel::NV==1 )
+        data.Jcom.col(jmodel.idx_v())
+        = data.mass[i] * Jcols.template topLeftCorner<3,1>()
+        - com_in_world.cross(Jcols.template bottomLeftCorner<3,1>()) ;
+      else
+        jmodel.jointCols(data.Jcom)
+        = data.mass[i] * Jcols.template topRows<3>()
+        - skew(com_in_world) * Jcols.template bottomRows<3>() ;
+      
+      data.com[i] /= data.mass[i];
+      data.vcom[i] /= data.mass[i];
     }
   };
 
@@ -151,21 +187,33 @@ namespace se3
     data.v[0].setZero();
     data.a[0].setZero();
     data.a_gf[0] = -model.gravity;
+    
+    data.mass[0] = 0;
+    data.com[0].setZero ();
+    data.vcom[0].setZero ();
 
     for(Model::JointIndex i=1;i<(Model::JointIndex) model.nbody;++i)
     {
       CATForwardStep::run(model.joints[i],data.joints[i],
-                           CATForwardStep::ArgsType(model,data,q,v));
+                          CATForwardStep::ArgsType(model,data,q,v));
     }
 
     for(Model::JointIndex i=(Model::JointIndex)(model.nbody-1);i>0;--i)
     {
       CATBackwardStep::run(model.joints[i],data.joints[i],
-                            CATBackwardStep::ArgsType(model,data));
+                           CATBackwardStep::ArgsType(model,data));
     }
     
-    getJacobianComFromCrba(model, data);
-    centerOfMass(model, data, q, v, true, false);
+    // CoM
+    data.com[0] /= data.mass[0];
+    data.vcom[0] /= data.mass[0];
+    
+    // JCoM
+    data.Jcom /= data.mass[0];
+    
+    // Energy
+    kineticEnergy(model, data, q, v, false);
+    potentialEnergy(model, data, q, false);
 
   }
 } // namespace se3
