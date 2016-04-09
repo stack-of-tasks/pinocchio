@@ -256,18 +256,21 @@ namespace se3
       data.com[parent]  += data.com[i];
       data.mass[parent] += data.mass[i];
 
-      const Eigen::Matrix<double,6,JointModel::NV> & oSk
-      = data.oMi[i].act(jdata.S());
-
+      typedef Data::Matrix6x Matrix6x;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
+      
+      ColBlock Jcols = jmodel.jointCols(data.J);
+      
+      Jcols = data.oMi[i].act(jdata.S());
+      
       if( JointModel::NV==1 )
-        data.Jcom.col(jmodel.idx_v()) // Using head and tail would confuse g++
-        = data.mass[i]*oSk.template topLeftCorner<3,1>()
-        - data.com[i].cross(oSk.template bottomLeftCorner<3,1>()) ;
+        data.Jcom.col(jmodel.idx_v())
+        = data.mass[i] * Jcols.template topLeftCorner<3,1>()
+        - data.com[i].cross(Jcols.template bottomLeftCorner<3,1>()) ;
       else
         jmodel.jointCols(data.Jcom)
-        //data.Jcom.template block<3,JointModel::NV>(0,jmodel.idx_v())
-        = data.mass[i]*oSk.template topRows<3>()
-        - skew(data.com[i]) * oSk.template bottomRows<3>() ;
+        = data.mass[i] * Jcols.template topRows<3>()
+        - skew(data.com[i]) * Jcols.template bottomRows<3>();
     
       if(computeSubtreeComs)
         data.com[i] /= data.mass[i];
@@ -313,7 +316,6 @@ namespace se3
     // than the direct Eigen multiplication
     for (long k=0; k<model.nv;++k)
       data.Jcom.col(k) = oR1_over_m * data.M.topRows<3> ().col(k);
-//    data.Jcom = oR1_over_m * data.M.topRows<3> ();
     return data.Jcom;
   }
 
