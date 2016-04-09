@@ -23,6 +23,17 @@
   
 namespace se3
 {
+  ///
+  /// \brief The Recursive Newton-Euler algorithm. It computes the inverse dynamics, aka the joint torques according to the current state of the system and the desired joint accelerations.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  /// \param[in] a The joint acceleration vector (dim model.nv).
+  ///
+  /// \return The desired joint torques stored in data.tau.
+  ///
   inline const Eigen::VectorXd&
   rnea(const Model & model, Data& data,
        const Eigen::VectorXd & q,

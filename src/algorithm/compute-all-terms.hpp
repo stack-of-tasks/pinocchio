@@ -51,10 +51,11 @@ namespace se3
 
 } // namespace se3
 
-/// @cond DEV
+
 /* --- Details -------------------------------------------------------------------- */
 namespace se3
 {
+  
   struct CATForwardStep : public fusion::JointVisitor<CATForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
@@ -195,7 +196,7 @@ namespace se3
       data.vcom[i] /= data.mass[i];
     }
   };
-
+  
   inline void
   computeAllTerms(const Model & model,
                   Data & data,
@@ -235,7 +236,7 @@ namespace se3
 
   }
 } // namespace se3
-/// @endcond
+
 
 #endif // ifndef __se3_compute_all_terms_hpp__
 
