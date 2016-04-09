@@ -70,11 +70,26 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
+  getJacobianComFromCrba(model, data_other);
+  centerOfMass(model, data_other, q, v, true, true);
+  kineticEnergy(model, data_other, q, v, true);
+  potentialEnergy(model, data_other, q, true);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
+  BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
+  
+  for (int k=0; k<model.nbody; ++k)
+  {
+    BOOST_CHECK (data.com[(size_t)k].isApprox(data_other.com[(size_t)k], 1e-12));
+    BOOST_CHECK (data.vcom[(size_t)k].isApprox(data_other.vcom[(size_t)k], 1e-12));
+    BOOST_CHECK_CLOSE(data.mass[(size_t)k], data_other.mass[(size_t)k], 1e-12);
+  }
+  
+  BOOST_CHECK_CLOSE(data.kinetic_energy, data_other.kinetic_energy, 1e-12);
+  BOOST_CHECK_CLOSE(data.potential_energy, data_other.potential_energy, 1e-12);
 
   // -------
   q.setZero ();
@@ -85,14 +100,30 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
+  getJacobianComFromCrba(model, data_other);
+  centerOfMass(model, data_other, q, v, true, true);
+  kineticEnergy(model, data_other, q, v, true);
+  potentialEnergy(model, data_other, q, true);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
+  BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
+  
+  for (int k=0; k<model.nbody; ++k)
+  {
+    BOOST_CHECK (data.com[(size_t)k].isApprox(data_other.com[(size_t)k], 1e-12));
+    BOOST_CHECK (data.vcom[(size_t)k].isApprox(data_other.vcom[(size_t)k], 1e-12));
+    BOOST_CHECK_CLOSE(data.mass[(size_t)k], data_other.mass[(size_t)k], 1e-12);
+  }
+  
+  BOOST_CHECK_CLOSE(data.kinetic_energy, data_other.kinetic_energy, 1e-12);
+  BOOST_CHECK_CLOSE(data.potential_energy, data_other.potential_energy, 1e-12);
 
-  // -------
+//   -------
   q.setOnes ();
+  q.segment<4> (3).normalize();
   v.setOnes ();
 
   computeAllTerms(model,data,q,v);
@@ -100,14 +131,30 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
+  getJacobianComFromCrba(model, data_other);
+  centerOfMass(model, data_other, q, v, true, true);
+  kineticEnergy(model, data_other, q, v, true);
+  potentialEnergy(model, data_other, q, true);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
+  BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
+  
+  for (int k=0; k<model.nbody; ++k)
+  {
+    BOOST_CHECK (data.com[(size_t)k].isApprox(data_other.com[(size_t)k], 1e-12));
+    BOOST_CHECK (data.vcom[(size_t)k].isApprox(data_other.vcom[(size_t)k], 1e-12));
+    BOOST_CHECK_CLOSE(data.mass[(size_t)k], data_other.mass[(size_t)k], 1e-12);
+  }
+  
+  BOOST_CHECK_CLOSE(data.kinetic_energy, data_other.kinetic_energy, 1e-12);
+  BOOST_CHECK_CLOSE(data.potential_energy, data_other.potential_energy, 1e-12);
 
   // -------
   q.setRandom ();
+  q.segment<4> (3).normalize();
   v.setRandom ();
 
   computeAllTerms(model,data,q,v);
@@ -115,11 +162,26 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
+  getJacobianComFromCrba(model, data_other);
+  centerOfMass(model, data_other, q, v, true, true);
+  kineticEnergy(model, data_other, q, v, true);
+  potentialEnergy(model, data_other, q, true);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
+  BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
+  
+  for (int k=0; k<model.nbody; ++k)
+  {
+    BOOST_CHECK (data.com[(size_t)k].isApprox(data_other.com[(size_t)k], 1e-12));
+    BOOST_CHECK (data.vcom[(size_t)k].isApprox(data_other.vcom[(size_t)k], 1e-12));
+    BOOST_CHECK_CLOSE(data.mass[(size_t)k], data_other.mass[(size_t)k], 1e-12);
+  }
+  
+  BOOST_CHECK_CLOSE(data.kinetic_energy, data_other.kinetic_energy, 1e-12);
+  BOOST_CHECK_CLOSE(data.potential_energy, data_other.potential_energy, 1e-12);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
