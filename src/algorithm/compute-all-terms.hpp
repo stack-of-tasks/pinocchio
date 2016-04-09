@@ -26,6 +26,23 @@
 
 namespace se3
 {
+  ///
+  /// \brief Computes efficiently all the terms needed for dynamic simulation. It is equivalent to the call at the same time to:
+  ///         - se3::forwardKinematics
+  ///         - se3::crba
+  ///         - se3::nonLinearEffects
+  ///         - se3::computeJacobians
+  ///         - se3::centerOfMass
+  ///         - se3::jacobianCenterOfMass
+  ///         - se3::kineticEnergy
+  ///         - se3::potentialEnergy
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  ///
+  /// \return All the results are stored in data. Please refer to the specific algorithm for further details.
   inline void
   computeAllTerms(const Model & model,
                   Data & data,
@@ -34,6 +51,7 @@ namespace se3
 
 } // namespace se3
 
+/// @cond DEV
 /* --- Details -------------------------------------------------------------------- */
 namespace se3
 {
@@ -171,7 +189,7 @@ namespace se3
       else
         jmodel.jointCols(data.Jcom)
         = data.mass[i] * Jcols.template topRows<3>()
-        - skew(com_in_world) * Jcols.template bottomRows<3>() ;
+        - skew(com_in_world) * Jcols.template bottomRows<3>();
       
       data.com[i] /= data.mass[i];
       data.vcom[i] /= data.mass[i];
@@ -217,6 +235,7 @@ namespace se3
 
   }
 } // namespace se3
+/// @endcond
 
 #endif // ifndef __se3_compute_all_terms_hpp__
 
