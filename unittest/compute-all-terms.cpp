@@ -30,7 +30,7 @@
 #include "pinocchio/algorithm/non-linear-effects.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/simulation/compute-all-terms.hpp"
+#include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
 

@@ -19,7 +19,7 @@
 #define __se3_dynamics_hpp__
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/simulation/compute-all-terms.hpp"
+#include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 

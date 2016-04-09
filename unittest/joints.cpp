@@ -35,7 +35,7 @@
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/simulation/compute-all-terms.hpp"
+#include "pinocchio/algorithm/compute-all-terms.hpp"
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE JointsTest

@@ -24,7 +24,7 @@
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
 
-#include "pinocchio/simulation/compute-all-terms.hpp"
+#include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/tools/timer.hpp"
 
 #include <iostream>
