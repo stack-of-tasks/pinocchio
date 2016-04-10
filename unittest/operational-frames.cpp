@@ -58,10 +58,9 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 {
   using namespace Eigen;
   using namespace se3;
-  typedef Data::Matrix6x Matrix6x;
 
-  se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  Model model;
+  buildModels::humanoidSimple(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.nbody-1);
   const std::string & frame_name = std::string( model.getJointName(parent_idx)+ "_frame");
   const SE3 & framePlacement = SE3::Random();

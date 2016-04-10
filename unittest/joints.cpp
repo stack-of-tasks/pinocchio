@@ -436,7 +436,6 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   using namespace se3;
 
   typedef Motion::Vector3 Vector3;
-  typedef Motion::Vector6 Vector6;
 
   Motion expected_v_J (Motion::Zero ());
   Motion expected_c_J (Motion::Zero ());
