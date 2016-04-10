@@ -25,7 +25,6 @@
 #include "pinocchio/python/data.hpp"
 
 #include "pinocchio/algorithm/rnea.hpp"
-#include "pinocchio/algorithm/non-linear-effects.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/dynamics.hpp"

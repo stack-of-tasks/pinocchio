@@ -141,6 +141,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/aba.hpp
   algorithm/aba.hxx
   algorithm/rnea.hpp
+  algorithm/rnea.hxx
   algorithm/crba.hpp
   algorithm/crba.hxx
   algorithm/jacobian.hpp
@@ -152,7 +153,6 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/dynamics.hpp
   algorithm/center-of-mass.hpp
   algorithm/center-of-mass.hxx
-  algorithm/non-linear-effects.hpp
   algorithm/joint-configuration.hpp
   algorithm/energy.hpp
   algorithm/operational-frames.hpp

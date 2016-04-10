@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,7 +18,6 @@
 #ifndef __se3_rnea_hpp__
 #define __se3_rnea_hpp__
 
-#include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
   
 namespace se3
@@ -34,103 +33,32 @@ namespace se3
   ///
   /// \return The desired joint torques stored in data.tau.
   ///
-  inline const Eigen::VectorXd&
-  rnea(const Model & model, Data& data,
+  inline const Eigen::VectorXd &
+  rnea(const Model & model, Data & data,
        const Eigen::VectorXd & q,
        const Eigen::VectorXd & v,
        const Eigen::VectorXd & a);
+  
+  ///
+  /// \brief Computes the non-linear effects (Corriolis, centrifual and gravitationnal effects), also called the biais terms \f$ b(q,\dot{q}) \f$ of the Lagrangian dynamics:
+  /// <CENTER> \f$ \begin{eqnarray} M \ddot{q} + b(q, \dot{q}) = \tau  \end{eqnarray} \f$ </CENTER> <BR>
+  /// \note This function is equivalent to se3::rnea(model, data, q, v, 0).
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  ///
+  /// \return The biais terms stored in data.nle.
+  ///
+  inline const Eigen::VectorXd &
+  nonLinearEffects(const Model & model, Data & data,
+                   const Eigen::VectorXd & q,
+                   const Eigen::VectorXd & v);
 
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
-namespace se3 
-{
-  struct RneaForwardStep : public fusion::JointVisitor<RneaForwardStep>
-  {
-    typedef boost::fusion::vector< const se3::Model&,
-			    se3::Data&,
-			    const Model::Index,
-			    const Eigen::VectorXd &,
-			    const Eigen::VectorXd &,
-			    const Eigen::VectorXd &
-			    > ArgsType;
-
-    JOINT_VISITOR_INIT(RneaForwardStep);
-
-    template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-		    se3::JointDataBase<typename JointModel::JointData> & jdata,
-		    const se3::Model& model,
-		    se3::Data& data,
-		    const Model::Index i,
-		    const Eigen::VectorXd & q,
-		    const Eigen::VectorXd & v,
-		    const Eigen::VectorXd & a)
-    {
-      using namespace Eigen;
-      using namespace se3;
-      
-      jmodel.calc(jdata.derived(),q,v);
-      
-      const Model::JointIndex & parent = model.parents[i];
-      data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      
-      data.v[i] = jdata.v();
-      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
-      
-      data.a_gf[i] = jdata.S()*jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v()) ;
-      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
-      
-      data.f[i] = model.inertias[i]*data.a_gf[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
-    }
-
-  };
-
-  struct RneaBackwardStep : public fusion::JointVisitor<RneaBackwardStep>
-  {
-    typedef boost::fusion::vector<const Model&,
-				  Data&,
-				  const Model::Index>  ArgsType;
-    
-    JOINT_VISITOR_INIT(RneaBackwardStep);
-
-    template<typename JointModel>
-    static void algo(const JointModelBase<JointModel> & jmodel,
-		     JointDataBase<typename JointModel::JointData> & jdata,
-		     const Model& model,
-		     Data& data,
-		     Model::Index i)
-    {
-      const Model::JointIndex & parent  = model.parents[i];      
-      jmodel.jointVelocitySelector(data.tau)  = jdata.S().transpose()*data.f[i];
-      if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
-    }
-  };
-
-  inline const Eigen::VectorXd&
-  rnea(const Model & model, Data& data,
-       const Eigen::VectorXd & q,
-       const Eigen::VectorXd & v,
-       const Eigen::VectorXd & a)
-  {
-    data.v[0].setZero();
-    data.a_gf[0] = -model.gravity;
-
-    for( Model::JointIndex i=1;i<(Model::JointIndex)model.nbody;++i )
-      {
-	RneaForwardStep::run(model.joints[i],data.joints[i],
-			     RneaForwardStep::ArgsType(model,data,i,q,v,a));
-      }
-    
-    for( Model::JointIndex i=(Model::JointIndex)model.nbody-1;i>0;--i )
-      {
-	RneaBackwardStep::run(model.joints[i],data.joints[i],
-	 		      RneaBackwardStep::ArgsType(model,data,i));
-      }
-
-    return data.tau;
-  }
-} // namespace se3
+#include "pinocchio/algorithm/rnea.hxx"
 
 #endif // ifndef __se3_rnea_hpp__
-
