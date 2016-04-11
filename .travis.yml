@@ -2,6 +2,7 @@ language: cpp
 python:
   - "2.7"
 sudo: required
+dist: trusty
 compiler:
   - gcc
 # - clang
