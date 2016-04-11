@@ -55,19 +55,19 @@ namespace se3
 		  const double & a3,const double & a4,const double & a5)
     { data_ << a0,a1,a2,a3,a4,a5; }
 
-    static Symmetric3Tpl Zero()     { return Symmetric3Tpl(Vector6::Zero()  );  }
+    static Symmetric3Tpl Zero()     { return Symmetric3Tpl(Vector6::Zero());  }
     void setZero() { data_.setZero(); }
     
     static Symmetric3Tpl Random()   { return RandomPositive();  }
     void setRandom()
     {
-      double
-      a = double(std::rand())/RAND_MAX*2.0-1.0,
-      b = double(std::rand())/RAND_MAX*2.0-1.0,
-      c = double(std::rand())/RAND_MAX*2.0-1.0,
-      d = double(std::rand())/RAND_MAX*2.0-1.0,
-      e = double(std::rand())/RAND_MAX*2.0-1.0,
-      f = double(std::rand())/RAND_MAX*2.0-1.0;
+      Scalar
+      a = Scalar(std::rand())/RAND_MAX*2.0-1.0,
+      b = Scalar(std::rand())/RAND_MAX*2.0-1.0,
+      c = Scalar(std::rand())/RAND_MAX*2.0-1.0,
+      d = Scalar(std::rand())/RAND_MAX*2.0-1.0,
+      e = Scalar(std::rand())/RAND_MAX*2.0-1.0,
+      f = Scalar(std::rand())/RAND_MAX*2.0-1.0;
       
       data_ << a, b, c, d, e, f;
     }
@@ -76,7 +76,7 @@ namespace se3
     void setIdentity() { data_ << 1, 0, 1, 0, 0, 1; }
 
     /* Requiered by Inertia::operator== */
-    bool operator== (const Symmetric3Tpl & S2 ) const { return data_ == S2.data_; }
+    bool operator== (const Symmetric3Tpl & S2) const { return data_ == S2.data_; }
     
     void fill(const Scalar value) { data_.fill(value); }
     
@@ -86,55 +86,62 @@ namespace se3
       SkewSquare( const Vector3 & v ) : v(v) {}
       operator Symmetric3Tpl () const 
       {
-	const double & x = v[0], & y = v[1], & z = v[2]; 
-	return Symmetric3Tpl( -y*y-z*z,
-			      x*y    ,  -x*x-z*z, 
-			      x*z    ,   y*z    ,  -x*x-y*y );
+        const Scalar & x = v[0], & y = v[1], & z = v[2];
+        return Symmetric3Tpl( -y*y-z*z,
+                             x*y    ,  -x*x-z*z,
+                             x*z    ,   y*z    ,  -x*x-y*y );
       }
-    }; // struct SkewSquare 
+    }; // struct SkewSquare
+    
     Symmetric3Tpl operator- (const SkewSquare & v) const
     {
-      const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
-      return Symmetric3Tpl( data_[0]+y*y+z*z,
-			    data_[1]-x*y    ,  data_[2]+x*x+z*z, 
-			    data_[3]-x*z    ,  data_[4]-y*z    ,  data_[5]+x*x+y*y );
+      const Scalar & x = v.v[0], & y = v.v[1], & z = v.v[2];
+      return Symmetric3Tpl(data_[0]+y*y+z*z,
+                           data_[1]-x*y,data_[2]+x*x+z*z,
+                           data_[3]-x*z,data_[4]-y*z,data_[5]+x*x+y*y);
     }
     Symmetric3Tpl& operator-= (const SkewSquare & v)
     {
-      const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
+      const Scalar & x = v.v[0], & y = v.v[1], & z = v.v[2];
       data_[0]+=y*y+z*z;
-      data_[1]-=x*y    ;  data_[2]+=x*x+z*z; 
-      data_[3]-=x*z    ;  data_[4]-=y*z    ;  data_[5]+=x*x+y*y;
+      data_[1]-=x*y; data_[2]+=x*x+z*z;
+      data_[3]-=x*z; data_[4]-=y*z; data_[5]+=x*x+y*y;
       return *this;
     }
 
     struct AlphaSkewSquare
     {
-      const double & m;  const Vector3 & v;
-      AlphaSkewSquare( const double & m, const SkewSquare & v ) : m(m),v(v.v) {}
+      const Scalar & m;
+      const Vector3 & v;
+      
+      AlphaSkewSquare(const Scalar & m, const SkewSquare & v) : m(m),v(v.v) {}
       operator Symmetric3Tpl () const 
       {
-	const double & x = v[0], & y = v[1], & z = v[2]; 
-	return Symmetric3Tpl( -m*(y*y+z*z),
-			       m* x*y     ,  -m*(x*x+z*z), 
-			       m* x*z     ,   m* y*z     ,  -m*(x*x+y*y) );
+        const Scalar & x = v[0], & y = v[1], & z = v[2];
+        return Symmetric3Tpl(-m*(y*y+z*z),
+                             m* x*y,-m*(x*x+z*z),
+                             m* x*z,m* y*z,-m*(x*x+y*y));
       }
     };
-    friend AlphaSkewSquare operator* (const double & m, const SkewSquare & sk )
+    
+    friend AlphaSkewSquare operator* (const Scalar & m, const SkewSquare & sk)
     { return AlphaSkewSquare(m,sk); }
+    
     Symmetric3Tpl operator- (const AlphaSkewSquare & v) const
     {
-      const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
-      return Symmetric3Tpl( data_[0]+v.m*(y*y+z*z),
-			    data_[1]-v.m* x*y     ,  data_[2]+v.m*(x*x+z*z), 
-			    data_[3]-v.m* x*z     ,  data_[4]-v.m* y*z     ,  data_[5]+v.m*(x*x+y*y) );
+      const Scalar & x = v.v[0], & y = v.v[1], & z = v.v[2];
+      return Symmetric3Tpl(data_[0]+v.m*(y*y+z*z),
+                           data_[1]-v.m* x*y, data_[2]+v.m*(x*x+z*z),
+                           data_[3]-v.m* x*z, data_[4]-v.m* y*z,
+                           data_[5]+v.m*(x*x+y*y));
     }
+    
     Symmetric3Tpl& operator-= (const AlphaSkewSquare & v)
     {
-      const double & x = v.v[0], & y = v.v[1], & z = v.v[2]; 
+      const Scalar & x = v.v[0], & y = v.v[1], & z = v.v[2];
       data_[0]+=v.m*(y*y+z*z);
-      data_[1]-=v.m* x*y     ;  data_[2]+=v.m*(x*x+z*z); 
-      data_[3]-=v.m* x*z     ;  data_[4]-=v.m* y*z     ;  data_[5]+=v.m*(x*x+y*y);
+      data_[1]-=v.m* x*y; data_[2]+=v.m*(x*x+z*z);
+      data_[3]-=v.m* x*z; data_[4]-=v.m* y*z; data_[5]+=v.m*(x*x+y*y);
       return *this;
     }
 
@@ -143,28 +150,27 @@ namespace se3
     
     // static Symmetric3Tpl SkewSq( const Vector3 & v )
     // { 
-    //   const double & x = v[0], & y = v[1], & z = v[2]; 
-    //   return Symmetric3Tpl( -y*y-z*z,
-    // 			    x*y    ,  -x*x-z*z, 
-    // 			    x*z    ,   y*z    ,  -x*x-y*y );
+    //   const Scalar & x = v[0], & y = v[1], & z = v[2];
+    //   return Symmetric3Tpl(-y*y-z*z,
+    // 			    x*y, -x*x-z*z,
+    // 			    x*z, y*z, -x*x-y*y );
     // }
 
     /* Shoot a positive definite matrix. */
     static Symmetric3Tpl RandomPositive() 
     { 
-      double 
-	a = double(std::rand())/RAND_MAX*2.0-1.0,
-	b = double(std::rand())/RAND_MAX*2.0-1.0,
-	c = double(std::rand())/RAND_MAX*2.0-1.0,
-	d = double(std::rand())/RAND_MAX*2.0-1.0,
-	e = double(std::rand())/RAND_MAX*2.0-1.0,
-	f = double(std::rand())/RAND_MAX*2.0-1.0;
+      Scalar
+      a = Scalar(std::rand())/RAND_MAX*2.0-1.0,
+      b = Scalar(std::rand())/RAND_MAX*2.0-1.0,
+      c = Scalar(std::rand())/RAND_MAX*2.0-1.0,
+      d = Scalar(std::rand())/RAND_MAX*2.0-1.0,
+      e = Scalar(std::rand())/RAND_MAX*2.0-1.0,
+      f = Scalar(std::rand())/RAND_MAX*2.0-1.0;
       return Symmetric3Tpl(a*a+b*b+d*d,
 			   a*b+b*c+d*e, b*b+c*c+e*e,
 			   a*d+b*e+d*f, b*d+c*e+e*f,  d*d+e*e+f*f );
     }
     
-
     Matrix3 matrix() const
     {
       Matrix3 res;
@@ -281,17 +287,17 @@ namespace se3
       Sres.data_(5) = Y(1,0)*R(2,0) + Y(1,1)*R(2,1);
 
       // r=R' v ( 6m + 3a)
-      const Vector3 r( -R(0,0)*data_(4) + R(0,1)*data_(3),
-		       -R(1,0)*data_(4) + R(1,1)*data_(3),
-		       -R(2,0)*data_(4) + R(2,1)*data_(3) );
+      const Vector3 r(-R(0,0)*data_(4) + R(0,1)*data_(3),
+                      -R(1,0)*data_(4) + R(1,1)*data_(3),
+                      -R(2,0)*data_(4) + R(2,1)*data_(3));
 
       // Sres_11 (3a)
       Sres.data_(0) = L(0,0) + L(1,1) - Sres.data_(2) - Sres.data_(5);
 	
       // Sres + D + (Ev)x ( 9a)
       Sres.data_(0) += data_(5); 
-      Sres.data_(1) += r(2);    Sres.data_(2)+= data_(5); 
-      Sres.data_(3) +=-r(1);    Sres.data_(4)+=    r(0); Sres.data_(5) += data_(5);
+      Sres.data_(1) += r(2); Sres.data_(2)+= data_(5);
+      Sres.data_(3) +=-r(1); Sres.data_(4)+= r(0); Sres.data_(5) += data_(5);
 
       return Sres;
     }
