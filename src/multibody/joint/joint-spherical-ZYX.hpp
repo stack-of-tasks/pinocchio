@@ -162,11 +162,19 @@ namespace se3
       Eigen::Matrix <Scalar,6,3, Options>
       se3Action (const SE3 & m) const
       {
-        Eigen::Matrix <Scalar,6,3,Options> X_subspace;
-        X_subspace.template block <3,3> (Motion::LINEAR, 0) = skew (m.translation ()) * m.rotation ();
-        X_subspace.template block <3,3> (Motion::ANGULAR, 0) = m.rotation ();
-
-        return X_subspace * S_minimal;
+//        Eigen::Matrix <Scalar,6,3,Options> X_subspace;
+//        X_subspace.template block <3,3> (Motion::LINEAR, 0) = skew (m.translation ()) * m.rotation ();
+//        X_subspace.template block <3,3> (Motion::ANGULAR, 0) = m.rotation ();
+//
+//        return (X_subspace * S_minimal).eval();
+        
+        Eigen::Matrix <Scalar,6,3,Options> result;
+        result.template block <3,3> (Motion::ANGULAR, 0) = m.rotation () * S_minimal;
+        for (int k = 0; k < 3; ++k)
+          result.template block <3,3> (Motion::LINEAR, 0).col(k) =
+          m.translation ().cross(result.template block <3,3> (Motion::ANGULAR, 0).col(k));
+                                 
+        return result;
       }
 
     }; // struct ConstraintRotationalSubspace
@@ -192,10 +200,11 @@ namespace se3
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
 
   template <typename _Scalar, int _Options>
-  const typename Eigen::ProductReturnType<
-  Eigen::Matrix < _Scalar, 6, 3, _Options >,
-  Eigen::Matrix < _Scalar, 3, 3, _Options>
-  >::Type
+//  const typename Eigen::ProductReturnType<
+//  Eigen::Matrix < _Scalar, 6, 3, _Options >,
+//  Eigen::Matrix < _Scalar, 3, 3, _Options> 
+//  >::Type
+  Eigen::Matrix <_Scalar,6,3,_Options>
   operator* (const InertiaTpl<_Scalar,_Options> & Y,
              const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
   {
@@ -205,7 +214,7 @@ namespace se3
       (typename InertiaTpl<_Scalar,_Options>::Matrix3)(Y.inertia () - 
        typename Symmetric3::AlphaSkewSquare(Y.mass (), Y.lever ()));
 
-    return M * S.matrix ();
+    return (M * S.matrix ()).eval();
   }
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
@@ -226,10 +235,11 @@ namespace se3
     template<>
     struct ActionReturn<JointSphericalZYX::ConstraintRotationalSubspace >
     {
-      typedef const typename Eigen::ProductReturnType<
-      Eigen::Matrix <double,6,3,0>,
-      Eigen::Matrix <double,3,3,0>
-      >::Type Type;
+//      typedef const typename Eigen::ProductReturnType<
+//      Eigen::Matrix <double,6,3,0>,
+//      Eigen::Matrix <double,3,3,0>
+//      >::Type Type;
+      typedef Eigen::Matrix <double,6,3,0> Type;
     };
   }
 
