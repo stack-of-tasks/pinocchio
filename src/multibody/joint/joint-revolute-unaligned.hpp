@@ -152,8 +152,7 @@ namespace se3
       	const ConstraintRevoluteUnaligned & ref; 
       	TransposeConst(const ConstraintRevoluteUnaligned & ref) : ref(ref) {} 
 
-      	const Eigen::Matrix<double, 1, 1>
-      	operator*( const Force& f ) const
+      	Eigen::Matrix<double,1,1> operator* (const Force & f) const
       	{
       	  return ref.axis.transpose()*f.angular();
       	}
@@ -161,9 +160,9 @@ namespace se3
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
         template<typename D>
         friend
-        typename Eigen::ProductReturnType<
-        Eigen::Transpose<const Eigen::Matrix<typename Eigen::MatrixBase<D>::Scalar, 3, 1> >,
-        Eigen::Block<const Eigen::Block<Eigen::Matrix<typename Eigen::MatrixBase<D>::Scalar,6,-1>,-1,-1>, 3, -1>
+        const typename Eigen::ProductReturnType<
+        Eigen::Transpose<const Vector3>,
+        typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
         >::Type
         operator* (const TransposeConst & tc, const Eigen::MatrixBase<D> & F)
         {
@@ -184,7 +183,7 @@ namespace se3
        */
       operator ConstraintXd () const
       {
-      	Eigen::Matrix<double,6,1> S;
+      	DenseBase S;
       	S << Eigen::Vector3d::Zero(), axis;
       	return ConstraintXd(S);
       }
@@ -217,10 +216,12 @@ namespace se3
     }
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
-  inline Eigen::Matrix<double,6,1>
-//  inline
-//  Eigen::ProductReturnType<const Eigen::Block<const Inertia::Matrix6,6,3>,
-//                           const ConstraintRevoluteUnaligned::Vector3>::Type
+//  inline Eigen::Matrix<double,6,1>
+  inline
+  Eigen::ProductReturnType<
+  Eigen::Block<const Inertia::Matrix6,6,3>,
+  const ConstraintRevoluteUnaligned::Vector3
+  >::Type
   operator*(const Inertia::Matrix6 & Y, const ConstraintRevoluteUnaligned & cru)
   {
     return Y.block<6,3> (0,Inertia::ANGULAR) * cru.axis;
