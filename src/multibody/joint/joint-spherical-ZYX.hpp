@@ -190,12 +190,13 @@ namespace se3
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
+
   template <typename _Scalar, int _Options>
-  //  Eigen::Matrix <_Scalar, 6, 3,_Options> 
-  const typename Eigen::CoeffBasedProduct<
-    Eigen::Matrix < _Scalar, 6, 3, _Options >,
-    Eigen::Matrix < _Scalar, 3, 3, _Options >, 6 >::PlainObject
-  operator* (const InertiaTpl<_Scalar,_Options> & Y, 
+  const typename Eigen::ProductReturnType<
+  Eigen::Matrix < _Scalar, 6, 3, _Options >,
+  Eigen::Matrix < _Scalar, 3, 3, _Options>
+  >::Type
+  operator* (const InertiaTpl<_Scalar,_Options> & Y,
              const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
   {
     Eigen::Matrix < _Scalar, 6, 3, _Options > M;
@@ -224,7 +225,12 @@ namespace se3
   {
     template<>
     struct ActionReturn<JointSphericalZYX::ConstraintRotationalSubspace >
-    { typedef Eigen::Matrix<double,6,3> Type; };
+    {
+      typedef const typename Eigen::ProductReturnType<
+      Eigen::Matrix <double,6,3,0>,
+      Eigen::Matrix <double,3,3,0>
+      >::Type Type;
+    };
   }
 
   template<>

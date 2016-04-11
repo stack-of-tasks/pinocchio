@@ -148,13 +148,13 @@ namespace se3
       Transpose( const ConstraintTpl & ref ) : ref(ref) {}
 
       JointForce operator* (const Force& f) const
-      { return ref.S.transpose()*f.toVector(); }
+      { return (ref.S.transpose()*f.toVector()).eval(); }
 
       template<typename D>
       typename Eigen::Matrix<_Scalar,NV,Eigen::Dynamic>
       operator*( const Eigen::MatrixBase<D> & F )
       {
-        return ref.S.transpose()*F;
+        return (ref.S.transpose()*F).eval();
       }
 
     };
@@ -168,12 +168,12 @@ namespace se3
     //template<int Dim,typename Scalar,int Options>
     friend Eigen::Matrix<_Scalar,6,_Dim>
     operator*( const InertiaTpl<_Scalar,_Options> & Y,const ConstraintTpl<_Dim,_Scalar,_Options> & S)
-    { return Y.matrix()*S.S; }
+    { return (Y.matrix()*S.S).eval(); }
 
     
     DenseBase se3Action(const SE3 & m) const
     {
-      return m.toActionMatrix()*S;
+      return (m.toActionMatrix()*S).eval();
     }
     
     void disp_impl(std::ostream & os) const { os << "S =\n" << S << std::endl;}
