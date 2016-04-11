@@ -48,25 +48,30 @@ namespace se3
 
   public:    
     Symmetric3Tpl(): data_() {}
+    
+//    template<typename D>
+//    explicit Symmetric3Tpl(const Eigen::MatrixBase<D> & I)
+//    {
+//      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
+//      assert( (I-I.transpose()).isMuchSmallerThan(I) );
+//      data_(0) = I(0,0);
+//      data_(1) = I(1,0); data_(2) = I(1,1);
+//      data_(3) = I(2,0); data_(4) = I(2,1); data_(5) = I(2,2);
+//    }
     template<typename Sc,int N,int Opt>
     explicit Symmetric3Tpl(const Eigen::Matrix<Sc,N,N,Opt> & I)
-    { 
-      assert( (I.rows()==3)&&(I.cols()==3) );
-      assert( (I-I.transpose()).isMuchSmallerThan(I) );
-      data_(0) = I(0,0);
-      data_(1) = I(1,0); data_(2) = I(1,1);
-      data_(3) = I(2,0); data_(4) = I(2,1); data_(5) = I(2,2);
-    }
-    explicit Symmetric3Tpl(const Eigen::MatrixBase<Matrix3> &I) 
     {
+      EIGEN_STATIC_ASSERT(N==3,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
       assert( (I-I.transpose()).isMuchSmallerThan(I) );
       data_(0) = I(0,0);
       data_(1) = I(1,0); data_(2) = I(1,1);
       data_(3) = I(2,0); data_(4) = I(2,1); data_(5) = I(2,2);
     }
-    explicit Symmetric3Tpl(const Vector6 &I) : data_(I) {}
-    Symmetric3Tpl(const double & a0,const double & a1,const double & a2,
-		  const double & a3,const double & a4,const double & a5)
+    
+    explicit Symmetric3Tpl(const Vector6 & I) : data_(I) {}
+    
+    Symmetric3Tpl(const Scalar & a0, const Scalar & a1, const Scalar & a2,
+		  const Scalar & a3, const Scalar & a4, const Scalar & a5)
     { data_ << a0,a1,a2,a3,a4,a5; }
 
     static Symmetric3Tpl Zero()     { return Symmetric3Tpl(Vector6::Zero());  }
@@ -114,6 +119,7 @@ namespace se3
                            data_[1]-x*y,data_[2]+x*x+z*z,
                            data_[3]-x*z,data_[4]-y*z,data_[5]+x*x+y*y);
     }
+    
     Symmetric3Tpl& operator-= (const SkewSquare & v)
     {
       const Scalar & x = v.v[0], & y = v.v[1], & z = v.v[2];
@@ -292,7 +298,7 @@ namespace se3
     template<typename D>
     Symmetric3Tpl rotate(const Eigen::MatrixBase<D> & R) const
     {
-      assert( (R.cols()==3) && (R.rows()==3) );
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
       assert( (R.transpose()*R).isApprox(Matrix3::Identity()) );
 
       Symmetric3Tpl Sres;

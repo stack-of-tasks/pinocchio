@@ -114,19 +114,22 @@ namespace se3
 
     ForceTpl() : data() {}
 
-
-    template<typename f3_t,typename n3_t>
-    ForceTpl(const Eigen::MatrixBase<f3_t> & f,const Eigen::MatrixBase<n3_t> & n)
+    template<typename F3,typename N3>
+    ForceTpl(const Eigen::MatrixBase<F3> & f,const Eigen::MatrixBase<N3> & n)
     {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(F3);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(F3,3);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(N3);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(N3,3);
       data << f, n;
     }
 
-    template<typename f6>
-    explicit ForceTpl(const Eigen::MatrixBase<f6> & f)
+    template<typename F6>
+    explicit ForceTpl(const Eigen::MatrixBase<F6> & f)
     : data(f)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(f6);
-      assert( f.size() == 6 );
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(F6);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(F6,6);
     }
 
     template<typename S2,int O2>
@@ -176,7 +179,8 @@ namespace se3
     template<typename F6>
     ForceTpl & operator= (const Eigen::MatrixBase<F6> & phi)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(F6); assert(phi.size() == 6);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(F6);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(F6,6);
       data = phi;
       return *this;
     }

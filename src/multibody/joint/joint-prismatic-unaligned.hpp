@@ -164,6 +164,7 @@ namespace se3
         >::Type
         operator* (const TransposeConst & tc, const Eigen::MatrixBase<D> & F)
         {
+          EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
           /* Return ax.T * F[1:3,:] */
           assert(F.rows()==6);
           return tc.ref.axis.transpose () * F.template topRows<3> ();

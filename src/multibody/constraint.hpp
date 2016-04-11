@@ -113,17 +113,22 @@ namespace se3
 
   public:
     template<typename D>
-    ConstraintTpl( const Eigen::MatrixBase<D> & _S ) : S(_S) {}
+    ConstraintTpl(const Eigen::MatrixBase<D> & _S) : S(_S)
+    {
+      EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(DenseBase, D);
+    }
 
     ConstraintTpl() : S() 
     {
 #ifndef NDEBUG
       S.fill( NAN ); 
 #endif
-    } 
-
+    }
+    
+    // It is only valid for dynamics size
     ConstraintTpl(const int dim) : S(6,dim)
     {
+      EIGEN_STATIC_ASSERT(_Dim==Eigen::Dynamic,YOU_CALLED_A_FIXED_SIZE_METHOD_ON_A_DYNAMIC_SIZE_MATRIX_OR_VECTOR)
 #ifndef NDEBUG
       S.fill( NAN );
 #endif
