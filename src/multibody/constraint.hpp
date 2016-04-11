@@ -107,9 +107,9 @@ namespace se3
     friend class ConstraintBase< ConstraintTpl< _Dim, _Scalar, _Options > >;
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintTpl);
     
-    using typename Base::JointMotion;
-    using typename Base::JointForce;
-    using typename Base::DenseBase;
+    typedef typename Base::JointMotion JointMotion;
+    typedef typename Base::JointForce JointForce;
+    typedef typename Base::DenseBase DenseBase;
     
     enum { NV = _Dim, Options = _Options };
 
