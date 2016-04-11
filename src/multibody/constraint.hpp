@@ -72,6 +72,8 @@ namespace se3
     typedef Eigen::Matrix<T,6,6,U> Matrix6;
     typedef Matrix3 Angular_t;
     typedef Vector3 Linear_t;
+    typedef const Matrix3 ConstAngular_t;
+    typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
     typedef Eigen::Quaternion<T,U> Quaternion_t;
     typedef SE3Tpl<T,U> SE3;

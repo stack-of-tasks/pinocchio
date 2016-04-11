@@ -45,6 +45,8 @@ namespace se3
     typedef Eigen::Matrix<double,6,6,0> Matrix6;
     typedef Vector3 Angular_t;
     typedef Vector3 Linear_t;
+    typedef const Vector3 ConstAngular_t;
+    typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
     typedef Eigen::Quaternion<double,0> Quaternion_t;
     typedef SE3Tpl<double,0> SE3;
@@ -64,7 +66,7 @@ namespace se3
     MotionRevoluteUnaligned() : axis(Motion::Vector3::Constant(NAN)), w(NAN) {} 
     MotionRevoluteUnaligned( const Motion::Vector3 & axis, const double & w ) : axis(axis), w(w)  {}
 
-    Motion::Vector3 axis; 
+    Vector3 axis;
     double w;
 
     operator Motion() const
@@ -95,6 +97,8 @@ namespace se3
     typedef Eigen::Matrix<double,6,6,0> Matrix6;
     typedef Matrix3 Angular_t;
     typedef Vector3 Linear_t;
+    typedef const Matrix3 ConstAngular_t;
+    typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
     typedef Eigen::Quaternion<double,0> Quaternion_t;
     typedef SE3Tpl<double,0> SE3;
@@ -113,7 +117,7 @@ namespace se3
 
     
 
-    struct ConstraintRevoluteUnaligned : ConstraintBase < ConstraintRevoluteUnaligned >
+    struct ConstraintRevoluteUnaligned : ConstraintBase <ConstraintRevoluteUnaligned>
     {
       SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintRevoluteUnaligned);
       enum { NV = 1, Options = 0 };
@@ -123,7 +127,7 @@ namespace se3
 
       ConstraintRevoluteUnaligned() : axis(Motion::Vector3::Constant(NAN)) {}
       ConstraintRevoluteUnaligned(const Motion::Vector3 & _axis) : axis(_axis) {}
-      Motion::Vector3 axis; 
+      Vector3 axis;
 
       template<typename D>
       MotionRevoluteUnaligned operator*( const Eigen::MatrixBase<D> & v ) const

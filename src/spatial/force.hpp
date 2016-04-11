@@ -34,19 +34,14 @@ namespace se3
     typedef Derived  Derived_t;
     SPATIAL_TYPEDEF_TEMPLATE(Derived_t);
     
-//    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstLinear_t;
-//    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstAngular_t;
-    typedef typename Eigen::VectorBlock<const Vector6,3> ConstLinear_t;
-    typedef ConstLinear_t ConstAngular_t;
-
   public:
     Derived_t & derived() { return *static_cast<Derived_t*>(this); }
     const Derived_t& derived() const { return *static_cast<const Derived_t*>(this); }
 
-    ConstAngular_t angular() const  { return derived().angular_impl(); }
-    ConstLinear_t linear() const  { return derived().linear_impl(); }
-    Angular_t angular()  { return derived().angular_impl(); }
-    Linear_t linear()   { return derived().linear_impl(); }
+    ConstAngular_t angular() const { return derived().angular_impl(); }
+    ConstLinear_t linear() const { return derived().linear_impl(); }
+    Angular_t angular() { return derived().angular_impl(); }
+    Linear_t linear() { return derived().linear_impl(); }
     void angular(const Vector3 & n) { derived().angular_impl(n); }
     void linear(const Vector3 & f) { derived().linear_impl(f); }
 
@@ -61,7 +56,7 @@ namespace se3
 
     bool operator== (const Derived_t & other) const {return derived().isEqual(other);}
     Derived_t & operator= (const Derived_t & other) { return derived().__equl__(other); }
-    Derived_t& operator+= (const Derived_t & phi) { return derived().__pequ__(phi); }
+    Derived_t & operator+= (const Derived_t & phi) { return derived().__pequ__(phi); }
     Derived_t operator+(const Derived_t & phi) const { return derived().__plus__(phi); }
     Derived_t operator*(double a) const    { return derived().__mult__(a); }
     Derived_t operator-() const { return derived().__minus__(); }
@@ -92,11 +87,10 @@ namespace se3
     typedef Eigen::Matrix<T,3,3,U> Matrix3;
     typedef Eigen::Matrix<T,4,4,U> Matrix4;
     typedef Eigen::Matrix<T,6,6,U> Matrix6;
-    typedef typename Eigen::VectorBlock<Vector6,3> Linear_t;
-    //    typedef typename Vector6::template FixedSeegmentReturnType<3>::Type Linear_t;
-    typedef Linear_t Angular_t;
-//    typedef Vector3 Angular_t;
-//    typedef Vector3 Linear_t;
+    typedef typename Vector6::template FixedSegmentReturnType<3>::Type Linear_t;
+    typedef typename Vector6::template FixedSegmentReturnType<3>::Type Angular_t;
+    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstLinear_t;
+    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstAngular_t;
     typedef Matrix6 ActionMatrix_t;
     typedef Eigen::Quaternion<T,U> Quaternion_t;
     typedef SE3Tpl<T,U> SE3;
@@ -117,11 +111,6 @@ namespace se3
     friend class ForceBase< ForceTpl< _Scalar, _Options > >;
     SPATIAL_TYPEDEF_TEMPLATE(ForceTpl);
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    
-//    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstLinear_t;
-//    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstAngular_t;
-    typedef typename Eigen::VectorBlock<const Vector6,3> ConstLinear_t;
-    typedef ConstLinear_t ConstAngular_t;
 
     ForceTpl() : data() {}
 

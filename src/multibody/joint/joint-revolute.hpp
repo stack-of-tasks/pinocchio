@@ -69,6 +69,8 @@ namespace se3
     typedef Eigen::Matrix<double,6,6,0> Matrix6;
     typedef Vector3 Angular_t;
     typedef Vector3 Linear_t;
+    typedef const Vector3 ConstAngular_t;
+    typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
     typedef Eigen::Quaternion<double,0> Quaternion_t;
     typedef SE3Tpl<double,0> SE3;
@@ -122,6 +124,8 @@ namespace se3
     typedef Eigen::Matrix<double,6,6,0> Matrix6;
     typedef Matrix3 Angular_t;
     typedef Vector3 Linear_t;
+    typedef const Matrix3 ConstAngular_t;
+    typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
     typedef Eigen::Quaternion<double,0> Quaternion_t;
     typedef SE3Tpl<double,0> SE3;
@@ -165,7 +169,7 @@ namespace se3
       const ConstraintRevolute<axis> & ref; 
       TransposeConst(const ConstraintRevolute<axis> & ref) : ref(ref) {} 
 
-      typename Force::ConstAngular_t::template FixedSegmentReturnType<1>::Type
+      typename Force::ConstAngular_t::template ConstFixedSegmentReturnType<1>::Type
       operator* (const Force & f) const
       { return f.angular().template segment<1>(axis); }
 
