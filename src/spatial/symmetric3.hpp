@@ -296,10 +296,9 @@ namespace se3
       return Sres;
     }
 
-
-  private:
-
-    Vector6 data_; 
+  protected:
+    Vector6 data_;
+    
   };
 
   typedef Symmetric3Tpl<double,0> Symmetric3;
