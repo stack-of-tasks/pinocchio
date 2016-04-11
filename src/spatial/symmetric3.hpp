@@ -122,6 +122,16 @@ namespace se3
       data_[3]-=x*z; data_[4]-=y*z; data_[5]+=x*x+y*y;
       return *this;
     }
+    
+    template<typename D>
+    friend Matrix3 operator- (const Symmetric3Tpl & S, const Eigen::MatrixBase <D> & M)
+    {
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
+      Matrix3 result (S.matrix());
+      result -= M;
+      
+      return result;
+    }
 
     struct AlphaSkewSquare
     {

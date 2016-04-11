@@ -229,7 +229,7 @@ namespace se3
       M.template block<3,3>(LINEAR, LINEAR ).diagonal ().fill (m);
       M.template block<3,3>(ANGULAR,LINEAR ) = m * c_cross;
       M.template block<3,3>(LINEAR, ANGULAR) = -M.template block<3,3> (ANGULAR, LINEAR);
-      M.template block<3,3>(ANGULAR,ANGULAR) = (Matrix3)(I - M.template block<3,3>(ANGULAR, LINEAR) * c_cross);
+      M.template block<3,3>(ANGULAR,ANGULAR) = I - M.template block<3,3>(ANGULAR, LINEAR) * c_cross;
 
       return M;
     }
