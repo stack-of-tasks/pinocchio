@@ -101,15 +101,17 @@ namespace se3
   class ConstraintTpl : public ConstraintBase<ConstraintTpl < _Dim, _Scalar, _Options > >
   { 
   public:
+    
+    typedef ConstraintBase< ConstraintTpl< _Dim, _Scalar, _Options > > Base;
 
     friend class ConstraintBase< ConstraintTpl< _Dim, _Scalar, _Options > >;
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintTpl);
     
+    using typename Base::JointMotion;
+    using typename Base::JointForce;
+    using typename Base::DenseBase;
+    
     enum { NV = _Dim, Options = _Options };
-
-    typedef typename traits<ConstraintTpl>::JointMotion JointMotion;
-    typedef typename traits<ConstraintTpl>::JointForce JointForce;
-    typedef typename traits<ConstraintTpl>::DenseBase DenseBase;
 
   public:
     template<typename D>
@@ -168,7 +170,8 @@ namespace se3
     operator*( const InertiaTpl<_Scalar,_Options> & Y,const ConstraintTpl<_Dim,_Scalar,_Options> & S)
     { return Y.matrix()*S.S; }
 
-    Eigen::Matrix<_Scalar,6,NV> se3Action(const SE3 & m) const
+    
+    DenseBase se3Action(const SE3 & m) const
     {
       return m.toActionMatrix()*S;
     }
