@@ -228,26 +228,29 @@ namespace se3
   template<typename _JointModel>
   struct JointModelBase
   {
+    typedef _JointModel Derived;
     typedef typename traits<_JointModel>::Joint Joint;
     SE3_JOINT_TYPEDEF_TEMPLATE;
   
 
-    JointModel& derived() { return *static_cast<JointModel*>(this); }
-    const JointModel& derived() const { return *static_cast<const JointModel*>(this); }
+    JointModel& derived() { return *static_cast<Derived*>(this); }
+    const JointModel& derived() const { return *static_cast<const Derived*>(this); }
 
-    JointData createData() const { return static_cast<const JointModel*>(this)->createData(); }
-    void calc( JointData& data, 
-      const Eigen::VectorXd & qs ) const
-    { return static_cast<const JointModel*>(this)->calc(data,qs); }
-    void calc( JointData& data, 
-      const Eigen::VectorXd & qs, 
-      const Eigen::VectorXd & vs ) const
-    { return static_cast<const JointModel*>(this)->calc(data,qs,vs); }
+    JointData createData() const { return static_cast<const Derived*>(this)->createData(); }
+    
+    void calc(JointData& data,
+              const Eigen::VectorXd & qs ) const
+    { derived().calc(data,qs); }
+    
+    void calc(JointData& data,
+              const Eigen::VectorXd & qs,
+              const Eigen::VectorXd & vs ) const
+    { derived().calc(data,qs,vs); }
     
     void calc_aba(JointData & data,
                   Inertia::Matrix6 & I,
                   const bool update_I = false) const
-    { return static_cast<const JointModel*>(this)->calc_aba(data, I, update_I); }
+    { derived().calc_aba(data, I, update_I); }
 
 
     /**

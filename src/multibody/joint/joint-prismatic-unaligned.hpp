@@ -45,6 +45,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar_t,6,6,0> Matrix6;
     typedef Vector3 Angular_t;
     typedef Vector3 Linear_t;
+    typedef const Vector3 ConstAngular_t;
+    typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
     typedef Eigen::Quaternion<Scalar_t,0> Quaternion_t;
     typedef SE3Tpl<Scalar_t,0> SE3;
@@ -91,6 +93,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar_t,6,6,0> Matrix6;
     typedef Matrix3 Angular_t;
     typedef Vector3 Linear_t;
+    typedef const Matrix3 ConstAngular_t;
+    typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
     typedef Eigen::Quaternion<Scalar_t,0> Quaternion_t;
     typedef SE3Tpl<Scalar_t,0> SE3;
@@ -154,14 +158,14 @@ namespace se3
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
         template<typename D>
         friend
-        typename Eigen::ProductReturnType<
-        Eigen::Transpose<const Eigen::Matrix<typename Eigen::MatrixBase<D>::Scalar, 3, 1> >,
-        Eigen::Block<const Eigen::Block<Eigen::Matrix<typename Eigen::MatrixBase<D>::Scalar,6,-1>,-1,-1>, 3, -1>
+        const typename Eigen::ProductReturnType<
+        Eigen::Transpose<const Vector3>,
+        typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
         >::Type
         operator* (const TransposeConst & tc, const Eigen::MatrixBase<D> & F)
         {
+          EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
           /* Return ax.T * F[1:3,:] */
-          assert(F.rows()==6);
           return tc.ref.axis.transpose () * F.template topRows<3> ();
         }
 
@@ -208,10 +212,11 @@ namespace se3
     }
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
-  inline Eigen::Matrix<double,6,1>
-//  inline
-//  Eigen::ProductReturnType<const Eigen::Block<const Inertia::Matrix6,6,3>,
-//                           const ConstraintPrismaticUnaligned::Vector3>::Type
+  inline
+  Eigen::ProductReturnType<
+  Eigen::Block<const Inertia::Matrix6,6,3>,
+  const ConstraintPrismaticUnaligned::Vector3
+  >::Type
   operator*(const Inertia::Matrix6 & Y, const ConstraintPrismaticUnaligned & cpu)
   {
     return Y.block<6,3> (0,Inertia::LINEAR) * cpu.axis;

@@ -22,9 +22,11 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/aba.hpp"
+#include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
 
-#include "pinocchio/simulation/compute-all-terms.hpp"
+#include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/tools/timer.hpp"
 
 #include <iostream>
@@ -36,7 +38,7 @@
 
 BOOST_AUTO_TEST_SUITE ( Aba )
 
-BOOST_AUTO_TEST_CASE ( test_aba )
+BOOST_AUTO_TEST_CASE ( test_aba_simple )
 {
   using namespace Eigen;
   using namespace se3;
@@ -57,6 +59,37 @@ BOOST_AUTO_TEST_CASE ( test_aba )
   
   tau = data_ref.M * a + data_ref.nle;
   aba(model, data, q, v, tau);
+  
+  BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
+  
+}
+
+BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  se3::Model model; buildModels::humanoidSimple(model);
+  
+  se3::Data data(model);
+  se3::Data data_ref(model);
+  
+  VectorXd q = VectorXd::Ones(model.nq);
+  VectorXd v = VectorXd::Ones(model.nv);
+  VectorXd tau = VectorXd::Zero(model.nv);
+  VectorXd a = VectorXd::Ones(model.nv);
+  
+  crba(model, data_ref, q);
+  nonLinearEffects(model, data_ref, q, v);
+  data_ref.M.triangularView<Eigen::StrictlyLower>()
+  = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  tau = data_ref.M * a + data_ref.nle;
+  aba(model, data, q, v, tau);
+  
+  VectorXd tau_ref = rnea(model, data_ref, q, v, a);
+  BOOST_CHECK(tau_ref.isApprox(tau, 1e-12));
+  
   
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
   

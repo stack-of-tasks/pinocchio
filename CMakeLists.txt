@@ -139,8 +139,11 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
 
 SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/aba.hpp
+  algorithm/aba.hxx
   algorithm/rnea.hpp
+  algorithm/rnea.hxx
   algorithm/crba.hpp
+  algorithm/crba.hxx
   algorithm/jacobian.hpp
   algorithm/jacobian.hxx
   algorithm/cholesky.hpp
@@ -150,14 +153,10 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/dynamics.hpp
   algorithm/center-of-mass.hpp
   algorithm/center-of-mass.hxx
-  algorithm/non-linear-effects.hpp
   algorithm/joint-configuration.hpp
   algorithm/energy.hpp
   algorithm/operational-frames.hpp
-  )
-
-SET(${PROJECT_NAME}_SIMULATION_HEADERS
-  simulation/compute-all-terms.hpp
+  algorithm/compute-all-terms.hpp
   )
 
 SET(${PROJECT_NAME}_PYTHON_HEADERS
@@ -234,7 +233,6 @@ SET(HEADERS
   ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_HEADERS}
   ${${PROJECT_NAME}_ALGORITHM_HEADERS}
-  ${${PROJECT_NAME}_SIMULATION_HEADERS}
   ${${PROJECT_NAME}_PYTHON_HEADERS}
   exception.hpp
   assert.hpp
@@ -252,7 +250,6 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/parser
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/parser/lua")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/simulation")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/python")
 
 

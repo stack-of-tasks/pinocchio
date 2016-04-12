@@ -1,7 +1,8 @@
-language: cpp
+language: generic
 python:
   - "2.7"
 sudo: required
+dist: trusty
 compiler:
   - gcc
 # - clang
@@ -29,16 +30,17 @@ allow_failures:
 before_install: ./travis_custom/custom_before_install
 install:
   - pip install --user coveralls
+  - pip install --user numpy
 script:
   - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE}"
   - sudo free -m -t
-  - travis_wait ./.travis/run ../travis_custom/custom_build
+  - travis_wait 30 ./.travis/run ../travis_custom/custom_build
 after_failure: ./.travis/run after_failure
 after_success:
   - ./.travis/run after_success
   #- export PYTHONPATH=$install_dir/lib/python2.7/site-packages
   #- coveralls-lcov -v -n $build_dir/coverage.info > coverage.json
-  - export PYTHONPATH=/tmp/_ci/install/lib/python2.7/site-packages
+  - export PYTHONPATH=$PYHTONPATH:/tmp/_ci/install/lib/python2.7/site-packages:/usr/lib/python2.7/dist-packages
   - coveralls-lcov -v -n /tmp/_ci/build/coverage.info > coverage.json
-  - coverage run ./python/tests.py
+  - coverage2 run ./python/tests.py
   - coveralls --merge=coverage.json

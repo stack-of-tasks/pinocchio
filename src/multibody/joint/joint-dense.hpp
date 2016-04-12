@@ -119,15 +119,22 @@ namespace se3
       //assert(false && "JointModelDense is read-only, should not createData");
       return JointData();
     }
-    void calc( JointData& , 
-     const Eigen::VectorXd &  ) const
+    void calc(JointData &,
+              const Eigen::VectorXd & ) const
     {
       assert(false && "JointModelDense is read-only, should not perform any calc");
     }
 
-    void calc( JointData&  ,
-     const Eigen::VectorXd & , 
-     const Eigen::VectorXd &  ) const
+    void calc(JointData &,
+              const Eigen::VectorXd &,
+              const Eigen::VectorXd &) const
+    {
+      assert(false && "JointModelDense is read-only, should not perform any calc");
+    }
+    
+    void calc_aba(JointData &,
+                  Inertia::Matrix6 &,
+                  const bool) const
     {
       assert(false && "JointModelDense is read-only, should not perform any calc");
     }

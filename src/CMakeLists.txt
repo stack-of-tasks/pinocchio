@@ -94,7 +94,7 @@ ENDIF ( )
 # ----------------------------------------------------
 
 IF(EIGENPY_FOUND)
-  FINDPYTHON()
+  FINDPYTHON(2.7 EXACT REQUIRED)
   MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}")
   
   # --- COMPILE WRAPPER
@@ -114,7 +114,7 @@ IF(EIGENPY_FOUND)
   IF(LUA5_1_FOUND)
     PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} lua5.1)
   ENDIF(LUA5_1_FOUND)
-  TARGET_LINK_LIBRARIES(${PYWRAP} ${Boost_LIBRARIES} ${PROJECT_NAME})
+  TARGET_LINK_LIBRARIES(${PYWRAP} ${Boost_LIBRARIES} ${PROJECT_NAME} ${PYTHON_LIBRARIES})
 
   IF(APPLE)
     # We need to change the extension for python bindings

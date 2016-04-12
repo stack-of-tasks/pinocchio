@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -40,6 +40,8 @@ namespace se3
     typedef typename traits<derived>::Matrix6 Matrix6; \
     typedef typename traits<derived>::Angular_t Angular_t; \
     typedef typename traits<derived>::Linear_t Linear_t; \
+    typedef typename traits<derived>::ConstAngular_t ConstAngular_t; \
+    typedef typename traits<derived>::ConstLinear_t ConstLinear_t; \
     typedef typename traits<derived>::ActionMatrix_t ActionMatrix_t; \
     typedef typename traits<derived>::Quaternion_t Quaternion_t; \
     typedef typename traits<derived>::SE3 SE3; \
@@ -61,6 +63,8 @@ namespace se3
     typedef traits<derived>::Matrix6 Matrix6; \
     typedef traits<derived>::Angular_t Angular_t; \
     typedef traits<derived>::Linear_t Linear_t; \
+    typedef traits<derived>::ConstAngular_t ConstAngular_t; \
+    typedef traits<derived>::ConstLinear_t ConstLinear_t; \
     typedef traits<derived>::ActionMatrix_t ActionMatrix_t; \
     typedef traits<derived>::Quaternion_t Quaternion_t; \
     typedef traits<derived>::SE3 SE3; \

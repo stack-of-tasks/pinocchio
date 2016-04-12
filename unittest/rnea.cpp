@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -79,5 +79,57 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
     }
   timer.toc(std::cout,NBT);
 
+}
+  
+BOOST_AUTO_TEST_CASE ( test_nle_vs_rnea )
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  se3::Model model; buildModels::humanoidSimple(model);
+  se3::Data data_nle(model);
+  se3::Data data_rnea(model);
+  
+  VectorXd q (VectorXd::Random(model.nq));
+  VectorXd v (VectorXd::Random(model.nv));
+  
+  VectorXd tau_nle (VectorXd::Zero (model.nv));
+  VectorXd tau_rnea (VectorXd::Zero (model.nv));
+  
+  // -------
+  q.setZero ();
+  v.setZero ();
+  
+  tau_nle = nonLinearEffects(model,data_nle,q,v);
+  tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
+  
+  BOOST_CHECK (tau_nle.isApprox(tau_rnea, 1e-12));
+  
+  // -------
+  q.setZero ();
+  v.setOnes ();
+  
+  tau_nle = nonLinearEffects(model,data_nle,q,v);
+  tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
+  
+  BOOST_CHECK (tau_nle.isApprox(tau_rnea, 1e-12));
+  
+  // -------
+  q.setOnes ();
+  v.setOnes ();
+  
+  tau_nle = nonLinearEffects(model,data_nle,q,v);
+  tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
+  
+  BOOST_CHECK (tau_nle.isApprox(tau_rnea, 1e-12));
+  
+  // -------
+  q.setRandom ();
+  v.setRandom ();
+  
+  tau_nle = nonLinearEffects(model,data_nle,q,v);
+  tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
+  
+  BOOST_CHECK (tau_nle.isApprox(tau_rnea, 1e-12));
 }
 BOOST_AUTO_TEST_SUITE_END ()

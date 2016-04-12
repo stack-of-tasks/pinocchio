@@ -57,8 +57,8 @@ namespace se3
       Derived_t & derived() { return *static_cast<Derived_t*>(this); }
       const Derived_t& derived() const { return *static_cast<const Derived_t*>(this); }
 
-      const Angular_t & rotation() const  { return derived().rotation_impl(); }
-      const Linear_t & translation() const  { return derived().translation_impl(); }
+      ConstAngular_t & rotation() const  { return derived().rotation_impl(); }
+      ConstLinear_t & translation() const  { return derived().translation_impl(); }
       Angular_t & rotation()  { return derived().rotation_impl(); }
       Linear_t & translation()   { return derived().translation_impl(); }
       void rotation(const Angular_t & R) { derived().rotation_impl(R); }
@@ -134,7 +134,9 @@ namespace se3
     typedef Eigen::Matrix<T,4,4,U> Matrix4;
     typedef Eigen::Matrix<T,6,6,U> Matrix6;
     typedef Matrix3 Angular_t;
+    typedef const Matrix3 ConstAngular_t;
     typedef Vector3 Linear_t;
+    typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
     typedef Eigen::Quaternion<T,U> Quaternion_t;
     typedef SE3Tpl<T,U> SE3;
@@ -285,10 +287,10 @@ namespace se3
       return rot.isApprox(m2.rot, prec) && trans.isApprox(m2.trans, prec);
     }
 
-    const Angular_t & rotation_impl() const { return rot; }
+    ConstAngular_t & rotation_impl() const { return rot; }
     Angular_t & rotation_impl() { return rot; }
     void rotation_impl(const Angular_t & R) { rot = R; }
-    const Linear_t & translation_impl() const { return trans;}
+    ConstLinear_t & translation_impl() const { return trans;}
     Linear_t & translation_impl() { return trans;}
     void translation_impl(const Linear_t & p) { trans=p; }
 

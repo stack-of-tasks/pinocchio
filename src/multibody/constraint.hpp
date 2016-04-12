@@ -72,6 +72,8 @@ namespace se3
     typedef Eigen::Matrix<T,6,6,U> Matrix6;
     typedef Matrix3 Angular_t;
     typedef Vector3 Linear_t;
+    typedef const Matrix3 ConstAngular_t;
+    typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
     typedef Eigen::Quaternion<T,U> Quaternion_t;
     typedef SE3Tpl<T,U> SE3;
@@ -99,29 +101,36 @@ namespace se3
   class ConstraintTpl : public ConstraintBase<ConstraintTpl < _Dim, _Scalar, _Options > >
   { 
   public:
+    
+    typedef ConstraintBase< ConstraintTpl< _Dim, _Scalar, _Options > > Base;
 
     friend class ConstraintBase< ConstraintTpl< _Dim, _Scalar, _Options > >;
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintTpl);
     
+    typedef typename Base::JointMotion JointMotion;
+    typedef typename Base::JointForce JointForce;
+    typedef typename Base::DenseBase DenseBase;
+    
     enum { NV = _Dim, Options = _Options };
-
-    typedef typename traits<ConstraintTpl>::JointMotion JointMotion;
-    typedef typename traits<ConstraintTpl>::JointForce JointForce;
-    typedef typename traits<ConstraintTpl>::DenseBase DenseBase;
 
   public:
     template<typename D>
-    ConstraintTpl( const Eigen::MatrixBase<D> & _S ) : S(_S) {}
+    ConstraintTpl(const Eigen::MatrixBase<D> & _S) : S(_S)
+    {
+      EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(DenseBase, D);
+    }
 
     ConstraintTpl() : S() 
     {
 #ifndef NDEBUG
       S.fill( NAN ); 
 #endif
-    } 
-
+    }
+    
+    // It is only valid for dynamics size
     ConstraintTpl(const int dim) : S(6,dim)
     {
+      EIGEN_STATIC_ASSERT(_Dim==Eigen::Dynamic,YOU_CALLED_A_FIXED_SIZE_METHOD_ON_A_DYNAMIC_SIZE_MATRIX_OR_VECTOR)
 #ifndef NDEBUG
       S.fill( NAN );
 #endif
@@ -139,13 +148,13 @@ namespace se3
       Transpose( const ConstraintTpl & ref ) : ref(ref) {}
 
       JointForce operator* (const Force& f) const
-      { return ref.S.transpose()*f.toVector(); }
+      { return (ref.S.transpose()*f.toVector()).eval(); }
 
       template<typename D>
       typename Eigen::Matrix<_Scalar,NV,Eigen::Dynamic>
       operator*( const Eigen::MatrixBase<D> & F )
       {
-        return ref.S.transpose()*F;
+        return (ref.S.transpose()*F).eval();
       }
 
     };
@@ -159,11 +168,12 @@ namespace se3
     //template<int Dim,typename Scalar,int Options>
     friend Eigen::Matrix<_Scalar,6,_Dim>
     operator*( const InertiaTpl<_Scalar,_Options> & Y,const ConstraintTpl<_Dim,_Scalar,_Options> & S)
-    { return Y.matrix()*S.S; }
+    { return (Y.matrix()*S.S).eval(); }
 
-    Eigen::Matrix<_Scalar,6,NV> se3Action(const SE3 & m) const
+    
+    DenseBase se3Action(const SE3 & m) const
     {
-      return m.toActionMatrix()*S;
+      return (m.toActionMatrix()*S).eval();
     }
     
     void disp_impl(std::ostream & os) const { os << "S =\n" << S << std::endl;}

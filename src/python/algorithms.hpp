@@ -25,7 +25,6 @@
 #include "pinocchio/python/data.hpp"
 
 #include "pinocchio/algorithm/rnea.hpp"
-#include "pinocchio/algorithm/non-linear-effects.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/dynamics.hpp"
@@ -35,7 +34,7 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/energy.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/simulation/compute-all-terms.hpp"
+#include "pinocchio/algorithm/compute-all-terms.hpp"
 
 #ifdef WITH_HPP_FCL
   #include "pinocchio/multibody/geometry.hpp"

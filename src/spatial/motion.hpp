@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -24,10 +24,6 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/force.hpp"
 
-#define MOTION_SPECIFIC_TYPEDEF \
-typedef typename Eigen::VectorBlock<const Vector6,3> ConstLinear_t; \
-typedef ConstLinear_t ConstAngular_t;
-
 namespace se3
 {
 
@@ -38,7 +34,6 @@ namespace se3
   protected:
     typedef Derived  Derived_t;
     SPATIAL_TYPEDEF_TEMPLATE(Derived_t);
-    MOTION_SPECIFIC_TYPEDEF
     
   public:
     Derived_t & derived() { return *static_cast<Derived_t*>(this); }
@@ -93,8 +88,10 @@ namespace se3
     typedef Eigen::Matrix<T,4,4,U> Matrix4;
     typedef Eigen::Matrix<T,6,6,U> Matrix6;
     typedef Matrix6 ActionMatrix_t;
-    typedef typename Eigen::VectorBlock<Vector6,3> Linear_t;
-    typedef Linear_t Angular_t;
+    typedef typename Vector6::template FixedSegmentReturnType<3>::Type Linear_t;
+    typedef typename Vector6::template FixedSegmentReturnType<3>::Type Angular_t;
+    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstLinear_t;
+    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstAngular_t;
     typedef Eigen::Quaternion<T,U> Quaternion_t;
     typedef SE3Tpl<T,U> SE3;
     typedef ForceTpl<T,U> Force;
@@ -112,7 +109,6 @@ namespace se3
   {
   public:
     SPATIAL_TYPEDEF_TEMPLATE(MotionTpl);
-    MOTION_SPECIFIC_TYPEDEF
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
   public:

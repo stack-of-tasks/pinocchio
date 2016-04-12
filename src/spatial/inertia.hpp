@@ -18,9 +18,8 @@
 #ifndef __se3_inertia_hpp__
 #define __se3_inertia_hpp__
 
-#include <Eigen/Dense>
+#include <Eigen/Core>
 #include <iostream>
-#include <cstdlib>
 
 #include "pinocchio/spatial/symmetric3.hpp"
 #include "pinocchio/spatial/force.hpp"
@@ -93,6 +92,8 @@ namespace se3
     typedef Matrix6 ActionMatrix_t;
     typedef Vector3 Angular_t;
     typedef Vector3 Linear_t;
+    typedef const Vector3 ConstAngular_t;
+    typedef const Vector3 ConstLinear_t;
     typedef Eigen::Quaternion<T,U> Quaternion_t;
     typedef SE3Tpl<T,U> SE3;
     typedef ForceTpl<T,U> Force;
@@ -228,7 +229,7 @@ namespace se3
       M.template block<3,3>(LINEAR, LINEAR ).diagonal ().fill (m);
       M.template block<3,3>(ANGULAR,LINEAR ) = m * c_cross;
       M.template block<3,3>(LINEAR, ANGULAR) = -M.template block<3,3> (ANGULAR, LINEAR);
-      M.template block<3,3>(ANGULAR,ANGULAR) = (Matrix3)(I - M.template block<3,3>(ANGULAR, LINEAR) * c_cross);
+      M.template block<3,3>(ANGULAR,ANGULAR) = I - M.template block<3,3>(ANGULAR, LINEAR) * c_cross;
 
       return M;
     }
