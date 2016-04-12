@@ -59,6 +59,7 @@ bool configurations_are_equals(const Eigen::VectorXd & conf1, const Eigen::Vecto
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE JointConfigurationsTest
 #include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
 
 
 BOOST_AUTO_TEST_SUITE ( JointConfigurationsTest )
@@ -90,7 +91,7 @@ BOOST_AUTO_TEST_CASE ( integration_test )
   
   se3::Data data(model);
 
-  Eigen::VectorXd q(Eigen::VectorXd::Random(model.nq));
+  Eigen::VectorXd q(Eigen::VectorXd::Ones(model.nq));
   q.segment<4>(3) /= q.segment<4>(3).norm(); // quaternion of freeflyer
   q.segment<4>(7) /= q.segment<4>(7).norm(); // quaternion of spherical joint
   Eigen::VectorXd q_dot(Eigen::VectorXd::Random(model.nv));
@@ -141,19 +142,28 @@ BOOST_AUTO_TEST_CASE ( interpolation_test )
                 "planar_joint", "planar_body");
   
   se3::Data data(model);
-
-  Eigen::VectorXd q1(Eigen::VectorXd::Random(model.nq));
-  Eigen::VectorXd q2(Eigen::VectorXd::Random(model.nq));
+  
+  Eigen::VectorXd q1(Eigen::VectorXd::Zero(model.nq));
+  Eigen::VectorXd q2(Eigen::VectorXd::Ones(model.nq));
+  
+  Eigen::Vector3d axis (Eigen::Vector3d::Ones()); axis.normalize();
+  const double angle (0.5);
+  Eigen::AngleAxis<double> aa1 (0., axis);
+  Eigen::AngleAxis<double> aa2 (angle, axis);
+  
+  q1.segment<4>(3) = Eigen::Quaterniond(aa1).coeffs();
+  q1.segment<4>(7) = Eigen::Quaterniond(aa1).coeffs();
+  
+  q2.segment<4>(3) = Eigen::Quaterniond(aa2).coeffs();
+  q2.segment<4>(7) = Eigen::Quaterniond(aa2).coeffs();
   double u = 0.1;
-  q1.segment<4>(3) /= q1.segment<4>(3).norm(); q2.segment<4>(3) /= q2.segment<4>(3).norm();// normalize quaternion of freeflyer
-  q1.segment<4>(7) /= q1.segment<4>(7).norm(); q2.segment<4>(7) /= q2.segment<4>(7).norm();// normalize quaternion of spherical joint
+  
   Eigen::Quaterniond quat_ff_1(q1[6],q1[3],q1[4],q1[5]);
   Eigen::Quaterniond quat_spherical_1(q1[10],q1[7],q1[8],q1[9]);
   Eigen::Quaterniond quat_ff_2(q2[6],q2[3],q2[4],q2[5]);
   Eigen::Quaterniond quat_spherical_2(q2[10],q2[7],q2[8],q2[9]);
 
   Eigen::VectorXd expected(model.nq);
-
 
   // u between 0 and 1
   Eigen::Quaterniond quat_ff__int = quat_ff_1.slerp(u, quat_ff_2);
@@ -244,10 +254,20 @@ BOOST_AUTO_TEST_CASE ( differentiation_test )
   
   se3::Data data(model);
 
-  Eigen::VectorXd q1(Eigen::VectorXd::Random(model.nq));
-  Eigen::VectorXd q2(Eigen::VectorXd::Random(model.nq));
-  q1.segment<4>(3) /= q1.segment<4>(3).norm(); q2.segment<4>(3) /= q2.segment<4>(3).norm();// normalize quaternion of freeflyer
-  q1.segment<4>(7) /= q1.segment<4>(7).norm(); q2.segment<4>(7) /= q2.segment<4>(7).norm();// normalize quaternion of spherical joint
+  Eigen::VectorXd q1(Eigen::VectorXd::Zero(model.nq));
+  Eigen::VectorXd q2(Eigen::VectorXd::Ones(model.nq));
+  
+  Eigen::Vector3d axis (Eigen::Vector3d::Ones()); axis.normalize();
+  const double angle (0.5);
+  Eigen::AngleAxis<double> aa1 (0., axis);
+  Eigen::AngleAxis<double> aa2 (angle, axis);
+  
+  q1.segment<4>(3) = Eigen::Quaterniond(aa1).coeffs();
+  q1.segment<4>(7) = Eigen::Quaterniond(aa1).coeffs();
+  
+  q2.segment<4>(3) = Eigen::Quaterniond(aa2).coeffs();
+  q2.segment<4>(7) = Eigen::Quaterniond(aa2).coeffs();
+  
   Eigen::Quaterniond quat_ff_1(q1[6],q1[3],q1[4],q1[5]);
   Eigen::Quaterniond quat_spherical_1(q1[10],q1[7],q1[8],q1[9]);
   Eigen::Quaterniond quat_ff_2(q2[6],q2[3],q2[4],q2[5]);
@@ -280,7 +300,7 @@ BOOST_AUTO_TEST_CASE ( differentiation_test )
   expected.tail<13>() = q2.tail<13>() - q1.tail<13>();
 
   Eigen::VectorXd result(differentiate(model,q1,q2));
-
+  
   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Differentiation of full model - wrong results");
 }
 
@@ -310,11 +330,21 @@ BOOST_AUTO_TEST_CASE ( distance_computation_test )
                 "planar_joint", "planar_body");
   
   se3::Data data(model);
-
-  Eigen::VectorXd q1(Eigen::VectorXd::Random(model.nq));
-  Eigen::VectorXd q2(Eigen::VectorXd::Random(model.nq));
-  q1.segment<4>(3) /= q1.segment<4>(3).norm(); q2.segment<4>(3) /= q2.segment<4>(3).norm();// normalize quaternion of freeflyer
-  q1.segment<4>(7) /= q1.segment<4>(7).norm(); q2.segment<4>(7) /= q2.segment<4>(7).norm();// normalize quaternion of spherical joint
+  
+  Eigen::VectorXd q1(Eigen::VectorXd::Zero(model.nq));
+  Eigen::VectorXd q2(Eigen::VectorXd::Ones(model.nq));
+  
+  Eigen::Vector3d axis (Eigen::Vector3d::Ones()); axis.normalize();
+  const double angle (0.5);
+  Eigen::AngleAxis<double> aa1 (0., axis);
+  Eigen::AngleAxis<double> aa2 (angle, axis);
+  
+  q1.segment<4>(3) = Eigen::Quaterniond(aa1).coeffs();
+  q1.segment<4>(7) = Eigen::Quaterniond(aa1).coeffs();
+  
+  q2.segment<4>(3) = Eigen::Quaterniond(aa2).coeffs();
+  q2.segment<4>(7) = Eigen::Quaterniond(aa2).coeffs();
+  
   Eigen::Quaterniond quat_ff_1(q1[6],q1[3],q1[4],q1[5]);
   Eigen::Quaterniond quat_spherical_1(q1[10],q1[7],q1[8],q1[9]);
   Eigen::Quaterniond quat_ff_2(q2[6],q2[3],q2[4],q2[5]);
