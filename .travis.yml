@@ -12,6 +12,7 @@ env:
     - APT_DEPENDENCIES="doxygen libeigen3-dev "
     - DEBSIGN_KEYID=5AE5CD75
     - LCOV_IGNORE_RULES="*unittest* /opt/openrobots/*"
+    - CC=gcc
   matrix:
     # - BUILDTYPE=Release
     # - BUILDTYPE=Debug
