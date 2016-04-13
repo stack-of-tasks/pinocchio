@@ -54,6 +54,8 @@ namespace se3
   struct JointDataDense : public JointDataBase< JointDataDense<_NQ, _NV > >
   {
     typedef JointDense<_NQ, _NV > Joint;
+    typedef JointDataBase< JointDataDense<_NQ,_NV> > Base;
+    typedef JointDataDense<_NQ,_NV> Derived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
     Constraint_t S;
@@ -108,14 +110,16 @@ namespace se3
   struct JointModelDense : public JointModelBase< JointModelDense<_NQ, _NV > >
   {
     typedef JointDense<_NQ, _NV > Joint;
+    typedef JointModelBase<JointModelDense<_NQ, _NV > > Base;
+    
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    using JointModelBase<JointModelDense<_NQ, _NV > >::id;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::idx_q;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::idx_v;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::setIndexes;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::i_v;
-    using JointModelBase<JointModelDense<_NQ, _NV > >::i_q;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
+    using Base::i_v;
+    using Base::i_q;
 
     int nv_dyn,nq_dyn;
     
@@ -125,7 +129,7 @@ namespace se3
       return JointData();
     }
     void calc(JointData &,
-              const Eigen::VectorXd & ) const
+              const Eigen::VectorXd &) const
     {
       assert(false && "JointModelDense is read-only, should not perform any calc");
     }

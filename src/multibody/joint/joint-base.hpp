@@ -170,6 +170,9 @@ namespace se3
   template<typename _JointData>
   struct JointDataBase
   {
+    typedef _JointData Derived;
+    typedef JointDataBase<_JointData> Base;
+    
     typedef typename traits<_JointData>::Joint Joint;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
@@ -229,6 +232,7 @@ namespace se3
   struct JointModelBase
   {
     typedef _JointModel Derived;
+    typedef JointModelBase<_JointModel> Base;
     typedef typename traits<_JointModel>::Joint Joint;
     SE3_JOINT_TYPEDEF_TEMPLATE;
   
@@ -236,7 +240,7 @@ namespace se3
     JointModel& derived() { return *static_cast<Derived*>(this); }
     const JointModel& derived() const { return *static_cast<const Derived*>(this); }
 
-    JointData createData() const { return static_cast<const Derived*>(this)->createData(); }
+    JointData createData() const { return derived().createData(); }
     
     void calc(JointData& data,
               const Eigen::VectorXd & qs ) const
@@ -389,7 +393,7 @@ namespace se3
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
     jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
 
-    JointModelDense<NQ, NV> toDense() const  { return static_cast<const JointModel*>(this)->toDense_impl();   }
+    JointModelDense<NQ, NV> toDense() const  { return derived().toDense_impl();   }
   }; // struct JointModelBase
 
 } // namespace se3

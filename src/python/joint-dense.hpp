@@ -56,27 +56,21 @@ namespace se3
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
-  cl
-    .def(bp::init<>())
+        cl
+        .def(bp::init<>())
+        // All are add_properties cause ReadOnly
+        .add_property("id",&JointPythonVisitor::getId)
+        .add_property("idx_q",&JointPythonVisitor::getIdx_q)
+        .add_property("idx_v",&JointPythonVisitor::getIdx_v)
+        .add_property("nq",&JointPythonVisitor::getNq)
+        .add_property("nv",&JointPythonVisitor::getNv);
+      }
 
-    // All are add_properties cause ReadOnly
-    .add_property("id",&JointPythonVisitor::getId)
-    .add_property("idx_q",&JointPythonVisitor::getIdx_q)
-    .add_property("idx_v",&JointPythonVisitor::getIdx_v)
-    .add_property("nq",&JointPythonVisitor::getNq)
-    .add_property("nv",&JointPythonVisitor::getNv)
-
-
-    ;
-    }
-
-      static int getId( const JointModelDense & self ) { return self.id(); }
+      static JointIndex getId( const JointModelDense & self ) { return self.id(); }
       static int getIdx_q(const JointModelDense & self) {return self.idx_q();}
       static int getIdx_v(const JointModelDense & self) {return self.idx_v();}
       static int getNq(const JointModelDense & self) {return self.nq();}
       static int getNv(const JointModelDense & self) {return self.nv();}
-
-
 
       static void expose()
       {
