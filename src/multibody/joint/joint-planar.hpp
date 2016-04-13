@@ -313,7 +313,7 @@ namespace se3
 
     JointDataDense<NQ, NV> toDense_impl() const
     {
-      return JointDataDense<NQ, NV>(S, M, v, c, F);
+      return JointDataDense<NQ, NV>(S, M, v, c, F, U, Dinv, UDinv);
     }
   }; // struct JointDataPlanar
 

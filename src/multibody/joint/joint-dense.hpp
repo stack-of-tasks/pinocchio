@@ -78,17 +78,22 @@ namespace se3
 
     JointDataDense() {};
 
-    JointDataDense( Constraint_t S,
-                    Transformation_t M,
-                    Motion_t v,
-                    Bias_t c,
-                    F_t F
-                    )
+    JointDataDense(const Constraint_t & S,
+                   const Transformation_t & M,
+                   const Motion_t & v,
+                   const Bias_t & c,
+                   const F_t & F,
+                   const U_t & U,
+                   const D_t & Dinv,
+                   const UD_t & UDinv)
     : S(S)
     , M(M)
     , v(v)
     , c(c)
     , F(F)
+    , U(U)
+    , Dinv(Dinv)
+    , UDinv(UDinv)
     {}
 
     JointDataDense<_NQ, _NV> toDense_impl() const
