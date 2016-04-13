@@ -40,9 +40,6 @@ namespace se3
                      se3::Data & data,
                      const Eigen::VectorXd & q)
     {
-      using namespace Eigen;
-      using namespace se3;
-      
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
       
@@ -109,9 +106,6 @@ namespace se3
                      se3::Data & data,
                      const Eigen::VectorXd & q)
     {
-      using namespace Eigen;
-      using namespace se3;
-      
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
       
