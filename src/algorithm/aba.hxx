@@ -28,7 +28,6 @@ namespace se3
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &,
-    const Model::Index,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &
     > ArgsType;
@@ -40,13 +39,10 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     const Model::Index i,
                      const Eigen::VectorXd & q,
                      const Eigen::VectorXd & v)
     {
-      using namespace Eigen;
-      using namespace se3;
-      
+      const Model::JointIndex & i = jmodel.id();
       jmodel.calc(jdata.derived(),q,v);
       
       const Model::Index & parent = model.parents[i];
@@ -73,8 +69,7 @@ namespace se3
   struct AbaBackwardStep : public fusion::JointVisitor<AbaBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
-    Data &,
-    const Model::Index> ArgsType;
+    Data &> ArgsType;
     
     JOINT_VISITOR_INIT(AbaBackwardStep);
     
@@ -82,9 +77,9 @@ namespace se3
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointData> & jdata,
                      const Model & model,
-                     Data & data,
-                     const Model::Index i)
+                     Data & data)
     {
+      const Model::JointIndex & i = jmodel.id();
       const Model::Index & parent  = model.parents[i];
       Inertia::Matrix6 & Ia = data.Yaba[i];
       
@@ -169,8 +164,7 @@ namespace se3
   struct AbaForwardStep2 : public fusion::JointVisitor<AbaForwardStep2>
   {
     typedef boost::fusion::vector<const se3::Model &,
-    se3::Data &,
-    const Model::Index
+    se3::Data &
     > ArgsType;
     
     JOINT_VISITOR_INIT(AbaForwardStep2);
@@ -179,12 +173,9 @@ namespace se3
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
-                     se3::Data & data,
-                     const Model::Index i)
+                     se3::Data & data)
     {
-      using namespace Eigen;
-      using namespace se3;
-      
+      const Model::JointIndex & i = jmodel.id();
       const Model::Index & parent = model.parents[i];
       
       data.a[i] += data.liMi[i].actInv(data.a[parent]);
@@ -209,19 +200,19 @@ namespace se3
     for(Model::Index i=1;i<(Model::Index)model.nbody;++i)
     {
       AbaForwardStep1::run(model.joints[i],data.joints[i],
-                           AbaForwardStep1::ArgsType(model,data,i,q,v));
+                           AbaForwardStep1::ArgsType(model,data,q,v));
     }
     
     for( Model::Index i=(Model::Index)model.nbody-1;i>0;--i )
     {
       AbaBackwardStep::run(model.joints[i],data.joints[i],
-                           AbaBackwardStep::ArgsType(model,data,i));
+                           AbaBackwardStep::ArgsType(model,data));
     }
     
     for(Model::Index i=1;i<(Model::Index)model.nbody;++i)
     {
       AbaForwardStep2::run(model.joints[i],data.joints[i],
-                           AbaForwardStep2::ArgsType(model,data,i));
+                           AbaForwardStep2::ArgsType(model,data));
     }
     
     return data.ddq;

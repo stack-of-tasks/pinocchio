@@ -24,7 +24,7 @@
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/constraint.hpp"
-#include <Eigen/Geometry>
+#include "pinocchio/multibody/fwd.hpp"
 #include <limits>
 
 namespace se3
@@ -170,6 +170,9 @@ namespace se3
   template<typename _JointData>
   struct JointDataBase
   {
+    typedef _JointData Derived;
+    typedef JointDataBase<_JointData> Base;
+    
     typedef typename traits<_JointData>::Joint Joint;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
@@ -229,6 +232,7 @@ namespace se3
   struct JointModelBase
   {
     typedef _JointModel Derived;
+    typedef JointModelBase<_JointModel> Base;
     typedef typename traits<_JointModel>::Joint Joint;
     SE3_JOINT_TYPEDEF_TEMPLATE;
   
@@ -236,7 +240,7 @@ namespace se3
     JointModel& derived() { return *static_cast<Derived*>(this); }
     const JointModel& derived() const { return *static_cast<const Derived*>(this); }
 
-    JointData createData() const { return static_cast<const Derived*>(this)->createData(); }
+    JointData createData() const { return derived().createData(); }
     
     void calc(JointData& data,
               const Eigen::VectorXd & qs ) const
@@ -321,10 +325,10 @@ namespace se3
      *
      * @return     The corresponding distance
      */
-    double distance(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
-    { return derived().distance_impl(q1, q2); } 
+    double distance(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
+    { return derived().distance_impl(q0, q1); }
 
-    Index i_id; // ID of the joint in the multibody list.
+    JointIndex i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.
     int i_v;    // Index of the joint velocity in the joint velocity vector.
 
@@ -338,9 +342,9 @@ namespace se3
 
     const int &   idx_q() const { return i_q; }
     const int &   idx_v() const { return i_v; }
-    const Index & id()    const { return i_id; }
+    const JointIndex & id() const { return i_id; }
 
-    void setIndexes(Index id,int q,int v) { i_id = id, i_q = q; i_v = v; }
+    void setIndexes(JointIndex id,int q,int v) { i_id = id, i_q = q; i_v = v; }
 
 
     /* Acces to dedicated segment in robot config space.  */
@@ -389,7 +393,7 @@ namespace se3
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
     jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
 
-    JointModelDense<NQ, NV> toDense() const  { return static_cast<const JointModel*>(this)->toDense_impl();   }
+    JointModelDense<NQ, NV> toDense() const  { return derived().toDense_impl();   }
   }; // struct JointModelBase
 
 } // namespace se3

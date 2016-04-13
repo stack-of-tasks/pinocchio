@@ -26,9 +26,8 @@ namespace se3
 {
   struct RneaForwardStep : public fusion::JointVisitor<RneaForwardStep>
   {
-    typedef boost::fusion::vector< const se3::Model&,
-			    se3::Data&,
-			    const Model::Index,
+    typedef boost::fusion::vector<const se3::Model &,
+			    se3::Data &,
 			    const Eigen::VectorXd &,
 			    const Eigen::VectorXd &,
 			    const Eigen::VectorXd &
@@ -38,20 +37,18 @@ namespace se3
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
-		    se3::JointDataBase<typename JointModel::JointData> & jdata,
-		    const se3::Model& model,
-		    se3::Data& data,
-		    const Model::Index i,
-		    const Eigen::VectorXd & q,
-		    const Eigen::VectorXd & v,
-		    const Eigen::VectorXd & a)
+                     se3::JointDataBase<typename JointModel::JointData> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Eigen::VectorXd & q,
+                     const Eigen::VectorXd & v,
+                     const Eigen::VectorXd & a)
     {
-      using namespace Eigen;
-      using namespace se3;
+      const Model::JointIndex & i = jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
       
       jmodel.calc(jdata.derived(),q,v);
       
-      const Model::JointIndex & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       
       data.v[i] = jdata.v();
@@ -67,20 +64,21 @@ namespace se3
 
   struct RneaBackwardStep : public fusion::JointVisitor<RneaBackwardStep>
   {
-    typedef boost::fusion::vector<const Model&,
-				  Data&,
-				  const Model::Index>  ArgsType;
+    typedef boost::fusion::vector<const Model &,
+                                  Data &
+                                  > ArgsType;
     
     JOINT_VISITOR_INIT(RneaBackwardStep);
 
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
-		     JointDataBase<typename JointModel::JointData> & jdata,
-		     const Model& model,
-		     Data& data,
-		     Model::Index i)
+                     JointDataBase<typename JointModel::JointData> & jdata,
+                     const Model & model,
+                     Data & data)
     {
-      const Model::JointIndex & parent  = model.parents[i];      
+      const Model::JointIndex & i = jmodel.id();
+      const Model::JointIndex & parent  = model.parents[i];
+      
       jmodel.jointVelocitySelector(data.tau)  = jdata.S().transpose()*data.f[i];
       if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
     }
@@ -98,13 +96,13 @@ namespace se3
     for( Model::JointIndex i=1;i<(Model::JointIndex)model.nbody;++i )
     {
       RneaForwardStep::run(model.joints[i],data.joints[i],
-                           RneaForwardStep::ArgsType(model,data,i,q,v,a));
+                           RneaForwardStep::ArgsType(model,data,q,v,a));
     }
     
     for( Model::JointIndex i=(Model::JointIndex)model.nbody-1;i>0;--i )
     {
       RneaBackwardStep::run(model.joints[i],data.joints[i],
-                            RneaBackwardStep::ArgsType(model,data,i));
+                            RneaBackwardStep::ArgsType(model,data));
     }
 
     return data.tau;
@@ -114,7 +112,6 @@ namespace se3
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &,
-    const size_t,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &
     > ArgsType;
@@ -126,16 +123,14 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     const size_t i,
                      const Eigen::VectorXd & q,
                      const Eigen::VectorXd & v)
     {
-      using namespace Eigen;
-      using namespace se3;
+      const Model::JointIndex & i = jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
       
       jmodel.calc(jdata.derived(),q,v);
       
-      const Model::JointIndex & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       
       data.v[i] = jdata.v();
@@ -152,8 +147,8 @@ namespace se3
   struct NLEBackwardStep : public fusion::JointVisitor<NLEBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
-    Data &,
-    const size_t &>  ArgsType;
+                                  Data &
+                                  >  ArgsType;
     
     JOINT_VISITOR_INIT(NLEBackwardStep);
     
@@ -161,10 +156,11 @@ namespace se3
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointData> & jdata,
                      const Model & model,
-                     Data & data,
-                     const size_t i)
+                     Data & data)
     {
+      const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent  = model.parents[i];
+      
       jmodel.jointVelocitySelector(data.nle)  = jdata.S().transpose()*data.f[i];
       if(parent>0) data.f[(size_t) parent] += data.liMi[i].act(data.f[i]);
     }
@@ -181,13 +177,13 @@ namespace se3
     for( size_t i=1;i<(size_t) model.nbody;++i )
     {
       NLEForwardStep::run(model.joints[i],data.joints[i],
-                          NLEForwardStep::ArgsType(model,data,i,q,v));
+                          NLEForwardStep::ArgsType(model,data,q,v));
     }
     
     for( size_t i=(size_t) (model.nbody-1);i>0;--i )
     {
       NLEBackwardStep::run(model.joints[i],data.joints[i],
-                           NLEBackwardStep::ArgsType(model,data,i));
+                           NLEBackwardStep::ArgsType(model,data));
     }
     
     return data.nle;

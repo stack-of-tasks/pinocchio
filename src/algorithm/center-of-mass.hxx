@@ -208,8 +208,8 @@ namespace se3
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
-                     const se3::Model& model,
-                     se3::Data& data,
+                     const se3::Model & model,
+                     se3::Data & data,
                      const Eigen::VectorXd & q)
     {
       using namespace Eigen;
@@ -260,7 +260,6 @@ namespace se3
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
       
       ColBlock Jcols = jmodel.jointCols(data.J);
-      
       Jcols = data.oMi[i].act(jdata.S());
       
       if( JointModel::NV==1 )

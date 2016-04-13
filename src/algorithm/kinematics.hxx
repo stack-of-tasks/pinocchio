@@ -57,7 +57,6 @@ namespace se3
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
-                                  const Model::JointIndex,
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
@@ -68,14 +67,13 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     const Model::JointIndex i,
                      const Eigen::VectorXd & q)
     {
-      using namespace se3;
+      const Model::JointIndex & i = jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
 
       jmodel.calc (jdata.derived (), q);
 
-      const Model::JointIndex & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i] * jdata.M ();
 
       if (parent>0)
@@ -95,18 +93,16 @@ namespace se3
     
     for (Model::JointIndex i=1; i < (Model::JointIndex) model.nbody; ++i)
     {
-      ForwardKinematicZeroStep::run(model.joints[i],
-                        data.joints[i],
-                        ForwardKinematicZeroStep::ArgsType (model,data,i,q)
-                        );
+      ForwardKinematicZeroStep::run(model.joints[i], data.joints[i],
+                                    ForwardKinematicZeroStep::ArgsType (model,data,q)
+                                    );
     }
   }
 
   struct ForwardKinematicFirstStep : public fusion::JointVisitor<ForwardKinematicFirstStep>
   {
-    typedef boost::fusion::vector< const se3::Model&,
-				   se3::Data&,
-				   const Model::JointIndex,
+    typedef boost::fusion::vector<const se3::Model &,
+				   se3::Data &,
 				   const Eigen::VectorXd &,
 				   const Eigen::VectorXd &
 				   > ArgsType;
@@ -115,19 +111,17 @@ namespace se3
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
-		    se3::JointDataBase<typename JointModel::JointData> & jdata,
-		    const se3::Model& model,
-		    se3::Data& data,
-		    const Model::JointIndex i,
-		    const Eigen::VectorXd & q,
-		    const Eigen::VectorXd & v)
+                     se3::JointDataBase<typename JointModel::JointData> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Eigen::VectorXd & q,
+                     const Eigen::VectorXd & v)
     {
-      using namespace Eigen;
-      using namespace se3;
+      const Model::JointIndex & i = jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
       
       jmodel.calc(jdata.derived(),q,v);
       
-      const Model::JointIndex & parent = model.parents[i];
       data.v[i] = jdata.v();
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       
@@ -153,17 +147,16 @@ namespace se3
     data.v[0].setZero();
 
     for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
-      {
-	ForwardKinematicFirstStep::run(model.joints[i],data.joints[i],
-			    ForwardKinematicFirstStep::ArgsType(model,data,i,q,v));
-      }
+    {
+      ForwardKinematicFirstStep::run(model.joints[i],data.joints[i],
+                                     ForwardKinematicFirstStep::ArgsType(model,data,q,v));
+    }
   }
   
   struct ForwardKinematicSecondStep : public fusion::JointVisitor<ForwardKinematicSecondStep>
   {
-    typedef boost::fusion::vector< const se3::Model&,
-    se3::Data&,
-    const Model::JointIndex,
+    typedef boost::fusion::vector<const se3::Model &,
+    se3::Data &,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &
@@ -176,14 +169,15 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     const Model::JointIndex i,
                      const Eigen::VectorXd & q,
                      const Eigen::VectorXd & v,
                      const Eigen::VectorXd & a)
     {
-      jmodel.calc(jdata.derived(),q,v);
-      
+      const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
+      
+      jmodel.calc(jdata.derived(),q,v);
+
       data.v[i] = jdata.v();
       data.liMi[i] = model.jointPlacements[i] * jdata.M();
       
@@ -216,7 +210,7 @@ namespace se3
     for( Model::JointIndex i=1; i < (Model::JointIndex) model.nbody; ++i )
     {
       ForwardKinematicSecondStep::run(model.joints[i],data.joints[i],
-                        ForwardKinematicSecondStep::ArgsType(model,data,i,q,v,a));
+                                      ForwardKinematicSecondStep::ArgsType(model,data,q,v,a));
     }
   }
 } // namespace se3
