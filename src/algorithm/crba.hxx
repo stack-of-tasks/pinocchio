@@ -28,10 +28,10 @@ namespace se3
 {
   struct CrbaForwardStep : public fusion::JointVisitor<CrbaForwardStep>
   {
-    typedef boost::fusion::vector< const se3::Model&,
-				   se3::Data&,
-				   const Eigen::VectorXd &
-				   > ArgsType;
+    typedef boost::fusion::vector<const se3::Model&,
+                                  se3::Data &,
+                                  const Eigen::VectorXd &
+                                  > ArgsType;
 
     JOINT_VISITOR_INIT(CrbaForwardStep);
 
@@ -71,6 +71,7 @@ namespace se3
        *   Yli += liXi Yi
        *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
        */
+      typedef Data::Matrix6x::ColsBlockXpr Block;
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
 
       /* F[1:6,i] = Y*S */
@@ -88,10 +89,10 @@ namespace se3
         data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
         
         /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
-        Eigen::Block<typename Data::Matrix6x> jF
-        = data.Fcrb[parent].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
-        Eigen::Block<typename Data::Matrix6x> iF
-        = data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
+        Block jF
+        = data.Fcrb[parent].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+        Block iF
+        = data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
         forceSet::se3Action(data.liMi[i], iF, jF);
       }
     }
@@ -120,7 +121,6 @@ namespace se3
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &,
-    const Model::Index,
     const Eigen::VectorXd &
     > ArgsType;
     
@@ -131,9 +131,9 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     const Model::Index i,
                      const Eigen::VectorXd & q)
     {
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::Index & parent = model.parents[i];
       
       jmodel.calc(jdata.derived(),q);
@@ -150,9 +150,8 @@ namespace se3
   struct CcrbaBackwardStep : public fusion::JointVisitor<CcrbaBackwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
-    se3::Data &,
-    const Model::Index
-    > ArgsType;
+                                  se3::Data &
+                                  > ArgsType;
     
     JOINT_VISITOR_INIT(CcrbaBackwardStep);
     
@@ -160,20 +159,19 @@ namespace se3
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointData> & jdata,
                      const se3::Model & model,
-                     se3::Data & data,
-                     const Model::Index i)
+                     se3::Data & data)
     {
+      typedef typename Data::Matrix6x::NColsBlockXpr<JointModel::NV>::Type ColsBlock;
       
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::Index & parent = model.parents[i];
       
       data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
       
       jdata.U() = data.Ycrb[i] * jdata.S();
-      Eigen::Block<typename Data::Matrix6x> jF
-      = data.Ag.block(0,jmodel.idx_v(),6,JointModel::NV);
-      Eigen::Block<typename JointModel::U_t> iF
-      = jdata.U().block(0,0,6,JointModel::NV);
-      forceSet::se3Action(data.oMi[i],iF,jF);
+      ColsBlock jF
+      = data.Ag.middleCols <JointModel::NV> (jmodel.idx_v());
+      forceSet::se3Action(data.oMi[i],jdata.U(),jF);
     }
     
   }; // struct CcrbaBackwardStep
@@ -186,14 +184,15 @@ namespace se3
     typedef Eigen::Block <Data::Matrix6x,3,-1> Block3x;
     
     forwardKinematics(model, data, q);
-    for( Model::Index i=1;i<(Model::Index)(model.nbody);++i )
+    data.Ycrb[0].setZero();
+    for(Model::Index i=1;i<(Model::Index)(model.nbody);++i )
       data.Ycrb[i] = model.inertias[i];
     
-    data.Ycrb[0].setZero();
+    
     for(Model::Index i=(Model::Index)(model.nbody-1);i>0;--i)
     {
       CcrbaBackwardStep::run(model.joints[i],data.joints[i],
-                             CcrbaBackwardStep::ArgsType(model,data,i));
+                             CcrbaBackwardStep::ArgsType(model,data));
     }
     data.com[0] = data.Ycrb[0].lever();
     
