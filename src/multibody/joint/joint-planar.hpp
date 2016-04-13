@@ -250,8 +250,8 @@ namespace se3
     typedef Eigen::Matrix<Inertia::Scalar_t, 6, 3> Matrix63;
     Matrix63 IS;
     
-    IS.leftCols(2) = Y.leftCols(2);
-    IS.rightCols(1) = Y.rightCols(1);
+    IS.leftCols <2> () = Y.leftCols <2> ();
+    IS.rightCols <1> () = Y.rightCols <1> ();
     
     return IS;
   }
