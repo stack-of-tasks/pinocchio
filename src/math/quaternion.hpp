@@ -18,32 +18,48 @@
 #ifndef __math_quaternion_hpp__
 #define __math_quaternion_hpp__
 
-#include "pinocchio/math/fwd.hpp"
+#include <boost/math/constants/constants.hpp>
 
 namespace se3
 {
-
-/// Compute minimal angle between q1 and q2 or between q1 and -q2
-///
-/// \param q1, q2, unit quaternions
-/// \return angle between both quaternions
-template <typename D>
-D angleBetweenQuaternions(const Eigen::Quaternion< D> & q1,
-                          const Eigen::Quaternion< D> & q2)
-{
-  D innerprod = q1.dot(q2);
-  D theta = acos(innerprod);
-  if (innerprod < 0)
-    theta = PI - theta;
-  return theta;
-}
-
-template <typename D>
-bool quaternion_are_same_rotation(const Eigen::Quaternion< D> & q1,
-                                  const Eigen::Quaternion< D> & q2)
-{
-  return (q1.coeffs().isApprox(q2.coeffs()) || q1.coeffs().isApprox(-q2.coeffs()) );
-}
+  ///
+  /// \brief Compute the minimal angle between q1 and q2.
+  ///
+  /// \param[in] q1 input quaternion.
+  /// \param[in] q2 input quaternion.
+  ///
+  /// \return angle between the two quaternions
+  ///
+  template <typename D>
+  typename D::Scalar angleBetweenQuaternions(const Eigen::QuaternionBase<D> & q1,
+                                             const Eigen::QuaternionBase<D> & q2)
+  {
+    typedef typename D::Scalar Scalar;
+    const Scalar innerprod = q1.dot(q2);
+    Scalar theta = acos(innerprod);
+    const Scalar PIs = boost::math::constants::pi<Scalar>();
+    
+    if (innerprod < 0)
+      return PIs - theta;
+    
+    return theta;
+  }
+  
+  ///
+  /// \brief Check if two quaternions define the same rotations.
+  /// \note Two quaternions define the same rotation iff q1 == q2 OR q1 == -q2.
+  ///
+  /// \param[in] q1 input quaternion.
+  /// \param[in] q2 input quaternion.
+  ///
+  /// \return Return true if the two input quaternions define the same rotation.
+  ///
+  template <typename Derived, typename otherDerived>
+  bool defineSameRotation(const Eigen::QuaternionBase<Derived> & q1,
+                          const Eigen::QuaternionBase<otherDerived> & q2)
+  {
+    return (q1.coeffs().isApprox(q2.coeffs()) || q1.coeffs().isApprox(-q2.coeffs()) );
+  }
 
 }
 #endif //#ifndef __math_quaternion_hpp__
