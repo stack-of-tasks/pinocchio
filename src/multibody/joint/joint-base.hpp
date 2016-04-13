@@ -321,8 +321,8 @@ namespace se3
      *
      * @return     The corresponding distance
      */
-    double distance(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
-    { return derived().distance_impl(q1, q2); } 
+    double distance(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
+    { return derived().distance_impl(q0, q1); }
 
     JointIndex i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.
