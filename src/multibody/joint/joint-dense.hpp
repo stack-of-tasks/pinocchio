@@ -181,13 +181,8 @@ namespace se3
       return result; 
     }
 
-    JointModelDense()
-    {
-    }
-    JointModelDense(  Index idx,
-                      int idx_q,
-                      int idx_v
-                    )
+    JointModelDense() {}
+    JointModelDense(JointIndex idx, int idx_q, int idx_v)
     {
       setIndexes(idx, idx_q, idx_v);
     }

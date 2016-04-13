@@ -24,7 +24,7 @@
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/constraint.hpp"
-#include <Eigen/Geometry>
+#include "pinocchio/multibody/fwd.hpp"
 #include <limits>
 
 namespace se3
@@ -324,7 +324,7 @@ namespace se3
     double distance(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) const
     { return derived().distance_impl(q1, q2); } 
 
-    Index i_id; // ID of the joint in the multibody list.
+    JointIndex i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.
     int i_v;    // Index of the joint velocity in the joint velocity vector.
 
@@ -338,9 +338,9 @@ namespace se3
 
     const int &   idx_q() const { return i_q; }
     const int &   idx_v() const { return i_v; }
-    const Index & id()    const { return i_id; }
+    const JointIndex & id() const { return i_id; }
 
-    void setIndexes(Index id,int q,int v) { i_id = id, i_q = q; i_v = v; }
+    void setIndexes(JointIndex id,int q,int v) { i_id = id, i_q = q; i_v = v; }
 
 
     /* Acces to dedicated segment in robot config space.  */
