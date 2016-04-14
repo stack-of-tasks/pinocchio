@@ -69,6 +69,88 @@ void printOutJointData (
 }
 
 
+BOOST_AUTO_TEST_SUITE (JointRevoluteUnaligned)
+
+BOOST_AUTO_TEST_CASE (vsRX)
+{
+  using namespace se3;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 6, 1> Vector6;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+
+  Eigen::Vector3d axis;
+  axis << 1.0, 0.0, 0.0;
+
+  Model modelRX, modelRevoluteUnaligned;
+
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
+
+  JointModelRevoluteUnaligned joint_model_RU(axis);
+  modelRX.addBody (0, JointModelRX (), pos, inertia, "rx");
+  modelRevoluteUnaligned.addBody(0, joint_model_RU ,pos, inertia, "revolute-unaligne");
+
+  Data dataRX(modelRX);
+  Data dataRevoluteUnaligned(modelRevoluteUnaligned);
+
+
+  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelRX.nq);
+  Eigen::VectorXd v = Eigen::VectorXd::Ones (modelRX.nv);
+  Eigen::VectorXd tauRX = Eigen::VectorXd::Ones (modelRX.nv);       Eigen::VectorXd tauRevoluteUnaligned = Eigen::VectorXd::Ones (modelRevoluteUnaligned.nv);
+  Eigen::VectorXd aRX = Eigen::VectorXd::Ones (modelRX.nv);         Eigen::VectorXd aRevoluteUnaligned(aRX);
+  
+
+
+  forwardKinematics(modelRX, dataRX, q, v);
+  forwardKinematics(modelRevoluteUnaligned, dataRevoluteUnaligned, q, v);
+
+  computeAllTerms(modelRX, dataRX, q, v);
+  computeAllTerms(modelRevoluteUnaligned, dataRevoluteUnaligned, q, v);
+
+  BOOST_CHECK(dataRevoluteUnaligned.oMi[1].isApprox(dataRX.oMi[1]));
+  BOOST_CHECK(dataRevoluteUnaligned.liMi[1].isApprox(dataRX.liMi[1]));
+  BOOST_CHECK(dataRevoluteUnaligned.Ycrb[1].matrix().isApprox(dataRX.Ycrb[1].matrix()));
+  BOOST_CHECK(dataRevoluteUnaligned.f[1].toVector().isApprox(dataRX.f[1].toVector()));
+  
+  BOOST_CHECK(dataRevoluteUnaligned.nle.isApprox(dataRX.nle));
+  BOOST_CHECK(dataRevoluteUnaligned.com[0].isApprox(dataRX.com[0]));
+
+
+
+  // InverseDynamics == rnea
+  tauRX = rnea(modelRX, dataRX, q, v, aRX);
+  tauRevoluteUnaligned = rnea(modelRevoluteUnaligned, dataRevoluteUnaligned, q, v, aRevoluteUnaligned);
+
+  BOOST_CHECK(tauRX.isApprox(tauRevoluteUnaligned));
+
+  // ForwardDynamics == aba
+  Eigen::VectorXd aAbaRX = aba(modelRX,dataRX, q, v, tauRX);
+  Eigen::VectorXd aAbaRevoluteUnaligned = aba(modelRevoluteUnaligned,dataRevoluteUnaligned, q, v, tauRevoluteUnaligned);
+
+
+  BOOST_CHECK(aAbaRX.isApprox(aAbaRevoluteUnaligned));
+
+  // crba
+  crba(modelRX, dataRX,q);
+  crba(modelRevoluteUnaligned, dataRevoluteUnaligned, q);
+
+  BOOST_CHECK(dataRX.M.isApprox(dataRevoluteUnaligned.M));
+   
+  // Jacobian
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianRX;jacobianRX.resize(6,1); jacobianRX.setZero();
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianRevoluteUnaligned;jacobianRevoluteUnaligned.resize(6,1);jacobianRevoluteUnaligned.setZero();
+  computeJacobians(modelRX, dataRX, q);
+  computeJacobians(modelRevoluteUnaligned, dataRevoluteUnaligned, q);
+  getJacobian<true>(modelRX, dataRX, 1, jacobianRX);
+  getJacobian<true>(modelRevoluteUnaligned, dataRevoluteUnaligned, 1, jacobianRevoluteUnaligned);
+
+
+  BOOST_CHECK(jacobianRX.isApprox(jacobianRevoluteUnaligned));
+
+
+}
+BOOST_AUTO_TEST_SUITE_END ()
+
 BOOST_AUTO_TEST_SUITE ( JointSphericalZYX )
 
 BOOST_AUTO_TEST_CASE ( test_kinematics )
@@ -845,148 +927,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 BOOST_AUTO_TEST_SUITE_END ()
 
 
-BOOST_AUTO_TEST_SUITE ( JointRevoluteUnaligned )
 
-BOOST_AUTO_TEST_CASE ( test_kinematics )
-{
-  using namespace se3;
-
-
-  Eigen::Vector3d axis;
-  axis << 1.0, 0.0, 0.0;
-
-  JointModelRevoluteUnaligned joint_model_RU(axis);
-  JointDataRevoluteUnaligned joint_data_RU(axis);
-
-  JointModelRX joint_model_RX;
-  JointDataRX joint_data_RX;
-
-  joint_model_RU.setIndexes (0, 0, 0);
-  joint_model_RX.setIndexes (0, 0, 0);
-
-  Eigen::VectorXd q (Eigen::VectorXd::Zero (1));
-  Eigen::VectorXd q_dot (Eigen::VectorXd::Zero (1));
-
-  // -------
-  q << 0.;
-  q_dot << 0.;
-
-  joint_model_RU.calc (joint_data_RU, q, q_dot);
-  joint_model_RX.calc (joint_data_RX, q, q_dot);
-
-  printOutJointData <JointDataRevoluteUnaligned> (q, q_dot, joint_data_RU);
-
-  BOOST_CHECK (joint_data_RU.M.rotation()
-              .isApprox(joint_data_RX.M.rotation(), 1e-12));
-  BOOST_CHECK (joint_data_RU.M.translation ()
-              .isApprox(joint_data_RX.M.translation (), 1e-12));
-  BOOST_CHECK (((Motion) joint_data_RU.v).toVector()
-              .isApprox(((Motion) joint_data_RX.v).toVector(), 1e-12));
-  BOOST_CHECK (((Motion) joint_data_RU.c).toVector()
-              .isApprox(((Motion) joint_data_RX.c).toVector(), 1e-12));
-
-}
-
-BOOST_AUTO_TEST_CASE ( test_rnea )
-{
-  using namespace se3;
-  typedef Eigen::Matrix <double, 3, 1> Vector3;
-  typedef Eigen::Matrix <double, 3, 3> Matrix3;
-
-  Model modelRX;
-  Model modelRU;
-  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-
-  Eigen::Vector3d axis;
-  axis << 1.0, 0.0, 0.0;
-
-  modelRX.addBody (modelRX.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertia, "root");
-  modelRU.addBody (modelRU.getBodyId("universe"), JointModelRevoluteUnaligned (axis), SE3::Identity (), inertia, "root");
-
-  Data dataRX (modelRX);
-  Data dataRU (modelRU);
-
-  BOOST_CHECK_EQUAL(modelRU.nq,modelRX.nq);
-  BOOST_CHECK_EQUAL(modelRU.nv,modelRX.nv);
-  
-
-  Eigen::VectorXd q (Eigen::VectorXd::Zero (modelRU.nq));
-  Eigen::VectorXd v (Eigen::VectorXd::Zero (modelRU.nv));
-  Eigen::VectorXd a (Eigen::VectorXd::Zero (modelRU.nv));
-
-  rnea (modelRX, dataRX, q, v, a);
-  rnea (modelRU, dataRU, q, v, a);
-
-  BOOST_CHECK (dataRX.tau.isApprox(dataRU.tau, 1e-14));
-
-  q = Eigen::VectorXd::Ones (modelRU.nq); //q.normalize ();
-  v = Eigen::VectorXd::Ones (modelRU.nv);
-  a = Eigen::VectorXd::Ones (modelRU.nv);
-
-  rnea (modelRX, dataRX, q, v, a);
-  rnea (modelRU, dataRU, q, v, a);
-
-  BOOST_CHECK (dataRX.tau.isApprox(dataRU.tau, 1e-12));
-
-  q << 3.;
-  v = Eigen::VectorXd::Ones (modelRU.nv);
-  a = Eigen::VectorXd::Ones (modelRU.nv);
-
-  rnea (modelRX, dataRX, q, v, a);
-  rnea (modelRU, dataRU, q, v, a);
-
-  BOOST_CHECK (dataRX.tau.isApprox(dataRU.tau, 1e-12));
-}
-
-BOOST_AUTO_TEST_CASE ( test_crba )
-{
-  using namespace se3;
-  using namespace std;
-  typedef Eigen::Matrix <double, 3, 1> Vector3;
-  typedef Eigen::Matrix <double, 3, 3> Matrix3;
-
-  Model modelRX;
-  Model modelRU;
-  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-
-  Eigen::Vector3d axis;
-  axis << 1.0, 0.0, 0.0;
-
-  modelRX.addBody (modelRX.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertia, "root");
-  modelRU.addBody (modelRU.getBodyId("universe"), JointModelRevoluteUnaligned (axis), SE3::Identity (), inertia, "root");
-
-  Data dataRX (modelRX);
-  Data dataRU (modelRU);
-
-  BOOST_CHECK_EQUAL(modelRU.nq,modelRX.nq);
-  BOOST_CHECK_EQUAL(modelRU.nv,modelRX.nv);
-
-
-  Eigen::VectorXd q (Eigen::VectorXd::Zero (modelRU.nq));
-
-  crba (modelRX, dataRX, q);
-  crba (modelRU, dataRU, q);
-
-  BOOST_CHECK (dataRX.M.isApprox(dataRU.M, 1e-14));
-
-  // ----
-  q = Eigen::VectorXd::Ones (modelRU.nq);
-
-  crba (modelRX, dataRX, q);
-  crba (modelRU, dataRU, q);
-
-  BOOST_CHECK (dataRX.M.isApprox(dataRU.M, 1e-14));
-
-  // ----
-  q << 3;
-  
-  crba (modelRX, dataRX, q);
-  crba (modelRU, dataRU, q);
-
-  BOOST_CHECK (dataRX.M.isApprox(dataRU.M, 1e-14));
-}
-
-BOOST_AUTO_TEST_SUITE_END ()
 
 BOOST_AUTO_TEST_SUITE ( JointPrismaticUnaligned )
 
