@@ -233,142 +233,148 @@ BOOST_AUTO_TEST_CASE (vsPX)
 }
 BOOST_AUTO_TEST_SUITE_END ()
 
+BOOST_AUTO_TEST_SUITE (JointSpherical)
 
-BOOST_AUTO_TEST_SUITE ( JointSphericalZYX )
-
-BOOST_AUTO_TEST_CASE ( test_kinematics )
+BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 {
   using namespace se3;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 6, 1> Vector6;
+  typedef Eigen::Matrix <double, 7, 1> VectorFF;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
-  typedef Motion::Vector3 Vector3;
+  Model modelSpherical, modelFreeflyer;
 
-  Motion expected_v_J (Motion::Zero ());
-  Motion expected_c_J (Motion::Zero ());
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
-  SE3 expected_configuration (SE3::Identity ());
 
-  JointDataSphericalZYX joint_data;
-  JointModelSphericalZYX joint_model;
+  modelSpherical.addBody (0, JointModelSpherical (), pos, inertia, "spherical");
+  modelFreeflyer.addBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
 
-  joint_model.setIndexes (0, 0, 0);
+  Data dataSpherical(modelSpherical);
+  Data dataFreeFlyer(modelFreeflyer);
 
-  Vector3 q (Vector3::Zero());
-  Vector3 q_dot (Vector3::Zero());
 
-  // -------
-  q = Vector3 (0., 0., 0.);
-  q_dot = Vector3 (0., 0., 0.);
+  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelSpherical.nq);q.normalize();  VectorFF qff; qff << 0, 0, 0, q[0], q[1], q[2], q[3]; 
+  Eigen::VectorXd v = Eigen::VectorXd::Ones (modelSpherical.nv);               Vector6 vff; vff << 0, 0, 0, 1, 1, 1;
+  Eigen::VectorXd tauSpherical = Eigen::VectorXd::Ones (modelSpherical.nv);       Eigen::VectorXd tauff; tauff.resize(7); tauff << 0,0,0,1,1,1,1;
+  Eigen::VectorXd aSpherical = Eigen::VectorXd::Ones (modelSpherical.nv);         Eigen::VectorXd aff(vff);
+  
 
-  joint_model.calc (joint_data, q, q_dot);
 
-  printOutJointData <JointDataSphericalZYX> (q, q_dot, joint_data);
+  forwardKinematics(modelSpherical, dataSpherical, q, v);
+  forwardKinematics(modelFreeflyer, dataFreeFlyer, qff, vff);
 
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
+  computeAllTerms(modelSpherical, dataSpherical, q, v);
+  computeAllTerms(modelFreeflyer, dataFreeFlyer, qff, vff);
 
-  // -------
-  q = Vector3 (1., 0., 0.);
-  q_dot = Vector3 (1., 0., 0.);
+  BOOST_CHECK(dataFreeFlyer.oMi[1].isApprox(dataSpherical.oMi[1]));
+  BOOST_CHECK(dataFreeFlyer.liMi[1].isApprox(dataSpherical.liMi[1]));
+  BOOST_CHECK(dataFreeFlyer.Ycrb[1].matrix().isApprox(dataSpherical.Ycrb[1].matrix()));
+  BOOST_CHECK(dataFreeFlyer.f[1].toVector().isApprox(dataSpherical.f[1].toVector()));
+  
+  Eigen::VectorXd nle_expected_ff(3); nle_expected_ff << dataFreeFlyer.nle[3],
+                                                         dataFreeFlyer.nle[4],
+                                                         dataFreeFlyer.nle[5]
+                                                         ;
+  BOOST_CHECK(nle_expected_ff.isApprox(dataSpherical.nle));
+  BOOST_CHECK(dataFreeFlyer.com[0].isApprox(dataSpherical.com[0]));
 
-  joint_model.calc (joint_data, q, q_dot);
 
-  printOutJointData <JointDataSphericalZYX> (q, q_dot, joint_data);
 
-  expected_configuration.rotation ().transpose () <<
-  0.54030230586814,  0.8414709848079,               -0,
-  -0.8414709848079, 0.54030230586814,                0,
-  0,                0,               1;
+  // InverseDynamics == rnea
+  tauSpherical = rnea(modelSpherical, dataSpherical, q, v, aSpherical);
+  tauff = rnea(modelFreeflyer, dataFreeFlyer, qff, vff, aff);
 
-  expected_v_J.angular () << 0., 0., 1.;
+  Vector3 tau_expected; tau_expected << tauff(3), tauff(4), tauff(5);
+  BOOST_CHECK(tauSpherical.isApprox(tau_expected));
 
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
+  // ForwardDynamics == aba
+  Eigen::VectorXd aAbaSpherical = aba(modelSpherical,dataSpherical, q, v, tauSpherical);
+  Eigen::VectorXd aAbaFreeFlyer = aba(modelFreeflyer,dataFreeFlyer, qff, vff, tauff);
+  Vector3 a_expected; a_expected << aAbaFreeFlyer[3],
+                                    aAbaFreeFlyer[4],
+                                    aAbaFreeFlyer[5]
+                                    ;
+  BOOST_CHECK(aAbaSpherical.isApprox(a_expected));
 
-  // -------
-  q = Vector3 (0., 1., 0.);
-  q_dot = Vector3 (0., 1., 0.);
+  // crba
+  crba(modelSpherical, dataSpherical,q);
+  crba(modelFreeflyer, dataFreeFlyer, qff);
 
-  joint_model.calc (joint_data, q, q_dot);
+  Eigen::Matrix<double, 3, 3> M_expected(dataFreeFlyer.M.bottomRightCorner<3,3>());
 
-  printOutJointData <JointDataSphericalZYX> (q, q_dot, joint_data);
+  BOOST_CHECK(dataSpherical.M.isApprox(M_expected));
+   
+  // Jacobian
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_planar;jacobian_planar.resize(6,3); jacobian_planar.setZero();
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
+  computeJacobians(modelSpherical, dataSpherical, q);
+  computeJacobians(modelFreeflyer, dataFreeFlyer, qff);
+  getJacobian<true>(modelSpherical, dataSpherical, 1, jacobian_planar);
+  getJacobian<true>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
 
-  expected_configuration.rotation ().transpose () <<
-  0.54030230586814,                0, -0.8414709848079,
-  0,                1,                0,
-  0.8414709848079,                0, 0.54030230586814;
 
-  expected_v_J.angular () << 0., 1., 0.;
+  Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(3),
+                                                                      jacobian_ff.col(4),
+                                                                      jacobian_ff.col(5)
+                                                                      ;
 
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
+  BOOST_CHECK(jacobian_planar.isApprox(jacobian_expected));
 
-  // -------
-  q = Vector3 (0., 0., 1.);
-  q_dot = Vector3 (0., 0., 1.);
+}
+BOOST_AUTO_TEST_SUITE_END ()
 
-  joint_model.calc (joint_data, q, q_dot);
 
-  printOutJointData <JointDataSphericalZYX> (q, q_dot, joint_data);
+BOOST_AUTO_TEST_SUITE (JointSphericalZYX)
 
-  expected_configuration.rotation ().transpose () <<
-  1,                0,               -0,
-  0, 0.54030230586814,  0.8414709848079,
-  0, -0.8414709848079, 0.54030230586814;
+BOOST_AUTO_TEST_CASE (vsFreeFlyer)
+{
+  // WARNIG : Dynamic algorithm's results cannot be compared to FreeFlyer's ones because 
+  // of the representation of the rotation and the ConstraintSubspace difference.
+  using namespace se3;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 6, 1> Vector6;
+  typedef Eigen::Matrix <double, 7, 1> VectorFF;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
-  expected_v_J.angular () << 1., 0., 0.;
+  Model modelSphericalZYX, modelFreeflyer;
 
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
-  // -------
-  q = Vector3 (1., 1., 1.);
-  q_dot = Vector3 (1., 1., 1.);
 
-  joint_model.calc (joint_data, q, q_dot);
+  modelSphericalZYX.addBody (0, JointModelSphericalZYX (), pos, inertia, "spherical");
+    modelFreeflyer.addBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
 
-  printOutJointData <JointDataSphericalZYX> (q, q_dot, joint_data);
+  Data dataSphericalZYX(modelSphericalZYX);
+  Data dataFreeFlyer(modelFreeflyer);
 
-  expected_configuration.rotation ().transpose () <<
-  0.29192658172643,   0.45464871341284,   -0.8414709848079,
-  -0.072075012795695,   0.88774981831738,   0.45464871341284,
-  0.95372116649051, -0.072075012795695,   0.29192658172643;
+  Eigen::AngleAxisd rollAngle(1, Eigen::Vector3d::UnitZ());
+  Eigen::AngleAxisd yawAngle(1, Eigen::Vector3d::UnitY());
+  Eigen::AngleAxisd pitchAngle(1, Eigen::Vector3d::UnitX());
+  Eigen::Quaterniond q_sph = rollAngle * yawAngle * pitchAngle;
+  
+  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelSphericalZYX.nq);              VectorFF qff; qff << 0, 0, 0, q_sph.x(), q_sph.y(), q_sph.z(), q_sph.w(); 
+  Eigen::VectorXd v = Eigen::VectorXd::Ones (modelSphericalZYX.nv);               Vector6 vff; vff << 0, 0, 0, 1, 1, 1;
+  Eigen::VectorXd tauSpherical = Eigen::VectorXd::Ones (modelSphericalZYX.nv);       Eigen::VectorXd tauff; tauff.resize(6); tauff << 0,0,0,1,1,1;
+  Eigen::VectorXd aSpherical = Eigen::VectorXd::Ones (modelSphericalZYX.nv);         Eigen::VectorXd aff(vff);
+  
 
-  expected_v_J.angular () << 0.1585290151921,  0.99495101928098, -0.54954440308147;
-  expected_c_J.angular () << -0.54030230586814,   -1.257617821355,  -1.4495997326938;
 
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
+  forwardKinematics(modelSphericalZYX, dataSphericalZYX, q, v);
+  forwardKinematics(modelFreeflyer, dataFreeFlyer, qff, vff);
 
-  // -------
-  q = Vector3 (1., 1.5, 1.9);
-  q_dot = Vector3 (2., 3., 1.);
+  computeAllTerms(modelSphericalZYX, dataSphericalZYX, q, v);
+  computeAllTerms(modelFreeflyer, dataFreeFlyer, qff, vff);
 
-  joint_model.calc (joint_data, q, q_dot);
+  BOOST_CHECK(dataFreeFlyer.oMi[1].isApprox(dataSphericalZYX.oMi[1]));
+  BOOST_CHECK(dataFreeFlyer.liMi[1].isApprox(dataSphericalZYX.liMi[1]));
+  BOOST_CHECK(dataFreeFlyer.Ycrb[1].matrix().isApprox(dataSphericalZYX.Ycrb[1].matrix()));
 
-  printOutJointData <JointDataSphericalZYX> (q, q_dot, joint_data);
+  BOOST_CHECK(dataFreeFlyer.com[0].isApprox(dataSphericalZYX.com[0]));
 
-  expected_configuration.rotation ().transpose () <<
-  0.03821947317172,  0.059523302749877,  -0.99749498660405,
-  0.78204612603915,   0.61961526601658,   0.06693862014091,
-  0.62204752922718,   -0.7826454488138, -0.022868599288288;
-
-  expected_v_J.angular () << -0.99498997320811, -0.83599146030869,  -2.8846374616388;
-  expected_c_J.angular () << -0.42442321000622,  -8.5482150213859,   2.7708697933151;
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
 }
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
@@ -459,7 +465,6 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
-
 
 BOOST_AUTO_TEST_SUITE ( JointPrismatic )
 
@@ -594,455 +599,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 
 BOOST_AUTO_TEST_SUITE_END ()
 
-BOOST_AUTO_TEST_SUITE ( JointTranslation )
 
-BOOST_AUTO_TEST_CASE ( test_kinematics )
-{
-  using namespace se3;
-
-  typedef Motion::Vector3 Vector3;
-
-  Motion expected_v_J (Motion::Zero ());
-  Motion expected_c_J (Motion::Zero ());
-
-  SE3 expected_configuration (SE3::Identity ());
-
-  JointDataTranslation joint_data;
-  JointModelTranslation joint_model;
-
-  joint_model.setIndexes (0, 0, 0);
-
-  Vector3 q (Vector3::Zero());
-  Vector3 q_dot (Vector3::Zero());
-
-  // -------
-  q = Vector3 (0., 0., 0.);
-  q_dot = Vector3 (0., 0., 0.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataTranslation> (q, q_dot, joint_data);
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-
-  // -------
-  q = Vector3 (1., 0., 0.);
-  q_dot = Vector3 (1., 0., 0.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataTranslation> (q, q_dot, joint_data);
-
-  expected_configuration.translation () << 1, 0, 0;
-
-  expected_v_J.linear () << 1., 0., 0.;
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-
-  // -------
-  q = Vector3 (0., 1., 0.);
-  q_dot = Vector3 (0., 1., 0.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataTranslation> (q, q_dot, joint_data);
-
-  expected_configuration.translation () << 0, 1., 0;
-
-  expected_v_J.linear () << 0., 1., 0.;
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-
-  // -------
-  q = Vector3 (0., 0., 1.);
-  q_dot = Vector3 (0., 0., 1.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataTranslation> (q, q_dot, joint_data);
-
-  expected_configuration.translation () << 0, 0, 1;
-
-  expected_v_J.linear () << 0., 0., 1.;
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-
-  // -------
-  q = Vector3 (1., 1., 1.);
-  q_dot = Vector3 (1., 1., 1.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataTranslation> (q, q_dot, joint_data);
-
-  expected_configuration.translation () << 1., 1., 1.;
-  expected_v_J.linear () << 1., 1., 1.;
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-
-  // -------
-  q = Vector3 (1., 1.5, 1.9);
-  q_dot = Vector3 (2., 3., 1.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataTranslation> (q, q_dot, joint_data);
-
-  expected_configuration.translation () = q;
-  expected_v_J.linear () = q_dot;
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-}
-
-BOOST_AUTO_TEST_CASE ( test_rnea )
-{
-  using namespace se3;
-  typedef Eigen::Matrix <double, 3, 1> Vector3;
-  typedef Eigen::Matrix <double, 3, 3> Matrix3;
-
-  Model model;
-  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-
-  model.addBody (model.getBodyId("universe"), JointModelTranslation (), SE3::Identity (), inertia, "root");
-
-  Data data (model);
-
-  Eigen::VectorXd q (Eigen::VectorXd::Zero (model.nq));
-  Eigen::VectorXd v (Eigen::VectorXd::Zero (model.nv));
-  Eigen::VectorXd a (Eigen::VectorXd::Zero (model.nv));
-
-  rnea (model, data, q, v, a);
-  Vector3 tau_expected (Vector3::Zero ());
-
-  tau_expected  << 0,    0, 9.81;
-
-  BOOST_CHECK (tau_expected.isApprox(data.tau, 1e-14));
-
-  q = Eigen::VectorXd::Ones (model.nq);
-  v = Eigen::VectorXd::Ones (model.nv);
-  a = Eigen::VectorXd::Ones (model.nv);
-
-  rnea (model, data, q, v, a);
-  tau_expected << 1,     1, 10.81;
-
-  BOOST_CHECK (tau_expected.isApprox(data.tau, 1e-12));
-
-  q << 3, 2, 1;
-  v = Eigen::VectorXd::Ones (model.nv);
-  a = Eigen::VectorXd::Ones (model.nv);
-
-  rnea (model, data, q, v, a);
-  tau_expected << 1,     1, 10.81;
-
-  BOOST_CHECK (tau_expected.isApprox(data.tau, 1e-12));
-}
-
-BOOST_AUTO_TEST_CASE ( test_crba )
-{
-  using namespace se3;
-  using namespace std;
-  typedef Eigen::Matrix <double, 3, 1> Vector3;
-  typedef Eigen::Matrix <double, 3, 3> Matrix3;
-
-  Model model;
-  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-
-  model.addBody (model.getBodyId("universe"), JointModelTranslation (), SE3::Identity (), inertia, "root");
-
-  Data data (model);
-
-  Eigen::VectorXd q (Eigen::VectorXd::Zero (model.nq));
-  Eigen::MatrixXd M_expected (model.nv,model.nv);
-
-  crba (model, data, q);
-  M_expected = Matrix3::Identity ();
-
-  BOOST_CHECK (M_expected.isApprox(data.M, 1e-14));
-
-  q = Eigen::VectorXd::Ones (model.nq);
-
-  crba (model, data, q);
-
-  BOOST_CHECK (M_expected.isApprox(data.M, 1e-12));
-
-  q << 3, 2, 1;
-  
-  crba (model, data, q);
-  
-  BOOST_CHECK (M_expected.isApprox(data.M, 1e-10));
-}
-
-BOOST_AUTO_TEST_SUITE_END ()
-
-
-BOOST_AUTO_TEST_SUITE ( JointSpherical )
-
-BOOST_AUTO_TEST_CASE ( test_kinematics )
-{
-  using namespace se3;
-
-  typedef Motion::Vector3 Vector3;
-  typedef Eigen::Matrix <double, 4, 1> Vector4;
-
-  Motion expected_v_J (Motion::Zero ());
-  Motion expected_c_J (Motion::Zero ());
-
-  SE3 expected_configuration (SE3::Identity ());
-
-  JointDataSpherical joint_data;
-  JointModelSpherical joint_model;
-
-  joint_model.setIndexes (0, 0, 0);
-
-  Vector4 q (Vector4::Zero());
-  Vector3 q_dot (Vector3::Zero());
-
-  // -------
-  q = Vector4 (0., 0, 0., 1.); q.normalize();
-  q_dot = Vector3 (0., 0., 0.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-
-  // -------
-  q = Vector4 (1., 0, 0., 1.); q.normalize();
-  q_dot = Vector3 (1., 0., 0.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
-
-  expected_configuration.rotation ().transpose () <<
-  1,                   0,                   0,
-  0, 2.2204460492503e-16,                   1,
-  0,                  -1, 2.2204460492503e-16;
-
-  expected_v_J.angular () << 1., 0., 0.;
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-
-  // -------
-  q = Vector4 (0., 1., 0., 1.); q.normalize();
-  q_dot = Vector3 (0., 1., 0.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
-
-  expected_configuration.rotation ().transpose () <<
-  2.2204460492503e-16,                   0,                  -1,
-  0,                   1,                   0,
-  1,                   0, 2.2204460492503e-16;
-
-  expected_v_J.angular () << 0., 1., 0.;
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-
-  // -------
-  q = Vector4 (0., 0, 1., 1.); q.normalize();
-  q_dot = Vector3 (0., 0., 1.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
-
-  expected_configuration.rotation ().transpose () <<
-  2.2204460492503e-16,                   1,                   0,
-  -1, 2.2204460492503e-16,                   0,
-  0,                   0,                   1;
-
-  expected_v_J.angular () << 0., 0., 1.;
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-
-  // -------
-  q = Vector4 (1., 1., 1., 1.); q.normalize();
-  q_dot = Vector3 (1., 1., 1.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
-
-  expected_configuration.rotation ().transpose () <<
-  0, 1, 0,
-  0, 0, 1,
-  1, 0, 0;
-
-  expected_v_J.angular () << 1., 1., 1.;
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-
-  // -------
-  q = Vector4 (1., 1.5, 1.9, 1.); q.normalize();
-  q_dot = Vector3 (2., 3., 1.);
-
-  joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataSpherical> (q, q_dot, joint_data);
-
-  expected_configuration.rotation ().transpose () <<
-  -0.4910941475827,  0.86513994910942,  0.10178117048346,
-  -0.10178117048346, -0.17302798982188,  0.97964376590331,
-  0.86513994910942,  0.47073791348601,  0.17302798982188;
-
-  expected_v_J.angular () = q_dot;
-
-  BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
-  BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
-  BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
-}
-
-BOOST_AUTO_TEST_CASE ( test_rnea )
-{
-  using namespace se3;
-  typedef Eigen::Matrix <double, 3, 1> Vector3;
-  typedef Eigen::Matrix <double, 3, 3> Matrix3;
-
-  Model model;
-  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-
-  model.addBody (model.getBodyId("universe"), JointModelSpherical (), SE3::Identity (), inertia, "root");
-
-  Data data (model);
-
-  Eigen::VectorXd q (Eigen::VectorXd::Zero (model.nq));
-  Eigen::VectorXd v (Eigen::VectorXd::Zero (model.nv));
-  Eigen::VectorXd a (Eigen::VectorXd::Zero (model.nv));
-
-  rnea (model, data, q, v, a);
-  Vector3 tau_expected (Vector3::Zero ());
-
-  tau_expected  <<  0, -4.905,      0;
-
-  BOOST_CHECK (tau_expected.isApprox(data.tau, 1e-14));
-
-  q = Eigen::VectorXd::Ones (model.nq); q.normalize ();
-  v = Eigen::VectorXd::Ones (model.nv);
-  a = Eigen::VectorXd::Ones (model.nv);
-
-  rnea (model, data, q, v, a);
-  tau_expected << 1,     1, 6.405;
-
-  BOOST_CHECK (tau_expected.isApprox(data.tau, 1e-12));
-
-  q << 3, 2, 1, 1; q.normalize ();
-  v = Eigen::VectorXd::Ones (model.nv);
-  a = Eigen::VectorXd::Ones (model.nv);
-
-  rnea (model, data, q, v, a);
-  tau_expected << 1, 4.597,  4.77;
-
-  BOOST_CHECK (tau_expected.isApprox(data.tau, 1e-12));
-}
-
-BOOST_AUTO_TEST_CASE ( test_crba )
-{
-  using namespace se3;
-  using namespace std;
-  typedef Eigen::Matrix <double, 3, 1> Vector3;
-  typedef Eigen::Matrix <double, 3, 3> Matrix3;
-
-  Model model;
-  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-
-  model.addBody (model.getBodyId("universe"), JointModelSpherical (), SE3::Identity (), inertia, "root");
-
-  Data data (model);
-
-  Eigen::VectorXd q (Eigen::VectorXd::Zero (model.nq)); q(3) = 1.; q.normalize();
-  Eigen::MatrixXd M_expected (model.nv,model.nv);
-
-  crba (model, data, q);
-  M_expected = Matrix3::Identity ();
-  M_expected(1,1) = 1.25; M_expected(2,2) = 1.25;
-
-  BOOST_CHECK (M_expected.isApprox(data.M, 1e-14));
-
-  q = Eigen::VectorXd::Ones (model.nq); q.normalize();
-
-  crba (model, data, q);
-
-  BOOST_CHECK (M_expected.isApprox(data.M, 1e-12));
-  q << 3, 2, 1, 1; q.normalize();
-  
-  crba (model, data, q);
-  
-  BOOST_CHECK (M_expected.isApprox(data.M, 1e-10));
-}
-
-BOOST_AUTO_TEST_SUITE_END ()
-
-BOOST_AUTO_TEST_SUITE ( caseJointFixed )
-
-BOOST_AUTO_TEST_CASE ( test_merge_body )
-{
-  using namespace se3;
-  typedef Eigen::Matrix <double, 3, 1> Vector3;
-  typedef Eigen::Matrix <double, 3, 3> Matrix3;
-
-  Model model;
-  Inertia inertiaRoot (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-  //Inertia inertiaFixedBodyAtCom (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-  Inertia inertiaFixedBodyAtJoint (1., Vector3 (0.75, 0., 0.0), Matrix3::Identity ());
-  SE3 liMi(Matrix3::Identity(),Vector3(1.0, 1.0, 0.0));
-  //SE3 liMi(Matrix3::Identity(),Vector3d::Zero());
-
-  model.addBody (model.getBodyId("universe"), JointModelRX (), SE3::Identity (), inertiaRoot,
-                 "root_joint", "root_body");
-  model.mergeFixedBody(model.getBodyId("root_body"), liMi, inertiaFixedBodyAtJoint);
-
-  Inertia mergedInertia(model.inertias[(size_t)(model.getBodyId("root_body"))]);
-
-  double expected_mass=2;
-  Eigen::Vector3d expected_com(Eigen::Vector3d::Zero());expected_com << 1.125, 0.5, 0.;
-  Eigen::Matrix3d expectedBodyInertia; expectedBodyInertia << 2.5,    -0.625,   0.,
-                                                              -0.625, 2.78125,  0.,
-                                                              0.,     0.,       3.28125;
-
-  BOOST_CHECK_EQUAL(mergedInertia.mass(), expected_mass);
-  BOOST_CHECK (mergedInertia.lever().isApprox(expected_com, 1e-12));
-  BOOST_CHECK (mergedInertia.inertia().matrix().isApprox(expectedBodyInertia, 1e-12));
-  
-}
-
-BOOST_AUTO_TEST_SUITE_END ()
 
 BOOST_AUTO_TEST_SUITE ( JointDense )
 
@@ -1177,6 +734,100 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(0),
                                                                       jacobian_ff.col(1),
                                                                       jacobian_ff.col(5)
+                                                                      ;
+
+  BOOST_CHECK(jacobian_planar.isApprox(jacobian_expected));
+
+
+}
+BOOST_AUTO_TEST_SUITE_END ()
+
+BOOST_AUTO_TEST_SUITE (JointTranslation)
+
+BOOST_AUTO_TEST_CASE (vsFreeFlyer)
+{
+  using namespace se3;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 6, 1> Vector6;
+  typedef Eigen::Matrix <double, 7, 1> VectorFF;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+
+  Model modelTranslation, modelFreeflyer;
+
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
+
+
+  modelTranslation.addBody (0, JointModelTranslation (), pos, inertia, "translation");
+  modelFreeflyer.addBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
+
+  Data dataTranslation(modelTranslation);
+  Data dataFreeFlyer(modelFreeflyer);
+
+
+  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelTranslation.nq);               VectorFF qff; qff << 1, 1, 1, 0, 0, 0, 1 ; 
+  Eigen::VectorXd v = Eigen::VectorXd::Ones (modelTranslation.nv);               Vector6 vff; vff << 1, 1, 1, 0, 0, 0;
+  Eigen::VectorXd tauTranslation = Eigen::VectorXd::Ones (modelTranslation.nv);       Eigen::VectorXd tauff(6); tauff << 1, 1, 1, 0, 0, 0;
+  Eigen::VectorXd aTranslation = Eigen::VectorXd::Ones (modelTranslation.nv);         Eigen::VectorXd aff(vff);
+  
+
+
+  forwardKinematics(modelTranslation, dataTranslation, q, v);
+  forwardKinematics(modelFreeflyer, dataFreeFlyer, qff, vff);
+
+  computeAllTerms(modelTranslation, dataTranslation, q, v);
+  computeAllTerms(modelFreeflyer, dataFreeFlyer, qff, vff);
+
+  BOOST_CHECK(dataFreeFlyer.oMi[1].isApprox(dataTranslation.oMi[1]));
+  BOOST_CHECK(dataFreeFlyer.liMi[1].isApprox(dataTranslation.liMi[1]));
+  BOOST_CHECK(dataFreeFlyer.Ycrb[1].matrix().isApprox(dataTranslation.Ycrb[1].matrix()));
+  BOOST_CHECK(dataFreeFlyer.f[1].toVector().isApprox(dataTranslation.f[1].toVector()));
+  
+  Eigen::VectorXd nle_expected_ff(3); nle_expected_ff << dataFreeFlyer.nle[0],
+                                                         dataFreeFlyer.nle[1],
+                                                         dataFreeFlyer.nle[2]
+                                                         ;
+  BOOST_CHECK(nle_expected_ff.isApprox(dataTranslation.nle));
+  BOOST_CHECK(dataFreeFlyer.com[0].isApprox(dataTranslation.com[0]));
+
+
+
+  // InverseDynamics == rnea
+  tauTranslation = rnea(modelTranslation, dataTranslation, q, v, aTranslation);
+  tauff = rnea(modelFreeflyer, dataFreeFlyer, qff, vff, aff);
+
+  Vector3 tau_expected; tau_expected << tauff(0), tauff(1), tauff(2);
+  BOOST_CHECK(tauTranslation.isApprox(tau_expected));
+
+  // ForwardDynamics == aba
+  Eigen::VectorXd aAbaTranslation = aba(modelTranslation,dataTranslation, q, v, tauTranslation);
+  Eigen::VectorXd aAbaFreeFlyer = aba(modelFreeflyer,dataFreeFlyer, qff, vff, tauff);
+  Vector3 a_expected; a_expected << aAbaFreeFlyer[0],
+                                    aAbaFreeFlyer[1],
+                                    aAbaFreeFlyer[2]
+                                    ;
+  BOOST_CHECK(aAbaTranslation.isApprox(a_expected));
+
+  // crba
+  crba(modelTranslation, dataTranslation,q);
+  crba(modelFreeflyer, dataFreeFlyer, qff);
+
+  Eigen::Matrix<double, 3, 3> M_expected(dataFreeFlyer.M.topLeftCorner<3,3>());
+
+  BOOST_CHECK(dataTranslation.M.isApprox(M_expected));
+   
+  // Jacobian
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_planar;jacobian_planar.resize(6,3); jacobian_planar.setZero();
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
+  computeJacobians(modelTranslation, dataTranslation, q);
+  computeJacobians(modelFreeflyer, dataFreeFlyer, qff);
+  getJacobian<true>(modelTranslation, dataTranslation, 1, jacobian_planar);
+  getJacobian<true>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
+
+
+  Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(0),
+                                                                      jacobian_ff.col(1),
+                                                                      jacobian_ff.col(2)
                                                                       ;
 
   BOOST_CHECK(jacobian_planar.isApprox(jacobian_expected));
