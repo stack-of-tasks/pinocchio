@@ -354,8 +354,8 @@ namespace se3
     
     void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
     {
-      data.U = I.block<6,3> (0,Inertia::ANGULAR) * axis;
-      data.Dinv[0] = 1./axis.dot(data.U.segment <3> (Inertia::ANGULAR));
+      data.U = I.block<6,3> (0,Inertia::ANGULAR) * data.angleaxis.axis();
+      data.Dinv[0] = 1./data.angleaxis.axis().dot(data.U.segment <3> (Inertia::ANGULAR));
       data.UDinv = data.U * data.Dinv;
       
       if (update_I)
