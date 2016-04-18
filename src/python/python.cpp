@@ -32,6 +32,7 @@
 #include "pinocchio/python/explog.hpp"
 
 #ifdef WITH_HPP_FCL
+#include "pinocchio/python/geometry-object.hpp"
 #include "pinocchio/python/geometry-model.hpp"
 #include "pinocchio/python/geometry-data.hpp"
 #endif
@@ -69,7 +70,8 @@ namespace se3
       FramePythonVisitor::expose();
       ModelPythonVisitor::expose();
       DataPythonVisitor::expose();
-#ifdef WITH_HPP_FCL      
+#ifdef WITH_HPP_FCL
+      GeometryObjectPythonVisitor::expose();      
       CollisionPairPythonVisitor::expose();
       GeometryModelPythonVisitor::expose();
       GeometryDataPythonVisitor::expose();

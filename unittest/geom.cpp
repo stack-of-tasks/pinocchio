@@ -129,12 +129,12 @@ struct Distance_t
 #endif
 std::ostream& operator<<(std::ostream& os, const std::pair < se3::Model, se3::GeometryModel >& robot)
 {
-  os << "Nb collision objects = " << robot.second.ngeom << std::endl;
+  os << "Nb collision objects = " << robot.second.ncollisions << std::endl;
   
-  for(se3::GeometryModel::Index i=0;i<(se3::GeometryModel::Index)(robot.second.ngeom);++i)
+  for(se3::GeometryModel::Index i=0;i<(se3::GeometryModel::Index)(robot.second.ncollisions);++i)
   {
-    os  << "Object n " << i << " : " << robot.second.geom_names[i] << ": attached to joint = " << robot.second.geom_parents[i]
-        << "=" << robot.first.getJointName(robot.second.geom_parents[i]) << std::endl;
+    os  << "Object n " << i << " : " << robot.second.collision_objects[i].name << ": attached to joint = " << robot.second.collision_objects[i].parent
+        << "=" << robot.first.getJointName(robot.second.collision_objects[i].parent) << std::endl;
   }
   return os;
 } 
@@ -156,11 +156,11 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   
   boost::shared_ptr<fcl::Box> Sample(new fcl::Box(1));
   fcl::CollisionObject box1(Sample, fcl::Transform3f());
-  model_geom.addGeomObject(model.getJointId("planar1_joint"),box1, SE3::Identity(),  "ff1_collision_object");
+  model_geom.addCollisionObject(model.getJointId("planar1_joint"),box1, SE3::Identity(),  "ff1_collision_object", "");
   
   boost::shared_ptr<fcl::Box> Sample2(new fcl::Box(1));
   fcl::CollisionObject box2(Sample, fcl::Transform3f());
-  model_geom.addGeomObject(model.getJointId("planar2_joint"),box2, SE3::Identity(),  "ff2_collision_object");
+  model_geom.addCollisionObject(model.getJointId("planar2_joint"),box2, SE3::Identity(),  "ff2_collision_object", "");
 
   se3::Data data(model);
   se3::GeometryData data_geom(data, model_geom);
@@ -448,9 +448,9 @@ JointPositionsMap_t fillPinocchioJointPositions(const se3::Data & data)
 GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryData & data_geom)
 {
   GeometryPositionsMap_t result;
-  for (std::size_t i = 0; i < data_geom.model_geom.ngeom ; ++i)
+  for (std::size_t i = 0; i < data_geom.model_geom.ncollisions ; ++i)
   {
-    result[data_geom.model_geom.getGeomName(i)] = data_geom.oMg[i];
+    result[data_geom.model_geom.getCollisionName(i)] = data_geom.oMg_collisions[i];
   }
   return result;
 }
