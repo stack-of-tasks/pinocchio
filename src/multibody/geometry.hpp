@@ -157,6 +157,13 @@ namespace se3
 
   }; // struct CollisionResult
 
+/// \brief Return true if the intrinsic geometry of the two CollisionObject is the same
+bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
+{
+  return lhs.collisionGeometry() == rhs.collisionGeometry()
+          && lhs.getAABB().min_ == rhs.getAABB().min_
+          && lhs.getAABB().max_ == rhs.getAABB().max_;
+}
 enum GeometryType
 {
   VISUAL,
@@ -216,7 +223,7 @@ struct GeometryObject
   {
     return (lhs.type == rhs.type && lhs.name == rhs.name
                                && lhs.parent == rhs.parent
-                               // && lhs.collision_object == rhs.collision_object
+                               && lhs.collision_object == rhs.collision_object
                                && lhs.placement == rhs.placement
                                && lhs.mesh_path ==  rhs.mesh_path
                                );
@@ -224,12 +231,12 @@ struct GeometryObject
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object)
   {
-    os  << "Type: \t" << geom_object.type
-        << "Name: \t" << geom_object.name
-        << "Parent ID: \t" << geom_object.parent
-        // << "collision object: \t" << geom_object.collision_object
-        << "Position in parent frame: \t" << geom_object.placement
-        << "Absolute path to mesh file: \t" << geom_object.mesh_path
+    os  << "Type: \t \n" << geom_object.type << "\n"
+        << "Name: \t \n" << geom_object.name << "\n"
+        << "Parent ID: \t \n" << geom_object.parent << "\n"
+        // << "collision object: \t \n" << geom_object.collision_object << "\n"
+        << "Position in parent frame: \t \n" << geom_object.placement << "\n"
+        << "Absolute path to mesh file: \t \n" << geom_object.mesh_path << "\n"
         << std::endl;
     return os;
   }
