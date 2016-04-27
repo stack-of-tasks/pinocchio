@@ -52,22 +52,18 @@ namespace se3
       void visit(PyClass& cl) const 
       {
         cl
-          .add_property("name", &GeometryObjectPythonVisitor::getName, &GeometryObjectPythonVisitor::setName)
-          .add_property("parent_id", &GeometryObjectPythonVisitor::getParentId, &GeometryObjectPythonVisitor::setParentId)
-          .add_property("placement", &GeometryObjectPythonVisitor::getPlacementWrtParentJoint, &GeometryObjectPythonVisitor::setMeshPath)
-          .add_property("mesh_path", &GeometryObjectPythonVisitor::getMeshPath, &GeometryObjectPythonVisitor::setMeshPath)
+          .def_readwrite("name", &GeometryObject::name, "Name of the GeometryObject")
+          .def_readwrite("parent", &GeometryObject::parent, "Index of the parent joint")
+          .add_property("placement", &GeometryObjectPythonVisitor::getPlacementWrtParentJoint,
+                                      &GeometryObjectPythonVisitor::setPlacementWrtParentJoint,
+                                      "Position of geometry object in parent joint's frame")
+          .def_readonly("mesh_path", &GeometryObject::mesh_path, "Absolute path to the mesh file")
           ;
       }
 
-
-      static std::string getName( const GeometryObject & self) { return self.name; }
-      static void setName(GeometryObject & self, const std::string & name) { self.name = name; }
-      static JointIndex getParentId( const GeometryObject & self) { return self.parent; }
-      static void setParentId(GeometryObject & self, const JointIndex parent) { self.parent = parent; }
       static SE3_fx getPlacementWrtParentJoint( const GeometryObject & self) { return self.placement; }
       static void setPlacementWrtParentJoint(GeometryObject & self, const SE3_fx & placement) { self.placement = placement; }
-      static std::string getMeshPath( const GeometryObject & self) { return self.mesh_path; }
-      static void setMeshPath(GeometryObject & self, const std::string & mesh_path) { self.mesh_path = mesh_path; }
+
 
       static void expose()
       {
@@ -78,8 +74,6 @@ namespace se3
 	                       .def(GeometryObjectPythonVisitor())
 	                       ;
     
-        // bp::to_python_converter< GeometryObject,GeometryObjectPythonVisitor >();
-
         bp::class_< std::vector<GeometryObject> >("StdVec_GeometryObject")
         .def(bp::vector_indexing_suite< std::vector<GeometryObject> >());
       }
