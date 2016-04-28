@@ -31,33 +31,35 @@ namespace se3
   namespace urdf
   {
     
-    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link, const std::vector < std::string > & package_dirs)
+    inline fcl::CollisionObject retrieveCollisionGeometry(const boost::shared_ptr < ::urdf::Geometry> urdf_geometry,
+                                                          const std::vector < std::string > & package_dirs,
+                                                          std::string & mesh_path)
     {
-      boost::shared_ptr < ::urdf::Collision> collision = link->collision;
       boost::shared_ptr < fcl::CollisionGeometry > geometry;
 
       // Handle the case where collision geometry is a mesh
-      if (collision->geometry->type == ::urdf::Geometry::MESH)
+      if (urdf_geometry->type == ::urdf::Geometry::MESH)
       {
-        boost::shared_ptr < ::urdf::Mesh> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Mesh> (collision->geometry);
+        boost::shared_ptr < ::urdf::Mesh> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Mesh> (urdf_geometry);
         std::string collisionFilename = collisionGeometry->filename;
 
-        std::string full_path = convertURDFMeshPathToAbsolutePath(collisionFilename, package_dirs);
+        mesh_path = convertURDFMeshPathToAbsolutePath(collisionFilename, package_dirs);
 
         ::urdf::Vector3 scale = collisionGeometry->scale;
 
         // Create FCL mesh by parsing Collada file.
         Polyhedron_ptr polyhedron (new PolyhedronType);
 
-        loadPolyhedronFromResource (full_path, scale, polyhedron);
+        loadPolyhedronFromResource (mesh_path, scale, polyhedron);
         geometry = polyhedron;
       }
 
       // Handle the case where collision geometry is a cylinder
       // Use FCL capsules for cylinders
-      else if (collision->geometry->type == ::urdf::Geometry::CYLINDER)
+      else if (urdf_geometry->type == ::urdf::Geometry::CYLINDER)
       {
-        boost::shared_ptr < ::urdf::Cylinder> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Cylinder> (collision->geometry);
+        mesh_path = "CYLINDER";
+        boost::shared_ptr < ::urdf::Cylinder> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Cylinder> (urdf_geometry);
   
         double radius = collisionGeometry->radius;
         double length = collisionGeometry->length;
@@ -66,9 +68,10 @@ namespace se3
         geometry = boost::shared_ptr < fcl::CollisionGeometry >(new fcl::Capsule (radius, length));
       }
       // Handle the case where collision geometry is a box.
-      else if (collision->geometry->type == ::urdf::Geometry::BOX) 
+      else if (urdf_geometry->type == ::urdf::Geometry::BOX) 
       {
-        boost::shared_ptr < ::urdf::Box> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Box> (collision->geometry);
+        mesh_path = "BOX";
+        boost::shared_ptr < ::urdf::Box> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Box> (urdf_geometry);
   
         double x = collisionGeometry->dim.x;
         double y = collisionGeometry->dim.y;
@@ -77,9 +80,10 @@ namespace se3
         geometry = boost::shared_ptr < fcl::CollisionGeometry > (new fcl::Box (x, y, z));
       }
       // Handle the case where collision geometry is a sphere.
-      else if (collision->geometry->type == ::urdf::Geometry::SPHERE)
+      else if (urdf_geometry->type == ::urdf::Geometry::SPHERE)
       {
-        boost::shared_ptr < ::urdf::Sphere> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Sphere> (collision->geometry);
+        mesh_path = "SPHERE";
+        boost::shared_ptr < ::urdf::Sphere> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Sphere> (urdf_geometry);
 
         double radius = collisionGeometry->radius;
 
@@ -103,25 +107,48 @@ namespace se3
                                  const std::vector<std::string> & package_dirs) throw (std::invalid_argument)
     {
 
+      std::string mesh_path = "";
+      
+      std::string link_name = link->name;
       // start with first link that is not empty
       if(link->collision)
       {
-
-
         assert(link->getParent()!=NULL);
-
-        fcl::CollisionObject collision_object = retrieveCollisionGeometry(link, package_dirs);
-        SE3 geomPlacement = convertFromUrdf(link->collision->origin);
-        std::string collision_object_name = link->name ;
-        geom_model.addGeomObject(model.parents[model.getBodyId(collision_object_name)], collision_object, geomPlacement, collision_object_name);     
-
         if (link->getParent() == NULL)
         {
           const std::string exception_message (link->name + " - joint information missing.");
           throw std::invalid_argument(exception_message);
         }
-
+        
+        for (std::vector< boost::shared_ptr< ::urdf::Collision> >::const_iterator i = link->collision_array.begin();i != link->collision_array.end(); ++i)
+        {
+          fcl::CollisionObject collision_object = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
+          SE3 geomPlacement = convertFromUrdf((*i)->origin);
+          std::string collision_object_name = (*i)->name ;
+          geom_model.addCollisionObject(model.parents[model.getBodyId(link_name)], collision_object, geomPlacement, collision_object_name, mesh_path); 
+          
+        }
       } // if(link->collision)
+
+      if(link->visual)
+      {
+        assert(link->getParent()!=NULL);
+        if (link->getParent() == NULL)
+        {
+          const std::string exception_message (link->name + " - joint information missing.");
+          throw std::invalid_argument(exception_message);
+        }
+        
+        for (std::vector< boost::shared_ptr< ::urdf::Visual> >::const_iterator i = link->visual_array.begin(); i != link->visual_array.end(); ++i)
+        {
+          fcl::CollisionObject visual_object = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
+          SE3 geomPlacement = convertFromUrdf((*i)->origin);
+          std::string visual_object_name = (*i)->name ;
+          geom_model.addVisualObject(model.parents[model.getBodyId(link_name)], visual_object, geomPlacement, visual_object_name, mesh_path); 
+          
+        }
+      } // if(link->visual)
+
       
       BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
       {

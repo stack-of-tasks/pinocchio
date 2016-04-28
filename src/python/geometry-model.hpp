@@ -63,19 +63,22 @@ namespace se3
       void visit(PyClass& cl) const 
       {
 	cl
-    .add_property("ngeom", &GeometryModelPythonVisitor::ngeom)
+    .add_property("ncollisions", &GeometryModelPythonVisitor::ncollisions)
+    .add_property("nvisuals", &GeometryModelPythonVisitor::nvisuals)
 
-    .def("getGeomId",&GeometryModelPythonVisitor::getGeomId)
+    .def("getCollisionId",&GeometryModelPythonVisitor::getCollisionId)
+    .def("getVisualId",&GeometryModelPythonVisitor::getVisualId)
+    .def("existCollisionName",&GeometryModelPythonVisitor::existCollisionName)
+    .def("existVisualName",&GeometryModelPythonVisitor::existVisualName)
+    .def("getCollisionName",&GeometryModelPythonVisitor::getCollisionName)
+    .def("getVisualName",&GeometryModelPythonVisitor::getVisualName)
+    .add_property("collision_objects",
+      bp::make_function(&GeometryModelPythonVisitor::collision_objects,
+            bp::return_internal_reference<>())  )
+    .add_property("visual_objects",
+      bp::make_function(&GeometryModelPythonVisitor::visual_objects,
+            bp::return_internal_reference<>())  )
 
-    .add_property("geometryPlacement",
-      bp::make_function(&GeometryModelPythonVisitor::geometryPlacement,
-            bp::return_internal_reference<>())  )
-    .add_property("geom_parents", 
-      bp::make_function(&GeometryModelPythonVisitor::geom_parents,
-            bp::return_internal_reference<>())  )
-    .add_property("geom_names",
-      bp::make_function(&GeometryModelPythonVisitor::geom_names,
-            bp::return_internal_reference<>())  )
 
     .def("__str__",&GeometryModelPythonVisitor::toString)
 
@@ -84,14 +87,26 @@ namespace se3
 	  ;
       }
 
-      static GeometryModel::Index ngeom( GeometryModelHandler & m ) { return m->ngeom; }
+      static GeometryModel::Index ncollisions( GeometryModelHandler & m ) { return m->ncollisions; }
+      static GeometryModel::Index nvisuals( GeometryModelHandler & m ) { return m->nvisuals; }
 
-      static Model::GeomIndex getGeomId( const GeometryModelHandler & gmodelPtr, const std::string & name )
-      { return  gmodelPtr->getGeomId(name); }
+      static std::vector<GeometryObject> & collision_objects( GeometryModelHandler & m ) { return m->collision_objects; }
+      static std::vector<GeometryObject> & visual_objects( GeometryModelHandler & m ) { return m->visual_objects; }
       
-      static std::vector<SE3> & geometryPlacement( GeometryModelHandler & m ) { return m->geometryPlacement; }
-      static std::vector<Model::JointIndex> & geom_parents( GeometryModelHandler & m ) { return m->geom_parents; }
-      static std::vector<std::string> & geom_names ( GeometryModelHandler & m ) { return m->geom_names; }
+      static Model::GeomIndex getCollisionId( const GeometryModelHandler & gmodelPtr, const std::string & name )
+      { return  gmodelPtr->getCollisionId(name); }
+      static Model::GeomIndex getVisualId( const GeometryModelHandler & gmodelPtr, const std::string & name )
+      { return  gmodelPtr->getVisualId(name); }
+      static bool existCollisionName(const GeometryModelHandler & gmodelPtr, const std::string & name)
+      { return gmodelPtr->existCollisionName(name);}
+      static bool existVisualName(const GeometryModelHandler & gmodelPtr, const std::string & name)
+      { return gmodelPtr->existVisualName(name);}
+      static std::string getCollisionName(const GeometryModelHandler & gmodelPtr, const GeomIndex index)
+      { return gmodelPtr->getCollisionName(index);}
+      static std::string getVisualName(const GeometryModelHandler & gmodelPtr, const GeomIndex index)
+      { return gmodelPtr->getVisualName(index);}
+      // static std::vector<Model::JointIndex> & geom_parents( GeometryModelHandler & m ) { return m->geom_parents; }
+      // static std::vector<std::string> & geom_names ( GeometryModelHandler & m ) { return m->geom_names; }
 
       
 

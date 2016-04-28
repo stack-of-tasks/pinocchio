@@ -35,15 +35,18 @@ namespace se3
 
 
     /**
-     * @brief      Get a CollisionObject from an urdf link, searching
+     * @brief      Get a fcl::CollisionObject from an urdf geometry, searching
      *             for it in specified package directories
      *
-     * @param[in]  link          The input urdf link
-     * @param[in]  package_dirs  A vector containing the different directories where to search for packages
+     * @param[in]  urdf_geometry  The input urdf geometry
+     * @param[in]  package_dirs   A vector containing the different directories where to search for packages
+     * @param[out] mesh_path      The Absolute path of the mesh currently read
      *
-     * @return     The mesh converted as a fcl::CollisionObject
+     * @return     The geometry converted as a fcl::CollisionObject
      */
-    inline fcl::CollisionObject retrieveCollisionGeometry (const ::urdf::LinkConstPtr & link, const std::vector < std::string > & package_dirs);
+    inline fcl::CollisionObject retrieveCollisionGeometry(const boost::shared_ptr < ::urdf::Geometry > urdf_geometry,
+                                                          const std::vector < std::string > & package_dirs,
+                                                          std::string & mesh_path);
 
     
     /**

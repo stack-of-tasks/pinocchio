@@ -29,7 +29,7 @@ namespace se3
 
 
   ///
-  /// \brief Apply a forward kinematics and update the placement of the collision objects.
+  /// \brief Apply a forward kinematics and update the placement of the geometry objects (both collision's and visual's one).
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -45,7 +45,7 @@ namespace se3
                                        );
   
   ///
-  /// \brief Update the placement of the collision objects according to the current joint placements contained in data.
+  /// \brief Update the placement of the geometry objects according to the current joint placements contained in data. (both collision's and visual's one)
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -102,11 +102,16 @@ namespace se3
                                        GeometryData & data_geom
                                        )
   {
-    for (GeometryData::GeomIndex i=0; i < (GeometryData::GeomIndex) data_geom.model_geom.ngeom; ++i)
+    for (GeometryData::GeomIndex i=0; i < (GeometryData::GeomIndex) data_geom.model_geom.ncollisions; ++i)
     {
-      const Model::JointIndex & parent = model_geom.geom_parents[i];
-      data_geom.oMg[i] =  (data.oMi[parent] * model_geom.geometryPlacement[i]);
-      data_geom.oMg_fcl[i] =  toFclTransform3f(data_geom.oMg[i]);
+      const Model::JointIndex & parent = model_geom.collision_objects[i].parent;
+      data_geom.oMg_collisions[i] =  (data.oMi[parent] * model_geom.collision_objects[i].placement);
+      data_geom.oMg_fcl_collisions[i] =  toFclTransform3f(data_geom.oMg_collisions[i]);
+    }
+    for (GeometryData::GeomIndex i=0; i < (GeometryData::GeomIndex) data_geom.model_geom.nvisuals; ++i)
+    {
+      const Model::JointIndex & parent = model_geom.visual_objects[i].parent;
+      data_geom.oMg_visuals[i] =  (data.oMi[parent] * model_geom.visual_objects[i].placement);
     }
   }
   

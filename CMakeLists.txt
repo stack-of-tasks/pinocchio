@@ -180,6 +180,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
 
 IF(HPP_FCL_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
+      python/geometry-object.hpp
       python/geometry-model.hpp
       python/geometry-data.hpp
     )
