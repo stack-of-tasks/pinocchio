@@ -36,19 +36,19 @@ namespace se3
   {
     typedef se3::JointIndex JointIndex;
       
-    Frame() : name(random(8)), parent_id(), framePlacement() {} // needed by EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION
+    Frame() : name(random(8)), parent(), placement() {} // needed by EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION
     
     ///
     /// \brief Default constructor of a Frame
     ///
     /// \param[in] name Name of the frame.
-    /// \param[in] parent_id Index of the parent joint in the kinematic tree.
-    /// \param[in] frame_placement Placement of the frame wrt the parent joint frame.
+    /// \param[in] parent Index of the parent joint in the kinematic tree.
+    /// \param[in] placement Placement of the frame wrt the parent joint frame.
     ///
-    Frame(const std::string & name, const JointIndex parent_id, const SE3 & frame_placement):
+    Frame(const std::string & name, const JointIndex parent, const SE3 & frame_placement):
     name(name)
-    , parent_id(parent_id)
-    , framePlacement(frame_placement)
+    , parent(parent)
+    , placement(frame_placement)
     {}
     
     ///
@@ -58,18 +58,18 @@ namespace se3
     ///
     bool operator == (const Frame & other) const
     {
-      return name == other.name && parent_id == other.parent_id
-      && framePlacement == other.framePlacement ;
+      return name == other.name && parent == other.parent
+      && placement == other.placement ;
     }
     
     /// \brief Name of the frame.
     std::string name;
     
     /// \brief Index of the parent joint.
-    JointIndex parent_id;
+    JointIndex parent;
     
     /// \brief Placement of the frame wrt the parent joint.
-    SE3 framePlacement;
+    SE3 placement;
     
   }; // struct Frame
 

@@ -51,22 +51,21 @@ namespace se3
       void visit(PyClass& cl) const 
       {
         cl
-          .def(bp::init<const std::string&,const JointIndex, const SE3_fx&> ((bp::arg("name (string)"),bp::arg("parent_id (index)"), bp::arg("SE3 placement")),
+          .def(bp::init<const std::string&,const JointIndex, const SE3_fx&> ((bp::arg("name (string)"),bp::arg("parent (index)"), bp::arg("SE3 placement")),
                 "Initialize from name, parent id and placement wrt parent joint."))
 
-          .add_property("name", &FramePythonVisitor::getName, &FramePythonVisitor::setName)
-          .add_property("parent_id", &FramePythonVisitor::getParentId, &FramePythonVisitor::setParentId)
-          .add_property("framePlacement", &FramePythonVisitor::getPlacementWrtParentJoint, &FramePythonVisitor::setPlacementWrtParentJoint)
+          .def_readwrite("name", &Frame::name, "name  of the frame")
+          .def_readwrite("parent", &Frame::parent, "id of the parent joint")
+          .add_property("placement", 
+                        &FramePythonVisitor::getPlacementWrtParentJoint, 
+                        &FramePythonVisitor::setPlacementWrtParentJoint, 
+                        "placement in the parent joint local frame")
           ;
       }
 
 
-      static std::string getName( const Frame & self) { return self.name; }
-      static void setName(Frame & self, const std::string & name) { self.name = name; }
-      static JointIndex getParentId( const Frame & self) { return self.parent_id; }
-      static void setParentId(Frame & self, const JointIndex parent_id) { self.parent_id = parent_id; }
-      static SE3_fx getPlacementWrtParentJoint( const Frame & self) { return self.framePlacement; }
-      static void setPlacementWrtParentJoint(Frame & self, const SE3_fx & placement) { self.framePlacement = placement; }
+      static SE3_fx getPlacementWrtParentJoint( const Frame & self) { return self.placement; }
+      static void setPlacementWrtParentJoint(Frame & self, const SE3_fx & placement) { self.placement = placement; }
 
       static void expose()
       {
