@@ -91,6 +91,3 @@ class TestSE3Bindings(unittest.TestCase):
         aXc = aXb * bXc
         self.assertTrue(np.allclose(amc.action,aXc))
 
-
-if __name__ == '__main__':
-    unittest.main()

@@ -67,6 +67,3 @@ class TestMotionBindings(unittest.TestCase):
         self.assertTrue(np.allclose((v ** v).vector, zero(6)))
 
 
-
-if __name__ == '__main__':
-    unittest.main()

@@ -3,6 +3,7 @@ import pinocchio as se3
 import numpy as np
 from pinocchio.utils import eye,zero,rand
 from pinocchio.robot_wrapper import RobotWrapper
+import os
 
 ones = lambda n: np.matrix(np.ones([n, 1] if isinstance(n, int) else n), np.double)
 
@@ -16,8 +17,12 @@ class TestGeometryObjectBindings(unittest.TestCase):
     m3ones = eye(3)
     m4ones = eye(4)
 
-    hint_list = ["/local/fvalenza/devel/src/pinocchio/models", "wrong/hint"] # hint list
-    robot = RobotWrapper("/local/fvalenza/devel/src/pinocchio/models/romeo.urdf", hint_list, se3.JointModelFreeFlyer())
+
+    current_file =  os.path.dirname(os.path.abspath(__file__))
+    pinocchio_models_dir = os.path.abspath(os.path.join(current_file, '../models'))
+    romeo_model_path = os.path.abspath(os.path.join(current_file, '../models/romeo.urdf'))
+    hint_list = [pinocchio_models_dir, "wrong/hint"] # hint list
+    robot = RobotWrapper(romeo_model_path, hint_list, se3.JointModelFreeFlyer())
 
     def test_name_get_set(self):
         col = self.robot.geometry_model.collision_objects[1]
@@ -40,8 +45,9 @@ class TestGeometryObjectBindings(unittest.TestCase):
         self.assertTrue(np.allclose(col.placement.homogeneous , new_m.homogeneous))
 
     def test_meshpath_get(self):
+        expected_mesh_path = os.path.join(self.pinocchio_models_dir,'meshes/romeo/collision/LHipPitch.dae')
         col = self.robot.geometry_model.collision_objects[1]
-        self.assertTrue(col.mesh_path == '/local/fvalenza/devel/src/pinocchio/models/meshes/romeo/collision/LHipPitch.dae')
+        self.assertTrue(col.mesh_path == expected_mesh_path)
 
 if __name__ == '__main__':
     unittest.main()
