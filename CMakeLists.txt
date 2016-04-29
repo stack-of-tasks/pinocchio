@@ -119,6 +119,9 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-free-flyer.hpp
   multibody/joint/joint-variant.hpp
   multibody/joint/joint-generic.hpp
+  multibody/joint/joint-accessor.hpp
+  multibody/joint/joint-basic-visitors.hpp
+  multibody/joint/joint-basic-visitors.hxx
   ) 
 
 SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS

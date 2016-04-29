@@ -24,7 +24,14 @@ namespace se3
   {
 
     template<bool condition>
-    struct static_assertion {};
+    struct static_assertion
+    {
+      enum
+      {
+        THIS_METHOD_SHOULD_NOT_BE_CALLED_ON_DERIVED_CLASS,
+        MIXING_JOINT_MODEL_AND_DATA_OF_DIFFERENT_TYPE
+      };
+    };
     
     template<>
     struct static_assertion<true>

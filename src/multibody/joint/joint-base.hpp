@@ -260,8 +260,8 @@ namespace se3
     /**
      * @brief      Integrate joint's configuration for a tangent vector during one unit time
      *
-     * @param[in]  q     initatial configuration  (size jmodel.nq)
-     * @param[in]  v     joint velocity (size jmodel.nv)
+     * @param[in]  q     initatial configuration  (size full model.nq)
+     * @param[in]  v     joint velocity (size full model.nv)
      *
      * @return     The configuration integrated
      */
