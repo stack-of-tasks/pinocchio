@@ -21,7 +21,7 @@
 #include "pinocchio/python/force.hpp"
 #include "pinocchio/python/motion.hpp"
 #include "pinocchio/python/inertia.hpp"
-#include "pinocchio/python/joint-dense.hpp"
+#include "pinocchio/python/joint-derived.hpp"
 #include "pinocchio/python/joints-variant.hpp"
 
 #include "pinocchio/python/frame.hpp"

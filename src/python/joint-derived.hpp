@@ -25,11 +25,11 @@
 
 namespace eigenpy
 {
-  template<class JointModelDense>
+  template<class JointModelDerived>
   struct UnalignedEquivalentTypes
   {
-    typedef Eigen::Matrix<double, JointModelDense::NQ, 1, Eigen::DontAlign> MatrixNQd_fx;
-    typedef Eigen::Matrix<double, JointModelDense::NV, 1, Eigen::DontAlign> MatrixNVd_fx;
+    typedef Eigen::Matrix<double, JointModelDerived::NQ, 1, Eigen::DontAlign> MatrixNQd_fx;
+    typedef Eigen::Matrix<double, JointModelDerived::NV, 1, Eigen::DontAlign> MatrixNVd_fx;
   };
 } // namespace eigenpy
 
@@ -39,16 +39,16 @@ namespace se3
   {
     namespace bp = boost::python;
     
-    template<class JointModelDense>
+    template<class JointModelDerived>
     struct JointPythonVisitor
-      : public boost::python::def_visitor< JointPythonVisitor<JointModelDense> >
+      : public boost::python::def_visitor< JointPythonVisitor<JointModelDerived> >
     {
-      typedef typename eigenpy::UnalignedEquivalentTypes<JointModelDense>::MatrixNQd_fx MatrixNQd_fx;
-      typedef typename eigenpy::UnalignedEquivalentTypes<JointModelDense>::MatrixNVd_fx MatrixNVd_fx;
+      typedef typename eigenpy::UnalignedEquivalentTypes<JointModelDerived>::MatrixNQd_fx MatrixNQd_fx;
+      typedef typename eigenpy::UnalignedEquivalentTypes<JointModelDerived>::MatrixNVd_fx MatrixNVd_fx;
 
     public:
 
-      static PyObject* convert(JointModelDense const& jm)
+      static PyObject* convert(JointModelDerived const& jm)
       {
         return boost::python::incref(boost::python::object(jm).ptr());
       }
@@ -66,11 +66,11 @@ namespace se3
         .add_property("nv",&JointPythonVisitor::getNv);
       }
 
-      static JointIndex getId( const JointModelDense & self ) { return self.id(); }
-      static int getIdx_q(const JointModelDense & self) {return self.idx_q();}
-      static int getIdx_v(const JointModelDense & self) {return self.idx_v();}
-      static int getNq(const JointModelDense & self) {return self.nq();}
-      static int getNv(const JointModelDense & self) {return self.nv();}
+      static JointIndex getId( const JointModelDerived & self ) { return self.id(); }
+      static int getIdx_q(const JointModelDerived & self) {return self.idx_q();}
+      static int getIdx_v(const JointModelDerived & self) {return self.idx_v();}
+      static int getNq(const JointModelDerived & self) {return self.nq();}
+      static int getNv(const JointModelDerived & self) {return self.nv();}
 
       static void expose()
       {
