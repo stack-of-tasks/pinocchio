@@ -172,7 +172,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/force.hpp
   python/motion.hpp
   python/inertia.hpp
-  python/joint-dense.hpp
+  python/joint-derived.hpp
   python/joints-models.hpp
   python/joints-variant.hpp
   python/frame.hpp
