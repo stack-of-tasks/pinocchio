@@ -208,7 +208,7 @@ namespace se3
 
   inline Model::JointIndex Model::getFrameParent( const FrameIndex index ) const
   {
-    return operational_frames[index].parent_id;
+    return operational_frames[index].parent;
   }
 
   inline const SE3 & Model::getFramePlacement( const std::string & name) const
@@ -225,7 +225,7 @@ namespace se3
 
   inline const SE3 & Model::getFramePlacement( const FrameIndex index ) const
   {
-    return operational_frames[index].framePlacement;
+    return operational_frames[index].placement;
   }
 
   inline bool Model::addFrame ( const Frame & frame )

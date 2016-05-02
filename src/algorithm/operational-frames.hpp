@@ -82,8 +82,8 @@ namespace se3
   {
     for (Model::FrameIndex i=0; i < (Model::FrameIndex) model.nOperationalFrames; ++i)
     {
-      const Model::JointIndex & parent = model.operational_frames[i].parent_id;
-      data.oMof[i] = (data.oMi[parent] * model.operational_frames[i].framePlacement);
+      const Model::JointIndex & parent = model.operational_frames[i].parent;
+      data.oMof[i] = (data.oMi[parent] * model.operational_frames[i].placement);
     }
   }
   
@@ -107,14 +107,14 @@ namespace se3
     assert( J.rows() == data.J.rows() );
     assert( J.cols() == data.J.cols() );
     
-    const Model::JointIndex & parent = model.operational_frames[frame_id].parent_id;
+    const Model::JointIndex & parent = model.operational_frames[frame_id].parent;
     const SE3 & oMframe = data.oMof[frame_id];
     const Frame & frame = model.operational_frames[frame_id];
     
     const int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
     
     // Lever between the joint center and the frame center expressed in the global frame
-    const SE3::Vector3 lever(data.oMi[parent].rotation() * (frame.framePlacement.translation()));
+    const SE3::Vector3 lever(data.oMi[parent].rotation() * (frame.placement.translation()));
     
     getJacobian<localFrame>(model, data, parent, J);
     for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
