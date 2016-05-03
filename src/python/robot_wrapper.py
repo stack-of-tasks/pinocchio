@@ -66,7 +66,7 @@ class RobotWrapper(object):
 
     def com(self, q, v=None, a=None, update_kinematics=True):
         if v is not None:
-            if a is not None:
+            if a is None:
                 se3.centerOfMass(self.model, self.data, q, v, update_kinematics)
                 return self.data.com[0], self.data.vcom[0]
             se3.centerOfMass(self.model, self.data, q, v, a, update_kinematics)
@@ -163,7 +163,7 @@ class RobotWrapper(object):
         if 'viewer' not in self.__dict__:
             return
         # Update the robot geometry.
-        se3.geometry(self.model, self.data, q)
+        se3.forwardKinematics(self.model, self.data, q)
         # Iteratively place the moving robot bodies.
         for i in range(1, self.model.nbody):
             if self.model.hasVisual[i]:
