@@ -33,14 +33,27 @@
 
 #include <Eigen/StdVector>
 #include <boost/variant.hpp>
+#include <boost/variant/recursive_wrapper.hpp>
 
 namespace se3
 {
   enum { MAX_JOINT_NV = 6 };
 
-  typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned, JointModelSpherical, JointModelSphericalZYX, JointModelPX, JointModelPY, JointModelPZ, JointModelPrismaticUnaligned, JointModelFreeFlyer, JointModelPlanar, JointModelTranslation, JointModelDense<-1,-1>, JointModelRUBX, JointModelRUBY, JointModelRUBZ > JointModelVariant;
-  typedef boost::variant< JointDataRX, JointDataRY, JointDataRZ, JointDataRevoluteUnaligned, JointDataSpherical, JointDataSphericalZYX, JointDataPX, JointDataPY, JointDataPZ, JointDataPrismaticUnaligned, JointDataFreeFlyer, JointDataPlanar, JointDataTranslation, JointDataDense<-1,-1>, JointDataRUBX, JointDataRUBY, JointDataRUBZ > JointDataVariant;
-  
+  struct JointComposite;
+  struct JointModelComposite;
+  struct JointDataComposite;
+
+  typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned, JointModelSpherical,
+                          JointModelSphericalZYX, JointModelPX, JointModelPY, JointModelPZ,
+                          JointModelPrismaticUnaligned, JointModelFreeFlyer, JointModelPlanar, JointModelTranslation,
+                          JointModelDense<-1,-1> ,JointModelRUBX, JointModelRUBY, JointModelRUBZ,
+                          boost::recursive_wrapper<JointModelComposite> >JointModelVariant;
+  typedef boost::variant< JointDataRX, JointDataRY, JointDataRZ, JointDataRevoluteUnaligned, JointDataSpherical,
+                          JointDataSphericalZYX, JointDataPX, JointDataPY, JointDataPZ, JointDataPrismaticUnaligned,
+                          JointDataFreeFlyer, JointDataPlanar, JointDataTranslation, JointDataDense<-1,-1>,
+                          JointDataRUBX, JointDataRUBY, JointDataRUBZ,
+                          boost::recursive_wrapper<JointDataComposite> > JointDataVariant;
+
 } // namespace se3
 
 #endif // ifndef __se3_joint_variant_hpp__

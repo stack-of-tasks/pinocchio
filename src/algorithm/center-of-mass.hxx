@@ -225,14 +225,37 @@ namespace se3
       ColBlock Jcols = jmodel.jointCols(data.J);
       Jcols = data.oMi[i].act(jdata.S());
       
-      if( JointModel::NV==1 )
+      if (JointModel::NV == -1)
+      {
+        if( jmodel.nv() ==1 )
+        {
         data.Jcom.col(jmodel.idx_v())
         = data.mass[i] * Jcols.template topLeftCorner<3,1>()
         - data.com[i].cross(Jcols.template bottomLeftCorner<3,1>()) ;
+        }
+        else
+        {
+          jmodel.jointCols(data.Jcom)
+          = data.mass[i] * Jcols.template topRows<3>()
+          - skew(data.com[i]) * Jcols.template bottomRows<3>();
+        }
+      }
       else
-        jmodel.jointCols(data.Jcom)
-        = data.mass[i] * Jcols.template topRows<3>()
-        - skew(data.com[i]) * Jcols.template bottomRows<3>();
+      {
+        if( JointModel::NV ==1 )
+        {
+        data.Jcom.col(jmodel.idx_v())
+        = data.mass[i] * Jcols.template topLeftCorner<3,1>()
+        - data.com[i].cross(Jcols.template bottomLeftCorner<3,1>()) ;
+        }
+        else
+        {
+          jmodel.jointCols(data.Jcom)
+          = data.mass[i] * Jcols.template topRows<3>()
+          - skew(data.com[i]) * Jcols.template bottomRows<3>();
+        }
+      }
+      
     
       if(computeSubtreeComs)
         data.com[i] /= data.mass[i];

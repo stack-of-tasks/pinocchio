@@ -54,14 +54,14 @@ namespace se3
     assert( (njoint==(int)joints.size())&&(njoint==(int)inertias.size())
            &&(njoint==(int)parents.size())&&(njoint==(int)jointPlacements.size()) );
     assert((joint_model.nq()>=0) && (joint_model.nv()>=0));
-    
+
     assert(max_effort.size() == joint_model.nv()
            && max_velocity.size() == joint_model.nv()
            && min_config.size() == joint_model.nq()
            && max_config.size() == joint_model.nq());
-    
+
     Model::JointIndex idx = (Model::JointIndex) (njoint++);
-    
+
     joints         .push_back(JointModel(joint_model.derived()));
     boost::get<JointModelDerived>(joints.back()).setIndexes(idx,nq,nv);
     
@@ -71,11 +71,21 @@ namespace se3
     names          .push_back((joint_name!="")?joint_name:randomStringGenerator(8));
     nq += joint_model.nq();
     nv += joint_model.nv();
-    
-    effortLimit.conservativeResize(nv);effortLimit.bottomRows<D::NV>() = max_effort;
-    velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>() = max_velocity;
-    lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>() = min_config;
-    upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows<D::NQ>() = max_config;
+
+    if (D::NV == -1)
+    {
+      effortLimit.conservativeResize(nv);effortLimit.bottomRows(j.nv()) = max_effort;
+      velocityLimit.conservativeResize(nv);velocityLimit.bottomRows(j.nv()) = max_velocity;
+      lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows(j.nq()) = min_config;
+      upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows(j.nq()) = max_config;
+    }
+    else
+    {
+      effortLimit.conservativeResize(nv);effortLimit.bottomRows<D::NV>() = max_effort;
+      velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>() = max_velocity;
+      lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>() = min_config;
+      upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows<D::NQ>() = max_config;
+    }
     
     neutralConfiguration.conservativeResize(nq);
     neutralConfiguration.tail(joint_model.nq()) = joint_model.neutralConfiguration();

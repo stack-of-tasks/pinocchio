@@ -161,7 +161,7 @@ namespace se3
                      const se3::Model & model,
                      se3::Data & data)
     {
-      typedef typename Data::Matrix6x::NColsBlockXpr<JointModel::NV>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColsBlock;
       
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::Index & parent = model.parents[i];
@@ -169,8 +169,16 @@ namespace se3
       data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
       
       jdata.U() = data.Ycrb[i] * jdata.S();
-      ColsBlock jF
-      = data.Ag.middleCols <JointModel::NV> (jmodel.idx_v());
+      if (JointModel::NV == -1)
+      {
+        ColsBlock jF
+        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
+      }
+      else
+      {
+        ColsBlock jF
+        = data.Ag.middleCols <JointModel::NV> (jmodel.idx_v());
+      }
       forceSet::se3Action(data.oMi[i],jdata.U(),jF);
     }
     
