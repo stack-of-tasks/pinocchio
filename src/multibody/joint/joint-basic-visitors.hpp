@@ -215,6 +215,13 @@ namespace se3
    */
   inline void setIndexes(JointModelVariant & jmodel, JointIndex id, int q,int v);
 
+
+  /**
+   * @brief      Visit a JointModelVariant through JointShortnameVisitor to get the shortname of the derived joint model
+   *
+   * @param      jmodel  The JointModelVariant we want the shortname of the type held in
+   */
+  inline std::string shortname(const JointModelVariant & jmodel);
   //
   // Visitors on JointDatas
   //
