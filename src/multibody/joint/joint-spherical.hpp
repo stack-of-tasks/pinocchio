@@ -372,14 +372,20 @@ namespace se3
       ConstQuaternionMap_t quat1 (q1.segment<NQ> (idx_q ()).data());
       
       const Motion_t::Quaternion_t quat_relatif (quat1*quat0.conjugate());
-      Scalar_t theta;
-      if (quat0.dot(quat1) >= 0.)
-        theta = 2.*acos(quat_relatif.w());
-      else
-        theta = -2.*(PI - acos(quat_relatif.w()));
       
-      return theta * quat_relatif.vec().normalized();
-    } 
+      if (quat_relatif.vec().norm() < 1e-8) // TODO: The value 1e-8 must be changed according to the precision of the current real.
+        return TangentVector_t::Zero();
+      else
+      {
+        Scalar_t theta;
+        if (quat0.dot(quat1) >= 0.)
+          theta = 2.*acos(quat_relatif.w());
+        else
+          theta = -2.*(PI - acos(quat_relatif.w()));
+        
+        return theta * quat_relatif.vec().normalized();
+      }
+    }
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
