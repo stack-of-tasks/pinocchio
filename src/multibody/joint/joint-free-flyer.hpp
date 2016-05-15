@@ -345,12 +345,18 @@ namespace se3
       ConstQuaternionMap_t quat1 (q_1.segment<4>(3).data());
       
       const Motion_t::Quaternion_t quat_relatif (quat1*quat0.conjugate());
-      const Scalar_t theta = 2.*acos(quat_relatif.w());
       
-      if (quat0.dot(quat1) >= 0.)
-        result.tail<3>() << theta * quat_relatif.vec().normalized();
+      if (quat_relatif.vec().norm() < 1e-8) // TODO: The value 1e-8 must be changed according to the precision of the current real.
+        result.tail<3> ().setZero();
       else
-        result.tail<3>() << -(2*PI-theta) * quat_relatif.vec().normalized();
+      {
+        const Scalar_t theta = 2.*acos(quat_relatif.w());
+        
+        if (quat0.dot(quat1) >= 0.)
+          result.tail<3>() << theta * quat_relatif.vec().normalized();
+        else
+          result.tail<3>() << -(2*PI-theta) * quat_relatif.vec().normalized();
+      }
 
       return result;
     } 
