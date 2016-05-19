@@ -51,6 +51,7 @@ OPTION (BUILD_UNIT_TESTS "Build the unitary tests" ON)
 OPTION (BUILD_UTILS "Build the utils" OFF)
 OPTION (INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 OPTION (BUILD_TESTS_WITH_HPP "Build geom tests and benchmarks with hpp to do comparisons" OFF)
+OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 
 IF (INITIALIZE_WITH_NAN)
   MESSAGE (STATUS "Initialize with NaN all the Eigen entries")
@@ -159,6 +160,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/compute-all-terms.hpp
   )
 
+IF(${BUILD_PYTHON_INTERFACE} STREQUAL "ON")
 SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/eigen_container.hpp
   python/handler.hpp
@@ -177,6 +179,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   python/parsers.hpp
   python/explog.hpp
   )
+ENDIF(${BUILD_PYTHON_INTERFACE} STREQUAL "ON")
 
 IF(HPP_FCL_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS

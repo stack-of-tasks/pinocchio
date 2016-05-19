@@ -92,7 +92,7 @@ ENDIF ( )
 # ----------------------------------------------------
 # --- PYTHON -----------------------------------------
 # ----------------------------------------------------
-
+IF(${BUILD_PYTHON_INTERFACE} STREQUAL "ON")
 IF(EIGENPY_FOUND)
   FINDPYTHON(2.7 EXACT REQUIRED)
   MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}")
@@ -166,4 +166,4 @@ IF(EIGENPY_FOUND)
   ENDFOREACH(python)
 
 ENDIF(EIGENPY_FOUND)
-
+ENDIF(${BUILD_PYTHON_INTERFACE} STREQUAL "ON")
