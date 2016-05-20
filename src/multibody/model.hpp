@@ -46,6 +46,7 @@ namespace se3
   class Model
   {
   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef se3::Index Index;
     typedef se3::JointIndex JointIndex;
     typedef se3::GeomIndex GeomIndex;
@@ -348,6 +349,7 @@ namespace se3
   class Data
   {
   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     /// \brief The 6d jacobian type (temporary)
     typedef Eigen::Matrix<double,6,Eigen::Dynamic> Matrix6x;
     /// \brief The 3d jacobian type (temporary)
