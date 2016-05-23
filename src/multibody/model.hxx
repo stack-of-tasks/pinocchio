@@ -72,12 +72,12 @@ namespace se3
     nq += joint_model.nq();
     nv += joint_model.nv();
 
-    if (D::NV == -1)
+    if (D::NV == Eigen::Dynamic)
     {
-      effortLimit.conservativeResize(nv);effortLimit.bottomRows(j.nv()) = max_effort;
-      velocityLimit.conservativeResize(nv);velocityLimit.bottomRows(j.nv()) = max_velocity;
-      lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows(j.nq()) = min_config;
-      upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows(j.nq()) = max_config;
+      effortLimit.conservativeResize(nv);effortLimit.bottomRows(joint_model.nv()) = max_effort;
+      velocityLimit.conservativeResize(nv);velocityLimit.bottomRows(joint_model.nv()) = max_velocity;
+      lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows(joint_model.nq()) = min_config;
+      upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows(joint_model.nq()) = max_config;
     }
     else
     {

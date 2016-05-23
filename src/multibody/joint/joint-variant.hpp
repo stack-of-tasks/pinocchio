@@ -31,7 +31,6 @@
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint/joint-translation.hpp"
 
-#include <Eigen/StdVector>
 #include <boost/variant.hpp>
 #include <boost/variant/recursive_wrapper.hpp>
 

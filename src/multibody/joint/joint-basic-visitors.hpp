@@ -19,8 +19,8 @@
 #define __se3_joint_basic_visitors_hpp__
 
 #include <Eigen/StdVector>
-#include <boost/variant.hpp>
 #include "pinocchio/multibody/joint/joint-variant.hpp"
+
 
 namespace se3
 {
@@ -108,6 +108,16 @@ namespace se3
                                      const double u);
 
   
+  /**
+   * @brief       Visit a JointModelVariant through JointRandomVisitor to
+   *              generate a random configuration vector
+   *
+   * @param[in]  jmodel           The JointModelVariant
+   *
+   * @return     The joint randomconfiguration
+   */
+  inline Eigen::VectorXd random(const JointModelVariant & jmodel);
+
   /**
    * @brief       Visit a JointModelVariant through JointRandomConfigurationVisitor to
    *              generate a configuration vector uniformly sampled among provided limits
@@ -343,7 +353,8 @@ namespace se3
 
 
 /* --- Details -------------------------------------------------------------------- */
-#include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
+// Included later
+// #include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
 
 
 #endif // ifndef __se3_joint_basic_visitors_hpp__
