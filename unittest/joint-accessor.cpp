@@ -34,50 +34,100 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE ( JointAccessorTest)
-
-BOOST_AUTO_TEST_CASE ( test_read_model )
+template <typename T>
+void test_joint_methods (T & jmodel, typename T::JointData & jdata)
 {
-  using namespace Eigen;
-  using namespace se3;
+    Eigen::VectorXd q1(Eigen::VectorXd::Random (jmodel.nq()));
+    Eigen::VectorXd q1_dot(Eigen::VectorXd::Random (jmodel.nv()));
+    Eigen::VectorXd q2(Eigen::VectorXd::Random (jmodel.nq()));
+    double u = 0.3;
+    se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
+    bool update_I = false;
 
-  se3::Model model;
-  se3::buildModels::humanoidSimple(model);
-  se3::Data data(model);
+    jmodel.calc(jdata, q1, q1_dot); // To be removed when cherry-picked the fix of calc visitor
+    jmodel.calc_aba(jdata, Ia, update_I); // To be removed when cherry-picked the fix of calc_aba visitor
 
-  Eigen::VectorXd q1(randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) ));
-  Eigen::VectorXd q1_dot(Eigen::VectorXd::Random(model.nv));
-  Eigen::VectorXd q2(randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) ));
-  double u = 0.3;
+    se3::JointModelVariant jmodelvariant(jmodel);
+    se3::JointDataVariant jdatavariant(jdata);
 
-  for (Model::JointIndex i=1; i < (Model::JointIndex) model.nbody; ++i)
-  {  
-    const JointModelVariant & jv = model.joints[i];
-    JointModelAccessor jma(model.joints[i]);
+    se3::JointModelAccessor jma(jmodelvariant);
+    se3::JointDataAccessor jda(jdatavariant);
 
-    BOOST_CHECK_MESSAGE(integrate(jv,q1,q1_dot).isApprox(jma.integrate(q1,q1_dot)) ,"Joint Model Accessor - integrate error");
-    BOOST_CHECK_MESSAGE(interpolate(jv,q1,q2,u).isApprox(jma.interpolate(q1,q2,u)) ,"Joint Model Accessor - interpolate error");
-    BOOST_CHECK_MESSAGE(randomConfiguration(jv, -1 * Eigen::VectorXd::Ones(nq(jv)),
-                                                Eigen::VectorXd::Ones(nq(jv))).size()
+    // calc_first_order(jmodelvariant, jdatavariant, q1, q1_dot); // To be added instead of line 134
+    // jma.calc(jda, q1, q1_dot);                                 // or test with this one
+    // jma.calc_aba(jda, Ia, update_I) 
+
+    std::string error_prefix("Joint Model Accessor on " + T::shortname());
+    BOOST_CHECK_MESSAGE(nq(jmodelvariant) == jma.nq() ,std::string(error_prefix + " - nq "));
+    BOOST_CHECK_MESSAGE(nv(jmodelvariant) == jma.nv() ,std::string(error_prefix + " - nv "));
+
+    BOOST_CHECK_MESSAGE(idx_q(jmodelvariant) == jma.idx_q() ,std::string(error_prefix + " - Idx_q "));
+    BOOST_CHECK_MESSAGE(idx_v(jmodelvariant) == jma.idx_v() ,std::string(error_prefix + " - Idx_v "));
+    BOOST_CHECK_MESSAGE(id(jmodelvariant) == jma.id() ,std::string(error_prefix + " - JointId "));
+
+    BOOST_CHECK_MESSAGE(integrate(jmodelvariant,q1,q1_dot).isApprox(jma.integrate(q1,q1_dot)) ,std::string(error_prefix + " - integrate "));
+    BOOST_CHECK_MESSAGE(interpolate(jmodelvariant,q1,q2,u).isApprox(jma.interpolate(q1,q2,u)) ,std::string(error_prefix + " - interpolate "));
+    BOOST_CHECK_MESSAGE(randomConfiguration(jmodelvariant, -1 * Eigen::VectorXd::Ones(nq(jmodelvariant)),
+                                                Eigen::VectorXd::Ones(nq(jmodelvariant))).size()
                                     == jma.randomConfiguration(-1 * Eigen::VectorXd::Ones(jma.nq()),
                                                               Eigen::VectorXd::Ones(jma.nq())).size()
-                        ,"Dimensions of random configuration are not the same");
-    BOOST_CHECK_MESSAGE(difference(jv,q1,q2).isApprox(jma.difference(q1,q2)) ,"Joint Model Accessor - difference error");
-    BOOST_CHECK_MESSAGE(distance(jv,q1,q2) == jma.distance(q1,q2) ,"Joint Model Accessor - distance error");
-
-    BOOST_CHECK_MESSAGE(nq(jv) == jma.nq() ,"Dimensions nq are not the same");
-    BOOST_CHECK_MESSAGE(nv(jv) == jma.nv() ,"Dimensions nv are not the same");
-
-    BOOST_CHECK_MESSAGE(idx_q(jv) == jma.idx_q() ,"Idx_q in model are not the same");
-    BOOST_CHECK_MESSAGE(idx_v(jv) == jma.idx_v() ,"Idx_v in model are not the same");
-    BOOST_CHECK_MESSAGE(id(jv) == jma.id() ,"Joint id in model are not the same");
-  }
+                        ,std::string(error_prefix + " - RandomConfiguration dimensions "));
+    BOOST_CHECK_MESSAGE(difference(jmodelvariant,q1,q2).isApprox(jma.difference(q1,q2)) ,std::string(error_prefix + " - difference "));
+    BOOST_CHECK_MESSAGE(distance(jmodelvariant,q1,q2) == jma.distance(q1,q2) ,std::string(error_prefix + " - distance "));
 
 
-  
+    BOOST_CHECK_MESSAGE((jda.S().matrix()).isApprox((constraint_xd(jdatavariant).matrix())),std::string(error_prefix + " - ConstraintXd "));
+    BOOST_CHECK_MESSAGE((jda.M()) == (joint_transform(jdatavariant)),std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
+    BOOST_CHECK_MESSAGE((jda.v()) == (motion(jdatavariant)),std::string(error_prefix + " - Joint motions "));
+    BOOST_CHECK_MESSAGE((jda.c()) == (bias(jdatavariant)),std::string(error_prefix + " - Joint bias "));
+    
+    BOOST_CHECK_MESSAGE((jda.U()).isApprox((u_inertia(jdatavariant))),std::string(error_prefix + " - Joint U inertia matrix decomposition "));
+    BOOST_CHECK_MESSAGE((jda.Dinv()).isApprox((dinv_inertia(jdatavariant))),std::string(error_prefix + " - Joint DInv inertia matrix decomposition "));
+    BOOST_CHECK_MESSAGE((jda.UDinv()).isApprox((udinv_inertia(jdatavariant))),std::string(error_prefix + " - Joint UDInv inertia matrix decomposition "));
 }
 
-BOOST_AUTO_TEST_CASE ( test_read_data )
+struct TestJointAccessor{
+
+  template <typename T>
+  void operator()(const T t) const
+  {
+    T jmodel;
+    jmodel.setIndexes(0,0,0);
+    typename T::JointData jdata = jmodel.createData();
+
+    test_joint_methods(jmodel, jdata);    
+  }
+
+  template <int NQ, int NV>
+  void operator()(const se3::JointModelDense<NQ,NV> & ) const
+  {
+    // Not yet correctly implemented, test has no meaning for the moment
+  }
+
+  void operator()(const se3::JointModelRevoluteUnaligned & ) const
+  {
+    se3::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
+    jmodel.setIndexes(0,0,0);
+    se3::JointModelRevoluteUnaligned::JointData jdata = jmodel.createData();
+
+    test_joint_methods(jmodel, jdata);
+  }
+
+  void operator()(const se3::JointModelPrismaticUnaligned & ) const
+  {
+    se3::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
+    jmodel.setIndexes(0,0,0);
+    se3::JointModelPrismaticUnaligned::JointData jdata = jmodel.createData();
+
+    test_joint_methods(jmodel, jdata);
+  }
+
+};
+
+
+BOOST_AUTO_TEST_SUITE ( JointAccessorTest)
+
+BOOST_AUTO_TEST_CASE ( test_all_joints )
 {
   using namespace Eigen;
   using namespace se3;
@@ -86,42 +136,10 @@ BOOST_AUTO_TEST_CASE ( test_read_data )
   buildModels::humanoidSimple(model);
   se3::Data data(model);
 
-   
-  for (Model::JointIndex i=1; i < (Model::JointIndex) model.nbody; ++i)
-  {  
-    JointModelAccessor jma(model.joints[i]);
-    JointDataAccessor  jda(data.joints[jma.id()]);
 
-    BOOST_CHECK_MESSAGE((jda.S().matrix()).isApprox((constraint_xd(data.joints[jma.id()]).matrix())),"ConstraintXd are not equals");
-    BOOST_CHECK_MESSAGE((jda.M()) == (joint_transform(data.joints[jma.id()])),"Joint transforms are not equals");
-    // BOOST_CHECK_MESSAGE((jda.v()) == (motion(data.joints[jma.id()])),"Joint motions are not equals"); // Joints not updated, can not be equals                                                                                                               
-    BOOST_CHECK_MESSAGE((jda.c()) == (bias(data.joints[jma.id()])),"Joint bias are not equals");
-    
-    BOOST_CHECK_MESSAGE((jda.U()).isApprox((u_inertia(data.joints[jma.id()]))),"Joint U inertia matrix decomposition are not equals");
-    BOOST_CHECK_MESSAGE((jda.Dinv()).isApprox((dinv_inertia(data.joints[jma.id()]))),"Joint DInv inertia matrix decomposition are not equals");
-    BOOST_CHECK_MESSAGE((jda.UDinv()).isApprox((udinv_inertia(data.joints[jma.id()]))),"Joint UDInv inertia matrix decomposition are not equals");
-  }
+  boost::mpl::for_each<JointModelVariant::types>(TestJointAccessor());
 
-  Eigen::VectorXd q(Eigen::VectorXd::Ones (model.nq));
-  Eigen::VectorXd v(Eigen::VectorXd::Ones (model.nv));
-  computeAllTerms(model, data, q, v);
-
-  for (Model::JointIndex i=1; i < (Model::JointIndex) model.nbody; ++i)
-  {  
-    JointModelAccessor jma(model.joints[i]);
-    JointDataAccessor  jda(data.joints[jma.id()]);
-
-    BOOST_CHECK_MESSAGE((jda.S().matrix()).isApprox((constraint_xd(data.joints[jma.id()]).matrix())),"ConstraintXd are not equals");
-    BOOST_CHECK_MESSAGE((jda.M()) == (joint_transform(data.joints[jma.id()])),"Joint transforms are not equals"); // ==  or isApprox ?
-    BOOST_CHECK_MESSAGE((jda.v()) == (motion(data.joints[jma.id()])),"Joint motions are not equals");                                                                                                                
-    BOOST_CHECK_MESSAGE((jda.c()) == (bias(data.joints[jma.id()])),"Joint bias are not equals");
-    
-    BOOST_CHECK_MESSAGE((jda.U()).isApprox((u_inertia(data.joints[jma.id()]))),"Joint U inertia matrix decomposition are not equals");
-    BOOST_CHECK_MESSAGE((jda.Dinv()).isApprox((dinv_inertia(data.joints[jma.id()]))),"Joint DInv inertia matrix decomposition are not equals");
-    BOOST_CHECK_MESSAGE((jda.UDinv()).isApprox((udinv_inertia(data.joints[jma.id()]))),"Joint UDInv inertia matrix decomposition are not equals");
-  }
 
 }
-
 BOOST_AUTO_TEST_SUITE_END ()
 
