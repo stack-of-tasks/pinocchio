@@ -25,6 +25,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
+#include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 #include <iostream>
 
 #include <boost/bind.hpp>

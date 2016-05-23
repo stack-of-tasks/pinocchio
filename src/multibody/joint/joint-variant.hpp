@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015 - 2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -30,77 +30,6 @@ namespace se3
   typedef std::vector<JointModelVariant> JointModelVector;
   typedef std::vector<JointDataVariant> JointDataVector;
 
-  class CreateJointData: public boost::static_visitor<JointDataVariant>
-  {
-  public:
-    template<typename D>
-    JointDataVariant operator()(const JointModelBase<D> & jmodel) const
-    { return JointDataVariant(jmodel.createData()); }
-    
-    static JointDataVariant run( const JointModelVariant & jmodel)
-    { return boost::apply_visitor( CreateJointData(), jmodel ); }
-  };
-
-  class Joint_nv: public boost::static_visitor<int>
-  {
-  public:
-    template<typename D>
-    int operator()(const JointModelBase<D> & ) const
-    { return D::NV; }
-    
-    static int run( const JointModelVariant & jmodel)
-    { return boost::apply_visitor( Joint_nv(), jmodel ); }
-  };
-  inline int nv(const JointModelVariant & jmodel) { return Joint_nv::run(jmodel); }
-
-  class Joint_nq: public boost::static_visitor<int>
-  {
-  public:
-    template<typename D>
-    int operator()(const JointModelBase<D> & ) const
-    { return D::NQ; }
-    
-    static int run( const JointModelVariant & jmodel)
-    { return boost::apply_visitor( Joint_nq(), jmodel ); }
-  };
-  inline int nq(const JointModelVariant & jmodel) { return Joint_nq::run(jmodel); }
-
-  class Joint_idx_q: public boost::static_visitor<int>
-  {
-  public:
-    template<typename D>
-    int operator()(const JointModelBase<D> & jmodel) const
-    { return jmodel.idx_q(); }
-    
-    static int run( const JointModelVariant & jmodel)
-    { return boost::apply_visitor( Joint_idx_q(), jmodel ); }
-  };
-  inline int idx_q(const JointModelVariant & jmodel) { return Joint_idx_q::run(jmodel); }
-
-  class Joint_idx_v: public boost::static_visitor<int>
-  {
-  public:
-    template<typename D>
-    int operator()(const JointModelBase<D> & jmodel) const
-    { return jmodel.idx_v(); }
-    
-    static int run( const JointModelVariant & jmodel)
-    { return boost::apply_visitor( Joint_idx_v(), jmodel ); }
-  };
-  inline int idx_v(const JointModelVariant & jmodel) { return Joint_idx_v::run(jmodel); }
-
-  // template <class Constraint>
-  class Joint_constraint: public boost::static_visitor< ConstraintXd >
-  {
-  public:
-    template <typename D>
-    ConstraintXd operator()(const JointDataBase<D> & jdata) const
-    { return ConstraintXd(jdata.S()); }
-    
-    static ConstraintXd run( const JointDataVariant & jdata)
-    { return boost::apply_visitor( Joint_constraint (), jdata ); }
-  };
-  inline ConstraintXd constraint_xd(const JointDataVariant & jdata) { return Joint_constraint::run(jdata); }
 
 } // namespace se3
 
