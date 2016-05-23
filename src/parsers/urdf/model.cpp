@@ -136,6 +136,21 @@ namespace se3
       }
 
       ///
+      /// \brief Handle the case of JointModelComposite which is dynamic.
+      ///
+      void addJointAndBody(Model & model, const JointModelBase< JointModelComposite > & jmodel, const Model::JointIndex parent_id,
+                           const SE3 & joint_placement, const std::string & joint_name,
+                           const Inertia & Y, const std::string & body_name)
+      {
+        Model::JointIndex idx;
+        
+        idx = model.addJoint(parent_id,jmodel,
+                             joint_placement,joint_name);
+        
+        model.appendBodyToJoint(idx,Y,SE3::Identity(),body_name);
+      }
+
+      ///
       /// \brief Recursive procedure for reading the URDF tree.
       ///        The function returns an exception as soon as a necessary Inertia or Joint information are missing.
       ///
