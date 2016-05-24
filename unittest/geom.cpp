@@ -422,8 +422,8 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
         std::cout << "comparison between " << body1 << " and " << body2 << std::endl;
 
-        se3::DistanceResult dist_pin = data_geom.computeDistance( geom.getGeomId(body1),
-                                                                  geom.getGeomId(body2));
+        se3::DistanceResult dist_pin = data_geom.computeDistance( geom.getCollisionId(body1),
+                                                                  geom.getCollisionId(body2));
 
         Distance_t distance_pin(dist_pin.fcl_distance_result);
         distance_hpp.checkClose(distance_pin);
