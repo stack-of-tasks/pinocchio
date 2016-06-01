@@ -11,7 +11,16 @@
 		</div>
 		<div class="navbar-collapse collapse">
 			<ul class="nav navbar-nav">
-				{% include nav_element.html title="<span class='glyphicon glyphicon-download'></span> Download" url="/download.html" %}
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-education"></span>
+						Getting started <b class="caret"></b></a>
+					<ul class="dropdown-menu">
+			            {% include nav_element.html title="Download and Install" url="/download.html" %}
+			            {% include nav_element.html title="Tutorials" url="/tutorials.html" %}
+					</ul>
+				</li>
+
+				<!-- {% include nav_element.html title="<span class='glyphicon glyphicon-download'></span> Download" url="/download.html" %} -->
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-book"></span>
 						Documentation <b class="caret"></b></a>
@@ -23,7 +32,7 @@
 						<li class="dropdown-header">Documentation</li>
 						{% include nav_element.html title="Mathematical formulations" url="/assets/math-concepts.pdf" %}
 						<!-- {% include nav_element.html title="Python bindings" url="/python-binding.html" %} -->
-						{% include nav_element.html title="Getting Started" url="/getting-started.html" %}
+						{% include nav_element.html title="API Documentation" url="/documentation.html" %}
 					</ul>
 				</li>
 
