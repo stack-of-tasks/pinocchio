@@ -2,20 +2,22 @@
 
 - [Objectives](#objectives)
 - [Tutorial 1.0. Technical prerequisites](#tutorial-10-technical-prerequisites)
-	- [Robots](#robots)
+  - [Robots](#robots)
 - [Tutorial 1.1. Position the end effector](#tutorial-11-position-the-end-effector)
 - [Tutorial 1.2. Approaching the redundancy](#tutorial-12-approaching-the-redundancy)
 - [Tutorial 1.3. Placing the end-effector](#tutorial-13-placing-the-end-effector)
 - [Tutorial 1.4. Working with a mobile robot](#tutorial-14-working-with-a-mobile-robot)
 
-<!-- /MarkdownTOC -->
+<!-- /MarkdownTC -->
 
 <a name="objectives"></a>
+
 # Objectives
 
 The main objective of the first tutorial is to compute a configuration of the robot minimizing a cost (maximizing a reward) and respecting some given constraints. Additionally, the objectives are to use a robot model in Pinocchio, optimally the models that were built during the first tutorial, to have a first hands on the difficulties of working outside of real vector spaces and to consider what are the guesses that are taken by an optimal
 
 <a name="tutorial-10-technical-prerequisites"></a>
+
 # Tutorial 1.0. Technical prerequisites
 Python SciPy and MatplotLib
 
@@ -27,12 +29,10 @@ SciPy can be installed by `sudo apt-get install python-scipy`. Alternatively, if
 
 Download the three files, and then type:
 
-```
-student@pinocchio1204x32vbox:~$ sudo dpkg -i libamd2.2.0_i386.deb
-student@pinocchio1204x32vbox:~$ sudo dpkg -i libumfpack5.4.0_i386.deb
-student@pinocchio1204x32vbox:~$ sudo dpkg -i python-scipy_0.9.0_i386.deb
+    student@pinocchio1204x32vbox:~$ sudo dpkg -i libamd2.2.0_i386.deb
+    student@pinocchio1204x32vbox:~$ sudo dpkg -i libumfpack5.4.0_i386.deb
+    student@pinocchio1204x32vbox:~$ sudo dpkg -i python-scipy_0.9.0_i386.deb
 
-```
 
 MatPlotLib can be installed by `sudo apt-get install python-matplotlib`. It is already installed on the VirtualBox.
 
@@ -48,7 +48,7 @@ Examples of calls of these two functions are given below. We will use both solve
 
 Additionally, the provided implementation of BFGS allows the user to provide a callback function and track the path taken by the solver, but does not provide the possibility to specify constraints (constraints can be added as penalty functions in the cost, but this requires additional work). The constrained least-square implementation allows the user to specify equality and inequality constraints, but not the callback. In the following, start to use BFGS before moving to the constrained least-square only when constraints are really needed.
 
-```python
+{% highlight python %}
 # Example of use a the optimization toolbox of SciPy.
 import numpy as np
 from scipy.optimize import fmin_bfgs, fmin_slsqp
@@ -75,7 +75,7 @@ class CallbackLogger:
           self.nfeval += 1
 
 x0 = np.array([0.0,0.0])
-# Optimize cost without any constraints in BFGS, with traces.
+    # Optimize cost without any constraints in BFGS, with traces.
 xopt_bfgs = fmin_bfgs(cost, x0, callback=CallbackLogger())
 print '\n *** Xopt in BFGS = ',xopt_bfgs,'\n\n\n\n'
 
@@ -88,20 +88,20 @@ xopt_clsq = fmin_slsqp(cost,[-1.0,1.0],
                        f_eqcons=constraint_eq, f_ieqcons=constraint_ineq,
                        iprint=2, full_output=1)
 print '\n *** Xopt in c-lsq = ',xopt_clsq,'\n\n\n\n'
-```
+{% endhighlight %}
 
 Take care that all _SciPy_ always works with vectors represented as 1-dimensional array, while Pinocchio works with vectors represented as matrices (which are in fact two-dimensional arrays, with the second dimension being 1). You can pass from a SciPy-like vector to a Pinocchio-like vector using:
 
-```python
+{% highlight python %}
 import numpy as np
 x = np.array([ 1.0, 2.0, 3.0 ])
 q = np.matrix(x).T
 x = q.getA()[:,0]
-```
+{% endhighlight %}
 
 The second library MatPlotLib plots values on a 2D graph. Once more, documentation is available here: URLTODO. An example is provided below.
 
-```python
+{% highlight python %}
 import numpy as np
 import matplotlib.pyplot as plt
 # In plt, the following functions are the most useful:
@@ -128,16 +128,17 @@ if not interactivePlot:
     # Display all the plots and block the shell.
     # The script will only ends when all windows are closed.
     plt.show ()
-```
+{% endhighlight %}
 
 <a name="robots"></a>
+
 ## Robots
 
 We will need two models of robots: one fixed serial-chain manipulator robot with 7-DOF and only simple joints (i.e. having their configuration in a real vector space, e.g. prismatic or revolute); and one mobile "free-floating" robot (i.e. with the first joint being a "JointModelFreeFlyer", with the configuration containing a quaternion).
 
 The robot models are assumed to be accessible through two Python classes named RobotFixed for the fixed serial-chain robot, and RobotFloating for the mobile robot. The following operations are supposed to be implemented:
 
-```python
+{% highlight python %}
 import pinocchio as se3
 robot = RobotFixed()       # Possibly set arguments in the constructor.
 print robot.model          # Access to the object se3.Model.
@@ -150,7 +151,7 @@ i = robot.indexEffector    # Access to the index of the  (or to one of the) robo
 se3.geometry(robot.model,robot.data,q)
 print robot.data.oMi[i]    # Access to the placement of the end effector at configuration q.
 # The three last lines might be embedded in a single method Robot.Mendeffector(q).
-```
+{% endhighlight %}
 These two models are the output of the first tutorial. The most interesting option is to use them.
 
 Alternatively, two models are available and are described below. They both implement the rough API described above.
@@ -161,39 +162,40 @@ Baxter is a fixed robot with two arms and a head developed by the USA company Re
 
 Then, Baxter might be loaded in Python as a Robot class by the following code:
 
-```python
+{% highlight python %}
 from pinocchio.robot_wrapper import RobotWrapper
 MODELPATH = '/home/student/src/pinocchio/models/' # Change following your setup.
 robot = RobotWrapper(MODELPATH + 'baxter.urdf')
 robot.initDisplay(loadModel=True)
-```
+{% endhighlight %}
 
 Romeo is a humanoid robot developed by the French-Japanese company Aldebaran Robotics. It has two legs, two arms and a head, for a total of 31 joints (plus 6DOF on the free flyer). Its model is natively in Pinocchio (no additional dowload needed). Romeo can be loaded with:
 
-```python
+{% highlight python %}
 import pinocchio as se3
 from pinocchio.romeo_wrapper import RomeoWrapper
 MODELPATH = '/home/student/src/pinocchio/models/'
 # Explicitly specify that the first joint is a free flyer.
 robot = RomeoWrapper(MODELPATH + 'romeo.urdf',se3.JointModelFreeFlyer())
 robot.initDisplay(loadModel=True)
-```
+{% endhighlight %}
 
 Additionally, the index of right and left hands and feet are stored in romeo.rh, romeo.lh, romeo.rf and romeo.lf.
 
 <a name="tutorial-11-position-the-end-effector"></a>
+
 # Tutorial 1.1. Position the end effector
 
 The first tutorial is to position (i.e. translation only) the end effector of a manipulator robot to a given position. For this first part, we will use the fixed serial-chain robot model.
 
 Recall first that the position (3D) of the joint with index "i" at position "q" can be access by the following two lines of code:
 
-```python
+{% highlight python %}
 # Compute all joint placements and put the position of joint "i" in variable "p".
 import pinocchio as se3
 se3.geometry(robot.model,robot.data,q)
 p = robot.data.oMi[i].translation
-```
+{% endhighlight %}
 
 __Question 1:__ Using this, build a cost function a cost function as the norm of the difference between the end-effector position `p` and a desired position `pdes`. The cost function is a function that accepts as input an 1-dimensional array and return a float.
 
@@ -202,6 +204,7 @@ __Question 2:__ Then use `fmin_bfgs` to find a configuration q with the end effe
 __Question 3:__ Finally, implements a callback function that display in Gepetto-Viewer every candidate configuration tried by the solver.
 
 <a name="tutorial-12-approaching-the-redundancy"></a>
+
 # Tutorial 1.2. Approaching the redundancy
 
 The manipulator arm has 7 DOF, while the cost function only constraints 3 of them (the position of the end effector). A continuum of solutions then exists. The two next questions are aiming at giving an intuition of this continuum.
@@ -213,24 +216,26 @@ A configurations in this continuum can then be selected with particular properti
 __Question 5:__ Sum a secondary cost term to the first positioning cost, to select the posture that maximizes the similarity (minimizes the norm of the difference) to a reference posture. The relative importance of the two cost terms can be adjusted by weighting the sum: find the weight so that the reference position is obtained with a negligible error (below millimeter) while the posture is properly taken into account.
 
 <a name="tutorial-13-placing-the-end-effector"></a>
+
 # Tutorial 1.3. Placing the end-effector
 
 The next step is to find a configuration of the robot so that the end effector respects a reference placement, i.e. position and orientation. The stake is to find a metric in SE(3) to continuously quantify the distance between two placements. There is no canonical metric in SE(3), i.e. no absolute way of weighting the position with respect to the orientation. Two metrics can be considered, namely the log in SE(3) or in R^3 x SE(3). The tutorial will guide you through the first choice.
 
 The SE(3) and SO(3) logarithm are implemented in Pinocchio in the explog module.
 
-```python
+{% highlight python %}
 from pinocchio.explog import log
 from pinocchio import SE3
 nu = log(SE3.Random())
 nu_vec = nu.vector()
+{% endhighlight %}
 ```
-
 __Question 6:__ Solve for the configuration that minimizes the norm of the logarithm of the difference between the end effector placement and the desired placement.
 
 Optionally, try other metrics, like the log metric of R^3 x SO(3), or the Froebenius norm of the homogeneous matrix.
 
 <a name="tutorial-14-working-with-a-mobile-robot"></a>
+
 # Tutorial 1.4. Working with a mobile robot
 
 Until now, the tutorial only worked with a simple manipulator robot, i.e. whose configuration space is a real vector space. Consider now the humanoid robot, whose first joint is a free joint: it has 6 degrees of freedom (3 rotations, 3 translations) but its configuration vector is dimension 7. You can check it with `robot.model.nq`, that stores the dimension of the configuration, and `robot.model.nv`, that stores the dimension of the configuration velocity, i.e. the number of degrees of freedom. For the humanoid, nq = nv+1.

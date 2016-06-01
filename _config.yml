@@ -1,6 +1,8 @@
 name: Pinocchio
-markdown: redcarpet
-highlighter: pygments
+markdown: kramdown
+kramdown:
+  input: GFM
+highlighter: rouge
 gems:
     - jekyll-sitemap
 
