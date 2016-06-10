@@ -230,7 +230,6 @@ namespace se3
 
 
         Model::JointIndex body_id;
-        bool is_body_fixed = false;
         if (joint_type == "JointTypeRevoluteX")
         {
           body_id = model.addJointAndBody (parent_id, JointModelRX (), global_placement, Y, joint_name, body_name);
@@ -271,11 +270,11 @@ namespace se3
         {
           model.appendBodyToJoint(parent_id, global_placement, Y, "");
 
+          body_id = model.nbody;
+          
           fixed_body_table_id_map[body_name] = parent_id;
           fixed_placement_map[body_name] = global_placement;
 
-          body_id = model.addFixedBody(parent_id, global_placement, body_name, false);
-          is_body_fixed = true;
         }
         else
         {
@@ -288,10 +287,7 @@ namespace se3
         if (verbose) {
           std::cout << "==== Added Body ====" << std::endl;
           std::cout << "  body name  : " << body_name << std::endl;
-          if (! is_body_fixed)
-            std::cout << "  body id    : " << body_id << std::endl;
-          else
-            std::cout << "  fixed body id    : " << body_id << std::endl;
+          std::cout << "  body id    : " << body_id << std::endl;
           std::cout << "  closest parent id  : " << parent_id << std::endl;
           std::cout << "  joint frame:\n" << joint_placement << std::endl;
           std::cout << "  joint type : " << joint_type << std::endl;

@@ -39,8 +39,7 @@ namespace se3
     os << "Nb bodies = " << model.nbody << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
     for(Model::Index i=0;i<(Model::Index)(model.nbody);++i)
       {
-	os << "  Joint "<<model.names[i] << ": parent=" << model.parents[i] 
-	   << ( model.hasVisual[i] ? " (has visual) " : "(doesnt have visual)" ) << std::endl;
+	os << "  Joint "<<model.names[i] << ": parent=" << model.parents[i]  << std::endl;
       }
 
     return os;
@@ -145,20 +144,7 @@ namespace se3
   }
 
 
-  inline Model::JointIndex Model::addFixedBody (JointIndex lastMovingParent,
-                                           const SE3 & placementFromLastMoving,
-                                           const std::string & bodyName,
-                                           bool visual)
-  {
-
-    Model::JointIndex idx = (Model::JointIndex) (nFixBody++);
-    fix_lastMovingParent.push_back(lastMovingParent);
-    fix_lmpMi      .push_back(placementFromLastMoving);
-    fix_hasVisual  .push_back(visual);
-    fix_bodyNames  .push_back( (bodyName!="")?bodyName:random(8));
-    return idx;
-  }
-
+ 
 
 
   inline Model::JointIndex Model::getBodyId (const std::string & name) const

@@ -65,8 +65,6 @@ namespace se3
     /// \brief Number of bodies (= number of joints + 1).
     int nbody;
     
-    /// \brief Number of fixed-bodies (= number of fixed-joints).
-    int nFixBody;
     
     /// \brief Number of operational frames.
     int nOperationalFrames;
@@ -105,21 +103,6 @@ namespace se3
     /// \brief Upper joint configuration limit
     Eigen::VectorXd upperPositionLimit;
 
-    /// \brief True iff body <i> has a visual mesh.
-    std::vector<bool> hasVisual;
-
-    /// \brief Fixed-body relative placement (wrt last moving parent)
-    std::vector<SE3> fix_lmpMi;
-    
-    /// \brief Fixed-body index of the last moving parent
-    std::vector<Model::JointIndex> fix_lastMovingParent;
-    
-    /// \brief True iff fixed-body <i> has a visual mesh.
-    std::vector<bool> fix_hasVisual;
-    
-    /// \brief Name of fixed-joint <i>.
-    std::vector<std::string> fix_bodyNames;
-
     /// \brief Vector of operational frames registered on the model.
     std::vector<Frame> operational_frames;
 
@@ -134,7 +117,6 @@ namespace se3
       , nv(0)
       , njoint(1)
       , nbody(1)
-      , nFixBody(0)
       , nOperationalFrames(0)
       , inertias(1)
       , jointPlacements(1)
@@ -142,7 +124,6 @@ namespace se3
       , parents(1)
       , names(1)
       , bodyNames(1)
-      , hasVisual(1)
       , gravity( gravity981,Eigen::Vector3d::Zero() )
     {
       names[0]     = "universe";     // Should be "universe joint (trivial)"
@@ -238,21 +219,6 @@ namespace se3
     void appendBodyToJoint (const JointIndex parent, const SE3 & placement, const Inertia & Y,
                             const std::string & bodyName = "");
 
-    /// Need modifications
-    /// \brief Add a body to the kinematic tree.
-    ///
-    /// \param[in] fix_lastMovingParent Index of the closest movable parent joint.
-    /// \param[in] placementFromLastMoving Placement regarding to the closest movable parent joint.
-    /// \param[in] jointName Name of the joint.
-    /// \param[in] visual Inform if the current body has a visual or not.
-    ///
-    /// \return The index of the new added joint.
-    ///
-    JointIndex addFixedBody(JointIndex fix_lastMovingParent,
-                            const SE3 & placementFromLastMoving,
-                            const std::string & jointName = "",
-                            bool visual=false);
-    
     
     ///
     /// \brief Return the index of a body given by its name.

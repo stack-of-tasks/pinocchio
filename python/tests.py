@@ -7,7 +7,7 @@ from bindings_SE3 import TestSE3Bindings
 from bindings_force import TestForceBindings
 from bindings_motion import TestMotionBindings
 from bindings_inertia import TestInertiaBindings
-from bindings_frame import TestFrameBindings # No geometry module yet on travis
+from bindings_frame import TestFrameBindings
 from bindings_geometry_object import TestGeometryObjectBindings  # Python Class RobotWrapper needs geometry module to not raise Exception
 from explog import TestExpLog  # noqa
 from model import TestModel  # noqa

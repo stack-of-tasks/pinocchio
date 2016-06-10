@@ -369,8 +369,6 @@ namespace se3
           //transformation of the current placement offset
           nextPlacementOffset = jointPlacement;
           
-          //add the fixed Body in the model for the viewer
-          model.addFixedBody(parent_joint_id, nextPlacementOffset, link->name);
 
           // Add a frame in the model to keep trace of this fixed joint
           model.addFrame(joint->name, parent_joint_id, nextPlacementOffset);

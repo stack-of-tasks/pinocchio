@@ -49,7 +49,7 @@ namespace se3
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       typedef eigenpy::UnalignedEquivalent<Inertia>::type Inertia_fx;
 
-      struct add_body_visitor : public boost::static_visitor<Model::Index>
+      struct add_joint_and_body_visitor : public boost::static_visitor<Model::Index>
       {
         ModelHandler & _model;
         Model::JointIndex & _index_parent;
@@ -57,24 +57,22 @@ namespace se3
         const Inertia_fx & _inertia;
         const std::string & _jName;
         const std::string & _bName;
-        bool _visual;
 
-        add_body_visitor( ModelHandler & model,
+        add_joint_and_body_visitor( ModelHandler & model,
                           Model::JointIndex & idx, const SE3_fx & placement,
                           const Inertia_fx & Y, const std::string & jointName,
-                          const std::string & bodyName, bool visual)
+                          const std::string & bodyName)
                         : _model(model)
                         , _index_parent(idx)
                         , _placement(placement)
                         , _inertia(Y)
                         , _jName(jointName)
                         , _bName(bodyName)
-                        , _visual(visual)
         {}
 
         template <typename T> Model::Index operator()( T & operand ) const
         {
-          return _model->addJointAndBody(_index_parent, operand, _placement, _inertia, _jName, _bName, _visual);
+          return _model->addJointAndBody(_index_parent, operand, _placement, _inertia, _jName, _bName);
         }
       };
 
@@ -104,12 +102,16 @@ namespace se3
 
           .add_property("nq", &ModelPythonVisitor::nq)
           .add_property("nv", &ModelPythonVisitor::nv)
+          .add_property("njoint", &ModelPythonVisitor::njoint)
           .add_property("nbody", &ModelPythonVisitor::nbody)
           .add_property("inertias",
             bp::make_function(&ModelPythonVisitor::inertias,
                   bp::return_internal_reference<>())  )
           .add_property("jointPlacements",
             bp::make_function(&ModelPythonVisitor::jointPlacements,
+                  bp::return_internal_reference<>())  )
+          .add_property("bodyPlacements",
+            bp::make_function(&ModelPythonVisitor::bodyPlacements,
                   bp::return_internal_reference<>())  )
           .add_property("joints",
             bp::make_function(&ModelPythonVisitor::joints,
@@ -123,17 +125,8 @@ namespace se3
           .add_property("bodyNames",
             bp::make_function(&ModelPythonVisitor::bodyNames,
                   bp::return_internal_reference<>())  )
-          .add_property("hasVisual",
-            bp::make_function(&ModelPythonVisitor::hasVisual,
-                  bp::return_internal_reference<>())  )
+          .def("addJointAndBody",&ModelPythonVisitor::addJointAndBodyToModel)
 
-          .def("addJointAndBody",&ModelPythonVisitor::addJointToModel)
-
-          .add_property("nFixBody", &ModelPythonVisitor::nFixBody)
-          .add_property("fix_lmpMi", bp::make_function(&ModelPythonVisitor::fix_lmpMi, bp::return_internal_reference<>()) )
-          .add_property("fix_lastMovingParent",bp::make_function(&ModelPythonVisitor::fix_lastMovingParent,bp::return_internal_reference<>()) )
-          .add_property("fix_hasVisual", bp::make_function(&ModelPythonVisitor::fix_hasVisual, bp::return_internal_reference<>())  )
-          .add_property("fix_bodyNames", bp::make_function(&ModelPythonVisitor::fix_bodyNames, bp::return_internal_reference<>())  )
 
           .add_property("effortLimit", bp::make_function(&ModelPythonVisitor::effortLimit), "Joint max effort")
           .add_property("velocityLimit", bp::make_function(&ModelPythonVisitor::velocityLimit), "Joint max velocity")
@@ -162,32 +155,27 @@ namespace se3
       
       static int nq( ModelHandler & m ) { return m->nq; }
       static int nv( ModelHandler & m ) { return m->nv; }
+      static int njoint( ModelHandler & m ) { return m->njoint; }
       static int nbody( ModelHandler & m ) { return m->nbody; }
       static std::vector<Inertia> & inertias( ModelHandler & m ) { return m->inertias; }
       static std::vector<SE3> & jointPlacements( ModelHandler & m ) { return m->jointPlacements; }
+      static std::vector<SE3> & bodyPlacements( ModelHandler & m ) { return m->bodyPlacements; }
       static JointModelVector & joints( ModelHandler & m ) { return m->joints; }
       static std::vector<Model::JointIndex> & parents( ModelHandler & m ) { return m->parents; }
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
       static std::vector<std::string> & bodyNames ( ModelHandler & m ) { return m->bodyNames; }
-      static std::vector<bool> & hasVisual ( ModelHandler & m ) { return m->hasVisual; }
 
-      static Model::Index addJointToModel(ModelHandler & modelPtr,
+      static Model::Index addJointAndBodyToModel(ModelHandler & modelPtr,
                                           Model::JointIndex idx, bp::object joint,
                                           const SE3_fx & placement,
                                           const Inertia_fx & Y,
                                           const std::string & jointName,
-                                          const std::string & bodyName,
-                                          bool visual=false)
+                                          const std::string & bodyName)
       { 
         JointModelVariant variant = bp::extract<JointModelVariant> (joint);
-        return boost::apply_visitor(add_body_visitor(modelPtr, idx, placement, Y, jointName, bodyName, visual), variant);
+        return boost::apply_visitor(add_joint_and_body_visitor(modelPtr, idx, placement, Y, jointName, bodyName), variant);
       }
 
-      static int nFixBody( ModelHandler & m )                                     { return m->nFixBody; }
-      static std::vector<SE3>          & fix_lmpMi           ( ModelHandler & m ) { return m->fix_lmpMi; }
-      static std::vector<Model::JointIndex> & fix_lastMovingParent( ModelHandler & m ) { return m->fix_lastMovingParent; }
-      static std::vector<bool> & fix_hasVisual ( ModelHandler & m ) { return m->fix_hasVisual; }
-      static std::vector<std::string> & fix_bodyNames ( ModelHandler & m ) { return m->fix_bodyNames; }
 
       static Eigen::VectorXd effortLimit(ModelHandler & m) {return m->effortLimit;}
       static Eigen::VectorXd velocityLimit(ModelHandler & m) {return m->velocityLimit;}
