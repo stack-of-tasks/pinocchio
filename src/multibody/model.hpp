@@ -59,6 +59,9 @@ namespace se3
     /// \brief Dimension of the velocity vector space.
     int nv;
     
+    /// \brief Number of joints .
+    int njoint;
+
     /// \brief Number of bodies (= number of joints + 1).
     int nbody;
     
@@ -73,12 +76,18 @@ namespace se3
     
     /// \brief Placement (SE3) of the input of joint <i> regarding to the parent joint output <li>.
     std::vector<SE3> jointPlacements;
+
+    /// \brief Placement (SE3) of the body <i> regarding to the parent joint output <li>.
+    std::vector<SE3> bodyPlacements;
     
     /// \brief Model of joint <i>.
     JointModelVector joints;
     
     /// \brief Joint parent of joint <i>, denoted <li> (li==parents[i]).
     std::vector<JointIndex> parents;
+
+    /// \brief Joint parent of body <i>
+    std::vector<JointIndex> bodyParents;
     
     /// \brief Name of joint <i>
     std::vector<std::string> names;
@@ -123,6 +132,7 @@ namespace se3
     Model()
       : nq(0)
       , nv(0)
+      , njoint(1)
       , nbody(1)
       , nFixBody(0)
       , nOperationalFrames(0)
@@ -149,15 +159,13 @@ namespace se3
     /// \param[in] Y Spatial inertia of the body.
     /// \param[in] jointName Name of the joint.
     /// \param[in] bodyName Name of the body.
-    /// \param[in] visual Inform if the current body has a visual or not.
     ///
     /// \return The index of the new added joint.
     ///
     template<typename D>
-    JointIndex addBody(JointIndex parent, const JointModelBase<D> & j, const SE3 & placement,
-                       const Inertia & Y,
-                       const std::string & jointName = "", const std::string & bodyName = "",
-                       bool visual = false);
+    JointIndex addJointAndBody(JointIndex parent, const JointModelBase<D> & j, const SE3 & placement,
+                               const Inertia & Y, const std::string & jointName = "",
+                               const std::string & bodyName = "");
     
     ///
     /// \brief Add a body to the kinematic tree.
@@ -172,18 +180,64 @@ namespace se3
     /// \param[in] upPos Upper joint configuration.
     /// \param[in] jointName Name of the joint.
     /// \param[in] bodyName Name of the body.
-    /// \param[in] visual Inform if the current body has a visual or not.
     ///
     /// \return The index of the new added joint.
     ///
     template<typename D>
-    JointIndex addBody(JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
-                       const Inertia & Y,
+    JointIndex addJointAndBody(JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
+                               const Inertia & Y,
+                               const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
+                               const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
+                               const std::string & jointName = "", const std::string & bodyName = "");
+    
+    ///
+    /// \brief Add a Joint with no body (Zero inertia) to the kinematic tree.
+    ///
+    /// \param[in] parent Index of the parent joint.
+    /// \param[in] j The joint model.
+    /// \param[in] placement The relative placement of the joint j regarding to the parent joint.
+    /// \param[in] jointName Name of the joint.
+    ///
+    /// \return The index of the new added joint.
+    ///
+    template<typename D>
+    JointIndex addJoint(JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
+                        const std::string & jointName = "");
+
+    ///
+    /// \brief Add a Joint with no body (Zero inertia) to the kinematic tree.
+    ///
+    /// \param[in] parent Index of the parent joint.
+    /// \param[in] j The joint model.
+    /// \param[in] placement The relative placement of the joint j regarding to the parent joint.
+    /// \param[in] effort Maximal joint torque.
+    /// \param[in] velocity Maximal joint velocity.
+    /// \param[in] lowPos Lower joint configuration.
+    /// \param[in] upPos Upper joint configuration.
+    /// \param[in] jointName Name of the joint.
+    ///
+    /// \return The index of the new added joint.
+    ///
+    template<typename D>
+    JointIndex addJoint(JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
                        const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
                        const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
-                       const std::string & jointName = "", const std::string & bodyName = "",
-                       bool visual = false);
-    
+                       const std::string & jointName = "");
+
+
+
+    ///
+    /// \brief Append a body to a given Joint of the kinematic tree.
+    ///
+    /// \param[in] parent Index of the parent joint.
+    /// \param[in] placement The relative placement of the body regarding to the parent joint.
+    /// \param[in] Y Spatial inertia of the body.
+    /// \param[in] bodyName Name of the body.
+    ///
+    ///
+    void appendBodyToJoint (const JointIndex parent, const SE3 & placement, const Inertia & Y,
+                            const std::string & bodyName = "");
+
     /// Need modifications
     /// \brief Add a body to the kinematic tree.
     ///
@@ -199,14 +253,6 @@ namespace se3
                             const std::string & jointName = "",
                             bool visual=false);
     
-    ///
-    /// \brief Merge a body to a parent body in the kinematic tree.
-    ///
-    /// \param[in] parent Index of the parent body to merge with.
-    /// \param[in] placement Relative placement between the body and its parent body.
-    /// \param[in] Y Spatial inertia of the body.
-    ///
-    void mergeFixedBody(const JointIndex parent, const SE3 & placement, const Inertia & Y);
     
     ///
     /// \brief Return the index of a body given by its name.

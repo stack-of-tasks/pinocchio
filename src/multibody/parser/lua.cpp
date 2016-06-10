@@ -233,43 +233,43 @@ namespace se3
         bool is_body_fixed = false;
         if (joint_type == "JointTypeRevoluteX")
         {
-          body_id = model.addBody (parent_id, JointModelRX (), global_placement, Y, joint_name, body_name, false);
+          body_id = model.addJointAndBody (parent_id, JointModelRX (), global_placement, Y, joint_name, body_name);
         }
         else if (joint_type == "JointTypeRevoluteY")
         {
-          body_id = model.addBody (parent_id, JointModelRY (), global_placement, Y, joint_name, body_name, false);
+          body_id = model.addJointAndBody (parent_id, JointModelRY (), global_placement, Y, joint_name, body_name);
         }
         else if (joint_type == "JointTypeRevoluteZ")
         {
-          body_id = model.addBody (parent_id, JointModelRZ (), global_placement, Y, joint_name, body_name, false);
+          body_id = model.addJointAndBody (parent_id, JointModelRZ (), global_placement, Y, joint_name, body_name);
         }
         else if (joint_type == "JointTypePrismaticX")
         {
-          body_id = model.addBody (parent_id, JointModelPX (), global_placement, Y, joint_name, body_name, false);
+          body_id = model.addJointAndBody (parent_id, JointModelPX (), global_placement, Y, joint_name, body_name);
         }
         else if (joint_type == "JointTypePrismaticY")
         {
-          body_id = model.addBody (parent_id, JointModelPY (), global_placement, Y, joint_name, body_name, false);
+          body_id = model.addJointAndBody (parent_id, JointModelPY (), global_placement, Y, joint_name, body_name);
         }
         else if (joint_type == "JointTypePrismaticZ")
         {
-          body_id = model.addBody (parent_id, JointModelPZ (), global_placement, Y, joint_name, body_name, false);
+          body_id = model.addJointAndBody (parent_id, JointModelPZ (), global_placement, Y, joint_name, body_name);
         }
         else if (joint_type == "JointTypeFloatingBase" || joint_type == "JointTypeFloatbase")
         {
-          body_id = model.addBody (parent_id, JointModelFreeFlyer (), global_placement, Y, joint_name, body_name, false);
+          body_id = model.addJointAndBody (parent_id, JointModelFreeFlyer (), global_placement, Y, joint_name, body_name);
         }
         else if (joint_type == "JointTypeSpherical")
         {
-          body_id = model.addBody (parent_id, JointModelSpherical (), global_placement, Y, joint_name, body_name, false);
+          body_id = model.addJointAndBody (parent_id, JointModelSpherical (), global_placement, Y, joint_name, body_name);
         }
         else if (joint_type == "JointTypeEulerZYX")
         {
-          body_id = model.addBody (parent_id, JointModelSphericalZYX (), global_placement, Y, joint_name, body_name, false);
+          body_id = model.addJointAndBody (parent_id, JointModelSphericalZYX (), global_placement, Y, joint_name, body_name);
         }
         else if (joint_type == "JointTypeFixed")
         {
-          model.mergeFixedBody(parent_id, global_placement, Y);
+          model.appendBodyToJoint(parent_id, global_placement, Y, "");
 
           fixed_body_table_id_map[body_name] = parent_id;
           fixed_placement_map[body_name] = global_placement;

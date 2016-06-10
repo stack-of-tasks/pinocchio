@@ -103,7 +103,6 @@ namespace se3
         const Inertia & Y = (link->inertial) ? convertFromUrdf(*link->inertial) :
         Inertia::Zero();
 
-        const bool has_visual = (link->visual) ? true : false;
 
         switch(joint->type)
         {
@@ -128,9 +127,9 @@ namespace se3
             TangentVector_t max_velocity;
             max_velocity.fill(std::numeric_limits<Scalar_t>::max());
 
-            model.addBody(parent_joint_id, JointModelFreeFlyer(), jointPlacement, Y,
+            model.addJointAndBody(parent_joint_id, JointModelFreeFlyer(), jointPlacement, Y,
               max_effort, max_velocity, lower_position, upper_position,
-              joint->name, link->name, has_visual);
+              joint->name, link->name);
             break;
           }
           case ::urdf::Joint::REVOLUTE:
@@ -160,21 +159,21 @@ namespace se3
             {
               case AXIS_X:
               joint_info += " along X";
-              model.addBody(  parent_joint_id, JointModelRX(), jointPlacement, Y,
+              model.addJointAndBody(  parent_joint_id, JointModelRX(), jointPlacement, Y,
                 max_effort, max_velocity, lower_position, upper_position,
-                joint->name,link->name, has_visual );
+                joint->name,link->name );
               break;
               case AXIS_Y:
               joint_info += " along Y";
-              model.addBody(  parent_joint_id, JointModelRY(), jointPlacement, Y,
+              model.addJointAndBody(  parent_joint_id, JointModelRY(), jointPlacement, Y,
                 max_effort, max_velocity, lower_position, upper_position,
-                joint->name,link->name, has_visual );
+                joint->name,link->name );
               break;
               case AXIS_Z:
               joint_info += " along Z";
-              model.addBody(  parent_joint_id, JointModelRZ(), jointPlacement, Y,
+              model.addJointAndBody(  parent_joint_id, JointModelRZ(), jointPlacement, Y,
                 max_effort, max_velocity, lower_position, upper_position,
-                joint->name,link->name, has_visual );
+                joint->name,link->name );
               break;
               case AXIS_UNALIGNED:
               {
@@ -185,10 +184,10 @@ namespace se3
 
                 jointAxis = Eigen::Vector3d( joint->axis.x,joint->axis.y,joint->axis.z );
                 jointAxis.normalize();
-                model.addBody(  parent_joint_id, JointModelRevoluteUnaligned(jointAxis),
+                model.addJointAndBody(  parent_joint_id, JointModelRevoluteUnaligned(jointAxis),
                   jointPlacement, Y,
                   max_effort, max_velocity, lower_position, upper_position,
-                  joint->name,link->name, has_visual );
+                  joint->name,link->name );
                 break;
               }
               default:
@@ -224,21 +223,21 @@ namespace se3
           {
             case AXIS_X:
             joint_info += " along X";
-            model.addBody(  parent_joint_id, JointModelRX(), jointPlacement, Y,
+            model.addJointAndBody(  parent_joint_id, JointModelRX(), jointPlacement, Y,
               max_effort, max_velocity, lower_position, upper_position,
-              joint->name,link->name, has_visual );
+              joint->name,link->name );
             break;
             case AXIS_Y:
             joint_info += " along Y";
-            model.addBody(  parent_joint_id, JointModelRY(), jointPlacement, Y,
+            model.addJointAndBody(  parent_joint_id, JointModelRY(), jointPlacement, Y,
               max_effort, max_velocity, lower_position, upper_position,
-              joint->name,link->name, has_visual );
+              joint->name,link->name );
             break;
             case AXIS_Z:
             joint_info += " along Z";
-            model.addBody(  parent_joint_id, JointModelRZ(), jointPlacement, Y,
+            model.addJointAndBody(  parent_joint_id, JointModelRZ(), jointPlacement, Y,
               max_effort, max_velocity, lower_position, upper_position,
-              joint->name,link->name, has_visual );
+              joint->name,link->name );
             break;
             case AXIS_UNALIGNED:
             {
@@ -249,10 +248,10 @@ namespace se3
               
               jointAxis = Eigen::Vector3d( joint->axis.x,joint->axis.y,joint->axis.z );
               jointAxis.normalize();
-              model.addBody(  parent_joint_id, JointModelRevoluteUnaligned(jointAxis),
+              model.addJointAndBody(  parent_joint_id, JointModelRevoluteUnaligned(jointAxis),
                 jointPlacement, Y,
                 max_effort, max_velocity, lower_position, upper_position,
-                joint->name,link->name, has_visual );
+                joint->name,link->name );
               break;
             }
             default:
@@ -286,21 +285,21 @@ namespace se3
           {
             case AXIS_X:
             joint_info += " along X";
-            model.addBody(  parent_joint_id, JointModelPX(), jointPlacement, Y,
+            model.addJointAndBody(  parent_joint_id, JointModelPX(), jointPlacement, Y,
               max_effort, max_velocity, lower_position, upper_position,
-              joint->name,link->name, has_visual );
+              joint->name,link->name );
             break;
             case AXIS_Y:
             joint_info += " along Y";
-            model.addBody(  parent_joint_id, JointModelPY(), jointPlacement, Y,
+            model.addJointAndBody(  parent_joint_id, JointModelPY(), jointPlacement, Y,
               max_effort, max_velocity, lower_position, upper_position,
-              joint->name,link->name, has_visual );
+              joint->name,link->name );
             break;
             case AXIS_Z:
             joint_info += " along Z";
-            model.addBody(  parent_joint_id, JointModelPZ(), jointPlacement, Y,
+            model.addJointAndBody(  parent_joint_id, JointModelPZ(), jointPlacement, Y,
               max_effort, max_velocity, lower_position, upper_position,
-              joint->name,link->name, has_visual );
+              joint->name,link->name );
             break;
             case AXIS_UNALIGNED:
             {
@@ -311,10 +310,10 @@ namespace se3
     
               Eigen::Vector3d jointAxis(Eigen::Vector3d(joint->axis.x,joint->axis.y,joint->axis.z));
               jointAxis.normalize();
-              model.addBody(parent_joint_id, JointModelPrismaticUnaligned(jointAxis),
+              model.addJointAndBody(parent_joint_id, JointModelPrismaticUnaligned(jointAxis),
                             jointPlacement, Y,
                             max_effort, max_velocity, lower_position, upper_position,
-                            joint->name,link->name, has_visual);
+                            joint->name,link->name);
               
               break;
             }
@@ -345,9 +344,9 @@ namespace se3
           }
           
 
-          model.addBody(parent_joint_id, JointModelPlanar(), jointPlacement, Y,
+          model.addJointAndBody(parent_joint_id, JointModelPlanar(), jointPlacement, Y,
                         max_effort, max_velocity, lower_position, upper_position,
-                        joint->name,link->name, has_visual );
+                        joint->name,link->name );
 
           break;
         }
@@ -364,14 +363,14 @@ namespace se3
           joint_info = "fixed joint";
           if (link->inertial)
           {
-            model.mergeFixedBody(parent_joint_id, jointPlacement, Y); //Modify the parent inertia in the model
+            model.appendBodyToJoint(parent_joint_id, jointPlacement, Y, ""); //Modify the parent inertia in the model
           }
           
           //transformation of the current placement offset
           nextPlacementOffset = jointPlacement;
           
           //add the fixed Body in the model for the viewer
-          model.addFixedBody(parent_joint_id, nextPlacementOffset, link->name, has_visual);
+          model.addFixedBody(parent_joint_id, nextPlacementOffset, link->name);
 
           // Add a frame in the model to keep trace of this fixed joint
           model.addFrame(joint->name, parent_joint_id, nextPlacementOffset);
@@ -429,8 +428,7 @@ namespace se3
       {
         ::urdf::LinkPtr child_link = link->child_links[0];
         const Inertia & Y = convertFromUrdf(*child_link->inertial);
-        const bool has_visual = (child_link->visual) ? true : false;
-        model.addBody(0, root_joint, placementOffset, Y, "root_joint", child_link->name, has_visual);
+        model.addJointAndBody(0, root_joint, placementOffset, Y, "root_joint", child_link->name);
       
         // Change the name of the parent joint
         child_link->parent_joint->name = "root_joint";
@@ -450,8 +448,7 @@ namespace se3
     else
     {
       const Inertia & Y = convertFromUrdf(*link->inertial);
-      const bool has_visual = (link->visual) ? true : false;
-      model.addBody(0, root_joint, placementOffset, Y , "root_joint", link->name, has_visual);
+      model.addJointAndBody(0, root_joint, placementOffset, Y , "root_joint", link->name);
     
       BOOST_FOREACH(::urdf::LinkConstPtr child, link->child_links)
       {

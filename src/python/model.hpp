@@ -74,7 +74,7 @@ namespace se3
 
         template <typename T> Model::Index operator()( T & operand ) const
         {
-          return _model->addBody(_index_parent, operand, _placement, _inertia, _jName, _bName, _visual);
+          return _model->addJointAndBody(_index_parent, operand, _placement, _inertia, _jName, _bName, _visual);
         }
       };
 
@@ -127,7 +127,7 @@ namespace se3
             bp::make_function(&ModelPythonVisitor::hasVisual,
                   bp::return_internal_reference<>())  )
 
-          .def("addBody",&ModelPythonVisitor::addJointToModel)
+          .def("addJointAndBody",&ModelPythonVisitor::addJointToModel)
 
           .add_property("nFixBody", &ModelPythonVisitor::nFixBody)
           .add_property("fix_lmpMi", bp::make_function(&ModelPythonVisitor::fix_lmpMi, bp::return_internal_reference<>()) )
