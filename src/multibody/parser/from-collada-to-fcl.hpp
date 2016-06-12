@@ -20,6 +20,7 @@
 #define __se3_collada_to_fcl_hpp__
 
 #include <limits>
+#include <sstream>
 
 #include <boost/filesystem/fstream.hpp>
 #include <boost/foreach.hpp>
@@ -110,7 +111,15 @@ namespace se3
       for (uint32_t j = 0; j < input_mesh->mNumFaces; j++)
       {
         aiFace& face = input_mesh->mFaces[j];
-        // FIXME: can add only triangular faces.
+        if (face.mNumIndices != 3) {
+          std::stringstream ss;
+          ss << "Mesh " << input_mesh->mName.C_Str() << " has a face with "
+             << face.mNumIndices << " vertices. This is not supported\n";
+          ss << "Node name is: " << node->mName.C_Str() << "\n";
+          ss << "Mesh index: " << i << "\n";
+          ss << "Face index: " << j << "\n";
+          throw std::invalid_argument (ss.str());
+        }
         tv.triangles_.push_back (fcl::Triangle( oldNbPoints + face.mIndices[0],
                                                oldNbPoints + face.mIndices[1],
                                                oldNbPoints + face.mIndices[2]));
