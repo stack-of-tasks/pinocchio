@@ -44,46 +44,45 @@ void test_joint_methods (T & jmodel, typename T::JointData & jdata)
     se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
     bool update_I = false;
 
-    jmodel.calc(jdata, q1, q1_dot); // To be removed when cherry-picked the fix of calc visitor
-    jmodel.calc_aba(jdata, Ia, update_I); // To be removed when cherry-picked the fix of calc_aba visitor
+    jmodel.calc(jdata, q1, q1_dot);
+    jmodel.calc_aba(jdata, Ia, update_I);
 
-    se3::JointModelVariant jmodelvariant(jmodel);
-    se3::JointDataVariant jdatavariant(jdata);
 
-    se3::JointModelAccessor jma(jmodelvariant);
-    se3::JointDataAccessor jda(jdatavariant);
 
-    // calc_first_order(jmodelvariant, jdatavariant, q1, q1_dot); // To be added instead of line 134
-    // jma.calc(jda, q1, q1_dot);                                 // or test with this one
-    // jma.calc_aba(jda, Ia, update_I) 
+    se3::JointModelAccessor jma(jmodel);
+    se3::JointDataAccessor jda(jdata);
+
+                                                            
+    jma.calc(jda, q1, q1_dot);
+    jma.calc_aba(jda, Ia, update_I); 
 
     std::string error_prefix("Joint Model Accessor on " + T::shortname());
-    BOOST_CHECK_MESSAGE(nq(jmodelvariant) == jma.nq() ,std::string(error_prefix + " - nq "));
-    BOOST_CHECK_MESSAGE(nv(jmodelvariant) == jma.nv() ,std::string(error_prefix + " - nv "));
+    BOOST_CHECK_MESSAGE(jmodel.nq() == jma.nq() ,std::string(error_prefix + " - nq "));
+    BOOST_CHECK_MESSAGE(jmodel.nv() == jma.nv() ,std::string(error_prefix + " - nv "));
 
-    BOOST_CHECK_MESSAGE(idx_q(jmodelvariant) == jma.idx_q() ,std::string(error_prefix + " - Idx_q "));
-    BOOST_CHECK_MESSAGE(idx_v(jmodelvariant) == jma.idx_v() ,std::string(error_prefix + " - Idx_v "));
-    BOOST_CHECK_MESSAGE(id(jmodelvariant) == jma.id() ,std::string(error_prefix + " - JointId "));
+    BOOST_CHECK_MESSAGE(jmodel.idx_q() == jma.idx_q() ,std::string(error_prefix + " - Idx_q "));
+    BOOST_CHECK_MESSAGE(jmodel.idx_v() == jma.idx_v() ,std::string(error_prefix + " - Idx_v "));
+    BOOST_CHECK_MESSAGE(jmodel.id() == jma.id() ,std::string(error_prefix + " - JointId "));
 
-    BOOST_CHECK_MESSAGE(integrate(jmodelvariant,q1,q1_dot).isApprox(jma.integrate(q1,q1_dot)) ,std::string(error_prefix + " - integrate "));
-    BOOST_CHECK_MESSAGE(interpolate(jmodelvariant,q1,q2,u).isApprox(jma.interpolate(q1,q2,u)) ,std::string(error_prefix + " - interpolate "));
-    BOOST_CHECK_MESSAGE(randomConfiguration(jmodelvariant, -1 * Eigen::VectorXd::Ones(nq(jmodelvariant)),
-                                                Eigen::VectorXd::Ones(nq(jmodelvariant))).size()
+    BOOST_CHECK_MESSAGE(jmodel.integrate(q1,q1_dot).isApprox(jma.integrate(q1,q1_dot)) ,std::string(error_prefix + " - integrate "));
+    BOOST_CHECK_MESSAGE(jmodel.interpolate(q1,q2,u).isApprox(jma.interpolate(q1,q2,u)) ,std::string(error_prefix + " - interpolate "));
+    BOOST_CHECK_MESSAGE(jmodel.randomConfiguration( -1 * Eigen::VectorXd::Ones(jmodel.nq()),
+                                                Eigen::VectorXd::Ones(jmodel.nq())).size()
                                     == jma.randomConfiguration(-1 * Eigen::VectorXd::Ones(jma.nq()),
                                                               Eigen::VectorXd::Ones(jma.nq())).size()
                         ,std::string(error_prefix + " - RandomConfiguration dimensions "));
-    BOOST_CHECK_MESSAGE(difference(jmodelvariant,q1,q2).isApprox(jma.difference(q1,q2)) ,std::string(error_prefix + " - difference "));
-    BOOST_CHECK_MESSAGE(distance(jmodelvariant,q1,q2) == jma.distance(q1,q2) ,std::string(error_prefix + " - distance "));
+    BOOST_CHECK_MESSAGE(jmodel.difference(q1,q2).isApprox(jma.difference(q1,q2)) ,std::string(error_prefix + " - difference "));
+    BOOST_CHECK_MESSAGE(jmodel.distance(q1,q2) == jma.distance(q1,q2) ,std::string(error_prefix + " - distance "));
 
 
-    BOOST_CHECK_MESSAGE((jda.S().matrix()).isApprox((constraint_xd(jdatavariant).matrix())),std::string(error_prefix + " - ConstraintXd "));
-    BOOST_CHECK_MESSAGE((jda.M()) == (joint_transform(jdatavariant)),std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
-    BOOST_CHECK_MESSAGE((jda.v()) == (motion(jdatavariant)),std::string(error_prefix + " - Joint motions "));
-    BOOST_CHECK_MESSAGE((jda.c()) == (bias(jdatavariant)),std::string(error_prefix + " - Joint bias "));
+    BOOST_CHECK_MESSAGE((jda.S().matrix()).isApprox((((se3::ConstraintXd)jdata.S).matrix())),std::string(error_prefix + " - ConstraintXd "));
+    BOOST_CHECK_MESSAGE((jda.M()) == (jdata.M),std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
+    BOOST_CHECK_MESSAGE((jda.v()) == (jdata.v),std::string(error_prefix + " - Joint motions "));
+    BOOST_CHECK_MESSAGE((jda.c()) == (jdata.c),std::string(error_prefix + " - Joint bias "));
     
-    BOOST_CHECK_MESSAGE((jda.U()).isApprox((u_inertia(jdatavariant))),std::string(error_prefix + " - Joint U inertia matrix decomposition "));
-    BOOST_CHECK_MESSAGE((jda.Dinv()).isApprox((dinv_inertia(jdatavariant))),std::string(error_prefix + " - Joint DInv inertia matrix decomposition "));
-    BOOST_CHECK_MESSAGE((jda.UDinv()).isApprox((udinv_inertia(jdatavariant))),std::string(error_prefix + " - Joint UDInv inertia matrix decomposition "));
+    BOOST_CHECK_MESSAGE((jda.U()).isApprox(jdata.U),std::string(error_prefix + " - Joint U inertia matrix decomposition "));
+    BOOST_CHECK_MESSAGE((jda.Dinv()).isApprox(jdata.Dinv),std::string(error_prefix + " - Joint DInv inertia matrix decomposition "));
+    BOOST_CHECK_MESSAGE((jda.UDinv()).isApprox(jdata.UDinv),std::string(error_prefix + " - Joint UDInv inertia matrix decomposition "));
 }
 
 struct TestJointAccessor{
@@ -101,7 +100,7 @@ struct TestJointAccessor{
   template <int NQ, int NV>
   void operator()(const se3::JointModelDense<NQ,NV> & ) const
   {
-    // Not yet correctly implemented, test has no meaning for the moment
+    // JointModelDense will be removed soon
   }
 
   void operator()(const se3::JointModelRevoluteUnaligned & ) const
