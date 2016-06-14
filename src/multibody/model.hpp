@@ -122,6 +122,7 @@ namespace se3
       , jointPlacements(1)
       , joints(1)
       , parents(1)
+      , bodyParents(1)
       , names(1)
       , bodyNames(1)
       , gravity( gravity981,Eigen::Vector3d::Zero() )

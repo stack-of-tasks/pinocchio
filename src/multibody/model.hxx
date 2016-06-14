@@ -137,7 +137,7 @@ namespace se3
     inertias[parent] += iYf;
 
     bodyParents.push_back(parent);
-    bodyPlacements.push_back(placement);
+    bodyPlacements.push_back(SE3::Identity());
     bodyNames.push_back( (bodyName!="")?bodyName:random(8));
 
     nbody ++;

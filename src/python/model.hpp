@@ -119,6 +119,9 @@ namespace se3
           .add_property("parents", 
             bp::make_function(&ModelPythonVisitor::parents,
                   bp::return_internal_reference<>())  )
+          .add_property("bodyParents",
+            bp::make_function(&ModelPythonVisitor::bodyParents,
+                  bp::return_internal_reference<>())  )
           .add_property("names",
             bp::make_function(&ModelPythonVisitor::names,
                   bp::return_internal_reference<>())  )
@@ -162,6 +165,7 @@ namespace se3
       static std::vector<SE3> & bodyPlacements( ModelHandler & m ) { return m->bodyPlacements; }
       static JointModelVector & joints( ModelHandler & m ) { return m->joints; }
       static std::vector<Model::JointIndex> & parents( ModelHandler & m ) { return m->parents; }
+      static std::vector<Model::JointIndex> & bodyParents( ModelHandler & m ) { return m->bodyParents; }
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
       static std::vector<std::string> & bodyNames ( ModelHandler & m ) { return m->bodyNames; }
 

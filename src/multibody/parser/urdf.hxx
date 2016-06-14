@@ -363,7 +363,7 @@ namespace se3
           joint_info = "fixed joint";
           if (link->inertial)
           {
-            model.appendBodyToJoint(parent_joint_id, jointPlacement, Y, ""); //Modify the parent inertia in the model
+            model.appendBodyToJoint(parent_joint_id, jointPlacement, Y, link->name); //Modify the parent inertia in the model
           }
           
           //transformation of the current placement offset
