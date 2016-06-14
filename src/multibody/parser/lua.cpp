@@ -270,7 +270,7 @@ namespace se3
         {
           model.appendBodyToJoint(parent_id, global_placement, Y, "");
 
-          body_id = model.nbody;
+          body_id = (Model::JointIndex)model.nbody;
           
           fixed_body_table_id_map[body_name] = parent_id;
           fixed_placement_map[body_name] = global_placement;

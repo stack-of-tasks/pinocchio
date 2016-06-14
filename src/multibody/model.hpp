@@ -62,7 +62,7 @@ namespace se3
     /// \brief Number of joints .
     int njoint;
 
-    /// \brief Number of bodies (= number of joints + 1).
+    /// \brief Number of bodies .
     int nbody;
     
     
@@ -133,11 +133,11 @@ namespace se3
     ~Model() {} // std::cout << "Destroy model" << std::endl; }
     
     ///
-    /// \brief Add a body to the kinematic tree.
+    /// \brief Add a Joint along with body to the kinematic tree.
     ///
     /// \param[in] parent Index of the parent joint.
     /// \param[in] j The joint model.
-    /// \param[in] placement The relative placement of the joint j regarding to the parent joint.
+    /// \param[in] jointPlacement The relative placement of the joint j regarding to the parent joint.
     /// \param[in] Y Spatial inertia of the body.
     /// \param[in] jointName Name of the joint.
     /// \param[in] bodyName Name of the body.
@@ -145,16 +145,16 @@ namespace se3
     /// \return The index of the new added joint.
     ///
     template<typename D>
-    JointIndex addJointAndBody(JointIndex parent, const JointModelBase<D> & j, const SE3 & placement,
+    JointIndex addJointAndBody(JointIndex parent, const JointModelBase<D> & j, const SE3 & jointPlacement,
                                const Inertia & Y, const std::string & jointName = "",
                                const std::string & bodyName = "");
     
     ///
-    /// \brief Add a body to the kinematic tree.
+    /// \brief Add a Joint along with body to the kinematic tree, specifying limits
     ///
     /// \param[in] parent Index of the parent joint.
     /// \param[in] j The joint model.
-    /// \param[in] placement The relative placement of the joint j regarding to the parent joint.
+    /// \param[in] jointPlacement The relative placement of the joint j regarding to the parent joint.
     /// \param[in] Y Spatial inertia of the body.
     /// \param[in] effort Maximal joint torque.
     /// \param[in] velocity Maximal joint velocity.
@@ -166,7 +166,7 @@ namespace se3
     /// \return The index of the new added joint.
     ///
     template<typename D>
-    JointIndex addJointAndBody(JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
+    JointIndex addJointAndBody(JointIndex parent,const JointModelBase<D> & j,const SE3 & jointPlacement,
                                const Inertia & Y,
                                const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
                                const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
@@ -177,21 +177,21 @@ namespace se3
     ///
     /// \param[in] parent Index of the parent joint.
     /// \param[in] j The joint model.
-    /// \param[in] placement The relative placement of the joint j regarding to the parent joint.
+    /// \param[in] jointPlacement The relative placement of the joint j regarding to the parent joint.
     /// \param[in] jointName Name of the joint.
     ///
     /// \return The index of the new added joint.
     ///
     template<typename D>
-    JointIndex addJoint(JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
+    JointIndex addJoint(JointIndex parent,const JointModelBase<D> & j,const SE3 & jointPlacement,
                         const std::string & jointName = "");
 
     ///
-    /// \brief Add a Joint with no body (Zero inertia) to the kinematic tree.
+    /// \brief Add a Joint with no body (Zero inertia) to the kinematic tree, specifying limits
     ///
     /// \param[in] parent Index of the parent joint.
     /// \param[in] j The joint model.
-    /// \param[in] placement The relative placement of the joint j regarding to the parent joint.
+    /// \param[in] jointPlacement The relative placement of the joint j regarding to the parent joint.
     /// \param[in] effort Maximal joint torque.
     /// \param[in] velocity Maximal joint velocity.
     /// \param[in] lowPos Lower joint configuration.
@@ -201,7 +201,7 @@ namespace se3
     /// \return The index of the new added joint.
     ///
     template<typename D>
-    JointIndex addJoint(JointIndex parent,const JointModelBase<D> & j,const SE3 & placement,
+    JointIndex addJoint(JointIndex parent,const JointModelBase<D> & j,const SE3 & jointPlacement,
                        const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
                        const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
                        const std::string & jointName = "");
@@ -212,12 +212,12 @@ namespace se3
     /// \brief Append a body to a given Joint of the kinematic tree.
     ///
     /// \param[in] parent Index of the parent joint.
-    /// \param[in] placement The relative placement of the body regarding to the parent joint.
+    /// \param[in] bodyPlacement The relative placement of the body regarding to the parent joint.
     /// \param[in] Y Spatial inertia of the body.
     /// \param[in] bodyName Name of the body.
     ///
     ///
-    void appendBodyToJoint (const JointIndex parent, const SE3 & placement, const Inertia & Y,
+    void appendBodyToJoint (const JointIndex parent, const SE3 & bodyPlacement, const Inertia & Y,
                             const std::string & bodyName = "");
 
     

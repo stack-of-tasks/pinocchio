@@ -125,7 +125,7 @@ class RobotWrapper(object):
         return [i for i, n in enumerate(self.model.names) if n == name][0]
 
     # --- VIEWER ---
-    # For each joint/body index, returns the corresponding name of the node in Gepetto-viewer.
+    # For each visual object, returns the corresponding name of the node in Gepetto-viewer.
     def viewerNodeNames(self, visual):
         return self.viewerRootNodeName + '/' + visual.name
 
@@ -163,9 +163,7 @@ class RobotWrapper(object):
             self.viewer.gui.createGroup(nodeName)
             # iterate over visuals and create the meshes in the viewer
             for visual in self.geometry_model.visual_objects :
-                print visual.mesh_path
-                meshName = nodeName  + '/' + visual.name 
-                # meshName = self.viewerNodeNames(visual)                                                                                                                  
+                meshName = self.viewerNodeNames(visual)                                                                                                                  
                 meshPath = visual.mesh_path
                 self.viewer.gui.addMesh(meshName, meshPath)
 
