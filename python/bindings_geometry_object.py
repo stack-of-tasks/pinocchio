@@ -26,13 +26,13 @@ class TestGeometryObjectBindings(unittest.TestCase):
 
     def test_name_get_set(self):
         col = self.robot.geometry_model.collision_objects[1]
-        self.assertTrue(col.name == '') # See in parser why name is empty
+        self.assertTrue(col.name == 'LHipPitchLink')
         col.name = 'new_collision_name'
         self.assertTrue(col.name == 'new_collision_name')
 
     def test_parent_get_set(self):
         col = self.robot.geometry_model.collision_objects[1]
-        self.assertTrue(col.parent == 3)
+        self.assertTrue(col.parent == 4)
         col.parent = 5
         self.assertTrue(col.parent == 5)
 

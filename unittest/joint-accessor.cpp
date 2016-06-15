@@ -88,7 +88,7 @@ void test_joint_methods (T & jmodel, typename T::JointData & jdata)
 struct TestJointAccessor{
 
   template <typename T>
-  void operator()(const T t) const
+  void operator()(const T ) const
   {
     T jmodel;
     jmodel.setIndexes(0,0,0);

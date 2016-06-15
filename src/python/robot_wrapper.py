@@ -115,20 +115,20 @@ class RobotWrapper(object):
     def computeJacobians(self, q):
         return se3.computeJacobians(self.model, self.data, q)
 
+    def updateGeometryPlacements(self, q):
+        se3.updateGeometryPlacements(self.model, self.data, self.geometry_model, self.geometry_data, q)
+
+
     # --- ACCESS TO NAMES ----
     # Return the index of the joint whose name is given in argument.
     def index(self, name):
         return [i for i, n in enumerate(self.model.names) if n == name][0]
 
     # --- VIEWER ---
-    # For each joint/body index, returns the corresponding name of the node in Gepetto-viewer.
-    def viewerNodeNames(self, index):
-        assert self.model.hasVisual[index]
-        return self.viewerRootNodeName + '/' + self.model.bodyNames[index]
+    # For each visual object, returns the corresponding name of the node in Gepetto-viewer.
+    def viewerNodeNames(self, visual):
+        return self.viewerRootNodeName + '/' + visual.name
 
-    def viewerFixedNodeNames(self, index):
-        assert self.model.fix_hasVisual[index]
-        return self.viewerRootNodeName + '/' + self.model.fix_bodyNames[index]
 
     def initDisplay(self, viewerRootNodeName="world/pinocchio", loadModel=False):
         import gepetto.corbaserver
@@ -144,43 +144,47 @@ class RobotWrapper(object):
             print "Check wheter gepetto-viewer is properly started"
 
     # Create the scene displaying the robot meshes in gepetto-viewer
-    def loadDisplayModel(self, nodeName, windowName="pinocchio", meshDir=None):
+    def loadDisplayModel(self, nodeName, windowName="pinocchio"):
         import os
+        # Open a window for displaying your model.
         try:
+            # If the window already exists, do not do anything.
             self.windowID = self.viewer.gui.getWindowID(windowName)
             print "Warning: window '%s' already created. Cannot (re-)load the model." % windowName
             return
         except:
+             # Otherwise, create the empty window.
             self.windowID = self.viewer.gui.createWindow(windowName)
-            if not meshDir:
-                meshDir = os.path.dirname(self.model_filename) + "/"
+
+            # Start a new "scene" in this window, named "world", with just a floor.
             self.viewer.gui.createSceneWithFloor("world")
             self.viewer.gui.addSceneToWindow("world", self.windowID)
-            self.viewer.gui.addURDF(nodeName, self.model_filename, meshDir)
+
+            self.viewer.gui.createGroup(nodeName)
+            # iterate over visuals and create the meshes in the viewer
+            for visual in self.geometry_model.visual_objects :
+                meshName = self.viewerNodeNames(visual)                                                                                                                  
+                meshPath = visual.mesh_path
+                self.viewer.gui.addMesh(meshName, meshPath)
+
+            # Finally, refresh the layout to obtain your first rendering.
+            self.viewer.gui.refresh()
+
 
     # Display in gepetto-view the robot at configuration q, by placing all the bodies.
     def display(self, q):
         if 'viewer' not in self.__dict__:
             return
-        # Update the robot geometry.
-        se3.forwardKinematics(self.model, self.data, q)
-        # Iteratively place the moving robot bodies.
-        for i in range(1, self.model.nbody):
-            if self.model.hasVisual[i]:
-                M = self.data.oMi[i]
-                pinocchioConf = utils.se3ToXYZQUAT(M)
-                viewerConf = utils.XYZQUATToViewerConfiguration(pinocchioConf)
-                self.viewer.gui.applyConfiguration(self.viewerNodeNames(i), viewerConf)
-        # Iteratively place the fixed robot bodies.
-        for i in range(self.model.nFixBody):
-            if self.model.fix_hasVisual[i]:
-                index_last_movable = self.model.fix_lastMovingParent[i]
-                oMlmp = self.data.oMi[index_last_movable]
-                lmpMi = self.model.fix_lmpMi[i]
-                M = oMlmp * lmpMi
-                pinocchioConf = utils.se3ToXYZQUAT(M)
-                viewerConf = utils.XYZQUATToViewerConfiguration(pinocchioConf)
-                self.viewer.gui.applyConfiguration(self.viewerFixedNodeNames(i), viewerConf)
+        # Update the robot kinematics and geometry.
+        self.updateGeometryPlacements(q)
+
+
+        for visual in self.geometry_model.visual_objects :
+            M = self.geometry_data.oMg_visuals[self.geometry_model.getVisualId(visual.name)]
+            pinocchioConf = utils.se3ToXYZQUAT(M)
+            viewerConf = utils.XYZQUATToViewerConfiguration(pinocchioConf)
+            self.viewer.gui.applyConfiguration(self.viewerNodeNames(visual), viewerConf)
+
         self.viewer.gui.refresh()
 
     def play(self, q_trajectory, dt):

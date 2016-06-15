@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE (vsRX)
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
   JointModelRevoluteUnaligned joint_model_RU(axis);
-  modelRX.addBody (0, JointModelRX (), pos, inertia, "rx");
-  modelRevoluteUnaligned.addBody(0, joint_model_RU ,pos, inertia, "revolute-unaligne");
+  modelRX.addJointAndBody (0, JointModelRX (), pos, inertia, "rx");
+  modelRevoluteUnaligned.addJointAndBody(0, joint_model_RU ,pos, inertia, "revolute-unaligne");
 
   Data dataRX(modelRX);
   Data dataRevoluteUnaligned(modelRevoluteUnaligned);
@@ -169,8 +169,8 @@ BOOST_AUTO_TEST_CASE (vsPX)
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
   JointModelPrismaticUnaligned joint_model_PU(axis);
-  modelPX.addBody (0, JointModelPX (), pos, inertia, "px");
-  modelPrismaticUnaligned.addBody(0, joint_model_PU ,pos, inertia, "prismatic-unaligne");
+  modelPX.addJointAndBody (0, JointModelPX (), pos, inertia, "px");
+  modelPrismaticUnaligned.addJointAndBody(0, joint_model_PU ,pos, inertia, "prismatic-unaligne");
 
   Data dataPX(modelPX);
   Data dataPrismaticUnaligned(modelPrismaticUnaligned);
@@ -249,8 +249,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
 
-  modelSpherical.addBody (0, JointModelSpherical (), pos, inertia, "spherical");
-  modelFreeflyer.addBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
+  modelSpherical.addJointAndBody (0, JointModelSpherical (), pos, inertia, "spherical");
+  modelFreeflyer.addJointAndBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
 
   Data dataSpherical(modelSpherical);
   Data dataFreeFlyer(modelFreeflyer);
@@ -345,8 +345,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
 
-  modelSphericalZYX.addBody (0, JointModelSphericalZYX (), pos, inertia, "spherical");
-    modelFreeflyer.addBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
+  modelSphericalZYX.addJointAndBody (0, JointModelSphericalZYX (), pos, inertia, "spherical");
+    modelFreeflyer.addJointAndBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
 
   Data dataSphericalZYX(modelSphericalZYX);
   Data dataFreeFlyer(modelFreeflyer);
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addBody (model.getBodyId("universe"), JointModelSphericalZYX (), SE3::Identity (), inertia, "root");
+  model.addJointAndBody (model.getBodyId("universe"), JointModelSphericalZYX (), SE3::Identity (), inertia, "root");
 
   Data data (model);
 
@@ -428,7 +428,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addBody (model.getBodyId("universe"), JointModelSphericalZYX (), SE3::Identity (), inertia, "root");
+  model.addJointAndBody (model.getBodyId("universe"), JointModelSphericalZYX (), SE3::Identity (), inertia, "root");
 
   Data data (model);
 
@@ -527,7 +527,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addBody (model.getBodyId("universe"), JointModelPX(), SE3::Identity (), inertia, "root");
+  model.addJointAndBody (model.getBodyId("universe"), JointModelPX(), SE3::Identity (), inertia, "root");
 
   Data data (model);
 
@@ -572,7 +572,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addBody (model.getBodyId("universe"), JointModelPX (), SE3::Identity (), inertia, "root");
+  model.addJointAndBody (model.getBodyId("universe"), JointModelPX (), SE3::Identity (), inertia, "root");
 
   Data data (model);
 
@@ -660,8 +660,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
 
-  modelPlanar.addBody (0, JointModelPlanar (), pos, inertia, "planar");
-  modelFreeflyer.addBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
+  modelPlanar.addJointAndBody (0, JointModelPlanar (), pos, inertia, "planar");
+  modelFreeflyer.addJointAndBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
 
   Data dataPlanar(modelPlanar);
   Data dataFreeFlyer(modelFreeflyer);
@@ -758,8 +758,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
 
-  modelTranslation.addBody (0, JointModelTranslation (), pos, inertia, "translation");
-  modelFreeflyer.addBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
+  modelTranslation.addJointAndBody (0, JointModelTranslation (), pos, inertia, "translation");
+  modelFreeflyer.addJointAndBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
 
   Data dataTranslation(modelTranslation);
   Data dataFreeFlyer(modelFreeflyer);
