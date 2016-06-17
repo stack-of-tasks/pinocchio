@@ -23,7 +23,7 @@ from explog import exp
 
 class RobotWrapper(object):
 
-    def __init__(self, filename, package_dirs=None, root_joint=None):
+    def __init__(self, filename, package_dirs=None, root_joint=None, verbose=False):
         if root_joint is None:
             self.model = se3.buildModelFromUrdf(filename)
         else:
@@ -32,7 +32,10 @@ class RobotWrapper(object):
         self.data = self.model.createData()
 
         if "buildGeomFromUrdf" not in dir(se3):
-            raise Exception('the Geometry Module has not been compiled with Pinocchio. No geometry model')
+            self.geometry_model = None
+            self.geometry_data = None
+            if verbose:
+                print 'Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.'
         else:
             if package_dirs is None:
                 self.geometry_model = se3.buildGeomFromUrdf(self.model, filename)
