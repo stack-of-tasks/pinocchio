@@ -32,7 +32,9 @@ class RobotWrapper(object):
         self.data = self.model.createData()
 
         if "buildGeomFromUrdf" not in dir(se3):
-            raise Exception('the Geometry Module has not been compiled with Pinocchio. No geometry model')
+            assert(False,'the Geometry Module has not been compiled with Pinocchio. No geometry model')
+            self.geometry_model = None
+            self.geometry_data = None
         else:
             if package_dirs is None:
                 self.geometry_model = se3.buildGeomFromUrdf(self.model, filename)
