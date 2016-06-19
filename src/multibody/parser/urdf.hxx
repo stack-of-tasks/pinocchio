@@ -30,11 +30,20 @@
 
 #include <exception>
 
+/// @cond DEV
+
 namespace se3
 {
   namespace urdf
   {
 
+    ///
+    /// \brief Convert URDF Inertial quantity to Spatial Inertia.
+    ///
+    /// \param[in] Y The input URDF Inertia.
+    ///
+    /// \return The converted Spatial Inertia se3::Inertia.
+    ///
     inline Inertia convertFromUrdf (const ::urdf::Inertial & Y)
     {
       const ::urdf::Vector3 & p = Y.origin.position;
@@ -49,6 +58,13 @@ namespace se3
       return Inertia(Y.mass,com,R*I*R.transpose());
     }
     
+    ///
+    /// \brief Convert URDF Pose quantity to SE3.
+    ///
+    /// \param[in] M The input URDF Pose.
+    ///
+    /// \return The converted pose/transform se3::SE3.
+    ///
     inline SE3 convertFromUrdf (const ::urdf::Pose & M)
     {
       const ::urdf::Vector3 & p = M.position;
@@ -56,6 +72,18 @@ namespace se3
       return SE3( Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix(), Eigen::Vector3d(p.x,p.y,p.z));
     }
     
+    ///
+    /// \brief The four possible cartesian types of an 3D axis.
+    ///
+    enum AxisCartesian { AXIS_X, AXIS_Y, AXIS_Z, AXIS_UNALIGNED };
+    
+    ///
+    /// \brief Extract the cartesian property of a particular 3D axis.
+    ///
+    /// \param[in] axis The input URDF axis.
+    ///
+    /// \return The property of the particular axis se3::urdf::AxisCartesian.
+    ///
     inline AxisCartesian extractCartesianAxis (const ::urdf::Vector3 & axis)
     {
       if( (axis.x==1.0)&&(axis.y==0.0)&&(axis.z==0.0) )
@@ -590,5 +618,7 @@ namespace se3
   } // namespace urdf
   
 } // namespace se3
+              
+/// @endcond
 
 #endif // ifndef __se3_urdf_hxx__

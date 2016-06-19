@@ -46,53 +46,6 @@ namespace se3
   {
 
     ///
-    /// \brief Convert URDF Inertial quantity to Spatial Inertia.
-    ///
-    /// \param[in] Y The input URDF Inertia.
-    ///
-    /// \return The converted Spatial Inertia se3::Inertia.
-    ///
-    inline Inertia convertFromUrdf (const ::urdf::Inertial & Y);
-
-    ///
-    /// \brief Convert URDF Pose quantity to SE3.
-    ///
-    /// \param[in] M The input URDF Pose.
-    ///
-    /// \return The converted pose/transform se3::SE3.
-    ///
-    inline SE3 convertFromUrdf (const ::urdf::Pose & M);
-
-    ///
-    /// \brief The four possible cartesian types of an 3D axis.
-    ///
-    enum AxisCartesian { AXIS_X, AXIS_Y, AXIS_Z, AXIS_UNALIGNED };
-
-   
-    ///
-    /// \brief Extract the cartesian property of a particular 3D axis.
-    ///
-    /// \param[in] axis The input URDF axis.
-    ///
-    /// \return The property of the particular axis se3::urdf::AxisCartesian.
-    ///
-    inline AxisCartesian extractCartesianAxis (const ::urdf::Vector3 & axis);
-
-    ///
-    /// \brief Recursive procedure for reading the URDF tree.
-    ///        The function returns an exception as soon as a necessary Inertia or Joint information are missing.
-    ///
-    /// \param[in] link The current URDF link.
-    /// \param[in] model The model where the link must be added.
-    /// \param[in] placementOffset The relative placement of the link relative to the closer non fixed joint in the tree.
-    ///
-    inline void parseTree (::urdf::LinkConstPtr link, 
-                           Model & model,
-                           const SE3 & placementOffset = SE3::Identity(),
-                           bool verbose = false) throw (std::invalid_argument);
-
-
-    ///
     /// \brief Parse a tree with a specific root joint linking the model to the environment.
     ///        The function returns an exception as soon as a necessary Inertia or Joint information are missing.
     ///
