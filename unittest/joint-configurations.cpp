@@ -35,7 +35,6 @@
 #include "pinocchio/multibody/parser/sample-models.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/multibody/parser/urdf.hpp"
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/math/quaternion.hpp"
 
