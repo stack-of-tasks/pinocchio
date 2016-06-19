@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -417,18 +417,21 @@ namespace se3
   
   
   template <typename D>
-  void parseTree (::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset, const JointModelBase<D> & root_joint, const bool verbose) throw (std::invalid_argument)
+  void parseRootTree (::urdf::LinkConstPtr root_link, Model & model, const JointModelBase<D> & root_joint, const bool verbose) throw (std::invalid_argument)
   {
-    if (!link->inertial)
+    // If the root link has no inertial info (because it is a base_link for example),
+    // we have to merge its inertial info with all its children connected to it with fixed joints
+    if (!root_link->inertial)
     {
       // If the root link has only one child
-      if (link->child_links.size() == 1)
+      if (root_link->child_links.size() == 1)
       {
-        ::urdf::LinkPtr child_link = link->child_links[0];
+        ::urdf::LinkPtr child_link = root_link->child_links[0];
+        assert(child_link->inertial != NULL && "Inertial information missing for parsing the root link.");
         const Inertia & Y = convertFromUrdf(*child_link->inertial);
-        model.addJointAndBody(0, root_joint, placementOffset, Y, "root_joint", child_link->name);
+        model.addJointAndBody(0, root_joint, SE3::Identity(), Y, "root_joint", child_link->name);
       
-        // Change the name of the parent joint
+        // Change the name of the parent joint in the URDF tree
         child_link->parent_joint->name = "root_joint";
       
         BOOST_FOREACH(::urdf::LinkConstPtr child, child_link->child_links)
@@ -438,17 +441,17 @@ namespace se3
       }
       else
       {
-        const std::string exception_message (link->name + " - spatial inertial information missing with more than one child.");
+        const std::string exception_message (root_link->name + " has no inertial information and has more than one child link. It corresponds to a disjoint tree.");
         throw std::invalid_argument(exception_message);
       }
     
     }
-    else
+    else // otherwise, it is a plain body with inertial info. It processes as usual.
     {
-      const Inertia & Y = convertFromUrdf(*link->inertial);
-      model.addJointAndBody(0, root_joint, placementOffset, Y , "root_joint", link->name);
+      const Inertia & Y = convertFromUrdf(*root_link->inertial);
+      model.addJointAndBody(0, root_joint, SE3::Identity(), Y , "root_joint", root_link->name);
     
-      BOOST_FOREACH(::urdf::LinkConstPtr child, link->child_links)
+      BOOST_FOREACH(::urdf::LinkPtr child, root_link->child_links)
       {
         parseTree(child, model, SE3::Identity(), verbose);
       }
@@ -464,7 +467,7 @@ namespace se3
     
     ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
     if (urdfTree)
-      parseTree(urdfTree->getRoot(), model, SE3::Identity(), root_joint, verbose);
+      parseRootTree(urdfTree->getRoot(), model, root_joint, verbose);
     else
     {
       const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
@@ -472,6 +475,70 @@ namespace se3
     }
     
     return model;
+  }
+              
+  void parseRootTree (::urdf::LinkConstPtr root_link, Model & model, const bool verbose) throw (std::invalid_argument)
+  {
+    // If the root link has no inertial info, it may be because it is a base_link.
+    // In this case, we look for its child links which indeed contribute to the dynamics, they are not fixed to the universe.
+    // TODO: it may be necessary to compute joint placement variable instead of setting it to SE3::Identity()
+    if (!root_link->inertial)
+    {
+      typedef std::vector< ::urdf::LinkSharedPtr> LinkSharedPtrVector_t;
+      LinkSharedPtrVector_t movable_child_links;
+      LinkSharedPtrVector_t direct_child_links(root_link->child_links);
+      LinkSharedPtrVector_t next_direct_child_links; // to visit
+      LinkSharedPtrVector_t pathologic_child_links;
+      do
+      {
+        next_direct_child_links.clear();
+        BOOST_FOREACH(::urdf::LinkPtr child, direct_child_links)
+        {
+          if (child->parent_joint->type != ::urdf::Joint::FIXED)
+            movable_child_links.push_back(child);
+          else
+          {
+            if (child->inertial)
+              pathologic_child_links.push_back(child);
+            next_direct_child_links.insert (next_direct_child_links.end(), child->child_links.begin(), child->child_links.end());
+          }
+          
+        }
+        direct_child_links = next_direct_child_links;
+      }
+      while (!direct_child_links.empty());
+      
+      if (!pathologic_child_links.empty())
+      {
+        std::cout << "[INFO] The links:" << std::endl;
+        for (LinkSharedPtrVector_t::iterator it = pathologic_child_links.begin();
+             it < pathologic_child_links.end(); ++it)
+        {
+          std::cout << "  - " << (*it)->name << std::endl;
+        }
+        std::cout << "are fixed regarding to the universe (base_link) and convey inertial info. They won't affect the dynamics of the output model. Maybe, a root joint is missing connecting this links to the universe." << std::endl;
+        
+      }
+      
+      BOOST_FOREACH(::urdf::LinkPtr child, movable_child_links)
+      {
+        child->getParent()->parent_joint->name = model.names[0];
+        parseTree(child, model, SE3::Identity(), verbose);
+      }
+      
+    }
+    else // Otherwise, we have to rase an exception because the first link will no be added to the model.
+         // It seems a root joint is missing.
+    {
+      std::cout << "[INFO] The root link " << root_link->name << " of the model tree contains inertial information. It seems that a root joint is missing connecting this root link to the universe. The root link won't affect the dynamics of the model." << std::endl;
+      
+      BOOST_FOREACH(::urdf::LinkPtr child, root_link->child_links)
+      {
+        parseTree(child, model, SE3::Identity(), verbose);
+      }
+    }
+    
+    
   }
   
   
@@ -481,7 +548,7 @@ namespace se3
     
     ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
     if (urdfTree)
-      parseTree(urdfTree->getRoot(), model, SE3::Identity(), verbose);
+      parseRootTree(urdfTree->getRoot(),model,verbose);
     else
     {
       const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
