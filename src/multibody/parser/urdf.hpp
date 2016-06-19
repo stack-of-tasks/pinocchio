@@ -98,7 +98,7 @@ namespace se3
     ///
     /// \param[in] link The current URDF link.
     /// \param[in] model The model where the link must be added.
-    /// \param[in] placementOffset The relative placement of the link relative to the closer non fixed joint in the tree.
+    /// \param[in] verbose Print parsing info.
     ///
     void parseRootTree (::urdf::LinkConstPtr link,
                         Model & model,
@@ -112,6 +112,7 @@ namespace se3
     /// \param[in] link The current URDF link.
     /// \param[in] model The model where the link must be added.
     /// \param[in] root_joint The specific root joint.
+    /// \param[in] verbose Print parsing info.
     ///
     template <typename D>
     void parseRootTree (::urdf::LinkConstPtr link,
@@ -124,6 +125,7 @@ namespace se3
     ///
     /// \param[in] filemane The URDF complete file path.
     /// \param[in] root_joint The joint at the root of the model tree.
+    /// \param[in] verbose Print parsing info.
     ///
     /// \return The se3::Model of the URDF file.
     ///
@@ -136,6 +138,7 @@ namespace se3
     /// \brief Build the model from a URDF file with a fixed joint as root of the model tree.
     ///
     /// \param[in] filemane The URDF complete file path.
+    /// \param[in] verbose Print parsing info.
     ///
     /// \return The se3::Model of the URDF file.
     ///

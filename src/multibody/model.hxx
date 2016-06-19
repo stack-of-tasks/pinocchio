@@ -146,11 +146,7 @@ namespace se3
 
     nbody ++;
   }
-
-
- 
-
-
+  
   inline Model::JointIndex Model::getBodyId (const std::string & name) const
   {
     return getFrameId(name);
