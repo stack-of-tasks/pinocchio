@@ -139,6 +139,7 @@ namespace se3
     const Inertia & iYf = Y.se3Action(bodyPlacement);
     inertias[parent] += iYf;
 
+    addFrame((bodyName!="")?bodyName:random(8), parent, bodyPlacement, BODY);
     bodyParents.push_back(parent);
     bodyPlacements.push_back(bodyPlacement);
     bodyNames.push_back( (bodyName!="")?bodyName:random(8));
@@ -257,10 +258,10 @@ namespace se3
     }
   }
 
-  inline bool Model::addFrame ( const std::string & name, JointIndex index, const SE3 & placement)
+  inline bool Model::addFrame ( const std::string & name, JointIndex index, const SE3 & placement, const FrameType type)
   {
     if( !existFrame(name) )
-      return addFrame(Frame(name, index, placement));
+      return addFrame(Frame(name, index, placement, type));
     else
       return false;
   }

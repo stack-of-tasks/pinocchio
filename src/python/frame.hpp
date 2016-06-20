@@ -51,7 +51,7 @@ namespace se3
       void visit(PyClass& cl) const 
       {
         cl
-          .def(bp::init<const std::string&,const JointIndex, const SE3_fx&> ((bp::arg("name (string)"),bp::arg("parent (index)"), bp::arg("SE3 placement")),
+          .def(bp::init< const std::string&,const JointIndex, const SE3_fx&,FrameType> ((bp::arg("name (string)"),bp::arg("parent (index)"), bp::arg("SE3 placement"), bp::arg("type (FrameType)")),
                 "Initialize from name, parent id and placement wrt parent joint."))
 
           .def_readwrite("name", &Frame::name, "name  of the frame")
@@ -60,6 +60,7 @@ namespace se3
                         &FramePythonVisitor::getPlacementWrtParentJoint, 
                         &FramePythonVisitor::setPlacementWrtParentJoint, 
                         "placement in the parent joint local frame")
+          .def_readwrite("type", &Frame::type, "type of the frame")
           ;
       }
 
@@ -69,6 +70,13 @@ namespace se3
 
       static void expose()
       {
+        bp::enum_<FrameType>("FrameType")
+            .value("OP_POINT",OP_POINT)
+            .value("FIXED_JOINT",FIXED_JOINT)
+            .value("BODY",BODY)
+            .value("SENSOR",SENSOR)
+            ;
+
         bp::class_<Frame>("Frame",
                            "A Plucker coordinate frame related to a parent joint inside a kinematic tree.\n\n",
 	                         bp::no_init

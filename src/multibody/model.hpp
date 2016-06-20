@@ -353,10 +353,11 @@ namespace se3
     /// \param[in] name Name of the frame.
     /// \param[in] parent Index of the supporting joint.
     /// \param[in] placement Placement of the frame regarding to the joint frame.
+    /// \param[in] type The type of the frame
     ///
     /// \return Return true if the frame has been successfully added.
     ///
-    bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement);
+    bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_POINT);
 
   };
 
