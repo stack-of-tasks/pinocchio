@@ -541,11 +541,11 @@ namespace se3
     // TODO: it may be necessary to compute joint placement variable instead of setting it to SE3::Identity()
     if (!root_link->inertial)
     {
-      typedef std::vector< ::urdf::LinkSharedPtr> LinkSharedPtrVector_t;
+      typedef std::vector< ::urdf::LinkPtr > LinkSharedPtrVector_t;
       LinkSharedPtrVector_t movable_child_links;
       LinkSharedPtrVector_t direct_child_links(root_link->child_links);
-      LinkSharedPtrVector_t next_direct_child_links; // to visit
-      LinkSharedPtrVector_t pathologic_child_links;
+      LinkSharedPtrVector_t next_direct_child_links; // next child to visit
+      LinkSharedPtrVector_t pathologic_child_links; // children which have inertial info but rigidly attached to the world
       do
       {
         next_direct_child_links.clear();
