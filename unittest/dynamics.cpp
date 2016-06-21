@@ -49,15 +49,15 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
   
-  const std::string RF = "rleg6_body";
-  const std::string LF = "lleg6_body";
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJacobian <true> (model, data, model.getBodyId(RF), J_RF);
+  getJacobian <true> (model, data, model.getJointId(RF), J_RF);
   Data::Matrix6x J_LF (6, model.nv);
   J_LF.setZero();
-  getJacobian <true> (model, data, model.getBodyId(LF), J_LF);
+  getJacobian <true> (model, data, model.getJointId(LF), J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -111,15 +111,15 @@ BOOST_AUTO_TEST_CASE ( test_ID )
   
   VectorXd v_before = VectorXd::Ones(model.nv);
   
-  const std::string RF = "rleg6_body";
-  const std::string LF = "lleg6_body";
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJacobian <true> (model, data, model.getBodyId(RF), J_RF);
+  getJacobian <true> (model, data, model.getJointId(RF), J_RF);
   Data::Matrix6x J_LF (6, model.nv);
   J_LF.setZero();
-  getJacobian <true> (model, data, model.getBodyId(LF), J_LF);
+  getJacobian <true> (model, data, model.getJointId(LF), J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -183,13 +183,13 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
   
-  const std::string RF = "rleg6_body";
-  const std::string LF = "lleg6_body";
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
   
   Data::Matrix6x J_RF (6, model.nv);
-  getJacobian <true> (model, data, model.getBodyId(RF), J_RF);
+  getJacobian <true> (model, data, model.getJointId(RF), J_RF);
   Data::Matrix6x J_LF (6, model.nv);
-  getJacobian <true> (model, data, model.getBodyId(LF), J_LF);
+  getJacobian <true> (model, data, model.getJointId(LF), J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.topRows<6> () = J_RF;

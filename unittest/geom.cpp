@@ -149,9 +149,9 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   
   using namespace se3;
 
-  model.addJointAndBody(model.getBodyId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+  model.addJointAndBody(model.getJointId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
                 "planar1_joint", "planar1_body");
-  model.addJointAndBody(model.getBodyId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+  model.addJointAndBody(model.getJointId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
                 "planar2_joint", "planar2_body");
   
   boost::shared_ptr<fcl::Box> Sample(new fcl::Box(1));

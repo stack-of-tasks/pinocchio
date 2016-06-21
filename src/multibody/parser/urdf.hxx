@@ -371,7 +371,7 @@ namespace se3
           
 
           // Add a frame in the model to keep trace of this fixed joint
-          model.addFrame(joint->name, parent_joint_id, nextPlacementOffset);
+          model.addFrame(joint->name, parent_joint_id, nextPlacementOffset, FIXED_JOINT);
           
           //for the children of the current link, set their parent to be
           //the the parent of the current link.

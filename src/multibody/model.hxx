@@ -140,9 +140,6 @@ namespace se3
     inertias[parent] += iYf;
 
     addFrame((bodyName!="")?bodyName:random(8), parent, bodyPlacement, BODY);
-    bodyParents.push_back(parent);
-    bodyPlacements.push_back(bodyPlacement);
-    bodyNames.push_back( (bodyName!="")?bodyName:random(8));
 
     nbody ++;
   }
@@ -153,22 +150,18 @@ namespace se3
 
   inline Model::JointIndex Model::getBodyId (const std::string & name) const
   {
-    std::vector<std::string>::iterator::difference_type
-      res = std::find(bodyNames.begin(),bodyNames.end(),name) - bodyNames.begin();
-    assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
-    assert( (res>=0)&&(res<nbody) && "The body name you asked does not exist" );
-    return Model::JointIndex(res);
+    return getFrameId(name);
   }
   
   inline bool Model::existBodyName (const std::string & name) const
   {
-    return (bodyNames.end() != std::find(bodyNames.begin(),bodyNames.end(),name));
+    return existFrame(name);
   }
 
   inline const std::string& Model::getBodyName (const Model::JointIndex index) const
   {
     assert( index < (Model::Index)nbody );
-    return bodyNames[index];
+    return getFrameName(index);
   }
 
   inline Model::JointIndex Model::getJointId (const std::string & name) const
@@ -225,6 +218,23 @@ namespace se3
   inline Model::JointIndex Model::getFrameParent( const FrameIndex index ) const
   {
     return operational_frames[index].parent;
+  }
+
+  inline FrameType Model::getFrameType( const std::string & name ) const
+  {
+    assert(existFrame(name) && "The Frame you requested does not exist");
+    std::vector<Frame>::const_iterator it = std::find_if( operational_frames.begin()
+                                                        , operational_frames.end()
+                                                        , boost::bind(&Frame::name, _1) == name
+                                                        );
+    
+    std::vector<Frame>::iterator::difference_type it_diff = it - operational_frames.begin();
+    return getFrameType(Model::JointIndex(it_diff));
+  }
+
+  inline FrameType Model::getFrameType( const FrameIndex index ) const
+  {
+    return operational_frames[index].type;
   }
 
   inline const SE3 & Model::getFramePlacement( const std::string & name) const

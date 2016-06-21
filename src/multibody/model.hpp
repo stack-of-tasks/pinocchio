@@ -75,23 +75,14 @@ namespace se3
     /// \brief Placement (SE3) of the input of joint <i> regarding to the parent joint output <li>.
     std::vector<SE3> jointPlacements;
 
-    /// \brief Placement (SE3) of the body <i> regarding to the parent joint output <li>.
-    std::vector<SE3> bodyPlacements;
-    
     /// \brief Model of joint <i>.
     JointModelVector joints;
     
     /// \brief Joint parent of joint <i>, denoted <li> (li==parents[i]).
     std::vector<JointIndex> parents;
 
-    /// \brief Joint parent of body <i>
-    std::vector<JointIndex> bodyParents;
-    
     /// \brief Name of joint <i>
     std::vector<std::string> names;
-    
-    /// \brief Name of the body attached to the output of joint <i>.
-    std::vector<std::string> bodyNames;
     
     /// \brief Vector of maximal joint torques
     Eigen::VectorXd effortLimit;
@@ -122,13 +113,10 @@ namespace se3
       , jointPlacements(1)
       , joints(1)
       , parents(1)
-      , bodyParents(1)
       , names(1)
-      , bodyNames(1)
       , gravity( gravity981,Eigen::Vector3d::Zero() )
     {
       names[0]     = "universe";     // Should be "universe joint (trivial)"
-      bodyNames[0] = "universe";
     }
     ~Model() {} // std::cout << "Destroy model" << std::endl; }
     
@@ -319,6 +307,24 @@ namespace se3
     /// \return
     ///
     JointIndex getFrameParent(const FrameIndex index) const;
+
+    ///
+    /// \brief Get the type of the frame given by its index.
+    ///
+    /// \param[in] name Name of the frame.
+    ///
+    /// \return
+    ///
+    FrameType getFrameType(const std::string & name) const;
+    
+    ///
+    /// \brief Get the type of the frame given by its index.
+    ///
+    /// \param[in] index Index of the frame.
+    ///
+    /// \return
+    ///
+    FrameType getFrameType(const FrameIndex index) const;
     
     ///
     /// \brief Return the relative placement between a frame and its supporting joint.
