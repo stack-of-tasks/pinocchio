@@ -219,6 +219,10 @@ IF(BUILD_PYTHON_INTERFACE)
     python/parsers.hpp
     python/explog.hpp
     )
+
+  LIST(APPEND ${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
+    multibody/parser/python.hpp
+    )
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 IF(HPP_FCL_FOUND)

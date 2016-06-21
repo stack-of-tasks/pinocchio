@@ -42,7 +42,7 @@
 namespace se3
 {
 
-  GeometryModel::GeomIndex GeometryModel::addCollisionObject(const JointIndex parent,
+  inline GeometryModel::GeomIndex GeometryModel::addCollisionObject(const JointIndex parent,
                                                              const fcl::CollisionObject & co,
                                                              const SE3 & placement,
                                                              const std::string & geom_name,
@@ -56,7 +56,7 @@ namespace se3
     return idx;
   }
 
-  GeometryModel::GeomIndex GeometryModel::addVisualObject(const JointIndex parent,
+  inline GeometryModel::GeomIndex GeometryModel::addVisualObject(const JointIndex parent,
                                                           const fcl::CollisionObject & co,
                                                           const SE3 & placement,
                                                           const std::string & geom_name,
@@ -349,7 +349,7 @@ namespace se3
     std::fill(distance_results.begin(), distance_results.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
   }
   
-  void GeometryData::addCollisionPairsFromSrdf(const std::string & filename,
+  inline void GeometryData::addCollisionPairsFromSrdf(const std::string & filename,
                                                const bool verbose) throw (std::invalid_argument)
   {
     // Add all collision pairs
