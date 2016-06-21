@@ -1,6 +1,10 @@
 <!-- MarkdownTOC -->
 
 - [Objectives](#objectives)
+- [Tutorial 1.0. Tips](#tutorial-1-tips)
+    - [Ubuntu](#ubuntu)
+    - [Python](#python)
+    - [Numpy](#numpy)
     - [Pinocchio](#pinocchio)
     - [SE3 objects](#se3-objects)
 - [Tutorial 1.1. Display cubes, cylinder and spheres](#tutorial-11-display-cubes-cylinder-and-spheres)
@@ -30,13 +34,21 @@ The objectives of the first tutorial is to understand the basic principles of th
 Mostly, we focus here on forward geometry.
 
 At the end of the tutorial, you should have a kinematic model of the robot of your dreams, with simple 3D geometry displayed in Gepetto-viewer. All that should be stored in a simple class Robot that would be used throughout the following tutorials.
-Tutorial 1.0. Tips
-Ubuntu
+
+<a name="tutorial-1-tips"></a>
+
+# Tutorial 1.0. Tips
+<a name="ubuntu"></a>
+
+## Ubuntu
 
 The tutorial environment would typically be a Ubuntu 12.04 computer with Pinocchio and Gepetto-viewer installed. VirtualBox images with both software already installed are available on demand.
 
 Once your Ubuntu is started, you can start a new terminal by typing CTRL-ALT-T. The shortcut will typically launch a gnome-terminal process. Inside the gnome-terminal window, you can open new terminals (in new tabulations) by typing CTRL-SHIFT-T, and navigate between tabulations with CTRL-PgUp and CTRL-PgDn.
-Python
+
+<a name="python"></a>
+
+## Python
 
 All the tutorials will use the Python language.
 
@@ -68,7 +80,9 @@ You can also run it without entering the interactive mode (ie. without starting 
     student@pinocchio1204x32vbox:~/src/student$ ipython tuto1_q1.py
     student@pinocchio1204x32vbox:~/src/student$
 
-Numpy
+<a name="numpy"></a>
+
+## Numpy
 
 NumPy (Numerics for Python) is the standard linear algebra library for Python. It contains two main classes: array and matrices, matrices being 2-dimension arrays with a dedicated algebra. Numpy is later extended with scientific algorithms (SciPy) and graphical plots (MatPlotLib), that we will use as well in following tutorials.
 
@@ -156,11 +170,13 @@ op = oM1*_1p
 
 ## Create the display
 
-For display, we will use Gepetto-viewer, a simple 3D renderer build on top of OpenSceneGraph (try to google this name). Gepetto-viewer is a standalone Corba server. It means that the display will run permanently as an independent Linux process, without having to be restarted each time your restart your Python script. Your scripts will communicate using the middleware Corba with the display (do not be afraid, for you it will be transparent).
+For display, we will use Gepetto-viewer, a simple 3D renderer built on top of OpenSceneGraph (try to google this name). Gepetto-viewer is a standalone Corba server. It means that the display will run permanently as an independent Linux process, without having to be restarted each time your restart your Python script. Your scripts will communicate using the middleware Corba with the display (do not be afraid, for you it will be transparent).
 
 In your script, you need to import the Gepetto-viewer client library, send connect with the server, possibly create 3D objects and then move these objects while your robot is moving.
 
-First, you need to start the server in a first terminal bash terminal … student@pinocchio1204x32vbox:~$ gepetto-viewer-server …
+First, you need to start the server in a first terminal bash terminal …
+    
+    student@pinocchio1204x32vbox:~$ gepetto-viewer-server
 
 Your own Python scripts can be started from a second terminal. The following class do all the client work for you. Just copy-paste it.
 
@@ -169,10 +185,9 @@ Your own Python scripts can be started from a second terminal. The following cla
     # Example of a class Display that connect to Gepetto-viewer and implement a
     # 'place' method to set the position/rotation of a 3D visual object in a scene.
 class Display():
-    '''
-    Class Display: Example of a class implementing a client for the Gepetto-viewer server. The main
-    method of the class is 'place', that sets the position/rotation of a 3D visual object in a scene.
-    '''
+    
+    # Class Display: Example of a class implementing a client for the Gepetto-viewer server. The main method of the class is 'place', that sets the position/rotation of a 3D visual object in a scene.
+    
     def __init__(self,windowName = "pinocchio" ):
         '''
         This function connect with the Gepetto-viewer server and open a window with the given name.
@@ -255,7 +270,7 @@ display.viewer.gui.addBox('world/'+name, w,h,d,color)
 
 
 
-A sphere of dimension 1x1x1 can be create using:
+A sphere of dimension 1x1x1 can be created using:
 
 {% highlight python %}
 
@@ -284,7 +299,7 @@ student@pinocchio1204x32vbox:~$ less /home/student/src/viewer/gepetto-viewer-cor
 
 ## Moving objects
 
-Place an object by simply mentioning its name and the placement you want. Gepetto-Viewer expects a XYZ-roll-pitch-yaw representation of the SE3 placement. The translation is performed by the method "place" of your class "Display". After placing an object, the layout must be explicitly refreshed. This is to reduce the display load when flushing several objects at the same time. Typically, during robot movements, you would only ask one refresh per control cycle. The method "Display.place" refreshes the layout by default.
+Place an object by simply mentioning its name and the placement you want. Gepetto-Viewer expects a XYZ-Quaternion(w,x,y,z) representation of the SE3 placement. The translation is performed by the method "place" of your class "Display". After placing an object, the layout must be explicitly refreshed. This is to reduce the display load when flushing several objects at the same time. Typically, during robot movements, you would only ask one refresh per control cycle. The method "Display.place" refreshes the layout by default.
 
 {% highlight python %}
 
@@ -311,9 +326,9 @@ The two classes are se3.Model and se3.Data.
 
 An empty model is created using the method se3.Model.BuildEmptyModel().
 
-When created, a model contains a single body (representing the universe, with a trivial mass and intertia) and no joint.
+When created, a model contains a single couple joint/body (representing the universe, with a trivial mass and inertia).
 
-Bodies and joints are added by pair in a recursive fashion, using the method Model.addBody:
+Bodies and joints are added by pair in a recursive fashion, using the method Model.addJointAndBody. In pinocchio we handle the kinematic chain as a list of joints (_Model.joints_) with the inertial informations of the supported body:
 
 {% highlight python %}
 
@@ -326,10 +341,9 @@ parent             = 0                                   # Index of the parent (
 jointModel         = se3.JointModelRX()                  # Type of the joint to be created.
 bodyInertia        = se3.Inertia.Random()                # Body mass/center of mass/inertia => useless for
                                                          # this tutorial.
-hasVisual          = True                                # True if the body has attached visual objects
-                                                         # => useless for this tutorial.
-model.addBody(parent,jointModel,jointPlacement,bodyInertia,jointName,bodyName,hasVisual)
-print('Model dimensions: {:d}, {:d}, {:d}'.format(model.nbody,model.nq,model.nbody))
+
+model.addJointAndBody(parent, jointModel, jointPlacement, bodyInertia, jointName, bodyName)
+print('Model dimensions: {:d}, {:d}, {:d}'.format(model.nbody,model.nq,model.njoint))
 {% endhighlight %}
 
 <a name="joint-models"></a>
@@ -339,7 +353,10 @@ print('Model dimensions: {:d}, {:d}, {:d}'.format(model.nbody,model.nq,model.nbo
 In the previous code, the joint is a revolute that rotates around the X axis. Y and Z axis are also available.
 
 Other joints are available in Pinocchio. The most classical to use are the revolutes and the free-flyers (se3.JointModelFreeFlyer). Free flyer is typically the first joint for mobile robots such as humanoids. More to come in the next tutorial about free flyer joints.
-Creating the data
+
+<a name="creating-the-data"></a>
+
+## Creating the data
 
 After all the joint have been added, a data object can be generated using the method Model.createData.
 
@@ -353,15 +370,21 @@ data = model.createData()
 
 ## Associating visual object to bodies
 
-For any body, you can create one or several visual objects and "attached" them to arbitrary SE3 placements. Fro each body of your model, you should define a list of pairs (3D name, 3D placement). Very likely, each body should have zero or one element in its corresponding list. You can store all these lists in a list named "visuals", containing "model.nbody" elements.
+For any body, you can create one or several visual primitive objects and "attach" them to a parent joint with an arbitrary SE3 relative placement.
+To compute the absolute placement of these visuals you can left-multiply the relative placement by the absolute placement of the parent joint ( think of the Chasles Relation)
+For each body of your model, you cant hus define a list of pair (3D name, 3D relative placement). Very likely, each body should have zero or one element in its corresponding list. You can store all these lists in a list named "visuals", containing "model.nbody" elements.
 
-The visual elements of the scene (i.e. static elements that are not attached to the robot) can be attached to the "universe" body 0 of the model, in the first element of the "visuals" list.
+The visual elements of the scene (i.e. static elements that are not attached to the robot) can be attached to the "universe" joint 0 of the model, in the first element of the "visuals" list.
 
 <a name="the-robot-class"></a>
 
 ## The robot class
 
-The objective of this tutorial is to gather all the elements explained above to create a single Robot class. The class must contains the 4 following elements: * A model object * A data object * A display object * A list of visual object
+The objective of this tutorial is to gather all the elements explained above to create a single Robot class. The class must contains the 4 following elements:
+- A model object
+- A data object
+- A display object
+- A list of visual objects
 
 __Question 1:__ Create a class Robot as specified previously. Store the results in a dedicated python file "robot.py".
 
@@ -376,7 +399,7 @@ __Question 1:__ Create a class Robot as specified previously. Store the results 
 
 The algorithms of Pinocchio are implemented as static functions, that take in two first arguments a robot model and the corresponding data, with typically additional arguments specifying the robot configuration, velocity, etc.
 
-The function "se3.geometry" computes the placement of all the robot bodies with respect to the world reference. It takes as input the robot configuration, i.e. a vector "q" of dimension robot.nq. The function has no direct output. The results are stored in the table data.oMi. This table contains model.nbody elements. Each element is a SE3 object specifying the placement of the corresponding body.
+The function "se3.geometry" computes the placement of all the robot joints with respect to the world reference. It takes as input the robot configuration, i.e. a vector "q" of dimension robot.nq. The function has no direct output. The results are stored in the table data.oMi. This table contains model.njoint elements. Each element is a SE3 object specifying the placement of the corresponding joint.
 
 {% highlight python %}
 
@@ -391,7 +414,7 @@ for i in range(1,model.nbody):
 
 ## Displaying the model
 
-Consider body "ibody" to which one visual "ivisual" is attached. The placement of the body in the world is data.oMi[ibody]. The name of the visual is visuals[ibody][ivisual][0]. The placement of the visual in the body frame is visuals[ibody][ivisual][1]. The placement of the visual in the world is obtained by multiplying both elements.
+Consider joint "ijoint" to which one visual "ivisual" is attached. The placement of the joint in the world is data.oMi[ijoint]. The name of the visual is `visuals[ijoint][ivisual][0]`. . The placement of the visual in the parent joint frame is `visuals[ijoint][ivisual][1]`. 
 
 {% highlight python %}
 

@@ -25,7 +25,9 @@ You will need the two libraries Python SciPy (scientific Python) and MatPlotLib 
 
 SciPy can be installed by `sudo apt-get install python-scipy`. Alternatively, if you do not have access to the network, you can directly install the three following packages:
 
-[libamd.deb][http://homepages.laas.fr/nmansard/teach/robotics2015/libamd2.2.0_i386.deb] [libumfpack.deb][http://homepages.laas.fr/nmansard/teach/robotics2015/libumfpack5.4.0_i386.deb] [scipy.deb][http://homepages.laas.fr/nmansard/teach/robotics2015/python-scipy_0.9.0_i386.deb]
+- [libamd.deb](http://homepages.laas.fr/nmansard/teach/robotics2015/libamd2.2.0_i386.deb)
+- [libumfpack.deb](http://homepages.laas.fr/nmansard/teach/robotics2015/libumfpack5.4.0_i386.deb)
+- [scipy.deb](http://homepages.laas.fr/nmansard/teach/robotics2015/python-scipy_0.9.0_i386.deb)
 
 Download the three files, and then type:
 
@@ -36,13 +38,13 @@ Download the three files, and then type:
 
 MatPlotLib can be installed by `sudo apt-get install python-matplotlib`. It is already installed on the VirtualBox.
 
-We will use SciPy for its optimization toolbox. In the version 0.9 installed in the VirtualBox, the tow most interesting solvers are BFGS and a constrained least square. Documentation on both solvers is available here:
+We will use SciPy for its optimization toolbox. In the version 0.9 installed in the VirtualBox, the two most interesting solvers are BFGS and a constrained least square. Documentation on both solvers is available here:
 
-. General documentation: [SciPy.optimize][http://docs.scipy.org/doc/scipy-0.9.0/reference/tutorial/optimize.html]
+. General documentation: [SciPy.optimize](http://docs.scipy.org/doc/scipy-0.9.0/reference/tutorial/optimize.html)
 
-. Manual of BFGS: [fmin_bfgs][http://docs.scipy.org/doc/scipy-0.9.0/reference/generated/scipy.optimize.fmin_bfgs.html#scipy.optimize.fmin_bfgs]
+. Manual of BFGS: [fmin_bfgs](http://docs.scipy.org/doc/scipy-0.9.0/reference/generated/scipy.optimize.fmin_bfgs.html#scipy.optimize.fmin_bfgs)
 
-. Manual of constrained least square: [fmin_slsqp][http://docs.scipy.org/doc/scipy-0.9.0/reference/generated/scipy.optimize.fmin_slsqp.html#scipy.optimize.fmin_slsqp]
+. Manual of constrained least square: [fmin_slsqp](http://docs.scipy.org/doc/scipy-0.9.0/reference/generated/scipy.optimize.fmin_slsqp.html#scipy.optimize.fmin_slsqp)
 
 Examples of calls of these two functions are given below. We will use both solvers with numerical (finite-differencing) differenciation, to avoid the extra work of differencing the cost and constraint functions by hand. In general, it is strongly advice to first test a numerical program with finite differencing, before implementing the true derivatives only if needed. In any case, the true derivatives must always be checked by comparing the results with the finite differenciation.
 
@@ -154,33 +156,55 @@ print robot.data.oMi[i]    # Access to the placement of the end effector at conf
 {% endhighlight %}
 These two models are the output of the first tutorial. The most interesting option is to use them.
 
-Alternatively, two models are available and are described below. They both implement the rough API described above.
+Alternatively, a RobotWrapper Class is available directly with Pinocchio.  You can use it to load a model from a urdf file and automatically get the visual meshes described in this urdf. The RobotWrapper Class is able then to automatically communicate with the Gepetto viewer in order to display your robts. 
+
+Two urdf models are available and are described below.
 
 Baxter is a fixed robot with two arms and a head developed by the USA company RethinkRobotics. All its 15 joints are revolute joints. Its configuration is in R^15 and is not subject to any constraint. The model of Baxter is described in a URDF file, with the visuals of the bodies of the robot being described as meshed (i.e. polygon soups) using the Collada format ".dae". Both the URDF and the DAE files are available in the attached ZIP archive. Uncompressed it in the VirtualBox, for example in the directory "/home/student/src/pinocchio/models".
 
 . Baxter model and code baxter.zip
 
-Then, Baxter might be loaded in Python as a Robot class by the following code:
-
-{% highlight python %}
-from pinocchio.robot_wrapper import RobotWrapper
-MODELPATH = '/home/student/src/pinocchio/models/' # Change following your setup.
-robot = RobotWrapper(MODELPATH + 'baxter.urdf')
-robot.initDisplay(loadModel=True)
-{% endhighlight %}
 
 Romeo is a humanoid robot developed by the French-Japanese company Aldebaran Robotics. It has two legs, two arms and a head, for a total of 31 joints (plus 6DOF on the free flyer). Its model is natively in Pinocchio (no additional dowload needed). Romeo can be loaded with:
 
-{% highlight python %}
-import pinocchio as se3
-from pinocchio.romeo_wrapper import RomeoWrapper
-MODELPATH = '/home/student/src/pinocchio/models/'
-# Explicitly specify that the first joint is a free flyer.
-robot = RomeoWrapper(MODELPATH + 'romeo.urdf',se3.JointModelFreeFlyer())
-robot.initDisplay(loadModel=True)
-{% endhighlight %}
+
 
 Additionally, the index of right and left hands and feet are stored in romeo.rh, romeo.lh, romeo.rf and romeo.lf.
+
+The RobotWrapper Class is the generic one that we advice you to use for your own urdf files. If you decide to use the model of Romeo, provided with the source files of Pinocchio, you can use the RomeoWrapper Class that is a slight specialisation of the RobotWrapper for this model in particular. You can find shortcuts to particular joints such as `romeo.rh` for the right hand, and more.
+
+To create a robot with these wrappers, you can do as follow
+
+
+{% highlight python %}
+
+import pinocchio as se3
+import numpy as np
+
+from pinocchio.robot_wrapper import RobotWrapper
+
+hint_list = ["/local/devel/src/pinocchio/models","other/path"]
+robot = RobotWrapper("/local/devel/src/pinocchio/models/romeo.urdf",hint_list, se3.JointModelFreeFlyer())
+
+robot.initDisplay()
+robot.loadDisplayModel("world/pinocchio")
+
+q0 = np.matrix([
+    0, 0, 0.840252, 0, 0, 0, 1,  # Free flyer
+    0, 0, -0.3490658, 0.6981317, -0.3490658, 0,  # left leg
+    0, 0, -0.3490658, 0.6981317, -0.3490658, 0,  # right leg
+    0,  # chest
+    1.5, 0.6, -0.5, -1.05, -0.4, -0.3, -0.2,  # left arm
+    0, 0, 0, 0,  # head
+    1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2,  # right arm
+]).T
+
+robot.display(q0)
+
+{% endhighlight %}
+
+The Class `robotWrapper` will call for you the urdf parser and the geometry parser available in the C++ part of Pinoccchio. To do that, you need to provide the full path to the urdf file to create the kinematic chain. If you work with visuals and collisions, you then need to specify where to search for the meshes. The urdf format specifies meshes path as `package://path/to/mesh.dae`. Our parser works with absolute path so you need to tell him the directories that will be replacing the _packages://_ part. If you don't specify any hint list, it will look in the environment variable `ROS_PACKAGE_PATH`. If you specify a list, it will search in the first path and then search in the second only if no meshes are found in the first, etc..
+
 
 <a name="tutorial-11-position-the-end-effector"></a>
 
