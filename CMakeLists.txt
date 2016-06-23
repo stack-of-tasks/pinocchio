@@ -64,11 +64,26 @@ ENDIF (INITIALIZE_WITH_NAN)
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
 ADD_OPTIONAL_DEPENDENCY("eigenpy >= 1.3.0")
 ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
-ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.10")
+ADD_REQUIRED_DEPENDENCY("urdfdom >= 0.2.0")
 ADD_OPTIONAL_DEPENDENCY("lua5.1")
 ADD_OPTIONAL_DEPENDENCY("hpp-fcl >= 0.4.1")
+
+# Special care of urdfdom less than 0.3.0
+IF(URDFDOM_FOUND)
+  IF(${URDFDOM_VERSION} VERSION_LESS "0.3.0")
+    add_definitions(-DURDFDOM_COLLISION_WITH_GROUP_NAME)
+  ENDIF(${URDFDOM_VERSION} VERSION_LESS "0.3.0")
+ENDIF(URDFDOM_FOUND)
+
 IF(HPP_FCL_FOUND AND URDFDOM_FOUND)
-  ADD_REQUIRED_DEPENDENCY("assimp >= 3.0")
+  ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
+if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
+  add_definitions(-DASSIMP_UNIFIED_HEADER_NAMES)
+  message(STATUS "Assimp version has unified headers")
+else()
+  message(STATUS "Assimp version does not have unified headers")
+endif()
+
 ENDIF(HPP_FCL_FOUND AND URDFDOM_FOUND)
 
 SET(BOOST_COMPONENTS filesystem unit_test_framework system)
