@@ -26,7 +26,7 @@
 
 #include "pinocchio/multibody/parser/from-collada-to-fcl.hpp"
 
-namespace se3
+        namespace se3
 {
   namespace urdf
   {
@@ -126,7 +126,6 @@ namespace se3
           SE3 geomPlacement = convertFromUrdf((*i)->origin);
           std::string collision_object_name = link_name;
           geom_model.addCollisionObject(model.getFrameParent(link_name), collision_object, geomPlacement, collision_object_name, mesh_path); 
-          
         }
       } // if(link->collision)
 
@@ -145,7 +144,6 @@ namespace se3
           SE3 geomPlacement = convertFromUrdf((*i)->origin);
           std::string visual_object_name = link_name;
           geom_model.addVisualObject(model.getFrameParent(link_name), visual_object, geomPlacement, visual_object_name, mesh_path); 
-          
         }
       } // if(link->visual)
 
