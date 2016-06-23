@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_operational_frames_hpp__
-#define __se3_operational_frames_hpp__
+#ifndef __se3_frames_hpp__
+#define __se3_frames_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 
@@ -80,10 +80,10 @@ namespace se3
                                       Data & data
                                       )
   {
-    for (Model::FrameIndex i=0; i < (Model::FrameIndex) model.nOperationalFrames; ++i)
+    for (Model::FrameIndex i=0; i < (Model::FrameIndex) model.nFrames; ++i)
     {
-      const Model::JointIndex & parent = model.operational_frames[i].parent;
-      data.oMof[i] = (data.oMi[parent] * model.operational_frames[i].placement);
+      const Model::JointIndex & parent = model.frames[i].parent;
+      data.oMof[i] = (data.oMi[parent] * model.frames[i].placement);
     }
   }
   
@@ -107,9 +107,9 @@ namespace se3
     assert( J.rows() == data.J.rows() );
     assert( J.cols() == data.J.cols() );
     
-    const Model::JointIndex & parent = model.operational_frames[frame_id].parent;
+    const Model::JointIndex & parent = model.frames[frame_id].parent;
     const SE3 & oMframe = data.oMof[frame_id];
-    const Frame & frame = model.operational_frames[frame_id];
+    const Frame & frame = model.frames[frame_id];
     
     const int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
     
@@ -117,16 +117,24 @@ namespace se3
     const SE3::Vector3 lever(data.oMi[parent].rotation() * (frame.placement.translation()));
     
     getJacobian<localFrame>(model, data, parent, J);
-    for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
+    
+    if (frame.type == JOINT)
     {
-      if(! localFrame )
-        J.col(j).topRows<3>() -= lever.cross(J.col(j).bottomRows<3>());
-      else
-        J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
+      // do nothing
+    }
+    else
+    {
+      for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
+      {
+        if(! localFrame )
+          J.col(j).topRows<3>() -= lever.cross(J.col(j).bottomRows<3>());
+        else
+          J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
+      }
     }
   }
 
 } // namespace se3
 
-#endif // ifndef __se3_operational_frames_hpp__
+#endif // ifndef __se3_frames_hpp__
 

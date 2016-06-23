@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addJointAndBody (model.getBodyId("universe"), JointModelSphericalZYX (), SE3::Identity (), inertia, "root");
+  model.addJointAndBody (model.getJointId("universe"), JointModelSphericalZYX (), SE3::Identity (), inertia, "root");
 
   Data data (model);
 
@@ -428,7 +428,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addJointAndBody (model.getBodyId("universe"), JointModelSphericalZYX (), SE3::Identity (), inertia, "root");
+  model.addJointAndBody (model.getJointId("universe"), JointModelSphericalZYX (), SE3::Identity (), inertia, "root");
 
   Data data (model);
 
@@ -527,7 +527,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addJointAndBody (model.getBodyId("universe"), JointModelPX(), SE3::Identity (), inertia, "root");
+  model.addJointAndBody (model.getJointId("universe"), JointModelPX(), SE3::Identity (), inertia, "root");
 
   Data data (model);
 
@@ -572,7 +572,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addJointAndBody (model.getBodyId("universe"), JointModelPX (), SE3::Identity (), inertia, "root");
+  model.addJointAndBody (model.getJointId("universe"), JointModelPX (), SE3::Identity (), inertia, "root");
 
   Data data (model);
 

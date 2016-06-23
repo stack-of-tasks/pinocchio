@@ -110,23 +110,14 @@ namespace se3
           .add_property("jointPlacements",
             bp::make_function(&ModelPythonVisitor::jointPlacements,
                   bp::return_internal_reference<>())  )
-          .add_property("bodyPlacements",
-            bp::make_function(&ModelPythonVisitor::bodyPlacements,
-                  bp::return_internal_reference<>())  )
           .add_property("joints",
             bp::make_function(&ModelPythonVisitor::joints,
                   bp::return_internal_reference<>())  )
           .add_property("parents", 
             bp::make_function(&ModelPythonVisitor::parents,
                   bp::return_internal_reference<>())  )
-          .add_property("bodyParents",
-            bp::make_function(&ModelPythonVisitor::bodyParents,
-                  bp::return_internal_reference<>())  )
           .add_property("names",
             bp::make_function(&ModelPythonVisitor::names,
-                  bp::return_internal_reference<>())  )
-          .add_property("bodyNames",
-            bp::make_function(&ModelPythonVisitor::bodyNames,
                   bp::return_internal_reference<>())  )
           .def("addJointAndBody",&ModelPythonVisitor::addJointAndBodyToModel)
 
@@ -139,7 +130,7 @@ namespace se3
           .def("getFrameParent", &ModelPythonVisitor::getFrameParent)
           .def("getFramePlacement", &ModelPythonVisitor::getFramePlacement)
           .def("addFrame", &ModelPythonVisitor::addFrame)
-          .add_property("operational_frames", bp::make_function(&ModelPythonVisitor::operationalFrames, bp::return_internal_reference<>()) )
+          .add_property("frames", bp::make_function(&ModelPythonVisitor::operationalFrames, bp::return_internal_reference<>()) )
 
           .add_property("gravity",&ModelPythonVisitor::gravity,&ModelPythonVisitor::setGravity)
           .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
@@ -162,12 +153,9 @@ namespace se3
       static int nbody( ModelHandler & m ) { return m->nbody; }
       static std::vector<Inertia> & inertias( ModelHandler & m ) { return m->inertias; }
       static std::vector<SE3> & jointPlacements( ModelHandler & m ) { return m->jointPlacements; }
-      static std::vector<SE3> & bodyPlacements( ModelHandler & m ) { return m->bodyPlacements; }
       static JointModelVector & joints( ModelHandler & m ) { return m->joints; }
       static std::vector<Model::JointIndex> & parents( ModelHandler & m ) { return m->parents; }
-      static std::vector<Model::JointIndex> & bodyParents( ModelHandler & m ) { return m->bodyParents; }
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
-      static std::vector<std::string> & bodyNames ( ModelHandler & m ) { return m->bodyNames; }
 
       static Model::Index addJointAndBodyToModel(ModelHandler & modelPtr,
                                           Model::JointIndex idx, bp::object joint,
@@ -192,7 +180,7 @@ namespace se3
       {
         m->addFrame(frameName, parent, placementWrtParent);
       }
-      static std::vector<Frame> & operationalFrames (ModelHandler & m ) { return m->operational_frames;}
+      static std::vector<Frame> & operationalFrames (ModelHandler & m ) { return m->frames;}
 
       static Motion gravity( ModelHandler & m ) { return m->gravity; }
       static void setGravity( ModelHandler & m,const Motion_fx & g ) { m->gravity = g; }

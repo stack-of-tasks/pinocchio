@@ -30,7 +30,7 @@
 #include "pinocchio/algorithm/dynamics.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/operational-frames.hpp"
+#include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/energy.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
