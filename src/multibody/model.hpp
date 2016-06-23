@@ -211,7 +211,11 @@ namespace se3
     
     ///
     /// \brief Return the index of a body given by its name.
-    ///
+    /// 
+    /// \warning If no body is found, return the number of elements at time T.
+    /// This can lead to errors if the model is expanded after this method is called
+    /// (for example to get the id of a parent body)
+    /// 
     /// \param[in] name Name of the body.
     ///
     /// \return Index of the body.
@@ -239,6 +243,9 @@ namespace se3
     ///
     /// \brief Return the index of a joint given by its name.
     ///
+    /// \warning If no joint is found, return the number of elements at time T.
+    /// This can lead to errors if the model is expanded after this method is called
+    /// (for example to get the id of a parent joint)
     /// \param[in] index Index of the joint.
     ///
     /// \return Index of the joint.
@@ -266,6 +273,10 @@ namespace se3
     ///
     /// \brief Return the index of a frame given by its name.
     ///
+    /// \warning If no frame is found, return the number of elements at time T.
+    /// This can lead to errors if the model is expanded after this method is called
+    /// (for example to get the id of a parent frame)
+    /// 
     /// \param[in] index Index of the frame.
     ///
     /// \return Index of the frame.
@@ -363,7 +374,7 @@ namespace se3
     ///
     /// \return Return true if the frame has been successfully added.
     ///
-    bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_POINT);
+    bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_FRAME);
 
   };
 

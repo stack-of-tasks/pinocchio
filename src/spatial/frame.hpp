@@ -31,7 +31,8 @@ namespace se3
 
   enum FrameType
   {
-    OP_POINT,
+    OP_FRAME,
+    JOINT,
     FIXED_JOINT,
     BODY,
     SENSOR

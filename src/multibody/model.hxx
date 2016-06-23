@@ -129,6 +129,9 @@ namespace se3
     velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>() = velocity;
     lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>() = lowPos;
     upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows<D::NQ>() = upPos;
+
+    addFrame((jointName!="")?jointName:random(8), idx, SE3::Identity(), JOINT);
+
     return idx;
   }
 

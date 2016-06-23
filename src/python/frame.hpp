@@ -71,7 +71,8 @@ namespace se3
       static void expose()
       {
         bp::enum_<FrameType>("FrameType")
-            .value("OP_POINT",OP_POINT)
+            .value("OP_FRAME",OP_FRAME)
+            .value("JOINT",JOINT)
             .value("FIXED_JOINT",FIXED_JOINT)
             .value("BODY",BODY)
             .value("SENSOR",SENSOR)
