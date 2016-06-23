@@ -26,12 +26,21 @@
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 
-#include <assimp/DefaultLogger.hpp>
-#include <assimp/IOStream.hpp>
-#include <assimp/IOSystem.hpp>
-#include <assimp/scene.h>
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
+#ifdef ASSIMP_UNIFIED_HEADER_NAMES
+# include <assimp/DefaultLogger.hpp>
+# include <assimp/IOStream.hpp>
+# include <assimp/IOSystem.hpp>
+# include <assimp/scene.h>
+# include <assimp/Importer.hpp>
+# include <assimp/postprocess.h>
+#else
+# include <assimp/DefaultLogger.h>
+# include <assimp/assimp.hpp>
+# include <assimp/IOStream.h>
+# include <assimp/IOSystem.h>
+# include <assimp/aiScene.h>
+# include <assimp/aiPostProcess.h>
+#endif
 
 #include <hpp/fcl/BV/OBBRSS.h>
 #include <hpp/fcl/BVH/BVH_model.h>

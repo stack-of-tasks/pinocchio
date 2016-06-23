@@ -76,7 +76,14 @@ IF(URDFDOM_FOUND)
 ENDIF(URDFDOM_FOUND)
 
 IF(HPP_FCL_FOUND AND URDFDOM_FOUND)
-  ADD_REQUIRED_DEPENDENCY("assimp >= 3.0")
+  ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
+if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
+  add_definitions(-DASSIMP_UNIFIED_HEADER_NAMES)
+  message(STATUS "Assimp version has unified headers")
+else()
+  message(STATUS "Assimp version does not have unified headers")
+endif()
+
 ENDIF(HPP_FCL_FOUND AND URDFDOM_FOUND)
 
 SET(BOOST_COMPONENTS filesystem unit_test_framework system)
