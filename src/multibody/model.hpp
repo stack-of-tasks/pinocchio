@@ -423,7 +423,7 @@ namespace se3
     Eigen::VectorXd nle;
 
     /// \brief Vector of absolute operationnel frame placements (wrt the world).
-    std::vector<SE3> oMof;
+    std::vector<SE3> oMf;
 
     /// \brief Vector of sub-tree composite rigid body inertias, i.e. the apparent inertia of the subtree supported by the joint.
     std::vector<Inertia> Ycrb;

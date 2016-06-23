@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   q.middleRows<4> (3).normalize();
   framesForwardKinematics(model, data, q);
 
-  BOOST_CHECK(data.oMof[model.getFrameId(frame_name)].isApprox(data.oMi[parent_idx]*framePlacement));
+  BOOST_CHECK(data.oMf[model.getFrameId(frame_name)].isApprox(data.oMi[parent_idx]*framePlacement));
 
 }
 
