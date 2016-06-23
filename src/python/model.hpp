@@ -130,7 +130,7 @@ namespace se3
           .def("getFrameParent", &ModelPythonVisitor::getFrameParent)
           .def("getFramePlacement", &ModelPythonVisitor::getFramePlacement)
           .def("addFrame", &ModelPythonVisitor::addFrame)
-          .add_property("operational_frames", bp::make_function(&ModelPythonVisitor::operationalFrames, bp::return_internal_reference<>()) )
+          .add_property("frames", bp::make_function(&ModelPythonVisitor::operationalFrames, bp::return_internal_reference<>()) )
 
           .add_property("gravity",&ModelPythonVisitor::gravity,&ModelPythonVisitor::setGravity)
           .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
@@ -180,7 +180,7 @@ namespace se3
       {
         m->addFrame(frameName, parent, placementWrtParent);
       }
-      static std::vector<Frame> & operationalFrames (ModelHandler & m ) { return m->operational_frames;}
+      static std::vector<Frame> & operationalFrames (ModelHandler & m ) { return m->frames;}
 
       static Motion gravity( ModelHandler & m ) { return m->gravity; }
       static void setGravity( ModelHandler & m,const Motion_fx & g ) { m->gravity = g; }

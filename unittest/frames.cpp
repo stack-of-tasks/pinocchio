@@ -17,7 +17,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/operational-frames.hpp"
+#include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/multibody/parser/sample-models.hpp"
@@ -26,11 +26,11 @@
 #include <iostream>
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE OperationalFramesTest
+#define BOOST_TEST_MODULE FramesTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE ( OperationalFramesTest)
+BOOST_AUTO_TEST_SUITE ( FramesTest)
 
 BOOST_AUTO_TEST_CASE ( test_kinematics )
 {

@@ -67,7 +67,7 @@ namespace se3
     
     
     /// \brief Number of operational frames.
-    int nOperationalFrames;
+    int nFrames;
 
     /// \brief Spatial inertias of the body <i> expressed in the supporting joint frame <i>.
     std::vector<Inertia> inertias;
@@ -95,7 +95,7 @@ namespace se3
     Eigen::VectorXd upperPositionLimit;
 
     /// \brief Vector of operational frames registered on the model.
-    std::vector<Frame> operational_frames;
+    std::vector<Frame> frames;
 
     /// \brief Spatial gravity
     Motion gravity;
@@ -108,7 +108,7 @@ namespace se3
       , nv(0)
       , njoint(1)
       , nbody(1)
-      , nOperationalFrames(0)
+      , nFrames(0)
       , inertias(1)
       , jointPlacements(1)
       , joints(1)
