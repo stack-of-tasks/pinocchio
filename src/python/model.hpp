@@ -112,9 +112,9 @@ namespace se3
           .add_property("jointPlacements",
             bp::make_function(&ModelPythonVisitor::jointPlacements,
                   bp::return_internal_reference<>())  )
-          .add_property("joints",
-            bp::make_function(&ModelPythonVisitor::joints,
-                  bp::return_internal_reference<>())  )
+          // .add_property("joints",
+          //   bp::make_function(&ModelPythonVisitor::joints,
+          //         bp::return_internal_reference<>())  )
           .add_property("parents", 
             bp::make_function(&ModelPythonVisitor::parents,
                   bp::return_internal_reference<>())  )
@@ -155,7 +155,7 @@ namespace se3
       static int nbody( ModelHandler & m ) { return m->nbody; }
       static std::vector<Inertia> & inertias( ModelHandler & m ) { return m->inertias; }
       static std::vector<SE3> & jointPlacements( ModelHandler & m ) { return m->jointPlacements; }
-      static JointModelVector & joints( ModelHandler & m ) { return m->joints; }
+      // static JointModelVector & joints( ModelHandler & m ) { return m->joints; }
       static std::vector<Model::JointIndex> & parents( ModelHandler & m ) { return m->parents; }
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
 

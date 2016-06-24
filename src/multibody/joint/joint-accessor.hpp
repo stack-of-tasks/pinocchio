@@ -58,7 +58,7 @@ namespace se3
 
   struct JointDataAccessor : public JointDataBase<JointDataAccessor> , JointDataVariant
   {
-    typedef JointDataVariant super;
+    typedef JointDataVariant BoostVariant;
 
     typedef JointAccessor Joint;
     SE3_JOINT_TYPEDEF;
@@ -66,26 +66,26 @@ namespace se3
     JointDataVariant& toVariant() { return *static_cast<JointDataVariant*>(this); }
     const JointDataVariant& toVariant() const { return *static_cast<const JointDataVariant*>(this); }
 
-    const Constraint_t      S() const  { return constraint_xd(toVariant()); }
-    const Transformation_t  M() const  { return joint_transform(toVariant()); } // featherstone book, page 78 (sXp)
-    const Motion_t          v() const  { return motion(toVariant()); }
-    const Bias_t            c() const  { return bias(toVariant()); }
+    const Constraint_t      S() const  { return constraint_xd(*this); }
+    const Transformation_t  M() const  { return joint_transform(*this); } // featherstone book, page 78 (sXp)
+    const Motion_t          v() const  { return motion(*this); }
+    const Bias_t            c() const  { return bias(*this); }
     
     // // [ABA CCRBA]
-    const U_t               U()     const { return u_inertia(toVariant()); }
-    U_t                     U()           { return u_inertia(toVariant()); }
-    const D_t               Dinv()  const { return dinv_inertia(toVariant()); }
-    const UD_t              UDinv() const { return udinv_inertia(toVariant()); }
+    const U_t               U()     const { return u_inertia(*this); }
+    U_t                     U()           { return u_inertia(*this); }
+    const D_t               Dinv()  const { return dinv_inertia(*this); }
+    const UD_t              UDinv() const { return udinv_inertia(*this); }
 
 
-    // JointDataAccessor()  {} // can become necessary if we want a vector of jointDataAccessor ?
-    JointDataAccessor(const JointDataVariant & jdata ) : super(jdata){}
+    JointDataAccessor() : BoostVariant() {}
+    JointDataAccessor(const JointDataVariant & jdata ) : BoostVariant(jdata){}
 
   };
 
   struct JointModelAccessor : public JointModelBase<JointModelAccessor> , JointModelVariant
   {
-    typedef JointModelVariant super;
+    typedef JointModelVariant BoostVariant;
 
     typedef JointAccessor Joint;
     SE3_JOINT_TYPEDEF;
@@ -98,14 +98,14 @@ namespace se3
 
     JointDataVariant createData() 
     {
-      return ::se3::createData(toVariant());
+      return ::se3::createData(*this);
     }
 
 
     void calc (JointData & data,
                const Eigen::VectorXd & qs) const
     {
-      calc_zero_order(toVariant(), data.toVariant(), qs);
+      calc_zero_order(*this, data, qs);
 
     }
 
@@ -113,41 +113,41 @@ namespace se3
                const Eigen::VectorXd & qs,
                const Eigen::VectorXd & vs ) const
     {
-      calc_first_order(toVariant(), data.toVariant(), qs, vs);
+      calc_first_order(*this, data, qs, vs);
     }
     
     void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
     {
-      ::se3::calc_aba(toVariant(), data.toVariant(), I, update_I);
+      ::se3::calc_aba(*this, data, I, update_I);
     }
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {
-      return ::se3::integrate(toVariant(), qs, vs);
+      return ::se3::integrate(*this, qs, vs);
     }
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
     {
-      return ::se3::interpolate(toVariant(), q0, q1, u);
+      return ::se3::interpolate(*this, q0, q1, u);
     }
 
     ConfigVector_t randomConfiguration_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const throw (std::runtime_error)
     { 
-      return ::se3::randomConfiguration(toVariant(), lower_pos_limit, upper_pos_limit);
+      return ::se3::randomConfiguration(*this, lower_pos_limit, upper_pos_limit);
     } 
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      return ::se3::difference(toVariant(), q0, q1);
+      return ::se3::difference(*this, q0, q1);
     } 
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      return ::se3::distance(toVariant(), q0, q1);
+      return ::se3::distance(*this, q0, q1);
     }
 
-    // JointModelAccessor() : j_model_variant() {} // can become necessary if we want a vector of jointModelAccessor ?
-    JointModelAccessor( const JointModelVariant & model_variant ) : super(model_variant)
+    JointModelAccessor() : BoostVariant() {}
+    JointModelAccessor( const JointModelVariant & model_variant ) : BoostVariant(model_variant)
     {}
 
 
@@ -159,21 +159,23 @@ namespace se3
 
     JointModelAccessor& operator=( const JointModelVariant& other)
     {
-      toVariant() = other; // or *this = other ?
+      *this = other;
       return *this;
     }
 
-    int     nq_impl() const { return ::se3::nq(toVariant()); }
-    int     nv_impl() const { return ::se3::nv(toVariant()); }
+    int     nq_impl() const { return ::se3::nq(*this); }
+    int     nv_impl() const { return ::se3::nv(*this); }
 
-    int     idx_q()   const { return ::se3::idx_q(toVariant()); }
-    int     idx_v()   const { return ::se3::idx_v(toVariant()); }
+    int     idx_q()   const { return ::se3::idx_q(*this); }
+    int     idx_v()   const { return ::se3::idx_v(*this); }
 
-    JointIndex     id()      const { return ::se3::id(toVariant()); }
+    JointIndex     id()      const { return ::se3::id(*this); }
 
     void setIndexes(JointIndex ,int ,int ) { SE3_STATIC_ASSERT(false, THIS_METHOD_SHOULD_NOT_BE_CALLED_ON_DERIVED_CLASS); }
   };
   
+  typedef std::vector<JointDataAccessor> JointDataAccessorVector;  
+  typedef std::vector<JointModelAccessor> JointModelAccessorVector;
 
 } // namespace se3
 
