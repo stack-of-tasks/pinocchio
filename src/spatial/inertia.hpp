@@ -331,7 +331,7 @@ namespace se3
     {
       os  << "  m = " << m << "\n"
       << "  c = " << c.transpose() << "\n"
-      << "  I = \n" << (Matrix3)I << "";
+      << "  I = \n" << I.matrix() << "";
     }
 
   protected:

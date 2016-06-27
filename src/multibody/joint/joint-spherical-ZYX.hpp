@@ -223,9 +223,8 @@ namespace se3
   {
     Eigen::Matrix < _Scalar, 6, 3, _Options > M;
     M.template topRows<3>() = alphaSkew ( -Y.mass (),  Y.lever () );
-    M.template bottomRows<3> () = 
-      (typename InertiaTpl<_Scalar,_Options>::Matrix3)(Y.inertia () - 
-       typename Symmetric3::AlphaSkewSquare(Y.mass (), Y.lever ()));
+    M.template bottomRows<3> () =  (Y.inertia () -
+       typename Symmetric3::AlphaSkewSquare(Y.mass (), Y.lever ())).matrix();
 
     return (M * S.matrix ()).eval();
   }
