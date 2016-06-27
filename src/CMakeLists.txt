@@ -153,7 +153,7 @@ IF(BUILD_PYTHON_INTERFACE)
       
     EXECUTE_PROCESS(COMMAND
       ${PYTHON_EXECUTABLE} -m py_compile
-      ${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile} )
+      ${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile})
       
     # Clean generated files.
     SET_PROPERTY(
@@ -162,7 +162,7 @@ IF(BUILD_PYTHON_INTERFACE)
       "${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c")
       
     INSTALL(FILES
-      "${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}"
+      "${${PROJECT_NAME}_SOURCE_DIR}/src/${python}"
       "${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
       DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
   ENDFOREACH(python)
