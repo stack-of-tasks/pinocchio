@@ -91,3 +91,4 @@ ADD_UNIT_TEST(energy eigen3)
 ADD_UNIT_TEST(frames eigen3)
 ADD_UNIT_TEST(joint-configurations eigen3)
 ADD_UNIT_TEST(joint-accessor eigen3)
+

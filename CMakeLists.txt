@@ -71,7 +71,6 @@ ENDIF (INITIALIZE_WITH_NAN)
 # --- DEPENDANCIES -----------------------------------
 # ----------------------------------------------------
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
-ADD_OPTIONAL_DEPENDENCY("eigenpy >= 1.3.0")
 ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
 ADD_REQUIRED_DEPENDENCY("urdfdom >= 0.2.0")
 ADD_OPTIONAL_DEPENDENCY("lua5.1")
@@ -87,25 +86,28 @@ ENDIF(EIGEN3_FOUND)
 # Special care of urdfdom less than 0.3.0
 IF(URDFDOM_FOUND)
   IF(${URDFDOM_VERSION} VERSION_LESS "0.3.0")
-    add_definitions(-DURDFDOM_COLLISION_WITH_GROUP_NAME)
+    ADD_DEFINITIONS(-DURDFDOM_COLLISION_WITH_GROUP_NAME)
   ENDIF(${URDFDOM_VERSION} VERSION_LESS "0.3.0")
 ENDIF(URDFDOM_FOUND)
 
 IF(HPP_FCL_FOUND AND URDFDOM_FOUND)
   ADD_REQUIRED_DEPENDENCY("assimp >= 2.0")
-if (NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
-  add_definitions(-DASSIMP_UNIFIED_HEADER_NAMES)
-  message(STATUS "Assimp version has unified headers")
-else()
-  message(STATUS "Assimp version does not have unified headers")
-endif()
-
+  IF(NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
+    ADD_DEFINITIONS(-DASSIMP_UNIFIED_HEADER_NAMES)
+  ENDIF(NOT ${ASSIMP_VERSION} VERSION_LESS "2.0.1150")
 ENDIF(HPP_FCL_FOUND AND URDFDOM_FOUND)
 
 SET(BOOST_COMPONENTS filesystem unit_test_framework system)
-IF(EIGENPY_FOUND)
+
+IF(BUILD_PYTHON_INTERFACE)
+  ADD_REQUIRED_DEPENDENCY("eigenpy >= 1.3.0")
   SET(BOOST_COMPONENTS ${BOOST_COMPONENTS} python)
-ENDIF(EIGENPY_FOUND)
+  FINDPYTHON(2.7 EXACT REQUIRED)
+ENDIF(BUILD_PYTHON_INTERFACE)
+
+IF(HPP_FCL_FOUND AND URDFDOM_FOUND)
+  ADD_REQUIRED_DEPENDENCY("assimp >= 3.0")
+ENDIF(HPP_FCL_FOUND AND URDFDOM_FOUND)
 
 SEARCH_FOR_BOOST()
 
@@ -115,7 +117,6 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
-
 
 SET(${PROJECT_NAME}_MATH_HEADERS
   math/fwd.hpp
@@ -199,26 +200,26 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/compute-all-terms.hpp
   )
 
-IF(${BUILD_PYTHON_INTERFACE} STREQUAL "ON")
-SET(${PROJECT_NAME}_PYTHON_HEADERS
-  python/eigen_container.hpp
-  python/handler.hpp
-  python/python.hpp
-  python/se3.hpp
-  python/force.hpp
-  python/motion.hpp
-  python/inertia.hpp
-  python/joint-derived.hpp
-  python/joints-models.hpp
-  python/joints-variant.hpp
-  python/frame.hpp
-  python/model.hpp
-  python/data.hpp
-  python/algorithms.hpp
-  python/parsers.hpp
-  python/explog.hpp
-  )
-ENDIF(${BUILD_PYTHON_INTERFACE} STREQUAL "ON")
+IF(BUILD_PYTHON_INTERFACE)
+  SET(${PROJECT_NAME}_PYTHON_HEADERS
+    python/eigen_container.hpp
+    python/handler.hpp
+    python/python.hpp
+    python/se3.hpp
+    python/force.hpp
+    python/motion.hpp
+    python/inertia.hpp
+    python/joints-models.hpp
+    python/joints-variant.hpp
+    python/joint-derived.hpp
+    python/frame.hpp
+    python/model.hpp
+    python/data.hpp
+    python/algorithms.hpp
+    python/parsers.hpp
+    python/explog.hpp
+    )
+ENDIF(BUILD_PYTHON_INTERFACE)
 
 IF(HPP_FCL_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
@@ -296,7 +297,6 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/python")
 
-
 FOREACH(header ${HEADERS})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)
   GET_FILENAME_COMPONENT(headerPath ${header} PATH)
@@ -313,10 +313,10 @@ ADD_SUBDIRECTORY(src)
 # --- EXECUTABLES --------------------------------------------------------------
 # --- EXECUTABLES --------------------------------------------------------------
 ADD_SUBDIRECTORY(unittest)
-ADD_SUBDIRECTORY (benchmark)
+ADD_SUBDIRECTORY(benchmark)
 
-IF (BUILD_UTILS)
-  ADD_SUBDIRECTORY (utils)
-ENDIF (BUILD_UTILS)
+IF(BUILD_UTILS)
+  ADD_SUBDIRECTORY(utils)
+ENDIF(BUILD_UTILS)
 
 SETUP_PROJECT_FINALIZE()
