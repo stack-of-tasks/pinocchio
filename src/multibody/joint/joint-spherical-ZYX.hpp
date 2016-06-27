@@ -121,12 +121,18 @@ namespace se3
         const ConstraintRotationalSubspace & ref;
         ConstraintTranspose(const ConstraintRotationalSubspace & ref) : ref(ref) {}
 
-
+#ifdef EIGEN3_FUTURE
+        const typename Eigen::Product<
+        Eigen::Transpose<const Matrix3>,
+        Eigen::Block<const typename Force::Vector6,3,1>
+        >
+#else
         const typename Eigen::ProductReturnType<
         Eigen::Transpose<const Matrix3>,
 //        typename Motion::ConstAngular_t::Base /* This feature leads currently to a bug */
         Eigen::Block<const typename Force::Vector6,3,1>
         >::Type
+#endif
         operator* (const Force & phi) const
         {
           return ref.S_minimal.transpose () * phi.angular();
@@ -134,10 +140,17 @@ namespace se3
 
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
         template<typename D>
+#ifdef EIGEN3_FUTURE
+        const typename Eigen::Product<
+        typename Eigen::Transpose<const Matrix3>,
+        typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
+        >
+#else
         const typename Eigen::ProductReturnType<
         typename Eigen::Transpose<const Matrix3>,
         typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
         >::Type
+#endif
         operator* (const Eigen::MatrixBase<D> & F) const
         {
           EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
@@ -220,10 +233,17 @@ namespace se3
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
   //  inline Eigen::Matrix<double,6,3>
   template <typename _Scalar, int _Options>
-  typename Eigen::ProductReturnType<
+#ifdef EIGEN3_FUTURE
+  const typename Eigen::Product<
+  const Eigen::Block<const Inertia::Matrix6,6,3>,
+  const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
+  >
+#else
+  const typename Eigen::ProductReturnType<
   const Eigen::Block<const Inertia::Matrix6,6,3>,
   const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
   >::Type
+#endif
   operator*(const typename InertiaTpl<_Scalar,_Options>::Matrix6 & Y,
             const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
   {
