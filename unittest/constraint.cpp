@@ -77,8 +77,8 @@ BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
   Inertia Y = Inertia::Random();
   JointDataRX::Constraint_t S;
 
-  ForceSet F(1); F.block(0,1) = Y*S;
-  BOOST_CHECK(F.matrix().isApprox(Y.matrix().col(3), 1e-12));
+  ForceSet F1(1); F1.block(0,1) = Y*S;
+  BOOST_CHECK(F1.matrix().isApprox(Y.matrix().col(3), 1e-12));
 
   ForceSet F2( Eigen::Matrix<double,3,9>::Random(),Eigen::Matrix<double,3,9>::Random() );
   Eigen::MatrixXd StF2 = S.transpose()*F2.block(5,3).matrix();

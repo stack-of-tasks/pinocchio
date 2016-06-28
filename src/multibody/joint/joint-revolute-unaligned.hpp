@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -160,10 +160,17 @@ namespace se3
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
         template<typename D>
         friend
+#ifdef EIGEN3_FUTURE
+        const Eigen::Product<
+        Eigen::Transpose<const Vector3>,
+        typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
+        >
+#else
         const typename Eigen::ProductReturnType<
         Eigen::Transpose<const Vector3>,
         typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
         >::Type
+#endif
         operator* (const TransposeConst & tc, const Eigen::MatrixBase<D> & F)
         {
           EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
@@ -218,10 +225,17 @@ namespace se3
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
 //  inline Eigen::Matrix<double,6,1>
   inline
-  Eigen::ProductReturnType<
+#ifdef EIGEN3_FUTURE
+  const Eigen::Product<
+  Eigen::Block<const Inertia::Matrix6,6,3>,
+  ConstraintRevoluteUnaligned::Vector3
+  >
+#else
+  const Eigen::ProductReturnType<
   Eigen::Block<const Inertia::Matrix6,6,3>,
   const ConstraintRevoluteUnaligned::Vector3
   >::Type
+#endif
   operator*(const Inertia::Matrix6 & Y, const ConstraintRevoluteUnaligned & cru)
   {
     return Y.block<6,3> (0,Inertia::ANGULAR) * cru.axis;

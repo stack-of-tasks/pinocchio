@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -40,11 +40,13 @@ namespace se3
       double v; 
       CartesianVector3(const double & v) : v(v) {}
       CartesianVector3() : v(NAN) {}
-      operator Eigen::Vector3d () const; 
+      
+      Eigen::Vector3d vector() const;
+      operator Eigen::Vector3d () const { return vector(); }
     }; // struct CartesianVector3
-    template<> inline CartesianVector3<0>::operator Eigen::Vector3d () const { return Eigen::Vector3d(v,0,0); }
-    template<> inline CartesianVector3<1>::operator Eigen::Vector3d () const { return Eigen::Vector3d(0,v,0); }
-    template<> inline CartesianVector3<2>::operator Eigen::Vector3d () const { return Eigen::Vector3d(0,0,v); }
+    template<> inline Eigen::Vector3d CartesianVector3<0>::vector() const { return Eigen::Vector3d(v,0,0); }
+    template<> inline Eigen::Vector3d CartesianVector3<1>::vector() const { return Eigen::Vector3d(0,v,0); }
+    template<> inline Eigen::Vector3d CartesianVector3<2>::vector() const { return Eigen::Vector3d(0,0,v); }
     
     inline Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<0> & vx)
     { return Eigen::Vector3d(v1[0]+vx.v,v1[1],v1[2]); }
@@ -92,8 +94,8 @@ namespace se3
 
     operator Motion() const
     { 
-      return Motion((Vector3)typename prismatic::CartesianVector3<axis>(v),
-                      Motion::Vector3::Zero()
+      return Motion(typename prismatic::CartesianVector3<axis>(v).vector(),
+                    Motion::Vector3::Zero()
                     );
     }
   }; // struct MotionPrismatic
@@ -194,7 +196,7 @@ namespace se3
     operator ConstraintXd () const
     {
       Eigen::Matrix<double,6,1> S;
-      S << (Eigen::Vector3d)prismatic::CartesianVector3<axis>(1), Eigen::Vector3d::Zero() ;
+      S << prismatic::CartesianVector3<axis>(1).vector(), Eigen::Vector3d::Zero();
       return ConstraintXd(S);
     }
 

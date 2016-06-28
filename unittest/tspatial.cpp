@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   Inertia bI = bma.act(aI);
   Matrix6 bXa = bma;
   BOOST_CHECK((bma.rotation()*aI.inertia().matrix()*bma.rotation().transpose())
-                               .isApprox((Matrix3)bI.inertia(), 1e-12)); 
+                               .isApprox(bI.inertia().matrix(), 1e-12));
   BOOST_CHECK((bXa.transpose().inverse() * aI.matrix() * bXa.inverse())
                               .isApprox(bI.matrix(), 1e-12)); 
 

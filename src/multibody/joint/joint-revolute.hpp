@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -43,11 +43,14 @@ namespace se3
       double w; 
       CartesianVector3(const double w) : w(w) {}
       CartesianVector3() : w(NAN) {}
-      operator Eigen::Vector3d ();
-    };
-    template<> inline CartesianVector3<0>::operator Eigen::Vector3d () { return Eigen::Vector3d(w,0,0); }
-    template<> inline CartesianVector3<1>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,w,0); }
-    template<> inline CartesianVector3<2>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,0,w); }
+      
+      Eigen::Vector3d vector() const;
+      operator Eigen::Vector3d () const { return vector(); }
+    }; // struct CartesianVector3
+    template<> inline Eigen::Vector3d CartesianVector3<0>::vector() const { return Eigen::Vector3d(w,0,0); }
+    template<> inline Eigen::Vector3d CartesianVector3<1>::vector() const { return Eigen::Vector3d(0,w,0); }
+    template<> inline Eigen::Vector3d CartesianVector3<2>::vector() const { return Eigen::Vector3d(0,0,w); }
+    
     inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<0> & wx)
     { return Eigen::Vector3d(w1[0]+wx.w,w1[1],w1[2]); }
     inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<1> & wy)
@@ -94,8 +97,8 @@ namespace se3
 
     operator Motion() const
     {
-      return Motion(  Motion::Vector3::Zero(),
-        (Vector3)typename revolute::CartesianVector3<axis>(w)
+      return Motion(Motion::Vector3::Zero(),
+        typename revolute::CartesianVector3<axis>(w).vector()
         );
     }
   }; // struct MotionRevolute
@@ -195,7 +198,7 @@ namespace se3
      operator ConstraintXd () const
      {
       Eigen::Matrix<double,6,1> S;
-      S << Eigen::Vector3d::Zero(), (Eigen::Vector3d)revolute::CartesianVector3<axis>(1);
+      S << Eigen::Vector3d::Zero(), revolute::CartesianVector3<axis>(1).vector();
       return ConstraintXd(S);
     }
   }; // struct ConstraintRevolute

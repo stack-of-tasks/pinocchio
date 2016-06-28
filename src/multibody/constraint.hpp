@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -117,7 +117,11 @@ namespace se3
     template<typename D>
     ConstraintTpl(const Eigen::MatrixBase<D> & _S) : S(_S)
     {
+      // There is currently a bug in Eigen/Core/util/StaticAssert.h in the use of the full namespace path
+      // TODO
+#ifndef EIGEN3_FUTURE
       EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(DenseBase, D);
+#endif
     }
 
     ConstraintTpl() : S() 
