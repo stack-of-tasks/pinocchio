@@ -63,7 +63,9 @@ namespace se3
         .add_property("idx_q",&JointPythonVisitor::getIdx_q)
         .add_property("idx_v",&JointPythonVisitor::getIdx_v)
         .add_property("nq",&JointPythonVisitor::getNq)
-        .add_property("nv",&JointPythonVisitor::getNv);
+        .add_property("nv",&JointPythonVisitor::getNv)
+        .def("setIndexes",&JointModelDerived::setIndexes);
+
       }
 
       static JointIndex getId( const JointModelDerived & self ) { return self.id(); }
@@ -71,6 +73,7 @@ namespace se3
       static int getIdx_v(const JointModelDerived & self) {return self.idx_v();}
       static int getNq(const JointModelDerived & self) {return self.nq();}
       static int getNv(const JointModelDerived & self) {return self.nv();}
+
 
       static void expose()
       {

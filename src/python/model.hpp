@@ -112,9 +112,9 @@ namespace se3
           .add_property("jointPlacements",
             bp::make_function(&ModelPythonVisitor::jointPlacements,
                   bp::return_internal_reference<>())  )
-          // .add_property("joints",
-          //   bp::make_function(&ModelPythonVisitor::joints,
-          //         bp::return_internal_reference<>())  )
+          .add_property("joints",
+            bp::make_function(&ModelPythonVisitor::joints,
+                  bp::return_internal_reference<>())  )
           .add_property("parents", 
             bp::make_function(&ModelPythonVisitor::parents,
                   bp::return_internal_reference<>())  )
@@ -155,7 +155,7 @@ namespace se3
       static int nbody( ModelHandler & m ) { return m->nbody; }
       static std::vector<Inertia> & inertias( ModelHandler & m ) { return m->inertias; }
       static std::vector<SE3> & jointPlacements( ModelHandler & m ) { return m->jointPlacements; }
-      // static JointModelVector & joints( ModelHandler & m ) { return m->joints; }
+      static JointModelAccessorVector & joints( ModelHandler & m ) { return m->joints; }
       static std::vector<Model::JointIndex> & parents( ModelHandler & m ) { return m->parents; }
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
 
@@ -238,9 +238,10 @@ namespace se3
         bp::class_< std::vector<bool> >("StdVec_Bool")
           .def(bp::vector_indexing_suite< std::vector<bool> >());
         bp::class_< std::vector<double> >("StdVec_double")
-          .def(bp::vector_indexing_suite< std::vector<double> >());
+          .def(bp::vector_indexing_suite< std::vector<double> >()); 
         bp::class_< JointModelVector >("StdVec_JointModelVector")
           .def(bp::vector_indexing_suite< JointModelVector, true >());
+        
 
         bp::class_<ModelHandler>("Model",
                                  "Articulated rigid body model (const)",

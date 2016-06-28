@@ -58,7 +58,7 @@ namespace se3
 
   struct JointDataAccessor : public JointDataBase<JointDataAccessor> , JointDataVariant
   {
-    typedef JointDataVariant BoostVariant;
+    typedef JointDataVariant JointDataBoostVariant;
 
     typedef JointAccessor Joint;
     SE3_JOINT_TYPEDEF;
@@ -78,14 +78,14 @@ namespace se3
     const UD_t              UDinv() const { return udinv_inertia(*this); }
 
 
-    JointDataAccessor() : BoostVariant() {}
-    JointDataAccessor(const JointDataVariant & jdata ) : BoostVariant(jdata){}
+    JointDataAccessor() : JointDataBoostVariant() {}
+    JointDataAccessor(const JointDataVariant & jdata ) : JointDataBoostVariant(jdata){}
 
   };
 
   struct JointModelAccessor : public JointModelBase<JointModelAccessor> , JointModelVariant
   {
-    typedef JointModelVariant BoostVariant;
+    typedef JointModelVariant JointModelBoostVariant;
 
     typedef JointAccessor Joint;
     SE3_JOINT_TYPEDEF;
@@ -146,8 +146,8 @@ namespace se3
       return ::se3::distance(*this, q0, q1);
     }
 
-    JointModelAccessor() : BoostVariant() {}
-    JointModelAccessor( const JointModelVariant & model_variant ) : BoostVariant(model_variant)
+    JointModelAccessor() : JointModelBoostVariant() {}
+    JointModelAccessor( const JointModelVariant & model_variant ) : JointModelBoostVariant(model_variant)
     {}
 
 
@@ -163,6 +163,20 @@ namespace se3
       return *this;
     }
 
+    template <class D>
+    bool operator == (const JointModelBase<D> &) const
+    {
+      return false;
+    }
+    
+    bool operator == (const JointModelBase<JointModelAccessor> & jmodel) const
+    {
+      return jmodel.id() == id()
+          && jmodel.idx_q() == idx_q()
+          && jmodel.idx_v() == idx_v();
+    }
+
+
     int     nq_impl() const { return ::se3::nq(*this); }
     int     nv_impl() const { return ::se3::nv(*this); }
 
@@ -171,7 +185,11 @@ namespace se3
 
     JointIndex     id()      const { return ::se3::id(*this); }
 
-    void setIndexes(JointIndex ,int ,int ) { SE3_STATIC_ASSERT(false, THIS_METHOD_SHOULD_NOT_BE_CALLED_ON_DERIVED_CLASS); }
+    // void setIndexes(JointIndex ,int ,int ) { SE3_STATIC_ASSERT(false, THIS_METHOD_SHOULD_NOT_BE_CALLED_ON_DERIVED_CLASS); }
+    void setIndexes(JointIndex id,int nq,int nv) 
+    {
+      ::se3::setIndexes(*this,id, nq, nv);
+    }
   };
   
   typedef std::vector<JointDataAccessor> JointDataAccessorVector;  

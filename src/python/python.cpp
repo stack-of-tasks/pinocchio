@@ -23,6 +23,7 @@
 #include "pinocchio/python/inertia.hpp"
 #include "pinocchio/python/joint-derived.hpp"
 #include "pinocchio/python/joints-variant.hpp"
+#include "pinocchio/python/joint-accessor.hpp"
 
 #include "pinocchio/python/frame.hpp"
 #include "pinocchio/python/model.hpp"
@@ -64,6 +65,9 @@ namespace se3
     void exposeJoints()
     {
       exposeVariants();
+      JointModelAccessorPythonVisitor::expose();
+      bp::class_< JointModelAccessorVector >("StdVec_JointModelAccessorVector")
+          .def(bp::vector_indexing_suite< JointModelAccessorVector, true >());
     }
     void exposeModel()
     {

@@ -197,6 +197,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/compute-all-terms.hpp
   )
 
+
 IF(BUILD_PYTHON_INTERFACE)
   SET(${PROJECT_NAME}_PYTHON_HEADERS
     python/eigen_container.hpp
@@ -208,6 +209,7 @@ IF(BUILD_PYTHON_INTERFACE)
     python/inertia.hpp
     python/joints-models.hpp
     python/joints-variant.hpp
+    python/joint-accessor.hpp
     python/joint-derived.hpp
     python/frame.hpp
     python/model.hpp
@@ -221,6 +223,7 @@ IF(BUILD_PYTHON_INTERFACE)
     multibody/parser/python.hpp
     )
 ENDIF(BUILD_PYTHON_INTERFACE)
+
 
 IF(HPP_FCL_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
