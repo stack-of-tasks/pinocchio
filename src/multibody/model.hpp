@@ -59,12 +59,11 @@ namespace se3
     /// \brief Dimension of the velocity vector space.
     int nv;
     
-    /// \brief Number of joints .
+    /// \brief Number of joints.
     int njoint;
 
-    /// \brief Number of bodies .
+    /// \brief Number of bodies.
     int nbody;
-    
     
     /// \brief Number of operational frames.
     int nFrames;
@@ -99,6 +98,7 @@ namespace se3
 
     /// \brief Spatial gravity
     Motion gravity;
+    
     /// \brief Default 3D gravity vector (=(0,0,-9.81)).
     static const Eigen::Vector3d gravity981;
 

@@ -158,11 +158,11 @@ namespace se3
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
 
       static Model::Index addJointAndBodyToModel(ModelHandler & modelPtr,
-                                          Model::JointIndex idx, bp::object joint,
-                                          const SE3_fx & placement,
-                                          const Inertia_fx & Y,
-                                          const std::string & jointName,
-                                          const std::string & bodyName)
+                                                 Model::JointIndex idx, bp::object joint,
+                                                 const SE3_fx & placement,
+                                                 const Inertia_fx & Y,
+                                                 const std::string & jointName,
+                                                 const std::string & bodyName)
       { 
         JointModelVariant variant = bp::extract<JointModelVariant> (joint);
         return boost::apply_visitor(add_joint_and_body_visitor(modelPtr, idx, placement, Y, jointName, bodyName), variant);
