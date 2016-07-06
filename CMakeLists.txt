@@ -137,7 +137,6 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/skew.hpp
   spatial/act-on-set.hpp
   spatial/explog.hpp
-  spatial/frame.hpp
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
@@ -168,6 +167,7 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/fwd.hpp
   multibody/constraint.hpp
   multibody/force-set.hpp
+  multibody/frame.hpp
   multibody/joint.hpp
   multibody/model.hpp
   multibody/model.hxx

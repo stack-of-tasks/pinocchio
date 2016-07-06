@@ -24,8 +24,8 @@
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/inertia.hpp"
-#include "pinocchio/spatial/frame.hpp"
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/multibody/frame.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 #include "pinocchio/tools/string-generator.hpp"
 #include <iostream>
