@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -21,22 +21,13 @@
 
 #include "pinocchio/multibody/model.hpp"
 
-#ifdef WITH_HPP_FCL
-#include "pinocchio/multibody/geometry.hpp"
-#endif
-
 namespace se3
 {
   namespace buildModels
   {
 
     void humanoid2d(Model& model);
-
     void humanoidSimple(Model& model, bool usingFF = true);
-
-    #ifdef WITH_HPP_FCL
-    void collisionModel( Model& model, GeometryModel& geom);
-    #endif
 
   } // namespace buildModels
 } // namespace se3
