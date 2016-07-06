@@ -28,7 +28,7 @@ namespace se3
 {
   namespace python
   {
-    Model buildModel(const std::string & filename, bool verbose) throw (bp::error_already_set)
+    Model buildModel(const std::string & filename, const std::string & model_name, bool verbose) throw (bp::error_already_set)
     {
       Py_Initialize();
       // Get a dict for the global namespace to exec further python code with
@@ -42,7 +42,7 @@ namespace se3
       // into the global namespace. See python/handler.hpp for more details.
       boost::shared_ptr<Model> model(new Model());
       bp::object obj(bp::handle<>(ModelPythonVisitor::convert( model )));
-      globals["model"] = obj;
+      globals[model_name] = obj;
 
       // That's it, you can exec your python script, starting with a model you
       // can update as you want.
