@@ -83,7 +83,7 @@ namespace se3
 
     Model::JointIndex idx = (Model::JointIndex) (njoint ++);
 
-    joints         .push_back(JointModelAccessor(j.derived())); 
+    joints         .push_back(JointModel(j.derived())); 
     boost::get<D>(joints.back()).setIndexes(idx,nq,nv);
 
     inertias       .push_back(Inertia::Zero());
@@ -115,7 +115,7 @@ namespace se3
 
     Model::JointIndex idx = (Model::JointIndex) (njoint ++);
 
-    joints         .push_back(JointModelAccessor(j.derived())); 
+    joints         .push_back(JointModel(j.derived())); 
     boost::get<D>(joints.back()).setIndexes(idx,nq,nv);
 
     inertias       .push_back(Inertia::Zero());

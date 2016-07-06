@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_accessor_hpp__
-#define __se3_joint_accessor_hpp__
+#ifndef __se3_joint_model_hpp__
+#define __se3_joint_model_hpp__
 
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
@@ -25,20 +25,20 @@
 namespace se3
 {
 
-  struct JointAccessor;
-  struct JointModelAccessor;
-  struct JointDataAccessor;
+  struct Joint;
+  struct JointModel;
+  struct JointData;
 
   template<>
-  struct traits<JointAccessor>
+  struct traits<Joint>
   {
 
     enum {
       NQ = -1, // Dynamic because unknown at compilation
       NV = -1
     };
-    typedef JointDataAccessor JointData;
-    typedef JointModelAccessor JointModel;
+    typedef JointData JointDataDerived;
+    typedef JointModel JointModelDerived;
     typedef ConstraintXd Constraint_t;
     typedef SE3 Transformation_t;
     typedef Motion Motion_t;
@@ -53,14 +53,14 @@ namespace se3
     typedef Eigen::Matrix<double,Eigen::Dynamic,1> ConfigVector_t;
     typedef Eigen::Matrix<double,Eigen::Dynamic,1> TangentVector_t;
   };
-  template<> struct traits<JointDataAccessor> { typedef JointAccessor Joint; };
-  template<> struct traits<JointModelAccessor> { typedef JointAccessor Joint; };
+  template<> struct traits<JointData> { typedef Joint JointDerived; };
+  template<> struct traits<JointModel> { typedef Joint JointDerived; };
 
-  struct JointDataAccessor : public JointDataBase<JointDataAccessor> , JointDataVariant
+  struct JointData : public JointDataBase<JointData> , JointDataVariant
   {
     typedef JointDataVariant JointDataBoostVariant;
 
-    typedef JointAccessor Joint;
+    typedef Joint JointDerived;
     SE3_JOINT_TYPEDEF;
 
     JointDataVariant& toVariant() { return *static_cast<JointDataVariant*>(this); }
@@ -78,20 +78,20 @@ namespace se3
     const UD_t              UDinv() const { return udinv_inertia(*this); }
 
 
-    JointDataAccessor() : JointDataBoostVariant() {}
-    JointDataAccessor(const JointDataVariant & jdata ) : JointDataBoostVariant(jdata){}
+    JointData() : JointDataBoostVariant() {}
+    JointData(const JointDataVariant & jdata ) : JointDataBoostVariant(jdata){}
 
   };
 
-  struct JointModelAccessor : public JointModelBase<JointModelAccessor> , JointModelVariant
+  struct JointModel : public JointModelBase<JointModel> , JointModelVariant
   {
     typedef JointModelVariant JointModelBoostVariant;
 
-    typedef JointAccessor Joint;
+    typedef Joint JointDerived;
     SE3_JOINT_TYPEDEF;
     SE3_JOINT_USE_INDEXES;
-    using JointModelBase<JointModelAccessor>::id;
-    using JointModelBase<JointModelAccessor>::setIndexes;
+    using JointModelBase<JointModel>::id;
+    using JointModelBase<JointModel>::setIndexes;
 
     JointModelVariant& toVariant() { return *static_cast<JointModelVariant*>(this); }
     const JointModelVariant& toVariant() const { return *static_cast<const JointModelVariant*>(this); }
@@ -146,18 +146,18 @@ namespace se3
       return ::se3::distance(*this, q0, q1);
     }
 
-    JointModelAccessor() : JointModelBoostVariant() {}
-    JointModelAccessor( const JointModelVariant & model_variant ) : JointModelBoostVariant(model_variant)
+    JointModel() : JointModelBoostVariant() {}
+    JointModel( const JointModelVariant & model_variant ) : JointModelBoostVariant(model_variant)
     {}
 
 
-    JointModelAccessor& operator=( const JointModelAccessor& other) 
+    JointModel& operator=( const JointModel& other) 
     {
       *this = other;
       return *this;
     }
 
-    JointModelAccessor& operator=( const JointModelVariant& other)
+    JointModel& operator=( const JointModelVariant& other)
     {
       *this = other;
       return *this;
@@ -169,7 +169,7 @@ namespace se3
       return false;
     }
     
-    bool operator == (const JointModelBase<JointModelAccessor> & jmodel) const
+    bool operator == (const JointModelBase<JointModel> & jmodel) const
     {
       return jmodel.id() == id()
           && jmodel.idx_q() == idx_q()
@@ -192,10 +192,10 @@ namespace se3
     }
   };
   
-  typedef std::vector<JointDataAccessor> JointDataAccessorVector;  
-  typedef std::vector<JointModelAccessor> JointModelAccessorVector;
+  typedef std::vector<JointData> JointDataVector;  
+  typedef std::vector<JointModel> JointModelVector;
 
 } // namespace se3
 
 
-#endif // ifndef __se3_joint_accessor_hpp__
+#endif // ifndef __se3_joint_model_hpp__

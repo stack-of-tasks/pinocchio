@@ -257,8 +257,8 @@ namespace se3
         NV = 1
       };
       
-      typedef JointDataRevoluteUnaligned JointData;
-      typedef JointModelRevoluteUnaligned JointModel;
+      typedef JointDataRevoluteUnaligned JointDataDerived;
+      typedef JointModelRevoluteUnaligned JointModelDerived;
       typedef ConstraintRevoluteUnaligned Constraint_t;
       typedef SE3 Transformation_t;
       typedef MotionRevoluteUnaligned Motion_t;
@@ -275,12 +275,12 @@ namespace se3
       
     };
 
-  template<> struct traits<JointDataRevoluteUnaligned> { typedef JointRevoluteUnaligned Joint; };
-  template<> struct traits<JointModelRevoluteUnaligned> { typedef JointRevoluteUnaligned Joint; };
+  template<> struct traits<JointDataRevoluteUnaligned> { typedef JointRevoluteUnaligned JointDerived; };
+  template<> struct traits<JointModelRevoluteUnaligned> { typedef JointRevoluteUnaligned JointDerived; };
 
   struct JointDataRevoluteUnaligned : public JointDataBase< JointDataRevoluteUnaligned >
   {
-    typedef JointRevoluteUnaligned Joint;
+    typedef JointRevoluteUnaligned JointDerived;
     SE3_JOINT_TYPEDEF;
 
     Transformation_t M;
@@ -316,7 +316,7 @@ namespace se3
 
   struct JointModelRevoluteUnaligned : public JointModelBase< JointModelRevoluteUnaligned >
   {
-    typedef JointRevoluteUnaligned Joint;
+    typedef JointRevoluteUnaligned JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelRevoluteUnaligned>::id;
@@ -338,8 +338,8 @@ namespace se3
       assert(axis.isUnitary() && "Rotation axis is not unitary");
     }
 
-    JointData createData() const { return JointData(axis); }
-    void calc( JointData& data, 
+    JointDataDerived createData() const { return JointDataDerived(axis); }
+    void calc( JointDataDerived& data, 
 	       const Eigen::VectorXd & qs ) const
     {
       const double & q = qs[idx_q()];
@@ -351,7 +351,7 @@ namespace se3
       data.M.rotation(data.angleaxis.toRotationMatrix());
     }
 
-    void calc( JointData& data, 
+    void calc( JointDataDerived& data, 
 	       const Eigen::VectorXd & qs, 
 	       const Eigen::VectorXd & vs ) const
     {
@@ -366,7 +366,7 @@ namespace se3
       data.v.w = v;
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I.block<6,3> (0,Inertia::ANGULAR) * data.angleaxis.axis();
       data.Dinv[0] = 1./data.angleaxis.axis().dot(data.U.segment <3> (Inertia::ANGULAR));

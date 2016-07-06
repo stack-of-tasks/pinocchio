@@ -26,7 +26,7 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
-#include "pinocchio/multibody/joint/joint-accessor.hpp"
+#include "pinocchio/multibody/joint/joint.hpp"
 #include "pinocchio/tools/string-generator.hpp"
 #include <iostream>
 #include <Eigen/Cholesky>
@@ -75,7 +75,7 @@ namespace se3
     std::vector<SE3> jointPlacements;
 
     /// \brief Model of joint <i>, encapsulated in a JointModelAccessor.
-    JointModelAccessorVector joints;
+    JointModelVector joints;
     
     /// \brief Joint parent of joint <i>, denoted <li> (li==parents[i]).
     std::vector<JointIndex> parents;
@@ -393,7 +393,7 @@ namespace se3
     const Model & model;
     
     /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model, encapsulated in JointDataAccessor.
-    JointDataAccessorVector joints;
+    JointDataVector joints;
     
     /// \brief Vector of joint accelerations.
     std::vector<Motion> a;

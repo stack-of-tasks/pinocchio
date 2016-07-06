@@ -25,17 +25,17 @@
 #include "pinocchio/multibody/parser/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
 
-#include "pinocchio/multibody/joint/joint-accessor.hpp"
+#include "pinocchio/multibody/joint/joint.hpp"
 
 #include <iostream>
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE JointAccessorTest
+#define BOOST_TEST_MODULE JointTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 template <typename T>
-void test_joint_methods (T & jmodel, typename T::JointData & jdata)
+void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
 {
     Eigen::VectorXd q1(Eigen::VectorXd::Random (jmodel.nq()));
     Eigen::VectorXd q1_dot(Eigen::VectorXd::Random (jmodel.nv()));
@@ -49,14 +49,14 @@ void test_joint_methods (T & jmodel, typename T::JointData & jdata)
 
 
 
-    se3::JointModelAccessor jma(jmodel);
-    se3::JointDataAccessor jda(jdata);
+    se3::JointModel jma(jmodel);
+    se3::JointData jda(jdata);
 
                                                             
     jma.calc(jda, q1, q1_dot);
     jma.calc_aba(jda, Ia, update_I); 
 
-    std::string error_prefix("Joint Model Accessor on " + T::shortname());
+    std::string error_prefix("JointModel on " + T::shortname());
     BOOST_CHECK_MESSAGE(jmodel.nq() == jma.nq() ,std::string(error_prefix + " - nq "));
     BOOST_CHECK_MESSAGE(jmodel.nv() == jma.nv() ,std::string(error_prefix + " - nv "));
 
@@ -85,14 +85,14 @@ void test_joint_methods (T & jmodel, typename T::JointData & jdata)
     BOOST_CHECK_MESSAGE((jda.UDinv()).isApprox(jdata.UDinv),std::string(error_prefix + " - Joint UDInv inertia matrix decomposition "));
 }
 
-struct TestJointAccessor{
+struct TestJoint{
 
   template <typename T>
   void operator()(const T ) const
   {
     T jmodel;
     jmodel.setIndexes(0,0,0);
-    typename T::JointData jdata = jmodel.createData();
+    typename T::JointDataDerived jdata = jmodel.createData();
 
     test_joint_methods(jmodel, jdata);    
   }
@@ -107,7 +107,7 @@ struct TestJointAccessor{
   {
     se3::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
     jmodel.setIndexes(0,0,0);
-    se3::JointModelRevoluteUnaligned::JointData jdata = jmodel.createData();
+    se3::JointModelRevoluteUnaligned::JointDataDerived jdata = jmodel.createData();
 
     test_joint_methods(jmodel, jdata);
   }
@@ -116,7 +116,7 @@ struct TestJointAccessor{
   {
     se3::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
     jmodel.setIndexes(0,0,0);
-    se3::JointModelPrismaticUnaligned::JointData jdata = jmodel.createData();
+    se3::JointModelPrismaticUnaligned::JointDataDerived jdata = jmodel.createData();
 
     test_joint_methods(jmodel, jdata);
   }
@@ -124,7 +124,7 @@ struct TestJointAccessor{
 };
 
 
-BOOST_AUTO_TEST_SUITE ( JointAccessorTest)
+BOOST_AUTO_TEST_SUITE ( JointTest)
 
 BOOST_AUTO_TEST_CASE ( test_all_joints )
 {
@@ -136,9 +136,8 @@ BOOST_AUTO_TEST_CASE ( test_all_joints )
   se3::Data data(model);
 
 
-  boost::mpl::for_each<JointModelVariant::types>(TestJointAccessor());
+  boost::mpl::for_each<JointModelVariant::types>(TestJoint());
 
 
 }
 BOOST_AUTO_TEST_SUITE_END ()
-

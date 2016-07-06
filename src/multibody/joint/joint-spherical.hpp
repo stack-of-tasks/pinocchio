@@ -205,8 +205,8 @@ namespace se3
       NQ = 4,
       NV = 3
     };
-    typedef JointDataSpherical JointData;
-    typedef JointModelSpherical JointModel;
+    typedef JointDataSpherical JointDataDerived;
+    typedef JointModelSpherical JointModelDerived;
     typedef ConstraintRotationalSubspace Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionSpherical Motion_t;
@@ -221,12 +221,12 @@ namespace se3
     typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
     typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
-  template<> struct traits<JointDataSpherical> { typedef JointSpherical Joint; };
-  template<> struct traits<JointModelSpherical> { typedef JointSpherical Joint; };
+  template<> struct traits<JointDataSpherical> { typedef JointSpherical JointDerived; };
+  template<> struct traits<JointModelSpherical> { typedef JointSpherical JointDerived; };
 
   struct JointDataSpherical : public JointDataBase<JointDataSpherical>
   {
-    typedef JointSpherical Joint;
+    typedef JointSpherical JointDerived;
     SE3_JOINT_TYPEDEF;
 
     typedef Eigen::Matrix<double,6,6> Matrix6;
@@ -255,7 +255,7 @@ namespace se3
 
   struct JointModelSpherical : public JointModelBase<JointModelSpherical>
   {
-    typedef JointSpherical Joint;
+    typedef JointSpherical JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelSpherical>::id;
@@ -265,9 +265,9 @@ namespace se3
     typedef Motion::Vector3 Vector3;
     typedef double Scalar_t;
 
-    JointData createData() const { return JointData(); }
+    JointDataDerived createData() const { return JointDataDerived(); }
 
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs) const
     {
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
@@ -278,7 +278,7 @@ namespace se3
       data.M.rotation (quat.matrix());
     }
 
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs,
                const Eigen::VectorXd & vs ) const
     {
@@ -291,7 +291,7 @@ namespace se3
       data.M.rotation (quat.matrix ());
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I.block<6,3> (0,Inertia::ANGULAR);
       data.Dinv = I.block<3,3> (Inertia::ANGULAR,Inertia::ANGULAR).inverse();
