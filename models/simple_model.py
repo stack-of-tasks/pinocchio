@@ -15,6 +15,7 @@
 # Pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
 
+import pinocchio as se3
 from math import pi
 from pinocchio.utils import np, rotate, XYZQUATToViewerConfiguration, se3ToXYZQUAT
 
