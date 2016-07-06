@@ -1,4 +1,3 @@
-#include <iostream>
 //
 // Copyright (c) 2016 CNRS
 //
@@ -16,29 +15,28 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/python/motion.hpp"
-#include "pinocchio/python/inertia.hpp"
-#include "pinocchio/python/model.hpp"
 
 #include "pinocchio/multibody/parser/python.hpp"
+#include "pinocchio/python/model.hpp"
 
-namespace bp = boost::python;
+#include <iostream>
+#include <Python.h>
+#include <boost/python.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace se3
 {
   namespace python
   {
-    Model buildModel (const std::string & filename, bool verbose)
+    Model buildModel(const std::string & filename, bool verbose) throw (bp::error_already_set)
     {
       Py_Initialize();
       // Get a dict for the global namespace to exec further python code with
       bp::object main_module = bp::import("__main__");
       bp::dict globals = bp::extract<bp::dict>(main_module.attr("__dict__"));
 
-      // This will run all the needed expose() functions in python/python.cpp
-      // for boost::python to know how to convert a PyObject * into an object
-      bp::exec("import pinocchio as se3", globals);
+      // We need to link to the pinocchio PyWrap. We delegate the dynamic loading to the python interpreter.
+      bp::exec("import pinocchio", globals);
 
       // Create a new Model, get a shared_ptr to it, and include this pointer
       // into the global namespace. See python/handler.hpp for more details.
@@ -51,15 +49,17 @@ namespace se3
       try {
         bp::exec_file((bp::str)filename, globals);
       }
-      catch (bp::error_already_set& e)
+      catch (bp::error_already_set & e)
       {
         PyErr_PrintEx(0);
       }
+      
       if (verbose)
       {
         std::cout << "Your model has been built. It has " << model->nv;
         std::cout << " degrees of freedom." << std::endl;
       }
+      
       return *model;
     }
   } // namespace python

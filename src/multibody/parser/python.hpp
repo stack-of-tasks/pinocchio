@@ -18,14 +18,17 @@
 #ifndef __se3_pythonparser_hpp__
 #define __se3_pythonparser_hpp__
 
+#include <boost/python.hpp>
+
 #include "pinocchio/multibody/model.hpp"
 
 namespace se3
 {
   namespace python
   {
-    Model buildModel (const std::string & filename, bool verbose = false);
+    Model buildModel(const std::string & filename, bool verbose = false) throw (boost::python::error_already_set);
   } // namespace python
+  
 } // namespace se3
 
 #endif // ifndef __se3_pythonparser_hpp__
