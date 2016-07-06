@@ -158,7 +158,7 @@ namespace se3
   }; // struct CollisionResult
 
 /// \brief Return true if the intrinsic geometry of the two CollisionObject is the same
-bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
+inline bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
 {
   return lhs.collisionGeometry() == rhs.collisionGeometry()
           && lhs.getAABB().min_ == rhs.getAABB().min_
@@ -296,7 +296,7 @@ struct GeometryObject
      *
      * @return     The index of the new added GeometryObject in collision_objects
      */
-    GeomIndex addCollisionObject(const JointIndex parent, const fcl::CollisionObject & co,
+    inline GeomIndex addCollisionObject(const JointIndex parent, const fcl::CollisionObject & co,
                                  const SE3 & placement, const std::string & geom_name = "",
                                  const std::string & mesh_path = "");
     
@@ -311,7 +311,7 @@ struct GeometryObject
      *
      * @return     The index of the new added GeometryObject in visual_objects
      */
-    GeomIndex addVisualObject(const JointIndex parent, const fcl::CollisionObject & co,
+    inline GeomIndex addVisualObject(const JointIndex parent, const fcl::CollisionObject & co,
                               const SE3 & placement, const std::string & geom_name = "",
                               const std::string & mesh_path = "");
 
@@ -554,7 +554,7 @@ struct GeometryObject
     /// \param[in] filename The complete path to the SRDF file.
     /// \param[in] verbose Verbosity mode.
     ///
-    void addCollisionPairsFromSrdf(const std::string & filename,
+    inline void addCollisionPairsFromSrdf(const std::string & filename,
                                    const bool verbose = false) throw (std::invalid_argument);
 
     ///
