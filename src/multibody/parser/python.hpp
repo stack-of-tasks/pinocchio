@@ -26,7 +26,16 @@ namespace se3
 {
   namespace python
   {
+    /// \brief Load a model from a Python script.
+    ///
+    /// This function raises a Python error in case of incistency in the Python code.
+    ///
+    /// \input filename The full path to the model file.
+    /// \input verbose Verbosity mode.
+    ///
+    /// \returns The model constructed by the Python script.
     Model buildModel(const std::string & filename, bool verbose = false) throw (boost::python::error_already_set);
+    
   } // namespace python
   
 } // namespace se3
