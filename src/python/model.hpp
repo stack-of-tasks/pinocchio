@@ -28,6 +28,8 @@
 #include "pinocchio/python/se3.hpp"
 #include "pinocchio/python/eigen_container.hpp"
 #include "pinocchio/python/handler.hpp"
+#include "pinocchio/python/motion.hpp"
+#include "pinocchio/python/inertia.hpp"
 
 
 namespace se3
