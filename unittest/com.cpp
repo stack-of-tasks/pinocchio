@@ -15,10 +15,6 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifdef NDEBUG
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#endif
-
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/crba.hpp"
