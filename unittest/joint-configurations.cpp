@@ -385,6 +385,46 @@ BOOST_AUTO_TEST_CASE ( distance_computation_test )
   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Distance between two configs of full model - wrong results");
 }
 
+BOOST_AUTO_TEST_CASE ( neutral_configuration_test )
+{
+  se3::Model model;
+  
+  using namespace se3;
+
+  model.addJointAndBody(model.getJointId("universe"),JointModelFreeFlyer(),SE3::Identity(),Inertia::Random(),
+                "freeflyer_joint", "freeflyer_body");
+  model.addJointAndBody(model.getJointId("freeflyer_joint"),JointModelSpherical(),SE3::Identity(),Inertia::Random(),
+                "spherical_joint", "spherical_body");
+  model.addJointAndBody(model.getJointId("spherical_joint"),JointModelRX(),SE3::Identity(),Inertia::Random(),
+                "revolute_joint", "revolute_body");
+  model.addJointAndBody(model.getJointId("revolute_joint"),JointModelPX(),SE3::Identity(),Inertia::Random(),
+                "px_joint", "px_body");
+  model.addJointAndBody(model.getJointId("px_joint"),JointModelPrismaticUnaligned(Eigen::Vector3d(1,0,0)),SE3::Identity(),Inertia::Random(),
+                "pu_joint", "pu_body");
+  model.addJointAndBody(model.getJointId("pu_joint"),JointModelRevoluteUnaligned(Eigen::Vector3d(0,0,1)),SE3::Identity(),Inertia::Random(),
+                "ru_joint", "ru_body");
+  model.addJointAndBody(model.getJointId("ru_joint"),JointModelSphericalZYX(),SE3::Identity(),Inertia::Random(),
+                "sphericalZYX_joint", "sphericalZYX_body");
+  model.addJointAndBody(model.getJointId("sphericalZYX_joint"),JointModelTranslation(),SE3::Identity(),Inertia::Random(),
+                "translation_joint", "translation_body");
+  model.addJointAndBody(model.getJointId("translation_joint"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+                "planar_joint", "planar_body");
+  
+
+  Eigen::VectorXd expected(model.nq);
+  expected << 0,0,0,0,0,0,1,
+              0,0,0,1,
+              0,
+              0,
+              0,
+              0,
+              0,0,0,
+              0,0,0,
+              0,0,0;
+
+
+  BOOST_CHECK_MESSAGE(model.neutralConfigurations.isApprox(expected, 1e-12), "neutral configurations - wrong results");
+}
 
 BOOST_AUTO_TEST_CASE ( uniform_sampling_test )
 {

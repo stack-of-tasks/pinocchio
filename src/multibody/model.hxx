@@ -93,6 +93,7 @@ namespace se3
     nq += j.nq();
     nv += j.nv();
 
+    neutralConfigurations.conservativeResize(nq);neutralConfigurations.bottomRows<D::NQ>() = j.neutralConfiguration();
     effortLimit.conservativeResize(nv);effortLimit.bottomRows<D::NV>().fill(std::numeric_limits<double>::infinity());
     velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>().fill(std::numeric_limits<double>::infinity());
     lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>().fill(-std::numeric_limits<double>::infinity());
@@ -125,6 +126,7 @@ namespace se3
     nq += j.nq();
     nv += j.nv();
 
+    neutralConfigurations.conservativeResize(nq);neutralConfigurations.bottomRows<D::NQ>() = j.neutralConfiguration();
     effortLimit.conservativeResize(nv);effortLimit.bottomRows<D::NV>() = effort;
     velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>() = velocity;
     lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>() = lowPos;
