@@ -147,6 +147,16 @@ namespace se3
 
   
   /**
+   * @brief       Visit a JointModelVariant through JointNeutralfigurationVisitor to
+   *              get the neutral configuration vector of the joint
+   *
+   * @param[in]  jmodel           The JointModelVariant
+   *
+   * @return     The joint's neutral configuration
+   */
+  inline Eigen::VectorXd neutralConfiguration(const JointModelVariant & jmodel);
+
+  /**
    * @brief      Visit a JointModelVariant through JointNvVisitor to get the dimension of 
    *             the joint tangent space
    *

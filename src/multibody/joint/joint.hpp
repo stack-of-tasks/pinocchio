@@ -146,6 +146,11 @@ namespace se3
       return ::se3::distance(*this, q0, q1);
     }
 
+    ConfigVector_t neutralConfiguration_impl() const
+    { 
+      return ::se3::neutralConfiguration(*this);
+    } 
+
     JointModel() : JointModelBoostVariant() {}
     JointModel( const JointModelVariant & model_variant ) : JointModelBoostVariant(model_variant)
     {}

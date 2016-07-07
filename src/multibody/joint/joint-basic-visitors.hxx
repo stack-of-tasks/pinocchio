@@ -212,6 +212,27 @@ namespace se3
     return JointRandomConfigurationVisitor::run(jmodel, lower_pos_limit, upper_pos_limit);
   }
 
+
+  /**
+   * @brief      JointNeutralConfigurationVisitor visitor
+   */
+  class JointNeutralConfigurationVisitor: public boost::static_visitor<Eigen::VectorXd>
+  {
+  public:
+
+    template<typename D>
+    Eigen::VectorXd operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.neutralConfiguration(); }
+    
+    static Eigen::VectorXd run(const JointModelVariant & jmodel)
+    { return boost::apply_visitor( JointNeutralConfigurationVisitor(), jmodel ); }
+  };
+  inline Eigen::VectorXd neutralConfiguration(const JointModelVariant & jmodel)
+  {
+    return JointNeutralConfigurationVisitor::run(jmodel);
+  }
+
+
   /**
    * @brief      JointDifferenceVisitor visitor
    */
