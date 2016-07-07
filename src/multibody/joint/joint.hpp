@@ -151,6 +151,11 @@ namespace se3
     {}
 
 
+    const std::string shortname()
+    {
+      return ::se3::shortname(*this);
+    }
+
     JointModel& operator=( const JointModel& other) 
     {
       *this = other;
