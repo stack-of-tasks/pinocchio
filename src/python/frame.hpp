@@ -23,8 +23,8 @@
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
+#include "pinocchio/multibody/frame.hpp"
 #include "pinocchio/multibody/model.hpp"
-
 
 namespace se3
 {
@@ -98,4 +98,3 @@ namespace se3
 } // namespace se3
 
 #endif // ifndef __se3_python_frame_hpp__
-
