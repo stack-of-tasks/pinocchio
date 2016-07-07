@@ -635,8 +635,8 @@ BOOST_AUTO_TEST_CASE ( toJointDataDense )
 
   JointDataRX jdata = jmodel.createData();
 
-  JointDataDense< JointDataBase<JointModelRX::JointData>::NQ,
-                  JointDataBase<JointModelRX::JointData>::NV
+  JointDataDense< JointDataBase<JointModelRX::JointDataDerived>::NQ,
+                  JointDataBase<JointModelRX::JointDataDerived>::NV
                   > jdd = jdata.toDense();
 
   BOOST_CHECK(ConstraintXd(jdata.S).matrix().isApprox(jdd.S.matrix()));

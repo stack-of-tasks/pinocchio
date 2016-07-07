@@ -269,8 +269,8 @@ namespace se3
       NQ = 3,
       NV = 3
     };
-    typedef JointDataSphericalZYX JointData;
-    typedef JointModelSphericalZYX JointModel;
+    typedef JointDataSphericalZYX JointDataDerived;
+    typedef JointModelSphericalZYX JointModelDerived;
     typedef JointSphericalZYX::ConstraintRotationalSubspace Constraint_t;
     typedef SE3 Transformation_t;
     typedef JointSphericalZYX::MotionSpherical Motion_t;
@@ -285,12 +285,12 @@ namespace se3
     typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
     typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
-  template<> struct traits<JointDataSphericalZYX> { typedef JointSphericalZYX Joint; };
-  template<> struct traits<JointModelSphericalZYX> { typedef JointSphericalZYX Joint; };
+  template<> struct traits<JointDataSphericalZYX> { typedef JointSphericalZYX JointDerived; };
+  template<> struct traits<JointModelSphericalZYX> { typedef JointSphericalZYX JointDerived; };
 
   struct JointDataSphericalZYX : public JointDataBase<JointDataSphericalZYX>
   {
-    typedef JointSphericalZYX Joint;
+    typedef JointSphericalZYX JointDerived;
     SE3_JOINT_TYPEDEF;
 
     typedef Motion::Scalar_t Scalar;
@@ -321,7 +321,7 @@ namespace se3
 
   struct JointModelSphericalZYX : public JointModelBase<JointModelSphericalZYX>
   {
-    typedef JointSphericalZYX Joint;
+    typedef JointSphericalZYX JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelSphericalZYX>::id;
@@ -331,9 +331,9 @@ namespace se3
     typedef Motion::Vector3 Vector3;
     typedef double Scalar_t;
 
-    JointData createData() const { return JointData(); }
+    JointDataDerived createData() const { return JointDataDerived(); }
 
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs) const
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ>(idx_q ());
@@ -355,7 +355,7 @@ namespace se3
       data.S.matrix () <<  -s1, 0., 1., c1 * s2, c2, 0, c1 * c2, -s2, 0;
     }
 
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs,
                const Eigen::VectorXd & vs ) const
     {
@@ -386,7 +386,7 @@ namespace se3
       data.c ()(2) = -s1 * c2 * q_dot (0) * q_dot (1) - c1 * s2 * q_dot (0) * q_dot (2) - c2 * q_dot (1) * q_dot (2);
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I.middleCols<3> (Inertia::ANGULAR) * data.S.matrix();
       Inertia::Matrix3 tmp (data.S.matrix().transpose() * data.U.middleRows<3> (Inertia::ANGULAR));

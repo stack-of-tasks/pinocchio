@@ -273,8 +273,8 @@ namespace se3
       NQ = 3,
       NV = 3
     };
-    typedef JointDataPlanar JointData;
-    typedef JointModelPlanar JointModel;
+    typedef JointDataPlanar JointDataDerived;
+    typedef JointModelPlanar JointModelDerived;
     typedef ConstraintPlanar Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionPlanar Motion_t;
@@ -289,12 +289,12 @@ namespace se3
     typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
     typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
-  template<> struct traits<JointDataPlanar> { typedef JointPlanar Joint; };
-  template<> struct traits<JointModelPlanar> { typedef JointPlanar Joint; };
+  template<> struct traits<JointDataPlanar> { typedef JointPlanar JointDerived; };
+  template<> struct traits<JointModelPlanar> { typedef JointPlanar JointDerived; };
 
   struct JointDataPlanar : public JointDataBase<JointDataPlanar>
   {
-    typedef JointPlanar Joint;
+    typedef JointPlanar JointDerived;
     SE3_JOINT_TYPEDEF;
     
     Constraint_t S;
@@ -319,7 +319,7 @@ namespace se3
 
   struct JointModelPlanar : public JointModelBase<JointModelPlanar>
   {
-    typedef JointPlanar Joint;
+    typedef JointPlanar JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelPlanar>::id;
@@ -327,9 +327,9 @@ namespace se3
     using JointModelBase<JointModelPlanar>::idx_v;
     using JointModelBase<JointModelPlanar>::setIndexes;
 
-    JointData createData() const { return JointData(); }
+    JointDataDerived createData() const { return JointDataDerived(); }
 
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs) const
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ>(idx_q ());
@@ -341,7 +341,7 @@ namespace se3
 
     }
 
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs,
                const Eigen::VectorXd & vs ) const
     {
@@ -358,7 +358,7 @@ namespace se3
       data.v.theta_dot_ = q_dot(2);
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U.leftCols<2> () = I.leftCols<2> ();
       data.U.rightCols<1> () = I.rightCols<1> ();

@@ -142,8 +142,8 @@ namespace se3
       NQ = 7,
       NV = 6
     };
-    typedef JointDataFreeFlyer JointData;
-    typedef JointModelFreeFlyer JointModel;
+    typedef JointDataFreeFlyer JointDataDerived;
+    typedef JointModelFreeFlyer JointModelDerived;
     typedef ConstraintIdentity Constraint_t;
     typedef SE3 Transformation_t;
     typedef Motion Motion_t;
@@ -158,12 +158,12 @@ namespace se3
     typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
     typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
-  template<> struct traits<JointDataFreeFlyer> { typedef JointFreeFlyer Joint; };
-  template<> struct traits<JointModelFreeFlyer> { typedef JointFreeFlyer Joint; };
+  template<> struct traits<JointDataFreeFlyer> { typedef JointFreeFlyer JointDerived; };
+  template<> struct traits<JointModelFreeFlyer> { typedef JointFreeFlyer JointDerived; };
 
   struct JointDataFreeFlyer : public JointDataBase<JointDataFreeFlyer>
   {
-    typedef JointFreeFlyer Joint;
+    typedef JointFreeFlyer JointDerived;
     SE3_JOINT_TYPEDEF;
 
     typedef Eigen::Matrix<double,6,6> Matrix6;
@@ -192,7 +192,7 @@ namespace se3
 
   struct JointModelFreeFlyer : public JointModelBase<JointModelFreeFlyer>
   {
-    typedef JointFreeFlyer Joint;
+    typedef JointFreeFlyer JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelFreeFlyer>::id;
@@ -202,8 +202,8 @@ namespace se3
     typedef Motion::Vector3 Vector3;
     typedef double Scalar_t;
 
-    JointData createData() const { return JointData(); }
-    void calc(JointData & data,
+    JointDataDerived createData() const { return JointDataDerived(); }
+    void calc(JointDataDerived & data,
               const Eigen::VectorXd & qs) const
     {
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
@@ -215,7 +215,7 @@ namespace se3
       data.M.translation (q.head<3>());
     }
     
-    void calc(JointData & data,
+    void calc(JointDataDerived & data,
               const Eigen::VectorXd & qs,
               const Eigen::VectorXd & vs ) const
     {
@@ -230,7 +230,7 @@ namespace se3
       data.M.translation (q.head<3>());
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I;
       data.Dinv = I.inverse();

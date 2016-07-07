@@ -26,7 +26,7 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
-#include "pinocchio/multibody/joint/joint-variant.hpp"
+#include "pinocchio/multibody/joint/joint.hpp"
 #include "pinocchio/tools/string-generator.hpp"
 #include <iostream>
 #include <Eigen/Cholesky>
@@ -74,7 +74,7 @@ namespace se3
     /// \brief Placement (SE3) of the input of joint <i> regarding to the parent joint output <li>.
     std::vector<SE3> jointPlacements;
 
-    /// \brief Model of joint <i>.
+    /// \brief Model of joint <i>, encapsulated in a JointModelAccessor.
     JointModelVector joints;
     
     /// \brief Joint parent of joint <i>, denoted <li> (li==parents[i]).
@@ -392,7 +392,7 @@ namespace se3
     /// \brief A const reference to the reference model.
     const Model & model;
     
-    /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model.
+    /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model, encapsulated in JointDataAccessor.
     JointDataVector joints;
     
     /// \brief Vector of joint accelerations.
@@ -423,7 +423,7 @@ namespace se3
     Eigen::VectorXd nle;
 
     /// \brief Vector of absolute operationnel frame placements (wrt the world).
-    std::vector<SE3> oMof;
+    std::vector<SE3> oMf;
 
     /// \brief Vector of sub-tree composite rigid body inertias, i.e. the apparent inertia of the subtree supported by the joint.
     std::vector<Inertia> Ycrb;

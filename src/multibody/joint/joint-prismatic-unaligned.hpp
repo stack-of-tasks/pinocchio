@@ -252,8 +252,8 @@ namespace se3
         NQ = 1,
         NV = 1
       };
-      typedef JointDataPrismaticUnaligned JointData;
-      typedef JointModelPrismaticUnaligned JointModel;
+      typedef JointDataPrismaticUnaligned JointDataDerived;
+      typedef JointModelPrismaticUnaligned JointModelDerived;
       typedef ConstraintPrismaticUnaligned Constraint_t;
       typedef SE3 Transformation_t;
       typedef MotionPrismaticUnaligned Motion_t;
@@ -269,12 +269,12 @@ namespace se3
       typedef Eigen::Matrix<double,NV,1> TangentVector_t;
     };
 
-  template<> struct traits<JointDataPrismaticUnaligned> { typedef JointPrismaticUnaligned Joint; };
-  template<> struct traits<JointModelPrismaticUnaligned> { typedef JointPrismaticUnaligned Joint; };
+  template<> struct traits<JointDataPrismaticUnaligned> { typedef JointPrismaticUnaligned JointDerived; };
+  template<> struct traits<JointModelPrismaticUnaligned> { typedef JointPrismaticUnaligned JointDerived; };
 
   struct JointDataPrismaticUnaligned : public JointDataBase <JointDataPrismaticUnaligned>
   {
-    typedef JointPrismaticUnaligned Joint;
+    typedef JointPrismaticUnaligned JointDerived;
     SE3_JOINT_TYPEDEF;
 
     Transformation_t M;
@@ -311,7 +311,7 @@ namespace se3
 
   struct JointModelPrismaticUnaligned : public JointModelBase <JointModelPrismaticUnaligned>
   {
-    typedef JointPrismaticUnaligned Joint;
+    typedef JointPrismaticUnaligned JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelPrismaticUnaligned>::id;
@@ -334,9 +334,9 @@ namespace se3
       assert(axis.isUnitary() && "Translation axis is not unitary");
     }
 
-    JointData createData() const { return JointData(axis); }
+    JointDataDerived createData() const { return JointDataDerived(axis); }
     
-    void calc(JointData & data, const Eigen::VectorXd & qs) const
+    void calc(JointDataDerived & data, const Eigen::VectorXd & qs) const
     {
       const double & q = qs[idx_q()];
 
@@ -346,7 +346,7 @@ namespace se3
       data.M.translation() = data.S.axis * q;
     }
 
-    void calc(JointData & data,
+    void calc(JointDataDerived & data,
               const Eigen::VectorXd & qs,
               const Eigen::VectorXd & vs) const
     {
@@ -360,7 +360,7 @@ namespace se3
       data.v.v = v;
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I.block<6,3> (0,Inertia::LINEAR) * data.S.axis;
       data.Dinv[0] = 1./data.S.axis.dot(data.U.segment <3> (Inertia::LINEAR));

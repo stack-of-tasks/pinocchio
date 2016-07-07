@@ -373,8 +373,8 @@ namespace se3
       NV = 1
     };
     
-    typedef JointDataRevolute<axis> JointData;
-    typedef JointModelRevolute<axis> JointModel;
+    typedef JointDataRevolute<axis> JointDataDerived;
+    typedef JointModelRevolute<axis> JointModelDerived;
     typedef ConstraintRevolute<axis> Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionRevolute<axis> Motion_t;
@@ -390,13 +390,13 @@ namespace se3
     typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
 
-  template<int axis> struct traits< JointDataRevolute<axis> > { typedef JointRevolute<axis> Joint; };
-  template<int axis> struct traits< JointModelRevolute<axis> > { typedef JointRevolute<axis> Joint; };
+  template<int axis> struct traits< JointDataRevolute<axis> > { typedef JointRevolute<axis> JointDerived; };
+  template<int axis> struct traits< JointModelRevolute<axis> > { typedef JointRevolute<axis> JointDerived; };
 
   template<int axis>
   struct JointDataRevolute : public JointDataBase< JointDataRevolute<axis> >
   {
-    typedef JointRevolute<axis> Joint;
+    typedef JointRevolute<axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
     Constraint_t S;
@@ -422,7 +422,7 @@ namespace se3
   template<int axis>
   struct JointModelRevolute : public JointModelBase< JointModelRevolute<axis> >
   {
-    typedef JointRevolute<axis> Joint;
+    typedef JointRevolute<axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
     using JointModelBase<JointModelRevolute>::id;
@@ -432,15 +432,15 @@ namespace se3
     typedef Motion::Vector3 Vector3;
     typedef double Scalar_t;
     
-    JointData createData() const { return JointData(); }
-    void calc( JointData& data, 
+    JointDataDerived createData() const { return JointDataDerived(); }
+    void calc( JointDataDerived& data, 
      const Eigen::VectorXd & qs ) const
     {
       const double & q = qs[idx_q()];
       data.M.rotation(JointRevolute<axis>::cartesianRotation(q));
     }
 
-    void calc( JointData& data, 
+    void calc( JointDataDerived& data, 
      const Eigen::VectorXd & qs, 
      const Eigen::VectorXd & vs ) const
     {
@@ -451,7 +451,7 @@ namespace se3
       data.v.w = v;
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I.col(Inertia::ANGULAR + axis);
       data.Dinv[0] = 1./I(Inertia::ANGULAR + axis,Inertia::ANGULAR + axis);

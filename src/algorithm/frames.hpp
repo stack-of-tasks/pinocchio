@@ -82,8 +82,16 @@ namespace se3
   {
     for (Model::FrameIndex i=0; i < (Model::FrameIndex) model.nFrames; ++i)
     {
-      const Model::JointIndex & parent = model.frames[i].parent;
-      data.oMof[i] = (data.oMi[parent] * model.frames[i].placement);
+      const Frame & frame = model.frames[i];
+      const Model::JointIndex & parent = frame.parent;
+      if (frame.placement == SE3::Identity())
+      {
+        data.oMf[i] = data.oMi[parent];
+      }
+      else
+      {
+        data.oMf[i] = (data.oMi[parent] * frame.placement);
+      }
     }
   }
   
@@ -108,7 +116,7 @@ namespace se3
     assert( J.cols() == data.J.cols() );
     
     const Model::JointIndex & parent = model.frames[frame_id].parent;
-    const SE3 & oMframe = data.oMof[frame_id];
+    const SE3 & oMframe = data.oMf[frame_id];
     const Frame & frame = model.frames[frame_id];
     
     const int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
@@ -117,8 +125,8 @@ namespace se3
     const SE3::Vector3 lever(data.oMi[parent].rotation() * (frame.placement.translation()));
     
     getJacobian<localFrame>(model, data, parent, J);
-    
-    if (frame.type == JOINT)
+
+    if (frame.placement == SE3::Identity())
     {
       // do nothing
     }
