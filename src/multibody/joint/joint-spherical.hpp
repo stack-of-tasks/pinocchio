@@ -392,6 +392,13 @@ namespace se3
       return difference_impl(q0, q1).norm();
     }
 
+    ConfigVector_t neutralConfiguration_impl() const
+    { 
+      ConfigVector_t q;
+      q << 0, 0, 0, 1;
+      return q;
+    } 
+
     JointModelDense<NQ, NV> toDense_impl() const
     {
       return JointModelDense<NQ, NV>( id(),

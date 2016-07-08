@@ -125,6 +125,7 @@ namespace se3
 
 
           .add_property("effortLimit", bp::make_function(&ModelPythonVisitor::effortLimit), "Joint max effort")
+          .add_property("neutralConfigurations", bp::make_function(&ModelPythonVisitor::neutralConfigurations), "Joint's neutral configurations")
           .add_property("velocityLimit", bp::make_function(&ModelPythonVisitor::velocityLimit), "Joint max velocity")
           .add_property("lowerPositionLimit", bp::make_function(&ModelPythonVisitor::lowerPositionLimit), "Limit for joint lower position")
           .add_property("upperPositionLimit", bp::make_function(&ModelPythonVisitor::upperPositionLimit), "Limit for joint upper position")
@@ -171,6 +172,7 @@ namespace se3
       }
 
 
+      static Eigen::VectorXd neutralConfigurations(ModelHandler & m) {return m->neutralConfigurations;}
       static Eigen::VectorXd effortLimit(ModelHandler & m) {return m->effortLimit;}
       static Eigen::VectorXd velocityLimit(ModelHandler & m) {return m->velocityLimit;}
       static Eigen::VectorXd lowerPositionLimit(ModelHandler & m) {return m->lowerPositionLimit;}

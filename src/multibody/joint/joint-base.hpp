@@ -328,6 +328,15 @@ namespace se3
     double distance(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { return derived().distance_impl(q0, q1); }
 
+    /**
+     * @brief      Get neutral configuration of joint
+     *
+     * @return     The joint's neutral configuration
+     */
+    ConfigVector_t neutralConfiguration() const
+    { return derived().neutralConfiguration_impl(); } 
+
+
     JointIndex i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.
     int i_v;    // Index of the joint velocity in the joint velocity vector.

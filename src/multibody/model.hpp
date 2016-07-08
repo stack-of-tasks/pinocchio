@@ -83,6 +83,9 @@ namespace se3
     /// \brief Name of joint <i>
     std::vector<std::string> names;
     
+    /// \brief Vector of joint's neutral configurations
+    Eigen::VectorXd neutralConfigurations;
+
     /// \brief Vector of maximal joint torques
     Eigen::VectorXd effortLimit;
     /// \brief Vector of maximal joint velocities
