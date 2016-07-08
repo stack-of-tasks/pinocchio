@@ -37,6 +37,8 @@
   #include "pinocchio/multibody/parser/lua.hpp"
 #endif // #ifdef WITH_LUA
 
+#include "pinocchio/multibody/parser/srdf.hpp"
+
 namespace se3
 {
   namespace python
@@ -122,6 +124,14 @@ namespace se3
       }
 #endif // #ifdef WITH_LUA
 
+      static Eigen::VectorXd getNeutralConfigurationFromSrdf(ModelHandler & model,
+                                                             const std::string & filename,
+                                                             bool verbose
+                                                            )
+      {
+        return se3::srdf::getNeutralConfigurationFromSrdf(*model, filename, verbose);
+      }
+
       /* --- Expose --------------------------------------------------------- */
       static void expose();
     }; // struct ParsersPythonVisitor
@@ -173,6 +183,13 @@ namespace se3
               "Parse the urdf file given in input and return a proper pinocchio model "
               "(remember to create the corresponding data structure).");
 #endif // #ifdef WITH_LUA
+
+      bp::def("getNeutralConfigurationFromSrdf",getNeutralConfigurationFromSrdf,
+              // static_cast <ModelHandler (*) ( const std::string &, bool)> (&ParsersPythonVisitor::getNeutralConfigurationFromSrdf),
+              bp::args("Model for which we want the neutral config","srdf filename (string)", "verbosity"
+                       ),
+              "Get the neutral configuration of a given model associated to a SRDF file");
+
     }
     
   }
