@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2015 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -38,7 +38,7 @@ namespace se3
   template <>
   struct traits< MotionPlanar >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -66,10 +66,10 @@ namespace se3
     SPATIAL_TYPEDEF_NO_TEMPLATE(MotionPlanar);
 
     MotionPlanar () : x_dot_(NAN), y_dot_(NAN), theta_dot_(NAN)      {}
-    MotionPlanar (Scalar_t x_dot, Scalar_t y_dot, Scalar_t theta_dot) : x_dot_(x_dot), y_dot_(y_dot), theta_dot_(theta_dot)  {}
-    Scalar_t x_dot_;
-    Scalar_t y_dot_;
-    Scalar_t theta_dot_;
+    MotionPlanar (Scalar x_dot, Scalar y_dot, Scalar theta_dot) : x_dot_(x_dot), y_dot_(y_dot), theta_dot_(theta_dot)  {}
+    Scalar x_dot_;
+    Scalar y_dot_;
+    Scalar theta_dot_;
 
     operator Motion() const
     {
@@ -98,7 +98,7 @@ namespace se3
   template <>
   struct traits < ConstraintPlanar >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -119,9 +119,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,3,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,3,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,3> DenseBase;
+    typedef Eigen::Matrix<Scalar,3,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar,3,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar,6,3> DenseBase;
   }; // struct traits ConstraintPlanar
 
 
@@ -171,7 +171,7 @@ namespace se3
 
     operator ConstraintXd () const
     {
-      Eigen::Matrix<Scalar_t,6,3> S;
+      Eigen::Matrix<Scalar,6,3> S;
       S.block <3,3> (Inertia::LINEAR, 0).setZero ();
       S.block <3,3> (Inertia::ANGULAR, 0).setZero ();
       S(Inertia::LINEAR + 0,0) = 1.;
@@ -180,7 +180,7 @@ namespace se3
       return ConstraintXd(S);
     }
 
-    Eigen::Matrix <Scalar_t,6,3> se3Action (const SE3 & m) const
+    Eigen::Matrix <Scalar,6,3> se3Action (const SE3 & m) const
     {
       Eigen::Matrix <double,6,3> X_subspace;
       X_subspace.block <3,2> (Motion::LINEAR, 0) = m.rotation ().leftCols <2> ();
@@ -219,9 +219,9 @@ namespace se3
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  inline Eigen::Matrix <Inertia::Scalar_t, 6, 3> operator* (const Inertia & Y, const ConstraintPlanar &)
+  inline Eigen::Matrix <Inertia::Scalar, 6, 3> operator* (const Inertia & Y, const ConstraintPlanar &)
   {
-    Eigen::Matrix <Inertia::Scalar_t, 6, 3> M;
+    Eigen::Matrix <Inertia::Scalar, 6, 3> M;
     const double mass = Y.mass ();
     const Inertia::Vector3 & com = Y.lever ();
     const Symmetric3 & inertia = Y.inertia ();
@@ -244,10 +244,10 @@ namespace se3
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
   //  inline Eigen::Matrix<double,6,1>
   inline
-  Eigen::Matrix<Inertia::Scalar_t, 6, 3>
+  Eigen::Matrix<Inertia::Scalar, 6, 3>
   operator* (const Inertia::Matrix6 & Y, const ConstraintPlanar &)
   {
-    typedef Eigen::Matrix<Inertia::Scalar_t, 6, 3> Matrix63;
+    typedef Eigen::Matrix<Inertia::Scalar, 6, 3> Matrix63;
     Matrix63 IS;
     
     IS.leftCols <2> () = Y.leftCols <2> ();

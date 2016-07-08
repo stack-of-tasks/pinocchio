@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -60,7 +60,7 @@ namespace se3
   template<int axis>
   struct traits <MotionPrismatic < axis > >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -114,7 +114,7 @@ namespace se3
   template<int axis>
   struct traits< ConstraintPrismatic<axis> >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -135,9 +135,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,1> DenseBase;
+    typedef Eigen::Matrix<Scalar,1,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar,1,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar,6,1> DenseBase;
   }; // traits ConstraintRevolute
 
   template <int axis>
@@ -396,7 +396,7 @@ namespace se3
     using JointModelBase<JointModelPrismatic>::idx_v;
     using JointModelBase<JointModelPrismatic>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar_t;
+    typedef double Scalar;
     
     JointDataDerived createData() const { return JointDataDerived(); }
     void calc( JointDataDerived& data, 
@@ -429,8 +429,8 @@ namespace se3
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {
-      const Scalar_t & q = qs[idx_q()];
-      const Scalar_t & v = vs[idx_v()];
+      const Scalar & q = qs[idx_q()];
+      const Scalar & v = vs[idx_v()];
 
       ConfigVector_t result;
       result << (q + v);
@@ -439,8 +439,8 @@ namespace se3
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar & q_0 = q0[idx_q()];
+      const Scalar & q_1 = q1[idx_q()];
 
       ConfigVector_t result;
       result << ((1-u) * q_0 + u * q_1);
@@ -473,8 +473,8 @@ namespace se3
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar & q_0 = q0[idx_q()];
+      const Scalar & q_1 = q1[idx_q()];
 
       ConfigVector_t result;
       result << (q_1 - q_0);
@@ -483,8 +483,8 @@ namespace se3
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar & q_0 = q0[idx_q()];
+      const Scalar & q_1 = q1[idx_q()];
 
       return (q_1-q_0);
     }

@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -65,7 +65,7 @@ namespace se3
     Derived_t se3Action(const SE3 & m) const { return derived().se3Action_impl(m); }
     Derived_t se3ActionInverse(const SE3 & m) const { return derived().se3ActionInverse_impl(m); }
     
-    Scalar_t dot(const Force & f) const { return static_cast<Derived_t*>(this)->dot(f); }
+    Scalar dot(const Force & f) const { return static_cast<Derived_t*>(this)->dot(f); }
 
     void disp(std::ostream & os) const { derived().disp_impl(os); }
     friend std::ostream & operator << (std::ostream & os, const MotionBase<Derived_t> & mv)
@@ -80,7 +80,7 @@ namespace se3
   template<typename T, int U>
   struct traits< MotionTpl<T, U> >
   {
-    typedef T Scalar_t;
+    typedef T Scalar;
     typedef Eigen::Matrix<T,3,1,U> Vector3;
     typedef Eigen::Matrix<T,4,1,U> Vector4;
     typedef Eigen::Matrix<T,6,1,U> Vector6;
@@ -189,7 +189,7 @@ namespace se3
     MotionTpl __minus__(const MotionTpl & v2) const { return MotionTpl(data - v2.data); }
     MotionTpl& __pequ__(const MotionTpl & v2) { data += v2.data; return *this; }
     
-    Scalar_t dot(const Force & f) const { return data.dot(f.toVector()); }
+    Scalar dot(const Force & f) const { return data.dot(f.toVector()); }
 
     MotionTpl cross(const MotionTpl& v2) const
     {
@@ -256,7 +256,7 @@ namespace se3
   template<>
   struct traits< BiasZero >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;

@@ -1,6 +1,6 @@
         //
 // Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -147,20 +147,20 @@ namespace se3
 
             typedef JointModelFreeFlyer::ConfigVector_t ConfigVector_t;
             typedef JointModelFreeFlyer::TangentVector_t TangentVector_t;
-            typedef ConfigVector_t::Scalar Scalar_t;
+            typedef ConfigVector_t::Scalar Scalar;
 
 
             ConfigVector_t lower_position;
-            lower_position.fill(std::numeric_limits<Scalar_t>::min());
+            lower_position.fill(std::numeric_limits<Scalar>::min());
 
             ConfigVector_t upper_position;
-            upper_position.fill(std::numeric_limits<Scalar_t>::max());
+            upper_position.fill(std::numeric_limits<Scalar>::max());
 
             TangentVector_t max_effort;
-            max_effort.fill(std::numeric_limits<Scalar_t>::max());
+            max_effort.fill(std::numeric_limits<Scalar>::max());
 
             TangentVector_t max_velocity;
-            max_velocity.fill(std::numeric_limits<Scalar_t>::max());
+            max_velocity.fill(std::numeric_limits<Scalar>::max());
 
             model.addJointAndBody(parent_joint_id, JointModelFreeFlyer(), jointPlacement, Y,
               max_effort, max_velocity, lower_position, upper_position,

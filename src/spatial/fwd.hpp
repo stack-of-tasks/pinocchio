@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -31,7 +32,7 @@ namespace se3
   template<class C> struct traits {};
 
   #define SPATIAL_TYPEDEF_TEMPLATE(derived)              \
-    typedef typename traits<derived>::Scalar_t Scalar_t; \
+    typedef typename traits<derived>::Scalar Scalar; \
     typedef typename traits<derived>::Vector3 Vector3; \
     typedef typename traits<derived>::Vector4 Vector4; \
     typedef typename traits<derived>::Vector6 Vector6; \
@@ -54,7 +55,7 @@ namespace se3
     }
 
   #define SPATIAL_TYPEDEF_NO_TEMPLATE(derived)              \
-    typedef traits<derived>::Scalar_t Scalar_t; \
+    typedef traits<derived>::Scalar Scalar; \
     typedef traits<derived>::Vector3 Vector3; \
     typedef traits<derived>::Vector4 Vector4; \
     typedef traits<derived>::Vector6 Vector6; \
