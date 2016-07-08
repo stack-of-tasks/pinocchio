@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015 CNRS
+// Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -28,7 +29,7 @@ namespace eigenpy
   template<>
   struct UnalignedEquivalent<se3::SE3>
   {
-    typedef se3::SE3Tpl<se3::SE3::Scalar_t,Eigen::DontAlign> type;
+    typedef se3::SE3Tpl<se3::SE3::Scalar,Eigen::DontAlign> type;
   };
 } // namespace eigenpy
 

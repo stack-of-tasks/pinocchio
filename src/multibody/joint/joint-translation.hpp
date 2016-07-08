@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2015 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -37,7 +37,7 @@ namespace se3
   template <>
   struct traits < MotionTranslation >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -96,7 +96,7 @@ namespace se3
   template <>
   struct traits < ConstraintTranslationSubspace>
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -117,9 +117,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,3,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,3,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,3> DenseBase;
+    typedef Eigen::Matrix<Scalar,3,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar,3,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar,6,3> DenseBase;
   }; // traits ConstraintTranslationSubspace
 
   struct ConstraintTranslationSubspace : ConstraintBase < ConstraintTranslationSubspace >
@@ -278,7 +278,7 @@ namespace se3
     using JointModelBase<JointModelTranslation>::idx_v;
     using JointModelBase<JointModelTranslation>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar_t;
+    typedef double Scalar;
 
     JointDataDerived createData() const { return JointDataDerived(); }
 

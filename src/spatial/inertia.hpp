@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -41,8 +42,8 @@ namespace se3
     Derived_t & derived() { return *static_cast<Derived_t*>(this); }
     const Derived_t & derived() const { return *static_cast<const Derived_t*>(this); }
 
-    Scalar_t           mass()    const { return static_cast<const Derived_t*>(this)->mass(); }
-    Scalar_t &         mass() { return static_cast<const Derived_t*>(this)->mass(); }
+    Scalar           mass()    const { return static_cast<const Derived_t*>(this)->mass(); }
+    Scalar &         mass() { return static_cast<const Derived_t*>(this)->mass(); }
     const Vector3 &    lever()   const { return static_cast<const Derived_t*>(this)->lever(); }
     Vector3 &          lever() { return static_cast<const Derived_t*>(this)->lever(); }
     const Symmetric3 & inertia() const { return static_cast<const Derived_t*>(this)->inertia(); }
@@ -57,7 +58,7 @@ namespace se3
     Derived_t operator+(const Derived_t & Yb) const { return derived().__plus__(Yb); }
     Force operator*(const Motion & v) const    { return derived().__mult__(v); }
 
-    Scalar_t vtiv(const Motion & v) const { return derived().vtiv_impl(v); }
+    Scalar vtiv(const Motion & v) const { return derived().vtiv_impl(v); }
 
     void setZero() { derived().setZero(); }
     void setIdentity() { derived().setIdentity(); }
@@ -82,7 +83,7 @@ namespace se3
   template<typename T, int U>
   struct traits< InertiaTpl<T, U> >
   {
-    typedef T Scalar_t;
+    typedef T Scalar;
     typedef Eigen::Matrix<T,3,1,U> Vector3;
     typedef Eigen::Matrix<T,4,1,U> Vector4;
     typedef Eigen::Matrix<T,6,1,U> Vector6;
@@ -117,7 +118,7 @@ namespace se3
     // Constructors
     InertiaTpl() : m(), c(), I() {}
 
-    InertiaTpl(const Scalar_t m_, const Vector3 &c_, const Matrix3 &I_)
+    InertiaTpl(const Scalar m_, const Vector3 &c_, const Matrix3 &I_)
     : m(m_), c(c_), I(I_)
     {}
     
@@ -135,7 +136,7 @@ namespace se3
       I = Symmetric3(I3);
     }
 
-    InertiaTpl(Scalar_t _m, 
+    InertiaTpl(Scalar _m, 
      const Vector3 &_c, 
      const Symmetric3 &_I)
     : m(_m),
@@ -183,41 +184,41 @@ namespace se3
     static InertiaTpl Random()
     {
         // We have to shoot "I" definite positive and not only symmetric.
-      return InertiaTpl(Eigen::internal::random<Scalar_t>()+1,
+      return InertiaTpl(Eigen::internal::random<Scalar>()+1,
                         Vector3::Random(),
                         Symmetric3::RandomPositive());
     }
 
     static InertiaTpl FromEllipsoid(
-        const Scalar_t m, const Scalar_t x, const Scalar_t y, const Scalar_t z)
+        const Scalar m, const Scalar x, const Scalar y, const Scalar z)
     {
-      Scalar_t a = m * (y*y + z*z) / 5;
-      Scalar_t b = m * (x*x + z*z) / 5;
-      Scalar_t c = m * (y*y + x*x) / 5;
+      Scalar a = m * (y*y + z*z) / 5;
+      Scalar b = m * (x*x + z*z) / 5;
+      Scalar c = m * (y*y + x*x) / 5;
       return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, b, 0, 0, c));
     }
 
     static InertiaTpl FromCylinder(
-        const Scalar_t m, const Scalar_t r, const Scalar_t l)
+        const Scalar m, const Scalar r, const Scalar l)
     {
-      Scalar_t a = m * (r*r / 4 + l*l / 12);
-      Scalar_t c = m * (r*r / 2);
+      Scalar a = m * (r*r / 4 + l*l / 12);
+      Scalar c = m * (r*r / 2);
       return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, a, 0, 0, c));
     }
 
     static InertiaTpl FromBox(
-        const Scalar_t m, const Scalar_t x, const Scalar_t y, const Scalar_t z)
+        const Scalar m, const Scalar x, const Scalar y, const Scalar z)
     {
-      Scalar_t a = m * (y*y + z*z) / 12;
-      Scalar_t b = m * (x*x + z*z) / 12;
-      Scalar_t c = m * (y*y + x*x) / 12;
+      Scalar a = m * (y*y + z*z) / 12;
+      Scalar b = m * (x*x + z*z) / 12;
+      Scalar c = m * (y*y + x*x) / 12;
       return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, b, 0, 0, c));
     }
 
     
     void setRandom()
     {
-      m = static_cast<Scalar_t> (std::rand()) / static_cast<Scalar_t> (RAND_MAX);
+      m = static_cast<Scalar> (std::rand()) / static_cast<Scalar> (RAND_MAX);
       c.setRandom(); I.setRandom();
     }
 
@@ -280,10 +281,10 @@ namespace se3
       return f;
     }
     
-    Scalar_t vtiv_impl(const Motion & v) const
+    Scalar vtiv_impl(const Motion & v) const
     {
       const Vector3 cxw (c.cross(v.angular()));
-      Scalar_t res = m * (v.linear().squaredNorm() - 2.*v.linear().dot(cxw));
+      Scalar res = m * (v.linear().squaredNorm() - 2.*v.linear().dot(cxw));
       const Vector3 mcxcxw (-m*c.cross(cxw));
       res += v.angular().dot(mcxcxw);
       res += I.vtiv(v.angular());
@@ -292,11 +293,11 @@ namespace se3
     }
 
     // Getters
-    Scalar_t           mass()    const { return m; }
+    Scalar           mass()    const { return m; }
     const Vector3 &    lever()   const { return c; }
     const Symmetric3 & inertia() const { return I; }
     
-    Scalar_t &   mass()    { return m; }
+    Scalar &   mass()    { return m; }
     Vector3 &    lever()   { return c; }
     Symmetric3 & inertia() { return I; }
 
@@ -335,7 +336,7 @@ namespace se3
     }
 
   protected:
-    Scalar_t m;
+    Scalar m;
     Vector3 c;
     Symmetric3 I;
     

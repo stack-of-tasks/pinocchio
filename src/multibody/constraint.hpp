@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -63,7 +64,7 @@ namespace se3
   template<int D, typename T, int U>
   struct traits< ConstraintTpl<D, T, U> >
   {
-    typedef T Scalar_t;
+    typedef T Scalar;
     typedef Eigen::Matrix<T,3,1,U> Vector3;
     typedef Eigen::Matrix<T,4,1,U> Vector4;
     typedef Eigen::Matrix<T,6,1,U> Vector6;
@@ -84,9 +85,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,D,1,U> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,D,1,U> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,D> DenseBase;
+    typedef Eigen::Matrix<Scalar,D,1,U> JointMotion;
+    typedef Eigen::Matrix<Scalar,D,1,U> JointForce;
+    typedef Eigen::Matrix<Scalar,6,D> DenseBase;
 
   }; // traits ConstraintTpl
 

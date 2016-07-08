@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -109,7 +110,7 @@ namespace se3
         return derived().__equal__(other);
       }
 
-      bool isApprox (const Derived_t & other, const Scalar_t & prec = Eigen::NumTraits<Scalar_t>::dummy_precision()) const
+      bool isApprox (const Derived_t & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
       {
         return derived().isApprox_impl(other, prec);
       }
@@ -126,7 +127,7 @@ namespace se3
   template<typename T, int U>
   struct traits< SE3Tpl<T, U> >
   {
-    typedef T Scalar_t;
+    typedef T Scalar;
     typedef Eigen::Matrix<T,3,1,U> Vector3;
     typedef Eigen::Matrix<T,4,1,U> Vector4;
     typedef Eigen::Matrix<T,6,1,U> Vector6;
@@ -282,7 +283,7 @@ namespace se3
       return (rotation_impl() == m2.rotation() && translation_impl() == m2.translation());
     }
 
-    bool isApprox_impl (const SE3Tpl & m2, const Scalar_t & prec = Eigen::NumTraits<Scalar_t>::dummy_precision()) const
+    bool isApprox_impl (const SE3Tpl & m2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
       return rot.isApprox(m2.rot, prec) && trans.isApprox(m2.trans, prec);
     }

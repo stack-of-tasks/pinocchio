@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015 CNRS
+// Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -62,7 +63,7 @@ namespace se3
     Derived_t operator-() const { return derived().__minus__(); }
     Derived_t operator-(const Derived_t & phi) const { return derived().__minus__(phi); }
     
-    Scalar_t dot(const Motion & m) const { return static_cast<Derived_t*>(this)->dot(m); }
+    Scalar dot(const Motion & m) const { return static_cast<Derived_t*>(this)->dot(m); }
 
     Derived_t se3Action(const SE3 & m) const { return derived().se3Action_impl(m); }
     Derived_t se3ActionInverse(const SE3 & m) const { return derived().se3ActionInverse_impl(m); }
@@ -80,7 +81,7 @@ namespace se3
   template<typename T, int U>
   struct traits< ForceTpl<T, U> >
   {
-    typedef T Scalar_t;
+    typedef T Scalar;
     typedef Eigen::Matrix<T,3,1,U> Vector3;
     typedef Eigen::Matrix<T,4,1,U> Vector4;
     typedef Eigen::Matrix<T,6,1,U> Vector6;
@@ -200,7 +201,7 @@ namespace se3
     Linear_t linear_impl() { return data.template segment<3> (LINEAR);}
     void linear_impl(const Vector3 & f) { data.template segment<3> (LINEAR) = f; }
     
-    Scalar_t dot(const Motion & m) const { return data.dot(m.toVector()); }
+    Scalar dot(const Motion & m) const { return data.dot(m.toVector()); }
 
   protected:
     Vector6 data;

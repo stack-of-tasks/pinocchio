@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -293,7 +293,7 @@ namespace se3
     typedef JointSphericalZYX JointDerived;
     SE3_JOINT_TYPEDEF;
 
-    typedef Motion::Scalar_t Scalar;
+    typedef Motion::Scalar Scalar;
 
     typedef Eigen::Matrix<Scalar,6,6> Matrix6;
     typedef Eigen::Matrix<Scalar,3,3> Matrix3;
@@ -329,7 +329,7 @@ namespace se3
     using JointModelBase<JointModelSphericalZYX>::idx_v;
     using JointModelBase<JointModelSphericalZYX>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar_t;
+    typedef double Scalar;
 
     JointDataDerived createData() const { return JointDataDerived(); }
 

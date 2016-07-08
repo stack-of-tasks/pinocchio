@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -28,7 +29,7 @@ namespace eigenpy
   template<>
   struct UnalignedEquivalent<se3::Inertia>
   {
-    typedef se3::InertiaTpl<se3::Inertia::Scalar_t,Eigen::DontAlign> type;
+    typedef se3::InertiaTpl<se3::Inertia::Scalar,Eigen::DontAlign> type;
   };
 
 } // namespace eigenpy
@@ -55,7 +56,7 @@ namespace se3
       typedef typename Inertia_fx::Vector3 Vector3_fx;
       typedef typename Inertia_fx::Motion  Motion_fx ;
       
-      typedef typename Inertia_fx::Scalar_t Scalar_t;
+      typedef typename Inertia_fx::Scalar Scalar;
       
     public:
 
@@ -113,8 +114,8 @@ namespace se3
         ;
 	  }
       
-      static Scalar_t getMass( const Inertia_fx & self ) { return self.mass(); }
-      static void setMass( Inertia_fx & self, Scalar_t mass ) { self.mass() = mass; }
+      static Scalar getMass( const Inertia_fx & self ) { return self.mass(); }
+      static void setMass( Inertia_fx & self, Scalar mass ) { self.mass() = mass; }
       
       static Vector3_fx getLever( const Inertia_fx & self ) { return self.lever(); }
       static void setLever( Inertia_fx & self, const Vector3_fx & lever ) { self.lever() = lever; }
