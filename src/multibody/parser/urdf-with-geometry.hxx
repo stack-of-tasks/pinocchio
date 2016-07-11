@@ -25,12 +25,16 @@
 #include "pinocchio/multibody/model.hpp"
 
 #include "pinocchio/multibody/parser/from-collada-to-fcl.hpp"
+#include <hpp/fcl/mesh_loader/assimp.h>
+
 
         namespace se3
 {
   namespace urdf
   {
-    
+    typedef fcl::BVHModel< fcl::OBBRSS > PolyhedronType;
+    typedef boost::shared_ptr <PolyhedronType> PolyhedronPtrType;
+
     inline fcl::CollisionObject retrieveCollisionGeometry(const boost::shared_ptr < ::urdf::Geometry> urdf_geometry,
                                                           const std::vector < std::string > & package_dirs,
                                                           std::string & mesh_path)
@@ -45,12 +49,15 @@
 
         mesh_path = convertURDFMeshPathToAbsolutePath(collisionFilename, package_dirs);
 
-        ::urdf::Vector3 scale = collisionGeometry->scale;
+        fcl::Vec3f scale = fcl::Vec3f(collisionGeometry->scale.x,
+                                            collisionGeometry->scale.y,
+                                            collisionGeometry->scale.z
+                                            );
 
         // Create FCL mesh by parsing Collada file.
-        Polyhedron_ptr polyhedron (new PolyhedronType);
+        PolyhedronPtrType polyhedron (new PolyhedronType);
 
-        loadPolyhedronFromResource (mesh_path, scale, polyhedron);
+        fcl::loadPolyhedronFromResource (mesh_path, scale, polyhedron);
         geometry = polyhedron;
       }
 
