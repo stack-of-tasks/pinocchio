@@ -22,14 +22,14 @@
 #include "pinocchio/multibody/model.hpp"
 
 #ifdef WITH_URDFDOM
-  #include "pinocchio/multibody/parser/urdf.hpp"
+  #include "pinocchio/parsers/urdf.hpp"
 #endif
 
 #ifdef WITH_LUA
-  #include "pinocchio/multibody/parser/lua.hpp"
+  #include "pinocchio/parsers/lua.hpp"
 #endif
 
-#include "pinocchio/multibody/parser/utils.hpp"
+#include "pinocchio/parsers/utils.hpp"
 
 using namespace std;
 

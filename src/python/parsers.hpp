@@ -25,19 +25,18 @@
 #include "pinocchio/python/data.hpp"
 
 #ifdef WITH_URDFDOM
-  #include "pinocchio/multibody/parser/urdf.hpp"
+  #include "pinocchio/parsers/urdf.hpp"
 #ifdef WITH_HPP_FCL
   #include "pinocchio/python/geometry-model.hpp"
   #include "pinocchio/python/geometry-data.hpp"
-  #include "pinocchio/multibody/parser/urdf-with-geometry.hpp"
 #endif
 #endif
 
 #ifdef WITH_LUA
-  #include "pinocchio/multibody/parser/lua.hpp"
+  #include "pinocchio/parsers/lua.hpp"
 #endif // #ifdef WITH_LUA
 
-#include "pinocchio/multibody/parser/srdf.hpp"
+#include "pinocchio/parsers/srdf.hpp"
 
 namespace se3
 {

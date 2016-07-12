@@ -30,7 +30,7 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
 
 #define BOOST_TEST_DYN_LINK

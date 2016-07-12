@@ -1,8 +1,7 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015 CNRS
 //
-// This file is part of Pinocchio and is mainly inspired
-// by software hpp-model-urdf
+// This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
 // and/or modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation, either version
@@ -16,9 +15,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_collada_to_fcl_hpp__
-#define __se3_collada_to_fcl_hpp__
-
+#include <iostream>
 #include <limits>
 #include <sstream>
 
@@ -33,8 +30,36 @@
 
 namespace se3
 {
-    
+  ///
+  /// \brief Supported model file extensions
+  ///
+  enum ModelFileExtensionType{
+    UNKNOWN = 0,
+    URDF,
+    LUA
+  };
   
+  ///
+  /// \brief Extract the type of the given model file according to its extension
+  ///
+  /// \param[in] filemane The complete path to the model file.
+  ///
+  /// \return The type of the extension of the model file
+  ///
+  ModelFileExtensionType checkModelFileExtension (const std::string & filename)
+  {
+    const std::string extension = filename.substr(filename.find_last_of(".") + 1);
+    
+    if (extension == "urdf")
+      return URDF;
+    else if (extension == "lua")
+      return LUA;
+    
+    return UNKNOWN;
+  }
+
+
+
   /**
    * @brief      Transform a package://.. mesh path to an absolute path, searching for a valid file 
    *             in a list of package directories
@@ -67,6 +92,3 @@ namespace se3
    }
 
 } // namespace se3
-
-
-#endif // __se3_collada_to_fcl_hpp__

@@ -27,12 +27,11 @@
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/collisions.hpp"
-#include "pinocchio/multibody/parser/urdf.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/urdf.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 
 
 #include "pinocchio/multibody/geometry.hpp"
-#include "pinocchio/multibody/parser/urdf-with-geometry.hpp"
 #ifdef WITH_HPP_MODEL_URDF
   #include <hpp/util/debug.hh>
   #include <hpp/model/device.hh>

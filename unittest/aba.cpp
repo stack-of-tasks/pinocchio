@@ -23,7 +23,7 @@
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/crba.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/tools/timer.hpp"

@@ -16,7 +16,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 
 #ifdef WITH_HPP_FCL
 #include <hpp/fcl/shape/geometric_shapes.h>

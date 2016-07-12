@@ -18,7 +18,7 @@
 #include <iostream>
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/parser/lua.hpp"
+#include "pinocchio/parsers/lua.hpp"
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE LuaTest

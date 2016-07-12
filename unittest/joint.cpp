@@ -22,7 +22,7 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
 
 #include "pinocchio/multibody/joint/joint.hpp"

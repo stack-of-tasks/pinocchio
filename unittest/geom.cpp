@@ -32,14 +32,13 @@
 #include <iomanip>
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/collisions.hpp"
-#include "pinocchio/multibody/parser/urdf.hpp"
+#include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/spatial/explog.hpp"
 
 #include "pinocchio/multibody/geometry.hpp"
-#include "pinocchio/multibody/parser/urdf-with-geometry.hpp"
 
 #include <vector>
 

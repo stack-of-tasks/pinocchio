@@ -21,7 +21,7 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/tools/timer.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 
 #include <iostream>
 

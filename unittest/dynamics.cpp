@@ -19,7 +19,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/dynamics.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
 
 #include <iostream>

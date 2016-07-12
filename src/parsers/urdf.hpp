@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_urdf_hpp__
-#define __se3_urdf_hpp__
+#ifndef __se3_parsers_urdf_hpp__
+#define __se3_parsers_urdf_hpp__
 
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>
@@ -30,6 +30,12 @@
 
 #include <exception>
 #include <limits>
+
+#ifdef WITH_HPP_FCL
+#include <hpp/fcl/collision_object.h>
+#include <hpp/fcl/collision.h>
+#include <hpp/fcl/shape/geometric_shapes.h>
+#endif
 
 namespace urdf
 {
@@ -44,34 +50,6 @@ namespace se3
 {
   namespace urdf
   {
-
-    ///
-    /// \brief Parse a tree with a specific root joint linking the model to the environment.
-    ///        The function returns an exception as soon as a necessary Inertia or Joint information are missing.
-    ///
-    /// \param[in] link The current URDF link.
-    /// \param[in] model The model where the link must be added.
-    /// \param[in] verbose Print parsing info.
-    ///
-    void parseRootTree (::urdf::LinkConstPtr link,
-                        Model & model,
-                        const bool verbose = false) throw (std::invalid_argument);
-    
-    
-    ///
-    /// \brief Parse a tree with a specific root joint linking the model to the environment.
-    ///        The function returns an exception as soon as a necessary Inertia or Joint information are missing.
-    ///
-    /// \param[in] link The current URDF link.
-    /// \param[in] model The model where the link must be added.
-    /// \param[in] root_joint The specific root joint.
-    /// \param[in] verbose Print parsing info.
-    ///
-    template <typename D>
-    void parseRootTree (::urdf::LinkConstPtr link,
-                        Model & model,
-                        const JointModelBase<D> & root_joint,
-                        const bool verbose = false) throw (std::invalid_argument);
 
     ///
     /// \brief Build the model from a URDF file with a particular joint as root of the model tree.
@@ -98,12 +76,38 @@ namespace se3
     inline Model buildModel (const std::string & filename,
                              const bool verbose = false) throw (std::invalid_argument);
 
+#ifdef WITH_HPP_FCL
+
+    /**
+     * @brief      Build The GeometryModel from a URDF file. Search for meshes
+     *             in the directories specified by the user first and then in
+     *             the environment variable ROS_PACKAGE_PATH
+     *
+     * @param[in]  model         The model of the robot, built with
+     *                           urdf::buildModel
+     * @param[in]  filename      The URDF complete (absolute) file path
+     * @param[in]  package_dirs  A vector containing the different directories
+     *                           where to search for models and meshes, typically 
+     *                           obtained from calling se3::rosPaths()
+     *
+     * @return     The GeometryModel associated to the urdf file and the given Model.
+     *
+     */
+    inline GeometryModel buildGeom(const Model & model,
+                                   const std::string & filename,
+                                   const std::vector<std::string> & package_dirs = std::vector<std::string> ()) throw (std::invalid_argument);
+
+#endif
+
   } // namespace urdf
 } // namespace se3
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
-#include "pinocchio/multibody/parser/urdf.hxx"
+#include "pinocchio/parsers/urdf/model.hxx"
+#ifdef WITH_HPP_FCL
+#include "pinocchio/parsers/urdf/geometry.hxx"
+#endif
 
-#endif // ifndef __se3_urdf_hpp__
+#endif // ifndef __se3_parsers_urdf_hpp__

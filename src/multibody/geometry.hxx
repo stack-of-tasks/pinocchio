@@ -27,7 +27,7 @@
 #include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
-#include "pinocchio/multibody/parser/srdf.hpp"
+#include "pinocchio/parsers/srdf.hpp"
 #include <iostream>
 
 #include <hpp/fcl/collision_object.h>
