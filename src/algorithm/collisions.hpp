@@ -29,7 +29,7 @@ namespace se3
 
 
   ///
-  /// \brief Apply a forward kinematics and update the placement of the geometry objects (both collision's and visual's one).
+  /// \brief Apply a forward kinematics and update the placement of the geometry objects.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -45,7 +45,7 @@ namespace se3
                                        );
   
   ///
-  /// \brief Update the placement of the geometry objects according to the current joint placements contained in data. (both collision's and visual's one)
+  /// \brief Update the placement of the geometry objects according to the current joint placements contained in data.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -102,16 +102,11 @@ namespace se3
                                        GeometryData & data_geom
                                        )
   {
-    for (GeometryData::GeomIndex i=0; i < (GeometryData::GeomIndex) data_geom.model_geom.ncollisions; ++i)
+    for (GeometryData::GeomIndex i=0; i < (GeometryData::GeomIndex) data_geom.model_geom.ngeoms; ++i)
     {
-      const Model::JointIndex & parent = model_geom.collision_objects[i].parent;
-      data_geom.oMg_collisions[i] =  (data.oMi[parent] * model_geom.collision_objects[i].placement);
-      data_geom.oMg_fcl_collisions[i] =  toFclTransform3f(data_geom.oMg_collisions[i]);
-    }
-    for (GeometryData::GeomIndex i=0; i < (GeometryData::GeomIndex) data_geom.model_geom.nvisuals; ++i)
-    {
-      const Model::JointIndex & parent = model_geom.visual_objects[i].parent;
-      data_geom.oMg_visuals[i] =  (data.oMi[parent] * model_geom.visual_objects[i].placement);
+      const Model::JointIndex & parent = model_geom.geometry_objects[i].parent;
+      data_geom.oMg_geometries[i] =  (data.oMi[parent] * model_geom.geometry_objects[i].placement);
+      data_geom.oMg_fcl_geometries[i] =  toFclTransform3f(data_geom.oMg_geometries[i]);
     }
   }
   

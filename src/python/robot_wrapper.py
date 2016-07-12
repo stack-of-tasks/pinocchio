@@ -33,21 +33,25 @@ class RobotWrapper(object):
         self.model_filename = filename
 
         if "buildGeomFromUrdf" not in dir(se3):
-            self.geometry_model = None
-            self.geometry_data = None
+            self.collision_model = None
+            self.visual_model = None
+            self.collision_data = None
             if verbose:
                 print 'Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.'
         else:
             if package_dirs is None:
-                self.geometry_model = se3.buildGeomFromUrdf(self.model, filename)
-                self.geometry_data = se3.GeometryData(self.data, self.geometry_model)
+                self.collision_model = se3.buildGeomFromUrdf(self.model, filename)
+                self.visual_model = se3.buildGeomFromUrdf(self.model, filename)
+                self.collision_data = se3.GeometryData(self.data, self.collision_model)
             else:
                 if not all(isinstance(item, basestring) for item in package_dirs):
                     raise Exception('The list of package directories is wrong. At least one is not a string')
                 else:
-                    self.geometry_model = se3.buildGeomFromUrdf(self.model, filename,
-                                                                utils.fromListToVectorOfString(package_dirs))
-                    self.geometry_data = se3.GeometryData(self.data, self.geometry_model)
+                    self.collision_model = se3.buildGeomFromUrdf(self.model, filename,
+                                                                utils.fromListToVectorOfString(package_dirs), se3.GeometryType.COLLISION)
+                    self.visual_model = se3.buildGeomFromUrdf(self.model, filename,
+                                                                utils.fromListToVectorOfString(package_dirs), se3.GeometryType.VISUAL)
+                    self.collision_data = se3.GeometryData(self.data, self.collision_model)
 
         self.v0 = utils.zero(self.nv)
         self.q0 = utils.zero(self.nq)
@@ -120,7 +124,7 @@ class RobotWrapper(object):
         return se3.computeJacobians(self.model, self.data, q)
 
     def updateGeometryPlacements(self, q):
-        se3.updateGeometryPlacements(self.model, self.data, self.geometry_model, self.geometry_data, q)
+        se3.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data, q)
 
 
     # --- ACCESS TO NAMES ----
@@ -166,7 +170,7 @@ class RobotWrapper(object):
 
             self.viewer.gui.createGroup(nodeName)
             # iterate over visuals and create the meshes in the viewer
-            for visual in self.geometry_model.visual_objects :
+            for visual in self.visual_model.geometry_objects :
                 meshName = self.viewerNodeNames(visual)                                                                                                                  
                 meshPath = visual.mesh_path
                 self.viewer.gui.addMesh(meshName, meshPath)
@@ -183,8 +187,8 @@ class RobotWrapper(object):
         self.updateGeometryPlacements(q)
 
 
-        for visual in self.geometry_model.visual_objects :
-            M = self.geometry_data.oMg_visuals[self.geometry_model.getVisualId(visual.name)]
+        for visual in self.visual_model.geometry_objects :
+            M = self.collision_data.oMg_geometries[self.visual_model.getGeometryId(visual.name)]
             pinocchioConf = utils.se3ToXYZQUAT(M)
             viewerConf = utils.XYZQUATToViewerConfiguration(pinocchioConf)
             self.viewer.gui.applyConfiguration(self.viewerNodeNames(visual), viewerConf)

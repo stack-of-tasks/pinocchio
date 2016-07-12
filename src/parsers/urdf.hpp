@@ -35,6 +35,7 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
+#include "pinocchio/multibody/geometry.hpp"
 #endif
 
 namespace urdf
@@ -90,12 +91,15 @@ namespace se3
      *                           where to search for models and meshes, typically 
      *                           obtained from calling se3::rosPaths()
      *
+     *@param[in]   type          The type of objects that must be loaded ( can be VISUAL or COLLISION, or NONE)
+     *
      * @return     The GeometryModel associated to the urdf file and the given Model.
      *
      */
     inline GeometryModel buildGeom(const Model & model,
                                    const std::string & filename,
-                                   const std::vector<std::string> & package_dirs = std::vector<std::string> ()) throw (std::invalid_argument);
+                                   const std::vector<std::string> & package_dirs = std::vector<std::string> (),
+                                   const GeometryType type = NONE) throw (std::invalid_argument);
 
 #endif
 

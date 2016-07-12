@@ -63,23 +63,14 @@ namespace se3
       void visit(PyClass& cl) const 
       {
 	cl
-    .add_property("ncollisions", &GeometryModelPythonVisitor::ncollisions)
-    .add_property("nvisuals", &GeometryModelPythonVisitor::nvisuals)
+    .add_property("ngeoms", &GeometryModelPythonVisitor::ngeoms)
 
-    .def("getCollisionId",&GeometryModelPythonVisitor::getCollisionId)
-    .def("getVisualId",&GeometryModelPythonVisitor::getVisualId)
-    .def("existCollisionName",&GeometryModelPythonVisitor::existCollisionName)
-    .def("existVisualName",&GeometryModelPythonVisitor::existVisualName)
-    .def("getCollisionName",&GeometryModelPythonVisitor::getCollisionName)
-    .def("getVisualName",&GeometryModelPythonVisitor::getVisualName)
-    .add_property("collision_objects",
-      bp::make_function(&GeometryModelPythonVisitor::collision_objects,
+    .def("getGeometryId",&GeometryModelPythonVisitor::getGeometryId)
+    .def("existGeometryName",&GeometryModelPythonVisitor::existGeometryName)
+    .def("getGeometryName",&GeometryModelPythonVisitor::getGeometryName)
+    .add_property("geometry_objects",
+      bp::make_function(&GeometryModelPythonVisitor::geometry_objects,
             bp::return_internal_reference<>())  )
-    .add_property("visual_objects",
-      bp::make_function(&GeometryModelPythonVisitor::visual_objects,
-            bp::return_internal_reference<>())  )
-
-
     .def("__str__",&GeometryModelPythonVisitor::toString)
 
 	  .def("BuildGeometryModel",&GeometryModelPythonVisitor::maker_default)
@@ -87,27 +78,17 @@ namespace se3
 	  ;
       }
 
-      static GeometryModel::Index ncollisions( GeometryModelHandler & m ) { return m->ncollisions; }
-      static GeometryModel::Index nvisuals( GeometryModelHandler & m ) { return m->nvisuals; }
+      static GeometryModel::Index ngeoms( GeometryModelHandler & m ) { return m->ngeoms; }
 
-      static std::vector<GeometryObject> & collision_objects( GeometryModelHandler & m ) { return m->collision_objects; }
-      static std::vector<GeometryObject> & visual_objects( GeometryModelHandler & m ) { return m->visual_objects; }
+      static Model::GeomIndex getGeometryId( const GeometryModelHandler & gmodelPtr, const std::string & name )
+      { return  gmodelPtr->getGeometryId(name); }
+      static bool existGeometryName(const GeometryModelHandler & gmodelPtr, const std::string & name)
+      { return gmodelPtr->existGeometryName(name);}
+      static std::string getGeometryName(const GeometryModelHandler & gmodelPtr, const GeomIndex index)
+      { return gmodelPtr->getGeometryName(index);}
+
+      static std::vector<GeometryObject> & geometry_objects( GeometryModelHandler & m ) { return m->geometry_objects; }
       
-      static Model::GeomIndex getCollisionId( const GeometryModelHandler & gmodelPtr, const std::string & name )
-      { return  gmodelPtr->getCollisionId(name); }
-      static Model::GeomIndex getVisualId( const GeometryModelHandler & gmodelPtr, const std::string & name )
-      { return  gmodelPtr->getVisualId(name); }
-      static bool existCollisionName(const GeometryModelHandler & gmodelPtr, const std::string & name)
-      { return gmodelPtr->existCollisionName(name);}
-      static bool existVisualName(const GeometryModelHandler & gmodelPtr, const std::string & name)
-      { return gmodelPtr->existVisualName(name);}
-      static std::string getCollisionName(const GeometryModelHandler & gmodelPtr, const GeomIndex index)
-      { return gmodelPtr->getCollisionName(index);}
-      static std::string getVisualName(const GeometryModelHandler & gmodelPtr, const GeomIndex index)
-      { return gmodelPtr->getVisualName(index);}
-      // static std::vector<Model::JointIndex> & geom_parents( GeometryModelHandler & m ) { return m->geom_parents; }
-      // static std::vector<std::string> & geom_names ( GeometryModelHandler & m ) { return m->geom_names; }
-
       
 
       static GeometryModelHandler maker_default(const ModelHandler & model)
@@ -123,6 +104,12 @@ namespace se3
       static void expose()
       {
   
+  bp::enum_<GeometryType>("GeometryType")
+            .value("VISUAL",VISUAL)
+            .value("COLLISION",COLLISION)
+            .value("NONE",NONE)
+            ;
+
   bp::class_<GeometryModelHandler>("GeometryModel",
          "Geometry model (const)",
          bp::no_init)

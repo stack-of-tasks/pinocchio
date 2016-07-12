@@ -252,17 +252,11 @@ struct GeometryObject
     /// \brief A const reference to the reference model.
     const se3::Model & model;
 
-    /// \brief The number of GeometryObjects that are of type COLLISION
-    Index ncollisions;
-
-    /// \brief The number of GeometryObjects that are of type visuals
-    Index nvisuals;
+    /// \brief The number of GeometryObjects
+    Index ngeoms;
 
     /// \brief Vector of GeometryObjects used for collision computations
-    std::vector<GeometryObject> collision_objects;
-
-    /// \brief Vector of GeometryObjects used for visualisation
-    std::vector<GeometryObject> visual_objects;
+    std::vector<GeometryObject> geometry_objects;
     
     /// \brief A list of associated collision GeometryObjects to a given joint Id.
     ///        Inner objects can be seen as geometry objects that directly move when the associated joint moves
@@ -274,100 +268,61 @@ struct GeometryObject
 
     GeometryModel(const se3::Model & model)
       : model(model)
-      , ncollisions(0)
-      , nvisuals(0)
-      , collision_objects()
-      , visual_objects()
+      , ngeoms(0)
+      , geometry_objects()
       , innerObjects()
       , outerObjects()
     {}
 
     ~GeometryModel() {};
 
-
     /**
-     * @brief      Add a geometry object whose type is COLLISION to a GeometryModel
+     * @brief      Add a geometry object of a given type to a GeometryModel
      *
      * @param[in]  parent     Index of the parent joint
      * @param[in]  co         The actual fcl CollisionObject
      * @param[in]  placement  The relative placement regarding to the parent frame
      * @param[in]  geom_name  The name of the Geometry Object
      * @param[in]  mesh_path  The absolute path to the mesh
+     * @param[in]  type       The type of the GeometryObject
      *
-     * @return     The index of the new added GeometryObject in collision_objects
+     * @return     The index of the new added GeometryObject in geometry_objects
      */
-    inline GeomIndex addCollisionObject(const JointIndex parent, const fcl::CollisionObject & co,
-                                 const SE3 & placement, const std::string & geom_name = "",
-                                 const std::string & mesh_path = "");
-    
-    /**
-     * @brief      Add a geometry object whose type is VISUAL to a GeometryModel
-     *
-     * @param[in]  parent     Index of the parent joint
-     * @param[in]  co         The actual fcl CollisionObject
-     * @param[in]  placement  The relative placement regarding to the parent frame
-     * @param[in]  geom_name  The name of the Geometry Object
-     * @param[in]  mesh_path  The absolute path to the mesh
-     *
-     * @return     The index of the new added GeometryObject in visual_objects
-     */
-    inline GeomIndex addVisualObject(const JointIndex parent, const fcl::CollisionObject & co,
-                              const SE3 & placement, const std::string & geom_name = "",
-                              const std::string & mesh_path = "");
+    inline GeomIndex addGeometryObject(const JointIndex parent, const fcl::CollisionObject & co,
+                                       const SE3 & placement, const std::string & geom_name = "",
+                                       const std::string & mesh_path = "", const GeometryType type = NONE) throw(std::invalid_argument);
+
+
 
     /**
-     * @brief      Return the index of a GeometryObject of type COLLISION given by its name.
+     * @brief      Return the index of a GeometryObject given by its name.
      *
      * @param[in]  name  Name of the GeometryObject
      *
      * @return     Index of the corresponding GeometryObject
      */
-    GeomIndex getCollisionId(const std::string & name) const;
+    GeomIndex getGeometryId(const std::string & name) const;
+
     
     /**
-     * @brief      Return the index of a GeometryObject of type VISUAL given by its name.
+     * @brief      Check if a GeometryObject  given by its name exists.
      *
      * @param[in]  name  Name of the GeometryObject
      *
-     * @return     Index of the corresponding GeometryObject
+     * @return     True if the GeometryObject exists in the geometry_objects.
      */
-    GeomIndex getVisualId(const std::string & name) const;
-    
-    /**
-     * @brief      Check if a GeometryObject of type COLLISION given by its name exists.
-     *
-     * @param[in]  name  Name of the GeometryObject
-     *
-     * @return     True if the GeometryObject exists in the collision_objects.
-     */
-    bool existCollisionName(const std::string & name) const;
-    
-    /**
-     * @brief      Check if a GeometryObject of type VISUAL given by its name exists.
-     *
-     * @param[in]  name  Name of the GeometryObject
-     *
-     * @return     True if the GeometryObject exists in the visual_objects.
-     */
-    bool existVisualName(const std::string & name) const;
+    bool existGeometryName(const std::string & name) const;
+
 
     /**
-     * @brief      Get the name of a GeometryObject of type COLLISION given by its index.
+     * @brief      Get the name of a GeometryObject given by its index.
      *
      * @param[in]  index  Index of the GeometryObject
      *
      * @return     Name of the GeometryObject
      */
-    const std::string & getCollisionName(const GeomIndex index) const;
-    
-    /**
-     * @brief      Get the name of a GeometryObject of type VISUAL given by its index.
-     *
-     * @param[in]  index  Index of the GeometryObject
-     *
-     * @return     Name of the GeometryObject
-     */
-    const std::string & getVisualName(const GeomIndex index) const;
+    const std::string & getGeometryName(const GeomIndex index) const;
+
 
     /**
      * @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
@@ -408,21 +363,16 @@ struct GeometryObject
     const GeometryModel & model_geom;
 
     ///
-    /// \brief Vector gathering the SE3 placements of the collision objects relative to the world.
+    /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
     ///
-    std::vector<se3::SE3> oMg_collisions;
+    std::vector<se3::SE3> oMg_geometries;
 
-    ///
-    /// \brief Vector gathering the SE3 placements of the visual objects relative to the world.
-    ///        See updateGeometryPlacements to update the placements.
-    ///
-    std::vector<se3::SE3> oMg_visuals;
     ///
     /// \brief Same as oMg but using fcl::Transform3f to store placement.
     ///        This pre-allocation avoids dynamic allocation during collision checking or distance computations.
     ///
-    std::vector<fcl::Transform3f> oMg_fcl_collisions;
+    std::vector<fcl::Transform3f> oMg_fcl_geometries;
     ///
     /// \brief Vector of collision pairs.
     ///        See addCollisionPair, removeCollisionPair to fill or remove elements in the vector.
@@ -447,15 +397,14 @@ struct GeometryObject
     GeometryData(const Data & data, const GeometryModel & model_geom)
         : data_ref(data)
         , model_geom(model_geom)
-        , oMg_collisions(model_geom.ncollisions)
-        , oMg_visuals(model_geom.nvisuals)
-        , oMg_fcl_collisions(model_geom.ncollisions)
+        , oMg_geometries(model_geom.ngeoms)
+        , oMg_fcl_geometries(model_geom.ngeoms)
         , collision_pairs()
         , nCollisionPairs(0)
         , distance_results()
         , collision_results()
     {
-      const std::size_t num_max_collision_pairs = (model_geom.ncollisions * (model_geom.ncollisions-1))/2;
+      const std::size_t num_max_collision_pairs = (model_geom.ngeoms * (model_geom.ngeoms-1))/2;
       collision_pairs.reserve(num_max_collision_pairs);
       distance_results.resize(num_max_collision_pairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
       collision_results.resize(num_max_collision_pairs, CollisionResult( fcl::CollisionResult(), 0, 0));

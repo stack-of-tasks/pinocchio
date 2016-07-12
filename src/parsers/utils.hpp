@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015 - 2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -14,6 +14,9 @@
 // received a copy of the GNU Lesser General Public License along with
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
+
+#ifndef __se3_parsers_utils_hpp__
+#define __se3_parsers_utils_hpp__
 
 #include <iostream>
 #include <limits>
@@ -46,7 +49,7 @@ namespace se3
   ///
   /// \return The type of the extension of the model file
   ///
-  ModelFileExtensionType checkModelFileExtension (const std::string & filename)
+  inline ModelFileExtensionType checkModelFileExtension (const std::string & filename)
   {
     const std::string extension = filename.substr(filename.find_last_of(".") + 1);
     
@@ -92,3 +95,5 @@ namespace se3
    }
 
 } // namespace se3
+
+#endif // __se3_parsers_utils_hpp__
