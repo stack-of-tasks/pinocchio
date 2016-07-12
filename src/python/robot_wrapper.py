@@ -30,6 +30,7 @@ class RobotWrapper(object):
             self.model = se3.buildModelFromUrdf(filename, root_joint)
 
         self.data = self.model.createData()
+        self.model_filename = filename
 
         if "buildGeomFromUrdf" not in dir(se3):
             self.geometry_model = None
