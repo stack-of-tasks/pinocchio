@@ -170,7 +170,7 @@ class RobotWrapper(object):
 
             self.viewer.gui.createGroup(nodeName)
             # iterate over visuals and create the meshes in the viewer
-            for visual in self.visual_model.geometry_objects :
+            for visual in self.visual_model.geometryObjects :
                 meshName = self.viewerNodeNames(visual)                                                                                                                  
                 meshPath = visual.mesh_path
                 self.viewer.gui.addMesh(meshName, meshPath)
@@ -187,7 +187,7 @@ class RobotWrapper(object):
         self.updateGeometryPlacements(q)
 
 
-        for visual in self.visual_model.geometry_objects :
+        for visual in self.visual_model.geometryObjects :
             M = self.collision_data.oMg[self.visual_model.getGeometryId(visual.name)]
             pinocchioConf = utils.se3ToXYZQUAT(M)
             viewerConf = utils.XYZQUATToViewerConfiguration(pinocchioConf)

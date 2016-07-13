@@ -132,8 +132,8 @@ std::ostream& operator<<(std::ostream& os, const std::pair < se3::Model, se3::Ge
   
   for(se3::GeometryModel::Index i=0;i<(se3::GeometryModel::Index)(robot.second.ngeoms);++i)
   {
-    os  << "Object n " << i << " : " << robot.second.geometry_objects[i].name << ": attached to joint = " << robot.second.geometry_objects[i].parent
-        << "=" << robot.first.getJointName(robot.second.geometry_objects[i].parent) << std::endl;
+    os  << "Object n " << i << " : " << robot.second.geometryObjects[i].name << ": attached to joint = " << robot.second.geometryObjects[i].parent
+        << "=" << robot.first.getJointName(robot.second.geometryObjects[i].parent) << std::endl;
   }
   return os;
 } 

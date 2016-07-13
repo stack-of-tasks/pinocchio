@@ -242,7 +242,7 @@ struct GeometryObject
     typedef Model::JointIndex JointIndex;
     typedef Model::GeomIndex GeomIndex;
     
-    typedef std::list<GeomIndex> GeomIndexList;
+    typedef std::vector<GeomIndex> GeomIndexList;
 
     /// \brief A const reference to the reference model.
     const se3::Model & model;
@@ -251,7 +251,7 @@ struct GeometryObject
     Index ngeoms;
 
     /// \brief Vector of GeometryObjects used for collision computations
-    std::vector<GeometryObject> geometry_objects;
+    std::vector<GeometryObject> geometryObjects;
     
     /// \brief A list of associated collision GeometryObjects to a given joint Id.
     ///        Inner objects can be seen as geometry objects that directly move when the associated joint moves
@@ -264,7 +264,7 @@ struct GeometryObject
     GeometryModel(const se3::Model & model)
       : model(model)
       , ngeoms(0)
-      , geometry_objects()
+      , geometryObjects()
       , innerObjects()
       , outerObjects()
     {}
@@ -280,7 +280,7 @@ struct GeometryObject
      * @param[in]  geom_name  The name of the Geometry Object
      * @param[in]  mesh_path  The absolute path to the mesh
      *
-     * @return     The index of the new added GeometryObject in geometry_objects
+     * @return     The index of the new added GeometryObject in geometryObjects
      */
     inline GeomIndex addGeometryObject(const JointIndex parent, const fcl::CollisionObject & co,
                                        const SE3 & placement, const std::string & geom_name = "",
@@ -303,7 +303,7 @@ struct GeometryObject
      *
      * @param[in]  name  Name of the GeometryObject
      *
-     * @return     True if the GeometryObject exists in the geometry_objects.
+     * @return     True if the GeometryObject exists in the geometryObjects.
      */
     bool existGeometryName(const std::string & name) const;
 
@@ -400,8 +400,8 @@ struct GeometryObject
     {
       const std::size_t num_max_collision_pairs = (model_geom.ngeoms * (model_geom.ngeoms-1))/2;
       collision_pairs.reserve(num_max_collision_pairs);
-      distance_results.resize(num_max_collision_pairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
-      collision_results.resize(num_max_collision_pairs, CollisionResult( fcl::CollisionResult(), 0, 0));
+      distance_results.reserve(num_max_collision_pairs);
+      collision_results.reserve(num_max_collision_pairs);
     }
 
     ~GeometryData() {};

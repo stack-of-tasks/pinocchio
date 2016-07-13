@@ -68,8 +68,8 @@ namespace se3
     .def("getGeometryId",&GeometryModelPythonVisitor::getGeometryId)
     .def("existGeometryName",&GeometryModelPythonVisitor::existGeometryName)
     .def("getGeometryName",&GeometryModelPythonVisitor::getGeometryName)
-    .add_property("geometry_objects",
-      bp::make_function(&GeometryModelPythonVisitor::geometry_objects,
+    .add_property("geometryObjects",
+      bp::make_function(&GeometryModelPythonVisitor::geometryObjects,
             bp::return_internal_reference<>())  )
     .def("__str__",&GeometryModelPythonVisitor::toString)
 
@@ -87,7 +87,7 @@ namespace se3
       static std::string getGeometryName(const GeometryModelHandler & gmodelPtr, const GeomIndex index)
       { return gmodelPtr->getGeometryName(index);}
 
-      static std::vector<GeometryObject> & geometry_objects( GeometryModelHandler & m ) { return m->geometry_objects; }
+      static std::vector<GeometryObject> & geometryObjects( GeometryModelHandler & m ) { return m->geometryObjects; }
       
       
 
