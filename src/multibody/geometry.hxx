@@ -304,8 +304,6 @@ namespace se3
   {
     std::fill(distance_results.begin(), distance_results.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
   }
-  
-
 
 } // namespace se3
 
