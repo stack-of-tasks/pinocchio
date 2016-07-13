@@ -487,18 +487,8 @@ struct GeometryObject
     ///
     Index findCollisionPair (const CollisionPair_t & pair) const;
     
-    void desactivateCollisionPairs();
     void initializeListOfCollisionPairs();
     
-    ///
-    /// \brief Active all possible collision pairs except those mentioned in the SRDF file.
-    ///        It throws if the SRDF file is incorrect.
-    ///
-    /// \param[in] filename The complete path to the SRDF file.
-    /// \param[in] verbose Verbosity mode.
-    ///
-    inline void addCollisionPairsFromSrdf(const std::string & filename,
-                                   const bool verbose = false) throw (std::invalid_argument);
 
     ///
     /// \brief Compute the collision status between two collision objects given by their indexes.

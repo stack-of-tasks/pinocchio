@@ -27,7 +27,6 @@
 #include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
-#include "pinocchio/parsers/srdf.hpp"
 #include <iostream>
 
 #include <hpp/fcl/collision_object.h>
@@ -223,17 +222,11 @@ namespace se3
 ////    }
 //  }
 
-  // TODO :  give a srdf file as argument, read it, and remove corresponding
-  // pairs from list collision_pairs
-  inline void GeometryData::desactivateCollisionPairs()
-  {
 
-  }
 
   inline void GeometryData::initializeListOfCollisionPairs()
   {
     addAllCollisionPairs();
-    desactivateCollisionPairs();
     assert(nCollisionPairs == collision_pairs.size());
   }
 
@@ -309,15 +302,6 @@ namespace se3
     std::fill(distance_results.begin(), distance_results.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
   }
   
-  inline void GeometryData::addCollisionPairsFromSrdf(const std::string & filename,
-                                               const bool verbose) throw (std::invalid_argument)
-  {
-    // Add all collision pairs
-    addAllCollisionPairs();
-    
-    // Read SRDF file
-    srdf::removeCollisionPairsFromSrdf(model_geom, *this, filename, verbose);
-  }
 
 
 } // namespace se3

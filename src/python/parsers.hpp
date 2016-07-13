@@ -111,6 +111,15 @@ namespace se3
         return GeometryModelHandler(geometry_model, true);
       }
       
+      static void removeCollisionPairsFromSrdf(GeometryModelHandler & model,
+                                               GeometryDataHandler & geometry_data,
+                                               const std::string & filename,
+                                               bool verbose
+                                               )
+      {
+        se3::srdf::removeCollisionPairsFromSrdf(*model, *geometry_data, filename, verbose);
+      }
+
 #endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
 
@@ -174,6 +183,11 @@ namespace se3
               "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model "
               "(remember to create the corresponding data structures).");
       
+      bp::def("removeCollisionPairsFromSrdf",removeCollisionPairsFromSrdf,
+              bp::args("GeometryModel associated to a GeometryData", "GeometryData for which we want to remove pairs of collision", "srdf filename (string)", "verbosity"
+                       ),
+              "Parse an srdf file in order to desactivate collision pairs for a specific GeometryData and GeometryModel ");
+
 #endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
       

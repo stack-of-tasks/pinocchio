@@ -116,9 +116,6 @@ namespace se3
              " Remark: co1 < co2")
         .def("addAllCollisionPairs",&GeometryDataPythonVisitor::addAllCollisionPairs,
              "Add all collision pairs.")
-        .def("addCollisionPairsFromSrdf",&GeometryDataPythonVisitor::addCollisionPairsFromSrdf,
-              bp::args("filename (string)","verbose (bool)"),
-              "Activate collision pairs contained in an SRDF file.")
         
         .def("removeCollisionPair",&GeometryDataPythonVisitor::removeCollisionPair,
              bp::args("co1 (index)","co2 (index)"),
@@ -210,12 +207,6 @@ namespace se3
       }
       static void computeAllDistances(GeometryDataHandler & m) { m->computeAllDistances(); }
       
-      static void addCollisionPairsFromSrdf(GeometryDataHandler & m,
-                                            const std::string & filename,
-                                            const bool verbose)
-      {
-        m->addCollisionPairsFromSrdf(filename, verbose);
-      }
       
       static std::string toString(const GeometryDataHandler& m)
       {	  std::ostringstream s; s << *m; return s.str();       }
