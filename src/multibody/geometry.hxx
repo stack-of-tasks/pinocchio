@@ -46,18 +46,12 @@ namespace se3
                                                                    const fcl::CollisionObject & co,
                                                                    const SE3 & placement,
                                                                    const std::string & geom_name,
-                                                                   const std::string & mesh_path,
-                                                                   const GeometryType type) throw(std::invalid_argument)
+                                                                   const std::string & mesh_path) throw(std::invalid_argument)
   {
-    if (type == NONE)
-    {
-      const std::string exception_message ("You must specify if the geometryobject you want to add is of type VISUAL or COLLISION");
-      throw std::invalid_argument(exception_message);
-    }
 
     Index idx = (Index) (ngeoms ++);
 
-    geometry_objects.push_back(GeometryObject(type, geom_name, parent, co,
+    geometry_objects.push_back(GeometryObject( geom_name, parent, co,
                                                placement, mesh_path));
     addInnerObject(parent, idx);
     return idx;

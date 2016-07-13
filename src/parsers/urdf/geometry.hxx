@@ -165,7 +165,7 @@ namespace se3
                 fcl::CollisionObject collision_object = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
                 SE3 geomPlacement = convertFromUrdf((*i)->origin);
                 const std::string & collision_object_name = link_name;
-                geom_model.addGeometryObject(model.getFrameParent(link_name), collision_object, geomPlacement, collision_object_name, mesh_path, COLLISION); 
+                geom_model.addGeometryObject(model.getFrameParent(link_name), collision_object, geomPlacement, collision_object_name, mesh_path); 
               }
             } // if(link->collision)
           break;
@@ -184,7 +184,7 @@ namespace se3
                 fcl::CollisionObject visual_object = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
                 SE3 geomPlacement = convertFromUrdf((*i)->origin);
                 const std::string & visual_object_name = link_name;
-                geom_model.addGeometryObject(model.getFrameParent(link_name), visual_object, geomPlacement, visual_object_name, mesh_path, VISUAL); 
+                geom_model.addGeometryObject(model.getFrameParent(link_name), visual_object, geomPlacement, visual_object_name, mesh_path); 
               }
             } // if(link->visual)
           break;

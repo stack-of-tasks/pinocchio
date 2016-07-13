@@ -177,8 +177,6 @@ struct GeometryObject
   typedef Model::JointIndex JointIndex;
   typedef Model::GeomIndex GeomIndex;
 
-  /// \brief Type of the GeometryObject. Cann be VISUAL, COLLISION, or NONE (cf GeometryType enumeration)
-  GeometryType type;
 
   /// \brief Name of the geometry object
   std::string name;
@@ -196,10 +194,9 @@ struct GeometryObject
   std::string mesh_path;
 
 
-  GeometryObject(const GeometryType type, const std::string & name, const JointIndex parent, const fcl::CollisionObject & collision,
+  GeometryObject(const std::string & name, const JointIndex parent, const fcl::CollisionObject & collision,
                  const SE3 & placement, const std::string & mesh_path)
-                : type(type)
-                , name(name)
+                : name(name)
                 , parent(parent)
                 , collision_object(collision)
                 , placement(placement)
@@ -208,7 +205,6 @@ struct GeometryObject
 
   GeometryObject & operator=(const GeometryObject & other)
   {
-    type = other.type;
     name = other.name;
     parent = other.parent;
     collision_object = other.collision_object;
@@ -221,18 +217,17 @@ struct GeometryObject
   
   inline bool operator==(const GeometryObject & lhs, const GeometryObject & rhs)
   {
-    return (lhs.type == rhs.type && lhs.name == rhs.name
-                               && lhs.parent == rhs.parent
-                               && lhs.collision_object == rhs.collision_object
-                               && lhs.placement == rhs.placement
-                               && lhs.mesh_path ==  rhs.mesh_path
-                               );
+    return ( lhs.name == rhs.name
+            && lhs.parent == rhs.parent
+            && lhs.collision_object == rhs.collision_object
+            && lhs.placement == rhs.placement
+            && lhs.mesh_path ==  rhs.mesh_path
+            );
   }
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object)
   {
-    os  << "Type: \t \n" << geom_object.type << "\n"
-        << "Name: \t \n" << geom_object.name << "\n"
+    os  << "Name: \t \n" << geom_object.name << "\n"
         << "Parent ID: \t \n" << geom_object.parent << "\n"
         // << "collision object: \t \n" << geom_object.collision_object << "\n"
         << "Position in parent frame: \t \n" << geom_object.placement << "\n"
@@ -284,13 +279,12 @@ struct GeometryObject
      * @param[in]  placement  The relative placement regarding to the parent frame
      * @param[in]  geom_name  The name of the Geometry Object
      * @param[in]  mesh_path  The absolute path to the mesh
-     * @param[in]  type       The type of the GeometryObject
      *
      * @return     The index of the new added GeometryObject in geometry_objects
      */
     inline GeomIndex addGeometryObject(const JointIndex parent, const fcl::CollisionObject & co,
                                        const SE3 & placement, const std::string & geom_name = "",
-                                       const std::string & mesh_path = "", const GeometryType type = NONE) throw(std::invalid_argument);
+                                       const std::string & mesh_path = "") throw(std::invalid_argument);
 
 
 
