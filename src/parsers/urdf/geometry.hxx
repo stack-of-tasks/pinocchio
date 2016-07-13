@@ -217,7 +217,7 @@ namespace se3
         throw std::invalid_argument(exception_message);
       }
 
-      GeometryModel model_geom(model);
+      GeometryModel model_geom;
 
       std::vector<std::string> hint_directories(package_dirs);
 

@@ -244,9 +244,7 @@ struct GeometryObject
     
     typedef std::vector<GeomIndex> GeomIndexList;
 
-    /// \brief A const reference to the reference model.
-    const se3::Model & model;
-
+    
     /// \brief The number of GeometryObjects
     Index ngeoms;
 
@@ -261,9 +259,8 @@ struct GeometryObject
     ///        Outer objects can be seen as geometry objects that may often be obstacles to the Inner objects of given joint
     std::map < JointIndex, GeomIndexList >  outerObjects;
 
-    GeometryModel(const se3::Model & model)
-      : model(model)
-      , ngeoms(0)
+    GeometryModel()
+      : ngeoms(0)
       , geometryObjects()
       , innerObjects()
       , outerObjects()
@@ -344,11 +341,6 @@ struct GeometryObject
     typedef CollisionPair CollisionPair_t;
     typedef std::vector<CollisionPair_t> CollisionPairsVector_t;
 
-    ///
-    /// \brief A const reference to the data associated to the robot model.
-    ///        See class Data.
-    ///
-    const Data & data_ref;
     
     ///
     /// \brief A const reference to the model storing all the geometries.
@@ -388,9 +380,8 @@ struct GeometryObject
     ///
     std::vector <CollisionResult> collision_results;
 
-    GeometryData(const Data & data, const GeometryModel & model_geom)
-        : data_ref(data)
-        , model_geom(model_geom)
+    GeometryData(const GeometryModel & model_geom)
+        : model_geom(model_geom)
         , oMg(model_geom.ngeoms)
         , oMg_fcl(model_geom.ngeoms)
         , collision_pairs()

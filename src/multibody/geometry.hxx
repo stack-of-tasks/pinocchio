@@ -145,6 +145,9 @@ namespace se3
     {
       collision_pairs.push_back(pair);
       nCollisionPairs++;
+
+      distance_results.push_back(DistanceResult( fcl::DistanceResult(), 0, 0));
+      collision_results.push_back(CollisionResult( fcl::CollisionResult(), 0, 0));
     }
   }
   

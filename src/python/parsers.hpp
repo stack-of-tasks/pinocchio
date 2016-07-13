@@ -111,13 +111,14 @@ namespace se3
         return GeometryModelHandler(geometry_model, true);
       }
       
-      static void removeCollisionPairsFromSrdf(GeometryModelHandler & model,
+      static void removeCollisionPairsFromSrdf(ModelHandler & model,
+                                               GeometryModelHandler& geometry_model,
                                                GeometryDataHandler & geometry_data,
                                                const std::string & filename,
                                                bool verbose
                                                )
       {
-        se3::srdf::removeCollisionPairsFromSrdf(*model, *geometry_data, filename, verbose);
+        se3::srdf::removeCollisionPairsFromSrdf(*model, *geometry_model ,*geometry_data, filename, verbose);
       }
 
 #endif // #ifdef WITH_HPP_FCL
@@ -184,7 +185,7 @@ namespace se3
               "(remember to create the corresponding data structures).");
       
       bp::def("removeCollisionPairsFromSrdf",removeCollisionPairsFromSrdf,
-              bp::args("GeometryModel associated to a GeometryData", "GeometryData for which we want to remove pairs of collision", "srdf filename (string)", "verbosity"
+              bp::args("Model associated to GeometryData", "GeometryModel associated to a GeometryData", "GeometryData for which we want to remove pairs of collision", "srdf filename (string)", "verbosity"
                        ),
               "Parse an srdf file in order to desactivate collision pairs for a specific GeometryData and GeometryModel ");
 

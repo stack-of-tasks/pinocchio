@@ -41,7 +41,8 @@ namespace se3
     /// \param[in] filename The complete path to the SRDF file.
     /// \param[in] verbose Verbosity mode.
     ///
-    inline void removeCollisionPairsFromSrdf(const GeometryModel & model_geom,
+    inline void removeCollisionPairsFromSrdf(const Model& model,
+                                             const GeometryModel & model_geom,
                                              GeometryData & data_geom,
                                              const std::string & filename,
                                              const bool verbose) throw (std::invalid_argument)
@@ -68,7 +69,6 @@ namespace se3
       read_xml(srdf_stream, pt);
       
       // Iterate over collision pairs
-      const se3::Model & model = model_geom.model;
       BOOST_FOREACH(const ptree::value_type & v, pt.get_child("robot"))
       {
         if (v.first == "disable_collisions")

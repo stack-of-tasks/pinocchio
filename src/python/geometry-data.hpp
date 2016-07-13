@@ -89,8 +89,8 @@ namespace se3
         .def("__init__",
              bp::make_constructor(&GeometryDataPythonVisitor::makeDefault,
                                   bp::default_call_policies(),
-                                  (bp::arg("data"),bp::arg("geometry_model"))),
-             "Initialize from data and the geometry model.")
+                                  (bp::arg("geometry_model"))),
+             "Initialize from the geometry model.")
         
         .add_property("nCollisionPairs", &GeometryDataPythonVisitor::nCollisionPairs)
         
@@ -155,9 +155,9 @@ namespace se3
         ;
       }
       
-      static GeometryDataHandler* makeDefault(const DataHandler & data, const GeometryModelHandler & geometry_model)
+      static GeometryDataHandler* makeDefault(const GeometryModelHandler & geometry_model)
       {
-        return new GeometryDataHandler(new GeometryData(*data, *geometry_model), true);
+        return new GeometryDataHandler(new GeometryData(*geometry_model), true);
       }
 
       static Index nCollisionPairs(const GeometryDataHandler & m ) { return m->nCollisionPairs; }

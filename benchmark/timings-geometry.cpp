@@ -74,7 +74,7 @@ int main()
   se3::GeometryModel geom_model = se3::urdf::buildGeom(model, romeo_filename, package_dirs, COLLISION);
    
   Data data(model);
-  GeometryData geom_data(data, geom_model);
+  GeometryData geom_data(geom_model);
   geom_data.initializeListOfCollisionPairs();
 
 

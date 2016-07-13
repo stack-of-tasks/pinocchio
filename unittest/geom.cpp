@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_SUITE ( GeomTest )
 BOOST_AUTO_TEST_CASE ( simple_boxes )
 {
   se3::Model model;
-  se3::GeometryModel model_geom(model);
+  se3::GeometryModel model_geom;
   
   using namespace se3;
 
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   model_geom.addGeometryObject(model.getJointId("planar2_joint"),box2, SE3::Identity(),  "ff2_collision_object", "");
 
   se3::Data data(model);
-  se3::GeometryData data_geom(data, model_geom);
+  se3::GeometryData data_geom(model_geom);
 
   std::cout << "------ Model ------ " << std::endl;
   std::cout << model;
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
   GeometryModel geometry_model = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
 
   Data data(model);
-  GeometryData geometry_data(data, geometry_model);
+  GeometryData geometry_data(geometry_model);
 
   Eigen::VectorXd q(model.nq);
   q << 0, 0, 0.840252, 0, 0, 0, 1, 0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0, 0, -0.3490658,
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
 
 
   Data data(model);
-  GeometryData data_geom(data, geom);
+  GeometryData data_geom(geom);
 
   // Configuration to be tested
   
@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
 
   Data data(model);
-  GeometryData data_geom(data, geom);
+  GeometryData data_geom(geom);
 
   // Configuration to be tested
   

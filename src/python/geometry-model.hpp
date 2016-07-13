@@ -91,9 +91,9 @@ namespace se3
       
       
 
-      static GeometryModelHandler maker_default(const ModelHandler & model)
+      static GeometryModelHandler maker_default()
       {
-        return GeometryModelHandler(new GeometryModel(*model), true);
+        return GeometryModelHandler(new GeometryModel(), true);
       }
  
 

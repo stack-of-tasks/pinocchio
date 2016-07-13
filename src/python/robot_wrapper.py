@@ -51,7 +51,7 @@ class RobotWrapper(object):
                                                                 utils.fromListToVectorOfString(package_dirs), se3.GeometryType.COLLISION)
                     self.visual_model = se3.buildGeomFromUrdf(self.model, filename,
                                                                 utils.fromListToVectorOfString(package_dirs), se3.GeometryType.VISUAL)
-                    self.collision_data = se3.GeometryData(self.data, self.collision_model)
+                    self.collision_data = se3.GeometryData(self.collision_model)
 
         self.v0 = utils.zero(self.nv)
         self.q0 = utils.zero(self.nq)
