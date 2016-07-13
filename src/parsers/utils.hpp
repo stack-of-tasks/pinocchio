@@ -80,6 +80,10 @@ namespace se3
     // else return an empty string that will provoke an error in loadPolyhedronFromResource()
     namespace bf = boost::filesystem;
 
+    // In case the mesh_path is such as "file://path/to/mesh", check for /path/to/mesh and return it if it exists
+    if ( bf::exists( bf::path(urdf_mesh_path.substr(6, urdf_mesh_path.size())) ))
+      return std::string(urdf_mesh_path.substr(6, urdf_mesh_path.size()));
+
     std::string absolutePath;
     // concatenate package_path with mesh filename
     for (std::size_t i = 0; i < package_dirs.size(); ++i)
