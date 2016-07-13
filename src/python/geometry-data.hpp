@@ -94,8 +94,8 @@ namespace se3
         
         .add_property("nCollisionPairs", &GeometryDataPythonVisitor::nCollisionPairs)
         
-        .add_property("oMg_geometries",
-                      bp::make_function(&GeometryDataPythonVisitor::oMg_geometries,
+        .add_property("oMg",
+                      bp::make_function(&GeometryDataPythonVisitor::oMg,
                                         bp::return_internal_reference<>()),
                       "Vector of collision objects placement relative to the world.")
         .add_property("collision_pairs",
@@ -165,7 +165,7 @@ namespace se3
 
       static Index nCollisionPairs(const GeometryDataHandler & m ) { return m->nCollisionPairs; }
       
-      static std::vector<SE3> & oMg_geometries(GeometryDataHandler & m) { return m->oMg_geometries; }
+      static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
       static std::vector<CollisionPair_t> & collision_pairs( GeometryDataHandler & m ) { return m->collision_pairs; }
       static std::vector<DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distance_results; }
       static std::vector<CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }

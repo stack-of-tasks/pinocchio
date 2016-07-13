@@ -256,8 +256,8 @@ namespace se3
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;
 
-    fcl::collide (model_geom.geometry_objects[co1].collision_object.collisionGeometry().get(), oMg_fcl_geometries[co1],
-                  model_geom.geometry_objects[co2].collision_object.collisionGeometry().get(), oMg_fcl_geometries[co2],
+    fcl::collide (model_geom.geometry_objects[co1].collision_object.collisionGeometry().get(), oMg_fcl[co1],
+                  model_geom.geometry_objects[co2].collision_object.collisionGeometry().get(), oMg_fcl[co2],
                   collisionRequest, collisionResult);
 
     return CollisionResult (collisionResult, co1, co2);
@@ -294,8 +294,8 @@ namespace se3
     
     fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
     fcl::DistanceResult result;
-    fcl::distance ( model_geom.geometry_objects[co1].collision_object.collisionGeometry().get(), oMg_fcl_geometries[co1],
-                    model_geom.geometry_objects[co2].collision_object.collisionGeometry().get(), oMg_fcl_geometries[co2],
+    fcl::distance ( model_geom.geometry_objects[co1].collision_object.collisionGeometry().get(), oMg_fcl[co1],
+                    model_geom.geometry_objects[co2].collision_object.collisionGeometry().get(), oMg_fcl[co2],
                     distanceRequest, result);
     
     return DistanceResult (result, co1, co2);

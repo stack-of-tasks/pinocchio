@@ -449,7 +449,7 @@ GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryData & 
   GeometryPositionsMap_t result;
   for (std::size_t i = 0; i < data_geom.model_geom.ngeoms ; ++i)
   {
-    result[data_geom.model_geom.getGeometryName(i)] = data_geom.oMg_geometries[i];
+    result[data_geom.model_geom.getGeometryName(i)] = data_geom.oMg[i];
   }
   return result;
 }

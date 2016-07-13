@@ -366,13 +366,13 @@ struct GeometryObject
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
     ///
-    std::vector<se3::SE3> oMg_geometries;
+    std::vector<se3::SE3> oMg;
 
     ///
     /// \brief Same as oMg but using fcl::Transform3f to store placement.
     ///        This pre-allocation avoids dynamic allocation during collision checking or distance computations.
     ///
-    std::vector<fcl::Transform3f> oMg_fcl_geometries;
+    std::vector<fcl::Transform3f> oMg_fcl;
     ///
     /// \brief Vector of collision pairs.
     ///        See addCollisionPair, removeCollisionPair to fill or remove elements in the vector.
@@ -397,8 +397,8 @@ struct GeometryObject
     GeometryData(const Data & data, const GeometryModel & model_geom)
         : data_ref(data)
         , model_geom(model_geom)
-        , oMg_geometries(model_geom.ngeoms)
-        , oMg_fcl_geometries(model_geom.ngeoms)
+        , oMg(model_geom.ngeoms)
+        , oMg_fcl(model_geom.ngeoms)
         , collision_pairs()
         , nCollisionPairs(0)
         , distance_results()

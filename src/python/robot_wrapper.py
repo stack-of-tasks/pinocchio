@@ -188,7 +188,7 @@ class RobotWrapper(object):
 
 
         for visual in self.visual_model.geometry_objects :
-            M = self.collision_data.oMg_geometries[self.visual_model.getGeometryId(visual.name)]
+            M = self.collision_data.oMg[self.visual_model.getGeometryId(visual.name)]
             pinocchioConf = utils.se3ToXYZQUAT(M)
             viewerConf = utils.XYZQUATToViewerConfiguration(pinocchioConf)
             self.viewer.gui.applyConfiguration(self.viewerNodeNames(visual), viewerConf)

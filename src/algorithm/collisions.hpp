@@ -105,8 +105,8 @@ namespace se3
     for (GeometryData::GeomIndex i=0; i < (GeometryData::GeomIndex) data_geom.model_geom.ngeoms; ++i)
     {
       const Model::JointIndex & parent = model_geom.geometry_objects[i].parent;
-      data_geom.oMg_geometries[i] =  (data.oMi[parent] * model_geom.geometry_objects[i].placement);
-      data_geom.oMg_fcl_geometries[i] =  toFclTransform3f(data_geom.oMg_geometries[i]);
+      data_geom.oMg[i] =  (data.oMi[parent] * model_geom.geometry_objects[i].placement);
+      data_geom.oMg_fcl[i] =  toFclTransform3f(data_geom.oMg[i]);
     }
   }
   
