@@ -21,6 +21,7 @@
 #include <iostream>
 #include <limits>
 #include <sstream>
+// #include <stdexcept>
 
 #include <boost/filesystem/fstream.hpp>
 #include <boost/foreach.hpp>
@@ -64,38 +65,63 @@ namespace se3
 
 
   /**
-   * @brief      Transform a package://.. mesh path to an absolute path, searching for a valid file 
-   *             in a list of package directories
+   * @brief      Retrieve the path of the file whose path is given in an url-format.
+   *             Currently convert from the folliwing patterns : package:// or file://
    *
-   * @param[in]  urdf_mesh_path  The path given in the urdf file
-   * @param[in]  package_dirs    A list of packages directories where to search for meshes
+   * @param[in]  string          The path given in the url-format
+   * @param[in]  package_dirs    A list of packages directories where to search for files 
+   *                             if its pattern starts with package://
    *
-   * @return     The absolute path to the mesh file
+   * @return     The path to the file (can be a relative or absolute path)
    */
-   inline std::string convertURDFMeshPathToAbsolutePath(const std::string & urdf_mesh_path,
-                                                         const std::vector<std::string> & package_dirs)
+   inline std::string retrieveResourcePath(const std::string & string,
+                                           const std::vector<std::string> & package_dirs) throw (std::invalid_argument)
    {
-    // if exists p1/mesh, absolutePath = p1/mesh,
-    // else if exists p2/mesh, absolutePath = p2/mesh
-    // else return an empty string that will provoke an error in loadPolyhedronFromResource()
+
     namespace bf = boost::filesystem;
+    std::string result_path;
 
-    // In case the mesh_path is such as "file://path/to/mesh", check for /path/to/mesh and return it if it exists
-    if ( bf::exists( bf::path(urdf_mesh_path.substr(6, urdf_mesh_path.size())) ))
-      return std::string(urdf_mesh_path.substr(6, urdf_mesh_path.size()));
+    const std::string separator("://");
+    const std::size_t pos_separator = string.find(separator);
 
-    std::string absolutePath;
-    // concatenate package_path with mesh filename
-    for (std::size_t i = 0; i < package_dirs.size(); ++i)
+    if (pos_separator != std::string::npos)
     {
-      if ( bf::exists( bf::path(package_dirs[i] +  urdf_mesh_path.substr(9, urdf_mesh_path.size()))))
+      std::string scheme = string.substr(0, pos_separator);
+      std::string path = string.substr(pos_separator+3, std::string::npos);
+
+      if(scheme == "package")
       {
-          absolutePath = std::string( package_dirs[i] + urdf_mesh_path.substr(9, urdf_mesh_path.size())
-                                       );
-        break;
+        // if exists p1/string, path = p1/string,
+        // else if exists p2/string, path = p2/string
+        // else return an empty string that may provoke an error in loadPolyhedronFromResource()
+
+        // concatenate package_path with filename
+        for (std::size_t i = 0; i < package_dirs.size(); ++i)
+        {
+          if ( bf::exists( bf::path(package_dirs[i] + "/" + path)))
+          {
+            result_path = std::string( package_dirs[i] + "/" + path );
+            break;
+          }
+        }
+      }
+      else if (scheme == "file")
+      {
+        result_path = path;
+      }
+      else
+      {
+        const std::string exception_message ("Schemes of form" + scheme + "are not handled");
+        throw std::invalid_argument(exception_message);
       }
     }
-    return absolutePath;
+    else // return the entry string
+    {
+      result_path = string;
+      assert(false && "the path does not respect the pattern package:// or file://");
+    } 
+
+    return result_path;
    }
 
 } // namespace se3

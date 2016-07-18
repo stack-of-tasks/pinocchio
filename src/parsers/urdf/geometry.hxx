@@ -65,7 +65,7 @@ namespace se3
           boost::shared_ptr < ::urdf::Mesh> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Mesh> (urdf_geometry);
           std::string collisionFilename = collisionGeometry->filename;
 
-          mesh_path = convertURDFMeshPathToAbsolutePath(collisionFilename, package_dirs);
+          mesh_path = retrieveResourcePath(collisionFilename, package_dirs);
 
           fcl::Vec3f scale = fcl::Vec3f(collisionGeometry->scale.x,
                                               collisionGeometry->scale.y,
