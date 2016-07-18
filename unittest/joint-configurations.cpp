@@ -93,10 +93,17 @@ BOOST_AUTO_TEST_CASE ( integration_test )
   Eigen::VectorXd q(Eigen::VectorXd::Ones(model.nq));
   q.segment<4>(3) /= q.segment<4>(3).norm(); // quaternion of freeflyer
   q.segment<4>(7) /= q.segment<4>(7).norm(); // quaternion of spherical joint
+ 
+  // q_dot equal to 0
+  Eigen::VectorXd q_dot_zero(Eigen::VectorXd::Zero(model.nv));
+  Eigen::VectorXd result_zero(integrate(model,q,q_dot_zero));
+
+  BOOST_CHECK_MESSAGE(result_zero.isApprox(q, 1e-12), "integration of freeflyer joint with zero velocity - wrong results");
+
+  // q_dot non zero
   Eigen::VectorXd q_dot(Eigen::VectorXd::Random(model.nv));
   Eigen::Quaterniond quat_ff(q[6],q[3],q[4],q[5]); Eigen::Vector3d omega_ff(q_dot[3],q_dot[4],q_dot[5]); Eigen::Vector3d transl_ff(q[0],q[1],q[2]);
   Eigen::Quaterniond quat_spherical(q[10],q[7],q[8],q[9]); Eigen::Vector3d omega_spherical(q_dot[6],q_dot[7],q_dot[8]);
-
 
   Eigen::VectorXd expected(model.nq);
 
@@ -301,6 +308,22 @@ BOOST_AUTO_TEST_CASE ( differentiation_test )
   Eigen::VectorXd result(differentiate(model,q1,q2));
   
   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Differentiation of full model - wrong results");
+
+  // Difference between same zero configs
+  {
+    Eigen::VectorXd q(Eigen::VectorXd::Zero(model.nq));
+    Eigen::VectorXd expected(Eigen::VectorXd::Zero(model.nv));
+    Eigen::VectorXd result(differentiate(model,q,q));
+    BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Differentiation of full model with same zero configs - wrong results");
+  }
+
+  // Difference between same configs non zero
+  {
+    Eigen::VectorXd expected(Eigen::VectorXd::Zero(model.nv));
+    Eigen::VectorXd result(differentiate(model,q1,q1));
+    BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Differentiation of full model with same configs - wrong results");
+  }
+
 }
 
 BOOST_AUTO_TEST_CASE ( distance_computation_test )
@@ -383,6 +406,20 @@ BOOST_AUTO_TEST_CASE ( distance_computation_test )
   Eigen::VectorXd result(distance(model,q1,q2));
 
   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Distance between two configs of full model - wrong results");
+
+  {
+    Eigen::VectorXd q_zero(Eigen::VectorXd::Zero(model.nq));
+    Eigen::VectorXd expected(model.nbody-1);
+    Eigen::VectorXd result(distance(model,q_zero,q_zero));
+    BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Distance between two zero configs of full model - wrong results");
+  }
+
+  {
+    Eigen::VectorXd expected(model.nbody-1);
+    Eigen::VectorXd result(distance(model,q1,q1));
+    BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Distance between two same configs of full model - wrong results");
+  }
+
 }
 
 BOOST_AUTO_TEST_CASE ( neutral_configuration_test )
