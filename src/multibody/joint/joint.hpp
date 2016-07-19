@@ -166,18 +166,6 @@ namespace se3
       return ::se3::shortname(*this);
     }
 
-    JointModel& operator=( const JointModel& other) 
-    {
-      *this = other;
-      return *this;
-    }
-
-    JointModel& operator=( const JointModelVariant& other)
-    {
-      *this = other;
-      return *this;
-    }
-
     template <class D>
     bool operator == (const JointModelBase<D> &) const
     {
