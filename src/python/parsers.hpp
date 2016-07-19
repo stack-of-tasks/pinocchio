@@ -25,19 +25,18 @@
 #include "pinocchio/python/data.hpp"
 
 #ifdef WITH_URDFDOM
-  #include "pinocchio/multibody/parser/urdf.hpp"
+  #include "pinocchio/parsers/urdf.hpp"
 #ifdef WITH_HPP_FCL
   #include "pinocchio/python/geometry-model.hpp"
   #include "pinocchio/python/geometry-data.hpp"
-  #include "pinocchio/multibody/parser/urdf-with-geometry.hpp"
 #endif
 #endif
 
 #ifdef WITH_LUA
-  #include "pinocchio/multibody/parser/lua.hpp"
+  #include "pinocchio/parsers/lua.hpp"
 #endif // #ifdef WITH_LUA
 
-#include "pinocchio/multibody/parser/srdf.hpp"
+#include "pinocchio/parsers/srdf.hpp"
 
 namespace se3
 {
@@ -90,10 +89,12 @@ namespace se3
       
       static GeometryModelHandler
       buildGeomFromUrdf(const ModelHandler & model,
-                        const std::string & filename
+                        const std::string & filename,
+                        const GeometryType type
                         )
       {
-        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename));
+        std::vector<std::string> hints;
+        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename,hints, type));
         
         return GeometryModelHandler(geometry_model, true);
       }
@@ -101,14 +102,25 @@ namespace se3
       static GeometryModelHandler
       buildGeomFromUrdf(const ModelHandler & model,
                         const std::string & filename,
-                        std::vector<std::string> & package_dirs
+                        std::vector<std::string> & package_dirs,
+                        const GeometryType type
                         )
       {
-        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename, package_dirs));
+        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename, package_dirs, type));
         
         return GeometryModelHandler(geometry_model, true);
       }
       
+      static void removeCollisionPairsFromSrdf(ModelHandler & model,
+                                               GeometryModelHandler& geometry_model,
+                                               GeometryDataHandler & geometry_data,
+                                               const std::string & filename,
+                                               bool verbose
+                                               )
+      {
+        se3::srdf::removeCollisionPairsFromSrdf(*model, *geometry_model ,*geometry_data, filename, verbose);
+      }
+
 #endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
 
@@ -160,18 +172,23 @@ namespace se3
       bp::to_python_converter<std::pair<ModelHandler, GeometryModelHandler>, PairToTupleConverter<ModelHandler, GeometryModelHandler> >();
       
       bp::def("buildGeomFromUrdf",
-              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &, std::vector<std::string> &)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &, std::vector<std::string> &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)"
                        ),
               "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model "
               "(remember to create the corresponding data structures).");
       
       bp::def("buildGeomFromUrdf",
-              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)"),
               "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model "
               "(remember to create the corresponding data structures).");
       
+      bp::def("removeCollisionPairsFromSrdf",removeCollisionPairsFromSrdf,
+              bp::args("Model associated to GeometryData", "GeometryModel associated to a GeometryData", "GeometryData for which we want to remove pairs of collision", "srdf filename (string)", "verbosity"
+                       ),
+              "Parse an srdf file in order to desactivate collision pairs for a specific GeometryData and GeometryModel ");
+
 #endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
       

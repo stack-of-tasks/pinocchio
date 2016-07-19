@@ -27,12 +27,11 @@
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/collisions.hpp"
-#include "pinocchio/multibody/parser/urdf.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/urdf.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 
 
 #include "pinocchio/multibody/geometry.hpp"
-#include "pinocchio/multibody/parser/urdf-with-geometry.hpp"
 #ifdef WITH_HPP_MODEL_URDF
   #include <hpp/util/debug.hh>
   #include <hpp/model/device.hh>
@@ -72,10 +71,10 @@ int main()
   package_dirs.push_back(romeo_meshDir);
 
   se3::Model model = se3::urdf::buildModel(romeo_filename, se3::JointModelFreeFlyer());
-  se3::GeometryModel geom_model = se3::urdf::buildGeom(model, romeo_filename, package_dirs);
+  se3::GeometryModel geom_model = se3::urdf::buildGeom(model, romeo_filename, package_dirs, COLLISION);
    
   Data data(model);
-  GeometryData geom_data(data, geom_model);
+  GeometryData geom_data(geom_model);
   geom_data.initializeListOfCollisionPairs();
 
 

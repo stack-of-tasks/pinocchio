@@ -32,7 +32,7 @@
 #include <iomanip>
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/spatial/explog.hpp"

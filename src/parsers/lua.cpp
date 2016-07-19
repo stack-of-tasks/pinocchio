@@ -1,6 +1,6 @@
 
-#include "pinocchio/multibody/parser/lua/lua_tables.hpp"
-#include "pinocchio/multibody/parser/lua.hpp"
+#include "pinocchio/parsers/lua/lua_tables.hpp"
+#include "pinocchio/parsers/lua.hpp"
 
 #include <lua.hpp>
 #include <iostream>

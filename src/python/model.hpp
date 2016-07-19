@@ -24,7 +24,7 @@
 #include <eigenpy/eigenpy.hpp>
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/python/se3.hpp"
 #include "pinocchio/python/eigen_container.hpp"
 #include "pinocchio/python/handler.hpp"
