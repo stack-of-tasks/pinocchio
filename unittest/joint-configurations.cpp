@@ -15,18 +15,6 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-/*
- * Compare the value obtained with the RNEA with the values obtained from
- * RBDL. The test is not complete. It only validates the RNEA for the revolute
- * joints. The free-flyer is not tested. It should be extended to account for
- * the free flyer and for the other algorithms.
- *
- * Additionnal notes: the RNEA is an algorithm that can be used to validate
- * many others (in particular, the mass matrix (CRBA) can be numerically
- * validated from the RNEA, then the center-of-mass jacobian can be validated
- * from the mass matrix, etc.
- *
- */
 
 #include <iostream>
 #include <iomanip>
@@ -40,6 +28,10 @@
 
 #include <vector>
 
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE JointConfigurationsTest
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
 
 bool configurations_are_equals(const Eigen::VectorXd & conf1, const Eigen::VectorXd & conf2)
 {
@@ -131,10 +123,6 @@ se3::Model createBoundedModelWithAllJoints()
   return model;
 }
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE JointConfigurationsTest
-#include <boost/test/unit_test.hpp>
-#include <boost/utility/binary.hpp>
 
 
 BOOST_AUTO_TEST_SUITE ( JointConfigurationsTest )
@@ -469,6 +457,10 @@ BOOST_AUTO_TEST_CASE ( distance_computation_test )
   result = distance(model,q1,q1);
   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Distance between two same configs of full model - wrong results");
 
+  //
+  // Test Case 3 : distance between q1 and q2 == distance between q2 and q1
+  //
+  BOOST_CHECK_MESSAGE(distance(model, q1, q2) == distance(model, q2, q1), "Distance q1 -> q2 != Distance q2 -> q1");
 }
 
 BOOST_AUTO_TEST_CASE ( neutral_configuration_test )
