@@ -25,6 +25,7 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
 #include "pinocchio/multibody/joint/joint-revolute-unaligned.hpp"
+#include "pinocchio/multibody/joint/joint-revolute-unbounded.hpp"
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
 #include "pinocchio/multibody/joint/joint-prismatic.hpp"
@@ -831,6 +832,91 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
                                                                       ;
 
   BOOST_CHECK(jacobian_planar.isApprox(jacobian_expected));
+
+
+}
+BOOST_AUTO_TEST_SUITE_END ()
+
+BOOST_AUTO_TEST_SUITE (JointRevoluteUnbounded)
+
+BOOST_AUTO_TEST_CASE (vsRX)
+{
+  using namespace se3;
+  typedef Eigen::Matrix <double, 3, 1> Vector3;
+  typedef Eigen::Matrix <double, 6, 1> Vector6;
+  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+
+
+  Model modelRX, modelRevoluteUnbounded;
+
+  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
+
+  JointModelRUBX joint_model_RUX;
+  modelRX.addJointAndBody (0, JointModelRX (), pos, inertia, "px");
+  modelRevoluteUnbounded.addJointAndBody(0, joint_model_RUX ,pos, inertia, "revolute unbounded x");
+
+  Data dataRX(modelRX);
+  Data dataRevoluteUnbounded(modelRevoluteUnbounded);
+
+
+  Eigen::VectorXd q_rx = Eigen::VectorXd::Ones (modelRX.nq);
+  Eigen::VectorXd q_rubx = Eigen::VectorXd::Ones (modelRevoluteUnbounded.nq);
+  double ca, sa; double alpha = q_rx(0); SINCOS (alpha, &sa, &ca);
+  q_rubx(0) = ca;
+  q_rubx(1) = sa;
+  Eigen::VectorXd v_rx = Eigen::VectorXd::Ones (modelRX.nv);
+  Eigen::VectorXd v_rubx = v_rx;
+  Eigen::VectorXd tauRX = Eigen::VectorXd::Ones (modelRX.nv);       Eigen::VectorXd tauRevoluteUnbounded = Eigen::VectorXd::Ones (modelRevoluteUnbounded.nv);
+  Eigen::VectorXd aRX = Eigen::VectorXd::Ones (modelRX.nv);         Eigen::VectorXd aRevoluteUnbounded = aRX;
+  
+
+
+  forwardKinematics(modelRX, dataRX, q_rx, v_rx);
+  forwardKinematics(modelRevoluteUnbounded, dataRevoluteUnbounded, q_rubx, v_rubx);
+
+  computeAllTerms(modelRX, dataRX, q_rx, v_rx);
+  computeAllTerms(modelRevoluteUnbounded, dataRevoluteUnbounded, q_rubx, v_rubx);
+
+  BOOST_CHECK(dataRevoluteUnbounded.oMi[1].isApprox(dataRX.oMi[1]));
+  BOOST_CHECK(dataRevoluteUnbounded.liMi[1].isApprox(dataRX.liMi[1]));
+  BOOST_CHECK(dataRevoluteUnbounded.Ycrb[1].matrix().isApprox(dataRX.Ycrb[1].matrix()));
+  BOOST_CHECK(dataRevoluteUnbounded.f[1].toVector().isApprox(dataRX.f[1].toVector()));
+  
+  BOOST_CHECK(dataRevoluteUnbounded.nle.isApprox(dataRX.nle));
+  BOOST_CHECK(dataRevoluteUnbounded.com[0].isApprox(dataRX.com[0]));
+
+
+
+  // InverseDynamics == rnea
+  tauRX = rnea(modelRX, dataRX, q_rx, v_rx, aRX);
+  tauRevoluteUnbounded = rnea(modelRevoluteUnbounded, dataRevoluteUnbounded, q_rubx, v_rubx, aRevoluteUnbounded);
+
+  BOOST_CHECK(tauRX.isApprox(tauRevoluteUnbounded));
+
+  // ForwardDynamics == aba
+  Eigen::VectorXd aAbaRX= aba(modelRX,dataRX, q_rx, v_rx, tauRX);
+  Eigen::VectorXd aAbaRevoluteUnbounded = aba(modelRevoluteUnbounded,dataRevoluteUnbounded, q_rubx, v_rubx, tauRevoluteUnbounded);
+
+
+  BOOST_CHECK(aAbaRX.isApprox(aAbaRevoluteUnbounded));
+
+  // crba
+  crba(modelRX, dataRX,q_rx);
+  crba(modelRevoluteUnbounded, dataRevoluteUnbounded, q_rubx);
+
+  BOOST_CHECK(dataRX.M.isApprox(dataRevoluteUnbounded.M));
+   
+  // Jacobian
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianPX;jacobianPX.resize(6,1); jacobianPX.setZero();
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianPrismaticUnaligned;jacobianPrismaticUnaligned.resize(6,1);jacobianPrismaticUnaligned.setZero();
+  computeJacobians(modelRX, dataRX, q_rx);
+  computeJacobians(modelRevoluteUnbounded, dataRevoluteUnbounded, q_rubx);
+  getJacobian<true>(modelRX, dataRX, 1, jacobianPX);
+  getJacobian<true>(modelRevoluteUnbounded, dataRevoluteUnbounded, 1, jacobianPrismaticUnaligned);
+
+
+  BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
 
 
 }
