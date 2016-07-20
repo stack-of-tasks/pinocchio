@@ -155,6 +155,18 @@ namespace se3
    * @return     The joint's neutral configuration
    */
   inline Eigen::VectorXd neutralConfiguration(const JointModelVariant & jmodel);
+  
+  /**
+   * @brief      Visit a JointModelVariant through JointNormalizedVisitor to compute
+   *             the normalized configuration.
+   *
+   * @param[in]  jmodel  The JointModelVariant
+   * @param[in]  q       configuration to normalize
+   *
+   * @return     The normalized configuration
+   */
+  inline Eigen::VectorXd normalized(const JointModelVariant & jmodel,
+                                    const Eigen::VectorXd & q);
 
   /**
    * @brief      Visit a JointModelVariant through JointNvVisitor to get the dimension of 

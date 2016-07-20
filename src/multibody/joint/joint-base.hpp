@@ -349,7 +349,7 @@ namespace se3
     /**
      * @brief      Default implementation of normalized
      */
-    ConfigVector_t normalized_impl(const Eigen::VectorXd& q) const
+    ConfigVector_t normalized_impl(const Eigen::VectorXd & q) const
     {
       return q.segment<NQ>(idx_q());
     }
