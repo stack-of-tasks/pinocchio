@@ -58,6 +58,17 @@ namespace se3
     return env_var_paths;
   }
 
+
+  /**
+   * @brief      Parse the environment variable ROS_PACKAGE_PATH and extract paths
+   *
+   * @return     The vector of paths extracted from the environment variable ROS_PACKAGE_PATH
+   */
+  inline std::vector<std::string> rosPaths()
+  {
+    return extractPathFromEnvVar("ROS_PACKAGE_PATH");
+  }
+
 }
 
 #endif // __se3_file_explorer_hpp__

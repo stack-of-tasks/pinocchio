@@ -44,12 +44,12 @@ namespace se3
       NV = -1
     };
   };
-  template<> struct traits<JointDataGeneric> { typedef JointGeneric Joint; };
-  template<> struct traits<JointModelGeneric> { typedef JointGeneric Joint; };
+  template<> struct traits<JointDataGeneric> { typedef JointGeneric JointDerived; };
+  template<> struct traits<JointModelGeneric> { typedef JointGeneric JointDerived; };
 
   struct JointDataGeneric : public JointDataBase<JointDataGeneric> 
   {
-    typedef JointGeneric Joint;
+    typedef JointGeneric JointDerived;
     SE3_JOINT_TYPEDEF;
 
     Constraint_t S;
@@ -63,7 +63,7 @@ namespace se3
 
   struct JointModelGeneric : public JointModelBase<JointModelGeneric> 
   {
-    typedef JointGeneric Joint;
+    typedef JointGeneric JointDerived;
     SE3_JOINT_TYPEDEF;
     SE3_JOINT_USE_INDEXES;
 

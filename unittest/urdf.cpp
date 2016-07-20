@@ -18,7 +18,7 @@
 #include <iostream>
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/parser/urdf.hpp"
+#include "pinocchio/parsers/urdf.hpp"
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE UrdfTest

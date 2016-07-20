@@ -15,6 +15,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <cmath>
 #include <iostream>
 
 #include "pinocchio/spatial/force.hpp"
@@ -47,7 +48,7 @@ BOOST_AUTO_TEST_CASE ( test_ForceSet )
   ForceSet F2(Eigen::Matrix<double,3,2>::Zero(),Eigen::Matrix<double,3,2>::Zero());
   F.block(10,2) = F2;
   BOOST_CHECK_EQUAL(F.matrix().col(10).norm() , 0.0 );
-  BOOST_CHECK(isnan(F.matrix()(0,9)));
+  BOOST_CHECK(std::isnan(F.matrix()(0,9)));
 
   ForceSet F3(Eigen::Matrix<double,3,12>::Random(),Eigen::Matrix<double,3,12>::Random());
   ForceSet F4 = amb.act(F3);
@@ -76,8 +77,8 @@ BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
   Inertia Y = Inertia::Random();
   JointDataRX::Constraint_t S;
 
-  ForceSet F(1); F.block(0,1) = Y*S;
-  BOOST_CHECK(F.matrix().isApprox(Y.matrix().col(3), 1e-12));
+  ForceSet F1(1); F1.block(0,1) = Y*S;
+  BOOST_CHECK(F1.matrix().isApprox(Y.matrix().col(3), 1e-12));
 
   ForceSet F2( Eigen::Matrix<double,3,9>::Random(),Eigen::Matrix<double,3,9>::Random() );
   Eigen::MatrixXd StF2 = S.transpose()*F2.block(5,3).matrix();

@@ -18,7 +18,7 @@
 #include "pinocchio/algorithm/energy.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE ComTest

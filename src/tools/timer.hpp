@@ -30,10 +30,13 @@ inline double operator- (  const struct timeval & t1,const struct timeval & t0)
 
 struct StackTicToc
 {
-  enum Unit { S = 1, MS = 1000, US = 1000000 };
+  enum Unit { S = 1, MS = 1000, US = 1000000, NS = 1000000000 };
   Unit DEFAULT_UNIT;
   static std::string unitName(Unit u) 
-  { switch(u) { case S: return "s"; case MS: return "ms"; case US: return "us"; } return ""; }
+  { 
+    switch(u) { case S: return "s"; case MS: return "ms"; case US: return "us"; case NS: return "ns"; }
+    return ""; 
+  }
 
   std::stack<struct timeval> stack;
   mutable struct timeval t0;

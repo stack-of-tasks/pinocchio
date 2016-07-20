@@ -158,7 +158,7 @@ namespace se3
   }; // struct CollisionResult
 
 /// \brief Return true if the intrinsic geometry of the two CollisionObject is the same
-bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
+inline bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
 {
   return lhs.collisionGeometry() == rhs.collisionGeometry()
           && lhs.getAABB().min_ == rhs.getAABB().min_
@@ -177,8 +177,6 @@ struct GeometryObject
   typedef Model::JointIndex JointIndex;
   typedef Model::GeomIndex GeomIndex;
 
-  /// \brief Type of the GeometryObject. Cann be VISUAL, COLLISION, or NONE (cf GeometryType enumeration)
-  GeometryType type;
 
   /// \brief Name of the geometry object
   std::string name;
@@ -196,10 +194,9 @@ struct GeometryObject
   std::string mesh_path;
 
 
-  GeometryObject(const GeometryType type, const std::string & name, const JointIndex parent, const fcl::CollisionObject & collision,
+  GeometryObject(const std::string & name, const JointIndex parent, const fcl::CollisionObject & collision,
                  const SE3 & placement, const std::string & mesh_path)
-                : type(type)
-                , name(name)
+                : name(name)
                 , parent(parent)
                 , collision_object(collision)
                 , placement(placement)
@@ -208,7 +205,6 @@ struct GeometryObject
 
   GeometryObject & operator=(const GeometryObject & other)
   {
-    type = other.type;
     name = other.name;
     parent = other.parent;
     collision_object = other.collision_object;
@@ -221,18 +217,17 @@ struct GeometryObject
   
   inline bool operator==(const GeometryObject & lhs, const GeometryObject & rhs)
   {
-    return (lhs.type == rhs.type && lhs.name == rhs.name
-                               && lhs.parent == rhs.parent
-                               && lhs.collision_object == rhs.collision_object
-                               && lhs.placement == rhs.placement
-                               && lhs.mesh_path ==  rhs.mesh_path
-                               );
+    return ( lhs.name == rhs.name
+            && lhs.parent == rhs.parent
+            && lhs.collision_object == rhs.collision_object
+            && lhs.placement == rhs.placement
+            && lhs.mesh_path ==  rhs.mesh_path
+            );
   }
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object)
   {
-    os  << "Type: \t \n" << geom_object.type << "\n"
-        << "Name: \t \n" << geom_object.name << "\n"
+    os  << "Name: \t \n" << geom_object.name << "\n"
         << "Parent ID: \t \n" << geom_object.parent << "\n"
         // << "collision object: \t \n" << geom_object.collision_object << "\n"
         << "Position in parent frame: \t \n" << geom_object.placement << "\n"
@@ -247,22 +242,14 @@ struct GeometryObject
     typedef Model::JointIndex JointIndex;
     typedef Model::GeomIndex GeomIndex;
     
-    typedef std::list<GeomIndex> GeomIndexList;
+    typedef std::vector<GeomIndex> GeomIndexList;
 
-    /// \brief A const reference to the reference model.
-    const se3::Model & model;
-
-    /// \brief The number of GeometryObjects that are of type COLLISION
-    Index ncollisions;
-
-    /// \brief The number of GeometryObjects that are of type visuals
-    Index nvisuals;
+    
+    /// \brief The number of GeometryObjects
+    Index ngeoms;
 
     /// \brief Vector of GeometryObjects used for collision computations
-    std::vector<GeometryObject> collision_objects;
-
-    /// \brief Vector of GeometryObjects used for visualisation
-    std::vector<GeometryObject> visual_objects;
+    std::vector<GeometryObject> geometryObjects;
     
     /// \brief A list of associated collision GeometryObjects to a given joint Id.
     ///        Inner objects can be seen as geometry objects that directly move when the associated joint moves
@@ -272,21 +259,17 @@ struct GeometryObject
     ///        Outer objects can be seen as geometry objects that may often be obstacles to the Inner objects of given joint
     std::map < JointIndex, GeomIndexList >  outerObjects;
 
-    GeometryModel(const se3::Model & model)
-      : model(model)
-      , ncollisions(0)
-      , nvisuals(0)
-      , collision_objects()
-      , visual_objects()
+    GeometryModel()
+      : ngeoms(0)
+      , geometryObjects()
       , innerObjects()
       , outerObjects()
     {}
 
     ~GeometryModel() {};
 
-
     /**
-     * @brief      Add a geometry object whose type is COLLISION to a GeometryModel
+     * @brief      Add a geometry object of a given type to a GeometryModel
      *
      * @param[in]  parent     Index of the parent joint
      * @param[in]  co         The actual fcl CollisionObject
@@ -294,80 +277,43 @@ struct GeometryObject
      * @param[in]  geom_name  The name of the Geometry Object
      * @param[in]  mesh_path  The absolute path to the mesh
      *
-     * @return     The index of the new added GeometryObject in collision_objects
+     * @return     The index of the new added GeometryObject in geometryObjects
      */
-    GeomIndex addCollisionObject(const JointIndex parent, const fcl::CollisionObject & co,
-                                 const SE3 & placement, const std::string & geom_name = "",
-                                 const std::string & mesh_path = "");
-    
-    /**
-     * @brief      Add a geometry object whose type is VISUAL to a GeometryModel
-     *
-     * @param[in]  parent     Index of the parent joint
-     * @param[in]  co         The actual fcl CollisionObject
-     * @param[in]  placement  The relative placement regarding to the parent frame
-     * @param[in]  geom_name  The name of the Geometry Object
-     * @param[in]  mesh_path  The absolute path to the mesh
-     *
-     * @return     The index of the new added GeometryObject in visual_objects
-     */
-    GeomIndex addVisualObject(const JointIndex parent, const fcl::CollisionObject & co,
-                              const SE3 & placement, const std::string & geom_name = "",
-                              const std::string & mesh_path = "");
+    inline GeomIndex addGeometryObject(const JointIndex parent, const fcl::CollisionObject & co,
+                                       const SE3 & placement, const std::string & geom_name = "",
+                                       const std::string & mesh_path = "") throw(std::invalid_argument);
+
+
 
     /**
-     * @brief      Return the index of a GeometryObject of type COLLISION given by its name.
+     * @brief      Return the index of a GeometryObject given by its name.
      *
      * @param[in]  name  Name of the GeometryObject
      *
      * @return     Index of the corresponding GeometryObject
      */
-    GeomIndex getCollisionId(const std::string & name) const;
+    GeomIndex getGeometryId(const std::string & name) const;
+
     
     /**
-     * @brief      Return the index of a GeometryObject of type VISUAL given by its name.
+     * @brief      Check if a GeometryObject  given by its name exists.
      *
      * @param[in]  name  Name of the GeometryObject
      *
-     * @return     Index of the corresponding GeometryObject
+     * @return     True if the GeometryObject exists in the geometryObjects.
      */
-    GeomIndex getVisualId(const std::string & name) const;
-    
-    /**
-     * @brief      Check if a GeometryObject of type COLLISION given by its name exists.
-     *
-     * @param[in]  name  Name of the GeometryObject
-     *
-     * @return     True if the GeometryObject exists in the collision_objects.
-     */
-    bool existCollisionName(const std::string & name) const;
-    
-    /**
-     * @brief      Check if a GeometryObject of type VISUAL given by its name exists.
-     *
-     * @param[in]  name  Name of the GeometryObject
-     *
-     * @return     True if the GeometryObject exists in the visual_objects.
-     */
-    bool existVisualName(const std::string & name) const;
+    bool existGeometryName(const std::string & name) const;
+
 
     /**
-     * @brief      Get the name of a GeometryObject of type COLLISION given by its index.
+     * @brief      Get the name of a GeometryObject given by its index.
      *
      * @param[in]  index  Index of the GeometryObject
      *
      * @return     Name of the GeometryObject
      */
-    const std::string & getCollisionName(const GeomIndex index) const;
-    
-    /**
-     * @brief      Get the name of a GeometryObject of type VISUAL given by its index.
-     *
-     * @param[in]  index  Index of the GeometryObject
-     *
-     * @return     Name of the GeometryObject
-     */
-    const std::string & getVisualName(const GeomIndex index) const;
+    const std::string & getGeometryName(const GeomIndex index) const;
+
 
     /**
      * @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
@@ -395,11 +341,6 @@ struct GeometryObject
     typedef CollisionPair CollisionPair_t;
     typedef std::vector<CollisionPair_t> CollisionPairsVector_t;
 
-    ///
-    /// \brief A const reference to the data associated to the robot model.
-    ///        See class Data.
-    ///
-    const Data & data_ref;
     
     ///
     /// \brief A const reference to the model storing all the geometries.
@@ -408,21 +349,16 @@ struct GeometryObject
     const GeometryModel & model_geom;
 
     ///
-    /// \brief Vector gathering the SE3 placements of the collision objects relative to the world.
+    /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
     ///
-    std::vector<se3::SE3> oMg_collisions;
+    std::vector<se3::SE3> oMg;
 
-    ///
-    /// \brief Vector gathering the SE3 placements of the visual objects relative to the world.
-    ///        See updateGeometryPlacements to update the placements.
-    ///
-    std::vector<se3::SE3> oMg_visuals;
     ///
     /// \brief Same as oMg but using fcl::Transform3f to store placement.
     ///        This pre-allocation avoids dynamic allocation during collision checking or distance computations.
     ///
-    std::vector<fcl::Transform3f> oMg_fcl_collisions;
+    std::vector<fcl::Transform3f> oMg_fcl;
     ///
     /// \brief Vector of collision pairs.
     ///        See addCollisionPair, removeCollisionPair to fill or remove elements in the vector.
@@ -444,21 +380,19 @@ struct GeometryObject
     ///
     std::vector <CollisionResult> collision_results;
 
-    GeometryData(const Data & data, const GeometryModel & model_geom)
-        : data_ref(data)
-        , model_geom(model_geom)
-        , oMg_collisions(model_geom.ncollisions)
-        , oMg_visuals(model_geom.nvisuals)
-        , oMg_fcl_collisions(model_geom.ncollisions)
+    GeometryData(const GeometryModel & model_geom)
+        : model_geom(model_geom)
+        , oMg(model_geom.ngeoms)
+        , oMg_fcl(model_geom.ngeoms)
         , collision_pairs()
         , nCollisionPairs(0)
         , distance_results()
         , collision_results()
     {
-      const std::size_t num_max_collision_pairs = (model_geom.ncollisions * (model_geom.ncollisions-1))/2;
+      const std::size_t num_max_collision_pairs = (model_geom.ngeoms * (model_geom.ngeoms-1))/2;
       collision_pairs.reserve(num_max_collision_pairs);
-      distance_results.resize(num_max_collision_pairs, DistanceResult( fcl::DistanceResult(), 0, 0) );
-      collision_results.resize(num_max_collision_pairs, CollisionResult( fcl::CollisionResult(), 0, 0));
+      distance_results.reserve(num_max_collision_pairs);
+      collision_results.reserve(num_max_collision_pairs);
     }
 
     ~GeometryData() {};
@@ -544,18 +478,8 @@ struct GeometryObject
     ///
     Index findCollisionPair (const CollisionPair_t & pair) const;
     
-    void desactivateCollisionPairs();
     void initializeListOfCollisionPairs();
     
-    ///
-    /// \brief Active all possible collision pairs except those mentioned in the SRDF file.
-    ///        It throws if the SRDF file is incorrect.
-    ///
-    /// \param[in] filename The complete path to the SRDF file.
-    /// \param[in] verbose Verbosity mode.
-    ///
-    void addCollisionPairsFromSrdf(const std::string & filename,
-                                   const bool verbose = false) throw (std::invalid_argument);
 
     ///
     /// \brief Compute the collision status between two collision objects given by their indexes.

@@ -37,7 +37,7 @@ namespace se3
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
-		     se3::JointDataBase<typename JointModel::JointData> & jdata,
+		     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
 		     const se3::Model & model,
 		     se3::Data & data,
 		     const Eigen::VectorXd & q)
@@ -60,7 +60,7 @@ namespace se3
 
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
-                     JointDataBase<typename JointModel::JointData> & jdata,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data)
     {
@@ -128,7 +128,7 @@ namespace se3
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointData> & jdata,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
                      const Eigen::VectorXd & q)
@@ -157,7 +157,7 @@ namespace se3
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointData> & jdata,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const se3::Model & model,
                      se3::Data & data)
     {

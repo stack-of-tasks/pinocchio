@@ -17,20 +17,20 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/operational-frames.hpp"
+#include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
 
 #include <iostream>
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE OperationalFramesTest
+#define BOOST_TEST_MODULE FramesTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE ( OperationalFramesTest)
+BOOST_AUTO_TEST_SUITE ( FramesTest)
 
 BOOST_AUTO_TEST_CASE ( test_kinematics )
 {
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   q.middleRows<4> (3).normalize();
   framesForwardKinematics(model, data, q);
 
-  BOOST_CHECK(data.oMof[model.getFrameId(frame_name)].isApprox(data.oMi[parent_idx]*framePlacement));
+  BOOST_CHECK(data.oMf[model.getFrameId(frame_name)].isApprox(data.oMi[parent_idx]*framePlacement));
 
 }
 

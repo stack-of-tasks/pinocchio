@@ -1,6 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,29 +15,32 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_sample_models_hpp__
-#define __se3_sample_models_hpp__
+#include <iostream>
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/parsers/python.hpp"
 
-#ifdef WITH_HPP_FCL
-#include "pinocchio/multibody/geometry.hpp"
-#endif
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE PythonTest
+#include <boost/test/unit_test.hpp>
 
-namespace se3
+
+BOOST_AUTO_TEST_SUITE ( ParsingPythonFile )
+
+BOOST_AUTO_TEST_CASE ( buildModel )
 {
-  namespace buildModels
-  {
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_model.py";
 
-    void humanoid2d(Model& model);
+  #ifndef NDEBUG
+   std::cout << "Parse filename \"" << filename << "\"" << std::endl;
+  #endif
+  se3::Model model = se3::python::buildModel(filename,"model",false);
+  #ifndef NDEBUG
+   std::cout << "This model has \"" << model.nq << "\" DoF" << std::endl;
+  #endif
 
-    void humanoidSimple(Model& model, bool usingFF = true);
+  BOOST_CHECK(model.nq==9);
+  BOOST_CHECK(model.nv==8);
+}
 
-    #ifdef WITH_HPP_FCL
-    void collisionModel( Model& model, GeometryModel& geom);
-    #endif
-
-  } // namespace buildModels
-} // namespace se3
-
-#endif // ifndef __se3_sample_models_hpp__
+BOOST_AUTO_TEST_SUITE_END()

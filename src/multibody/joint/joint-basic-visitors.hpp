@@ -147,6 +147,16 @@ namespace se3
 
   
   /**
+   * @brief       Visit a JointModelVariant through JointNeutralfigurationVisitor to
+   *              get the neutral configuration vector of the joint
+   *
+   * @param[in]  jmodel           The JointModelVariant
+   *
+   * @return     The joint's neutral configuration
+   */
+  inline Eigen::VectorXd neutralConfiguration(const JointModelVariant & jmodel);
+
+  /**
    * @brief      Visit a JointModelVariant through JointNvVisitor to get the dimension of 
    *             the joint tangent space
    *
@@ -215,6 +225,13 @@ namespace se3
    */
   inline void setIndexes(JointModelVariant & jmodel, JointIndex id, int q,int v);
 
+
+  /**
+   * @brief      Visit a JointModelVariant through JointShortnameVisitor to get the shortname of the derived joint model
+   *
+   * @param      jmodel  The JointModelVariant we want the shortname of the type held in
+   */
+  inline std::string shortname(const JointModelVariant & jmodel);
   //
   // Visitors on JointDatas
   //

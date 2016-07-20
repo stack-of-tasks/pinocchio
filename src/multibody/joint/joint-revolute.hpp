@@ -1,6 +1,6 @@
 //
-// Copyright (c) 2015 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -43,11 +43,14 @@ namespace se3
       double w; 
       CartesianVector3(const double w) : w(w) {}
       CartesianVector3() : w(NAN) {}
-      operator Eigen::Vector3d ();
-    };
-    template<> inline CartesianVector3<0>::operator Eigen::Vector3d () { return Eigen::Vector3d(w,0,0); }
-    template<> inline CartesianVector3<1>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,w,0); }
-    template<> inline CartesianVector3<2>::operator Eigen::Vector3d () { return Eigen::Vector3d(0,0,w); }
+      
+      Eigen::Vector3d vector() const;
+      operator Eigen::Vector3d () const { return vector(); }
+    }; // struct CartesianVector3
+    template<> inline Eigen::Vector3d CartesianVector3<0>::vector() const { return Eigen::Vector3d(w,0,0); }
+    template<> inline Eigen::Vector3d CartesianVector3<1>::vector() const { return Eigen::Vector3d(0,w,0); }
+    template<> inline Eigen::Vector3d CartesianVector3<2>::vector() const { return Eigen::Vector3d(0,0,w); }
+    
     inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<0> & wx)
     { return Eigen::Vector3d(w1[0]+wx.w,w1[1],w1[2]); }
     inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<1> & wy)
@@ -60,7 +63,7 @@ namespace se3
   template<int axis>
   struct traits< MotionRevolute < axis > >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -94,8 +97,8 @@ namespace se3
 
     operator Motion() const
     {
-      return Motion(  Motion::Vector3::Zero(),
-        (Vector3)typename revolute::CartesianVector3<axis>(w)
+      return Motion(Motion::Vector3::Zero(),
+        typename revolute::CartesianVector3<axis>(w).vector()
         );
     }
   }; // struct MotionRevolute
@@ -115,7 +118,7 @@ namespace se3
   template<int axis>
   struct traits< ConstraintRevolute<axis> >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -136,9 +139,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,1> DenseBase;
+    typedef Eigen::Matrix<Scalar,1,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar,1,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar,6,1> DenseBase;
   }; // traits ConstraintRevolute
 
   template<int axis>
@@ -195,7 +198,7 @@ namespace se3
      operator ConstraintXd () const
      {
       Eigen::Matrix<double,6,1> S;
-      S << Eigen::Vector3d::Zero(), (Eigen::Vector3d)revolute::CartesianVector3<axis>(1);
+      S << Eigen::Vector3d::Zero(), revolute::CartesianVector3<axis>(1).vector();
       return ConstraintXd(S);
     }
   }; // struct ConstraintRevolute
@@ -370,8 +373,8 @@ namespace se3
       NV = 1
     };
     
-    typedef JointDataRevolute<axis> JointData;
-    typedef JointModelRevolute<axis> JointModel;
+    typedef JointDataRevolute<axis> JointDataDerived;
+    typedef JointModelRevolute<axis> JointModelDerived;
     typedef ConstraintRevolute<axis> Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionRevolute<axis> Motion_t;
@@ -387,13 +390,13 @@ namespace se3
     typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
 
-  template<int axis> struct traits< JointDataRevolute<axis> > { typedef JointRevolute<axis> Joint; };
-  template<int axis> struct traits< JointModelRevolute<axis> > { typedef JointRevolute<axis> Joint; };
+  template<int axis> struct traits< JointDataRevolute<axis> > { typedef JointRevolute<axis> JointDerived; };
+  template<int axis> struct traits< JointModelRevolute<axis> > { typedef JointRevolute<axis> JointDerived; };
 
   template<int axis>
   struct JointDataRevolute : public JointDataBase< JointDataRevolute<axis> >
   {
-    typedef JointRevolute<axis> Joint;
+    typedef JointRevolute<axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
     Constraint_t S;
@@ -419,7 +422,7 @@ namespace se3
   template<int axis>
   struct JointModelRevolute : public JointModelBase< JointModelRevolute<axis> >
   {
-    typedef JointRevolute<axis> Joint;
+    typedef JointRevolute<axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
     using JointModelBase<JointModelRevolute>::id;
@@ -427,17 +430,17 @@ namespace se3
     using JointModelBase<JointModelRevolute>::idx_v;
     using JointModelBase<JointModelRevolute>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar_t;
+    typedef double Scalar;
     
-    JointData createData() const { return JointData(); }
-    void calc( JointData& data, 
+    JointDataDerived createData() const { return JointDataDerived(); }
+    void calc( JointDataDerived& data, 
      const Eigen::VectorXd & qs ) const
     {
       const double & q = qs[idx_q()];
       data.M.rotation(JointRevolute<axis>::cartesianRotation(q));
     }
 
-    void calc( JointData& data, 
+    void calc( JointDataDerived& data, 
      const Eigen::VectorXd & qs, 
      const Eigen::VectorXd & vs ) const
     {
@@ -448,7 +451,7 @@ namespace se3
       data.v.w = v;
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I.col(Inertia::ANGULAR + axis);
       data.Dinv[0] = 1./I(Inertia::ANGULAR + axis,Inertia::ANGULAR + axis);
@@ -460,8 +463,8 @@ namespace se3
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {
-      const Scalar_t & q = qs[idx_q()];
-      const Scalar_t & v = vs[idx_v()];
+      const Scalar & q = qs[idx_q()];
+      const Scalar & v = vs[idx_v()];
 
       ConfigVector_t result;
       result << (q + v);
@@ -470,8 +473,8 @@ namespace se3
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar & q_0 = q0[idx_q()];
+      const Scalar & q_1 = q1[idx_q()];
 
       ConfigVector_t result;
       result << ((1-u) * q_0 + u * q_1);
@@ -504,21 +507,25 @@ namespace se3
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar & q_0 = q0[idx_q()];
+      const Scalar & q_1 = q1[idx_q()];
 
-      ConfigVector_t result;
+      TangentVector_t result;
       result << (q_1 - q_0);
       return result; 
     } 
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
-
-      return (q_1-q_0);
+      return difference_impl(q0,q1).norm();
     }
+
+    ConfigVector_t neutralConfiguration_impl() const
+    { 
+      ConfigVector_t q;
+      q << 0;
+      return q;
+    } 
 
     JointModelDense<NQ, NV> toDense_impl() const
     {

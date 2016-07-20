@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 CNRS
+# Copyright (c) 2015-2016 CNRS
 #
 # This file is part of Pinocchio
 # Pinocchio is free software: you can redistribute it
@@ -22,8 +22,8 @@ from robot_wrapper import RobotWrapper
 
 class RomeoWrapper(RobotWrapper):
 
-    def __init__(self, filename, root_joint=None):
-        RobotWrapper.__init__(self, filename, root_joint)
+    def __init__(self, filename, package_dirs=None, root_joint=None):
+        RobotWrapper.__init__(self, filename, package_dirs=package_dirs, root_joint=root_joint)
         self.q0 = np.matrix([
             0, 0, 0.840252, 0, 0, 0, 1,                      # Free flyer
             0, 0, -0.3490658, 0.6981317, -0.3490658, 0,      # left leg

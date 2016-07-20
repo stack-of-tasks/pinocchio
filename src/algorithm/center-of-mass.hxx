@@ -195,40 +195,6 @@ namespace se3
   /* --- JACOBIAN ---------------------------------------------------------- */
   /* --- JACOBIAN ---------------------------------------------------------- */
   /* --- JACOBIAN ---------------------------------------------------------- */
-  struct JacobianCenterOfMassForwardStep
-  : public fusion::JointVisitor<JacobianCenterOfMassForwardStep>
-  {
-    typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &,
-                                  const Eigen::VectorXd &
-                                  > ArgsType;
-  
-    JOINT_VISITOR_INIT(JacobianCenterOfMassForwardStep);
-    
-    template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointData> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q)
-    {
-      using namespace Eigen;
-      using namespace se3;
-
-      const Model::JointIndex & i      = (Model::JointIndex) jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
-
-      jmodel.calc(jdata.derived(),q);
-
-      data.liMi[i]      = model.jointPlacements[i]*jdata.M();
-      if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
-      else         data.oMi[i] = data.liMi[i];
-
-      data.com[i]   = model.inertias[i].mass()*data.oMi[i].act(model.inertias[i].lever());
-      data.mass[i]  = model.inertias[i].mass();
-    }
-    
-  };
 
   struct JacobianCenterOfMassBackwardStep
   : public fusion::JointVisitor<JacobianCenterOfMassBackwardStep>
@@ -242,14 +208,11 @@ namespace se3
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointData> & jdata,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const se3::Model& model,
                      se3::Data& data,
                      const bool computeSubtreeComs )
     {
-      using namespace Eigen;
-      using namespace se3;
-
       const Model::JointIndex & i      = (Model::JointIndex) jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
 
@@ -280,25 +243,36 @@ namespace se3
   inline const Data::Matrix3x &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
-                       const bool computeSubtreeComs)
+                       const bool computeSubtreeComs,
+                       const bool updateKinematics)
   {
     data.com[0].setZero ();
     data.mass[0] = 0;
-    for( Model::JointIndex i=1;i<(Model::JointIndex)model.nbody;++i )
-      {
-      JacobianCenterOfMassForwardStep
-      ::run(model.joints[i],data.joints[i],
-            JacobianCenterOfMassForwardStep::ArgsType(model,data,q));
-      }
+    
+    // Forward step
+    if (updateKinematics)
+      forwardKinematics(model, data, q);
+      
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.nbody);++i)
+    {
+      const double mass = model.inertias[i].mass();
+      const SE3::Vector3 & lever = model.inertias[i].lever();
+      
+      data.mass[i] = mass;
+      data.com[i] = mass*data.oMi[i].act(lever);
+    }
+   
+    // Backward step
     for( Model::JointIndex i= (Model::JointIndex) (model.nbody-1);i>0;--i )
-      {
+    {
       JacobianCenterOfMassBackwardStep
       ::run(model.joints[i],data.joints[i],
             JacobianCenterOfMassBackwardStep::ArgsType(model,data,computeSubtreeComs));
-      }
+    }
     
     data.com[0] /= data.mass[0];
     data.Jcom /=  data.mass[0];
+    
     return data.Jcom;
   }
 

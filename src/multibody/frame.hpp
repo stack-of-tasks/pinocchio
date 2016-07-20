@@ -29,6 +29,14 @@
 namespace se3
 {
 
+  enum FrameType
+  {
+    OP_FRAME,
+    JOINT,
+    FIXED_JOINT,
+    BODY,
+    SENSOR
+  };
   ///
   /// \brief A Plucker coordinate frame attached to a parent joint inside a kinematic tree
   ///
@@ -36,7 +44,7 @@ namespace se3
   {
     typedef se3::JointIndex JointIndex;
       
-    Frame() : name(random(8)), parent(), placement() {} // needed by EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION
+    Frame() : name(random(8)), parent(), placement(), type(){} // needed by EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION
     
     ///
     /// \brief Default constructor of a Frame
@@ -44,11 +52,13 @@ namespace se3
     /// \param[in] name Name of the frame.
     /// \param[in] parent Index of the parent joint in the kinematic tree.
     /// \param[in] placement Placement of the frame wrt the parent joint frame.
+    /// \param[in] type The type of the frame, see the enum FrameType
     ///
-    Frame(const std::string & name, const JointIndex parent, const SE3 & frame_placement):
+    Frame(const std::string & name, const JointIndex parent, const SE3 & frame_placement, const FrameType type ):
     name(name)
     , parent(parent)
     , placement(frame_placement)
+    , type(type)
     {}
     
     ///
@@ -59,7 +69,8 @@ namespace se3
     bool operator == (const Frame & other) const
     {
       return name == other.name && parent == other.parent
-      && placement == other.placement ;
+      && placement == other.placement
+      && type == other.type ;
     }
     
     /// \brief Name of the frame.
@@ -70,6 +81,9 @@ namespace se3
     
     /// \brief Placement of the frame wrt the parent joint.
     SE3 placement;
+
+    /// \brief Type of the frame
+    FrameType type;
     
   }; // struct Frame
 

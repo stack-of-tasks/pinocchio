@@ -32,14 +32,13 @@
 #include <iomanip>
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/parser/sample-models.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/collisions.hpp"
-#include "pinocchio/multibody/parser/urdf.hpp"
+#include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/spatial/explog.hpp"
 
 #include "pinocchio/multibody/geometry.hpp"
-#include "pinocchio/multibody/parser/urdf-with-geometry.hpp"
 
 #include <vector>
 
@@ -129,12 +128,12 @@ struct Distance_t
 #endif
 std::ostream& operator<<(std::ostream& os, const std::pair < se3::Model, se3::GeometryModel >& robot)
 {
-  os << "Nb collision objects = " << robot.second.ncollisions << std::endl;
+  os << "Nb collision objects = " << robot.second.ngeoms << std::endl;
   
-  for(se3::GeometryModel::Index i=0;i<(se3::GeometryModel::Index)(robot.second.ncollisions);++i)
+  for(se3::GeometryModel::Index i=0;i<(se3::GeometryModel::Index)(robot.second.ngeoms);++i)
   {
-    os  << "Object n " << i << " : " << robot.second.collision_objects[i].name << ": attached to joint = " << robot.second.collision_objects[i].parent
-        << "=" << robot.first.getJointName(robot.second.collision_objects[i].parent) << std::endl;
+    os  << "Object n " << i << " : " << robot.second.geometryObjects[i].name << ": attached to joint = " << robot.second.geometryObjects[i].parent
+        << "=" << robot.first.getJointName(robot.second.geometryObjects[i].parent) << std::endl;
   }
   return os;
 } 
@@ -145,25 +144,25 @@ BOOST_AUTO_TEST_SUITE ( GeomTest )
 BOOST_AUTO_TEST_CASE ( simple_boxes )
 {
   se3::Model model;
-  se3::GeometryModel model_geom(model);
+  se3::GeometryModel model_geom;
   
   using namespace se3;
 
-  model.addBody(model.getBodyId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+  model.addJointAndBody(model.getJointId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
                 "planar1_joint", "planar1_body");
-  model.addBody(model.getBodyId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
+  model.addJointAndBody(model.getJointId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
                 "planar2_joint", "planar2_body");
   
   boost::shared_ptr<fcl::Box> Sample(new fcl::Box(1));
   fcl::CollisionObject box1(Sample, fcl::Transform3f());
-  model_geom.addCollisionObject(model.getJointId("planar1_joint"),box1, SE3::Identity(),  "ff1_collision_object", "");
+  model_geom.addGeometryObject(model.getJointId("planar1_joint"),box1, SE3::Identity(),  "ff1_collision_object", "");
   
   boost::shared_ptr<fcl::Box> Sample2(new fcl::Box(1));
   fcl::CollisionObject box2(Sample, fcl::Transform3f());
-  model_geom.addCollisionObject(model.getJointId("planar2_joint"),box2, SE3::Identity(),  "ff2_collision_object", "");
+  model_geom.addGeometryObject(model.getJointId("planar2_joint"),box2, SE3::Identity(),  "ff2_collision_object", "");
 
   se3::Data data(model);
-  se3::GeometryData data_geom(data, model_geom);
+  se3::GeometryData data_geom(model_geom);
 
   std::cout << "------ Model ------ " << std::endl;
   std::cout << model;
@@ -210,10 +209,10 @@ BOOST_AUTO_TEST_CASE ( loading_model )
   package_dirs.push_back(meshDir);
 
   Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
-  GeometryModel geometry_model = se3::urdf::buildGeom(model, filename, package_dirs);
+  GeometryModel geometry_model = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
 
   Data data(model);
-  GeometryData geometry_data(data, geometry_model);
+  GeometryData geometry_data(geometry_model);
 
   Eigen::VectorXd q(model.nq);
   q << 0, 0, 0.840252, 0, 0, 0, 1, 0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0, 0, -0.3490658,
@@ -250,12 +249,12 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   package_dirs.push_back(meshDir);
 
   se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
-  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs);
+  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, COLLISION);
   std::cout << model << std::endl;
 
 
   Data data(model);
-  GeometryData data_geom(data, geom);
+  GeometryData data_geom(geom);
 
   // Configuration to be tested
   
@@ -358,12 +357,12 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   package_dirs.push_back(meshDir);
 
   se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
-  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs);
+  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, COLLISION);
   std::cout << model << std::endl;
 
 
   Data data(model);
-  GeometryData data_geom(data, geom);
+  GeometryData data_geom(geom);
 
   // Configuration to be tested
   
@@ -422,8 +421,8 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
         std::cout << "comparison between " << body1 << " and " << body2 << std::endl;
 
-        se3::DistanceResult dist_pin = data_geom.computeDistance( geom.getCollisionId(body1),
-                                                                  geom.getCollisionId(body2));
+        se3::DistanceResult dist_pin = data_geom.computeDistance( geom.getGeometryId(body1),
+                                                                  geom.getGeometryId(body2));
 
         Distance_t distance_pin(dist_pin.fcl_distance_result);
         distance_hpp.checkClose(distance_pin);
@@ -448,9 +447,9 @@ JointPositionsMap_t fillPinocchioJointPositions(const se3::Data & data)
 GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryData & data_geom)
 {
   GeometryPositionsMap_t result;
-  for (std::size_t i = 0; i < data_geom.model_geom.ncollisions ; ++i)
+  for (std::size_t i = 0; i < data_geom.model_geom.ngeoms ; ++i)
   {
-    result[data_geom.model_geom.getCollisionName(i)] = data_geom.oMg_collisions[i];
+    result[data_geom.model_geom.getGeometryName(i)] = data_geom.oMg[i];
   }
   return result;
 }

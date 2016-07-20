@@ -25,7 +25,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "pinocchio/multibody/parser/lua/lua_tables.hpp"
+#include "pinocchio/parsers/lua/lua_tables.hpp"
 
 #include <assert.h>
 #include <iostream>
