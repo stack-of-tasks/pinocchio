@@ -483,10 +483,7 @@ namespace se3
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      const Scalar & q_0 = q0[idx_q()];
-      const Scalar & q_1 = q1[idx_q()];
-
-      return (q_1-q_0);
+      return difference_impl(q0,q1).norm();
     }
 
     ConfigVector_t neutralConfiguration_impl() const

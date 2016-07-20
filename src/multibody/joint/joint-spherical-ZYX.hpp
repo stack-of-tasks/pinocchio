@@ -449,10 +449,7 @@ namespace se3
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
-
-      return (q_1 - q_0).norm();
+      return difference_impl(q0, q1).norm();
     }
     
     ConfigVector_t neutralConfiguration_impl() const
