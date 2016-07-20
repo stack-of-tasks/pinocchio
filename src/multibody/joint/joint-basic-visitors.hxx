@@ -233,25 +233,25 @@ namespace se3
   }
 
   /**
-   * @brief      JointNormalizedVisitor visitor
+   * @brief      JointNormalizeVisitor visitor
    */
-  class JointNormalizedVisitor: public boost::static_visitor<Eigen::VectorXd>
+  class JointNormalizeVisitor: public boost::static_visitor<>
   {
   public:
-    const Eigen::VectorXd & q;
+    Eigen::VectorXd & q;
 
-    JointNormalizedVisitor(const Eigen::VectorXd & q) : q(q) {}
+    JointNormalizeVisitor(Eigen::VectorXd & q) : q(q) {}
 
     template<typename D>
-    Eigen::VectorXd operator()(const JointModelBase<D> & jmodel) const
-    { return jmodel.normalized(q); }
+    void operator()(const JointModelBase<D> & jmodel) const
+    { jmodel.normalize(q); }
     
-    static Eigen::VectorXd run(const JointModelVariant & jmodel, const Eigen::VectorXd & q)
-    { return boost::apply_visitor( JointNormalizedVisitor(q), jmodel ); }
+    static void run(const JointModelVariant & jmodel, Eigen::VectorXd & q)
+    { boost::apply_visitor( JointNormalizeVisitor(q), jmodel ); }
   };
-  inline Eigen::VectorXd normalized(const JointModelVariant & jmodel, const Eigen::VectorXd & q)
+  inline void normalize(const JointModelVariant & jmodel, Eigen::VectorXd & q)
   {
-    return JointNormalizedVisitor::run(jmodel, q);
+    JointNormalizeVisitor::run(jmodel, q);
   }
 
 

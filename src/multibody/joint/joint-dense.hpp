@@ -197,11 +197,9 @@ namespace se3
       return result; 
     }
 
-    ConfigVector_t normalized_impl(const Eigen::VectorXd &) const
+    void normalize_impl(Eigen::VectorXd &) const
     {
-      ConfigVector_t result;
       assert(false && "JointModelDense is read-only, should not perform any calc");
-      return result;
     }
 
     JointModelDense() {}

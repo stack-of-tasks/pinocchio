@@ -374,11 +374,9 @@ namespace se3
       return q;
     } 
 
-    ConfigVector_t normalized_impl(const Eigen::VectorXd& q) const
+    void normalize_impl(Eigen::VectorXd& q) const
     {
-      ConfigVector_t result (q.segment<NQ>(idx_q()));
-      result.tail<4>().normalize();
-      return result;
+      q.segment<4>(idx_q()+3).normalize();
     }
 
     JointModelDense<NQ, NV> toDense_impl() const

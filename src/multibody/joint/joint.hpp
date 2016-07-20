@@ -146,9 +146,9 @@ namespace se3
       return ::se3::distance(*this, q0, q1);
     }
 
-    ConfigVector_t normalized_impl(const Eigen::VectorXd & q) const
-    { 
-      return ::se3::normalized(*this, q);
+    void normalize_impl(Eigen::VectorXd & q) const
+    {
+      return ::se3::normalize(*this, q);
     }
 
     ConfigVector_t neutralConfiguration_impl() const

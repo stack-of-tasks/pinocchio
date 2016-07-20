@@ -339,20 +339,15 @@ namespace se3
     /**
      * @brief      Normalize a configuration
      *
-     * @param[in]  q     Configuration to normalize (size full model.nq)
-     *
-     * @return     The normalized configuration
+     * @param[in,out]  q     Configuration to normalize (size full model.nq)
      */
-    ConfigVector_t normalized(const Eigen::VectorXd & q) const
-    { return derived().normalized_impl(q); }
+    void normalize(Eigen::VectorXd & q) const
+    { return derived().normalize_impl(q); }
 
     /**
-     * @brief      Default implementation of normalized
+     * @brief      Default implementation of normalize
      */
-    ConfigVector_t normalized_impl(const Eigen::VectorXd & q) const
-    {
-      return q.segment<NQ>(idx_q());
-    }
+    void normalize_impl(Eigen::VectorXd &) const { }
 
     JointIndex i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.

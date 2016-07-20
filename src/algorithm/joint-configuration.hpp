@@ -105,14 +105,13 @@ namespace se3
   inline Eigen::VectorXd randomConfiguration(const Model & model);
 
   /**
-   * @brief      Normalize a configuration
+   * @brief         Normalize a configuration
    *
-   * @param[in]  model      Model
-   * @param[in]  q          Configuration to normalize
-   * @return     The normalized configuration
+   * @param[in]     model      Model
+   * @param[in,out] q          Configuration to normalize
    */
-  inline Eigen::VectorXd normalized(const Model & model,
-                                    const Eigen::VectorXd & q);
+  inline void normalize(const Model & model,
+                        Eigen::VectorXd & q);
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
@@ -307,35 +306,29 @@ namespace se3
     return randomConfiguration(model, model.lowerPositionLimit, model.upperPositionLimit);
   }
 
-  struct NormalizedStep : public fusion::JointModelVisitor<NormalizedStep>
+  struct NormalizeStep : public fusion::JointModelVisitor<NormalizeStep>
   {
-    typedef boost::fusion::vector<const Eigen::VectorXd &,
-                                  Eigen::VectorXd &
-                                  > ArgsType;
+    typedef boost::fusion::vector<Eigen::VectorXd &> ArgsType;
 
-    JOINT_MODEL_VISITOR_INIT(NormalizedStep);
+    JOINT_MODEL_VISITOR_INIT(NormalizeStep);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     const Eigen::VectorXd & q,
-                     Eigen::VectorXd & result)
+                     Eigen::VectorXd & q)
     {
-      jmodel.jointConfigSelector(result) = jmodel.normalized(q);
+      jmodel.normalize(q);
     }
   };
 
-  inline Eigen::VectorXd
-  normalized(const Model & model,
-             const Eigen::VectorXd & q)
+  inline void
+  normalize(const Model & model,
+            Eigen::VectorXd & q)
   {
-    Eigen::VectorXd norma(model.nq);
     for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoint; ++i )
     {
-      NormalizedStep::run(model.joints[i],
-                          NormalizedStep::ArgsType (q, norma)
-                          );
+      NormalizeStep::run(model.joints[i],
+                         NormalizeStep::ArgsType (q));
     }
-    return norma;
   }
 
 
