@@ -172,7 +172,7 @@ namespace se3
     }
 
     template<typename M4>
-    SE3Tpl(const Eigen::MatrixBase<M4> & m) 
+    explicit SE3Tpl(const Eigen::MatrixBase<M4> & m) 
     : rot(m.template block<3,3>(LINEAR,LINEAR)), trans(m.template block<3,1>(LINEAR,ANGULAR))
     {
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M4,4,4);
