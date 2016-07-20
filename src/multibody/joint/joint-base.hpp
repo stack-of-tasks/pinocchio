@@ -336,6 +336,18 @@ namespace se3
     ConfigVector_t neutralConfiguration() const
     { return derived().neutralConfiguration_impl(); } 
 
+    /**
+     * @brief      Normalize a configuration
+     *
+     * @param[in,out]  q     Configuration to normalize (size full model.nq)
+     */
+    void normalize(Eigen::VectorXd & q) const
+    { return derived().normalize_impl(q); }
+
+    /**
+     * @brief      Default implementation of normalize
+     */
+    void normalize_impl(Eigen::VectorXd &) const { }
 
     JointIndex i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.

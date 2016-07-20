@@ -518,4 +518,22 @@ BOOST_AUTO_TEST_CASE ( integrate_difference_test )
 
 }
 
+BOOST_AUTO_TEST_CASE ( normalize_test )
+{
+  using namespace se3;
+
+  // Creating the Model and Data
+  Model model = createModelWithAllJoints();
+  se3::Data data(model);
+
+  Eigen::VectorXd q (Eigen::VectorXd::Ones(model.nq));
+  se3::normalize(model, q);
+
+  BOOST_CHECK(q.head<3>().isApprox(Eigen::VectorXd::Ones(3)));
+  BOOST_CHECK(fabs(q.segment<4>(3).norm() - 1) < Eigen::NumTraits<double>::epsilon()); // quaternion of freeflyer
+  BOOST_CHECK(fabs(q.segment<4>(7).norm() - 1) < Eigen::NumTraits<double>::epsilon()); // quaternion of spherical joint
+  const int n = model.nq - 7 - 4;
+  BOOST_CHECK(q.tail(n).isApprox(Eigen::VectorXd::Ones(n)));
+}
+
 BOOST_AUTO_TEST_SUITE_END ()

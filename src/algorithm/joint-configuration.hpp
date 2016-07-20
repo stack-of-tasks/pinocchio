@@ -104,7 +104,14 @@ namespace se3
    */
   inline Eigen::VectorXd randomConfiguration(const Model & model);
 
-
+  /**
+   * @brief         Normalize a configuration
+   *
+   * @param[in]     model      Model
+   * @param[in,out] q          Configuration to normalize
+   */
+  inline void normalize(const Model & model,
+                        Eigen::VectorXd & q);
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
@@ -298,6 +305,32 @@ namespace se3
   {
     return randomConfiguration(model, model.lowerPositionLimit, model.upperPositionLimit);
   }
+
+  struct NormalizeStep : public fusion::JointModelVisitor<NormalizeStep>
+  {
+    typedef boost::fusion::vector<Eigen::VectorXd &> ArgsType;
+
+    JOINT_MODEL_VISITOR_INIT(NormalizeStep);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     Eigen::VectorXd & q)
+    {
+      jmodel.normalize(q);
+    }
+  };
+
+  inline void
+  normalize(const Model & model,
+            Eigen::VectorXd & q)
+  {
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoint; ++i )
+    {
+      NormalizeStep::run(model.joints[i],
+                         NormalizeStep::ArgsType (q));
+    }
+  }
+
 
 } // namespace se3
 

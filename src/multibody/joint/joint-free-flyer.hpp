@@ -374,6 +374,11 @@ namespace se3
       return q;
     } 
 
+    void normalize_impl(Eigen::VectorXd& q) const
+    {
+      q.segment<4>(idx_q()+3).normalize();
+    }
+
     JointModelDense<NQ, NV> toDense_impl() const
     {
       return JointModelDense<NQ, NV>( id(),

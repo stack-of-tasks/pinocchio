@@ -232,6 +232,28 @@ namespace se3
     return JointNeutralConfigurationVisitor::run(jmodel);
   }
 
+  /**
+   * @brief      JointNormalizeVisitor visitor
+   */
+  class JointNormalizeVisitor: public boost::static_visitor<>
+  {
+  public:
+    Eigen::VectorXd & q;
+
+    JointNormalizeVisitor(Eigen::VectorXd & q) : q(q) {}
+
+    template<typename D>
+    void operator()(const JointModelBase<D> & jmodel) const
+    { jmodel.normalize(q); }
+    
+    static void run(const JointModelVariant & jmodel, Eigen::VectorXd & q)
+    { boost::apply_visitor( JointNormalizeVisitor(q), jmodel ); }
+  };
+  inline void normalize(const JointModelVariant & jmodel, Eigen::VectorXd & q)
+  {
+    JointNormalizeVisitor::run(jmodel, q);
+  }
+
 
   /**
    * @brief      JointDifferenceVisitor visitor

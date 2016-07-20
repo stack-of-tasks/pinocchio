@@ -197,6 +197,11 @@ namespace se3
       return result; 
     }
 
+    void normalize_impl(Eigen::VectorXd &) const
+    {
+      assert(false && "JointModelDense is read-only, should not perform any calc");
+    }
+
     JointModelDense() {}
     JointModelDense(JointIndex idx, int idx_q, int idx_v)
     {
