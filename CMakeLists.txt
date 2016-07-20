@@ -153,7 +153,6 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-basic-visitors.hxx
   ) 
 
-
 SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/fwd.hpp
   multibody/constraint.hpp
@@ -163,12 +162,6 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/model.hxx
   multibody/visitor.hpp
   )
-
-SET(${PROJECT_NAME}_PARSERS_HEADERS
-  parsers/sample-models.hpp
-  parsers/utils.hpp
-  parsers/srdf.hpp
-  ) 
 
 SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/aba.hpp
@@ -214,19 +207,26 @@ IF(BUILD_PYTHON_INTERFACE)
     python/explog.hpp
     )
 
-  LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-    parsers/python.hpp
-    )
-ENDIF(BUILD_PYTHON_INTERFACE)
-
-
-IF(HPP_FCL_FOUND AND BUILD_PYTHON_INTERFACE)
-  LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
+  IF(HPP_FCL_FOUND)
+    LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
       python/geometry-object.hpp
       python/geometry-model.hpp
       python/geometry-data.hpp
-    )
-ENDIF(HPP_FCL_FOUND AND BUILD_PYTHON_INTERFACE)
+      )
+  ENDIF(HPP_FCL_FOUND)
+
+ELSE(BUILD_PYTHON_INTERFACE)
+  SET(${PROJECT_NAME}_PYTHON_HEADERS "")
+  # LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
+  #   parsers/python.hpp
+  #   )
+ENDIF(BUILD_PYTHON_INTERFACE)
+
+SET(${PROJECT_NAME}_PARSERS_HEADERS
+  parsers/sample-models.hpp
+  parsers/utils.hpp
+  parsers/srdf.hpp
+  ) 
 
 IF(URDFDOM_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
@@ -235,7 +235,7 @@ IF(URDFDOM_FOUND)
     parsers/urdf/utils.hpp
     )
   
-  IF(HPP_FCL_FOUND )
+  IF(HPP_FCL_FOUND)
     LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
       parsers/urdf/geometry.hxx
       )
