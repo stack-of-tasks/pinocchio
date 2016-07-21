@@ -483,7 +483,7 @@ BOOST_AUTO_TEST_CASE ( neutral_configuration_test )
               0,0,0;
 
 
-  BOOST_CHECK_MESSAGE(model.neutralConfigurations.isApprox(expected, 1e-12), "neutral configurations - wrong results");
+  BOOST_CHECK_MESSAGE(model.neutralConfiguration.isApprox(expected, 1e-12), "neutral configuration - wrong results");
 }
 
 BOOST_AUTO_TEST_CASE ( uniform_sampling_test )
