@@ -174,8 +174,8 @@ namespace se3
 
                 if (joint_id != model.joints.size()) // != model.njoints
                 {
-                  model.neutralConfigurations(joint.idx_q()) = joint_config; // joint with 1 dof
-                  // model.neutralConfigurations.segment(joint.idx_q(),joint.nq()) = joint_config; // joint with more than 1 dof
+                  model.neutralConfiguration(joint.idx_q()) = joint_config; // joint with 1 dof
+                  // model.neutralConfiguration.segment(joint.idx_q(),joint.nq()) = joint_config; // joint with more than 1 dof
                 }
                 else
                 {

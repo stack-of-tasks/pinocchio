@@ -93,11 +93,21 @@ namespace se3
     nq += j.nq();
     nv += j.nv();
 
-    neutralConfigurations.conservativeResize(nq);neutralConfigurations.bottomRows<D::NQ>() = j.neutralConfiguration();
-    effortLimit.conservativeResize(nv);effortLimit.bottomRows<D::NV>().fill(std::numeric_limits<double>::infinity());
-    velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>().fill(std::numeric_limits<double>::infinity());
-    lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>().fill(-std::numeric_limits<double>::infinity());
-    upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows<D::NQ>().fill(std::numeric_limits<double>::infinity());
+    neutralConfiguration.conservativeResize(nq);
+    neutralConfiguration.bottomRows<D::NQ>() = j.neutralConfiguration();
+
+    effortLimit.conservativeResize(nv);
+    effortLimit.bottomRows<D::NV>().fill(std::numeric_limits<double>::infinity());
+
+    velocityLimit.conservativeResize(nv);
+    velocityLimit.bottomRows<D::NV>().fill(std::numeric_limits<double>::infinity());
+
+    lowerPositionLimit.conservativeResize(nq);
+    lowerPositionLimit.bottomRows<D::NQ>().fill(-std::numeric_limits<double>::infinity());
+
+    upperPositionLimit.conservativeResize(nq);
+    upperPositionLimit.bottomRows<D::NQ>().fill(std::numeric_limits<double>::infinity());
+
     return idx;
   }
 
@@ -135,15 +145,15 @@ namespace se3
     // Ensure that limits are not inf
     Eigen::VectorXd neutralConf((lowerPositionLimit.bottomRows<D::NQ>() + upperPositionLimit.bottomRows<D::NQ>())/2 );
     
-    neutralConfigurations.conservativeResize(nq);
+    neutralConfiguration.conservativeResize(nq);
     if ( std::isfinite(neutralConf.norm()) )
     {
-      neutralConfigurations.bottomRows<D::NQ>() = neutralConf;
+      neutralConfiguration.bottomRows<D::NQ>() = neutralConf;
     }
     else
     {
       assert( false && "One of the position limit is inf or NaN");
-      neutralConfigurations.bottomRows<D::NQ>() = j.neutralConfiguration();
+      neutralConfiguration.bottomRows<D::NQ>() = j.neutralConfiguration();
     }
 
     addFrame((jointName!="")?jointName:random(8), idx, SE3::Identity(), JOINT);
