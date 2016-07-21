@@ -15,73 +15,9 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_collisions_hpp__
-#define __se3_collisions_hpp__
+#ifndef __se3_geometry_hxx__
+#define __se3_geometry_hxx__
 
-#include "pinocchio/multibody/visitor.hpp"
-#include "pinocchio/multibody/model.hpp"
-
-#include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/multibody/geometry.hpp"
-
-namespace se3
-{
-
-
-  ///
-  /// \brief Apply a forward kinematics and update the placement of the geometry objects.
-  ///
-  /// \param[in] model The model structure of the rigid body system.
-  /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] geom The geometry model containing the collision objects.
-  /// \param[out] geom_data The geometry data containing the placements of the collision objects. See oMg field in GeometryData.
-  /// \param[in] q The joint configuration vector (dim model.nq).
-  ///
-  inline void updateGeometryPlacements(const Model & model,
-                                       Data & data,
-                                       const GeometryModel & geom,
-                                       GeometryData & geom_data,
-                                       const Eigen::VectorXd & q
-                                       );
-  
-  ///
-  /// \brief Update the placement of the geometry objects according to the current joint placements contained in data.
-  ///
-  /// \param[in] model The model structure of the rigid body system.
-  /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] geom The geometry model containing the collision objects.
-  /// \param[out] geom_data The geometry data containing the placements of the collision objects. See oMg field in GeometryData.
-  ///
-  inline void updateGeometryPlacements(const Model & model,
-                                       const Data & data,
-                                       const GeometryModel & geom,
-                                       GeometryData & geom_data
-                                       );
-
-  inline bool computeCollisions(const Model & model,
-                                Data & data,
-                                const GeometryModel & model_geom,
-                                GeometryData & data_geom,
-                                const Eigen::VectorXd & q,
-                                const bool stopAtFirstCollision = false
-                                );
-
-  inline bool computeCollisions(GeometryData & data_geom,
-                                const bool stopAtFirstCollision = false
-                                );
-
-  inline void computeDistances(GeometryData & data_geom);
-
-  inline void computeDistances(const Model & model,
-                              Data & data,
-                              const GeometryModel & model_geom,
-                              GeometryData & data_geom,
-                              const Eigen::VectorXd & q
-                              );
-
-} // namespace se3 
-
-/* --- Details -------------------------------------------------------------------- */
 namespace se3 
 {
   
@@ -162,4 +98,4 @@ namespace se3
   
 } // namespace se3
 
-#endif // ifndef __se3_collisions_hpp__
+#endif __se3_geometry_hxx__
