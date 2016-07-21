@@ -428,7 +428,7 @@ namespace se3
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      return difference_impl(q0,q1).norm();
+      return fabs(difference_impl(q0,q1)[0]);
     }
 
     ConfigVector_t neutralConfiguration_impl() const
