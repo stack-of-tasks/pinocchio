@@ -205,7 +205,7 @@ namespace se3
 
   template<int axis> 
   struct JointRevolute {
-      static Eigen::Matrix3d cartesianRotation(const double & angle); 
+      static Eigen::Matrix3d cartesianRotation(const double & ca, const double & sa); 
   };
 
   inline Motion operator^( const Motion& m1, const MotionRevolute<0>& m2)
@@ -254,10 +254,9 @@ namespace se3
     }
 
   template<> inline
-  Eigen::Matrix3d JointRevolute<0>::cartesianRotation(const double & angle) 
+  Eigen::Matrix3d JointRevolute<0>::cartesianRotation(const double & ca, const double & sa) 
   {
     Eigen::Matrix3d R3; 
-    double ca,sa; SINCOS (angle,&sa,&ca);
     R3 << 
     1,0,0,
     0,ca,-sa,
@@ -266,10 +265,9 @@ namespace se3
   }
 
   template<> inline
-  Eigen::Matrix3d JointRevolute<1>::cartesianRotation(const double & angle)
+  Eigen::Matrix3d JointRevolute<1>::cartesianRotation(const double & ca, const double & sa)
   {
-    Eigen::Matrix3d R3; 
-    double ca,sa; SINCOS (angle,&sa,&ca);
+    Eigen::Matrix3d R3;
     R3 << 
     ca, 0,  sa,
     0, 1,   0,
@@ -278,10 +276,9 @@ namespace se3
   }
 
   template<> inline
-  Eigen::Matrix3d JointRevolute<2>::cartesianRotation(const double & angle) 
+  Eigen::Matrix3d JointRevolute<2>::cartesianRotation(const double & ca, const double & sa) 
   {
-    Eigen::Matrix3d R3; 
-    double ca,sa; SINCOS (angle,&sa,&ca);
+    Eigen::Matrix3d R3;
     R3 << 
     ca,-sa,0,
     sa,ca,0,
@@ -437,7 +434,8 @@ namespace se3
      const Eigen::VectorXd & qs ) const
     {
       const double & q = qs[idx_q()];
-      data.M.rotation(JointRevolute<axis>::cartesianRotation(q));
+      double ca,sa; SINCOS (q,&sa,&ca);
+      data.M.rotation(JointRevolute<axis>::cartesianRotation(ca, sa));
     }
 
     void calc( JointDataDerived& data, 
@@ -447,7 +445,9 @@ namespace se3
       const double & q = qs[idx_q()];
       const double & v = vs[idx_v()];
 
-      data.M.rotation(JointRevolute<axis>::cartesianRotation(q));
+      double ca,sa; SINCOS (q,&sa,&ca);
+
+      data.M.rotation(JointRevolute<axis>::cartesianRotation(ca, sa));
       data.v.w = v;
     }
     
@@ -517,7 +517,7 @@ namespace se3
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      return difference_impl(q0,q1).norm();
+      return fabs(difference_impl(q0,q1)[0]);
     }
 
     ConfigVector_t neutralConfiguration_impl() const

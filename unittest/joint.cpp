@@ -44,6 +44,15 @@ void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
     se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
     bool update_I = false;
 
+    if(T::shortname() == "JointModelRUBX" ||
+       T::shortname() == "JointModelRUBY" ||
+       T::shortname() == "JointModelRUBZ")
+    {
+      // normalize cos/sin
+      q1.normalize();
+      q2.normalize();
+    }
+
     jmodel.calc(jdata, q1, q1_dot);
     jmodel.calc_aba(jdata, Ia, update_I);
 
