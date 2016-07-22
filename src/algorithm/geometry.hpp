@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_collisions_hpp__
-#define __se3_collisions_hpp__
+#ifndef __se3_algo_geometry_hpp__
+#define __se3_algo_geometry_hpp__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -79,87 +79,13 @@ namespace se3
                               const Eigen::VectorXd & q
                               );
 
+  inline void computeBodyRadius(const Model &         model,
+                                const GeometryModel & geomModel,
+                                GeometryData &        geomData);
+
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
-namespace se3 
-{
-  
-  inline void updateGeometryPlacements(const Model & model,
-                                      Data & data,
-                                      const GeometryModel & model_geom,
-                                      GeometryData & data_geom,
-                                      const Eigen::VectorXd & q
-                                      )
-  {
-    forwardKinematics(model, data, q);
-    updateGeometryPlacements(model, data, model_geom, data_geom);
-  }
-  
-  inline void  updateGeometryPlacements(const Model &,
-                                       const Data & data,
-                                       const GeometryModel & model_geom,
-                                       GeometryData & data_geom
-                                       )
-  {
-    for (GeometryData::GeomIndex i=0; i < (GeometryData::GeomIndex) data_geom.model_geom.ngeoms; ++i)
-    {
-      const Model::JointIndex & parent = model_geom.geometryObjects[i].parent;
-      data_geom.oMg[i] =  (data.oMi[parent] * model_geom.geometryObjects[i].placement);
-      data_geom.oMg_fcl[i] =  toFclTransform3f(data_geom.oMg[i]);
-    }
-  }
-  
-  inline bool computeCollisions(GeometryData & data_geom,
-                                const bool stopAtFirstCollision
-                                )
-  {
-    bool isColliding = false;
-    
-    for (std::size_t cpt = 0; cpt < data_geom.collision_pairs.size(); ++cpt)
-    {
-      data_geom.collision_results[cpt] = data_geom.computeCollision(data_geom.collision_pairs[cpt].first, data_geom.collision_pairs[cpt].second);
-      isColliding |= data_geom.collision_results[cpt].fcl_collision_result.isCollision();
-      if(isColliding && stopAtFirstCollision)
-        return true;
-    }
-    
-    return isColliding;
-  }
-  
-  // WARNING, if stopAtFirstcollision = true, then the collisions vector will not be fulfilled.
-  inline bool computeCollisions(const Model & model,
-                                Data & data,
-                                const GeometryModel & model_geom,
-                                GeometryData & data_geom,
-                                const Eigen::VectorXd & q,
-                                const bool stopAtFirstCollision
-                                )
-  {
-    updateGeometryPlacements (model, data, model_geom, data_geom, q);
-    
-    return computeCollisions(data_geom, stopAtFirstCollision);
-  }
-  
-  
-  inline void computeDistances(GeometryData & data_geom)
-  {
-    for (std::size_t cpt = 0; cpt < data_geom.collision_pairs.size(); ++cpt)
-      data_geom.distance_results[cpt] = data_geom.computeDistance(data_geom.collision_pairs[cpt].first,
-                                                                  data_geom.collision_pairs[cpt].second);
-  }
-  
-  inline void computeDistances(const Model & model,
-                               Data & data,
-                               const GeometryModel & model_geom,
-                               GeometryData & data_geom,
-                               const Eigen::VectorXd & q
-                               )
-  {
-    updateGeometryPlacements (model, data, model_geom, data_geom, q);
-    computeDistances(data_geom);
-  }
-  
-} // namespace se3
+#include "pinocchio/algorithm/geometry.hxx"
 
-#endif // ifndef __se3_collisions_hpp__
+#endif // ifndef __se3_algo_geometry_hpp__

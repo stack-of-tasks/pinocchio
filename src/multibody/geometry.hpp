@@ -380,6 +380,12 @@ struct GeometryObject
     ///
     std::vector <CollisionResult> collision_results;
 
+    ///
+    /// \brief Radius of the bodies, i.e. distance of the further point of the geometry model
+    /// attached to the body from the joint center.
+    ///
+    std::vector<double> radius;
+    
     GeometryData(const GeometryModel & model_geom)
         : model_geom(model_geom)
         , oMg(model_geom.ngeoms)
@@ -388,6 +394,8 @@ struct GeometryObject
         , nCollisionPairs(0)
         , distance_results()
         , collision_results()
+        , radius()
+         
     {
       const std::size_t num_max_collision_pairs = (model_geom.ngeoms * (model_geom.ngeoms-1))/2;
       collision_pairs.reserve(num_max_collision_pairs);

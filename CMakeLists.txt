@@ -257,7 +257,8 @@ IF(HPP_FCL_FOUND)
     multibody/geometry.hxx
     )
   LIST(APPEND ${PROJECT_NAME}_ALGORITHM_HEADERS
-    algorithm/collisions.hpp
+    algorithm/geometry.hpp
+    algorithm/geometry.hxx
     )
 ENDIF(HPP_FCL_FOUND)
 

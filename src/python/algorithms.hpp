@@ -40,7 +40,7 @@
   #include "pinocchio/multibody/geometry.hpp"
   #include "pinocchio/python/geometry-model.hpp"
   #include "pinocchio/python/geometry-data.hpp"
-  #include "pinocchio/algorithm/collisions.hpp"
+  #include "pinocchio/algorithm/geometry.hpp"
 #endif
 
 namespace se3

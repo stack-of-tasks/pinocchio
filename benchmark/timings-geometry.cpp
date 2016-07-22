@@ -26,7 +26,7 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/algorithm/collisions.hpp"
+#include "pinocchio/algorithm/geometry.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
