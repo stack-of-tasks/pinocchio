@@ -116,7 +116,6 @@ namespace se3
     geomData.radius.resize(model.joints.size(),0);
     BOOST_FOREACH(const GeometryObject & geom,geomModel.geometryObjects)
     {
-      std::cout << "New body radius" << geom.name << std::endl;
       const boost::shared_ptr<const fcl::CollisionGeometry> & fcl
         = geom.collision_object.collisionGeometry();
       const SE3 & jMb = geom.placement; // placement in joint.
