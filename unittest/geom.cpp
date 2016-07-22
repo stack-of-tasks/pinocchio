@@ -223,6 +223,34 @@ BOOST_AUTO_TEST_CASE ( loading_model )
   BOOST_CHECK(geometry_data.computeCollision(1,10).fcl_collision_result.isCollision() == false);
 }
 
+
+#ifdef WITH_URDFDOM
+#ifdef WITH_HPP_FCL
+BOOST_AUTO_TEST_CASE (radius)
+{
+  typedef se3::Model Model;
+  typedef se3::GeometryModel GeometryModel;
+  typedef se3::Data Data;
+  typedef se3::GeometryData GeometryData;
+  typedef std::vector<double> vector_t;
+
+  // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
+  std::vector < std::string > package_dirs;
+  std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
+  package_dirs.push_back(meshDir);
+
+  se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
+  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
+  Data data(model);
+  GeometryData geomData(geom);
+
+  se3::computeBodyRadius(model, geom, geomData);
+  BOOST_FOREACH( double radius, geomData.radius) radius;
+}
+#endif //  #ifdef WITH_URDFDOM
+#endif //  #ifdef WITH_HPP_FCL
+
 #ifdef WITH_HPP_MODEL_URDF
 BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
 {
@@ -330,7 +358,6 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
 
 
 }
-
 
 BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 {

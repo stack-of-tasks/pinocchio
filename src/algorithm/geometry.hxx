@@ -15,8 +15,10 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_geometry_hxx__
-#define __se3_geometry_hxx__
+#ifndef __se3_algo_geometry_hxx__
+#define __se3_algo_geometry_hxx__
+
+#include <boost/foreach.hpp>
 
 namespace se3 
 {
@@ -95,7 +97,53 @@ namespace se3
     updateGeometryPlacements (model, data, model_geom, data_geom, q);
     computeDistances(data_geom);
   }
-  
+
+  /// Given p1..3 being either "min" or "max", return one of the corners of the 
+  /// AABB cub of the FCL object.
+#define SE3_GEOM_AABB(FCL,p1,p2,p3)                                     \
+  SE3::Vector3(                                                         \
+    FCL->aabb_local.p1##_ [0],                                          \
+    FCL->aabb_local.p1##_ [1],                                          \
+    FCL->aabb_local.p1##_ [2])
+    
+
+  /// For all bodies of the model, compute the point of the geometry model
+  /// that is the further from the center of the joint. This quantity is used 
+  /// in some continuous collision test.
+  inline void computeBodyRadius(const Model &         model,
+                                const GeometryModel & geomModel,
+                                GeometryData &        geomData)
+  {
+    geomData.radius.resize(model.joints.size());
+    BOOST_FOREACH(const GeometryObject & geom,geomModel.geometryObjects)
+    {
+      std::cout << "New body radius" << geom.name << std::endl;
+      const boost::shared_ptr<const fcl::CollisionGeometry> & fcl
+        = geom.collision_object.collisionGeometry();
+      const SE3 & jMb = geom.placement; // placement in joint.
+
+      double radius = 0.0;
+
+      // The radius is simply the one of the 8 corners of the AABB cube, expressed 
+      // in the joint frame, whose norm is the highest.
+      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,min,min,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,min,min,max)).squaredNorm(),radius);
+      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,min,max,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,min,max,max)).squaredNorm(),radius);
+      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,max,min,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,max,min,max)).squaredNorm(),radius);
+      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,max,max,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,max,max,max)).squaredNorm(),radius);
+
+      // Don't forget to sqroot the squared norm before storing it.
+      assert (geom.parent<geomData.radius.size());
+      geomData.radius[geom.parent] = sqrt(radius);
+    }
+  }
+
+#undef SE3_GEOM_AABB
+
+
 } // namespace se3
 
-#endif __se3_geometry_hxx__
+#endif // ifnded __se3_algo_geometry_hxx__
