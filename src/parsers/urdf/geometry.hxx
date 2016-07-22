@@ -160,12 +160,16 @@ namespace se3
                 throw std::invalid_argument(exception_message);
               }
               
+              std::size_t objectId = 0;
               for (std::vector< boost::shared_ptr< ::urdf::Collision> >::const_iterator i = link->collision_array.begin();i != link->collision_array.end(); ++i)
               {
                 fcl::CollisionObject collision_object = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
                 SE3 geomPlacement = convertFromUrdf((*i)->origin);
-                const std::string & collision_object_name = link_name;
-                geom_model.addGeometryObject(model.getFrameParent(link_name), collision_object, geomPlacement, collision_object_name, mesh_path); 
+                std::ostringstream collision_object_suffix;
+                collision_object_suffix << "_" << objectId;
+                const std::string & collision_object_name = std::string(link_name + collision_object_suffix.str());
+                geom_model.addGeometryObject(model.getFrameParent(link_name), collision_object, geomPlacement, collision_object_name, mesh_path);
+                ++objectId; 
               }
             } // if(link->collision)
           break;
@@ -179,12 +183,16 @@ namespace se3
                 throw std::invalid_argument(exception_message);
               }
               
+              std::size_t objectId = 0;
               for (std::vector< boost::shared_ptr< ::urdf::Visual> >::const_iterator i = link->visual_array.begin(); i != link->visual_array.end(); ++i)
               {
                 fcl::CollisionObject visual_object = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
                 SE3 geomPlacement = convertFromUrdf((*i)->origin);
-                const std::string & visual_object_name = link_name;
-                geom_model.addGeometryObject(model.getFrameParent(link_name), visual_object, geomPlacement, visual_object_name, mesh_path); 
+                std::ostringstream visual_object_suffix;
+                visual_object_suffix << "_" << objectId;
+                const std::string & visual_object_name = std::string(link_name + visual_object_suffix.str());
+                geom_model.addGeometryObject(model.getFrameParent(link_name), visual_object, geomPlacement, visual_object_name, mesh_path);
+                ++objectId; 
               }
             } // if(link->visual)
           break;
