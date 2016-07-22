@@ -103,9 +103,8 @@ namespace se3
 #define SE3_GEOM_AABB(FCL,p1,p2,p3)                                     \
   SE3::Vector3(                                                         \
     FCL->aabb_local.p1##_ [0],                                          \
-    FCL->aabb_local.p1##_ [1],                                          \
-    FCL->aabb_local.p1##_ [2])
-    
+    FCL->aabb_local.p2##_ [1],                                          \
+    FCL->aabb_local.p3##_ [2])
 
   /// For all bodies of the model, compute the point of the geometry model
   /// that is the further from the center of the joint. This quantity is used 
@@ -114,7 +113,7 @@ namespace se3
                                 const GeometryModel & geomModel,
                                 GeometryData &        geomData)
   {
-    geomData.radius.resize(model.joints.size());
+    geomData.radius.resize(model.joints.size(),0);
     BOOST_FOREACH(const GeometryObject & geom,geomModel.geometryObjects)
     {
       std::cout << "New body radius" << geom.name << std::endl;
@@ -122,7 +121,7 @@ namespace se3
         = geom.collision_object.collisionGeometry();
       const SE3 & jMb = geom.placement; // placement in joint.
 
-      double radius = 0.0;
+      double radius = geomData.radius[geom.parent];
 
       // The radius is simply the one of the 8 corners of the AABB cube, expressed 
       // in the joint frame, whose norm is the highest.

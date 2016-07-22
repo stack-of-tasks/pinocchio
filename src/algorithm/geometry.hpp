@@ -79,8 +79,9 @@ namespace se3
                               const Eigen::VectorXd & q
                               );
 
-  inline void computeBodyRadius(const GeometryModel & geomModel,
-                                GeometryData & geomData);
+  inline void computeBodyRadius(const Model &         model,
+                                const GeometryModel & geomModel,
+                                GeometryData &        geomData);
 
 } // namespace se3 
 
