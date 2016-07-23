@@ -66,8 +66,8 @@ namespace se3
     {
       exposeVariants();
       JointModelPythonVisitor::expose();
-      bp::class_< JointModelVector >("StdVec_JointModelVector")
-          .def(bp::vector_indexing_suite< JointModelVector, true >());
+      bp::class_<JointModelVector>("StdVec_JointModelVector")
+          .def(bp::vector_indexing_suite<JointModelVector,true>());
     }
     void exposeModel()
     {
