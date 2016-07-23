@@ -23,7 +23,7 @@
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/algorithm/collisions.hpp"
+#include "pinocchio/algorithm/geometry.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
 #include <vector>

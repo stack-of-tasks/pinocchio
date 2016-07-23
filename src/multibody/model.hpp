@@ -131,7 +131,7 @@ namespace se3
     /// \brief Add a joint to the kinematic tree.
     ///
     /// \remark This method also adds a Frame of same name to the vector of frames.
-    /// \remark The inertia supported by the joint is set to Zero
+    /// \remark The inertia supported by the joint is set to Zero.
     ///
     /// \tparam JointModelDerived The type of the joint model.
     ///

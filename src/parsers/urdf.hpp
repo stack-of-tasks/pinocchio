@@ -27,6 +27,8 @@
   #include <hpp/fcl/shape/geometric_shapes.h>
 #endif
 
+#include <urdf_model/model.h>
+
 #include <string>
 #include <exception>
 
