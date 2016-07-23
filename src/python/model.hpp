@@ -51,33 +51,31 @@ namespace se3
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       typedef eigenpy::UnalignedEquivalent<Inertia>::type Inertia_fx;
 
-      struct add_joint_and_body_visitor : public boost::static_visitor<Model::Index>
+    protected:
+      struct addJointVisitor : public boost::static_visitor<Model::Index>
       {
-        ModelHandler & _model;
-        Model::JointIndex & _index_parent;
-        const SE3_fx & _placement;
-        const Inertia_fx & _inertia;
-        const std::string & _jName;
-        const std::string & _bName;
-
-        add_joint_and_body_visitor( ModelHandler & model,
-                          Model::JointIndex & idx, const SE3_fx & placement,
-                          const Inertia_fx & Y, const std::string & jointName,
-                          const std::string & bodyName)
-                        : _model(model)
-                        , _index_parent(idx)
-                        , _placement(placement)
-                        , _inertia(Y)
-                        , _jName(jointName)
-                        , _bName(bodyName)
+        ModelHandler & m_model;
+        const JointIndex m_parent_id;
+        const SE3_fx & m_joint_placement;
+        const std::string & m_joint_name;
+        
+        addJointVisitor(ModelHandler & model,
+                        const JointIndex parent_id,
+                        const SE3_fx & joint_placement,
+                        const std::string & joint_name)
+        : m_model(model)
+        , m_parent_id(parent_id)
+        , m_joint_placement(joint_placement)
+        , m_joint_name(joint_name)
         {}
-
-        template <typename T> Model::Index operator()( T & operand ) const
+       
+        template <typename JointModelDerived>
+        JointIndex operator()(JointModelDerived & jmodel) const
         {
-          return _model->addJointAndBody(_index_parent, operand, _placement, _inertia, _jName, _bName);
+          return m_model->addJoint(m_parent_id,jmodel,m_joint_placement,m_joint_name);
         }
-      };
-
+      }; // struct addJointVisitor
+      
     public:
 
       /* --- Convert From C++ to Python ------------------------------------- */
@@ -121,7 +119,9 @@ namespace se3
           .add_property("names",
             bp::make_function(&ModelPythonVisitor::names,
                   bp::return_internal_reference<>())  )
-          .def("addJointAndBody",&ModelPythonVisitor::addJointAndBodyToModel)
+        
+        .def("addJoint",&ModelPythonVisitor::addJoint,bp::args("parent_id","joint_model","joint_placement","joint_name"),"Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
+        .def("appendBodyToJoint",&ModelPythonVisitor::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement","body_name"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
 
 
           .add_property("effortLimit", bp::make_function(&ModelPythonVisitor::effortLimit), "Joint max effort")
@@ -160,17 +160,24 @@ namespace se3
       static std::vector<Model::JointIndex> & parents( ModelHandler & m ) { return m->parents; }
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
 
-      static Model::Index addJointAndBodyToModel(ModelHandler & modelPtr,
-                                                 Model::JointIndex idx, bp::object joint,
-                                                 const SE3_fx & placement,
-                                                 const Inertia_fx & Y,
-                                                 const std::string & jointName,
-                                                 const std::string & bodyName)
-      { 
-        JointModelVariant variant = bp::extract<JointModelVariant> (joint);
-        return boost::apply_visitor(add_joint_and_body_visitor(modelPtr, idx, placement, Y, jointName, bodyName), variant);
+      static JointIndex addJoint(ModelHandler & model,
+                                 JointIndex parent_id,
+                                 bp::object jmodel,
+                                 const SE3_fx & joint_placement,
+                                 const std::string & joint_name)
+      {
+        JointModelVariant jmodel_variant = bp::extract<JointModelVariant> (jmodel);
+        return boost::apply_visitor(addJointVisitor(model,parent_id,joint_placement,joint_name), jmodel_variant);
       }
-
+      
+      static void appendBodyToJoint(ModelHandler & model,
+                                    const JointIndex joint_parent_id,
+                                    const Inertia_fx & inertia,
+                                    const SE3_fx & body_placement,
+                                    const std::string & body_name)
+      {
+        model->appendBodyToJoint(joint_parent_id,inertia,body_placement,body_name);
+      }
 
       static Eigen::VectorXd neutralConfiguration(ModelHandler & m) {return m->neutralConfiguration;}
       static Eigen::VectorXd effortLimit(ModelHandler & m) {return m->effortLimit;}
