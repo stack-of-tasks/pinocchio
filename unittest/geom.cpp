@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -54,6 +54,8 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE GeomTest
 #include <boost/test/unit_test.hpp>
+
+using namespace se3;
 
 typedef std::map <std::string, se3::SE3> PositionsMap_t;
 typedef std::map <std::string, se3::SE3> JointPositionsMap_t;
@@ -143,15 +145,16 @@ BOOST_AUTO_TEST_SUITE ( GeomTest )
 
 BOOST_AUTO_TEST_CASE ( simple_boxes )
 {
-  se3::Model model;
-  se3::GeometryModel model_geom;
-  
   using namespace se3;
+  Model model;
+  GeometryModel model_geom;
 
-  model.addJointAndBody(model.getJointId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
-                "planar1_joint", "planar1_body");
-  model.addJointAndBody(model.getJointId("universe"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
-                "planar2_joint", "planar2_body");
+  Model::JointIndex idx;
+  idx = model.addJoint(model.getJointId("universe"),JointModelPlanar(),SE3::Identity(),"planar1_joint");
+  model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"planar1_body");
+  
+  idx = model.addJoint(model.getJointId("universe"),JointModelPlanar(),SE3::Identity(),"planar2_joint");
+  model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"planar2_body");
   
   boost::shared_ptr<fcl::Box> Sample(new fcl::Box(1));
   fcl::CollisionObject box1(Sample, fcl::Transform3f());
@@ -224,16 +227,9 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 }
 
 
-#ifdef WITH_URDFDOM
-#ifdef WITH_HPP_FCL
+#if defined(WITH_URDFDOM) && defined(WITH_HPP_FCL)
 BOOST_AUTO_TEST_CASE (radius)
 {
-  typedef se3::Model Model;
-  typedef se3::GeometryModel GeometryModel;
-  typedef se3::Data Data;
-  typedef se3::GeometryData GeometryData;
-  typedef std::vector<double> vector_t;
-
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
   std::vector < std::string > package_dirs;
@@ -246,10 +242,9 @@ BOOST_AUTO_TEST_CASE (radius)
   GeometryData geomData(geom);
 
   se3::computeBodyRadius(model, geom, geomData);
-  BOOST_FOREACH( double radius, geomData.radius) radius;
+  BOOST_FOREACH( double radius, geomData.radius) BOOST_CHECK(radius>=0.);
 }
-#endif //  #ifdef WITH_URDFDOM
-#endif //  #ifdef WITH_HPP_FCL
+#endif // if defined(WITH_URDFDOM) && defined(WITH_HPP_FCL)
 
 #ifdef WITH_HPP_MODEL_URDF
 BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
