@@ -19,24 +19,16 @@
 #ifndef __se3_parsers_urdf_hpp__
 #define __se3_parsers_urdf_hpp__
 
-#include <urdf_model/model.h>
-#include <urdf_parser/urdf_parser.h>
-
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <boost/foreach.hpp>
 #include "pinocchio/multibody/model.hpp"
-
-#include <exception>
-#include <limits>
-
 #ifdef WITH_HPP_FCL
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include "pinocchio/multibody/geometry.hpp"
+  #include "pinocchio/multibody/geometry.hpp"
+  #include <hpp/fcl/collision_object.h>
+  #include <hpp/fcl/collision.h>
+  #include <hpp/fcl/shape/geometric_shapes.h>
 #endif
+
+#include <string>
+#include <exception>
 
 namespace urdf
 {

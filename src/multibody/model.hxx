@@ -20,13 +20,6 @@
 #define __se3_model_hxx__
 
 #include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/spatial/force.hpp"
-#include "pinocchio/spatial/motion.hpp"
-#include "pinocchio/spatial/inertia.hpp"
-#include "pinocchio/multibody/joint/joint-variant.hpp"
-#include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
-#include <iostream>
 
 #include <boost/bind.hpp>
 
@@ -45,132 +38,63 @@ namespace se3
     return os;
   }
   
-
-
-  template<typename D>
-  Model::JointIndex Model::addJointAndBody(JointIndex parent, const JointModelBase<D> & j, const SE3 & jointPlacement,
-                                           const Inertia & Y, const std::string & jointName,
-                                           const std::string & bodyName)
+  template<typename JointModelDerived>
+  Model::JointIndex Model::addJoint(const Model::JointIndex parent,
+                                    const JointModelBase<JointModelDerived> & joint_model,
+                                    const SE3 & joint_placement,
+                                    const std::string & joint_name,
+                                    const Eigen::VectorXd & max_effort,
+                                    const Eigen::VectorXd & max_velocity,
+                                    const Eigen::VectorXd & min_config,
+                                    const Eigen::VectorXd & max_config
+                                    )
   {
-    JointIndex idx = addJoint(parent,j,jointPlacement,jointName);
-    appendBodyToJoint(idx, SE3::Identity(), Y, bodyName);
-    return idx;
-  }
-
-  template<typename D>
-  Model::JointIndex Model::addJointAndBody(JointIndex parent, const JointModelBase<D> & j, const SE3 & jointPlacement,
-                                           const Inertia & Y,
-                                           const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
-                                           const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
-                                           const std::string & jointName,
-                                           const std::string & bodyName)
-  {
-    JointIndex idx = addJoint(parent,j,jointPlacement,
-                              effort, velocity, lowPos, upPos,
-                              jointName);
-    appendBodyToJoint(idx, SE3::Identity(), Y, bodyName);
-    return idx;
-  }
-
-
-  template<typename D>
-  Model::JointIndex Model::addJoint(JointIndex parent, const JointModelBase<D> & j, const SE3 & jointPlacement,
-                                    const std::string & jointName)
-  {
+    typedef JointModelDerived D;
     assert( (njoint==(int)joints.size())&&(njoint==(int)inertias.size())
-      &&(njoint==(int)parents.size())&&(njoint==(int)jointPlacements.size()) );
-    assert( (j.nq()>=0)&&(j.nv()>=0) );
-
-    Model::JointIndex idx = (Model::JointIndex) (njoint ++);
-
-    joints         .push_back(JointModel(j.derived())); 
-    boost::get<D>(joints.back()).setIndexes(idx,nq,nv);
-
+           &&(njoint==(int)parents.size())&&(njoint==(int)jointPlacements.size()) );
+    assert((joint_model.nq()>=0) && (joint_model.nv()>=0));
+    
+    assert(max_effort.size() == joint_model.nv()
+           && max_velocity.size() == joint_model.nv()
+           && min_config.size() == joint_model.nq()
+           && max_config.size() == joint_model.nq());
+    
+    Model::JointIndex idx = (Model::JointIndex) (njoint++);
+    
+    joints         .push_back(JointModel(joint_model.derived()));
+    boost::get<JointModelDerived>(joints.back()).setIndexes(idx,nq,nv);
+    
     inertias       .push_back(Inertia::Zero());
     parents        .push_back(parent);
-    jointPlacements.push_back(jointPlacement);
-    names          .push_back( (jointName!="")?jointName:random(8) );
-    nq += j.nq();
-    nv += j.nv();
-
+    jointPlacements.push_back(joint_placement);
+    names          .push_back((joint_name!="")?joint_name:randomStringGenerator(8));
+    nq += joint_model.nq();
+    nv += joint_model.nv();
+    
+    effortLimit.conservativeResize(nv);effortLimit.bottomRows<D::NV>() = max_effort;
+    velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>() = max_velocity;
+    lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>() = min_config;
+    upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows<D::NQ>() = max_config;
+    
     neutralConfiguration.conservativeResize(nq);
-    neutralConfiguration.bottomRows<D::NQ>() = j.neutralConfiguration();
-
-    effortLimit.conservativeResize(nv);
-    effortLimit.bottomRows<D::NV>().fill(std::numeric_limits<double>::infinity());
-
-    velocityLimit.conservativeResize(nv);
-    velocityLimit.bottomRows<D::NV>().fill(std::numeric_limits<double>::infinity());
-
-    lowerPositionLimit.conservativeResize(nq);
-    lowerPositionLimit.bottomRows<D::NQ>().fill(-std::numeric_limits<double>::infinity());
-
-    upperPositionLimit.conservativeResize(nq);
-    upperPositionLimit.bottomRows<D::NQ>().fill(std::numeric_limits<double>::infinity());
-
+    neutralConfiguration.tail(joint_model.nq()) = joint_model.neutralConfiguration();
+    
+    // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
+    addFrame(names[idx],idx,SE3::Identity(),JOINT);
+    
     return idx;
   }
 
-  template<typename D>
-  Model::JointIndex Model::addJoint(JointIndex parent,const JointModelBase<D> & j,const SE3 & jointPlacement,
-                     const Eigen::VectorXd & effort, const Eigen::VectorXd & velocity,
-                     const Eigen::VectorXd & lowPos, const Eigen::VectorXd & upPos,
-                     const std::string & jointName)
+  inline void Model::appendBodyToJoint(const Model::JointIndex joint_index,
+                                       const Inertia & Y,
+                                       const SE3 & body_placement,
+                                       const std::string & body_name)
   {
-    assert( (njoint==(int)joints.size())&&(njoint==(int)inertias.size())
-      &&(njoint==(int)parents.size())&&(njoint==(int)jointPlacements.size()) );
-    assert( (j.nq()>=0)&&(j.nv()>=0) );
+    const Inertia & iYf = Y.se3Action(body_placement);
+    inertias[joint_index] += iYf;
 
-    assert( effort.size() == j.nv() && velocity.size() == j.nv()
-           && lowPos.size() == j.nq() && upPos.size() == j.nq() );
-
-    Model::JointIndex idx = (Model::JointIndex) (njoint ++);
-
-    joints         .push_back(JointModel(j.derived())); 
-    boost::get<D>(joints.back()).setIndexes(idx,nq,nv);
-
-    inertias       .push_back(Inertia::Zero());
-    parents        .push_back(parent);
-    jointPlacements.push_back(jointPlacement);
-    names          .push_back( (jointName!="")?jointName:random(8) );
-    nq += j.nq();
-    nv += j.nv();
-
-    
-    effortLimit.conservativeResize(nv);effortLimit.bottomRows<D::NV>() = effort;
-    velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>() = velocity;
-    lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>() = lowPos;
-    upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows<D::NQ>() = upPos;
-
-    // Ensure that limits are not inf
-    Eigen::VectorXd neutralConf((lowerPositionLimit.bottomRows<D::NQ>() + upperPositionLimit.bottomRows<D::NQ>())/2 );
-    
-    neutralConfiguration.conservativeResize(nq);
-    if ( std::isfinite(neutralConf.norm()) )
-    {
-      neutralConfiguration.bottomRows<D::NQ>() = neutralConf;
-    }
-    else
-    {
-      assert( false && "One of the position limit is inf or NaN");
-      neutralConfiguration.bottomRows<D::NQ>() = j.neutralConfiguration();
-    }
-
-    addFrame((jointName!="")?jointName:random(8), idx, SE3::Identity(), JOINT);
-
-    return idx;
-  }
-
-
-  inline void Model::appendBodyToJoint(const JointIndex parent, const SE3 & bodyPlacement, const Inertia & Y,
-                                       const std::string & bodyName)
-  {
-    const Inertia & iYf = Y.se3Action(bodyPlacement);
-    inertias[parent] += iYf;
-
-    addFrame((bodyName!="")?bodyName:random(8), parent, bodyPlacement, BODY);
-
-    nbody ++;
+    addFrame((body_name!="")?body_name:randomStringGenerator(8), joint_index, body_placement, BODY);
+    nbody++;
   }
   
   inline Model::JointIndex Model::getBodyId (const std::string & name) const
