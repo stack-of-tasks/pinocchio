@@ -117,6 +117,20 @@ namespace se3
 {
   namespace lua
   {
+    
+    template<typename JointModel>
+    Model::JointIndex addJointAndBody(Model & model, const JointModelBase<JointModel> & jmodel, const Model::JointIndex parent_id,
+                         const SE3 & joint_placement, const std::string & joint_name, const Inertia & Y, const std::string & body_name)
+    {
+      Model::JointIndex idx;
+      
+      idx = model.addJoint(parent_id,jmodel,
+                           joint_placement,joint_name);
+      model.appendBodyToJoint(idx,Y,SE3::Identity(),body_name);
+      
+      return idx;
+    }
+    
     bool LuaModelReadFromTable (LuaTable & model_table, Model & model, bool freeFlyer, bool verbose)
     {
       typedef std::map<std::string, Model::Index> mapStringIndex_t;
@@ -228,53 +242,51 @@ namespace se3
           abort();
         }
 
-
-        Model::JointIndex body_id;
+        Model::JointIndex joint_id;
         if (joint_type == "JointTypeRevoluteX")
         {
-          body_id = model.addJointAndBody (parent_id, JointModelRX (), global_placement, Y, joint_name, body_name);
+          joint_id = addJointAndBody(model,JointModelRX(),parent_id,global_placement,joint_name,Y,body_name);
         }
         else if (joint_type == "JointTypeRevoluteY")
         {
-          body_id = model.addJointAndBody (parent_id, JointModelRY (), global_placement, Y, joint_name, body_name);
+          joint_id = addJointAndBody(model,JointModelRY(),parent_id,global_placement,joint_name,Y,body_name);
         }
         else if (joint_type == "JointTypeRevoluteZ")
         {
-          body_id = model.addJointAndBody (parent_id, JointModelRZ (), global_placement, Y, joint_name, body_name);
+          joint_id = addJointAndBody(model,JointModelRZ(),parent_id,global_placement,joint_name,Y,body_name);
         }
         else if (joint_type == "JointTypePrismaticX")
         {
-          body_id = model.addJointAndBody (parent_id, JointModelPX (), global_placement, Y, joint_name, body_name);
+          joint_id = addJointAndBody(model,JointModelPX(),parent_id,global_placement,joint_name,Y,body_name);
         }
         else if (joint_type == "JointTypePrismaticY")
         {
-          body_id = model.addJointAndBody (parent_id, JointModelPY (), global_placement, Y, joint_name, body_name);
+          joint_id = addJointAndBody(model,JointModelPY(),parent_id,global_placement,joint_name,Y,body_name);
         }
         else if (joint_type == "JointTypePrismaticZ")
         {
-          body_id = model.addJointAndBody (parent_id, JointModelPZ (), global_placement, Y, joint_name, body_name);
+          joint_id = addJointAndBody(model,JointModelPZ(),parent_id,global_placement,joint_name,Y,body_name);
         }
         else if (joint_type == "JointTypeFloatingBase" || joint_type == "JointTypeFloatbase")
         {
-          body_id = model.addJointAndBody (parent_id, JointModelFreeFlyer (), global_placement, Y, joint_name, body_name);
+          joint_id = addJointAndBody(model,JointModelFreeFlyer(),parent_id,global_placement,joint_name,Y,body_name);
         }
         else if (joint_type == "JointTypeSpherical")
         {
-          body_id = model.addJointAndBody (parent_id, JointModelSpherical (), global_placement, Y, joint_name, body_name);
+          joint_id = addJointAndBody(model,JointModelSpherical(),parent_id,global_placement,joint_name,Y,body_name);
         }
         else if (joint_type == "JointTypeEulerZYX")
         {
-          body_id = model.addJointAndBody (parent_id, JointModelSphericalZYX (), global_placement, Y, joint_name, body_name);
+          joint_id = addJointAndBody(model,JointModelSphericalZYX(),parent_id,global_placement,joint_name,Y,body_name);
         }
         else if (joint_type == "JointTypeFixed")
         {
-          model.appendBodyToJoint(parent_id, global_placement, Y, "");
+          model.appendBodyToJoint(parent_id, Y, global_placement, "");
 
-          body_id = (Model::JointIndex)model.nbody;
+          joint_id = (Model::JointIndex)model.njoint;
           
           fixed_body_table_id_map[body_name] = parent_id;
           fixed_placement_map[body_name] = global_placement;
-
         }
         else
         {
@@ -282,16 +294,16 @@ namespace se3
           abort ();
         }
 
-        body_table_id_map[body_name] = body_id;
+        body_table_id_map[body_name] = joint_id;
 
         if (verbose) {
           std::cout << "==== Added Body ====" << std::endl;
-          std::cout << "  body name  : " << body_name << std::endl;
-          std::cout << "  body id    : " << body_id << std::endl;
-          std::cout << "  closest parent id  : " << parent_id << std::endl;
-          std::cout << "  joint frame:\n" << joint_placement << std::endl;
+          std::cout << "  joint name  : " << joint_type << std::endl;
+          std::cout << "  joint id    : " <<  joint_id << std::endl;
+          std::cout << "  joint parent id  : " << parent_id << std::endl;
+          std::cout << "  joint placement (wrt its parent):\n" << joint_placement << std::endl;
           std::cout << "  joint type : " << joint_type << std::endl;
-          std::cout << "  joint name : " << joint_name << std::endl;
+          std::cout << "  body name : " << body_name << std::endl;
           std::cout << "  body inertia:\n" << Y << std::endl;
         }
       }
