@@ -20,6 +20,7 @@
 #define __se3_model_hxx__
 
 #include "pinocchio/spatial/fwd.hpp"
+#include "pinocchio/tools/string-generator.hpp"
 
 #include <boost/bind.hpp>
 
@@ -31,10 +32,10 @@ namespace se3
   {
     os << "Nb bodies = " << model.nbody << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
     for(Model::Index i=0;i<(Model::Index)(model.nbody);++i)
-      {
-	os << "  Joint "<<model.names[i] << ": parent=" << model.parents[i]  << std::endl;
-      }
-
+    {
+      os << "  Joint "<< model.names[i] << ": parent=" << model.parents[i]  << std::endl;
+    }
+    
     return os;
   }
   

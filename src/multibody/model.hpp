@@ -27,7 +27,6 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
 #include "pinocchio/multibody/joint/joint.hpp"
-#include "pinocchio/tools/string-generator.hpp"
 #include <iostream>
 #include <Eigen/Cholesky>
 
@@ -99,14 +98,18 @@ namespace se3
 
     /// \brief Vector of operational frames registered on the model.
     std::vector<Frame> frames;
+    
+    /// \brief Vector of subtrees
+    /// subtree[j] corresponds to the subtree supported by the joint j.
+    std::vector<IndexVector> subtrees;
 
-    /// \brief Spatial gravity
+    /// \brief Spatial gravity of the model.
     Motion gravity;
     
     /// \brief Default 3D gravity vector (=(0,0,-9.81)).
     static const Eigen::Vector3d gravity981;
 
-    /// \brief Default constructor
+    /// \brief Default constructor. Builds an empty model with no joints.
     Model()
       : nq(0)
       , nv(0)
