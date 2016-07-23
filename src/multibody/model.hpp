@@ -151,10 +151,10 @@ namespace se3
     template<typename JointModelDerived>
     JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
                         const std::string & joint_name = "",
-                        const Eigen::VectorXd & max_effort = Eigen::VectorXd::Constant(JointModelDerived::NV,std::numeric_limits<double>::infinity()),
-                        const Eigen::VectorXd & max_velocity = Eigen::VectorXd::Constant(JointModelDerived::NV,std::numeric_limits<double>::infinity()),
-                        const Eigen::VectorXd & min_config = Eigen::VectorXd::Constant(JointModelDerived::NV,-std::numeric_limits<double>::infinity()),
-                        const Eigen::VectorXd & max_config = Eigen::VectorXd::Constant(JointModelDerived::NV,std::numeric_limits<double>::infinity())
+                        const Eigen::VectorXd & max_effort = Eigen::VectorXd::Constant(JointModelDerived::NV,std::numeric_limits<double>::max()),
+                        const Eigen::VectorXd & max_velocity = Eigen::VectorXd::Constant(JointModelDerived::NV,std::numeric_limits<double>::max()),
+                        const Eigen::VectorXd & min_config = Eigen::VectorXd::Constant(JointModelDerived::NQ,std::numeric_limits<double>::min()),
+                        const Eigen::VectorXd & max_config = Eigen::VectorXd::Constant(JointModelDerived::NQ,std::numeric_limits<double>::max())
                         );
 
     ///
