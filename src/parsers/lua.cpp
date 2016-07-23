@@ -1,3 +1,19 @@
+//
+// Copyright (c) 2015-2016 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/parsers/lua/lua_tables.hpp"
 #include "pinocchio/parsers/lua.hpp"
@@ -197,12 +213,10 @@ namespace se3
           abort ();
         }
 
-
         std::stringstream joint_name_default;
         joint_name_default << "joint " << i;
         std::string joint_name = model_table["frames"][i]["joint_name"].getDefault<std::string> (joint_name_default.str());
 
-        
         SE3 joint_placement = model_table["frames"][i]["joint_frame"].getDefault<SE3> (SE3::Identity ());
         SE3 global_placement (fixed_placement_offset * joint_placement); // placement due to the existence of fixed bodies
 
