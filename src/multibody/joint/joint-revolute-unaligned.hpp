@@ -1,6 +1,6 @@
 //
-// Copyright (c) 2015 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -36,7 +36,7 @@ namespace se3
   template <>
   struct traits < MotionRevoluteUnaligned >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -88,7 +88,7 @@ namespace se3
   template <>
   struct traits < ConstraintRevoluteUnaligned >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -109,9 +109,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,1> DenseBase;
+    typedef Eigen::Matrix<Scalar,1,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar,1,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar,6,1> DenseBase;
   }; // traits ConstraintRevoluteUnaligned
 
 
@@ -160,10 +160,17 @@ namespace se3
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
         template<typename D>
         friend
+#ifdef EIGEN3_FUTURE
+        const Eigen::Product<
+        Eigen::Transpose<const Vector3>,
+        typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
+        >
+#else
         const typename Eigen::ProductReturnType<
         Eigen::Transpose<const Vector3>,
         typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
         >::Type
+#endif
         operator* (const TransposeConst & tc, const Eigen::MatrixBase<D> & F)
         {
           EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
@@ -218,10 +225,17 @@ namespace se3
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
 //  inline Eigen::Matrix<double,6,1>
   inline
-  Eigen::ProductReturnType<
+#ifdef EIGEN3_FUTURE
+  const Eigen::Product<
+  Eigen::Block<const Inertia::Matrix6,6,3>,
+  ConstraintRevoluteUnaligned::Vector3
+  >
+#else
+  const Eigen::ProductReturnType<
   Eigen::Block<const Inertia::Matrix6,6,3>,
   const ConstraintRevoluteUnaligned::Vector3
   >::Type
+#endif
   operator*(const Inertia::Matrix6 & Y, const ConstraintRevoluteUnaligned & cru)
   {
     return Y.block<6,3> (0,Inertia::ANGULAR) * cru.axis;
@@ -243,8 +257,8 @@ namespace se3
         NV = 1
       };
       
-      typedef JointDataRevoluteUnaligned JointData;
-      typedef JointModelRevoluteUnaligned JointModel;
+      typedef JointDataRevoluteUnaligned JointDataDerived;
+      typedef JointModelRevoluteUnaligned JointModelDerived;
       typedef ConstraintRevoluteUnaligned Constraint_t;
       typedef SE3 Transformation_t;
       typedef MotionRevoluteUnaligned Motion_t;
@@ -261,12 +275,12 @@ namespace se3
       
     };
 
-  template<> struct traits<JointDataRevoluteUnaligned> { typedef JointRevoluteUnaligned Joint; };
-  template<> struct traits<JointModelRevoluteUnaligned> { typedef JointRevoluteUnaligned Joint; };
+  template<> struct traits<JointDataRevoluteUnaligned> { typedef JointRevoluteUnaligned JointDerived; };
+  template<> struct traits<JointModelRevoluteUnaligned> { typedef JointRevoluteUnaligned JointDerived; };
 
   struct JointDataRevoluteUnaligned : public JointDataBase< JointDataRevoluteUnaligned >
   {
-    typedef JointRevoluteUnaligned Joint;
+    typedef JointRevoluteUnaligned JointDerived;
     SE3_JOINT_TYPEDEF;
 
     Transformation_t M;
@@ -302,7 +316,7 @@ namespace se3
 
   struct JointModelRevoluteUnaligned : public JointModelBase< JointModelRevoluteUnaligned >
   {
-    typedef JointRevoluteUnaligned Joint;
+    typedef JointRevoluteUnaligned JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelRevoluteUnaligned>::id;
@@ -310,7 +324,7 @@ namespace se3
     using JointModelBase<JointModelRevoluteUnaligned>::idx_v;
     using JointModelBase<JointModelRevoluteUnaligned>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar_t;
+    typedef double Scalar;
     
     JointModelRevoluteUnaligned() : axis(Eigen::Vector3d::Constant(NAN))   {}
     JointModelRevoluteUnaligned(const double x, const double y, const double z)
@@ -324,8 +338,8 @@ namespace se3
       assert(axis.isUnitary() && "Rotation axis is not unitary");
     }
 
-    JointData createData() const { return JointData(axis); }
-    void calc( JointData& data, 
+    JointDataDerived createData() const { return JointDataDerived(axis); }
+    void calc( JointDataDerived& data, 
 	       const Eigen::VectorXd & qs ) const
     {
       const double & q = qs[idx_q()];
@@ -337,7 +351,7 @@ namespace se3
       data.M.rotation(data.angleaxis.toRotationMatrix());
     }
 
-    void calc( JointData& data, 
+    void calc( JointDataDerived& data, 
 	       const Eigen::VectorXd & qs, 
 	       const Eigen::VectorXd & vs ) const
     {
@@ -352,7 +366,7 @@ namespace se3
       data.v.w = v;
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I.block<6,3> (0,Inertia::ANGULAR) * data.angleaxis.axis();
       data.Dinv[0] = 1./data.angleaxis.axis().dot(data.U.segment <3> (Inertia::ANGULAR));
@@ -364,8 +378,8 @@ namespace se3
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {
-      const Scalar_t & q = qs[idx_q()];
-      const Scalar_t & v = vs[idx_v()];
+      const Scalar & q = qs[idx_q()];
+      const Scalar & v = vs[idx_v()];
 
       ConfigVector_t result;
       result << (q + v);
@@ -374,8 +388,8 @@ namespace se3
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar & q_0 = q0[idx_q()];
+      const Scalar & q_1 = q1[idx_q()];
 
       ConfigVector_t result;
       result << ((1-u) * q_0 + u * q_1);
@@ -408,21 +422,25 @@ namespace se3
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar & q_0 = q0[idx_q()];
+      const Scalar & q_1 = q1[idx_q()];
 
-      ConfigVector_t result;
+      TangentVector_t result;
       result << (q_1 - q_0);
       return result; 
     } 
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
-
-      return (q_1-q_0);
+      return fabs(difference_impl(q0,q1)[0]);
     }
+
+    ConfigVector_t neutralConfiguration_impl() const
+    { 
+      ConfigVector_t q;
+      q << 0;
+      return q;
+    } 
 
     JointModelDense<NQ, NV> toDense_impl() const
     {

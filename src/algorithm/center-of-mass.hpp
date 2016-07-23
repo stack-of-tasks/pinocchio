@@ -90,19 +90,21 @@ namespace se3
   ///
   /// \brief Computes both the jacobian and the the center of mass position of a given model according to a particular joint configuration.
   ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame. In addition, the algorithm also computes the Jacobian of all the joints (\sa se3::computeJacobians).
-  ///        And data.com[i] gives the center of mass of the subtree supported by joint i (expressed in the joint i frame).
+  ///        And data.com[i] gives the center of mass of the subtree supported by joint i (expressed in the world frame).
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
+  /// \param[in] updateKinematics If true, the algorithm updates first the geometry of the tree. Otherwise, it uses the current kinematics stored in data.
   ///
   /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
   ///
   inline const Data::Matrix3x &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
-                       const bool computeSubtreeComs = true);
+                       const bool computeSubtreeComs = true,
+                       const bool updateKinematics = true);
 
   /* If the CRBA has been run, then both COM and Jcom are easily available from
    * the mass matrix. Use the following methods to access them. In that case,

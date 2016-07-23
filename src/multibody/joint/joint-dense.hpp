@@ -30,8 +30,8 @@ namespace se3
       NQ = _NQ, // pb
       NV = _NV
     };
-    typedef JointDataDense<_NQ, _NV> JointData;
-    typedef JointModelDense<_NQ, _NV> JointModel;
+    typedef JointDataDense<_NQ, _NV> JointDataDerived;
+    typedef JointModelDense<_NQ, _NV> JointModelDerived;
     typedef ConstraintXd Constraint_t;
     typedef SE3 Transformation_t;
     typedef Motion Motion_t;
@@ -47,13 +47,13 @@ namespace se3
     typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
 
-  template<int _NQ, int _NV> struct traits< JointDataDense<_NQ, _NV > > { typedef JointDense<_NQ,_NV > Joint; };
-  template<int _NQ, int _NV> struct traits< JointModelDense<_NQ, _NV > > { typedef JointDense<_NQ,_NV > Joint; };
+  template<int _NQ, int _NV> struct traits< JointDataDense<_NQ, _NV > > { typedef JointDense<_NQ,_NV > JointDerived; };
+  template<int _NQ, int _NV> struct traits< JointModelDense<_NQ, _NV > > { typedef JointDense<_NQ,_NV > JointDerived; };
 
   template <int _NQ, int _NV>
   struct JointDataDense : public JointDataBase< JointDataDense<_NQ, _NV > >
   {
-    typedef JointDense<_NQ, _NV > Joint;
+    typedef JointDense<_NQ, _NV > JointDerived;
     typedef JointDataBase< JointDataDense<_NQ,_NV> > Base;
     typedef JointDataDense<_NQ,_NV> Derived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
@@ -109,7 +109,7 @@ namespace se3
   template <int _NQ, int _NV>
   struct JointModelDense : public JointModelBase< JointModelDense<_NQ, _NV > >
   {
-    typedef JointDense<_NQ, _NV > Joint;
+    typedef JointDense<_NQ, _NV > JointDerived;
     typedef JointModelBase<JointModelDense<_NQ, _NV > > Base;
     
     SE3_JOINT_TYPEDEF_TEMPLATE;
@@ -123,25 +123,25 @@ namespace se3
 
     int nv_dyn,nq_dyn;
     
-    JointData createData() const
+    JointDataDerived createData() const
     {
       //assert(false && "JointModelDense is read-only, should not createData");
-      return JointData();
+      return JointDataDerived();
     }
-    void calc(JointData &,
+    void calc(JointDataDerived &,
               const Eigen::VectorXd &) const
     {
       assert(false && "JointModelDense is read-only, should not perform any calc");
     }
 
-    void calc(JointData &,
+    void calc(JointDataDerived &,
               const Eigen::VectorXd &,
               const Eigen::VectorXd &) const
     {
       assert(false && "JointModelDense is read-only, should not perform any calc");
     }
     
-    void calc_aba(JointData &,
+    void calc_aba(JointDataDerived &,
                   Inertia::Matrix6 &,
                   const bool) const
     {
@@ -188,6 +188,18 @@ namespace se3
       double result = 0;
       assert(false && "JointModelDense is read-only, should not perform any calc");
       return result; 
+    }
+
+    ConfigVector_t neutralConfiguration_impl() const
+    { 
+      ConfigVector_t result;
+      assert(false && "JointModelDense is read-only, should not perform any calc");
+      return result; 
+    }
+
+    void normalize_impl(Eigen::VectorXd &) const
+    {
+      assert(false && "JointModelDense is read-only, should not perform any calc");
     }
 
     JointModelDense() {}

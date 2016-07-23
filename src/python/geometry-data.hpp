@@ -89,19 +89,15 @@ namespace se3
         .def("__init__",
              bp::make_constructor(&GeometryDataPythonVisitor::makeDefault,
                                   bp::default_call_policies(),
-                                  (bp::arg("data"),bp::arg("geometry_model"))),
-             "Initialize from data and the geometry model.")
+                                  (bp::arg("geometry_model"))),
+             "Initialize from the geometry model.")
         
         .add_property("nCollisionPairs", &GeometryDataPythonVisitor::nCollisionPairs)
         
-        .add_property("oMg_collisions",
-                      bp::make_function(&GeometryDataPythonVisitor::oMg_collisions,
+        .add_property("oMg",
+                      bp::make_function(&GeometryDataPythonVisitor::oMg,
                                         bp::return_internal_reference<>()),
                       "Vector of collision objects placement relative to the world.")
-        .add_property("oMg_visuals",
-                      bp::make_function(&GeometryDataPythonVisitor::oMg_visuals,
-                                        bp::return_internal_reference<>()),
-                      "Vector of visual objects placement relative to the world.")
         .add_property("collision_pairs",
                       bp::make_function(&GeometryDataPythonVisitor::collision_pairs,
                                         bp::return_internal_reference<>()),
@@ -120,9 +116,6 @@ namespace se3
              " Remark: co1 < co2")
         .def("addAllCollisionPairs",&GeometryDataPythonVisitor::addAllCollisionPairs,
              "Add all collision pairs.")
-        .def("addCollisionPairsFromSrdf",&GeometryDataPythonVisitor::addCollisionPairsFromSrdf,
-              bp::args("filename (string)","verbose (bool)"),
-              "Activate collision pairs contained in an SRDF file.")
         
         .def("removeCollisionPair",&GeometryDataPythonVisitor::removeCollisionPair,
              bp::args("co1 (index)","co2 (index)"),
@@ -162,15 +155,14 @@ namespace se3
         ;
       }
       
-      static GeometryDataHandler* makeDefault(const DataHandler & data, const GeometryModelHandler & geometry_model)
+      static GeometryDataHandler* makeDefault(const GeometryModelHandler & geometry_model)
       {
-        return new GeometryDataHandler(new GeometryData(*data, *geometry_model), true);
+        return new GeometryDataHandler(new GeometryData(*geometry_model), true);
       }
 
       static Index nCollisionPairs(const GeometryDataHandler & m ) { return m->nCollisionPairs; }
       
-      static std::vector<SE3> & oMg_collisions(GeometryDataHandler & m) { return m->oMg_collisions; }
-      static std::vector<SE3> & oMg_visuals(GeometryDataHandler & m) { return m->oMg_visuals; }
+      static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
       static std::vector<CollisionPair_t> & collision_pairs( GeometryDataHandler & m ) { return m->collision_pairs; }
       static std::vector<DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distance_results; }
       static std::vector<CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }
@@ -215,12 +207,6 @@ namespace se3
       }
       static void computeAllDistances(GeometryDataHandler & m) { m->computeAllDistances(); }
       
-      static void addCollisionPairsFromSrdf(GeometryDataHandler & m,
-                                            const std::string & filename,
-                                            const bool verbose)
-      {
-        m->addCollisionPairsFromSrdf(filename, verbose);
-      }
       
       static std::string toString(const GeometryDataHandler& m)
       {	  std::ostringstream s; s << *m; return s.str();       }

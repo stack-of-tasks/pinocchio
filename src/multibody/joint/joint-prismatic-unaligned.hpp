@@ -1,5 +1,6 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -36,23 +37,23 @@ namespace se3
   template <>
   struct traits <MotionPrismaticUnaligned>
   {
-    typedef double Scalar_t;
-    typedef Eigen::Matrix<Scalar_t,3,1,0> Vector3;
-    typedef Eigen::Matrix<Scalar_t,4,1,0> Vector4;
-    typedef Eigen::Matrix<Scalar_t,6,1,0> Vector6;
-    typedef Eigen::Matrix<Scalar_t,3,3,0> Matrix3;
-    typedef Eigen::Matrix<Scalar_t,4,4,0> Matrix4;
-    typedef Eigen::Matrix<Scalar_t,6,6,0> Matrix6;
+    typedef double Scalar;
+    typedef Eigen::Matrix<Scalar,3,1,0> Vector3;
+    typedef Eigen::Matrix<Scalar,4,1,0> Vector4;
+    typedef Eigen::Matrix<Scalar,6,1,0> Vector6;
+    typedef Eigen::Matrix<Scalar,3,3,0> Matrix3;
+    typedef Eigen::Matrix<Scalar,4,4,0> Matrix4;
+    typedef Eigen::Matrix<Scalar,6,6,0> Matrix6;
     typedef Vector3 Angular_t;
     typedef Vector3 Linear_t;
     typedef const Vector3 ConstAngular_t;
     typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<Scalar_t,0> Quaternion_t;
-    typedef SE3Tpl<Scalar_t,0> SE3;
-    typedef ForceTpl<Scalar_t,0> Force;
-    typedef MotionTpl<Scalar_t,0> Motion;
-    typedef Symmetric3Tpl<Scalar_t,0> Symmetric3;
+    typedef Eigen::Quaternion<Scalar,0> Quaternion_t;
+    typedef SE3Tpl<Scalar,0> SE3;
+    typedef ForceTpl<Scalar,0> Force;
+    typedef MotionTpl<Scalar,0> Motion;
+    typedef Symmetric3Tpl<Scalar,0> Symmetric3;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -64,10 +65,10 @@ namespace se3
     SPATIAL_TYPEDEF_NO_TEMPLATE(MotionPrismaticUnaligned);
 
     MotionPrismaticUnaligned () : axis(Vector3::Constant(NAN)), v(NAN) {}
-    MotionPrismaticUnaligned (const Vector3 & axis, const Scalar_t v) : axis(axis), v(v) {}
+    MotionPrismaticUnaligned (const Vector3 & axis, const Scalar v) : axis(axis), v(v) {}
 
     Vector3 axis;
-    Scalar_t v;
+    Scalar v;
 
     operator Motion() const { return Motion(axis*v, Vector3::Zero());}
   }; // struct MotionPrismaticUnaligned
@@ -84,30 +85,30 @@ namespace se3
   template <>
   struct traits <ConstraintPrismaticUnaligned>
   {
-    typedef double Scalar_t;
-    typedef Eigen::Matrix<Scalar_t,3,1,0> Vector3;
-    typedef Eigen::Matrix<Scalar_t,4,1,0> Vector4;
-    typedef Eigen::Matrix<Scalar_t,6,1,0> Vector6;
-    typedef Eigen::Matrix<Scalar_t,3,3,0> Matrix3;
-    typedef Eigen::Matrix<Scalar_t,4,4,0> Matrix4;
-    typedef Eigen::Matrix<Scalar_t,6,6,0> Matrix6;
+    typedef double Scalar;
+    typedef Eigen::Matrix<Scalar,3,1,0> Vector3;
+    typedef Eigen::Matrix<Scalar,4,1,0> Vector4;
+    typedef Eigen::Matrix<Scalar,6,1,0> Vector6;
+    typedef Eigen::Matrix<Scalar,3,3,0> Matrix3;
+    typedef Eigen::Matrix<Scalar,4,4,0> Matrix4;
+    typedef Eigen::Matrix<Scalar,6,6,0> Matrix6;
     typedef Matrix3 Angular_t;
     typedef Vector3 Linear_t;
     typedef const Matrix3 ConstAngular_t;
     typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<Scalar_t,0> Quaternion_t;
-    typedef SE3Tpl<Scalar_t,0> SE3;
-    typedef ForceTpl<Scalar_t,0> Force;
-    typedef MotionTpl<Scalar_t,0> Motion;
-    typedef Symmetric3Tpl<Scalar_t,0> Symmetric3;
+    typedef Eigen::Quaternion<Scalar,0> Quaternion_t;
+    typedef SE3Tpl<Scalar,0> SE3;
+    typedef ForceTpl<Scalar,0> Force;
+    typedef MotionTpl<Scalar,0> Motion;
+    typedef Symmetric3Tpl<Scalar,0> Symmetric3;
     enum {
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,1,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,1> DenseBase;
+    typedef Eigen::Matrix<Scalar,1,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar,1,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar,6,1> DenseBase;
   }; // traits ConstraintPrismaticUnaligned
 
     struct ConstraintPrismaticUnaligned : ConstraintBase <ConstraintPrismaticUnaligned>
@@ -142,14 +143,14 @@ namespace se3
 
       struct TransposeConst
       {
-        typedef traits<ConstraintPrismaticUnaligned>::Scalar_t Scalar_t;
+        typedef traits<ConstraintPrismaticUnaligned>::Scalar Scalar;
         typedef traits<ConstraintPrismaticUnaligned>::Force Force;
         typedef traits<ConstraintPrismaticUnaligned>::Vector6 Vector6;
         
       	const ConstraintPrismaticUnaligned & ref; 
       	TransposeConst(const ConstraintPrismaticUnaligned & ref) : ref(ref) {}
         
-      	const Eigen::Matrix<Scalar_t, 1, 1>
+      	const Eigen::Matrix<Scalar, 1, 1>
       	operator* (const Force & f) const
       	{
       	  return ref.axis.transpose()*f.linear();
@@ -158,10 +159,17 @@ namespace se3
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
         template<typename D>
         friend
+#ifdef EIGEN3_FUTURE
+        const Eigen::Product<
+        Eigen::Transpose<const Vector3>,
+        typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
+        >
+#else
         const typename Eigen::ProductReturnType<
         Eigen::Transpose<const Vector3>,
         typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
         >::Type
+#endif
         operator* (const TransposeConst & tc, const Eigen::MatrixBase<D> & F)
         {
           EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
@@ -213,10 +221,17 @@ namespace se3
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
   inline
-  Eigen::ProductReturnType<
+#ifdef EIGEN3_FUTURE
+  const Eigen::Product<
+  Eigen::Block<const Inertia::Matrix6,6,3>,
+  ConstraintPrismaticUnaligned::Vector3,
+  Eigen::DefaultProduct>
+#else
+  const Eigen::ProductReturnType<
   Eigen::Block<const Inertia::Matrix6,6,3>,
   const ConstraintPrismaticUnaligned::Vector3
   >::Type
+#endif
   operator*(const Inertia::Matrix6 & Y, const ConstraintPrismaticUnaligned & cpu)
   {
     return Y.block<6,3> (0,Inertia::LINEAR) * cpu.axis;
@@ -238,8 +253,8 @@ namespace se3
         NQ = 1,
         NV = 1
       };
-      typedef JointDataPrismaticUnaligned JointData;
-      typedef JointModelPrismaticUnaligned JointModel;
+      typedef JointDataPrismaticUnaligned JointDataDerived;
+      typedef JointModelPrismaticUnaligned JointModelDerived;
       typedef ConstraintPrismaticUnaligned Constraint_t;
       typedef SE3 Transformation_t;
       typedef MotionPrismaticUnaligned Motion_t;
@@ -255,12 +270,12 @@ namespace se3
       typedef Eigen::Matrix<double,NV,1> TangentVector_t;
     };
 
-  template<> struct traits<JointDataPrismaticUnaligned> { typedef JointPrismaticUnaligned Joint; };
-  template<> struct traits<JointModelPrismaticUnaligned> { typedef JointPrismaticUnaligned Joint; };
+  template<> struct traits<JointDataPrismaticUnaligned> { typedef JointPrismaticUnaligned JointDerived; };
+  template<> struct traits<JointModelPrismaticUnaligned> { typedef JointPrismaticUnaligned JointDerived; };
 
   struct JointDataPrismaticUnaligned : public JointDataBase <JointDataPrismaticUnaligned>
   {
-    typedef JointPrismaticUnaligned Joint;
+    typedef JointPrismaticUnaligned JointDerived;
     SE3_JOINT_TYPEDEF;
 
     Transformation_t M;
@@ -297,7 +312,7 @@ namespace se3
 
   struct JointModelPrismaticUnaligned : public JointModelBase <JointModelPrismaticUnaligned>
   {
-    typedef JointPrismaticUnaligned Joint;
+    typedef JointPrismaticUnaligned JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelPrismaticUnaligned>::id;
@@ -305,10 +320,10 @@ namespace se3
     using JointModelBase<JointModelPrismaticUnaligned>::idx_v;
     using JointModelBase<JointModelPrismaticUnaligned>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar_t;
+    typedef double Scalar;
     
     JointModelPrismaticUnaligned() : axis(Vector3::Constant(NAN))   {}
-    JointModelPrismaticUnaligned(Scalar_t x, Scalar_t y, Scalar_t z)
+    JointModelPrismaticUnaligned(Scalar x, Scalar y, Scalar z)
     {
       axis << x, y, z ;
       axis.normalize();
@@ -320,9 +335,9 @@ namespace se3
       assert(axis.isUnitary() && "Translation axis is not unitary");
     }
 
-    JointData createData() const { return JointData(axis); }
+    JointDataDerived createData() const { return JointDataDerived(axis); }
     
-    void calc(JointData & data, const Eigen::VectorXd & qs) const
+    void calc(JointDataDerived & data, const Eigen::VectorXd & qs) const
     {
       const double & q = qs[idx_q()];
 
@@ -332,12 +347,12 @@ namespace se3
       data.M.translation() = data.S.axis * q;
     }
 
-    void calc(JointData & data,
+    void calc(JointDataDerived & data,
               const Eigen::VectorXd & qs,
               const Eigen::VectorXd & vs) const
     {
-      const Scalar_t & q = qs[idx_q()];
-      const Scalar_t & v = vs[idx_v()];
+      const Scalar & q = qs[idx_q()];
+      const Scalar & v = vs[idx_v()];
 
       /* It should not be necessary to copy axis in jdata, however a current bug
        * in the fusion visitor prevents a proper access to jmodel::axis. A
@@ -346,7 +361,7 @@ namespace se3
       data.v.v = v;
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I.block<6,3> (0,Inertia::LINEAR) * data.S.axis;
       data.Dinv[0] = 1./data.S.axis.dot(data.U.segment <3> (Inertia::LINEAR));
@@ -359,8 +374,8 @@ namespace se3
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {
-      const Scalar_t & q = qs[idx_q()];
-      const Scalar_t & v = vs[idx_v()];
+      const Scalar & q = qs[idx_q()];
+      const Scalar & v = vs[idx_v()];
 
       ConfigVector_t result;
       result << (q + v);
@@ -369,8 +384,8 @@ namespace se3
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar & q_0 = q0[idx_q()];
+      const Scalar & q_1 = q1[idx_q()];
 
       ConfigVector_t result;
       result << ((1-u) * q_0 + u * q_1);
@@ -403,22 +418,25 @@ namespace se3
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
+      const Scalar & q_0 = q0[idx_q()];
+      const Scalar & q_1 = q1[idx_q()];
 
-      ConfigVector_t result;
+      TangentVector_t result;
       result << (q_1 - q_0);
       return result; 
     } 
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      const Scalar_t & q_0 = q0[idx_q()];
-      const Scalar_t & q_1 = q1[idx_q()];
-
-      return (q_1-q_0);
+      return fabs(difference_impl(q0,q1)[0]);
     }
 
+    ConfigVector_t neutralConfiguration_impl() const
+    { 
+      ConfigVector_t q;
+      q << 0;
+      return q;
+    } 
 
     JointModelDense<NQ, NV> toDense_impl() const
     {

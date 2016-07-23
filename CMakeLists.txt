@@ -30,7 +30,16 @@ SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
 SET(DOXYGEN_USE_MATHJAX YES)
 
 IF(APPLE)
-  SET(CMAKE_MACOSX_RPATH 1)
+  SET(CMAKE_MACOSX_RPATH TRUE)
+  SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+  SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+  SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+  if("${isSystemDir}" STREQUAL "-1")
+     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  endif("${isSystemDir}" STREQUAL "-1")
 ENDIF(APPLE)
 
 # Disable -Werror on Unix for now.
@@ -62,24 +71,44 @@ ENDIF (INITIALIZE_WITH_NAN)
 # --- DEPENDANCIES -----------------------------------
 # ----------------------------------------------------
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
-ADD_OPTIONAL_DEPENDENCY("eigenpy >= 1.3.0")
 ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
-ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.10")
+ADD_REQUIRED_DEPENDENCY("urdfdom >= 0.2.0")
 ADD_OPTIONAL_DEPENDENCY("lua5.1")
-ADD_OPTIONAL_DEPENDENCY("hpp-fcl >= 0.4.1")
-IF(HPP_FCL_FOUND AND URDFDOM_FOUND)
-  ADD_REQUIRED_DEPENDENCY("assimp >= 3.0")
-ENDIF(HPP_FCL_FOUND AND URDFDOM_FOUND)
+ADD_OPTIONAL_DEPENDENCY("hpp-fcl >= 0.4.2")
+
+# Spetcial care of Eigen3 greater than 3.2.8
+IF(EIGEN3_FOUND)
+  IF(${EIGEN3_VERSION} VERSION_GREATER "3.2.8")
+    ADD_DEFINITIONS(-DEIGEN3_FUTURE)
+    SET(EIGEN3_FUTURE TRUE)
+  ENDIF(${EIGEN3_VERSION} VERSION_GREATER "3.2.8")
+ENDIF(EIGEN3_FOUND)
+
+# Special care of urdfdom less than 0.3.0
+IF(URDFDOM_FOUND)
+  IF(${URDFDOM_VERSION} VERSION_LESS "0.3.0")
+    ADD_DEFINITIONS(-DURDFDOM_COLLISION_WITH_GROUP_NAME)
+    SET(URDFDOM_COLLISION_WITH_GROUP_NAME TRUE)
+  ENDIF(${URDFDOM_VERSION} VERSION_LESS "0.3.0")
+ENDIF(URDFDOM_FOUND)
 
 SET(BOOST_COMPONENTS filesystem unit_test_framework system)
+
+IF(BUILD_PYTHON_INTERFACE)
+  ADD_REQUIRED_DEPENDENCY("eigenpy >= 1.3.0")
+  SET(BOOST_COMPONENTS ${BOOST_COMPONENTS} python)
+  FINDPYTHON(2.7 EXACT REQUIRED)
+  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS}) 
+ENDIF(BUILD_PYTHON_INTERFACE)
+
 SEARCH_FOR_BOOST()
+
 # Path to boost headers
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
-
 
 SET(${PROJECT_NAME}_MATH_HEADERS
   math/fwd.hpp
@@ -103,7 +132,6 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/skew.hpp
   spatial/act-on-set.hpp
   spatial/explog.hpp
-  spatial/frame.hpp
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
@@ -111,6 +139,7 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-dense.hpp
   multibody/joint/joint-revolute.hpp
   multibody/joint/joint-revolute-unaligned.hpp
+  multibody/joint/joint-revolute-unbounded.hpp
   multibody/joint/joint-spherical.hpp
   multibody/joint/joint-spherical-ZYX.hpp
   multibody/joint/joint-prismatic.hpp
@@ -120,25 +149,19 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-free-flyer.hpp
   multibody/joint/joint-variant.hpp
   multibody/joint/joint-generic.hpp
-  multibody/joint/joint-accessor.hpp
+  multibody/joint/joint.hpp
   multibody/joint/joint-basic-visitors.hpp
   multibody/joint/joint-basic-visitors.hxx
   ) 
-
-SET(${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
-  multibody/parser/sample-models.hpp
-  multibody/parser/utils.hpp
-  )
 
 SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/fwd.hpp
   multibody/constraint.hpp
   multibody/force-set.hpp
-  multibody/joint.hpp
+  multibody/frame.hpp
   multibody/model.hpp
   multibody/model.hxx
   multibody/visitor.hpp
-  multibody/parser/srdf.hpp
   )
 
 SET(${PROJECT_NAME}_ALGORITHM_HEADERS
@@ -159,50 +182,66 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/center-of-mass.hxx
   algorithm/joint-configuration.hpp
   algorithm/energy.hpp
-  algorithm/operational-frames.hpp
+  algorithm/frames.hpp
   algorithm/compute-all-terms.hpp
   )
 
-IF(${BUILD_PYTHON_INTERFACE} STREQUAL "ON")
-SET(${PROJECT_NAME}_PYTHON_HEADERS
-  python/eigen_container.hpp
-  python/handler.hpp
-  python/python.hpp
-  python/se3.hpp
-  python/force.hpp
-  python/motion.hpp
-  python/inertia.hpp
-  python/joint-dense.hpp
-  python/joints-models.hpp
-  python/joints-variant.hpp
-  python/frame.hpp
-  python/model.hpp
-  python/data.hpp
-  python/algorithms.hpp
-  python/parsers.hpp
-  python/explog.hpp
-  )
-ENDIF(${BUILD_PYTHON_INTERFACE} STREQUAL "ON")
 
-IF(HPP_FCL_FOUND)
-  LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
+IF(BUILD_PYTHON_INTERFACE)
+  SET(${PROJECT_NAME}_PYTHON_HEADERS
+    python/eigen_container.hpp
+    python/handler.hpp
+    python/python.hpp
+    python/se3.hpp
+    python/force.hpp
+    python/motion.hpp
+    python/inertia.hpp
+    python/joints-models.hpp
+    python/joints-variant.hpp
+    python/joint.hpp
+    python/joint-derived.hpp
+    python/frame.hpp
+    python/model.hpp
+    python/data.hpp
+    python/algorithms.hpp
+    python/parsers.hpp
+    python/explog.hpp
+    )
+
+  IF(HPP_FCL_FOUND)
+    LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
       python/geometry-object.hpp
       python/geometry-model.hpp
       python/geometry-data.hpp
-    )
-ENDIF(HPP_FCL_FOUND)
+      )
+  ENDIF(HPP_FCL_FOUND)
+
+ELSE(BUILD_PYTHON_INTERFACE)
+  SET(${PROJECT_NAME}_PYTHON_HEADERS "")
+ENDIF(BUILD_PYTHON_INTERFACE)
+
+SET(${PROJECT_NAME}_PARSERS_HEADERS
+  parsers/sample-models.hpp
+  parsers/utils.hpp
+  parsers/srdf.hpp
+  ) 
+
+IF(BUILD_PYTHON_INTERFACE)
+  LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
+     parsers/python.hpp
+     )
+ENDIF(BUILD_PYTHON_INTERFACE)
 
 IF(URDFDOM_FOUND)
-  LIST(APPEND ${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
-    multibody/parser/urdf.hpp
-    multibody/parser/urdf.hxx
+  LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
+    parsers/urdf.hpp
+    parsers/urdf/model.hxx
+    parsers/urdf/utils.hpp
     )
   
-  IF(HPP_FCL_FOUND )
-    LIST(APPEND ${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
-      multibody/parser/from-collada-to-fcl.hpp
-      multibody/parser/urdf-with-geometry.hpp
-      multibody/parser/urdf-with-geometry.hxx
+  IF(HPP_FCL_FOUND)
+    LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
+      parsers/urdf/geometry.hxx
       )
   ENDIF(HPP_FCL_FOUND)
 
@@ -218,14 +257,15 @@ IF(HPP_FCL_FOUND)
     multibody/geometry.hxx
     )
   LIST(APPEND ${PROJECT_NAME}_ALGORITHM_HEADERS
-    algorithm/collisions.hpp
+    algorithm/geometry.hpp
+    algorithm/geometry.hxx
     )
 ENDIF(HPP_FCL_FOUND)
 
 IF(LUA5_1_FOUND)
-  LIST(APPEND ${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS
-    multibody/parser/lua.hpp
-    multibody/parser/lua/lua_tables.hpp
+  LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
+    parsers/lua.hpp
+    parsers/lua/lua_tables.hpp
     )
 
   ADD_DEFINITIONS(-DWITH_LUA)
@@ -237,8 +277,8 @@ SET(HEADERS
   ${${PROJECT_NAME}_TOOLS_HEADERS}
   ${${PROJECT_NAME}_SPATIAL_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS}
-  ${${PROJECT_NAME}_MULTIBODY_PARSER_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_HEADERS}
+  ${${PROJECT_NAME}_PARSERS_HEADERS}
   ${${PROJECT_NAME}_ALGORITHM_HEADERS}
   ${${PROJECT_NAME}_PYTHON_HEADERS}
   exception.hpp
@@ -254,12 +294,12 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/math")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/parser")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/parser/lua")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/lua")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/python")
-
 
 FOREACH(header ${HEADERS})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)
@@ -277,10 +317,16 @@ ADD_SUBDIRECTORY(src)
 # --- EXECUTABLES --------------------------------------------------------------
 # --- EXECUTABLES --------------------------------------------------------------
 ADD_SUBDIRECTORY(unittest)
-ADD_SUBDIRECTORY (benchmark)
+ADD_SUBDIRECTORY(benchmark)
 
-IF (BUILD_UTILS)
-  ADD_SUBDIRECTORY (utils)
-ENDIF (BUILD_UTILS)
+ADD_SUBDIRECTORY(utils)
+
+IF(EIGEN3_FUTURE)
+  PKG_CONFIG_APPEND_CFLAGS("-DEIGEN3_FUTURE")
+ENDIF(EIGEN3_FUTURE)
+
+IF(URDFDOM_COLLISION_WITH_GROUP_NAME)
+  PKG_CONFIG_APPEND_CFLAGS("-DURDFDOM_COLLISION_WITH_GROUP_NAME")
+ENDIF(URDFDOM_COLLISION_WITH_GROUP_NAME)
 
 SETUP_PROJECT_FINALIZE()

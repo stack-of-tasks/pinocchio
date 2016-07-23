@@ -25,28 +25,28 @@ class TestGeometryObjectBindings(unittest.TestCase):
     robot = RobotWrapper(romeo_model_path, hint_list, se3.JointModelFreeFlyer())
 
     def test_name_get_set(self):
-        col = self.robot.geometry_model.collision_objects[1]
-        self.assertTrue(col.name == '') # See in parser why name is empty
+        col = self.robot.collision_model.geometryObjects[1]
+        self.assertTrue(col.name == 'LHipPitchLink')
         col.name = 'new_collision_name'
         self.assertTrue(col.name == 'new_collision_name')
 
     def test_parent_get_set(self):
-        col = self.robot.geometry_model.collision_objects[1]
-        self.assertTrue(col.parent == 3)
+        col = self.robot.collision_model.geometryObjects[1]
+        self.assertTrue(col.parent == 4)
         col.parent = 5
         self.assertTrue(col.parent == 5)
 
     def test_placement_get_set(self):
         m = se3.SE3(self.m3ones, self.v3zero)
         new_m = se3.SE3(rand([3,3]), rand(3))
-        col = self.robot.geometry_model.collision_objects[1]
+        col = self.robot.collision_model.geometryObjects[1]
         self.assertTrue(np.allclose(col.placement.homogeneous,m.homogeneous))
         col.placement = new_m
         self.assertTrue(np.allclose(col.placement.homogeneous , new_m.homogeneous))
 
     def test_meshpath_get(self):
         expected_mesh_path = os.path.join(self.pinocchio_models_dir,'meshes/romeo/collision/LHipPitch.dae')
-        col = self.robot.geometry_model.collision_objects[1]
+        col = self.robot.collision_model.geometryObjects[1]
         self.assertTrue(col.mesh_path == expected_mesh_path)
 
 if __name__ == '__main__':

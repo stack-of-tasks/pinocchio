@@ -68,22 +68,22 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_ARG(prefix)              \
    typedef int Index;                \
-   typedef prefix traits<Joint>::JointData JointData;        \
-   typedef prefix traits<Joint>::JointModel JointModel;      \
-   typedef prefix traits<Joint>::Constraint_t Constraint_t;      \
-   typedef prefix traits<Joint>::Transformation_t Transformation_t; \
-   typedef prefix traits<Joint>::Motion_t Motion_t;        \
-   typedef prefix traits<Joint>::Bias_t Bias_t;        \
-   typedef prefix traits<Joint>::F_t F_t;          \
-   typedef prefix traits<Joint>::U_t U_t;       \
-   typedef prefix traits<Joint>::D_t D_t;       \
-   typedef prefix traits<Joint>::UD_t UD_t;       \
+   typedef prefix traits<JointDerived>::JointDataDerived JointDataDerived;        \
+   typedef prefix traits<JointDerived>::JointModelDerived JointModelDerived;      \
+   typedef prefix traits<JointDerived>::Constraint_t Constraint_t;      \
+   typedef prefix traits<JointDerived>::Transformation_t Transformation_t; \
+   typedef prefix traits<JointDerived>::Motion_t Motion_t;        \
+   typedef prefix traits<JointDerived>::Bias_t Bias_t;        \
+   typedef prefix traits<JointDerived>::F_t F_t;          \
+   typedef prefix traits<JointDerived>::U_t U_t;       \
+   typedef prefix traits<JointDerived>::D_t D_t;       \
+   typedef prefix traits<JointDerived>::UD_t UD_t;       \
    enum {                  \
-    NQ = traits<Joint>::NQ,              \
-    NV = traits<Joint>::NV               \
+    NQ = traits<JointDerived>::NQ,              \
+    NV = traits<JointDerived>::NV               \
   };                        \
-  typedef prefix traits<Joint>::ConfigVector_t ConfigVector_t;        \
-  typedef prefix traits<Joint>::TangentVector_t TangentVector_t
+  typedef prefix traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
+  typedef prefix traits<JointDerived>::TangentVector_t TangentVector_t
 
 #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
 #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
@@ -92,41 +92,41 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_NOARG()       \
   typedef int Index;            \
-  typedef traits<Joint>::JointData JointData;     \
-  typedef traits<Joint>::JointModel JointModel;     \
-  typedef traits<Joint>::Constraint_t Constraint_t;   \
-  typedef traits<Joint>::Transformation_t Transformation_t; \
-  typedef traits<Joint>::Motion_t Motion_t;     \
-  typedef traits<Joint>::Bias_t Bias_t;       \
-  typedef traits<Joint>::F_t F_t;       \
-  typedef traits<Joint>::U_t U_t;       \
-  typedef traits<Joint>::D_t D_t;       \
-  typedef traits<Joint>::UD_t UD_t;       \
+  typedef traits<JointDerived>::JointDataDerived JointDataDerived;     \
+  typedef traits<JointDerived>::JointModelDerived JointModelDerived;     \
+  typedef traits<JointDerived>::Constraint_t Constraint_t;   \
+  typedef traits<JointDerived>::Transformation_t Transformation_t; \
+  typedef traits<JointDerived>::Motion_t Motion_t;     \
+  typedef traits<JointDerived>::Bias_t Bias_t;       \
+  typedef traits<JointDerived>::F_t F_t;       \
+  typedef traits<JointDerived>::U_t U_t;       \
+  typedef traits<JointDerived>::D_t D_t;       \
+  typedef traits<JointDerived>::UD_t UD_t;       \
   enum {              \
-    NQ = traits<Joint>::NQ,         \
-    NV = traits<Joint>::NV          \
+    NQ = traits<JointDerived>::NQ,         \
+    NV = traits<JointDerived>::NV          \
   };                        \
-  typedef traits<Joint>::ConfigVector_t ConfigVector_t;        \
-  typedef traits<Joint>::TangentVector_t TangentVector_t
+  typedef traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
+  typedef traits<JointDerived>::TangentVector_t TangentVector_t
 
 #define SE3_JOINT_TYPEDEF_ARG(prefix)         \
   typedef int Index;              \
-  typedef prefix traits<Joint>::JointData JointData;      \
-  typedef prefix traits<Joint>::JointModel JointModel;      \
-  typedef prefix traits<Joint>::Constraint_t Constraint_t;    \
-  typedef prefix traits<Joint>::Transformation_t Transformation_t;  \
-  typedef prefix traits<Joint>::Motion_t Motion_t;      \
-  typedef prefix traits<Joint>::Bias_t Bias_t;        \
-  typedef prefix traits<Joint>::F_t F_t;        \
-  typedef prefix traits<Joint>::U_t U_t;       \
-  typedef prefix traits<Joint>::D_t D_t;       \
-  typedef prefix traits<Joint>::UD_t UD_t;       \
+  typedef prefix traits<JointDerived>::JointDataDerived JointDataDerived;      \
+  typedef prefix traits<JointDerived>::JointModelDerived JointModelDerived;      \
+  typedef prefix traits<JointDerived>::Constraint_t Constraint_t;    \
+  typedef prefix traits<JointDerived>::Transformation_t Transformation_t;  \
+  typedef prefix traits<JointDerived>::Motion_t Motion_t;      \
+  typedef prefix traits<JointDerived>::Bias_t Bias_t;        \
+  typedef prefix traits<JointDerived>::F_t F_t;        \
+  typedef prefix traits<JointDerived>::U_t U_t;       \
+  typedef prefix traits<JointDerived>::D_t D_t;       \
+  typedef prefix traits<JointDerived>::UD_t UD_t;       \
   enum {                \
-    NQ = traits<Joint>::NQ,           \
-    NV = traits<Joint>::NV            \
+    NQ = traits<JointDerived>::NQ,           \
+    NV = traits<JointDerived>::NV            \
   };                        \
-  typedef prefix traits<Joint>::ConfigVector_t ConfigVector_t;        \
-  typedef prefix traits<Joint>::TangentVector_t TangentVector_t
+  typedef prefix traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
+  typedef prefix traits<JointDerived>::TangentVector_t TangentVector_t
 
 #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_NOARG()
 #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
@@ -135,22 +135,22 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_ARG()              \
   typedef int Index;                 \
-  typedef typename traits<Joint>::JointData JointData;         \
-  typedef typename traits<Joint>::JointModel JointModel;       \
-  typedef typename traits<Joint>::Constraint_t Constraint_t;       \
-  typedef typename traits<Joint>::Transformation_t Transformation_t; \
-  typedef typename traits<Joint>::Motion_t Motion_t;         \
-  typedef typename traits<Joint>::Bias_t Bias_t;         \
-  typedef typename traits<Joint>::F_t F_t;           \
-  typedef typename traits<Joint>::U_t U_t;       \
-  typedef typename traits<Joint>::D_t D_t;       \
-  typedef typename traits<Joint>::UD_t UD_t;       \
+  typedef typename traits<JointDerived>::JointDataDerived JointDataDerived;         \
+  typedef typename traits<JointDerived>::JointModelDerived JointModelDerived;       \
+  typedef typename traits<JointDerived>::Constraint_t Constraint_t;       \
+  typedef typename traits<JointDerived>::Transformation_t Transformation_t; \
+  typedef typename traits<JointDerived>::Motion_t Motion_t;         \
+  typedef typename traits<JointDerived>::Bias_t Bias_t;         \
+  typedef typename traits<JointDerived>::F_t F_t;           \
+  typedef typename traits<JointDerived>::U_t U_t;       \
+  typedef typename traits<JointDerived>::D_t D_t;       \
+  typedef typename traits<JointDerived>::UD_t UD_t;       \
   enum {                   \
-    NQ = traits<Joint>::NQ,              \
-    NV = traits<Joint>::NV               \
+    NQ = traits<JointDerived>::NQ,              \
+    NV = traits<JointDerived>::NV               \
   };                        \
-  typedef typename traits<Joint>::ConfigVector_t ConfigVector_t;        \
-  typedef typename traits<Joint>::TangentVector_t TangentVector_t
+  typedef typename traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
+  typedef typename traits<JointDerived>::TangentVector_t TangentVector_t
 
 #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
 #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG()
@@ -158,7 +158,7 @@ namespace se3
 #endif
 
 #define SE3_JOINT_USE_INDEXES \
-  typedef JointModelBase<JointModel> Base; \
+  typedef JointModelBase<JointModelDerived> Base; \
   using Base::idx_q; \
   using Base::idx_v
 
@@ -173,25 +173,25 @@ namespace se3
     typedef _JointData Derived;
     typedef JointDataBase<_JointData> Base;
     
-    typedef typename traits<_JointData>::Joint Joint;
+    typedef typename traits<_JointData>::JointDerived JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    JointData& derived() { return *static_cast<JointData*>(this); }
-    const JointData& derived() const { return *static_cast<const JointData*>(this); }
+    JointDataDerived& derived() { return *static_cast<JointDataDerived*>(this); }
+    const JointDataDerived& derived() const { return *static_cast<const JointDataDerived*>(this); }
 
-    const Constraint_t     & S() const  { return static_cast<const JointData*>(this)->S;   }
-    const Transformation_t & M() const  { return static_cast<const JointData*>(this)->M;   }
-    const Motion_t         & v() const  { return static_cast<const JointData*>(this)->v;   }
-    const Bias_t           & c() const  { return static_cast<const JointData*>(this)->c;   }
-    F_t & F()        { return static_cast<      JointData*>(this)->F; }
+    const Constraint_t     & S() const  { return static_cast<const JointDataDerived*>(this)->S;   }
+    const Transformation_t & M() const  { return static_cast<const JointDataDerived*>(this)->M;   }
+    const Motion_t         & v() const  { return static_cast<const JointDataDerived*>(this)->v;   }
+    const Bias_t           & c() const  { return static_cast<const JointDataDerived*>(this)->c;   }
+    F_t & F()        { return static_cast<      JointDataDerived*>(this)->F; }
     
     // [ABA CCRBA]
-    const U_t & U() const { return static_cast<const JointData*>(this)->U; }
-    U_t & U() { return static_cast<JointData*>(this)->U; }
-    const D_t & Dinv() const { return static_cast<const JointData*>(this)->Dinv; }
-    const UD_t & UDinv() const { return static_cast<const JointData*>(this)->UDinv; }
+    const U_t & U() const { return static_cast<const JointDataDerived*>(this)->U; }
+    U_t & U() { return static_cast<JointDataDerived*>(this)->U; }
+    const D_t & Dinv() const { return static_cast<const JointDataDerived*>(this)->Dinv; }
+    const UD_t & UDinv() const { return static_cast<const JointDataDerived*>(this)->UDinv; }
 
-    JointDataDense<NQ, NV> toDense() const  { return static_cast<const JointData*>(this)->toDense_impl();   }
+    JointDataDense<NQ, NV> toDense() const  { return static_cast<const JointDataDerived*>(this)->toDense_impl();   }
 
   }; // struct JointDataBase
 
@@ -233,25 +233,25 @@ namespace se3
   {
     typedef _JointModel Derived;
     typedef JointModelBase<_JointModel> Base;
-    typedef typename traits<_JointModel>::Joint Joint;
+    typedef typename traits<_JointModel>::JointDerived JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
   
 
-    JointModel& derived() { return *static_cast<Derived*>(this); }
-    const JointModel& derived() const { return *static_cast<const Derived*>(this); }
+    JointModelDerived& derived() { return *static_cast<Derived*>(this); }
+    const JointModelDerived& derived() const { return *static_cast<const Derived*>(this); }
 
-    JointData createData() const { return derived().createData(); }
+    JointDataDerived createData() const { return derived().createData(); }
     
-    void calc(JointData& data,
+    void calc(JointDataDerived& data,
               const Eigen::VectorXd & qs ) const
     { derived().calc(data,qs); }
     
-    void calc(JointData& data,
+    void calc(JointDataDerived& data,
               const Eigen::VectorXd & qs,
               const Eigen::VectorXd & vs ) const
     { derived().calc(data,qs,vs); }
     
-    void calc_aba(JointData & data,
+    void calc_aba(JointDataDerived & data,
                   Inertia::Matrix6 & I,
                   const bool update_I = false) const
     { derived().calc_aba(data, I, update_I); }
@@ -327,6 +327,27 @@ namespace se3
      */
     double distance(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { return derived().distance_impl(q0, q1); }
+
+    /**
+     * @brief      Get neutral configuration of joint
+     *
+     * @return     The joint's neutral configuration
+     */
+    ConfigVector_t neutralConfiguration() const
+    { return derived().neutralConfiguration_impl(); } 
+
+    /**
+     * @brief      Normalize a configuration
+     *
+     * @param[in,out]  q     Configuration to normalize (size full model.nq)
+     */
+    void normalize(Eigen::VectorXd & q) const
+    { return derived().normalize_impl(q); }
+
+    /**
+     * @brief      Default implementation of normalize
+     */
+    void normalize_impl(Eigen::VectorXd &) const { }
 
     JointIndex i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.

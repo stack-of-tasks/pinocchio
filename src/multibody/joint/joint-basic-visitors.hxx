@@ -23,6 +23,7 @@
 #include <boost/variant.hpp>
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
+#include "pinocchio/multibody/visitor.hpp"
 
 namespace se3
 {
@@ -47,96 +48,85 @@ namespace se3
   }
 
   /**
-   * @brief      JointCalcZeroOrderVisitor
+   * @brief      JointCalcZeroOrderVisitor fusion visitor
    */
-  class JointCalcZeroOrderVisitor: public boost::static_visitor<>
+  
+  struct JointCalcZeroOrderVisitor : public fusion::JointVisitor<JointCalcZeroOrderVisitor>
   {
-  public:
-    const Eigen::VectorXd & q;
-    
-    JointCalcZeroOrderVisitor(const Eigen::VectorXd & q) : q(q) {}
-    
-    template<typename D1, typename D2>
-    void operator()(const JointModelBase<D1> & , JointDataBase<D2> & ) const
-    { 
-      SE3_STATIC_ASSERT(false, MIXING_JOINT_MODEL_AND_DATA_OF_DIFFERENT_TYPE);
+    typedef boost::fusion::vector< const Eigen::VectorXd & > ArgsType;
+
+    JOINT_VISITOR_INIT(JointCalcZeroOrderVisitor);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Eigen::VectorXd & q
+                     )
+    {
+      jmodel.calc(jdata.derived(),q);
     }
 
-    template<typename D>
-    void operator()(const JointModelBase<D> & jmodel, JointDataBase<D> & jdata) const
-    { 
-      jmodel.calc(jdata,q);
-    }
-    
-    static void run( const JointModelVariant & jmodel, JointDataVariant & jdata, const Eigen::VectorXd & q)
-    { boost::apply_visitor( JointCalcZeroOrderVisitor(q), jmodel, jdata ); }
   };
   inline void calc_zero_order(const JointModelVariant & jmodel, JointDataVariant & jdata, const Eigen::VectorXd & q)
   {
-    JointCalcZeroOrderVisitor::run( jmodel, jdata, q );
+    JointCalcZeroOrderVisitor::run( jmodel, jdata, JointCalcZeroOrderVisitor::ArgsType(q) );
   }
 
   /**
-   * @brief      JointCalcFirstOrderVisitor
+   * @brief      JointCalcFirstOrderVisitor fusion visitor
    */
-  class JointCalcFirstOrderVisitor: public boost::static_visitor<>
+  
+  struct JointCalcFirstOrderVisitor : public fusion::JointVisitor<JointCalcFirstOrderVisitor>
   {
-  public:
-    const Eigen::VectorXd & q;
-    const Eigen::VectorXd & v;
-    
-    JointCalcFirstOrderVisitor(const Eigen::VectorXd & q, const Eigen::VectorXd & v) : q(q), v(v) {}
-    
-    template<typename D1, typename D2>
-    void operator()(const JointModelBase<D1> & , JointDataBase<D2> & ) const
-    { 
-      SE3_STATIC_ASSERT(false, MIXING_JOINT_MODEL_AND_DATA_OF_DIFFERENT_TYPE);
+    typedef boost::fusion::vector< const Eigen::VectorXd &,
+                                    const Eigen::VectorXd & > ArgsType;
+
+    JOINT_VISITOR_INIT(JointCalcFirstOrderVisitor);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Eigen::VectorXd & q,
+                     const Eigen::VectorXd & v
+                     )
+    {
+      jmodel.calc(jdata.derived(),q,v);
     }
 
-    template<typename D>
-    void operator()(const JointModelBase<D> & jmodel, JointDataBase<D> & jdata) const
-    { 
-      jmodel.calc(jdata,q,v);
-    }
-    
-    static void run( const JointModelVariant & jmodel, JointDataVariant & jdata, const Eigen::VectorXd & q, const Eigen::VectorXd & v)
-    { boost::apply_visitor( JointCalcFirstOrderVisitor(q, v), jmodel, jdata ); }
   };
   inline void calc_first_order(const JointModelVariant & jmodel, JointDataVariant & jdata, const Eigen::VectorXd & q, const Eigen::VectorXd & v)
   {
-    JointCalcFirstOrderVisitor::run( jmodel, jdata, q, v );
+    JointCalcFirstOrderVisitor::run( jmodel, jdata, JointCalcFirstOrderVisitor::ArgsType(q,v) );
   }
-  
+
+
   /**
-   * @brief      Joint_calc_aba visitor
+   * @brief      JointCalcAbaVisitor fusion visitor
    */
-  class JointCalcAbaVisitor: public boost::static_visitor<>
+  
+  struct JointCalcAbaVisitor : public fusion::JointVisitor<JointCalcAbaVisitor>
   {
-  public:
-    Inertia::Matrix6 & I;
-    const bool update_I;
-    
-    JointCalcAbaVisitor(Inertia::Matrix6 & I, const bool update_I) : I(I), update_I(update_I) {}
-    
-    template<typename D1, typename D2>
-    void operator()(const JointModelBase<D1> & , JointDataBase<D2> & ) const
-    { 
-      SE3_STATIC_ASSERT(false, MIXING_JOINT_MODEL_AND_DATA_OF_DIFFERENT_TYPE);
+    typedef boost::fusion::vector< Inertia::Matrix6 &,
+                                    const bool > ArgsType;
+
+    JOINT_VISITOR_INIT(JointCalcAbaVisitor);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     Inertia::Matrix6 & I,
+                     const bool update_I
+                     )
+    {
+      jmodel.calc_aba(jdata.derived(),I,update_I);
     }
 
-    template<typename D>
-    void operator()(const JointModelBase<D> & jmodel, JointDataBase<D> & jdata) const
-    { 
-      jmodel.calc_aba(jdata,I, update_I);
-    }
-    
-    static void run( const JointModelVariant & jmodel, JointDataVariant & jdata, Inertia::Matrix6 & I, const bool update_I)
-    { boost::apply_visitor( JointCalcAbaVisitor(I, update_I), jmodel, jdata ); }
   };
   inline void calc_aba(const JointModelVariant & jmodel, JointDataVariant & jdata, Inertia::Matrix6 & I, const bool update_I)
   {
-    JointCalcAbaVisitor::run( jmodel, jdata, I, update_I );
+    JointCalcAbaVisitor::run( jmodel, jdata, JointCalcAbaVisitor::ArgsType(I, update_I) );
   }
+  
 
 
   /**
@@ -221,6 +211,49 @@ namespace se3
   {
     return JointRandomConfigurationVisitor::run(jmodel, lower_pos_limit, upper_pos_limit);
   }
+
+
+  /**
+   * @brief      JointNeutralConfigurationVisitor visitor
+   */
+  class JointNeutralConfigurationVisitor: public boost::static_visitor<Eigen::VectorXd>
+  {
+  public:
+
+    template<typename D>
+    Eigen::VectorXd operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.neutralConfiguration(); }
+    
+    static Eigen::VectorXd run(const JointModelVariant & jmodel)
+    { return boost::apply_visitor( JointNeutralConfigurationVisitor(), jmodel ); }
+  };
+  inline Eigen::VectorXd neutralConfiguration(const JointModelVariant & jmodel)
+  {
+    return JointNeutralConfigurationVisitor::run(jmodel);
+  }
+
+  /**
+   * @brief      JointNormalizeVisitor visitor
+   */
+  class JointNormalizeVisitor: public boost::static_visitor<>
+  {
+  public:
+    Eigen::VectorXd & q;
+
+    JointNormalizeVisitor(Eigen::VectorXd & q) : q(q) {}
+
+    template<typename D>
+    void operator()(const JointModelBase<D> & jmodel) const
+    { jmodel.normalize(q); }
+    
+    static void run(const JointModelVariant & jmodel, Eigen::VectorXd & q)
+    { boost::apply_visitor( JointNormalizeVisitor(q), jmodel ); }
+  };
+  inline void normalize(const JointModelVariant & jmodel, Eigen::VectorXd & q)
+  {
+    JointNormalizeVisitor::run(jmodel, q);
+  }
+
 
   /**
    * @brief      JointDifferenceVisitor visitor
@@ -370,6 +403,22 @@ namespace se3
   };
   inline void setIndexes(JointModelVariant & jmodel, JointIndex id, int q,int v) { return JointSetIndexesVisitor::run(jmodel, id, q, v); }
 
+
+  /**
+   * @brief      JointShortnameVisitor visitor
+   */
+  class JointShortnameVisitor: public boost::static_visitor<std::string>
+  {
+  public:
+
+    template<typename D>
+    std::string operator()(const JointModelBase<D> &) const
+    { return D::shortname(); }
+    
+    static std::string run(const JointModelVariant & jmodel)
+    { return boost::apply_visitor( JointShortnameVisitor(), jmodel ); }
+  };
+  inline std::string shortname(const JointModelVariant & jmodel) { return JointShortnameVisitor::run(jmodel);}
 
   //
   // Visitors on JointDatas

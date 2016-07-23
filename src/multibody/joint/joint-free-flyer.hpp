@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2015 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -39,7 +39,7 @@ namespace se3
   template <>
   struct traits< ConstraintIdentity >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -60,9 +60,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,6,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,6,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,6> DenseBase;
+    typedef Eigen::Matrix<Scalar,6,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar,6,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar,6,6> DenseBase;
   }; // traits ConstraintRevolute
 
 
@@ -142,8 +142,8 @@ namespace se3
       NQ = 7,
       NV = 6
     };
-    typedef JointDataFreeFlyer JointData;
-    typedef JointModelFreeFlyer JointModel;
+    typedef JointDataFreeFlyer JointDataDerived;
+    typedef JointModelFreeFlyer JointModelDerived;
     typedef ConstraintIdentity Constraint_t;
     typedef SE3 Transformation_t;
     typedef Motion Motion_t;
@@ -158,12 +158,12 @@ namespace se3
     typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
     typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
-  template<> struct traits<JointDataFreeFlyer> { typedef JointFreeFlyer Joint; };
-  template<> struct traits<JointModelFreeFlyer> { typedef JointFreeFlyer Joint; };
+  template<> struct traits<JointDataFreeFlyer> { typedef JointFreeFlyer JointDerived; };
+  template<> struct traits<JointModelFreeFlyer> { typedef JointFreeFlyer JointDerived; };
 
   struct JointDataFreeFlyer : public JointDataBase<JointDataFreeFlyer>
   {
-    typedef JointFreeFlyer Joint;
+    typedef JointFreeFlyer JointDerived;
     SE3_JOINT_TYPEDEF;
 
     typedef Eigen::Matrix<double,6,6> Matrix6;
@@ -192,7 +192,7 @@ namespace se3
 
   struct JointModelFreeFlyer : public JointModelBase<JointModelFreeFlyer>
   {
-    typedef JointFreeFlyer Joint;
+    typedef JointFreeFlyer JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelFreeFlyer>::id;
@@ -200,10 +200,10 @@ namespace se3
     using JointModelBase<JointModelFreeFlyer>::idx_v;
     using JointModelBase<JointModelFreeFlyer>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar_t;
+    typedef double Scalar;
 
-    JointData createData() const { return JointData(); }
-    void calc(JointData & data,
+    JointDataDerived createData() const { return JointDataDerived(); }
+    void calc(JointDataDerived & data,
               const Eigen::VectorXd & qs) const
     {
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
@@ -215,7 +215,7 @@ namespace se3
       data.M.translation (q.head<3>());
     }
     
-    void calc(JointData & data,
+    void calc(JointDataDerived & data,
               const Eigen::VectorXd & qs,
               const Eigen::VectorXd & vs ) const
     {
@@ -230,7 +230,7 @@ namespace se3
       data.M.translation (q.head<3>());
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I;
       data.Dinv = I.inverse();
@@ -305,19 +305,19 @@ namespace se3
           throw std::runtime_error(error.str());
         }
           
-        result[i] = lower_pos_limit[i] + (upper_pos_limit[i] - lower_pos_limit[i]) * (Scalar_t)(rand())/RAND_MAX;
+        result[i] = lower_pos_limit[i] + (upper_pos_limit[i] - lower_pos_limit[i]) * (Scalar)(rand())/RAND_MAX;
       }
           
       // Rotational part
-      const Scalar_t u1 = (Scalar_t)rand() / RAND_MAX;
-      const Scalar_t u2 = (Scalar_t)rand() / RAND_MAX;
-      const Scalar_t u3 = (Scalar_t)rand() / RAND_MAX;
+      const Scalar u1 = (Scalar)rand() / RAND_MAX;
+      const Scalar u2 = (Scalar)rand() / RAND_MAX;
+      const Scalar u3 = (Scalar)rand() / RAND_MAX;
       
-      const Scalar_t mult1 = sqrt (1-u1);
-      const Scalar_t mult2 = sqrt (u1);
+      const Scalar mult1 = sqrt (1-u1);
+      const Scalar mult2 = sqrt (u1);
       
-      Scalar_t s2,c2; SINCOS(2.*PI*u2,&s2,&c2);
-      Scalar_t s3,c3; SINCOS(2.*PI*u3,&s3,&c3);
+      Scalar s2,c2; SINCOS(2.*PI*u2,&s2,&c2);
+      Scalar s3,c3; SINCOS(2.*PI*u3,&s3,&c3);
       
       
       result.segment<4>(3) << mult1 * s2,
@@ -350,7 +350,7 @@ namespace se3
         result.tail<3> ().setZero();
       else
       {
-        const Scalar_t theta = 2.*acos(quat_relatif.w());
+        const Scalar theta = 2.*acos(quat_relatif.w());
         
         if (quat0.dot(quat1) >= 0.)
           result.tail<3>() << theta * quat_relatif.vec().normalized();
@@ -365,6 +365,19 @@ namespace se3
     { 
       return difference_impl(q0,q1).norm();
     } 
+
+    ConfigVector_t neutralConfiguration_impl() const
+    { 
+      ConfigVector_t q;
+      q << 0, 0, 0, // translation part
+           0, 0, 0, 1; // quaternion part
+      return q;
+    } 
+
+    void normalize_impl(Eigen::VectorXd& q) const
+    {
+      q.segment<4>(idx_q()+3).normalize();
+    }
 
     JointModelDense<NQ, NV> toDense_impl() const
     {

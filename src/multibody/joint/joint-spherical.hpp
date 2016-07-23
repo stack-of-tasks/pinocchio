@@ -1,6 +1,6 @@
 //
-// Copyright (c) 2015 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -39,7 +39,7 @@ namespace se3
   template <>
   struct traits< MotionSpherical >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -91,7 +91,7 @@ namespace se3
   template <>
   struct traits < struct ConstraintRotationalSubspace >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -112,9 +112,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,3,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,3,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,3> DenseBase;
+    typedef Eigen::Matrix<Scalar,3,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar,3,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar,6,3> DenseBase;
   }; // struct traits struct ConstraintRotationalSubspace
 
   struct ConstraintRotationalSubspace
@@ -186,7 +186,7 @@ namespace se3
     Eigen::Matrix <double, 6, 3> M;
     //    M.block <3,3> (Inertia::LINEAR, 0) = - Y.mass () * skew(Y.lever ());
     M.block <3,3> (Inertia::LINEAR, 0) = alphaSkew ( -Y.mass (),  Y.lever ());
-    M.block <3,3> (Inertia::ANGULAR, 0) = (Inertia::Matrix3)(Y.inertia () - Symmetric3::AlphaSkewSquare(Y.mass (), Y.lever ()));
+    M.block <3,3> (Inertia::ANGULAR, 0) = (Y.inertia () - Symmetric3::AlphaSkewSquare(Y.mass (), Y.lever ())).matrix();
     return M;
   }
 
@@ -205,8 +205,8 @@ namespace se3
       NQ = 4,
       NV = 3
     };
-    typedef JointDataSpherical JointData;
-    typedef JointModelSpherical JointModel;
+    typedef JointDataSpherical JointDataDerived;
+    typedef JointModelSpherical JointModelDerived;
     typedef ConstraintRotationalSubspace Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionSpherical Motion_t;
@@ -221,12 +221,12 @@ namespace se3
     typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
     typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
-  template<> struct traits<JointDataSpherical> { typedef JointSpherical Joint; };
-  template<> struct traits<JointModelSpherical> { typedef JointSpherical Joint; };
+  template<> struct traits<JointDataSpherical> { typedef JointSpherical JointDerived; };
+  template<> struct traits<JointModelSpherical> { typedef JointSpherical JointDerived; };
 
   struct JointDataSpherical : public JointDataBase<JointDataSpherical>
   {
-    typedef JointSpherical Joint;
+    typedef JointSpherical JointDerived;
     SE3_JOINT_TYPEDEF;
 
     typedef Eigen::Matrix<double,6,6> Matrix6;
@@ -255,7 +255,7 @@ namespace se3
 
   struct JointModelSpherical : public JointModelBase<JointModelSpherical>
   {
-    typedef JointSpherical Joint;
+    typedef JointSpherical JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelSpherical>::id;
@@ -263,11 +263,11 @@ namespace se3
     using JointModelBase<JointModelSpherical>::idx_v;
     using JointModelBase<JointModelSpherical>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar_t;
+    typedef double Scalar;
 
-    JointData createData() const { return JointData(); }
+    JointDataDerived createData() const { return JointDataDerived(); }
 
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs) const
     {
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
@@ -278,7 +278,7 @@ namespace se3
       data.M.rotation (quat.matrix());
     }
 
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs,
                const Eigen::VectorXd & vs ) const
     {
@@ -291,7 +291,7 @@ namespace se3
       data.M.rotation (quat.matrix ());
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I.block<6,3> (0,Inertia::ANGULAR);
       data.Dinv = I.block<3,3> (Inertia::ANGULAR,Inertia::ANGULAR).inverse();
@@ -345,15 +345,15 @@ namespace se3
       ConfigVector_t result;
 
       // Rotational part
-      const Scalar_t u1 = (Scalar_t)rand() / RAND_MAX;
-      const Scalar_t u2 = (Scalar_t)rand() / RAND_MAX;
-      const Scalar_t u3 = (Scalar_t)rand() / RAND_MAX;
+      const Scalar u1 = (Scalar)rand() / RAND_MAX;
+      const Scalar u2 = (Scalar)rand() / RAND_MAX;
+      const Scalar u3 = (Scalar)rand() / RAND_MAX;
       
-      const Scalar_t mult1 = sqrt (1-u1);
-      const Scalar_t mult2 = sqrt (u1);
+      const Scalar mult1 = sqrt (1-u1);
+      const Scalar mult2 = sqrt (u1);
       
-      Scalar_t s2,c2; SINCOS(2.*PI*u2,&s2,&c2);
-      Scalar_t s3,c3; SINCOS(2.*PI*u3,&s3,&c3);
+      Scalar s2,c2; SINCOS(2.*PI*u2,&s2,&c2);
+      Scalar s3,c3; SINCOS(2.*PI*u3,&s3,&c3);
       
       result << mult1 * s2,
                 mult1 * c2,
@@ -377,7 +377,7 @@ namespace se3
         return TangentVector_t::Zero();
       else
       {
-        Scalar_t theta;
+        Scalar theta;
         if (quat0.dot(quat1) >= 0.)
           theta = 2.*acos(quat_relatif.w());
         else
@@ -390,6 +390,18 @@ namespace se3
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
       return difference_impl(q0, q1).norm();
+    }
+
+    ConfigVector_t neutralConfiguration_impl() const
+    { 
+      ConfigVector_t q;
+      q << 0, 0, 0, 1;
+      return q;
+    } 
+
+    void normalize_impl(Eigen::VectorXd& q) const
+    {
+      q.segment<NQ>(idx_q()).normalize();
     }
 
     JointModelDense<NQ, NV> toDense_impl() const

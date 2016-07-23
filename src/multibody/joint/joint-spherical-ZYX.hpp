@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -121,12 +121,18 @@ namespace se3
         const ConstraintRotationalSubspace & ref;
         ConstraintTranspose(const ConstraintRotationalSubspace & ref) : ref(ref) {}
 
-
+#ifdef EIGEN3_FUTURE
+        const typename Eigen::Product<
+        Eigen::Transpose<const Matrix3>,
+        Eigen::Block<const typename Force::Vector6,3,1>
+        >
+#else
         const typename Eigen::ProductReturnType<
         Eigen::Transpose<const Matrix3>,
 //        typename Motion::ConstAngular_t::Base /* This feature leads currently to a bug */
         Eigen::Block<const typename Force::Vector6,3,1>
         >::Type
+#endif
         operator* (const Force & phi) const
         {
           return ref.S_minimal.transpose () * phi.angular();
@@ -134,10 +140,17 @@ namespace se3
 
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
         template<typename D>
+#ifdef EIGEN3_FUTURE
+        const typename Eigen::Product<
+        typename Eigen::Transpose<const Matrix3>,
+        typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
+        >
+#else
         const typename Eigen::ProductReturnType<
         typename Eigen::Transpose<const Matrix3>,
         typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
         >::Type
+#endif
         operator* (const Eigen::MatrixBase<D> & F) const
         {
           EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
@@ -210,9 +223,8 @@ namespace se3
   {
     Eigen::Matrix < _Scalar, 6, 3, _Options > M;
     M.template topRows<3>() = alphaSkew ( -Y.mass (),  Y.lever () );
-    M.template bottomRows<3> () = 
-      (typename InertiaTpl<_Scalar,_Options>::Matrix3)(Y.inertia () - 
-       typename Symmetric3::AlphaSkewSquare(Y.mass (), Y.lever ()));
+    M.template bottomRows<3> () =  (Y.inertia () -
+       typename Symmetric3::AlphaSkewSquare(Y.mass (), Y.lever ())).matrix();
 
     return (M * S.matrix ()).eval();
   }
@@ -220,10 +232,17 @@ namespace se3
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
   //  inline Eigen::Matrix<double,6,3>
   template <typename _Scalar, int _Options>
-  typename Eigen::ProductReturnType<
+#ifdef EIGEN3_FUTURE
+  const typename Eigen::Product<
+  const Eigen::Block<const Inertia::Matrix6,6,3>,
+  const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
+  >
+#else
+  const typename Eigen::ProductReturnType<
   const Eigen::Block<const Inertia::Matrix6,6,3>,
   const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
   >::Type
+#endif
   operator*(const typename InertiaTpl<_Scalar,_Options>::Matrix6 & Y,
             const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
   {
@@ -250,8 +269,8 @@ namespace se3
       NQ = 3,
       NV = 3
     };
-    typedef JointDataSphericalZYX JointData;
-    typedef JointModelSphericalZYX JointModel;
+    typedef JointDataSphericalZYX JointDataDerived;
+    typedef JointModelSphericalZYX JointModelDerived;
     typedef JointSphericalZYX::ConstraintRotationalSubspace Constraint_t;
     typedef SE3 Transformation_t;
     typedef JointSphericalZYX::MotionSpherical Motion_t;
@@ -266,15 +285,15 @@ namespace se3
     typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
     typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   };
-  template<> struct traits<JointDataSphericalZYX> { typedef JointSphericalZYX Joint; };
-  template<> struct traits<JointModelSphericalZYX> { typedef JointSphericalZYX Joint; };
+  template<> struct traits<JointDataSphericalZYX> { typedef JointSphericalZYX JointDerived; };
+  template<> struct traits<JointModelSphericalZYX> { typedef JointSphericalZYX JointDerived; };
 
   struct JointDataSphericalZYX : public JointDataBase<JointDataSphericalZYX>
   {
-    typedef JointSphericalZYX Joint;
+    typedef JointSphericalZYX JointDerived;
     SE3_JOINT_TYPEDEF;
 
-    typedef Motion::Scalar_t Scalar;
+    typedef Motion::Scalar Scalar;
 
     typedef Eigen::Matrix<Scalar,6,6> Matrix6;
     typedef Eigen::Matrix<Scalar,3,3> Matrix3;
@@ -302,7 +321,7 @@ namespace se3
 
   struct JointModelSphericalZYX : public JointModelBase<JointModelSphericalZYX>
   {
-    typedef JointSphericalZYX Joint;
+    typedef JointSphericalZYX JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelSphericalZYX>::id;
@@ -310,11 +329,11 @@ namespace se3
     using JointModelBase<JointModelSphericalZYX>::idx_v;
     using JointModelBase<JointModelSphericalZYX>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar_t;
+    typedef double Scalar;
 
-    JointData createData() const { return JointData(); }
+    JointDataDerived createData() const { return JointDataDerived(); }
 
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs) const
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ>(idx_q ());
@@ -336,7 +355,7 @@ namespace se3
       data.S.matrix () <<  -s1, 0., 1., c1 * s2, c2, 0, c1 * c2, -s2, 0;
     }
 
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs,
                const Eigen::VectorXd & vs ) const
     {
@@ -367,7 +386,7 @@ namespace se3
       data.c ()(2) = -s1 * c2 * q_dot (0) * q_dot (1) - c1 * s2 * q_dot (0) * q_dot (2) - c2 * q_dot (1) * q_dot (2);
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I.middleCols<3> (Inertia::ANGULAR) * data.S.matrix();
       Inertia::Matrix3 tmp (data.S.matrix().transpose() * data.U.middleRows<3> (Inertia::ANGULAR));
@@ -430,12 +449,16 @@ namespace se3
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
-
-      return (q_1 - q_0).norm();
+      return difference_impl(q0, q1).norm();
     }
     
+    ConfigVector_t neutralConfiguration_impl() const
+    { 
+      ConfigVector_t q;
+      q << 0, 0, 0;
+      return q;
+    } 
+
     JointModelDense<NQ, NV> toDense_impl() const
     {
       return JointModelDense<NQ, NV>( id(),

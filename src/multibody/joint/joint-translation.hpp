@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2015 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -37,7 +37,7 @@ namespace se3
   template <>
   struct traits < MotionTranslation >
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -96,7 +96,7 @@ namespace se3
   template <>
   struct traits < ConstraintTranslationSubspace>
   {
-    typedef double Scalar_t;
+    typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
     typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
@@ -117,9 +117,9 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar_t,3,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar_t,3,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar_t,6,3> DenseBase;
+    typedef Eigen::Matrix<Scalar,3,1,0> JointMotion;
+    typedef Eigen::Matrix<Scalar,3,1,0> JointForce;
+    typedef Eigen::Matrix<Scalar,6,3> DenseBase;
   }; // traits ConstraintTranslationSubspace
 
   struct ConstraintTranslationSubspace : ConstraintBase < ConstraintTranslationSubspace >
@@ -219,8 +219,8 @@ namespace se3
       NQ = 3,
       NV = 3
     };
-    typedef JointDataTranslation JointData;
-    typedef JointModelTranslation JointModel;
+    typedef JointDataTranslation JointDataDerived;
+    typedef JointModelTranslation JointModelDerived;
     typedef ConstraintTranslationSubspace Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionTranslation Motion_t;
@@ -236,12 +236,12 @@ namespace se3
     typedef Eigen::Matrix<double,NV,1> TangentVector_t;
   }; // traits JointTranslation
   
-  template<> struct traits<JointDataTranslation> { typedef JointTranslation Joint; };
-  template<> struct traits<JointModelTranslation> { typedef JointTranslation Joint; };
+  template<> struct traits<JointDataTranslation> { typedef JointTranslation JointDerived; };
+  template<> struct traits<JointModelTranslation> { typedef JointTranslation JointDerived; };
 
   struct JointDataTranslation : public JointDataBase<JointDataTranslation>
   {
-    typedef JointTranslation Joint;
+    typedef JointTranslation JointDerived;
     SE3_JOINT_TYPEDEF;
 
     typedef Eigen::Matrix<double,6,6> Matrix6;
@@ -270,7 +270,7 @@ namespace se3
 
   struct JointModelTranslation : public JointModelBase<JointModelTranslation>
   {
-    typedef JointTranslation Joint;
+    typedef JointTranslation JointDerived;
     SE3_JOINT_TYPEDEF;
 
     using JointModelBase<JointModelTranslation>::id;
@@ -278,16 +278,16 @@ namespace se3
     using JointModelBase<JointModelTranslation>::idx_v;
     using JointModelBase<JointModelTranslation>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar_t;
+    typedef double Scalar;
 
-    JointData createData() const { return JointData(); }
+    JointDataDerived createData() const { return JointDataDerived(); }
 
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs) const
     {
       data.M.translation (qs.segment<NQ>(idx_q ()));
     }
-    void calc (JointData & data,
+    void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs,
                const Eigen::VectorXd & vs ) const
     {
@@ -295,7 +295,7 @@ namespace se3
       data.v () = vs.segment<NQ> (idx_v ());
     }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U = I.block<6,3> (0,Inertia::LINEAR);
       data.Dinv = I.block<3,3> (Inertia::LINEAR,Inertia::LINEAR).inverse();
@@ -361,12 +361,16 @@ namespace se3
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
-
-      return (q_1 - q_0).norm();
+      return difference_impl(q0, q1).norm();
     }
     
+    ConfigVector_t neutralConfiguration_impl() const
+    { 
+      ConfigVector_t q;
+      q << 0,0,0;
+      return q;
+    } 
+
     JointModelDense<NQ, NV> toDense_impl() const
     {
       return JointModelDense<NQ, NV>( id(),
