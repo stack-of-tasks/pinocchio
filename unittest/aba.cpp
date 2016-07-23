@@ -15,7 +15,6 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/visitor.hpp"

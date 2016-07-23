@@ -15,30 +15,16 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-/*
- * Compare the value obtained with the RNEA with the values obtained from
- * RBDL. The test is not complete. It only validates the RNEA for the revolute
- * joints. The free-flyer is not tested. It should be extended to account for
- * the free flyer and for the other algorithms.
- *
- * Additionnal notes: the RNEA is an algorithm that can be used to validate
- * many others (in particular, the mass matrix (CRBA) can be numerically
- * validated from the RNEA, then the center-of-mass jacobian can be validated
- * from the mass matrix, etc.
- *
- */
-
 #include <iostream>
 #include <iomanip>
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/algorithm/geometry.hpp"
-#include "pinocchio/parsers/urdf.hpp"
-#include "pinocchio/spatial/explog.hpp"
 
+#include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/multibody/geometry.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/collisions.hpp"
+#include "pinocchio/parsers/urdf.hpp"
 
 #include <vector>
 
@@ -139,7 +125,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair < se3::Model, se3::Ge
   }
   return os;
 } 
-
 
 BOOST_AUTO_TEST_SUITE ( GeomTest )
 

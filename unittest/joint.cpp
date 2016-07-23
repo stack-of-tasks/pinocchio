@@ -137,16 +137,12 @@ BOOST_AUTO_TEST_SUITE ( JointTest)
 
 BOOST_AUTO_TEST_CASE ( test_all_joints )
 {
-  using namespace Eigen;
   using namespace se3;
 
   Model model;
   buildModels::humanoidSimple(model);
-  se3::Data data(model);
-
+  Data data(model);
 
   boost::mpl::for_each<JointModelVariant::types>(TestJoint());
-
-
 }
 BOOST_AUTO_TEST_SUITE_END ()

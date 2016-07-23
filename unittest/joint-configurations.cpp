@@ -15,18 +15,9 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-
-#include <iostream>
-#include <iomanip>
-
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/math/quaternion.hpp"
-
-#include <vector>
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE JointConfigurationsTest
