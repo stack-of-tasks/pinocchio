@@ -538,19 +538,6 @@ namespace se3
     static std::string classname();
     std::string shortname() const { return classname(); }
 
-    template <class D>
-    bool operator == (const JointModelBase<D> &) const
-    {
-      return false;
-    }
-    
-    bool operator == (const JointModelBase<JointModelRevolute <axis> > & jmodel) const
-    {
-      return jmodel.id() == id()
-              && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v();
-    }
-
   }; // struct JointModelRevolute
 
   typedef JointRevolute<0> JointRX;
