@@ -378,12 +378,14 @@ namespace se3
       ;
     }
     
-    friend std::ostream & operator << (std::ostream & os, const JointModelBase<Derived> & joint) {
+    friend std::ostream & operator << (std::ostream & os, const JointModelBase<Derived> & joint)
+    {
       joint.disp(os);
       return os;
     }
     
     std::string shortname() const { return derived().shortname(); }
+    static std::string classname() { return Derived::classname(); }
 
 
     /* Acces to dedicated segment in robot config space.  */
@@ -433,6 +435,7 @@ namespace se3
     jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
 
     JointModelDense<NQ, NV> toDense() const  { return derived().toDense_impl();   }
+    
   }; // struct JointModelBase
 
 } // namespace se3

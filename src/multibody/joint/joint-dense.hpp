@@ -238,10 +238,8 @@ namespace se3
       return *this;
     }
 
-    std::string shortname() const
-    {
-      return std::string("JointModelDense");
-    }
+    static std::string classname() { return std::string("JointModelDense"); }
+    std::string shortname() const { return classname(); }
 
     template <class D>
     bool operator == (const JointModelBase<D> &) const

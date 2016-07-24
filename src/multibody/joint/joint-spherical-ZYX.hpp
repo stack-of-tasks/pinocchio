@@ -467,10 +467,8 @@ namespace se3
                                     );
     }
 
-    std::string shortname() const
-    {
-      return std::string("JointModelSphericalZYX");
-    }
+    static std::string classname() { return std::string("JointModelSphericalZYX"); }
+    std::string shortname() const { return classname(); }
 
     template <class D>
     bool operator == (const JointModelBase<D> &) const

@@ -440,10 +440,8 @@ namespace se3
                                     );
     }
 
-    std::string shortname() const
-    {
-      return std::string("JointModelPlanar");
-    }
+    static std::string classname() { return std::string("JointModelPlanar");}
+    std::string shortname() const { return classname(); }
 
     template <class D>
     bool operator == (const JointModelBase<D> &) const

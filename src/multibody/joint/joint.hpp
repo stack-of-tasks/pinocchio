@@ -156,14 +156,8 @@ namespace se3
       return ::se3::neutralConfiguration(*this);
     } 
 
-    JointModel() : JointModelBoostVariant() {}
-    JointModel( const JointModelVariant & model_variant ) : JointModelBoostVariant(model_variant)
-    {}
-
-    std::string shortname() const
-    {
-      return ::se3::shortname(*this);
-    }
+    std::string shortname() const { return ::se3::shortname(*this); }
+    static std::string classname() { return "JointModel"; }
 
     template <class D>
     bool operator == (const JointModelBase<D> &) const
