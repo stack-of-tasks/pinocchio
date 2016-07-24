@@ -386,7 +386,17 @@ namespace se3
     
     std::string shortname() const { return derived().shortname(); }
     static std::string classname() { return Derived::classname(); }
-
+    
+    template <class OtherDerived>
+    bool operator==(const JointModelBase<OtherDerived> & other) const { return derived().isEqual(other); }
+    
+    template <class OtherDerived>
+    bool isEqual(const JointModelBase<OtherDerived> &) const { return false; }
+    
+    bool isEqual(const JointModelBase<Derived> & other) const
+    {
+      return other.id() == id() && other.idx_q() == idx_q() && other.idx_v() == idx_v();
+    }
 
     /* Acces to dedicated segment in robot config space.  */
     // Const access
@@ -419,7 +429,6 @@ namespace se3
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
     jointVelocitySelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
-
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 

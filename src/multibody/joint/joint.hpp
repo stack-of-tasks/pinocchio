@@ -90,8 +90,9 @@ namespace se3
     typedef Joint JointDerived;
     SE3_JOINT_TYPEDEF;
     SE3_JOINT_USE_INDEXES;
-    using JointModelBase<JointModel>::id;
-    using JointModelBase<JointModel>::setIndexes;
+    using Base::id;
+    using Base::setIndexes;
+    using Base::operator==;
 
     JointModelVariant& toVariant() { return *static_cast<JointModelVariant*>(this); }
     const JointModelVariant& toVariant() const { return *static_cast<const JointModelVariant*>(this); }
@@ -158,20 +159,6 @@ namespace se3
 
     std::string shortname() const { return ::se3::shortname(*this); }
     static std::string classname() { return "JointModel"; }
-
-    template <class D>
-    bool operator == (const JointModelBase<D> &) const
-    {
-      return false;
-    }
-    
-    bool operator == (const JointModelBase<JointModel> & jmodel) const
-    {
-      return jmodel.id() == id()
-          && jmodel.idx_q() == idx_q()
-          && jmodel.idx_v() == idx_v();
-    }
-
 
     int     nq_impl() const { return ::se3::nq(*this); }
     int     nv_impl() const { return ::se3::nv(*this); }
