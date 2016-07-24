@@ -32,7 +32,6 @@ namespace se3
   template<>
   struct traits<Joint>
   {
-
     enum {
       NQ = -1, // Dynamic because unknown at compilation
       NV = -1
@@ -77,9 +76,8 @@ namespace se3
     const D_t               Dinv()  const { return dinv_inertia(*this); }
     const UD_t              UDinv() const { return udinv_inertia(*this); }
 
-
     JointData() : JointDataBoostVariant() {}
-    JointData(const JointDataVariant & jdata ) : JointDataBoostVariant(jdata){}
+    JointData(const JointDataVariant & jdata) : JointDataBoostVariant(jdata) {}
 
   };
 
@@ -94,62 +92,55 @@ namespace se3
     using Base::setIndexes;
     using Base::operator==;
 
+    JointModel() : JointModelBoostVariant() {}
+    JointModel(const JointModelVariant & model_variant) : JointModelBoostVariant(model_variant)
+    {}
+    
     JointModelVariant& toVariant() { return *static_cast<JointModelVariant*>(this); }
     const JointModelVariant& toVariant() const { return *static_cast<const JointModelVariant*>(this); }
 
-    JointDataVariant createData() 
+    JointDataVariant createData() { return ::se3::createData(*this); }
+
+    void calc(JointData & data,const Eigen::VectorXd & q) const { calc_zero_order(*this,data,q); }
+
+    void calc (JointData & data, const Eigen::VectorXd & q, const Eigen::VectorXd & v) const
     {
-      return ::se3::createData(*this);
-    }
-
-
-    void calc (JointData & data,
-               const Eigen::VectorXd & qs) const
-    {
-      calc_zero_order(*this, data, qs);
-
-    }
-
-    void calc (JointData & data,
-               const Eigen::VectorXd & qs,
-               const Eigen::VectorXd & vs ) const
-    {
-      calc_first_order(*this, data, qs, vs);
+      calc_first_order(*this,data,q,v);
     }
     
     void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
     {
-      ::se3::calc_aba(*this, data, I, update_I);
+      ::se3::calc_aba(*this,data,I,update_I);
     }
 
-    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
+    ConfigVector_t integrate_impl(const Eigen::VectorXd & q,const Eigen::VectorXd & v) const
     {
-      return ::se3::integrate(*this, qs, vs);
+      return ::se3::integrate(*this,q,v);
     }
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
     {
-      return ::se3::interpolate(*this, q0, q1, u);
+      return ::se3::interpolate(*this,q0,q1,u);
     }
 
-    ConfigVector_t randomConfiguration_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const throw (std::runtime_error)
+    ConfigVector_t randomConfiguration_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit) const throw (std::runtime_error)
     { 
-      return ::se3::randomConfiguration(*this, lower_pos_limit, upper_pos_limit);
+      return ::se3::randomConfiguration(*this,lower_pos_limit,upper_pos_limit);
     } 
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      return ::se3::difference(*this, q0, q1);
+      return ::se3::difference(*this,q0,q1);
     } 
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      return ::se3::distance(*this, q0, q1);
+      return ::se3::distance(*this,q0,q1);
     }
 
     void normalize_impl(Eigen::VectorXd & q) const
     {
-      return ::se3::normalize(*this, q);
+      return ::se3::normalize(*this,q);
     }
 
     ConfigVector_t neutralConfiguration_impl() const
@@ -168,11 +159,7 @@ namespace se3
 
     JointIndex     id()      const { return ::se3::id(*this); }
 
-    // void setIndexes(JointIndex ,int ,int ) { SE3_STATIC_ASSERT(false, THIS_METHOD_SHOULD_NOT_BE_CALLED_ON_DERIVED_CLASS); }
-    void setIndexes(JointIndex id,int nq,int nv) 
-    {
-      ::se3::setIndexes(*this,id, nq, nv);
-    }
+    void setIndexes(JointIndex id,int nq,int nv) { ::se3::setIndexes(*this,id, nq, nv); }
   };
   
   typedef std::vector<JointData> JointDataVector;  
