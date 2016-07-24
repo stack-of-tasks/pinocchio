@@ -29,6 +29,17 @@ SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
+# Detect current architecture
+IF(CMAKE_SIZEOF_VOID_P EQUAL 4)
+  SET(32_BITS_ARCHITECTURE)
+ENDIF(CMAKE_SIZEOF_VOID_P EQUAL 4)
+
+# On 32 bits systems, there are some alignment problems with boost::variant
+# see https://github.com/stack-of-tasks/pinocchio/issues/231 for more details
+IF(32_BITS_ARCHITECTURE)
+  ADD_DEFINITIONS(-DEIGEN_DONT_ALIGN_STATICALLY)
+ENDIF(32_BITS_ARCHITECTURE)
+
 IF(APPLE)
   SET(CMAKE_MACOSX_RPATH TRUE)
   SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
