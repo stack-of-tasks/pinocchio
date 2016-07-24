@@ -160,8 +160,7 @@ namespace se3
     JointModel( const JointModelVariant & model_variant ) : JointModelBoostVariant(model_variant)
     {}
 
-
-    const std::string shortname()
+    const std::string shortname() const
     {
       return ::se3::shortname(*this);
     }
