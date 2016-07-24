@@ -29,6 +29,9 @@ SET(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
+# We follows c++03 standard
+ADD_DEFINITIONS(-std=c++03)
+
 IF(APPLE)
   SET(CMAKE_MACOSX_RPATH TRUE)
   SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
