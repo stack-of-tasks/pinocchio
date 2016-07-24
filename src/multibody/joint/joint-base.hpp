@@ -353,19 +353,36 @@ namespace se3
     int i_q;    // Index of the joint configuration in the joint configuration vector.
     int i_v;    // Index of the joint velocity in the joint velocity vector.
 
-
-    
     int     nv()    const { return derived().nv_impl(); }
     int     nq()    const { return derived().nq_impl(); }
     // Both _impl methods are reimplemented by dynamic-size joints.
     int     nv_impl() const { return NV; }
     int     nq_impl() const { return NQ; }
 
-    const int &   idx_q() const { return i_q; }
-    const int &   idx_v() const { return i_v; }
-    const JointIndex & id() const { return i_id; }
+    int  idx_q() const { return i_q; }
+    int  idx_v() const { return i_v; }
+    JointIndex id() const { return i_id; }
 
     void setIndexes(JointIndex id,int q,int v) { i_id = id, i_q = q; i_v = v; }
+    
+    void disp(std::ostream & os) const
+    {
+      using namespace std;
+      os
+      << shortname() << endl
+      << "  index: " << i_id << endl
+      << "  index q: " << i_q << endl
+      << "  index v: " << i_v << endl
+      << "  nq: " << nq() << endl
+      << "  nv: " << nv() << endl
+      ;
+    }
+    
+    friend std::ostream & operator << (std::ostream & os, const JointModelBase<Derived> & joint) {
+      joint.disp(os);
+      return os;
+    }
+    
     std::string shortname() const { return derived().shortname(); }
 
 
