@@ -101,6 +101,7 @@ namespace se3
     
     /// \brief Vector of subtrees
     /// subtree[j] corresponds to the subtree supported by the joint j.
+    /// The first element of subtree[j] is the index of the joint j itself.
     std::vector<IndexVector> subtrees;
 
     /// \brief Spatial gravity of the model.
@@ -121,6 +122,7 @@ namespace se3
       , joints(1)
       , parents(1)
       , names(1)
+      , subtrees(1)
       , gravity( gravity981,Eigen::Vector3d::Zero() )
     {
       names[0]     = "universe";     // Should be "universe joint (trivial)"
@@ -340,6 +342,13 @@ namespace se3
     ///
     bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_FRAME);
 
+  protected:
+    
+    /// \brief Add the joint_id to its parent subtrees.
+    ///
+    /// \param[in] joint_id The id of the joint to add to the subtrees
+    ///
+    void addJointIndexToParentSubtrees(const JointIndex joint_id);
   };
 
   class Data

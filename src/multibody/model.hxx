@@ -83,6 +83,10 @@ namespace se3
     // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
     addFrame(names[idx],idx,SE3::Identity(),JOINT);
     
+    // Init and add joint index to its parent subtrees.
+    subtrees.push_back(IndexVector(1));
+    subtrees[idx][0] = idx;
+    addJointIndexToParentSubtrees(idx);
     return idx;
   }
 
@@ -225,6 +229,12 @@ namespace se3
     else
       return false;
   }
+  
+  inline void Model::addJointIndexToParentSubtrees(const JointIndex joint_id)
+  {
+    for(JointIndex parent = parents[joint_id]; parent>0; parent = parents[parent])
+      subtrees[parent].push_back(joint_id);
+  }
 
 
   inline Data::Data (const Model & ref)
@@ -244,7 +254,7 @@ namespace se3
     ,ddq(ref.nv)
     ,Yaba((std::size_t)ref.nbody)
     ,u(ref.nv)
-    ,Ag(6, ref.nv)
+    ,Ag(6,ref.nv)
     ,Fcrb((std::size_t)ref.nbody)
     ,lastChild((std::size_t)ref.nbody)
     ,nvSubtree((std::size_t)ref.nbody)
@@ -282,7 +292,8 @@ namespace se3
     computeParents_fromRow(ref);
 
     /* Init Jacobian */
-    J.fill(0);
+    J.setZero();
+    Ag.setZero();
     
     /* Init universe states relatively to itself */
     
