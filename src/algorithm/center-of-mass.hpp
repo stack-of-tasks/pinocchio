@@ -1,4 +1,4 @@
-//
+      //
 // Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
@@ -98,6 +98,29 @@ namespace se3
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
                        const bool updateKinematics = true);
+  
+ 
+  ///
+  /// \brief Computes both the jacobian and the the center of mass position of a subtree given by its root index.
+  ///        The results are accessible through data.Jcom and data.com[root_id] and are both expressed in the world frame.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] root_id Index of the root of the subtree.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  ///
+  /// \return The jacobian of center of mass position of the subtree supported by root_id and expressed in the world frame.
+  ///
+  inline Data::Matrix3x &
+  computeSubtreeJacobianCenterOfMass(const Model & model, Data & data,
+                                     const Model::JointIndex root_index,
+                                     const Eigen::VectorXd & q);
+  
+//  template<typename Matrix3x>
+//  inline void
+//  getSubtreeJacobianCenterOfMass(const Model & model, Data & data,
+//                                 const Model::JointIndex root_index,
+//                                 Eigen::MatrixBase<Matrix3x> & Jcom);
 
   /* If the CRBA has been run, then both COM and Jcom are easily available from
    * the mass matrix. Use the following methods to access them. In that case,

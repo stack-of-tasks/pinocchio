@@ -79,16 +79,46 @@ BOOST_AUTO_TEST_CASE ( test_com )
   /* Test CoM vecolity againt jacobianCenterOfMass */
   BOOST_CHECK((Jcom * v).isApprox(data.vcom[0], 1e-12));
   
-  
   centerOfMass(model,data,q,v);
   /* Test CoM vecolity againt jacobianCenterOfMass */
   BOOST_CHECK((Jcom * v).isApprox(data.vcom[0], 1e-12));
+}
 
-
-//  std::cout << "com = [ " << data.com[0].transpose() << " ];" << std::endl;
-//  std::cout << "mass = [ " << data.mass[0] << " ];" << std::endl;
-//  std::cout << "Jcom = [ " << data.Jcom << " ];" << std::endl;
-//  std::cout << "M3 = [ " << data.M.topRows<3>() << " ];" << std::endl;
+BOOST_AUTO_TEST_CASE ( test_jacobian_com )
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model);
+  se3::Data data(model), data_ref(model);
+  
+  Model::JointIndex root_id = model.getJointId("larm1_joint");
+  const int root_idx_v = idx_v(model.joints[root_id]);
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.middleRows<4> (3).normalize();
+  VectorXd v = VectorXd::Ones(model.nv);
+//  v.head(idx_v(model.joints[root_id-1])).setZero();
+  
+  centerOfMass(model,data_ref,q,v);
+  jacobianCenterOfMass(model,data_ref,q);
+  
+  Data::Matrix3x Jsubtree_com(3,model.nv);
+//  getSubtreeJacobianCenterOfMass(model,data,root_id,Jsubtree_com);
+  computeSubtreeJacobianCenterOfMass(model,data,root_id,q);
+  
+  Model::IndexVector & subtree = model.subtrees[root_id];
+  for(Model::IndexVector::iterator it = subtree.begin(); it != subtree.end(); ++it)
+  {
+    BOOST_CHECK(data_ref.oMi[*it].isApprox(data.oMi[*it]));
+    BOOST_CHECK(data_ref.com[*it].isApprox(data.com[*it]));
+  }
+  BOOST_CHECK(data_ref.J.middleCols(root_idx_v,data.nvSubtree[root_id]).isApprox(data.J.middleCols(root_idx_v,data.nvSubtree[root_id])));
+  
+  Motion::Vector3 vcom_subtree(data_ref.oMi[root_id].rotation()*data_ref.vcom[root_id]);
+  BOOST_CHECK(vcom_subtree.isApprox(data.Jcom*v,1e-12));
+  
+  
 }
 
 
