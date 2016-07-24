@@ -251,7 +251,7 @@ namespace se3
                                     );
     }
 
-    static const std::string shortname();
+    std::string shortname() const;
 
     template <class D>
     bool operator == (const JointModelBase<D> &) const
@@ -273,7 +273,7 @@ namespace se3
   typedef JointModelRevoluteUnbounded<0> JointModelRUBX;
 
   template<> inline
-  const std::string JointModelRevoluteUnbounded<0>::shortname()
+  std::string JointModelRevoluteUnbounded<0>::shortname() const
   {
     return std::string("JointModelRUBX") ;
   }
@@ -283,7 +283,7 @@ namespace se3
   typedef JointModelRevoluteUnbounded<1> JointModelRUBY;
 
   template<> inline
-  const std::string JointModelRevoluteUnbounded<1>::shortname()
+  std::string JointModelRevoluteUnbounded<1>::shortname() const
   {
     return std::string("JointModelRUBY") ;
   }
@@ -293,7 +293,7 @@ namespace se3
   typedef JointModelRevoluteUnbounded<2> JointModelRUBZ;
 
   template<> inline
-  const std::string JointModelRevoluteUnbounded<2>::shortname()
+  std::string JointModelRevoluteUnbounded<2>::shortname() const
   {
     return std::string("JointModelRUBZ") ;
   }

@@ -238,7 +238,7 @@ namespace se3
       return *this;
     }
 
-    static const std::string shortname()
+    std::string shortname() const
     {
       return std::string("JointModelDense");
     }
