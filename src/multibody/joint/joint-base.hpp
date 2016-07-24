@@ -366,6 +366,7 @@ namespace se3
     const JointIndex & id() const { return i_id; }
 
     void setIndexes(JointIndex id,int q,int v) { i_id = id, i_q = q; i_v = v; }
+    std::string shortname() const { return derived().shortname(); }
 
 
     /* Acces to dedicated segment in robot config space.  */

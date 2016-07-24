@@ -387,7 +387,7 @@ namespace se3
                                     );
     }
 
-    static const std::string shortname()
+    std::string shortname() const
     {
       return std::string("JointModelFreeFlyer");
     }
