@@ -26,7 +26,6 @@ namespace se3
   inline const SE3::Vector3 &
   centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
-               const bool computeSubtreeComs,
                const bool updateKinematics)
   {
     data.mass[0] = 0;
@@ -55,11 +54,7 @@ namespace se3
       data.com[parent] += (liMi.rotation()*data.com[i]
                            + data.mass[i] * liMi.translation());
       data.mass[parent] += data.mass[i];
-      
-      if(computeSubtreeComs)
-      {
-        data.com[i] /= data.mass[i];
-      }
+      data.com[i] /= data.mass[i];
     }
     
     data.com[0] /= data.mass[0];
@@ -71,7 +66,6 @@ namespace se3
   centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
                const Eigen::VectorXd & v,
-               const bool computeSubtreeComs,
                const bool updateKinematics)
   {
     using namespace se3;
@@ -110,11 +104,8 @@ namespace se3
       data.vcom[parent] += liMi.rotation()*data.vcom[i];
       data.mass[parent] += data.mass[i];
       
-      if( computeSubtreeComs )
-      {
-        data.com[i] /= data.mass[i];
-        data.vcom[i] /= data.mass[i];
-      }
+      data.com[i] /= data.mass[i];
+      data.vcom[i] /= data.mass[i];
     }
     
     data.com[0] /= data.mass[0];
@@ -128,7 +119,6 @@ namespace se3
                const Eigen::VectorXd & q,
                const Eigen::VectorXd & v,
                const Eigen::VectorXd & a,
-               const bool computeSubtreeComs,
                const bool updateKinematics)
   {
     using namespace se3;
@@ -171,12 +161,9 @@ namespace se3
       data.acom[parent] += liMi.rotation()*data.acom[i];
       data.mass[parent] += data.mass[i];
       
-      if( computeSubtreeComs )
-      {
-        data.com[i] /= data.mass[i];
-        data.vcom[i] /= data.mass[i];
-        data.acom[i] /= data.mass[i];
-      }
+      data.com[i] /= data.mass[i];
+      data.vcom[i] /= data.mass[i];
+      data.acom[i] /= data.mass[i];
     }
     
     data.com[0] /= data.mass[0];
@@ -200,8 +187,7 @@ namespace se3
   : public fusion::JointVisitor<JacobianCenterOfMassBackwardStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &,
-                                  const bool
+                                  se3::Data &
                                   > ArgsType;
   
     JOINT_VISITOR_INIT(JacobianCenterOfMassBackwardStep);
@@ -210,8 +196,7 @@ namespace se3
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const se3::Model& model,
-                     se3::Data& data,
-                     const bool computeSubtreeComs )
+                     se3::Data& data)
     {
       const Model::JointIndex & i      = (Model::JointIndex) jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
@@ -234,8 +219,7 @@ namespace se3
         = data.mass[i] * Jcols.template topRows<3>()
         - skew(data.com[i]) * Jcols.template bottomRows<3>();
     
-      if(computeSubtreeComs)
-        data.com[i] /= data.mass[i];
+      data.com[i] /= data.mass[i];
     }
 
   };
@@ -243,7 +227,6 @@ namespace se3
   inline const Data::Matrix3x &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
-                       const bool computeSubtreeComs,
                        const bool updateKinematics)
   {
     data.com[0].setZero ();
@@ -267,7 +250,7 @@ namespace se3
     {
       JacobianCenterOfMassBackwardStep
       ::run(model.joints[i],data.joints[i],
-            JacobianCenterOfMassBackwardStep::ArgsType(model,data,computeSubtreeComs));
+            JacobianCenterOfMassBackwardStep::ArgsType(model,data));
     }
     
     data.com[0] /= data.mass[0];
