@@ -92,6 +92,7 @@ IF(BUILD_PYTHON_INTERFACE)
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 # Work in progress
+ADD_UNIT_TEST(model eigen3)
 ADD_UNIT_TEST(constraint eigen3)
 #ADD_UNIT_TEST(variant eigen3)
 ADD_UNIT_TEST(joints eigen3)
