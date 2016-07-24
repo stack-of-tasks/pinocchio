@@ -127,7 +127,6 @@ namespace se3
                 const bool updateKinematics = true)
       {
         return centerOfMass(*model,*data,q,
-                            true,
                             updateKinematics);
       }
       
@@ -139,7 +138,6 @@ namespace se3
                   const bool updateKinematics = true)
       {
         return centerOfMass(*model,*data,q,v,
-                            true,
                             updateKinematics);
       }
       
@@ -152,7 +150,6 @@ namespace se3
                              const bool updateKinematics = true)
       {
         return centerOfMass(*model,*data,q,v,a,
-                            true,
                             updateKinematics);
       }
 
