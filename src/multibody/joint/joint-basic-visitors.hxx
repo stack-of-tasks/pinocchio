@@ -412,8 +412,8 @@ namespace se3
   public:
 
     template<typename D>
-    std::string operator()(const JointModelBase<D> &) const
-    { return D::shortname(); }
+    std::string operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.shortname(); }
     
     static std::string run(const JointModelVariant & jmodel)
     { return boost::apply_visitor( JointShortnameVisitor(), jmodel ); }

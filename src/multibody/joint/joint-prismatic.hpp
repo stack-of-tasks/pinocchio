@@ -501,7 +501,7 @@ namespace se3
                                     );
     }
 
-    static const std::string shortname();
+    std::string shortname() const;
 
     template <class D>
     bool operator == (const JointModelBase<D> &) const
@@ -522,7 +522,7 @@ namespace se3
   typedef JointModelPrismatic<0> JointModelPX;
 
   template<> inline
-  const std::string JointModelPrismatic<0>::shortname()
+  std::string JointModelPrismatic<0>::shortname() const
   {
     return std::string("JointModelPX");
   }
@@ -532,7 +532,7 @@ namespace se3
   typedef JointModelPrismatic<1> JointModelPY;
 
   template<> inline
-  const std::string JointModelPrismatic<1>::shortname()
+  std::string JointModelPrismatic<1>::shortname() const
   {
     return std::string("JointModelPY");
   }
@@ -542,7 +542,7 @@ namespace se3
   typedef JointModelPrismatic<2> JointModelPZ;
 
   template<> inline
-  const std::string JointModelPrismatic<2>::shortname()
+  std::string JointModelPrismatic<2>::shortname() const
   {
     return std::string("JointModelPZ");
   }
