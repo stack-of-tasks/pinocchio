@@ -49,9 +49,8 @@ namespace se3
     struct exposer {
       template<class T> inline void operator()(T)
       {
-        expose_constructors<T>(bp::class_<T>(T::shortname().c_str(),bp::init<>()).def(JointPythonVisitor<T >())
-                              );
-        bp::implicitly_convertible<T, se3::JointModelVariant>();
+        expose_constructors<T>(bp::class_<T>(T::classname().c_str(),bp::init<>()).def(JointPythonVisitor<T>()));
+        bp::implicitly_convertible<T,se3::JointModelVariant>();
       }
 
       
