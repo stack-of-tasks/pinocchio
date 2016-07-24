@@ -99,7 +99,7 @@ namespace se3
     /// \brief Vector of operational frames registered on the model.
     std::vector<Frame> frames;
     
-    /// \brief Vector of subtrees
+    /// \brief Vector of subtrees.
     /// subtree[j] corresponds to the subtree supported by the joint j.
     /// The first element of subtree[j] is the index of the joint j itself.
     std::vector<IndexVector> subtrees;

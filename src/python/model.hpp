@@ -116,6 +116,9 @@ namespace se3
           .add_property("parents", 
             bp::make_function(&ModelPythonVisitor::parents,
                   bp::return_internal_reference<>())  )
+        .add_property("subtrees",
+                      bp::make_function(&ModelPythonVisitor::subtrees,
+                                        bp::return_internal_reference<>()), "Vector of subtrees. subtree[j] corresponds to the subtree supported by the joint j.")
           .add_property("names",
             bp::make_function(&ModelPythonVisitor::names,
                   bp::return_internal_reference<>())  )
@@ -159,6 +162,7 @@ namespace se3
       static JointModelVector & joints( ModelHandler & m ) { return m->joints; }
       static std::vector<Model::JointIndex> & parents( ModelHandler & m ) { return m->parents; }
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
+      static std::vector<Model::IndexVector> & subtrees(ModelHandler & m) { return m->subtrees; }
 
       static JointIndex addJoint(ModelHandler & model,
                                  JointIndex parent_id,
@@ -241,6 +245,8 @@ namespace se3
       {
         bp::class_< std::vector<Index> >("StdVec_Index")
           .def(bp::vector_indexing_suite< std::vector<Index> >());
+        bp::class_< std::vector<Index> >("StdVec_IndexVector")
+        .def(bp::vector_indexing_suite< std::vector<Model::IndexVector> >());
         bp::class_< std::vector<std::string> >("StdVec_StdString")
           .def(bp::vector_indexing_suite< std::vector<std::string> >())
           .def("index", &ModelPythonVisitor::index<std::string>);
