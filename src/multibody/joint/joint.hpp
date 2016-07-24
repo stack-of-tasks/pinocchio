@@ -18,7 +18,6 @@
 #ifndef __se3_joint_model_hpp__
 #define __se3_joint_model_hpp__
 
-#include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 

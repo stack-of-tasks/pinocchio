@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(test_model_subtree)
   buildModels::humanoidSimple(model);
   
   Model::JointIndex idx_larm1 = model.getJointId("larm1_joint");
-  BOOST_CHECK(idx_larm1<model.njoint);
+  BOOST_CHECK((int)idx_larm1<model.njoint);
   Model::IndexVector subtree = model.subtrees[idx_larm1];
   BOOST_CHECK(subtree.size()==6);
   
