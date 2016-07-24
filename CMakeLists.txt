@@ -252,13 +252,11 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 IF(URDFDOM_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
     parsers/urdf.hpp
-    parsers/urdf/model.hxx
     parsers/urdf/utils.hpp
     )
   
   IF(HPP_FCL_FOUND)
     LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-      parsers/urdf/geometry.hxx
       )
   ENDIF(HPP_FCL_FOUND)
 

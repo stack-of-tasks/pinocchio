@@ -16,9 +16,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_parsers_urdf_model_hxx__
-#define __se3_parsers_urdf_model_hxx__
-
+#include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/urdf/utils.hpp"
 #include "pinocchio/multibody/model.hpp"
 
@@ -80,7 +78,7 @@ namespace se3
       /// \param[in] model The model where the link must be added.
       /// \param[in] placementOffset The relative placement of the link relative to the closer non fixed joint in the tree.
       ///
-      inline void parseTree (::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset, bool verbose) throw (std::invalid_argument)
+      void parseTree(::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset, bool verbose) throw (std::invalid_argument)
       {
         
         // Parent joint of the current body
@@ -442,8 +440,6 @@ namespace se3
         }
       }
 
-
-
       ///
       /// \brief Parse a tree with a specific root joint linking the model to the environment.
       ///        The function returns an exception as soon as a necessary Inertia or Joint information are missing.
@@ -572,15 +568,41 @@ namespace se3
 
       }
     } // namespace details
+              
+    ///
+    /// \brief Call parse root tree templated function
+    ///
+    struct ParseRootTreeVisitor : public boost::static_visitor<>
+    {
+      ::urdf::LinkConstPtr m_root_link;
+      Model & m_model;
+      const bool m_verbose;
+     
+      ParseRootTreeVisitor(::urdf::LinkConstPtr root_link, Model & model, const bool verbose)
+      : m_root_link(root_link)
+      , m_model(model)
+      , m_verbose(verbose)
+      {}
+      
+      template<typename Derived>
+      void operator()(const JointModelBase<Derived> & root_joint) const
+      {
+        details::parseRootTree(m_root_link,m_model,root_joint,m_verbose);
+      }
+      
+      static void run(::urdf::LinkConstPtr root_link, Model & model, const JointModelVariant & root_joint, const bool verbose)
+      {
+        boost::apply_visitor(ParseRootTreeVisitor(root_link,model,verbose),root_joint);
+      }
+    }; // struct ParseRootTreeVisitor
 
-    template <typename D>
-    Model buildModel (const std::string & filename, const JointModelBase<D> & root_joint, bool verbose) throw (std::invalid_argument)
+    Model buildModel(const std::string & filename, const JointModelVariant & root_joint, const bool verbose) throw (std::invalid_argument)
     {
       Model model;
       
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       if (urdfTree)
-        details::parseRootTree(urdfTree->getRoot(), model, root_joint, verbose);
+        ParseRootTreeVisitor::run(urdfTree->getRoot(),model,root_joint,verbose);
       else
       {
         const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
@@ -590,7 +612,7 @@ namespace se3
       return model;
     }
                 
-    inline Model buildModel (const std::string & filename, const bool verbose) throw (std::invalid_argument)
+    Model buildModel(const std::string & filename, const bool verbose) throw (std::invalid_argument)
     {
       Model model;
       
@@ -608,5 +630,3 @@ namespace se3
 
   } // namespace urdf
 } // namespace se3
-
-#endif // __se3_parsers_urdf_model_hxx__

@@ -55,10 +55,9 @@ namespace se3
     ///
     /// \return The se3::Model of the URDF file.
     ///
-    template <typename D>
     Model buildModel (const std::string & filename,
-                      const JointModelBase<D> & root_joint,
-                      bool verbose = false) throw (std::invalid_argument);
+                      const JointModelVariant & root_joint,
+                      const bool verbose = false) throw (std::invalid_argument);
           
     ///
     /// \brief Build the model from a URDF file with a fixed joint as root of the model tree.
@@ -68,8 +67,8 @@ namespace se3
     ///
     /// \return The se3::Model of the URDF file.
     ///
-    inline Model buildModel (const std::string & filename,
-                             const bool verbose = false) throw (std::invalid_argument);
+    Model buildModel (const std::string & filename,
+                      const bool verbose = false) throw (std::invalid_argument);
 
 #ifdef WITH_HPP_FCL
 
@@ -90,22 +89,14 @@ namespace se3
      * @return     The GeometryModel associated to the urdf file and the given Model.
      *
      */
-    inline GeometryModel buildGeom(const Model & model,
-                                   const std::string & filename,
-                                   const std::vector<std::string> & package_dirs = std::vector<std::string> (),
-                                   const GeometryType type = NONE) throw (std::invalid_argument);
+    GeometryModel buildGeom(const Model & model,
+                            const std::string & filename,
+                            const std::vector<std::string> & package_dirs = std::vector<std::string> (),
+                            const GeometryType type = NONE) throw (std::invalid_argument);
 
 #endif
 
   } // namespace urdf
 } // namespace se3
-
-/* --- Details -------------------------------------------------------------- */
-/* --- Details -------------------------------------------------------------- */
-/* --- Details -------------------------------------------------------------- */
-#include "pinocchio/parsers/urdf/model.hxx"
-#ifdef WITH_HPP_FCL
-  #include "pinocchio/parsers/urdf/geometry.hxx"
-#endif
 
 #endif // ifndef __se3_parsers_urdf_hpp__
