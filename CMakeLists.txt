@@ -25,7 +25,7 @@ INCLUDE(cmake/python.cmake)
 
 SET(PROJECT_NAME pinocchio)
 SET(PROJECT_DESCRIPTION "Rigid multi body dynamics algorithms")
-SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
+SET(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
