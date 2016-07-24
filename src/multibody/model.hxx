@@ -87,6 +87,9 @@ namespace se3
     subtrees.push_back(IndexVector(1));
     subtrees[idx][0] = idx;
     addJointIndexToParentSubtrees(idx);
+    
+    supports.push_back(IndexVector(0));
+    computeJointSupport(idx);
     return idx;
   }
 
@@ -234,6 +237,16 @@ namespace se3
   {
     for(JointIndex parent = parents[joint_id]; parent>0; parent = parents[parent])
       subtrees[parent].push_back(joint_id);
+  }
+  
+  inline void Model::computeJointSupport(const JointIndex joint_id)
+  {
+    const JointIndex parent = parents[joint_id];
+    if (parent > 0)
+    {
+      supports[joint_id].insert(supports[joint_id].end(), supports[parent].begin(), supports[parent].end());
+      supports[joint_id].push_back(parent);
+    }
   }
 
 
