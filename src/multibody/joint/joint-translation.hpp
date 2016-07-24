@@ -379,10 +379,8 @@ namespace se3
                                     );
     }
 
-    std::string shortname() const
-    {
-      return std::string("JointModelTranslation");
-    }
+    static std::string classname() { return std::string("JointModelTranslation"); }
+    std::string shortname() const { return classname(); }
 
     template <class D>
     bool operator == (const JointModelBase<D> &) const

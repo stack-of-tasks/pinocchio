@@ -450,10 +450,8 @@ namespace se3
                                     );
     }
 
-    std::string shortname() const
-    {
-      return std::string("JointModelRevoluteUnaligned");
-    }
+    static std::string classname() { return std::string("JointModelRevoluteUnaligned"); }
+    std::string shortname() const { return classname(); }
 
     template <class D>
     bool operator == (const JointModelBase<D> &) const
