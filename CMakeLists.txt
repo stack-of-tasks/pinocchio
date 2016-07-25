@@ -19,7 +19,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
-INCLUDE(cmake/cpack.cmake)
 INCLUDE(cmake/eigen.cmake)
 INCLUDE(cmake/python.cmake)
 
@@ -258,9 +257,6 @@ SET(HEADERS
  )
 LIST(REMOVE_DUPLICATES HEADERS)
 
-PKG_CONFIG_APPEND_LIBS (${PROJECT_NAME})
-PKG_CONFIG_APPEND_BOOST_LIBS(${BOOST_COMPONENTS})
-
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/math")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/spatial")
@@ -283,18 +279,24 @@ FOREACH(header ${HEADERS})
           PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
 ENDFOREACH(header)
 
+# --- MAIN LIBRARY -------------------------------------------------------------
 ADD_SUBDIRECTORY(src)
 
 # --- BINDINGS -----------------------------------------------------------------
 ADD_SUBDIRECTORY(bindings)
 
 # --- EXECUTABLES --------------------------------------------------------------
-# --- EXECUTABLES --------------------------------------------------------------
-# --- EXECUTABLES --------------------------------------------------------------
+ADD_SUBDIRECTORY(utils)
+
+# --- UNIT TESTS ---------------------------------------------------------------
 ADD_SUBDIRECTORY(unittest)
+
+# --- BENCHMARKS ---------------------------------------------------------------
 ADD_SUBDIRECTORY(benchmark)
 
-ADD_SUBDIRECTORY(utils)
+# --- PACKAGING ----------------------------------------------------------------
+PKG_CONFIG_APPEND_LIBS (${PROJECT_NAME})
+PKG_CONFIG_APPEND_BOOST_LIBS(${BOOST_COMPONENTS})
 
 IF(EIGEN3_FUTURE)
   PKG_CONFIG_APPEND_CFLAGS("-DEIGEN3_FUTURE")
