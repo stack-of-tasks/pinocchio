@@ -70,14 +70,14 @@ namespace se3
                                 const bool stopAtFirstCollision = false
                                 );
 
-  inline void computeDistances(GeometryData & data_geom);
+  inline std::size_t computeDistances(GeometryData & data_geom);
 
-  inline void computeDistances(const Model & model,
-                              Data & data,
-                              const GeometryModel & model_geom,
-                              GeometryData & data_geom,
-                              const Eigen::VectorXd & q
-                              );
+  inline std::size_t computeDistances(const Model & model,
+                                      Data & data,
+                                      const GeometryModel & model_geom,
+                                      GeometryData & data_geom,
+                                      const Eigen::VectorXd & q
+                                      );
 
   inline void computeBodyRadius(const Model &         model,
                                 const GeometryModel & geomModel,
