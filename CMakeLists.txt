@@ -194,40 +194,6 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/copy.hpp
   )
 
-
-IF(BUILD_PYTHON_INTERFACE)
-  SET(${PROJECT_NAME}_PYTHON_HEADERS
-    python/eigen_container.hpp
-    python/handler.hpp
-    python/python.hpp
-    python/se3.hpp
-    python/force.hpp
-    python/motion.hpp
-    python/inertia.hpp
-    python/joints-models.hpp
-    python/joints-variant.hpp
-    python/joint.hpp
-    python/joint-derived.hpp
-    python/frame.hpp
-    python/model.hpp
-    python/data.hpp
-    python/algorithms.hpp
-    python/parsers.hpp
-    python/explog.hpp
-    )
-
-
-LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
-  python/geometry-object.hpp
-  python/geometry-model.hpp
-  python/geometry-data.hpp
-  )
-
-
-ELSE(BUILD_PYTHON_INTERFACE)
-  SET(${PROJECT_NAME}_PYTHON_HEADERS "")
-ENDIF(BUILD_PYTHON_INTERFACE)
-
 SET(${PROJECT_NAME}_PARSERS_HEADERS
   parsers/sample-models.hpp
   parsers/utils.hpp
@@ -279,7 +245,6 @@ IF(LUA5_1_FOUND)
   LIST(APPEND CFLAGS_DEPENDENCIES "-DWITH_LUA")
 ENDIF(LUA5_1_FOUND)
 
-
 SET(HEADERS
   ${${PROJECT_NAME}_MATH_HEADERS}
   ${${PROJECT_NAME}_TOOLS_HEADERS}
@@ -288,7 +253,6 @@ SET(HEADERS
   ${${PROJECT_NAME}_MULTIBODY_HEADERS}
   ${${PROJECT_NAME}_PARSERS_HEADERS}
   ${${PROJECT_NAME}_ALGORITHM_HEADERS}
-  ${${PROJECT_NAME}_PYTHON_HEADERS}
   exception.hpp
   assert.hpp
  )
@@ -307,7 +271,6 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/python")
 
 FOREACH(header ${HEADERS})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)
@@ -321,6 +284,10 @@ FOREACH(header ${HEADERS})
 ENDFOREACH(header)
 
 ADD_SUBDIRECTORY(src)
+
+# --- BINDINGS -----------------------------------------------------------------
+ADD_SUBDIRECTORY(bindings)
+
 # --- EXECUTABLES --------------------------------------------------------------
 # --- EXECUTABLES --------------------------------------------------------------
 # --- EXECUTABLES --------------------------------------------------------------
