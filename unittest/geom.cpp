@@ -113,19 +113,6 @@ struct Distance_t
   // Distance and closest points on bodies.
   double d_, x0_, y0_, z0_, x1_, y1_, z1_;
 }; // struct Distance_t
-#endif
-std::ostream& operator<<(std::ostream& os, const std::pair < se3::Model, se3::GeometryModel >& robot)
-{
-  os << "Nb collision objects = " << robot.second.ngeoms << std::endl;
-  
-  for(se3::GeometryModel::Index i=0;i<(se3::GeometryModel::Index)(robot.second.ngeoms);++i)
-  {
-    os  << "Object n " << i << " : " << robot.second.geometryObjects[i].name << ": attached to joint = " << robot.second.geometryObjects[i].parent
-        << "=" << robot.first.getJointName(robot.second.geometryObjects[i].parent) << std::endl;
-  }
-  return os;
-} 
-
 
 void loadHumanoidPathPlanerModel (const hpp::model::HumanoidRobotPtr_t& robot,
             const std::string& rootJointType,
@@ -143,6 +130,9 @@ void loadHumanoidPathPlanerModel (const hpp::model::HumanoidRobotPtr_t& robot,
   urdfParser.parse (urdfPath);
 
 }
+
+#endif
+
 
 BOOST_AUTO_TEST_SUITE ( GeomTest )
 
