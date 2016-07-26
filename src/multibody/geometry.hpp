@@ -57,10 +57,12 @@ namespace se3
     CollisionPair(const GeomIndex co1, const GeomIndex co2) : Base(co1,co2)
     {
       assert(co1 != co2 && "The index of collision objects must not be equal.");
-      if (co1 > co2)
-      {
-        first = co2; second = co1;
-      }
+    }
+
+    bool operator== (const CollisionPair& rhs) const
+    {
+      return (first == rhs.first && second == rhs.second)
+        || (first == rhs.second && second == rhs.first);
     }
     
     void disp(std::ostream & os) const { os << "collision pair (" << first << "," << second << ")\n"; }
