@@ -493,28 +493,14 @@ namespace se3
       return q;
     } 
 
-    JointModelDense<NQ, NV> toDense_impl() const
+    JointModelDense<NQ,NV> toDense_impl() const
     {
-      return JointModelDense<NQ, NV>( id(),
-                                      idx_q(),
-                                      idx_v()
-                                    );
+      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
     }
 
-    static const std::string shortname();
+    static std::string classname();
+    std::string shortname() const { return classname(); }
 
-    template <class D>
-    bool operator == (const JointModelBase<D> &) const
-    {
-      return false;
-    }
-    
-    bool operator == (const JointModelBase<JointModelPrismatic> & jmodel) const
-    {
-      return jmodel.id() == id()
-              && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v();
-    }
   }; // struct JointModelPrismatic
 
   typedef JointPrismatic<0> JointPX;
@@ -522,7 +508,7 @@ namespace se3
   typedef JointModelPrismatic<0> JointModelPX;
 
   template<> inline
-  const std::string JointModelPrismatic<0>::shortname()
+  std::string JointModelPrismatic<0>::classname()
   {
     return std::string("JointModelPX");
   }
@@ -532,7 +518,7 @@ namespace se3
   typedef JointModelPrismatic<1> JointModelPY;
 
   template<> inline
-  const std::string JointModelPrismatic<1>::shortname()
+  std::string JointModelPrismatic<1>::classname()
   {
     return std::string("JointModelPY");
   }
@@ -542,7 +528,7 @@ namespace se3
   typedef JointModelPrismatic<2> JointModelPZ;
 
   template<> inline
-  const std::string JointModelPrismatic<2>::shortname()
+  std::string JointModelPrismatic<2>::classname()
   {
     return std::string("JointModelPZ");
   }

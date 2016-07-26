@@ -243,28 +243,13 @@ namespace se3
       q.segment<NQ>(idx_q()).normalize();
     }
 
-    JointModelDense<NQ, NV> toDense_impl() const
+    JointModelDense<NQ,NV> toDense_impl() const
     {
-      return JointModelDense<NQ, NV>( id(),
-                                      idx_q(),
-                                      idx_v()
-                                    );
+      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
     }
 
-    static const std::string shortname();
-
-    template <class D>
-    bool operator == (const JointModelBase<D> &) const
-    {
-      return false;
-    }
-    
-    bool operator == (const JointModelBase<JointModelRevoluteUnbounded <axis> > & jmodel) const
-    {
-      return jmodel.id() == id()
-              && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v();
-    }
+    static std::string classname();
+    std::string shortname() const { return classname(); }
 
   }; // struct JointModelRevoluteUnbounded
 
@@ -273,7 +258,7 @@ namespace se3
   typedef JointModelRevoluteUnbounded<0> JointModelRUBX;
 
   template<> inline
-  const std::string JointModelRevoluteUnbounded<0>::shortname()
+  std::string JointModelRevoluteUnbounded<0>::classname()
   {
     return std::string("JointModelRUBX") ;
   }
@@ -283,7 +268,7 @@ namespace se3
   typedef JointModelRevoluteUnbounded<1> JointModelRUBY;
 
   template<> inline
-  const std::string JointModelRevoluteUnbounded<1>::shortname()
+  std::string JointModelRevoluteUnbounded<1>::classname()
   {
     return std::string("JointModelRUBY") ;
   }
@@ -293,7 +278,7 @@ namespace se3
   typedef JointModelRevoluteUnbounded<2> JointModelRUBZ;
 
   template<> inline
-  const std::string JointModelRevoluteUnbounded<2>::shortname()
+  std::string JointModelRevoluteUnbounded<2>::classname()
   {
     return std::string("JointModelRUBZ") ;
   }

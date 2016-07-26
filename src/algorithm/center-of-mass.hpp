@@ -40,7 +40,6 @@ namespace se3
   inline const SE3::Vector3 &
   centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
-               const bool computeSubtreeComs = true,
                const bool updateKinematics = true);
   
   ///
@@ -52,7 +51,6 @@ namespace se3
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] v The joint velocity vector (dim model.nv).
-  /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
   /// \param[in] updateKinematics If true, the algorithm updates first the second order kinematics of the tree. Otherwise, it uses the current kinematics stored in data.
   ///
   /// \return The center of mass position of the full rigid body system expressed in the world frame.
@@ -61,7 +59,6 @@ namespace se3
   centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
                const Eigen::VectorXd & v,
-               const bool computeSubtreeComs = true,
                const bool updateKinematics = true);
   
   ///
@@ -74,7 +71,6 @@ namespace se3
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] v The joint velocity vector (dim model.nv).
   /// \param[in] a The joint acceleration vector (dim model.nv).
-  /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
   /// \param[in] updateKinematics If true, the algorithm updates first the second order kinematics of the tree. Otherwise, it uses the current kinematics stored in data.
   ///
   /// \return The center of mass position of the full rigid body system expressed in the world frame.
@@ -84,7 +80,6 @@ namespace se3
                const Eigen::VectorXd & q,
                const Eigen::VectorXd & v,
                const Eigen::VectorXd & a,
-               const bool computeSubtreeComs = true,
                const bool updateKinematics = true);
   
   ///
@@ -95,7 +90,6 @@ namespace se3
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
   /// \param[in] updateKinematics If true, the algorithm updates first the geometry of the tree. Otherwise, it uses the current kinematics stored in data.
   ///
   /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
@@ -103,8 +97,30 @@ namespace se3
   inline const Data::Matrix3x &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
-                       const bool computeSubtreeComs = true,
                        const bool updateKinematics = true);
+  
+ 
+  ///
+  /// \brief Computes both the jacobian and the the center of mass position of a subtree given by its root index.
+  ///        The results are accessible through data.Jcom and data.com[root_id] and are both expressed in the world frame.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] root_id Index of the root of the subtree.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  ///
+  /// \return The jacobian of center of mass position of the subtree supported by root_id and expressed in the world frame.
+  ///
+  inline Data::Matrix3x &
+  computeSubtreeJacobianCenterOfMass(const Model & model, Data & data,
+                                     const Model::JointIndex root_index,
+                                     const Eigen::VectorXd & q);
+  
+//  template<typename Matrix3x>
+//  inline void
+//  getSubtreeJacobianCenterOfMass(const Model & model, Data & data,
+//                                 const Model::JointIndex root_index,
+//                                 Eigen::MatrixBase<Matrix3x> & Jcom);
 
   /* If the CRBA has been run, then both COM and Jcom are easily available from
    * the mass matrix. Use the following methods to access them. In that case,

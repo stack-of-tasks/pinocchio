@@ -353,20 +353,50 @@ namespace se3
     int i_q;    // Index of the joint configuration in the joint configuration vector.
     int i_v;    // Index of the joint velocity in the joint velocity vector.
 
-
-    
     int     nv()    const { return derived().nv_impl(); }
     int     nq()    const { return derived().nq_impl(); }
     // Both _impl methods are reimplemented by dynamic-size joints.
     int     nv_impl() const { return NV; }
     int     nq_impl() const { return NQ; }
 
-    const int &   idx_q() const { return i_q; }
-    const int &   idx_v() const { return i_v; }
-    const JointIndex & id() const { return i_id; }
+    int  idx_q() const { return i_q; }
+    int  idx_v() const { return i_v; }
+    JointIndex id() const { return i_id; }
 
     void setIndexes(JointIndex id,int q,int v) { i_id = id, i_q = q; i_v = v; }
-
+    
+    void disp(std::ostream & os) const
+    {
+      using namespace std;
+      os
+      << shortname() << endl
+      << "  index: " << i_id << endl
+      << "  index q: " << i_q << endl
+      << "  index v: " << i_v << endl
+      << "  nq: " << nq() << endl
+      << "  nv: " << nv() << endl
+      ;
+    }
+    
+    friend std::ostream & operator << (std::ostream & os, const JointModelBase<Derived> & joint)
+    {
+      joint.disp(os);
+      return os;
+    }
+    
+    std::string shortname() const { return derived().shortname(); }
+    static std::string classname() { return Derived::classname(); }
+    
+    template <class OtherDerived>
+    bool operator==(const JointModelBase<OtherDerived> & other) const { return derived().isEqual(other); }
+    
+    template <class OtherDerived>
+    bool isEqual(const JointModelBase<OtherDerived> &) const { return false; }
+    
+    bool isEqual(const JointModelBase<Derived> & other) const
+    {
+      return other.id() == id() && other.idx_q() == idx_q() && other.idx_v() == idx_v();
+    }
 
     /* Acces to dedicated segment in robot config space.  */
     // Const access
@@ -400,7 +430,6 @@ namespace se3
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
     jointVelocitySelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
 
-
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
     jointCols(const Eigen::MatrixBase<D>& A) const       { return derived().jointCols_impl(A); }
@@ -415,6 +444,7 @@ namespace se3
     jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
 
     JointModelDense<NQ, NV> toDense() const  { return derived().toDense_impl();   }
+    
   }; // struct JointModelBase
 
 } // namespace se3

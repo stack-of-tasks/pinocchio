@@ -356,12 +356,12 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
-      return ( q_1 - q_0);
+      return q_1-q_0;
     } 
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     { 
-      return difference_impl(q0, q1).norm();
+      return difference_impl(q0,q1).norm();
     }
     
     ConfigVector_t neutralConfiguration_impl() const
@@ -371,31 +371,14 @@ namespace se3
       return q;
     } 
 
-    JointModelDense<NQ, NV> toDense_impl() const
+    JointModelDense<NQ,NV> toDense_impl() const
     {
-      return JointModelDense<NQ, NV>( id(),
-                                      idx_q(),
-                                      idx_v()
-                                    );
+      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
     }
 
-    static const std::string shortname()
-    {
-      return std::string("JointModelTranslation");
-    }
+    static std::string classname() { return std::string("JointModelTranslation"); }
+    std::string shortname() const { return classname(); }
 
-    template <class D>
-    bool operator == (const JointModelBase<D> &) const
-    {
-      return false;
-    }
-    
-    bool operator == (const JointModelBase<JointModelTranslation> & jmodel) const
-    {
-      return jmodel.id() == id()
-              && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v();
-    }
   }; // struct JointModelTranslation
   
 } // namespace se3
