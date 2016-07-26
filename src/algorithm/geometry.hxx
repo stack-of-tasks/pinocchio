@@ -78,16 +78,43 @@ namespace se3
     
     return computeCollisions(data_geom, stopAtFirstCollision);
   }
-  
-  
-  inline void computeDistances(GeometryData & data_geom)
+
+  // Required to have a default template argument on templated free function
+  inline std::size_t computeDistances(GeometryData & data_geom)
   {
-    for (std::size_t cpt = 0; cpt < data_geom.collision_pairs.size(); ++cpt)
-      data_geom.distance_results[cpt] = data_geom.computeDistance(data_geom.collision_pairs[cpt].first,
-                                                                  data_geom.collision_pairs[cpt].second);
+    return computeDistances<true>(data_geom);
   }
   
-  inline void computeDistances(const Model & model,
+  template <bool ComputeShortest>
+  inline std::size_t computeDistances(GeometryData & data_geom)
+  {
+    double min_dist = std::numeric_limits<double>::infinity();
+    std::size_t min_index = data_geom.collision_pairs.size();
+    for (std::size_t cpt = 0; cpt < data_geom.collision_pairs.size(); ++cpt)
+    {
+      data_geom.distance_results[cpt] = data_geom.computeDistance(data_geom.collision_pairs[cpt].first,
+                                                                  data_geom.collision_pairs[cpt].second);
+      if (ComputeShortest && data_geom.distance_results[cpt].distance() < min_dist) {
+        min_index = cpt;
+        min_dist = data_geom.distance_results[cpt].distance();
+      }
+    }
+    return min_index;
+  }
+  
+  // Required to have a default template argument on templated free function
+  inline std::size_t computeDistances(const Model & model,
+                               Data & data,
+                               const GeometryModel & model_geom,
+                               GeometryData & data_geom,
+                               const Eigen::VectorXd & q
+                               )
+  {
+    return computeDistances<true>(model, data, model_geom, data_geom, q);
+  }
+
+  template <bool ComputeShortest>
+  inline std::size_t computeDistances(const Model & model,
                                Data & data,
                                const GeometryModel & model_geom,
                                GeometryData & data_geom,
@@ -95,7 +122,7 @@ namespace se3
                                )
   {
     updateGeometryPlacements (model, data, model_geom, data_geom, q);
-    computeDistances(data_geom);
+    return computeDistances<ComputeShortest>(data_geom);
   }
 
   /// Given p1..3 being either "min" or "max", return one of the corners of the 

@@ -70,14 +70,24 @@ namespace se3
                                 const bool stopAtFirstCollision = false
                                 );
 
-  inline void computeDistances(GeometryData & data_geom);
+  /// Compute the distances of all collision pairs
+  ///
+  /// \param ComputeShortest default to true.
+  /// \param data_geom
+  /// \return When ComputeShortest is true, the index of the collision pair which has the shortest distance.
+  ///         When ComputeShortest is false, the number of collision pairs.
+  template <bool ComputeShortest>
+  inline std::size_t computeDistances(GeometryData & data_geom);
 
-  inline void computeDistances(const Model & model,
-                              Data & data,
-                              const GeometryModel & model_geom,
-                              GeometryData & data_geom,
-                              const Eigen::VectorXd & q
-                              );
+  /// Compute the forward kinematics, update the goemetry placements and
+  /// calls computeDistances(GeometryData&).
+  template <bool ComputeShortest>
+  inline std::size_t computeDistances(const Model & model,
+                                      Data & data,
+                                      const GeometryModel & model_geom,
+                                      GeometryData & data_geom,
+                                      const Eigen::VectorXd & q
+                                      );
 
   inline void computeBodyRadius(const Model &         model,
                                 const GeometryModel & geomModel,
