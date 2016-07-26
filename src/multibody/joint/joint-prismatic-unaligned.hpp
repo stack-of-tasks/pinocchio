@@ -464,7 +464,7 @@ namespace se3
               && jmodel.idx_v() == idx_v();
     }
     
-  protected:
+  public:
     Vector3 axis;
   }; // struct JointModelPrismaticUnaligned
 

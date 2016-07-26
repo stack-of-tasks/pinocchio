@@ -468,7 +468,7 @@ namespace se3
               && jmodel.idx_v() == idx_v();
     }
     
-  protected:
+  public:
     Motion::Vector3 axis;
   }; // struct JointModelRevoluteUnaligned
 
