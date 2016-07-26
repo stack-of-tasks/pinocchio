@@ -125,6 +125,95 @@ namespace se3
         return collisionObject;
       }
 
+     /**
+      * @brief Get the first geometry attached to a link
+      *
+      * @param[in] link   The URDF link
+      *
+      * @return Either the first collision or visual
+      */
+      template<typename T>
+      inline boost::shared_ptr<T> getLinkGeometry(::urdf::LinkConstPtr link);
+
+      template<>
+      inline boost::shared_ptr< ::urdf::Collision> getLinkGeometry< ::urdf::Collision>(::urdf::LinkConstPtr link)
+      {
+        return link->collision;
+      }
+
+      template<>
+      inline boost::shared_ptr< ::urdf::Visual> getLinkGeometry< ::urdf::Visual>(::urdf::LinkConstPtr link)
+      {
+        return link->visual;
+      }
+
+     /**
+      * @brief Get the array of geometries attached to a link
+      *
+      * @param[in] link   The URDF link
+      *
+      * @return the array of either collisions or visuals
+      */
+      template<typename T>
+      inline std::vector<boost::shared_ptr<T> > getLinkGeometryArray(::urdf::LinkConstPtr link);
+
+      template<>
+      inline std::vector< boost::shared_ptr< ::urdf::Collision> > getLinkGeometryArray< ::urdf::Collision>(::urdf::LinkConstPtr link)
+      {
+        return link->collision_array;
+      }
+
+      template<>
+      inline std::vector< boost::shared_ptr< ::urdf::Visual> > getLinkGeometryArray< ::urdf::Visual>(::urdf::LinkConstPtr link)
+      {
+        return link->visual_array;
+      }
+
+    /**
+     * @brief      Add the geometries attached to an urdf link to  a GeometryModel, looking
+     *             either for collisions or visuals
+     * 
+     * @param[in]  link            The current URDF link
+     * @param      model           The model to which is the GeometryModel associated
+     * @param      model_geom      The GeometryModel where the Collision Objects must be added
+     * @param[in]  package_dirs    A vector containing the different directories where to search for packages
+     * @param[in]  type            The type of objects that must be loaded ( can be VISUAL or COLLISION)
+     */
+      template<typename T>
+      inline void addLinkGeometryToGeomModel(::urdf::LinkConstPtr link,
+                                             const Model & model,
+                                             GeometryModel & geom_model,
+                                             const std::vector<std::string> & package_dirs) throw (std::invalid_argument)
+      {
+        if(getLinkGeometry<T>(link))
+        {
+          std::string mesh_path = "";
+        
+          std::string link_name = link->name;
+
+          assert(link->getParent()!=NULL);
+          if (link->getParent() == NULL)
+          {
+            const std::string exception_message (link->name + " - joint information missing.");
+            throw std::invalid_argument(exception_message);
+          }
+          std::vector< boost::shared_ptr< T > > geometries_array = getLinkGeometryArray<T>(link);
+
+          std::size_t objectId = 0;
+          for (typename std::vector< boost::shared_ptr< T > >::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)
+          {
+            fcl::CollisionObject geometry_object = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
+            SE3 geomPlacement = convertFromUrdf((*i)->origin);
+            std::ostringstream geometry_object_suffix;
+            geometry_object_suffix << "_" << objectId;
+            const std::string & geometry_object_name = std::string(link_name + geometry_object_suffix.str());
+            geom_model.addGeometryObject(model.getFrameParent(link_name), geometry_object, geomPlacement, geometry_object_name, mesh_path);
+            ++objectId; 
+          }
+        }
+      }
+
+
 
     /**
      * @brief      Recursive procedure for reading the URDF tree, looking for geometries
@@ -140,67 +229,20 @@ namespace se3
                                  const Model & model,
                                  GeometryModel & geom_model,
                                  const std::vector<std::string> & package_dirs,
-                                 const GeometryType type) throw (std::invalid_argument)
+                                 const GeometryType type)
       {
-
-        std::string mesh_path = "";
-        
-        std::string link_name = link->name;
 
         switch(type)
         {
           case COLLISION:
-            // start with first link that is not empty
-            if(link->collision)
-            {
-              assert(link->getParent()!=NULL);
-              if (link->getParent() == NULL)
-              {
-                const std::string exception_message (link->name + " - joint information missing.");
-                throw std::invalid_argument(exception_message);
-              }
-              
-              std::size_t objectId = 0;
-              for (std::vector< boost::shared_ptr< ::urdf::Collision> >::const_iterator i = link->collision_array.begin();i != link->collision_array.end(); ++i)
-              {
-                fcl::CollisionObject collision_object = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
-                SE3 geomPlacement = convertFromUrdf((*i)->origin);
-                std::ostringstream collision_object_suffix;
-                collision_object_suffix << "_" << objectId;
-                const std::string & collision_object_name = std::string(link_name + collision_object_suffix.str());
-                geom_model.addGeometryObject(model.getFrameParent(link_name), collision_object, geomPlacement, collision_object_name, mesh_path);
-                ++objectId; 
-              }
-            } // if(link->collision)
+            addLinkGeometryToGeomModel< ::urdf::Collision >(link, model, geom_model, package_dirs);
           break;
           case VISUAL:
-            if(link->visual)
-            {
-              assert(link->getParent()!=NULL);
-              if (link->getParent() == NULL)
-              {
-                const std::string exception_message (link->name + " - joint information missing.");
-                throw std::invalid_argument(exception_message);
-              }
-              
-              std::size_t objectId = 0;
-              for (std::vector< boost::shared_ptr< ::urdf::Visual> >::const_iterator i = link->visual_array.begin(); i != link->visual_array.end(); ++i)
-              {
-                fcl::CollisionObject visual_object = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
-                SE3 geomPlacement = convertFromUrdf((*i)->origin);
-                std::ostringstream visual_object_suffix;
-                visual_object_suffix << "_" << objectId;
-                const std::string & visual_object_name = std::string(link_name + visual_object_suffix.str());
-                geom_model.addGeometryObject(model.getFrameParent(link_name), visual_object, geomPlacement, visual_object_name, mesh_path);
-                ++objectId; 
-              }
-            } // if(link->visual)
+            addLinkGeometryToGeomModel< ::urdf::Visual >(link, model, geom_model, package_dirs);
           break;
           default:
           break;
         }
-
-
         
         BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
         {
@@ -208,7 +250,6 @@ namespace se3
         }
 
       }
-
 
     } // namespace details
 
