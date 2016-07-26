@@ -47,15 +47,15 @@ namespace se3
      * @brief      Get a fcl::CollisionObject from an urdf geometry, searching
      *             for it in specified package directories
      *
-     * @param[in]  urdf_geometry  The input urdf geometry
+     * @param[in]  urdf_geometry  A shared pointer on the input urdf Geometry
      * @param[in]  package_dirs   A vector containing the different directories where to search for packages
      * @param[out] mesh_path      The Absolute path of the mesh currently read
      *
-     * @return     The geometry converted as a fcl::CollisionObject
+     * @return     A shared pointer on the he geometry converted as a fcl::CollisionGeometry
      */
-     inline fcl::CollisionObject retrieveCollisionGeometry(const boost::shared_ptr < ::urdf::Geometry> urdf_geometry,
-                                                          const std::vector < std::string > & package_dirs,
-                                                          std::string & mesh_path)
+     inline boost::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(const boost::shared_ptr < ::urdf::Geometry> urdf_geometry,
+                                                                                const std::vector < std::string > & package_dirs,
+                                                                                std::string & mesh_path)
       {
         boost::shared_ptr < fcl::CollisionGeometry > geometry;
 
@@ -120,9 +120,8 @@ namespace se3
         {
           throw std::runtime_error(std::string("The polyhedron retrived is empty"));
         }
-        fcl::CollisionObject collisionObject (geometry, fcl::Transform3f());
 
-        return collisionObject;
+        return geometry;
       }
 
      /**
@@ -202,12 +201,12 @@ namespace se3
           std::size_t objectId = 0;
           for (typename std::vector< boost::shared_ptr< T > >::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)
           {
-            fcl::CollisionObject geometry_object = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
+            const boost::shared_ptr<fcl::CollisionGeometry> geometry = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
             SE3 geomPlacement = convertFromUrdf((*i)->origin);
             std::ostringstream geometry_object_suffix;
             geometry_object_suffix << "_" << objectId;
             const std::string & geometry_object_name = std::string(link_name + geometry_object_suffix.str());
-            geom_model.addGeometryObject(model.getFrameParent(link_name), geometry_object, geomPlacement, geometry_object_name, mesh_path);
+            geom_model.addGeometryObject(model.getFrameParent(link_name), geometry, geomPlacement, geometry_object_name, mesh_path);
             ++objectId; 
           }
         }

@@ -42,7 +42,7 @@ namespace se3
 {
 
   inline GeometryModel::GeomIndex GeometryModel::addGeometryObject(const JointIndex parent,
-                                                                   const fcl::CollisionObject & co,
+                                                                   const boost::shared_ptr<fcl::CollisionGeometry> & co,
                                                                    const SE3 & placement,
                                                                    const std::string & geom_name,
                                                                    const std::string & mesh_path) throw(std::invalid_argument)
@@ -246,8 +246,8 @@ namespace se3
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;
 
-    fcl::collide (model_geom.geometryObjects[co1].collision_object.collisionGeometry().get(), oMg_fcl[co1],
-                  model_geom.geometryObjects[co2].collision_object.collisionGeometry().get(), oMg_fcl[co2],
+    fcl::collide (model_geom.geometryObjects[co1].collision_geometry.get(), oMg_fcl[co1],
+                  model_geom.geometryObjects[co2].collision_geometry.get(), oMg_fcl[co2],
                   collisionRequest, collisionResult);
 
     return CollisionResult (collisionResult, co1, co2);
@@ -284,8 +284,8 @@ namespace se3
     
     fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
     fcl::DistanceResult result;
-    fcl::distance ( model_geom.geometryObjects[co1].collision_object.collisionGeometry().get(), oMg_fcl[co1],
-                    model_geom.geometryObjects[co2].collision_object.collisionGeometry().get(), oMg_fcl[co2],
+    fcl::distance ( model_geom.geometryObjects[co1].collision_geometry.get(), oMg_fcl[co1],
+                    model_geom.geometryObjects[co2].collision_geometry.get(), oMg_fcl[co2],
                     distanceRequest, result);
     
     return DistanceResult (result, co1, co2);

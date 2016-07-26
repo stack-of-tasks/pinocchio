@@ -145,7 +145,7 @@ namespace se3
     BOOST_FOREACH(const GeometryObject & geom,geomModel.geometryObjects)
     {
       const boost::shared_ptr<const fcl::CollisionGeometry> & fcl
-        = geom.collision_object.collisionGeometry();
+        = geom.collision_geometry;
       const SE3 & jMb = geom.placement; // placement in joint.
 
       double radius = geomData.radius[geom.parent];
