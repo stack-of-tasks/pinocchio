@@ -186,6 +186,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/energy.hpp
   algorithm/frames.hpp
   algorithm/compute-all-terms.hpp
+  algorithm/copy.hpp
   )
 
 
