@@ -238,6 +238,7 @@ BOOST_AUTO_TEST_CASE (radius)
   se3::computeBodyRadius(model, geom, geomData);
   BOOST_FOREACH( double radius, geomData.radius) BOOST_CHECK(radius>=0.);
 
+#ifdef WITH_HPP_MODEL_URDF
   /// *************  HPP  ************* /// 
   /// ********************************* ///
   using hpp::model::JointVector_t;
@@ -271,7 +272,7 @@ BOOST_AUTO_TEST_CASE (radius)
 
     }
   }
-
+#endif // WITH_HPP_MODEL_URDF
 }
 #endif // if defined(WITH_URDFDOM) && defined(WITH_HPP_FCL)
 
