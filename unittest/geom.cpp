@@ -113,18 +113,26 @@ struct Distance_t
   // Distance and closest points on bodies.
   double d_, x0_, y0_, z0_, x1_, y1_, z1_;
 }; // struct Distance_t
-#endif
-std::ostream& operator<<(std::ostream& os, const std::pair < se3::Model, se3::GeometryModel >& robot)
+
+void loadHumanoidPathPlanerModel (const hpp::model::HumanoidRobotPtr_t& robot,
+            const std::string& rootJointType,
+            const std::string& package,
+            const std::string& modelName,
+            const std::string& urdfSuffix)
 {
-  os << "Nb collision objects = " << robot.second.ngeoms << std::endl;
-  
-  for(se3::GeometryModel::Index i=0;i<(se3::GeometryModel::Index)(robot.second.ngeoms);++i)
-  {
-    os  << "Object n " << i << " : " << robot.second.geometryObjects[i].name << ": attached to joint = " << robot.second.geometryObjects[i].parent
-        << "=" << robot.first.getJointName(robot.second.geometryObjects[i].parent) << std::endl;
-  }
-  return os;
-} 
+  hpp::model::urdf::Parser urdfParser (rootJointType, robot);
+  urdfParser.prefix ("");
+
+  std::string urdfPath = "package://" + package + "/urdf/"
+    + modelName + urdfSuffix + ".urdf";
+
+  // Build robot model from URDF.
+  urdfParser.parse (urdfPath);
+
+}
+
+#endif
+
 
 BOOST_AUTO_TEST_SUITE ( GeomTest )
 
@@ -226,8 +234,45 @@ BOOST_AUTO_TEST_CASE (radius)
   Data data(model);
   GeometryData geomData(geom);
 
+  // Test that the algorithm does not crash
   se3::computeBodyRadius(model, geom, geomData);
   BOOST_FOREACH( double radius, geomData.radius) BOOST_CHECK(radius>=0.);
+
+#ifdef WITH_HPP_MODEL_URDF
+  /// *************  HPP  ************* /// 
+  /// ********************************* ///
+  using hpp::model::JointVector_t;
+  using hpp::model::Joint;
+  using hpp::model::Body;
+  using hpp::model::BodyPtr_t;
+
+  hpp::model::HumanoidRobotPtr_t humanoidRobot =
+    hpp::model::HumanoidRobot::create ("romeo");
+  loadHumanoidPathPlanerModel(humanoidRobot, "freeflyer",
+              "romeo_pinocchio", "romeo",
+              "");
+
+  BOOST_CHECK_MESSAGE(model.nq == humanoidRobot->configSize () , "Pinocchio model & HPP model config sizes are not the same ");
+
+  /// **********  COMPARISON  ********* /// 
+  /// ********************************* ///
+
+  JointVector_t joints = humanoidRobot->getJointVector ();
+  for (JointVector_t::iterator it = joints.begin (); it != joints.end (); ++it)
+  {
+    BodyPtr_t body = (*it)->linkedBody ();
+    if (body) {
+      double radius_hpp = body->radius();
+      std::string bodyName = body->name();
+      if(bodyName != "base_link")
+      {
+        double radius_pino = geomData.radius[model.getFrameParent(bodyName)];
+        BOOST_CHECK_MESSAGE(radius_hpp - radius_pino < 1e-6, "Radius of body " << bodyName << " are not equals between hpp and pinocchio");
+      }
+
+    }
+  }
+#endif // WITH_HPP_MODEL_URDF
 }
 #endif // if defined(WITH_URDFDOM) && defined(WITH_HPP_FCL)
 
@@ -257,7 +302,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   package_dirs.push_back(meshDir);
 
   se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
-  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, COLLISION);
+  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
   std::cout << model << std::endl;
 
 
@@ -286,9 +331,9 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
 
   hpp::model::HumanoidRobotPtr_t humanoidRobot =
     hpp::model::HumanoidRobot::create ("romeo");
-  hpp::model::urdf::loadHumanoidModel(humanoidRobot, "freeflyer",
+  loadHumanoidPathPlanerModel(humanoidRobot, "freeflyer",
               "romeo_pinocchio", "romeo",
-              "", "");
+              "");
 
   BOOST_CHECK_MESSAGE(model.nq == humanoidRobot->configSize () , "Pinocchio model & HPP model config sizes are not the same ");
 
@@ -364,7 +409,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   package_dirs.push_back(meshDir);
 
   se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
-  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, COLLISION);
+  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
   std::cout << model << std::endl;
 
 
@@ -393,9 +438,9 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
   hpp::model::HumanoidRobotPtr_t humanoidRobot =
     hpp::model::HumanoidRobot::create ("romeo");
-  hpp::model::urdf::loadHumanoidModel(humanoidRobot, "freeflyer",
+  loadHumanoidPathPlanerModel(humanoidRobot, "freeflyer",
               "romeo_pinocchio", "romeo",
-              "", "");
+              "");
 
   BOOST_CHECK_MESSAGE(model.nq == humanoidRobot->configSize () , "Pinocchio model & HPP model config sizes are not the same ");
 
