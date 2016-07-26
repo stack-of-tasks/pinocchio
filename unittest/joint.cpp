@@ -44,9 +44,9 @@ void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
     se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
     bool update_I = false;
 
-    if(T::shortname() == "JointModelRUBX" ||
-       T::shortname() == "JointModelRUBY" ||
-       T::shortname() == "JointModelRUBZ")
+    if(jmodel.shortname() == "JointModelRUBX" ||
+       jmodel.shortname() == "JointModelRUBY" ||
+       jmodel.shortname() == "JointModelRUBZ")
     {
       // normalize cos/sin
       q1.normalize();
@@ -65,7 +65,7 @@ void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
     jma.calc(jda, q1, q1_dot);
     jma.calc_aba(jda, Ia, update_I); 
 
-    std::string error_prefix("JointModel on " + T::shortname());
+    std::string error_prefix("JointModel on " + jma.shortname());
     BOOST_CHECK_MESSAGE(jmodel.nq() == jma.nq() ,std::string(error_prefix + " - nq "));
     BOOST_CHECK_MESSAGE(jmodel.nv() == jma.nv() ,std::string(error_prefix + " - nv "));
 

@@ -26,7 +26,6 @@ namespace se3
   inline const SE3::Vector3 &
   centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
-               const bool computeSubtreeComs,
                const bool updateKinematics)
   {
     data.mass[0] = 0;
@@ -55,11 +54,7 @@ namespace se3
       data.com[parent] += (liMi.rotation()*data.com[i]
                            + data.mass[i] * liMi.translation());
       data.mass[parent] += data.mass[i];
-      
-      if(computeSubtreeComs)
-      {
-        data.com[i] /= data.mass[i];
-      }
+      data.com[i] /= data.mass[i];
     }
     
     data.com[0] /= data.mass[0];
@@ -71,7 +66,6 @@ namespace se3
   centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
                const Eigen::VectorXd & v,
-               const bool computeSubtreeComs,
                const bool updateKinematics)
   {
     using namespace se3;
@@ -110,11 +104,8 @@ namespace se3
       data.vcom[parent] += liMi.rotation()*data.vcom[i];
       data.mass[parent] += data.mass[i];
       
-      if( computeSubtreeComs )
-      {
-        data.com[i] /= data.mass[i];
-        data.vcom[i] /= data.mass[i];
-      }
+      data.com[i] /= data.mass[i];
+      data.vcom[i] /= data.mass[i];
     }
     
     data.com[0] /= data.mass[0];
@@ -128,7 +119,6 @@ namespace se3
                const Eigen::VectorXd & q,
                const Eigen::VectorXd & v,
                const Eigen::VectorXd & a,
-               const bool computeSubtreeComs,
                const bool updateKinematics)
   {
     using namespace se3;
@@ -171,12 +161,9 @@ namespace se3
       data.acom[parent] += liMi.rotation()*data.acom[i];
       data.mass[parent] += data.mass[i];
       
-      if( computeSubtreeComs )
-      {
-        data.com[i] /= data.mass[i];
-        data.vcom[i] /= data.mass[i];
-        data.acom[i] /= data.mass[i];
-      }
+      data.com[i] /= data.mass[i];
+      data.vcom[i] /= data.mass[i];
+      data.acom[i] /= data.mass[i];
     }
     
     data.com[0] /= data.mass[0];
@@ -200,8 +187,7 @@ namespace se3
   : public fusion::JointVisitor<JacobianCenterOfMassBackwardStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &,
-                                  const bool
+                                  se3::Data &
                                   > ArgsType;
   
     JOINT_VISITOR_INIT(JacobianCenterOfMassBackwardStep);
@@ -210,8 +196,7 @@ namespace se3
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const se3::Model& model,
-                     se3::Data& data,
-                     const bool computeSubtreeComs )
+                     se3::Data& data)
     {
       const Model::JointIndex & i      = (Model::JointIndex) jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
@@ -234,8 +219,7 @@ namespace se3
         = data.mass[i] * Jcols.template topRows<3>()
         - skew(data.com[i]) * Jcols.template bottomRows<3>();
     
-      if(computeSubtreeComs)
-        data.com[i] /= data.mass[i];
+      data.com[i] /= data.mass[i];
     }
 
   };
@@ -243,7 +227,6 @@ namespace se3
   inline const Data::Matrix3x &
   jacobianCenterOfMass(const Model & model, Data & data,
                        const Eigen::VectorXd & q,
-                       const bool computeSubtreeComs,
                        const bool updateKinematics)
   {
     data.com[0].setZero ();
@@ -267,13 +250,120 @@ namespace se3
     {
       JacobianCenterOfMassBackwardStep
       ::run(model.joints[i],data.joints[i],
-            JacobianCenterOfMassBackwardStep::ArgsType(model,data,computeSubtreeComs));
+            JacobianCenterOfMassBackwardStep::ArgsType(model,data));
     }
     
     data.com[0] /= data.mass[0];
     data.Jcom /=  data.mass[0];
     
     return data.Jcom;
+  }
+  
+  struct SubtreeJacobianCenterOfMassForwardStep
+  : public fusion::JointVisitor< SubtreeJacobianCenterOfMassForwardStep >
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+    se3::Data &,
+    const Eigen::VectorXd &
+    > ArgsType;
+    
+    JOINT_VISITOR_INIT(SubtreeJacobianCenterOfMassForwardStep);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Eigen::VectorXd & q)
+    {
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
+      const double mass = model.inertias[i].mass();
+      const SE3::Vector3 & lever = model.inertias[i].lever();
+      
+      jmodel.calc(jdata.derived(),q);
+      
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
+      else         data.oMi[i] = data.liMi[i];
+      
+      data.com[i] = mass*data.oMi[i].act(lever);
+      data.mass[i] = mass;
+      
+      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+    }
+    
+  };
+  
+  struct SubtreeJacobianCenterOfMassBackwardStep1
+  : public fusion::JointModelVisitor< SubtreeJacobianCenterOfMassBackwardStep1 >
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+                                  se3::Data &
+                                  > ArgsType;
+    
+    JOINT_MODEL_VISITOR_INIT(SubtreeJacobianCenterOfMassBackwardStep1);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     const se3::Model & model,
+                     se3::Data & data)
+    {
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
+     
+      data.com[parent]  += data.com[i];
+      data.mass[parent] += data.mass[i];
+      
+      typedef Data::Matrix6x Matrix6x;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
+      
+      ColBlock Jcols = jmodel.jointCols(data.J);
+      
+      for(Eigen::DenseIndex k = 0; k < Jcols.cols(); ++k)
+      {
+        jmodel.jointCols(data.Jcom).col(k)
+        = data.mass[i] * Jcols.col(k).template head<3>()
+        + Jcols.col(k).template tail<3>().cross(data.com[i]) ;
+      }
+      
+      data.com[i] /= data.mass[i];
+    }
+    
+  };
+
+  
+  inline Data::Matrix3x &
+  computeSubtreeJacobianCenterOfMass(const Model & model, Data & data,
+                                     const Model::JointIndex root_id,
+                                     const Eigen::VectorXd & q)
+  {
+    assert((int)root_id<model.njoint);
+    
+    const Model::IndexVector & subtree = model.subtrees[root_id];
+    const Model::IndexVector & support = model.supports[root_id];
+   
+    Data::Matrix3x & Jcom = data.Jcom;
+    const int root_idx_v = idx_v(model.joints[root_id]);
+    Jcom.setZero();
+    
+    // Forward pass - updates only the joints supporting or supported by root_id
+    for(Model::IndexVector::const_iterator it = support.begin(); it != support.end(); ++it)
+      SubtreeJacobianCenterOfMassForwardStep::run(model.joints[*it],data.joints[*it],SubtreeJacobianCenterOfMassForwardStep::ArgsType(model,data,q));
+    
+    for(Model::IndexVector::const_iterator it = subtree.begin(); it != subtree.end(); ++it)
+      SubtreeJacobianCenterOfMassForwardStep::run(model.joints[*it],data.joints[*it],SubtreeJacobianCenterOfMassForwardStep::ArgsType(model,data,q));
+    
+    // Backward pass
+    for(Model::IndexVector::const_reverse_iterator it = subtree.rbegin(); it != subtree.rend(); ++it)
+      SubtreeJacobianCenterOfMassBackwardStep1::run(model.joints[*it],SubtreeJacobianCenterOfMassBackwardStep1::ArgsType(model,data));
+    
+    Jcom.middleCols(root_idx_v,data.nvSubtree[root_id]) /= data.mass[root_id];
+    
+    for(int parent = data.parents_fromRow[root_id]; parent >= 0; parent = data.parents_fromRow[(size_t)parent])
+      Jcom.col(parent) = data.J.col(parent).head<3>() + data.J.col(parent).tail<3>().cross(data.com[root_id]);
+    
+    return Jcom;
   }
 
   inline const Data::Matrix3x &

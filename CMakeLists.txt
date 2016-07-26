@@ -25,9 +25,23 @@ INCLUDE(cmake/python.cmake)
 
 SET(PROJECT_NAME pinocchio)
 SET(PROJECT_DESCRIPTION "Rigid multi body dynamics algorithms")
-SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
+SET(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
 
 SET(DOXYGEN_USE_MATHJAX YES)
+
+# Detect current architecture
+IF(CMAKE_SIZEOF_VOID_P EQUAL 4)
+  SET(32_BITS_ARCHITECTURE)
+ENDIF(CMAKE_SIZEOF_VOID_P EQUAL 4)
+
+# On 32 bits systems, there are some alignment problems with boost::variant
+# see https://github.com/stack-of-tasks/pinocchio/issues/231 for more details
+IF(32_BITS_ARCHITECTURE)
+  ADD_DEFINITIONS(-DEIGEN_DONT_ALIGN_STATICALLY)
+ENDIF(32_BITS_ARCHITECTURE)
+
+# We follows c++03 standard
+ADD_DEFINITIONS(-std=c++03)
 
 IF(APPLE)
   SET(CMAKE_MACOSX_RPATH TRUE)
@@ -238,13 +252,11 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 IF(URDFDOM_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
     parsers/urdf.hpp
-    parsers/urdf/model.hxx
     parsers/urdf/utils.hpp
     )
   
   IF(HPP_FCL_FOUND)
     LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-      parsers/urdf/geometry.hxx
       )
   ENDIF(HPP_FCL_FOUND)
 

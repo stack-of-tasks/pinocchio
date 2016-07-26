@@ -404,31 +404,14 @@ namespace se3
       q.segment<NQ>(idx_q()).normalize();
     }
 
-    JointModelDense<NQ, NV> toDense_impl() const
+    JointModelDense<NQ,NV> toDense_impl() const
     {
-      return JointModelDense<NQ, NV>( id(),
-                                      idx_q(),
-                                      idx_v()
-                                    );
+      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
     }
 
-    static const std::string shortname()
-    {
-      return std::string("JointModelSpherical");
-    }
+    static std::string classname() { return std::string("JointModelSpherical"); }
+    std::string shortname() const { return classname(); }
 
-    template <class D>
-    bool operator == (const JointModelBase<D> &) const
-    {
-      return false;
-    }
-    
-    bool operator == (const JointModelBase<JointModelSpherical> & jmodel) const
-    {
-      return jmodel.id() == id()
-              && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v();
-    }
   }; // struct JointModelSpherical
 
 } // namespace se3
