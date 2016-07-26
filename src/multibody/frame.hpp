@@ -42,9 +42,10 @@ namespace se3
   ///
   struct Frame
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef se3::JointIndex JointIndex;
       
-    Frame() : name(random(8)), parent(), placement(), type(){} // needed by EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION
+    Frame() : name(randomStringGenerator(8)), parent(), placement(), type(){} // needed by EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION
     
     ///
     /// \brief Default constructor of a Frame

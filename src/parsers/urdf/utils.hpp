@@ -1,6 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -20,20 +19,9 @@
 #define __se3_parsers_urdf_utils_hpp__
 
 #include <urdf_model/model.h>
-#include <urdf_parser/urdf_parser.h>
 
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <boost/foreach.hpp>
-
-#include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
-
-// #include "pinocchio/multibody/model.hpp"
-
-#include <exception>
-#include <limits>
+#include "pinocchio/spatial/inertia.hpp"
 
 namespace se3
 {
@@ -55,9 +43,10 @@ namespace se3
       const Eigen::Vector3d com(p.x,p.y,p.z);
       const Eigen::Matrix3d & R = Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix();
       
-      Eigen::Matrix3d I; I << Y.ixx,Y.ixy,Y.ixz
-      ,  Y.ixy,Y.iyy,Y.iyz
-      ,  Y.ixz,Y.iyz,Y.izz;
+      Eigen::Matrix3d I; I <<
+      Y.ixx,Y.ixy,Y.ixz,
+      Y.ixy,Y.iyy,Y.iyz,
+      Y.ixz,Y.iyz,Y.izz;
       return Inertia(Y.mass,com,R*I*R.transpose());
     }
     
@@ -78,16 +67,16 @@ namespace se3
     ///
     /// \brief The four possible cartesian types of an 3D axis.
     ///
-    enum AxisCartesian { AXIS_X, AXIS_Y, AXIS_Z, AXIS_UNALIGNED };
+    enum CartesianAxis { AXIS_X=0, AXIS_Y=1, AXIS_Z=2, AXIS_UNALIGNED };
     
     ///
     /// \brief Extract the cartesian property of a particular 3D axis.
     ///
     /// \param[in] axis The input URDF axis.
     ///
-    /// \return The property of the particular axis se3::urdf::AxisCartesian.
+    /// \return The property of the particular axis se3::urdf::CartesianAxis.
     ///
-    inline AxisCartesian extractCartesianAxis (const ::urdf::Vector3 & axis)
+    inline CartesianAxis extractCartesianAxis (const ::urdf::Vector3 & axis)
     {
       if( (axis.x==1.0)&&(axis.y==0.0)&&(axis.z==0.0) )
         return AXIS_X;

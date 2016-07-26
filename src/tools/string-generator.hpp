@@ -18,11 +18,20 @@
 #ifndef __se3_string_generator_hpp__
 #define __se3_string_generator_hpp__
 
-#include <iostream>
+#include <string>
+#include <cstdlib>
+
 namespace se3
 {
 
-inline std::string random (const int len)
+  ///
+  /// \brief Generate a random string composed of alphanumeric symbols of a given length.
+  ///
+  /// \input len The length of the output string.
+  ///
+  /// \returns a random string composed of alphanumeric symbols.
+  ///
+  inline std::string randomStringGenerator(const int len)
   {
     std::string res;
     static const char alphanum[] =

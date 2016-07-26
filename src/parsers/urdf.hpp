@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -19,24 +19,18 @@
 #ifndef __se3_parsers_urdf_hpp__
 #define __se3_parsers_urdf_hpp__
 
-#include <urdf_model/model.h>
-#include <urdf_parser/urdf_parser.h>
-
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <boost/foreach.hpp>
 #include "pinocchio/multibody/model.hpp"
-
-#include <exception>
-#include <limits>
-
 #ifdef WITH_HPP_FCL
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include "pinocchio/multibody/geometry.hpp"
+  #include "pinocchio/multibody/geometry.hpp"
+  #include <hpp/fcl/collision_object.h>
+  #include <hpp/fcl/collision.h>
+  #include <hpp/fcl/shape/geometric_shapes.h>
 #endif
+
+#include <urdf_model/model.h>
+
+#include <string>
+#include <exception>
 
 namespace urdf
 {
@@ -111,7 +105,7 @@ namespace se3
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/parsers/urdf/model.hxx"
 #ifdef WITH_HPP_FCL
-#include "pinocchio/parsers/urdf/geometry.hxx"
+  #include "pinocchio/parsers/urdf/geometry.hxx"
 #endif
 
 #endif // ifndef __se3_parsers_urdf_hpp__

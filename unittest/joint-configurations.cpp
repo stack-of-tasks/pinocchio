@@ -15,127 +15,67 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-
-#include <iostream>
-#include <iomanip>
-
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/math/quaternion.hpp"
-
-#include <vector>
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE JointConfigurationsTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+using namespace se3;
+
 bool configurations_are_equals(const Eigen::VectorXd & conf1, const Eigen::VectorXd & conf2)
 {
   long size = conf1.size();
   if ( ! conf1.segment<3>(0).isApprox(conf2.segment<3>(0)) )
     return false;
-  if( ! se3::defineSameRotation(Eigen::Quaterniond(conf1.segment<4>(3)), Eigen::Quaterniond(conf2.segment<4>(3))))
+  if( ! defineSameRotation(Eigen::Quaterniond(conf1.segment<4>(3)), Eigen::Quaterniond(conf2.segment<4>(3))))
     return false;
-  if( ! se3::defineSameRotation(Eigen::Quaterniond(conf1.segment<4>(7)), Eigen::Quaterniond(conf2.segment<4>(7))))
+  if( ! defineSameRotation(Eigen::Quaterniond(conf1.segment<4>(7)), Eigen::Quaterniond(conf2.segment<4>(7))))
     return false;
   if ( ! conf1.segment(11, size-11).isApprox(conf2.segment(11, size-11)) )
     return false;
   return true;
 }
 
-se3::Model createModelWithAllJoints()
+template<typename D>
+void addJointAndBody(Model & model, const JointModelBase<D> & jmodel, const Model::JointIndex parent_id, const SE3 & joint_placement, const std::string & name, const Inertia & Y)
 {
-  using namespace se3;
-
-  Model model;
-
-  model.addJointAndBody(model.getJointId("universe"),JointModelFreeFlyer(),SE3::Identity(),Inertia::Random(),
-                "freeflyer_joint", "freeflyer_body");
-  model.addJointAndBody(model.getJointId("freeflyer_joint"),JointModelSpherical(),SE3::Identity(),Inertia::Random(),
-                "spherical_joint", "spherical_body");
-  model.addJointAndBody(model.getJointId("spherical_joint"),JointModelRX(),SE3::Identity(),Inertia::Random(),
-                "revolute_joint", "revolute_body");
-  model.addJointAndBody(model.getJointId("revolute_joint"),JointModelPX(),SE3::Identity(),Inertia::Random(),
-                "px_joint", "px_body");
-  model.addJointAndBody(model.getJointId("px_joint"),JointModelPrismaticUnaligned(Eigen::Vector3d(1,0,0)),SE3::Identity(),Inertia::Random(),
-                "pu_joint", "pu_body");
-  model.addJointAndBody(model.getJointId("pu_joint"),JointModelRevoluteUnaligned(Eigen::Vector3d(0,0,1)),SE3::Identity(),Inertia::Random(),
-                "ru_joint", "ru_body");
-  model.addJointAndBody(model.getJointId("ru_joint"),JointModelSphericalZYX(),SE3::Identity(),Inertia::Random(),
-                "sphericalZYX_joint", "sphericalZYX_body");
-  model.addJointAndBody(model.getJointId("sphericalZYX_joint"),JointModelTranslation(),SE3::Identity(),Inertia::Random(),
-                "translation_joint", "translation_body");
-  model.addJointAndBody(model.getJointId("translation_joint"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
-                "planar_joint", "planar_body");
-
-  return model;
+  Model::JointIndex idx;
+  typedef typename D::TangentVector_t TV;
+  typedef typename D::ConfigVector_t CV;
+  
+  idx = model.addJoint(parent_id,jmodel,joint_placement,name + "_joint",
+                       TV::Zero(),
+                       1e3 * (TV::Random() + TV::Constant(1)),
+                       1e3 * (CV::Random() - CV::Constant(1)),
+                       1e3 * (CV::Random() + CV::Constant(1))
+                       );
+  
+  model.appendBodyToJoint(idx,Y,SE3::Identity(),name + "_body");
 }
 
-se3::Model createBoundedModelWithAllJoints()
+void buildModel(Model & model)
 {
-  using namespace se3;
- 
-  Model model;
-
-  model.addJointAndBody(model.getJointId("universe"),JointModelFreeFlyer(),SE3::Identity(),Inertia::Random(),
-                Eigen::VectorXd::Zero(6), 1e3 * (Eigen::VectorXd::Random(6).array() + 1),
-                1e3 * (Eigen::VectorXd::Random(7).array() - 1),
-                1e3 * (Eigen::VectorXd::Random(7).array() + 1),
-                "freeflyer_joint", "freeflyer_body");
-  model.addJointAndBody(model.getJointId("freeflyer_joint"),JointModelSpherical(),SE3::Identity(),Inertia::Random(),
-                Eigen::VectorXd::Zero(3), 1e3 * (Eigen::VectorXd::Random(3).array() + 1),
-                1e3 * (Eigen::VectorXd::Random(4).array() - 1),
-                1e3 * (Eigen::VectorXd::Random(4).array() + 1),
-                "spherical_joint", "spherical_body");
-  model.addJointAndBody(model.getJointId("spherical_joint"),JointModelRX(),SE3::Identity(),Inertia::Random(),
-                Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
-                Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
-                "revolute_joint", "revolute_body");
-  model.addJointAndBody(model.getJointId("revolute_joint"),JointModelPX(),SE3::Identity(),Inertia::Random(),
-                Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
-                Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
-                "px_joint", "px_body");
-  model.addJointAndBody(model.getJointId("px_joint"),JointModelPrismaticUnaligned(Eigen::Vector3d(1,0,0)),SE3::Identity(),Inertia::Random(),
-                Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
-                Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
-                "pu_joint", "pu_body");
-  model.addJointAndBody(model.getJointId("pu_joint"),JointModelRevoluteUnaligned(Eigen::Vector3d(0,0,1)),SE3::Identity(),Inertia::Random(),
-                Eigen::VectorXd::Random(1).array() + 1, Eigen::VectorXd::Random(1).array() + 1,
-                Eigen::VectorXd::Random(1).array() - 1, Eigen::VectorXd::Random(1).array() + 1,
-                "ru_joint", "ru_body");
-  model.addJointAndBody(model.getJointId("ru_joint"),JointModelSphericalZYX(),SE3::Identity(),Inertia::Random(),
-                Eigen::VectorXd::Random(3).array() + 1, Eigen::VectorXd::Random(3).array() + 1,
-                Eigen::VectorXd::Random(3).array() - 1, Eigen::VectorXd::Random(3).array() + 1,
-                "sphericalZYX_joint", "sphericalZYX_body");
-  model.addJointAndBody(model.getJointId("sphericalZYX_joint"),JointModelTranslation(),SE3::Identity(),Inertia::Random(),
-                Eigen::VectorXd::Random(3).array() + 1, Eigen::VectorXd::Random(3).array() + 1,
-                Eigen::VectorXd::Random(3).array() - 1, Eigen::VectorXd::Random(3).array() + 1,
-                "translation_joint", "translation_body");
-  model.addJointAndBody(model.getJointId("translation_joint"),JointModelPlanar(),SE3::Identity(),Inertia::Random(),
-                Eigen::VectorXd::Random(3).array() + 1, Eigen::VectorXd::Random(3).array() + 1,
-                Eigen::VectorXd::Random(3).array() - 1, Eigen::VectorXd::Random(3).array() + 1,
-                "planar_joint", "planar_body");
-
-  return model;
+  addJointAndBody(model,JointModelFreeFlyer(),model.getJointId("universe"),SE3::Identity(),"freeflyer",Inertia::Random());
+  addJointAndBody(model,JointModelSpherical(),model.getJointId("freeflyer_joint"),SE3::Identity(),"spherical",Inertia::Random());
+  addJointAndBody(model,JointModelRX(),model.getJointId("spherical_joint"),SE3::Identity(),"rx",Inertia::Random());
+  addJointAndBody(model,JointModelPX(),model.getJointId("rx_joint"),SE3::Identity(),"px",Inertia::Random());
+  addJointAndBody(model,JointModelPrismaticUnaligned(SE3::Vector3(1,0,0)),model.getJointId("px_joint"),SE3::Identity(),"pu",Inertia::Random());
+  addJointAndBody(model,JointModelRevoluteUnaligned(SE3::Vector3(0,0,1)),model.getJointId("pu_joint"),SE3::Identity(),"ru",Inertia::Random());
+  addJointAndBody(model,JointModelSphericalZYX(),model.getJointId("ru_joint"),SE3::Identity(),"sphericalZYX",Inertia::Random());
+  addJointAndBody(model,JointModelTranslation(),model.getJointId("sphericalZYX_joint"),SE3::Identity(),"translation",Inertia::Random());
+  addJointAndBody(model,JointModelPlanar(),model.getJointId("translation_joint"),SE3::Identity(),"planar",Inertia::Random());
 }
-
-
 
 BOOST_AUTO_TEST_SUITE ( JointConfigurationsTest )
 
 BOOST_AUTO_TEST_CASE ( integration_test )
 {
-  
-  using namespace se3;
-
-  // Creating the Model and Data
-  Model model = createModelWithAllJoints();  
-  se3::Data data(model);
-
+  Model model; buildModel(model);
+  Data data(model);
 
   std::vector<Eigen::VectorXd> qs(2);
   std::vector<Eigen::VectorXd> qdots(2);
@@ -181,11 +121,8 @@ BOOST_AUTO_TEST_CASE ( integration_test )
 
 BOOST_AUTO_TEST_CASE ( interpolation_test )
 {
-  using namespace se3;
-
-  // Creating the Model and Data
-  Model model = createModelWithAllJoints();  
-  se3::Data data(model);
+  Model model; buildModel(model);
+  Data data(model);
 
   std::vector<Eigen::VectorXd> qs1(3);
   std::vector<Eigen::VectorXd> qs2(3);
@@ -300,12 +237,8 @@ BOOST_AUTO_TEST_CASE ( interpolation_test )
 
 BOOST_AUTO_TEST_CASE ( differentiation_test )
 {
-  using namespace se3;
-
-  // Creating the Model and Data
-  Model model = createModelWithAllJoints();  
-  se3::Data data(model);
-
+  Model model; buildModel(model);
+  Data data(model);
 
   //
   // Test Case 0 : Difference between two configs
@@ -378,16 +311,13 @@ BOOST_AUTO_TEST_CASE ( differentiation_test )
 
 BOOST_AUTO_TEST_CASE ( distance_computation_test )
 {
-  using namespace se3;
+  Model model; buildModel(model);
+  Data data(model);
 
-  // Creating the Model and Data
-  Model model = createModelWithAllJoints();  
-  se3::Data data(model);
-  
   //
   // Test Case 0 : distance between two confis
   //
-
+  
   Eigen::VectorXd q1(Eigen::VectorXd::Zero(model.nq));
   Eigen::VectorXd q2(Eigen::VectorXd::Ones(model.nq));
   
@@ -465,11 +395,7 @@ BOOST_AUTO_TEST_CASE ( distance_computation_test )
 
 BOOST_AUTO_TEST_CASE ( neutral_configuration_test )
 {
-  using namespace se3;
-
-  // Creating the Model and Data
-  Model model = createModelWithAllJoints();  
-  
+  Model model; buildModel(model);
 
   Eigen::VectorXd expected(model.nq);
   expected << 0,0,0,0,0,0,1,
@@ -488,43 +414,29 @@ BOOST_AUTO_TEST_CASE ( neutral_configuration_test )
 
 BOOST_AUTO_TEST_CASE ( uniform_sampling_test )
 {
-  using namespace se3;
-
-  // Creating the Model and Data
-  Model model = createBoundedModelWithAllJoints();  
-  se3::Data data(model);
+  Model model; buildModel(model);
 
   Eigen::VectorXd q1(randomConfiguration(model));
   
-  for (int i = 0; i < q1.size(); ++i)
+  for (int i = 0; i < model.nq; ++i)
   {
     BOOST_CHECK_MESSAGE(q1[i] >= model.lowerPositionLimit[i] && q1[i] <= model.upperPositionLimit[i], " UniformlySample : Generated config not in bounds");
   }
-
 }
 
 BOOST_AUTO_TEST_CASE ( integrate_difference_test )
 {
-  using namespace se3;
-
-  // Creating the Model and Data
-  Model model = createBoundedModelWithAllJoints();  
-  se3::Data data(model);
+  Model model; buildModel(model);
 
   Eigen::VectorXd q1(randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) ));
   Eigen::VectorXd q2(randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) ));
 
   BOOST_CHECK_MESSAGE(configurations_are_equals(integrate(model, q1, differentiate(model, q1,q2)), q2), "relation between integrate and differentiate");
-
 }
 
 BOOST_AUTO_TEST_CASE ( normalize_test )
 {
-  using namespace se3;
-
-  // Creating the Model and Data
-  Model model = createModelWithAllJoints();
-  se3::Data data(model);
+  Model model; buildModel(model);
 
   Eigen::VectorXd q (Eigen::VectorXd::Ones(model.nq));
   se3::normalize(model, q);

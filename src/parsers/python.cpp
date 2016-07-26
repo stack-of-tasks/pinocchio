@@ -15,19 +15,18 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-
 #include "pinocchio/parsers/python.hpp"
-#include "pinocchio/python/model.hpp"
 
 #include <iostream>
 #include <Python.h>
-#include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace se3
 {
   namespace python
   {
+    namespace bp = boost::python;
+    
     Model buildModel(const std::string & filename, const std::string & model_name, bool verbose) throw (bp::error_already_set)
     {
       Py_Initialize();
@@ -41,7 +40,7 @@ namespace se3
       // Create a new Model, get a shared_ptr to it, and include this pointer
       // into the global namespace. See python/handler.hpp for more details.
       boost::shared_ptr<Model> model(new Model());
-      bp::object obj(bp::handle<>(ModelPythonVisitor::convert( model )));
+      bp::object obj(model);
       globals[model_name] = obj;
 
       // That's it, you can exec your python script, starting with a model you

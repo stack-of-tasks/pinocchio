@@ -63,7 +63,7 @@ OPTION (BUILD_TESTS_WITH_HPP "Build geom tests and benchmarks with hpp to do com
 OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 
 IF (INITIALIZE_WITH_NAN)
-  MESSAGE (STATUS "Initialize with NaN all the Eigen entries")
+  MESSAGE (STATUS "Initialize with NaN all the Eigen entries.")
   ADD_DEFINITIONS(-DEIGEN_INITIALIZE_MATRICES_BY_NAN)
 ENDIF (INITIALIZE_WITH_NAN)
 
@@ -76,12 +76,14 @@ ADD_REQUIRED_DEPENDENCY("urdfdom >= 0.2.0")
 ADD_OPTIONAL_DEPENDENCY("lua5.1")
 ADD_OPTIONAL_DEPENDENCY("hpp-fcl >= 0.4.2")
 
-# Spetcial care of Eigen3 greater than 3.2.8
+# Spetcial care of Eigen3 greater than 3.2.9
 IF(EIGEN3_FOUND)
-  IF(${EIGEN3_VERSION} VERSION_GREATER "3.2.8")
+  IF(${EIGEN3_VERSION} VERSION_GREATER "3.2.9")
     ADD_DEFINITIONS(-DEIGEN3_FUTURE)
     SET(EIGEN3_FUTURE TRUE)
-  ENDIF(${EIGEN3_VERSION} VERSION_GREATER "3.2.8")
+  ELSE(${EIGEN3_VERSION} VERSION_GREATER "3.2.9")
+    SET(EIGEN3_FUTURE FALSE)
+  ENDIF(${EIGEN3_VERSION} VERSION_GREATER "3.2.9")
 ENDIF(EIGEN3_FOUND)
 
 # Special care of urdfdom less than 0.3.0

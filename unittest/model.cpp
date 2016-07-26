@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -15,18 +15,31 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lua_hpp__
-#define __se3_lua_hpp__
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE JointTest
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
 
-#include <string>
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 
-namespace se3
+using namespace se3;
+
+BOOST_AUTO_TEST_SUITE(Modeltest)
+
+BOOST_AUTO_TEST_CASE(test_model_subtree)
 {
-  namespace lua
-  {
-    Model buildModel (const std::string & filename, bool freeFlyer = false, bool verbose = false);
-  } // namespace lua
-} // namespace se3
+  Model model;
+  std::cout << "build model" << std::endl;
+  buildModels::humanoidSimple(model);
+  
+  Model::JointIndex idx_larm1 = model.getJointId("larm1_joint");
+  BOOST_CHECK(idx_larm1<model.njoint);
+  Model::IndexVector subtree = model.subtrees[idx_larm1];
+  BOOST_CHECK(subtree.size()==6);
+  
+  for(size_t i=1; i<subtree.size();++i)
+    BOOST_CHECK(model.parents[subtree[i]]==subtree[i-1]);
+}
 
-#endif // ifndef __se3_lua_hpp__
+BOOST_AUTO_TEST_SUITE_END()

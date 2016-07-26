@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -44,6 +44,8 @@
 
 //#define VERBOSE
 
+using namespace se3;
+
 template <typename JoinData_t>
 void printOutJointData (
 #ifdef VERBOSE
@@ -58,7 +60,6 @@ void printOutJointData (
                         )
 {
   using namespace std;
-  using namespace se3;
 
 #ifdef VERBOSE
   cout << "q: " << q.transpose () << endl;
@@ -69,6 +70,14 @@ void printOutJointData (
 #endif
 }
 
+template<typename D>
+void addJointAndBody(Model & model, const JointModelBase<D> & jmodel, const Model::JointIndex parent_id, const SE3 & joint_placement, const std::string & joint_name, const Inertia & Y)
+{
+  Model::JointIndex idx;
+  
+  idx = model.addJoint(parent_id,jmodel,joint_placement,joint_name);
+  model.appendBodyToJoint(idx,Y);
+}
 
 BOOST_AUTO_TEST_SUITE (JointRevoluteUnaligned)
 
@@ -76,7 +85,6 @@ BOOST_AUTO_TEST_CASE (vsRX)
 {
   using namespace se3;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
-  typedef Eigen::Matrix <double, 6, 1> Vector6;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
   Eigen::Vector3d axis;
@@ -88,19 +96,19 @@ BOOST_AUTO_TEST_CASE (vsRX)
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
   JointModelRevoluteUnaligned joint_model_RU(axis);
-  modelRX.addJointAndBody (0, JointModelRX (), pos, inertia, "rx");
-  modelRevoluteUnaligned.addJointAndBody(0, joint_model_RU ,pos, inertia, "revolute-unaligne");
+  
+  addJointAndBody(modelRX,JointModelRX(),0,pos,"rx",inertia);
+  addJointAndBody(modelRevoluteUnaligned,joint_model_RU,0,pos,"revolute-unaligned",inertia);
 
   Data dataRX(modelRX);
   Data dataRevoluteUnaligned(modelRevoluteUnaligned);
 
-
   Eigen::VectorXd q = Eigen::VectorXd::Ones (modelRX.nq);
   Eigen::VectorXd v = Eigen::VectorXd::Ones (modelRX.nv);
-  Eigen::VectorXd tauRX = Eigen::VectorXd::Ones (modelRX.nv);       Eigen::VectorXd tauRevoluteUnaligned = Eigen::VectorXd::Ones (modelRevoluteUnaligned.nv);
-  Eigen::VectorXd aRX = Eigen::VectorXd::Ones (modelRX.nv);         Eigen::VectorXd aRevoluteUnaligned(aRX);
-  
-
+  Eigen::VectorXd tauRX = Eigen::VectorXd::Ones (modelRX.nv);
+  Eigen::VectorXd tauRevoluteUnaligned = Eigen::VectorXd::Ones (modelRevoluteUnaligned.nv);
+  Eigen::VectorXd aRX = Eigen::VectorXd::Ones (modelRX.nv);
+  Eigen::VectorXd aRevoluteUnaligned(aRX);
 
   forwardKinematics(modelRX, dataRX, q, v);
   forwardKinematics(modelRevoluteUnaligned, dataRevoluteUnaligned, q, v);
@@ -116,8 +124,6 @@ BOOST_AUTO_TEST_CASE (vsRX)
   BOOST_CHECK(dataRevoluteUnaligned.nle.isApprox(dataRX.nle));
   BOOST_CHECK(dataRevoluteUnaligned.com[0].isApprox(dataRX.com[0]));
 
-
-
   // InverseDynamics == rnea
   tauRX = rnea(modelRX, dataRX, q, v, aRX);
   tauRevoluteUnaligned = rnea(modelRevoluteUnaligned, dataRevoluteUnaligned, q, v, aRevoluteUnaligned);
@@ -128,10 +134,9 @@ BOOST_AUTO_TEST_CASE (vsRX)
   Eigen::VectorXd aAbaRX = aba(modelRX,dataRX, q, v, tauRX);
   Eigen::VectorXd aAbaRevoluteUnaligned = aba(modelRevoluteUnaligned,dataRevoluteUnaligned, q, v, tauRevoluteUnaligned);
 
-
   BOOST_CHECK(aAbaRX.isApprox(aAbaRevoluteUnaligned));
 
-  // crba
+  // CRBA
   crba(modelRX, dataRX,q);
   crba(modelRevoluteUnaligned, dataRevoluteUnaligned, q);
 
@@ -147,8 +152,6 @@ BOOST_AUTO_TEST_CASE (vsRX)
 
 
   BOOST_CHECK(jacobianRX.isApprox(jacobianRevoluteUnaligned));
-
-
 }
 BOOST_AUTO_TEST_SUITE_END ()
 
@@ -158,7 +161,6 @@ BOOST_AUTO_TEST_CASE (vsPX)
 {
   using namespace se3;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
-  typedef Eigen::Matrix <double, 6, 1> Vector6;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
   Eigen::Vector3d axis;
@@ -170,20 +172,20 @@ BOOST_AUTO_TEST_CASE (vsPX)
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
   JointModelPrismaticUnaligned joint_model_PU(axis);
-  modelPX.addJointAndBody (0, JointModelPX (), pos, inertia, "px");
-  modelPrismaticUnaligned.addJointAndBody(0, joint_model_PU ,pos, inertia, "prismatic-unaligne");
+  
+  addJointAndBody(modelPX,JointModelPX(),0,pos,"px",inertia);
+  addJointAndBody(modelPrismaticUnaligned,joint_model_PU,0,pos,"prismatic-unaligned",inertia);
 
   Data dataPX(modelPX);
   Data dataPrismaticUnaligned(modelPrismaticUnaligned);
 
-
   Eigen::VectorXd q = Eigen::VectorXd::Ones (modelPX.nq);
   Eigen::VectorXd v = Eigen::VectorXd::Ones (modelPX.nv);
-  Eigen::VectorXd tauPX = Eigen::VectorXd::Ones (modelPX.nv);       Eigen::VectorXd tauPrismaticUnaligned = Eigen::VectorXd::Ones (modelPrismaticUnaligned.nv);
-  Eigen::VectorXd aPX = Eigen::VectorXd::Ones (modelPX.nv);         Eigen::VectorXd aPrismaticUnaligned(aPX);
+  Eigen::VectorXd tauPX = Eigen::VectorXd::Ones (modelPX.nv);
+  Eigen::VectorXd tauPrismaticUnaligned = Eigen::VectorXd::Ones (modelPrismaticUnaligned.nv);
+  Eigen::VectorXd aPX = Eigen::VectorXd::Ones (modelPX.nv);
+  Eigen::VectorXd aPrismaticUnaligned(aPX);
   
-
-
   forwardKinematics(modelPX, dataPX, q, v);
   forwardKinematics(modelPrismaticUnaligned, dataPrismaticUnaligned, q, v);
 
@@ -198,8 +200,6 @@ BOOST_AUTO_TEST_CASE (vsPX)
   BOOST_CHECK(dataPrismaticUnaligned.nle.isApprox(dataPX.nle));
   BOOST_CHECK(dataPrismaticUnaligned.com[0].isApprox(dataPX.com[0]));
 
-
-
   // InverseDynamics == rnea
   tauPX = rnea(modelPX, dataPX, q, v, aPX);
   tauPrismaticUnaligned = rnea(modelPrismaticUnaligned, dataPrismaticUnaligned, q, v, aPrismaticUnaligned);
@@ -209,7 +209,6 @@ BOOST_AUTO_TEST_CASE (vsPX)
   // ForwardDynamics == aba
   Eigen::VectorXd aAbaPX = aba(modelPX,dataPX, q, v, tauPX);
   Eigen::VectorXd aAbaPrismaticUnaligned = aba(modelPrismaticUnaligned,dataPrismaticUnaligned, q, v, tauPrismaticUnaligned);
-
 
   BOOST_CHECK(aAbaPX.isApprox(aAbaPrismaticUnaligned));
 
@@ -227,10 +226,7 @@ BOOST_AUTO_TEST_CASE (vsPX)
   getJacobian<true>(modelPX, dataPX, 1, jacobianPX);
   getJacobian<true>(modelPrismaticUnaligned, dataPrismaticUnaligned, 1, jacobianPrismaticUnaligned);
 
-
   BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
-
-
 }
 BOOST_AUTO_TEST_SUITE_END ()
 
@@ -249,21 +245,21 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
-
-  modelSpherical.addJointAndBody (0, JointModelSpherical (), pos, inertia, "spherical");
-  modelFreeflyer.addJointAndBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
+  addJointAndBody(modelSpherical,JointModelSpherical(),0,pos,"spherical",inertia);
+  addJointAndBody(modelFreeflyer,JointModelFreeFlyer(),0,pos,"free-flyer",inertia);
 
   Data dataSpherical(modelSpherical);
   Data dataFreeFlyer(modelFreeflyer);
 
-
-  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelSpherical.nq);q.normalize();  VectorFF qff; qff << 0, 0, 0, q[0], q[1], q[2], q[3]; 
-  Eigen::VectorXd v = Eigen::VectorXd::Ones (modelSpherical.nv);               Vector6 vff; vff << 0, 0, 0, 1, 1, 1;
-  Eigen::VectorXd tauSpherical = Eigen::VectorXd::Ones (modelSpherical.nv);       Eigen::VectorXd tauff; tauff.resize(7); tauff << 0,0,0,1,1,1,1;
-  Eigen::VectorXd aSpherical = Eigen::VectorXd::Ones (modelSpherical.nv);         Eigen::VectorXd aff(vff);
+  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelSpherical.nq);q.normalize();
+  VectorFF qff; qff << 0, 0, 0, q[0], q[1], q[2], q[3];
+  Eigen::VectorXd v = Eigen::VectorXd::Ones (modelSpherical.nv);
+  Vector6 vff; vff << 0, 0, 0, 1, 1, 1;
+  Eigen::VectorXd tauSpherical = Eigen::VectorXd::Ones (modelSpherical.nv);
+  Eigen::VectorXd tauff; tauff.resize(7); tauff << 0,0,0,1,1,1,1;
+  Eigen::VectorXd aSpherical = Eigen::VectorXd::Ones (modelSpherical.nv);
+  Eigen::VectorXd aff(vff);
   
-
-
   forwardKinematics(modelSpherical, dataSpherical, q, v);
   forwardKinematics(modelFreeflyer, dataFreeFlyer, qff, vff);
 
@@ -281,8 +277,6 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
                                                          ;
   BOOST_CHECK(nle_expected_ff.isApprox(dataSpherical.nle));
   BOOST_CHECK(dataFreeFlyer.com[0].isApprox(dataSpherical.com[0]));
-
-
 
   // InverseDynamics == rnea
   tauSpherical = rnea(modelSpherical, dataSpherical, q, v, aSpherical);
@@ -345,9 +339,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
-
-  modelSphericalZYX.addJointAndBody (0, JointModelSphericalZYX (), pos, inertia, "spherical");
-    modelFreeflyer.addJointAndBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
+  addJointAndBody(modelSphericalZYX,JointModelSphericalZYX(),0,pos,"spherical-zyx",inertia);
+  addJointAndBody(modelFreeflyer,JointModelFreeFlyer(),0,pos,"free-flyer",inertia);
 
   Data dataSphericalZYX(modelSphericalZYX);
   Data dataFreeFlyer(modelFreeflyer);
@@ -357,13 +350,15 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Eigen::AngleAxisd pitchAngle(1, Eigen::Vector3d::UnitX());
   Eigen::Quaterniond q_sph = rollAngle * yawAngle * pitchAngle;
   
-  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelSphericalZYX.nq);              VectorFF qff; qff << 0, 0, 0, q_sph.x(), q_sph.y(), q_sph.z(), q_sph.w(); 
-  Eigen::VectorXd v = Eigen::VectorXd::Ones (modelSphericalZYX.nv);               Vector6 vff; vff << 0, 0, 0, 1, 1, 1;
-  Eigen::VectorXd tauSpherical = Eigen::VectorXd::Ones (modelSphericalZYX.nv);       Eigen::VectorXd tauff; tauff.resize(6); tauff << 0,0,0,1,1,1;
-  Eigen::VectorXd aSpherical = Eigen::VectorXd::Ones (modelSphericalZYX.nv);         Eigen::VectorXd aff(vff);
+  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelSphericalZYX.nq);
+  VectorFF qff; qff << 0, 0, 0, q_sph.x(), q_sph.y(), q_sph.z(), q_sph.w();
+  Eigen::VectorXd v = Eigen::VectorXd::Ones (modelSphericalZYX.nv);
+  Vector6 vff; vff << 0, 0, 0, 1, 1, 1;
+  Eigen::VectorXd tauSpherical = Eigen::VectorXd::Ones (modelSphericalZYX.nv);
+  Eigen::VectorXd tauff; tauff.resize(6); tauff << 0,0,0,1,1,1;
+  Eigen::VectorXd aSpherical = Eigen::VectorXd::Ones (modelSphericalZYX.nv);
+  Eigen::VectorXd aff(vff);
   
-
-
   forwardKinematics(modelSphericalZYX, dataSphericalZYX, q, v);
   forwardKinematics(modelFreeflyer, dataFreeFlyer, qff, vff);
 
@@ -375,7 +370,6 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   BOOST_CHECK(dataFreeFlyer.Ycrb[1].matrix().isApprox(dataSphericalZYX.Ycrb[1].matrix()));
 
   BOOST_CHECK(dataFreeFlyer.com[0].isApprox(dataSphericalZYX.com[0]));
-
 }
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
@@ -387,7 +381,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addJointAndBody (model.getJointId("universe"), JointModelSphericalZYX (), SE3::Identity (), inertia, "root");
+  addJointAndBody(model,JointModelSphericalZYX(),model.getJointId("universe"),SE3::Identity(),"root",inertia);
 
   Data data (model);
 
@@ -429,7 +423,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addJointAndBody (model.getJointId("universe"), JointModelSphericalZYX (), SE3::Identity (), inertia, "root");
+  addJointAndBody(model,JointModelSphericalZYX(),model.getJointId("universe"),SE3::Identity(),"root",inertia);
 
   Data data (model);
 
@@ -528,7 +522,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addJointAndBody (model.getJointId("universe"), JointModelPX(), SE3::Identity (), inertia, "root");
+  addJointAndBody(model,JointModelPX(),model.getJointId("universe"),SE3::Identity(),"root",inertia);
 
   Data data (model);
 
@@ -573,7 +567,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   Model model;
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
 
-  model.addJointAndBody (model.getJointId("universe"), JointModelPX (), SE3::Identity (), inertia, "root");
+  addJointAndBody(model,JointModelPX(),model.getJointId("universe"),SE3::Identity(),"root",inertia);
 
   Data data (model);
 
@@ -607,7 +601,6 @@ BOOST_AUTO_TEST_SUITE ( JointDense )
 BOOST_AUTO_TEST_CASE ( toJointModelDense )
 {
   using namespace se3;
-
 
   JointModelRX jmodel;
   jmodel.setIndexes (2, 0, 0);
@@ -660,21 +653,21 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
-
-  modelPlanar.addJointAndBody (0, JointModelPlanar (), pos, inertia, "planar");
-  modelFreeflyer.addJointAndBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
+  addJointAndBody(modelPlanar,JointModelPlanar(),0,SE3::Identity(),"planar",inertia);
+  addJointAndBody(modelFreeflyer,JointModelFreeFlyer(),0,SE3::Identity(),"free-flyer",inertia);
 
   Data dataPlanar(modelPlanar);
   Data dataFreeFlyer(modelFreeflyer);
 
-
-  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelPlanar.nq);q[2] = PI /2;  VectorFF qff; qff << 1, 1, 0, 0, 0, sqrt(2)/2, sqrt(2)/2 ; 
-  Eigen::VectorXd v = Eigen::VectorXd::Ones (modelPlanar.nv);               Vector6 vff; vff << 1, 1, 0, 0, 0, 1;
-  Eigen::VectorXd tauPlanar = Eigen::VectorXd::Ones (modelPlanar.nv);       Eigen::VectorXd tauff = Eigen::VectorXd::Ones (modelFreeflyer.nv);
-  Eigen::VectorXd aPlanar = Eigen::VectorXd::Ones (modelPlanar.nv);         Eigen::VectorXd aff(vff);
+  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelPlanar.nq);q[2] = PI /2;
+  VectorFF qff; qff << 1, 1, 0, 0, 0, sqrt(2)/2, sqrt(2)/2 ;
+  Eigen::VectorXd v = Eigen::VectorXd::Ones (modelPlanar.nv);
+  Vector6 vff; vff << 1, 1, 0, 0, 0, 1;
+  Eigen::VectorXd tauPlanar = Eigen::VectorXd::Ones (modelPlanar.nv);
+  Eigen::VectorXd tauff = Eigen::VectorXd::Ones (modelFreeflyer.nv);
+  Eigen::VectorXd aPlanar = Eigen::VectorXd::Ones (modelPlanar.nv);
+  Eigen::VectorXd aff(vff);
   
-
-
   forwardKinematics(modelPlanar, dataPlanar, q, v);
   forwardKinematics(modelFreeflyer, dataFreeFlyer, qff, vff);
 
@@ -692,8 +685,6 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
                                                          ;
   BOOST_CHECK(nle_expected_ff.isApprox(dataPlanar.nle));
   BOOST_CHECK(dataFreeFlyer.com[0].isApprox(dataPlanar.com[0]));
-
-
 
   // InverseDynamics == rnea
   tauPlanar = rnea(modelPlanar, dataPlanar, q, v, aPlanar);
@@ -731,15 +722,12 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   getJacobian<true>(modelPlanar, dataPlanar, 1, jacobian_planar);
   getJacobian<true>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
 
-
   Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(0),
                                                                       jacobian_ff.col(1),
                                                                       jacobian_ff.col(5)
                                                                       ;
 
   BOOST_CHECK(jacobian_planar.isApprox(jacobian_expected));
-
-
 }
 BOOST_AUTO_TEST_SUITE_END ()
 
@@ -758,21 +746,17 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
-
-  modelTranslation.addJointAndBody (0, JointModelTranslation (), pos, inertia, "translation");
-  modelFreeflyer.addJointAndBody(0, JointModelFreeFlyer(),pos, inertia, "ff");
+  addJointAndBody(modelTranslation,JointModelTranslation(),0,SE3::Identity(),"translation",inertia);
+  addJointAndBody(modelFreeflyer,JointModelFreeFlyer(),0,SE3::Identity(),"free-flyer",inertia);
 
   Data dataTranslation(modelTranslation);
   Data dataFreeFlyer(modelFreeflyer);
 
-
-  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelTranslation.nq);               VectorFF qff; qff << 1, 1, 1, 0, 0, 0, 1 ; 
+  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelTranslation.nq);               VectorFF qff; qff << 1, 1, 1, 0, 0, 0, 1 ;
   Eigen::VectorXd v = Eigen::VectorXd::Ones (modelTranslation.nv);               Vector6 vff; vff << 1, 1, 1, 0, 0, 0;
   Eigen::VectorXd tauTranslation = Eigen::VectorXd::Ones (modelTranslation.nv);       Eigen::VectorXd tauff(6); tauff << 1, 1, 1, 0, 0, 0;
   Eigen::VectorXd aTranslation = Eigen::VectorXd::Ones (modelTranslation.nv);         Eigen::VectorXd aff(vff);
   
-
-
   forwardKinematics(modelTranslation, dataTranslation, q, v);
   forwardKinematics(modelFreeflyer, dataFreeFlyer, qff, vff);
 
@@ -790,8 +774,6 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
                                                          ;
   BOOST_CHECK(nle_expected_ff.isApprox(dataTranslation.nle));
   BOOST_CHECK(dataFreeFlyer.com[0].isApprox(dataTranslation.com[0]));
-
-
 
   // InverseDynamics == rnea
   tauTranslation = rnea(modelTranslation, dataTranslation, q, v, aTranslation);
@@ -832,8 +814,6 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
                                                                       ;
 
   BOOST_CHECK(jacobian_planar.isApprox(jacobian_expected));
-
-
 }
 BOOST_AUTO_TEST_SUITE_END ()
 
@@ -841,9 +821,7 @@ BOOST_AUTO_TEST_SUITE (JointRevoluteUnbounded)
 
 BOOST_AUTO_TEST_CASE (vsRX)
 {
-  using namespace se3;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
-  typedef Eigen::Matrix <double, 6, 1> Vector6;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
 
@@ -853,8 +831,8 @@ BOOST_AUTO_TEST_CASE (vsRX)
   SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
 
   JointModelRUBX joint_model_RUX;
-  modelRX.addJointAndBody (0, JointModelRX (), pos, inertia, "px");
-  modelRevoluteUnbounded.addJointAndBody(0, joint_model_RUX ,pos, inertia, "revolute unbounded x");
+  addJointAndBody(modelRX,JointModelRX(),0,SE3::Identity(),"rx",inertia);
+  addJointAndBody(modelRevoluteUnbounded,joint_model_RUX,0,SE3::Identity(),"revolute unbounded x",inertia);
 
   Data dataRX(modelRX);
   Data dataRevoluteUnbounded(modelRevoluteUnbounded);
