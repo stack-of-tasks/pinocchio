@@ -24,7 +24,10 @@ namespace se3
   {
     
     template<typename JointModel>
-    void addJointAndBody(Model & model, const JointModelBase<JointModel> & joint, const std::string & parent_name, const std::string & name)
+    static void addJointAndBody(Model & model,
+                                const JointModelBase<JointModel> & joint,
+                                const std::string & parent_name,
+                                const std::string & name)
     {
       typedef typename JointModel::ConfigVector_t CV;
       typedef typename JointModel::TangentVector_t TV;
