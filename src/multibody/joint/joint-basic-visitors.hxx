@@ -127,6 +127,20 @@ namespace se3
     JointCalcAbaVisitor::run( jmodel, jdata, JointCalcAbaVisitor::ArgsType(I, update_I) );
   }
   
+  struct JointEpsVisitor: public boost::static_visitor<double>
+  {
+  public:
+    
+    template<typename D>
+    double operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.finiteDifferenceIncrement(); }
+    
+    static double run(const JointModelVariant & jmodel)
+    { return boost::apply_visitor(JointEpsVisitor(),jmodel); }
+  }; // struct JointEpsVisitor
+  
+  inline double finiteDifferenceIncrement(const JointModelVariant & jmodel)
+  { return JointEpsVisitor::run(jmodel); }
 
 
   /**

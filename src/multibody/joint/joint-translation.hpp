@@ -309,6 +309,13 @@ namespace se3
         I.block<3,3> (Inertia::ANGULAR,Inertia::ANGULAR) -= data.UDinv.middleRows<3> (Inertia::ANGULAR) * I.block<3,3> (Inertia::LINEAR, Inertia::ANGULAR);
       }
     }
+    
+    ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    {
+      using std::sqrt;
+      typedef ConfigVector_t::Scalar Scalar;
+      return sqrt(Eigen::NumTraits<Scalar>::epsilon());
+    }
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {

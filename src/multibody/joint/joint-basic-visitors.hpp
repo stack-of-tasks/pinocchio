@@ -67,7 +67,14 @@ namespace se3
    */
   inline void calc_aba(const JointModelVariant & jmodel, JointDataVariant & jdata, Inertia::Matrix6 & I, const bool update_I);
 
-
+  ///
+  /// \brief Returns the finite difference increment of the joint model.
+  ///
+  /// \param[in] jmodel The model of the joint.
+  ///
+  /// \returns The finite diffrence increment.
+  ///
+  inline double finiteDifferenceIncrement(const JointDataVariant & jmodel);
   
   /**
    * @brief      Visit a JointModelVariant through JointIntegrateVisitor to integrate joint's configuration 

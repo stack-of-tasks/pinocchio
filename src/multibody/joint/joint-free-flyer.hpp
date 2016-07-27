@@ -253,6 +253,13 @@ namespace se3
         I.setZero();
     }
 
+    ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    {
+      using std::sqrt;
+      typedef ConfigVector_t::Scalar Scalar;
+      return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
+    }
+    
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const
     {
       typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;

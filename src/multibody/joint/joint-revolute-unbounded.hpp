@@ -138,6 +138,13 @@ namespace se3
       if (update_I)
         I -= data.UDinv * data.U.transpose();
     }
+    
+    typename ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    {
+      using std::sqrt;
+      typedef typename ConfigVector_t::Scalar Scalar;
+      return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
+    }
 
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const

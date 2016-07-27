@@ -210,6 +210,13 @@ namespace se3
 
     int     nv_impl() const { return nv_dyn; }
     int     nq_impl() const { return nq_dyn; }
+    
+    typename ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    {
+      using std::sqrt;
+      typedef typename ConfigVector_t::Scalar Scalar;
+      return sqrt(Eigen::NumTraits<Scalar>::epsilon());
+    }
 
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
