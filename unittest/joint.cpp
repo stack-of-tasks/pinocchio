@@ -15,19 +15,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/frames.hpp"
-#include "pinocchio/algorithm/rnea.hpp"
-#include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/algorithm/compute-all-terms.hpp"
-#include "pinocchio/spatial/act-on-set.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/tools/timer.hpp"
-
 #include "pinocchio/multibody/joint/joint.hpp"
-
-#include <iostream>
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE JointTest
@@ -44,15 +32,8 @@ void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
     se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
     bool update_I = false;
 
-    if(jmodel.shortname() == "JointModelRUBX" ||
-       jmodel.shortname() == "JointModelRUBY" ||
-       jmodel.shortname() == "JointModelRUBZ")
-    {
-      // normalize cos/sin
-      q1.normalize();
-      q2.normalize();
-    }
-
+  q1 = jmodel.random();
+  q2 = jmodel.random();
     jmodel.calc(jdata, q1, q1_dot);
     jmodel.calc_aba(jdata, Ia, update_I);
 
