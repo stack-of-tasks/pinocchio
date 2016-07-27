@@ -314,7 +314,7 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
 
       Motion_t::Quaternion_t pOmega(se3::exp3(q_dot));
-      Motion_t::Quaternion_t quaternion_result(pOmega*q);
+      Motion_t::Quaternion_t quaternion_result(q*pOmega);
       
       return quaternion_result.coeffs();
     }

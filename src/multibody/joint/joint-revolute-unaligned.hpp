@@ -333,7 +333,7 @@ namespace se3
       axis.normalize();
       assert(axis.isUnitary() && "Rotation axis is not unitary");
     }
-    JointModelRevoluteUnaligned( const Motion::Vector3 & axis ) : axis(axis)
+    JointModelRevoluteUnaligned(const Motion::Vector3 & axis) : axis(axis)
     {
       assert(axis.isUnitary() && "Rotation axis is not unitary");
     }

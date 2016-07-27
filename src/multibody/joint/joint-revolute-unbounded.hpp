@@ -149,13 +149,14 @@ namespace se3
       const double & sa = q(1);
       const double & omega = q_dot(0);
 
-      double cosOmega,sinOmega; SINCOS (omega, &sinOmega, &cosOmega);
-      double norm2p = q.squaredNorm();
+      double cosOmega,sinOmega; SINCOS(omega, &sinOmega, &cosOmega);
+      // TODO check the cost of atan2 vs SINCOS
 
       ConfigVector_t result;
-      result << (1.5-.5*norm2p) * (cosOmega * ca - sinOmega * sa),
-                (1.5-.5*norm2p) * (sinOmega * ca + cosOmega * sa);
-      return result; 
+      result <<
+      cosOmega * ca - sinOmega * sa,
+      sinOmega * ca + cosOmega * sa;
+      return result;
     }
 
 

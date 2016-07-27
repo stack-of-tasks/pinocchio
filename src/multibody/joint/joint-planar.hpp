@@ -328,6 +328,17 @@ namespace se3
     using JointModelBase<JointModelPlanar>::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
+    
+    template<typename V>
+    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
+    {
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
+      
+      double c_theta,s_theta; SINCOS (q_joint(2), &s_theta, &c_theta);
+      
+      M.rotation().topLeftCorner<2,2>() << c_theta, -s_theta, s_theta, c_theta;
+      M.translation().head<2>() = q_joint.template head<2>();
+    }
 
     void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs) const
@@ -376,8 +387,34 @@ namespace se3
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
-
-      return ConfigVector_t(q + q_dot);
+      typedef Transformation_t::Matrix3 Matrix3;
+     
+      double c0,s0; SINCOS (q(2), &s0, &c0);
+      Matrix3 R0(Matrix3::Identity());
+      R0.topLeftCorner <2,2> () << c0, -s0, s0, c0;
+      
+      ConfigVector_t res(q);
+      if(std::fabs(q_dot(2)) > 1e-14)
+      {
+        ConfigVector_t tmp(ConfigVector_t::Zero());
+        
+        double c1,s1; SINCOS (q_dot(2), &s1, &c1);
+        const double c_coeff = (1.-c1)/q_dot(2);
+        tmp.head<2>() = s1/q_dot(2)*q_dot.head<2>();
+        tmp(0) -= c_coeff*q_dot(1);
+        tmp(1) += c_coeff*q_dot(0);
+        
+        res.head<2>() += R0.topLeftCorner<2,2>()*tmp.head<2>();
+        res(2) += q_dot(2);
+        
+        return res;
+      }
+      else
+      {
+        res.head<2>() += R0.topLeftCorner<2,2>()*q_dot.head<2>();
+      }
+      
+      return res;
     }
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const

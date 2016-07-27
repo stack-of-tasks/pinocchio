@@ -203,6 +203,20 @@ namespace se3
     typedef double Scalar;
 
     JointDataDerived createData() const { return JointDataDerived(); }
+    
+    template<typename V>
+    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
+    {
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
+      
+      ConstQuaternionMap_t quat(q_joint.template tail<4>().data());
+      assert(std::fabs(quat.coeffs().norm() - 1.) <= 1e-14);
+      
+      M.rotation(quat.matrix());
+      M.translation(q_joint.template head<3>());
+    }
+    
     void calc(JointDataDerived & data,
               const Eigen::VectorXd & qs) const
     {
@@ -210,7 +224,7 @@ namespace se3
       
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
       ConstQuaternionMap_t quat(q.tail<4> ().data());
-
+      
       data.M.rotation (quat.matrix());
       data.M.translation (q.head<3>());
     }
@@ -242,24 +256,19 @@ namespace se3
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const
     {
       typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
       
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
 
-      ConfigVector_t result;
-      // Translational part
-      result.head<3>() =  (q.head<3>() + q_dot.head<3>());
+      ConfigVector_t res;
+      Transformation_t M0; forwardKinematics(M0,q);
+      Transformation_t M1(M0*exp6(Motion_t(q_dot)));
 
-      // Quaternion part
-      ConstQuaternionMap_t quat(q.tail<4>().data());
-      Motion_t::Quaternion_t pOmega(se3::exp3(q_dot.tail<3>()));
+      res.head<3>() = M1.translation();
+      QuaternionMap_t res_quat(res.tail<4>().data());
+      res_quat = M1.rotation();
       
-      QuaternionMap_t quat_result (result.tail<4>().data());
-      
-      quat_result = pOmega*quat;
-
-      return result; 
+      return res;
     } 
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1, const double u) const
