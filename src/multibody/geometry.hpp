@@ -187,7 +187,7 @@ struct GeometryObject
   JointIndex parent;
 
   /// \brief The actual cloud of points representing the collision mesh of the object
-  fcl::CollisionObject collision_object;
+  boost::shared_ptr<fcl::CollisionGeometry> collision_geometry;
 
   /// \brief Position of geometry object in parent joint's frame
   SE3 placement;
@@ -196,11 +196,11 @@ struct GeometryObject
   std::string mesh_path;
 
 
-  GeometryObject(const std::string & name, const JointIndex parent, const fcl::CollisionObject & collision,
+  GeometryObject(const std::string & name, const JointIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & collision,
                  const SE3 & placement, const std::string & mesh_path)
                 : name(name)
                 , parent(parent)
-                , collision_object(collision)
+                , collision_geometry(collision)
                 , placement(placement)
                 , mesh_path(mesh_path)
   {}
@@ -209,7 +209,7 @@ struct GeometryObject
   {
     name = other.name;
     parent = other.parent;
-    collision_object = other.collision_object;
+    collision_geometry = other.collision_geometry;
     placement = other.placement;
     mesh_path = other.mesh_path;
     return *this;
@@ -221,7 +221,7 @@ struct GeometryObject
   {
     return ( lhs.name == rhs.name
             && lhs.parent == rhs.parent
-            && lhs.collision_object == rhs.collision_object
+            && lhs.collision_geometry == rhs.collision_geometry
             && lhs.placement == rhs.placement
             && lhs.mesh_path ==  rhs.mesh_path
             );
@@ -231,7 +231,7 @@ struct GeometryObject
   {
     os  << "Name: \t \n" << geom_object.name << "\n"
         << "Parent ID: \t \n" << geom_object.parent << "\n"
-        // << "collision object: \t \n" << geom_object.collision_object << "\n"
+        // << "collision object: \t \n" << geom_object.collision_geometry << "\n"
         << "Position in parent frame: \t \n" << geom_object.placement << "\n"
         << "Absolute path to mesh file: \t \n" << geom_object.mesh_path << "\n"
         << std::endl;
@@ -271,17 +271,17 @@ struct GeometryObject
     ~GeometryModel() {};
 
     /**
-     * @brief      Add a geometry object of a given type to a GeometryModel
+     * @brief      Add a geometry object to a GeometryModel
      *
      * @param[in]  parent     Index of the parent joint
-     * @param[in]  co         The actual fcl CollisionObject
+     * @param[in]  co         The actual fcl CollisionGeometry
      * @param[in]  placement  The relative placement regarding to the parent frame
      * @param[in]  geom_name  The name of the Geometry Object
      * @param[in]  mesh_path  The absolute path to the mesh
      *
      * @return     The index of the new added GeometryObject in geometryObjects
      */
-    inline GeomIndex addGeometryObject(const JointIndex parent, const fcl::CollisionObject & co,
+    inline GeomIndex addGeometryObject(const JointIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & co,
                                        const SE3 & placement, const std::string & geom_name = "",
                                        const std::string & mesh_path = "") throw(std::invalid_argument);
 
