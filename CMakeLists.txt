@@ -173,6 +173,8 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/rnea.hxx
   algorithm/crba.hpp
   algorithm/crba.hxx
+  algorithm/finite-differences.hpp
+  algorithm/finite-differences.hxx
   algorithm/jacobian.hpp
   algorithm/jacobian.hxx
   algorithm/cholesky.hpp
