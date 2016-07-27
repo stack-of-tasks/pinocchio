@@ -18,9 +18,6 @@
 #ifndef __se3_joint_basic_visitors_hxx__
 #define __se3_joint_basic_visitors_hxx__
 
-// remove the includes ?
-#include <Eigen/StdVector>
-#include <boost/variant.hpp>
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 #include "pinocchio/multibody/visitor.hpp"
@@ -142,7 +139,7 @@ namespace se3
   inline double finiteDifferenceIncrement(const JointModelVariant & jmodel)
   { return JointEpsVisitor::run(jmodel); }
 
-
+  
   /**
    * @brief      JointIntegrateVisitor
    */
