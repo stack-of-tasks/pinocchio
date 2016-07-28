@@ -38,8 +38,11 @@ namespace se3
     /// \brief Deactive all possible collision pairs mentioned in the SRDF file.
     ///        It throws if the SRDF file is incorrect.
     ///
+    /// \param[in] model Model of the kinematic tree.
+    /// \param[in] model_geom Model of the geometries.
+    /// \param[out] data_geom Data containing the active collision pairs.
     /// \param[in] filename The complete path to the SRDF file.
-    /// \param[in] verbose Verbosity mode.
+    /// \param[in] verbose Verbosity mode (print removed collision pairs and undefined link inside the model).
     ///
     inline void removeCollisionPairsFromSrdf(const Model& model,
                                              const GeometryModel & model_geom,
@@ -84,12 +87,14 @@ namespace se3
             continue;
           }
           
-          const Model::JointIndex id1 = model.getBodyId(link1);
-          const Model::JointIndex id2 = model.getBodyId(link2);
+          const Model::JointIndex frame_id1 = model.getBodyId(link1);
+          const Model::JointIndex joint_id1 = model.frames[frame_id1].parent;
+          const Model::JointIndex frame_id2 = model.getBodyId(link2);
+          const Model::JointIndex joint_id2 = model.frames[frame_id2].parent;
           
           typedef GeometryModel::GeomIndexList GeomIndexList;
-          const GeomIndexList & innerObject1 = model_geom.innerObjects.at(id1);
-          const GeomIndexList & innerObject2 = model_geom.innerObjects.at(id2);
+          const GeomIndexList & innerObject1 = model_geom.innerObjects.at(joint_id1);
+          const GeomIndexList & innerObject2 = model_geom.innerObjects.at(joint_id2);
           
           for(GeomIndexList::const_iterator it1 = innerObject1.begin();
               it1 != innerObject1.end();
@@ -100,6 +105,8 @@ namespace se3
                 ++it2)
             {
               data_geom.removeCollisionPair(CollisionPair(*it1, *it2));
+              if(verbose)
+                std::cout << "Remove collision pair (" << joint_id1 << "," << joint_id2 << ")" << std::endl;
             }
           }
           
