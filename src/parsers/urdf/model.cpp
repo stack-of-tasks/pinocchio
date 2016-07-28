@@ -596,10 +596,12 @@ namespace se3
       }
     }; // struct ParseRootTreeVisitor
 
-    Model buildModel(const std::string & filename, const JointModelVariant & root_joint, const bool verbose) throw (std::invalid_argument)
+    Model& buildModel(const std::string & filename, 
+                      const JointModelVariant & root_joint, 
+                      Model & model,
+                      const bool verbose) 
+      throw (std::invalid_argument)
     {
-      Model model;
-      
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       if (urdfTree)
         ParseRootTreeVisitor::run(urdfTree->getRoot(),model,root_joint,verbose);
@@ -608,14 +610,12 @@ namespace se3
         const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
         throw std::invalid_argument(exception_message);
       }
-      
       return model;
     }
                 
-    Model buildModel(const std::string & filename, const bool verbose) throw (std::invalid_argument)
+    Model& buildModel(const std::string & filename, Model& model,const bool verbose) 
+    throw (std::invalid_argument)
     {
-      Model model;
-      
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
       if (urdfTree)
         details::parseRootTree(urdfTree->getRoot(),model,verbose);
