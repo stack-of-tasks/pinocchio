@@ -15,8 +15,9 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_parsers_urdf_geometry_hxx__
-#define __se3_parsers_urdf_geometry_hxx__
+#include "pinocchio/parsers/urdf.hpp"
+#include "pinocchio/parsers/urdf/utils.hpp"
+#include "pinocchio/parsers/utils.hpp"
 
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>
@@ -26,13 +27,7 @@
 #include <iomanip>
 #include <boost/foreach.hpp>
 
-#include "pinocchio/parsers/urdf/utils.hpp"
-#include "pinocchio/parsers/utils.hpp"
-#include "pinocchio/multibody/model.hpp"
-
 #include <hpp/fcl/mesh_loader/assimp.h>
-
-#include <exception>
 
 namespace se3
 {
@@ -53,11 +48,11 @@ namespace se3
      *
      * @return     A shared pointer on the he geometry converted as a fcl::CollisionGeometry
      */
-     inline boost::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(const boost::shared_ptr < ::urdf::Geometry> urdf_geometry,
-                                                                                const std::vector < std::string > & package_dirs,
-                                                                                std::string & mesh_path)
+     boost::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(const boost::shared_ptr< ::urdf::Geometry> urdf_geometry,
+                                                                         const std::vector<std::string> & package_dirs,
+                                                                         std::string & mesh_path)
       {
-        boost::shared_ptr < fcl::CollisionGeometry > geometry;
+        boost::shared_ptr<fcl::CollisionGeometry> geometry;
 
         // Handle the case where collision geometry is a mesh
         if (urdf_geometry->type == ::urdf::Geometry::MESH)
@@ -224,11 +219,11 @@ namespace se3
      * @param[in]  package_dirs    A vector containing the different directories where to search for packages
      * @param[in]  type            The type of objects that must be loaded ( can be VISUAL or COLLISION)
      */
-     inline void parseTreeForGeom(::urdf::LinkConstPtr link,
-                                 const Model & model,
-                                 GeometryModel & geom_model,
-                                 const std::vector<std::string> & package_dirs,
-                                 const GeometryType type)
+     void parseTreeForGeom(::urdf::LinkConstPtr link,
+                           const Model & model,
+                           GeometryModel & geom_model,
+                           const std::vector<std::string> & package_dirs,
+                           const GeometryType type) throw (std::invalid_argument)
       {
 
         switch(type)
@@ -254,10 +249,10 @@ namespace se3
 
 
 
-    inline GeometryModel buildGeom(const Model & model,
-                                   const std::string & filename,
-                                   const std::vector<std::string> & package_dirs,
-                                   const GeometryType type) throw(std::invalid_argument)
+    GeometryModel buildGeom(const Model & model,
+                            const std::string & filename,
+                            const std::vector<std::string> & package_dirs,
+                            const GeometryType type) throw(std::invalid_argument)
     {
       if (type == NONE)
       {
@@ -285,6 +280,3 @@ namespace se3
 
   } // namespace urdf
 } // namespace se3
-
-
-#endif // __se3_parsers_urdf_geometry_hxx__

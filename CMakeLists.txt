@@ -25,7 +25,7 @@ INCLUDE(cmake/python.cmake)
 
 SET(PROJECT_NAME pinocchio)
 SET(PROJECT_DESCRIPTION "Rigid multi body dynamics algorithms")
-SET(PROJECT_URL "http://github.com/stac-of-tasks/pinocchio")
+SET(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
@@ -238,13 +238,11 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 IF(URDFDOM_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
     parsers/urdf.hpp
-    parsers/urdf/model.hxx
     parsers/urdf/utils.hpp
     )
   
   IF(HPP_FCL_FOUND)
     LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-      parsers/urdf/geometry.hxx
       )
   ENDIF(HPP_FCL_FOUND)
 
