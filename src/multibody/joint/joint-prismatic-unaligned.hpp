@@ -438,33 +438,14 @@ namespace se3
       return q;
     } 
 
-    JointModelDense<NQ, NV> toDense_impl() const
+    JointModelDense<NQ,NV> toDense_impl() const
     {
-      return JointModelDense<NQ, NV>( id(),
-                                      idx_q(),
-                                      idx_v()
-                                    );
+      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
     }
 
-    static const std::string shortname()
-    {
-      return std::string("JointModelPrismaticUnaligned");
-    }
+    static std::string classname() { return std::string("JointModelPrismaticUnaligned"); }
+    std::string shortname() const { return classname(); }
 
-    template <class D>
-    bool operator== (const JointModelBase<D> &) const
-    {
-      return false;
-    }
-    
-    bool operator== (const JointModelBase<JointModelPrismaticUnaligned> & jmodel) const
-    {
-      return jmodel.id() == id()
-              && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v();
-    }
-    
-  public:
     Vector3 axis;
   }; // struct JointModelPrismaticUnaligned
 

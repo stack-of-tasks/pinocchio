@@ -527,28 +527,13 @@ namespace se3
       return q;
     } 
 
-    JointModelDense<NQ, NV> toDense_impl() const
+    JointModelDense<NQ,NV> toDense_impl() const
     {
-      return JointModelDense<NQ, NV>( id(),
-                                      idx_q(),
-                                      idx_v()
-                                    );
+      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
     }
 
-    static const std::string shortname();
-
-    template <class D>
-    bool operator == (const JointModelBase<D> &) const
-    {
-      return false;
-    }
-    
-    bool operator == (const JointModelBase<JointModelRevolute <axis> > & jmodel) const
-    {
-      return jmodel.id() == id()
-              && jmodel.idx_q() == idx_q()
-              && jmodel.idx_v() == idx_v();
-    }
+    static std::string classname();
+    std::string shortname() const { return classname(); }
 
   }; // struct JointModelRevolute
 
@@ -557,7 +542,7 @@ namespace se3
   typedef JointModelRevolute<0> JointModelRX;
 
   template<> inline
-  const std::string JointModelRevolute<0>::shortname()
+  std::string JointModelRevolute<0>::classname()
   {
     return std::string("JointModelRX") ;
   }
@@ -567,7 +552,7 @@ namespace se3
   typedef JointModelRevolute<1> JointModelRY;
 
   template<> inline
-  const std::string JointModelRevolute<1>::shortname()
+  std::string JointModelRevolute<1>::classname()
   {
     return std::string("JointModelRY") ;
   }
@@ -577,7 +562,7 @@ namespace se3
   typedef JointModelRevolute<2> JointModelRZ;
 
   template<> inline
-  const std::string JointModelRevolute<2>::shortname()
+  std::string JointModelRevolute<2>::classname()
   {
     return std::string("JointModelRZ") ;
   }
