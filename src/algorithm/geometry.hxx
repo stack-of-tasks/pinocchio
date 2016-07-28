@@ -54,13 +54,18 @@ namespace se3
                                 )
   {
     bool isColliding = false;
+    const GeometryModel & geomModel = data_geom.model_geom;
     
-    for (std::size_t cpt = 0; cpt < data_geom.collision_pairs.size(); ++cpt)
+    for (std::size_t cpt = 0; cpt < geomModel.collisionPairs.size(); ++cpt)
     {
-      data_geom.collision_results[cpt] = data_geom.computeCollision(data_geom.collision_pairs[cpt].first, data_geom.collision_pairs[cpt].second);
-      isColliding |= data_geom.collision_results[cpt].fcl_collision_result.isCollision();
-      if(isColliding && stopAtFirstCollision)
-        return true;
+      if(data_geom.activeCollisionPairs[cpt])
+        {
+          data_geom.collision_results[cpt]
+            = data_geom.computeCollision(geomModel.collisionPairs[cpt]);
+          isColliding |= data_geom.collision_results[cpt].fcl_collision_result.isCollision();
+          if(isColliding && stopAtFirstCollision)
+            return true;
+        }
     }
     
     return isColliding;
@@ -86,19 +91,23 @@ namespace se3
     return computeDistances<true>(data_geom);
   }
   
-  template <bool ComputeShortest>
+  template <bool COMPUTE_SHORTEST>
   inline std::size_t computeDistances(GeometryData & data_geom)
   {
+    const GeometryModel & geomModel = data_geom.model_geom;
+    std::size_t min_index = geomModel.collisionPairs.size();
     double min_dist = std::numeric_limits<double>::infinity();
-    std::size_t min_index = data_geom.collision_pairs.size();
-    for (std::size_t cpt = 0; cpt < data_geom.collision_pairs.size(); ++cpt)
+    for (std::size_t cpt = 0; cpt < geomModel.collisionPairs.size(); ++cpt)
     {
-      data_geom.distance_results[cpt] = data_geom.computeDistance(data_geom.collision_pairs[cpt].first,
-                                                                  data_geom.collision_pairs[cpt].second);
-      if (ComputeShortest && data_geom.distance_results[cpt].distance() < min_dist) {
-        min_index = cpt;
-        min_dist = data_geom.distance_results[cpt].distance();
-      }
+      if(data_geom.activeCollisionPairs[cpt])
+        {
+          data_geom.distance_results[cpt] = data_geom.computeDistance(geomModel.collisionPairs[cpt]);
+          if (COMPUTE_SHORTEST && data_geom.distance_results[cpt].distance() < min_dist)
+            {
+              min_index = cpt;
+              min_dist = data_geom.distance_results[cpt].distance();
+            }
+        }
     }
     return min_index;
   }

@@ -65,7 +65,6 @@ namespace se3
     {
       typedef GeometryData::Index Index;
       typedef GeometryData::GeomIndex GeomIndex;
-      typedef GeometryData::CollisionPair_t CollisionPair_t;
       typedef se3::DistanceResult DistanceResult;
       typedef se3::CollisionResult CollisionResult;
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
@@ -92,16 +91,10 @@ namespace se3
                                   (bp::arg("geometry_model"))),
              "Initialize from the geometry model.")
         
-        .add_property("nCollisionPairs", &GeometryDataPythonVisitor::nCollisionPairs)
-        
         .add_property("oMg",
                       bp::make_function(&GeometryDataPythonVisitor::oMg,
                                         bp::return_internal_reference<>()),
                       "Vector of collision objects placement relative to the world.")
-        .add_property("collision_pairs",
-                      bp::make_function(&GeometryDataPythonVisitor::collision_pairs,
-                                        bp::return_internal_reference<>()),
-                      "Vector of collision pairs.")
         .add_property("distance_results",
                       bp::make_function(&GeometryDataPythonVisitor::distance_results,
                                         bp::return_internal_reference<>()),
@@ -109,29 +102,6 @@ namespace se3
         .add_property("collision_results",
                       bp::make_function(&GeometryDataPythonVisitor::collision_results,
                                         bp::return_internal_reference<>())  )
-        
-        .def("addCollisionPair",&GeometryDataPythonVisitor::addCollisionPair,
-             bp::args("co1 (index)","co2 (index)"),
-             "Add a collision pair given by the index of the two collision objects."
-             " Remark: co1 < co2")
-        .def("addAllCollisionPairs",&GeometryDataPythonVisitor::addAllCollisionPairs,
-             "Add all collision pairs.")
-        
-        .def("removeCollisionPair",&GeometryDataPythonVisitor::removeCollisionPair,
-             bp::args("co1 (index)","co2 (index)"),
-             "Remove a collision pair given by the index of the two collision objects."
-             " Remark: co1 < co2")
-        .def("removeAllCollisionPairs",&GeometryDataPythonVisitor::removeAllCollisionPairs,
-             "Remove all collision pairs.")
-        
-        .def("existCollisionPair",&GeometryDataPythonVisitor::existCollisionPair,
-             bp::args("co1 (index)","co2 (index)"),
-             "Check if a collision pair given by the index of the two collision objects exists or not."
-             " Remark: co1 < co2")
-        .def("findCollisionPair", &GeometryDataPythonVisitor::findCollisionPair,
-             bp::args("co1 (index)","co2 (index)"),
-             "Return the index of a collision pair given by the index of the two collision objects exists or not."
-             " Remark: co1 < co2")
         
         .def("computeCollision",&GeometryDataPythonVisitor::computeCollision,
              bp::args("co1 (index)","co2 (index)"),
@@ -160,50 +130,20 @@ namespace se3
         return new GeometryDataHandler(new GeometryData(*geometry_model), true);
       }
 
-      static Index nCollisionPairs(const GeometryDataHandler & m ) { return m->nCollisionPairs; }
-      
       static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
-      static std::vector<CollisionPair_t> & collision_pairs( GeometryDataHandler & m ) { return m->collision_pairs; }
       static std::vector<DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distance_results; }
       static std::vector<CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }
 
-      static void addCollisionPair (GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
-      {
-        m->addCollisionPair(co1, co2);
-      }
-      static void addAllCollisionPairs (GeometryDataHandler & m)
-      {
-        m->addAllCollisionPairs();
-      }
-      
-      static void removeCollisionPair (GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
-      {
-        m->removeCollisionPair(co1, co2);
-      }
-      static void removeAllCollisionPairs (GeometryDataHandler & m)
-      {
-        m->removeAllCollisionPairs();
-      }
-      
-      static bool existCollisionPair (const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
-      {
-        return m->existCollisionPair(co1, co2);
-      }
-      static GeometryData::Index findCollisionPair (const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
-      {
-        return m->findCollisionPair(co1, co2);
-      }
-
       static CollisionResult computeCollision(const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
-        return m->computeCollision(co1, co2);
+        return m->computeCollision(CollisionPair(co1, co2));
       }
       static bool isColliding(const GeometryDataHandler & m) { return m->isColliding(); }
       static void computeAllCollisions(GeometryDataHandler & m) { m->computeAllCollisions(); }
       
       static DistanceResult computeDistance(const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
-        return m->computeDistance(co1, co2);
+        return m->computeDistance(CollisionPair(co1, co2));
       }
       static void computeAllDistances(GeometryDataHandler & m) { m->computeAllDistances(); }
       

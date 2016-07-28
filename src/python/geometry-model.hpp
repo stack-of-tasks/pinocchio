@@ -63,15 +63,40 @@ namespace se3
       void visit(PyClass& cl) const 
       {
 	cl
-    .add_property("ngeoms", &GeometryModelPythonVisitor::ngeoms)
+          .add_property("ngeoms", &GeometryModelPythonVisitor::ngeoms)
 
-    .def("getGeometryId",&GeometryModelPythonVisitor::getGeometryId)
-    .def("existGeometryName",&GeometryModelPythonVisitor::existGeometryName)
-    .def("getGeometryName",&GeometryModelPythonVisitor::getGeometryName)
-    .add_property("geometryObjects",
-      bp::make_function(&GeometryModelPythonVisitor::geometryObjects,
-            bp::return_internal_reference<>())  )
-    .def("__str__",&GeometryModelPythonVisitor::toString)
+          .def("getGeometryId",&GeometryModelPythonVisitor::getGeometryId)
+          .def("existGeometryName",&GeometryModelPythonVisitor::existGeometryName)
+          .def("getGeometryName",&GeometryModelPythonVisitor::getGeometryName)
+          .add_property("geometryObjects",
+                        bp::make_function(&GeometryModelPythonVisitor::geometryObjects,
+                                          bp::return_internal_reference<>())  )
+          .def("__str__",&GeometryModelPythonVisitor::toString)
+
+          .add_property("collision_pairs",
+                        bp::make_function(&GeometryModelPythonVisitor::collision_pairs,
+                                          bp::return_internal_reference<>()),
+                        "Vector of collision pairs.")
+          .def("addCollisionPair",&GeometryModelPythonVisitor::addCollisionPair,
+               bp::args("co1 (index)","co2 (index)"),
+               "Add a collision pair given by the index of the two collision objects."
+               " Remark: co1 < co2")
+          .def("addAllCollisionPairs",&GeometryModelPythonVisitor::addAllCollisionPairs,
+               "Add all collision pairs.")
+          .def("removeCollisionPair",&GeometryModelPythonVisitor::removeCollisionPair,
+               bp::args("co1 (index)","co2 (index)"),
+               "Remove a collision pair given by the index of the two collision objects."
+               " Remark: co1 < co2")
+          .def("removeAllCollisionPairs",&GeometryModelPythonVisitor::removeAllCollisionPairs,
+               "Remove all collision pairs.")
+          .def("existCollisionPair",&GeometryModelPythonVisitor::existCollisionPair,
+               bp::args("co1 (index)","co2 (index)"),
+               "Check if a collision pair given by the index of the two collision objects exists or not."
+               " Remark: co1 < co2")
+          .def("findCollisionPair", &GeometryModelPythonVisitor::findCollisionPair,
+               bp::args("co1 (index)","co2 (index)"),
+               "Return the index of a collision pair given by the index of the two collision objects exists or not."
+               " Remark: co1 < co2")
 
 	  .def("BuildGeometryModel",&GeometryModelPythonVisitor::maker_default)
 	  .staticmethod("BuildGeometryModel")
@@ -89,16 +114,33 @@ namespace se3
 
       static std::vector<GeometryObject> & geometryObjects( GeometryModelHandler & m ) { return m->geometryObjects; }
       
+      static std::vector<CollisionPair> & collision_pairs( GeometryModelHandler & m ) 
+      { return m->collisionPairs; }
+
+      static void addCollisionPair (GeometryModelHandler & m, const GeomIndex co1, const GeomIndex co2)
+      { m->addCollisionPair(CollisionPair(co1, co2)); }
+
+      static void addAllCollisionPairs (GeometryModelHandler & m)
+      { m->addAllCollisionPairs(); }
       
+      static void removeCollisionPair (GeometryModelHandler & m, const GeomIndex co1, const GeomIndex co2)
+      { m->removeCollisionPair( CollisionPair(co1,co2) ); }
 
+      static void removeAllCollisionPairs (GeometryModelHandler & m)
+      { m->removeAllCollisionPairs(); }      
+
+      static bool existCollisionPair (const GeometryModelHandler & m, const GeomIndex co1, const GeomIndex co2)
+      { return m->existCollisionPair(CollisionPair(co1,co2)); }
+
+      static GeometryModel::Index findCollisionPair (const GeometryModelHandler & m, const GeomIndex co1, 
+                                                     const GeomIndex co2)
+      { return m->findCollisionPair( CollisionPair(co1,co2) ); }
+      
       static GeometryModelHandler maker_default()
-      {
-        return GeometryModelHandler(new GeometryModel(), true);
-      }
+      { return GeometryModelHandler(new GeometryModel(), true); }
  
-
       static std::string toString(const GeometryModelHandler& m) 
-      {	  std::ostringstream s; s << *m; return s.str();       }
+      {	  std::ostringstream s; s << *m; return s.str(); }
 
       /* --- Expose --------------------------------------------------------- */
       static void expose()
