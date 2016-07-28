@@ -34,6 +34,9 @@ namespace se3
   {
     namespace bp = boost::python;
     
+    /* --- COLLISION PAIR --------------------------------------------------- */
+    /* --- COLLISION PAIR --------------------------------------------------- */
+    /* --- COLLISION PAIR --------------------------------------------------- */
     struct CollisionPairPythonVisitor
     : public boost::python::def_visitor<CollisionPairPythonVisitor>
     {
@@ -58,15 +61,16 @@ namespace se3
       
     }; // struct CollisionPairPythonVisitor
 
+    /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
     typedef Handler<GeometryData> GeometryDataHandler;
-
+    
     struct GeometryDataPythonVisitor
       : public boost::python::def_visitor< GeometryDataPythonVisitor >
     {
       typedef GeometryData::Index Index;
       typedef GeometryData::GeomIndex GeomIndex;
-      typedef se3::DistanceResult DistanceResult;
-      typedef se3::CollisionResult CollisionResult;
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       
       /* --- Convert From C++ to Python ------------------------------------- */
@@ -102,7 +106,18 @@ namespace se3
         .add_property("collision_results",
                       bp::make_function(&GeometryDataPythonVisitor::collision_results,
                                         bp::return_internal_reference<>())  )
+        .add_property("activeCollisionPairs",
+                      bp::make_function(&GeometryDataPythonVisitor::activeCollisionPairs,
+                                        bp::return_internal_reference<>()))
         
+        .def("activateCollisionPair",&GeometryDataPythonVisitor::activateCollisionPair,
+             bp::args("pairIndex (int)"),
+             "Activate pair ID <pairIndex> in geomModel.collisionPairs."
+             "Only active pairs are check for collision and distance computation.")
+        .def("deactivateCollisionPair",&GeometryDataPythonVisitor::deactivateCollisionPair,
+             bp::args("pairIndex (int)"),
+             "Deactivate pair ID <pairIndex> in geomModel.collisionPairs.")
+
         .def("computeCollision",&GeometryDataPythonVisitor::computeCollision,
              bp::args("co1 (index)","co2 (index)"),
              "Check if the two collision objects of a collision pair are in collision."
@@ -133,13 +148,17 @@ namespace se3
       static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
       static std::vector<DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distance_results; }
       static std::vector<CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }
-
+      static std::vector<bool> & activeCollisionPairs(GeometryDataHandler & m) { return m->activeCollisionPairs; }
       static CollisionResult computeCollision(const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
         return m->computeCollision(CollisionPair(co1, co2));
       }
       static bool isColliding(const GeometryDataHandler & m) { return m->isColliding(); }
       static void computeAllCollisions(GeometryDataHandler & m) { m->computeAllCollisions(); }
+      static void activateCollisionPair(GeometryDataHandler & m,
+                                        Index pairID) { m->activateCollisionPair(pairID); } 
+      static void deactivateCollisionPair(GeometryDataHandler & m,
+                                          Index pairID) { m->deactivateCollisionPair(pairID); } 
       
       static DistanceResult computeDistance(const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
       {
