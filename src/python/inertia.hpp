@@ -75,6 +75,7 @@ namespace se3
                                   bp::default_call_policies(),
                                   (bp::arg("mass"),bp::arg("lever"),bp::arg("inertia"))),
              "Initialize from mass, lever and 3d inertia.")
+        .def(bp::init<Inertia_fx>((bp::arg("other")),"Copy constructor."))
         
         .add_property("mass", &InertiaPythonVisitor::getMass, &InertiaPythonVisitor::setMass)
         .add_property("lever", &InertiaPythonVisitor::getLever, &InertiaPythonVisitor::setLever)
