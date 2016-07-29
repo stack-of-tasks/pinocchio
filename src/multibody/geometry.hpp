@@ -41,9 +41,6 @@
 
 namespace se3
 {
-  typedef boost::shared_ptr<fcl::CollisionObject  > fclCollisionObjectPtr_t;
-  typedef boost::shared_ptr<fcl::CollisionGeometry> fclCollisionGeometryPtr_t;
-
   struct CollisionPair: public std::pair<Model::GeomIndex, Model::GeomIndex>
   {
     typedef Model::Index Index;
@@ -421,7 +418,7 @@ struct GeometryObject
     /// The object contains a pointer on the collision geometries contained in geomModel.geometryObjects.
     /// \sa GeometryModel::geometryObjects and GeometryObjects
     ///
-    std::vector<fclCollisionObjectPtr_t> collisionObjects;
+    std::vector<fcl::CollisionObject> collisionObjects;
 
     ///
     /// \brief Vector of collision pairs.
@@ -458,7 +455,7 @@ struct GeometryObject
       collision_results.resize(modelGeom.collisionPairs.size());
       BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
         { collisionObjects.push_back
-            ( fclCollisionObjectPtr_t(new fcl::CollisionObject(geom.collision_geometry)) ); }
+            (fcl::CollisionObject(geom.collision_geometry)); }
     }
 
     ~GeometryData() {};

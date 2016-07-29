@@ -201,7 +201,7 @@ namespace se3
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;
 
-    fcl::collide (collisionObjects[co1].get(),collisionObjects[co2].get(),
+    fcl::collide (&collisionObjects[co1],&collisionObjects[co2],
                   collisionRequest, collisionResult);
 
     return CollisionResult (collisionResult, co1, co2);
@@ -231,12 +231,12 @@ namespace se3
 
   inline DistanceResult GeometryData::computeDistance(const CollisionPair & pair) const
   {
-    const Index & co1 = pair.first;     assert(co1<collisionObject.size());
-    const Index & co2 = pair.second;    assert(co2<collisionObject.size());
+    const Index & co1 = pair.first;     assert(co1<collisionObjects.size());
+    const Index & co2 = pair.second;    assert(co2<collisionObjects.size());
     
     fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
     fcl::DistanceResult result;
-    fcl::distance ( collisionObjects[co1].get(),collisionObjects[co2].get(),
+    fcl::distance ( &collisionObjects[co1],&collisionObjects[co2],
                     distanceRequest, result);
     
     return DistanceResult (result, co1, co2);
