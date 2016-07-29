@@ -202,7 +202,8 @@ BOOST_AUTO_TEST_CASE ( loading_model )
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   package_dirs.push_back(meshDir);
 
-  Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
+  Model model;
+  se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   GeometryModel geometry_model = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
 
   Data data(model);
@@ -227,7 +228,8 @@ BOOST_AUTO_TEST_CASE (radius)
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   package_dirs.push_back(meshDir);
 
-  se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
+  se3::Model model;
+  se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
   Data data(model);
   GeometryData geomData(geom);
@@ -299,7 +301,8 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   package_dirs.push_back(meshDir);
 
-  se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
+  se3::Model model;
+  se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
   std::cout << model << std::endl;
 
@@ -406,7 +409,8 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   package_dirs.push_back(meshDir);
 
-  se3::Model model = se3::urdf::buildModel(filename, se3::JointModelFreeFlyer());
+  se3::Model model;
+  se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
   std::cout << model << std::endl;
 

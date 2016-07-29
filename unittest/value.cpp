@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -32,7 +32,7 @@
 #include <iomanip>
 
 #include "pinocchio/multibody/model.hpp"
- #include "pinocchio/parsers/urdf.hpp"
+#include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 
@@ -47,7 +47,8 @@ BOOST_AUTO_TEST_CASE ( test_000 )
 {
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
-  se3::Model model = se3::urdf::buildModel(filename,se3::JointModelFreeFlyer());
+  se3::Model model;
+  se3::urdf::buildModel(filename,se3::JointModelFreeFlyer(),model);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
   se3::Data data(model);
 
@@ -72,7 +73,8 @@ BOOST_AUTO_TEST_CASE( test_0V0 )
 {
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
-  se3::Model model = se3::urdf::buildModel(filename,se3::JointModelFreeFlyer());
+  se3::Model model;
+  se3::urdf::buildModel(filename,se3::JointModelFreeFlyer(),model);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
   se3::Data data(model);
 
@@ -97,7 +99,8 @@ BOOST_AUTO_TEST_CASE( test_0VA )
 {
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
-  se3::Model model = se3::urdf::buildModel(filename,se3::JointModelFreeFlyer());
+  se3::Model model;
+  se3::urdf::buildModel(filename,se3::JointModelFreeFlyer(),model);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
   se3::Data data(model);
 
@@ -120,7 +123,8 @@ BOOST_AUTO_TEST_CASE( test_Q00 )
 {
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
-  se3::Model model = se3::urdf::buildModel(filename,se3::JointModelFreeFlyer());
+  se3::Model model;
+  se3::urdf::buildModel(filename,se3::JointModelFreeFlyer(),model);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
   se3::Data data(model);
 
@@ -137,8 +141,8 @@ BOOST_AUTO_TEST_CASE( test_Q00 )
   v = Eigen::VectorXd::Zero(model.nv);
   a = Eigen::VectorXd::Zero(model.nv);
   rnea(model,data,q,v,a);
-  std::cout << expected << "\n ---------------- \n"
-            << data.tau << std::endl;
+//  std::cout << expected << "\n ---------------- \n"
+//            << data.tau << std::endl;
 
     BOOST_CHECK (expected.isApprox(data.tau,1e-6));
   
@@ -148,7 +152,8 @@ BOOST_AUTO_TEST_CASE( test_QVA )
 {
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
-  se3::Model model = se3::urdf::buildModel(filename,se3::JointModelFreeFlyer());
+  se3::Model model;
+  se3::urdf::buildModel(filename,se3::JointModelFreeFlyer(),model);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
   se3::Data data(model);
 
@@ -166,8 +171,5 @@ BOOST_AUTO_TEST_CASE( test_QVA )
   rnea(model,data,q,v,a);
   BOOST_CHECK (expected.isApprox(data.tau,1e-7));  
 }
+  
 BOOST_AUTO_TEST_SUITE_END ()
-
-
-
-
