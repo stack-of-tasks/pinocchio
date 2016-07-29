@@ -70,7 +70,7 @@ namespace se3
                         bp::make_function(&GeometryModelPythonVisitor::geometryObjects,
                                           bp::return_internal_reference<>())  )
           .def("__str__",&GeometryModelPythonVisitor::toString)
-
+#ifdef WITH_HPP_FCL
           .add_property("collision_pairs",
                         bp::make_function(&GeometryModelPythonVisitor::collision_pairs,
                                           bp::return_internal_reference<>()),
@@ -95,7 +95,7 @@ namespace se3
                bp::args("co1 (index)","co2 (index)"),
                "Return the index of a collision pair given by the index of the two collision objects exists or not."
                " Remark: co1 < co2")
-
+#endif // WITH_HPP_FCL
 	  .def("BuildGeometryModel",&GeometryModelPythonVisitor::maker_default)
 	  .staticmethod("BuildGeometryModel")
 	  ;
@@ -111,7 +111,7 @@ namespace se3
       { return gmodelPtr->getGeometryName(index);}
 
       static std::vector<GeometryObject> & geometryObjects( GeometryModelHandler & m ) { return m->geometryObjects; }
-      
+#ifdef WITH_HPP_FCL      
       static std::vector<CollisionPair> & collision_pairs( GeometryModelHandler & m ) 
       { return m->collisionPairs; }
 
@@ -133,7 +133,7 @@ namespace se3
       static Index findCollisionPair (const GeometryModelHandler & m, const GeomIndex co1, 
                                                      const GeomIndex co2)
       { return m->findCollisionPair( CollisionPair(co1,co2) ); }
-      
+#endif // WITH_HPP_FCL      
       static GeometryModelHandler maker_default()
       { return GeometryModelHandler(new GeometryModel(), true); }
  

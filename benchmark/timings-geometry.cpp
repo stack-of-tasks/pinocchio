@@ -72,7 +72,9 @@ int main()
 
   se3::Model model = se3::urdf::buildModel(romeo_filename, se3::JointModelFreeFlyer());
   se3::GeometryModel geom_model = se3::urdf::buildGeom(model, romeo_filename, package_dirs, COLLISION);
+#ifdef WITH_HPP_FCL  
   geom_model.addAllCollisionPairs();
+#endif // WITH_HPP_FCL
    
   Data data(model);
   GeometryData geom_data(geom_model);
@@ -104,6 +106,7 @@ int main()
   double update_col_time = timer.toc(StackTicToc::US)/NBT - geom_time;
   std::cout << "Update Collision Geometry < false > = \t" << update_col_time << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
+#ifdef WITH_HPP_FCL
   timer.tic();
   SMOOTH(NBT)
   {
@@ -277,7 +280,7 @@ hpp::model::HumanoidRobotPtr_t humanoidRobot =
   std::cout << "HPP - Update + Compute distances (K+D) " << humanoidRobot->distanceResults().size() << " col pairs\t" << hpp_compute_distances 
             << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
-#endif
-
+#endif // WITH_HPP_MODEL_URDF
+#endif // WITH_HPP_FCL
   return 0;
 }

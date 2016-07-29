@@ -36,6 +36,7 @@ namespace se3
   {
     namespace details
     {
+#ifdef WITH_HPP_FCL      
       typedef fcl::BVHModel< fcl::OBBRSS > PolyhedronType;
       typedef boost::shared_ptr <PolyhedronType> PolyhedronPtrType;
 
@@ -119,6 +120,7 @@ namespace se3
 
         return geometry;
       }
+#endif // WITH_HPP_FCL
 
      /**
       * @brief Get the first geometry attached to a link
@@ -197,7 +199,12 @@ namespace se3
           std::size_t objectId = 0;
           for (typename std::vector< boost::shared_ptr< T > >::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)
           {
+#ifdef WITH_HPP_FCL
             const boost::shared_ptr<fcl::CollisionGeometry> geometry = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
+#else
+            const boost::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
+#endif // WITH_HPP_FCL            
+            
             SE3 geomPlacement = convertFromUrdf((*i)->origin);
             std::ostringstream geometry_object_suffix;
             geometry_object_suffix << "_" << objectId;

@@ -117,7 +117,7 @@ namespace se3
      */
     const std::string & getGeometryName(const GeomIndex index) const;
 
-
+#ifdef WITH_HPP_FCL
     ///
     /// \brief Add a collision pair into the vector of collision_pairs.
     ///        The method check before if the given CollisionPair is already included.
@@ -163,6 +163,7 @@ namespace se3
     
     /// \brief Display on std::cout the list of pairs (is it really useful?).
     void displayCollisionPairs() const;
+#endif // WITH_HPP_FCL
 
     /**
      * @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
@@ -179,7 +180,6 @@ namespace se3
      * @param[in]  inner_object  Index of the GeometryObject that will be an outer object
      */
     void addOutterObject(const JointIndex joint, const GeomIndex outer_object);
-
     friend std::ostream& operator<<(std::ostream & os, const GeometryModel & model_geom);
   }; // struct GeometryModel
 
@@ -200,7 +200,7 @@ namespace se3
     /// for fcl (collision) computation. The copy is done in collisionObjects[i]->setTransform(.)
     ///
     std::vector<se3::SE3> oMg;
-
+#ifdef WITH_HPP_FCL
     ///
     /// \brief Collision objects (ie a fcl placed geometry).
     ///
@@ -229,7 +229,6 @@ namespace se3
     /// attached to the body from the joint center.
     ///
     std::vector<double> radius;
-    
     GeometryData(const GeometryModel & modelGeom)
         : model_geom(modelGeom)
         , oMg(model_geom.ngeoms)
@@ -246,9 +245,16 @@ namespace se3
         { collisionObjects.push_back
             (fcl::CollisionObject(geom.collision_geometry)); }
     }
+#else
+    GeometryData(const GeometryModel & modelGeom)
+    : model_geom(modelGeom)
+    , oMg(model_geom.ngeoms)
+    {}
+#endif // WITH_HPP_FCL   
+
 
     ~GeometryData() {};
-
+#ifdef WITH_HPP_FCL
     void activateCollisionPair(const Index pairId,const bool flag=true);
     void deactivateCollisionPair(const Index pairId);
 
@@ -290,7 +296,7 @@ namespace se3
     void computeAllDistances();
     
     void resetDistances();
-
+#endif //WITH_HPP_FCL
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & data_geom);
     
   }; // struct GeometryData

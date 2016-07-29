@@ -109,16 +109,23 @@ namespace se3
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryData & data_geom)
   {
+#ifdef WITH_HPP_FCL
     os << "Nb collision pairs = " << data_geom.activeCollisionPairs.size() << std::endl;
     
     for(Index i=0;i<(Index)(data_geom.activeCollisionPairs.size());++i)
     {
       os << "collision object in position " << data_geom.model_geom.collisionPairs[i] << std::endl;
     }
+#else
+    os << "WARNING** Without fcl, no collision computations are possible. Only Positions can be computed" << std::endl;
+    os << "Nb of geometry objects = " << data_geom.oMg.size() << std::endl;
+#endif
 
     return os;
   }
 
+#ifdef WITH_HPP_FCL
+  
   inline void GeometryModel::addCollisionPair (const CollisionPair & pair)
   {
     assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
@@ -246,7 +253,7 @@ namespace se3
   {
     std::fill(distance_results.begin(), distance_results.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
   }
-
+#endif //WITH_HPP_FCL
 } // namespace se3
 
 /// @endcond

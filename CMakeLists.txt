@@ -213,13 +213,13 @@ IF(BUILD_PYTHON_INTERFACE)
     python/explog.hpp
     )
 
-  IF(HPP_FCL_FOUND)
-    LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
-      python/geometry-object.hpp
-      python/geometry-model.hpp
-      python/geometry-data.hpp
-      )
-  ENDIF(HPP_FCL_FOUND)
+
+LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
+  python/geometry-object.hpp
+  python/geometry-model.hpp
+  python/geometry-data.hpp
+  )
+
 
 ELSE(BUILD_PYTHON_INTERFACE)
   SET(${PROJECT_NAME}_PYTHON_HEADERS "")
@@ -242,28 +242,27 @@ IF(URDFDOM_FOUND)
     parsers/urdf.hpp
     parsers/urdf/utils.hpp
     )
-  
-  IF(HPP_FCL_FOUND)
-    LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-      )
-  ENDIF(HPP_FCL_FOUND)
+
 
   ADD_DEFINITIONS(-DWITH_URDFDOM)
 ENDIF(URDFDOM_FOUND)
 
+LIST(APPEND ${PROJECT_NAME}_MULTIBODY_HEADERS
+  multibody/fcl.hpp
+  multibody/geometry.hpp
+  multibody/geometry.hxx
+  )
+LIST(APPEND ${PROJECT_NAME}_ALGORITHM_HEADERS
+  algorithm/geometry.hpp
+  algorithm/geometry.hxx
+  )
 IF(HPP_FCL_FOUND)
   LIST(APPEND ${PROJECT_NAME}_SPATIAL_HEADERS
     spatial/fcl-pinocchio-conversions.hpp
     )
+ELSE(HPP_FCL_FOUND)
   LIST(APPEND ${PROJECT_NAME}_MULTIBODY_HEADERS
-    multibody/fcl.hpp
-    multibody/geometry.hpp
-    multibody/geometry.hxx
-    )
-  LIST(APPEND ${PROJECT_NAME}_ALGORITHM_HEADERS
-    algorithm/geometry.hpp
-    algorithm/geometry.hxx
-    )
+       multibody/fake-fcl.hpp)
 ENDIF(HPP_FCL_FOUND)
 
 IF(LUA5_1_FOUND)

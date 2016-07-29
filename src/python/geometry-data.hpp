@@ -96,6 +96,7 @@ namespace se3
                       bp::make_function(&GeometryDataPythonVisitor::oMg,
                                         bp::return_internal_reference<>()),
                       "Vector of collision objects placement relative to the world.")
+#ifdef WITH_HPP_FCL        
         .add_property("distance_results",
                       bp::make_function(&GeometryDataPythonVisitor::distance_results,
                                         bp::return_internal_reference<>()),
@@ -132,7 +133,7 @@ namespace se3
         .def("computeAllDistances",&GeometryDataPythonVisitor::computeAllDistances,
              "Same as computeDistance. It applies computeDistance to all collision pairs contained collision_pairs."
              "The results are stored in collision_distances.")
-        
+#endif // WITH_HPP_FCL        
         .def("__str__",&GeometryDataPythonVisitor::toString)
         ;
       }
@@ -143,6 +144,7 @@ namespace se3
       }
 
       static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
+#ifdef WITH_HPP_FCL      
       static std::vector<DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distance_results; }
       static std::vector<CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }
       static std::vector<bool> & activeCollisionPairs(GeometryDataHandler & m) { return m->activeCollisionPairs; }
@@ -162,7 +164,7 @@ namespace se3
         return m->computeDistance(CollisionPair(co1, co2));
       }
       static void computeAllDistances(GeometryDataHandler & m) { m->computeAllDistances(); }
-      
+#endif // WITH_HPP_FCL      
       
       static std::string toString(const GeometryDataHandler& m)
       {	  std::ostringstream s; s << *m; return s.str();       }
@@ -170,13 +172,13 @@ namespace se3
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-        
+#ifdef WITH_HPP_FCL        
         bp::class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
         .def(bp::vector_indexing_suite< std::vector<DistanceResult> >());
   
         bp::class_< std::vector<CollisionResult> >("StdVec_CollisionResult")
         .def(bp::vector_indexing_suite< std::vector<CollisionResult> >());
-
+#endif // WITH_HPP_FCL
         bp::class_<GeometryDataHandler>("GeometryData",
                                         "Geometry data linked to a geometry model and data struct.",
                                         bp::no_init)

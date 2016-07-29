@@ -45,10 +45,12 @@ namespace se3
       const Model::JointIndex & parent = model_geom.geometryObjects[i].parent;
       if (parent>0) data_geom.oMg[i] =  (data.oMi[parent] * model_geom.geometryObjects[i].placement);
       else          data_geom.oMg[i] =  model_geom.geometryObjects[i].placement;
+#ifdef WITH_HPP_FCL  
       data_geom.collisionObjects[i].setTransform( toFclTransform3f(data_geom.oMg[i]) );
+#endif // WITH_HPP_FCL
     }
   }
-  
+#ifdef WITH_HPP_FCL  
   inline bool computeCollisions(GeometryData & data_geom,
                                 const bool stopAtFirstCollision
                                 )
@@ -177,7 +179,7 @@ namespace se3
   }
 
 #undef SE3_GEOM_AABB
-
+#endif // WITH_HPP_FCL
 
 } // namespace se3
 

@@ -21,10 +21,14 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
 
+#ifdef WITH_HPP_FCL
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
+#else
+#include "pinocchio/multibody/fake-fcl.hpp"
+#endif
 
 #include <iostream>
 #include <map>
@@ -66,7 +70,8 @@ namespace se3
     }
   }; // struct CollisionPair
   typedef std::vector<CollisionPair> CollisionPairsVector_t;
-  
+
+#ifdef WITH_HPP_FCL  
   /**
    * @brief      Result of distance computation between two CollisionObjects
    */
@@ -158,6 +163,7 @@ inline bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionO
           && lhs.getAABB().min_ == rhs.getAABB().min_
           && lhs.getAABB().max_ == rhs.getAABB().max_;
 }
+#endif // WITH_HPP_FCL
 enum GeometryType
 {
   VISUAL,

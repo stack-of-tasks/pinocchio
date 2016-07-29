@@ -21,9 +21,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/deprecated.hh"
-#ifdef WITH_HPP_FCL
-  #include "pinocchio/multibody/geometry.hpp"
-#endif
+#include "pinocchio/multibody/geometry.hpp"
 
 #include <urdf_model/model.h>
 
@@ -102,7 +100,6 @@ namespace se3
       throw (std::invalid_argument)
     { Model m; return buildModel(filename,m,verbose);  }
 
-#ifdef WITH_HPP_FCL
 
     /**
      * @brief      Build The GeometryModel from a URDF file. Search for meshes
@@ -120,6 +117,8 @@ namespace se3
      * @param[out]  geomModel    Reference where to put the parsed information.
      *
      * @return      Returns the reference on geom model for convenience.
+     *
+     * \warning     If hpp-fcl has not been found during compilation, COLLISION types can not be loaded
      *
      */
     GeometryModel& buildGeom(const Model & model,
@@ -143,6 +142,7 @@ namespace se3
      *
      * @return     The GeometryModel associated to the urdf file and the given Model.
      *
+     * \warning    If hpp-fcl has not been found during compilation, COLLISION types can not be loaded
      */
     PINOCCHIO_DEPRECATED 
     inline  GeometryModel buildGeom(const Model & model,
@@ -152,7 +152,6 @@ namespace se3
       throw (std::invalid_argument)
     { GeometryModel g; return buildGeom (model,filename,type,g,package_dirs); }
 
-#endif
 
   } // namespace urdf
 } // namespace se3
