@@ -1,0 +1,172 @@
+//
+// Copyright (c) 2016 CNRS
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE JointConfigurationsTest
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
+
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/algorithm/finite-differences.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/jacobian.hpp"
+
+using namespace se3;
+using namespace Eigen;
+
+Data::Matrix6x finiteDiffJacobian(const Model & model, Data & data, const Eigen::VectorXd & q, const Model::JointIndex joint_id)
+{
+  Data::Matrix6x res(6,model.nv); res.setZero();
+  VectorXd q_integrate (model.nq);
+  VectorXd v_integrate (model.nq); v_integrate.setZero();
+  
+  forwardKinematics(model,data,q);
+  const SE3 oMi_ref = data.oMi[joint_id];
+  
+  const VectorXd fd_increment = finiteDifferenceIncrement(model);
+ 
+  double eps = 1e-8;
+  for(int k=0; k<model.nv; ++k)
+  {
+    // Integrate along kth direction
+    eps = fd_increment[k];
+    v_integrate[k] = eps;
+    q_integrate = integrate(model,q,v_integrate);
+    
+    forwardKinematics(model,data,q_integrate);
+    const SE3 & oMi = data.oMi[joint_id];
+    
+    res.col(k) = oMi_ref.act(log6(oMi_ref.inverse()*oMi)).toVector();
+    res.col(k) /= eps;
+    
+    v_integrate[k] = 0.;
+  }
+  
+  return res;
+}
+
+template<typename Matrix>
+void filterValue(MatrixBase<Matrix> & mat, typename Matrix::Scalar value)
+{
+  for(int k = 0; k < mat.size(); ++k)
+    mat.derived().data()[k] =  std::fabs(mat.derived().data()[k]) <= value?0:mat.derived().data()[k];
+}
+
+struct FiniteDiffJoint
+{
+  template<typename JointModel>
+  static void init (JointModelBase<JointModel> & /*jmodel*/) {}
+  
+  template<typename JointModel>
+  void operator()(JointModelBase<JointModel> & jmodel) const
+  {
+    typedef typename JointModel::ConfigVector_t CV;
+    typedef typename JointModel::TangentVector_t TV;
+    
+    init(jmodel); jmodel.setIndexes(0,0,0);
+    typename JointModel::JointDataDerived jdata = jmodel.createData();
+    CV q = jmodel.random();
+    jmodel.calc(jdata,q);
+    SE3 M_ref(jdata.M);
+    
+    CV q_int;
+    TV v; v.setZero();
+    double eps = 1e-4;
+    
+    Eigen::Matrix<double,6,JointModel::NV> S, S_ref(ConstraintXd(jdata.S).matrix());
+    
+    eps = jmodel.finiteDifferenceIncrement();
+    for(int k=0;k<jmodel.nv();++k)
+    {
+      v[k] = eps;
+      q_int = jmodel.integrate(q,v);
+      jmodel.calc(jdata,q_int);
+      SE3 M_int = jdata.M;
+      
+      S.col(k) = log6(M_ref.inverse()*M_int).toVector();
+      S.col(k) /= eps;
+      
+      v[k] = 0.;
+    }
+    
+    BOOST_CHECK(S.isApprox(S_ref,eps*1e1));
+  }
+};
+
+template<>
+void FiniteDiffJoint::init<JointModelRevoluteUnaligned>(JointModelBase<JointModelRevoluteUnaligned> & jmodel)
+{
+  jmodel.derived().axis.setRandom(); jmodel.derived().axis.normalize();
+}
+
+template<>
+void FiniteDiffJoint::init<JointModelPrismaticUnaligned>(JointModelBase<JointModelPrismaticUnaligned> & jmodel)
+{
+  jmodel.derived().axis.setRandom(); jmodel.derived().axis.normalize();
+}
+
+template<>
+void FiniteDiffJoint::operator()< JointModelDense<-1,-1> > (JointModelBase< JointModelDense<-1,-1> > & /*jmodel*/) const {}
+
+BOOST_AUTO_TEST_SUITE(FiniteDifferences)
+
+BOOST_AUTO_TEST_CASE(increment)
+{
+  typedef double Scalar;
+  
+  Model model;
+  buildModels::humanoidSimple(model);
+  
+  VectorXd fd_increment(model.nv);
+  fd_increment = finiteDifferenceIncrement(model);
+  
+  for(int k=0; k<model.nv; ++k)
+  {
+    BOOST_CHECK(fd_increment[k] > Eigen::NumTraits<Scalar>::epsilon());
+    BOOST_CHECK(fd_increment[k] < 1e-3);
+  }
+}
+
+BOOST_AUTO_TEST_CASE (test_S_finit_diff)
+{
+  boost::mpl::for_each<JointModelVariant::types>(FiniteDiffJoint());
+}
+
+BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
+{
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model);
+  se3::Data data(model);
+  
+  const VectorXd fd_increment = finiteDifferenceIncrement(model);
+
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.segment<4>(3).normalize();
+  computeJacobians(model,data,q);
+
+  Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.nbody-1);
+  Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
+  getJacobian<false>(model,data,idx,Jrh);
+
+  Data::Matrix6x Jrh_finite_diff = finiteDiffJacobian(model,data,q,idx);
+  
+  BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,fd_increment.maxCoeff()*1e1));
+}
+
+BOOST_AUTO_TEST_SUITE_END()

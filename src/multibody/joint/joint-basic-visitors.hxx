@@ -18,9 +18,6 @@
 #ifndef __se3_joint_basic_visitors_hxx__
 #define __se3_joint_basic_visitors_hxx__
 
-// remove the includes ?
-#include <Eigen/StdVector>
-#include <boost/variant.hpp>
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 #include "pinocchio/multibody/visitor.hpp"
@@ -127,8 +124,22 @@ namespace se3
     JointCalcAbaVisitor::run( jmodel, jdata, JointCalcAbaVisitor::ArgsType(I, update_I) );
   }
   
+  struct JointEpsVisitor: public boost::static_visitor<double>
+  {
+  public:
+    
+    template<typename D>
+    double operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.finiteDifferenceIncrement(); }
+    
+    static double run(const JointModelVariant & jmodel)
+    { return boost::apply_visitor(JointEpsVisitor(),jmodel); }
+  }; // struct JointEpsVisitor
+  
+  inline double finiteDifferenceIncrement(const JointModelVariant & jmodel)
+  { return JointEpsVisitor::run(jmodel); }
 
-
+  
   /**
    * @brief      JointIntegrateVisitor
    */

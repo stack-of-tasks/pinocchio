@@ -67,7 +67,14 @@ namespace se3
    */
   inline void calc_aba(const JointModelVariant & jmodel, JointDataVariant & jdata, Inertia::Matrix6 & I, const bool update_I);
 
-
+  ///
+  /// \brief Returns the finite difference increment of the joint model.
+  ///
+  /// \param[in] jmodel The model of the joint.
+  ///
+  /// \returns The finite diffrence increment.
+  ///
+  inline double finiteDifferenceIncrement(const JointDataVariant & jmodel);
   
   /**
    * @brief      Visit a JointModelVariant through JointIntegrateVisitor to integrate joint's configuration 
@@ -317,7 +324,7 @@ namespace se3
    * @return     The U*D^{-1} matrix of the inertia matrix decomposition
    */
   inline Eigen::Matrix<double,6,Eigen::Dynamic> udinv_inertia(const JointDataVariant & jdata);
-
+  
 } // namespace se3
 
 

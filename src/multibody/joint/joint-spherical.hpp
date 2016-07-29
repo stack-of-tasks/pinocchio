@@ -305,6 +305,13 @@ namespace se3
         I.block<3,3> (Inertia::LINEAR,Inertia::LINEAR) -= data.UDinv.middleRows<3> (Inertia::LINEAR) * I.block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
       }
     }
+    
+    ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    {
+      using std::sqrt;
+      typedef ConfigVector_t::Scalar Scalar;
+      return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
+    }
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {
@@ -314,7 +321,7 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
 
       Motion_t::Quaternion_t pOmega(se3::exp3(q_dot));
-      Motion_t::Quaternion_t quaternion_result(pOmega*q);
+      Motion_t::Quaternion_t quaternion_result(q*pOmega);
       
       return quaternion_result.coeffs();
     }

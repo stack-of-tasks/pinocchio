@@ -138,6 +138,13 @@ namespace se3
       if (update_I)
         I -= data.UDinv * data.U.transpose();
     }
+    
+    typename ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    {
+      using std::sqrt;
+      typedef typename ConfigVector_t::Scalar Scalar;
+      return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
+    }
 
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
@@ -149,13 +156,14 @@ namespace se3
       const double & sa = q(1);
       const double & omega = q_dot(0);
 
-      double cosOmega,sinOmega; SINCOS (omega, &sinOmega, &cosOmega);
-      double norm2p = q.squaredNorm();
+      double cosOmega,sinOmega; SINCOS(omega, &sinOmega, &cosOmega);
+      // TODO check the cost of atan2 vs SINCOS
 
       ConfigVector_t result;
-      result << (1.5-.5*norm2p) * (cosOmega * ca - sinOmega * sa),
-                (1.5-.5*norm2p) * (sinOmega * ca + cosOmega * sa);
-      return result; 
+      result <<
+      cosOmega * ca - sinOmega * sa,
+      sinOmega * ca + cosOmega * sa;
+      return result;
     }
 
 

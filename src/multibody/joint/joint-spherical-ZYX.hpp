@@ -69,18 +69,19 @@ namespace se3
 
     struct MotionSpherical
     {
-      MotionSpherical ()                       {w.fill(NAN);}
-      MotionSpherical (const typename MotionTpl<Scalar,Options>::Vector3 & w) : w (w)  {}
-      typename MotionTpl<Scalar,Options>::Vector3 w;
+      typedef typename MotionTpl<Scalar,Options>::Vector3 Vector3;
+      
+      MotionSpherical () : w(Vector3::Constant(NAN)) {}
+      MotionSpherical (const Vector3 & w) : w (w)  {}
 
-      typename MotionTpl<Scalar,Options>::Vector3 & operator() () { return w; }
-      const typename MotionTpl<Scalar,Options>::Vector3 & operator() () const { return w; }
+      Vector3 & operator() () { return w; }
+      const Vector3 & operator() () const { return w; }
 
-      operator Motion() const
-      {
-        //return Motion (typename MotionTpl<_Scalar,_Options>::Vector3::Zero (), w);
-        return Motion ( Motion::Vector3::Zero (), w);
-      }
+      operator Motion() const { return Motion(Motion::Vector3::Zero(), w); }
+      
+      operator Vector3() const { return w; }
+      
+      Vector3 w;
     }; // struct MotionSpherical
 
     inline friend const MotionSpherical operator+ (const MotionSpherical & m, const BiasSpherical & c)
@@ -395,6 +396,13 @@ namespace se3
       
       if (update_I)
         I -= data.UDinv * data.U.transpose();
+    }
+    
+    ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    {
+      using std::sqrt;
+      typedef ConfigVector_t::Scalar Scalar;
+      return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const

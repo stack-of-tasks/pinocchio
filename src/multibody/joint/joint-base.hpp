@@ -255,7 +255,14 @@ namespace se3
                   Inertia::Matrix6 & I,
                   const bool update_I = false) const
     { derived().calc_aba(data, I, update_I); }
-
+    
+    ///
+    /// \brief Return the resolution of the finite differerence increment according to the Scalar type
+    /// \remark Ideally, this function must depend on the value of q
+    ///
+    /// \returns The finite difference increment.
+    ///
+    typename ConfigVector_t::Scalar finiteDifferenceIncrement() const { return derived().finiteDifferenceIncrement(); }
 
     /**
      * @brief      Integrate joint's configuration for a tangent vector during one unit time
