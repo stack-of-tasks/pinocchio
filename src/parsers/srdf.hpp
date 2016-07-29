@@ -45,8 +45,7 @@ namespace se3
     /// \param[in] verbose Verbosity mode (print removed collision pairs and undefined link inside the model).
     ///
     inline void removeCollisionPairsFromSrdf(const Model& model,
-                                             const GeometryModel & model_geom,
-                                             GeometryData & data_geom,
+                                             GeometryModel & model_geom,
                                              const std::string & filename,
                                              const bool verbose) throw (std::invalid_argument)
     {
@@ -104,7 +103,7 @@ namespace se3
                 it2 != innerObject2.end();
                 ++it2)
             {
-              data_geom.removeCollisionPair(CollisionPair(*it1, *it2));
+              model_geom.removeCollisionPair(CollisionPair(*it1, *it2));
               if(verbose)
                 std::cout << "Remove collision pair (" << joint_id1 << "," << joint_id2 << ")" << std::endl;
             }

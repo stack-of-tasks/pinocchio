@@ -32,6 +32,7 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
+#include <boost/foreach.hpp>
 #include <map>
 #include <list>
 #include <utility>
@@ -40,7 +41,9 @@
 
 namespace se3
 {
-  
+  typedef boost::shared_ptr<fcl::CollisionObject  > fclCollisionObjectPtr_t;
+  typedef boost::shared_ptr<fcl::CollisionGeometry> fclCollisionGeometryPtr_t;
+
   struct CollisionPair: public std::pair<Model::GeomIndex, Model::GeomIndex>
   {
     typedef Model::Index Index;
@@ -71,7 +74,7 @@ namespace se3
       X.disp(os); return os;
     }
   }; // struct CollisionPair
-
+  typedef std::vector<CollisionPair> CollisionPairsVector_t;
   
   /**
    * @brief      Result of distance computation between two CollisionObjects
@@ -81,6 +84,7 @@ namespace se3
     typedef Model::Index Index;
     typedef Model::GeomIndex GeomIndex;
 
+    DistanceResult() : fcl_distance_result(), object1(0), object2(0) {}
     DistanceResult(fcl::DistanceResult dist_fcl, const GeomIndex co1, const GeomIndex co2)
     : fcl_distance_result(dist_fcl), object1(co1), object2(co2)
     {}
@@ -140,6 +144,7 @@ namespace se3
     CollisionResult(fcl::CollisionResult coll_fcl, const GeomIndex co1, const GeomIndex co2)
     : fcl_collision_result(coll_fcl), object1(co1), object2(co2)
     {}
+    CollisionResult() : fcl_collision_result(), object1(0), object2(0) {}
 
     bool operator == (const CollisionResult & other) const
     {
@@ -252,7 +257,11 @@ struct GeometryObject
 
     /// \brief Vector of GeometryObjects used for collision computations
     std::vector<GeometryObject> geometryObjects;
-    
+    ///
+    /// \brief Vector of collision pairs.
+    ///
+    CollisionPairsVector_t collisionPairs;
+  
     /// \brief A list of associated collision GeometryObjects to a given joint Id.
     ///        Inner objects can be seen as geometry objects that directly move when the associated joint moves
     std::map < JointIndex, GeomIndexList >  innerObjects;
@@ -264,9 +273,13 @@ struct GeometryObject
     GeometryModel()
       : ngeoms(0)
       , geometryObjects()
+      , collisionPairs()
       , innerObjects()
       , outerObjects()
-    {}
+    { 
+      const std::size_t num_max_collision_pairs = (ngeoms * (ngeoms-1))/2;
+      collisionPairs.reserve(num_max_collision_pairs);
+    }
 
     ~GeometryModel() {};
 
@@ -317,6 +330,52 @@ struct GeometryObject
     const std::string & getGeometryName(const GeomIndex index) const;
 
 
+    ///
+    /// \brief Add a collision pair into the vector of collision_pairs.
+    ///        The method check before if the given CollisionPair is already included.
+    ///
+    /// \param[in] pair The CollisionPair to add.
+    ///
+    void addCollisionPair (const CollisionPair & pair);
+    
+    ///
+    /// \brief Add all possible collision pairs.
+    ///
+    void addAllCollisionPairs();
+   
+    ///
+    /// \brief Remove if exists the CollisionPair from the vector collision_pairs.
+    ///
+    /// \param[in] pair The CollisionPair to remove.
+    ///
+    void removeCollisionPair (const CollisionPair& pair);
+    
+    ///
+    /// \brief Remove all collision pairs from collisionPairs. Same as collisionPairs.clear().
+    void removeAllCollisionPairs ();
+   
+    ///
+    /// \brief Check if a collision pair exists in collisionPairs.
+    ///        See also findCollisitionPair(const CollisionPair & pair).
+    ///
+    /// \param[in] pair The CollisionPair.
+    ///
+    /// \return True if the CollisionPair exists, false otherwise.
+    ///
+    bool existCollisionPair (const CollisionPair & pair) const;
+    
+    ///
+    /// \brief Return the index of a given collision pair in collisionPairs.
+    ///
+    /// \param[in] pair The CollisionPair.
+    ///
+    /// \return The index of the CollisionPair in collisionPairs.
+    ///
+    Index findCollisionPair (const CollisionPair & pair) const;
+    
+    /// \brief Display on std::cout the list of pairs (is it really useful?).
+    void displayCollisionPairs() const;
+
     /**
      * @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
      *
@@ -340,9 +399,6 @@ struct GeometryObject
   {
     typedef Model::Index Index;
     typedef Model::GeomIndex GeomIndex;
-    typedef CollisionPair CollisionPair_t;
-    typedef std::vector<CollisionPair_t> CollisionPairsVector_t;
-
     
     ///
     /// \brief A const reference to the model storing all the geometries.
@@ -354,23 +410,23 @@ struct GeometryObject
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
     ///
+    /// oMg is used for pinocchio (kinematics) computation but is translated to fcl type
+    /// for fcl (collision) computation. The copy is done in collisionObjects[i]->setTransform(.)
+    ///
     std::vector<se3::SE3> oMg;
 
     ///
-    /// \brief Same as oMg but using fcl::Transform3f to store placement.
-    ///        This pre-allocation avoids dynamic allocation during collision checking or distance computations.
+    /// \brief Collision objects (ie a fcl placed geometry).
     ///
-    std::vector<fcl::Transform3f> oMg_fcl;
+    /// The object contains a pointer on the collision geometries contained in geomModel.geometryObjects.
+    /// \sa GeometryModel::geometryObjects and GeometryObjects
+    ///
+    std::vector<fclCollisionObjectPtr_t> collisionObjects;
+
     ///
     /// \brief Vector of collision pairs.
-    ///        See addCollisionPair, removeCollisionPair to fill or remove elements in the vector.
     ///
-    CollisionPairsVector_t collision_pairs;
-    
-    ///
-    /// \brief Number of collision pairs stored in collision_pairs.
-    ///
-    Index nCollisionPairs;
+    std::vector<bool> activeCollisionPairs;
 
     ///
     /// \brief Vector gathering the result of the distance computation for all the collision pairs.
@@ -388,119 +444,28 @@ struct GeometryObject
     ///
     std::vector<double> radius;
     
-    GeometryData(const GeometryModel & model_geom)
-        : model_geom(model_geom)
+    GeometryData(const GeometryModel & modelGeom)
+        : model_geom(modelGeom)
         , oMg(model_geom.ngeoms)
-        , oMg_fcl(model_geom.ngeoms)
-        , collision_pairs()
-        , nCollisionPairs(0)
+        , activeCollisionPairs()
         , distance_results()
         , collision_results()
         , radius()
          
     {
-      const std::size_t num_max_collision_pairs = (model_geom.ngeoms * (model_geom.ngeoms-1))/2;
-      collision_pairs.reserve(num_max_collision_pairs);
-      distance_results.reserve(num_max_collision_pairs);
-      collision_results.reserve(num_max_collision_pairs);
+      activeCollisionPairs.resize(modelGeom.collisionPairs.size());
+      distance_results.resize(modelGeom.collisionPairs.size());
+      collision_results.resize(modelGeom.collisionPairs.size());
+      BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
+        { collisionObjects.push_back
+            ( fclCollisionObjectPtr_t(new fcl::CollisionObject(geom.collision_geometry)) ); }
     }
 
     ~GeometryData() {};
 
-    ///
-    /// \brief Add a collision pair given by the index of the two colliding geometries into the vector of collision_pairs.
-    ///        The method check before if the given CollisionPair is already included.
-    ///
-    /// \param[in] co1 Index of the first colliding geometry.
-    /// \param[in] co2 Index of the second colliding geometry.
-    ///
-    void addCollisionPair (const GeomIndex co1, const GeomIndex co2);
-    
-    ///
-    /// \brief Add a collision pair into the vector of collision_pairs.
-    ///        The method check before if the given CollisionPair is already included.
-    ///
-    /// \param[in] pair The CollisionPair to add.
-    ///
-    void addCollisionPair (const CollisionPair_t & pair);
-    
-    ///
-    /// \brief Add all possible collision pairs.
-    ///
-    void addAllCollisionPairs();
-   
-    ///
-    /// \brief Remove if exists the collision pair given by the index of the two colliding geometries from the vector of collision_pairs.
-    ///
-    /// \param[in] co1 Index of the first colliding geometry.
-    /// \param[in] co2 Index of the second colliding geometry.
-    ///
-    void removeCollisionPair (const GeomIndex co1, const GeomIndex co2);
-    
-    ///
-    /// \brief Remove if exists the CollisionPair from the vector collision_pairs.
-    ///
-    /// \param[in] pair The CollisionPair to remove.
-    ///
-    void removeCollisionPair (const CollisionPair_t& pair);
-    
-    ///
-    /// \brief Remove all collision pairs from collision_pairs. Same as collision_pairs.clear().
-    void removeAllCollisionPairs ();
-   
-    ///
-    /// \brief Check if a collision pair given by the index of the two colliding geometries exists in collision_pairs.
-    ///        See also findCollisitionPair(const GeomIndex co1, const GeomIndex co2).
-    ///
-    /// \param[in] co1 Index of the first colliding geometry.
-    /// \param[in] co2 Index of the second colliding geometry.
-    ///
-    /// \return True if the CollisionPair exists, false otherwise.
-    ///
-    bool existCollisionPair (const GeomIndex co1, const GeomIndex co2) const ;
-    
-    ///
-    /// \brief Check if a collision pair exists in collision_pairs.
-    ///        See also findCollisitionPair(const CollisionPair_t & pair).
-    ///
-    /// \param[in] pair The CollisionPair.
-    ///
-    /// \return True if the CollisionPair exists, false otherwise.
-    ///
-    bool existCollisionPair (const CollisionPair_t & pair) const;
-    
-    ///
-    /// \brief Return the index in collision_pairs of a CollisionPair given by the index of the two colliding geometries.
-    ///
-    /// \param[in] co1 Index of the first colliding geometry.
-    /// \param[in] co2 Index of the second colliding geometry.
-    ///
-    /// \return The index of the collision pair in collision_pairs.
-    ///
-    Index findCollisionPair (const GeomIndex co1, const GeomIndex co2) const;
-    
-    ///
-    /// \brief Return the index of a given collision pair in collision_pairs.
-    ///
-    /// \param[in] pair The CollisionPair.
-    ///
-    /// \return The index of the CollisionPair in collision_pairs.
-    ///
-    Index findCollisionPair (const CollisionPair_t & pair) const;
-    
-    void initializeListOfCollisionPairs();
-    
+    void activateCollisionPair(const Index pairId,const bool flag=true);
+    void deactivateCollisionPair(const Index pairId);
 
-    ///
-    /// \brief Compute the collision status between two collision objects given by their indexes.
-    ///
-    /// \param[in] co1 Index of the first collision object.
-    /// \param[in] co2 Index of the second collision object.
-    ///
-    /// \return Return true is the collision objects are colliding.
-    ///
-    CollisionResult computeCollision(const GeomIndex co1, const GeomIndex co2) const;
-    
     ///
     /// \brief Compute the collision status between two collision objects of a given collision pair.
     ///
@@ -508,7 +473,7 @@ struct GeometryObject
     ///
     /// \return Return true is the collision objects are colliding.
     ///
-    CollisionResult computeCollision(const CollisionPair_t & pair) const;
+    CollisionResult computeCollision(const CollisionPair & pair) const;
     
     ///
     /// \brief Compute the collision result of all the collision pairs according to
@@ -523,23 +488,13 @@ struct GeometryObject
     bool isColliding() const;
 
     ///
-    /// \brief Compute the minimal distance between two collision objects given by their indexes.
-    ///
-    /// \param[in] co1 Index of the first collision object.
-    /// \param[in] co2 Index of the second collision object.
-    ///
-    /// \return An fcl struct containing the distance result.
-    ///
-    DistanceResult computeDistance(const GeomIndex co1, const GeomIndex co2) const;
-    
-    ///
     /// \brief Compute the minimal distance between collision objects of a collison pair
     ///
     /// \param[in] pair The collsion pair.
     ///
     /// \return An fcl struct containing the distance result.
     ///
-    DistanceResult computeDistance(const CollisionPair_t & pair) const;
+    DistanceResult computeDistance(const CollisionPair & pair) const;
     
     ///
     /// \brief Compute the distance result for all collision pairs according to
@@ -550,13 +505,6 @@ struct GeometryObject
     
     void resetDistances();
 
-    void displayCollisionPairs() const
-    {
-      for (std::vector<CollisionPair_t>::const_iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
-      {
-        std::cout << it-> first << "\t" << it->second << std::endl;
-      }
-    }
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & data_geom);
     
   }; // struct GeometryData

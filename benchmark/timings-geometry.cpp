@@ -72,10 +72,10 @@ int main()
 
   se3::Model model = se3::urdf::buildModel(romeo_filename, se3::JointModelFreeFlyer());
   se3::GeometryModel geom_model = se3::urdf::buildGeom(model, romeo_filename, package_dirs, COLLISION);
+  geom_model.addAllCollisionPairs();
    
   Data data(model);
   GeometryData geom_data(geom_model);
-  geom_data.initializeListOfCollisionPairs();
 
 
   std::vector<VectorXd> qs_romeo     (NBT);
@@ -108,13 +108,13 @@ int main()
   SMOOTH(NBT)
   {
     updateGeometryPlacements(model,data,geom_model,geom_data,qs_romeo[_smooth]);
-    for (std::vector<se3::GeometryData::CollisionPair_t>::iterator it = geom_data.collision_pairs.begin(); it != geom_data.collision_pairs.end(); ++it)
+    for (std::vector<se3::CollisionPair>::iterator it = geom_model.collisionPairs.begin(); it != geom_model.collisionPairs.end(); ++it)
     {
-      geom_data.computeCollision(it->first, it->second);
+      geom_data.computeCollision(*it);
     }
   }
   double collideTime = timer.toc(StackTicToc::US)/NBT - (update_col_time + geom_time);
-  std::cout << "Collision test between two geometry objects (mean time) = \t" << collideTime / geom_data.nCollisionPairs
+  std::cout << "Collision test between two geometry objects (mean time) = \t" << collideTime / double(geom_model.collisionPairs.size())
             << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
 
@@ -134,8 +134,8 @@ int main()
     computeDistances(model,data,geom_model,geom_data,qs_romeo[_smooth]);
   }
   double computeDistancesTime = timer.toc(StackTicToc::US)/NBD - (update_col_time + geom_time);
-  std::cout << "Compute distance between two geometry objects (mean time) = \t" << computeDistancesTime / geom_data.nCollisionPairs
-            << " " << StackTicToc::unitName(StackTicToc::US) << " " << geom_data.nCollisionPairs << " col pairs" << std::endl;
+  std::cout << "Compute distance between two geometry objects (mean time) = \t" << computeDistancesTime / double(geom_model.collisionPairs.size())
+            << " " << StackTicToc::unitName(StackTicToc::US) << " " << geom_model.collisionPairs.size() << " col pairs" << std::endl;
 
 
 
@@ -244,7 +244,7 @@ hpp::model::HumanoidRobotPtr_t humanoidRobot =
     computeDistances(geom_data);
   }
   computeDistancesTime = timer.toc(StackTicToc::US)/NBD ;
-  std::cout << "Pinocchio - Compute distances (D) " << geom_data.nCollisionPairs << " col pairs\t" << computeDistancesTime 
+  std::cout << "Pinocchio - Compute distances (D) " << geom_model.collisionPairs.size() << " col pairs\t" << computeDistancesTime 
             << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
   timer.tic();
@@ -262,7 +262,7 @@ hpp::model::HumanoidRobotPtr_t humanoidRobot =
     computeDistances(model, data, geom_model, geom_data, qs_romeo_pino[_smooth]);
   }
   computeDistancesTime = timer.toc(StackTicToc::US)/NBD ;
-  std::cout << "Pinocchio - Update + Compute distances (K+D) " << geom_data.nCollisionPairs << " col pairs\t" << computeDistancesTime 
+  std::cout << "Pinocchio - Update + Compute distances (K+D) " << geom_model.collisionPairs.size() << " col pairs\t" << computeDistancesTime 
             << " " << StackTicToc::unitName(StackTicToc::US) << std::endl;
 
 

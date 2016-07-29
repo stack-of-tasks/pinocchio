@@ -54,32 +54,21 @@ namespace se3
       
       
 #ifdef WITH_URDFDOM
-      struct BuildModelVisitor : public boost::static_visitor<ModelHandler>
-      {
-        const std::string& _filename;
-
-        BuildModelVisitor(const std::string& filename): _filename(filename){}
-
-        template <typename JointModel> ModelHandler operator()(const JointModel & root_joint) const
-        {
-          Model * model = new Model();
-          *model = se3::urdf::buildModel(_filename, root_joint);
-          return ModelHandler(model,true);
-        }
-      };
 
       static ModelHandler buildModelFromUrdf(const std::string & filename,
                                              bp::object & root_joint_object
                                              )
       {
         JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object);
-        return boost::apply_visitor(BuildModelVisitor(filename), root_joint);
+        Model * model = new Model();
+        se3::urdf::buildModel(filename, root_joint, *model);
+        return ModelHandler(model,true);
       }
 
       static ModelHandler buildModelFromUrdf(const std::string & filename)
       {
         Model * model = new Model();
-        *model = se3::urdf::buildModel(filename);
+        se3::urdf::buildModel(filename, *model);
         return ModelHandler(model,true);
       }
 
@@ -94,7 +83,8 @@ namespace se3
                         )
       {
         std::vector<std::string> hints;
-        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename,hints, type));
+        GeometryModel * geometry_model = new GeometryModel();
+        se3::urdf::buildGeom(*model, filename, type,*geometry_model,hints);
         
         return GeometryModelHandler(geometry_model, true);
       }
@@ -106,19 +96,19 @@ namespace se3
                         const GeometryType type
                         )
       {
-        GeometryModel * geometry_model = new GeometryModel(se3::urdf::buildGeom(*model, filename, package_dirs, type));
+        GeometryModel * geometry_model = new GeometryModel();
+        se3::urdf::buildGeom(*model, filename, type,*geometry_model,package_dirs);
         
         return GeometryModelHandler(geometry_model, true);
       }
       
       static void removeCollisionPairsFromSrdf(ModelHandler & model,
                                                GeometryModelHandler& geometry_model,
-                                               GeometryDataHandler & geometry_data,
                                                const std::string & filename,
                                                bool verbose
                                                )
       {
-        se3::srdf::removeCollisionPairsFromSrdf(*model, *geometry_model ,*geometry_data, filename, verbose);
+        se3::srdf::removeCollisionPairsFromSrdf(*model, *geometry_model, filename, verbose);
       }
 
 #endif // #ifdef WITH_HPP_FCL
@@ -185,7 +175,7 @@ namespace se3
               "(remember to create the corresponding data structures).");
       
       bp::def("removeCollisionPairsFromSrdf",removeCollisionPairsFromSrdf,
-              bp::args("Model associated to GeometryData", "GeometryModel associated to a GeometryData", "GeometryData for which we want to remove pairs of collision", "srdf filename (string)", "verbosity"
+              bp::args("Model", "GeometryModel (where pairs are removed)","srdf filename (string)", "verbosity"
                        ),
               "Parse an srdf file in order to desactivate collision pairs for a specific GeometryData and GeometryModel ");
 

@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   std::cout << model_geom;
   std::cout << "------ DataGeom ------ " << std::endl;
   std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == true);
+  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1)).fcl_collision_result.isCollision() == true);
 
   Eigen::VectorXd q(model.nq);
   q <<  2, 0, 0,
@@ -172,21 +172,21 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == false);
+  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1)).fcl_collision_result.isCollision() == false);
 
   q <<  0.99, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == true);
+  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1)).fcl_collision_result.isCollision() == true);
 
   q <<  1.01, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(0,1).fcl_collision_result.isCollision() == false);
+  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1)).fcl_collision_result.isCollision() == false);
 }
 
 BOOST_AUTO_TEST_CASE ( loading_model )
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
        1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2 ;
 
   se3::updateGeometryPlacements(model, data, geometry_model, geometry_data, q);
-  BOOST_CHECK(geometry_data.computeCollision(1,10).fcl_collision_result.isCollision() == false);
+  BOOST_CHECK(geometry_data.computeCollision(CollisionPair(1,10)).fcl_collision_result.isCollision() == false);
 }
 
 
@@ -471,8 +471,9 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
         std::cout << "comparison between " << body1 << " and " << body2 << std::endl;
 
-        se3::DistanceResult dist_pin = data_geom.computeDistance( geom.getGeometryId(body1),
-                                                                  geom.getGeometryId(body2));
+        se3::DistanceResult dist_pin
+          = data_geom.computeDistance( CollisionPair(geom.getGeometryId(body1),
+                                                     geom.getGeometryId(body2)) );
 
         Distance_t distance_pin(dist_pin.fcl_distance_result);
         distance_hpp.checkClose(distance_pin);

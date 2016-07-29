@@ -118,136 +118,90 @@ namespace se3
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryData & data_geom)
   {
-    os << "Nb collision pairs = " << data_geom.nCollisionPairs << std::endl;
+    os << "Nb collision pairs = " << data_geom.activeCollisionPairs.size() << std::endl;
     
-    for(GeometryData::Index i=0;i<(GeometryData::Index)(data_geom.nCollisionPairs);++i)
+    for(GeometryData::Index i=0;i<(GeometryData::Index)(data_geom.activeCollisionPairs.size());++i)
     {
-      os << "collision object in position " << data_geom.collision_pairs[i] << std::endl;
+      os << "collision object in position " << data_geom.model_geom.collisionPairs[i] << std::endl;
     }
 
     return os;
   }
 
-  inline void GeometryData::addCollisionPair (const GeomIndex co1, const GeomIndex co2)
+  inline void GeometryModel::addCollisionPair (const CollisionPair & pair)
   {
-    assert ( co1 != co2);
-    assert ( co2 < model_geom.ngeoms);
-    CollisionPair_t pair(co1, co2);
-    
-    addCollisionPair(pair);
-  }
-
-  inline void GeometryData::addCollisionPair (const CollisionPair_t & pair)
-  {
-    assert(pair.second < model_geom.ngeoms);
-    
-    if (!existCollisionPair(pair))
-    {
-      collision_pairs.push_back(pair);
-      nCollisionPairs++;
-
-      distance_results.push_back(DistanceResult( fcl::DistanceResult(), 0, 0));
-      collision_results.push_back(CollisionResult( fcl::CollisionResult(), 0, 0));
-    }
+    assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
+    if (!existCollisionPair(pair)) { collisionPairs.push_back(pair); }
   }
   
-  inline void GeometryData::addAllCollisionPairs()
+  inline void GeometryModel::addAllCollisionPairs()
   {
     removeAllCollisionPairs();
-    collision_pairs.reserve((model_geom.ngeoms * (model_geom.ngeoms-1))/2);
-    for (Index i = 0; i < model_geom.ngeoms; ++i)
-      for (Index j = i+1; j < model_geom.ngeoms; ++j)
-        addCollisionPair(i,j);
+    for (Index i = 0; i < ngeoms; ++i)
+      for (Index j = i+1; j < ngeoms; ++j)
+        addCollisionPair(CollisionPair(i,j));
   }
   
-  inline void GeometryData::removeCollisionPair (const GeomIndex co1, const GeomIndex co2)
+  inline void GeometryModel::removeCollisionPair (const CollisionPair & pair)
   {
-    assert(co1 < co2);
-    assert(co2 < model_geom.ngeoms);
-    assert(existCollisionPair(co1,co2));
+    assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
 
-    removeCollisionPair (CollisionPair_t(co1,co2));
-  }
-
-  inline void GeometryData::removeCollisionPair (const CollisionPair_t & pair)
-  {
-    assert(pair.second < model_geom.ngeoms);
-
-    CollisionPairsVector_t::iterator it = std::find(collision_pairs.begin(),
-                                                    collision_pairs.end(),
+    CollisionPairsVector_t::iterator it = std::find(collisionPairs.begin(),
+                                                    collisionPairs.end(),
                                                     pair);
-    if (it != collision_pairs.end())
-    {
-      collision_pairs.erase(it);
-      nCollisionPairs--;
-    }
+    if (it != collisionPairs.end()) { collisionPairs.erase(it); }
   }
   
-  inline void GeometryData::removeAllCollisionPairs ()
-  {
-    collision_pairs.clear();
-    nCollisionPairs = 0;
-  }
+  inline void GeometryModel::removeAllCollisionPairs () { collisionPairs.clear(); }
 
-  inline bool GeometryData::existCollisionPair (const GeomIndex co1, const GeomIndex co2) const
+  inline bool GeometryModel::existCollisionPair (const CollisionPair & pair) const
   {
-    return existCollisionPair(CollisionPair_t(co1,co2));
-  }
-
-  inline bool GeometryData::existCollisionPair (const CollisionPair_t & pair) const
-  {
-    return (std::find(collision_pairs.begin(),
-                      collision_pairs.end(),
-                      pair) != collision_pairs.end());
+    return (std::find(collisionPairs.begin(),
+                      collisionPairs.end(),
+                      pair) != collisionPairs.end());
   }
   
-  inline GeometryData::Index GeometryData::findCollisionPair (const GeomIndex co1, const GeomIndex co2) const
+  inline GeometryModel::Index GeometryModel::findCollisionPair (const CollisionPair & pair) const
   {
-    return findCollisionPair(CollisionPair_t(co1,co2));
-  }
-  
-  inline GeometryData::Index GeometryData::findCollisionPair (const CollisionPair_t & pair) const
-  {
-    CollisionPairsVector_t::const_iterator it = std::find(collision_pairs.begin(),
-                                                          collision_pairs.end(),
+    CollisionPairsVector_t::const_iterator it = std::find(collisionPairs.begin(),
+                                                          collisionPairs.end(),
                                                           pair);
     
-    return (Index) distance(collision_pairs.begin(), it);
-  }
-  
-//  std::vector<Index> GeometryData::findCollisionPairsSupportedBy(const JointIndex joint_id) const
-//  {
-////    std::vector<Index> collision_pairs;
-////    for(CollisionPairsVector_t::const_iterator it = collision_pairs.begin();
-////        it != collision_pairs.end(); ++it)
-////    {
-////      if (geom_model.it->first )
-////    }
-//  }
-
-
-
-  inline void GeometryData::initializeListOfCollisionPairs()
-  {
-    addAllCollisionPairs();
-    assert(nCollisionPairs == collision_pairs.size());
+    return (Index) distance(collisionPairs.begin(), it);
   }
 
-  inline CollisionResult GeometryData::computeCollision(const GeomIndex co1, const GeomIndex co2) const
+  inline void GeometryModel::displayCollisionPairs() const
   {
-    return computeCollision(CollisionPair_t(co1,co2));
+    for (CollisionPairsVector_t::const_iterator it = collisionPairs.begin(); 
+         it != collisionPairs.end(); ++it)
+      {
+        std::cout << it-> first << "\t" << it->second << std::endl;
+      }
   }
-  
-  inline CollisionResult GeometryData::computeCollision(const CollisionPair_t & pair) const
+
+  inline void GeometryData::activateCollisionPair(const Index pairId,const bool flag)
   {
-    const Index & co1 = pair.first;
-    const Index & co2 = pair.second;
-    
+    assert( activeCollisionPairs.size() == model_geom.collisionPairs.size() );
+    assert( pairId < activeCollisionPairs.size() );
+    activeCollisionPairs[pairId] = flag;
+  }
+
+  inline void GeometryData::deactivateCollisionPair(const Index pairId)
+  {
+    assert( activeCollisionPairs.size() == model_geom.collisionPairs.size() );
+    assert( pairId < activeCollisionPairs.size() );
+    activeCollisionPairs[pairId] = false;
+  }
+
+  inline CollisionResult GeometryData::computeCollision(const CollisionPair & pair) const
+  {
+    const Index & co1 = pair.first;     assert(co1<collisionObjects.size());
+    const Index & co2 = pair.second;    assert(co2<collisionObjects.size());
+
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;
 
-    fcl::collide (model_geom.geometryObjects[co1].collision_geometry.get(), oMg_fcl[co1],
-                  model_geom.geometryObjects[co2].collision_geometry.get(), oMg_fcl[co2],
+    fcl::collide (collisionObjects[co1].get(),collisionObjects[co2].get(),
                   collisionRequest, collisionResult);
 
     return CollisionResult (collisionResult, co1, co2);
@@ -255,37 +209,34 @@ namespace se3
   
   inline void GeometryData::computeAllCollisions()
   {
-    for(size_t i = 0; i<nCollisionPairs; ++i)
+    assert( activeCollisionPairs.size() == model_geom.collisionPairs.size() );
+    assert( collision_results   .size() == model_geom.collisionPairs.size() );
+    for(size_t i = 0; i<model_geom.collisionPairs.size(); ++i)
     {
-      const CollisionPair_t & pair = collision_pairs[i];
-      collision_results[i] = computeCollision(pair.first, pair.second);
+      if(activeCollisionPairs[i])
+        { collision_results[i] = computeCollision(model_geom.collisionPairs[i]); }
     }
   }
   
   inline bool GeometryData::isColliding() const
   {
-    for(CollisionPairsVector_t::const_iterator it = collision_pairs.begin(); it != collision_pairs.end(); ++it)
+    for(size_t i = 0; i<model_geom.collisionPairs.size(); ++i)
     {
-      if (computeCollision(it->first, it->second).fcl_collision_result.isCollision())
+      if (activeCollisionPairs[i] 
+          && computeCollision(model_geom.collisionPairs[i]).fcl_collision_result.isCollision())
         return true;
     }
     return false;
   }
 
-  inline DistanceResult GeometryData::computeDistance(const GeomIndex co1, const GeomIndex co2) const
+  inline DistanceResult GeometryData::computeDistance(const CollisionPair & pair) const
   {
-    return computeDistance(CollisionPair_t(co1,co2));
-  }
-  
-  inline DistanceResult GeometryData::computeDistance(const CollisionPair_t & pair) const
-  {
-    const Index & co1 = pair.first;
-    const Index & co2 = pair.second;
+    const Index & co1 = pair.first;     assert(co1<collisionObject.size());
+    const Index & co2 = pair.second;    assert(co2<collisionObject.size());
     
     fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
     fcl::DistanceResult result;
-    fcl::distance ( model_geom.geometryObjects[co1].collision_geometry.get(), oMg_fcl[co1],
-                    model_geom.geometryObjects[co2].collision_geometry.get(), oMg_fcl[co2],
+    fcl::distance ( collisionObjects[co1].get(),collisionObjects[co2].get(),
                     distanceRequest, result);
     
     return DistanceResult (result, co1, co2);
@@ -293,10 +244,10 @@ namespace se3
   
   inline void GeometryData::computeAllDistances ()
   {
-    for(size_t i = 0; i<nCollisionPairs; ++i)
+    for(size_t i = 0; i<activeCollisionPairs.size(); ++i)
     {
-      const CollisionPair_t & pair = collision_pairs[i];
-      distance_results[i] = computeDistance(pair.first, pair.second);
+      if (activeCollisionPairs[i])
+        distance_results[i] = computeDistance(model_geom.collisionPairs[i]);
     }
   }
 

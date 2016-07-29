@@ -249,18 +249,18 @@ namespace se3
 
 
 
-    GeometryModel buildGeom(const Model & model,
-                            const std::string & filename,
-                            const std::vector<std::string> & package_dirs,
-                            const GeometryType type) throw(std::invalid_argument)
+    GeometryModel& buildGeom(const Model & model,
+                             const std::string & filename,
+                             const GeometryType type,
+                             GeometryModel & model_geom,
+                             const std::vector<std::string> & package_dirs)
+      throw(std::invalid_argument)
     {
       if (type == NONE)
       {
         const std::string exception_message ("You must specify if you want to load VISUAL or COLLISION meshes");
         throw std::invalid_argument(exception_message);
       }
-
-      GeometryModel model_geom;
 
       std::vector<std::string> hint_directories(package_dirs);
 
