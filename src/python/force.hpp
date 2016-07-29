@@ -70,6 +70,7 @@ namespace se3
              ((bp::arg("linear"),bp::arg("angular")),
               "Initialize from linear and angular components (dont mix the order)."))
         .def(bp::init<Vector6_fx>((bp::arg("Vector 6d")),"Init from vector 6 [f,n]"))
+        .def(bp::init<Force_fx>((bp::arg("other")),"Copy constructor."))
         
         .add_property("linear",&ForcePythonVisitor::getLinear,&ForcePythonVisitor::setLinear)
         .add_property("angular",&ForcePythonVisitor::getAngular,&ForcePythonVisitor::setAngular)

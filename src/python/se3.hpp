@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -67,13 +67,12 @@ namespace se3
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
-	cl
-	  .def(bp::init<Matrix3_fx,Vector3_fx>
-	       ((bp::arg("Rotation"),bp::arg("translation")),
-		"Initialize from rotation and translation."))
-	  .def(bp::init<int>
-	       ((bp::arg("trivial arg (should be 1)")),
-	   	"Init to identity."))
+        cl
+        .def(bp::init<Matrix3_fx,Vector3_fx>
+             ((bp::arg("Rotation"),bp::arg("translation")),
+              "Initialize from rotation and translation."))
+        .def(bp::init<int>((bp::arg("trivial arg (should be 1)")),"Init to identity."))
+        .def(bp::init<SE3_fx> ((bp::arg("other")), "Copy constructor."))
 
 	  .add_property("rotation",&SE3PythonVisitor::getRotation,&SE3PythonVisitor::setRotation)
 	  .add_property("translation",&SE3PythonVisitor::getTranslation,&SE3PythonVisitor::setTranslation)
