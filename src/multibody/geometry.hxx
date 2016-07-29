@@ -195,14 +195,13 @@ namespace se3
 
   inline CollisionResult GeometryData::computeCollision(const CollisionPair & pair) const
   {
-    const Index & co1 = pair.first;
-    const Index & co2 = pair.second;
-    
+    const Index & co1 = pair.first;     assert(co1<collisionObjects.size());
+    const Index & co2 = pair.second;    assert(co2<collisionObjects.size());
+
     fcl::CollisionRequest collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP);
     fcl::CollisionResult collisionResult;
 
-    fcl::collide (model_geom.geometryObjects[co1].collision_geometry.get(), oMg_fcl[co1],
-                  model_geom.geometryObjects[co2].collision_geometry.get(), oMg_fcl[co2],
+    fcl::collide (collisionObjects[co1].get(),collisionObjects[co2].get(),
                   collisionRequest, collisionResult);
 
     return CollisionResult (collisionResult, co1, co2);
@@ -232,13 +231,12 @@ namespace se3
 
   inline DistanceResult GeometryData::computeDistance(const CollisionPair & pair) const
   {
-    const Index & co1 = pair.first;
-    const Index & co2 = pair.second;
+    const Index & co1 = pair.first;     assert(co1<collisionObject.size());
+    const Index & co2 = pair.second;    assert(co2<collisionObject.size());
     
     fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
     fcl::DistanceResult result;
-    fcl::distance ( model_geom.geometryObjects[co1].collision_geometry.get(), oMg_fcl[co1],
-                    model_geom.geometryObjects[co2].collision_geometry.get(), oMg_fcl[co2],
+    fcl::distance ( collisionObjects[co1].get(),collisionObjects[co2].get(),
                     distanceRequest, result);
     
     return DistanceResult (result, co1, co2);

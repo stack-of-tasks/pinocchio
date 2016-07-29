@@ -45,7 +45,7 @@ namespace se3
       const Model::JointIndex & parent = model_geom.geometryObjects[i].parent;
       if (parent>0) data_geom.oMg[i] =  (data.oMi[parent] * model_geom.geometryObjects[i].placement);
       else          data_geom.oMg[i] =  model_geom.geometryObjects[i].placement;
-      data_geom.oMg_fcl[i] =  toFclTransform3f(data_geom.oMg[i]);
+      data_geom.collisionObjects[i]->setTransform( toFclTransform3f(data_geom.oMg[i]) );
     }
   }
   

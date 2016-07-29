@@ -32,6 +32,7 @@
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
+#include <boost/foreach.hpp>
 #include <map>
 #include <list>
 #include <utility>
@@ -40,7 +41,9 @@
 
 namespace se3
 {
-  
+  typedef boost::shared_ptr<fcl::CollisionObject  > fclCollisionObjectPtr_t;
+  typedef boost::shared_ptr<fcl::CollisionGeometry> fclCollisionGeometryPtr_t;
+
   struct CollisionPair: public std::pair<Model::GeomIndex, Model::GeomIndex>
   {
     typedef Model::Index Index;
@@ -407,13 +410,19 @@ struct GeometryObject
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
     ///
+    /// oMg is used for pinocchio (kinematics) computation but is translated to fcl type
+    /// for fcl (collision) computation. The copy is done in collisionObjects[i]->setTransform(.)
+    ///
     std::vector<se3::SE3> oMg;
 
     ///
-    /// \brief Same as oMg but using fcl::Transform3f to store placement.
-    ///        This pre-allocation avoids dynamic allocation during collision checking or distance computations.
+    /// \brief Collision objects (ie a fcl placed geometry).
     ///
-    std::vector<fcl::Transform3f> oMg_fcl;
+    /// The object contains a pointer on the collision geometries contained in geomModel.geometryObjects.
+    /// \sa GeometryModel::geometryObjects and GeometryObjects
+    ///
+    std::vector<fclCollisionObjectPtr_t> collisionObjects;
+
     ///
     /// \brief Vector of collision pairs.
     ///
@@ -438,7 +447,6 @@ struct GeometryObject
     GeometryData(const GeometryModel & modelGeom)
         : model_geom(modelGeom)
         , oMg(model_geom.ngeoms)
-        , oMg_fcl(model_geom.ngeoms)
         , activeCollisionPairs()
         , distance_results()
         , collision_results()
@@ -448,6 +456,9 @@ struct GeometryObject
       activeCollisionPairs.resize(modelGeom.collisionPairs.size());
       distance_results.resize(modelGeom.collisionPairs.size());
       collision_results.resize(modelGeom.collisionPairs.size());
+      BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
+        { collisionObjects.push_back
+            ( fclCollisionObjectPtr_t(new fcl::CollisionObject(geom.collision_geometry)) ); }
     }
 
     ~GeometryData() {};
