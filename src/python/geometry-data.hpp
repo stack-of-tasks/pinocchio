@@ -40,8 +40,7 @@ namespace se3
     struct CollisionPairPythonVisitor
     : public boost::python::def_visitor<CollisionPairPythonVisitor>
     {
-      typedef CollisionPair::Index Index;
-      typedef CollisionPair::GeomIndex GeomIndex;
+
       static void expose()
       {
         bp::class_<CollisionPair> ("CollisionPair",
@@ -69,8 +68,6 @@ namespace se3
     struct GeometryDataPythonVisitor
       : public boost::python::def_visitor< GeometryDataPythonVisitor >
     {
-      typedef GeometryData::Index Index;
-      typedef GeometryData::GeomIndex GeomIndex;
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       
       /* --- Convert From C++ to Python ------------------------------------- */

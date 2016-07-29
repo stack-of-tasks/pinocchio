@@ -19,19 +19,11 @@
 #define __se3_geom_hpp__
 
 
-#include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/spatial/force.hpp"
-#include "pinocchio/spatial/motion.hpp"
-#include "pinocchio/spatial/inertia.hpp"
-#include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
+#include "pinocchio/multibody/fcl.hpp"
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/joint/joint-variant.hpp"
+
 #include <iostream>
 
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
 #include <boost/foreach.hpp>
 #include <map>
 #include <list>
@@ -41,210 +33,9 @@
 
 namespace se3
 {
-  struct CollisionPair: public std::pair<Model::GeomIndex, Model::GeomIndex>
-  {
-    typedef Model::Index Index;
-    typedef Model::GeomIndex GeomIndex;
-    typedef std::pair<Model::GeomIndex, Model::GeomIndex> Base;
-   
-    ///
-    /// \brief Default constructor of a collision pair from two collision object indexes.
-    ///        The indexes must be ordered such that co1 < co2. If not, the constructor reverts the indexes.
-    ///
-    /// \param[in] co1 Index of the first collision object
-    /// \param[in] co2 Index of the second collision object
-    ///
-    CollisionPair(const GeomIndex co1, const GeomIndex co2) : Base(co1,co2)
-    {
-      assert(co1 != co2 && "The index of collision objects must not be equal.");
-    }
-
-    bool operator== (const CollisionPair& rhs) const
-    {
-      return (first == rhs.first && second == rhs.second)
-        || (first == rhs.second && second == rhs.first);
-    }
-    
-    void disp(std::ostream & os) const { os << "collision pair (" << first << "," << second << ")\n"; }
-    friend std::ostream & operator << (std::ostream & os, const CollisionPair & X)
-    {
-      X.disp(os); return os;
-    }
-  }; // struct CollisionPair
-  typedef std::vector<CollisionPair> CollisionPairsVector_t;
   
-  /**
-   * @brief      Result of distance computation between two CollisionObjects
-   */
-  struct DistanceResult
-  {
-    typedef Model::Index Index;
-    typedef Model::GeomIndex GeomIndex;
-
-    DistanceResult() : fcl_distance_result(), object1(0), object2(0) {}
-    DistanceResult(fcl::DistanceResult dist_fcl, const GeomIndex co1, const GeomIndex co2)
-    : fcl_distance_result(dist_fcl), object1(co1), object2(co2)
-    {}
-
-
-    ///
-    /// @brief Return the minimal distance between two geometry objects
-    ///
-    double distance () const { return fcl_distance_result.min_distance; }
-
-    ///
-    /// \brief Return the witness point on the inner object expressed in global frame.
-    ///
-    Eigen::Vector3d closestPointInner () const { return toVector3d(fcl_distance_result.nearest_points [0]); }
-    
-    ///
-    /// \brief Return the witness point on the outer object expressed in global frame.
-    ///
-    Eigen::Vector3d closestPointOuter () const { return toVector3d(fcl_distance_result.nearest_points [1]); }
-    
-    bool operator == (const DistanceResult & other) const
-    {
-      return (distance() == other.distance()
-        && closestPointInner() == other.closestPointInner()
-        && closestPointOuter() == other.closestPointOuter()
-        && object1 == other.object1
-        && object2 == other.object2);
-    }
-    
-    /// \brief The FCL result of the distance computation
-    fcl::DistanceResult fcl_distance_result;
-    
-    /// \brief Index of the first colision object
-    GeomIndex object1;
-
-    /// \brief Index of the second colision object
-    GeomIndex object2;
-    
-  }; // struct DistanceResult 
-  
-
-  /**
-   * @brief      Result of collision computation between two CollisionObjects
-   */
-  struct CollisionResult
-  {
-    typedef Model::Index Index;
-    typedef Model::GeomIndex GeomIndex;
-
-    /**
-     * @brief      Default constrcutor of a CollisionResult
-     *
-     * @param[in]  coll_fcl  The FCL collision result
-     * @param[in]  co1       Index of the first geometry object involved in the computation
-     * @param[in]  co2       Index of the second geometry object involved in the computation
-     */
-    CollisionResult(fcl::CollisionResult coll_fcl, const GeomIndex co1, const GeomIndex co2)
-    : fcl_collision_result(coll_fcl), object1(co1), object2(co2)
-    {}
-    CollisionResult() : fcl_collision_result(), object1(0), object2(0) {}
-
-    bool operator == (const CollisionResult & other) const
-    {
-      return (fcl_collision_result == other.fcl_collision_result
-              && object1 == other.object1
-              && object2 == other.object2);
-    }
-
-    /// \brief The FCL result of the collision computation
-    fcl::CollisionResult fcl_collision_result;
-
-    /// \brief Index of the first collision object
-    GeomIndex object1;
-
-    /// \brief Index of the second collision object
-    GeomIndex object2;
-
-  }; // struct CollisionResult
-
-/// \brief Return true if the intrinsic geometry of the two CollisionObject is the same
-inline bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
-{
-  return lhs.collisionGeometry() == rhs.collisionGeometry()
-          && lhs.getAABB().min_ == rhs.getAABB().min_
-          && lhs.getAABB().max_ == rhs.getAABB().max_;
-}
-enum GeometryType
-{
-  VISUAL,
-  COLLISION,
-  NONE
-};
-
-struct GeometryObject
-{
-  typedef Model::Index Index;
-  typedef Model::JointIndex JointIndex;
-  typedef Model::GeomIndex GeomIndex;
-
-
-  /// \brief Name of the geometry object
-  std::string name;
-
-  /// \brief Index of the parent joint
-  JointIndex parent;
-
-  /// \brief The actual cloud of points representing the collision mesh of the object
-  boost::shared_ptr<fcl::CollisionGeometry> collision_geometry;
-
-  /// \brief Position of geometry object in parent joint's frame
-  SE3 placement;
-
-  /// \brief Absolute path to the mesh file
-  std::string mesh_path;
-
-
-  GeometryObject(const std::string & name, const JointIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & collision,
-                 const SE3 & placement, const std::string & mesh_path)
-                : name(name)
-                , parent(parent)
-                , collision_geometry(collision)
-                , placement(placement)
-                , mesh_path(mesh_path)
-  {}
-
-  GeometryObject & operator=(const GeometryObject & other)
-  {
-    name = other.name;
-    parent = other.parent;
-    collision_geometry = other.collision_geometry;
-    placement = other.placement;
-    mesh_path = other.mesh_path;
-    return *this;
-  }
-
-};
-  
-  inline bool operator==(const GeometryObject & lhs, const GeometryObject & rhs)
-  {
-    return ( lhs.name == rhs.name
-            && lhs.parent == rhs.parent
-            && lhs.collision_geometry == rhs.collision_geometry
-            && lhs.placement == rhs.placement
-            && lhs.mesh_path ==  rhs.mesh_path
-            );
-  }
-
-  inline std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object)
-  {
-    os  << "Name: \t \n" << geom_object.name << "\n"
-        << "Parent ID: \t \n" << geom_object.parent << "\n"
-        // << "collision object: \t \n" << geom_object.collision_geometry << "\n"
-        << "Position in parent frame: \t \n" << geom_object.placement << "\n"
-        << "Absolute path to mesh file: \t \n" << geom_object.mesh_path << "\n"
-        << std::endl;
-    return os;
-  }
-
   struct GeometryModel
   {
-    typedef Model::Index Index;
-    typedef Model::JointIndex JointIndex;
-    typedef Model::GeomIndex GeomIndex;
     
     typedef std::vector<GeomIndex> GeomIndexList;
 
@@ -394,9 +185,7 @@ struct GeometryObject
 
   struct GeometryData
   {
-    typedef Model::Index Index;
-    typedef Model::GeomIndex GeomIndex;
-    
+
     ///
     /// \brief A const reference to the model storing all the geometries.
     ///        See class GeometryModel.

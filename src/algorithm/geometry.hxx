@@ -40,7 +40,7 @@ namespace se3
                                        GeometryData & data_geom
                                        )
   {
-    for (GeometryData::GeomIndex i=0; i < (GeometryData::GeomIndex) data_geom.model_geom.ngeoms; ++i)
+    for (GeomIndex i=0; i < (GeomIndex) data_geom.model_geom.ngeoms; ++i)
     {
       const Model::JointIndex & parent = model_geom.geometryObjects[i].parent;
       if (parent>0) data_geom.oMg[i] =  (data.oMi[parent] * model_geom.geometryObjects[i].placement);

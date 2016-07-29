@@ -256,6 +256,7 @@ IF(HPP_FCL_FOUND)
     spatial/fcl-pinocchio-conversions.hpp
     )
   LIST(APPEND ${PROJECT_NAME}_MULTIBODY_HEADERS
+    multibody/fcl.hpp
     multibody/geometry.hpp
     multibody/geometry.hxx
     )

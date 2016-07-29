@@ -40,9 +40,7 @@ namespace se3
       : public boost::python::def_visitor< GeometryModelPythonVisitor >
     {
     public:
-      typedef GeometryModel::Index Index;
-      typedef GeometryModel::JointIndex JointIndex;
-      typedef GeometryModel::GeomIndex GeomIndex;
+
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       
     public:
@@ -103,9 +101,9 @@ namespace se3
 	  ;
       }
 
-      static GeometryModel::Index ngeoms( GeometryModelHandler & m ) { return m->ngeoms; }
+      static Index ngeoms( GeometryModelHandler & m ) { return m->ngeoms; }
 
-      static Model::GeomIndex getGeometryId( const GeometryModelHandler & gmodelPtr, const std::string & name )
+      static GeomIndex getGeometryId( const GeometryModelHandler & gmodelPtr, const std::string & name )
       { return  gmodelPtr->getGeometryId(name); }
       static bool existGeometryName(const GeometryModelHandler & gmodelPtr, const std::string & name)
       { return gmodelPtr->existGeometryName(name);}
@@ -132,7 +130,7 @@ namespace se3
       static bool existCollisionPair (const GeometryModelHandler & m, const GeomIndex co1, const GeomIndex co2)
       { return m->existCollisionPair(CollisionPair(co1,co2)); }
 
-      static GeometryModel::Index findCollisionPair (const GeometryModelHandler & m, const GeomIndex co1, 
+      static Index findCollisionPair (const GeometryModelHandler & m, const GeomIndex co1, 
                                                      const GeomIndex co2)
       { return m->findCollisionPair( CollisionPair(co1,co2) ); }
       

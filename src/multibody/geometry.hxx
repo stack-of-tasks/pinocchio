@@ -19,19 +19,10 @@
 #define __se3_geometry_hxx__
 
 
-#include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/spatial/force.hpp"
-#include "pinocchio/spatial/motion.hpp"
-#include "pinocchio/spatial/inertia.hpp"
-#include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/joint/joint-variant.hpp"
+
 #include <iostream>
 
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
+
 #include <map>
 #include <list>
 #include <utility>
@@ -41,11 +32,11 @@
 namespace se3
 {
 
-  inline GeometryModel::GeomIndex GeometryModel::addGeometryObject(const JointIndex parent,
-                                                                   const boost::shared_ptr<fcl::CollisionGeometry> & co,
-                                                                   const SE3 & placement,
-                                                                   const std::string & geom_name,
-                                                                   const std::string & mesh_path) throw(std::invalid_argument)
+  inline GeomIndex GeometryModel::addGeometryObject(const JointIndex parent,
+                                                    const boost::shared_ptr<fcl::CollisionGeometry> & co,
+                                                    const SE3 & placement,
+                                                    const std::string & geom_name,
+                                                    const std::string & mesh_path) throw(std::invalid_argument)
   {
 
     Index idx = (Index) (ngeoms ++);
@@ -57,14 +48,14 @@ namespace se3
   }
 
 
-  inline GeometryModel::GeomIndex GeometryModel::getGeometryId(const std::string & name) const
+  inline GeomIndex GeometryModel::getGeometryId(const std::string & name) const
   {
 
     std::vector<GeometryObject>::const_iterator it = std::find_if(geometryObjects.begin(),
                                                                   geometryObjects.end(),
                                                                   boost::bind(&GeometryObject::name, _1) == name
                                                                   );
-    return GeometryModel::GeomIndex(it - geometryObjects.begin());
+    return GeomIndex(it - geometryObjects.begin());
   }
 
 
@@ -108,7 +99,7 @@ namespace se3
   {
     os << "Nb geometry objects = " << model_geom.ngeoms << std::endl;
     
-    for(GeometryModel::Index i=0;i<(GeometryModel::Index)(model_geom.ngeoms);++i)
+    for(Index i=0;i<(Index)(model_geom.ngeoms);++i)
     {
       os  << model_geom.geometryObjects[i] <<std::endl;
     }
@@ -120,7 +111,7 @@ namespace se3
   {
     os << "Nb collision pairs = " << data_geom.activeCollisionPairs.size() << std::endl;
     
-    for(GeometryData::Index i=0;i<(GeometryData::Index)(data_geom.activeCollisionPairs.size());++i)
+    for(Index i=0;i<(Index)(data_geom.activeCollisionPairs.size());++i)
     {
       os << "collision object in position " << data_geom.model_geom.collisionPairs[i] << std::endl;
     }
@@ -161,7 +152,7 @@ namespace se3
                       pair) != collisionPairs.end());
   }
   
-  inline GeometryModel::Index GeometryModel::findCollisionPair (const CollisionPair & pair) const
+  inline Index GeometryModel::findCollisionPair (const CollisionPair & pair) const
   {
     CollisionPairsVector_t::const_iterator it = std::find(collisionPairs.begin(),
                                                           collisionPairs.end(),
