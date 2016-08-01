@@ -249,6 +249,7 @@ ENDIF(URDFDOM_FOUND)
 
 LIST(APPEND ${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/fcl.hpp
+  multibody/fcl.hxx
   multibody/geometry.hpp
   multibody/geometry.hxx
   )
@@ -260,9 +261,6 @@ IF(HPP_FCL_FOUND)
   LIST(APPEND ${PROJECT_NAME}_SPATIAL_HEADERS
     spatial/fcl-pinocchio-conversions.hpp
     )
-ELSE(HPP_FCL_FOUND)
-  LIST(APPEND ${PROJECT_NAME}_MULTIBODY_HEADERS
-       multibody/fake-fcl.hpp)
 ENDIF(HPP_FCL_FOUND)
 
 IF(LUA5_1_FOUND)

@@ -28,7 +28,9 @@
 #include <iomanip>
 #include <boost/foreach.hpp>
 
+#ifdef WITH_HPP_FCL
 #include <hpp/fcl/mesh_loader/assimp.h>
+#endif // WITH_HPP_FCL
 
 namespace se3
 {

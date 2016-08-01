@@ -19,15 +19,13 @@
 #define __se3_fcl_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
-#include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
 
 #ifdef WITH_HPP_FCL
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
 #include <hpp/fcl/shape/geometric_shapes.h>
-#else
-#include "pinocchio/multibody/fake-fcl.hpp"
+#include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
 #endif
 
 #include <iostream>
@@ -37,6 +35,7 @@
 #include <assert.h>
 
 #include <boost/foreach.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace se3
 {
@@ -64,10 +63,8 @@ namespace se3
     }
     
     void disp(std::ostream & os) const { os << "collision pair (" << first << "," << second << ")\n"; }
-    friend std::ostream & operator << (std::ostream & os, const CollisionPair & X)
-    {
-      X.disp(os); return os;
-    }
+    friend std::ostream & operator << (std::ostream & os, const CollisionPair & X);
+
   }; // struct CollisionPair
   typedef std::vector<CollisionPair> CollisionPairsVector_t;
 
@@ -87,17 +84,17 @@ namespace se3
     ///
     /// @brief Return the minimal distance between two geometry objects
     ///
-    double distance () const { return fcl_distance_result.min_distance; }
+    double distance () const;
 
     ///
     /// \brief Return the witness point on the inner object expressed in global frame.
     ///
-    Eigen::Vector3d closestPointInner () const { return toVector3d(fcl_distance_result.nearest_points [0]); }
+    Eigen::Vector3d closestPointInner () const;
     
     ///
     /// \brief Return the witness point on the outer object expressed in global frame.
     ///
-    Eigen::Vector3d closestPointOuter () const { return toVector3d(fcl_distance_result.nearest_points [1]); }
+    Eigen::Vector3d closestPointOuter () const;
     
     bool operator == (const DistanceResult & other) const
     {
@@ -156,14 +153,29 @@ namespace se3
 
   }; // struct CollisionResult
 
-/// \brief Return true if the intrinsic geometry of the two CollisionObject is the same
-inline bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
-{
-  return lhs.collisionGeometry() == rhs.collisionGeometry()
-          && lhs.getAABB().min_ == rhs.getAABB().min_
-          && lhs.getAABB().max_ == rhs.getAABB().max_;
-}
+#else
+
+  namespace fcl
+  {
+ 
+    struct FakeCollisionGeometry
+    {
+      FakeCollisionGeometry(){};
+    };
+
+    struct AABB
+    {
+      AABB(): min_(0), max_(1){};
+
+      int min_;
+      int max_;
+    };
+    typedef FakeCollisionGeometry CollisionGeometry;
+
+  }
+
 #endif // WITH_HPP_FCL
+
 enum GeometryType
 {
   VISUAL,
@@ -209,28 +221,10 @@ struct GeometryObject
     return *this;
   }
 
+  friend std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object);
 };
   
-  inline bool operator==(const GeometryObject & lhs, const GeometryObject & rhs)
-  {
-    return ( lhs.name == rhs.name
-            && lhs.parent == rhs.parent
-            && lhs.collision_geometry == rhs.collision_geometry
-            && lhs.placement == rhs.placement
-            && lhs.mesh_path ==  rhs.mesh_path
-            );
-  }
 
-  inline std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object)
-  {
-    os  << "Name: \t \n" << geom_object.name << "\n"
-        << "Parent ID: \t \n" << geom_object.parent << "\n"
-        // << "collision object: \t \n" << geom_object.collision_geometry << "\n"
-        << "Position in parent frame: \t \n" << geom_object.placement << "\n"
-        << "Absolute path to mesh file: \t \n" << geom_object.mesh_path << "\n"
-        << std::endl;
-    return os;
-  }
 
 
 } // namespace se3
@@ -238,6 +232,7 @@ struct GeometryObject
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
+#include "pinocchio/multibody/fcl.hxx"
 
 
 #endif // ifndef __se3_fcl_hpp__
