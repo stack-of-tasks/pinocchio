@@ -22,8 +22,6 @@
 #include <eigenpy/eigenpy.hpp>
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 
-
-
 namespace se3
 {
   namespace python

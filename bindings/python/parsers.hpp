@@ -1,4 +1,4 @@
-//
+      //
 // Copyright (c) 2015-2016 CNRS
 //
 // This file is part of Pinocchio
@@ -21,14 +21,15 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-#include "pinocchio/python/model.hpp"
-#include "pinocchio/python/data.hpp"
+#include "pinocchio/bindings/python/model.hpp"
+#include "pinocchio/bindings/python/data.hpp"
 
 #ifdef WITH_URDFDOM
   #include "pinocchio/parsers/urdf.hpp"
-  #include "pinocchio/python/geometry-model.hpp"
-  #include "pinocchio/python/geometry-data.hpp"
 #endif
+
+  #include "pinocchio/bindings/python/geometry-model.hpp"
+  #include "pinocchio/bindings/python/geometry-data.hpp"
 
 #ifdef WITH_LUA
   #include "pinocchio/parsers/lua.hpp"

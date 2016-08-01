@@ -18,7 +18,7 @@
 
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/geometry.hpp>
-#include "pinocchio/python/python.hpp"
+#include "pinocchio/bindings/python/python.hpp"
 
 #include <iostream>
 
@@ -48,6 +48,10 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   se3::python::exposeExplog();
 
   se3::python::exposeModel();
+  se3::python::exposeFrame();
+  se3::python::exposeData();
+  se3::python::exposeGeometry();
+  
   se3::python::exposeAlgorithms();
   se3::python::exposeParsers();
 }

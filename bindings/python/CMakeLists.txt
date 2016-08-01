@@ -36,7 +36,7 @@ MACRO(ADD_SOURCE_GROUP FILENAMES)
 ENDMACRO(ADD_SOURCE_GROUP FILENAMES)
 
 IF(BUILD_PYTHON_INTERFACE)
-  # --- Collect header files
+
   SET(${PROJECT_NAME}_PYTHON_HEADERS
     eigen_container.hpp
     handler.hpp
@@ -52,7 +52,7 @@ IF(BUILD_PYTHON_INTERFACE)
     frame.hpp
     model.hpp
     data.hpp
-    algorithms.hpp
+    algorithm/algorithms.hpp 
     parsers.hpp
     explog.hpp
     geometry-object.hpp
@@ -60,10 +60,48 @@ IF(BUILD_PYTHON_INTERFACE)
     geometry-data.hpp
     )
 
+  SET(${PROJECT_NAME}_PYTHON_SOURCES
+    module.cpp
+    expose-SE3.cpp
+    expose-motion.cpp
+    expose-force.cpp
+    expose-inertia.cpp
+    expose-explog.cpp
+    expose-joints.cpp
+    expose-frame.cpp
+    expose-model.cpp
+    expose-data.cpp
+    expose-parsers.cpp
+    algorithm/expose-algorithms.cpp
+    algorithm/expose-com.cpp
+    algorithm/expose-kinematics.cpp
+    algorithm/expose-dynamics.cpp
+    algorithm/expose-crba.cpp
+    algorithm/expose-rnea.cpp
+    algorithm/expose-aba.cpp
+    algorithm/expose-jacobian.cpp
+    algorithm/expose-joints.cpp
+    algorithm/expose-energy.cpp
+    algorithm/expose-frames.cpp
+    algorithm/expose-cat.cpp
+    )
+
+  LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
+    geometry-object.hpp
+    geometry-model.hpp
+    geometry-data.hpp
+    )
+
+  LIST(APPEND ${PROJECT_NAME}_PYTHON_SOURCES
+    expose-geometry.cpp
+    algorithm/expose-geometry.cpp
+    )
+
   LIST(APPEND HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
   LIST(REMOVE_DUPLICATES HEADERS)
 
   MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python")
+  MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/algorithm")
   FOREACH(header ${${PROJECT_NAME}_PYTHON_HEADERS})
     GET_FILENAME_COMPONENT(headerName ${header} NAME)
     GET_FILENAME_COMPONENT(headerPath ${header} PATH)
@@ -79,7 +117,9 @@ IF(BUILD_PYTHON_INTERFACE)
   
   # --- COMPILE WRAPPER
   SET(PYWRAP ${PROJECT_NAME}_pywrap)
-  ADD_LIBRARY(${PYWRAP} SHARED module.cpp python.cpp)
+  ADD_LIBRARY(${PYWRAP} SHARED ${${PROJECT_NAME}_PYTHON_SOURCES} ${${PROJECT_NAME}_PYTHON_HEADERS})
+  ADD_HEADER_GROUP(${PROJECT_NAME}_PYTHON_HEADERS)
+  ADD_SOURCE_GROUP(${PROJECT_NAME}_PYTHON_SOURCES)
   PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} eigenpy)
 
   IF(URDFDOM_FOUND)

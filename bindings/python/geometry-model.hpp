@@ -22,9 +22,9 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-#include "pinocchio/python/se3.hpp"
-#include "pinocchio/python/eigen_container.hpp"
-#include "pinocchio/python/handler.hpp"
+#include "pinocchio/bindings/python/se3.hpp"
+#include "pinocchio/bindings/python/eigen_container.hpp"
+#include "pinocchio/bindings/python/handler.hpp"
 
 #include "pinocchio/multibody/geometry.hpp"
 
@@ -33,18 +33,18 @@ namespace se3
   namespace python
   {
     namespace bp = boost::python;
-
+    
     typedef Handler<GeometryModel> GeometryModelHandler;
-
+    
     struct GeometryModelPythonVisitor
-      : public boost::python::def_visitor< GeometryModelPythonVisitor >
+    : public boost::python::def_visitor< GeometryModelPythonVisitor >
     {
     public:
 
       typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       
     public:
-
+      
       /* --- Convert From C++ to Python ------------------------------------- */
       // static PyObject* convert(Model const& modelConstRef)
       // {
@@ -55,10 +55,10 @@ namespace se3
       {
         return boost::python::incref(boost::python::object(GeometryModelHandler(ptr)).ptr());
       }
-
+      
       /* --- Exposing C++ API to python through the handler ----------------- */
-    template<class PyClass>
-      void visit(PyClass& cl) const 
+      template<class PyClass>
+      void visit(PyClass& cl) const
       {
 	cl
           .add_property("ngeoms", &GeometryModelPythonVisitor::ngeoms)
@@ -102,68 +102,64 @@ namespace se3
       }
 
       static Index ngeoms( GeometryModelHandler & m ) { return m->ngeoms; }
-
       static GeomIndex getGeometryId( const GeometryModelHandler & gmodelPtr, const std::string & name )
       { return  gmodelPtr->getGeometryId(name); }
       static bool existGeometryName(const GeometryModelHandler & gmodelPtr, const std::string & name)
       { return gmodelPtr->existGeometryName(name);}
       static std::string getGeometryName(const GeometryModelHandler & gmodelPtr, const GeomIndex index)
       { return gmodelPtr->getGeometryName(index);}
-
+      
       static std::vector<GeometryObject> & geometryObjects( GeometryModelHandler & m ) { return m->geometryObjects; }
 #ifdef WITH_HPP_FCL      
       static std::vector<CollisionPair> & collision_pairs( GeometryModelHandler & m ) 
       { return m->collisionPairs; }
-
+      
       static void addCollisionPair (GeometryModelHandler & m, const GeomIndex co1, const GeomIndex co2)
       { m->addCollisionPair(CollisionPair(co1, co2)); }
-
+      
       static void addAllCollisionPairs (GeometryModelHandler & m)
       { m->addAllCollisionPairs(); }
       
       static void removeCollisionPair (GeometryModelHandler & m, const GeomIndex co1, const GeomIndex co2)
       { m->removeCollisionPair( CollisionPair(co1,co2) ); }
-
+      
       static void removeAllCollisionPairs (GeometryModelHandler & m)
-      { m->removeAllCollisionPairs(); }      
-
+      { m->removeAllCollisionPairs(); }
+      
       static bool existCollisionPair (const GeometryModelHandler & m, const GeomIndex co1, const GeomIndex co2)
       { return m->existCollisionPair(CollisionPair(co1,co2)); }
 
       static Index findCollisionPair (const GeometryModelHandler & m, const GeomIndex co1, 
-                                                     const GeomIndex co2)
+                                      const GeomIndex co2)
       { return m->findCollisionPair( CollisionPair(co1,co2) ); }
 #endif // WITH_HPP_FCL      
       static GeometryModelHandler maker_default()
       { return GeometryModelHandler(new GeometryModel(), true); }
- 
-      static std::string toString(const GeometryModelHandler& m) 
+      
+      static std::string toString(const GeometryModelHandler& m)
       {	  std::ostringstream s; s << *m; return s.str(); }
-
+      
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-  
-  bp::enum_<GeometryType>("GeometryType")
-            .value("VISUAL",VISUAL)
-            .value("COLLISION",COLLISION)
-            .value("NONE",NONE)
-            ;
-
-  bp::class_<GeometryModelHandler>("GeometryModel",
-         "Geometry model (const)",
-         bp::no_init)
-    .def(GeometryModelPythonVisitor());
-      
-	bp::to_python_converter< GeometryModelHandler::SmartPtr_t,GeometryModelPythonVisitor >();
+        
+        bp::enum_<GeometryType>("GeometryType")
+        .value("VISUAL",VISUAL)
+        .value("COLLISION",COLLISION)
+        .value("NONE",NONE)
+        ;
+        
+        bp::class_<GeometryModelHandler>("GeometryModel",
+                                         "Geometry model (const)",
+                                         bp::no_init)
+        .def(GeometryModelPythonVisitor());
+        
+        bp::to_python_converter< GeometryModelHandler::SmartPtr_t,GeometryModelPythonVisitor >();
       }
-
-
+      
     };
     
-
-
-  }} // namespace se3::python
+  } // namespace python
+} // namespace se3
 
 #endif // ifndef __se3_python_geometry_model_hpp__
-

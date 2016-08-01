@@ -16,37 +16,18 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_python_hpp__
-#define __se3_python_python_hpp__
+#include "pinocchio/bindings/python/python.hpp"
+#include "pinocchio/bindings/python/explog.hpp"
 
 namespace se3
 {
   namespace python
   {
-    // Expose spatial classes
-    void exposeSE3();
-    void exposeForce();
-    void exposeMotion();
-    void exposeInertia();
-    void exposeExplog();
     
-    // Expose multibody classes
-    void exposeJoints();
-    void exposeModel();
-    void exposeFrame();
-    void exposeData();
+    void exposeExplog()
+    {
+      ExplogPythonVisitor::expose();
+    }
     
-    // Expose geometry module
-    void exposeGeometry();
-    
-    // Expose parsers
-    void exposeParsers();
-    
-    // Expose algorithms
-    void exposeAlgorithms();
-
   } // namespace python
 } // namespace se3
-
-#endif // ifndef __se3_python_python_hpp__
-

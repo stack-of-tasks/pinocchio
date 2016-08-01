@@ -1,6 +1,5 @@
 //
 // Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,37 +15,31 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_python_hpp__
-#define __se3_python_python_hpp__
+#include "pinocchio/bindings/python/python.hpp"
+#include "pinocchio/bindings/python/joint-derived.hpp"
+#include "pinocchio/bindings/python/joints-variant.hpp"
+#include "pinocchio/bindings/python/joint.hpp"
+
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 namespace se3
 {
   namespace python
   {
-    // Expose spatial classes
-    void exposeSE3();
-    void exposeForce();
-    void exposeMotion();
-    void exposeInertia();
-    void exposeExplog();
     
-    // Expose multibody classes
-    void exposeJoints();
-    void exposeModel();
-    void exposeFrame();
-    void exposeData();
+    static void exposeVariants()
+    {
+      boost::mpl::for_each<JointModelVariant::types>(exposer());
+      bp::to_python_converter<se3::JointModelVariant, jointModelVariantVisitor>();
+    }
     
-    // Expose geometry module
-    void exposeGeometry();
+    void exposeJoints()
+    {
+      exposeVariants();
+      JointModelPythonVisitor::expose();
+      bp::class_<JointModelVector>("StdVec_JointModelVector")
+      .def(bp::vector_indexing_suite<JointModelVector,true>());
+    }
     
-    // Expose parsers
-    void exposeParsers();
-    
-    // Expose algorithms
-    void exposeAlgorithms();
-
   } // namespace python
 } // namespace se3
-
-#endif // ifndef __se3_python_python_hpp__
-

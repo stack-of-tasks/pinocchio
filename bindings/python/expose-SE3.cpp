@@ -1,6 +1,5 @@
 //
 // Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,37 +15,20 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_python_hpp__
-#define __se3_python_python_hpp__
+#include "pinocchio/bindings/python/python.hpp"
+#include "pinocchio/bindings/python/se3.hpp"
+#include "pinocchio/bindings/python/eigen_container.hpp"
 
 namespace se3
 {
   namespace python
   {
-    // Expose spatial classes
-    void exposeSE3();
-    void exposeForce();
-    void exposeMotion();
-    void exposeInertia();
-    void exposeExplog();
     
-    // Expose multibody classes
-    void exposeJoints();
-    void exposeModel();
-    void exposeFrame();
-    void exposeData();
+    void exposeSE3()
+    {
+      SE3PythonVisitor<SE3>::expose();
+      PyWraperForAlignedStdVector<SE3>::expose("StdVect_SE3");
+    }
     
-    // Expose geometry module
-    void exposeGeometry();
-    
-    // Expose parsers
-    void exposeParsers();
-    
-    // Expose algorithms
-    void exposeAlgorithms();
-
   } // namespace python
 } // namespace se3
-
-#endif // ifndef __se3_python_python_hpp__
-
