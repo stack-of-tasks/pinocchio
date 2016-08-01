@@ -22,6 +22,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include "pinocchio/spatial/fwd.hpp"
+#include "pinocchio/spatial/se3.hpp"
 
 
 namespace se3
@@ -156,7 +157,7 @@ namespace se3
     /// af = aXb.act(bf)
     ForceTpl se3Action_impl(const SE3 & m) const
     {
-      Vector3 Rf (static_cast<Vector3>( (m.rotation()) * linear_impl() ) );
+      Vector3 Rf (m.rotation()*linear_impl());
       return ForceTpl(Rf,m.translation().cross(Rf)+m.rotation()*angular_impl());
     }
 
