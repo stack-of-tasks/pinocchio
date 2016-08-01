@@ -22,6 +22,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include "pinocchio/spatial/fwd.hpp"
+#include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
 
 namespace se3
@@ -213,7 +214,7 @@ namespace se3
 
     MotionTpl se3Action_impl(const SE3 & m) const
     {
-      Vector3 Rw (static_cast<Vector3>(m.rotation() * angular_impl()));
+      Vector3 Rw (m.rotation()*angular_impl());
       return MotionTpl( m.rotation()*linear_impl() + m.translation().cross(Rw),
                         Rw);
     }
