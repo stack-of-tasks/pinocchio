@@ -18,11 +18,12 @@
 #ifndef __se3_python_data_hpp__
 #define __se3_python_data_hpp__
 
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/bindings/python/handler.hpp"
+
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
-#include "pinocchio/multibody/model.hpp"
-
-#include <boost/shared_ptr.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 namespace se3
 {

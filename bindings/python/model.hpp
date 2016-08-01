@@ -25,11 +25,11 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/python/se3.hpp"
-#include "pinocchio/python/eigen_container.hpp"
-#include "pinocchio/python/handler.hpp"
-#include "pinocchio/python/motion.hpp"
-#include "pinocchio/python/inertia.hpp"
+#include "pinocchio/bindings/python/se3.hpp"
+#include "pinocchio/bindings/python/eigen_container.hpp"
+#include "pinocchio/bindings/python/handler.hpp"
+#include "pinocchio/bindings/python/motion.hpp"
+#include "pinocchio/bindings/python/inertia.hpp"
 
 
 namespace se3

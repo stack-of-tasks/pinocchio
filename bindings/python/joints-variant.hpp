@@ -21,7 +21,7 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include "pinocchio/multibody/joint/joint-variant.hpp"
-#include "pinocchio/python/joints-models.hpp"
+#include "pinocchio/bindings/python/joints-models.hpp"
 
 namespace se3
 {
@@ -52,14 +52,6 @@ namespace se3
         bp::implicitly_convertible<T,se3::JointModelVariant>();
       }
     };
-
-    // For the moment, only expose models of joint. Not data ( to do it, split exposer into exposerModels & exposer_Datas and do another for_each)  
-    static void exposeVariants()
-    {
-      boost::mpl::for_each<JointModelVariant::types>(exposer());
-      bp::to_python_converter<se3::JointModelVariant, jointModelVariantVisitor>();
-      // bp::def("make_variant", se3::make_variant);
-    }
 
   } // namespace python
 } // namespace se3

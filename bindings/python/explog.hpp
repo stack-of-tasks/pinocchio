@@ -22,8 +22,8 @@
 # include <eigenpy/eigenpy.hpp>
 
 # include "pinocchio/spatial/explog.hpp"
-# include "pinocchio/python/se3.hpp"
-# include "pinocchio/python/motion.hpp"
+# include "pinocchio/bindings/python/se3.hpp"
+# include "pinocchio/bindings/python/motion.hpp"
 
 namespace se3
 {

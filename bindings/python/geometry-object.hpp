@@ -23,9 +23,9 @@
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
+#include "pinocchio/bindings/python/se3.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
-
 
 namespace se3
 {
@@ -64,7 +64,6 @@ namespace se3
       static SE3_fx getPlacementWrtParentJoint( const GeometryObject & self) { return self.placement; }
       static void setPlacementWrtParentJoint(GeometryObject & self, const SE3_fx & placement) { self.placement = placement; }
 
-
       static void expose()
       {
         bp::class_<GeometryObject>("GeometryObject",
@@ -77,7 +76,6 @@ namespace se3
         bp::class_< std::vector<GeometryObject> >("StdVec_GeometryObject")
         .def(bp::vector_indexing_suite< std::vector<GeometryObject> >());
       }
-
 
     };
     

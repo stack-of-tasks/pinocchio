@@ -22,11 +22,11 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-#include "pinocchio/python/se3.hpp"
-#include "pinocchio/python/eigen_container.hpp"
-#include "pinocchio/python/handler.hpp"
-#include "pinocchio/python/data.hpp"
-#include "pinocchio/python/geometry-model.hpp"
+#include "pinocchio/bindings/python/se3.hpp"
+#include "pinocchio/bindings/python/eigen_container.hpp"
+#include "pinocchio/bindings/python/handler.hpp"
+#include "pinocchio/bindings/python/data.hpp"
+#include "pinocchio/bindings/python/geometry-model.hpp"
 
 namespace se3
 {

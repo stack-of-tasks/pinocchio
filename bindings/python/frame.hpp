@@ -23,6 +23,7 @@
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
+#include "pinocchio/bindings/python/se3.hpp"
 #include "pinocchio/multibody/frame.hpp"
 #include "pinocchio/multibody/model.hpp"
 
@@ -65,7 +66,7 @@ namespace se3
       }
 
 
-      static SE3_fx getPlacementWrtParentJoint( const Frame & self) { return self.placement; }
+      static SE3_fx getPlacementWrtParentJoint(const Frame & self) { return self.placement; }
       static void setPlacementWrtParentJoint(Frame & self, const SE3_fx & placement) { self.placement = placement; }
 
       static void expose()

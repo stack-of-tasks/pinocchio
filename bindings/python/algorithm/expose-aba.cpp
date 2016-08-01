@@ -1,6 +1,5 @@
 //
 // Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,39 +15,34 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_python_hpp__
-#define __se3_python_python_hpp__
+#include "pinocchio/bindings/python/algorithm/algorithms.hpp"
+#include "pinocchio/algorithm/aba.hpp"
 
 namespace se3
 {
   namespace python
   {
-    // Expose spatial classes
-    void exposeSE3();
-    void exposeForce();
-    void exposeMotion();
-    void exposeInertia();
-    void exposeExplog();
     
-    // Expose multibody classes
-    void exposeJoints();
-    void exposeModel();
-    void exposeFrame();
-    void exposeData();
+    static Eigen::MatrixXd aba_proxy(const ModelHandler & model,
+                              DataHandler & data,
+                              const VectorXd_fx & q,
+                              const VectorXd_fx & v,
+                              const VectorXd_fx & tau)
+    {
+      aba(*model,*data,q,v,tau);
+      return data->ddq;
+    }
     
-    // Expose geometry module
-#ifdef WITH_HPP_FCL
-    void exposeGeometry();
-#endif // ifdef WITH_HPP_FCL
+    void exposeABA()
+    {
+      bp::def("aba",aba_proxy,
+              bp::args("Model","Data",
+                       "Joint configuration q (size Model::nq)",
+                       "Joint velocity v (size Model::nv)",
+                       "Joint torque tau (size Model::nv)"),
+              "Compute ABA, put the result in Data::ddq and return it.");
+      
+    }
     
-    // Expose parsers
-    void exposeParsers();
-    
-    // Expose algorithms
-    void exposeAlgorithms();
-
   } // namespace python
 } // namespace se3
-
-#endif // ifndef __se3_python_python_hpp__
-

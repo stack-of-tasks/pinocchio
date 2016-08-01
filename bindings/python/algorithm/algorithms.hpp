@@ -1,6 +1,5 @@
 //
 // Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,39 +15,44 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_python_hpp__
-#define __se3_python_python_hpp__
+#ifndef __se3_python_algorithm_hpp__
+#define __se3_python_algorithm_hpp__
+
+#include <eigenpy/exception.hpp>
+#include <eigenpy/eigenpy.hpp>
+
+#include "pinocchio/bindings/python/python.hpp"
+#include "pinocchio/bindings/python/model.hpp"
+#include "pinocchio/bindings/python/data.hpp"
 
 namespace se3
 {
   namespace python
   {
-    // Expose spatial classes
-    void exposeSE3();
-    void exposeForce();
-    void exposeMotion();
-    void exposeInertia();
-    void exposeExplog();
-    
-    // Expose multibody classes
-    void exposeJoints();
-    void exposeModel();
-    void exposeFrame();
-    void exposeData();
-    
-    // Expose geometry module
-#ifdef WITH_HPP_FCL
-    void exposeGeometry();
-#endif // ifdef WITH_HPP_FCL
-    
-    // Expose parsers
-    void exposeParsers();
-    
-    // Expose algorithms
-    void exposeAlgorithms();
+   
+    typedef eigenpy::UnalignedEquivalent<Eigen::VectorXd>::type VectorXd_fx;
+    typedef eigenpy::UnalignedEquivalent<Eigen::MatrixXd>::type MatrixXd_fx;
 
+    void exposeJointsAlgo();
+    void exposeABA();
+    void exposeCRBA();
+    void exposeRNEA();
+    void exposeCOM();
+    void exposeFramesAlgo();
+    void exposeEnergy();
+    void exposeKinematics();
+    void exposeDynamics();
+    void exposeCAT();
+    void exposeJacobian();
+    
+#ifdef WITH_HPP_FCL
+    void exposeGeometryAlgo();
+#endif // ifdef WITH_HPP_FCL
+
+    void exposeAlgorithms();
+    
   } // namespace python
 } // namespace se3
 
-#endif // ifndef __se3_python_python_hpp__
+#endif // ifndef __se3_python_algorithm_hpp__
 
