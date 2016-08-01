@@ -202,8 +202,12 @@ namespace se3
           for (typename std::vector< boost::shared_ptr< T > >::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)
           {
 #ifdef WITH_HPP_FCL
+            mesh_path = retrieveResourcePath(boost::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry)->filename, package_dirs);
             const boost::shared_ptr<fcl::CollisionGeometry> geometry = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
 #else
+            boost::shared_ptr < ::urdf::Mesh> urdf_mesh = boost::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry);
+            if (urdf_mesh) mesh_path = retrieveResourcePath(urdf_mesh->filename, package_dirs);
+            
             const boost::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
 #endif // WITH_HPP_FCL            
             
