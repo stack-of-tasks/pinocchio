@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   {
     case se3::URDF:
 #ifdef WITH_URDFDOM
-      model = se3::urdf::buildModel(filename, verbose);
+      se3::urdf::buildModel(filename,model,verbose);
 #else
       std::cerr << "It seems that the URDFDOM module has not been found during the Cmake process." << std::endl;
 #endif
