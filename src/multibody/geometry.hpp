@@ -444,15 +444,13 @@ struct GeometryObject
     GeometryData(const GeometryModel & modelGeom)
         : model_geom(modelGeom)
         , oMg(model_geom.ngeoms)
-        , activeCollisionPairs()
-        , distance_results()
-        , collision_results()
+        , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
+        , distance_results(modelGeom.collisionPairs.size())
+        , collision_results(modelGeom.collisionPairs.size())
         , radius()
          
     {
-      activeCollisionPairs.resize(modelGeom.collisionPairs.size());
-      distance_results.resize(modelGeom.collisionPairs.size());
-      collision_results.resize(modelGeom.collisionPairs.size());
+      collisionObjects.reserve(modelGeom.geometryObjects.size());
       BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
         { collisionObjects.push_back
             (fcl::CollisionObject(geom.collision_geometry)); }
