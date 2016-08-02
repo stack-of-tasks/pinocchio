@@ -40,12 +40,8 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3::Vector3)
 
 namespace se3
 {
-  class Model;
-  class Data;
-  
-  class Model
+  struct Model
   {
-  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef se3::Index Index;
     typedef se3::JointIndex JointIndex;
@@ -351,9 +347,8 @@ namespace se3
     void addJointIndexToParentSubtrees(const JointIndex joint_id);
   };
 
-  class Data
+  struct Data
   {
-  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     /// \brief The 6d jacobian type (temporary)
     typedef Eigen::Matrix<double,6,Eigen::Dynamic> Matrix6x;
@@ -361,7 +356,6 @@ namespace se3
     typedef Eigen::Matrix<double,3,Eigen::Dynamic> Matrix3x;
     typedef SE3::Vector3 Vector3;
     
-  public:
     /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model, encapsulated in JointDataAccessor.
     JointDataVector joints;
     
