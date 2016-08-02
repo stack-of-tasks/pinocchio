@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
   
-  for (int k=0; k<model.nbody; ++k)
+  for (int k=0; k<model.njoint; ++k)
   {
     BOOST_CHECK (data.com[(size_t)k].isApprox(data_other.com[(size_t)k], 1e-12));
     BOOST_CHECK (data.vcom[(size_t)k].isApprox(data_other.vcom[(size_t)k], 1e-12));
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
   
-  for (int k=0; k<model.nbody; ++k)
+  for (int k=0; k<model.njoint; ++k)
   {
     BOOST_CHECK (data.com[(size_t)k].isApprox(data_other.com[(size_t)k], 1e-12));
     BOOST_CHECK (data.vcom[(size_t)k].isApprox(data_other.vcom[(size_t)k], 1e-12));
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
   
-  for (int k=0; k<model.nbody; ++k)
+  for (int k=0; k<model.njoint; ++k)
   {
     BOOST_CHECK (data.com[(size_t)k].isApprox(data_other.com[(size_t)k], 1e-12));
     BOOST_CHECK (data.vcom[(size_t)k].isApprox(data_other.vcom[(size_t)k], 1e-12));
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
   
-  for (int k=0; k<model.nbody; ++k)
+  for (int k=0; k<model.njoint; ++k)
   {
     BOOST_CHECK (data.com[(size_t)k].isApprox(data_other.com[(size_t)k], 1e-12));
     BOOST_CHECK (data.vcom[(size_t)k].isApprox(data_other.vcom[(size_t)k], 1e-12));

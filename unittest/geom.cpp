@@ -47,7 +47,7 @@ typedef std::map <std::string, se3::SE3> PositionsMap_t;
 typedef std::map <std::string, se3::SE3> JointPositionsMap_t;
 typedef std::map <std::string, se3::SE3> GeometryPositionsMap_t;
 typedef std::map <std::pair < std::string , std::string >, fcl::DistanceResult > PairDistanceMap_t;
-JointPositionsMap_t fillPinocchioJointPositions(const se3::Data & data);
+JointPositionsMap_t fillPinocchioJointPositions(const se3::Model& model, const se3::Data & data);
 GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryData & data_geom);
 #ifdef WITH_HPP_MODEL_URDF
 JointPositionsMap_t fillHppJointPositions(const hpp::model::HumanoidRobotPtr_t robot);
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   /// **********  COMPARISON  ********* /// 
   /// ********************************* ///
   // retrieve all joint and geometry objects positions
-  JointPositionsMap_t joints_pin  = fillPinocchioJointPositions(data);
+  JointPositionsMap_t joints_pin  = fillPinocchioJointPositions(model, data);
   JointPositionsMap_t joints_hpp  = fillHppJointPositions(humanoidRobot);
   GeometryPositionsMap_t geom_pin = fillPinocchioGeometryPositions(data_geom);
   GeometryPositionsMap_t geom_hpp = fillHppGeometryPositions(humanoidRobot);
@@ -489,12 +489,12 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 #endif
 BOOST_AUTO_TEST_SUITE_END ()
 
-JointPositionsMap_t fillPinocchioJointPositions(const se3::Data & data)
+JointPositionsMap_t fillPinocchioJointPositions(const se3::Model& model, const se3::Data & data)
 {
   JointPositionsMap_t result;
-  for (se3::Model::Index i = 0; i < (se3::Model::Index)data.model.nbody; ++i)
+  for (se3::Model::Index i = 0; i < (se3::Model::Index)model.njoint; ++i)
   {
-    result[data.model.getJointName(i)] = data.oMi[i];
+    result[model.getJointName(i)] = data.oMi[i];
   }
   return result;
 }
