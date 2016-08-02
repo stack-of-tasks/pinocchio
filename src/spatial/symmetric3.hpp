@@ -337,8 +337,6 @@ namespace se3
     
   };
 
-  typedef Symmetric3Tpl<double,0> Symmetric3;
-
 } // namespace se3
 
 #endif // ifndef __se3__symmetric3_hpp__

@@ -208,8 +208,6 @@ namespace se3
 
   }; // class ForceTpl
 
-  typedef ForceTpl<double,0> Force;
-
 } // namespace se3
 
 #endif // ifndef __se3_force_hpp__

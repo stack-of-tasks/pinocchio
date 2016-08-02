@@ -341,8 +341,6 @@ namespace se3
     Symmetric3 I;
     
   }; // class InertiaTpl
-
-  typedef InertiaTpl<double,0> Inertia;
     
 } // namespace se3
 
