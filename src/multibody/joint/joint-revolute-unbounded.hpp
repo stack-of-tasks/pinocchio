@@ -230,7 +230,7 @@ namespace se3
       const double & c1 = qf(0), s1 = qf(1);
 
       TangentVector_t result;
-      result << atan2 (s0*c1 - s1*c0, c0*c1 + s0*s1);
+      result << atan2 (s1*c0 - s0*c1, c0*c1 + s0*s1);
       return result; 
     } 
 

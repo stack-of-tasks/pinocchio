@@ -429,6 +429,7 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
+      
       return ConfigVector_t((1-u) * q_0 + u * q_1);
     }
 
@@ -460,8 +461,18 @@ namespace se3
     { 
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      typedef Transformation_t::Matrix3 Matrix3;
 
-      return TangentVector_t(q_1 - q_0);
+      Transformation_t M0(Transformation_t::Identity()); forwardKinematics(M0, q_0);
+      Transformation_t M1(Transformation_t::Identity()); forwardKinematics(M1, q_1);
+     
+      TangentVector_t res;
+      Motion nu = se3::log6((M0.inverse()*M1));
+      
+      res.head<2>() = nu.linear().head<2>();
+      res(2) = q_1(2) - q_0(2);
+      return res;
+
     } 
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const

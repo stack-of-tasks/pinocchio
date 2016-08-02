@@ -264,8 +264,18 @@ namespace se3
     using JointModelBase<JointModelSpherical>::setIndexes;
     typedef Motion::Vector3 Vector3;
     typedef double Scalar;
+    typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
 
     JointDataDerived createData() const { return JointDataDerived(); }
+
+    inline void forwardKinematics(Transformation_t & M, ConstQuaternionMap_t & q_joint) const
+    {
+      
+      assert(std::fabs(q_joint.coeffs().norm() - 1.) <= 1e-14);
+      
+      M.rotation(q_joint.matrix());
+      M.translation(Vector3::Zero());
+    }
 
     void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs) const
@@ -375,23 +385,16 @@ namespace se3
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
       using std::acos;
       
-      ConstQuaternionMap_t quat0 (q0.segment<NQ> (idx_q ()).data());
-      ConstQuaternionMap_t quat1 (q1.segment<NQ> (idx_q ()).data());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+
+      ConstQuaternionMap_t quat0 (q_0.data());
+      ConstQuaternionMap_t quat1 (q_1.data());
+      Transformation_t M0; forwardKinematics(M0, quat0);
+      Transformation_t M1; forwardKinematics(M1, quat1);
+
+      return se3::log3((M0.inverse()*M1).rotation());
       
-      const Motion_t::Quaternion_t quat_relatif (quat1*quat0.conjugate());
-      
-      if (quat_relatif.vec().norm() < 1e-8) // TODO: The value 1e-8 must be changed according to the precision of the current real.
-        return TangentVector_t::Zero();
-      else
-      {
-        Scalar theta;
-        if (quat0.dot(quat1) >= 0.)
-          theta = 2.*acos(quat_relatif.w());
-        else
-          theta = -2.*(PI - acos(quat_relatif.w()));
-        
-        return theta * quat_relatif.vec().normalized();
-      }
     }
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const

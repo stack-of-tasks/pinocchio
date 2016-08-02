@@ -351,30 +351,10 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
-      TangentVector_t result;
-      // Translational part
-      result.head<3>() << q_1.head<3> () - q_0.head<3> ();
+      Transformation_t M0(Transformation_t::Identity()); forwardKinematics(M0, q_0);
+      Transformation_t M1(Transformation_t::Identity()); forwardKinematics(M1, q_1);
 
-      // Quaternion part
-      // Compute relative rotation between q0 and q1.
-      ConstQuaternionMap_t quat0 (q_0.segment<4>(3).data());
-      ConstQuaternionMap_t quat1 (q_1.segment<4>(3).data());
-      
-      const Motion_t::Quaternion_t quat_relatif (quat1*quat0.conjugate());
-      
-      if (quat_relatif.vec().norm() < 1e-8) // TODO: The value 1e-8 must be changed according to the precision of the current real.
-        result.tail<3> ().setZero();
-      else
-      {
-        const Scalar theta = 2.*acos(quat_relatif.w());
-        
-        if (quat0.dot(quat1) >= 0.)
-          result.tail<3>() << theta * quat_relatif.vec().normalized();
-        else
-          result.tail<3>() << -(2*PI-theta) * quat_relatif.vec().normalized();
-      }
-
-      return result;
+      return se3::log6(M0.inverse()*M1);
     } 
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
