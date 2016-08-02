@@ -102,13 +102,13 @@ namespace se3
   crba(const Model & model, Data& data,
        const Eigen::VectorXd & q)
   {
-    for( Model::JointIndex i=1;i<(Model::JointIndex)(model.nbody);++i )
+    for( Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i )
     {
       CrbaForwardStep::run(model.joints[i],data.joints[i],
                            CrbaForwardStep::ArgsType(model,data,q));
     }
     
-    for( Model::JointIndex i=(Model::JointIndex)(model.nbody-1);i>0;--i )
+    for( Model::JointIndex i=(Model::JointIndex)(model.njoint-1);i>0;--i )
     {
       CrbaBackwardStep::run(model.joints[i],data.joints[i],
                             CrbaBackwardStep::ArgsType(model,data));
@@ -185,11 +185,11 @@ namespace se3
     
     forwardKinematics(model, data, q);
     data.Ycrb[0].setZero();
-    for(Model::Index i=1;i<(Model::Index)(model.nbody);++i )
+    for(Model::Index i=1;i<(Model::Index)(model.njoint);++i )
       data.Ycrb[i] = model.inertias[i];
     
     
-    for(Model::Index i=(Model::Index)(model.nbody-1);i>0;--i)
+    for(Model::Index i=(Model::Index)(model.njoint-1);i>0;--i)
     {
       CcrbaBackwardStep::run(model.joints[i],data.joints[i],
                              CcrbaBackwardStep::ArgsType(model,data));

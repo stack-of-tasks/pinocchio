@@ -71,7 +71,7 @@ namespace se3
    * @param[in]  model      Model we want to compute the distance
    * @param[in]  q0         Configuration 0 (size model.nq)
    * @param[in]  q1         Configuration 1 (size model.nq)
-   * @return     The corresponding distances for each joint (size model.nbody-1 = number of joints)
+   * @return     The corresponding distances for each joint (size model.njoint-1 = number of joints)
    */
   inline Eigen::VectorXd distance(const Model & model,
                                   const Eigen::VectorXd & q0,
@@ -144,7 +144,7 @@ namespace se3
                  const Eigen::VectorXd & v)
   {
     Eigen::VectorXd integ(model.nq);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoint; ++i )
     {
       IntegrateStep::run(model.joints[i],
                           IntegrateStep::ArgsType (q, v, integ)
@@ -183,7 +183,7 @@ namespace se3
                const double u)
   {
     Eigen::VectorXd interp(model.nq);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoint; ++i )
     {
       InterpolateStep::run(model.joints[i],
                             InterpolateStep::ArgsType (q0, q1, u, interp)
@@ -218,7 +218,7 @@ namespace se3
                      const Eigen::VectorXd & q1)
   {
     Eigen::VectorXd diff(model.nv);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoint; ++i )
     {
       DifferentiateStep::run(model.joints[i],
                               DifferentiateStep::ArgsType (q0, q1, diff)
@@ -254,8 +254,8 @@ namespace se3
                const Eigen::VectorXd & q0,
                const Eigen::VectorXd & q1)
   {
-    Eigen::VectorXd distances(model.nbody-1);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
+    Eigen::VectorXd distances(model.njoint-1);
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoint; ++i )
     {
       DistanceStep::run(model.joints[i],
                         DistanceStep::ArgsType (i-1, q0, q1, distances)
@@ -291,7 +291,7 @@ namespace se3
   randomConfiguration(const Model & model, const Eigen::VectorXd & lowerLimits, const Eigen::VectorXd & upperLimits)
   {
     Eigen::VectorXd q(model.nq);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.nbody; ++i )
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoint; ++i )
     {
       RandomConfiguration::run(model.joints[i],
                                RandomConfiguration::ArgsType ( q, lowerLimits, upperLimits)
