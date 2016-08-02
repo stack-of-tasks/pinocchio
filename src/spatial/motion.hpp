@@ -247,8 +247,6 @@ namespace se3
   template<typename S,int O>
   ForceTpl<S,O> operator^( const MotionTpl<S,O> &m, const ForceTpl<S,O> &f ) { return m.cross(f); }
 
-  typedef MotionTpl<double,0> Motion;
-
 
   ///////////////   BiasZero  ///////////////
   struct BiasZero;

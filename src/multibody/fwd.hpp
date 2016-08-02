@@ -25,6 +25,13 @@ namespace se3
   typedef Index GeomIndex;
   typedef Index FrameIndex;
   
+  struct Frame;
+  struct Model;
+  struct Data;
+  struct GeometryModel;
+  struct GeometryData;
+  struct JointModel;
+  struct JointData;
 } // namespace se3
 
 #endif // #ifndef __se3_multibody_fwd_hpp__

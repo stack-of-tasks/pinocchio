@@ -29,6 +29,12 @@ namespace se3
   template<typename _Scalar, int _Options=0> class InertiaTpl;
   template<typename _Scalar, int _Options=0> class Symmetric3Tpl;
 
+  typedef SE3Tpl        <double,0> SE3;
+  typedef MotionTpl     <double,0> Motion;
+  typedef ForceTpl      <double,0> Force;
+  typedef InertiaTpl    <double,0> Inertia;
+  typedef Symmetric3Tpl <double,0> Symmetric3;
+
   template<class C> struct traits {};
 
   #define SPATIAL_TYPEDEF_TEMPLATE(derived)              \
