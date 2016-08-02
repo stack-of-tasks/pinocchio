@@ -238,8 +238,7 @@ namespace se3
 
 
   inline Data::Data (const Model & ref)
-    :model(ref)
-    ,joints(0)
+    :joints(0)
     ,a((std::size_t)ref.njoint)
     ,a_gf((std::size_t)ref.njoint)
     ,v((std::size_t)ref.njoint)
@@ -275,16 +274,16 @@ namespace se3
     ,lambda_c()
     ,sDUiJt(ref.nv,ref.nv)
     ,torque_residual(ref.nv)
-    ,dq_after(model.nv)
+    ,dq_after(ref.nv)
     ,impulse_c()
   {
     /* Create data strcture associated to the joints */
-    for(Model::Index i=0;i<(Model::JointIndex)(model.njoint);++i) 
-      joints.push_back(CreateJointData::run(model.joints[i]));
+    for(Model::Index i=0;i<(Model::JointIndex)(ref.njoint);++i) 
+      joints.push_back(CreateJointData::run(ref.joints[i]));
 
     /* Init for CRBA */
     M.fill(0);
-    for(Model::Index i=0;i<(Model::Index)(ref.njoint);++i ) { Fcrb[i].resize(6,model.nv); }
+    for(Model::Index i=0;i<(Model::Index)(ref.njoint);++i ) { Fcrb[i].resize(6,ref.nv); }
     computeLastChild(ref);
 
     /* Init for Cholesky */
@@ -299,7 +298,7 @@ namespace se3
     
     a[0].setZero();
     v[0].setZero();
-    a_gf[0] = -model.gravity;
+    a_gf[0] = -ref.gravity;
     f[0].setZero();
     oMi[0].setIdentity();
     liMi[0].setIdentity();
