@@ -362,9 +362,6 @@ namespace se3
     typedef SE3::Vector3 Vector3;
     
   public:
-    /// \brief A const reference to the reference model.
-    const Model & model;
-    
     /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model, encapsulated in JointDataAccessor.
     JointDataVector joints;
     

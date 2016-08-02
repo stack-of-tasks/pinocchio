@@ -369,7 +369,7 @@ BOOST_AUTO_TEST_CASE ( distance_computation_test )
   Eigen::Quaterniond quat_ff_2(q2[6],q2[3],q2[4],q2[5]);
   Eigen::Quaterniond quat_spherical_2(q2[10],q2[7],q2[8],q2[9]);
 
-  Eigen::VectorXd expected(model.nbody-1);
+  Eigen::VectorXd expected(model.njoint-1);
 
   // Quaternion freeflyer
   // Compute rotation vector between q2 and q1.
@@ -408,14 +408,14 @@ BOOST_AUTO_TEST_CASE ( distance_computation_test )
   // Test Case 1 : Distance between two zero configs
   //
   Eigen::VectorXd q_zero(Eigen::VectorXd::Zero(model.nq));
-  expected = Eigen::VectorXd::Zero(model.nbody-1);
+  expected = Eigen::VectorXd::Zero(model.njoint-1);
   result = distance(model,q_zero,q_zero);
   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Distance between two zero configs of full model - wrong results");
 
   //
   // Test Case 2 : Distance between two same configs
   //
-  expected = Eigen::VectorXd::Zero(model.nbody-1);
+  expected = Eigen::VectorXd::Zero(model.njoint-1);
   result = distance(model,q1,q1);
   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "Distance between two same configs of full model - wrong results");
 

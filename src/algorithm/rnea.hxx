@@ -93,13 +93,13 @@ namespace se3
     data.v[0].setZero();
     data.a_gf[0] = -model.gravity;
 
-    for( Model::JointIndex i=1;i<(Model::JointIndex)model.nbody;++i )
+    for( Model::JointIndex i=1;i<(Model::JointIndex)model.njoint;++i )
     {
       RneaForwardStep::run(model.joints[i],data.joints[i],
                            RneaForwardStep::ArgsType(model,data,q,v,a));
     }
     
-    for( Model::JointIndex i=(Model::JointIndex)model.nbody-1;i>0;--i )
+    for( Model::JointIndex i=(Model::JointIndex)model.njoint-1;i>0;--i )
     {
       RneaBackwardStep::run(model.joints[i],data.joints[i],
                             RneaBackwardStep::ArgsType(model,data));
@@ -174,13 +174,13 @@ namespace se3
     data.v[0].setZero ();
     data.a_gf[0] = -model.gravity;
     
-    for( size_t i=1;i<(size_t) model.nbody;++i )
+    for( size_t i=1;i<(size_t) model.njoint;++i )
     {
       NLEForwardStep::run(model.joints[i],data.joints[i],
                           NLEForwardStep::ArgsType(model,data,q,v));
     }
     
-    for( size_t i=(size_t) (model.nbody-1);i>0;--i )
+    for( size_t i=(size_t) (model.njoint-1);i>0;--i )
     {
       NLEBackwardStep::run(model.joints[i],data.joints[i],
                            NLEBackwardStep::ArgsType(model,data));

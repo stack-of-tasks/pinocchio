@@ -30,8 +30,8 @@ namespace se3
 {
   inline std::ostream& operator<< (std::ostream & os, const Model & model)
   {
-    os << "Nb bodies = " << model.nbody << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
-    for(Model::Index i=0;i<(Model::Index)(model.nbody);++i)
+    os << "Nb joints = " << model.njoint << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
+    for(Model::Index i=0;i<(Model::Index)(model.njoint);++i)
     {
       os << "  Joint "<< model.names[i] << ": parent=" << model.parents[i]  << std::endl;
     }
@@ -237,59 +237,58 @@ namespace se3
   }
 
 
-  inline Data::Data (const Model & ref)
-    :model(ref)
-    ,joints(0)
-    ,a((std::size_t)ref.nbody)
-    ,a_gf((std::size_t)ref.nbody)
-    ,v((std::size_t)ref.nbody)
-    ,f((std::size_t)ref.nbody)
-    ,oMi((std::size_t)ref.nbody)
-    ,liMi((std::size_t)ref.nbody)
-    ,tau(ref.nv)
-    ,nle(ref.nv)
-    ,oMf((std::size_t)ref.nFrames)
-    ,Ycrb((std::size_t)ref.nbody)
-    ,M(ref.nv,ref.nv)
-    ,ddq(ref.nv)
-    ,Yaba((std::size_t)ref.nbody)
-    ,u(ref.nv)
-    ,Ag(6,ref.nv)
-    ,Fcrb((std::size_t)ref.nbody)
-    ,lastChild((std::size_t)ref.nbody)
-    ,nvSubtree((std::size_t)ref.nbody)
-    ,U(ref.nv,ref.nv)
-    ,D(ref.nv)
-    ,tmp(ref.nv)
-    ,parents_fromRow((std::size_t)ref.nv)
-    ,nvSubtree_fromRow((std::size_t)ref.nv)
-    ,J(6,ref.nv)
-    ,iMf((std::size_t)ref.nbody)
-    ,com((std::size_t)ref.nbody)
-    ,vcom((std::size_t)ref.nbody)
-    ,acom((std::size_t)ref.nbody)
-    ,mass((std::size_t)ref.nbody)
-    ,Jcom(3,ref.nv)
+  inline Data::Data (const Model & model)
+    :joints(0)
+    ,a((std::size_t)model.njoint)
+    ,a_gf((std::size_t)model.njoint)
+    ,v((std::size_t)model.njoint)
+    ,f((std::size_t)model.njoint)
+    ,oMi((std::size_t)model.njoint)
+    ,liMi((std::size_t)model.njoint)
+    ,tau(model.nv)
+    ,nle(model.nv)
+    ,oMf((std::size_t)model.nFrames)
+    ,Ycrb((std::size_t)model.njoint)
+    ,M(model.nv,model.nv)
+    ,ddq(model.nv)
+    ,Yaba((std::size_t)model.njoint)
+    ,u(model.nv)
+    ,Ag(6,model.nv)
+    ,Fcrb((std::size_t)model.njoint)
+    ,lastChild((std::size_t)model.njoint)
+    ,nvSubtree((std::size_t)model.njoint)
+    ,U(model.nv,model.nv)
+    ,D(model.nv)
+    ,tmp(model.nv)
+    ,parents_fromRow((std::size_t)model.nv)
+    ,nvSubtree_fromRow((std::size_t)model.nv)
+    ,J(6,model.nv)
+    ,iMf((std::size_t)model.njoint)
+    ,com((std::size_t)model.njoint)
+    ,vcom((std::size_t)model.njoint)
+    ,acom((std::size_t)model.njoint)
+    ,mass((std::size_t)model.njoint)
+    ,Jcom(3,model.nv)
     ,JMinvJt()
     ,llt_JMinvJt()
     ,lambda_c()
-    ,sDUiJt(ref.nv,ref.nv)
-    ,torque_residual(ref.nv)
+    ,sDUiJt(model.nv,model.nv)
+    ,torque_residual(model.nv)
     ,dq_after(model.nv)
     ,impulse_c()
   {
     /* Create data strcture associated to the joints */
-    for(Model::Index i=0;i<(Model::JointIndex)(model.nbody);++i) 
+    for(Model::Index i=0;i<(Model::JointIndex)(model.njoint);++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
 
     /* Init for CRBA */
     M.fill(0);
-    for(Model::Index i=0;i<(Model::Index)(ref.nbody);++i ) { Fcrb[i].resize(6,model.nv); }
-    computeLastChild(ref);
+    for(Model::Index i=0;i<(Model::Index)(model.njoint);++i ) { Fcrb[i].resize(6,model.nv); }
+    computeLastChild(model);
 
     /* Init for Cholesky */
     U.setIdentity();
-    computeParents_fromRow(ref);
+    computeParents_fromRow(model);
 
     /* Init Jacobian */
     J.setZero();
@@ -309,7 +308,7 @@ namespace se3
   {
     typedef Model::Index Index;
     std::fill(lastChild.begin(),lastChild.end(),-1);
-    for( int i=model.nbody-1;i>=0;--i )
+    for( int i=model.njoint-1;i>=0;--i )
     {
       if(lastChild[(Index)i] == -1) lastChild[(Index)i] = i;
       const Index & parent = model.parents[(Index)i];
@@ -323,7 +322,7 @@ namespace se3
 
   inline void Data::computeParents_fromRow (const Model & model)
   {
-    for( Model::Index joint=1;joint<(Model::Index)(model.nbody);joint++)
+    for( Model::Index joint=1;joint<(Model::Index)(model.njoint);joint++)
     {
       const Model::Index & parent = model.parents[joint];
       const int nvj    = nv   (model.joints[joint]);

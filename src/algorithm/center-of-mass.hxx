@@ -36,7 +36,7 @@ namespace se3
     if (updateKinematics)
       forwardKinematics(model, data, q);
 
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.nbody);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i)
     {
       const double mass = model.inertias[i].mass();
       const SE3::Vector3 & lever = model.inertias[i].lever();
@@ -46,7 +46,7 @@ namespace se3
     }
     
     // Backward Step
-    for(Model::JointIndex i=(Model::JointIndex)(model.nbody-1); i>0; --i)
+    for(Model::JointIndex i=(Model::JointIndex)(model.njoint-1); i>0; --i)
     {
       const Model::JointIndex & parent = model.parents[i];
       
@@ -84,7 +84,7 @@ namespace se3
     if (updateKinematics)
       forwardKinematics(model, data, q, v);
     
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.nbody);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i)
     {
       const double mass = model.inertias[i].mass();
       const SE3::Vector3 & lever = model.inertias[i].lever();
@@ -98,7 +98,7 @@ namespace se3
     }
     
     // Backward Step
-    for(Model::JointIndex i=(Model::JointIndex)(model.nbody-1); i>0; --i)
+    for(Model::JointIndex i=(Model::JointIndex)(model.njoint-1); i>0; --i)
     {
       const Model::JointIndex & parent = model.parents[i];
       
@@ -142,7 +142,7 @@ namespace se3
     if (updateKinematics)
       forwardKinematics(model, data, q, v, a);
     
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.nbody);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i)
     {
       const double mass = model.inertias[i].mass();
       const SE3::Vector3 & lever = model.inertias[i].lever();
@@ -158,7 +158,7 @@ namespace se3
     }
     
     // Backward Step
-    for(Model::JointIndex i=(Model::JointIndex)(model.nbody-1); i>0; --i)
+    for(Model::JointIndex i=(Model::JointIndex)(model.njoint-1); i>0; --i)
     {
       const Model::JointIndex & parent = model.parents[i];
       
@@ -253,7 +253,7 @@ namespace se3
     if (updateKinematics)
       forwardKinematics(model, data, q);
       
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.nbody);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i)
     {
       const double mass = model.inertias[i].mass();
       const SE3::Vector3 & lever = model.inertias[i].lever();
@@ -263,7 +263,7 @@ namespace se3
     }
    
     // Backward step
-    for( Model::JointIndex i= (Model::JointIndex) (model.nbody-1);i>0;--i )
+    for( Model::JointIndex i= (Model::JointIndex) (model.njoint-1);i>0;--i )
     {
       JacobianCenterOfMassBackwardStep
       ::run(model.joints[i],data.joints[i],
