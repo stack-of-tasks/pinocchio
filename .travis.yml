@@ -13,6 +13,8 @@ env:
     - DEBSIGN_KEYID=5AE5CD75
     - LCOV_IGNORE_RULES="*unittest* /opt/openrobots/*"
     - CC=gcc
+    - DO_COVERAGE_ON_BRANCH="master;release"
+    - DO_CPPCHECK_ON_BRANCH=""
   matrix:
     # - BUILDTYPE=Release
     # - BUILDTYPE=Debug
