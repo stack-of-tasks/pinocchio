@@ -13,6 +13,8 @@ env:
     - DEBSIGN_KEYID=5AE5CD75
     - LCOV_IGNORE_RULES="*unittest* /opt/openrobots/*"
     - CC=gcc
+    - DO_COVERAGE_ON_BRANCH="master;release"
+    - DO_CPPCHECK_ON_BRANCH=""
   matrix:
     # - BUILDTYPE=Release
     # - BUILDTYPE=Debug
@@ -35,7 +37,7 @@ install:
 script:
   - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE}"
   - sudo free -m -t
-  - travis_wait 60 ./.travis/run ../travis_custom/custom_build
+  - ./.travis/run ../travis_custom/custom_build
 after_failure: ./.travis/run after_failure
 after_success:
   - ./.travis/run after_success
