@@ -245,7 +245,7 @@ namespace se3
       {
         bp::class_< std::vector<Index> >("StdVec_Index")
           .def(bp::vector_indexing_suite< std::vector<Index> >());
-        bp::class_< std::vector<Index> >("StdVec_IndexVector")
+        bp::class_< std::vector<Model::IndexVector> >("StdVec_IndexVector")
         .def(bp::vector_indexing_suite< std::vector<Model::IndexVector> >());
         bp::class_< std::vector<std::string> >("StdVec_StdString")
           .def(bp::vector_indexing_suite< std::vector<std::string> >())
