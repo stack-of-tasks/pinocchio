@@ -268,13 +268,16 @@ namespace se3
 
     JointDataDerived createData() const { return JointDataDerived(); }
 
-    inline void forwardKinematics(Transformation_t & M, ConstQuaternionMap_t & q_joint) const
+    template<typename V>
+    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
     {
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
+
+      ConstQuaternionMap_t quat(q_joint.derived().data());
+      assert(std::fabs(quat.coeffs().norm() - 1.) <= 1e-14);
       
-      assert(std::fabs(q_joint.coeffs().norm() - 1.) <= 1e-14);
-      
-      M.rotation(q_joint.matrix());
-      M.translation(Vector3::Zero());
+      M.rotation(quat.matrix());
+      M.translation().setZero();
     }
 
     void calc (JointDataDerived & data,
@@ -388,12 +391,10 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
-      ConstQuaternionMap_t quat0 (q_0.data());
-      ConstQuaternionMap_t quat1 (q_1.data());
-      Transformation_t M0; forwardKinematics(M0, quat0);
-      Transformation_t M1; forwardKinematics(M1, quat1);
+      Transformation_t M0; forwardKinematics(M0, q_0);
+      Transformation_t M1; forwardKinematics(M1, q_1);
 
-      return se3::log3((M0.inverse()*M1).rotation());
+      return se3::log3((M0.rotation().transpose()*M1.rotation()).eval());
       
     }
 
