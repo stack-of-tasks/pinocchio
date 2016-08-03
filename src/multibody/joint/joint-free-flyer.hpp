@@ -286,18 +286,13 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
-      ConfigVector_t result;
-      // Translational part
-      result.head<3> () << ((1-u)*q_0.head<3>() + u * q_1.head<3>());
-
-      //Quaternion part
-      ConstQuaternionMap_t p0 (q_0.segment<4>(3).data());
-      ConstQuaternionMap_t p1 (q_1.segment<4>(3).data());
-      QuaternionMap_t quat_result (result.tail<4>().data());
-      
-      quat_result = p0.slerp(u, p1);
-
-      return result; 
+      if (u == 0) return q_0;
+      else if( u == 1) return q_1;
+      else
+      {
+        TangentVector_t nu(u*difference(q0, q1));
+        return integrate(q0, nu);
+      }
     }
 
     ConfigVector_t random_impl() const

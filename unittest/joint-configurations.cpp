@@ -151,122 +151,6 @@ BOOST_AUTO_TEST_CASE ( integration_test )
   BOOST_CHECK_MESSAGE(results[0].isApprox(qs[0], 1e-12), "integration of full body with zero velocity - wrong results");
 }
 
-// BOOST_AUTO_TEST_CASE ( interpolation_test )
-// {
-//   Model model; buildModel(model);
-//   Data data(model);
-
-//   std::vector<Eigen::VectorXd> qs1(3);
-//   std::vector<Eigen::VectorXd> qs2(3);
-//   std::vector<double> us(3);
-//   std::vector<Eigen::VectorXd> results(3);
-//   std::vector<Eigen::VectorXd> expecteds(3);
-  
-//   //
-//   // Test Case 0 : u between 0 and 1
-//   //
-//   qs1[0] = Eigen::VectorXd::Zero(model.nq);
-//   qs2[0] = Eigen::VectorXd::Ones(model.nq);
-  
-//   Eigen::Vector3d axis (Eigen::Vector3d::Ones()); axis.normalize();
-//   const double angle (0.5);
-//   Eigen::AngleAxis<double> aa1 (0., axis);
-//   Eigen::AngleAxis<double> aa2 (angle, axis);
-  
-//   qs1[0].segment<4>(3) = Eigen::Quaterniond(aa1).coeffs();
-//   qs1[0].segment<4>(7) = Eigen::Quaterniond(aa1).coeffs();
-  
-//   qs2[0].segment<4>(3) = Eigen::Quaterniond(aa2).coeffs();
-//   qs2[0].segment<4>(7) = Eigen::Quaterniond(aa2).coeffs();
-//   us[0] = 0.1; double & u = us[0];
-  
-//   Eigen::Quaterniond quat_ff_1(qs1[0][6],qs1[0][3],qs1[0][4],qs1[0][5]);
-//   Eigen::Quaterniond quat_spherical_1(qs1[0][10],qs1[0][7],qs1[0][8],qs1[0][9]);
-//   Eigen::Quaterniond quat_ff_2(qs2[0][6],qs2[0][3],qs2[0][4],qs2[0][5]);
-//   Eigen::Quaterniond quat_spherical_2(qs2[0][10],qs2[0][7],qs2[0][8],qs2[0][9]);
-
-//   Eigen::VectorXd & expected = expecteds[0];
-//   expected.resize(model.nq);
-
-
-//   // filling expected.
-//   Eigen::Quaterniond quat_ff__int = quat_ff_1.slerp(u, quat_ff_2);
-//   Eigen::Quaterniond quat_spherical_int = quat_spherical_1.slerp(u, quat_spherical_2);
-
-//   expected.head<3>() = (1-u) * qs1[0].head<3>() + u*qs2[0].head<3>();
-//   expected[3] = quat_ff__int.x();expected[4] = quat_ff__int.y(); expected[5] = quat_ff__int.z(); expected[6] = quat_ff__int.w(); 
-//   expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
-//   expected.tail<13>() = (1-u)* qs1[0].tail<13>() + u*qs2[0].tail<13>();
-
-//   Eigen::VectorXd & result = results[0];
-//   result = interpolate(model,qs1[0],qs2[0],us[0]);
-
-//   BOOST_CHECK_MESSAGE(result.isApprox(expected, 1e-12), "interpolation full model for u = 0.1 - wrong results");
-  
-//   //
-//   // Test Case 1 : u = 0 -> expected = qs1[1]
-//   //
-//   us[1] = 0; u = us[1];
-//   qs1[1] = qs1[0];
-//   qs2[1] = qs2[0];
-//   result = results[1];
-//   expected = expecteds[1]; expected.resize(model.nq);
-
-//   quat_ff__int = Eigen::Quaterniond((1-u) * quat_ff_1.w() + u*quat_ff_2.w(),
-//                                     (1-u) * quat_ff_1.x() + u*quat_ff_2.x(),
-//                                     (1-u) * quat_ff_1.y() + u*quat_ff_2.y(),
-//                                     (1-u) * quat_ff_1.z() + u*quat_ff_2.z()
-//                                     );
-//   quat_ff__int.normalize();
-//   quat_spherical_int = Eigen::Quaterniond((1-u) * quat_spherical_1.w() + u*quat_spherical_2.w(),
-//                                           (1-u) * quat_spherical_1.x() + u*quat_spherical_2.x(),
-//                                           (1-u) * quat_spherical_1.y() + u*quat_spherical_2.y(),
-//                                           (1-u) * quat_spherical_1.z() + u*quat_spherical_2.z()
-//                                           );
-//   quat_spherical_int.normalize();
-
-//   expected.head<3>() = (1-u) * qs1[1].head<3>() + u*qs2[1].head<3>();
-//   expected[3] = quat_ff__int.x();expected[4] = quat_ff__int.y(); expected[5] = quat_ff__int.z(); expected[6] = quat_ff__int.w(); 
-//   expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
-//   expected.tail<13>() = (1-u)* qs1[1].tail<13>() + u*qs2[1].tail<13>();
-
-//   result = interpolate(model,qs1[1],qs2[1],u);
-
-//   BOOST_CHECK_MESSAGE(result.isApprox(qs1[1], 1e-12), "interpolation with u = 0 - wrong results");
-  
-//   //
-//   // u = 1 -> q_interpolate = q2
-//   //
-//   us[2] = 1; u = us[2];
-//   result = results[2];
-//   qs1[2] = qs1[0];
-//   qs2[2] = qs2[0];
-//   expected = expecteds[2]; expected.resize(model.nq);
-
-
-//   quat_ff__int = Eigen::Quaterniond((1-u) * quat_ff_1.w() + u*quat_ff_2.w(),
-//                                     (1-u) * quat_ff_1.x() + u*quat_ff_2.x(),
-//                                     (1-u) * quat_ff_1.y() + u*quat_ff_2.y(),
-//                                     (1-u) * quat_ff_1.z() + u*quat_ff_2.z()
-//                                     );
-//   quat_ff__int.normalize();
-//   quat_spherical_int = Eigen::Quaterniond((1-u) * quat_spherical_1.w() + u*quat_spherical_2.w(),
-//                                           (1-u) * quat_spherical_1.x() + u*quat_spherical_2.x(),
-//                                           (1-u) * quat_spherical_1.y() + u*quat_spherical_2.y(),
-//                                           (1-u) * quat_spherical_1.z() + u*quat_spherical_2.z()
-//                                           );
-//   quat_spherical_int.normalize();
-
-//   expected.head<3>() = (1-u) * qs1[2].head<3>() + u*qs2[2].head<3>();
-//   expected[3] = quat_ff__int.x();expected[4] = quat_ff__int.y(); expected[5] = quat_ff__int.z(); expected[6] = quat_ff__int.w(); 
-//   expected[7] = quat_spherical_int.x();expected[8] = quat_spherical_int.y(); expected[9] = quat_spherical_int.z(); expected[10] = quat_spherical_int.w(); 
-//   expected.tail<13>() = (1-u)* qs1[2].tail<13>() + u*qs2[2].tail<13>();
-
-//   result = interpolate(model,qs1[2],qs2[2],u);
-
-//   BOOST_CHECK_MESSAGE(configurations_are_equals(result, qs2[2]), "interpolation with u = 1 - wrong results");
-// }
-
 
 struct TestDifferentiationJoint
 {
@@ -357,7 +241,6 @@ BOOST_AUTO_TEST_CASE (differentiation_test_joint)
   boost::mpl::for_each<JointModelVariant::types>(TestDifferentiationJoint());
 }
 
-
 BOOST_AUTO_TEST_CASE ( integrate_difference_test )
 {
  Model model; buildModel(model);
@@ -369,6 +252,133 @@ BOOST_AUTO_TEST_CASE ( integrate_difference_test )
  BOOST_CHECK_MESSAGE(configurations_are_equals(integrate(model, q0, differentiate(model, q0,q1)), q1), "Integrate (differentiate) - wrong results");
 
  BOOST_CHECK_MESSAGE(differentiate(model, q0, integrate(model,q0, qdot)).isApprox(qdot),"differentiate (integrate) - wrong results");
+}
+
+
+struct TestInterpolationJoint
+{
+  
+  template<typename JointModel>
+  static void init (JointModelBase<JointModel> & /*jmodel*/) {}
+  
+  template<typename JointModel>
+  void operator()(JointModelBase<JointModel> & jmodel)
+  {
+    init(jmodel);
+    typedef typename JointModel::ConfigVector_t CV;
+    typedef typename JointModel::TangentVector_t TV;
+    typedef typename JointModel::Transformation_t SE3;
+    
+    jmodel.setIndexes(0,0,0);
+    
+    CV q0 = jmodel.random();
+    CV q1 = jmodel.random();
+
+    double u = 0;
+    
+    BOOST_CHECK_MESSAGE( jmodel.interpolate(q0, q1,u).isApprox(q0)
+                      , std::string("Error in interpolation with u = 0 for joint " + jmodel.shortname()));
+
+    u = 0.3; 
+    
+    BOOST_CHECK_MESSAGE( jmodel.interpolate(jmodel.interpolate(q0, q1,u), q1, 1).isApprox(q1)
+                      , std::string("Error in double interpolation for joint " + jmodel.shortname()));
+
+    u = 1;
+    
+    BOOST_CHECK_MESSAGE( jmodel.interpolate(q0, q1,u).isApprox(q1)
+                      , std::string("Error in interpolation with u = 1 for joint " + jmodel.shortname()));
+
+  }
+
+  void operator()(JointModelBase<JointModelFreeFlyer> & jmodel)
+  {
+    init(jmodel);
+    typedef JointModelFreeFlyer::ConfigVector_t CV;
+    typedef JointModelFreeFlyer::TangentVector_t TV;
+    typedef JointModelFreeFlyer::Transformation_t SE3;
+    
+    jmodel.setIndexes(0,0,0);
+    
+    CV q0 = jmodel.random();
+    CV q1 = jmodel.random();
+
+    double u = 0;
+
+    BOOST_CHECK_MESSAGE( jmodel.interpolate(q0, q1,u).head<3>().isApprox(q0.head<3>())
+                      , std::string("Error in interpolation with u = 0 for joint " + jmodel.shortname()));
+    BOOST_CHECK_MESSAGE( defineSameRotation(Eigen::Quaterniond(jmodel.interpolate(q0, q1,u).tail<4>()), Eigen::Quaterniond(q0.tail<4>()) )
+                      , std::string("Error in interpolation with u = 0 for joint " + jmodel.shortname()));
+
+    u = 0.3; 
+    
+    BOOST_CHECK_MESSAGE( jmodel.interpolate(jmodel.interpolate(q0, q1,u), q1, 1).head<3>().isApprox(q1.head<3>())
+                      , std::string("Error in double interpolation for joint " + jmodel.shortname()));
+    BOOST_CHECK_MESSAGE( defineSameRotation(Eigen::Quaterniond(jmodel.interpolate(jmodel.interpolate(q0, q1,u), q1, 1).tail<4>()), Eigen::Quaterniond(q1.tail<4>()) )
+                      , std::string("Error in double interpolation for joint " + jmodel.shortname()));
+
+    u = 1;
+    
+    BOOST_CHECK_MESSAGE( jmodel.interpolate(q0, q1,u).head<3>().isApprox(q1.head<3>())
+                      , std::string("Error in interpolation with u = 1 for joint  " + jmodel.shortname()));
+    BOOST_CHECK_MESSAGE( defineSameRotation(Eigen::Quaterniond(jmodel.interpolate(q0, q1,u).tail<4>()), Eigen::Quaterniond(q1.tail<4>()) )
+                      , std::string("Error in interpolation with u = 1 for joint  " + jmodel.shortname()));
+
+  }
+
+  
+
+  void operator()(JointModelBase<JointModelSpherical> & jmodel)
+  {
+    init(jmodel);
+    typedef JointModelSpherical::ConfigVector_t CV;
+    typedef JointModelSpherical::TangentVector_t TV;
+    typedef JointModelSpherical::Transformation_t SE3;
+    
+    jmodel.setIndexes(0,0,0);
+    
+    CV q0 = jmodel.random();
+    CV q1 = jmodel.random();
+
+    double u = 0;
+    
+    BOOST_CHECK_MESSAGE( defineSameRotation(Eigen::Quaterniond(jmodel.interpolate(q0, q1,u)), Eigen::Quaterniond(q0))
+                      , std::string("Error in interpolation with u = 0 for joint " + jmodel.shortname()));
+
+    u = 0.3; 
+
+    BOOST_CHECK_MESSAGE( defineSameRotation(Eigen::Quaterniond(jmodel.interpolate(jmodel.interpolate(q0, q1,u), q1, 1)), Eigen::Quaterniond(q1) )
+                      , std::string("Error in double interpolation for joint " + jmodel.shortname()));
+
+    u = 1;
+    
+    BOOST_CHECK_MESSAGE( defineSameRotation(Eigen::Quaterniond(jmodel.interpolate(q0, q1,u)), Eigen::Quaterniond(q1))
+                      , std::string("Error in interpolation with u = 1 for joint " + jmodel.shortname()));
+  }
+  
+};
+
+template<>
+void TestInterpolationJoint::operator()< JointModelDense<-1,-1> >(JointModelBase< JointModelDense<-1,-1> > & /*jmodel*/) {}
+
+template<>
+void TestInterpolationJoint::operator()< JointModelSphericalZYX >(JointModelBase< JointModelSphericalZYX > & /*jmodel*/) {}
+
+template<>
+void TestInterpolationJoint::init<JointModelRevoluteUnaligned>(JointModelBase<JointModelRevoluteUnaligned> & jmodel)
+{
+  jmodel.derived().axis.setRandom(); jmodel.derived().axis.normalize();
+}
+
+template<>
+void TestInterpolationJoint::init<JointModelPrismaticUnaligned>(JointModelBase<JointModelPrismaticUnaligned> & jmodel)
+{
+  jmodel.derived().axis.setRandom(); jmodel.derived().axis.normalize();
+}
+
+BOOST_AUTO_TEST_CASE (interpolation_test_joint)
+{
+  boost::mpl::for_each<JointModelVariant::types>(TestInterpolationJoint());
 }
 
 

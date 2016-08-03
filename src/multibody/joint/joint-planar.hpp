@@ -429,8 +429,13 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
-      
-      return ConfigVector_t((1-u) * q_0 + u * q_1);
+      if (u == 0) return q_0;
+      else if( u == 1) return q_1;
+      else
+      {
+        TangentVector_t nu(u*difference(q0, q1));
+        return integrate(q0, nu);
+      }
     }
 
     ConfigVector_t random_impl() const
