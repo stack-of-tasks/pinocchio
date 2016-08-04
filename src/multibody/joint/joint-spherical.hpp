@@ -271,9 +271,9 @@ namespace se3
     template<typename V>
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
+      typename Eigen::MatrixBase<V>::template ConstFixedSegmentReturnType<NQ>::Type & q = q_joint.template segment<NQ> (idx_q ());
 
-      ConstQuaternionMap_t quat(q_joint.derived().data());
+      ConstQuaternionMap_t quat(q.data());
       assert(std::fabs(quat.coeffs().norm() - 1.) <= 1e-14);
       
       M.rotation(quat.matrix());
@@ -388,11 +388,8 @@ namespace se3
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
       using std::acos;
       
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
-
-      Transformation_t M0; forwardKinematics(M0, q_0);
-      Transformation_t M1; forwardKinematics(M1, q_1);
+      Transformation_t M0; forwardKinematics(M0, q0);
+      Transformation_t M1; forwardKinematics(M1, q1);
 
       return se3::log3((M0.rotation().transpose()*M1.rotation()).eval());
       
