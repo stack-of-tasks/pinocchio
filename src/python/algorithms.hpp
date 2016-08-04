@@ -36,12 +36,11 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 
-#ifdef WITH_HPP_FCL
-  #include "pinocchio/multibody/geometry.hpp"
-  #include "pinocchio/python/geometry-model.hpp"
-  #include "pinocchio/python/geometry-data.hpp"
-  #include "pinocchio/algorithm/geometry.hpp"
-#endif
+#include "pinocchio/multibody/geometry.hpp"
+#include "pinocchio/python/geometry-model.hpp"
+#include "pinocchio/python/geometry-data.hpp"
+#include "pinocchio/algorithm/geometry.hpp"
+
 
 namespace se3
 {
@@ -302,7 +301,7 @@ namespace se3
         return randomConfiguration(*model, lowerPosLimit, upperPosLimit);
       }
 
-#ifdef WITH_HPP_FCL
+
       
       static void updateGeometryPlacements_proxy(const ModelHandler & model,
                                                  DataHandler & data,
@@ -313,7 +312,7 @@ namespace se3
       {
         return updateGeometryPlacements(*model, *data, *geom_model, *geom_data, q);
       }
-      
+#ifdef WITH_HPP_FCL      
       static bool computeCollisions_proxy(GeometryDataHandler & data_geom,
                                           const bool stopAtFirstCollision)
       {
@@ -345,7 +344,7 @@ namespace se3
         computeDistances(*model, *data, *model_geom, *data_geom, q);
       }
 
-#endif
+#endif // WITH_HPP_FCL
 
 
       /* --- Expose --------------------------------------------------------- */
@@ -540,14 +539,14 @@ namespace se3
         // bp::def("randomConfiguration",randomConfiguration_proxy,
         //         bp::args("Model"),
         //         "Generate a random configuration ensuring Model's joint limits are respected ");
-#ifdef WITH_HPP_FCL
         
         bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,
                 bp::args("Model", "Data", "GeometryModel", "GeometryData", "Configuration q (size Model::nq)"),
                 "Update the placement of the collision objects according to the current configuration."
                 "The algorithm also updates the current placement of the joint in Data."
                 );
-        
+
+#ifdef WITH_HPP_FCL        
         bp::def("computeCollisions",computeCollisions_proxy,
                 bp::args("GeometryData","bool"),
                 "Determine if collision pairs are effectively in collision."
@@ -570,7 +569,7 @@ namespace se3
                 "compute the distance between each collision pair"
                 );
 
-#endif
+#endif // WITH_HPP_FCL
       }
     };
     

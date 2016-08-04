@@ -62,11 +62,9 @@ IF(URDFDOM_FOUND)
     parsers/urdf/model.cpp
     )
 
-  IF(HPP_FCL_FOUND)
     LIST(APPEND ${PROJECT_NAME}_PARSERS_SOURCES
       parsers/urdf/geometry.cpp
       )
-  ENDIF(HPP_FCL_FOUND)
 ENDIF(URDFDOM_FOUND)
 
 IF(LUA5_1_FOUND)

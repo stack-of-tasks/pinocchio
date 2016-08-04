@@ -57,7 +57,7 @@ namespace se3
                                        const GeometryModel & geom,
                                        GeometryData & geom_data
                                        );
-
+#ifdef WITH_HPP_FCL
   inline bool computeCollisions(const Model & model,
                                 Data & data,
                                 const GeometryModel & model_geom,
@@ -92,7 +92,7 @@ namespace se3
   inline void computeBodyRadius(const Model &         model,
                                 const GeometryModel & geomModel,
                                 GeometryData &        geomData);
-
+#endif // WITH_HPP_FCL
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */

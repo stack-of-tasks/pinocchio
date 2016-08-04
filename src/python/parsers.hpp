@@ -26,10 +26,8 @@
 
 #ifdef WITH_URDFDOM
   #include "pinocchio/parsers/urdf.hpp"
-#ifdef WITH_HPP_FCL
   #include "pinocchio/python/geometry-model.hpp"
   #include "pinocchio/python/geometry-data.hpp"
-#endif
 #endif
 
 #ifdef WITH_LUA
@@ -73,7 +71,6 @@ namespace se3
       }
 
 
-#ifdef WITH_HPP_FCL
       typedef std::pair<ModelHandler, GeometryModelHandler> ModelGeometryHandlerPair_t;
       
       static GeometryModelHandler
@@ -102,6 +99,7 @@ namespace se3
         return GeometryModelHandler(geometry_model, true);
       }
       
+#ifdef WITH_HPP_FCL
       static void removeCollisionPairsFromSrdf(ModelHandler & model,
                                                GeometryModelHandler& geometry_model,
                                                const std::string & filename,
@@ -157,7 +155,6 @@ namespace se3
               "(remember to create the corresponding data structure)."
               );
       
-#ifdef WITH_HPP_FCL
       
       bp::to_python_converter<std::pair<ModelHandler, GeometryModelHandler>, PairToTupleConverter<ModelHandler, GeometryModelHandler> >();
       
@@ -174,6 +171,7 @@ namespace se3
               "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model "
               "(remember to create the corresponding data structures).");
       
+#ifdef WITH_HPP_FCL
       bp::def("removeCollisionPairsFromSrdf",removeCollisionPairsFromSrdf,
               bp::args("Model", "GeometryModel (where pairs are removed)","srdf filename (string)", "verbosity"
                        ),

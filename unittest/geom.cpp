@@ -136,6 +136,11 @@ void loadHumanoidPathPlanerModel (const hpp::model::HumanoidRobotPtr_t& robot,
 
 BOOST_AUTO_TEST_SUITE ( GeomTest )
 
+BOOST_AUTO_TEST_CASE ( GeomNoFcl )
+{
+
+}
+
 BOOST_AUTO_TEST_CASE ( simple_boxes )
 {
   using namespace se3;
