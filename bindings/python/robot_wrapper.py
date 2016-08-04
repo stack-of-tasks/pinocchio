@@ -154,29 +154,33 @@ class RobotWrapper(object):
     # Create the scene displaying the robot meshes in gepetto-viewer
     def loadDisplayModel(self, nodeName, windowName="pinocchio"):
         import os
+        print "load the model"
         # Open a window for displaying your model.
         try:
             # If the window already exists, do not do anything.
             self.windowID = self.viewer.gui.getWindowID(windowName)
             print "Warning: window '%s' already created. Cannot (re-)load the model." % windowName
-            return
         except:
              # Otherwise, create the empty window.
             self.windowID = self.viewer.gui.createWindow(windowName)
 
-            # Start a new "scene" in this window, named "world", with just a floor.
-            self.viewer.gui.createSceneWithFloor("world")
-            self.viewer.gui.addSceneToWindow("world", self.windowID)
+        # Start a new "scene" in this window, named "world", with just a floor.
+        gui = self.viewer.gui
+        scene_l = gui.getSceneList()
+        if "world" not in scene_l:
+          self.viewer.gui.createScene("world")
+        self.viewer.gui.addSceneToWindow("world", self.windowID)
 
-            self.viewer.gui.createGroup(nodeName)
-            # iterate over visuals and create the meshes in the viewer
-            for visual in self.visual_model.geometryObjects :
-                meshName = self.viewerNodeNames(visual)                                                                                                                  
-                meshPath = visual.mesh_path
-                self.viewer.gui.addMesh(meshName, meshPath)
+        self.viewer.gui.createGroup(nodeName)
 
-            # Finally, refresh the layout to obtain your first rendering.
-            self.viewer.gui.refresh()
+        # iterate over visuals and create the meshes in the viewer
+        for visual in self.visual_model.geometryObjects :
+            meshName = self.viewerNodeNames(visual) 
+            meshPath = visual.mesh_path
+            self.viewer.gui.addMesh(meshName, meshPath)
+
+        # Finally, refresh the layout to obtain your first rendering.
+        self.viewer.gui.refresh()
 
 
     # Display in gepetto-view the robot at configuration q, by placing all the bodies.
