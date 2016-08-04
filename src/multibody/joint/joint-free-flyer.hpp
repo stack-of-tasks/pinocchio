@@ -208,9 +208,9 @@ namespace se3
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
     {
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
-      
-      ConstQuaternionMap_t quat(q_joint.template tail<4>().data());
+      typename Eigen::MatrixBase<V>::template ConstFixedSegmentReturnType<NQ>::Type & q = q_joint.template segment<NQ> (idx_q ());
+
+      ConstQuaternionMap_t quat(q.template tail<4>().data());
       assert(std::fabs(quat.coeffs().norm() - 1.) <= 1e-14);
       
       M.rotation(quat.matrix());
@@ -286,18 +286,13 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
-      ConfigVector_t result;
-      // Translational part
-      result.head<3> () << ((1-u)*q_0.head<3>() + u * q_1.head<3>());
-
-      //Quaternion part
-      ConstQuaternionMap_t p0 (q_0.segment<4>(3).data());
-      ConstQuaternionMap_t p1 (q_1.segment<4>(3).data());
-      QuaternionMap_t quat_result (result.tail<4>().data());
-      
-      quat_result = p0.slerp(u, p1);
-
-      return result; 
+      if (u == 0) return q_0;
+      else if( u == 1) return q_1;
+      else
+      {
+        TangentVector_t nu(u*difference(q0, q1));
+        return integrate(q0, nu);
+      }
     }
 
     ConfigVector_t random_impl() const
@@ -348,33 +343,10 @@ namespace se3
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
       using std::acos;
       
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Transformation_t M0(Transformation_t::Identity()); forwardKinematics(M0, q0);
+      Transformation_t M1(Transformation_t::Identity()); forwardKinematics(M1, q1);
 
-      TangentVector_t result;
-      // Translational part
-      result.head<3>() << q_1.head<3> () - q_0.head<3> ();
-
-      // Quaternion part
-      // Compute relative rotation between q0 and q1.
-      ConstQuaternionMap_t quat0 (q_0.segment<4>(3).data());
-      ConstQuaternionMap_t quat1 (q_1.segment<4>(3).data());
-      
-      const Motion_t::Quaternion_t quat_relatif (quat1*quat0.conjugate());
-      
-      if (quat_relatif.vec().norm() < 1e-8) // TODO: The value 1e-8 must be changed according to the precision of the current real.
-        result.tail<3> ().setZero();
-      else
-      {
-        const Scalar theta = 2.*acos(quat_relatif.w());
-        
-        if (quat0.dot(quat1) >= 0.)
-          result.tail<3>() << theta * quat_relatif.vec().normalized();
-        else
-          result.tail<3>() << -(2*PI-theta) * quat_relatif.vec().normalized();
-      }
-
-      return result;
+      return se3::log6(M0.inverse()*M1);
     } 
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const

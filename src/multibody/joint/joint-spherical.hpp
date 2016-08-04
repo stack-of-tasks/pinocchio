@@ -264,8 +264,21 @@ namespace se3
     using JointModelBase<JointModelSpherical>::setIndexes;
     typedef Motion::Vector3 Vector3;
     typedef double Scalar;
+    typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
 
     JointDataDerived createData() const { return JointDataDerived(); }
+
+    template<typename V>
+    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
+    {
+      typename Eigen::MatrixBase<V>::template ConstFixedSegmentReturnType<NQ>::Type & q = q_joint.template segment<NQ> (idx_q ());
+
+      ConstQuaternionMap_t quat(q.data());
+      assert(std::fabs(quat.coeffs().norm() - 1.) <= 1e-14);
+      
+      M.rotation(quat.matrix());
+      M.translation().setZero();
+    }
 
     void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs) const
@@ -375,23 +388,11 @@ namespace se3
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
       using std::acos;
       
-      ConstQuaternionMap_t quat0 (q0.segment<NQ> (idx_q ()).data());
-      ConstQuaternionMap_t quat1 (q1.segment<NQ> (idx_q ()).data());
+      Transformation_t M0; forwardKinematics(M0, q0);
+      Transformation_t M1; forwardKinematics(M1, q1);
+
+      return se3::log3((M0.rotation().transpose()*M1.rotation()).eval());
       
-      const Motion_t::Quaternion_t quat_relatif (quat1*quat0.conjugate());
-      
-      if (quat_relatif.vec().norm() < 1e-8) // TODO: The value 1e-8 must be changed according to the precision of the current real.
-        return TangentVector_t::Zero();
-      else
-      {
-        Scalar theta;
-        if (quat0.dot(quat1) >= 0.)
-          theta = 2.*acos(quat_relatif.w());
-        else
-          theta = -2.*(PI - acos(quat_relatif.w()));
-        
-        return theta * quat_relatif.vec().normalized();
-      }
     }
 
     double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const

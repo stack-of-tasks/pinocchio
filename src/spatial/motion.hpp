@@ -62,6 +62,9 @@ namespace se3
     Derived_t operator-(const Derived_t & v2) const { return derived().__minus__(v2); }
     Derived_t & operator+=(const Derived_t & v2) { return derived().__pequ__(v2); }
 
+    bool isApprox (const Derived_t & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return derived().isApprox_impl(other, prec);}
+
     Derived_t se3Action(const SE3 & m) const { return derived().se3Action_impl(m); }
     Derived_t se3ActionInverse(const SE3 & m) const { return derived().se3ActionInverse_impl(m); }
     
@@ -201,6 +204,11 @@ namespace se3
     {
       return Force( angular_impl().cross(phi.linear_impl()),
                     angular_impl().cross(phi.angular_impl())+linear_impl().cross(phi.linear_impl()) );
+    }
+
+    bool isApprox_impl (const MotionTpl & m2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      return data.isApprox(m2.data, prec);
     }
 
     MotionTpl se3Action_impl(const SE3 & m) const
