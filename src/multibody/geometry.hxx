@@ -47,6 +47,20 @@ namespace se3
     return idx;
   }
 
+  inline GeomIndex GeometryModel::addGeometryObject(const JointIndex parent,                                                    
+                                                    const SE3 & placement,
+                                                    const std::string & geom_name,
+                                                    const std::string & mesh_path) throw(std::invalid_argument)
+  {
+
+    Index idx = (Index) (ngeoms ++);
+    const boost::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
+    geometryObjects.push_back(GeometryObject( geom_name, parent, geometry,
+                                               placement, mesh_path));
+    addInnerObject(parent, idx);
+    return idx;
+  }
+
 
   inline GeomIndex GeometryModel::getGeometryId(const std::string & name) const
   {
