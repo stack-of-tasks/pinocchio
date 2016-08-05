@@ -26,7 +26,7 @@ class TestGeometryObjectBindings(unittest.TestCase):
 
     def test_name_get_set(self):
         col = self.robot.collision_model.geometryObjects[1]
-        self.assertTrue(col.name == 'LHipPitchLink')
+        self.assertTrue(col.name == 'LHipPitchLink_0')
         col.name = 'new_collision_name'
         self.assertTrue(col.name == 'new_collision_name')
 
