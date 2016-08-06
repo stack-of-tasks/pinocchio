@@ -62,12 +62,12 @@ void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
                                                               Eigen::VectorXd::Ones(jma.nq())).size()
                         ,std::string(error_prefix + " - RandomConfiguration dimensions "));
     BOOST_CHECK_MESSAGE(jmodel.difference(q1,q2).isApprox(jma.difference(q1,q2)) ,std::string(error_prefix + " - difference "));
-    BOOST_CHECK_MESSAGE(jmodel.distance(q1,q2) == jma.distance(q1,q2) ,std::string(error_prefix + " - distance "));
+    BOOST_CHECK_MESSAGE(fabs(jmodel.distance(q1,q2) - jma.distance(q1,q2)) < 1e-12 ,std::string(error_prefix + " - distance "));
 
 
     BOOST_CHECK_MESSAGE((jda.S().matrix()).isApprox((((se3::ConstraintXd)jdata.S).matrix())),std::string(error_prefix + " - ConstraintXd "));
-    BOOST_CHECK_MESSAGE((jda.M()) == (jdata.M),std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
-    BOOST_CHECK_MESSAGE((jda.v()) == (jdata.v),std::string(error_prefix + " - Joint motions "));
+    BOOST_CHECK_MESSAGE( (jda.M()).isApprox((jdata.M)),std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
+    BOOST_CHECK_MESSAGE( (jda.v()).isApprox( (se3::Motion(jdata.v))),std::string(error_prefix + " - Joint motions "));
     BOOST_CHECK_MESSAGE((jda.c()) == (jdata.c),std::string(error_prefix + " - Joint bias "));
     
     BOOST_CHECK_MESSAGE((jda.U()).isApprox(jdata.U),std::string(error_prefix + " - Joint U inertia matrix decomposition "));
