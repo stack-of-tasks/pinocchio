@@ -30,6 +30,7 @@
 using namespace se3;
 using namespace Eigen;
 
+template<bool local>
 Data::Matrix6x finiteDiffJacobian(const Model & model, Data & data, const Eigen::VectorXd & q, const Model::JointIndex joint_id)
 {
   Data::Matrix6x res(6,model.nv); res.setZero();
@@ -52,7 +53,11 @@ Data::Matrix6x finiteDiffJacobian(const Model & model, Data & data, const Eigen:
     forwardKinematics(model,data,q_integrate);
     const SE3 & oMi = data.oMi[joint_id];
     
-    res.col(k) = oMi_ref.act(log6(oMi_ref.inverse()*oMi)).toVector();
+    if (local)
+      res.col(k) = log6(oMi_ref.inverse()*oMi).toVector();
+    else
+      res.col(k) = oMi_ref.act(log6(oMi_ref.inverse()*oMi)).toVector();
+    
     res.col(k) /= eps;
     
     v_integrate[k] = 0.;
@@ -162,10 +167,13 @@ BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
 
   Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.njoint-1);
   Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
-  getJacobian<false>(model,data,idx,Jrh);
-
-  Data::Matrix6x Jrh_finite_diff = finiteDiffJacobian(model,data,q,idx);
   
+  getJacobian<false>(model,data,idx,Jrh);
+  Data::Matrix6x Jrh_finite_diff = finiteDiffJacobian<false>(model,data,q,idx);
+  BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,fd_increment.maxCoeff()*1e1));
+  
+  getJacobian<true>(model,data,idx,Jrh);
+  Jrh_finite_diff = finiteDiffJacobian<true>(model,data,q,idx);
   BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,fd_increment.maxCoeff()*1e1));
 }
 
