@@ -44,6 +44,7 @@ namespace se3
       : public boost::python::def_visitor< SE3PythonVisitor<SE3> >
     {
       typedef typename eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
+      typedef typename SE3::Scalar Scalar;
       typedef typename SE3::Matrix3 Matrix3;
       typedef typename SE3::Matrix6 Matrix6;
       typedef typename SE3::Matrix4 Matrix4;
@@ -87,6 +88,12 @@ namespace se3
 	  .def("actInv_point", &SE3PythonVisitor::actInv_point)
 	  .def("act_se3", &SE3PythonVisitor::act_se3)
 	  .def("actInv_se3", &SE3PythonVisitor::actInv_se3)
+        
+        .def("isApprox",(bool (SE3_fx::*)(const SE3_fx & other, const Scalar & prec)) &SE3_fx::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
+        .def("isApprox",(bool (SE3_fx::*)(const SE3_fx & other)) &SE3_fx::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        
+        .def("isIdentity",(bool (SE3_fx::*)(const Scalar & prec)) &SE3_fx::isIdentity,bp::args("prec"),"Returns true if *this is approximately equal to the identity placement, within the precision given by prec.")
+        .def("isIdentity",(bool (SE3_fx::*)(void)) &SE3_fx::isIdentity,"Returns true if *this is approximately equal to the identity placement.")
 	  
 	  .def("__str__",&SE3PythonVisitor::toString)
 	  .def("__invert__",&SE3_fx::inverse)

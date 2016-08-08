@@ -27,6 +27,8 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
 #include "pinocchio/multibody/joint/joint.hpp"
+#include "pinocchio/deprecated.hh"
+
 #include <iostream>
 #include <Eigen/Cholesky>
 
@@ -233,24 +235,25 @@ namespace se3
     const std::string & getJointName(const JointIndex index) const;
 
     ///
-    /// \brief Return the index of a frame given by its name.
+    /// \brief Returns the index of a frame given by its name.
+    ///        \sa Model::existFrame to check if the frame exists or not.
     ///
-    /// \warning If no frame is found, return the number of elements at time T.
+    /// \warning If no frame is found, returns the size of the vector of Model::frames.
     /// This can lead to errors if the model is expanded after this method is called
-    /// (for example to get the id of a parent frame)
+    /// (for example to get the id of a parent frame).
     /// 
-    /// \param[in] index Index of the frame.
+    /// \param[in] name Name of the frame.
     ///
     /// \return Index of the frame.
     ///
     FrameIndex getFrameId (const std::string & name) const;
     
     ///
-    /// \brief Check if a frame given by its name exists.
+    /// \brief Checks if a frame given by its name exists.
     ///
     /// \param[in] name Name of the frame.
     ///
-    /// \return Return true if the frame exists.
+    /// \return Returns true if the frame exists.
     ///
     bool existFrame (const std::string & name) const;
     
@@ -261,7 +264,7 @@ namespace se3
     ///
     /// \return The name of the frame.
     ///
-    const std::string & getFrameName (const FrameIndex index) const;
+    PINOCCHIO_DEPRECATED const std::string & getFrameName (const FrameIndex index) const;
     
     ///
     /// \brief Get the index of the joint supporting the frame given by its name.
@@ -270,7 +273,7 @@ namespace se3
     ///
     /// \return
     ///
-    JointIndex getFrameParent(const std::string & name) const;
+    PINOCCHIO_DEPRECATED JointIndex getFrameParent(const std::string & name) const;
     
     ///
     /// \brief Get the index of the joint supporting the frame given by its index.
@@ -279,7 +282,7 @@ namespace se3
     ///
     /// \return
     ///
-    JointIndex getFrameParent(const FrameIndex index) const;
+    PINOCCHIO_DEPRECATED JointIndex getFrameParent(const FrameIndex index) const;
 
     ///
     /// \brief Get the type of the frame given by its index.
@@ -288,7 +291,7 @@ namespace se3
     ///
     /// \return
     ///
-    FrameType getFrameType(const std::string & name) const;
+    PINOCCHIO_DEPRECATED FrameType getFrameType(const std::string & name) const;
     
     ///
     /// \brief Get the type of the frame given by its index.
@@ -297,7 +300,7 @@ namespace se3
     ///
     /// \return
     ///
-    FrameType getFrameType(const FrameIndex index) const;
+    PINOCCHIO_DEPRECATED FrameType getFrameType(const FrameIndex index) const;
     
     ///
     /// \brief Return the relative placement between a frame and its supporting joint.
@@ -306,7 +309,7 @@ namespace se3
     ///
     /// \return The frame placement regarding the supporing joint.
     ///
-    const SE3 & getFramePlacement(const std::string & name) const;
+    PINOCCHIO_DEPRECATED const SE3 & getFramePlacement(const std::string & name) const;
     
     ///
     /// \brief Return the relative placement between a frame and its supporting joint.
@@ -315,28 +318,28 @@ namespace se3
     ///
     /// \return The frame placement regarding the supporing joint.
     ///
-    const SE3 & getFramePlacement(const FrameIndex index) const;
+    PINOCCHIO_DEPRECATED const SE3 & getFramePlacement(const FrameIndex index) const;
 
     ///
-    /// \brief Add a frame to the kinematic tree.
+    /// \brief Adds a frame to the kinematic tree.
     ///
     /// \param[in] frame The frame to add to the kinematic tree.
     ///
-    /// \return Return true if the frame has been successfully added.
+    /// \return Returns true if the frame has been successfully added.
     ///
     bool addFrame(const Frame & frame);
     
     ///
-    /// \brief Create and add a frame to the kinematic tree.
+    /// \brief Creates and adds a frame to the kinematic tree.
     ///
     /// \param[in] name Name of the frame.
     /// \param[in] parent Index of the supporting joint.
     /// \param[in] placement Placement of the frame regarding to the joint frame.
     /// \param[in] type The type of the frame
     ///
-    /// \return Return true if the frame has been successfully added.
+    /// \return Returns true if the frame has been successfully added.
     ///
-    bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_FRAME);
+    PINOCCHIO_DEPRECATED bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_FRAME);
 
   protected:
     

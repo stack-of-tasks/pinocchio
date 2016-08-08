@@ -135,8 +135,11 @@ namespace se3
 
           .def("getFrameParent", &ModelPythonVisitor::getFrameParent)
           .def("getFramePlacement", &ModelPythonVisitor::getFramePlacement)
-          .def("addFrame", &ModelPythonVisitor::addFrame)
-          .add_property("frames", bp::make_function(&ModelPythonVisitor::operationalFrames, bp::return_internal_reference<>()) )
+        .def("addFrame",(bool (*)(ModelHandler&,const std::string &,const JointIndex, const SE3_fx &,const FrameType &)) &ModelPythonVisitor::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
+        .def("addFrame",(bool (*)(ModelHandler&,const Frame &)) &ModelPythonVisitor::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
+        .add_property("frames", bp::make_function(&ModelPythonVisitor::frames, bp::return_internal_reference<>()),"Vector of frames contained in the model.")
+        .def("existFrame",&ModelPythonVisitor::existFrame,bp::args("name"),"Returns true if the frame given by its name exists inside the Model.")
+        .def("getFrameId",&ModelPythonVisitor::getFrameId,bp::args("name"),"Returns the index of the frame given by its name. If the frame is not in the frames vector, it returns the current size of the frames vector.")
 
           .add_property("gravity",&ModelPythonVisitor::gravity,&ModelPythonVisitor::setGravity)
           .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
@@ -190,12 +193,19 @@ namespace se3
       static Eigen::VectorXd upperPositionLimit(ModelHandler & m) {return m->upperPositionLimit;}
 
       static Model::JointIndex  getFrameParent( ModelHandler & m, const std::string & name ) { return m->getFrameParent(name); }
-      static SE3  getFramePlacement( ModelHandler & m, const std::string & name ) { return m->getFramePlacement(name); }
-      static void  addFrame( ModelHandler & m, const std::string & frameName, const JointIndex parent, const SE3_fx & placementWrtParent )
+      static SE3  getFramePlacement(ModelHandler & m, const std::string & name) { return m->getFramePlacement(name); }
+      
+      static bool addFrame(ModelHandler & m, const Frame & frame) { return m->addFrame(frame); }
+      static bool addFrame( ModelHandler & m, const std::string & frameName, const JointIndex parent, const SE3_fx & placementWrtParent, const FrameType & type)
       {
-        m->addFrame(frameName, parent, placementWrtParent);
+        return m->addFrame(frameName,parent,placementWrtParent,type);
       }
-      static std::vector<Frame> & operationalFrames (ModelHandler & m ) { return m->frames;}
+      static Model::FrameIndex getFrameId(const ModelHandler & m, const std::string & frame_name)
+      { return m->getFrameId(frame_name); }
+      static bool existFrame(const ModelHandler & m, const std::string & frame_name)
+      { return m->existFrame(frame_name); }
+      
+      static std::vector<Frame> & frames (ModelHandler & m ) { return m->frames;}
 
       static Motion gravity( ModelHandler & m ) { return m->gravity; }
       static void setGravity( ModelHandler & m,const Motion_fx & g ) { m->gravity = g; }

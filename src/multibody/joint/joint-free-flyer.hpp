@@ -207,11 +207,12 @@ namespace se3
     template<typename V>
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
     {
+      using std::sqrt;
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
       typename Eigen::MatrixBase<V>::template ConstFixedSegmentReturnType<NQ>::Type & q = q_joint.template segment<NQ> (idx_q ());
 
       ConstQuaternionMap_t quat(q.template tail<4>().data());
-      assert(std::fabs(quat.coeffs().norm() - 1.) <= 1e-14);
+      assert(std::fabs(quat.coeffs().norm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon()));
       
       M.rotation(quat.matrix());
       M.translation(q_joint.template head<3>());
@@ -280,14 +281,11 @@ namespace se3
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1, const double u) const
     {
-      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
-      
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
-      if (u == 0) return q_0;
-      else if( u == 1) return q_1;
+      if (u == 0.) return q_0;
+      else if( u == 1.) return q_1;
       else
       {
         TangentVector_t nu(u*difference(q0, q1));
@@ -340,9 +338,6 @@ namespace se3
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
-      using std::acos;
-      
       Transformation_t M0(Transformation_t::Identity()); forwardKinematics(M0, q0);
       Transformation_t M1(Transformation_t::Identity()); forwardKinematics(M1, q1);
 

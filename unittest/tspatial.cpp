@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_SUITE ( tspatialTest)
 
 BOOST_AUTO_TEST_CASE ( test_SE3 )
 {
-using namespace se3;
+  using namespace se3;
   typedef Eigen::Matrix<double,4,4> Matrix4;
   typedef SE3::Matrix6 Matrix6;
   typedef SE3::Vector3 Vector3;
@@ -62,7 +62,6 @@ using namespace se3;
   Vector3 Mip = (aMb.inverse()*p4).head(3);
   BOOST_CHECK(amb.actInv(p).isApprox(Mip, 1e-12));
 
-
   // Test action matrix
   Matrix6 aXb = amb;
   Matrix6 bXc = bmc;
@@ -71,6 +70,13 @@ using namespace se3;
 
   Matrix6 bXa = amb.inverse();
   BOOST_CHECK(bXa.isApprox(aXb.inverse(), 1e-12));
+  
+  // Test isIdentity
+  SE3 identity = SE3::Identity();
+  BOOST_CHECK(identity.isIdentity());
+  
+  // Test isApprox
+  BOOST_CHECK(identity.isApprox(identity));
 }
 
 BOOST_AUTO_TEST_CASE ( test_Motion )
@@ -210,7 +216,6 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
 {
   using namespace se3;
   typedef Inertia::Matrix6 Matrix6;
-  typedef Inertia::Matrix3 Matrix3;
 
   Inertia aI = Inertia::Random();
   Matrix6 matI = aI;

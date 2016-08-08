@@ -46,7 +46,7 @@ namespace se3
    * aMb (x) =  aRb*x + aAB
    * where aAB is the vector from origin A to origin B expressed in coordinates A.
    */
-  template< class Derived>
+  template<class Derived>
   class SE3Base
   {
   protected:
@@ -120,6 +120,14 @@ namespace se3
         X.disp(os);
         return os;
       }
+    
+    ///
+    /// \returns true if *this is approximately equal to the identity placement, within the precision given by prec.
+    ///
+    bool isIdentity(const typename traits<Derived>::Scalar & prec = Eigen::NumTraits<typename traits<Derived>::Scalar>::dummy_precision()) const
+    {
+      return derived().isIdentity(prec);
+    }
 
   }; // class SE3Base
 
@@ -286,6 +294,11 @@ namespace se3
     bool isApprox_impl (const SE3Tpl & m2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
       return rot.isApprox(m2.rot, prec) && trans.isApprox(m2.trans, prec);
+    }
+    
+    bool isIdentity(const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      return rot.isIdentity(prec) && trans.isZero(prec);
     }
 
     ConstAngular_t & rotation_impl() const { return rot; }
