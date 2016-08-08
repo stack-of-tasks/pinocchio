@@ -27,6 +27,8 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
 #include "pinocchio/multibody/joint/joint.hpp"
+#include "pinocchio/deprecated.hh"
+
 #include <iostream>
 #include <Eigen/Cholesky>
 
@@ -262,7 +264,7 @@ namespace se3
     ///
     /// \return The name of the frame.
     ///
-    const std::string & getFrameName (const FrameIndex index) const;
+    PINOCCHIO_DEPRECATED const std::string & getFrameName (const FrameIndex index) const;
     
     ///
     /// \brief Get the index of the joint supporting the frame given by its name.
@@ -271,7 +273,7 @@ namespace se3
     ///
     /// \return
     ///
-    JointIndex getFrameParent(const std::string & name) const;
+    PINOCCHIO_DEPRECATED JointIndex getFrameParent(const std::string & name) const;
     
     ///
     /// \brief Get the index of the joint supporting the frame given by its index.
@@ -280,7 +282,7 @@ namespace se3
     ///
     /// \return
     ///
-    JointIndex getFrameParent(const FrameIndex index) const;
+    PINOCCHIO_DEPRECATED JointIndex getFrameParent(const FrameIndex index) const;
 
     ///
     /// \brief Get the type of the frame given by its index.
@@ -289,7 +291,7 @@ namespace se3
     ///
     /// \return
     ///
-    FrameType getFrameType(const std::string & name) const;
+    PINOCCHIO_DEPRECATED FrameType getFrameType(const std::string & name) const;
     
     ///
     /// \brief Get the type of the frame given by its index.
@@ -298,7 +300,7 @@ namespace se3
     ///
     /// \return
     ///
-    FrameType getFrameType(const FrameIndex index) const;
+    PINOCCHIO_DEPRECATED FrameType getFrameType(const FrameIndex index) const;
     
     ///
     /// \brief Return the relative placement between a frame and its supporting joint.
@@ -307,7 +309,7 @@ namespace se3
     ///
     /// \return The frame placement regarding the supporing joint.
     ///
-    const SE3 & getFramePlacement(const std::string & name) const;
+    PINOCCHIO_DEPRECATED const SE3 & getFramePlacement(const std::string & name) const;
     
     ///
     /// \brief Return the relative placement between a frame and its supporting joint.
@@ -316,7 +318,7 @@ namespace se3
     ///
     /// \return The frame placement regarding the supporing joint.
     ///
-    const SE3 & getFramePlacement(const FrameIndex index) const;
+    PINOCCHIO_DEPRECATED const SE3 & getFramePlacement(const FrameIndex index) const;
 
     ///
     /// \brief Adds a frame to the kinematic tree.
@@ -337,7 +339,7 @@ namespace se3
     ///
     /// \return Returns true if the frame has been successfully added.
     ///
-    bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_FRAME);
+    PINOCCHIO_DEPRECATED bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_FRAME);
 
   protected:
     
