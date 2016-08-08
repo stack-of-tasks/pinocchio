@@ -386,9 +386,6 @@ namespace se3
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
-      using std::acos;
-      
       Transformation_t M0; forwardKinematics(M0, q0);
       Transformation_t M1; forwardKinematics(M1, q1);
 

@@ -216,7 +216,6 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
 {
   using namespace se3;
   typedef Inertia::Matrix6 Matrix6;
-  typedef Inertia::Matrix3 Matrix3;
 
   Inertia aI = Inertia::Random();
   Matrix6 matI = aI;
