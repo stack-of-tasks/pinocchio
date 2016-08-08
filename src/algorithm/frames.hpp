@@ -62,7 +62,7 @@ namespace se3
    * 
    * @warning    The function computeJacobians should have been called first
    */
-  template<bool localFrame>
+  template<bool local_frame>
   inline void getFrameJacobian(const Model & model,
                                const Data& data,
                                const Model::FrameIndex frame_id,
@@ -84,14 +84,10 @@ namespace se3
     {
       const Frame & frame = model.frames[i];
       const Model::JointIndex & parent = frame.parent;
-      if (frame.placement == SE3::Identity())
-      {
+      if (frame.placement.isIdentity())
         data.oMf[i] = data.oMi[parent];
-      }
       else
-      {
-        data.oMf[i] = (data.oMi[parent] * frame.placement);
-      }
+        data.oMf[i] = data.oMi[parent]*frame.placement;
     }
   }
   
@@ -112,8 +108,8 @@ namespace se3
                                const Model::FrameIndex frame_id,
                                Data::Matrix6x & J)
   {
-    assert( J.rows() == data.J.rows() );
-    assert( J.cols() == data.J.cols() );
+    assert(J.cols() == model.nv);
+    assert(data.J.cols() == model.nv);
     
     const Model::JointIndex & parent = model.frames[frame_id].parent;
     const SE3 & oMframe = data.oMf[frame_id];
@@ -122,19 +118,15 @@ namespace se3
     const int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
     
     // Lever between the joint center and the frame center expressed in the global frame
-    const SE3::Vector3 lever(data.oMi[parent].rotation() * (frame.placement.translation()));
+    const SE3::Vector3 lever(data.oMi[parent].rotation() * frame.placement.translation());
     
-    getJacobian<localFrame>(model, data, parent, J);
+    getJacobian<local_frame>(model, data, parent, J);
 
-    if (frame.placement == SE3::Identity())
-    {
-      // do nothing
-    }
-    else
+    if (!frame.placement.isIdentity())
     {
       for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
       {
-        if(! localFrame )
+        if(!local_frame)
           J.col(j).topRows<3>() -= lever.cross(J.col(j).bottomRows<3>());
         else
           J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
