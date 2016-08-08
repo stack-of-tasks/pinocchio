@@ -27,10 +27,11 @@ namespace se3
 {
 
   /**
-   * @brief      Update the position of each extra frame
+   * @brief      Updates the position of each frame contained in the model
    *
-   * @param[in]  model  The kinematic model
-   * @param      data   Data associated to model
+   * @param[in]  model  The kinematic model.
+   * @param      data   Data associated to model.
+   *
    * @warning    One of the algorithms forwardKinematics should have been called first
    */
   inline void framesForwardKinematics(const Model & model,
@@ -38,11 +39,12 @@ namespace se3
                                       );
 
   /**
-   * @brief      Compute Kinematics of full model, then the position of each operational frame
+   * @brief      First calls the forwardKinematics on the model, then computes the placement of each frame.
+   *             /sa se3::forwardKinematics
    *
-   * @param[in]  model                    The kinematic model
-   * @param      data                     Data associated to model
-   * @param[in]  q                        Configuration vector
+   * @param[in]  model                    The kinematic model.
+   * @param      data                     Data associated to model.
+   * @param[in]  q                        Configuration vector.
    */
   inline void framesForwardKinematics(const Model & model,
                                       Data & data,
@@ -50,17 +52,19 @@ namespace se3
                                       );
 
   /**
-   * @brief      Return the jacobian of the operational frame in the world frame or
-     in the local frame depending on the template argument.
+   * @brief      Returns the jacobian of the frame expresssed in the world frame or
+     in the local frame depending on the template argument. 
+   
+   * @remark Expressed in the local frame, the jacobian maps the joint velocity vector to the spatial velocity of the center of the frame, expressed in the frame coordinates system. Expressed in the global frame, the jacobian maps to the spatial velocity of the point coinciding with the center of the world and attached to the frame.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational frame we want to compute the jacobian
-   * @param      J           The filled Jacobian Matrix
+   * @param[out] J           The Jacobian of the
    *
-   * @tparam     localFrame  Express the jacobian in the local or global frame
+   * @tparam     local_frame  If true, the jacobian is expressed in the local frame. Otherwise, the jacobian is expressed in the world frame.
    * 
-   * @warning    The function computeJacobians should have been called first
+   * @warning    The function se3::computeJacobians should have been called first
    */
   template<bool local_frame>
   inline void getFrameJacobian(const Model & model,
@@ -102,7 +106,7 @@ namespace se3
   
   
   
-  template<bool localFrame>
+  template<bool local_frame>
   inline void getFrameJacobian(const Model & model,
                                const Data & data,
                                const Model::FrameIndex frame_id,

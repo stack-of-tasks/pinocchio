@@ -24,19 +24,22 @@
 #include "pinocchio/tools/string-generator.hpp"
 
 #include <Eigen/StdVector>
-#include <iostream>
+#include <string>
 
 namespace se3
 {
-
+  ///
+  /// \brief Enum on the possible type of frame
+  ///
   enum FrameType
   {
-    OP_FRAME,
-    JOINT,
-    FIXED_JOINT,
-    BODY,
-    SENSOR
+    OP_FRAME, // operational frame type
+    JOINT, // joint frame type
+    FIXED_JOINT, // fixed joint frame type
+    BODY, // body frame type
+    SENSOR // sensor frame type
   };
+  
   ///
   /// \brief A Plucker coordinate frame attached to a parent joint inside a kinematic tree
   ///
@@ -44,26 +47,29 @@ namespace se3
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef se3::JointIndex JointIndex;
-      
-    Frame() : name(randomStringGenerator(8)), parent(), placement(), type(){} // needed by EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION
     
     ///
-    /// \brief Default constructor of a Frame
+    /// \brief Default constructor of a frame.
+    ///
+    Frame() : name(randomStringGenerator(8)), parent(), placement(), type() {} // needed by std::vector
+    
+    ///
+    /// \brief Builds a frame defined by its name, its joint parent id, its placement and its type.
     ///
     /// \param[in] name Name of the frame.
     /// \param[in] parent Index of the parent joint in the kinematic tree.
     /// \param[in] placement Placement of the frame wrt the parent joint frame.
     /// \param[in] type The type of the frame, see the enum FrameType
     ///
-    Frame(const std::string & name, const JointIndex parent, const SE3 & frame_placement, const FrameType type ):
-    name(name)
+    Frame(const std::string & name, const JointIndex parent, const SE3 & frame_placement, const FrameType type)
+    : name(name)
     , parent(parent)
     , placement(frame_placement)
     , type(type)
     {}
     
     ///
-    /// \brief Compare the current Frame with another frame. Return true if all properties match.
+    /// \returns true if *this and other matches and have the same parent, name and type.
     ///
     /// \param[in] other The frame to which the current frame is compared.
     ///
