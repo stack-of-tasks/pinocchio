@@ -70,6 +70,10 @@ namespace se3
                         bp::make_function(&GeometryModelPythonVisitor::geometryObjects,
                                           bp::return_internal_reference<>())  )
           .def("__str__",&GeometryModelPythonVisitor::toString)
+	  .def("addEmptyGeometryObject",&GeometryModelPythonVisitor::addEmptyGeometryObject,
+               bp::args("parent (index)","placement (SE3)","geom_name (string)","mesh_path (string)"),
+               "Add geometry object with no collision to the GeometryModel.")
+
 #ifdef WITH_HPP_FCL
           .add_property("collision_pairs",
                         bp::make_function(&GeometryModelPythonVisitor::collision_pairs,
@@ -110,6 +114,8 @@ namespace se3
       { return gmodelPtr->getGeometryName(index);}
       
       static std::vector<GeometryObject> & geometryObjects( GeometryModelHandler & m ) { return m->geometryObjects; }
+      static GeomIndex addEmptyGeometryObject( GeometryModelHandler & gmodelPtr, const JointIndex & parent, const SE3_fx & placement, const std::string & geom_name, const std::string & mesh_path)
+      { return  gmodelPtr->addGeometryObject(parent, placement, geom_name, mesh_path); }
 #ifdef WITH_HPP_FCL      
       static std::vector<CollisionPair> & collision_pairs( GeometryModelHandler & m ) 
       { return m->collisionPairs; }

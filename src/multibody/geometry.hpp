@@ -86,7 +86,19 @@ namespace se3
                                        const SE3 & placement, const std::string & geom_name = "",
                                        const std::string & mesh_path = "") throw(std::invalid_argument);
 
-
+    /**
+     * @brief      Add a geometry object to a GeometryModel
+     *
+     * @param[in]  parent     Index of the parent joint
+     * @param[in]  placement  The relative placement regarding to the parent frame
+     * @param[in]  geom_name  The name of the Geometry Object
+     * @param[in]  mesh_path  The absolute path to the mesh
+     *
+     * @return     The index of the new added GeometryObject in geometryObjects
+     */
+    inline GeomIndex addGeometryObject(const JointIndex parent, 
+                                       const SE3 & placement, const std::string & geom_name = "",
+                                       const std::string & mesh_path = "") throw(std::invalid_argument);
 
     /**
      * @brief      Return the index of a GeometryObject given by its name.
