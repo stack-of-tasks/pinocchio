@@ -167,5 +167,7 @@ namespace se3
 
 } // namespace se3
 
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointModel)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointData)
 
 #endif // ifndef __se3_joint_model_hpp__

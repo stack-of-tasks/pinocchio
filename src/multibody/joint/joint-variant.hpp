@@ -40,14 +40,7 @@ namespace se3
 
   typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned, JointModelSpherical, JointModelSphericalZYX, JointModelPX, JointModelPY, JointModelPZ, JointModelPrismaticUnaligned, JointModelFreeFlyer, JointModelPlanar, JointModelTranslation, JointModelDense<-1,-1>, JointModelRUBX, JointModelRUBY, JointModelRUBZ > JointModelVariant;
   typedef boost::variant< JointDataRX, JointDataRY, JointDataRZ, JointDataRevoluteUnaligned, JointDataSpherical, JointDataSphericalZYX, JointDataPX, JointDataPY, JointDataPZ, JointDataPrismaticUnaligned, JointDataFreeFlyer, JointDataPlanar, JointDataTranslation, JointDataDense<-1,-1>, JointDataRUBX, JointDataRUBY, JointDataRUBZ > JointDataVariant;
-
-  typedef std::vector<JointModelVariant> JointModelVariantVector;
-  typedef std::vector<JointDataVariant> JointDataVariantVector;
-
-
+  
 } // namespace se3
-
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointModelVariant)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointDataVariant)
 
 #endif // ifndef __se3_joint_variant_hpp__
