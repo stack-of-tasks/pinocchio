@@ -90,19 +90,34 @@ namespace se3
           const Model::JointIndex joint_id1 = model.frames[frame_id1].parent;
           const Model::JointIndex frame_id2 = model.getBodyId(link2);
           const Model::JointIndex joint_id2 = model.frames[frame_id2].parent;
+
+          // Malformed SRDF
+          if (frame_id1 == frame_id2)
+          {
+            if (verbose)
+              std::cout << "Cannot disable collision between " << link1 << " and " << link2 << std::endl;
+            continue;
+          }
           
           typedef GeometryModel::GeomIndexList GeomIndexList;
-          const GeomIndexList & innerObject1 = model_geom.innerObjects.at(joint_id1);
-          const GeomIndexList & innerObject2 = model_geom.innerObjects.at(joint_id2);
+          typedef std::map<JointIndex, GeomIndexList> GeomIndexListMap;
+          GeomIndexListMap::const_iterator _innerObject1 = model_geom.innerObjects.find(joint_id1);
+          if (_innerObject1 == model_geom.innerObjects.end()) continue;
+          GeomIndexListMap::const_iterator _innerObject2 = model_geom.innerObjects.find(joint_id2);
+          if (_innerObject2 == model_geom.innerObjects.end()) continue;
+          const GeomIndexList & innerObject1 = _innerObject1->second;
+          const GeomIndexList & innerObject2 = _innerObject2->second;
           
           for(GeomIndexList::const_iterator it1 = innerObject1.begin();
               it1 != innerObject1.end();
               ++it1)
           {
+            if (model_geom.geometryObjects[*it1].parent != frame_id1) continue;
             for(GeomIndexList::const_iterator it2 = innerObject2.begin();
                 it2 != innerObject2.end();
                 ++it2)
             {
+              if (model_geom.geometryObjects[*it2].parent != frame_id2) continue;
               model_geom.removeCollisionPair(CollisionPair(*it1, *it2));
               if(verbose)
                 std::cout << "Remove collision pair (" << joint_id1 << "," << joint_id2 << ")" << std::endl;

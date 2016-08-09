@@ -189,20 +189,20 @@ struct GeometryObject
   /// \brief Name of the geometry object
   std::string name;
 
-  /// \brief Index of the parent joint
-  JointIndex parent;
+  /// \brief Index of the parent frame
+  FrameIndex parent;
 
   /// \brief The actual cloud of points representing the collision mesh of the object
   boost::shared_ptr<fcl::CollisionGeometry> collision_geometry;
 
-  /// \brief Position of geometry object in parent joint's frame
+  /// \brief Position of geometry object in parent body's frame
   SE3 placement;
 
   /// \brief Absolute path to the mesh file
   std::string mesh_path;
 
 
-  GeometryObject(const std::string & name, const JointIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & collision,
+  GeometryObject(const std::string & name, const FrameIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & collision,
                  const SE3 & placement, const std::string & mesh_path)
                 : name(name)
                 , parent(parent)
