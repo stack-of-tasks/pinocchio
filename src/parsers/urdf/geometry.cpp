@@ -215,7 +215,8 @@ namespace se3
             std::ostringstream geometry_object_suffix;
             geometry_object_suffix << "_" << objectId;
             const std::string & geometry_object_name = std::string(link_name + geometry_object_suffix.str());
-            geom_model.addGeometryObject(model.getFrameParent(link_name), geometry, geomPlacement, geometry_object_name, mesh_path);
+            assert(model.getFrameType(model.getFrameId(link_name)) == se3::BODY);
+            geom_model.addGeometryObject(model.getFrameId(link_name), geometry, geomPlacement, geometry_object_name, mesh_path);
             ++objectId; 
           }
         }
