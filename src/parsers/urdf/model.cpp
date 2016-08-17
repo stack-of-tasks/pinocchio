@@ -38,7 +38,7 @@ namespace se3
                              const SE3 & placement,
                              const std::string & body_name)
       {
-        if (Y == NULL) {
+        if (Y == NULL || Y->mass < Eigen::NumTraits<double>::epsilon()) {
           model.addFrame(Frame(body_name, jid, placement, BODY));
         } else {
           model.appendBodyToJoint(jid, convertFromUrdf(*Y), placement, body_name);
