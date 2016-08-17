@@ -150,7 +150,7 @@ namespace se3
                                    const std::vector<std::string> & package_dirs = std::vector<std::string> (),
                                    const GeometryType type = NONE)
       throw (std::invalid_argument)
-    { GeometryModel g (model); return buildGeom (model,filename,type,g,package_dirs); }
+    { GeometryModel g; return buildGeom (model,filename,type,g,package_dirs); }
 
 
   } // namespace urdf

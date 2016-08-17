@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
 {
   using namespace se3;
   Model model;
-  GeometryModel model_geom(model);
+  GeometryModel model_geom;
 
   Model::JointIndex idx;
   idx = model.addJoint(model.getJointId("universe"),JointModelPlanar(),SE3::Identity(),"planar1_joint");
@@ -155,10 +155,10 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"planar2_body");
   
   boost::shared_ptr<fcl::Box> sample(new fcl::Box(1));
-  model_geom.addGeometryObject(model.getBodyId("planar1_body"),sample, SE3::Identity(),  "ff1_collision_object", "");
+  model_geom.addGeometryObject(model, model.getBodyId("planar1_body"),sample, SE3::Identity(),  "ff1_collision_object", "");
   
   boost::shared_ptr<fcl::Box> sample2(new fcl::Box(1));
-  model_geom.addGeometryObject(model.getBodyId("planar2_body"),sample2, SE3::Identity(),  "ff2_collision_object", "");
+  model_geom.addGeometryObject(model, model.getBodyId("planar2_body"),sample2, SE3::Identity(),  "ff2_collision_object", "");
 
   se3::Data data(model);
   se3::GeometryData data_geom(model_geom);

@@ -34,7 +34,7 @@ namespace se3
     updateGeometryPlacements(model, data, model_geom, data_geom);
   }
   
-  inline void  updateGeometryPlacements(const Model & model,
+  inline void  updateGeometryPlacements(const Model &,
                                        const Data & data,
                                        const GeometryModel & model_geom,
                                        GeometryData & data_geom
@@ -42,10 +42,9 @@ namespace se3
   {
     for (GeomIndex i=0; i < (GeomIndex) data_geom.model_geom.ngeoms; ++i)
     {
-      const Frame & frame = model.frames[model_geom.geometryObjects[i].parent];
-      const Model::JointIndex & joint = frame.parent;
-      if (joint>0) data_geom.oMg[i] =  (data.oMi[joint] * frame.placement * model_geom.geometryObjects[i].placement);
-      else         data_geom.oMg[i] =  frame.placement * model_geom.geometryObjects[i].placement;
+      const Model::JointIndex & joint = model_geom.geometryObjects[i].parentJoint;
+      if (joint>0) data_geom.oMg[i] =  (data.oMi[joint] * model_geom.geometryObjects[i].placement);
+      else         data_geom.oMg[i] =  model_geom.geometryObjects[i].placement;
 #ifdef WITH_HPP_FCL  
       data_geom.collisionObjects[i].setTransform( toFclTransform3f(data_geom.oMg[i]) );
 #endif // WITH_HPP_FCL
@@ -159,7 +158,7 @@ namespace se3
       const boost::shared_ptr<const fcl::CollisionGeometry> & fcl
         = geom.collision_geometry;
       const SE3 & jMb = geom.placement; // placement in joint.
-      const Model::JointIndex & i = model.getFrameParent(geom.parent);
+      const Model::JointIndex & i = geom.parentJoint;
       assert (i<geomData.radius.size());
 
       double radius = geomData.radius[i];

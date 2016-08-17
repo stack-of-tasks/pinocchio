@@ -112,12 +112,12 @@ namespace se3
               it1 != innerObject1.end();
               ++it1)
           {
-            if (model_geom.geometryObjects[*it1].parent != frame_id1) continue;
+            if (model_geom.geometryObjects[*it1].parentFrame != frame_id1) continue;
             for(GeomIndexList::const_iterator it2 = innerObject2.begin();
                 it2 != innerObject2.end();
                 ++it2)
             {
-              if (model_geom.geometryObjects[*it2].parent != frame_id2) continue;
+              if (model_geom.geometryObjects[*it2].parentFrame != frame_id2) continue;
               model_geom.removeCollisionPair(CollisionPair(*it1, *it2));
               if(verbose)
                 std::cout << "Remove collision pair (" << joint_id1 << "," << joint_id2 << ")" << std::endl;

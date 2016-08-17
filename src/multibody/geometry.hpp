@@ -39,9 +39,6 @@ namespace se3
     
     typedef std::vector<GeomIndex> GeomIndexList;
 
-    /// \brief Reference to the associated Model
-    const Model& model;
-    
     /// \brief The number of GeometryObjects
     Index ngeoms;
 
@@ -60,9 +57,8 @@ namespace se3
     ///        Outer objects can be seen as geometry objects that may often be obstacles to the Inner objects of given joint
     std::map < JointIndex, GeomIndexList >  outerObjects;
 
-    GeometryModel(const Model& ref)
-      : model(ref)
-      , ngeoms(0)
+    GeometryModel()
+      : ngeoms(0)
       , geometryObjects()
       , collisionPairs()
       , innerObjects()
@@ -85,7 +81,8 @@ namespace se3
      *
      * @return     The index of the new added GeometryObject in geometryObjects
      */
-    inline GeomIndex addGeometryObject(const FrameIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & co,
+    inline GeomIndex addGeometryObject(const Model& model,
+                                       const FrameIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & co,
                                        const SE3 & placement, const std::string & geom_name = "",
                                        const std::string & mesh_path = "") throw(std::invalid_argument);
 
@@ -131,6 +128,9 @@ namespace se3
     
     ///
     /// \brief Add all possible collision pairs.
+    ///
+    /// \note Collision pairs between geometries of having the same parent joint
+    ///       are not added.
     ///
     void addAllCollisionPairs();
    

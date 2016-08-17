@@ -62,7 +62,8 @@ namespace se3
   inline bool operator==(const GeometryObject & lhs, const GeometryObject & rhs)
   {
     return ( lhs.name == rhs.name
-            && lhs.parent == rhs.parent
+            && lhs.parentFrame == rhs.parentFrame
+            && lhs.parentJoint == rhs.parentJoint
             && lhs.collision_geometry == rhs.collision_geometry
             && lhs.placement == rhs.placement
             && lhs.mesh_path ==  rhs.mesh_path
@@ -72,7 +73,8 @@ namespace se3
   inline std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object)
   {
     os  << "Name: \t \n" << geom_object.name << "\n"
-        << "Parent ID: \t \n" << geom_object.parent << "\n"
+        << "Parent frame ID: \t \n" << geom_object.parentFrame << "\n"
+        << "Parent joint ID: \t \n" << geom_object.parentJoint << "\n"
         // << "collision object: \t \n" << geom_object.collision_geometry << "\n"
         << "Position in parent frame: \t \n" << geom_object.placement << "\n"
         << "Absolute path to mesh file: \t \n" << geom_object.mesh_path << "\n"
