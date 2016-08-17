@@ -39,7 +39,7 @@ namespace se3
                              const std::string & body_name)
       {
         if (Y == NULL) {
-          model.addFrame(body_name, jid, placement, BODY);
+          model.addFrame(Frame(body_name, jid, placement, BODY));
         } else {
           model.appendBodyToJoint(jid, convertFromUrdf(*Y), placement, body_name);
         }
@@ -416,7 +416,7 @@ namespace se3
               nextPlacementOffset = jointPlacement;
               
               // Add a frame in the model to keep trace of this fixed joint
-              model.addFrame(joint->name, parent_joint_id, nextPlacementOffset, FIXED_JOINT);
+              model.addFrame(Frame(joint->name, parent_joint_id, nextPlacementOffset, FIXED_JOINT));
               
               //for the children of the current link, set their parent to be
               //the the parent of the current link.
