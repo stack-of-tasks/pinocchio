@@ -403,14 +403,7 @@ namespace se3
               //    -add fixed body in model to display it in gepetto-viewer
               
               joint_info << "fixed joint";
-              // FIXME: This should be:
-              // appendBodyToJoint(model, parent_joint_id, Y, link_name);
-              // but I do not understand why the two placement arguments are
-              // different.
-              if (link->inertial) {
-                model.appendBodyToJoint(parent_joint_id, convertFromUrdf(*Y), jointPlacement, link->name); //Modify the parent inertia in the model
-              } else
-                model.addFrame(link->name, parent_joint_id, nextPlacementOffset, BODY);
+              appendBodyToJoint(model, parent_joint_id, Y, jointPlacement, link_name);
               
               //transformation of the current placement offset
               nextPlacementOffset = jointPlacement;
