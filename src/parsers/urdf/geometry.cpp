@@ -198,6 +198,10 @@ namespace se3
           }
           std::vector< boost::shared_ptr< T > > geometries_array = getLinkGeometryArray<T>(link);
 
+          FrameIndex frame_id = model.getFrameId(link_name);
+          SE3 body_placement = model.frames[frame_id].placement;
+          assert(model.frames[frame_id].type == BODY);
+
           std::size_t objectId = 0;
           for (typename std::vector< boost::shared_ptr< T > >::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)
           {
@@ -211,12 +215,11 @@ namespace se3
             const boost::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
 #endif // WITH_HPP_FCL            
             
-            SE3 geomPlacement = convertFromUrdf((*i)->origin);
+            SE3 geomPlacement = body_placement * convertFromUrdf((*i)->origin);
             std::ostringstream geometry_object_suffix;
             geometry_object_suffix << "_" << objectId;
             const std::string & geometry_object_name = std::string(link_name + geometry_object_suffix.str());
-            assert(model.getFrameType(model.getFrameId(link_name)) == se3::BODY);
-            geom_model.addGeometryObject(model, model.getFrameId(link_name), geometry, geomPlacement, geometry_object_name, mesh_path);
+            geom_model.addGeometryObject(model, frame_id, geometry, geomPlacement, geometry_object_name, mesh_path);
             ++objectId; 
           }
         }
