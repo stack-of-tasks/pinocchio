@@ -30,7 +30,7 @@
 
 #include <iostream>
 #include <map>
-#include <list>
+#include <vector>
 #include <utility>
 #include <assert.h>
 
@@ -189,23 +189,27 @@ struct GeometryObject
   /// \brief Name of the geometry object
   std::string name;
 
+  /// \brief Index of the parent frame
+  FrameIndex parentFrame;
+
   /// \brief Index of the parent joint
-  JointIndex parent;
+  JointIndex parentJoint;
 
   /// \brief The actual cloud of points representing the collision mesh of the object
   boost::shared_ptr<fcl::CollisionGeometry> collision_geometry;
 
-  /// \brief Position of geometry object in parent joint's frame
+  /// \brief Position of geometry object in parent joint frame
   SE3 placement;
 
   /// \brief Absolute path to the mesh file
   std::string mesh_path;
 
-
-  GeometryObject(const std::string & name, const JointIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & collision,
+  GeometryObject(const std::string & name, const FrameIndex parentF,
+                 const JointIndex parentJ, const boost::shared_ptr<fcl::CollisionGeometry> & collision,
                  const SE3 & placement, const std::string & mesh_path)
                 : name(name)
-                , parent(parent)
+                , parentFrame(parentF)
+                , parentJoint(parentJ)
                 , collision_geometry(collision)
                 , placement(placement)
                 , mesh_path(mesh_path)
@@ -214,7 +218,8 @@ struct GeometryObject
   GeometryObject & operator=(const GeometryObject & other)
   {
     name = other.name;
-    parent = other.parent;
+    parentFrame = other.parentFrame;
+    parentJoint = other.parentJoint;
     collision_geometry = other.collision_geometry;
     placement = other.placement;
     mesh_path = other.mesh_path;

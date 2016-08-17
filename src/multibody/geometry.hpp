@@ -39,7 +39,6 @@ namespace se3
     
     typedef std::vector<GeomIndex> GeomIndexList;
 
-    
     /// \brief The number of GeometryObjects
     Index ngeoms;
 
@@ -74,7 +73,7 @@ namespace se3
     /**
      * @brief      Add a geometry object to a GeometryModel
      *
-     * @param[in]  parent     Index of the parent joint
+     * @param[in]  parent     Index of the parent frame
      * @param[in]  co         The actual fcl CollisionGeometry
      * @param[in]  placement  The relative placement regarding to the parent frame
      * @param[in]  geom_name  The name of the Geometry Object
@@ -82,7 +81,8 @@ namespace se3
      *
      * @return     The index of the new added GeometryObject in geometryObjects
      */
-    inline GeomIndex addGeometryObject(const JointIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & co,
+    inline GeomIndex addGeometryObject(const Model& model,
+                                       const FrameIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & co,
                                        const SE3 & placement, const std::string & geom_name = "",
                                        const std::string & mesh_path = "") throw(std::invalid_argument);
 
@@ -128,6 +128,9 @@ namespace se3
     
     ///
     /// \brief Add all possible collision pairs.
+    ///
+    /// \note Collision pairs between geometries of having the same parent joint
+    ///       are not added.
     ///
     void addAllCollisionPairs();
    

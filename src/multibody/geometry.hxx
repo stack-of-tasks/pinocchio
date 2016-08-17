@@ -32,18 +32,20 @@
 namespace se3
 {
 
-  inline GeomIndex GeometryModel::addGeometryObject(const JointIndex parent,
+  inline GeomIndex GeometryModel::addGeometryObject(const Model& model,
+                                                    const FrameIndex parent,
                                                     const boost::shared_ptr<fcl::CollisionGeometry> & co,
                                                     const SE3 & placement,
                                                     const std::string & geom_name,
                                                     const std::string & mesh_path) throw(std::invalid_argument)
   {
-
     Index idx = (Index) (ngeoms ++);
 
-    geometryObjects.push_back(GeometryObject( geom_name, parent, co,
+    assert (model.frames[parent].type == se3::BODY);
+    JointIndex parentJoint = model.frames[parent].parent;
+    geometryObjects.push_back(GeometryObject( geom_name, parent, parentJoint, co,
                                                placement, mesh_path));
-    addInnerObject(parent, idx);
+    addInnerObject(parentJoint, idx);
     return idx;
   }
 
@@ -136,8 +138,15 @@ namespace se3
   {
     removeAllCollisionPairs();
     for (Index i = 0; i < ngeoms; ++i)
+    {
+      const JointIndex& joint_i = geometryObjects[i].parentJoint;
       for (Index j = i+1; j < ngeoms; ++j)
-        addCollisionPair(CollisionPair(i,j));
+      {
+        const JointIndex& joint_j = geometryObjects[j].parentJoint;
+        if (joint_i != joint_j)
+          addCollisionPair(CollisionPair(i,j));
+      }
+    }
   }
   
   inline void GeometryModel::removeCollisionPair (const CollisionPair & pair)

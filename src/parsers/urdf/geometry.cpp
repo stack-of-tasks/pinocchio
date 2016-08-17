@@ -198,11 +198,15 @@ namespace se3
           }
           std::vector< boost::shared_ptr< T > > geometries_array = getLinkGeometryArray<T>(link);
 
+          FrameIndex frame_id = model.getFrameId(link_name);
+          SE3 body_placement = model.frames[frame_id].placement;
+          assert(model.frames[frame_id].type == BODY);
+
           std::size_t objectId = 0;
           for (typename std::vector< boost::shared_ptr< T > >::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)
           {
+            mesh_path.clear();
 #ifdef WITH_HPP_FCL
-            mesh_path = retrieveResourcePath(boost::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry)->filename, package_dirs);
             const boost::shared_ptr<fcl::CollisionGeometry> geometry = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
 #else
             boost::shared_ptr < ::urdf::Mesh> urdf_mesh = boost::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry);
@@ -211,11 +215,11 @@ namespace se3
             const boost::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
 #endif // WITH_HPP_FCL            
             
-            SE3 geomPlacement = convertFromUrdf((*i)->origin);
+            SE3 geomPlacement = body_placement * convertFromUrdf((*i)->origin);
             std::ostringstream geometry_object_suffix;
             geometry_object_suffix << "_" << objectId;
             const std::string & geometry_object_name = std::string(link_name + geometry_object_suffix.str());
-            geom_model.addGeometryObject(model.getFrameParent(link_name), geometry, geomPlacement, geometry_object_name, mesh_path);
+            geom_model.addGeometryObject(model, frame_id, geometry, geomPlacement, geometry_object_name, mesh_path);
             ++objectId; 
           }
         }

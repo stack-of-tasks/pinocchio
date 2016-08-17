@@ -42,9 +42,9 @@ namespace se3
   {
     for (GeomIndex i=0; i < (GeomIndex) data_geom.model_geom.ngeoms; ++i)
     {
-      const Model::JointIndex & parent = model_geom.geometryObjects[i].parent;
-      if (parent>0) data_geom.oMg[i] =  (data.oMi[parent] * model_geom.geometryObjects[i].placement);
-      else          data_geom.oMg[i] =  model_geom.geometryObjects[i].placement;
+      const Model::JointIndex & joint = model_geom.geometryObjects[i].parentJoint;
+      if (joint>0) data_geom.oMg[i] =  (data.oMi[joint] * model_geom.geometryObjects[i].placement);
+      else         data_geom.oMg[i] =  model_geom.geometryObjects[i].placement;
 #ifdef WITH_HPP_FCL  
       data_geom.collisionObjects[i].setTransform( toFclTransform3f(data_geom.oMg[i]) );
 #endif // WITH_HPP_FCL
@@ -158,8 +158,10 @@ namespace se3
       const boost::shared_ptr<const fcl::CollisionGeometry> & fcl
         = geom.collision_geometry;
       const SE3 & jMb = geom.placement; // placement in joint.
+      const Model::JointIndex & i = geom.parentJoint;
+      assert (i<geomData.radius.size());
 
-      double radius = geomData.radius[geom.parent];
+      double radius = geomData.radius[i];
 
       // The radius is simply the one of the 8 corners of the AABB cube, expressed 
       // in the joint frame, whose norm is the highest.
@@ -173,8 +175,7 @@ namespace se3
       radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,max,max,max)).squaredNorm(),radius);
 
       // Don't forget to sqroot the squared norm before storing it.
-      assert (geom.parent<geomData.radius.size());
-      geomData.radius[geom.parent] = sqrt(radius);
+      geomData.radius[i] = sqrt(radius);
     }
   }
 
