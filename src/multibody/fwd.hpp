@@ -18,6 +18,8 @@
 #ifndef __se3_multibody_fwd_hpp__
 #define __se3_multibody_fwd_hpp__
 
+# include <cstddef> // std::size_t
+
 namespace se3
 {
   typedef std::size_t Index;
