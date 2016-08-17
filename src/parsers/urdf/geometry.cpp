@@ -201,8 +201,8 @@ namespace se3
           std::size_t objectId = 0;
           for (typename std::vector< boost::shared_ptr< T > >::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)
           {
+            mesh_path.clear();
 #ifdef WITH_HPP_FCL
-            mesh_path = retrieveResourcePath(boost::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry)->filename, package_dirs);
             const boost::shared_ptr<fcl::CollisionGeometry> geometry = retrieveCollisionGeometry((*i)->geometry, package_dirs, mesh_path);
 #else
             boost::shared_ptr < ::urdf::Mesh> urdf_mesh = boost::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry);
