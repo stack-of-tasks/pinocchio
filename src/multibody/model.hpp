@@ -503,7 +503,7 @@ namespace se3
     ///
     /// \param[in] model The model structure of the rigid body system.
     ///
-    Data (const Model & model);
+    explicit Data (const Model & model);
 
   private:
     void computeLastChild(const Model& model);
