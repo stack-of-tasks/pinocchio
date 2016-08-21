@@ -116,43 +116,6 @@ namespace se3
     
   }; // struct DistanceResult 
   
-
-  /**
-   * @brief      Result of collision computation between two CollisionObjects
-   */
-  struct CollisionResult
-  {
-
-    /**
-     * @brief      Default constrcutor of a CollisionResult
-     *
-     * @param[in]  coll_fcl  The FCL collision result
-     * @param[in]  co1       Index of the first geometry object involved in the computation
-     * @param[in]  co2       Index of the second geometry object involved in the computation
-     */
-    CollisionResult(fcl::CollisionResult coll_fcl, const GeomIndex co1, const GeomIndex co2)
-    : fcl_collision_result(coll_fcl), object1(co1), object2(co2)
-    {}
-    CollisionResult() : fcl_collision_result(), object1(0), object2(0) {}
-
-    bool operator == (const CollisionResult & other) const
-    {
-      return (fcl_collision_result == other.fcl_collision_result
-              && object1 == other.object1
-              && object2 == other.object2);
-    }
-
-    /// \brief The FCL result of the collision computation
-    fcl::CollisionResult fcl_collision_result;
-
-    /// \brief Index of the first collision object
-    GeomIndex object1;
-
-    /// \brief Index of the second collision object
-    GeomIndex object2;
-
-  }; // struct CollisionResult
-
 #else
 
   namespace fcl
