@@ -62,8 +62,7 @@ namespace se3
     {
       if(data_geom.activeCollisionPairs[cpt])
         {
-          data_geom.collision_results[cpt]
-            = data_geom.computeCollision(geomModel.collisionPairs[cpt]);
+          data_geom.computeCollision(geomModel.collisionPairs[cpt],data_geom.collision_results[cpt].fcl_collision_result);
           isColliding |= data_geom.collision_results[cpt].fcl_collision_result.isCollision();
           if(isColliding && stopAtFirstCollision)
             return true;

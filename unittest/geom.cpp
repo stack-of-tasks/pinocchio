@@ -162,6 +162,7 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
 
   se3::Data data(model);
   se3::GeometryData data_geom(model_geom);
+  fcl::CollisionResult result;
 
   std::cout << "------ Model ------ " << std::endl;
   std::cout << model;
@@ -169,7 +170,7 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   std::cout << model_geom;
   std::cout << "------ DataGeom ------ " << std::endl;
   std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1)).fcl_collision_result.isCollision() == true);
+  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1), result) == true);
 
   Eigen::VectorXd q(model.nq);
   q <<  2, 0, 0,
@@ -177,21 +178,21 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1)).fcl_collision_result.isCollision() == false);
+  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1), result) == false);
 
   q <<  0.99, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1)).fcl_collision_result.isCollision() == true);
+  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1), result) == true);
 
   q <<  1.01, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
   std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1)).fcl_collision_result.isCollision() == false);
+  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1), result) == false);
 }
 
 BOOST_AUTO_TEST_CASE ( loading_model )
@@ -213,6 +214,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 
   Data data(model);
   GeometryData geometry_data(geometry_model);
+  fcl::CollisionResult result;
 
   Eigen::VectorXd q(model.nq);
   q << 0, 0, 0.840252, 0, 0, 0, 1, 0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0, 0, -0.3490658,
@@ -220,7 +222,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
        1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2 ;
 
   se3::updateGeometryPlacements(model, data, geometry_model, geometry_data, q);
-  BOOST_CHECK(geometry_data.computeCollision(CollisionPair(1,10)).fcl_collision_result.isCollision() == false);
+  BOOST_CHECK(geometry_data.computeCollision(CollisionPair(1,10), result) == false);
 }
 
 

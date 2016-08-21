@@ -272,10 +272,11 @@ namespace se3
     /// \brief Compute the collision status between two collision objects of a given collision pair.
     ///
     /// \param[in] pair The collsion pair.
+    /// \param[out] result where the collision result is stored.
     ///
     /// \return Return true is the collision objects are colliding.
     ///
-    CollisionResult computeCollision(const CollisionPair & pair) const;
+    bool computeCollision(const CollisionPair & pair, fcl::CollisionResult& result) const;
     
     ///
     /// \brief Compute the collision result of all the collision pairs according to
