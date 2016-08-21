@@ -32,6 +32,14 @@
 namespace se3
 {
 
+  inline GeomIndex GeometryModel::addGeometryObject(const GeometryObject& object)
+  {
+    Index idx = (Index) (ngeoms ++);
+    geometryObjects.push_back(object);
+    addInnerObject(object.parentJoint, idx);
+    return idx;
+  }
+
   inline GeomIndex GeometryModel::addGeometryObject(const Model& model,
                                                     const FrameIndex parent,
                                                     const boost::shared_ptr<fcl::CollisionGeometry> & co,
@@ -39,14 +47,11 @@ namespace se3
                                                     const std::string & geom_name,
                                                     const std::string & mesh_path) throw(std::invalid_argument)
   {
-    Index idx = (Index) (ngeoms ++);
-
     assert (model.frames[parent].type == se3::BODY);
     JointIndex parentJoint = model.frames[parent].parent;
-    geometryObjects.push_back(GeometryObject( geom_name, parent, parentJoint, co,
-                                               placement, mesh_path));
-    addInnerObject(parentJoint, idx);
-    return idx;
+    GeometryObject object( geom_name, parent, parentJoint, co,
+                           placement, mesh_path);
+    return addGeometryObject (object);
   }
 
 

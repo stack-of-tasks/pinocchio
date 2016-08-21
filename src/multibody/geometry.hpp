@@ -73,6 +73,15 @@ namespace se3
     /**
      * @brief      Add a geometry object to a GeometryModel
      *
+     * @param[in]  object     Object 
+     *
+     * @return     The index of the new added GeometryObject in geometryObjects
+     */
+    inline GeomIndex addGeometryObject(const GeometryObject& object);
+
+    /**
+     * @brief      Add a geometry object to a GeometryModel
+     *
      * @param[in]  parent     Index of the parent frame
      * @param[in]  co         The actual fcl CollisionGeometry
      * @param[in]  placement  The relative placement regarding to the parent frame
