@@ -286,8 +286,15 @@ namespace se3
     
     ///
     /// \brief Check if at least one of the collision pairs has its two collision objects in collision.
+    ///        The results are stored in the vector GeometryData::collision_results.
     ///
-    bool isColliding() const;
+    /// \param[out] the index of the colliding pair if the function returns true.
+    ///
+    bool isColliding(Index& collidingPair);
+
+    /// \brief See bool isColliding(Index&)
+    /// As isColliding(Index&) without argument
+    bool isColliding();
 
     ///
     /// \brief Compute the minimal distance between collision objects of a collison pair
