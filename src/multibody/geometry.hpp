@@ -234,7 +234,7 @@ namespace se3
     ///
     /// \brief Vector gathering the result of the collision computation for all the collision pairs.
     ///
-    std::vector <CollisionResult> collision_results;
+    std::vector <fcl::CollisionResult> collision_results;
 
     ///
     /// \brief Radius of the bodies, i.e. distance of the further point of the geometry model

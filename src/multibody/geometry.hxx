@@ -225,7 +225,7 @@ namespace se3
     for(size_t i = 0; i<model_geom.collisionPairs.size(); ++i)
     {
       if(activeCollisionPairs[i])
-        computeCollision(model_geom.collisionPairs[i], collision_results[i].fcl_collision_result);
+        computeCollision(model_geom.collisionPairs[i], collision_results[i]);
     }
   }
   
@@ -234,7 +234,7 @@ namespace se3
     for(i = 0; i<model_geom.collisionPairs.size(); ++i)
     {
       if (activeCollisionPairs[i] 
-          && computeCollision(model_geom.collisionPairs[i], collision_results[i].fcl_collision_result))
+          && computeCollision(model_geom.collisionPairs[i], collision_results[i]))
         return true;
     }
     return false;
