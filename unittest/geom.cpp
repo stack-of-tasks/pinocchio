@@ -227,11 +227,16 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 #if defined(WITH_URDFDOM) && defined(WITH_HPP_FCL)
 BOOST_AUTO_TEST_CASE (radius)
 {
-  // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
+#ifdef ROMEO_DESCRIPTION_MODEL_DIR
+  std::string filename = ROMEO_DESCRIPTION_MODEL_DIR"/romeo_description/urdf/romeo_small.urdf";
+  std::vector < std::string > package_dirs;
+  package_dirs.push_back(ROMEO_DESCRIPTION_MODEL_DIR);
+#else
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
   std::vector < std::string > package_dirs;
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   package_dirs.push_back(meshDir);
+#endif // ROMEO_DESCRIPTION_MODEL_DIR
 
   se3::Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
@@ -243,7 +248,7 @@ BOOST_AUTO_TEST_CASE (radius)
   se3::computeBodyRadius(model, geom, geomData);
   BOOST_FOREACH( double radius, geomData.radius) BOOST_CHECK(radius>=0.);
 
-#ifdef WITH_HPP_MODEL_URDF
+#if defined(WITH_HPP_MODEL_URDF) && defined(ROMEO_DESCRIPTION_MODEL_DIR)
   /// *************  HPP  ************* /// 
   /// ********************************* ///
   using hpp::model::JointVector_t;
@@ -254,7 +259,7 @@ BOOST_AUTO_TEST_CASE (radius)
   hpp::model::HumanoidRobotPtr_t humanoidRobot =
     hpp::model::HumanoidRobot::create ("romeo");
   loadHumanoidPathPlanerModel(humanoidRobot, "freeflyer",
-              "romeo_pinocchio", "romeo",
+              "romeo_description", "romeo_small",
               "");
 
   BOOST_CHECK_MESSAGE(model.nq == humanoidRobot->configSize () , "Pinocchio model & HPP model config sizes are not the same ");
@@ -281,7 +286,7 @@ BOOST_AUTO_TEST_CASE (radius)
 }
 #endif // if defined(WITH_URDFDOM) && defined(WITH_HPP_FCL)
 
-#ifdef WITH_HPP_MODEL_URDF
+#if defined(WITH_HPP_MODEL_URDF) && defined(ROMEO_DESCRIPTION_MODEL_DIR)
 BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
 {
   typedef se3::Model Model;
@@ -301,10 +306,9 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   /// ********************************* ///
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
+  std::string filename = ROMEO_DESCRIPTION_MODEL_DIR"/romeo_description/urdf/romeo_small.urdf";
   std::vector < std::string > package_dirs;
-  std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
-  package_dirs.push_back(meshDir);
+  package_dirs.push_back(ROMEO_DESCRIPTION_MODEL_DIR);
 
   se3::Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
@@ -338,7 +342,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   hpp::model::HumanoidRobotPtr_t humanoidRobot =
     hpp::model::HumanoidRobot::create ("romeo");
   loadHumanoidPathPlanerModel(humanoidRobot, "freeflyer",
-              "romeo_pinocchio", "romeo",
+              "romeo_description", "romeo_small",
               "");
 
   BOOST_CHECK_MESSAGE(model.nq == humanoidRobot->configSize () , "Pinocchio model & HPP model config sizes are not the same ");
@@ -409,10 +413,9 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   /// ********************************* /// 
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
+  std::string filename = ROMEO_DESCRIPTION_MODEL_DIR"/romeo_description/urdf/romeo_small.urdf";
   std::vector < std::string > package_dirs;
-  std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
-  package_dirs.push_back(meshDir);
+  package_dirs.push_back(ROMEO_DESCRIPTION_MODEL_DIR);
 
   se3::Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
@@ -446,7 +449,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   hpp::model::HumanoidRobotPtr_t humanoidRobot =
     hpp::model::HumanoidRobot::create ("romeo");
   loadHumanoidPathPlanerModel(humanoidRobot, "freeflyer",
-              "romeo_pinocchio", "romeo",
+              "romeo_description", "romeo_small",
               "");
 
   BOOST_CHECK_MESSAGE(model.nq == humanoidRobot->configSize () , "Pinocchio model & HPP model config sizes are not the same ");
