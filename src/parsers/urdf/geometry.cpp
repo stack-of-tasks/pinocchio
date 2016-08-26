@@ -190,12 +190,6 @@ namespace se3
         
           std::string link_name = link->name;
 
-          assert(link->getParent()!=NULL);
-          if (link->getParent() == NULL)
-          {
-            const std::string exception_message (link->name + " - joint information missing.");
-            throw std::invalid_argument(exception_message);
-          }
           std::vector< boost::shared_ptr< T > > geometries_array = getLinkGeometryArray<T>(link);
 
           FrameIndex frame_id = model.getFrameId(link_name);
