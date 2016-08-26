@@ -181,6 +181,59 @@ namespace se3
 #undef SE3_GEOM_AABB
 #endif // WITH_HPP_FCL
 
+  inline void appendGeometryModel(GeometryModel & geomModel1,
+                                  const GeometryModel & geomModel2)
+  {
+    assert (geomModel1.ngeoms == geomModel1.geometryObjects.size());
+    Index nGeom1 = geomModel1.geometryObjects.size();
+    Index nColPairs1 = geomModel1.collisionPairs.size();
+    assert (geomModel2.ngeoms == geomModel2.geometryObjects.size());
+    Index nGeom2 = geomModel2.geometryObjects.size();
+    Index nColPairs2 = geomModel2.collisionPairs.size();
+
+    /// Append the geometry objects and geometry positions
+    geomModel1.geometryObjects.insert(geomModel1.geometryObjects.end(),
+        geomModel2.geometryObjects.begin(), geomModel2.geometryObjects.end());
+
+    /// 1. copy the collision pairs and update geomData1 accordingly.
+    geomModel1.collisionPairs.reserve(nColPairs1 + nColPairs2 + nGeom1 * nGeom2);
+    for (Index i = 0; i < nColPairs2; ++i)
+    {
+      const CollisionPair& cp = geomModel2.collisionPairs[i];
+      geomModel1.collisionPairs.push_back(
+          CollisionPair (cp.first + nGeom1, cp.second + nGeom1)
+          );
+    }
+
+    /// 2. Update the inner/outer objects
+    typedef GeometryModel::GeomIndexList GeomIndexList;
+    typedef std::map < JointIndex, GeomIndexList > Map_t;
+    BOOST_FOREACH(const Map_t::value_type& innerObject, geomModel2.innerObjects)
+    {
+      GeomIndexList& innerGeoms = geomModel1.innerObjects[innerObject.first];
+      innerGeoms.reserve(innerGeoms.size() + innerObject.second.size());
+      BOOST_FOREACH(const GeomIndex& gid, innerObject.second)
+      {
+        innerGeoms.push_back(nGeom1 + gid);
+      }
+    }
+    BOOST_FOREACH(const Map_t::value_type& outerObject, geomModel2.outerObjects)
+    {
+      GeomIndexList& outerGeoms = geomModel1.outerObjects[outerObject.first];
+      outerGeoms.reserve(outerGeoms.size() + outerObject.second.size());
+      BOOST_FOREACH(const GeomIndex& gid, outerObject.second)
+      {
+        outerGeoms.push_back(nGeom1 + gid);
+      }
+    }
+
+    /// 3. add the collision pairs between geomModel1 and geomModel2.
+    for (Index i = 0; i < nGeom1; ++i) {
+      for (Index j = 0; j < nGeom2; ++j) {
+        geomModel1.collisionPairs.push_back(CollisionPair(i, nGeom1 + j));
+      }
+    }
+  }
 } // namespace se3
 
 #endif // ifnded __se3_algo_geometry_hxx__

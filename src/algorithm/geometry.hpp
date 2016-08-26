@@ -93,6 +93,14 @@ namespace se3
                                 const GeometryModel & geomModel,
                                 GeometryData &        geomData);
 #endif // WITH_HPP_FCL
+
+  /// Append geomModel2 to geomModel1
+  ///
+  /// \warning Radius should be recomputed.
+  /// \todo The geometry objects of geomModel2 should be added as outerObjects
+  ///       of the joints originating from model1 but I do not know how to do it.
+  inline void appendGeometryModel(GeometryModel & geomModel1,
+                                  const GeometryModel & geomModel2);
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
