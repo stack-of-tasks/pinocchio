@@ -194,6 +194,7 @@ namespace se3
     /// Append the geometry objects and geometry positions
     geomModel1.geometryObjects.insert(geomModel1.geometryObjects.end(),
         geomModel2.geometryObjects.begin(), geomModel2.geometryObjects.end());
+    geomModel1.ngeoms += nGeom2;
 
     /// 1. copy the collision pairs and update geomData1 accordingly.
     geomModel1.collisionPairs.reserve(nColPairs1 + nColPairs2 + nGeom1 * nGeom2);
