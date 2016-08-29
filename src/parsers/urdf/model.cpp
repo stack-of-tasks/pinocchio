@@ -463,6 +463,8 @@ namespace se3
       ///
       void parseRootTree (::urdf::LinkConstPtr root_link, Model & model, const bool verbose) throw (std::invalid_argument)
       {
+        appendBodyToJoint(model, 0, root_link->inertial, SE3::Identity(), root_link->name);
+
         BOOST_FOREACH(::urdf::LinkPtr child, root_link->child_links)
         {
           parseTree(child, model, SE3::Identity(), verbose);
