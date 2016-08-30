@@ -270,13 +270,13 @@ namespace se3
 
     ///
     /// \brief Compute the collision status between two collision objects of a given collision pair.
+    /// The result is store in the collision_results vector.
     ///
-    /// \param[in] pair The collsion pair.
-    /// \param[out] result where the collision result is stored.
+    /// \param[in] pairId The collsion pair index in the GeometryModel.
     ///
     /// \return Return true is the collision objects are colliding.
     ///
-    bool computeCollision(const CollisionPair & pair, fcl::CollisionResult& result) const;
+    bool computeCollision(const Index & pairId);
     
     ///
     /// \brief Compute the collision result of all the collision pairs according to

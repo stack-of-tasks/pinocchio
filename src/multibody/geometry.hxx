@@ -205,8 +205,11 @@ namespace se3
     activeCollisionPairs[pairId] = false;
   }
 
-  inline bool GeometryData::computeCollision(const CollisionPair & pair, fcl::CollisionResult& collisionResult) const
+  inline bool GeometryData::computeCollision(const Index& pairId)
   {
+    const CollisionPair & pair = model_geom.collisionPairs[pairId];
+    fcl::CollisionResult& collisionResult = collision_results[pairId];
+
     const Index & co1 = pair.first;     assert(co1<collisionObjects.size());
     const Index & co2 = pair.second;    assert(co2<collisionObjects.size());
 
@@ -225,7 +228,7 @@ namespace se3
     for(size_t i = 0; i<model_geom.collisionPairs.size(); ++i)
     {
       if(activeCollisionPairs[i])
-        computeCollision(model_geom.collisionPairs[i], collision_results[i]);
+        computeCollision(i);
     }
   }
   
@@ -233,8 +236,7 @@ namespace se3
   {
     for(i = 0; i<model_geom.collisionPairs.size(); ++i)
     {
-      if (activeCollisionPairs[i] 
-          && computeCollision(model_geom.collisionPairs[i], collision_results[i]))
+      if (activeCollisionPairs[i] && computeCollision(i))
         return true;
     }
     return false;
