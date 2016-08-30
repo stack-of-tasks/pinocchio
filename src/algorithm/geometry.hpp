@@ -96,6 +96,13 @@ namespace se3
 
   /// Append geomModel2 to geomModel1
   ///
+  /// The steps for appending are:
+  /// \li add GeometryObject of geomModel2 to geomModel1,
+  /// \li add the collision pairs of geomModel2 into geomModel1 (indexes are updated)
+  /// \li add all the collision pairs between geometry objects of geomModel1 and geomModel2.
+  /// \li update the inner objects of geomModel1 with the inner objects of geomModel2
+  /// \li update the outer objects (see TODO)
+  ///
   /// \warning Radius should be recomputed.
   /// \todo The geometry objects of geomModel2 should be added as outerObjects
   ///       of the joints originating from model1 but I do not know how to do it.
