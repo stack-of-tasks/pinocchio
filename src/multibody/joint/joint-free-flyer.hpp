@@ -339,8 +339,8 @@ namespace se3
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1) const
     {
-      Transformation_t M0(Transformation_t::Identity()); forwardKinematics(M0, q0);
-      Transformation_t M1(Transformation_t::Identity()); forwardKinematics(M1, q1);
+      Transformation_t M0(Transformation_t::Identity()); forwardKinematics(M0, q0.segment<NQ> (idx_q ()));
+      Transformation_t M1(Transformation_t::Identity()); forwardKinematics(M1, q1.segment<NQ> (idx_q ()));
 
       return se3::log6(M0.inverse()*M1);
     } 
