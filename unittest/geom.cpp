@@ -160,9 +160,11 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   boost::shared_ptr<fcl::Box> sample2(new fcl::Box(1));
   model_geom.addGeometryObject(model, model.getBodyId("planar2_body"),sample2, SE3::Identity(),  "ff2_collision_object", "");
 
+  model_geom.addAllCollisionPairs();
   se3::Data data(model);
   se3::GeometryData data_geom(model_geom);
-  fcl::CollisionResult result;
+
+  BOOST_CHECK(CollisionPair(0,1) == model_geom.collisionPairs[0]);
 
   std::cout << "------ Model ------ " << std::endl;
   std::cout << model;
@@ -170,29 +172,31 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   std::cout << model_geom;
   std::cout << "------ DataGeom ------ " << std::endl;
   std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1), result) == true);
 
   Eigen::VectorXd q(model.nq);
+  q <<  0, 0, 0,
+        0, 0, 0 ;
+
+  se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
+  BOOST_CHECK(data_geom.computeCollision(0) == true);
+
   q <<  2, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
-  std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1), result) == false);
+  BOOST_CHECK(data_geom.computeCollision(0) == false);
 
   q <<  0.99, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
-  std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1), result) == true);
+  BOOST_CHECK(data_geom.computeCollision(0) == true);
 
   q <<  1.01, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
-  std::cout << data_geom;
-  BOOST_CHECK(data_geom.computeCollision(CollisionPair(0,1), result) == false);
+  BOOST_CHECK(data_geom.computeCollision(0) == false);
 }
 
 BOOST_AUTO_TEST_CASE ( loading_model )
@@ -211,6 +215,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
   Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   GeometryModel geometry_model = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
+  geometry_model.addAllCollisionPairs();
 
   Data data(model);
   GeometryData geometry_data(geometry_model);
@@ -222,7 +227,8 @@ BOOST_AUTO_TEST_CASE ( loading_model )
        1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2 ;
 
   se3::updateGeometryPlacements(model, data, geometry_model, geometry_data, q);
-  BOOST_CHECK(geometry_data.computeCollision(CollisionPair(1,10), result) == false);
+  se3::Index idx = geometry_model.findCollisionPair(CollisionPair(1,10));
+  BOOST_CHECK(geometry_data.computeCollision(idx) == false);
 }
 
 
