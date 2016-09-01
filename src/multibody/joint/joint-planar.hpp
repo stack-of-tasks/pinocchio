@@ -273,6 +273,7 @@ namespace se3
       NQ = 3,
       NV = 3
     };
+    typedef double Scalar;
     typedef JointDataPlanar JointDataDerived;
     typedef JointModelPlanar JointModelDerived;
     typedef ConstraintPlanar Constraint_t;
@@ -489,6 +490,14 @@ namespace se3
       q << 0, 0, 0;
       return q;
     } 
+
+    bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return q_1.isApprox(q_2, prec);
+    }
 
     JointModelDense<NQ, NV> toDense_impl() const
     {

@@ -174,6 +174,20 @@ namespace se3
                         Eigen::VectorXd & q);
 
   /**
+   * @brief      Visit a JointModelVariant through JointIsSameConfigurationVisitor to determine
+   *             if the two given configurations are equivalent or not.
+   *
+   * @param[in]  jmodel   The JointModelVariant
+   * @param[in]  q1       Configuration 1
+   * @param[in]  q2       Configuration 2
+   * 
+   * @return     Wheter the two configurations are equivalent
+   */
+  inline bool isSameConfiguration(const JointModelVariant & jmodel,
+                                  const Eigen::VectorXd & q1,
+                                  const Eigen::VectorXd & q2);
+
+  /**
    * @brief      Visit a JointModelVariant through JointNvVisitor to get the dimension of 
    *             the joint tangent space
    *

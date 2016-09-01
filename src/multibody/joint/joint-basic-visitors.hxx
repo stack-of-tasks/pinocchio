@@ -265,6 +265,31 @@ namespace se3
     JointNormalizeVisitor::run(jmodel, q);
   }
 
+  /**
+   * @brief      JointIsSameConfigurationVisitor visitor
+   */
+  class JointIsSameConfigurationVisitor: public boost::static_visitor<bool>
+  {
+  public:
+    const Eigen::VectorXd & q1;
+    const Eigen::VectorXd & q2;
+
+    JointIsSameConfigurationVisitor(const Eigen::VectorXd & q1,const Eigen::VectorXd & q2) : q1(q1), q2(q2) {}
+
+    template<typename D>
+    bool operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.isSameConfiguration(q1, q2); }
+    
+    static bool run(const JointModelVariant & jmodel, const Eigen::VectorXd & q1, const Eigen::VectorXd & q2)
+    { return boost::apply_visitor( JointIsSameConfigurationVisitor(q1,q2), jmodel ); }
+  };
+
+  inline bool isSameConfiguration(const JointModelVariant & jmodel,
+                                  const Eigen::VectorXd & q1,
+                                  const Eigen::VectorXd & q2)
+  {
+    return JointIsSameConfigurationVisitor::run(jmodel, q1, q2);
+  }
 
   /**
    * @brief      JointDifferenceVisitor visitor
