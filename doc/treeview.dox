@@ -1,0 +1,73 @@
+//
+// This file strutures pages and modules into a convenient hierarchical structure.
+//
+
+namespace pinocchio {
+
+
+  //
+  // Pages/ tutorials organization
+  //
+
+  /** \page UserManual_Generalities General topics
+       - \subpage pinocchio_page_crtp
+       - \subpage pinocchio_page_loading
+       - \subpage UserManual_UnderstandingEigen
+  */
+  
+  /** \page UserManual_ModelCreation Build a Model
+       - \subpage pinocchio_page_create_from_scratch
+       - \subpage pinocchio_page_loading
+          - \subpage pinocchio_page_urdf_loading
+          - \subpage pinocchio_page_python_loading
+  */
+
+  /** \page UserManual_UnderstandingEigen Understanding Eigen
+        \subpage TopicInsideEigenExample
+        \subpage TopicClassHierarchy
+        \subpage TopicLazyEvaluation
+  */
+
+
+  //
+  // Modules organization
+  //
+
+  /** \defgroup algorithm_group Algorithms */
+  /** \defgroup math_group Math */
+
+
+
+  /** \defgroup multibody_group Multibody */
+  /** \addtogroup Joints_group Joints
+   *  \ingroup multibody_group 
+   */
+
+
+  /** \defgroup parsers_group Parsers */
+  /** \addtogroup Cinematic_group Cinematic
+   *  \ingroup parsers_group 
+   */
+  /** \addtogroup Geometric_group Geometric
+   *  \ingroup parsers_group 
+   */
+
+
+
+  /** \defgroup spatial_group Spatial */
+  /** \addtogroup Motion_group Motion
+   *  \ingroup spatial_group 
+   */
+  /** \defgroup Force_group Force
+   *  \ingroup spatial_group 
+   */
+  /** \addtogroup Inertia_group Inertia
+   *  \ingroup spatial_group 
+   */
+  /** \addtogroup SE3_group SE3
+   *  \ingroup spatial_group 
+   */
+
+
+  /** \defgroup tools_group Tools */
+} 
