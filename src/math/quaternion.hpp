@@ -61,5 +61,20 @@ namespace se3
     return (q1.coeffs().isApprox(q2.coeffs()) || q1.coeffs().isApprox(-q2.coeffs()) );
   }
 
+  /// Approximately normalize by applying the first order limited development
+  /// of the normalization function.
+  ///
+  /// Only additions and multiplications are required. Neither square root nor
+  /// division are used (except a division by 2).
+  ///
+  /// \warning \f$ ||q||^2 - 1 \f$ should already be close to zero.
+  template <typename D> void
+    firstOrderNormalize(const Eigen::QuaternionBase<D> & q)
+  {
+    typedef typename D::Scalar Scalar;
+    const Scalar alpha = ((Scalar)3 - q.squaredNorm()) / 2;
+    const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() = alpha * q.derived().coeffs();
+  }
+
 }
 #endif //#ifndef __math_quaternion_hpp__
