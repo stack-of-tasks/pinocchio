@@ -283,6 +283,8 @@ namespace se3
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1, const double u) const
     {
+      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
@@ -290,8 +292,21 @@ namespace se3
       else if( u == 1.) return q_1;
       else
       {
+        // TODO: If integrate takes an arguments (ConfigVector_t, TangentVector_t), then we can merely do:
+        // TangentVector_t nu(u*difference(q0, q1));
+        // return integrate(q0, nu);
+
         TangentVector_t nu(u*difference(q0, q1));
-        return integrate(q0, nu);
+        Transformation_t M0; forwardKinematics(M0,q_0);
+        Transformation_t M1(M0*exp6(Motion_t(nu)));
+
+        ConfigVector_t res;
+        res.head<3>() = M1.translation();
+        QuaternionMap_t res_quat(res.tail<4>().data());
+        res_quat = M1.rotation();
+        firstOrderNormalize(res_quat);
+        
+        return res;
       }
     }
 
