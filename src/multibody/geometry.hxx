@@ -232,20 +232,15 @@ namespace se3
     }
   }
   
-  inline bool GeometryData::isColliding(Index& i)
+  inline bool GeometryData::isColliding()
   {
+    Index& i = collisionPairIndex;
     for(i = 0; i<model_geom.collisionPairs.size(); ++i)
     {
       if (activeCollisionPairs[i] && computeCollision(i))
         return true;
     }
     return false;
-  }
-
-  inline bool GeometryData::isColliding()
-  {
-    Index pair;
-    return isColliding(pair);
   }
 
   inline DistanceResult GeometryData::computeDistance(const CollisionPair & pair) const

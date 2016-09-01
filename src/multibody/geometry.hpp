@@ -241,6 +241,15 @@ namespace se3
     /// attached to the body from the joint center.
     ///
     std::vector<double> radius;
+
+    ///
+    /// \brief index of the collision pair
+    ///
+    /// It is used by some method to return additional information. For instance,
+    /// isColliding() sets it to the first colliding pair.
+    ///
+    Index collisionPairIndex;
+
     GeometryData(const GeometryModel & modelGeom)
         : model_geom(modelGeom)
         , oMg(model_geom.ngeoms)
@@ -289,12 +298,8 @@ namespace se3
     /// \brief Check if at least one of the collision pairs has its two collision objects in collision.
     ///        The results are stored in the vector GeometryData::collision_results.
     ///
-    /// \param[out] the index of the colliding pair if the function returns true.
+    /// Set collisionPairIndex to the index of the first colliding pair in collision.
     ///
-    bool isColliding(Index& collidingPair);
-
-    /// \brief See bool isColliding(Index&)
-    /// As isColliding(Index&) without argument
     bool isColliding();
 
     ///
