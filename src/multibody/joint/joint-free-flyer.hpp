@@ -276,6 +276,7 @@ namespace se3
       res.head<3>() = M1.translation();
       QuaternionMap_t res_quat(res.tail<4>().data());
       res_quat = M1.rotation();
+      firstOrderNormalize(res_quat);
       
       return res;
     } 

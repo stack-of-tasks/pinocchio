@@ -336,6 +336,7 @@ namespace se3
 
       Motion_t::Quaternion_t pOmega(se3::exp3(q_dot));
       Motion_t::Quaternion_t quaternion_result(q*pOmega);
+      firstOrderNormalize(quaternion_result);
       
       return quaternion_result.coeffs();
     }
