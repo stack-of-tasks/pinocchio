@@ -102,6 +102,19 @@ struct TestIntegrationJoint
     
     SE3 M1_exp = M0*exp6(v0);
     BOOST_CHECK(M1.isApprox(M1_exp));
+    
+    qdot *= -1;
+
+    jmodel.calc(jdata,q0,qdot);
+    M0 = jdata.M;
+    v0 = jdata.v;
+    
+    q1 = jmodel.integrate(q0,qdot);
+    jmodel.calc(jdata,q1);
+    M1 = jdata.M;
+    
+    M1_exp = M0*exp6(v0);
+    BOOST_CHECK(M1.isApprox(M1_exp));
   }
   
 };
@@ -174,6 +187,8 @@ struct TestDifferentiationJoint
     TV qdot = jmodel.difference(q0,q1);
 
     BOOST_CHECK_MESSAGE( jmodel.integrate(q0, qdot).isApprox(q1), std::string("Error in difference for joint " + jmodel.shortname()));
+
+    BOOST_CHECK_MESSAGE( jmodel.integrate(q1, -qdot).isApprox(q0), std::string("Error in difference for joint " + jmodel.shortname()));
 
   }
 
