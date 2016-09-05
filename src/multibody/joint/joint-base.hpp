@@ -68,6 +68,7 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_ARG(prefix)              \
    typedef int Index;                \
+   typedef prefix traits<JointDerived>::Scalar Scalar;    \
    typedef prefix traits<JointDerived>::JointDataDerived JointDataDerived;        \
    typedef prefix traits<JointDerived>::JointModelDerived JointModelDerived;      \
    typedef prefix traits<JointDerived>::Constraint_t Constraint_t;      \
@@ -92,6 +93,7 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_NOARG()       \
   typedef int Index;            \
+  typedef traits<JointDerived>::Scalar Scalar;    \
   typedef traits<JointDerived>::JointDataDerived JointDataDerived;     \
   typedef traits<JointDerived>::JointModelDerived JointModelDerived;     \
   typedef traits<JointDerived>::Constraint_t Constraint_t;   \
@@ -111,6 +113,7 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_ARG(prefix)         \
   typedef int Index;              \
+  typedef prefix traits<JointDerived>::Scalar Scalar;
   typedef prefix traits<JointDerived>::JointDataDerived JointDataDerived;      \
   typedef prefix traits<JointDerived>::JointModelDerived JointModelDerived;      \
   typedef prefix traits<JointDerived>::Constraint_t Constraint_t;    \
@@ -135,6 +138,7 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_ARG()              \
   typedef int Index;                 \
+  typedef typename traits<JointDerived>::Scalar Scalar;    \
   typedef typename traits<JointDerived>::JointDataDerived JointDataDerived;         \
   typedef typename traits<JointDerived>::JointModelDerived JointModelDerived;       \
   typedef typename traits<JointDerived>::Constraint_t Constraint_t;       \
@@ -355,6 +359,15 @@ namespace se3
      * @brief      Default implementation of normalize
      */
     void normalize_impl(Eigen::VectorXd &) const { }
+
+    /**
+     * @brief      Check if two configurations are equivalent within the given precision 
+     *
+     * @param[in]  q1     Configuration 1 (size full model.nq)
+     * @param[in]  q2    Configuration 2 (size full model.nq)
+     */
+    bool isSameConfiguration(const Eigen::VectorXd & q1, const Eigen::VectorXd & q2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return derived().isSameConfiguration_impl(q1,q2, prec); }
 
     JointIndex i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.

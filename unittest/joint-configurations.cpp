@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE ( integrate_difference_test )
  Eigen::VectorXd q1(randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) ));
  Eigen::VectorXd qdot(Eigen::VectorXd::Random(model.nv));
 
- BOOST_CHECK_MESSAGE(configurations_are_equals(integrate(model, q0, differentiate(model, q0,q1)), q1), "Integrate (differentiate) - wrong results");
+ BOOST_CHECK_MESSAGE(isSameConfiguration(model, integrate(model, q0, differentiate(model, q0,q1)), q1), "Integrate (differentiate) - wrong results");
 
  BOOST_CHECK_MESSAGE(differentiate(model, q0, integrate(model,q0, qdot)).isApprox(qdot),"differentiate (integrate) - wrong results");
 }
