@@ -328,18 +328,6 @@ namespace se3
     /// \return Returns true if the frame has been successfully added.
     ///
     bool addFrame(const Frame & frame);
-    
-    ///
-    /// \brief Creates and adds a frame to the kinematic tree.
-    ///
-    /// \param[in] name Name of the frame.
-    /// \param[in] parent Index of the supporting joint.
-    /// \param[in] placement Placement of the frame regarding to the joint frame.
-    /// \param[in] type The type of the frame
-    ///
-    /// \return Returns true if the frame has been successfully added.
-    ///
-    PINOCCHIO_DEPRECATED bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_FRAME);
 
   protected:
     

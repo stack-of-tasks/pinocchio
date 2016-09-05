@@ -80,9 +80,6 @@ namespace se3
     neutralConfiguration.conservativeResize(nq);
     neutralConfiguration.tail(joint_model.nq()) = joint_model.neutralConfiguration();
     
-    // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
-    addFrame(names[idx],idx,SE3::Identity(),JOINT);
-    
     // Init and add joint index to its parent subtrees.
     subtrees.push_back(IndexVector(1));
     subtrees[idx][0] = idx;
@@ -97,8 +94,6 @@ namespace se3
   {
     const Inertia & iYf = Y.se3Action(body_placement);
     inertias[joint_index] += iYf;
-
-    addFrame((body_name!="")?body_name:randomStringGenerator(8), joint_index, body_placement, BODY);
     nbody++;
   }
   
@@ -220,14 +215,6 @@ namespace se3
     {
       return false;
     }
-  }
-
-  inline bool Model::addFrame ( const std::string & name, JointIndex index, const SE3 & placement, const FrameType type)
-  {
-    if( !existFrame(name) )
-      return addFrame(Frame(name, index, placement, type));
-    else
-      return false;
   }
   
   inline void Model::addJointIndexToParentSubtrees(const JointIndex joint_id)
