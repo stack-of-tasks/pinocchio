@@ -54,7 +54,7 @@ void addJointAndBody(Model & model, const JointModelBase<D> & jmodel, const Mode
                        1e3 * (CV::Random() + CV::Constant(1))
                        );
   
-  model.appendBodyToJoint(idx,Y,SE3::Identity(),name + "_body");
+  model.appendBodyToJoint(idx,Y,SE3::Identity());
 }
 
 void buildModel(Model & model)

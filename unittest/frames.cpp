@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoint-1);
   const std::string & frame_name = std::string( model.getJointName(parent_idx)+ "_frame");
   const SE3 & framePlacement = SE3::Random();
-  model.addFrame(frame_name, parent_idx, framePlacement);
+  model.addFrame(Frame (frame_name, parent_idx, -1, framePlacement, OP_FRAME));
   se3::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoint-1);
   const std::string & frame_name = std::string( model.getJointName(parent_idx)+ "_frame");
   const SE3 & framePlacement = SE3::Random();
-  model.addFrame(frame_name, parent_idx, framePlacement);
+  model.addFrame(Frame (frame_name, parent_idx, -1, framePlacement, OP_FRAME));
   se3::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
