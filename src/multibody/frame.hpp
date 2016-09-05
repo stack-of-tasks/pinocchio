@@ -58,12 +58,14 @@ namespace se3
     ///
     /// \param[in] name Name of the frame.
     /// \param[in] parent Index of the parent joint in the kinematic tree.
+    /// \param[in] previousFrame Index of the parent frame in the kinematic tree.
     /// \param[in] placement Placement of the frame wrt the parent joint frame.
     /// \param[in] type The type of the frame, see the enum FrameType
     ///
-    Frame(const std::string & name, const JointIndex parent, const SE3 & frame_placement, const FrameType type)
+    Frame(const std::string & name, const JointIndex parent, const FrameIndex previousFrame, const SE3 & frame_placement, const FrameType type)
     : name(name)
     , parent(parent)
+    , previousFrame(previousFrame)
     , placement(frame_placement)
     , type(type)
     {}
@@ -76,6 +78,7 @@ namespace se3
     bool operator == (const Frame & other) const
     {
       return name == other.name && parent == other.parent
+      && previousFrame == other.previousFrame
       && placement == other.placement
       && type == other.type ;
     }
@@ -85,6 +88,9 @@ namespace se3
     
     /// \brief Index of the parent joint.
     JointIndex parent;
+    
+    /// \brief Index of the previous frame.
+    FrameIndex previousFrame;
     
     /// \brief Placement of the frame wrt the parent joint.
     SE3 placement;

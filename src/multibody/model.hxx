@@ -87,14 +87,40 @@ namespace se3
     return idx;
   }
 
+  inline FrameIndex Model::addJointFrame (const JointIndex& jidx,
+                                                int         fidx)
+  {
+    if (fidx < 0) {
+      fidx = getFrameId(names[parents[jidx]]);
+    }
+    if (fidx >= frames.size())
+      throw std::invalid_argument ("Frame not found");
+    // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
+    addFrame(Frame(names[jidx],jidx,fidx,SE3::Identity(),JOINT));
+    return frames.size() - 1;
+  }
+
   inline void Model::appendBodyToJoint(const Model::JointIndex joint_index,
                                        const Inertia & Y,
-                                       const SE3 & body_placement,
-                                       const std::string & body_name)
+                                       const SE3 & body_placement)
   {
     const Inertia & iYf = Y.se3Action(body_placement);
     inertias[joint_index] += iYf;
     nbody++;
+  }
+
+  inline FrameIndex Model::addBodyFrame (const std::string& body_name,
+                                         const JointIndex& parentJoint,
+                                         const SE3 & body_placement,
+                                               int         previousFrame)
+  {
+    if (previousFrame < 0) {
+      previousFrame = getFrameId(names[parentJoint]);
+    }
+    if (previousFrame >= frames.size())
+      throw std::invalid_argument ("Frame not found");
+    addFrame(Frame(body_name, parentJoint, previousFrame, body_placement, BODY));
+    return frames.size() - 1;
   }
   
   inline Model::JointIndex Model::getBodyId (const std::string & name) const

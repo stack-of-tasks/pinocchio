@@ -124,13 +124,15 @@ namespace se3
       , gravity( gravity981,Eigen::Vector3d::Zero() )
     {
       names[0]     = "universe";     // Should be "universe joint (trivial)"
+      addFrame(Frame("universe", 0, 0, SE3::Identity(), FIXED_JOINT));
     }
     ~Model() {} // std::cout << "Destroy model" << std::endl; }
     
     ///
     /// \brief Add a joint to the kinematic tree.
     ///
-    /// \remark This method also adds a Frame of same name to the vector of frames.
+    /// \remark This method does not add a Frame of same name to the vector of frames.
+    ///         Use Model::addJointFrame.
     /// \remark The inertia supported by the joint is set to Zero.
     ///
     /// \tparam JointModelDerived The type of the joint model.
@@ -146,7 +148,7 @@ namespace se3
     ///
     /// \return The index of the new joint.
     ///
-    /// \sa Model::appendBodyToJoint
+    /// \sa Model::appendBodyToJoint, Model::addJointFrame
     ///
     template<typename JointModelDerived>
     JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
@@ -158,6 +160,18 @@ namespace se3
                         );
 
     ///
+    /// \brief Add a joint to the frame tree.
+    ///
+    /// \param[in] jointIndex Index of the joint.
+    /// \param[in] frameIndex Index of the parent frame. If negative,
+    ///            the parent frame is the frame of the parent joint.
+    ///
+    /// \return The index of the new frame.
+    ///
+    FrameIndex addJointFrame (const JointIndex& jointIndex,
+                                    int         frameIndex = -1);
+
+    ///
     /// \brief Append a body to a given joint of the kinematic tree.
     ///
     /// \remark This method also adds a Frame of same name to the vector of frames.
@@ -165,13 +179,27 @@ namespace se3
     /// \param[in] joint_index Index of the supporting joint.
     /// \param[in] Y Spatial inertia of the body.
     /// \param[in] body_placement The relative placement of the body regarding to the parent joint. Set default to the Identity placement.
-    /// \param[in] body_name Name of the body. If empty, the name is random.
     ///
     /// \sa Model::addJoint
     ///
     void appendBodyToJoint(const JointIndex joint_index, const Inertia & Y,
-                           const SE3 & body_placement = SE3::Identity(),
-                           const std::string & body_name = "");
+                           const SE3 & body_placement = SE3::Identity());
+
+    ///
+    /// \brief Add a body to the frame tree.
+    ///
+    /// \param[in] body_name Name of the body.
+    /// \param[in] parentJoint Index of the parent joint.
+    /// \param[in] body_placement The relative placement of the body regarding to the parent joint. Set default to the Identity placement.
+    /// \param[in] previousFrame Index of the parent frame. If negative,
+    ///            the parent frame is the frame of the parent joint.
+    ///
+    /// \return The index of the new frame.
+    ///
+    FrameIndex addBodyFrame (const std::string& body_name,
+                             const JointIndex& parentJoint,
+                             const SE3 & body_placement = SE3::Identity(),
+                                   int         previousFrame = -1);
 
     ///
     /// \brief Return the index of a body given by its name.
