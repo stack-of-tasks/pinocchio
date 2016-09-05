@@ -142,8 +142,10 @@ namespace se3
       
       idx = model.addJoint(parent_id,jmodel,
                            joint_placement,joint_name);
-      model.appendBodyToJoint(idx,Y,SE3::Identity(),body_name);
-      
+      model.addJointFrame(idx);
+      model.appendBodyToJoint(idx,Y);
+      model.addBodyFrame(body_name, idx);
+
       return idx;
     }
     
@@ -295,7 +297,11 @@ namespace se3
         }
         else if (joint_type == "JointTypeFixed")
         {
-          model.appendBodyToJoint(parent_id, Y, global_placement, "");
+          model.appendBodyToJoint(parent_id, Y, global_placement);
+          // TODO Why not
+          // model.addBodyFrame(body_name, parent_id, global_placement);
+          // ???
+          model.addBodyFrame(randomStringGenerator(8), parent_id, global_placement);
 
           joint_id = (Model::JointIndex)model.njoint;
           

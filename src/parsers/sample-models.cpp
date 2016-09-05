@@ -22,112 +22,89 @@ namespace se3
 {
   namespace buildModels
   {
+    const SE3 Id = SE3::Identity();
+
     
     template<typename JointModel>
     static void addJointAndBody(Model & model,
                                 const JointModelBase<JointModel> & joint,
                                 const std::string & parent_name,
-                                const std::string & name)
+                                const std::string & name,
+                                const SE3 placement = SE3::Random(),
+                                bool setRandomLimits = true)
     {
       typedef typename JointModel::ConfigVector_t CV;
       typedef typename JointModel::TangentVector_t TV;
       
       Model::JointIndex idx;
       
-      idx = model.addJoint(model.getJointId(parent_name),joint,
-                           SE3::Random(),name + "_joint",
-                           TV::Random() + TV::Constant(1),
-                           TV::Random() + TV::Constant(1),
-                           CV::Random() - CV::Constant(1),
-                           CV::Random() + CV::Constant(1));
-      
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),name + "_body");
+      if (setRandomLimits)
+        idx = model.addJoint(model.getJointId(parent_name),joint,
+                             placement, name + "_joint",
+                             TV::Random() + TV::Constant(1),
+                             TV::Random() + TV::Constant(1),
+                             CV::Random() - CV::Constant(1),
+                             CV::Random() + CV::Constant(1));
+      else
+        idx = model.addJoint(model.getJointId(parent_name),joint,
+                             placement, name + "_joint");
+      model.addJointFrame(idx);
+      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
+      model.addBodyFrame(name + "_body", idx);
     }
 
     void humanoid2d(Model & model)
     {
-      Model::JointIndex idx;
-      
       // root
-      idx = model.addJoint(model.getJointId("universe"),JointModelRX(),SE3::Identity(),"ff1_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"ff1_body");
-      
-      idx = model.addJoint(model.getJointId("ff1_joint"),JointModelRY(),SE3::Identity(),"root_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"root_body");
+      addJointAndBody(model, JointModelRX(), "universe", "ff1", Id, false);
+      addJointAndBody(model, JointModelRY(), "ff1_joint", "root", Id, false);
 
       // lleg
-      idx = model.addJoint(model.getJointId("root_joint"),JointModelRZ(),SE3::Identity(),"lleg1_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"lleg1_body");
-      
-      idx = model.addJoint(model.getJointId("lleg1_joint"),JointModelRY(),SE3::Identity(),"lleg2_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"lleg2_body");
+      addJointAndBody(model, JointModelRZ(), "root_joint", "lleg1", Id, false);
+      addJointAndBody(model, JointModelRY(), "lleg1_joint", "lleg2", Id, false);
 
       // rlgg
-      idx = model.addJoint(model.getJointId("root_joint"),JointModelRZ(),SE3::Identity(),"rleg1_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"rleg1_body");
-
-      idx = model.addJoint(model.getJointId("rleg1_joint"),JointModelRY(),SE3::Identity(),"rleg2_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"rleg2_body");
+      addJointAndBody(model, JointModelRZ(), "root_joint", "rleg1", Id, false);
+      addJointAndBody(model, JointModelRY(), "lleg1_joint", "rleg2", Id, false);
 
       // torso
-      idx = model.addJoint(model.getJointId("root_joint"),JointModelRY(),SE3::Identity(),"torso1_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"torso1_body");
-
-      idx = model.addJoint(model.getJointId("torso1_joint"),JointModelRZ(),SE3::Identity(),"chest_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"chest_body");
+      addJointAndBody(model, JointModelRY(), "root_joint", "torso1", Id, false);
+      addJointAndBody(model, JointModelRZ(), "torso1_joint", "chest", Id, false);
 
       // rarm
-      idx = model.addJoint(model.getJointId("chest_joint"),JointModelRX(),SE3::Identity(),"rarm1_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"rarm1_body");
-
-      idx = model.addJoint(model.getJointId("rarm1_joint"),JointModelRZ(),SE3::Identity(),"rarm2_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"rarm2_body");
+      addJointAndBody(model, JointModelRX(), "chest_joint", "rarm1", Id, false);
+      addJointAndBody(model, JointModelRZ(), "rarm1_joint", "rarm2", Id, false);
 
       // larm
-      idx = model.addJoint(model.getJointId("chest_joint"),JointModelRX(),SE3::Identity(),"larm1_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"larm1_body");
-
-      idx = model.addJoint(model.getJointId("larm1_joint"),JointModelRZ(),SE3::Identity(),"larm2_joint");
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"larm2_body");
+      addJointAndBody(model, JointModelRX(), "root_joint", "larm1", Id, false);
+      addJointAndBody(model, JointModelRZ(), "larm1_joint", "larm2", Id, false);
 
     }
 
     void humanoidSimple(Model & model, bool usingFF)
     {
-      Model::JointIndex idx;
-      
       // root
       if(! usingFF )
       {
-        idx = model.addJoint(model.getJointId("universe"),JointModelRX(),SE3::Identity(),"ff1_joint");
-        model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"ff1_body");
-        
-        idx = model.addJoint(model.getJointId("ff1_joint"),JointModelRY(),SE3::Identity(),"ff2_joint");
-        model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"ff2_body");
-        
-        idx = model.addJoint(model.getJointId("ff2_joint"),JointModelRZ(),SE3::Identity(),"ff3_joint");
-        model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"ff3_body");
-        
-        idx = model.addJoint(model.getJointId("ff3_joint"),JointModelRZ(),SE3::Random(),"ff4_joint");
-        model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"ff4_body");
-        
-        idx = model.addJoint(model.getJointId("ff4_joint"),JointModelRY(),SE3::Identity(),"ff5_joint");
-        model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"ff5_body");
-        
-        idx = model.addJoint(model.getJointId("ff5_joint"),JointModelRX(),SE3::Identity(),"root_joint");
-        model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"root_body");
+        addJointAndBody(model, JointModelRX(), "universe", "ff1", Id, false);
+        addJointAndBody(model, JointModelRY(), "ff1_joint", "ff2", Id, false);
+        addJointAndBody(model, JointModelRZ(), "ff2_joint", "ff3", Id, false);
+        addJointAndBody(model, JointModelRZ(), "ff3_joint", "ff4", Id, false);
+        addJointAndBody(model, JointModelRY(), "ff4_joint", "ff5", Id, false);
+        addJointAndBody(model, JointModelRX(), "ff5_joint", "root", Id, false);
       }
       else
       {
-        typedef JointModelFreeFlyer::ConfigVector_t CV;
-        typedef JointModelFreeFlyer::TangentVector_t TV;
+        // typedef JointModelFreeFlyer::ConfigVector_t CV;
+        // typedef JointModelFreeFlyer::TangentVector_t TV;
         
-        idx = model.addJoint(model.getJointId("universe"),JointModelFreeFlyer(),
-                             SE3::Identity(),"root_joint",
-                             TV::Zero(), 1e3 * (TV::Random() + TV::Constant(1.)),
-                             1e3 * (CV::Random() - CV::Constant(1)),
-                             1e3 * (CV::Random() + CV::Constant(1)));
-        model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"root_body");
+        addJointAndBody(model, JointModelFreeFlyer(), "universe", "root", Id, false);
+        // idx = model.addJoint(model.getJointId("universe"),JointModelFreeFlyer(),
+                             // SE3::Identity(),"root_joint",
+                             // TV::Zero(), 1e3 * (TV::Random() + TV::Constant(1.)),
+                             // 1e3 * (CV::Random() - CV::Constant(1)),
+                             // 1e3 * (CV::Random() + CV::Constant(1)));
+        // model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"root_body");
       }
 
       // lleg
