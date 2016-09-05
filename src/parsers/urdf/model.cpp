@@ -111,13 +111,6 @@ namespace se3
           const std::string & parent_link_name = link->getParent()->name;
           std::ostringstream joint_info;
           
-          // check if inertial information is provided
-          if (!link->inertial && joint->type != ::urdf::Joint::FIXED)
-          {
-            const std::string exception_message (link->name + " - spatial inertial information missing.");
-            throw std::invalid_argument(exception_message);
-          }
-          
           Model::JointIndex parent_joint_id = (link->getParent()->parent_joint==NULL)
             ? (model.existJointName("root_joint") ? model.getJointId("root_joint") : 0)
             : model.getJointId( link->getParent()->parent_joint->name );
