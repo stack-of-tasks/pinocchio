@@ -83,9 +83,10 @@ namespace se3
     Scalar t = w.norm();
     if (t > 1e-15)
     {
-      Matrix3 S(alphaSkew(1./t, w));
+      const double inv_t = 1./t;
+      Matrix3 S(alphaSkew(inv_t, w));
       double ct,st; SINCOS (t,&st,&ct);
-      Matrix3 V((1. - ct)/t * S + (1. - st/t) * S * S);
+      Matrix3 V((1. - ct) * inv_t * S + (1. - st * inv_t) * S * S);
       Vector3 p(v + V * v);
       return SE3Tpl<_Scalar, _Options>(exp3(w), p);
     }
