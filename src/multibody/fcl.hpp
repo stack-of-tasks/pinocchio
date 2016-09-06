@@ -153,6 +153,10 @@ struct GeometryObject
   std::string name;
 
   /// \brief Index of the parent frame
+  ///
+  /// Parent frame may be unset (set to -1) as it is mostly used as a documentation of the tree, or in third-party libraries.
+  /// The URDF parser of Pinocchio is setting it to the proper value according to the urdf link-joint tree.
+  /// In particular, anchor joints of URDF would cause parent frame to be different to joint frame.
   FrameIndex parentFrame;
 
   /// \brief Index of the parent joint
