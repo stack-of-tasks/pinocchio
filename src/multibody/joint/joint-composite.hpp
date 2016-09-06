@@ -3,7 +3,7 @@
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
+// and/or modify it under the terljMj of the GNU Lesser General Public
 // License as published by the Free Software Foundation, either version
 // 3 of the License, or (at your option) any later version.
 //
@@ -21,6 +21,9 @@
 #include "pinocchio/assert.hpp"
 // #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 #include "pinocchio/multibody/joint/joint.hpp"
+
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion)
 
 namespace se3
 {
@@ -66,6 +69,7 @@ namespace se3
     int nq_composite,nv_composite;
 
     Constraint_t S;
+    std::vector<Transformation_t> ljMj;
     Transformation_t M;
     Motion_t v;
     Bias_t c;
@@ -83,6 +87,7 @@ namespace se3
     , nq_composite(nq)
     , nv_composite(nv)
     , S(Eigen::MatrixXd::Zero(6, nv_composite))
+    , ljMj(joints.size())
     , M(Transformation_t::Identity())
     , v(Motion_t::Zero())
     , c(Bias_t::Zero())
@@ -195,7 +200,8 @@ namespace se3
       {
         JointDataVector::iterator::difference_type index = i - data.joints.begin();
         calc_zero_order(joints[(std::size_t)index], *i, qs);
-        data.M =  data.M * joint_transform(*i);
+        data.ljMj[(std::size_t)index] = joint_transform(*i);
+        data.M =  data.M * data.ljMj[(std::size_t)index];
       }
     }
 
@@ -207,20 +213,22 @@ namespace se3
       data.v.setZero();
       data.c.setZero();
       data.S.matrix().setZero();
-      std::cout << "Size of joint stack: "  << data.joints.size() << std::endl;
       for (JointDataVector::iterator i = data.joints.begin(); i != data.joints.end(); ++i)
       {
         JointDataVector::iterator::difference_type index = i - data.joints.begin();
-        std::cout << "i = " << index << std::endl;
-        std::cout << "Index in joint composite : \t" << index << std::endl;
-        std::cout << "nq of contained joint : \t" << ::se3::nq(joints[(std::size_t)index]) << std::endl;
         calc_first_order(joints[(std::size_t)index], *i, qs, vs);
-        data.M =  data.M * joint_transform(*i);
+        data.ljMj[(std::size_t)index] = joint_transform(*i);
+        data.M = data.M * data.ljMj[(std::size_t)index];
+        data.v = motion(*i);
+        if (i == data.joints.begin())
+        {}
+        else 
+        {
+          data.v += data.ljMj[(std::size_t)index].actInv(motion(*(i-1)));
+        }
       }
 
-      data.v = motion(data.joints[joints.size()-1]);
       data.c = bias(data.joints[joints.size()-1]);
-      // data.S = constraint_xd(data.joints[joints.size()-1])
       int start_col = nv_composite;
       int sub_constraint_dimension = (int)constraint_xd(data.joints[joints.size()-1]).matrix().cols();
       start_col -= sub_constraint_dimension;
@@ -232,9 +240,8 @@ namespace se3
         sub_constraint_dimension = (int)constraint_xd(*i).matrix().cols();
         start_col -= sub_constraint_dimension;
 
-        iMcomposite = joint_transform(*(i-1)) * iMcomposite;
-        data.v += iMcomposite.actInv(motion(*i));
-        data.S.matrix().middleCols(start_col,sub_constraint_dimension) = iMcomposite.actInv(constraint_xd(*i));
+        iMcomposite = joint_transform(*(i+0)) * iMcomposite;
+        data.S.matrix().middleCols(start_col,sub_constraint_dimension) = iMcomposite.actInv(constraint_xd(*(i+0)));
 
         Motion acceleration_d_entrainement_coriolis = Motion::Zero(); // TODO: compute
         data.c += iMcomposite.actInv(bias(*i)) + acceleration_d_entrainement_coriolis;
@@ -251,7 +258,7 @@ namespace se3
       for (JointDataVector::iterator i = data.joints.begin(); i != data.joints.end(); ++i)
       {
         JointDataVector::iterator::difference_type index = i - data.joints.begin();
-        ::se3::calc_aba(joints[(std::size_t)index], *i, I, false); // HERE MEMORY ACCES VIOLATION WHEN VISITING A  JOINT(JOINTMODELCOMPOSITE). SEE UNITTEST JOINT
+        ::se3::calc_aba(joints[(std::size_t)index], *i, I, false);
       }
       data.U = I * data.S;
       Eigen::MatrixXd tmp = data.S.matrix().transpose() * I * data.S.matrix();
@@ -260,6 +267,12 @@ namespace se3
 
       if (update_I)
         I -= data.UDinv * data.U.transpose();
+    }
+
+    Scalar finiteDifferenceIncrement() const
+    {
+      using std::sqrt;
+      return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const

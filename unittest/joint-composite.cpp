@@ -23,8 +23,10 @@
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
+#include "pinocchio/algorithm/jacobian.hpp"
 
 #include <iostream>
+#include <cmath>
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE JointCompositeTest
@@ -182,7 +184,6 @@ BOOST_AUTO_TEST_CASE ( test_recursive_variant)
 BOOST_AUTO_TEST_CASE (TestCopyComposite)
 {
 
-  std::cout << "\n\n --- Test Copy composite" << std::endl;
   using namespace Eigen;
   using namespace se3;
 
@@ -201,7 +202,6 @@ BOOST_AUTO_TEST_CASE (TestCopyComposite)
 
   JointModelComposite model_copy = jmodel_composite_planar;
   JointDataComposite data_copy = model_copy.createData();
-  std::cout << model_copy << std::endl;
   
   BOOST_CHECK_MESSAGE( model_copy.max_joints == jmodel_composite_planar.max_joints, "Test Copy Composite, max_joints are differents");
   BOOST_CHECK_MESSAGE( model_copy.nq() == jmodel_composite_planar.nq(), "Test Copy Composite, nq are differents");
@@ -215,143 +215,112 @@ BOOST_AUTO_TEST_CASE (TestCopyComposite)
 }
 
 
-BOOST_AUTO_TEST_CASE (TestVariantOverComposite)
+BOOST_AUTO_TEST_CASE ( test_R3xSO3)
 {
-
-  std::cout << "\n\n --- Test Variant Over composite" << std::endl;
+  std::cout << " Testing R3xSO3 vs jointcomposite<R3 - SO3>" << std::endl;
   using namespace Eigen;
   using namespace se3;
 
-  JointModelComposite jmodel_composite_planar(3);
-  jmodel_composite_planar.addJointModel(JointModelPX());
-  jmodel_composite_planar.addJointModel(JointModelPY());
-  jmodel_composite_planar.addJointModel(JointModelRZ());
-  jmodel_composite_planar.setIndexes(1,0,0);
-  jmodel_composite_planar.updateComponentsIndexes();
-
-  JointDataComposite jdata_composite_planar = jmodel_composite_planar.createData();
-
-  Eigen::VectorXd q1(Eigen::VectorXd::Random(3));
-  Eigen::VectorXd q1_dot(Eigen::VectorXd::Random(3));
+  Model model_composite;
+  Model model_zero_mass;
+  Model model_ff;
 
 
-  JointModelVariant jmvariant_comp(jmodel_composite_planar);
-  JointDataVariant jdvariant_comp(jdata_composite_planar);
-
-  std::cout << " Extract the composite joint from the variant, and visit each joint from the stack" << std::endl;
-  JointModelComposite extracted_model = boost::get<JointModelComposite>(jmvariant_comp);
-  for (std::size_t i = 0; i < 3; ++i)
-  {
-    calc_first_order(extracted_model.joints[i], jdata_composite_planar.joints[i], q1, q1_dot);
-    std::cout << se3::nq(extracted_model.joints[i]) << std::endl;
-  }
-  
-  std::cout << " Testing visiting a variant over the composite joint" << std::endl;
-  std::cout << nv(jmvariant_comp) << std::endl;
-  calc_first_order(jmvariant_comp, jdvariant_comp, q1, q1_dot); // here assertion 'false' failed has_fallback_type_
-}
-
-
-// Compare a stack of joint ( PX, PY, RZ) to a planar joint
-BOOST_AUTO_TEST_CASE ( KinematicModelCompositePlanar)
-{
-  std::cout << " Testing Planar Model vs composite planar model" << std::endl;
-  using namespace Eigen;
-  using namespace se3;
-
-  Model model_composite_planar;
-  Model model_planar;
 
   Inertia body_inertia(Inertia::Random());
   SE3 placement(SE3::Identity());
 
-  model_planar.addJoint(model_planar.getBodyId("universe"),JointModelPlanar(), placement, "planar_joint");
-  model_planar.appendBodyToJoint(model_planar.getJointId("planar_joint"), body_inertia, SE3::Identity(), "planar_body");
+  model_zero_mass.addJoint(model_zero_mass.getBodyId("universe"),JointModelTranslation(), placement, "R3_joint");
+  model_zero_mass.addJoint(model_zero_mass.getJointId("R3_joint"), JointModelSpherical(), SE3::Identity(), "SO3_joint");
+  model_zero_mass.appendBodyToJoint(model_zero_mass.getJointId("SO3_joint"), body_inertia, SE3::Identity(), "SO3_body");
 
-  JointModelComposite jmodel_composite_planar(3);
-  jmodel_composite_planar.addJointModel(JointModelPX());
-  jmodel_composite_planar.addJointModel(JointModelPY());
-  jmodel_composite_planar.addJointModel(JointModelRZ());
+  JointModelComposite jmodel_composite(2);
+  jmodel_composite.addJointModel(JointModelTranslation());
+  jmodel_composite.addJointModel(JointModelSpherical());
   
-  model_composite_planar.addJoint(model_composite_planar.getBodyId("universe"),jmodel_composite_planar, placement, "composite_planar_joint");
-  model_composite_planar.appendBodyToJoint(model_composite_planar.getJointId("composite_planar_joint"), body_inertia, SE3::Identity(), "composite_planar_body");
+  model_composite.addJoint(model_composite.getBodyId("universe"),jmodel_composite, placement, "composite_R3xSO3_joint");
+  model_composite.appendBodyToJoint(model_composite.getJointId("composite_R3xSO3_joint"), body_inertia, SE3::Identity(), "composite_R3xSO3_body");
   // When Model will be cleaned in coming pull request, this will be done in addBody(addJoint)
-  boost::get<JointModelComposite>(model_composite_planar.joints[model_composite_planar.getJointId("composite_planar_joint")]).updateComponentsIndexes();
+  boost::get<JointModelComposite>(model_composite.joints[model_composite.getJointId("composite_R3xSO3_joint")]).updateComponentsIndexes();
+
+  model_ff.addJoint(model_ff.getBodyId("universe"),JointModelFreeFlyer(), placement, "ff_joint");
+  model_ff.appendBodyToJoint(model_ff.getJointId("ff_joint"), body_inertia, SE3::Identity(), "ff_body");
+
+  BOOST_CHECK_MESSAGE(model_composite.nq == model_zero_mass.nq ,"Model with R3 - SO3 vs composite <R3xSO3> - dimensions nq are not equal");
+  BOOST_CHECK_MESSAGE(model_composite.nq == model_zero_mass.nq ,"Model with R3 - SO3 vs composite <R3xSO3> - dimensions nv are not equal");
 
 
-  BOOST_CHECK_MESSAGE(model_composite_planar.nq == model_planar.nq ,"Model with planar joint vs composite PxPyRz - dimensions nq are not equal");
-  BOOST_CHECK_MESSAGE(model_composite_planar.nq == model_planar.nq ,"Model with planar joint vs composite PxPyRz - dimensions nv are not equal");
+  Data data_zero_mass(model_zero_mass);
+  Data data_composite(model_composite);
+  Data data_ff(model_ff);
+
+  Eigen::VectorXd q(Eigen::VectorXd::Random(model_zero_mass.nq));normalize(model_zero_mass,q);
+  Eigen::VectorXd q_dot(Eigen::VectorXd::Random(model_zero_mass.nv));
+  Eigen::VectorXd q_ddot(Eigen::VectorXd::Random(model_zero_mass.nv));
+  Eigen::VectorXd q1(Eigen::VectorXd::Random(model_zero_mass.nq));normalize(model_zero_mass,q1);
+  Eigen::VectorXd q2(Eigen::VectorXd::Random(model_zero_mass.nq));normalize(model_zero_mass,q2);
+  Eigen::VectorXd tau(Eigen::VectorXd::Random(model_zero_mass.nq));
+  double u = 0.3;
+
+  // Test that algorithms do not crash
+  integrate(model_composite,q,q_dot);
+  interpolate(model_composite,q1,q2,u);
+  differentiate(model_composite,q1,q2);
+  distance(model_composite,q1,q2);
+
+  aba(model_composite,data_composite, q,q_dot, tau);
+  centerOfMass(model_composite, data_composite,q,q_dot,q_ddot,true,false);
+  forwardKinematics(model_composite,data_composite, q, q_dot, q_ddot);
+  computeAllTerms(model_zero_mass,data_zero_mass,q,q_dot);
+
+  forwardKinematics(model_zero_mass, data_zero_mass, q, q_dot, q_ddot);
+  computeAllTerms(model_composite,data_composite,q,q_dot);
 
 
-  // Data data_planar(model_planar);
-  // Data data_composite_planar(model_composite_planar);
+  Model::Index index_joint_R3xSO3 = (Model::Index) model_zero_mass.njoint-1;
+  Model::Index index_joint_composite = (Model::Index) model_composite.njoint-1;
 
-  // Eigen::VectorXd q(Eigen::VectorXd::Random(model_planar.nq));
-  // Eigen::VectorXd q_dot(Eigen::VectorXd::Random(model_planar.nv));
-  // Eigen::VectorXd q_ddot(Eigen::VectorXd::Random(model_planar.nv));
-  // Eigen::VectorXd q1(Eigen::VectorXd::Random(model_planar.nq));
-  // Eigen::VectorXd q2(Eigen::VectorXd::Random(model_planar.nq));
-  // Eigen::VectorXd tau(Eigen::VectorXd::Random(model_planar.nq));
-  // double u = 0.3;
 
-  // // Test that algorithms do not crash
-  // integrate(model_composite_planar,q,q_dot);
-  // interpolate(model_composite_planar,q1,q2,u);
-  // differentiate(model_composite_planar,q1,q2);
-  // distance(model_composite_planar,q1,q2);
-  // randomConfiguration(model_composite_planar);
+  BOOST_CHECK_MESSAGE(data_composite.oMi[index_joint_composite]
+                          .isApprox(data_zero_mass.oMi[index_joint_R3xSO3]) , "composite<R3xSO3> vs R3-SO3 - oMi last joint not equal");
 
-  // // aba(model_composite_planar,data_composite_planar, q,q_dot, tau);
-  // centerOfMass(model_composite_planar, data_composite_planar,q,q_dot,q_ddot,true,false);
-  // emptyForwardPass(model_composite_planar, data_composite_planar);
-  // forwardKinematics(model_composite_planar,data_composite_planar, q );
-  // forwardKinematics(model_composite_planar,data_composite_planar, q, q_dot);
-  // forwardKinematics(model_composite_planar,data_composite_planar, q, q_dot, q_ddot);
-  // computeAllTerms(model_planar,data_planar,q,q_dot);
-  // computeAllTerms(model_composite_planar,data_composite_planar,q,q_dot);
 
-  // Model::Index last_joint_pxpyrz = (Model::Index) model_planar.nbody-1;
-  // Model::Index last_joint_composite = (Model::Index) model_composite_planar.nbody-1;
+  BOOST_CHECK_MESSAGE(data_composite.v[index_joint_composite]
+                          == data_zero_mass.v[index_joint_R3xSO3] , "composite<R3xSO3> vs R3-SO3 - v last joint not equal");
 
-  // BOOST_CHECK_MESSAGE(data_composite_planar.oMi[last_joint_composite]
-  //                         .isApprox(data_planar.oMi[last_joint_pxpyrz]) , "composite planar joint vs PxPyRz - oMi last joint not equal");
+  BOOST_CHECK_MESSAGE(data_composite.a[index_joint_composite] //@TODO
+                          == data_zero_mass.a[index_joint_R3xSO3] , "composite planar joint vs PxPyRz - a last joint not equal");
 
-  // BOOST_CHECK_MESSAGE(data_composite_planar.v[last_joint_composite]
-  //                         == data_planar.v[last_joint_pxpyrz] , "composite planar joint vs PxPyRz - v last joint not equal");
+  BOOST_CHECK_MESSAGE(data_composite.f[index_joint_composite] //@TODO
+                          == data_zero_mass.f[index_joint_R3xSO3] , "composite planar joint vs PxPyRz - f last joint not equal");
 
-  // BOOST_CHECK_MESSAGE(data_composite_planar.a[last_joint_composite]
-  //                         == data_planar.a[last_joint_pxpyrz] , "composite planar joint vs PxPyRz - a last joint not equal");
+  BOOST_CHECK_MESSAGE(data_composite.com[index_joint_composite]
+                          .isApprox(data_zero_mass.com[index_joint_R3xSO3]) , "composite<R3xSO3> vs R3-SO3 - com last joint not equal");
 
-  // BOOST_CHECK_MESSAGE(data_composite_planar.f[last_joint_composite]
-  //                         == data_planar.f[last_joint_pxpyrz] , "composite planar joint vs PxPyRz - f last joint not equal");
+  BOOST_CHECK_MESSAGE(data_composite.vcom[index_joint_composite]
+                          .isApprox(data_zero_mass.vcom[index_joint_R3xSO3]) , "composite<R3xSO3> vs R3-SO3 - vcom last joint not equal");
 
-  // BOOST_CHECK_MESSAGE(data_composite_planar.com[last_joint_composite]
-  //                         .isApprox(data_planar.com[last_joint_pxpyrz]) , "composite planar joint vs PxPyRz - com last joint not equal");
+  BOOST_CHECK_MESSAGE(data_composite.mass[index_joint_composite]
+                          == data_zero_mass.mass[index_joint_R3xSO3] , "composite<R3xSO3> vs R3-SO3 - mass last joint not equal"); 
 
-  // BOOST_CHECK_MESSAGE(data_composite_planar.vcom[last_joint_composite]
-  //                         .isApprox(data_planar.vcom[last_joint_pxpyrz]) , "composite planar joint vs PxPyRz - vcom last joint not equal");
+  BOOST_CHECK_MESSAGE(data_composite.kinetic_energy
+                          == data_zero_mass.kinetic_energy , "composite<R3xSO3> vs R3-SO3 - kinetic energy not equal");
 
-  // BOOST_CHECK_MESSAGE(data_composite_planar.mass[last_joint_composite]
-  //                         == data_planar.mass[last_joint_pxpyrz] , "composite planar joint vs PxPyRz - mass last joint not equal"); 
+  BOOST_CHECK_MESSAGE(data_composite.potential_energy
+                          == data_zero_mass.potential_energy , "composite<R3xSO3> vs R3-SO3 - potential energy not equal");                          
 
-  // BOOST_CHECK_MESSAGE(data_composite_planar.kinetic_energy
-  //                         == data_planar.kinetic_energy , "composite planar joint vs PxPyRz - kinetic energy not equal");
+  BOOST_CHECK_MESSAGE(data_composite.nle //@TODO
+                          .isApprox(data_zero_mass.nle) , "composite planar joint vs PxPyRz - nle not equal");
 
-  // BOOST_CHECK_MESSAGE(data_composite_planar.potential_energy
-  //                         == data_planar.potential_energy , "composite planar joint vs PxPyRz - potential energy not equal");                          
+  BOOST_CHECK_MESSAGE(data_composite.M //@TODO
+                          .isApprox(data_zero_mass.M) , "composite planar joint vs PxPyRz - Mass Matrix not equal");
 
-  // BOOST_CHECK_MESSAGE(data_composite_planar.nle[last_joint_composite]
-  //                         .isApprox(data_planar.nle[last_joint_pxpyrz]) , "composite planar joint vs PxPyRz - nle not equal");
-
-  // BOOST_CHECK_MESSAGE(data_composite_planar.M[last_joint_composite]
-  //                         .isApprox(data_planar.M[last_joint_pxpyrz]) , "composite planar joint vs PxPyRz - Mass Matrix not equal");
-
-  // BOOST_CHECK_MESSAGE(data_composite_planar.J[last_joint_composite]
-  //                         .isApprox(data_planar.J[last_joint_pxpyrz]) , "composite planar joint vs PxPyRz - Jacobian not equal");
-
-  // BOOST_CHECK_MESSAGE(data_composite_planar.Jcom
-  //                         .isApprox(data_planar.Jcom) , "composite planar joint vs PxPyRz - Jacobian com not equal");
   
+  BOOST_CHECK_MESSAGE(integrate(model_composite, q,q_dot).isApprox(integrate(model_zero_mass ,q,q_dot)) ,std::string(" composite<R3xSO3> vs R3-SO3 - integrate model error "));
+  BOOST_CHECK_MESSAGE(interpolate(model_composite, q1,q2,u).isApprox(interpolate(model_zero_mass ,q1,q2,u)) ,std::string(" composite<R3xSO3> vs R3-SO3 - interpolate model error "));
+  BOOST_CHECK_MESSAGE(differentiate(model_composite, q1,q2).isApprox(differentiate(model_zero_mass ,q1,q2)) ,std::string(" composite<R3xSO3> vs R3-SO3 - differentiate model error "));
+  // BOOST_CHECK_MESSAGE(fabs(distance(model_composite, q1,q2) - distance(model_zero_mass ,q1,q2)) < 1e-12 ,std::string(" composite<R3xSO3> vs R3-SO3 - distance model error "));
+
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
