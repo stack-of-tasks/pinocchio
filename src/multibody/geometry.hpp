@@ -232,6 +232,11 @@ namespace se3
     std::vector <DistanceResult> distance_results;
     
     ///
+    /// \brief Defines what information should be computed by collision test.
+    ///
+    fcl::CollisionRequest collisionRequest;
+
+    ///
     /// \brief Vector gathering the result of the collision computation for all the collision pairs.
     ///
     std::vector <fcl::CollisionResult> collision_results;
@@ -255,6 +260,7 @@ namespace se3
         , oMg(model_geom.ngeoms)
         , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
         , distance_results(modelGeom.collisionPairs.size())
+        , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
         , collision_results(modelGeom.collisionPairs.size())
         , radius()
          
