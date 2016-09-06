@@ -71,6 +71,7 @@ namespace se3
   template <typename D> void
     firstOrderNormalize(const Eigen::QuaternionBase<D> & q)
   {
+    assert(std::fabs(q.norm() - 1) < 1e-2);
     typedef typename D::Scalar Scalar;
     const Scalar alpha = ((Scalar)3 - q.squaredNorm()) / 2;
     const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() = alpha * q.derived().coeffs();
