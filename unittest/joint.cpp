@@ -26,6 +26,7 @@
 template <typename T>
 void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
 {
+    std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
     Eigen::VectorXd q1(Eigen::VectorXd::Random (jmodel.nq()));
     Eigen::VectorXd q1_dot(Eigen::VectorXd::Random (jmodel.nv()));
     Eigen::VectorXd q2(Eigen::VectorXd::Random (jmodel.nq()));
@@ -36,7 +37,6 @@ void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
     q1 = jmodel.random();
     q2 = jmodel.random();
 
-    std::cout << "Running calc from composite" << std::endl;
     jmodel.calc(jdata, q1, q1_dot);
     jmodel.calc_aba(jdata, Ia, update_I);
 
@@ -45,7 +45,6 @@ void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
     se3::JointModel jma(jmodel);
     se3::JointData jda(jdata);
 
-    std::cout << "Running calc from Joint" << std::endl;
     jma.calc(jda, q1, q1_dot);
     jma.calc_aba(jda, Ia, update_I); 
 
