@@ -102,11 +102,11 @@ namespace se3
     {
       if(data_geom.activeCollisionPairs[cpt])
         {
-          data_geom.distance_results[cpt] = data_geom.computeDistance(geomModel.collisionPairs[cpt]);
-          if (COMPUTE_SHORTEST && data_geom.distance_results[cpt].distance() < min_dist)
+          data_geom.computeDistance(cpt);
+          if (COMPUTE_SHORTEST && data_geom.distance_results[cpt].min_distance < min_dist)
             {
               min_index = cpt;
-              min_dist = data_geom.distance_results[cpt].distance();
+              min_dist = data_geom.distance_results[cpt].min_distance;
             }
         }
     }

@@ -68,55 +68,7 @@ namespace se3
   }; // struct CollisionPair
   typedef std::vector<CollisionPair> CollisionPairsVector_t;
 
-#ifdef WITH_HPP_FCL  
-  /**
-   * @brief      Result of distance computation between two CollisionObjects
-   */
-  struct DistanceResult
-  {
-
-    DistanceResult() : fcl_distance_result(), object1(0), object2(0) {}
-    DistanceResult(fcl::DistanceResult dist_fcl, const GeomIndex co1, const GeomIndex co2)
-    : fcl_distance_result(dist_fcl), object1(co1), object2(co2)
-    {}
-
-
-    ///
-    /// @brief Return the minimal distance between two geometry objects
-    ///
-    double distance () const;
-
-    ///
-    /// \brief Return the witness point on the inner object expressed in global frame.
-    ///
-    Eigen::Vector3d closestPointInner () const;
-    
-    ///
-    /// \brief Return the witness point on the outer object expressed in global frame.
-    ///
-    Eigen::Vector3d closestPointOuter () const;
-    
-    bool operator == (const DistanceResult & other) const
-    {
-      return (distance() == other.distance()
-        && closestPointInner() == other.closestPointInner()
-        && closestPointOuter() == other.closestPointOuter()
-        && object1 == other.object1
-        && object2 == other.object2);
-    }
-    
-    /// \brief The FCL result of the distance computation
-    fcl::DistanceResult fcl_distance_result;
-    
-    /// \brief Index of the first colision object
-    GeomIndex object1;
-
-    /// \brief Index of the second colision object
-    GeomIndex object2;
-    
-  }; // struct DistanceResult 
-  
-#else
+#ifndef WITH_HPP_FCL  
 
   namespace fcl
   {
@@ -195,8 +147,6 @@ struct GeometryObject
   friend std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object);
 };
   
-
-
 
 } // namespace se3
 

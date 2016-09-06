@@ -33,22 +33,6 @@ namespace se3
 
 #ifdef WITH_HPP_FCL  
 
-
-  inline double DistanceResult::distance () const
-  {
-    return fcl_distance_result.min_distance;
-  }
-
-  inline Eigen::Vector3d DistanceResult::closestPointInner () const
-  {
-    return toVector3d(fcl_distance_result.nearest_points [0]);
-  }
-
-  inline Eigen::Vector3d DistanceResult::closestPointOuter () const
-  {
-    return toVector3d(fcl_distance_result.nearest_points [1]);
-  }
-    
   inline bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
   {
     return lhs.collisionGeometry() == rhs.collisionGeometry()

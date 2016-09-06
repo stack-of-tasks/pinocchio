@@ -227,9 +227,14 @@ namespace se3
     std::vector<bool> activeCollisionPairs;
 
     ///
+    /// \brief Defines what information should be computed by distance computation.
+    ///
+    fcl::DistanceRequest distanceRequest;
+
+    ///
     /// \brief Vector gathering the result of the distance computation for all the collision pairs.
     ///
-    std::vector <DistanceResult> distance_results;
+    std::vector <fcl::DistanceResult> distance_results;
     
     ///
     /// \brief Defines what information should be computed by collision test.
@@ -259,6 +264,7 @@ namespace se3
         : model_geom(modelGeom)
         , oMg(model_geom.ngeoms)
         , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
+        , distanceRequest (true, 0, 0, fcl::GST_INDEP)
         , distance_results(modelGeom.collisionPairs.size())
         , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
         , collision_results(modelGeom.collisionPairs.size())
@@ -311,18 +317,22 @@ namespace se3
     ///
     /// \brief Compute the minimal distance between collision objects of a collison pair
     ///
-    /// \param[in] pair The collsion pair.
+    /// \param[in] pairId The index of the collision pair in geom model.
     ///
-    /// \return An fcl struct containing the distance result.
+    /// \return A reference on fcl struct containing the distance result, referring an element
+    /// of vector geomData::distance_results.
     ///
-    DistanceResult computeDistance(const CollisionPair & pair) const;
+    fcl::DistanceResult & computeDistance(const Index & pairId);
     
     ///
     /// \brief Compute the distance result for all collision pairs according to
     ///        the current placements of the geometries stored in GeometryData::oMg.
-    ///        The results are stored in the vector GeometryData::distance_results.
     ///
-    void computeAllDistances();
+    /// The method indeed calls computeDistance for each collision
+    /// pair. Consequently the results are stored in the vector
+    /// GeometryData::distance_results.
+    ///
+    void computeAllDistances() PINOCCHIO_DEPRECATED;
     
     void resetDistances();
 #endif //WITH_HPP_FCL

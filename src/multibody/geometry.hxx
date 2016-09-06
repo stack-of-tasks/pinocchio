@@ -179,7 +179,7 @@ namespace se3
                                                           collisionPairs.end(),
                                                           pair);
     
-    return (Index) distance(collisionPairs.begin(), it);
+    return (Index) std::distance(collisionPairs.begin(), it);
   }
 
   inline void GeometryModel::displayCollisionPairs() const
@@ -242,31 +242,33 @@ namespace se3
     return false;
   }
 
-  inline DistanceResult GeometryData::computeDistance(const CollisionPair & pair) const
+  inline fcl::DistanceResult & GeometryData::computeDistance(const Index & pairId )
   {
-    const Index & co1 = pair.first;     assert(co1<collisionObjects.size());
-    const Index & co2 = pair.second;    assert(co2<collisionObjects.size());
+    assert( pairId < model_geom.collisionPairs.size() );
+    const CollisionPair & pair = model_geom.collisionPairs[pairId];
+
+    assert( pair < distance_results.size() );
+    assert( pair.first  < collisionObjects.size() );
+    assert( pair.second < collisionObjects.size() );
     
-    fcl::DistanceRequest distanceRequest (true, 0, 0, fcl::GST_INDEP);
-    fcl::DistanceResult result;
-    fcl::distance ( &collisionObjects[co1],&collisionObjects[co2],
-                    distanceRequest, result);
-    
-    return DistanceResult (result, co1, co2);
+    fcl::distance ( &collisionObjects[pair.first],&collisionObjects[pair.second],
+                    distanceRequest, distance_results[pairId]);
+
+    return distance_results[pairId];
   }
   
   inline void GeometryData::computeAllDistances ()
   {
+    assert( activeCollisionPairs.size() == model_geom.collisionPairs.size() );
     for(size_t i = 0; i<activeCollisionPairs.size(); ++i)
     {
-      if (activeCollisionPairs[i])
-        distance_results[i] = computeDistance(model_geom.collisionPairs[i]);
+      if (activeCollisionPairs[i]) computeDistance(i);
     }
   }
 
   inline void GeometryData::resetDistances()
   {
-    std::fill(distance_results.begin(), distance_results.end(), DistanceResult( fcl::DistanceResult(), 0, 0) );
+    std::fill(distance_results.begin(), distance_results.end(), fcl::DistanceResult() );
   }
 #endif //WITH_HPP_FCL
 } // namespace se3
