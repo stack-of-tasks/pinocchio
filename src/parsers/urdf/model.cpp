@@ -48,9 +48,10 @@ namespace se3
         Model::JointIndex idx;
         
         idx = model.addJoint(parent_id,jmodel,
-                             joint_placement,joint_name,
+                             joint_placement,
                              max_effort,max_velocity,
-                             min_config,max_config);
+                             min_config,max_config,
+			     joint_name);
         
         model.appendBodyToJoint(idx,Y,SE3::Identity(),body_name);
       }
