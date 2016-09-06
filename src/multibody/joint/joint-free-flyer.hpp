@@ -276,6 +276,8 @@ namespace se3
       res.head<3>() = M1.translation();
       QuaternionMap_t res_quat(res.tail<4>().data());
       res_quat = M1.rotation();
+      // Norm of qs might be epsilon-different to 1, so M1.rotation might be epsilon-different to a rotation matrix.
+      // It is then safer to re-normalized after converting M1.rotation to quaternion.
       firstOrderNormalize(res_quat);
       
       return res;
