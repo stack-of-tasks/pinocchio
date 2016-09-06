@@ -270,12 +270,6 @@ namespace se3
                              const std::vector<std::string> & package_dirs)
       throw(std::invalid_argument)
     {
-      if (type == NONE)
-      {
-        const std::string exception_message ("You must specify if you want to load VISUAL or COLLISION meshes");
-        throw std::invalid_argument(exception_message);
-      }
-
       std::vector<std::string> hint_directories(package_dirs);
 
       // Append the ROS_PACKAGE_PATH

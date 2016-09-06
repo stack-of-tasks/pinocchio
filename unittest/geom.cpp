@@ -218,7 +218,8 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 
   Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
-  GeometryModel geometry_model = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
+  GeometryModel geometry_model;
+  se3::urdf::buildGeom(model, filename, se3::COLLISION, geometry_model, package_dirs );
   geometry_model.addAllCollisionPairs();
 
   Data data(model);
@@ -247,7 +248,8 @@ BOOST_AUTO_TEST_CASE (radius)
 
   se3::Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
-  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
+  se3::GeometryModel geom;
+  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, package_dirs);
   Data data(model);
   GeometryData geomData(geom);
 
@@ -318,7 +320,8 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
 
   Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
-  GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
+  se3::GeometryModel geom;
+  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, package_dirs);
   std::cout << model << std::endl;
 
 
@@ -422,7 +425,8 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
   Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
-  GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
+  se3::GeometryModel geom;
+  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, package_dirs);
   std::cout << model << std::endl;
 
 

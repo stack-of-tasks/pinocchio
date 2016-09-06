@@ -138,7 +138,7 @@ namespace se3
      *                           where to search for models and meshes, typically 
      *                           obtained from calling se3::rosPaths()
      *
-     *@param[in]   type          The type of objects that must be loaded ( can be VISUAL or COLLISION, or NONE)
+     *@param[in]   type          The type of objects that must be loaded ( can be VISUAL or COLLISION)
      *
      * @return     The GeometryModel associated to the urdf file and the given Model.
      *
@@ -147,8 +147,8 @@ namespace se3
     PINOCCHIO_DEPRECATED 
     inline  GeometryModel buildGeom(const Model & model,
                                    const std::string & filename,
-                                   const std::vector<std::string> & package_dirs = std::vector<std::string> (),
-                                   const GeometryType type = NONE)
+                                   const GeometryType type,
+                                   const std::vector<std::string> & package_dirs = std::vector<std::string> ())
       throw (std::invalid_argument)
     { GeometryModel g; return buildGeom (model,filename,type,g,package_dirs); }
 

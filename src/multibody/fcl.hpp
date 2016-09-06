@@ -142,8 +142,7 @@ namespace se3
 enum GeometryType
 {
   VISUAL,
-  COLLISION,
-  NONE
+  COLLISION
 };
 
 struct GeometryObject
