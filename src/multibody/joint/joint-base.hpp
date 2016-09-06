@@ -197,6 +197,22 @@ namespace se3
 
     JointDataDense<NQ, NV> toDense() const  { return static_cast<const JointDataDerived*>(this)->toDense_impl();   }
 
+  protected:
+    /// Default constructor: protected.
+    /// 
+    /// Prevent the construction of stand-alone JointDataBase.
+    inline JointDataBase() {} // TODO: default value should be set to -1
+    /// Copy constructor: protected.
+    ///
+    /// Copy of stand-alone JointDataBase are prevented, but can be used from inhereting
+    /// objects. Copy is done by calling copy operator.
+    inline JointDataBase( const JointDataBase& clone) { *this = clone; }
+    /// Copy operator: protected.
+    ///
+    /// Copy of stand-alone JointDataBase are prevented, but can be used from inhereting
+    /// objects. 
+    inline JointDataBase& operator= (const JointDataBase&) { return *this; }
+
   }; // struct JointDataBase
 
   template<int NV>
@@ -465,6 +481,29 @@ namespace se3
 
     JointModelDense<NQ, NV> toDense() const  { return derived().toDense_impl();   }
     
+  protected:
+
+    /// Default constructor: protected.
+    /// 
+    /// Prevent the construction of stand-alone JointModelBase.
+    inline JointModelBase() {} // TODO: default value should be set to -1
+    /// Copy constructor: protected.
+    ///
+    /// Copy of stand-alone JointModelBase are prevented, but can be used from inhereting
+    /// objects. Copy is done by calling copy operator.
+    inline JointModelBase( const JointModelBase& clone) { *this = clone; }
+    /// Copy operator: protected.
+    ///
+    /// Copy of stand-alone JointModelBase are prevented, but can be used from inhereting
+    /// objects. 
+    inline JointModelBase& operator= (const JointModelBase& clone) 
+    {
+      i_id = clone.i_id;
+      i_q = clone.i_q;
+      i_v = clone.i_v;
+      return *this; 
+    }
+
   }; // struct JointModelBase
 
 } // namespace se3
