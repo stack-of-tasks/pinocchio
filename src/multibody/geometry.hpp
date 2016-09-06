@@ -37,8 +37,6 @@ namespace se3
   struct GeometryModel
   {
     
-    typedef std::vector<GeomIndex> GeomIndexList;
-
     /// \brief The number of GeometryObjects
     Index ngeoms;
 
@@ -47,22 +45,12 @@ namespace se3
     ///
     /// \brief Vector of collision pairs.
     ///
-    CollisionPairsVector_t collisionPairs;
+    std::vector<CollisionPair> collisionPairs;
   
-    /// \brief A list of associated collision GeometryObjects to a given joint Id.
-    ///        Inner objects can be seen as geometry objects that directly move when the associated joint moves
-    std::map < JointIndex, GeomIndexList >  innerObjects;
-
-    /// \brief A list of associated collision GeometryObjects to a given joint Id
-    ///        Outer objects can be seen as geometry objects that may often be obstacles to the Inner objects of given joint
-    std::map < JointIndex, GeomIndexList >  outerObjects;
-
     GeometryModel()
       : ngeoms(0)
       , geometryObjects()
       , collisionPairs()
-      , innerObjects()
-      , outerObjects()
     { 
       const std::size_t num_max_collision_pairs = (ngeoms * (ngeoms-1))/2;
       collisionPairs.reserve(num_max_collision_pairs);
@@ -177,21 +165,6 @@ namespace se3
     void displayCollisionPairs() const;
 #endif // WITH_HPP_FCL
 
-    /**
-     * @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
-     *
-     * @param[in]  joint         Index of the joint
-     * @param[in]  inner_object  Index of the GeometryObject that will be an inner object
-     */
-    void addInnerObject(const JointIndex joint, const GeomIndex inner_object);
-    
-    /**
-     * @brief      Associate a GeometryObject of type COLLISION to a joint's outer objects list
-     *
-     * @param[in]  joint         Index of the joint
-     * @param[in]  inner_object  Index of the GeometryObject that will be an outer object
-     */
-    void addOutterObject(const JointIndex joint, const GeomIndex outer_object);
     friend std::ostream& operator<<(std::ostream & os, const GeometryModel & model_geom);
   }; // struct GeometryModel
 
@@ -260,6 +233,20 @@ namespace se3
     ///
     Index collisionPairIndex;
 
+    typedef std::vector<GeomIndex> GeomIndexList;
+
+    /// \brief Map over vector GeomModel::geometryObjects, indexed by joints.
+    /// 
+    /// The map lists the collision GeometryObjects associated to a given joint Id.
+    ///  Inner objects can be seen as geometry objects that directly move when the associated joint moves
+    std::map < JointIndex, GeomIndexList >  innerObjects;
+
+    /// \brief A list of associated collision GeometryObjects to a given joint Id
+    ///
+    /// Outer objects can be seen as geometry objects that may often be
+    /// obstacles to the Inner objects of given joint
+    std::map < JointIndex, GeomIndexList >  outerObjects;
+
     GeometryData(const GeometryModel & modelGeom)
         : model_geom(modelGeom)
         , oMg(model_geom.ngeoms)
@@ -269,12 +256,15 @@ namespace se3
         , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
         , collision_results(modelGeom.collisionPairs.size())
         , radius()
-         
+        , collisionPairIndex(-1)
+        , innerObjects()
+        , outerObjects()
     {
       collisionObjects.reserve(modelGeom.geometryObjects.size());
       BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
         { collisionObjects.push_back
             (fcl::CollisionObject(geom.collision_geometry)); }
+      fillInnerOuterObjectMaps();
     }
 #else
     GeometryData(const GeometryModel & modelGeom)
@@ -335,6 +325,14 @@ namespace se3
     void computeAllDistances() PINOCCHIO_DEPRECATED;
     
     void resetDistances();
+
+    /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
+    /// collisionPairs. 
+    ///
+    /// \warning Outer objects are not duplicated (i.e. if a is in outerObjects[b], then
+    /// b is not in outerObjects[a]).
+    void fillInnerOuterObjectMaps();
+
 #endif //WITH_HPP_FCL
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & data_geom);
     

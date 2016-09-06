@@ -36,7 +36,6 @@ namespace se3
   {
     Index idx = (Index) (ngeoms ++);
     geometryObjects.push_back(object);
-    addInnerObject(object.parentJoint, idx);
     return idx;
   }
 
@@ -82,24 +81,50 @@ namespace se3
   }
 
 
-  inline void GeometryModel::addInnerObject(const JointIndex joint_id, const GeomIndex inner_object)
-  {
-    if (std::find(innerObjects[joint_id].begin(),
-                  innerObjects[joint_id].end(),
-                  inner_object) == innerObjects[joint_id].end())
-      innerObjects[joint_id].push_back(inner_object);
-    else
-      std::cout << "inner object already added" << std::endl;
-  }
+    /**
+     * @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
+     *
+     * @param[in]  joint         Index of the joint
+     * @param[in]  inner_object  Index of the GeometryObject that will be an inner object
+     */
+  // inline void GeometryModel::addInnerObject(const JointIndex joint_id, const GeomIndex inner_object)
+  // {
+  //   if (std::find(innerObjects[joint_id].begin(),
+  //                 innerObjects[joint_id].end(),
+  //                 inner_object) == innerObjects[joint_id].end())
+  //     innerObjects[joint_id].push_back(inner_object);
+  //   else
+  //     std::cout << "inner object already added" << std::endl;
+  // }
 
-  inline void GeometryModel::addOutterObject (const JointIndex joint, const GeomIndex outer_object)
+    /**
+     * @brief      Associate a GeometryObject of type COLLISION to a joint's outer objects list
+     *
+     * @param[in]  joint         Index of the joint
+     * @param[in]  inner_object  Index of the GeometryObject that will be an outer object
+     */
+  // inline void GeometryModel::addOutterObject (const JointIndex joint, const GeomIndex outer_object)
+  // {
+  //   if (std::find(outerObjects[joint].begin(),
+  //                 outerObjects[joint].end(),
+  //                 outer_object) == outerObjects[joint].end())
+  //     outerObjects[joint].push_back(outer_object);
+  //   else
+  //     std::cout << "outer object already added" << std::endl;
+  // }
+
+  inline void GeometryData::fillInnerOuterObjectMaps()
   {
-    if (std::find(outerObjects[joint].begin(),
-                  outerObjects[joint].end(),
-                  outer_object) == outerObjects[joint].end())
-      outerObjects[joint].push_back(outer_object);
-    else
-      std::cout << "outer object already added" << std::endl;
+    innerObjects.clear();
+    outerObjects.clear();
+
+    for( GeomIndex gid = 0; gid<model_geom.geometryObjects.size(); gid++)
+      innerObjects[model_geom.geometryObjects[gid].parentJoint].push_back(gid);
+
+    BOOST_FOREACH( const CollisionPair & pair, model_geom.collisionPairs )
+      {
+        outerObjects[model_geom.geometryObjects[pair.first].parentJoint].push_back(pair.second);
+      }
   }
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryModel & model_geom)

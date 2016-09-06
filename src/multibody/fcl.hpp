@@ -66,6 +66,7 @@ namespace se3
     friend std::ostream & operator << (std::ostream & os, const CollisionPair & X);
 
   }; // struct CollisionPair
+
   typedef std::vector<CollisionPair> CollisionPairsVector_t;
 
 #ifndef WITH_HPP_FCL  
