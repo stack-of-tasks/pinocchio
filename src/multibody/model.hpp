@@ -138,7 +138,7 @@ namespace se3
     ~Model() {} // std::cout << "Destroy model" << std::endl; }
     
     ///
-    /// \brief Add a joint to the kinematic tree.
+    /// \brief Add a joint to the kinematic tree with given bounds.
     ///
     /// \remark This method does not add a Frame of same name to the vector of frames.
     ///         Use Model::addJointFrame.
@@ -150,10 +150,10 @@ namespace se3
     /// \param[in] joint_model The joint model.
     /// \param[in] joint_placement Placement of the joint inside its parent joint.
     /// \param[in] joint_name Name of the joint. If empty, the name is random.
-    /// \param[in] max_effort Maximal joint torque. (Default set to infinity).
-    /// \param[in] max_velocity Maximal joint velocity. (Default set to infinity).
-    /// \param[in] min_config Lower joint configuration. (Default set to infinity).
-    /// \param[in] max_config Upper joint configuration. (Default set to infinity).
+    /// \param[in] max_effort Maximal joint torque.
+    /// \param[in] max_velocity Maximal joint velocity.
+    /// \param[in] min_config Lower joint configuration.
+    /// \param[in] max_config Upper joint configuration.
     ///
     /// \return The index of the new joint.
     ///
@@ -161,11 +161,33 @@ namespace se3
     ///
     template<typename JointModelDerived>
     JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
-                        const std::string & joint_name = "",
-                        const Eigen::VectorXd & max_effort = Eigen::VectorXd::Constant(JointModelDerived::NV,std::numeric_limits<double>::max()),
-                        const Eigen::VectorXd & max_velocity = Eigen::VectorXd::Constant(JointModelDerived::NV,std::numeric_limits<double>::max()),
-                        const Eigen::VectorXd & min_config = Eigen::VectorXd::Constant(JointModelDerived::NQ,std::numeric_limits<double>::min()),
-                        const Eigen::VectorXd & max_config = Eigen::VectorXd::Constant(JointModelDerived::NQ,std::numeric_limits<double>::max())
+                        const Eigen::VectorXd & max_effort,
+                        const Eigen::VectorXd & max_velocity,
+                        const Eigen::VectorXd & min_config,
+                        const Eigen::VectorXd & max_config,
+                        const std::string & joint_name = ""
+                        );
+
+    ///
+    /// \brief Add a joint to the kinematic tree with infinite bounds.
+    ///
+    /// \remark This method also adds a Frame of same name to the vector of frames.
+    /// \remark The inertia supported by the joint is set to Zero.
+    ///
+    /// \tparam JointModelDerived The type of the joint model.
+    ///
+    /// \param[in] parent Index of the parent joint.
+    /// \param[in] joint_model The joint model.
+    /// \param[in] joint_placement Placement of the joint inside its parent joint.
+    /// \param[in] joint_name Name of the joint. If empty, the name is random.
+    ///
+    /// \return The index of the new joint.
+    ///
+    /// \sa Model::appendBodyToJoint
+    ///
+    template<typename JointModelDerived>
+    JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
+                        const std::string & joint_name = ""
                         );
 
     ///

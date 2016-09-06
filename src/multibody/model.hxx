@@ -56,11 +56,11 @@ namespace se3
   Model::JointIndex Model::addJoint(const Model::JointIndex parent,
                                     const JointModelBase<JointModelDerived> & joint_model,
                                     const SE3 & joint_placement,
-                                    const std::string & joint_name,
                                     const Eigen::VectorXd & max_effort,
                                     const Eigen::VectorXd & max_velocity,
                                     const Eigen::VectorXd & min_config,
-                                    const Eigen::VectorXd & max_config
+                                    const Eigen::VectorXd & max_config,
+                                    const std::string & joint_name
                                     )
   {
     typedef JointModelDerived D;
@@ -110,6 +110,33 @@ namespace se3
     return idx;
   }
 
+  template<typename JointModelDerived>
+  Model::JointIndex Model::addJoint(const Model::JointIndex parent,
+                                    const JointModelBase<JointModelDerived> & joint_model,
+                                    const SE3 & joint_placement,
+                                    const std::string & joint_name
+                                    )
+  {
+    typedef JointModelDerived D;
+    Eigen::VectorXd max_effort, max_velocity, min_config, max_config;
+
+    if (D::NV == Eigen::Dynamic)
+    {
+      max_effort = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
+      max_velocity = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
+      min_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
+      max_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
+    }
+    else
+    {
+      max_effort = Eigen::VectorXd::Constant(D::NV, std::numeric_limits<double>::max());
+      max_velocity = Eigen::VectorXd::Constant(D::NV, std::numeric_limits<double>::max());
+      min_config = Eigen::VectorXd::Constant(D::NQ, std::numeric_limits<double>::max());
+      max_config = Eigen::VectorXd::Constant(D::NQ, std::numeric_limits<double>::max());
+    }
+    return addJoint(parent, joint_model, joint_placement, max_effort, max_velocity, min_config, max_config, joint_name);
+  }
+  
   inline int Model::addJointFrame (const JointIndex& jidx,
                                          int         fidx)
   {
@@ -122,6 +149,7 @@ namespace se3
     // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
     return addFrame(Frame(names[jidx],jidx,fidx,SE3::Identity(),JOINT));
   }
+
 
   inline void Model::appendBodyToJoint(const Model::JointIndex joint_index,
                                        const Inertia & Y,

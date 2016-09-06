@@ -39,18 +39,22 @@ namespace se3
       Model::JointIndex idx;
       
       if (setRandomLimits)
+      {
         idx = model.addJoint(model.getJointId(parent_name),joint,
-                             placement, name + "_joint",
-                             TV::Random() + TV::Constant(1),
-                             TV::Random() + TV::Constant(1),
-                             CV::Random() - CV::Constant(1),
-                             CV::Random() + CV::Constant(1));
+                           SE3::Random(),
+                           TV::Random() + TV::Constant(1),
+                           TV::Random() + TV::Constant(1),
+                           CV::Random() - CV::Constant(1),
+                           CV::Random() + CV::Constant(1),
+                           name + "_joint");
+        model.addJointFrame(idx);
+      
+        model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
+        model.addBodyFrame(name + "_body", idx);
+      }
       else
         idx = model.addJoint(model.getJointId(parent_name),joint,
                              placement, name + "_joint");
-      model.addJointFrame(idx);
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
-      model.addBodyFrame(name + "_body", idx);
     }
 
     void humanoid2d(Model & model)

@@ -98,8 +98,8 @@ namespace se3
         
         idx = model.addJoint(frame.parent,jmodel,
                              frame.placement * joint_placement,
-                             joint_name,
-                             max_effort,max_velocity,min_config,max_config);
+                             max_effort,max_velocity,min_config,max_config,
+                             joint_name);
         FrameIndex jointFrameId = model.addJointFrame(idx, parentFrameId);
         appendBodyToJoint(model, jointFrameId, Y, SE3::Identity(), body_name);
       }
