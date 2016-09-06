@@ -117,7 +117,7 @@ namespace se3
     if (previousFrame < 0) {
       previousFrame = getFrameId(names[parentJoint]);
     }
-    assert(previousFrame >= frames.size() && "Frame index out of bound");
+    assert(previousFrame < frames.size() && "Frame index out of bound");
     addFrame(Frame(body_name, parentJoint, previousFrame, body_placement, BODY));
     return frames.size() - 1;
   }
