@@ -64,14 +64,18 @@ namespace se3
       {
         const Frame& frame = model.frames[fid];
         const SE3& p = frame.placement * placement;
-        if (Y != NULL && Y->mass > Eigen::NumTraits<double>::epsilon()) {
+        if (frame.parent > 0
+            && Y != NULL
+            && Y->mass > Eigen::NumTraits<double>::epsilon()) {
           model.appendBodyToJoint(frame.parent, convertFromUrdf(*Y), p);
         }
         model.addBodyFrame(body_name, frame.parent, p, fid);
         // Reference to model.frames[fid] can has changed because the vector
         // may have been reallocated.
-        assert (!model.inertias[model.frames[fid].parent].lever().hasNaN()
-            &&  !model.inertias[model.frames[fid].parent].inertia().data().hasNaN());
+        if (model.frames[fid].parent > 0) {
+          assert (!model.inertias[model.frames[fid].parent].lever().hasNaN()
+              &&  !model.inertias[model.frames[fid].parent].inertia().data().hasNaN());
+        }
       }
 
       ///

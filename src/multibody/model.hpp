@@ -115,7 +115,7 @@ namespace se3
       , njoint(1)
       , nbody(1)
       , nFrames(0)
-      , inertias(1, Inertia::Zero())
+      , inertias(1)
       , jointPlacements(1, SE3::Identity())
       , joints(1)
       , parents(1, 0)
@@ -125,6 +125,10 @@ namespace se3
     {
       names[0]     = "universe";     // Should be "universe joint (trivial)"
       addFrame(Frame("universe", 0, 0, SE3::Identity(), FIXED_JOINT));
+      // Inertia of universe has no sense.
+      inertias[0].mass() = std::numeric_limits<double>::quiet_NaN();
+      inertias[0].lever().fill (std::numeric_limits<double>::quiet_NaN());
+      inertias[0].inertia().fill (std::numeric_limits<double>::quiet_NaN());
     }
     ~Model() {} // std::cout << "Destroy model" << std::endl; }
     
