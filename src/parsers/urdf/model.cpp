@@ -493,10 +493,10 @@ namespace se3
           parseTree(child, model, verbose);
         }
 
-        // FIXME: check the inertias
-        // The check in appendBodyToJoint only ensures inertias are not NaN
-        // but pinocchio requires non-zero inertias.
-        // Are zero inertias a problem for kinematic algorithm ?
+        // Inertias might be zero due to the URDF file. This is not a bug. However, it would lead to some
+        // algorithms of Pinocchio not to work.
+        // TODO: add an algorithm or a method in model to check the validity of the value wrt to the algorithms the user want to use.
+        // See also #306 on GitHub.
       }
 
       ///
