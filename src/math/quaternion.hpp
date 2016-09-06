@@ -68,13 +68,17 @@ namespace se3
   /// division are used (except a division by 2).
   ///
   /// \warning \f$ ||q||^2 - 1 \f$ should already be close to zero.
+  ///
+  /// \note See
+  /// http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html#title3
+  /// to know the reason why the argument is const.
   template <typename D> void
     firstOrderNormalize(const Eigen::QuaternionBase<D> & q)
   {
     assert(std::fabs(q.norm() - 1) < 1e-2);
     typedef typename D::Scalar Scalar;
     const Scalar alpha = ((Scalar)3 - q.squaredNorm()) / 2;
-    const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() = alpha * q.derived().coeffs();
+    const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() *= alpha;
   }
 
 }
