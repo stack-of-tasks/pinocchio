@@ -25,6 +25,28 @@
 namespace se3
 {
 
+  ///
+  /// \brief Default constructor of a collision pair from two collision object indexes.
+  ///        The indexes must be ordered such that co1 < co2. If not, the constructor reverts the indexes.
+  ///
+  /// \param[in] co1 Index of the first collision object
+  /// \param[in] co2 Index of the second collision object
+  ///
+  inline CollisionPair::CollisionPair(const GeomIndex co1, const GeomIndex co2) 
+    : Base(co1,co2)
+  {
+    assert(co1 != co2 && "The index of collision objects must not be equal.");
+  }
+
+  inline bool CollisionPair::operator== (const CollisionPair& rhs) const
+  {
+    return (first == rhs.first  && second == rhs.second)
+      ||   (first == rhs.second && second == rhs.first );
+  }
+
+  inline void CollisionPair::disp(std::ostream & os) const
+  { os << "collision pair (" << first << "," << second << ")\n"; }
+
   inline std::ostream & operator << (std::ostream & os, const CollisionPair & X)
   {
     X.disp(os); return os;

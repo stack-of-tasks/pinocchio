@@ -44,26 +44,10 @@ namespace se3
 
     typedef std::pair<GeomIndex, GeomIndex> Base;
    
-    ///
-    /// \brief Default constructor of a collision pair from two collision object indexes.
-    ///        The indexes must be ordered such that co1 < co2. If not, the constructor reverts the indexes.
-    ///
-    /// \param[in] co1 Index of the first collision object
-    /// \param[in] co2 Index of the second collision object
-    ///
-    CollisionPair(const GeomIndex co1, const GeomIndex co2) : Base(co1,co2)
-    {
-      assert(co1 != co2 && "The index of collision objects must not be equal.");
-    }
-
-    bool operator== (const CollisionPair& rhs) const
-    {
-      return (first == rhs.first && second == rhs.second)
-        || (first == rhs.second && second == rhs.first);
-    }
-    
-    void disp(std::ostream & os) const { os << "collision pair (" << first << "," << second << ")\n"; }
-    friend std::ostream & operator << (std::ostream & os, const CollisionPair & X);
+    CollisionPair(const GeomIndex co1, const GeomIndex co2);
+    bool                  operator == (const CollisionPair& rhs) const;
+    void                  disp        (std::ostream & os)        const;
+    friend std::ostream & operator << (std::ostream & os,const CollisionPair & X);
 
   }; // struct CollisionPair
 
@@ -136,12 +120,12 @@ struct GeometryObject
 
   GeometryObject & operator=(const GeometryObject & other)
   {
-    name = other.name;
-    parentFrame = other.parentFrame;
-    parentJoint = other.parentJoint;
-    collision_geometry = other.collision_geometry;
-    placement = other.placement;
-    mesh_path = other.mesh_path;
+    name                = other.name;
+    parentFrame         = other.parentFrame;
+    parentJoint         = other.parentJoint;
+    collision_geometry  = other.collision_geometry;
+    placement           = other.placement;
+    mesh_path           = other.mesh_path;
     return *this;
   }
 
