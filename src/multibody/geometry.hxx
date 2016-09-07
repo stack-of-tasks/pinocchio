@@ -213,6 +213,7 @@ namespace se3
     const Index & co1 = pair.first;     assert(co1<collisionObjects.size());
     const Index & co2 = pair.second;    assert(co2<collisionObjects.size());
 
+    collisionResult.clear();
     fcl::collide (&collisionObjects[co1],&collisionObjects[co2],
                   collisionRequest, collisionResult);
 
