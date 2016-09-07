@@ -283,7 +283,8 @@ BOOST_AUTO_TEST_CASE (radius)
       std::string bodyName = body->name();
       if(bodyName != "base_link")
       {
-        double radius_pino = geomData.radius[model.getFrameParent(bodyName)];
+        FrameIndex fid = model.getFrameId(bodyName, BODY);
+        double radius_pino = geomData.radius[model.frames[fid].parent];
         BOOST_CHECK_MESSAGE(radius_hpp - radius_pino < 1e-6, "Radius of body " << bodyName << " are not equals between hpp and pinocchio");
       }
 
@@ -303,9 +304,6 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   using hpp::model::Device;
   using hpp::model::Joint;
   using hpp::model::Body;
-  typedef hpp::model::ObjectVector_t ObjectVector_t;
-  typedef hpp::model::JointVector_t JointVector_t;
-  typedef std::vector<double> vector_t;
 
 
 
@@ -318,9 +316,9 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   package_dirs.push_back(meshDir);
 
-  se3::Model model;
+  Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
-  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
+  GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
   std::cout << model << std::endl;
 
 
@@ -411,10 +409,6 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   using hpp::model::Device;
   using hpp::model::Joint;
   using hpp::model::Body;
-  typedef hpp::model::ObjectVector_t ObjectVector_t;
-  typedef hpp::model::JointVector_t JointVector_t;
-  typedef std::vector<double> vector_t;
-
 
 
   /// **********  Pinocchio  ********** /// 
@@ -426,9 +420,9 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   package_dirs.push_back(meshDir);
 
-  se3::Model model;
+  Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
-  se3::GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
+  GeometryModel geom = se3::urdf::buildGeom(model, filename, package_dirs, se3::COLLISION);
   std::cout << model << std::endl;
 
 
