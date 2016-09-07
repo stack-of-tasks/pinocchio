@@ -124,6 +124,9 @@ namespace se3
       , gravity( gravity981,Eigen::Vector3d::Zero() )
     {
       names[0]     = "universe";     // Should be "universe joint (trivial)"
+      // FIXME Should the universe joint be a FIXED_JOINT even if it is
+      // in the list of joints ? See comment in definition of
+      // Model::addJointFrame and Model::addBodyFrame
       addFrame(Frame("universe", 0, 0, SE3::Identity(), FIXED_JOINT));
       // Inertia of universe has no sense.
       inertias[0].mass() = std::numeric_limits<double>::quiet_NaN();

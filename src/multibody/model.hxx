@@ -103,10 +103,11 @@ namespace se3
                                          int         fidx)
   {
     if (fidx < 0) {
-      fidx = getFrameId(names[parents[jidx]], JOINT);
+      // FIXED_JOINT is required because the parent can be the universe and its
+      // type is FIXED_JOINT
+      fidx = getFrameId(names[parents[jidx]], (FrameType)(JOINT | FIXED_JOINT));
     }
-    if (fidx >= frames.size())
-      throw std::invalid_argument ("Frame not found");
+    assert(fidx < frames.size() && "Frame index out of bound");
     // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
     return addFrame(Frame(names[jidx],jidx,fidx,SE3::Identity(),JOINT));
   }
@@ -126,7 +127,9 @@ namespace se3
                                         int           previousFrame)
   {
     if (previousFrame < 0) {
-      previousFrame = getFrameId(names[parentJoint], JOINT);
+      // FIXED_JOINT is required because the parent can be the universe and its
+      // type is FIXED_JOINT
+      previousFrame = getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
     }
     assert(previousFrame < frames.size() && "Frame index out of bound");
     return addFrame(Frame(body_name, parentJoint, previousFrame, body_placement, BODY));
