@@ -124,12 +124,13 @@ namespace se3
         Model::JointIndex idx;
         Frame& frame = model.frames[parentFrameId];
 
-        model.addFrame(
+        int fid = model.addFrame(
             Frame (joint_name, frame.parent, parentFrameId,
               frame.placement, FIXED_JOINT)
             );
-        // TODO addFrame should return an index.
-        appendBodyToJoint(model, model.frames.size()-1, Y, SE3::Identity(), body_name);
+        if (fid < 0)
+          throw std::invalid_argument ("Fixed joint " + joint_name + " could not be added.");
+        appendBodyToJoint(model, (FrameIndex)fid, Y, SE3::Identity(), body_name);
       }
 
       ///

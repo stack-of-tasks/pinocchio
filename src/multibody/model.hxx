@@ -87,8 +87,8 @@ namespace se3
     return idx;
   }
 
-  inline FrameIndex Model::addJointFrame (const JointIndex& jidx,
-                                                int         fidx)
+  inline int Model::addJointFrame (const JointIndex& jidx,
+                                         int         fidx)
   {
     if (fidx < 0) {
       fidx = getFrameId(names[parents[jidx]]);
@@ -96,8 +96,7 @@ namespace se3
     if (fidx >= frames.size())
       throw std::invalid_argument ("Frame not found");
     // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
-    addFrame(Frame(names[jidx],jidx,fidx,SE3::Identity(),JOINT));
-    return frames.size() - 1;
+    return addFrame(Frame(names[jidx],jidx,fidx,SE3::Identity(),JOINT));
   }
 
   inline void Model::appendBodyToJoint(const Model::JointIndex joint_index,
@@ -109,17 +108,16 @@ namespace se3
     nbody++;
   }
 
-  inline FrameIndex Model::addBodyFrame (const std::string& body_name,
-                                         const JointIndex& parentJoint,
-                                         const SE3 & body_placement,
-                                               int         previousFrame)
+  inline int Model::addBodyFrame (const std::string & body_name,
+                                  const JointIndex  & parentJoint,
+                                  const SE3         & body_placement,
+                                        int           previousFrame)
   {
     if (previousFrame < 0) {
       previousFrame = getFrameId(names[parentJoint]);
     }
     assert(previousFrame < frames.size() && "Frame index out of bound");
-    addFrame(Frame(body_name, parentJoint, previousFrame, body_placement, BODY));
-    return frames.size() - 1;
+    return addFrame(Frame(body_name, parentJoint, previousFrame, body_placement, BODY));
   }
   
   inline Model::JointIndex Model::getBodyId (const std::string & name) const
@@ -228,17 +226,17 @@ namespace se3
     return frames[index].placement;
   }
 
-  inline bool Model::addFrame ( const Frame & frame )
+  inline int Model::addFrame ( const Frame & frame )
   {
     if( !existFrame(frame.name) )
     {
       frames.push_back(frame);
       nFrames++;
-      return true;
+      return nFrames - 1;
     }
     else
     {
-      return false;
+      return -1;
     }
   }
   

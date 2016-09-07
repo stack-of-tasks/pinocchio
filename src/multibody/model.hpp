@@ -170,10 +170,10 @@ namespace se3
     /// \param[in] frameIndex Index of the parent frame. If negative,
     ///            the parent frame is the frame of the parent joint.
     ///
-    /// \return The index of the new frame.
+    /// \return The index of the new frame or -1 in case of error.
     ///
-    FrameIndex addJointFrame (const JointIndex& jointIndex,
-                                    int         frameIndex = -1);
+    int addJointFrame (const JointIndex& jointIndex,
+                             int         frameIndex = -1);
 
     ///
     /// \brief Append a body to a given joint of the kinematic tree.
@@ -198,12 +198,12 @@ namespace se3
     /// \param[in] previousFrame Index of the parent frame. If negative,
     ///            the parent frame is the frame of the parent joint.
     ///
-    /// \return The index of the new frame.
+    /// \return The index of the new frame or -1 in case of error.
     ///
-    FrameIndex addBodyFrame (const std::string& body_name,
-                             const JointIndex& parentJoint,
-                             const SE3 & body_placement = SE3::Identity(),
-                                   int         previousFrame = -1);
+    int addBodyFrame (const std::string & body_name,
+                      const JointIndex  & parentJoint,
+                      const SE3         & body_placement = SE3::Identity(),
+                            int           previousFrame  = -1);
 
     ///
     /// \brief Return the index of a body given by its name.
@@ -357,9 +357,10 @@ namespace se3
     ///
     /// \param[in] frame The frame to add to the kinematic tree.
     ///
-    /// \return Returns true if the frame has been successfully added.
+    /// \return Returns the index of the frame if it has been successfully added,
+    ///         -1 otherwise.
     ///
-    bool addFrame(const Frame & frame);
+    int addFrame(const Frame & frame);
 
   protected:
     
