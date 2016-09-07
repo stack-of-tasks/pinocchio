@@ -49,7 +49,7 @@ typedef std::map <std::string, se3::SE3> GeometryPositionsMap_t;
 typedef std::map <std::pair < std::string , std::string >, fcl::DistanceResult > PairDistanceMap_t;
 JointPositionsMap_t fillPinocchioJointPositions(const se3::Model& model, const se3::Data & data);
 GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryModel & geomModel,
-                                                      const se3::GeometryData & data_geom);
+                                                      const se3::GeometryData & geomData);
 #ifdef WITH_HPP_MODEL_URDF
 JointPositionsMap_t fillHppJointPositions(const hpp::model::HumanoidRobotPtr_t robot);
 GeometryPositionsMap_t fillHppGeometryPositions(const hpp::model::HumanoidRobotPtr_t robot);
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
 {
   using namespace se3;
   Model model;
-  GeometryModel model_geom;
+  GeometryModel geomModel;
 
   Model::JointIndex idx;
   idx = model.addJoint(model.getJointId("universe"),JointModelPlanar(),SE3::Identity(),"planar1_joint");
@@ -160,48 +160,48 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   model.addBodyFrame("planar2_body", idx, SE3::Identity());
   
   boost::shared_ptr<fcl::Box> sample(new fcl::Box(1));
-  model_geom.addGeometryObject(model, model.getBodyId("planar1_body"),sample, SE3::Identity(),  "ff1_collision_object", "");
+  geomModel.addGeometryObject(model, model.getBodyId("planar1_body"),sample, SE3::Identity(),  "ff1_collision_object", "");
   
   boost::shared_ptr<fcl::Box> sample2(new fcl::Box(1));
-  model_geom.addGeometryObject(model, model.getBodyId("planar2_body"),sample2, SE3::Identity(),  "ff2_collision_object", "");
+  geomModel.addGeometryObject(model, model.getBodyId("planar2_body"),sample2, SE3::Identity(),  "ff2_collision_object", "");
 
-  model_geom.addAllCollisionPairs();
+  geomModel.addAllCollisionPairs();
   se3::Data data(model);
-  se3::GeometryData data_geom(model_geom);
+  se3::GeometryData geomData(geomModel);
 
-  BOOST_CHECK(CollisionPair(0,1) == model_geom.collisionPairs[0]);
+  BOOST_CHECK(CollisionPair(0,1) == geomModel.collisionPairs[0]);
 
   std::cout << "------ Model ------ " << std::endl;
   std::cout << model;
   std::cout << "------ Geom ------ " << std::endl;
-  std::cout << model_geom;
+  std::cout << geomModel;
   std::cout << "------ DataGeom ------ " << std::endl;
-  std::cout << data_geom;
+  std::cout << geomData;
 
   Eigen::VectorXd q(model.nq);
   q <<  0, 0, 0,
         0, 0, 0 ;
 
-  se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
-  BOOST_CHECK(computeCollision(model_geom,data_geom,0) == true);
+  se3::updateGeometryPlacements(model, data, geomModel, geomData, q);
+  BOOST_CHECK(computeCollision(geomModel,geomData,0) == true);
 
   q <<  2, 0, 0,
         0, 0, 0 ;
 
-  se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
-  BOOST_CHECK(computeCollision(model_geom,data_geom,0) == false);
+  se3::updateGeometryPlacements(model, data, geomModel, geomData, q);
+  BOOST_CHECK(computeCollision(geomModel,geomData,0) == false);
 
   q <<  0.99, 0, 0,
         0, 0, 0 ;
 
-  se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
-  BOOST_CHECK(computeCollision(model_geom,data_geom,0) == true);
+  se3::updateGeometryPlacements(model, data, geomModel, geomData, q);
+  BOOST_CHECK(computeCollision(geomModel,geomData,0) == true);
 
   q <<  1.01, 0, 0,
         0, 0, 0 ;
 
-  se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
-  BOOST_CHECK(computeCollision(model_geom,data_geom,0) == false);
+  se3::updateGeometryPlacements(model, data, geomModel, geomData, q);
+  BOOST_CHECK(computeCollision(geomModel,geomData,0) == false);
 }
 
 BOOST_AUTO_TEST_CASE ( loading_model )
@@ -213,18 +213,18 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 
 
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
-  std::vector < std::string > package_dirs;
+  std::vector < std::string > packageDirs;
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
-  package_dirs.push_back(meshDir);
+  packageDirs.push_back(meshDir);
 
   Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
-  GeometryModel geometry_model;
-  se3::urdf::buildGeom(model, filename, se3::COLLISION, geometry_model, package_dirs );
-  geometry_model.addAllCollisionPairs();
+  GeometryModel geomModel;
+  se3::urdf::buildGeom(model, filename, se3::COLLISION, geomModel, packageDirs );
+  geomModel.addAllCollisionPairs();
 
   Data data(model);
-  GeometryData geometry_data(geometry_model);
+  GeometryData geomData(geomModel);
   fcl::CollisionResult result;
 
   Eigen::VectorXd q(model.nq);
@@ -232,9 +232,9 @@ BOOST_AUTO_TEST_CASE ( loading_model )
        0.6981317, -0.3490658, 0, 0, 1.5, 0.6, -0.5, -1.05, -0.4, -0.3, -0.2, 0, 0, 0, 0,
        1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2 ;
 
-  se3::updateGeometryPlacements(model, data, geometry_model, geometry_data, q);
-  se3::Index idx = geometry_model.findCollisionPair(CollisionPair(1,10));
-  BOOST_CHECK(computeCollision(geometry_model,geometry_data,idx) == false);
+  se3::updateGeometryPlacements(model, data, geomModel, geomData, q);
+  se3::Index idx = geomModel.findCollisionPair(CollisionPair(1,10));
+  BOOST_CHECK(computeCollision(geomModel,geomData,idx) == false);
 }
 
 
@@ -243,14 +243,14 @@ BOOST_AUTO_TEST_CASE (radius)
 {
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
-  std::vector < std::string > package_dirs;
+  std::vector < std::string > packageDirs;
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
-  package_dirs.push_back(meshDir);
+  packageDirs.push_back(meshDir);
 
   se3::Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom;
-  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, package_dirs);
+  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, packageDirs);
   Data data(model);
   GeometryData geomData(geom);
 
@@ -315,19 +315,19 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
-  std::vector < std::string > package_dirs;
+  std::vector < std::string > packageDirs;
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
-  package_dirs.push_back(meshDir);
+  packageDirs.push_back(meshDir);
 
   Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom;
-  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, package_dirs);
+  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, packageDdirs);
   std::cout << model << std::endl;
 
 
   Data data(model);
-  GeometryData data_geom(geom);
+  GeometryData geomData(geom);
 
   // Configuration to be tested
   
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
 
   BOOST_CHECK_MESSAGE(q_pino.size() == model.nq , "wrong config size" );
 
-  se3::updateGeometryPlacements(model, data, geom, data_geom, q_pino);
+  se3::updateGeometryPlacements(model, data, geom, geomData, q_pino);
 
 
   /// *************  HPP  ************* /// 
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   // retrieve all joint and geometry objects positions
   JointPositionsMap_t joints_pin  = fillPinocchioJointPositions(model, data);
   JointPositionsMap_t joints_hpp  = fillHppJointPositions(humanoidRobot);
-  GeometryPositionsMap_t geom_pin = fillPinocchioGeometryPositions(data_geom);
+  GeometryPositionsMap_t geom_pin = fillPinocchioGeometryPositions(geomData);
   GeometryPositionsMap_t geom_hpp = fillHppGeometryPositions(humanoidRobot);
 
 
@@ -420,19 +420,19 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
-  std::vector < std::string > package_dirs;
+  std::vector < std::string > packageDirs;
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
-  package_dirs.push_back(meshDir);
+  packageDirs.push_back(meshDir);
 
   Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom;
-  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, package_dirs);
+  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, packageDirs);
   std::cout << model << std::endl;
 
 
   Data data(model);
-  GeometryData data_geom(geom);
+  GeometryData geomData(geom);
 
   // Configuration to be tested
   
@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
   BOOST_CHECK_MESSAGE(q_pino.size() == model.nq , "wrong config size");
 
-  se3::updateGeometryPlacements(model, data, geom, data_geom, q_pino);
+  se3::updateGeometryPlacements(model, data, geom, geomData, q_pino);
 
 
   /// *************  HPP  ************* /// 
@@ -492,10 +492,10 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
         std::cout << "comparison between " << body1 << " and " << body2 << std::endl;
 
         se3::DistanceResult dist_pin
-          = data_geom.computeDistance( CollisionPair(geom.getGeometryId(body1),
+          = geomData.computeDistance( CollisionPair(geom.getGeometryId(body1),
                                                      geom.getGeometryId(body2)) );
 
-        Distance_t distance_pin(dist_pin.fcl_distance_result);
+        Distance_t distance_pin(dist_pin.fcl_distanceResult);
         distance_hpp.checkClose(distance_pin);
       }
     }
@@ -515,13 +515,13 @@ JointPositionsMap_t fillPinocchioJointPositions(const se3::Model& model, const s
   return result;
 }
 
-GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryModel & model_geom,
-                                                      const se3::GeometryData & data_geom)
+GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryModel & geomModel,
+                                                      const se3::GeometryData & geomData)
 {
   GeometryPositionsMap_t result;
-  for (std::size_t i = 0; i < model_geom.ngeoms ; ++i)
+  for (std::size_t i = 0; i < geomModel.ngeoms ; ++i)
   {
-    result[model_geom.getGeometryName(i)] = data_geom.oMg[i];
+    result[geomModel.getGeometryName(i)] = geomData.oMg[i];
   }
   return result;
 }

@@ -73,14 +73,14 @@ namespace se3
      * @param[in]  parent     Index of the parent frame
      * @param[in]  co         The actual fcl CollisionGeometry
      * @param[in]  placement  The relative placement regarding to the parent frame
-     * @param[in]  geom_name  The name of the Geometry Object
+     * @param[in]  geomName   The name of the Geometry Object
      * @param[in]  meshPath   The absolute path to the mesh
      *
      * @return     The index of the new added GeometryObject in geometryObjects
      */
     inline GeomIndex addGeometryObject(const Model& model,
                                        const FrameIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & co,
-                                       const SE3 & placement, const std::string & geom_name = "",
+                                       const SE3 & placement, const std::string & geomName = "",
                                        const std::string & meshPath = "") throw(std::invalid_argument);
 
 
@@ -199,7 +199,7 @@ namespace se3
     ///
     /// \brief Vector gathering the result of the distance computation for all the collision pairs.
     ///
-    std::vector <fcl::DistanceResult> distance_results;
+    std::vector <fcl::DistanceResult> distanceResults;
     
     ///
     /// \brief Defines what information should be computed by collision test.
@@ -209,7 +209,7 @@ namespace se3
     ///
     /// \brief Vector gathering the result of the collision computation for all the collision pairs.
     ///
-    std::vector <fcl::CollisionResult> collision_results;
+    std::vector <fcl::CollisionResult> collisionResults;
 
     ///
     /// \brief Radius of the bodies, i.e. distance of the further point of the geometry model
@@ -240,7 +240,7 @@ namespace se3
     std::map < JointIndex, GeomIndexList >  outerObjects;
 #endif // WITH_HPP_FCL   
 
-    GeometryData(const GeometryModel & modelGeom);
+    GeometryData(const GeometryModel & geomModel);
     ~GeometryData() {};
 
 #ifdef WITH_HPP_FCL
@@ -273,13 +273,13 @@ namespace se3
     /// \sa activateCollisionPair
     void deactivateCollisionPair(const PairIndex pairId);
 
-    /// Reset the vector distance_results.
+    /// Reset the vector distanceResults.
     /// TODO: should this be called automatically before calling computeDistance?
     /// TODO: should we implement the same for collisions?
     void resetDistances();
 
 #endif //WITH_HPP_FCL
-    friend std::ostream & operator<<(std::ostream & os, const GeometryData & data_geom);
+    friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
     
   }; // struct GeometryData
 

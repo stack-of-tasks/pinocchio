@@ -32,14 +32,14 @@ namespace se3
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] geom The geometry model containing the collision objects.
-  /// \param[out] geom_data The geometry data containing the placements of the collision objects. See oMg field in GeometryData.
+  /// \param[in] geomModel The geometry model containing the collision objects.
+  /// \param[out] geomData The geometry data containing the placements of the collision objects. See oMg field in GeometryData.
   /// \param[in] q The joint configuration vector (dim model.nq).
   ///
   inline void updateGeometryPlacements(const Model & model,
                                        Data & data,
-                                       const GeometryModel & geom,
-                                       GeometryData & geom_data,
+                                       const GeometryModel & geomModel,
+                                       GeometryData & geomData,
                                        const Eigen::VectorXd & q
                                        );
   
@@ -48,20 +48,20 @@ namespace se3
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] geom The geometry model containing the collision objects.
-  /// \param[out] geom_data The geometry data containing the placements of the collision objects. See oMg field in GeometryData.
+  /// \param[in] geomModel The geometry model containing the collision objects.
+  /// \param[out] geomData The geometry data containing the placements of the collision objects. See oMg field in GeometryData.
   ///
   inline void updateGeometryPlacements(const Model & model,
                                        const Data & data,
-                                       const GeometryModel & geom,
-                                       GeometryData & geom_data
+                                       const GeometryModel & geomModel,
+                                       GeometryData & geomData
                                        );
 
 #ifdef WITH_HPP_FCL
 
   ///
   /// \brief Compute the collision status between a *SINGLE* collision pair.
-  /// The result is store in the collision_results vector.
+  /// The result is store in the collisionResults vector.
   ///
   /// \param[in] GeomModel the geometry model (const)
   /// \param[out] GeomData the corresponding geometry data, where computations are done.
@@ -80,8 +80,8 @@ namespace se3
   ///
   /// \param[in] model robot model (const)
   /// \param[out] data corresponding data (nonconst) where FK results are stored
-  /// \param[in] model_geom geometry model (const)
-  /// \param[out] data_geom corresponding geometry data (nonconst) where distances are computed
+  /// \param[in] geomModel geometry model (const)
+  /// \param[out] geomData corresponding geometry data (nonconst) where distances are computed
   /// \param[in] q robot configuration.
   /// \param[in] stopAtFirstCollision if true, stop the loop on pairs after the first collision.
   /// \return When ComputeShortest is true, the index of the collision pair which has the shortest distance.
@@ -91,8 +91,8 @@ namespace se3
   /// \note A similar function is available without model, data and q, not recomputing the FK.
   inline bool computeCollisions(const Model & model,
                                 Data & data,
-                                const GeometryModel & model_geom,
-                                GeometryData & data_geom,
+                                const GeometryModel & geomModel,
+                                GeometryData & geomData,
                                 const Eigen::VectorXd & q,
                                 const bool stopAtFirstCollision = false
                                 );
@@ -105,7 +105,7 @@ namespace se3
   /// \param[in] pairId The index of the collision pair in geom model.
   ///
   /// \return A reference on fcl struct containing the distance result, referring an element
-  /// of vector geomData::distance_results.
+  /// of vector geomData::distanceResults.
   /// \note The complete distance result is also available in geomData.distanceResults[pairId]
   ///
   fcl::DistanceResult & computeDistance(const GeometryModel & geomModel,
@@ -119,8 +119,8 @@ namespace se3
   /// \param[in] ComputeShortest default to true.
   /// \param[in][out] model: robot model (const)
   /// \param[out] data: corresponding data (nonconst) where FK results are stored
-  /// \param[in] model_geom: geometry model (const)
-  /// \param[out] data_geom: corresponding geometry data (nonconst) where distances are computed
+  /// \param[in] geomModel: geometry model (const)
+  /// \param[out] geomData: corresponding geometry data (nonconst) where distances are computed
   /// \param[in] q: robot configuration.
   /// \return When ComputeShortest is true, the index of the collision pair which has the shortest distance.
   ///         When ComputeShortest is false, the number of collision pairs.
@@ -128,8 +128,8 @@ namespace se3
   template <bool ComputeShortest>
   inline std::size_t computeDistances(const Model & model,
                                       Data & data,
-                                      const GeometryModel & model_geom,
-                                      GeometryData & data_geom,
+                                      const GeometryModel & geomModel,
+                                      GeometryData & geomData,
                                       const Eigen::VectorXd & q
                                       );
 

@@ -181,7 +181,7 @@ namespace se3
       template<typename T>
       inline void addLinkGeometryToGeomModel(::urdf::LinkConstPtr link,
                                              const Model & model,
-                                             GeometryModel & geom_model,
+                                             GeometryModel & geomModel,
                                              const std::vector<std::string> & package_dirs) throw (std::invalid_argument)
       {
         if(getLinkGeometry<T>(link))
@@ -215,7 +215,7 @@ namespace se3
             std::ostringstream geometry_object_suffix;
             geometry_object_suffix << "_" << objectId;
             const std::string & geometry_object_name = std::string(link_name + geometry_object_suffix.str());
-            geom_model.addGeometryObject(model, frame_id, geometry, geomPlacement, geometry_object_name, meshPath);
+            geomModel.addGeometryObject(model, frame_id, geometry, geomPlacement, geometry_object_name, meshPath);
             ++objectId; 
           }
         }
@@ -229,13 +229,13 @@ namespace se3
      * 
      * @param[in]  link            The current URDF link
      * @param      model           The model to which is the GeometryModel associated
-     * @param      model_geom      The GeometryModel where the Collision Objects must be added
+     * @param      geomModel      The GeometryModel where the Collision Objects must be added
      * @param[in]  package_dirs    A vector containing the different directories where to search for packages
      * @param[in]  type            The type of objects that must be loaded ( can be VISUAL or COLLISION)
      */
      void parseTreeForGeom(::urdf::LinkConstPtr link,
                            const Model & model,
-                           GeometryModel & geom_model,
+                           GeometryModel & geomModel,
                            const std::vector<std::string> & package_dirs,
                            const GeometryType type) throw (std::invalid_argument)
       {
@@ -243,10 +243,10 @@ namespace se3
         switch(type)
         {
           case COLLISION:
-            addLinkGeometryToGeomModel< ::urdf::Collision >(link, model, geom_model, package_dirs);
+            addLinkGeometryToGeomModel< ::urdf::Collision >(link, model, geomModel, package_dirs);
           break;
           case VISUAL:
-            addLinkGeometryToGeomModel< ::urdf::Visual >(link, model, geom_model, package_dirs);
+            addLinkGeometryToGeomModel< ::urdf::Visual >(link, model, geomModel, package_dirs);
           break;
           default:
           break;
@@ -254,7 +254,7 @@ namespace se3
         
         BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
         {
-          parseTreeForGeom(child, model, geom_model, package_dirs,type);
+          parseTreeForGeom(child, model, geomModel, package_dirs,type);
         }
 
       }
@@ -266,7 +266,7 @@ namespace se3
     GeometryModel& buildGeom(const Model & model,
                              const std::string & filename,
                              const GeometryType type,
-                             GeometryModel & model_geom,
+                             GeometryModel & geomModel,
                              const std::vector<std::string> & package_dirs)
       throw(std::invalid_argument)
     {
@@ -282,8 +282,8 @@ namespace se3
       }
 
       ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
-      details::parseTreeForGeom(urdfTree->getRoot(), model, model_geom, hint_directories,type);
-      return model_geom;
+      details::parseTreeForGeom(urdfTree->getRoot(), model, geomModel, hint_directories,type);
+      return geomModel;
     }
 
   } // namespace urdf

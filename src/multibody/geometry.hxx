@@ -37,9 +37,9 @@ namespace se3
 #ifdef WITH_HPP_FCL   
     , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
     , distanceRequest (true, 0, 0, fcl::GST_INDEP)
-    , distance_results(modelGeom.collisionPairs.size())
+    , distanceResults(modelGeom.collisionPairs.size())
     , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
-    , collision_results(modelGeom.collisionPairs.size())
+    , collisionResults(modelGeom.collisionPairs.size())
     , radius()
     , collisionPairIndex(-1)
     , innerObjects()
@@ -66,12 +66,12 @@ namespace se3
                                                     const FrameIndex parent,
                                                     const boost::shared_ptr<fcl::CollisionGeometry> & co,
                                                     const SE3 & placement,
-                                                    const std::string & geom_name,
+                                                    const std::string & geomName,
                                                     const std::string & meshPath) throw(std::invalid_argument)
   {
     assert (model.frames[parent].type == se3::BODY);
     JointIndex parentJoint = model.frames[parent].parent;
-    GeometryObject object( geom_name, parent, parentJoint, co,
+    GeometryObject object( geomName, parent, parentJoint, co,
                            placement, meshPath);
     return addGeometryObject (object);
   }
@@ -136,44 +136,44 @@ namespace se3
   //     std::cout << "outer object already added" << std::endl;
   // }
 
-  inline void GeometryData::fillInnerOuterObjectMaps(const GeometryModel & model_geom)
+  inline void GeometryData::fillInnerOuterObjectMaps(const GeometryModel & geomModel)
   {
     innerObjects.clear();
     outerObjects.clear();
 
-    for( GeomIndex gid = 0; gid<model_geom.geometryObjects.size(); gid++)
-      innerObjects[model_geom.geometryObjects[gid].parentJoint].push_back(gid);
+    for( GeomIndex gid = 0; gid<geomModel.geometryObjects.size(); gid++)
+      innerObjects[geomModel.geometryObjects[gid].parentJoint].push_back(gid);
 
-    BOOST_FOREACH( const CollisionPair & pair, model_geom.collisionPairs )
+    BOOST_FOREACH( const CollisionPair & pair, geomModel.collisionPairs )
       {
-        outerObjects[model_geom.geometryObjects[pair.first].parentJoint].push_back(pair.second);
+        outerObjects[geomModel.geometryObjects[pair.first].parentJoint].push_back(pair.second);
       }
   }
 
-  inline std::ostream & operator<< (std::ostream & os, const GeometryModel & model_geom)
+  inline std::ostream & operator<< (std::ostream & os, const GeometryModel & geomModel)
   {
-    os << "Nb geometry objects = " << model_geom.ngeoms << std::endl;
+    os << "Nb geometry objects = " << geomModel.ngeoms << std::endl;
     
-    for(GeomIndex i=0;i<(GeomIndex)(model_geom.ngeoms);++i)
+    for(GeomIndex i=0;i<(GeomIndex)(geomModel.ngeoms);++i)
     {
-      os  << model_geom.geometryObjects[i] <<std::endl;
+      os  << geomModel.geometryObjects[i] <<std::endl;
     }
 
     return os;
   }
 
-  inline std::ostream & operator<< (std::ostream & os, const GeometryData & data_geom)
+  inline std::ostream & operator<< (std::ostream & os, const GeometryData & geomData)
   {
 #ifdef WITH_HPP_FCL
-    os << "Nb collision pairs = " << data_geom.activeCollisionPairs.size() << std::endl;
+    os << "Nb collision pairs = " << geomData.activeCollisionPairs.size() << std::endl;
     
-    for(PairIndex i=0;i<(PairIndex)(data_geom.activeCollisionPairs.size());++i)
+    for(PairIndex i=0;i<(PairIndex)(geomData.activeCollisionPairs.size());++i)
     {
-      os << "Pairs " << i << (data_geom.activeCollisionPairs[i]?"active":"unactive") << std::endl;
+      os << "Pairs " << i << (geomData.activeCollisionPairs[i]?"active":"unactive") << std::endl;
     }
 #else
     os << "WARNING** Without fcl, no collision computations are possible. Only Positions can be computed" << std::endl;
-    os << "Nb of geometry objects = " << data_geom.oMg.size() << std::endl;
+    os << "Nb of geometry objects = " << geomData.oMg.size() << std::endl;
 #endif
 
     return os;
@@ -244,7 +244,7 @@ namespace se3
 
   inline void GeometryData::resetDistances()
   {
-    std::fill(distance_results.begin(), distance_results.end(), fcl::DistanceResult() );
+    std::fill(distanceResults.begin(), distanceResults.end(), fcl::DistanceResult() );
   }
 #endif //WITH_HPP_FCL
 } // namespace se3

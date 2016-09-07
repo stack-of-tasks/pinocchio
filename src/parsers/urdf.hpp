@@ -48,13 +48,13 @@ namespace se3
     /// the model given as reference argument.
     ///
     /// \param[in] filemane The URDF complete file path.
-    /// \param[in] root_joint The joint at the root of the model tree.
+    /// \param[in] rootJoint The joint at the root of the model tree.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
     /// 
     Model& buildModel (const std::string & filename,
-                       const JointModelVariant & root_joint,
+                       const JointModelVariant & rootJoint,
                        Model & model, 
                        const bool verbose = false) throw (std::invalid_argument);
 
@@ -62,17 +62,17 @@ namespace se3
     /// \brief Build the model from a URDF file with a particular joint as root of the model tree.
     ///
     /// \param[in] filemane The URDF complete file path.
-    /// \param[in] root_joint The joint at the root of the model tree.
+    /// \param[in] rootJoint The joint at the root of the model tree.
     /// \param[in] verbose Print parsing info.
     ///
     /// \return The se3::Model of the URDF file.
     ///
     PINOCCHIO_DEPRECATED
     inline Model buildModel (const std::string & filename,
-                             const JointModelVariant & root_joint,
+                             const JointModelVariant & rootJoint,
                              const bool verbose = false) 
       throw (std::invalid_argument)
-    { Model m; return buildModel(filename,root_joint,m,verbose); }
+    { Model m; return buildModel(filename,rootJoint,m,verbose); }
 
     ///
     /// \brief Build the model from a URDF file with a fixed joint as root of the model tree.
@@ -109,7 +109,7 @@ namespace se3
      * @param[in]  model         The model of the robot, built with
      *                           urdf::buildModel
      * @param[in]  filename      The URDF complete (absolute) file path
-     * @param[in]  package_dirs  A vector containing the different directories
+     * @param[in]  packageDirs  A vector containing the different directories
      *                           where to search for models and meshes, typically 
      *                           obtained from calling se3::rosPaths()
      *
@@ -125,7 +125,7 @@ namespace se3
                              const std::string & filename,
                              const GeometryType type,
                              GeometryModel & geomModel,
-                             const std::vector<std::string> & package_dirs = std::vector<std::string> ())
+                             const std::vector<std::string> & packageDirs = std::vector<std::string> ())
     throw (std::invalid_argument);
 
     /**
@@ -134,7 +134,7 @@ namespace se3
      * @param[in]  model         The model of the robot, built with
      *                           urdf::buildModel
      * @param[in]  filename      The URDF complete (absolute) file path
-     * @param[in]  package_dirs  A vector containing the different directories
+     * @param[in]  packageDirs  A vector containing the different directories
      *                           where to search for models and meshes, typically 
      *                           obtained from calling se3::rosPaths()
      *
@@ -148,9 +148,9 @@ namespace se3
     inline  GeometryModel buildGeom(const Model & model,
                                    const std::string & filename,
                                    const GeometryType type,
-                                   const std::vector<std::string> & package_dirs = std::vector<std::string> ())
+                                   const std::vector<std::string> & packageDirs = std::vector<std::string> ())
       throw (std::invalid_argument)
-    { GeometryModel g; return buildGeom (model,filename,type,g,package_dirs); }
+    { GeometryModel g; return buildGeom (model,filename,type,g,packageDirs); }
 
 
   } // namespace urdf
