@@ -62,28 +62,13 @@ namespace se3
      * @brief      Add a geometry object to a GeometryModel
      *
      * @param[in]  object     Object 
+     * @param[in]  model      Corresponding model, used to assert the attributes of object.
      *
      * @return     The index of the new added GeometryObject in geometryObjects
+     * @note object is a nonconst copy to ease the insertion code.
      */
-    inline GeomIndex addGeometryObject(const GeometryObject& object);
-
-    /**
-     * @brief      Add a geometry object to a GeometryModel
-     *
-     * @param[in]  parent     Index of the parent frame
-     * @param[in]  co         The actual fcl CollisionGeometry
-     * @param[in]  placement  The relative placement regarding to the parent frame
-     * @param[in]  geomName   The name of the Geometry Object
-     * @param[in]  meshPath   The absolute path to the mesh
-     *
-     * @return     The index of the new added GeometryObject in geometryObjects
-     */
-    inline GeomIndex addGeometryObject(const Model& model,
-                                       const FrameIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & co,
-                                       const SE3 & placement, const std::string & geomName = "",
-                                       const std::string & meshPath = "") throw(std::invalid_argument);
-
-
+    inline GeomIndex addGeometryObject(GeometryObject object,
+                                       const Model & model);
 
     /**
      * @brief      Return the index of a GeometryObject given by its name.

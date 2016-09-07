@@ -160,10 +160,16 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   model.addBodyFrame("planar2_body", idx, SE3::Identity());
   
   boost::shared_ptr<fcl::Box> sample(new fcl::Box(1));
-  geomModel.addGeometryObject(model, model.getBodyId("planar1_body"),sample, SE3::Identity(),  "ff1_collision_object", "");
+  geomModel.addGeometryObject(GeometryObject("ff1_collision_object",
+                                             model.getBodyId("planar1_body"),-1,
+                                             sample,SE3::Identity(), ""),
+                              model);
   
   boost::shared_ptr<fcl::Box> sample2(new fcl::Box(1));
-  geomModel.addGeometryObject(model, model.getBodyId("planar2_body"),sample2, SE3::Identity(),  "ff2_collision_object", "");
+  geomModel.addGeometryObject(GeometryObject("ff2_collision_object",
+                                             model.getBodyId("planar2_body"),-1,
+                                             sample2,SE3::Identity(), ""),
+                              model);
 
   geomModel.addAllCollisionPairs();
   se3::Data data(model);

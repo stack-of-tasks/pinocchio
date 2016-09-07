@@ -215,13 +215,15 @@ namespace se3
             std::ostringstream geometry_object_suffix;
             geometry_object_suffix << "_" << objectId;
             const std::string & geometry_object_name = std::string(link_name + geometry_object_suffix.str());
-            geomModel.addGeometryObject(model, frame_id, geometry, geomPlacement, geometry_object_name, meshPath);
-            ++objectId; 
+            geomModel.addGeometryObject(GeometryObject(geometry_object_name,
+                                                       frame_id, model.frames[frame_id].parent, 
+                                                       geometry,
+                                                       geomPlacement, meshPath),
+                                        model);
+            ++objectId;
           }
         }
       }
-
-
 
     /**
      * @brief      Recursive procedure for reading the URDF tree, looking for geometries

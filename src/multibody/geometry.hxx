@@ -55,27 +55,23 @@ namespace se3
   {}
 #endif // WITH_HPP_FCL   
 
-  inline GeomIndex GeometryModel::addGeometryObject(const GeometryObject& object)
+  inline GeomIndex GeometryModel::addGeometryObject(GeometryObject object,
+                                                    const Model & model)
   {
+    assert( (object.parentFrame != -1) || (object.parentJoint != -1) );
+
+    if( object.parentJoint == -1 )  // if no parent joint, autofill the attribute.
+      object.parentJoint = model.frames[object.parentFrame].parent; 
+
+    assert( (object.parentFrame == -1) 
+            || (model.frames[object.parentFrame].type == se3::BODY)  );
+    assert( (object.parentFrame == -1) 
+            || (model.frames[object.parentFrame].parentJoint == object.parentJoint) );
+
     GeomIndex idx = (GeomIndex) (ngeoms ++);
     geometryObjects.push_back(object);
     return idx;
   }
-
-  inline GeomIndex GeometryModel::addGeometryObject(const Model& model,
-                                                    const FrameIndex parent,
-                                                    const boost::shared_ptr<fcl::CollisionGeometry> & co,
-                                                    const SE3 & placement,
-                                                    const std::string & geomName,
-                                                    const std::string & meshPath) throw(std::invalid_argument)
-  {
-    assert (model.frames[parent].type == se3::BODY);
-    JointIndex parentJoint = model.frames[parent].parent;
-    GeometryObject object( geomName, parent, parentJoint, co,
-                           placement, meshPath);
-    return addGeometryObject (object);
-  }
-
 
   inline GeomIndex GeometryModel::getGeometryId(const std::string & name) const
   {
