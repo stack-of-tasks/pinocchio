@@ -59,6 +59,22 @@ namespace se3
 
 #ifdef WITH_HPP_FCL
 
+  ///
+  /// \brief Compute the collision status between a *SINGLE* collision pair.
+  /// The result is store in the collision_results vector.
+  ///
+  /// \param[in] GeomModel the geometry model (const)
+  /// \param[out] GeomData the corresponding geometry data, where computations are done.
+  /// \param[in] pairId The collsion pair index in the GeometryModel.
+  ///
+  /// \return Return true is the collision objects are colliding.
+  /// \note The complete collision result is also available in geomData.collisionResults[pairId]
+  ///
+  bool computeCollision(const GeometryModel & geomModel,
+                        GeometryData & geomData,
+                        const PairIndex & pairId
+                        );
+    
   /// Compute the forward kinematics, update the geometry placements and
   /// calls computeCollision for every active pairs of GeometryData.
   ///
@@ -72,6 +88,7 @@ namespace se3
   ///         When ComputeShortest is false, the number of collision pairs.
   /// \warning if stopAtFirstcollision = true, then the collisions vector will
   /// not be entirely fulfilled (of course).
+  /// \note A similar function is available without model, data and q, not recomputing the FK.
   inline bool computeCollisions(const Model & model,
                                 Data & data,
                                 const GeometryModel & model_geom,
@@ -80,6 +97,22 @@ namespace se3
                                 const bool stopAtFirstCollision = false
                                 );
 
+  ///
+  /// \brief Compute the minimal distance between collision objects of a *SINGLE* collison pair
+  ///
+  /// \param[in] GeomModel the geometry model (const)
+  /// \param[out] GeomData the corresponding geometry data, where computations are done.
+  /// \param[in] pairId The index of the collision pair in geom model.
+  ///
+  /// \return A reference on fcl struct containing the distance result, referring an element
+  /// of vector geomData::distance_results.
+  /// \note The complete distance result is also available in geomData.distanceResults[pairId]
+  ///
+  fcl::DistanceResult & computeDistance(const GeometryModel & geomModel,
+                                        GeometryData & geomData,
+                                        const PairIndex & pairId
+                                        );
+    
   /// Compute the forward kinematics, update the geometry placements and
   /// calls computeDistance for every active pairs of GeometryData.
   ///
@@ -91,6 +124,7 @@ namespace se3
   /// \param[in] q: robot configuration.
   /// \return When ComputeShortest is true, the index of the collision pair which has the shortest distance.
   ///         When ComputeShortest is false, the number of collision pairs.
+  /// \note A similar function is available without model, data and q, not recomputing the FK.
   template <bool ComputeShortest>
   inline std::size_t computeDistances(const Model & model,
                                       Data & data,

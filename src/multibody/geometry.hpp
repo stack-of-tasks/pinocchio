@@ -227,7 +227,7 @@ namespace se3
     /// \brief index of the collision pair
     ///
     /// It is used by some method to return additional information. For instance,
-    /// isColliding() sets it to the first colliding pair.
+    /// the algo computeCollisions() sets it to the first colliding pair.
     ///
     PairIndex collisionPairIndex;
 
@@ -275,6 +275,17 @@ namespace se3
     ~GeometryData() {};
 #ifdef WITH_HPP_FCL
 
+    /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
+    /// collisionPairs. 
+    ///
+    /// This simply corresponds to storing in a re-arranged manner the information stored
+    /// in geomModel.geometryObjects and geomModel.collisionPairs.
+    /// \param[in] GeomModel the geometry model (const)
+    ///
+    /// \warning Outer objects are not duplicated (i.e. if a is in outerObjects[b], then
+    /// b is not in outerObjects[a]).
+    void fillInnerOuterObjectMaps();
+
     /// Activate a collision pair, for which collisions and distances would now be computed.
     ///
     /// A collision (resp distance) between to geometries of GeomModel::geometryObjects
@@ -292,45 +303,10 @@ namespace se3
     /// \sa activateCollisionPair
     void deactivateCollisionPair(const PairIndex pairId);
 
-    ///
-    /// \brief Compute the collision status between two collision objects of a given collision pair.
-    /// The result is store in the collision_results vector.
-    ///
-    /// \param[in] pairId The collsion pair index in the GeometryModel.
-    ///
-    /// \return Return true is the collision objects are colliding.
-    ///
-    bool computeCollision(const PairIndex & pairId);
-    
-    ///
-    /// \brief Check if at least one of the collision pairs has its two collision objects in collision.
-    ///        The results are stored in the vector GeometryData::collision_results.
-    ///
-    /// Set collisionPairIndex to the index of the first colliding pair in collision.
-    ///
-    bool isColliding();
-
-    ///
-    /// \brief Compute the minimal distance between collision objects of a collison pair
-    ///
-    /// \param[in] pairId The index of the collision pair in geom model.
-    ///
-    /// \return A reference on fcl struct containing the distance result, referring an element
-    /// of vector geomData::distance_results.
-    ///
-    fcl::DistanceResult & computeDistance(const PairIndex & pairId);
-    
     /// Reset the vector distance_results.
     /// TODO: should this be called automatically before calling computeDistance?
     /// TODO: should we implement the same for collisions?
     void resetDistances();
-
-    /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
-    /// collisionPairs. 
-    ///
-    /// \warning Outer objects are not duplicated (i.e. if a is in outerObjects[b], then
-    /// b is not in outerObjects[a]).
-    void fillInnerOuterObjectMaps();
 
 #endif //WITH_HPP_FCL
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & data_geom);

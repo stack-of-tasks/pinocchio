@@ -221,47 +221,6 @@ namespace se3
     activeCollisionPairs[pairId] = false;
   }
 
-  inline bool GeometryData::computeCollision(const PairIndex& pairId)
-  {
-    const CollisionPair & pair = model_geom.collisionPairs[pairId];
-    fcl::CollisionResult& collisionResult = collision_results[pairId];
-
-    const PairIndex & co1 = pair.first;     assert(co1<collisionObjects.size());
-    const PairIndex & co2 = pair.second;    assert(co2<collisionObjects.size());
-
-    collisionResult.clear();
-    fcl::collide (&collisionObjects[co1],&collisionObjects[co2],
-                  collisionRequest, collisionResult);
-
-    return collisionResult.isCollision();
-  }
-  
-  inline bool GeometryData::isColliding()
-  {
-    PairIndex& i = collisionPairIndex;
-    for(i = 0; i<model_geom.collisionPairs.size(); ++i)
-    {
-      if (activeCollisionPairs[i] && computeCollision(i))
-        return true;
-    }
-    return false;
-  }
-
-  inline fcl::DistanceResult & GeometryData::computeDistance(const PairIndex & pairId )
-  {
-    assert( pairId < model_geom.collisionPairs.size() );
-    const CollisionPair & pair = model_geom.collisionPairs[pairId];
-
-    assert( pair < distance_results.size() );
-    assert( pair.first  < collisionObjects.size() );
-    assert( pair.second < collisionObjects.size() );
-    
-    fcl::distance ( &collisionObjects[pair.first],&collisionObjects[pair.second],
-                    distanceRequest, distance_results[pairId]);
-
-    return distance_results[pairId];
-  }
-  
   inline void GeometryData::resetDistances()
   {
     std::fill(distance_results.begin(), distance_results.end(), fcl::DistanceResult() );

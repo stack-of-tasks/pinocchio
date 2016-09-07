@@ -57,9 +57,26 @@ namespace se3
   /* --- COLLISIONS ----------------------------------------------------------------- */
   /* --- COLLISIONS ----------------------------------------------------------------- */
   /* --- COLLISIONS ----------------------------------------------------------------- */
+
+  inline bool computeCollision(const GeometryModel & model_geom,
+                               GeometryData & geomData,
+                               const PairIndex& pairId)
+  {
+    const CollisionPair & pair = model_geom.collisionPairs[pairId];
+    fcl::CollisionResult& collisionResult = geomData.collision_results[pairId];
+
+    const PairIndex & co1 = pair.first;     assert(co1<collisionObjects.size());
+    const PairIndex & co2 = pair.second;    assert(co2<collisionObjects.size());
+
+    fcl::collide (&geomData.collisionObjects[co1],&geomData.collisionObjects[co2],
+                  geomData.collisionRequest,
+                  collisionResult);
+
+    return collisionResult.isCollision();
+  }
+  
   inline bool computeCollisions(GeometryData & data_geom,
-                                const bool stopAtFirstCollision
-                                )
+                                const bool stopAtFirstCollision = true)
   {
     bool isColliding = false;
     const GeometryModel & geomModel = data_geom.model_geom;
@@ -68,7 +85,7 @@ namespace se3
     {
       if(data_geom.activeCollisionPairs[cpt])
         {
-          data_geom.computeCollision(cpt);
+          computeCollision(geomModel,data_geom,cpt);
           isColliding |= data_geom.collision_results[cpt].isCollision();
           if(isColliding && stopAtFirstCollision)
             return true;
@@ -96,6 +113,26 @@ namespace se3
   /* --- DISTANCES ----------------------------------------------------------------- */
   /* --- DISTANCES ----------------------------------------------------------------- */
 
+  inline fcl::DistanceResult & computeDistance(const GeometryModel & model_geom,
+                                               GeometryData & geomData,
+                                               const PairIndex & pairId )
+  {
+    assert( pairId < model_geom.collisionPairs.size() );
+    const CollisionPair & pair = model_geom.collisionPairs[pairId];
+
+    assert( pair        < geomData.distance_results.size() );
+    assert( pair.first  < geomData.collisionObjects.size() );
+    assert( pair.second < geomData.collisionObjects.size() );
+    
+    fcl::distance ( &geomData.collisionObjects[pair.first],
+                    &geomData.collisionObjects[pair.second],
+                    geomData.distanceRequest,
+                    geomData.distance_results[pairId]);
+
+    return geomData.distance_results[pairId];
+  }
+  
+
   template <bool COMPUTE_SHORTEST>
   inline std::size_t computeDistances(GeometryData & data_geom)
   {
@@ -106,7 +143,7 @@ namespace se3
     {
       if(data_geom.activeCollisionPairs[cpt])
         {
-          data_geom.computeDistance(cpt);
+          computeDistance(geomModel,data_geom,cpt);
           if (COMPUTE_SHORTEST && data_geom.distance_results[cpt].min_distance < min_dist)
             {
               min_index = cpt;

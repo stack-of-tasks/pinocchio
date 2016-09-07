@@ -182,25 +182,25 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
-  BOOST_CHECK(data_geom.computeCollision(0) == true);
+  BOOST_CHECK(computeCollision(model_geom,data_geom,0) == true);
 
   q <<  2, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
-  BOOST_CHECK(data_geom.computeCollision(0) == false);
+  BOOST_CHECK(computeCollision(model_geom,data_geom,0) == false);
 
   q <<  0.99, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
-  BOOST_CHECK(data_geom.computeCollision(0) == true);
+  BOOST_CHECK(computeCollision(model_geom,data_geom,0) == true);
 
   q <<  1.01, 0, 0,
         0, 0, 0 ;
 
   se3::updateGeometryPlacements(model, data, model_geom, data_geom, q);
-  BOOST_CHECK(data_geom.computeCollision(0) == false);
+  BOOST_CHECK(computeCollision(model_geom,data_geom,0) == false);
 }
 
 BOOST_AUTO_TEST_CASE ( loading_model )
@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 
   se3::updateGeometryPlacements(model, data, geometry_model, geometry_data, q);
   se3::Index idx = geometry_model.findCollisionPair(CollisionPair(1,10));
-  BOOST_CHECK(geometry_data.computeCollision(idx) == false);
+  BOOST_CHECK(computeCollision(geometry_model,geometry_data,idx) == false);
 }
 
 
