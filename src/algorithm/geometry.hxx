@@ -22,7 +22,9 @@
 
 namespace se3 
 {
-  
+  /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
+  /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
+  /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
   inline void updateGeometryPlacements(const Model & model,
                                       Data & data,
                                       const GeometryModel & model_geom,
@@ -51,6 +53,10 @@ namespace se3
     }
   }
 #ifdef WITH_HPP_FCL  
+
+  /* --- COLLISIONS ----------------------------------------------------------------- */
+  /* --- COLLISIONS ----------------------------------------------------------------- */
+  /* --- COLLISIONS ----------------------------------------------------------------- */
   inline bool computeCollisions(GeometryData & data_geom,
                                 const bool stopAtFirstCollision
                                 )
@@ -86,12 +92,10 @@ namespace se3
     return computeCollisions(data_geom, stopAtFirstCollision);
   }
 
-  // Required to have a default template argument on templated free function
-  inline std::size_t computeDistances(GeometryData & data_geom)
-  {
-    return computeDistances<true>(data_geom);
-  }
-  
+  /* --- DISTANCES ----------------------------------------------------------------- */
+  /* --- DISTANCES ----------------------------------------------------------------- */
+  /* --- DISTANCES ----------------------------------------------------------------- */
+
   template <bool COMPUTE_SHORTEST>
   inline std::size_t computeDistances(GeometryData & data_geom)
   {
@@ -111,6 +115,12 @@ namespace se3
         }
     }
     return min_index;
+  }
+  
+  // Required to have a default template argument on templated free function
+  inline std::size_t computeDistances(GeometryData & data_geom)
+  {
+    return computeDistances<true>(data_geom);
   }
   
   // Required to have a default template argument on templated free function
@@ -135,6 +145,10 @@ namespace se3
     updateGeometryPlacements (model, data, model_geom, data_geom, q);
     return computeDistances<ComputeShortest>(data_geom);
   }
+
+  /* --- RADIUS -------------------------------------------------------------------- */
+  /* --- RADIUS -------------------------------------------------------------------- */
+  /* --- RADIUS -------------------------------------------------------------------- */
 
   /// Given p1..3 being either "min" or "max", return one of the corners of the 
   /// AABB cub of the FCL object.
@@ -180,6 +194,8 @@ namespace se3
 
 #undef SE3_GEOM_AABB
 #endif // WITH_HPP_FCL
+
+  /* --- APPEND GEOMETRY MODEL ----------------------------------------------------------- */
 
   inline void appendGeometryModel(GeometryModel & geomModel1,
                                   const GeometryModel & geomModel2)

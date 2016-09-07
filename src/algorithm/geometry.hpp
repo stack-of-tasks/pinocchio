@@ -27,7 +27,6 @@
 namespace se3
 {
 
-
   ///
   /// \brief Apply a forward kinematics and update the placement of the geometry objects.
   ///
@@ -57,7 +56,22 @@ namespace se3
                                        const GeometryModel & geom,
                                        GeometryData & geom_data
                                        );
+
 #ifdef WITH_HPP_FCL
+
+  /// Compute the forward kinematics, update the geometry placements and
+  /// calls computeCollision for every active pairs of GeometryData.
+  ///
+  /// \param[in] model robot model (const)
+  /// \param[out] data corresponding data (nonconst) where FK results are stored
+  /// \param[in] model_geom geometry model (const)
+  /// \param[out] data_geom corresponding geometry data (nonconst) where distances are computed
+  /// \param[in] q robot configuration.
+  /// \param[in] stopAtFirstCollision if true, stop the loop on pairs after the first collision.
+  /// \return When ComputeShortest is true, the index of the collision pair which has the shortest distance.
+  ///         When ComputeShortest is false, the number of collision pairs.
+  /// \warning if stopAtFirstcollision = true, then the collisions vector will
+  /// not be entirely fulfilled (of course).
   inline bool computeCollisions(const Model & model,
                                 Data & data,
                                 const GeometryModel & model_geom,
@@ -66,21 +80,17 @@ namespace se3
                                 const bool stopAtFirstCollision = false
                                 );
 
-  inline bool computeCollisions(GeometryData & data_geom,
-                                const bool stopAtFirstCollision = false
-                                );
-
-  /// Compute the distances of all collision pairs
+  /// Compute the forward kinematics, update the geometry placements and
+  /// calls computeDistance for every active pairs of GeometryData.
   ///
-  /// \param ComputeShortest default to true.
-  /// \param data_geom
+  /// \param[in] ComputeShortest default to true.
+  /// \param[in][out] model: robot model (const)
+  /// \param[out] data: corresponding data (nonconst) where FK results are stored
+  /// \param[in] model_geom: geometry model (const)
+  /// \param[out] data_geom: corresponding geometry data (nonconst) where distances are computed
+  /// \param[in] q: robot configuration.
   /// \return When ComputeShortest is true, the index of the collision pair which has the shortest distance.
   ///         When ComputeShortest is false, the number of collision pairs.
-  template <bool ComputeShortest>
-  inline std::size_t computeDistances(GeometryData & data_geom);
-
-  /// Compute the forward kinematics, update the goemetry placements and
-  /// calls computeDistances(GeometryData&).
   template <bool ComputeShortest>
   inline std::size_t computeDistances(const Model & model,
                                       Data & data,
@@ -89,6 +99,8 @@ namespace se3
                                       const Eigen::VectorXd & q
                                       );
 
+  /// Compute the radius of the geometry volumes attached to every joints.
+  /// \sa GeometryData::radius
   inline void computeBodyRadius(const Model &         model,
                                 const GeometryModel & geomModel,
                                 GeometryData &        geomData);
@@ -102,12 +114,21 @@ namespace se3
   /// \li add all the collision pairs between geometry objects of geomModel1 and geomModel2.
   /// \li update the inner objects of geomModel1 with the inner objects of geomModel2
   /// \li update the outer objects (see TODO)
+  /// It is possible to ommit both data (an additional function signature is available which makes
+  /// them optionnal), then inner/outer objects are not updated.
   ///
+  /// \param[out] geomModel1   geometry model where the data is added
+  /// \param[out] geomData1    corresponding geometry data, where in/outer objects are updated
+  /// \param[in]  geomModel2   geometry model from which new geometries are taken
+  /// \param[out] geomData2    geometry data corresponding to geomModel2.
   /// \warning Radius should be recomputed.
   /// \todo The geometry objects of geomModel2 should be added as outerObjects
   ///       of the joints originating from model1 but I do not know how to do it.
   inline void appendGeometryModel(GeometryModel & geomModel1,
-                                  const GeometryModel & geomModel2);
+                                  GeometryData & geomData1,
+                                  const GeometryModel & geomModel2,
+                                  const GeometryData & geomData2);
+
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
