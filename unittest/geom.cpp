@@ -48,7 +48,8 @@ typedef std::map <std::string, se3::SE3> JointPositionsMap_t;
 typedef std::map <std::string, se3::SE3> GeometryPositionsMap_t;
 typedef std::map <std::pair < std::string , std::string >, fcl::DistanceResult > PairDistanceMap_t;
 JointPositionsMap_t fillPinocchioJointPositions(const se3::Model& model, const se3::Data & data);
-GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryData & data_geom);
+GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryModel & geomModel,
+                                                      const se3::GeometryData & data_geom);
 #ifdef WITH_HPP_MODEL_URDF
 JointPositionsMap_t fillHppJointPositions(const hpp::model::HumanoidRobotPtr_t robot);
 GeometryPositionsMap_t fillHppGeometryPositions(const hpp::model::HumanoidRobotPtr_t robot);
@@ -514,12 +515,13 @@ JointPositionsMap_t fillPinocchioJointPositions(const se3::Model& model, const s
   return result;
 }
 
-GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryData & data_geom)
+GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryModel & model_geom,
+                                                      const se3::GeometryData & data_geom)
 {
   GeometryPositionsMap_t result;
-  for (std::size_t i = 0; i < data_geom.model_geom.ngeoms ; ++i)
+  for (std::size_t i = 0; i < model_geom.ngeoms ; ++i)
   {
-    result[data_geom.model_geom.getGeometryName(i)] = data_geom.oMg[i];
+    result[model_geom.getGeometryName(i)] = data_geom.oMg[i];
   }
   return result;
 }

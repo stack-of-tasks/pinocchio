@@ -42,7 +42,7 @@ namespace se3
                                        GeometryData & data_geom
                                        )
   {
-    for (GeomIndex i=0; i < (GeomIndex) data_geom.model_geom.ngeoms; ++i)
+    for (GeomIndex i=0; i < (GeomIndex) model_geom.ngeoms; ++i)
     {
       const Model::JointIndex & joint = model_geom.geometryObjects[i].parentJoint;
       if (joint>0) data_geom.oMg[i] =  (data.oMi[joint] * model_geom.geometryObjects[i].placement);
@@ -75,11 +75,11 @@ namespace se3
     return collisionResult.isCollision();
   }
   
-  inline bool computeCollisions(GeometryData & data_geom,
+  inline bool computeCollisions(const GeometryModel & geomModel,
+                                GeometryData & data_geom,
                                 const bool stopAtFirstCollision = true)
   {
     bool isColliding = false;
-    const GeometryModel & geomModel = data_geom.model_geom;
     
     for (std::size_t cpt = 0; cpt < geomModel.collisionPairs.size(); ++cpt)
     {
@@ -106,7 +106,7 @@ namespace se3
   {
     updateGeometryPlacements (model, data, model_geom, data_geom, q);
     
-    return computeCollisions(data_geom, stopAtFirstCollision);
+    return computeCollisions(model_geom,data_geom, stopAtFirstCollision);
   }
 
   /* --- DISTANCES ----------------------------------------------------------------- */
@@ -134,9 +134,9 @@ namespace se3
   
 
   template <bool COMPUTE_SHORTEST>
-  inline std::size_t computeDistances(GeometryData & data_geom)
+  inline std::size_t computeDistances(const GeometryModel & geomModel,
+                                      GeometryData & data_geom)
   {
-    const GeometryModel & geomModel = data_geom.model_geom;
     std::size_t min_index = geomModel.collisionPairs.size();
     double min_dist = std::numeric_limits<double>::infinity();
     for (std::size_t cpt = 0; cpt < geomModel.collisionPairs.size(); ++cpt)
@@ -155,9 +155,10 @@ namespace se3
   }
   
   // Required to have a default template argument on templated free function
-  inline std::size_t computeDistances(GeometryData & data_geom)
+  inline std::size_t computeDistances(const GeometryModel& geomModel,
+                                      GeometryData & data_geom)
   {
-    return computeDistances<true>(data_geom);
+    return computeDistances<true>(geomModel,data_geom);
   }
   
   // Required to have a default template argument on templated free function
@@ -180,7 +181,7 @@ namespace se3
                                )
   {
     updateGeometryPlacements (model, data, model_geom, data_geom, q);
-    return computeDistances<ComputeShortest>(data_geom);
+    return computeDistances<ComputeShortest>(model_geom,data_geom);
   }
 
   /* --- RADIUS -------------------------------------------------------------------- */

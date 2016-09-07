@@ -32,8 +32,7 @@
 namespace se3
 {
   inline GeometryData::GeometryData(const GeometryModel & modelGeom)
-    : model_geom(modelGeom)
-    , oMg(model_geom.ngeoms)
+    : oMg(modelGeom.ngeoms)
 
 #ifdef WITH_HPP_FCL   
     , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
@@ -50,7 +49,7 @@ namespace se3
     BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
       { collisionObjects.push_back
           (fcl::CollisionObject(geom.collision_geometry)); }
-    fillInnerOuterObjectMaps();
+    fillInnerOuterObjectMaps(modelGeom);
   }
 #else
   {}
@@ -137,7 +136,7 @@ namespace se3
   //     std::cout << "outer object already added" << std::endl;
   // }
 
-  inline void GeometryData::fillInnerOuterObjectMaps()
+  inline void GeometryData::fillInnerOuterObjectMaps(const GeometryModel & model_geom)
   {
     innerObjects.clear();
     outerObjects.clear();
@@ -170,7 +169,7 @@ namespace se3
     
     for(PairIndex i=0;i<(PairIndex)(data_geom.activeCollisionPairs.size());++i)
     {
-      os << "collision object in position " << data_geom.model_geom.collisionPairs[i] << std::endl;
+      os << "Pairs " << i << (data_geom.activeCollisionPairs[i]?"active":"unactive") << std::endl;
     }
 #else
     os << "WARNING** Without fcl, no collision computations are possible. Only Positions can be computed" << std::endl;
@@ -233,14 +232,12 @@ namespace se3
 
   inline void GeometryData::activateCollisionPair(const PairIndex pairId,const bool flag)
   {
-    assert( activeCollisionPairs.size() == model_geom.collisionPairs.size() );
     assert( pairId < activeCollisionPairs.size() );
     activeCollisionPairs[pairId] = flag;
   }
 
   inline void GeometryData::deactivateCollisionPair(const PairIndex pairId)
   {
-    assert( activeCollisionPairs.size() == model_geom.collisionPairs.size() );
     assert( pairId < activeCollisionPairs.size() );
     activeCollisionPairs[pairId] = false;
   }

@@ -168,13 +168,6 @@ namespace se3
 
   struct GeometryData
   {
-
-    ///
-    /// \brief A const reference to the model storing all the geometries.
-    ///        See class GeometryModel.
-    ///
-    const GeometryModel & model_geom;
-
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
@@ -183,6 +176,7 @@ namespace se3
     /// for fcl (collision) computation. The copy is done in collisionObjects[i]->setTransform(.)
     ///
     std::vector<se3::SE3> oMg;
+
 #ifdef WITH_HPP_FCL
     ///
     /// \brief Collision objects (ie a fcl placed geometry).
@@ -260,7 +254,7 @@ namespace se3
     ///
     /// \warning Outer objects are not duplicated (i.e. if a is in outerObjects[b], then
     /// b is not in outerObjects[a]).
-    void fillInnerOuterObjectMaps();
+    void fillInnerOuterObjectMaps(const GeometryModel & geomModel);
 
     /// Activate a collision pair, for which collisions and distances would now be computed.
     ///
