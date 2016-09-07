@@ -31,6 +31,30 @@
 
 namespace se3
 {
+  inline GeometryData::GeometryData(const GeometryModel & modelGeom)
+    : model_geom(modelGeom)
+    , oMg(model_geom.ngeoms)
+
+#ifdef WITH_HPP_FCL   
+    , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
+    , distanceRequest (true, 0, 0, fcl::GST_INDEP)
+    , distance_results(modelGeom.collisionPairs.size())
+    , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
+    , collision_results(modelGeom.collisionPairs.size())
+    , radius()
+    , collisionPairIndex(-1)
+    , innerObjects()
+    , outerObjects()
+  {
+    collisionObjects.reserve(modelGeom.geometryObjects.size());
+    BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
+      { collisionObjects.push_back
+          (fcl::CollisionObject(geom.collision_geometry)); }
+    fillInnerOuterObjectMaps();
+  }
+#else
+  {}
+#endif // WITH_HPP_FCL   
 
   inline GeomIndex GeometryModel::addGeometryObject(const GeometryObject& object)
   {

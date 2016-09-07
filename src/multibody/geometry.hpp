@@ -244,35 +244,11 @@ namespace se3
     /// Outer objects can be seen as geometry objects that may often be
     /// obstacles to the Inner objects of given joint
     std::map < JointIndex, GeomIndexList >  outerObjects;
-
-    GeometryData(const GeometryModel & modelGeom)
-        : model_geom(modelGeom)
-        , oMg(model_geom.ngeoms)
-        , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
-        , distanceRequest (true, 0, 0, fcl::GST_INDEP)
-        , distance_results(modelGeom.collisionPairs.size())
-        , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
-        , collision_results(modelGeom.collisionPairs.size())
-        , radius()
-        , collisionPairIndex(-1)
-        , innerObjects()
-        , outerObjects()
-    {
-      collisionObjects.reserve(modelGeom.geometryObjects.size());
-      BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
-        { collisionObjects.push_back
-            (fcl::CollisionObject(geom.collision_geometry)); }
-      fillInnerOuterObjectMaps();
-    }
-#else
-    GeometryData(const GeometryModel & modelGeom)
-    : model_geom(modelGeom)
-    , oMg(model_geom.ngeoms)
-    {}
 #endif // WITH_HPP_FCL   
 
-
+    GeometryData(const GeometryModel & modelGeom);
     ~GeometryData() {};
+
 #ifdef WITH_HPP_FCL
 
     /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
