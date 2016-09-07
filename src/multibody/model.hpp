@@ -275,19 +275,21 @@ namespace se3
     /// (for example to get the id of a parent frame).
     /// 
     /// \param[in] name Name of the frame.
+    /// \param[in] type Type of the frame.
     ///
     /// \return Index of the frame.
     ///
-    FrameIndex getFrameId (const std::string & name) const;
+    FrameIndex getFrameId (const std::string & name, const FrameType& type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
     
     ///
     /// \brief Checks if a frame given by its name exists.
     ///
     /// \param[in] name Name of the frame.
+    /// \param[in] type Type of the frame.
     ///
     /// \return Returns true if the frame exists.
     ///
-    bool existFrame (const std::string & name) const;
+    bool existFrame (const std::string & name, const FrameType& type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
     
     ///
     /// \brief Get the name of a frame given by its index.

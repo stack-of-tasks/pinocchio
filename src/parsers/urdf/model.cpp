@@ -33,19 +33,21 @@ namespace se3
   {
     namespace details
     {
+      const FrameType JOINT_OR_FIXED_JOINT = (FrameType) (JOINT | FIXED_JOINT);
+
       FrameIndex getParentJointFrame(::urdf::LinkConstPtr link, Model & model)
       {
         assert(link!=NULL && link->getParent()!=NULL);
 
         FrameIndex id;
         if (link->getParent()->parent_joint==NULL) {
-          if (model.existFrame("root_joint"))
-            id = model.getFrameId ("root_joint");
+          if (model.existFrame("root_joint",  JOINT_OR_FIXED_JOINT))
+            id = model.getFrameId ("root_joint", JOINT_OR_FIXED_JOINT);
           else
             id = 0;
         } else {
-          if (model.existFrame(link->getParent()->parent_joint->name))
-            id = model.getFrameId (link->getParent()->parent_joint->name);
+          if (model.existFrame(link->getParent()->parent_joint->name, JOINT_OR_FIXED_JOINT))
+            id = model.getFrameId (link->getParent()->parent_joint->name, JOINT_OR_FIXED_JOINT);
           else
             throw std::invalid_argument ("Model does not have any joints named "
                 + link->getParent()->parent_joint->name);
@@ -69,7 +71,7 @@ namespace se3
             && Y->mass > Eigen::NumTraits<double>::epsilon()) {
           model.appendBodyToJoint(frame.parent, convertFromUrdf(*Y), p);
         }
-        model.addBodyFrame(body_name, frame.parent, p, fid);
+        model.addBodyFrame(body_name, frame.parent, p, (int)fid);
         // Reference to model.frames[fid] can has changed because the vector
         // may have been reallocated.
         if (model.frames[fid].parent > 0) {

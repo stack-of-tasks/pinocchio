@@ -33,11 +33,11 @@ namespace se3
   ///
   enum FrameType
   {
-    OP_FRAME, // operational frame type
-    JOINT, // joint frame type
-    FIXED_JOINT, // fixed joint frame type
-    BODY, // body frame type
-    SENSOR // sensor frame type
+    OP_FRAME     = 0x1 << 0, // operational frame type
+    JOINT        = 0x1 << 1, // joint frame type
+    FIXED_JOINT  = 0x1 << 2, // fixed joint frame type
+    BODY         = 0x1 << 3, // body frame type
+    SENSOR       = 0x1 << 4 // sensor frame type
   };
   
   ///

@@ -28,6 +28,18 @@
 
 namespace se3
 {
+  namespace details
+  {
+    struct FilterFrame {
+      const std::string& name;
+      const FrameType & typeMask;
+      FilterFrame (const std::string& name, const FrameType& typeMask)
+        : name (name), typeMask (typeMask) {}
+      bool operator() (const Frame& frame) const
+      { return (typeMask & frame.type) && (name == frame.name); }
+    };
+  }
+
   inline std::ostream& operator<< (std::ostream & os, const Model & model)
   {
     os << "Nb joints = " << model.njoint << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
@@ -91,7 +103,7 @@ namespace se3
                                          int         fidx)
   {
     if (fidx < 0) {
-      fidx = getFrameId(names[parents[jidx]]);
+      fidx = getFrameId(names[parents[jidx]], JOINT);
     }
     if (fidx >= frames.size())
       throw std::invalid_argument ("Frame not found");
@@ -114,7 +126,7 @@ namespace se3
                                         int           previousFrame)
   {
     if (previousFrame < 0) {
-      previousFrame = getFrameId(names[parentJoint]);
+      previousFrame = getFrameId(names[parentJoint], JOINT);
     }
     assert(previousFrame < frames.size() && "Frame index out of bound");
     return addFrame(Frame(body_name, parentJoint, previousFrame, body_placement, BODY));
@@ -122,12 +134,12 @@ namespace se3
   
   inline Model::JointIndex Model::getBodyId (const std::string & name) const
   {
-    return getFrameId(name);
+    return getFrameId(name, BODY);
   }
   
   inline bool Model::existBodyName (const std::string & name) const
   {
-    return existFrame(name);
+    return existFrame(name, BODY);
   }
 
   inline const std::string& Model::getBodyName (const Model::JointIndex index) const
@@ -156,18 +168,22 @@ namespace se3
     return names[index];
   }
 
-  inline Model::FrameIndex Model::getFrameId ( const std::string & name ) const
+  inline Model::FrameIndex Model::getFrameId ( const std::string & name, const FrameType & type ) const
   {
     std::vector<Frame>::const_iterator it = std::find_if( frames.begin()
                                                         , frames.end()
-                                                        , boost::bind(&Frame::name, _1) == name
+                                                        , details::FilterFrame (name, type)
                                                         );
+    assert (it != frames.end() && "Frame not found");
+    assert ((std::find_if( boost::next(it), frames.end(), details::FilterFrame (name, type)) == frames.end())
+        && "Several frames match the filter");
     return Model::FrameIndex(it - frames.begin());
   }
 
-  inline bool Model::existFrame ( const std::string & name ) const
+  inline bool Model::existFrame ( const std::string & name, const FrameType & type) const
   {
-    return std::find_if( frames.begin(), frames.end(), boost::bind(&Frame::name, _1) == name) != frames.end();
+    return std::find_if( frames.begin(), frames.end(),
+        details::FilterFrame (name, type)) != frames.end();
   }
 
   inline const std::string & Model::getFrameName ( const FrameIndex index ) const
@@ -192,7 +208,7 @@ namespace se3
 
   inline int Model::addFrame ( const Frame & frame )
   {
-    if( !existFrame(frame.name) )
+    if( !existFrame(frame.name, frame.type) )
     {
       frames.push_back(frame);
       nFrames++;

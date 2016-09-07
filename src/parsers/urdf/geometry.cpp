@@ -192,9 +192,9 @@ namespace se3
 
           std::vector< boost::shared_ptr< T > > geometries_array = getLinkGeometryArray<T>(link);
 
-          if (!model.existBodyName(link_name))
+          if (!model.existFrame(link_name, BODY))
             throw std::invalid_argument("No link " + link_name + " in model");
-          FrameIndex frame_id = model.getFrameId(link_name);
+          FrameIndex frame_id = model.getFrameId(link_name, BODY);
           SE3 body_placement = model.frames[frame_id].placement;
           assert(model.frames[frame_id].type == BODY);
 
