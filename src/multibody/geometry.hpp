@@ -276,7 +276,22 @@ namespace se3
 
     ~GeometryData() {};
 #ifdef WITH_HPP_FCL
+
+    /// Activate a collision pair, for which collisions and distances would now be computed.
+    ///
+    /// A collision (resp distance) between to geometries of GeomModel::geometryObjects
+    /// is computed *iff* the corresponding pair has been added in GeomModel::collisionPairs *AND*
+    /// it is active, i.e. the corresponding boolean in GeomData::activePairs is true. The second
+    /// condition can be used to temporarily remove a pair without touching the model, in a versatile
+    /// manner. 
+    /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
+    /// \param[in] new value of the activation boolean (true by default).
     void activateCollisionPair(const Index pairId,const bool flag=true);
+
+    /// Deactivate a collision pair.
+    ///
+    /// Calls indeed GeomData::activateCollisionPair(pairId,false)
+    /// \sa activateCollisionPair
     void deactivateCollisionPair(const Index pairId);
 
     ///
