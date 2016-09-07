@@ -99,23 +99,23 @@ struct GeometryObject
   JointIndex parentJoint;
 
   /// \brief The actual cloud of points representing the collision mesh of the object
-  boost::shared_ptr<fcl::CollisionGeometry> collision_geometry;
+  boost::shared_ptr<fcl::CollisionGeometry> fcl;
 
   /// \brief Position of geometry object in parent joint frame
   SE3 placement;
 
   /// \brief Absolute path to the mesh file
-  std::string mesh_path;
+  std::string meshPath;
 
   GeometryObject(const std::string & name, const FrameIndex parentF,
                  const JointIndex parentJ, const boost::shared_ptr<fcl::CollisionGeometry> & collision,
-                 const SE3 & placement, const std::string & mesh_path)
+                 const SE3 & placement, const std::string & meshPath)
                 : name(name)
                 , parentFrame(parentF)
                 , parentJoint(parentJ)
-                , collision_geometry(collision)
+                , fcl(collision)
                 , placement(placement)
-                , mesh_path(mesh_path)
+                , meshPath(meshPath)
   {}
 
   GeometryObject & operator=(const GeometryObject & other)
@@ -123,13 +123,13 @@ struct GeometryObject
     name                = other.name;
     parentFrame         = other.parentFrame;
     parentJoint         = other.parentJoint;
-    collision_geometry  = other.collision_geometry;
+    fcl                 = other.fcl;
     placement           = other.placement;
-    mesh_path           = other.mesh_path;
+    meshPath            = other.meshPath;
     return *this;
   }
 
-  friend std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object);
+  friend std::ostream & operator<< (std::ostream & os, const GeometryObject & geomObject);
 };
   
 

@@ -63,16 +63,15 @@ namespace se3
   }
   
 #endif // WITH_HPP_FCL
-
   
   inline bool operator==(const GeometryObject & lhs, const GeometryObject & rhs)
   {
-    return ( lhs.name == rhs.name
-            && lhs.parentFrame == rhs.parentFrame
-            && lhs.parentJoint == rhs.parentJoint
-            && lhs.collision_geometry == rhs.collision_geometry
-            && lhs.placement == rhs.placement
-            && lhs.mesh_path ==  rhs.mesh_path
+    return ( lhs.name           == rhs.name
+            && lhs.parentFrame  == rhs.parentFrame
+            && lhs.parentJoint  == rhs.parentJoint
+            && lhs.fcl          == rhs.fcl
+            && lhs.placement    == rhs.placement
+            && lhs.meshPath     == rhs.meshPath
             );
   }
 
@@ -81,9 +80,8 @@ namespace se3
     os  << "Name: \t \n" << geom_object.name << "\n"
         << "Parent frame ID: \t \n" << geom_object.parentFrame << "\n"
         << "Parent joint ID: \t \n" << geom_object.parentJoint << "\n"
-        // << "collision object: \t \n" << geom_object.collision_geometry << "\n"
         << "Position in parent frame: \t \n" << geom_object.placement << "\n"
-        << "Absolute path to mesh file: \t \n" << geom_object.mesh_path << "\n"
+        << "Absolute path to mesh file: \t \n" << geom_object.meshPath << "\n"
         << std::endl;
     return os;
   }

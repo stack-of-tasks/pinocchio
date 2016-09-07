@@ -48,7 +48,7 @@ namespace se3
     collisionObjects.reserve(modelGeom.geometryObjects.size());
     BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
       { collisionObjects.push_back
-          (fcl::CollisionObject(geom.collision_geometry)); }
+          (fcl::CollisionObject(geom.fcl)); }
     fillInnerOuterObjectMaps(modelGeom);
   }
 #else
@@ -67,12 +67,12 @@ namespace se3
                                                     const boost::shared_ptr<fcl::CollisionGeometry> & co,
                                                     const SE3 & placement,
                                                     const std::string & geom_name,
-                                                    const std::string & mesh_path) throw(std::invalid_argument)
+                                                    const std::string & meshPath) throw(std::invalid_argument)
   {
     assert (model.frames[parent].type == se3::BODY);
     JointIndex parentJoint = model.frames[parent].parent;
     GeometryObject object( geom_name, parent, parentJoint, co,
-                           placement, mesh_path);
+                           placement, meshPath);
     return addGeometryObject (object);
   }
 

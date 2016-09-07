@@ -74,14 +74,14 @@ namespace se3
      * @param[in]  co         The actual fcl CollisionGeometry
      * @param[in]  placement  The relative placement regarding to the parent frame
      * @param[in]  geom_name  The name of the Geometry Object
-     * @param[in]  mesh_path  The absolute path to the mesh
+     * @param[in]  meshPath   The absolute path to the mesh
      *
      * @return     The index of the new added GeometryObject in geometryObjects
      */
     inline GeomIndex addGeometryObject(const Model& model,
                                        const FrameIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & co,
                                        const SE3 & placement, const std::string & geom_name = "",
-                                       const std::string & mesh_path = "") throw(std::invalid_argument);
+                                       const std::string & meshPath = "") throw(std::invalid_argument);
 
 
 
