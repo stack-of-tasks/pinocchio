@@ -128,7 +128,7 @@ namespace se3
 
         int fid = model.addFrame(
             Frame (joint_name, frame.parent, parentFrameId,
-              frame.placement, FIXED_JOINT)
+              frame.placement * joint_placement, FIXED_JOINT)
             );
         if (fid < 0)
           throw std::invalid_argument ("Fixed joint " + joint_name + " could not be added.");
