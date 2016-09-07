@@ -159,10 +159,8 @@ namespace se3
     ///
     /// \return The index of the CollisionPair in collisionPairs.
     ///
-    Index findCollisionPair (const CollisionPair & pair) const;
+    PairIndex findCollisionPair (const CollisionPair & pair) const;
     
-    /// \brief Display on std::cout the list of pairs (is it really useful?).
-    void displayCollisionPairs() const;
 #endif // WITH_HPP_FCL
 
     friend std::ostream& operator<<(std::ostream & os, const GeometryModel & model_geom);
@@ -231,7 +229,7 @@ namespace se3
     /// It is used by some method to return additional information. For instance,
     /// isColliding() sets it to the first colliding pair.
     ///
-    Index collisionPairIndex;
+    PairIndex collisionPairIndex;
 
     typedef std::vector<GeomIndex> GeomIndexList;
 
@@ -286,13 +284,13 @@ namespace se3
     /// manner. 
     /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
     /// \param[in] new value of the activation boolean (true by default).
-    void activateCollisionPair(const Index pairId,const bool flag=true);
+    void activateCollisionPair(const PairIndex pairId,const bool flag=true);
 
     /// Deactivate a collision pair.
     ///
     /// Calls indeed GeomData::activateCollisionPair(pairId,false)
     /// \sa activateCollisionPair
-    void deactivateCollisionPair(const Index pairId);
+    void deactivateCollisionPair(const PairIndex pairId);
 
     ///
     /// \brief Compute the collision status between two collision objects of a given collision pair.
@@ -302,7 +300,7 @@ namespace se3
     ///
     /// \return Return true is the collision objects are colliding.
     ///
-    bool computeCollision(const Index & pairId);
+    bool computeCollision(const PairIndex & pairId);
     
     ///
     /// \brief Check if at least one of the collision pairs has its two collision objects in collision.
@@ -320,7 +318,7 @@ namespace se3
     /// \return A reference on fcl struct containing the distance result, referring an element
     /// of vector geomData::distance_results.
     ///
-    fcl::DistanceResult & computeDistance(const Index & pairId);
+    fcl::DistanceResult & computeDistance(const PairIndex & pairId);
     
     /// Reset the vector distance_results.
     /// TODO: should this be called automatically before calling computeDistance?

@@ -26,6 +26,7 @@ namespace se3
   typedef Index JointIndex;
   typedef Index GeomIndex;
   typedef Index FrameIndex;
+  typedef Index PairIndex;
   
   struct Frame;
   struct Model;
