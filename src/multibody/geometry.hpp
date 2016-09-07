@@ -290,13 +290,6 @@ namespace se3
     bool computeCollision(const Index & pairId);
     
     ///
-    /// \brief Compute the collision result of all the collision pairs according to
-    ///        the current placements of the geometires stored in GeometryData::oMg.
-    ///        The results are stored in the vector GeometryData::collision_results.
-    ///
-    void computeAllCollisions();
-    
-    ///
     /// \brief Check if at least one of the collision pairs has its two collision objects in collision.
     ///        The results are stored in the vector GeometryData::collision_results.
     ///
@@ -314,16 +307,9 @@ namespace se3
     ///
     fcl::DistanceResult & computeDistance(const Index & pairId);
     
-    ///
-    /// \brief Compute the distance result for all collision pairs according to
-    ///        the current placements of the geometries stored in GeometryData::oMg.
-    ///
-    /// The method indeed calls computeDistance for each collision
-    /// pair. Consequently the results are stored in the vector
-    /// GeometryData::distance_results.
-    ///
-    void computeAllDistances() PINOCCHIO_DEPRECATED;
-    
+    /// Reset the vector distance_results.
+    /// TODO: should this be called automatically before calling computeDistance?
+    /// TODO: should we implement the same for collisions?
     void resetDistances();
 
     /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 

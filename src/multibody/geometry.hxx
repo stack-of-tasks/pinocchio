@@ -245,17 +245,6 @@ namespace se3
     return collisionResult.isCollision();
   }
   
-  inline void GeometryData::computeAllCollisions()
-  {
-    assert( activeCollisionPairs.size() == model_geom.collisionPairs.size() );
-    assert( collision_results   .size() == model_geom.collisionPairs.size() );
-    for(size_t i = 0; i<model_geom.collisionPairs.size(); ++i)
-    {
-      if(activeCollisionPairs[i])
-        computeCollision(i);
-    }
-  }
-  
   inline bool GeometryData::isColliding()
   {
     Index& i = collisionPairIndex;
@@ -282,15 +271,6 @@ namespace se3
     return distance_results[pairId];
   }
   
-  inline void GeometryData::computeAllDistances ()
-  {
-    assert( activeCollisionPairs.size() == model_geom.collisionPairs.size() );
-    for(size_t i = 0; i<activeCollisionPairs.size(); ++i)
-    {
-      if (activeCollisionPairs[i]) computeDistance(i);
-    }
-  }
-
   inline void GeometryData::resetDistances()
   {
     std::fill(distance_results.begin(), distance_results.end(), fcl::DistanceResult() );
