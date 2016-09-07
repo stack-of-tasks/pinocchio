@@ -68,6 +68,7 @@ namespace se3
     const PairIndex & co1 = pair.first;     assert(co1<collisionObjects.size());
     const PairIndex & co2 = pair.second;    assert(co2<collisionObjects.size());
 
+    collisionResult.clear();
     fcl::collide (&geomData.collisionObjects[co1],&geomData.collisionObjects[co2],
                   geomData.collisionRequest,
                   collisionResult);
