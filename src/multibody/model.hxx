@@ -175,50 +175,14 @@ namespace se3
     return frames[index].name;
   }
 
-  inline Model::JointIndex Model::getFrameParent( const std::string & name ) const
-  {
-    assert(existFrame(name) && "The Frame you requested does not exist");
-    std::vector<Frame>::const_iterator it = std::find_if( frames.begin()
-                                                        , frames.end()
-                                                        , boost::bind(&Frame::name, _1) == name
-                                                        );
-    
-    std::vector<Frame>::iterator::difference_type it_diff = it - frames.begin();
-    return getFrameParent(Model::JointIndex(it_diff));
-  }
-
   inline Model::JointIndex Model::getFrameParent( const FrameIndex index ) const
   {
     return frames[index].parent;
   }
 
-  inline FrameType Model::getFrameType( const std::string & name ) const
-  {
-    assert(existFrame(name) && "The Frame you requested does not exist");
-    std::vector<Frame>::const_iterator it = std::find_if( frames.begin()
-                                                        , frames.end()
-                                                        , boost::bind(&Frame::name, _1) == name
-                                                        );
-    
-    std::vector<Frame>::iterator::difference_type it_diff = it - frames.begin();
-    return getFrameType(Model::JointIndex(it_diff));
-  }
-
   inline FrameType Model::getFrameType( const FrameIndex index ) const
   {
     return frames[index].type;
-  }
-
-  inline const SE3 & Model::getFramePlacement( const std::string & name) const
-  {
-    assert(existFrame(name) && "The Frame you requested does not exist");
-    std::vector<Frame>::const_iterator it = std::find_if( frames.begin()
-                                                        , frames.end()
-                                                        , boost::bind(&Frame::name, _1) == name
-                                                        );
-    
-    std::vector<Frame>::iterator::difference_type it_diff = it - frames.begin();
-    return getFramePlacement(Model::Index(it_diff));
   }
 
   inline const SE3 & Model::getFramePlacement( const FrameIndex index ) const

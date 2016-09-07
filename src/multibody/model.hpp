@@ -299,15 +299,6 @@ namespace se3
     PINOCCHIO_DEPRECATED const std::string & getFrameName (const FrameIndex index) const;
     
     ///
-    /// \brief Get the index of the joint supporting the frame given by its name.
-    ///
-    /// \param[in] name Name of the frame.
-    ///
-    /// \return
-    ///
-    PINOCCHIO_DEPRECATED JointIndex getFrameParent(const std::string & name) const;
-    
-    ///
     /// \brief Get the index of the joint supporting the frame given by its index.
     ///
     /// \param[in] index Index of the frame.
@@ -315,15 +306,6 @@ namespace se3
     /// \return
     ///
     PINOCCHIO_DEPRECATED JointIndex getFrameParent(const FrameIndex index) const;
-
-    ///
-    /// \brief Get the type of the frame given by its index.
-    ///
-    /// \param[in] name Name of the frame.
-    ///
-    /// \return
-    ///
-    PINOCCHIO_DEPRECATED FrameType getFrameType(const std::string & name) const;
     
     ///
     /// \brief Get the type of the frame given by its index.
@@ -333,15 +315,6 @@ namespace se3
     /// \return
     ///
     PINOCCHIO_DEPRECATED FrameType getFrameType(const FrameIndex index) const;
-    
-    ///
-    /// \brief Return the relative placement between a frame and its supporting joint.
-    ///
-    /// \param[in] name Name of the frame.
-    ///
-    /// \return The frame placement regarding the supporing joint.
-    ///
-    PINOCCHIO_DEPRECATED const SE3 & getFramePlacement(const std::string & name) const;
     
     ///
     /// \brief Return the relative placement between a frame and its supporting joint.
