@@ -21,6 +21,7 @@ INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/eigen.cmake)
 INCLUDE(cmake/python.cmake)
+INCLUDE(CMakeDependentOption)
 
 SET(PROJECT_NAME pinocchio)
 SET(PROJECT_DESCRIPTION "Rigid multi body dynamics algorithms")
@@ -60,11 +61,16 @@ OPTION (BUILD_UTILS "Build the utils" OFF)
 OPTION (INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 OPTION (BUILD_TESTS_WITH_HPP "Build geom tests and benchmarks with hpp to do comparisons" OFF)
 OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
+CMAKE_DEPENDENT_OPTION(BUILD_PYTHON_PARSER "Build pinocchio with the Python parser" ON "BUILD_PYTHON_INTERFACE" ON)
 
 IF (INITIALIZE_WITH_NAN)
   MESSAGE (STATUS "Initialize with NaN all the Eigen entries.")
   ADD_DEFINITIONS(-DEIGEN_INITIALIZE_MATRICES_BY_NAN)
 ENDIF (INITIALIZE_WITH_NAN)
+
+IF(BUILD_PYTHON_PARSER)
+  SET(BUILD_PYTHON_INTERFACE ON)
+ENDIF(BUILD_PYTHON_PARSER)
 
 # ----------------------------------------------------
 # --- DEPENDANCIES -----------------------------------
@@ -204,11 +210,11 @@ SET(${PROJECT_NAME}_PARSERS_HEADERS
   parsers/srdf.hpp
   ) 
 
-IF(BUILD_PYTHON_INTERFACE)
+IF(BUILD_PYTHON_PARSER)
   LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
      parsers/python.hpp
      )
-ENDIF(BUILD_PYTHON_INTERFACE)
+ENDIF(BUILD_PYTHON_PARSER)
 
 IF(URDFDOM_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
