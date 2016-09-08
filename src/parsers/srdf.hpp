@@ -39,13 +39,13 @@ namespace se3
     ///        It throws if the SRDF file is incorrect.
     ///
     /// \param[in] model Model of the kinematic tree.
-    /// \param[in] model_geom Model of the geometries.
+    /// \param[in] geomModel Model of the geometries.
     /// \param[out] data_geom Data containing the active collision pairs.
     /// \param[in] filename The complete path to the SRDF file.
     /// \param[in] verbose Verbosity mode (print removed collision pairs and undefined link inside the model).
     ///
     inline void removeCollisionPairsFromSrdf(const Model& model,
-                                             GeometryModel & model_geom,
+                                             GeometryModel & geomModel,
                                              const std::string & filename,
                                              const bool verbose) throw (std::invalid_argument)
     {
@@ -99,30 +99,29 @@ namespace se3
             continue;
           }
           
-          typedef GeometryModel::GeomIndexList GeomIndexList;
-          typedef std::map<JointIndex, GeomIndexList> GeomIndexListMap;
-          GeomIndexListMap::const_iterator _innerObject1 = model_geom.innerObjects.find(joint_id1);
-          if (_innerObject1 == model_geom.innerObjects.end()) continue;
-          GeomIndexListMap::const_iterator _innerObject2 = model_geom.innerObjects.find(joint_id2);
-          if (_innerObject2 == model_geom.innerObjects.end()) continue;
-          const GeomIndexList & innerObject1 = _innerObject1->second;
-          const GeomIndexList & innerObject2 = _innerObject2->second;
-          
-          for(GeomIndexList::const_iterator it1 = innerObject1.begin();
-              it1 != innerObject1.end();
-              ++it1)
-          {
-            if (model_geom.geometryObjects[*it1].parentFrame != frame_id1) continue;
-            for(GeomIndexList::const_iterator it2 = innerObject2.begin();
-                it2 != innerObject2.end();
-                ++it2)
-            {
-              if (model_geom.geometryObjects[*it2].parentFrame != frame_id2) continue;
-              model_geom.removeCollisionPair(CollisionPair(*it1, *it2));
-              if(verbose)
-                std::cout << "Remove collision pair (" << joint_id1 << "," << joint_id2 << ")" << std::endl;
+          typedef std::vector<CollisionPair> CollisionPairs_t;
+          bool didRemove = false;
+          for(CollisionPairs_t::iterator _colPair = geomModel.collisionPairs.begin();
+              _colPair != geomModel.collisionPairs.end(); ) {
+            const CollisionPair& colPair (*_colPair);
+            bool remove =
+              (
+                  (geomModel.geometryObjects[colPair.first ].parentFrame == frame_id1)
+               && (geomModel.geometryObjects[colPair.second].parentFrame == frame_id2)
+              ) || (
+                   (geomModel.geometryObjects[colPair.second].parentFrame == frame_id1)
+                && (geomModel.geometryObjects[colPair.first ].parentFrame == frame_id2)
+              );
+
+            if (remove) {
+              _colPair = geomModel.collisionPairs.erase(_colPair);
+              didRemove = true;
+            } else {
+              ++_colPair;
             }
           }
+          if(didRemove && verbose)
+            std::cout << "Remove collision pair (" << link1 << "," << link2 << ")" << std::endl;
           
         }
       } // BOOST_FOREACH
