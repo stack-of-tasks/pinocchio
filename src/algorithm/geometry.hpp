@@ -146,22 +146,16 @@ namespace se3
   /// \li add GeometryObject of geomModel2 to geomModel1,
   /// \li add the collision pairs of geomModel2 into geomModel1 (indexes are updated)
   /// \li add all the collision pairs between geometry objects of geomModel1 and geomModel2.
-  /// \li update the inner objects of geomModel1 with the inner objects of geomModel2
-  /// \li update the outer objects (see TODO)
   /// It is possible to ommit both data (an additional function signature is available which makes
   /// them optionnal), then inner/outer objects are not updated.
   ///
   /// \param[out] geomModel1   geometry model where the data is added
-  /// \param[out] geomData1    corresponding geometry data, where in/outer objects are updated
   /// \param[in]  geomModel2   geometry model from which new geometries are taken
-  /// \param[out] geomData2    geometry data corresponding to geomModel2.
-  /// \warning Radius should be recomputed.
-  /// \todo The geometry objects of geomModel2 should be added as outerObjects
-  ///       of the joints originating from model1 but I do not know how to do it.
+  /// \note Of course, the geomData corresponding to geomModel1 will not be valid anymore, 
+  /// and should be updated (or more simply, re-created from the new setting of geomModel1).
+  /// \todo This function is not asserted in unittest.
   inline void appendGeometryModel(GeometryModel & geomModel1,
-                                  GeometryData & geomData1,
-                                  const GeometryModel & geomModel2,
-                                  const GeometryData & geomData2);
+                                  GeometryData & geomData1);
 
 } // namespace se3 
 
