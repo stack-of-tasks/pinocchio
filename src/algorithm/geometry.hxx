@@ -62,14 +62,17 @@ namespace se3
                                GeometryData & geomData,
                                const PairIndex& pairId)
   {
+    assert( pairId < geomModel.collisionPairs.size() );
     const CollisionPair & pair = geomModel.collisionPairs[pairId];
     fcl::CollisionResult& collisionResult = geomData.collisionResults[pairId];
 
-    const PairIndex & co1 = pair.first;     assert(co1<collisionObjects.size());
-    const PairIndex & co2 = pair.second;    assert(co2<collisionObjects.size());
+    assert( pairId      < geomData.distanceResults.size() );
+    assert( pair.first  < geomData.collisionObjects.size() );
+    assert( pair.second < geomData.collisionObjects.size() );
 
     collisionResult.clear();
-    fcl::collide (&geomData.collisionObjects[co1],&geomData.collisionObjects[co2],
+    fcl::collide (&geomData.collisionObjects[pair.first],
+                  &geomData.collisionObjects[pair.second],
                   geomData.collisionRequest,
                   collisionResult);
 
@@ -121,7 +124,7 @@ namespace se3
     assert( pairId < geomModel.collisionPairs.size() );
     const CollisionPair & pair = geomModel.collisionPairs[pairId];
 
-    assert( pair        < geomData.distanceResults.size() );
+    assert( pairId      < geomData.distanceResults.size() );
     assert( pair.first  < geomData.collisionObjects.size() );
     assert( pair.second < geomData.collisionObjects.size() );
     

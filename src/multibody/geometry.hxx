@@ -66,7 +66,7 @@ namespace se3
     assert( (object.parentFrame == -1) 
             || (model.frames[object.parentFrame].type == se3::BODY)  );
     assert( (object.parentFrame == -1) 
-            || (model.frames[object.parentFrame].parentJoint == object.parentJoint) );
+            || (model.frames[object.parentFrame].parent == object.parentJoint) );
 
     GeomIndex idx = (GeomIndex) (ngeoms ++);
     geometryObjects.push_back(object);

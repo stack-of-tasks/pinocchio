@@ -32,6 +32,7 @@ class RobotWrapper(object):
         self.data = self.model.createData()
         self.model_filename = filename
 
+        print dir(se3)
         if "buildGeomFromUrdf" not in dir(se3):
             self.collision_model = None
             self.visual_model = None
