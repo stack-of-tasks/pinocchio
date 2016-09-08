@@ -27,10 +27,13 @@
 
 namespace boost {
   namespace fusion {
+
+    // Append the element T at the front of boost fusion vector V.
     template<typename T,typename V>
     typename result_of::push_front<V const, T>::type
     append(T const& t,V const& v) { return push_front(v,t); }
 
+    // Append the elements T1 and T2 at the front of boost fusion vector V.
     template<typename T1,typename T2,typename V>
     typename result_of::push_front<typename result_of::push_front<V const, T2>::type const, T1>::type
     append2(T1 const& t1,T2 const& t2,V const& v) { return push_front(push_front(v,t2),t1); }
@@ -53,7 +56,7 @@ namespace se3
 	JointDataVariant& jdataSpec = static_cast<const Visitor*>(this)->jdata;
 
 	bf::invoke(&Visitor::template algo<D>,
-		   bf::append2(jmodel,
+		   bf::append2(boost::ref(jmodel),
 			       boost::ref(boost::get<typename D::JointDataDerived>(jdataSpec)),
 			       static_cast<const Visitor*>(this)->args));
       }
@@ -74,10 +77,9 @@ namespace se3
       template<typename D>
       void operator() (const JointModelBase<D> & jmodel) const
       {
-
-  bf::invoke(&Visitor::template algo<D>,
-       bf::append(jmodel,
-             static_cast<const Visitor*>(this)->args));
+        bf::invoke(&Visitor::template algo<D>,
+                   bf::append(boost::ref(jmodel),
+                              static_cast<const Visitor*>(this)->args));
       }
 
       template<typename ArgsTmp>

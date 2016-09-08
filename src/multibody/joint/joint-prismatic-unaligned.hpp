@@ -253,6 +253,7 @@ namespace se3
         NQ = 1,
         NV = 1
       };
+      typedef double Scalar;
       typedef JointDataPrismaticUnaligned JointDataDerived;
       typedef JointModelPrismaticUnaligned JointModelDerived;
       typedef ConstraintPrismaticUnaligned Constraint_t;
@@ -320,7 +321,6 @@ namespace se3
     using JointModelBase<JointModelPrismaticUnaligned>::idx_v;
     using JointModelBase<JointModelPrismaticUnaligned>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar;
     
     JointModelPrismaticUnaligned() : axis(Vector3::Constant(NAN))   {}
     JointModelPrismaticUnaligned(Scalar x, Scalar y, Scalar z)
@@ -371,10 +371,9 @@ namespace se3
         I -= data.UDinv * data.U.transpose();
     }
     
-    ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    Scalar finiteDifferenceIncrement() const
     {
       using std::sqrt;
-      typedef ConfigVector_t::Scalar Scalar;
       return sqrt(Eigen::NumTraits<Scalar>::epsilon());
     }
 
@@ -444,6 +443,14 @@ namespace se3
       q << 0;
       return q;
     } 
+
+    bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      const Scalar & q_1 = q1[idx_q()];
+      const Scalar & q_2 = q2[idx_q()];
+
+      return (fabs(q_1 - q_2) < prec);
+    }
 
     JointModelDense<NQ,NV> toDense_impl() const
     {

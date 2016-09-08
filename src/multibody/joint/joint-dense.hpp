@@ -30,6 +30,7 @@ namespace se3
       NQ = _NQ, // pb
       NV = _NV
     };
+    typedef double Scalar;
     typedef JointDataDense<_NQ, _NV> JointDataDerived;
     typedef JointModelDense<_NQ, _NV> JointModelDerived;
     typedef ConstraintXd Constraint_t;
@@ -198,6 +199,11 @@ namespace se3
     }
 
     void normalize_impl(Eigen::VectorXd &) const
+    {
+      assert(false && "JointModelDense is read-only, should not perform any calc");
+    }
+
+    bool isSameConfiguration_impl(const Eigen::VectorXd &, const Eigen::VectorXd &, const Scalar & = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
       assert(false && "JointModelDense is read-only, should not perform any calc");
     }

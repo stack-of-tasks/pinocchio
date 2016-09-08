@@ -68,6 +68,7 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_ARG(prefix)              \
    typedef int Index;                \
+   typedef prefix traits<JointDerived>::Scalar Scalar;    \
    typedef prefix traits<JointDerived>::JointDataDerived JointDataDerived;        \
    typedef prefix traits<JointDerived>::JointModelDerived JointModelDerived;      \
    typedef prefix traits<JointDerived>::Constraint_t Constraint_t;      \
@@ -92,6 +93,7 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_NOARG()       \
   typedef int Index;            \
+  typedef traits<JointDerived>::Scalar Scalar;    \
   typedef traits<JointDerived>::JointDataDerived JointDataDerived;     \
   typedef traits<JointDerived>::JointModelDerived JointModelDerived;     \
   typedef traits<JointDerived>::Constraint_t Constraint_t;   \
@@ -111,6 +113,7 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_ARG(prefix)         \
   typedef int Index;              \
+  typedef prefix traits<JointDerived>::Scalar Scalar;
   typedef prefix traits<JointDerived>::JointDataDerived JointDataDerived;      \
   typedef prefix traits<JointDerived>::JointModelDerived JointModelDerived;      \
   typedef prefix traits<JointDerived>::Constraint_t Constraint_t;    \
@@ -135,6 +138,7 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_ARG()              \
   typedef int Index;                 \
+  typedef typename traits<JointDerived>::Scalar Scalar;    \
   typedef typename traits<JointDerived>::JointDataDerived JointDataDerived;         \
   typedef typename traits<JointDerived>::JointModelDerived JointModelDerived;       \
   typedef typename traits<JointDerived>::Constraint_t Constraint_t;       \
@@ -192,6 +196,22 @@ namespace se3
     const UD_t & UDinv() const { return static_cast<const JointDataDerived*>(this)->UDinv; }
 
     JointDataDense<NQ, NV> toDense() const  { return static_cast<const JointDataDerived*>(this)->toDense_impl();   }
+
+  protected:
+    /// Default constructor: protected.
+    /// 
+    /// Prevent the construction of stand-alone JointDataBase.
+    inline JointDataBase() {} // TODO: default value should be set to -1
+    /// Copy constructor: protected.
+    ///
+    /// Copy of stand-alone JointDataBase are prevented, but can be used from inhereting
+    /// objects. Copy is done by calling copy operator.
+    inline JointDataBase( const JointDataBase& clone) { *this = clone; }
+    /// Copy operator: protected.
+    ///
+    /// Copy of stand-alone JointDataBase are prevented, but can be used from inhereting
+    /// objects. 
+    inline JointDataBase& operator= (const JointDataBase&) { return *this; }
 
   }; // struct JointDataBase
 
@@ -356,6 +376,15 @@ namespace se3
      */
     void normalize_impl(Eigen::VectorXd &) const { }
 
+    /**
+     * @brief      Check if two configurations are equivalent within the given precision 
+     *
+     * @param[in]  q1     Configuration 1 (size full model.nq)
+     * @param[in]  q2    Configuration 2 (size full model.nq)
+     */
+    bool isSameConfiguration(const Eigen::VectorXd & q1, const Eigen::VectorXd & q2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return derived().isSameConfiguration_impl(q1,q2, prec); }
+
     JointIndex i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.
     int i_v;    // Index of the joint velocity in the joint velocity vector.
@@ -452,6 +481,29 @@ namespace se3
 
     JointModelDense<NQ, NV> toDense() const  { return derived().toDense_impl();   }
     
+  protected:
+
+    /// Default constructor: protected.
+    /// 
+    /// Prevent the construction of stand-alone JointModelBase.
+    inline JointModelBase() {} // TODO: default value should be set to -1
+    /// Copy constructor: protected.
+    ///
+    /// Copy of stand-alone JointModelBase are prevented, but can be used from inhereting
+    /// objects. Copy is done by calling copy operator.
+    inline JointModelBase( const JointModelBase& clone) { *this = clone; }
+    /// Copy operator: protected.
+    ///
+    /// Copy of stand-alone JointModelBase are prevented, but can be used from inhereting
+    /// objects. 
+    inline JointModelBase& operator= (const JointModelBase& clone) 
+    {
+      i_id = clone.i_id;
+      i_q = clone.i_q;
+      i_v = clone.i_v;
+      return *this; 
+    }
+
   }; // struct JointModelBase
 
 } // namespace se3

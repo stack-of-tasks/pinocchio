@@ -273,6 +273,7 @@ namespace se3
       NQ = 3,
       NV = 3
     };
+    typedef double Scalar;
     typedef JointDataPlanar JointDataDerived;
     typedef JointModelPlanar JointModelDerived;
     typedef ConstraintPlanar Constraint_t;
@@ -394,31 +395,52 @@ namespace se3
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
-      typedef Transformation_t::Matrix3 Matrix3;
-     
+      typedef Eigen::Matrix<double, 2, 2> Matrix22;
+      typedef Eigen::Matrix<double, 2, 1> Vector2;
+
       double c0,s0; SINCOS (q(2), &s0, &c0);
-      Matrix3 R0(Matrix3::Identity());
-      R0.topLeftCorner <2,2> () << c0, -s0, s0, c0;
+      Matrix22 R0;
+      R0 << c0, -s0, s0, c0;
       
+      const double& t = q_dot[2];
+      const double theta = std::fabs(t);
+
       ConfigVector_t res(q);
-      if(std::fabs(q_dot(2)) > 1e-14)
+      if(theta > 1e-14)
       {
-        ConfigVector_t tmp(ConfigVector_t::Zero());
-        
-        double c1,s1; SINCOS (q_dot(2), &s1, &c1);
-        const double c_coeff = (1.-c1)/q_dot(2);
-        tmp.head<2>() = s1/q_dot(2)*q_dot.head<2>();
-        tmp(0) -= c_coeff*q_dot(1);
-        tmp(1) += c_coeff*q_dot(0);
-        
-        res.head<2>() += R0.topLeftCorner<2,2>()*tmp.head<2>();
-        res(2) += q_dot(2);
-        
+        // q_dot = [ x, y, t ]
+        // w = [ 0, 0, t ]
+        // v = [ x, y, 0 ]
+        // Considering only the 2x2 top left corner:
+        // Sp = [ 0, -1; 1, 0],
+        // if t > 0: S = Sp
+        // else    : S = -Sp
+        // S / t = Sp / |t|
+        // S * S = - I2
+        // R = I2 + ( 1 - ct) / |t| * S + ( 1 - st / t ) * S * S
+        //   =      ( 1 - ct) / |t| * S +       st / t   * I2
+        //
+        // Ru = exp3 (w)
+        // tu = R * v = (1 - ct) / |t| * S * v + st / t * v
+        //
+        // M0 * Mu = ( R0 * Ru, R0 * tu + t0 )
+
+        Eigen::VectorXd::ConstFixedSegmentReturnType<2>::Type v = vs.segment<2>(idx_v());
+        double ct,st; SINCOS (theta, &st, &ct);
+        const double inv_theta = 1/theta;
+        const double c_coeff = (1.-ct) * inv_theta;
+        const double s_coeff = st * inv_theta;
+        const Vector2 Sp_v (-v[1], v[0]);
+
+        if (t > 0) res.head<2>() += R0 * (s_coeff * v + c_coeff * Sp_v);
+        else       res.head<2>() += R0 * (s_coeff * v - c_coeff * Sp_v);
+        res[2] += t;
         return res;
       }
       else
       {
-        res.head<2>() += R0.topLeftCorner<2,2>()*q_dot.head<2>();
+        res.head<2>() += R0*q_dot.head<2>();
+        res[2] += t;
       }
       
       return res;
@@ -433,6 +455,8 @@ namespace se3
       else if( u == 1) return q_1;
       else
       {
+        // TODO This only works if idx_v() == 0
+        assert(idx_v() == 0);
         TangentVector_t nu(u*difference(q0, q1));
         return integrate(q0, nu);
       }
@@ -489,6 +513,14 @@ namespace se3
       q << 0, 0, 0;
       return q;
     } 
+
+    bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return q_1.isApprox(q_2, prec);
+    }
 
     JointModelDense<NQ, NV> toDense_impl() const
     {

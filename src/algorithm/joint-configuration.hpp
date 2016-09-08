@@ -112,6 +112,20 @@ namespace se3
    */
   inline void normalize(const Model & model,
                         Eigen::VectorXd & q);
+
+  /**
+   * @brief         Return true if the given configurations are equivalents
+   * \warning       Two configurations can be equivalent but not equally coefficient wise (e.g for quaternions)
+   * 
+   * @param[in]     model      Model
+   * @param[in]     q1        The first configuraiton to compare
+   * @param[in]     q2        The Second configuraiton to compare
+   * 
+   * @return     Wheter the configurations are equivalent or not
+   */
+  inline bool isSameConfiguration(const Model & model,
+                                  const Eigen::VectorXd & q1,
+                                  const Eigen::VectorXd & q2);
 } // namespace se3 
 
 /* --- Details -------------------------------------------------------------------- */
@@ -329,6 +343,40 @@ namespace se3
       NormalizeStep::run(model.joints[i],
                          NormalizeStep::ArgsType (q));
     }
+  }
+
+
+  struct IsSameConfigurationStep : public fusion::JointModelVisitor<IsSameConfigurationStep>
+  {
+    typedef boost::fusion::vector<bool &,
+                                  const Eigen::VectorXd &,
+                                  const Eigen::VectorXd &> ArgsType;
+
+    JOINT_MODEL_VISITOR_INIT(IsSameConfigurationStep);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     bool & isSame,
+                     const Eigen::VectorXd & q1,
+                     const Eigen::VectorXd & q2)
+    {
+      isSame = jmodel.isSameConfiguration(q1,q2);
+    }
+  };
+
+  inline bool
+  isSameConfiguration(const Model & model,
+                      const Eigen::VectorXd & q1,
+                      const Eigen::VectorXd & q2)
+  {
+    bool result = false;
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoint; ++i )
+    {
+      IsSameConfigurationStep::run(model.joints[i], IsSameConfigurationStep::ArgsType (result,q1,q2)); 
+      if( !result )
+        return false;
+    }
+    return true;
   }
 
 
