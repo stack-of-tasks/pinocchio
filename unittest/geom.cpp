@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom;
-  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, packageDdirs);
+  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, packageDirs);
   std::cout << model << std::endl;
 
 
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   // retrieve all joint and geometry objects positions
   JointPositionsMap_t joints_pin  = fillPinocchioJointPositions(model, data);
   JointPositionsMap_t joints_hpp  = fillHppJointPositions(humanoidRobot);
-  GeometryPositionsMap_t geom_pin = fillPinocchioGeometryPositions(geomData);
+  GeometryPositionsMap_t geom_pin = fillPinocchioGeometryPositions(geom, geomData);
   GeometryPositionsMap_t geom_hpp = fillHppGeometryPositions(humanoidRobot);
 
 
@@ -434,6 +434,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom;
   se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, packageDirs);
+  geom.addAllCollisionPairs();
   std::cout << model << std::endl;
 
 
@@ -496,12 +497,14 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
 
         std::cout << "comparison between " << body1 << " and " << body2 << std::endl;
+        se3::CollisionPair pair (geom.getGeometryId(body1),
+                                 geom.getGeometryId(body2));
+        BOOST_REQUIRE (geom.existCollisionPair(pair));
 
-        se3::DistanceResult dist_pin
-          = geomData.computeDistance( CollisionPair(geom.getGeometryId(body1),
-                                                     geom.getGeometryId(body2)) );
+        fcl::DistanceResult dist_pin
+          = se3::computeDistance( geom, geomData, geom.findCollisionPair(pair));
 
-        Distance_t distance_pin(dist_pin.fcl_distanceResult);
+        Distance_t distance_pin(dist_pin);
         distance_hpp.checkClose(distance_pin);
       }
     }
