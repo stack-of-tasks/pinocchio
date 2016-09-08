@@ -238,10 +238,6 @@ namespace se3
     activeCollisionPairs[pairId] = false;
   }
 
-  inline void GeometryData::resetDistances()
-  {
-    std::fill(distanceResults.begin(), distanceResults.end(), fcl::DistanceResult() );
-  }
 #endif //WITH_HPP_FCL
 } // namespace se3
 

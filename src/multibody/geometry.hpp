@@ -258,11 +258,6 @@ namespace se3
     /// \sa activateCollisionPair
     void deactivateCollisionPair(const PairIndex pairId);
 
-    /// Reset the vector distanceResults.
-    /// TODO: should this be called automatically before calling computeDistance?
-    /// TODO: should we implement the same for collisions?
-    void resetDistances();
-
 #endif //WITH_HPP_FCL
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
     
