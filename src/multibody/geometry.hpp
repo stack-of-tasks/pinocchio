@@ -63,12 +63,14 @@ namespace se3
      *
      * @param[in]  object     Object 
      * @param[in]  model      Corresponding model, used to assert the attributes of object.
+     * @param[in]  autofillJointParent if true, set jointParent from frameParent.
      *
      * @return     The index of the new added GeometryObject in geometryObjects
      * @note object is a nonconst copy to ease the insertion code.
      */
     inline GeomIndex addGeometryObject(GeometryObject object,
-                                       const Model & model);
+                                       const Model & model,
+                                       const bool autofillJointParent = false);
 
     /**
      * @brief      Return the index of a GeometryObject given by its name.

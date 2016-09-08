@@ -56,17 +56,19 @@ namespace se3
 #endif // WITH_HPP_FCL   
 
   inline GeomIndex GeometryModel::addGeometryObject(GeometryObject object,
-                                                    const Model & model)
+                                                    const Model & model,
+                                                    const bool autofillJointParent)
   {
-    assert( (object.parentFrame != -1) || (object.parentJoint != -1) );
+    // TODO reenable when relevant: assert( (object.parentFrame != -1) || (object.parentJoint != -1) );
 
-    if( object.parentJoint == -1 )  // if no parent joint, autofill the attribute.
+    if( autofillJointParent )
+      // TODO: this might be automatically done for some default value of parentJoint (eg ==-1)
       object.parentJoint = model.frames[object.parentFrame].parent; 
 
-    assert( (object.parentFrame == -1) 
-            || (model.frames[object.parentFrame].type == se3::BODY)  );
-    assert( (object.parentFrame == -1) 
-            || (model.frames[object.parentFrame].parent == object.parentJoint) );
+    assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
+           (model.frames[object.parentFrame].type == se3::BODY)  );
+    assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
+           (model.frames[object.parentFrame].parent == object.parentJoint) );
 
     GeomIndex idx = (GeomIndex) (ngeoms ++);
     geometryObjects.push_back(object);
