@@ -22,48 +22,75 @@
 
 namespace se3 
 {
-  
+  /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
+  /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
+  /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
   inline void updateGeometryPlacements(const Model & model,
                                       Data & data,
-                                      const GeometryModel & model_geom,
-                                      GeometryData & data_geom,
+                                      const GeometryModel & geomModel,
+                                      GeometryData & geomData,
                                       const Eigen::VectorXd & q
                                       )
   {
     forwardKinematics(model, data, q);
-    updateGeometryPlacements(model, data, model_geom, data_geom);
+    updateGeometryPlacements(model, data, geomModel, geomData);
   }
   
   inline void  updateGeometryPlacements(const Model &,
                                        const Data & data,
-                                       const GeometryModel & model_geom,
-                                       GeometryData & data_geom
+                                       const GeometryModel & geomModel,
+                                       GeometryData & geomData
                                        )
   {
-    for (GeomIndex i=0; i < (GeomIndex) data_geom.model_geom.ngeoms; ++i)
+    for (GeomIndex i=0; i < (GeomIndex) geomModel.ngeoms; ++i)
     {
-      const Model::JointIndex & joint = model_geom.geometryObjects[i].parentJoint;
-      if (joint>0) data_geom.oMg[i] =  (data.oMi[joint] * model_geom.geometryObjects[i].placement);
-      else         data_geom.oMg[i] =  model_geom.geometryObjects[i].placement;
+      const Model::JointIndex & joint = geomModel.geometryObjects[i].parentJoint;
+      if (joint>0) geomData.oMg[i] =  (data.oMi[joint] * geomModel.geometryObjects[i].placement);
+      else         geomData.oMg[i] =  geomModel.geometryObjects[i].placement;
 #ifdef WITH_HPP_FCL  
-      data_geom.collisionObjects[i].setTransform( toFclTransform3f(data_geom.oMg[i]) );
+      geomData.collisionObjects[i].setTransform( toFclTransform3f(geomData.oMg[i]) );
 #endif // WITH_HPP_FCL
     }
   }
 #ifdef WITH_HPP_FCL  
-  inline bool computeCollisions(GeometryData & data_geom,
-                                const bool stopAtFirstCollision
-                                )
+
+  /* --- COLLISIONS ----------------------------------------------------------------- */
+  /* --- COLLISIONS ----------------------------------------------------------------- */
+  /* --- COLLISIONS ----------------------------------------------------------------- */
+
+  inline bool computeCollision(const GeometryModel & geomModel,
+                               GeometryData & geomData,
+                               const PairIndex& pairId)
+  {
+    assert( pairId < geomModel.collisionPairs.size() );
+    const CollisionPair & pair = geomModel.collisionPairs[pairId];
+
+    assert( pairId      < geomData.collisionResults.size() );
+    assert( pair.first  < geomData.collisionObjects.size() );
+    assert( pair.second < geomData.collisionObjects.size() );
+
+    fcl::CollisionResult& collisionResult = geomData.collisionResults[pairId];
+    collisionResult.clear();
+    fcl::collide (&geomData.collisionObjects[pair.first],
+                  &geomData.collisionObjects[pair.second],
+                  geomData.collisionRequest,
+                  collisionResult);
+
+    return collisionResult.isCollision();
+  }
+  
+  inline bool computeCollisions(const GeometryModel & geomModel,
+                                GeometryData & geomData,
+                                const bool stopAtFirstCollision = true)
   {
     bool isColliding = false;
-    const GeometryModel & geomModel = data_geom.model_geom;
     
     for (std::size_t cpt = 0; cpt < geomModel.collisionPairs.size(); ++cpt)
     {
-      if(data_geom.activeCollisionPairs[cpt])
+      if(geomData.activeCollisionPairs[cpt])
         {
-          data_geom.computeCollision(cpt);
-          isColliding |= data_geom.collision_results[cpt].isCollision();
+          computeCollision(geomModel,geomData,cpt);
+          isColliding |= geomData.collisionResults[cpt].isCollision();
           if(isColliding && stopAtFirstCollision)
             return true;
         }
@@ -75,38 +102,57 @@ namespace se3
   // WARNING, if stopAtFirstcollision = true, then the collisions vector will not be fulfilled.
   inline bool computeCollisions(const Model & model,
                                 Data & data,
-                                const GeometryModel & model_geom,
-                                GeometryData & data_geom,
+                                const GeometryModel & geomModel,
+                                GeometryData & geomData,
                                 const Eigen::VectorXd & q,
                                 const bool stopAtFirstCollision
                                 )
   {
-    updateGeometryPlacements (model, data, model_geom, data_geom, q);
+    updateGeometryPlacements (model, data, geomModel, geomData, q);
     
-    return computeCollisions(data_geom, stopAtFirstCollision);
+    return computeCollisions(geomModel,geomData, stopAtFirstCollision);
   }
 
-  // Required to have a default template argument on templated free function
-  inline std::size_t computeDistances(GeometryData & data_geom)
+  /* --- DISTANCES ----------------------------------------------------------------- */
+  /* --- DISTANCES ----------------------------------------------------------------- */
+  /* --- DISTANCES ----------------------------------------------------------------- */
+
+  inline fcl::DistanceResult & computeDistance(const GeometryModel & geomModel,
+                                               GeometryData & geomData,
+                                               const PairIndex & pairId )
   {
-    return computeDistances<true>(data_geom);
+    assert( pairId < geomModel.collisionPairs.size() );
+    const CollisionPair & pair = geomModel.collisionPairs[pairId];
+
+    assert( pairId      < geomData.distanceResults.size() );
+    assert( pair.first  < geomData.collisionObjects.size() );
+    assert( pair.second < geomData.collisionObjects.size() );
+
+    geomData.distanceResults[pairId].clear();
+    fcl::distance ( &geomData.collisionObjects[pair.first],
+                    &geomData.collisionObjects[pair.second],
+                    geomData.distanceRequest,
+                    geomData.distanceResults[pairId]);
+
+    return geomData.distanceResults[pairId];
   }
   
+
   template <bool COMPUTE_SHORTEST>
-  inline std::size_t computeDistances(GeometryData & data_geom)
+  inline std::size_t computeDistances(const GeometryModel & geomModel,
+                                      GeometryData & geomData)
   {
-    const GeometryModel & geomModel = data_geom.model_geom;
     std::size_t min_index = geomModel.collisionPairs.size();
     double min_dist = std::numeric_limits<double>::infinity();
     for (std::size_t cpt = 0; cpt < geomModel.collisionPairs.size(); ++cpt)
     {
-      if(data_geom.activeCollisionPairs[cpt])
+      if(geomData.activeCollisionPairs[cpt])
         {
-          data_geom.distance_results[cpt] = data_geom.computeDistance(geomModel.collisionPairs[cpt]);
-          if (COMPUTE_SHORTEST && data_geom.distance_results[cpt].distance() < min_dist)
+          computeDistance(geomModel,geomData,cpt);
+          if (COMPUTE_SHORTEST && geomData.distanceResults[cpt].min_distance < min_dist)
             {
               min_index = cpt;
-              min_dist = data_geom.distance_results[cpt].distance();
+              min_dist = geomData.distanceResults[cpt].min_distance;
             }
         }
     }
@@ -114,27 +160,38 @@ namespace se3
   }
   
   // Required to have a default template argument on templated free function
+  inline std::size_t computeDistances(const GeometryModel& geomModel,
+                                      GeometryData & geomData)
+  {
+    return computeDistances<true>(geomModel,geomData);
+  }
+  
+  // Required to have a default template argument on templated free function
   inline std::size_t computeDistances(const Model & model,
                                Data & data,
-                               const GeometryModel & model_geom,
-                               GeometryData & data_geom,
+                               const GeometryModel & geomModel,
+                               GeometryData & geomData,
                                const Eigen::VectorXd & q
                                )
   {
-    return computeDistances<true>(model, data, model_geom, data_geom, q);
+    return computeDistances<true>(model, data, geomModel, geomData, q);
   }
 
   template <bool ComputeShortest>
   inline std::size_t computeDistances(const Model & model,
                                Data & data,
-                               const GeometryModel & model_geom,
-                               GeometryData & data_geom,
+                               const GeometryModel & geomModel,
+                               GeometryData & geomData,
                                const Eigen::VectorXd & q
                                )
   {
-    updateGeometryPlacements (model, data, model_geom, data_geom, q);
-    return computeDistances<ComputeShortest>(data_geom);
+    updateGeometryPlacements (model, data, geomModel, geomData, q);
+    return computeDistances<ComputeShortest>(geomModel,geomData);
   }
+
+  /* --- RADIUS -------------------------------------------------------------------- */
+  /* --- RADIUS -------------------------------------------------------------------- */
+  /* --- RADIUS -------------------------------------------------------------------- */
 
   /// Given p1..3 being either "min" or "max", return one of the corners of the 
   /// AABB cub of the FCL object.
@@ -155,7 +212,7 @@ namespace se3
     BOOST_FOREACH(const GeometryObject & geom,geomModel.geometryObjects)
     {
       const boost::shared_ptr<const fcl::CollisionGeometry> & fcl
-        = geom.collision_geometry;
+        = geom.fcl;
       const SE3 & jMb = geom.placement; // placement in joint.
       const Model::JointIndex & i = geom.parentJoint;
       assert (i<geomData.radius.size());
@@ -180,6 +237,8 @@ namespace se3
 
 #undef SE3_GEOM_AABB
 #endif // WITH_HPP_FCL
+
+  /* --- APPEND GEOMETRY MODEL ----------------------------------------------------------- */
 
   inline void appendGeometryModel(GeometryModel & geomModel1,
                                   const GeometryModel & geomModel2)
@@ -206,35 +265,14 @@ namespace se3
           );
     }
 
-    /// 2. Update the inner/outer objects
-    typedef GeometryModel::GeomIndexList GeomIndexList;
-    typedef std::map < JointIndex, GeomIndexList > Map_t;
-    BOOST_FOREACH(const Map_t::value_type& innerObject, geomModel2.innerObjects)
-    {
-      GeomIndexList& innerGeoms = geomModel1.innerObjects[innerObject.first];
-      innerGeoms.reserve(innerGeoms.size() + innerObject.second.size());
-      BOOST_FOREACH(const GeomIndex& gid, innerObject.second)
-      {
-        innerGeoms.push_back(nGeom1 + gid);
-      }
-    }
-    BOOST_FOREACH(const Map_t::value_type& outerObject, geomModel2.outerObjects)
-    {
-      GeomIndexList& outerGeoms = geomModel1.outerObjects[outerObject.first];
-      outerGeoms.reserve(outerGeoms.size() + outerObject.second.size());
-      BOOST_FOREACH(const GeomIndex& gid, outerObject.second)
-      {
-        outerGeoms.push_back(nGeom1 + gid);
-      }
-    }
-
-    /// 3. add the collision pairs between geomModel1 and geomModel2.
+    /// 2. add the collision pairs between geomModel1 and geomModel2.
     for (Index i = 0; i < nGeom1; ++i) {
       for (Index j = 0; j < nGeom2; ++j) {
         geomModel1.collisionPairs.push_back(CollisionPair(i, nGeom1 + j));
       }
     }
   }
+
 } // namespace se3
 
 #endif // ifnded __se3_algo_geometry_hxx__
