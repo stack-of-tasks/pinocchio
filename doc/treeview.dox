@@ -1,4 +1,22 @@
 //
+// Copyright (c) 2016 CNRS
+// Author: Florian Valenza
+//
+// This file is part of Pinocchio
+// Pinocchio is free software: you can redistribute it
+// and/or modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
+//
+// Pinocchio is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Lesser Public License for more details. You should have
+// received a copy of the GNU Lesser General Public License along with
+// Pinocchio If not, see
+// <http://www.gnu.org/licenses/>.
+
+//
 // This file strutures pages and modules into a convenient hierarchical structure.
 //
 
@@ -9,23 +27,24 @@ namespace pinocchio {
   // Pages/ tutorials organization
   //
 
-  /** \page UserManual_Generalities General topics
-       - \subpage pinocchio_page_crtp
-       - \subpage pinocchio_page_loading
-       - \subpage UserManual_UnderstandingEigen
+  /** \page GettingStarted  Getting Started
+       - \subpage GettingStarted_install
+       - \subpage GettingStarted_simple_huma_IK
+       - \subpage GettingStarted_urdf_loading_viewer
   */
   
-  /** \page UserManual_ModelCreation Build a Model
-       - \subpage pinocchio_page_create_from_scratch
-       - \subpage pinocchio_page_loading
-          - \subpage pinocchio_page_urdf_loading
-          - \subpage pinocchio_page_python_loading
+  /** \page Chapters Chapters
+       - \subpage Chapters_SpatialAlgebra
+       - \subpage Chapters_RigidBodyDynamicModel
+       - \subpage Chapters_DynamicAlgorithms
+       - \subpage Chapters_DataDrivenAlgorithms
+       - \subpage Chapters_FclGeometries
+       - \subpage Chapters_CreatingModels
+       - \subpage Chapters_PythonBindings
+       - \subpage Chapters_crtp
   */
 
-  /** \page UserManual_UnderstandingEigen Understanding Eigen
-        \subpage TopicInsideEigenExample
-        \subpage TopicClassHierarchy
-        \subpage TopicLazyEvaluation
+  /** \page Users Current Users
   */
 
 
@@ -70,4 +89,8 @@ namespace pinocchio {
 
 
   /** \defgroup tools_group Tools */
+
+  /** \defgroup bench_group Benchmarks */
+
+  /** \defgroup unittest_group Unittests */
 } 

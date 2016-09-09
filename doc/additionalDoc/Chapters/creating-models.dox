@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2016 CNRS
-// Author: Florent Lamiraux
+// Author: Florent Lamiraux, Justin Carpentier, Florian Valenza
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,18 +16,22 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** \page pinocchio_page_loading Loading a model
+namespace pinocchio
+{
+  
+/** \page Chapters_CreatingModels Creating models
 
-\section pinocchio_page_loading_introduction Introduction
+Here you can find the differents ways to create a model ( simple models, python/lua/urdf loading, Joint after Joint)
 
-The most convenient way to build a robot model consists in parsing a description
-file.
+\section Chapters_CreatingModels_introduction Introduction
 
-\section pinocchio_page_loading_supported_formats Supported formats
+In Pinocchio you can create Models in many ways. We have built-in parsers for different kind of format ( urdf, python, Lua)
+but you can also create a Model from scratch and fill it with the Joints you want.
 
-Two format are supported.
+\section Chapters_CreatingModels_supported_formats Supported formats
 
-\subsection pinocchio_page_loading_urdf Format urdf
+
+\subsection Chapters_CreatingModels_urdf Format urdf
 
 To load an urdf file in C++ code, copy the following lines:
 \code
@@ -43,7 +47,19 @@ se3::Model model = se3::urdf::buildModel (filename, rootJoint, verbose);
 se3::Data data (model);
 \endcode
 
-\subsection pinocchio_page_loading_lua Format lua
+\subsection Chapters_CreatingModels_Python Format Python
+
+To load a python file in C++ code, copy the following lines:
+\code
+#include <pinocchio/multibody/model.hpp>
+#include <pinocchio/multibody/parser/python.hpp>
+#include <pinocchio/multibody/parser/utils.hpp>
+#include <pinocchio/multibody/joint.hpp>
+
+//put here code to load from python
+\endcode
+
+\subsection Chapters_CreatingModels_lua Format lua
 
 To load an lua file in C++ code, copy the following lines:
 \code
@@ -58,4 +74,5 @@ se3::Model model = se3::lua::buildModel (filename, freeflyer);
 se3::Data data (model);
 \endcode
 
- */
+*/  
+}
