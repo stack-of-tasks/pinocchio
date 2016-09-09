@@ -247,11 +247,15 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 #if defined(WITH_URDFDOM) && defined(WITH_HPP_FCL)
 BOOST_AUTO_TEST_CASE (radius)
 {
-  // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
   std::vector < std::string > packageDirs;
+#ifdef ROMEO_DESCRIPTION_MODEL_DIR
+  std::string filename = ROMEO_DESCRIPTION_MODEL_DIR"/romeo_description/urdf/romeo_small.urdf";
+  packageDirs.push_back(ROMEO_DESCRIPTION_MODEL_DIR);
+#else
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   packageDirs.push_back(meshDir);
+#endif // ROMEO_DESCRIPTION_MODEL_DIR
 
   se3::Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
@@ -264,7 +268,7 @@ BOOST_AUTO_TEST_CASE (radius)
   se3::computeBodyRadius(model, geom, geomData);
   BOOST_FOREACH( double radius, geomData.radius) BOOST_CHECK(radius>=0.);
 
-#ifdef WITH_HPP_MODEL_URDF
+#if defined(WITH_HPP_MODEL_URDF) && defined(ROMEO_DESCRIPTION_MODEL_DIR)
   /// *************  HPP  ************* /// 
   /// ********************************* ///
   using hpp::model::JointVector_t;
@@ -275,7 +279,7 @@ BOOST_AUTO_TEST_CASE (radius)
   hpp::model::HumanoidRobotPtr_t humanoidRobot =
     hpp::model::HumanoidRobot::create ("romeo");
   loadHumanoidPathPlanerModel(humanoidRobot, "freeflyer",
-              "romeo_pinocchio", "romeo",
+              "romeo_description", "romeo_small",
               "");
 
   BOOST_CHECK_MESSAGE(model.nq == humanoidRobot->configSize () , "Pinocchio model & HPP model config sizes are not the same ");
@@ -303,7 +307,7 @@ BOOST_AUTO_TEST_CASE (radius)
 }
 #endif // if defined(WITH_URDFDOM) && defined(WITH_HPP_FCL)
 
-#ifdef WITH_HPP_MODEL_URDF
+#if defined(WITH_HPP_MODEL_URDF) && defined(ROMEO_DESCRIPTION_MODEL_DIR)
 BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
 {
   typedef se3::Model Model;
@@ -320,15 +324,20 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   /// ********************************* ///
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
   std::vector < std::string > packageDirs;
+#ifdef ROMEO_DESCRIPTION_MODEL_DIR
+  std::string filename = ROMEO_DESCRIPTION_MODEL_DIR"/romeo_description/urdf/romeo_small.urdf";
+  packageDirs.push_back(ROMEO_DESCRIPTION_MODEL_DIR);
+#else
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   packageDirs.push_back(meshDir);
+#endif // ROMEO_DESCRIPTION_MODEL_DIR
 
   Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom;
-  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, packageDdirs);
+  se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, packageDirs);
   std::cout << model << std::endl;
 
 
@@ -358,7 +367,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   hpp::model::HumanoidRobotPtr_t humanoidRobot =
     hpp::model::HumanoidRobot::create ("romeo");
   loadHumanoidPathPlanerModel(humanoidRobot, "freeflyer",
-              "romeo_pinocchio", "romeo",
+              "romeo_description", "romeo_small",
               "");
 
   BOOST_CHECK_MESSAGE(model.nq == humanoidRobot->configSize () , "Pinocchio model & HPP model config sizes are not the same ");
@@ -373,7 +382,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   // retrieve all joint and geometry objects positions
   JointPositionsMap_t joints_pin  = fillPinocchioJointPositions(model, data);
   JointPositionsMap_t joints_hpp  = fillHppJointPositions(humanoidRobot);
-  GeometryPositionsMap_t geom_pin = fillPinocchioGeometryPositions(geomData);
+  GeometryPositionsMap_t geom_pin = fillPinocchioGeometryPositions(geom, geomData);
   GeometryPositionsMap_t geom_hpp = fillHppGeometryPositions(humanoidRobot);
 
 
@@ -425,15 +434,21 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   /// ********************************* /// 
 
   // Building the model in pinocchio and compute kinematics/geometry for configuration q_pino
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
   std::vector < std::string > packageDirs;
+#ifdef ROMEO_DESCRIPTION_MODEL_DIR
+  std::string filename = ROMEO_DESCRIPTION_MODEL_DIR"/romeo_description/urdf/romeo_small.urdf";
+  packageDirs.push_back(ROMEO_DESCRIPTION_MODEL_DIR);
+#else
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   packageDirs.push_back(meshDir);
+#endif // ROMEO_DESCRIPTION_MODEL_DIR
 
   Model model;
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom;
   se3::urdf::buildGeom(model, filename, se3::COLLISION, geom, packageDirs);
+  geom.addAllCollisionPairs();
   std::cout << model << std::endl;
 
 
@@ -463,7 +478,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   hpp::model::HumanoidRobotPtr_t humanoidRobot =
     hpp::model::HumanoidRobot::create ("romeo");
   loadHumanoidPathPlanerModel(humanoidRobot, "freeflyer",
-              "romeo_pinocchio", "romeo",
+              "romeo_description", "romeo_small",
               "");
 
   BOOST_CHECK_MESSAGE(model.nq == humanoidRobot->configSize () , "Pinocchio model & HPP model config sizes are not the same ");
@@ -496,12 +511,14 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
 
 
         std::cout << "comparison between " << body1 << " and " << body2 << std::endl;
+        se3::CollisionPair pair (geom.getGeometryId(body1),
+                                 geom.getGeometryId(body2));
+        BOOST_REQUIRE (geom.existCollisionPair(pair));
 
-        se3::DistanceResult dist_pin
-          = geomData.computeDistance( CollisionPair(geom.getGeometryId(body1),
-                                                     geom.getGeometryId(body2)) );
+        fcl::DistanceResult dist_pin
+          = se3::computeDistance( geom, geomData, geom.findCollisionPair(pair));
 
-        Distance_t distance_pin(dist_pin.fcl_distanceResult);
+        Distance_t distance_pin(dist_pin);
         distance_hpp.checkClose(distance_pin);
       }
     }

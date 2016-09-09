@@ -102,6 +102,19 @@ struct TestIntegrationJoint
     
     SE3 M1_exp = M0*exp6(v0);
     BOOST_CHECK(M1.isApprox(M1_exp));
+    
+    qdot *= -1;
+
+    jmodel.calc(jdata,q0,qdot);
+    M0 = jdata.M;
+    v0 = jdata.v;
+    
+    q1 = jmodel.integrate(q0,qdot);
+    jmodel.calc(jdata,q1);
+    M1 = jdata.M;
+    
+    M1_exp = M0*exp6(v0);
+    BOOST_CHECK(M1.isApprox(M1_exp));
   }
   
 };
@@ -174,6 +187,8 @@ struct TestDifferentiationJoint
     TV qdot = jmodel.difference(q0,q1);
 
     BOOST_CHECK_MESSAGE( jmodel.integrate(q0, qdot).isApprox(q1), std::string("Error in difference for joint " + jmodel.shortname()));
+
+    BOOST_CHECK_MESSAGE( jmodel.integrate(q1, -qdot).isApprox(q0), std::string("Error in difference for joint " + jmodel.shortname()));
 
   }
 
@@ -249,7 +264,7 @@ BOOST_AUTO_TEST_CASE ( integrate_difference_test )
  Eigen::VectorXd q1(randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) ));
  Eigen::VectorXd qdot(Eigen::VectorXd::Random(model.nv));
 
- BOOST_CHECK_MESSAGE(configurations_are_equals(integrate(model, q0, differentiate(model, q0,q1)), q1), "Integrate (differentiate) - wrong results");
+ BOOST_CHECK_MESSAGE(isSameConfiguration(model, integrate(model, q0, differentiate(model, q0,q1)), q1), "Integrate (differentiate) - wrong results");
 
  BOOST_CHECK_MESSAGE(differentiate(model, q0, integrate(model,q0, qdot)).isApprox(qdot),"differentiate (integrate) - wrong results");
 }

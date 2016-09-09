@@ -219,6 +219,7 @@ namespace se3
       NQ = 3,
       NV = 3
     };
+    typedef double Scalar;
     typedef JointDataTranslation JointDataDerived;
     typedef JointModelTranslation JointModelDerived;
     typedef ConstraintTranslationSubspace Constraint_t;
@@ -278,7 +279,6 @@ namespace se3
     using JointModelBase<JointModelTranslation>::idx_v;
     using JointModelBase<JointModelTranslation>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar;
 
     JointDataDerived createData() const { return JointDataDerived(); }
 
@@ -310,10 +310,9 @@ namespace se3
       }
     }
     
-    ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    Scalar finiteDifferenceIncrement() const
     {
       using std::sqrt;
-      typedef ConfigVector_t::Scalar Scalar;
       return sqrt(Eigen::NumTraits<Scalar>::epsilon());
     }
 
@@ -378,6 +377,14 @@ namespace se3
       return q;
     } 
 
+    bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      return q_1.isApprox(q_2, prec);
+    } 
+    
     JointModelDense<NQ,NV> toDense_impl() const
     {
       return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());

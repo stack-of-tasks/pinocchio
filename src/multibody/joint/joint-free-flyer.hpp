@@ -143,6 +143,7 @@ namespace se3
       NQ = 7,
       NV = 6
     };
+    typedef double Scalar;
     typedef JointDataFreeFlyer JointDataDerived;
     typedef JointModelFreeFlyer JointModelDerived;
     typedef ConstraintIdentity Constraint_t;
@@ -201,7 +202,6 @@ namespace se3
     using JointModelBase<JointModelFreeFlyer>::idx_v;
     using JointModelBase<JointModelFreeFlyer>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar;
 
     JointDataDerived createData() const { return JointDataDerived(); }
     
@@ -255,10 +255,9 @@ namespace se3
         I.setZero();
     }
 
-    ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    Scalar finiteDifferenceIncrement() const
     {
       using std::sqrt;
-      typedef ConfigVector_t::Scalar Scalar;
       return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
     
@@ -379,6 +378,19 @@ namespace se3
     void normalize_impl(Eigen::VectorXd& q) const
     {
       q.segment<4>(idx_q()+3).normalize();
+    }
+
+    bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      ConstQuaternionMap_t quat1(q_1.tail<4> ().data());
+      ConstQuaternionMap_t quat2(q_2.tail<4> ().data());
+
+      return ( q_1.head<3>().isApprox(q_2.head<3>(), prec) && defineSameRotation(quat1,quat2) );
     }
 
     JointModelDense<NQ,NV> toDense_impl() const

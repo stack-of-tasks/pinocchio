@@ -36,6 +36,7 @@ namespace se3
       NQ = -1, // Dynamic because unknown at compilation
       NV = -1
     };
+    typedef double Scalar;
     typedef JointData JointDataDerived;
     typedef JointModel JointModelDerived;
     typedef ConstraintXd Constraint_t;
@@ -131,6 +132,9 @@ namespace se3
 
     ConfigVector_t neutralConfiguration_impl() const
     { return ::se3::neutralConfiguration(*this); } 
+
+    bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return ::se3::isSameConfiguration(*this, q1, q2);}
 
     std::string shortname() const { return ::se3::shortname(*this); }
     static std::string classname() { return "JointModel"; }

@@ -205,6 +205,7 @@ namespace se3
       NQ = 4,
       NV = 3
     };
+    typedef double Scalar;
     typedef JointDataSpherical JointDataDerived;
     typedef JointModelSpherical JointModelDerived;
     typedef ConstraintRotationalSubspace Constraint_t;
@@ -263,7 +264,6 @@ namespace se3
     using JointModelBase<JointModelSpherical>::idx_v;
     using JointModelBase<JointModelSpherical>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef double Scalar;
     typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
 
     JointDataDerived createData() const { return JointDataDerived(); }
@@ -320,10 +320,9 @@ namespace se3
       }
     }
     
-    ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    Scalar finiteDifferenceIncrement() const
     {
       using std::sqrt;
-      typedef ConfigVector_t::Scalar Scalar;
       return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
 
@@ -409,6 +408,19 @@ namespace se3
     void normalize_impl(Eigen::VectorXd& q) const
     {
       q.segment<NQ>(idx_q()).normalize();
+    }
+
+    bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
+
+      ConstQuaternionMap_t quat1(q_1.data());
+      ConstQuaternionMap_t quat2(q_2.data());
+
+      return defineSameRotation(quat1,quat2);
     }
 
     JointModelDense<NQ,NV> toDense_impl() const
