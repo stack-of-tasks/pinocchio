@@ -124,7 +124,7 @@ namespace se3
                   bp::return_internal_reference<>())  )
         
         .def("addJoint",&ModelPythonVisitor::addJoint,bp::args("parent_id","joint_model","joint_placement","joint_name"),"Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
-        .def("appendBodyToJoint",&ModelPythonVisitor::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement","body_name"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
+        .def("appendBodyToJoint",&ModelPythonVisitor::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
 
 
           .add_property("effortLimit", bp::make_function(&ModelPythonVisitor::effortLimit), "Joint max effort")
@@ -133,9 +133,7 @@ namespace se3
           .add_property("lowerPositionLimit", bp::make_function(&ModelPythonVisitor::lowerPositionLimit), "Limit for joint lower position")
           .add_property("upperPositionLimit", bp::make_function(&ModelPythonVisitor::upperPositionLimit), "Limit for joint upper position")
 
-          .def("getFrameParent", &ModelPythonVisitor::getFrameParent)
-          .def("getFramePlacement", &ModelPythonVisitor::getFramePlacement)
-        .def("addFrame",(bool (*)(ModelHandler&,const std::string &,const JointIndex, const SE3_fx &,const FrameType &)) &ModelPythonVisitor::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
+        .def("addFrame",(bool (*)(ModelHandler&,const std::string &,const JointIndex, const FrameIndex, const SE3_fx &,const FrameType &)) &ModelPythonVisitor::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
         .def("addFrame",(bool (*)(ModelHandler&,const Frame &)) &ModelPythonVisitor::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
         .add_property("frames", bp::make_function(&ModelPythonVisitor::frames, bp::return_internal_reference<>()),"Vector of frames contained in the model.")
         .def("existFrame",&ModelPythonVisitor::existFrame,bp::args("name"),"Returns true if the frame given by its name exists inside the Model.")
@@ -183,7 +181,7 @@ namespace se3
                                     const SE3_fx & body_placement,
                                     const std::string & body_name)
       {
-        model->appendBodyToJoint(joint_parent_id,inertia,body_placement,body_name);
+        model->appendBodyToJoint(joint_parent_id,inertia,body_placement);
       }
 
       static Eigen::VectorXd neutralConfiguration(ModelHandler & m) {return m->neutralConfiguration;}
@@ -192,13 +190,10 @@ namespace se3
       static Eigen::VectorXd lowerPositionLimit(ModelHandler & m) {return m->lowerPositionLimit;}
       static Eigen::VectorXd upperPositionLimit(ModelHandler & m) {return m->upperPositionLimit;}
 
-      static Model::JointIndex  getFrameParent( ModelHandler & m, const std::string & name ) { return m->getFrameParent(name); }
-      static SE3  getFramePlacement(ModelHandler & m, const std::string & name) { return m->getFramePlacement(name); }
-      
       static bool addFrame(ModelHandler & m, const Frame & frame) { return m->addFrame(frame); }
-      static bool addFrame( ModelHandler & m, const std::string & frameName, const JointIndex parent, const SE3_fx & placementWrtParent, const FrameType & type)
+      static bool addFrame( ModelHandler & m, const std::string & frameName, const JointIndex parentJoint, const FrameIndex parentFrame, const SE3_fx & placementWrtParent, const FrameType & type)
       {
-        return m->addFrame(frameName,parent,placementWrtParent,type);
+        return m->addFrame(Frame(frameName,parentJoint,parentFrame,placementWrtParent,type));
       }
       static Model::FrameIndex getFrameId(const ModelHandler & m, const std::string & frame_name)
       { return m->getFrameId(frame_name); }

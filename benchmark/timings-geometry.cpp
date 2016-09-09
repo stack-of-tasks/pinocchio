@@ -71,7 +71,7 @@ int main()
   package_dirs.push_back(romeo_meshDir);
 
   se3::Model model = se3::urdf::buildModel(romeo_filename, se3::JointModelFreeFlyer());
-  se3::GeometryModel geom_model = se3::urdf::buildGeom(model, romeo_filename, package_dirs, COLLISION);
+  se3::GeometryModel geom_model; se3::urdf::buildGeom(model, romeo_filename, COLLISION, geom_model, package_dirs);
 #ifdef WITH_HPP_FCL  
   geom_model.addAllCollisionPairs();
 #endif // WITH_HPP_FCL
@@ -113,7 +113,7 @@ int main()
     updateGeometryPlacements(model,data,geom_model,geom_data,qs_romeo[_smooth]);
     for (std::vector<se3::CollisionPair>::iterator it = geom_model.collisionPairs.begin(); it != geom_model.collisionPairs.end(); ++it)
     {
-      geom_data.computeCollision(*it);
+      computeCollision(geom_model,geom_data,std::size_t(it-geom_model.collisionPairs.begin()));
     }
   }
   double collideTime = timer.toc(StackTicToc::US)/NBT - (update_col_time + geom_time);
@@ -124,7 +124,7 @@ int main()
   timer.tic();
   SMOOTH(NBT)
   {
-    computeCollisions(model,data,geom_model,geom_data,qs_romeo[_smooth], true);
+    computeCollisions(geom_model,geom_data, true);
   }
   double is_colliding_time = timer.toc(StackTicToc::US)/NBT - (update_col_time + geom_time);
   std::cout << "Collision Test : robot in collision? = \t" << is_colliding_time
@@ -203,7 +203,7 @@ hpp::model::HumanoidRobotPtr_t humanoidRobot =
   timer.tic();
   SMOOTH(NBT)
   {
-    computeCollisions(geom_data, true);
+    computeCollisions(geom_model, geom_data, true);
   }
   double is_romeo_colliding_time_pino = timer.toc(StackTicToc::US)/NBT;
   std::cout << "Pinocchio - Collision Test : robot in collision? (G) = \t" << is_romeo_colliding_time_pino
@@ -244,7 +244,7 @@ hpp::model::HumanoidRobotPtr_t humanoidRobot =
   timer.tic();
   SMOOTH(NBD)
   {
-    computeDistances(geom_data);
+    computeDistances(geom_model, geom_data);
   }
   computeDistancesTime = timer.toc(StackTicToc::US)/NBD ;
   std::cout << "Pinocchio - Compute distances (D) " << geom_model.collisionPairs.size() << " col pairs\t" << computeDistancesTime 

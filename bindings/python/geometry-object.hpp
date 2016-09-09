@@ -53,11 +53,12 @@ namespace se3
       {
         cl
           .def_readwrite("name", &GeometryObject::name, "Name of the GeometryObject")
-          .def_readwrite("parent", &GeometryObject::parent, "Index of the parent joint")
+          .def_readwrite("parentJoint", &GeometryObject::parentJoint, "Index of the parent joint")
+          .def_readwrite("parentFrame", &GeometryObject::parentFrame, "Index of the parent frame")
           .add_property("placement", &GeometryObjectPythonVisitor::getPlacementWrtParentJoint,
                                       &GeometryObjectPythonVisitor::setPlacementWrtParentJoint,
                                       "Position of geometry object in parent joint's frame")
-          .def_readonly("mesh_path", &GeometryObject::mesh_path, "Absolute path to the mesh file")
+          .def_readonly("meshPath", &GeometryObject::meshPath, "Absolute path to the mesh file")
           ;
       }
 
@@ -67,7 +68,7 @@ namespace se3
       static void expose()
       {
         bp::class_<GeometryObject>("GeometryObject",
-                           "A wrapper on a collision geometry including its parent joint, placement in parent frame.\n\n",
+                           "A wrapper on a collision geometry including its parent joint, parent frame, placement in parent joint's frame.\n\n",
 	                         bp::no_init
                          )
 	                       .def(GeometryObjectPythonVisitor())
