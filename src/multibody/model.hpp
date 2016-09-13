@@ -26,7 +26,6 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
-// #include "pinocchio/multibody/joint/joint.hpp"
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/deprecated.hh"
 #include "pinocchio/tools/string-generator.hpp"
