@@ -341,6 +341,25 @@ namespace se3
     ///
     PINOCCHIO_DEPRECATED bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_FRAME);
 
+    /// Check the validity of the attributes of Model with respect to the specification of some
+    /// algorithms.
+    ///
+    /// The method is a template so that the checkers can be defined in each algorithms.
+    /// \param[in] checker a class, typically defined in the algorithm module, that 
+    /// validates the attributes of model.
+    /// \return true if the Model is valid, false otherwise.
+    template<typename D>
+    inline bool check(const AlgorithmCheckerBase<D> & checker = AlgorithmCheckerBase<D>())
+    { return checker.checkModel(*this); }
+
+    /// Multiple checks for a fusion::vector of AlgorithmCheckerBase.
+    ///
+    /// Run the check test for several conditons.
+    /// \param[in] v fusion::vector of algo checkers. The param is typically initialize with 
+    /// boost::fusion::make_vector( AlgoChecker1(), AlgoChecker2(), ...)
+    template<typename FusionVectorCheckers>
+    bool checkAll(const FusionVectorCheckers & v);
+
   protected:
     
     /// \brief Add the joint_id to its parent subtrees.
@@ -349,9 +368,6 @@ namespace se3
     ///
     void addJointIndexToParentSubtrees(const JointIndex joint_id);
   };
-
-  // Forward declaration needed for Data::check
-  template<class D> struct AlgorithmCheckerBase;
 
   struct Data
   {
@@ -507,24 +523,6 @@ namespace se3
     /// \param[in] model The model structure of the rigid body system.
     ///
     Data (const Model & model);
-
-    /// Check the validity of the Data attributes with respect to the specification of some
-    /// algorithms.
-    ///
-    /// The method is a template so that the checkers can be defined in each algorithms.
-    /// \param[in] checker a class, typically defined in the algorithm module, that 
-    /// validates the attributes of data.
-    /// \return true if the Data are valid, false otherwise.
-    template<typename D>
-    inline bool check(const AlgorithmCheckerBase<D> & checker) { return checker.checkData(*this); }
-
-    /// Multiple check for a fusion::vector of AlgorithmCheckerBase.
-    ///
-    /// Run the check test for several conditons.
-    /// \param[in] v fusion::vector of algo checkers. The param is typically initialize with 
-    /// boost::fusion::make_vector( AlgoChecker1(), AlgoChecker2(), ...)
-    template<typename FusionVectorCheckers>
-    bool checkAll(const FusionVectorCheckers & v);
 
   private:
     void computeLastChild(const Model& model);

@@ -217,6 +217,24 @@ namespace se3
     
     return data.ddq;
   }
+
+  // --- CHECKER ---------------------------------------------------------------
+  // --- CHECKER ---------------------------------------------------------------
+  // --- CHECKER ---------------------------------------------------------------
+
+  // Check whether all masses are nonzero and diagonal of inertia is nonzero
+  // The second test is overconstraining.
+  bool ABAChecker::checkModel_impl( const Model& model ) const
+  {
+    for(JointIndex j=1;int(j)<model.njoint;j++)
+      if(    (model.inertias[j].mass   ()           < 1e-5) 
+          || (model.inertias[j].inertia().data()[0] < 1e-5)
+          || (model.inertias[j].inertia().data()[3] < 1e-5)
+          || (model.inertias[j].inertia().data()[5] < 1e-5) )
+        return false;
+    return true;
+  }
+
 } // namespace se3
 
 /// @endcond

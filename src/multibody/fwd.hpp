@@ -32,6 +32,10 @@ namespace se3
   struct GeometryData;
   struct JointModel;
   struct JointData;
+
+  // Forward declaration needed for Model::check
+  template<class D> struct AlgorithmCheckerBase;
+
 } // namespace se3
 
 #endif // #ifndef __se3_multibody_fwd_hpp__
