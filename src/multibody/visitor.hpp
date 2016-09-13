@@ -61,16 +61,6 @@ namespace se3
 			       static_cast<const Visitor*>(this)->args));
       }
 
-  //     void operator() (const JointModelBase<JointModelComposite> & jmodel) const
-  //     {
-  // JointDataVariant& jdataSpec = static_cast<const Visitor*>(this)->jdata;
-
-  // bf::invoke(&Visitor::template algo<JointModelComposite>,
-  //      bf::append2(jmodel,
-  //            boost::ref(boost::get<JointDataComposite>(jdataSpec)),
-  //            static_cast<const Visitor*>(this)->args));
-  //     }
-
       template<typename ArgsTmp>
       static void run(const JointModelVariant & jmodel,
 		      JointDataVariant & jdata,

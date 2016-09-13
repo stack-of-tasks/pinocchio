@@ -19,7 +19,6 @@
 #define __se3_joint_composite_hpp__
 
 #include "pinocchio/assert.hpp"
-// #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 #include "pinocchio/multibody/joint/joint.hpp"
 
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3)

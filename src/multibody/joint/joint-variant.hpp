@@ -42,6 +42,11 @@ namespace se3
   struct JointModelComposite;
   struct JointDataComposite;
 
+  // The JointModelComposite contains several JointModel (which are JointModelVariant). Hence there is a circular
+  // dependency between JointModelComposite and JointModelVariant that can be resolved with the use of boost::recursive_variant
+  // For more details, see http://www.boost.org/doc/libs/1_58_0/doc/html/variant/tutorial.html#variant.tutorial.recursive 
+  //
+  // The same applies for JointDataComposite
   typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned, JointModelSpherical,
                           JointModelSphericalZYX, JointModelPX, JointModelPY, JointModelPZ,
                           JointModelPrismaticUnaligned, JointModelFreeFlyer, JointModelPlanar, JointModelTranslation,
