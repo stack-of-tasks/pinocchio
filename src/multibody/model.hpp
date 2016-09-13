@@ -341,6 +341,32 @@ namespace se3
     ///
     PINOCCHIO_DEPRECATED bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_FRAME);
 
+    /// Check the validity of the attributes of Model with respect to the specification of some
+    /// algorithms.
+    ///
+    /// The method is a template so that the checkers can be defined in each algorithms.
+    /// \param[in] checker a class, typically defined in the algorithm module, that 
+    /// validates the attributes of model.
+    /// \return true if the Model is valid, false otherwise.
+    template<typename D>
+    inline bool check(const AlgorithmCheckerBase<D> & checker = AlgorithmCheckerBase<D>()) const
+    { return checker.checkModel(*this); }
+
+    /// Multiple checks for a fusion::vector of AlgorithmCheckerBase.
+    ///
+    /// Run the check test for several conditons.
+    /// \param[in] v fusion::vector of algo checkers. The param is typically initialize with 
+    /// boost::fusion::make_list( AlgoChecker1(), AlgoChecker2(), ...)
+    /// make_list is defined in #include <boost/fusion/include/make_list.hpp>
+    /// \warning no more than 10 checkers can be added (or Model API should be extended).
+    /// \note This method is implemented in src/algo/check.hxx.
+    template<class T1,class T2,class T3,class T4,class T5,
+             class T6,class T7,class T8,class T9,class T10>
+    bool check( const boost::fusion::list<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> & checkerList ) const;
+
+    /// Run check(fusion::list) with DEFAULT_CHECKERS as argument.
+    bool check() const;
+
   protected:
     
     /// \brief Add the joint_id to its parent subtrees.
@@ -349,9 +375,6 @@ namespace se3
     ///
     void addJointIndexToParentSubtrees(const JointIndex joint_id);
   };
-
-  // Forward declaration needed for Data::check
-  template<class D> struct AlgorithmCheckerBase;
 
   struct Data
   {
@@ -362,7 +385,8 @@ namespace se3
     typedef Eigen::Matrix<double,3,Eigen::Dynamic> Matrix3x;
     typedef SE3::Vector3 Vector3;
     
-    /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model, encapsulated in JointDataAccessor.
+    /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model, 
+    /// encapsulated in JointDataAccessor.
     JointDataVector joints;
     
     /// \brief Vector of joint accelerations.
@@ -507,24 +531,6 @@ namespace se3
     /// \param[in] model The model structure of the rigid body system.
     ///
     Data (const Model & model);
-
-    /// Check the validity of the Data attributes with respect to the specification of some
-    /// algorithms.
-    ///
-    /// The method is a template so that the checkers can be defined in each algorithms.
-    /// \param[in] checker a class, typically defined in the algorithm module, that 
-    /// validates the attributes of data.
-    /// \return true if the Data are valid, false otherwise.
-    template<typename D>
-    inline bool check(const AlgorithmCheckerBase<D> & checker) { return checker.checkData(*this); }
-
-    /// Multiple check for a fusion::vector of AlgorithmCheckerBase.
-    ///
-    /// Run the check test for several conditons.
-    /// \param[in] v fusion::vector of algo checkers. The param is typically initialize with 
-    /// boost::fusion::make_vector( AlgoChecker1(), AlgoChecker2(), ...)
-    template<typename FusionVectorCheckers>
-    bool checkAll(const FusionVectorCheckers & v);
 
   private:
     void computeLastChild(const Model& model);

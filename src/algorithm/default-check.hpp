@@ -15,27 +15,25 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_multibody_fwd_hpp__
-#define __se3_multibody_fwd_hpp__
+#ifndef __se3_default_check_hpp__
+#define __se3_default_check_hpp__
+
+#include <pinocchio/algorithm/check.hpp>
+#include <pinocchio/algorithm/aba.hpp>
+#include <pinocchio/algorithm/crba.hpp>
 
 namespace se3
 {
-  typedef std::size_t Index;
-  typedef Index JointIndex;
-  typedef Index GeomIndex;
-  typedef Index FrameIndex;
-  
-  struct Frame;
-  struct Model;
-  struct Data;
-  struct GeometryModel;
-  struct GeometryData;
-  struct JointModel;
-  struct JointData;
+  /// Default checker-list, used as the default argument in Model::check().
+  inline boost::fusion::list<ParentChecker,CRBAChecker,ABAChecker> makeDefaultCheckerList()
+  { return boost::fusion::make_list(ParentChecker(),CRBAChecker(),ABAChecker()); }
 
-  // Forward declaration needed for Model::check
-  template<class D> struct AlgorithmCheckerBase;
+#define DEFAULT_CHECKERS makeDefaultCheckerList()
 
-} // namespace se3
+  bool Model::check() const { this->check(DEFAULT_CHECKERS); }
 
-#endif // #ifndef __se3_multibody_fwd_hpp__
+} // namespace se3 
+
+#endif // ifndef __se3_default_check_hpp__
+
+

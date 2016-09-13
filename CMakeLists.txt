@@ -192,6 +192,8 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/compute-all-terms.hpp
   algorithm/copy.hpp
   algorithm/check.hpp
+  algorithm/check.hxx
+  algorithm/default-check.hpp
   )
 
 SET(${PROJECT_NAME}_PARSERS_HEADERS
