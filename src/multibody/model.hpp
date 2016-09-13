@@ -350,6 +350,9 @@ namespace se3
     void addJointIndexToParentSubtrees(const JointIndex joint_id);
   };
 
+  // Forward declaration needed for Data::check
+  template<class D> struct AlgorithmCheckerBase;
+
   struct Data
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -504,6 +507,24 @@ namespace se3
     /// \param[in] model The model structure of the rigid body system.
     ///
     Data (const Model & model);
+
+    /// Check the validity of the Data attributes with respect to the specification of some
+    /// algorithms.
+    ///
+    /// The method is a template so that the checkers can be defined in each algorithms.
+    /// \param[in] checker a class, typically defined in the algorithm module, that 
+    /// validates the attributes of data.
+    /// \return true if the Data are valid, false otherwise.
+    template<typename D>
+    inline bool check(const AlgorithmCheckerBase<D> & checker) { return checker.checkData(*this); }
+
+    /// Multiple check for a fusion::vector of AlgorithmCheckerBase.
+    ///
+    /// Run the check test for several conditons.
+    /// \param[in] v fusion::vector of algo checkers. The param is typically initialize with 
+    /// boost::fusion::make_vector( AlgoChecker1(), AlgoChecker2(), ...)
+    template<typename FusionVectorCheckers>
+    bool checkAll(const FusionVectorCheckers & v);
 
   private:
     void computeLastChild(const Model& model);
