@@ -24,19 +24,19 @@ class TestFrameBindings(unittest.TestCase):
     robot = RobotWrapper(romeo_model_path, hint_list, se3.JointModelFreeFlyer())
 
     def test_type_get_set(self):
-        f = self.robot.model.frames[2]
+        f = self.robot.model.frames[5]
         self.assertTrue(f.type == se3.FrameType.JOINT)
         f.type = se3.FrameType.BODY
         self.assertTrue(f.type == se3.FrameType.BODY)
 
     def test_name_get_set(self):
-        f = self.robot.model.frames[2]
+        f = self.robot.model.frames[5]
         self.assertTrue(f.name == 'LHipYaw')
         f.name = 'new_hip_frame'
         self.assertTrue(f.name == 'new_hip_frame')
 
     def test_parent_get_set(self):
-        f = self.robot.model.frames[2]
+        f = self.robot.model.frames[5]
         self.assertTrue(f.parent == 2)
         f.parent = 5
         self.assertTrue(f.parent == 5)

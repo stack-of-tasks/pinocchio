@@ -181,8 +181,6 @@ namespace se3
     ///
     /// \brief Append a body to a given joint of the kinematic tree.
     ///
-    /// \remark This method also adds a Frame of same name to the vector of frames.
-    ///
     /// \param[in] joint_index Index of the supporting joint.
     /// \param[in] Y Spatial inertia of the body.
     /// \param[in] body_placement The relative placement of the body regarding to the parent joint. Set default to the Identity placement.

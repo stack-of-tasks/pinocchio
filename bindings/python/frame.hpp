@@ -52,11 +52,12 @@ namespace se3
       void visit(PyClass& cl) const 
       {
         cl
-          .def(bp::init< const std::string&,const JointIndex, const SE3_fx&,FrameType> ((bp::arg("name (string)"),bp::arg("parent (index)"), bp::arg("SE3 placement"), bp::arg("type (FrameType)")),
-                "Initialize from name, parent id and placement wrt parent joint."))
+          .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3_fx&,FrameType> ((bp::arg("name (string)"),bp::arg("index of parent joint"), bp::args("index of parent frame"), bp::arg("SE3 placement"), bp::arg("type (FrameType)")),
+                "Initialize from name, parent joint id, parent frame id and placement wrt parent joint."))
 
           .def_readwrite("name", &Frame::name, "name  of the frame")
           .def_readwrite("parent", &Frame::parent, "id of the parent joint")
+          .def_readwrite("previousFrame", &Frame::previousFrame, "id of the previous frame") 
           .add_property("placement", 
                         &FramePythonVisitor::getPlacementWrtParentJoint, 
                         &FramePythonVisitor::setPlacementWrtParentJoint, 

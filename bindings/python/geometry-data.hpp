@@ -116,23 +116,6 @@ namespace se3
              bp::args("pairIndex (int)"),
              "Deactivate pair ID <pairIndex> in geomModel.collisionPairs.")
 
-        .def("computeCollision",&GeometryDataPythonVisitor::computeCollision,
-             bp::args("co1 (index)","co2 (index)"),
-             "Check if the two collision objects of a collision pair are in collision."
-             "The collision pair is given by the two index of the collision objects.")
-        .def("computeAllCollisions",&GeometryDataPythonVisitor::computeAllCollisions,
-             "Same as computeCollision. It applies computeCollision to all collision pairs contained collision_pairs."
-             "The results are stored in collision_results.")
-        .def("isColliding",&GeometryDataPythonVisitor::isColliding,
-             "Check if at least one of the collision pairs is in collision.")
-        
-        .def("computeDistance",&GeometryDataPythonVisitor::computeDistance,
-             bp::args("co1 (index)","co2 (index)"),
-             "Compute the distance result between two collision objects of a collision pair."
-             "The collision pair is given by the two index of the collision objects.")
-        .def("computeAllDistances",&GeometryDataPythonVisitor::computeAllDistances,
-             "Same as computeDistance. It applies computeDistance to all collision pairs contained collision_pairs."
-             "The results are stored in collision_distances.")
 #endif // WITH_HPP_FCL        
         .def("__str__",&GeometryDataPythonVisitor::toString)
         ;
@@ -145,25 +128,15 @@ namespace se3
 
       static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
 #ifdef WITH_HPP_FCL      
-      static std::vector<DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distance_results; }
-      static std::vector<CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collision_results; }
+      static std::vector<fcl::DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distanceResults; }
+      static std::vector<fcl::CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collisionResults; }
       static std::vector<bool> & activeCollisionPairs(GeometryDataHandler & m) { return m->activeCollisionPairs; }
-      static CollisionResult computeCollision(const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
-      {
-        return m->computeCollision(CollisionPair(co1, co2));
-      }
-      static bool isColliding(const GeometryDataHandler & m) { return m->isColliding(); }
-      static void computeAllCollisions(GeometryDataHandler & m) { m->computeAllCollisions(); }
+
       static void activateCollisionPair(GeometryDataHandler & m,
                                         Index pairID) { m->activateCollisionPair(pairID); } 
       static void deactivateCollisionPair(GeometryDataHandler & m,
                                           Index pairID) { m->deactivateCollisionPair(pairID); } 
       
-      static DistanceResult computeDistance(const GeometryDataHandler & m, const GeomIndex co1, const GeomIndex co2)
-      {
-        return m->computeDistance(CollisionPair(co1, co2));
-      }
-      static void computeAllDistances(GeometryDataHandler & m) { m->computeAllDistances(); }
 #endif // WITH_HPP_FCL      
       
       static std::string toString(const GeometryDataHandler& m)
@@ -173,11 +146,11 @@ namespace se3
       static void expose()
       {
 #ifdef WITH_HPP_FCL        
-        bp::class_< std::vector<DistanceResult> >("StdVec_DistanceResult")
-        .def(bp::vector_indexing_suite< std::vector<DistanceResult> >());
+        bp::class_< std::vector<fcl::DistanceResult> >("StdVec_DistanceResult")
+        .def(bp::vector_indexing_suite< std::vector<fcl::DistanceResult> >());
   
-        bp::class_< std::vector<CollisionResult> >("StdVec_CollisionResult")
-        .def(bp::vector_indexing_suite< std::vector<CollisionResult> >());
+        bp::class_< std::vector<fcl::CollisionResult> >("StdVec_CollisionResult")
+        .def(bp::vector_indexing_suite< std::vector<fcl::CollisionResult> >());
 #endif // WITH_HPP_FCL
         bp::class_<GeometryDataHandler>("GeometryData",
                                         "Geometry data linked to a geometry model and data struct.",

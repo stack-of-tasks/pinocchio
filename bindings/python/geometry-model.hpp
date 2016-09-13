@@ -146,7 +146,6 @@ namespace se3
         bp::enum_<GeometryType>("GeometryType")
         .value("VISUAL",VISUAL)
         .value("COLLISION",COLLISION)
-        .value("NONE",NONE)
         ;
         
         bp::class_<GeometryModelHandler>("GeometryModel",

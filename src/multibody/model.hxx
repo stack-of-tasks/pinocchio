@@ -23,6 +23,7 @@
 #include "pinocchio/tools/string-generator.hpp"
 
 #include <boost/bind.hpp>
+#include <boost/utility.hpp>
 
 /// @cond DEV
 
