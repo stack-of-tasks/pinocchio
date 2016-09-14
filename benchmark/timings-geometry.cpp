@@ -70,7 +70,8 @@ int main()
   std::string romeo_meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   package_dirs.push_back(romeo_meshDir);
 
-  se3::Model model = se3::urdf::buildModel(romeo_filename, se3::JointModelFreeFlyer());
+  se3::Model model;
+  se3::urdf::buildModel(romeo_filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom_model; se3::urdf::buildGeom(model, romeo_filename, COLLISION, geom_model, package_dirs);
 #ifdef WITH_HPP_FCL  
   geom_model.addAllCollisionPairs();

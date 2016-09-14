@@ -149,7 +149,7 @@ namespace se3
   inline const std::string& Model::getBodyName (const Model::JointIndex index) const
   {
     assert( index < (Model::Index)nbody );
-    return getFrameName(index);
+    return frames[index].name;
   }
 
   inline Model::JointIndex Model::getJointId (const std::string & name) const
@@ -190,25 +190,6 @@ namespace se3
         details::FilterFrame (name, type)) != frames.end();
   }
 
-  inline const std::string & Model::getFrameName ( const FrameIndex index ) const
-  {
-    return frames[index].name;
-  }
-
-  inline Model::JointIndex Model::getFrameParent( const FrameIndex index ) const
-  {
-    return frames[index].parent;
-  }
-
-  inline FrameType Model::getFrameType( const FrameIndex index ) const
-  {
-    return frames[index].type;
-  }
-
-  inline const SE3 & Model::getFramePlacement( const FrameIndex index ) const
-  {
-    return frames[index].placement;
-  }
 
   inline int Model::addFrame ( const Frame & frame )
   {

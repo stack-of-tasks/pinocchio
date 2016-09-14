@@ -34,7 +34,8 @@ BOOST_AUTO_TEST_CASE ( buildModel )
   #ifndef NDEBUG
      std::cout << "Parse filename \"" << filename << "\"" << std::endl;
   #endif
-    se3::Model model = se3::urdf::buildModel(filename);
+    se3::Model model;
+    se3::urdf::buildModel(filename, model);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
