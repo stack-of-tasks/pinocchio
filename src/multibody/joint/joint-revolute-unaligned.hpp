@@ -289,7 +289,6 @@ namespace se3
     Bias_t c;
 
     F_t F;
-    Eigen::AngleAxisd angleaxis;
     
     // [ABA] specific data
     U_t U;
@@ -298,13 +297,11 @@ namespace se3
 
     JointDataRevoluteUnaligned() 
       : M(1),S(Eigen::Vector3d::Constant(NAN)),v(Eigen::Vector3d::Constant(NAN),NAN)
-      , angleaxis( NAN,Eigen::Vector3d::Constant(NAN))
       , U(), Dinv(), UDinv()
     {}
     
     JointDataRevoluteUnaligned(const Motion::Vector3 & axis) 
       : M(1),S(axis),v(axis,NAN)
-      , angleaxis(NAN,axis)
       , U(), Dinv(), UDinv()
     {}
 
@@ -342,12 +339,8 @@ namespace se3
 	       const Eigen::VectorXd & qs ) const
     {
       const double & q = qs[idx_q()];
-
-      /* It should not be necessary to copy axis in jdata, however a current bug
-       * in the fusion visitor prevents a proper access to jmodel::axis. A
-       * by-pass is to access to a copy of it in jdata. */
-      data.angleaxis.angle() = q;
-      data.M.rotation(data.angleaxis.toRotationMatrix());
+      
+      data.M.rotation(Eigen::AngleAxisd(q, axis).toRotationMatrix());
     }
 
     void calc( JointDataDerived& data, 
@@ -357,18 +350,15 @@ namespace se3
       const double & q = qs[idx_q()];
       const double & v = vs[idx_v()];
 
-      /* It should not be necessary to copy axis in jdata, however a current bug
-       * in the fusion visitor prevents a proper access to jmodel::axis. A
-       * by-pass is to access to a copy of it in jdata. */
-      data.angleaxis.angle() = q;
-      data.M.rotation(data.angleaxis.toRotationMatrix());
+      data.M.rotation(Eigen::AngleAxisd(q, axis).toRotationMatrix());
+
       data.v.w = v;
     }
     
     void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
-      data.U = I.block<6,3> (0,Inertia::ANGULAR) * data.angleaxis.axis();
-      data.Dinv[0] = 1./data.angleaxis.axis().dot(data.U.segment <3> (Inertia::ANGULAR));
+      data.U = I.block<6,3> (0,Inertia::ANGULAR) * axis;
+      data.Dinv[0] = 1./axis.dot(data.U.segment <3> (Inertia::ANGULAR));
       data.UDinv = data.U * data.Dinv;
       
       if (update_I)
