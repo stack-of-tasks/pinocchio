@@ -85,20 +85,13 @@ namespace se3
     nq += joint_model.nq();
     nv += joint_model.nv();
 
-    if (D::NV == Eigen::Dynamic)
-    {
-      effortLimit.conservativeResize(nv);effortLimit.bottomRows(joint_model.nv()) = max_effort;
-      velocityLimit.conservativeResize(nv);velocityLimit.bottomRows(joint_model.nv()) = max_velocity;
-      lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows(joint_model.nq()) = min_config;
-      upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows(joint_model.nq()) = max_config;
-    }
-    else
-    {
-      effortLimit.conservativeResize(nv);effortLimit.bottomRows<D::NV>() = max_effort;
-      velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>() = max_velocity;
-      lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>() = min_config;
-      upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows<D::NQ>() = max_config;
-    }
+    // Optimal efficiency here would be using the static-dim bottomRows, while specifying the dimension in argument in the case where D::NV is Eigen::Dynamic.
+    // However, this option is not compiling in Travis (why?).
+    // As efficiency of Model::addJoint is not critical, the dynamic bottomRows is used here.
+    effortLimit.conservativeResize(nv);effortLimit.bottomRows(joint_model.nv()) = max_effort;
+    velocityLimit.conservativeResize(nv);velocityLimit.bottomRows(joint_model.nv()) = max_velocity;
+    lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows(joint_model.nq()) = min_config;
+    upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows(joint_model.nq()) = max_config;
     
     neutralConfiguration.conservativeResize(nq);
     neutralConfiguration.tail(joint_model.nq()) = joint_model.neutralConfiguration();
@@ -120,20 +113,11 @@ namespace se3
     typedef JointModelDerived D;
     Eigen::VectorXd max_effort, max_velocity, min_config, max_config;
 
-    if (D::NV == Eigen::Dynamic)
-    {
-      max_effort = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
-      max_velocity = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
-      min_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
-      max_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
-    }
-    else
-    {
-      max_effort = Eigen::VectorXd::Constant(D::NV, std::numeric_limits<double>::max());
-      max_velocity = Eigen::VectorXd::Constant(D::NV, std::numeric_limits<double>::max());
-      min_config = Eigen::VectorXd::Constant(D::NQ, std::numeric_limits<double>::max());
-      max_config = Eigen::VectorXd::Constant(D::NQ, std::numeric_limits<double>::max());
-    }
+    max_effort = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
+    max_velocity = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
+    min_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
+    max_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
+
     return addJoint(parent, joint_model, joint_placement, max_effort, max_velocity, min_config, max_config, joint_name);
   }
   
