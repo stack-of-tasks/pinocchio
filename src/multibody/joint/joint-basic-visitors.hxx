@@ -19,7 +19,8 @@
 #define __se3_joint_basic_visitors_hxx__
 
 #include "pinocchio/assert.hpp"
-#include "pinocchio/multibody/joint/joint-variant.hpp"
+#include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
+#include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 
 namespace se3
@@ -193,6 +194,25 @@ namespace se3
   }
 
   /**
+   * @brief      JointRandomVisitor visitor
+   */
+  class JointRandomVisitor: public boost::static_visitor<Eigen::VectorXd>
+  {
+  public:
+
+    template<typename D>
+    Eigen::VectorXd operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.random(); }
+    
+    static Eigen::VectorXd run(const JointModelVariant & jmodel)
+    { return boost::apply_visitor( JointRandomVisitor(), jmodel ); }
+  };
+  inline Eigen::VectorXd random(const JointModelVariant & jmodel)
+  {
+    return JointRandomVisitor::run(jmodel);
+  }
+
+  /**
    * @brief      JointRandomConfigurationVisitor visitor
    */
   class JointRandomConfigurationVisitor: public boost::static_visitor<Eigen::VectorXd>
@@ -348,8 +368,8 @@ namespace se3
   {
   public:
     template<typename D>
-    int operator()(const JointModelBase<D> & ) const
-    { return D::NV; }
+    int operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.nv(); }
     
     static int run( const JointModelVariant & jmodel)
     { return boost::apply_visitor( JointNvVisitor(), jmodel ); }
@@ -364,8 +384,8 @@ namespace se3
   {
   public:
     template<typename D>
-    int operator()(const JointModelBase<D> & ) const
-    { return D::NQ; }
+    int operator()(const JointModelBase<D> & jmodel) const
+    { return jmodel.nq(); }
     
     static int run( const JointModelVariant & jmodel)
     { return boost::apply_visitor( JointNqVisitor(), jmodel ); }

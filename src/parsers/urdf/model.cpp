@@ -48,9 +48,10 @@ namespace se3
         Model::JointIndex idx;
         
         idx = model.addJoint(parent_id,jmodel,
-                             joint_placement,joint_name,
+                             joint_placement,
                              max_effort,max_velocity,
-                             min_config,max_config);
+                             min_config,max_config,
+			     joint_name);
         
         model.appendBodyToJoint(idx,Y,SE3::Identity(),body_name);
       }
@@ -59,6 +60,21 @@ namespace se3
       /// \brief Handle the case of JointModelDense which is dynamic.
       ///
       void addJointAndBody(Model & model, const JointModelBase< JointModelDense<-1,-1> > & jmodel, const Model::JointIndex parent_id,
+                           const SE3 & joint_placement, const std::string & joint_name,
+                           const Inertia & Y, const std::string & body_name)
+      {
+        Model::JointIndex idx;
+        
+        idx = model.addJoint(parent_id,jmodel,
+                             joint_placement,joint_name);
+        
+        model.appendBodyToJoint(idx,Y,SE3::Identity(),body_name);
+      }
+
+      ///
+      /// \brief Handle the case of JointModelComposite which is dynamic.
+      ///
+      void addJointAndBody(Model & model, const JointModelBase< JointModelComposite > & jmodel, const Model::JointIndex parent_id,
                            const SE3 & joint_placement, const std::string & joint_name,
                            const Inertia & Y, const std::string & body_name)
       {

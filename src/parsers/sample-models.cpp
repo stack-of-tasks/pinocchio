@@ -35,11 +35,12 @@ namespace se3
       Model::JointIndex idx;
       
       idx = model.addJoint(model.getJointId(parent_name),joint,
-                           SE3::Random(),name + "_joint",
+                           SE3::Random(),
                            TV::Random() + TV::Constant(1),
                            TV::Random() + TV::Constant(1),
                            CV::Random() - CV::Constant(1),
-                           CV::Random() + CV::Constant(1));
+                           CV::Random() + CV::Constant(1),
+			   name + "_joint");
       
       model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),name + "_body");
     }
@@ -123,10 +124,11 @@ namespace se3
         typedef JointModelFreeFlyer::TangentVector_t TV;
         
         idx = model.addJoint(model.getJointId("universe"),JointModelFreeFlyer(),
-                             SE3::Identity(),"root_joint",
+                             SE3::Identity(),
                              TV::Zero(), 1e3 * (TV::Random() + TV::Constant(1.)),
                              1e3 * (CV::Random() - CV::Constant(1)),
-                             1e3 * (CV::Random() + CV::Constant(1)));
+                             1e3 * (CV::Random() + CV::Constant(1)),
+			     "root_joint");
         model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"root_body");
       }
 
