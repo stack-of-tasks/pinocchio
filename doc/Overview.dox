@@ -16,7 +16,9 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** \mainpage
+namespace pinocchio {
+
+/** \mainpage Overview
 
 This is the documentation of Pinocchio, the Eigen-like library for Rigid Body Dynamics computations.
 This library implements highly efficient kinematic and dynamic algorithms for multi-body systems making Pinocchio a versatile framework for robotics applications.
@@ -54,4 +56,7 @@ space for a given configuration is performed by the following classes:
 \li se3::GeometryModel that represents the collision objects associated to a joint stored in a se3::Model,
 \li se3::GeometryData that stores intermediate data like the position of objects
 in a given configuration of the kinematic chain.
-**/
+
+*/
+
+}

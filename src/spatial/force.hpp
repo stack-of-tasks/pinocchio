@@ -24,10 +24,25 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 
+/** \addtogroup Force_group Force
+ *
+ *  This module represents a spatial force, e.g. a spatial impulse or force associated to a body.
+ *  The spatial force is the mathematical representation of \f$ se^{*}(3) \f$, the dual of \f$ se(3) \f$. 
+ *  
+ *
+ */
 
 namespace se3
 {
 
+
+  /**
+   * @brief      Base interface for forces representation.
+   * @details    The Class implements all 
+   * \ingroup Force_group
+   * 
+   * @tparam     Derived  { description }
+   */
   template< class Derived>
   class ForceBase
   {
@@ -40,15 +55,59 @@ namespace se3
     Derived_t & derived() { return *static_cast<Derived_t*>(this); }
     const Derived_t& derived() const { return *static_cast<const Derived_t*>(this); }
 
+
+    /**
+     * @brief      Return the angular part of the force vector
+     *
+     * @return     The 3D vector associated to the angular part of the 6D force vector
+     */
     ConstAngular_t angular() const { return derived().angular_impl(); }
+
+    /**
+     * @brief      Return the linear part of the force vector
+     *
+     * @return     The 3D vector associated to the linear part of the 6D force vector
+     */
     ConstLinear_t linear() const { return derived().linear_impl(); }
+    
+    /// \copydoc ForceBase::angular
     Angular_t angular() { return derived().angular_impl(); }
+
+    /// \copydoc ForceBase::linear
     Linear_t linear() { return derived().linear_impl(); }
+
+
+    /**
+     * @brief      Set the angular part of the force vector
+     *
+     * @param[in]  n
+     */
     void angular(const Vector3 & n) { derived().angular_impl(n); }
+
+    /**
+     * @brief      Set the linear part of the force vector
+     *
+     * @param[in]  f
+     */
     void linear(const Vector3 & f) { derived().linear_impl(f); }
 
+    /**
+     * @brief      Return the force
+     *
+     * @return     The 6D vector \f$ \phi \f$ such that 
+     * \f{equation*}
+     * \leftidx{^A}\phi = \begin{bmatrix} \leftidx{^A}f \\  \leftidx{^A}\tau \end{bmatrix}
+     * \f}
+     */
     const Vector6 & toVector() const { return derived().toVector_impl(); }
+
+    /// \copydoc ForceBase::toVector
     Vector6 & toVector() { return derived().toVector_impl(); }
+   
+    /*
+     * @brief C-style cast operator
+     * \copydoc ForceBase::toVector
+     */
     operator Vector6 () const { return toVector(); }
     
 //    void disp(std::ostream & os) const
@@ -56,17 +115,68 @@ namespace se3
 //      static_cast<const Derived_t*>(this)->disp_impl(os);
 //    }
 
+
+    /** \returns true if each coefficients of \c *this and \a other are all exactly equal.
+     * \warning When using floating point scalar values you probably should rather use a
+     *          fuzzy comparison such as isApprox()
+     */
     bool operator== (const Derived_t & other) const {return derived().isEqual(other);}
+    
+    /** \brief Copies the Derived Force into *this
+     *  \return a reference to *this
+     */
     Derived_t & operator= (const Derived_t & other) { return derived().__equl__(other); }
+
+    /** \brief replaces *this by *this + other.
+     *  \return a reference to *this
+     */
     Derived_t & operator+= (const Derived_t & phi) { return derived().__pequ__(phi); }
+
+    /** \return an expression of the sum of *this and other
+     */
     Derived_t operator+(const Derived_t & phi) const { return derived().__plus__(phi); }
+
+    /** \return an expression of *this scaled by the double factor a
+     */
     Derived_t operator*(double a) const    { return derived().__mult__(a); }
+
+    /** \return an expression of the opposite of *this
+     */
     Derived_t operator-() const { return derived().__minus__(); }
+
+    /** \return an expression of the difference of *this and phi
+     */
     Derived_t operator-(const Derived_t & phi) const { return derived().__minus__(phi); }
     
+    /** \return the dot product of *this with m     *
+     */
     Scalar dot(const Motion & m) const { return static_cast<Derived_t*>(this)->dot(m); }
 
+
+    /**
+     * @brief      Transform from A to B coordinates the Force represented by *this such that
+     *             \f{equation*}
+     *             \leftidx{^B}f  =  \leftidx{^B}X_A^* * \leftidx{^A}f
+     *             \f}
+     * 
+     * @param[in]  m     The rigid transformation \f$ \leftidx{^B}m_A \f$ whose coordinates transform for forces is
+     *                   \leftidx{^B}X_A^*  
+     *
+     * @return     an expression of the force expressed in the new coordinates
+     */
     Derived_t se3Action(const SE3 & m) const { return derived().se3Action_impl(m); }
+
+    /**
+     * @brief      Transform from B to A coordinates the Force represented by *this such that
+     *             \f{equation*}
+     *             \leftidx{^A}f  =  \leftidx{^A}X_B^* * \leftidx{^A}f
+     *             \f}
+     * 
+     * @param[in]  m     The rigid transformation \f$ \leftidx{^B}m_A \f$ whose coordinates transform for forces is
+     *                   \leftidx{^B}X_A^*  
+     *
+     * @return     an expression of the force expressed in the new coordinates
+     */
     Derived_t se3ActionInverse(const SE3 & m) const { return derived().se3ActionInverse_impl(m); }
 
     void disp(std::ostream & os) const { derived().disp_impl(os); }
@@ -105,6 +215,14 @@ namespace se3
     };
   }; // traits ForceTpl
 
+
+  /**
+   * @brief      Concreate Class representing a force
+   *
+   * \ingroup Force_group
+   * @tparam     _Scalar   { description }
+   * @tparam     _Options  { description }
+   */
   template<typename _Scalar, int _Options>
   class ForceTpl : public ForceBase< ForceTpl< _Scalar, _Options > >
   {
@@ -195,11 +313,17 @@ namespace se3
     ForceTpl __minus__(const ForceTpl & phi) const { return ForceTpl(data - phi.data); }
 
 
+    /// \internal \copydoc ForceBase::angular
     ConstAngular_t angular_impl() const { return data.template segment<3> (ANGULAR); }
+    /// \internal \copydoc ForceBase::angular
     Angular_t angular_impl() { return data.template segment<3> (ANGULAR); }
+    /// \internal \copydoc ForceBase::angular(const Vector3 &)
     void angular_impl(const Vector3 & n) { data.template segment<3> (ANGULAR) = n; }
+    /// \internal \copydoc ForceBase::linear
     ConstLinear_t linear_impl() const { return data.template segment<3> (LINEAR);}
+    /// \internal \copydoc ForceBase::linear
     Linear_t linear_impl() { return data.template segment<3> (LINEAR);}
+    /// \internal \copydoc ForceBase::linear(const Vector3 &)
     void linear_impl(const Vector3 & f) { data.template segment<3> (LINEAR) = f; }
     
     Scalar dot(const Motion & m) const { return data.dot(m.toVector()); }
