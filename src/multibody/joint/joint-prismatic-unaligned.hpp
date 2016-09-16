@@ -341,10 +341,7 @@ namespace se3
     {
       const double & q = qs[idx_q()];
 
-      /* It should not be necessary to copy axis in jdata, however a current bug
-       * in the fusion visitor prevents a proper access to jmodel::axis. A
-       * by-pass is to access to a copy of it in jdata. */
-      data.M.translation() = data.S.axis * q;
+      data.M.translation() = axis * q;
     }
 
     void calc(JointDataDerived & data,
@@ -354,17 +351,14 @@ namespace se3
       const Scalar & q = qs[idx_q()];
       const Scalar & v = vs[idx_v()];
 
-      /* It should not be necessary to copy axis in jdata, however a current bug
-       * in the fusion visitor prevents a proper access to jmodel::axis. A
-       * by-pass is to access to a copy of it in jdata. */
-      data.M.translation() = data.S.axis * q;
+      data.M.translation() = axis * q;
       data.v.v = v;
     }
     
     void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
-      data.U = I.block<6,3> (0,Inertia::LINEAR) * data.S.axis;
-      data.Dinv[0] = 1./data.S.axis.dot(data.U.segment <3> (Inertia::LINEAR));
+      data.U = I.block<6,3> (0,Inertia::LINEAR) * axis;
+      data.Dinv[0] = 1./axis.dot(data.U.segment <3> (Inertia::LINEAR));
       data.UDinv = data.U * data.Dinv;
       
       if (update_I)

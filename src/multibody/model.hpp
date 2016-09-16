@@ -292,42 +292,7 @@ namespace se3
     ///
     bool existFrame (const std::string & name, const FrameType& type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
     
-    ///
-    /// \brief Get the name of a frame given by its index.
-    ///
-    /// \param[in] index Index of the frame.
-    ///
-    /// \return The name of the frame.
-    ///
-    PINOCCHIO_DEPRECATED const std::string & getFrameName (const FrameIndex index) const;
     
-    ///
-    /// \brief Get the index of the joint supporting the frame given by its index.
-    ///
-    /// \param[in] index Index of the frame.
-    ///
-    /// \return
-    ///
-    PINOCCHIO_DEPRECATED JointIndex getFrameParent(const FrameIndex index) const;
-    
-    ///
-    /// \brief Get the type of the frame given by its index.
-    ///
-    /// \param[in] index Index of the frame.
-    ///
-    /// \return
-    ///
-    PINOCCHIO_DEPRECATED FrameType getFrameType(const FrameIndex index) const;
-    
-    ///
-    /// \brief Return the relative placement between a frame and its supporting joint.
-    ///
-    /// \param[in] index Index of the frame.
-    ///
-    /// \return The frame placement regarding the supporing joint.
-    ///
-    PINOCCHIO_DEPRECATED const SE3 & getFramePlacement(const FrameIndex index) const;
-
     ///
     /// \brief Adds a frame to the kinematic tree.
     ///
