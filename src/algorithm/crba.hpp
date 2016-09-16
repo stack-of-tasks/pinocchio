@@ -19,6 +19,7 @@
 #define __se3_crba_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/check.hpp"
   
 namespace se3
 {
@@ -63,6 +64,8 @@ namespace se3
         Data & data,
         const Eigen::VectorXd & q,
         const Eigen::VectorXd & v);
+
+  DEFINE_ALGO_CHECKER(CRBA);
 
 } // namespace se3 
 

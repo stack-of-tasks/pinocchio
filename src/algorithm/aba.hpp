@@ -19,6 +19,7 @@
 #define __se3_aba_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/check.hpp"
 
 namespace se3
 {
@@ -39,6 +40,8 @@ namespace se3
       const Eigen::VectorXd & q,
       const Eigen::VectorXd & v,
       const Eigen::VectorXd & tau);
+
+  DEFINE_ALGO_CHECKER(ABA);
 
 } // namespace se3
 
