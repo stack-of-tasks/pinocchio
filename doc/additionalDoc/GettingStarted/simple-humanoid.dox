@@ -19,9 +19,37 @@
 namespace pinocchio
 {
   
-/** \page GettingStarted_simple_huma_IK Inverse Kinematics
+/** \page GettingStarted_simple_huma_FD Forward Dynamic 
 
-Here you can find how to use pinocchio API to build a really simple model and compute inverse kinematics
+Here is an example on how simple it is to use pinocchio API to build a really simple model and compute forward dynamics (Recursive Newton Euler Algorithm)
+
+\code
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
+
+int main (int argc, char* argv[]) {
+
+  using namespace se3;
+
+  Model model; buildModels::humanoidSimple(model);
+  Data data(model);
+
+  std::cout << model << std::endl;
+
+  Eigen::VectorXd q = Eigen::VectorXd::Random(model.nq);
+  Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+  Eigen::VectorXd a = Eigen::VectorXd::Random(model.nv);
+
+  Eigen::VectorXd tau = rnea(model, data, q, v , a);
+  
+  std::cout << tau << std::endl;
+
+  return 0;
+}
+\endcode
+
+The humanoidSimple function populates the model with only simple revolute joints(whose axis is either X, Y or Z). If you want to create models differently, please refer to \ref Chapters_CreatingModels to see all the possibilities. 
+
 
 */  
 }

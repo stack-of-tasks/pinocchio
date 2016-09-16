@@ -23,5 +23,11 @@ namespace pinocchio
 
 Here you can find explications concerning python bindings and calls to C++ methods + RobotWrapper Class
 
+Pinocchio is a powerful C++ library, whose main functionalities are in header files. This involves that when you want to compile your application calling Pinocchio, it can tak a long time. If you don't take great care, you can even forget some semicolon or bugs that can make the compilation phase painful.
+
+Pinocchio comes with a python library that allows people to take advantages of interpreted languages, so that you don't have to compile everything, everytime. The counterpart is that the Python API makes calls to the C++'s one and is then less efficient in term of computation times. The python library even comes with a class called RobotWrapper that encapsulate the Model, Data, GeometryModel and GeometryData classes to ease the calls to algorithms. This Class comes with a bridge to a visualisation tool called Gepetto-Viewer in which you can display your robot and see it moving in its environment.
+
+We greetly encourage people that want to discover Pinocchio to use the Python bindings, whereas the C++ library is more for people that know what they do and that really want the execution time to be as fast as possible.
+
 */  
 }

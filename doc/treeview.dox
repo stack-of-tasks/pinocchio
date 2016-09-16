@@ -29,7 +29,7 @@ namespace pinocchio {
 
   /** \page GettingStarted  Getting Started
        - \subpage GettingStarted_install
-       - \subpage GettingStarted_simple_huma_IK
+       - \subpage GettingStarted_simple_huma_FD
        - \subpage GettingStarted_urdf_loading_viewer
   */
   
@@ -37,7 +37,6 @@ namespace pinocchio {
        - \subpage Chapters_SpatialAlgebra
        - \subpage Chapters_RigidBodyDynamicModel
        - \subpage Chapters_DynamicAlgorithms
-       - \subpage Chapters_DataDrivenAlgorithms
        - \subpage Chapters_FclGeometries
        - \subpage Chapters_CreatingModels
        - \subpage Chapters_PythonBindings

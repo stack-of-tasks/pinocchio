@@ -21,7 +21,31 @@ namespace pinocchio
   
 /** \page Chapters_DynamicAlgorithms Dynamic Algorithms
 
-Here you can find informations about dynamic algorithms
+\section DA_DOP Data-Oriented Programming vs Object-Oriented programming
+
+In classical Object-Oriented programming, one usually attach functionalities to particular pieces of data stored in one
+Class. These functionalities are the services that offers such class.
+
+In Pinocchio, it is slightly different. We have classes that hold all the data that are needed for dynamic computations.
+They do not hold any logic. Instead, all the computations are done in particular algorithms that are functions using
+these datas.
+
+\section DA_unrollingModel Unrolling the kinematic chain
+
+With the formulations expressed by Roy Featherstone, executing an algorithm on a complete Model ends up bein the same as doing a set of computations on each joint that compose the kinematic chain one after the other. It can be either from the top of the chain to the bottom (we call it Forward pass) or from the bottom to the top (we call it Backward pass) or both (such as Aba algorithm). The computations made of on each joint represent the same quantities ( force transmitted along the joint, speed..) but are specific to each joint because they do not work in same dimension spaces.
+
+When other libraries compute these values, they do use matrices with a big amount of zeros. Pinocchio is aimed at working with sparsity (ie. using only the relevant values from these matrices). To do it, computations are delegated to the corresponding joint that is able to perform it as efficiently as possible.
+If we take the example of computed the generalized force for a joint Revolute around X-axis. For such joint the constraint is S^T = [0 0 0 1 0 0] and computing the generalized force : $\tau = S^T * f.
+We can see that only the fourth coefficient of f will not be multiplied by zero. So instead of multiplying the others by zero, the joint will directly do $\tau = f_3$
+
+This sparsity is hidden in algorithms with an user friendly interface. Wr provided free functions that take as argument a Model, a Data and a bunch of parameters (configurations, speeds, accelerations) depending of the called algorithm. A typical call would be:
+\code
+se3::forwardKinematics(myModel, myData, q, qdot, qddot);
+\endcode
+
+If you want to know more about the computations done internally, each algorithm possesses its own critic section et is available in .hxx files.
+
+
 
 */  
 }

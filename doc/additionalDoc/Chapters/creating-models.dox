@@ -21,15 +21,13 @@ namespace pinocchio
   
 /** \page Chapters_CreatingModels Creating models
 
-Here you can find the differents ways to create a model ( simple models, python/lua/urdf loading, Joint after Joint)
-
-\section Chapters_CreatingModels_introduction Introduction
-
 In Pinocchio you can create Models in many ways. We have built-in parsers for different kind of format ( urdf, python, Lua)
 but you can also create a Model from scratch and fill it with the Joints you want.
 
-\section Chapters_CreatingModels_supported_formats Supported formats
+\section Chapters_CreatingModels_BuiltInModels Built-In Models
+in simple-models...
 
+\section Chapters_CreatingModels_FileParsing Parsing different extensions
 
 \subsection Chapters_CreatingModels_urdf Format urdf
 
@@ -51,12 +49,14 @@ se3::Data data (model);
 
 To load a python file in C++ code, copy the following lines:
 \code
-#include <pinocchio/multibody/model.hpp>
-#include <pinocchio/multibody/parser/python.hpp>
-#include <pinocchio/multibody/parser/utils.hpp>
-#include <pinocchio/multibody/joint.hpp>
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/parsers/python.hpp"
 
-//put here code to load from python
+const std::string filename = "path/to/file/model.py";
+
+se3::Model model = se3::python::buildModel(filename,"model",false);
+se3::Data data(model);
+
 \endcode
 
 \subsection Chapters_CreatingModels_lua Format lua
@@ -72,6 +72,35 @@ bool freeflyer = true;
 const std::string filename = "path/to/file/model.lua";
 se3::Model model = se3::lua::buildModel (filename, freeflyer);
 se3::Data data (model);
+\endcode
+
+\section Chapters_CreatingModels_FromScratch Build your model joint by joint
+
+When creating a Model, the first joint is representing the root of the world and is called universe.
+
+\subsection FromScratch_Cplusplus In C++
+
+\code
+#include "pinocchio/multibody/model.hpp"
+
+Model model;
+idx = model.addJoint(model.getJointId("universe"),JointModelFreeFlyer(),SE3::Identity(),"ff_joint");
+model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"ff_body");
+
+idx = model.addJoint(model.getJointId("ff_joint"),JointModelRY(),SE3::Identity(),"lleg1_joint");
+model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"lleg1_body");
+
+\endcode
+
+\subsection FromScratch_Python In Python
+
+Python API is almost as simple to use as the C++ one to create a robot. There is a slightly difference when creating an empty Model beca use of the library
+
+\code
+ import pinocchio as se3
+ m = se3.Model.BuildEmptyModel() 
+ m.addJoint() // ...
+ m.appendBody() // ...
 \endcode
 
 */  
