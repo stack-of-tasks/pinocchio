@@ -63,6 +63,9 @@ namespace se3
                         &FramePythonVisitor::setPlacementWrtParentJoint, 
                         "placement in the parent joint local frame")
           .def_readwrite("type", &Frame::type, "type of the frame")
+
+          .def(bp::self_ns::str(bp::self_ns::self))
+          .def(bp::self_ns::repr(bp::self_ns::self))
           ;
       }
 

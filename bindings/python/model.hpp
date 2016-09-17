@@ -135,6 +135,7 @@ namespace se3
           // Class Methods
           .def("addJoint",&ModelPythonVisitor::addJoint,bp::args("parent_id","joint_model","joint_placement","joint_name"),"Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
           // ADD addJoint with limits ? See boost::python overloading/default parameters
+          .def("addJointFrame", &ModelPythonVisitor::addJointFrame, bp::args("jointIndex", "frameIndex"), "add the joint at index jointIndex as a frame to the frame tree")
           .def("appendBodyToJoint",&ModelPythonVisitor::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
 
           .def("addBodyFrame", &ModelPythonVisitor::addBodyFrame, bp::args("body_name", "parentJoint", "body_plaement", "previous_frame(parent frame)"), "add a body to the frame tree")
@@ -188,6 +189,11 @@ namespace se3
         return boost::apply_visitor(addJointVisitor(model,parent_id,joint_placement,joint_name), jmodel_variant);
       }
       
+      static int addJointFrame( ModelHandler & m, const JointIndex jointIndex, int frameIndex)
+      {
+        return m->addJointFrame(jointIndex, frameIndex);
+      }
+
       static void appendBodyToJoint(ModelHandler & model,
                                     const JointIndex joint_parent_id,
                                     const Inertia_fx & inertia,

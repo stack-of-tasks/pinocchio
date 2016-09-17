@@ -85,6 +85,7 @@ namespace se3
         
         .def("__add__",&ForcePythonVisitor::add)
         .def("__sub__",&ForcePythonVisitor::subst)
+        .def("__neg__",&ForcePythonVisitor::neg)
         .def(bp::self_ns::str(bp::self_ns::self))
         .def(bp::self_ns::repr(bp::self_ns::self))
         
@@ -108,6 +109,7 @@ namespace se3
       
       static Force_fx add(const Force_fx & f1, const Force_fx & f2) { return f1+f2; }
       static Force_fx subst(const Force_fx & f1, const Force_fx & f2) { return f1-f2; }
+      static Force_fx neg(const Force_fx & f1) { return -f1; }
 
       static void expose()
       {
