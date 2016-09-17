@@ -99,7 +99,7 @@ namespace se3
      *
      * @return     Name of the GeometryObject
      */
-    const std::string & getGeometryName(const GeomIndex index) const;
+    PINOCCHIO_DEPRECATED const std::string & getGeometryName(const GeomIndex index) const;
 
 #ifdef WITH_HPP_FCL
     ///

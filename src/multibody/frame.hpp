@@ -97,8 +97,15 @@ namespace se3
 
     /// \brief Type of the frame
     FrameType type;
-    
+
   }; // struct Frame
+
+  inline std::ostream & operator << (std::ostream& os, const Frame & f)
+  {
+    os << "Frame name:" << f.name  << "paired to (parent joint/ previous frame)" << "(" <<f.parent << "/" << f.previousFrame << ")"<< std::endl;
+    os << "with relative placement wrt parent joint:\n" << f.placement << std::endl;
+    return os;
+  }
 
 } // namespace se3
 

@@ -303,7 +303,7 @@ namespace se3
           // ???
           model.addBodyFrame(randomStringGenerator(8), parent_id, global_placement);
 
-          joint_id = (Model::JointIndex)model.njoint;
+          joint_id = (Model::JointIndex)model.njoints;
           
           fixed_body_table_id_map[body_name] = parent_id;
           fixed_placement_map[body_name] = global_placement;

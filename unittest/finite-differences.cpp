@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
   q.segment<4>(3).normalize();
   computeJacobians(model,data,q);
 
-  Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.njoint-1);
+  Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.njoints-1);
   Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
   
   getJacobian<false>(model,data,idx,Jrh);

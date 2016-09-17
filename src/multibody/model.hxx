@@ -43,8 +43,8 @@ namespace se3
 
   inline std::ostream& operator<< (std::ostream & os, const Model & model)
   {
-    os << "Nb joints = " << model.njoint << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
-    for(Model::Index i=0;i<(Model::Index)(model.njoint);++i)
+    os << "Nb joints = " << model.njoints << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
+    for(Model::Index i=0;i<(Model::Index)(model.njoints);++i)
     {
       os << "  Joint "<< model.names[i] << ": parent=" << model.parents[i]  << std::endl;
     }
@@ -64,17 +64,17 @@ namespace se3
                                     )
   {
     typedef JointModelDerived D;
-    assert( (njoint==(int)joints.size())&&(njoint==(int)inertias.size())
-           &&(njoint==(int)parents.size())&&(njoint==(int)jointPlacements.size()) );
+    assert( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
+           &&(njoints==(int)parents.size())&&(njoints==(int)jointPlacements.size()) );
     assert((joint_model.nq()>=0) && (joint_model.nv()>=0));
 
     assert(max_effort.size() == joint_model.nv()
            && max_velocity.size() == joint_model.nv()
            && min_config.size() == joint_model.nq()
            && max_config.size() == joint_model.nq());
-
-    Model::JointIndex idx = (Model::JointIndex) (njoint++);
-
+    
+    Model::JointIndex idx = (Model::JointIndex) (njoints++);
+    
     joints         .push_back(JointModel(joint_model.derived()));
     boost::get<JointModelDerived>(joints.back()).setIndexes(idx,nq,nv);
     
@@ -141,7 +141,7 @@ namespace se3
   {
     const Inertia & iYf = Y.se3Action(body_placement);
     inertias[joint_index] += iYf;
-    nbody++;
+    nbodies++;
   }
 
   inline int Model::addBodyFrame (const std::string & body_name,
@@ -168,11 +168,6 @@ namespace se3
     return existFrame(name, BODY);
   }
 
-  inline const std::string& Model::getBodyName (const Model::JointIndex index) const
-  {
-    assert( index < (Model::Index)nbody );
-    return frames[index].name;
-  }
 
   inline Model::JointIndex Model::getJointId (const std::string & name) const
   {
@@ -218,8 +213,8 @@ namespace se3
     if( !existFrame(frame.name, frame.type) )
     {
       frames.push_back(frame);
-      nFrames++;
-      return nFrames - 1;
+      nframes++;
+      return nframes - 1;
     }
     else
     {
@@ -236,35 +231,35 @@ namespace se3
 
   inline Data::Data (const Model & model)
     :joints(0)
-    ,a((std::size_t)model.njoint)
-    ,a_gf((std::size_t)model.njoint)
-    ,v((std::size_t)model.njoint)
-    ,f((std::size_t)model.njoint)
-    ,oMi((std::size_t)model.njoint)
-    ,liMi((std::size_t)model.njoint)
+    ,a((std::size_t)model.njoints)
+    ,a_gf((std::size_t)model.njoints)
+    ,v((std::size_t)model.njoints)
+    ,f((std::size_t)model.njoints)
+    ,oMi((std::size_t)model.njoints)
+    ,liMi((std::size_t)model.njoints)
     ,tau(model.nv)
     ,nle(model.nv)
-    ,oMf((std::size_t)model.nFrames)
-    ,Ycrb((std::size_t)model.njoint)
+    ,oMf((std::size_t)model.nframes)
+    ,Ycrb((std::size_t)model.njoints)
     ,M(model.nv,model.nv)
     ,ddq(model.nv)
-    ,Yaba((std::size_t)model.njoint)
+    ,Yaba((std::size_t)model.njoints)
     ,u(model.nv)
     ,Ag(6,model.nv)
-    ,Fcrb((std::size_t)model.njoint)
-    ,lastChild((std::size_t)model.njoint)
-    ,nvSubtree((std::size_t)model.njoint)
+    ,Fcrb((std::size_t)model.njoints)
+    ,lastChild((std::size_t)model.njoints)
+    ,nvSubtree((std::size_t)model.njoints)
     ,U(model.nv,model.nv)
     ,D(model.nv)
     ,tmp(model.nv)
     ,parents_fromRow((std::size_t)model.nv)
     ,nvSubtree_fromRow((std::size_t)model.nv)
     ,J(6,model.nv)
-    ,iMf((std::size_t)model.njoint)
-    ,com((std::size_t)model.njoint)
-    ,vcom((std::size_t)model.njoint)
-    ,acom((std::size_t)model.njoint)
-    ,mass((std::size_t)model.njoint)
+    ,iMf((std::size_t)model.njoints)
+    ,com((std::size_t)model.njoints)
+    ,vcom((std::size_t)model.njoints)
+    ,acom((std::size_t)model.njoints)
+    ,mass((std::size_t)model.njoints)
     ,Jcom(3,model.nv)
     ,JMinvJt()
     ,llt_JMinvJt()
@@ -275,12 +270,12 @@ namespace se3
     ,impulse_c()
   {
     /* Create data strcture associated to the joints */
-    for(Model::Index i=0;i<(Model::JointIndex)(model.njoint);++i) 
+    for(Model::Index i=0;i<(Model::JointIndex)(model.njoints);++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
 
     /* Init for CRBA */
     M.fill(0);
-    for(Model::Index i=0;i<(Model::Index)(model.njoint);++i ) { Fcrb[i].resize(6,model.nv); }
+    for(Model::Index i=0;i<(Model::Index)(model.njoints);++i ) { Fcrb[i].resize(6,model.nv); }
     computeLastChild(model);
 
     /* Init for Cholesky */
@@ -305,7 +300,7 @@ namespace se3
   {
     typedef Model::Index Index;
     std::fill(lastChild.begin(),lastChild.end(),-1);
-    for( int i=model.njoint-1;i>=0;--i )
+    for( int i=model.njoints-1;i>=0;--i )
     {
       if(lastChild[(Index)i] == -1) lastChild[(Index)i] = i;
       const Index & parent = model.parents[(Index)i];
@@ -319,7 +314,7 @@ namespace se3
 
   inline void Data::computeParents_fromRow (const Model & model)
   {
-    for( Model::Index joint=1;joint<(Model::Index)(model.njoint);joint++)
+    for( Model::Index joint=1;joint<(Model::Index)(model.njoints);joint++)
     {
       const Model::Index & parent = model.parents[joint];
       const int nvj    = nv   (model.joints[joint]);
