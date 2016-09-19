@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE ( test_runal )
   model.addJoint(0,se3::JointModelRevoluteUnaligned(0,0,1),se3::SE3::Random());
   Data data(model);
 
-  for( Model::JointIndex i=1;i<(Model::JointIndex)model.njoint;++i )
+  for( Model::JointIndex i=1;i<(Model::JointIndex)model.njoints;++i )
     {
       SimpleVisitor::run(model.joints[i],data.joints[i],
                          SimpleVisitor::ArgsType(model,data,i));

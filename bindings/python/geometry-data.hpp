@@ -110,18 +110,33 @@ namespace se3
                       bp::make_function(&GeometryDataPythonVisitor::oMg,
                                         bp::return_internal_reference<>()),
                       "Vector of collision objects placement relative to the world.")
-#ifdef WITH_HPP_FCL        
-        .add_property("distance_results",
-                      bp::make_function(&GeometryDataPythonVisitor::distance_results,
-                                        bp::return_internal_reference<>()),
-                      "Vector of distance results computed in ")
-        .add_property("collision_results",
-                      bp::make_function(&GeometryDataPythonVisitor::collision_results,
-                                        bp::return_internal_reference<>())  )
+#ifdef WITH_HPP_FCL
         .add_property("activeCollisionPairs",
                       bp::make_function(&GeometryDataPythonVisitor::activeCollisionPairs,
                                         bp::return_internal_reference<>()))
+        .add_property("distanceRequest",
+                      bp::make_function(&GeometryDataPythonVisitor::distanceRequest,
+                                        bp::return_internal_reference<>()),
+                      "Defines what information should be computed by fcl for distances")
+        .add_property("distanceResults",
+                      bp::make_function(&GeometryDataPythonVisitor::distanceResults,
+                                        bp::return_internal_reference<>()),
+                      "Vector of distance results computed in ")
+        .add_property("CollisionRequest",
+                      bp::make_function(&GeometryDataPythonVisitor::CollisionRequest,
+                                        bp::return_internal_reference<>()),
+                      "Defines what information should be computed by fcl for collision tests")
+        .add_property("collision_results",
+                      bp::make_function(&GeometryDataPythonVisitor::collision_results,
+                                        bp::return_internal_reference<>())  )
+        .add_property("radius",
+                      bp::make_function(&GeometryDataPythonVisitor::radius,
+                                        bp::return_internal_reference<>()),
+                      "Vector of radius of bodies, ie distance of the further point of the geometry object from the joint center ")
         
+        .def("fillInnerOuterObjectMaps", &GeometryDataPythonVisitor::fillInnerOuterObjectMaps,
+             bp::args("GeometryModel"),
+             "Fill inner and outer objects maps")
         .def("activateCollisionPair",&GeometryDataPythonVisitor::activateCollisionPair,
              bp::args("pairIndex (int)"),
              "Activate pair ID <pairIndex> in geomModel.collisionPairs."
@@ -142,9 +157,15 @@ namespace se3
 
       static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
 #ifdef WITH_HPP_FCL      
-      static std::vector<fcl::DistanceResult> & distance_results( GeometryDataHandler & m ) { return m->distanceResults; }
-      static std::vector<fcl::CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collisionResults; }
       static std::vector<bool> & activeCollisionPairs(GeometryDataHandler & m) { return m->activeCollisionPairs; }
+      static fcl::DistanceRequest & distanceRequest( GeometryDataHandler & m ) { return m->distanceRequest; }
+      static std::vector<fcl::DistanceResult> & distanceResults( GeometryDataHandler & m ) { return m->distanceResults; }
+      static fcl::CollisionRequest & CollisionRequest( GeometryDataHandler & m ) { return m->collisionRequest; } 
+      static std::vector<fcl::CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collisionResults; }
+      static std::vector<double> & radius( GeometryDataHandler & m ) { return m->radius; }
+
+      static void fillInnerOuterObjectMaps(GeometryDataHandler & m, const GeometryModelHandler & model)
+      {m->fillInnerOuterObjectMaps(*model);}
 
       static void activateCollisionPair(GeometryDataHandler & m,
                                         Index pairID) { m->activateCollisionPair(pairID); } 

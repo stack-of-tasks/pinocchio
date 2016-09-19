@@ -268,8 +268,8 @@ BOOST_AUTO_TEST_CASE ( test_R3xSO3)
   computeAllTerms(model_composite,data_composite,q,q_dot);
 
 
-  Model::Index index_joint_R3xSO3 = (Model::Index) model_zero_mass.njoint-1;
-  Model::Index index_joint_composite = (Model::Index) model_composite.njoint-1;
+  Model::Index index_joint_R3xSO3 = (Model::Index) model_zero_mass.njoints-1;
+  Model::Index index_joint_composite = (Model::Index) model_composite.njoints-1;
 
 
   BOOST_CHECK_MESSAGE(data_composite.oMi[index_joint_composite]

@@ -44,7 +44,7 @@ namespace se3
   inline void emptyForwardPass(const Model & model,
                                Data & data)
   {
-    for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoint; ++i)
+    for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
     {
       emptyForwardStep::run(model.joints[i],
                             data.joints[i],
@@ -91,7 +91,7 @@ namespace se3
   {
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     
-    for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoint; ++i)
+    for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
     {
       ForwardKinematicZeroStep::run(model.joints[i], data.joints[i],
                                     ForwardKinematicZeroStep::ArgsType (model,data,q)
@@ -146,7 +146,7 @@ namespace se3
     
     data.v[0].setZero();
 
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoint; ++i )
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
     {
       ForwardKinematicFirstStep::run(model.joints[i],data.joints[i],
                                      ForwardKinematicFirstStep::ArgsType(model,data,q,v));
@@ -207,7 +207,7 @@ namespace se3
     data.v[0].setZero();
     data.a[0].setZero();
     
-    for( Model::JointIndex i=1; i < (Model::JointIndex) model.njoint; ++i )
+    for( Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i )
     {
       ForwardKinematicSecondStep::run(model.joints[i],data.joints[i],
                                       ForwardKinematicSecondStep::ArgsType(model,data,q,v,a));

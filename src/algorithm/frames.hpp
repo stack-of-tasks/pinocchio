@@ -84,7 +84,7 @@ namespace se3
                                       Data & data
                                       )
   {
-    for (Model::FrameIndex i=0; i < (Model::FrameIndex) model.nFrames; ++i)
+    for (Model::FrameIndex i=0; i < (Model::FrameIndex) model.nframes; ++i)
     {
       const Frame & frame = model.frames[i];
       const Model::JointIndex & parent = frame.parent;

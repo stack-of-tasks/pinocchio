@@ -57,13 +57,13 @@ namespace se3
     int nv;
     
     /// \brief Number of joints.
-    int njoint;
+    int njoints;
 
     /// \brief Number of bodies.
-    int nbody;
+    int nbodies;
     
     /// \brief Number of operational frames.
-    int nFrames;
+    int nframes;
 
     /// \brief Spatial inertias of the body <i> expressed in the supporting joint frame <i>.
     std::vector<Inertia> inertias;
@@ -111,9 +111,9 @@ namespace se3
     Model()
       : nq(0)
       , nv(0)
-      , njoint(1)
-      , nbody(1)
-      , nFrames(0)
+      , njoints(1)
+      , nbodies(1)
+      , nframes(0)
       , inertias(1)
       , jointPlacements(1, SE3::Identity())
       , joints(1)
@@ -249,14 +249,6 @@ namespace se3
     ///
     bool existBodyName(const std::string & name) const;
     
-    ///
-    /// \brief Get the name of a body given by its index.
-    ///
-    /// \param[in] index Index of the body.
-    ///
-    /// \return Name of the body.
-    ///
-    const std::string & getBodyName(const JointIndex index) const;
     
     ///
     /// \brief Return the index of a joint given by its name.
@@ -286,7 +278,7 @@ namespace se3
     ///
     /// \return Name of the joint.
     ///
-    const std::string & getJointName(const JointIndex index) const;
+    PINOCCHIO_DEPRECATED const std::string & getJointName(const JointIndex index) const;
 
     ///
     /// \brief Returns the index of a frame given by its name.

@@ -531,9 +531,9 @@ BOOST_AUTO_TEST_SUITE_END ()
 JointPositionsMap_t fillPinocchioJointPositions(const se3::Model& model, const se3::Data & data)
 {
   JointPositionsMap_t result;
-  for (se3::Model::Index i = 0; i < (se3::Model::Index)model.njoint; ++i)
+  for (se3::Model::Index i = 0; i < (se3::Model::Index)model.njoints; ++i)
   {
-    result[model.getJointName(i)] = data.oMi[i];
+    result[model.names[i]] = data.oMi[i];
   }
   return result;
 }
