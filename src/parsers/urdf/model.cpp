@@ -16,6 +16,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include "pinocchio/math/matrix.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/urdf/utils.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -75,8 +76,8 @@ namespace se3
         // Reference to model.frames[fid] can has changed because the vector
         // may have been reallocated.
         if (model.frames[fid].parent > 0) {
-          assert (!model.inertias[model.frames[fid].parent].lever().hasNaN()
-              &&  !model.inertias[model.frames[fid].parent].inertia().data().hasNaN());
+          assert (!hasNaN(model.inertias[model.frames[fid].parent].lever())
+              &&  !hasNaN(model.inertias[model.frames[fid].parent].inertia().data()));
         }
       }
 

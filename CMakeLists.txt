@@ -118,6 +118,7 @@ SET(${PROJECT_NAME}_MATH_HEADERS
   math/fwd.hpp
   math/sincos.hpp
   math/quaternion.hpp
+  math/matrix.hpp
   )
 
 SET(${PROJECT_NAME}_TOOLS_HEADERS
