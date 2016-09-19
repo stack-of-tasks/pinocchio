@@ -161,7 +161,7 @@ namespace se3
                      const se3::Model & model,
                      se3::Data & data)
     {
-      typedef typename Data::Matrix6x::NColsBlockXpr<JointModel::NV>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
       
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::Index & parent = model.parents[i];
@@ -169,11 +169,33 @@ namespace se3
       data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
       
       jdata.U() = data.Ycrb[i] * jdata.S();
+
       ColsBlock jF
-      = data.Ag.middleCols <JointModel::NV> (jmodel.idx_v());
+        = data.Ag.middleCols <JointModel::NV> (jmodel.idx_v());
+
       forceSet::se3Action(data.oMi[i],jdata.U(),jF);
     }
     
+    static void algo(const se3::JointModelBase<JointModelComposite> & jmodel,
+                     se3::JointDataBase<JointDataComposite> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data)
+    {
+      typedef SizeDepType<JointModel::NV>::ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      const Model::Index & parent = model.parents[i];
+      
+      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+      
+      jdata.U() = data.Ycrb[i] * jdata.S();
+      
+      ColsBlock jF
+        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
+
+      forceSet::se3Action(data.oMi[i],jdata.U(),jF);
+    }
+
   }; // struct CcrbaBackwardStep
   
   inline const Data::Matrix6x &

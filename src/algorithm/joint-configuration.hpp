@@ -146,7 +146,6 @@ namespace se3
                      const Eigen::VectorXd & v,
                      Eigen::VectorXd & result) 
     {
-     
       jmodel.jointConfigSelector(result) = jmodel.integrate(q, v);
     }
 

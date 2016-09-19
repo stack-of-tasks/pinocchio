@@ -98,9 +98,9 @@ namespace se3
         
         idx = model.addJoint(frame.parent,jmodel,
                              frame.placement * joint_placement,
-                             joint_name,
-                             max_effort,max_velocity,min_config,max_config);
-        FrameIndex jointFrameId = model.addJointFrame(idx, parentFrameId);
+                             max_effort,max_velocity,min_config,max_config,
+                             joint_name);
+        FrameIndex jointFrameId = (FrameIndex) model.addJointFrame(idx, (int)parentFrameId); // C-style cast to remove polluting compilation warning. This is Bad practice. See issue #323 (rework indexes)
         appendBodyToJoint(model, jointFrameId, Y, SE3::Identity(), body_name);
       }
       
@@ -133,6 +133,21 @@ namespace se3
         if (fid < 0)
           throw std::invalid_argument ("Fixed joint " + joint_name + " could not be added.");
         appendBodyToJoint(model, (FrameIndex)fid, Y, SE3::Identity(), body_name);
+      }
+
+      ///
+      /// \brief Handle the case of JointModelComposite which is dynamic.
+      ///
+      void addJointAndBody(Model & model, const JointModelBase< JointModelComposite > & jmodel, const Model::JointIndex parent_id,
+                           const SE3 & joint_placement, const std::string & joint_name,
+                           const boost::shared_ptr< ::urdf::Inertial> Y, const std::string & body_name)
+      {
+        Model::JointIndex idx;
+        
+        idx = model.addJoint(parent_id,jmodel,
+                             joint_placement,joint_name);
+        
+        appendBodyToJoint(model,idx,Y,SE3::Identity(),body_name);
       }
 
       ///

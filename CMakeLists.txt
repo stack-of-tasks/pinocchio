@@ -156,6 +156,7 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint.hpp
   multibody/joint/joint-basic-visitors.hpp
   multibody/joint/joint-basic-visitors.hxx
+  multibody/joint/joint-composite.hpp
   ) 
 
 SET(${PROJECT_NAME}_MULTIBODY_HEADERS

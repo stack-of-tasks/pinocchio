@@ -17,7 +17,7 @@
 
 #include <iostream>
 
-#include <pinocchio/multibody/joint/joint.hpp>
+#include <pinocchio/multibody/joint/joint-composite.hpp>
 #include <pinocchio/multibody/model.hpp>
 #include "pinocchio/multibody/visitor.hpp"
 
