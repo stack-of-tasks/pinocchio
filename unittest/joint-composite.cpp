@@ -41,7 +41,6 @@ void test_joint_methods (T & jmodel)
 
   typename T::JointDataDerived jdata = jmodel.createData();
 
-  // JointModelComposite jmodel_composite((T()));
   JointModelComposite jmodel_composite(jmodel);
   jmodel_composite.setIndexes(jmodel.id(), jmodel.idx_q(), jmodel.idx_v());
   jmodel_composite.updateComponentsIndexes();
@@ -79,7 +78,6 @@ void test_joint_methods (T & jmodel)
   BOOST_CHECK_MESSAGE(jmodel.difference(q1,q2).isApprox(jmodel_composite.difference(q1,q2)) ,std::string(error_prefix + " - difference "));
   BOOST_CHECK_MESSAGE(fabs(jmodel.distance(q1,q2) - jmodel_composite.distance(q1,q2)) <= 1e-6 ,std::string(error_prefix + " - distance "));
 
-  // pb call-operator car jdata directement le type derivé
   BOOST_CHECK_MESSAGE(((ConstraintXd)jdata.S).matrix().isApprox((jdata_composite.S.matrix())),std::string(error_prefix + " - ConstraintXd "));
   BOOST_CHECK_MESSAGE(jdata.M == jdata_composite.M, std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
   BOOST_CHECK_MESSAGE((Motion)jdata.v == jdata_composite.v, std::string(error_prefix + " - Joint motions "));
@@ -312,7 +310,7 @@ BOOST_AUTO_TEST_CASE ( test_R3xSO3)
   BOOST_CHECK_MESSAGE(integrate(model_composite, q,q_dot).isApprox(integrate(model_zero_mass ,q,q_dot)) ,std::string(" composite<R3xSO3> vs R3-SO3 - integrate model error "));
   BOOST_CHECK_MESSAGE(interpolate(model_composite, q1,q2,u).isApprox(interpolate(model_zero_mass ,q1,q2,u)) ,std::string(" composite<R3xSO3> vs R3-SO3 - interpolate model error "));
   BOOST_CHECK_MESSAGE(differentiate(model_composite, q1,q2).isApprox(differentiate(model_zero_mass ,q1,q2)) ,std::string(" composite<R3xSO3> vs R3-SO3 - differentiate model error "));
-  // BOOST_CHECK_MESSAGE(fabs(distance(model_composite, q1,q2) - distance(model_zero_mass ,q1,q2)) < 1e-12 ,std::string(" composite<R3xSO3> vs R3-SO3 - distance model error "));
+  BOOST_CHECK_MESSAGE(fabs(distance(model_composite, q1,q2).norm() - distance(model_zero_mass ,q1,q2).norm()) <= 1e-6 ,std::string(" composite<R3xSO3> vs R3-SO3 - distance model error "));
 
 }
 
