@@ -48,9 +48,9 @@ void test_joint_methods (T & jmodel)
 
   JointDataComposite jdata_composite = jmodel_composite.createData();
 
-  Eigen::VectorXd q1(Eigen::VectorXd::Random (jmodel.nq()));
+  Eigen::VectorXd q1(Eigen::VectorXd::Random (jmodel.nq()));jmodel_composite.normalize(q1);
   Eigen::VectorXd q1_dot(Eigen::VectorXd::Random (jmodel.nv()));
-  Eigen::VectorXd q2(Eigen::VectorXd::Random (jmodel.nq()));
+  Eigen::VectorXd q2(Eigen::VectorXd::Random (jmodel.nq()));jmodel_composite.normalize(q2);
   double u = 0.3;
   se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
   bool update_I = false;
@@ -77,10 +77,9 @@ void test_joint_methods (T & jmodel)
                       ,std::string(error_prefix + " - RandomConfiguration dimensions "));
 
   BOOST_CHECK_MESSAGE(jmodel.difference(q1,q2).isApprox(jmodel_composite.difference(q1,q2)) ,std::string(error_prefix + " - difference "));
-  BOOST_CHECK_MESSAGE(jmodel.distance(q1,q2) == jmodel_composite.distance(q1,q2) ,std::string(error_prefix + " - distance "));
+  BOOST_CHECK_MESSAGE(fabs(jmodel.distance(q1,q2) - jmodel_composite.distance(q1,q2)) <= 1e-6 ,std::string(error_prefix + " - distance "));
 
   // pb call-operator car jdata directement le type derivé
-  // BOOST_CHECK_MESSAGE((jdata.S().matrix()).isApprox((jdata_composite.S().matrix())),std::string(error_prefix + " - ConstraintXd "));
   BOOST_CHECK_MESSAGE(((ConstraintXd)jdata.S).matrix().isApprox((jdata_composite.S.matrix())),std::string(error_prefix + " - ConstraintXd "));
   BOOST_CHECK_MESSAGE(jdata.M == jdata_composite.M, std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
   BOOST_CHECK_MESSAGE((Motion)jdata.v == jdata_composite.v, std::string(error_prefix + " - Joint motions "));
@@ -260,11 +259,7 @@ BOOST_AUTO_TEST_CASE ( test_R3xSO3)
   Eigen::VectorXd tau(Eigen::VectorXd::Random(model_zero_mass.nq));
   double u = 0.3;
 
-  // Test that algorithms do not crash
-  integrate(model_composite,q,q_dot);
-  interpolate(model_composite,q1,q2,u);
-  differentiate(model_composite,q1,q2);
-  distance(model_composite,q1,q2);
+
 
   aba(model_composite,data_composite, q,q_dot, tau);
   centerOfMass(model_composite, data_composite,q,q_dot,q_ddot,true,false);
