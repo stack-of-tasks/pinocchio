@@ -365,7 +365,9 @@ namespace se3
     int     nq_impl() const { return nq_composite; }
 
 
-    // Be sure to call it AFTER setIndexes
+    /**
+     * @brief      Update the indexes of subjoints in the stack 
+     */
     void updateComponentsIndexes()
     {
       int current_idx_q, current_idx_v;
@@ -380,6 +382,12 @@ namespace se3
         next_idx_q = current_idx_q + ::se3::nq(*i);
         next_idx_v = current_idx_v + ::se3::nv(*i);
       }
+    }
+
+    void setIndexes_impl(JointIndex id, int q, int v)
+    {
+      JointModelBase<JointModelComposite>::setIndexes_impl(id, q, v);
+      updateComponentsIndexes();
     }
 
     static std::string classname() { return std::string("JointModelComposite"); }

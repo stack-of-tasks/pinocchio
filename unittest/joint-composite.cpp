@@ -240,8 +240,6 @@ BOOST_AUTO_TEST_CASE ( test_R3xSO3)
   
   model_composite.addJoint(model_composite.getJointId("universe"),jmodel_composite, placement, "composite_R3xSO3_joint");
   model_composite.appendBodyToJoint(model_composite.getJointId("composite_R3xSO3_joint"), body_inertia, SE3::Identity());
-  // When Model will be cleaned in coming pull request, this will be done in addBody(addJoint)
-  boost::get<JointModelComposite>(model_composite.joints[model_composite.getJointId("composite_R3xSO3_joint")]).updateComponentsIndexes();
 
   model_ff.addJoint(model_ff.getJointId("universe"),JointModelFreeFlyer(), placement, "ff_joint");
   model_ff.appendBodyToJoint(model_ff.getJointId("ff_joint"), body_inertia, SE3::Identity());
