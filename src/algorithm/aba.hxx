@@ -226,7 +226,7 @@ namespace se3
   // The second test is overconstraining.
   inline bool ABAChecker::checkModel_impl( const Model& model ) const
   {
-    for(JointIndex j=1;int(j)<model.njoint;j++)
+    for(JointIndex j=1;int(j)<model.njoints;j++)
       if(    (model.inertias[j].mass   ()           < 1e-5) 
           || (model.inertias[j].inertia().data()[0] < 1e-5)
           || (model.inertias[j].inertia().data()[3] < 1e-5)

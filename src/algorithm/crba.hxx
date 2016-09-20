@@ -240,7 +240,7 @@ namespace se3
   {
     inline bool isDescendant(const Model& model, const JointIndex j, const JointIndex root)
     {
-      if(int(j)>=model.njoint)  return false;
+      if(int(j)>=model.njoints)  return false;
       if(j==0)                 return root==0;
       return (j==root) || isDescendant(model,model.parents[j],root);
     }
@@ -252,11 +252,11 @@ namespace se3
     // immediately after i in the "parents" map, i.e. forall joint i, the interval i+1..n-1
     // can be separated in two intervals [i+1..k] and [k+1..n-1], where any [i+1..k] is a descendant
     // of i and none of [k+1..n-1] is a descendant of i.
-    for( JointIndex i=1; int(i)<model.njoint-1; ++i ) // no need to check joints 0 and N-1
+    for( JointIndex i=1; int(i)<model.njoints-1; ++i ) // no need to check joints 0 and N-1
       {
         JointIndex k=i+1;
         while(internal::isDescendant(model,k,i)) ++k;
-        for( ; int(k)<model.njoint; ++k ) 
+        for( ; int(k)<model.njoints; ++k ) 
           if( internal::isDescendant(model,k,i) ) return false;
       }
     return true;

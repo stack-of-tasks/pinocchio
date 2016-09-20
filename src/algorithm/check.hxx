@@ -50,7 +50,7 @@ namespace se3
   // Check the validity of the kinematic tree defined by parents.
   inline bool ParentChecker::checkModel_impl( const Model& model ) const
   {
-    for( JointIndex j=1;(int)j<model.njoint;++j )
+    for( JointIndex j=1;(int)j<model.njoints;++j )
       if( model.parents[j]>=j ) return false;
 
     return true;
@@ -64,23 +64,23 @@ namespace se3
     // TODO impulse_c
     // They are not check neither
 
-    CHECK_DATA( (int)data.joints.size()   == model.njoint );
-    CHECK_DATA( (int)data.a.size()        == model.njoint );
-    CHECK_DATA( (int)data.a_gf.size()     == model.njoint );
-    CHECK_DATA( (int)data.v.size()        == model.njoint );
-    CHECK_DATA( (int)data.f.size()        == model.njoint );
-    CHECK_DATA( (int)data.oMi.size()      == model.njoint );
-    CHECK_DATA( (int)data.liMi.size()     == model.njoint );
-    CHECK_DATA( (int)data.Ycrb.size()     == model.njoint );
-    CHECK_DATA( (int)data.Yaba.size()     == model.njoint );
-    CHECK_DATA( (int)data.Fcrb.size()     == model.njoint );
+    CHECK_DATA( (int)data.joints.size()   == model.njoints );
+    CHECK_DATA( (int)data.a.size()        == model.njoints );
+    CHECK_DATA( (int)data.a_gf.size()     == model.njoints );
+    CHECK_DATA( (int)data.v.size()        == model.njoints );
+    CHECK_DATA( (int)data.f.size()        == model.njoints );
+    CHECK_DATA( (int)data.oMi.size()      == model.njoints );
+    CHECK_DATA( (int)data.liMi.size()     == model.njoints );
+    CHECK_DATA( (int)data.Ycrb.size()     == model.njoints );
+    CHECK_DATA( (int)data.Yaba.size()     == model.njoints );
+    CHECK_DATA( (int)data.Fcrb.size()     == model.njoints );
     BOOST_FOREACH(const Data::Matrix6x & F,data.Fcrb) CHECK_DATA( F.cols() == model.nv );
-    CHECK_DATA( (int)data.iMf.size()      == model.njoint );
-    CHECK_DATA( (int)data.iMf.size()      == model.njoint );
-    CHECK_DATA( (int)data.com.size()      == model.njoint );
-    CHECK_DATA( (int)data.vcom.size()     == model.njoint );
-    CHECK_DATA( (int)data.acom.size()     == model.njoint );
-    CHECK_DATA( (int)data.mass.size()     == model.njoint );
+    CHECK_DATA( (int)data.iMf.size()      == model.njoints );
+    CHECK_DATA( (int)data.iMf.size()      == model.njoints );
+    CHECK_DATA( (int)data.com.size()      == model.njoints );
+    CHECK_DATA( (int)data.vcom.size()     == model.njoints );
+    CHECK_DATA( (int)data.acom.size()     == model.njoints );
+    CHECK_DATA( (int)data.mass.size()     == model.njoints );
 
     CHECK_DATA( data.tau.size()      == model.nv );
     CHECK_DATA( data.nle.size()      == model.nv );
@@ -99,17 +99,17 @@ namespace se3
     CHECK_DATA( data.dq_after.size() == model.nv );
     //CHECK_DATA( data.impulse_c.size()== model.nv );
 
-    CHECK_DATA( (int)data.oMf.size()      == model.nFrames );
+    CHECK_DATA( (int)data.oMf.size()      == model.nframes );
 
-    CHECK_DATA( (int)data.lastChild.size()         == model.njoint );
-    CHECK_DATA( (int)data.nvSubtree.size()         == model.njoint );
+    CHECK_DATA( (int)data.lastChild.size()         == model.njoints );
+    CHECK_DATA( (int)data.nvSubtree.size()         == model.njoints );
     CHECK_DATA( (int)data.parents_fromRow.size()   == model.nv );
     CHECK_DATA( (int)data.nvSubtree_fromRow.size() == model.nv );
 
-    for( JointIndex j=1;int(j)<model.njoint;++j )
+    for( JointIndex j=1;int(j)<model.njoints;++j )
       {
         JointIndex c = data.lastChild[j];
-        CHECK_DATA((int)c<model.njoint);
+        CHECK_DATA((int)c<model.njoints);
         int nv=model.joints[j].nv();
         for( JointIndex d=j+1;d<=c;++d ) // explore all descendant
           {
@@ -118,7 +118,7 @@ namespace se3
           }
         CHECK_DATA(nv==data.nvSubtree[j]);
         
-        for( JointIndex d=c+1;(int)d<model.njoint;++d)
+        for( JointIndex d=c+1;(int)d<model.njoints;++d)
           CHECK_DATA( (model.parents[d]<j)||(model.parents[d]>c) );
 
         int row = model.joints[j].idx_v();
