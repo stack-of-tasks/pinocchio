@@ -30,6 +30,8 @@ namespace se3
     ///
     /// This function raises a Python error in case of incistency in the Python code.
     ///
+    /// \ingroup Kinematic_group
+    /// 
     /// \input filename The full path to the model file.
     /// \input var_name Name of the Python variable which contains the model in the script.
     /// \input verbose Verbosity mode.

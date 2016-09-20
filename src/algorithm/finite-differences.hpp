@@ -20,11 +20,20 @@
 
 #include "pinocchio/multibody/model.hpp"
 
+/** \addtogroup algo_finitediff
+ *
+ *  This module is related to finite differences
+ *  
+ *
+ */
+
 namespace se3 {
   
   ///
   /// \brief Computes the finite difference increments for each degree of freedom according to the current joint configuration.
   ///
+  /// \ingroup algo_finitediff
+  /// 
   /// \input[in] model The model of the kinematic tree.
   ///
   /// \returns The finite difference increments for each degree of freedom.

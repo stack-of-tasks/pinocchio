@@ -21,11 +21,20 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
+/** \addtogroup algo_aba
+ *
+ *  This module is related to ABA algorithm computations
+ *  
+ *
+ */
+
 namespace se3
 {
   ///
   /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
   ///
+  /// \ingroup algo_aba
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).

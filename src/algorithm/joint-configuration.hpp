@@ -21,11 +21,20 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
   
+/** \addtogroup algo_config
+ *
+ *  This module is related algorithms working on model's configurations
+ *  
+ *
+ */
+
 namespace se3
 {
 
   /**
    * @brief      Integrate a configuration for the specified model for a tangent vector during one unit time
+   *
+   * @ingroup algo_config
    *
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
@@ -40,6 +49,8 @@ namespace se3
   /**
    * @brief      Interpolate the model between two configurations
    *
+   * @ingroup algo_config
+   * 
    * @param[in]  model   Model to be interpolated
    * @param[in]  q0      Initial configuration vector (size model.nq)
    * @param[in]  q1      Final configuration vector (size model.nq)
@@ -54,7 +65,9 @@ namespace se3
 
   /**
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
-   *
+   * 
+   * @ingroup algo_config
+   * 
    * @param[in]  model   Model to be differentiated
    * @param[in]  q0      Initial configuration (size model.nq)
    * @param[in]  q1      Wished configuration (size model.nq)
@@ -67,6 +80,8 @@ namespace se3
 
   /**
    * @brief      Distance between two configuration vectors
+   *
+   * @ingroup algo_config
    *
    * @param[in]  model      Model we want to compute the distance
    * @param[in]  q0         Configuration 0 (size model.nq)
@@ -82,7 +97,9 @@ namespace se3
    * @brief      Generate a configuration vector uniformly sampled among provided limits.
    *
    *\warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
-   *             
+   *
+   * @ingroup algo_config
+   * 
    * @param[in]  model        Model we want to generate a configuration vector of
    * @param[in]  lowerLimits  Joints lower limits
    * @param[in]  upperLimits  Joints upper limits
@@ -98,7 +115,9 @@ namespace se3
    *
    *\warning     If limits are infinite (no one specified when adding a body or no modification directly in my_model.{lowerPositionLimit,upperPositionLimit},
    *             exceptions may be thrown in the joint implementation of uniformlySample
-   *             
+   *
+   * @ingroup algo_config
+   * 
    * @param[in]  model   Model we want to generate a configuration vector of
    * @return     The resulted configuration vector (size model.nq)
    */
@@ -107,6 +126,8 @@ namespace se3
   /**
    * @brief         Normalize a configuration
    *
+   * @ingroup algo_config
+   * 
    * @param[in]     model      Model
    * @param[in,out] q          Configuration to normalize
    */
@@ -116,7 +137,9 @@ namespace se3
   /**
    * @brief         Return true if the given configurations are equivalents
    * \warning       Two configurations can be equivalent but not equally coefficient wise (e.g for quaternions)
-   * 
+   *
+   * @ingroup algo_config
+   *  
    * @param[in]     model      Model
    * @param[in]     q1        The first configuraiton to compare
    * @param[in]     q2        The Second configuraiton to compare

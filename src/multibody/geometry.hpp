@@ -34,6 +34,10 @@
 namespace se3
 {
   
+  /**
+   * @brief      The geometry model of the rigid body system
+   * @ingroup Geometry_group
+   */
   struct GeometryModel
   {
     
@@ -153,6 +157,10 @@ namespace se3
     friend std::ostream& operator<<(std::ostream & os, const GeometryModel & model_geom);
   }; // struct GeometryModel
 
+  /**
+   * @brief      The non constant information about geometries of a rigid body system
+   * @ingroup Geometry_group
+   */
   struct GeometryData
   {
     ///

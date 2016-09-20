@@ -18,6 +18,12 @@
 #ifndef __se3_check_hpp__
 #define __se3_check_hpp__
 
+/** \addtogroup algo_check
+ *
+ *  This module is related to algorithm that validate Datas against Models
+ *
+ */
+
 namespace se3
 {
 
@@ -45,6 +51,8 @@ namespace se3
 
   /// Check the validity of data wrt to model, in particular if model has been modified.
   ///
+  /// \ingroup algo_check
+  /// 
   /// \param[in] model reference model
   /// \param[in] data corresponding data
   inline bool checkData(const Model & model, const Data & data);

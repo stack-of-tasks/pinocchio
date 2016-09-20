@@ -59,6 +59,7 @@ namespace se3
   }
 } // namespace se3
 
+/** @}*/
 /// @endcond
 
 #endif // ifndef __se3_finite_differences_hxx__

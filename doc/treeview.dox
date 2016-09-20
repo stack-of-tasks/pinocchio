@@ -52,37 +52,97 @@ namespace pinocchio {
   //
 
   /** \defgroup algorithm_group Algorithms */
+  /** \defgroup algo_aba Articulated Body Algorithm
+   *  \ingroup algorithm_group
+   */
+   /** \defgroup algo_com Center Of Mass
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_check Checker, validators
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_chol Choleski
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_crba CRBA
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_cat Compute All Terms
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_copy Copying Datas
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_dynamics Dynamics
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_energy Energy
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_frames Frames
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_config Working with Model's cnfigurations
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_finitediff Finite differences
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_geometry Geometry
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_jacobian Jacobian
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_kinematics Kinematics
+   *   \ingroup algorithm_group
+   */
+   /** \defgroup algo_rnea Recursive Newton Euler Algorithm
+   *   \ingroup algorithm_group
+   */
+
+
   /** \defgroup math_group Math */
 
 
 
   /** \defgroup multibody_group Multibody */
-  /** \addtogroup Joints_group Joints
+  /** \defgroup Joints_group Joints
+   *  \ingroup multibody_group 
+   *
+   *  All info related to Joints : i.e BaseJoint and specialized joints
+   */
+  /** \defgroup Model_group Model
    *  \ingroup multibody_group 
    */
 
+  /** \defgroup Geometry_group Geometry
+   *  \ingroup multibody_group 
+   */ 
+
 
   /** \defgroup parsers_group Parsers */
-  /** \addtogroup Cinematic_group Cinematic
+  /** \defgroup Kinematic_group Kinematic
    *  \ingroup parsers_group 
    */
-  /** \addtogroup Geometric_group Geometric
+  /** \defgroup Geometric_group Geometric
    *  \ingroup parsers_group 
    */
 
 
 
   /** \defgroup spatial_group Spatial */
-  /** \addtogroup Motion_group Motion
+  
+  /** \defgroup Motion_group Motion
    *  \ingroup spatial_group 
    */
   /** \defgroup Force_group Force
    *  \ingroup spatial_group 
    */
-  /** \addtogroup Inertia_group Inertia
+  /** \defgroup Inertia_group Inertia
    *  \ingroup spatial_group 
    */
-  /** \addtogroup SE3_group SE3
+  /** \defgroup SE3_group SE3
    *  \ingroup spatial_group 
    */
 
@@ -91,5 +151,5 @@ namespace pinocchio {
 
   /** \defgroup bench_group Benchmarks */
 
-  /** \defgroup unittest_group Unittests */
+  // /** \defgroup unittest_group Unittests */
 } 

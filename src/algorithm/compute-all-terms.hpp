@@ -24,6 +24,11 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/energy.hpp"
 
+/** \addtogroup algo_cat
+ *  
+ *  All computations in One run
+ */
+
 namespace se3
 {
   ///
@@ -37,6 +42,8 @@ namespace se3
   ///         - se3::kineticEnergy
   ///         - se3::potentialEnergy
   ///
+  /// \ingroup algo_cat
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -53,6 +60,10 @@ namespace se3
 
 
 /* --- Details -------------------------------------------------------------------- */
+/// @cond DEV
+/** \addtogroup algo_cat 
+ *  @{
+ */
 namespace se3
 {
   
@@ -236,7 +247,9 @@ namespace se3
 
   }
 } // namespace se3
-
+  // 
+/** @}*/
+/// @endcond
 
 #endif // ifndef __se3_compute_all_terms_hpp__
 

@@ -23,6 +23,9 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 
 /// @cond DEV
+/** \addtogroup algo_crba 
+ *  @{
+ */
 
 namespace se3 
 {
@@ -265,6 +268,7 @@ namespace se3
 
 } // namespace se3
 
+/** @}*/
 /// @endcond
 
 #endif // ifndef __se3_crba_hxx__

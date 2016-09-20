@@ -42,6 +42,7 @@ namespace se3
   
   ///
   /// \brief A Plucker coordinate frame attached to a parent joint inside a kinematic tree
+  /// \ingroup multibody_group
   ///
   struct Frame
   {

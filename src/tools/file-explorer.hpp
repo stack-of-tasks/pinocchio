@@ -27,6 +27,8 @@ namespace se3
 
   /**
    * @brief      Parse an environment variable if exists and extract paths according to the delimiter.
+   * 
+   * @ingroup tools_group
    *
    * @param[in]  env_var_name The name of the environment variable.
    * @param[in]  delimiter The delimiter between two consecutive paths.
@@ -61,6 +63,8 @@ namespace se3
 
   /**
    * @brief      Parse the environment variable ROS_PACKAGE_PATH and extract paths
+   *
+   * @ingroup tools_group
    *
    * @return     The vector of paths extracted from the environment variable ROS_PACKAGE_PATH
    */

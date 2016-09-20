@@ -20,6 +20,13 @@
 
 #include "pinocchio/multibody/model.hpp"
 
+/** \addtogroup algo_jacobian
+ *
+ *  This module is related to Jacobian computations
+ *  
+ *
+ */
+
 namespace se3
 {
   ///
@@ -28,6 +35,8 @@ namespace se3
   ///
   /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Hacobian, it is then possible to easily extract the Jacobian of a specific joint frame.
   ///
+  /// \ingroup algo_jacobian
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -43,6 +52,8 @@ namespace se3
   /// \brief Computes the Jacobian of a specific joint frame expressed either in the world frame or in the local frame of the joint.
   /// \note This jacobian is extracted from data.J. You have to run se3::computeJacobians before calling it.
   ///
+  /// \ingroup algo_jacobian
+  /// 
   /// \param[in] localFrame Expressed the Jacobian in the local frame or world frame coordinates system.
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -58,6 +69,8 @@ namespace se3
   ///
   /// \brief Computes the Jacobian of a specific joint frame expressed in the local frame of the joint. The result is stored in data.J.
   ///
+  /// \ingroup algo_jacobian
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).

@@ -21,6 +21,13 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/check.hpp"
   
+ /** \addtogroup algo_crba
+ *
+ *  This module is related to Composite Rigid-Body algorithm
+ *  
+ *
+ */
+
 namespace se3
 {
   ///
@@ -32,6 +39,8 @@ namespace se3
   ///       in the stricly lower tringular part with
   ///       data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   ///
+  /// \ingroup algo_crba
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -52,6 +61,8 @@ namespace se3
   ///       in the stricly lower tringular part with
   ///       data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   ///
+  /// \ingroup algo_crba
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).

@@ -20,9 +20,15 @@
 
 #include <Eigen/Dense>
 
+/// @cond DEV
 namespace se3
 {
 
+
+  /**
+   * @ingroup math_group
+   * @return     true is m contains at least one Not A Number (NaN).
+   */
   template<typename Derived>
   inline bool hasNaN(const Eigen::DenseBase<Derived> & m) 
   {
@@ -31,4 +37,5 @@ namespace se3
 
 
 }
+/// @endcond
 #endif //#ifndef __math_matrix_hpp__

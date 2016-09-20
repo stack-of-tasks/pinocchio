@@ -27,9 +27,24 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/skew.hpp"
 
+/** \addtogroup Inertia_group 
+ *
+ *  This module represents a spatial inertia tensor of a rigid body. It defines the relationship between its velocity and momentum.
+ *  It's a mapping from $M^6$ to  $F^6$ 
+ *
+ */
+
 namespace se3
 {
 
+  /**
+   * @brief     Base class for Inertia
+   * 
+   * @details   This class implements all the API for Intertia classes
+   * @ingroup   Inertia_group
+   *
+   * @tparam     Derived  is the derived type, e.g an InertiaTpl 
+   */
   template< class Derived>
   class InertiaBase
   {
@@ -42,14 +57,48 @@ namespace se3
     Derived_t & derived() { return *static_cast<Derived_t*>(this); }
     const Derived_t & derived() const { return *static_cast<const Derived_t*>(this); }
 
+    /**
+     * @brief      Return the mass of the rigid body
+     *
+     * @return     The mass as a Scalar (double for the moment)
+     */
     Scalar           mass()    const { return static_cast<const Derived_t*>(this)->mass(); }
+
+    /// \copydoc InertiaBase::mass
     Scalar &         mass() { return static_cast<const Derived_t*>(this)->mass(); }
+
+    /**
+     * @brief      Return the lever from the point where is expressed the inertia matrix and the center of the joint to which to inertia is appended
+     *
+     * @return     The 3D vector representeing the lever
+     */
     const Vector3 &    lever()   const { return static_cast<const Derived_t*>(this)->lever(); }
+
+    /// @copydoc InertiaBase::lever
     Vector3 &          lever() { return static_cast<const Derived_t*>(this)->lever(); }
+    
+    /**
+     * @brief      The Inertia matrix (3*3) as expressed in the center of mass of the body
+     *
+     * @return     The inertia matrix as a sparse Symmetric3
+     */
     const Symmetric3 & inertia() const { return static_cast<const Derived_t*>(this)->inertia(); }
+    /// @copydoc InertiaBase::inertia
     Symmetric3 &       inertia() { return static_cast<const Derived_t*>(this)->inertia(); }
 
+
+    /**
+     * @brief      The spatial inertia tensor expressed in the center of the supporting joint ( general form of the inertia matrix in Plücker coordinates ) 
+     *
+     * @return     The 6*6 matrix
+     */
     Matrix6 matrix() const { return derived().matrix_impl(); }
+
+    /**
+     * @brief      C-style cast to 6*6 Matrix
+     *
+     * @sa         InertiaBase::matrix
+     */
     operator Matrix6 () const { return matrix(); }
 
     Derived_t& operator= (const Derived_t& clone){return derived().__equl__(clone);}
@@ -106,6 +155,14 @@ namespace se3
     };
   }; // traits InertiaTpl
 
+  /**
+   * @brief      Class for inertia tpl.
+   *
+   * @ingroup    Inertia_group
+   * 
+   * @tparam     _Scalar   type of scalar ( double or float)
+   * @tparam     _Options  Eigen alignment's option
+   */
   template<typename _Scalar, int _Options>
   class InertiaTpl : public InertiaBase< InertiaTpl< _Scalar, _Options > >
   {

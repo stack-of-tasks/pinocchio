@@ -25,6 +25,8 @@ namespace se3
   ///
   /// \brief Compute the minimal angle between q1 and q2.
   ///
+  /// \ingroup math_group
+  /// 
   /// \param[in] q1 input quaternion.
   /// \param[in] q2 input quaternion.
   ///
@@ -49,6 +51,8 @@ namespace se3
   /// \brief Check if two quaternions define the same rotations.
   /// \note Two quaternions define the same rotation iff q1 == q2 OR q1 == -q2.
   ///
+  /// \ingroup math_group
+  /// 
   /// \param[in] q1 input quaternion.
   /// \param[in] q2 input quaternion.
   ///
@@ -69,6 +73,8 @@ namespace se3
   ///
   /// \warning \f$ ||q||^2 - 1 \f$ should already be close to zero.
   ///
+  /// \ingroup math_group
+  /// 
   /// \note See
   /// http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html#title3
   /// to know the reason why the argument is const.

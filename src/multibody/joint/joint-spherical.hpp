@@ -29,6 +29,10 @@
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/math/quaternion.hpp"
 
+/** \addtogroup Joints_group
+ * @{
+ *
+ */
 namespace se3
 {
 
@@ -435,4 +439,5 @@ namespace se3
 
 } // namespace se3
 
+/** @}*/
 #endif // ifndef __se3_joint_spherical_hpp__

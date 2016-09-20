@@ -20,6 +20,13 @@
 
 #include "pinocchio/multibody/model.hpp"
 
+/** \addtogroup algo_kinematics
+ *
+ *  This module is related to kinematics computations
+ *  
+ *
+ */
+
 namespace se3
 {
   ///
@@ -27,6 +34,8 @@ namespace se3
   ///
   /// \note This void step allows to quantify the time spent in the rollout.
   ///
+  /// \ingroup algo_kinematics
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   ///
@@ -36,6 +45,8 @@ namespace se3
   ///
   /// \brief Update the joint placement according to the current joint configuration.
   ///
+  /// \ingroup algo_kinematics
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration (vector dim model.nq).
@@ -47,6 +58,8 @@ namespace se3
   ///
   /// \brief Update the joint placement according to the current joint configuration and velocity.
   ///
+  /// \ingroup algo_kinematics
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration (vector dim model.nq).
@@ -59,6 +72,8 @@ namespace se3
   ///
   /// \brief Update the joint placement according to the current joint configuration, velocity and acceleration.
   ///
+  /// \ingroup algo_kinematics
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration (vector dim model.nq).

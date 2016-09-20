@@ -19,6 +19,9 @@
 #define __se3_cholesky_hxx__
 
 /// @cond DEV
+/** \addtogroup algo_chol 
+ *  @{
+ */
 
 namespace se3 
 {
@@ -191,6 +194,7 @@ namespace se3
   } //   namespace cholesky
 } // namespace se3
 
+/** @}*/
 /// @endcond
 
 #endif // ifndef __se3_cholesky_hxx__

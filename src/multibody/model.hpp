@@ -41,6 +41,10 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3::Vector3)
 
 namespace se3
 {
+  /**
+   * @brief      the kinematic model of a rigid body system
+   * @ingroup Model_group
+   */
   struct Model
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -351,6 +355,11 @@ namespace se3
     void addJointIndexToParentSubtrees(const JointIndex joint_id);
   };
 
+  /**
+   * @brief      the non constant informations of a rigid body system
+   * @ingroup Model_group
+   * \sa \ref Chapters_RigidBodyDynamicModelf
+   */
   struct Data
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

@@ -24,6 +24,9 @@
 #include <utility>
 
 /// @cond DEV
+/** \addtogroup Geometry_group 
+ *  @{
+ */
 
 namespace se3
 {
@@ -239,6 +242,7 @@ namespace se3
 #endif //WITH_HPP_FCL
 } // namespace se3
 
+/** @}*/
 /// @endcond
 
 #endif // ifndef __se3_geometry_hxx__

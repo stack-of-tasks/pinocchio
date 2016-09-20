@@ -24,6 +24,10 @@
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion)
 
+/** \addtogroup Joints_group
+ * @{
+ *
+ */
 namespace se3
 {
 
@@ -477,5 +481,5 @@ namespace se3
 
 } // namespace se3
 
-
+/** @}*/
 #endif // ifndef __se3_joint_composite_hpp__
