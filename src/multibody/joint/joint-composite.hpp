@@ -21,6 +21,8 @@
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint.hpp"
 
+#include <Eigen/StdVector>
+
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion)
 
@@ -56,12 +58,16 @@ namespace se3
     typedef Eigen::Matrix<double,Eigen::Dynamic,1> ConfigVector_t;
     typedef Eigen::Matrix<double,Eigen::Dynamic,1> TangentVector_t;
   };
+  
   template<> struct traits<JointDataComposite> { typedef JointComposite JointDerived; };
   template<> struct traits<JointModelComposite> { typedef JointComposite JointDerived; };
 
   struct JointDataComposite : public JointDataBase<JointDataComposite> 
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     typedef JointComposite Joint;
+    typedef std::vector<JointData, Eigen::aligned_allocator<JointData> > JointDataVector;
     SE3_JOINT_TYPEDEF;
 
     JointDataVector joints;
@@ -99,9 +105,13 @@ namespace se3
 
   struct JointModelComposite : public JointModelBase<JointModelComposite> 
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     typedef JointComposite Joint;
     SE3_JOINT_TYPEDEF;
     SE3_JOINT_USE_INDEXES;
+    typedef std::vector<JointModel, Eigen::aligned_allocator<JointModel> > JointModelVector;
+    
     using JointModelBase<JointModelComposite>::id;
     using JointModelBase<JointModelComposite>::setIndexes;
 
