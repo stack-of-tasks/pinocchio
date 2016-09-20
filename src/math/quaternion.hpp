@@ -81,5 +81,28 @@ namespace se3
     const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() *= alpha;
   }
 
+  /// Uniformly random quaternion sphere.
+  template <typename D>
+  void uniformRandom (const Eigen::QuaternionBase<D> & q)
+  {
+    // EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D, 4);
+    typedef typename D::Scalar Scalar;
+
+    // Rotational part
+    const Scalar u1 = (Scalar)rand() / RAND_MAX;
+    const Scalar u2 = (Scalar)rand() / RAND_MAX;
+    const Scalar u3 = (Scalar)rand() / RAND_MAX;
+
+    const Scalar mult1 = sqrt (1-u1);
+    const Scalar mult2 = sqrt (u1);
+
+    Scalar s2,c2; SINCOS(2.*PI*u2,&s2,&c2);
+    Scalar s3,c3; SINCOS(2.*PI*u3,&s3,&c3);
+
+    const_cast <Eigen::QuaternionBase<D> &> (q).w() = mult1 * s2;
+    const_cast <Eigen::QuaternionBase<D> &> (q).x() = mult1 * c2;
+    const_cast <Eigen::QuaternionBase<D> &> (q).y() = mult2 * s3;
+    const_cast <Eigen::QuaternionBase<D> &> (q).z() = mult2 * c3;
+  }
 }
 #endif //#ifndef __math_quaternion_hpp__
