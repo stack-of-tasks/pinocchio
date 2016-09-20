@@ -36,7 +36,7 @@ namespace se3
     if (updateKinematics)
       forwardKinematics(model, data, q);
 
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
     {
       const double mass = model.inertias[i].mass();
       const SE3::Vector3 & lever = model.inertias[i].lever();
@@ -46,7 +46,7 @@ namespace se3
     }
     
     // Backward Step
-    for(Model::JointIndex i=(Model::JointIndex)(model.njoint-1); i>0; --i)
+    for(Model::JointIndex i=(Model::JointIndex)(model.njoints-1); i>0; --i)
     {
       const Model::JointIndex & parent = model.parents[i];
       
@@ -84,7 +84,7 @@ namespace se3
     if (updateKinematics)
       forwardKinematics(model, data, q, v);
     
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
     {
       const double mass = model.inertias[i].mass();
       const SE3::Vector3 & lever = model.inertias[i].lever();
@@ -98,7 +98,7 @@ namespace se3
     }
     
     // Backward Step
-    for(Model::JointIndex i=(Model::JointIndex)(model.njoint-1); i>0; --i)
+    for(Model::JointIndex i=(Model::JointIndex)(model.njoints-1); i>0; --i)
     {
       const Model::JointIndex & parent = model.parents[i];
       
@@ -142,7 +142,7 @@ namespace se3
     if (updateKinematics)
       forwardKinematics(model, data, q, v, a);
     
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
     {
       const double mass = model.inertias[i].mass();
       const SE3::Vector3 & lever = model.inertias[i].lever();
@@ -158,7 +158,7 @@ namespace se3
     }
     
     // Backward Step
-    for(Model::JointIndex i=(Model::JointIndex)(model.njoint-1); i>0; --i)
+    for(Model::JointIndex i=(Model::JointIndex)(model.njoints-1); i>0; --i)
     {
       const Model::JointIndex & parent = model.parents[i];
       
@@ -225,14 +225,37 @@ namespace se3
       ColBlock Jcols = jmodel.jointCols(data.J);
       Jcols = data.oMi[i].act(jdata.S());
       
-      if( JointModel::NV==1 )
+      if (JointModel::NV == -1)
+      {
+        if( jmodel.nv() ==1 )
+        {
         data.Jcom.col(jmodel.idx_v())
         = data.mass[i] * Jcols.template topLeftCorner<3,1>()
         - data.com[i].cross(Jcols.template bottomLeftCorner<3,1>()) ;
+        }
+        else
+        {
+          jmodel.jointCols(data.Jcom)
+          = data.mass[i] * Jcols.template topRows<3>()
+          - skew(data.com[i]) * Jcols.template bottomRows<3>();
+        }
+      }
       else
-        jmodel.jointCols(data.Jcom)
-        = data.mass[i] * Jcols.template topRows<3>()
-        - skew(data.com[i]) * Jcols.template bottomRows<3>();
+      {
+        if( JointModel::NV ==1 )
+        {
+        data.Jcom.col(jmodel.idx_v())
+        = data.mass[i] * Jcols.template topLeftCorner<3,1>()
+        - data.com[i].cross(Jcols.template bottomLeftCorner<3,1>()) ;
+        }
+        else
+        {
+          jmodel.jointCols(data.Jcom)
+          = data.mass[i] * Jcols.template topRows<3>()
+          - skew(data.com[i]) * Jcols.template bottomRows<3>();
+        }
+      }
+      
     
       if(computeSubtreeComs)
         data.com[i] /= data.mass[i];
@@ -253,7 +276,7 @@ namespace se3
     if (updateKinematics)
       forwardKinematics(model, data, q);
       
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
     {
       const double mass = model.inertias[i].mass();
       const SE3::Vector3 & lever = model.inertias[i].lever();
@@ -263,7 +286,7 @@ namespace se3
     }
    
     // Backward step
-    for( Model::JointIndex i= (Model::JointIndex) (model.njoint-1);i>0;--i )
+    for( Model::JointIndex i= (Model::JointIndex) (model.njoints-1);i>0;--i )
     {
       JacobianCenterOfMassBackwardStep
       ::run(model.joints[i],data.joints[i],

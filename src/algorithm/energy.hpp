@@ -76,7 +76,7 @@ namespace se3
     if (update_kinematics)
       forwardKinematics(model,data,q,v);
     
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
       data.kinetic_energy += model.inertias[i].vtiv(data.v[i]);
     
     data.kinetic_energy *= .5;
@@ -96,7 +96,7 @@ namespace se3
     if (update_kinematics)
       forwardKinematics(model,data,q);
     
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
     {
       com_global = data.oMi[i].translation() + data.oMi[i].rotation() * model.inertias[i].lever();
       data.potential_energy += model.inertias[i].mass() * com_global.dot(g);

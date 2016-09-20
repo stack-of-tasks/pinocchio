@@ -33,11 +33,11 @@ namespace se3
   ///
   enum FrameType
   {
-    OP_FRAME, // operational frame type
-    JOINT, // joint frame type
-    FIXED_JOINT, // fixed joint frame type
-    BODY, // body frame type
-    SENSOR // sensor frame type
+    OP_FRAME     = 0x1 << 0, // operational frame type
+    JOINT        = 0x1 << 1, // joint frame type
+    FIXED_JOINT  = 0x1 << 2, // fixed joint frame type
+    BODY         = 0x1 << 3, // body frame type
+    SENSOR       = 0x1 << 4 // sensor frame type
   };
   
   ///
@@ -58,12 +58,14 @@ namespace se3
     ///
     /// \param[in] name Name of the frame.
     /// \param[in] parent Index of the parent joint in the kinematic tree.
+    /// \param[in] previousFrame Index of the parent frame in the kinematic tree.
     /// \param[in] placement Placement of the frame wrt the parent joint frame.
     /// \param[in] type The type of the frame, see the enum FrameType
     ///
-    Frame(const std::string & name, const JointIndex parent, const SE3 & frame_placement, const FrameType type)
+    Frame(const std::string & name, const JointIndex parent, const FrameIndex previousFrame, const SE3 & frame_placement, const FrameType type)
     : name(name)
     , parent(parent)
+    , previousFrame(previousFrame)
     , placement(frame_placement)
     , type(type)
     {}
@@ -76,6 +78,7 @@ namespace se3
     bool operator == (const Frame & other) const
     {
       return name == other.name && parent == other.parent
+      && previousFrame == other.previousFrame
       && placement == other.placement
       && type == other.type ;
     }
@@ -86,13 +89,23 @@ namespace se3
     /// \brief Index of the parent joint.
     JointIndex parent;
     
+    /// \brief Index of the previous frame.
+    FrameIndex previousFrame;
+    
     /// \brief Placement of the frame wrt the parent joint.
     SE3 placement;
 
     /// \brief Type of the frame
     FrameType type;
-    
+
   }; // struct Frame
+
+  inline std::ostream & operator << (std::ostream& os, const Frame & f)
+  {
+    os << "Frame name:" << f.name  << "paired to (parent joint/ previous frame)" << "(" <<f.parent << "/" << f.previousFrame << ")"<< std::endl;
+    os << "with relative placement wrt parent joint:\n" << f.placement << std::endl;
+    return os;
+  }
 
 } // namespace se3
 

@@ -23,15 +23,28 @@
 #include "pinocchio/tools/string-generator.hpp"
 
 #include <boost/bind.hpp>
+#include <boost/utility.hpp>
 
 /// @cond DEV
 
 namespace se3
 {
+  namespace details
+  {
+    struct FilterFrame {
+      const std::string& name;
+      const FrameType & typeMask;
+      FilterFrame (const std::string& name, const FrameType& typeMask)
+        : name (name), typeMask (typeMask) {}
+      bool operator() (const Frame& frame) const
+      { return (typeMask & frame.type) && (name == frame.name); }
+    };
+  }
+
   inline std::ostream& operator<< (std::ostream & os, const Model & model)
   {
-    os << "Nb joints = " << model.njoint << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
-    for(Model::Index i=0;i<(Model::Index)(model.njoint);++i)
+    os << "Nb joints = " << model.njoints << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
+    for(Model::Index i=0;i<(Model::Index)(model.njoints);++i)
     {
       os << "  Joint "<< model.names[i] << ": parent=" << model.parents[i]  << std::endl;
     }
@@ -43,24 +56,24 @@ namespace se3
   Model::JointIndex Model::addJoint(const Model::JointIndex parent,
                                     const JointModelBase<JointModelDerived> & joint_model,
                                     const SE3 & joint_placement,
-                                    const std::string & joint_name,
                                     const Eigen::VectorXd & max_effort,
                                     const Eigen::VectorXd & max_velocity,
                                     const Eigen::VectorXd & min_config,
-                                    const Eigen::VectorXd & max_config
+                                    const Eigen::VectorXd & max_config,
+                                    const std::string & joint_name
                                     )
   {
     typedef JointModelDerived D;
-    assert( (njoint==(int)joints.size())&&(njoint==(int)inertias.size())
-           &&(njoint==(int)parents.size())&&(njoint==(int)jointPlacements.size()) );
+    assert( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
+           &&(njoints==(int)parents.size())&&(njoints==(int)jointPlacements.size()) );
     assert((joint_model.nq()>=0) && (joint_model.nv()>=0));
-    
+
     assert(max_effort.size() == joint_model.nv()
            && max_velocity.size() == joint_model.nv()
            && min_config.size() == joint_model.nq()
            && max_config.size() == joint_model.nq());
     
-    Model::JointIndex idx = (Model::JointIndex) (njoint++);
+    Model::JointIndex idx = (Model::JointIndex) (njoints++);
     
     joints         .push_back(JointModel(joint_model.derived()));
     boost::get<JointModelDerived>(joints.back()).setIndexes(idx,nq,nv);
@@ -71,17 +84,17 @@ namespace se3
     names          .push_back((joint_name!="")?joint_name:randomStringGenerator(8));
     nq += joint_model.nq();
     nv += joint_model.nv();
-    
-    effortLimit.conservativeResize(nv);effortLimit.bottomRows<D::NV>() = max_effort;
-    velocityLimit.conservativeResize(nv);velocityLimit.bottomRows<D::NV>() = max_velocity;
-    lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows<D::NQ>() = min_config;
-    upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows<D::NQ>() = max_config;
+
+    // Optimal efficiency here would be using the static-dim bottomRows, while specifying the dimension in argument in the case where D::NV is Eigen::Dynamic.
+    // However, this option is not compiling in Travis (why?).
+    // As efficiency of Model::addJoint is not critical, the dynamic bottomRows is used here.
+    effortLimit.conservativeResize(nv);effortLimit.bottomRows(joint_model.nv()) = max_effort;
+    velocityLimit.conservativeResize(nv);velocityLimit.bottomRows(joint_model.nv()) = max_velocity;
+    lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows(joint_model.nq()) = min_config;
+    upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows(joint_model.nq()) = max_config;
     
     neutralConfiguration.conservativeResize(nq);
     neutralConfiguration.tail(joint_model.nq()) = joint_model.neutralConfiguration();
-    
-    // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
-    addFrame(names[idx],idx,SE3::Identity(),JOINT);
     
     // Init and add joint index to its parent subtrees.
     subtrees.push_back(IndexVector(1));
@@ -90,33 +103,71 @@ namespace se3
     return idx;
   }
 
+  template<typename JointModelDerived>
+  Model::JointIndex Model::addJoint(const Model::JointIndex parent,
+                                    const JointModelBase<JointModelDerived> & joint_model,
+                                    const SE3 & joint_placement,
+                                    const std::string & joint_name
+                                    )
+  {
+    typedef JointModelDerived D;
+    Eigen::VectorXd max_effort, max_velocity, min_config, max_config;
+
+    max_effort = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
+    max_velocity = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
+    min_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
+    max_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
+
+    return addJoint(parent, joint_model, joint_placement, max_effort, max_velocity, min_config, max_config, joint_name);
+  }
+  
+  inline int Model::addJointFrame (const JointIndex& jidx,
+                                         int         fidx)
+  {
+    if (fidx < 0) {
+      // FIXED_JOINT is required because the parent can be the universe and its
+      // type is FIXED_JOINT
+      fidx = getFrameId(names[parents[jidx]], (FrameType)(JOINT | FIXED_JOINT));
+    }
+    assert(fidx < frames.size() && "Frame index out of bound");
+    // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
+    return addFrame(Frame(names[jidx],jidx,fidx,SE3::Identity(),JOINT));
+  }
+
+
   inline void Model::appendBodyToJoint(const Model::JointIndex joint_index,
                                        const Inertia & Y,
-                                       const SE3 & body_placement,
-                                       const std::string & body_name)
+                                       const SE3 & body_placement)
   {
     const Inertia & iYf = Y.se3Action(body_placement);
     inertias[joint_index] += iYf;
+    nbodies++;
+  }
 
-    addFrame((body_name!="")?body_name:randomStringGenerator(8), joint_index, body_placement, BODY);
-    nbody++;
+  inline int Model::addBodyFrame (const std::string & body_name,
+                                  const JointIndex  & parentJoint,
+                                  const SE3         & body_placement,
+                                        int           previousFrame)
+  {
+    if (previousFrame < 0) {
+      // FIXED_JOINT is required because the parent can be the universe and its
+      // type is FIXED_JOINT
+      previousFrame = getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
+    }
+    assert(previousFrame < frames.size() && "Frame index out of bound");
+    return addFrame(Frame(body_name, parentJoint, previousFrame, body_placement, BODY));
   }
   
   inline Model::JointIndex Model::getBodyId (const std::string & name) const
   {
-    return getFrameId(name);
+    return getFrameId(name, BODY);
   }
   
   inline bool Model::existBodyName (const std::string & name) const
   {
-    return existFrame(name);
+    return existFrame(name, BODY);
   }
 
-  inline const std::string& Model::getBodyName (const Model::JointIndex index) const
-  {
-    assert( index < (Model::Index)nbody );
-    return getFrameName(index);
-  }
 
   inline Model::JointIndex Model::getJointId (const std::string & name) const
   {
@@ -138,96 +189,37 @@ namespace se3
     return names[index];
   }
 
-  inline Model::FrameIndex Model::getFrameId ( const std::string & name ) const
+  inline Model::FrameIndex Model::getFrameId ( const std::string & name, const FrameType & type ) const
   {
     std::vector<Frame>::const_iterator it = std::find_if( frames.begin()
                                                         , frames.end()
-                                                        , boost::bind(&Frame::name, _1) == name
+                                                        , details::FilterFrame (name, type)
                                                         );
+    assert (it != frames.end() && "Frame not found");
+    assert ((std::find_if( boost::next(it), frames.end(), details::FilterFrame (name, type)) == frames.end())
+        && "Several frames match the filter");
     return Model::FrameIndex(it - frames.begin());
   }
 
-  inline bool Model::existFrame ( const std::string & name ) const
+  inline bool Model::existFrame ( const std::string & name, const FrameType & type) const
   {
-    return std::find_if( frames.begin(), frames.end(), boost::bind(&Frame::name, _1) == name) != frames.end();
+    return std::find_if( frames.begin(), frames.end(),
+        details::FilterFrame (name, type)) != frames.end();
   }
 
-  inline const std::string & Model::getFrameName ( const FrameIndex index ) const
-  {
-    return frames[index].name;
-  }
 
-  inline Model::JointIndex Model::getFrameParent( const std::string & name ) const
+  inline int Model::addFrame ( const Frame & frame )
   {
-    assert(existFrame(name) && "The Frame you requested does not exist");
-    std::vector<Frame>::const_iterator it = std::find_if( frames.begin()
-                                                        , frames.end()
-                                                        , boost::bind(&Frame::name, _1) == name
-                                                        );
-    
-    std::vector<Frame>::iterator::difference_type it_diff = it - frames.begin();
-    return getFrameParent(Model::JointIndex(it_diff));
-  }
-
-  inline Model::JointIndex Model::getFrameParent( const FrameIndex index ) const
-  {
-    return frames[index].parent;
-  }
-
-  inline FrameType Model::getFrameType( const std::string & name ) const
-  {
-    assert(existFrame(name) && "The Frame you requested does not exist");
-    std::vector<Frame>::const_iterator it = std::find_if( frames.begin()
-                                                        , frames.end()
-                                                        , boost::bind(&Frame::name, _1) == name
-                                                        );
-    
-    std::vector<Frame>::iterator::difference_type it_diff = it - frames.begin();
-    return getFrameType(Model::JointIndex(it_diff));
-  }
-
-  inline FrameType Model::getFrameType( const FrameIndex index ) const
-  {
-    return frames[index].type;
-  }
-
-  inline const SE3 & Model::getFramePlacement( const std::string & name) const
-  {
-    assert(existFrame(name) && "The Frame you requested does not exist");
-    std::vector<Frame>::const_iterator it = std::find_if( frames.begin()
-                                                        , frames.end()
-                                                        , boost::bind(&Frame::name, _1) == name
-                                                        );
-    
-    std::vector<Frame>::iterator::difference_type it_diff = it - frames.begin();
-    return getFramePlacement(Model::Index(it_diff));
-  }
-
-  inline const SE3 & Model::getFramePlacement( const FrameIndex index ) const
-  {
-    return frames[index].placement;
-  }
-
-  inline bool Model::addFrame ( const Frame & frame )
-  {
-    if( !existFrame(frame.name) )
+    if( !existFrame(frame.name, frame.type) )
     {
       frames.push_back(frame);
-      nFrames++;
-      return true;
+      nframes++;
+      return nframes - 1;
     }
     else
     {
-      return false;
+      return -1;
     }
-  }
-
-  inline bool Model::addFrame ( const std::string & name, JointIndex index, const SE3 & placement, const FrameType type)
-  {
-    if( !existFrame(name) )
-      return addFrame(Frame(name, index, placement, type));
-    else
-      return false;
   }
   
   inline void Model::addJointIndexToParentSubtrees(const JointIndex joint_id)
@@ -239,35 +231,35 @@ namespace se3
 
   inline Data::Data (const Model & model)
     :joints(0)
-    ,a((std::size_t)model.njoint)
-    ,a_gf((std::size_t)model.njoint)
-    ,v((std::size_t)model.njoint)
-    ,f((std::size_t)model.njoint)
-    ,oMi((std::size_t)model.njoint)
-    ,liMi((std::size_t)model.njoint)
+    ,a((std::size_t)model.njoints)
+    ,a_gf((std::size_t)model.njoints)
+    ,v((std::size_t)model.njoints)
+    ,f((std::size_t)model.njoints)
+    ,oMi((std::size_t)model.njoints)
+    ,liMi((std::size_t)model.njoints)
     ,tau(model.nv)
     ,nle(model.nv)
-    ,oMf((std::size_t)model.nFrames)
-    ,Ycrb((std::size_t)model.njoint)
+    ,oMf((std::size_t)model.nframes)
+    ,Ycrb((std::size_t)model.njoints)
     ,M(model.nv,model.nv)
     ,ddq(model.nv)
-    ,Yaba((std::size_t)model.njoint)
+    ,Yaba((std::size_t)model.njoints)
     ,u(model.nv)
     ,Ag(6,model.nv)
-    ,Fcrb((std::size_t)model.njoint)
-    ,lastChild((std::size_t)model.njoint)
-    ,nvSubtree((std::size_t)model.njoint)
+    ,Fcrb((std::size_t)model.njoints)
+    ,lastChild((std::size_t)model.njoints)
+    ,nvSubtree((std::size_t)model.njoints)
     ,U(model.nv,model.nv)
     ,D(model.nv)
     ,tmp(model.nv)
     ,parents_fromRow((std::size_t)model.nv)
     ,nvSubtree_fromRow((std::size_t)model.nv)
     ,J(6,model.nv)
-    ,iMf((std::size_t)model.njoint)
-    ,com((std::size_t)model.njoint)
-    ,vcom((std::size_t)model.njoint)
-    ,acom((std::size_t)model.njoint)
-    ,mass((std::size_t)model.njoint)
+    ,iMf((std::size_t)model.njoints)
+    ,com((std::size_t)model.njoints)
+    ,vcom((std::size_t)model.njoints)
+    ,acom((std::size_t)model.njoints)
+    ,mass((std::size_t)model.njoints)
     ,Jcom(3,model.nv)
     ,JMinvJt()
     ,llt_JMinvJt()
@@ -278,12 +270,12 @@ namespace se3
     ,impulse_c()
   {
     /* Create data strcture associated to the joints */
-    for(Model::Index i=0;i<(Model::JointIndex)(model.njoint);++i) 
+    for(Model::Index i=0;i<(Model::JointIndex)(model.njoints);++i) 
       joints.push_back(CreateJointData::run(model.joints[i]));
 
     /* Init for CRBA */
     M.fill(0);
-    for(Model::Index i=0;i<(Model::Index)(model.njoint);++i ) { Fcrb[i].resize(6,model.nv); }
+    for(Model::Index i=0;i<(Model::Index)(model.njoints);++i ) { Fcrb[i].resize(6,model.nv); }
     computeLastChild(model);
 
     /* Init for Cholesky */
@@ -308,7 +300,7 @@ namespace se3
   {
     typedef Model::Index Index;
     std::fill(lastChild.begin(),lastChild.end(),-1);
-    for( int i=model.njoint-1;i>=0;--i )
+    for( int i=model.njoints-1;i>=0;--i )
     {
       if(lastChild[(Index)i] == -1) lastChild[(Index)i] = i;
       const Index & parent = model.parents[(Index)i];
@@ -322,7 +314,7 @@ namespace se3
 
   inline void Data::computeParents_fromRow (const Model & model)
   {
-    for( Model::Index joint=1;joint<(Model::Index)(model.njoint);joint++)
+    for( Model::Index joint=1;joint<(Model::Index)(model.njoints);joint++)
     {
       const Model::Index & parent = model.parents[joint];
       const int nvj    = nv   (model.joints[joint]);

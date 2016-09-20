@@ -102,13 +102,13 @@ namespace se3
   crba(const Model & model, Data& data,
        const Eigen::VectorXd & q)
   {
-    for( Model::JointIndex i=1;i<(Model::JointIndex)(model.njoint);++i )
+    for( Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i )
     {
       CrbaForwardStep::run(model.joints[i],data.joints[i],
                            CrbaForwardStep::ArgsType(model,data,q));
     }
     
-    for( Model::JointIndex i=(Model::JointIndex)(model.njoint-1);i>0;--i )
+    for( Model::JointIndex i=(Model::JointIndex)(model.njoints-1);i>0;--i )
     {
       CrbaBackwardStep::run(model.joints[i],data.joints[i],
                             CrbaBackwardStep::ArgsType(model,data));
@@ -161,7 +161,7 @@ namespace se3
                      const se3::Model & model,
                      se3::Data & data)
     {
-      typedef typename Data::Matrix6x::NColsBlockXpr<JointModel::NV>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
       
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::Index & parent = model.parents[i];
@@ -169,11 +169,33 @@ namespace se3
       data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
       
       jdata.U() = data.Ycrb[i] * jdata.S();
+
       ColsBlock jF
-      = data.Ag.middleCols <JointModel::NV> (jmodel.idx_v());
+        = data.Ag.middleCols <JointModel::NV> (jmodel.idx_v());
+
       forceSet::se3Action(data.oMi[i],jdata.U(),jF);
     }
     
+    static void algo(const se3::JointModelBase<JointModelComposite> & jmodel,
+                     se3::JointDataBase<JointDataComposite> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data)
+    {
+      typedef SizeDepType<JointModel::NV>::ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      const Model::Index & parent = model.parents[i];
+      
+      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+      
+      jdata.U() = data.Ycrb[i] * jdata.S();
+      
+      ColsBlock jF
+        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
+
+      forceSet::se3Action(data.oMi[i],jdata.U(),jF);
+    }
+
   }; // struct CcrbaBackwardStep
   
   inline const Data::Matrix6x &
@@ -185,11 +207,11 @@ namespace se3
     
     forwardKinematics(model, data, q);
     data.Ycrb[0].setZero();
-    for(Model::Index i=1;i<(Model::Index)(model.njoint);++i )
+    for(Model::Index i=1;i<(Model::Index)(model.njoints);++i )
       data.Ycrb[i] = model.inertias[i];
     
     
-    for(Model::Index i=(Model::Index)(model.njoint-1);i>0;--i)
+    for(Model::Index i=(Model::Index)(model.njoints-1);i>0;--i)
     {
       CcrbaBackwardStep::run(model.joints[i],data.joints[i],
                              CcrbaBackwardStep::ArgsType(model,data));
@@ -218,7 +240,7 @@ namespace se3
   {
     inline bool isDescendant(const Model& model, const JointIndex j, const JointIndex root)
     {
-      if(int(j)>=model.njoint)  return false;
+      if(int(j)>=model.njoints)  return false;
       if(j==0)                 return root==0;
       return (j==root) || isDescendant(model,model.parents[j],root);
     }
@@ -230,11 +252,11 @@ namespace se3
     // immediately after i in the "parents" map, i.e. forall joint i, the interval i+1..n-1
     // can be separated in two intervals [i+1..k] and [k+1..n-1], where any [i+1..k] is a descendant
     // of i and none of [k+1..n-1] is a descendant of i.
-    for( JointIndex i=1; int(i)<model.njoint-1; ++i ) // no need to check joints 0 and N-1
+    for( JointIndex i=1; int(i)<model.njoints-1; ++i ) // no need to check joints 0 and N-1
       {
         JointIndex k=i+1;
         while(internal::isDescendant(model,k,i)) ++k;
-        for( ; int(k)<model.njoint; ++k ) 
+        for( ; int(k)<model.njoints; ++k ) 
           if( internal::isDescendant(model,k,i) ) return false;
       }
     return true;

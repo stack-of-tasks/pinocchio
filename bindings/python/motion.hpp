@@ -91,6 +91,7 @@ namespace se3
         
         .def("__add__",&MotionPythonVisitor::add)
         .def("__sub__",&MotionPythonVisitor::subst)
+        .def("__neg__",&MotionPythonVisitor::neg)
         .def(bp::self_ns::str(bp::self_ns::self))
         
         .def("Random",&Motion_fx::Random)
@@ -113,6 +114,7 @@ namespace se3
       
       static Motion_fx add( const Motion_fx& m1,const Motion_fx& m2 ) { return m1+m2; }     
       static Motion_fx subst( const Motion_fx& m1,const Motion_fx& m2 ) { return m1-m2; }     
+      static Motion_fx neg(const Motion_fx & m1) { return -m1; }
       static Motion_fx cross_motion( const Motion_fx& m1,const Motion_fx& m2 ) { return m1.cross(m2); }
       static Force_fx cross_force( const Motion_fx& m,const Force_fx& f ) { return m.cross(f); }
 

@@ -59,7 +59,7 @@ int main(int argc, const char ** argv)
   else if( filename == "H2" )
     se3::buildModels::humanoid2d(model);
   else
-    model = se3::urdf::buildModel(filename,JointModelFreeFlyer());
+    se3::urdf::buildModel(filename,JointModelFreeFlyer(),model);
   std::cout << "nq = " << model.nq << std::endl;
 
   se3::Data data(model);

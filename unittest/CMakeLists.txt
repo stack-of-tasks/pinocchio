@@ -115,3 +115,5 @@ ADD_UNIT_TEST(explog eigen3)
 ADD_UNIT_TEST(finite-differences eigen3)
 ADD_UNIT_TEST(visitor eigen3)
 ADD_UNIT_TEST(algo-check eigen3)
+ADD_UNIT_TEST(joint-composite eigen3)
+

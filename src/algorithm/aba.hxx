@@ -197,19 +197,19 @@ namespace se3
     data.a[0] = -model.gravity;
     data.u = tau;
     
-    for(Model::Index i=1;i<(Model::Index)model.njoint;++i)
+    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
     {
       AbaForwardStep1::run(model.joints[i],data.joints[i],
                            AbaForwardStep1::ArgsType(model,data,q,v));
     }
     
-    for( Model::Index i=(Model::Index)model.njoint-1;i>0;--i )
+    for( Model::Index i=(Model::Index)model.njoints-1;i>0;--i )
     {
       AbaBackwardStep::run(model.joints[i],data.joints[i],
                            AbaBackwardStep::ArgsType(model,data));
     }
     
-    for(Model::Index i=1;i<(Model::Index)model.njoint;++i)
+    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
     {
       AbaForwardStep2::run(model.joints[i],data.joints[i],
                            AbaForwardStep2::ArgsType(model,data));
@@ -226,7 +226,7 @@ namespace se3
   // The second test is overconstraining.
   inline bool ABAChecker::checkModel_impl( const Model& model ) const
   {
-    for(JointIndex j=1;int(j)<model.njoint;j++)
+    for(JointIndex j=1;int(j)<model.njoints;j++)
       if(    (model.inertias[j].mass   ()           < 1e-5) 
           || (model.inertias[j].inertia().data()[0] < 1e-5)
           || (model.inertias[j].inertia().data()[3] < 1e-5)

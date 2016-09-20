@@ -15,6 +15,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/joint/joint.hpp"
 
 #define BOOST_TEST_DYN_LINK
@@ -25,6 +26,7 @@
 template <typename T>
 void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
 {
+    std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
     Eigen::VectorXd q1(Eigen::VectorXd::Random (jmodel.nq()));
     Eigen::VectorXd q1_dot(Eigen::VectorXd::Random (jmodel.nv()));
     Eigen::VectorXd q2(Eigen::VectorXd::Random (jmodel.nq()));
@@ -32,8 +34,9 @@ void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
     se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
     bool update_I = false;
 
-  q1 = jmodel.random();
-  q2 = jmodel.random();
+    q1 = jmodel.random();
+    q2 = jmodel.random();
+
     jmodel.calc(jdata, q1, q1_dot);
     jmodel.calc_aba(jdata, Ia, update_I);
 
@@ -42,7 +45,6 @@ void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
     se3::JointModel jma(jmodel);
     se3::JointData jda(jdata);
 
-                                                            
     jma.calc(jda, q1, q1_dot);
     jma.calc_aba(jda, Ia, update_I); 
 
@@ -91,6 +93,21 @@ struct TestJoint{
   void operator()(const se3::JointModelDense<NQ,NV> & ) const
   {
     // JointModelDense will be removed soon
+  }
+
+  void operator()(const se3::JointModelComposite & ) const
+  {
+    // se3::JointModelComposite jmodel(2);
+    // jmodel.addJointModel(se3::JointModelRX());
+    // jmodel.addJointModel(se3::JointModelRY());
+
+    se3::JointModelComposite jmodel((se3::JointModelRX()), (se3::JointModelRY()));
+    jmodel.setIndexes(0,0,0);
+    jmodel.updateComponentsIndexes();
+
+    se3::JointModelComposite::JointDataDerived jdata = jmodel.createData();
+
+    test_joint_methods(jmodel, jdata);
   }
 
   void operator()(const se3::JointModelRevoluteUnaligned & ) const

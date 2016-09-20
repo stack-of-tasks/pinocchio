@@ -26,16 +26,15 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
-#include "pinocchio/multibody/joint/joint.hpp"
+#include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/deprecated.hh"
+#include "pinocchio/tools/string-generator.hpp"
 
 #include <iostream>
 #include <Eigen/Cholesky>
 
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Inertia)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Force)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,Eigen::Dynamic>)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,6>)
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3::Vector3)
@@ -58,13 +57,13 @@ namespace se3
     int nv;
     
     /// \brief Number of joints.
-    int njoint;
+    int njoints;
 
     /// \brief Number of bodies.
-    int nbody;
+    int nbodies;
     
     /// \brief Number of operational frames.
-    int nFrames;
+    int nframes;
 
     /// \brief Spatial inertias of the body <i> expressed in the supporting joint frame <i>.
     std::vector<Inertia> inertias;
@@ -112,23 +111,62 @@ namespace se3
     Model()
       : nq(0)
       , nv(0)
-      , njoint(1)
-      , nbody(1)
-      , nFrames(0)
+      , njoints(1)
+      , nbodies(1)
+      , nframes(0)
       , inertias(1)
-      , jointPlacements(1)
+      , jointPlacements(1, SE3::Identity())
       , joints(1)
-      , parents(1)
+      , parents(1, 0)
       , names(1)
       , subtrees(1)
       , gravity( gravity981,Eigen::Vector3d::Zero() )
     {
       names[0]     = "universe";     // Should be "universe joint (trivial)"
+      // FIXME Should the universe joint be a FIXED_JOINT even if it is
+      // in the list of joints ? See comment in definition of
+      // Model::addJointFrame and Model::addBodyFrame
+      addFrame(Frame("universe", 0, 0, SE3::Identity(), FIXED_JOINT));
+      // Inertia of universe has no sense.
+      inertias[0].mass() = std::numeric_limits<double>::quiet_NaN();
+      inertias[0].lever().fill (std::numeric_limits<double>::quiet_NaN());
+      inertias[0].inertia().fill (std::numeric_limits<double>::quiet_NaN());
     }
     ~Model() {} // std::cout << "Destroy model" << std::endl; }
     
     ///
-    /// \brief Add a joint to the kinematic tree.
+    /// \brief Add a joint to the kinematic tree with given bounds.
+    ///
+    /// \remark This method does not add a Frame of same name to the vector of frames.
+    ///         Use Model::addJointFrame.
+    /// \remark The inertia supported by the joint is set to Zero.
+    ///
+    /// \tparam JointModelDerived The type of the joint model.
+    ///
+    /// \param[in] parent Index of the parent joint.
+    /// \param[in] joint_model The joint model.
+    /// \param[in] joint_placement Placement of the joint inside its parent joint.
+    /// \param[in] joint_name Name of the joint. If empty, the name is random.
+    /// \param[in] max_effort Maximal joint torque.
+    /// \param[in] max_velocity Maximal joint velocity.
+    /// \param[in] min_config Lower joint configuration.
+    /// \param[in] max_config Upper joint configuration.
+    ///
+    /// \return The index of the new joint.
+    ///
+    /// \sa Model::appendBodyToJoint, Model::addJointFrame
+    ///
+    template<typename JointModelDerived>
+    JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
+                        const Eigen::VectorXd & max_effort,
+                        const Eigen::VectorXd & max_velocity,
+                        const Eigen::VectorXd & min_config,
+                        const Eigen::VectorXd & max_config,
+                        const std::string & joint_name = ""
+                        );
+
+    ///
+    /// \brief Add a joint to the kinematic tree with infinite bounds.
     ///
     /// \remark This method also adds a Frame of same name to the vector of frames.
     /// \remark The inertia supported by the joint is set to Zero.
@@ -139,10 +177,6 @@ namespace se3
     /// \param[in] joint_model The joint model.
     /// \param[in] joint_placement Placement of the joint inside its parent joint.
     /// \param[in] joint_name Name of the joint. If empty, the name is random.
-    /// \param[in] max_effort Maximal joint torque. (Default set to infinity).
-    /// \param[in] max_velocity Maximal joint velocity. (Default set to infinity).
-    /// \param[in] min_config Lower joint configuration. (Default set to infinity).
-    /// \param[in] max_config Upper joint configuration. (Default set to infinity).
     ///
     /// \return The index of the new joint.
     ///
@@ -150,28 +184,48 @@ namespace se3
     ///
     template<typename JointModelDerived>
     JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
-                        const std::string & joint_name = "",
-                        const Eigen::VectorXd & max_effort = Eigen::VectorXd::Constant(JointModelDerived::NV,std::numeric_limits<double>::max()),
-                        const Eigen::VectorXd & max_velocity = Eigen::VectorXd::Constant(JointModelDerived::NV,std::numeric_limits<double>::max()),
-                        const Eigen::VectorXd & min_config = Eigen::VectorXd::Constant(JointModelDerived::NQ,std::numeric_limits<double>::min()),
-                        const Eigen::VectorXd & max_config = Eigen::VectorXd::Constant(JointModelDerived::NQ,std::numeric_limits<double>::max())
+                        const std::string & joint_name = ""
                         );
+
+    ///
+    /// \brief Add a joint to the frame tree.
+    ///
+    /// \param[in] jointIndex Index of the joint.
+    /// \param[in] frameIndex Index of the parent frame. If negative,
+    ///            the parent frame is the frame of the parent joint.
+    ///
+    /// \return The index of the new frame or -1 in case of error.
+    ///
+    int addJointFrame (const JointIndex& jointIndex,
+                             int         frameIndex = -1);
 
     ///
     /// \brief Append a body to a given joint of the kinematic tree.
     ///
-    /// \remark This method also adds a Frame of same name to the vector of frames.
-    ///
     /// \param[in] joint_index Index of the supporting joint.
     /// \param[in] Y Spatial inertia of the body.
     /// \param[in] body_placement The relative placement of the body regarding to the parent joint. Set default to the Identity placement.
-    /// \param[in] body_name Name of the body. If empty, the name is random.
     ///
     /// \sa Model::addJoint
     ///
     void appendBodyToJoint(const JointIndex joint_index, const Inertia & Y,
-                           const SE3 & body_placement = SE3::Identity(),
-                           const std::string & body_name = "");
+                           const SE3 & body_placement = SE3::Identity());
+
+    ///
+    /// \brief Add a body to the frame tree.
+    ///
+    /// \param[in] body_name Name of the body.
+    /// \param[in] parentJoint Index of the parent joint.
+    /// \param[in] body_placement The relative placement of the body regarding to the parent joint. Set default to the Identity placement.
+    /// \param[in] previousFrame Index of the parent frame. If negative,
+    ///            the parent frame is the frame of the parent joint.
+    ///
+    /// \return The index of the new frame or -1 in case of error.
+    ///
+    int addBodyFrame (const std::string & body_name,
+                      const JointIndex  & parentJoint,
+                      const SE3         & body_placement = SE3::Identity(),
+                            int           previousFrame  = -1);
 
     ///
     /// \brief Return the index of a body given by its name.
@@ -195,14 +249,6 @@ namespace se3
     ///
     bool existBodyName(const std::string & name) const;
     
-    ///
-    /// \brief Get the name of a body given by its index.
-    ///
-    /// \param[in] index Index of the body.
-    ///
-    /// \return Name of the body.
-    ///
-    const std::string & getBodyName(const JointIndex index) const;
     
     ///
     /// \brief Return the index of a joint given by its name.
@@ -232,7 +278,7 @@ namespace se3
     ///
     /// \return Name of the joint.
     ///
-    const std::string & getJointName(const JointIndex index) const;
+    PINOCCHIO_DEPRECATED const std::string & getJointName(const JointIndex index) const;
 
     ///
     /// \brief Returns the index of a frame given by its name.
@@ -243,103 +289,32 @@ namespace se3
     /// (for example to get the id of a parent frame).
     /// 
     /// \param[in] name Name of the frame.
+    /// \param[in] type Type of the frame.
     ///
     /// \return Index of the frame.
     ///
-    FrameIndex getFrameId (const std::string & name) const;
+    FrameIndex getFrameId (const std::string & name, const FrameType& type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
     
     ///
     /// \brief Checks if a frame given by its name exists.
     ///
     /// \param[in] name Name of the frame.
+    /// \param[in] type Type of the frame.
     ///
     /// \return Returns true if the frame exists.
     ///
-    bool existFrame (const std::string & name) const;
+    bool existFrame (const std::string & name, const FrameType& type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
     
-    ///
-    /// \brief Get the name of a frame given by its index.
-    ///
-    /// \param[in] index Index of the frame.
-    ///
-    /// \return The name of the frame.
-    ///
-    PINOCCHIO_DEPRECATED const std::string & getFrameName (const FrameIndex index) const;
     
-    ///
-    /// \brief Get the index of the joint supporting the frame given by its name.
-    ///
-    /// \param[in] name Name of the frame.
-    ///
-    /// \return
-    ///
-    PINOCCHIO_DEPRECATED JointIndex getFrameParent(const std::string & name) const;
-    
-    ///
-    /// \brief Get the index of the joint supporting the frame given by its index.
-    ///
-    /// \param[in] index Index of the frame.
-    ///
-    /// \return
-    ///
-    PINOCCHIO_DEPRECATED JointIndex getFrameParent(const FrameIndex index) const;
-
-    ///
-    /// \brief Get the type of the frame given by its index.
-    ///
-    /// \param[in] name Name of the frame.
-    ///
-    /// \return
-    ///
-    PINOCCHIO_DEPRECATED FrameType getFrameType(const std::string & name) const;
-    
-    ///
-    /// \brief Get the type of the frame given by its index.
-    ///
-    /// \param[in] index Index of the frame.
-    ///
-    /// \return
-    ///
-    PINOCCHIO_DEPRECATED FrameType getFrameType(const FrameIndex index) const;
-    
-    ///
-    /// \brief Return the relative placement between a frame and its supporting joint.
-    ///
-    /// \param[in] name Name of the frame.
-    ///
-    /// \return The frame placement regarding the supporing joint.
-    ///
-    PINOCCHIO_DEPRECATED const SE3 & getFramePlacement(const std::string & name) const;
-    
-    ///
-    /// \brief Return the relative placement between a frame and its supporting joint.
-    ///
-    /// \param[in] index Index of the frame.
-    ///
-    /// \return The frame placement regarding the supporing joint.
-    ///
-    PINOCCHIO_DEPRECATED const SE3 & getFramePlacement(const FrameIndex index) const;
-
     ///
     /// \brief Adds a frame to the kinematic tree.
     ///
     /// \param[in] frame The frame to add to the kinematic tree.
     ///
-    /// \return Returns true if the frame has been successfully added.
+    /// \return Returns the index of the frame if it has been successfully added,
+    ///         -1 otherwise.
     ///
-    bool addFrame(const Frame & frame);
-    
-    ///
-    /// \brief Creates and adds a frame to the kinematic tree.
-    ///
-    /// \param[in] name Name of the frame.
-    /// \param[in] parent Index of the supporting joint.
-    /// \param[in] placement Placement of the frame regarding to the joint frame.
-    /// \param[in] type The type of the frame
-    ///
-    /// \return Returns true if the frame has been successfully added.
-    ///
-    PINOCCHIO_DEPRECATED bool addFrame(const std::string & name, const JointIndex parent, const SE3 & placement, const FrameType type = OP_FRAME);
+    int addFrame(const Frame & frame);
 
     /// Check the validity of the attributes of Model with respect to the specification of some
     /// algorithms.
@@ -530,7 +505,7 @@ namespace se3
     ///
     /// \param[in] model The model structure of the rigid body system.
     ///
-    Data (const Model & model);
+    explicit Data (const Model & model);
 
   private:
     void computeLastChild(const Model& model);

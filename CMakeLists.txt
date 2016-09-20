@@ -118,6 +118,7 @@ SET(${PROJECT_NAME}_MATH_HEADERS
   math/fwd.hpp
   math/sincos.hpp
   math/quaternion.hpp
+  math/matrix.hpp
   )
 
 SET(${PROJECT_NAME}_TOOLS_HEADERS
@@ -156,6 +157,7 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint.hpp
   multibody/joint/joint-basic-visitors.hpp
   multibody/joint/joint-basic-visitors.hxx
+  multibody/joint/joint-composite.hpp
   ) 
 
 SET(${PROJECT_NAME}_MULTIBODY_HEADERS

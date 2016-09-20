@@ -30,7 +30,7 @@
 
 #include <iostream>
 #include <map>
-#include <list>
+#include <vector>
 #include <utility>
 #include <assert.h>
 
@@ -44,116 +44,16 @@ namespace se3
 
     typedef std::pair<GeomIndex, GeomIndex> Base;
    
-    ///
-    /// \brief Default constructor of a collision pair from two collision object indexes.
-    ///        The indexes must be ordered such that co1 < co2. If not, the constructor reverts the indexes.
-    ///
-    /// \param[in] co1 Index of the first collision object
-    /// \param[in] co2 Index of the second collision object
-    ///
-    CollisionPair(const GeomIndex co1, const GeomIndex co2) : Base(co1,co2)
-    {
-      assert(co1 != co2 && "The index of collision objects must not be equal.");
-    }
-
-    bool operator== (const CollisionPair& rhs) const
-    {
-      return (first == rhs.first && second == rhs.second)
-        || (first == rhs.second && second == rhs.first);
-    }
-    
-    void disp(std::ostream & os) const { os << "collision pair (" << first << "," << second << ")\n"; }
-    friend std::ostream & operator << (std::ostream & os, const CollisionPair & X);
+    CollisionPair(const GeomIndex co1, const GeomIndex co2);
+    bool                  operator == (const CollisionPair& rhs) const;
+    void                  disp        (std::ostream & os)        const;
+    friend std::ostream & operator << (std::ostream & os,const CollisionPair & X);
 
   }; // struct CollisionPair
+
   typedef std::vector<CollisionPair> CollisionPairsVector_t;
 
-#ifdef WITH_HPP_FCL  
-  /**
-   * @brief      Result of distance computation between two CollisionObjects
-   */
-  struct DistanceResult
-  {
-
-    DistanceResult() : fcl_distance_result(), object1(0), object2(0) {}
-    DistanceResult(fcl::DistanceResult dist_fcl, const GeomIndex co1, const GeomIndex co2)
-    : fcl_distance_result(dist_fcl), object1(co1), object2(co2)
-    {}
-
-
-    ///
-    /// @brief Return the minimal distance between two geometry objects
-    ///
-    double distance () const;
-
-    ///
-    /// \brief Return the witness point on the inner object expressed in global frame.
-    ///
-    Eigen::Vector3d closestPointInner () const;
-    
-    ///
-    /// \brief Return the witness point on the outer object expressed in global frame.
-    ///
-    Eigen::Vector3d closestPointOuter () const;
-    
-    bool operator == (const DistanceResult & other) const
-    {
-      return (distance() == other.distance()
-        && closestPointInner() == other.closestPointInner()
-        && closestPointOuter() == other.closestPointOuter()
-        && object1 == other.object1
-        && object2 == other.object2);
-    }
-    
-    /// \brief The FCL result of the distance computation
-    fcl::DistanceResult fcl_distance_result;
-    
-    /// \brief Index of the first colision object
-    GeomIndex object1;
-
-    /// \brief Index of the second colision object
-    GeomIndex object2;
-    
-  }; // struct DistanceResult 
-  
-
-  /**
-   * @brief      Result of collision computation between two CollisionObjects
-   */
-  struct CollisionResult
-  {
-
-    /**
-     * @brief      Default constrcutor of a CollisionResult
-     *
-     * @param[in]  coll_fcl  The FCL collision result
-     * @param[in]  co1       Index of the first geometry object involved in the computation
-     * @param[in]  co2       Index of the second geometry object involved in the computation
-     */
-    CollisionResult(fcl::CollisionResult coll_fcl, const GeomIndex co1, const GeomIndex co2)
-    : fcl_collision_result(coll_fcl), object1(co1), object2(co2)
-    {}
-    CollisionResult() : fcl_collision_result(), object1(0), object2(0) {}
-
-    bool operator == (const CollisionResult & other) const
-    {
-      return (fcl_collision_result == other.fcl_collision_result
-              && object1 == other.object1
-              && object2 == other.object2);
-    }
-
-    /// \brief The FCL result of the collision computation
-    fcl::CollisionResult fcl_collision_result;
-
-    /// \brief Index of the first collision object
-    GeomIndex object1;
-
-    /// \brief Index of the second collision object
-    GeomIndex object2;
-
-  }; // struct CollisionResult
-
-#else
+#ifndef WITH_HPP_FCL  
 
   namespace fcl
   {
@@ -179,8 +79,7 @@ namespace se3
 enum GeometryType
 {
   VISUAL,
-  COLLISION,
-  NONE
+  COLLISION
 };
 
 struct GeometryObject
@@ -189,43 +88,50 @@ struct GeometryObject
   /// \brief Name of the geometry object
   std::string name;
 
+  /// \brief Index of the parent frame
+  ///
+  /// Parent frame may be unset (set to -1) as it is mostly used as a documentation of the tree, or in third-party libraries.
+  /// The URDF parser of Pinocchio is setting it to the proper value according to the urdf link-joint tree.
+  /// In particular, anchor joints of URDF would cause parent frame to be different to joint frame.
+  FrameIndex parentFrame;
+
   /// \brief Index of the parent joint
-  JointIndex parent;
+  JointIndex parentJoint;
 
   /// \brief The actual cloud of points representing the collision mesh of the object
-  boost::shared_ptr<fcl::CollisionGeometry> collision_geometry;
+  boost::shared_ptr<fcl::CollisionGeometry> fcl;
 
-  /// \brief Position of geometry object in parent joint's frame
+  /// \brief Position of geometry object in parent joint frame
   SE3 placement;
 
   /// \brief Absolute path to the mesh file
-  std::string mesh_path;
+  std::string meshPath;
 
-
-  GeometryObject(const std::string & name, const JointIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & collision,
-                 const SE3 & placement, const std::string & mesh_path)
+  GeometryObject(const std::string & name, const FrameIndex parentF,
+                 const JointIndex parentJ, const boost::shared_ptr<fcl::CollisionGeometry> & collision,
+                 const SE3 & placement, const std::string & meshPath)
                 : name(name)
-                , parent(parent)
-                , collision_geometry(collision)
+                , parentFrame(parentF)
+                , parentJoint(parentJ)
+                , fcl(collision)
                 , placement(placement)
-                , mesh_path(mesh_path)
+                , meshPath(meshPath)
   {}
 
   GeometryObject & operator=(const GeometryObject & other)
   {
-    name = other.name;
-    parent = other.parent;
-    collision_geometry = other.collision_geometry;
-    placement = other.placement;
-    mesh_path = other.mesh_path;
+    name                = other.name;
+    parentFrame         = other.parentFrame;
+    parentJoint         = other.parentJoint;
+    fcl                 = other.fcl;
+    placement           = other.placement;
+    meshPath            = other.meshPath;
     return *this;
   }
 
-  friend std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object);
+  friend std::ostream & operator<< (std::ostream & os, const GeometryObject & geomObject);
 };
   
-
-
 
 } // namespace se3
 

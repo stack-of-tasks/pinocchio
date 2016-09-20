@@ -31,16 +31,33 @@
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint/joint-translation.hpp"
 
-#include <Eigen/StdVector>
 #include <boost/variant.hpp>
+#include <boost/variant/recursive_wrapper.hpp>
 
 namespace se3
 {
   enum { MAX_JOINT_NV = 6 };
 
-  typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned, JointModelSpherical, JointModelSphericalZYX, JointModelPX, JointModelPY, JointModelPZ, JointModelPrismaticUnaligned, JointModelFreeFlyer, JointModelPlanar, JointModelTranslation, JointModelDense<-1,-1>, JointModelRUBX, JointModelRUBY, JointModelRUBZ > JointModelVariant;
-  typedef boost::variant< JointDataRX, JointDataRY, JointDataRZ, JointDataRevoluteUnaligned, JointDataSpherical, JointDataSphericalZYX, JointDataPX, JointDataPY, JointDataPZ, JointDataPrismaticUnaligned, JointDataFreeFlyer, JointDataPlanar, JointDataTranslation, JointDataDense<-1,-1>, JointDataRUBX, JointDataRUBY, JointDataRUBZ > JointDataVariant;
-  
+  struct JointComposite;
+  struct JointModelComposite;
+  struct JointDataComposite;
+
+  // The JointModelComposite contains several JointModel (which are JointModelVariant). Hence there is a circular
+  // dependency between JointModelComposite and JointModelVariant that can be resolved with the use of boost::recursive_variant
+  // For more details, see http://www.boost.org/doc/libs/1_58_0/doc/html/variant/tutorial.html#variant.tutorial.recursive 
+  //
+  // The same applies for JointDataComposite
+  typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned, JointModelSpherical,
+                          JointModelSphericalZYX, JointModelPX, JointModelPY, JointModelPZ,
+                          JointModelPrismaticUnaligned, JointModelFreeFlyer, JointModelPlanar, JointModelTranslation,
+                          JointModelDense<-1,-1> ,JointModelRUBX, JointModelRUBY, JointModelRUBZ,
+                          boost::recursive_wrapper<JointModelComposite> >JointModelVariant;
+  typedef boost::variant< JointDataRX, JointDataRY, JointDataRZ, JointDataRevoluteUnaligned, JointDataSpherical,
+                          JointDataSphericalZYX, JointDataPX, JointDataPY, JointDataPZ, JointDataPrismaticUnaligned,
+                          JointDataFreeFlyer, JointDataPlanar, JointDataTranslation, JointDataDense<-1,-1>,
+                          JointDataRUBX, JointDataRUBY, JointDataRUBZ,
+                          boost::recursive_wrapper<JointDataComposite> > JointDataVariant;
+
 } // namespace se3
 
 #endif // ifndef __se3_joint_variant_hpp__

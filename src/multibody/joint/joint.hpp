@@ -20,7 +20,7 @@
 
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
-#include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
+#include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
 
 namespace se3
 {

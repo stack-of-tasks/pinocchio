@@ -16,6 +16,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include "pinocchio/math/matrix.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/urdf/utils.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -33,41 +34,121 @@ namespace se3
   {
     namespace details
     {
+      const FrameType JOINT_OR_FIXED_JOINT = (FrameType) (JOINT | FIXED_JOINT);
+
+      FrameIndex getParentJointFrame(::urdf::LinkConstPtr link, Model & model)
+      {
+        assert(link!=NULL && link->getParent()!=NULL);
+
+        FrameIndex id;
+        if (link->getParent()->parent_joint==NULL) {
+          if (model.existFrame("root_joint",  JOINT_OR_FIXED_JOINT))
+            id = model.getFrameId ("root_joint", JOINT_OR_FIXED_JOINT);
+          else
+            id = 0;
+        } else {
+          if (model.existFrame(link->getParent()->parent_joint->name, JOINT_OR_FIXED_JOINT))
+            id = model.getFrameId (link->getParent()->parent_joint->name, JOINT_OR_FIXED_JOINT);
+          else
+            throw std::invalid_argument ("Model does not have any joints named "
+                + link->getParent()->parent_joint->name);
+        }
+
+        Frame& f = model.frames[id];
+        if (f.type == JOINT || f.type == FIXED_JOINT)
+          return id;
+        throw std::invalid_argument ("Parent frame is not a JOINT neither a FIXED_JOINT");
+      }
+
+      void appendBodyToJoint(Model& model, const FrameIndex fid,
+                             const boost::shared_ptr< ::urdf::Inertial> Y,
+                             const SE3 & placement,
+                             const std::string & body_name)
+      {
+        const Frame& frame = model.frames[fid];
+        const SE3& p = frame.placement * placement;
+        if (frame.parent > 0
+            && Y != NULL
+            && Y->mass > Eigen::NumTraits<double>::epsilon()) {
+          model.appendBodyToJoint(frame.parent, convertFromUrdf(*Y), p);
+        }
+        model.addBodyFrame(body_name, frame.parent, p, (int)fid);
+        // Reference to model.frames[fid] can has changed because the vector
+        // may have been reallocated.
+        if (model.frames[fid].parent > 0) {
+          assert (!hasNaN(model.inertias[model.frames[fid].parent].lever())
+              &&  !hasNaN(model.inertias[model.frames[fid].parent].inertia().data()));
+        }
+      }
+
       ///
       /// \brief Shortcut for adding a joint and directly append a body to it.
       ///
       template<typename JointModel>
-      void addJointAndBody(Model & model, const JointModelBase<JointModel> & jmodel, const Model::JointIndex parent_id,
+      void addJointAndBody(Model & model, const JointModelBase<JointModel> & jmodel, const FrameIndex& parentFrameId,
                            const SE3 & joint_placement, const std::string & joint_name,
-                           const Inertia & Y, const std::string & body_name,
+                           const boost::shared_ptr< ::urdf::Inertial> Y,
+                           const std::string & body_name,
                            const typename JointModel::TangentVector_t & max_effort = JointModel::TangentVector_t::Constant(std::numeric_limits<double>::max()),
                            const typename JointModel::TangentVector_t & max_velocity = JointModel::TangentVector_t::Constant(std::numeric_limits<double>::max()),
                            const typename JointModel::ConfigVector_t & min_config = JointModel::ConfigVector_t::Constant(-std::numeric_limits<double>::min()),
                            const typename JointModel::ConfigVector_t & max_config = JointModel::ConfigVector_t::Constant(std::numeric_limits<double>::max()))
       {
         Model::JointIndex idx;
+        Frame& frame = model.frames[parentFrameId];
         
-        idx = model.addJoint(parent_id,jmodel,
-                             joint_placement,joint_name,
-                             max_effort,max_velocity,
-                             min_config,max_config);
-        
-        model.appendBodyToJoint(idx,Y,SE3::Identity(),body_name);
+        idx = model.addJoint(frame.parent,jmodel,
+                             frame.placement * joint_placement,
+                             max_effort,max_velocity,min_config,max_config,
+                             joint_name);
+        FrameIndex jointFrameId = (FrameIndex) model.addJointFrame(idx, (int)parentFrameId); // C-style cast to remove polluting compilation warning. This is Bad practice. See issue #323 (rework indexes)
+        appendBodyToJoint(model, jointFrameId, Y, SE3::Identity(), body_name);
       }
       
       ///
       /// \brief Handle the case of JointModelDense which is dynamic.
       ///
-      void addJointAndBody(Model & model, const JointModelBase< JointModelDense<-1,-1> > & jmodel, const Model::JointIndex parent_id,
+      void addJointAndBody(Model & , const JointModelBase< JointModelDense<-1,-1> > & , const FrameIndex& ,
+                           const SE3 & , const std::string & ,
+                           const boost::shared_ptr< ::urdf::Inertial> ,
+                           const std::string & )
+      {
+        assert(false && "Cannot add a joint of type JointModelDense");
+      }
+
+      ///
+      /// \brief Shortcut for adding a fixed joint and directly append a body to it.
+      ///
+      void addFixedJointAndBody(Model & model, const FrameIndex& parentFrameId,
+                                const SE3 & joint_placement, const std::string & joint_name,
+                                const boost::shared_ptr< ::urdf::Inertial> Y,
+                                const std::string & body_name)
+      {
+        Model::JointIndex idx;
+        Frame& frame = model.frames[parentFrameId];
+
+        int fid = model.addFrame(
+            Frame (joint_name, frame.parent, parentFrameId,
+              frame.placement * joint_placement, FIXED_JOINT)
+            );
+        if (fid < 0)
+          throw std::invalid_argument ("Fixed joint " + joint_name + " could not be added.");
+        appendBodyToJoint(model, (FrameIndex)fid, Y, SE3::Identity(), body_name);
+      }
+
+      ///
+      /// \brief Handle the case of JointModelComposite which is dynamic.
+      ///
+      void addJointAndBody(Model & model, const JointModelBase< JointModelComposite > & jmodel, const Model::JointIndex parent_id,
                            const SE3 & joint_placement, const std::string & joint_name,
-                           const Inertia & Y, const std::string & body_name)
+                           const boost::shared_ptr< ::urdf::Inertial> Y, const std::string & body_name)
       {
         Model::JointIndex idx;
         
         idx = model.addJoint(parent_id,jmodel,
                              joint_placement,joint_name);
         
-        model.appendBodyToJoint(idx,Y,SE3::Identity(),body_name);
+        appendBodyToJoint(model,idx,Y,SE3::Identity(),body_name);
       }
 
       ///
@@ -76,16 +157,12 @@ namespace se3
       ///
       /// \param[in] link The current URDF link.
       /// \param[in] model The model where the link must be added.
-      /// \param[in] placementOffset The relative placement of the link relative to the closer non fixed joint in the tree.
       ///
-      void parseTree(::urdf::LinkConstPtr link, Model & model, const SE3 & placementOffset, bool verbose) throw (std::invalid_argument)
+      void parseTree(::urdf::LinkConstPtr link, Model & model, bool verbose) throw (std::invalid_argument)
       {
         
         // Parent joint of the current body
         ::urdf::JointConstPtr joint = link->parent_joint;
-        
-        // OffSet of the next link. In case we encounter a fixed joint, we need to propagate the offset placement of its attached body to next joint.
-        SE3 nextPlacementOffset = SE3::Identity();
         
         if(joint != NULL) // if the link is not the root of the tree
         {
@@ -96,21 +173,12 @@ namespace se3
           const std::string & parent_link_name = link->getParent()->name;
           std::ostringstream joint_info;
           
-          // check if inertial information is provided
-          if (!link->inertial && joint->type != ::urdf::Joint::FIXED)
-          {
-            const std::string exception_message (link->name + " - spatial inertial information missing.");
-            throw std::invalid_argument(exception_message);
-          }
-          
-          Model::JointIndex parent_joint_id = (link->getParent()->parent_joint==NULL) ? (model.existJointName("root_joint") ? model.getJointId("root_joint") : 0) :
-          model.getJointId( link->getParent()->parent_joint->name );
+          FrameIndex parentFrameId = getParentJointFrame(link, model);
           
           // Transformation from the parent link to the joint origin
-          const SE3 & jointPlacement = placementOffset*convertFromUrdf(joint->parent_to_joint_origin_transform);
+          const SE3 jointPlacement = convertFromUrdf(joint->parent_to_joint_origin_transform);
           
-          const Inertia & Y = (link->inertial)?convertFromUrdf(*link->inertial):Inertia::Zero();
-          
+          const boost::shared_ptr< ::urdf::Inertial> Y = link->inertial;
          
           switch(joint->type)
           {
@@ -118,7 +186,7 @@ namespace se3
             {
               joint_info << "joint FreeFlyer";
               addJointAndBody(model,JointModelFreeFlyer(),
-                              parent_joint_id,jointPlacement,joint->name,
+                              parentFrameId,jointPlacement,joint->name,
                               Y,link->name);
               
               break;
@@ -153,7 +221,7 @@ namespace se3
                 {
                   joint_info << " along X";
                   addJointAndBody(model,JointModelRX(),
-                                  parent_joint_id,jointPlacement,joint->name,
+                                  parentFrameId,jointPlacement,joint->name,
                                   Y,link->name,
                                   max_effort,max_velocity,
                                   lower_position, upper_position);
@@ -163,7 +231,7 @@ namespace se3
                 {
                   joint_info << " along Y";
                   addJointAndBody(model,JointModelRY(),
-                                  parent_joint_id,jointPlacement,joint->name,
+                                  parentFrameId,jointPlacement,joint->name,
                                   Y,link->name,
                                   max_effort,max_velocity,
                                   lower_position, upper_position);
@@ -173,7 +241,7 @@ namespace se3
                 {
                   joint_info << " along Z";
                   addJointAndBody(model,JointModelRZ(),
-                                  parent_joint_id,jointPlacement,joint->name,
+                                  parentFrameId,jointPlacement,joint->name,
                                   Y,link->name,
                                   max_effort,max_velocity,
                                   lower_position, upper_position);
@@ -186,7 +254,7 @@ namespace se3
                   joint_info << " unaligned along (" << joint_axis.transpose() << ")";
                   
                   addJointAndBody(model,JointModelRevoluteUnaligned(joint_axis.normalized()),
-                                  parent_joint_id,jointPlacement,joint->name,
+                                  parentFrameId,jointPlacement,joint->name,
                                   Y,link->name,
                                   max_effort,max_velocity,
                                   lower_position, upper_position);
@@ -228,7 +296,7 @@ namespace se3
                   {
                     joint_info << " along X";
                     addJointAndBody(model,JointModelRX(),
-                                    parent_joint_id,jointPlacement,joint->name,
+                                    parentFrameId,jointPlacement,joint->name,
                                     Y,link->name,
                                     max_effort,max_velocity,
                                     lower_position, upper_position);
@@ -238,7 +306,7 @@ namespace se3
                   {
                     joint_info << " along Y";
                     addJointAndBody(model,JointModelRY(),
-                                    parent_joint_id,jointPlacement,joint->name,
+                                    parentFrameId,jointPlacement,joint->name,
                                     Y,link->name,
                                     max_effort,max_velocity,
                                     lower_position, upper_position);
@@ -248,7 +316,7 @@ namespace se3
                   {
                     joint_info << " along Z";
                     addJointAndBody(model,JointModelRZ(),
-                                    parent_joint_id,jointPlacement,joint->name,
+                                    parentFrameId,jointPlacement,joint->name,
                                     Y,link->name,
                                     max_effort,max_velocity,
                                     lower_position, upper_position);
@@ -261,7 +329,7 @@ namespace se3
                     joint_info << " unaligned along (" << joint_axis.transpose() << ")";
                     
                     addJointAndBody(model,JointModelRevoluteUnaligned(joint_axis.normalized()),
-                                    parent_joint_id,jointPlacement,joint->name,
+                                    parentFrameId,jointPlacement,joint->name,
                                     Y,link->name,
                                     max_effort,max_velocity,
                                     lower_position, upper_position);
@@ -302,7 +370,7 @@ namespace se3
                 {
                   joint_info << " along X";
                   addJointAndBody(model,JointModelPX(),
-                                  parent_joint_id,jointPlacement,joint->name,
+                                  parentFrameId,jointPlacement,joint->name,
                                   Y,link->name,
                                   max_effort,max_velocity,
                                   lower_position, upper_position);
@@ -312,7 +380,7 @@ namespace se3
                 {
                   joint_info << " along Y";
                   addJointAndBody(model,JointModelPY(),
-                                  parent_joint_id,jointPlacement,joint->name,
+                                  parentFrameId,jointPlacement,joint->name,
                                   Y,link->name,
                                   max_effort,max_velocity,
                                   lower_position, upper_position);
@@ -322,7 +390,7 @@ namespace se3
                 {
                   joint_info << " along Z";
                   addJointAndBody(model,JointModelPZ(),
-                                  parent_joint_id,jointPlacement,joint->name,
+                                  parentFrameId,jointPlacement,joint->name,
                                   Y,link->name,
                                   max_effort,max_velocity,
                                   lower_position, upper_position);
@@ -335,7 +403,7 @@ namespace se3
                   joint_info << " unaligned along (" << joint_axis.transpose() << ")";
                   
                   addJointAndBody(model,JointModelPrismaticUnaligned(joint_axis.normalized()),
-                                  parent_joint_id,jointPlacement,joint->name,
+                                  parentFrameId,jointPlacement,joint->name,
                                   Y,link->name,
                                   max_effort,max_velocity,
                                   lower_position, upper_position);
@@ -370,7 +438,7 @@ namespace se3
               }
               
               addJointAndBody(model,JointModelPlanar(),
-                              parent_joint_id,jointPlacement,joint->name,
+                              parentFrameId,jointPlacement,joint->name,
                               Y,link->name,
                               max_effort,max_velocity,
                               lower_position, upper_position);
@@ -388,23 +456,9 @@ namespace se3
               //    -add fixed body in model to display it in gepetto-viewer
               
               joint_info << "fixed joint";
-              if (link->inertial)
-                model.appendBodyToJoint(parent_joint_id, Y, jointPlacement, link->name); //Modify the parent inertia in the model
-              else
-                model.addFrame(link->name, parent_joint_id, nextPlacementOffset, BODY);
-              
-              //transformation of the current placement offset
-              nextPlacementOffset = jointPlacement;
-              
-              // Add a frame in the model to keep trace of this fixed joint
-              model.addFrame(joint->name, parent_joint_id, nextPlacementOffset, FIXED_JOINT);
-              
-              //for the children of the current link, set their parent to be
-              //the the parent of the current link.
-              BOOST_FOREACH(::urdf::LinkPtr child_link, link->child_links)
-              {
-                child_link->setParent(link->getParent() );
-              }
+              addFixedJointAndBody(model, parentFrameId, jointPlacement,
+                  joint_name, Y, link_name);
+
               break;
             }
             default:
@@ -417,14 +471,15 @@ namespace se3
           
           if (verbose)
           {
+            const Inertia YY = (Y==NULL) ? Inertia::Zero() : convertFromUrdf(*Y);
             std::cout << "Adding Body" << std::endl;
             std::cout << "\"" << link_name << "\" connected to " << "\"" << parent_link_name << "\" throw joint " << "\"" << joint_name << "\"" << std::endl;
             std::cout << "joint type: " << joint_info << std::endl;
             std::cout << "joint placement:\n" << jointPlacement;
             std::cout << "body info: " << std::endl;
-            std::cout << "  " << "mass: " << Y.mass() << std::endl;
-            std::cout << "  " << "lever: " << Y.lever().transpose() << std::endl;
-            std::cout << "  " << "inertia elements (Ixx,Iyx,Iyy,Izx,Izy,Izz): " << Y.inertia().data().transpose() << std::endl << std::endl;
+            std::cout << "  " << "mass: " << YY.mass() << std::endl;
+            std::cout << "  " << "lever: " << YY.lever().transpose() << std::endl;
+            std::cout << "  " << "inertia elements (Ixx,Iyx,Iyy,Izx,Izy,Izz): " << YY.inertia().data().transpose() << std::endl << std::endl;
           }
         }
         else if (link->getParent() != NULL)
@@ -436,7 +491,7 @@ namespace se3
         
         BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
         {
-          parseTree(child, model, nextPlacementOffset, verbose);
+          parseTree(child, model, verbose);
         }
       }
 
@@ -450,66 +505,17 @@ namespace se3
       ///
       void parseRootTree (::urdf::LinkConstPtr root_link, Model & model, const bool verbose) throw (std::invalid_argument)
       {
-        // If the root link has no inertial info, it may be because it is a base_link.
-        // In this case, we look for its child links which indeed contribute to the dynamics, they are not fixed to the universe.
-        // TODO: it may be necessary to compute joint placement variable instead of setting it to SE3::Identity()
-        if (!root_link->inertial)
+        appendBodyToJoint(model, 0, root_link->inertial, SE3::Identity(), root_link->name);
+
+        BOOST_FOREACH(::urdf::LinkPtr child, root_link->child_links)
         {
-          typedef std::vector< ::urdf::LinkPtr > LinkSharedPtrVector_t;
-          LinkSharedPtrVector_t movable_child_links;
-          LinkSharedPtrVector_t direct_child_links(root_link->child_links);
-          LinkSharedPtrVector_t next_direct_child_links; // next child to visit
-          LinkSharedPtrVector_t pathologic_child_links; // children which have inertial info but rigidly attached to the world
-          do
-          {
-            next_direct_child_links.clear();
-            BOOST_FOREACH(::urdf::LinkPtr child, direct_child_links)
-            {
-              if (child->parent_joint->type != ::urdf::Joint::FIXED)
-                movable_child_links.push_back(child);
-              else
-              {
-                if (child->inertial)
-                  pathologic_child_links.push_back(child);
-                next_direct_child_links.insert (next_direct_child_links.end(), child->child_links.begin(), child->child_links.end());
-              }
-              
-            }
-            direct_child_links = next_direct_child_links;
-          }
-          while (!direct_child_links.empty());
-          
-          if (!pathologic_child_links.empty())
-          {
-            std::cout << "[INFO] The links:" << std::endl;
-            for (LinkSharedPtrVector_t::iterator it = pathologic_child_links.begin();
-                 it < pathologic_child_links.end(); ++it)
-            {
-              std::cout << "  - " << (*it)->name << std::endl;
-            }
-            std::cout << "are fixed regarding to the universe (base_link) and convey inertial info. They won't affect the dynamics of the output model. Maybe, a root joint is missing connecting this links to the universe." << std::endl;
-            
-          }
-          
-          BOOST_FOREACH(::urdf::LinkPtr child, movable_child_links)
-          {
-            child->getParent()->parent_joint->name = model.names[0];
-            parseTree(child, model, SE3::Identity(), verbose);
-          }
-          
+          parseTree(child, model, verbose);
         }
-        else // Otherwise, we have to rase an exception because the first link will no be added to the model.
-          // It seems a root joint is missing.
-        {
-          std::cout << "[INFO] The root link " << root_link->name << " of the model tree contains inertial information. It seems that a root joint is missing connecting this root link to the universe. The root link won't affect the dynamics of the model." << std::endl;
-          
-          BOOST_FOREACH(::urdf::LinkPtr child, root_link->child_links)
-          {
-            parseTree(child, model, SE3::Identity(), verbose);
-          }
-        }
-        
-        
+
+        // Inertias might be zero due to the URDF file. This is not a bug. However, it would lead to some
+        // algorithms of Pinocchio not to work.
+        // TODO: add an algorithm or a method in model to check the validity of the value wrt to the algorithms the user want to use.
+        // See also #306 on GitHub.
       }
 
       ///
@@ -524,48 +530,16 @@ namespace se3
       template <typename D>
       void parseRootTree (::urdf::LinkConstPtr root_link, Model & model, const JointModelBase<D> & root_joint, const bool verbose) throw (std::invalid_argument)
       {
-        // If the root link has no inertial info (because it is a base_link for example),
-        // we have to merge its inertial info with all its children connected to it with fixed joints
-        if (!root_link->inertial)
+        addJointAndBody(model,root_joint,
+            0,SE3::Identity(),"root_joint",
+            root_link->inertial,root_link->name);
+
+        BOOST_FOREACH(::urdf::LinkPtr child, root_link->child_links)
         {
-          // If the root link has only one child
-          if (root_link->child_links.size() == 1)
-          {
-            ::urdf::LinkPtr child_link = root_link->child_links[0];
-            assert(child_link->inertial != NULL && "Inertial information missing for parsing the root link.");
-            const Inertia & Y = convertFromUrdf(*child_link->inertial);
-            addJointAndBody(model,root_joint,
-                            0,SE3::Identity(),"root_joint",
-                            Y,child_link->name);
-          
-            // Change the name of the parent joint in the URDF tree
-            child_link->parent_joint->name = "root_joint";
-          
-            BOOST_FOREACH(::urdf::LinkConstPtr child, child_link->child_links)
-            {
-              parseTree(child, model, SE3::Identity(), verbose);
-            }
-          }
-          else
-          {
-            const std::string exception_message (root_link->name + " has no inertial information and has more than one child link. It corresponds to a disjoint tree.");
-            throw std::invalid_argument(exception_message);
-          }
-        
-        }
-        else // otherwise, it is a plain body with inertial info. It processes as usual.
-        {
-          const Inertia & Y = convertFromUrdf(*root_link->inertial);
-          addJointAndBody(model,root_joint,
-                          0,SE3::Identity(),"root_joint",
-                          Y,root_link->name);
-        
-          BOOST_FOREACH(::urdf::LinkPtr child, root_link->child_links)
-          {
-            parseTree(child, model, SE3::Identity(), verbose);
-          }
+          parseTree(child, model, verbose);
         }
 
+        // FIXME: See fixme in previous parseRootTree definition
       }
     } // namespace details
               
