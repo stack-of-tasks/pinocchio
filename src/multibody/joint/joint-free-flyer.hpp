@@ -213,7 +213,7 @@ namespace se3
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
 
       ConstQuaternionMap_t quat(q_joint.template tail<4>().data());
-      assert(std::fabs(quat.coeffs().norm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon()));
+      assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon()));
       
       M.rotation(quat.matrix());
       M.translation(q_joint.template head<3>());

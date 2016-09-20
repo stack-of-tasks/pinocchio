@@ -66,19 +66,32 @@ namespace se3
   ///
   /// Only additions and multiplications are required. Neither square root nor
   /// division are used (except a division by 2).
+  /// The output quaternion is guaranted to statisfy the following:
+  /// \f[ | ||q_{out}|| - 1 | \le \frac{M}{2} ||q_{in}|| ( ||q_{in}||^2 - 1 )^2 \f]
+  /// where \f$ M = \frac{3}{4} (1 - \epsilon)^{-\frac{5}{2}} \f$
+  /// and \f$ \epsilon \f$ is the maximum tolerance of \f$ ||q_{in}||^2 - 1 \f$.
   ///
   /// \warning \f$ ||q||^2 - 1 \f$ should already be close to zero.
   ///
   /// \note See
   /// http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html#title3
   /// to know the reason why the argument is const.
-  template <typename D> void
-    firstOrderNormalize(const Eigen::QuaternionBase<D> & q)
+  template <typename D>
+  void firstOrderNormalize(const Eigen::QuaternionBase<D> & q)
   {
-    assert(std::fabs(q.norm() - 1) < 1e-2);
     typedef typename D::Scalar Scalar;
-    const Scalar alpha = ((Scalar)3 - q.squaredNorm()) / 2;
+    const Scalar N2 = q.squaredNorm();
+#ifndef NDEBUG
+    const Scalar epsilon = sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
+    assert(std::fabs(N2-1.) <= epsilon);
+#endif
+    const Scalar alpha = ((Scalar)3 - N2) / 2;
     const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() *= alpha;
+#ifndef NDEBUG
+    const Scalar M = 3 * std::pow((Scalar)1-epsilon, (Scalar)-5/2) / 4;
+    assert(std::fabs(q.norm() - 1) <=
+        std::max(M * sqrt(N2) * (N2 - 1)*(N2 - 1) / 2, Eigen::NumTraits<Scalar>::epsilon()));
+#endif
   }
 
   /// Uniformly random quaternion sphere.
