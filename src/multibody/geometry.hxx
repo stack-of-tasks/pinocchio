@@ -18,11 +18,7 @@
 #ifndef __se3_geometry_hxx__
 #define __se3_geometry_hxx__
 
-
-
 #include <iostream>
-
-
 #include <map>
 #include <list>
 #include <utility>
@@ -41,7 +37,7 @@ namespace se3
     , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
     , collisionResults(modelGeom.collisionPairs.size())
     , radius()
-    , collisionPairIndex(-1)
+    , collisionPairIndex(0)
     , innerObjects()
     , outerObjects()
   {

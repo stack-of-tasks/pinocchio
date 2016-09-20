@@ -63,7 +63,6 @@ namespace se3
                                     const std::string & joint_name
                                     )
   {
-    typedef JointModelDerived D;
     assert( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
            &&(njoints==(int)parents.size())&&(njoints==(int)jointPlacements.size()) );
     assert((joint_model.nq()>=0) && (joint_model.nv()>=0));
@@ -110,7 +109,6 @@ namespace se3
                                     const std::string & joint_name
                                     )
   {
-    typedef JointModelDerived D;
     Eigen::VectorXd max_effort, max_velocity, min_config, max_config;
 
     max_effort = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
@@ -127,11 +125,11 @@ namespace se3
     if (fidx < 0) {
       // FIXED_JOINT is required because the parent can be the universe and its
       // type is FIXED_JOINT
-      fidx = getFrameId(names[parents[jidx]], (FrameType)(JOINT | FIXED_JOINT));
+      fidx = (int)getFrameId(names[parents[jidx]], (FrameType)(JOINT | FIXED_JOINT));
     }
-    assert(fidx < frames.size() && "Frame index out of bound");
+    assert((size_t)fidx < frames.size() && "Frame index out of bound");
     // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
-    return addFrame(Frame(names[jidx],jidx,fidx,SE3::Identity(),JOINT));
+    return addFrame(Frame(names[jidx],jidx,(FrameIndex)fidx,SE3::Identity(),JOINT));
   }
 
 
@@ -152,10 +150,10 @@ namespace se3
     if (previousFrame < 0) {
       // FIXED_JOINT is required because the parent can be the universe and its
       // type is FIXED_JOINT
-      previousFrame = getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
+      previousFrame = (int)getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
     }
-    assert(previousFrame < frames.size() && "Frame index out of bound");
-    return addFrame(Frame(body_name, parentJoint, previousFrame, body_placement, BODY));
+    assert((size_t)previousFrame < frames.size() && "Frame index out of bound");
+    return addFrame(Frame(body_name, parentJoint, (FrameIndex)previousFrame, body_placement, BODY));
   }
   
   inline Model::JointIndex Model::getBodyId (const std::string & name) const

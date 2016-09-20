@@ -33,9 +33,9 @@ namespace se3
   struct SimpleVisitor : public se3::fusion::JointVisitor<SimpleVisitor>
   {
     typedef boost::fusion::vector<const se3::Model &,
-                                    se3::Data &,
-                                    int
-                                    > ArgsType;
+                                  se3::Data &,
+                                  JointIndex
+                                  > ArgsType;
 
     JOINT_VISITOR_INIT(SimpleVisitor);
 
@@ -44,7 +44,7 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     int jointId);
+                     JointIndex jointId);
   };
 
   template<typename JointModel>
@@ -52,7 +52,7 @@ namespace se3
                            se3::JointDataBase<typename JointModel::JointDataDerived> & /*jdata*/,
                            const se3::Model & /*model*/,
                            se3::Data & /*data*/,
-                           int /*dummy*/)
+                           JointIndex /*dummy*/)
   { /* --- do nothing --- */ }
 
   template<>
@@ -60,7 +60,7 @@ namespace se3
                            se3::JointDataBase<JointDataRevoluteUnaligned> & /*jdata*/,
                            const se3::Model & /*model*/,
                            se3::Data & /*data*/,
-                           int /*dummy*/)
+                           JointIndex /*dummy*/)
   {
     BOOST_CHECK( jmodel.shortname() == JointModelRevoluteUnaligned::classname() );
     Eigen::Vector3d axis = jmodel.derived().axis;

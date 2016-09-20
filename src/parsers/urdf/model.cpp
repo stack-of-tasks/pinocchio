@@ -124,7 +124,6 @@ namespace se3
                                 const boost::shared_ptr< ::urdf::Inertial> Y,
                                 const std::string & body_name)
       {
-        Model::JointIndex idx;
         Frame& frame = model.frames[parentFrameId];
 
         int fid = model.addFrame(

@@ -207,7 +207,6 @@ struct TestDifferentiationJoint
     init(jmodel);
     typedef typename JointModel::ConfigVector_t CV;
     typedef typename JointModel::TangentVector_t TV;
-    typedef typename JointModel::Transformation_t SE3;
     
     jmodel.setIndexes(0,0,0);
     
@@ -272,8 +271,6 @@ struct TestInterpolationJoint
   {
     init(jmodel);
     typedef typename JointModel::ConfigVector_t CV;
-    typedef typename JointModel::TangentVector_t TV;
-    typedef typename JointModel::Transformation_t SE3;
     
     jmodel.setIndexes(0,0,0);
     
