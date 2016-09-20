@@ -32,9 +32,9 @@ class TestGeometryObjectBindings(unittest.TestCase):
 
     def test_parent_get_set(self):
         col = self.robot.collision_model.geometryObjects[1]
-        self.assertTrue(col.parent == 4)
-        col.parent = 5
-        self.assertTrue(col.parent == 5)
+        self.assertTrue(col.parentJoint == 4)
+        col.parentJoint = 5
+        self.assertTrue(col.parentJoint == 5)
 
     def test_placement_get_set(self):
         m = se3.SE3(self.m3ones, self.v3zero)
@@ -47,7 +47,7 @@ class TestGeometryObjectBindings(unittest.TestCase):
     def test_meshpath_get(self):
         expected_mesh_path = os.path.join(self.pinocchio_models_dir,'meshes/romeo/collision/LHipPitch.dae')
         col = self.robot.collision_model.geometryObjects[1]
-        self.assertTrue(col.mesh_path == expected_mesh_path)
+        self.assertTrue(col.meshPath == expected_mesh_path)
 
 if __name__ == '__main__':
     unittest.main()

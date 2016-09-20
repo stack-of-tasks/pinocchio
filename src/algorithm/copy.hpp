@@ -47,7 +47,7 @@ namespace se3
   inline void
   copy (const Model& model, const Data & origin, Data & dest )
   {
-    for( se3::JointIndex jid=1; int(jid)<model.njoint; ++ jid )
+    for( se3::JointIndex jid=1; int(jid)<model.njoints; ++ jid )
       {
         assert(LEVEL>=0);
 

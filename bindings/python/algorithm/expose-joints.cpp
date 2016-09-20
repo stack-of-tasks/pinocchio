@@ -57,6 +57,21 @@ namespace se3
     {
       return randomConfiguration(*model, lowerPosLimit, upperPosLimit);
     }
+
+    static void normalize_proxy(const ModelHandler & model,
+                                VectorXd_fx & config)
+    {
+      Eigen::VectorXd q(config);
+      normalize(*model, q);
+      config = q;
+    }
+
+    static bool isSameConfiguration_proxy(const ModelHandler & model,
+                                          const VectorXd_fx & q1,
+                                          const VectorXd_fx & q2)
+    {
+      return isSameConfiguration(*model, q1, q2);
+    }
     
     void exposeJointsAlgo()
     {
@@ -88,6 +103,15 @@ namespace se3
                        "Joint lower limits (size Model::nq)",
                        "Joint upper limits (size Model::nq)"),
               "Generate a random configuration ensuring provied joint limits are respected ");
+      bp::def("normalize",normalize_proxy,
+              bp::args("Model",
+                       "Configuration q (size Model::nq)"),
+              "return the configuration normalized ");
+      bp::def("isSameConfiguration",isSameConfiguration_proxy,
+              bp::args("Model",
+                       "Configuration q1 (size Model::nq)",
+                       "Configuration q2 (size Model::nq)"),
+              "Return true if two configurations are equivalent");
     }
     
   } // namespace python

@@ -271,10 +271,10 @@ namespace se3
     template<typename V>
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
     {
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
       using std::sqrt;
-      typename Eigen::MatrixBase<V>::template ConstFixedSegmentReturnType<NQ>::Type & q = q_joint.template segment<NQ> (idx_q ());
 
-      ConstQuaternionMap_t quat(q.data());
+      ConstQuaternionMap_t quat(q_joint.derived().data());
       assert(std::fabs(quat.coeffs().norm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon()));
       
       M.rotation(quat.matrix());
@@ -335,6 +335,7 @@ namespace se3
 
       Motion_t::Quaternion_t pOmega(se3::exp3(q_dot));
       Motion_t::Quaternion_t quaternion_result(q*pOmega);
+      firstOrderNormalize(quaternion_result);
       
       return quaternion_result.coeffs();
     }
@@ -385,8 +386,8 @@ namespace se3
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
     {
-      Transformation_t M0; forwardKinematics(M0, q0);
-      Transformation_t M1; forwardKinematics(M1, q1);
+      Transformation_t M0; forwardKinematics(M0, q0.segment<NQ>(idx_q()));
+      Transformation_t M1; forwardKinematics(M1, q1.segment<NQ>(idx_q()));
 
       return se3::log3((M0.rotation().transpose()*M1.rotation()).eval());
       

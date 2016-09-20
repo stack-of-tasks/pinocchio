@@ -181,6 +181,11 @@ namespace se3
       return (m.toActionMatrix()*S).eval();
     }
     
+    DenseBase se3ActionInverse(const SE3 & m) const
+    {
+      return (m.inverse().toActionMatrix()*S).eval();
+    }
+
     void disp_impl(std::ostream & os) const { os << "S =\n" << S << std::endl;}
 
   protected:

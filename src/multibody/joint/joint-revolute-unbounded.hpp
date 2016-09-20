@@ -18,6 +18,7 @@
 #ifndef __se3_joint_revolute_unbounded_hpp__
 #define __se3_joint_revolute_unbounded_hpp__
 
+#include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -157,10 +158,11 @@ namespace se3
       double cosOmega,sinOmega; SINCOS(omega, &sinOmega, &cosOmega);
       // TODO check the cost of atan2 vs SINCOS
 
-      ConfigVector_t result;
-      result <<
-      cosOmega * ca - sinOmega * sa,
-      sinOmega * ca + cosOmega * sa;
+      ConfigVector_t result (cosOmega * ca - sinOmega * sa,
+                             sinOmega * ca + cosOmega * sa);
+      const double norm2 = q.squaredNorm();
+      result *= (3 - norm2) / 2;
+
       return result;
     }
 

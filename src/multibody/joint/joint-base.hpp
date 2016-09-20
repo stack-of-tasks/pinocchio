@@ -399,7 +399,9 @@ namespace se3
     int  idx_v() const { return i_v; }
     JointIndex id() const { return i_id; }
 
-    void setIndexes(JointIndex id,int q,int v) { i_id = id, i_q = q; i_v = v; }
+    void setIndexes(JointIndex id, int q, int v) { derived().setIndexes_impl(id, q, v); }
+    
+    void setIndexes_impl(JointIndex id,int q,int v) { i_id = id, i_q = q; i_v = v; }
     
     void disp(std::ostream & os) const
     {

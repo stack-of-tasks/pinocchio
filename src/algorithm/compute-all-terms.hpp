@@ -211,13 +211,13 @@ namespace se3
     data.com[0].setZero ();
     data.vcom[0].setZero ();
 
-    for(Model::JointIndex i=1;i<(Model::JointIndex) model.njoint;++i)
+    for(Model::JointIndex i=1;i<(Model::JointIndex) model.njoints;++i)
     {
       CATForwardStep::run(model.joints[i],data.joints[i],
                           CATForwardStep::ArgsType(model,data,q,v));
     }
 
-    for(Model::JointIndex i=(Model::JointIndex)(model.njoint-1);i>0;--i)
+    for(Model::JointIndex i=(Model::JointIndex)(model.njoints-1);i>0;--i)
     {
       CATBackwardStep::run(model.joints[i],data.joints[i],
                            CATBackwardStep::ArgsType(model,data));

@@ -21,6 +21,7 @@
 
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/math/fwd.hpp"
@@ -207,11 +208,11 @@ namespace se3
     template<typename V>
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
     {
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
       using std::sqrt;
       typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
-      typename Eigen::MatrixBase<V>::template ConstFixedSegmentReturnType<NQ>::Type & q = q_joint.template segment<NQ> (idx_q ());
 
-      ConstQuaternionMap_t quat(q.template tail<4>().data());
+      ConstQuaternionMap_t quat(q_joint.template tail<4>().data());
       assert(std::fabs(quat.coeffs().norm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon()));
       
       M.rotation(quat.matrix());
@@ -274,12 +275,17 @@ namespace se3
       res.head<3>() = M1.translation();
       QuaternionMap_t res_quat(res.tail<4>().data());
       res_quat = M1.rotation();
+      // Norm of qs might be epsilon-different to 1, so M1.rotation might be epsilon-different to a rotation matrix.
+      // It is then safer to re-normalized after converting M1.rotation to quaternion.
+      firstOrderNormalize(res_quat);
       
       return res;
     } 
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1, const double u) const
     {
+      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
@@ -287,8 +293,21 @@ namespace se3
       else if( u == 1.) return q_1;
       else
       {
+        // TODO: If integrate takes an arguments (ConfigVector_t, TangentVector_t), then we can merely do:
+        // TangentVector_t nu(u*difference(q0, q1));
+        // return integrate(q0, nu);
+
         TangentVector_t nu(u*difference(q0, q1));
-        return integrate(q0, nu);
+        Transformation_t M0; forwardKinematics(M0,q_0);
+        Transformation_t M1(M0*exp6(Motion_t(nu)));
+
+        ConfigVector_t res;
+        res.head<3>() = M1.translation();
+        QuaternionMap_t res_quat(res.tail<4>().data());
+        res_quat = M1.rotation();
+        firstOrderNormalize(res_quat);
+        
+        return res;
       }
     }
 
@@ -337,8 +356,8 @@ namespace se3
 
     TangentVector_t difference_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1) const
     {
-      Transformation_t M0(Transformation_t::Identity()); forwardKinematics(M0, q0);
-      Transformation_t M1(Transformation_t::Identity()); forwardKinematics(M1, q1);
+      Transformation_t M0(Transformation_t::Identity()); forwardKinematics(M0, q0.segment<NQ> (idx_q ()));
+      Transformation_t M1(Transformation_t::Identity()); forwardKinematics(M1, q1.segment<NQ> (idx_q ()));
 
       return se3::log6(M0.inverse()*M1);
     } 

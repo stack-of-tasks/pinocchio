@@ -15,30 +15,20 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_multibody_fwd_hpp__
-#define __se3_multibody_fwd_hpp__
+#ifndef __math_matrix_hpp__
+#define __math_matrix_hpp__
 
-# include <cstddef> // std::size_t
+#include <Eigen/Dense>
 
 namespace se3
 {
-  typedef std::size_t Index;
-  typedef Index JointIndex;
-  typedef Index GeomIndex;
-  typedef Index FrameIndex;
-  typedef Index PairIndex;
-  
-  struct Frame;
-  struct Model;
-  struct Data;
-  struct GeometryModel;
-  struct GeometryData;
-  struct JointModel;
-  struct JointData;
 
-  // Forward declaration needed for Model::check
-  template<class D> struct AlgorithmCheckerBase;
+  template<typename Derived>
+  inline bool hasNaN(const Eigen::DenseBase<Derived> & m) 
+  {
+    return !((m.derived().array()==m.derived().array()).all());
+  }
 
-} // namespace se3
 
-#endif // #ifndef __se3_multibody_fwd_hpp__
+}
+#endif //#ifndef __math_matrix_hpp__

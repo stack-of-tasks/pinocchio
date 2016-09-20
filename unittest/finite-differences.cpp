@@ -129,6 +129,49 @@ void FiniteDiffJoint::init<JointModelPrismaticUnaligned>(JointModelBase<JointMod
 template<>
 void FiniteDiffJoint::operator()< JointModelDense<-1,-1> > (JointModelBase< JointModelDense<-1,-1> > & /*jmodel*/) const {}
 
+template<>
+void FiniteDiffJoint::operator()< JointModelComposite > (JointModelBase<JointModelComposite> & ) const
+{
+  typedef typename JointModel::ConfigVector_t CV;
+  typedef typename JointModel::TangentVector_t TV;
+  
+  se3::JointModelComposite jmodel((se3::JointModelRX())/*, (se3::JointModelRY())*/);
+  jmodel.setIndexes(0,0,0);
+  jmodel.updateComponentsIndexes();
+
+  se3::JointModelComposite::JointDataDerived jdata = jmodel.createData();
+
+  CV q = jmodel.random();
+  jmodel.calc(jdata,q);
+  SE3 M_ref(jdata.M);
+  
+  CV q_int;
+  TV v(Eigen::VectorXd::Random(jmodel.nv())); v.setZero();
+  double eps = 1e-4;
+  
+  assert(q.size() == jmodel.nq()&& "nq false");
+  assert(v.size() == jmodel.nv()&& "nv false");
+  Eigen::MatrixXd S(6,jmodel.nv()), S_ref(ConstraintXd(jdata.S).matrix());
+
+  eps = jmodel.finiteDifferenceIncrement();
+  for(int k=0;k<jmodel.nv();++k)
+  {
+    v[k] = eps;
+    q_int = jmodel.integrate(q,v);
+    jmodel.calc(jdata,q_int);
+    SE3 M_int = jdata.M;
+    
+    S.col(k) = log6(M_ref.inverse()*M_int).toVector();
+    S.col(k) /= eps;
+    
+    v[k] = 0.;
+  }
+  
+  std::cout << "S\n" << S << std::endl;
+  std::cout << "S_ref\n" << S_ref << std::endl;
+  // BOOST_CHECK(S.isApprox(S_ref,eps*1e1)); //@TODO Uncomment to test once JointComposite maths are ok
+}
+
 BOOST_AUTO_TEST_SUITE(FiniteDifferences)
 
 BOOST_AUTO_TEST_CASE(increment)
@@ -165,7 +208,7 @@ BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
   q.segment<4>(3).normalize();
   computeJacobians(model,data,q);
 
-  Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.njoint-1);
+  Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.njoints-1);
   Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
   
   getJacobian<false>(model,data,idx,Jrh);

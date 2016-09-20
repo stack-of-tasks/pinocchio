@@ -482,7 +482,7 @@ namespace se3
       const Scalar & q_0 = q0[idx_q()];
       const Scalar & q_1 = q1[idx_q()];
 
-      ConfigVector_t result;
+      TangentVector_t result;
       result << (q_1 - q_0);
       return result; 
     } 

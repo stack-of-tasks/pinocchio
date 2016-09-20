@@ -28,6 +28,8 @@
 
 #include "pinocchio/multibody/geometry.hpp"
 
+#include "pinocchio/bindings/python/model.hpp"
+
 namespace se3
 {
   namespace python
@@ -62,17 +64,19 @@ namespace se3
       {
 	cl
           .add_property("ngeoms", &GeometryModelPythonVisitor::ngeoms)
-
-          .def("getGeometryId",&GeometryModelPythonVisitor::getGeometryId)
-          .def("existGeometryName",&GeometryModelPythonVisitor::existGeometryName)
-          .def("getGeometryName",&GeometryModelPythonVisitor::getGeometryName)
           .add_property("geometryObjects",
                         bp::make_function(&GeometryModelPythonVisitor::geometryObjects,
                                           bp::return_internal_reference<>())  )
+
+          .def("addGeometryObject", &GeometryModelPythonVisitor::addGeometryObject,
+               bp::args("GeometryObject", "Model", "bool"),
+               "Add a GeometryObject to a GeometryModel")
+          .def("getGeometryId",&GeometryModelPythonVisitor::getGeometryId)
+          .def("existGeometryName",&GeometryModelPythonVisitor::existGeometryName)
           .def("__str__",&GeometryModelPythonVisitor::toString)
 #ifdef WITH_HPP_FCL
-          .add_property("collision_pairs",
-                        bp::make_function(&GeometryModelPythonVisitor::collision_pairs,
+          .add_property("collisionPairs",
+                        bp::make_function(&GeometryModelPythonVisitor::collisionPairs,
                                           bp::return_internal_reference<>()),
                         "Vector of collision pairs.")
           .def("addCollisionPair",&GeometryModelPythonVisitor::addCollisionPair,
@@ -106,12 +110,14 @@ namespace se3
       { return  gmodelPtr->getGeometryId(name); }
       static bool existGeometryName(const GeometryModelHandler & gmodelPtr, const std::string & name)
       { return gmodelPtr->existGeometryName(name);}
-      static std::string getGeometryName(const GeometryModelHandler & gmodelPtr, const GeomIndex index)
-      { return gmodelPtr->getGeometryName(index);}
+
       
       static std::vector<GeometryObject> & geometryObjects( GeometryModelHandler & m ) { return m->geometryObjects; }
+      static GeomIndex addGeometryObject( GeometryModelHandler & m, GeometryObject gobject, const ModelHandler & model, const bool autofillJointParent)
+      { return m-> addGeometryObject(gobject, *model, autofillJointParent); }
+
 #ifdef WITH_HPP_FCL      
-      static std::vector<CollisionPair> & collision_pairs( GeometryModelHandler & m ) 
+      static std::vector<CollisionPair> & collisionPairs( GeometryModelHandler & m ) 
       { return m->collisionPairs; }
       
       static void addCollisionPair (GeometryModelHandler & m, const GeomIndex co1, const GeomIndex co2)
@@ -146,7 +152,6 @@ namespace se3
         bp::enum_<GeometryType>("GeometryType")
         .value("VISUAL",VISUAL)
         .value("COLLISION",COLLISION)
-        .value("NONE",NONE)
         ;
         
         bp::class_<GeometryModelHandler>("GeometryModel",

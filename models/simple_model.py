@@ -86,7 +86,9 @@ class ModelWrapper(object):
                 self.display.viewer.gui.addSphere(body_name, dimensions, color(body_color))
         body_inertia.lever = lever.translation
         joint_id = self.model.addJoint(parent, joint_model, joint_placement, joint_name)
-        self.model.appendBodyToJoint(joint_id, body_inertia, se3.SE3.Identity(), body_name)
+        self.model.appendBodyToJoint(joint_id, body_inertia, se3.SE3.Identity())
+        self.model.addJointFrame(joint_id, -1)
+        self.model.addBodyFrame(body_name, joint_id, se3.SE3.Identity(),-1)
         self.visuals.append((body_name, joint_placement, lever))
         self.data = self.model.createData()
         if self.display:

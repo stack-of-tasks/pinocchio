@@ -37,9 +37,6 @@ namespace se3
   struct GeometryModel
   {
     
-    typedef std::vector<GeomIndex> GeomIndexList;
-
-    
     /// \brief The number of GeometryObjects
     Index ngeoms;
 
@@ -48,22 +45,12 @@ namespace se3
     ///
     /// \brief Vector of collision pairs.
     ///
-    CollisionPairsVector_t collisionPairs;
+    std::vector<CollisionPair> collisionPairs;
   
-    /// \brief A list of associated collision GeometryObjects to a given joint Id.
-    ///        Inner objects can be seen as geometry objects that directly move when the associated joint moves
-    std::map < JointIndex, GeomIndexList >  innerObjects;
-
-    /// \brief A list of associated collision GeometryObjects to a given joint Id
-    ///        Outer objects can be seen as geometry objects that may often be obstacles to the Inner objects of given joint
-    std::map < JointIndex, GeomIndexList >  outerObjects;
-
     GeometryModel()
       : ngeoms(0)
       , geometryObjects()
       , collisionPairs()
-      , innerObjects()
-      , outerObjects()
     { 
       const std::size_t num_max_collision_pairs = (ngeoms * (ngeoms-1))/2;
       collisionPairs.reserve(num_max_collision_pairs);
@@ -74,19 +61,16 @@ namespace se3
     /**
      * @brief      Add a geometry object to a GeometryModel
      *
-     * @param[in]  parent     Index of the parent joint
-     * @param[in]  co         The actual fcl CollisionGeometry
-     * @param[in]  placement  The relative placement regarding to the parent frame
-     * @param[in]  geom_name  The name of the Geometry Object
-     * @param[in]  mesh_path  The absolute path to the mesh
+     * @param[in]  object     Object 
+     * @param[in]  model      Corresponding model, used to assert the attributes of object.
+     * @param[in]  autofillJointParent if true, set jointParent from frameParent.
      *
      * @return     The index of the new added GeometryObject in geometryObjects
+     * @note object is a nonconst copy to ease the insertion code.
      */
-    inline GeomIndex addGeometryObject(const JointIndex parent, const boost::shared_ptr<fcl::CollisionGeometry> & co,
-                                       const SE3 & placement, const std::string & geom_name = "",
-                                       const std::string & mesh_path = "") throw(std::invalid_argument);
-
-
+    inline GeomIndex addGeometryObject(GeometryObject object,
+                                       const Model & model,
+                                       const bool autofillJointParent = false);
 
     /**
      * @brief      Return the index of a GeometryObject given by its name.
@@ -115,7 +99,7 @@ namespace se3
      *
      * @return     Name of the GeometryObject
      */
-    const std::string & getGeometryName(const GeomIndex index) const;
+    PINOCCHIO_DEPRECATED const std::string & getGeometryName(const GeomIndex index) const;
 
 #ifdef WITH_HPP_FCL
     ///
@@ -128,6 +112,9 @@ namespace se3
     
     ///
     /// \brief Add all possible collision pairs.
+    ///
+    /// \note Collision pairs between geometries of having the same parent joint
+    ///       are not added.
     ///
     void addAllCollisionPairs();
    
@@ -159,39 +146,15 @@ namespace se3
     ///
     /// \return The index of the CollisionPair in collisionPairs.
     ///
-    Index findCollisionPair (const CollisionPair & pair) const;
+    PairIndex findCollisionPair (const CollisionPair & pair) const;
     
-    /// \brief Display on std::cout the list of pairs (is it really useful?).
-    void displayCollisionPairs() const;
 #endif // WITH_HPP_FCL
 
-    /**
-     * @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
-     *
-     * @param[in]  joint         Index of the joint
-     * @param[in]  inner_object  Index of the GeometryObject that will be an inner object
-     */
-    void addInnerObject(const JointIndex joint, const GeomIndex inner_object);
-    
-    /**
-     * @brief      Associate a GeometryObject of type COLLISION to a joint's outer objects list
-     *
-     * @param[in]  joint         Index of the joint
-     * @param[in]  inner_object  Index of the GeometryObject that will be an outer object
-     */
-    void addOutterObject(const JointIndex joint, const GeomIndex outer_object);
     friend std::ostream& operator<<(std::ostream & os, const GeometryModel & model_geom);
   }; // struct GeometryModel
 
   struct GeometryData
   {
-
-    ///
-    /// \brief A const reference to the model storing all the geometries.
-    ///        See class GeometryModel.
-    ///
-    const GeometryModel & model_geom;
-
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
@@ -200,6 +163,7 @@ namespace se3
     /// for fcl (collision) computation. The copy is done in collisionObjects[i]->setTransform(.)
     ///
     std::vector<se3::SE3> oMg;
+
 #ifdef WITH_HPP_FCL
     ///
     /// \brief Collision objects (ie a fcl placed geometry).
@@ -215,87 +179,89 @@ namespace se3
     std::vector<bool> activeCollisionPairs;
 
     ///
+    /// \brief Defines what information should be computed by distance computation.
+    ///
+    fcl::DistanceRequest distanceRequest;
+
+    ///
     /// \brief Vector gathering the result of the distance computation for all the collision pairs.
     ///
-    std::vector <DistanceResult> distance_results;
+    std::vector <fcl::DistanceResult> distanceResults;
     
+    ///
+    /// \brief Defines what information should be computed by collision test.
+    ///
+    fcl::CollisionRequest collisionRequest;
+
     ///
     /// \brief Vector gathering the result of the collision computation for all the collision pairs.
     ///
-    std::vector <CollisionResult> collision_results;
+    std::vector <fcl::CollisionResult> collisionResults;
 
     ///
     /// \brief Radius of the bodies, i.e. distance of the further point of the geometry model
     /// attached to the body from the joint center.
     ///
     std::vector<double> radius;
-    GeometryData(const GeometryModel & modelGeom)
-        : model_geom(modelGeom)
-        , oMg(model_geom.ngeoms)
-        , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
-        , distance_results(modelGeom.collisionPairs.size())
-        , collision_results(modelGeom.collisionPairs.size())
-        , radius()
-         
-    {
-      collisionObjects.reserve(modelGeom.geometryObjects.size());
-      BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
-        { collisionObjects.push_back
-            (fcl::CollisionObject(geom.collision_geometry)); }
-    }
-#else
-    GeometryData(const GeometryModel & modelGeom)
-    : model_geom(modelGeom)
-    , oMg(model_geom.ngeoms)
-    {}
+
+    ///
+    /// \brief index of the collision pair
+    ///
+    /// It is used by some method to return additional information. For instance,
+    /// the algo computeCollisions() sets it to the first colliding pair.
+    ///
+    PairIndex collisionPairIndex;
+
+    typedef std::vector<GeomIndex> GeomIndexList;
+
+    /// \brief Map over vector GeomModel::geometryObjects, indexed by joints.
+    /// 
+    /// The map lists the collision GeometryObjects associated to a given joint Id.
+    ///  Inner objects can be seen as geometry objects that directly move when the associated joint moves
+    std::map < JointIndex, GeomIndexList >  innerObjects;
+
+    /// \brief A list of associated collision GeometryObjects to a given joint Id
+    ///
+    /// Outer objects can be seen as geometry objects that may often be
+    /// obstacles to the Inner objects of given joint
+    std::map < JointIndex, GeomIndexList >  outerObjects;
 #endif // WITH_HPP_FCL   
 
-
+    GeometryData(const GeometryModel & geomModel);
     ~GeometryData() {};
+
 #ifdef WITH_HPP_FCL
-    void activateCollisionPair(const Index pairId,const bool flag=true);
-    void deactivateCollisionPair(const Index pairId);
 
+    /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
+    /// collisionPairs. 
     ///
-    /// \brief Compute the collision status between two collision objects of a given collision pair.
+    /// This simply corresponds to storing in a re-arranged manner the information stored
+    /// in geomModel.geometryObjects and geomModel.collisionPairs.
+    /// \param[in] GeomModel the geometry model (const)
     ///
-    /// \param[in] pair The collsion pair.
-    ///
-    /// \return Return true is the collision objects are colliding.
-    ///
-    CollisionResult computeCollision(const CollisionPair & pair) const;
-    
-    ///
-    /// \brief Compute the collision result of all the collision pairs according to
-    ///        the current placements of the geometires stored in GeometryData::oMg.
-    ///        The results are stored in the vector GeometryData::collision_results.
-    ///
-    void computeAllCollisions();
-    
-    ///
-    /// \brief Check if at least one of the collision pairs has its two collision objects in collision.
-    ///
-    bool isColliding() const;
+    /// \warning Outer objects are not duplicated (i.e. if a is in outerObjects[b], then
+    /// b is not in outerObjects[a]).
+    void fillInnerOuterObjectMaps(const GeometryModel & geomModel);
 
+    /// Activate a collision pair, for which collisions and distances would now be computed.
     ///
-    /// \brief Compute the minimal distance between collision objects of a collison pair
+    /// A collision (resp distance) between to geometries of GeomModel::geometryObjects
+    /// is computed *iff* the corresponding pair has been added in GeomModel::collisionPairs *AND*
+    /// it is active, i.e. the corresponding boolean in GeomData::activePairs is true. The second
+    /// condition can be used to temporarily remove a pair without touching the model, in a versatile
+    /// manner. 
+    /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
+    /// \param[in] new value of the activation boolean (true by default).
+    void activateCollisionPair(const PairIndex pairId,const bool flag=true);
+
+    /// Deactivate a collision pair.
     ///
-    /// \param[in] pair The collsion pair.
-    ///
-    /// \return An fcl struct containing the distance result.
-    ///
-    DistanceResult computeDistance(const CollisionPair & pair) const;
-    
-    ///
-    /// \brief Compute the distance result for all collision pairs according to
-    ///        the current placements of the geometries stored in GeometryData::oMg.
-    ///        The results are stored in the vector GeometryData::distance_results.
-    ///
-    void computeAllDistances();
-    
-    void resetDistances();
+    /// Calls indeed GeomData::activateCollisionPair(pairId,false)
+    /// \sa activateCollisionPair
+    void deactivateCollisionPair(const PairIndex pairId);
+
 #endif //WITH_HPP_FCL
-    friend std::ostream & operator<<(std::ostream & os, const GeometryData & data_geom);
+    friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
     
   }; // struct GeometryData
 

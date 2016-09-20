@@ -94,16 +94,15 @@ namespace se3
       void visit(PyClass& cl) const 
       {
         cl
-          .def("getBodyId",&ModelPythonVisitor::getBodyId)
-          .def("getJointId",&ModelPythonVisitor::getJointId)
-          .def("createData",&ModelPythonVisitor::createData)
+          // Class Members
 
           .def("__str__",&ModelPythonVisitor::toString)
 
           .add_property("nq", &ModelPythonVisitor::nq)
           .add_property("nv", &ModelPythonVisitor::nv)
-          .add_property("njoint", &ModelPythonVisitor::njoint)
-          .add_property("nbody", &ModelPythonVisitor::nbody)
+          .add_property("njoints", &ModelPythonVisitor::njoints)
+          .add_property("nbodies", &ModelPythonVisitor::nbodies)
+          .add_property("nframes", &ModelPythonVisitor::nframes)
           .add_property("inertias",
             bp::make_function(&ModelPythonVisitor::inertias,
                   bp::return_internal_reference<>())  )
@@ -116,32 +115,41 @@ namespace se3
           .add_property("parents", 
             bp::make_function(&ModelPythonVisitor::parents,
                   bp::return_internal_reference<>())  )
-        .add_property("subtrees",
-                      bp::make_function(&ModelPythonVisitor::subtrees,
-                                        bp::return_internal_reference<>()), "Vector of subtrees. subtree[j] corresponds to the subtree supported by the joint j.")
           .add_property("names",
             bp::make_function(&ModelPythonVisitor::names,
                   bp::return_internal_reference<>())  )
-        
-        .def("addJoint",&ModelPythonVisitor::addJoint,bp::args("parent_id","joint_model","joint_placement","joint_name"),"Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
-        .def("appendBodyToJoint",&ModelPythonVisitor::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement","body_name"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
-
-
-          .add_property("effortLimit", bp::make_function(&ModelPythonVisitor::effortLimit), "Joint max effort")
           .add_property("neutralConfiguration", bp::make_function(&ModelPythonVisitor::neutralConfiguration), "Joint's neutral configurations")
+          .add_property("effortLimit", bp::make_function(&ModelPythonVisitor::effortLimit), "Joint max effort")
           .add_property("velocityLimit", bp::make_function(&ModelPythonVisitor::velocityLimit), "Joint max velocity")
           .add_property("lowerPositionLimit", bp::make_function(&ModelPythonVisitor::lowerPositionLimit), "Limit for joint lower position")
           .add_property("upperPositionLimit", bp::make_function(&ModelPythonVisitor::upperPositionLimit), "Limit for joint upper position")
+        
+          .add_property("frames", bp::make_function(&ModelPythonVisitor::frames, bp::return_internal_reference<>()),"Vector of frames contained in the model.")
 
-          .def("getFrameParent", &ModelPythonVisitor::getFrameParent)
-          .def("getFramePlacement", &ModelPythonVisitor::getFramePlacement)
-        .def("addFrame",(bool (*)(ModelHandler&,const std::string &,const JointIndex, const SE3_fx &,const FrameType &)) &ModelPythonVisitor::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
-        .def("addFrame",(bool (*)(ModelHandler&,const Frame &)) &ModelPythonVisitor::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
-        .add_property("frames", bp::make_function(&ModelPythonVisitor::frames, bp::return_internal_reference<>()),"Vector of frames contained in the model.")
-        .def("existFrame",&ModelPythonVisitor::existFrame,bp::args("name"),"Returns true if the frame given by its name exists inside the Model.")
-        .def("getFrameId",&ModelPythonVisitor::getFrameId,bp::args("name"),"Returns the index of the frame given by its name. If the frame is not in the frames vector, it returns the current size of the frames vector.")
-
+          .add_property("subtrees",
+                      bp::make_function(&ModelPythonVisitor::subtrees,
+                                        bp::return_internal_reference<>()), "Vector of subtrees. subtree[j] corresponds to the subtree supported by the joint j.")
+        
           .add_property("gravity",&ModelPythonVisitor::gravity,&ModelPythonVisitor::setGravity)
+
+          // Class Methods
+          .def("addJoint",&ModelPythonVisitor::addJoint,bp::args("parent_id","joint_model","joint_placement","joint_name"),"Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
+          // ADD addJoint with limits ? See boost::python overloading/default parameters
+          .def("addJointFrame", &ModelPythonVisitor::addJointFrame, bp::args("jointIndex", "frameIndex"), "add the joint at index jointIndex as a frame to the frame tree")
+          .def("appendBodyToJoint",&ModelPythonVisitor::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
+
+          .def("addBodyFrame", &ModelPythonVisitor::addBodyFrame, bp::args("body_name", "parentJoint", "body_plaement", "previous_frame(parent frame)"), "add a body to the frame tree")
+          .def("getBodyId",&ModelPythonVisitor::getBodyId, bp::args("name"), "Return the index of a frame of type BODY given by its name")
+          .def("existBodyName", &ModelPythonVisitor::existBodyName, bp::args("name"), "Check if a frame of type BODY exists, given its name")
+          .def("getJointId",&ModelPythonVisitor::getJointId, bp::args("name"), "Return the index of a joint given by its name")
+          .def("existJointName", &ModelPythonVisitor::existJointName, bp::args("name"), "Check if a joint given by its name exists")
+          .def("getFrameId",&ModelPythonVisitor::getFrameId,bp::args("name"),"Returns the index of the frame given by its name. If the frame is not in the frames vector, it returns the current size of the frames vector.")
+          .def("existFrame",&ModelPythonVisitor::existFrame,bp::args("name"),"Returns true if the frame given by its name exists inside the Model.")
+
+          .def("addFrame",(bool (*)(ModelHandler&,const std::string &,const JointIndex, const FrameIndex, const SE3_fx &,const FrameType &)) &ModelPythonVisitor::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
+          .def("addFrame",(bool (*)(ModelHandler&,const Frame &)) &ModelPythonVisitor::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
+
+          .def("createData",&ModelPythonVisitor::createData)
           .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
           .staticmethod("BuildEmptyModel")
           .def("BuildHumanoidSimple",&ModelPythonVisitor::maker_humanoidSimple)
@@ -149,23 +157,27 @@ namespace se3
           ;
       }
 
-      static Model::Index getBodyId( const ModelHandler & modelPtr, const std::string & name )
-      { return  modelPtr->getBodyId(name); }
-      static Model::Index getJointId( const ModelHandler & modelPtr, const std::string & name )
-      { return  modelPtr->getJointId(name); }
-      static boost::shared_ptr<Data> createData(const ModelHandler& m )
-      { return boost::shared_ptr<Data>( new Data(*m) );      } 
       
       static int nq( ModelHandler & m ) { return m->nq; }
       static int nv( ModelHandler & m ) { return m->nv; }
-      static int njoint( ModelHandler & m ) { return m->njoint; }
-      static int nbody( ModelHandler & m ) { return m->nbody; }
+      static int njoints( ModelHandler & m ) { return m->njoints; }
+      static int nbodies( ModelHandler & m ) { return m->nbodies; }
+      static int nframes( ModelHandler & m ) { return m->nframes; }
       static std::vector<Inertia> & inertias( ModelHandler & m ) { return m->inertias; }
       static std::vector<SE3> & jointPlacements( ModelHandler & m ) { return m->jointPlacements; }
       static JointModelVector & joints( ModelHandler & m ) { return m->joints; }
       static std::vector<Model::JointIndex> & parents( ModelHandler & m ) { return m->parents; }
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
+      static Eigen::VectorXd neutralConfiguration(ModelHandler & m) {return m->neutralConfiguration;}
+      static Eigen::VectorXd effortLimit(ModelHandler & m) {return m->effortLimit;}
+      static Eigen::VectorXd velocityLimit(ModelHandler & m) {return m->velocityLimit;}
+      static Eigen::VectorXd lowerPositionLimit(ModelHandler & m) {return m->lowerPositionLimit;}
+      static Eigen::VectorXd upperPositionLimit(ModelHandler & m) {return m->upperPositionLimit;}
+      static std::vector<Frame> & frames ( ModelHandler & m ) {return m->frames; }
       static std::vector<Model::IndexVector> & subtrees(ModelHandler & m) { return m->subtrees; }
+
+      static Motion gravity( ModelHandler & m ) { return m->gravity; }
+      static void setGravity( ModelHandler & m,const Motion_fx & g ) { m->gravity = g; }
 
       static JointIndex addJoint(ModelHandler & model,
                                  JointIndex parent_id,
@@ -177,39 +189,51 @@ namespace se3
         return boost::apply_visitor(addJointVisitor(model,parent_id,joint_placement,joint_name), jmodel_variant);
       }
       
+      static int addJointFrame( ModelHandler & m, const JointIndex jointIndex, int frameIndex)
+      {
+        return m->addJointFrame(jointIndex, frameIndex);
+      }
+
       static void appendBodyToJoint(ModelHandler & model,
                                     const JointIndex joint_parent_id,
                                     const Inertia_fx & inertia,
-                                    const SE3_fx & body_placement,
-                                    const std::string & body_name)
+                                    const SE3_fx & body_placement)
       {
-        model->appendBodyToJoint(joint_parent_id,inertia,body_placement,body_name);
+        model->appendBodyToJoint(joint_parent_id,inertia,body_placement);
       }
 
-      static Eigen::VectorXd neutralConfiguration(ModelHandler & m) {return m->neutralConfiguration;}
-      static Eigen::VectorXd effortLimit(ModelHandler & m) {return m->effortLimit;}
-      static Eigen::VectorXd velocityLimit(ModelHandler & m) {return m->velocityLimit;}
-      static Eigen::VectorXd lowerPositionLimit(ModelHandler & m) {return m->lowerPositionLimit;}
-      static Eigen::VectorXd upperPositionLimit(ModelHandler & m) {return m->upperPositionLimit;}
-
-      static Model::JointIndex  getFrameParent( ModelHandler & m, const std::string & name ) { return m->getFrameParent(name); }
-      static SE3  getFramePlacement(ModelHandler & m, const std::string & name) { return m->getFramePlacement(name); }
-      
-      static bool addFrame(ModelHandler & m, const Frame & frame) { return m->addFrame(frame); }
-      static bool addFrame( ModelHandler & m, const std::string & frameName, const JointIndex parent, const SE3_fx & placementWrtParent, const FrameType & type)
+      static bool addBodyFrame( ModelHandler & m, const std::string & bodyName, const JointIndex parentJoint, const SE3_fx & bodyPlacement, int previousFrame)
       {
-        return m->addFrame(frameName,parent,placementWrtParent,type);
+        return m->addBodyFrame(bodyName,parentJoint,bodyPlacement,previousFrame);
       }
+
+      static Model::Index getBodyId( const ModelHandler & m, const std::string & name )
+      { return  m->getBodyId(name); }
+
+      static bool existBodyName( const ModelHandler & m, const std::string & name )
+      { return  m->existBodyName(name); }
+
+      static Model::Index getJointId( const ModelHandler & m, const std::string & name )
+      { return  m->getJointId(name); }
+
+      static bool existJointName( const ModelHandler & m, const std::string & name )
+      { return  m->existJointName(name); }
+
       static Model::FrameIndex getFrameId(const ModelHandler & m, const std::string & frame_name)
       { return m->getFrameId(frame_name); }
       static bool existFrame(const ModelHandler & m, const std::string & frame_name)
       { return m->existFrame(frame_name); }
+
+      static bool addFrame(ModelHandler & m, const Frame & frame) { return m->addFrame(frame); }
+      static bool addFrame( ModelHandler & m, const std::string & frameName, const JointIndex parentJoint, const FrameIndex parentFrame, const SE3_fx & placementWrtParent, const FrameType & type)
+      {
+        return m->addFrame(Frame(frameName,parentJoint,parentFrame,placementWrtParent,type));
+      }
       
-      static std::vector<Frame> & frames (ModelHandler & m ) { return m->frames;}
 
-      static Motion gravity( ModelHandler & m ) { return m->gravity; }
-      static void setGravity( ModelHandler & m,const Motion_fx & g ) { m->gravity = g; }
 
+      static boost::shared_ptr<Data> createData(const ModelHandler& m )
+      { return boost::shared_ptr<Data>( new Data(*m) );      } 
 
       static ModelHandler maker_empty()
       {

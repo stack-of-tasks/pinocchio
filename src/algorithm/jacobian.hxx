@@ -59,7 +59,7 @@ namespace se3
   computeJacobians(const Model & model, Data & data,
                    const Eigen::VectorXd & q)
   {
-    for( Model::JointIndex i=1; i< (Model::JointIndex) model.njoint;++i )
+    for( Model::JointIndex i=1; i< (Model::JointIndex) model.njoints;++i )
     {
       JacobiansForwardStep::run(model.joints[i],data.joints[i],
                                 JacobiansForwardStep::ArgsType(model,data,q));
