@@ -94,7 +94,7 @@ namespace se3
     const Scalar alpha = ((Scalar)3 - N2) / 2;
     const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() *= alpha;
 #ifndef NDEBUG
-    const Scalar M = 3 * std::pow((Scalar)1-epsilon, (Scalar)-5/2) / 4;
+    const Scalar M = 3 * std::pow((Scalar)1.-epsilon, ((Scalar)-5)/2) / 4;
     assert(std::fabs(q.norm() - 1) <=
         std::max(M * sqrt(N2) * (N2 - 1)*(N2 - 1) / 2, Eigen::NumTraits<Scalar>::epsilon()));
 #endif
@@ -104,8 +104,8 @@ namespace se3
   template <typename D>
   void uniformRandom (const Eigen::QuaternionBase<D> & q)
   {
-    // EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D, 4);
     typedef typename D::Scalar Scalar;
+    typedef Eigen::QuaternionBase<D> Base;
 
     // Rotational part
     const Scalar u1 = (Scalar)rand() / RAND_MAX;
@@ -118,10 +118,10 @@ namespace se3
     Scalar s2,c2; SINCOS(2.*PI*u2,&s2,&c2);
     Scalar s3,c3; SINCOS(2.*PI*u3,&s3,&c3);
 
-    const_cast <Eigen::QuaternionBase<D> &> (q).w() = mult1 * s2;
-    const_cast <Eigen::QuaternionBase<D> &> (q).x() = mult1 * c2;
-    const_cast <Eigen::QuaternionBase<D> &> (q).y() = mult2 * s3;
-    const_cast <Eigen::QuaternionBase<D> &> (q).z() = mult2 * c3;
+    const_cast <Base &> (q).w() = mult1 * s2;
+    const_cast <Base &> (q).x() = mult1 * c2;
+    const_cast <Base &> (q).y() = mult2 * s3;
+    const_cast <Base &> (q).z() = mult2 * c3;
   }
 }
 #endif //#ifndef __math_quaternion_hpp__
