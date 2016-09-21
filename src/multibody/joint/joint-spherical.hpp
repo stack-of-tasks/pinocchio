@@ -356,31 +356,17 @@ namespace se3
 
     ConfigVector_t random_impl() const
     { 
-      ConfigVector_t q(ConfigVector_t::Random());
-      q.normalize();
+      ConfigVector_t q;
+      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      uniformRandom(QuaternionMap_t(q.data()));
       return q;
     } 
 
     ConfigVector_t randomConfiguration_impl(const ConfigVector_t &, const ConfigVector_t &) const
     {
       ConfigVector_t result;
-
-      // Rotational part
-      const Scalar u1 = (Scalar)rand() / RAND_MAX;
-      const Scalar u2 = (Scalar)rand() / RAND_MAX;
-      const Scalar u3 = (Scalar)rand() / RAND_MAX;
-      
-      const Scalar mult1 = sqrt (1-u1);
-      const Scalar mult2 = sqrt (u1);
-      
-      Scalar s2,c2; SINCOS(2.*PI*u2,&s2,&c2);
-      Scalar s3,c3; SINCOS(2.*PI*u3,&s3,&c3);
-      
-      result << mult1 * s2,
-                mult1 * c2,
-                mult2 * s3,
-                mult2 * c3;
-      
+      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      uniformRandom(QuaternionMap_t(result.data()));
       return result;
     }
 
