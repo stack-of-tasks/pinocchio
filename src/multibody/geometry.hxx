@@ -130,6 +130,7 @@ namespace se3
   //     std::cout << "outer object already added" << std::endl;
   // }
 
+#ifdef WITH_HPP_FCL
   inline void GeometryData::fillInnerOuterObjectMaps(const GeometryModel & geomModel)
   {
     innerObjects.clear();
@@ -143,6 +144,7 @@ namespace se3
         outerObjects[geomModel.geometryObjects[pair.first].parentJoint].push_back(pair.second);
       }
   }
+#endif
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryModel & geomModel)
   {
