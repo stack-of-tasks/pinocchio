@@ -42,6 +42,16 @@ IF(APPLE)
   endif("${isSystemDir}" STREQUAL "-1")
 ENDIF(APPLE)
 
+# This should go to jrl-cmakemodules if accepted - Similar to ADD_DOC_DEPENDENC but with a requiered option
+# This macro is for requiered components which must not appear as a dependence of the main library
+MACRO(ADD_SEPARATE_DEPENDENCY PKG_CONFIG_STRING)
+  SET(PKG_CONFIG_DEBUG_STRING "")
+  FOREACH(ARG ${ARGN})
+    SET(PKG_CONFIG_DEBUG_STRING ${ARG})
+  ENDFOREACH()
+  ADD_DEPENDENCY(0 1 ${PKG_CONFIG_STRING} "${PKG_CONFIG_DEBUG_STRING}")
+ENDMACRO(ADD_SEPARATE_DEPENDENCY)
+
 # Disable -Werror on Unix for now.
 SET(CXX_DISABLE_WERROR True)
 SET(CMAKE_VERBOSE_MAKEFILE True)
@@ -102,8 +112,8 @@ ENDIF(URDFDOM_FOUND)
 SET(BOOST_COMPONENTS filesystem unit_test_framework system)
 
 IF(BUILD_PYTHON_INTERFACE)
-  ADD_REQUIRED_DEPENDENCY("eigenpy >= 1.3.0")
   SET(BOOST_COMPONENTS ${BOOST_COMPONENTS} python)
+  ADD_SEPARATE_DEPENDENCY("eigenpy >= 1.3.0")
   FINDPYTHON(2.7 EXACT REQUIRED)
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS}) 
 ENDIF(BUILD_PYTHON_INTERFACE)
