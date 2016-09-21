@@ -65,7 +65,13 @@ namespace se3
   /// of the normalization function.
   ///
   /// Only additions and multiplications are required. Neither square root nor
-  /// division are used (except a division by 2).
+  /// division are used (except a division by 2). Let \f$ \delta = ||q||^2 - 1 \f$.
+  /// Using the following limited development:
+  /// \f[ \frac{1}{||q||} = (1 + \delta)^{-\frac{1}{2}} = 1 - \frac{\delta}{2} + \mathcal{O}(\delta^2) \f]
+  ///
+  /// The output is
+  /// \f[ q_{out} = q \times \frac{3 - ||q_{in}||^2}{2} \f]
+  ///
   /// The output quaternion is guaranted to statisfy the following:
   /// \f[ | ||q_{out}|| - 1 | \le \frac{M}{2} ||q_{in}|| ( ||q_{in}||^2 - 1 )^2 \f]
   /// where \f$ M = \frac{3}{4} (1 - \epsilon)^{-\frac{5}{2}} \f$
