@@ -296,6 +296,7 @@ ENDFOREACH(header)
 ADD_SUBDIRECTORY(src)
 
 # --- BINDINGS -----------------------------------------------------------------
+SET(PYWRAP ${PROJECT_NAME}_pywrap)
 ADD_SUBDIRECTORY(bindings)
 
 # --- EXECUTABLES --------------------------------------------------------------
