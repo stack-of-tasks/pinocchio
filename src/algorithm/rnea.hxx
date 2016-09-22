@@ -108,6 +108,34 @@ namespace se3
     return data.tau;
   }
   
+  inline const Eigen::VectorXd &
+  rnea(const Model & model, Data & data,
+       const Eigen::VectorXd & q,
+       const Eigen::VectorXd & v,
+       const Eigen::VectorXd & a,
+       const std::vector<Force> & fext)
+  {
+    assert(fext.size() == model.joints.size());
+    
+    data.v[0].setZero();
+    data.a_gf[0] = -model.gravity;
+    
+    for( Model::JointIndex i=1;i<(Model::JointIndex)model.njoints;++i )
+    {
+      RneaForwardStep::run(model.joints[i],data.joints[i],
+                           RneaForwardStep::ArgsType(model,data,q,v,a));
+      data.f[i] -= fext[i];
+    }
+    
+    for( Model::JointIndex i=(Model::JointIndex)model.njoints-1;i>0;--i )
+    {
+      RneaBackwardStep::run(model.joints[i],data.joints[i],
+                            RneaBackwardStep::ArgsType(model,data));
+    }
+    
+    return data.tau;
+  }
+  
   struct NLEForwardStep : public fusion::JointVisitor<NLEForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,

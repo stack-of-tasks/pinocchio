@@ -30,6 +30,16 @@ namespace se3
     {
       return rnea(*model,*data,q,v,a);
     }
+
+    static Eigen::VectorXd rnea_fext_proxy(const ModelHandler& model,
+                                           DataHandler & data,
+                                           const VectorXd_fx & q,
+                                           const VectorXd_fx & v,
+                                           const VectorXd_fx & a,
+                                           const std::vector<Force> & fext)
+    {
+      return rnea(*model,*data,q,v,a,fext);
+    }
     
     static Eigen::VectorXd nle_proxy(const ModelHandler& model,
                                      DataHandler & data,
@@ -47,7 +57,16 @@ namespace se3
                        "Velocity v (size Model::nv)",
                        "Acceleration a (size Model::nv)"),
               "Compute the RNEA, put the result in Data and return it.");
+
+      bp::def("rnea",rnea_fext_proxy,
+              bp::args("Model","Data",
+                       "Configuration q (size Model::nq)",
+                       "Velocity v (size Model::nv)",
+                       "Acceleration a (size Model::nv)",
+                       "Vector of external forces expressed in the local frame of each joint (size Model::njoints)"),
+              "Compute the RNEA with external forces, put the result in Data and return it.");
       
+
       bp::def("nle",nle_proxy,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",

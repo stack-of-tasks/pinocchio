@@ -127,10 +127,17 @@ namespace se3
      */
     Derived_t & operator= (const Derived_t & other) { return derived().__equl__(other); }
 
-    /** \brief replaces *this by *this + other.
-     *  \return a reference to *this
+    /** 
+     * \brief Replaces *this by *this + other.
+     * \return a reference to *this
      */
     Derived_t & operator+= (const Derived_t & phi) { return derived().__pequ__(phi); }
+    
+    /** 
+     * \brief Replaces *this by *this - other.
+     * \return a reference to *this
+     */
+    Derived_t & operator-= (const Derived_t & phi) { return derived().__mequ__(phi); }
 
     /** \return an expression of the sum of *this and other
      */
@@ -307,6 +314,7 @@ namespace se3
 
     ForceTpl & __equl__(const ForceTpl & other) { data = other.data; return *this; }
     ForceTpl & __pequ__ (const ForceTpl & phi) { data += phi.data; return *this; }
+    ForceTpl & __mequ__ (const ForceTpl & phi) { data -= phi.data; return *this; }
     ForceTpl __plus__(const ForceTpl & phi) const { return ForceTpl(data + phi.data); }
     ForceTpl __mult__(const double a) const { return ForceTpl(a*data); }
     ForceTpl __minus__() const { return ForceTpl(-data); }

@@ -131,4 +131,33 @@ BOOST_AUTO_TEST_CASE ( test_nle_vs_rnea )
   
   BOOST_CHECK (tau_nle.isApprox(tau_rnea, 1e-12));
 }
+  
+BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  Model model;
+  buildModels::humanoidSimple(model);
+  Data data_rnea_fext(model);
+  Data data_rnea(model);
+  
+  VectorXd q (VectorXd::Random(model.nq));
+  q.segment<4>(3).normalize();
+  
+  VectorXd v (VectorXd::Random(model.nv));
+  VectorXd a (VectorXd::Random(model.nv));
+  
+  std::vector<Force> fext(model.joints.size(), Force::Zero());
+  
+  JointIndex rf = model.getJointId("rleg6_joint"); Force Frf = Force::Random();
+  JointIndex lf = model.getJointId("lleg6_joint"); Force Flf = Force::Random();
+  
+  rnea(model,data_rnea,q,v,a);
+  rnea(model,data_rnea_fext,q,v,a,fext);
+  
+  BOOST_CHECK(data_rnea.tau.isApprox(data_rnea_fext.tau));
+  
+  
+}
 BOOST_AUTO_TEST_SUITE_END ()

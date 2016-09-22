@@ -62,6 +62,7 @@ namespace se3
     Derived_t operator+(const Derived_t & v2) const { return derived().__plus__(v2); }
     Derived_t operator-(const Derived_t & v2) const { return derived().__minus__(v2); }
     Derived_t & operator+=(const Derived_t & v2) { return derived().__pequ__(v2); }
+    Derived_t & operator-=(const Derived_t & v2) { return derived().__mequ__(v2); }
 
     bool isApprox (const Derived_t & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return derived().isApprox_impl(other, prec);}
@@ -192,6 +193,7 @@ namespace se3
     MotionTpl __plus__(const MotionTpl & v2) const { return MotionTpl(data + v2.data); }
     MotionTpl __minus__(const MotionTpl & v2) const { return MotionTpl(data - v2.data); }
     MotionTpl& __pequ__(const MotionTpl & v2) { data += v2.data; return *this; }
+    MotionTpl& __mequ__(const MotionTpl & v2) { data -= v2.data; return *this; }
     
     Scalar dot(const Force & f) const { return data.dot(f.toVector()); }
 
