@@ -514,7 +514,7 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
 
-      return q_1.isApprox(q_2, prec);
+      return q_1.head<2>().isApprox(q_2.head<2>(), prec) && std::fmod(std::abs(q_1[2] - q_2[2]), 2*M_PI) < prec;
     }
 
     static std::string classname() { return std::string("JointModelPlanar");}
