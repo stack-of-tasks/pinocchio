@@ -49,7 +49,7 @@ namespace se3
 
   /// \brief Log: SO3 -> so3.
   ///
-  /// Pseudo-inverse of log from SO3 -> { v \in so3, ||v|| < 2pi }.
+  /// Pseudo-inverse of log from \f$ SO3 -> { v \in so3, ||v|| \le pi } \f$.
   ///
   /// \param[in] R The rotation matrix.
   ///
@@ -60,6 +60,9 @@ namespace se3
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D, 3, 3);
     Eigen::AngleAxis<typename D::Scalar> angleAxis(R);
+    assert(0 <= angleAxis.angle() && angleAxis.angle() <= 2 * M_PI);
+    if (angleAxis.angle() > M_PI)
+      return -(2*M_PI - angleAxis.angle()) * angleAxis.axis();
     return angleAxis.axis() * angleAxis.angle();
   }
 
