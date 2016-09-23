@@ -417,8 +417,8 @@ namespace se3
         // else    : S = -Sp
         // S / t = Sp / |t|
         // S * S = - I2
-        // R = I2 + ( 1 - ct) / |t| * S + ( 1 - st / t ) * S * S
-        //   =      ( 1 - ct) / |t| * S +       st / t   * I2
+        // R = I2 + ( 1 - ct) / |t| * S + ( 1 - st / |t| ) * S * S
+        //   =      ( 1 - ct) / |t| * S +       st / |t|   * I2
         //
         // Ru = exp3 (w)
         // tu = R * v = (1 - ct) / |t| * S * v + st / t * v
@@ -498,7 +498,7 @@ namespace se3
       
       TangentVector_t res;
       res.head<2>() = nu.linear().head<2>();
-      res(2) = q_1(2) - q_0(2);
+      res(2) = nu.angular()(2);
       return res;
     } 
 
