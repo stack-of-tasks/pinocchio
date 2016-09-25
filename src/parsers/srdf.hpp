@@ -38,6 +38,8 @@ namespace se3
     /// \brief Deactive all possible collision pairs mentioned in the SRDF file.
     ///        It throws if the SRDF file is incorrect.
     ///
+    /// \ingroup parsers_group
+    /// 
     /// \param[in] model Model of the kinematic tree.
     /// \param[in] geomModel Model of the geometries.
     /// \param[out] data_geom Data containing the active collision pairs.
@@ -133,7 +135,9 @@ namespace se3
     ///
     /// \brief Get the neutral configuration of a given model associated to a SRDF file.
     ///        It throws if the SRDF file is incorrect.
-    ///
+    /// 
+    /// \ingroup parsers_group
+    /// 
     /// \param[in] model The Model for which we want the neutral config
     /// \param[in] filename The complete path to the SRDF file.
     /// \param[in] verbose Verbosity mode.

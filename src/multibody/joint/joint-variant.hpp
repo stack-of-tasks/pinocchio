@@ -34,6 +34,10 @@
 #include <boost/variant.hpp>
 #include <boost/variant/recursive_wrapper.hpp>
 
+/** \addtogroup Joints_group
+ * @{
+ *
+ */
 namespace se3
 {
   enum { MAX_JOINT_NV = 6 };
@@ -60,4 +64,5 @@ namespace se3
 
 } // namespace se3
 
+/** @}*/
 #endif // ifndef __se3_joint_variant_hpp__

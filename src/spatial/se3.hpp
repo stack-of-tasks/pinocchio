@@ -24,6 +24,12 @@
 #include "pinocchio/spatial/skew.hpp"
 
 
+/** \addtogroup SE3_group 
+ *
+ *  This module represents rigid transformations
+ *
+ */
+
 namespace se3
 {
 
@@ -34,7 +40,13 @@ namespace se3
     struct ActionReturn    { typedef D Type; };
   }
 
-  /** The rigid transform aMb can be seen in two ways: 
+  
+  /**
+   * @brief      Class for se3 base.
+   *
+   * @ingroup    SE3_group
+   * 
+   * @details The rigid transform aMb can be seen in two ways: 
    *
    * - given a point p expressed in frame B by its coordinate vector Bp, aMb
    * computes its coordinates in frame A by Ap = aMb Bp.
@@ -45,6 +57,9 @@ namespace se3
    * The rigid displacement is stored as a rotation matrix and translation vector by:
    * aMb (x) =  aRb*x + aAB
    * where aAB is the vector from origin A to origin B expressed in coordinates A.
+   * 
+   * 
+   * @tparam     Derived  is the derived type (e.g SE3Tpl)
    */
   template<class Derived>
   class SE3Base
@@ -158,6 +173,14 @@ namespace se3
     };
   }; // traits SE3Tpl
 
+  /**
+   * @brief      Class for se3 tpl.
+   *
+   * @ingroup    SE3_group
+   * 
+   * @tparam     _Scalar   type of scalar ( double or float)
+   * @tparam     _Options  Eigen alignment's option
+   */
   template<typename _Scalar, int _Options>
   class SE3Tpl : public SE3Base< SE3Tpl< _Scalar, _Options > >
   {

@@ -21,7 +21,10 @@
 #include <Eigen/StdVector>
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 
-
+/** \addtogroup Joints_group
+ * @{
+ *
+ */
 namespace se3
 {
   
@@ -356,5 +359,5 @@ namespace se3
 // Included later
 // #include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
 
-
+/** @}*/
 #endif // ifndef __se3_joint_basic_visitors_hpp__

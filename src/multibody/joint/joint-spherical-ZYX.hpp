@@ -28,6 +28,10 @@
 
 #include <stdexcept>
 
+/** \addtogroup Joints_group
+ * @{
+ *
+ */
 namespace se3
 {
 
@@ -485,4 +489,5 @@ namespace se3
 
 } // namespace se3
 
+/** @}*/
 #endif // ifndef __se3_joint_spherical_ZYX_hpp__

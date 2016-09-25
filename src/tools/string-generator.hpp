@@ -27,6 +27,8 @@ namespace se3
   ///
   /// \brief Generate a random string composed of alphanumeric symbols of a given length.
   ///
+  /// \ingroup tools_group
+  /// 
   /// \input len The length of the output string.
   ///
   /// \returns a random string composed of alphanumeric symbols.

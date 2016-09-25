@@ -21,12 +21,21 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 
+/** \addtogroup algo_energy
+ *
+ *  This module is related to energy computations
+ *  
+ *
+ */
+
 namespace se3 {
   
   ///
   /// \brief Computes the kinetic energy of the system.
   ///        The result is accessible through data.kinetic_energy.
   ///
+  /// \ingroup algo_energy
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -45,6 +54,8 @@ namespace se3 {
   /// \brief Computes the potential energy of the system, i.e. the potential energy linked to the gravity field.
   ///        The result is accessible through data.potential_energy.
   ///
+  /// \ingroup algo_energy
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).

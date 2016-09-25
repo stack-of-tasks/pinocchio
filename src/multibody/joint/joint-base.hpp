@@ -27,6 +27,9 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include <limits>
 
+/** \addtogroup Joints_group
+ * @{
+ */
 namespace se3
 {
   // template<class C> struct traits {};
@@ -509,5 +512,7 @@ namespace se3
   }; // struct JointModelBase
 
 } // namespace se3
+
+/** @}*/
 
 #endif // ifndef __se3_joint_base_hpp__

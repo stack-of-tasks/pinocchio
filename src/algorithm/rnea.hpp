@@ -20,11 +20,20 @@
 
 #include "pinocchio/multibody/model.hpp"
   
+/** \addtogroup algo_rnea
+ *
+ *  This module is related to inverse dynamics algorithm RNEA computations
+ *  
+ *
+ */
+
 namespace se3
 {
   ///
   /// \brief The Recursive Newton-Euler algorithm. It computes the inverse dynamics, aka the joint torques according to the current state of the system and the desired joint accelerations.
   ///
+  /// \ingroup algo_rnea
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).

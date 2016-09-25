@@ -19,6 +19,9 @@
 #define __se3_rnea_hxx__
 
 /// @cond DEV
+/** \addtogroup algo_rnea 
+ *  @{
+ */
 
 #include "pinocchio/multibody/visitor.hpp"
 
@@ -218,6 +221,7 @@ namespace se3
   }
 } // namespace se3
 
+/** @}*/
 /// @endcond
 
 #endif // ifndef __se3_rnea_hxx__

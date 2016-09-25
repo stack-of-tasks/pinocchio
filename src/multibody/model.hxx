@@ -26,7 +26,9 @@
 #include <boost/utility.hpp>
 
 /// @cond DEV
-
+/** \addtogroup Model_group 
+ *  @{
+ */
 namespace se3
 {
   namespace details
@@ -332,6 +334,7 @@ namespace se3
 
 } // namespace se3
 
+/** @}*/
 /// @endcond
 
 #endif // ifndef __se3_model_hxx__

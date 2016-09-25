@@ -23,5 +23,19 @@ namespace pinocchio
 
 Here you can find informations related to how pinocchio models a rigid multi body model. (ie Joints augmented by inertias)
 
+A rigid-body system is a set of component bodies linked together by some joints that represent the kinematic constraints of the system. Whereas numerous softwares consider bodies ( or link as some may say ) as a whole, in Pinocchio we get rid of these entities, and to model a rigid-body system, we use a kinematic tree, which is the succession of joints that compose the system. In parallel, to each joint, we associate informations of which the ones grom bodies such as inertia. In Pinocchio there are no more bodies entities but the informations are attached to the supporting joints of the bodies.
+
+These datas - and all the inherent characteristics of the multi-body system ( the kinematic chain, the position of a joint with respect to its parent, the inertia of the bodies) are stored in a single structure : Model
+When computing kinematics or dynamics, numerous informations related to this kinematic chain are computed ; such as the position of the center of mass, the speed and acceleration of the joints, the jacobian of the system. At each call of these algorithms, these values change. They all are stored in a single struct called Data. Whereas Model represent the constant part of your system, Data represent all the stuff that can change and is dependent on time or configuration.
+\warning The Data structure is deeply linked to Model because of size,dimension and kinematic chain consderations. Whereas a Model can be created from Scratch and populated with joints, Data MUST be creatd from a Model ( and you must be sure not to modify the model once you've created the data or algorithms can crash/be wrong)
+
+\section RigidBodyDynamicModel_accessingDatas Accessing Datas
+
+All the informations in these two structures are public and are easily accessible. Pinocchio adopt a naming convention that tries to be as expressive as possible with a difference between constant and non constant values. In Model, members have long and complete names ( such as jointPlacement that is the relative placement of the joint in its parent frame) whereas in Data, we use short names (such as a that is the acceleration of the joints).
+For a detailed list, see the corresponding structures.
+
+Moreover all these datas are stored in vectors, and to access it for a particular joint, you must know its place in the kinematic chain (ie the index in the vector of joint). You will then be able to access information like this:
+myData.a[index] that returns the acceleration of the joint at the position index. If you don't know the value of index, you can get it from Model with myModel.getJointId("jointName").
+
 */  
 }

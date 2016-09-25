@@ -22,6 +22,14 @@ namespace pinocchio
 /** \page Chapters_SpatialAlgebra Spatial Algebra
 
 Here you can find informations related to Roy FeatherStone's book Rigid Body Dynamic Algorithms and spatial algebra
+\section SpatilaAlgebra_whatIsIt What is Spatial Algebra
+
+Pinocchio uses mathematical formulations based on spatial (6D) vectors. These are vectors that simplify the description and computations for rigid-body dynamics by combining into a unified set of quantities the linear and angular aspects of rigid-body motions. For more informations, please refer to Roy Featherstone's book Rigid Body Dynamics Algorithms.
+
+\section SpatialAlgebra_differencesFeatherstone Difference with Roy Featherstone's approach
+
+While we are using Roy Featherstone formulations of equations of motion, Pinocchio's spatial vectors are slightly differents and use French notation of wrenches : the first 3 dimensions represent the Linear part of motion while the last 3 dimensions represent the rotational part of motion. This involves some changes from what can be found in this book. To see what changes this involes, take a look at http://stack-of-tasks.github.io/pinocchio/assets/math-concepts.pdf 
+
 
 */  
 }

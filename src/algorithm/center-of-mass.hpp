@@ -22,6 +22,13 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 
+/** \addtogroup algo_com
+ *
+ *  This module is related to CoM algorithm computations
+ *  
+ *
+ */
+
 namespace se3
 {
   
@@ -29,6 +36,8 @@ namespace se3
   /// \brief Computes the center of mass position of a given model according to a particular joint configuration.
   ///        The result is accessible through data.com[0] for the full body com and data.com[i] for the subtree supported by joint i (expressed in the joint i frame).
   ///
+  /// \ingroup algo_com 
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -48,6 +57,8 @@ namespace se3
   ///        The result is accessible through data.com[0], data.vcom[0], data.acom[0] for the full body com position, velocity and acceleation.
   ///        And data.com[i], data.vcom[i] and data.acom[i] for the subtree supported by joint i (expressed in the joint i frame).
   ///
+  /// \ingroup algo_com
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -69,6 +80,8 @@ namespace se3
   ///        The result is accessible through data.com[0], data.vcom[0], data.acom[0] for the full body com position, velocity and acceleation.
   ///        And data.com[i], data.vcom[i] and data.acom[i] for the subtree supported by joint i (expressed in the joint i frame).
   ///
+  /// \ingroup algo_com
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -92,6 +105,8 @@ namespace se3
   ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame. In addition, the algorithm also computes the Jacobian of all the joints (\sa se3::computeJacobians).
   ///        And data.com[i] gives the center of mass of the subtree supported by joint i (expressed in the world frame).
   ///
+  /// \ingroup algo_com
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -113,6 +128,8 @@ namespace se3
   ///
   /// \brief Extracts the center of mass position from the joint space inertia matrix (also called the mass matrix).
   ///
+  /// \ingroup algo_com
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   ///
@@ -125,6 +142,8 @@ namespace se3
   /// \brief Extracts both the jacobian of the center of mass (CoM) and the CoM position from the joint space inertia matrix (also called the mass matrix).
   ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame.
   ///
+  /// \ingroup algo_com
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   ///

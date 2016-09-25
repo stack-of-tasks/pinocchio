@@ -23,12 +23,20 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 
+/** \addtogroup algo_frames
+ *
+ *  This module is related to Frames
+ *  
+ *
+ */
+
 namespace se3
 {
 
   /**
    * @brief      Updates the position of each frame contained in the model
    *
+   * @ingroup algo_frames
    * @param[in]  model  The kinematic model.
    * @param      data   Data associated to model.
    *
@@ -42,6 +50,8 @@ namespace se3
    * @brief      First calls the forwardKinematics on the model, then computes the placement of each frame.
    *             /sa se3::forwardKinematics
    *
+   * @ingroup algo_frames
+   * 
    * @param[in]  model                    The kinematic model.
    * @param      data                     Data associated to model.
    * @param[in]  q                        Configuration vector.
@@ -56,6 +66,8 @@ namespace se3
      in the local frame depending on the template argument. 
    
    * @remark Expressed in the local frame, the jacobian maps the joint velocity vector to the spatial velocity of the center of the frame, expressed in the frame coordinates system. Expressed in the global frame, the jacobian maps to the spatial velocity of the point coinciding with the center of the world and attached to the frame.
+   *
+   * @ingroup algo_frames
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model

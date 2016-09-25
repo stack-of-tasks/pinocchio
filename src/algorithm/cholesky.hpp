@@ -19,7 +19,14 @@
 #define __se3_cholesky_hpp__
 
 #include "pinocchio/multibody/model.hpp"
-  
+
+/** \addtogroup algo_chol
+ *
+ *  This module is related to Choleski algorithm computations
+ *  
+ *
+ */
+
 namespace se3
 {
   namespace cholesky
@@ -36,7 +43,8 @@ namespace se3
     ///
     ///       See https://en.wikipedia.org/wiki/Cholesky_decomposition for futher details.
     ///
-    ///
+    /// \ingroup algo_chol
+    /// 
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     ///
@@ -54,6 +62,8 @@ namespace se3
     ///           M(q) \ddot{q} + b(q, \dot{q}) = \tau \iff \ddot{q} = M(q)^{-1} (\tau - b(q, \dot{q}))
     ///       \f$
     ///
+    /// \ingroup algo_chol
+    /// 
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     /// \param[inout] y The input matrix to inverse which also contains the result \f$x\f$ of the inversion.
@@ -65,6 +75,8 @@ namespace se3
     ///
     /// \brief Perform the multiplication \f$ M v \f$ either by using computed Cholesky decomposition or from raw computation.
     ///
+    /// \ingroup algo_chol
+    /// 
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     /// \param[inout] v The input matrix to multiply with data.M and storing the result.
@@ -80,6 +92,8 @@ namespace se3
     ///
     /// \brief Perform the sparse multiplication \f$ Uv \f$ using the Cholesky decomposition stored in data and acting in place.
     ///
+    /// \ingroup algo_chol
+    /// 
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     /// \param[inout] v The input matrix to multiply with data.U and also storing the result.
@@ -94,6 +108,8 @@ namespace se3
     ///
     /// \brief Perform the sparse multiplication \f$ U^{\top}v \f$ using the Cholesky decomposition stored in data and acting in place.
     ///
+    /// \ingroup algo_chol
+    /// 
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     /// \param[inout] v The input matrix to multiply with data.U.tranpose() and also storing the result.
@@ -108,6 +124,8 @@ namespace se3
     ///
     /// \brief Perform the pivot inversion \f$ U^{-1}v \f$ using the Cholesky decomposition stored in data and acting in place.
     ///
+    /// \ingroup algo_chol
+    /// 
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     /// \param[inout] v The input matrix to multiply with data.U^{-1} and also storing the result.
@@ -124,6 +142,8 @@ namespace se3
     ///
     /// \brief Perform the pivot inversion \f$ U^{-\top}v \f$ using the Cholesky decomposition stored in data and acting in place.
     ///
+    /// \ingroup algo_chol
+    /// 
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     /// \param[inout] v The input matrix to multiply with data.U^{-\top} and also storing the result.
@@ -140,6 +160,8 @@ namespace se3
     ///
     /// \brief Perform the sparse inversion \f$ M^{-1}v \f$ using the Cholesky decomposition stored in data and acting in place.
     ///
+    /// \ingroup algo_chol
+    /// 
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     /// \param[inout] v The input matrix to multiply with data.M^{-1} and also storing the result.

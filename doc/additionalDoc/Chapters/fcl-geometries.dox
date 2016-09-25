@@ -21,7 +21,38 @@ namespace pinocchio
   
 /** \page Chapters_FclGeometries Geometry
 
-Here you can find informations about how geometries are stored ( index of parent ) and used via FCL
+\section StoringGeometries How Geometries are stored
+
+Pinocchio offers the possibility to work with geometries, in order to do collision checking between objects composing 
+your robot or between a part of your robot and the environment. The integration of such features is done via the library hpp-fcl (https://github.com/humanoid-path-planner/hpp-fcl ) which is a modified version of [hpp-fcl](https://github.com/flexible-collision-library/fcl). It can work with a variety of shapes: boxes, spheres, cylinders and meshes. The meshes can be loaded from 3d object's model with
+assimp (link),
+
+In Pinocchio, a GeometryObject is represented by:
+\li A cloud of points representing the shape of the object in FCL's convention. FCL uses it to perform collision checking
+\li The index of the parent joint the geometry object is attached to
+\li The relative placement in the parent joint frame. 
+\li The name and the absolute path to the 3D-model
+
+\warning We are talking here about geometry object that are the 3D modeling of bodies but be sure not to confound them with bodies that handle inertia informations. These geometry objects must be seen as floating cloud of points that allow us to do collision checking. No dynamic computation are done.
+
+All the Geometry objects that compose a robot and its environment are stored in a couple of structures GeometryModel-GeometryData.
+It works exactly the same way as Model - Data does ( see \ref Chapters_RigidBodyDynamicModel). GeometryModel stores the list of all the GeometryObjects and GeometryData is used to store temporary values such as the absolute position of the objects or the results of FCL algorithms (e.g collision checking, distance computations...) 
+
+\section WorkingWithGeometries Working with Geometries
+
+If you have carrefully read what was stated in \ref StoringGeometries, you have seen that the GeometryModel store the index of the joint the GeometryObject is attached to and the relative placement wrt to this joint, but we have said that GeometryData stores the absolute position of these objects and that FCL uses it. How Should one use these structures ?
+
+A couple GeometryModel-GeometryData is always related to a Model ( the kinematic chain, storing the joints). When performing geometry computations, one should first update in GeometryData the position of the objects with the algorithm se3::updateGeometryPlacement (assuming that the forward kinematics has been computed for a given configuration vector) and then call the algorithms making use of GeometryData and geometryModel (these algorithms then make the calls to FCL API atomically).
+
+Here is a short example
+\code
+#include "pinocchio/multibody/fcl.hxx"
+\endcode
+
+
+\section LoadingGeometries Convert 3D-models to FCL data
+
+To convert a 3D object model to data usable by FCL, we added in hpp-fcl calls to the library assimp ( http://www.assimp.org/ ). Assimp is a portable Open Source library to import various well-known 3D model formats in a uniform manner. Fortunately, the calls to assimp are hidden to you, you just have to provide the absolute path of your 3D model if you want to add Geometries. Assimp supports a wide variety of formats, if your 3d model comes from an exotic software, please check http://www.assimp.org/main_features_formats.html.
 
 */  
 }

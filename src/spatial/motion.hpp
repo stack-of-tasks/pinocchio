@@ -25,10 +25,23 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
 
+/** \addtogroup Motion_group 
+ *
+ *  This module represents spatial motion vectors
+ *
+ */
+
 namespace se3
 {
 
 
+  /**
+   * @brief      Base class for Motions
+   * 
+   * @ingroup    Motion_group
+   *
+   * @tparam     Derived  is the derived type (e.g an MotionTpl, MotionRevolute, MotionSpherical, etc..)
+   */
   template< class Derived>
   class MotionBase
   {
@@ -109,6 +122,14 @@ namespace se3
   }; // traits MotionTpl
 
 
+  /**
+   * @brief      Class for motion tpl.
+   *
+   * @ingroup    Motion_group
+   * 
+   * @tparam     _Scalar   type of scalar ( double or float)
+   * @tparam     _Options  Eigen alignment's option
+   */
   template<typename _Scalar, int _Options>
   class MotionTpl : public MotionBase< MotionTpl< _Scalar, _Options > >
   {

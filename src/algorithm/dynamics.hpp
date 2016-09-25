@@ -24,6 +24,14 @@
 #include "pinocchio/algorithm/crba.hpp"
 
 #include <Eigen/Cholesky>
+
+/** \addtogroup algo_dynamics
+ *
+ *  This module is related to Dynamics computations
+ *  
+ *
+ */
+
 namespace se3
 {
   
@@ -35,6 +43,8 @@ namespace se3
   ///       where \f$ \ddot{q}_{\text{free}} \f$ is the free acceleration (i.e. without constraints),
   ///       \f$ M \f$ is the mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \gamma \f$ is the constraint drift.
   ///
+  /// \ingroup algo_dynamics
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration (vector dim model.nq).
@@ -102,6 +112,8 @@ namespace se3
   ///           \text{s.t.} & & J (q) \dot{q}^{+} = - \epsilon J (q) \dot{q}^{-}  \end{eqnarray} \f$ </CENTER> <BR>
   ///       where \f$ \dot{q}^{-} \f$ is the generalized velocity before impact,
   ///       \f$ M \f$ is the joint space mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \epsilon \f$ is the coefficient of restitution (1 for a fully elastic impact or 0 for a rigid impact).
+  ///
+  /// \ingroup algo_dynamics
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.

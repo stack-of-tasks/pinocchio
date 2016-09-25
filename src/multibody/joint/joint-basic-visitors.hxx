@@ -23,9 +23,13 @@
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 
+/// @cond DEV
+/** \addtogroup Joints_group
+ * @{
+ *
+ */
 namespace se3
 {
-  /// @cond DEV
   
   /**
    * @brief      CreateJointData visitor
@@ -590,8 +594,9 @@ namespace se3
   };
   inline Eigen::Matrix<double,6,Eigen::Dynamic> udinv_inertia(const JointDataVariant & jdata) { return JointUDInvInertiaVisitor::run(jdata); }
 
-  /// @endcond
 
 } // namespace se3
 
+/** @}*/
+/// @endcond
 #endif // ifndef __se3_joint_basic_visitors_hxx__

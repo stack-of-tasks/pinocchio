@@ -20,6 +20,11 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 
+/// @cond DEV
+/** \addtogroup algo_kinematics 
+ *  @{
+ */
+
 namespace se3 
 {
   
@@ -214,5 +219,8 @@ namespace se3
     }
   }
 } // namespace se3
+
+/** @}*/
+/// @endcond
 
 #endif // ifndef __se3_kinematics_hxx__

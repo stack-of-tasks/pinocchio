@@ -21,6 +21,11 @@
 #include <boost/fusion/algorithm.hpp>
 #include <boost/foreach.hpp>
 
+/// @cond DEV
+/** \addtogroup algo_check 
+ *  @{
+ */
+
 namespace se3
 {
   namespace internal
@@ -135,5 +140,8 @@ namespace se3
 
 
 } // namespace se3 
+
+/** @}*/
+/// @endcond
 
 #endif // ifndef __se3_check_hxx__

@@ -24,12 +24,21 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
+/** \addtogroup algo_geometry
+ *
+ *  This module is related to algorithms working with geometries ( fcl objects ) 
+ *  
+ *
+ */
+
 namespace se3
 {
 
   ///
   /// \brief Apply a forward kinematics and update the placement of the geometry objects.
   ///
+  /// \ingroup algo_geometry
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] geomModel The geometry model containing the collision objects.
@@ -46,6 +55,8 @@ namespace se3
   ///
   /// \brief Update the placement of the geometry objects according to the current joint placements contained in data.
   ///
+  /// \ingroup algo_geometry
+  /// 
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] geomModel The geometry model containing the collision objects.
@@ -63,6 +74,8 @@ namespace se3
   /// \brief Compute the collision status between a *SINGLE* collision pair.
   /// The result is store in the collisionResults vector.
   ///
+  /// \ingroup algo_geometry
+  /// 
   /// \param[in] GeomModel the geometry model (const)
   /// \param[out] GeomData the corresponding geometry data, where computations are done.
   /// \param[in] pairId The collsion pair index in the GeometryModel.
@@ -78,6 +91,8 @@ namespace se3
   /// Compute the forward kinematics, update the geometry placements and
   /// calls computeCollision for every active pairs of GeometryData.
   ///
+  /// \ingroup algo_geometry
+  /// 
   /// \param[in] model robot model (const)
   /// \param[out] data corresponding data (nonconst) where FK results are stored
   /// \param[in] geomModel geometry model (const)
@@ -100,6 +115,8 @@ namespace se3
   ///
   /// \brief Compute the minimal distance between collision objects of a *SINGLE* collison pair
   ///
+  /// \ingroup algo_geometry
+  /// 
   /// \param[in] GeomModel the geometry model (const)
   /// \param[out] GeomData the corresponding geometry data, where computations are done.
   /// \param[in] pairId The index of the collision pair in geom model.
@@ -116,6 +133,8 @@ namespace se3
   /// Compute the forward kinematics, update the geometry placements and
   /// calls computeDistance for every active pairs of GeometryData.
   ///
+  /// \ingroup algo_geometry
+  /// 
   /// \param[in] ComputeShortest default to true.
   /// \param[in][out] model: robot model (const)
   /// \param[out] data: corresponding data (nonconst) where FK results are stored
@@ -134,6 +153,9 @@ namespace se3
                                       );
 
   /// Compute the radius of the geometry volumes attached to every joints.
+  /// 
+  /// \ingroup algo_geometry
+  /// 
   /// \sa GeometryData::radius
   inline void computeBodyRadius(const Model &         model,
                                 const GeometryModel & geomModel,
@@ -149,6 +171,8 @@ namespace se3
   /// It is possible to ommit both data (an additional function signature is available which makes
   /// them optionnal), then inner/outer objects are not updated.
   ///
+  /// \ingroup algo_geometry
+  /// 
   /// \param[out] geomModel1   geometry model where the data is added
   /// \param[in]  geomModel2   geometry model from which new geometries are taken
   /// \note Of course, the geomData corresponding to geomModel1 will not be valid anymore, 

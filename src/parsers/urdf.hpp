@@ -47,6 +47,8 @@ namespace se3
     /// \brief Build the model from a URDF file with a particular joint as root of the model tree inside
     /// the model given as reference argument.
     ///
+    /// \ingroup Kinematic_group
+    /// 
     /// \param[in] filemane The URDF complete file path.
     /// \param[in] rootJoint The joint at the root of the model tree.
     /// \param[in] verbose Print parsing info.
@@ -62,6 +64,8 @@ namespace se3
     ///
     /// \brief Build the model from a URDF file with a fixed joint as root of the model tree.
     ///
+    /// \ingroup Kinematic_group
+    /// 
     /// \param[in] filemane The URDF complete file path.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
@@ -77,6 +81,8 @@ namespace se3
      *             in the directories specified by the user first and then in
      *             the environment variable ROS_PACKAGE_PATH
      *
+     * @ingroup Geometric_group
+     * 
      * @param[in]  model         The model of the robot, built with
      *                           urdf::buildModel
      * @param[in]  filename      The URDF complete (absolute) file path

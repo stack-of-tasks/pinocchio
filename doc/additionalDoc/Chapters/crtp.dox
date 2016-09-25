@@ -18,10 +18,68 @@
 
 /** \page  Chapters_crtp Curiously recurring template pattern
 
-Similarly to Eigen, Pinocchio library makes intensive use of the so called CRTP design
-pattern. This pattern is used for performance reasons in the
-implementation of static polymorphism, avoiding dynamic casts and calls to virtual methods.
+\warning  What is explained here are the C++ techniques used in Pinocchio to have a library as efficient as possible. These techniques are not related to computations by itself but more about software architecture. If you want to modify Pinocchio, we hope this can help you understand how is built the software. If you just want to use Pinocchio and not to be lost with advanced C++ techniques, may be you should not spend too many time on this page.
+
+\section crtp_Eigen Eigen
+
+For its underlying algebra, Pinocchio uses Eigen (eigen.tuxfamily.org).
+
+
+\section crtp_crtp CRTP
+
+Similarly to Eigen, Pinocchio library makes intensive use of the so called CRTP design pattern. This pattern is used for performance reasons in the implementation of static polymorphism, avoiding dynamic casts and calls to virtual methods.
 All in all, CRTP plays a central role in the performance of Pinocchio.
 
 We refer to  https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern for further explanations.
+
+\subsection crtp_joints
+The CRTP Design pattern in used in numerous places. From spatial classes such as SE3, Force, Inertia, to joints. Here we try to explain how it is implemented for joints.
+
+We first define a Base class called JointBase that is templated by the type of a Derived class. This class serves as an interface in which we define a lot of functions with the pattern
+\code
+template<typename _JointModel>
+struct JointModelBase
+{
+  void myfunction(){ return static_cast<const _JointModel*>(this)->myfunction_impl(); }
+
+}
+// functions can have arguments, and the return type may vary.
+\endcode
+
+This means that the BaseClass makes the call to a function that must be defined in the Derived Joints ( we call them specialised joints also). If the implementation is not defined in the derived joint, then you will face compilation errors.
+
+\code
+struct JointModelPlanar : JointModelBase<JointModelPlanar>
+{
+  void myfunction_impl()
+  { 
+    //put your code here
+  }
+}
+\endcode
+
+One other subtility with the CRTP is that both Base class and Derived Class must know what are the types they will work with (for example the dimension of the motion space). This must be specified somewhere between these two classe. We use for that traits. 
+
+\section crtp_variant_visitors Visiting a Joint
+
+Each Joint is of a particular class, and even if they all inherit from a Base Class, we can't store them as a Base class in Model, because we want to be able to work with any of them in a unified way.
+To do this, we use boost::variant.
+Boost::variant is a generic union container. This means that it can hold any of the type that you specify. As it can any of them, we need a way to work with the real type holded by the variant. This can be achieved with Visitors.
+
+In Pinocchio we define the variant:
+\code
+typedef boost::variant<JointModelRevoluteX, JointModelRevoluteY, ..., JointModelFreeFlyer, JointModelPlanar> JointModelVariant ;
+\endcode
+so that it can be any of the specialized joints and the Model Class contains a vector of JointModelVariant.
+To be more precise we use a class simply called JointModel that IS a variant, respecting the interface of the Base Class. The JointModel class will then use visitors to visit the variant (itself) that will then make the call to the specialized joints methods.
+
+That means that if you search what can be achieved by your joints, you just have to look to JointModelBase and JointDataBase ( remember what we said about Model being constant-stuff and Data being non-constant ? It's the same here)
+
+\section crtp_algorithms Unrolling a Model
+
+As already stated in Chapters_DynamicAlgorithms, when calling algorithm they work on joints one after the other. But what we didn't say is that algorithms make an internal call to visitors to treat the joints.
+Moreover the algorithms can work with several parameters ( plus the mandatory Model and/or Data), whose number is specific to each algorithm. To ease the creation of algorithms we created a kind of "interface algorithm visitor" that you can find in multibody/joint/visitor.hpp that you can inherit from to create your algorithm class. In this class, you must specify the parameters needed as a boost::fusion::vector and algorithm's computations in a method called algo.  
+
+Now that you know more about visitations, you can go deep inside Pinocchio if you to implement any new algorithms.
+
  */
