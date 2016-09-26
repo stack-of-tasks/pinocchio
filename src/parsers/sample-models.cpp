@@ -41,11 +41,12 @@ namespace se3
       if (setRandomLimits)
         idx = model.addJoint(model.getJointId(parent_name),joint,
                            SE3::Random(),
+                             name + "_joint",
                            TV::Random() + TV::Constant(1),
                            TV::Random() + TV::Constant(1),
                            CV::Random() - CV::Constant(1),
-                           CV::Random() + CV::Constant(1),
-                           name + "_joint");
+                           CV::Random() + CV::Constant(1)
+                           );
       else
         idx = model.addJoint(model.getJointId(parent_name),joint,
                              placement, name + "_joint");

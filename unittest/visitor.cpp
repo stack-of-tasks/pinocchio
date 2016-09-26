@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE ( test_runal )
   using namespace se3;
 
   se3::Model model;
-  model.addJoint(0,se3::JointModelRevoluteUnaligned(0,0,1),se3::SE3::Random());
+  model.addJoint(0,se3::JointModelRevoluteUnaligned(0,0,1),se3::SE3::Random(),"");
   Data data(model);
 
   for( Model::JointIndex i=1;i<(Model::JointIndex)model.njoints;++i )
