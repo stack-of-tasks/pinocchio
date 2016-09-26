@@ -35,10 +35,7 @@ namespace se3
       exposeDynamics();
       exposeCAT();
       exposeJacobian();
-      
-#ifdef WITH_HPP_FCL
       exposeGeometryAlgo();
-#endif // ifdef WITH_HPP_FCL
     }
     
   } // namespace python

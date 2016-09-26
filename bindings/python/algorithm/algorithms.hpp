@@ -44,10 +44,7 @@ namespace se3
     void exposeDynamics();
     void exposeCAT();
     void exposeJacobian();
-    
-#ifdef WITH_HPP_FCL
     void exposeGeometryAlgo();
-#endif // ifdef WITH_HPP_FCL
 
     void exposeAlgorithms();
     

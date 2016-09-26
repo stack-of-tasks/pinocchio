@@ -177,7 +177,7 @@ class RobotWrapper(object):
         # iterate over visuals and create the meshes in the viewer
         for visual in self.visual_model.geometryObjects :
             meshName = self.viewerNodeNames(visual) 
-            meshPath = visual.mesh_path
+            meshPath = visual.meshPath
             self.viewer.gui.addMesh(meshName, meshPath)
 
         # Finally, refresh the layout to obtain your first rendering.
