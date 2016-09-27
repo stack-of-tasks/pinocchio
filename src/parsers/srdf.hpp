@@ -87,9 +87,7 @@ namespace se3
           }
           
           const Model::JointIndex frame_id1 = model.getBodyId(link1);
-          const Model::JointIndex joint_id1 = model.frames[frame_id1].parent;
           const Model::JointIndex frame_id2 = model.getBodyId(link2);
-          const Model::JointIndex joint_id2 = model.frames[frame_id2].parent;
 
           // Malformed SRDF
           if (frame_id1 == frame_id2)
