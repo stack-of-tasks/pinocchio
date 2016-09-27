@@ -30,7 +30,7 @@ namespace se3
 
 #define DEFAULT_CHECKERS makeDefaultCheckerList()
 
-  bool Model::check() const { this->check(DEFAULT_CHECKERS); }
+  bool Model::check() const { return this->check(DEFAULT_CHECKERS); }
 
 } // namespace se3 
 
