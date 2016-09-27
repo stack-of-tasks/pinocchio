@@ -14,4 +14,6 @@
 # pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
 
-ADD_SUBDIRECTORY(python)
+IF(BUILD_PYTHON_INTERFACE)
+  ADD_SUBDIRECTORY(python)
+ENDIF(BUILD_PYTHON_INTERFACE)

@@ -51,149 +51,147 @@ MACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
 ENDMACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
 
 # --- LIBRARY --- #
-IF(BUILD_PYTHON_INTERFACE)
 
-  SET(${PROJECT_NAME}_PYTHON_HEADERS
-    eigen_container.hpp
-    handler.hpp
-    python.hpp
-    se3.hpp
-    force.hpp
-    motion.hpp
-    inertia.hpp
-    joints-models.hpp
-    joints-variant.hpp
-    joint.hpp
-    joint-derived.hpp
-    frame.hpp
-    model.hpp
-    data.hpp
-    algorithm/algorithms.hpp 
-    parsers.hpp
-    explog.hpp
-    geometry-object.hpp
-    geometry-model.hpp
-    geometry-data.hpp
-    )
+SET(${PROJECT_NAME}_PYTHON_HEADERS
+  eigen_container.hpp
+  handler.hpp
+  python.hpp
+  se3.hpp
+  force.hpp
+  motion.hpp
+  inertia.hpp
+  joints-models.hpp
+  joints-variant.hpp
+  joint.hpp
+  joint-derived.hpp
+  frame.hpp
+  model.hpp
+  data.hpp
+  algorithm/algorithms.hpp 
+  parsers.hpp
+  explog.hpp
+  geometry-object.hpp
+  geometry-model.hpp
+  geometry-data.hpp
+  )
 
-  SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
-    parsers/python.hpp
-    )
+SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
+  parsers/python.hpp
+  )
 
-  SET(${PROJECT_NAME}_PARSER_PYTHON_SOURCES
-    parsers/python/model.cpp
-    )
+SET(${PROJECT_NAME}_PARSER_PYTHON_SOURCES
+  parsers/python/model.cpp
+  )
 
-  SET(${PROJECT_NAME}_PYTHON_SOURCES
-    module.cpp
-    expose-SE3.cpp
-    expose-motion.cpp
-    expose-force.cpp
-    expose-inertia.cpp
-    expose-explog.cpp
-    expose-joints.cpp
-    expose-frame.cpp
-    expose-model.cpp
-    expose-data.cpp
-    expose-parsers.cpp
-    algorithm/expose-algorithms.cpp
-    algorithm/expose-com.cpp
-    algorithm/expose-kinematics.cpp
-    algorithm/expose-dynamics.cpp
-    algorithm/expose-crba.cpp
-    algorithm/expose-rnea.cpp
-    algorithm/expose-aba.cpp
-    algorithm/expose-jacobian.cpp
-    algorithm/expose-joints.cpp
-    algorithm/expose-energy.cpp
-    algorithm/expose-frames.cpp
-    algorithm/expose-cat.cpp
-    )
+SET(${PROJECT_NAME}_PYTHON_SOURCES
+  module.cpp
+  expose-SE3.cpp
+  expose-motion.cpp
+  expose-force.cpp
+  expose-inertia.cpp
+  expose-explog.cpp
+  expose-joints.cpp
+  expose-frame.cpp
+  expose-model.cpp
+  expose-data.cpp
+  expose-parsers.cpp
+  algorithm/expose-algorithms.cpp
+  algorithm/expose-com.cpp
+  algorithm/expose-kinematics.cpp
+  algorithm/expose-dynamics.cpp
+  algorithm/expose-crba.cpp
+  algorithm/expose-rnea.cpp
+  algorithm/expose-aba.cpp
+  algorithm/expose-jacobian.cpp
+  algorithm/expose-joints.cpp
+  algorithm/expose-energy.cpp
+  algorithm/expose-frames.cpp
+  algorithm/expose-cat.cpp
+  )
 
-  LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
-    geometry-object.hpp
-    geometry-model.hpp
-    geometry-data.hpp
-    )
+LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
+  geometry-object.hpp
+  geometry-model.hpp
+  geometry-data.hpp
+  )
 
-  LIST(APPEND ${PROJECT_NAME}_PYTHON_SOURCES
-    expose-geometry.cpp
-    algorithm/expose-geometry.cpp
-    )
+LIST(APPEND ${PROJECT_NAME}_PYTHON_SOURCES
+  expose-geometry.cpp
+  algorithm/expose-geometry.cpp
+  )
 
-  LIST(APPEND HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
-  LIST(REMOVE_DUPLICATES HEADERS)
+LIST(APPEND HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
+LIST(REMOVE_DUPLICATES HEADERS)
 
-  # Headers of the python binding
-  MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python")
-  MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/algorithm")
-  SYMLINK_AND_INSTALL_HEADERS("${${PROJECT_NAME}_PYTHON_HEADERS}" "bindings/python")
-  
-  # Headers of the python parser
-  MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/python")
-  SYMLINK_AND_INSTALL_HEADERS("${${PROJECT_NAME}_PARSER_PYTHON_HEADERS}" "")
+# Headers of the python binding
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/algorithm")
+SYMLINK_AND_INSTALL_HEADERS("${${PROJECT_NAME}_PYTHON_HEADERS}" "bindings/python")
 
-  # --- COMPILE WRAPPER
-  MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}")
-  SET(${PYWRAP}_SOURCES ${${PROJECT_NAME}_PYTHON_SOURCES} ${${PROJECT_NAME}_PARSER_PYTHON_SOURCES})
-  SET(${PYWRAP}_HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS} ${${PROJECT_NAME}_PARSER_PYTHON_HEADERS})
+# Headers of the python parser
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/python")
+SYMLINK_AND_INSTALL_HEADERS("${${PROJECT_NAME}_PARSER_PYTHON_HEADERS}" "")
 
-  ADD_LIBRARY(${PYWRAP} SHARED ${${PYWRAP}_SOURCES} ${${PYWRAP}_HEADERS})
-  ADD_HEADER_GROUP(${PYWRAP}_PYTHON_HEADERS)
-  ADD_SOURCE_GROUP(${PYWRAP}_PYTHON_SOURCES)
-  PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} eigenpy)
+# --- COMPILE WRAPPER
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}")
+SET(${PYWRAP}_SOURCES ${${PROJECT_NAME}_PYTHON_SOURCES} ${${PROJECT_NAME}_PARSER_PYTHON_SOURCES})
+SET(${PYWRAP}_HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS} ${${PROJECT_NAME}_PARSER_PYTHON_HEADERS})
 
-  TARGET_LINK_LIBRARIES(${PYWRAP} ${PROJECT_NAME})
-  TARGET_LINK_BOOST_PYTHON(${PYWRAP})
+ADD_LIBRARY(${PYWRAP} SHARED ${${PYWRAP}_SOURCES} ${${PYWRAP}_HEADERS})
+ADD_HEADER_GROUP(${PYWRAP}_PYTHON_HEADERS)
+ADD_SOURCE_GROUP(${PYWRAP}_PYTHON_SOURCES)
+PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} eigenpy)
 
-  IF(APPLE)
-    # We need to change the extension for python bindings
-    SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES SUFFIX ".so")
-  ENDIF(APPLE)
+TARGET_LINK_LIBRARIES(${PYWRAP} ${PROJECT_NAME})
+TARGET_LINK_BOOST_PYTHON(${PYWRAP})
 
-  SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/python/${PROJECT_NAME}")
+IF(APPLE)
+  # We need to change the extension for python bindings
+  SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES SUFFIX ".so")
+ENDIF(APPLE)
 
+SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/python/${PROJECT_NAME}")
+
+INSTALL(FILES
+  "${CMAKE_BINARY_DIR}/lib/python/${PROJECT_NAME}/lib${PYWRAP}.so"
+  DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
+
+# --- INSTALL SCRIPTS 
+SET(PYTHON_FILES
+  __init__.py
+  utils.py
+  robot_wrapper.py
+  romeo_wrapper.py
+  rpy.py
+  explog.py
+  )
+
+FOREACH(python ${PYTHON_FILES})
+  GET_FILENAME_COMPONENT(pythonFile ${python} NAME)
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
+    ${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/${python}
+    ${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile})
+    
+  # Tag pyc file as generated.
+  SET_SOURCE_FILES_PROPERTIES(
+    "${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
+    PROPERTIES GENERATED TRUE)
+    
+  EXECUTE_PROCESS(COMMAND
+    ${PYTHON_EXECUTABLE} -m py_compile
+    ${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile})
+    
+  # Clean generated files.
+  SET_PROPERTY(
+    DIRECTORY APPEND PROPERTY
+    ADDITIONAL_MAKE_CLEAN_FILES
+    "${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c")
+    
   INSTALL(FILES
-    "${CMAKE_BINARY_DIR}/lib/python/${PROJECT_NAME}/lib${PYWRAP}.so"
+    "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/${python}"
+    "${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
     DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
-  
-  # --- INSTALL SCRIPTS 
-  SET(PYTHON_FILES
-    __init__.py
-    utils.py
-    robot_wrapper.py
-    romeo_wrapper.py
-    rpy.py
-    explog.py
-    )
-  
-  FOREACH(python ${PYTHON_FILES})
-    GET_FILENAME_COMPONENT(pythonFile ${python} NAME)
-    EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
-      ${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/${python}
-      ${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile})
-      
-    # Tag pyc file as generated.
-    SET_SOURCE_FILES_PROPERTIES(
-      "${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
-      PROPERTIES GENERATED TRUE)
-      
-    EXECUTE_PROCESS(COMMAND
-      ${PYTHON_EXECUTABLE} -m py_compile
-      ${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile})
-      
-    # Clean generated files.
-    SET_PROPERTY(
-      DIRECTORY APPEND PROPERTY
-      ADDITIONAL_MAKE_CLEAN_FILES
-      "${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c")
-      
-    INSTALL(FILES
-      "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/${python}"
-      "${${PROJECT_NAME}_BINARY_DIR}/lib/python/${PROJECT_NAME}/${pythonFile}c"
-      DESTINATION ${PYTHON_SITELIB}/${PROJECT_NAME})
-  ENDFOREACH(python)
+ENDFOREACH(python)
 
-ENDIF(BUILD_PYTHON_INTERFACE)
 
