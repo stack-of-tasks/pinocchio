@@ -150,12 +150,9 @@ namespace se3
     void setIndexes(JointIndex id,int nq,int nv) { ::se3::setIndexes(*this,id, nq, nv); }
   };
   
-  typedef std::vector<JointData> JointDataVector;
-  typedef std::vector<JointModel> JointModelVector;
+  typedef std::vector<JointData, Eigen::aligned_allocator<JointData> > JointDataVector;
+  typedef std::vector<JointModel, Eigen::aligned_allocator<JointModel> > JointModelVector;
 
 } // namespace se3
-
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointModel)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::JointData)
 
 #endif // ifndef __se3_joint_model_hpp__

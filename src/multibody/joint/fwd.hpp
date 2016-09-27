@@ -15,29 +15,19 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_multibody_fwd_hpp__
-#define __se3_multibody_fwd_hpp__
-
-# include <cstddef> // std::size_t
+#ifndef __se3_joint_fwd_hpp__
+#define __se3_joint_fwd_hpp__
 
 namespace se3
 {
-  typedef std::size_t Index;
-  typedef Index JointIndex;
-  typedef Index GeomIndex;
-  typedef Index FrameIndex;
-  typedef Index PairIndex;
+  enum { MAX_JOINT_NV = 6 };
   
-  struct Frame;
-  struct Model;
-  struct Data;
-  struct GeometryModel;
-  struct GeometryData;
+  struct JointModelComposite;
+  struct JointDataComposite;
+  
+  struct JointModel;
+  struct JointData;
+  
+}
 
-
-  // Forward declaration needed for Model::check
-  template<class D> struct AlgorithmCheckerBase;
-
-} // namespace se3
-
-#endif // #ifndef __se3_multibody_fwd_hpp__
+#endif // ifndef __se3_joint_fwd_hpp__

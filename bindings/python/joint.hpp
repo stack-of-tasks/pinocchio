@@ -20,7 +20,7 @@
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
-#include "pinocchio/multibody/joint/joint-composite.hpp"
+#include "pinocchio/multibody/joint/joint.hpp"
 
 namespace se3
 {

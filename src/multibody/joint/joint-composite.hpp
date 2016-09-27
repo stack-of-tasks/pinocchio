@@ -19,12 +19,10 @@
 #define __se3_joint_composite_hpp__
 
 #include "pinocchio/assert.hpp"
-#include "pinocchio/multibody/joint/joint.hpp"
+#include "pinocchio/multibody/joint/joint-variant.hpp"
+#include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 
 #include <Eigen/StdVector>
-
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Motion)
 
 namespace se3
 {
@@ -67,6 +65,7 @@ namespace se3
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef JointComposite Joint;
+    typedef JointDataVariant JointData;
     typedef std::vector<JointData, Eigen::aligned_allocator<JointData> > JointDataVector;
     SE3_JOINT_TYPEDEF;
 
@@ -74,7 +73,7 @@ namespace se3
     int nq_composite,nv_composite;
 
     Constraint_t S;
-    std::vector<Transformation_t> ljMj;
+    std::vector<Transformation_t, Eigen::aligned_allocator<Transformation_t> > ljMj;
     Transformation_t M;
     Motion_t v;
     Bias_t c;
@@ -110,7 +109,12 @@ namespace se3
     typedef JointComposite Joint;
     SE3_JOINT_TYPEDEF;
     SE3_JOINT_USE_INDEXES;
+    
+    typedef JointModelVariant JointModel;
     typedef std::vector<JointModel, Eigen::aligned_allocator<JointModel> > JointModelVector;
+    
+    typedef JointDataVariant JointData;
+    typedef std::vector<JointData, Eigen::aligned_allocator<JointData> > JointDataVector;
     
     using JointModelBase<JointModelComposite>::id;
     using JointModelBase<JointModelComposite>::setIndexes;
@@ -475,15 +479,16 @@ namespace se3
   };
   
 
-    inline std::ostream & operator << (std::ostream & os, const JointModelComposite & jmodel)
+  inline std::ostream & operator << (std::ostream & os, const JointModelComposite & jmodel)
+  {
+    typedef JointModelComposite::JointModelVector JointModelVector;
+    os << "JointModelComposite containing following models:\n" ;
+    for (JointModelVector::const_iterator i = jmodel.joints.begin(); i != jmodel.joints.end(); ++i)
     {
-      os << "JointModelComposite containing following models:\n" ;
-      for (JointModelVector::const_iterator i = jmodel.joints.begin(); i != jmodel.joints.end(); ++i)
-      {
-        os << shortname(*i) << std::endl;
-      }
-      return os;
+      os << shortname(*i) << std::endl;
     }
+    return os;
+  }
 
 } // namespace se3
 

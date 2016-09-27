@@ -18,7 +18,7 @@
 #ifndef __se3_joint_variant_hpp__
 #define __se3_joint_variant_hpp__
 
-#include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/joint/joint-free-flyer.hpp"
 #include "pinocchio/multibody/joint/joint-planar.hpp"
@@ -36,12 +36,7 @@
 
 namespace se3
 {
-  enum { MAX_JOINT_NV = 6 };
-
-  struct JointComposite;
-  struct JointModelComposite;
-  struct JointDataComposite;
-
+  
   // The JointModelComposite contains several JointModel (which are JointModelVariant). Hence there is a circular
   // dependency between JointModelComposite and JointModelVariant that can be resolved with the use of boost::recursive_variant
   // For more details, see http://www.boost.org/doc/libs/1_58_0/doc/html/variant/tutorial.html#variant.tutorial.recursive 
