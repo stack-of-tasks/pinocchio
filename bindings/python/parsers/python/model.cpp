@@ -16,6 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/parsers/python.hpp"
+#include "pinocchio/bindings/python/model.hpp"
 
 #include <iostream>
 #include <Python.h>
@@ -30,18 +31,13 @@ namespace se3
     Model buildModel(const std::string & filename, const std::string & model_name, bool verbose) throw (bp::error_already_set)
     {
       Py_Initialize();
-      // Get a dict for the global namespace to exec further python code with
       bp::object main_module = bp::import("__main__");
+      // Get a dict for the global namespace to exec further python code with
       bp::dict globals = bp::extract<bp::dict>(main_module.attr("__dict__"));
 
       // We need to link to the pinocchio PyWrap. We delegate the dynamic loading to the python interpreter.
-      bp::exec("import pinocchio", globals);
-
-      // Create a new Model, get a shared_ptr to it, and include this pointer
-      // into the global namespace. See python/handler.hpp for more details.
-      boost::shared_ptr<Model> model(new Model());
-      bp::object obj(model);
-      globals[model_name] = obj;
+      
+      bp::object cpp_module( (bp::handle<>(PyImport_AddModule("libpinocchio_pywrap"))) );
 
       // That's it, you can exec your python script, starting with a model you
       // can update as you want.
@@ -53,13 +49,25 @@ namespace se3
         PyErr_PrintEx(0);
       }
       
+      Model * model_ptr;
+      try
+      {
+        bp::object obj_model = globals[model_name];
+        ModelHandler model_handler = bp::extract<ModelHandler>(obj_model);
+        model_ptr = model_handler.ptr();
+      }
+      catch (bp::error_already_set & e)
+      {
+        PyErr_PrintEx(0);
+      }
       if (verbose)
       {
-        std::cout << "Your model has been built. It has " << model->nv;
+        std::cout << "Your model has been built. It has " << model_ptr->nv;
         std::cout << " degrees of freedom." << std::endl;
       }
       
-      return *model;
+//      Py_Finalize();
+      return *model_ptr;
     }
   } // namespace python
 } // namespace se3
