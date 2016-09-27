@@ -87,9 +87,7 @@ namespace se3
           }
           
           const Model::JointIndex frame_id1 = model.getBodyId(link1);
-          const Model::JointIndex joint_id1 = model.frames[frame_id1].parent;
           const Model::JointIndex frame_id2 = model.getBodyId(link2);
-          const Model::JointIndex joint_id2 = model.frames[frame_id2].parent;
 
           // Malformed SRDF
           if (frame_id1 == frame_id2)
@@ -143,8 +141,6 @@ namespace se3
                                                            const std::string & filename,
                                                            const bool verbose) throw (std::invalid_argument)
     {
-      const Eigen::VectorXd neutralConfig(model.nq);
-
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
       if (extension != "srdf")
@@ -173,7 +169,6 @@ namespace se3
         if (v.first == "group_state")
         {
           const std::string name = v.second.get<std::string>("<xmlattr>.name");
-          std::cout << name << std::endl;
           // Ensure that it is the half_sitting tag
           if( name == "half_sitting")
           {
@@ -190,10 +185,10 @@ namespace se3
                 }
                 // Search in model the joint and its config id
                 Model::JointIndex joint_id = model.getJointId(joint_name);
-                const JointModel & joint = model.joints[joint_id];
 
                 if (joint_id != model.joints.size()) // != model.njoints
                 {
+                  const JointModel & joint = model.joints[joint_id];
                   model.neutralConfiguration(joint.idx_q()) = joint_config; // joint with 1 dof
                   // model.neutralConfiguration.segment(joint.idx_q(),joint.nq()) = joint_config; // joint with more than 1 dof
                 }
@@ -203,14 +198,13 @@ namespace se3
                 }
               }
             }
-            return neutralConfig;
+            return model.neutralConfiguration;
           }
-
           
         }
       } // BOOST_FOREACH
       assert(false && "no half_sitting configuration found in the srdf file"); // Should we throw something here ?  
-      return neutralConfig; // warning : uninitialized vector is returned
+      return Eigen::VectorXd::Constant(model.nq,NAN); // warning : uninitialized vector is returned
     }
   }
 } // namespace se3
