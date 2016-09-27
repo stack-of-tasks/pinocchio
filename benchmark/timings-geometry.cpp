@@ -65,7 +65,7 @@ int main()
     
 
 
-  std::string romeo_filename = PINOCCHIO_SOURCE_DIR"/models/romeo.urdf";
+  std::string romeo_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
   std::vector < std::string > package_dirs;
   std::string romeo_meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   package_dirs.push_back(romeo_meshDir);
