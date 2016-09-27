@@ -141,8 +141,6 @@ namespace se3
                                                            const std::string & filename,
                                                            const bool verbose) throw (std::invalid_argument)
     {
-      const Eigen::VectorXd neutralConfig(model.nq);
-
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
       if (extension != "srdf")
@@ -200,13 +198,13 @@ namespace se3
                 }
               }
             }
-            return neutralConfig;
+            return model.neutralConfiguration;
           }
           
         }
       } // BOOST_FOREACH
       assert(false && "no half_sitting configuration found in the srdf file"); // Should we throw something here ?  
-      return neutralConfig; // warning : uninitialized vector is returned
+      return Eigen::VectorXd::Constant(model.nq,NAN); // warning : uninitialized vector is returned
     }
   }
 } // namespace se3
