@@ -172,7 +172,6 @@ namespace se3
     typedef std::vector<std::string>::iterator::difference_type it_diff_t;
     it_diff_t res = std::find(names.begin(),names.end(),name) - names.begin();
     assert( (res<INT_MAX) && "Id superior to int range. Should never happen.");
-    assert( (res>=0)&&(res<(it_diff_t) joints.size()) && "The joint name you asked does not exist" );
     return Model::JointIndex(res);
   }
   

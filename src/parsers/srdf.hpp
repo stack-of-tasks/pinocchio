@@ -171,7 +171,6 @@ namespace se3
         if (v.first == "group_state")
         {
           const std::string name = v.second.get<std::string>("<xmlattr>.name");
-          std::cout << name << std::endl;
           // Ensure that it is the half_sitting tag
           if( name == "half_sitting")
           {
@@ -188,10 +187,10 @@ namespace se3
                 }
                 // Search in model the joint and its config id
                 Model::JointIndex joint_id = model.getJointId(joint_name);
-                const JointModel & joint = model.joints[joint_id];
 
                 if (joint_id != model.joints.size()) // != model.njoints
                 {
+                  const JointModel & joint = model.joints[joint_id];
                   model.neutralConfiguration(joint.idx_q()) = joint_config; // joint with 1 dof
                   // model.neutralConfiguration.segment(joint.idx_q(),joint.nq()) = joint_config; // joint with more than 1 dof
                 }
@@ -203,7 +202,6 @@ namespace se3
             }
             return neutralConfig;
           }
-
           
         }
       } // BOOST_FOREACH
