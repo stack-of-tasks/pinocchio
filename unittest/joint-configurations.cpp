@@ -48,11 +48,11 @@ void addJointAndBody(Model & model, const JointModelBase<D> & jmodel, const Mode
   typedef typename D::ConfigVector_t CV;
   
   idx = model.addJoint(parent_id,jmodel,joint_placement,
+                       name + "_joint",
                        TV::Zero(),
                        1e3 * (TV::Random() + TV::Constant(1)),
                        1e3 * (CV::Random() - CV::Constant(1)),
-                       1e3 * (CV::Random() + CV::Constant(1)),
-                       name + "_joint"
+                       1e3 * (CV::Random() + CV::Constant(1))
                        );
   
   model.appendBodyToJoint(idx,Y,SE3::Identity());

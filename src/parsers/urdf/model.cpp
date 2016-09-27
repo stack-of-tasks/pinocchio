@@ -99,8 +99,9 @@ namespace se3
         
         idx = model.addJoint(frame.parent,jmodel,
                              frame.placement * joint_placement,
-                             max_effort,max_velocity,min_config,max_config,
-                             joint_name);
+                             joint_name,
+                             max_effort,max_velocity,min_config,max_config
+                             );
         FrameIndex jointFrameId = (FrameIndex) model.addJointFrame(idx, (int)parentFrameId); // C-style cast to remove polluting compilation warning. This is Bad practice. See issue #323 (rework indexes)
         appendBodyToJoint(model, jointFrameId, Y, SE3::Identity(), body_name);
       }

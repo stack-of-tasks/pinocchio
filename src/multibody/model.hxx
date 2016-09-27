@@ -56,11 +56,11 @@ namespace se3
   Model::JointIndex Model::addJoint(const Model::JointIndex parent,
                                     const JointModelBase<JointModelDerived> & joint_model,
                                     const SE3 & joint_placement,
+                                    const std::string & joint_name,
                                     const Eigen::VectorXd & max_effort,
                                     const Eigen::VectorXd & max_velocity,
                                     const Eigen::VectorXd & min_config,
-                                    const Eigen::VectorXd & max_config,
-                                    const std::string & joint_name
+                                    const Eigen::VectorXd & max_config
                                     )
   {
     assert( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
@@ -80,7 +80,7 @@ namespace se3
     inertias       .push_back(Inertia::Zero());
     parents        .push_back(parent);
     jointPlacements.push_back(joint_placement);
-    names          .push_back((joint_name!="")?joint_name:randomStringGenerator(8));
+    names          .push_back(joint_name);
     nq += joint_model.nq();
     nv += joint_model.nv();
 
@@ -116,7 +116,7 @@ namespace se3
     min_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
     max_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
 
-    return addJoint(parent, joint_model, joint_placement, max_effort, max_velocity, min_config, max_config, joint_name);
+    return addJoint(parent, joint_model, joint_placement, joint_name, max_effort, max_velocity, min_config, max_config);
   }
   
   inline int Model::addJointFrame (const JointIndex& jidx,

@@ -158,11 +158,11 @@ namespace se3
     ///
     template<typename JointModelDerived>
     JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
+                        const std::string & joint_name,
                         const Eigen::VectorXd & max_effort,
                         const Eigen::VectorXd & max_velocity,
                         const Eigen::VectorXd & min_config,
-                        const Eigen::VectorXd & max_config,
-                        const std::string & joint_name = ""
+                        const Eigen::VectorXd & max_config
                         );
 
     ///
@@ -184,7 +184,7 @@ namespace se3
     ///
     template<typename JointModelDerived>
     JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
-                        const std::string & joint_name = ""
+                        const std::string & joint_name
                         );
 
     ///
