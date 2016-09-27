@@ -25,7 +25,7 @@ namespace se3
     
     static void compute_jacobians_proxy(const ModelHandler& model,
                                         DataHandler & data,
-                                        const VectorXd_fx & q)
+                                        const Eigen::VectorXd & q)
     {
       computeJacobians(*model,*data,q);
     }
@@ -34,7 +34,7 @@ namespace se3
     static Data::Matrix6x
     jacobian_proxy(const ModelHandler & model,
                    DataHandler & data,
-                   const VectorXd_fx & q,
+                   const Eigen::VectorXd & q,
                    Model::JointIndex jointId,
                    bool local,
                    bool update_geometry)

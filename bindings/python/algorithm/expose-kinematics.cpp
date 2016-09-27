@@ -25,15 +25,15 @@ namespace se3
     
     static void fk_0_proxy(const ModelHandler & model,
                            DataHandler & data,
-                           const VectorXd_fx & q)
+                           const Eigen::VectorXd & q)
     {
       forwardKinematics(*model,*data,q);
     }
     
     static void fk_1_proxy(const ModelHandler& model,
                            DataHandler & data,
-                           const VectorXd_fx & q,
-                           const VectorXd_fx & qdot )
+                           const Eigen::VectorXd & q,
+                           const Eigen::VectorXd & qdot )
     {
       forwardKinematics(*model,*data,q,qdot);
     }
@@ -41,9 +41,9 @@ namespace se3
     
     static void fk_2_proxy(const ModelHandler& model,
                            DataHandler & data,
-                           const VectorXd_fx & q,
-                           const VectorXd_fx & v,
-                           const VectorXd_fx & a)
+                           const Eigen::VectorXd & q,
+                           const Eigen::VectorXd & v,
+                           const Eigen::VectorXd & a)
     {
       forwardKinematics(*model,*data,q,v,a);
     }

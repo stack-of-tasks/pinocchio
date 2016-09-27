@@ -22,12 +22,9 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-#include "pinocchio/bindings/python/se3.hpp"
 #include "pinocchio/bindings/python/eigen_container.hpp"
 #include "pinocchio/bindings/python/handler.hpp"
-
 #include "pinocchio/multibody/geometry.hpp"
-
 #include "pinocchio/bindings/python/model.hpp"
 
 namespace se3
@@ -41,10 +38,6 @@ namespace se3
     struct GeometryModelPythonVisitor
     : public boost::python::def_visitor< GeometryModelPythonVisitor >
     {
-    public:
-
-      typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
-      
     public:
       
       /* --- Convert From C++ to Python ------------------------------------- */

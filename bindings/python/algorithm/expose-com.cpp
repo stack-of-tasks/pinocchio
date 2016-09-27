@@ -26,7 +26,7 @@ namespace se3
     static SE3::Vector3
     com_0_proxy(const ModelHandler& model,
                 DataHandler & data,
-                const VectorXd_fx & q,
+                const Eigen::VectorXd & q,
                 const bool updateKinematics = true)
     {
       return centerOfMass(*model,*data,q,
@@ -37,8 +37,8 @@ namespace se3
     static SE3::Vector3
     com_1_proxy(const ModelHandler& model,
                 DataHandler & data,
-                const VectorXd_fx & q,
-                const VectorXd_fx & v,
+                const Eigen::VectorXd & q,
+                const Eigen::VectorXd & v,
                 const bool updateKinematics = true)
     {
       return centerOfMass(*model,*data,q,v,
@@ -49,9 +49,9 @@ namespace se3
     static SE3::Vector3
     com_2_proxy(const ModelHandler & model,
                 DataHandler & data,
-                const VectorXd_fx & q,
-                const VectorXd_fx & v,
-                const VectorXd_fx & a,
+                const Eigen::VectorXd & q,
+                const Eigen::VectorXd & v,
+                const Eigen::VectorXd & a,
                 const bool updateKinematics = true)
     {
       return centerOfMass(*model,*data,q,v,a,
@@ -62,7 +62,7 @@ namespace se3
     static Data::Matrix3x
     Jcom_proxy(const ModelHandler& model,
                DataHandler & data,
-               const VectorXd_fx & q)
+               const Eigen::VectorXd & q)
     {
       return jacobianCenterOfMass(*model,*data,q);
     }

@@ -24,18 +24,18 @@ namespace se3
   {
     static Eigen::VectorXd rnea_proxy(const ModelHandler& model,
                                       DataHandler & data,
-                                      const VectorXd_fx & q,
-                                      const VectorXd_fx & v,
-                                      const VectorXd_fx & a)
+                                      const Eigen::VectorXd & q,
+                                      const Eigen::VectorXd & v,
+                                      const Eigen::VectorXd & a)
     {
       return rnea(*model,*data,q,v,a);
     }
 
     static Eigen::VectorXd rnea_fext_proxy(const ModelHandler& model,
                                            DataHandler & data,
-                                           const VectorXd_fx & q,
-                                           const VectorXd_fx & v,
-                                           const VectorXd_fx & a,
+                                           const Eigen::VectorXd & q,
+                                           const Eigen::VectorXd & v,
+                                           const Eigen::VectorXd & a,
                                            const std::vector<Force> & fext)
     {
       return rnea(*model,*data,q,v,a,fext);
@@ -43,8 +43,8 @@ namespace se3
     
     static Eigen::VectorXd nle_proxy(const ModelHandler& model,
                                      DataHandler & data,
-                                     const VectorXd_fx & q,
-                                     const VectorXd_fx & v)
+                                     const Eigen::VectorXd & q,
+                                     const Eigen::VectorXd & v)
     {
       return nonLinearEffects(*model,*data,q,v);
     }

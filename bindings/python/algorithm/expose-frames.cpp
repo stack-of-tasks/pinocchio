@@ -25,7 +25,7 @@ namespace se3
     
     static Data::Matrix6x frame_jacobian_proxy(const ModelHandler & model,
                                                DataHandler & data,
-                                               const VectorXd_fx & q,
+                                               const Eigen::VectorXd & q,
                                                Model::FrameIndex frame_id,
                                                bool local,
                                                bool update_geometry
@@ -44,7 +44,7 @@ namespace se3
     
     static void frames_fk_0_proxy(const ModelHandler& model,
                                   DataHandler & data,
-                                  const VectorXd_fx & q
+                                  const Eigen::VectorXd & q
                                   )
     {
       framesForwardKinematics( *model,*data,q );

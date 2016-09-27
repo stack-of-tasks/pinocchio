@@ -20,10 +20,8 @@
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
-
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
-#include "pinocchio/bindings/python/se3.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
@@ -36,7 +34,6 @@ namespace se3
     struct GeometryObjectPythonVisitor
       : public boost::python::def_visitor< GeometryObjectPythonVisitor >
     {
-      typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       typedef Model::Index Index;
       typedef Model::JointIndex JointIndex;
       typedef Model::FrameIndex FrameIndex;
@@ -62,8 +59,8 @@ namespace se3
           ;
       }
 
-      static SE3_fx getPlacementWrtParentJoint( const GeometryObject & self) { return self.placement; }
-      static void setPlacementWrtParentJoint(GeometryObject & self, const SE3_fx & placement) { self.placement = placement; }
+      static SE3 getPlacementWrtParentJoint( const GeometryObject & self) { return self.placement; }
+      static void setPlacementWrtParentJoint(GeometryObject & self, const SE3 & placement) { self.placement = placement; }
 
       static void expose()
       {

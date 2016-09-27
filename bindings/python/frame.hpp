@@ -23,7 +23,6 @@
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
-#include "pinocchio/bindings/python/se3.hpp"
 #include "pinocchio/multibody/frame.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
@@ -37,23 +36,17 @@ namespace se3
     struct FramePythonVisitor
       : public boost::python::def_visitor< FramePythonVisitor >
     {
-      typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       typedef Model::Index Index;
       typedef Model::JointIndex JointIndex;
       typedef Model::FrameIndex FrameIndex;
 
     public:
 
-      static PyObject* convert(Frame const& f)
-      {
-        return boost::python::incref(boost::python::object(f).ptr());
-      }
-
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
         cl
-          .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3_fx&,FrameType> ((bp::arg("name (string)"),bp::arg("index of parent joint"), bp::args("index of parent frame"), bp::arg("SE3 placement"), bp::arg("type (FrameType)")),
+          .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3&,FrameType> ((bp::arg("name (string)"),bp::arg("index of parent joint"), bp::args("index of parent frame"), bp::arg("SE3 placement"), bp::arg("type (FrameType)")),
                 "Initialize from name, parent joint id, parent frame id and placement wrt parent joint."))
 
           .def_readwrite("name", &Frame::name, "name  of the frame")
@@ -71,8 +64,8 @@ namespace se3
       }
 
 
-      static SE3_fx getPlacementWrtParentJoint(const Frame & self) { return self.placement; }
-      static void setPlacementWrtParentJoint(Frame & self, const SE3_fx & placement) { self.placement = placement; }
+      static SE3 getPlacementWrtParentJoint(const Frame & self) { return self.placement; }
+      static void setPlacementWrtParentJoint(Frame & self, const SE3 & placement) { self.placement = placement; }
 
       static void expose()
       {
@@ -91,7 +84,6 @@ namespace se3
 	                       .def(FramePythonVisitor())
 	                       ;
     
-//        bp::to_python_converter< Frame,FramePythonVisitor >();
         bp::class_< std::vector<Frame> >("StdVec_Frame")
         .def(bp::vector_indexing_suite< container::aligned_vector<Frame> >());
       }

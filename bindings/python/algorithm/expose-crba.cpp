@@ -24,7 +24,7 @@ namespace se3
   {
     static Eigen::MatrixXd crba_proxy(const ModelHandler& model,
                                       DataHandler & data,
-                                      const VectorXd_fx & q)
+                                      const Eigen::VectorXd & q)
     {
       data->M.fill(0);
       crba(*model,*data,q);
@@ -35,8 +35,8 @@ namespace se3
     
     static Data::Matrix6x ccrba_proxy(const ModelHandler& model,
                                       DataHandler & data,
-                                      const VectorXd_fx & q,
-                                      const VectorXd_fx & v)
+                                      const Eigen::VectorXd & q,
+                                      const Eigen::VectorXd & v)
     {
       ccrba(*model,*data,q,v);
       return data->Ag;

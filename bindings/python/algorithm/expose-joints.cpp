@@ -23,43 +23,43 @@ namespace se3
   namespace python
   {
     static Eigen::VectorXd integrate_proxy(const ModelHandler & model,
-                                           const VectorXd_fx & q,
-                                           const VectorXd_fx & v)
+                                           const Eigen::VectorXd & q,
+                                           const Eigen::VectorXd & v)
     {
       return integrate(*model,q,v);
     }
     
     static Eigen::VectorXd interpolate_proxy(const ModelHandler & model,
-                                             const VectorXd_fx & q1,
-                                             const VectorXd_fx & q2,
+                                             const Eigen::VectorXd & q1,
+                                             const Eigen::VectorXd & q2,
                                              const double u)
     {
       return interpolate(*model,q1,q2,u);
     }
     
     static Eigen::VectorXd differentiate_proxy(const ModelHandler & model,
-                                               const VectorXd_fx & q1,
-                                               const VectorXd_fx & q2)
+                                               const Eigen::VectorXd & q1,
+                                               const Eigen::VectorXd & q2)
     {
       return differentiate(*model,q1,q2);
     }
     
     static Eigen::VectorXd distance_proxy(const ModelHandler & model,
-                                          const VectorXd_fx & q1,
-                                          const VectorXd_fx & q2)
+                                          const Eigen::VectorXd & q1,
+                                          const Eigen::VectorXd & q2)
     {
       return distance(*model,q1,q2);
     }
     
     static Eigen::VectorXd randomConfiguration_proxy(const ModelHandler & model,
-                                                     const VectorXd_fx & lowerPosLimit,
-                                                     const VectorXd_fx & upperPosLimit)
+                                                     const Eigen::VectorXd & lowerPosLimit,
+                                                     const Eigen::VectorXd & upperPosLimit)
     {
       return randomConfiguration(*model, lowerPosLimit, upperPosLimit);
     }
 
     static void normalize_proxy(const ModelHandler & model,
-                                VectorXd_fx & config)
+                                Eigen::VectorXd & config)
     {
       Eigen::VectorXd q(config);
       normalize(*model, q);
@@ -67,8 +67,8 @@ namespace se3
     }
 
     static bool isSameConfiguration_proxy(const ModelHandler & model,
-                                          const VectorXd_fx & q1,
-                                          const VectorXd_fx & q2)
+                                          const Eigen::VectorXd & q1,
+                                          const Eigen::VectorXd & q2)
     {
       return isSameConfiguration(*model, q1, q2);
     }

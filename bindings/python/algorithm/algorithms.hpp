@@ -29,10 +29,6 @@ namespace se3
 {
   namespace python
   {
-   
-    typedef eigenpy::UnalignedEquivalent<Eigen::VectorXd>::type VectorXd_fx;
-    typedef eigenpy::UnalignedEquivalent<Eigen::MatrixXd>::type MatrixXd_fx;
-
     void exposeJointsAlgo();
     void exposeABA();
     void exposeCRBA();

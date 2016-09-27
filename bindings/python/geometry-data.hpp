@@ -22,7 +22,6 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-#include "pinocchio/bindings/python/se3.hpp"
 #include "pinocchio/bindings/python/eigen_container.hpp"
 #include "pinocchio/bindings/python/handler.hpp"
 #include "pinocchio/bindings/python/data.hpp"
@@ -84,7 +83,6 @@ namespace se3
     struct GeometryDataPythonVisitor
       : public boost::python::def_visitor< GeometryDataPythonVisitor >
     {
-      typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
       
       /* --- Convert From C++ to Python ------------------------------------- */
       // static PyObject* convert(Model const& modelConstRef)

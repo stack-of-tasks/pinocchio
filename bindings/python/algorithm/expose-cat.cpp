@@ -24,8 +24,8 @@ namespace se3
   {
     static void computeAllTerms_proxy(const ModelHandler & model,
                                       DataHandler & data,
-                                      const VectorXd_fx & q,
-                                      const VectorXd_fx & v)
+                                      const Eigen::VectorXd & q,
+                                      const Eigen::VectorXd & v)
     {
       data->M.fill(0);
       computeAllTerms(*model,*data,q,v);

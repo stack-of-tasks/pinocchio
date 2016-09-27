@@ -30,7 +30,7 @@ namespace se3
                                                DataHandler & data,
                                                const GeometryModelHandler & geom_model,
                                                GeometryDataHandler & geom_data,
-                                               const VectorXd_fx & q
+                                               const Eigen::VectorXd & q
                                                )
     {
       return updateGeometryPlacements(*model, *data, *geom_model, *geom_data, q);
@@ -56,7 +56,7 @@ namespace se3
                                                    DataHandler & data,
                                                    const GeometryModelHandler & model_geom,
                                                    GeometryDataHandler & data_geom,
-                                                   const VectorXd_fx & q,
+                                                   const Eigen::VectorXd & q,
                                                    const bool stopAtFirstCollision)
     {
       return computeCollisions(*model,*data,*model_geom, *data_geom, q, stopAtFirstCollision);

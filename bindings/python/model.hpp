@@ -25,11 +25,8 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/bindings/python/se3.hpp"
 #include "pinocchio/bindings/python/eigen_container.hpp"
 #include "pinocchio/bindings/python/handler.hpp"
-#include "pinocchio/bindings/python/motion.hpp"
-#include "pinocchio/bindings/python/inertia.hpp"
 
 
 namespace se3
@@ -47,21 +44,18 @@ namespace se3
       typedef Model::Index Index;
       typedef Model::JointIndex JointIndex;
       typedef Model::FrameIndex FrameIndex;
-      typedef eigenpy::UnalignedEquivalent<Motion>::type Motion_fx;
-      typedef eigenpy::UnalignedEquivalent<SE3>::type SE3_fx;
-      typedef eigenpy::UnalignedEquivalent<Inertia>::type Inertia_fx;
 
     protected:
       struct addJointVisitor : public boost::static_visitor<Model::Index>
       {
         ModelHandler & m_model;
         const JointIndex m_parent_id;
-        const SE3_fx & m_joint_placement;
+        const SE3 & m_joint_placement;
         const std::string & m_joint_name;
         
         addJointVisitor(ModelHandler & model,
                         const JointIndex parent_id,
-                        const SE3_fx & joint_placement,
+                        const SE3 & joint_placement,
                         const std::string & joint_name)
         : m_model(model)
         , m_parent_id(parent_id)
@@ -146,7 +140,7 @@ namespace se3
           .def("getFrameId",&ModelPythonVisitor::getFrameId,bp::args("name"),"Returns the index of the frame given by its name. If the frame is not in the frames vector, it returns the current size of the frames vector.")
           .def("existFrame",&ModelPythonVisitor::existFrame,bp::args("name"),"Returns true if the frame given by its name exists inside the Model.")
 
-          .def("addFrame",(bool (*)(ModelHandler&,const std::string &,const JointIndex, const FrameIndex, const SE3_fx &,const FrameType &)) &ModelPythonVisitor::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
+          .def("addFrame",(bool (*)(ModelHandler&,const std::string &,const JointIndex, const FrameIndex, const SE3 &,const FrameType &)) &ModelPythonVisitor::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
           .def("addFrame",(bool (*)(ModelHandler&,const Frame &)) &ModelPythonVisitor::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
 
           .def("createData",&ModelPythonVisitor::createData)
@@ -177,12 +171,12 @@ namespace se3
       static std::vector<Model::IndexVector> & subtrees(ModelHandler & m) { return m->subtrees; }
 
       static Motion gravity( ModelHandler & m ) { return m->gravity; }
-      static void setGravity( ModelHandler & m,const Motion_fx & g ) { m->gravity = g; }
+      static void setGravity( ModelHandler & m,const Motion & g ) { m->gravity = g; }
 
       static JointIndex addJoint(ModelHandler & model,
                                  JointIndex parent_id,
                                  bp::object jmodel,
-                                 const SE3_fx & joint_placement,
+                                 const SE3 & joint_placement,
                                  const std::string & joint_name)
       {
         JointModelVariant jmodel_variant = bp::extract<JointModelVariant> (jmodel);
@@ -196,13 +190,13 @@ namespace se3
 
       static void appendBodyToJoint(ModelHandler & model,
                                     const JointIndex joint_parent_id,
-                                    const Inertia_fx & inertia,
-                                    const SE3_fx & body_placement)
+                                    const Inertia & inertia,
+                                    const SE3 & body_placement)
       {
         model->appendBodyToJoint(joint_parent_id,inertia,body_placement);
       }
 
-      static bool addBodyFrame( ModelHandler & m, const std::string & bodyName, const JointIndex parentJoint, const SE3_fx & bodyPlacement, int previousFrame)
+      static bool addBodyFrame( ModelHandler & m, const std::string & bodyName, const JointIndex parentJoint, const SE3 & bodyPlacement, int previousFrame)
       {
         return m->addBodyFrame(bodyName,parentJoint,bodyPlacement,previousFrame);
       }
@@ -225,7 +219,7 @@ namespace se3
       { return m->existFrame(frame_name); }
 
       static bool addFrame(ModelHandler & m, const Frame & frame) { return m->addFrame(frame); }
-      static bool addFrame( ModelHandler & m, const std::string & frameName, const JointIndex parentJoint, const FrameIndex parentFrame, const SE3_fx & placementWrtParent, const FrameType & type)
+      static bool addFrame( ModelHandler & m, const std::string & frameName, const JointIndex parentJoint, const FrameIndex parentFrame, const SE3 & placementWrtParent, const FrameType & type)
       {
         return m->addFrame(Frame(frameName,parentJoint,parentFrame,placementWrtParent,type));
       }

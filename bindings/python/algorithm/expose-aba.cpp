@@ -25,9 +25,9 @@ namespace se3
     
     static Eigen::MatrixXd aba_proxy(const ModelHandler & model,
                               DataHandler & data,
-                              const VectorXd_fx & q,
-                              const VectorXd_fx & v,
-                              const VectorXd_fx & tau)
+                              const Eigen::VectorXd & q,
+                              const Eigen::VectorXd & v,
+                              const Eigen::VectorXd & tau)
     {
       aba(*model,*data,q,v,tau);
       return data->ddq;

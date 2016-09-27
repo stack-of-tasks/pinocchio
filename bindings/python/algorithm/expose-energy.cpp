@@ -24,8 +24,8 @@ namespace se3
   {
     static double kineticEnergy_proxy(const ModelHandler & model,
                                       DataHandler & data,
-                                      const VectorXd_fx & q,
-                                      const VectorXd_fx & v,
+                                      const Eigen::VectorXd & q,
+                                      const Eigen::VectorXd & v,
                                       const bool update_kinematics = true)
     {
       return kineticEnergy(*model,*data,q,v,update_kinematics);
@@ -33,7 +33,7 @@ namespace se3
     
     static double potentialEnergy_proxy(const ModelHandler & model,
                                         DataHandler & data,
-                                        const VectorXd_fx & q,
+                                        const Eigen::VectorXd & q,
                                         const bool update_kinematics = true)
     {
       return potentialEnergy(*model,*data,q,update_kinematics);
