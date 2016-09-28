@@ -158,10 +158,10 @@ IF(APPLE)
 ENDIF(APPLE)
 
 SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bindings/python/lib")
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
 
 INSTALL(FILES
-  "${CMAKE_BINARY_DIR}/bindings/python/lib/lib${PYWRAP}.so"
+  "${CMAKE_BINARY_DIR}/bindings/python/${PROJECT_NAME}/lib${PYWRAP}.so"
   DESTINATION ${${PYWRAP}_INSTALL_DIR})
 
 # --- INSTALL SCRIPTS 
@@ -177,27 +177,28 @@ SET(PYTHON_FILES
 FOREACH(python ${PYTHON_FILES})
   GET_FILENAME_COMPONENT(pythonFile ${python} NAME)
   EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
-    ${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/${python}
-    ${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${pythonFile})
+    ${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/scripts/${python}
+    ${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}/${pythonFile})
     
-  # Tag pyc file as generated.
-  SET_SOURCE_FILES_PROPERTIES(
-    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${pythonFile}c"
-    PROPERTIES GENERATED TRUE)
-    
+  # Generate pyc file
   EXECUTE_PROCESS(COMMAND
     ${PYTHON_EXECUTABLE} -m py_compile
-    ${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${pythonFile})
+    ${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}/${pythonFile})
+  # Tag pyc file as generated.
+  SET_SOURCE_FILES_PROPERTIES(
+    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}/${pythonFile}c"
+    PROPERTIES GENERATED TRUE)
+    
     
   # Clean generated files.
   SET_PROPERTY(
     DIRECTORY APPEND PROPERTY
     ADDITIONAL_MAKE_CLEAN_FILES
-    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${pythonFile}c")
+    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}/${pythonFile}c")
     
   INSTALL(FILES
-    "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/${python}"
-    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${pythonFile}c"
+    "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/scripts/${python}"
+    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}/${pythonFile}c"
     DESTINATION ${${PYWRAP}_INSTALL_DIR})
 ENDFOREACH(python)
 
