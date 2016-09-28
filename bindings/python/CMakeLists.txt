@@ -83,14 +83,6 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   geometry-data.hpp
   )
 
-SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
-  parsers/python.hpp
-  )
-
-SET(${PROJECT_NAME}_PARSER_PYTHON_SOURCES
-  parsers/python/model.cpp
-  )
-
 SET(${PROJECT_NAME}_PYTHON_SOURCES
   module.cpp
   expose-SE3.cpp
@@ -103,6 +95,7 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   expose-model.cpp
   expose-data.cpp
   expose-parsers.cpp
+  expose-geometry.cpp
   algorithm/expose-algorithms.cpp
   algorithm/expose-com.cpp
   algorithm/expose-kinematics.cpp
@@ -115,17 +108,15 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   algorithm/expose-energy.cpp
   algorithm/expose-frames.cpp
   algorithm/expose-cat.cpp
-  )
-
-LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
-  geometry-object.hpp
-  geometry-model.hpp
-  geometry-data.hpp
-  )
-
-LIST(APPEND ${PROJECT_NAME}_PYTHON_SOURCES
-  expose-geometry.cpp
   algorithm/expose-geometry.cpp
+  )
+
+SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
+  parsers/python.hpp
+  )
+
+SET(${PROJECT_NAME}_PARSER_PYTHON_SOURCES
+  parsers/python/model.cpp
   )
 
 LIST(APPEND HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
