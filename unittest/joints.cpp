@@ -594,50 +594,6 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 
 BOOST_AUTO_TEST_SUITE_END ()
 
-
-
-BOOST_AUTO_TEST_SUITE ( JointDense )
-
-BOOST_AUTO_TEST_CASE ( toJointModelDense )
-{
-  using namespace se3;
-
-  JointModelRX jmodel;
-  jmodel.setIndexes (2, 0, 0);
-
-  JointModelDense<JointModelBase<JointModelRX>::NQ, JointModelBase<JointModelRX>::NV> jmd(jmodel.id(), jmodel.idx_q(), jmodel.idx_v());
-  JointModelDense<JointModelBase<JointModelRX>::NQ, JointModelBase<JointModelRX>::NV> jmd2 = jmodel.toDense();
-  (void)jmd; (void)jmd2;
-
-  BOOST_CHECK_MESSAGE(jmd.idx_q() == jmodel.idx_q() , "The comparison of the joint index in configuration space failed");
-  BOOST_CHECK_MESSAGE(jmd.idx_q() == jmd2.idx_q() , "The comparison of the joint index in  configuration space failed");
-
-  BOOST_CHECK_MESSAGE(jmd.idx_v() == jmodel.idx_v() , "The comparison of the joint index in velocity space failed");
-  BOOST_CHECK_MESSAGE(jmd.idx_v() == jmd2.idx_v() , "The comparison of the joint index in  velocity space failed");
-
-  BOOST_CHECK_MESSAGE(jmd.id() == jmodel.id() , "The comparison of the joint index in model's kinematic tree failed");
-  BOOST_CHECK_MESSAGE(jmd.id() == jmd2.id() , "The comparison of the joint index in model's kinematic tree failed");
-
-}
-
-BOOST_AUTO_TEST_CASE ( toJointDataDense )
-{
-  using namespace se3;
-
-  JointModelRX jmodel;
-  jmodel.setIndexes (2, 0, 0);
-
-  JointDataRX jdata = jmodel.createData();
-
-  JointDataDense< JointDataBase<JointModelRX::JointDataDerived>::NQ,
-                  JointDataBase<JointModelRX::JointDataDerived>::NV
-                  > jdd = jdata.toDense();
-
-  BOOST_CHECK(ConstraintXd(jdata.S).matrix().isApprox(jdd.S.matrix()));
-
-}
-BOOST_AUTO_TEST_SUITE_END ()
-
 BOOST_AUTO_TEST_SUITE (JointPlanar)
 
 BOOST_AUTO_TEST_CASE (vsFreeFlyer)

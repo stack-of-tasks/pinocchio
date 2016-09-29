@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -20,7 +20,6 @@
 #define __se3_joint_translation_hpp__
 
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
@@ -263,10 +262,6 @@ namespace se3
 
     JointDataTranslation () : M(1), U(), Dinv(), UDinv() {}
 
-    JointDataDense<NQ, NV> toDense_impl() const
-    {
-      return JointDataDense<NQ, NV>(S, M, v, c, F, U, Dinv, UDinv);
-    }
   }; // struct JointDataTranslation
 
   struct JointModelTranslation : public JointModelBase<JointModelTranslation>
@@ -385,11 +380,6 @@ namespace se3
       return q_1.isApprox(q_2, prec);
     } 
     
-    JointModelDense<NQ,NV> toDense_impl() const
-    {
-      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
-    }
-
     static std::string classname() { return std::string("JointModelTranslation"); }
     std::string shortname() const { return classname(); }
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -21,7 +21,6 @@
 
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/math/fwd.hpp"
@@ -186,10 +185,6 @@ namespace se3
     
     JointDataFreeFlyer() : M(1), U(), Dinv(), UDinv(UD_t::Identity()) {}
 
-    JointDataDense<NQ, NV> toDense_impl() const
-    {
-      return JointDataDense<NQ, NV>(S, M, v, c, F, U, Dinv, UDinv);
-    }
   }; // struct JointDataFreeFlyer
 
   struct JointModelFreeFlyer : public JointModelBase<JointModelFreeFlyer>
@@ -381,11 +376,6 @@ namespace se3
       ConstQuaternionMap_t quat2(q_2.tail<4> ().data());
 
       return ( q_1.head<3>().isApprox(q_2.head<3>(), prec) && defineSameRotation(quat1,quat2) );
-    }
-
-    JointModelDense<NQ,NV> toDense_impl() const
-    {
-      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
     }
 
     static std::string classname() { return std::string("JointModelFreeFlyer"); }

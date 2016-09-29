@@ -22,7 +22,6 @@
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/joint/joint-dense.hpp"
 
 #include <stdexcept>
 
@@ -410,10 +409,6 @@ namespace se3
     JointDataRevolute() : M(1), U(), Dinv(), UDinv()
     {}
 
-    JointDataDense<NQ, NV> toDense_impl() const
-    {
-      return JointDataDense<NQ, NV>(S, M, v, c, F, U, Dinv, UDinv);
-    }
   }; // struct JointDataRevolute
 
   template<int axis>
@@ -539,11 +534,6 @@ namespace se3
       q << 0;
       return q;
     } 
-
-    JointModelDense<NQ,NV> toDense_impl() const
-    {
-      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
-    }
 
     static std::string classname();
     std::string shortname() const { return classname(); }

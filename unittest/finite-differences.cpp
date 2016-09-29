@@ -127,9 +127,6 @@ void FiniteDiffJoint::init<JointModelPrismaticUnaligned>(JointModelBase<JointMod
 }
 
 template<>
-void FiniteDiffJoint::operator()< JointModelDense<-1,-1> > (JointModelBase< JointModelDense<-1,-1> > & /*jmodel*/) const {}
-
-template<>
 void FiniteDiffJoint::operator()< JointModelComposite > (JointModelBase<JointModelComposite> & ) const
 {
   typedef typename JointModel::ConfigVector_t CV;

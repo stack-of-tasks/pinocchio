@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -167,10 +167,6 @@ namespace se3
   using Base::idx_v
 
 
-  template <int _NQ, int _NV> struct JointDataDense;
-  template <int _NQ, int _NV> struct JointModelDense;
-  template <int _NQ, int _NV> struct JointDense;
-
   template<typename _JointData>
   struct JointDataBase
   {
@@ -194,8 +190,6 @@ namespace se3
     U_t & U() { return static_cast<JointDataDerived*>(this)->U; }
     const D_t & Dinv() const { return static_cast<const JointDataDerived*>(this)->Dinv; }
     const UD_t & UDinv() const { return static_cast<const JointDataDerived*>(this)->UDinv; }
-
-    JointDataDense<NQ, NV> toDense() const  { return static_cast<const JointDataDerived*>(this)->toDense_impl();   }
 
   protected:
     /// Default constructor: protected.
@@ -481,8 +475,6 @@ namespace se3
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
     jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
 
-    JointModelDense<NQ, NV> toDense() const  { return derived().toDense_impl();   }
-    
   protected:
 
     /// Default constructor: protected.

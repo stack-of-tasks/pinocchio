@@ -20,7 +20,6 @@
 #define __se3_joint_spherical_hpp__
 
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -248,10 +247,6 @@ namespace se3
 
     JointDataSpherical () : M(1), U(), Dinv(), UDinv() {}
 
-    JointDataDense<NQ, NV> toDense_impl() const
-    {
-      return JointDataDense<NQ, NV>(S, M, v, c, F, U, Dinv, UDinv);
-    }
   }; // struct JointDataSpherical
 
   struct JointModelSpherical : public JointModelBase<JointModelSpherical>
@@ -407,11 +402,6 @@ namespace se3
       ConstQuaternionMap_t quat2(q_2.data());
 
       return defineSameRotation(quat1,quat2);
-    }
-
-    JointModelDense<NQ,NV> toDense_impl() const
-    {
-      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
     }
 
     static std::string classname() { return std::string("JointModelSpherical"); }

@@ -20,7 +20,6 @@
 
 #include "pinocchio/exception.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 
 namespace se3

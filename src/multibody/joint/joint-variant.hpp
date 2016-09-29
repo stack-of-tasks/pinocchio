@@ -19,7 +19,6 @@
 #define __se3_joint_variant_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
-#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/joint/joint-free-flyer.hpp"
 #include "pinocchio/multibody/joint/joint-planar.hpp"
 #include "pinocchio/multibody/joint/joint-prismatic.hpp"
@@ -45,11 +44,11 @@ namespace se3
   typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned, JointModelSpherical,
                           JointModelSphericalZYX, JointModelPX, JointModelPY, JointModelPZ,
                           JointModelPrismaticUnaligned, JointModelFreeFlyer, JointModelPlanar, JointModelTranslation,
-                          JointModelDense<-1,-1> ,JointModelRUBX, JointModelRUBY, JointModelRUBZ,
+                          JointModelRUBX, JointModelRUBY, JointModelRUBZ,
                           boost::recursive_wrapper<JointModelComposite> >JointModelVariant;
   typedef boost::variant< JointDataRX, JointDataRY, JointDataRZ, JointDataRevoluteUnaligned, JointDataSpherical,
                           JointDataSphericalZYX, JointDataPX, JointDataPY, JointDataPZ, JointDataPrismaticUnaligned,
-                          JointDataFreeFlyer, JointDataPlanar, JointDataTranslation, JointDataDense<-1,-1>,
+                          JointDataFreeFlyer, JointDataPlanar, JointDataTranslation,
                           JointDataRUBX, JointDataRUBY, JointDataRUBZ,
                           boost::recursive_wrapper<JointDataComposite> > JointDataVariant;
 
