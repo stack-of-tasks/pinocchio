@@ -167,7 +167,6 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-translation.hpp
   multibody/joint/joint-free-flyer.hpp
   multibody/joint/joint-variant.hpp
-  multibody/joint/joint-generic.hpp
   multibody/joint/joint.hpp
   multibody/joint/joint-basic-visitors.hpp
   multibody/joint/joint-basic-visitors.hxx
