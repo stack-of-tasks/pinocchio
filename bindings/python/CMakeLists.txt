@@ -44,8 +44,9 @@ MACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
     EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
       ${CMAKE_CURRENT_SOURCE_DIR}/${header}
       ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/${SUBPATH}/${header})
+
     INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${header}
-      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/SUBPATH
+      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${SUBPATH}/${headerPath}
             PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
   ENDFOREACH(header)
 ENDMACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
@@ -57,7 +58,8 @@ FOREACH(dep ${PKG_CONFIG_PYWRAP_REQUIRES})
 ENDFOREACH(dep ${PKG_CONFIG_PYWRAP_REQUIRES})
 
 # --- LIBRARY --- #
-SET(${PYWRAP}_INSTALL_DIR "${PYTHON_SITELIB}/${PROJECT_NAME}")
+SET(${PYWRAP}_INSTALL_DIR ${PYTHON_SITELIB}/${PROJECT_NAME})
+MESSAGE(STATUS ${${PYWRAP}_INSTALL_DIR})
 
 SET(${PROJECT_NAME}_PYTHON_HEADERS
   eigen_container.hpp
@@ -82,14 +84,6 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   geometry-data.hpp
   )
 
-SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
-  parsers/python.hpp
-  )
-
-SET(${PROJECT_NAME}_PARSER_PYTHON_SOURCES
-  parsers/python/model.cpp
-  )
-
 SET(${PROJECT_NAME}_PYTHON_SOURCES
   module.cpp
   expose-SE3.cpp
@@ -102,6 +96,7 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   expose-model.cpp
   expose-data.cpp
   expose-parsers.cpp
+  expose-geometry.cpp
   algorithm/expose-algorithms.cpp
   algorithm/expose-com.cpp
   algorithm/expose-kinematics.cpp
@@ -114,17 +109,15 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   algorithm/expose-energy.cpp
   algorithm/expose-frames.cpp
   algorithm/expose-cat.cpp
-  )
-
-LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
-  geometry-object.hpp
-  geometry-model.hpp
-  geometry-data.hpp
-  )
-
-LIST(APPEND ${PROJECT_NAME}_PYTHON_SOURCES
-  expose-geometry.cpp
   algorithm/expose-geometry.cpp
+  )
+
+SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
+  parsers/python.hpp
+  )
+
+SET(${PROJECT_NAME}_PARSER_PYTHON_SOURCES
+  parsers/python/model.cpp
   )
 
 LIST(APPEND HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
@@ -158,10 +151,10 @@ IF(APPLE)
 ENDIF(APPLE)
 
 SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bindings/python/lib")
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
 
 INSTALL(FILES
-  "${CMAKE_BINARY_DIR}/bindings/python/lib/lib${PYWRAP}.so"
+  "${CMAKE_BINARY_DIR}/bindings/python/${PROJECT_NAME}/lib${PYWRAP}.so"
   DESTINATION ${${PYWRAP}_INSTALL_DIR})
 
 # --- INSTALL SCRIPTS 
@@ -177,27 +170,28 @@ SET(PYTHON_FILES
 FOREACH(python ${PYTHON_FILES})
   GET_FILENAME_COMPONENT(pythonFile ${python} NAME)
   EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
-    ${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/${python}
-    ${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${pythonFile})
+    ${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/scripts/${python}
+    ${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}/${pythonFile})
     
-  # Tag pyc file as generated.
-  SET_SOURCE_FILES_PROPERTIES(
-    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${pythonFile}c"
-    PROPERTIES GENERATED TRUE)
-    
+  # Generate pyc file
   EXECUTE_PROCESS(COMMAND
     ${PYTHON_EXECUTABLE} -m py_compile
-    ${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${pythonFile})
+    ${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}/${pythonFile})
+  # Tag pyc file as generated.
+  SET_SOURCE_FILES_PROPERTIES(
+    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}/${pythonFile}c"
+    PROPERTIES GENERATED TRUE)
+    
     
   # Clean generated files.
   SET_PROPERTY(
     DIRECTORY APPEND PROPERTY
     ADDITIONAL_MAKE_CLEAN_FILES
-    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${pythonFile}c")
+    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}/${pythonFile}c")
     
   INSTALL(FILES
-    "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/${python}"
-    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${pythonFile}c"
+    "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/scripts/${python}"
+    "${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}/${pythonFile}c"
     DESTINATION ${${PYWRAP}_INSTALL_DIR})
 ENDFOREACH(python)
 
