@@ -85,7 +85,7 @@ def isapprox(a, b, epsilon=1e-6):
     return abs(a - b) < epsilon
 
 
-def mprint(M, name="ans"):
+def mprint(M, name="ans",eps=1e-15):
     '''
     Matlab-style pretty matrix print.
     '''
@@ -96,10 +96,12 @@ def mprint(M, name="ans"):
     print name, " = "
     print
 
-    Mm = abs(M[np.nonzero(M)]).min()
-    MM = abs(M[np.nonzero(M)]).max()
+    Mmin = lambda M: M.min() if np.nonzero(M)[1].shape[1]>0 else M.sum()
+    Mmax = lambda M: M.max() if np.nonzero(M)[1].shape[1]>0 else M.sum()
+    Mm = Mmin(abs(M[np.nonzero(M)]))
+    MM = Mmax(abs(M[np.nonzero(M)]))
 
-    fmt = "%.4e" if Mm < 1e-2 or MM > 1e6 or MM / Mm > 1e3 else "% 1.5f"
+    fmt = "% 10.3e" if Mm < 1e-5 or MM > 1e6 or MM / Mm > 1e3 else "% 1.5f"
 
     for i in range((ncol - 1) / NC + 1):
         cmin = i * 6
@@ -110,7 +112,8 @@ def mprint(M, name="ans"):
         for r in range(M.shape[0]):
             sys.stdout.write("  ")
             for c in range(cmin, cmax):
-                sys.stdout.write(fmt % M[r, c] + "   ")
+                if abs(M[r,c])>eps: sys.stdout.write(fmt % M[r,c]  + "   ")
+                else: sys.stdout.write(" 0"+" "*9)
             print
         print
 
