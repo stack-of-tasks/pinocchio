@@ -272,10 +272,12 @@ namespace se3
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
     {
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
-      using std::sqrt;
+      //using std::sqrt;
+      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
 
       ConstQuaternionMap_t quat(q_joint.derived().data());
-      assert(std::fabs(quat.coeffs().norm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon()));
+      //assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
+      assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= 1e-4);
       
       M.rotation(quat.matrix());
       M.translation().setZero();
