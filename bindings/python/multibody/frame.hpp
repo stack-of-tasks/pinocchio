@@ -53,21 +53,16 @@ namespace se3
           .def_readwrite("name", &Frame::name, "name  of the frame")
           .def_readwrite("parent", &Frame::parent, "id of the parent joint")
           .def_readwrite("previousFrame", &Frame::previousFrame, "id of the previous frame") 
-          .add_property("placement", 
-                        &FramePythonVisitor::getPlacementWrtParentJoint, 
-                        &FramePythonVisitor::setPlacementWrtParentJoint, 
-                        "placement in the parent joint local frame")
+          .def_readwrite("placement",
+                         &Frame::placement,
+                         "placement in the parent joint local frame")
           .def_readwrite("type", &Frame::type, "type of the frame")
 
           .def(bp::self_ns::str(bp::self_ns::self))
           .def(bp::self_ns::repr(bp::self_ns::self))
           ;
       }
-
-
-      static SE3 getPlacementWrtParentJoint(const Frame & self) { return self.placement; }
-      static void setPlacementWrtParentJoint(Frame & self, const SE3 & placement) { self.placement = placement; }
-
+      
       static void expose()
       {
         bp::enum_<FrameType>("FrameType")
