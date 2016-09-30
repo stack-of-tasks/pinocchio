@@ -26,6 +26,7 @@
 #include "pinocchio/bindings/python/se3.hpp"
 #include "pinocchio/multibody/frame.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/container/aligned-vector.hpp"
 
 namespace se3
 {
@@ -92,7 +93,7 @@ namespace se3
     
 //        bp::to_python_converter< Frame,FramePythonVisitor >();
         bp::class_< std::vector<Frame> >("StdVec_Frame")
-        .def(bp::vector_indexing_suite< std::vector<Frame> >());
+        .def(bp::vector_indexing_suite< container::aligned_vector<Frame> >());
       }
 
 

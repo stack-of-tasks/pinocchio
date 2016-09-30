@@ -21,6 +21,7 @@
 
 #include "pinocchio/multibody/fcl.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/container/aligned-vector.hpp"
 
 #include <iostream>
 
@@ -36,12 +37,13 @@ namespace se3
   
   struct GeometryModel
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     /// \brief The number of GeometryObjects
     Index ngeoms;
 
     /// \brief Vector of GeometryObjects used for collision computations
-    std::vector<GeometryObject> geometryObjects;
+    container::aligned_vector<GeometryObject> geometryObjects;
     ///
     /// \brief Vector of collision pairs.
     ///
@@ -155,6 +157,8 @@ namespace se3
 
   struct GeometryData
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
@@ -162,7 +166,7 @@ namespace se3
     /// oMg is used for pinocchio (kinematics) computation but is translated to fcl type
     /// for fcl (collision) computation. The copy is done in collisionObjects[i]->setTransform(.)
     ///
-    std::vector<se3::SE3> oMg;
+    container::aligned_vector<se3::SE3> oMg;
 
 #ifdef WITH_HPP_FCL
     ///

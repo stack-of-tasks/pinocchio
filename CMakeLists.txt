@@ -212,6 +212,10 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/default-check.hpp
   )
 
+SET(${PROJECT_NAME}_CONTAINER_HEADERS
+  container/aligned-vector.hpp
+  )
+
 SET(${PROJECT_NAME}_PARSERS_HEADERS
   parsers/sample-models.hpp
   parsers/utils.hpp
@@ -265,6 +269,7 @@ SET(HEADERS
   ${${PROJECT_NAME}_MULTIBODY_HEADERS}
   ${${PROJECT_NAME}_PARSERS_HEADERS}
   ${${PROJECT_NAME}_ALGORITHM_HEADERS}
+  ${${PROJECT_NAME}_CONTAINER_HEADERS}
   exception.hpp
   assert.hpp
  )
@@ -280,6 +285,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/container")
 
 FOREACH(header ${HEADERS})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)

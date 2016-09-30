@@ -157,7 +157,7 @@ namespace se3
         return new GeometryDataHandler(new GeometryData(*geometry_model), true);
       }
 
-      static std::vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
+      static container::aligned_vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
 #ifdef WITH_HPP_FCL      
       static std::vector<bool> & activeCollisionPairs(GeometryDataHandler & m) { return m->activeCollisionPairs; }
       static fcl::DistanceRequest & distanceRequest( GeometryDataHandler & m ) { return m->distanceRequest; }

@@ -112,7 +112,7 @@ namespace se3
       { return gmodelPtr->existGeometryName(name);}
 
       
-      static std::vector<GeometryObject> & geometryObjects( GeometryModelHandler & m ) { return m->geometryObjects; }
+      static container::aligned_vector<GeometryObject> & geometryObjects( GeometryModelHandler & m ) { return m->geometryObjects; }
       static GeomIndex addGeometryObject( GeometryModelHandler & m, GeometryObject gobject, const ModelHandler & model, const bool autofillJointParent)
       { return m-> addGeometryObject(gobject, *model, autofillJointParent); }
 

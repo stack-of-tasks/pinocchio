@@ -29,15 +29,10 @@
 #include "pinocchio/multibody/joint/joint.hpp"
 #include "pinocchio/deprecated.hh"
 #include "pinocchio/tools/string-generator.hpp"
+#include "pinocchio/container/aligned-vector.hpp"
 
 #include <iostream>
 #include <Eigen/Cholesky>
-
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Inertia)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Force)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,Eigen::Dynamic>)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix<double,6,6>)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::SE3::Vector3)
 
 namespace se3
 {
@@ -66,10 +61,10 @@ namespace se3
     int nframes;
 
     /// \brief Spatial inertias of the body <i> expressed in the supporting joint frame <i>.
-    std::vector<Inertia> inertias;
+    container::aligned_vector<Inertia> inertias;
     
     /// \brief Placement (SE3) of the input of joint <i> regarding to the parent joint output <li>.
-    std::vector<SE3> jointPlacements;
+    container::aligned_vector<SE3> jointPlacements;
 
     /// \brief Model of joint <i>, encapsulated in a JointModelAccessor.
     JointModelVector joints;
@@ -94,7 +89,7 @@ namespace se3
     Eigen::VectorXd upperPositionLimit;
 
     /// \brief Vector of operational frames registered on the model.
-    std::vector<Frame> frames;
+    container::aligned_vector<Frame> frames;
     
     /// \brief Vector of subtrees.
     /// subtree[j] corresponds to the subtree supported by the joint j.
@@ -365,23 +360,23 @@ namespace se3
     JointDataVector joints;
     
     /// \brief Vector of joint accelerations.
-    std::vector<Motion> a;
+    container::aligned_vector<Motion> a;
     
     /// \brief Vector of joint accelerations due to the gravity field.
-    std::vector<Motion> a_gf;
+    container::aligned_vector<Motion> a_gf;
     
     /// \brief Vector of joint velocities.
-    std::vector<Motion> v;
+    container::aligned_vector<Motion> v;
     
     /// \brief Vector of body forces. For each body, the force represents the sum of
     ///        all external forces acting on the body.
-    std::vector<Force> f;
+    container::aligned_vector<Force> f;
     
     /// \brief Vector of absolute joint placements (wrt the world).
-    std::vector<SE3> oMi;
+    container::aligned_vector<SE3> oMi;
 
     /// \brief Vector of relative joint placements (wrt the body parent).
-    std::vector<SE3> liMi;
+    container::aligned_vector<SE3> liMi;
     
     /// \brief Vector of joint torques (dim model.nv).
     Eigen::VectorXd tau;
@@ -392,10 +387,10 @@ namespace se3
     Eigen::VectorXd nle;
 
     /// \brief Vector of absolute operationnel frame placements (wrt the world).
-    std::vector<SE3> oMf;
+    container::aligned_vector<SE3> oMf;
 
     /// \brief Vector of sub-tree composite rigid body inertias, i.e. the apparent inertia of the subtree supported by the joint.
-    std::vector<Inertia> Ycrb;
+    container::aligned_vector<Inertia> Ycrb;
     
     /// \brief The joint space inertia matrix (a square matrix of dim model.nv).
     Eigen::MatrixXd M;
@@ -405,7 +400,7 @@ namespace se3
     
     // ABA internal data
     /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA]
-    std::vector<Inertia::Matrix6> Yaba;
+    container::aligned_vector<Inertia::Matrix6> Yaba;
     
     /// \brief Intermediate quantity corresponding to apparent torque [ABA]
     Eigen::VectorXd u;                  // Joint Inertia
@@ -425,7 +420,7 @@ namespace se3
     Inertia Ig;
 
     /// \brief Spatial forces set, used in CRBA and CCRBA
-    std::vector<Matrix6x> Fcrb;
+    container::aligned_vector<Matrix6x> Fcrb;
 
     /// \brief Index of the last child (for CRBA)
     std::vector<int> lastChild;
@@ -452,16 +447,16 @@ namespace se3
     Matrix6x J;
     
     /// \brief Vector of joint placements wrt to algorithm end effector.
-    std::vector<SE3> iMf;
+    container::aligned_vector<SE3> iMf;
 
     /// \brief Vector of subtree center of mass positions expressed in the root joint of the subtree. In other words, com[j] is the CoM position of the subtree supported by joint \f$ j \f$ and expressed in the joint frame \f$ j \f$. The element com[0] corresponds to the center of mass position of the whole model and expressed in the global frame.
-    std::vector<Eigen::Vector3d> com;
+    container::aligned_vector<Eigen::Vector3d> com;
     
     /// \brief Vector of subtree center of mass linear velocities expressed in the root joint of the subtree. In other words, vcom[j] is the CoM linear velocity of the subtree supported by joint \f$ j \f$ and expressed in the joint frame \f$ j \f$. The element vcom[0] corresponds to the velocity of the CoM of the whole model expressed in the global frame.
-    std::vector<Eigen::Vector3d> vcom;
+    container::aligned_vector<Eigen::Vector3d> vcom;
     
     /// \brief Vector of subtree center of mass linear accelerations expressed in the root joint of the subtree. In other words, acom[j] is the CoM linear acceleration of the subtree supported by joint \f$ j \f$ and expressed in the joint frame \f$ j \f$. The element acom[0] corresponds to the acceleration of the CoM of the whole model expressed in the global frame.
-    std::vector<Eigen::Vector3d> acom;
+    container::aligned_vector<Eigen::Vector3d> acom;
     
     /// \brief Vector of subtree mass. In other words, mass[j] is the mass of the subtree supported by joint \f$ j \f$. The element mass[0] corrresponds to the total mass of the model.
     std::vector<double> mass;
