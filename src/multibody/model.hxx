@@ -188,7 +188,7 @@ namespace se3
 
   inline Model::FrameIndex Model::getFrameId ( const std::string & name, const FrameType & type ) const
   {
-    std::vector<Frame>::const_iterator it = std::find_if( frames.begin()
+    container::aligned_vector<Frame>::const_iterator it = std::find_if( frames.begin()
                                                         , frames.end()
                                                         , details::FilterFrame (name, type)
                                                         );

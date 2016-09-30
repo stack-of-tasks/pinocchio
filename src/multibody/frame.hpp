@@ -22,6 +22,7 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/tools/string-generator.hpp"
+#include "pinocchio/container/aligned-vector.hpp"
 
 #include <Eigen/StdVector>
 #include <string>
@@ -108,7 +109,5 @@ namespace se3
   }
 
 } // namespace se3
-
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Frame)
 
 #endif // ifndef __se3_frame_hpp__

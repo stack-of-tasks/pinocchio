@@ -21,6 +21,7 @@
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-variant.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
+#include "pinocchio/container/aligned-vector.hpp"
 
 namespace se3
 {
@@ -150,8 +151,8 @@ namespace se3
     void setIndexes(JointIndex id,int nq,int nv) { ::se3::setIndexes(*this,id, nq, nv); }
   };
   
-  typedef std::vector<JointData, Eigen::aligned_allocator<JointData> > JointDataVector;
-  typedef std::vector<JointModel, Eigen::aligned_allocator<JointModel> > JointModelVector;
+  typedef container::aligned_vector<JointData> JointDataVector;
+  typedef container::aligned_vector<JointModel> JointModelVector;
 
 } // namespace se3
 

@@ -74,7 +74,7 @@ namespace se3
   inline GeomIndex GeometryModel::getGeometryId(const std::string & name) const
   {
 
-    std::vector<GeometryObject>::const_iterator it = std::find_if(geometryObjects.begin(),
+    container::aligned_vector<GeometryObject>::const_iterator it = std::find_if(geometryObjects.begin(),
                                                                   geometryObjects.end(),
                                                                   boost::bind(&GeometryObject::name, _1) == name
                                                                   );

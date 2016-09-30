@@ -163,8 +163,8 @@ namespace se3
       static int njoints( ModelHandler & m ) { return m->njoints; }
       static int nbodies( ModelHandler & m ) { return m->nbodies; }
       static int nframes( ModelHandler & m ) { return m->nframes; }
-      static std::vector<Inertia> & inertias( ModelHandler & m ) { return m->inertias; }
-      static std::vector<SE3> & jointPlacements( ModelHandler & m ) { return m->jointPlacements; }
+      static container::aligned_vector<Inertia> & inertias( ModelHandler & m ) { return m->inertias; }
+      static container::aligned_vector<SE3> & jointPlacements( ModelHandler & m ) { return m->jointPlacements; }
       static JointModelVector & joints( ModelHandler & m ) { return m->joints; }
       static std::vector<Model::JointIndex> & parents( ModelHandler & m ) { return m->parents; }
       static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
@@ -173,7 +173,7 @@ namespace se3
       static Eigen::VectorXd velocityLimit(ModelHandler & m) {return m->velocityLimit;}
       static Eigen::VectorXd lowerPositionLimit(ModelHandler & m) {return m->lowerPositionLimit;}
       static Eigen::VectorXd upperPositionLimit(ModelHandler & m) {return m->upperPositionLimit;}
-      static std::vector<Frame> & frames ( ModelHandler & m ) {return m->frames; }
+      static container::aligned_vector<Frame> & frames ( ModelHandler & m ) {return m->frames; }
       static std::vector<Model::IndexVector> & subtrees(ModelHandler & m) { return m->subtrees; }
 
       static Motion gravity( ModelHandler & m ) { return m->gravity; }

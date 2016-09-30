@@ -19,6 +19,7 @@
 #define __se3_fcl_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/container/aligned-vector.hpp"
 
 #ifdef WITH_HPP_FCL
 #include <hpp/fcl/collision_object.h>
@@ -84,7 +85,8 @@ enum GeometryType
 
 struct GeometryObject
 {
-
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
   /// \brief Name of the geometry object
   std::string name;
 
