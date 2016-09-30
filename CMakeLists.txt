@@ -156,7 +156,6 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/fwd.hpp
   multibody/joint/joint-base.hpp
-  multibody/joint/joint-dense.hpp
   multibody/joint/joint-revolute.hpp
   multibody/joint/joint-revolute-unaligned.hpp
   multibody/joint/joint-revolute-unbounded.hpp
@@ -168,7 +167,6 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-translation.hpp
   multibody/joint/joint-free-flyer.hpp
   multibody/joint/joint-variant.hpp
-  multibody/joint/joint-generic.hpp
   multibody/joint/joint.hpp
   multibody/joint/joint-basic-visitors.hpp
   multibody/joint/joint-basic-visitors.hxx

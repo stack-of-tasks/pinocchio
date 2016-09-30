@@ -20,7 +20,6 @@
 #define __se3_joint_prismatic_hpp__
 
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 
@@ -379,11 +378,6 @@ namespace se3
     JointDataPrismatic() : M(1), U(), Dinv(), UDinv()
     {}
 
-    JointDataDense<NQ, NV> toDense_impl() const
-    {
-      return JointDataDense<NQ, NV>(S, M, v, c, F, U, Dinv, UDinv);
-    }
-
   }; // struct JointDataPrismatic
 
   template<int axis>
@@ -505,11 +499,6 @@ namespace se3
       const Scalar & q_2 = q2[idx_q()];
 
       return (fabs(q_1 - q_2) < prec);
-    }
-
-    JointModelDense<NQ,NV> toDense_impl() const
-    {
-      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
     }
 
     static std::string classname();

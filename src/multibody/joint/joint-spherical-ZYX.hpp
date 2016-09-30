@@ -20,7 +20,6 @@
 #define __se3_joint_spherical_ZYX_hpp__
 #include <iostream>
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/joint/joint-dense.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -314,10 +313,6 @@ namespace se3
 
     JointDataSphericalZYX () : M(1), U(), Dinv(), UDinv() {}
     
-    JointDataDense<NQ, NV> toDense_impl() const
-    {
-      return JointDataDense<NQ, NV>(S, M, v, c, F, U, Dinv, UDinv);
-    }
   }; // strcut JointDataSphericalZYX
 
   struct JointModelSphericalZYX : public JointModelBase<JointModelSphericalZYX>
@@ -472,11 +467,6 @@ namespace se3
 
       return q_1.isApprox(q_2, prec);
     } 
-
-    JointModelDense<NQ,NV> toDense_impl() const
-    {
-      return JointModelDense<NQ,NV>(id(),idx_q(),idx_v());
-    }
 
     static std::string classname() { return std::string("JointModelSphericalZYX"); }
     std::string shortname() const { return classname(); }

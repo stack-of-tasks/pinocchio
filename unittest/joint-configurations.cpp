@@ -121,9 +121,6 @@ struct TestIntegrationJoint
 };
 
 template<>
-void TestIntegrationJoint::operator()< JointModelDense<-1,-1> >(JointModelBase< JointModelDense<-1,-1> > & /*jmodel*/) {}
-
-template<>
 void TestIntegrationJoint::operator()< JointModelSphericalZYX >(JointModelBase< JointModelSphericalZYX > & /*jmodel*/) {}
 
 template<>
@@ -224,9 +221,6 @@ struct TestDifferentiationJoint
 };
 
 template<>
-void TestDifferentiationJoint::operator()< JointModelDense<-1,-1> >(JointModelBase< JointModelDense<-1,-1> > & /*jmodel*/) {}
-
-template<>
 void TestDifferentiationJoint::operator()< JointModelSphericalZYX >(JointModelBase< JointModelSphericalZYX > & /*jmodel*/) {}
 
 template<>
@@ -296,9 +290,6 @@ struct TestInterpolationJoint
 
   
 };
-
-template<>
-void TestInterpolationJoint::operator()< JointModelDense<-1,-1> >(JointModelBase< JointModelDense<-1,-1> > & /*jmodel*/) {}
 
 template<>
 void TestInterpolationJoint::operator()< JointModelSphericalZYX >(JointModelBase< JointModelSphericalZYX > & /*jmodel*/) {}

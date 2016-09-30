@@ -89,12 +89,6 @@ struct TestJoint{
     test_joint_methods(jmodel, jdata);    
   }
 
-  template <int NQ, int NV>
-  void operator()(const se3::JointModelDense<NQ,NV> & ) const
-  {
-    // JointModelDense will be removed soon
-  }
-
   void operator()(const se3::JointModelComposite & ) const
   {
     // se3::JointModelComposite jmodel(2);

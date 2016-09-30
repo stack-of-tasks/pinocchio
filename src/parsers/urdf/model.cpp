@@ -107,17 +107,6 @@ namespace se3
       }
       
       ///
-      /// \brief Handle the case of JointModelDense which is dynamic.
-      ///
-      void addJointAndBody(Model & , const JointModelBase< JointModelDense<-1,-1> > & , const FrameIndex& ,
-                           const SE3 & , const std::string & ,
-                           const boost::shared_ptr< ::urdf::Inertial> ,
-                           const std::string & )
-      {
-        assert(false && "Cannot add a joint of type JointModelDense");
-      }
-
-      ///
       /// \brief Shortcut for adding a fixed joint and directly append a body to it.
       ///
       void addFixedJointAndBody(Model & model, const FrameIndex& parentFrameId,

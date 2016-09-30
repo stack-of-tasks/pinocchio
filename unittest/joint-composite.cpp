@@ -104,12 +104,6 @@ struct TestJointComposite{
     test_joint_methods(jmodel);    
   }
 
-  template <int NQ, int NV>
-  void operator()(const se3::JointModelDense<NQ,NV> & ) const
-  {
-    // Not yet correctly implemented, test has no meaning for the moment
-  }
-
   void operator()(const se3::JointModelComposite & ) const
   {
     se3::JointModelComposite jmodel_composite_rx(2);
