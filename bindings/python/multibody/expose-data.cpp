@@ -16,18 +16,16 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/force.hpp"
-#include "pinocchio/bindings/python/eigen_container.hpp"
+#include "pinocchio/bindings/python/multibody/data.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeForce()
+    void exposeData()
     {
-      ForcePythonVisitor<Force>::expose();
-      PyWraperForAlignedStdVector<Force>::expose("StdVect_Force");
+      DataPythonVisitor::expose();
     }
     
   } // namespace python

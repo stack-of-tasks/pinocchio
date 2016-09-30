@@ -19,7 +19,7 @@
 #define __se3_python_data_hpp__
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/bindings/python/handler.hpp"
+#include "pinocchio/bindings/python/utils/handler.hpp"
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>

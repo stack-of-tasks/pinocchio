@@ -22,8 +22,8 @@
 #include <eigenpy/eigenpy.hpp>
 
 #include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/model.hpp"
-#include "pinocchio/bindings/python/data.hpp"
+#include "pinocchio/bindings/python/multibody/model.hpp"
+#include "pinocchio/bindings/python/multibody/data.hpp"
 
 namespace se3
 {

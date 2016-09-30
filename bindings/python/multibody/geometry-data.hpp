@@ -22,10 +22,10 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-#include "pinocchio/bindings/python/eigen_container.hpp"
-#include "pinocchio/bindings/python/handler.hpp"
-#include "pinocchio/bindings/python/data.hpp"
-#include "pinocchio/bindings/python/geometry-model.hpp"
+#include "pinocchio/bindings/python/utils/eigen_container.hpp"
+#include "pinocchio/bindings/python/utils/handler.hpp"
+#include "pinocchio/bindings/python/multibody/data.hpp"
+#include "pinocchio/bindings/python/multibody/geometry-model.hpp"
 
 namespace fcl
 {

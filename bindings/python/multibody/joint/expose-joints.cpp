@@ -1,6 +1,5 @@
 //
 // Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -17,16 +16,29 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/explog.hpp"
+#include "pinocchio/bindings/python/multibody/joint/joint-derived.hpp"
+#include "pinocchio/bindings/python/multibody/joint/joints-variant.hpp"
+#include "pinocchio/bindings/python/multibody/joint/joint.hpp"
+
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeExplog()
+    static void exposeVariants()
     {
-      ExplogPythonVisitor::expose();
+      boost::mpl::for_each<JointModelVariant::types>(exposer());
+      bp::to_python_converter<se3::JointModelVariant, jointModelVariantVisitor>();
+    }
+    
+    void exposeJoints()
+    {
+      exposeVariants();
+      JointModelPythonVisitor::expose();
+      bp::class_<JointModelVector>("StdVec_JointModelVector")
+      .def(bp::vector_indexing_suite<JointModelVector,true>());
     }
     
   } // namespace python

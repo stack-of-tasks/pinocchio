@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,18 +17,16 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/se3.hpp"
-#include "pinocchio/bindings/python/eigen_container.hpp"
+#include "pinocchio/bindings/python/spatial/explog.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeSE3()
+    void exposeExplog()
     {
-      SE3PythonVisitor<SE3>::expose();
-      PyWraperForAlignedStdVector<SE3>::expose("StdVect_SE3");
+      ExplogPythonVisitor::expose();
     }
     
   } // namespace python

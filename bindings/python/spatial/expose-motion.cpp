@@ -16,8 +16,8 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/motion.hpp"
-#include "pinocchio/bindings/python/eigen_container.hpp"
+#include "pinocchio/bindings/python/spatial/motion.hpp"
+#include "pinocchio/bindings/python/utils/eigen_container.hpp"
 
 namespace se3
 {

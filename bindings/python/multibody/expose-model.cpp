@@ -16,16 +16,16 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/data.hpp"
+#include "pinocchio/bindings/python/multibody/model.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeData()
+    void exposeModel()
     {
-      DataPythonVisitor::expose();
+      ModelPythonVisitor::expose();
     }
     
   } // namespace python

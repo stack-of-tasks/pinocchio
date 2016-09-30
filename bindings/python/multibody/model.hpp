@@ -25,8 +25,8 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/bindings/python/eigen_container.hpp"
-#include "pinocchio/bindings/python/handler.hpp"
+#include "pinocchio/bindings/python/utils/eigen_container.hpp"
+#include "pinocchio/bindings/python/utils/handler.hpp"
 
 
 namespace se3

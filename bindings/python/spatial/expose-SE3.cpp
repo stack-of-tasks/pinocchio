@@ -16,29 +16,18 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/joint-derived.hpp"
-#include "pinocchio/bindings/python/joints-variant.hpp"
-#include "pinocchio/bindings/python/joint.hpp"
-
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include "pinocchio/bindings/python/spatial/se3.hpp"
+#include "pinocchio/bindings/python/utils/eigen_container.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    static void exposeVariants()
+    void exposeSE3()
     {
-      boost::mpl::for_each<JointModelVariant::types>(exposer());
-      bp::to_python_converter<se3::JointModelVariant, jointModelVariantVisitor>();
-    }
-    
-    void exposeJoints()
-    {
-      exposeVariants();
-      JointModelPythonVisitor::expose();
-      bp::class_<JointModelVector>("StdVec_JointModelVector")
-      .def(bp::vector_indexing_suite<JointModelVector,true>());
+      SE3PythonVisitor<SE3>::expose();
+      PyWraperForAlignedStdVector<SE3>::expose("StdVect_SE3");
     }
     
   } // namespace python

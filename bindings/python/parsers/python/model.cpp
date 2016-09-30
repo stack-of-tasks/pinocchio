@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/parsers/python.hpp"
-#include "pinocchio/bindings/python/model.hpp"
+#include "pinocchio/bindings/python/multibody/model.hpp"
 
 #include <iostream>
 #include <Python.h>

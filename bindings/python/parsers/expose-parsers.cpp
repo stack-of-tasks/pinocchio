@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/parsers.hpp"
+#include "pinocchio/bindings/python/parsers/parsers.hpp"
 
 namespace se3
 {

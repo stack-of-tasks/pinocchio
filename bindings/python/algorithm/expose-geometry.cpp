@@ -17,9 +17,9 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
-#include "pinocchio/bindings/python/geometry-object.hpp"
-#include "pinocchio/bindings/python/geometry-model.hpp"
-#include "pinocchio/bindings/python/geometry-data.hpp"
+#include "pinocchio/bindings/python/multibody/geometry-object.hpp"
+#include "pinocchio/bindings/python/multibody/geometry-model.hpp"
+#include "pinocchio/bindings/python/multibody/geometry-data.hpp"
 
 namespace se3
 {

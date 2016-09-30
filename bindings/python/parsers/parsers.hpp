@@ -21,15 +21,15 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-#include "pinocchio/bindings/python/model.hpp"
-#include "pinocchio/bindings/python/data.hpp"
+#include "pinocchio/bindings/python/multibody/model.hpp"
+#include "pinocchio/bindings/python/multibody/data.hpp"
 
 #ifdef WITH_URDFDOM
   #include "pinocchio/parsers/urdf.hpp"
 #endif
 
-  #include "pinocchio/bindings/python/geometry-model.hpp"
-  #include "pinocchio/bindings/python/geometry-data.hpp"
+  #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
+  #include "pinocchio/bindings/python/multibody/geometry-data.hpp"
 
 #ifdef WITH_LUA
   #include "pinocchio/parsers/lua.hpp"
