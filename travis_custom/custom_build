@@ -7,8 +7,14 @@ set -v
 
 # Setup environment variables.
 export CMAKE_ADDITIONAL_OPTIONS=" ${CMAKE_ADDITIONAL_OPTIONS} -DBUILD_BENCHMARK=\"ON\" -DBUILD_UNIT_TESTS=\"ON\" -DCMAKE_CXX_FLAGS=-DBOOST_SYSTEM_NO_DEPRECATED"
+if [[ ";${DO_INSTALL_DOC_EXCEPT_ON_BRANCH};" == *";${CI_BRANCH};"* ]]; then
+  export CMAKE_ADDITIONAL_OPTIONS=" ${CMAKE_ADDITIONAL_OPTIONS} -DINSTALL_DOCUMENTATION=\"OFF\""
+else
+  export CMAKE_ADDITIONAL_OPTIONS=" ${CMAKE_ADDITIONAL_OPTIONS} -DINSTALL_DOCUMENTATION=\"ON\""
+fi
 export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/opt/openrobots/lib/pkgconfig"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/openrobots/lib"
+
 # Setup environment variables.
 . ./.travis/run ../.travis/build
 

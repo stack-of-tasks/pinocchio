@@ -15,6 +15,7 @@ env:
     - CC=gcc
     - DO_COVERAGE_ON_BRANCH="master;release"
     - DO_CPPCHECK_ON_BRANCH=""
+    - DO_INSTALL_DOC_EXCEPT_ON_BRANCH=""
   matrix:
     # - BUILDTYPE=Release
     # - BUILDTYPE=Debug
