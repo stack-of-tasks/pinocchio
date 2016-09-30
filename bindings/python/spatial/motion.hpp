@@ -25,6 +25,7 @@
 
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
+#include "pinocchio/bindings/python/utils/copyable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Motion)
 
@@ -106,6 +107,7 @@ namespace se3
                               "Supported operations ...",
                               bp::init<>())
         .def(MotionPythonVisitor<Motion>())
+        .def(CopyableVisitor<Motion>())
         ;
     }
 

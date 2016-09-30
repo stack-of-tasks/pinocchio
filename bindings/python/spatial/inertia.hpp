@@ -24,6 +24,7 @@
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/bindings/python/utils/copyable.hpp"
 
 namespace se3
 {
@@ -124,6 +125,7 @@ namespace se3
                                "Supported operations ...",
                                bp::init<>())
         .def(InertiaPythonVisitor<Inertia>())
+        .def(CopyableVisitor<Inertia>())
         ;
         
       }

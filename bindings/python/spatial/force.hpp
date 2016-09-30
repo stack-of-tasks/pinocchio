@@ -24,6 +24,7 @@
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/spatial/force.hpp"
+#include "pinocchio/bindings/python/utils/copyable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Force)
 
@@ -98,6 +99,7 @@ namespace se3
 			     "Supported operations ...",
 			     bp::init<>())
 	  .def(ForcePythonVisitor<Force>())
+        .def(CopyableVisitor<Force>())
 	;
     
     }

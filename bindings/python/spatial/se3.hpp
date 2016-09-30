@@ -24,6 +24,7 @@
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/bindings/python/utils/copyable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::SE3)
 
@@ -110,6 +111,7 @@ namespace se3
 			   "Supported operations ...",
 			   bp::init<>())
 	  .def(SE3PythonVisitor<SE3>())
+        .def(CopyableVisitor<SE3>())
 	;
     
     }

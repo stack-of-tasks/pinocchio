@@ -26,6 +26,7 @@
 #include "pinocchio/multibody/frame.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
+#include "pinocchio/bindings/python/utils/copyable.hpp"
 
 namespace se3
 {
@@ -81,8 +82,9 @@ namespace se3
                            "A Plucker coordinate frame related to a parent joint inside a kinematic tree.\n\n",
 	                         bp::no_init
                          )
-	                       .def(FramePythonVisitor())
-	                       ;
+        .def(FramePythonVisitor())
+        .def(CopyableVisitor<Frame>())
+        ;
     
         bp::class_< std::vector<Frame> >("StdVec_Frame")
         .def(bp::vector_indexing_suite< container::aligned_vector<Frame> >());
