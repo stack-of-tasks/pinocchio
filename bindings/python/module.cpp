@@ -18,7 +18,7 @@
 
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/geometry.hpp>
-#include "pinocchio/bindings/python/python.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
 
 #include <iostream>
 

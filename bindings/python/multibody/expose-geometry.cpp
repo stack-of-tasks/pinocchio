@@ -15,7 +15,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/multibody/geometry-object.hpp"
 #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
 #include "pinocchio/bindings/python/multibody/geometry-data.hpp"

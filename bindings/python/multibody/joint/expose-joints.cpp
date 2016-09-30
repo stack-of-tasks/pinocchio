@@ -15,7 +15,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joint-derived.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-variant.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joint.hpp"

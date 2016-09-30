@@ -16,7 +16,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/spatial/explog.hpp"
 
 namespace se3

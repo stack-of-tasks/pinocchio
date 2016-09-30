@@ -15,7 +15,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/spatial/motion.hpp"
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 
