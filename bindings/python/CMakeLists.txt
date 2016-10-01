@@ -65,6 +65,8 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   utils/handler.hpp
   utils/copyable.hpp
   utils/printable.hpp
+  utils/std-vector.hpp
+  utils/std-aligned-vector.hpp
   fwd.hpp
   spatial/se3.hpp
   spatial/force.hpp
