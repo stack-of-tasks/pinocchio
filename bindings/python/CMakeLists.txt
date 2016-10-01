@@ -64,6 +64,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   utils/eigen_container.hpp
   utils/handler.hpp
   utils/copyable.hpp
+  utils/printable.hpp
   fwd.hpp
   spatial/se3.hpp
   spatial/force.hpp
