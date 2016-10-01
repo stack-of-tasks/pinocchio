@@ -19,13 +19,11 @@
 #ifndef __se3_python_motion_hpp__
 #define __se3_python_motion_hpp__
 
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/spatial/motion.hpp"
-#include "pinocchio/spatial/force.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
+#include "pinocchio/bindings/python/utils/printable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Motion)
 
@@ -40,8 +38,6 @@ namespace se3
       : public boost::python::def_visitor< MotionPythonVisitor<Motion> >
     {
       typedef typename Motion::Force Force;
-      typedef typename Motion::Matrix3 Matrix3;
-      typedef typename Motion::Matrix6 Matrix6;
       typedef typename Motion::Vector6 Vector6;
       typedef typename Motion::Vector3 Vector3;
 
@@ -51,38 +47,70 @@ namespace se3
       void visit(PyClass& cl) const 
       {
         cl
+        .def(bp::init<>("Default constructor"))
         .def(bp::init<Vector3,Vector3>
              ((bp::arg("linear"),bp::arg("angular")),
               "Initialize from linear and angular components (dont mix the order)."))
-        .def(bp::init<Vector6>((bp::arg("Vector 6d")),"Init from vector 6 [v,w]"))
+        .def(bp::init<Vector6>((bp::arg("Vector6")),"Init from a vector 6 [v,w]"))
         .def(bp::init<Motion>((bp::arg("other")),"Copy constructor."))
         
-        .add_property("linear",&MotionPythonVisitor::getLinear,&MotionPythonVisitor::setLinear)
-        .add_property("angular",&MotionPythonVisitor::getAngular,&MotionPythonVisitor::setAngular)
-        .add_property("vector",&MotionPythonVisitor::getVector,&MotionPythonVisitor::setVector)
+        .add_property("linear",
+                      &MotionPythonVisitor::getLinear,
+                      &MotionPythonVisitor::setLinear,
+                      "Linear part of a *this, corresponding to the linear velocity in case of a Spatial velocity.")
+        .add_property("angular",
+                      &MotionPythonVisitor::getAngular,
+                      &MotionPythonVisitor::setAngular,
+                      "Angular part of a *this, corresponding to the angular velocity in case of a Spatial velocity.")
+        .add_property("vector",
+                      &MotionPythonVisitor::getVector,
+                      &MotionPythonVisitor::setVector,
+                      "Returns the components of *this as a 6d vector.")
         .add_property("np",&MotionPythonVisitor::getVector)
         
-        .def("se3Action",&Motion::se3Action)
-        .def("se3ActionInverse",&Motion::se3ActionInverse)
+        .def("se3Action",&Motion::se3Action,
+             bp::args("M"),"Returns the result of the action of M on *this.")
+        .def("se3ActionInverse",&Motion::se3ActionInverse,
+             bp::args("M"),"Returns the result of the action of the inverse of M on *this.")
         
-        .def("setZero",&MotionPythonVisitor::setZero)
-        .def("setRandom",&MotionPythonVisitor::setRandom)
+        .def("setZero",&MotionPythonVisitor::setZero,
+             "Set the linear and angular components of *this to zero.")
+        .def("setRandom",&MotionPythonVisitor::setRandom,
+             "Set the linear and angular components of *this to random values.")
         
-        .def("cross_motion",&MotionPythonVisitor::cross_motion)
-        .def("cross_force",&MotionPythonVisitor::cross_force)
+        .def("cross",(Motion (Motion::*)(const Motion &) const) &Motion::cross,
+             bp::args("m"),"Action of *this onto another Motion m. Returns ¨*this x m.")
+        .def("cross",(Force (Motion::*)(const Force &) const) &Motion::cross,
+             bp::args("f"),"Dual action of *this onto a Force f. Returns *this x* f.")
         
-        .def("__add__",&MotionPythonVisitor::add)
-        .def("__sub__",&MotionPythonVisitor::subst)
-        .def("__neg__",&MotionPythonVisitor::neg)
-        .def(bp::self_ns::str(bp::self_ns::self))
+        .def(bp::self + bp::self)
+        .def(bp::self += bp::self)
+        .def(bp::self - bp::self)
+        .def(bp::self -= bp::self)
+        .def(-bp::self)
+        .def(bp::self ^ bp::self)
+        .def(bp::self ^ Force())
         
-        .def("Random",&Motion::Random)
+        .def("Random",&Motion::Random,"Returns a random Motion.")
         .staticmethod("Random")
-        .def("Zero",&Motion::Zero)
+        .def("Zero",&Motion::Zero,"Returns a zero Motion.")
         .staticmethod("Zero")
         ;
       }
 
+      static void expose()
+      {
+        bp::class_<Motion>("Motion",
+                              "Motion vectors, in se3 == M^6.\n\n"
+                              "Supported operations ...",
+                              bp::init<>())
+        .def(MotionPythonVisitor<Motion>())
+        .def(CopyableVisitor<Motion>())
+        .def(PrintableVisitor<Motion>())
+        ;
+      }
+      
+    private:
       static Vector3 getLinear(const Motion & self) { return self.linear(); }
       static void setLinear (Motion & self, const Vector3 & v) { self.linear(v); }
       static Vector3 getAngular(const Motion & self) { return self.angular(); }
@@ -93,24 +121,6 @@ namespace se3
       
       static void setZero(Motion & self) { self.setZero(); }
       static void setRandom(Motion & self) { self.setRandom(); }
-      
-      static Motion add( const Motion& m1,const Motion& m2 ) { return m1+m2; }     
-      static Motion subst( const Motion& m1,const Motion& m2 ) { return m1-m2; }     
-      static Motion neg(const Motion & m1) { return -m1; }
-      static Motion cross_motion( const Motion& m1,const Motion& m2 ) { return m1.cross(m2); }
-      static Force cross_force( const Motion& m,const Force& f ) { return m.cross(f); }
-
-      static void expose()
-      {
-        bp::class_<Motion>("Motion",
-                              "Motion vectors, in se3 == M^6.\n\n"
-                              "Supported operations ...",
-                              bp::init<>())
-        .def(MotionPythonVisitor<Motion>())
-        .def(CopyableVisitor<Motion>())
-        ;
-    }
-
 
     };
     

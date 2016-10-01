@@ -62,16 +62,3 @@ def SE3actinv(m, x):
     raise ValueError('SE3 cannot act on the given object')
 
 setattr(se3.SE3, 'actInv', SE3actinv)
-
-
-# --- M6/F6 cross product --
-def SE3cross(self, y):
-    assert isinstance(self, se3.Motion)
-    if isinstance(y, se3.Motion):
-        return self.cross_motion(y)
-    if isinstance(y, se3.Force):
-        return self.cross_force(y)
-    raise ValueError('SE3 cross product only apply on M6xM6 or M6xF6.')
-
-setattr(se3.Motion, '__pow__', SE3cross)
-setattr(se3.Motion, 'cross', SE3cross)
