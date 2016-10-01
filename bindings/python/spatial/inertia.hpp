@@ -20,11 +20,13 @@
 #define __se3_python_inertia_hpp__
 
 #include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
+#include "pinocchio/bindings/python/utils/printable.hpp"
+
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Inertia)
 
 namespace se3
 {
@@ -36,11 +38,12 @@ namespace se3
     struct InertiaPythonVisitor
       : public boost::python::def_visitor< InertiaPythonVisitor<Inertia> >
     {
-      typedef typename Inertia::Matrix3 Matrix3;
-      typedef typename Inertia::Matrix6 Matrix6;
-      typedef typename Inertia::Vector6 Vector6;
-      typedef typename Inertia::Vector3 Vector3;
+      
       typedef typename Inertia::Scalar Scalar;
+      typedef typename Inertia::Vector3 Vector3;
+      typedef typename Inertia::Matrix3 Matrix3;
+      typedef typename Inertia::Vector6 Vector6;
+      typedef typename Inertia::Matrix6 Matrix6;
 
     public:
 
@@ -55,43 +58,54 @@ namespace se3
              "Initialize from mass, lever and 3d inertia.")
         .def(bp::init<Inertia>((bp::arg("other")),"Copy constructor."))
         
-        .add_property("mass", &InertiaPythonVisitor::getMass, &InertiaPythonVisitor::setMass)
-        .add_property("lever", &InertiaPythonVisitor::getLever, &InertiaPythonVisitor::setLever)
-        .add_property("inertia", &InertiaPythonVisitor::getInertia, &InertiaPythonVisitor::setInertia)
+        .add_property("mass",
+                      &InertiaPythonVisitor::getMass,
+                      &InertiaPythonVisitor::setMass,
+                      "Mass of the Spatial Inertia.")
+        .add_property("lever",
+                      &InertiaPythonVisitor::getLever,
+                      &InertiaPythonVisitor::setLever,
+                      "Center of mass location of the Spatial Inertia. It corresponds to the location of the center of mass regarding to the frame where the Spatial Inertia is expressed.")
+        .add_property("inertia",
+                      &InertiaPythonVisitor::getInertia,
+                      &InertiaPythonVisitor::setInertia,
+                      "Rotational part of the Spatial Inertia, i.e. a symmetric matrix representing the rotational inertia around the center of mass.")
         
         .def("matrix",&Inertia::matrix)
-        .def("se3Action",&Inertia::se3Action)
-        .def("se3ActionInverse",&Inertia::se3ActionInverse)
+        .def("se3Action",&Inertia::se3Action,
+             bp::args("M"),"Returns the result of the action of M on *this.")
+        .def("se3ActionInverse",&Inertia::se3ActionInverse,
+             bp::args("M"),"Returns the result of the action of the inverse of M on *this.")
         
-        .def("setIdentity",&Inertia::setIdentity)
-        .def("setZero",&Inertia::setZero)
-        .def("setRandom",&Inertia::setRandom)
+        .def("setIdentity",&Inertia::setIdentity,"Set *this to be the Identity inertia.")
+        .def("setZero",&Inertia::setZero,"Set all the components of *this to zero.")
+        .def("setRandom",&Inertia::setRandom,"Set all the components of *this to random values.")
         
-        .def("__str__",&InertiaPythonVisitor::toString)
-        .def( bp::self + bp::self)
-        .def( bp::self * bp::other<Motion>() )
+        .def(bp::self + bp::self)
+        .def(bp::self * bp::other<Motion>() )
         .add_property("np",&Inertia::matrix)
         
-        .def("Identity",&Inertia::Identity)
+        .def("Identity",&Inertia::Identity,"Returns the identity Inertia.")
         .staticmethod("Identity")
-        .def("Zero",&Inertia::Zero)
+        .def("Zero",&Inertia::Zero,"Returns the null Inertia.")
         .staticmethod("Zero")
-        .def("Random",&Inertia::Random)
+        .def("Random",&Inertia::Random,"Returns a random Inertia.")
         .staticmethod("Random")
+        
         .def("FromEllipsoid", &Inertia::FromEllipsoid,
-            bp::default_call_policies(), (bp::arg("mass"),
-              bp::arg("length_x"), bp::arg("length_y"), bp::arg("length_z")))
+             bp::args("mass","length_x","length_y","length_z"),
+             "Returns an Inertia of an ellipsoid shape with a mass and of dimension the semi axis of length_{x,y,z}.")
         .staticmethod("FromEllipsoid")
         .def("FromCylinder", &Inertia::FromCylinder,
-            bp::default_call_policies(), (bp::arg("mass"),
-              bp::arg("radius"), bp::arg("length")))
+             bp::args("mass","radius","length"),
+             "Returns the Inertia of a cylinder shape ith a mass and of dimension radius and length.")
         .staticmethod("FromCylinder")
         .def("FromBox", &Inertia::FromBox,
-            bp::default_call_policies(), (bp::arg("mass"),
-              bp::arg("length_x"), bp::arg("length_y"), bp::arg("length_z")))
+             bp::args("mass","length_x","length_y","length_z"),
+             "Returns an Inertia of a box shape with a mass and of dimension the semi axis of length_{x,y,z}.")
         .staticmethod("FromBox")
         ;
-	  }
+      }
       
       static Scalar getMass( const Inertia & self ) { return self.mass(); }
       static void setMass( Inertia & self, Scalar mass ) { self.mass() = mass; }
@@ -103,8 +117,8 @@ namespace se3
       static void setInertia( Inertia & self, const Vector6 & minimal_inertia ) { self.inertia().data() = minimal_inertia; }
 
       static Inertia* makeFromMCI(const double & mass,
-				     const Vector3 & lever,
-				     const Matrix3 & inertia) 
+                                  const Vector3 & lever,
+                                  const Matrix3 & inertia) 
       {
         if(! inertia.isApprox(inertia.transpose()) )
           throw eigenpy::Exception("The 3d inertia should be symmetric.");
@@ -113,27 +127,24 @@ namespace se3
            || (Eigen::Vector3d::UnitZ().transpose()*inertia*Eigen::Vector3d::UnitZ()<0) )
           throw eigenpy::Exception("The 3d inertia should be positive.");
         return new Inertia(mass,lever,inertia);
-      }
-      
-      static std::string toString(const Inertia& m)
-      {	  std::ostringstream s; s << m; return s.str();       }
+           }
       
       static void expose()
       {
         bp::class_<Inertia>("Inertia",
-                               "Inertia matrix, in L(se3,se3*) == R^6x6.\n\n"
-                               "Supported operations ...",
-                               bp::init<>())
+                            "This class represenses a sparse version of a Spatial Inertia and its is defined by its mass, its center of mass location and the rotational inertia expressed around this center of mass.\n\n"
+                            "Supported operations ...",
+                            bp::init<>())
         .def(InertiaPythonVisitor<Inertia>())
         .def(CopyableVisitor<Inertia>())
+        .def(PrintableVisitor<Inertia>())
         ;
         
       }
 
-
     }; // struct InertiaPythonVisitor
     
-  }} // namespace se3::python
+  } // namespace python
+} // namespace se3
 
 #endif // ifndef __se3_python_se3_hpp__
-
