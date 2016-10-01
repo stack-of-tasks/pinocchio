@@ -17,7 +17,7 @@
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/spatial/se3.hpp"
-#include "pinocchio/bindings/python/utils/eigen_container.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 namespace se3
 {
@@ -27,7 +27,7 @@ namespace se3
     void exposeSE3()
     {
       SE3PythonVisitor<SE3>::expose();
-      PyWraperForAlignedStdVector<SE3>::expose("StdVect_SE3");
+      StdAlignedVectorPythonVisitor<SE3>::expose("StdVect_SE3");
     }
     
   } // namespace python

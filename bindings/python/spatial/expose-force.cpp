@@ -17,7 +17,7 @@
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/spatial/force.hpp"
-#include "pinocchio/bindings/python/utils/eigen_container.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 namespace se3
 {
@@ -27,7 +27,7 @@ namespace se3
     void exposeForce()
     {
       ForcePythonVisitor<Force>::expose();
-      PyWraperForAlignedStdVector<Force>::expose("StdVect_Force");
+      StdAlignedVectorPythonVisitor<Force>::expose("StdVect_Force");
     }
     
   } // namespace python

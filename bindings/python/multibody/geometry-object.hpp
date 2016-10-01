@@ -70,9 +70,6 @@ namespace se3
                          )
 	                       .def(GeometryObjectPythonVisitor())
 	                       ;
-    
-        bp::class_< std::vector<GeometryObject> >("StdVec_GeometryObject")
-        .def(bp::vector_indexing_suite< std::vector<GeometryObject> >());
       }
 
     };

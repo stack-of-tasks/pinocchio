@@ -17,6 +17,7 @@
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/multibody/frame.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 namespace se3
 {
@@ -26,6 +27,7 @@ namespace se3
     void exposeFrame()
     {
       FramePythonVisitor::expose();
+      StdAlignedVectorPythonVisitor<Frame>::expose("StdVect_Frame");
     }
     
   } // namespace python

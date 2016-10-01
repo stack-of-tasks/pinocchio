@@ -19,6 +19,7 @@
 #include "pinocchio/bindings/python/multibody/geometry-object.hpp"
 #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
 #include "pinocchio/bindings/python/multibody/geometry-data.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 namespace se3
 {
@@ -28,6 +29,8 @@ namespace se3
     void exposeGeometry()
     {
       GeometryObjectPythonVisitor::expose();
+      StdAlignedVectorPythonVisitor<GeometryObject>::expose("StdVect_GeometryObject");
+      
       CollisionPairPythonVisitor::expose();
       GeometryModelPythonVisitor::expose();
       GeometryDataPythonVisitor::expose();
