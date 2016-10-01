@@ -18,15 +18,10 @@
 #ifndef __se3_python_frame_hpp__
 #define __se3_python_frame_hpp__
 
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
-
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-
+#include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/container/aligned-vector.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
+#include "pinocchio/bindings/python/utils/printable.hpp"
 
 namespace se3
 {
@@ -37,12 +32,6 @@ namespace se3
     struct FramePythonVisitor
       : public boost::python::def_visitor< FramePythonVisitor >
     {
-      typedef Model::Index Index;
-      typedef Model::JointIndex JointIndex;
-      typedef Model::FrameIndex FrameIndex;
-
-    public:
-
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
@@ -57,9 +46,6 @@ namespace se3
                          &Frame::placement,
                          "placement in the parent joint local frame")
           .def_readwrite("type", &Frame::type, "type of the frame")
-
-          .def(bp::self_ns::str(bp::self_ns::self))
-          .def(bp::self_ns::repr(bp::self_ns::self))
           ;
       }
       
@@ -79,12 +65,9 @@ namespace se3
                          )
         .def(FramePythonVisitor())
         .def(CopyableVisitor<Frame>())
+        .def(PrintableVisitor<Frame>())
         ;
-    
-        bp::class_< std::vector<Frame> >("StdVec_Frame")
-        .def(bp::vector_indexing_suite< container::aligned_vector<Frame> >());
       }
-
 
     };
     
