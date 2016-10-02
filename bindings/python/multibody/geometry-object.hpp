@@ -18,11 +18,8 @@
 #ifndef __se3_python_geometry_object_hpp__
 #define __se3_python_geometry_object_hpp__
 
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <boost/python.hpp>
 
-#include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
 namespace se3
@@ -34,42 +31,28 @@ namespace se3
     struct GeometryObjectPythonVisitor
       : public boost::python::def_visitor< GeometryObjectPythonVisitor >
     {
-      typedef Model::Index Index;
-      typedef Model::JointIndex JointIndex;
-      typedef Model::FrameIndex FrameIndex;
-
-    public:
-
-      static PyObject* convert(Frame const& f)
-      {
-        return boost::python::incref(boost::python::object(f).ptr());
-      }
 
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
         cl
-          .def_readwrite("name", &GeometryObject::name, "Name of the GeometryObject")
-          .def_readwrite("parentJoint", &GeometryObject::parentJoint, "Index of the parent joint")
-          .def_readwrite("parentFrame", &GeometryObject::parentFrame, "Index of the parent frame")
-          .add_property("placement", &GeometryObjectPythonVisitor::getPlacementWrtParentJoint,
-                                      &GeometryObjectPythonVisitor::setPlacementWrtParentJoint,
-                                      "Position of geometry object in parent joint's frame")
-          .def_readonly("meshPath", &GeometryObject::meshPath, "Absolute path to the mesh file")
-          ;
+        .def_readwrite("name", &GeometryObject::name, "Name of the GeometryObject")
+        .def_readwrite("parentJoint", &GeometryObject::parentJoint, "Index of the parent joint")
+        .def_readwrite("parentFrame", &GeometryObject::parentFrame, "Index of the parent frame")
+        .def_readwrite("placement",&GeometryObject::placement,
+                       "Position of geometry object in parent joint's frame")
+        .def_readonly("meshPath", &GeometryObject::meshPath, "Absolute path to the mesh file")
+        ;
       }
-
-      static SE3 getPlacementWrtParentJoint( const GeometryObject & self) { return self.placement; }
-      static void setPlacementWrtParentJoint(GeometryObject & self, const SE3 & placement) { self.placement = placement; }
 
       static void expose()
       {
         bp::class_<GeometryObject>("GeometryObject",
-                           "A wrapper on a collision geometry including its parent joint, parent frame, placement in parent joint's frame.\n\n",
-	                         bp::no_init
-                         )
-	                       .def(GeometryObjectPythonVisitor())
-	                       ;
+                                   "A wrapper on a collision geometry including its parent joint, parent frame, placement in parent joint's frame.\n\n",
+                                   bp::no_init
+                                   )
+        .def(GeometryObjectPythonVisitor())
+        ;
       }
 
     };
@@ -79,4 +62,3 @@ namespace se3
 } // namespace se3
 
 #endif // ifndef __se3_python_geometry_object_hpp__
-
