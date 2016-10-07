@@ -21,14 +21,12 @@
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/srdf.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE UrdfTest
 #include <boost/test/unit_test.hpp>
 
 using namespace se3;
 using namespace std;
 
-BOOST_AUTO_TEST_SUITE(SRDF)
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE(removeCollisionPairs)
 {

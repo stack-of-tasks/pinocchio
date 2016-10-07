@@ -36,12 +36,9 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ValueTest
 #include <boost/test/unit_test.hpp>
 
-
-BOOST_AUTO_TEST_SUITE ( RneaRevoluteJoints )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_000 )
 {

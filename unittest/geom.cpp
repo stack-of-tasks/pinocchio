@@ -37,8 +37,6 @@
 #include <hpp/model/urdf/util.hh>
 #endif
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE GeomTest
 #include <boost/test/unit_test.hpp>
 
 using namespace se3;
@@ -134,8 +132,7 @@ void loadHumanoidPathPlanerModel (const hpp::model::HumanoidRobotPtr_t& robot,
 
 #endif
 
-
-BOOST_AUTO_TEST_SUITE ( GeomTest )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( GeomNoFcl )
 {

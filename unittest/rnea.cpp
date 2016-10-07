@@ -39,12 +39,10 @@
 #include <pmmintrin.h>
 #endif
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE RneaTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE ( Rnea )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
 {

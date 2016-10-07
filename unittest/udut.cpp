@@ -19,8 +19,6 @@
 #include <Eigen/Core>
 #include <pinocchio/spatial/skew.hpp>
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE UdutTest
 #include <boost/test/unit_test.hpp>
 
 template<int N>
@@ -47,7 +45,7 @@ void udut( Eigen::Matrix<double,N,N> & M )
       }
   }
 
-BOOST_AUTO_TEST_SUITE ( Udut )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( udut )
 {

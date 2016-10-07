@@ -18,8 +18,6 @@
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/joint/joint.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE JointTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -125,7 +123,7 @@ struct TestJoint{
 };
 
 
-BOOST_AUTO_TEST_SUITE ( JointTest)
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_all_joints )
 {

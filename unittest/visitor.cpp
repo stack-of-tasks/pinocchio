@@ -21,9 +21,6 @@
 #include <pinocchio/multibody/model.hpp>
 #include "pinocchio/multibody/visitor.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE   ModuleTestVisitor
-
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -75,7 +72,7 @@ namespace se3
  * joint model revolute unaligned. 
  */
 
-BOOST_AUTO_TEST_SUITE ( TestVisitor )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_runal )
 {

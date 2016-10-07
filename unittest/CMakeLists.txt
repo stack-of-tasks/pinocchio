@@ -18,6 +18,11 @@
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
+
+MACRO(ADD_TEST_CFLAGS target flag)
+  SET_PROPERTY(TARGET ${target} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
+ENDMACRO(ADD_TEST_CFLAGS)
+
 MACRO(ADD_UNIT_TEST NAME PKGS)
   IF (BUILD_UNIT_TESTS)
     ADD_EXECUTABLE(${NAME} ${NAME})
@@ -25,6 +30,10 @@ MACRO(ADD_UNIT_TEST NAME PKGS)
     ADD_EXECUTABLE(${NAME} EXCLUDE_FROM_ALL ${NAME})
   ENDIF (BUILD_UNIT_TESTS)
   SET_TARGET_PROPERTIES(${NAME} PROPERTIES LINKER_LANGUAGE CXX)
+  ADD_TEST_CFLAGS(${NAME} "-DBOOST_TEST_DYN_LINK") 
+  SET(MODULE_NAME "${NAME}Test")
+  STRING(REGEX REPLACE "-" "_" MODULE_NAME ${MODULE_NAME})
+  ADD_TEST_CFLAGS(${NAME} "-DBOOST_TEST_MODULE=${MODULE_NAME}") 
 
   FOREACH(PKG ${PKGS})
     PKG_CONFIG_USE_DEPENDENCY(${NAME} ${PKG})
@@ -40,10 +49,6 @@ MACRO(ADD_UNIT_TEST NAME PKGS)
   ADD_TEST(NAME ${NAME} COMMAND ${NAME})
   ADD_DEPENDENCIES(check ${NAME})
 ENDMACRO(ADD_UNIT_TEST)
-
-MACRO(ADD_TEST_CFLAGS target flag)
-  SET_PROPERTY(TARGET ${target} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
-ENDMACRO(ADD_TEST_CFLAGS)
 
 # --- RULES -------------------------------------------------------------------
 # --- RULES -------------------------------------------------------------------
@@ -103,7 +108,11 @@ IF(BUILD_PYTHON_INTERFACE)
   ELSE (BUILD_UNIT_TESTS)
     ADD_EXECUTABLE(python_parser EXCLUDE_FROM_ALL python_parser.cpp)
   ENDIF (BUILD_UNIT_TESTS)
+  ADD_TEST_CFLAGS(python_parser "-DBOOST_TEST_DYN_LINK") 
   ADD_TEST_CFLAGS(python_parser '-DPINOCCHIO_SOURCE_DIR=\\\"${${PROJECT_NAME}_SOURCE_DIR}\\\"')
+  SET(MODULE_NAME "python_parserTest")
+  ADD_TEST_CFLAGS(python_parser "-DBOOST_TEST_MODULE=${MODULE_NAME}") 
+
   TARGET_LINK_LIBRARIES(python_parser ${PYWRAP})
   TARGET_LINK_LIBRARIES(python_parser ${PYTHON_LIBRARIES})
   TARGET_LINK_LIBRARIES(python_parser ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

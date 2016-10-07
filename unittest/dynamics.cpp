@@ -24,13 +24,10 @@
 
 #include <iostream>
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE DynamicTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-
-BOOST_AUTO_TEST_SUITE ( DynamicsTest)
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_FD )
 {

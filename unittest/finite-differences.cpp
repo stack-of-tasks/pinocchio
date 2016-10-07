@@ -15,8 +15,6 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE JointConfigurationsTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -169,7 +167,7 @@ void FiniteDiffJoint::operator()< JointModelComposite > (JointModelBase<JointMod
   // BOOST_CHECK(S.isApprox(S_ref,eps*1e1)); //@TODO Uncomment to test once JointComposite maths are ok
 }
 
-BOOST_AUTO_TEST_SUITE(FiniteDifferences)
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE(increment)
 {

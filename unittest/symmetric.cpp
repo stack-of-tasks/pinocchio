@@ -41,8 +41,6 @@
 
 #include "pinocchio/spatial/symmetric3.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE symmetricTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -85,7 +83,7 @@ void timeSelfAdj( const Eigen::Matrix3d & A,
     = A * S * A.transpose();
 }
 
-BOOST_AUTO_TEST_SUITE ( symmetricTest)
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 /* --- PINOCCHIO ------------------------------------------------------------ */
 /* --- PINOCCHIO ------------------------------------------------------------ */

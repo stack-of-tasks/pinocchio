@@ -10,8 +10,6 @@
 
 using namespace se3;
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE AlgoCheckTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -21,7 +19,7 @@ struct Check1 : public AlgorithmCheckerBase<Check1>
   bool checkModel_impl( const Model& ) const { return true; }
 };
 
-BOOST_AUTO_TEST_SUITE ( AlgoCheck )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_check )
 {

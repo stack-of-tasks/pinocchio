@@ -20,12 +20,9 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/python.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE PythonTest
 #include <boost/test/unit_test.hpp>
 
-
-BOOST_AUTO_TEST_SUITE ( ParsingPythonFile )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( buildModel )
 {

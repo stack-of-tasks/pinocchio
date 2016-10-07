@@ -25,12 +25,10 @@
 #include "pinocchio/multibody/force-set.hpp"
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ConstraintTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE ( Constraint )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_ForceSet )
 {

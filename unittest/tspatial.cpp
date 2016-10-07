@@ -24,12 +24,10 @@
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/spatial/explog.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE tspatialTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE ( tspatialTest)
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_SE3 )
 {

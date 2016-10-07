@@ -28,8 +28,6 @@
 #include <iostream>
 #include <cmath>
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE JointCompositeTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -135,9 +133,7 @@ struct TestJointComposite{
 };
 
 
-
-
-BOOST_AUTO_TEST_SUITE ( JointCompositeTest)
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 // Test that a composite joint can contain any type of joint
 BOOST_AUTO_TEST_CASE ( test_all_joints )

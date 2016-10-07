@@ -20,12 +20,10 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE UrdfTest
 #include <boost/test/unit_test.hpp>
 
 
-BOOST_AUTO_TEST_SUITE ( ParsingUrdfFile )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( buildModel )
 {
