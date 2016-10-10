@@ -20,13 +20,11 @@
 
 #include "pinocchio/parsers/sample-models.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE ComTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-BOOST_AUTO_TEST_SUITE(EnergyTest)
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE(test_kinetic_energy)
 {

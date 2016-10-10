@@ -38,8 +38,6 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE JointsTest
 #include <boost/test/unit_test.hpp>
 
 //#define VERBOSE
@@ -79,7 +77,7 @@ void addJointAndBody(Model & model, const JointModelBase<D> & jmodel, const Mode
   model.appendBodyToJoint(idx,Y);
 }
 
-BOOST_AUTO_TEST_SUITE (JointRevoluteUnaligned)
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE (vsRX)
 {

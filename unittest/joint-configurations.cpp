@@ -19,8 +19,6 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/math/quaternion.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE JointConfigurationsTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -71,7 +69,7 @@ void buildModel(Model & model)
   addJointAndBody(model,JointModelPlanar(),model.getJointId("translation_joint"),SE3::Identity(),"planar",Inertia::Random());
 }
 
-BOOST_AUTO_TEST_SUITE ( JointConfigurationsTest )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 struct TestIntegrationJoint
 {

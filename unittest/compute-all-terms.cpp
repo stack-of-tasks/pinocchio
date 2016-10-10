@@ -26,8 +26,6 @@
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE CATTests
 #include <boost/test/unit_test.hpp>
 
 #include <iostream>
@@ -39,7 +37,7 @@
 #endif
 
 
-BOOST_AUTO_TEST_SUITE ( ComputeAllTerms )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_against_algo )
 {

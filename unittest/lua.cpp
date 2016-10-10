@@ -20,12 +20,10 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/lua.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE LuaTest
 #include <boost/test/unit_test.hpp>
 
 
-BOOST_AUTO_TEST_SUITE ( ParsingLuaFile )
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( buildModel )
 {

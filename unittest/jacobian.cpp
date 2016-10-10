@@ -24,12 +24,10 @@
 
 #include <iostream>
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE JacobianTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE ( JacobianTest)
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_jacobian )
 {

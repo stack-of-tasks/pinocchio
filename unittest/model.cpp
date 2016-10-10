@@ -15,8 +15,6 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE JointTest
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -25,7 +23,7 @@
 
 using namespace se3;
 
-BOOST_AUTO_TEST_SUITE(Modeltest)
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE(test_model_subtree)
 {
