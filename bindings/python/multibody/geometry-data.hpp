@@ -145,9 +145,9 @@ namespace se3
         ;
       }
       
-      static GeometryDataHandler* makeDefault(const GeometryModelHandler & geometry_model)
+      static GeometryDataHandler* makeDefault(const GeometryModel & geometry_model)
       {
-        return new GeometryDataHandler(new GeometryData(*geometry_model), true);
+        return new GeometryDataHandler(new GeometryData(geometry_model), true);
       }
 
       static container::aligned_vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
@@ -159,8 +159,8 @@ namespace se3
       static std::vector<fcl::CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collisionResults; }
       static std::vector<double> & radius( GeometryDataHandler & m ) { return m->radius; }
 
-      static void fillInnerOuterObjectMaps(GeometryDataHandler & m, const GeometryModelHandler & model)
-      {m->fillInnerOuterObjectMaps(*model);}
+      static void fillInnerOuterObjectMaps(GeometryDataHandler & m, const GeometryModel & model)
+      {m->fillInnerOuterObjectMaps(model);}
 
       static void activateCollisionPair(GeometryDataHandler & m,
                                         Index pairID) { m->activateCollisionPair(pairID); } 

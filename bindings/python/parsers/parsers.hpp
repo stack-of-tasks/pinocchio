@@ -71,40 +71,40 @@ namespace se3
       }
 
 
-      static GeometryModelHandler
+      static GeometryModel
       buildGeomFromUrdf(const Model & model,
                         const std::string & filename,
                         const GeometryType type
                         )
       {
         std::vector<std::string> hints;
-        GeometryModel * geometry_model = new GeometryModel();
-        se3::urdf::buildGeom(model, filename, type,*geometry_model,hints);
+        GeometryModel geometry_model;
+        se3::urdf::buildGeom(model,filename,type,geometry_model,hints);
         
-        return GeometryModelHandler(geometry_model, true);
+        return geometry_model;
       }
 
-      static GeometryModelHandler
+      static GeometryModel
       buildGeomFromUrdf(const Model & model,
                         const std::string & filename,
-                        std::vector<std::string> & package_dirs,
+                        const std::vector<std::string> & package_dirs,
                         const GeometryType type
                         )
       {
-        GeometryModel * geometry_model = new GeometryModel();
-        se3::urdf::buildGeom(model, filename, type,*geometry_model,package_dirs);
+        GeometryModel geometry_model;
+        se3::urdf::buildGeom(model,filename,type,geometry_model,package_dirs);
         
-        return GeometryModelHandler(geometry_model, true);
+        return geometry_model;
       }
       
 #ifdef WITH_HPP_FCL
       static void removeCollisionPairsFromSrdf(Model & model,
-                                               GeometryModelHandler& geometry_model,
+                                               GeometryModel & geometry_model,
                                                const std::string & filename,
                                                bool verbose
                                                )
       {
-        se3::srdf::removeCollisionPairsFromSrdf(model, *geometry_model, filename, verbose);
+        se3::srdf::removeCollisionPairsFromSrdf(model,geometry_model,filename,verbose);
       }
 
 #endif // #ifdef WITH_HPP_FCL
@@ -155,14 +155,14 @@ namespace se3
       
       
       bp::def("buildGeomFromUrdf",
-              static_cast <GeometryModelHandler (*) (const Model &, const std::string &, std::vector<std::string> &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              static_cast <GeometryModel (*) (const Model &, const std::string &, const std::vector<std::string> &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)"
                        ),
               "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model "
               "(remember to create the corresponding data structures).");
       
       bp::def("buildGeomFromUrdf",
-              static_cast <GeometryModelHandler (*) (const Model &, const std::string &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)"),
               "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model "
               "(remember to create the corresponding data structures).");

@@ -28,61 +28,61 @@ namespace se3
     
     static void updateGeometryPlacements_proxy(const Model & model,
                                                Data & data,
-                                               const GeometryModelHandler & geom_model,
-                                               GeometryDataHandler & geom_data,
+                                               const GeometryModel & model_geom,
+                                               GeometryDataHandler & data_geom,
                                                const Eigen::VectorXd & q
                                                )
     {
-      return updateGeometryPlacements(model, data, *geom_model, *geom_data, q);
+      return updateGeometryPlacements(model, data, model_geom, *data_geom, q);
     }
 
 #ifdef WITH_HPP_FCL   
 
-    static bool computeCollision_proxy(const GeometryModelHandler & model_geom,
+    static bool computeCollision_proxy(const GeometryModel & model_geom,
                                        GeometryDataHandler & data_geom,
                                        const PairIndex & pairId)
     {
-      return computeCollision(*model_geom, *data_geom, pairId);
+      return computeCollision(model_geom, *data_geom, pairId);
     }
 
-    static bool computeCollisions_proxy(const GeometryModelHandler & model_geom,
+    static bool computeCollisions_proxy(const GeometryModel & model_geom,
                                         GeometryDataHandler & data_geom,
                                         const bool stopAtFirstCollision)
     {
-      return computeCollisions(*model_geom, *data_geom, stopAtFirstCollision);
+      return computeCollisions(model_geom, *data_geom, stopAtFirstCollision);
     }
     
     static bool computeGeometryAndCollisions_proxy(const Model & model,
                                                    Data & data,
-                                                   const GeometryModelHandler & model_geom,
+                                                   const GeometryModel & model_geom,
                                                    GeometryDataHandler & data_geom,
                                                    const Eigen::VectorXd & q,
                                                    const bool stopAtFirstCollision)
     {
-      return computeCollisions(model,data,*model_geom, *data_geom, q, stopAtFirstCollision);
+      return computeCollisions(model,data,model_geom, *data_geom, q, stopAtFirstCollision);
     }
     
-    static fcl::DistanceResult computeDistance_proxy(const GeometryModelHandler & model_geom,
+    static fcl::DistanceResult computeDistance_proxy(const GeometryModel & model_geom,
                                                      GeometryDataHandler & data_geom,
                                                      const PairIndex & pairId)
     {
-      return computeDistance(*model_geom, *data_geom, pairId);
+      return computeDistance(model_geom, *data_geom, pairId);
     }
 
-    static std::size_t computeDistances_proxy(const GeometryModelHandler & model_geom,
+    static std::size_t computeDistances_proxy(const GeometryModel & model_geom,
                                               GeometryDataHandler & data_geom)
     {
-      return computeDistances(*model_geom, *data_geom);
+      return computeDistances(model_geom, *data_geom);
     }
     
     static std::size_t computeGeometryAndDistances_proxy(const Model & model,
                                                          Data & data,
-                                                         const GeometryModelHandler & model_geom,
+                                                         const GeometryModel & model_geom,
                                                          GeometryDataHandler & data_geom,
                                                          const Eigen::VectorXd & q
                                                          )
     {
-      return computeDistances<true>(model, data, *model_geom, *data_geom, q);
+      return computeDistances<true>(model, data, model_geom, *data_geom, q);
     }
 
 #endif // WITH_HPP_FCL

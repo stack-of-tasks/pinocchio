@@ -82,11 +82,11 @@ namespace se3
         .add_property("njoints", &Model::njoints)
         .add_property("nbodies", &Model::nbodies)
         .add_property("nframes", &Model::nframes)
-        .def_readwrite("inertias",&Model::inertias)
-        .def_readwrite("jointPlacements",&Model::jointPlacements)
-        .def_readwrite("joints",&Model::joints)
-        .def_readwrite("parents",&Model::parents)
-        .def_readwrite("names",&Model::names)
+        .add_property("inertias",&Model::inertias)
+        .add_property("jointPlacements",&Model::jointPlacements)
+        .add_property("joints",&Model::joints)
+        .add_property("parents",&Model::parents)
+        .add_property("names",&Model::names)
         
         .add_property("neutralConfiguration",
                       make_getter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
