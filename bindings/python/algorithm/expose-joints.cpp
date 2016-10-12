@@ -22,55 +22,55 @@ namespace se3
 {
   namespace python
   {
-    static Eigen::VectorXd integrate_proxy(const ModelHandler & model,
+    static Eigen::VectorXd integrate_proxy(const Model & model,
                                            const Eigen::VectorXd & q,
                                            const Eigen::VectorXd & v)
     {
-      return integrate(*model,q,v);
+      return integrate(model,q,v);
     }
     
-    static Eigen::VectorXd interpolate_proxy(const ModelHandler & model,
+    static Eigen::VectorXd interpolate_proxy(const Model & model,
                                              const Eigen::VectorXd & q1,
                                              const Eigen::VectorXd & q2,
                                              const double u)
     {
-      return interpolate(*model,q1,q2,u);
+      return interpolate(model,q1,q2,u);
     }
     
-    static Eigen::VectorXd differentiate_proxy(const ModelHandler & model,
+    static Eigen::VectorXd differentiate_proxy(const Model & model,
                                                const Eigen::VectorXd & q1,
                                                const Eigen::VectorXd & q2)
     {
-      return differentiate(*model,q1,q2);
+      return differentiate(model,q1,q2);
     }
     
-    static Eigen::VectorXd distance_proxy(const ModelHandler & model,
+    static Eigen::VectorXd distance_proxy(const Model & model,
                                           const Eigen::VectorXd & q1,
                                           const Eigen::VectorXd & q2)
     {
-      return distance(*model,q1,q2);
+      return distance(model,q1,q2);
     }
     
-    static Eigen::VectorXd randomConfiguration_proxy(const ModelHandler & model,
+    static Eigen::VectorXd randomConfiguration_proxy(const Model & model,
                                                      const Eigen::VectorXd & lowerPosLimit,
                                                      const Eigen::VectorXd & upperPosLimit)
     {
-      return randomConfiguration(*model, lowerPosLimit, upperPosLimit);
+      return randomConfiguration(model, lowerPosLimit, upperPosLimit);
     }
 
-    static void normalize_proxy(const ModelHandler & model,
+    static void normalize_proxy(const Model & model,
                                 Eigen::VectorXd & config)
     {
       Eigen::VectorXd q(config);
-      normalize(*model, q);
+      normalize(model, q);
       config = q;
     }
 
-    static bool isSameConfiguration_proxy(const ModelHandler & model,
+    static bool isSameConfiguration_proxy(const Model & model,
                                           const Eigen::VectorXd & q1,
                                           const Eigen::VectorXd & q2)
     {
-      return isSameConfiguration(*model, q1, q2);
+      return isSameConfiguration(model, q1, q2);
     }
     
     void exposeJointsAlgo()

@@ -25,7 +25,6 @@
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/handler.hpp"
 #include "pinocchio/multibody/geometry.hpp"
-#include "pinocchio/bindings/python/multibody/model.hpp"
 
 namespace se3
 {
@@ -41,11 +40,6 @@ namespace se3
     public:
       
       /* --- Convert From C++ to Python ------------------------------------- */
-      // static PyObject* convert(Model const& modelConstRef)
-      // {
-      // 	Model * ptr = const_cast<Model*>(&modelConstRef);
-      // 	return boost::python::incref(boost::python::object(ModelHandler(ptr)).ptr());
-      // }
       static PyObject* convert(GeometryModelHandler::SmartPtr_t const& ptr)
       {
         return boost::python::incref(boost::python::object(GeometryModelHandler(ptr)).ptr());
@@ -106,8 +100,8 @@ namespace se3
 
       
       static container::aligned_vector<GeometryObject> & geometryObjects( GeometryModelHandler & m ) { return m->geometryObjects; }
-      static GeomIndex addGeometryObject( GeometryModelHandler & m, GeometryObject gobject, const ModelHandler & model, const bool autofillJointParent)
-      { return m-> addGeometryObject(gobject, *model, autofillJointParent); }
+      static GeomIndex addGeometryObject( GeometryModelHandler & m, GeometryObject gobject, const Model & model, const bool autofillJointParent)
+      { return m-> addGeometryObject(gobject, model, autofillJointParent); }
 
 #ifdef WITH_HPP_FCL      
       static std::vector<CollisionPair> & collisionPairs( GeometryModelHandler & m ) 

@@ -22,7 +22,6 @@
 #include <eigenpy/eigenpy.hpp>
 
 #include "pinocchio/bindings/python/fwd.hpp"
-#include "pinocchio/bindings/python/multibody/model.hpp"
 #include "pinocchio/bindings/python/multibody/data.hpp"
 
 namespace se3

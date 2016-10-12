@@ -85,11 +85,6 @@ namespace se3
     {
       
       /* --- Convert From C++ to Python ------------------------------------- */
-      // static PyObject* convert(Model const& modelConstRef)
-      // {
-      // 	Model * ptr = const_cast<Model*>(&modelConstRef);
-      // 	return boost::python::incref(boost::python::object(ModelHandler(ptr)).ptr());
-      // }
       static PyObject* convert(GeometryDataHandler::SmartPtr_t const& ptr)
       {
         return boost::python::incref(boost::python::object(GeometryDataHandler(ptr)).ptr());

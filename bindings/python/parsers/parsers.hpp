@@ -21,7 +21,6 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-#include "pinocchio/bindings/python/multibody/model.hpp"
 #include "pinocchio/bindings/python/multibody/data.hpp"
 
 #ifdef WITH_URDFDOM
@@ -54,83 +53,81 @@ namespace se3
       
 #ifdef WITH_URDFDOM
 
-      static ModelHandler buildModelFromUrdf(const std::string & filename,
-                                             bp::object & root_joint_object
-                                             )
+      static Model buildModelFromUrdf(const std::string & filename,
+                                      bp::object & root_joint_object
+                                      )
       {
         JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object);
-        Model * model = new Model();
-        se3::urdf::buildModel(filename, root_joint, *model);
-        return ModelHandler(model,true);
+        Model model;
+        se3::urdf::buildModel(filename, root_joint, model);
+        return model;
       }
 
-      static ModelHandler buildModelFromUrdf(const std::string & filename)
+      static Model buildModelFromUrdf(const std::string & filename)
       {
-        Model * model = new Model();
-        se3::urdf::buildModel(filename, *model);
-        return ModelHandler(model,true);
+        Model model;
+        se3::urdf::buildModel(filename, model);
+        return model;
       }
 
 
-      typedef std::pair<ModelHandler, GeometryModelHandler> ModelGeometryHandlerPair_t;
-      
       static GeometryModelHandler
-      buildGeomFromUrdf(const ModelHandler & model,
+      buildGeomFromUrdf(const Model & model,
                         const std::string & filename,
                         const GeometryType type
                         )
       {
         std::vector<std::string> hints;
         GeometryModel * geometry_model = new GeometryModel();
-        se3::urdf::buildGeom(*model, filename, type,*geometry_model,hints);
+        se3::urdf::buildGeom(model, filename, type,*geometry_model,hints);
         
         return GeometryModelHandler(geometry_model, true);
       }
 
       static GeometryModelHandler
-      buildGeomFromUrdf(const ModelHandler & model,
+      buildGeomFromUrdf(const Model & model,
                         const std::string & filename,
                         std::vector<std::string> & package_dirs,
                         const GeometryType type
                         )
       {
         GeometryModel * geometry_model = new GeometryModel();
-        se3::urdf::buildGeom(*model, filename, type,*geometry_model,package_dirs);
+        se3::urdf::buildGeom(model, filename, type,*geometry_model,package_dirs);
         
         return GeometryModelHandler(geometry_model, true);
       }
       
 #ifdef WITH_HPP_FCL
-      static void removeCollisionPairsFromSrdf(ModelHandler & model,
+      static void removeCollisionPairsFromSrdf(Model & model,
                                                GeometryModelHandler& geometry_model,
                                                const std::string & filename,
                                                bool verbose
                                                )
       {
-        se3::srdf::removeCollisionPairsFromSrdf(*model, *geometry_model, filename, verbose);
+        se3::srdf::removeCollisionPairsFromSrdf(model, *geometry_model, filename, verbose);
       }
 
 #endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
 
 #ifdef WITH_LUA
-      static ModelHandler buildModelFromLua(const std::string & filename,
+      static Model buildModelFromLua(const std::string & filename,
                                             bool ff,
                                             bool verbose
                                             )
       {
-        Model * model = new Model ();
-        *model = se3::lua::buildModel (filename, ff, verbose);
-        return ModelHandler (model,true);
+        Model model;
+        model = se3::lua::buildModel (filename, ff, verbose);
+        return model;
       }
 #endif // #ifdef WITH_LUA
 
-      static Eigen::VectorXd getNeutralConfigurationFromSrdf(ModelHandler & model,
+      static Eigen::VectorXd getNeutralConfigurationFromSrdf(Model & model,
                                                              const std::string & filename,
                                                              bool verbose
                                                             )
       {
-        return se3::srdf::getNeutralConfigurationFromSrdf(*model, filename, verbose);
+        return se3::srdf::getNeutralConfigurationFromSrdf(model, filename, verbose);
       }
 
       /* --- Expose --------------------------------------------------------- */
@@ -143,31 +140,29 @@ namespace se3
       
       
       bp::def("buildModelFromUrdf",
-              static_cast <ModelHandler (*) (const std::string &, bp::object &)> (&ParsersPythonVisitor::buildModelFromUrdf),
+              static_cast <Model (*) (const std::string &, bp::object &)> (&ParsersPythonVisitor::buildModelFromUrdf),
               bp::args("Filename (string)","Root Joint Model"),
               "Parse the urdf file given in input and return a pinocchio model starting with the given root joint model"
               "(remember to create the corresponding data structure)."
               );
       
       bp::def("buildModelFromUrdf",
-              static_cast <ModelHandler (*) (const std::string &)> (&ParsersPythonVisitor::buildModelFromUrdf),
+              static_cast <Model (*) (const std::string &)> (&ParsersPythonVisitor::buildModelFromUrdf),
               bp::args("Filename (string)"),
               "Parse the urdf file given in input and return a pinocchio model"
               "(remember to create the corresponding data structure)."
               );
       
       
-      bp::to_python_converter<std::pair<ModelHandler, GeometryModelHandler>, PairToTupleConverter<ModelHandler, GeometryModelHandler> >();
-      
       bp::def("buildGeomFromUrdf",
-              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &, std::vector<std::string> &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              static_cast <GeometryModelHandler (*) (const Model &, const std::string &, std::vector<std::string> &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)"
                        ),
               "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model "
               "(remember to create the corresponding data structures).");
       
       bp::def("buildGeomFromUrdf",
-              static_cast <GeometryModelHandler (*) (const ModelHandler &, const std::string &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              static_cast <GeometryModelHandler (*) (const Model &, const std::string &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)"),
               "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model "
               "(remember to create the corresponding data structures).");

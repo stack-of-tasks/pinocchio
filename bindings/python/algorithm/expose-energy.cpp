@@ -22,21 +22,21 @@ namespace se3
 {
   namespace python
   {
-    static double kineticEnergy_proxy(const ModelHandler & model,
+    static double kineticEnergy_proxy(const Model & model,
                                       DataHandler & data,
                                       const Eigen::VectorXd & q,
                                       const Eigen::VectorXd & v,
                                       const bool update_kinematics = true)
     {
-      return kineticEnergy(*model,*data,q,v,update_kinematics);
+      return kineticEnergy(model,*data,q,v,update_kinematics);
     }
     
-    static double potentialEnergy_proxy(const ModelHandler & model,
+    static double potentialEnergy_proxy(const Model & model,
                                         DataHandler & data,
                                         const Eigen::VectorXd & q,
                                         const bool update_kinematics = true)
     {
-      return potentialEnergy(*model,*data,q,update_kinematics);
+      return potentialEnergy(model,*data,q,update_kinematics);
     }
     
     void exposeEnergy()

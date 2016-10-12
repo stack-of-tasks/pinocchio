@@ -23,29 +23,29 @@ namespace se3
   namespace python
   {
     
-    static void fk_0_proxy(const ModelHandler & model,
+    static void fk_0_proxy(const Model & model,
                            DataHandler & data,
                            const Eigen::VectorXd & q)
     {
-      forwardKinematics(*model,*data,q);
+      forwardKinematics(model,*data,q);
     }
     
-    static void fk_1_proxy(const ModelHandler& model,
+    static void fk_1_proxy(const Model & model,
                            DataHandler & data,
                            const Eigen::VectorXd & q,
                            const Eigen::VectorXd & qdot )
     {
-      forwardKinematics(*model,*data,q,qdot);
+      forwardKinematics(model,*data,q,qdot);
     }
 
     
-    static void fk_2_proxy(const ModelHandler& model,
+    static void fk_2_proxy(const Model & model,
                            DataHandler & data,
                            const Eigen::VectorXd & q,
                            const Eigen::VectorXd & v,
                            const Eigen::VectorXd & a)
     {
-      forwardKinematics(*model,*data,q,v,a);
+      forwardKinematics(model,*data,q,v,a);
     }
     
     void exposeKinematics()

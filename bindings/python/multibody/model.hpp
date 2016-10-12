@@ -20,22 +20,20 @@
 #define __se3_python_model_hpp__
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
+#include <eigenpy/memory.hpp>
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
-#include "pinocchio/bindings/python/utils/handler.hpp"
+#include "pinocchio/bindings/python/utils/printable.hpp"
 
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Model)
 
 namespace se3
 {
   namespace python
   {
     namespace bp = boost::python;
-
-    typedef Handler<Model> ModelHandler;
 
     struct ModelPythonVisitor
       : public boost::python::def_visitor< ModelPythonVisitor >
@@ -48,12 +46,12 @@ namespace se3
     protected:
       struct addJointVisitor : public boost::static_visitor<Model::Index>
       {
-        ModelHandler & m_model;
+        Model & m_model;
         const JointIndex m_parent_id;
         const SE3 & m_joint_placement;
         const std::string & m_joint_name;
         
-        addJointVisitor(ModelHandler & model,
+        addJointVisitor(Model & model,
                         const JointIndex parent_id,
                         const SE3 & joint_placement,
                         const std::string & joint_name)
@@ -66,82 +64,74 @@ namespace se3
         template <typename JointModelDerived>
         JointIndex operator()(JointModelDerived & jmodel) const
         {
-          return m_model->addJoint(m_parent_id,jmodel,m_joint_placement,m_joint_name);
+          return m_model.addJoint(m_parent_id,jmodel,m_joint_placement,m_joint_name);
         }
       }; // struct addJointVisitor
       
     public:
-
-      /* --- Convert From C++ to Python ------------------------------------- */
-      // static PyObject* convert(Model const& modelConstRef)
-      // {
-      //  Model * ptr = const_cast<Model*>(&modelConstRef);
-      //  return boost::python::incref(boost::python::object(ModelHandler(ptr)).ptr());
-      // }
-      static PyObject* convert(ModelHandler::SmartPtr_t const& ptr)
-      {
-        return boost::python::incref(boost::python::object(ModelHandler(ptr)).ptr());
-      }
 
       /* --- Exposing C++ API to python through the handler ----------------- */
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
         cl
+        .def(bp::init<>("Default constructor. Constructs an empty model."))
           // Class Members
-
-          .def("__str__",&ModelPythonVisitor::toString)
-
-          .add_property("nq", &ModelPythonVisitor::nq)
-          .add_property("nv", &ModelPythonVisitor::nv)
-          .add_property("njoints", &ModelPythonVisitor::njoints)
-          .add_property("nbodies", &ModelPythonVisitor::nbodies)
-          .add_property("nframes", &ModelPythonVisitor::nframes)
-          .add_property("inertias",
-            bp::make_function(&ModelPythonVisitor::inertias,
-                  bp::return_internal_reference<>())  )
-          .add_property("jointPlacements",
-            bp::make_function(&ModelPythonVisitor::jointPlacements,
-                  bp::return_internal_reference<>())  )
-          .add_property("joints",
-            bp::make_function(&ModelPythonVisitor::joints,
-                  bp::return_internal_reference<>())  )
-          .add_property("parents", 
-            bp::make_function(&ModelPythonVisitor::parents,
-                  bp::return_internal_reference<>())  )
-          .add_property("names",
-            bp::make_function(&ModelPythonVisitor::names,
-                  bp::return_internal_reference<>())  )
-          .add_property("neutralConfiguration", bp::make_function(&ModelPythonVisitor::neutralConfiguration), "Joint's neutral configurations")
-          .add_property("effortLimit", bp::make_function(&ModelPythonVisitor::effortLimit), "Joint max effort")
-          .add_property("velocityLimit", bp::make_function(&ModelPythonVisitor::velocityLimit), "Joint max velocity")
-          .add_property("lowerPositionLimit", bp::make_function(&ModelPythonVisitor::lowerPositionLimit), "Limit for joint lower position")
-          .add_property("upperPositionLimit", bp::make_function(&ModelPythonVisitor::upperPositionLimit), "Limit for joint upper position")
+        .add_property("nq", &Model::nq)
+        .add_property("nv", &Model::nv)
+        .add_property("njoints", &Model::njoints)
+        .add_property("nbodies", &Model::nbodies)
+        .add_property("nframes", &Model::nframes)
+        .def_readwrite("inertias",&Model::inertias)
+        .def_readwrite("jointPlacements",&Model::jointPlacements)
+        .def_readwrite("joints",&Model::joints)
+        .def_readwrite("parents",&Model::parents)
+        .def_readwrite("names",&Model::names)
         
-          .add_property("frames", bp::make_function(&ModelPythonVisitor::frames, bp::return_internal_reference<>()),"Vector of frames contained in the model.")
-
-          .add_property("subtrees",
-                      bp::make_function(&ModelPythonVisitor::subtrees,
-                                        bp::return_internal_reference<>()), "Vector of subtrees. subtree[j] corresponds to the subtree supported by the joint j.")
+        .add_property("neutralConfiguration",
+                      make_getter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
+                      make_setter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
+                      "Joint's neutral configurations.")
+        .add_property("effortLimit",
+                      make_getter(&Model::effortLimit, bp::return_value_policy<bp::return_by_value>()),
+                      make_setter(&Model::effortLimit, bp::return_value_policy<bp::return_by_value>()),
+                      "Joint max effort.")
+        .add_property("velocityLimit",
+                      make_getter(&Model::velocityLimit, bp::return_value_policy<bp::return_by_value>()),
+                      make_setter(&Model::velocityLimit, bp::return_value_policy<bp::return_by_value>()),
+                      "Joint max velocity.")
+        .add_property("lowerPositionLimit",
+                      make_getter(&Model::lowerPositionLimit, bp::return_value_policy<bp::return_by_value>()),
+                      make_setter(&Model::lowerPositionLimit, bp::return_value_policy<bp::return_by_value>()),
+                      "Limit for joint lower position.")
+        .add_property("upperPositionLimit",
+                      make_getter(&Model::upperPositionLimit, bp::return_value_policy<bp::return_by_value>()),
+                      make_setter(&Model::upperPositionLimit, bp::return_value_policy<bp::return_by_value>()),
+                      "Limit for joint upper position.")
         
-          .add_property("gravity",&ModelPythonVisitor::gravity,&ModelPythonVisitor::setGravity)
+        .def_readwrite("frames",&Model::frames,"Vector of frames contained in the model.")
+
+        .def_readwrite("subtrees",
+                       &Model::frames,
+                       "Vector of subtrees. subtree[j] corresponds to the subtree supported by the joint j.")
+        
+        .def_readwrite("gravity",&Model::gravity,"Motion vector corresponding to the gravity field expressed in the world Frame.")
 
           // Class Methods
           .def("addJoint",&ModelPythonVisitor::addJoint,bp::args("parent_id","joint_model","joint_placement","joint_name"),"Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
-          // ADD addJoint with limits ? See boost::python overloading/default parameters
-          .def("addJointFrame", &ModelPythonVisitor::addJointFrame, bp::args("jointIndex", "frameIndex"), "add the joint at index jointIndex as a frame to the frame tree")
-          .def("appendBodyToJoint",&ModelPythonVisitor::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
+          .def("addJointFrame", &Model::addJointFrame, bp::args("jointIndex", "frameIndex"), "add the joint at index jointIndex as a frame to the frame tree")
+          .def("appendBodyToJoint",&Model::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
 
-          .def("addBodyFrame", &ModelPythonVisitor::addBodyFrame, bp::args("body_name", "parentJoint", "body_plaement", "previous_frame(parent frame)"), "add a body to the frame tree")
-          .def("getBodyId",&ModelPythonVisitor::getBodyId, bp::args("name"), "Return the index of a frame of type BODY given by its name")
-          .def("existBodyName", &ModelPythonVisitor::existBodyName, bp::args("name"), "Check if a frame of type BODY exists, given its name")
-          .def("getJointId",&ModelPythonVisitor::getJointId, bp::args("name"), "Return the index of a joint given by its name")
-          .def("existJointName", &ModelPythonVisitor::existJointName, bp::args("name"), "Check if a joint given by its name exists")
-          .def("getFrameId",&ModelPythonVisitor::getFrameId,bp::args("name"),"Returns the index of the frame given by its name. If the frame is not in the frames vector, it returns the current size of the frames vector.")
-          .def("existFrame",&ModelPythonVisitor::existFrame,bp::args("name"),"Returns true if the frame given by its name exists inside the Model.")
+          .def("addBodyFrame", &Model::addBodyFrame, bp::args("body_name", "parentJoint", "body_plaement", "previous_frame(parent frame)"), "add a body to the frame tree")
+          .def("getBodyId",&Model::getBodyId, bp::args("name"), "Return the index of a frame of type BODY given by its name")
+          .def("existBodyName", &Model::existBodyName, bp::args("name"), "Check if a frame of type BODY exists, given its name")
+          .def("getJointId",&Model::getJointId, bp::args("name"), "Return the index of a joint given by its name")
+          .def("existJointName", &Model::existJointName, bp::args("name"), "Check if a joint given by its name exists")
+          .def("getFrameId",&Model::getFrameId,bp::args("name"),"Returns the index of the frame given by its name. If the frame is not in the frames vector, it returns the current size of the frames vector.")
+          .def("existFrame",&Model::existFrame,bp::args("name"),"Returns true if the frame given by its name exists inside the Model.")
 
-          .def("addFrame",(bool (*)(ModelHandler&,const std::string &,const JointIndex, const FrameIndex, const SE3 &,const FrameType &)) &ModelPythonVisitor::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
-          .def("addFrame",(bool (*)(ModelHandler&,const Frame &)) &ModelPythonVisitor::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
+        .def("addFrame",(bool (Model::*)(const std::string &,const JointIndex, const FrameIndex, const SE3 &,const FrameType &)) &Model::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
+        .def("addFrame",(bool (Model::*)(const Frame &)) &Model::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
 
           .def("createData",&ModelPythonVisitor::createData)
           .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
@@ -152,28 +142,7 @@ namespace se3
       }
 
       
-      static int nq( ModelHandler & m ) { return m->nq; }
-      static int nv( ModelHandler & m ) { return m->nv; }
-      static int njoints( ModelHandler & m ) { return m->njoints; }
-      static int nbodies( ModelHandler & m ) { return m->nbodies; }
-      static int nframes( ModelHandler & m ) { return m->nframes; }
-      static container::aligned_vector<Inertia> & inertias( ModelHandler & m ) { return m->inertias; }
-      static container::aligned_vector<SE3> & jointPlacements( ModelHandler & m ) { return m->jointPlacements; }
-      static JointModelVector & joints( ModelHandler & m ) { return m->joints; }
-      static std::vector<Model::JointIndex> & parents( ModelHandler & m ) { return m->parents; }
-      static std::vector<std::string> & names ( ModelHandler & m ) { return m->names; }
-      static Eigen::VectorXd neutralConfiguration(ModelHandler & m) {return m->neutralConfiguration;}
-      static Eigen::VectorXd effortLimit(ModelHandler & m) {return m->effortLimit;}
-      static Eigen::VectorXd velocityLimit(ModelHandler & m) {return m->velocityLimit;}
-      static Eigen::VectorXd lowerPositionLimit(ModelHandler & m) {return m->lowerPositionLimit;}
-      static Eigen::VectorXd upperPositionLimit(ModelHandler & m) {return m->upperPositionLimit;}
-      static container::aligned_vector<Frame> & frames ( ModelHandler & m ) {return m->frames; }
-      static std::vector<Model::IndexVector> & subtrees(ModelHandler & m) { return m->subtrees; }
-
-      static Motion gravity( ModelHandler & m ) { return m->gravity; }
-      static void setGravity( ModelHandler & m,const Motion & g ) { m->gravity = g; }
-
-      static JointIndex addJoint(ModelHandler & model,
+      static JointIndex addJoint(Model & model,
                                  JointIndex parent_id,
                                  bp::object jmodel,
                                  const SE3 & joint_placement,
@@ -183,65 +152,19 @@ namespace se3
         return boost::apply_visitor(addJointVisitor(model,parent_id,joint_placement,joint_name), jmodel_variant);
       }
       
-      static int addJointFrame( ModelHandler & m, const JointIndex jointIndex, int frameIndex)
+      static boost::shared_ptr<Data> createData(const Model & model)
+      { return boost::shared_ptr<Data>( new Data(model) );      }
+
+      static Model maker_empty()
       {
-        return m->addJointFrame(jointIndex, frameIndex);
+        return Model();
       }
-
-      static void appendBodyToJoint(ModelHandler & model,
-                                    const JointIndex joint_parent_id,
-                                    const Inertia & inertia,
-                                    const SE3 & body_placement)
+      static Model maker_humanoidSimple()
       {
-        model->appendBodyToJoint(joint_parent_id,inertia,body_placement);
+        Model model;
+        buildModels::humanoidSimple(model);
+        return model;
       }
-
-      static bool addBodyFrame( ModelHandler & m, const std::string & bodyName, const JointIndex parentJoint, const SE3 & bodyPlacement, int previousFrame)
-      {
-        return m->addBodyFrame(bodyName,parentJoint,bodyPlacement,previousFrame);
-      }
-
-      static Model::Index getBodyId( const ModelHandler & m, const std::string & name )
-      { return  m->getBodyId(name); }
-
-      static bool existBodyName( const ModelHandler & m, const std::string & name )
-      { return  m->existBodyName(name); }
-
-      static Model::Index getJointId( const ModelHandler & m, const std::string & name )
-      { return  m->getJointId(name); }
-
-      static bool existJointName( const ModelHandler & m, const std::string & name )
-      { return  m->existJointName(name); }
-
-      static Model::FrameIndex getFrameId(const ModelHandler & m, const std::string & frame_name)
-      { return m->getFrameId(frame_name); }
-      static bool existFrame(const ModelHandler & m, const std::string & frame_name)
-      { return m->existFrame(frame_name); }
-
-      static bool addFrame(ModelHandler & m, const Frame & frame) { return m->addFrame(frame); }
-      static bool addFrame( ModelHandler & m, const std::string & frameName, const JointIndex parentJoint, const FrameIndex parentFrame, const SE3 & placementWrtParent, const FrameType & type)
-      {
-        return m->addFrame(Frame(frameName,parentJoint,parentFrame,placementWrtParent,type));
-      }
-      
-
-
-      static boost::shared_ptr<Data> createData(const ModelHandler& m )
-      { return boost::shared_ptr<Data>( new Data(*m) );      } 
-
-      static ModelHandler maker_empty()
-      {
-        return ModelHandler( new Model(),true );
-      }
-      static ModelHandler maker_humanoidSimple()
-      {
-        Model * model = new Model();
-        buildModels::humanoidSimple(*model);
-        return ModelHandler( model,true );
-      }
-
-      static std::string toString(const ModelHandler& m) 
-      {   std::ostringstream s; s << *m; return s.str();       }
 
       ///
       /// \brief Provide equivalent to python list index function for
@@ -283,15 +206,13 @@ namespace se3
         bp::class_< std::vector<double> >("StdVec_double")
           .def(bp::vector_indexing_suite< std::vector<double> >()); 
 
-        bp::class_<ModelHandler>("Model",
-                                 "Articulated rigid body model (const)",
-                                 bp::no_init)
-          .def(ModelPythonVisitor());
+        bp::class_<Model>("Model",
+                          "Articulated rigid body model (const)",
+                          bp::no_init)
+        .def(ModelPythonVisitor())
+        .def(PrintableVisitor<SE3>())
+        ;
       
-        /* Not sure if it is a good idea to enable automatic
-         * conversion. Prevent it for now */
-        //bp::to_python_converter< Model,ModelPythonVisitor >();
-        bp::to_python_converter< ModelHandler::SmartPtr_t,ModelPythonVisitor >();
       }
 
 

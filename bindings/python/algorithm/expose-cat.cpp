@@ -22,13 +22,13 @@ namespace se3
 {
   namespace python
   {
-    static void computeAllTerms_proxy(const ModelHandler & model,
+    static void computeAllTerms_proxy(const Model & model,
                                       DataHandler & data,
                                       const Eigen::VectorXd & q,
                                       const Eigen::VectorXd & v)
     {
       data->M.fill(0);
-      computeAllTerms(*model,*data,q,v);
+      computeAllTerms(model,*data,q,v);
       data->M.triangularView<Eigen::StrictlyLower>()
       = data->M.transpose().triangularView<Eigen::StrictlyLower>();
     }

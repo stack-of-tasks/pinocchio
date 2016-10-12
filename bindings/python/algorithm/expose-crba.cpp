@@ -22,23 +22,23 @@ namespace se3
 {
   namespace python
   {
-    static Eigen::MatrixXd crba_proxy(const ModelHandler& model,
+    static Eigen::MatrixXd crba_proxy(const Model & model,
                                       DataHandler & data,
                                       const Eigen::VectorXd & q)
     {
       data->M.fill(0);
-      crba(*model,*data,q);
+      crba(model,*data,q);
       data->M.triangularView<Eigen::StrictlyLower>()
       = data->M.transpose().triangularView<Eigen::StrictlyLower>();
       return data->M;
     }
     
-    static Data::Matrix6x ccrba_proxy(const ModelHandler& model,
+    static Data::Matrix6x ccrba_proxy(const Model & model,
                                       DataHandler & data,
                                       const Eigen::VectorXd & q,
                                       const Eigen::VectorXd & v)
     {
-      ccrba(*model,*data,q,v);
+      ccrba(model,*data,q,v);
       return data->Ag;
     }
     

@@ -23,7 +23,7 @@ namespace se3
   namespace python
   {
     
-    static Data::Matrix6x frame_jacobian_proxy(const ModelHandler & model,
+    static Data::Matrix6x frame_jacobian_proxy(const Model & model,
                                                DataHandler & data,
                                                const Eigen::VectorXd & q,
                                                Model::FrameIndex frame_id,
@@ -31,23 +31,23 @@ namespace se3
                                                bool update_geometry
                                                )
     {
-      Data::Matrix6x J(6,model->nv); J.setZero();
+      Data::Matrix6x J(6,model.nv); J.setZero();
       
       if (update_geometry)
-        computeJacobians( *model,*data,q );
+        computeJacobians( model,*data,q );
       
-      if(local) getFrameJacobian<true> (*model, *data, frame_id, J);
-      else getFrameJacobian<false> (*model, *data, frame_id, J);
+      if(local) getFrameJacobian<true> (model, *data, frame_id, J);
+      else getFrameJacobian<false> (model, *data, frame_id, J);
       
       return J;
     }
     
-    static void frames_fk_0_proxy(const ModelHandler& model,
+    static void frames_fk_0_proxy(const Model & model,
                                   DataHandler & data,
                                   const Eigen::VectorXd & q
                                   )
     {
-      framesForwardKinematics( *model,*data,q );
+      framesForwardKinematics( model,*data,q );
     }
     
     void exposeFramesAlgo()
