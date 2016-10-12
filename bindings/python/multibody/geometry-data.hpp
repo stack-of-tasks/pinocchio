@@ -19,14 +19,12 @@
 #define __se3_python_geometry_data_hpp__
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
+#include <eigenpy/memory.hpp>
 
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
-#include "pinocchio/bindings/python/utils/handler.hpp"
-#include "pinocchio/bindings/python/multibody/geometry-model.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::GeometryData)
 
 namespace fcl
 {
@@ -75,119 +73,75 @@ namespace se3
       
     }; // struct CollisionPairPythonVisitor
 
-    /* ---------------------------------------------------------------------- */
-    /* ---------------------------------------------------------------------- */
-    /* ---------------------------------------------------------------------- */
-    typedef Handler<GeometryData> GeometryDataHandler;
-    
     struct GeometryDataPythonVisitor
       : public boost::python::def_visitor< GeometryDataPythonVisitor >
     {
       
-      /* --- Convert From C++ to Python ------------------------------------- */
-      static PyObject* convert(GeometryDataHandler::SmartPtr_t const& ptr)
-      {
-        return boost::python::incref(boost::python::object(GeometryDataHandler(ptr)).ptr());
-      }
+    
 
       /* --- Exposing C++ API to python through the handler ----------------- */
       template<class PyClass>
       void visit(PyClass& cl) const
       {
         cl
-        .def("__init__",
-             bp::make_constructor(&GeometryDataPythonVisitor::makeDefault,
-                                  bp::default_call_policies(),
-                                  (bp::arg("geometry_model"))),
-             "Initialize from the geometry model.")
+        .def(bp::init<GeometryModel>(bp::arg("geometry_model"), "Default constructor from a given GeometryModel"))
         
-        .add_property("oMg",
-                      bp::make_function(&GeometryDataPythonVisitor::oMg,
-                                        bp::return_internal_reference<>()),
+        .def_readonly("oMg",
+                      &GeometryData::oMg,
                       "Vector of collision objects placement relative to the world.")
 #ifdef WITH_HPP_FCL
-        .add_property("activeCollisionPairs",
-                      bp::make_function(&GeometryDataPythonVisitor::activeCollisionPairs,
-                                        bp::return_internal_reference<>()))
-        .add_property("distanceRequest",
-                      bp::make_function(&GeometryDataPythonVisitor::distanceRequest,
-                                        bp::return_internal_reference<>()),
-                      "Defines what information should be computed by fcl for distances")
-        .add_property("distanceResults",
-                      bp::make_function(&GeometryDataPythonVisitor::distanceResults,
-                                        bp::return_internal_reference<>()),
-                      "Vector of distance results computed in ")
-        .add_property("CollisionRequest",
-                      bp::make_function(&GeometryDataPythonVisitor::CollisionRequest,
-                                        bp::return_internal_reference<>()),
-                      "Defines what information should be computed by fcl for collision tests")
-        .add_property("collision_results",
-                      bp::make_function(&GeometryDataPythonVisitor::collision_results,
-                                        bp::return_internal_reference<>())  )
-        .add_property("radius",
-                      bp::make_function(&GeometryDataPythonVisitor::radius,
-                                        bp::return_internal_reference<>()),
+        .def_readonly("activeCollisionPairs",
+                      &GeometryData::activeCollisionPairs,
+                      "Vector of active CollisionPairs")
+        .def_readonly("distanceRequest",
+                      &GeometryData::distanceRequest,
+                      "Defines which information should be computed by fcl for distances")
+        .def_readonly("distanceResults",
+                      &GeometryData::distanceResults,
+                      "Vector of distance results.")
+        .def_readonly("collisionRequest",
+                      &GeometryData::collisionRequest,
+                      "Defines which information should be computed by fcl for collisions.")
+        .def_readonly("collisionResults",
+                      &GeometryData::collisionResults,
+                      "Vector of collision results.")
+        .def_readonly("radius",
+                      &GeometryData::radius,
                       "Vector of radius of bodies, ie distance of the further point of the geometry object from the joint center ")
         
-        .def("fillInnerOuterObjectMaps", &GeometryDataPythonVisitor::fillInnerOuterObjectMaps,
+        .def("fillInnerOuterObjectMaps", &GeometryData::fillInnerOuterObjectMaps,
              bp::args("GeometryModel"),
              "Fill inner and outer objects maps")
-        .def("activateCollisionPair",&GeometryDataPythonVisitor::activateCollisionPair,
+        .def("activateCollisionPair",&GeometryData::activateCollisionPair,
              bp::args("pairIndex (int)"),
              "Activate pair ID <pairIndex> in geomModel.collisionPairs."
              "Only active pairs are check for collision and distance computation.")
-        .def("deactivateCollisionPair",&GeometryDataPythonVisitor::deactivateCollisionPair,
+        .def("deactivateCollisionPair",&GeometryData::deactivateCollisionPair,
              bp::args("pairIndex (int)"),
              "Deactivate pair ID <pairIndex> in geomModel.collisionPairs.")
 
 #endif // WITH_HPP_FCL        
-        .def("__str__",&GeometryDataPythonVisitor::toString)
         ;
       }
-      
-      static GeometryDataHandler* makeDefault(const GeometryModel & geometry_model)
-      {
-        return new GeometryDataHandler(new GeometryData(geometry_model), true);
-      }
-
-      static container::aligned_vector<SE3> & oMg(GeometryDataHandler & m) { return m->oMg; }
-#ifdef WITH_HPP_FCL      
-      static std::vector<bool> & activeCollisionPairs(GeometryDataHandler & m) { return m->activeCollisionPairs; }
-      static fcl::DistanceRequest & distanceRequest( GeometryDataHandler & m ) { return m->distanceRequest; }
-      static std::vector<fcl::DistanceResult> & distanceResults( GeometryDataHandler & m ) { return m->distanceResults; }
-      static fcl::CollisionRequest & CollisionRequest( GeometryDataHandler & m ) { return m->collisionRequest; } 
-      static std::vector<fcl::CollisionResult> & collision_results( GeometryDataHandler & m ) { return m->collisionResults; }
-      static std::vector<double> & radius( GeometryDataHandler & m ) { return m->radius; }
-
-      static void fillInnerOuterObjectMaps(GeometryDataHandler & m, const GeometryModel & model)
-      {m->fillInnerOuterObjectMaps(model);}
-
-      static void activateCollisionPair(GeometryDataHandler & m,
-                                        Index pairID) { m->activateCollisionPair(pairID); } 
-      static void deactivateCollisionPair(GeometryDataHandler & m,
-                                          Index pairID) { m->deactivateCollisionPair(pairID); } 
-      
-#endif // WITH_HPP_FCL      
-      
-      static std::string toString(const GeometryDataHandler& m)
-      {	  std::ostringstream s; s << *m; return s.str();       }
+             
 
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-#ifdef WITH_HPP_FCL        
+#ifdef WITH_HPP_FCL
         bp::class_< std::vector<fcl::DistanceResult> >("StdVec_DistanceResult")
         .def(bp::vector_indexing_suite< std::vector<fcl::DistanceResult> >());
   
         bp::class_< std::vector<fcl::CollisionResult> >("StdVec_CollisionResult")
         .def(bp::vector_indexing_suite< std::vector<fcl::CollisionResult> >());
 #endif // WITH_HPP_FCL
-        bp::class_<GeometryDataHandler>("GeometryData",
-                                        "Geometry data linked to a geometry model and data struct.",
-                                        bp::no_init)
-        .def(GeometryDataPythonVisitor());
+        bp::class_<GeometryData>("GeometryData",
+                                 "Geometry data linked to a geometry model and data struct.",
+                                 bp::no_init)
+        .def(GeometryDataPythonVisitor())
+        .def(PrintableVisitor<GeometryData>())
+        ;
      
-        bp::to_python_converter< GeometryDataHandler::SmartPtr_t,GeometryDataPythonVisitor >();
       }
 
     };

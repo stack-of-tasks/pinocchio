@@ -17,9 +17,6 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
-#include "pinocchio/bindings/python/multibody/geometry-object.hpp"
-#include "pinocchio/bindings/python/multibody/geometry-model.hpp"
-#include "pinocchio/bindings/python/multibody/geometry-data.hpp"
 
 namespace se3
 {
@@ -29,60 +26,60 @@ namespace se3
     static void updateGeometryPlacements_proxy(const Model & model,
                                                Data & data,
                                                const GeometryModel & model_geom,
-                                               GeometryDataHandler & data_geom,
+                                               GeometryData & data_geom,
                                                const Eigen::VectorXd & q
                                                )
     {
-      return updateGeometryPlacements(model, data, model_geom, *data_geom, q);
+      return updateGeometryPlacements(model, data, model_geom, data_geom, q);
     }
 
 #ifdef WITH_HPP_FCL   
 
     static bool computeCollision_proxy(const GeometryModel & model_geom,
-                                       GeometryDataHandler & data_geom,
+                                       GeometryData & data_geom,
                                        const PairIndex & pairId)
     {
-      return computeCollision(model_geom, *data_geom, pairId);
+      return computeCollision(model_geom, data_geom, pairId);
     }
 
     static bool computeCollisions_proxy(const GeometryModel & model_geom,
-                                        GeometryDataHandler & data_geom,
+                                        GeometryData & data_geom,
                                         const bool stopAtFirstCollision)
     {
-      return computeCollisions(model_geom, *data_geom, stopAtFirstCollision);
+      return computeCollisions(model_geom, data_geom, stopAtFirstCollision);
     }
     
     static bool computeGeometryAndCollisions_proxy(const Model & model,
                                                    Data & data,
                                                    const GeometryModel & model_geom,
-                                                   GeometryDataHandler & data_geom,
+                                                   GeometryData & data_geom,
                                                    const Eigen::VectorXd & q,
                                                    const bool stopAtFirstCollision)
     {
-      return computeCollisions(model,data,model_geom, *data_geom, q, stopAtFirstCollision);
+      return computeCollisions(model,data,model_geom, data_geom, q, stopAtFirstCollision);
     }
     
     static fcl::DistanceResult computeDistance_proxy(const GeometryModel & model_geom,
-                                                     GeometryDataHandler & data_geom,
+                                                     GeometryData & data_geom,
                                                      const PairIndex & pairId)
     {
-      return computeDistance(model_geom, *data_geom, pairId);
+      return computeDistance(model_geom, data_geom, pairId);
     }
 
     static std::size_t computeDistances_proxy(const GeometryModel & model_geom,
-                                              GeometryDataHandler & data_geom)
+                                              GeometryData & data_geom)
     {
-      return computeDistances(model_geom, *data_geom);
+      return computeDistances(model_geom, data_geom);
     }
     
     static std::size_t computeGeometryAndDistances_proxy(const Model & model,
                                                          Data & data,
                                                          const GeometryModel & model_geom,
-                                                         GeometryDataHandler & data_geom,
+                                                         GeometryData & data_geom,
                                                          const Eigen::VectorXd & q
                                                          )
     {
-      return computeDistances<true>(model, data, model_geom, *data_geom, q);
+      return computeDistances<true>(model, data, model_geom, data_geom, q);
     }
 
 #endif // WITH_HPP_FCL
