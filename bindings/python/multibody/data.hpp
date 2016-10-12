@@ -19,19 +19,17 @@
 #define __se3_python_data_hpp__
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/bindings/python/utils/handler.hpp"
 
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
+#include <eigenpy/memory.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Data)
 
 namespace se3
 {
   namespace python
   {
     namespace bp = boost::python;
-
-    typedef Handler<Data> DataHandler;
 
     struct DataPythonVisitor
       : public boost::python::def_visitor< DataPythonVisitor >
@@ -42,33 +40,28 @@ namespace se3
 
     public:
 
-      /* --- Convert From C++ to Python ------------------------------------- */
-      static PyObject* convert(DataHandler::SmartPtr_t const& ptr)
-      {
-	return boost::python::incref(boost::python::object(DataHandler(ptr)).ptr());
-      }
-
 #define ADD_DATA_PROPERTY(TYPE,NAME,DOC)				 \
+      def_readwrite(#NAME,						 \
+      &Data::NAME,		 \
+      DOC)
+      
+#define ADD_DATA_PROPERTY_READONLY(TYPE,NAME,DOC)				 \
+      def_readonly(#NAME,						 \
+      &Data::NAME,		 \
+      DOC)
+      
+#define ADD_DATA_PROPERTY_READONLY_BYVALUE(TYPE,NAME,DOC)				 \
       add_property(#NAME,						 \
-		   bp::make_function(&DataPythonVisitor::NAME,		 \
-				     bp::return_internal_reference<>()), \
-		   DOC)
-#define ADD_DATA_PROPERTY_CONST(TYPE,NAME,DOC)				 \
-      add_property(#NAME,						 \
-		   bp::make_function(&DataPythonVisitor::NAME),		 \
-		   DOC)
-
-#define IMPL_DATA_PROPERTY(TYPE,NAME,DOC)			\
-      static TYPE & NAME( DataHandler & d ) { return d->NAME; }                
-#define IMPL_DATA_PROPERTY_CONST(TYPE,NAME,DOC)			\
-      static TYPE NAME( DataHandler & d ) { return d->NAME; }                
-       
+      make_getter(&Data::NAME,bp::return_value_policy<bp::return_by_value>()), \
+      DOC)
+      
 	 
       /* --- Exposing C++ API to python through the handler ----------------- */
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
         cl
+        .def(bp::init<Model>(bp::arg("Molde"),"Constructs a data structure from a given model."))
         
         .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a,"Body acceleration")
         .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a_gf,"Body acceleration containing also the gravity acceleration")
@@ -77,97 +70,53 @@ namespace se3
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,oMi,"Body absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,oMf,"frames absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,liMi,"Body relative placement (wrt parent)")
-        .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,tau,"Joint forces")
-        .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,nle,"Non Linear Effects")
-        .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,ddq,"Joint accelerations")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,tau,"Joint forces")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,nle,"Non Linear Effects")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,ddq,"Joint accelerations")
         .ADD_DATA_PROPERTY(container::aligned_vector<Inertia>,Ycrb,"Inertia of the sub-tree composit rigid body")
-        .ADD_DATA_PROPERTY_CONST(Eigen::MatrixXd,M,"Joint Inertia matrix")
-        .ADD_DATA_PROPERTY_CONST(container::aligned_vector<Matrix6x>,Fcrb,"Spatial forces set, used in CRBA")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,M,"Joint Inertia matrix")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Matrix6x>,Fcrb,"Spatial forces set, used in CRBA")
         .ADD_DATA_PROPERTY(std::vector<int>,lastChild,"Index of the last child (for CRBA)")
         .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree,"Dimension of the subtree motion space (for CRBA)")
-        .ADD_DATA_PROPERTY_CONST(Eigen::MatrixXd,U,"Joint Inertia square root (upper triangle)")
-        .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,D,"Diagonal of UDUT inertia decomposition")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,U,"Joint Inertia square root (upper triangle)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,D,"Diagonal of UDUT inertia decomposition")
         .ADD_DATA_PROPERTY(std::vector<int>,parents_fromRow,"First previous non-zero row in M (used in Cholesky)")
         .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree_fromRow,"")
-        .ADD_DATA_PROPERTY_CONST(Matrix6x,J,"Jacobian of joint placement")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,J,"Jacobian of joint placement")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
         
-        .ADD_DATA_PROPERTY_CONST(Matrix6x,Ag,
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,Ag,
                                  "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
-        .ADD_DATA_PROPERTY_CONST(Force,hg,
-                                 "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the inertial frame).")
-        .ADD_DATA_PROPERTY_CONST(Inertia,Ig,
-                                 "Centroidal Composite Rigid Body Inertia.")
+        .ADD_DATA_PROPERTY_READONLY(Force,hg,
+                                    "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the inertial frame).")
+        .ADD_DATA_PROPERTY_READONLY(Inertia,Ig,
+                                    "Centroidal Composite Rigid Body Inertia.")
         
         .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,com,"Subtree com position.")
         .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,vcom,"Subtree com velocity.")
         .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,acom,"Subtree com acceleration.")
         .ADD_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
-        .ADD_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix3x,Jcom,"Jacobian of center of mass.")
 
         
-        .ADD_DATA_PROPERTY_CONST(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
-        .ADD_DATA_PROPERTY_CONST(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
         
-        .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,lambda_c,"Lagrange Multipliers linked to contact forces")
-        .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,impulse_c,"Lagrange Multipliers linked to contact impulses")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,lambda_c,"Lagrange Multipliers linked to contact forces")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,impulse_c,"Lagrange Multipliers linked to contact impulses")
         
-        .ADD_DATA_PROPERTY_CONST(Eigen::VectorXd,dq_after,"Generalized velocity after the impact.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,dq_after,"Generalized velocity after the impact.")
         ;
       }
 
-      IMPL_DATA_PROPERTY(container::aligned_vector<Motion>,a,"Body acceleration")
-      IMPL_DATA_PROPERTY(container::aligned_vector<Motion>,a_gf,"Body acceleration containing also the gravity acceleration")
-      IMPL_DATA_PROPERTY(container::aligned_vector<Motion>,v,"Body velocity")
-      IMPL_DATA_PROPERTY(container::aligned_vector<Force>,f,"Body force")
-      IMPL_DATA_PROPERTY(container::aligned_vector<SE3>,oMi,"Body absolute placement (wrt world)")
-      IMPL_DATA_PROPERTY(container::aligned_vector<SE3>,oMf,"frames absolute placement (wrt world)")
-      IMPL_DATA_PROPERTY(container::aligned_vector<SE3>,liMi,"Body relative placement (wrt parent)")
-      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,tau,"Joint forces")
-      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,nle,"Non Linear Effects")
-      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,ddq,"Joint acceleration")
-      IMPL_DATA_PROPERTY(container::aligned_vector<Inertia>,Ycrb,"Inertia of the sub-tree composit rigid body")
-      IMPL_DATA_PROPERTY_CONST(Eigen::MatrixXd,M,"Joint Inertia")
-      IMPL_DATA_PROPERTY_CONST(container::aligned_vector<Matrix6x>,Fcrb,"Spatial forces set, used in CRBA")
-      IMPL_DATA_PROPERTY(std::vector<int>,lastChild,"Index of the last child (for CRBA)")
-      IMPL_DATA_PROPERTY(std::vector<int>,nvSubtree,"Dimension of the subtree motion space (for CRBA)")
-      IMPL_DATA_PROPERTY_CONST(Eigen::MatrixXd,U,"Joint Inertia square root (upper triangle)")
-      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,D,"Diagonal of UDUT inertia decomposition")
-      IMPL_DATA_PROPERTY(std::vector<int>,parents_fromRow,"First previous non-zero row in M (used in Cholesky)")
-      IMPL_DATA_PROPERTY(std::vector<int>,nvSubtree_fromRow,"")
-      IMPL_DATA_PROPERTY_CONST(Matrix6x,J,"Jacobian of joint placement")
-      IMPL_DATA_PROPERTY(container::aligned_vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
-      
-      IMPL_DATA_PROPERTY_CONST(Matrix6x,Ag,
-                               "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
-      IMPL_DATA_PROPERTY_CONST(Force,hg,
-                               "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the inertial frame).")
-      IMPL_DATA_PROPERTY_CONST(Inertia,Ig,
-                               "Centroidal Composite Rigid Body Inertia.")
-      
-      IMPL_DATA_PROPERTY(container::aligned_vector<Vector3>,com,"Subtree com position.")
-      IMPL_DATA_PROPERTY(container::aligned_vector<Vector3>,vcom,"Subtree com velocity.")
-      IMPL_DATA_PROPERTY(container::aligned_vector<Vector3>,acom,"Subtree com acceleration.")
-      IMPL_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
-      IMPL_DATA_PROPERTY_CONST(Matrix3x,Jcom,"Jacobian of center of mass.")
-
-      
-      IMPL_DATA_PROPERTY_CONST(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
-      IMPL_DATA_PROPERTY_CONST(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
-      
-      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,lambda_c,"Lagrange Multipliers linked to contact forces")
-      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,impulse_c,"Lagrange Multipliers linked to contact impulses")
-      IMPL_DATA_PROPERTY_CONST(Eigen::VectorXd,dq_after,"Generalized velocity after the impact.")
-      
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-        bp::class_<DataHandler>("Data",
-                                "Articulated rigid body data (const)",
-                                bp::no_init)
+        bp::class_<Data>("Data",
+                         "Articulated rigid body data (const)",
+                         bp::no_init)
         .def(DataPythonVisitor());
         
-        bp::to_python_converter< DataHandler::SmartPtr_t,DataPythonVisitor >();
         bp::class_< container::aligned_vector<Vector3> >("StdVec_vec3d")
         .def(bp::vector_indexing_suite< container::aligned_vector<Vector3>, true >());
       }

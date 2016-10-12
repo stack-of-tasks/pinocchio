@@ -24,16 +24,16 @@ namespace se3
   {
     
     static void compute_jacobians_proxy(const Model & model,
-                                        DataHandler & data,
+                                        Data & data,
                                         const Eigen::VectorXd & q)
     {
-      computeJacobians(model,*data,q);
+      computeJacobians(model,data,q);
     }
     
   
     static Data::Matrix6x
     jacobian_proxy(const Model & model,
-                   DataHandler & data,
+                   Data & data,
                    const Eigen::VectorXd & q,
                    Model::JointIndex jointId,
                    bool local,
@@ -42,10 +42,10 @@ namespace se3
       Data::Matrix6x J(6,model.nv); J.setZero();
       
       if (update_geometry)
-        computeJacobians(model,*data,q);
+        computeJacobians(model,data,q);
       
-      if(local) getJacobian<true> (model,*data,jointId,J);
-      else getJacobian<false> (model,*data,jointId,J);
+      if(local) getJacobian<true> (model,data,jointId,J);
+      else getJacobian<false> (model,data,jointId,J);
       
       return J;
     }

@@ -23,7 +23,7 @@ namespace se3
   namespace python
   {
     static Eigen::MatrixXd fd_llt_proxy(const Model & model,
-                                        DataHandler & data,
+                                        Data & data,
                                         const Eigen::VectorXd & q,
                                         const Eigen::VectorXd & v,
                                         const Eigen::VectorXd & tau,
@@ -31,20 +31,20 @@ namespace se3
                                         const Eigen::VectorXd & gamma,
                                         const bool update_kinematics = true)
     {
-      forwardDynamics(model,*data,q,v,tau,J,gamma,update_kinematics);
-      return data->ddq;
+      forwardDynamics(model,data,q,v,tau,J,gamma,update_kinematics);
+      return data.ddq;
     }
     
     static Eigen::MatrixXd id_llt_proxy(const Model & model,
-                                        DataHandler & data,
+                                        Data & data,
                                         const Eigen::VectorXd & q,
                                         const Eigen::VectorXd & v_before,
                                         const Eigen::MatrixXd & J,
                                         const double r_coeff,
                                         const bool update_kinematics = true)
     {
-      impulseDynamics(model,*data,q,v_before,J,r_coeff,update_kinematics);
-      return data->dq_after;
+      impulseDynamics(model,data,q,v_before,J,r_coeff,update_kinematics);
+      return data.dq_after;
     }
     
     void exposeDynamics()

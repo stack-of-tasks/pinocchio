@@ -23,30 +23,30 @@ namespace se3
   namespace python
   {
     static Eigen::VectorXd rnea_proxy(const Model & model,
-                                      DataHandler & data,
+                                      Data & data,
                                       const Eigen::VectorXd & q,
                                       const Eigen::VectorXd & v,
                                       const Eigen::VectorXd & a)
     {
-      return rnea(model,*data,q,v,a);
+      return rnea(model,data,q,v,a);
     }
 
     static Eigen::VectorXd rnea_fext_proxy(const Model & model,
-                                           DataHandler & data,
+                                           Data & data,
                                            const Eigen::VectorXd & q,
                                            const Eigen::VectorXd & v,
                                            const Eigen::VectorXd & a,
                                            const std::vector<Force> & fext)
     {
-      return rnea(model,*data,q,v,a,fext);
+      return rnea(model,data,q,v,a,fext);
     }
     
     static Eigen::VectorXd nle_proxy(const Model & model,
-                                     DataHandler & data,
+                                     Data & data,
                                      const Eigen::VectorXd & q,
                                      const Eigen::VectorXd & v)
     {
-      return nonLinearEffects(model,*data,q,v);
+      return nonLinearEffects(model,data,q,v);
     }
     
     void exposeRNEA()

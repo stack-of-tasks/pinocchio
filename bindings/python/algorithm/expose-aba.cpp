@@ -29,8 +29,8 @@ namespace se3
                                      const Eigen::VectorXd & v,
                                      const Eigen::VectorXd & tau)
     {
-      aba(model,*data,q,v,tau);
-      return data->ddq;
+      aba(model,data,q,v,tau);
+      return data.ddq;
     }
     
     void exposeABA()

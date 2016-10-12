@@ -27,13 +27,13 @@ namespace se3
   {
     
     static void updateGeometryPlacements_proxy(const Model & model,
-                                               DataHandler & data,
+                                               Data & data,
                                                const GeometryModelHandler & geom_model,
                                                GeometryDataHandler & geom_data,
                                                const Eigen::VectorXd & q
                                                )
     {
-      return updateGeometryPlacements(model, *data, *geom_model, *geom_data, q);
+      return updateGeometryPlacements(model, data, *geom_model, *geom_data, q);
     }
 
 #ifdef WITH_HPP_FCL   
@@ -53,13 +53,13 @@ namespace se3
     }
     
     static bool computeGeometryAndCollisions_proxy(const Model & model,
-                                                   DataHandler & data,
+                                                   Data & data,
                                                    const GeometryModelHandler & model_geom,
                                                    GeometryDataHandler & data_geom,
                                                    const Eigen::VectorXd & q,
                                                    const bool stopAtFirstCollision)
     {
-      return computeCollisions(model,*data,*model_geom, *data_geom, q, stopAtFirstCollision);
+      return computeCollisions(model,data,*model_geom, *data_geom, q, stopAtFirstCollision);
     }
     
     static fcl::DistanceResult computeDistance_proxy(const GeometryModelHandler & model_geom,
@@ -76,13 +76,13 @@ namespace se3
     }
     
     static std::size_t computeGeometryAndDistances_proxy(const Model & model,
-                                                         DataHandler & data,
+                                                         Data & data,
                                                          const GeometryModelHandler & model_geom,
                                                          GeometryDataHandler & data_geom,
                                                          const Eigen::VectorXd & q
                                                          )
     {
-      return computeDistances<true>(model, *data, *model_geom, *data_geom, q);
+      return computeDistances<true>(model, data, *model_geom, *data_geom, q);
     }
 
 #endif // WITH_HPP_FCL

@@ -18,16 +18,15 @@
 #ifndef __se3_python_algorithm_hpp__
 #define __se3_python_algorithm_hpp__
 
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
-
+#include <boost/python.hpp>
 #include "pinocchio/bindings/python/fwd.hpp"
-#include "pinocchio/bindings/python/multibody/data.hpp"
 
 namespace se3
 {
   namespace python
   {
+    namespace bp = boost::python;
+    
     void exposeJointsAlgo();
     void exposeABA();
     void exposeCRBA();

@@ -152,13 +152,9 @@ namespace se3
         return boost::apply_visitor(addJointVisitor(model,parent_id,joint_placement,joint_name), jmodel_variant);
       }
       
-      static boost::shared_ptr<Data> createData(const Model & model)
-      { return boost::shared_ptr<Data>( new Data(model) );      }
-
-      static Model maker_empty()
-      {
-        return Model();
-      }
+      static Data createData(const Model & model) { return Data(model); }
+      static Model maker_empty() { return Model(); }
+      
       static Model maker_humanoidSimple()
       {
         Model model;
