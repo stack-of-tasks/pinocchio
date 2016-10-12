@@ -24,8 +24,9 @@
 
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/handler.hpp"
-#include "pinocchio/bindings/python/multibody/data.hpp"
 #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
+#include "pinocchio/bindings/python/utils/printable.hpp"
+
 
 namespace fcl
 {
@@ -60,9 +61,10 @@ namespace se3
       {
         bp::class_<CollisionPair> ("CollisionPair",
                                    "Pair of ordered index defining a pair of collisions",
-                                   bp::init<const GeomIndex &, const GeomIndex &> (bp::args("co1 (index)", "co2 (index)"),
-                                                                           "Initializer of collision pair"))
-        .def("__str__",&CollisionPairPythonVisitor::toString)
+                                   bp::no_init)
+        .def(bp::init<const GeomIndex &, const GeomIndex &>(bp::args("co1 (index)", "co2 (index)"),
+                                                        "Initializer of collision pair."))
+        .def(PrintableVisitor<CollisionPair>())
         .def_readwrite("first",&CollisionPair::first)
         .def_readwrite("second",&CollisionPair::second);
         
@@ -70,8 +72,6 @@ namespace se3
         .def(bp::vector_indexing_suite< std::vector<CollisionPair> >());
       }
       
-      static std::string toString(const CollisionPair & cp)
-      {	std::ostringstream s; s << cp; return s.str(); }
       
     }; // struct CollisionPairPythonVisitor
 
