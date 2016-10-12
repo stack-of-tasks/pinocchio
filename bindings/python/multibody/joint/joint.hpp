@@ -20,6 +20,7 @@
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
+
 #include "pinocchio/multibody/joint/joint.hpp"
 
 namespace se3
@@ -33,11 +34,6 @@ namespace se3
     {
 
     public:
-
-      static PyObject* convert(JointModel const& jm)
-      {
-        return boost::python::incref(boost::python::object(jm).ptr());
-      }
 
       template<class PyClass>
       void visit(PyClass& cl) const 
@@ -69,8 +65,6 @@ namespace se3
         .def(bp::init<se3::JointModelVariant>())
         .def(JointModelPythonVisitor())
         ;
-        
-        // bp::to_python_converter< JointModel,JointModelPythonVisitor >();
       }
 
     }; 

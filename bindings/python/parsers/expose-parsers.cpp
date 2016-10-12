@@ -15,19 +15,17 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/se3.hpp"
-#include "pinocchio/bindings/python/eigen_container.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/bindings/python/parsers/parsers.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeSE3()
+    void exposeParsers()
     {
-      SE3PythonVisitor<SE3>::expose();
-      PyWraperForAlignedStdVector<SE3>::expose("StdVect_SE3");
+      ParsersPythonVisitor::expose();
     }
     
   } // namespace python

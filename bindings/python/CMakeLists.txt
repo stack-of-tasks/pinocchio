@@ -61,41 +61,44 @@ ENDFOREACH(dep ${PKG_CONFIG_PYWRAP_REQUIRES})
 SET(${PYWRAP}_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITELIB}/${PROJECT_NAME})
 
 SET(${PROJECT_NAME}_PYTHON_HEADERS
-  eigen_container.hpp
-  handler.hpp
-  python.hpp
-  se3.hpp
-  force.hpp
-  motion.hpp
-  inertia.hpp
-  joints-models.hpp
-  joints-variant.hpp
-  joint.hpp
-  joint-derived.hpp
-  frame.hpp
-  model.hpp
-  data.hpp
+  utils/eigen_container.hpp
+  utils/handler.hpp
+  utils/copyable.hpp
+  utils/printable.hpp
+  utils/std-vector.hpp
+  utils/std-aligned-vector.hpp
+  fwd.hpp
+  spatial/se3.hpp
+  spatial/force.hpp
+  spatial/motion.hpp
+  spatial/inertia.hpp
+  spatial/explog.hpp
+  multibody/frame.hpp
+  multibody/model.hpp
+  multibody/data.hpp
+  multibody/geometry-object.hpp
+  multibody/geometry-model.hpp
+  multibody/geometry-data.hpp
+  multibody/joint/joints-models.hpp
+  multibody/joint/joints-variant.hpp
+  multibody/joint/joint.hpp
+  multibody/joint/joint-derived.hpp
   algorithm/algorithms.hpp 
-  parsers.hpp
-  explog.hpp
-  geometry-object.hpp
-  geometry-model.hpp
-  geometry-data.hpp
+  parsers/parsers.hpp
   )
 
 SET(${PROJECT_NAME}_PYTHON_SOURCES
   module.cpp
-  expose-SE3.cpp
-  expose-motion.cpp
-  expose-force.cpp
-  expose-inertia.cpp
-  expose-explog.cpp
-  expose-joints.cpp
-  expose-frame.cpp
-  expose-model.cpp
-  expose-data.cpp
-  expose-parsers.cpp
-  expose-geometry.cpp
+  spatial/expose-SE3.cpp
+  spatial/expose-motion.cpp
+  spatial/expose-force.cpp
+  spatial/expose-inertia.cpp
+  spatial/expose-explog.cpp
+  multibody/expose-frame.cpp
+  multibody/expose-model.cpp
+  multibody/expose-data.cpp
+  multibody/expose-geometry.cpp
+  multibody/joint/expose-joints.cpp
   algorithm/expose-algorithms.cpp
   algorithm/expose-com.cpp
   algorithm/expose-kinematics.cpp
@@ -109,6 +112,7 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   algorithm/expose-frames.cpp
   algorithm/expose-cat.cpp
   algorithm/expose-geometry.cpp
+  parsers/expose-parsers.cpp
   )
 
 SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
@@ -124,7 +128,12 @@ LIST(REMOVE_DUPLICATES HEADERS)
 
 # Headers of the python binding
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/spatial")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody/joint")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/algorithm")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/utils")
 SYMLINK_AND_INSTALL_HEADERS("${${PROJECT_NAME}_PYTHON_HEADERS}" "bindings/python")
 
 # Headers of the python parser
@@ -137,8 +146,8 @@ SET(${PYWRAP}_SOURCES ${${PROJECT_NAME}_PYTHON_SOURCES} ${${PROJECT_NAME}_PARSER
 SET(${PYWRAP}_HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS} ${${PROJECT_NAME}_PARSER_PYTHON_HEADERS})
 
 ADD_LIBRARY(${PYWRAP} SHARED ${${PYWRAP}_SOURCES} ${${PYWRAP}_HEADERS})
-ADD_HEADER_GROUP(${PYWRAP}_PYTHON_HEADERS)
-ADD_SOURCE_GROUP(${PYWRAP}_PYTHON_SOURCES)
+ADD_HEADER_GROUP(${PYWRAP}_HEADERS)
+ADD_SOURCE_GROUP(${PYWRAP}_SOURCES)
 PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} eigenpy)
 
 TARGET_LINK_LIBRARIES(${PYWRAP} ${PROJECT_NAME})

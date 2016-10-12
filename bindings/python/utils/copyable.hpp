@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -15,20 +15,32 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/motion.hpp"
-#include "pinocchio/bindings/python/eigen_container.hpp"
+#ifndef __se3_python_utils_copyable_hpp__
+#define __se3_python_utils_copyable_hpp__
+
+#include <boost/python.hpp>
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeMotion()
-    {
-      MotionPythonVisitor<Motion>::expose();
-      PyWraperForAlignedStdVector<Motion>::expose("StdVect_Motion");
-    }
+    namespace bp = boost::python;
     
+    ///
+    /// \brief Add the Python method copy to allow a copy of this by calling the copy constructor.
+    ///
+    template<class C>
+    struct CopyableVisitor : public bp::def_visitor< CopyableVisitor<C> >
+    {
+      template<class PyClass>
+      void visit(PyClass & cl) const
+      { cl.def("copy",&copy,"Returns a copy of *this."); }
+      
+    private:
+      static C copy(const C & self) { return C(self); }
+    };
   } // namespace python
 } // namespace se3
+
+#endif // ifndef __se3_python_utils_copyable_hpp__

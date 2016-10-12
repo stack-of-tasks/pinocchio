@@ -1,6 +1,5 @@
 //
 // Copyright (c) 2015-2016 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,17 +15,17 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/explog.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/bindings/python/multibody/model.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeExplog()
+    void exposeModel()
     {
-      ExplogPythonVisitor::expose();
+      ModelPythonVisitor::expose();
     }
     
   } // namespace python

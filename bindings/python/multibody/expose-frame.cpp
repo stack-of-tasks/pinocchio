@@ -15,35 +15,20 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_algorithm_hpp__
-#define __se3_python_algorithm_hpp__
-
-#include <boost/python.hpp>
 #include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/bindings/python/multibody/frame.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 namespace se3
 {
   namespace python
   {
-    namespace bp = boost::python;
     
-    void exposeJointsAlgo();
-    void exposeABA();
-    void exposeCRBA();
-    void exposeRNEA();
-    void exposeCOM();
-    void exposeFramesAlgo();
-    void exposeEnergy();
-    void exposeKinematics();
-    void exposeDynamics();
-    void exposeCAT();
-    void exposeJacobian();
-    void exposeGeometryAlgo();
-
-    void exposeAlgorithms();
+    void exposeFrame()
+    {
+      FramePythonVisitor::expose();
+      StdAlignedVectorPythonVisitor<Frame>::expose("StdVect_Frame");
+    }
     
   } // namespace python
 } // namespace se3
-
-#endif // ifndef __se3_python_algorithm_hpp__
-

@@ -39,7 +39,6 @@ namespace se3
     struct PyWraperForAlignedStdVector
       : public boost::python::def_visitor< PyWraperForAlignedStdVector<EigenObject> >
     {
-      typedef typename eigenpy::UnalignedEquivalent<EigenObject>::type EigenObject_fx;
       typedef std::vector<EigenObject> stdVectorAligned;
       
       template<class PyClass>
@@ -61,7 +60,7 @@ namespace se3
       }
 
       static void setItem( stdVectorAligned & Ys,
-			   int i,const EigenObject_fx & Y)
+			   int i,const EigenObject & Y)
       { 
 	assert( Ys.size()<INT_MAX );
 	if( i<0 ) i = int(Ys.size())+i;

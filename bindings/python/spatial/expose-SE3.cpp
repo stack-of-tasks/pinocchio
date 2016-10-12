@@ -15,17 +15,19 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/model.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/bindings/python/spatial/se3.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeModel()
+    void exposeSE3()
     {
-      ModelPythonVisitor::expose();
+      SE3PythonVisitor<SE3>::expose();
+      StdAlignedVectorPythonVisitor<SE3>::expose("StdVect_SE3");
     }
     
   } // namespace python

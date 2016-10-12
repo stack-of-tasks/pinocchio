@@ -15,17 +15,19 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/data.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/bindings/python/spatial/inertia.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeData()
+    void exposeInertia()
     {
-      DataPythonVisitor::expose();
+      InertiaPythonVisitor<Inertia>::expose();
+      StdAlignedVectorPythonVisitor<Inertia>::expose("StdVec_Inertia");
     }
     
   } // namespace python

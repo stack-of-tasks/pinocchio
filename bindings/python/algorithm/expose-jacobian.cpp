@@ -23,29 +23,29 @@ namespace se3
   namespace python
   {
     
-    static void compute_jacobians_proxy(const ModelHandler& model,
-                                        DataHandler & data,
-                                        const VectorXd_fx & q)
+    static void compute_jacobians_proxy(const Model & model,
+                                        Data & data,
+                                        const Eigen::VectorXd & q)
     {
-      computeJacobians(*model,*data,q);
+      computeJacobians(model,data,q);
     }
     
   
     static Data::Matrix6x
-    jacobian_proxy(const ModelHandler & model,
-                   DataHandler & data,
-                   const VectorXd_fx & q,
+    jacobian_proxy(const Model & model,
+                   Data & data,
+                   const Eigen::VectorXd & q,
                    Model::JointIndex jointId,
                    bool local,
                    bool update_geometry)
     {
-      Data::Matrix6x J(6,model->nv); J.setZero();
+      Data::Matrix6x J(6,model.nv); J.setZero();
       
       if (update_geometry)
-        computeJacobians(*model,*data,q);
+        computeJacobians(model,data,q);
       
-      if(local) getJacobian<true> (*model,*data,jointId,J);
-      else getJacobian<false> (*model,*data,jointId,J);
+      if(local) getJacobian<true> (model,data,jointId,J);
+      else getJacobian<false> (model,data,jointId,J);
       
       return J;
     }

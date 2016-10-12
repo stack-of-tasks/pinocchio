@@ -16,7 +16,6 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/parsers/python.hpp"
-#include "pinocchio/bindings/python/model.hpp"
 
 #include <iostream>
 #include <Python.h>
@@ -49,12 +48,11 @@ namespace se3
         PyErr_PrintEx(0);
       }
       
-      Model * model_ptr;
+      Model model;
       try
       {
         bp::object obj_model = globals[model_name];
-        ModelHandler model_handler = bp::extract<ModelHandler>(obj_model);
-        model_ptr = model_handler.ptr();
+        model = bp::extract<Model>(obj_model);
       }
       catch (bp::error_already_set & e)
       {
@@ -62,12 +60,12 @@ namespace se3
       }
       if (verbose)
       {
-        std::cout << "Your model has been built. It has " << model_ptr->nv;
+        std::cout << "Your model has been built. It has " << model.nv;
         std::cout << " degrees of freedom." << std::endl;
       }
       
 //      Py_Finalize();
-      return *model_ptr;
+      return model;
     }
   } // namespace python
 } // namespace se3

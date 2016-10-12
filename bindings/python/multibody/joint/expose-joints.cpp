@@ -15,19 +15,30 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/inertia.hpp"
-#include "pinocchio/bindings/python/eigen_container.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/bindings/python/multibody/joint/joint-derived.hpp"
+#include "pinocchio/bindings/python/multibody/joint/joints-variant.hpp"
+#include "pinocchio/bindings/python/multibody/joint/joint.hpp"
+
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeInertia()
+    static void exposeVariants()
     {
-      InertiaPythonVisitor<Inertia>::expose();
-      PyWraperForAlignedStdVector<Inertia>::expose("StdVec_Inertia");
+      boost::mpl::for_each<JointModelVariant::types>(exposer());
+      bp::to_python_converter<se3::JointModelVariant, jointModelVariantVisitor>();
+    }
+    
+    void exposeJoints()
+    {
+      exposeVariants();
+      JointModelPythonVisitor::expose();
+      bp::class_<JointModelVector>("StdVec_JointModelVector")
+      .def(bp::vector_indexing_suite<JointModelVector,true>());
     }
     
   } // namespace python

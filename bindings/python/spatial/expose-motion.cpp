@@ -15,19 +15,19 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/force.hpp"
-#include "pinocchio/bindings/python/eigen_container.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/bindings/python/spatial/motion.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeForce()
+    void exposeMotion()
     {
-      ForcePythonVisitor<Force>::expose();
-      PyWraperForAlignedStdVector<Force>::expose("StdVect_Force");
+      MotionPythonVisitor<Motion>::expose();
+      StdAlignedVectorPythonVisitor<Motion>::expose("StdVect_Motion");
     }
     
   } // namespace python

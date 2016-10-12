@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2016 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -15,35 +15,34 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_algorithm_hpp__
-#define __se3_python_algorithm_hpp__
+#ifndef __se3_python_utils_printable_hpp__
+#define __se3_python_utils_printable_hpp__
 
 #include <boost/python.hpp>
-#include "pinocchio/bindings/python/fwd.hpp"
 
 namespace se3
 {
   namespace python
   {
+    
     namespace bp = boost::python;
     
-    void exposeJointsAlgo();
-    void exposeABA();
-    void exposeCRBA();
-    void exposeRNEA();
-    void exposeCOM();
-    void exposeFramesAlgo();
-    void exposeEnergy();
-    void exposeKinematics();
-    void exposeDynamics();
-    void exposeCAT();
-    void exposeJacobian();
-    void exposeGeometryAlgo();
-
-    void exposeAlgorithms();
-    
+    ///
+    /// \brief Set the Python method __str__ and __repr__ to use the overloading operator<<.
+    ///
+    template<class C>
+    struct PrintableVisitor : public bp::def_visitor< PrintableVisitor<C> >
+    {
+      template<class PyClass>
+      void visit(PyClass & cl) const
+      {
+        cl
+        .def(bp::self_ns::str(bp::self_ns::self))
+        .def(bp::self_ns::repr(bp::self_ns::self))
+        ;
+      }
+    };
   } // namespace python
 } // namespace se3
 
-#endif // ifndef __se3_python_algorithm_hpp__
-
+#endif // ifndef __se3_python_utils_printable_hpp__

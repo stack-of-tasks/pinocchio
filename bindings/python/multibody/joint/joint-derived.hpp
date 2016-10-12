@@ -20,18 +20,8 @@
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
+
 #include "pinocchio/multibody/joint/joint-variant.hpp"
-
-
-namespace eigenpy
-{
-  template<class JointModelDerived>
-  struct UnalignedEquivalentTypes
-  {
-    typedef Eigen::Matrix<double, JointModelDerived::NQ, 1, Eigen::DontAlign> MatrixNQd_fx;
-    typedef Eigen::Matrix<double, JointModelDerived::NV, 1, Eigen::DontAlign> MatrixNVd_fx;
-  };
-} // namespace eigenpy
 
 namespace se3
 {
@@ -43,15 +33,7 @@ namespace se3
     struct JointPythonVisitor
       : public boost::python::def_visitor< JointPythonVisitor<JointModelDerived> >
     {
-      typedef typename eigenpy::UnalignedEquivalentTypes<JointModelDerived>::MatrixNQd_fx MatrixNQd_fx;
-      typedef typename eigenpy::UnalignedEquivalentTypes<JointModelDerived>::MatrixNVd_fx MatrixNVd_fx;
-
     public:
-
-      static PyObject* convert(JointModelDerived const& jm)
-      {
-        return boost::python::incref(boost::python::object(jm).ptr());
-      }
 
       template<class PyClass>
       void visit(PyClass& cl) const 

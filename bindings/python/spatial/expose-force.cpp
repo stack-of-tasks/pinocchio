@@ -15,22 +15,19 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/geometry-object.hpp"
-#include "pinocchio/bindings/python/geometry-model.hpp"
-#include "pinocchio/bindings/python/geometry-data.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/bindings/python/spatial/force.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeGeometry()
+    void exposeForce()
     {
-      GeometryObjectPythonVisitor::expose();
-      CollisionPairPythonVisitor::expose();
-      GeometryModelPythonVisitor::expose();
-      GeometryDataPythonVisitor::expose();
+      ForcePythonVisitor<Force>::expose();
+      StdAlignedVectorPythonVisitor<Force>::expose("StdVect_Force");
     }
     
   } // namespace python

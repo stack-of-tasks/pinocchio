@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2016 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -22,52 +22,46 @@
 # include <eigenpy/eigenpy.hpp>
 
 # include "pinocchio/spatial/explog.hpp"
-# include "pinocchio/bindings/python/se3.hpp"
-# include "pinocchio/bindings/python/motion.hpp"
 
 namespace se3
 {
   namespace python
   {
+    namespace bp = boost::python;
+    
     struct ExplogPythonVisitor
     {
       typedef Eigen::Matrix3d Matrix3d;
       typedef Eigen::Vector3d Vector3d;
       typedef Eigen::Matrix4d Matrix4d;
       typedef Eigen::Matrix<double,6,1> Vector6d;
-      typedef eigenpy::Matrix3d_fx Matrix3d_fx;
-      typedef eigenpy::Vector3d_fx Vector3d_fx;
-      typedef eigenpy::Matrix4d_fx Matrix4d_fx;
-      typedef eigenpy::UnalignedEquivalent<Vector6d>::type Vector6d_fx;
-      typedef SE3PythonVisitor<SE3>::SE3_fx SE3_fx;
-      typedef MotionPythonVisitor<Motion>::Motion_fx Motion_fx;
 
-      static Matrix3d exp3_proxy(const Vector3d_fx & v)
+      static Matrix3d exp3_proxy(const Vector3d & v)
       {
         return exp3(v);
       }
 
-      static Vector3d log3_proxy(const Matrix3d_fx & R)
+      static Vector3d log3_proxy(const Matrix3d & R)
       {
         return log3(R);
       }
 
-      static SE3_fx exp6FromMotion_proxy(const Motion_fx & nu)
+      static SE3 exp6FromMotion_proxy(const Motion & nu)
       {
         return exp6(nu);
       }
 
-      static SE3_fx exp6FromVector_proxy(const Vector6d_fx & v)
+      static SE3 exp6FromVector_proxy(const Vector6d & v)
       {
         return exp6(v);
       }
 
-      static Motion_fx log6FromSE3_proxy(const SE3_fx & m)
+      static Motion log6FromSE3_proxy(const SE3 & m)
       {
         return log6(m);
       }
 
-      static Motion_fx log6FromMatrix_proxy(const Matrix4d_fx & M)
+      static Motion log6FromMatrix_proxy(const Matrix4d & M)
       {
         return log6(M);
       }

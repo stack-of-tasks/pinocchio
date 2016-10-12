@@ -15,17 +15,17 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/bindings/python/python.hpp"
-#include "pinocchio/bindings/python/parsers.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/bindings/python/multibody/data.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeParsers()
+    void exposeData()
     {
-      ParsersPythonVisitor::expose();
+      DataPythonVisitor::expose();
     }
     
   } // namespace python
