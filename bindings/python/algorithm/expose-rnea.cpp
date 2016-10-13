@@ -36,7 +36,7 @@ namespace se3
                                            const Eigen::VectorXd & q,
                                            const Eigen::VectorXd & v,
                                            const Eigen::VectorXd & a,
-                                           const std::vector<Force> & fext)
+                                           const container::aligned_vector<Force> & fext)
     {
       return rnea(model,data,q,v,a,fext);
     }
