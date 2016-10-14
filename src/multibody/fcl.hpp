@@ -18,6 +18,7 @@
 #ifndef __se3_fcl_hpp__
 #define __se3_fcl_hpp__
 
+#include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 

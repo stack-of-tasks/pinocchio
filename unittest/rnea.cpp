@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
   VectorXd v (VectorXd::Random(model.nv));
   VectorXd a (VectorXd::Random(model.nv));
   
-  std::vector<Force> fext(model.joints.size(), Force::Zero());
+  container::aligned_vector<Force> fext(model.joints.size(), Force::Zero());
   
   JointIndex rf = model.getJointId("rleg6_joint"); Force Frf = Force::Random();
   JointIndex lf = model.getJointId("lleg6_joint"); Force Flf = Force::Random();

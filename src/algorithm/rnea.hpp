@@ -56,7 +56,7 @@ namespace se3
        const Eigen::VectorXd & q,
        const Eigen::VectorXd & v,
        const Eigen::VectorXd & a,
-       const std::vector<Force> & fext);
+       const container::aligned_vector<Force> & fext);
   
   ///
   /// \brief Computes the non-linear effects (Corriolis, centrifual and gravitationnal effects), also called the biais terms \f$ b(q,\dot{q}) \f$ of the Lagrangian dynamics:
