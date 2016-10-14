@@ -59,14 +59,6 @@ namespace se3
                           updateKinematics);
     }
     
-    static Data::Matrix3x
-    Jcom_proxy(const Model& model,
-               Data & data,
-               const Eigen::VectorXd & q)
-    {
-      return jacobianCenterOfMass(model,data,q);
-    }
-    
     void exposeCOM()
     {
       bp::def("centerOfMass",com_0_proxy,
@@ -92,10 +84,11 @@ namespace se3
               "Computes the center of mass position, velocity and acceleration by storing the result in Data"
               "and returns the center of mass position of the full model expressed in the world frame.");
       
-      bp::def("jacobianCenterOfMass",Jcom_proxy,
+      bp::def("jacobianCenterOfMass",jacobianCenterOfMass,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)"),
-              "Computes the jacobian of the center of mass, puts the result in Data and return it.");
+              "Computes the jacobian of the center of mass, puts the result in Data and return it.",
+              bp::return_value_policy<bp::return_by_value>());
     }
     
   } // namespace python

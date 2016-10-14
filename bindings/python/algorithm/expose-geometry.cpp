@@ -23,105 +23,60 @@ namespace se3
   namespace python
   {
     
-    static void updateGeometryPlacements_proxy(const Model & model,
-                                               Data & data,
-                                               const GeometryModel & model_geom,
-                                               GeometryData & data_geom,
-                                               const Eigen::VectorXd & q
-                                               )
-    {
-      return updateGeometryPlacements(model, data, model_geom, data_geom, q);
-    }
-
-#ifdef WITH_HPP_FCL   
-
-    static bool computeCollision_proxy(const GeometryModel & model_geom,
-                                       GeometryData & data_geom,
-                                       const PairIndex & pairId)
-    {
-      return computeCollision(model_geom, data_geom, pairId);
-    }
-
-    static bool computeCollisions_proxy(const GeometryModel & model_geom,
-                                        GeometryData & data_geom,
-                                        const bool stopAtFirstCollision)
-    {
-      return computeCollisions(model_geom, data_geom, stopAtFirstCollision);
-    }
-    
-    static bool computeGeometryAndCollisions_proxy(const Model & model,
-                                                   Data & data,
-                                                   const GeometryModel & model_geom,
-                                                   GeometryData & data_geom,
-                                                   const Eigen::VectorXd & q,
-                                                   const bool stopAtFirstCollision)
-    {
-      return computeCollisions(model,data,model_geom, data_geom, q, stopAtFirstCollision);
-    }
-    
-    static fcl::DistanceResult computeDistance_proxy(const GeometryModel & model_geom,
-                                                     GeometryData & data_geom,
-                                                     const PairIndex & pairId)
-    {
-      return computeDistance(model_geom, data_geom, pairId);
-    }
-
-    static std::size_t computeDistances_proxy(const GeometryModel & model_geom,
-                                              GeometryData & data_geom)
-    {
-      return computeDistances(model_geom, data_geom);
-    }
-    
-    static std::size_t computeGeometryAndDistances_proxy(const Model & model,
-                                                         Data & data,
-                                                         const GeometryModel & model_geom,
-                                                         GeometryData & data_geom,
-                                                         const Eigen::VectorXd & q
-                                                         )
-    {
-      return computeDistances<true>(model, data, model_geom, data_geom, q);
-    }
-
-#endif // WITH_HPP_FCL
-
     void exposeGeometryAlgo()
     {
-      bp::def("updateGeometryPlacements",updateGeometryPlacements_proxy,
-              bp::args("Model", "Data", "GeometryModel", "GeometryData", "Configuration q (size Model::nq)"),
+      using namespace Eigen;
+      
+      bp::def("updateGeometryPlacements",
+              (void (*)(const Model &, Data &, const GeometryModel &, GeometryData &, const VectorXd &))&updateGeometryPlacements,
+              bp::args("model", "data", "geometry model", "geometry data", "Configuration vector q (size Model::nq)"),
               "Update the placement of the collision objects according to the current configuration."
               "The algorithm also updates the current placement of the joint in Data."
               );
       
+      bp::def("updateGeometryPlacements",
+              (void (*)(const Model &, const Data &, const GeometryModel &, GeometryData &))&updateGeometryPlacements,
+              bp::args("model", "data", "geometry model", "geometry data"),
+              "Update the placement of the collision objects according to the current joint placement stored in data."
+              );
+      
 #ifdef WITH_HPP_FCL       
-      bp::def("computeCollision", computeCollision_proxy,
-              bp::args("GoometryModel", "GeometryData", "pairIndex"),
+      bp::def("computeCollision",computeCollision,
+              bp::args("geometry model", "geometry data", "collision pair index"),
               "Check if the collision objects of a collision pair for a given Geometry Model and Data are in collision."
              "The collision pair is given by the two index of the collision objects."
               );
 
-      bp::def("computeCollisions",computeCollisions_proxy,
-              bp::args("GeometryData","bool"),
+      bp::def("computeCollisions",
+              (bool (*)(const GeometryModel &, GeometryData &, const bool))&computeCollisions,
+              bp::args("geometry model","geometry data","stop at first collision"),
               "Determine if collision pairs are effectively in collision."
               );
       
-      bp::def("computeGeometryAndCollisions",computeGeometryAndCollisions_proxy,
-              bp::args("Model","Data","GeometryModel","GeometryData","Configuration q (size Model::nq)", "bool"),
+      bp::def("computeCollisions",
+              (bool (*)(const Model &, Data &, const GeometryModel &, GeometryData &,
+                        const VectorXd &, const bool))&computeCollisions,
+              bp::args("model","data","geometry model","geometry data","Configuration q (size Model::nq)", "bool"),
               "Update the geometry for a given configuration and"
               "determine if all collision pairs are effectively in collision or not."
               );
       
-      bp::def("computeDistance",computeDistance_proxy,
-              bp::args("GeometryModel","GeometryData", "pairIndex"),
-              "Compute the distance between the two geometry objects of a given collision pair for a GeometryModel and associated GeometryData."
+      bp::def("computeDistance",&computeDistance,
+              bp::args("geometry model","geometry data", "pairIndex"),
+              "Compute the distance between the two geometry objects of a given collision pair for a GeometryModel and associated GeometryData.",
+              bp::return_value_policy<bp::return_by_value>()
+//              bp::with_custodian_and_ward_postcall<0,1>()
               );
 
-      bp::def("computeDistances",computeDistances_proxy,
-              bp::args("GeometryModel","GeometryData"),
+      bp::def("computeDistances",
+              (std::size_t (*)(const GeometryModel &, GeometryData &))&computeDistances,
+              bp::args("geometry model","geometry data"),
               "Compute the distance between each collision pair for a given GeometryModel and associated GeometryData."
               );
       
-      bp::def("computeGeometryAndDistances",computeGeometryAndDistances_proxy,
-              bp::args("Model","Data","GeometryModel","GeometryData","Configuration q (size Model::nq)"),
+      bp::def("computeDistances",
+              (std::size_t (*)(const Model &, Data &, const GeometryModel &, GeometryData &, const VectorXd &))&computeDistances,
+              bp::args("model","data","geometry model","geometry data","Configuration q (size Model::nq)"),
               "Update the geometry for a given configuration and"
               "compute the distance between each collision pair"
               );

@@ -22,34 +22,16 @@ namespace se3
 {
   namespace python
   {
-    static Eigen::MatrixXd fd_llt_proxy(const Model & model,
-                                        Data & data,
-                                        const Eigen::VectorXd & q,
-                                        const Eigen::VectorXd & v,
-                                        const Eigen::VectorXd & tau,
-                                        const Eigen::MatrixXd & J,
-                                        const Eigen::VectorXd & gamma,
-                                        const bool update_kinematics = true)
-    {
-      forwardDynamics(model,data,q,v,tau,J,gamma,update_kinematics);
-      return data.ddq;
-    }
-    
-    static Eigen::MatrixXd id_llt_proxy(const Model & model,
-                                        Data & data,
-                                        const Eigen::VectorXd & q,
-                                        const Eigen::VectorXd & v_before,
-                                        const Eigen::MatrixXd & J,
-                                        const double r_coeff,
-                                        const bool update_kinematics = true)
-    {
-      impulseDynamics(model,data,q,v_before,J,r_coeff,update_kinematics);
-      return data.dq_after;
-    }
-    
+   
     void exposeDynamics()
     {
-      bp::def("forwardDynamics",fd_llt_proxy,
+      using namespace Eigen;
+      
+      bp::def("forwardDynamics",
+              (const VectorXd & (*)(const Model &, Data &,
+                                    const VectorXd &, const VectorXd &, const VectorXd &,
+                                    const MatrixXd &, const VectorXd &, const bool))
+              &forwardDynamics,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
@@ -57,16 +39,22 @@ namespace se3
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
                        "Contact drift gamma (size nb_constraint)",
                        "Update kinematics (if true, it updates the dynamic variable according to the current state)"),
-              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c");
+              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c",
+              bp::return_value_policy<bp::return_by_value>());
       
-      bp::def("impactDynamics",id_llt_proxy,
+      bp::def("impactDynamics",
+              (const VectorXd & (*)(const Model &, Data &,
+                                    const VectorXd &, const VectorXd &,
+                                    const MatrixXd &, const double, const bool))
+              &impulseDynamics,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity before impact v_before (size Model::nv)",
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
                        "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact.",
                        "Update kinematics (if true, it updates only the joint space inertia matrix)"),
-              "Solve the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c");
+              "Solve the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c",
+              bp::return_value_policy<bp::return_by_value>());
     }
     
   } // namespace python

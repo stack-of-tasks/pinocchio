@@ -33,15 +33,6 @@ namespace se3
       return data.M;
     }
     
-    static Data::Matrix6x ccrba_proxy(const Model & model,
-                                      Data & data,
-                                      const Eigen::VectorXd & q,
-                                      const Eigen::VectorXd & v)
-    {
-      ccrba(model,data,q,v);
-      return data.Ag;
-    }
-    
     void exposeCRBA()
     {
       bp::def("crba",crba_proxy,
@@ -49,11 +40,12 @@ namespace se3
                        "Joint configuration q (size Model::nq)"),
               "Computes CRBA, put the result in Data and return it.");
       
-      bp::def("ccrba",ccrba_proxy,
+      bp::def("ccrba",ccrba,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),
-              "Computes the centroidal mapping, the centroidal momentum and the Centroidal Composite Rigid Body Inertia, puts the result in Data and returns the centroidal mapping.");
+              "Computes the centroidal mapping, the centroidal momentum and the Centroidal Composite Rigid Body Inertia, puts the result in Data and returns the centroidal mapping.",
+              bp::return_value_policy<bp::return_by_value>());
       
     }
     

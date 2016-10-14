@@ -22,56 +22,39 @@ namespace se3
 {
   namespace python
   {
-    static Eigen::VectorXd rnea_proxy(const Model & model,
-                                      Data & data,
-                                      const Eigen::VectorXd & q,
-                                      const Eigen::VectorXd & v,
-                                      const Eigen::VectorXd & a)
-    {
-      return rnea(model,data,q,v,a);
-    }
-
-    static Eigen::VectorXd rnea_fext_proxy(const Model & model,
-                                           Data & data,
-                                           const Eigen::VectorXd & q,
-                                           const Eigen::VectorXd & v,
-                                           const Eigen::VectorXd & a,
-                                           const container::aligned_vector<Force> & fext)
-    {
-      return rnea(model,data,q,v,a,fext);
-    }
-    
-    static Eigen::VectorXd nle_proxy(const Model & model,
-                                     Data & data,
-                                     const Eigen::VectorXd & q,
-                                     const Eigen::VectorXd & v)
-    {
-      return nonLinearEffects(model,data,q,v);
-    }
     
     void exposeRNEA()
     {
-      bp::def("rnea",rnea_proxy,
+      using namespace Eigen;
+      typedef container::aligned_vector<Force> ForceAlignedVector;
+      
+      bp::def("rnea",
+              (const VectorXd & (*)(const Model &, Data &, const VectorXd &, const VectorXd &, const VectorXd &))&rnea,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
                        "Acceleration a (size Model::nv)"),
-              "Compute the RNEA, put the result in Data and return it.");
+              "Compute the RNEA, put the result in Data and return it.",
+              bp::return_value_policy<bp::return_by_value>());
 
-      bp::def("rnea",rnea_fext_proxy,
+      bp::def("rnea",
+              (const VectorXd & (*)(const Model &, Data &, const VectorXd &, const VectorXd &, const VectorXd &, const ForceAlignedVector &))&rnea,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
                        "Acceleration a (size Model::nv)",
                        "Vector of external forces expressed in the local frame of each joint (size Model::njoints)"),
-              "Compute the RNEA with external forces, put the result in Data and return it.");
+              "Compute the RNEA with external forces, put the result in Data and return it.",
+              bp::return_value_policy<bp::return_by_value>());
       
 
-      bp::def("nle",nle_proxy,
+      bp::def("nle",
+              (const VectorXd & (*)(const Model &, Data &, const VectorXd &, const VectorXd &))&nonLinearEffects,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
-              "Compute the Non Linear Effects (coriolis, centrifugal and gravitational effects), put the result in Data and return it.");
+              "Compute the Non Linear Effects (coriolis, centrifugal and gravitational effects), put the result in Data and return it.",
+              bp::return_value_policy<bp::return_by_value>());
       
     }
     

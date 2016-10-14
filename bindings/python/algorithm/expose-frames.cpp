@@ -26,7 +26,7 @@ namespace se3
     static Data::Matrix6x frame_jacobian_proxy(const Model & model,
                                                Data & data,
                                                const Eigen::VectorXd & q,
-                                               Model::FrameIndex frame_id,
+                                               const Model::FrameIndex frame_id,
                                                bool local,
                                                bool update_geometry
                                                )
@@ -42,20 +42,20 @@ namespace se3
       return J;
     }
     
-    static void frames_fk_0_proxy(const Model & model,
-                                  Data & data,
-                                  const Eigen::VectorXd & q
-                                  )
-    {
-      framesForwardKinematics( model,data,q );
-    }
-    
     void exposeFramesAlgo()
     {
-      bp::def("framesKinematics",frames_fk_0_proxy,
+      bp::def("framesKinematics",
+              (void (*)(const Model &, Data &))&framesForwardKinematics,
+              bp::args("Model","Data"),
+              "Computes the placements of all the operational frames according to the current joint placement stored in data"
+              "and put the results in data.");
+      
+      bp::def("framesKinematics",
+              (void (*)(const Model &, Data &, const Eigen::VectorXd &))&framesForwardKinematics,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
-              "Compute the placements of all the operational frames "
+              "Update first the placement of the joints according to the given configuration value."
+              "And computes the placements of all the operational frames"
               "and put the results in data.");
       
       bp::def("frameJacobian",frame_jacobian_proxy,

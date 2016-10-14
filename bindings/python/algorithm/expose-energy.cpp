@@ -22,26 +22,10 @@ namespace se3
 {
   namespace python
   {
-    static double kineticEnergy_proxy(const Model & model,
-                                      Data & data,
-                                      const Eigen::VectorXd & q,
-                                      const Eigen::VectorXd & v,
-                                      const bool update_kinematics = true)
-    {
-      return kineticEnergy(model,data,q,v,update_kinematics);
-    }
-    
-    static double potentialEnergy_proxy(const Model & model,
-                                        Data & data,
-                                        const Eigen::VectorXd & q,
-                                        const bool update_kinematics = true)
-    {
-      return potentialEnergy(model,data,q,update_kinematics);
-    }
     
     void exposeEnergy()
     {
-      bp::def("kineticEnergy",kineticEnergy_proxy,
+      bp::def("kineticEnergy",kineticEnergy,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
@@ -50,7 +34,7 @@ namespace se3
               "given joint configuration and velocity and stores the result "
               " in data.kinetic_energy. By default, the kinematics of model is updated.");
       
-      bp::def("potentialEnergy",potentialEnergy_proxy,
+      bp::def("potentialEnergy",potentialEnergy,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Update kinematics (bool)"),
