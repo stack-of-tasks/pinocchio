@@ -23,48 +23,26 @@ namespace se3
   namespace python
   {
     
-    static void fk_0_proxy(const Model & model,
-                           Data & data,
-                           const Eigen::VectorXd & q)
-    {
-      forwardKinematics(model,data,q);
-    }
-    
-    static void fk_1_proxy(const Model & model,
-                           Data & data,
-                           const Eigen::VectorXd & q,
-                           const Eigen::VectorXd & qdot )
-    {
-      forwardKinematics(model,data,q,qdot);
-    }
-
-    
-    static void fk_2_proxy(const Model & model,
-                           Data & data,
-                           const Eigen::VectorXd & q,
-                           const Eigen::VectorXd & v,
-                           const Eigen::VectorXd & a)
-    {
-      forwardKinematics(model,data,q,v,a);
-    }
-    
     void exposeKinematics()
     {
-      
-      bp::def("forwardKinematics",fk_0_proxy,
+      using namespace Eigen;
+      bp::def("forwardKinematics",
+              (void (*)(const Model &, Data &, const VectorXd &))&forwardKinematics,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
               "Compute the placements of all the frames of the kinematic "
               "tree and put the results in data.");
       
-      bp::def("forwardKinematics",fk_1_proxy,
+      bp::def("forwardKinematics",
+              (void (*)(const Model &, Data &, const VectorXd &, const VectorXd &))&forwardKinematics,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
               "Compute the placements and spatial velocities of all the frames of the kinematic "
               "tree and put the results in data.");
       
-      bp::def("forwardKinematics",fk_2_proxy,
+      bp::def("forwardKinematics",
+              (void (*)(const Model &, Data &, const VectorXd &, const VectorXd &, const VectorXd &))&forwardKinematics,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",

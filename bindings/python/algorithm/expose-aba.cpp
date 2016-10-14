@@ -23,24 +23,15 @@ namespace se3
   namespace python
   {
     
-    static Eigen::MatrixXd aba_proxy(const Model & model,
-                                     Data & data,
-                                     const Eigen::VectorXd & q,
-                                     const Eigen::VectorXd & v,
-                                     const Eigen::VectorXd & tau)
-    {
-      aba(model,data,q,v,tau);
-      return data.ddq;
-    }
-    
     void exposeABA()
     {
-      bp::def("aba",aba_proxy,
+      bp::def("aba",&aba,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
                        "Joint torque tau (size Model::nv)"),
-              "Compute ABA, put the result in Data::ddq and return it.");
+              "Compute ABA, put the result in Data::ddq and return it.",
+              bp::return_value_policy<bp::return_by_value>());
       
     }
     

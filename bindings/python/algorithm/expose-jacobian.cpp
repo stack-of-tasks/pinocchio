@@ -23,14 +23,6 @@ namespace se3
   namespace python
   {
     
-    static void compute_jacobians_proxy(const Model & model,
-                                        Data & data,
-                                        const Eigen::VectorXd & q)
-    {
-      computeJacobians(model,data,q);
-    }
-    
-  
     static Data::Matrix6x
     jacobian_proxy(const Model & model,
                    Data & data,
@@ -52,10 +44,11 @@ namespace se3
   
     void exposeJacobian()
     {
-      bp::def("computeJacobians",compute_jacobians_proxy,
+      bp::def("computeJacobians",computeJacobians,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)"),
-              "Calling computeJacobians");
+              "Calling computeJacobians",
+              bp::return_value_policy<bp::return_by_value>());
       
       bp::def("jacobian",jacobian_proxy,
               bp::args("Model, the model of the kinematic tree",
