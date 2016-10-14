@@ -42,16 +42,6 @@ IF(APPLE)
   endif("${isSystemDir}" STREQUAL "-1")
 ENDIF(APPLE)
 
-# This should go to jrl-cmakemodules if accepted - Similar to ADD_DOC_DEPENDENC but with a requiered option
-# This macro is for requiered components which must not appear as a dependence of the main library
-MACRO(ADD_SEPARATE_DEPENDENCY PKG_CONFIG_STRING)
-  SET(PKG_CONFIG_DEBUG_STRING "")
-  FOREACH(ARG ${ARGN})
-    SET(PKG_CONFIG_DEBUG_STRING ${ARG})
-  ENDFOREACH()
-  ADD_DEPENDENCY(0 1 ${PKG_CONFIG_STRING} "${PKG_CONFIG_DEBUG_STRING}")
-ENDMACRO(ADD_SEPARATE_DEPENDENCY)
-
 # Disable -Werror on Unix for now.
 SET(CXX_DISABLE_WERROR True)
 SET(CMAKE_VERBOSE_MAKEFILE True)
