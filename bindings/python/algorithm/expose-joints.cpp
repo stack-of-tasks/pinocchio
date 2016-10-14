@@ -58,12 +58,12 @@ namespace se3
       return randomConfiguration(model, lowerPosLimit, upperPosLimit);
     }
 
-    static void normalize_proxy(const Model & model,
-                                Eigen::VectorXd & config)
+    static Eigen::VectorXd normalize_proxy(const Model & model,
+                                           const Eigen::VectorXd & config)
     {
       Eigen::VectorXd q(config);
-      normalize(model, q);
-      config = q;
+      normalize(model,q);
+      return q;
     }
 
     static bool isSameConfiguration_proxy(const Model & model,
