@@ -36,6 +36,7 @@ namespace se3
   {
     namespace bp = boost::python;
 
+    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(getFrameId_overload,Model::getFrameId,1,2)
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(existFrame_overload,Model::existFrame,1,2)
     
     struct ModelPythonVisitor
@@ -130,7 +131,9 @@ namespace se3
           .def("existBodyName", &Model::existBodyName, bp::args("name"), "Check if a frame of type BODY exists, given its name")
           .def("getJointId",&Model::getJointId, bp::args("name"), "Return the index of a joint given by its name")
           .def("existJointName", &Model::existJointName, bp::args("name"), "Check if a joint given by its name exists")
-          .def("getFrameId",&Model::getFrameId,bp::args("name"),"Returns the index of the frame given by its name. If the frame is not in the frames vector, it returns the current size of the frames vector.")
+        
+        .def("getFrameId",&Model::getFrameId,existFrame_overload(bp::arg("name"),"Returns the index of the frame given by its name. If the frame is not in the frames vector, it returns the current size of the frames vector."))
+        .def("getFrameId",&Model::getFrameId,existFrame_overload(bp::args("name","type"),"Returns the index of the frame given by its name and its type. If the frame is not in the frames vector, it returns the current size of the frames vector."))
        
         .def("existFrame",&Model::existFrame,existFrame_overload(bp::arg("name"),"Returns true if the frame given by its name exists inside the Model.")) 
         .def("existFrame",&Model::existFrame,existFrame_overload(bp::args("name","type"),"Returns true if the frame given by its name exists inside the Model with the given type."))
