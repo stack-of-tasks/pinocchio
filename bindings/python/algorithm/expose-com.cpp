@@ -18,10 +18,14 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 
+#include <boost/python/overloads.hpp>
+
 namespace se3
 {
   namespace python
   {
+    
+    BOOST_PYTHON_FUNCTION_OVERLOADS(jacobianCenterOfMass_overload,jacobianCenterOfMass,3,5)
     
     static SE3::Vector3
     com_0_proxy(const Model& model,
@@ -85,10 +89,11 @@ namespace se3
               "and returns the center of mass position of the full model expressed in the world frame.");
       
       bp::def("jacobianCenterOfMass",jacobianCenterOfMass,
-              bp::args("Model","Data",
+              jacobianCenterOfMass_overload(bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)"),
-              "Computes the jacobian of the center of mass, puts the result in Data and return it.",
-              bp::return_value_policy<bp::return_by_value>());
+              "Computes the jacobian of the center of mass, puts the result in Data and return it.")[
+              bp::return_value_policy<bp::return_by_value>()]);
+      
     }
     
   } // namespace python

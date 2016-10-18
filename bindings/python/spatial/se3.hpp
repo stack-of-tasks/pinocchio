@@ -22,6 +22,8 @@
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/spatial/motion.hpp"
+#include "pinocchio/spatial/force.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -72,16 +74,28 @@ namespace se3
         .def("setRandom",&SE3PythonVisitor::setRandom,"Set *this to a random placement.")
 
         .def("inverse", &SE3::inverse)
+        
         .def("act", (Vector3 (SE3::*)(const Vector3 &) const) &SE3::act,
              bp::args("point"),
              "Returns a point which is the result of the entry point transforms by *this.")
         .def("actInv", (Vector3 (SE3::*)(const Vector3 &) const) &SE3::actInv,
              bp::args("point"),
              "Returns a point which is the result of the entry point by the inverse of *this.")
+        
         .def("act", (SE3 (SE3::*)(const SE3 & other) const) &SE3::act,
              bp::args("M"), "Returns the result of *this * M.")
         .def("actInv", (SE3 (SE3::*)(const SE3 & other) const) &SE3::actInv,
              bp::args("M"), "Returns the result of the inverse of *this times M.")
+        
+        .def("act", (Motion (SE3::*)(const Motion &) const) &SE3::act,
+             bp::args("motion"), "Returns the result action of *this onto a Motion.")
+        .def("actInv", (Motion (SE3::*)(const Motion &) const) &SE3::actInv,
+             bp::args("motion"), "Returns the result of the inverse of *this onto a Motion.")
+        
+        .def("act", (Force (SE3::*)(const Force &) const) &SE3::act,
+             bp::args("force"), "Returns the result of *this onto a Force.")
+        .def("actInv", (Force (SE3::*)(const Force &) const) &SE3::actInv,
+             bp::args("force"), "Returns the result of the inverse of *this onto a Force.")
         
         .def("isApprox",(bool (SE3::*)(const SE3 & other, const Scalar & prec)) &SE3::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
         .def("isApprox",(bool (SE3::*)(const SE3 & other)) &SE3::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
