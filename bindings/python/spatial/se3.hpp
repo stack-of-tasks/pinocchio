@@ -24,6 +24,8 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
+#include "pinocchio/spatial/inertia.hpp"
+
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -95,7 +97,12 @@ namespace se3
         .def("act", (Force (SE3::*)(const Force &) const) &SE3::act,
              bp::args("force"), "Returns the result of *this onto a Force.")
         .def("actInv", (Force (SE3::*)(const Force &) const) &SE3::actInv,
-             bp::args("force"), "Returns the result of the inverse of *this onto a Force.")
+             bp::args("force"), "Returns the result of the inverse of *this onto an Inertia.")
+        
+        .def("act", (Inertia (SE3::*)(const Inertia &) const) &SE3::act,
+             bp::args("inertia"), "Returns the result of *this onto a Force.")
+        .def("actInv", (Inertia (SE3::*)(const Inertia &) const) &SE3::actInv,
+             bp::args("inertia"), "Returns the result of the inverse of *this onto an Inertia.")
         
         .def("isApprox",(bool (SE3::*)(const SE3 & other, const Scalar & prec)) &SE3::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
         .def("isApprox",(bool (SE3::*)(const SE3 & other)) &SE3::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
@@ -105,6 +112,9 @@ namespace se3
         
         .def("__invert__",&SE3::inverse,"Returns the inverse of *this.")
         .def(bp::self * bp::self)
+        .def("__mul__",&__mul__<Motion>)
+        .def("__mul__",&__mul__<Force>)
+        .def("__mul__",&__mul__<Inertia>)
         .add_property("np",&SE3::toHomogeneousMatrix)
         
         .def("Identity",&SE3::Identity,"Returns the identity transformation.")
@@ -132,6 +142,10 @@ namespace se3
       
       static void setIdentity(SE3 & self) { self.setIdentity(); }
       static void setRandom(SE3 & self) { self.setRandom(); }
+      
+      template<typename Spatial>
+      static Spatial __mul__(const SE3 & self, const Spatial & other)
+      { return self.act(other); }
     };
     
 
