@@ -41,6 +41,8 @@ namespace se3
     if (env_var_value != NULL)
     {
       std::string policyStr (env_var_value);
+      // Add a separator at the end so that last path is also retrieved
+      policyStr += std::string (":");
       size_t lastOffset = 0;
       
       while(true)
