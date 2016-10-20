@@ -116,7 +116,7 @@ namespace se3
         .def_readwrite("frames",&Model::frames,"Vector of frames contained in the model.")
 
         .def_readwrite("subtrees",
-                       &Model::frames,
+                       &Model::subtrees,
                        "Vector of subtrees. subtree[j] corresponds to the subtree supported by the joint j.")
         
         .def_readwrite("gravity",&Model::gravity,"Motion vector corresponding to the gravity field expressed in the world Frame.")
