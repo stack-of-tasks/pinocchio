@@ -84,6 +84,7 @@ namespace se3
         .def(bp::self + bp::self)
         .def(bp::self * bp::other<Motion>() )
         .add_property("np",&Inertia::matrix)
+        .def("vxiv",&Inertia::vxiv,bp::arg("Motion v"),"Returns the result of v x Iv.")
         
         .def("Identity",&Inertia::Identity,"Returns the identity Inertia.")
         .staticmethod("Identity")
