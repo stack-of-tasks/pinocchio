@@ -28,11 +28,13 @@ namespace se3
   typedef Index FrameIndex;
   typedef Index PairIndex;
   
-  struct Frame;
+  template<typename _Scalar, int _Options=0> struct FrameTpl;
   struct Model;
   struct Data;
   struct GeometryModel;
   struct GeometryData;
+  
+  typedef FrameTpl<double> Frame;
 
 
   // Forward declaration needed for Model::check

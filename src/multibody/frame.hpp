@@ -18,19 +18,15 @@
 #ifndef __se3_frame_hpp__
 #define __se3_frame_hpp__
 
-#include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
-#include "pinocchio/tools/string-generator.hpp"
-#include "pinocchio/container/aligned-vector.hpp"
 
-#include <Eigen/StdVector>
 #include <string>
 
 namespace se3
 {
   ///
-  /// \brief Enum on the possible type of frame
+  /// \brief Enum on the possible types of frame
   ///
   enum FrameType
   {
@@ -44,15 +40,19 @@ namespace se3
   ///
   /// \brief A Plucker coordinate frame attached to a parent joint inside a kinematic tree
   ///
-  struct Frame
+  template<typename _Scalar, int _Options>
+  struct FrameTpl
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef se3::JointIndex JointIndex;
+    enum { Options = _Options };
+    typedef _Scalar Scalar;
+    typedef SE3Tpl<Scalar,Options> SE3;
     
     ///
     /// \brief Default constructor of a frame.
     ///
-    Frame() : name(randomStringGenerator(8)), parent(), placement(), type() {} // needed by std::vector
+    FrameTpl() : name(), parent(), placement(), type() {} // needed by std::vector
     
     ///
     /// \brief Builds a frame defined by its name, its joint parent id, its placement and its type.
@@ -63,7 +63,11 @@ namespace se3
     /// \param[in] placement Placement of the frame wrt the parent joint frame.
     /// \param[in] type The type of the frame, see the enum FrameType
     ///
-    Frame(const std::string & name, const JointIndex parent, const FrameIndex previousFrame, const SE3 & frame_placement, const FrameType type)
+    FrameTpl(const std::string & name,
+             const JointIndex parent,
+             const FrameIndex previousFrame,
+             const SE3 & frame_placement,
+             const FrameType type)
     : name(name)
     , parent(parent)
     , previousFrame(previousFrame)
@@ -76,7 +80,8 @@ namespace se3
     ///
     /// \param[in] other The frame to which the current frame is compared.
     ///
-    bool operator == (const Frame & other) const
+    template<typename S2, int O2>
+    bool operator == (const FrameTpl<S2,O2> & other) const
     {
       return name == other.name && parent == other.parent
       && previousFrame == other.previousFrame
@@ -99,9 +104,10 @@ namespace se3
     /// \brief Type of the frame
     FrameType type;
 
-  }; // struct Frame
+  }; // struct FrameTpl
 
-  inline std::ostream & operator << (std::ostream& os, const Frame & f)
+  template<typename Scalar, int Options>
+  inline std::ostream & operator << (std::ostream& os, const FrameTpl<Scalar,Options> & f)
   {
     os << "Frame name:" << f.name  << "paired to (parent joint/ previous frame)" << "(" <<f.parent << "/" << f.previousFrame << ")"<< std::endl;
     os << "with relative placement wrt parent joint:\n" << f.placement << std::endl;
