@@ -25,41 +25,6 @@
 
 namespace se3
 {
-  // template<class C> struct traits {};
-
-  /* RNEA operations
-   *
-   * *** FORWARD ***
-   * J::calc(q,vq)
-   * SE3    = SE3 * J::SE3
-   * Motion = J::Motion
-   * Motion = J::Constraint*J::JointMotion + J::Bias + Motion^J::Motion
-   * Force  = Inertia*Motion  + Inertia.vxiv(Motion)
-   *
-   * *** BACKWARD *** 
-   * J::JointForce = J::Constraint::Transpose*J::Force
-   */
-
-  /* CRBA operations
-   *
-   * *** FORWARD ***
-   * J::calc(q)
-   * Inertia = Inertia
-   *
-   * *** BACKWARD *** 
-   * Inertia += SE3::act(Inertia)
-   * F = Inertia*J::Constraint
-   * JointInertia.block = J::Constraint::Transpose*F
-   * *** *** INNER ***
-   *     F = SE3::act(f)
-   *     JointInertia::block = J::Constraint::Transpose*F
-   */
-
-  /* Jacobian operations
-   *
-   * internal::ActionReturn<Constraint>::Type
-   * Constraint::se3Action
-   */
 #ifdef __clang__
 
 #define SE3_JOINT_TYPEDEF_ARG(prefix)              \
@@ -223,12 +188,10 @@ namespace se3
     };
   };
 
-  template<typename _JointModel>
+  template<typename Derived>
   struct JointModelBase
   {
-    typedef _JointModel Derived;
-    typedef JointModelBase<_JointModel> Base;
-    typedef typename traits<_JointModel>::JointDerived JointDerived;
+    typedef typename traits<Derived>::JointDerived JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
   
 
@@ -238,12 +201,12 @@ namespace se3
     JointDataDerived createData() const { return derived().createData(); }
     
     void calc(JointDataDerived& data,
-              const Eigen::VectorXd & qs ) const
+              const Eigen::VectorXd & qs) const
     { derived().calc(data,qs); }
     
     void calc(JointDataDerived& data,
               const Eigen::VectorXd & qs,
-              const Eigen::VectorXd & vs ) const
+              const Eigen::VectorXd & vs) const
     { derived().calc(data,qs,vs); }
     
     void calc_aba(JointDataDerived & data,
@@ -257,7 +220,8 @@ namespace se3
     ///
     /// \returns The finite difference increment.
     ///
-    typename ConfigVector_t::Scalar finiteDifferenceIncrement() const { return derived().finiteDifferenceIncrement(); }
+    typename ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    { return derived().finiteDifferenceIncrement(); }
 
     /**
      * @brief      Integrate joint's configuration for a tangent vector during one unit time
@@ -304,7 +268,8 @@ namespace se3
      *
      * @return     The joint configuration
      */
-    ConfigVector_t randomConfiguration(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit) const
+    ConfigVector_t randomConfiguration(const ConfigVector_t & lower_pos_limit,
+                                       const ConfigVector_t & upper_pos_limit) const
     { return derived().randomConfiguration_impl(lower_pos_limit, upper_pos_limit); } 
 
     
