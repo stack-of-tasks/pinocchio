@@ -19,13 +19,9 @@
 #ifndef __se3_joint_base_hpp__
 #define __se3_joint_base_hpp__
 
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/spatial/motion.hpp"
-#include "pinocchio/spatial/force.hpp"
-#include "pinocchio/spatial/inertia.hpp"
-#include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/multibody/fwd.hpp"
-#include <limits>
+
+#include <Eigen/Core>
 
 namespace se3
 {
@@ -167,45 +163,30 @@ namespace se3
   using Base::idx_v
 
 
-  template<typename _JointData>
+  template<typename Derived>
   struct JointDataBase
   {
-    typedef _JointData Derived;
-    typedef JointDataBase<_JointData> Base;
-    
-    typedef typename traits<_JointData>::JointDerived JointDerived;
+    typedef typename traits<Derived>::JointDerived JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    JointDataDerived& derived() { return *static_cast<JointDataDerived*>(this); }
-    const JointDataDerived& derived() const { return *static_cast<const JointDataDerived*>(this); }
+    JointDataDerived& derived() { return *static_cast<Derived*>(this); }
+    const JointDataDerived& derived() const { return *static_cast<const Derived*>(this); }
 
-    const Constraint_t     & S() const  { return static_cast<const JointDataDerived*>(this)->S;   }
-    const Transformation_t & M() const  { return static_cast<const JointDataDerived*>(this)->M;   }
-    const Motion_t         & v() const  { return static_cast<const JointDataDerived*>(this)->v;   }
-    const Bias_t           & c() const  { return static_cast<const JointDataDerived*>(this)->c;   }
-    F_t & F()        { return static_cast<      JointDataDerived*>(this)->F; }
+    const Constraint_t     & S() const  { return derived().S;   }
+    const Transformation_t & M() const  { return derived().M;   }
+    const Motion_t         & v() const  { return derived().v;   }
+    const Bias_t           & c() const  { return derived().c;   }
+    F_t & F()        { return derived().F; }
     
-    // [ABA CCRBA]
-    const U_t & U() const { return static_cast<const JointDataDerived*>(this)->U; }
-    U_t & U() { return static_cast<JointDataDerived*>(this)->U; }
-    const D_t & Dinv() const { return static_cast<const JointDataDerived*>(this)->Dinv; }
-    const UD_t & UDinv() const { return static_cast<const JointDataDerived*>(this)->UDinv; }
+    const U_t & U() const { return derived().U; }
+    U_t & U() { return derived().U; }
+    const D_t & Dinv() const { return derived().Dinv; }
+    const UD_t & UDinv() const { return derived().UDinv; }
 
   protected:
-    /// Default constructor: protected.
-    /// 
-    /// Prevent the construction of stand-alone JointDataBase.
-    inline JointDataBase() {} // TODO: default value should be set to -1
-    /// Copy constructor: protected.
-    ///
-    /// Copy of stand-alone JointDataBase are prevented, but can be used from inhereting
-    /// objects. Copy is done by calling copy operator.
-    inline JointDataBase( const JointDataBase& clone) { *this = clone; }
-    /// Copy operator: protected.
-    ///
-    /// Copy of stand-alone JointDataBase are prevented, but can be used from inhereting
-    /// objects. 
-    inline JointDataBase& operator= (const JointDataBase&) { return *this; }
+    
+    /// \brief Default constructor: protected.
+    inline JointDataBase() {}
 
   }; // struct JointDataBase
 
