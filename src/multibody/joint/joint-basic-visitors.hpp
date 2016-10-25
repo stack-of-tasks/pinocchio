@@ -74,7 +74,7 @@ namespace se3
   ///
   /// \returns The finite diffrence increment.
   ///
-  inline double finiteDifferenceIncrement(const JointDataVariant & jmodel);
+  inline double finiteDifferenceIncrement(const JointModelVariant & jmodel);
   
   /**
    * @brief      Visit a JointModelVariant through JointIntegrateVisitor to integrate joint's configuration 
