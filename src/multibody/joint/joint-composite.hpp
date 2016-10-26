@@ -163,7 +163,8 @@ namespace se3
     /// \param other Model to copy.
     ///
     JointModelComposite(const JointModelComposite & other)
-    : joints(other.joints)
+    : Base(other)
+    , joints(other.joints)
     , jointPlacements(other.jointPlacements)
     , m_nq(other.m_nq)
     , m_nv(other.m_nv)

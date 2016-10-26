@@ -438,7 +438,10 @@ namespace se3
     /// objects. 
     inline JointModelBase& operator= (const JointModelBase& clone) 
     {
-      setIndexes(clone.id(),clone.idx_q(),clone.idx_v());
+//      setIndexes(clone.id(),clone.idx_q(),clone.idx_v());
+      i_id = clone.i_id;
+      i_q = clone.i_q;
+      i_v = clone.i_v;
       return *this;
     }
 
