@@ -93,9 +93,9 @@ struct TestJoint{
     // jmodel.addJointModel(se3::JointModelRX());
     // jmodel.addJointModel(se3::JointModelRY());
 
-    se3::JointModelComposite jmodel((se3::JointModelRX()), (se3::JointModelRY()));
+    se3::JointModelComposite jmodel((se3::JointModelRX()));
+    jmodel.addJoint(se3::JointModelRY());
     jmodel.setIndexes(0,0,0);
-    jmodel.updateComponentsIndexes();
 
     se3::JointModelComposite::JointDataDerived jdata = jmodel.createData();
 
