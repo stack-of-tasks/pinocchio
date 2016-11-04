@@ -58,12 +58,8 @@ class RobotWrapper(object):
         self.q0 = utils.zero(self.nq)
 
     def increment(self, q, dq):
-        M = se3.SE3(se3.Quaternion(q[6, 0], q[3, 0], q[4, 0], q[5, 0]).matrix(), q[:3])
-        dM = exp(dq[:6])
-        M = M * dM
-        q[:3] = M.translation
-        q[3:7] = se3.Quaternion(M.rotation).coeffs()
-        q[7:] += dq[6:]
+        q_next = se3.integrate(self.model,q,dq)
+        q[:] = q_next[:]
 
     @property
     def nq(self):
