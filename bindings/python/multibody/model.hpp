@@ -27,6 +27,7 @@
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
+#include "pinocchio/bindings/python/utils/copyable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Model)
 
@@ -214,7 +215,8 @@ namespace se3
                           "Articulated rigid body model (const)",
                           bp::no_init)
         .def(ModelPythonVisitor())
-        .def(PrintableVisitor<SE3>())
+        .def(PrintableVisitor<Model>())
+        .def(CopyableVisitor<Model>())
         ;
       
       }
