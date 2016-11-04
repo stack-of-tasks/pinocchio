@@ -84,7 +84,9 @@ namespace se3
                                       Data & data
                                       )
   {
-    for (Model::FrameIndex i=0; i < (Model::FrameIndex) model.nframes; ++i)
+    // The following for loop starts by index 1 because the first frame is fixed
+    // and corresponds to the universe.s
+    for (Model::FrameIndex i=1; i < (Model::FrameIndex) model.nframes; ++i)
     {
       const Frame & frame = model.frames[i];
       const Model::JointIndex & parent = frame.parent;

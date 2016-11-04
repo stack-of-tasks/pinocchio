@@ -291,6 +291,7 @@ namespace se3
     f[0].setZero();
     oMi[0].setIdentity();
     liMi[0].setIdentity();
+    oMf[0].setIdentity();
   }
 
   inline void Data::computeLastChild (const Model & model)
