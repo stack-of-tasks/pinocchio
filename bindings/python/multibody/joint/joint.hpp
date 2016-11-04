@@ -22,6 +22,7 @@
 #include <eigenpy/eigenpy.hpp>
 
 #include "pinocchio/multibody/joint/joint.hpp"
+#include "pinocchio/bindings/python/utils/printable.hpp"
 
 namespace se3
 {
@@ -48,6 +49,7 @@ namespace se3
         .add_property("nv",&JointModelPythonVisitor::getNv)
 
         .def("setIndexes",&JointModel::setIndexes)
+        .def("shortname",&JointModel::shortname)
         ;
       }
 
@@ -64,6 +66,7 @@ namespace se3
                                bp::no_init)
         .def(bp::init<se3::JointModelVariant>())
         .def(JointModelPythonVisitor())
+        .def(PrintableVisitor<JointModel>())
         ;
       }
 
