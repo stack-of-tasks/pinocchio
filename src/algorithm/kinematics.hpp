@@ -34,6 +34,18 @@ namespace se3
                                Data & data);
   
   ///
+  /// \brief Update the global placement of the joints oMi according to the relative
+  ///        placements of the joints.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
+  /// \remark This algorithm may be useful to call to update global joint placement
+  ///         after calling se3::rnea, se3::aba, etc for example.
+  ///
+  inline void updateGlobalPlacements(const Model & model, Data & data);
+  
+  ///
   /// \brief Update the joint placement according to the current joint configuration.
   ///
   /// \param[in] model The model structure of the rigid body system.
