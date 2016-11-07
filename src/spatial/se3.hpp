@@ -277,8 +277,8 @@ namespace se3
       return d.se3ActionInverse(*this);
     }
 
-    Vector3 act_impl   (const Vector3& p) const { return rot*p+trans; }
-    Vector3 actInv_impl(const Vector3& p) const { return rot.transpose()*(p-trans); }
+    Vector3 act_impl   (const Vector3& p) const { return Vector3(rot*p+trans); }
+    Vector3 actInv_impl(const Vector3& p) const { return Vector3(rot.transpose()*(p-trans)); }
 
     SE3Tpl act_impl    (const SE3Tpl& m2) const { return SE3Tpl( rot*m2.rot,trans+rot*m2.trans);}
     SE3Tpl actInv_impl (const SE3Tpl& m2) const { return SE3Tpl( rot.transpose()*m2.rot, rot.transpose()*(m2.trans-trans));}

@@ -53,6 +53,19 @@ namespace se3
     }
   }
   
+  inline void updateGlobalPlacements(const Model & model, Data & data)
+  {
+    for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
+    {
+      const Model::JointIndex & parent = model.parents[i];
+      
+      if (parent>0)
+        data.oMi[i] = data.oMi[parent] * data.liMi[i];
+      else
+        data.oMi[i] = data.liMi[i];
+    }
+  }
+  
   struct ForwardKinematicZeroStep : public fusion::JointVisitor<ForwardKinematicZeroStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
