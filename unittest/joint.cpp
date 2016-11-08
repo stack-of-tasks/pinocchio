@@ -21,6 +21,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+using namespace se3;
+
 template <typename T>
 void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
 {
@@ -127,7 +129,21 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_all_joints )
 {
-  using namespace se3;
   boost::mpl::for_each<JointModelVariant::types>(TestJoint());
 }
+
+BOOST_AUTO_TEST_CASE(test_empty_model)
+{
+  JointModel jmodel;
+  std::cout << "nq " << jmodel.nq() << std::endl;
+  std::cout << "nv " << jmodel.nv() << std::endl;
+  std::cout << "idx_q " << jmodel.idx_q() << std::endl;
+  std::cout << "idx_v " << jmodel.idx_v() << std::endl;
+  std::cout << "id " << jmodel.id() << std::endl;
+  std::cout << "name " << jmodel.shortname() << std::endl;
+  
+  BOOST_CHECK(jmodel.idx_q() == -1);
+  BOOST_CHECK(jmodel.idx_v() == -1);
+}
+
 BOOST_AUTO_TEST_SUITE_END ()
