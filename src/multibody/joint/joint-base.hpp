@@ -22,6 +22,7 @@
 #include "pinocchio/multibody/fwd.hpp"
 
 #include <Eigen/Core>
+#include <limits>
 
 namespace se3
 {
@@ -426,12 +427,14 @@ namespace se3
     /// Default constructor: protected.
     /// 
     /// Prevent the construction of stand-alone JointModelBase.
-    inline JointModelBase() {} // TODO: default value should be set to -1
+    inline JointModelBase() : i_id(std::numeric_limits<JointIndex>::max()), i_q(-1), i_v(-1) {}
+    
     /// Copy constructor: protected.
     ///
     /// Copy of stand-alone JointModelBase are prevented, but can be used from inhereting
     /// objects. Copy is done by calling copy operator.
     inline JointModelBase( const JointModelBase& clone) { *this = clone; }
+    
     /// Copy operator: protected.
     ///
     /// Copy of stand-alone JointModelBase are prevented, but can be used from inhereting

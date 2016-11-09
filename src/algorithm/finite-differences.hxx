@@ -50,8 +50,9 @@ namespace se3
   {
     using namespace se3::details;
     Eigen::VectorXd fd_increment(model.nv);
-    BOOST_FOREACH(const JointModel & jmodel,model.joints)
+    for(int k = 1; k < model.joints.size(); ++k)
     {
+      const JointModel & jmodel = model.joints[k];
       FinitDiffEpsVisitor::run(jmodel,FinitDiffEpsVisitor::ArgsType(fd_increment));
     }
     
