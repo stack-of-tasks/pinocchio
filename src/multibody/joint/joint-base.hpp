@@ -132,6 +132,8 @@ namespace se3
   template<typename Derived>
   struct JointDataBase
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     typedef typename traits<Derived>::JointDerived JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
@@ -192,6 +194,8 @@ namespace se3
   template<typename Derived>
   struct JointModelBase
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     typedef typename traits<Derived>::JointDerived JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
   
