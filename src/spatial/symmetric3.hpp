@@ -97,6 +97,10 @@ namespace se3
     /* Requiered by Inertia::operator== */
     bool operator== (const Symmetric3Tpl & S2) const { return data_ == S2.data_; }
     
+    bool isApprox(const Symmetric3Tpl & other,
+                  const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return data_.isApprox(other.data_,prec); }
+    
     void fill(const Scalar value) { data_.fill(value); }
     
     struct SkewSquare
