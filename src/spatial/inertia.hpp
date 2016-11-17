@@ -53,7 +53,9 @@ namespace se3
     operator Matrix6 () const { return matrix(); }
 
     Derived_t& operator= (const Derived_t& clone){return derived().__equl__(clone);}
-    bool operator== (const Derived_t& other) const {return derived().isEqual(other);}
+    bool operator==(const Derived_t & other) const {return derived().isEqual(other);}
+    bool operator!=(const Derived_t & other) const { return !(*this == other); }
+    
     Derived_t& operator+= (const Derived_t & Yb) { return derived().__pequ__(Yb); }
     Derived_t operator+(const Derived_t & Yb) const { return derived().__plus__(Yb); }
     Force operator*(const Motion & v) const    { return derived().__mult__(v); }

@@ -105,10 +105,8 @@ namespace se3
       Derived_t actInv(const Derived_t& m2) const { return derived().actInv_impl(m2); }
 
 
-      bool operator == (const Derived_t & other) const
-      {
-        return derived().__equal__(other);
-      }
+    bool operator==(const Derived_t & other) const { return derived().__equal__(other); }
+    bool operator!=(const Derived_t & other) const { return !(*this == other); }
 
       bool isApprox (const Derived_t & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
       {

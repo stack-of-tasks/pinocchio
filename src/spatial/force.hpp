@@ -122,6 +122,10 @@ namespace se3
      */
     bool operator== (const Derived_t & other) const {return derived().isEqual(other);}
     
+    /** \returns true if at least one coefficient of \c *this and \a other does not match.
+     */
+    bool operator!=(const Derived_t & other) const { return !(*this == other); }
+    
     /** \returns true if *this is approximately equal to other, within the precision given by prec.
      */
     bool isApprox(const Derived & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
