@@ -117,6 +117,9 @@ namespace se3
         .def("__mul__",&__mul__<Inertia>)
         .add_property("np",&SE3::toHomogeneousMatrix)
         
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
+        
         .def("Identity",&SE3::Identity,"Returns the identity transformation.")
         .staticmethod("Identity")
         .def("Random",&SE3::Random,"Returns a random transformation.")
