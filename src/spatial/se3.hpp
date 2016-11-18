@@ -277,6 +277,22 @@ namespace se3
       return d.se3ActionInverse(*this);
     }
 
+    template<typename EigenDerived>
+    typename EigenDerived::PlainObject actOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p)
+    { return EigenDerived::PlainObject(rot*p+trans); }
+
+    template<typename MapDerived>
+    Vector3 actOnEigenObject(const Eigen::MapBase<MapDerived> & p)
+    { return Vector3(rot*p+trans); }
+
+    template<typename EigenDerived>
+    typename EigenDerived::PlainObject actInvOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p)
+    { return EigenDerived::PlainObject(rot.transpose()*(p-trans)); }
+
+    template<typename MapDerived>
+    Vector3 actInvOnEigenObject(const Eigen::MapBase<MapDerived> & p)
+    { return Vector3(rot.transpose()*(p-trans)); }
+
     Vector3 act_impl   (const Vector3& p) const { return Vector3(rot*p+trans); }
     Vector3 actInv_impl(const Vector3& p) const { return Vector3(rot.transpose()*(p-trans)); }
 
