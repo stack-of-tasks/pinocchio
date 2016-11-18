@@ -153,6 +153,14 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   Motion avxw = av.cross(aw);
   Motion bvxw = bv.cross(bw);
   BOOST_CHECK(avxw.toVector().isApprox(amb.act(bvxw).toVector(), 1e-12));
+  
+  // Test isApprox
+  const double eps = 1e-6;
+  BOOST_CHECK(bv == bv);
+  BOOST_CHECK(bv.isApprox(bv));
+  Motion bv_approx(bv);
+  bv_approx.linear()[0] += eps;
+  BOOST_CHECK(bv_approx.isApprox(bv,eps));
 }
 
 BOOST_AUTO_TEST_CASE ( test_Force )
@@ -208,6 +216,14 @@ BOOST_AUTO_TEST_CASE ( test_Force )
   // Simple test for cross product
   // Force vxv = bf.cross(bf);
   // ensure that (vxv.toVector().isMuchSmallerThan(bf.toVector()));
+  
+  // Test isApprox
+  const double eps = 1e-6;
+  BOOST_CHECK(bf == bf);
+  BOOST_CHECK(bf.isApprox(bf));
+  Force bf_approx(bf);
+  bf_approx.linear()[0] += eps;
+  BOOST_CHECK(bf_approx.isApprox(bf,eps));
 }
 
 BOOST_AUTO_TEST_CASE ( test_Inertia )
@@ -292,6 +308,18 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   BOOST_CHECK_SMALL(I1.lever().norm(), 1e-12);
   BOOST_CHECK(I1.inertia().matrix().isApprox(Symmetric3(
         78., 0., 60., 0., 0., 30.).matrix(), 1e-12));
+  
+  // Copy operator
+  Inertia aI_copy(aI);
+  BOOST_CHECK(aI_copy == aI);
+  
+  // Test isApprox
+  const double eps = 1e-6;
+  BOOST_CHECK(aI == aI);
+  BOOST_CHECK(aI.isApprox(aI));
+  Inertia aI_approx(aI);
+  aI_approx.mass() += eps;
+  BOOST_CHECK(aI_approx.isApprox(aI,eps));
 }
 
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )

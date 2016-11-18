@@ -86,6 +86,12 @@ namespace se3
         .add_property("np",&Inertia::matrix)
         .def("vxiv",&Inertia::vxiv,bp::arg("Motion v"),"Returns the result of v x Iv.")
         
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
+        
+        .def("isApprox",(bool (Inertia::*)(const Inertia & other, const Scalar & prec)) &Inertia::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
+        .def("isApprox",(bool (Inertia::*)(const Inertia & other)) &Inertia::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        
         .def("Identity",&Inertia::Identity,"Returns the identity Inertia.")
         .staticmethod("Identity")
         .def("Zero",&Inertia::Zero,"Returns the null Inertia.")

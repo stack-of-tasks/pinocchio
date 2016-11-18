@@ -53,7 +53,9 @@ namespace se3
     operator Matrix6 () const { return matrix(); }
 
     Derived_t& operator= (const Derived_t& clone){return derived().__equl__(clone);}
-    bool operator== (const Derived_t& other) const {return derived().isEqual(other);}
+    bool operator==(const Derived_t & other) const {return derived().isEqual(other);}
+    bool operator!=(const Derived_t & other) const { return !(*this == other); }
+    
     Derived_t& operator+= (const Derived_t & Yb) { return derived().__pequ__(Yb); }
     Derived_t operator+(const Derived_t & Yb) const { return derived().__plus__(Yb); }
     Force operator*(const Motion & v) const    { return derived().__mult__(v); }
@@ -63,6 +65,9 @@ namespace se3
     void setZero() { derived().setZero(); }
     void setIdentity() { derived().setIdentity(); }
     void setRandom() { derived().setRandom(); }
+    
+    bool isApprox (const Derived & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return derived().isApprox_impl(other, prec); }
 
     /// aI = aXb.act(bI)
     Derived_t se3Action(const SE3 & M) const { return derived().se3Action_impl(M); }
@@ -246,6 +251,14 @@ namespace se3
     bool isEqual( const InertiaTpl& Y2 ) const
     { 
       return (m==Y2.m) && (c==Y2.c) && (I==Y2.I);
+    }
+    
+    bool isApprox_impl(const InertiaTpl & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      using std::fabs;
+      return fabs(m - other.m) <= prec
+      && c.isApprox(other.c,prec)
+      && I.isApprox(other.I,prec);
     }
 
     InertiaTpl __plus__(const InertiaTpl &Yb) const

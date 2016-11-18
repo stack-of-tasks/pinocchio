@@ -105,10 +105,8 @@ namespace se3
       Derived_t actInv(const Derived_t& m2) const { return derived().actInv_impl(m2); }
 
 
-      bool operator == (const Derived_t & other) const
-      {
-        return derived().__equal__(other);
-      }
+    bool operator==(const Derived_t & other) const { return derived().__equal__(other); }
+    bool operator!=(const Derived_t & other) const { return !(*this == other); }
 
       bool isApprox (const Derived_t & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
       {
@@ -276,6 +274,22 @@ namespace se3
     {
       return d.se3ActionInverse(*this);
     }
+
+    template<typename EigenDerived>
+    typename EigenDerived::PlainObject actOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p)
+    { return EigenDerived::PlainObject(rot*p+trans); }
+
+    template<typename MapDerived>
+    Vector3 actOnEigenObject(const Eigen::MapBase<MapDerived> & p)
+    { return Vector3(rot*p+trans); }
+
+    template<typename EigenDerived>
+    typename EigenDerived::PlainObject actInvOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p)
+    { return EigenDerived::PlainObject(rot.transpose()*(p-trans)); }
+
+    template<typename MapDerived>
+    Vector3 actInvOnEigenObject(const Eigen::MapBase<MapDerived> & p)
+    { return Vector3(rot.transpose()*(p-trans)); }
 
     Vector3 act_impl   (const Vector3& p) const { return Vector3(rot*p+trans); }
     Vector3 actInv_impl(const Vector3& p) const { return Vector3(rot.transpose()*(p-trans)); }

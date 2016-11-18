@@ -122,6 +122,15 @@ namespace se3
      */
     bool operator== (const Derived_t & other) const {return derived().isEqual(other);}
     
+    /** \returns true if at least one coefficient of \c *this and \a other does not match.
+     */
+    bool operator!=(const Derived_t & other) const { return !(*this == other); }
+    
+    /** \returns true if *this is approximately equal to other, within the precision given by prec.
+     */
+    bool isApprox(const Derived & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return derived().isApprox_impl(other, prec); }
+    
     /** \brief Copies the Derived Force into *this
      *  \return a reference to *this
      */
@@ -319,7 +328,9 @@ namespace se3
     ForceTpl __mult__(const double a) const { return ForceTpl(a*data); }
     ForceTpl __minus__() const { return ForceTpl(-data); }
     ForceTpl __minus__(const ForceTpl & phi) const { return ForceTpl(data - phi.data); }
-
+    
+    bool isApprox_impl(const ForceTpl & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return data.isApprox(other.data, prec); }
 
     /// \internal \copydoc ForceBase::angular
     ConstAngular_t angular_impl() const { return data.template segment<3> (ANGULAR); }

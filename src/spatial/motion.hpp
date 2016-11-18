@@ -57,7 +57,8 @@ namespace se3
     ActionMatrix_t toActionMatrix() const { return derived().toActionMatrix_impl(); }
     operator Matrix6 () const { return toActionMatrix(); }
 
-    bool operator== (const Derived_t & other) const {return derived().isEqual(other);}
+    bool operator==(const Derived_t & other) const {return derived().isEqual(other);}
+    bool operator!=(const Derived_t & other) const { return !(*this == other); }
     Derived_t operator-() const { return derived().__minus__(); }
     Derived_t operator+(const Derived_t & v2) const { return derived().__plus__(v2); }
     Derived_t operator-(const Derived_t & v2) const { return derived().__minus__(v2); }

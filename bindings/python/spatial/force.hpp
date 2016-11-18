@@ -39,6 +39,7 @@ namespace se3
     {
       typedef typename Force::Vector6 Vector6;
       typedef typename Force::Vector3 Vector3;
+      typedef typename Force::Scalar Scalar;
       
       template<class PyClass>
       void visit(PyClass& cl) const 
@@ -80,6 +81,12 @@ namespace se3
         .def(bp::self - bp::self)
         .def(bp::self -= bp::self)
         .def(-bp::self)
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
+        
+        .def("isApprox",(bool (Force::*)(const Force & other, const Scalar & prec)) &Force::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
+        .def("isApprox",(bool (Force::*)(const Force & other)) &Force::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
         
         .def("Random",&Force::Random,"Returns a random Force.")
         .staticmethod("Random")
