@@ -29,11 +29,11 @@ namespace se3
                    const Eigen::VectorXd & q,
                    Model::JointIndex jointId,
                    bool local,
-                   bool update_geometry)
+                   bool update_kinematics)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
       
-      if (update_geometry)
+      if (update_kinematics)
         computeJacobians(model,data,q);
       
       if(local) getJacobian<true> (model,data,jointId,J);
@@ -56,7 +56,7 @@ namespace se3
                        "Joint configuration q (size Model::nq)",
                        "Joint ID, the index of the joint.",
                        "frame (true = local, false = world)",
-                       "update_geometry (true = update the value of the total jacobian)"),
+                       "update_kinematics (true = update the value of the total jacobian)"),
               "Computes the jacobian of a given given joint according to the given input configuration."
               "If local is set to true, it returns the jacobian associated to the joint frame. Otherwise, it returns the jacobian of the frame coinciding with the world frame.");
     }

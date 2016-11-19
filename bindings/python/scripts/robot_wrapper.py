@@ -14,12 +14,9 @@
 # Pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
 
-import time
-
 import libpinocchio_pywrap as se3
 import utils
-from explog import exp
-
+import time
 
 class RobotWrapper(object):
 
@@ -99,8 +96,8 @@ class RobotWrapper(object):
         else:
             se3.forwardKinematics(self.model, self.data, q)
 
-    def position(self, q, index, update_geometry=True):
-        if update_geometry:
+    def position(self, q, index, update_kinematics=True):
+        if update_kinematics:
             se3.forwardKinematics(self.model, self.data, q)
         return self.data.oMi[index]
 
@@ -109,13 +106,13 @@ class RobotWrapper(object):
             se3.forwardKinematics(self.model, self.data, q, v)
         return self.data.v[index]
 
-    def acceleration(self, q, v, a, index, update_acceleration=True):
-        if update_acceleration:
+    def acceleration(self, q, v, a, index, update_kinematics=True):
+        if update_kinematics:
             se3.forwardKinematics(self.model, self.data, q, v, a)
         return self.data.a[index]
 
-    def jacobian(self, q, index, update_geometry=True, local_frame=True):
-        return se3.jacobian(self.model, self.data, q, index, local_frame, update_geometry)
+    def jacobian(self, q, index, update_kinematics=True, local_frame=True):
+        return se3.jacobian(self.model, self.data, q, index, local_frame, update_kinematics)
 
     def computeJacobians(self, q):
         return se3.computeJacobians(self.model, self.data, q)
