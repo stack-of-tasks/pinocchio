@@ -25,7 +25,7 @@
   #include "pinocchio/parsers/urdf.hpp"
 #endif
 
-#ifdef WITH_LUA
+#ifdef WITH_LUA5
   #include "pinocchio/parsers/lua.hpp"
 #endif
 
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 #endif
       break;
     case se3::LUA:
-#ifdef WITH_LUA
+#ifdef WITH_LUA5
       model = se3::lua::buildModel(filename, false, verbose);
 #else
       std::cerr << "It seems that the LUA module has not been found during the Cmake process." << std::endl;
