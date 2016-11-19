@@ -61,11 +61,16 @@ OPTION (BUILD_UTILS "Build the utils" OFF)
 OPTION (INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 OPTION (BUILD_TESTS_WITH_HPP "Build geom tests and benchmarks with hpp to do comparisons" OFF)
 OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
+OPTION (BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
 
 IF (INITIALIZE_WITH_NAN)
   MESSAGE (STATUS "Initialize with NaN all the Eigen entries.")
   ADD_DEFINITIONS(-DEIGEN_INITIALIZE_MATRICES_BY_NAN)
 ENDIF (INITIALIZE_WITH_NAN)
+
+MACRO(TAG_LIBRARY_VERSION target)
+  SET_TARGET_PROPERTIES(${target} PROPERTIES SOVERSION ${PROJECT_VERSION})
+ENDMACRO(TAG_LIBRARY_VERSION)
 
 # ----------------------------------------------------
 # --- DEPENDANCIES -----------------------------------
