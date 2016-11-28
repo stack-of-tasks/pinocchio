@@ -217,7 +217,7 @@ namespace se3
       const Model::JointIndex & i = geom.parentJoint;
       assert (i<geomData.radius.size());
 
-      double radius = geomData.radius[i];
+      double radius = geomData.radius[i] * geomData.radius[i];
 
       // The radius is simply the one of the 8 corners of the AABB cube, expressed 
       // in the joint frame, whose norm is the highest.
