@@ -99,7 +99,7 @@ namespace se3
     for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
     {
       com_global = data.oMi[i].translation() + data.oMi[i].rotation() * model.inertias[i].lever();
-      data.potential_energy += model.inertias[i].mass() * com_global.dot(g);
+      data.potential_energy -= model.inertias[i].mass() * com_global.dot(g);
     }
     
     return data.potential_energy;

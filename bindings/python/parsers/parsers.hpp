@@ -30,9 +30,9 @@
   #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
   #include "pinocchio/bindings/python/multibody/geometry-data.hpp"
 
-#ifdef WITH_LUA
+#ifdef WITH_LUA5
   #include "pinocchio/parsers/lua.hpp"
-#endif // #ifdef WITH_LUA
+#endif // #ifdef WITH_LUA5
 
 #include "pinocchio/parsers/srdf.hpp"
 
@@ -110,7 +110,7 @@ namespace se3
 #endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
 
-#ifdef WITH_LUA
+#ifdef WITH_LUA5
       static Model buildModelFromLua(const std::string & filename,
                                             bool ff,
                                             bool verbose
@@ -120,7 +120,7 @@ namespace se3
         model = se3::lua::buildModel (filename, ff, verbose);
         return model;
       }
-#endif // #ifdef WITH_LUA
+#endif // #ifdef WITH_LUA5
 
       static Eigen::VectorXd getNeutralConfigurationFromSrdf(Model & model,
                                                              const std::string & filename,
@@ -176,14 +176,14 @@ namespace se3
 #endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
       
-#ifdef WITH_LUA
+#ifdef WITH_LUA5
       bp::def("buildModelFromLua",buildModelFromLua,
               bp::args("Filename (string)",
                        "Free flyer (bool, false for a fixed robot)",
                        "Verbose option "),
               "Parse the urdf file given in input and return a proper pinocchio model "
               "(remember to create the corresponding data structure).");
-#endif // #ifdef WITH_LUA
+#endif // #ifdef WITH_LUA5
 
       bp::def("getNeutralConfigurationFromSrdf",getNeutralConfigurationFromSrdf,
               // static_cast <ModelHandler (*) ( const std::string &, bool)> (&ParsersPythonVisitor::getNeutralConfigurationFromSrdf),

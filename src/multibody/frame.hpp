@@ -109,8 +109,16 @@ namespace se3
   template<typename Scalar, int Options>
   inline std::ostream & operator << (std::ostream& os, const FrameTpl<Scalar,Options> & f)
   {
-    os << "Frame name:" << f.name  << "paired to (parent joint/ previous frame)" << "(" <<f.parent << "/" << f.previousFrame << ")"<< std::endl;
-    os << "with relative placement wrt parent joint:\n" << f.placement << std::endl;
+    os
+    << "Frame name: "
+    << f.name
+    << " paired to (parent joint/ previous frame)"
+    << "(" <<f.parent << "/" << f.previousFrame << ")"
+    << std::endl
+    << "with relative placement wrt parent joint:\n" <<
+    f.placement
+    << std::endl;
+    
     return os;
   }
 
