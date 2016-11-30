@@ -32,7 +32,7 @@ namespace se3
                        "Update kinematics (bool)"),
               "Computes the kinematic energy of the model for the "
               "given joint configuration and velocity and stores the result "
-              " in data.kinetic_energy. By default, the kinematics of model is updated.");
+              "in data.kinetic_energy. By default, the first order kinematic quantities of the model are updated.");
       
       bp::def("potentialEnergy",potentialEnergy,
               bp::args("Model","Data",
@@ -40,7 +40,7 @@ namespace se3
                        "Update kinematics (bool)"),
               "Computes the potential energy of the model for the "
               "given the joint configuration and stores the result "
-              " in data.potential_energy. By default, the kinematics of model is updated.");
+              "in data.potential_energy. By default, the first order kinematic quantities of the model are updated.");
     }
     
   } // namespace python
