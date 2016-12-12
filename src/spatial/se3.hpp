@@ -77,6 +77,8 @@ namespace se3
         return derived().toActionMatrix_impl();
       }
       operator Matrix6() const { return toActionMatrix(); }
+    
+    Matrix6 toDualActionMatrix() const { return derived().toDualActionMatrix_impl(); }
 
 
 
@@ -248,6 +250,21 @@ namespace se3
       = M.template block<3,3>(LINEAR,LINEAR) = rot;
       M.template block<3,3>(ANGULAR,LINEAR).setZero();
       Block3 B = M.template block<3,3>(LINEAR,ANGULAR);
+      
+      B.col(0) = trans.cross(rot.col(0));
+      B.col(1) = trans.cross(rot.col(1));
+      B.col(2) = trans.cross(rot.col(2));
+      return M;
+    }
+    
+    Matrix6 toDualActionMatrix_impl() const
+    {
+      typedef Eigen::Block<Matrix6,3,3> Block3;
+      Matrix6 M;
+      M.template block<3,3>(ANGULAR,ANGULAR)
+      = M.template block<3,3>(LINEAR,LINEAR) = rot;
+      M.template block<3,3>(LINEAR,ANGULAR).setZero();
+      Block3 B = M.template block<3,3>(ANGULAR,LINEAR);
       
       B.col(0) = trans.cross(rot.col(0));
       B.col(1) = trans.cross(rot.col(1));

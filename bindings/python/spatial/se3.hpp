@@ -69,8 +69,9 @@ namespace se3
                       "The translation part of the transformation."
                       )
         
-        .add_property("homogeneous",&SE3::toHomogeneousMatrix,"Returns the homegeneous matrix of *this.")
-        .add_property("action",&SE3::toActionMatrix,"Returns the action matrix of *this.")
+        .add_property("homogeneous",&SE3::toHomogeneousMatrix,"Returns the homegeneous matrix of *this (acting on SE3).")
+        .add_property("action",&SE3::toActionMatrix,"Returns the action matrix of *this (acting on Motion).")
+        .add_property("dualAction",&SE3::toDualActionMatrix,"Returns the dual action matrix of *this (acting on Force).")
         
         .def("setIdentity",&SE3PythonVisitor::setIdentity,"Set *this to the identity placement.")
         .def("setRandom",&SE3PythonVisitor::setRandom,"Set *this to a random placement.")

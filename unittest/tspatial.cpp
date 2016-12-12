@@ -65,10 +65,13 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   Matrix6 bXc = bmc;
   Matrix6 aXc = amc;
   BOOST_CHECK(aXc.isApprox(aXb*bXc, 1e-12));
-
+  
   Matrix6 bXa = amb.inverse();
   BOOST_CHECK(bXa.isApprox(aXb.inverse(), 1e-12));
   
+  // Test dual action matrix
+  BOOST_CHECK(aXb.inverse().transpose().isApprox(amb.toDualActionMatrix(),1e-12));
+
   // Test isIdentity
   SE3 identity = SE3::Identity();
   BOOST_CHECK(identity.isIdentity());
