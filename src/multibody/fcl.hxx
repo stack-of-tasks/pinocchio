@@ -72,6 +72,7 @@ namespace se3
             && lhs.fcl          == rhs.fcl
             && lhs.placement    == rhs.placement
             && lhs.meshPath     == rhs.meshPath
+            && lhs.meshScale    == rhs.meshScale
             );
   }
 
@@ -82,6 +83,7 @@ namespace se3
         << "Parent joint ID: \t \n" << geom_object.parentJoint << "\n"
         << "Position in parent frame: \t \n" << geom_object.placement << "\n"
         << "Absolute path to mesh file: \t \n" << geom_object.meshPath << "\n"
+        << "Scale for transformation of the mesh: \t \n" << geom_object.meshScale.transpose() << "\n"
         << std::endl;
     return os;
   }

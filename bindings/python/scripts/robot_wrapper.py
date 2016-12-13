@@ -174,10 +174,13 @@ class RobotWrapper(object):
         self.viewer.gui.createGroup(nodeName)
 
         # iterate over visuals and create the meshes in the viewer
+        from rpy import npToTuple
         for visual in self.visual_model.geometryObjects :
             meshName = self.viewerNodeNames(visual) 
             meshPath = visual.meshPath
+            meshScale = visual.meshScale
             self.viewer.gui.addMesh(meshName, meshPath)
+            self.viewer.gui.setScale(meshName, npToTuple(meshScale))
 
         # Finally, refresh the layout to obtain your first rendering.
         self.viewer.gui.refresh()
