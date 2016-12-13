@@ -36,13 +36,17 @@ namespace se3
       void visit(PyClass& cl) const 
       {
         cl
-        .def_readwrite("name", &GeometryObject::name, "Name of the GeometryObject")
-        .def_readwrite("parentJoint", &GeometryObject::parentJoint, "Index of the parent joint")
-        .def_readwrite("parentFrame", &GeometryObject::parentFrame, "Index of the parent frame")
-        .def_readwrite("placement",&GeometryObject::placement,
-                       "Position of geometry object in parent joint's frame")
-        .def_readonly("meshPath", &GeometryObject::meshPath, "Absolute path to the mesh file")
-        ;
+	   .add_property("meshScale",
+			 bp::make_getter(&GeometryObject::meshScale, bp::return_value_policy<bp::return_by_value>()),
+			 bp::make_setter(&GeometryObject::meshScale),
+			 "Scaling parameter for the mesh")
+	   .def_readwrite("name", &GeometryObject::name, "Name of the GeometryObject")
+	   .def_readwrite("parentJoint", &GeometryObject::parentJoint, "Index of the parent joint")
+	   .def_readwrite("parentFrame", &GeometryObject::parentFrame, "Index of the parent frame")
+	   .def_readwrite("placement",&GeometryObject::placement,
+		      		  "Position of geometry object in parent joint's frame")
+	   .def_readonly("meshPath", &GeometryObject::meshPath, "Absolute path to the mesh file")
+	   ;
       }
 
       static void expose()

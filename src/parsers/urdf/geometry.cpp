@@ -49,12 +49,14 @@ namespace se3
      * @param[in]  urdf_geometry  A shared pointer on the input urdf Geometry
      * @param[in]  package_dirs   A vector containing the different directories where to search for packages
      * @param[out] meshPath      The Absolute path of the mesh currently read
+     * @param[out] meshScale     Scale of transformation currently applied to the mesh
      *
      * @return     A shared pointer on the he geometry converted as a fcl::CollisionGeometry
      */
      boost::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(const boost::shared_ptr< ::urdf::Geometry> urdf_geometry,
                                                                          const std::vector<std::string> & package_dirs,
-                                                                         std::string & meshPath)
+                                                                         std::string & meshPath,
+                                                                         Eigen::Vector3d & meshScale)
       {
         boost::shared_ptr<fcl::CollisionGeometry> geometry;
 
@@ -67,9 +69,13 @@ namespace se3
           meshPath = retrieveResourcePath(collisionFilename, package_dirs);
 
           fcl::Vec3f scale = fcl::Vec3f(collisionGeometry->scale.x,
-                                              collisionGeometry->scale.y,
-                                              collisionGeometry->scale.z
-                                              );
+					collisionGeometry->scale.y,
+					collisionGeometry->scale.z
+					);
+
+	  meshScale << collisionGeometry->scale.x,
+	    collisionGeometry->scale.y,
+	    collisionGeometry->scale.z;
 
           // Create FCL mesh by parsing Collada file.
           PolyhedronPtrType polyhedron (new PolyhedronType);
@@ -83,6 +89,7 @@ namespace se3
         else if (urdf_geometry->type == ::urdf::Geometry::CYLINDER)
         {
           meshPath = "CYLINDER";
+          meshScale << 1,1,1;
           boost::shared_ptr < ::urdf::Cylinder> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Cylinder> (urdf_geometry);
     
           double radius = collisionGeometry->radius;
@@ -95,6 +102,7 @@ namespace se3
         else if (urdf_geometry->type == ::urdf::Geometry::BOX) 
         {
           meshPath = "BOX";
+          meshScale << 1,1,1;
           boost::shared_ptr < ::urdf::Box> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Box> (urdf_geometry);
     
           double x = collisionGeometry->dim.x;
@@ -107,6 +115,7 @@ namespace se3
         else if (urdf_geometry->type == ::urdf::Geometry::SPHERE)
         {
           meshPath = "SPHERE";
+          meshScale << 1,1,1;
           boost::shared_ptr < ::urdf::Sphere> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Sphere> (urdf_geometry);
 
           double radius = collisionGeometry->radius;
@@ -187,6 +196,8 @@ namespace se3
         if(getLinkGeometry<T>(link))
         {
           std::string meshPath = "";
+
+          Eigen::Vector3d meshScale;
         
           std::string link_name = link->name;
 
@@ -203,7 +214,7 @@ namespace se3
           {
             meshPath.clear();
 #ifdef WITH_HPP_FCL
-            const boost::shared_ptr<fcl::CollisionGeometry> geometry = retrieveCollisionGeometry((*i)->geometry, package_dirs, meshPath);
+            const boost::shared_ptr<fcl::CollisionGeometry> geometry = retrieveCollisionGeometry((*i)->geometry, package_dirs, meshPath, meshScale);
 #else
             boost::shared_ptr < ::urdf::Mesh> urdf_mesh = boost::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry);
             if (urdf_mesh) meshPath = retrieveResourcePath(urdf_mesh->filename, package_dirs);
@@ -218,7 +229,7 @@ namespace se3
             geomModel.addGeometryObject(GeometryObject(geometry_object_name,
                                                        frame_id, model.frames[frame_id].parent, 
                                                        geometry,
-                                                       geomPlacement, meshPath),
+                                                       geomPlacement, meshPath, meshScale),
                                         model);
             ++objectId;
           }
