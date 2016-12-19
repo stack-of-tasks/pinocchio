@@ -269,7 +269,7 @@ namespace se3
   struct traits<JointPlanar>
   {
     enum {
-      NQ = 3,
+      NQ = 4,
       NV = 3
     };
     typedef double Scalar;
@@ -330,7 +330,8 @@ namespace se3
     {
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
       
-      double c_theta,s_theta; SINCOS (q_joint(2), &s_theta, &c_theta);
+      const double& c_theta = q_joint(2),
+                    s_theta = q_joint(3);
       
       M.rotation().topLeftCorner<2,2>() << c_theta, -s_theta, s_theta, c_theta;
       M.translation().head<2>() = q_joint.template head<2>();
@@ -341,7 +342,8 @@ namespace se3
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ>(idx_q ());
 
-      double c_theta,s_theta; SINCOS (q(2), &s_theta, &c_theta);
+      const double& c_theta = q(2),
+                    s_theta = q(3);
 
       data.M.rotation ().topLeftCorner <2,2> () << c_theta, -s_theta, s_theta, c_theta;
       data.M.translation ().head <2> () = q.head<2> ();
@@ -353,9 +355,10 @@ namespace se3
                const Eigen::VectorXd & vs ) const
     {
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NQ> (idx_v ());
+      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
 
-      double c_theta,s_theta; SINCOS (q(2), &s_theta, &c_theta);
+      const double& c_theta = q(2),
+                    s_theta = q(3);
 
       data.M.rotation ().topLeftCorner <2,2> () << c_theta, -s_theta, s_theta, c_theta;
       data.M.translation ().head <2> () = q.head<2> ();
@@ -393,14 +396,14 @@ namespace se3
       typedef Eigen::Matrix<double, 2, 2> Matrix22;
       typedef Eigen::Matrix<double, 2, 1> Vector2;
 
-      double c0,s0; SINCOS (q(2), &s0, &c0);
+      const double& c0 = q(2), s0 = q(3);
       Matrix22 R0;
       R0 << c0, -s0, s0, c0;
       
       const double& t = q_dot[2];
       const double theta = std::fabs(t);
 
-      ConfigVector_t res(q);
+      ConfigVector_t res;
       if(theta > 1e-14)
       {
         // q_dot = [ x, y, t ]
@@ -427,15 +430,19 @@ namespace se3
         const double s_coeff = st * inv_theta;
         const Vector2 Sp_v (-v[1], v[0]);
 
-        if (t > 0) res.head<2>() += R0 * (s_coeff * v + c_coeff * Sp_v);
-        else       res.head<2>() += R0 * (s_coeff * v - c_coeff * Sp_v);
-        res[2] += t;
+        if (t > 0) res.head<2>() = q.head<2>() + R0 * (s_coeff * v + c_coeff * Sp_v);
+        else       res.head<2>() = q.head<2>() + R0 * (s_coeff * v - c_coeff * Sp_v);
+        res(2) = c0 * ct - s0 * st;
+        res(3) = s0 * ct + c0 * st;
         return res;
       }
       else
       {
-        res.head<2>() += R0*q_dot.head<2>();
-        res[2] += t;
+        res.head<2>() = q.head<2>() + R0*q_dot.head<2>();
+        // TODO: theta is small. Use a 1st order approx
+        double ct,st; SINCOS (theta, &st, &ct);
+        res(2) = c0 * ct - s0 * st;
+        res(3) = s0 * ct + c0 * st;
       }
       
       return res;
