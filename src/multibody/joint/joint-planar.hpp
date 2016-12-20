@@ -424,25 +424,25 @@ namespace se3
         // M0 * Mu = ( R0 * Ru, R0 * tu + t0 )
 
         Eigen::VectorXd::ConstFixedSegmentReturnType<2>::Type v = vs.segment<2>(idx_v());
-        double ct,st; SINCOS (theta, &st, &ct);
+        Eigen::Matrix<Scalar,2,1> cst;
+        SINCOS (t, &cst[1], &cst[0]);
         const double inv_theta = 1/theta;
-        const double c_coeff = (1.-ct) * inv_theta;
-        const double s_coeff = st * inv_theta;
+        const double c_coeff = (1.-cst[0]) * inv_theta;
+        const double s_coeff = std::fabs(cst[1]) * inv_theta;
         const Vector2 Sp_v (-v[1], v[0]);
 
         if (t > 0) res.head<2>() = q.head<2>() + R0 * (s_coeff * v + c_coeff * Sp_v);
         else       res.head<2>() = q.head<2>() + R0 * (s_coeff * v - c_coeff * Sp_v);
-        res(2) = c0 * ct - s0 * st;
-        res(3) = s0 * ct + c0 * st;
+        res.tail<2>() = R0 * cst;
         return res;
       }
       else
       {
+        // cos(t) ~ 1 - t^2 / 2
+        // sin(t) ~ t
         res.head<2>() = q.head<2>() + R0*q_dot.head<2>();
-        // TODO: theta is small. Use a 1st order approx
-        double ct,st; SINCOS (theta, &st, &ct);
-        res(2) = c0 * ct - s0 * st;
-        res(3) = s0 * ct + c0 * st;
+        res(2) = c0 * 1 - s0 * t;
+        res(3) = s0 * 1 + c0 * t;
       }
       
       return res;
@@ -466,14 +466,17 @@ namespace se3
 
     ConfigVector_t random_impl() const
     { 
-      ConfigVector_t result(ConfigVector_t::Random());
+      Scalar angle = PI * (-1 + 2 * rand() / RAND_MAX);
+      ConfigVector_t result;
+      result.head<2>() = Eigen::Matrix<Scalar, 2, 1>::Random();
+      SINCOS(angle, &result[3], &result[2]);
       return result;
     } 
 
     ConfigVector_t randomConfiguration_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const throw (std::runtime_error)
     { 
       ConfigVector_t result;
-      for (int i = 0; i < result.size(); ++i)
+      for (int i = 0; i < 2; ++i)
       {
         if(lower_pos_limit[i] == -std::numeric_limits<double>::infinity() || 
             upper_pos_limit[i] == std::numeric_limits<double>::infinity() )
@@ -485,6 +488,8 @@ namespace se3
         }
         result[i] = lower_pos_limit[i] + ( upper_pos_limit[i] - lower_pos_limit[i]) * rand()/RAND_MAX;
       }
+      Scalar angle = PI * (-1 + 2 * rand() / RAND_MAX);
+      SINCOS(angle, &result[3], &result[2]);
       return result;
     } 
 
@@ -512,7 +517,7 @@ namespace se3
     ConfigVector_t neutralConfiguration_impl() const
     { 
       ConfigVector_t q;
-      q << 0, 0, 0;
+      q << 0, 0, 1, 0;
       return q;
     } 
 
@@ -521,7 +526,7 @@ namespace se3
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
 
-      return q_1.head<2>().isApprox(q_2.head<2>(), prec) && std::fmod(std::abs(q_1[2] - q_2[2]), 2*M_PI) < prec;
+      return q_1.isApprox(q_2, prec);
     }
 
     static std::string classname() { return std::string("JointModelPlanar");}
