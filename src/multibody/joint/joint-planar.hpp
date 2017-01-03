@@ -466,9 +466,9 @@ namespace se3
 
     ConfigVector_t random_impl() const
     { 
-      Scalar angle = PI * (-1 + 2 * rand() / RAND_MAX);
       ConfigVector_t result;
-      result.head<2>() = Eigen::Matrix<Scalar, 2, 1>::Random();
+      result.head<2>().setRandom();
+      const Scalar angle = PI * ((Scalar)(-1 + 2 * rand()) / (Scalar) RAND_MAX);
       SINCOS(angle, &result[3], &result[2]);
       return result;
     } 
@@ -488,7 +488,7 @@ namespace se3
         }
         result[i] = lower_pos_limit[i] + ( upper_pos_limit[i] - lower_pos_limit[i]) * rand()/RAND_MAX;
       }
-      Scalar angle = PI * (-1 + 2 * rand() / RAND_MAX);
+      const Scalar angle = PI * ((Scalar)(-1 + 2 * rand()) / (Scalar) RAND_MAX);
       SINCOS(angle, &result[3], &result[2]);
       return result;
     } 
