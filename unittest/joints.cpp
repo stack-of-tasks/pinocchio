@@ -599,6 +599,7 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   using namespace se3;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 6, 1> Vector6;
+  typedef Eigen::Matrix <double, 4, 1> VectorPl;
   typedef Eigen::Matrix <double, 7, 1> VectorFF;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
@@ -613,7 +614,7 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Data dataPlanar(modelPlanar);
   Data dataFreeFlyer(modelFreeflyer);
 
-  Eigen::VectorXd q = Eigen::VectorXd::Ones (modelPlanar.nq);q[2] = PI /2;
+  VectorPl q; q << 1, 1, 0, 1; // Angle is PI /2;
   VectorFF qff; qff << 1, 1, 0, 0, 0, sqrt(2)/2, sqrt(2)/2 ;
   Eigen::VectorXd v = Eigen::VectorXd::Ones (modelPlanar.nv);
   Vector6 vff; vff << 1, 1, 0, 0, 0, 1;

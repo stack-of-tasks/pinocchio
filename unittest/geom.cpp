@@ -182,26 +182,26 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   std::cout << geomData;
 
   Eigen::VectorXd q(model.nq);
-  q <<  0, 0, 0,
-        0, 0, 0 ;
+  q <<  0, 0, 1, 0,
+        0, 0, 1, 0 ;
 
   se3::updateGeometryPlacements(model, data, geomModel, geomData, q);
   BOOST_CHECK(computeCollision(geomModel,geomData,0) == true);
 
-  q <<  2, 0, 0,
-        0, 0, 0 ;
+  q <<  2, 0, 1, 0,
+        0, 0, 1, 0 ;
 
   se3::updateGeometryPlacements(model, data, geomModel, geomData, q);
   BOOST_CHECK(computeCollision(geomModel,geomData,0) == false);
 
-  q <<  0.99, 0, 0,
-        0, 0, 0 ;
+  q <<  0.99, 0, 1, 0,
+        0, 0, 1, 0 ;
 
   se3::updateGeometryPlacements(model, data, geomModel, geomData, q);
   BOOST_CHECK(computeCollision(geomModel,geomData,0) == true);
 
-  q <<  1.01, 0, 0,
-        0, 0, 0 ;
+  q <<  1.01, 0, 1, 0,
+        0, 0, 1, 0 ;
 
   se3::updateGeometryPlacements(model, data, geomModel, geomData, q);
   BOOST_CHECK(computeCollision(geomModel,geomData,0) == false);
