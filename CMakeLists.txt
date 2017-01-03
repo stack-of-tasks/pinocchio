@@ -189,6 +189,15 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-composite.hpp
   ) 
 
+SET(${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS
+  multibody/liegroup/liegroup.hpp
+  multibody/liegroup/operation-base.hpp
+  multibody/liegroup/vector-space.hpp
+  multibody/liegroup/cartesian-product.hpp
+  multibody/liegroup/special-orthogonal.hpp
+  multibody/liegroup/special-euclidean.hpp
+  ) 
+
 SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/fwd.hpp
   multibody/constraint.hpp
@@ -281,6 +290,7 @@ SET(HEADERS
   ${${PROJECT_NAME}_TOOLS_HEADERS}
   ${${PROJECT_NAME}_SPATIAL_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS}
+  ${${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_HEADERS}
   ${${PROJECT_NAME}_PARSERS_HEADERS}
   ${${PROJECT_NAME}_ALGORITHM_HEADERS}
@@ -295,6 +305,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/math")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/liegroup")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/lua")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
