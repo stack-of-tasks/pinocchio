@@ -81,11 +81,11 @@ namespace se3
     static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
                                          const Eigen::MatrixBase<ConfigR_t> & upper,
                                          const Eigen::MatrixBase<ConfigOut_t> & qout)
-    { 
+    {
       ConfigOut_t& out = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
       LieGroup1::randomConfiguration(lower.template head<LieGroup1::NQ>(), upper.template head<LieGroup1::NQ>(), out.template head<LieGroup1::NQ>());
       LieGroup2::randomConfiguration(lower.template tail<LieGroup2::NQ>(), upper.template tail<LieGroup2::NQ>(), out.template tail<LieGroup2::NQ>());
-    } 
+    }
 
     template <class ConfigL_t, class ConfigR_t>
     static bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,

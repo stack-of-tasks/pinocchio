@@ -111,9 +111,9 @@ namespace se3
     static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
                                          const Eigen::MatrixBase<ConfigR_t> & upper,
                                          const Eigen::MatrixBase<ConfigOut_t> & qout)
-    { 
+    {
       R3crossSO3_t::randomConfiguration(lower, upper, qout);
-    } 
+    }
 
     template <class ConfigL_t, class ConfigR_t>
     static bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -150,7 +150,7 @@ namespace se3
       SE3 M1(SE3::Identity()); forwardKinematics(M1, q1);
 
       Motion nu(log6(M0.inverse()*M1)); // TODO: optimize implementation
-      
+
       Tangent_t& out = const_cast< Eigen::MatrixBase<Tangent_t>& >(d).derived();
       out.template head<2>() = nu.linear().head<2>();
       out(2) = nu.angular()(2);
@@ -168,7 +168,7 @@ namespace se3
       const double& c0 = q(2), s0 = q(3);
       Matrix22 R0;
       R0 << c0, -s0, s0, c0;
-      
+
       const double& t = vs[2];
       const double theta = std::fabs(t);
 
@@ -235,9 +235,9 @@ namespace se3
     static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
                                          const Eigen::MatrixBase<ConfigR_t> & upper,
                                          const Eigen::MatrixBase<ConfigOut_t> & qout)
-    { 
+    {
       R2crossSO1_t::randomConfiguration(lower, upper, qout);
-    } 
+    }
 
     template <class ConfigL_t, class ConfigR_t>
     static bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -255,7 +255,7 @@ namespace se3
 
       const double& c_theta = q(2),
                     s_theta = q(3);
-      
+
       M.rotation().topLeftCorner<2,2>() << c_theta, -s_theta, s_theta, c_theta;
       M.translation().head<2>() = q.template head<2>();
     }

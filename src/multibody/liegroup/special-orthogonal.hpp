@@ -109,9 +109,9 @@ namespace se3
     static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> &,
                                          const Eigen::MatrixBase<ConfigR_t> &,
                                          const Eigen::MatrixBase<ConfigOut_t> & qout)
-    { 
+    {
       random_impl(qout);
-    } 
+    }
 
     template <class ConfigL_t, class ConfigR_t>
     static bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -121,7 +121,7 @@ namespace se3
       ConstQuaternionMap_t quat1(q0.derived().data());
       ConstQuaternionMap_t quat2(q1.derived().data());
 
-      return defineSameRotation(quat1,quat2);
+      return defineSameRotation(quat1,quat2,prec);
     }
   }; // struct SpecialOrthogonalOperation
 
@@ -146,11 +146,8 @@ namespace se3
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      const Scalar & c0 = q0(0), & s0 = q0(1);
-      const Scalar & c1 = q1(0), & s1 = q1(1);
-
       const_cast < Eigen::MatrixBase<Tangent_t>& > (d) [0]
-        = atan2 (s1*c0 - s0*c1, c0*c1 + s0*s1);
+        = atan2 (q0(0)*q1(1) - q0(1)*q1(0), q0.dot(q1));
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -180,28 +177,26 @@ namespace se3
                                  const Eigen::MatrixBase<ConfigOut_t>& qout)
     {
       ConfigOut_t& out = (const_cast< Eigen::MatrixBase<ConfigOut_t>& >(qout)).derived();
-      const Scalar & c0 = q0(0), & s0 = q0(1);
-      const Scalar & c1 = q1(0), & s1 = q1(1);
 
       assert ( (q0.norm() - 1) < 1e-8 && "initial configuration not normalized");
       assert ( (q1.norm() - 1) < 1e-8 && "final configuration not normalized");
-      Scalar cosTheta = c0*c1 + s0*s1;
-      Scalar sinTheta = c0*s1 - s0*c1;
+      Scalar cosTheta = q0.dot(q1);
+      Scalar sinTheta = q0(0)*q1(1) - q0(1)*q1(0);
       Scalar theta = atan2(sinTheta, cosTheta);
       assert (fabs (sin (theta) - sinTheta) < 1e-8);
 
       if (fabs (theta) > 1e-6 && fabs (theta) < PI - 1e-6)
       {
-        out = (sin ((1-u)*theta)/sinTheta) * q0 
-                  + (sin (u*theta)/sinTheta) * q1;
-      } 
+        out = (sin ((1-u)*theta)/sinTheta) * q0
+            + (sin (   u *theta)/sinTheta) * q1;
+      }
       else if (fabs (theta) < 1e-6) // theta = 0
       {
         out = (1-u) * q0 + u * q1;
       }
       else // theta = +-PI
       {
-        double theta0 = atan2 (s0, c0);
+        double theta0 = atan2 (q0(1), q0(0));
         out << cos (theta0 + u * theta),
                sin (theta0 + u * theta);
       }
@@ -223,9 +218,9 @@ namespace se3
     static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> &,
                                          const Eigen::MatrixBase<ConfigR_t> &,
                                          const Eigen::MatrixBase<ConfigOut_t> & qout)
-    { 
+    {
       random_impl(qout);
-    } 
+    }
   }; // struct SpecialOrthogonal1Operation
 } // namespace se3
 

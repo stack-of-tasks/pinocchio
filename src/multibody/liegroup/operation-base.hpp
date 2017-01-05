@@ -309,10 +309,10 @@ namespace se3
 
   protected:
     /// Default constructor.
-    /// 
+    ///
     /// Prevent the construction of derived class.
     LieGroupOperationBase() {}
-    
+
     /// Copy constructor
     ///
     /// Prevent the copy of derived class.

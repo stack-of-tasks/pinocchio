@@ -71,11 +71,11 @@ namespace se3
     static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
                                          const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
                                          const Eigen::MatrixBase<ConfigOut_t> & qout)
-    { 
+    {
       ConfigOut_t& res = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
       for (int i = 0; i < NQ; ++i)
       {
-        if(lower_pos_limit[i] == -std::numeric_limits<Scalar>::infinity() || 
+        if(lower_pos_limit[i] == -std::numeric_limits<Scalar>::infinity() ||
            upper_pos_limit[i] ==  std::numeric_limits<Scalar>::infinity() )
         {
           std::ostringstream error;
@@ -85,7 +85,7 @@ namespace se3
         }
         res[i] = lower_pos_limit[i] + (( upper_pos_limit[i] - lower_pos_limit[i]) * rand())/RAND_MAX;
       }
-    } 
+    }
   }; // struct VectorSpaceOperation
 
 } // namespace se3
