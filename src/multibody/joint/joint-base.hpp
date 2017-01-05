@@ -20,6 +20,7 @@
 #define __se3_joint_base_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/multibody/joint/fwd.hpp"
 
 #include <Eigen/Core>
 #include <limits>

@@ -18,7 +18,7 @@
 #ifndef __math_quaternion_hpp__
 #define __math_quaternion_hpp__
 
-#include <boost/math/constants/constants.hpp>
+#include <pinocchio/math/fwd.hpp>
 
 namespace se3
 {

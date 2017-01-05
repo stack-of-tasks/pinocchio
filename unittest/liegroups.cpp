@@ -16,7 +16,6 @@
 
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 
-#include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/joint/joint.hpp"
 
 #include <boost/test/unit_test.hpp>
@@ -72,21 +71,6 @@ struct TestJoint{
     typename T::JointDataDerived jdata = jmodel.createData();
 
     test_lie_group_methods(jmodel, jdata);    
-  }
-
-  void operator()(const se3::JointModelComposite & ) const
-  {
-    // se3::JointModelComposite jmodel(2);
-    // jmodel.addJointModel(se3::JointModelRX());
-    // jmodel.addJointModel(se3::JointModelRY());
-
-    se3::JointModelComposite jmodel((se3::JointModelRX()));
-    jmodel.addJoint(se3::JointModelRY());
-    jmodel.setIndexes(0,0,0);
-
-    se3::JointModelComposite::JointDataDerived jdata = jmodel.createData();
-
-    test_lie_group_methods(jmodel, jdata);
   }
 
   void operator()(const se3::JointModelRevoluteUnaligned & ) const
