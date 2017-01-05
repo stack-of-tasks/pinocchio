@@ -95,7 +95,7 @@ struct TestJoint{
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
-BOOST_AUTO_TEST_CASE ( test_all_joints )
+BOOST_AUTO_TEST_CASE ( test_all_liegroups )
 {
   typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned
                           , JointModelSpherical, JointModelSphericalZYX
@@ -109,6 +109,24 @@ BOOST_AUTO_TEST_CASE ( test_all_joints )
   boost::mpl::for_each<Variant::types>(TestJoint());
   // FIXME JointModelComposite does not work.
   // boost::mpl::for_each<JointModelVariant::types>(TestJoint());
+}
+
+BOOST_AUTO_TEST_CASE ( test_vector_space )
+{
+  typedef VectorSpaceOperation<3> VSO_t;
+  VSO_t::ConfigVector_t q,
+    lo(VSO_t::ConfigVector_t::Constant(-std::numeric_limits<double>::infinity())),
+    // lo(VSO_t::ConfigVector_t::Constant(                                       0)),
+    // up(VSO_t::ConfigVector_t::Constant( std::numeric_limits<double>::infinity()));
+    up(VSO_t::ConfigVector_t::Constant(                                       0));
+
+  bool error = false;
+  try {
+    VSO_t::randomConfiguration(lo, up, q);
+  } catch (const std::runtime_error&) {
+    error = true;
+  }
+  BOOST_CHECK_MESSAGE(error, "Random configuration between infinite bounds should return an error");
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
