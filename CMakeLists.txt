@@ -192,6 +192,7 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
 SET(${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS
   multibody/liegroup/liegroup.hpp
   multibody/liegroup/operation-base.hpp
+  multibody/liegroup/operation-base.hxx
   multibody/liegroup/vector-space.hpp
   multibody/liegroup/cartesian-product.hpp
   multibody/liegroup/special-orthogonal.hpp
