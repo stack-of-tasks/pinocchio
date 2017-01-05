@@ -78,10 +78,11 @@ namespace se3
               "return the configuration normalized ");
       
       bp::def("isSameConfiguration",
-              (bool (*)(const Model &, const VectorXd &, const VectorXd &))&isSameConfiguration,
+              (bool (*)(const Model &, const VectorXd &, const VectorXd &, const double&))&isSameConfiguration,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
-                       "Configuration q2 (size Model::nq)"),
+                       "Configuration q2 (size Model::nq)",
+                       "Precision"),
               "Return true if two configurations are equivalent");
     }
     
