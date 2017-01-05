@@ -134,13 +134,15 @@ namespace se3
    * @param[in]     model      Model
    * @param[in]     q1        The first configuraiton to compare
    * @param[in]     q2        The Second configuraiton to compare
+   * @param[in]     prec      precision of the comparison
    *
    * @return     Wheter the configurations are equivalent or not
    */
   template<typename LieGroup_t>
   inline bool isSameConfiguration(const Model & model,
                                   const Eigen::VectorXd & q1,
-                                  const Eigen::VectorXd & q2);
+                                  const Eigen::VectorXd & q2,
+                                  const double & prec = Eigen::NumTraits<double>::dummy_precision());
 } // namespace se3
 
 /* --- Details -------------------------------------------------------------------- */
@@ -504,11 +506,12 @@ namespace se3
   {
     typedef boost::fusion::vector<bool &,
                                   const Eigen::VectorXd &,
-                                  const Eigen::VectorXd &> ArgsType;
+                                  const Eigen::VectorXd &,
+                                  const double&> ArgsType;
 
     JOINT_MODEL_VISITOR_INIT(IsSameConfigurationStep);
 
-    SE3_DETAILS_VISITOR_METHOD_ALGO_3(IsSameConfigurationStepAlgo, LieGroup_t)
+    SE3_DETAILS_VISITOR_METHOD_ALGO_4(IsSameConfigurationStepAlgo, LieGroup_t)
   };
 
   template<typename LieGroup_t, typename JointModel>
@@ -516,24 +519,27 @@ namespace se3
     static void run(const se3::JointModelBase<JointModel> & jmodel,
                     bool & isSame,
                     const Eigen::VectorXd & q1,
-                    const Eigen::VectorXd & q2)
+                    const Eigen::VectorXd & q2,
+                    const double prec)
     {
       isSame = isSame && LieGroup_t::template operation<JointModel>::type
         ::isSameConfiguration(jmodel.jointConfigSelector(q1),
-                              jmodel.jointConfigSelector(q2));
+                              jmodel.jointConfigSelector(q2),
+                              prec);
     }
   };
 
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(IsSameConfigurationStep, IsSameConfigurationStepAlgo);
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(IsSameConfigurationStep, IsSameConfigurationStepAlgo);
 
   template<typename LieGroup_t>
   inline bool
   isSameConfiguration(const Model & model,
                       const Eigen::VectorXd & q1,
-                      const Eigen::VectorXd & q2)
+                      const Eigen::VectorXd & q2,
+                      const double& prec)
   {
     bool result = true;
-    typename IsSameConfigurationStep<LieGroup_t>::ArgsType args (result, q1, q2);
+    typename IsSameConfigurationStep<LieGroup_t>::ArgsType args (result, q1, q2, prec);
     for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
     {
       IsSameConfigurationStep<LieGroup_t>::run(model.joints[i], args);
@@ -546,9 +552,10 @@ namespace se3
   inline bool
   isSameConfiguration(const Model & model,
                       const Eigen::VectorXd & q1,
-                      const Eigen::VectorXd & q2)
+                      const Eigen::VectorXd & q2,
+                      const double& prec = Eigen::NumTraits<double>::dummy_precision())
   {
-    return isSameConfiguration<LieGroupTpl>(model, q1, q2);
+    return isSameConfiguration<LieGroupTpl>(model, q1, q2, prec);
   }
 
 
