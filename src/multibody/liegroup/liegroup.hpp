@@ -39,16 +39,16 @@ namespace se3 {
 
   template<> struct LieGroupTpl::operation <JointModelComposite> {};
   template<> struct LieGroupTpl::operation <JointModelSpherical> {
-    typedef SpecialOrthogonalOperation type;
+    typedef SpecialOrthogonalOperation<3> type;
   };
   template<> struct LieGroupTpl::operation <JointModelFreeFlyer> {
-    typedef SpecialEuclideanOperation type;
+    typedef SpecialEuclideanOperation<3> type;
   };
   template<> struct LieGroupTpl::operation <JointModelPlanar> {
-    typedef SpecialEuclidean1Operation type;
+    typedef SpecialEuclideanOperation<2> type;
   };
   template<int Axis> struct LieGroupTpl::operation <JointModelRevoluteUnbounded<Axis> > {
-    typedef SpecialOrthogonal1Operation type;
+    typedef SpecialOrthogonalOperation<2> type;
   };
 
   // TODO REMOVE: For testing purposes only
