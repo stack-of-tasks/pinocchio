@@ -27,27 +27,33 @@
 // #include "pinocchio/multibody/joint/joint.hpp"
 
 namespace se3 {
-  template<typename Joint>
+  struct LieGroupTpl {
+    template<typename JointModel> struct operation {
+      typedef VectorSpaceOperation<JointModel::NQ> type;
+    };
+  };
+  template<typename JointModel>
   struct LieGroup {
-    typedef VectorSpaceOperation<Joint::NQ> type;
+    typedef typename LieGroupTpl::operation<JointModel>::type type;
   };
 
-  template<> struct LieGroup <JointModelSpherical> {
+  template<> struct LieGroupTpl::operation <JointModelComposite> {};
+  template<> struct LieGroupTpl::operation <JointModelSpherical> {
     typedef SpecialOrthogonalOperation type;
   };
-  template<> struct LieGroup <JointModelFreeFlyer> {
+  template<> struct LieGroupTpl::operation <JointModelFreeFlyer> {
     typedef SpecialEuclideanOperation type;
   };
-  template<> struct LieGroup <JointModelPlanar> {
+  template<> struct LieGroupTpl::operation <JointModelPlanar> {
     typedef SpecialEuclidean1Operation type;
   };
-  template<int Axis> struct LieGroup <JointModelRevoluteUnbounded<Axis> > {
+  template<int Axis> struct LieGroupTpl::operation <JointModelRevoluteUnbounded<Axis> > {
     typedef SpecialOrthogonal1Operation type;
   };
 
   // TODO REMOVE: For testing purposes only
   // template<>
-  // struct LieGroup <JointModelTranslation> {
+  // struct LieGroupTpl::operation <JointModelTranslation> {
     // typedef CartesianProductOperation<
       // CartesianProductOperation<typename LieGroup<JointModelPX>::type, typename LieGroup<JointModelPY>::type>,
       // typename LieGroup<JointModelPZ>::type
