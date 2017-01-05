@@ -118,6 +118,9 @@ namespace se3
                           const Eigen::MatrixBase<Tangent_t>  & v,
                           const Eigen::MatrixBase<ConfigOut_t>& qout)
     {
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigIn_t , ConfigVector_t);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t  , TangentVector_t);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigOut_t, ConfigVector_t);
       Derived::integrate_impl(q, v, qout);
     }
 
@@ -149,7 +152,9 @@ namespace se3
                             const Scalar& u,
                             const Eigen::MatrixBase<ConfigOut_t>& qout)
     {
-      // assert(is_config_vector_size(q0) && is_config_vector_size(q1));
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t  , ConfigVector_t);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t  , ConfigVector_t);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigOut_t, ConfigVector_t);
       Derived::interpolate_impl(q0, q1, u, qout);
     }
 
@@ -205,7 +210,12 @@ namespace se3
     static void randomConfiguration(const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
                                     const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
                                     const Eigen::MatrixBase<ConfigOut_t> & qout)
-    { Derived::randomConfiguration_impl(lower_pos_limit, upper_pos_limit, qout); }
+    {
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t  , ConfigVector_t);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t  , ConfigVector_t);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigOut_t, ConfigVector_t);
+      Derived::randomConfiguration_impl(lower_pos_limit, upper_pos_limit, qout);
+    }
 
     /**
      * @brief      the tangent vector that must be integrated during one unit time to go from q0 to q1
@@ -229,7 +239,9 @@ namespace se3
                            const Eigen::MatrixBase<ConfigR_t> & q1,
                            const Eigen::MatrixBase<Tangent_t>& d)
     {
-      // assert(is_config_vector_size(q0) && is_config_vector_size(q1));
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t, TangentVector_t);
       Derived::difference_impl(q0, q1, d);
     }
 
@@ -244,7 +256,11 @@ namespace se3
     template <class ConfigL_t, class ConfigR_t>
     static double squaredDistance(const Eigen::MatrixBase<ConfigL_t> & q0,
                                   const Eigen::MatrixBase<ConfigR_t> & q1)
-    { return Derived::squaredDistance_impl(q0, q1); }
+    {
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
+      return Derived::squaredDistance_impl(q0, q1);
+    }
 
     template <class ConfigL_t, class ConfigR_t>
     static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -299,7 +315,11 @@ namespace se3
     static bool isSameConfiguration(const Eigen::MatrixBase<ConfigL_t> & q0,
                                     const Eigen::MatrixBase<ConfigR_t> & q1,
                                     const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
-    { return Derived::isSameConfiguration_impl(q0,q1, prec); }
+    {
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
+      return Derived::isSameConfiguration_impl(q0, q1, prec);
+    }
 
     template <class ConfigL_t, class ConfigR_t>
     static bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
