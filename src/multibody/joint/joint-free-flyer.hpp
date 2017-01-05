@@ -31,9 +31,6 @@
 namespace se3
 {
 
-  struct JointDataFreeFlyer;
-  struct JointModelFreeFlyer;
-
   struct ConstraintIdentity;
 
   template <>

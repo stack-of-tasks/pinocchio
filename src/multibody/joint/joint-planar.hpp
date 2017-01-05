@@ -30,9 +30,6 @@
 namespace se3
 {
 
-  struct JointDataPlanar;
-  struct JointModelPlanar;
-
   struct MotionPlanar;
   template <>
   struct traits< MotionPlanar >

@@ -29,9 +29,6 @@
 
 namespace se3
 {
-
-  struct JointDataSphericalZYX;
-  struct JointModelSphericalZYX;
   
   template <typename _Scalar, int _Options>
   struct JointSphericalZYXTpl

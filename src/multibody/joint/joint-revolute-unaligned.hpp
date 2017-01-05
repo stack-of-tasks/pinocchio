@@ -28,9 +28,6 @@
 namespace se3
 {
 
-  struct JointDataRevoluteUnaligned;
-  struct JointModelRevoluteUnaligned;
-
   struct MotionRevoluteUnaligned;
   template <>
   struct traits < MotionRevoluteUnaligned >

@@ -14,9 +14,10 @@
 // received a copy of the GNU Lesser General Public License along with
 // pinocchio. If not, see <http://www.gnu.org/licenses/>.
 
+#include "pinocchio/multibody/liegroup/liegroup.hpp"
+
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/joint/joint.hpp"
-#include "pinocchio/multibody/liegroup/liegroup.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>

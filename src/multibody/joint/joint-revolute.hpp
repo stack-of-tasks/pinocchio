@@ -29,9 +29,6 @@
 namespace se3
 {
 
-  template<int axis> struct JointDataRevolute;
-  template<int axis> struct JointModelRevolute;
-  
   template<int axis> struct SE3Revolute;
   template<int axis> struct MotionRevolute;
 

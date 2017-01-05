@@ -27,9 +27,6 @@
 
 namespace se3
 {
-
-  template<int axis> struct JointDataPrismatic;
-  template<int axis> struct JointModelPrismatic;
   
   namespace prismatic
   {

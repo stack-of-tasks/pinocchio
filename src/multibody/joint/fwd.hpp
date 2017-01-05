@@ -21,7 +21,37 @@
 namespace se3
 {
   enum { MAX_JOINT_NV = 6 };
-  
+
+  template<int axis> struct JointModelRevolute;
+  template<int axis> struct JointDataRevolute;
+
+  struct JointModelRevoluteUnaligned;
+  struct JointDataRevoluteUnaligned;
+
+  template<int axis> struct JointModelRevoluteUnbounded;
+  template<int axis> struct JointDataRevoluteUnbounded;
+
+  struct JointModelSpherical;
+  struct JointDataSpherical;
+
+  struct JointModelSphericalZYX;
+  struct JointDataSphericalZYX;
+
+  template<int axis> struct JointModelPrismatic;
+  template<int axis> struct JointDataPrismatic;
+
+  struct JointModelPrismaticUnaligned;
+  struct JointDataPrismaticUnaligned;
+
+  struct JointModelFreeFlyer;
+  struct JointDataFreeFlyer;
+
+  struct JointModelPlanar;
+  struct JointDataPlanar;
+
+  struct JointModelTranslation;
+  struct JointDataTranslation;
+
   struct JointModelComposite;
   struct JointDataComposite;
   

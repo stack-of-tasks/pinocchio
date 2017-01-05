@@ -24,7 +24,7 @@
 #include "pinocchio/multibody/liegroup/special-orthogonal.hpp"
 #include "pinocchio/multibody/liegroup/special-euclidean.hpp"
 
-// #include "pinocchio/multibody/joint/joint.hpp"
+#include "pinocchio/multibody/joint/fwd.hpp"
 
 namespace se3 {
   struct LieGroupTpl {
