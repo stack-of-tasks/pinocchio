@@ -18,7 +18,7 @@
 #ifndef __math_quaternion_hpp__
 #define __math_quaternion_hpp__
 
-#include <boost/math/constants/constants.hpp>
+#include <pinocchio/math/fwd.hpp>
 
 namespace se3
 {
@@ -56,9 +56,10 @@ namespace se3
   ///
   template <typename Derived, typename otherDerived>
   bool defineSameRotation(const Eigen::QuaternionBase<Derived> & q1,
-                          const Eigen::QuaternionBase<otherDerived> & q2)
+                          const Eigen::QuaternionBase<otherDerived> & q2,
+                          const typename Derived::RealScalar & prec = Eigen::NumTraits<typename Derived::Scalar>::dummy_precision())
   {
-    return (q1.coeffs().isApprox(q2.coeffs()) || q1.coeffs().isApprox(-q2.coeffs()) );
+    return (q1.coeffs().isApprox(q2.coeffs(), prec) || q1.coeffs().isApprox(-q2.coeffs(), prec) );
   }
 
   /// Approximately normalize by applying the first order limited development

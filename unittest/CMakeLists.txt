@@ -134,3 +134,4 @@ ADD_UNIT_TEST(visitor eigen3)
 ADD_UNIT_TEST(algo-check eigen3)
 ADD_UNIT_TEST(joint-composite eigen3)
 
+ADD_UNIT_TEST(liegroups eigen3)

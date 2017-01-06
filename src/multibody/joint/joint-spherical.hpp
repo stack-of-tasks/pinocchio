@@ -31,9 +31,6 @@
 namespace se3
 {
 
-  struct JointDataSpherical;
-  struct JointModelSpherical;
-
   struct MotionSpherical;
   template <>
   struct traits< MotionSpherical >

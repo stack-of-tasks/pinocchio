@@ -31,10 +31,6 @@ namespace se3
 
   template<int axis> struct JointRevoluteUnbounded;
 
-  template<int axis> struct JointDataRevoluteUnbounded;
-  template<int axis> struct JointModelRevoluteUnbounded;
-
-
   template<int axis>
   struct traits< JointRevoluteUnbounded<axis> >
   {

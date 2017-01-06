@@ -58,7 +58,7 @@ namespace se3
   template <typename D> Eigen::Matrix<typename D::Scalar,3,1,Eigen::internal::traits<D>::Options>
   log3(const Eigen::MatrixBase<D> & R)
   {
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D, 3, 3);
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(D, Eigen::Matrix3d);
     Eigen::AngleAxis<typename D::Scalar> angleAxis(R);
     assert(0 <= angleAxis.angle() && angleAxis.angle() <= 2 * M_PI);
     if (angleAxis.angle() > M_PI)

@@ -30,9 +30,6 @@
 namespace se3
 {
 
-  struct JointDataPlanar;
-  struct JointModelPlanar;
-
   struct MotionPlanar;
   template <>
   struct traits< MotionPlanar >
@@ -468,7 +465,7 @@ namespace se3
     { 
       ConfigVector_t result;
       result.head<2>().setRandom();
-      const Scalar angle = PI * ((Scalar)(-1 + 2 * rand()) / (Scalar) RAND_MAX);
+      const Scalar angle = PI * (-1 + 2 * ((Scalar)rand()) / RAND_MAX);
       SINCOS(angle, &result[3], &result[2]);
       return result;
     } 
@@ -488,7 +485,7 @@ namespace se3
         }
         result[i] = lower_pos_limit[i] + ( upper_pos_limit[i] - lower_pos_limit[i]) * rand()/RAND_MAX;
       }
-      const Scalar angle = PI * ((Scalar)(-1 + 2 * rand()) / (Scalar) RAND_MAX);
+      const Scalar angle = PI * (-1 + 2 * ((Scalar)rand()) / RAND_MAX);
       SINCOS(angle, &result[3], &result[2]);
       return result;
     } 

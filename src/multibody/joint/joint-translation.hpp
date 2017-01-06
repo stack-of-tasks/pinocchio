@@ -29,9 +29,6 @@
 namespace se3
 {
 
-  struct JointDataTranslation;
-  struct JointModelTranslation;
-
   struct MotionTranslation;
   template <>
   struct traits < MotionTranslation >

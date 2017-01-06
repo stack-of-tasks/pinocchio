@@ -28,9 +28,6 @@
 namespace se3
 {
 
-  struct JointDataPrismaticUnaligned;
-  struct JointModelPrismaticUnaligned;
-
   struct MotionPrismaticUnaligned;
   
   template <>

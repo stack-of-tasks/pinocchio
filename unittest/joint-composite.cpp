@@ -91,6 +91,12 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   BOOST_CHECK(jdata.Dinv.isApprox(jdata_composite.Dinv));
   BOOST_CHECK(jdata.UDinv.isApprox(jdata_composite.UDinv));
   
+  /// TODO: Remove me. This is for testing purposes.
+  Eigen::VectorXd qq = q;
+  Eigen::VectorXd vv = v;
+  Eigen::VectorXd res(jmodel_composite.nq());
+  typename se3::IntegrateStep<se3::LieGroupTpl>::ArgsType args(qq, vv, res);
+  se3::IntegrateStep<se3::LieGroupTpl>::run(jmodel_composite, args);
 }
 
 struct TestJointComposite{
