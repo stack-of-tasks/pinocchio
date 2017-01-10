@@ -35,6 +35,7 @@ namespace se3
     namespace details
     {
       const FrameType JOINT_OR_FIXED_JOINT = (FrameType) (JOINT | FIXED_JOINT);
+      const double infty = std::numeric_limits<double>::infinity();
 
       FrameIndex getParentJointFrame(::urdf::LinkConstPtr link, Model & model)
       {
@@ -89,10 +90,10 @@ namespace se3
                            const SE3 & joint_placement, const std::string & joint_name,
                            const boost::shared_ptr< ::urdf::Inertial> Y,
                            const std::string & body_name,
-                           const typename JointModel::TangentVector_t & max_effort = JointModel::TangentVector_t::Constant(std::numeric_limits<double>::max()),
-                           const typename JointModel::TangentVector_t & max_velocity = JointModel::TangentVector_t::Constant(std::numeric_limits<double>::max()),
-                           const typename JointModel::ConfigVector_t & min_config = JointModel::ConfigVector_t::Constant(-std::numeric_limits<double>::min()),
-                           const typename JointModel::ConfigVector_t & max_config = JointModel::ConfigVector_t::Constant(std::numeric_limits<double>::max()))
+                           const typename JointModel::TangentVector_t & max_effort   = JointModel::TangentVector_t::Constant( infty),
+                           const typename JointModel::TangentVector_t & max_velocity = JointModel::TangentVector_t::Constant( infty),
+                           const typename JointModel::ConfigVector_t  & min_config   = JointModel::ConfigVector_t ::Constant(-infty),
+                           const typename JointModel::ConfigVector_t  & max_config   = JointModel::ConfigVector_t ::Constant( infty))
       {
         Model::JointIndex idx;
         Frame& frame = model.frames[parentFrameId];
@@ -261,20 +262,19 @@ namespace se3
             {
                 joint_info << "joint CONTINUOUS with axis";
                 
-                typedef JointModelRX::ConfigVector_t ConfigVector_t;
-                typedef JointModelRX::TangentVector_t TangentVector_t;
+                typedef JointModelRUBX::ConfigVector_t ConfigVector_t;
+                typedef JointModelRUBX::TangentVector_t TangentVector_t;
                 
                 TangentVector_t max_effort;
                 TangentVector_t max_velocity;
-                ConfigVector_t lower_position;
-                ConfigVector_t upper_position;
+                const ConfigVector_t::Scalar u = 1.01;
+                ConfigVector_t lower_position(-u, -u);
+                ConfigVector_t upper_position( u,  u);
                 
                 if (joint->limits)
                 {
                   max_effort << joint->limits->effort;
                   max_velocity << joint->limits->velocity;
-                  lower_position << joint->limits->lower;
-                  upper_position << joint->limits->upper;
                 }
                 
                 CartesianAxis axis = extractCartesianAxis(joint->axis);
@@ -284,7 +284,7 @@ namespace se3
                   case AXIS_X:
                   {
                     joint_info << " along X";
-                    addJointAndBody(model,JointModelRX(),
+                    addJointAndBody(model,JointModelRUBX(),
                                     parentFrameId,jointPlacement,joint->name,
                                     Y,link->name,
                                     max_effort,max_velocity,
@@ -294,7 +294,7 @@ namespace se3
                   case AXIS_Y:
                   {
                     joint_info << " along Y";
-                    addJointAndBody(model,JointModelRY(),
+                    addJointAndBody(model,JointModelRUBY(),
                                     parentFrameId,jointPlacement,joint->name,
                                     Y,link->name,
                                     max_effort,max_velocity,
@@ -304,7 +304,7 @@ namespace se3
                   case AXIS_Z:
                   {
                     joint_info << " along Z";
-                    addJointAndBody(model,JointModelRZ(),
+                    addJointAndBody(model,JointModelRUBZ(),
                                     parentFrameId,jointPlacement,joint->name,
                                     Y,link->name,
                                     max_effort,max_velocity,
@@ -320,8 +320,7 @@ namespace se3
                     addJointAndBody(model,JointModelRevoluteUnaligned(joint_axis.normalized()),
                                     parentFrameId,jointPlacement,joint->name,
                                     Y,link->name,
-                                    max_effort,max_velocity,
-                                    lower_position, upper_position);
+                                    max_effort,max_velocity);
                     break;
                   }
                   default:
