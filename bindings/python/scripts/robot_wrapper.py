@@ -179,8 +179,8 @@ class RobotWrapper(object):
             meshName = self.viewerNodeNames(visual) 
             meshPath = visual.meshPath
             meshScale = visual.meshScale
-            self.viewer.gui.addMesh(meshName, meshPath)
-            self.viewer.gui.setScale(meshName, npToTuple(meshScale))
+            if self.viewer.gui.addMesh(meshName, meshPath):
+                self.viewer.gui.setScale(meshName, npToTuple(meshScale))
 
         # Finally, refresh the layout to obtain your first rendering.
         self.viewer.gui.refresh()
