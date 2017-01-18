@@ -59,7 +59,7 @@ namespace se3
        const container::aligned_vector<Force> & fext);
   
   ///
-  /// \brief Computes the non-linear effects (Corriolis, centrifual and gravitationnal effects), also called the biais terms \f$ b(q,\dot{q}) \f$ of the Lagrangian dynamics:
+  /// \brief Computes the non-linear effects (Corriolis, centrifual and gravitationnal effects), also called the bias terms \f$ b(q,\dot{q}) \f$ of the Lagrangian dynamics:
   /// <CENTER> \f$ \begin{eqnarray} M \ddot{q} + b(q, \dot{q}) = \tau  \end{eqnarray} \f$ </CENTER> <BR>
   /// \note This function is equivalent to se3::rnea(model, data, q, v, 0).
   ///
@@ -68,7 +68,7 @@ namespace se3
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] v The joint velocity vector (dim model.nv).
   ///
-  /// \return The biais terms stored in data.nle.
+  /// \return The bias terms stored in data.nle.
   ///
   inline const Eigen::VectorXd &
   nonLinearEffects(const Model & model, Data & data,

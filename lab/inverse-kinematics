@@ -177,7 +177,7 @@ python shortcuts, also available in RomeoWrapper:
 +The size of the robot configuration is given by nq.
 +The dimension of its tangent space (velocity) is nv.
 +The index of a joint in the tree can be accessed from its name by index (see above).
-+The classical algorithms are also binded: com, Jcom, mass, biais, joint gravity, position and velocity of each joint.
++The classical algorithms are also binded: com, Jcom, mass, bias, joint gravity, position and velocity of each joint.
 +Shortcuts are also implemented for the placement and the Jacobian (6D, expressed in the body frame) of
 the right wrist(rh), left wrist(lh), right ankle(rf), left ankle (lf).For example, you can access the right wrist
 placement and Jacobian with robot.Mrh(q) and robot.Jrh(q)
