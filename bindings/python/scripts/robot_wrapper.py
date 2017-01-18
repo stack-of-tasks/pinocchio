@@ -84,7 +84,7 @@ class RobotWrapper(object):
     def mass(self, q):
         return se3.crba(self.model, self.data, q)
 
-    def biais(self, q, v):
+    def bias(self, q, v):
         return se3.nle(self.model, self.data, q, v)
 
     def gravity(self, q):
