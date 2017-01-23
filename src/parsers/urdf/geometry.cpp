@@ -155,6 +155,49 @@ namespace se3
         return link->visual;
       }
 
+
+     /**
+      * @brief Get the material values from the link visual object
+      *
+      * @param[in]  Visual/Collision The Visual or the Collision object.
+      * @param[out] meshTexturePath  The absolute file path containing the texture description.
+      * @param[out] meshColor        The mesh RGBA vector.
+      * @param[in]  package_dirs     A vector containing the different directories where to search for packages
+      *
+      */
+      template<typename T>
+      inline bool getVisualMaterial(const boost::shared_ptr< T > urdf_object,std::string& meshTexturePath,
+				    Eigen::Vector4d & meshColor, const std::vector<std::string> & package_dirs);
+
+      template<>
+      inline bool getVisualMaterial< ::urdf::Collision>(const boost::shared_ptr< ::urdf::Collision >, std::string& meshTexturePath,
+							Eigen::Vector4d & meshColor, const std::vector<std::string> &)
+      {
+        meshColor = Eigen::VectorXd::Zero(4);
+        meshTexturePath = "";
+        return false;
+      }
+      
+      template<>
+      inline bool getVisualMaterial< ::urdf::Visual>(const boost::shared_ptr< ::urdf::Visual > urdf_visual, std::string& meshTexturePath,
+						     Eigen::Vector4d & meshColor, const std::vector<std::string> & package_dirs)
+      {
+        meshColor = Eigen::VectorXd::Zero(4);
+        meshTexturePath = "";
+        bool overrideMaterial = false;
+        if(urdf_visual->material!=NULL) {
+          overrideMaterial = true;
+          meshColor << urdf_visual->material->color.r, urdf_visual->material->color.g,
+          urdf_visual->material->color.b, urdf_visual->material->color.a;
+        if(urdf_visual->material->texture_filename!="")
+          meshTexturePath = retrieveResourcePath((urdf_visual)->material->texture_filename, package_dirs);
+        }
+        return overrideMaterial;
+      }
+
+
+
+
      /**
       * @brief Get the array of geometries attached to a link
       *
@@ -220,8 +263,12 @@ namespace se3
             if (urdf_mesh) meshPath = retrieveResourcePath(urdf_mesh->filename, package_dirs);
             
             const boost::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
-#endif // WITH_HPP_FCL            
-            
+#endif // WITH_HPP_FCL
+
+            Eigen::Vector4d meshColor;
+            std::string meshTexturePath;
+            bool overrideMaterial = getVisualMaterial<T>((*i), meshTexturePath, meshColor, package_dirs);
+
             SE3 geomPlacement = body_placement * convertFromUrdf((*i)->origin);
             std::ostringstream geometry_object_suffix;
             geometry_object_suffix << "_" << objectId;
@@ -229,7 +276,8 @@ namespace se3
             geomModel.addGeometryObject(GeometryObject(geometry_object_name,
                                                        frame_id, model.frames[frame_id].parent, 
                                                        geometry,
-                                                       geomPlacement, meshPath, meshScale),
+                                                       geomPlacement, meshPath, meshScale,
+                                                       overrideMaterial, meshColor, meshTexturePath),
                                         model);
             ++objectId;
           }
