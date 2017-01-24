@@ -1,6 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,41 +15,27 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_python_hpp__
-#define __se3_python_python_hpp__
+#include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/bindings/python/multibody/fcl/contact.hpp"
+#include "pinocchio/bindings/python/multibody/fcl/collision-result.hpp"
+#include "pinocchio/bindings/python/multibody/fcl/collision-geometry.hpp"
+
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 namespace se3
 {
   namespace python
   {
-    // Expose spatial classes
-    void exposeSE3();
-    void exposeForce();
-    void exposeMotion();
-    void exposeInertia();
-    void exposeExplog();
+    void exposeFCL()
+    {
+      using namespace se3::python::fcl;
+      ContactPythonVisitor::expose();
+      StdVectorPythonVisitor<ContactPythonVisitor::Contact>::expose("StdVect_Contact");
+      
+      CollisionResultPythonVisitor::expose();
+      
+      CollisionGeometryPythonVisitor::expose();
+    }
     
-    // Expose multibody classes
-    void exposeJoints();
-    void exposeModel();
-    void exposeFrame();
-    void exposeData();
-    
-    // Expose geometry module
-    void exposeGeometry();
-    
-    // Expose parsers
-    void exposeParsers();
-    
-    // Expose algorithms
-    void exposeAlgorithms();
-    
-#ifdef WITH_HPP_FCL
-    void exposeFCL();
-#endif // WITH_HPP_FCL
-
   } // namespace python
 } // namespace se3
-
-#endif // ifndef __se3_python_python_hpp__
-

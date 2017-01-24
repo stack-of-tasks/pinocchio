@@ -1,5 +1,5 @@
 # 
-# Copyright (c) 2015-2016 CNRS
+# Copyright (c) 2015-2017 CNRS
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 # 
 # This file is part of Pinocchio
@@ -83,6 +83,10 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   multibody/joint/joints-variant.hpp
   multibody/joint/joint.hpp
   multibody/joint/joint-derived.hpp
+  multibody/fcl/contact.hpp
+  multibody/fcl/collision-result.hpp
+  multibody/fcl/distance-result.hpp
+  multibody/fcl/collision-geometry.hpp
   algorithm/algorithms.hpp 
   parsers/parsers.hpp
   )
@@ -99,6 +103,7 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   multibody/expose-data.cpp
   multibody/expose-geometry.cpp
   multibody/joint/expose-joints.cpp
+  multibody/fcl/expose-fcl.cpp
   algorithm/expose-algorithms.cpp
   algorithm/expose-com.cpp
   algorithm/expose-kinematics.cpp
@@ -131,6 +136,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python"
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody/joint")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody/fcl")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/utils")
