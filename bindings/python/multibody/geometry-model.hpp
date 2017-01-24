@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -84,12 +84,6 @@ namespace se3
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-        
-        bp::enum_<GeometryType>("GeometryType")
-        .value("VISUAL",VISUAL)
-        .value("COLLISION",COLLISION)
-        ;
-        
         bp::class_<GeometryModel>("GeometryModel",
                                   "Geometry model (const)",
                                   bp::no_init)

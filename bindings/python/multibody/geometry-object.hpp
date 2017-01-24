@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -62,6 +62,11 @@ namespace se3
                                    bp::no_init
                                    )
         .def(GeometryObjectPythonVisitor())
+        ;
+        
+        bp::enum_<GeometryType>("GeometryType")
+        .value("VISUAL",VISUAL)
+        .value("COLLISION",COLLISION)
         ;
       }
 
