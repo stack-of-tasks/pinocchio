@@ -19,8 +19,11 @@
 #define __se3_python_geometry_object_hpp__
 
 #include <boost/python.hpp>
+#include <eigenpy/memory.hpp>
 
 #include "pinocchio/multibody/geometry.hpp"
+
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::GeometryObject)
 
 namespace se3
 {
