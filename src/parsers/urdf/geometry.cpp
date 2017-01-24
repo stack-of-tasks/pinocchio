@@ -165,15 +165,15 @@ namespace se3
       * @param[in]  package_dirs     A vector containing the different directories where to search for packages
       *
       */
-      template<typename T>
-      inline bool getVisualMaterial(const boost::shared_ptr< T > urdf_object,std::string& meshTexturePath,
+      template<typename urdfObject>
+      inline bool getVisualMaterial(const boost::shared_ptr< urdfObject > urdf_object,std::string& meshTexturePath,
 				    Eigen::Vector4d & meshColor, const std::vector<std::string> & package_dirs);
 
       template<>
       inline bool getVisualMaterial< ::urdf::Collision>(const boost::shared_ptr< ::urdf::Collision >, std::string& meshTexturePath,
 							Eigen::Vector4d & meshColor, const std::vector<std::string> &)
       {
-        meshColor = Eigen::VectorXd::Zero(4);
+        meshColor.setZero();
         meshTexturePath = "";
         return false;
       }
@@ -182,7 +182,7 @@ namespace se3
       inline bool getVisualMaterial< ::urdf::Visual>(const boost::shared_ptr< ::urdf::Visual > urdf_visual, std::string& meshTexturePath,
 						     Eigen::Vector4d & meshColor, const std::vector<std::string> & package_dirs)
       {
-        meshColor = Eigen::VectorXd::Zero(4);
+        meshColor.setZero();
         meshTexturePath = "";
         bool overrideMaterial = false;
         if(urdf_visual->material!=NULL) {

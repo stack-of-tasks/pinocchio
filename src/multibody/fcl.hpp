@@ -128,9 +128,9 @@ struct GeometryObject
                  const JointIndex parentJ,
                  const boost::shared_ptr<fcl::CollisionGeometry> & collision,
                  const SE3 & placement, const std::string & meshPath = "",
-                 const Eigen::Vector3d & meshScale = Eigen::VectorXd::Ones(3),
+                 const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
-                 const Eigen::Vector4d & meshColor = Eigen::VectorXd::Zero(4),
+                 const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
                  const std::string & meshTexturePath = "")
                 : name(name)
                 , parentFrame(parentF)
