@@ -56,5 +56,9 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   exposeAlgorithms();
   exposeParsers();
   
+#ifdef WITH_HPP_FCL
+  exposeFCL();
+#endif // WITH_HPP_FCL
+  
 }
  
