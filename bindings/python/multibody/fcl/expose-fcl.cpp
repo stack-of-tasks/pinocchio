@@ -33,6 +33,7 @@ namespace se3
       StdVectorPythonVisitor<ContactPythonVisitor::Contact>::expose("StdVect_Contact");
       
       CollisionResultPythonVisitor::expose();
+      StdVectorPythonVisitor<CollisionResultPythonVisitor::CollisionResult>::expose("StdVect_CollisionResult");
       
       CollisionGeometryPythonVisitor::expose();
     }
