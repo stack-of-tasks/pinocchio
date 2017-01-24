@@ -178,9 +178,16 @@ class RobotWrapper(object):
         for visual in self.visual_model.geometryObjects :
             meshName = self.viewerNodeNames(visual) 
             meshPath = visual.meshPath
+            meshTexturePath = visual.meshTexturePath
             meshScale = visual.meshScale
+            meshColor = visual.meshColor
             if self.viewer.gui.addMesh(meshName, meshPath):
                 self.viewer.gui.setScale(meshName, npToTuple(meshScale))
+                if visual.overrideMaterial:
+                    self.viewer.gui.setColor(meshName,npToTuple(meshColor))
+                    if meshTexturePath is not '':
+                        self.viewer.gui.setTexture(meshName,meshTexturePath)
+               
 
         # Finally, refresh the layout to obtain your first rendering.
         self.viewer.gui.refresh()

@@ -40,12 +40,18 @@ namespace se3
 			 bp::make_getter(&GeometryObject::meshScale, bp::return_value_policy<bp::return_by_value>()),
 			 bp::make_setter(&GeometryObject::meshScale),
 			 "Scaling parameter for the mesh")
+	   .add_property("meshColor",
+			 bp::make_getter(&GeometryObject::meshColor, bp::return_value_policy<bp::return_by_value>()),
+			 bp::make_setter(&GeometryObject::meshColor),
+			 "Color rgba for the mesh")
 	   .def_readwrite("name", &GeometryObject::name, "Name of the GeometryObject")
 	   .def_readwrite("parentJoint", &GeometryObject::parentJoint, "Index of the parent joint")
 	   .def_readwrite("parentFrame", &GeometryObject::parentFrame, "Index of the parent frame")
 	   .def_readwrite("placement",&GeometryObject::placement,
 		      		  "Position of geometry object in parent joint's frame")
 	   .def_readonly("meshPath", &GeometryObject::meshPath, "Absolute path to the mesh file")
+	   .def_readonly("overrideMaterial", &GeometryObject::overrideMaterial, "Boolean that tells whether material information is stored in Geometry object")
+	   .def_readonly("meshTexturePath", &GeometryObject::meshTexturePath, "Absolute path to the mesh texture file")
 	   ;
       }
 

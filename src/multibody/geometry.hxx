@@ -30,7 +30,7 @@ namespace se3
   inline GeometryData::GeometryData(const GeometryModel & modelGeom)
     : oMg(modelGeom.ngeoms)
 
-#ifdef WITH_HPP_FCL   
+#ifdef WITH_HPP_FCL
     , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
     , distanceRequest (true, 0, 0, fcl::GST_INDEP)
     , distanceResults(modelGeom.collisionPairs.size())
