@@ -39,7 +39,7 @@ namespace se3
   struct CartesianProductOperation : public LieGroupOperationBase <CartesianProductOperation<LieGroup1, LieGroup2> >
   {
     typedef CartesianProductOperation<LieGroup1, LieGroup2>  LieGroupDerived;
-    SE3_LIE_GROUP_TYPEDEF;
+    SE3_LIE_GROUP_TYPEDEF_TEMPLATE;
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     static void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
