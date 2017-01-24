@@ -18,7 +18,6 @@
 #ifndef __se3_python_geometry_model_hpp__
 #define __se3_python_geometry_model_hpp__
 
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
