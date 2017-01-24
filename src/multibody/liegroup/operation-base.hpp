@@ -245,7 +245,7 @@ namespace se3
     /// Copy constructor
     ///
     /// Prevent the copy of derived class.
-    LieGroupOperationBase( const LieGroupOperationBase& clone) {}
+    LieGroupOperationBase( const LieGroupOperationBase & /*clone*/) {}
   }; // struct LieGroupOperationBase
 
 } // namespace se3
