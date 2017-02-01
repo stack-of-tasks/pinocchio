@@ -67,6 +67,11 @@ namespace se3
           std::string collisionFilename = collisionGeometry->filename;
 
           meshPath = retrieveResourcePath(collisionFilename, package_dirs);
+          if (meshPath == "") {
+            std::stringstream ss;
+            ss << "Mesh " << collisionFilename << " could not be found.";
+            throw std::invalid_argument (ss.str());
+          }
 
           fcl::Vec3f scale = fcl::Vec3f(collisionGeometry->scale.x,
 					collisionGeometry->scale.y,
