@@ -85,7 +85,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   multibody/joint/joint-derived.hpp
   multibody/fcl/contact.hpp
   multibody/fcl/collision-result.hpp
-  multibody/fcl/distance-result.hpp
+#  multibody/fcl/distance-result.hpp
   multibody/fcl/collision-geometry.hpp
   algorithm/algorithms.hpp 
   parsers/parsers.hpp
