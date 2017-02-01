@@ -97,7 +97,7 @@ namespace se3
 #ifndef NDEBUG
     const Scalar M = 3 * std::pow((Scalar)1.-epsilon, ((Scalar)-5)/2) / 4;
     assert(std::fabs(q.norm() - 1) <=
-        std::max(M * sqrt(N2) * (N2 - 1)*(N2 - 1) / 2, Eigen::NumTraits<Scalar>::epsilon()));
+        std::max(M * sqrt(N2) * (N2 - 1)*(N2 - 1) / 2, Eigen::NumTraits<Scalar>::dummy_precision()));
 #endif
   }
 
