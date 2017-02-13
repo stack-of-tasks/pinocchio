@@ -293,19 +293,19 @@ namespace se3
     }
 
     template<typename EigenDerived>
-    typename EigenDerived::PlainObject actOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p)
+    typename EigenDerived::PlainObject actOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p) const
     { return EigenDerived::PlainObject(rot*p+trans); }
 
     template<typename MapDerived>
-    Vector3 actOnEigenObject(const Eigen::MapBase<MapDerived> & p)
+    Vector3 actOnEigenObject(const Eigen::MapBase<MapDerived> & p) const
     { return Vector3(rot*p+trans); }
 
     template<typename EigenDerived>
-    typename EigenDerived::PlainObject actInvOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p)
+    typename EigenDerived::PlainObject actInvOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p) const
     { return EigenDerived::PlainObject(rot.transpose()*(p-trans)); }
 
     template<typename MapDerived>
-    Vector3 actInvOnEigenObject(const Eigen::MapBase<MapDerived> & p)
+    Vector3 actInvOnEigenObject(const Eigen::MapBase<MapDerived> & p) const
     { return Vector3(rot.transpose()*(p-trans)); }
 
     Vector3 act_impl   (const Vector3& p) const { return Vector3(rot*p+trans); }
