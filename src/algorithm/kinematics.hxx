@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,6 +19,7 @@
 #define __se3_kinematics_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
+#include "pinocchio/algorithm/check.hpp"
 
 namespace se3 
 {
@@ -44,6 +45,10 @@ namespace se3
   inline void emptyForwardPass(const Model & model,
                                Data & data)
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
+    
     for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
     {
       emptyForwardStep::run(model.joints[i],
@@ -55,6 +60,10 @@ namespace se3
   
   inline void updateGlobalPlacements(const Model & model, Data & data)
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
+    
     for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
     {
       const Model::JointIndex & parent = model.parents[i];
@@ -103,6 +112,9 @@ namespace se3
                     const Eigen::VectorXd & q)
   {
     assert(q.size() == model.nq && "The configuration vector is not of right size");
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
     
     for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
     {
@@ -156,6 +168,9 @@ namespace se3
   {
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
     
     data.v[0].setZero();
 
@@ -216,6 +231,9 @@ namespace se3
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     assert(a.size() == model.nv && "The acceleration vector is not of right size");
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
     
     data.v[0].setZero();
     data.a[0].setZero();

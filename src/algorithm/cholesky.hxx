@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -17,6 +17,8 @@
 
 #ifndef __se3_cholesky_hxx__
 #define __se3_cholesky_hxx__
+
+#include "pinocchio/algorithm/check.hpp"
 
 /// @cond DEV
 
@@ -42,6 +44,10 @@ namespace se3
        *      end
        *    end
        */
+      
+#ifndef NDEBUG
+      assert(model.check(data) && "data is not consistent with model.");
+#endif
       
       Eigen::MatrixXd & M = data.M;
       Eigen::MatrixXd & U = data.U;
@@ -72,6 +78,9 @@ namespace se3
              Eigen::MatrixBase<Mat> & v)
     {
       assert(v.rows() == model.nv);
+#ifndef NDEBUG
+      assert(model.check(data) && "data is not consistent with model.");
+#endif
       
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
@@ -89,6 +98,9 @@ namespace se3
               Eigen::MatrixBase<Mat> & v)
     {
       assert(v.rows() == model.nv);
+#ifndef NDEBUG
+      assert(model.check(data) && "data is not consistent with model.");
+#endif
       
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
@@ -109,6 +121,9 @@ namespace se3
       /* We search y s.t. v = U y. 
        * For any k, v_k = y_k + U_{k,k+1:} y_{k+1:} */
       assert(v.rows() == model.nv);
+#ifndef NDEBUG
+      assert(model.check(data) && "data is not consistent with model.");
+#endif
       
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
@@ -126,6 +141,9 @@ namespace se3
       /* We search y s.t. v = U' y. 
        * For any k, v_k = y_k + sum_{m \in parent{k}} U(m,k) v(k). */
       assert(v.rows() == model.nv);
+#ifndef NDEBUG
+      assert(model.check(data) && "data is not consistent with model.");
+#endif
       
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
@@ -143,7 +161,7 @@ namespace se3
              const Eigen::MatrixBase<Mat> & v)
       {
         assert(v.rows() == model.nv);
-        
+
         const Eigen::MatrixXd & M = data.M;
         const std::vector<int> & nvt = data.nvSubtree_fromRow;
         Mat res(model.nv);
@@ -174,6 +192,9 @@ namespace se3
              Eigen::MatrixBase<Mat> & v,
              const bool usingCholesky)
     {
+#ifndef NDEBUG
+      assert(model.check(data) && "data is not consistent with model.");
+#endif
       if(usingCholesky) return internal::UDUtv(model,data,v);
       else return v = internal::Mv(model,data,v);
     }
@@ -183,6 +204,9 @@ namespace se3
                 const Data & data ,
                 Eigen::MatrixBase<Mat> & v)
     {
+#ifndef NDEBUG
+      assert(model.check(data) && "data is not consistent with model.");
+#endif
       Uiv(model,data,v);
       for(int k=0;k<model.nv;++k) v.row(k) /= data.D[k];
       return Utiv(model,data,v);

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,6 +19,7 @@
 #define __se3_jacobian_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
+#include "pinocchio/algorithm/check.hpp"
 
 /// @cond DEV
 
@@ -59,6 +60,10 @@ namespace se3
   computeJacobians(const Model & model, Data & data,
                    const Eigen::VectorXd & q)
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
+    
     for( Model::JointIndex i=1; i< (Model::JointIndex) model.njoints;++i )
     {
       JacobiansForwardStep::run(model.joints[i],data.joints[i],
@@ -79,6 +84,9 @@ namespace se3
   {
     assert( J.rows() == data.J.rows() );
     assert( J.cols() == data.J.cols() );
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
     
     const SE3 & oMjoint = data.oMi[jointId];
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
@@ -124,6 +132,10 @@ namespace se3
            const Eigen::VectorXd & q,
            const Model::JointIndex jointId)
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
+    
     data.iMf[jointId].setIdentity();
     for( Model::JointIndex i=jointId;i>0;i=model.parents[i] )
     {

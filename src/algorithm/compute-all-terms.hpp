@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -23,6 +23,7 @@
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/energy.hpp"
+#include "pinocchio/algorithm/check.hpp"
 
 namespace se3
 {
@@ -203,6 +204,9 @@ namespace se3
                   const Eigen::VectorXd & q,
                   const Eigen::VectorXd & v)
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
     data.v[0].setZero();
     data.a[0].setZero();
     data.a_gf[0] = -model.gravity;
