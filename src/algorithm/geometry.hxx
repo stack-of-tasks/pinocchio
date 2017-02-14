@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -26,22 +26,30 @@ namespace se3
   /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
   /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
   inline void updateGeometryPlacements(const Model & model,
-                                      Data & data,
-                                      const GeometryModel & geomModel,
-                                      GeometryData & geomData,
-                                      const Eigen::VectorXd & q
-                                      )
+                                       Data & data,
+                                       const GeometryModel & geomModel,
+                                       GeometryData & geomData,
+                                       const Eigen::VectorXd & q
+                                       )
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
+    
     forwardKinematics(model, data, q);
     updateGeometryPlacements(model, data, geomModel, geomData);
   }
   
-  inline void  updateGeometryPlacements(const Model &,
-                                       const Data & data,
-                                       const GeometryModel & geomModel,
-                                       GeometryData & geomData
-                                       )
+  inline void  updateGeometryPlacements(const Model & model,
+                                        const Data & data,
+                                        const GeometryModel & geomModel,
+                                        GeometryData & geomData
+                                        )
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
+    
     for (GeomIndex i=0; i < (GeomIndex) geomModel.ngeoms; ++i)
     {
       const Model::JointIndex & joint = geomModel.geometryObjects[i].parentJoint;
@@ -108,6 +116,10 @@ namespace se3
                                 const bool stopAtFirstCollision
                                 )
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
+    
     updateGeometryPlacements (model, data, geomModel, geomData, q);
     
     return computeCollisions(geomModel,geomData, stopAtFirstCollision);
@@ -185,6 +197,9 @@ namespace se3
                                const Eigen::VectorXd & q
                                )
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
     updateGeometryPlacements (model, data, geomModel, geomData, q);
     return computeDistances<ComputeShortest>(geomModel,geomData);
   }

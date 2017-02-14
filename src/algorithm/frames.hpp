@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -22,6 +22,7 @@
 
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
+#include "pinocchio/algorithm/check.hpp"
 
 namespace se3
 {
@@ -84,6 +85,10 @@ namespace se3
                                       Data & data
                                       )
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
+    
     // The following for loop starts by index 1 because the first frame is fixed
     // and corresponds to the universe.s
     for (Model::FrameIndex i=1; i < (Model::FrameIndex) model.nframes; ++i)
@@ -102,6 +107,10 @@ namespace se3
                                       const Eigen::VectorXd & q
                                       )
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
+    
     forwardKinematics(model, data, q);
     framesForwardKinematics(model, data);
   }
@@ -116,6 +125,9 @@ namespace se3
   {
     assert(J.cols() == model.nv);
     assert(data.J.cols() == model.nv);
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
     
     const Model::JointIndex & parent = model.frames[frame_id].parent;
     const SE3 & oMframe = data.oMf[frame_id];

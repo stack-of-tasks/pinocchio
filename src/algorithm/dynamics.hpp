@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -22,8 +22,10 @@
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/check.hpp"
 
 #include <Eigen/Cholesky>
+
 namespace se3
 {
   
@@ -61,6 +63,9 @@ namespace se3
     assert(tau.size() == model.nv);
     assert(J.cols() == model.nv);
     assert(J.rows() == gamma.size());
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
     
     Eigen::VectorXd & a = data.ddq;
     Eigen::VectorXd & lambda_c = data.lambda_c;
@@ -125,6 +130,9 @@ namespace se3
     assert(q.size() == model.nq);
     assert(v_before.size() == model.nv);
     assert(J.cols() == model.nv);
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
     
     Eigen::VectorXd & impulse_c = data.impulse_c;
     Eigen::VectorXd & dq_after = data.dq_after;
