@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -17,6 +17,8 @@
 
 #ifndef __se3_check_hpp__
 #define __se3_check_hpp__
+
+#include "pinocchio/multibody/model.hpp"
 
 namespace se3
 {
@@ -47,6 +49,8 @@ namespace se3
   ///
   /// \param[in] model reference model
   /// \param[in] data corresponding data
+  ///
+  /// \returns True if data is valid wrt model.
   inline bool checkData(const Model & model, const Data & data);
 
 } // namespace se3 
