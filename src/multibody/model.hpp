@@ -336,6 +336,13 @@ namespace se3
 
     /// Run check(fusion::list) with DEFAULT_CHECKERS as argument.
     inline bool check() const;
+    
+    /// Run checkData on data and current model.
+    ///
+    /// \param[in] data to be checked wrt *this.
+    ///
+    /// \return true if the data is valid, false otherwise.
+    inline bool check(const Data & data) const;
 
   protected:
     
