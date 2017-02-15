@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -21,6 +21,7 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/check.hpp"
 
 /// @cond DEV
 
@@ -102,6 +103,10 @@ namespace se3
   crba(const Model & model, Data& data,
        const Eigen::VectorXd & q)
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
+    
     for( Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i )
     {
       CrbaForwardStep::run(model.joints[i],data.joints[i],
@@ -203,6 +208,9 @@ namespace se3
         const Eigen::VectorXd & q,
         const Eigen::VectorXd & v)
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
     typedef Eigen::Block <Data::Matrix6x,3,-1> Block3x;
     
     forwardKinematics(model, data, q);

@@ -19,6 +19,7 @@
 #define __se3_copy_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/check.hpp"
   
 namespace se3
 {

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -30,7 +30,7 @@ namespace se3
 
 #define DEFAULT_CHECKERS makeDefaultCheckerList()
 
-  bool Model::check() const { return this->check(DEFAULT_CHECKERS); }
+  inline bool Model::check() const { return this->check(DEFAULT_CHECKERS); }
 
 } // namespace se3 
 

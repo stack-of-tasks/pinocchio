@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,6 +19,7 @@
 #define __se3_aba_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
+#include "pinocchio/algorithm/check.hpp"
 
 /// @cond DEV
 
@@ -193,6 +194,10 @@ namespace se3
       const Eigen::VectorXd & v,
       const Eigen::VectorXd & tau)
   {
+#ifndef NDEBUG
+    assert(model.check(data) && "data is not consistent with model.");
+#endif
+    
     data.v[0].setZero();
     data.a[0] = -model.gravity;
     data.u = tau;

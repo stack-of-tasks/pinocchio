@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -24,6 +24,7 @@
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
@@ -147,6 +148,8 @@ namespace se3
           .staticmethod("BuildEmptyModel")
           .def("BuildHumanoidSimple",&ModelPythonVisitor::maker_humanoidSimple)
           .staticmethod("BuildHumanoidSimple")
+        
+        .def("check",(bool (Model::*)(const Data &) const) &Model::check,bp::arg("data"),"Check consistency of data wrt model.")
           ;
       }
 

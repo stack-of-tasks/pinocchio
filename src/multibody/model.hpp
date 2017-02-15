@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -332,10 +332,17 @@ namespace se3
     /// \note This method is implemented in src/algo/check.hxx.
     template<class T1,class T2,class T3,class T4,class T5,
              class T6,class T7,class T8,class T9,class T10>
-    bool check( const boost::fusion::list<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> & checkerList ) const;
+    inline bool check( const boost::fusion::list<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> & checkerList ) const;
 
     /// Run check(fusion::list) with DEFAULT_CHECKERS as argument.
-    bool check() const;
+    inline bool check() const;
+    
+    /// Run checkData on data and current model.
+    ///
+    /// \param[in] data to be checked wrt *this.
+    ///
+    /// \return true if the data is valid, false otherwise.
+    inline bool check(const Data & data) const;
 
   protected:
     

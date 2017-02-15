@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -132,6 +132,8 @@ namespace se3
 #undef CHECK_DATA
     return true;
   }
+  
+  inline bool Model::check(const Data & data) const { return checkData(*this,data); }
 
 
 } // namespace se3 
