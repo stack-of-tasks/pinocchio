@@ -190,7 +190,7 @@ namespace se3
         meshColor.setZero();
         meshTexturePath = "";
         bool overrideMaterial = false;
-        if(urdf_visual->material!=NULL) {
+        if(urdf_visual->material) {
           overrideMaterial = true;
           meshColor << urdf_visual->material->color.r, urdf_visual->material->color.g,
           urdf_visual->material->color.b, urdf_visual->material->color.a;
