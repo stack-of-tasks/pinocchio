@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -39,10 +39,10 @@ namespace se3
 
       FrameIndex getParentJointFrame(::urdf::LinkConstPtr link, Model & model)
       {
-        assert(link!=NULL && link->getParent()!=NULL);
+        assert(link && link->getParent());
 
         FrameIndex id;
-        if (link->getParent()->parent_joint==NULL) {
+        if (!link->getParent()->parent_joint) {
           if (model.existFrame("root_joint",  JOINT_OR_FIXED_JOINT))
             id = model.getFrameId ("root_joint", JOINT_OR_FIXED_JOINT);
           else
@@ -69,7 +69,7 @@ namespace se3
         const Frame& frame = model.frames[fid];
         const SE3& p = frame.placement * placement;
         if (frame.parent > 0
-            && Y != NULL
+            && Y
             && Y->mass > Eigen::NumTraits<double>::epsilon()) {
           model.appendBodyToJoint(frame.parent, convertFromUrdf(*Y), p);
         }
@@ -154,9 +154,9 @@ namespace se3
         // Parent joint of the current body
         ::urdf::JointConstPtr joint = link->parent_joint;
         
-        if(joint != NULL) // if the link is not the root of the tree
+        if(joint) // if the link is not the root of the tree
         {
-          assert(link->getParent()!=NULL);
+          assert(link->getParent());
           
           const std::string & joint_name = joint->name;
           const std::string & link_name = link->name;
@@ -459,7 +459,7 @@ namespace se3
           
           if (verbose)
           {
-            const Inertia YY = (Y==NULL) ? Inertia::Zero() : convertFromUrdf(*Y);
+            const Inertia YY = (!Y) ? Inertia::Zero() : convertFromUrdf(*Y);
             std::cout << "Adding Body" << std::endl;
             std::cout << "\"" << link_name << "\" connected to " << "\"" << parent_link_name << "\" throw joint " << "\"" << joint_name << "\"" << std::endl;
             std::cout << "joint type: " << joint_info << std::endl;
@@ -470,7 +470,7 @@ namespace se3
             std::cout << "  " << "inertia elements (Ixx,Iyx,Iyy,Izx,Izy,Izz): " << YY.inertia().data().transpose() << std::endl << std::endl;
           }
         }
-        else if (link->getParent() != NULL)
+        else if (link->getParent())
         {
           const std::string exception_message (link->name + " - joint information missing.");
           throw std::invalid_argument(exception_message);
