@@ -27,6 +27,7 @@
 #include <sstream>
 #include <iomanip>
 #include <boost/foreach.hpp>
+#include <boost/shared_ptr.hpp>
 
 #ifdef WITH_HPP_FCL
 #include <hpp/fcl/mesh_loader/assimp.h>
@@ -53,7 +54,7 @@ namespace se3
      *
      * @return     A shared pointer on the he geometry converted as a fcl::CollisionGeometry
      */
-     boost::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(const boost::shared_ptr< ::urdf::Geometry> urdf_geometry,
+     boost::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(const ::urdf::GeometrySharedPtr urdf_geometry,
                                                                          const std::vector<std::string> & package_dirs,
                                                                          std::string & meshPath,
                                                                          Eigen::Vector3d & meshScale)
@@ -63,7 +64,7 @@ namespace se3
         // Handle the case where collision geometry is a mesh
         if (urdf_geometry->type == ::urdf::Geometry::MESH)
         {
-          boost::shared_ptr < ::urdf::Mesh> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Mesh> (urdf_geometry);
+          const ::urdf::MeshSharedPtr collisionGeometry = ::urdf::dynamic_pointer_cast< ::urdf::Mesh> (urdf_geometry);
           std::string collisionFilename = collisionGeometry->filename;
 
           meshPath = retrieveResourcePath(collisionFilename, package_dirs);
@@ -95,7 +96,7 @@ namespace se3
         {
           meshPath = "CYLINDER";
           meshScale << 1,1,1;
-          boost::shared_ptr < ::urdf::Cylinder> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Cylinder> (urdf_geometry);
+          const ::urdf::CylinderSharedPtr collisionGeometry = ::urdf::dynamic_pointer_cast< ::urdf::Cylinder> (urdf_geometry);
     
           double radius = collisionGeometry->radius;
           double length = collisionGeometry->length;
@@ -108,7 +109,7 @@ namespace se3
         {
           meshPath = "BOX";
           meshScale << 1,1,1;
-          boost::shared_ptr < ::urdf::Box> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Box> (urdf_geometry);
+          const ::urdf::BoxSharedPtr collisionGeometry = ::urdf::dynamic_pointer_cast< ::urdf::Box> (urdf_geometry);
     
           double x = collisionGeometry->dim.x;
           double y = collisionGeometry->dim.y;
@@ -121,7 +122,7 @@ namespace se3
         {
           meshPath = "SPHERE";
           meshScale << 1,1,1;
-          boost::shared_ptr < ::urdf::Sphere> collisionGeometry = boost::dynamic_pointer_cast< ::urdf::Sphere> (urdf_geometry);
+          const ::urdf::SphereSharedPtr collisionGeometry = ::urdf::dynamic_pointer_cast< ::urdf::Sphere> (urdf_geometry);
 
           double radius = collisionGeometry->radius;
 
@@ -146,16 +147,19 @@ namespace se3
       * @return Either the first collision or visual
       */
       template<typename T>
-      inline boost::shared_ptr<T> getLinkGeometry(::urdf::LinkConstPtr link);
+      inline const URDF_SHARED_PTR(T)
+      getLinkGeometry(const ::urdf::LinkConstSharedPtr link);
 
       template<>
-      inline boost::shared_ptr< ::urdf::Collision> getLinkGeometry< ::urdf::Collision>(::urdf::LinkConstPtr link)
+      inline const ::urdf::CollisionSharedPtr
+      getLinkGeometry< ::urdf::Collision>(const ::urdf::LinkConstSharedPtr link)
       {
         return link->collision;
       }
 
       template<>
-      inline boost::shared_ptr< ::urdf::Visual> getLinkGeometry< ::urdf::Visual>(::urdf::LinkConstPtr link)
+      inline const ::urdf::VisualSharedPtr
+      getLinkGeometry< ::urdf::Visual>(const ::urdf::LinkConstSharedPtr link)
       {
         return link->visual;
       }
@@ -171,11 +175,11 @@ namespace se3
       *
       */
       template<typename urdfObject>
-      inline bool getVisualMaterial(const boost::shared_ptr< urdfObject > urdf_object,std::string& meshTexturePath,
+      inline bool getVisualMaterial(const URDF_SHARED_PTR(urdfObject) urdf_object,std::string & meshTexturePath,
 				    Eigen::Vector4d & meshColor, const std::vector<std::string> & package_dirs);
 
       template<>
-      inline bool getVisualMaterial< ::urdf::Collision>(const boost::shared_ptr< ::urdf::Collision >, std::string& meshTexturePath,
+      inline bool getVisualMaterial< ::urdf::Collision>(const ::urdf::CollisionSharedPtr, std::string& meshTexturePath,
 							Eigen::Vector4d & meshColor, const std::vector<std::string> &)
       {
         meshColor.setZero();
@@ -184,7 +188,7 @@ namespace se3
       }
       
       template<>
-      inline bool getVisualMaterial< ::urdf::Visual>(const boost::shared_ptr< ::urdf::Visual > urdf_visual, std::string& meshTexturePath,
+      inline bool getVisualMaterial< ::urdf::Visual>(const ::urdf::VisualSharedPtr urdf_visual, std::string& meshTexturePath,
 						     Eigen::Vector4d & meshColor, const std::vector<std::string> & package_dirs)
       {
         meshColor.setZero();
@@ -211,16 +215,19 @@ namespace se3
       * @return the array of either collisions or visuals
       */
       template<typename T>
-      inline std::vector<boost::shared_ptr<T> > getLinkGeometryArray(::urdf::LinkConstPtr link);
+      inline const std::vector< URDF_SHARED_PTR(T) > &
+      getLinkGeometryArray(const ::urdf::LinkConstSharedPtr link);
 
       template<>
-      inline std::vector< boost::shared_ptr< ::urdf::Collision> > getLinkGeometryArray< ::urdf::Collision>(::urdf::LinkConstPtr link)
+      inline const std::vector< ::urdf::CollisionSharedPtr> &
+      getLinkGeometryArray< ::urdf::Collision>(const ::urdf::LinkConstSharedPtr link)
       {
         return link->collision_array;
       }
 
       template<>
-      inline std::vector< boost::shared_ptr< ::urdf::Visual> > getLinkGeometryArray< ::urdf::Visual>(::urdf::LinkConstPtr link)
+      inline const std::vector< ::urdf::VisualSharedPtr> &
+      getLinkGeometryArray< ::urdf::Visual>(const ::urdf::LinkConstSharedPtr link)
       {
         return link->visual_array;
       }
@@ -236,20 +243,21 @@ namespace se3
      * @param[in]  type            The type of objects that must be loaded ( can be VISUAL or COLLISION)
      */
       template<typename T>
-      inline void addLinkGeometryToGeomModel(::urdf::LinkConstPtr link,
+      inline void addLinkGeometryToGeomModel(::urdf::LinkConstSharedPtr link,
                                              const Model & model,
                                              GeometryModel & geomModel,
                                              const std::vector<std::string> & package_dirs) throw (std::invalid_argument)
       {
+        typedef std::vector< URDF_SHARED_PTR(T) > VectorSharedT;
         if(getLinkGeometry<T>(link))
         {
           std::string meshPath = "";
 
           Eigen::Vector3d meshScale;
         
-          std::string link_name = link->name;
+          const std::string & link_name = link->name;
 
-          std::vector< boost::shared_ptr< T > > geometries_array = getLinkGeometryArray<T>(link);
+          VectorSharedT geometries_array = getLinkGeometryArray<T>(link);
 
           if (!model.existFrame(link_name, BODY))
             throw std::invalid_argument("No link " + link_name + " in model");
@@ -258,7 +266,7 @@ namespace se3
           assert(model.frames[frame_id].type == BODY);
 
           std::size_t objectId = 0;
-          for (typename std::vector< boost::shared_ptr< T > >::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)
+          for (typename VectorSharedT::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)
           {
             meshPath.clear();
 #ifdef WITH_HPP_FCL
@@ -299,7 +307,7 @@ namespace se3
      * @param[in]  package_dirs    A vector containing the different directories where to search for packages
      * @param[in]  type            The type of objects that must be loaded ( can be VISUAL or COLLISION)
      */
-     void parseTreeForGeom(::urdf::LinkConstPtr link,
+     void parseTreeForGeom(::urdf::LinkConstSharedPtr link,
                            const Model & model,
                            GeometryModel & geomModel,
                            const std::vector<std::string> & package_dirs,
@@ -318,7 +326,7 @@ namespace se3
           break;
         }
         
-        BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
+        BOOST_FOREACH(::urdf::LinkConstSharedPtr child,link->child_links)
         {
           parseTreeForGeom(child, model, geomModel, package_dirs,type);
         }
@@ -347,7 +355,7 @@ namespace se3
         throw std::runtime_error("You did not specify any package directory and ROS_PACKAGE_PATH is empty. Geometric parsing will crash");
       }
 
-      ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
+      ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
       details::parseTreeForGeom(urdfTree->getRoot(), model, geomModel, hint_directories,type);
       return geomModel;
     }

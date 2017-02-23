@@ -37,7 +37,7 @@ namespace se3
       const FrameType JOINT_OR_FIXED_JOINT = (FrameType) (JOINT | FIXED_JOINT);
       const double infty = std::numeric_limits<double>::infinity();
 
-      FrameIndex getParentJointFrame(::urdf::LinkConstPtr link, Model & model)
+      FrameIndex getParentJointFrame(const ::urdf::LinkConstSharedPtr link, const Model & model)
       {
         assert(link && link->getParent());
 
@@ -55,23 +55,23 @@ namespace se3
                 + link->getParent()->parent_joint->name);
         }
 
-        Frame& f = model.frames[id];
+        const Frame & f = model.frames[id];
         if (f.type == JOINT || f.type == FIXED_JOINT)
           return id;
         throw std::invalid_argument ("Parent frame is not a JOINT neither a FIXED_JOINT");
       }
 
-      void appendBodyToJoint(Model& model, const FrameIndex fid,
-                             const boost::shared_ptr< ::urdf::Inertial> Y,
+      void appendBodyToJoint(Model & model, const FrameIndex fid,
+                             const ::urdf::InertialConstSharedPtr Y_ptr,
                              const SE3 & placement,
                              const std::string & body_name)
       {
         const Frame& frame = model.frames[fid];
         const SE3& p = frame.placement * placement;
         if (frame.parent > 0
-            && Y
-            && Y->mass > Eigen::NumTraits<double>::epsilon()) {
-          model.appendBodyToJoint(frame.parent, convertFromUrdf(*Y), p);
+            && Y_ptr
+            && Y_ptr->mass > Eigen::NumTraits<double>::epsilon()) {
+          model.appendBodyToJoint(frame.parent, convertFromUrdf(*Y_ptr), p);
         }
         model.addBodyFrame(body_name, frame.parent, p, (int)fid);
         // Reference to model.frames[fid] can has changed because the vector
@@ -86,9 +86,10 @@ namespace se3
       /// \brief Shortcut for adding a joint and directly append a body to it.
       ///
       template<typename JointModel>
-      void addJointAndBody(Model & model, const JointModelBase<JointModel> & jmodel, const FrameIndex& parentFrameId,
+      void addJointAndBody(Model & model, const JointModelBase<JointModel> & jmodel,
+                           const FrameIndex & parentFrameId,
                            const SE3 & joint_placement, const std::string & joint_name,
-                           const boost::shared_ptr< ::urdf::Inertial> Y,
+                           const ::urdf::InertialConstSharedPtr Y,
                            const std::string & body_name,
                            const typename JointModel::TangentVector_t & max_effort   = JointModel::TangentVector_t::Constant( infty),
                            const typename JointModel::TangentVector_t & max_velocity = JointModel::TangentVector_t::Constant( infty),
@@ -96,7 +97,7 @@ namespace se3
                            const typename JointModel::ConfigVector_t  & max_config   = JointModel::ConfigVector_t ::Constant( infty))
       {
         Model::JointIndex idx;
-        Frame& frame = model.frames[parentFrameId];
+        const Frame & frame = model.frames[parentFrameId];
         
         idx = model.addJoint(frame.parent,jmodel,
                              frame.placement * joint_placement,
@@ -112,10 +113,10 @@ namespace se3
       ///
       void addFixedJointAndBody(Model & model, const FrameIndex& parentFrameId,
                                 const SE3 & joint_placement, const std::string & joint_name,
-                                const boost::shared_ptr< ::urdf::Inertial> Y,
+                                const ::urdf::InertialConstSharedPtr Y,
                                 const std::string & body_name)
       {
-        Frame& frame = model.frames[parentFrameId];
+        const Frame & frame = model.frames[parentFrameId];
 
         int fid = model.addFrame(
             Frame (joint_name, frame.parent, parentFrameId,
@@ -129,9 +130,12 @@ namespace se3
       ///
       /// \brief Handle the case of JointModelComposite which is dynamic.
       ///
-      void addJointAndBody(Model & model, const JointModelBase< JointModelComposite > & jmodel, const Model::JointIndex parent_id,
+      void addJointAndBody(Model & model,
+                           const JointModelBase< JointModelComposite > & jmodel,
+                           const Model::JointIndex parent_id,
                            const SE3 & joint_placement, const std::string & joint_name,
-                           const boost::shared_ptr< ::urdf::Inertial> Y, const std::string & body_name)
+                           const ::urdf::InertialConstSharedPtr Y,
+                           const std::string & body_name)
       {
         Model::JointIndex idx;
         
@@ -148,11 +152,12 @@ namespace se3
       /// \param[in] link The current URDF link.
       /// \param[in] model The model where the link must be added.
       ///
-      void parseTree(::urdf::LinkConstPtr link, Model & model, bool verbose) throw (std::invalid_argument)
+      void parseTree(::urdf::LinkConstSharedPtr link, Model & model, bool verbose) throw (std::invalid_argument)
       {
         
         // Parent joint of the current body
-        ::urdf::JointConstPtr joint = link->parent_joint;
+        const ::urdf::JointConstSharedPtr joint =
+        ::urdf::const_pointer_cast< ::urdf::Joint>(link->parent_joint);
         
         if(joint) // if the link is not the root of the tree
         {
@@ -168,7 +173,8 @@ namespace se3
           // Transformation from the parent link to the joint origin
           const SE3 jointPlacement = convertFromUrdf(joint->parent_to_joint_origin_transform);
           
-          const boost::shared_ptr< ::urdf::Inertial> Y = link->inertial;
+          const ::urdf::InertialSharedPtr Y =
+          ::urdf::const_pointer_cast< ::urdf::Inertial>(link->inertial);
          
           switch(joint->type)
           {
@@ -477,7 +483,7 @@ namespace se3
         }
         
         
-        BOOST_FOREACH(::urdf::LinkConstPtr child,link->child_links)
+        BOOST_FOREACH(::urdf::LinkConstSharedPtr child, link->child_links)
         {
           parseTree(child, model, verbose);
         }
@@ -491,12 +497,12 @@ namespace se3
       /// \param[in] model The model where the link must be added.
       /// \param[in] verbose Print parsing info.
       ///
-      void parseRootTree (::urdf::LinkConstPtr root_link, Model & model, const bool verbose) throw (std::invalid_argument)
+      void parseRootTree (::urdf::LinkConstSharedPtr root_link, Model & model, const bool verbose) throw (std::invalid_argument)
       {
         addFixedJointAndBody(model, 0, SE3::Identity(), "root_joint",
             root_link->inertial, root_link->name);
 
-        BOOST_FOREACH(::urdf::LinkPtr child, root_link->child_links)
+        BOOST_FOREACH(::urdf::LinkConstSharedPtr child, root_link->child_links)
         {
           parseTree(child, model, verbose);
         }
@@ -517,13 +523,13 @@ namespace se3
       /// \param[in] verbose Print parsing info.
       ///
       template <typename D>
-      void parseRootTree (::urdf::LinkConstPtr root_link, Model & model, const JointModelBase<D> & root_joint, const bool verbose) throw (std::invalid_argument)
+      void parseRootTree (::urdf::LinkConstSharedPtr root_link, Model & model, const JointModelBase<D> & root_joint, const bool verbose) throw (std::invalid_argument)
       {
         addJointAndBody(model,root_joint,
             0,SE3::Identity(),"root_joint",
             root_link->inertial,root_link->name);
 
-        BOOST_FOREACH(::urdf::LinkPtr child, root_link->child_links)
+        BOOST_FOREACH(::urdf::LinkConstSharedPtr child, root_link->child_links)
         {
           parseTree(child, model, verbose);
         }
@@ -537,11 +543,11 @@ namespace se3
     ///
     struct ParseRootTreeVisitor : public boost::static_visitor<>
     {
-      ::urdf::LinkConstPtr m_root_link;
+      ::urdf::LinkConstSharedPtr m_root_link;
       Model & m_model;
       const bool m_verbose;
      
-      ParseRootTreeVisitor(::urdf::LinkConstPtr root_link, Model & model, const bool verbose)
+      ParseRootTreeVisitor(::urdf::LinkConstSharedPtr root_link, Model & model, const bool verbose)
       : m_root_link(root_link)
       , m_model(model)
       , m_verbose(verbose)
@@ -553,7 +559,7 @@ namespace se3
         details::parseRootTree(m_root_link,m_model,root_joint,m_verbose);
       }
       
-      static void run(::urdf::LinkConstPtr root_link, Model & model, const JointModelVariant & root_joint, const bool verbose)
+      static void run(::urdf::LinkConstSharedPtr root_link, Model & model, const JointModelVariant & root_joint, const bool verbose)
       {
         boost::apply_visitor(ParseRootTreeVisitor(root_link,model,verbose),root_joint);
       }
@@ -565,7 +571,7 @@ namespace se3
                       const bool verbose) 
       throw (std::invalid_argument)
     {
-      ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
+      ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile (filename);
       if (urdfTree)
         ParseRootTreeVisitor::run(urdfTree->getRoot(),model,root_joint,verbose);
       else
@@ -579,7 +585,7 @@ namespace se3
     Model& buildModel(const std::string & filename, Model& model,const bool verbose) 
     throw (std::invalid_argument)
     {
-      ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDFFile (filename);
+      ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile (filename);
       if (urdfTree)
         details::parseRootTree(urdfTree->getRoot(),model,verbose);
       else

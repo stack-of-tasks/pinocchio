@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -27,16 +27,72 @@
 
 #include <string>
 #include <exception>
-#include <boost/shared_ptr.hpp>
+#ifdef URDFDOM_USE_STD_SHARED_PTR
+  #include <memory>
+  #define URDF_SHARED_PTR(type) std::shared_ptr<type>
+  #define URDF_WEAK_PTR(type) std::weak_ptr<type>
+#else
+  #include <boost/shared_ptr.hpp>
+  #define URDF_SHARED_PTR(type) boost::shared_ptr<type>
+  #define URDF_WEAK_PTR(type) boost::weak_ptr<type>
+#endif
+
+#ifndef URDFDOM_TYPEDEF_SHARED_PTR
+
+#define URDF_TYPEDEF_CLASS_POINTER(Class) \
+typedef URDF_SHARED_PTR(Class) Class##SharedPtr; \
+typedef URDF_SHARED_PTR(const Class) Class##ConstSharedPtr; \
+typedef URDF_WEAK_PTR(Class) Class##WeakPtr
 
 namespace urdf
 {
-  typedef boost::shared_ptr<ModelInterface> ModelInterfacePtr;
-  typedef boost::shared_ptr<const Joint> JointConstPtr;
-  typedef boost::shared_ptr<const Link> LinkConstPtr;
-  typedef boost::shared_ptr<Link> LinkPtr;
-  typedef boost::shared_ptr<const Inertial> InertialConstPtr;
+  URDF_TYPEDEF_CLASS_POINTER(Box);
+  URDF_TYPEDEF_CLASS_POINTER(Collision);
+  URDF_TYPEDEF_CLASS_POINTER(Cylinder);
+  URDF_TYPEDEF_CLASS_POINTER(Geometry);
+  URDF_TYPEDEF_CLASS_POINTER(Inertial);
+  URDF_TYPEDEF_CLASS_POINTER(Joint);
+  URDF_TYPEDEF_CLASS_POINTER(Link);
+  URDF_TYPEDEF_CLASS_POINTER(Material);
+  URDF_TYPEDEF_CLASS_POINTER(Mesh);
+  URDF_TYPEDEF_CLASS_POINTER(ModelInterface);
+  URDF_TYPEDEF_CLASS_POINTER(Sphere);
+  URDF_TYPEDEF_CLASS_POINTER(Visual);
+  
+  template<class T, class U>
+  URDF_SHARED_PTR(T) const_pointer_cast(URDF_SHARED_PTR(U) const & r)
+  {
+#ifdef URDFDOM_USE_STD_SHARED_PTR
+    return std::const_pointer_cast<T>(r);
+#else
+    return boost::const_pointer_cast<T>(r);
+#endif
+  }
+  
+  template<class T, class U>
+  URDF_SHARED_PTR(T) dynamic_pointer_cast(URDF_SHARED_PTR(U) const & r)
+  {
+#ifdef URDFDOM_USE_STD_SHARED_PTR
+    return std::dynamic_pointer_cast<T>(r);
+#else
+    return boost::dynamic_pointer_cast<T>(r);
+#endif
+  }
+  
+  template<class T, class U>
+  URDF_SHARED_PTR(T) static_pointer_cast(URDF_SHARED_PTR(U) const & r)
+  {
+#ifdef URDFDOM_USE_STD_SHARED_PTR
+    return std:static_pointer_cast<T>(r);
+#else
+    return boost::static_pointer_cast<T>(r);
+#endif
+  }
 }
+
+#undef URDF_TYPEDEF_CLASS_POINTER
+
+#endif
 
 namespace se3
 {
