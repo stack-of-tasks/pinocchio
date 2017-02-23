@@ -262,6 +262,7 @@ IF(URDFDOM_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
     parsers/urdf.hpp
     parsers/urdf/utils.hpp
+    parsers/urdf/types.hpp
     )
 
   ADD_DEFINITIONS(-DWITH_URDFDOM)
