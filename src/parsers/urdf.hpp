@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -22,21 +22,9 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/deprecated.hh"
 #include "pinocchio/multibody/geometry.hpp"
+#include "pinocchio/parsers/urdf/types.hpp"
 
 #include <urdf_model/model.h>
-
-#include <string>
-#include <exception>
-#include <boost/shared_ptr.hpp>
-
-namespace urdf
-{
-  typedef boost::shared_ptr<ModelInterface> ModelInterfacePtr;
-  typedef boost::shared_ptr<const Joint> JointConstPtr;
-  typedef boost::shared_ptr<const Link> LinkConstPtr;
-  typedef boost::shared_ptr<Link> LinkPtr;
-  typedef boost::shared_ptr<const Inertial> InertialConstPtr;
-}
 
 namespace se3
 {
