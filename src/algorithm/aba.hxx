@@ -194,9 +194,7 @@ namespace se3
       const Eigen::VectorXd & v,
       const Eigen::VectorXd & tau)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     data.v[0].setZero();
     data.a[0] = -model.gravity;

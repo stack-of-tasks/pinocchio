@@ -31,9 +31,7 @@ namespace se3
                const bool computeSubtreeComs,
                const bool updateKinematics)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     data.mass[0] = 0;
     data.com[0].setZero ();
@@ -80,9 +78,7 @@ namespace se3
                const bool computeSubtreeComs,
                const bool updateKinematics)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     using namespace se3;
     
     data.mass[0] = 0;
@@ -140,9 +136,7 @@ namespace se3
                const bool computeSubtreeComs,
                const bool updateKinematics)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     using namespace se3;
 
     data.mass[0] = 0;
@@ -201,9 +195,7 @@ namespace se3
   inline const SE3::Vector3 &
   getComFromCrba(const Model & model, Data & data)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     return data.com[0] = data.liMi[1].act(data.Ycrb[1].lever());
   }
 
@@ -284,9 +276,7 @@ namespace se3
                        const bool computeSubtreeComs,
                        const bool updateKinematics)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     data.com[0].setZero ();
     data.mass[0] = 0;
     
@@ -320,9 +310,7 @@ namespace se3
   inline const Data::Matrix3x &
   getJacobianComFromCrba(const Model & model, Data & data)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     const SE3 & oM1 = data.liMi[1];
     
     // As the 6 first rows of M*a are a wrench, we just need to multiply by the

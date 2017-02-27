@@ -32,9 +32,7 @@ namespace se3
                                        const Eigen::VectorXd & q
                                        )
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     forwardKinematics(model, data, q);
     updateGeometryPlacements(model, data, geomModel, geomData);
@@ -46,9 +44,7 @@ namespace se3
                                         GeometryData & geomData
                                         )
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     for (GeomIndex i=0; i < (GeomIndex) geomModel.ngeoms; ++i)
     {
@@ -116,9 +112,7 @@ namespace se3
                                 const bool stopAtFirstCollision
                                 )
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     updateGeometryPlacements (model, data, geomModel, geomData, q);
     
@@ -197,9 +191,7 @@ namespace se3
                                const Eigen::VectorXd & q
                                )
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     updateGeometryPlacements (model, data, geomModel, geomData, q);
     return computeDistances<ComputeShortest>(geomModel,geomData);
   }

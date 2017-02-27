@@ -85,9 +85,7 @@ namespace se3
                                       Data & data
                                       )
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     // The following for loop starts by index 1 because the first frame is fixed
     // and corresponds to the universe.s
@@ -107,9 +105,7 @@ namespace se3
                                       const Eigen::VectorXd & q
                                       )
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     forwardKinematics(model, data, q);
     framesForwardKinematics(model, data);
@@ -125,9 +121,7 @@ namespace se3
   {
     assert(J.cols() == model.nv);
     assert(data.J.cols() == model.nv);
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     const Model::JointIndex & parent = model.frames[frame_id].parent;
     const SE3 & oMframe = data.oMf[frame_id];

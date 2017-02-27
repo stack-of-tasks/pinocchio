@@ -72,9 +72,7 @@ namespace se3
                 const Eigen::VectorXd & v,
                 const bool update_kinematics)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     data.kinetic_energy = 0.;
     
@@ -94,9 +92,7 @@ namespace se3
                   const Eigen::VectorXd & q,
                   const bool update_kinematics)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     data.potential_energy = 0.;
     const Motion::ConstLinear_t & g = model.gravity.linear();

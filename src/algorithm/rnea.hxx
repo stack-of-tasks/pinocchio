@@ -91,9 +91,7 @@ namespace se3
        const Eigen::VectorXd & v,
        const Eigen::VectorXd & a)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     data.v[0].setZero();
     data.a_gf[0] = -model.gravity;
@@ -121,9 +119,7 @@ namespace se3
        const container::aligned_vector<Force> & fext)
   {
     assert(fext.size() == model.joints.size());
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     data.v[0].setZero();
     data.a_gf[0] = -model.gravity;
@@ -207,9 +203,7 @@ namespace se3
                    const Eigen::VectorXd & q,
                    const Eigen::VectorXd & v)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     data.v[0].setZero ();
     data.a_gf[0] = -model.gravity;

@@ -103,9 +103,7 @@ namespace se3
   crba(const Model & model, Data& data,
        const Eigen::VectorXd & q)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     for( Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i )
     {
@@ -208,9 +206,7 @@ namespace se3
         const Eigen::VectorXd & q,
         const Eigen::VectorXd & v)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     typedef Eigen::Block <Data::Matrix6x,3,-1> Block3x;
     
     forwardKinematics(model, data, q);

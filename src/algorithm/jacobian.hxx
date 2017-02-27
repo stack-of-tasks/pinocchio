@@ -60,9 +60,7 @@ namespace se3
   computeJacobians(const Model & model, Data & data,
                    const Eigen::VectorXd & q)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     for( Model::JointIndex i=1; i< (Model::JointIndex) model.njoints;++i )
     {
@@ -84,9 +82,7 @@ namespace se3
   {
     assert( J.rows() == data.J.rows() );
     assert( J.cols() == data.J.cols() );
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     const SE3 & oMjoint = data.oMi[jointId];
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
@@ -132,9 +128,7 @@ namespace se3
            const Eigen::VectorXd & q,
            const Model::JointIndex jointId)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     data.iMf[jointId].setIdentity();
     for( Model::JointIndex i=jointId;i>0;i=model.parents[i] )

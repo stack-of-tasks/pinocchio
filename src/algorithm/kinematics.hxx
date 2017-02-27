@@ -45,9 +45,7 @@ namespace se3
   inline void emptyForwardPass(const Model & model,
                                Data & data)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
     {
@@ -60,9 +58,7 @@ namespace se3
   
   inline void updateGlobalPlacements(const Model & model, Data & data)
   {
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
     {
@@ -112,9 +108,7 @@ namespace se3
                     const Eigen::VectorXd & q)
   {
     assert(q.size() == model.nq && "The configuration vector is not of right size");
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
     {
@@ -168,9 +162,7 @@ namespace se3
   {
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     data.v[0].setZero();
 
@@ -231,9 +223,7 @@ namespace se3
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     assert(a.size() == model.nv && "The acceleration vector is not of right size");
-#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     
     data.v[0].setZero();
     data.a[0].setZero();
