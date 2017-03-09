@@ -1,4 +1,4 @@
-Pinocchio
+Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
 ===========
 
 [![License LGPL 3](https://img.shields.io/badge/license-LGPLv3-green.svg)](http://www.gnu.org/licenses/lgpl-3.0.txt)
@@ -6,56 +6,41 @@ Pinocchio
 [![Coverage Status](https://coveralls.io/repos/github/stack-of-tasks/pinocchio/badge.svg?branch=devel)](https://coveralls.io/github/stack-of-tasks/pinocchio?branch=devel)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/7824/badge.svg)](https://scan.coverity.com/projects/pinocchio)
 
-**Warning:** This repository contains [Git
-submodules][git-submodules]. Please clone this repository using the
-`git clone --recursive` command. If you already have cloned the
-repository, you can run `git submodule init && git submodule update`
-to retrieve the submodules.
+**Pinocchio** instatiates state-of-the-art Rigid Body Algotithms for poly-articulated systems based on revisited Roy Featherstone's algorithms. It is first tailored for legged robotics applications, but it can be used in extra contextes.
+It is built upon Eigen for linear algebra and FCL for collision detections. **Pinocchio** comes with a Python interface for fast code protyping.
 
+**Pinocchio** is now at the hearth of various robotics softwares as the [Stack-of-Tasks](http://stack-of-tasks.github.io) or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc).
 
-For general information about the project, please refer to its
-homepage: http://stack-of-tasks.github.io/pinocchio/
+## Installation
 
-Setup
------
+**Pinocchio** can be easily installed on various Linux and Unix distributions. Please refer to the [installation procedure](http://stack-of-tasks.github.io/pinocchio/download.html).
 
-To compile this package, it is recommended to create a separate build
-directory:
-
-    mkdir _build
-    cd _build
-    cmake [OPTIONS] ..
-    make install
-
-Please note that CMake produces a `CMakeCache.txt` file which should
-be deleted to reconfigure a package from scratch.
-
-
-### Dependencies
+## Dependencies
 
 The Pinocchio software depends on several packages which
 have to be available on your machine.
 
- - Libraries:
-   - eigen3 (version >= 3.0.5)
-   - boost unit_test_framework filesystem 
-   - Optional:
-      - urdfdom (version >= 0.3.0)
-      - LUA (version == 5.1)
- - System tools:
-   - CMake (>=2.6)
+### Build dependencies
+   - cmake (version >= 2.6)
    - pkg-config
-   - usual compilation tools (GCC/G++, make, etc.)
- - Bindings:
-   - Python: Python 2.7 + Numpy + Boost python + EigenPy (https://github.com/stack-of-tasks/eigenpy.git)
- 
-### Install standalone urdfdom
+   - Boost with components unit_test_framework
+   - G++/CLANG
+   
+### Core dependencies
+   - Eigen3 (version >= 3.0.5)   
+   - Boost with components filesystem 
+   
+### Optional dependencies
+   - urdfdom (version >= 0.2)
+   - LUA 5.1
+   - [FCL](https://github.com/flexible-collision-library/fcl)
+   
+### Python bindings
+   - Python 2.7 or 3.0
+   - Numpy
+   - [EigenPy](https://github.com/stack-of-tasks/eigenpy.git)
+   - Boost Python
 
-In order to read urdf files (see http://wiki.ros.org/urdf for the description), one haves to install the urdfdom package which can come either along ROS library or be installed as a standalone library. Next section describes the second procedure.
+## Acknowledgments
 
-urdfdom depends on both console_bridge and urdfdom_headers. The installation of both dependencies can be done with the following command lines in a terminal :
-  - git clone git://github.com/ros/console_bridge.git && cd console_bridge && mkdir build && cd build && cmake .. && make && sudo make install
-  - git clone git://github.com/ros/urdfdom_headers && cd urdfdom_headers && mkdir build && cd build && cmake .. && make && sudo make install
-    
-Finally, you just need to apply the following command line to install urdfdom library :
-  - git clone git://github.com/ros/urdfdom && cd urdfdom && mkdir build && cd build && cmake .. && make && sudo make install
+The development of **Pinocchio** is supported by the [Gepetto team](http://projects.laas.fr/gepetto/) @LAAS-CNRS.
