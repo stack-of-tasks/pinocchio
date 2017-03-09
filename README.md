@@ -41,6 +41,18 @@ have to be available on your machine.
    - [EigenPy](https://github.com/stack-of-tasks/eigenpy.git)
    - Boost Python
 
+## Citing Pinocchio
+
+If you want to cite **Pinocchio** in your papers, please use the following bibtex line:
+```
+@misc{pinocchioweb,
+      author = {Justin Carpentier and Florian Valenza and Nicolas Mansard and others},
+      title = {Pinocchio: fast forward and inverse dynamics for poly-articulated systems},
+      howpublished = {https://stack-of-tasks.github.io/pinocchio},
+      year = {2015--2017}
+     }
+```
+
 ## Acknowledgments
 
 The development of **Pinocchio** is supported by the [Gepetto team](http://projects.laas.fr/gepetto/) @LAAS-CNRS.
