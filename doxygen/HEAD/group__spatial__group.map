@@ -1,0 +1,6 @@
+<map id="Spatial" name="Spatial">
+<area shape="rect" id="node1" href="$group__Inertia__group.html" title="Inertia" alt="" coords="119,5,177,32"/>
+<area shape="rect" id="node2" href="$group__SE3__group.html" title="SE3" alt="" coords="125,56,171,83"/>
+<area shape="rect" id="node3" href="$group__Motion__group.html" title="Motion" alt="" coords="117,107,179,133"/>
+<area shape="rect" id="node4" href="$group__Force__group.html" title="Force" alt="" coords="121,157,175,184"/>
+</map>
