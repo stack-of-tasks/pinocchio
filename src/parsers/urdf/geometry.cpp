@@ -272,7 +272,7 @@ namespace se3
 #ifdef WITH_HPP_FCL
             const boost::shared_ptr<fcl::CollisionGeometry> geometry = retrieveCollisionGeometry((*i)->geometry, package_dirs, meshPath, meshScale);
 #else
-            boost::shared_ptr < ::urdf::Mesh> urdf_mesh = boost::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry);
+            ::urdf::MeshSharedPtr urdf_mesh = ::urdf::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry);
             if (urdf_mesh) meshPath = retrieveResourcePath(urdf_mesh->filename, package_dirs);
             
             const boost::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
