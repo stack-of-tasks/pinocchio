@@ -17,6 +17,7 @@
 import libpinocchio_pywrap as se3
 import utils
 import time
+import os
 
 class RobotWrapper(object):
 
@@ -175,6 +176,12 @@ class RobotWrapper(object):
         for visual in self.visual_model.geometryObjects :
             meshName = self.viewerNodeNames(visual) 
             meshPath = visual.meshPath
+            # Check if an .osg file exists instead of the .dae version
+            filename, extension = os.path.splitext(meshPath)
+            if extension[1:] == "dae":
+              filename_osg = filename + ".osg"
+              if os.path.isfile(filename_osg):
+                meshPath = filename_osg 
             meshTexturePath = visual.meshTexturePath
             meshScale = visual.meshScale
             meshColor = visual.meshColor
