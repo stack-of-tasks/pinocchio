@@ -253,7 +253,7 @@ namespace se3
         {
           std::string meshPath = "";
 
-          Eigen::Vector3d meshScale;
+          Eigen::Vector3d meshScale(Eigen::Vector3d::Ones());
         
           const std::string & link_name = link->name;
 
