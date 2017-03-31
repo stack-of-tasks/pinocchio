@@ -83,10 +83,6 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   multibody/joint/joints-variant.hpp
   multibody/joint/joint.hpp
   multibody/joint/joint-derived.hpp
-  multibody/fcl/contact.hpp
-  multibody/fcl/collision-result.hpp
-#  multibody/fcl/distance-result.hpp
-  multibody/fcl/collision-geometry.hpp
   algorithm/algorithms.hpp 
   parsers/parsers.hpp
   )
@@ -103,7 +99,6 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   multibody/expose-data.cpp
   multibody/expose-geometry.cpp
   multibody/joint/expose-joints.cpp
-  multibody/fcl/expose-fcl.cpp
   algorithm/expose-algorithms.cpp
   algorithm/expose-com.cpp
   algorithm/expose-kinematics.cpp
@@ -120,6 +115,7 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   parsers/expose-parsers.cpp
   )
 
+# Parser for Python model
 SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
   parsers/python.hpp
   )
@@ -127,6 +123,23 @@ SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
 SET(${PROJECT_NAME}_PARSER_PYTHON_SOURCES
   parsers/python/model.cpp
   )
+
+# Python exposition of FCL
+IF(HPP_FCL_FOUND)
+  SET(${PROJECT_NAME}_PYTHON_FCL_HEADERS
+    multibody/fcl/contact.hpp
+    multibody/fcl/collision-result.hpp
+  #  multibody/fcl/distance-result.hpp
+    multibody/fcl/collision-geometry.hpp
+    )
+
+  SET(${PROJECT_NAME}_PYTHON_FCL_SOURCES
+    multibody/fcl/expose-fcl.cpp
+    )
+
+  LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS ${${PROJECT_NAME}_PYTHON_FCL_HEADERS}) 
+  LIST(APPEND ${PROJECT_NAME}_PYTHON_SOURCES ${${PROJECT_NAME}_PYTHON_FCL_SOURCES}) 
+ENDIF(HPP_FCL_FOUND)
 
 LIST(APPEND HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
 LIST(REMOVE_DUPLICATES HEADERS)
@@ -136,7 +149,9 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python"
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody/joint")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody/fcl")
+IF(HPP_FCL_FOUND)
+  MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody/fcl")
+ENDIF(HPP_FCL_FOUND)
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/utils")
