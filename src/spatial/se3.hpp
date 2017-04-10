@@ -294,7 +294,7 @@ namespace se3
 
     template<typename EigenDerived>
     typename EigenDerived::PlainObject actOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p) const
-    { return EigenDerived::PlainObject(rot*p+trans); }
+    { return (rot*p+trans).eval(); }
 
     template<typename MapDerived>
     Vector3 actOnEigenObject(const Eigen::MapBase<MapDerived> & p) const
@@ -302,7 +302,7 @@ namespace se3
 
     template<typename EigenDerived>
     typename EigenDerived::PlainObject actInvOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p) const
-    { return EigenDerived::PlainObject(rot.transpose()*(p-trans)); }
+    { return (rot.transpose()*(p-trans)).eval(); }
 
     template<typename MapDerived>
     Vector3 actInvOnEigenObject(const Eigen::MapBase<MapDerived> & p) const
