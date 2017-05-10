@@ -24,6 +24,18 @@
 namespace se3
 {
 
+#if FCL_HAVE_EIGEN
+  // TODO When not supporting the version of hpp-fcl (v0.5) not using plain eigen types
+  // the following functions can be removed because
+  //  - fcl::Matrix3f = Eigen::Matrix3d
+  //  - fcl::Vec3f    = Eigen::Vector3d
+  // Currently, they are mandatory to support both v0.5 with FCL_HAVE_EIGEN and
+  // future version
+  inline fcl::Matrix3f   toFclMatrix3f (Eigen::Matrix3d const & mat) { return mat; }
+  inline Eigen::Matrix3d toMatrix3d    (fcl::Matrix3f   const & mat) { return mat; }
+  inline fcl::Vec3f      toFclVec3f    (Eigen::Vector3d const & vec) { return vec; }
+  inline Eigen::Vector3d toVector3d    (fcl::Vec3f      const & vec) { return vec; }
+#else  // FCL_HAVE_EIGEN
   inline fcl::Matrix3f toFclMatrix3f(const Eigen::Matrix3d & mat)
   {
     return fcl::Matrix3f( mat(0,0),mat(0,1), mat(0,2),
@@ -50,6 +62,7 @@ namespace se3
   {
     return Eigen::Vector3d(vec[0],vec[1],vec[2]);
   }
+#endif // FCL_HAVE_EIGEN
 
   inline fcl::Transform3f toFclTransform3f(const SE3 & m)
   {
