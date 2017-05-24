@@ -102,6 +102,9 @@ namespace se3
     /// \brief Default 3D gravity vector (=(0,0,-9.81)).
     static const Eigen::Vector3d gravity981;
 
+    /// \brief Model name;
+    std::string name;
+
     /// \brief Default constructor. Builds an empty model with no joints.
     Model()
       : nq(0)

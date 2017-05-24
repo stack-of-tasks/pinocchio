@@ -34,6 +34,7 @@ BOOST_AUTO_TEST_CASE ( buildModel )
   #endif
     se3::Model model;
     se3::urdf::buildModel(filename, model);
+    std::cout << "Robot's name:" << model.name << std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
