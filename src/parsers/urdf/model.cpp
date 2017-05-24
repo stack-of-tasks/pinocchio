@@ -501,7 +501,7 @@ namespace se3
       {
         addFixedJointAndBody(model, 0, SE3::Identity(), "root_joint",
             root_link->inertial, root_link->name);
-
+	
         BOOST_FOREACH(::urdf::LinkConstSharedPtr child, root_link->child_links)
         {
           parseTree(child, model, verbose);
@@ -572,8 +572,12 @@ namespace se3
       throw (std::invalid_argument)
     {
       ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile (filename);
+
       if (urdfTree)
-        ParseRootTreeVisitor::run(urdfTree->getRoot(),model,root_joint,verbose);
+	{
+	  model.name = urdfTree->getName();
+	  ParseRootTreeVisitor::run(urdfTree->getRoot(),model,root_joint,verbose);
+	}
       else
       {
         const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
@@ -587,7 +591,10 @@ namespace se3
     {
       ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile (filename);
       if (urdfTree)
-        details::parseRootTree(urdfTree->getRoot(),model,verbose);
+	{
+	  model.name = urdfTree->getName();
+	  details::parseRootTree(urdfTree->getRoot(),model,verbose);
+	}
       else
       {
         const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
