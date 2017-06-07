@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -17,8 +17,10 @@
 
 #ifndef __se3_skew_hpp__
 #define __se3_skew_hpp__
+
 namespace se3
 {
+  
   ///
   /// \brief Computes the skew representation of a given 3D vector,
   ///        i.e. the antisymmetric matrix representation of the cross product operator.
@@ -28,16 +30,17 @@ namespace se3
   /// \return The skew matrix representation of v.
   ///
   template <typename D>
-  inline Eigen::Matrix<typename D::Scalar,3,3,D::Options>
+  inline Eigen::Matrix<typename D::Scalar,3,3,Eigen::internal::plain_matrix_type<D>::type::Options>
   skew(const Eigen::MatrixBase<D> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,3);
-    Eigen::Matrix<typename D::Scalar,3,3,D::Options> m;
+    Eigen::Matrix<typename D::Scalar,3,3,Eigen::internal::plain_matrix_type<D>::type::Options> m;
     m(0,0) =  0   ;  m(0,1) = -v[2];   m(0,2) =  v[1];
     m(1,0) =  v[2];  m(1,1) =  0   ;   m(1,2) = -v[0];
     m(2,0) = -v[1];  m(2,1) =  v[0];   m(2,2) =  0   ;
     return m;
   }
+
   
   ///
   /// \brief Inverse operation related to skew. From a given skew-symmetric matrix M
@@ -86,5 +89,7 @@ namespace se3
     res.row(2) = v[0]*m.row(1) - v[1]*m.row(0);
     return res;
   }
+  
 } // namespace se3
+
 #endif // ifndef __se3_skew_hpp__
