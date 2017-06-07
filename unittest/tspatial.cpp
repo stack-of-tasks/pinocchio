@@ -23,6 +23,7 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/spatial/explog.hpp"
+#include "pinocchio/spatial/skew.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -342,6 +343,32 @@ BOOST_AUTO_TEST_CASE ( test_ActOnSet )
   for( int k=0;k<N;++k )
     BOOST_CHECK(jMi.act(se3::Motion(iV.col(k))).toVector().isApprox(jV.col(k), 1e-12));
 
+}
+
+BOOST_AUTO_TEST_CASE(test_skew)
+{
+  using namespace se3;
+  typedef SE3::Vector3 Vector3;
+  typedef SE3::Vector6 Vector6;
+  
+  Vector3 v3(Vector3::Random());
+  Vector6 v6(Vector6::Random());
+  
+  Vector3 res1 = unSkew(skew(v3));
+  BOOST_CHECK(res1.isApprox(v3));
+  
+  Vector3 res2 = unSkew(skew(v6.head<3>()));
+  BOOST_CHECK(res2.isApprox(v6.head<3>()));
+  
+  Vector3 res3 = skew(v3)*v3;
+  BOOST_CHECK(res3.isZero());
+  
+  Vector3 rhs(Vector3::Random());
+  Vector3 res41 = skew(v3)*rhs;
+  Vector3 res42 = v3.cross(rhs);
+  
+  BOOST_CHECK(res41.isApprox(res42));
+  
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
