@@ -24,107 +24,26 @@
 
 namespace se3
 {
-
   inline const SE3::Vector3 &
   centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
-               const bool computeSubtreeComs,
-               const bool updateKinematics)
+               const bool computeSubtreeComs)
   {
-    assert(model.check(data) && "data is not consistent with model.");
+    forwardKinematics(model,data,q);
     
-    data.mass[0] = 0;
-    data.com[0].setZero ();
-    
-    // Forward Step
-    if (updateKinematics)
-      forwardKinematics(model, data, q);
-
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
-    {
-      const double mass = model.inertias[i].mass();
-      const SE3::Vector3 & lever = model.inertias[i].lever();
-      
-      data.com[i]  = mass * lever;
-      data.mass[i] = mass;
-    }
-    
-    // Backward Step
-    for(Model::JointIndex i=(Model::JointIndex)(model.njoints-1); i>0; --i)
-    {
-      const Model::JointIndex & parent = model.parents[i];
-      
-      const SE3 & liMi = data.liMi[i];
-      
-      data.com[parent] += (liMi.rotation()*data.com[i]
-                           + data.mass[i] * liMi.translation());
-      data.mass[parent] += data.mass[i];
-      
-      if(computeSubtreeComs)
-      {
-        data.com[i] /= data.mass[i];
-      }
-    }
-    
-    data.com[0] /= data.mass[0];
-
+    centerOfMass(model,data,computeSubtreeComs);
     return data.com[0];
   }
-  
+
   inline const SE3::Vector3 &
   centerOfMass(const Model & model, Data & data,
                const Eigen::VectorXd & q,
                const Eigen::VectorXd & v,
-               const bool computeSubtreeComs,
-               const bool updateKinematics)
+               const bool computeSubtreeComs)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    using namespace se3;
+    forwardKinematics(model,data,q,v);
     
-    data.mass[0] = 0;
-    data.com[0].setZero ();
-    data.vcom[0].setZero ();
-    
-    // Forward Step
-    if (updateKinematics)
-      forwardKinematics(model, data, q, v);
-    
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
-    {
-      const double mass = model.inertias[i].mass();
-      const SE3::Vector3 & lever = model.inertias[i].lever();
-      
-      const Motion & v = data.v[i];
-      
-      data.com[i]  = mass * lever;
-      data.mass[i] = mass;
-      
-      data.vcom[i] = mass * (v.angular().cross(lever) + v.linear());
-    }
-    
-    // Backward Step
-    for(Model::JointIndex i=(Model::JointIndex)(model.njoints-1); i>0; --i)
-    {
-      const Model::JointIndex & parent = model.parents[i];
-      
-      const SE3 & liMi = data.liMi[i];
-      
-      data.com[parent] += (liMi.rotation()*data.com[i]
-                           + data.mass[i] * liMi.translation());
-      
-      data.vcom[parent] += liMi.rotation()*data.vcom[i];
-      data.mass[parent] += data.mass[i];
-      
-      if( computeSubtreeComs )
-      {
-        data.com[i] /= data.mass[i];
-        data.vcom[i] /= data.mass[i];
-      }
-    }
-    
-    data.com[0] /= data.mass[0];
-    data.vcom[0] /= data.mass[0];
-    
+    centerOfMass<true,true,false>(model,data,computeSubtreeComs);
     return data.com[0];
   }
   
@@ -133,21 +52,30 @@ namespace se3
                const Eigen::VectorXd & q,
                const Eigen::VectorXd & v,
                const Eigen::VectorXd & a,
-               const bool computeSubtreeComs,
-               const bool updateKinematics)
+               const bool computeSubtreeComs)
+  {
+    forwardKinematics(model,data,q,v,a);
+    
+    centerOfMass<true,true,true>(model,data,computeSubtreeComs);
+    return data.com[0];
+  }
+  
+  template<bool do_position, bool do_velocity, bool do_acceleration>
+  inline void centerOfMass(const Model & model, Data & data,
+                    const bool computeSubtreeComs)
   {
     assert(model.check(data) && "data is not consistent with model.");
     using namespace se3;
 
     data.mass[0] = 0;
-    data.com[0].setZero ();
-    data.vcom[0].setZero ();
-    data.acom[0].setZero ();
+    if(do_position)
+      data.com[0].setZero ();
+    if(do_velocity)
+      data.vcom[0].setZero ();
+    if(do_acceleration)
+      data.acom[0].setZero ();
 
     // Forward Step
-    if (updateKinematics)
-      forwardKinematics(model, data, q, v, a);
-    
     for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
     {
       const double mass = model.inertias[i].mass();
@@ -156,40 +84,52 @@ namespace se3
       const Motion & v = data.v[i];
       const Motion & a = data.a[i];
 
-      data.com[i]  = mass * lever;
       data.mass[i] = mass;
+      
+      if(do_position)
+        data.com[i]  = mass * lever;
 
-      data.vcom[i] = mass * (v.angular().cross(lever) + v.linear());
-      data.acom[i] = mass * (a.angular().cross(lever) + a.linear()) + v.angular().cross(data.vcom[i]); // take into accound the coriolis part of the acceleration
+      if(do_velocity)
+        data.vcom[i] = mass * (v.angular().cross(lever) + v.linear());
+      
+      if(do_acceleration)
+        data.acom[i] = mass * (a.angular().cross(lever) + a.linear())
+                     + v.angular().cross(data.vcom[i]); // take into accound the coriolis part of the acceleration
     }
     
     // Backward Step
     for(Model::JointIndex i=(Model::JointIndex)(model.njoints-1); i>0; --i)
     {
       const Model::JointIndex & parent = model.parents[i];
-      
       const SE3 & liMi = data.liMi[i];
       
-      data.com[parent] += (liMi.rotation()*data.com[i]
-       + data.mass[i] * liMi.translation());
-      
-      data.vcom[parent] += liMi.rotation()*data.vcom[i];
-      data.acom[parent] += liMi.rotation()*data.acom[i];
       data.mass[parent] += data.mass[i];
       
-      if( computeSubtreeComs )
+      if(do_position)
+        data.com[parent] += (liMi.rotation()*data.com[i]
+                         + data.mass[i] * liMi.translation());
+      
+      if(do_velocity)
+        data.vcom[parent] += liMi.rotation()*data.vcom[i];
+      data.acom[parent] += liMi.rotation()*data.acom[i];
+      
+      if(computeSubtreeComs)
       {
-        data.com[i] /= data.mass[i];
-        data.vcom[i] /= data.mass[i];
-        data.acom[i] /= data.mass[i];
+        if(do_position)
+          data.com[i] /= data.mass[i];
+        if(do_velocity)
+          data.vcom[i] /= data.mass[i];
+        if(do_acceleration)
+          data.acom[i] /= data.mass[i];
       }
     }
     
-    data.com[0] /= data.mass[0];
-    data.vcom[0] /= data.mass[0];
-    data.acom[0] /= data.mass[0];
-    
-    return data.com[0];
+    if(do_position)
+      data.com[0] /= data.mass[0];
+    if(do_velocity)
+      data.vcom[0] /= data.mass[0];
+    if(do_acceleration)
+      data.acom[0] /= data.mass[0];
   }
 
   inline const SE3::Vector3 &

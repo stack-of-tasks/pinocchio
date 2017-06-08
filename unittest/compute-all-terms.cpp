@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
-  centerOfMass(model, data_other, q, v, true, true);
+  centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);
 
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
-  centerOfMass(model, data_other, q, v, true, true);
+  centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);
 
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
-  centerOfMass(model, data_other, q, v, true, true);
+  centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);
 
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   crba(model,data_other,q);
   computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
-  centerOfMass(model, data_other, q, v, true, true);
+  centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);
 

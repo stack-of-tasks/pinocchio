@@ -67,14 +67,17 @@ class RobotWrapper(object):
     def nv(self):
         return self.model.nv
 
-    def com(self, q, v=None, a=None, update_kinematics=True):
+    def com(self, q=None, v=None, a=None):
+        if q is None:
+            se3.centerOfMass(self.model, self.data)
+            return data.com[0]
         if v is not None:
             if a is None:
-                se3.centerOfMass(self.model, self.data, q, v, update_kinematics)
+                se3.centerOfMass(self.model, self.data, q, v)
                 return self.data.com[0], self.data.vcom[0]
-            se3.centerOfMass(self.model, self.data, q, v, a, update_kinematics)
+            se3.centerOfMass(self.model, self.data, q, v, a)
             return self.data.com[0], self.data.vcom[0], self.data.acom[0]
-        return se3.centerOfMass(self.model, self.data, q, update_kinematics)
+        return se3.centerOfMass(self.model, self.data, q)
 
     def Jcom(self, q):
         return se3.jacobianCenterOfMass(self.model, self.data, q)
