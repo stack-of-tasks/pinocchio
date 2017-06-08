@@ -53,6 +53,10 @@ If you want to cite **Pinocchio** in your papers, please use the following bibte
      }
 ```
 
+## Questions
+
+You need to ask a question? You may either directly post a [new issue](https://github.com/stack-of-tasks/pinocchio/issues) or use the mailing list <pinocchio@laas.fr>
+
 ## Acknowledgments
 
 The development of **Pinocchio** is supported by the [Gepetto team](http://projects.laas.fr/gepetto/) @LAAS-CNRS.
