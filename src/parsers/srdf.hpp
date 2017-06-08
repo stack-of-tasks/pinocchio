@@ -47,7 +47,7 @@ namespace se3
     inline void removeCollisionPairsFromSrdf(const Model& model,
                                              GeometryModel & geomModel,
                                              const std::string & filename,
-                                             const bool verbose) throw (std::invalid_argument)
+                                             const bool verbose = false) throw (std::invalid_argument)
     {
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
@@ -139,7 +139,7 @@ namespace se3
     /// \return The neutral configuration as an eigen vector
     inline Eigen::VectorXd getNeutralConfigurationFromSrdf(Model & model,
                                                            const std::string & filename,
-                                                           const bool verbose) throw (std::invalid_argument)
+                                                           const bool verbose = false) throw (std::invalid_argument)
     {
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
