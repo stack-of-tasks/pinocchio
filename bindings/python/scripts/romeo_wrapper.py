@@ -22,8 +22,8 @@ from robot_wrapper import RobotWrapper
 
 class RomeoWrapper(RobotWrapper):
 
-    def __init__(self, filename, package_dirs=None, root_joint=None):
-        RobotWrapper.__init__(self, filename, package_dirs=package_dirs, root_joint=root_joint)
+    def __init__(self, filename, package_dirs=None):
+        RobotWrapper.__init__(self, filename, package_dirs=package_dirs, root_joint=se3.JointModelFreeFlyer())
         self.q0 = np.matrix([
             0, 0, 0.840252, 0, 0, 0, 1,                      # Free flyer
             0, 0, -0.3490658, 0.6981317, -0.3490658, 0,      # left leg
