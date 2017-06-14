@@ -20,7 +20,7 @@
 
 #include <Eigen/Core>
 
-#ifdef EIGEN3_FUTURE
+#ifdef EIGEN3_BETA_3_2_9x
 namespace se3
 {
   namespace internal
