@@ -20,8 +20,8 @@
 #define __se3_motion_hpp__
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
 #include "pinocchio/spatial/fwd.hpp"
+#include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
 

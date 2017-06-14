@@ -310,6 +310,7 @@ SET(HEADERS
   ${${PROJECT_NAME}_CONTAINER_HEADERS}
   exception.hpp
   assert.hpp
+  macros.hpp
  )
 LIST(REMOVE_DUPLICATES HEADERS)
 

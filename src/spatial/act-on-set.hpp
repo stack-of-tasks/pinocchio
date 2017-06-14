@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,7 +19,7 @@
 #define __se3_act_on_set_hpp__
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
+#include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 
 namespace se3

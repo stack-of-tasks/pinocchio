@@ -22,7 +22,7 @@
 #include <Eigen/Geometry>
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/skew.hpp"
-
+#include "pinocchio/macros.hpp"
 
 namespace se3
 {

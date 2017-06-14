@@ -18,6 +18,8 @@
 #ifndef __se3_skew_hpp__
 #define __se3_skew_hpp__
 
+#include "pinocchio/macros.hpp"
+
 namespace se3
 {
   

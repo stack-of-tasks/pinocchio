@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014_2016 CNRS
+// Copyright (c) 2014-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -24,10 +24,10 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-#ifndef __se3__symmetric3_hpp__
-#define __se3__symmetric3_hpp__
+#ifndef __se3_symmetric3_hpp__
+#define __se3_symmetric3_hpp__
 
-#include <ostream>
+#include "pinocchio/macros.hpp"
 
 namespace se3
 {
@@ -343,5 +343,5 @@ namespace se3
 
 } // namespace se3
 
-#endif // ifndef __se3__symmetric3_hpp__
+#endif // ifndef __se3_symmetric3_hpp__
 
