@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 - 2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -21,6 +21,7 @@
 
 # include <Eigen/Geometry>
 
+# include "pinocchio/macros.hpp"
 # include "pinocchio/math/sincos.hpp"
 # include "pinocchio/spatial/motion.hpp"
 # include "pinocchio/spatial/skew.hpp"
@@ -170,4 +171,4 @@ namespace se3
   }
 } // namespace se3
 
-#endif //#ifndef __math_explog_hpp__
+#endif //#ifndef __spatial_explog_hpp__

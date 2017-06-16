@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -17,6 +17,8 @@
 
 #ifndef __se3_lie_group_operation_base_hxx__
 #define __se3_lie_group_operation_base_hxx__
+
+#include "pinocchio/macros.hpp"
 
 namespace se3 {
 

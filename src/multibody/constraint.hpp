@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -20,6 +20,7 @@
 #define __se3_constraint_hpp__
 
 
+#include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/motion.hpp"
 
@@ -125,9 +126,7 @@ namespace se3
     {
       // There is currently a bug in Eigen/Core/util/StaticAssert.h in the use of the full namespace path
       // TODO
-#ifndef EIGEN3_FUTURE
       EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(DenseBase, D);
-#endif
     }
 
     ConstraintTpl() : S() 

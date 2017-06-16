@@ -19,6 +19,7 @@
 #define __se3_parser_srdf_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/geometry.hpp"
 #include <iostream>
 
 // Read XML file with boost
