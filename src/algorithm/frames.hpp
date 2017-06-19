@@ -55,6 +55,7 @@ namespace se3
   /**
    * @brief      Returns the jacobian of the frame expresssed in the world frame or
      in the local frame depending on the template argument. 
+   *             You must first call se3::framesForwardKinematics and se3::computeJacobians to update values in data structure.
    
    * @remark Expressed in the local frame, the jacobian maps the joint velocity vector to the spatial velocity of the center of the frame, expressed in the frame coordinates system. Expressed in the global frame, the jacobian maps to the spatial velocity of the point coinciding with the center of the world and attached to the frame.
    *
@@ -128,7 +129,6 @@ namespace se3
     const Frame & frame = model.frames[frame_id];
     
     const int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
-    
     
     if(!local_frame)
       getJacobian<local_frame>(model, data, parent, J);
