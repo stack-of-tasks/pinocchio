@@ -129,20 +129,19 @@ namespace se3
     
     const int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
     
+    
+    if(!local_frame)
+      getJacobian<local_frame>(model, data, parent, J);
+
     // Lever between the joint center and the frame center expressed in the global frame
     const SE3::Vector3 lever(data.oMi[parent].rotation() * frame.placement.translation());
-    
-    getJacobian<local_frame>(model, data, parent, J);
-
-    if (!frame.placement.isIdentity())
+      
+    for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
     {
-      for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
-      {
-        if(!local_frame)
-          J.col(j).topRows<3>() -= lever.cross(J.col(j).bottomRows<3>());
-        else
-          J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
-      }
+      if(!local_frame)
+        J.col(j).topRows<3>() -= lever.cross(J.col(j).bottomRows<3>());
+      else
+        J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
     }
   }
 
