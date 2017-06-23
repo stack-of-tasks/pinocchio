@@ -468,7 +468,7 @@ namespace se3
             const Inertia YY = (!Y) ? Inertia::Zero() : convertFromUrdf(*Y);
             std::cout << "Adding Body" << std::endl;
             std::cout << "\"" << link_name << "\" connected to " << "\"" << parent_link_name << "\" throw joint " << "\"" << joint_name << "\"" << std::endl;
-            std::cout << "joint type: " << joint_info << std::endl;
+            std::cout << "joint type: " << joint_info.str() << std::endl;
             std::cout << "joint placement:\n" << jointPlacement;
             std::cout << "body info: " << std::endl;
             std::cout << "  " << "mass: " << YY.mass() << std::endl;
