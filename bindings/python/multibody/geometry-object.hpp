@@ -55,7 +55,18 @@ namespace se3
         .def_readonly("meshPath", &GeometryObject::meshPath, "Absolute path to the mesh file")
         .def_readonly("overrideMaterial", &GeometryObject::overrideMaterial, "Boolean that tells whether material information is stored in Geometry object")
         .def_readonly("meshTexturePath", &GeometryObject::meshTexturePath, "Absolute path to the mesh texture file")
+
+          .def("CreateCapsule", &GeometryObjectPythonVisitor::maker_capsule)
+          .staticmethod("CreateCapsule")
         ;
+      }
+
+      static GeometryObject maker_capsule( const double radius , const double length)
+      {
+        return GeometryObject("",FrameIndex(0),JointIndex(0),
+                              boost::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule (radius, length)),
+                              SE3::Identity());
+
       }
 
       static void expose()
