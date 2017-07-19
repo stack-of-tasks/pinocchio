@@ -22,6 +22,8 @@ import numpy.linalg as npl
 import libpinocchio_pywrap as se3
 from rpy import matrixToRpy, npToTTuple, npToTuple, rotate, rpyToMatrix
 
+from deprecation import deprecated
+
 eye = lambda n: np.matrix(np.eye(n), np.double)
 zero = lambda n: np.matrix(np.zeros([n, 1] if isinstance(n, int) else n), np.double)
 rand = lambda n: np.matrix(np.random.rand(n, 1) if isinstance(n, int) else np.random.rand(n[0], n[1]), np.double)
@@ -55,24 +57,25 @@ def XYZQUATToSe3(xyzq):
     return se3.SE3(se3.Quaternion(xyzq[6, 0], xyzq[3, 0], xyzq[4, 0], xyzq[5, 0]).matrix(), xyzq[:3])
 
 
+@deprecated('Now useless.')
 def XYZQUATToViewerConfiguration(xyzq):
     '''
-    Convert the input 7D vector [X,Y,Z,x,y,z,w] to 7D vector [X,Y,Z,w,x,y,z]
+    Convert the input 7D vector [X,Y,Z,x,y,z,w] to 7D vector [X,Y,Z,x,y,z,w]
+    Gepetto Viewer Corba has changed its convention for quaternions - This function is not more required.
+    See https://github.com/humanoid-path-planner/gepetto-viewer-corba/pull/58 for more details.
     '''
-    if isinstance(xyzq, (tuple, list)):
-        xyzq = np.matrix(xyzq, np.float).T
-    return [float(xyzq[0, 0]), float(xyzq[1, 0]), float(xyzq[2, 0]),
-            float(xyzq[6, 0]), float(xyzq[3, 0]), float(xyzq[4, 0]), float(xyzq[5, 0])]
+    if isinstance(xyzq, (np.matrix)):
+        return xyzq.A.squeeze().tolist()
+    return xyzq
 
-
+@deprecated('Now useless.')
 def ViewerConfigurationToXYZQUAT(vconf):
     '''
-    Reverse function of XYZQUATToViewerConfiguration : convert [X,Y,Z,w,x,y,z] to [X,Y,Z,x,y,z,w]
+    Reverse function of XYZQUATToViewerConfiguration : convert [X,Y,Z,x,y,z,w] to [X,Y,Z,x,y,z,w]
+    Gepetto Viewer Corba has changed its convention for quaternions - This function is not more required.
+    See https://github.com/humanoid-path-planner/gepetto-viewer-corba/pull/58 for more details.
     '''
-    if isinstance(vconf, (tuple, list)):
-        vconf = np.matrix(vconf, np.float).T
-    return [float(vconf[0, 0]), float(vconf[1, 0]), float(vconf[2, 0]),
-            float(vconf[4, 0]), float(vconf[5, 0]), float(vconf[6, 0]), float(vconf[3, 0])]
+    return vconf
 
 
 def isapprox(a, b, epsilon=1e-6):
