@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -161,15 +161,15 @@ namespace se3
   inline std::ostream & operator<< (std::ostream & os, const GeometryData & geomData)
   {
 #ifdef WITH_HPP_FCL
-    os << "Nb collision pairs = " << geomData.activeCollisionPairs.size() << std::endl;
+    os << "Number of collision pairs = " << geomData.activeCollisionPairs.size() << std::endl;
     
     for(PairIndex i=0;i<(PairIndex)(geomData.activeCollisionPairs.size());++i)
     {
-      os << "Pairs " << i << (geomData.activeCollisionPairs[i]?"active":"unactive") << std::endl;
+      os << "Pairs " << i << (geomData.activeCollisionPairs[i]?" active":" inactive") << std::endl;
     }
 #else
-    os << "WARNING** Without fcl, no collision computations are possible. Only Positions can be computed" << std::endl;
-    os << "Nb of geometry objects = " << geomData.oMg.size() << std::endl;
+    os << "WARNING** Without fcl library, no collision checking or distance computations are possible. Only geometry placements can be computed." << std::endl;
+    os << "Number of geometry objects = " << geomData.oMg.size() << std::endl;
 #endif
 
     return os;
