@@ -26,22 +26,23 @@
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::GeometryData)
 
-namespace fcl
-{
-#ifdef WITH_HPP_FCL
-  // This operator is defined here temporary, as it is needed by vector_indexing_suite
-  // It has also been defined in hpp-fcl in a pending pull request.
-  // Once it has been integrated in releases of hpp-fcl, please remove this operator
-  inline bool operator ==(const DistanceResult & dr1, const DistanceResult& dr2)
-  {
-    return dr1.min_distance == dr2.min_distance
-        && dr1.o1 == dr2.o1
-        && dr1.o2 == dr2.o2
-        && dr1.nearest_points[0] == dr2.nearest_points[0]
-        && dr1.nearest_points[1] == dr2.nearest_points[1];
-  }
-#endif
-}
+//namespace fcl
+//{
+//#ifdef WITH_HPP_FCL
+//  // This operator is defined here temporary, as it is needed by vector_indexing_suite
+//  // It has also been defined in hpp-fcl in a pending pull request.
+//  // Once it has been integrated in releases of hpp-fcl, please remove this operator
+//  inline bool operator ==(const DistanceResult & dr1, const DistanceResult& dr2)
+//  {
+//    return dr1.min_distance == dr2.min_distance
+//        && dr1.o1 == dr2.o1
+//        && dr1.o2 == dr2.o2
+//        && dr1.nearest_points[0] == dr2.nearest_points[0]
+//        && dr1.nearest_points[1] == dr2.nearest_points[1];
+//  }
+//#endif
+//}
+
 namespace se3
 {
   namespace python
