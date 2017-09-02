@@ -41,7 +41,6 @@ namespace se3
     typedef VectorSpaceOperation<Size>  LieGroupDerived;
 
     SE3_LIE_GROUP_TYPEDEF_TEMPLATE;
-    typedef typename Eigen::Matrix <Scalar, 1, 1>::Index size_type;
 
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
@@ -52,11 +51,11 @@ namespace se3
       assert (Size == Eigen::Dynamic || size_ == Size);
     }
 
-    size_type nq () const
+    Index nq () const
     {
       return size_;
     }
-    size_type nv () const
+    Index nv () const
     {
       return size_;
     }
@@ -107,7 +106,7 @@ namespace se3
       }
     }
   private:
-    size_type size_;
+    Index size_;
   }; // struct VectorSpaceOperation
 
 } // namespace se3

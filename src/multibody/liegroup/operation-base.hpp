@@ -233,7 +233,13 @@ namespace se3
     static bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                          const Eigen::MatrixBase<ConfigR_t> & q1,
                                          const Scalar & prec);
-
+    /// Get dimension of Lie Group vector representation
+    ///
+    /// For instance, for SO(3), the dimension of the vector representation is
+    /// 4 (quaternion) while the dimension of the tangent space is 3.
+    Index nq () const;
+    /// Get dimension of Lie Group tangent space
+    Index nv () const;
     /// \}
 
   protected:

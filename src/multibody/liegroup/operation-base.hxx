@@ -226,6 +226,20 @@ namespace se3 {
   {
     return q0.isApprox(q1, prec);
   }
+
+  template <class Derived>
+  typename LieGroupOperationBase <Derived>::Index
+  LieGroupOperationBase <Derived>::nq () const
+  {
+    return Derived::nq ();
+  }
+
+  template <class Derived>
+  typename LieGroupOperationBase <Derived>::Index
+  LieGroupOperationBase <Derived>::nv () const
+  {
+    return Derived::nv ();
+  }
 } // namespace se3
 
 #endif // __se3_lie_group_operation_base_hxx__

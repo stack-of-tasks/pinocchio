@@ -41,6 +41,20 @@ namespace se3
     typedef CartesianProductOperation<LieGroup1, LieGroup2>  LieGroupDerived;
     SE3_LIE_GROUP_TYPEDEF_TEMPLATE;
 
+    /// Get dimension of Lie Group vector representation
+    ///
+    /// For instance, for SO(3), the dimension of the vector representation is
+    /// 4 (quaternion) while the dimension of the tangent space is 3.
+    Index nq () const
+    {
+      return NQ;
+    }
+    /// Get dimension of Lie Group tangent space
+    Index nv () const
+    {
+      return NV;
+    }
+
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     static void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
