@@ -135,7 +135,7 @@ namespace se3
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
 
     template <class Config_t>
-    static void random_impl (const Eigen::MatrixBase<Config_t>& qout)
+    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       Config_t& out = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
       const Scalar angle = -PI + 2*PI * ((Scalar)rand())/RAND_MAX;
@@ -143,9 +143,10 @@ namespace se3
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> &,
-                                         const Eigen::MatrixBase<ConfigR_t> &,
-                                         const Eigen::MatrixBase<ConfigOut_t> & qout)
+    void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> &,
+                                  const Eigen::MatrixBase<ConfigR_t> &,
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
+      const
     {
       random_impl(qout);
     }
@@ -226,7 +227,7 @@ namespace se3
     }
 
     template <class Config_t>
-    static void random_impl (const Eigen::MatrixBase<Config_t>& qout)
+    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       QuaternionMap_t out (
           (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived().data()
@@ -235,9 +236,10 @@ namespace se3
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> &,
-                                         const Eigen::MatrixBase<ConfigR_t> &,
-                                         const Eigen::MatrixBase<ConfigOut_t> & qout)
+    void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> &,
+                                  const Eigen::MatrixBase<ConfigR_t> &,
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
+      const
     {
       random_impl(qout);
     }

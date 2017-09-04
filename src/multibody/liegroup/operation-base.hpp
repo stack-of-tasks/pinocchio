@@ -127,7 +127,7 @@ namespace se3
      * @return     The joint configuration
      */
     template <class Config_t>
-    static void random (const Eigen::MatrixBase<Config_t>& qout);
+    void random (const Eigen::MatrixBase<Config_t>& qout) const;
 
     /**
      * @brief      Generate a configuration vector uniformly sampled among
@@ -139,9 +139,10 @@ namespace se3
      * @return     The joint configuration
      */
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void randomConfiguration(const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
-                                    const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
-                                    const Eigen::MatrixBase<ConfigOut_t> & qout);
+    void randomConfiguration
+    (const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
+     const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
+     const Eigen::MatrixBase<ConfigOut_t> & qout) const;
 
     /**
      * @brief      the tangent vector that must be integrated during one unit time to go from q0 to q1
@@ -204,11 +205,12 @@ namespace se3
                                       const Eigen::MatrixBase<ConfigR_t> & q1,
                                       const Scalar& u);
 
-    static ConfigVector_t random();
+    ConfigVector_t random() const;
 
     template <class ConfigL_t, class ConfigR_t>
-    static ConfigVector_t randomConfiguration(const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
-                                              const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit);
+    ConfigVector_t randomConfiguration
+    (const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
+     const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit) const;
 
     template <class ConfigL_t, class ConfigR_t>
     static TangentVector_t difference(const Eigen::MatrixBase<ConfigL_t> & q0,

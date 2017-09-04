@@ -81,18 +81,19 @@ namespace se3
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
 
     template <class Config_t>
-    static void random_impl (const Eigen::MatrixBase<Config_t>& qout)
+    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       qout.setRandom();
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
-                                         const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
-                                         const Eigen::MatrixBase<ConfigOut_t> & qout)
+    void randomConfiguration_impl
+    (const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
+     const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
+     const Eigen::MatrixBase<ConfigOut_t> & qout) const
     {
       ConfigOut_t& res = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
-      for (int i = 0; i < NQ; ++i)
+      for (int i = 0; i < nq (); ++i)
       {
         if(lower_pos_limit[i] == -std::numeric_limits<Scalar>::infinity() ||
            upper_pos_limit[i] ==  std::numeric_limits<Scalar>::infinity() )

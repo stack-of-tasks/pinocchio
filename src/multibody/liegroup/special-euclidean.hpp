@@ -160,17 +160,18 @@ namespace se3
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
 
     template <class Config_t>
-    static void random_impl (const Eigen::MatrixBase<Config_t>& qout)
+    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       R2crossSO2_t::random(qout);
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
-                                         const Eigen::MatrixBase<ConfigR_t> & upper,
-                                         const Eigen::MatrixBase<ConfigOut_t> & qout)
+    void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
+                                  const Eigen::MatrixBase<ConfigR_t> & upper,
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
+      const
     {
-      R2crossSO2_t::randomConfiguration(lower, upper, qout);
+      R2crossSO2_t ().randomConfiguration(lower, upper, qout);
     }
 
     template <class ConfigL_t, class ConfigR_t>
@@ -271,17 +272,18 @@ namespace se3
     }
 
     template <class Config_t>
-    static void random_impl (const Eigen::MatrixBase<Config_t>& qout)
+    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       R3crossSO3_t::random(qout);
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
-                                         const Eigen::MatrixBase<ConfigR_t> & upper,
-                                         const Eigen::MatrixBase<ConfigOut_t> & qout)
+    void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
+                                  const Eigen::MatrixBase<ConfigR_t> & upper,
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
+      const
     {
-      R3crossSO3_t::randomConfiguration(lower, upper, qout);
+      R3crossSO3_t ().randomConfiguration(lower, upper, qout);
     }
 
     template <class ConfigL_t, class ConfigR_t>

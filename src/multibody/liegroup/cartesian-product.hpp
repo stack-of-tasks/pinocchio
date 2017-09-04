@@ -84,21 +84,26 @@ namespace se3
     }
 
     template <class Config_t>
-    static void random_impl (const Eigen::MatrixBase<Config_t>& qout)
+    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       Config_t& out = const_cast< Eigen::MatrixBase<Config_t>& > (qout).derived();
-      LieGroup1::random(out.template head<LieGroup1::NQ>());
-      LieGroup2::random(out.template tail<LieGroup2::NQ>());
+      LieGroup1 ().random(out.template head<LieGroup1::NQ>());
+      LieGroup2 ().random(out.template tail<LieGroup2::NQ>());
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
-                                         const Eigen::MatrixBase<ConfigR_t> & upper,
-                                         const Eigen::MatrixBase<ConfigOut_t> & qout)
+    void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
+                                  const Eigen::MatrixBase<ConfigR_t> & upper,
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
+      const
     {
       ConfigOut_t& out = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
-      LieGroup1::randomConfiguration(lower.template head<LieGroup1::NQ>(), upper.template head<LieGroup1::NQ>(), out.template head<LieGroup1::NQ>());
-      LieGroup2::randomConfiguration(lower.template tail<LieGroup2::NQ>(), upper.template tail<LieGroup2::NQ>(), out.template tail<LieGroup2::NQ>());
+      LieGroup1 ().randomConfiguration(lower.template head<LieGroup1::NQ>(),
+                                       upper.template head<LieGroup1::NQ>(),
+                                       out.template head<LieGroup1::NQ>());
+      LieGroup2 ().randomConfiguration(lower.template tail<LieGroup2::NQ>(),
+                                       upper.template tail<LieGroup2::NQ>(),
+                                       out.template tail<LieGroup2::NQ>());
     }
 
     template <class ConfigL_t, class ConfigR_t>

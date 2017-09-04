@@ -71,8 +71,8 @@ namespace se3 {
    */
   template <class Derived>
   template <class Config_t>
-  void LieGroupOperationBase<Derived>::random(
-      const Eigen::MatrixBase<Config_t>& qout)
+  void LieGroupOperationBase<Derived>::random
+  (const Eigen::MatrixBase<Config_t>& qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t, ConfigVector_t);
     return Derived::random_impl (qout);
@@ -83,12 +83,12 @@ namespace se3 {
   void LieGroupOperationBase<Derived>::randomConfiguration(
       const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
       const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
-      const Eigen::MatrixBase<ConfigOut_t> & qout)
+      const Eigen::MatrixBase<ConfigOut_t> & qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t  , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t  , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigOut_t, ConfigVector_t);
-    Derived::randomConfiguration_impl(lower_pos_limit, upper_pos_limit, qout);
+    derived ().randomConfiguration_impl(lower_pos_limit, upper_pos_limit, qout);
   }
 
   template <class Derived>
@@ -163,7 +163,8 @@ namespace se3 {
   }
 
   template <class Derived>
-  typename LieGroupOperationBase<Derived>::ConfigVector_t LieGroupOperationBase<Derived>::random()
+  typename LieGroupOperationBase<Derived>::ConfigVector_t
+  LieGroupOperationBase<Derived>::random() const
   {
     ConfigVector_t qout;
     random(qout);
@@ -172,9 +173,10 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  typename LieGroupOperationBase<Derived>::ConfigVector_t LieGroupOperationBase<Derived>::randomConfiguration(
-      const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
-      const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit)
+  typename LieGroupOperationBase<Derived>::ConfigVector_t
+  LieGroupOperationBase<Derived>::randomConfiguration
+  (const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
+   const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit) const
   {
     ConfigVector_t qout;
     randomConfiguration(lower_pos_limit, upper_pos_limit, qout);
