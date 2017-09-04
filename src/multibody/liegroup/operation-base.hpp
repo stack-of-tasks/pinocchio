@@ -240,6 +240,16 @@ namespace se3
     Index nq () const;
     /// Get dimension of Lie Group tangent space
     Index nv () const;
+
+    Derived& derived ()
+    {
+      return static_cast <Derived&> (*this);
+    }
+
+    const Derived& derived () const
+    {
+      return static_cast <const Derived&> (*this);
+    }
     /// \}
 
   protected:
