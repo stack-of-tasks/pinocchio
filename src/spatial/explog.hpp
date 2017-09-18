@@ -40,7 +40,9 @@ namespace se3
   template <typename D> Eigen::Matrix<typename D::Scalar,3,3,Eigen::internal::traits<D>::Options>
   exp3(const Eigen::MatrixBase<D> & v)
   {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,3);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE (Eigen::MatrixBase<D>,
+                                          Eigen::Vector3f);
+    assert (v.size () == 3);
     typename D::Scalar nv = v.norm();
     if (nv > 1e-14)
       return Eigen::AngleAxis<typename D::Scalar>(nv, v / nv).matrix();
