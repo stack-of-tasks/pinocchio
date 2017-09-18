@@ -39,7 +39,26 @@ namespace se3
   struct VectorSpaceOperation : public LieGroupOperationBase <VectorSpaceOperation<Size> >
   {
     typedef VectorSpaceOperation<Size>  LieGroupDerived;
+
     SE3_LIE_GROUP_TYPEDEF_TEMPLATE;
+
+    /// Constructor
+    /// \param size size of the vector space: should be the equal to template
+    ///        argument for static sized vector-spaces.
+    VectorSpaceOperation (int size = Size) : size_ (size)
+    {
+      assert (size_ >= 0);
+      assert (Size == Eigen::Dynamic || size_ == Size);
+    }
+
+    Index nq () const
+    {
+      return size_;
+    }
+    Index nv () const
+    {
+      return size_;
+    }
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     static void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -62,18 +81,19 @@ namespace se3
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
 
     template <class Config_t>
-    static void random_impl (const Eigen::MatrixBase<Config_t>& qout)
+    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       qout.setRandom();
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
-                                         const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
-                                         const Eigen::MatrixBase<ConfigOut_t> & qout)
+    void randomConfiguration_impl
+    (const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
+     const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
+     const Eigen::MatrixBase<ConfigOut_t> & qout) const
     {
       ConfigOut_t& res = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
-      for (int i = 0; i < NQ; ++i)
+      for (int i = 0; i < nq (); ++i)
       {
         if(lower_pos_limit[i] == -std::numeric_limits<Scalar>::infinity() ||
            upper_pos_limit[i] ==  std::numeric_limits<Scalar>::infinity() )
@@ -86,6 +106,8 @@ namespace se3
         res[i] = lower_pos_limit[i] + (( upper_pos_limit[i] - lower_pos_limit[i]) * rand())/RAND_MAX;
       }
     }
+  private:
+    Index size_;
   }; // struct VectorSpaceOperation
 
 } // namespace se3

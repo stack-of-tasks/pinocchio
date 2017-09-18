@@ -433,8 +433,8 @@ namespace se3
                     const Eigen::VectorXd & lowerLimits,
                     const Eigen::VectorXd & upperLimits)
     {
-      LieGroup_t::template operation<JointModel>::type
-        ::randomConfiguration(jmodel.jointConfigSelector(lowerLimits),
+      typename LieGroup_t::template operation<JointModel>::type a;
+        a.randomConfiguration(jmodel.jointConfigSelector(lowerLimits),
                               jmodel.jointConfigSelector(upperLimits),
                               jmodel.jointConfigSelector(q));
     }

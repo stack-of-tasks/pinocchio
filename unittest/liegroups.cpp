@@ -54,9 +54,10 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
 
     BOOST_CHECK_MESSAGE(jmodel.integrate(q1,q1_dot).isApprox(LieGroupType::integrate(q1,q1_dot)) ,std::string(error_prefix + " - integrate "));
     BOOST_CHECK_MESSAGE(jmodel.interpolate(q1,q2,u).isApprox(LieGroupType::interpolate(q1,q2,u)) ,std::string(error_prefix + " - interpolate "));
-    BOOST_CHECK_MESSAGE(jmodel.randomConfiguration( -1 * Ones, Ones).size()
-                        == LieGroupType::randomConfiguration(-1 * Ones, Ones).size(),
-                        std::string(error_prefix + " - RandomConfiguration dimensions "));
+    BOOST_CHECK_MESSAGE
+      (jmodel.randomConfiguration( -1 * Ones, Ones).size() ==
+       LieGroupType().randomConfiguration(-1 * Ones, Ones).size(),
+       std::string(error_prefix + " - RandomConfiguration dimensions "));
     BOOST_CHECK_MESSAGE(jmodel.difference(q1,q2).isApprox(LieGroupType::difference(q1,q2)) ,std::string(error_prefix + " - difference "));
     BOOST_CHECK_MESSAGE(fabs(jmodel.distance(q1,q2) - LieGroupType::distance(q1,q2)) < 1e-12 ,std::string(error_prefix + " - distance "));
 }
@@ -122,7 +123,7 @@ BOOST_AUTO_TEST_CASE ( test_vector_space )
 
   bool error = false;
   try {
-    VSO_t::randomConfiguration(lo, up, q);
+    VSO_t ().randomConfiguration(lo, up, q);
   } catch (const std::runtime_error&) {
     error = true;
   }

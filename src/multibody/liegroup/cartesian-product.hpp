@@ -41,6 +41,20 @@ namespace se3
     typedef CartesianProductOperation<LieGroup1, LieGroup2>  LieGroupDerived;
     SE3_LIE_GROUP_TYPEDEF_TEMPLATE;
 
+    /// Get dimension of Lie Group vector representation
+    ///
+    /// For instance, for SO(3), the dimension of the vector representation is
+    /// 4 (quaternion) while the dimension of the tangent space is 3.
+    Index nq () const
+    {
+      return NQ;
+    }
+    /// Get dimension of Lie Group tangent space
+    Index nv () const
+    {
+      return NV;
+    }
+
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     static void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
@@ -70,21 +84,26 @@ namespace se3
     }
 
     template <class Config_t>
-    static void random_impl (const Eigen::MatrixBase<Config_t>& qout)
+    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       Config_t& out = const_cast< Eigen::MatrixBase<Config_t>& > (qout).derived();
-      LieGroup1::random(out.template head<LieGroup1::NQ>());
-      LieGroup2::random(out.template tail<LieGroup2::NQ>());
+      LieGroup1 ().random(out.template head<LieGroup1::NQ>());
+      LieGroup2 ().random(out.template tail<LieGroup2::NQ>());
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
-                                         const Eigen::MatrixBase<ConfigR_t> & upper,
-                                         const Eigen::MatrixBase<ConfigOut_t> & qout)
+    void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
+                                  const Eigen::MatrixBase<ConfigR_t> & upper,
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
+      const
     {
       ConfigOut_t& out = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
-      LieGroup1::randomConfiguration(lower.template head<LieGroup1::NQ>(), upper.template head<LieGroup1::NQ>(), out.template head<LieGroup1::NQ>());
-      LieGroup2::randomConfiguration(lower.template tail<LieGroup2::NQ>(), upper.template tail<LieGroup2::NQ>(), out.template tail<LieGroup2::NQ>());
+      LieGroup1 ().randomConfiguration(lower.template head<LieGroup1::NQ>(),
+                                       upper.template head<LieGroup1::NQ>(),
+                                       out.template head<LieGroup1::NQ>());
+      LieGroup2 ().randomConfiguration(lower.template tail<LieGroup2::NQ>(),
+                                       upper.template tail<LieGroup2::NQ>(),
+                                       out.template tail<LieGroup2::NQ>());
     }
 
     template <class ConfigL_t, class ConfigR_t>

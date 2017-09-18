@@ -61,6 +61,20 @@ namespace se3
     typedef SpecialEuclideanOperation LieGroupDerived;
     SE3_LIE_GROUP_TYPEDEF;
 
+    /// Get dimension of Lie Group vector representation
+    ///
+    /// For instance, for SO(3), the dimension of the vector representation is
+    /// 4 (quaternion) while the dimension of the tangent space is 3.
+    Index nq () const
+    {
+      return NQ;
+    }
+    /// Get dimension of Lie Group tangent space
+    Index nv () const
+    {
+      return NV;
+    }
+
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     static void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
@@ -146,17 +160,18 @@ namespace se3
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
 
     template <class Config_t>
-    static void random_impl (const Eigen::MatrixBase<Config_t>& qout)
+    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       R2crossSO2_t::random(qout);
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
-                                         const Eigen::MatrixBase<ConfigR_t> & upper,
-                                         const Eigen::MatrixBase<ConfigOut_t> & qout)
+    void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
+                                  const Eigen::MatrixBase<ConfigR_t> & upper,
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
+      const
     {
-      R2crossSO2_t::randomConfiguration(lower, upper, qout);
+      R2crossSO2_t ().randomConfiguration(lower, upper, qout);
     }
 
     template <class ConfigL_t, class ConfigR_t>
@@ -192,6 +207,20 @@ namespace se3
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
     typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
     typedef SE3 Transformation_t;
+
+    /// Get dimension of Lie Group vector representation
+    ///
+    /// For instance, for SO(3), the dimension of the vector representation is
+    /// 4 (quaternion) while the dimension of the tangent space is 3.
+    Index nq () const
+    {
+      return NQ;
+    }
+    /// Get dimension of Lie Group tangent space
+    Index nv () const
+    {
+      return NV;
+    }
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     static void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -243,17 +272,18 @@ namespace se3
     }
 
     template <class Config_t>
-    static void random_impl (const Eigen::MatrixBase<Config_t>& qout)
+    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       R3crossSO3_t::random(qout);
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
-                                         const Eigen::MatrixBase<ConfigR_t> & upper,
-                                         const Eigen::MatrixBase<ConfigOut_t> & qout)
+    void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
+                                  const Eigen::MatrixBase<ConfigR_t> & upper,
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
+      const
     {
-      R3crossSO3_t::randomConfiguration(lower, upper, qout);
+      R3crossSO3_t ().randomConfiguration(lower, upper, qout);
     }
 
     template <class ConfigL_t, class ConfigR_t>
