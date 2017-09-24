@@ -140,6 +140,91 @@ namespace se3
     return data.J;
   }
   
+  struct JacobiansTimeVariationForwardStep : public fusion::JointVisitor<JacobiansTimeVariationForwardStep>
+  {
+    typedef boost::fusion::vector <const se3::Model &,
+    se3::Data &,
+    const Eigen::VectorXd &,
+    const Eigen::VectorXd &
+    > ArgsType;
+    
+    JOINT_VISITOR_INIT(JacobiansTimeVariationForwardStep);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Eigen::VectorXd & q,
+                     const Eigen::VectorXd & v)
+    {
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
+      
+      SE3 & oMi = data.oMi[i];
+      Motion & vJ = data.v[i];
+      
+      jmodel.calc(jdata.derived(),q,v);
+      
+      vJ = jdata.v();
+      
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      if(parent>0)
+      {
+        oMi = data.oMi[parent]*data.liMi[i];
+        vJ += data.liMi[i].actInv(data.v[parent]);
+      }
+      else
+      {
+        oMi = data.liMi[i];
+      }
+      
+      jmodel.jointCols(data.J) = oMi.act(jdata.S());
+      
+      // Spatial velocity of joint i expressed in the global frame o
+      const Motion ov(oMi.act(vJ));
+      jmodel.jointCols(data.dJ) = (ov.toActionMatrix() * jmodel.jointCols(data.J));
+    }
+    
+  };
+  
+  inline const Data::Matrix6x &
+  computeJacobiansTimeVariation(const Model & model,
+                                Data & data,
+                                const Eigen::VectorXd & q,
+                                const Eigen::VectorXd & v)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    for(Model::JointIndex i=1; i< (Model::JointIndex) model.njoints;++i)
+    {
+      JacobiansTimeVariationForwardStep::run(model.joints[i],data.joints[i],
+                                             JacobiansTimeVariationForwardStep::ArgsType(model,data,q,v));
+    }
+    
+    return data.dJ;
+  }
+  
+  template<bool localFrame>
+  void getJacobianTimeVariation(const Model & model,
+                                const Data & data,
+                                const Model::JointIndex jointId,
+                                Data::Matrix6x & dJ)
+  {
+    assert( dJ.rows() == data.dJ.rows() );
+    assert( dJ.cols() == data.dJ.cols() );
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    const SE3 & oMjoint = data.oMi[jointId];
+    int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
+    for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
+    {
+      if(! localFrame )   dJ.col(j) = data.dJ.col(j);
+      else                dJ.col(j) = oMjoint.actInv(Motion(data.dJ.col(j))).toVector();
+    }
+  }
+  
+  
 } // namespace se3
 
 /// @endcond
