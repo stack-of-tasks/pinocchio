@@ -83,6 +83,7 @@ namespace se3
         .ADD_DATA_PROPERTY(std::vector<int>,parents_fromRow,"First previous non-zero row in M (used in Cholesky)")
         .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree_fromRow,"")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,J,"Jacobian of joint placement")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,dJ,"Time variation of the Jacobian of joint placement (data.J).")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,Ag,
