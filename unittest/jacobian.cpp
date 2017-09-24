@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -17,15 +17,23 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+template<typename Derived>
+inline bool isFinite(const Eigen::MatrixBase<Derived> & x)
+{
+  return ((x - x).array() == (x - x).array()).all();
+}
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
@@ -66,6 +74,54 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
 
 }
+
+BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model);
+  se3::Data data(model);
+  se3::Data data_ref(model);
+  
+  VectorXd q = randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) );
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd a = VectorXd::Random(model.nv);
+  
+  computeJacobiansTimeVariation(model,data,q,v);
+  
+  BOOST_CHECK(isFinite(data.dJ));
+  
+  forwardKinematics(model,data_ref,q,v,a);
+  Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.njoints-1);
+  
+  Data::Matrix6x J(6,model.nv); J.fill(0.);
+  Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
+  
+  // Regarding to the world origin
+  getJacobian<false>(model,data,idx,J);
+  getJacobianTimeVariation<false>(model,data,idx,dJ);
+  
+  Motion v_idx(J*v);
+  BOOST_CHECK(v_idx.isApprox(data_ref.oMi[idx].act(data_ref.v[idx])));
+  
+  Motion a_idx(J*a + dJ*v);
+  const Motion & a_ref = data_ref.oMi[idx].act(data_ref.a[idx]);
+  BOOST_CHECK(a_idx.isApprox(a_ref));
+  
+  
+  // Regarding to the local frame
+  getJacobian<true>(model,data,idx,J);
+  getJacobianTimeVariation<true>(model,data,idx,dJ);
+  
+  v_idx = (Motion::Vector6)(J*v);
+  BOOST_CHECK(v_idx.isApprox(data_ref.v[idx]));
+  
+  a_idx = (Motion::Vector6)(J*a + dJ*v);
+  BOOST_CHECK(a_idx.isApprox(data_ref.a[idx]));
+}
+
 
 
 BOOST_AUTO_TEST_CASE ( test_timings )
