@@ -154,9 +154,9 @@ namespace se3
     ActionMatrix_t toActionMatrix_impl () const
     {
       ActionMatrix_t X;
-      X.block <3,3> (ANGULAR, ANGULAR) = X.block <3,3> (LINEAR, LINEAR) = skew (angular_impl());
-      X.block <3,3> (LINEAR, ANGULAR) = skew (linear_impl());
-      X.block <3,3> (ANGULAR, LINEAR).setZero ();
+      X.template block <3,3> (ANGULAR, ANGULAR) = X.template block <3,3> (LINEAR, LINEAR) = skew (angular_impl());
+      X.template block <3,3> (LINEAR, ANGULAR) = skew (linear_impl());
+      X.template block <3,3> (ANGULAR, LINEAR).setZero ();
 
       return X;
     }
