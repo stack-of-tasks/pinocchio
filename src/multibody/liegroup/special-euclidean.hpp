@@ -162,7 +162,7 @@ namespace se3
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
-      R2crossSO2_t::random(qout);
+      R2crossSO2_t().random(qout);
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -274,7 +274,7 @@ namespace se3
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
-      R3crossSO3_t::random(qout);
+      R3crossSO3_t().random(qout);
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>

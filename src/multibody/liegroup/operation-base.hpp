@@ -28,8 +28,9 @@ namespace se3
 #ifdef __clang__
 
 #define SE3_LIE_GROUP_TYPEDEF_ARG(prefix)              \
-   typedef prefix traits<LieGroupDerived>::Scalar Scalar;    \
-   enum {                  \
+  typedef int Index;                                   \
+  typedef prefix traits<LieGroupDerived>::Scalar Scalar;    \
+  enum {                  \
     NQ = traits<LieGroupDerived>::NQ,              \
     NV = traits<LieGroupDerived>::NV               \
   };                        \
