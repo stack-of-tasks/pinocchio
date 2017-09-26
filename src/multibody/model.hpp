@@ -417,11 +417,11 @@ namespace se3
     
     // CCRBA return quantities
     /// \brief Centroidal Momentum Matrix
-    /// \note \f$ hg = Ag \dot{q}\f$ maps the joint velocity set to the centroidal momentum.
+    /// \note \f$ hg = A_g \dot{q}\f$ maps the joint velocity set to the centroidal momentum.
     Matrix6x Ag;
     
     /// \brief Centroidal momentum quantity.
-    /// \note The centroidal momentum is expressed in the frame centered at the CoM and aligned with the inertial frame.
+    /// \note The centroidal momentum is expressed in the frame centered at the CoM and aligned with the inertial frame (i.e. the world frame).
     ///
     Force hg;
     
