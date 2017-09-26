@@ -252,6 +252,7 @@ namespace se3
     ,parents_fromRow((std::size_t)model.nv)
     ,nvSubtree_fromRow((std::size_t)model.nv)
     ,J(6,model.nv)
+    ,dJ(6,model.nv)
     ,iMf((std::size_t)model.njoints)
     ,com((std::size_t)model.njoints)
     ,vcom((std::size_t)model.njoints)
