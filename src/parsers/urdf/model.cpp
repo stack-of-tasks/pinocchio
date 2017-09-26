@@ -104,7 +104,19 @@ namespace se3
                              joint_name,
                              max_effort,max_velocity,min_config,max_config
                              );
-        FrameIndex jointFrameId = (FrameIndex) model.addJointFrame(idx, (int)parentFrameId); // C-style cast to remove polluting compilation warning. This is Bad practice. See issue #323 (rework indexes)
+        int res (model.addJointFrame(idx, (int)parentFrameId));
+        if (res == -1) {
+          std::ostringstream oss;
+          oss << joint_name << " already inserted as a frame. Current frames "
+            "are [";
+          for (container::aligned_vector<Frame>::const_iterator it =
+                 model.frames.begin (); it != model.frames.end (); ++it) {
+            oss << "\"" << it->name << "\",";
+          }
+          oss << "]";
+          throw std::runtime_error (oss.str ().c_str ());
+        }
+        FrameIndex jointFrameId = (FrameIndex) res; // C-style cast to remove polluting compilation warning. This is Bad practice. See issue #323 (rework indexes)
         appendBodyToJoint(model, jointFrameId, Y, SE3::Identity(), body_name);
       }
       
