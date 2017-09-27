@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -65,6 +65,7 @@ namespace se3
     Derived_t operator-(const Derived_t & v2) const { return derived().__minus__(v2); }
     Derived_t & operator+=(const Derived_t & v2) { return derived().__pequ__(v2); }
     Derived_t & operator-=(const Derived_t & v2) { return derived().__mequ__(v2); }
+    Derived_t operator*(const Scalar alpha) const { return derived().__mult__(alpha); }
 
     bool isApprox (const Derived_t & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return derived().isApprox_impl(other, prec);}
@@ -206,6 +207,7 @@ namespace se3
     MotionTpl __minus__(const MotionTpl & v2) const { return MotionTpl(data - v2.data); }
     MotionTpl& __pequ__(const MotionTpl & v2) { data += v2.data; return *this; }
     MotionTpl& __mequ__(const MotionTpl & v2) { data -= v2.data; return *this; }
+    MotionTpl __mult__(const Scalar alpha) const { return MotionTpl(alpha*data); }
     
     Scalar dot(const Force & f) const { return data.dot(f.toVector()); }
 
@@ -269,6 +271,10 @@ namespace se3
   MotionTpl<S,O> operator^( const MotionTpl<S,O> &m1, const MotionTpl<S,O> &m2 ) { return m1.cross(m2); }
   template<typename S,int O>
   ForceTpl<S,O> operator^( const MotionTpl<S,O> &m, const ForceTpl<S,O> &f ) { return m.cross(f); }
+  
+  template<typename S,int O>
+  MotionTpl<S,O> operator*(const S alpha, const MotionTpl<S,O> & m )
+  { return m*alpha; }
 
 
   ///////////////   BiasZero  ///////////////

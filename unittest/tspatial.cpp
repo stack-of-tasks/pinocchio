@@ -112,6 +112,10 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   // Test .=V6
   bv3 = bv2_vec;
   BOOST_CHECK( bv3.toVector().isApprox(bv2_vec, 1e-12));
+  
+  // Test scalar*M6
+  Motion twicebv(2.*bv);
+  BOOST_CHECK(twicebv.isApprox(Motion(2.*bv.toVector())));
 
   // Test constructor from V6
   Motion bv4(bv2_vec);
