@@ -74,6 +74,9 @@ namespace se3
         .def("se3ActionInverse",&Motion::se3ActionInverse,
              bp::args("M"),"Returns the result of the action of the inverse of M on *this.")
         
+        .add_property("action",&Motion::toActionMatrix,"Returns the action matrix of *this (acting on Motion).")
+        .add_property("dualAction",&Motion::toDualActionMatrix,"Returns the dual action matrix of *this (acting on Force).")
+        
         .def("setZero",&MotionPythonVisitor::setZero,
              "Set the linear and angular components of *this to zero.")
         .def("setRandom",&MotionPythonVisitor::setRandom,
