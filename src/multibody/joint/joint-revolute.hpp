@@ -198,6 +198,18 @@ namespace se3
       S << Eigen::Vector3d::Zero(), revolute::CartesianVector3<axis>(1).vector();
       return ConstraintXd(S);
     }
+    
+    DenseBase variation(const Motion & m) const
+    {
+      const typename Motion::ConstLinear_t v = m.linear();
+      const typename Motion::ConstAngular_t w = m.angular();
+      
+      const Vector3 a(revolute::CartesianVector3<axis>(1).vector());
+      DenseBase res;
+      res << v.cross(a), w.cross(a);
+      
+      return res;
+    }
   }; // struct ConstraintRevolute
 
   template<int axis> 

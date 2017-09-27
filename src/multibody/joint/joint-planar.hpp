@@ -189,6 +189,20 @@ namespace se3
       return X_subspace;
     }
 
+    DenseBase variation(const Motion & m) const
+    {
+      const Motion::ConstLinear_t v = m.linear();
+      const Motion::ConstAngular_t w = m.angular();
+      DenseBase res(DenseBase::Zero());
+      
+      res(0,1) = -w[2]; res(0,2) = v[1];
+      res(1,0) = w[2]; res(1,2) = -v[0];
+      res(2,0) = -w[1]; res(2,1) = w[0];
+      res(3,2) = w[1];
+      res(4,2) = -w[0];
+      
+      return res;
+    }
   }; // struct ConstraintPlanar
 
   template<typename D>

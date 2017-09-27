@@ -23,8 +23,8 @@
 
 using namespace se3;
 
-template <typename T>
-void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
+template <typename JointModel>
+void test_joint_methods (JointModel & jmodel, typename JointModel::JointDataDerived & jdata)
 {
     std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
     Eigen::VectorXd q1(Eigen::VectorXd::Random (jmodel.nq()));
@@ -75,6 +75,18 @@ void test_joint_methods (T & jmodel, typename T::JointDataDerived & jdata)
     BOOST_CHECK_MESSAGE((jda.U()).isApprox(jdata.U),std::string(error_prefix + " - Joint U inertia matrix decomposition "));
     BOOST_CHECK_MESSAGE((jda.Dinv()).isApprox(jdata.Dinv),std::string(error_prefix + " - Joint DInv inertia matrix decomposition "));
     BOOST_CHECK_MESSAGE((jda.UDinv()).isApprox(jdata.UDinv),std::string(error_prefix + " - Joint UDInv inertia matrix decomposition "));
+  
+  // Test vxS
+  typedef typename JointModel::Constraint_t Constraint_t;
+  typedef typename Constraint_t::DenseBase ConstraintDense;
+  
+  Motion v(Motion::Random());
+  ConstraintDense vxS(jdata.S.variation(v));
+  ConstraintDense vxS_ref = v.toActionMatrix() * ConstraintXd(jdata.S).matrix();
+  
+  BOOST_CHECK_MESSAGE(vxS.isApprox(vxS_ref),std::string(error_prefix + "- Joint vxS operation "));
+  
+  
 }
 
 struct TestJoint{

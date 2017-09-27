@@ -192,6 +192,17 @@ namespace se3
       	return ConstraintXd(S);
       }
       
+      DenseBase variation(const Motion & m) const
+      {
+        const Motion::ConstLinear_t v = m.linear();
+        const Motion::ConstAngular_t w = m.angular();
+        
+        DenseBase res;
+        res << v.cross(axis), w.cross(axis);
+        
+        return res;
+      }
+      
     }; // struct ConstraintRevoluteUnaligned
 
 

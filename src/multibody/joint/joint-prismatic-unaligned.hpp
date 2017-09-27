@@ -191,6 +191,14 @@ namespace se3
       	return ConstraintXd(S);
       }
       
+      DenseBase variation(const Motion & m) const
+      {
+        DenseBase res;
+        res << m.angular().cross(axis), Vector3::Zero();
+        
+        return res;
+      }
+      
     }; // struct ConstraintPrismaticUnaligned
 
 

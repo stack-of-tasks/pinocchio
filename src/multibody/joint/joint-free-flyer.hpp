@@ -84,6 +84,8 @@ namespace se3
       
       TransposeConst transpose() const { return TransposeConst(); }
       operator ConstraintXd () const { return ConstraintXd(SE3::Matrix6::Identity()); }
+      
+      DenseBase variation(const Motion & m) const { return m.toActionMatrix(); }
     }; // struct ConstraintIdentity
 
     template<typename D>

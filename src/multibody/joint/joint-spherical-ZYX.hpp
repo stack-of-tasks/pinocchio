@@ -97,6 +97,7 @@ namespace se3
       typedef Eigen::Matrix <_Scalar,3,3,_Options> Matrix3;
       typedef Eigen::Matrix <_Scalar,3,1,_Options> Vector3;
       typedef Eigen::Matrix <_Scalar,6,3,_Options> ConstraintDense;
+      typedef Eigen::Matrix <_Scalar,6,3,_Options> DenseBase;
 
       Matrix3 S_minimal;
 
@@ -186,6 +187,18 @@ namespace se3
           m.translation ().cross(result.template block <3,3> (Motion::ANGULAR, 0).col(k));
                                  
         return result;
+      }
+      
+      DenseBase variation(const Motion & m) const
+      {
+        const typename Motion::ConstLinear_t v = m.linear();
+        const typename Motion::ConstAngular_t w = m.angular();
+        
+        DenseBase res;
+        res.template middleRows<3>(Motion::LINEAR) = cross(v,S_minimal);
+        res.template middleRows<3>(Motion::ANGULAR) = cross(w,S_minimal);
+        
+        return res;
       }
 
     }; // struct ConstraintRotationalSubspace

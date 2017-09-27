@@ -196,6 +196,14 @@ namespace se3
       S << prismatic::CartesianVector3<axis>(1).vector(), Eigen::Vector3d::Zero();
       return ConstraintXd(S);
     }
+    
+    DenseBase variation(const Motion & m) const
+    {
+      DenseBase res;
+      res << m.angular().cross(prismatic::CartesianVector3<axis>(1).vector()), Vector3::Zero();
+      
+      return res;
+    }
 
   }; // struct ConstraintPrismatic
 
