@@ -119,6 +119,8 @@ namespace se3
     SPATIAL_TYPEDEF_TEMPLATE(InertiaTpl);
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
+    typedef typename Symmetric3::AlphaSkewSquare AlphaSkewSquare;
+    
   public:
     // Constructors
     InertiaTpl() : m(), c(), I() {}
@@ -230,12 +232,12 @@ namespace se3
     Matrix6 matrix_impl() const
     {
       Matrix6 M;
-      const Matrix3 & c_cross = (skew(c));
+      
       M.template block<3,3>(LINEAR, LINEAR ).setZero ();
       M.template block<3,3>(LINEAR, LINEAR ).diagonal ().fill (m);
-      M.template block<3,3>(ANGULAR,LINEAR ) = m * c_cross;
+      M.template block<3,3>(ANGULAR,LINEAR ) = alphaSkew(m,c);
       M.template block<3,3>(LINEAR, ANGULAR) = -M.template block<3,3> (ANGULAR, LINEAR);
-      M.template block<3,3>(ANGULAR,ANGULAR) = I - M.template block<3,3>(ANGULAR, LINEAR) * c_cross;
+      M.template block<3,3>(ANGULAR,ANGULAR) = (typename Symmetric3::Matrix3)(I - AlphaSkewSquare(m,c));
 
       return M;
     }
