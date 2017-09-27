@@ -179,25 +179,25 @@ namespace se3
       forceSet::se3Action(data.oMi[i],jdata.U(),jF);
     }
     
-    static void algo(const se3::JointModelBase<JointModelComposite> & jmodel,
-                     se3::JointDataBase<JointDataComposite> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data)
-    {
-      typedef SizeDepType<JointModel::NV>::ColsReturn<Data::Matrix6x>::Type ColsBlock;
-      
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
-      const Model::Index & parent = model.parents[i];
-      
-      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
-      
-      jdata.U() = data.Ycrb[i] * jdata.S();
-      
-      ColsBlock jF
-        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
-
-      forceSet::se3Action(data.oMi[i],jdata.U(),jF);
-    }
+//    static void algo(const se3::JointModelBase<JointModelComposite> & jmodel,
+//                     se3::JointDataBase<JointDataComposite> & jdata,
+//                     const se3::Model & model,
+//                     se3::Data & data)
+//    {
+//      typedef SizeDepType<JointModel::NV>::ColsReturn<Data::Matrix6x>::Type ColsBlock;
+//      
+//      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+//      const Model::Index & parent = model.parents[i];
+//      
+//      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+//      
+//      jdata.U() = data.Ycrb[i] * jdata.S();
+//      
+//      ColsBlock jF
+//        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
+//
+//      forceSet::se3Action(data.oMi[i],jdata.U(),jF);
+//    }
 
   }; // struct CcrbaBackwardStep
   
@@ -234,6 +234,174 @@ namespace se3
     data.Ig.inertia() = data.Ycrb[0].inertia();
     
     return data.Ag;
+  }
+  
+  struct DCcrbaForwardStep : public fusion::JointVisitor<DCcrbaForwardStep>
+  {
+    typedef boost::fusion::vector< const se3::Model &,
+    se3::Data &,
+    const Eigen::VectorXd &,
+    const Eigen::VectorXd &
+    > ArgsType;
+    
+    JOINT_VISITOR_INIT(DCcrbaForwardStep);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Eigen::VectorXd & q,
+                     const Eigen::VectorXd & v)
+    {
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      const Model::Index & parent = model.parents[i];
+      
+      jmodel.calc(jdata.derived(),q,v);
+      
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      data.Ycrb[i] = model.inertias[i];
+      
+      data.v[i] = jdata.v();
+      
+      if (parent>0)
+      {
+        data.oMi[i] = data.oMi[parent]*data.liMi[i];
+        data.v[i] += data.liMi[i].actInv(data.v[parent]);
+      }
+      else data.oMi[i] = data.liMi[i];
+    }
+    
+  }; // struct DCcrbaForwardStep
+  
+  struct DCcrbaBackwardStep : public fusion::JointVisitor<DCcrbaBackwardStep>
+  {
+    typedef boost::fusion::vector< const se3::Model &,
+    se3::Data &
+    > ArgsType;
+    
+    JOINT_VISITOR_INIT(DCcrbaBackwardStep);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data)
+    {
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename JointModel::JointDataDerived JointData;
+      typedef typename JointModel::Constraint_t Constraint_t;
+      
+      
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      const Model::Index & parent = model.parents[i];
+      const Motion & v = data.v[i];
+      const Inertia & Y = data.Ycrb[i];
+      const Inertia::Matrix6 & dY = data.dYcrb[i];
+      
+      data.Ycrb[parent] += data.liMi[i].act(Y);
+      data.dYcrb[parent] += SE3actOn(data.liMi[i],dY);
+      
+      // Calc Ag
+      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
+      jdata.U() = Y * jdata.S();
+      forceSet::se3Action(data.oMi[i],jdata.U(),Ag_cols);
+      
+      // Calc dAg = oXi* dU
+      typename JointData::U_t dU(dY * jdata.S()); // TODO: add dU inside jdata.
+      typename Constraint_t::DenseBase dS = jdata.S().variation(v);
+      dU.noalias() += Y.matrix()*dS;
+      
+      ColsBlock dAg_cols = jmodel.jointCols(data.dAg);
+      forceSet::se3Action(data.oMi[i],dU,dAg_cols);
+      
+    }
+    
+    inline static Inertia::Matrix6 SE3actOn(const SE3 & M, const Inertia::Matrix6 & I)
+    {
+      typedef Inertia::Matrix6 Matrix6;
+      typedef SE3::Matrix3 Matrix3;
+      typedef SE3::Vector3 Vector3;
+      typedef Eigen::Block<const Matrix6,3,3> constBlock3;
+      typedef Eigen::Block<Matrix6,3,3> Block3;
+      
+      const constBlock3 & Ai = I.block<3,3> (Inertia::LINEAR, Inertia::LINEAR);
+      const constBlock3 & Bi = I.block<3,3> (Inertia::LINEAR, Inertia::ANGULAR);
+      const constBlock3 & Di = I.block<3,3> (Inertia::ANGULAR, Inertia::ANGULAR);
+      
+      const Matrix3 & R = M.rotation();
+      const Vector3 & t = M.translation();
+      
+      Matrix6 res;
+      Block3 Ao = res.block<3,3> (Inertia::LINEAR, Inertia::LINEAR);
+      Block3 Bo = res.block<3,3> (Inertia::LINEAR, Inertia::ANGULAR);
+      Block3 Co = res.block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
+      Block3 Do = res.block<3,3> (Inertia::ANGULAR, Inertia::ANGULAR);
+      
+      Ao = R*Ai*R.transpose();
+      Bo = R*Bi*R.transpose();
+      Do.row(0) = t.cross(Bo.col(0));
+      Do.row(1) = t.cross(Bo.col(1));
+      Do.row(2) = t.cross(Bo.col(2));
+      
+      Co.col(0) = t.cross(Ao.col(0));
+      Co.col(1) = t.cross(Ao.col(1));
+      Co.col(2) = t.cross(Ao.col(2));
+      Co += Bo.transpose();
+      
+      Bo = Co.transpose();
+      Do.col(0) += t.cross(Bo.col(0));
+      Do.col(1) += t.cross(Bo.col(1));
+      Do.col(2) += t.cross(Bo.col(2));
+      Do += R*Di*R.transpose();
+      return res;
+    }
+    
+  }; // struct DCcrbaBackwardStep
+  
+  inline const Data::Matrix6x &
+  dccrba(const Model & model, Data & data,
+         const Eigen::VectorXd & q,
+         const Eigen::VectorXd & v)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    typedef Eigen::Block <Data::Matrix6x,3,-1> Block3x;
+    
+    forwardKinematics(model,data,q,v);
+    data.Ycrb[0].setZero();
+    for(Model::Index i=1;i<(Model::Index)(model.njoints);++i)
+    {
+      data.Ycrb[i] = model.inertias[i];
+      data.dYcrb[i] = model.inertias[i].variation(data.v[i]); // (vx* I - Ivx)
+    }
+    
+    for(Model::Index i=(Model::Index)(model.njoints-1);i>0;--i)
+    {
+      DCcrbaBackwardStep::run(model.joints[i],data.joints[i],
+                              DCcrbaBackwardStep::ArgsType(model,data));
+    }
+    data.com[0] = data.Ycrb[0].lever();
+    
+    const Block3x Ag_lin = data.Ag.middleRows<3> (Force::LINEAR);
+    Block3x Ag_ang = data.Ag.middleRows<3>  (Force::ANGULAR);
+    for (long i = 0; i<model.nv; ++i)
+      Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
+    
+    data.hg = data.Ag*v;
+    data.vcom[0] = data.hg.linear()/data.Ycrb[0].mass();
+    
+    const Block3x dAg_lin = data.dAg.middleRows<3>(Force::LINEAR);
+    Block3x dAg_ang = data.dAg.middleRows<3>(Force::ANGULAR);
+    for (long i = 0; i<model.nv; ++i)
+    {
+      dAg_ang.col(i) += dAg_lin.col(i).cross(data.com[0]);// + Ag_lin.col(i).cross(data.vcom[0]);
+    }
+    
+    data.Ig.mass() = data.Ycrb[0].mass();
+    data.Ig.lever().setZero();
+    data.Ig.inertia() = data.Ycrb[0].inertia();
+    
+    return data.dAg;
   }
 
   // --- CHECKER ---------------------------------------------------------------

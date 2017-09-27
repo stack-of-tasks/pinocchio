@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -127,6 +127,56 @@ BOOST_AUTO_TEST_CASE (test_ccrb)
   se3::Data::Matrix6x Ag_ref (cM1.inverse().toActionMatrix().transpose() * data_ref.M.topRows <6> ());
   BOOST_CHECK(data.Ag.isApprox(Ag_ref,1e-12));
 }
+  
+  BOOST_AUTO_TEST_CASE (test_dccrb)
+  {
+    using namespace se3;
+    Model model;
+    buildModels::humanoidSimple(model);
+    Data data(model), data_ref(model);
+    
+    Eigen::VectorXd q = Eigen::VectorXd::Ones(model.nq);
+    q.segment <4> (3).normalize();
+    Eigen::VectorXd v = Eigen::VectorXd::Ones(model.nv);
+    Eigen::VectorXd a = Eigen::VectorXd::Ones(model.nv);
+    
+    const Eigen::VectorXd g = rnea(model,data_ref,q,0*v,0*a);
+    rnea(model,data_ref,q,v,a);
+    
+    crba(model,data_ref,q);
+    data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+    
+    SE3::Vector3 com = data_ref.Ycrb[1].lever();
+    SE3 cMo(SE3::Identity());
+    cMo.translation() = -getComFromCrba(model, data_ref);
+    
+    
+    SE3 oM1 (data_ref.liMi[1]);
+    SE3 cM1 (cMo * oM1);
+    Data::Matrix6x Ag_ref (cM1.toDualActionMatrix() * data_ref.M.topRows <6> ());
+
+    Force hdot_ref(cM1.act(Force(data_ref.tau.head<6>() - g.head<6>())));
+    
+    ccrba(model,data_ref,q,v);
+    dccrba(model,data,q,0*v);
+    BOOST_CHECK(data.Ag.isApprox(Ag_ref));
+    BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
+    BOOST_CHECK(data.dAg.isZero());
+    
+    
+    centerOfMass(model,data_ref,q,v,a);
+    BOOST_CHECK(data_ref.vcom[0].isApprox(data_ref.hg.linear()/data_ref.M(0,0)));
+    BOOST_CHECK(data_ref.acom[0].isApprox(hdot_ref.linear()/data_ref.M(0,0)));
+    dccrba(model,data,q,v);
+    
+    Force::Vector6 test1(data.Ag * a);
+    Force::Vector6 test2(data.dAg * v);
+    
+    
+    Force hdot(data.Ag * a + data.dAg * v);
+    BOOST_CHECK(hdot.isApprox(hdot_ref));
+    
+  }
 
 BOOST_AUTO_TEST_SUITE_END ()
 
