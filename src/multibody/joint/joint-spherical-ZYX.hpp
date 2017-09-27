@@ -259,6 +259,13 @@ namespace se3
   {
     return Y.template block<6,3> (0,Inertia::ANGULAR,0,3) * S.S_minimal;
   }
+  
+  inline Eigen::Matrix<double,6,3>
+  operator*(const Inertia::Matrix6 & Y,
+            const JointSphericalZYX::ConstraintRotationalSubspace & S)
+  {
+    return Y.block<6,3> (0,Inertia::ANGULAR,0,3) * S.S_minimal;
+  }
 
   namespace internal
   {
