@@ -55,6 +55,7 @@ namespace se3
     operator Vector6 () const { return toVector(); }
 
     ActionMatrix_t toActionMatrix() const { return derived().toActionMatrix_impl(); }
+    ActionMatrix_t toDualActionMatrix() const { return derived().toDualActionMatrix_impl(); }
     operator Matrix6 () const { return toActionMatrix(); }
 
     bool operator==(const Derived_t & other) const {return derived().isEqual(other);}
@@ -158,6 +159,16 @@ namespace se3
       X.template block <3,3> (LINEAR, ANGULAR) = skew (linear_impl());
       X.template block <3,3> (ANGULAR, LINEAR).setZero ();
 
+      return X;
+    }
+    
+    ActionMatrix_t toDualActionMatrix_impl () const
+    {
+      ActionMatrix_t X;
+      X.template block <3,3> (ANGULAR, ANGULAR) = X.template block <3,3> (LINEAR, LINEAR) = skew (angular_impl());
+      X.template block <3,3> (ANGULAR, LINEAR) = skew (linear_impl());
+      X.template block <3,3> (LINEAR, ANGULAR).setZero ();
+      
       return X;
     }
 

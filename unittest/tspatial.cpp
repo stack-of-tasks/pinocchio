@@ -134,8 +134,21 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   Motion vxv = bv.cross(bv);
   BOOST_CHECK_SMALL(vxv.toVector().tail(3).norm(), 1e-3); //previously ensure that (vxv.toVector().tail(3).isMuchSmallerThan(1e-3));
 
+  // Test Action Matrix
+  Motion v2xv = bv2.cross(bv);
+  Motion::ActionMatrix_t actv2 = bv2.toActionMatrix();
+  
+  BOOST_CHECK(v2xv.toVector().isApprox(actv2*bv.toVector()));
+  
+  // Test Dual Action Matrix
+  Force f(bv.toVector());
+  Force v2xf = bv2.cross(f);
+  Motion::ActionMatrix_t dualactv2 = bv2.toDualActionMatrix();
+  
+  BOOST_CHECK(v2xf.toVector().isApprox(dualactv2*f.toVector()));
+  BOOST_CHECK(dualactv2.isApprox(-actv2.transpose()));
+  
   // Simple test for cross product vxf
-  Force f = Force(bv.toVector());
   Force vxf = bv.cross(f);
   BOOST_CHECK(vxf.linear().isApprox(bv.angular().cross(f.linear()), 1e-12));
   BOOST_CHECK_SMALL(vxf.angular().norm(), 1e-3);//previously ensure that ( vxf.angular().isMuchSmallerThan(1e-3));
