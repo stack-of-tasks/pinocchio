@@ -87,7 +87,7 @@ namespace se3
   /// \return The square cross product C matrix.
   ///
   template <typename D1, typename D2>
-  inline Eigen::Matrix<typename D1::Scalar,3,3,D1::Options>
+  inline Eigen::Matrix<typename D1::Scalar,3,3,Eigen::internal::plain_matrix_type<D1>::type::Options>
   skewSquare(const Eigen::MatrixBase<D1> & u, const Eigen::MatrixBase<D2> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D1,3);
@@ -96,20 +96,20 @@ namespace se3
     typedef Eigen::DiagonalMatrix<typename D1::Scalar,3> DiagonalMatrix;
     
     const typename D1::Scalar udotv(u.dot(v));
-    Eigen::Matrix<typename D1::Scalar,3,3,D1::Options> res(v*u.transpose());
+    Eigen::Matrix<typename D1::Scalar,3,3,Eigen::internal::plain_matrix_type<D1>::type::Options> res(v*u.transpose());
     res -= DiagonalMatrix(udotv,udotv,udotv);
     
     return res;
   }
 
   template <typename V,typename M>
-  inline Eigen::Matrix<typename M::Scalar,3,M::ColsAtCompileTime,M::Options>
+  inline Eigen::Matrix<typename M::Scalar,3,M::ColsAtCompileTime,Eigen::internal::plain_matrix_type<M>::type::Options>
   cross(const Eigen::MatrixBase<V> & v,
 	const Eigen::MatrixBase<M> & m)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V,3);
 
-    Eigen::Matrix<typename M::Scalar,3,M::ColsAtCompileTime,M::Options> res (3,m.cols());
+    Eigen::Matrix<typename M::Scalar,3,M::ColsAtCompileTime,Eigen::internal::plain_matrix_type<M>::type::Options> res (3,m.cols());
     res.row(0) = v[1]*m.row(2) - v[2]*m.row(1);
     res.row(1) = v[2]*m.row(0) - v[0]*m.row(2);
     res.row(2) = v[0]*m.row(1) - v[1]*m.row(0);
