@@ -341,6 +341,19 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   Inertia aI_approx(aI);
   aI_approx.mass() += eps;
   BOOST_CHECK(aI_approx.isApprox(aI,eps));
+  
+  // Test Variation
+  Inertia::Matrix6 aIvariation = aI.variation(v);
+  
+  Motion::ActionMatrix_t vAction = v.toActionMatrix();
+  Motion::ActionMatrix_t vDualAction = v.toDualActionMatrix();
+  
+  Inertia::Matrix6 aImatrix = aI.matrix();
+  Inertia::Matrix6 aIvariation_ref = vDualAction * aImatrix - aImatrix * vAction;
+  
+  BOOST_CHECK(aIvariation.isApprox(aIvariation_ref));
+  BOOST_CHECK(vxIv.isApprox(Force(aIvariation*v.toVector())));
+  
 }
 
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )
