@@ -51,6 +51,15 @@ namespace se3
       assert (Size == Eigen::Dynamic || size_ == Size);
     }
 
+    /// Constructor
+    /// \param size size of the vector space: should be the equal to template
+    ///        argument for static sized vector-spaces.
+    VectorSpaceOperation (const LieGroupDerived& other) : size_ (other.size_)
+    {
+      assert (size_ >= 0);
+      assert (Size == Eigen::Dynamic || size_ == Size);
+    }
+
     Index nq () const
     {
       return size_;
