@@ -75,6 +75,11 @@ namespace se3
       return NV;
     }
 
+    std::string name () const
+    {
+      return std::string ("SE(2)");
+    }
+
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     static void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
@@ -220,6 +225,11 @@ namespace se3
     Index nv () const
     {
       return NV;
+    }
+
+    std::string name () const
+    {
+      return std::string ("SE(3)");
     }
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>

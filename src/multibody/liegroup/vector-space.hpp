@@ -69,6 +69,12 @@ namespace se3
       return size_;
     }
 
+    std::string name () const
+    {
+      std::ostringstream oss; oss << "R^" << size_;
+      return oss.str ();
+    }
+
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     static void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                 const Eigen::MatrixBase<ConfigR_t> & q1,

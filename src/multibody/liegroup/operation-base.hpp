@@ -244,6 +244,9 @@ namespace se3
     /// Get dimension of Lie Group tangent space
     Index nv () const;
 
+    /// Get name of instance
+    std::string name () const;
+
     Derived& derived ()
     {
       return static_cast <Derived&> (*this);

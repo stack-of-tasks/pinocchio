@@ -242,6 +242,13 @@ namespace se3 {
   {
     return Derived::nv ();
   }
+
+  template <class Derived>
+  std::string LieGroupOperationBase <Derived>::name () const
+  {
+    return Derived::name ();
+  }
+
 } // namespace se3
 
 #endif // __se3_lie_group_operation_base_hxx__
