@@ -41,18 +41,36 @@ namespace se3
     typedef CartesianProductOperation<LieGroup1, LieGroup2>  LieGroupDerived;
     SE3_LIE_GROUP_TYPEDEF_TEMPLATE;
 
+    CartesianProductOperation () : lg1_ (), lg2_ ()
+    {
+    }
     /// Get dimension of Lie Group vector representation
     ///
     /// For instance, for SO(3), the dimension of the vector representation is
     /// 4 (quaternion) while the dimension of the tangent space is 3.
     Index nq () const
     {
-      return NQ;
+      return lg1_.nq () + lg2_.nq ();
     }
     /// Get dimension of Lie Group tangent space
     Index nv () const
     {
-      return NV;
+      return lg1_.nv () + lg2_.nv ();
+    }
+
+    ConfigVector_t neutral () const
+    {
+      ConfigVector_t n;
+      n.resize (nq ());
+      n.head (lg1_.nq ()) = lg1_.neutral ();
+      n.tail (lg2_.nq ()) = lg2_.neutral ();
+      return n;
+    }
+
+    std::string name () const
+    {
+      std::ostringstream oss; oss << lg1_.name () << "*" << lg2_.name ();
+      return oss.str ();
     }
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
@@ -114,6 +132,9 @@ namespace se3
       return LieGroup1::isSameConfiguration(q0.template head<LieGroup1::NQ>(), q1.template head<LieGroup1::NQ>(), prec)
         +    LieGroup2::isSameConfiguration(q0.template tail<LieGroup2::NQ>(), q1.template tail<LieGroup2::NQ>(), prec);
     }
+  private:
+    LieGroup1 lg1_;
+    LieGroup2 lg2_;
   }; // struct CartesianProductOperation
 
 } // namespace se3

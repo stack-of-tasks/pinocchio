@@ -69,6 +69,17 @@ namespace se3
       return NV;
     }
 
+    ConfigVector_t neutral () const
+    {
+      ConfigVector_t n; n.setZero (); n [0] = 1;
+      return n;
+    }
+
+    std::string name () const
+    {
+      return std::string ("SO(2)");
+    }
+
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     static void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
@@ -174,6 +185,17 @@ namespace se3
     Index nv () const
     {
       return NV;
+    }
+
+    ConfigVector_t neutral () const
+    {
+      ConfigVector_t n; n.setZero (); n [3] = 1;
+      return n;
+    }
+
+    std::string name () const
+    {
+      return std::string ("SO(3)");
     }
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>

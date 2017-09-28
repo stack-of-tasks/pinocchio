@@ -243,6 +243,11 @@ namespace se3
     Index nq () const;
     /// Get dimension of Lie Group tangent space
     Index nv () const;
+    /// Get neutral element as a vector
+    ConfigVector_t neutral () const;
+
+    /// Get name of instance
+    std::string name () const;
 
     Derived& derived ()
     {
