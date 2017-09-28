@@ -69,6 +69,15 @@ namespace se3
       return size_;
     }
 
+    ConfigVector_t neutral () const
+    {
+      ConfigVector_t n;
+      if (Size == Eigen::Dynamic)
+        n.resize (size_);
+      n.setZero ();
+      return n;
+    }
+
     std::string name () const
     {
       std::ostringstream oss; oss << "R^" << size_;

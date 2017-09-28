@@ -75,6 +75,12 @@ namespace se3
       return NV;
     }
 
+    ConfigVector_t neutral () const
+    {
+      ConfigVector_t n; n.setZero (); n [2] = 1;
+      return n;
+    }
+
     std::string name () const
     {
       return std::string ("SE(2)");
@@ -226,6 +232,12 @@ namespace se3
     Index nv () const
     {
       return NV;
+    }
+
+    ConfigVector_t neutral () const
+    {
+      ConfigVector_t n; n.setZero (); n [6] = 1;
+      return n;
     }
 
     std::string name () const

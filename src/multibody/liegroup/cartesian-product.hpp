@@ -50,12 +50,21 @@ namespace se3
     /// 4 (quaternion) while the dimension of the tangent space is 3.
     Index nq () const
     {
-      return NQ;
+      return lg1_.nq () + lg2_.nq ();
     }
     /// Get dimension of Lie Group tangent space
     Index nv () const
     {
-      return NV;
+      return lg1_.nv () + lg2_.nv ();
+    }
+
+    ConfigVector_t neutral () const
+    {
+      ConfigVector_t n;
+      n.resize (nq ());
+      n.head (lg1_.nq ()) = lg1_.neutral ();
+      n.tail (lg2_.nq ()) = lg2_.neutral ();
+      return n;
     }
 
     std::string name () const

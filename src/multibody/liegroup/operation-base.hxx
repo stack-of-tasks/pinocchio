@@ -244,6 +244,13 @@ namespace se3 {
   }
 
   template <class Derived>
+  typename LieGroupOperationBase <Derived>::ConfigVector_t
+  LieGroupOperationBase <Derived>::neutral () const
+  {
+    return Derived::neutral ();
+  }
+
+  template <class Derived>
   std::string LieGroupOperationBase <Derived>::name () const
   {
     return Derived::name ();
