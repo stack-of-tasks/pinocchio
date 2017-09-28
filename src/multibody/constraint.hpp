@@ -189,6 +189,13 @@ namespace se3
     {
       return (m.inverse().toActionMatrix()*S).eval();
     }
+    
+    DenseBase variation(const Motion & v) const
+    {
+      DenseBase res(v.toActionMatrix() * S);
+      
+      return res;
+    }
 
     void disp_impl(std::ostream & os) const { os << "S =\n" << S << std::endl;}
     

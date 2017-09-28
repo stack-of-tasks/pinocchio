@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -112,6 +112,10 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   // Test .=V6
   bv3 = bv2_vec;
   BOOST_CHECK( bv3.toVector().isApprox(bv2_vec, 1e-12));
+  
+  // Test scalar*M6
+  Motion twicebv(2.*bv);
+  BOOST_CHECK(twicebv.isApprox(Motion(2.*bv.toVector())));
 
   // Test constructor from V6
   Motion bv4(bv2_vec);
@@ -134,8 +138,21 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   Motion vxv = bv.cross(bv);
   BOOST_CHECK_SMALL(vxv.toVector().tail(3).norm(), 1e-3); //previously ensure that (vxv.toVector().tail(3).isMuchSmallerThan(1e-3));
 
+  // Test Action Matrix
+  Motion v2xv = bv2.cross(bv);
+  Motion::ActionMatrix_t actv2 = bv2.toActionMatrix();
+  
+  BOOST_CHECK(v2xv.toVector().isApprox(actv2*bv.toVector()));
+  
+  // Test Dual Action Matrix
+  Force f(bv.toVector());
+  Force v2xf = bv2.cross(f);
+  Motion::ActionMatrix_t dualactv2 = bv2.toDualActionMatrix();
+  
+  BOOST_CHECK(v2xf.toVector().isApprox(dualactv2*f.toVector()));
+  BOOST_CHECK(dualactv2.isApprox(-actv2.transpose()));
+  
   // Simple test for cross product vxf
-  Force f = Force(bv.toVector());
   Force vxf = bv.cross(f);
   BOOST_CHECK(vxf.linear().isApprox(bv.angular().cross(f.linear()), 1e-12));
   BOOST_CHECK_SMALL(vxf.angular().norm(), 1e-3);//previously ensure that ( vxf.angular().isMuchSmallerThan(1e-3));
@@ -324,6 +341,19 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   Inertia aI_approx(aI);
   aI_approx.mass() += eps;
   BOOST_CHECK(aI_approx.isApprox(aI,eps));
+  
+  // Test Variation
+  Inertia::Matrix6 aIvariation = aI.variation(v);
+  
+  Motion::ActionMatrix_t vAction = v.toActionMatrix();
+  Motion::ActionMatrix_t vDualAction = v.toDualActionMatrix();
+  
+  Inertia::Matrix6 aImatrix = aI.matrix();
+  Inertia::Matrix6 aIvariation_ref = vDualAction * aImatrix - aImatrix * vAction;
+  
+  BOOST_CHECK(aIvariation.isApprox(aIvariation_ref));
+  BOOST_CHECK(vxIv.isApprox(Force(aIvariation*v.toVector())));
+  
 }
 
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )
@@ -369,6 +399,22 @@ BOOST_AUTO_TEST_CASE(test_skew)
   
   BOOST_CHECK(res41.isApprox(res42));
   
+}
+
+BOOST_AUTO_TEST_CASE(test_skew_square)
+{
+  using namespace se3;
+  typedef SE3::Vector3 Vector3;
+  typedef SE3::Matrix3 Matrix3;
+  
+  Vector3 u(Vector3::Random());
+  Vector3 v(Vector3::Random());
+  
+  Matrix3 ref = skew(u) * skew(v);
+  
+  Matrix3 res = skewSquare(u,v);
+  
+  BOOST_CHECK(res.isApprox(ref));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

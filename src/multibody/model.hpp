@@ -402,6 +402,9 @@ namespace se3
     /// \brief Vector of sub-tree composite rigid body inertias, i.e. the apparent inertia of the subtree supported by the joint.
     container::aligned_vector<Inertia> Ycrb;
     
+    /// \brief Vector of sub-tree composite rigid body inertia time derivatives \f$ \dot{Y}_{crb}$\f. See Data::Ycrb for more details.
+    container::aligned_vector<Inertia::Matrix6> dYcrb; // TODO: change with dense symmetric matrix6
+    
     /// \brief The joint space inertia matrix (a square matrix of dim model.nv).
     Eigen::MatrixXd M;
     
@@ -410,18 +413,23 @@ namespace se3
     
     // ABA internal data
     /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA]
-    container::aligned_vector<Inertia::Matrix6> Yaba;
+    container::aligned_vector<Inertia::Matrix6> Yaba;  // TODO: change with dense symmetric matrix6
     
     /// \brief Intermediate quantity corresponding to apparent torque [ABA]
     Eigen::VectorXd u;                  // Joint Inertia
     
     // CCRBA return quantities
     /// \brief Centroidal Momentum Matrix
-    /// \note \f$ hg = Ag \dot{q}\f$ maps the joint velocity set to the centroidal momentum.
+    /// \note \f$ hg = A_g \dot{q}\f$ maps the joint velocity set to the centroidal momentum.
     Matrix6x Ag;
     
+    // dCCRBA return quantities
+    /// \brief Centroidal Momentum Matrix Time Variation
+    /// \note \f$ \dot{h_g} = A_g \ddot{q}\ + \dot{A_g}\dot{q}f$ maps the joint velocity and acceleration vectors to the time variation of the centroidal momentum.
+    Matrix6x dAg;
+    
     /// \brief Centroidal momentum quantity.
-    /// \note The centroidal momentum is expressed in the frame centered at the CoM and aligned with the inertial frame.
+    /// \note The centroidal momentum is expressed in the frame centered at the CoM and aligned with the inertial frame (i.e. the world frame).
     ///
     Force hg;
     

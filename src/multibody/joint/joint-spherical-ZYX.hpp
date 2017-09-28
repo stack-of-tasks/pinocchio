@@ -97,6 +97,7 @@ namespace se3
       typedef Eigen::Matrix <_Scalar,3,3,_Options> Matrix3;
       typedef Eigen::Matrix <_Scalar,3,1,_Options> Vector3;
       typedef Eigen::Matrix <_Scalar,6,3,_Options> ConstraintDense;
+      typedef Eigen::Matrix <_Scalar,6,3,_Options> DenseBase;
 
       Matrix3 S_minimal;
 
@@ -187,6 +188,18 @@ namespace se3
                                  
         return result;
       }
+      
+      DenseBase variation(const Motion & m) const
+      {
+        const typename Motion::ConstLinear_t v = m.linear();
+        const typename Motion::ConstAngular_t w = m.angular();
+        
+        DenseBase res;
+        res.template middleRows<3>(Motion::LINEAR) = cross(v,S_minimal);
+        res.template middleRows<3>(Motion::ANGULAR) = cross(w,S_minimal);
+        
+        return res;
+      }
 
     }; // struct ConstraintRotationalSubspace
 
@@ -245,6 +258,13 @@ namespace se3
             const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
   {
     return Y.template block<6,3> (0,Inertia::ANGULAR,0,3) * S.S_minimal;
+  }
+  
+  inline Eigen::Matrix<double,6,3>
+  operator*(const Inertia::Matrix6 & Y,
+            const JointSphericalZYX::ConstraintRotationalSubspace & S)
+  {
+    return Y.block<6,3> (0,Inertia::ANGULAR,0,3) * S.S_minimal;
   }
 
   namespace internal

@@ -88,6 +88,8 @@ namespace se3
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,Ag,
                                  "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,dAg,
+                                 "Time derivative of the centroidal momentum matrix Ag.")
         .ADD_DATA_PROPERTY_READONLY(Force,hg,
                                     "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the inertial frame).")
         .ADD_DATA_PROPERTY_READONLY(Inertia,Ig,
