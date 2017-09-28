@@ -201,6 +201,7 @@ namespace se3
     }
   }; // struct SpecialEuclideanOperation<2>
 
+  /// SE(3)
   template<>
   struct SpecialEuclideanOperation<3> : public LieGroupOperationBase <SpecialEuclideanOperation<3> >
   {
