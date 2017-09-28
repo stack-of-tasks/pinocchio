@@ -87,6 +87,10 @@ namespace urdf
 
 #undef URDF_TYPEDEF_CLASS_POINTER
 
-#endif
+#else // URDFDOM_TYPEDEF_SHARED_PTR
+
+#include <urdf_world/types.h>
+
+#endif // URDFDOM_TYPEDEF_SHARED_PTR
 
 #endif // ifndef __se3_parsers_urdf_types_hpp__

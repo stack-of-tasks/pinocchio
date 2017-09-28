@@ -344,6 +344,17 @@ namespace se3
                              const std::vector<std::string> & package_dirs)
       throw(std::invalid_argument)
     {
+      ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
+      return buildGeom (model, urdfTree, type, geomModel, package_dirs);
+    }
+
+    GeometryModel& buildGeom(const Model & model,
+                             const ::urdf::ModelInterfaceSharedPtr & urdfTree,
+                             const GeometryType type,
+                             GeometryModel & geomModel,
+                             const std::vector<std::string> & package_dirs)
+      throw(std::invalid_argument)
+    {
       std::vector<std::string> hint_directories(package_dirs);
 
       // Append the ROS_PACKAGE_PATH
@@ -355,7 +366,6 @@ namespace se3
         throw std::runtime_error("You did not specify any package directory and ROS_PACKAGE_PATH is empty. Geometric parsing will crash");
       }
 
-      ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
       details::parseTreeForGeom(urdfTree->getRoot(), model, geomModel, hint_directories,type);
       return geomModel;
     }

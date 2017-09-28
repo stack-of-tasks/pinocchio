@@ -587,8 +587,7 @@ namespace se3
 
       if (urdfTree)
 	{
-	  model.name = urdfTree->getName();
-	  ParseRootTreeVisitor::run(urdfTree->getRoot(),model,root_joint,verbose);
+          return buildModel (urdfTree, root_joint, model, verbose);
 	}
       else
       {
@@ -604,8 +603,7 @@ namespace se3
       ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile (filename);
       if (urdfTree)
 	{
-	  model.name = urdfTree->getName();
-	  details::parseRootTree(urdfTree->getRoot(),model,verbose);
+          return buildModel (urdfTree, model, verbose);
 	}
       else
       {
@@ -613,6 +611,27 @@ namespace se3
         throw std::invalid_argument(exception_message);
       }
       
+      return model;
+    }
+
+    Model& buildModel(const ::urdf::ModelInterfaceSharedPtr & urdfTree,
+                      const JointModelVariant & root_joint,
+                      Model & model,
+                      const bool verbose)
+    {
+      assert(urdfTree);
+      model.name = urdfTree->getName();
+      ParseRootTreeVisitor::run(urdfTree->getRoot(),model,root_joint,verbose);
+      return model;
+    }
+                
+    Model& buildModel(const ::urdf::ModelInterfaceSharedPtr & urdfTree,
+                      Model& model,
+                      const bool verbose)
+    {
+      assert(urdfTree);
+      model.name = urdfTree->getName();
+      details::parseRootTree(urdfTree->getRoot(),model,verbose);
       return model;
     }
 
