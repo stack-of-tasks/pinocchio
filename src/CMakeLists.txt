@@ -49,6 +49,7 @@ SET(${PROJECT_NAME}_MULTIBODY_SOURCES
 
 SET(${PROJECT_NAME}_PARSERS_SOURCES
   parsers/sample-models.cpp
+  parsers/srdf.cpp
   )
 
 IF(URDFDOM_FOUND)
