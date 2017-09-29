@@ -56,11 +56,14 @@ namespace se3
         .def_readonly("overrideMaterial", &GeometryObject::overrideMaterial, "Boolean that tells whether material information is stored in Geometry object")
         .def_readonly("meshTexturePath", &GeometryObject::meshTexturePath, "Absolute path to the mesh texture file")
 
+#ifdef WITH_HPP_FCL
           .def("CreateCapsule", &GeometryObjectPythonVisitor::maker_capsule)
           .staticmethod("CreateCapsule")
+#endif WITH_HPP_FCL
         ;
       }
 
+#ifdef WITH_HPP_FCL
       static GeometryObject maker_capsule( const double radius , const double length)
       {
         return GeometryObject("",FrameIndex(0),JointIndex(0),
@@ -68,6 +71,7 @@ namespace se3
                               SE3::Identity());
 
       }
+#endif WITH_HPP_FCL
 
       static void expose()
       {
