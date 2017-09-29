@@ -137,8 +137,8 @@ BOOST_AUTO_TEST_CASE (test_ccrb)
     
     Eigen::VectorXd q = Eigen::VectorXd::Ones(model.nq);
     q.segment <4> (3).normalize();
-    Eigen::VectorXd v = Eigen::VectorXd::Ones(model.nv);
-    Eigen::VectorXd a = Eigen::VectorXd::Ones(model.nv);
+    Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+    Eigen::VectorXd a = Eigen::VectorXd::Random(model.nv);
     
     const Eigen::VectorXd g = rnea(model,data_ref,q,0*v,0*a);
     rnea(model,data_ref,q,v,a);
