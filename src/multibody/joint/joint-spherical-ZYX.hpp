@@ -257,14 +257,14 @@ namespace se3
   operator*(const typename InertiaTpl<_Scalar,_Options>::Matrix6 & Y,
             const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
   {
-    return Y.template block<6,3> (0,Inertia::ANGULAR,0,3) * S.S_minimal;
+    return Y.template middleCols<3>(Inertia::ANGULAR) * S.S_minimal;
   }
   
   inline Eigen::Matrix<double,6,3>
   operator*(const Inertia::Matrix6 & Y,
             const JointSphericalZYX::ConstraintRotationalSubspace & S)
   {
-    return Y.block<6,3> (0,Inertia::ANGULAR,0,3) * S.S_minimal;
+    return Y.middleCols<3>(Inertia::ANGULAR) * S.S_minimal;
   }
 
   namespace internal

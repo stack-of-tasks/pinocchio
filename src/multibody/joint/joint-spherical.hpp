@@ -199,6 +199,12 @@ namespace se3
     return M;
   }
 
+  /* [ABA] Y*S operator*/
+  inline SizeDepType<3>::ColsReturn<Inertia::Matrix6>::ConstType operator* (const Inertia::Matrix6 & Y, const ConstraintRotationalSubspace &)
+  {
+    return Y.middleCols<3>(Inertia::ANGULAR);
+  }
+  
   namespace internal
   {
     template<>

@@ -27,6 +27,7 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
 
@@ -34,6 +35,39 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+template<typename JointModel>
+static void addJointAndBody(se3::Model & model,
+                            const se3::JointModelBase<JointModel> & joint,
+                            const std::string & parent_name,
+                            const std::string & name,
+                            const se3::SE3 placement = se3::SE3::Random(),
+                            bool setRandomLimits = true)
+{
+  using namespace se3;
+  typedef typename JointModel::ConfigVector_t CV;
+  typedef typename JointModel::TangentVector_t TV;
+  
+  Model::JointIndex idx;
+  
+  if (setRandomLimits)
+    idx = model.addJoint(model.getJointId(parent_name),joint,
+                         SE3::Random(),
+                         name + "_joint",
+                         TV::Random() + TV::Constant(1),
+                         TV::Random() + TV::Constant(1),
+                         CV::Random() - CV::Constant(1),
+                         CV::Random() + CV::Constant(1)
+                         );
+    else
+      idx = model.addJoint(model.getJointId(parent_name),joint,
+                           placement, name + "_joint");
+      
+      model.addJointFrame(idx);
+      
+      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
+      model.addBodyFrame(name + "_body", idx);
+      }
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
@@ -133,10 +167,13 @@ BOOST_AUTO_TEST_CASE (test_ccrb)
     using namespace se3;
     Model model;
     buildModels::humanoidSimple(model);
+    addJointAndBody(model,JointModelSpherical(),"larm6_joint","larm7");
     Data data(model), data_ref(model);
     
-    Eigen::VectorXd q = Eigen::VectorXd::Ones(model.nq);
-    q.segment <4> (3).normalize();
+    model.lowerPositionLimit.head<7>().fill(-1.);
+    model.upperPositionLimit.head<7>().fill(1.);
+    
+    Eigen::VectorXd q = randomConfiguration(model,model.lowerPositionLimit,model.upperPositionLimit);
     Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
     Eigen::VectorXd a = Eigen::VectorXd::Random(model.nv);
     
@@ -158,9 +195,10 @@ BOOST_AUTO_TEST_CASE (test_ccrb)
     Force hdot_ref(cM1.act(Force(data_ref.tau.head<6>() - g.head<6>())));
     
     ccrba(model,data_ref,q,v);
-    dccrba(model,data,q,0*v);
+    dccrba(model,data,q,v);
     BOOST_CHECK(data.Ag.isApprox(Ag_ref));
     BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
+    dccrba(model,data,q,0*v);
     BOOST_CHECK(data.dAg.isZero());
     
     

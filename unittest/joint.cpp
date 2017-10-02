@@ -86,6 +86,14 @@ void test_joint_methods (JointModel & jmodel, typename JointModel::JointDataDeri
   
   BOOST_CHECK_MESSAGE(vxS.isApprox(vxS_ref),std::string(error_prefix + "- Joint vxS operation "));
   
+  // Test Y*S
+  const Inertia Isparse(Inertia::Random());
+  const Inertia::Matrix6 Idense(Isparse.matrix());
+  
+  const ConstraintDense IsparseS = Isparse * jdata.S;
+  const ConstraintDense IdenseS = Idense * jdata.S;
+  
+  BOOST_CHECK_MESSAGE(IdenseS.isApprox(IsparseS),std::string(error_prefix + "- Joint YS operation "));
   
 }
 
