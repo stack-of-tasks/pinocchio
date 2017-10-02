@@ -59,7 +59,7 @@ namespace se3
 #ifdef WITH_HPP_FCL
           .def("CreateCapsule", &GeometryObjectPythonVisitor::maker_capsule)
           .staticmethod("CreateCapsule")
-#endif WITH_HPP_FCL
+#endif // WITH_HPP_FCL
         ;
       }
 
@@ -71,7 +71,7 @@ namespace se3
                               SE3::Identity());
 
       }
-#endif WITH_HPP_FCL
+#endif // WITH_HPP_FCL
 
       static void expose()
       {
