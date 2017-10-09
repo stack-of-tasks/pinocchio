@@ -23,6 +23,8 @@
 
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 
+#include <cmath>
+
 namespace se3
 {
 
@@ -409,6 +411,23 @@ namespace se3
                   const Eigen::VectorXd & q1)
   {
     return squaredDistance<LieGroupTpl>(model, q0, q1);
+  }
+  
+  template<typename LieGroup_t>
+  inline double
+  distance(const Model & model,
+           const Eigen::VectorXd & q0,
+           const Eigen::VectorXd & q1)
+  {
+    return std::sqrt(squaredDistance<LieGroup_t>(model, q0, q1).sum());
+  }
+  
+  inline double
+  distance(const Model & model,
+           const Eigen::VectorXd & q0,
+           const Eigen::VectorXd & q1)
+  {
+    return std::sqrt(squaredDistance<LieGroupTpl>(model, q0, q1).sum());
   }
 
   template<typename LieGroup_t, typename JointModel> struct RandomConfigurationStepAlgo;

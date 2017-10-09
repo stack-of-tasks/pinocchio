@@ -329,6 +329,19 @@ BOOST_AUTO_TEST_CASE ( neutral_configuration_test )
   BOOST_CHECK_MESSAGE(model.neutralConfiguration.isApprox(expected, 1e-12), "neutral configuration - wrong results");
 }
 
+BOOST_AUTO_TEST_CASE ( distance_configuration_test )
+{
+  Model model; buildModel(model);
+  
+  Eigen::VectorXd q0(model.neutralConfiguration);
+  Eigen::VectorXd q1(q0 + Eigen::VectorXd::Ones(model.nq));
+
+  double dist = distance(model,q0,q1);
+  
+  BOOST_CHECK_MESSAGE(dist > 0., "distance - wrong results");
+  BOOST_CHECK_SMALL(dist-differentiate(model,q0,q1).norm(), 1e-12);
+}
+
 BOOST_AUTO_TEST_CASE ( uniform_sampling_test )
 {
   Model model; buildModel(model);

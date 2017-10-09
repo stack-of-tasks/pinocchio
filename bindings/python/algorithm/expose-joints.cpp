@@ -58,12 +58,19 @@ namespace se3
               "Difference between two configurations, ie. the tangent vector that must be integrated during one unit time"
               "to go from q1 to q2");
       
-      bp::def("distance",
-              (VectorXd (*)(const Model &, const VectorXd &, const VectorXd &))&distance,
+      bp::def("squaredDistance",
+              (VectorXd (*)(const Model &, const VectorXd &, const VectorXd &))&squaredDistance,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)"),
-              "Distance between two configurations ");
+              "Squared distance vector between two configurations.");
+      
+      bp::def("distance",
+              (double (*)(const Model &, const VectorXd &, const VectorXd &))&distance,
+              bp::args("Model",
+                       "Configuration q1 (size Model::nq)",
+                       "Configuration q2 (size Model::nq)"),
+              "Distance between two configurations.");
       
       bp::def("randomConfiguration",
               (VectorXd (*)(const Model &, const VectorXd &, const VectorXd &))&randomConfiguration,
