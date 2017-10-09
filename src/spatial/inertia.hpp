@@ -238,7 +238,7 @@ namespace se3
       M.template block<3,3>(LINEAR, LINEAR ).diagonal ().fill (m);
       M.template block<3,3>(ANGULAR,LINEAR ) = alphaSkew(m,c);
       M.template block<3,3>(LINEAR, ANGULAR) = -M.template block<3,3> (ANGULAR, LINEAR);
-      M.template block<3,3>(ANGULAR,ANGULAR) = (typename Symmetric3::Matrix3)(I - AlphaSkewSquare(m,c));
+      M.template block<3,3>(ANGULAR,ANGULAR) = (I - AlphaSkewSquare(m,c)).matrix();
 
       return M;
     }
@@ -320,7 +320,7 @@ namespace se3
       res.template block<3,3>(ANGULAR,ANGULAR) = res.template block<3,3>(LINEAR,LINEAR) - res.template block<3,3>(LINEAR,LINEAR).transpose();
       res.template block<3,3>(ANGULAR,ANGULAR) = -skewSquare(mv.linear(),c) - skewSquare(c,mv.linear());
       
-      res.template block<3,3>(LINEAR,LINEAR) = (typename Symmetric3::Matrix3)(I - AlphaSkewSquare(m,c));
+      res.template block<3,3>(LINEAR,LINEAR) = (typename Symmetric3::Matrix3)(I - AlphaSkewSquare(m,c)).matrix();
       
       res.template block<3,3>(ANGULAR,ANGULAR) -= res.template block<3,3>(LINEAR,LINEAR) * skew(v.angular());
       res.template block<3,3>(ANGULAR,ANGULAR) += cross(v.angular(),res.template block<3,3>(LINEAR,LINEAR));
