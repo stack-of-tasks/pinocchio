@@ -1,5 +1,5 @@
 # 
-# Copyright (c) 2015-2016 CNRS
+# Copyright (c) 2015-2017 CNRS
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 # 
 # This file is part of Pinocchio
@@ -14,26 +14,6 @@
 # received a copy of the GNU Lesser General Public License along with
 # Pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
-
-MACRO(ADD_GROUP GROUP_NAME FILENAMES)
-  FOREACH(filename ${${FILENAMES}})
-    GET_FILENAME_COMPONENT(filenamePath ${filename} PATH)
-    IF(NOT (filenamePath STREQUAL ""))
-      STRING(REGEX REPLACE "/" "\\\\" filenamePath ${filenamePath}) 
-      SOURCE_GROUP("${GROUP_NAME}\\${filenamePath}" FILES ${filename})
-    ELSE()
-      SOURCE_GROUP("${GROUP_NAME}" FILES ${filename})
-    ENDIF()
-  ENDFOREACH()
-ENDMACRO(ADD_GROUP) 
-
-MACRO(ADD_HEADER_GROUP FILENAMES)
-  ADD_GROUP("Header Files" ${FILENAMES})
-ENDMACRO(ADD_HEADER_GROUP FILENAMES)
-
-MACRO(ADD_SOURCE_GROUP FILENAMES)
-  ADD_GROUP("Source Files" ${FILENAMES})
-ENDMACRO(ADD_SOURCE_GROUP FILENAMES)
 
 MACRO(ADD_TARGET_CFLAGS target flag)
   SET_PROPERTY(TARGET ${target} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")

@@ -16,27 +16,6 @@
 # <http://www.gnu.org/licenses/>.
 
 # --- MACROS --- #
-
-MACRO(ADD_GROUP GROUP_NAME FILENAMES)
-  FOREACH(filename ${${FILENAMES}})
-    GET_FILENAME_COMPONENT(filenamePath ${filename} PATH)
-    IF(NOT (filenamePath STREQUAL ""))
-      STRING(REGEX REPLACE "/" "\\\\" filenamePath ${filenamePath}) 
-      SOURCE_GROUP("${GROUP_NAME}\\${filenamePath}" FILES ${filename})
-    ELSE()
-      SOURCE_GROUP("${GROUP_NAME}" FILES ${filename})
-    ENDIF()
-  ENDFOREACH()
-ENDMACRO(ADD_GROUP) 
-
-MACRO(ADD_HEADER_GROUP FILENAMES)
-  ADD_GROUP("Header Files" ${FILENAMES})
-ENDMACRO(ADD_HEADER_GROUP FILENAMES)
-
-MACRO(ADD_SOURCE_GROUP FILENAMES)
-  ADD_GROUP("Source Files" ${FILENAMES})
-ENDMACRO(ADD_SOURCE_GROUP FILENAMES)
-
 MACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
   FOREACH(header ${HEADERS})
     GET_FILENAME_COMPONENT(headerName ${header} NAME)
