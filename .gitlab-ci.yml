@@ -1,0 +1,29 @@
+variables:
+    GIT_SSL_NO_VERIFY: "true"
+    GIT_SUBMODULE_STRATEGY: "recursive"
+    GIT_DEPTH: "3"
+
+.build_template: &build
+    script:
+        - mkdir build
+        - cd build
+        - cmake ..
+        - make
+        - make test
+        - make install
+
+build_minimal_14:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:14.04
+
+build_full_14:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:14.04
+
+build_minimal_16:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:16.04
+
+build_full_16:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:16.04
