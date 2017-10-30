@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 CNRS
+# Copyright (c) 2015-2017 CNRS
 #
 # This file is part of Pinocchio
 # Pinocchio is free software: you can redistribute it
@@ -142,11 +142,50 @@ class RobotWrapper(object):
     def computeJacobians(self, q):
         return se3.computeJacobians(self.model, self.data, q)
 
-    def updateGeometryPlacements(self, q, visual=False):
+    def updateGeometryPlacements(self, q=None, visual=False):
         if visual:
-            se3.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data, q)
+            geom_model = self.visual_model
+            geom_data = self.visual_data
         else:
-            se3.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data, q)
+            geom_model = self.collision_model
+            geom_data = self.collision_data
+
+        if q is not None:
+            se3.updateGeometryPlacements(self.model, self.data, geom_model, geom_data, q)
+        else:
+            se3.updateGeometryPlacements(self.model, self.data, geom_model, geom_data)
+
+
+    def framesKinematics(self, q): 
+        se3.framesKinematics(self.model, self.data, q)
+    
+    def framePosition(self, index):
+        f = self.model.frames[index]
+        return self.data.oMi[f.parent].act(f.placement)
+
+    def frameVelocity(self, index):
+        f = self.model.frames[index]
+        return f.placement.actInv(self.data.v[f.parent])
+    
+    ''' Return the spatial acceleration of the specified frame. '''
+    def frameAcceleration(self, index):
+        f = self.model.frames[index]
+        return f.placement.actInv(self.data.a[f.parent])
+    
+    def frameClassicAcceleration(self, index):
+        f = self.model.frames[index]
+        a = f.placement.actInv(self.data.a[f.parent])
+        v = f.placement.actInv(self.data.v[f.parent])
+        a.linear += np.cross(v.angular.T, v.linear.T).T
+        return a;
+
+    ''' Call computeJacobians if update_geometry is true. If not, user should call computeJacobians first.
+    Then call getJacobian and return the resulted jacobian matrix. Attention: if update_geometry is true, 
+    the function computes all the jacobians of the model. It is therefore outrageously costly wrt a 
+    dedicated call. Use only with update_geometry for prototyping.
+    '''
+    def frameJacobian(self, q, index, update_geometry=True, local_frame=True):
+        return se3.frameJacobian(self.model, self.data, q, index, local_frame, update_geometry)
 
     # --- ACCESS TO NAMES ----
     # Return the index of the joint whose name is given in argument.
@@ -154,85 +193,142 @@ class RobotWrapper(object):
         return [i for i, n in enumerate(self.model.names) if n == name][0]
 
     # --- VIEWER ---
-    # For each visual object, returns the corresponding name of the node in Gepetto-viewer.
-    def viewerNodeNames(self, visual):
-        return self.viewerRootNodeName + '/' + visual.name
+    # For each geometry object, returns the corresponding name of the node in Gepetto-viewer.
+    def getViewerNodeName(self, geometry_object, geometry_type):
+        if geometry_type is se3.GeometryType.VISUAL:
+            return self.viewerVisualGroupName + '/' + geometry_object.name
+        elif geometry_type is se3.GeometryType.COLLISION:
+            return self.viewerCollisionGroupName + '/' + geometry_object.name
 
 
-    def initDisplay(self, viewerRootNodeName="world/pinocchio", loadModel=False):
+    def initDisplay(self, windowName="pinocchio", sceneName="world", loadModel=False):
+        """
+        Init gepetto-viewer by loading the gui and creating a window.
+        """
         import gepetto.corbaserver
         try:
             self.viewer = gepetto.corbaserver.Client()
-            self.viewerRootNodeName = viewerRootNodeName
+            gui = self.viewer.gui
+
+            # Create window
+            window_l = gui.getWindowList()
+            if not windowName in window_l:
+                self.windowID = self.viewer.gui.createWindow(windowName)
+            else:
+                self.windowID = self.viewer.gui.getWindowID(windowName)
+            
+            # Create scene if needed
+            scene_l = gui.getSceneList()
+            if sceneName not in scene_l:
+                gui.createScene(sceneName)
+            self.sceneName = sceneName
+            gui.addSceneToWindow(sceneName, self.windowID)
+            
             if loadModel:
                 self.loadDisplayModel(viewerRootNodeName)
         except:
-            if 'viewer' in self.__dict__:
-                del self.viewer
             print "Error while starting the viewer client. "
             print "Check wheter gepetto-viewer is properly started"
 
     # Create the scene displaying the robot meshes in gepetto-viewer
-    def loadDisplayModel(self, nodeName, windowName="pinocchio"):
-        import os
-        print "load the model"
-        # Open a window for displaying your model.
-        try:
-            # If the window already exists, do not do anything.
-            self.windowID = self.viewer.gui.getWindowID(windowName)
-            print "Warning: window '%s' already created. Cannot (re-)load the model." % windowName
-        except:
-             # Otherwise, create the empty window.
-            self.windowID = self.viewer.gui.createWindow(windowName)
+    def loadDisplayModel(self, rootNodeName="pinocchio"):
+    
+        def loadDisplayGeometryObject(geometry_object,geometry_type):
+            from rpy import npToTuple
+            
+            meshName = self.getViewerNodeName(geometry_object,geometry_type)
+            meshPath = geometry_object.meshPath
+            meshTexturePath = geometry_object.meshTexturePath
+            meshScale = geometry_object.meshScale
+            meshColor = geometry_object.meshColor
+            if gui.addMesh(meshName, meshPath):
+                gui.setScale(meshName, npToTuple(meshScale))
+                if geometry_object.overrideMaterial:
+                    gui.setColor(meshName, npToTuple(meshColor))
+                    if meshTexturePath is not '':
+                        gui.setTexture(meshName, meshTexturePath)
+
 
         # Start a new "scene" in this window, named "world", with just a floor.
         gui = self.viewer.gui
-        scene_l = gui.getSceneList()
-        if "world" not in scene_l:
-          self.viewer.gui.createScene("world")
-        self.viewer.gui.addSceneToWindow("world", self.windowID)
+        if not self.sceneName in rootNodeName:
+            self.viewerRootNodeName = self.sceneName + "/" + rootNodeName
+        else:
+            self.viewerRootNodeName = rootNodeName
 
-        self.viewer.gui.createGroup(nodeName)
+        if not gui.nodeExists(self.viewerRootNodeName):
+            gui.createGroup(self.viewerRootNodeName)
+
+        self.viewerCollisionGroupName = self.viewerRootNodeName + "/" + "collisions"
+        if not gui.nodeExists(self.viewerCollisionGroupName):
+            gui.createGroup(self.viewerCollisionGroupName)
+
+        self.viewerVisualGroupName = self.viewerRootNodeName + "/" + "visuals"
+        if not gui.nodeExists(self.viewerVisualGroupName):
+            gui.createGroup(self.viewerVisualGroupName)
 
         # iterate over visuals and create the meshes in the viewer
-        from rpy import npToTuple
-        for visual in self.visual_model.geometryObjects :
-            meshName = self.viewerNodeNames(visual) 
-            meshPath = visual.meshPath
-            # Check if an .osg file exists instead of the .dae version
-            filename, extension = os.path.splitext(meshPath)
-            if extension[1:] == "dae":
-              filename_osg = filename + ".osg"
-              if os.path.isfile(filename_osg):
-                meshPath = filename_osg 
-            meshTexturePath = visual.meshTexturePath
-            meshScale = visual.meshScale
-            meshColor = visual.meshColor
-            if self.viewer.gui.addMesh(meshName, meshPath):
-                self.viewer.gui.setScale(meshName, npToTuple(meshScale))
-                if visual.overrideMaterial:
-                    self.viewer.gui.setColor(meshName,npToTuple(meshColor))
-                    if meshTexturePath is not '':
-                        self.viewer.gui.setTexture(meshName,meshTexturePath)
-               
+        for collision in self.collision_model.geometryObjects:
+            loadDisplayGeometryObject(collision,se3.GeometryType.COLLISION)
+        self.displayCollisions(False)
+
+        for visual in self.visual_model.geometryObjects:
+            loadDisplayGeometryObject(visual,se3.GeometryType.VISUAL)
+        self.displayVisuals(True)
 
         # Finally, refresh the layout to obtain your first rendering.
-        self.viewer.gui.refresh()
-
+        gui.refresh()
 
     # Display in gepetto-view the robot at configuration q, by placing all the bodies.
     def display(self, q):
         if 'viewer' not in self.__dict__:
             return
+
+        gui = self.viewer.gui
         # Update the robot kinematics and geometry.
-        self.updateGeometryPlacements(q,visual=True)
+        self.forwardKinematics(q)
 
-        for visual in self.visual_model.geometryObjects :
-            M = self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]
-            conf = utils.se3ToXYZQUAT(M)
-            self.viewer.gui.applyConfiguration(self.viewerNodeNames(visual), conf)
+        if self.display_collisions:
+            self.updateGeometryPlacements(visual=False)
+            for collision in self.collision_model.geometryObjects:
+                M = self.visual_data.oMg[self.collision_model.getGeometryId(collision.name)]
+                conf = utils.se3ToXYZQUAT(M)
+                gui.applyConfiguration(self.getViewerNodeName(collision,se3.GeometryType.COLLISION), conf)
 
-        self.viewer.gui.refresh()
+        if self.display_visuals:
+            self.updateGeometryPlacements(visual=True)
+            for visual in self.visual_model.geometryObjects:
+                M = self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]
+                conf = utils.se3ToXYZQUAT(M)
+                gui.applyConfiguration(self.getViewerNodeName(visual,se3.GeometryType.VISUAL), conf)
+
+        gui.refresh()
+
+    def displayCollisions(self,visibility):
+        gui = self.viewer.gui
+        self.display_collisions = visibility
+
+        if visibility:
+            visibility_mode = "ON"
+        else:
+            visibility_mode = "OFF"
+
+        for collision in self.collision_model.geometryObjects:
+            nodeName = self.getViewerNodeName(collision,se3.GeometryType.COLLISION)
+            gui.setVisibility(nodeName,visibility_mode)
+
+    def displayVisuals(self,visibility):
+        gui = self.viewer.gui
+        self.display_visuals = visibility
+
+        if visibility:
+            visibility_mode = "ON"
+        else:
+            visibility_mode = "OFF"
+
+        for visual in self.visual_model.geometryObjects:
+            nodeName = self.getViewerNodeName(visual,se3.GeometryType.VISUAL)
+            gui.setVisibility(nodeName,visibility_mode)
 
     def play(self, q_trajectory, dt):
         for k in range(q_trajectory.shape[1]):
