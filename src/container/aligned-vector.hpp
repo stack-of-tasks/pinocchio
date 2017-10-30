@@ -50,7 +50,17 @@ namespace se3
       aligned_vector & operator=(const aligned_vector& x)
       { vector_base::operator=(x); return *this; }
       
+      vector_base & base() { return *static_cast<vector_base*>(this); }
+      const vector_base & base() const { return *static_cast<const vector_base*>(this); }
+      
     }; // struct aligned_vector
+    
+    template<class T>
+    bool operator==(const aligned_vector<T>& lhs, const aligned_vector<T>& rhs)
+    {
+      typedef typename aligned_vector<T>::vector_base vector_base;
+      return *static_cast<const vector_base*>(&lhs) == *static_cast<const vector_base*>(&rhs);
+    }
     
   } // namespace container
   
