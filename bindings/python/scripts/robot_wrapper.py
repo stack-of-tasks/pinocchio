@@ -161,6 +161,13 @@ class RobotWrapper(object):
         parentJointAcc = self.data.a[frame.parent]
         return frame.placement.actInv(parentJointAcc)
 
+    def frameClassicAcceleration(self, index):
+        f = self.model.frames[index]
+        a = f.placement.actInv(self.data.a[f.parent])
+        v = f.placement.actInv(self.data.v[f.parent])
+        a.linear += np.cross(v.angular.T, v.linear.T).T
+        return a;
+
     def jacobian(self, q, index, update_kinematics=True, local_frame=True):
         return se3.jacobian(self.model, self.data, q, index, local_frame, update_kinematics)
 
@@ -184,26 +191,6 @@ class RobotWrapper(object):
     def framesKinematics(self, q): 
         se3.framesKinematics(self.model, self.data, q)
     
-    def framePosition(self, index):
-        f = self.model.frames[index]
-        return self.data.oMi[f.parent].act(f.placement)
-
-    def frameVelocity(self, index):
-        f = self.model.frames[index]
-        return f.placement.actInv(self.data.v[f.parent])
-    
-    ''' Return the spatial acceleration of the specified frame. '''
-    def frameAcceleration(self, index):
-        f = self.model.frames[index]
-        return f.placement.actInv(self.data.a[f.parent])
-    
-    def frameClassicAcceleration(self, index):
-        f = self.model.frames[index]
-        a = f.placement.actInv(self.data.a[f.parent])
-        v = f.placement.actInv(self.data.v[f.parent])
-        a.linear += np.cross(v.angular.T, v.linear.T).T
-        return a;
-
     ''' Call computeJacobians if update_geometry is true. If not, user should call computeJacobians first.
     Then call getJacobian and return the resulted jacobian matrix. Attention: if update_geometry is true, 
     the function computes all the jacobians of the model. It is therefore outrageously costly wrt a 
