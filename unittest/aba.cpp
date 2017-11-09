@@ -21,6 +21,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
@@ -58,6 +59,41 @@ BOOST_AUTO_TEST_CASE ( test_aba_simple )
   
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
   
+}
+
+BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  se3::Model model; buildModels::humanoidSimple(model);
+  
+  se3::Data data(model);
+  
+  VectorXd q = VectorXd::Random(model.nq);
+  q.segment<4>(3).normalize();
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd a = VectorXd::Random(model.nv);
+
+  container::aligned_vector<Force> fext(model.joints.size(), Force::Random());
+  
+  crba(model, data, q);
+  computeJacobians(model, data, q);
+  nonLinearEffects(model, data, q, v);
+  data.M.triangularView<Eigen::StrictlyLower>()
+  = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+
+  VectorXd tau = data.M * a + data.nle;
+  Data::Matrix6x J = Data::Matrix6x::Zero(6, model.nv);
+  for(Model::Index i=1;i<(Model::Index)model.njoints;++i) {
+    getJacobian<true>(model, data, i, J);
+    tau -= J.transpose()*fext[i].toVector();
+    J.setZero();
+  }
+  aba(model, data, q, v, tau, fext);
+  
+  BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
 }
 
 BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
