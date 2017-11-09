@@ -41,6 +41,27 @@ namespace se3
       const Eigen::VectorXd & v,
       const Eigen::VectorXd & tau);
 
+  ///
+  /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  /// \param[in] tau The joint torque vector (dim model.nv).
+  /// \param[in] fext Vector of external forces expressed in the local frame of the joints (dim model.njoints)
+  ///
+  /// \return The current joint acceleration stored in data.ddq.
+  ///
+  inline const Eigen::VectorXd &
+  aba(const Model & model,
+      Data & data,
+      const Eigen::VectorXd & q,
+      const Eigen::VectorXd & v,
+      const Eigen::VectorXd & tau,
+      const container::aligned_vector<Force> & fext);
+
+
   DEFINE_ALGO_CHECKER(ABA);
 
 } // namespace se3

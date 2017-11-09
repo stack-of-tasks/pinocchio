@@ -221,6 +221,46 @@ namespace se3
     return data.ddq;
   }
 
+  inline const Eigen::VectorXd &
+  aba(const Model & model,
+      Data & data,
+      const Eigen::VectorXd & q,
+      const Eigen::VectorXd & v,
+      const Eigen::VectorXd & tau,
+      const container::aligned_vector<Force> & fext)
+
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    data.v[0].setZero();
+    data.a[0] = -model.gravity;
+    data.u = tau;
+    
+    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
+    {
+      AbaForwardStep1::run(model.joints[i],data.joints[i],
+                           AbaForwardStep1::ArgsType(model,data,q,v));
+      data.f[i] -= fext[i];
+    }
+    
+    for( Model::Index i=(Model::Index)model.njoints-1;i>0;--i )
+    {
+      AbaBackwardStep::run(model.joints[i],data.joints[i],
+                           AbaBackwardStep::ArgsType(model,data));
+    }
+    
+    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
+    {
+      AbaForwardStep2::run(model.joints[i],data.joints[i],
+                           AbaForwardStep2::ArgsType(model,data));
+    }
+    
+    return data.ddq;
+  }
+
+
+
+
   // --- CHECKER ---------------------------------------------------------------
   // --- CHECKER ---------------------------------------------------------------
   // --- CHECKER ---------------------------------------------------------------

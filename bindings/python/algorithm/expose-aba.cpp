@@ -25,12 +25,26 @@ namespace se3
     
     void exposeABA()
     {
-      bp::def("aba",&aba,
+      typedef Eigen::VectorXd DataVector;
+      typedef container::aligned_vector<Force> ForceAlignedVector;
+
+      bp::def("aba",
+              (const DataVector& (*)(const Model&, Data&, const DataVector&, const DataVector&, const DataVector&)) &aba,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
                        "Joint torque tau (size Model::nv)"),
               "Compute ABA, put the result in Data::ddq and return it.",
+              bp::return_value_policy<bp::return_by_value>());
+
+      bp::def("aba",
+              (const DataVector& (*)(const Model&, Data&, const DataVector&, const DataVector&, const DataVector&, const ForceAlignedVector&))&aba,
+              bp::args("Model","Data",
+                       "Joint configuration q (size Model::nq)",
+                       "Joint velocity v (size Model::nv)",
+                       "Joint torque tau (size Model::nv)",
+                       "Vector of external forces expressed in the local frame of each joint (size Model::njoints)"),
+              "Compute ABA with external forces, put the result in Data::ddq and return it.",
               bp::return_value_policy<bp::return_by_value>());
       
     }
