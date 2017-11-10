@@ -110,10 +110,24 @@ class RobotWrapper(object):
             se3.forwardKinematics(self.model, self.data, q, v)
         return self.data.v[index]
 
+    def frameVelocity(self, q, v, index, update_kinematics=True):
+        if update_kinematics:
+            se3.forwardKinematics(self.model, self.data, q, v)
+        frame = self.model.frames[index]
+        parentJointVel = self.data.v[frame.parent]
+        return frame.placement.actInv(parentJointVel)
+
     def acceleration(self, q, v, a, index, update_kinematics=True):
         if update_kinematics:
             se3.forwardKinematics(self.model, self.data, q, v, a)
         return self.data.a[index]
+
+    def frameAcceleration(self, q, v, a, index, update_kinematics=True):
+        if update_kinematics:
+            se3.forwardKinematics(self.model, self.data, q, v, a)
+        frame = self.model.frames[index]
+        parentJointAcc = self.data.a[frame.parent]
+        return frame.placement.actInv(parentJointAcc)
 
     def jacobian(self, q, index, update_kinematics=True, local_frame=True):
         return se3.jacobian(self.model, self.data, q, index, local_frame, update_kinematics)
