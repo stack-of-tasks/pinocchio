@@ -110,6 +110,13 @@ class RobotWrapper(object):
             se3.forwardKinematics(self.model, self.data, q, v)
         return self.data.v[index]
 
+    def framePosition(self, q, index, update_kinematics=True):
+        if update_kinematics:
+            se3.forwardKinematics(self.model, self.data, q)
+        frame = self.model.frames[index]
+        parentPos = self.data.oMi[frame.parent]
+        return parentPos.act(frame.placement)
+
     def frameVelocity(self, q, v, index, update_kinematics=True):
         if update_kinematics:
             se3.forwardKinematics(self.model, self.data, q, v)
