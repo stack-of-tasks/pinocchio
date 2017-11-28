@@ -34,7 +34,10 @@ namespace se3
       Data::Matrix6x J(6,model.nv); J.setZero();
       
       if (update_geometry)
+      {
         computeJacobians(model,data,q);
+        framesForwardKinematics(model,data);
+      }
       
       if(local) getFrameJacobian<true> (model, data, frame_id, J);
       else getFrameJacobian<false> (model, data, frame_id, J);
