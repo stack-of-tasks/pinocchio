@@ -53,22 +53,18 @@ namespace se3
                                       );
 
   /**
-   * @brief      Returns the jacobian of the frame expresssed in the world frame or
-     in the local frame depending on the template argument. 
+   * @brief      Returns the jacobian of the frame expresssed in the local frame depending on the template argument.
    *             You must first call se3::framesForwardKinematics and se3::computeJacobians to update values in data structure.
    
-   * @remark Expressed in the local frame, the jacobian maps the joint velocity vector to the spatial velocity of the center of the frame, expressed in the frame coordinates system. Expressed in the global frame, the jacobian maps to the spatial velocity of the point coinciding with the center of the world and attached to the frame.
+   * @remark     Expressed in the local frame, the jacobian maps the joint velocity vector to the spatial velocity of the center of the frame, expressed in the frame coordinates system.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
-   * @param[in]  frame_id    Id of the operational frame we want to compute the jacobian
-   * @param[out] J           The Jacobian of the
+   * @param[in]  frame_id    Id of the operational Frame
+   * @param[out] J           The Jacobian of the Frame expressed in the coordinates Frame.
    *
-   * @tparam     local_frame  If true, the jacobian is expressed in the local frame. Otherwise, the jacobian is expressed in the world frame.
-   * 
-   * @warning    The function se3::computeJacobians should have been called first
+   * @warning    The function se3::computeJacobians and se3::framesForwardKinematics should have been called first.
    */
-  template<bool local_frame>
   inline void getFrameJacobian(const Model & model,
                                const Data& data,
                                const Model::FrameIndex frame_id,
@@ -112,9 +108,6 @@ namespace se3
     framesForwardKinematics(model, data);
   }
   
-  
-  
-  template<bool local_frame>
   inline void getFrameJacobian(const Model & model,
                                const Data & data,
                                const Model::FrameIndex frame_id,
@@ -124,24 +117,15 @@ namespace se3
     assert(data.J.cols() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
-    const Model::JointIndex & parent = model.frames[frame_id].parent;
-    const SE3 & oMframe = data.oMf[frame_id];
     const Frame & frame = model.frames[frame_id];
+    const Model::JointIndex & parent = frame.parent;
+    const SE3 & oMframe = data.oMf[frame_id];
     
     const int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
     
-    if(!local_frame)
-      getJacobian<local_frame>(model, data, parent, J);
-
-    // Lever between the joint center and the frame center expressed in the global frame
-    const SE3::Vector3 lever(data.oMi[parent].rotation() * frame.placement.translation());
-      
     for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
     {
-      if(!local_frame)
-        J.col(j).topRows<3>() -= lever.cross(J.col(j).bottomRows<3>());
-      else
-        J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
+      J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
     }
   }
 

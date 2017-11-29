@@ -66,50 +66,27 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   se3::Data data(model);
   se3::Data data_ref(model);
   
-
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
   VectorXd q_dot = VectorXd::Ones(model.nv);
 
 
-  /// In global frame
-  Data::Matrix6x Joj(6,model.nv); Joj.fill(0);
-  Data::Matrix6x Jof(6,model.nv); Jof.fill(0);
+  /// In local frame
   Model::Index idx = model.getFrameId(frame_name);
   const Frame & frame = model.frames[idx];
   BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
-
-  computeJacobians(model,data,q);
-  computeJacobians(model,data_ref,q);
-  framesForwardKinematics(model,data);
-  getFrameJacobian<false>(model,data,idx,Jof);
-  getJacobian<false>(model, data_ref, parent_idx, Joj);
-
-  Motion nu_frame(Jof*q_dot);
-  Motion nu_joint(Joj*q_dot);
-  
-  SE3 translation(SE3::Identity());
-  translation.translation(data.oMi[parent_idx].rotation()*frame.placement.translation());
-  
-  Motion nu_frame_from_nu_joint(translation.actInv(nu_joint));
-
-  BOOST_CHECK(nu_frame.isApprox(nu_frame_from_nu_joint, 1e-12));
-
-  /// In local frame
-
   Data::Matrix6x Jjj(6,model.nv); Jjj.fill(0);
   Data::Matrix6x Jff(6,model.nv); Jff.fill(0);
-  getFrameJacobian<true>(model,data,idx,Jff);
+  getFrameJacobian(model,data,idx,Jff);
   getJacobian<true>(model, data_ref, parent_idx, Jjj);
 
-  nu_frame = Motion(Jff*q_dot);
-  nu_joint = Motion(Jjj*q_dot);
+  Motion nu_frame = Motion(Jff*q_dot);
+  Motion nu_joint = Motion(Jjj*q_dot);
   
   const SE3::ActionMatrix_t jXf = frame.placement.toActionMatrix();
   Data::Matrix6x Jjj_from_frame(jXf * Jff);
   BOOST_CHECK(Jjj_from_frame.isApprox(Jjj));
   
-  nu_frame_from_nu_joint = frame.placement.act(nu_frame);
   BOOST_CHECK(nu_frame.isApprox(frame.placement.actInv(nu_joint), 1e-12));
 }
 
