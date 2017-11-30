@@ -101,10 +101,10 @@ namespace se3
   /// \param[out] dJ A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill dJ with zero elements, e.g. dJ.fill(0.).
   ///
   template<bool localFrame>
-  void getJacobian(const Model & model,
-                   const Data & data,
-                   const Model::JointIndex jointId,
-                   Data::Matrix6x & dJ);
+  void getJacobianTimeVariation(const Model & model,
+                                const Data & data,
+                                const Model::JointIndex jointId,
+                                Data::Matrix6x & dJ);
   
 } // namespace se3 
 
