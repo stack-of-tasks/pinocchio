@@ -242,6 +242,7 @@ namespace se3
     ,liMi((std::size_t)model.njoints)
     ,tau(model.nv)
     ,nle(model.nv)
+    ,g(model.nv)
     ,oMf((std::size_t)model.nframes)
     ,Ycrb((std::size_t)model.njoints)
     ,dYcrb((std::size_t)model.njoints)

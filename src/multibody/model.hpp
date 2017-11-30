@@ -385,10 +385,15 @@ namespace se3
     /// \brief Vector of joint torques (dim model.nv).
     Eigen::VectorXd tau;
     
-    /// \brief Vector of Non Linear Effects (dim model.nv). It corresponds to the Coriolis, centrifugal and gravitational effects.
-    /// \note  In the equation \f$ M\ddot{q} + b = \tau \f$,
-    ///        the non linear effects are associated to the \f$b\f$ term.
+    /// \brief Vector of Non Linear Effects (dim model.nv). It corresponds to concatenation of the Coriolis, centrifugal and gravitational effects.
+    /// \note  In the multibody dynamics equation \f$ M\ddot{q} + b(q, \dot{q}) = \tau \f$,
+    ///        the non linear effects are associated to the term \f$b\f$.
     Eigen::VectorXd nle;
+    
+    /// \brief Vector of generalized gravity (dim model.nv).
+    /// \note  In the multibody dynamics equation \f$ M\ddot{q} + c(q, \dot{q}) + g(q) = \tau \f$,
+    ///        the gravity effect is associated to the \f$g\f$ term.
+    Eigen::VectorXd g;
 
     /// \brief Vector of absolute operationnel frame placements (wrt the world).
     container::aligned_vector<SE3> oMf;
