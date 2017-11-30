@@ -247,6 +247,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/joint-configuration.hxx
   algorithm/energy.hpp
   algorithm/frames.hpp
+  algorithm/frames.hxx
   algorithm/compute-all-terms.hpp
   algorithm/copy.hpp
   algorithm/check.hpp
