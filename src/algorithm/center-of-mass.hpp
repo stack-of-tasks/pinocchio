@@ -146,8 +146,8 @@ namespace se3
   getComFromCrba(const Model & model, Data & data);
   
   ///
-  /// \brief Extracts both the jacobian of the center of mass (CoM) and the CoM position from the joint space inertia matrix (also called the mass matrix).
-  ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame.
+  /// \brief Extracts both the jacobian of the center of mass (CoM), the total mass of the system and the CoM position from the joint space inertia matrix (also called the mass matrix).
+  ///        The results are accessible through data.Jcom, data.mass[0] and data.com[0] and are both expressed in the world frame.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
