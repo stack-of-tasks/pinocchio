@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   Data::Matrix6x Jjj(6,model.nv); Jjj.fill(0);
   Data::Matrix6x Jff(6,model.nv); Jff.fill(0);
   getFrameJacobian(model,data,idx,Jff);
-  getJacobian<true>(model, data_ref, parent_idx, Jjj);
+  getJacobian<LOCAL>(model, data_ref, parent_idx, Jjj);
 
   Motion nu_frame = Motion(Jff*q_dot);
   Motion nu_joint = Motion(Jjj*q_dot);

@@ -36,8 +36,8 @@ namespace se3
       if (update_kinematics)
         computeJacobians(model,data,q);
       
-      if(local) getJacobian<true> (model,data,jointId,J);
-      else getJacobian<false> (model,data,jointId,J);
+      if(local) getJacobian<LOCAL> (model,data,jointId,J);
+      else getJacobian<WORLD> (model,data,jointId,J);
       
       return J;
     }
@@ -51,8 +51,8 @@ namespace se3
       Data::Matrix6x dJ(6,model.nv); dJ.setZero();
       
       
-      if(local) getJacobianTimeVariation<true> (model,data,jointId,dJ);
-      else getJacobianTimeVariation<false> (model,data,jointId,dJ);
+      if(local) getJacobianTimeVariation<LOCAL> (model,data,jointId,dJ);
+      else getJacobianTimeVariation<WORLD> (model,data,jointId,dJ);
       
       return dJ;
     }

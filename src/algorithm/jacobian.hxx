@@ -74,7 +74,7 @@ namespace se3
   /* Return the jacobian of the output frame attached to joint <jointId> in the
    world frame or in the local frame depending on the template argument. The
    function computeJacobians should have been called first. */
-  template<bool localFrame>
+  template<ReferenceFrame rf>
   void getJacobian(const Model & model,
                    const Data & data,
                    const Model::JointIndex jointId,
@@ -88,8 +88,8 @@ namespace se3
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
     for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
     {
-      if(! localFrame )   J.col(j) = data.J.col(j);
-      else                J.col(j) = oMjoint.actInv(Motion(data.J.col(j))).toVector();
+      if(rf == WORLD)   J.col(j) = data.J.col(j);
+      else              J.col(j) = oMjoint.actInv(Motion(data.J.col(j))).toVector();
     }
   }
   
@@ -211,7 +211,7 @@ namespace se3
     return data.dJ;
   }
   
-  template<bool localFrame>
+  template<ReferenceFrame rf>
   void getJacobianTimeVariation(const Model & model,
                                 const Data & data,
                                 const Model::JointIndex jointId,
@@ -225,8 +225,8 @@ namespace se3
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
     for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
     {
-      if(! localFrame )   dJ.col(j) = data.dJ.col(j);
-      else                dJ.col(j) = oMjoint.actInv(Motion(data.dJ.col(j))).toVector();
+      if(rf == WORLD)   dJ.col(j) = data.dJ.col(j);
+      else              dJ.col(j) = oMjoint.actInv(Motion(data.dJ.col(j))).toVector();
     }
   }
   
