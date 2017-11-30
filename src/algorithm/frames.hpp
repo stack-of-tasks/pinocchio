@@ -20,10 +20,6 @@
 
 #include "pinocchio/multibody/model.hpp"
 
-#include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/check.hpp"
-
 namespace se3
 {
 
@@ -36,8 +32,7 @@ namespace se3
    * @warning    One of the algorithms forwardKinematics should have been called first
    */
   inline void framesForwardKinematics(const Model & model,
-                                      Data & data
-                                      );
+                                      Data & data);
 
   /**
    * @brief      First calls the forwardKinematics on the model, then computes the placement of each frame.
@@ -49,8 +44,7 @@ namespace se3
    */
   inline void framesForwardKinematics(const Model & model,
                                       Data & data,
-                                      const Eigen::VectorXd & q
-                                      );
+                                      const Eigen::VectorXd & q);
 
   /**
    * @brief      Returns the jacobian of the frame expresssed in the local frame depending on the template argument.
@@ -68,68 +62,11 @@ namespace se3
   inline void getFrameJacobian(const Model & model,
                                const Data& data,
                                const Model::FrameIndex frame_id,
-                               Data::Matrix6x & J
-                               );
+                               Data::Matrix6x & J);
  
 } // namespace se3
 
 /* --- Details -------------------------------------------------------------------- */
-namespace se3 
-{
-  
-  
-  inline void framesForwardKinematics(const Model & model,
-                                      Data & data
-                                      )
-  {
-    assert(model.check(data) && "data is not consistent with model.");
-    
-    // The following for loop starts by index 1 because the first frame is fixed
-    // and corresponds to the universe.s
-    for (Model::FrameIndex i=1; i < (Model::FrameIndex) model.nframes; ++i)
-    {
-      const Frame & frame = model.frames[i];
-      const Model::JointIndex & parent = frame.parent;
-      if (frame.placement.isIdentity())
-        data.oMf[i] = data.oMi[parent];
-      else
-        data.oMf[i] = data.oMi[parent]*frame.placement;
-    }
-  }
-  
-  inline void framesForwardKinematics(const Model & model,
-                                      Data & data,
-                                      const Eigen::VectorXd & q
-                                      )
-  {
-    assert(model.check(data) && "data is not consistent with model.");
-    
-    forwardKinematics(model, data, q);
-    framesForwardKinematics(model, data);
-  }
-  
-  inline void getFrameJacobian(const Model & model,
-                               const Data & data,
-                               const Model::FrameIndex frame_id,
-                               Data::Matrix6x & J)
-  {
-    assert(J.cols() == model.nv);
-    assert(data.J.cols() == model.nv);
-    assert(model.check(data) && "data is not consistent with model.");
-    
-    const Frame & frame = model.frames[frame_id];
-    const Model::JointIndex & parent = frame.parent;
-    const SE3 & oMframe = data.oMf[frame_id];
-    
-    const int colRef = nv(model.joints[parent])+idx_v(model.joints[parent])-1;
-    
-    for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
-    {
-      J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
-    }
-  }
-
-} // namespace se3
+#include "pinocchio/algorithm/frames.hxx"
 
 #endif // ifndef __se3_frames_hpp__
-
