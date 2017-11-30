@@ -18,9 +18,9 @@
 
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/geometry.hpp>
-#include "pinocchio/bindings/python/fwd.hpp"
 
-#include <iostream>
+#include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/multibody/fwd.hpp"
 
 namespace bp = boost::python;
 using namespace se3::python;
@@ -47,6 +47,11 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   exposeInertia();
   exposeJoints();
   exposeExplog();
+  
+  bp::enum_< ::se3::ReferenceFrame >("ReferenceFrame")
+  .value("WORLD",::se3::WORLD)
+  .value("LOCAL",::se3::LOCAL)
+  ;
 
   exposeModel();
   exposeFrame();

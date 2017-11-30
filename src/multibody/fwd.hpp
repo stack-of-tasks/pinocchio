@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -35,7 +35,12 @@ namespace se3
   struct GeometryData;
   
   typedef FrameTpl<double> Frame;
-
+  
+  enum ReferenceFrame
+  {
+    WORLD = 0,
+    LOCAL = 1
+  };
 
   // Forward declaration needed for Model::check
   template<class D> struct AlgorithmCheckerBase;
