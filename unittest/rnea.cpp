@@ -23,11 +23,11 @@
  */
 
 #include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
+#include "pinocchio/algorithm/center-of-mass.hpp"
+#include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
 
@@ -167,5 +167,32 @@ BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
   rnea(model,data_rnea_fext,q,v,a,fext);
   
   BOOST_CHECK(tau_ref.isApprox(data_rnea_fext.tau));
+}
+  
+BOOST_AUTO_TEST_CASE(test_compute_gravity)
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  Model model;
+  buildModels::humanoidSimple(model);
+  Data data_rnea(model);
+  Data data(model);
+  
+  VectorXd q (VectorXd::Random(model.nq));
+  q.segment<4>(3).normalize();
+  
+  rnea(model,data_rnea,q,VectorXd::Zero(model.nv),VectorXd::Zero(model.nv));
+  computeGeneralizedGravity(model,data,q);
+  
+  BOOST_CHECK(data_rnea.tau.isApprox(data.g));
+  
+  // Compare with Jcom
+  crba(model,data_rnea,q);
+  Data::Matrix3x Jcom = getJacobianComFromCrba(model,data_rnea);
+  
+  VectorXd g_ref(-data_rnea.mass[0]*Jcom.transpose()*Model::gravity981);
+  
+  BOOST_CHECK(g_ref.isApprox(data.g));
 }
 BOOST_AUTO_TEST_SUITE_END ()
