@@ -51,10 +51,10 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJacobian <true> (model, data, model.getJointId(RF), J_RF);
+  getJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
   Data::Matrix6x J_LF (6, model.nv);
   J_LF.setZero();
-  getJacobian <true> (model, data, model.getJointId(LF), J_LF);
+  getJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -113,10 +113,10 @@ BOOST_AUTO_TEST_CASE ( test_ID )
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJacobian <true> (model, data, model.getJointId(RF), J_RF);
+  getJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
   Data::Matrix6x J_LF (6, model.nv);
   J_LF.setZero();
-  getJacobian <true> (model, data, model.getJointId(LF), J_LF);
+  getJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -184,9 +184,9 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   const std::string LF = "lleg6_joint";
   
   Data::Matrix6x J_RF (6, model.nv);
-  getJacobian <true> (model, data, model.getJointId(RF), J_RF);
+  getJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
   Data::Matrix6x J_LF (6, model.nv);
-  getJacobian <true> (model, data, model.getJointId(LF), J_LF);
+  getJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.topRows<6> () = J_RF;

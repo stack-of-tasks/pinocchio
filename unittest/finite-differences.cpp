@@ -212,11 +212,11 @@ BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
   Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.njoints-1);
   Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
   
-  getJacobian<false>(model,data,idx,Jrh);
+  getJacobian<WORLD>(model,data,idx,Jrh);
   Data::Matrix6x Jrh_finite_diff = finiteDiffJacobian<false>(model,data,q,idx);
   BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,fd_increment.maxCoeff()*1e1));
   
-  getJacobian<true>(model,data,idx,Jrh);
+  getJacobian<LOCAL>(model,data,idx,Jrh);
   Jrh_finite_diff = finiteDiffJacobian<true>(model,data,q,idx);
   BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,fd_increment.maxCoeff()*1e1));
 }
