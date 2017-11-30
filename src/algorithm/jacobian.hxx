@@ -98,7 +98,8 @@ namespace se3
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
-                                  const Eigen::VectorXd &
+                                  const Eigen::VectorXd &,
+                                  se3::Data::Matrix6x &
                                   > ArgsType;
     
     JOINT_VISITOR_INIT(JacobianForwardStep);
@@ -108,7 +109,8 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const se3::Model & model,
                      se3::Data & data,
-                     const Eigen::VectorXd & q)
+                     const Eigen::VectorXd & q,
+                     se3::Data::Matrix6x & J)
     {
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
@@ -118,15 +120,15 @@ namespace se3
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       data.iMf[parent] = data.liMi[i]*data.iMf[i];
       
-      jmodel.jointCols(data.J) = data.iMf[i].inverse().act(jdata.S());
+      jmodel.jointCols(J) = data.iMf[i].inverse().act(jdata.S());
     }
   
   };
   
-  inline const Data::Matrix6x &
-  jacobian(const Model & model, Data & data,
-           const Eigen::VectorXd & q,
-           const Model::JointIndex jointId)
+  inline void jacobian(const Model & model, Data & data,
+                       const Eigen::VectorXd & q,
+                       const Model::JointIndex jointId,
+                       Data::Matrix6x & J)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
@@ -134,10 +136,8 @@ namespace se3
     for( Model::JointIndex i=jointId;i>0;i=model.parents[i] )
     {
       JacobianForwardStep::run(model.joints[i],data.joints[i],
-                               JacobianForwardStep::ArgsType(model,data,q));
+                               JacobianForwardStep::ArgsType(model,data,q,J));
     }
-    
-    return data.J;
   }
   
   struct JacobiansTimeVariationForwardStep : public fusion::JointVisitor<JacobiansTimeVariationForwardStep>
