@@ -154,6 +154,8 @@ namespace se3
   ///
   /// \return The jacobian of the CoM expressed in the world frame (matrix 3 x model.nv).
   ///
+  /// \remark This extraction of inertial quantities is only valid for free-floating base systems.
+  ///
   inline const Data::Matrix3x &
   getJacobianComFromCrba(const Model & model, Data & data);
   
