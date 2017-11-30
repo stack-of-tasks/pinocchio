@@ -222,6 +222,80 @@ namespace se3
     
     return data.nle;
   }
+  
+  struct computeGeneralizedGravityForwardStep : public fusion::JointVisitor<computeGeneralizedGravityForwardStep>
+  {
+    typedef boost::fusion::vector< const se3::Model &,
+    se3::Data &,
+    const Eigen::VectorXd &
+    > ArgsType;
+    
+    JOINT_VISITOR_INIT(computeGeneralizedGravityForwardStep);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Eigen::VectorXd & q)
+    {
+      const Model::JointIndex & i = jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
+      
+      jmodel.calc(jdata.derived(),q);
+      
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      
+      data.a_gf[i] = data.liMi[i].actInv(data.a_gf[(size_t) parent]);
+      data.f[i] = model.inertias[i]*data.a_gf[i];
+    }
+    
+  };
+  
+  struct computeGeneralizedGravityBackwardStep : public fusion::JointVisitor<computeGeneralizedGravityBackwardStep>
+  {
+    typedef boost::fusion::vector<const Model &,
+    Data &
+    >  ArgsType;
+    
+    JOINT_VISITOR_INIT(computeGeneralizedGravityBackwardStep);
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data)
+    {
+      const Model::JointIndex & i = jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
+      
+      jmodel.jointVelocitySelector(data.g) = jdata.S().transpose()*data.f[i];
+      if(parent>0) data.f[(size_t) parent] += data.liMi[i].act(data.f[i]);
+    }
+  };
+  
+  inline const Eigen::VectorXd &
+  computeGeneralizedGravity(const Model & model, Data & data,
+                            const Eigen::VectorXd & q)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    data.a_gf[0] = -model.gravity;
+    
+    for(size_t i=1;i<(size_t) model.njoints;++i)
+    {
+      computeGeneralizedGravityForwardStep::run(model.joints[i],data.joints[i],
+                                     computeGeneralizedGravityForwardStep::ArgsType(model,data,q));
+    }
+    
+    for(size_t i=(size_t) (model.njoints-1);i>0;--i)
+    {
+      computeGeneralizedGravityBackwardStep::run(model.joints[i],data.joints[i],
+                                      computeGeneralizedGravityBackwardStep::ArgsType(model,data));
+    }
+    
+    return data.g;
+  }
 } // namespace se3
 
 /// @endcond
