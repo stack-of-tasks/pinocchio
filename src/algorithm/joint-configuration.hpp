@@ -36,11 +36,6 @@ namespace se3
   inline Eigen::VectorXd integrate(const Model & model,
                                    const Eigen::VectorXd & q,
                                    const Eigen::VectorXd & v);
-  // TODO remove me
-  // inline Eigen::VectorXd integrate(const Model & model,
-                                   // const Eigen::VectorXd & q,
-                                   // const Eigen::VectorXd & v);
-
   /**
    * @brief      Interpolate the model between two configurations
    *
@@ -55,11 +50,6 @@ namespace se3
                                      const Eigen::VectorXd & q0,
                                      const Eigen::VectorXd & q1,
                                      const double u);
-  // TODO remove me
-  // inline Eigen::VectorXd interpolate(const Model & model,
-                                     // const Eigen::VectorXd & q0,
-                                     // const Eigen::VectorXd & q1,
-                                     // const double u);
 
   /**
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
@@ -126,15 +116,6 @@ namespace se3
   inline void normalize(const Model & model,
                         Eigen::VectorXd & q);
   
-  /**
-   * @brief         Normalize a configuration
-   *
-   * @param[in]     model      Model
-   * @param[in,out] q          Configuration to normalize
-   */
-  inline void normalize(const Model & model,
-                        Eigen::VectorXd & q);
-
   /**
    * @brief         Return true if the given configurations are equivalents
    * \warning       Two configurations can be equivalent but not equally coefficient wise (e.g for quaternions)
