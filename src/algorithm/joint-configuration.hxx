@@ -390,30 +390,44 @@ namespace se3
   {
     return randomConfiguration<LieGroupTpl>(model);
   }
-
-  struct NormalizeStep : public fusion::JointModelVisitor<NormalizeStep>
+  
+  template<typename LieGroup_t, typename JointModel> struct NormalizeStepAlgo;
+  
+  template<typename LieGroup_t>
+  struct NormalizeStep : public fusion::JointModelVisitor< NormalizeStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<Eigen::VectorXd &> ArgsType;
-
+    
     JOINT_MODEL_VISITOR_INIT(NormalizeStep);
-
-    template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     Eigen::VectorXd & q)
+    
+    SE3_DETAILS_VISITOR_METHOD_ALGO_1(NormalizeStepAlgo, LieGroup_t)
+  };
+  
+  template<typename LieGroup_t, typename JointModel>
+  struct NormalizeStepAlgo
+  {
+    static void run(const se3::JointModelBase<JointModel> & jmodel,
+                    Eigen::VectorXd & qout)
     {
-      jmodel.normalize(q);
+      LieGroup_t::template operation<JointModel>::type::normalize(jmodel.jointConfigSelector(qout));
     }
   };
+  
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NormalizeStep, NormalizeStepAlgo);
 
-  inline void
-  normalize(const Model & model,
-            Eigen::VectorXd & q)
+  template<typename LieGroup_t>
+  inline void normalize(const Model & model, Eigen::VectorXd & qout)
   {
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i)
     {
-      NormalizeStep::run(model.joints[i],
-                         NormalizeStep::ArgsType (q));
+      NormalizeStep<LieGroup_t>::run(model.joints[i],
+                                     typename NormalizeStep<LieGroup_t>::ArgsType(qout));
     }
+  }
+  
+  inline void normalize(const Model & model, Eigen::VectorXd & qout)
+  {
+    return normalize<LieGroupTpl>(model,qout);
   }
 
   template<typename LieGroup_t, typename JointModel> struct IsSameConfigurationStepAlgo;

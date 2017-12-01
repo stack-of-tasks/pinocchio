@@ -122,6 +122,16 @@ namespace se3
    * @param[in]     model      Model
    * @param[in,out] q          Configuration to normalize
    */
+  template<typename LieGroup_t>
+  inline void normalize(const Model & model,
+                        Eigen::VectorXd & q);
+  
+  /**
+   * @brief         Normalize a configuration
+   *
+   * @param[in]     model      Model
+   * @param[in,out] q          Configuration to normalize
+   */
   inline void normalize(const Model & model,
                         Eigen::VectorXd & q);
 
