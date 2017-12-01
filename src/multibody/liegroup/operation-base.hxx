@@ -61,6 +61,15 @@ namespace se3 {
     Derived::interpolate_impl(q0, q1, u, qout);
   }
 
+  template <class Derived>
+  template <class Config_t>
+  void LieGroupOperationBase<Derived>::normalize
+  (const Eigen::MatrixBase<Config_t>& qout)
+  {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t, ConfigVector_t);
+    return Derived::normalize_impl (qout);
+  }
+
   /**
    * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
    *

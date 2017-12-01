@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -99,6 +99,13 @@ namespace se3
     {
       return LieGroup1::squaredDistance(q0.template head<LieGroup1::NQ>(), q1.template head<LieGroup1::NQ>())
         +    LieGroup2::squaredDistance(q0.template tail<LieGroup2::NQ>(), q1.template tail<LieGroup2::NQ>());
+    }
+    
+    template <class Config_t>
+    static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
+    {
+      LieGroup1::normalize(qout.derived().template head<LieGroup1::NQ>());
+      LieGroup2::normalize(qout.derived().template tail<LieGroup2::NQ>());
     }
 
     template <class Config_t>

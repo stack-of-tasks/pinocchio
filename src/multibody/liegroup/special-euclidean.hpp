@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -169,6 +169,12 @@ namespace se3
     // template <class ConfigL_t, class ConfigR_t>
     // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
+    template <class Config_t>
+    static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
+    {
+      Config_t& qout_ = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
+      qout_.template tail<2>().normalize();
+    }
 
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
@@ -292,6 +298,13 @@ namespace se3
       TangentVector_t t;
       difference_impl(q0, q1, t);
       return t.squaredNorm();
+    }
+    
+    template <class Config_t>
+    static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
+    {
+      Config_t& qout_ = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
+      qout_.template tail<4>().normalize();
     }
 
     template <class Config_t>

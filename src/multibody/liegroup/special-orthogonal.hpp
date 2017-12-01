@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -136,13 +136,20 @@ namespace se3
       else // theta = +-PI
       {
         Scalar theta0 = atan2 (q0(1), q0(0));
-        SINCOS(theta0,&out[1],&out[0])
+        SINCOS(theta0,&out[1],&out[0]);
       }
     }
 
     // template <class ConfigL_t, class ConfigR_t>
     // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
+    
+    template <class Config_t>
+    static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
+    {
+      Config_t& qout_ = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
+      qout_.normalize();
+    }
 
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
@@ -245,6 +252,13 @@ namespace se3
       TangentVector_t t;
       difference_impl(q0, q1, t);
       return t.squaredNorm();
+    }
+    
+    template <class Config_t>
+    static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
+    {
+      Config_t& qout_ = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
+      qout_.normalize();
     }
 
     template <class Config_t>
