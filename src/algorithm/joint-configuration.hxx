@@ -44,6 +44,18 @@ namespace se3
 #define SE3_DETAILS_WRITE_ARGS_3(JM) SE3_DETAILS_WRITE_ARGS_2(JM), typename boost::fusion::result_of::at_c<ArgsType, 2>::type a2
 #define SE3_DETAILS_WRITE_ARGS_4(JM) SE3_DETAILS_WRITE_ARGS_3(JM), typename boost::fusion::result_of::at_c<ArgsType, 3>::type a3
 
+#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(Visitor, Algo)                 \
+    template <typename LieGroup_t> struct Algo <LieGroup_t, JointModelComposite> {                                         \
+    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                 \
+    static void run (SE3_DETAILS_WRITE_ARGS_1(JointModelComposite))         \
+    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0)); } \
+    }
+#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_2(Visitor, Algo)                 \
+    template <typename LieGroup_t> struct Algo <LieGroup_t, JointModelComposite> {                                         \
+    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                 \
+    static void run (SE3_DETAILS_WRITE_ARGS_2(JointModelComposite))         \
+    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0, a1)); } \
+    }
 #define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(Visitor, Algo)                 \
     template <typename LieGroup_t> struct Algo <LieGroup_t, JointModelComposite> {                                         \
       typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                 \
@@ -56,7 +68,15 @@ namespace se3
       static void run (SE3_DETAILS_WRITE_ARGS_4(JointModelComposite))         \
       { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0, a1, a2, a3)); } \
     }
-
+    
+#define SE3_DETAILS_VISITOR_METHOD_ALGO_1(Algo, TplParam)                      \
+    template<typename JointModel>                                              \
+    static void algo(SE3_DETAILS_WRITE_ARGS_1(JointModel))                     \
+    { Algo<TplParam, JointModel>::run(jmodel, a0); }
+#define SE3_DETAILS_VISITOR_METHOD_ALGO_2(Algo, TplParam)                      \
+    template<typename JointModel>                                              \
+    static void algo(SE3_DETAILS_WRITE_ARGS_2(JointModel))                     \
+    { Algo<TplParam, JointModel>::run(jmodel, a0, a1); }
 #define SE3_DETAILS_VISITOR_METHOD_ALGO_3(Algo, TplParam)                      \
     template<typename JointModel>                                              \
     static void algo(SE3_DETAILS_WRITE_ARGS_3(JointModel))                     \
