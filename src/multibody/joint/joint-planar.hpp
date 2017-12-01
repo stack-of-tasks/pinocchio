@@ -525,6 +525,11 @@ namespace se3
     { 
       return difference_impl(q0, q1).norm();
     }
+          
+    void normalize_impl(Eigen::VectorXd& q) const
+    {
+      q.segment<NQ>(idx_q()).tail<2>().normalize();
+    }
 
     ConfigVector_t neutralConfiguration_impl() const
     { 
