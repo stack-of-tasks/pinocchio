@@ -77,6 +77,19 @@ namespace se3
   inline Eigen::VectorXd squaredDistance(const Model & model,
                                          const Eigen::VectorXd & q0,
                                          const Eigen::VectorXd & q1);
+  /**
+   * @brief      Distance between two configuration vectors
+   *
+   * @param[in]  model      Model we want to compute the distance
+   * @param[in]  q0         Configuration 0 (size model.nq)
+   * @param[in]  q1         Configuration 1 (size model.nq)
+   * @return     The distance between the two configurations
+   */
+  template<typename LieGroup_t>
+  inline double
+  distance(const Model & model,
+           const Eigen::VectorXd & q0,
+           const Eigen::VectorXd & q1);
 
   /**
    * @brief      Generate a configuration vector uniformly sampled among provided limits.
