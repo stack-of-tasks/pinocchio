@@ -65,7 +65,7 @@ namespace se3 {
    * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
    *
    * \warning    Do not take into account the joint limits. To shoot a configuration uniformingly
-   *             depending on joint limits, see uniformySample
+   *             depending on joint limits, see randomConfiguration
    *
    * @return     The joint configuration
    */
