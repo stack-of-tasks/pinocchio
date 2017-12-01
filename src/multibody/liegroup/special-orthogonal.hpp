@@ -135,9 +135,8 @@ namespace se3
       }
       else // theta = +-PI
       {
-        double theta0 = atan2 (q0(1), q0(0));
-        out << cos (theta0 + u * theta),
-               sin (theta0 + u * theta);
+        Scalar theta0 = atan2 (q0(1), q0(0));
+        SINCOS(theta0,&out[1],&out[0])
       }
     }
 
