@@ -247,6 +247,7 @@ namespace se3
     ,Ycrb((std::size_t)model.njoints)
     ,dYcrb((std::size_t)model.njoints)
     ,M(model.nv,model.nv)
+    ,C(model.nv,model.nv)
     ,ddq(model.nv)
     ,Yaba((std::size_t)model.njoints)
     ,u(model.nv)

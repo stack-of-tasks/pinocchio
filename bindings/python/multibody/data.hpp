@@ -75,6 +75,7 @@ namespace se3
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,ddq,"Joint accelerations")
         .ADD_DATA_PROPERTY(container::aligned_vector<Inertia>,Ycrb,"Inertia of the sub-tree composit rigid body")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,M,"Joint Inertia matrix")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,C,"The Coriolis matrix such that c(q,v) = C(q,v)v")
         .ADD_DATA_PROPERTY(container::aligned_vector<Matrix6x>,Fcrb,"Spatial forces set, used in CRBA")
         .ADD_DATA_PROPERTY(std::vector<int>,lastChild,"Index of the last child (for CRBA)")
         .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree,"Dimension of the subtree motion space (for CRBA)")

@@ -408,6 +408,9 @@ namespace se3
     /// \brief The joint space inertia matrix (a square matrix of dim model.nv).
     Eigen::MatrixXd M;
     
+    /// \brief The Coriolis matrix (a square matrix of dim model.nv).
+    Eigen::MatrixXd C;
+    
     /// \brief The joint accelerations computed from ABA
     Eigen::VectorXd ddq;
     
