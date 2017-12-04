@@ -292,6 +292,64 @@ namespace se3
       vxs(v,*this,M);
       return M;
     }
+    
+    ///
+    /// \brief Performs the operation \f$ M = S_{3} [v]_{\cross \f$.
+    ///
+    /// \tparam Vector3, Matrix3
+    ///
+    /// \param[in]  v  a vector of dimension 3.
+    /// \param[in]  S3 a symmetric matrix of dimension 3x3.
+    /// \param[out] M  an output matrix of dimension 3x3.
+    ///
+    template<typename Vector3, typename Matrix3>
+    static void svx(const Eigen::MatrixBase<Vector3> & v,
+                    const Symmetric3Tpl & S3,
+                    const Eigen::MatrixBase<Matrix3> & M)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
+      
+      const Scalar & a = S3.data()[0];
+      const Scalar & b = S3.data()[1];
+      const Scalar & c = S3.data()[2];
+      const Scalar & d = S3.data()[3];
+      const Scalar & e = S3.data()[4];
+      const Scalar & f = S3.data()[5];
+      
+      const typename Vector3::RealScalar & v0 = v[0];
+      const typename Vector3::RealScalar & v1 = v[1];
+      const typename Vector3::RealScalar & v2 = v[2];
+      
+      Matrix3 & M_ = const_cast<Eigen::MatrixBase<Matrix3> &>(M).derived();
+      M_(0,0) = b * v2 - d * v1;
+      M_(1,0) = c * v2 - e * v1;
+      M_(2,0) = e * v2 - f * v1;
+      
+      M_(0,1) = d * v0 - a * v2;
+      M_(1,1) = e * v0 - b * v2;
+      M_(2,1) = f * v0 - d * v2;
+      
+      M_(0,2) = a * v1 - b * v0;
+      M_(1,2) = b * v1 - c * v0;
+      M_(2,2) = d * v1 - e * v0;
+    }
+    
+    /// \brief Performs the operation \f$ M = S_{3} [v]_{\cross \f$.
+    ///
+    /// \tparam Vector3
+    ///
+    /// \param[in]  v  a vector of dimension 3.
+    ///
+    /// \returns the result \f$ S [v]_{\cross} \f$.
+    ///
+    template<typename Vector3>
+    Matrix3 svx(const Eigen::MatrixBase<Vector3> & v) const
+    {
+      Matrix3 M;
+      svx(v,*this,M);
+      return M;
+    }
 
     Symmetric3Tpl operator+(const Symmetric3Tpl & s2) const
     {

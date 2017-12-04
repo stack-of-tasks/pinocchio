@@ -226,6 +226,20 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
     
     BOOST_CHECK(S.vxs(v).isApprox(M_ref));
   }
+  
+  // Test S3 vx
+  {
+    Symmetric3 S = Symmetric3::RandomPositive();
+    Vector3 v = Vector3::Random();
+    Matrix3 Vcross = skew(v);
+    Matrix3 M_ref(S.matrix() * Vcross);
+    
+    Matrix3 M_res;
+    Symmetric3::svx(v,S,M_res);
+    BOOST_CHECK(M_res.isApprox(M_ref));
+    
+    BOOST_CHECK(S.svx(v).isApprox(M_ref));
+  }
 
     // Time test
     {
