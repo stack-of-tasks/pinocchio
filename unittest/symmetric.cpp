@@ -212,6 +212,20 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
     double kinetic = S.vtiv(v);
     BOOST_CHECK_SMALL(kinetic_ref - kinetic, 1e-12);
   }
+  
+  // Test v x S3
+  {
+    Symmetric3 S = Symmetric3::RandomPositive();
+    Vector3 v = Vector3::Random();
+    Matrix3 Vcross = skew(v);
+    Matrix3 M_ref(Vcross * S.matrix());
+    
+    Matrix3 M_res;
+    Symmetric3::cross(v,S,M_res);
+    BOOST_CHECK(M_res.isApprox(M_ref));
+    
+    BOOST_CHECK(S.cross(v).isApprox(M_ref));
+  }
 
     // Time test
     {
