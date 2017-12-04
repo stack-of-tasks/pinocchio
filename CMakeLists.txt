@@ -244,6 +244,7 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/center-of-mass.hpp
   algorithm/center-of-mass.hxx
   algorithm/joint-configuration.hpp
+  algorithm/joint-configuration.hxx
   algorithm/energy.hpp
   algorithm/frames.hpp
   algorithm/compute-all-terms.hpp

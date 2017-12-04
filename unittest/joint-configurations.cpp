@@ -60,13 +60,13 @@ void buildModel(Model & model)
 {
   addJointAndBody(model,JointModelFreeFlyer(),model.getJointId("universe"),SE3::Identity(),"freeflyer",Inertia::Random());
   addJointAndBody(model,JointModelSpherical(),model.getJointId("freeflyer_joint"),SE3::Identity(),"spherical",Inertia::Random());
-  addJointAndBody(model,JointModelRX(),model.getJointId("spherical_joint"),SE3::Identity(),"rx",Inertia::Random());
+  addJointAndBody(model,JointModelPlanar(),model.getJointId("spherical_joint"),SE3::Identity(),"planar",Inertia::Random());
+  addJointAndBody(model,JointModelRX(),model.getJointId("planar_joint"),SE3::Identity(),"rx",Inertia::Random());
   addJointAndBody(model,JointModelPX(),model.getJointId("rx_joint"),SE3::Identity(),"px",Inertia::Random());
   addJointAndBody(model,JointModelPrismaticUnaligned(SE3::Vector3(1,0,0)),model.getJointId("px_joint"),SE3::Identity(),"pu",Inertia::Random());
   addJointAndBody(model,JointModelRevoluteUnaligned(SE3::Vector3(0,0,1)),model.getJointId("pu_joint"),SE3::Identity(),"ru",Inertia::Random());
   addJointAndBody(model,JointModelSphericalZYX(),model.getJointId("ru_joint"),SE3::Identity(),"sphericalZYX",Inertia::Random());
   addJointAndBody(model,JointModelTranslation(),model.getJointId("sphericalZYX_joint"),SE3::Identity(),"translation",Inertia::Random());
-  addJointAndBody(model,JointModelPlanar(),model.getJointId("translation_joint"),SE3::Identity(),"planar",Inertia::Random());
 }
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
@@ -317,13 +317,13 @@ BOOST_AUTO_TEST_CASE ( neutral_configuration_test )
   Eigen::VectorXd expected(model.nq);
   expected << 0,0,0,0,0,0,1,
               0,0,0,1,
+              0,0,1,0,
               0,
               0,
               0,
               0,
               0,0,0,
-              0,0,0,
-              0,0,1,0;
+              0,0,0;
 
 
   BOOST_CHECK_MESSAGE(model.neutralConfiguration.isApprox(expected, 1e-12), "neutral configuration - wrong results");
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE ( normalize_test )
   BOOST_CHECK(q.head<3>().isApprox(Eigen::VectorXd::Ones(3)));
   BOOST_CHECK(fabs(q.segment<4>(3).norm() - 1) < Eigen::NumTraits<double>::epsilon()); // quaternion of freeflyer
   BOOST_CHECK(fabs(q.segment<4>(7).norm() - 1) < Eigen::NumTraits<double>::epsilon()); // quaternion of spherical joint
-  const int n = model.nq - 7 - 4;
+  const int n = model.nq - 7 - 4 - 4; // free flyer + spherical + planar
   BOOST_CHECK(q.tail(n).isApprox(Eigen::VectorXd::Ones(n)));
 }
 

@@ -33,6 +33,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
     ConfigVector_t  q1(ConfigVector_t::Random (jmodel.nq()));
     TangentVector_t q1_dot(TangentVector_t::Random (jmodel.nv()));
     ConfigVector_t  q2(ConfigVector_t::Random (jmodel.nq()));
+  
     double u = 0.3;
     // se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
     // bool update_I = false;
@@ -49,6 +50,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
     static Eigen::VectorXd Ones (Eigen::VectorXd::Ones(jmodel.nq()));
 
     std::string error_prefix("LieGroup ");
+
     BOOST_CHECK_MESSAGE(jmodel.nq() == LieGroupType::NQ, std::string(error_prefix + " - nq "));
     BOOST_CHECK_MESSAGE(jmodel.nv() == LieGroupType::NV, std::string(error_prefix + " - nv "));
 
@@ -60,6 +62,12 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
        std::string(error_prefix + " - RandomConfiguration dimensions "));
     BOOST_CHECK_MESSAGE(jmodel.difference(q1,q2).isApprox(LieGroupType::difference(q1,q2)) ,std::string(error_prefix + " - difference "));
     BOOST_CHECK_MESSAGE(fabs(jmodel.distance(q1,q2) - LieGroupType::distance(q1,q2)) < 1e-12 ,std::string(error_prefix + " - distance "));
+  
+  ConfigVector_t q_normalize(ConfigVector_t::Random());
+  Eigen::VectorXd q_normalize_ref(q_normalize);
+  jmodel.normalize(q_normalize_ref);
+  LieGroupType::normalize(q_normalize);
+  BOOST_CHECK_MESSAGE(q_normalize.isApprox(q_normalize_ref), std::string(error_prefix + " - normalize "));
 }
 
 struct TestJoint{

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -110,12 +110,12 @@ namespace se3
       typedef Eigen::Matrix<Scalar, 2, 2> Matrix22;
       typedef Eigen::Matrix<Scalar, 2, 1> Vector2;
 
-      const double& c0 = q(2), s0 = q(3);
+      const typename ConfigIn_t::Scalar & c0 = q(2), s0 = q(3);
       Matrix22 R0;
       R0 << c0, -s0, s0, c0;
 
-      const double& t = vs[2];
-      const double theta = std::fabs(t);
+      const typename Velocity_t::Scalar & t = vs[2];
+      const typename Velocity_t::RealScalar theta = std::fabs(t);
 
       if(theta > 1e-14)
       {
@@ -136,11 +136,11 @@ namespace se3
         //
         // M0 * Mu = ( R0 * Ru, R0 * tu + t0 )
 
-        // FIXME remove this copy.
-        Vector2 v = vs.template head<2>();
-        Eigen::Matrix<Scalar,2,1> cst;
+        typedef typename Velocity_t::template ConstFixedSegmentReturnType<2>::Type Segment2;
+        const Segment2 v = vs.template head<2>();
+        Vector2 cst;
         SINCOS (t, &cst[1], &cst[0]);
-        const Scalar inv_theta = 1/theta;
+        const Scalar inv_theta = Scalar(1)/theta;
         const Scalar c_coeff = (1.-cst[0]) * inv_theta;
         const Scalar s_coeff = std::fabs(cst[1]) * inv_theta;
         const Vector2 Sp_v (-v[1], v[0]);
@@ -169,6 +169,12 @@ namespace se3
     // template <class ConfigL_t, class ConfigR_t>
     // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
+    template <class Config_t>
+    static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
+    {
+      Config_t& qout_ = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
+      qout_.template tail<2>().normalize();
+    }
 
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
@@ -292,6 +298,13 @@ namespace se3
       TangentVector_t t;
       difference_impl(q0, q1, t);
       return t.squaredNorm();
+    }
+    
+    template <class Config_t>
+    static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
+    {
+      Config_t& qout_ = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
+      qout_.template tail<4>().normalize();
     }
 
     template <class Config_t>

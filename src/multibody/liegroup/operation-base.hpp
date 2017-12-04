@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -118,6 +118,14 @@ namespace se3
                             const Eigen::MatrixBase<ConfigR_t> & q1,
                             const Scalar& u,
                             const Eigen::MatrixBase<ConfigOut_t>& qout);
+    
+    /**
+     * @brief      Normalize the joint configuration given as input. For instance, the quaternion must unitary.
+     *
+     * @return     The normalized joint configuration.
+     */
+    template <class Config_t>
+    static void normalize (const Eigen::MatrixBase<Config_t>& qout);
 
     /**
      * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
@@ -227,6 +235,9 @@ namespace se3
                                  const Eigen::MatrixBase<ConfigR_t> & q1,
                                  const Scalar& u,
                                  const Eigen::MatrixBase<ConfigOut_t>& qout);
+    
+    template <class Config_t>
+    static void normalize_impl(const Eigen::MatrixBase<Config_t> & qout);
 
     template <class ConfigL_t, class ConfigR_t>
     static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
