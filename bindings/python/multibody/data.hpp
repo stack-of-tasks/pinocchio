@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -61,20 +61,20 @@ namespace se3
       void visit(PyClass& cl) const 
       {
         cl
-        .def(bp::init<Model>(bp::arg("Molde"),"Constructs a data structure from a given model."))
+        .def(bp::init<Model>(bp::arg("model"),"Constructs a data structure from a given model."))
         
-        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a,"Body acceleration")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a_gf,"Body acceleration containing also the gravity acceleration")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,v,"Body velocity")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Force>,f,"Body force")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a,"Joint spatial acceleration")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a_gf,"Joint spatial acceleration containing also the contribution of the gravity acceleration")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,v,"Joint spatial velocity expressed in the joint frame.")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Force>,f,"Joint spatial force expresssed in the joint frame.")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,oMi,"Body absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,oMf,"frames absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,liMi,"Body relative placement (wrt parent)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,tau,"Joint forces")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,nle,"Non Linear Effects")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,ddq,"Joint accelerations")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,tau,"Joint torques (output of RNEA)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,nle,"Non Linear Effects (output of nle algorithm)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,ddq,"Joint accelerations (output of ABA)")
         .ADD_DATA_PROPERTY(container::aligned_vector<Inertia>,Ycrb,"Inertia of the sub-tree composit rigid body")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,M,"Joint Inertia matrix")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,M,"The joint space inertia matrix")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,C,"The Coriolis matrix such that c(q,v) = C(q,v)v")
         .ADD_DATA_PROPERTY(container::aligned_vector<Matrix6x>,Fcrb,"Spatial forces set, used in CRBA")
         .ADD_DATA_PROPERTY(std::vector<int>,lastChild,"Index of the last child (for CRBA)")
@@ -82,7 +82,7 @@ namespace se3
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,U,"Joint Inertia square root (upper triangle)")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,D,"Diagonal of UDUT inertia decomposition")
         .ADD_DATA_PROPERTY(std::vector<int>,parents_fromRow,"First previous non-zero row in M (used in Cholesky)")
-        .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree_fromRow,"")
+        .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree_fromRow,"Subtree of the current row index (used in Cholesky)")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,J,"Jacobian of joint placement")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,dJ,"Time variation of the Jacobian of joint placement (data.J).")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
@@ -96,10 +96,10 @@ namespace se3
         .ADD_DATA_PROPERTY_READONLY(Inertia,Ig,
                                     "Centroidal Composite Rigid Body Inertia.")
         
-        .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,com,"Subtree com position.")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,vcom,"Subtree com velocity.")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,acom,"Subtree com acceleration.")
-        .ADD_DATA_PROPERTY(std::vector<double>,mass,"Subtree total mass.")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,com,"CoM position of the subtree starting at joint index i.")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,vcom,"CoM velocity of the subtree starting at joint index i.")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,acom,"CoM acceleration of the subtree starting at joint index i..")
+        .ADD_DATA_PROPERTY(std::vector<double>,mass,"Mass of the subtree starting at joint index i.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix3x,Jcom,"Jacobian of center of mass.")
 
         
