@@ -354,6 +354,19 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   BOOST_CHECK(aIvariation.isApprox(aIvariation_ref));
   BOOST_CHECK(vxIv.isApprox(Force(aIvariation*v.toVector())));
   
+  // Test vxI operator
+  {
+    typedef Inertia::Matrix6 Matrix6;
+    Inertia I(Inertia::Random());
+    Motion v(Motion::Random());
+    
+    const Matrix6 M_ref(v.toDualActionMatrix()*I.matrix());
+    Matrix6 M; Inertia::vxi(v,I,M);
+    
+    BOOST_CHECK(M.isApprox(M_ref));
+    BOOST_CHECK(I.vxi(v).isApprox(M_ref));
+  }
+  
 }
 
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )

@@ -62,6 +62,27 @@ namespace se3
 
     Scalar vtiv(const Motion & v) const { return derived().vtiv_impl(v); }
     Matrix6 variation(const Motion & v) const { return derived().variation_impl(v); }
+    
+    /// \brief Time variation operator.
+    ///        It computes the time derivative of an inertia I corresponding to the formula \f$ \dot{I} = v \cross^{*} I \f$.
+    ///
+    /// \param[in] v The spatial velocity of the frame supporting the inertia.
+    /// \param[in] I The spatial inertia in motion.
+    /// \param[out] Iout The time derivative of the inertia I.
+    ///
+    template<typename M6>
+    static void vxi(const Motion & v, const Derived & I, const Eigen::MatrixBase<M6> & Iout)
+    {
+      EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(M6, Matrix6);
+      Derived::vxi_impl(v,I,Iout);
+    }
+    
+    Matrix6 vxi(const Motion & v) const
+    {
+      Matrix6 Iout;
+      vxi(v,derived(),Iout);
+      return Iout;
+    }
 
     void setZero() { derived().setZero(); }
     void setIdentity() { derived().setIdentity(); }
@@ -327,6 +348,31 @@ namespace se3
       
       res.template block<3,3>(LINEAR,LINEAR).setZero();
       return res;
+    }
+    
+    template<typename M6>
+    static void vxi_impl(const Motion & v, const InertiaTpl & I, const Eigen::MatrixBase<M6> & Iout)
+    {
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6,6,6);
+      M6 & Iout_ = const_cast<Eigen::MatrixBase<M6> &>(Iout).derived();
+      
+      // Block 1,1
+      alphaSkew(I.mass(),v.angular(),Iout_.template block<3,3>(LINEAR,LINEAR));
+      const Vector3 mc(I.mass()*I.lever());
+      
+      // Block 1,2
+      skewSquare(-v.angular(),mc,Iout_.template block<3,3>(LINEAR,ANGULAR));
+      
+      // Block 2,1
+      alphaSkew(I.mass(),v.linear(),Iout_.template block<3,3>(ANGULAR,LINEAR));
+      Iout_.template block<3,3>(ANGULAR,LINEAR) -= Iout_.template block<3,3>(LINEAR,ANGULAR);
+      
+      // Block 2,2
+      skewSquare(-v.linear(),mc,Iout_.template block<3,3>(ANGULAR,ANGULAR));
+      Iout_.template block<3,3>(ANGULAR,ANGULAR) += I.inertia().cross(v.angular());
+      Matrix3 mcxc; skewSquare(mc,I.lever(),mcxc);
+      Iout_.template block<3,3>(ANGULAR,ANGULAR) -= cross(v.angular(),mcxc);
+      
     }
 
     // Getters
