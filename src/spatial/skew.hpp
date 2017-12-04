@@ -54,10 +54,10 @@ namespace se3
   /// \return The skew matrix representation of v.
   ///
   template <typename D>
-  inline Eigen::Matrix<typename D::Scalar,3,3,Eigen::internal::plain_matrix_type<D>::type::Options>
+  inline Eigen::Matrix<typename D::Scalar,3,3,EIGEN_PLAIN_TYPE(D)::Options>
   skew(const Eigen::MatrixBase<D> & v)
   {
-    Eigen::Matrix<typename D::Scalar,3,3,Eigen::internal::plain_matrix_type<D>::type::Options> M;
+    Eigen::Matrix<typename D::Scalar,3,3,EIGEN_PLAIN_TYPE(D)::Options> M;
     skew(v,M);
     return M;
   }
@@ -138,11 +138,11 @@ namespace se3
   /// \returns the skew matrix representation of \f$ \alpha v \f$.
   ///
   template <typename Scalar, typename Vector3>
-  inline Eigen::Matrix<typename Vector3::Scalar,3,3,Vector3::PlainMatrix::Options>
+  inline Eigen::Matrix<typename Vector3::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3)::Options>
   alphaSkew(const Scalar alpha,
             const Eigen::MatrixBase<Vector3> & v)
   {
-    Eigen::Matrix<typename Vector3::Scalar,3,3,Vector3::PlainMatrix::Options> M;
+    Eigen::Matrix<typename Vector3::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3)::Options> M;
     alphaSkew(alpha,v,M);
     return M;
   }
@@ -150,7 +150,7 @@ namespace se3
   ///
   /// \brief Computes the square cross product linear operator C(u,v) such that for any vector w, \f$ u \times ( v \times w ) = C(u,v) w \f$.
   ///
-  /// \param[in]  u a3 dimensional vector.
+  /// \param[in]  u a 3 dimensional vector.
   /// \param[in]  v a 3 dimensional vector.
   /// \param[out] C the skew square matrix representation of dimension 3x3.
   ///
@@ -180,12 +180,12 @@ namespace se3
   /// \return The square cross product matrix C.
   ///
   template <typename V1, typename V2>
-  inline Eigen::Matrix<typename V1::Scalar,3,3,V1::PlainMatrix::Options>
+  inline Eigen::Matrix<typename V1::Scalar,3,3,EIGEN_PLAIN_TYPE(V1)::Options>
   skewSquare(const Eigen::MatrixBase<V1> & u,
              const Eigen::MatrixBase<V2> & v)
   {
     
-    Eigen::Matrix<typename V1::Scalar,3,3,V1::PlainMatrix::Options> M;
+    Eigen::Matrix<typename V1::Scalar,3,3,EIGEN_PLAIN_TYPE(V1)::Options> M;
     skewSquare(u,v,M);
     return M;
   }
@@ -224,11 +224,11 @@ namespace se3
   /// \return the results of \f$ [v]_{\cross} M \f$.
   ///
   template <typename Vector3, typename Matrix3x>
-  inline typename Matrix3x::PlainMatrix
+  inline typename EIGEN_PLAIN_TYPE(Matrix3x)
   cross(const Eigen::MatrixBase<Vector3> & v,
         const Eigen::MatrixBase<Matrix3x> & M)
   {
-    typename Matrix3x::PlainMatrix res(3,M.cols());
+    typename EIGEN_PLAIN_TYPE(Matrix3x) res(3,M.cols());
     cross(v,M,res);
     return res;
   }
