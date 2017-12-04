@@ -20,6 +20,9 @@
 
 #include <Eigen/Core>
 
+/// \brief Macro giving access to the equivalent type of D
+#define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type<D>::type
+
 #ifdef EIGEN3_BETA_3_2_9x
 namespace se3
 {
