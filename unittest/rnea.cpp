@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -27,6 +27,7 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
 
@@ -149,13 +150,22 @@ BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
   container::aligned_vector<Force> fext(model.joints.size(), Force::Zero());
   
   JointIndex rf = model.getJointId("rleg6_joint"); Force Frf = Force::Random();
+  fext[rf] = Frf;
   JointIndex lf = model.getJointId("lleg6_joint"); Force Flf = Force::Random();
+  fext[lf] = Flf;
   
   rnea(model,data_rnea,q,v,a);
+  VectorXd tau_ref(data_rnea.tau);
+  Data::Matrix6x Jrf(Data::Matrix6x::Zero(6,model.nv));
+  jacobian(model,data_rnea,q,rf,Jrf);
+  tau_ref -= Jrf.transpose() * Frf.toVector();
+  
+  Data::Matrix6x Jlf(Data::Matrix6x::Zero(6,model.nv));
+  jacobian(model,data_rnea,q,lf,Jlf);
+  tau_ref -= Jlf.transpose() * Flf.toVector();
+  
   rnea(model,data_rnea_fext,q,v,a,fext);
   
-  BOOST_CHECK(data_rnea.tau.isApprox(data_rnea_fext.tau));
-  
-  
+  BOOST_CHECK(tau_ref.isApprox(data_rnea_fext.tau));
 }
 BOOST_AUTO_TEST_SUITE_END ()

@@ -56,22 +56,49 @@ namespace se3
                    Data::Matrix6x & J);
   
   ///
+  /// \brief Computes the Jacobian of a specific joint frame expressed in the local frame of the joint and store the result in the input argument J.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] jointId The id of the joint refering to model.joints[jointId].
+  /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.setZero().
+  ///
+  /// \return The Jacobian of the specific joint frame expressed in the local frame of the joint (matrix 6 x model.nv).
+  ///
+  /// \remark This function is equivalent to call first computeJacobians(model,data,q) and then call getJacobian<true>(model,data,jointId,J).
+  ///         It is worth to call jacobian if you only need a single Jacobian for a specific joint. Otherwise, for several Jacobians, it is better
+  ///         to call computeJacobians(model,data,q) followed by getJacobian<true>(model,data,jointId,J) for each Jacobian.
+  ///
+  inline void jacobian(const Model & model,
+                       Data & data,
+                       const Eigen::VectorXd & q,
+                       const Model::JointIndex jointId,
+                       Data::Matrix6x & J);
+  
+  ///
   /// \brief Computes the Jacobian of a specific joint frame expressed in the local frame of the joint. The result is stored in data.J.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] jointId The id of the joint.
+  /// \param[in] jointId The id of the joint refering to model.joints[jointId].
   ///
   /// \return The Jacobian of the specific joint frame expressed in the local frame of the joint (matrix 6 x model.nv).
   ///
+  PINOCCHIO_DEPRECATED
   inline const Data::Matrix6x &
   jacobian(const Model & model,
            Data & data,
            const Eigen::VectorXd & q,
-           const Model::JointIndex jointId);
+           const Model::JointIndex jointId)
+  {
+    data.J.setZero();
+    jacobian(model,data,q,jointId,data.J);
+    
+    return data.J;
+  }
 
-  
   ///
   /// \brief Computes the full model Jacobian variations with respect to time. It corresponds to dJ/dt which depends both on q and v
   ///        The result is accessible through data.dJ.
@@ -101,10 +128,10 @@ namespace se3
   /// \param[out] dJ A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill dJ with zero elements, e.g. dJ.fill(0.).
   ///
   template<bool localFrame>
-  void getJacobian(const Model & model,
-                   const Data & data,
-                   const Model::JointIndex jointId,
-                   Data::Matrix6x & dJ);
+  void getJacobianTimeVariation(const Model & model,
+                                const Data & data,
+                                const Model::JointIndex jointId,
+                                Data::Matrix6x & dJ);
   
 } // namespace se3 
 
