@@ -369,7 +369,7 @@ namespace se3
       
       // Block 2,2
       skewSquare(-v.linear(),mc,Iout_.template block<3,3>(ANGULAR,ANGULAR));
-      Iout_.template block<3,3>(ANGULAR,ANGULAR) += I.inertia().cross(v.angular());
+      Iout_.template block<3,3>(ANGULAR,ANGULAR) += I.inertia().vxs(v.angular());
       Matrix3 mcxc; skewSquare(mc,I.lever(),mcxc);
       Iout_.template block<3,3>(ANGULAR,ANGULAR) -= cross(v.angular(),mcxc);
       

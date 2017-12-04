@@ -221,10 +221,10 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
     Matrix3 M_ref(Vcross * S.matrix());
     
     Matrix3 M_res;
-    Symmetric3::cross(v,S,M_res);
+    Symmetric3::vxs(v,S,M_res);
     BOOST_CHECK(M_res.isApprox(M_ref));
     
-    BOOST_CHECK(S.cross(v).isApprox(M_ref));
+    BOOST_CHECK(S.vxs(v).isApprox(M_ref));
   }
 
     // Time test

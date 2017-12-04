@@ -232,7 +232,8 @@ namespace se3
     }
     
     ///
-    /// \brief Performs the operation \f$ M = [v]_{\cross} S \f$.
+    /// \brief Performs the operation \f$ M = [v]_{\cross} S_{3} \f$.
+    ///        This operation is equivalent to applying the cross product of v on each column of S.
     ///
     /// \tparam Vector3, Matrix3
     ///
@@ -241,9 +242,9 @@ namespace se3
     /// \param[out] M  an output matrix of dimension 3x3.
     ///
     template<typename Vector3, typename Matrix3>
-    static void cross(const Eigen::MatrixBase<Vector3> & v,
-                      const Symmetric3Tpl & S3,
-                      const Eigen::MatrixBase<Matrix3> & M)
+    static void vxs(const Eigen::MatrixBase<Vector3> & v,
+                    const Symmetric3Tpl & S3,
+                    const Eigen::MatrixBase<Matrix3> & M)
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
@@ -276,6 +277,7 @@ namespace se3
     
     ///
     /// \brief Performs the operation \f$ [v]_{\cross} S \f$.
+    ///        This operation is equivalent to applying the cross product of v on each column of S.
     ///
     /// \tparam Vector3
     ///
@@ -284,10 +286,10 @@ namespace se3
     /// \returns the result \f$ [v]_{\cross} S \f$.
     ///
     template<typename Vector3>
-    Matrix3 cross(const Eigen::MatrixBase<Vector3> & v) const
+    Matrix3 vxs(const Eigen::MatrixBase<Vector3> & v) const
     {
       Matrix3 M;
-      cross(v,*this,M);
+      vxs(v,*this,M);
       return M;
     }
 
