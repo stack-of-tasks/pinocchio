@@ -20,6 +20,9 @@
 #include "pinocchio/parsers/urdf/utils.hpp"
 #include "pinocchio/parsers/utils.hpp"
 
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>
 
@@ -39,6 +42,53 @@ namespace se3
   {
     namespace details
     {
+     struct UrdfTree
+     {
+       typedef boost::property_tree::ptree ptree;
+       typedef std::map<std::string, const ptree&> LinkMap_t;
+
+       void parse (const std::string & xmlStr)
+       {
+         urdf_ = ::urdf::parseURDF(xmlStr);
+
+         std::istringstream iss(xmlStr);
+         using namespace boost::property_tree;
+         read_xml(iss, tree_, xml_parser::no_comments);
+
+         BOOST_FOREACH(const ptree::value_type & link, tree_.get_child("robot")) {
+           if (link.first == "link") {
+             std::string name = link.second.get<std::string>("<xmlattr>.name");
+             links_.insert(std::pair<std::string,const ptree&>(name, link.second));
+           }
+         } // BOOST_FOREACH
+       }
+
+       bool replaceCylinderByCapsule (const std::string& linkName,
+           const std::string& geomName) const
+       {
+         LinkMap_t::const_iterator _link = links_.find(linkName);
+         assert (_link != links_.end());
+         const ptree& link = _link->second;
+         if (link.count ("collision_checking") == 0)
+           return false;
+         BOOST_FOREACH(const ptree::value_type & cc, link.get_child("collision_checking")) {
+           if (cc.first == "capsule") {
+             std::string name = cc.second.get<std::string>("<xmlattr>.name");
+             if (geomName == name) return true;
+           }
+         } // BOOST_FOREACH
+
+         return false;
+       }
+
+       // For standard URDF tags
+       ::urdf::ModelInterfaceSharedPtr urdf_;
+       // For other tags
+       ptree tree_;
+       // A mapping from link name to corresponding child of tree_
+       LinkMap_t links_;
+     };
+
 #ifdef WITH_HPP_FCL      
       typedef fcl::BVHModel< fcl::OBBRSS > PolyhedronType;
       typedef boost::shared_ptr <PolyhedronType> PolyhedronPtrType;
@@ -54,10 +104,14 @@ namespace se3
      *
      * @return     A shared pointer on the he geometry converted as a fcl::CollisionGeometry
      */
-     boost::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(const ::urdf::GeometrySharedPtr urdf_geometry,
-                                                                         const std::vector<std::string> & package_dirs,
-                                                                         std::string & meshPath,
-                                                                         Eigen::Vector3d & meshScale)
+     boost::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(
+         const UrdfTree& tree,
+         const std::string& linkName,
+         const std::string& geomName,
+         const ::urdf::GeometrySharedPtr urdf_geometry,
+         const std::vector<std::string> & package_dirs,
+         std::string & meshPath,
+         Eigen::Vector3d & meshScale)
       {
         boost::shared_ptr<fcl::CollisionGeometry> geometry;
 
@@ -94,7 +148,7 @@ namespace se3
         // Use FCL capsules for cylinders
         else if (urdf_geometry->type == ::urdf::Geometry::CYLINDER)
         {
-          meshPath = "CYLINDER";
+          bool capsule = tree.replaceCylinderByCapsule(linkName, geomName);
           meshScale << 1,1,1;
           const ::urdf::CylinderSharedPtr collisionGeometry = ::urdf::dynamic_pointer_cast< ::urdf::Cylinder> (urdf_geometry);
     
@@ -102,7 +156,13 @@ namespace se3
           double length = collisionGeometry->length;
     
           // Create fcl capsule geometry.
-          geometry = boost::shared_ptr < fcl::CollisionGeometry >(new fcl::Capsule (radius, length));
+          if (capsule) {
+            meshPath = "CAPSULE";
+            geometry = boost::shared_ptr < fcl::CollisionGeometry >(new fcl::Capsule (radius, length));
+          } else {
+            meshPath = "CYLINDER";
+            geometry = boost::shared_ptr < fcl::CollisionGeometry >(new fcl::Cylinder (radius, length));
+          }
         }
         // Handle the case where collision geometry is a box.
         else if (urdf_geometry->type == ::urdf::Geometry::BOX) 
@@ -243,7 +303,8 @@ namespace se3
      * @param[in]  type            The type of objects that must be loaded ( can be VISUAL or COLLISION)
      */
       template<typename T>
-      inline void addLinkGeometryToGeomModel(::urdf::LinkConstSharedPtr link,
+      inline void addLinkGeometryToGeomModel(const UrdfTree& tree,
+                                             ::urdf::LinkConstSharedPtr link,
                                              const Model & model,
                                              GeometryModel & geomModel,
                                              const std::vector<std::string> & package_dirs) throw (std::invalid_argument)
@@ -270,7 +331,9 @@ namespace se3
           {
             meshPath.clear();
 #ifdef WITH_HPP_FCL
-            const boost::shared_ptr<fcl::CollisionGeometry> geometry = retrieveCollisionGeometry((*i)->geometry, package_dirs, meshPath, meshScale);
+            const boost::shared_ptr<fcl::CollisionGeometry> geometry =
+              retrieveCollisionGeometry(tree, link_name, (*i)->name,
+                  (*i)->geometry, package_dirs, meshPath, meshScale);
 #else
             ::urdf::MeshSharedPtr urdf_mesh = ::urdf::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry);
             if (urdf_mesh) meshPath = retrieveResourcePath(urdf_mesh->filename, package_dirs);
@@ -307,7 +370,8 @@ namespace se3
      * @param[in]  package_dirs    A vector containing the different directories where to search for packages
      * @param[in]  type            The type of objects that must be loaded ( can be VISUAL or COLLISION)
      */
-     void parseTreeForGeom(::urdf::LinkConstSharedPtr link,
+     void parseTreeForGeom(const UrdfTree& tree,
+                           ::urdf::LinkConstSharedPtr link,
                            const Model & model,
                            GeometryModel & geomModel,
                            const std::vector<std::string> & package_dirs,
@@ -317,10 +381,10 @@ namespace se3
         switch(type)
         {
           case COLLISION:
-            addLinkGeometryToGeomModel< ::urdf::Collision >(link, model, geomModel, package_dirs);
+            addLinkGeometryToGeomModel< ::urdf::Collision >(tree, link, model, geomModel, package_dirs);
           break;
           case VISUAL:
-            addLinkGeometryToGeomModel< ::urdf::Visual >(link, model, geomModel, package_dirs);
+            addLinkGeometryToGeomModel< ::urdf::Visual >(tree, link, model, geomModel, package_dirs);
           break;
           default:
           break;
@@ -328,7 +392,7 @@ namespace se3
         
         BOOST_FOREACH(::urdf::LinkConstSharedPtr child,link->child_links)
         {
-          parseTreeForGeom(child, model, geomModel, package_dirs,type);
+          parseTreeForGeom(tree, child, model, geomModel, package_dirs,type);
         }
 
       }
@@ -344,17 +408,32 @@ namespace se3
                              const std::vector<std::string> & package_dirs)
       throw(std::invalid_argument)
     {
-      ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
-      return buildGeom (model, urdfTree, type, geomModel, package_dirs);
+      std::ifstream xmlStream(filename.c_str());
+      if (! xmlStream.is_open())
+      {
+        const std::string exception_message (filename + " does not seem to be a valid file.");
+        throw std::invalid_argument(exception_message);
+      }
+      return buildGeom (model, xmlStream, type, geomModel, package_dirs);
     }
 
     GeometryModel& buildGeom(const Model & model,
-                             const ::urdf::ModelInterfaceSharedPtr & urdfTree,
+                             const std::istream& xmlStream,
                              const GeometryType type,
                              GeometryModel & geomModel,
                              const std::vector<std::string> & package_dirs)
       throw(std::invalid_argument)
     {
+      std::string xmlStr;
+      {
+        std::ostringstream os;
+        os << xmlStream.rdbuf();
+        xmlStr = os.str();
+      }
+
+      details::UrdfTree tree;
+      tree.parse (xmlStr);
+
       std::vector<std::string> hint_directories(package_dirs);
 
       // Append the ROS_PACKAGE_PATH
@@ -366,7 +445,7 @@ namespace se3
         throw std::runtime_error("You did not specify any package directory and ROS_PACKAGE_PATH is empty. Geometric parsing will crash");
       }
 
-      details::parseTreeForGeom(urdfTree->getRoot(), model, geomModel, hint_directories,type);
+      details::parseTreeForGeom(tree, tree.urdf_->getRoot(), model, geomModel, hint_directories,type);
       return geomModel;
     }
 
