@@ -270,13 +270,13 @@ namespace se3
   namespace internal
   {
     template<>
-    struct ActionReturn<JointSphericalZYX::ConstraintRotationalSubspace >
+    struct SE3GroupAction<JointSphericalZYX::ConstraintRotationalSubspace >
     {
 //      typedef const typename Eigen::ProductReturnType<
 //      Eigen::Matrix <double,6,3,0>,
 //      Eigen::Matrix <double,3,3,0>
 //      >::Type Type;
-      typedef Eigen::Matrix <double,6,3,0> Type;
+      typedef Eigen::Matrix <double,6,3,0> ReturnType;
     };
   }
 

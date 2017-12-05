@@ -246,8 +246,8 @@ namespace se3
     namespace internal 
     {
       template<>
-      struct ActionReturn<ConstraintPrismaticUnaligned >  
-      { typedef Eigen::Matrix<double,6,1> Type; };
+      struct SE3GroupAction<ConstraintPrismaticUnaligned >  
+      { typedef Eigen::Matrix<double,6,1> ReturnType; };
     }
 
     struct JointPrismaticUnaligned;

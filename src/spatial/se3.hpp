@@ -31,7 +31,7 @@ namespace se3
   namespace internal 
   {
     template<typename D>
-    struct ActionReturn    { typedef D Type; };
+    struct SE3GroupAction    { typedef D ReturnType; };
   }
 
   /** The rigid transform aMb can be seen in two ways: 
@@ -91,13 +91,13 @@ namespace se3
 
       /// ay = aXb.act(by)
       template<typename D>
-      typename internal::ActionReturn<D>::Type act   (const D & d) const 
+      typename internal::SE3GroupAction<D>::ReturnType act   (const D & d) const 
       { 
         return derived().act_impl(d);
       }
       
       /// by = aXb.actInv(ay)
-      template<typename D> typename internal::ActionReturn<D>::Type actInv(const D & d) const
+      template<typename D> typename internal::SE3GroupAction<D>::ReturnType actInv(const D & d) const
       {
         return derived().actInv_impl(d);
       }
@@ -282,12 +282,12 @@ namespace se3
 
     /// ay = aXb.act(by)
     template<typename D>
-    typename internal::ActionReturn<D>::Type act_impl   (const D & d) const 
+    typename internal::SE3GroupAction<D>::ReturnType act_impl   (const D & d) const 
     { 
       return d.se3Action(*this);
     }
     /// by = aXb.actInv(ay)
-    template<typename D> typename internal::ActionReturn<D>::Type actInv_impl(const D & d) const
+    template<typename D> typename internal::SE3GroupAction<D>::ReturnType actInv_impl(const D & d) const
     {
       return d.se3ActionInverse(*this);
     }

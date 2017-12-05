@@ -329,8 +329,8 @@ namespace se3
   namespace internal 
   {
     template<int axis>
-    struct ActionReturn<ConstraintPrismatic<axis> >
-    { typedef Eigen::Matrix<double,6,1> Type; };
+    struct SE3GroupAction<ConstraintPrismatic<axis> >
+    { typedef Eigen::Matrix<double,6,1> ReturnType; };
   }
 
 

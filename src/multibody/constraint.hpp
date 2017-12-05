@@ -99,8 +99,8 @@ namespace se3
   namespace internal
   {  
     template<int Dim, typename Scalar, int Options>
-    struct ActionReturn<ConstraintTpl<Dim,Scalar,Options> >
-    { typedef Eigen::Matrix<Scalar,6,Dim> Type; };
+    struct SE3GroupAction<ConstraintTpl<Dim,Scalar,Options> >
+    { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
   }
 
   template<int _Dim, typename _Scalar, int _Options>

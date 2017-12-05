@@ -252,8 +252,8 @@ namespace se3
     namespace internal
     {
       template<>
-      struct ActionReturn<ConstraintRevoluteUnaligned >  
-      { typedef Eigen::Matrix<double,6,1> Type; };
+      struct SE3GroupAction<ConstraintRevoluteUnaligned >  
+      { typedef Eigen::Matrix<double,6,1> ReturnType; };
     }
 
     struct JointRevoluteUnaligned;

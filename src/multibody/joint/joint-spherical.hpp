@@ -208,8 +208,8 @@ namespace se3
   namespace internal
   {
     template<>
-    struct ActionReturn<ConstraintRotationalSubspace >
-    { typedef Eigen::Matrix<double,6,3> Type; };
+    struct SE3GroupAction<ConstraintRotationalSubspace >
+    { typedef Eigen::Matrix<double,6,3> ReturnType; };
   }
 
   struct JointSpherical;

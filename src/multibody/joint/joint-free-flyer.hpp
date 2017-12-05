@@ -129,8 +129,8 @@ namespace se3
   namespace internal
   {
     template<>
-    struct ActionReturn<ConstraintIdentity >  
-    { typedef SE3::Matrix6 Type; };
+    struct SE3GroupAction<ConstraintIdentity >  
+    { typedef SE3::Matrix6 ReturnType; };
   }
 
   struct JointFreeFlyer;

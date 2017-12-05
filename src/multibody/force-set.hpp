@@ -172,7 +172,7 @@ namespace se3
   namespace internal 
   {
     template<>
-    struct ActionReturn<ForceSet::Block>    { typedef ForceSet Type; };
+    struct SE3GroupAction<ForceSet::Block>    { typedef ForceSet ReturnType; };
   }
 
 

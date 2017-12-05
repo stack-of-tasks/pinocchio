@@ -365,8 +365,8 @@ namespace se3
   namespace internal 
   {
     template<int axis>
-    struct ActionReturn<ConstraintRevolute<axis> >
-    { typedef Eigen::Matrix<double,6,1> Type; };
+    struct SE3GroupAction<ConstraintRevolute<axis> >
+    { typedef Eigen::Matrix<double,6,1> ReturnType; };
   }
 
 
