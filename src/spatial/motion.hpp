@@ -28,6 +28,15 @@
 namespace se3
 {
 
+  namespace internal
+  {
+    
+    ///
+    /// \brief Return type of the ation of a Motion onto an object of type D
+    ///
+    template<typename D>
+    struct MotionAlgebraAction { typedef D ReturnType; };
+  }
 
   template< class Derived>
   class MotionBase
@@ -66,7 +75,13 @@ namespace se3
     Derived_t & operator+=(const Derived_t & v2) { return derived().__pequ__(v2); }
     Derived_t & operator-=(const Derived_t & v2) { return derived().__mequ__(v2); }
     Derived_t operator*(const Scalar alpha) const { return derived().__mult__(alpha); }
-
+    
+    template<typename D>
+    typename internal::MotionAlgebraAction<D>::ReturnType cross(const D & d) const
+    {
+      return derived().cross_impl(d);
+    }
+    
     bool isApprox (const Derived_t & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return derived().isApprox_impl(other, prec);}
 
@@ -210,14 +225,20 @@ namespace se3
     MotionTpl __mult__(const Scalar alpha) const { return MotionTpl(alpha*data); }
     
     Scalar dot(const Force & f) const { return data.dot(f.toVector()); }
+    
+    template<typename D>
+    typename internal::MotionAlgebraAction<D>::ReturnType cross_impl(const D & d) const
+    {
+      return d.motionAction(*this);
+    }
 
-    MotionTpl cross(const MotionTpl& v2) const
+    MotionTpl cross_impl(const MotionTpl & v2) const
     {
       return MotionTpl( linear_impl().cross(v2.angular_impl())+angular_impl().cross(v2.linear_impl()),
                         angular_impl().cross(v2.angular_impl()) );
     }
 
-    Force cross(const Force& phi) const
+    Force cross_impl(const Force & phi) const
     {
       return Force( angular_impl().cross(phi.linear_impl()),
                     angular_impl().cross(phi.angular_impl())+linear_impl().cross(phi.linear_impl()) );
