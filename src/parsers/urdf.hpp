@@ -123,7 +123,7 @@ namespace se3
      *
      * @param[in]  model         The model of the robot, built with
      *                           urdf::buildModel
-     * @param[in]  urdfTree      The URDF model
+     * @param[in]  xmlStream     Stream containing the URDF model
      * @param[in]  packageDirs  A vector containing the different directories
      *                           where to search for models and meshes, typically
      *                           obtained from calling se3::rosPaths()
@@ -137,7 +137,7 @@ namespace se3
      *
      */
     GeometryModel& buildGeom(const Model & model,
-                             const ::urdf::ModelInterfaceSharedPtr & urdfTree,
+                             const std::istream& xmlStream,
                              const GeometryType type,
                              GeometryModel & geomModel,
                              const std::vector<std::string> & packageDirs = std::vector<std::string> ())

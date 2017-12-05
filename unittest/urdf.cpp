@@ -34,6 +34,8 @@ BOOST_AUTO_TEST_CASE ( buildModel )
   #endif
     se3::Model model;
     se3::urdf::buildModel(filename, model);
+    se3::GeometryModel geomModel;
+    se3::urdf::buildGeom(model, filename, se3::COLLISION, geomModel);
     std::cout << "Robot's name:" << model.name << std::endl;
 }
 
