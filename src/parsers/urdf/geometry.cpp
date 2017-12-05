@@ -443,11 +443,6 @@ namespace se3
       std::vector<std::string> ros_pkg_paths = rosPaths();
       hint_directories.insert(hint_directories.end(), ros_pkg_paths.begin(), ros_pkg_paths.end());
 
-      if(hint_directories.empty())
-      {
-        throw std::runtime_error("You did not specify any package directory and ROS_PACKAGE_PATH is empty. Geometric parsing will crash");
-      }
-
       details::parseTreeForGeom(tree, tree.urdf_->getRoot(), model, geomModel, hint_directories,type);
       return geomModel;
     }
