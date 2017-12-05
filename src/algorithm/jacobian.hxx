@@ -188,8 +188,7 @@ namespace se3
       ColsBlock dJcols = jmodel.jointCols(data.dJ);
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
-      for(int k = 0; k < jmodel.nv(); ++k)
-        dJcols.col(k) = ov.cross(Motion(Jcols.col(k))).toVector();
+      motionSet::se3Action(ov,Jcols,dJcols);
     }
     
   };
