@@ -83,6 +83,27 @@ namespace se3
       vxi(v,derived(),Iout);
       return Iout;
     }
+    
+    /// \brief Time variation operator.
+    ///        It computes the time derivative of an inertia I corresponding to the formula \f$ \dot{I} = v \cross^{*} I \f$.
+    ///
+    /// \param[in] v The spatial velocity of the frame supporting the inertia.
+    /// \param[in] I The spatial inertia in motion.
+    /// \param[out] Iout The time derivative of the inertia I.
+    ///
+    template<typename M6>
+    static void ivx(const Motion & v, const Derived & I, const Eigen::MatrixBase<M6> & Iout)
+    {
+      EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(M6, Matrix6);
+      Derived::ivx_impl(v,I,Iout);
+    }
+    
+    Matrix6 ivx(const Motion & v) const
+    {
+      Matrix6 Iout;
+      ivx(v,derived(),Iout);
+      return Iout;
+    }
 
     void setZero() { derived().setZero(); }
     void setIdentity() { derived().setIdentity(); }
@@ -372,6 +393,33 @@ namespace se3
       Iout_.template block<3,3>(ANGULAR,ANGULAR) += I.inertia().vxs(v.angular());
       Matrix3 mcxc; skewSquare(mc,I.lever(),mcxc);
       Iout_.template block<3,3>(ANGULAR,ANGULAR) -= cross(v.angular(),mcxc);
+      
+    }
+    
+    template<typename M6>
+    static void ivx_impl(const Motion & v, const InertiaTpl & I, const Eigen::MatrixBase<M6> & Iout)
+    {
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6,6,6);
+      M6 & Iout_ = const_cast<Eigen::MatrixBase<M6> &>(Iout).derived();
+      
+      // Block 1,1
+      alphaSkew(I.mass(),v.angular(),Iout_.template block<3,3>(LINEAR,LINEAR));
+      
+      // Block 2,1
+      const Vector3 mc(I.mass()*I.lever());
+      skewSquare(mc,v.angular(),Iout_.template block<3,3>(ANGULAR,LINEAR));
+      
+      // Block 1,2
+      alphaSkew(I.mass(),v.linear(),Iout_.template block<3,3>(LINEAR,ANGULAR));
+      
+      // Block 2,2
+      cross(-I.lever(),Iout_.template block<3,3>(ANGULAR,LINEAR),Iout_.template block<3,3>(ANGULAR,ANGULAR));
+      Iout_.template block<3,3>(ANGULAR,ANGULAR) += I.inertia().svx(v.angular());
+      for(int k = 0; k < 3; ++k)
+        Iout_.template block<3,3>(ANGULAR,ANGULAR).col(k) += I.lever().cross(Iout_.template block<3,3>(LINEAR,ANGULAR).col(k));
+
+      // Block 1,2
+      Iout_.template block<3,3>(LINEAR,ANGULAR) -= Iout_.template block<3,3>(ANGULAR,LINEAR);
       
     }
 
