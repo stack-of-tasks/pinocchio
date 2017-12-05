@@ -50,6 +50,9 @@ namespace se3
        void parse (const std::string & xmlStr)
        {
          urdf_ = ::urdf::parseURDF(xmlStr);
+         if (!urdf_) {
+           throw std::invalid_argument ("Enable to parse URDF");
+         }
 
          std::istringstream iss(xmlStr);
          using namespace boost::property_tree;
