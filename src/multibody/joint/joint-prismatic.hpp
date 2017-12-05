@@ -197,7 +197,7 @@ namespace se3
       return ConstraintXd(S);
     }
     
-    DenseBase variation(const Motion & m) const
+    DenseBase motionAction(const Motion & m) const
     {
       DenseBase res;
       res << m.angular().cross(prismatic::CartesianVector3<axis>(1).vector()), Vector3::Zero();
@@ -329,7 +329,11 @@ namespace se3
   namespace internal 
   {
     template<int axis>
-    struct SE3GroupAction<ConstraintPrismatic<axis> >
+    struct SE3GroupAction< ConstraintPrismatic<axis> >
+    { typedef Eigen::Matrix<double,6,1> ReturnType; };
+    
+    template<int axis>
+    struct MotionAlgebraAction< ConstraintPrismatic<axis> >
     { typedef Eigen::Matrix<double,6,1> ReturnType; };
   }
 

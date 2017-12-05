@@ -309,7 +309,7 @@ namespace se3
       
       // Calc dAg = oXi* dU
       typename JointData::U_t dU(dY * jdata.S()); // TODO: add dU inside jdata.
-      typename Constraint_t::DenseBase dS = jdata.S().variation(v);
+      typename Constraint_t::DenseBase dS = v.cross(jdata.S());
       dU.noalias() += Y.matrix()*dS;
       
       ColsBlock dAg_cols = jmodel.jointCols(data.dAg);

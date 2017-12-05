@@ -81,7 +81,7 @@ void test_joint_methods (JointModel & jmodel, typename JointModel::JointDataDeri
   typedef typename Constraint_t::DenseBase ConstraintDense;
   
   Motion v(Motion::Random());
-  ConstraintDense vxS(jdata.S.variation(v));
+  ConstraintDense vxS(v.cross(jdata.S));
   ConstraintDense vxS_ref = v.toActionMatrix() * ConstraintXd(jdata.S).matrix();
   
   BOOST_CHECK_MESSAGE(vxS.isApprox(vxS_ref),std::string(error_prefix + "- Joint vxS operation "));

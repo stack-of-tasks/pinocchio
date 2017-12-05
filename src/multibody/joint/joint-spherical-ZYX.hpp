@@ -189,14 +189,14 @@ namespace se3
         return result;
       }
       
-      DenseBase variation(const Motion & m) const
+      DenseBase motionAction(const Motion & m) const
       {
         const typename Motion::ConstLinear_t v = m.linear();
         const typename Motion::ConstAngular_t w = m.angular();
         
         DenseBase res;
-        res.template middleRows<3>(Motion::LINEAR) = cross(v,S_minimal);
-        res.template middleRows<3>(Motion::ANGULAR) = cross(w,S_minimal);
+        cross(v,S_minimal,res.template middleRows<3>(Motion::LINEAR));
+        cross(w,S_minimal,res.template middleRows<3>(Motion::ANGULAR));
         
         return res;
       }
@@ -276,6 +276,12 @@ namespace se3
 //      Eigen::Matrix <double,6,3,0>,
 //      Eigen::Matrix <double,3,3,0>
 //      >::Type Type;
+      typedef Eigen::Matrix <double,6,3,0> ReturnType;
+    };
+    
+    template<>
+    struct MotionAlgebraAction<JointSphericalZYX::ConstraintRotationalSubspace>
+    {
       typedef Eigen::Matrix <double,6,3,0> ReturnType;
     };
   }

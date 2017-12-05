@@ -173,12 +173,12 @@ namespace se3
       return M;
     }
     
-    DenseBase variation(const Motion & m) const
+    DenseBase motionAction(const Motion & m) const
     {
       const Motion::ConstAngular_t w = m.angular();
       
       DenseBase res;
-      res.middleRows<3>(LINEAR) = skew(w);
+      skew(w,res.middleRows<3>(LINEAR));
       res.middleRows<3>(ANGULAR).setZero();
       
       return res;
@@ -215,6 +215,10 @@ namespace se3
   {
     template<>
     struct SE3GroupAction<ConstraintTranslationSubspace >
+    { typedef Eigen::Matrix<double,6,3> ReturnType; };
+    
+    template<>
+    struct MotionAlgebraAction<ConstraintTranslationSubspace>
     { typedef Eigen::Matrix<double,6,3> ReturnType; };
   }
 

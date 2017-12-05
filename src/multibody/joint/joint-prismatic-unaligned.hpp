@@ -191,7 +191,7 @@ namespace se3
       	return ConstraintXd(S);
       }
       
-      DenseBase variation(const Motion & m) const
+      DenseBase motionAction(const Motion & m) const
       {
         DenseBase res;
         res << m.angular().cross(axis), Vector3::Zero();
@@ -247,6 +247,10 @@ namespace se3
     {
       template<>
       struct SE3GroupAction<ConstraintPrismaticUnaligned >  
+      { typedef Eigen::Matrix<double,6,1> ReturnType; };
+      
+      template<>
+      struct MotionAlgebraAction<ConstraintPrismaticUnaligned>
       { typedef Eigen::Matrix<double,6,1> ReturnType; };
     }
 

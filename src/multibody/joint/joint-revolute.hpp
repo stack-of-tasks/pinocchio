@@ -111,6 +111,17 @@ namespace se3
   }
 
   template<int axis> struct ConstraintRevolute;
+  
+  namespace internal
+  {
+    template<int axis>
+    struct SE3GroupAction< ConstraintRevolute<axis> >
+    { typedef Eigen::Matrix<double,6,1> ReturnType; };
+    
+    template<int axis>
+    struct MotionAlgebraAction< ConstraintRevolute<axis> >
+    { typedef Eigen::Matrix<double,6,1> ReturnType; };
+  }
 
   template<int axis>
   struct traits< ConstraintRevolute<axis> >
@@ -199,7 +210,7 @@ namespace se3
       return ConstraintXd(S);
     }
     
-    DenseBase variation(const Motion & m) const
+    DenseBase motionAction(const Motion & m) const
     {
       const typename Motion::ConstLinear_t v = m.linear();
       const typename Motion::ConstAngular_t w = m.angular();
@@ -362,12 +373,7 @@ namespace se3
     return Y.col(Inertia::ANGULAR + axis);
   }
 
-  namespace internal 
-  {
-    template<int axis>
-    struct SE3GroupAction<ConstraintRevolute<axis> >
-    { typedef Eigen::Matrix<double,6,1> ReturnType; };
-  }
+  
 
 
 

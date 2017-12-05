@@ -192,7 +192,7 @@ namespace se3
       	return ConstraintXd(S);
       }
       
-      DenseBase variation(const Motion & m) const
+      DenseBase motionAction(const Motion & m) const
       {
         const Motion::ConstLinear_t v = m.linear();
         const Motion::ConstAngular_t w = m.angular();
@@ -253,6 +253,10 @@ namespace se3
     {
       template<>
       struct SE3GroupAction<ConstraintRevoluteUnaligned >  
+      { typedef Eigen::Matrix<double,6,1> ReturnType; };
+      
+      template<>
+      struct MotionAlgebraAction<ConstraintRevoluteUnaligned>
       { typedef Eigen::Matrix<double,6,1> ReturnType; };
     }
 

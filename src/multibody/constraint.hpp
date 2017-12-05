@@ -99,7 +99,11 @@ namespace se3
   namespace internal
   {  
     template<int Dim, typename Scalar, int Options>
-    struct SE3GroupAction<ConstraintTpl<Dim,Scalar,Options> >
+    struct SE3GroupAction< ConstraintTpl<Dim,Scalar,Options> >
+    { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
+    
+    template<int Dim, typename Scalar, int Options>
+    struct MotionAlgebraAction< ConstraintTpl<Dim,Scalar,Options> >
     { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
   }
 
@@ -190,7 +194,7 @@ namespace se3
       return (m.inverse().toActionMatrix()*S).eval();
     }
     
-    DenseBase variation(const Motion & v) const
+    DenseBase motionAction(const Motion & v) const
     {
       DenseBase res(v.toActionMatrix() * S);
       

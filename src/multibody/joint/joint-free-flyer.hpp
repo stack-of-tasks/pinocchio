@@ -85,7 +85,7 @@ namespace se3
       TransposeConst transpose() const { return TransposeConst(); }
       operator ConstraintXd () const { return ConstraintXd(SE3::Matrix6::Identity()); }
       
-      DenseBase variation(const Motion & m) const { return m.toActionMatrix(); }
+      DenseBase motionAction(const Motion & m) const { return m.toActionMatrix(); }
     }; // struct ConstraintIdentity
 
     template<typename D>
@@ -130,6 +130,10 @@ namespace se3
   {
     template<>
     struct SE3GroupAction<ConstraintIdentity >  
+    { typedef SE3::Matrix6 ReturnType; };
+    
+    template<>
+    struct MotionAlgebraAction<ConstraintIdentity >
     { typedef SE3::Matrix6 ReturnType; };
   }
 
