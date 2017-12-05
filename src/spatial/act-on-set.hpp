@@ -32,6 +32,15 @@ namespace se3
     static void se3Action( const SE3 & m, 
 			   const Eigen::MatrixBase<Mat> & iF,
 			   Eigen::MatrixBase<MatRet> const & jF);
+    
+    ///
+    /// \brief Action of a motion on a set of forces, represented by a 6xN matrix whose each
+    ///        column represent a spatial force.
+    ///
+    template<typename Mat,typename MatRet>
+    static void se3Action(const Motion & v,
+                          const Eigen::MatrixBase<Mat> & iF,
+                          Eigen::MatrixBase<MatRet> const & jF);
   }  // namespace forceSet
 
   namespace motionSet
@@ -42,6 +51,15 @@ namespace se3
     static void se3Action( const SE3 & m, 
 			   const Eigen::MatrixBase<Mat> & iV,
 			   Eigen::MatrixBase<MatRet> const & jV);
+    
+    ///
+    /// \brief Action of a motion on a set of motions, represented by a 6xN matrix whose each
+    ///        column represent a spatial motion.
+    ///
+    template<typename Mat,typename MatRet>
+    static void se3Action(const Motion & v,
+                          const Eigen::MatrixBase<Mat> & iF,
+                          Eigen::MatrixBase<MatRet> const & jF);
   }  // namespace MotionSet
 
   /* --- DETAILS --------------------------------------------------------- */
@@ -56,18 +74,13 @@ namespace se3
        * with m, and iF, jF are matrices whose columns are forces. The resolution
        * is done by block operation. It is less efficient than the colwise
        * operation and should not be used. */ 
-      static void run( const SE3 & m, 
-		       const Eigen::MatrixBase<Mat> & iF,
-		       Eigen::MatrixBase<MatRet> const & jF );
-      // {
-      //   typename Mat::template ConstNRowsBlockXpr<3>::Type linear  = iF.template topRows<3>();
-      //   typename MatRet::template ConstNRowsBlockXpr<3>::Type angular = iF.template bottomRows<3>();
+      static void run(const SE3 & m,
+                      const Eigen::MatrixBase<Mat> & iF,
+                      Eigen::MatrixBase<MatRet> const & jF);
       
-      //   jF.template topRows   <3>().noalias() = m.rotation()*linear;
-      //   jF.template bottomRows<3>().noalias()
-      // 	= skew(m.translation())*jF.template topRows<3>() +
-      //      m.rotation()*angular;
-      // }
+      static void run(const Motion & v,
+                      const Eigen::MatrixBase<Mat> & iF,
+                      Eigen::MatrixBase<MatRet> const & jF);
       
     };
 
@@ -89,6 +102,19 @@ namespace se3
         const_cast<Eigen::MatrixBase<MatRet> &>(jF).template tail <3>() = (m.translation().cross(jF.template head<3>())
                                   + m.rotation()*angular);
       }
+      
+      static void run(const Motion & v,
+                      const Eigen::MatrixBase<Mat> & iF,
+                      Eigen::MatrixBase<MatRet> const & jF)
+      {
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
+        Eigen::VectorBlock<const Mat,3> linear = iF.template head<3>();
+        Eigen::VectorBlock<const Mat,3> angular = iF.template tail<3>();
+        
+        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>() = v.angular().cross(linear);
+        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template tail <3>() = v.angular().cross(angular) + v.linear().cross(linear);
+      }
     };
 
     /* Specialized implementation of block action, using colwise operation.  It
@@ -107,6 +133,20 @@ namespace se3
         forceSet::se3Action(m,iF.col(col),jFc);
       }
     }
+    
+    template<typename Mat,typename MatRet,int NCOLS>
+    void ForceSetSe3Action<Mat,MatRet,NCOLS>::
+    run(const Motion & v,
+        const Eigen::MatrixBase<Mat> & iF,
+        Eigen::MatrixBase<MatRet> const & jF)
+    {
+      for(int col=0;col<jF.cols();++col)
+      {
+        typename MatRet::ColXpr jFc
+        = const_cast<Eigen::MatrixBase<MatRet> &>(jF).col(col);
+        forceSet::se3Action(v,iF.col(col),jFc);
+      }
+    }
 
   } // namespace internal
 
@@ -118,6 +158,14 @@ namespace se3
                           Eigen::MatrixBase<MatRet> const & jF)
     {
       internal::ForceSetSe3Action<Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iF,jF);
+    }
+    
+    template<typename Mat,typename MatRet>
+    static void se3Action(const Motion & v,
+                          const Eigen::MatrixBase<Mat> & iF,
+                          Eigen::MatrixBase<MatRet> const & jF)
+    {
+      internal::ForceSetSe3Action<Mat,MatRet,Mat::ColsAtCompileTime>::run(v,iF,jF);
     }
 
   }  // namespace forceSet
@@ -136,15 +184,10 @@ namespace se3
       static void run(const SE3 & m,
                       const Eigen::MatrixBase<Mat> & iF,
                       Eigen::MatrixBase<MatRet> const & jF);
-      // {
-      //   typename Mat::template ConstNRowsBlockXpr<3>::Type linear  = iF.template topRows<3>();
-      //   typename MatRet::template ConstNRowsBlockXpr<3>::Type angular = iF.template bottomRows<3>();
       
-      //   jF.template topRows   <3>().noalias() = m.rotation()*linear;
-      //   jF.template bottomRows<3>().noalias()
-      // 	= skew(m.translation())*jF.template topRows<3>() +
-      //      m.rotation()*angular;
-      // }
+      static void run(const Motion & v,
+                      const Eigen::MatrixBase<Mat> & iF,
+                      Eigen::MatrixBase<MatRet> const & jF);
       
     };
 
@@ -168,6 +211,22 @@ namespace se3
         const_cast<Eigen::MatrixBase<MatRet> &>(jV).template head <3>()
         = (m.translation().cross(jV.template tail<3>()) + m.rotation()*linear);
       }
+      
+      static void run(const Motion & v,
+                      const Eigen::MatrixBase<Mat> & iV,
+                      Eigen::MatrixBase<MatRet> const & jV)
+      {
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
+        Eigen::VectorBlock<const Mat,3> linear = iV.template head<3>();
+        Eigen::VectorBlock<const Mat,3> angular = iV.template tail<3>();
+        
+        /* ( R*v + px(Rw),  Rw ) */
+        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
+        = v.angular().cross(angular);
+        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template head <3>()
+        = v.linear().cross(angular) + v.angular().cross(linear);
+      }
     };
 
     /* Specialized implementation of block action, using colwise operation.  It
@@ -186,6 +245,20 @@ namespace se3
         motionSet::se3Action(m,iV.col(col),jVc);
       }
     }
+    
+    template<typename Mat,typename MatRet,int NCOLS>
+    void MotionSetSe3Action<Mat,MatRet,NCOLS>::
+    run(const Motion & v,
+        const Eigen::MatrixBase<Mat> & iV,
+        Eigen::MatrixBase<MatRet> const & jV)
+    {
+      for(int col=0;col<jV.cols();++col)
+      {
+        typename MatRet::ColXpr jVc
+        = const_cast<Eigen::MatrixBase<MatRet> &>(jV).col(col);
+        motionSet::se3Action(v,iV.col(col),jVc);
+      }
+    }
 
   } // namespace internal
 
@@ -197,6 +270,14 @@ namespace se3
                           Eigen::MatrixBase<MatRet> const & jV)
     {
       internal::MotionSetSe3Action<Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iV,jV);
+    }
+    
+    template<typename Mat,typename MatRet>
+    static void se3Action(const Motion & v,
+                          const Eigen::MatrixBase<Mat> & iV,
+                          Eigen::MatrixBase<MatRet> const & jV)
+    {
+      internal::MotionSetSe3Action<Mat,MatRet,Mat::ColsAtCompileTime>::run(v,iV,jV);
     }
 
   }  // namespace motionSet

@@ -399,20 +399,30 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
 
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )
 {
+  using namespace se3;
   const int N = 20;
   typedef Eigen::Matrix<double,6,N> Matrix6N;
-  se3::SE3 jMi = se3::SE3::Random();
+  SE3 jMi = SE3::Random();
+  Motion v = Motion::Random();
 
   Matrix6N iF = Matrix6N::Random(),jF;
-  se3::forceSet::se3Action(jMi,iF,jF);
+  forceSet::se3Action(jMi,iF,jF);
   for( int k=0;k<N;++k )
-    BOOST_CHECK(jMi.act(se3::Force(iF.col(k))).toVector().isApprox(jF.col(k), 1e-12));
+    BOOST_CHECK(jMi.act(Force(iF.col(k))).toVector().isApprox(jF.col(k), 1e-12));
+  
+  forceSet::se3Action(v,iF,jF);
+  for( int k=0;k<N;++k )
+    BOOST_CHECK(v.cross(Force(iF.col(k))).toVector().isApprox(jF.col(k), 1e-12));
     
 
   Matrix6N iV = Matrix6N::Random(),jV;
-  se3::motionSet::se3Action(jMi,iV,jV);
+  motionSet::se3Action(jMi,iV,jV);
   for( int k=0;k<N;++k )
-    BOOST_CHECK(jMi.act(se3::Motion(iV.col(k))).toVector().isApprox(jV.col(k), 1e-12));
+    BOOST_CHECK(jMi.act(Motion(iV.col(k))).toVector().isApprox(jV.col(k), 1e-12));
+  
+  motionSet::se3Action(v,iV,jV);
+  for( int k=0;k<N;++k )
+    BOOST_CHECK(v.cross(Motion(iV.col(k))).toVector().isApprox(jV.col(k), 1e-12));
 
 }
 
