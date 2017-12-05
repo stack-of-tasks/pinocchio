@@ -123,6 +123,8 @@ namespace se3
         
         bp::class_< container::aligned_vector<Vector3> >("StdVec_vec3d")
         .def(bp::vector_indexing_suite< container::aligned_vector<Vector3>, true >());
+        bp::class_< std::vector<int> >("StdVec_int")
+        .def(bp::vector_indexing_suite< std::vector<int> >());
       }
 
     };
