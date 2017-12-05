@@ -12,6 +12,16 @@
       <mass value="27"/>
       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
     </inertial>
+    <collision name="test">
+      <geometry>
+        <cylinder radius="1" length="1"/>
+      </geometry>
+    </collision>
+    <collision_checking>
+      <!--- This tells to pinocchio to replace the cylinder called "test"
+           by a capsule with the same radius and length -->
+      <capsule name="test"/>
+    </collision_checking>
   </link>
 
   <link name="WAIST_LINK1">
