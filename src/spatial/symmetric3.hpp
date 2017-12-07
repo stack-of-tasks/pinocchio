@@ -361,15 +361,29 @@ namespace se3
       data_ += s2.data_; return *this;
     }
 
-    Vector3 operator*(const Vector3 &v) const
+    template<typename V3in, typename V3out>
+    static void rhsMult(const Symmetric3Tpl & S3,
+                        const Eigen::MatrixBase<V3in> & vin,
+                        const Eigen::MatrixBase<V3out> & vout)
     {
-      return Vector3(
-		     data_(0) * v(0) + data_(1) * v(1) + data_(3) * v(2),
-		     data_(1) * v(0) + data_(2) * v(1) + data_(4) * v(2),
-		     data_(3) * v(0) + data_(4) * v(1) + data_(5) * v(2)
-		     );		     
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(V3in,Vector3);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(V3out,Vector3);
+      
+      Eigen::MatrixBase<V3out> & vout_ = const_cast<Eigen::MatrixBase<V3out>&>(vout);
+      
+      vout_[0] = S3.data_(0) * vin[0] + S3.data_(1) * vin[1] + S3.data_(3) * vin[2];
+      vout_[1] = S3.data_(1) * vin[0] + S3.data_(2) * vin[1] + S3.data_(4) * vin[2];
+      vout_[2] = S3.data_(3) * vin[0] + S3.data_(4) * vin[1] + S3.data_(5) * vin[2];
     }
 
+    template<typename V3>
+    Vector3 operator*(const Eigen::MatrixBase<V3> & v) const
+    {
+      Vector3 res;
+      rhsMult(*this,v,res);
+      return res;
+    }
+    
     // Matrix3 operator*(const Matrix3 &a) const
     // {
     //   Matrix3 r;
