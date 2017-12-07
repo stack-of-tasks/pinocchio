@@ -89,6 +89,23 @@ namespace se3
   inline const Eigen::VectorXd &
   computeGeneralizedGravity(const Model & model, Data & data,
                             const Eigen::VectorXd & q);
+  
+  ///
+  /// \brief Computes the Coriolis Matrix \f$ C(q,\dot{q}) \f$ of the Lagrangian dynamics:
+  /// <CENTER> \f$ \begin{eqnarray} M \ddot{q} + C(q, \dot{q})\dot{q} + g(q) = \tau  \end{eqnarray} \f$ </CENTER> <BR>
+  /// \note In the previous equation, \f$ c(q, \dot{q}) = C(q, \dot{q})\dot{q} \f$.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  ///
+  /// \return The Coriolis matrix stored in data.C.
+  ///
+  inline const Eigen::MatrixXd &
+  computeCoriolisMatrix(const Model & model, Data & data,
+                        const Eigen::VectorXd & q,
+                        const Eigen::VectorXd & v);
 
 } // namespace se3 
 

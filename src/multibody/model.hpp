@@ -411,6 +411,21 @@ namespace se3
     /// \brief The Coriolis matrix (a square matrix of dim model.nv).
     Eigen::MatrixXd C;
     
+    /// \brief Variation of the forceset with respect to qdot.
+    Matrix6x dFdv;
+    
+    /// \brief Right variation of the inertia matrix
+    container::aligned_vector<Inertia::Matrix6> vxI;
+    
+    /// \brief Left variation of the inertia matrix
+    container::aligned_vector<Inertia::Matrix6> Ivx;
+    
+    /// \brief Inertia quantities expressed in the world frame
+    container::aligned_vector<Inertia> oYo;
+    
+    /// \brief Temporary for derivative algorithms
+    Inertia::Matrix6 Itmp;
+    
     /// \brief The joint accelerations computed from ABA
     Eigen::VectorXd ddq;
     

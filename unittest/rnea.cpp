@@ -27,6 +27,7 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
@@ -195,4 +196,83 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
   
   BOOST_CHECK(g_ref.isApprox(data.g));
 }
+  
+  BOOST_AUTO_TEST_CASE(test_compute_coriolis)
+  {
+    using namespace Eigen;
+    using namespace se3;
+    
+    Model model;
+    buildModels::humanoidSimple(model);
+    Data data_ref(model);
+    Data data(model);
+    
+    VectorXd q (VectorXd::Random(model.nq));
+    q.segment<4>(3).normalize();
+    
+    VectorXd v (VectorXd::Random(model.nv));
+    
+    model.gravity.setZero();
+    rnea(model,data_ref,q,v,VectorXd::Zero(model.nv));
+    computeJacobiansTimeVariation(model,data_ref,q,v);
+    computeCoriolisMatrix(model,data,q,v);
+
+    BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
+    BOOST_CHECK(data.J.isApprox(data_ref.J));
+    
+    VectorXd tau = data.C * v;
+    BOOST_CHECK(tau.isApprox(data_ref.tau));
+    
+    dccrba(model,data_ref,q,v);
+    crba(model,data_ref,q);
+    
+    const Data::Vector3 & com = data_ref.com[0];
+    Motion vcom(data_ref.vcom[0],Data::Vector3::Zero());
+    SE3 cM1(data.oMi[1]); cM1.translation() -= com;
+    
+    BOOST_CHECK((cM1.toDualActionMatrix()*data_ref.M.topRows<6>()).isApprox(data_ref.Ag));
+    
+    Force dh_ref = cM1.act(Force(data_ref.tau.head<6>()));
+    Force dh(data_ref.dAg * v);
+    BOOST_CHECK(dh.isApprox(dh_ref));
+    
+    {
+      Data data_ref(model), data_ref_plus(model);
+      Eigen::MatrixXd dM(data.C + data.C.transpose());
+
+      const double alpha = 1e-8;
+      Eigen::VectorXd q_plus(model.nq);
+      q_plus = integrate(model,q,alpha*v);
+      
+      crba(model,data_ref,q);
+      data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+      crba(model,data_ref_plus,q_plus);
+      data_ref_plus.M.triangularView<Eigen::StrictlyLower>() = data_ref_plus.M.transpose().triangularView<Eigen::StrictlyLower>();
+      
+      Eigen::MatrixXd dM_ref = (data_ref_plus.M - data_ref.M)/alpha;
+      BOOST_CHECK(dM.isApprox(dM_ref,sqrt(alpha)));
+    }
+    
+//    {
+//      //v.setZero();
+//      v.setOnes();
+//      Eigen::VectorXd v_fd(v);
+//      Eigen::MatrixXd drnea_dv(model.nv,model.nv);
+//      Data data_fd(model);
+//      
+//      const VectorXd tau0 = rnea(model,data_fd,q,v,0*v);
+//      const double eps = 1e-8;
+//      for(int i = 0; i < model.nv; ++i)
+//      {
+//        v_fd[i] += eps;
+//        rnea(model,data_fd,q,v_fd,0*v);
+//        drnea_dv.col(i) = (data_fd.tau - tau0)/eps;
+//        v_fd[i] -= eps;
+//      }
+//      BOOST_CHECK(v_fd.isApprox(v));
+//      std::cout << "drnea_dv:\n" << drnea_dv.block<6,6>(0,0) << std::endl;
+//      std::cout << "C:\n" << data.C.block<6,6>(0,0) << std::endl;;
+//    }
+    
+  }
 BOOST_AUTO_TEST_SUITE_END ()
