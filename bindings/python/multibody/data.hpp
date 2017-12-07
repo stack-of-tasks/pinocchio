@@ -61,7 +61,7 @@ namespace se3
       void visit(PyClass& cl) const 
       {
         cl
-        .def(bp::init<Model>(bp::arg("Molde"),"Constructs a data structure from a given model."))
+        .def(bp::init<Model>(bp::arg("Model"),"Constructs a data structure from a given model."))
         
         .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a,"Body acceleration")
         .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a_gf,"Body acceleration containing also the gravity acceleration")
