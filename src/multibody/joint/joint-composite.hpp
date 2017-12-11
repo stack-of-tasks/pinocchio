@@ -461,10 +461,10 @@ namespace se3
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
-    jointCols(const Eigen::MatrixBase<D>& A) const { return A.segment(i_v,nv());  }
+    jointCols(const Eigen::MatrixBase<D>& A) const { return A.middleCols(i_v,nv());  }
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
-    jointCols(Eigen::MatrixBase<D>& A) const { return A.segment(i_v,nv());  }
+    jointCols(Eigen::MatrixBase<D>& A) const { return A.middleCols(i_v,nv());  }
 
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
