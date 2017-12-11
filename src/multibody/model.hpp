@@ -423,6 +423,9 @@ namespace se3
     /// \brief Inertia quantities expressed in the world frame
     container::aligned_vector<Inertia> oYo;
     
+    /// \brief Time variation of the inertia quantities expressed in the world frame
+    container::aligned_vector<Inertia::Matrix6> doYo;
+    
     /// \brief Temporary for derivative algorithms
     Inertia::Matrix6 Itmp;
     

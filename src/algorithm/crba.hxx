@@ -289,72 +289,65 @@ namespace se3
                      se3::Data & data)
     {
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
-      typedef typename JointModel::JointDataDerived JointData;
-      typedef typename JointModel::Constraint_t Constraint_t;
-      
-      
+
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::Index & parent = model.parents[i];
       const Motion & v = data.v[i];
-      const Inertia & Y = data.Ycrb[i];
-      const Inertia::Matrix6 & dY = data.dYcrb[i];
+      const Inertia & Y = data.oYo[i];
+      const Inertia::Matrix6 & doYo = data.doYo[i];
       
-      data.Ycrb[parent] += data.liMi[i].act(Y);
-      data.dYcrb[parent] += SE3actOn(data.liMi[i],dY);
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      J_cols = data.oMi[i].act(jdata.S());
+      
+      ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+      const Motion ov(data.oMi[i].act(v));
+      motionSet::se3Action(ov,J_cols,dJ_cols);
+      
+      data.oYo[parent] += Y;
+      if(parent > 0)
+        data.doYo[parent] += doYo;
       
       // Calc Ag
       ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
-      jdata.U() = Y * jdata.S();
-      forceSet::se3Action(data.oMi[i],jdata.U(),Ag_cols);
+      rhsInertiaMult(Y,J_cols,Ag_cols);
       
-      // Calc dAg = oXi* dU
-      typename JointData::U_t dU(dY * jdata.S()); // TODO: add dU inside jdata.
-      typename Constraint_t::DenseBase dS = v.cross(jdata.S());
-      dU.noalias() += Y.matrix()*dS;
-      
+      // Calc dAg = Ivx + vxI
       ColsBlock dAg_cols = jmodel.jointCols(data.dAg);
-      forceSet::se3Action(data.oMi[i],dU,dAg_cols);
-      
+      rhsInertiaMult(Y,dJ_cols,dAg_cols);
+      dAg_cols += doYo * J_cols;
     }
     
-    inline static Inertia::Matrix6 SE3actOn(const SE3 & M, const Inertia::Matrix6 & I)
+    template<typename Min, typename Mout>
+    static void rhsInertiaMultVector(const Inertia & Y,
+                                     const Eigen::MatrixBase<Min> & m,
+                                     const Eigen::MatrixBase<Mout> & f)
     {
-      typedef Inertia::Matrix6 Matrix6;
-      typedef SE3::Matrix3 Matrix3;
-      typedef SE3::Vector3 Vector3;
-      typedef Eigen::Block<const Matrix6,3,3> constBlock3;
-      typedef Eigen::Block<Matrix6,3,3> Block3;
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Min,6);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Mout,6);
+      Mout & f_ = const_cast<Mout &>(f.derived());
       
-      const constBlock3 & Ai = I.block<3,3> (Inertia::LINEAR, Inertia::LINEAR);
-      const constBlock3 & Bi = I.block<3,3> (Inertia::LINEAR, Inertia::ANGULAR);
-      const constBlock3 & Di = I.block<3,3> (Inertia::ANGULAR, Inertia::ANGULAR);
+      f_.template segment<3>(Inertia::LINEAR) = -Y.mass() * Y.lever().cross(m.template segment<3>(Motion::ANGULAR));
       
-      const Matrix3 & R = M.rotation();
-      const Vector3 & t = M.translation();
+      f_.template segment<3>(Inertia::ANGULAR) = Y.inertia() * m.template segment<3>(Motion::ANGULAR);
+      f_.template segment<3>(Inertia::ANGULAR) += Y.lever().cross(f_.template segment<3>(Inertia::LINEAR));
+      f_.template segment<3>(Inertia::ANGULAR) += Y.mass() * Y.lever().cross(m.template segment<3>(Motion::LINEAR));
       
-      Matrix6 res;
-      Block3 Ao = res.block<3,3> (Inertia::LINEAR, Inertia::LINEAR);
-      Block3 Bo = res.block<3,3> (Inertia::LINEAR, Inertia::ANGULAR);
-      Block3 Co = res.block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
-      Block3 Do = res.block<3,3> (Inertia::ANGULAR, Inertia::ANGULAR);
+      f_.template segment<3>(Inertia::LINEAR) += Y.mass() * m.template segment<3>(Motion::LINEAR);
+    }
+    
+    template<typename Min, typename Mout>
+    static void rhsInertiaMult(const Inertia & Y,
+                               const Eigen::MatrixBase<Min> & J,
+                               const Eigen::MatrixBase<Mout> & F)
+    {
+      assert(J.cols() == F.cols());
+      Mout & F_ = const_cast<Mout &>(F.derived());
       
-      Ao = R*Ai*R.transpose();
-      Bo = R*Bi*R.transpose();
-      Do.row(0) = t.cross(Bo.col(0));
-      Do.row(1) = t.cross(Bo.col(1));
-      Do.row(2) = t.cross(Bo.col(2));
+      for(int i = 0; i < J.cols(); ++i)
+      {
+        rhsInertiaMultVector(Y,J.col(i),F_.col(i));
+      }
       
-      Co.col(0) = t.cross(Ao.col(0));
-      Co.col(1) = t.cross(Ao.col(1));
-      Co.col(2) = t.cross(Ao.col(2));
-      Co += Bo.transpose();
-      
-      Bo = Co.transpose();
-      Do.col(0) += t.cross(Bo.col(0));
-      Do.col(1) += t.cross(Bo.col(1));
-      Do.col(2) += t.cross(Bo.col(2));
-      Do += R*Di*R.transpose();
-      return res;
     }
     
   }; // struct DCcrbaBackwardStep
@@ -368,11 +361,12 @@ namespace se3
     typedef Eigen::Block <Data::Matrix6x,3,-1> Block3x;
     
     forwardKinematics(model,data,q,v);
-    data.Ycrb[0].setZero();
+    data.oYo[0].setZero();
     for(Model::Index i=1;i<(Model::Index)(model.njoints);++i)
     {
-      data.Ycrb[i] = model.inertias[i];
-      data.dYcrb[i] = model.inertias[i].variation(data.v[i]); // (vx* I - Ivx)
+      data.oYo[i] = data.oMi[i].act(model.inertias[i]);
+      const Motion ov(data.oMi[i].act(data.v[i])); // v_i expressed in the world frame
+      data.doYo[i] = data.oYo[i].variation(ov);
     }
     
     for(Model::Index i=(Model::Index)(model.njoints-1);i>0;--i)
@@ -380,7 +374,7 @@ namespace se3
       DCcrbaBackwardStep::run(model.joints[i],data.joints[i],
                               DCcrbaBackwardStep::ArgsType(model,data));
     }
-    data.com[0] = data.Ycrb[0].lever();
+    data.com[0] = data.oYo[0].lever();
     
     const Block3x Ag_lin = data.Ag.middleRows<3> (Force::LINEAR);
     Block3x Ag_ang = data.Ag.middleRows<3>  (Force::ANGULAR);
@@ -388,18 +382,16 @@ namespace se3
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
     
     data.hg = data.Ag*v;
-    data.vcom[0] = data.hg.linear()/data.Ycrb[0].mass();
+    data.vcom[0] = data.hg.linear()/data.oYo[0].mass();
     
     const Block3x dAg_lin = data.dAg.middleRows<3>(Force::LINEAR);
     Block3x dAg_ang = data.dAg.middleRows<3>(Force::ANGULAR);
     for (long i = 0; i<model.nv; ++i)
-    {
-      dAg_ang.col(i) += dAg_lin.col(i).cross(data.com[0]);// + Ag_lin.col(i).cross(data.vcom[0]);
-    }
-    
-    data.Ig.mass() = data.Ycrb[0].mass();
+      dAg_ang.col(i) += dAg_lin.col(i).cross(data.com[0]);
+
+    data.Ig.mass() = data.oYo[0].mass();
     data.Ig.lever().setZero();
-    data.Ig.inertia() = data.Ycrb[0].inertia();
+    data.Ig.inertia() = data.oYo[0].inertia();
     
     return data.dAg;
   }

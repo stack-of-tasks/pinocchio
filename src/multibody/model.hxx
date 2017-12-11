@@ -252,6 +252,7 @@ namespace se3
     ,vxI((std::size_t)model.njoints)
     ,Ivx((std::size_t)model.njoints)
     ,oYo((std::size_t)model.njoints)
+    ,doYo((std::size_t)model.njoints)
     ,ddq(model.nv)
     ,Yaba((std::size_t)model.njoints)
     ,u(model.nv)

@@ -186,8 +186,7 @@ BOOST_AUTO_TEST_CASE (test_ccrb)
     SE3::Vector3 com = data_ref.Ycrb[1].lever();
     SE3 cMo(SE3::Identity());
     cMo.translation() = -getComFromCrba(model, data_ref);
-    
-    
+
     SE3 oM1 (data_ref.liMi[1]);
     SE3 cM1 (cMo * oM1);
     Data::Matrix6x Ag_ref (cM1.toDualActionMatrix() * data_ref.M.topRows <6> ());
@@ -198,22 +197,74 @@ BOOST_AUTO_TEST_CASE (test_ccrb)
     dccrba(model,data,q,v);
     BOOST_CHECK(data.Ag.isApprox(Ag_ref));
     BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
-    dccrba(model,data,q,0*v);
-    BOOST_CHECK(data.dAg.isZero());
-    
-    
+    BOOST_CHECK(data.hg.isApprox(data_ref.hg));
+
     centerOfMass(model,data_ref,q,v,a);
-    BOOST_CHECK(data_ref.vcom[0].isApprox(data_ref.hg.linear()/data_ref.M(0,0)));
+    BOOST_CHECK(data_ref.vcom[0].isApprox(data.hg.linear()/data_ref.M(0,0)));
+    BOOST_CHECK(data_ref.vcom[0].isApprox(data.vcom[0]));
     BOOST_CHECK(data_ref.acom[0].isApprox(hdot_ref.linear()/data_ref.M(0,0)));
-    dccrba(model,data,q,v);
-    
-    Force::Vector6 test1(data.Ag * a);
-    Force::Vector6 test2(data.dAg * v);
-    
-    
+
     Force hdot(data.Ag * a + data.dAg * v);
     BOOST_CHECK(hdot.isApprox(hdot_ref));
     
+    dccrba(model,data,q,0*v);
+    BOOST_CHECK(data.dAg.isZero());
+    
+    // Check that dYcrb is equal to doYo
+    {
+      // Compute dYcrb
+      Data data_ref(model), data_ref_plus(model), data(model);
+
+      const double alpha = 1e-8;
+      Eigen::VectorXd q_plus(model.nq);
+      q_plus = integrate(model,q,alpha*v);
+      
+      forwardKinematics(model,data_ref,q);
+      crba(model,data_ref,q);
+      crba(model,data_ref_plus,q_plus);
+      forwardKinematics(model,data_ref_plus,q_plus);
+      dccrba(model,data,q,v);
+      
+      for(size_t i = 1; i < (size_t)model.njoints; ++i)
+      {
+        Inertia::Matrix6 dYcrb = (data_ref_plus.oMi[i].act(data_ref_plus.Ycrb[i]).matrix() -
+                    data_ref.oMi[i].act(data_ref.Ycrb[i]).matrix())/alpha;
+        BOOST_CHECK(data.doYo[i].isApprox(dYcrb,sqrt(alpha)));
+      }
+    }
+    
+    {
+      Data data(model);
+      ccrba(model,data_ref,q,v);
+      SE3 oMc_ref(SE3::Identity());
+      oMc_ref.translation() = data_ref.com[0];
+      const Data::Matrix6x Ag_ref = oMc_ref.toDualActionMatrix() * data_ref.Ag;
+      crba(model,data_ref,q);
+      const Data::Matrix6x Ag_ref_from_M = data_ref.oMi[1].toDualActionMatrix() * data_ref.M.topRows<6>();
+      
+      const double alpha = 1e-8;
+      Eigen::VectorXd q_plus(model.nq);
+      q_plus = integrate(model,q,alpha*v);
+      
+      BOOST_CHECK(differentiate(model,q,q_plus).isApprox(alpha*v,alpha));
+      ccrba(model,data_ref,q_plus,v);
+      SE3 oMc_ref_plus(SE3::Identity());
+      oMc_ref_plus.translation() = data_ref.com[0];
+      const Data::Matrix6x Ag_plus_ref = oMc_ref_plus.toDualActionMatrix() * data_ref.Ag;
+      crba(model,data_ref,q_plus);
+      const Data::Matrix6x Ag_plus_ref_from_M = data_ref.oMi[1].toDualActionMatrix() * data_ref.M.topRows<6>();
+      const Data::Matrix6x dAg_ref = (Ag_plus_ref - Ag_ref)/alpha;
+      const Data::Matrix6x dAg_ref_from_M = (Ag_plus_ref_from_M - Ag_ref_from_M)/alpha;
+
+      dccrba(model, data, q, v);
+      SE3 oMc(SE3::Identity());
+      oMc.translation() = data.com[0];
+      Data::Matrix6x dAg = oMc.toDualActionMatrix() * data.dAg;
+      BOOST_CHECK(oMc.isApprox(oMc_ref));
+      BOOST_CHECK(dAg.isApprox(dAg_ref,sqrt(alpha)));
+      BOOST_CHECK(dAg.isApprox(dAg_ref_from_M,sqrt(alpha)));
+
+    }
   }
 
 BOOST_AUTO_TEST_SUITE_END ()
