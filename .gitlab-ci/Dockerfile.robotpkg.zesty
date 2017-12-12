@@ -1,5 +1,7 @@
 FROM ubuntu:zesty
 
+RUN apt-get update && apt-get install -qqy dirmngr && rm -rf /var/lib/apt/lists/*
+
 RUN echo "deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub zesty robotpkg" > /etc/apt/sources.list.d/robotpkg.list
 RUN apt-key adv --keyserver hkp://pgp.mit.edu --recv-key BC48D7C832FF7241
 

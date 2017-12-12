@@ -1,6 +1,7 @@
 FROM eur0c.laas.fr:4567/stack-of-tasks/pinocchio/robotpkg:16.04
 
-RUN apt update -qqy && apt install -qqy \
+RUN apt-get update -qqy && apt-get install -qqy \
+   ccache \
    cmake \
    g++ \
    pkg-config \
@@ -10,4 +11,5 @@ RUN apt update -qqy && apt install -qqy \
    libpython-dev \
    libboost-python-dev \
    python-numpy \
-   robotpkg-eigenpy
+   robotpkg-eigenpy \
+   && rm -rf /var/lib/apt/lists/*

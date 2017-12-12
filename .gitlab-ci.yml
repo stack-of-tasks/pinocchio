@@ -3,11 +3,21 @@ variables:
     GIT_SUBMODULE_STRATEGY: "recursive"
     GIT_DEPTH: "3"
 
+stages:
+  - minimal
+  - full
+
+cache:
+  paths:
+    - build/ccache
+
 .build_template: &build
     script:
-        - mkdir build
+        - mkdir -p build/ccache
         - cd build
-        - cmake ..
+        - export CCACHE_BASEDIR=${PWD}
+        - export CCACHE_DIR=${PWD}/ccache
+        - cmake .. -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         - make
         - make test
         - make install
@@ -15,23 +25,37 @@ variables:
 build_minimal_14:
     <<: *build
     image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:14.04
+    stage: minimal
 
 build_full_14:
     <<: *build
     image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:14.04
+    stage: full
+    dependencies:
+      - build_minimal_14
 
 build_minimal_16:
     <<: *build
     image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:16.04
+    stage: minimal
 
 build_full_16:
     <<: *build
     image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:16.04
+    stage: full
+    dependencies:
+      - build_minimal_16
 
 build_minimal_zesty:
     <<: *build
     image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:zesty
+    stage: minimal
+    allow_failure: true
 
 build_full_zesty:
     <<: *build
     image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:zesty
+    stage: full
+    dependencies:
+      - build_minimal_zesty
+    allow_failure: true
