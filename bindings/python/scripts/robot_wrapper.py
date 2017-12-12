@@ -148,7 +148,6 @@ class RobotWrapper(object):
         else:
             se3.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data, q)
 
-
     # --- ACCESS TO NAMES ----
     # Return the index of the joint whose name is given in argument.
     def index(self, name):

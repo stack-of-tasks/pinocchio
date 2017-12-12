@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 
   Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.njoints-1); 
   Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
-  getJacobian<false>(model,data,idx,Jrh);
+  getJacobian<WORLD>(model,data,idx,Jrh);
 
    /* Test J*q == v */
   VectorXd qdot = VectorXd::Random(model.nv);
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 
   /* Test local jacobian: rhJrh == rhXo oJrh */ 
   Data::Matrix6x rhJrh(6,model.nv); rhJrh.fill(0);
-  getJacobian<true>(model,data,idx,rhJrh);
+  getJacobian<LOCAL>(model,data,idx,rhJrh);
   Data::Matrix6x XJrh(6,model.nv); 
   motionSet::se3Action( data.oMi[idx].inverse(), Jrh,XJrh );
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
   
   // Regarding to the world origin
-  getJacobian<false>(model,data,idx,J);
-  getJacobianTimeVariation<false>(model,data,idx,dJ);
+  getJacobian<WORLD>(model,data,idx,J);
+  getJacobianTimeVariation<WORLD>(model,data,idx,dJ);
   
   Motion v_idx(J*v);
   BOOST_CHECK(v_idx.isApprox(data_ref.oMi[idx].act(data_ref.v[idx])));
@@ -110,8 +110,8 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   
   
   // Regarding to the local frame
-  getJacobian<true>(model,data,idx,J);
-  getJacobianTimeVariation<true>(model,data,idx,dJ);
+  getJacobian<LOCAL>(model,data,idx,J);
+  getJacobianTimeVariation<LOCAL>(model,data,idx,dJ);
   
   v_idx = (Motion::Vector6)(J*v);
   BOOST_CHECK(v_idx.isApprox(data_ref.v[idx]));
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     timer.tic();
     SMOOTH(NBT)
     {
-      getJacobian<false>(model,data,idx,Jrh);
+      getJacobian<WORLD>(model,data,idx,Jrh);
     }
     if(verbose) std::cout << "Copy =\t";
     timer.toc(std::cout,NBT);
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     timer.tic();
     SMOOTH(NBT)
     {
-      getJacobian<true>(model,data,idx,Jrh);
+      getJacobian<LOCAL>(model,data,idx,Jrh);
     }
     if(verbose) std::cout << "Change frame =\t";
     timer.toc(std::cout,NBT);

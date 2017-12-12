@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2017 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -25,24 +25,23 @@ namespace se3
     
     static Data::Matrix6x frame_jacobian_proxy(const Model & model,
                                                Data & data,
-                                               const Eigen::VectorXd & q,
-                                               const Model::FrameIndex frame_id,
-                                               bool local,
-                                               bool update_geometry
-                                               )
+                                               const Model::FrameIndex frame_id)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
-      
-      if (update_geometry)
-      {
-        computeJacobians(model,data,q);
-        framesForwardKinematics(model,data);
-      }
-      
-      if(local) getFrameJacobian<true> (model, data, frame_id, J);
-      else getFrameJacobian<false> (model, data, frame_id, J);
+      getFrameJacobian(model, data, frame_id, J);
       
       return J;
+    }
+    
+    static Data::Matrix6x frame_jacobian_proxy(const Model & model,
+                                               Data & data,
+                                               const Model::FrameIndex frame_id,
+                                               const Eigen::VectorXd & q)
+    {
+      computeJacobians(model,data,q);
+      framesForwardKinematics(model,data);
+  
+      return frame_jacobian_proxy(model, data, frame_id);
     }
     
     void exposeFramesAlgo()
@@ -61,16 +60,25 @@ namespace se3
               "And computes the placements of all the operational frames"
               "and put the results in data.");
       
-      bp::def("frameJacobian",frame_jacobian_proxy,
+      bp::def("frameJacobian",
+              (Data::Matrix6x (*)(const Model &, Data &, const Model::FrameIndex, const Eigen::VectorXd &))&frame_jacobian_proxy,
               bp::args("Model","Data",
-                       "Configuration q (size Model::nq)",
                        "Operational frame ID (int)",
-                       "frame (true = local, false = world)",
-                       "update_geometry (true = recompute the kinematics)"),
-              "Call computeJacobians if update_geometry is true. If not, user should call computeJacobians first."
-              "Then call getJacobian and return the resulted jacobian matrix. Attention: if update_geometry is true, the "
-              "function computes all the jacobians of the model. It is therefore outrageously costly wrt a dedicated "
-              "call. Use only with update_geometry for prototyping.");
+                       "Configuration q (size Model::nq)"),
+              "Compute the Jacobian of the frame given by its ID."
+              "The columns of the Jacobian are expressed in the frame coordinates.\n"
+              "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
+              "where v is the time derivative of the configuration q.");
+      
+      bp::def("frameJacobian",
+              (Data::Matrix6x (*)(const Model &, Data &, const Model::FrameIndex))&frame_jacobian_proxy,
+              bp::args("Model","Data",
+                       "Operational frame ID (int)"),
+              "Compute the Jacobian of the frame given by its ID."
+              "The columns of the Jacobian are expressed in the frame coordinates.\n"
+              "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
+              "where v is the time derivative of the configuration q.\n"
+              "Be aware that computeJacobians and framesKinematics must have been called first.");
       
     }
   } // namespace python

@@ -145,8 +145,8 @@ BOOST_AUTO_TEST_CASE (vsRX)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianRevoluteUnaligned;jacobianRevoluteUnaligned.resize(6,1);jacobianRevoluteUnaligned.setZero();
   computeJacobians(modelRX, dataRX, q);
   computeJacobians(modelRevoluteUnaligned, dataRevoluteUnaligned, q);
-  getJacobian<true>(modelRX, dataRX, 1, jacobianRX);
-  getJacobian<true>(modelRevoluteUnaligned, dataRevoluteUnaligned, 1, jacobianRevoluteUnaligned);
+  getJacobian<LOCAL>(modelRX, dataRX, 1, jacobianRX);
+  getJacobian<LOCAL>(modelRevoluteUnaligned, dataRevoluteUnaligned, 1, jacobianRevoluteUnaligned);
 
 
   BOOST_CHECK(jacobianRX.isApprox(jacobianRevoluteUnaligned));
@@ -221,8 +221,8 @@ BOOST_AUTO_TEST_CASE (vsPX)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianPrismaticUnaligned;jacobianPrismaticUnaligned.resize(6,1);jacobianPrismaticUnaligned.setZero();
   computeJacobians(modelPX, dataPX, q);
   computeJacobians(modelPrismaticUnaligned, dataPrismaticUnaligned, q);
-  getJacobian<true>(modelPX, dataPX, 1, jacobianPX);
-  getJacobian<true>(modelPrismaticUnaligned, dataPrismaticUnaligned, 1, jacobianPrismaticUnaligned);
+  getJacobian<LOCAL>(modelPX, dataPX, 1, jacobianPX);
+  getJacobian<LOCAL>(modelPrismaticUnaligned, dataPrismaticUnaligned, 1, jacobianPrismaticUnaligned);
 
   BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
 }
@@ -305,8 +305,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
   computeJacobians(modelSpherical, dataSpherical, q);
   computeJacobians(modelFreeflyer, dataFreeFlyer, qff);
-  getJacobian<true>(modelSpherical, dataSpherical, 1, jacobian_planar);
-  getJacobian<true>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
+  getJacobian<LOCAL>(modelSpherical, dataSpherical, 1, jacobian_planar);
+  getJacobian<LOCAL>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
 
 
   Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(3),
@@ -674,8 +674,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
   computeJacobians(modelPlanar, dataPlanar, q);
   computeJacobians(modelFreeflyer, dataFreeFlyer, qff);
-  getJacobian<true>(modelPlanar, dataPlanar, 1, jacobian_planar);
-  getJacobian<true>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
+  getJacobian<LOCAL>(modelPlanar, dataPlanar, 1, jacobian_planar);
+  getJacobian<LOCAL>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
 
   Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(0),
                                                                       jacobian_ff.col(1),
@@ -759,8 +759,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
   computeJacobians(modelTranslation, dataTranslation, q);
   computeJacobians(modelFreeflyer, dataFreeFlyer, qff);
-  getJacobian<true>(modelTranslation, dataTranslation, 1, jacobian_planar);
-  getJacobian<true>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
+  getJacobian<LOCAL>(modelTranslation, dataTranslation, 1, jacobian_planar);
+  getJacobian<LOCAL>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
 
 
   Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(0),
@@ -845,8 +845,8 @@ BOOST_AUTO_TEST_CASE (vsRX)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianPrismaticUnaligned;jacobianPrismaticUnaligned.resize(6,1);jacobianPrismaticUnaligned.setZero();
   computeJacobians(modelRX, dataRX, q_rx);
   computeJacobians(modelRevoluteUnbounded, dataRevoluteUnbounded, q_rubx);
-  getJacobian<true>(modelRX, dataRX, 1, jacobianPX);
-  getJacobian<true>(modelRevoluteUnbounded, dataRevoluteUnbounded, 1, jacobianPrismaticUnaligned);
+  getJacobian<LOCAL>(modelRX, dataRX, 1, jacobianPX);
+  getJacobian<LOCAL>(modelRevoluteUnbounded, dataRevoluteUnbounded, 1, jacobianPrismaticUnaligned);
 
 
   BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
