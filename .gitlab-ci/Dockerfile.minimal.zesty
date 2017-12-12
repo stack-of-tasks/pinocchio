@@ -1,0 +1,13 @@
+FROM eur0c.laas.fr:4567/stack-of-tasks/pinocchio/robotpkg:zesty
+
+RUN apt update -qqy && apt install -qqy \
+   cmake \
+   g++ \
+   pkg-config \
+   libboost-test-dev \
+   libboost-filesystem-dev \
+   libeigen3-dev \
+   libpython-dev \
+   libboost-python-dev \
+   python-numpy \
+   robotpkg-eigenpy

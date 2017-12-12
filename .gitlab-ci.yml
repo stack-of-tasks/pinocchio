@@ -27,3 +27,11 @@ build_minimal_16:
 build_full_16:
     <<: *build
     image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:16.04
+
+build_minimal_zesty:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:zesty
+
+build_full_zesty:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:zesty
