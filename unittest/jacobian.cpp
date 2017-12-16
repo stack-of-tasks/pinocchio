@@ -129,18 +129,18 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
     
     Data::Matrix6x J_ref(6,model.nv); J_ref.fill(0.);
     computeJacobians(model,data_ref,q);
-    getJacobian<false>(model,data_ref,idx,J_ref);
+    getJacobian<WORLD>(model,data_ref,idx,J_ref);
     
     Data::Matrix6x J_ref_plus(6,model.nv); J_ref_plus.fill(0.);
     computeJacobians(model,data_ref_plus,q_plus);
-    getJacobian<false>(model,data_ref_plus,idx,J_ref_plus);
+    getJacobian<WORLD>(model,data_ref_plus,idx,J_ref_plus);
     
     Data::Matrix6x dJ_ref(6,model.nv); dJ_ref.fill(0.);
     dJ_ref = (J_ref_plus - J_ref)/alpha;
     
     computeJacobiansTimeVariation(model,data,q,v);
     Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
-    getJacobianTimeVariation<false>(model,data,idx,dJ);
+    getJacobianTimeVariation<WORLD>(model,data,idx,dJ);
     
     BOOST_CHECK(dJ.isApprox(dJ_ref,sqrt(alpha)));
   }
