@@ -26,12 +26,23 @@ namespace se3
 {
   namespace forceSet
   {
-    /* SE3 action on a set of forces, represented by a 6xN matrix whose each
-     * column represent a spatial force. */
+    ///
+    /// \brief SE3 action on a set of forces, represented by a 6xN matrix whose each
+    ///        column represent a spatial force.
+    ///
     template<typename Mat,typename MatRet>
-    static void se3Action( const SE3 & m, 
-			   const Eigen::MatrixBase<Mat> & iF,
-			   Eigen::MatrixBase<MatRet> const & jF);
+    static void se3Action(const SE3 & m,
+                          const Eigen::MatrixBase<Mat> & iF,
+                          Eigen::MatrixBase<MatRet> const & jF);
+    
+    ///
+    /// \brief Inverse SE3 action on a set of forces, represented by a 6xN matrix whose each
+    ///        column represent a spatial force.
+    ///
+    template<typename Mat,typename MatRet>
+    static void se3ActionInverse(const SE3 & m,
+                                 const Eigen::MatrixBase<Mat> & iF,
+                                 Eigen::MatrixBase<MatRet> const & jF);
     
     ///
     /// \brief Action of a motion on a set of forces, represented by a 6xN matrix whose each
@@ -45,12 +56,23 @@ namespace se3
 
   namespace motionSet
   {
-    /* SE3 action on a set of motions, represented by a 6xN matrix whose each
-     * column represent a spatial motion. */
+    ///
+    /// \brief SE3 action on a set of motions, represented by a 6xN matrix whose each
+    ///        column represent a spatial motion.
+    ///
     template<typename Mat,typename MatRet>
-    static void se3Action( const SE3 & m, 
-			   const Eigen::MatrixBase<Mat> & iV,
-			   Eigen::MatrixBase<MatRet> const & jV);
+    static void se3Action(const SE3 & m,
+                          const Eigen::MatrixBase<Mat> & iV,
+                          Eigen::MatrixBase<MatRet> const & jV);
+    
+    ///
+    /// \brief Inverse SE3 action on a set of motions, represented by a 6xN matrix whose each
+    ///        column represent a spatial motion.
+    ///
+    template<typename Mat,typename MatRet>
+    static void se3ActionInverse(const SE3 & m,
+                                 const Eigen::MatrixBase<Mat> & iV,
+                                 Eigen::MatrixBase<MatRet> const & jV);
     
     ///
     /// \brief Action of a motion on a set of motions, represented by a 6xN matrix whose each
@@ -147,6 +169,60 @@ namespace se3
         forceSet::se3Action(v,iF.col(col),jFc);
       }
     }
+    
+    template<typename Mat,typename MatRet, int NCOLS>
+    struct ForceSetSe3ActionInverse
+    {
+      /* Compute jF = jXi * iF, where jXi is the dual action matrix associated
+       * with m, and iF, jF are matrices whose columns are forces. The resolution
+       * is done by block operation. It is less efficient than the colwise
+       * operation and should not be used. */
+      static void run(const SE3 & m,
+                      const Eigen::MatrixBase<Mat> & iF,
+                      Eigen::MatrixBase<MatRet> const & jF);
+      
+    };
+    
+    template<typename Mat,typename MatRet>
+    struct ForceSetSe3ActionInverse<Mat,MatRet,1>
+    {
+      /* Compute jF = jXi * iF, where jXi is the dual action matrix associated with m,
+       * and iF, jF are vectors. */
+      static void run(const SE3 & m,
+                      const Eigen::MatrixBase<Mat> & iF,
+                      Eigen::MatrixBase<MatRet> const & jF)
+      {
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
+        Eigen::VectorBlock<const Mat,3> linear = iF.template head<3>();
+        Eigen::VectorBlock<const Mat,3> angular = iF.template tail<3>();
+        
+        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>()
+        = angular - m.translation().cross(linear); // use as temporary variable (TODO: check performance gains)
+        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template tail <3>()
+        = m.rotation().transpose()* jF.template head <3>();
+        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>()
+        = m.rotation().transpose()*linear;
+      }
+      
+    };
+    
+    /* Specialized implementation of block action, using colwise operation.  It
+     * is empirically much faster than the true block operation, although I do
+     * not understand why. */
+    template<typename Mat,typename MatRet,int NCOLS>
+    void ForceSetSe3ActionInverse<Mat,MatRet,NCOLS>::
+    run(const SE3 & m,
+        const Eigen::MatrixBase<Mat> & iF,
+        Eigen::MatrixBase<MatRet> const & jF)
+    {
+      for(int col=0;col<jF.cols();++col)
+      {
+        typename MatRet::ColXpr jFc
+        = const_cast<Eigen::MatrixBase<MatRet> &>(jF).col(col);
+        forceSet::se3ActionInverse(m,iF.col(col),jFc);
+      }
+    }
 
   } // namespace internal
 
@@ -158,6 +234,14 @@ namespace se3
                           Eigen::MatrixBase<MatRet> const & jF)
     {
       internal::ForceSetSe3Action<Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iF,jF);
+    }
+    
+    template<typename Mat,typename MatRet>
+    static void se3ActionInverse(const SE3 & m,
+                                 const Eigen::MatrixBase<Mat> & iF,
+                                 Eigen::MatrixBase<MatRet> const & jF)
+    {
+      internal::ForceSetSe3ActionInverse<Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iF,jF);
     }
     
     template<typename Mat,typename MatRet>
@@ -259,6 +343,61 @@ namespace se3
         motionSet::se3Action(v,iV.col(col),jVc);
       }
     }
+    
+    template<typename Mat,typename MatRet, int NCOLS>
+    struct MotionSetSe3ActionInverse
+    {
+      /* Compute jF = jXi * iF, where jXi is the action matrix associated
+       * with m, and iF, jF are matrices whose columns are motions. The resolution
+       * is done by block operation. It is less efficient than the colwise
+       * operation and should not be used. */
+      static void run(const SE3 & m,
+                      const Eigen::MatrixBase<Mat> & iF,
+                      Eigen::MatrixBase<MatRet> const & jF);
+      
+    };
+    
+    template<typename Mat,typename MatRet>
+    struct MotionSetSe3ActionInverse<Mat,MatRet,1>
+    {
+      /* Compute jV = jXi * iV, where jXi is the action matrix associated with m,
+       * and iV, jV are 6D vectors representing spatial velocities. */
+      static void run(const SE3 & m,
+                      const Eigen::MatrixBase<Mat> & iV,
+                      Eigen::MatrixBase<MatRet> const & jV)
+      {
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
+        Eigen::VectorBlock<const Mat,3> linear = iV.template head<3>();
+        Eigen::VectorBlock<const Mat,3> angular = iV.template tail<3>();
+        
+        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
+        = linear - m.translation().cross(angular); // use as temporary variable
+        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template head <3>()
+        = m.rotation().transpose()*jV.template tail<3>();
+        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
+        = m.rotation().transpose()*angular;
+      }
+    };
+    
+    /* Specialized implementation of block action, using colwise operation.  It
+     * is empirically much faster than the true block operation, although I do
+     * not understand why. */
+    template<typename Mat,typename MatRet,int NCOLS>
+    void MotionSetSe3ActionInverse<Mat,MatRet,NCOLS>::
+    run(const SE3 & m,
+        const Eigen::MatrixBase<Mat> & iV,
+        Eigen::MatrixBase<MatRet> const & jV)
+    {
+      for(int col=0;col<jV.cols();++col)
+      {
+        typename MatRet::ColXpr jVc
+        = const_cast<Eigen::MatrixBase<MatRet> &>(jV).col(col);
+        motionSet::se3ActionInverse(m,iV.col(col),jVc);
+      }
+    }
+    
+    
 
   } // namespace internal
 
@@ -270,6 +409,14 @@ namespace se3
                           Eigen::MatrixBase<MatRet> const & jV)
     {
       internal::MotionSetSe3Action<Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iV,jV);
+    }
+    
+    template<typename Mat,typename MatRet>
+    static void se3ActionInverse(const SE3 & m,
+                          const Eigen::MatrixBase<Mat> & iV,
+                          Eigen::MatrixBase<MatRet> const & jV)
+    {
+      internal::MotionSetSe3ActionInverse<Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iV,jV);
     }
     
     template<typename Mat,typename MatRet>

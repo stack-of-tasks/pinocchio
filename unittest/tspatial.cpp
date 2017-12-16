@@ -405,24 +405,33 @@ BOOST_AUTO_TEST_CASE ( test_ActOnSet )
   SE3 jMi = SE3::Random();
   Motion v = Motion::Random();
 
-  Matrix6N iF = Matrix6N::Random(),jF;
+  // Forcet SET
+  Matrix6N iF = Matrix6N::Random(),jF,jFinv;
   forceSet::se3Action(jMi,iF,jF);
   for( int k=0;k<N;++k )
     BOOST_CHECK(jMi.act(Force(iF.col(k))).toVector().isApprox(jF.col(k), 1e-12));
+  
+  forceSet::se3ActionInverse(jMi.inverse(),iF,jFinv);
+  BOOST_CHECK(jFinv.isApprox(jF));
   
   forceSet::se3Action(v,iF,jF);
   for( int k=0;k<N;++k )
     BOOST_CHECK(v.cross(Force(iF.col(k))).toVector().isApprox(jF.col(k), 1e-12));
     
-
-  Matrix6N iV = Matrix6N::Random(),jV;
+  // Motion SET
+  Matrix6N iV = Matrix6N::Random(),jV,jVinv;
   motionSet::se3Action(jMi,iV,jV);
   for( int k=0;k<N;++k )
     BOOST_CHECK(jMi.act(Motion(iV.col(k))).toVector().isApprox(jV.col(k), 1e-12));
   
+  motionSet::se3ActionInverse(jMi.inverse(),iV,jVinv);
+  BOOST_CHECK(jVinv.isApprox(jV));
+  
   motionSet::se3Action(v,iV,jV);
   for( int k=0;k<N;++k )
     BOOST_CHECK(v.cross(Motion(iV.col(k))).toVector().isApprox(jV.col(k), 1e-12));
+  
+  
 
 }
 
