@@ -1,0 +1,96 @@
+variables:
+    GIT_SSL_NO_VERIFY: "true"
+    GIT_SUBMODULE_STRATEGY: "recursive"
+    GIT_DEPTH: "3"
+
+stages:
+  - pages
+  - minimal
+  - full
+
+cache:
+  paths:
+    - build/ccache
+
+.build_template: &build
+    script:
+        - mkdir -p build/ccache
+        - cd build
+        - export CCACHE_BASEDIR=${PWD}
+        - export CCACHE_DIR=${PWD}/ccache
+        - cmake .. -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        - make
+        - make test
+        - make install
+
+build_minimal_14:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:14.04
+    stage: minimal
+    retry: 2
+    except:
+      - gh-pages
+
+build_full_14:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:14.04
+    stage: full
+    retry: 2
+    except:
+      - gh-pages
+    dependencies:
+      - build_minimal_14
+
+build_minimal_16:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:16.04
+    stage: minimal
+    retry: 2
+    except:
+      - gh-pages
+
+build_full_16:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:16.04
+    stage: full
+    retry: 2
+    except:
+      - gh-pages
+    dependencies:
+      - build_minimal_16
+
+build_minimal_zesty:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:zesty
+    stage: minimal
+    retry: 2
+    except:
+      - gh-pages
+    allow_failure: true
+
+build_full_zesty:
+    <<: *build
+    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:zesty
+    stage: full
+    retry: 2
+    except:
+      - gh-pages
+    dependencies:
+      - build_minimal_zesty
+    allow_failure: true
+
+pages:
+  image: ruby:2.3
+  stage: pages
+  retry: 2
+  variables:
+    JEKYLL_ENV: production
+  before_script:
+    - gem install jekyll-sitemap
+  script:
+    - jekyll build -d public
+  artifacts:
+    paths:
+      - public
+  only:
+    - gh-pages
