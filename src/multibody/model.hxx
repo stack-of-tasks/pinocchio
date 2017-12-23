@@ -235,8 +235,10 @@ namespace se3
   inline Data::Data (const Model & model)
     :joints(0)
     ,a((std::size_t)model.njoints)
+    ,oa((std::size_t)model.njoints)
     ,a_gf((std::size_t)model.njoints)
     ,v((std::size_t)model.njoints)
+    ,ov((std::size_t)model.njoints)
     ,f((std::size_t)model.njoints)
     ,oMi((std::size_t)model.njoints)
     ,liMi((std::size_t)model.njoints)
@@ -303,7 +305,9 @@ namespace se3
     /* Init universe states relatively to itself */
     
     a[0].setZero();
+    oa[0].setZero();
     v[0].setZero();
+    ov[0].setZero();
     a_gf[0] = -model.gravity;
     f[0].setZero();
     oMi[0].setIdentity();

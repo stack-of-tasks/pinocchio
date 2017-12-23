@@ -363,14 +363,20 @@ namespace se3
     /// encapsulated in JointDataAccessor.
     JointDataVector joints;
     
-    /// \brief Vector of joint accelerations expressed in the local frame of the joint.
+    /// \brief Vector of joint accelerations expressed at the centers of the joints.
     container::aligned_vector<Motion> a;
     
-    /// \brief Vector of joint accelerations due to the gravity field expressed in the local frame of the joint..
+    /// \brief Vector of joint accelerations expressed at the origin.
+    container::aligned_vector<Motion> oa;
+    
+    /// \brief Vector of joint accelerations due to the gravity field.
     container::aligned_vector<Motion> a_gf;
     
-    /// \brief Vector of joint velocities expressed in the local frame of the joint..
+    /// \brief Vector of joint velocities expressed at the centers of the joints.
     container::aligned_vector<Motion> v;
+    
+    /// \brief Vector of joint velocities expressed at the origin.
+    container::aligned_vector<Motion> ov;
     
     /// \brief Vector of body forces. For each body, the force represents the sum of
     ///        all external forces acting on the body and expressed in the local frame of the joint..
