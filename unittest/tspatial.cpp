@@ -24,6 +24,7 @@
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/spatial/skew.hpp"
+#include "pinocchio/spatial/cartesian-axis.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -475,6 +476,17 @@ BOOST_AUTO_TEST_CASE(test_skew_square)
   Matrix3 res = skewSquare(u,v);
   
   BOOST_CHECK(res.isApprox(ref));
+}
+
+BOOST_AUTO_TEST_CASE(test_cartesian_axis)
+{
+  using namespace Eigen;
+  using namespace se3;
+  Vector3d v(Vector3d::Random());
+  
+  BOOST_CHECK(AxisX::cross(v).isApprox(Vector3d::Unit(0).cross(v)));
+  BOOST_CHECK(AxisY::cross(v).isApprox(Vector3d::Unit(1).cross(v)));
+  BOOST_CHECK(AxisZ::cross(v).isApprox(Vector3d::Unit(2).cross(v)));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

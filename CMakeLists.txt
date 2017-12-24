@@ -183,6 +183,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/skew.hpp
   spatial/act-on-set.hpp
   spatial/explog.hpp
+  spatial/cartesian-axis.hpp
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
