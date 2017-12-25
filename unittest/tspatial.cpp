@@ -25,6 +25,7 @@
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/spatial/skew.hpp"
 #include "pinocchio/spatial/cartesian-axis.hpp"
+#include "pinocchio/spatial/spatial-axis.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -487,6 +488,39 @@ BOOST_AUTO_TEST_CASE(test_cartesian_axis)
   BOOST_CHECK(AxisX::cross(v).isApprox(Vector3d::Unit(0).cross(v)));
   BOOST_CHECK(AxisY::cross(v).isApprox(Vector3d::Unit(1).cross(v)));
   BOOST_CHECK(AxisZ::cross(v).isApprox(Vector3d::Unit(2).cross(v)));
+}
+
+BOOST_AUTO_TEST_CASE(test_spatial_axis)
+{
+  using namespace se3;
+  
+  Motion v(Motion::Random());
+  Force f(Force::Random());
+
+  Motion vaxis;
+  vaxis << AxisVX();
+  BOOST_CHECK(AxisVX::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(AxisVX::cross(f).isApprox(vaxis.cross(f)));
+  
+  vaxis << AxisVY();
+  BOOST_CHECK(AxisVY::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(AxisVY::cross(f).isApprox(vaxis.cross(f)));
+  
+  vaxis << AxisVZ();
+  BOOST_CHECK(AxisVZ::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(AxisVZ::cross(f).isApprox(vaxis.cross(f)));
+  
+  vaxis << AxisWX();
+  BOOST_CHECK(AxisWX::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(AxisWX::cross(f).isApprox(vaxis.cross(f)));
+  
+  vaxis << AxisWY();
+  BOOST_CHECK(AxisWY::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(AxisWY::cross(f).isApprox(vaxis.cross(f)));
+  
+  vaxis << AxisWZ();
+  BOOST_CHECK(AxisWZ::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(AxisWZ::cross(f).isApprox(vaxis.cross(f)));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

@@ -184,6 +184,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/act-on-set.hpp
   spatial/explog.hpp
   spatial/cartesian-axis.hpp
+  spatial/spatial-axis.hpp
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
