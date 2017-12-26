@@ -177,6 +177,10 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/symmetric3.hpp
   spatial/se3.hpp
   spatial/motion.hpp
+  spatial/motion-base.hpp
+  spatial/motion-dense.hpp
+  spatial/motion-tpl.hpp
+  spatial/motion-zero.hpp
   spatial/force.hpp
   spatial/inertia.hpp
   spatial/fwd.hpp

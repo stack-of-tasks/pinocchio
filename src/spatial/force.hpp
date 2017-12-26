@@ -23,6 +23,7 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/spatial/motion.hpp"
 
 /** \addtogroup Force_group Force
  *
@@ -229,6 +230,8 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
+    typedef MotionTpl<T,U> MotionPlain;
+    typedef ForceTpl<T,U> ForcePlain;
   }; // traits ForceTpl
 
 
@@ -346,6 +349,21 @@ namespace se3
     void linear_impl(const Vector3 & f) { data.template segment<3> (LINEAR) = f; }
     
     Scalar dot(const Motion & m) const { return data.dot(m.toVector()); }
+    
+    template<typename M1, typename F1>
+    void motionAction(const ForceTpl & phi, const MotionDense<M1> & m, ForceBase<F1> & phi_out) const
+    {
+      phi_out.linear() = m.angular().cross(phi.linear());
+      phi_out.angular() = m.angular().cross(phi.angular())+m.linear().cross(phi.linear());
+    }
+    
+    template<typename M1>
+    ForceTpl motionAction(const MotionDense<M1> & v) const
+    {
+      ForceTpl res;
+      motionAction(*this,v,res);
+      return res;
+    }
 
   protected:
     Vector6 data;
