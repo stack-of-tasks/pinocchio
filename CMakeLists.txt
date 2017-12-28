@@ -180,6 +180,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/motion-base.hpp
   spatial/motion-dense.hpp
   spatial/motion-tpl.hpp
+  spatial/motion-ref.hpp
   spatial/motion-zero.hpp
   spatial/force.hpp
   spatial/inertia.hpp

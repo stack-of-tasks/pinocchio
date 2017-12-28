@@ -186,6 +186,54 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   BOOST_CHECK(bv_approx.isApprox(bv,eps));
 }
 
+BOOST_AUTO_TEST_CASE (test_motion_ref)
+{
+  using namespace se3;
+  typedef SE3::Matrix6 Matrix6;
+  typedef Motion::Vector6 Vector6;
+  
+  typedef MotionRef<Vector6> MotionV6;
+  
+  Motion v_ref(Motion::Random());
+  MotionV6 v(v_ref.toVector());
+  
+  BOOST_CHECK(v_ref.isApprox(v));
+  
+  MotionV6::MotionPlain v2(v*2.);
+  Motion v2_ref(v_ref*2.);
+  
+  BOOST_CHECK(v2_ref.isApprox(v2));
+  
+  v2 = v_ref + v;
+  BOOST_CHECK(v2_ref.isApprox(v2));
+  
+  v = v2;
+  BOOST_CHECK(v2.isApprox(v));
+  
+  v2 = v - v;
+  BOOST_CHECK(v2.isApprox(Motion::Zero()));
+  
+  SE3 M(SE3::Identity());
+  v2 = M.act(v);
+  BOOST_CHECK(v2.isApprox(v));
+  
+  v2 = M.actInv(v);
+  BOOST_CHECK(v2.isApprox(v));
+  
+  Motion v3(Motion::Random());
+  v_ref.setRandom();
+  v = v_ref;
+  v2 = v.cross(v3);
+  v2_ref = v_ref.cross(v3);
+  
+  BOOST_CHECK(v2.isApprox(v2_ref));
+  
+  v.setRandom();
+  v.setZero();
+  BOOST_CHECK(v.isApprox(Motion::Zero()));
+  
+}
+
 BOOST_AUTO_TEST_CASE ( test_Force )
 {
   using namespace se3;
