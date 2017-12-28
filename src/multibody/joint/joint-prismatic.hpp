@@ -88,6 +88,12 @@ namespace se3
                     Motion::Vector3::Zero()
                     );
     }
+    
+    template<typename Derived>
+    void addTo(MotionDense<Derived> & v_) const
+    {
+      v_.linear()[axis] += v;
+    }
   }; // struct MotionPrismatic
 
   template <int axis>

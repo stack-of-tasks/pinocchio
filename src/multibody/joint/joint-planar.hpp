@@ -68,6 +68,14 @@ namespace se3
     {
       return Motion (Motion::Vector3(x_dot_, y_dot_, 0.), Motion::Vector3(0., 0., theta_dot_));
     }
+    
+    template<typename Derived>
+    void addTo(MotionDense<Derived> & v) const
+    {
+      v.linear()[0] += x_dot_;
+      v.linear()[1] += y_dot_;
+      v.angular()[2] += theta_dot_;
+    }
 
   }; // struct MotionPlanar
 

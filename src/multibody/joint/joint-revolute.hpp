@@ -91,6 +91,12 @@ namespace se3
         typename revolute::CartesianVector3<axis>(w).vector()
         );
     }
+    
+    template<typename Derived>
+    void addTo(MotionDense<Derived> & v) const
+    {
+      v.angular()[axis] += w;
+    }
   }; // struct MotionRevolute
 
   template <int axis >

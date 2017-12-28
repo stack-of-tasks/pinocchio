@@ -90,6 +90,10 @@ namespace se3
     template<typename M1>
     Derived & operator+=(const MotionDense<M1> & v) { return derived().__pequ__(v); }
     template<typename M1>
+    Derived & operator+=(const MotionBase<M1> & v)
+    { v.derived().addTo(derived()); return derived(); }
+    
+    template<typename M1>
     Derived & operator-=(const MotionDense<M1> & v) { return derived().__mequ__(v); }
     MotionPlain operator*(const Scalar alpha) const { return derived().__mult__(alpha); }
     

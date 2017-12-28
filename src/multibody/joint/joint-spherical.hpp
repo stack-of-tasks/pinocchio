@@ -68,6 +68,12 @@ namespace se3
     {
       return Motion (Motion::Vector3::Zero (), w);
     }
+    
+    template<typename Derived>
+    void addTo(MotionDense<Derived> & v) const
+    {
+      v.angular() += w;
+    }
   }; // struct MotionSpherical
 
   inline const MotionSpherical operator+ (const MotionSpherical & m, const BiasZero & )

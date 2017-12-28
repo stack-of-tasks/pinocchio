@@ -54,13 +54,19 @@ namespace se3
   {
     MOTION_TYPEDEF(MotionPrismaticUnaligned);
 
-    MotionPrismaticUnaligned () : axis(Vector3::Constant(NAN)), v(NAN) {}
-    MotionPrismaticUnaligned (const Vector3 & axis, const Scalar v) : axis(axis), v(v) {}
+    MotionPrismaticUnaligned () : axis(Vector3::Constant(NAN)), rate(NAN) {}
+    MotionPrismaticUnaligned (const Vector3 & axis, const Scalar rate) : axis(axis), rate(rate) {}
 
     Vector3 axis;
-    Scalar v;
+    Scalar rate;
 
-    operator Motion() const { return Motion(axis*v, Vector3::Zero());}
+    operator Motion() const { return Motion(axis*rate, Vector3::Zero());}
+    
+    template<typename Derived>
+    void addTo(MotionDense<Derived> & v) const
+    {
+      v.linear() += axis * rate;
+    }
   }; // struct MotionPrismaticUnaligned
 
   inline const MotionPrismaticUnaligned & operator+ (const MotionPrismaticUnaligned & m, const BiasZero &)
@@ -68,7 +74,7 @@ namespace se3
 
   inline Motion operator+ (const MotionPrismaticUnaligned & m1, const Motion & m2)
   {
-    return Motion(m1.v*m1.axis + m2.linear(), m2.angular());
+    return Motion(m1.rate*m1.axis + m2.linear(), m2.angular());
   }
 
   struct ConstraintPrismaticUnaligned;
@@ -199,7 +205,7 @@ namespace se3
     {
       /* m1xm2 = [ v1xw2 + w1xv2; w1xw2 ] = [ v1xw2; w1xw2 ] */
       const Motion::Vector3 & w1 = m1.angular();
-      const Motion::Vector3 & v2 = m2.axis * m2.v;
+      const Motion::Vector3 & v2 = m2.axis * m2.rate;
       return Motion (w1.cross(v2), Motion::Vector3::Zero());
     }
 
@@ -350,7 +356,7 @@ namespace se3
       const Scalar & v = vs[idx_v()];
 
       data.M.translation() = axis * q;
-      data.v.v = v;
+      data.v.rate = v;
     }
     
     void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const

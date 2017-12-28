@@ -64,6 +64,12 @@ namespace se3
       return Motion(Motion::Vector3::Zero(),
                     axis*w);
     }
+    
+    template<typename Derived>
+    void addTo(MotionDense<Derived> & v) const
+    {
+      v.angular() += axis*w;
+    }
   }; // struct MotionRevoluteUnaligned
 
   inline const MotionRevoluteUnaligned& operator+ (const MotionRevoluteUnaligned& m, const BiasZero&)

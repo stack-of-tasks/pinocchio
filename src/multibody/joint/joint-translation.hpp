@@ -72,6 +72,13 @@ namespace se3
       v = other.v;
       return *this;
     }
+    
+    template<typename Derived>
+    void addTo(MotionDense<Derived> & v_) const
+    {
+      v_.linear() += v;
+    }
+    
   }; // struct MotionTranslation
   
   inline const MotionTranslation operator+ (const MotionTranslation & m, const BiasZero &)
