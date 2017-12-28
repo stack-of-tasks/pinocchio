@@ -32,9 +32,7 @@ namespace se3
   {
   public:
     typedef MotionBase<Derived> Base;
-    SPATIAL_TYPEDEF_TEMPLATE(Derived);
-    typedef typename traits<Derived>::MotionPlain MotionPlain;
-    typedef typename traits<Derived>::ForcePlain ForcePlain;
+    MOTION_TYPEDEF_TPL(Derived);
     
     using Base::linear;
     using Base::angular;
@@ -43,9 +41,9 @@ namespace se3
     Derived & setZero() { linear().setZero(); angular().setZero(); return derived(); }
     Derived & setRandom() { linear().setZero(); angular().setZero(); return derived(); }
     
-    ActionMatrix_t toActionMatrix_impl() const
+    ActionMatrixType toActionMatrix_impl() const
     {
-      ActionMatrix_t X;
+      ActionMatrixType X;
       X.template block <3,3> (ANGULAR, ANGULAR) = X.template block <3,3> (LINEAR, LINEAR) = skew(angular());
       X.template block <3,3> (LINEAR, ANGULAR) = skew(linear());
       X.template block <3,3> (ANGULAR, LINEAR).setZero();
@@ -53,9 +51,9 @@ namespace se3
       return X;
     }
     
-    ActionMatrix_t toDualActionMatrix_impl() const
+    ActionMatrixType toDualActionMatrix_impl() const
     {
-      ActionMatrix_t X;
+      ActionMatrixType X;
       X.template block <3,3> (ANGULAR, ANGULAR) = X.template block <3,3> (LINEAR, LINEAR) = skew(angular());
       X.template block <3,3> (ANGULAR, LINEAR) = skew(linear());
       X.template block <3,3> (LINEAR, ANGULAR).setZero();
@@ -131,21 +129,6 @@ namespace se3
       motionAction(v,res);
       return res;
     }
-    
-    //    template<typename F1, typename F2>
-    //    void cross_impl(const ForceBase<F1> & phi, ForceBase<F2> & phi_out) const
-    //    {
-    //      phi_out.linear() = angular().cross(phi.linear());
-    //      phi_out.angular() = angular().cross(phi.angular())+linear().cross(phi.linear());
-    //    }
-    //
-    //    template<typename F1>
-    //    ForcePlain cross_impl(const ForceBase<F1> & phi) const
-    //    {
-    //      ForcePlain res;
-    //      cross_impl(phi,res);
-    //      return res;
-    //    }
     
     template<typename D2>
     bool isApprox_impl(const MotionDense<D2> & m2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const

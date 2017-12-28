@@ -36,21 +36,14 @@ namespace se3
   {
     typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
-    typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
-    typedef Eigen::Matrix<double,3,3,0> Matrix3;
-    typedef Eigen::Matrix<double,4,4,0> Matrix4;
     typedef Eigen::Matrix<double,6,6,0> Matrix6;
-    typedef Vector3 Angular_t;
-    typedef Vector3 Linear_t;
-    typedef const Vector3 ConstAngular_t;
-    typedef const Vector3 ConstLinear_t;
-    typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<double,0> Quaternion_t;
-    typedef SE3Tpl<double,0> SE3;
-    typedef ForceTpl<double,0> Force;
-    typedef MotionTpl<double,0> Motion;
-    typedef Symmetric3Tpl<double,0> Symmetric3;
+    typedef Vector3 AngularType;
+    typedef Vector3 LinearType;
+    typedef const Vector3 ConstAngularType;
+    typedef const Vector3 ConstLinearType;
+    typedef Matrix6 ActionMatrixType;
+    typedef MotionTpl<double,0> MotionPlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -59,7 +52,7 @@ namespace se3
 
   struct MotionTranslation : MotionBase < MotionTranslation >
   {
-    SPATIAL_TYPEDEF_NO_TEMPLATE(MotionTranslation);
+    MOTION_TYPEDEF(MotionTranslation);
 
     MotionTranslation ()                   : v (Motion::Vector3 (NAN, NAN, NAN)) {}
     MotionTranslation (const Motion::Vector3 & v) : v (v)  {}
@@ -68,27 +61,27 @@ namespace se3
 
     Vector3 & operator() () { return v; }
     const Vector3 & operator() () const { return v; }
-
+    
     operator Motion() const
     {
       return Motion (v, Motion::Vector3::Zero ());
     }
-
+    
     MotionTranslation & operator= (const MotionTranslation & other)
     {
       v = other.v;
       return *this;
     }
   }; // struct MotionTranslation
-
+  
   inline const MotionTranslation operator+ (const MotionTranslation & m, const BiasZero &)
   { return m; }
-
+  
   inline Motion operator+ (const MotionTranslation & m1, const Motion & m2)
   {
     return Motion (m2.linear () + m1.v, m2.angular ());
   }
-
+  
   struct ConstraintTranslationSubspace;
   template <>
   struct traits < ConstraintTranslationSubspace>
@@ -118,7 +111,7 @@ namespace se3
     typedef Eigen::Matrix<Scalar,3,1,0> JointForce;
     typedef Eigen::Matrix<Scalar,6,3> DenseBase;
   }; // traits ConstraintTranslationSubspace
-
+  
   struct ConstraintTranslationSubspace : ConstraintBase < ConstraintTranslationSubspace >
   {
     SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintTranslationSubspace);
@@ -127,23 +120,23 @@ namespace se3
     typedef traits<ConstraintTranslationSubspace>::JointForce JointForce;
     typedef traits<ConstraintTranslationSubspace>::DenseBase DenseBase;
     ConstraintTranslationSubspace () {}
-
+    
     Motion operator* (const MotionTranslation & vj) const
     { return Motion (vj (), Motion::Vector3::Zero ()); }
-
+    
     int nv_impl() const { return NV; }
-
+    
     struct ConstraintTranspose
     {
       const ConstraintTranslationSubspace & ref;
       ConstraintTranspose(const ConstraintTranslationSubspace & ref) : ref(ref) {}
-
+      
       Force::Vector3 operator* (const Force & phi)
       {
         return phi.linear ();
       }
-
-
+      
+      
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename D>
       friend typename Eigen::Matrix <typename Eigen::MatrixBase<D>::Scalar, 3, -1>
@@ -153,9 +146,9 @@ namespace se3
         return  F.template middleRows <3> (Inertia::LINEAR);
       }
     }; // struct ConstraintTranspose
-
+    
     ConstraintTranspose transpose () const { return ConstraintTranspose(*this); }
-
+    
     operator ConstraintXd () const
     {
       Eigen::Matrix<double,6,3> S;
@@ -163,19 +156,19 @@ namespace se3
       S.block <3,3> (Inertia::ANGULAR, 0).setZero ();
       return ConstraintXd(S);
     }
-
+    
     Eigen::Matrix <double,6,3> se3Action (const SE3 & m) const
     {
       Eigen::Matrix <double,6,3> M;
       M.block <3,3> (Motion::LINEAR, 0) = m.rotation ();
       M.block <3,3> (Motion::ANGULAR, 0).setZero ();
-
+      
       return M;
     }
     
     DenseBase motionAction(const Motion & m) const
     {
-      const Motion::ConstAngular_t w = m.angular();
+      const Motion::ConstAngularType w = m.angular();
       
       DenseBase res;
       skew(w,res.middleRows<3>(LINEAR));
@@ -183,22 +176,22 @@ namespace se3
       
       return res;
     }
-
+    
   }; // struct ConstraintTranslationSubspace
-
+  
   template<typename D>
   Motion operator* (const ConstraintTranslationSubspace &, const Eigen::MatrixBase<D> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,3);
     return Motion (v, Motion::Vector3::Zero ());
   }
-
-
+  
+  
   inline Motion operator^ (const Motion & m1, const MotionTranslation & m2)
   {
     return Motion (m1.angular ().cross (m2.v), Motion::Vector3::Zero ());
   }
-
+  
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   inline Eigen::Matrix <double, 6, 3> operator* (const Inertia & Y, const ConstraintTranslationSubspace &)
   {
@@ -207,10 +200,10 @@ namespace se3
     //    M.block <3,3> (Inertia::LINEAR, 0) = Y.mass () * Inertia::Matrix3::Identity ();
     M.block <3,3> (Inertia::LINEAR, 0).setZero ();
     M.block <3,3> (Inertia::LINEAR, 0).diagonal ().fill (Y.mass ());
-
+    
     return M;
   }
-
+  
   namespace internal
   {
     template<>
@@ -221,8 +214,8 @@ namespace se3
     struct MotionAlgebraAction<ConstraintTranslationSubspace>
     { typedef Eigen::Matrix<double,6,3> ReturnType; };
   }
-
-
+  
+  
   struct JointTranslation;
   template<>
   struct traits<JointTranslation>

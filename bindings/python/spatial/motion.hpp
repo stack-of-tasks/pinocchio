@@ -23,6 +23,7 @@
 #include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/motion.hpp"
+#include "pinocchio/spatial/force.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -38,10 +39,10 @@ namespace se3
     struct MotionPythonVisitor
       : public boost::python::def_visitor< MotionPythonVisitor<Motion> >
     {
-      typedef typename Motion::Force Force;
+      typedef typename Motion::Scalar Scalar;
+      typedef ForceTpl<Scalar,traits<Motion>::Options> Force;
       typedef typename Motion::Vector6 Vector6;
       typedef typename Motion::Vector3 Vector3;
-      typedef typename Motion::Scalar Scalar;
 
     public:
 

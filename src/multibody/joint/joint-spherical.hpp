@@ -33,26 +33,20 @@ namespace se3
 {
 
   struct MotionSpherical;
+  
   template <>
   struct traits< MotionSpherical >
   {
     typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
-    typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
-    typedef Eigen::Matrix<double,3,3,0> Matrix3;
-    typedef Eigen::Matrix<double,4,4,0> Matrix4;
     typedef Eigen::Matrix<double,6,6,0> Matrix6;
-    typedef Vector3 Angular_t;
-    typedef Vector3 Linear_t;
-    typedef const Vector3 ConstAngular_t;
-    typedef const Vector3 ConstLinear_t;
-    typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<double,0> Quaternion_t;
-    typedef SE3Tpl<double,0> SE3;
-    typedef ForceTpl<double,0> Force;
-    typedef MotionTpl<double,0> Motion;
-    typedef Symmetric3Tpl<double,0> Symmetric3;
+    typedef Vector3 AngularType;
+    typedef Vector3 LinearType;
+    typedef const Vector3 ConstAngularType;
+    typedef const Vector3 ConstLinearType;
+    typedef Matrix6 ActionMatrixType;
+    typedef MotionTpl<double,0> MotionPlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -61,7 +55,7 @@ namespace se3
 
   struct MotionSpherical : MotionBase < MotionSpherical >
   {
-    SPATIAL_TYPEDEF_NO_TEMPLATE(MotionSpherical);
+    MOTION_TYPEDEF(MotionSpherical);
 
     MotionSpherical ()                   : w (Motion::Vector3(NAN, NAN, NAN)) {}
     MotionSpherical (const Motion::Vector3 & w) : w (w)  {}
@@ -164,8 +158,8 @@ namespace se3
     
     DenseBase motionAction(const Motion & m) const
     {
-      const Motion::ConstLinear_t v = m.linear();
-      const Motion::ConstAngular_t w = m.angular();
+      const Motion::ConstLinearType v = m.linear();
+      const Motion::ConstAngularType w = m.angular();
       
       DenseBase res;
       skew(v,res.middleRows<3>(LINEAR));
@@ -279,7 +273,7 @@ namespace se3
     using JointModelBase<JointModelSpherical>::idx_v;
     using JointModelBase<JointModelSpherical>::setIndexes;
     typedef Motion::Vector3 Vector3;
-    typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+    typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
 
     JointDataDerived createData() const { return JointDataDerived(); }
 
@@ -288,7 +282,7 @@ namespace se3
     {
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
       //using std::sqrt;
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
 
       ConstQuaternionMap_t quat(q_joint.derived().data());
       //assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
@@ -301,7 +295,7 @@ namespace se3
     void calc (JointDataDerived & data,
                const Eigen::VectorXd & qs) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
       
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ>(idx_q ());
       
@@ -313,7 +307,7 @@ namespace se3
                const Eigen::VectorXd & qs,
                const Eigen::VectorXd & vs ) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
       
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
       data.v () = vs.segment<NV> (idx_v ());
@@ -345,13 +339,13 @@ namespace se3
 
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
       
       ConstQuaternionMap_t q(qs.segment<NQ>(idx_q()).data());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
 
-      Motion_t::Quaternion_t pOmega(se3::exp3(q_dot));
-      Motion_t::Quaternion_t quaternion_result(q*pOmega);
+      SE3::Quaternion_t pOmega(se3::exp3(q_dot));
+      SE3::Quaternion_t quaternion_result(q*pOmega);
       firstOrderNormalize(quaternion_result);
       
       return quaternion_result.coeffs();
@@ -359,14 +353,14 @@ namespace se3
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
       
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
 
       ConstQuaternionMap_t p0 (q_0.data());
       ConstQuaternionMap_t p1 (q_1.data());
-      Motion_t::Quaternion_t quaternion_result(p0.slerp(u, p1));
+      SE3::Quaternion_t quaternion_result(p0.slerp(u, p1));
 
       return quaternion_result.coeffs();
     }
@@ -374,7 +368,7 @@ namespace se3
     ConfigVector_t random_impl() const
     { 
       ConfigVector_t q;
-      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      typedef Eigen::Map<SE3::Quaternion_t> QuaternionMap_t;
       uniformRandom(QuaternionMap_t(q.data()));
       return q;
     } 
@@ -382,7 +376,7 @@ namespace se3
     ConfigVector_t randomConfiguration_impl(const ConfigVector_t &, const ConfigVector_t &) const
     {
       ConfigVector_t result;
-      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      typedef Eigen::Map<SE3::Quaternion_t> QuaternionMap_t;
       uniformRandom(QuaternionMap_t(result.data()));
       return result;
     }
@@ -415,7 +409,7 @@ namespace se3
 
     bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
 
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());

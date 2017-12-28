@@ -35,21 +35,14 @@ namespace se3
   {
     typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
-    typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
-    typedef Eigen::Matrix<double,3,3,0> Matrix3;
-    typedef Eigen::Matrix<double,4,4,0> Matrix4;
     typedef Eigen::Matrix<double,6,6,0> Matrix6;
-    typedef Vector3 Angular_t;
-    typedef Vector3 Linear_t;
-    typedef const Vector3 ConstAngular_t;
-    typedef const Vector3 ConstLinear_t;
-    typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<double,0> Quaternion_t;
-    typedef SE3Tpl<double,0> SE3;
-    typedef ForceTpl<double,0> Force;
-    typedef MotionTpl<double,0> Motion;
-    typedef Symmetric3Tpl<double,0> Symmetric3;
+    typedef Vector3 AngularType;
+    typedef Vector3 LinearType;
+    typedef const Vector3 ConstAngularType;
+    typedef const Vector3 ConstLinearType;
+    typedef Matrix6 ActionMatrixType;
+    typedef MotionTpl<double,0> MotionPlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -58,7 +51,7 @@ namespace se3
 
   struct MotionRevoluteUnaligned : MotionBase < MotionRevoluteUnaligned >
   {
-    SPATIAL_TYPEDEF_NO_TEMPLATE(MotionRevoluteUnaligned);
+    MOTION_TYPEDEF(MotionRevoluteUnaligned);
 
     MotionRevoluteUnaligned() : axis(Motion::Vector3::Constant(NAN)), w(NAN) {} 
     MotionRevoluteUnaligned( const Motion::Vector3 & axis, const double & w ) : axis(axis), w(w)  {}
@@ -194,8 +187,8 @@ namespace se3
       
       DenseBase motionAction(const Motion & m) const
       {
-        const Motion::ConstLinear_t v = m.linear();
-        const Motion::ConstAngular_t w = m.angular();
+        const Motion::ConstLinearType v = m.linear();
+        const Motion::ConstAngularType w = m.angular();
         
         DenseBase res;
         res << v.cross(axis), w.cross(axis);
@@ -209,9 +202,9 @@ namespace se3
     inline Motion operator^( const Motion& m1, const MotionRevoluteUnaligned & m2)
     {
       /* m1xm2 = [ v1xw2 + w1xv2; w1xw2 ] = [ v1xw2; w1xw2 ] */
-      const Motion::Vector3& v1 = m1.linear();
-      const Motion::Vector3& w1 = m1.angular();
-      const Motion::Vector3& w2 = m2.axis * m2.w ;
+      const Motion::ConstLinearType v1 = m1.linear();
+      const Motion::ConstAngularType w1 = m1.angular();
+      const Motion::Vector3 w2(m2.axis * m2.w);
       return Motion( v1.cross(w2),w1.cross(w2));
     }
 

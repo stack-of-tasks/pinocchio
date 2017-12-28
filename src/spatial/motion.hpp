@@ -25,6 +25,30 @@
 #include "pinocchio/spatial/se3.hpp"
 //#include "pinocchio/spatial/force.hpp"
 
+#pragma clang diagnostic ignored "-Wc99-extensions"
+
+#define MOTION_TYPEDEF_GENERIC(Derived,TYPENAME) \
+typedef TYPENAME traits<Derived>::Scalar Scalar; \
+typedef TYPENAME traits<Derived>::Vector3 Vector3; \
+typedef TYPENAME traits<Derived>::Vector6 Vector6; \
+typedef TYPENAME traits<Derived>::Matrix6 Matrix6; \
+typedef TYPENAME traits<Derived>::AngularType AngularType; \
+typedef TYPENAME traits<Derived>::LinearType LinearType; \
+typedef TYPENAME traits<Derived>::ConstAngularType ConstAngularType; \
+typedef TYPENAME traits<Derived>::ConstLinearType ConstLinearType; \
+typedef TYPENAME traits<Derived>::ActionMatrixType ActionMatrixType; \
+typedef TYPENAME traits<Derived>::MotionPlain MotionPlain; \
+enum {  \
+LINEAR = traits<Derived>::LINEAR,  \
+ANGULAR = traits<Derived>::ANGULAR \
+}
+
+#define MOTION_TYPEDEF_TPL(Derived) \
+MOTION_TYPEDEF_GENERIC(Derived,typename)
+
+#define MOTION_TYPEDEF(Derived) \
+MOTION_TYPEDEF_GENERIC(Derived,) \
+
 namespace se3
 {
   namespace internal

@@ -142,14 +142,14 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
 
   // Test Action Matrix
   Motion v2xv = bv2.cross(bv);
-  Motion::ActionMatrix_t actv2 = bv2.toActionMatrix();
+  Motion::ActionMatrixType actv2 = bv2.toActionMatrix();
   
   BOOST_CHECK(v2xv.toVector().isApprox(actv2*bv.toVector()));
   
   // Test Dual Action Matrix
   Force f(bv.toVector());
   Force v2xf = bv2.cross(f);
-  Motion::ActionMatrix_t dualactv2 = bv2.toDualActionMatrix();
+  Motion::ActionMatrixType dualactv2 = bv2.toDualActionMatrix();
   
   BOOST_CHECK(v2xf.toVector().isApprox(dualactv2*f.toVector()));
   BOOST_CHECK(dualactv2.isApprox(-actv2.transpose()));
@@ -347,8 +347,8 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   // Test Variation
   Inertia::Matrix6 aIvariation = aI.variation(v);
   
-  Motion::ActionMatrix_t vAction = v.toActionMatrix();
-  Motion::ActionMatrix_t vDualAction = v.toDualActionMatrix();
+  Motion::ActionMatrixType vAction = v.toActionMatrix();
+  Motion::ActionMatrixType vDualAction = v.toDualActionMatrix();
   
   Inertia::Matrix6 aImatrix = aI.matrix();
   Inertia::Matrix6 aIvariation_ref = vDualAction * aImatrix - aImatrix * vAction;

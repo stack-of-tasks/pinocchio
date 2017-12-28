@@ -36,21 +36,14 @@ namespace se3
   {
     typedef double Scalar;
     typedef Eigen::Matrix<Scalar,3,1,0> Vector3;
-    typedef Eigen::Matrix<Scalar,4,1,0> Vector4;
     typedef Eigen::Matrix<Scalar,6,1,0> Vector6;
-    typedef Eigen::Matrix<Scalar,3,3,0> Matrix3;
-    typedef Eigen::Matrix<Scalar,4,4,0> Matrix4;
     typedef Eigen::Matrix<Scalar,6,6,0> Matrix6;
-    typedef Vector3 Angular_t;
-    typedef Vector3 Linear_t;
-    typedef const Vector3 ConstAngular_t;
-    typedef const Vector3 ConstLinear_t;
-    typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<Scalar,0> Quaternion_t;
-    typedef SE3Tpl<Scalar,0> SE3;
-    typedef ForceTpl<Scalar,0> Force;
-    typedef MotionTpl<Scalar,0> Motion;
-    typedef Symmetric3Tpl<Scalar,0> Symmetric3;
+    typedef Vector3 AngularType;
+    typedef Vector3 LinearType;
+    typedef const Vector3 ConstAngularType;
+    typedef const Vector3 ConstLinearType;
+    typedef Matrix6 ActionMatrixType;
+    typedef MotionTpl<Scalar,0> MotionPlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -59,7 +52,7 @@ namespace se3
 
   struct MotionPrismaticUnaligned : MotionBase <MotionPrismaticUnaligned>
   {
-    SPATIAL_TYPEDEF_NO_TEMPLATE(MotionPrismaticUnaligned);
+    MOTION_TYPEDEF(MotionPrismaticUnaligned);
 
     MotionPrismaticUnaligned () : axis(Vector3::Constant(NAN)), v(NAN) {}
     MotionPrismaticUnaligned (const Vector3 & axis, const Scalar v) : axis(axis), v(v) {}

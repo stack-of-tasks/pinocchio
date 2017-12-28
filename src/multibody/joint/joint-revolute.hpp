@@ -62,21 +62,14 @@ namespace se3
   {
     typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
-    typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
-    typedef Eigen::Matrix<double,3,3,0> Matrix3;
-    typedef Eigen::Matrix<double,4,4,0> Matrix4;
     typedef Eigen::Matrix<double,6,6,0> Matrix6;
-    typedef Vector3 Angular_t;
-    typedef Vector3 Linear_t;
-    typedef const Vector3 ConstAngular_t;
-    typedef const Vector3 ConstLinear_t;
-    typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<double,0> Quaternion_t;
-    typedef SE3Tpl<double,0> SE3;
-    typedef ForceTpl<double,0> Force;
-    typedef MotionTpl<double,0> Motion;
-    typedef Symmetric3Tpl<double,0> Symmetric3;
+    typedef Vector3 AngularType;
+    typedef Vector3 LinearType;
+    typedef const Vector3 ConstAngularType;
+    typedef const Vector3 ConstLinearType;
+    typedef Matrix6 ActionMatrixType;
+    typedef MotionTpl<double,0> MotionPlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -86,7 +79,7 @@ namespace se3
   template<int axis>
   struct MotionRevolute : MotionBase < MotionRevolute <axis > >
   {
-    SPATIAL_TYPEDEF_TEMPLATE(MotionRevolute);
+    MOTION_TYPEDEF_TPL(MotionRevolute);
 
     MotionRevolute()                   : w(NAN) {}
     MotionRevolute( const double & w ) : w(w)  {}
@@ -212,8 +205,8 @@ namespace se3
     
     DenseBase motionAction(const Motion & m) const
     {
-      const typename Motion::ConstLinear_t v = m.linear();
-      const typename Motion::ConstAngular_t w = m.angular();
+      const typename Motion::ConstLinearType v = m.linear();
+      const typename Motion::ConstAngularType w = m.angular();
       
       const Vector3 a(revolute::CartesianVector3<axis>(1).vector());
       DenseBase res;

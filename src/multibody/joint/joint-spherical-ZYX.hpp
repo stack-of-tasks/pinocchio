@@ -191,8 +191,8 @@ namespace se3
       
       DenseBase motionAction(const Motion & m) const
       {
-        const typename Motion::ConstLinear_t v = m.linear();
-        const typename Motion::ConstAngular_t w = m.angular();
+        const typename Motion::ConstLinearType v = m.linear();
+        const typename Motion::ConstAngularType w = m.angular();
         
         DenseBase res;
         cross(v,S_minimal,res.template middleRows<3>(Motion::LINEAR));

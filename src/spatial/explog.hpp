@@ -157,8 +157,8 @@ namespace se3
   exp6(const MotionTpl<_Scalar,_Options> & nu)
   {
     typedef _Scalar Scalar;
-    typedef typename MotionTpl<Scalar,_Options>::Vector3 Vector3;
-    typedef typename MotionTpl<Scalar,_Options>::Matrix3 Matrix3;
+    typedef typename SE3Tpl<Scalar,_Options>::Vector3 Vector3;
+    typedef typename SE3Tpl<Scalar,_Options>::Matrix3 Matrix3;
 
     const Vector3 & w = nu.angular();
     const Vector3 & v = nu.linear();

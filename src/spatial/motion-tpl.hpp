@@ -27,32 +27,24 @@
 
 namespace se3
 {
-  template<typename T, int U>
-  struct traits< MotionTpl<T, U> >
+  template<typename _Scalar, int _Options>
+  struct traits< MotionTpl<_Scalar, _Options> >
   {
-    typedef T Scalar;
-    typedef Eigen::Matrix<T,3,1,U> Vector3;
-    typedef Eigen::Matrix<T,4,1,U> Vector4;
-    typedef Eigen::Matrix<T,6,1,U> Vector6;
-    typedef Eigen::Matrix<T,3,3,U> Matrix3;
-    typedef Eigen::Matrix<T,4,4,U> Matrix4;
-    typedef Eigen::Matrix<T,6,6,U> Matrix6;
-    typedef Matrix6 ActionMatrix_t;
-    typedef typename Vector6::template FixedSegmentReturnType<3>::Type Linear_t;
-    typedef typename Vector6::template FixedSegmentReturnType<3>::Type Angular_t;
-    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstLinear_t;
-    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstAngular_t;
-    typedef Eigen::Quaternion<T,U> Quaternion_t;
-    typedef SE3Tpl<T,U> SE3;
-    typedef ForceTpl<T,U> Force;
-    typedef MotionTpl<T,U> Motion;
-    typedef Symmetric3Tpl<T,U> Symmetric3;
+    typedef _Scalar Scalar;
+    typedef Eigen::Matrix<Scalar,3,1,_Options> Vector3;
+    typedef Eigen::Matrix<Scalar,6,1,_Options> Vector6;
+    typedef Eigen::Matrix<Scalar,6,6,_Options> Matrix6;
+    typedef Matrix6 ActionMatrixType;
+    typedef typename Vector6::template FixedSegmentReturnType<3>::Type LinearType;
+    typedef typename Vector6::template FixedSegmentReturnType<3>::Type AngularType;
+    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstLinearType;
+    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstAngularType;
+    typedef MotionTpl<Scalar,_Options> MotionPlain;
     enum {
       LINEAR = 0,
-      ANGULAR = 3
+      ANGULAR = 3,
+      Options = _Options
     };
-    typedef MotionTpl<T,U> MotionPlain;
-    typedef ForceTpl<T,U> ForcePlain;
   }; // traits MotionTpl
   
   template<typename _Scalar, int _Options>
@@ -61,7 +53,7 @@ namespace se3
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef MotionDense<MotionTpl> Base;
-    SPATIAL_TYPEDEF_TEMPLATE(MotionTpl);
+    MOTION_TYPEDEF_TPL(MotionTpl);
 
     using Base::operator=;
     
@@ -97,10 +89,10 @@ namespace se3
     Vector6 & toVector_impl() { return data; }
     
     // Getters
-    ConstAngular_t angular_impl() const { return data.template segment<3> (ANGULAR); }
-    ConstLinear_t linear_impl()  const { return data.template segment<3> (LINEAR); }
-    Angular_t angular_impl() { return data.template segment<3> (ANGULAR); }
-    Linear_t linear_impl()  { return data.template segment<3> (LINEAR); }
+    ConstAngularType angular_impl() const { return data.template segment<3> (ANGULAR); }
+    ConstLinearType linear_impl()  const { return data.template segment<3> (LINEAR); }
+    AngularType angular_impl() { return data.template segment<3> (ANGULAR); }
+    LinearType linear_impl()  { return data.template segment<3> (LINEAR); }
     
     template<typename V3>
     void angular_impl(const Eigen::MatrixBase<V3> & w) { angular_impl()=w; }

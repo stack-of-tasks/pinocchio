@@ -21,9 +21,9 @@
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
-#include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/quaternion.hpp"
 
@@ -78,14 +78,14 @@ namespace se3
 
       struct TransposeConst 
       {
-        Force::Vector6 operator* (const Force & phi)
+        const Force::Vector6 & operator* (const Force & phi)
         {  return phi.toVector();  }
       };
       
       TransposeConst transpose() const { return TransposeConst(); }
       operator ConstraintXd () const { return ConstraintXd(SE3::Matrix6::Identity()); }
       
-      DenseBase motionAction(const Motion & m) const { return m.toActionMatrix(); }
+      DenseBase motionAction(const Motion & v) const { return v.toActionMatrix(); }
     }; // struct ConstraintIdentity
 
     template<typename D>
@@ -209,7 +209,7 @@ namespace se3
     {
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
       //using std::sqrt;
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
 
       ConstQuaternionMap_t quat(q_joint.template tail<4>().data());
       //assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
@@ -222,7 +222,7 @@ namespace se3
     void calc(JointDataDerived & data,
               const Eigen::VectorXd & qs) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
       
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
       ConstQuaternionMap_t quat(q.tail<4> ().data());
@@ -235,7 +235,7 @@ namespace se3
               const Eigen::VectorXd & qs,
               const Eigen::VectorXd & vs ) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
       
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
       data.v = vs.segment<NV>(idx_v());
@@ -263,7 +263,7 @@ namespace se3
     
     ConfigVector_t integrate_impl(const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const
     {
-      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      typedef Eigen::Map<SE3::Quaternion_t> QuaternionMap_t;
       
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
@@ -284,7 +284,7 @@ namespace se3
 
     ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1, const double u) const
     {
-      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      typedef Eigen::Map<SE3::Quaternion_t> QuaternionMap_t;
       
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
@@ -315,7 +315,7 @@ namespace se3
     { 
       ConfigVector_t q(ConfigVector_t::Random());
 
-      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      typedef Eigen::Map<SE3::Quaternion_t> QuaternionMap_t;
       uniformRandom(QuaternionMap_t(q.segment<4>(3).data()));
 
       return q;
@@ -338,7 +338,7 @@ namespace se3
         result[i] = lower_pos_limit[i] + (upper_pos_limit[i] - lower_pos_limit[i]) * (Scalar)(rand())/RAND_MAX;
       }
           
-      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
+      typedef Eigen::Map<SE3::Quaternion_t> QuaternionMap_t;
       uniformRandom(QuaternionMap_t(result.segment<4>(3).data()));
 
       return result;
@@ -372,7 +372,7 @@ namespace se3
 
     bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
 
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
       Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
