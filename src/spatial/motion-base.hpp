@@ -57,12 +57,12 @@ namespace se3
     
     bool operator==(const Derived & other) const { return derived().isEqual_impl(other);}
     bool operator!=(const Derived & other) const { return !(*this == other); }
-    Derived operator-() const { return derived().__minus__(); }
-    Derived operator+(const Derived & v) const { return derived().__plus__(v); }
-    Derived operator-(const Derived & v) const { return derived().__minus__(v); }
+    MotionPlain operator-() const { return derived().__minus__(); }
+    MotionPlain operator+(const Derived & v) const { return derived().__plus__(v); }
+    MotionPlain operator-(const Derived & v) const { return derived().__minus__(v); }
     Derived & operator+=(const Derived & v) { return derived().__pequ__(v); }
     Derived & operator-=(const Derived & v) { return derived().__mequ__(v); }
-    Derived operator*(const Scalar alpha) const { return derived().__mult__(alpha); }
+    MotionPlain operator*(const Scalar alpha) const { return derived().__mult__(alpha); }
     
     template<typename D>
     typename internal::MotionAlgebraAction<D>::ReturnType cross(const D & d) const
@@ -73,8 +73,8 @@ namespace se3
     bool isApprox(const Derived & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return derived().isApprox_impl(other, prec);}
     
-    Derived se3Action(const SE3 & m) const { return derived().se3Action_impl(m); }
-    Derived se3ActionInverse(const SE3 & m) const { return derived().se3ActionInverse_impl(m); }
+    MotionPlain se3Action(const SE3 & m) const { return derived().se3Action_impl(m); }
+    MotionPlain se3ActionInverse(const SE3 & m) const { return derived().se3ActionInverse_impl(m); }
     
     Scalar dot(const Force & f) const { return derived().dot(f); }
     
