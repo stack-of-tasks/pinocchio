@@ -48,6 +48,11 @@ namespace se3
   {
     typedef traits<BiasZero>::MotionPlain MotionPlain;
     operator MotionPlain () const { return MotionPlain::Zero(); }
+    
+    template<typename D2>
+    static bool isEqual_impl(const MotionDense<D2> & other)
+    { return other.linear().isZero() && other.angular().isZero(); }
+    
   }; // struct BiasZero
   
   template<typename M1>

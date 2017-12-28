@@ -59,6 +59,10 @@ namespace se3
     bool isEqual_impl(const MotionDense<D2> & other) const
     { return linear() == other.linear() && angular() == other.angular(); }
     
+    template<typename D2>
+    bool isEqual_impl(const MotionBase<D2> & other) const
+    { return other.derived() == derived(); }
+    
     // Arithmetic operators
     template<typename D2>
     Derived & operator=(const MotionDense<D2> & other)
@@ -76,11 +80,6 @@ namespace se3
       angular() = v.template segment<3>(ANGULAR);
       return derived();
     }
-    
-    template<typename M1>
-    bool operator==(const MotionDense<M1> & other) const { return derived().isEqual_impl(other);}
-    template<typename M1>
-    bool operator!=(const MotionDense<M1> & other) const { return !(*this == other); }
     
     MotionPlain operator-() const { return derived().__minus__(); }
     template<typename M1>

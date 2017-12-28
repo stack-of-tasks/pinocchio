@@ -49,8 +49,11 @@ namespace se3
     ActionMatrixType toDualActionMatrix() const { return derived().toDualActionMatrix_impl(); }
     operator Matrix6 () const { return toActionMatrix(); }
     
-    bool operator==(const Derived & other) const { return derived().isEqual_impl(other);}
-    bool operator!=(const Derived & other) const { return !(*this == other); }
+    template<typename M2>
+    bool operator==(const MotionBase<M2> & other) const { return derived().isEqual_impl(other.derived());}
+    template<typename M2>
+    bool operator!=(const MotionBase<M2> & other) const { return !(derived() == other.derived()); }
+    
     MotionPlain operator-() const { return derived().__minus__(); }
     MotionPlain operator+(const Derived & v) const { return derived().__plus__(v); }
     MotionPlain operator-(const Derived & v) const { return derived().__minus__(v); }
