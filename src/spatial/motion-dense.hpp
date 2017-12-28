@@ -83,6 +83,23 @@ namespace se3
       return derived();
     }
     
+    template<typename M1>
+    bool operator==(const MotionDense<M1> & other) const { return derived().isEqual_impl(other);}
+    template<typename M1>
+    bool operator!=(const MotionDense<M1> & other) const { return !(*this == other); }
+    
+    MotionPlain operator-() const { return derived().__minus__(); }
+    template<typename M1>
+    MotionPlain operator+(const MotionDense<M1> & v) const { return derived().__plus__(v); }
+    template<typename M1>
+    MotionPlain operator-(const MotionDense<M1> & v) const { return derived().__minus__(v); }
+    
+    template<typename M1>
+    Derived & operator+=(const MotionDense<M1> & v) { return derived().__pequ__(v); }
+    template<typename M1>
+    Derived & operator-=(const MotionDense<M1> & v) { return derived().__mequ__(v); }
+    MotionPlain operator*(const Scalar alpha) const { return derived().__mult__(alpha); }
+    
     MotionPlain __minus__() const { return MotionPlain(-linear(),-angular()); }
     
     template<typename M1>
@@ -129,6 +146,10 @@ namespace se3
       motionAction(v,res);
       return res;
     }
+    
+    template<typename M2>
+    bool isApprox(const MotionDense<M2> & m2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return derived().isApprox_impl(m2, prec);}
     
     template<typename D2>
     bool isApprox_impl(const MotionDense<D2> & m2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
