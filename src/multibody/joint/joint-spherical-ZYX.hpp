@@ -71,6 +71,10 @@ namespace se3
     template<typename D2>
     bool isEqual_impl(const MotionDense<D2> & other) const
     { return other.linear().isZero() && other.angular() == c_J; }
+    
+    template<typename D2>
+    void addTo(MotionDense<D2> & other) const
+    { other.angular() += c_J; }
   }; // struct BiasSphericalTpl
   
   template <typename S2, int O2>

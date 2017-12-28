@@ -84,18 +84,18 @@ namespace se3
     
     MotionPlain operator-() const { return derived().__minus__(); }
     template<typename M1>
-    MotionPlain operator+(const MotionDense<M1> & v) const { return derived().__plus__(v); }
+    MotionPlain operator+(const MotionDense<M1> & v) const { return derived().__plus__(v.derived()); }
     template<typename M1>
-    MotionPlain operator-(const MotionDense<M1> & v) const { return derived().__minus__(v); }
+    MotionPlain operator-(const MotionDense<M1> & v) const { return derived().__minus__(v.derived()); }
     
     template<typename M1>
-    Derived & operator+=(const MotionDense<M1> & v) { return derived().__pequ__(v); }
+    Derived & operator+=(const MotionDense<M1> & v) { return derived().__pequ__(v.derived()); }
     template<typename M1>
     Derived & operator+=(const MotionBase<M1> & v)
     { v.derived().addTo(derived()); return derived(); }
     
     template<typename M1>
-    Derived & operator-=(const MotionDense<M1> & v) { return derived().__mequ__(v); }
+    Derived & operator-=(const MotionDense<M1> & v) { return derived().__mequ__(v.derived()); }
     MotionPlain operator*(const Scalar alpha) const { return derived().__mult__(alpha); }
     
     MotionPlain __minus__() const { return MotionPlain(-linear(),-angular()); }
