@@ -22,6 +22,9 @@
 
 /// \brief Macro giving access to the equivalent type of D
 #define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type<D>::type
+/// \brief Macro giving access to the reference type of D
+#define EIGEN_REF_CONSTTYPE(D) Eigen::internal::ref_selector<D>::type
+#define EIGEN_REF_TYPE(D) Eigen::internal::ref_selector<D>::non_const_type
 
 #ifdef EIGEN3_BETA_3_2_9x
 namespace se3
