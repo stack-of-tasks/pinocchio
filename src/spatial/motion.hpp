@@ -23,7 +23,6 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/se3.hpp"
-//#include "pinocchio/spatial/force.hpp"
 
 #pragma clang diagnostic ignored "-Wc99-extensions"
 

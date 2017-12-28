@@ -22,7 +22,6 @@
 #include "pinocchio/spatial/cartesian-axis.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
-#include <Eigen/Core>
 
 namespace se3
 {
@@ -59,7 +58,7 @@ namespace se3
     
     template<typename Scalar, int Options>
     friend MotionTpl<Scalar,Options> & operator<<(MotionTpl<Scalar,Options> & min,
-                                                  const SpatialAxis & sa)
+                                                  const SpatialAxis &)
     {
       min.setZero();
       min.toVector()[axis] = Scalar(1);

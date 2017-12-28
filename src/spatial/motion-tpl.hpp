@@ -19,12 +19,6 @@
 #ifndef __se3_motion_tpl_hpp__
 #define __se3_motion_tpl_hpp__
 
-#include <Eigen/Core>
-#include "pinocchio/macros.hpp"
-#include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-//#include "pinocchio/spatial/force.hpp"
-
 namespace se3
 {
   template<typename _Scalar, int _Options>
