@@ -31,7 +31,8 @@ namespace se3
     using Base::linear;
     using Base::angular;
     using Base::derived;
-    
+    using Base::isApprox;
+
     Derived & setZero() { linear().setZero(); angular().setZero(); return derived(); }
     Derived & setRandom() { linear().setZero(); angular().setZero(); return derived(); }
     

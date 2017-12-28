@@ -100,8 +100,8 @@ namespace se3
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         
-        .def("isApprox",(bool (Motion::*)(const Motion & other, const Scalar & prec)) &Motion::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
-        .def("isApprox",(bool (Motion::*)(const Motion & other)) &Motion::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        .def("isApprox",(bool (Motion::*)(const Motion & other, const Scalar & prec) const) &Motion::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
+        .def("isApprox",isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
         
         .def("Random",&Motion::Random,"Returns a random Motion.")
         .staticmethod("Random")
@@ -144,6 +144,9 @@ namespace se3
       
       static void setZero(Motion & self) { self.setZero(); }
       static void setRandom(Motion & self) { self.setRandom(); }
+      
+      static bool isApprox(const Motion & self, const Motion & other)
+      { return self.isApprox(other); }
 
     };
     
