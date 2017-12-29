@@ -21,8 +21,7 @@
 
 namespace se3
 {
-  struct BiasZero;
-  
+
   template<>
   struct traits<BiasZero>
   {
@@ -37,7 +36,6 @@ namespace se3
     typedef Vector3 LinearType;
     typedef const Vector3 ConstLinearType;
     typedef Motion MotionPlain;
-    typedef Force ForcePlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -52,6 +50,9 @@ namespace se3
     template<typename D2>
     static bool isEqual_impl(const MotionDense<D2> & other)
     { return other.linear().isZero() && other.angular().isZero(); }
+    
+    template<typename D2>
+    static void addTo(const MotionDense<D2> &) {}
     
   }; // struct BiasZero
   

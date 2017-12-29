@@ -24,7 +24,12 @@
 namespace se3
 {
   template<typename _Scalar, int _Options=0> class SE3Tpl;
+
+  template<typename Derived> class MotionBase;
+  template<typename Derived> class MotionDense;
+  template<typename Vector6ArgType> class MotionRef;
   template<typename _Scalar, int _Options=0> class MotionTpl;
+  struct BiasZero;
   template<typename _Scalar, int _Options=0> class ForceTpl;
   template<typename _Scalar, int _Options=0> class InertiaTpl;
   template<typename _Scalar, int _Options=0> class Symmetric3Tpl;
