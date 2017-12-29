@@ -234,6 +234,15 @@ BOOST_AUTO_TEST_CASE (test_motion_ref)
   
 }
 
+BOOST_AUTO_TEST_CASE(test_motion_zero)
+{
+  using namespace se3;
+  Motion v = BiasZero();
+  
+  BOOST_CHECK(v.toVector().isZero());
+  BOOST_CHECK(BiasZero() == Motion::Zero());
+}
+
 BOOST_AUTO_TEST_CASE ( test_Force )
 {
   using namespace se3;
