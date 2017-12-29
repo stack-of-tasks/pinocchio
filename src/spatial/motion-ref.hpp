@@ -41,7 +41,9 @@ namespace se3
     typedef typename Vector6ArgType::template ConstFixedSegmentReturnType<3>::Type ConstAngularType;
     typedef MotionTpl<Scalar,Options> MotionPlain;
     typedef typename EIGEN_REF_TYPE(Vector6ArgType) DataRefType;
+    typedef DataRefType ToVectorReturnType;
     typedef typename EIGEN_REF_CONSTTYPE(Vector6ArgType) ConstDataRefType;
+    typedef ConstDataRefType ToVectorConstReturnType;
     
   }; // traits MotionRef
   

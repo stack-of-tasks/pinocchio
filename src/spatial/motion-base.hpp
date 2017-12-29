@@ -37,12 +37,12 @@ namespace se3
     LinearType linear() { return derived().linear_impl(); }
     
     template<typename V3>
-    void angular(const Eigen::MatrixBase<V3> & w) { derived().angular_impl(w); }
+    void angular(const Eigen::MatrixBase<V3> & w) { derived().angular_impl(w.derived()); }
     template<typename V3>
-    void linear(const Eigen::MatrixBase<V3> & v) { derived().linear_impl(v); }
+    void linear(const Eigen::MatrixBase<V3> & v) { derived().linear_impl(v.derived()); }
     
-    const Vector6 & toVector() const { return derived().toVector_impl(); }
-    Vector6 & toVector() { return derived().toVector_impl(); }
+    ToVectorConstReturnType toVector() const { return derived().toVector_impl(); }
+    ToVectorReturnType toVector() { return derived().toVector_impl(); }
     operator Vector6 () const { return toVector(); }
     
     ActionMatrixType toActionMatrix() const { return derived().toActionMatrix_impl(); }

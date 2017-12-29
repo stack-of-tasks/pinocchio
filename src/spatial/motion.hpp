@@ -31,6 +31,8 @@ typedef TYPENAME traits<Derived>::Scalar Scalar; \
 typedef TYPENAME traits<Derived>::Vector3 Vector3; \
 typedef TYPENAME traits<Derived>::Vector6 Vector6; \
 typedef TYPENAME traits<Derived>::Matrix6 Matrix6; \
+typedef TYPENAME traits<Derived>::ToVectorReturnType ToVectorReturnType; \
+typedef TYPENAME traits<Derived>::ToVectorConstReturnType ToVectorConstReturnType; \
 typedef TYPENAME traits<Derived>::AngularType AngularType; \
 typedef TYPENAME traits<Derived>::LinearType LinearType; \
 typedef TYPENAME traits<Derived>::ConstAngularType ConstAngularType; \

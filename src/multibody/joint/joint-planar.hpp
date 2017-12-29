@@ -37,11 +37,10 @@ namespace se3
   {
     typedef double Scalar;
     typedef Eigen::Matrix<double,3,1,0> Vector3;
-    typedef Eigen::Matrix<double,4,1,0> Vector4;
     typedef Eigen::Matrix<double,6,1,0> Vector6;
-    typedef Eigen::Matrix<double,3,3,0> Matrix3;
-    typedef Eigen::Matrix<double,4,4,0> Matrix4;
     typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
+    typedef EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Vector3 AngularType;
     typedef Vector3 LinearType;
     typedef const Vector3 ConstAngularType;

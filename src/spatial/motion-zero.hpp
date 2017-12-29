@@ -30,6 +30,8 @@ namespace se3
     typedef Eigen::Matrix<double,6,1,0> Vector6;
     typedef Eigen::Matrix<double,3,3,0> Matrix3;
     typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
+    typedef EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Matrix6 ActionMatrixType;
     typedef Vector3 AngularType;
     typedef const Vector3 ConstAngularType;

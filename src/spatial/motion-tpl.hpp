@@ -29,6 +29,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar,6,1,_Options> Vector6;
     typedef Eigen::Matrix<Scalar,6,6,_Options> Matrix6;
     typedef Matrix6 ActionMatrixType;
+    typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
+    typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef typename Vector6::template FixedSegmentReturnType<3>::Type LinearType;
     typedef typename Vector6::template FixedSegmentReturnType<3>::Type AngularType;
     typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstLinearType;
@@ -50,6 +52,8 @@ namespace se3
     MOTION_TYPEDEF_TPL(MotionTpl);
 
     using Base::operator=;
+    using Base::linear;
+    using Base::angular;
     
     // Constructors
     MotionTpl() : data() {}
@@ -75,12 +79,16 @@ namespace se3
     : data(clone.toVector())
     {}
     
+    template<typename M2>
+    explicit MotionTpl(const MotionDense<M2> & clone)
+    { linear() = clone.linear(); angular() = clone.angular(); }
+    
     // initializers
     static MotionTpl Zero()   { return MotionTpl(Vector6::Zero());   }
     static MotionTpl Random() { return MotionTpl(Vector6::Random()); }
     
-    const Vector6 & toVector_impl() const { return data; }
-    Vector6 & toVector_impl() { return data; }
+    ToVectorConstReturnType toVector_impl() const { return data; }
+    ToVectorReturnType toVector_impl() { return data; }
     
     // Getters
     ConstAngularType angular_impl() const { return data.template segment<3> (ANGULAR); }
@@ -89,9 +97,17 @@ namespace se3
     LinearType linear_impl()  { return data.template segment<3> (LINEAR); }
     
     template<typename V3>
-    void angular_impl(const Eigen::MatrixBase<V3> & w) { angular_impl()=w; }
+    void angular_impl(const Eigen::MatrixBase<V3> & w)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3,3);
+      angular_impl()=w;
+    }
     template<typename V3>
-    void linear_impl(const Eigen::MatrixBase<V3> & v) { linear_impl()=v; }
+    void linear_impl(const Eigen::MatrixBase<V3> & v)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3,3);
+      linear_impl()=v;
+    }
     
   protected:
     Vector6 data;
