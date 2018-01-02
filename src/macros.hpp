@@ -22,6 +22,7 @@
 
 /// \brief Macro giving access to the equivalent type of D
 #define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type<D>::type
+
 /// \brief Macro giving access to the reference type of D
 #define EIGEN_REF_CONSTTYPE(D) Eigen::internal::ref_selector<D>::type
 #if EIGEN_VERSION_AT_LEAST(3,2,90)
@@ -34,6 +35,9 @@ D &, \
 D \
 >::type
 #endif
+
+# define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
+Eigen::ScalarBinaryOpTraits< typename Eigen::internal::traits< D1 >::Scalar, typename Eigen::internal::traits< D2 >::Scalar >::ReturnType
 
 #ifdef EIGEN3_BETA_3_2_9x
 namespace se3
