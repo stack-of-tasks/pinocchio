@@ -116,6 +116,7 @@ namespace se3
         .def("__mul__",&__mul__<Motion>)
         .def("__mul__",&__mul__<Force>)
         .def("__mul__",&__mul__<Inertia>)
+        .def("__mul__",&__mul__<Vector3>)
         .add_property("np",&SE3::toHomogeneousMatrix)
         
         .def(bp::self == bp::self)
