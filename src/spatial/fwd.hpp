@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -19,10 +19,9 @@
 #ifndef __se3_fwd_hpp__
 #define __se3_fwd_hpp__
 
-#include <Eigen/Core>
-
 namespace se3
 {
+  
   template<typename _Scalar, int _Options=0> class SE3Tpl;
 
   template<typename Derived> class MotionBase;
@@ -30,7 +29,12 @@ namespace se3
   template<typename Vector6ArgType> class MotionRef;
   template<typename _Scalar, int _Options=0> class MotionTpl;
   struct BiasZero;
+  
+  template<typename Derived> class ForceBase;
+  template<typename Derived> class ForceDense;
+  template<typename Vector6ArgType> class ForceRef;
   template<typename _Scalar, int _Options=0> class ForceTpl;
+  
   template<typename _Scalar, int _Options=0> class InertiaTpl;
   template<typename _Scalar, int _Options=0> class Symmetric3Tpl;
 

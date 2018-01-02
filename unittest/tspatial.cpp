@@ -302,8 +302,56 @@ BOOST_AUTO_TEST_CASE ( test_Force )
   BOOST_CHECK(bf == bf);
   BOOST_CHECK(bf.isApprox(bf));
   Force bf_approx(bf);
-  bf_approx.linear()[0] += eps;
+  bf_approx.linear()[0] += eps/2.;
   BOOST_CHECK(bf_approx.isApprox(bf,eps));
+}
+
+BOOST_AUTO_TEST_CASE (test_force_ref)
+{
+  using namespace se3;
+  typedef SE3::Matrix6 Matrix6;
+  typedef Force::Vector6 Vector6;
+  
+  typedef ForceRef<Vector6> ForceV6;
+  
+  Force f_ref(Force::Random());
+  ForceV6 f(f_ref.toVector());
+  
+  BOOST_CHECK(f_ref.isApprox(f));
+  
+  ForceV6::ForcePlain f2(f*2.);
+  Force f2_ref(f_ref*2.);
+  
+  BOOST_CHECK(f2_ref.isApprox(f2));
+  
+  f2 = f_ref + f;
+  BOOST_CHECK(f2_ref.isApprox(f2));
+  
+  f = f2;
+  BOOST_CHECK(f2.isApprox(f));
+  
+  f2 = f - f;
+  BOOST_CHECK(f2.isApprox(Force::Zero()));
+  
+  SE3 M(SE3::Identity());
+  f2 = M.act(f);
+  BOOST_CHECK(f2.isApprox(f));
+  
+  f2 = M.actInv(f);
+  BOOST_CHECK(f2.isApprox(f));
+  
+  Motion v(Motion::Random());
+  f_ref.setRandom();
+  f = f_ref;
+  f2 = v.cross(f);
+  f2_ref = v.cross(f_ref);
+  
+  BOOST_CHECK(f2.isApprox(f2_ref));
+  
+  f.setRandom();
+  f.setZero();
+  BOOST_CHECK(f.isApprox(Force::Zero()));
+  
 }
 
 BOOST_AUTO_TEST_CASE ( test_Inertia )
@@ -398,7 +446,7 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   BOOST_CHECK(aI == aI);
   BOOST_CHECK(aI.isApprox(aI));
   Inertia aI_approx(aI);
-  aI_approx.mass() += eps;
+  aI_approx.mass() += eps/2.;
   BOOST_CHECK(aI_approx.isApprox(aI,eps));
   
   // Test Variation

@@ -183,6 +183,10 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/motion-ref.hpp
   spatial/motion-zero.hpp
   spatial/force.hpp
+  spatial/force-base.hpp
+  spatial/force-dense.hpp
+  spatial/force-tpl.hpp
+  spatial/force-ref.hpp
   spatial/inertia.hpp
   spatial/fwd.hpp
   spatial/skew.hpp
