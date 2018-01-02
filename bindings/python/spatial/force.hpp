@@ -86,8 +86,8 @@ namespace se3
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         
-        .def("isApprox",(bool (Force::*)(const Force & other, const Scalar & prec)) &Force::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
-        .def("isApprox",(bool (Force::*)(const Force & other)) &Force::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        .def("isApprox",(bool (Force::*)(const Force & other, const Scalar & prec) const) &Force::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
+        .def("isApprox",isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
         
         .def("Random",&Force::Random,"Returns a random Force.")
         .staticmethod("Random")
@@ -131,6 +131,9 @@ namespace se3
       
       static Vector6 getVector(const Force & self) { return self.toVector(); }
       static void setVector(Force & self, const Vector6 & f) { self = f; }
+      
+      static bool isApprox(const Force & self, const Force & other)
+      { return self.isApprox(other); }
 
     };
     
