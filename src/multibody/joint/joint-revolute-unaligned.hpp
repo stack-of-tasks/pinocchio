@@ -150,9 +150,16 @@ namespace se3
       	const ConstraintRevoluteUnaligned & ref; 
       	TransposeConst(const ConstraintRevoluteUnaligned & ref) : ref(ref) {} 
 
-      	Eigen::Matrix<double,1,1> operator* (const Force & f) const
+        template<typename Derived>
+        Eigen::Matrix<
+        typename EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstAngularType),
+        1,1>
+        operator* (const ForceDense<Derived> & f) const
       	{
-      	  return ref.axis.transpose()*f.angular();
+          typedef Eigen::Matrix<
+          typename EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstAngularType),
+          1,1> ReturnType;
+      	  return ReturnType(ref.axis.dot(f.angular()));
       	}
 
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */

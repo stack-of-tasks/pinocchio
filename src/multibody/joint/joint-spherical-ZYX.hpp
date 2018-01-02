@@ -159,21 +159,22 @@ namespace se3
       const ConstraintRotationalSubspaceTpl & ref;
       ConstraintTranspose(const ConstraintRotationalSubspaceTpl & ref) : ref(ref) {}
       
+      template<typename Derived>
 #ifdef EIGEN3_FUTURE
       const typename Eigen::Product<
       Eigen::Transpose<const Matrix3>,
-      Eigen::Block<const typename Force::Vector6,3,1>
+      Eigen::Block<const typename ForceDense<Derived>::Vector6,3,1>
       >
 #else
       const typename Eigen::ProductReturnType<
       Eigen::Transpose<const Matrix3>,
       //        typename Motion::ConstAngular_t::Base /* This feature leads currently to a bug */
-      Eigen::Block<const typename Force::Vector6,3,1>
+      Eigen::Block<const typename ForceDense<Derived>::Vector6,3,1>
       >::Type
 #endif
-      operator* (const Force & phi) const
+      operator* (const ForceDense<Derived> & phi) const
       {
-        return ref.S_minimal.transpose () * phi.angular();
+        return ref.S_minimal.transpose() * phi.angular();
       }
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */

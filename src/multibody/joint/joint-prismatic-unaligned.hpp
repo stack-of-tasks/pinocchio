@@ -148,10 +148,16 @@ namespace se3
       	const ConstraintPrismaticUnaligned & ref; 
       	TransposeConst(const ConstraintPrismaticUnaligned & ref) : ref(ref) {}
         
-      	const Eigen::Matrix<Scalar, 1, 1>
-      	operator* (const Force & f) const
+        template<typename Derived>
+        Eigen::Matrix<
+        typename EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstLinearType),
+        1,1>
+      	operator* (const ForceDense<Derived> & f) const
       	{
-      	  return ref.axis.transpose()*f.linear();
+          typedef Eigen::Matrix<
+          typename EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstLinearType),
+          1,1> ReturnType;
+      	  return ReturnType(ref.axis.dot(f.linear()));
       	}
 
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */

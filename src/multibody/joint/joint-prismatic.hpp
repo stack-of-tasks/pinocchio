@@ -169,8 +169,9 @@ namespace se3
       const ConstraintPrismatic & ref; 
       TransposeConst(const ConstraintPrismatic<axis> & ref) : ref(ref) {} 
 
-      typename Force::ConstLinear_t::template ConstFixedSegmentReturnType<1>::Type
-      operator* (const Force & f) const
+      template<typename Derived>
+      typename ForceDense<Derived>::ConstLinearType::template ConstFixedSegmentReturnType<1>::Type
+      operator* (const ForceDense<Derived> & f) const
       { return f.linear().template segment<1>(axis); }
 
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */

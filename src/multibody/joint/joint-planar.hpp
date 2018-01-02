@@ -140,13 +140,13 @@ namespace se3
 
     int nv_impl() const { return NV; }
 
-
     struct ConstraintTranspose
     {
       const ConstraintPlanar & ref;
       ConstraintTranspose(const ConstraintPlanar & ref) : ref(ref) {}
 
-      Force::Vector3 operator* (const Force & phi)
+      template<typename Derived>
+      typename ForceDense<Derived>::Vector3 operator* (const ForceDense<Derived> & phi)
       {
         return Force::Vector3 (phi.linear()[0], phi.linear()[1], phi.angular()[2]);
       }

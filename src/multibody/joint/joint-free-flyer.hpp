@@ -78,7 +78,9 @@ namespace se3
 
       struct TransposeConst 
       {
-        const Force::Vector6 & operator* (const Force & phi)
+        template<typename Derived>
+        typename ForceDense<Derived>::ToVectorConstReturnType
+        operator*(const ForceDense<Derived> & phi)
         {  return phi.toVector();  }
       };
       

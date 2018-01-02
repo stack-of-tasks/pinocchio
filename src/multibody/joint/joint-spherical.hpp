@@ -132,8 +132,11 @@ namespace se3
     
     struct TransposeConst
     {
-      Force::Vector3 operator* (const Force & phi)
-      {  return phi.angular ();  }
+      
+      template<typename Derived>
+      typename ForceDense<Derived>::ConstAngularType
+      operator* (const ForceDense<Derived> & phi)
+      {  return phi.angular();  }
 
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename D>

@@ -160,7 +160,8 @@ namespace se3
       const ConstraintTpl & ref;
       Transpose( const ConstraintTpl & ref ) : ref(ref) {}
 
-      JointForce operator* (const Force& f) const
+      template<typename Derived>
+      JointForce operator*(const ForceDense<Derived> & f) const
       { return (ref.S.transpose()*f.toVector()).eval(); }
 
       template<typename D>

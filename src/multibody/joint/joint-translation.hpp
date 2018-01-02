@@ -140,9 +140,11 @@ namespace se3
       const ConstraintTranslationSubspace & ref;
       ConstraintTranspose(const ConstraintTranslationSubspace & ref) : ref(ref) {}
       
-      Force::Vector3 operator* (const Force & phi)
+      template<typename Derived>
+      typename ForceDense<Derived>::ConstLinearType
+      operator* (const ForceDense<Derived> & phi)
       {
-        return phi.linear ();
+        return phi.linear();
       }
       
       
