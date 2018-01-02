@@ -626,6 +626,29 @@ BOOST_AUTO_TEST_CASE(test_spatial_axis)
   vaxis << AxisWZ();
   BOOST_CHECK(AxisWZ::cross(v).isApprox(vaxis.cross(v)));
   BOOST_CHECK(AxisWZ::cross(f).isApprox(vaxis.cross(f)));
+  
+  // Operations of Constraint on forces Sxf
+  typedef SE3::Matrix6 Matrix6;
+  typedef Matrix6::ColXpr ColType;
+  typedef ForceRef<ColType> ForceRefOnColType;
+  typedef MotionRef<ColType> MotionRefOnColType;
+  Matrix6 Sxf,Sxf_ref;
+  Matrix6 S(Matrix6::Identity());
+  
+  SpatialAxis<0>::cross(f,ForceRefOnColType(Sxf.col(0)));
+  SpatialAxis<1>::cross(f,ForceRefOnColType(Sxf.col(1)));
+  SpatialAxis<2>::cross(f,ForceRefOnColType(Sxf.col(2)));
+  SpatialAxis<3>::cross(f,ForceRefOnColType(Sxf.col(3)));
+  SpatialAxis<4>::cross(f,ForceRefOnColType(Sxf.col(4)));
+  SpatialAxis<5>::cross(f,ForceRefOnColType(Sxf.col(5)));
+
+  for(int k = 0; k < 6; ++k)
+  {
+    MotionRefOnColType Scol(S.col(k));
+    ForceRefOnColType(Sxf_ref.col(k)) = Scol.cross(f);
+  }
+  
+  BOOST_CHECK(Sxf.isApprox(Sxf_ref));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
