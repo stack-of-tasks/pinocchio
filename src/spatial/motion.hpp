@@ -48,7 +48,7 @@ ANGULAR = traits<Derived>::ANGULAR \
 MOTION_TYPEDEF_GENERIC(Derived,typename)
 
 #define MOTION_TYPEDEF(Derived) \
-MOTION_TYPEDEF_GENERIC(Derived,) \
+MOTION_TYPEDEF_GENERIC(Derived,)
 
 namespace se3
 {
