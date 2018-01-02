@@ -75,8 +75,8 @@ namespace se3
       assert(v_like.size() == 6);
     }
     
-    const Vector6 & toVector_impl() const { return Vector6(ref); }
-    Vector6 & toVector_impl() { return Vector6(ref); }
+    ToVectorConstReturnType toVector_impl() const { return ref; }
+    ToVectorReturnType toVector_impl() { return ref; }
     
     // Getters
     ConstAngularType angular_impl() const { return ConstAngularType(ref.derived(),ANGULAR); }
