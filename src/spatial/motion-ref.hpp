@@ -67,8 +67,8 @@ namespace se3
     
     using Base::operator=;
     
-    MotionRef(Vector6ArgType & v_like)
-    : ref(v_like)
+    MotionRef(const Eigen::MatrixBase<Vector6ArgType> & v_like)
+    : ref(const_cast<Vector6ArgType &>(v_like.derived()))
     {
       EIGEN_STATIC_ASSERT(Vector6ArgType::ColsAtCompileTime == 1,
                           YOU_TRIED_CALLING_A_VECTOR_METHOD_ON_A_MATRIX);

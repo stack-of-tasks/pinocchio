@@ -72,8 +72,8 @@ namespace se3
     
     using Base::operator=;
     
-    ForceRef(Vector6ArgType & f_like)
-    : ref(f_like)
+    ForceRef(const Eigen::MatrixBase<Vector6ArgType> & f_like)
+    : ref(const_cast<Vector6ArgType &>(f_like.derived()))
     {
       EIGEN_STATIC_ASSERT(Vector6ArgType::ColsAtCompileTime == 1,
                           YOU_TRIED_CALLING_A_VECTOR_METHOD_ON_A_MATRIX);
