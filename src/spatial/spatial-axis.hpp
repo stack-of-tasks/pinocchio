@@ -34,7 +34,7 @@ namespace se3
     
     template<typename Derived1, typename Derived2>
     inline static void cross(const MotionDense<Derived1> & min,
-                             MotionDense<Derived2> & mout);
+                             const MotionDense<Derived2> & mout);
     
     template<typename Derived>
     static typename traits<Derived>::MotionPlain cross(const MotionDense<Derived> & min)
@@ -46,7 +46,7 @@ namespace se3
     
     template<typename Derived1, typename Derived2>
     inline static void cross(const ForceDense<Derived1> & fin,
-                             ForceDense<Derived2> & fout);
+                             const ForceDense<Derived2> & fout);
     
     template<typename Derived>
     static typename traits<Derived>::ForcePlain cross(const ForceDense<Derived> & fin)
@@ -71,34 +71,36 @@ namespace se3
   template<int axis>
   template<typename Derived1, typename Derived2>
   inline void SpatialAxis<axis>::cross(const MotionDense<Derived1> & min,
-                                       MotionDense<Derived2> & mout)
+                                       const MotionDense<Derived2> & mout)
   {
+    Derived2 & mout_ = const_cast<MotionDense<Derived2> &>(mout).derived();
     if(axis<3)
     {
-      mout.angular().setZero();
-      CartesianAxis::cross(min.angular(),mout.linear());
+      mout_.angular().setZero();
+      CartesianAxis::cross(min.angular(),mout_.linear());
     }
     else
     {
-      CartesianAxis::cross(min.linear(),mout.linear());
-      CartesianAxis::cross(min.angular(),mout.angular());
+      CartesianAxis::cross(min.linear(),mout_.linear());
+      CartesianAxis::cross(min.angular(),mout_.angular());
     }
   }
   
   template<int axis>
   template<typename Derived1, typename Derived2>
   inline void SpatialAxis<axis>::cross(const ForceDense<Derived1> & fin,
-                                       ForceDense<Derived2> & fout)
+                                       const ForceDense<Derived2> & fout)
   {
+    Derived2 & fout_ = const_cast<ForceDense<Derived2> &>(fout).derived();
     if(axis<3)
     {
-      fout.linear().setZero();
-      CartesianAxis::cross(fin.linear(),fout.angular());
+      fout_.linear().setZero();
+      CartesianAxis::cross(fin.linear(),fout_.angular());
     }
     else
     {
-      CartesianAxis::cross(fin.linear(),fout.linear());
-      CartesianAxis::cross(fin.angular(),fout.angular());
+      CartesianAxis::cross(fin.linear(),fout_.linear());
+      CartesianAxis::cross(fin.angular(),fout_.angular());
     }
   }
   
