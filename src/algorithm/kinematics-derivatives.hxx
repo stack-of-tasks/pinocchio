@@ -75,7 +75,7 @@ namespace se3
       
       Jcols = oMi.act(jdata.S());
       ov = oMi.act(vi); // Spatial velocity of joint i expressed in the global frame o
-      motionSet::se3Action(ov,Jcols,dJcols);
+      motionSet::motionAction(ov,Jcols,dJcols);
       oa = oMi.act(ai); // Spatial acceleration of joint i expressed in the global frame o
     }
     
@@ -149,14 +149,14 @@ namespace se3
           vtmp = data.ov[parent] - vlast;
         else
           vtmp = -vlast;
-        motionSet::se3Action(vtmp,Jcols,partial_dq_cols);
+        motionSet::motionAction(vtmp,Jcols,partial_dq_cols);
       }
       else
       {
         if(parent > 0)
         {
           vtmp = oMlast.actInv(data.ov[parent]);
-          motionSet::se3Action(vtmp,partial_dv_cols,partial_dq_cols);
+          motionSet::motionAction(vtmp,partial_dv_cols,partial_dq_cols);
         }
       }
       
@@ -252,7 +252,7 @@ namespace se3
           vtmp = -vlast;
         
         /// also computes dvec/dq
-        motionSet::se3Action(vtmp,Jcols,v_partial_dq_cols);
+        motionSet::motionAction(vtmp,Jcols,v_partial_dq_cols);
         
         a_partial_dv_cols = v_partial_dq_cols + dJcols;
       }
@@ -262,7 +262,7 @@ namespace se3
         if(parent > 0)
         {
           vtmp = oMlast.actInv(data.ov[parent]);
-          motionSet::se3Action(vtmp,a_partial_da_cols,v_partial_dq_cols);
+          motionSet::motionAction(vtmp,a_partial_da_cols,v_partial_dq_cols);
         }
         
         if(parent > 0)
@@ -270,7 +270,7 @@ namespace se3
         else
           vtmp = -data.v[jointId];
         
-        motionSet::se3Action(vtmp,a_partial_da_cols,a_partial_dv_cols);
+        motionSet::motionAction(vtmp,a_partial_da_cols,a_partial_dv_cols);
         a_partial_dv_cols += oMlast.inverse().toActionMatrix() * dJcols; // TODO: optimize computations
       }
       
@@ -281,7 +281,7 @@ namespace se3
           atmp = data.oa[parent] - alast;
         else
           atmp = -alast;
-        motionSet::se3Action(atmp,Jcols,a_partial_dq_cols);
+        motionSet::motionAction(atmp,Jcols,a_partial_dq_cols);
         
         if(parent >0)
           a_partial_dq_cols += vtmp.toActionMatrix() * dJcols;
@@ -291,7 +291,7 @@ namespace se3
         if(parent > 0)
         {
           atmp = oMlast.actInv(data.oa[parent]);
-          motionSet::se3Action(atmp,a_partial_da_cols,a_partial_dq_cols);
+          motionSet::motionAction(atmp,a_partial_da_cols,a_partial_dq_cols);
         }
         
         a_partial_dq_cols += vtmp.toActionMatrix() * v_partial_dq_cols; // TODO: optimize computations

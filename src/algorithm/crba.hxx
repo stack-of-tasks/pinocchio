@@ -301,7 +301,7 @@ namespace se3
       
       ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
       const Motion ov(data.oMi[i].act(v));
-      motionSet::se3Action(ov,J_cols,dJ_cols);
+      motionSet::motionAction(ov,J_cols,dJ_cols);
       
       data.oYo[parent] += Y;
       if(parent > 0)

@@ -521,7 +521,7 @@ BOOST_AUTO_TEST_CASE ( test_ActOnSet )
   forceSet::se3ActionInverse(jMi.inverse(),iF,jFinv);
   BOOST_CHECK(jFinv.isApprox(jF));
   
-  forceSet::se3Action(v,iF,jF);
+  forceSet::motionAction(v,iF,jF);
   for( int k=0;k<N;++k )
     BOOST_CHECK(v.cross(Force(iF.col(k))).toVector().isApprox(jF.col(k), 1e-12));
     
@@ -534,7 +534,7 @@ BOOST_AUTO_TEST_CASE ( test_ActOnSet )
   motionSet::se3ActionInverse(jMi.inverse(),iV,jVinv);
   BOOST_CHECK(jVinv.isApprox(jV));
   
-  motionSet::se3Action(v,iV,jV);
+  motionSet::motionAction(v,iV,jV);
   for( int k=0;k<N;++k )
     BOOST_CHECK(v.cross(Motion(iV.col(k))).toVector().isApprox(jV.col(k), 1e-12));
   
