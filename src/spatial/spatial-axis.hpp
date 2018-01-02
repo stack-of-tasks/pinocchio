@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -27,50 +27,51 @@ namespace se3
 {
   
   template<int _axis>
-  struct SpatialAxis
+  struct SpatialAxis //: MotionBase< SpatialAxis<_axis> >
   {
     enum { axis = _axis, dim = 6 };
     typedef CartesianAxis<_axis%3> CartesianAxis;
     
-    template<typename S1, int O1, typename S2, int O2>
-    inline static void cross(const MotionTpl<S1,O1> & min,
-                             MotionTpl<S2,O2> & mout);
+    template<typename Derived1, typename Derived2>
+    inline static void cross(const MotionDense<Derived1> & min,
+                             MotionDense<Derived2> & mout);
     
-    template<typename Scalar, int Options>
-    static MotionTpl<Scalar,Options> cross(const MotionTpl<Scalar,Options> & min)
+    template<typename Derived>
+    static typename traits<Derived>::MotionPlain cross(const MotionDense<Derived> & min)
     {
-      MotionTpl<Scalar,Options> res;
+      typename MotionDense<Derived>::MotionPlain res;
       cross(min,res);
       return res;
     }
     
-    template<typename S1, int O1, typename S2, int O2>
-    inline static void cross(const ForceTpl<S1,O1> & fin,
-                             ForceTpl<S2,O2> & fout);
+    template<typename Derived1, typename Derived2>
+    inline static void cross(const ForceDense<Derived1> & fin,
+                             ForceDense<Derived2> & fout);
     
-    template<typename Scalar, int Options>
-    static ForceTpl<Scalar,Options> cross(const ForceTpl<Scalar,Options> & fin)
+    template<typename Derived>
+    static typename traits<Derived>::ForcePlain cross(const ForceDense<Derived> & fin)
     {
-      ForceTpl<Scalar,Options> res;
-      cross(fin,res);
-      return res;
+      typename ForceDense<Derived>::ForcePlain fout;
+      cross(fin,fout);
+      return fout;
     }
     
-    template<typename Scalar, int Options>
-    friend MotionTpl<Scalar,Options> & operator<<(MotionTpl<Scalar,Options> & min,
-                                                  const SpatialAxis &)
+    template<typename Derived>
+    friend Derived & operator<<(MotionDense<Derived> & min,
+                                const SpatialAxis &)
     {
+      typedef typename traits<Derived>::Scalar Scalar;
       min.setZero();
       min.toVector()[axis] = Scalar(1);
-      return min;
+      return min.derived();
     }
     
   }; // struct SpatialAxis
   
   template<int axis>
-  template<typename S1, int O1, typename S2, int O2>
-  inline void SpatialAxis<axis>::cross(const MotionTpl<S1,O1> & min,
-                                       MotionTpl<S2,O2> & mout)
+  template<typename Derived1, typename Derived2>
+  inline void SpatialAxis<axis>::cross(const MotionDense<Derived1> & min,
+                                       MotionDense<Derived2> & mout)
   {
     if(axis<3)
     {
@@ -85,9 +86,9 @@ namespace se3
   }
   
   template<int axis>
-  template<typename S1, int O1, typename S2, int O2>
-  inline void SpatialAxis<axis>::cross(const ForceTpl<S1,O1> & fin,
-                                       ForceTpl<S2,O2> & fout)
+  template<typename Derived1, typename Derived2>
+  inline void SpatialAxis<axis>::cross(const ForceDense<Derived1> & fin,
+                                       ForceDense<Derived2> & fout)
   {
     if(axis<3)
     {
