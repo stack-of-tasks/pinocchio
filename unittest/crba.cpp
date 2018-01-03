@@ -244,9 +244,6 @@ BOOST_AUTO_TEST_CASE (test_ccrb)
       
       const double alpha = 1e-8;
       Eigen::VectorXd q_plus(model.nq);
-      q_plus = integrate(model,q,alpha*v);
-      
-      BOOST_CHECK(differentiate(model,q,q_plus).isApprox(alpha*v,alpha));
       ccrba(model,data_ref,q_plus,v);
       SE3 oMc_ref_plus(SE3::Identity());
       oMc_ref_plus.translation() = data_ref.com[0];
