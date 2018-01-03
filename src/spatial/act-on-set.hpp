@@ -81,6 +81,15 @@ namespace se3
     static void motionAction(const MotionDense<MotionDerived> & v,
                              const Eigen::MatrixBase<Mat> & iF,
                              Eigen::MatrixBase<MatRet> const & jF);
+    
+    ///
+    /// \brief Action of an Inertia matrix on a set of motions, represented by a 6xN matrix whose
+    ///        columns represent a spatial motion.
+    ///
+    template<typename Scalar, int Options, typename Mat,typename MatRet>
+    static void inertiaAction(const InertiaTpl<Scalar,Options> & I,
+                              const Eigen::MatrixBase<Mat> & iF,
+                              Eigen::MatrixBase<MatRet> const & jF);
   }  // namespace MotionSet
 
   /* --- DETAILS --------------------------------------------------------- */
@@ -413,6 +422,47 @@ namespace se3
       }
     }
     
+    template<typename Scalar, int Options, typename Mat,typename MatRet, int NCOLS>
+    struct MotionSetInertiaAction
+    {
+      /* Compute dV = v ^ V, where  is the action operation associated
+       * with v, and V, dV are matrices whose columns are motions. */
+      static void run(const InertiaTpl<Scalar,Options> & I,
+                      const Eigen::MatrixBase<Mat> & iV,
+                      Eigen::MatrixBase<MatRet> const & jV);
+      
+    };
+    
+    template<typename Scalar, int Options, typename Mat,typename MatRet,int NCOLS>
+    void MotionSetInertiaAction<Scalar,Options,Mat,MatRet,NCOLS>::
+    run(const InertiaTpl<Scalar,Options> & I,
+        const Eigen::MatrixBase<Mat> & iV,
+        Eigen::MatrixBase<MatRet> const & jV)
+    {
+      for(int col=0;col<jV.cols();++col)
+      {
+        typename MatRet::ColXpr jVc
+        = const_cast<Eigen::MatrixBase<MatRet> &>(jV).col(col);
+        motionSet::inertiaAction(I,iV.col(col),jVc);
+      }
+    }
+    
+    template<typename Scalar, int Options, typename Mat,typename MatRet>
+    struct MotionSetInertiaAction<Scalar,Options,Mat,MatRet,1>
+    {
+      static void run(const InertiaTpl<Scalar,Options> & I,
+                      const Eigen::MatrixBase<Mat> & iV,
+                      Eigen::MatrixBase<MatRet> const & jV)
+      {
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
+        
+        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef ForceRef<MatRet> ForceRefOnMatRet;
+        ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jV).derived());
+        I.__mult__(MotionRefOnMat(iV.derived()),fout);
+      }
+    };
     
 
   } // namespace internal
@@ -441,6 +491,14 @@ namespace se3
                              Eigen::MatrixBase<MatRet> const & jV)
     {
       internal::MotionSetMotionAction<MotionDerived,Mat,MatRet,Mat::ColsAtCompileTime>::run(v,iV,jV);
+    }
+    
+    template<typename Scalar, int Options, typename Mat,typename MatRet>
+    static void inertiaAction(const InertiaTpl<Scalar,Options> & I,
+                              const Eigen::MatrixBase<Mat> & iV,
+                              Eigen::MatrixBase<MatRet> const & jV)
+    {
+      internal::MotionSetInertiaAction<Scalar,Options,Mat,MatRet,Mat::ColsAtCompileTime>::run(I,iV,jV);
     }
 
   }  // namespace motionSet
