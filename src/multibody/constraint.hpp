@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -23,6 +23,7 @@
 #include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/motion.hpp"
+#include "pinocchio/spatial/act-on-set.hpp"
 
 
 // S   : v   \in M^6              -> v_J \in lie(Q) ~= R^nv
@@ -63,6 +64,9 @@ namespace se3
       X.disp(os);
       return os;
     }
+    
+    template<typename MotionDerived>
+    DenseBase motionAction(const MotionDense<MotionDerived> & v) const { return derived().motionAction(v); }
 
   }; // class ConstraintBase
 
@@ -108,14 +112,14 @@ namespace se3
   }
 
   template<int _Dim, typename _Scalar, int _Options>
-  class ConstraintTpl : public ConstraintBase<ConstraintTpl < _Dim, _Scalar, _Options > >
+  class ConstraintTpl : public ConstraintBase< ConstraintTpl<_Dim,_Scalar,_Options> >
   { 
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    typedef ConstraintBase< ConstraintTpl< _Dim, _Scalar, _Options > > Base;
+    typedef ConstraintBase<ConstraintTpl> Base;
 
-    friend class ConstraintBase< ConstraintTpl< _Dim, _Scalar, _Options > >;
+    friend class ConstraintBase<ConstraintTpl>;
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintTpl);
     
     typedef typename Base::JointMotion JointMotion;
@@ -123,6 +127,8 @@ namespace se3
     typedef typename Base::DenseBase DenseBase;
     
     enum { NV = _Dim, Options = _Options };
+    
+    using Base::nv;
 
   public:
     template<typename D>
@@ -135,6 +141,7 @@ namespace se3
 
     ConstraintTpl() : S() 
     {
+      EIGEN_STATIC_ASSERT(_Dim!=Eigen::Dynamic,YOU_CALLED_A_DYNAMIC_SIZE_METHOD_ON_A_FIXED_SIZE_MATRIX_OR_VECTOR)
 #ifndef NDEBUG
       S.fill( NAN ); 
 #endif
@@ -154,7 +161,6 @@ namespace se3
       return Motion(S*vj);
     }
 
-
     struct Transpose
     {
       const ConstraintTpl & ref;
@@ -166,39 +172,56 @@ namespace se3
 
       template<typename D>
       typename Eigen::Matrix<_Scalar,NV,Eigen::Dynamic>
-      operator*( const Eigen::MatrixBase<D> & F )
+      operator*(const Eigen::MatrixBase<D> & F)
       {
         return (ref.S.transpose()*F).eval();
       }
 
     };
+    
     Transpose transpose() const { return Transpose(*this); }
 
     DenseBase & matrix_impl() { return S; }
     const DenseBase & matrix_impl() const { return S; }
 
-    int nv_impl() const { return NV; }
+    int nv_impl() const
+    {
+      if(NV == Eigen::Dynamic)
+        return (int)S.cols();
+      else
+        return NV;
+    }
 
-    //template<int Dim,typename Scalar,int Options>
+    template<typename S2,int O2>
     friend Eigen::Matrix<_Scalar,6,_Dim>
-    operator*( const InertiaTpl<_Scalar,_Options> & Y,const ConstraintTpl<_Dim,_Scalar,_Options> & S)
+    operator*(const InertiaTpl<S2,O2> & Y, const ConstraintTpl<_Dim,_Scalar,_Options> & S)
     { return (Y.matrix()*S.S).eval(); }
+    
+    template<typename S2,int O2>
+    friend Eigen::Matrix<_Scalar,6,_Dim>
+    operator*(const Eigen::Matrix<S2,6,6,O2> & Ymatrix, const ConstraintTpl<_Dim,_Scalar,_Options> & S)
+    { return (Ymatrix*S.S).eval(); }
 
     
     DenseBase se3Action(const SE3 & m) const
     {
-      return (m.toActionMatrix()*S).eval();
+      DenseBase res(6,nv());
+      motionSet::se3Action(m,S,res);
+      return res;
     }
     
     DenseBase se3ActionInverse(const SE3 & m) const
     {
-      return (m.inverse().toActionMatrix()*S).eval();
+      DenseBase res(6,nv());
+      motionSet::se3ActionInverse(m,S,res);
+      return res;
     }
     
-    DenseBase motionAction(const Motion & v) const
+    template<typename MotionDerived>
+    DenseBase motionAction(const MotionDense<MotionDerived> & v) const
     {
-      DenseBase res(v.toActionMatrix() * S);
-      
+      DenseBase res(6,nv());
+      motionSet::motionAction(v,S,res);
       return res;
     }
 
