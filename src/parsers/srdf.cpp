@@ -15,9 +15,6 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_parser_srdf_hxx__
-#define __se3_parser_srdf_hxx__
-
 #include "pinocchio/parsers/srdf.hpp"
 
 #include "pinocchio/multibody/model.hpp"
@@ -40,10 +37,10 @@ namespace se3
 #ifdef WITH_HPP_FCL
     namespace details
     {
-      inline void removeCollisionPairs(const Model& model,
-          GeometryModel & geomModel,
-          std::istream & stream,
-          const bool verbose = false)
+      inline void removeCollisionPairs(const Model & model,
+                                       GeometryModel & geomModel,
+                                       std::istream & stream,
+                                       const bool verbose = false)
       {
         // Read xml stream
         using boost::property_tree::ptree;
@@ -209,8 +206,8 @@ namespace se3
     }
     
     Eigen::VectorXd getNeutralConfigurationFromSrdf(Model & model,
-                                                           const std::string & filename,
-                                                           const bool verbose) throw (std::invalid_argument)
+                                                    const std::string & filename,
+                                                    const bool verbose) throw (std::invalid_argument)
     {
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
@@ -279,5 +276,3 @@ namespace se3
     }
   }
 } // namespace se3
-
-#endif // ifndef __se3_parser_srdf_hxx__
