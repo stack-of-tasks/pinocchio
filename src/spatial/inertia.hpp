@@ -58,7 +58,11 @@ namespace se3
     
     Derived_t& operator+= (const Derived_t & Yb) { return derived().__pequ__(Yb); }
     Derived_t operator+(const Derived_t & Yb) const { return derived().__plus__(Yb); }
-    Force operator*(const Motion & v) const    { return derived().__mult__(v); }
+    
+    template<typename MotionDerived>
+    ForceTpl<typename traits<MotionDerived>::Scalar,traits<MotionDerived>::Options>
+    operator*(const MotionDense<MotionDerived> & v) const
+    { return derived().__mult__(v); }
 
     Scalar vtiv(const Motion & v) const { return derived().vtiv_impl(v); }
     Matrix6 variation(const Motion & v) const { return derived().variation_impl(v); }
@@ -331,12 +335,21 @@ namespace se3
       return *this;
     }
 
-    Force __mult__(const Motion &v) const 
+    template<typename MotionDerived>
+    ForceTpl<typename traits<MotionDerived>::Scalar,traits<MotionDerived>::Options>
+    __mult__(const MotionDense<MotionDerived> & v) const
     {
-      Force f;
+      typedef ForceTpl<typename traits<MotionDerived>::Scalar,traits<MotionDerived>::Options> ReturnType;
+      ReturnType f;
+      __mult__(v,f);
+      return f;
+    }
+    
+    template<typename MotionDerived, typename ForceDerived>
+    void __mult__(const MotionDense<MotionDerived> & v, ForceDense<ForceDerived> & f) const
+    {
       f.linear() = m*(v.linear() - c.cross(v.angular()));
       f.angular() = c.cross(f.linear()) + I*v.angular();
-      return f;
     }
     
     Scalar vtiv_impl(const Motion & v) const
