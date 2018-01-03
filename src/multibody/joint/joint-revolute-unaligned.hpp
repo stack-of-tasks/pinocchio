@@ -159,7 +159,9 @@ namespace se3
           typedef Eigen::Matrix<
           typename EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstAngularType),
           1,1> ReturnType;
-      	  return ReturnType(ref.axis.dot(f.angular()));
+
+          ReturnType res; res[0] = ref.axis.dot(f.angular());
+          return res;
       	}
 
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
