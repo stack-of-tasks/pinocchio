@@ -36,8 +36,13 @@ D \
 >::type
 #endif
 
-# define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
+#define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
 Eigen::ScalarBinaryOpTraits< typename Eigen::internal::traits< D1 >::Scalar, typename Eigen::internal::traits< D2 >::Scalar >::ReturnType
+#else
+#define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
+Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::Scalar,typename Eigen::internal::traits< D2 >::Scalar>::ReturnType
+#endif
 
 #ifdef EIGEN3_BETA_3_2_9x
 namespace se3
