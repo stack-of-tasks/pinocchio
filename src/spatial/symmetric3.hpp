@@ -149,6 +149,8 @@ namespace se3
       const Vector3 & v;
       
       AlphaSkewSquare(const Scalar & m, const SkewSquare & v) : m(m),v(v.v) {}
+      AlphaSkewSquare(const Scalar & m, const Vector3 & v) : m(m),v(v) {}
+      
       operator Symmetric3Tpl () const 
       {
         const Scalar & x = v[0], & y = v[1], & z = v[2];
