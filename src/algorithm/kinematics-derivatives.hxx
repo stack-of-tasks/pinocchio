@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -271,7 +271,7 @@ namespace se3
           vtmp = -data.v[jointId];
         
         motionSet::motionAction(vtmp,a_partial_da_cols,a_partial_dv_cols);
-        a_partial_dv_cols += oMlast.inverse().toActionMatrix() * dJcols; // TODO: optimize computations
+        motionSet::se3ActionInverse<ADDTO>(oMlast,dJcols,a_partial_dv_cols);
       }
       
       // dacc/dq
@@ -284,7 +284,7 @@ namespace se3
         motionSet::motionAction(atmp,Jcols,a_partial_dq_cols);
         
         if(parent >0)
-          a_partial_dq_cols += vtmp.toActionMatrix() * dJcols;
+          motionSet::motionAction<ADDTO>(vtmp,dJcols,a_partial_dq_cols);
       }
       else
       {
@@ -294,7 +294,7 @@ namespace se3
           motionSet::motionAction(atmp,a_partial_da_cols,a_partial_dq_cols);
         }
         
-        a_partial_dq_cols += vtmp.toActionMatrix() * v_partial_dq_cols; // TODO: optimize computations
+        motionSet::motionAction<ADDTO>(vtmp,v_partial_dq_cols,a_partial_dq_cols);
       }
 
       
