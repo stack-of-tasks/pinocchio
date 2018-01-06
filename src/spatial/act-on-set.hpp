@@ -23,12 +23,25 @@
 
 namespace se3
 {
+  
+  enum ActOnSetOperationType
+  {
+    SETTO,
+    ADDTO,
+    RMTO
+  };
+  
   namespace forceSet
   {
     ///
     /// \brief SE3 action on a set of forces, represented by a 6xN matrix whose each
     ///        column represent a spatial force.
     ///
+    template<int Op,typename Mat,typename MatRet>
+    static void se3Action(const SE3 & m,
+                          const Eigen::MatrixBase<Mat> & iF,
+                          Eigen::MatrixBase<MatRet> const & jF);
+    
     template<typename Mat,typename MatRet>
     static void se3Action(const SE3 & m,
                           const Eigen::MatrixBase<Mat> & iF,
@@ -38,6 +51,11 @@ namespace se3
     /// \brief Inverse SE3 action on a set of forces, represented by a 6xN matrix whose each
     ///        column represent a spatial force.
     ///
+    template<int Op,typename Mat,typename MatRet>
+    static void se3ActionInverse(const SE3 & m,
+                                 const Eigen::MatrixBase<Mat> & iF,
+                                 Eigen::MatrixBase<MatRet> const & jF);
+    
     template<typename Mat,typename MatRet>
     static void se3ActionInverse(const SE3 & m,
                                  const Eigen::MatrixBase<Mat> & iF,
@@ -47,7 +65,12 @@ namespace se3
     /// \brief Action of a motion on a set of forces, represented by a 6xN matrix whose each
     ///        column represent a spatial force.
     ///
-    template<typename MotionDerived, typename Mat,typename MatRet>
+    template<int Op, typename MotionDerived, typename Mat, typename MatRet>
+    static void motionAction(const MotionDense<MotionDerived> & v,
+                             const Eigen::MatrixBase<Mat> & iF,
+                             Eigen::MatrixBase<MatRet> const & jF);
+    
+    template<typename MotionDerived, typename Mat, typename MatRet>
     static void motionAction(const MotionDense<MotionDerived> & v,
                              const Eigen::MatrixBase<Mat> & iF,
                              Eigen::MatrixBase<MatRet> const & jF);
@@ -59,6 +82,11 @@ namespace se3
     /// \brief SE3 action on a set of motions, represented by a 6xN matrix whose
     ///        column represent a spatial motion.
     ///
+    template<int Op, typename Mat,typename MatRet>
+    static void se3Action(const SE3 & m,
+                          const Eigen::MatrixBase<Mat> & iV,
+                          Eigen::MatrixBase<MatRet> const & jV);
+    
     template<typename Mat,typename MatRet>
     static void se3Action(const SE3 & m,
                           const Eigen::MatrixBase<Mat> & iV,
@@ -68,6 +96,11 @@ namespace se3
     /// \brief Inverse SE3 action on a set of motions, represented by a 6xN matrix whose
     ///        column represent a spatial motion.
     ///
+    template<int Op, typename Mat,typename MatRet>
+    static void se3ActionInverse(const SE3 & m,
+                                 const Eigen::MatrixBase<Mat> & iV,
+                                 Eigen::MatrixBase<MatRet> const & jV);
+    
     template<typename Mat,typename MatRet>
     static void se3ActionInverse(const SE3 & m,
                                  const Eigen::MatrixBase<Mat> & iV,
@@ -77,7 +110,12 @@ namespace se3
     /// \brief Action of a motion on a set of motions, represented by a 6xN matrix whose
     ///        columns represent a spatial motion.
     ///
-    template<typename MotionDerived, typename Mat,typename MatRet>
+    template<int Op, typename MotionDerived, typename Mat, typename MatRet>
+    static void motionAction(const MotionDense<MotionDerived> & v,
+                             const Eigen::MatrixBase<Mat> & iF,
+                             Eigen::MatrixBase<MatRet> const & jF);
+    
+    template<typename MotionDerived, typename Mat, typename MatRet>
     static void motionAction(const MotionDense<MotionDerived> & v,
                              const Eigen::MatrixBase<Mat> & iF,
                              Eigen::MatrixBase<MatRet> const & jF);
@@ -86,7 +124,12 @@ namespace se3
     /// \brief Action of an Inertia matrix on a set of motions, represented by a 6xN matrix whose
     ///        columns represent a spatial motion.
     ///
-    template<typename Scalar, int Options, typename Mat,typename MatRet>
+    template<int Op, typename Scalar, int Options, typename Mat, typename MatRet>
+    static void inertiaAction(const InertiaTpl<Scalar,Options> & I,
+                              const Eigen::MatrixBase<Mat> & iF,
+                              Eigen::MatrixBase<MatRet> const & jF);
+    
+    template<typename Scalar, int Options, typename Mat, typename MatRet>
     static void inertiaAction(const InertiaTpl<Scalar,Options> & I,
                               const Eigen::MatrixBase<Mat> & iF,
                               Eigen::MatrixBase<MatRet> const & jF);
@@ -97,7 +140,7 @@ namespace se3
   namespace internal 
   {
 
-    template<typename Mat,typename MatRet, int NCOLS>
+    template<int Op, typename Mat,typename MatRet, int NCOLS>
     struct ForceSetSe3Action
     {
       /* Compute jF = jXi * iF, where jXi is the dual action matrix associated
@@ -110,7 +153,7 @@ namespace se3
       
     };
     
-    template<typename MotionDerived, typename Mat,typename MatRet, int NCOLS>
+    template<int Op, typename MotionDerived, typename Mat,typename MatRet, int NCOLS>
     struct ForceSetMotionAction
     {
       /* Compute dF = v ^ F, where  is the dual action operation associated
@@ -121,8 +164,8 @@ namespace se3
       
     };
 
-    template<typename Mat,typename MatRet>
-    struct ForceSetSe3Action<Mat,MatRet,1>
+    template<int Op, typename Mat,typename MatRet>
+    struct ForceSetSe3Action<Op,Mat,MatRet,1>
     {
       /* Compute jF = jXi * iF, where jXi is the dual action matrix associated with m,
        * and iF, jF are vectors. */
@@ -132,17 +175,40 @@ namespace se3
       { 
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
-        Eigen::VectorBlock<const Mat,3> linear = iF.template head<3>();
-        Eigen::VectorBlock<const Mat,3> angular = iF.template tail<3>();
         
-        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>() = m.rotation()*linear;
-        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template tail <3>() = (m.translation().cross(jF.template head<3>())
-                                  + m.rotation()*angular);
+        typedef ForceRef<Mat> ForceRefOnMat;
+        typedef ForceRef<MatRet> ForceRefOnMatRet;
+        
+        ForceRefOnMat fin(iF.derived());
+        ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jF).derived());
+        
+        switch(Op)
+        {
+          case SETTO:
+            fout = m.act(fin);
+            break;
+          case ADDTO:
+            fout += m.act(fin);
+            break;
+          case RMTO:
+            fout -= m.act(fin);
+            break;
+          default:
+            assert(false && "Wrong Op requesed value");
+            break;
+        }
+//
+//        Eigen::VectorBlock<const Mat,3> linear = iF.template head<3>();
+//        Eigen::VectorBlock<const Mat,3> angular = iF.template tail<3>();
+//
+//        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>() = m.rotation()*linear;
+//        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template tail <3>() = (m.translation().cross(jF.template head<3>())
+//                                  + m.rotation()*angular);
       }
     };
     
-    template<typename MotionDerived, typename Mat, typename MatRet>
-    struct ForceSetMotionAction<MotionDerived,Mat,MatRet,1>
+    template<int Op, typename MotionDerived, typename Mat, typename MatRet>
+    struct ForceSetMotionAction<Op,MotionDerived,Mat,MatRet,1>
     {
       static void run(const MotionDense<MotionDerived> & v,
                       const Eigen::MatrixBase<Mat> & iF,
@@ -153,16 +219,33 @@ namespace se3
         
         typedef ForceRef<Mat> ForceRefOnMat;
         typedef ForceRef<MatRet> ForceRefOnMatRet;
+        
+        ForceRefOnMat fin(iF.derived());
         ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jF).derived());
-        ForceRefOnMat(iF.derived()).motionAction(v,fout);
+
+        switch(Op)
+        {
+          case SETTO:
+            fin.motionAction(v,fout);
+            break;
+          case ADDTO:
+            fout += v.cross(fin);
+            break;
+          case RMTO:
+            fout -= v.cross(fin);
+            break;
+          default:
+            assert(false && "Wrong Op requesed value");
+            break;
+        }
       }
     };
 
     /* Specialized implementation of block action, using colwise operation.  It
      * is empirically much faster than the true block operation, although I do
      * not understand why. */
-    template<typename Mat,typename MatRet,int NCOLS>
-    void ForceSetSe3Action<Mat,MatRet,NCOLS>::
+    template<int Op,typename Mat,typename MatRet,int NCOLS>
+    void ForceSetSe3Action<Op,Mat,MatRet,NCOLS>::
     run(const SE3 & m,
         const Eigen::MatrixBase<Mat> & iF,
         Eigen::MatrixBase<MatRet> const & jF)
@@ -171,12 +254,12 @@ namespace se3
       {
         typename MatRet::ColXpr jFc
         = const_cast<Eigen::MatrixBase<MatRet> &>(jF).col(col);
-        forceSet::se3Action(m,iF.col(col),jFc);
+        forceSet::se3Action<Op>(m,iF.col(col),jFc);
       }
     }
     
-    template<typename MotionDerived, typename Mat,typename MatRet,int NCOLS>
-    void ForceSetMotionAction<MotionDerived,Mat,MatRet,NCOLS>::
+    template<int Op,typename MotionDerived, typename Mat,typename MatRet,int NCOLS>
+    void ForceSetMotionAction<Op,MotionDerived,Mat,MatRet,NCOLS>::
     run(const MotionDense<MotionDerived> & v,
         const Eigen::MatrixBase<Mat> & iF,
         Eigen::MatrixBase<MatRet> const & jF)
@@ -185,11 +268,11 @@ namespace se3
       {
         typename MatRet::ColXpr jFc
         = const_cast<Eigen::MatrixBase<MatRet> &>(jF).col(col);
-        forceSet::motionAction(v,iF.col(col),jFc);
+        forceSet::motionAction<Op>(v,iF.col(col),jFc);
       }
     }
     
-    template<typename Mat,typename MatRet, int NCOLS>
+    template<int Op,typename Mat,typename MatRet, int NCOLS>
     struct ForceSetSe3ActionInverse
     {
       /* Compute jF = jXi * iF, where jXi is the dual action matrix associated
@@ -202,8 +285,8 @@ namespace se3
       
     };
     
-    template<typename Mat,typename MatRet>
-    struct ForceSetSe3ActionInverse<Mat,MatRet,1>
+    template<int Op,typename Mat,typename MatRet>
+    struct ForceSetSe3ActionInverse<Op,Mat,MatRet,1>
     {
       /* Compute jF = jXi * iF, where jXi is the dual action matrix associated with m,
        * and iF, jF are vectors. */
@@ -213,15 +296,37 @@ namespace se3
       {
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
-        Eigen::VectorBlock<const Mat,3> linear = iF.template head<3>();
-        Eigen::VectorBlock<const Mat,3> angular = iF.template tail<3>();
         
-        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>()
-        = angular - m.translation().cross(linear); // use as temporary variable (TODO: check performance gains)
-        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template tail <3>()
-        = m.rotation().transpose()* jF.template head <3>();
-        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>()
-        = m.rotation().transpose()*linear;
+        typedef ForceRef<Mat> ForceRefOnMat;
+        typedef ForceRef<MatRet> ForceRefOnMatRet;
+        
+        ForceRefOnMat fin(iF.derived());
+        ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jF).derived());
+        
+        switch(Op)
+        {
+          case SETTO:
+            fout = m.actInv(fin);
+            break;
+          case ADDTO:
+            fout += m.actInv(fin);
+            break;
+          case RMTO:
+            fout -= m.actInv(fin);
+            break;
+          default:
+            assert(false && "Wrong Op requesed value");
+            break;
+        }
+//        Eigen::VectorBlock<const Mat,3> linear = iF.template head<3>();
+//        Eigen::VectorBlock<const Mat,3> angular = iF.template tail<3>();
+//
+//        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>()
+//        = angular - m.translation().cross(linear); // use as temporary variable (TODO: check performance gains)
+//        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template tail <3>()
+//        = m.rotation().transpose()* jF.template head <3>();
+//        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>()
+//        = m.rotation().transpose()*linear;
       }
       
     };
@@ -229,8 +334,8 @@ namespace se3
     /* Specialized implementation of block action, using colwise operation.  It
      * is empirically much faster than the true block operation, although I do
      * not understand why. */
-    template<typename Mat,typename MatRet,int NCOLS>
-    void ForceSetSe3ActionInverse<Mat,MatRet,NCOLS>::
+    template<int Op,typename Mat,typename MatRet,int NCOLS>
+    void ForceSetSe3ActionInverse<Op,Mat,MatRet,NCOLS>::
     run(const SE3 & m,
         const Eigen::MatrixBase<Mat> & iF,
         Eigen::MatrixBase<MatRet> const & jF)
@@ -239,7 +344,7 @@ namespace se3
       {
         typename MatRet::ColXpr jFc
         = const_cast<Eigen::MatrixBase<MatRet> &>(jF).col(col);
-        forceSet::se3ActionInverse(m,iF.col(col),jFc);
+        forceSet::se3ActionInverse<Op>(m,iF.col(col),jFc);
       }
     }
 
@@ -247,12 +352,28 @@ namespace se3
 
   namespace forceSet
   {
+    template<int Op,typename Mat,typename MatRet>
+    static void se3Action(const SE3 & m,
+                          const Eigen::MatrixBase<Mat> & iF,
+                          Eigen::MatrixBase<MatRet> const & jF)
+    {
+      internal::ForceSetSe3Action<Op,Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iF,jF);
+    }
+    
     template<typename Mat,typename MatRet>
     static void se3Action(const SE3 & m,
                           const Eigen::MatrixBase<Mat> & iF,
                           Eigen::MatrixBase<MatRet> const & jF)
     {
-      internal::ForceSetSe3Action<Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iF,jF);
+      internal::ForceSetSe3Action<SETTO,Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iF,jF);
+    }
+    
+    template<int Op,typename Mat,typename MatRet>
+    static void se3ActionInverse(const SE3 & m,
+                                 const Eigen::MatrixBase<Mat> & iF,
+                                 Eigen::MatrixBase<MatRet> const & jF)
+    {
+      internal::ForceSetSe3ActionInverse<Op,Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iF,jF);
     }
     
     template<typename Mat,typename MatRet>
@@ -260,7 +381,15 @@ namespace se3
                                  const Eigen::MatrixBase<Mat> & iF,
                                  Eigen::MatrixBase<MatRet> const & jF)
     {
-      internal::ForceSetSe3ActionInverse<Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iF,jF);
+      internal::ForceSetSe3ActionInverse<SETTO,Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iF,jF);
+    }
+    
+    template<int Op,typename MotionDerived, typename Mat,typename MatRet>
+    static void motionAction(const MotionDense<MotionDerived> & v,
+                             const Eigen::MatrixBase<Mat> & iF,
+                             Eigen::MatrixBase<MatRet> const & jF)
+    {
+      internal::ForceSetMotionAction<Op,MotionDerived,Mat,MatRet,Mat::ColsAtCompileTime>::run(v,iF,jF);
     }
     
     template<typename MotionDerived, typename Mat,typename MatRet>
@@ -268,7 +397,7 @@ namespace se3
                              const Eigen::MatrixBase<Mat> & iF,
                              Eigen::MatrixBase<MatRet> const & jF)
     {
-      internal::ForceSetMotionAction<MotionDerived,Mat,MatRet,Mat::ColsAtCompileTime>::run(v,iF,jF);
+      internal::ForceSetMotionAction<SETTO,MotionDerived,Mat,MatRet,Mat::ColsAtCompileTime>::run(v,iF,jF);
     }
 
   }  // namespace forceSet
@@ -277,7 +406,7 @@ namespace se3
   namespace internal 
   {
 
-    template<typename Mat,typename MatRet, int NCOLS>
+    template<int Op,typename Mat,typename MatRet, int NCOLS>
     struct MotionSetSe3Action
     {
       /* Compute jF = jXi * iF, where jXi is the action matrix associated
@@ -288,8 +417,8 @@ namespace se3
       
     };
 
-    template<typename Mat,typename MatRet>
-    struct MotionSetSe3Action<Mat,MatRet,1>
+    template<int Op,typename Mat,typename MatRet>
+    struct MotionSetSe3Action<Op,Mat,MatRet,1>
     {
       /* Compute jV = jXi * iV, where jXi is the action matrix associated with m,
        * and iV, jV are 6D vectors representing spatial velocities. */
@@ -299,22 +428,44 @@ namespace se3
       { 
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
-        Eigen::VectorBlock<const Mat,3> linear = iV.template head<3>();
-        Eigen::VectorBlock<const Mat,3> angular = iV.template tail<3>();
         
-        /* ( R*v + px(Rw),  Rw ) */
-        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
-        = m.rotation()*angular;
-        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template head <3>()
-        = (m.translation().cross(jV.template tail<3>()) + m.rotation()*linear);
+        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef MotionRef<MatRet> MotionRefOnMatRet;
+        
+        MotionRefOnMat min(iV.derived());
+        MotionRefOnMatRet mout(const_cast<Eigen::MatrixBase<MatRet> &>(jV).derived());
+        
+        switch(Op)
+        {
+          case SETTO:
+            mout = m.act(min);
+            break;
+          case ADDTO:
+            mout += m.act(min);
+            break;
+          case RMTO:
+            mout -= m.act(min);
+            break;
+          default:
+            assert(false && "Wrong Op requesed value");
+            break;
+        }
+//        Eigen::VectorBlock<const Mat,3> linear = iV.template head<3>();
+//        Eigen::VectorBlock<const Mat,3> angular = iV.template tail<3>();
+//
+//        /* ( R*v + px(Rw),  Rw ) */
+//        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
+//        = m.rotation()*angular;
+//        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template head <3>()
+//        = (m.translation().cross(jV.template tail<3>()) + m.rotation()*linear);
       }
     };
     
     /* Specialized implementation of block action, using colwise operation.  It
      * is empirically much faster than the true block operation, although I do
      * not understand why. */
-    template<typename Mat,typename MatRet,int NCOLS>
-    void MotionSetSe3Action<Mat,MatRet,NCOLS>::
+    template<int Op,typename Mat,typename MatRet,int NCOLS>
+    void MotionSetSe3Action<Op,Mat,MatRet,NCOLS>::
     run(const SE3 & m,
         const Eigen::MatrixBase<Mat> & iV,
         Eigen::MatrixBase<MatRet> const & jV)
@@ -323,11 +474,11 @@ namespace se3
       {
         typename MatRet::ColXpr jVc
         = const_cast<Eigen::MatrixBase<MatRet> &>(jV).col(col);
-        motionSet::se3Action(m,iV.col(col),jVc);
+        motionSet::se3Action<Op>(m,iV.col(col),jVc);
       }
     }
     
-    template<typename MotionDerived, typename Mat,typename MatRet, int NCOLS>
+    template<int Op,typename MotionDerived, typename Mat,typename MatRet, int NCOLS>
     struct MotionSetMotionAction
     {
       /* Compute dV = v ^ V, where  is the action operation associated
@@ -338,8 +489,8 @@ namespace se3
       
     };
     
-    template<typename MotionDerived, typename Mat,typename MatRet,int NCOLS>
-    void MotionSetMotionAction<MotionDerived,Mat,MatRet,NCOLS>::
+    template<int Op,typename MotionDerived, typename Mat,typename MatRet,int NCOLS>
+    void MotionSetMotionAction<Op,MotionDerived,Mat,MatRet,NCOLS>::
     run(const MotionDense<MotionDerived> & v,
         const Eigen::MatrixBase<Mat> & iV,
         Eigen::MatrixBase<MatRet> const & jV)
@@ -348,12 +499,12 @@ namespace se3
       {
         typename MatRet::ColXpr jVc
         = const_cast<Eigen::MatrixBase<MatRet> &>(jV).col(col);
-        motionSet::motionAction(v,iV.col(col),jVc);
+        motionSet::motionAction<Op>(v,iV.col(col),jVc);
       }
     }
     
-    template<typename MotionDerived, typename Mat,typename MatRet>
-    struct MotionSetMotionAction<MotionDerived,Mat,MatRet,1>
+    template<int Op,typename MotionDerived, typename Mat,typename MatRet>
+    struct MotionSetMotionAction<Op,MotionDerived,Mat,MatRet,1>
     {
       static void run(const MotionDense<MotionDerived> & v,
                       const Eigen::MatrixBase<Mat> & iV,
@@ -364,12 +515,29 @@ namespace se3
         
         typedef MotionRef<Mat> MotionRefOnMat;
         typedef MotionRef<MatRet> MotionRefOnMatRet;
+        
+        MotionRefOnMat min(iV.derived());
         MotionRefOnMatRet mout(const_cast<Eigen::MatrixBase<MatRet> &>(jV).derived());
-        MotionRefOnMat(iV.derived()).motionAction(v,mout);
+        
+        switch(Op)
+        {
+          case SETTO:
+            min.motionAction(v,mout);
+            break;
+          case ADDTO:
+            mout += v.cross(min);
+            break;
+          case RMTO:
+            mout -= v.cross(min);
+            break;
+          default:
+            assert(false && "Wrong Op requesed value");
+            break;
+        }
       }
     };
     
-    template<typename Mat,typename MatRet, int NCOLS>
+    template<int Op,typename Mat,typename MatRet, int NCOLS>
     struct MotionSetSe3ActionInverse
     {
       /* Compute jF = jXi * iF, where jXi is the action matrix associated
@@ -382,8 +550,8 @@ namespace se3
       
     };
     
-    template<typename Mat,typename MatRet>
-    struct MotionSetSe3ActionInverse<Mat,MatRet,1>
+    template<int Op,typename Mat,typename MatRet>
+    struct MotionSetSe3ActionInverse<Op,Mat,MatRet,1>
     {
       /* Compute jV = jXi * iV, where jXi is the action matrix associated with m,
        * and iV, jV are 6D vectors representing spatial velocities. */
@@ -393,23 +561,47 @@ namespace se3
       {
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
-        Eigen::VectorBlock<const Mat,3> linear = iV.template head<3>();
-        Eigen::VectorBlock<const Mat,3> angular = iV.template tail<3>();
         
-        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
-        = linear - m.translation().cross(angular); // use as temporary variable
-        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template head <3>()
-        = m.rotation().transpose()*jV.template tail<3>();
-        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
-        = m.rotation().transpose()*angular;
+        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef MotionRef<MatRet> MotionRefOnMatRet;
+        
+        MotionRefOnMat min(iV.derived());
+        MotionRefOnMatRet mout(const_cast<Eigen::MatrixBase<MatRet> &>(jV).derived());
+        
+        switch(Op)
+        {
+          case SETTO:
+            mout = m.actInv(min);
+            break;
+          case ADDTO:
+            mout += m.actInv(min);
+            break;
+          case RMTO:
+            mout -= m.actInv(min);
+            break;
+          default:
+            assert(false && "Wrong Op requesed value");
+            break;
+        }
+        
+        
+//        Eigen::VectorBlock<const Mat,3> linear = iV.template head<3>();
+//        Eigen::VectorBlock<const Mat,3> angular = iV.template tail<3>();
+//
+//        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
+//        = linear - m.translation().cross(angular); // use as temporary variable
+//        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template head <3>()
+//        = m.rotation().transpose()*jV.template tail<3>();
+//        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
+//        = m.rotation().transpose()*angular;
       }
     };
     
     /* Specialized implementation of block action, using colwise operation.  It
      * is empirically much faster than the true block operation, although I do
      * not understand why. */
-    template<typename Mat,typename MatRet,int NCOLS>
-    void MotionSetSe3ActionInverse<Mat,MatRet,NCOLS>::
+    template<int Op,typename Mat,typename MatRet,int NCOLS>
+    void MotionSetSe3ActionInverse<Op,Mat,MatRet,NCOLS>::
     run(const SE3 & m,
         const Eigen::MatrixBase<Mat> & iV,
         Eigen::MatrixBase<MatRet> const & jV)
@@ -418,11 +610,11 @@ namespace se3
       {
         typename MatRet::ColXpr jVc
         = const_cast<Eigen::MatrixBase<MatRet> &>(jV).col(col);
-        motionSet::se3ActionInverse(m,iV.col(col),jVc);
+        motionSet::se3ActionInverse<Op>(m,iV.col(col),jVc);
       }
     }
     
-    template<typename Scalar, int Options, typename Mat,typename MatRet, int NCOLS>
+    template<int Op, typename Scalar, int Options, typename Mat,typename MatRet, int NCOLS>
     struct MotionSetInertiaAction
     {
       /* Compute dV = v ^ V, where  is the action operation associated
@@ -433,8 +625,8 @@ namespace se3
       
     };
     
-    template<typename Scalar, int Options, typename Mat,typename MatRet,int NCOLS>
-    void MotionSetInertiaAction<Scalar,Options,Mat,MatRet,NCOLS>::
+    template<int Op,typename Scalar, int Options, typename Mat,typename MatRet,int NCOLS>
+    void MotionSetInertiaAction<Op,Scalar,Options,Mat,MatRet,NCOLS>::
     run(const InertiaTpl<Scalar,Options> & I,
         const Eigen::MatrixBase<Mat> & iV,
         Eigen::MatrixBase<MatRet> const & jV)
@@ -443,12 +635,12 @@ namespace se3
       {
         typename MatRet::ColXpr jVc
         = const_cast<Eigen::MatrixBase<MatRet> &>(jV).col(col);
-        motionSet::inertiaAction(I,iV.col(col),jVc);
+        motionSet::inertiaAction<Op>(I,iV.col(col),jVc);
       }
     }
     
-    template<typename Scalar, int Options, typename Mat,typename MatRet>
-    struct MotionSetInertiaAction<Scalar,Options,Mat,MatRet,1>
+    template<int Op,typename Scalar, int Options, typename Mat,typename MatRet>
+    struct MotionSetInertiaAction<Op,Scalar,Options,Mat,MatRet,1>
     {
       static void run(const InertiaTpl<Scalar,Options> & I,
                       const Eigen::MatrixBase<Mat> & iV,
@@ -459,8 +651,24 @@ namespace se3
         
         typedef MotionRef<Mat> MotionRefOnMat;
         typedef ForceRef<MatRet> ForceRefOnMatRet;
+        MotionRefOnMat min(iV.derived());
         ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jV).derived());
-        I.__mult__(MotionRefOnMat(iV.derived()),fout);
+       
+        switch(Op)
+        {
+          case SETTO:
+            I.__mult__(min,fout);
+            break;
+          case ADDTO:
+            fout += I*min;
+            break;
+          case RMTO:
+            fout -= I*min;
+            break;
+          default:
+            assert(false && "Wrong Op requesed value");
+            break;
+        }
       }
     };
     
@@ -469,12 +677,28 @@ namespace se3
 
   namespace motionSet
   {
+    template<int Op,typename Mat,typename MatRet>
+    static void se3Action(const SE3 & m,
+                          const Eigen::MatrixBase<Mat> & iV,
+                          Eigen::MatrixBase<MatRet> const & jV)
+    {
+      internal::MotionSetSe3Action<Op,Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iV,jV);
+    }
+    
     template<typename Mat,typename MatRet>
     static void se3Action(const SE3 & m,
                           const Eigen::MatrixBase<Mat> & iV,
                           Eigen::MatrixBase<MatRet> const & jV)
     {
-      internal::MotionSetSe3Action<Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iV,jV);
+      internal::MotionSetSe3Action<SETTO,Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iV,jV);
+    }
+    
+    template<int Op,typename Mat,typename MatRet>
+    static void se3ActionInverse(const SE3 & m,
+                                 const Eigen::MatrixBase<Mat> & iV,
+                                 Eigen::MatrixBase<MatRet> const & jV)
+    {
+      internal::MotionSetSe3ActionInverse<Op,Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iV,jV);
     }
     
     template<typename Mat,typename MatRet>
@@ -482,7 +706,15 @@ namespace se3
                                  const Eigen::MatrixBase<Mat> & iV,
                                  Eigen::MatrixBase<MatRet> const & jV)
     {
-      internal::MotionSetSe3ActionInverse<Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iV,jV);
+      internal::MotionSetSe3ActionInverse<SETTO,Mat,MatRet,Mat::ColsAtCompileTime>::run(m,iV,jV);
+    }
+    
+    template<int Op,typename MotionDerived, typename Mat,typename MatRet>
+    static void motionAction(const MotionDense<MotionDerived> & v,
+                             const Eigen::MatrixBase<Mat> & iV,
+                             Eigen::MatrixBase<MatRet> const & jV)
+    {
+      internal::MotionSetMotionAction<Op,MotionDerived,Mat,MatRet,Mat::ColsAtCompileTime>::run(v,iV,jV);
     }
     
     template<typename MotionDerived, typename Mat,typename MatRet>
@@ -490,7 +722,15 @@ namespace se3
                              const Eigen::MatrixBase<Mat> & iV,
                              Eigen::MatrixBase<MatRet> const & jV)
     {
-      internal::MotionSetMotionAction<MotionDerived,Mat,MatRet,Mat::ColsAtCompileTime>::run(v,iV,jV);
+      internal::MotionSetMotionAction<SETTO,MotionDerived,Mat,MatRet,Mat::ColsAtCompileTime>::run(v,iV,jV);
+    }
+    
+    template<int Op, typename Scalar, int Options, typename Mat,typename MatRet>
+    static void inertiaAction(const InertiaTpl<Scalar,Options> & I,
+                              const Eigen::MatrixBase<Mat> & iV,
+                              Eigen::MatrixBase<MatRet> const & jV)
+    {
+      internal::MotionSetInertiaAction<Op,Scalar,Options,Mat,MatRet,MatRet::ColsAtCompileTime>::run(I,iV,jV);
     }
     
     template<typename Scalar, int Options, typename Mat,typename MatRet>
@@ -498,7 +738,7 @@ namespace se3
                               const Eigen::MatrixBase<Mat> & iV,
                               Eigen::MatrixBase<MatRet> const & jV)
     {
-      internal::MotionSetInertiaAction<Scalar,Options,Mat,MatRet,Mat::ColsAtCompileTime>::run(I,iV,jV);
+      internal::MotionSetInertiaAction<SETTO,Scalar,Options,Mat,MatRet,MatRet::ColsAtCompileTime>::run(I,iV,jV);
     }
 
   }  // namespace motionSet

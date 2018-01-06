@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -189,7 +189,6 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
 BOOST_AUTO_TEST_CASE (test_motion_ref)
 {
   using namespace se3;
-  typedef SE3::Matrix6 Matrix6;
   typedef Motion::Vector6 Vector6;
   
   typedef MotionRef<Vector6> MotionV6;
@@ -310,8 +309,7 @@ BOOST_AUTO_TEST_CASE (test_force_ref)
 {
   using namespace se3;
   typedef SE3::Matrix6 Matrix6;
-  typedef Force::Vector6 Vector6;
-  
+
   typedef ForceRef<Vector6> ForceV6;
   
   Force f_ref(Force::Random());
@@ -513,33 +511,129 @@ BOOST_AUTO_TEST_CASE ( test_ActOnSet )
   Motion v = Motion::Random();
 
   // Forcet SET
-  Matrix6N iF = Matrix6N::Random(),jF,jFinv;
+  Matrix6N iF = Matrix6N::Random(),jF,jFinv,jF_ref,jFinv_ref;
+  
+  // forceSet::se3Action
   forceSet::se3Action(jMi,iF,jF);
   for( int k=0;k<N;++k )
     BOOST_CHECK(jMi.act(Force(iF.col(k))).toVector().isApprox(jF.col(k), 1e-12));
   
+  jF_ref = jMi.toDualActionMatrix()*iF;
+  BOOST_CHECK(jF_ref.isApprox(jF));
+  
   forceSet::se3ActionInverse(jMi.inverse(),iF,jFinv);
   BOOST_CHECK(jFinv.isApprox(jF));
   
+  Matrix6N iF2 = Matrix6N::Random();
+  jF_ref += jMi.toDualActionMatrix() * iF2;
+  
+  forceSet::se3Action<ADDTO>(jMi,iF2,jF);
+  BOOST_CHECK(jF.isApprox(jF_ref,1e-12));
+  
+  Matrix6N iF3 = Matrix6N::Random();
+  jF_ref -= jMi.toDualActionMatrix() * iF3;
+  
+  forceSet::se3Action<RMTO>(jMi,iF3,jF);
+  BOOST_CHECK(jF.isApprox(jF_ref,1e-12));
+  
+  // forceSet::se3ActionInverse
+  forceSet::se3ActionInverse(jMi,iF,jFinv);
+  jFinv_ref = jMi.inverse().toDualActionMatrix() * iF;
+  BOOST_CHECK(jFinv_ref.isApprox(jFinv));
+  
+  jFinv_ref += jMi.inverse().toDualActionMatrix() * iF2;
+  forceSet::se3ActionInverse<ADDTO>(jMi,iF2,jFinv);
+  BOOST_CHECK(jFinv.isApprox(jFinv_ref,1e-12));
+  
+  jFinv_ref -= jMi.inverse().toDualActionMatrix() * iF3;
+  forceSet::se3ActionInverse<RMTO>(jMi,iF3,jFinv);
+  BOOST_CHECK(jFinv.isApprox(jFinv_ref,1e-12));
+  
+  // forceSet::motionAction
   forceSet::motionAction(v,iF,jF);
   for( int k=0;k<N;++k )
     BOOST_CHECK(v.cross(Force(iF.col(k))).toVector().isApprox(jF.col(k), 1e-12));
+  
+  jF_ref = v.toDualActionMatrix() * iF;
+  BOOST_CHECK(jF.isApprox(jF_ref));
+  
+  jF_ref += v.toDualActionMatrix() * iF2;
+  forceSet::motionAction<ADDTO>(v,iF2,jF);
+  BOOST_CHECK(jF.isApprox(jF_ref));
+  
+  jF_ref -= v.toDualActionMatrix() * iF3;
+  forceSet::motionAction<RMTO>(v,iF3,jF);
+  BOOST_CHECK(jF.isApprox(jF_ref));
     
   // Motion SET
-  Matrix6N iV = Matrix6N::Random(),jV,jVinv;
+  Matrix6N iV = Matrix6N::Random(),jV,jV_ref,jVinv,jVinv_ref;
+  
+  // motionSet::se3Action
   motionSet::se3Action(jMi,iV,jV);
   for( int k=0;k<N;++k )
     BOOST_CHECK(jMi.act(Motion(iV.col(k))).toVector().isApprox(jV.col(k), 1e-12));
   
+  jV_ref = jMi.toActionMatrix()*iV;
+  BOOST_CHECK(jV.isApprox(jV_ref));
+  
   motionSet::se3ActionInverse(jMi.inverse(),iV,jVinv);
   BOOST_CHECK(jVinv.isApprox(jV));
   
+  Matrix6N iV2 = Matrix6N::Random();
+  jV_ref += jMi.toActionMatrix()*iV2;
+  motionSet::se3Action<ADDTO>(jMi,iV2,jV);
+  BOOST_CHECK(jV.isApprox(jV_ref));
+  
+  Matrix6N iV3 = Matrix6N::Random();
+  jV_ref -= jMi.toActionMatrix()*iV3;
+  motionSet::se3Action<RMTO>(jMi,iV3,jV);
+  BOOST_CHECK(jV.isApprox(jV_ref));
+  
+  // motionSet::se3ActionInverse
+  motionSet::se3ActionInverse(jMi,iV,jVinv);
+  jVinv_ref = jMi.inverse().toActionMatrix() * iV;
+  BOOST_CHECK(jVinv.isApprox(jVinv_ref));
+  
+  jVinv_ref += jMi.inverse().toActionMatrix()*iV2;
+  motionSet::se3ActionInverse<ADDTO>(jMi,iV2,jVinv);
+  BOOST_CHECK(jVinv.isApprox(jVinv_ref));
+  
+  jVinv_ref -= jMi.inverse().toActionMatrix()*iV3;
+  motionSet::se3ActionInverse<RMTO>(jMi,iV3,jVinv);
+  BOOST_CHECK(jVinv.isApprox(jVinv_ref));
+  
+  // motionSet::motionAction
   motionSet::motionAction(v,iV,jV);
   for( int k=0;k<N;++k )
     BOOST_CHECK(v.cross(Motion(iV.col(k))).toVector().isApprox(jV.col(k), 1e-12));
   
+  jV_ref = v.toActionMatrix()*iV;
+  BOOST_CHECK(jV.isApprox(jV_ref));
   
-
+  jV_ref += v.toActionMatrix()*iV2;
+  motionSet::motionAction<ADDTO>(v,iV2,jV);
+  BOOST_CHECK(jV.isApprox(jV_ref));
+  
+  jV_ref -= v.toActionMatrix()*iV3;
+  motionSet::motionAction<RMTO>(v,iV3,jV);
+  BOOST_CHECK(jV.isApprox(jV_ref));
+  
+  // motionSet::inertiaAction
+  const Inertia I(Inertia::Random());
+  motionSet::inertiaAction(I,iV,jV);
+  for( int k=0;k<N;++k )
+    BOOST_CHECK((I*(Motion(iV.col(k)))).toVector().isApprox(jV.col(k), 1e-12));
+  
+  jV_ref = I.matrix()*iV;
+  BOOST_CHECK(jV.isApprox(jV_ref));
+  
+  jV_ref += I.matrix()*iV2;
+  motionSet::inertiaAction<ADDTO>(I,iV2,jV);
+  BOOST_CHECK(jV.isApprox(jV_ref));
+  
+  jV_ref -= I.matrix()*iV3;
+  motionSet::inertiaAction<RMTO>(I,iV3,jV);
+  BOOST_CHECK(jV.isApprox(jV_ref));
 }
 
 BOOST_AUTO_TEST_CASE(test_skew)
