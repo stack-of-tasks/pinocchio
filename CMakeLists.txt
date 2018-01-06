@@ -191,6 +191,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/fwd.hpp
   spatial/skew.hpp
   spatial/act-on-set.hpp
+  spatial/act-on-set.hxx
   spatial/explog.hpp
   spatial/cartesian-axis.hpp
   spatial/spatial-axis.hpp
