@@ -564,7 +564,7 @@ BOOST_AUTO_TEST_CASE ( test_ActOnSet )
   jF_ref -= v.toDualActionMatrix() * iF3;
   forceSet::motionAction<RMTO>(v,iF3,jF);
   BOOST_CHECK(jF.isApprox(jF_ref));
-    
+  
   // Motion SET
   Matrix6N iV = Matrix6N::Random(),jV,jV_ref,jVinv,jVinv_ref;
   
@@ -634,6 +634,26 @@ BOOST_AUTO_TEST_CASE ( test_ActOnSet )
   jV_ref -= I.matrix()*iV3;
   motionSet::inertiaAction<RMTO>(I,iV3,jV);
   BOOST_CHECK(jV.isApprox(jV_ref));
+ 
+  // motionSet::act
+  Force f = Force::Random();
+  motionSet::act(iV,f,jF);
+  for( int k=0;k<N;++k )
+    BOOST_CHECK(Motion(iV.col(k)).cross(f).toVector().isApprox(jF.col(k), 1e-12));
+  
+  for( int k=0;k<N;++k )
+    jF_ref.col(k) = Force(Motion(iV.col(k)).cross(f)).toVector();
+  BOOST_CHECK(jF.isApprox(jF_ref));
+  
+  for( int k=0;k<N;++k )
+    jF_ref.col(k) += Force(Motion(iV2.col(k)).cross(f)).toVector();
+  motionSet::act<ADDTO>(iV2,f,jF);
+  BOOST_CHECK(jF.isApprox(jF_ref,1e-12));
+  
+  for( int k=0;k<N;++k )
+    jF_ref.col(k) -= Force(Motion(iV3.col(k)).cross(f)).toVector();
+  motionSet::act<RMTO>(iV3,f,jF);
+  BOOST_CHECK(jF.isApprox(jF_ref,1e-12));
 }
 
 BOOST_AUTO_TEST_CASE(test_skew)

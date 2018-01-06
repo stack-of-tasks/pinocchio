@@ -77,6 +77,7 @@ namespace se3
     static void motionAction(const MotionDense<MotionDerived> & v,
                              const Eigen::MatrixBase<Mat> & iF,
                              Eigen::MatrixBase<MatRet> const & jF);
+    
   }  // namespace forceSet
 
   namespace motionSet
@@ -140,6 +141,25 @@ namespace se3
     static void inertiaAction(const InertiaTpl<Scalar,Options> & I,
                               const Eigen::MatrixBase<Mat> & iF,
                               Eigen::MatrixBase<MatRet> const & jF);
+    
+    ///
+    /// \brief Action of a motion set on a force object.
+    ///        The input motion set is represented by a 6xN matrix whose each
+    ///        column represent a spatial motion.
+    ///        The output force set is represented by a 6xN matrix whose each
+    ///        column represent a spatial force.
+    ///
+    template<int Op, typename ForceDerived, typename Mat, typename MatRet>
+    static void act(const Eigen::MatrixBase<Mat> & iV,
+                    const ForceDense<ForceDerived> & f,
+                    Eigen::MatrixBase<MatRet> const & jF);
+    
+    /// \brief Default implementation with assignment operator=
+    template<typename ForceDerived, typename Mat, typename MatRet>
+    static void act(const Eigen::MatrixBase<Mat> & iV,
+                    const ForceDense<ForceDerived> & f,
+                    Eigen::MatrixBase<MatRet> const & jF);
+    
   }  // namespace MotionSet
 
 } // namespace se3
