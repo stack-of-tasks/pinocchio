@@ -300,8 +300,7 @@ namespace se3
       J_cols = data.oMi[i].act(jdata.S());
       
       ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
-      const Motion ov(data.oMi[i].act(v));
-      motionSet::motionAction(ov,J_cols,dJ_cols);
+      motionSet::motionAction(data.ov[i],J_cols,dJ_cols);
       
       data.oYo[parent] += Y;
       if(parent > 0)
@@ -365,8 +364,8 @@ namespace se3
     for(Model::Index i=1;i<(Model::Index)(model.njoints);++i)
     {
       data.oYo[i] = data.oMi[i].act(model.inertias[i]);
-      const Motion ov(data.oMi[i].act(data.v[i])); // v_i expressed in the world frame
-      data.doYo[i] = data.oYo[i].variation(ov);
+      data.ov[i] = data.oMi[i].act(data.v[i]); // v_i expressed in the world frame
+      data.doYo[i] = data.oYo[i].variation(data.ov[i]);
     }
     
     for(Model::Index i=(Model::Index)(model.njoints-1);i>0;--i)

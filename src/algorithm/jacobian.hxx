@@ -182,13 +182,13 @@ namespace se3
       jmodel.jointCols(data.J) = oMi.act(jdata.S());
       
       // Spatial velocity of joint i expressed in the global frame o
-      const Motion ov(oMi.act(vJ));
+      data.ov[i] = oMi.act(vJ);
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
       ColsBlock dJcols = jmodel.jointCols(data.dJ);
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
-      motionSet::motionAction(ov,Jcols,dJcols);
+      motionSet::motionAction(data.ov[i],Jcols,dJcols);
     }
     
   };
