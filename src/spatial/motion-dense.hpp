@@ -20,6 +20,21 @@
 
 namespace se3
 {
+  
+  namespace internal
+  {
+    template<typename Derived>
+    struct SE3GroupAction< MotionDense<Derived> >
+    {
+      typedef typename SE3GroupAction< Derived >::ReturnType ReturnType;
+    };
+    
+    template<typename Derived>
+    struct MotionAlgebraAction< MotionDense<Derived> >
+    {
+      typedef typename MotionAlgebraAction< Derived >::ReturnType ReturnType;
+    };
+  }
 
   template<typename Derived>
   class MotionDense : public MotionBase<Derived>
