@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -195,6 +195,13 @@ int main(int argc, const char ** argv)
     emptyForwardPass(model,data);
   }
   std::cout << "Empty Forward Pass = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    computeCoriolisMatrix(model,data,qs[_smooth],qdots[_smooth]);
+  }
+  std::cout << "Coriolis Matrix = \t"; timer.toc(std::cout,NBT);
 
   std::cout << "--" << std::endl;
   return 0;
