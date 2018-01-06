@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE ( test_Force )
 BOOST_AUTO_TEST_CASE (test_force_ref)
 {
   using namespace se3;
-  typedef SE3::Matrix6 Matrix6;
+  typedef Force::Vector6 Vector6;
 
   typedef ForceRef<Vector6> ForceV6;
   

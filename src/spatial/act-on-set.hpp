@@ -197,13 +197,6 @@ namespace se3
             assert(false && "Wrong Op requesed value");
             break;
         }
-//
-//        Eigen::VectorBlock<const Mat,3> linear = iF.template head<3>();
-//        Eigen::VectorBlock<const Mat,3> angular = iF.template tail<3>();
-//
-//        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>() = m.rotation()*linear;
-//        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template tail <3>() = (m.translation().cross(jF.template head<3>())
-//                                  + m.rotation()*angular);
       }
     };
     
@@ -318,15 +311,6 @@ namespace se3
             assert(false && "Wrong Op requesed value");
             break;
         }
-//        Eigen::VectorBlock<const Mat,3> linear = iF.template head<3>();
-//        Eigen::VectorBlock<const Mat,3> angular = iF.template tail<3>();
-//
-//        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>()
-//        = angular - m.translation().cross(linear); // use as temporary variable (TODO: check performance gains)
-//        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template tail <3>()
-//        = m.rotation().transpose()* jF.template head <3>();
-//        const_cast<Eigen::MatrixBase<MatRet> &>(jF).template head <3>()
-//        = m.rotation().transpose()*linear;
       }
       
     };
@@ -450,14 +434,6 @@ namespace se3
             assert(false && "Wrong Op requesed value");
             break;
         }
-//        Eigen::VectorBlock<const Mat,3> linear = iV.template head<3>();
-//        Eigen::VectorBlock<const Mat,3> angular = iV.template tail<3>();
-//
-//        /* ( R*v + px(Rw),  Rw ) */
-//        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
-//        = m.rotation()*angular;
-//        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template head <3>()
-//        = (m.translation().cross(jV.template tail<3>()) + m.rotation()*linear);
       }
     };
     
@@ -583,17 +559,6 @@ namespace se3
             assert(false && "Wrong Op requesed value");
             break;
         }
-        
-        
-//        Eigen::VectorBlock<const Mat,3> linear = iV.template head<3>();
-//        Eigen::VectorBlock<const Mat,3> angular = iV.template tail<3>();
-//
-//        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
-//        = linear - m.translation().cross(angular); // use as temporary variable
-//        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template head <3>()
-//        = m.rotation().transpose()*jV.template tail<3>();
-//        const_cast<Eigen::MatrixBase<MatRet> &>(jV).template tail <3>()
-//        = m.rotation().transpose()*angular;
       }
     };
     
