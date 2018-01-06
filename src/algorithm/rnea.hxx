@@ -54,7 +54,7 @@ namespace se3
       
       data.v[i] = jdata.v();
       if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
-      
+
       data.a_gf[i] = jdata.S()*jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v()) ;
       data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
       
@@ -166,10 +166,10 @@ namespace se3
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       
       data.v[i] = jdata.v();
-      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[(size_t) parent]);
+      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
       
       data.a_gf[i]  = jdata.c() + (data.v[i] ^ jdata.v());
-      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[(size_t) parent]);
+      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
       
       data.f[i] = model.inertias[i]*data.a_gf[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
     }
@@ -317,32 +317,31 @@ namespace se3
     {
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
-      Inertia::Matrix6 & tmp = data.Itmp;
-      
+
       jmodel.calc(jdata.derived(),q,v);
 
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       if(parent>0) data.oMi[i] = data.oMi[parent] * data.liMi[i];
       else data.oMi[i] = data.liMi[i];
       
-      data.v[i] = jdata.v();
-      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
-      
-      // computes S expressed at the world frame
-      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S()); // collection of S expressed at the world frame
-      
-      // computes vxS expressed at the world frame
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
-      tmp.leftCols(jmodel.nv()) = data.v[i].cross(jdata.S());
-      ColsBlock dJcols = jmodel.jointCols(data.dJ);
-      motionSet::se3Action(data.oMi[i],tmp.leftCols(jmodel.nv()),dJcols);
-
       // express quantities in the world frame
       data.oYo[i] = data.oMi[i].act(model.inertias[i]);
       
+      data.v[i] = jdata.v();
+      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
+      data.ov[i] = data.oMi[i].act(data.v[i]);
+      
+      // computes S expressed at the world frame
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      ColsBlock Jcols = jmodel.jointCols(data.J);
+      Jcols = data.oMi[i].act(jdata.S()); // collection of S expressed at the world frame
+
+      // computes vxS expressed at the world frame
+      ColsBlock dJcols = jmodel.jointCols(data.dJ);
+      motionSet::motionAction(data.ov[i],Jcols,dJcols);
+
       // computes vxI
-      const Motion ov(data.oMi[i].act(data.v[i])); // v_i expressed in the world frame
-      Inertia::vxi(ov,data.oYo[i],data.vxI[i]);
+      Inertia::vxi(data.ov[i],data.oYo[i],data.vxI[i]);
     }
 
   };
@@ -363,62 +362,30 @@ namespace se3
     {
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
-      Inertia::Matrix6 & tmp = data.Itmp;
-      
+      Data::Matrix6R & M6tmpR = data.M6tmpR;
+
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
       ColsBlock dJcols = jmodel.jointCols(data.dJ);
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
-      rhsInertiaMult(data.oYo[i],dJcols,jmodel.jointCols(data.dFdv));
+      motionSet::inertiaAction(data.oYo[i],dJcols,jmodel.jointCols(data.dFdv));
       jmodel.jointCols(data.dFdv) += data.vxI[i] * Jcols;
-      
-      data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i])
+
+      data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = Jcols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
-
-      lhsInertiaMult(data.oYo[i],Jcols.transpose(),tmp.topRows(jmodel.nv()));
+      
+      lhsInertiaMult(data.oYo[i],Jcols.transpose(),M6tmpR.topRows(jmodel.nv()));
       for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
-        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) = tmp.topRows(jmodel.nv()) * data.dJ.col(j);
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dJ.col(j);
 
-      tmp.topRows(jmodel.nv()) = Jcols.transpose() * data.vxI[i];
+      M6tmpR.topRows(jmodel.nv()).noalias() = Jcols.transpose() * data.vxI[i];
       for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
-        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += tmp.topRows(jmodel.nv()) * data.J.col(j);
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
 
       if(parent>0)
       {
         data.oYo[parent] += data.oYo[i];
         data.vxI[parent] += data.vxI[i];
-      }
-    }
-    
-    template<typename Min, typename Mout>
-    static void rhsInertiaMultVector(const Inertia & Y,
-                                     const Eigen::MatrixBase<Min> & m,
-                                     const Eigen::MatrixBase<Mout> & f)
-    {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Min,6);
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Mout,6);
-      Mout & f_ = const_cast<Mout &>(f.derived());
-
-      f_.template segment<3>(Inertia::LINEAR) = -Y.mass() * Y.lever().cross(m.template segment<3>(Motion::ANGULAR));
-
-      f_.template segment<3>(Inertia::ANGULAR) = Y.inertia() * m.template segment<3>(Motion::ANGULAR);
-      f_.template segment<3>(Inertia::ANGULAR) += Y.lever().cross(f_.template segment<3>(Inertia::LINEAR));
-      f_.template segment<3>(Inertia::ANGULAR) += Y.mass() * Y.lever().cross(m.template segment<3>(Motion::LINEAR));
-
-      f_.template segment<3>(Inertia::LINEAR) += Y.mass() * m.template segment<3>(Motion::LINEAR);
-    }
-    
-    template<typename Min, typename Mout>
-    static void rhsInertiaMult(const Inertia & Y,
-                               const Eigen::MatrixBase<Min> & J,
-                               const Eigen::MatrixBase<Mout> & F)
-    {
-      assert(J.cols() == F.cols());
-      Mout & F_ = const_cast<Mout &>(F.derived());
-      
-      for(int i = 0; i < J.cols(); ++i)
-      {
-        rhsInertiaMultVector(Y,J.col(i),F_.col(i));
       }
       
     }
@@ -429,7 +396,7 @@ namespace se3
                                const Eigen::MatrixBase<Mout> & F)
     {
       Mout & F_ = const_cast<Mout &>(F.derived());
-      rhsInertiaMult(Y,J.transpose(),F_.transpose());
+      motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
   
