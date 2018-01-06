@@ -62,9 +62,9 @@ namespace se3
           .cwiseProduct(D.segment(j+1,NVT));
         
         D[j] = M(j,j) - U.row(j).segment(j+1,NVT) * DUt;
-        
+        const double dj_inv(1./D[j]);
         for(int _i = data.parents_fromRow[(Model::Index)j];_i >= 0;_i = data.parents_fromRow[(Model::Index)_i])
-          U(_i,j) = (M(_i,j) - U.row(_i).segment(j+1,NVT).dot(DUt)) / D[j];
+          U(_i,j) = (M(_i,j) - U.row(_i).segment(j+1,NVT).dot(DUt)) * dj_inv;
       }
       
       return data.U;
