@@ -242,6 +242,8 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/aba.hxx
   algorithm/rnea.hpp
   algorithm/rnea.hxx
+  algorithm/rnea-derivatives.hpp
+  algorithm/rnea-derivatives.hxx
   algorithm/crba.hpp
   algorithm/crba.hxx
   algorithm/finite-differences.hpp

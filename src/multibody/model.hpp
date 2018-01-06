@@ -418,6 +418,9 @@ namespace se3
     /// \brief The Coriolis matrix (a square matrix of dim model.nv).
     Eigen::MatrixXd C;
     
+    /// \brief Variation of the forceset with respect to q.
+    Matrix6x dFdq;
+    
     /// \brief Variation of the forceset with respect to qdot.
     Matrix6x dFdv;
     
@@ -497,6 +500,9 @@ namespace se3
     
     /// \brief Derivative of the Jacobian with respect to the time.
     Matrix6x dJ;
+    
+    /// \brief Second time derivative of the Jacobian.
+    Matrix6x axS;
     
     /// \brief Vector of joint placements wrt to algorithm end effector.
     container::aligned_vector<SE3> iMf;
