@@ -24,15 +24,17 @@ namespace se3
 {
 
   ///
-  /// \brief Computes the generalized gravity contribution \f$ g(q) \f$ of the Lagrangian dynamics:
-  /// <CENTER> \f$ \begin{eqnarray} M \ddot{q} + c(q, \dot{q}) + g(q) = \tau  \end{eqnarray} \f$ </CENTER> <BR>
-  /// \note This function is equivalent to se3::rnea(model, data, q, 0, 0).
+  /// \brief Computes the derivative of the generalized gravity contribution
+  ///        with respect to the joint configuration.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[out] gravity_partial_dq Partial derivative of the generalized gravity vector with respect to the joint configuration.
   ///
-  /// \return The bias terms stored in data.g.
+  /// \remark gravity_partial_dq must be first initialized with zeros (gravity_partial_dq.setZero).
+  ///
+  /// \sa se3::computeGeneralizedGravity
   ///
   inline void
   computeGeneralizedGravityDerivatives(const Model & model, Data & data,
