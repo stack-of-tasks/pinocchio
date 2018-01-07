@@ -42,7 +42,7 @@ namespace se3
     {
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
-      Motion & oa = data.oa[i];
+      Motion & oa = data.a_gf[0];
       
       jmodel.calc(jdata.derived(),q);
       
@@ -54,10 +54,6 @@ namespace se3
         data.oMi[i] = data.liMi[i];
       
       data.oYo[i] = data.oMi[i].act(model.inertias[i]);
-      
-      data.a_gf[i] = data.liMi[i].actInv(data.a_gf[parent]);
-      oa = data.oMi[i].act(data.a_gf[i]);
-      
       data.f[i].setZero();
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
@@ -89,6 +85,7 @@ namespace se3
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
       Data::Matrix6R & M6tmpR = data.M6tmpR;
+      Motion & oa = data.a_gf[0];
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
 
@@ -101,7 +98,7 @@ namespace se3
       gravity_partial_dq.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
-      data.f[i] = data.oYo[i] * data.oa[i];
+      data.f[i] = data.oYo[i] * oa;
       motionSet::act<ADDTO>(J_cols,data.f[i],dFdq_cols);
       
       lhsInertiaMult(data.oYo[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
