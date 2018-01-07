@@ -24,14 +24,14 @@
 namespace se3
 {
   
-  struct computeGeneralizedGravityDerivariveForwardStep : public fusion::JointVisitor<computeGeneralizedGravityDerivariveForwardStep>
+  struct computeGeneralizedGravityDerivativeForwardStep : public fusion::JointVisitor<computeGeneralizedGravityDerivativeForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &,
     const Eigen::VectorXd &
     > ArgsType;
     
-    JOINT_VISITOR_INIT(computeGeneralizedGravityDerivariveForwardStep);
+    JOINT_VISITOR_INIT(computeGeneralizedGravityDerivativeForwardStep);
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -139,8 +139,8 @@ namespace se3
     
     for(Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i)
     {
-      computeGeneralizedGravityDerivariveForwardStep::run(model.joints[i],data.joints[i],
-                                                          computeGeneralizedGravityDerivariveForwardStep::ArgsType(model,data,q));
+      computeGeneralizedGravityDerivativeForwardStep::run(model.joints[i],data.joints[i],
+                                                          computeGeneralizedGravityDerivativeForwardStep::ArgsType(model,data,q));
     }
     
     for(size_t i=(size_t) (model.njoints-1);i>0;--i)
