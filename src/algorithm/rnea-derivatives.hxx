@@ -88,7 +88,7 @@ namespace se3
     {
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
-      Data::Matrix6R & M6tmpR = data.IM6tmpR;
+      Data::Matrix6R & M6tmpR = data.M6tmpR;
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
 
