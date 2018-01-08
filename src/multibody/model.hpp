@@ -383,6 +383,9 @@ namespace se3
     ///        all external forces acting on the body and expressed in the local frame of the joint..
     container::aligned_vector<Force> f;
     
+    /// \brief Vector of spatial momenta.
+    container::aligned_vector<Force> h;
+    
     /// \brief Vector of absolute joint placements (wrt the world).
     container::aligned_vector<SE3> oMi;
 
@@ -418,12 +421,15 @@ namespace se3
     /// \brief The Coriolis matrix (a square matrix of dim model.nv).
     Eigen::MatrixXd C;
     
-    /// \brief Variation of the forceset with respect to q.
+    /// \brief Variation of the forceset with respect to the joint configuration.
     Matrix6x dFdq;
     
-    /// \brief Variation of the forceset with respect to qdot.
+    /// \brief Variation of the forceset with respect to the joint velocity.
     Matrix6x dFdv;
     
+    /// \brief Variation of the forceset with respect to the joint acceleration.
+    Matrix6x dFda;
+
     /// \brief Right variation of the inertia matrix
     container::aligned_vector<Inertia::Matrix6> vxI;
     
@@ -501,8 +507,14 @@ namespace se3
     /// \brief Derivative of the Jacobian with respect to the time.
     Matrix6x dJ;
     
-    /// \brief Second time derivative of the Jacobian.
-    Matrix6x axS;
+    /// \brief Variation of the spatial velocity set with respect to the joint configuration.
+    Matrix6x dVdq;
+    
+    /// \brief Variation of the spatial acceleration set with respect to the joint configuration.
+    Matrix6x dAdq;
+    
+    /// \brief Variation of the spatial acceleration set with respect to the joint velocity.
+    Matrix6x dAdv;
     
     /// \brief Vector of joint placements wrt to algorithm end effector.
     container::aligned_vector<SE3> iMf;

@@ -40,6 +40,30 @@ namespace se3
   computeGeneralizedGravityDerivatives(const Model & model, Data & data,
                                        const Eigen::VectorXd & q,
                                        Eigen::MatrixXd & gravity_partial_dq);
+  
+  ///
+  /// \brief Computes the derivatives of the Recursive Newton Euler Algorithms
+  ///        with respect to the joint configuration and the joint velocity.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  /// \param[in] a The joint acceleration vector (dim model.nv).
+  /// \param[out] rnea_partial_dq Partial derivative of the generalized torque vector with respect to the joint configuration.
+  /// \param[out] rnea_partial_dv Partial derivative of the generalized torque vector with respect to the joint velocity.
+  ///
+  /// \remark rnea_partial_dq and rnea_partial_dv must be first initialized with zeros (gravity_partial_dq.setZero).
+  ///
+  /// \sa se3::rnea
+  ///
+  inline void
+  computeRNEADerivatives(const Model & model, Data & data,
+                         const Eigen::VectorXd & q,
+                         const Eigen::VectorXd & v,
+                         const Eigen::VectorXd & a,
+                         Eigen::MatrixXd & rnea_partial_dq,
+                         Eigen::MatrixXd & rnea_partial_dv);
  
 
 } // namespace se3 

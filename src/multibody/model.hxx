@@ -240,6 +240,7 @@ namespace se3
     ,v((std::size_t)model.njoints)
     ,ov((std::size_t)model.njoints)
     ,f((std::size_t)model.njoints)
+    ,h((std::size_t)model.njoints)
     ,oMi((std::size_t)model.njoints)
     ,liMi((std::size_t)model.njoints)
     ,tau(model.nv)
@@ -252,6 +253,7 @@ namespace se3
     ,C(model.nv,model.nv)
     ,dFdq(6,model.nv)
     ,dFdv(6,model.nv)
+    ,dFda(6,model.nv)
     ,vxI((std::size_t)model.njoints)
     ,Ivx((std::size_t)model.njoints)
     ,oYo((std::size_t)model.njoints)
@@ -271,7 +273,9 @@ namespace se3
     ,nvSubtree_fromRow((std::size_t)model.nv)
     ,J(6,model.nv)
     ,dJ(6,model.nv)
-    ,axS(6,model.nv)
+    ,dVdq(6,model.nv)
+    ,dAdq(6,model.nv)
+    ,dAdv(6,model.nv)
     ,iMf((std::size_t)model.njoints)
     ,com((std::size_t)model.njoints)
     ,vcom((std::size_t)model.njoints)
@@ -312,6 +316,7 @@ namespace se3
     ov[0].setZero();
     a_gf[0] = -model.gravity;
     f[0].setZero();
+    h[0].setZero();
     oMi[0].setIdentity();
     liMi[0].setIdentity();
     oMf[0].setIdentity();
