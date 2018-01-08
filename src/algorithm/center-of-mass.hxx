@@ -135,7 +135,9 @@ namespace se3
   inline const SE3::Vector3 &
   getComFromCrba(const Model & model, Data & data)
   {
+#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
+#endif
     return data.com[0] = data.liMi[1].act(data.Ycrb[1].lever());
   }
 
