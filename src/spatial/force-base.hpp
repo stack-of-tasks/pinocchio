@@ -135,9 +135,15 @@ namespace se3
      */
     Derived operator+(const Derived & phi) const { return derived().__plus__(phi); }
     
-    /** \return an expression of *this scaled by the double factor a
+    /** \return an expression of *this scaled by the factor alpha
      */
-    Derived operator*(const Scalar alpha) const    { return derived().__mult__(alpha); }
+    template<typename OtherScalar>
+    ForcePlain operator*(const OtherScalar & alpha) const { return derived().__mult__(alpha); }
+    
+    /** \return an expression of *this divided by the factor alpha
+     */
+    template<typename OtherScalar>
+    ForcePlain operator/(const OtherScalar & alpha) const { return derived().__div__(alpha); }
     
     /** \return an expression of the opposite of *this
      */

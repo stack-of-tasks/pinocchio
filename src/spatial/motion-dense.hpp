@@ -111,8 +111,7 @@ namespace se3
     
     template<typename M1>
     Derived & operator-=(const MotionDense<M1> & v) { return derived().__mequ__(v.derived()); }
-    MotionPlain operator*(const Scalar alpha) const { return derived().__mult__(alpha); }
-    
+
     MotionPlain __minus__() const { return MotionPlain(-linear(),-angular()); }
     
     template<typename M1>
@@ -131,9 +130,13 @@ namespace se3
     Derived & __mequ__(const MotionDense<M1> & v)
     { linear() -= v.linear(); angular() -= v.angular(); return derived(); }
     
-    template<typename S1>
-    MotionPlain __mult__(const S1 alpha) const
+    template<typename OtherScalar>
+    MotionPlain __mult__(const OtherScalar & alpha) const
     { return MotionPlain(alpha*linear(),alpha*angular()); }
+    
+    template<typename OtherScalar>
+    MotionPlain __div__(const OtherScalar & alpha) const
+    { return derived().__mult__((OtherScalar)(1)/alpha); }
     
     template<typename F1>
     Scalar dot(const ForceBase<F1> & phi) const

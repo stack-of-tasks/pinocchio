@@ -100,6 +100,10 @@ namespace se3
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         
+        .def(bp::self * Scalar())
+        .def(Scalar() * bp::self)
+        .def(bp::self / Scalar())
+        
         .def("isApprox",(bool (Motion::*)(const Motion & other, const Scalar & prec) const) &Motion::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
         .def("isApprox",isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
         

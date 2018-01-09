@@ -59,7 +59,11 @@ namespace se3
     MotionPlain operator-(const Derived & v) const { return derived().__minus__(v); }
     Derived & operator+=(const Derived & v) { return derived().__pequ__(v); }
     Derived & operator-=(const Derived & v) { return derived().__mequ__(v); }
-    MotionPlain operator*(const Scalar alpha) const { return derived().__mult__(alpha); }
+    
+    template<typename OtherScalar>
+    MotionPlain operator*(const OtherScalar & alpha) const { return derived().__mult__(alpha); }
+    template<typename OtherScalar>
+    MotionPlain operator/(const OtherScalar & alpha) const { return derived().__div__(alpha); }
     
     template<typename D>
     typename internal::MotionAlgebraAction<D>::ReturnType cross(const D & d) const
