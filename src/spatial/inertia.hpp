@@ -320,7 +320,7 @@ namespace se3
       res.template block<3,3>(ANGULAR,ANGULAR) = res.template block<3,3>(LINEAR,LINEAR) - res.template block<3,3>(LINEAR,LINEAR).transpose();
       res.template block<3,3>(ANGULAR,ANGULAR) = -skewSquare(mv.linear(),c) - skewSquare(c,mv.linear());
       
-      res.template block<3,3>(LINEAR,LINEAR) = (typename Symmetric3::Matrix3)(I - AlphaSkewSquare(m,c)).matrix();
+      res.template block<3,3>(LINEAR,LINEAR) = (I - AlphaSkewSquare(m,c)).matrix();
       
       res.template block<3,3>(ANGULAR,ANGULAR) -= res.template block<3,3>(LINEAR,LINEAR) * skew(v.angular());
       res.template block<3,3>(ANGULAR,ANGULAR) += cross(v.angular(),res.template block<3,3>(LINEAR,LINEAR));
