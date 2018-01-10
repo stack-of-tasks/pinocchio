@@ -318,19 +318,21 @@ namespace se3
        */
 
       const double & mab = m+Yb.m;
+      const double mab_inv = 1./mab;
       const Vector3 & AB = (c-Yb.c).eval();
       return InertiaTpl( mab,
-                         (m*c+Yb.m*Yb.c)/mab,
-                         I+Yb.I - (m*Yb.m/mab)* typename Symmetric3::SkewSquare(AB));
+                         (m*c+Yb.m*Yb.c)*mab_inv,
+                         I+Yb.I - (m*Yb.m*mab_inv)* typename Symmetric3::SkewSquare(AB));
     }
 
     InertiaTpl& __pequ__(const InertiaTpl &Yb)
     {
       const InertiaTpl& Ya = *this;
       const double & mab = Ya.m+Yb.m;
+      const double mab_inv = 1./mab;
       const Vector3 & AB = (Ya.c-Yb.c).eval();
-      c *= m; c += Yb.m*Yb.c; c /= mab;
-      I += Yb.I; I -= (Ya.m*Yb.m/mab)* typename Symmetric3::SkewSquare(AB);
+      c *= (m*mab_inv); c += (Yb.m*mab_inv)*Yb.c; //c *= mab_inv;
+      I += Yb.I; I -= (Ya.m*Yb.m*mab_inv)* typename Symmetric3::SkewSquare(AB);
       m  = mab;
       return *this;
     }
