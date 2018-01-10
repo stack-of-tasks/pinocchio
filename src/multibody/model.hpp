@@ -336,6 +336,15 @@ namespace se3
     template<class T1,class T2,class T3,class T4,class T5,
              class T6,class T7,class T8,class T9,class T10>
     inline bool check( const boost::fusion::list<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> & checkerList ) const;
+    
+    template<class T1,class T2,class T3>
+    inline bool check( const boost::fusion::list<T1,T2,T3> & checkerList ) const;
+    
+    template<class T1,class T2>
+    inline bool check( const boost::fusion::list<T1,T2> & checkerList ) const;
+    
+    template<class T1>
+    inline bool check( const boost::fusion::list<T1> & checkerList ) const;
 
     /// Run check(fusion::list) with DEFAULT_CHECKERS as argument.
     inline bool check() const;
