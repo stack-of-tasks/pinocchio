@@ -389,23 +389,25 @@ namespace se3
     {
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6,6,6);
       M6 & Iout_ = const_cast<Eigen::MatrixBase<M6> &>(Iout).derived();
-      
+
       // Block 1,1
       alphaSkew(I.mass(),v.angular(),Iout_.template block<3,3>(LINEAR,LINEAR));
+//      Iout_.template block<3,3>(LINEAR,LINEAR) = alphaSkew(I.mass(),v.angular());
       const Vector3 mc(I.mass()*I.lever());
-      
+
       // Block 1,2
       skewSquare(-v.angular(),mc,Iout_.template block<3,3>(LINEAR,ANGULAR));
       
-      // Block 2,1
+
+      //// Block 2,1
       alphaSkew(I.mass(),v.linear(),Iout_.template block<3,3>(ANGULAR,LINEAR));
       Iout_.template block<3,3>(ANGULAR,LINEAR) -= Iout_.template block<3,3>(LINEAR,ANGULAR);
-      
-      // Block 2,2
+
+      //// Block 2,2
       skewSquare(-v.linear(),mc,Iout_.template block<3,3>(ANGULAR,ANGULAR));
-      Iout_.template block<3,3>(ANGULAR,ANGULAR) += I.inertia().vxs(v.angular());
-      Matrix3 mcxc; skewSquare(mc,I.lever(),mcxc);
-      Iout_.template block<3,3>(ANGULAR,ANGULAR) -= cross(v.angular(),mcxc);
+      typename Symmetric3::AlphaSkewSquare mcxcx(I.mass(),I.lever());
+      const Symmetric3 I_mcxcx(I.inertia() - mcxcx);
+      Iout_.template block<3,3>(ANGULAR,ANGULAR) += I_mcxcx.vxs(v.angular());
       
     }
     
