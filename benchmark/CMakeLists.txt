@@ -42,9 +42,12 @@ ENDMACRO(ADD_TEST_CFLAGS)
 # 
 ADD_BENCH(timings TRUE)
 
-# timings-eigen
+# timings derivatives
 # 
+ADD_BENCH(timings-derivatives TRUE)
+TARGET_LINK_LIBRARIES(timings-derivatives ${PROJECT_NAME})
 
+# timings-eigen
 # 
 ADD_BENCH(timings-eigen)
 
