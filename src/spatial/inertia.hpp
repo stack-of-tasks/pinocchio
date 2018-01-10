@@ -373,8 +373,8 @@ namespace se3
       res.template block<3,3>(LINEAR,ANGULAR) = -skew(mv.linear()) - skewSquare(mv.angular(),c) + skewSquare(c,mv.angular());
       res.template block<3,3>(ANGULAR,LINEAR) = res.template block<3,3>(LINEAR,ANGULAR).transpose();
       
-      res.template block<3,3>(LINEAR,LINEAR) = mv.linear()*c.transpose(); // use as temporary variable
-      res.template block<3,3>(ANGULAR,ANGULAR) = res.template block<3,3>(LINEAR,LINEAR) - res.template block<3,3>(LINEAR,LINEAR).transpose();
+//      res.template block<3,3>(LINEAR,LINEAR) = mv.linear()*c.transpose(); // use as temporary variable
+//      res.template block<3,3>(ANGULAR,ANGULAR) = res.template block<3,3>(LINEAR,LINEAR) - res.template block<3,3>(LINEAR,LINEAR).transpose();
       res.template block<3,3>(ANGULAR,ANGULAR) = -skewSquare(mv.linear(),c) - skewSquare(c,mv.linear());
       
       res.template block<3,3>(LINEAR,LINEAR) = (I - AlphaSkewSquare(m,c)).matrix();
