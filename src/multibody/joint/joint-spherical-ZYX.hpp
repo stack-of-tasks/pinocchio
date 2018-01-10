@@ -160,7 +160,7 @@ namespace se3
       ConstraintTranspose(const ConstraintRotationalSubspaceTpl & ref) : ref(ref) {}
       
       template<typename Derived>
-#ifdef EIGEN3_FUTURE
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
       const typename Eigen::Product<
       Eigen::Transpose<const Matrix3>,
       Eigen::Block<const typename ForceDense<Derived>::Vector6,3,1>
@@ -179,7 +179,7 @@ namespace se3
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename D>
-#ifdef EIGEN3_FUTURE
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
       const typename Eigen::Product<
       typename Eigen::Transpose<const Matrix3>,
       typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
@@ -298,24 +298,24 @@ namespace se3
   }
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
-//  template <typename _Scalar, int _Options>
-//  inline Eigen::Matrix<_Scalar,6,3,_Options>
-//#ifdef EIGEN3_FUTURE
-//  const typename Eigen::Product<
-//  const Eigen::template Block<const typename InertiaTpl<_Scalar,_Options>::Matrix6,6,3>,
-//  const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
-//  >
-//#else
-//  const typename Eigen::ProductReturnType<
-//  const Eigen::template Block<const typename InertiaTpl<_Scalar,_Options>::Matrix6,6,3>,
-//  const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
-//  >::Type
-//#endif
-//  operator*(const typename InertiaTpl<_Scalar,_Options>::Matrix6 & Y,
-//            const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
-//  {
-//    return Y.template middleCols<3>(Inertia::ANGULAR) * S.S_minimal;
-//  }
+  //  inline Eigen::Matrix<double,6,3>
+  template <typename _Scalar, int _Options>
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
+  const typename Eigen::Product<
+  const Eigen::Block<const Inertia::Matrix6,6,3>,
+  const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
+  >
+#else
+  const typename Eigen::ProductReturnType<
+  const Eigen::Block<const Inertia::Matrix6,6,3>,
+  const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
+  >::Type
+#endif
+  operator*(const typename InertiaTpl<_Scalar,_Options>::Matrix6 & Y,
+            const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
+  {
+    return Y.template middleCols<3>(Inertia::ANGULAR) * S.S_minimal;
+  }
   
   inline Eigen::Matrix<double,6,3>
   operator*(const Inertia::Matrix6 & Y,

@@ -44,7 +44,7 @@ Eigen::ScalarBinaryOpTraits< typename Eigen::internal::traits< D1 >::Scalar, typ
 Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::Scalar,typename Eigen::internal::traits< D2 >::Scalar>::ReturnType
 #endif
 
-#ifdef EIGEN3_BETA_3_2_9x
+#if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,3,0)
 namespace se3
 {
   namespace internal

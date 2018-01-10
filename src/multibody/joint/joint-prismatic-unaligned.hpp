@@ -165,7 +165,7 @@ namespace se3
         /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
         template<typename D>
         friend
-#ifdef EIGEN3_FUTURE
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
         const Eigen::Product<
         Eigen::Transpose<const Vector3>,
         typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
@@ -235,7 +235,7 @@ namespace se3
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
   inline
-#ifdef EIGEN3_FUTURE
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
   const Eigen::Product<
   Eigen::Block<const Inertia::Matrix6,6,3>,
   ConstraintPrismaticUnaligned::Vector3,
