@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -322,7 +322,7 @@ namespace se3
   
   /* [ABA] operator* (Inertia Y,Constraint S) */
   template<int axis>
-  inline const Eigen::MatrixBase<const Inertia::Matrix6>::ColXpr
+  inline const Inertia::Matrix6::ConstColXpr
   operator*(const Inertia::Matrix6 & Y, const ConstraintPrismatic<axis> & )
   {
     return Y.col(Inertia::LINEAR + axis);

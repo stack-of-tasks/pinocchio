@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -362,14 +362,14 @@ namespace se3
   
   /* [ABA] I*S operator (Inertia Y,Constraint S) */
   template<int axis>
-  inline const Eigen::MatrixBase<const Inertia::Matrix6>::ColXpr
+  inline const Inertia::Matrix6::ConstColXpr
   operator*(const Inertia::Matrix6 & Y,const ConstraintRevolute<axis> & )
   {
     return Y.col(Inertia::ANGULAR + axis);
   }
   
   template<int axis>
-  inline Eigen::MatrixBase<Inertia::Matrix6>::ColXpr
+  inline Inertia::Matrix6::ColXpr
   operator*(Inertia::Matrix6 & Y,const ConstraintRevolute<axis> & )
   {
     return Y.col(Inertia::ANGULAR + axis);
