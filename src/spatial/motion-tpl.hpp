@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -55,6 +55,12 @@ namespace se3
     using Base::linear;
     using Base::angular;
     
+    using Base::__plus__;
+    using Base::__minus__;
+    using Base::__pequ__;
+    using Base::__mequ__;
+    using Base::__mult__;
+
     // Constructors
     MotionTpl() : data() {}
     
@@ -108,6 +114,43 @@ namespace se3
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3,3);
       linear_impl()=v;
     }
+    
+    // Specific operators for MotionTpl and MotionRef
+    template<typename S2, int O2>
+    MotionPlain __plus__(const MotionTpl<S2,O2> & v) const
+    { return MotionPlain(data+v.toVector()); }
+    
+    template<typename Vector6ArgType>
+    MotionPlain __plus__(const MotionRef<Vector6ArgType> & v) const
+    { return MotionPlain(data+v.toVector()); }
+    
+    template<typename S2, int O2>
+    MotionPlain __minus__(const MotionTpl<S2,O2> & v) const
+    { return MotionPlain(data-v.toVector()); }
+    
+    template<typename Vector6ArgType>
+    MotionPlain __minus__(const MotionRef<Vector6ArgType> & v) const
+    { return MotionPlain(data-v.toVector()); }
+    
+    template<typename S2, int O2>
+    MotionTpl & __pequ__(const MotionTpl<S2,O2> & v)
+    { data += v.toVector(); return *this; }
+    
+    template<typename Vector6ArgType>
+    MotionTpl & __pequ__(const MotionRef<Vector6ArgType> & v)
+    { data += v.toVector(); return *this; }
+    
+    template<typename S2, int O2>
+    MotionTpl & __mequ__(const MotionTpl<S2,O2> & v)
+    { data -= v.toVector(); return *this; }
+    
+    template<typename Vector6ArgType>
+    MotionTpl & __mequ__(const MotionRef<Vector6ArgType> & v)
+    { data -= v.toVector(); return *this; }
+    
+    template<typename OtherScalar>
+    MotionPlain __mult__(const OtherScalar & alpha) const
+    { return MotionPlain(alpha*data); }
     
   protected:
     Vector6 data;

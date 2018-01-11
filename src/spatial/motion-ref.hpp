@@ -1,6 +1,6 @@
 
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -71,6 +71,14 @@ namespace se3
     MOTION_TYPEDEF_TPL(MotionRef);
     
     using Base::operator=;
+    using Base::linear;
+    using Base::angular;
+    
+    using Base::__plus__;
+    using Base::__minus__;
+    using Base::__pequ__;
+    using Base::__mequ__;
+    using Base::__mult__;
     
     MotionRef(const Eigen::MatrixBase<Vector6ArgType> & v_like)
     : ref(const_cast<Vector6ArgType &>(v_like.derived()))
@@ -102,6 +110,43 @@ namespace se3
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3,3);
       linear_impl()=v;
     }
+    
+    // Specific operators for MotionTpl and MotionRef
+    template<typename S1, int O1>
+    MotionPlain __plus__(const MotionTpl<S1,O1> & v) const
+    { return MotionPlain(ref+v.toVector()); }
+    
+    template<typename Vector6Like>
+    MotionPlain __plus__(const MotionRef<Vector6ArgType> & v) const
+    { return MotionPlain(ref+v.toVector()); }
+    
+    template<typename S1, int O1>
+    MotionPlain __minus__(const MotionTpl<S1,O1> & v) const
+    { return MotionPlain(ref-v.toVector()); }
+    
+    template<typename Vector6Like>
+    MotionPlain __minus__(const MotionRef<Vector6ArgType> & v) const
+    { return MotionPlain(ref-v.toVector()); }
+    
+    template<typename S1, int O1>
+    MotionRef & __pequ__(const MotionTpl<S1,O1> & v)
+    { ref += v.toVector(); return *this; }
+    
+    template<typename Vector6Like>
+    MotionRef & __pequ__(const MotionRef<Vector6ArgType> & v)
+    { ref += v.toVector(); return *this; }
+    
+    template<typename S1, int O1>
+    MotionRef & __mequ__(const MotionTpl<S1,O1> & v)
+    { ref -= v.toVector(); return *this; }
+    
+    template<typename Vector6Like>
+    MotionRef & __mequ__(const MotionRef<Vector6ArgType> & v)
+    { ref -= v.toVector(); return *this; }
+    
+    template<typename OtherScalar>
+    MotionPlain __mult__(const OtherScalar & alpha) const
+    { return MotionPlain(alpha*ref); }
     
   protected:
     DataRefType ref;
