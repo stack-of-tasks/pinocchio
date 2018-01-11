@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -324,27 +324,6 @@ namespace se3
     template<typename D>
     inline bool check(const AlgorithmCheckerBase<D> & checker = AlgorithmCheckerBase<D>()) const
     { return checker.checkModel(*this); }
-
-    /// Multiple checks for a fusion::vector of AlgorithmCheckerBase.
-    ///
-    /// Run the check test for several conditons.
-    /// \param[in] v fusion::vector of algo checkers. The param is typically initialize with 
-    /// boost::fusion::make_list( AlgoChecker1(), AlgoChecker2(), ...)
-    /// make_list is defined in #include <boost/fusion/include/make_list.hpp>
-    /// \warning no more than 10 checkers can be added (or Model API should be extended).
-    /// \note This method is implemented in src/algo/check.hxx.
-    template<class T1,class T2,class T3,class T4,class T5,
-             class T6,class T7,class T8,class T9,class T10>
-    inline bool check( const boost::fusion::list<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> & checkerList ) const;
-    
-    template<class T1,class T2,class T3>
-    inline bool check( const boost::fusion::list<T1,T2,T3> & checkerList ) const;
-    
-    template<class T1,class T2>
-    inline bool check( const boost::fusion::list<T1,T2> & checkerList ) const;
-    
-    template<class T1>
-    inline bool check( const boost::fusion::list<T1> & checkerList ) const;
 
     /// Run check(fusion::list) with DEFAULT_CHECKERS as argument.
     inline bool check() const;

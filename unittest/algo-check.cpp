@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE ( test_check )
       Y.mass() = Y.inertia().data()[0] = Y.inertia().data()[3] = Y.inertia().data()[5] = 1.0 ;
   BOOST_CHECK(model.check (ABAChecker())); // some inertias are negative ... check fail.
 
-  BOOST_CHECK(model.check(boost::fusion::make_list(Check1(),ParentChecker(),CRBAChecker()) ));
+  BOOST_CHECK(model.check(makeAlgoCheckerList(Check1(),ParentChecker(),CRBAChecker()) ));
   BOOST_CHECK(model.check(DEFAULT_CHECKERS));
 
   se3::Data data(model);

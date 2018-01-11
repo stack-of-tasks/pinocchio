@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -25,8 +25,8 @@
 namespace se3
 {
   /// Default checker-list, used as the default argument in Model::check().
-  inline boost::fusion::list<ParentChecker,CRBAChecker,ABAChecker> makeDefaultCheckerList()
-  { return boost::fusion::make_list(ParentChecker(),CRBAChecker(),ABAChecker()); }
+  inline AlgorithmCheckerList<ParentChecker,CRBAChecker,ABAChecker> makeDefaultCheckerList()
+  { return makeAlgoCheckerList(ParentChecker(),CRBAChecker(),ABAChecker()); }
 
 #define DEFAULT_CHECKERS makeDefaultCheckerList()
 

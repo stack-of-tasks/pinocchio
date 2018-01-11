@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -34,18 +34,14 @@ namespace se3
       
       AlgoFusionChecker(const Model&model) : model(model) {}
 
+      inline bool operator()(const bool& accumul, const boost::fusion::void_ &) const
+      { return accumul; }
+      
       template<typename T>
-      inline bool operator()(const bool& accumul, const T& t) const
+      inline bool operator()(const bool& accumul, const AlgorithmCheckerBase<T> & t) const
       { return accumul && t.checkModel(model); }
     };
   } // namespace internal
-
-  // Calls model.check for each checker in the fusion::list.
-  // Each list element is supposed to implement the AlgorithmCheckerBase API.
-  template<class T1,class T2,class T3,class T4,class T5,
-           class T6,class T7,class T8,class T9,class T10>
-  inline bool Model::check( const boost::fusion::list<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> & checkerList ) const
-  { return boost::fusion::accumulate(checkerList,true,internal::AlgoFusionChecker(*this)); }
 
   // Check the validity of the kinematic tree defined by parents.
   inline bool ParentChecker::checkModel_impl( const Model& model ) const
@@ -55,6 +51,20 @@ namespace se3
 
     return true;
   }
+
+#if !defined(BOOST_FUSION_HAS_VARIADIC_LIST)
+  template<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE,class T)>
+  bool AlgorithmCheckerList<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE,T)>::checkModel_impl(const Model& model) const
+  {
+    return boost::fusion::accumulate(checkerList,true,internal::AlgoFusionChecker(model));
+  }
+#else
+  template<class ...T>
+  bool AlgorithmCheckerList<T...>::checkModel_impl(const Model& model) const
+  {
+    return boost::fusion::accumulate(checkerList,true,internal::AlgoFusionChecker(model));
+  }
+#endif
 
   inline bool checkData(const Model & model, const Data & data)
   {
