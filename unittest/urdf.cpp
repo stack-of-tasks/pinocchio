@@ -25,7 +25,7 @@
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
-BOOST_AUTO_TEST_CASE ( buildModel )
+BOOST_AUTO_TEST_CASE ( build_model )
 {
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
@@ -38,5 +38,19 @@ BOOST_AUTO_TEST_CASE ( buildModel )
     se3::urdf::buildGeom(model, filename, se3::COLLISION, geomModel);
     std::cout << "Robot's name:" << model.name << std::endl;
 }
+  
+  BOOST_AUTO_TEST_CASE ( build_model_with_joint )
+  {
+    std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
+    
+#ifndef NDEBUG
+    std::cout << "Parse filename \"" << filename << "\"" << std::endl;
+#endif
+    se3::Model model;
+    se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(), model);
+    se3::GeometryModel geomModel;
+    se3::urdf::buildGeom(model, filename, se3::COLLISION, geomModel);
+    std::cout << "Robot's name:" << model.name << std::endl;
+  }
 
 BOOST_AUTO_TEST_SUITE_END()
