@@ -25,7 +25,7 @@ cache:
 
 build_minimal_14:
     <<: *build
-    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:14.04
+    image: ${CI_REGISTRY_IMAGE}/minimal:14.04
     stage: minimal
     retry: 2
     except:
@@ -33,7 +33,7 @@ build_minimal_14:
 
 build_full_14:
     <<: *build
-    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:14.04
+    image: ${CI_REGISTRY_IMAGE}/full:14.04
     stage: full
     retry: 2
     except:
@@ -43,7 +43,7 @@ build_full_14:
 
 build_minimal_16:
     <<: *build
-    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:16.04
+    image: ${CI_REGISTRY_IMAGE}/minimal:16.04
     stage: minimal
     retry: 2
     except:
@@ -51,7 +51,7 @@ build_minimal_16:
 
 build_full_16:
     <<: *build
-    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:16.04
+    image: ${CI_REGISTRY_IMAGE}/full:16.04
     stage: full
     retry: 2
     except:
@@ -61,7 +61,7 @@ build_full_16:
 
 build_minimal_zesty:
     <<: *build
-    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:zesty
+    image: ${CI_REGISTRY_IMAGE}/minimal:zesty
     stage: minimal
     retry: 2
     except:
@@ -70,7 +70,7 @@ build_minimal_zesty:
 
 build_full_zesty:
     <<: *build
-    image: eur0c.laas.fr:4567/stack-of-tasks/pinocchio/full:zesty
+    image: ${CI_REGISTRY_IMAGE}/full:zesty
     stage: full
     retry: 2
     except:
