@@ -160,7 +160,7 @@ namespace se3
                                  const SE3 & joint_placement,
                                  const std::string & joint_name)
       {
-        JointModelVariant jmodel_variant = bp::extract<JointModelVariant> (jmodel);
+        JointModelVariant jmodel_variant = bp::extract<JointModelVariant> (jmodel)();
         return boost::apply_visitor(addJointVisitor(model,parent_id,joint_placement,joint_name), jmodel_variant);
       }
       
