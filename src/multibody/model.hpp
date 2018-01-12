@@ -357,17 +357,17 @@ namespace se3
     /// encapsulated in JointDataAccessor.
     JointDataVector joints;
     
-    /// \brief Vector of joint accelerations.
+    /// \brief Vector of joint accelerations expressed in the local frame of the joint.
     container::aligned_vector<Motion> a;
     
-    /// \brief Vector of joint accelerations due to the gravity field.
+    /// \brief Vector of joint accelerations due to the gravity field expressed in the local frame of the joint..
     container::aligned_vector<Motion> a_gf;
     
-    /// \brief Vector of joint velocities.
+    /// \brief Vector of joint velocities expressed in the local frame of the joint..
     container::aligned_vector<Motion> v;
     
     /// \brief Vector of body forces. For each body, the force represents the sum of
-    ///        all external forces acting on the body.
+    ///        all external forces acting on the body and expressed in the local frame of the joint..
     container::aligned_vector<Force> f;
     
     /// \brief Vector of absolute joint placements (wrt the world).
@@ -387,7 +387,8 @@ namespace se3
     /// \brief Vector of absolute operationnel frame placements (wrt the world).
     container::aligned_vector<SE3> oMf;
 
-    /// \brief Vector of sub-tree composite rigid body inertias, i.e. the apparent inertia of the subtree supported by the joint.
+    /// \brief Vector of sub-tree composite rigid body inertias, i.e. the apparent inertia of the subtree supported by the joint
+    ///        and expressed in the local frame of the joint..
     container::aligned_vector<Inertia> Ycrb;
     
     /// \brief Vector of sub-tree composite rigid body inertia time derivatives \f$ \dot{Y}_{crb}$\f. See Data::Ycrb for more details.
