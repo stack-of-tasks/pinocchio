@@ -57,7 +57,7 @@ namespace se3
                                       bp::object & root_joint_object
                                       )
       {
-        JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object);
+        JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object)();
         Model model;
         se3::urdf::buildModel(filename, root_joint, model);
         return model;
