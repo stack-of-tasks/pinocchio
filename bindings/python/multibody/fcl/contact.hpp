@@ -86,14 +86,14 @@ namespace se3
         { return new Contact(&o1,&o2,b1,b2); }
         
         static Eigen::Vector3d getNormal(const Contact & self)
-        { return toVector3d(self.normal); }
+        { return self.normal; }
         static void setNormal(Contact & self, const Eigen::Vector3d & normal)
-        { self.normal = toFclVec3f(normal); }
+        { self.normal = normal; }
         
         static Eigen::Vector3d getPos(const Contact & self)
-        { return toVector3d(self.pos); }
+        { return self.pos; }
         static void setPos(Contact & self, const Eigen::Vector3d & pos)
-        { self.pos = toFclVec3f(pos); }
+        { self.pos = pos; }
         
         static const CollisionGeometry & getObject1(const Contact & self)
         { return *self.o1; }
