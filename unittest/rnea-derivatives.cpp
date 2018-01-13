@@ -248,6 +248,16 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   BOOST_CHECK(data.tau.isApprox(tau0));
   BOOST_CHECK(rnea_partial_dq.isApprox(rnea_partial_dq_fd,sqrt(alpha)));
   BOOST_CHECK(rnea_partial_dv.isApprox(rnea_partial_dv_fd,sqrt(alpha)));
+  
+  Data data2(model);
+  computeRNEADerivatives(model,data2,q,v,a);
+  data2.M.triangularView<Eigen::StrictlyLower>()
+  = data2.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+  BOOST_CHECK(rnea_partial_dq.isApprox(data2.dtau_dq));
+  BOOST_CHECK(rnea_partial_dv.isApprox(data2.dtau_dv));
+  BOOST_CHECK(rnea_partial_da.isApprox(data2.dtau_da));
+  
 }
 
 BOOST_AUTO_TEST_SUITE_END()

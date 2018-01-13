@@ -54,7 +54,8 @@ namespace se3
   /// \param[out] rnea_partial_dv Partial derivative of the generalized torque vector with respect to the joint velocity.
   /// \param[out] rnea_partial_da Partial derivative of the generalized torque vector with respect to the joint acceleration.
   ///
-  /// \remark rnea_partial_dq and rnea_partial_dv must be first initialized with zeros (gravity_partial_dq.setZero).
+  /// \remark rnea_partial_dq, rnea_partial_dv and rnea_partial_da must be first initialized with zeros (gravity_partial_dq.setZero).
+  ///         As for se3::crba, only the upper triangular part of rnea_partial_da is filled.
   ///
   /// \sa se3::rnea
   ///
@@ -66,7 +67,35 @@ namespace se3
                          Eigen::MatrixXd & rnea_partial_dq,
                          Eigen::MatrixXd & rnea_partial_dv,
                          Eigen::MatrixXd & rnea_partial_da);
- 
+  
+  ///
+  /// \brief Computes the derivatives of the Recursive Newton Euler Algorithms
+  ///        with respect to the joint configuration and the joint velocity.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  /// \param[in] a The joint acceleration vector (dim model.nv).
+  ///
+  /// \returns The results are stored in data.dtau_dq, data.tau_dv and data.dtau_da which respectively correspond
+  ///          to the partial derivatives of the joint torque vector with respect to the joint configuration, velocity and acceleration.
+  ///          data.dtau_da is a reference on data.M. And as for se3::crba, only the upper triangular part of data.M is filled.
+  ///
+  /// \remark rnea_partial_dq and rnea_partial_dv must be first initialized with zeros (gravity_partial_dq.setZero).
+  ///
+  /// \sa se3::rnea, se3::crba, se3::cholesky::decompose
+  ///
+  inline void
+  computeRNEADerivatives(const Model & model, Data & data,
+                         const Eigen::VectorXd & q,
+                         const Eigen::VectorXd & v,
+                         const Eigen::VectorXd & a)
+  {
+    computeRNEADerivatives(model,data,q,v,a,
+                           data.dtau_dq, data.dtau_dv, data.dtau_da);
+  }
+
 
 } // namespace se3 
 

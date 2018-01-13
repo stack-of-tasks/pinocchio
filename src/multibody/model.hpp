@@ -516,6 +516,15 @@ namespace se3
     /// \brief Variation of the spatial acceleration set with respect to the joint velocity.
     Matrix6x dAdv;
     
+    /// \brief Variation of the joint torque vector with respect to the joint configuration.
+    Eigen::MatrixXd dtau_dq;
+    
+    /// \brief Variation of the joint torque vector with respect to the joint velocity.
+    Eigen::MatrixXd dtau_dv;
+    
+    /// \brief Variation of the joint torque vector with respect to the joint acceleration. This is only a reference on data.M.
+    Eigen::MatrixXd & dtau_da;
+    
     /// \brief Vector of joint placements wrt to algorithm end effector.
     container::aligned_vector<SE3> iMf;
 
