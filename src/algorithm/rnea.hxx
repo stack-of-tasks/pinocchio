@@ -346,17 +346,16 @@ namespace se3
 
   };
 
-  struct CoriolisMatrixBackwardStep : public fusion::JointVisitor<CoriolisMatrixBackwardStep>
+  struct CoriolisMatrixBackwardStep : public fusion::JointModelVisitor<CoriolisMatrixBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
     Data &
     > ArgsType;
 
-    JOINT_VISITOR_INIT(CoriolisMatrixBackwardStep);
+    JOINT_MODEL_VISITOR_INIT(CoriolisMatrixBackwardStep);
 
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
-                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data)
     {
@@ -417,7 +416,7 @@ namespace se3
     
     for(size_t i=(size_t) (model.njoints-1);i>0;--i)
     {
-      CoriolisMatrixBackwardStep::run(model.joints[i],data.joints[i],
+      CoriolisMatrixBackwardStep::run(model.joints[i],  
                                       CoriolisMatrixBackwardStep::ArgsType(model,data));
     }
     

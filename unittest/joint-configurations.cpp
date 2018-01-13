@@ -130,9 +130,9 @@ void TestIntegrationJoint::operator()< JointModelComposite >(JointModelBase< Joi
 
   se3::JointModelComposite::JointDataDerived jdata = jmodel.createData();
 
-  typedef typename JointModel::ConfigVector_t CV;
-  typedef typename JointModel::TangentVector_t TV;
-  typedef typename JointModel::Transformation_t SE3;
+  typedef JointModel::ConfigVector_t CV;
+  typedef JointModel::TangentVector_t TV;
+  typedef JointModel::Transformation_t SE3;
   
   CV q0 = jmodel.random();
   TV qdot(Eigen::VectorXd::Random(jmodel.nv()));

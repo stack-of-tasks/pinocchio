@@ -44,7 +44,7 @@ namespace se3
     ForceSetTpl(const int & ncols ) : size(ncols),m_f(3,ncols), m_n(3,ncols) 
     { m_f.fill(NAN); m_n.fill(NAN); }
     ForceSetTpl(const Matrix3x & linear, const Matrix3x & angular)
-      : size(linear.cols()),m_f(linear), m_n(angular)
+      : size((int)linear.cols()),m_f(linear), m_n(angular)
     {  assert( linear.cols() == angular.cols() ); }
 
     Matrix6x matrix() const

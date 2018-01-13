@@ -541,7 +541,7 @@ GeometryPositionsMap_t fillPinocchioGeometryPositions(const se3::GeometryModel &
   GeometryPositionsMap_t result;
   for (std::size_t i = 0; i < geomModel.ngeoms ; ++i)
   {
-    result[geomModel.getGeometryName(i)] = geomData.oMg[i];
+    result[geomModel.geometryObjects[i].name] = geomData.oMg[i];
   }
   return result;
 }

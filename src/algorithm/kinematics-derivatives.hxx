@@ -126,9 +126,6 @@ namespace se3
     {
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
-      const SE3 & oMi = data.oMi[i];
-      const Motion & vi = data.v[i];
-      const Motion & ov = data.ov[i];
       Motion & vtmp = data.ov[0]; // Temporary variable
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
@@ -218,9 +215,6 @@ namespace se3
     {
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
-      const SE3 & oMi = data.oMi[i];
-      const Motion & vi = data.v[i];
-      const Motion & ov = data.ov[i];
       Motion & vtmp = data.ov[0]; // Temporary variable
       Motion & atmp = data.oa[0]; // Temporary variable
       

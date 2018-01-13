@@ -292,7 +292,6 @@ namespace se3
 
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::Index & parent = model.parents[i];
-      const Motion & v = data.v[i];
       const Inertia & Y = data.oYo[i];
       const Inertia::Matrix6 & doYo = data.doYo[i];
       
