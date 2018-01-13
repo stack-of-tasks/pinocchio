@@ -52,6 +52,7 @@ namespace se3
   /// \param[in] a The joint acceleration vector (dim model.nv).
   /// \param[out] rnea_partial_dq Partial derivative of the generalized torque vector with respect to the joint configuration.
   /// \param[out] rnea_partial_dv Partial derivative of the generalized torque vector with respect to the joint velocity.
+  /// \param[out] rnea_partial_da Partial derivative of the generalized torque vector with respect to the joint acceleration.
   ///
   /// \remark rnea_partial_dq and rnea_partial_dv must be first initialized with zeros (gravity_partial_dq.setZero).
   ///
@@ -63,7 +64,8 @@ namespace se3
                          const Eigen::VectorXd & v,
                          const Eigen::VectorXd & a,
                          Eigen::MatrixXd & rnea_partial_dq,
-                         Eigen::MatrixXd & rnea_partial_dv);
+                         Eigen::MatrixXd & rnea_partial_dv,
+                         Eigen::MatrixXd & rnea_partial_da);
  
 
 } // namespace se3 

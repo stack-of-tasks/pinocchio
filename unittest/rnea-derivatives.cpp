@@ -93,7 +93,8 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   /// Check againt computeGeneralizedGravityDerivatives
   MatrixXd rnea_partial_dq(model.nv,model.nv); rnea_partial_dq.setZero();
   MatrixXd rnea_partial_dv(model.nv,model.nv); rnea_partial_dv.setZero();
-  computeRNEADerivatives(model,data,q,0*v,0*a,rnea_partial_dq,rnea_partial_dv);
+  MatrixXd rnea_partial_da(model.nv,model.nv); rnea_partial_da.setZero();
+  computeRNEADerivatives(model,data,q,0*v,0*a,rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
   
   MatrixXd g_partial_dq(model.nv,model.nv); g_partial_dq.setZero();
   computeGeneralizedGravityDerivatives(model,data_ref,q,g_partial_dq);
@@ -134,7 +135,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   }
   
   rnea_partial_dq.setZero();
-  computeRNEADerivatives(model,data,q,0*v,a,rnea_partial_dq,rnea_partial_dv);
+  computeRNEADerivatives(model,data,q,0*v,a,rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
   forwardKinematics(model,data_ref,q,0*v,a);
   
   for(Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
@@ -178,7 +179,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   
   rnea_partial_dq.setZero();
   rnea_partial_dv.setZero();
-  computeRNEADerivatives(model,data,q,v,0*a,rnea_partial_dq,rnea_partial_dv);
+  computeRNEADerivatives(model,data,q,v,0*a,rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
   forwardKinematics(model,data_ref,q,v,0*a);
   
   for(Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
@@ -224,7 +225,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   
   rnea_partial_dq.setZero();
   rnea_partial_dv.setZero();
-  computeRNEADerivatives(model,data,q,v,a,rnea_partial_dq,rnea_partial_dv);
+  computeRNEADerivatives(model,data,q,v,a,rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
   forwardKinematics(model,data_ref,q,v,a);
   
   for(Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
@@ -238,11 +239,11 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
   crba(model,data_ref,q);
   
-  data.M.triangularView<Eigen::StrictlyLower>()
-  = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  rnea_partial_da.triangularView<Eigen::StrictlyLower>()
+  = rnea_partial_da.transpose().triangularView<Eigen::StrictlyLower>();
   data_ref.M.triangularView<Eigen::StrictlyLower>()
   = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
-  BOOST_CHECK(data.M.isApprox(data_ref.M));
+  BOOST_CHECK(rnea_partial_da.isApprox(data_ref.M));
 
   BOOST_CHECK(data.tau.isApprox(tau0));
   BOOST_CHECK(rnea_partial_dq.isApprox(rnea_partial_dq_fd,sqrt(alpha)));

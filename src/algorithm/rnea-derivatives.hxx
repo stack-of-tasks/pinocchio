@@ -242,6 +242,7 @@ namespace se3
     typedef boost::fusion::vector<const Model &,
     Data &,
     Eigen::MatrixXd &,
+    Eigen::MatrixXd &,
     Eigen::MatrixXd &
     >  ArgsType;
     
@@ -252,7 +253,8 @@ namespace se3
                      const Model & model,
                      Data & data,
                      Eigen::MatrixXd & rnea_partial_dq,
-                     Eigen::MatrixXd & rnea_partial_dv)
+                     Eigen::MatrixXd & rnea_partial_dv,
+                     Eigen::MatrixXd & rnea_partial_da)
     {
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
@@ -273,7 +275,7 @@ namespace se3
       
       // dtau/da similar to data.M
       motionSet::inertiaAction(data.oYo[i],J_cols,dFda_cols);
-      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      rnea_partial_da.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFda.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       // dtau/dv
@@ -332,7 +334,8 @@ namespace se3
                          const Eigen::VectorXd & v,
                          const Eigen::VectorXd & a,
                          Eigen::MatrixXd & rnea_partial_dq,
-                         Eigen::MatrixXd & rnea_partial_dv)
+                         Eigen::MatrixXd & rnea_partial_dv,
+                         Eigen::MatrixXd & rnea_partial_da)
   {
     assert(q.size() == model.nq && "The joint configuration vector is not of right size");
     assert(v.size() == model.nv && "The joint velocity vector is not of right size");
@@ -341,6 +344,8 @@ namespace se3
     assert(rnea_partial_dq.rows() == model.nv);
     assert(rnea_partial_dv.cols() == model.nv);
     assert(rnea_partial_dv.rows() == model.nv);
+    assert(rnea_partial_da.cols() == model.nv);
+    assert(rnea_partial_da.rows() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     data.oa[0] = -model.gravity;
@@ -354,7 +359,7 @@ namespace se3
     for(size_t i=(size_t) (model.njoints-1);i>0;--i)
     {
       computeRNEADerivativesBackwardStep::run(model.joints[i],
-                                              computeRNEADerivativesBackwardStep::ArgsType(model,data,rnea_partial_dq,rnea_partial_dv));
+                                              computeRNEADerivativesBackwardStep::ArgsType(model,data,rnea_partial_dq,rnea_partial_dv,rnea_partial_da));
     }
   }
   
