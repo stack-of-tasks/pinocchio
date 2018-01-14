@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
 
   BOOST_CHECK(rnea_partial_dq.isApprox(data2.dtau_dq));
   BOOST_CHECK(rnea_partial_dv.isApprox(data2.dtau_dv));
-  BOOST_CHECK(rnea_partial_da.isApprox(data2.dtau_da));
+  BOOST_CHECK(rnea_partial_da.isApprox(data2.M));
   
 }
 

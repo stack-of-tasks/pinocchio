@@ -54,7 +54,7 @@ namespace se3
   /// \param[out] rnea_partial_dv Partial derivative of the generalized torque vector with respect to the joint velocity.
   /// \param[out] rnea_partial_da Partial derivative of the generalized torque vector with respect to the joint acceleration.
   ///
-  /// \remark rnea_partial_dq, rnea_partial_dv and rnea_partial_da must be first initialized with zeros (gravity_partial_dq.setZero).
+  /// \remark rnea_partial_dq, rnea_partial_dv and rnea_partial_da must be first initialized with zeros (rnea_partial_dq.setZero(),etc).
   ///         As for se3::crba, only the upper triangular part of rnea_partial_da is filled.
   ///
   /// \sa se3::rnea
@@ -78,11 +78,9 @@ namespace se3
   /// \param[in] v The joint velocity vector (dim model.nv).
   /// \param[in] a The joint acceleration vector (dim model.nv).
   ///
-  /// \returns The results are stored in data.dtau_dq, data.tau_dv and data.dtau_da which respectively correspond
+  /// \returns The results are stored in data.dtau_dq, data.M and data.dtau_da which respectively correspond
   ///          to the partial derivatives of the joint torque vector with respect to the joint configuration, velocity and acceleration.
-  ///          data.dtau_da is a reference on data.M. And as for se3::crba, only the upper triangular part of data.M is filled.
-  ///
-  /// \remark rnea_partial_dq and rnea_partial_dv must be first initialized with zeros (gravity_partial_dq.setZero).
+  ///          And as for se3::crba, only the upper triangular part of data.M is filled.
   ///
   /// \sa se3::rnea, se3::crba, se3::cholesky::decompose
   ///
@@ -93,7 +91,7 @@ namespace se3
                          const Eigen::VectorXd & a)
   {
     computeRNEADerivatives(model,data,q,v,a,
-                           data.dtau_dq, data.dtau_dv, data.dtau_da);
+                           data.dtau_dq, data.dtau_dv, data.M);
   }
 
 
