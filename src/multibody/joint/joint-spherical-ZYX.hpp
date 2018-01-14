@@ -241,30 +241,30 @@ namespace se3
   }
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
-  //  inline Eigen::Matrix<double,6,3>
-  template <typename _Scalar, int _Options>
-#ifdef EIGEN3_FUTURE
-  const typename Eigen::Product<
-  const Eigen::Block<const Inertia::Matrix6,6,3>,
-  const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
-  >
-#else
-  const typename Eigen::ProductReturnType<
-  const Eigen::Block<const Inertia::Matrix6,6,3>,
-  const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
-  >::Type
-#endif
-  operator*(const typename InertiaTpl<_Scalar,_Options>::Matrix6 & Y,
-            const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
-  {
-    return Y.template middleCols<3>(Inertia::ANGULAR) * S.S_minimal;
-  }
+//  template <typename _Scalar, int _Options>
+//  inline Eigen::Matrix<_Scalar,6,3,_Options>
+//#ifdef EIGEN3_FUTURE
+//  const typename Eigen::Product<
+//  const Eigen::template Block<const typename InertiaTpl<_Scalar,_Options>::Matrix6,6,3>,
+//  const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
+//  >
+//#else
+//  const typename Eigen::ProductReturnType<
+//  const Eigen::template Block<const typename InertiaTpl<_Scalar,_Options>::Matrix6,6,3>,
+//  const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace::Matrix3
+//  >::Type
+//#endif
+//  operator*(const typename InertiaTpl<_Scalar,_Options>::Matrix6 & Y,
+//            const typename JointSphericalZYXTpl<_Scalar,_Options>::ConstraintRotationalSubspace & S)
+//  {
+//    return Y.template middleCols<3>(Inertia::ANGULAR) * S.S_minimal;
+//  }
   
   inline Eigen::Matrix<double,6,3>
   operator*(const Inertia::Matrix6 & Y,
             const JointSphericalZYX::ConstraintRotationalSubspace & S)
   {
-    return Y.middleCols<3>(Inertia::ANGULAR) * S.S_minimal;
+    return (Y.middleCols<3>(Inertia::ANGULAR) * S.S_minimal).eval();
   }
 
   namespace internal
