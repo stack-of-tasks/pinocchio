@@ -334,8 +334,13 @@ namespace se3
           {
             meshPath.clear();
 #ifdef WITH_HPP_FCL
+#ifdef URDFDOM_COLLISION_WITH_GROUP_NAME
+            const std::string & geom_name = (*i)->group_name;
+#else
+            const std::string & geom_name = (*i)->name;
+#endif
             const boost::shared_ptr<fcl::CollisionGeometry> geometry =
-              retrieveCollisionGeometry(tree, link_name, (*i)->name,
+              retrieveCollisionGeometry(tree, link_name, geom_name,
                   (*i)->geometry, package_dirs, meshPath, meshScale);
 #else
             ::urdf::MeshSharedPtr urdf_mesh = ::urdf::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry);
