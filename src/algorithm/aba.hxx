@@ -86,7 +86,7 @@ namespace se3
       
       jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose()*data.f[i];
       jmodel.calc_aba(jdata.derived(), Ia, parent > 0);
-      jmodel.jointVelocitySelector(data.ddq) = jdata.Dinv() * jmodel.jointVelocitySelector(data.u);
+      jmodel.jointVelocitySelector(data.ddq).noalias() = jdata.Dinv() * jmodel.jointVelocitySelector(data.u);
       
       if (parent > 0)
       {
@@ -142,11 +142,18 @@ namespace se3
       Block3 Co = res.block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
       Block3 Do = res.block<3,3> (Inertia::ANGULAR, Inertia::ANGULAR);
       
-      Ao = R*Ai*R.transpose();
-      Bo = R*Bi*R.transpose();
-      Do.row(0) = t.cross(Bo.col(0));
-      Do.row(1) = t.cross(Bo.col(1));
-      Do.row(2) = t.cross(Bo.col(2));
+      Do.noalias() = R*Ai; // tmp variable
+      Ao.noalias() = Do*R.transpose();
+      
+      Do.noalias() = R*Bi; // tmp variable
+      Bo.noalias() = Do*R.transpose();
+      
+      Co.noalias() = R*Di; // tmp variable
+      Do.noalias() = Co*R.transpose();
+
+      Do.row(0) += t.cross(Bo.col(0));
+      Do.row(1) += t.cross(Bo.col(1));
+      Do.row(2) += t.cross(Bo.col(2));
       
       Co.col(0) = t.cross(Ao.col(0));
       Co.col(1) = t.cross(Ao.col(1));
@@ -157,7 +164,6 @@ namespace se3
       Do.col(0) += t.cross(Bo.col(0));
       Do.col(1) += t.cross(Bo.col(1));
       Do.col(2) += t.cross(Bo.col(2));
-      Do += R*Di*R.transpose();
       return res;
     }
   };

@@ -377,7 +377,7 @@ namespace se3
     {
       data.U = I.block<6,3> (0,Inertia::ANGULAR) * axis;
       data.Dinv[0] = 1./axis.dot(data.U.segment <3> (Inertia::ANGULAR));
-      data.UDinv = data.U * data.Dinv;
+      data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
         I -= data.UDinv * data.U.transpose();

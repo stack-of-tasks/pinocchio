@@ -467,7 +467,7 @@ namespace se3
       data.U = I.middleCols<3> (Inertia::ANGULAR) * data.S.matrix();
       Inertia::Matrix3 tmp (data.S.matrix().transpose() * data.U.middleRows<3> (Inertia::ANGULAR));
       data.Dinv = tmp.inverse();
-      data.UDinv = data.U * data.Dinv;
+      data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
         I -= data.UDinv * data.U.transpose();

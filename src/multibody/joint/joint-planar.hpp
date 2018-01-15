@@ -395,7 +395,7 @@ namespace se3
       tmp.leftCols<2> () = data.U.topRows<2> ().transpose();
       tmp.rightCols<1> () = data.U.bottomRows<1> ();
       data.Dinv = tmp.inverse();
-      data.UDinv = data.U * data.Dinv;
+      data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
         I -= data.UDinv * data.U.transpose();

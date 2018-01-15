@@ -427,7 +427,7 @@ namespace se3
     {
       data.U = I.col(Inertia::LINEAR + axis);
       data.Dinv[0] = 1./I(Inertia::LINEAR + axis, Inertia::LINEAR + axis);
-      data.UDinv = data.U * data.Dinv[0];
+      data.UDinv.noalias() = data.U * data.Dinv[0];
       
       if (update_I)
         I -= data.UDinv * data.U.transpose();
