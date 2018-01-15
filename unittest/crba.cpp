@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE (test_ccrb)
     dccrba(model,data,q,0*v);
     BOOST_CHECK(data.dAg.isZero());
     
-    // Check that dYcrb is equal to doYo
+    // Check that dYcrb is equal to doYcrb
     {
       // Compute dYcrb
       Data data_ref(model), data_ref_plus(model), data(model);
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE (test_ccrb)
       {
         Inertia::Matrix6 dYcrb = (data_ref_plus.oMi[i].act(data_ref_plus.Ycrb[i]).matrix() -
                     data_ref.oMi[i].act(data_ref.Ycrb[i]).matrix())/alpha;
-        BOOST_CHECK(data.doYo[i].isApprox(dYcrb,sqrt(alpha)));
+        BOOST_CHECK(data.doYcrb[i].isApprox(dYcrb,sqrt(alpha)));
       }
     }
     

@@ -292,8 +292,8 @@ namespace se3
 
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::Index & parent = model.parents[i];
-      const Inertia & Y = data.oYo[i];
-      const Inertia::Matrix6 & doYo = data.doYo[i];
+      const Inertia & Y = data.oYcrb[i];
+      const Inertia::Matrix6 & doYcrb = data.doYcrb[i];
       
       ColsBlock J_cols = jmodel.jointCols(data.J);
       J_cols = data.oMi[i].act(jdata.S());
@@ -301,9 +301,9 @@ namespace se3
       ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
       motionSet::motionAction(data.ov[i],J_cols,dJ_cols);
       
-      data.oYo[parent] += Y;
+      data.oYcrb[parent] += Y;
       if(parent > 0)
-        data.doYo[parent] += doYo;
+        data.doYcrb[parent] += doYcrb;
       
       // Calc Ag
       ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
@@ -312,7 +312,7 @@ namespace se3
       // Calc dAg = Ivx + vxI
       ColsBlock dAg_cols = jmodel.jointCols(data.dAg);
       rhsInertiaMult(Y,dJ_cols,dAg_cols);
-      dAg_cols += doYo * J_cols;
+      dAg_cols += doYcrb * J_cols;
     }
     
     template<typename Min, typename Mout>
@@ -359,12 +359,12 @@ namespace se3
     typedef Eigen::Block <Data::Matrix6x,3,-1> Block3x;
     
     forwardKinematics(model,data,q,v);
-    data.oYo[0].setZero();
+    data.oYcrb[0].setZero();
     for(Model::Index i=1;i<(Model::Index)(model.njoints);++i)
     {
-      data.oYo[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       data.ov[i] = data.oMi[i].act(data.v[i]); // v_i expressed in the world frame
-      data.doYo[i] = data.oYo[i].variation(data.ov[i]);
+      data.doYcrb[i] = data.oYcrb[i].variation(data.ov[i]);
     }
     
     for(Model::Index i=(Model::Index)(model.njoints-1);i>0;--i)
@@ -372,7 +372,7 @@ namespace se3
       DCcrbaBackwardStep::run(model.joints[i],data.joints[i],
                               DCcrbaBackwardStep::ArgsType(model,data));
     }
-    data.com[0] = data.oYo[0].lever();
+    data.com[0] = data.oYcrb[0].lever();
     
     const Block3x Ag_lin = data.Ag.middleRows<3> (Force::LINEAR);
     Block3x Ag_ang = data.Ag.middleRows<3>  (Force::ANGULAR);
@@ -380,16 +380,16 @@ namespace se3
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
     
     data.hg = data.Ag*v;
-    data.vcom[0] = data.hg.linear()/data.oYo[0].mass();
+    data.vcom[0] = data.hg.linear()/data.oYcrb[0].mass();
     
     const Block3x dAg_lin = data.dAg.middleRows<3>(Force::LINEAR);
     Block3x dAg_ang = data.dAg.middleRows<3>(Force::ANGULAR);
     for (long i = 0; i<model.nv; ++i)
       dAg_ang.col(i) += dAg_lin.col(i).cross(data.com[0]);
 
-    data.Ig.mass() = data.oYo[0].mass();
+    data.Ig.mass() = data.oYcrb[0].mass();
     data.Ig.lever().setZero();
-    data.Ig.inertia() = data.oYo[0].inertia();
+    data.Ig.inertia() = data.oYcrb[0].inertia();
     
     return data.dAg;
   }

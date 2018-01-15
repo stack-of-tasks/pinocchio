@@ -325,7 +325,7 @@ namespace se3
       else data.oMi[i] = data.liMi[i];
       
       // express quantities in the world frame
-      data.oYo[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       
       data.v[i] = jdata.v();
       if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
@@ -341,7 +341,7 @@ namespace se3
       motionSet::motionAction(data.ov[i],Jcols,dJcols);
 
       // computes vxI
-      Inertia::vxi(data.ov[i],data.oYo[i],data.vxI[i]);
+      Inertia::vxi(data.ov[i],data.oYcrb[i],data.vxI[i]);
     }
 
   };
@@ -367,13 +367,13 @@ namespace se3
       ColsBlock dJcols = jmodel.jointCols(data.dJ);
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
-      motionSet::inertiaAction(data.oYo[i],dJcols,jmodel.jointCols(data.dFdv));
+      motionSet::inertiaAction(data.oYcrb[i],dJcols,jmodel.jointCols(data.dFdv));
       jmodel.jointCols(data.dFdv) += data.vxI[i] * Jcols;
 
       data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = Jcols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
-      lhsInertiaMult(data.oYo[i],Jcols.transpose(),M6tmpR.topRows(jmodel.nv()));
+      lhsInertiaMult(data.oYcrb[i],Jcols.transpose(),M6tmpR.topRows(jmodel.nv()));
       for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
         data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dJ.col(j);
 
@@ -383,7 +383,7 @@ namespace se3
 
       if(parent>0)
       {
-        data.oYo[parent] += data.oYo[i];
+        data.oYcrb[parent] += data.oYcrb[i];
         data.vxI[parent] += data.vxI[i];
       }
       

@@ -53,7 +53,7 @@ namespace se3
       else
         data.oMi[i] = data.liMi[i];
       
-      data.oYo[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       data.f[i].setZero();
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
@@ -92,22 +92,22 @@ namespace se3
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
       ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
       
-      motionSet::inertiaAction(data.oYo[i],dAdq_cols,dFdq_cols);
+      motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
       
       gravity_partial_dq.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
-      data.f[i] = data.oYo[i] * oa;
+      data.f[i] = data.oYcrb[i] * oa;
       motionSet::act<ADDTO>(J_cols,data.f[i],dFdq_cols);
       
-      lhsInertiaMult(data.oYo[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
+      lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
       for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
         gravity_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
       
       jmodel.jointVelocitySelector(data.g).noalias() = J_cols.transpose()*data.f[i].toVector();
       if(parent>0)
       {
-        data.oYo[parent] += data.oYo[i];
+        data.oYcrb[parent] += data.oYcrb[i];
       }
     }
     
@@ -191,12 +191,12 @@ namespace se3
         data.a[i] += data.liMi[i].actInv(data.a[parent]);
       }
       
-      data.oYo[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       ov = data.oMi[i].act(data.v[i]);
       oa = data.oMi[i].act(data.a[i]) + data.oa[0]; // add gravity contribution
       
-      data.h[i] = data.oYo[i] * ov;
-      data.f[i] = data.oYo[i] * oa + ov.cross(data.h[i]);
+      data.h[i] = data.oYcrb[i] * ov;
+      data.f[i] = data.oYcrb[i] * oa + ov.cross(data.h[i]);
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
@@ -219,9 +219,9 @@ namespace se3
         dVdq_cols.setZero();
 
       // computes variation of inertias
-      data.doYo[i] = data.oYo[i].variation(ov);
+      data.doYcrb[i] = data.oYcrb[i].variation(ov);
       
-      addForceCrossMatrix(data.h[i],data.doYo[i]);
+      addForceCrossMatrix(data.h[i],data.doYcrb[i]);
     }
     
     template<typename ForceDerived, typename M6>
@@ -274,21 +274,21 @@ namespace se3
       jmodel.jointVelocitySelector(data.tau).noalias() = J_cols.transpose()*data.f[i].toVector();
       
       // dtau/da similar to data.M
-      motionSet::inertiaAction(data.oYo[i],J_cols,dFda_cols);
+      motionSet::inertiaAction(data.oYcrb[i],J_cols,dFda_cols);
       rnea_partial_da.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFda.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       // dtau/dv
-      motionSet::inertiaAction(data.oYo[i],dAdv_cols,dFdv_cols);
-      dFdv_cols += data.doYo[i] * J_cols;
+      motionSet::inertiaAction(data.oYcrb[i],dAdv_cols,dFdv_cols);
+      dFdv_cols += data.doYcrb[i] * J_cols;
       
       rnea_partial_dv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       // dtau/dq
-      motionSet::inertiaAction(data.oYo[i],dAdq_cols,dFdq_cols);
+      motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
       if(parent>0)
-        dFdq_cols += data.doYo[i] * dVdq_cols;
+        dFdq_cols += data.doYcrb[i] * dVdq_cols;
 
       rnea_partial_dq.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
@@ -297,13 +297,13 @@ namespace se3
       
       if(parent > 0)
       {
-        lhsInertiaMult(data.oYo[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
+        lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
         for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
           rnea_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
         for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
           rnea_partial_dv.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdv.col(j);
         
-        M6tmpR.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.doYo[i];
+        M6tmpR.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.doYcrb[i];
         for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
           rnea_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.dVdq.col(j);
         for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
@@ -312,8 +312,8 @@ namespace se3
       
       if(parent>0)
       {
-        data.oYo[parent] += data.oYo[i];
-        data.doYo[parent] += data.doYo[i];
+        data.oYcrb[parent] += data.oYcrb[i];
+        data.doYcrb[parent] += data.doYcrb[i];
         data.f[parent] += data.f[i];
       }
     }
