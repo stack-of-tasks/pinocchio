@@ -379,12 +379,19 @@ namespace se3
     /// \brief Vector of joint velocities expressed at the origin.
     container::aligned_vector<Motion> ov;
     
-    /// \brief Vector of body forces. For each body, the force represents the sum of
-    ///        all external forces acting on the body and expressed in the local frame of the joint..
+    /// \brief Vector of body forces expressed in the local frame of the joint. For each body, the force represents the sum of
+    ///        all external forces acting on the body.
     container::aligned_vector<Force> f;
     
-    /// \brief Vector of spatial momenta.
+    /// \brief Vector of body forces expressed in the world frame. For each body, the force represents the sum of
+    ///        all external forces acting on the body.
+    container::aligned_vector<Force> of;
+    
+    /// \brief Vector of spatial momenta expressed in the local frame of the joint.
     container::aligned_vector<Force> h;
+    
+    /// \brief Vector of spatial momenta expressed in the world frame.
+    container::aligned_vector<Force> oh;
     
     /// \brief Vector of absolute joint placements (wrt the world).
     container::aligned_vector<SE3> oMi;
