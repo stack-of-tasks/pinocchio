@@ -13,7 +13,7 @@ curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key 
 sudo free -m -t
 
 # Setup environment variables.
-export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev libtinyxml-dev robotpkg-urdfdom libconsole-bridge-dev texlive-font-utils"
+export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils"
 # Add Python dependency
 export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-eigenpy python2.7-dev python-numpy"
 # Add Geometry dependencies
