@@ -37,6 +37,9 @@ namespace se3
       exposeJacobian();
       exposeGeometryAlgo();
       exposeRegressor();
+      
+      // expose derivative version of the algorithms
+      exposeRNEADerivatives();
     }
     
   } // namespace python

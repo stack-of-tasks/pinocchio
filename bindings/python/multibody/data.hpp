@@ -88,9 +88,9 @@ namespace se3
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,Ag,
-                                 "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
+                                            "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,dAg,
-                                 "Time derivative of the centroidal momentum matrix Ag.")
+                                            "Time derivative of the centroidal momentum matrix Ag.")
         .ADD_DATA_PROPERTY_READONLY(Force,hg,
                                     "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the inertial frame).")
         .ADD_DATA_PROPERTY_READONLY(Inertia,Ig,
@@ -102,6 +102,9 @@ namespace se3
         .ADD_DATA_PROPERTY(std::vector<double>,mass,"Mass of the subtree starting at joint index i.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix3x,Jcom,"Jacobian of center of mass.")
 
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,C,"Joint space Coriolis matrix.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,dtau_dq,"Partial derivative of the joint torque vector with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")

@@ -40,6 +40,8 @@ namespace se3
     void exposeJacobian();
     void exposeGeometryAlgo();
     void exposeRegressor();
+    
+    void exposeRNEADerivatives();
 
     void exposeAlgorithms();
     
