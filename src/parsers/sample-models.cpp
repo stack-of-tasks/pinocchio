@@ -98,18 +98,7 @@ namespace se3
         addJointAndBody(model, JointModelRX(), "ff5_joint", "root", Id, false);
       }
       else
-      {
-        // typedef JointModelFreeFlyer::ConfigVector_t CV;
-        // typedef JointModelFreeFlyer::TangentVector_t TV;
-        
         addJointAndBody(model, JointModelFreeFlyer(), "universe", "root", Id, false);
-        // idx = model.addJoint(model.getJointId("universe"),JointModelFreeFlyer(),
-                             // SE3::Identity(),"root_joint",
-                             // TV::Zero(), 1e3 * (TV::Random() + TV::Constant(1.)),
-                             // 1e3 * (CV::Random() - CV::Constant(1)),
-                             // 1e3 * (CV::Random() + CV::Constant(1)));
-        // model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity(),"root_body");
-      }
 
       // lleg
       addJointAndBody(model,JointModelRX(),"root_joint","lleg1");
