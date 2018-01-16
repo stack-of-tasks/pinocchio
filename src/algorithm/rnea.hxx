@@ -194,7 +194,7 @@ namespace se3
       const Model::JointIndex & parent  = model.parents[i];
       
       jmodel.jointVelocitySelector(data.nle)  = jdata.S().transpose()*data.f[i];
-      if(parent>0) data.f[(size_t) parent] += data.liMi[i].act(data.f[i]);
+      if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
     }
   };
   
@@ -361,7 +361,7 @@ namespace se3
     {
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
-      Data::Matrix6R & M6tmpR = data.M6tmpR;
+      Data::RowMatrix6 & M6tmpR = data.M6tmpR;
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
       ColsBlock dJcols = jmodel.jointCols(data.dJ);

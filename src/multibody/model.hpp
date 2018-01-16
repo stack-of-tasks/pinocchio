@@ -359,7 +359,7 @@ namespace se3
     typedef Eigen::Matrix<double,3,Eigen::Dynamic> Matrix3x;
     typedef SE3::Vector3 Vector3;
     
-    typedef Eigen::Matrix<double,6,6,Eigen::RowMajor> Matrix6R;
+    typedef Eigen::Matrix<double,6,6,Eigen::RowMajor> RowMatrix6;
     /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.
     JointDataVector joints;
@@ -453,7 +453,7 @@ namespace se3
     Inertia::Matrix6 Itmp;
     
     /// \brief Temporary for derivative algorithms
-    Matrix6R M6tmpR;
+    RowMatrix6 M6tmpR;
     
     /// \brief The joint accelerations computed from ABA
     Eigen::VectorXd ddq;
