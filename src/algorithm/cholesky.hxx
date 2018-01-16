@@ -76,39 +76,42 @@ namespace se3
     template<typename Mat>
     Mat & Uv(const Model & model,
              const Data & data,
-             Eigen::MatrixBase<Mat> & v)
+             const Eigen::MatrixBase<Mat> & v)
     {
       assert(v.rows() == model.nv);
 #ifndef NDEBUG
       assert(model.check(data) && "data is not consistent with model.");
 #endif
       
+      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
       
       for(int k=0;k < model.nv-1;++k) // You can stop one step before nv
-        v.row(k) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v.middleRows(k+1,nvt[(Model::Index)k]-1);
+        v_.row(k) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v_.middleRows(k+1,nvt[(Model::Index)k]-1);
       
-      return v.derived();
+      return v_.derived();
     }
 
     /* Compute U'*v */
     template<typename Mat>
     Mat & Utv(const Model & model,
               const Data & data,
-              Eigen::MatrixBase<Mat> & v)
+              const Eigen::MatrixBase<Mat> & v)
     {
       assert(v.rows() == model.nv);
 #ifndef NDEBUG
       assert(model.check(data) && "data is not consistent with model.");
 #endif
       
+      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
       for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
-        v.middleRows(k+1,nvt[(Model::Index)k]-1) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
+//        v.middleRows(k+1,nvt[(Model::Index)k]-1) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
+        v_.segment(k+1,nvt[(Model::Index)k]-1) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v_[k];
       
-      return v.derived();
+      return v_.derived();
     }
   
     /* Compute U^{-1}*v 
@@ -117,8 +120,9 @@ namespace se3
     template<typename Mat>
     Mat & Uiv(const Model & model,
               const Data & data ,
-              Eigen::MatrixBase<Mat> & v)
+              const Eigen::MatrixBase<Mat> & v)
     {
+      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
       /* We search y s.t. v = U y. 
        * For any k, v_k = y_k + U_{k,k+1:} y_{k+1:} */
       assert(v.rows() == model.nv);
@@ -130,15 +134,18 @@ namespace se3
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
       
       for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
-        v.row(k) -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v.middleRows(k+1,nvt[(Model::Index)k]-1);
-      return v.derived();
+        v_[k] -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1).dot(v_.segment(k+1,nvt[(Model::Index)k]-1));
+//        v.row(k) -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v.middleRows(k+1,nvt[(Model::Index)k]-1);
+      return v_.derived();
     }
 
     template<typename Mat>
     Mat & Utiv(const Model & model,
                const Data & data ,
-               Eigen::MatrixBase<Mat> & v)
+               const Eigen::MatrixBase<Mat> & v)
     {
+      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+      
       /* We search y s.t. v = U' y. 
        * For any k, v_k = y_k + sum_{m \in parent{k}} U(m,k) v(k). */
       assert(v.rows() == model.nv);
@@ -149,9 +156,10 @@ namespace se3
       const Eigen::MatrixXd & U = data.U;
       const std::vector<int> & nvt = data.nvSubtree_fromRow;
       for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv.
-        v.middleRows(k+1,nvt[(Model::Index)k]-1) -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
+        v_.segment(k+1,nvt[(Model::Index)k]-1) -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose() * v_[k];
+//        v.middleRows(k+1,nvt[(Model::Index)k]-1).transpose() -= v.row(k).transpose()*();
 
-      return v.derived();
+      return v_.derived();
     }
 
     namespace internal
@@ -179,38 +187,48 @@ namespace se3
       template<typename Mat>
       Mat & UDUtv(const Model & model,
                   const Data & data,
-                  Eigen::MatrixBase<Mat> & v)
+                  const Eigen::MatrixBase<Mat> & v)
       {
-        Utv(model,data,v);
-        return Uv(model,data,v);
+        Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+        
+        Utv(model,data,v_);
         v_.array() *= data.D.array();
+        Uv(model,data,v_);
+        return v_.derived();
       }
     } // internal
     
     template<typename Mat>
     Mat & Mv(const Model & model,
              const Data & data,
-             Eigen::MatrixBase<Mat> & v,
+             const Eigen::MatrixBase<Mat> & v,
              const bool usingCholesky)
     {
 #ifndef NDEBUG
       assert(model.check(data) && "data is not consistent with model.");
 #endif
-      if(usingCholesky) return internal::UDUtv(model,data,v);
-      else return v = internal::Mv(model,data,v);
+      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+      if(usingCholesky) internal::UDUtv(model,data,v_);
+      else v_ = internal::Mv(model,data,v_);
+      
+      return v_.derived();
+    }
     }
     
     template<typename Mat>
     Mat & solve(const Model & model,
                 const Data & data ,
-                Eigen::MatrixBase<Mat> & v)
+                const Eigen::MatrixBase<Mat> & v)
     {
+      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+      
 #ifndef NDEBUG
       assert(model.check(data) && "data is not consistent with model.");
 #endif
-      Uiv(model,data,v);
-      return Utiv(model,data,v);
+      Uiv(model,data,v_);
       v_.array() *= data.Dinv.array();
+      Utiv(model,data,v_);
+      return v_.derived();
     }
 
   } //   namespace cholesky

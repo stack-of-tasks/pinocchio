@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -60,7 +60,7 @@ namespace se3
     ///
     template<typename Mat>
     Mat & solve(const Model & model, const Data & data,
-                Eigen::MatrixBase<Mat> & y);
+                const Eigen::MatrixBase<Mat> & y);
 
     ///
     /// \brief Perform the multiplication \f$ M v \f$ either by using computed Cholesky decomposition or from raw computation.
@@ -74,7 +74,7 @@ namespace se3
     ///
     template<typename Mat>
     Mat & Mv(const Model & model, const Data & data ,
-             Eigen::MatrixBase<Mat> & v,
+             const Eigen::MatrixBase<Mat> & v,
              const bool usingCholesky = false);
     
     ///
@@ -89,7 +89,7 @@ namespace se3
     template<typename Mat>
     Mat & Uv(const Model & model,
              const Data & data,
-             Eigen::MatrixBase<Mat> & v);
+             const Eigen::MatrixBase<Mat> & v);
     
     ///
     /// \brief Perform the sparse multiplication \f$ U^{\top}v \f$ using the Cholesky decomposition stored in data and acting in place.
@@ -103,7 +103,7 @@ namespace se3
     template<typename Mat>
     Mat & Utv(const Model & model,
               const Data & data,
-              Eigen::MatrixBase<Mat> & v);
+              const Eigen::MatrixBase<Mat> & v);
     
     ///
     /// \brief Perform the pivot inversion \f$ U^{-1}v \f$ using the Cholesky decomposition stored in data and acting in place.
@@ -119,7 +119,7 @@ namespace se3
     template<typename Mat>
     Mat & Uiv(const Model & model,
               const Data & data ,
-              Eigen::MatrixBase<Mat> & v);
+              const Eigen::MatrixBase<Mat> & v);
     
     ///
     /// \brief Perform the pivot inversion \f$ U^{-\top}v \f$ using the Cholesky decomposition stored in data and acting in place.
@@ -135,7 +135,7 @@ namespace se3
     template<typename Mat>
     Mat & Utiv(const Model & model,
                const Data & data ,
-               Eigen::MatrixBase<Mat> & v);
+               const Eigen::MatrixBase<Mat> & v);
     
     ///
     /// \brief Perform the sparse inversion \f$ M^{-1}v \f$ using the Cholesky decomposition stored in data and acting in place.
@@ -149,7 +149,7 @@ namespace se3
     template<typename Mat>
     Mat & solve(const Model & model,
                 const Data & data ,
-                Eigen::MatrixBase<Mat> & v);
+                const Eigen::MatrixBase<Mat> & v);
 
   } // namespace cholesky  
 } // namespace se3 
