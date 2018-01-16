@@ -48,9 +48,11 @@ namespace se3
 
   /**
    * @brief      Returns the jacobian of the frame expresssed in the local frame depending on the template argument.
-   *             You must first call se3::framesForwardKinematics and se3::computeJacobians to update values in data structure.
+   *             You must first call se3::computeJacobians followad by se3::framesForwardKinematics to update placement values in data structure.
    
-   * @remark     Expressed in the local frame, the jacobian maps the joint velocity vector to the spatial velocity of the center of the frame, expressed in the frame coordinates system.
+   * @remark     Compared to se3::getJacobian with LOCAL or WORLD templated parameters, this function only returns the Jacobian of the frame expressed
+   *             in the local coordinates of Frame. Indeed, evaluated at the origin of the world, this function would return the same Jacobian as
+   *             se3::getJacobian<se3::WORLD>(model,data,frame.parent,J).
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model

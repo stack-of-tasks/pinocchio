@@ -34,7 +34,7 @@ namespace se3
     JOINT        = 0x1 << 1, // joint frame type
     FIXED_JOINT  = 0x1 << 2, // fixed joint frame type
     BODY         = 0x1 << 3, // body frame type
-    SENSOR       = 0x1 << 4 // sensor frame type
+    SENSOR       = 0x1 << 4  // sensor frame type
   };
   
   ///
