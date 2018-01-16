@@ -498,6 +498,9 @@ namespace se3
     /// \brief Diagonal of the joint space intertia matrix obtained by a Cholesky Decomposition.
     Eigen::VectorXd D;
     
+    /// \brief Diagonal inverse of the joint space intertia matrix obtained by a Cholesky Decomposition.
+    Eigen::VectorXd Dinv;
+    
     /// \brief Temporary of size NV used in Cholesky Decomposition.
     Eigen::VectorXd tmp;
     

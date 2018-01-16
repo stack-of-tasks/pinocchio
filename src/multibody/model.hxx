@@ -270,6 +270,7 @@ namespace se3
     ,nvSubtree((std::size_t)model.njoints)
     ,U(model.nv,model.nv)
     ,D(model.nv)
+    ,Dinv(model.nv)
     ,tmp(model.nv)
     ,parents_fromRow((std::size_t)model.nv)
     ,nvSubtree_fromRow((std::size_t)model.nv)

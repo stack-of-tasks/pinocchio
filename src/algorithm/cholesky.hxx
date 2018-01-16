@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -52,6 +52,7 @@ namespace se3
       Eigen::MatrixXd & M = data.M;
       Eigen::MatrixXd & U = data.U;
       Eigen::VectorXd & D = data.D;
+      Eigen::VectorXd & Dinv = data.Dinv;
       
       for(int j=model.nv-1;j>=0;--j )
       {
@@ -61,10 +62,10 @@ namespace se3
           DUt = U.row(j).segment(j+1,NVT).transpose()
           .cwiseProduct(D.segment(j+1,NVT));
         
-        D[j] = M(j,j) - U.row(j).segment(j+1,NVT) * DUt;
-        const double dj_inv(1./D[j]);
+        D[j] = M(j,j) - U.row(j).segment(j+1,NVT).dot(DUt);
+        Dinv[j] = 1./D[j];
         for(int _i = data.parents_fromRow[(Model::Index)j];_i >= 0;_i = data.parents_fromRow[(Model::Index)_i])
-          U(_i,j) = (M(_i,j) - U.row(_i).segment(j+1,NVT).dot(DUt)) * dj_inv;
+          U(_i,j) = (M(_i,j) - U.row(_i).segment(j+1,NVT).dot(DUt)) * Dinv[j];
       }
       
       return data.U;
@@ -181,8 +182,8 @@ namespace se3
                   Eigen::MatrixBase<Mat> & v)
       {
         Utv(model,data,v);
-        for( int k=0;k<model.nv;++k ) v.row(k) *= data.D[k];
         return Uv(model,data,v);
+        v_.array() *= data.D.array();
       }
     } // internal
     
@@ -208,8 +209,8 @@ namespace se3
       assert(model.check(data) && "data is not consistent with model.");
 #endif
       Uiv(model,data,v);
-      for(int k=0;k<model.nv;++k) v.row(k) /= data.D[k];
       return Utiv(model,data,v);
+      v_.array() *= data.Dinv.array();
     }
 
   } //   namespace cholesky
