@@ -63,19 +63,49 @@ namespace se3
                 const Eigen::MatrixBase<Mat> & y);
 
     ///
-    /// \brief Perform the multiplication \f$ M v \f$ either by using computed Cholesky decomposition or from raw computation.
+    /// \brief Performs the multiplication \f$ M v \f$ by using the sparsity pattern of the M matrix.
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
-    /// \param[inout] v The input matrix to multiply with data.M and storing the result.
-    /// \param[in] usingCholesky If true, use the Cholesky decomposition stored in data. Exploit the sparsity of the kinematic tree.
+    /// \param[in] min The input matrix to multiply with data.M.
     ///
-    /// \return A reference to the result of \f$ Mv \f$.
+    /// \return A the result of \f$ Mv \f$.
     ///
     template<typename Mat>
-    Mat & Mv(const Model & model, const Data & data ,
-             const Eigen::MatrixBase<Mat> & v,
-             const bool usingCholesky = false);
+    typename EIGEN_PLAIN_TYPE(Mat) Mv(const Model & model,
+                                      const Data & data,
+                                      const Eigen::MatrixBase<Mat> & min);
+    
+    ///
+    /// \brief Performs the multiplication \f$ M v \f$ by using the sparsity pattern of the M matrix.
+    ///
+    /// \param[in] model The model structure of the rigid body system.
+    /// \param[in] data The data structure of the rigid body system.
+    /// \param[in] min The input matrix to multiply with data.M.
+    /// \param[out] mout The output matrix where the result of \f$ Mv \f$ is stored.
+    ///
+    /// \return A reference of the result of \f$ Mv \f$.
+    ///
+    template<typename Mat, typename MatRes>
+    MatRes & Mv(const Model & model,
+                const Data & data,
+                const Eigen::MatrixBase<Mat> & min,
+                const Eigen::MatrixBase<MatRes> & mout);
+    
+    
+    ///
+    /// \brief Performs the multiplication \f$ M v \f$ by using the Cholesky decomposition of M stored in data.
+    ///
+    /// \param[in] model The model structure of the rigid body system.
+    /// \param[in] data The data structure of the rigid body system.
+    /// \param[inout] m The input matrix where the result of \f$ Mv \f$ is stored.
+    ///
+    /// \return A reference of the result of \f$ Mv \f$.
+    ///
+    template<typename Mat>
+    Mat & UDUtv(const Model & model,
+                const Data & data,
+                const Eigen::MatrixBase<Mat> & m);
     
     ///
     /// \brief Perform the sparse multiplication \f$ Uv \f$ using the Cholesky decomposition stored in data and acting in place.

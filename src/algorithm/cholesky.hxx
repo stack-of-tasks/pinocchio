@@ -49,7 +49,7 @@ namespace se3
       assert(model.check(data) && "data is not consistent with model.");
 #endif
       
-      Eigen::MatrixXd & M = data.M;
+      const Eigen::MatrixXd & M = data.M;
       Eigen::MatrixXd & U = data.U;
       Eigen::VectorXd & D = data.D;
       Eigen::VectorXd & Dinv = data.Dinv;
@@ -59,7 +59,7 @@ namespace se3
         const int NVT = data.nvSubtree_fromRow[(Model::Index)j]-1;
         Eigen::VectorXd::SegmentReturnType DUt = data.tmp.head(NVT);
         if(NVT)
-          DUt = U.row(j).segment(j+1,NVT).transpose()
+          DUt.noalias() = U.row(j).segment(j+1,NVT).transpose()
           .cwiseProduct(D.segment(j+1,NVT));
         
         D[j] = M(j,j) - U.row(j).segment(j+1,NVT).dot(DUt);
@@ -71,48 +71,146 @@ namespace se3
       return data.U;
     }
 
+    namespace internal
+    {
+      template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
+      struct Uv
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & m)
+        {
+          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          for(int k = 0; k < m_.cols(); ++k)
+            Uv(model,data,m_.col(k));
+        }
+      };
+      
+      template<typename Mat>
+      struct Uv<Mat,1>
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & v)
+        {
+          EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
+#ifndef NDEBUG
+          assert(model.check(data) && "data is not consistent with model.");
+#endif
+          assert(v.size() == model.nv);
+          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+          
+          const Eigen::MatrixXd & U = data.U;
+          const std::vector<int> & nvt = data.nvSubtree_fromRow;
+          
+          for(int k=0;k < model.nv-1;++k) // You can stop one step before nv
+            v_.row(k) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v_.middleRows(k+1,nvt[(Model::Index)k]-1);
+        }
+      };
+      
+    } // namespace internal
+    
     /* Compute U*v.
      * Nota: there is no smart way of doing U*D*v, so it is not proposed. */
     template<typename Mat>
     Mat & Uv(const Model & model,
              const Data & data,
-             const Eigen::MatrixBase<Mat> & v)
+             const Eigen::MatrixBase<Mat> & m)
     {
-      assert(v.rows() == model.nv);
-#ifndef NDEBUG
-      assert(model.check(data) && "data is not consistent with model.");
-#endif
-      
-      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
-      const Eigen::MatrixXd & U = data.U;
-      const std::vector<int> & nvt = data.nvSubtree_fromRow;
-      
-      for(int k=0;k < model.nv-1;++k) // You can stop one step before nv
-        v_.row(k) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v_.middleRows(k+1,nvt[(Model::Index)k]-1);
-      
-      return v_.derived();
+      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      internal::Uv<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
+      return m_.derived();
     }
+    
+    namespace internal
+    {
+      template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
+      struct Utv
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & m)
+        {
+          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          for(int k = 0; k < m_.cols(); ++k)
+            Utv(model,data,m_.col(k));
+        }
+      };
+      
+      template<typename Mat>
+      struct Utv<Mat,1>
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & v)
+        {
+          EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
+#ifndef NDEBUG
+          assert(model.check(data) && "data is not consistent with model.");
+#endif
+          assert(v.size() == model.nv);
+          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+          
+          const Eigen::MatrixXd & U = data.U;
+          const std::vector<int> & nvt = data.nvSubtree_fromRow;
+          
+          for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
+            v_.segment(k+1,nvt[(Model::Index)k]-1) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v_[k];
+            //        v.middleRows(k+1,nvt[(Model::Index)k]-1) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
+        }
+      };
+      
+    } // namespace internal
 
     /* Compute U'*v */
     template<typename Mat>
     Mat & Utv(const Model & model,
               const Data & data,
-              const Eigen::MatrixBase<Mat> & v)
+              const Eigen::MatrixBase<Mat> & m)
     {
-      assert(v.rows() == model.nv);
-#ifndef NDEBUG
-      assert(model.check(data) && "data is not consistent with model.");
-#endif
-      
-      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
-      const Eigen::MatrixXd & U = data.U;
-      const std::vector<int> & nvt = data.nvSubtree_fromRow;
-      for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
-//        v.middleRows(k+1,nvt[(Model::Index)k]-1) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
-        v_.segment(k+1,nvt[(Model::Index)k]-1) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v_[k];
-      
-      return v_.derived();
+      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      internal::Utv<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
+      return m_.derived();
     }
+    
+    namespace internal
+    {
+      template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
+      struct Uiv
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & m)
+        {
+          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          for(int k = 0; k < m_.cols(); ++k)
+            Uiv(model,data,m_.col(k));
+        }
+      };
+      
+      template<typename Mat>
+      struct Uiv<Mat,1>
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & v)
+        {
+          EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
+#ifndef NDEBUG
+          assert(model.check(data) && "data is not consistent with model.");
+#endif
+          assert(v.size() == model.nv);
+          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+          
+          const Eigen::MatrixXd & U = data.U;
+          const std::vector<int> & nvt = data.nvSubtree_fromRow;
+          
+          for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
+            v_[k] -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1).dot(v_.segment(k+1,nvt[(Model::Index)k]-1));
+        }
+      };
+      
+    } // namespace internal
   
     /* Compute U^{-1}*v 
      * Nota: there is no efficient way to compute D^{-1}U^{-1}v
@@ -120,115 +218,243 @@ namespace se3
     template<typename Mat>
     Mat & Uiv(const Model & model,
               const Data & data ,
-              const Eigen::MatrixBase<Mat> & v)
+              const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
-      /* We search y s.t. v = U y. 
-       * For any k, v_k = y_k + U_{k,k+1:} y_{k+1:} */
-      assert(v.rows() == model.nv);
-#ifndef NDEBUG
-      assert(model.check(data) && "data is not consistent with model.");
-#endif
-      
-      const Eigen::MatrixXd & U = data.U;
-      const std::vector<int> & nvt = data.nvSubtree_fromRow;
-      
-      for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
-        v_[k] -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1).dot(v_.segment(k+1,nvt[(Model::Index)k]-1));
-//        v.row(k) -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v.middleRows(k+1,nvt[(Model::Index)k]-1);
-      return v_.derived();
+      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      internal::Uiv<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
+      return m_.derived();
     }
+    
+    namespace internal
+    {
+      template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
+      struct Utiv
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & m)
+        {
+          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          for(int k = 0; k < m_.cols(); ++k)
+            Utiv(model,data,m_.col(k));
+        }
+      };
+      
+      template<typename Mat>
+      struct Utiv<Mat,1>
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & v)
+        {
+          EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
+#ifndef NDEBUG
+          assert(model.check(data) && "data is not consistent with model.");
+#endif
+          assert(v.size() == model.nv);
+          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+          
+          const Eigen::MatrixXd & U = data.U;
+          const std::vector<int> & nvt = data.nvSubtree_fromRow;
+          
+          for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv.
+            v_.segment(k+1,nvt[(Model::Index)k]-1) -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose() * v_[k];
+          //        v.middleRows(k+1,nvt[(Model::Index)k]-1).transpose() -= v.row(k).transpose()*();
+        }
+      };
+      
+    } // namespace internal
 
     template<typename Mat>
     Mat & Utiv(const Model & model,
                const Data & data ,
-               const Eigen::MatrixBase<Mat> & v)
+               const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
-      
-      /* We search y s.t. v = U' y. 
-       * For any k, v_k = y_k + sum_{m \in parent{k}} U(m,k) v(k). */
-      assert(v.rows() == model.nv);
-#ifndef NDEBUG
-      assert(model.check(data) && "data is not consistent with model.");
-#endif
-      
-      const Eigen::MatrixXd & U = data.U;
-      const std::vector<int> & nvt = data.nvSubtree_fromRow;
-      for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv.
-        v_.segment(k+1,nvt[(Model::Index)k]-1) -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose() * v_[k];
-//        v.middleRows(k+1,nvt[(Model::Index)k]-1).transpose() -= v.row(k).transpose()*();
-
-      return v_.derived();
+      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      internal::Utiv<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
+      return m_.derived();
     }
 
     namespace internal
     {
-      template<typename Mat>
-      Mat Mv(const Model & model,
-             const Data & data,
-             const Eigen::MatrixBase<Mat> & v)
+      template<typename Mat, typename MatRes, int ColsAtCompileTime = Mat::ColsAtCompileTime>
+      struct Mv
       {
-        assert(v.rows() == model.nv);
-
-        const Eigen::MatrixXd & M = data.M;
-        const std::vector<int> & nvt = data.nvSubtree_fromRow;
-        Mat res(model.nv);
-        
-        for(int k=model.nv-1;k>=0;--k)
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & min,
+                        const Eigen::MatrixBase<MatRes> & mout
+                        )
         {
-          res.row(k) = M.row(k).segment(k,nvt[(Model::Index)k]) * v.middleRows(k,nvt[(Model::Index)k]);
-          res.middleRows(k+1,nvt[(Model::Index)k]-1) += M.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
+          MatRes & mout_ = const_cast<Eigen::MatrixBase<MatRes> &>(mout).derived();
+          for(int k = 0; k < min.cols(); ++k)
+            Mv(model,data,min.col(k),mout_.col(k));
         }
-        
-        return res;
-      }
+      };
       
-      template<typename Mat>
-      Mat & UDUtv(const Model & model,
-                  const Data & data,
-                  const Eigen::MatrixBase<Mat> & v)
+      template<typename Mat, typename MatRes>
+      struct Mv<Mat,MatRes,1>
       {
-        Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
-        
-        Utv(model,data,v_);
-        v_.array() *= data.D.array();
-        Uv(model,data,v_);
-        return v_.derived();
-      }
-    } // internal
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & vin,
+                        const Eigen::MatrixBase<MatRes> & vout)
+        {
+          EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
+          EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRes)
+#ifndef NDEBUG
+          assert(model.check(data) && "data is not consistent with model.");
+#endif
+          assert(vin.size() == model.nv);
+          assert(vout.size() == model.nv);
+          MatRes & vout_ = const_cast<Eigen::MatrixBase<MatRes> &>(vout).derived();
+          
+          const Eigen::MatrixXd & M = data.M;
+          const std::vector<int> & nvt = data.nvSubtree_fromRow;
+          
+          for(int k=model.nv-1;k>=0;--k)
+          {
+            vout_[k] = M.row(k).segment(k,nvt[(Model::Index)k]) * vin.segment(k,nvt[(Model::Index)k]);
+            vout_.segment(k+1,nvt[(Model::Index)k]-1) += M.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*vin[k];
+//            res.row(k) = M.row(k).segment(k,nvt[(Model::Index)k]) * v.middleRows(k,nvt[(Model::Index)k]);
+//            res.middleRows(k+1,nvt[(Model::Index)k]-1) += M.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
+          }
+        }
+      };
+      
+    } // namespace internal
+    
+    template<typename Mat, typename MatRes>
+    MatRes & Mv(const Model & model,
+                const Data & data,
+                const Eigen::MatrixBase<Mat> & min,
+                const Eigen::MatrixBase<MatRes> & mout)
+    {
+      MatRes & mout_ = const_cast<Eigen::MatrixBase<MatRes> &>(mout).derived();
+      internal::Mv<Mat,MatRes,Mat::ColsAtCompileTime>::run(model,data,min.derived(),mout_);
+      return mout_.derived();
+    }
     
     template<typename Mat>
-    Mat & Mv(const Model & model,
-             const Data & data,
-             const Eigen::MatrixBase<Mat> & v,
-             const bool usingCholesky)
+    typename EIGEN_PLAIN_TYPE(Mat) Mv(const Model & model,
+                                      const Data & data,
+                                      const Eigen::MatrixBase<Mat> & min)
     {
-#ifndef NDEBUG
-      assert(model.check(data) && "data is not consistent with model.");
-#endif
-      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
-      if(usingCholesky) internal::UDUtv(model,data,v_);
-      else v_ = internal::Mv(model,data,v_);
+      typedef typename EIGEN_PLAIN_TYPE(Mat) ReturnType;
+      ReturnType res(model.nv,min.cols());
+      return Mv(model,data,min,res);
+    }
+    
+//    template<typename Mat>
+//    Mat & Mv(const Model & model,
+//             const Data & data,
+//             const Eigen::MatrixBase<Mat> & v,
+//             const bool usingCholesky)
+//    {
+//#ifndef NDEBUG
+//      assert(model.check(data) && "data is not consistent with model.");
+//#endif
+//      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+//      if(usingCholesky) internal::UDUtv(model,data,v_);
+//      else v_ = internal::Mv(model,data,v_);
+//
+//      return v_.derived();
+//    }
+    
+    namespace internal
+    {
+      template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
+      struct UDUtv
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & m)
+        {
+          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          for(int k = 0; k < m_.cols(); ++k)
+            UDUtv(model,data,m_.col(k));
+        }
+      };
       
-      return v_.derived();
+      template<typename Mat>
+      struct UDUtv<Mat,1>
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & v)
+        {
+          EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
+#ifndef NDEBUG
+          assert(model.check(data) && "data is not consistent with model.");
+#endif
+          assert(v.size() == model.nv);
+          
+          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+
+          cholesky::Utv(model,data,v_);
+          v_.array() *= data.D.array();
+          cholesky::Uv(model,data,v_);
+        }
+      };
+      
+    } // namespace internal
+    
+    template<typename Mat>
+    Mat & UDUtv(const Model & model,
+                const Data & data,
+                const Eigen::MatrixBase<Mat> & m)
+    {
+      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      
+      internal::UDUtv<Mat>::run(model,data,m_);
+      return m_.derived();
     }
-    }
+    
+    namespace internal
+    {
+      template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
+      struct solve
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & m)
+        {
+          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          for(int k = 0; k < m_.cols(); ++k)
+            solve(model,data,m_.col(k));
+        }
+      };
+      
+      template<typename Mat>
+      struct solve<Mat,1>
+      {
+        static void run(const Model & model,
+                        const Data & data,
+                        const Eigen::MatrixBase<Mat> & v)
+        {
+          EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
+#ifndef NDEBUG
+          assert(model.check(data) && "data is not consistent with model.");
+#endif
+          
+          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+          
+          cholesky::Uiv(model,data,v_);
+          v_.array() *= data.Dinv.array();
+          cholesky::Utiv(model,data,v_);
+        }
+      };
+      
+    } // namespace internal
     
     template<typename Mat>
     Mat & solve(const Model & model,
                 const Data & data ,
-                const Eigen::MatrixBase<Mat> & v)
+                const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
-      
-#ifndef NDEBUG
-      assert(model.check(data) && "data is not consistent with model.");
-#endif
-      Uiv(model,data,v_);
-      v_.array() *= data.Dinv.array();
-      Utiv(model,data,v_);
-      return v_.derived();
+      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      internal::solve<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
+      return m_.derived();
     }
 
   } //   namespace cholesky
