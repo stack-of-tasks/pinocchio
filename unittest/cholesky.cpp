@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -28,6 +28,7 @@
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/tools/timer.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include <iostream>
 #ifdef NDEBUG
@@ -48,8 +49,10 @@ BOOST_AUTO_TEST_CASE ( test_cholesky )
   se3::Model model;
   se3::buildModels::humanoidSimple(model,true);
   se3::Data data(model);
-
-  VectorXd q = VectorXd::Zero(model.nq);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
   data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
   crba(model,data,q);
  
@@ -88,9 +91,9 @@ BOOST_AUTO_TEST_CASE ( test_cholesky )
   Eigen::VectorXd Miv = v; se3::cholesky::solve(model,data,Miv);
   BOOST_CHECK(Miv.isApprox(M.inverse()*v, 1e-12));
 
-  Eigen::VectorXd Mv = v; se3::cholesky::Mv(model,data,Mv,true);
+  Eigen::VectorXd Mv = v; Mv = se3::cholesky::Mv(model,data,Mv);
   BOOST_CHECK(Mv.isApprox(M*v, 1e-12));
-  Mv = v;                 se3::cholesky::Mv(model,data,Mv,false);
+  Mv = v;                 se3::cholesky::UDUtv(model,data,Mv);
   BOOST_CHECK(Mv.isApprox(M*v, 1e-12));
 }
 
@@ -111,8 +114,10 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   se3::Model model;
   se3::buildModels::humanoidSimple(model,true);
   se3::Data data(model);
-
-  VectorXd q = VectorXd::Zero(model.nq);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
   data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
   crba(model,data,q);
   
@@ -211,16 +216,15 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	}
       if( flag >> 6 & 1 )
 	{
-	  timer.tic();
-	  SMOOTH(NBT)
-	  {
-	    se3::cholesky::Mv(model,data,randvec[_smooth],true);
-	  }
-	  if(verbose) std::cout << "UDUtv =\t\t";
-	  timer.toc(std::cout,NBT);
+    timer.tic();
+    SMOOTH(NBT)
+    {
+      se3::cholesky::UDUtv(model,data,randvec[_smooth]);
+    }
+    if(verbose) std::cout << "UDUtv =\t\t";
+    timer.toc(std::cout,NBT);
 	}
     }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
