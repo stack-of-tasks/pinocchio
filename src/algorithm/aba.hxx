@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -50,15 +50,9 @@ namespace se3
       data.liMi[i] = model.jointPlacements[i] * jdata.M();
       
       data.v[i] = jdata.v();
-      
       if (parent>0)
-      {
-        data.oMi[i] = data.oMi[parent] * data.liMi[i];
         data.v[i] += data.liMi[i].actInv(data.v[parent]);
-      }
-      else
-        data.oMi[i] = data.liMi[i];
-      
+
       data.a[i] = jdata.c() + (data.v[i] ^ jdata.v());
       
       data.Yaba[i] = model.inertias[i].matrix();
