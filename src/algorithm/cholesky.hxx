@@ -512,7 +512,7 @@ namespace se3
       Mat & Minv_ = const_cast<Eigen::MatrixBase<Mat> &>(Minv).derived();
       
       for(int k = 0; k < model.nv; ++k)
-        Miunit(model,data,k,Minv_.col(k));
+        internal::Miunit(model,data,k,Minv_.col(k));
       
       return Minv_;
     }
