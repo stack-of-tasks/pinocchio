@@ -42,6 +42,10 @@ ENDMACRO(ADD_TEST_CFLAGS)
 # 
 ADD_BENCH(timings TRUE)
 
+# timings
+# 
+ADD_BENCH(timings-cholesky TRUE)
+
 # timings derivatives
 # 
 ADD_BENCH(timings-derivatives TRUE)
