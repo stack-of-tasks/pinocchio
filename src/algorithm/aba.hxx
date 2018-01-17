@@ -86,8 +86,7 @@ namespace se3
       
       jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose()*data.f[i];
       jmodel.calc_aba(jdata.derived(), Ia, parent > 0);
-      jmodel.jointVelocitySelector(data.ddq).noalias() = jdata.Dinv() * jmodel.jointVelocitySelector(data.u);
-      
+
       if (parent > 0)
       {
         Force & pa = data.f[i];
@@ -186,7 +185,8 @@ namespace se3
       const Model::Index & parent = model.parents[i];
       
       data.a[i] += data.liMi[i].actInv(data.a[parent]);
-      jmodel.jointVelocitySelector(data.ddq) -= jdata.UDinv().transpose() * data.a[i].toVector();
+      jmodel.jointVelocitySelector(data.ddq).noalias() =
+      jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.a[i].toVector();
       
       data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
     }
