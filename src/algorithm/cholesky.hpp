@@ -180,7 +180,21 @@ namespace se3
     Mat & solve(const Model & model,
                 const Data & data ,
                 const Eigen::MatrixBase<Mat> & v);
-
+    
+    ///
+    /// \brief PComputes the inverse of the joint inertia matrix M from its Cholesky factorization.
+    ///
+    /// \param[in] model The model structure of the rigid body system.
+    /// \param[in] data The data structure of the rigid body system.
+    /// \param[out] Minv The output matrix where the result is stored.
+    ///
+    /// \return A reference to the result.
+    ///
+    template<typename Mat>
+    Mat & computeMinv(const Model & model,
+                      const Data & data,
+                      const Eigen::MatrixBase<Mat> & Minv);
+    
   } // namespace cholesky  
 } // namespace se3 
 

@@ -82,7 +82,7 @@ namespace se3
         {
           Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
           for(int k = 0; k < m_.cols(); ++k)
-            Uv(model,data,m_.col(k));
+            cholesky::Uv(model,data,m_.col(k));
         }
       };
       
@@ -133,7 +133,7 @@ namespace se3
         {
           Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
           for(int k = 0; k < m_.cols(); ++k)
-            Utv(model,data,m_.col(k));
+            cholesky::Utv(model,data,m_.col(k));
         }
       };
       
@@ -184,7 +184,7 @@ namespace se3
         {
           Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
           for(int k = 0; k < m_.cols(); ++k)
-            Uiv(model,data,m_.col(k));
+            cholesky::Uiv(model,data,m_.col(k));
         }
       };
       
@@ -236,7 +236,7 @@ namespace se3
         {
           Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
           for(int k = 0; k < m_.cols(); ++k)
-            Utiv(model,data,m_.col(k));
+            cholesky::Utiv(model,data,m_.col(k));
         }
       };
       
@@ -288,7 +288,7 @@ namespace se3
         {
           MatRes & mout_ = const_cast<Eigen::MatrixBase<MatRes> &>(mout).derived();
           for(int k = 0; k < min.cols(); ++k)
-            Mv(model,data,min.col(k),mout_.col(k));
+            cholesky::Mv(model,data,min.col(k),mout_.col(k));
         }
       };
       
@@ -372,7 +372,7 @@ namespace se3
         {
           Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
           for(int k = 0; k < m_.cols(); ++k)
-            UDUtv(model,data,m_.col(k));
+            cholesky::UDUtv(model,data,m_.col(k));
         }
       };
       
@@ -421,7 +421,7 @@ namespace se3
         {
           Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
           for(int k = 0; k < m_.cols(); ++k)
-            solve(model,data,m_.col(k));
+            cholesky::solve(model,data,m_.col(k));
         }
       };
       
@@ -455,6 +455,66 @@ namespace se3
       Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
       internal::solve<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
       return m_.derived();
+    }
+    
+    namespace internal
+    {
+      template<typename Mat>
+      Mat & Miunit(const Model & model,
+                   const Data & data,
+                   const int col,
+                   const Eigen::MatrixBase<Mat> & v)
+      {
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+        
+#ifndef NDEBUG
+        assert(model.check(data) && "data is not consistent with model.");
+#endif
+        assert(col < model.nv);
+        assert(v.rows() == model.nv);
+        
+        const Eigen::MatrixXd & U = data.U;
+        const std::vector<int> & nvt = data.nvSubtree_fromRow;
+        Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+        
+        const int last_col = std::min(col-1,model.nv-2); // You can start from nv-2 (no child in nv-1)
+        v_[col] = 1.;
+        for( int k=last_col;k>=0;--k )
+        {
+          int nvt_max = std::min(col,nvt[(Model::Index)k]-1);
+          v_[k] -= U.row(k).segment(k+1,nvt_max).dot(v_.segment(k+1,nvt_max));
+        }
+        
+        v_.head(col+1).array() *= data.Dinv.head(col+1).array();
+        
+        for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv.
+        {
+          int nvt_max = nvt[(Model::Index)k]-1;
+          v_.segment(k+1,nvt_max) -= U.row(k).segment(k+1,nvt_max).transpose() * v_[k];
+        }
+        
+        return v_.derived();
+      }
+    }// namespace internal
+    
+    template<typename Mat>
+    Mat & computeMinv(const Model & model,
+                      const Data & data,
+                      const Eigen::MatrixBase<Mat> & Minv)
+    {
+      assert(Minv.rows() == model.nv);
+      assert(Minv.cols() == model.nv);
+      
+#ifndef NDEBUG
+      assert(model.check(data) && "data is not consistent with model.");
+#endif
+      
+      Mat & Minv_ = const_cast<Eigen::MatrixBase<Mat> &>(Minv).derived();
+      
+      for(int k = 0; k < model.nv; ++k)
+        Miunit(model,data,k,Minv_.col(k));
+      
+      return Minv_;
     }
 
   } //   namespace cholesky

@@ -226,5 +226,55 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	}
     }
 }
+  
+  BOOST_AUTO_TEST_CASE(test_Minv_from_cholesky)
+  {
+    using namespace Eigen;
+    using namespace se3;
+    
+    se3::Model model;
+    se3::buildModels::humanoidSimple(model,true);
+    se3::Data data(model);
+    
+    model.lowerPositionLimit.head<3>().fill(-1.);
+    model.upperPositionLimit.head<3>().fill(1.);
+    VectorXd q = randomConfiguration(model);
+    crba(model,data,q);
+    data.M.triangularView<Eigen::StrictlyLower>() =
+    data.M.triangularView<Eigen::StrictlyUpper>().transpose();
+    MatrixXd Minv_ref(data.M.inverse());
+    
+    cholesky::decompose(model,data);
+    VectorXd v_unit(VectorXd::Unit(model.nv,0));
+
+    VectorXd Ui_v_unit(model.nv);
+    VectorXd Ui_v_unit_ref(model.nv);
+    
+    for(int k = 0; k < model.nv; ++k)
+    {
+      v_unit = VectorXd::Unit(model.nv,k);
+      Ui_v_unit.setZero();
+      cholesky::Miunit(model,data,k,Ui_v_unit);
+      Ui_v_unit_ref = v_unit;
+      cholesky::Uiv(model,data,Ui_v_unit_ref);
+      Ui_v_unit_ref.array() *= data.Dinv.array();
+      cholesky::Utiv(model,data,Ui_v_unit_ref);
+
+      BOOST_CHECK(Ui_v_unit.isApprox(Ui_v_unit_ref));
+      
+      Ui_v_unit_ref = v_unit;
+      cholesky::solve(model,data,Ui_v_unit_ref);
+      BOOST_CHECK(Ui_v_unit.isApprox(Ui_v_unit_ref));
+      
+//      std::cout << "Ui_v_unit : " << Ui_v_unit.transpose() << std::endl;
+//      std::cout << "Ui_v_unit_ref : " << Ui_v_unit_ref.transpose() << std::endl << std::endl;;
+    }
+    
+    MatrixXd Minv(model.nv,model.nv);
+    Minv.setZero();
+    cholesky::computeMinv(model,data,Minv);
+    
+    BOOST_CHECK(Minv.isApprox(Minv_ref));
+  }
 
 BOOST_AUTO_TEST_SUITE_END ()
