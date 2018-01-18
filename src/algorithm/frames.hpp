@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -47,12 +47,15 @@ namespace se3
                                       const Eigen::VectorXd & q);
 
   /**
-   * @brief      Returns the jacobian of the frame expresssed in the local frame depending on the template argument.
-   *             You must first call se3::computeJacobians followad by se3::framesForwardKinematics to update placement values in data structure.
+   * @brief      Returns the jacobian of the frame expresssed either expressed in the LOCAL frame coordinate system or in the WORLD coordinate system,
+   *             depending on the value of the template parameter rf.
+   *             You must first call se3::computeJacobians followed by se3::framesForwardKinematics to update placement values in data structure.
+   *
+   * @tparam     rf Reference frame in which the columns of the Jacobian are expressed.
    
-   * @remark     Compared to se3::getJacobian with LOCAL or WORLD templated parameters, this function only returns the Jacobian of the frame expressed
-   *             in the local coordinates of Frame. Indeed, evaluated at the origin of the world, this function would return the same Jacobian as
-   *             se3::getJacobian<se3::WORLD>(model,data,frame.parent,J).
+   * @remark     Similarly to se3::getJacobian with LOCAL or WORLD templated parameters, if rf == LOCAL, this function returns the Jacobian of the frame expressed
+   *             in the local coordinates of the frame, or if rl == WORDL, it returns the Jacobian expressed of the point coincident with the origin
+   *             and expressed in a coordinate system aligned with the WORLD.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
@@ -61,8 +64,26 @@ namespace se3
    *
    * @warning    The function se3::computeJacobians and se3::framesForwardKinematics should have been called first.
    */
+  template<ReferenceFrame rf>
+  void getFrameJacobian(const Model & model,
+                        const Data & data,
+                        const Model::FrameIndex frame_id,
+                        Data::Matrix6x & J);
+  
+  /**
+   * @brief      Returns the jacobian of the frame expresssed the LOCAL frame coordinate system.
+   *             You must first call se3::computeJacobians followed by se3::framesForwardKinematics to update placement values in data structure.
+   *
+   * @param[in]  model       The kinematic model
+   * @param[in]  data        Data associated to model
+   * @param[in]  frame_id    Id of the operational Frame
+   * @param[out] J           The Jacobian of the Frame expressed in the coordinates Frame.
+   *
+   * @warning    The function se3::computeJacobians and se3::framesForwardKinematics should have been called first.
+   */
+   
   inline void getFrameJacobian(const Model & model,
-                               const Data& data,
+                               const Data & data,
                                const Model::FrameIndex frame_id,
                                Data::Matrix6x & J);
  

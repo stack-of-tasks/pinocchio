@@ -88,6 +88,11 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   BOOST_CHECK(Jjj_from_frame.isApprox(Jjj));
   
   BOOST_CHECK(nu_frame.isApprox(frame.placement.actInv(nu_joint), 1e-12));
+  
+  // In world frame
+  getFrameJacobian<WORLD>(model,data,idx,Jff);
+  getJacobian<WORLD>(model, data_ref, parent_idx, Jjj);
+  BOOST_CHECK(Jff.isApprox(Jjj));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
