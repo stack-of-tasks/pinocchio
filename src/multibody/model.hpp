@@ -505,6 +505,9 @@ namespace se3
     /// \brief Lagrange Multipliers corresponding to the contact impulses in se3::impulseDynamics.
     Eigen::VectorXd impulse_c;
     
+    // data related to regressor
+    Matrix3x staticRegressor;
+    
     ///
     /// \brief Default constructor of se3::Data from a se3::Model.
     ///

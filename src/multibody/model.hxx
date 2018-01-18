@@ -268,6 +268,7 @@ namespace se3
     ,torque_residual(model.nv)
     ,dq_after(model.nv)
     ,impulse_c()
+    ,staticRegressor(3,4*(model.njoints-1))
   {
     /* Create data strcture associated to the joints */
     for(Model::Index i=0;i<(Model::JointIndex)(model.njoints);++i) 

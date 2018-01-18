@@ -135,3 +135,4 @@ ADD_UNIT_TEST(algo-check eigen3)
 ADD_UNIT_TEST(joint-composite eigen3)
 
 ADD_UNIT_TEST(liegroups eigen3)
+ADD_UNIT_TEST(regressor eigen3)
