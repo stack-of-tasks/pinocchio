@@ -224,6 +224,8 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
 SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/aba.hpp
   algorithm/aba.hxx
+  algorithm/aba-derivatives.hpp
+  algorithm/aba-derivatives.hxx
   algorithm/rnea.hpp
   algorithm/rnea.hxx
   algorithm/rnea-derivatives.hpp

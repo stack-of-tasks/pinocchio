@@ -140,3 +140,4 @@ ADD_UNIT_TEST(regressor eigen3)
 # Derivatives algo
 ADD_UNIT_TEST(kinematics-derivatives eigen3)
 ADD_UNIT_TEST(rnea-derivatives eigen3)
+ADD_UNIT_TEST(aba-derivatives eigen3)
