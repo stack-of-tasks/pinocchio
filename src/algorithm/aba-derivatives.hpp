@@ -43,7 +43,7 @@ namespace se3
                                     const Eigen::VectorXd & tau,
                                     Eigen::MatrixXd & aba_partial_dq,
                                     Eigen::MatrixXd & aba_partial_dv,
-                                    Eigen::MatrixXd & aba_partial_dtau);
+                                    Data::RowMatrixXd & aba_partial_dtau);
   
 
 } // namespace se3

@@ -20,7 +20,7 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
-#include "pinocchio/algorithm/aba.hxx"
+#include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hxx"
 
 namespace se3
