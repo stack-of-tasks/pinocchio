@@ -252,10 +252,14 @@ namespace se3
     ,Ycrb((std::size_t)model.njoints)
     ,dYcrb((std::size_t)model.njoints)
     ,M(model.nv,model.nv)
+    ,Minv(model.nv,model.nv)
     ,C(model.nv,model.nv)
     ,dFdq(6,model.nv)
     ,dFdv(6,model.nv)
     ,dFda(6,model.nv)
+    ,SDinv(6,model.nv)
+    ,UDinv(6,model.nv)
+    ,IS(6,model.nv)
     ,vxI((std::size_t)model.njoints)
     ,Ivx((std::size_t)model.njoints)
     ,oYcrb((std::size_t)model.njoints)
@@ -301,7 +305,7 @@ namespace se3
       joints.push_back(CreateJointData::run(model.joints[i]));
 
     /* Init for CRBA */
-    M.fill(0);
+    M.fill(0); Minv.setZero();
     for(Model::Index i=0;i<(Model::Index)(model.njoints);++i ) { Fcrb[i].resize(6,model.nv); }
     computeLastChild(model);
 

@@ -360,6 +360,8 @@ namespace se3
     typedef SE3::Vector3 Vector3;
     
     typedef Eigen::Matrix<double,6,6,Eigen::RowMajor> RowMatrix6;
+    typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> RowMatrixXd;
+    
     /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.
     JointDataVector joints;
@@ -425,6 +427,9 @@ namespace se3
     /// \brief The joint space inertia matrix (a square matrix of dim model.nv).
     Eigen::MatrixXd M;
     
+    /// \brief The inverse of the joint space inertia matrix (a square matrix of dim model.nv).
+    RowMatrixXd Minv;
+    
     /// \brief The Coriolis matrix (a square matrix of dim model.nv).
     Eigen::MatrixXd C;
     
@@ -436,6 +441,15 @@ namespace se3
     
     /// \brief Variation of the forceset with respect to the joint acceleration.
     Matrix6x dFda;
+
+    /// \brief Used in computeMinverse
+    Matrix6x SDinv;
+
+    /// \brief Used in computeMinverse
+    Matrix6x UDinv;
+
+    /// \brief Used in computeMinverse
+    Matrix6x IS;
 
     /// \brief Right variation of the inertia matrix
     container::aligned_vector<Inertia::Matrix6> vxI;

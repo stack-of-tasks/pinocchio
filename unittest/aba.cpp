@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -22,6 +22,7 @@
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
@@ -124,6 +125,46 @@ BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
   
   
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
+  
+}
+
+BOOST_AUTO_TEST_CASE ( test_computeMinverse )
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  se3::Model model;
+  buildModels::humanoidSimple(model);
+  model.gravity.setZero();
+  
+  se3::Data data(model);
+  se3::Data data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = VectorXd::Random(model.nv);
+
+  crba(model, data_ref, q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>()
+  = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  MatrixXd Minv_ref(data_ref.M.inverse());
+
+  computeMinverse(model, data, q);
+
+  
+  BOOST_CHECK(data.Minv.topRows<6>().isApprox(Minv_ref.topRows<6>()));
+  
+  data.Minv.triangularView<Eigen::StrictlyLower>()
+  = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  BOOST_CHECK(data.Minv.isApprox(Minv_ref));
+  
+//  std::cout << "Minv:\n" << data.Minv.block<10,10>(0,0) << std::endl;
+//  std::cout << "Minv_ref:\n" << Minv_ref.block<10,10>(0,0) << std::endl;
+//
+//  std::cout << "Minv:\n" << data.Minv.bottomRows<10>() << std::endl;
+//  std::cout << "Minv_ref:\n" << Minv_ref.bottomRows<10>() << std::endl;
   
 }
 BOOST_AUTO_TEST_SUITE_END ()
