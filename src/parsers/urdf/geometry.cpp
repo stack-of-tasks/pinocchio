@@ -210,18 +210,18 @@ namespace se3
       * @return Either the first collision or visual
       */
       template<typename T>
-      inline const URDF_SHARED_PTR(T)
+      inline URDF_SHARED_PTR(const T)
       getLinkGeometry(const ::urdf::LinkConstSharedPtr link);
 
       template<>
-      inline const ::urdf::CollisionSharedPtr
+      inline ::urdf::CollisionConstSharedPtr
       getLinkGeometry< ::urdf::Collision>(const ::urdf::LinkConstSharedPtr link)
       {
         return link->collision;
       }
 
       template<>
-      inline const ::urdf::VisualSharedPtr
+      inline ::urdf::VisualConstSharedPtr
       getLinkGeometry< ::urdf::Visual>(const ::urdf::LinkConstSharedPtr link)
       {
         return link->visual;
