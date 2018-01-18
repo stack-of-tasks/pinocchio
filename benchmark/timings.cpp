@@ -202,6 +202,13 @@ int main(int argc, const char ** argv)
     computeCoriolisMatrix(model,data,qs[_smooth],qdots[_smooth]);
   }
   std::cout << "Coriolis Matrix = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    computeMinverse(model,data,qs[_smooth]);
+  }
+  std::cout << "Minv = \t"; timer.toc(std::cout,NBT);
 
   std::cout << "--" << std::endl;
   return 0;

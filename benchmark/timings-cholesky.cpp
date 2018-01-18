@@ -20,6 +20,7 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
@@ -68,11 +69,11 @@ int main(int argc, const char ** argv)
   std::vector<VectorXd> lhs  (NBT);
   std::vector<VectorXd> rhs (NBT);
   for(size_t i=0;i<NBT;++i)
-    {
-      qs[i]     = Eigen::VectorXd::Random(model.nq);
-      lhs[i] = Eigen::VectorXd::Zero(model.nv);
-      rhs[i] = Eigen::VectorXd::Random(model.nv);
-    }
+  {
+    qs[i] = Eigen::VectorXd::Random(model.nq);
+    lhs[i] = Eigen::VectorXd::Zero(model.nv);
+    rhs[i] = Eigen::VectorXd::Random(model.nv);
+  }
   
   double total = 0;
   SMOOTH(NBT)
@@ -95,7 +96,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    cholesky::Mv(model,data,rhs[_smooth],true);
+    cholesky::UDUtv(model,data,rhs[_smooth]);
   }
   std::cout << "UDUtv = \t\t"; timer.toc(std::cout,NBT);
   
@@ -127,6 +128,22 @@ int main(int argc, const char ** argv)
     A.noalias() = Minv*B;
   }
   std::cout << "A = Minv*B = \t\t"; timer.toc(std::cout,NBT);
+  
+  data.M.triangularView<Eigen::StrictlyLower>()
+  = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    A.noalias() = data.M.inverse();
+  }
+  std::cout << "M.inverse() = \t\t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    computeMinverse(model,data,qs[_smooth]);
+  }
+  std::cout << "M.inverse() = \t\t"; timer.toc(std::cout,NBT);
   
   return 0;
 }
