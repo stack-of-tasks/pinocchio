@@ -314,14 +314,11 @@ namespace se3
       Data::RowMatrixXd & Minv = data.Minv;
       Data::Matrix6x & Fcrb = data.Fcrb[0];
       Data::Matrix6x & FcrbTmp = data.Fcrb.back();
-      Data::RowMatrix6 & M6tmpR = data.M6tmpR;
-      
+
       jmodel.calc_aba(jdata.derived(), Ia, parent > 0);
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::RowMatrix6>::Type RowColsBlock;
-      
-//      RowColsBlock U_cols = M6tmpR.leftCols<JointModel::NV>(jmodel.nv());
+
       ColsBlock U_cols = jmodel.jointCols(data.IS);
       forceSet::se3Action(data.oMi[i],jdata.U(),U_cols); // expressed in the world frame
 
@@ -341,8 +338,6 @@ namespace se3
           FcrbTmp.leftCols(data.nvSubtree[i]).noalias()
           = U_cols * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
           Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]) += FcrbTmp.leftCols(data.nvSubtree[i]);
-//          Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i])
-//          += U_cols * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
         }
       }
       else
@@ -373,7 +368,6 @@ namespace se3
       const Model::JointIndex & i = jmodel.id();
       const Model::Index & parent = model.parents[i];
       Data::RowMatrixXd & Minv = data.Minv;
-      Data::Matrix6x & Fcrb = data.Fcrb[0];
       Data::Matrix6x & FcrbTmp = data.Fcrb.back();
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
@@ -387,8 +381,6 @@ namespace se3
         = UDinv_cols.transpose() * data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
         Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v())
         -= FcrbTmp.topRows(jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
-//        Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v())
-//        -= UDinv_cols.transpose() * data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
       }
       
       data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()).noalias() = J_cols * Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
