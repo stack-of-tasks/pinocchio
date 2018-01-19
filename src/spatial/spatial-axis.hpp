@@ -30,7 +30,7 @@ namespace se3
   struct SpatialAxis //: MotionBase< SpatialAxis<_axis> >
   {
     enum { axis = _axis, dim = 6 };
-    typedef CartesianAxis<_axis%3> CartesianAxis;
+    typedef CartesianAxis<_axis%3> CartesianAxis3;
     
     template<typename Derived1, typename Derived2>
     inline static void cross(const MotionDense<Derived1> & min,
@@ -77,12 +77,12 @@ namespace se3
     if(axis<3)
     {
       mout_.angular().setZero();
-      CartesianAxis::cross(min.angular(),mout_.linear());
+      CartesianAxis3::cross(min.angular(),mout_.linear());
     }
     else
     {
-      CartesianAxis::cross(min.linear(),mout_.linear());
-      CartesianAxis::cross(min.angular(),mout_.angular());
+      CartesianAxis3::cross(min.linear(),mout_.linear());
+      CartesianAxis3::cross(min.angular(),mout_.angular());
     }
   }
   
@@ -95,12 +95,12 @@ namespace se3
     if(axis<3)
     {
       fout_.linear().setZero();
-      CartesianAxis::cross(fin.linear(),fout_.angular());
+      CartesianAxis3::cross(fin.linear(),fout_.angular());
     }
     else
     {
-      CartesianAxis::cross(fin.linear(),fout_.linear());
-      CartesianAxis::cross(fin.angular(),fout_.angular());
+      CartesianAxis3::cross(fin.linear(),fout_.linear());
+      CartesianAxis3::cross(fin.angular(),fout_.angular());
     }
   }
   
