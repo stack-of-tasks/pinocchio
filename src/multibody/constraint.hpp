@@ -193,14 +193,23 @@ namespace se3
     }
 
     template<typename S2,int O2>
-    friend Eigen::Matrix<_Scalar,6,_Dim>
+    friend typename ConstraintTpl<_Dim,_Scalar,_Options>::DenseBase
     operator*(const InertiaTpl<S2,O2> & Y, const ConstraintTpl<_Dim,_Scalar,_Options> & S)
-    { return (Y.matrix()*S.S).eval(); }
+    {
+      typedef typename ConstraintTpl<_Dim,_Scalar,_Options>::DenseBase ReturnType;
+      ReturnType res(6,S.nv());
+      motionSet::inertiaAction(Y,S.S,res);
+      return res;
+    }
     
     template<typename S2,int O2>
     friend Eigen::Matrix<_Scalar,6,_Dim>
     operator*(const Eigen::Matrix<S2,6,6,O2> & Ymatrix, const ConstraintTpl<_Dim,_Scalar,_Options> & S)
-    { return (Ymatrix*S.S).eval(); }
+    {
+      typedef Eigen::Matrix<_Scalar,6,_Dim> ReturnType;
+      return ReturnType(Ymatrix*S.matrix());
+      
+    }
 
     
     DenseBase se3Action(const SE3 & m) const
