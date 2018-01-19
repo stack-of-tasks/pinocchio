@@ -132,7 +132,7 @@ namespace se3
 
   public:
     template<typename D>
-    ConstraintTpl(const Eigen::MatrixBase<D> & _S) : S(_S)
+    explicit ConstraintTpl(const Eigen::MatrixBase<D> & _S) : S(_S)
     {
       // There is currently a bug in Eigen/Core/util/StaticAssert.h in the use of the full namespace path
       // TODO
@@ -148,7 +148,7 @@ namespace se3
     }
     
     // It is only valid for dynamics size
-    ConstraintTpl(const int dim) : S(6,dim)
+    explicit ConstraintTpl(const int dim) : S(6,dim)
     {
       EIGEN_STATIC_ASSERT(_Dim==Eigen::Dynamic,YOU_CALLED_A_FIXED_SIZE_METHOD_ON_A_DYNAMIC_SIZE_MATRIX_OR_VECTOR)
 #ifndef NDEBUG
