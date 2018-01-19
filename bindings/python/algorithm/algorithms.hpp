@@ -39,6 +39,7 @@ namespace se3
     void exposeCAT();
     void exposeJacobian();
     void exposeGeometryAlgo();
+    void exposeRegressor();
 
     void exposeAlgorithms();
     

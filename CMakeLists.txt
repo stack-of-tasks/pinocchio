@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017 CNRS
+# Copyright (c) 2015-2018 CNRS
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 # This file is part of Pinocchio
@@ -253,6 +253,8 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/check.hpp
   algorithm/check.hxx
   algorithm/default-check.hpp
+  algorithm/regressor.hpp
+  algorithm/regressor.hxx
   )
 
 SET(${PROJECT_NAME}_CONTAINER_HEADERS

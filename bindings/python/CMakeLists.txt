@@ -1,5 +1,5 @@
 # 
-# Copyright (c) 2015-2017 CNRS
+# Copyright (c) 2015-2018 CNRS
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 # 
 # This file is part of Pinocchio
@@ -94,6 +94,7 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   algorithm/expose-frames.cpp
   algorithm/expose-cat.cpp
   algorithm/expose-geometry.cpp
+  algorithm/expose-regressor.cpp
   parsers/expose-parsers.cpp
   )
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,27 +16,25 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
+#include "pinocchio/algorithm/regressor.hpp"
 
 namespace se3
 {
   namespace python
   {
     
-    void exposeAlgorithms()
+    void exposeRegressor()
     {
-      exposeJointsAlgo();
-      exposeABA();
-      exposeCRBA();
-      exposeRNEA();
-      exposeCOM();
-      exposeFramesAlgo();
-      exposeEnergy();
-      exposeKinematics();
-      exposeDynamics();
-      exposeCAT();
-      exposeJacobian();
-      exposeGeometryAlgo();
-      exposeRegressor();
+      using namespace Eigen;
+
+      bp::def("computeStaticRegressor",
+              (const Data::Matrix3x & (*)(const Model &, Data &, const VectorXd &))&regressor::computeStaticRegressor,
+              bp::args("Model","Data",
+                       "Configuration q (size Model::nq)"),
+              "Compute the static regressor that links the inertia parameters of the system to its center of mass position\n"
+              ",put the result in Data and return it.",
+              bp::return_value_policy<bp::return_by_value>());
+      
     }
     
   } // namespace python
