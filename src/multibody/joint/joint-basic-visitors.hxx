@@ -488,7 +488,8 @@ namespace se3
   public:
     template <typename D>
     ConstraintXd operator()(const JointDataBase<D> & jdata) const
-    { return ConstraintXd(jdata.S()); }
+    {
+      return ConstraintXd(jdata.S().matrix()); }
     
     static ConstraintXd run( const JointDataVariant & jdata)
     { return boost::apply_visitor( JointConstraintVisitor (), jdata ); }

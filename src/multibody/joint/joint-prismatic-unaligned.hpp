@@ -107,6 +107,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar,1,1,0> JointMotion;
     typedef Eigen::Matrix<Scalar,1,1,0> JointForce;
     typedef Eigen::Matrix<Scalar,6,1> DenseBase;
+    typedef DenseBase MatrixReturnType;
+    typedef const DenseBase ConstMatrixReturnType;
   }; // traits ConstraintPrismaticUnaligned
 
     struct ConstraintPrismaticUnaligned : ConstraintBase <ConstraintPrismaticUnaligned>
@@ -193,11 +195,11 @@ namespace se3
        *   - MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
        *   - SE3::act(ForceSet::Block)
        */
-      operator ConstraintXd () const
+      DenseBase matrix_impl() const
       {
-        Vector6 S;
+        DenseBase S;
       	S << axis, Vector3::Zero();
-      	return ConstraintXd(S);
+      	return S;
       }
       
       DenseBase motionAction(const Motion & m) const

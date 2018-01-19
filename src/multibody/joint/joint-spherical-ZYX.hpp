@@ -128,7 +128,41 @@ namespace se3
   }
   
   template <typename _Scalar, int _Options>
-  struct ConstraintRotationalSubspaceTpl
+  struct ConstraintRotationalSubspaceTpl;
+  template <typename _Scalar, int _Options>
+  struct traits < struct ConstraintRotationalSubspaceTpl<_Scalar,_Options> >
+  {
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,4,1,Options> Vector4;
+    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
+    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
+    typedef Eigen::Matrix<Scalar,4,4,Options> Matrix4;
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
+    typedef Matrix3 Angular_t;
+    typedef Vector3 Linear_t;
+    typedef const Matrix3 ConstAngular_t;
+    typedef const Vector3 ConstLinear_t;
+    typedef Matrix6 ActionMatrix_t;
+    typedef Eigen::Quaternion<Scalar,Options> Quaternion_t;
+    typedef SE3Tpl<Scalar,Options> SE3;
+    typedef ForceTpl<Scalar,Options> Force;
+    typedef MotionTpl<Scalar,Options> Motion;
+    typedef Symmetric3Tpl<Scalar,Options> Symmetric3;
+    enum {
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+    typedef Eigen::Matrix<Scalar,3,1,Options> JointMotion;
+    typedef Eigen::Matrix<Scalar,3,1,Options> JointForce;
+    typedef Eigen::Matrix<Scalar,6,3,Options> DenseBase;
+    typedef DenseBase MatrixReturnType;
+    typedef const DenseBase ConstMatrixReturnType;
+  }; // struct traits struct ConstraintRotationalSubspace
+  
+  template <typename _Scalar, int _Options>
+  struct ConstraintRotationalSubspaceTpl : public ConstraintBase< ConstraintRotationalSubspaceTpl<_Scalar,_Options> >
   {
     enum { NV = 3, Options = _Options };
     typedef _Scalar Scalar;
@@ -148,9 +182,6 @@ namespace se3
     
     Matrix3 & operator() () { return S_minimal; }
     const Matrix3 & operator() () const { return S_minimal; }
-    
-    Matrix3 & matrix () { return S_minimal; }
-    const Matrix3 & matrix () const { return S_minimal; }
     
     int nv_impl() const { return NV; }
     
@@ -199,12 +230,12 @@ namespace se3
     
     ConstraintTranspose transpose () const { return ConstraintTranspose(*this); }
     
-    operator ConstraintXd () const
+    DenseBase matrix_impl() const
     {
       ConstraintDense S;
       (S.template block <3,3> (Inertia::LINEAR, 0)).setZero ();
       S.template block <3,3> (Inertia::ANGULAR, 0) = S_minimal;
-      return ConstraintXd(S);
+      return S;
     }
     
     //      const typename Eigen::ProductReturnType<
@@ -294,7 +325,7 @@ namespace se3
     M.template bottomRows<3> () =  (Y.inertia () -
        typename Symmetric3::AlphaSkewSquare(Y.mass (), Y.lever ())).matrix();
 
-    return (M * S.matrix ()).eval();
+    return (M * S.S_minimal).eval();
   }
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
@@ -428,7 +459,7 @@ namespace se3
                 c1 * s2,
                 c1 * c2;
 
-      data.S.matrix () <<  -s1, 0., 1., c1 * s2, c2, 0, c1 * c2, -s2, 0;
+      data.S.S_minimal <<  -s1, 0., 1., c1 * s2, c2, 0, c1 * c2, -s2, 0;
     }
 
     void calc (JointDataDerived & data,
@@ -453,9 +484,9 @@ namespace se3
                 c1 * c2;
 
 
-      data.S.matrix () <<  -s1, 0., 1., c1 * s2, c2, 0, c1 * c2, -s2, 0;
+      data.S.S_minimal <<  -s1, 0., 1., c1 * s2, c2, 0, c1 * c2, -s2, 0;
 
-      data.v () = data.S.matrix () * q_dot;
+      data.v () = data.S.S_minimal * q_dot;
 
       data.c ()(0) = -c1 * q_dot (0) * q_dot (1);
       data.c ()(1) = -s1 * s2 * q_dot (0) * q_dot (1) + c1 * c2 * q_dot (0) * q_dot (2) - s2 * q_dot (1) * q_dot (2);
@@ -464,8 +495,8 @@ namespace se3
     
     void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
-      data.U = I.middleCols<3> (Inertia::ANGULAR) * data.S.matrix();
-      Inertia::Matrix3 tmp (data.S.matrix().transpose() * data.U.middleRows<3> (Inertia::ANGULAR));
+      data.U = I.middleCols<3> (Inertia::ANGULAR) * data.S.S_minimal;
+      Inertia::Matrix3 tmp (data.S.S_minimal.transpose() * data.U.middleRows<3> (Inertia::ANGULAR));
       data.Dinv = tmp.inverse();
       data.UDinv.noalias() = data.U * data.Dinv;
       

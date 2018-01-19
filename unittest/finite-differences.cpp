@@ -92,7 +92,7 @@ struct FiniteDiffJoint
     TV v(jmodel.nv()); v.setZero();
     double eps = 1e-4;
     
-    Eigen::Matrix<double,6,JointModel::NV> S(6,jmodel.nv()), S_ref(ConstraintXd(jdata.S).matrix());
+    Eigen::Matrix<double,6,JointModel::NV> S(6,jmodel.nv()), S_ref(jdata.S.matrix());
     
     eps = jmodel.finiteDifferenceIncrement();
     for(int k=0;k<jmodel.nv();++k)
@@ -109,6 +109,9 @@ struct FiniteDiffJoint
     }
     
     BOOST_CHECK(S.isApprox(S_ref,eps*1e1));
+    std::cout << "name: " << jmodel.classname() << std::endl;
+    std::cout << "S_ref:\n" << S_ref << std::endl;
+    std::cout << "S:\n" << S << std::endl;
   }
 };
 

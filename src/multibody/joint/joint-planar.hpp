@@ -122,6 +122,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar,3,1,0> JointMotion;
     typedef Eigen::Matrix<Scalar,3,1,0> JointForce;
     typedef Eigen::Matrix<Scalar,6,3> DenseBase;
+    typedef DenseBase MatrixReturnType;
+    typedef const DenseBase ConstMatrixReturnType;
   }; // struct traits ConstraintPlanar
 
 
@@ -169,15 +171,15 @@ namespace se3
 
     ConstraintTranspose transpose () const { return ConstraintTranspose(*this); }
 
-    operator ConstraintXd () const
+    DenseBase matrix_impl() const
     {
-      Eigen::Matrix<Scalar,6,3> S;
+      DenseBase S;
       S.block <3,3> (Inertia::LINEAR, 0).setZero ();
       S.block <3,3> (Inertia::ANGULAR, 0).setZero ();
       S(Inertia::LINEAR + 0,0) = 1.;
       S(Inertia::LINEAR + 1,1) = 1.;
       S(Inertia::ANGULAR + 2,2) = 1.;
-      return ConstraintXd(S);
+      return S;
     }
 
     Eigen::Matrix <Scalar,6,3> se3Action (const SE3 & m) const

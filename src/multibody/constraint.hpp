@@ -42,6 +42,8 @@ namespace se3
     typedef typename traits<Derived>::JointMotion JointMotion;
     typedef typename traits<Derived>::JointForce JointForce;
     typedef typename traits<Derived>::DenseBase DenseBase;
+    typedef typename traits<Derived>::MatrixReturnType MatrixReturnType;
+    typedef typename traits<Derived>::ConstMatrixReturnType ConstMatrixReturnType;
 
   public:
     Derived & derived() { return *static_cast<Derived*>(this); }
@@ -49,8 +51,9 @@ namespace se3
 
     Motion operator* (const JointMotion& vj) const { return derived().__mult__(vj); }
 
-    DenseBase & matrix()  { return derived().matrix_impl(); }
-    const DenseBase & matrix() const  { return derived().matrix_impl(); }
+    MatrixReturnType matrix() { return derived().matrix_impl(); }
+    ConstMatrixReturnType matrix() const  { return derived().matrix_impl(); }
+    
     int nv() const { return derived().nv_impl(); }
     
     template<class OtherDerived>
@@ -97,6 +100,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar,D,1,U> JointMotion;
     typedef Eigen::Matrix<Scalar,D,1,U> JointForce;
     typedef Eigen::Matrix<Scalar,6,D> DenseBase;
+    typedef typename EIGEN_REF_CONSTTYPE(DenseBase) ConstMatrixReturnType;
+    typedef typename EIGEN_REF_TYPE(DenseBase) MatrixReturnType;
 
   }; // traits ConstraintTpl
 
@@ -125,6 +130,8 @@ namespace se3
     typedef typename Base::JointMotion JointMotion;
     typedef typename Base::JointForce JointForce;
     typedef typename Base::DenseBase DenseBase;
+    typedef typename Base::ConstMatrixReturnType ConstMatrixReturnType;
+    typedef typename Base::MatrixReturnType MatrixReturnType;
     
     enum { NV = _Dim, Options = _Options };
     
@@ -181,8 +188,8 @@ namespace se3
     
     Transpose transpose() const { return Transpose(*this); }
 
-    DenseBase & matrix_impl() { return S; }
-    const DenseBase & matrix_impl() const { return S; }
+    MatrixReturnType matrix_impl() { return S; }
+    ConstMatrixReturnType matrix_impl() const { return S; }
 
     int nv_impl() const
     {
@@ -194,9 +201,9 @@ namespace se3
 
     template<typename S2,int O2>
     friend typename ConstraintTpl<_Dim,_Scalar,_Options>::DenseBase
-    operator*(const InertiaTpl<S2,O2> & Y, const ConstraintTpl<_Dim,_Scalar,_Options> & S)
+    operator*(const InertiaTpl<S2,O2> & Y, const ConstraintTpl & S)
     {
-      typedef typename ConstraintTpl<_Dim,_Scalar,_Options>::DenseBase ReturnType;
+      typedef typename ConstraintTpl::DenseBase ReturnType;
       ReturnType res(6,S.nv());
       motionSet::inertiaAction(Y,S.S,res);
       return res;
@@ -204,14 +211,13 @@ namespace se3
     
     template<typename S2,int O2>
     friend Eigen::Matrix<_Scalar,6,_Dim>
-    operator*(const Eigen::Matrix<S2,6,6,O2> & Ymatrix, const ConstraintTpl<_Dim,_Scalar,_Options> & S)
+    operator*(const Eigen::Matrix<S2,6,6,O2> & Ymatrix, const ConstraintTpl & S)
     {
       typedef Eigen::Matrix<_Scalar,6,_Dim> ReturnType;
       return ReturnType(Ymatrix*S.matrix());
       
     }
 
-    
     DenseBase se3Action(const SE3 & m) const
     {
       DenseBase res(6,nv());

@@ -67,7 +67,7 @@ void test_joint_methods (JointModel & jmodel, typename JointModel::JointDataDeri
     BOOST_CHECK_MESSAGE(fabs(jmodel.distance(q1,q2) - jma.distance(q1,q2)) < 1e-12 ,std::string(error_prefix + " - distance "));
 
 
-    BOOST_CHECK_MESSAGE((jda.S().matrix()).isApprox((((se3::ConstraintXd)jdata.S).matrix())),std::string(error_prefix + " - ConstraintXd "));
+    BOOST_CHECK_MESSAGE(jda.S().matrix().isApprox(jdata.S.matrix()),std::string(error_prefix + " - ConstraintXd "));
     BOOST_CHECK_MESSAGE( (jda.M()).isApprox((jdata.M)),std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
     BOOST_CHECK_MESSAGE( (jda.v()).isApprox( (se3::Motion(jdata.v))),std::string(error_prefix + " - Joint motions "));
     BOOST_CHECK_MESSAGE((jda.c()) == (jdata.c),std::string(error_prefix + " - Joint bias "));
@@ -82,7 +82,7 @@ void test_joint_methods (JointModel & jmodel, typename JointModel::JointDataDeri
   
   Motion v(Motion::Random());
   ConstraintDense vxS(v.cross(jdata.S));
-  ConstraintDense vxS_ref = v.toActionMatrix() * ConstraintXd(jdata.S).matrix();
+  ConstraintDense vxS_ref = v.toActionMatrix() * jdata.S.matrix();
   
   BOOST_CHECK_MESSAGE(vxS.isApprox(vxS_ref),std::string(error_prefix + "- Joint vxS operation "));
   

@@ -61,6 +61,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar,6,1,0> JointMotion;
     typedef Eigen::Matrix<Scalar,6,1,0> JointForce;
     typedef Eigen::Matrix<Scalar,6,6> DenseBase;
+    typedef const DenseBase ConstMatrixReturnType;
+    typedef DenseBase MatrixReturnType;
   }; // traits ConstraintRevolute
 
 
@@ -85,7 +87,7 @@ namespace se3
       };
       
       TransposeConst transpose() const { return TransposeConst(); }
-      operator ConstraintXd () const { return ConstraintXd(SE3::Matrix6::Identity()); }
+      DenseBase matrix_impl() const { return DenseBase::Identity(); }
       
       DenseBase motionAction(const Motion & v) const { return v.toActionMatrix(); }
     }; // struct ConstraintIdentity

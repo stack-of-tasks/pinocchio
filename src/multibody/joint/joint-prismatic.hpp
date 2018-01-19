@@ -136,6 +136,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar,1,1,0> JointMotion;
     typedef Eigen::Matrix<Scalar,1,1,0> JointForce;
     typedef Eigen::Matrix<Scalar,6,1> DenseBase;
+    typedef DenseBase MatrixReturnType;
+    typedef const DenseBase ConstMatrixReturnType;
   }; // traits ConstraintRevolute
 
   template <int axis>
@@ -192,11 +194,11 @@ namespace se3
      *   - MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
      *   - SE3::act(ForceSet::Block)
      */
-    operator ConstraintXd () const
+    DenseBase matrix_impl() const
     {
-      Eigen::Matrix<double,6,1> S;
+      DenseBase S;
       S << prismatic::CartesianVector3<axis>(1).vector(), Eigen::Vector3d::Zero();
-      return ConstraintXd(S);
+      return S;
     }
     
     DenseBase motionAction(const Motion & m) const

@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
 
   ForceSet F2( Eigen::Matrix<double,3,9>::Random(),Eigen::Matrix<double,3,9>::Random() );
   Eigen::MatrixXd StF2 = S.transpose()*F2.block(5,3).matrix();
-  BOOST_CHECK(StF2.isApprox(ConstraintXd(S).matrix().transpose()*F2.matrix().block(0,5,6,3)
+  BOOST_CHECK(StF2.isApprox(S.matrix().transpose()*F2.matrix().block(0,5,6,3)
                             , 1e-12));
 }
 
