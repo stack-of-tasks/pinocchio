@@ -24,8 +24,6 @@
 #include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/se3.hpp"
 
-#pragma clang diagnostic ignored "-Wc99-extensions"
-
 #define MOTION_TYPEDEF_GENERIC(Derived,TYPENAME) \
 typedef TYPENAME traits<Derived>::Scalar Scalar; \
 typedef TYPENAME traits<Derived>::Vector3 Vector3; \
@@ -48,7 +46,7 @@ ANGULAR = traits<Derived>::ANGULAR \
 MOTION_TYPEDEF_GENERIC(Derived,typename)
 
 #define MOTION_TYPEDEF(Derived) \
-MOTION_TYPEDEF_GENERIC(Derived,)
+MOTION_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 
 namespace se3
 {

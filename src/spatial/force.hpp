@@ -46,7 +46,7 @@ ANGULAR = traits<Derived>::ANGULAR \
 FORCE_TYPEDEF_GENERIC(Derived,typename)
 
 #define FORCE_TYPEDEF(Derived) \
-FORCE_TYPEDEF_GENERIC(Derived,)
+FORCE_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 
 #include "pinocchio/spatial/force-base.hpp"
 #include "pinocchio/spatial/force-dense.hpp"

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,6 +19,8 @@
 #define __se3_macros_hpp__
 
 #include <Eigen/Core>
+
+#define PINOCCHIO_MACRO_EMPTY_ARG
 
 /// \brief Macro giving access to the equivalent type of D
 #define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type<D>::type
