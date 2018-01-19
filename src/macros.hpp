@@ -38,7 +38,7 @@ D \
 >::type
 #endif
 
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
+#if EIGEN_VERSION_AT_LEAST(3,3,0)
 #define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
 Eigen::ScalarBinaryOpTraits< typename Eigen::internal::traits< D1 >::Scalar, typename Eigen::internal::traits< D2 >::Scalar >::ReturnType
 #else
