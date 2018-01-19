@@ -352,7 +352,8 @@ namespace se3
   operator*(const Inertia::Matrix6 & Y,
             const JointSphericalZYX::ConstraintRotationalSubspace & S)
   {
-    return (Y.middleCols<3>(Inertia::ANGULAR) * S.S_minimal).eval();
+    typedef Eigen::Matrix<double,6,3> ReturnType;
+    return ReturnType(Y.middleCols<3>(Inertia::ANGULAR) * S.S_minimal);
   }
 
   namespace internal
