@@ -20,6 +20,7 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
+#include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
@@ -62,23 +63,39 @@ int main(int argc, const char ** argv)
   container::aligned_vector<VectorXd> qs     (NBT);
   container::aligned_vector<VectorXd> qdots  (NBT);
   container::aligned_vector<VectorXd> qddots (NBT);
+  container::aligned_vector<VectorXd> taus (NBT);
   for(size_t i=0;i<NBT;++i)
   {
     qs[i]     = Eigen::VectorXd::Random(model.nq);
     qs[i].segment<4>(3) /= qs[i].segment<4>(3).norm();
     qdots[i]  = Eigen::VectorXd::Random(model.nv);
     qddots[i] = Eigen::VectorXd::Random(model.nv);
+    taus[i] = Eigen::VectorXd::Random(model.nv);
   }
 
   MatrixXd drnea_dq(MatrixXd::Zero(model.nv,model.nv));
   MatrixXd drnea_dv(MatrixXd::Zero(model.nv,model.nv));
+  MatrixXd drnea_da(MatrixXd::Zero(model.nv,model.nv));
  
+  MatrixXd daba_dq(MatrixXd::Zero(model.nv,model.nv));
+  MatrixXd daba_dv(MatrixXd::Zero(model.nv,model.nv));
+  Data::RowMatrixXd daba_dtau(Data::RowMatrixXd::Zero(model.nv,model.nv));
+  
   timer.tic();
   SMOOTH(NBT)
   {
-    computeRNEADerivatives(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth],drnea_dq,drnea_dv);
+    computeRNEADerivatives(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth],
+                           drnea_dq,drnea_dv,drnea_da);
   }
   std::cout << "RNEA derivatives= \t\t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    computeABADerivatives(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],
+                          daba_dq,daba_dv,daba_dtau);
+  }
+  std::cout << "ABA derivatives= \t\t"; timer.toc(std::cout,NBT);
 
   std::cout << "--" << std::endl;
   return 0;
