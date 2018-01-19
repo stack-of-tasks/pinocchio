@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     {
       v_unit = VectorXd::Unit(model.nv,k);
       Ui_v_unit.setZero();
-      cholesky::Miunit(model,data,k,Ui_v_unit);
+      cholesky::internal::Miunit(model,data,k,Ui_v_unit);
       Ui_v_unit_ref = v_unit;
       cholesky::Uiv(model,data,Ui_v_unit_ref);
       Ui_v_unit_ref.array() *= data.Dinv.array();
