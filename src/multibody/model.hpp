@@ -391,7 +391,7 @@ namespace se3
     ///        and expressed in the local frame of the joint..
     container::aligned_vector<Inertia> Ycrb;
     
-    /// \brief Vector of sub-tree composite rigid body inertia time derivatives \f$ \dot{Y}_{crb}$\f. See Data::Ycrb for more details.
+    /// \brief Vector of sub-tree composite rigid body inertia time derivatives \f$ \dot{Y}_{crb} \f$. See Data::Ycrb for more details.
     container::aligned_vector<Inertia::Matrix6> dYcrb; // TODO: change with dense symmetric matrix6
     
     /// \brief The joint space inertia matrix (a square matrix of dim model.nv).

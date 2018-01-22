@@ -71,7 +71,10 @@ namespace pinocchio {
    *  \ingroup parsers_group 
    */
 
-
+   /** \defgroup actuators_group Actuators */
+   /** \addtogroup actuators_motor_group Motor models
+    * \ingroup actuators_group
+    */       
 
   /** \defgroup spatial_group Spatial */
   /** \addtogroup Motion_group Motion
