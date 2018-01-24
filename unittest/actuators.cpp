@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE ( test_dc_linear_motor_actuator )
   
   for(unsigned long int i=0;i<(unsigned long int)(5.0/dt_sim);i++)
     {
-      aMotorModel.ode_func(dstate,astate,acontrol,f_ext,aMotorData);
+      aMotorModel.calc(dstate,astate,acontrol,f_ext,aMotorData);
       astate[0] = astate[0] + dt_sim*dstate[0] + 0.5*dt_sim*dt_sim*dstate[1];
       astate[1] = astate[1] + dstate[1]*dt_sim;
       aMotorModel.get_force(aMotorData, aForce);
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE ( test_dc_first_order_motor_actuator )
   Force aForce;
   for(unsigned long int i=0;i<(unsigned long int)(5.0/dt_sim);i++)
     {
-      aMotorModel.ode_func(dstate,astate,acontrol,f_ext,aMotorData);
+      aMotorModel.calc(dstate,astate,acontrol,f_ext,aMotorData);
       astate[0] = astate[0] + dt_sim*dstate[0] ;
       
       aMotorModel.get_force(aMotorData, aForce);

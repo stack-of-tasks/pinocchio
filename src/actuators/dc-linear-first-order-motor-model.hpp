@@ -210,11 +210,11 @@ namespace se3
   public:
     ActuatorDCFirstOrderMotorModel() {}
 
-    void ode_func(typename ActuatorDCFirstOrderMotorData<Scalar_>::dX_t & dstate,
-		  typename ActuatorDCFirstOrderMotorData<Scalar_>::X_t & state,
-		  typename ActuatorDCFirstOrderMotorData<Scalar_>::U_t & control,
-		  Force & fext,
-		  ActuatorDCFirstOrderMotorData<Scalar_> &data)
+    void calc(typename ActuatorDCFirstOrderMotorData<Scalar_>::dX_t & dstate,
+	      typename ActuatorDCFirstOrderMotorData<Scalar_>::X_t & state,
+	      typename ActuatorDCFirstOrderMotorData<Scalar_>::U_t & control,
+	      Force & fext,
+	      ActuatorDCFirstOrderMotorData<Scalar_> &data)
     {
       // Update dstate
       dstate[0] = data.c()[0] * control[0] + data.c()[1] * state[0] +

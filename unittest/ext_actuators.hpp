@@ -138,7 +138,7 @@ namespace se3
       for(unsigned long int i=0;i<(unsigned long int)(5.0/dt_sim);i++)
 	{
 	  // dstate = f(state,control,f_ext, parameters)
-	  aMotorModel.ode_func(dstate,astate,acontrol,f_ext,aMotorData);
+	  aMotorModel.calc(dstate,astate,acontrol,f_ext,aMotorData);
 	  // state_k+1 = state_k + dt * dstate
 	  traits_md_tempt::integration(astate,dstate,dt_sim);
 	  // Extract forces

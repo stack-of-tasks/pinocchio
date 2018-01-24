@@ -237,11 +237,11 @@ namespace se3
   public:
     ActuatorDCNonLinearMotorModel() {}
 
-    void ode_func(typename ActuatorDCNonLinearMotorData<Scalar_>::dX_t & dstate,
-		  typename ActuatorDCNonLinearMotorData<Scalar_>::X_t & state,
-		  typename ActuatorDCNonLinearMotorData<Scalar_>::U_t & control,
-		  Force & fext,
-		  ActuatorDCNonLinearMotorData<Scalar_> &data)
+    void calc(typename ActuatorDCNonLinearMotorData<Scalar_>::dX_t & dstate,
+	      typename ActuatorDCNonLinearMotorData<Scalar_>::X_t & state,
+	      typename ActuatorDCNonLinearMotorData<Scalar_>::U_t & control,
+	      Force & fext,
+	      ActuatorDCNonLinearMotorData<Scalar_> &data)
     {
       // Update dstate
       // dtheta/dt = dtheta/dt

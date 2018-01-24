@@ -80,12 +80,12 @@ namespace se3
 
     ActuatorDataDerived createData() const { return derived().createData(); }
 
-    void  ode_func(dX_t & dstate,
-		   X_t & state,
-		   U_t & control,
-		   Force fext,
-		   ActuatorDataDerived &data) const
-    { derived().ode_func(dstate,data,state);}
+    void calc(dX_t & dstate,
+	       X_t & state,
+	       U_t & control,
+	       Force fext,
+	       ActuatorDataDerived &data) const
+    { derived().calc(dstate,data,state);}
 
     void get_force(ActuatorDataDerived &data, Force &aForce) const
     {
