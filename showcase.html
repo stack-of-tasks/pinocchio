@@ -1,19 +1,12 @@
 ---
-layout: default
+layout: page
 title: Showcase
-group: "navigation"
-disqus: no
+category: Documentation
 ---
-
-<h1 id="showcase" class="page-header">{{ page.title }}</h1>
 
 <h2>Gallery</h2>
 
-<div style="padding: 2em"></div>
-
-  {% include carrousel.html carrousel=site.data.projects %}
-
-<div style="padding: 2em"></div>
+{% include carousel.html %}
 
 <h2>Papers</h2>
 
@@ -69,7 +62,5 @@ disqus: no
     </tbody>
   </table>
 </div>
-
-<div style="padding: 10em"></div>
 
 <!-- vim: set ts=2 sw=2 ft=liquid si: -->

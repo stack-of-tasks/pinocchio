@@ -11,13 +11,13 @@
     - [Create the display](#create-the-display)
     - [Create simple objects](#create-simple-objects)
     - [Moving objects](#moving-objects)
-- [Tutorial 2. Creating the robot model](#tutorial-2-creating-the-robot-model)
+- [Tutorial 1.2. Creating the robot model](#tutorial-2-creating-the-robot-model)
     - [Model and Data](#model-and-data)
     - [Creating a Model](#creating-a-model)
     - [Joint Models](#joint-models)
     - [Associating visual object to bodies](#associating-visual-object-to-bodies)
     - [The robot class](#the-robot-class)
-- [Tutorial 3. Displaying the model](#tutorial-3-displaying-the-model)
+- [Tutorial 1.3. Displaying the model](#tutorial-3-displaying-the-model)
     - [Computing the robot geometry](#computing-the-robot-geometry)
     - [Displaying the model](#displaying-the-model)
     - [Move your robot](#move-your-robot)
@@ -175,7 +175,7 @@ For display, we will use Gepetto-viewer, a simple 3D renderer built on top of Op
 In your script, you need to import the Gepetto-viewer client library, send connect with the server, possibly create 3D objects and then move these objects while your robot is moving.
 
 First, you need to start the server in a first terminal bash terminal …
-    
+
     student@pinocchio1204x32vbox:~$ gepetto-viewer-server
 
 Your own Python scripts can be started from a second terminal. The following class do all the client work for you. Just copy-paste it.
@@ -185,9 +185,9 @@ Your own Python scripts can be started from a second terminal. The following cla
     # Example of a class Display that connect to Gepetto-viewer and implement a
     # 'place' method to set the position/rotation of a 3D visual object in a scene.
 class Display():
-    
+
     # Class Display: Example of a class implementing a client for the Gepetto-viewer server. The main method of the class is 'place', that sets the position/rotation of a 3D visual object in a scene.
-    
+
     def __init__(self,windowName = "pinocchio" ):
         '''
         This function connect with the Gepetto-viewer server and open a window with the given name.
@@ -311,7 +311,7 @@ display.place("world/cylinder",se3.SE3.Random())
 
 <a name="tutorial-2-creating-the-robot-model"></a>
 
-# Tutorial 2. Creating the robot model
+# Tutorial 1.2. Creating the robot model
 <a name="model-and-data"></a>
 
 ## Model and Data
@@ -391,7 +391,7 @@ __Question 1:__ Create a class Robot as specified previously. Store the results 
 
 <a name="tutorial-3-displaying-the-model"></a>
 
-# Tutorial 3. Displaying the model
+# Tutorial 1.3. Displaying the model
 
 <a name="computing-the-robot-geometry"></a>
 
@@ -414,7 +414,7 @@ for i in range(1,model.nbody):
 
 ## Displaying the model
 
-Consider joint "ijoint" to which one visual "ivisual" is attached. The placement of the joint in the world is data.oMi[ijoint]. The name of the visual is `visuals[ijoint][ivisual][0]`. . The placement of the visual in the parent joint frame is `visuals[ijoint][ivisual][1]`. 
+Consider joint "ijoint" to which one visual "ivisual" is attached. The placement of the joint in the world is data.oMi[ijoint]. The name of the visual is `visuals[ijoint][ivisual][0]`. . The placement of the visual in the parent joint frame is `visuals[ijoint][ivisual][1]`.
 
 {% highlight python %}
 

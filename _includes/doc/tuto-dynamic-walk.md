@@ -18,9 +18,8 @@ Tutorial 4.0: prerequesites
 
 From the two previous tutorials, you should have the two following implementations available:
 
-. A humanoid robot models, with at least two legs.
-
-. An inverse geometry solver based on BFGS.
+* A humanoid robot models, with at least two legs.
+* An inverse geometry solver based on BFGS.
 
 Yet, the inverse geometry only solves the motion of the robot for a constant task, like reaching a specific position of the hand, or a constant position of the center of mass.
 
@@ -92,11 +91,9 @@ array([ 0.41 ,  0.096])
 
 The function should be a piecewise affine function
 
-. starting in the middle of the ankles of the two first steps,
-
-. finishing in the middle of the two ankles of the two last steps,
-
-. constant under the foot support during single support phases.
+* starting in the middle of the ankles of the two first steps,
+* finishing in the middle of the two ankles of the two last steps,
+* constant under the foot support during single support phases.
 
 You can use the template below.
 

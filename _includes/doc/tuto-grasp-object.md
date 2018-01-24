@@ -1,12 +1,12 @@
 <!-- MarkdownTOC -->
 
 - [Objectives](#objectives)
-- [Tutorial 1.0. Technical prerequisites](#tutorial-10-technical-prerequisites)
+- [Tutorial 2.0. Technical prerequisites](#tutorial-10-technical-prerequisites)
   - [Robots](#robots)
-- [Tutorial 1.1. Position the end effector](#tutorial-11-position-the-end-effector)
-- [Tutorial 1.2. Approaching the redundancy](#tutorial-12-approaching-the-redundancy)
-- [Tutorial 1.3. Placing the end-effector](#tutorial-13-placing-the-end-effector)
-- [Tutorial 1.4. Working with a mobile robot](#tutorial-14-working-with-a-mobile-robot)
+- [Tutorial 2.1. Position the end effector](#tutorial-11-position-the-end-effector)
+- [Tutorial 2.2. Approaching the redundancy](#tutorial-12-approaching-the-redundancy)
+- [Tutorial 2.3. Placing the end-effector](#tutorial-13-placing-the-end-effector)
+- [Tutorial 2.4. Working with a mobile robot](#tutorial-14-working-with-a-mobile-robot)
 
 <!-- /MarkdownTC -->
 
@@ -18,7 +18,7 @@ The main objective of the first tutorial is to compute a configuration of the ro
 
 <a name="tutorial-10-technical-prerequisites"></a>
 
-# Tutorial 1.0. Technical prerequisites
+# Tutorial 2.0. Technical prerequisites
 Python SciPy and MatplotLib
 
 You will need the two libraries Python SciPy (scientific Python) and MatPlotLib (plot mathematical data).
@@ -40,11 +40,9 @@ MatPlotLib can be installed by `sudo apt-get install python-matplotlib`. It is a
 
 We will use SciPy for its optimization toolbox. In the version 0.9 installed in the VirtualBox, the two most interesting solvers are BFGS and a constrained least square. Documentation on both solvers is available here:
 
-. General documentation: [SciPy.optimize](http://docs.scipy.org/doc/scipy-0.9.0/reference/tutorial/optimize.html)
-
-. Manual of BFGS: [fmin_bfgs](http://docs.scipy.org/doc/scipy-0.9.0/reference/generated/scipy.optimize.fmin_bfgs.html#scipy.optimize.fmin_bfgs)
-
-. Manual of constrained least square: [fmin_slsqp](http://docs.scipy.org/doc/scipy-0.9.0/reference/generated/scipy.optimize.fmin_slsqp.html#scipy.optimize.fmin_slsqp)
+* General documentation: [SciPy.optimize](http://docs.scipy.org/doc/scipy-0.9.0/reference/tutorial/optimize.html)
+* Manual of BFGS: [fmin_bfgs](http://docs.scipy.org/doc/scipy-0.9.0/reference/generated/scipy.optimize.fmin_bfgs.html#scipy.optimize.fmin_bfgs)
+* Manual of constrained least square: [fmin_slsqp](http://docs.scipy.org/doc/scipy-0.9.0/reference/generated/scipy.optimize.fmin_slsqp.html#scipy.optimize.fmin_slsqp)
 
 Examples of calls of these two functions are given below. We will use both solvers with numerical (finite-differencing) differenciation, to avoid the extra work of differencing the cost and constraint functions by hand. In general, it is strongly advice to first test a numerical program with finite differencing, before implementing the true derivatives only if needed. In any case, the true derivatives must always be checked by comparing the results with the finite differenciation.
 
@@ -156,7 +154,7 @@ print robot.data.oMi[i]    # Access to the placement of the end effector at conf
 {% endhighlight %}
 These two models are the output of the first tutorial. The most interesting option is to use them.
 
-Alternatively, a RobotWrapper Class is available directly with Pinocchio.  You can use it to load a model from a urdf file and automatically get the visual meshes described in this urdf. The RobotWrapper Class is able then to automatically communicate with the Gepetto viewer in order to display your robts. 
+Alternatively, a RobotWrapper Class is available directly with Pinocchio.  You can use it to load a model from a urdf file and automatically get the visual meshes described in this urdf. The RobotWrapper Class is able then to automatically communicate with the Gepetto viewer in order to display your robts.
 
 Two urdf models are available and are described below.
 
@@ -208,7 +206,7 @@ The Class `robotWrapper` will call for you the urdf parser and the geometry pars
 
 <a name="tutorial-11-position-the-end-effector"></a>
 
-# Tutorial 1.1. Position the end effector
+# Tutorial 2.1. Position the end effector
 
 The first tutorial is to position (i.e. translation only) the end effector of a manipulator robot to a given position. For this first part, we will use the fixed serial-chain robot model.
 
@@ -229,7 +227,7 @@ __Question 3:__ Finally, implements a callback function that display in Gepetto-
 
 <a name="tutorial-12-approaching-the-redundancy"></a>
 
-# Tutorial 1.2. Approaching the redundancy
+# Tutorial 2.2. Approaching the redundancy
 
 The manipulator arm has 7 DOF, while the cost function only constraints 3 of them (the position of the end effector). A continuum of solutions then exists. The two next questions are aiming at giving an intuition of this continuum.
 
@@ -241,7 +239,7 @@ __Question 5:__ Sum a secondary cost term to the first positioning cost, to sele
 
 <a name="tutorial-13-placing-the-end-effector"></a>
 
-# Tutorial 1.3. Placing the end-effector
+# Tutorial 2.3. Placing the end-effector
 
 The next step is to find a configuration of the robot so that the end effector respects a reference placement, i.e. position and orientation. The stake is to find a metric in SE(3) to continuously quantify the distance between two placements. There is no canonical metric in SE(3), i.e. no absolute way of weighting the position with respect to the orientation. Two metrics can be considered, namely the log in SE(3) or in R^3 x SE(3). The tutorial will guide you through the first choice.
 
@@ -260,7 +258,7 @@ Optionally, try other metrics, like the log metric of R^3 x SO(3), or the Froebe
 
 <a name="tutorial-14-working-with-a-mobile-robot"></a>
 
-# Tutorial 1.4. Working with a mobile robot
+# Tutorial 2.4. Working with a mobile robot
 
 Until now, the tutorial only worked with a simple manipulator robot, i.e. whose configuration space is a real vector space. Consider now the humanoid robot, whose first joint is a free joint: it has 6 degrees of freedom (3 rotations, 3 translations) but its configuration vector is dimension 7. You can check it with `robot.model.nq`, that stores the dimension of the configuration, and `robot.model.nv`, that stores the dimension of the configuration velocity, i.e. the number of degrees of freedom. For the humanoid, nq = nv+1.
 

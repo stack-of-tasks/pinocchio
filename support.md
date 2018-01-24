@@ -1,8 +1,7 @@
 ---
-layout: default
+layout: page
 title: Support
-group: navigation
-disqus: no
+category: Support
 ---
 
 ## Getting support
@@ -23,7 +22,7 @@ Send an email to one of the contacts below to be added to the mailing list.
 
 ---- -->
 
-## Contacts 
+## Contacts
 
 ### LAAS-CNRS, Gepetto team
 
@@ -44,17 +43,6 @@ Fax : 05 61 55 35 77
 Justin Carpentier
 
 Mail: jcarpent at laas dot fr
-
-LAAS-CNRS<br/>
-7, avenue du Colonel Roche<br/>
-BP 54200<br/>
-31031 Toulouse cedex 4
-
-----
-
-Florian Valenza
-
-Mail: fvalenza at laas dot fr
 
 LAAS-CNRS<br/>
 7, avenue du Colonel Roche<br/>

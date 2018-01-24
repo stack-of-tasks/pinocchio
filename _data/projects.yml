@@ -1,21 +1,21 @@
 - name: pg-max
   title: Dynamic step climbing
   description: "Pattern generation for step climbing"
-  image: showcase/hrp2max.png
+  image: hrp2max.png
 
 - name: romeo-walking
   title: Walk generation
   description: "Step generation for walking with romeo "
-  image: showcase/romeo.png
+  image: romeo.png
 
 - name: pinocchio-showcase
   title: Pinocchio demonstration
   description: "Differents features that can be achieved through Pinocchio "
   video:
     youtube_id: cNfS-CDH76s
-  
+
 # - name: reem-c
-#   title: 
+#   title:
 #   description: ""
 #   image: showcase/reem-c.png
 

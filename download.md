@@ -1,3 +1,17 @@
+---
+layout: page
+title: Download and install
+category: Getting Started
+---
+
+The software architecture has been tested entirely on Ubuntu 10.04 LTS, 12.04 LTS, and 14.04 LTS. If you are running other distributions, we expect the library to work correctly but we can not guarantee it.
+
+To install Pinocchio from sources, you will first need to perform installations of other packages themselves dependent on other ones. To facilitate the procedure, you will find in the part "Build From Source" all you need to install Pinocchio.
+
+Pinocchio comes with a python binding that you can use to prototype and that makes the link with
+[Gepetto-viewer](https://github.com/humanoid-path-planner/gepetto-viewer) to vizualise your robot (Gepetto viewer is a
+simple 3D-vizualisation tool we advice).
+
 # Installation procedure
 
 You can choose either to install a pre-compiled release of Pinocchio or just build it directly from source. Here is a list of supported installation methods:
@@ -9,7 +23,7 @@ You can choose either to install a pre-compiled release of Pinocchio or just bui
 
 ## Linux
 
-For Linux system, Pinocchio uses the _robotpkg_ framework (http://robotpkg.openrobots.org) to package the release versions and to resolve the dependencies. 
+For Linux system, Pinocchio uses the _robotpkg_ framework (http://robotpkg.openrobots.org) to package the release versions and to resolve the dependencies.
 
 ### What is _robotpkg_ ?
 
@@ -20,7 +34,7 @@ _robotpkg_ is a package manager tailored for robotics softwares. It greatly simp
 The software binaries of the packages managed by _robotpkg_ are directly available throw the Personal Package Archive (PPA) of _robotpkg_ for the Ubuntu LTS 12.04 and 14.04. You just need to add the _robotpkg_ PPA to your **sources.list** and typically use `sudo apt-get install robotpkg-` + _packagename_ to install a missing software and its dependencies. Below, we recall the steps to first add the _robotpkg_ PPA and then install Pinocchio.
 
 #### Add _robotpkg_ PPA
-If you have never added _robotpkg_ as a softwares repository, please follow first the instructions from 1 to 4. Otherwise, go directly to instruction 5. 
+If you have never added _robotpkg_ as a softwares repository, please follow first the instructions from 1 to 4. Otherwise, go directly to instruction 5.
 Those instructions are similar to the installation procedures presented in http://robotpkg.openrobots.org/debian.html.
 
 
@@ -75,7 +89,7 @@ For the other distributions, the easiest way to get Pinocchio is to install _rob
 
 ## Mac OS X
 
-Currently, we do not yet support an automatic installation from a package manager. This feature will be available soon from the [_brew_](http://brew.sh) package manager. 
+Currently, we do not yet support an automatic installation from a package manager. This feature will be available soon from the [_brew_](http://brew.sh) package manager.
 
 An alternative solution is to install Pinocchio either with _robotpkg_ (see [From _robotpkg_](#from-robotpkg) section for further details) or directly from sources (see [From source](#from-source) section).
 
@@ -119,7 +133,7 @@ Optional dependencies:
 + [Boost](http://www.boost.org) with component _python_. Version >= 1.34. Required for the python bindings.
 + [EigenPy](https://github.com/stack-of-tasks/eigenpy) An efficient binding between Numpy and Eigen using boost::python. Version >= 1.3.0. Required for the python bindings.
 + [FCL](https://github.com/humanoid-path-planner/hpp-fcl) the Fast Collision Library. Version >= 0.4.1. Useful for collision detections.
-+ [assimp](https://github.com/assimp/assimp) for the reading of raw mesh files. Version >= 3.0.0. 
++ [assimp](https://github.com/assimp/assimp) for the reading of raw mesh files. Version >= 3.0.0.
 + [urdfdom](https://github.com/ros/urdfdom) for the reading of URDF models. Version >= 0.2.10.
 
 ### Installation

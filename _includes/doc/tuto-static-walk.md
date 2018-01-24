@@ -77,9 +77,8 @@ Now assume that the reference placement to be reached is Mdes, and that the curr
 
 We now have both equation:
 
-. direct kinematics: nu = J*vq
-
-. reference task movemetn: nu_des = log(M*Mdes) (multiply by a gain k=0.1 for slower movement)
+* direct kinematics: nu = J*vq
+* reference task movemetn: nu_des = log(M*Mdes) (multiply by a gain k=0.1 for slower movement)
 
 Finally, the velocity to be sent to the robot is vq = pinv(J)*nu_des (pinv is available in numpy.linalg)
 
@@ -119,9 +118,8 @@ Consider a matrix J. The corresponding null-space projector can be computed by N
 
 Now consider N tasks indexed by i (e[i],J[i],v[i]). The hierarchical control law can be obtained by a recurence over i:
 
-. vq = vq + N*pinv(J[i]*N) * (vi - Ji*vq)
-
-. N = N - N*pinv(J[i]*N)*J[i]*N
+* `vq = vq + N*pinv(J[i]*N) * (vi - Ji*vq)`
+* `N = N - N*pinv(J[i]*N)*J[i]*N`
 
 starting from vq=zero(nv) and N=eye(nv).
 
@@ -129,10 +127,8 @@ __Question 5:__ Implement a function hqp(Js,vs), where Js is a list of jacobians
 
 The posture task tries to keep the actuated joints to a reference position (typically the initial one). The task is defined by:
 
-. Jq = np.hstack( [ zero([nv-6,7]),eye(nv-6) ])
-
-. eq = q[7:] - qref[7:]
-
-. vq = -kq * eq
+* `Jq = np.hstack( [ zero([nv-6,7]),eye(nv-6) ])`
+* `eq = q[7:] - qref[7:]`
+* `vq = -kq * eq`
 
 __Question 6:__ Implement a static walk with a reference posture.

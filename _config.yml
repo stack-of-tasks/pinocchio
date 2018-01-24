@@ -1,15 +1,19 @@
-name: Pinocchio
-markdown: kramdown
-kramdown:
-  input: GFM
-highlighter: rouge
-gems:
-    - jekyll-sitemap
-
-# If you're hosting your site at a Project repository on GitHub pages
-# (http://yourusername.github.io/repository-name)
-# and NOT your User repository (http://yourusername.github.io)
-# then add in the baseurl here, like this: "/repository-name"
+title: Pinocchio
+description: Fast Forward Inverse Dynamic for Multibody Systems
 baseurl: "/pinocchio"
-
 github-url: "https://github.com/stack-of-tasks/pinocchio"
+remote_theme: Gepetto/jekyll-theme
+markdown: kramdown
+
+category_list:
+  - name: Getting Started
+    icon: graduation-cap
+  - name: Documentation
+    icon: book
+  - name: Development
+    icon: wrench
+    links:
+      - name: View on Github
+        url: http://www.github.com/stack-of-tasks/pinocchio
+  - name: Support
+    icon: question-circle
