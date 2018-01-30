@@ -226,7 +226,7 @@ namespace se3
     {
       typedef ActuatorDCFirstOrderMotorData<Scalar_> adc;
       // Update dstate
-      dstate[1] = data.c()[0] * control[0] + data.c()[1] *data.S().dot(fext.toVector());
+      dstate[0] = data.c()[0] * control[0] + data.c()[1] *data.S().dot(fext.toVector());
       // Update observation
       // Current
       data.h()[0] = control[0] /data.c()[adc::P_ROTOR_RESISTOR] - data.c()[adc::P_BACK_EMF] *dstate[1]/data.c()[adc::P_ROTOR_RESISTOR];

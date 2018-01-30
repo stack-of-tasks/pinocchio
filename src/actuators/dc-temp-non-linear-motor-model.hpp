@@ -100,7 +100,7 @@ namespace se3
       c_0 &= & K_m\\
       c_1 &= & B_m R_{TA} (1+\alpha_{Cu} T_{A})\\
       c_2 &= & -B_m R_{TA} \alpha_{Cu} \\
-      c_3 &= & K_m K_B + D_m B_m R_{TA} (1 + \alpha_{Cu} T_{A}) \\
+      c_3 &= & K_m K_B + D_m R_{TA} (1 + \alpha_{Cu} T_{A}) \\
       c_4 &= & -D_m R_{TA} \alpha_{Cu} \\
       c_5 &= & -\frac{1}{B_m} \\
       c_6 &= & (R_{th1}+R_{th2})\\
@@ -297,7 +297,7 @@ namespace se3
       c_[2] = -c_[P_ROTOR_INERTIA] * c_[P_TA_RESISTOR] * alpha_cu_;
       
       // c_4 = K_B + D_m R_{TA} + D_m R_{TA} \alpha_{Cu} T_{A}
-      c_[3] = c_[P_BACK_EMF] + c_[P_SPEED_TORQUE_GRD]*c_[P_TA_RESISTOR] *
+      c_[3] = c_[P_BACK_EMF] * c_[P_TORQUE_CST] + c_[P_SPEED_TORQUE_GRD]*c_[P_TA_RESISTOR] *
 	(1+alpha_cu_ * c_[P_AMBIENT_TEMP]);
 
       // c_5 = -D_m R_{TA} \alpha_{Cu}
