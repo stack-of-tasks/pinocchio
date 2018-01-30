@@ -18,7 +18,7 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/actuators/dc-linear-motor-model.hpp"
 #include "pinocchio/actuators/dc-linear-first-order-motor-model.hpp"
-#include "pinocchio/actuators/dc-non-linear-motor-model.hpp"
+#include "pinocchio/actuators/dc-two-snd-order-linear-motor-model.hpp"
 #include "pinocchio/actuators/dc-temp-non-linear-motor-model.hpp"
 #include <iostream>
 #include <fstream>
@@ -28,9 +28,9 @@
 
 template <>
 const std::string
-se3::traits_motor_data<double, se3::ActuatorDCNonLinearMotorData>::
+se3::traits_motor_data<double, se3::ActuatorDCTwoSndOrderLinearMotorData>::
 outputfilename
-="output-non-linear.dat" ;
+="output-two-snd-order-linear.dat" ;
 
 template <>
 const std::string
@@ -44,19 +44,25 @@ se3::traits_motor_data<double, se3::ActuatorDCMotorData>::
 outputfilename
 ="output-linear.dat" ;
 
+template <>
+const std::string
+se3::traits_motor_data<double, se3::ActuatorDCFirstOrderMotorData>::
+outputfilename
+="output-first-order-linear.dat" ;
+
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 typedef double Scalar;
 
 BOOST_AUTO_TEST_CASE ( test_dc_non_linear_motor_actuator )
 {
-  typedef se3::ActuatorDCNonLinearMotorModel<Scalar> MotorModel;
+  typedef se3::ActuatorDCTwoSndOrderLinearMotorModel<Scalar> MotorModel;
   typedef se3::test_dc_motors<MotorModel,
-			      se3::ActuatorDCNonLinearMotorData >
-			      NonLinearDCMotorTest;
+			      se3::ActuatorDCTwoSndOrderLinearMotorData >
+			      TwoSndOrderLinearDCMotorTest;
 
-  NonLinearDCMotorTest aNonLinearDCMotorTest;
+  TwoSndOrderLinearDCMotorTest aTwoSndOrderLinearDCMotorTest;
 		 
-  BOOST_CHECK(aNonLinearDCMotorTest.Test());
+  BOOST_CHECK(aTwoSndOrderLinearDCMotorTest.Test());
 }
 
 BOOST_AUTO_TEST_CASE ( test_dc_temp_non_linear_motor_actuator )

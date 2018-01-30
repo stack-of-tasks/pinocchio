@@ -309,7 +309,7 @@ ENDIF(LUA5_FOUND)
 
 SET(${PROJECT_NAME}_ACTUATOR_HEADERS
   actuators/actuator-model.hpp
-  actuators/dc-non-linear-motor-model.hpp
+  actuators/dc-two-snd-order-linear-motor-model.hpp
   actuators/dc-temp-non-linear-motor-model.hpp
   actuators/dc-linear-motor-model.hpp
   actuators/dc-linear-first-order-motor-model.hpp

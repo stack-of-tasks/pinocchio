@@ -17,8 +17,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef _se3_non_linear_motor_model_hpp_
-#define _se3_non_linear_motor_model_hpp_
+#ifndef _se3_two_snd_order_linear_motor_model_hpp_
+#define _se3_two_snd_order_linear_motor_model_hpp_
 
 #include <iostream>
 #include "pinocchio/macros.hpp"
@@ -127,8 +127,8 @@ namespace se3
    *  @tparam Scalar_ {description} 
    */
   template<typename Scalar_> 
-  class ActuatorDCNonLinearMotorData :
-    ActuatorDataBase<ActuatorDCNonLinearMotorData<Scalar_> >
+  class ActuatorDCTwoSndOrderLinearMotorData :
+    ActuatorDataBase<ActuatorDCTwoSndOrderLinearMotorData<Scalar_> >
   {
   public:
     typedef Scalar_ Scalar_t;
@@ -229,20 +229,21 @@ namespace se3
    *  @tparam Scalar_ {description} 
    */
   template< typename Scalar_> 
-  class ActuatorDCNonLinearMotorModel : ActuatorModelBase<ActuatorDCNonLinearMotorModel<Scalar_> >
+  class ActuatorDCTwoSndOrderLinearMotorModel :
+    ActuatorModelBase<ActuatorDCTwoSndOrderLinearMotorModel<Scalar_> >
   {
 
     typedef Eigen::Matrix<Scalar_,3,1,0> Vector3Scalar;
     
   public:
     typedef Scalar_ Scalar_t;
-    ActuatorDCNonLinearMotorModel() {}
+    ActuatorDCTwoSndOrderLinearMotorModel() {}
 
-    void calc(typename ActuatorDCNonLinearMotorData<Scalar_>::dX_t & dstate,
-	      typename ActuatorDCNonLinearMotorData<Scalar_>::X_t & state,
-	      typename ActuatorDCNonLinearMotorData<Scalar_>::U_t & control,
+    void calc(typename ActuatorDCTwoSndOrderLinearMotorData<Scalar_>::dX_t & dstate,
+	      typename ActuatorDCTwoSndOrderLinearMotorData<Scalar_>::X_t & state,
+	      typename ActuatorDCTwoSndOrderLinearMotorData<Scalar_>::U_t & control,
 	      Force & fext,
-	      ActuatorDCNonLinearMotorData<Scalar_> &data)
+	      ActuatorDCTwoSndOrderLinearMotorData<Scalar_> &data)
     {
       // Update dstate
       // dtheta/dt = dtheta/dt
@@ -255,20 +256,21 @@ namespace se3
 	
       // Update observation
       // Motor torque
-      data.h()[0] = data.c()[ActuatorDCNonLinearMotorData<Scalar_>::P_TORQUE_CST] *state[2];
+      data.h()[0] = data.c()[ActuatorDCTwoSndOrderLinearMotorData<Scalar_>::P_TORQUE_CST] *state[2];
       // Back emf potential 
-      data.h()[1] = data.c()[ActuatorDCNonLinearMotorData<Scalar_>::P_BACK_EMF] * state[1];
+      data.h()[1] = data.c()[ActuatorDCTwoSndOrderLinearMotorData<Scalar_>::P_BACK_EMF] * state[1];
     }
     
 
-    void get_force(ActuatorDCNonLinearMotorData<Scalar_> &data, Force &aForce) const
+    void get_force(ActuatorDCTwoSndOrderLinearMotorData<Scalar_> &data,
+		   Force &aForce) const
     {
       aForce.linear(Vector3Scalar::Zero(3,1));
       aForce.angular(Vector3Scalar(0.0,0.0,data.h()[1]));
     }
 
-    ActuatorDCNonLinearMotorData<Scalar_> createData() const
-    { return ActuatorDCNonLinearMotorData<Scalar_>(); };
+    ActuatorDCTwoSndOrderLinearMotorData<Scalar_> createData() const
+    { return ActuatorDCTwoSndOrderLinearMotorData<Scalar_>(); };
     
   protected:
   
@@ -278,19 +280,19 @@ namespace se3
   };
   
   template <typename Scalar_>
-  struct adb_traits<ActuatorDCNonLinearMotorData<Scalar_> >
+  struct adb_traits<ActuatorDCTwoSndOrderLinearMotorData<Scalar_> >
   {
-    typedef ActuatorDCNonLinearMotorData<Scalar_> ActuatorDataDerived;
+    typedef ActuatorDCTwoSndOrderLinearMotorData<Scalar_> ActuatorDataDerived;
   };
 
   template <typename Scalar_>
-  struct amb_traits<ActuatorDCNonLinearMotorModel<Scalar_> >
+  struct amb_traits<ActuatorDCTwoSndOrderLinearMotorModel<Scalar_> >
   {
-    typedef  ActuatorDCNonLinearMotorModel<Scalar_> ActuatorModelDerived;
-    typedef  ActuatorDCNonLinearMotorData<Scalar_> ActuatorDataDerived;
+    typedef  ActuatorDCTwoSndOrderLinearMotorModel<Scalar_> ActuatorModelDerived;
+    typedef  ActuatorDCTwoSndOrderLinearMotorData<Scalar_> ActuatorDataDerived;
   };
 
 
 } // end of namespace se3
 
-#endif /* _se3_non_linear_motor_model_ */
+#endif /* _se3_two_snd_order_linear_motor_model_ */

@@ -19,7 +19,7 @@
 
 #ifndef _se3_example_test_actuator_hpp_
 #define _se3_example_test_actuator_hpp_
-#include <pinocchio/actuators/dc-non-linear-motor-model.hpp>
+#include <pinocchio/actuators/dc-two-snd-order-linear-motor-model.hpp>
 #include <pinocchio/actuators/dc-linear-motor-model.hpp>
 
 namespace se3
@@ -31,10 +31,10 @@ namespace se3
   
   /// Specific parts of the tests for the non linear motor model (with inductance)
   template<typename Scalar>
-  class traits_motor_data<Scalar, ActuatorDCNonLinearMotorData>
+  class traits_motor_data<Scalar, ActuatorDCTwoSndOrderLinearMotorData>
   {
   public:
-    typedef ActuatorDCNonLinearMotorData<Scalar> ActuatorMotorData;
+    typedef ActuatorDCTwoSndOrderLinearMotorData<Scalar> ActuatorMotorData;
     static const std::string outputfilename;
     
     static void init(ActuatorMotorData &aMotorData)
@@ -43,7 +43,8 @@ namespace se3
       aMotorData.rotorResistor(5.29);
     }
     
-    static void computeGains(Scalar &K_P, Scalar &K_D, Scalar &K_I)
+    static void computeGains(ActuatorMotorData &,
+			     Scalar &K_P, Scalar &K_D, Scalar &K_I)
     {
       double K=100;
       K_P = 1.0 *K;
@@ -73,11 +74,11 @@ namespace se3
 
   /// Specific parts of the tests for the non linear motor model (with temperature)
   template <typename Scalar,
-	    template<typename S> class ActuatorDCTempNonLinearMotorData >
+	    template<typename S> class ActuatorDCTempTwoSndOrderLinearMotorData >
   class traits_motor_data
   {
   public:
-    typedef ActuatorDCTempNonLinearMotorData<Scalar> ActuatorMotorData;
+    typedef ActuatorDCTempTwoSndOrderLinearMotorData<Scalar> ActuatorMotorData;
     static const std::string outputfilename;
     
     static void init(ActuatorMotorData &aMotorData)
@@ -96,7 +97,8 @@ namespace se3
       aMotorData.thermAmbient(25.0);
       
     }
-    static void computeGains(Scalar &K_P, Scalar &K_D, Scalar &K_I)
+    static void computeGains(ActuatorMotorData &,
+			     Scalar &K_P, Scalar &K_D, Scalar &K_I)
     {
       double K=100;
       K_P = 1.0 *K;
@@ -133,7 +135,8 @@ namespace se3
       aMotorData.rotorResistor(5.29);
     }
     
-    static void computeGains(Scalar &K_P, Scalar &K_D, Scalar &K_I)
+    static void computeGains(ActuatorMotorData &,
+			     Scalar &K_P, Scalar &K_D, Scalar &K_I)
     {
       double K=100;
       K_P = 1.0 *K;
@@ -170,7 +173,8 @@ namespace se3
       aMotorData.rotorResistor(5.29);
     }
     
-    static void computeGains(Scalar &K_P, Scalar &K_D, Scalar &K_I)
+    static void computeGains(ActuatorMotorData &aMotorData,
+			     Scalar &K_P, Scalar &K_D, Scalar &)
     {
       // Frequency of the closed loop system
       double f=20;
@@ -265,7 +269,8 @@ namespace se3
       Force aForce;
       double sum_e = 0;
 
-      traits_md_tempt::computeGains(K_P,K_D,K_I);
+      traits_md_tempt::computeGains(aMotorData,
+				    K_P,K_D,K_I);
       
       for(unsigned long int i=0;i<(unsigned long int)(5.0/dt_sim);i++)
 	{
