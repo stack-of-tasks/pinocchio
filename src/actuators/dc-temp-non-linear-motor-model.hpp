@@ -143,16 +143,16 @@ namespace se3
   {
   public:
     typedef Scalar_ Scalar_t;
-    typedef typename Eigen::Matrix<Scalar_, 13,1 > Parameters_t;
+    typedef typename Eigen::Matrix<Scalar_, 22,1 > Parameters_t;
     typedef typename Eigen::Matrix<Scalar_, 3,1> Observations_t;
     typedef typename Eigen::Matrix<Scalar_, 6,1> S_t;
-    typedef typename Eigen::Matrix<Scalar_, 2,1> X_t;
-    typedef typename Eigen::Matrix<Scalar_, 2,1> dX_t;
+    typedef typename Eigen::Matrix<Scalar_, 3,1> X_t;
+    typedef typename Eigen::Matrix<Scalar_, 3,1> dX_t;
     typedef typename Eigen::Matrix<Scalar_, 1,1> U_t;
 
     enum InternalParameters
       {
-	P_ROTOR_INERTIA=6,
+	P_ROTOR_INERTIA=11,
 	P_TORQUE_CST,
 	P_SPEED_TORQUE_GRD,
 	P_BACK_EMF,
@@ -161,7 +161,8 @@ namespace se3
 	P_TA_RESISTOR,
 	P_MAX_PERM_WINDING_T,
 	P_THERM_TIME_CST_WINDING,
-	P_AMBIANT_TEMP
+	P_AMBIENT_TEMP,
+	P_NOMINAL_CURRENT
       };
     /// Return observation vector.
     const Observations_t & h() const { return h_;}
@@ -174,58 +175,66 @@ namespace se3
 
     ///@{ Internal parameters of the actuator.
     /// \brief Rotor inertia (kg/m2) - \f$ B_m \f$
+    /// Mandatory
     void rotorInertia(Scalar_ c)
     { c_[P_ROTOR_INERTIA] = c; updateParameters();}
 
     
     /// \brief Torque constant (Nm/A) - \f$ K_m \f$
+    /// Mandatory
     void torqueConst(Scalar_ c)
     { c_[P_TORQUE_CST] = c; updateParameters();}
     
     /// \brief Speed torque gradient (rads^-1/Nm) \f$ D_m \f$
+    /// Mandatory
     void speedTorqueGrad(Scalar_ c) 
     {c_[P_SPEED_TORQUE_GRD] = c; updateParameters();}
-    
-    /// \brief Terminal Inductance (Henry)
-    //void terminalInductance(Scalar_ &c)
-    //    {c_[7] = c;}
     
     /// \brief Back electro magnetic force constant \f$ K_b \f$
     /// It is the inverse of the speed torque gradient constant
     /// (\f$k_N\f$) in Maxon datasheet.
     /// More exactly the maxon datasheet gives rpm/V.
     /// So it is \f$\frac{60}{ 2 \pi k_N)}\f$
+    /// Mandatory
     void backEMF(Scalar_ c) 
     {c_[P_BACK_EMF] = c;updateParameters();}
 
     /// \brief Gearhead thermal resistance  \f$ R_{th1} \f$
     /// at ambient temperature units: K/W
+    /// Mandatory
     void resistorOne(Scalar_ c)
     {c_[P_THONE_RESISTOR] = c;updateParameters();}
     
     /// \brief Winding thermal resistance  \f$ R_{th2} \f$
     /// at ambient temperature units: K/W
+    /// Mandatory
     void resistorTwo(Scalar_ c)
     {c_[P_THTWO_RESISTOR] = c;updateParameters();}
 
     /// \brief Winding resistance  \f$ R_{ta} \f$
     /// at ambient temperature units: Ohms
+    /// Mandatory
     void resistorTA(Scalar_ c)
     {c_[P_TA_RESISTOR] = c;updateParameters();}
       
     /// \brief Max. permissible winding temperature  \f$ T_{max} \f$
     /// catalog value
     /// units: C
+    /// Optional: it is allowing to compute max overload factor and
+    /// and current.
     void maxPermissibleWindingTemp(Scalar_ c)
-    {c_[P_MAX_PERM_WINDING_T] = c;updateParameters();}
+    {c_[P_MAX_PERM_WINDING_T] = c;}
 
     /// \brief Therm. time constant winding \f$ \tau_W \f$
     /// units: seconds (s)
+    /// Optional: it is allowing to compute max overload factor and
+    /// and current.
     void thermTimeCstWinding(Scalar_ c)
     {c_[P_THERM_TIME_CST_WINDING] = c; updateParameters();}
 
     /// \brief Ambient temperature for the motor characteristics.
     /// Typically \f$ 25 C \f$
+    /// Mandatory
     void thermAmbient(Scalar_ c)
     {c_[P_AMBIENT_TEMP] = c; updateParameters();}
     
@@ -246,8 +255,10 @@ namespace se3
     /// \f[ K = \frac{I_{mot}}{I_N} \sqrt{ \frac{T_{max} -T_{A}}{T_{max}-T_S} \frac{R_{th1}}{R_{th1}+R_{th2}} } \f] 
     Scalar_ getOverloadForCurrent(Scalar_ aCurrent, Scalar_ TS)
     {
-      return aCurrent/c_[P_NOMINAL_CURRENT]*sqrt((c_[P_MAX_PERM_WINDING_T]- c_[P_AMBIENT_TEMP)/(c_[P_MAX_PERM_WINDING_T] - TS) *
-						 (c_[P_THONE_RESISTOR]/(c_[P_THONE_RESISTOR] + c_[P_THTWO_RESISTOR])));
+      return aCurrent/c_[P_NOMINAL_CURRENT]*
+	sqrt((c_[P_MAX_PERM_WINDING_T]- c_[P_AMBIENT_TEMP])/
+	     (c_[P_MAX_PERM_WINDING_T] - TS) *
+	     (c_[P_THONE_RESISTOR]/(c_[P_THONE_RESISTOR] + c_[P_THTWO_RESISTOR])));
     }
 
     /// \brief Returns the maximum ON time at a given overload factor K
@@ -258,12 +269,14 @@ namespace se3
       return c_[P_THERM_TIME_CST_WINDING] * log(aK*aK/(aK*aK-1.0));
     }
 
-    /// \brief Returns the maximum current \f$ I_{mot}\f$ at a given overload factor \f$ K\f$.
+    /// \brief Returns the maximum current \f$ I_{mot}\f$ at a given overload factor \f$ K\f$ and the current stator
+    /// temperature (\f$ T_S \f$).
     /// Implements
     /// \f[ I_{mot} = K I_n \sqrt{ \frac{T_{max}-T_S}{T_{max} -T_{A}} \frac{R_{th1}+R_{th2}}{R_{th1}} }\f]
-    Scalar_ getMaxCurrentForK(Scalar_ aK)
+    Scalar_ getMaxCurrentForK(Scalar_ aK, Scalar_ TS)
     {
-      return aK * c_[P_NOMINAL_CURRENT]*sqrt((c_[P_MAX_PERM_WINDING_T] - TS)/(c_[P_MAX_PERM_WINDING_T]- c_[P_AMBIENT_TEMP]) *
+      return aK * c_[P_NOMINAL_CURRENT]*sqrt((c_[P_MAX_PERM_WINDING_T] - TS)/
+					     (c_[P_MAX_PERM_WINDING_T]- c_[P_AMBIENT_TEMP]) *
 					     (c_[P_THONE_RESISTOR] + c_[P_THTWO_RESISTOR])/(c_[P_THONE_RESISTOR]));
     }
     
@@ -277,13 +290,15 @@ namespace se3
       c_[0] = c_[P_TORQUE_CST];
 
       // c_2 = B_m R_{TA} (1+T_A \alpha_{Cu} )
-      c_[1] = c_[P_ROTOR_INERTIA] * c_[P_TA_RESISTOR])*(1+ c_[P_AMBIENT_TEMP] * alpha_cu);
+      c_[1] = c_[P_ROTOR_INERTIA] * c_[P_TA_RESISTOR]*
+	(1+ c_[P_AMBIENT_TEMP] * alpha_cu_);
     
       // c_3 = -B_m R_{TA} \alpha_{Cu}
       c_[2] = -c_[P_ROTOR_INERTIA] * c_[P_TA_RESISTOR] * alpha_cu_;
       
       // c_4 = K_B + D_m R_{TA} + D_m R_{TA} \alpha_{Cu} T_{A}
-      c_[3] = c_[P_BACK_EMF] + c_[P_SPEED_TORQUE_GRD]*c_[P_TA_RESISTOR] (1+alpha_cu_ * c_[P_AMBIENT_TEMP]);
+      c_[3] = c_[P_BACK_EMF] + c_[P_SPEED_TORQUE_GRD]*c_[P_TA_RESISTOR] *
+	(1+alpha_cu_ * c_[P_AMBIENT_TEMP]);
 
       // c_5 = -D_m R_{TA} \alpha_{Cu}
       c_[4] = -c_[P_SPEED_TORQUE_GRD] * c_[P_TA_RESISTOR] * alpha_cu_;
@@ -335,6 +350,7 @@ namespace se3
     typedef Eigen::Matrix<Scalar_,3,1,0> Vector3Scalar;
     
   public:
+    typedef Scalar_ Scalar_t;
     ActuatorDCTempNonLinearMotorModel() {}
 
     void calc(typename ActuatorDCTempNonLinearMotorData<Scalar_>::dX_t & dstate,
@@ -355,12 +371,13 @@ namespace se3
       
       // Update observation
       // Current
-      data.h()[0] = control[0] /data.c()[P_ROTOR_RESISTOR]
-	- data.c()[P_BACK_EMF] *state[1]/data.c()[P_ROTOR_RESISTOR];
+      data.h()[0] = control[0] /data.c()[ActuatorDCTempNonLinearMotorData<Scalar_>::P_THONE_RESISTOR ]
+	- data.c()[ActuatorDCTempNonLinearMotorData<Scalar_>::P_BACK_EMF] *state[1]/
+	data.c()[ActuatorDCTempNonLinearMotorData<Scalar_>::P_THONE_RESISTOR ];
       // Motor torque
-      data.h()[1] = data.c()[P_TORQUE_CST] *data.h()[0];
+      data.h()[1] = data.c()[ActuatorDCTempNonLinearMotorData<Scalar_>::P_TORQUE_CST] *data.h()[0];
       // Back emf potential 
-      data.h()[2] = data.c()[P_BACK_EMF] * state[1];
+      data.h()[2] = data.c()[ActuatorDCTempNonLinearMotorData<Scalar_>::P_BACK_EMF] * state[1];
     }
     
 

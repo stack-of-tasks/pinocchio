@@ -67,6 +67,7 @@ namespace se3
     
     typedef typename amb_traits<Derived>::ActuatorModelDerived ActuatorModelDerived;
     typedef typename amb_traits<Derived>::ActuatorDataDerived ActuatorDataDerived;
+    typedef typename ActuatorDataDerived::Scalar_t Scalar_t;
     typedef typename ActuatorDataDerived::X_t X_t;
     typedef typename ActuatorDataDerived::dX_t dX_t;
     typedef typename ActuatorDataDerived::U_t U_t;

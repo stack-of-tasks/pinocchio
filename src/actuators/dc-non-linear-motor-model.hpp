@@ -235,6 +235,7 @@ namespace se3
     typedef Eigen::Matrix<Scalar_,3,1,0> Vector3Scalar;
     
   public:
+    typedef Scalar_ Scalar_t;
     ActuatorDCNonLinearMotorModel() {}
 
     void calc(typename ActuatorDCNonLinearMotorData<Scalar_>::dX_t & dstate,

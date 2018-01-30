@@ -24,18 +24,25 @@
 
 namespace se3
 {
+
+  template<typename Scalar,
+	   template<typename S> class T>
+  class traits_motor_data;
   
-  template <typename Scalar,
-	    typename ActuatorMotorData = ActuatorDCNonLinearMotorData<Scalar> >
-  class traits_motor_data
+  /// Specific parts of the tests for the non linear motor model (with inductance)
+  template<typename Scalar>
+  class traits_motor_data<Scalar, ActuatorDCNonLinearMotorData>
   {
   public:
+    typedef ActuatorDCNonLinearMotorData<Scalar> ActuatorMotorData;
     static const std::string outputfilename;
     
     static void init(ActuatorMotorData &aMotorData)
     {
       aMotorData.terminalInductance(4.65e-3);
+      aMotorData.rotorResistor(5.29);
     }
+    
     static void computeGains(Scalar &K_P, Scalar &K_D, Scalar &K_I)
     {
       double K=100;
@@ -63,37 +70,162 @@ namespace se3
 	aof << astate[i] << " ";
     }
   };
+
+  /// Specific parts of the tests for the non linear motor model (with temperature)
+  template <typename Scalar,
+	    template<typename S> class ActuatorDCTempNonLinearMotorData >
+  class traits_motor_data
+  {
+  public:
+    typedef ActuatorDCTempNonLinearMotorData<Scalar> ActuatorMotorData;
+    static const std::string outputfilename;
+    
+    static void init(ActuatorMotorData &aMotorData)
+    {
+      /// Gearhead thermal resistance (K/W)
+      aMotorData.resistorOne(6.2);
+      /// Winding thermal resistance when heating (K/W)
+      aMotorData.resistorTwo(2.0);
+      /// Winding thermal resistance at ambiant temperature (Ohms)
+      aMotorData.resistorTA(17.5);
+      /// Max.permissible winding temperature (C)
+      aMotorData.maxPermissibleWindingTemp(155.0);
+      /// Thermal time constant winding (s)
+      aMotorData.thermTimeCstWinding(25.0);
+      /// Ambient temperature for the motor characteristics.
+      aMotorData.thermAmbient(25.0);
+      
+    }
+    static void computeGains(Scalar &K_P, Scalar &K_D, Scalar &K_I)
+    {
+      double K=100;
+      K_P = 1.0 *K;
+      K_D = 0.1;
+      K_I = 0.1;
+    }
+			     
+    static void integration(typename ActuatorMotorData::X_t &astate,
+			    typename ActuatorMotorData::dX_t &dstate,
+			    double dt_sim) 
+    {
+      astate[0] = astate[0] + dt_sim*dstate[0] + 0.5*dt_sim*dt_sim*dstate[1];
+      astate[1] = astate[1] + dstate[1]*dt_sim;
+      astate[2] = astate[2] + dstate[2]*dt_sim;
+    }
+    
+    static void output_data(std::ofstream &,
+			    ActuatorMotorData &,
+			    typename ActuatorMotorData::X_t &)
+    { }
+  };
+
+
+  /// Specific parts of the tests for the linear motor model
+  template<typename Scalar>
+  class traits_motor_data<Scalar, ActuatorDCMotorData>
+  {
+  public:
+    typedef ActuatorDCMotorData<Scalar> ActuatorMotorData;
+    static const std::string outputfilename;
+    
+    static void init(ActuatorMotorData &aMotorData)
+    {
+      aMotorData.rotorResistor(5.29);
+    }
+    
+    static void computeGains(Scalar &K_P, Scalar &K_D, Scalar &K_I)
+    {
+      double K=100;
+      K_P = 1.0 *K;
+      K_D = 0.1;
+      K_I = 0.1;
+    }
+			     
+    static void integration(typename ActuatorMotorData::X_t &astate,
+			    typename ActuatorMotorData::dX_t &dstate,
+			    double dt_sim) 
+    {
+      astate[0] = astate[0] + dt_sim*dstate[0] + 0.5*dt_sim*dt_sim*dstate[1];
+      astate[1] = astate[1] + dstate[1]*dt_sim;
+    }
+    
+    static void output_data(std::ofstream &,
+			    ActuatorMotorData &,
+			    typename ActuatorMotorData::X_t &)
+    { }
+  };
+
+  
+
+  /// Specific parts of the tests for the linear motor model
+  template<typename Scalar>
+  class traits_motor_data<Scalar, ActuatorDCFirstOrderMotorData>
+  {
+  public:
+    typedef ActuatorDCFirstOrderMotorData<Scalar> ActuatorMotorData;
+    static const std::string outputfilename;
+    
+    static void init(ActuatorMotorData &aMotorData)
+    {
+      aMotorData.rotorResistor(5.29);
+    }
+    
+    static void computeGains(Scalar &K_P, Scalar &K_D, Scalar &K_I)
+    {
+      // Frequency of the closed loop system
+      double f=20;
+      double w=f;
+      K_P= w*w*aMotorData.c()[3];
+      K_D= 0.0;//2*w*aMotorData.c()[3] - B;
+
+    }
+			     
+    static void integration(typename ActuatorMotorData::X_t &astate,
+			    typename ActuatorMotorData::dX_t &dstate,
+			    double dt_sim) 
+    {
+      astate[0] = astate[0] + dt_sim*dstate[0];
+    }
+    
+    static void output_data(std::ofstream &,
+			    ActuatorMotorData &,
+			    typename ActuatorMotorData::X_t &)
+    { }
+  };
+
+  // Common part of the tests.
   template <typename MotorModel,
-	    typename MotorData,
-	    typename traits_md_tempt =
-	    traits_motor_data<typename MotorData::Scalar_t, MotorData> >
+	    template<typename S> class MotorData> 
   class test_dc_motors
   {
   public:
     bool Test()
     {
+      typedef typename MotorModel::Scalar_t Scalar_t;
+      typedef traits_motor_data<Scalar_t,MotorData > traits_md_tempt;
+      typedef  MotorData<Scalar_t> MotorDataSpec_t;
       using namespace Eigen;
       using namespace se3;
       
       MotorModel aMotorModel;
-      MotorData aMotorData = aMotorModel.createData();
+      MotorData<Scalar_t> aMotorData = aMotorModel.createData();
       
       // Maxon motor 118754
       aMotorData.rotorInertia(10.1e-7);
-      aMotorData.rotorResistor(5.29);
       aMotorData.torqueConst(35.3e-3);
       aMotorData.speedTorqueGrad(2.352e-4);
       aMotorData.backEMF(0.035237);//0.070475;
       traits_md_tempt::init(aMotorData);
 
-      typename MotorData::X_t astate;
-      astate[0] = 0;
-      astate[1] = 0;
+      typename MotorDataSpec_t::X_t astate;
+      for(unsigned int i=0;i<astate.rows();i++)
+	astate[i] = 0.0;
     
-      typename MotorData::U_t acontrol;
-      acontrol[0] = 0.0; // Volts
+      typename MotorDataSpec_t::U_t acontrol;
+      for(unsigned int i=0;i<acontrol.rows();i++)
+	acontrol[i] = 0.0; 
     
-      typedef Eigen::Matrix<typename MotorData::Scalar_t,3,1,0> Vector3Scalar;
+      typedef Eigen::Matrix<Scalar_t,3,1,0> Vector3Scalar;
       Force f_ext;
       double tz = 0.28;
       tz = 0.0;
@@ -105,10 +237,10 @@ namespace se3
       double dt_sim=1e-6;
       
       // \f$ \dot{x} \f$
-      typename MotorData::dX_t dstate;
+      typename MotorDataSpec_t::dX_t dstate;
   
       // Selection matrix
-      typename MotorData::S_t aS;
+      typename MotorDataSpec_t::S_t aS;
       aS.Zero(6,1);
       aS[5] = 1.0;
       aMotorData.setS(aS);
@@ -161,6 +293,12 @@ namespace se3
 		  << v_error << " "
 		  << acontrol[0] << "  ";
 
+	      for(unsigned int j=0;j<aMotorData.c().rows();j++)
+		aof << aMotorData.c()[j] << " ";
+
+	      for(unsigned int j=0;j<astate.rows();j++)
+		aof << astate[j] << " ";
+	      
 	      // Record specific informations
 	      traits_md_tempt::output_data(aof,aMotorData,astate);
 
