@@ -47,7 +47,7 @@ namespace se3
       \left(
       \begin{matrix}
       \dot{\theta}_m \\
-      \frac{K_m}{B_m R_{TA}(1-\alpha_{Cu} ( T-T_{A}))}V - \left(\frac{K_b}{B_mR_{TA}(1-\alpha_{Cu} ( T-T_{A}))} + 
+      \frac{K_m}{B_m R_{TA}(1-\alpha_{Cu} ( T-T_{A}))}V - \left(\frac{K_m K_b}{B_mR_{TA}(1-\alpha_{Cu} ( T-T_{A}))} +
       \frac{D_m}{B_m}\right) \dot{\theta}_m -\frac{\tau_l}{B_m} \\
       \frac{(R_{th1} + R_{th2})(V-K_b \dot{\theta}_m)^2}{(1+\alpha_{Cu}(T-T_{A})) R_{TA}-\alpha_{cu}(R_{th1}+R_{th2})(V-K_b \dot{\theta}_m)^2}
       \end{matrix}
@@ -97,17 +97,17 @@ namespace se3
       Thus 
       \f[ 
       \begin{array}{rcl}
-      c_1 &= & K_m\\
-      c_2 &= & B_m R_{TA} (1+T_{A}\alpha_{Cu})\\
-      c_3 &= & -B_m R_{TA} \alpha_{Cu} \\
-      c_4 &= & K_B + D_m R_{TA} + D_m R_{TA} \alpha_{Cu} T_{A} \\
-      c_5 &= & -D_m R_{TA} \alpha_{Cu} \\
-      c_6 &= & -\frac{1}{B_m} \\
-      c_7 &= & (R_{th1}+R_{th2})\\
-      c_8 &= & -K_b\\
-      c_9 &= & R_{TA} - \alpha_{Cu} T_A R_{TA} \\
-      c_{10} &=&  \alpha_{Cu} R_{TA} \\
-      c_{11} &=& -\alpha_{Cu}(R_{th1}+R_{th2}) \\
+      c_0 &= & K_m\\
+      c_1 &= & B_m R_{TA} (1+\alpha_{Cu} T_{A})\\
+      c_2 &= & -B_m R_{TA} \alpha_{Cu} \\
+      c_3 &= & K_m K_B + D_m B_m R_{TA} (1 + \alpha_{Cu} T_{A}) \\
+      c_4 &= & -D_m R_{TA} \alpha_{Cu} \\
+      c_5 &= & -\frac{1}{B_m} \\
+      c_6 &= & (R_{th1}+R_{th2})\\
+      c_7 &= & -K_b\\
+      c_8 &= & R_{TA} - \alpha_{Cu} T_A R_{TA} \\
+      c_{9} &=&  \alpha_{Cu} R_{TA} \\
+      c_{10} &=& -\alpha_{Cu}(R_{th1}+R_{th2}) \\
       \end{array}
       \f]
       The control vector \f$ \bf{u} \f$ is the voltage \f$ V \f$. <br>

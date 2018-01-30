@@ -113,7 +113,7 @@ namespace se3
       = 
       \left(
       \begin{matrix}
-      \frac{K_m}{i_a}\\
+      K_m i_a\\
       K_b \dot{\theta}_m\\
       \end{matrix}
       \right)
@@ -205,10 +205,10 @@ namespace se3
       c_[2] = -1/c_[P_ROTOR_INERTIA];
       // c_4 = rotorResistor/terminalInductance
       c_[3] = -c_[P_ROTOR_RESISTOR]/c_[P_TERMINAL_INDUCTANCE];
-      // c_5 = 1/terminalInductance
-      c_[4] = 1/c_[P_TERMINAL_INDUCTANCE];
-      // c_6 = - backEMF/terminalInductance
-      c_[5] = - c_[P_BACK_EMF]/c_[P_TERMINAL_INDUCTANCE];
+      // c_5 = - backEMF/terminalInductance
+      c_[4] = -c_[P_BACK_EMF]/c_[P_TERMINAL_INDUCTANCE];
+      // c_6 = 1/terminalInductance
+      c_[5] = 1/c_[P_TERMINAL_INDUCTANCE];
     }
 
     /// Observation variables
@@ -252,11 +252,11 @@ namespace se3
       dstate[1] = data.c()[0] * state[2] + data.c()[1] * state[1] +
 	data.c()[2] *data.S().dot(fext.toVector());
       /// di/dt = (-Ri + V - K_b dtheta/dt)/L
-      dstate[2] = data.c()[3] * state[2] + control[0] - data.c()[7]* state[1];
+      dstate[2] = data.c()[3] * state[2] + data.c()[4]* state[1] + data.c()[5] * control[0];
 	
       // Update observation
       // Motor torque
-      data.h()[0] = data.c()[ActuatorDCTwoSndOrderLinearMotorData<Scalar_>::P_TORQUE_CST] *state[2];
+      data.h()[0] = data.c()[ActuatorDCTwoSndOrderLinearMotorData<Scalar_>::P_TORQUE_CST] * state[2];
       // Back emf potential 
       data.h()[1] = data.c()[ActuatorDCTwoSndOrderLinearMotorData<Scalar_>::P_BACK_EMF] * state[1];
     }

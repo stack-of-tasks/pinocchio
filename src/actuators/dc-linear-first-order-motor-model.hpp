@@ -44,7 +44,7 @@ namespace se3
       = 
       \left(
       \begin{matrix}
-      \frac{K_m K_b}{K_b + R D_m}V  -\frac{\tau_l}{K_b + R D_m}
+      \frac{K_m}{K_m K_b + R D_m}V  -\frac{R}{K_m K_b + R D_m}\tau_l
       \end{matrix}
       \right)
       \f]
@@ -73,7 +73,6 @@ namespace se3
       = 
       \left(
       \begin{matrix}
-      x_1 \\
       c_{1} u + c_2 \bf{S}\bf{f}_{ext}
       \end{matrix}
       \right)
@@ -82,8 +81,8 @@ namespace se3
       Thus 
       \f[ 
       \begin{array}{rcl}
-      c_1 &= &\frac{K_b K_m}{K_b + R D_m}\\
-      c_2 &= & -\frac{1}{K_b + R D_m} \\
+      c_1 &= &\frac{K_m}{K_m K_b + R D_m}\\
+      c_2 &= & -\frac{R}{K_m K_b + R D_m} \\
       \end{array}
       \f]
       The control vector \f$ \bf{u} \f$ is the voltage \f$ V \f$. <br>
@@ -126,6 +125,15 @@ namespace se3
     typedef typename Eigen::Matrix<Scalar_, 2,1> dX_t;
     typedef typename Eigen::Matrix<Scalar_, 1,1> U_t;
 
+    enum InternalParameters
+    {
+        P_ROTOR_INERTIA=3,
+        P_ROTOR_RESISTOR,
+        P_TORQUE_CST,
+        P_SPEED_TORQUE_GRD,
+        P_BACK_EMF,
+    };
+
     /// Return observation vector.
     const Observations_t & h() const { return h_;}
     
@@ -138,19 +146,19 @@ namespace se3
     ///@{ Internal parameters of the actuator.
     /// \brief Rotor inertia (kg/m2) - \f$ B_m \f$
     void rotorInertia(Scalar_ c)
-    { c_[3] = c; updateFirstThreeParameters();}
+    { c_[P_ROTOR_INERTIA] = c; updateFirstThreeParameters();}
 
     /// \brief Rotor resistor (Ohm) - \f$ R\f$
     void rotorResistor(Scalar_ c)
-    { c_[4] = c; updateFirstThreeParameters();}
+    { c_[P_ROTOR_RESISTOR] = c; updateFirstThreeParameters();}
     
     /// \brief Torque constant (Nm/A) - \f$ K_m \f$
     void torqueConst(Scalar_ c)
-    { c_[5] = c; updateFirstThreeParameters();}
+    { c_[P_TORQUE_CST] = c; updateFirstThreeParameters();}
     
     /// \brief Speed torque gradient (rads^-1/Nm) \f$ D_m \f$
     void speedTorqueGrad(Scalar_ c) 
-    {c_[6] = 1/c; updateFirstThreeParameters();}
+    {c_[P_SPEED_TORQUE_GRD] = 1/c; updateFirstThreeParameters();}
     
     /// \brief Terminal Inductance (Henry)
     //void terminalInductance(Scalar_ &c)
@@ -162,7 +170,7 @@ namespace se3
     /// More exactly the maxon datasheet gives rpm/V.
     /// So it is \f$\frac{60}{ 2 \pi k_N)}\f$
     void backEMF(Scalar_ c) 
-    {c_[7] = c;}
+    {c_[P_BACK_EMF] = c;}
 
     void setS(S_t &S)
     {S_ = S;}
@@ -174,11 +182,10 @@ namespace se3
     /// Update the first three parameters of the actuators:
     void updateFirstThreeParameters()
     {
-      // c_1 = torque_cst / (rotorInertia * rotorResistor)
-      c_[0] = c_[5] /(c_[3] * c_[4]);
-      // c_2 = - back_emf_cst  / (rotorInertia * rotorResistor)
-      //        - speedTorqueGrad^{-1} / rotorInertia
-      c_[1] = -c_[5]*c_[7] /(c_[5] + c_[3]*c_[6] ) ;
+      // c_0 = torque_cst / (torque_cst * back_emf_cst + rotorResistor * speedTorqueGrad^{-1} )
+      c_[0] = c_[P_TORQUE_CST] / (c_[P_TORQUE_CST] * c_[P_BACK_EMF] + c_[P_ROTOR_RESISTOR] * c_[P_SPEED_TORQUE_GRD]);
+      // c_1 = - rotorResistor  / (torque_cst * back_emf_cst + rotorResistor * speedTorqueGrad^{-1} )
+      c_[1] = -c_[P_ROTOR_RESISTOR]/ (c_[P_TORQUE_CST] * c_[P_BACK_EMF] + c_[P_ROTOR_RESISTOR] * c_[P_SPEED_TORQUE_GRD]);
     }
 
     /// Observation variables
@@ -217,16 +224,16 @@ namespace se3
 	      Force & fext,
 	      ActuatorDCFirstOrderMotorData<Scalar_> &data)
     {
+      typedef ActuatorDCFirstOrderMotorData<Scalar_> adc;
       // Update dstate
-      dstate[0] = data.c()[0] * control[0] + data.c()[1] * state[0] +
-	data.c()[2] *data.S().dot(fext.toVector());
+      dstate[1] = data.c()[0] * control[0] + data.c()[1] *data.S().dot(fext.toVector());
       // Update observation
       // Current
-      data.h()[0] = control[0] /data.c()[4] - data.c()[7] *state[1]/data.c()[4];
+      data.h()[0] = control[0] /data.c()[adc::P_ROTOR_RESISTOR] - data.c()[adc::P_BACK_EMF] *dstate[1]/data.c()[adc::P_ROTOR_RESISTOR];
       // Motor torque
-      data.h()[1] = data.c()[5] *data.h()[0];
+      data.h()[1] = data.c()[adc::P_TORQUE_CST] * data.h()[0];
       // Back emf potential 
-      data.h()[2] = data.c()[7] * state[1];
+      data.h()[2] = data.c()[adc::P_BACK_EMF] * dstate[1];
     }
     
 

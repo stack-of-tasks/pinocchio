@@ -46,7 +46,7 @@ namespace se3
       \left(
       \begin{matrix}
       \dot{\theta}_m \\
-      \frac{K_m}{R B_m}V - (\frac{K_b}{R B_m} + 
+      \frac{K_m}{R B_m}V - (\frac{K_m K_b}{R B_m} +
       \frac{D_m}{B_m}) \dot{\theta}_m -\frac{\tau_l}{B_m}
       \end{matrix}
       \right)
@@ -88,7 +88,7 @@ namespace se3
       \f[ 
       \begin{array}{rcl}
       c_1 &= &\frac{K_b}{R B_m}\\
-      c_2 &= & -\frac{K_b}{R B_m} - \frac{D_m}{B_m}\\
+      c_2 &= & -\frac{K_m K_b}{R B_m} - \frac{D_m}{B_m}\\
       c_3 &= & -\frac{1}{B_m}\\
       \end{array}
       \f]
