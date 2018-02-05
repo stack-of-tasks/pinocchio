@@ -31,16 +31,12 @@ namespace se3
       NQ = Size,
       NV = Size
     };
-    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
   };
 
   template<int Size = Eigen::Dynamic>
   struct VectorSpaceOperation : public LieGroupOperationBase <VectorSpaceOperation<Size> >
   {
-    typedef VectorSpaceOperation<Size>  LieGroupDerived;
-
-    SE3_LIE_GROUP_TYPEDEF_TEMPLATE;
+    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(VectorSpaceOperation);
 
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
@@ -54,7 +50,7 @@ namespace se3
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
     ///        argument for static sized vector-spaces.
-    VectorSpaceOperation (const LieGroupDerived& other) : size_ (other.size_)
+    VectorSpaceOperation (const VectorSpaceOperation& other) : size_ (other.size_)
     {
       assert (size_ >= 0);
       assert (Size == Eigen::Dynamic || size_ == Size);

@@ -40,8 +40,6 @@ namespace se3
       NQ = 4,
       NV = 3
     };
-    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
   };
 
   template<> struct traits<SpecialEuclideanOperation<3> > {
@@ -50,16 +48,14 @@ namespace se3
       NQ = 7,
       NV = 6
     };
-    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
   };
 
   template<>
   struct SpecialEuclideanOperation<2> : public LieGroupOperationBase <SpecialEuclideanOperation<2> >
   {
     typedef CartesianProductOperation <VectorSpaceOperation<2>, SpecialOrthogonalOperation<2> > R2crossSO2_t;
-    typedef SpecialEuclideanOperation LieGroupDerived;
-    SE3_LIE_GROUP_TYPEDEF;
+
+    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialEuclideanOperation);
 
     /// Get dimension of Lie Group vector representation
     ///
@@ -218,8 +214,8 @@ namespace se3
   struct SpecialEuclideanOperation<3> : public LieGroupOperationBase <SpecialEuclideanOperation<3> >
   {
     typedef CartesianProductOperation <VectorSpaceOperation<3>, SpecialOrthogonalOperation<3> > R3crossSO3_t;
-    typedef SpecialEuclideanOperation LieGroupDerived;
-    SE3_LIE_GROUP_TYPEDEF;
+
+    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialEuclideanOperation);
 
     typedef Eigen::Quaternion<Scalar> Quaternion_t;
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;

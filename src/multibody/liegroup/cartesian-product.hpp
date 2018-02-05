@@ -31,15 +31,12 @@ namespace se3
       NQ = LieGroup1::NQ + LieGroup2::NQ,
       NV = LieGroup1::NV + LieGroup2::NV
     };
-    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
   };
 
   template<typename LieGroup1, typename LieGroup2>
   struct CartesianProductOperation : public LieGroupOperationBase <CartesianProductOperation<LieGroup1, LieGroup2> >
   {
-    typedef CartesianProductOperation<LieGroup1, LieGroup2>  LieGroupDerived;
-    SE3_LIE_GROUP_TYPEDEF_TEMPLATE;
+    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(CartesianProductOperation);
 
     CartesianProductOperation () : lg1_ (), lg2_ ()
     {
