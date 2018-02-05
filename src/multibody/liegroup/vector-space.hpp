@@ -43,40 +43,36 @@ namespace se3
     ///        argument for static sized vector-spaces.
     VectorSpaceOperation (int size = Size) : size_ (size)
     {
-      assert (size_ >= 0);
-      assert (Size == Eigen::Dynamic || size_ == Size);
+      assert (size_.value() >= 0);
     }
 
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
     ///        argument for static sized vector-spaces.
-    VectorSpaceOperation (const VectorSpaceOperation& other) : size_ (other.size_)
+    VectorSpaceOperation (const VectorSpaceOperation& other) : size_ (other.size_.value())
     {
-      assert (size_ >= 0);
-      assert (Size == Eigen::Dynamic || size_ == Size);
+      assert (size_.value() >= 0);
     }
 
     Index nq () const
     {
-      return size_;
+      return size_.value();
     }
     Index nv () const
     {
-      return size_;
+      return size_.value();
     }
 
     ConfigVector_t neutral () const
     {
-      ConfigVector_t n;
-      if (Size == Eigen::Dynamic)
-        n.resize (size_);
+      ConfigVector_t n (size_.value());
       n.setZero ();
       return n;
     }
 
     std::string name () const
     {
-      std::ostringstream oss; oss << "R^" << size_;
+      std::ostringstream oss; oss << "R^" << nq();
       return oss.str ();
     }
 
@@ -131,7 +127,7 @@ namespace se3
       }
     }
   private:
-    Index size_;
+    Eigen::internal::variable_if_dynamic<Index, Size> size_;
   }; // struct VectorSpaceOperation
 
 } // namespace se3
