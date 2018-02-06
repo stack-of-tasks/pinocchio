@@ -73,7 +73,7 @@ namespace se3
         vcross /= omega;
         t = vcross - R * vcross;
       } else {
-        t = omega * v.template head<2>();
+        t = v.template head<2>();
       }
     }
 
