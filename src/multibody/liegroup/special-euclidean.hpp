@@ -168,60 +168,18 @@ namespace se3
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
     static void integrate_impl(const Eigen::MatrixBase<ConfigIn_t> & q,
-                               const Eigen::MatrixBase<Velocity_t> & vs,
+                               const Eigen::MatrixBase<Velocity_t> & v,
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
-      ConfigOut_t& out = (const_cast< Eigen::MatrixBase<ConfigOut_t>& >(qout)).derived();
-      typedef Eigen::Matrix<Scalar, 2, 2> Matrix22;
-      typedef Eigen::Matrix<Scalar, 2, 1> Vector2;
+      ConfigOut_t& out = const_cast< ConfigOut_t& >(qout.derived());
 
-      const typename ConfigIn_t::Scalar & c0 = q(2), s0 = q(3);
-      Matrix22 R0;
-      R0 << c0, -s0, s0, c0;
+      Matrix2 R0, R;
+      Vector2 t0, t;
+      forwardKinematics(R0, t0, q);
+      exp(v, R, t);
 
-      const typename Velocity_t::Scalar & t = vs[2];
-      const typename Velocity_t::RealScalar theta = std::fabs(t);
-
-      if(theta > 1e-14)
-      {
-        // vs = [ x, y, t ]
-        // w = [ 0, 0, t ]
-        // v = [ x, y, 0 ]
-        // Considering only the 2x2 top left corner:
-        // Sp = [ 0, -1; 1, 0],
-        // if t > 0: S = Sp
-        // else    : S = -Sp
-        // S / t = Sp / |t|
-        // S * S = - I2
-        // R = I2 + ( 1 - ct) / |t| * S + ( 1 - st / |t| ) * S * S
-        //   =      ( 1 - ct) / |t| * S +       st / |t|   * I2
-        //
-        // Ru = exp3 (w)
-        // tu = R * v = (1 - ct) / |t| * S * v + st / t * v
-        //
-        // M0 * Mu = ( R0 * Ru, R0 * tu + t0 )
-
-        typedef typename Velocity_t::template ConstFixedSegmentReturnType<2>::Type Segment2;
-        const Segment2 v = vs.template head<2>();
-        Vector2 cst;
-        SINCOS (t, &cst[1], &cst[0]);
-        const Scalar inv_theta = Scalar(1)/theta;
-        const Scalar c_coeff = (1.-cst[0]) * inv_theta;
-        const Scalar s_coeff = std::fabs(cst[1]) * inv_theta;
-        const Vector2 Sp_v (-v[1], v[0]);
-
-        if (t > 0) out.template head<2>() = q.template head<2>() + R0 * (s_coeff * v + c_coeff * Sp_v);
-        else       out.template head<2>() = q.template head<2>() + R0 * (s_coeff * v - c_coeff * Sp_v);
-        out.template tail<2>() = R0 * cst;
-      }
-      else
-      {
-        // cos(t) ~ 1 - t^2 / 2
-        // sin(t) ~ t
-        out.template head<2>() = q.template head<2>() + R0*vs.template head<2>();
-        out(2) = c0 * 1 - s0 * t;
-        out(3) = s0 * 1 + c0 * t;
-      }
+      out.template head<2>() = R0 * t + t0;
+      out.template tail<2>() = (R0 * R).col(0);
     }
 
     template <class Tangent_t, class JacobianOut_t>
