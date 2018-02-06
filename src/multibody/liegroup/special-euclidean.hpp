@@ -92,12 +92,16 @@ namespace se3
     static Scalar log (const Matrix2& R)
     {
       Scalar theta;
-      const Scalar tr = 1 + R.trace();
-      if (tr > 3)       theta = 0; // acos((3-1)/2)
-      else if (tr < -1) theta = PI; // acos((-1-1)/2)
-      else              theta = acos ((tr - 1)/2);
+      const Scalar tr = R.trace();
+      const bool pos = (R (1, 0) > R (0, 1));
+      if (tr > 2)       theta = 0; // acos((3-1)/2)
+      else if (tr < -2) theta = (pos ? PI : -PI); // acos((-1-1)/2)
+      // Around 0, asin is numerically more stable than acos because
+      // acos(x) = PI/2 - x and asin(x) = x (the precision of x is not lost in PI/2).
+      else if (tr > 2 - 1e-2) theta = asin ((R(1,0) - R(0,1)) / 2);
+      else              theta = (pos ? acos (tr/2) : -acos(tr/2));
       assert (theta == theta); // theta != NaN
-      return (R (1, 0) > R (0, 1) ? theta : -theta);
+      return  theta;
     }
 
     template <typename Tangent_t>
