@@ -155,7 +155,8 @@ BOOST_AUTO_TEST_CASE ( test_all_liegroups )
                           , JointModelTranslation
                           , JointModelRUBX, JointModelRUBY, JointModelRUBZ
                           > Variant;
-  boost::mpl::for_each<Variant::types>(TestJoint());
+  for (int i = 0; i < 20; ++i)
+    boost::mpl::for_each<Variant::types>(TestJoint());
   // FIXME JointModelComposite does not work.
   // boost::mpl::for_each<JointModelVariant::types>(TestJoint());
 }
