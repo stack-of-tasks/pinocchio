@@ -89,6 +89,40 @@ namespace se3
       Mout(2,2) = 1;
     }
 
+    static Scalar log (const Matrix2& R)
+    {
+      Scalar theta;
+      const Scalar tr = 1 + R.trace();
+      if (tr > 3)       theta = 0; // acos((3-1)/2)
+      else if (tr < -1) theta = PI; // acos((-1-1)/2)
+      else              theta = acos ((tr - 1)/2);
+      assert (theta == theta); // theta != NaN
+      return (R (1, 0) > R (0, 1) ? theta : -theta);
+    }
+
+    template <typename Tangent_t>
+    static void log (Matrix2& R, Vector2& p,
+        const Eigen::MatrixBase<Tangent_t>& v)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Tangent_t,3);
+      Tangent_t& vout = const_cast< Tangent_t& >(v.derived());
+
+      Scalar t = log(R);
+      const Scalar tabs = std::fabs(t);
+      const Scalar t2 = t*t;
+      Scalar alpha;
+      if (tabs < 1e-4) {
+        alpha = 1 - t2/12 - t2*t2/720;
+      } else {
+        Scalar st,ct; SINCOS (tabs, &st, &ct);
+        alpha = tabs*st/(2*(1-ct));
+      }
+
+      Matrix2 sk; sk << 0, -t/2, t/2, 0;
+      vout.template head<2>() = alpha * p - sk * p;
+      vout(2) = t;
+    }
+
     /// Get dimension of Lie Group vector representation
     ///
     /// For instance, for SO(3), the dimension of the vector representation is
@@ -119,14 +153,13 @@ namespace se3
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      SE3 M0(SE3::Identity()); forwardKinematics(M0, q0);
-      SE3 M1(SE3::Identity()); forwardKinematics(M1, q1);
+      Matrix2 R0, R1; Vector2 t0, t1;
+      forwardKinematics(R0, t0, q0);
+      forwardKinematics(R1, t1, q1);
+      Matrix2 R (R0.transpose() * R1);
+      Vector2 t (R0.transpose() * (t1 - t0));
 
-      Motion nu(log6(M0.inverse()*M1)); // TODO: optimize implementation
-
-      Tangent_t& out = const_cast< Eigen::MatrixBase<Tangent_t>& >(d).derived();
-      out.template head<2>() = nu.linear().head<2>();
-      out(2) = nu.angular()(2);
+      log (R, t, d);
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -242,15 +275,15 @@ namespace se3
 
     private:
     template<typename V>
-    static void forwardKinematics(SE3 & M, const Eigen::MatrixBase<V>& q)
+    static void forwardKinematics(Matrix2 & R, Vector2 & t, const Eigen::MatrixBase<V>& q)
     {
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
 
       const double& c_theta = q(2),
                     s_theta = q(3);
 
-      M.rotation().topLeftCorner<2,2>() << c_theta, -s_theta, s_theta, c_theta;
-      M.translation().head<2>() = q.template head<2>();
+      R << c_theta, -s_theta, s_theta, c_theta;
+      t = q.template head<2>();
     }
   }; // struct SpecialEuclideanOperation<2>
 
