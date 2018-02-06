@@ -90,6 +90,17 @@ namespace se3
       LieGroup2::integrate(q.template tail<LieGroup2::NQ>(), v.template tail<LieGroup2::NV>(), out.template tail<LieGroup2::NQ>());
     }
 
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> & v,
+                                const Eigen::MatrixBase<JacobianOut_t> & J)
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      Jout.template   topRightCorner<LieGroup1::NV,LieGroup2::NV>().setZero();
+      Jout.template bottomLeftCorner<LieGroup2::NV,LieGroup1::NV>().setZero();
+      LieGroup1::Jintegrate(v.template head<LieGroup1::NV>(), Jout.template     topLeftCorner<LieGroup1::NV,LieGroup1::NV>());
+      LieGroup2::Jintegrate(v.template tail<LieGroup2::NV>(), Jout.template bottomRightCorner<LieGroup2::NV,LieGroup2::NV>());
+    }
+
     template <class ConfigL_t, class ConfigR_t>
     static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        const Eigen::MatrixBase<ConfigR_t> & q1)

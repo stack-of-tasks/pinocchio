@@ -92,6 +92,13 @@ namespace se3
       const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout) = q + v;
     }
 
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> &,
+                                const Eigen::MatrixBase<JacobianOut_t> & J)
+    {
+      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+    }
+
     // template <class ConfigL_t, class ConfigR_t>
     // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)

@@ -104,6 +104,14 @@ namespace se3
       out *= (3 - norm2) / 2;
     }
 
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  &,
+                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      Jout(0) = 1;
+    }
+
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                  const Eigen::MatrixBase<ConfigR_t> & q1,
@@ -222,6 +230,14 @@ namespace se3
       Quaternion_t pOmega(exp3(v));
       quaternion_result = quat * pOmega;
       firstOrderNormalize(quaternion_result);
+    }
+
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  & v,
+                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      Jout = exp3(v).transpose();
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>

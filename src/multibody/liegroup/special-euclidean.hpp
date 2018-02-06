@@ -56,6 +56,38 @@ namespace se3
     typedef CartesianProductOperation <VectorSpaceOperation<2>, SpecialOrthogonalOperation<2> > R2crossSO2_t;
 
     SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialEuclideanOperation);
+    typedef Eigen::Matrix<Scalar,2,2> Matrix2;
+    typedef Eigen::Matrix<Scalar,2,1> Vector2;
+
+    template <typename Tangent_t>
+    static void exp (const Eigen::MatrixBase<Tangent_t>& v, Matrix2& R, Vector2& t)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Tangent_t,3);
+
+      const Scalar & omega = v(2);
+      Scalar cv,sv; SINCOS(omega, &sv, &cv);
+      R << cv, -sv, sv, cv;
+
+      if (std::fabs (omega) > 1e-14) {
+        Vector2 vcross (-v(1), v(0));
+        vcross /= omega;
+        t = vcross - R * vcross;
+      } else {
+        t = omega * v.template head<2>();
+      }
+    }
+
+    template <typename Matrix_t>
+    static void toInverseActionMatrix (const Matrix2& R, const Vector2& t, const Eigen::MatrixBase<Matrix_t>& M)
+    {
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix_t, 3, 3);
+      Matrix_t& Mout = const_cast <Matrix_t&> (M.derived());
+      Mout.template topLeftCorner<2,2>() = R.transpose();
+      Vector2 tinv (R.transpose() * t);
+      Mout.template topRightCorner<2,1>() << - tinv(1), tinv(0);
+      Mout.template bottomLeftCorner<1,2>().setZero();
+      Mout(2,2) = 1;
+    }
 
     /// Get dimension of Lie Group vector representation
     ///
@@ -153,6 +185,19 @@ namespace se3
         out(2) = c0 * 1 - s0 * t;
         out(3) = s0 * 1 + c0 * t;
       }
+    }
+
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  & v,
+                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+
+      Matrix2 R;
+      Vector2 t;
+      exp(v, R, t);
+
+      toInverseActionMatrix (R, t, Jout);
     }
 
     // interpolate_impl use default implementation.
@@ -276,6 +321,14 @@ namespace se3
       // Norm of qs might be epsilon-different to 1, so M1.rotation might be epsilon-different to a rotation matrix.
       // It is then safer to re-normalized after converting M1.rotation to quaternion.
       firstOrderNormalize(res_quat);
+    }
+
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  & v,
+                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      Jout = exp6(v).inverse().toActionMatrix();
     }
 
     // interpolate_impl use default implementation.

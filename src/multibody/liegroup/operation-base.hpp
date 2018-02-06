@@ -34,7 +34,8 @@ namespace se3
     NV = Base::NV                                                              \
   };                                                                           \
   typedef Base::ConfigVector_t ConfigVector_t;                                 \
-  typedef Base::TangentVector_t TangentVector_t;
+  typedef Base::TangentVector_t TangentVector_t;                               \
+  typedef Base::JacobianMatrix_t JacobianMatrix_t
 
 #define SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(Derived)                            \
   typedef          LieGroupOperationBase<Derived> Base;                        \
@@ -45,7 +46,8 @@ namespace se3
     NV = Base::NV                                                              \
   };                                                                           \
   typedef typename Base::ConfigVector_t ConfigVector_t;                        \
-  typedef typename Base::TangentVector_t TangentVector_t;
+  typedef typename Base::TangentVector_t TangentVector_t;                      \
+  typedef typename Base::JacobianMatrix_t JacobianMatrix_t
 
   template<typename Derived>
   struct LieGroupOperationBase
@@ -60,6 +62,7 @@ namespace se3
 
     typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,NV,NV> JacobianMatrix_t;
 
     /// \name API with return value as argument
     /// \{
@@ -76,6 +79,17 @@ namespace se3
     static void integrate(const Eigen::MatrixBase<ConfigIn_t> & q,
                           const Eigen::MatrixBase<Tangent_t>  & v,
                           const Eigen::MatrixBase<ConfigOut_t>& qout);
+
+    /**
+     * @brief      Computes the Jacobian of the Integrate operation.
+     *
+     * @param[in]  v     joint velocity (size full model.nv)
+     *
+     * @return     The Jacobian
+     */
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate(const Eigen::MatrixBase<Tangent_t>  & v,
+                           const Eigen::MatrixBase<JacobianOut_t>& J);
 
     /**
      * @brief      Interpolation between two joint's configurations
