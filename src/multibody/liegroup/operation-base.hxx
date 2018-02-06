@@ -84,7 +84,7 @@ namespace se3 {
   (const Eigen::MatrixBase<Config_t>& qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t, ConfigVector_t);
-    return Derived::random_impl (qout);
+    return derived().random_impl (qout);
   }
 
   template <class Derived>

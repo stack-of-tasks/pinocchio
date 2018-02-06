@@ -49,7 +49,7 @@ namespace se3
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
     ///        argument for static sized vector-spaces.
-    VectorSpaceOperation (const VectorSpaceOperation& other) : size_ (other.size_.value())
+    VectorSpaceOperation (const VectorSpaceOperation& other) : Base (), size_ (other.size_.value())
     {
       assert (size_.value() >= 0);
     }
@@ -103,7 +103,7 @@ namespace se3
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
-      qout.setRandom();
+      const_cast< Eigen::MatrixBase<Config_t>& > (qout).setRandom();
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
