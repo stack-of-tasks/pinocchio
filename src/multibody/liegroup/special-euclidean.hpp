@@ -62,7 +62,7 @@ namespace se3
     template <typename Tangent_t>
     static void exp (const Eigen::MatrixBase<Tangent_t>& v, Matrix2& R, Vector2& t)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Tangent_t,3);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,Tangent_t);
 
       const Scalar & omega = v(2);
       Scalar cv,sv; SINCOS(omega, &sv, &cv);
@@ -108,7 +108,7 @@ namespace se3
     static void log (Matrix2& R, Vector2& p,
         const Eigen::MatrixBase<Tangent_t>& v)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Tangent_t,3);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,Tangent_t);
       Tangent_t& vout = const_cast< Tangent_t& >(v.derived());
 
       Scalar t = log(R);
