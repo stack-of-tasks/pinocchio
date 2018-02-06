@@ -22,6 +22,7 @@
 # include <Eigen/Geometry>
 
 # include "pinocchio/macros.hpp"
+# include "pinocchio/math/fwd.hpp"
 # include "pinocchio/math/sincos.hpp"
 # include "pinocchio/spatial/motion.hpp"
 # include "pinocchio/spatial/skew.hpp"
@@ -50,6 +51,46 @@ namespace se3
       return Eigen::Matrix<typename D::Scalar,3,3, Eigen::internal::traits<D>::Options>::Identity();
   }
 
+  /// \brief Same as \ref log3
+  ///
+  /// \param[in] theta the angle value
+  ///
+  /// \return The angular velocity vector associated to the rotation matrix.
+  ///
+  template <typename D> Eigen::Matrix<typename D::Scalar,3,1,Eigen::internal::traits<D>::Options>
+  log3(const Eigen::MatrixBase<D> & R, typename D::Scalar& theta)
+  {
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(D, Eigen::Matrix3d);
+    typedef typename D::Scalar Scalar;
+    typedef Eigen::Matrix<Scalar,3,1,Eigen::internal::traits<D>::Options> Vector3;
+
+    Vector3 value;
+    const Scalar tr = R.trace();
+    if (tr > 3)       theta = 0; // acos((3-1)/2)
+    else if (tr < -1) theta = PI; // acos((-1-1)/2)
+    else              theta = acos ((tr - 1)/2);
+    assert (theta == theta); // theta != NaN
+    // From runs of hpp-constraints/tests/logarithm.cc: 1e-6 is too small.
+    if (theta < PI - 1e-2) {
+      const Scalar t = ((theta > 1e-6)? theta / sin(theta) : 1) / 2;
+      value(0) = t * (R (2, 1) - R (1, 2));
+      value(1) = t * (R (0, 2) - R (2, 0));
+      value(2) = t * (R (1, 0) - R (0, 1));
+    } else {
+      // 1e-2: A low value is not required since the computation is
+      // using explicit formula. However, the precision of this method
+      // is the square root of the precision with the antisymmetric
+      // method (Nominal case).
+      const Scalar cphi = cos(theta - PI);
+      const Scalar beta  = theta*theta / ( 1 + cphi );
+      Vector3 tmp ((R.diagonal().array() + cphi) * beta);
+      value(0) = (R (2, 1) > R (1, 2) ? 1 : -1) * (tmp[0] > 0 ? sqrt(tmp[0]) : 0);
+      value(1) = (R (0, 2) > R (2, 0) ? 1 : -1) * (tmp[1] > 0 ? sqrt(tmp[1]) : 0);
+      value(2) = (R (1, 0) > R (0, 1) ? 1 : -1) * (tmp[2] > 0 ? sqrt(tmp[2]) : 0);
+    }
+    return value;
+  }
+
   /// \brief Log: SO3 -> so3.
   ///
   /// Pseudo-inverse of log from \f$ SO3 -> { v \in so3, ||v|| \le pi } \f$.
@@ -61,12 +102,8 @@ namespace se3
   template <typename D> Eigen::Matrix<typename D::Scalar,3,1,Eigen::internal::traits<D>::Options>
   log3(const Eigen::MatrixBase<D> & R)
   {
-    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(D, Eigen::Matrix3d);
-    Eigen::AngleAxis<typename D::Scalar> angleAxis(R);
-    assert(0 <= angleAxis.angle() && angleAxis.angle() <= 2 * M_PI);
-    if (angleAxis.angle() > M_PI)
-      return -(2*M_PI - angleAxis.angle()) * angleAxis.axis();
-    return angleAxis.axis() * angleAxis.angle();
+    typename D::Scalar theta;
+    return log3 (R.derived(), theta);
   }
 
   /// \brief Exp: se3 -> SE3.
@@ -136,19 +173,21 @@ namespace se3
 
     const Matrix3 & R = M.rotation();
     const Vector3 & p = M.translation();
-    Vector3 w(log3(R));
-    Scalar t = w.norm();
-    if (t > 1e-15)
-    {
-      Matrix3 S(alphaSkew(1./t, w));
-      double ct,st; SINCOS (t,&st,&ct);
-      Matrix3 V(Matrix3::Identity() + (1. - ct)/t * S + (1. - st/t) * S * S);
-   
-      return MotionTpl<_Scalar,_Options>(V.inverse() * p, w);
+    Scalar t;
+    Vector3 w(log3(R, t));
+    const Scalar t2 = t*t;
+    Scalar alpha, beta;
+    if (std::fabs(t) < 1e-4) {
+      alpha = 1 - t2/12 - t2*t2/720;
+      beta = 1./12 + t2/720;
+    } else {
+      Scalar st,ct; SINCOS (t, &st, &ct);
+      alpha = t*st/(2*(1-ct));
+      beta = 1/t2 - st/(2*t*(1-ct));
     }
-    else
-      return MotionTpl<_Scalar,_Options>(p, w);
-    
+    return MotionTpl<_Scalar,_Options>(
+        alpha * p - alphaSkew(0.5, w) * p + beta * w.dot(p) * w,
+        w);
   }
 
   /// \brief Log: SE3 -> se3.
