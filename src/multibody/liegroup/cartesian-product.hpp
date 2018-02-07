@@ -31,15 +31,12 @@ namespace se3
       NQ = LieGroup1::NQ + LieGroup2::NQ,
       NV = LieGroup1::NV + LieGroup2::NV
     };
-    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
   };
 
   template<typename LieGroup1, typename LieGroup2>
   struct CartesianProductOperation : public LieGroupOperationBase <CartesianProductOperation<LieGroup1, LieGroup2> >
   {
-    typedef CartesianProductOperation<LieGroup1, LieGroup2>  LieGroupDerived;
-    SE3_LIE_GROUP_TYPEDEF_TEMPLATE;
+    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(CartesianProductOperation);
 
     CartesianProductOperation () : lg1_ (), lg2_ ()
     {
@@ -91,6 +88,17 @@ namespace se3
       ConfigOut_t& out = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
       LieGroup1::integrate(q.template head<LieGroup1::NQ>(), v.template head<LieGroup1::NV>(), out.template head<LieGroup1::NQ>());
       LieGroup2::integrate(q.template tail<LieGroup2::NQ>(), v.template tail<LieGroup2::NV>(), out.template tail<LieGroup2::NQ>());
+    }
+
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> & v,
+                                const Eigen::MatrixBase<JacobianOut_t> & J)
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      Jout.template   topRightCorner<LieGroup1::NV,LieGroup2::NV>().setZero();
+      Jout.template bottomLeftCorner<LieGroup2::NV,LieGroup1::NV>().setZero();
+      LieGroup1::Jintegrate(v.template head<LieGroup1::NV>(), Jout.template     topLeftCorner<LieGroup1::NV,LieGroup1::NV>());
+      LieGroup2::Jintegrate(v.template tail<LieGroup2::NV>(), Jout.template bottomRightCorner<LieGroup2::NV,LieGroup2::NV>());
     }
 
     template <class ConfigL_t, class ConfigR_t>

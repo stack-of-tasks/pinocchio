@@ -31,56 +31,48 @@ namespace se3
       NQ = Size,
       NV = Size
     };
-    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
   };
 
   template<int Size = Eigen::Dynamic>
   struct VectorSpaceOperation : public LieGroupOperationBase <VectorSpaceOperation<Size> >
   {
-    typedef VectorSpaceOperation<Size>  LieGroupDerived;
-
-    SE3_LIE_GROUP_TYPEDEF_TEMPLATE;
+    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(VectorSpaceOperation);
 
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
     ///        argument for static sized vector-spaces.
     VectorSpaceOperation (int size = Size) : size_ (size)
     {
-      assert (size_ >= 0);
-      assert (Size == Eigen::Dynamic || size_ == Size);
+      assert (size_.value() >= 0);
     }
 
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
     ///        argument for static sized vector-spaces.
-    VectorSpaceOperation (const LieGroupDerived& other) : size_ (other.size_)
+    VectorSpaceOperation (const VectorSpaceOperation& other) : Base (), size_ (other.size_.value())
     {
-      assert (size_ >= 0);
-      assert (Size == Eigen::Dynamic || size_ == Size);
+      assert (size_.value() >= 0);
     }
 
     Index nq () const
     {
-      return size_;
+      return size_.value();
     }
     Index nv () const
     {
-      return size_;
+      return size_.value();
     }
 
     ConfigVector_t neutral () const
     {
-      ConfigVector_t n;
-      if (Size == Eigen::Dynamic)
-        n.resize (size_);
+      ConfigVector_t n (size_.value());
       n.setZero ();
       return n;
     }
 
     std::string name () const
     {
-      std::ostringstream oss; oss << "R^" << size_;
+      std::ostringstream oss; oss << "R^" << nq();
       return oss.str ();
     }
 
@@ -100,6 +92,13 @@ namespace se3
       const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout) = q + v;
     }
 
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> &,
+                                const Eigen::MatrixBase<JacobianOut_t> & J)
+    {
+      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+    }
+
     // template <class ConfigL_t, class ConfigR_t>
     // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
@@ -111,7 +110,7 @@ namespace se3
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
-      qout.setRandom();
+      const_cast< Eigen::MatrixBase<Config_t>& > (qout).setRandom();
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -135,7 +134,7 @@ namespace se3
       }
     }
   private:
-    Index size_;
+    Eigen::internal::variable_if_dynamic<Index, Size> size_;
   }; // struct VectorSpaceOperation
 
 } // namespace se3

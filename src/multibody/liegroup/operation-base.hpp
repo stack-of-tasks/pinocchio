@@ -25,68 +25,44 @@
 
 namespace se3
 {
-#ifdef __clang__
+#define SE3_LIE_GROUP_PUBLIC_INTERFACE(Derived)                                \
+  typedef LieGroupOperationBase<Derived> Base;                                 \
+  typedef Base::Index Index;                                                   \
+  typedef traits<Derived>::Scalar Scalar;                                      \
+  enum {                                                                       \
+    NQ = Base::NQ,                                                             \
+    NV = Base::NV                                                              \
+  };                                                                           \
+  typedef Base::ConfigVector_t ConfigVector_t;                                 \
+  typedef Base::TangentVector_t TangentVector_t;                               \
+  typedef Base::JacobianMatrix_t JacobianMatrix_t
 
-#define SE3_LIE_GROUP_TYPEDEF_ARG(prefix)              \
-  typedef int Index;                                   \
-  typedef prefix traits<LieGroupDerived>::Scalar Scalar;    \
-  enum {                  \
-    NQ = traits<LieGroupDerived>::NQ,              \
-    NV = traits<LieGroupDerived>::NV               \
-  };                        \
-  typedef prefix traits<LieGroupDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef prefix traits<LieGroupDerived>::TangentVector_t TangentVector_t
-
-#define SE3_LIE_GROUP_TYPEDEF SE3_LIE_GROUP_TYPEDEF_ARG()
-#define SE3_LIE_GROUP_TYPEDEF_TEMPLATE SE3_LIE_GROUP_TYPEDEF_ARG(typename)
-
-#elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 4) && (__GNUC_PATCHLEVEL__ == 2)
-
-#define SE3_LIE_GROUP_TYPEDEF_NOARG()       \
-  typedef int Index;            \
-  typedef traits<LieGroupDerived>::Scalar Scalar;    \
-  enum {              \
-    NQ = traits<LieGroupDerived>::NQ,         \
-    NV = traits<LieGroupDerived>::NV          \
-  };                        \
-  typedef traits<LieGroupDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef traits<LieGroupDerived>::TangentVector_t TangentVector_t
-
-#define SE3_LIE_GROUP_TYPEDEF_ARG(prefix)         \
-  typedef int Index;              \
-  typedef prefix traits<LieGroupDerived>::Scalar Scalar;           \
-  enum {                \
-    NQ = traits<LieGroupDerived>::NQ,           \
-    NV = traits<LieGroupDerived>::NV            \
-  };                        \
-  typedef prefix traits<LieGroupDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef prefix traits<LieGroupDerived>::TangentVector_t TangentVector_t
-
-#define SE3_LIE_GROUP_TYPEDEF SE3_LIE_GROUP_TYPEDEF_NOARG()
-#define SE3_LIE_GROUP_TYPEDEF_TEMPLATE SE3_LIE_GROUP_TYPEDEF_ARG(typename)
-
-#else
-
-#define SE3_LIE_GROUP_TYPEDEF_ARG()              \
-  typedef int Index;                 \
-  typedef typename traits<LieGroupDerived>::Scalar Scalar;    \
-  enum {                   \
-    NQ = traits<LieGroupDerived>::NQ,              \
-    NV = traits<LieGroupDerived>::NV               \
-  };                        \
-  typedef typename traits<LieGroupDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef typename traits<LieGroupDerived>::TangentVector_t TangentVector_t
-
-#define SE3_LIE_GROUP_TYPEDEF SE3_LIE_GROUP_TYPEDEF_ARG()
-#define SE3_LIE_GROUP_TYPEDEF_TEMPLATE SE3_LIE_GROUP_TYPEDEF_ARG()
-
-#endif
+#define SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(Derived)                            \
+  typedef          LieGroupOperationBase<Derived> Base;                        \
+  typedef typename Base::Index Index;                                          \
+  typedef typename traits<Derived>::Scalar Scalar;                             \
+  enum {                                                                       \
+    NQ = Base::NQ,                                                             \
+    NV = Base::NV                                                              \
+  };                                                                           \
+  typedef typename Base::ConfigVector_t ConfigVector_t;                        \
+  typedef typename Base::TangentVector_t TangentVector_t;                      \
+  typedef typename Base::JacobianMatrix_t JacobianMatrix_t
 
   template<typename Derived>
   struct LieGroupOperationBase
   {
     typedef Derived LieGroupDerived;
-    SE3_LIE_GROUP_TYPEDEF_TEMPLATE;
+    typedef int Index;
+    typedef typename traits<LieGroupDerived>::Scalar Scalar;
+    enum {
+      NQ = traits<LieGroupDerived>::NQ,
+      NV = traits<LieGroupDerived>::NV
+    };
+
+    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,NV,NV> JacobianMatrix_t;
 
     /// \name API with return value as argument
     /// \{
@@ -103,6 +79,17 @@ namespace se3
     static void integrate(const Eigen::MatrixBase<ConfigIn_t> & q,
                           const Eigen::MatrixBase<Tangent_t>  & v,
                           const Eigen::MatrixBase<ConfigOut_t>& qout);
+
+    /**
+     * @brief      Computes the Jacobian of the Integrate operation.
+     *
+     * @param[in]  v     joint velocity (size full model.nv)
+     *
+     * @return     The Jacobian
+     */
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate(const Eigen::MatrixBase<Tangent_t>  & v,
+                           const Eigen::MatrixBase<JacobianOut_t>& J);
 
     /**
      * @brief      Interpolation between two joint's configurations

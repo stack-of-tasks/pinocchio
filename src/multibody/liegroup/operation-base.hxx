@@ -37,6 +37,16 @@ namespace se3 {
     Derived::integrate_impl(q, v, qout);
   }
 
+  template <class Derived>
+  template <class Tangent_t, class JacobianOut_t>
+  void LieGroupOperationBase<Derived>::Jintegrate(
+      const Eigen::MatrixBase<Tangent_t>  & v,
+      const Eigen::MatrixBase<JacobianOut_t>& J)
+  {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(JacobianOut_t, JacobianMatrix_t);
+    Derived::Jintegrate_impl(v, J);
+  }
 
   /**
    * @brief      Interpolation between two joint's configurations
@@ -84,7 +94,7 @@ namespace se3 {
   (const Eigen::MatrixBase<Config_t>& qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t, ConfigVector_t);
-    return Derived::random_impl (qout);
+    return derived().random_impl (qout);
   }
 
   template <class Derived>

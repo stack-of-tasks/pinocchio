@@ -35,8 +35,6 @@ namespace se3
       NQ = 2,
       NV = 1
     };
-    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
   };
 
   template <> struct traits<SpecialOrthogonalOperation<3> > {
@@ -45,15 +43,12 @@ namespace se3
       NQ = 4,
       NV = 3
     };
-    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
   };
 
   template<>
   struct SpecialOrthogonalOperation<2> : public LieGroupOperationBase <SpecialOrthogonalOperation<2> >
   {
-    typedef SpecialOrthogonalOperation LieGroupDerived;
-    SE3_LIE_GROUP_TYPEDEF;
+    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
 
     /// Get dimension of Lie Group vector representation
     ///
@@ -107,6 +102,14 @@ namespace se3
              sinOmega * ca + cosOmega * sa;
       const Scalar norm2 = q.squaredNorm();
       out *= (3 - norm2) / 2;
+    }
+
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  &,
+                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      Jout(0) = 1;
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -172,8 +175,7 @@ namespace se3
   template<>
   struct SpecialOrthogonalOperation<3> : public LieGroupOperationBase <SpecialOrthogonalOperation<3> >
   {
-    typedef SpecialOrthogonalOperation LieGroupDerived;
-    SE3_LIE_GROUP_TYPEDEF;
+    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
 
     typedef Eigen::Quaternion<Scalar> Quaternion_t;
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
@@ -228,6 +230,14 @@ namespace se3
       Quaternion_t pOmega(exp3(v));
       quaternion_result = quat * pOmega;
       firstOrderNormalize(quaternion_result);
+    }
+
+    template <class Tangent_t, class JacobianOut_t>
+    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  & v,
+                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      Jout = exp3(v).transpose();
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>

@@ -21,6 +21,11 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#define EIGEN_VECTOR_IS_APPROX(Va, Vb, precision)                              \
+  BOOST_CHECK_MESSAGE((Va).isApprox(Vb, precision),                            \
+      "check " #Va ".isApprox(" #Vb ") failed "                                \
+      "[\n" << (Va).transpose() << "\n!=\n" << (Vb).transpose() << "\n]")
+
 using namespace se3;
 
 template <typename T>
@@ -102,6 +107,41 @@ struct TestJoint{
 
 };
 
+struct LieGroup_Jintegrate{
+  template <typename T>
+  void operator()(const T ) const
+  {
+    typedef typename T::ConfigVector_t ConfigVector_t;
+    typedef typename T::TangentVector_t TangentVector_t;
+    typedef typename T::JacobianMatrix_t JacobianMatrix_t;
+    typedef typename T::Scalar Scalar;
+
+    T lg;
+    ConfigVector_t q = lg.random();
+    TangentVector_t v, dv;
+    v.setRandom();
+    dv.setZero();
+
+    ConfigVector_t q_v = lg.integrate (q, v);
+
+    JacobianMatrix_t J;
+    lg.Jintegrate (v, J);
+
+    const Scalar eps = 1e-6;
+    for (int i = 0; i < v.size(); ++i)
+    {
+      dv[i] = eps;
+      ConfigVector_t q_dv = lg.integrate (q, dv);
+      ConfigVector_t q_dv_v = lg.integrate (q_dv, v);
+      TangentVector_t J_dv = J*dv / eps;
+      // q_dv_v - q_v ~ J dv
+      TangentVector_t dIntegrate = lg.difference (q_v, q_dv_v) / eps;
+      EIGEN_VECTOR_IS_APPROX (dIntegrate, J_dv, 1e-2);
+      dv[i] = 0;
+    }
+  }
+};
+
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_all_liegroups )
@@ -115,9 +155,31 @@ BOOST_AUTO_TEST_CASE ( test_all_liegroups )
                           , JointModelTranslation
                           , JointModelRUBX, JointModelRUBY, JointModelRUBZ
                           > Variant;
-  boost::mpl::for_each<Variant::types>(TestJoint());
+  for (int i = 0; i < 20; ++i)
+    boost::mpl::for_each<Variant::types>(TestJoint());
   // FIXME JointModelComposite does not work.
   // boost::mpl::for_each<JointModelVariant::types>(TestJoint());
+}
+
+BOOST_AUTO_TEST_CASE ( liegroups_Jintegrate )
+{
+  typedef boost::mpl::vector<  VectorSpaceOperation<1>
+                             , VectorSpaceOperation<2>
+                             , SpecialOrthogonalOperation<2>
+                             , SpecialOrthogonalOperation<3>
+                             , SpecialEuclideanOperation<2>
+                             , SpecialEuclideanOperation<3>
+                             , CartesianProductOperation<
+                                 VectorSpaceOperation<2>,
+                                 SpecialOrthogonalOperation<2>
+                               >
+                             , CartesianProductOperation<
+                                 VectorSpaceOperation<3>,
+                                 SpecialOrthogonalOperation<3>
+                               >
+                             > Types;
+  for (int i = 0; i < 20; ++i)
+    boost::mpl::for_each<Types>(LieGroup_Jintegrate());
 }
 
 BOOST_AUTO_TEST_CASE ( test_vector_space )
