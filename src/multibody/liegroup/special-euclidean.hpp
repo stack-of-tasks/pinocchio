@@ -82,7 +82,7 @@ namespace se3
     {
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix_t, 3, 3);
       Matrix_t& Mout = const_cast <Matrix_t&> (M.derived());
-      Mout.template topLeftCorner<2,2>() = R.transpose();
+      Mout.template topLeftCorner<2,2>().noalias() = R.transpose();
       Vector2 tinv (R.transpose() * t);
       Mout.template topRightCorner<2,1>() << - tinv(1), tinv(0);
       Mout.template bottomLeftCorner<1,2>().setZero();
@@ -123,7 +123,7 @@ namespace se3
       }
 
       Matrix2 sk; sk << 0, -t/2, t/2, 0;
-      vout.template head<2>() = alpha * p - sk * p;
+      vout.template head<2>().noalias() = alpha * p - sk * p;
       vout(2) = t;
     }
 
@@ -178,8 +178,8 @@ namespace se3
       forwardKinematics(R0, t0, q);
       exp(v, R, t);
 
-      out.template head<2>() = R0 * t + t0;
-      out.template tail<2>() = (R0 * R).col(0);
+      out.template head<2>().noalias() = R0 * t + t0;
+      out.template tail<2>().noalias() = R0 * R.col(0);
     }
 
     template <class Tangent_t, class JacobianOut_t>
