@@ -312,7 +312,7 @@ class RobotWrapper(object):
         if self.display_collisions:
             self.updateGeometryPlacements(visual=False)
             for collision in self.collision_model.geometryObjects:
-                M = self.visual_data.oMg[self.collision_model.getGeometryId(collision.name)]
+                M = self.collision_data.oMg[self.collision_model.getGeometryId(collision.name)]
                 conf = utils.se3ToXYZQUAT(M)
                 gui.applyConfiguration(self.getViewerNodeName(collision,se3.GeometryType.COLLISION), conf)
 
