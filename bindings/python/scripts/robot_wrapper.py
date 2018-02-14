@@ -39,8 +39,8 @@ class RobotWrapper(object):
                 print 'Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.'
         else:
             if package_dirs is None:
-                self.collision_model = se3.buildGeomFromUrdf(self.model, filename)
-                self.visual_model = se3.buildGeomFromUrdf(self.model, filename)
+                self.collision_model = se3.buildGeomFromUrdf(self.model, filename, se3.GeometryType.COLLISION)
+                self.visual_model = se3.buildGeomFromUrdf(self.model, filename, se3.GeometryType.VISUAL)
             else:
                 if not all(isinstance(item, basestring) for item in package_dirs):
                     raise Exception('The list of package directories is wrong. At least one is not a string')
