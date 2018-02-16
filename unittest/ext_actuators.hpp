@@ -21,6 +21,8 @@
 #define _se3_example_test_actuator_hpp_
 #include <pinocchio/actuators/dc-two-snd-order-linear-motor-model.hpp>
 #include <pinocchio/actuators/dc-linear-motor-model.hpp>
+#include <pinocchio/actuators/dc-temp-non-linear-motor-model.hpp>
+#include <pinocchio/actuators/dc-temp-current-nl-motor-model.hpp>
 
 namespace se3
 {
@@ -73,12 +75,11 @@ namespace se3
   };
 
   /// Specific parts of the tests for the non linear motor model (with temperature)
-  template <typename Scalar,
-	    template<typename S> class ActuatorDCTempTwoSndOrderLinearMotorData >
-  class traits_motor_data
+  template <typename Scalar>
+  class traits_motor_data<Scalar, ActuatorDCTempNonLinearMotorData >
   {
   public:
-    typedef ActuatorDCTempTwoSndOrderLinearMotorData<Scalar> ActuatorMotorData;
+    typedef ActuatorDCTempNonLinearMotorData<Scalar> ActuatorMotorData;
     static const std::string outputfilename;
     
     static void init(ActuatorMotorData &aMotorData)
@@ -95,6 +96,59 @@ namespace se3
       aMotorData.thermTimeCstWinding(25.0);
       /// Ambient temperature for the motor characteristics.
       aMotorData.thermAmbient(25.0);
+      /// Head dissipation (25 s)
+      aMotorData.thermDissipation(25.0);
+    }
+    
+    static void computeGains(ActuatorMotorData &,
+			     Scalar &K_P, Scalar &K_D, Scalar &K_I)
+    {
+      double K=100;
+      K_P = 1.0 *K;
+      K_D = 0.1;
+      K_I = 0.1;
+    }
+			     
+    static void integration(typename ActuatorMotorData::X_t &astate,
+			    typename ActuatorMotorData::dX_t &dstate,
+			    double dt_sim) 
+    {
+      astate[0] = astate[0] + dt_sim*dstate[0] + 0.5*dt_sim*dt_sim*dstate[1];
+      astate[1] = astate[1] + dstate[1]*dt_sim;
+      astate[2] = astate[2] + dstate[2]*dt_sim;
+    }
+    
+    static void output_data(std::ofstream &,
+			    ActuatorMotorData &,
+			    typename ActuatorMotorData::X_t &)
+    { }
+  };
+
+
+  /// Specific parts of the tests for the current based non linear motor model (with temperature)
+  template <typename Scalar>
+  class traits_motor_data<Scalar, ActuatorDCTempCurrentNLMotorData >
+  {
+  public:
+    typedef ActuatorDCTempCurrentNLMotorData<Scalar> ActuatorMotorData;
+    static const std::string outputfilename;
+    
+    static void init(ActuatorMotorData &aMotorData)
+    {
+      /// Gearhead thermal resistance (K/W)
+      aMotorData.resistorOne(6.2);
+      /// Winding thermal resistance when heating (K/W)
+      aMotorData.resistorTwo(2.0);
+      /// Winding thermal resistance at ambiant temperature (Ohms)
+      aMotorData.resistorTA(17.5);
+      /// Max.permissible winding temperature (C)
+      aMotorData.maxPermissibleWindingTemp(155.0);
+      /// Thermal time constant winding (s)
+      aMotorData.thermTimeCstWinding(25.0);
+      /// Ambient temperature for the motor characteristics.
+      aMotorData.thermAmbient(25.0);
+      /// Head dissipation (25 s)
+      aMotorData.thermDissipation(25.0);
       
     }
     static void computeGains(ActuatorMotorData &,
@@ -120,7 +174,6 @@ namespace se3
 			    typename ActuatorMotorData::X_t &)
     { }
   };
-
 
   /// Specific parts of the tests for the linear motor model
   template<typename Scalar>

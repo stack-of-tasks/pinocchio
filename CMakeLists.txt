@@ -311,6 +311,7 @@ SET(${PROJECT_NAME}_ACTUATOR_HEADERS
   actuators/actuator-model.hpp
   actuators/dc-two-snd-order-linear-motor-model.hpp
   actuators/dc-temp-non-linear-motor-model.hpp
+  actuators/dc-temp-current-nl-motor-model.hpp
   actuators/dc-linear-motor-model.hpp
   actuators/dc-linear-first-order-motor-model.hpp
   )
