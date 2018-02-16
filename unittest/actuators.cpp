@@ -40,6 +40,12 @@ outputfilename
 
 template <>
 const std::string
+se3::traits_motor_data<double, se3::ActuatorDCTempCurrentNLMotorData>::
+outputfilename
+="output-temp-current-nl.dat" ;
+
+template <>
+const std::string
 se3::traits_motor_data<double, se3::ActuatorDCMotorData>::
 outputfilename
 ="output-linear.dat" ;
@@ -75,6 +81,18 @@ BOOST_AUTO_TEST_CASE ( test_dc_temp_non_linear_motor_actuator )
   TempNonLinearDCMotorTest aTempNonLinearDCMotorTest;
   
   BOOST_CHECK(aTempNonLinearDCMotorTest.Test());
+}
+
+BOOST_AUTO_TEST_CASE ( test_dc_temp_current_nl_motor_actuator )
+{
+  typedef se3::ActuatorDCTempCurrentNLMotorModel<Scalar> MotorModel;
+  typedef se3::test_dc_motors<MotorModel,
+			      se3::ActuatorDCTempCurrentNLMotorData >
+			      TempCurrentNLDCMotorTest;
+
+  TempCurrentNLDCMotorTest aTempCurrentNLDCMotorTest;
+  
+  BOOST_CHECK(aTempCurrentNLDCMotorTest.Test());
 }
 
 BOOST_AUTO_TEST_CASE ( test_dc_linear_motor_actuator )

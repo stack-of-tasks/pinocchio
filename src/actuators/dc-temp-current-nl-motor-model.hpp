@@ -17,8 +17,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef _se3_temp_non_linear_motor_model_hpp_
-#define _se3_temp_non_linear_motor_model_hpp_
+#ifndef _se3_temp_current_non_linear_motor_model_hpp_
+#define _se3_temp_current_non_linear_motor_model_hpp_
 
 #include <iostream>
 #include "pinocchio/macros.hpp"
@@ -27,7 +27,7 @@
 
 namespace se3
 {
-  /** \addtogroup actuators_motor_group_tnl_dc_motor Non linear motor model (temperature)
+  /** \addtogroup actuators_motor_group_t_current_nl_dc_motor Non linear motor model controlled using current (temperature)
       \ingroup actuators_motor_group
       The model used for this non linear version of the DC motor is defined by
       the following state vector
@@ -47,9 +47,8 @@ namespace se3
       \left(
       \begin{matrix}
       \dot{\theta}_m \\
-      \frac{K_m}{B_m R_{TA}(1-\alpha_{Cu} ( T-T_{A}))}V - \left(\frac{K_m K_b}{B_mR_{TA}(1-\alpha_{Cu} ( T-T_{A}))} +
-      \frac{D_m}{B_m}\right) \dot{\theta}_m -\frac{\tau_l}{B_m} \\
-      \frac{(R_{th1} + R_{th2})(V-K_b \dot{\theta}_m)^2}{(1+\alpha_{Cu}(T-T_{A})) R_{TA}-\alpha_{cu}(R_{th1}+R_{th2})(V-K_b \dot{\theta}_m)^2} -D_T (T-T_A)
+      \frac{K_m}{B_m }i_a - \frac{D_m}{B_m} \dot{\theta}_m - \frac{\bf{S} \bf{f}_{ext}}{B_m} \\
+      \frac{(R_{th1} + R_{th2})R_{TA} i_a^2}{1-\alpha_{Cu}(R_{th1}+R_{th2})R_{TA}i_a^2 } -D_T (T - T_A)
       \end{matrix}
       \right)
       \f]
@@ -71,30 +70,33 @@ namespace se3
       the back emf is given by:
       \f[ V_b = K_b \theta_m \f] 
       the dynamic equation of the motor is given by:
-      \f[ B_m \ddot{\theta}_m + D_m \dot{\theta}_m  = \tau_m - \bf{S} \bf{f}_ext \f] 
+      \f[ B_m \ddot{\theta}_m + D_m \dot{\theta}_m  = \tau_m - \bf{S} \bf{f}_{ext} \f] 
+      the temperature variation is given by:
+      \f[ \dot{T} = \frac{(R_{th1}+R_{th2})R_{TA}i_a^2}{1-\alpha_{Cu} (R_{th1}+R_{th2}) R_{TA}i_a^2} - D_T (T -T_A)\f]
+      
       As the dynamics can be also written:
       \f[
       \left(
       \begin{matrix}
       \dot{x}_0 \\
       \dot{x}_1 \\
-      \dot{T} \\
+      \dot{x}_2 \\
       \end{matrix}
       \right)
       = 
       \left(
       \begin{matrix}
       x_1 \\
-      \frac{c_{0}}{c_1 +c_2 T} V + \frac{c_{3} + c_4 T }{c_1 + c_2 T} \dot{\theta}_m + c_5 \tau_l \\
-      \frac{c_6 (V- c_7 \dot{\theta}_m)^2}{c_8 + c_{9} T + c_{10} (V- c_7 \dot{\theta}_m)^2} - D_T T + D_T T_A)\\
+      c_0 i_a + c_{1} \dot{\theta}_m + c_2 \tau_l \\
+      \frac{c_3 i_a^2}{1 + c_4 i_a^2} + c_5 T +c_6\\
       \end{matrix}
       \right)
       = 
       \left(
       \begin{matrix}
       x_1 \\
-      \frac{c_{0}}{c_1 +c_2 x_2} u + \frac{c_{3} + c_4 x_2 }{c_1 + c_2 x_2} x_1 + c_5 \bf{S}\bf{f}_{ext} \\
-      \frac{c_6 (u- c_7 x_1)^2}{c_8 + c_{9} x_2 + c_{10} (u- c_7 x_1)^2} + c_{11} x_2 + c_{12})\\
+      c_{0} u + c_1 x_1 + c_2 \bf{S}\bf{f}_{ext} \\
+      \frac{c_3 u^2}{1 + c_4 u^2} + c_5 x_2 + c_6\\
       \end{matrix}
       \right)
       \f]
@@ -102,17 +104,13 @@ namespace se3
       Thus 
       \f[ 
       \begin{array}{rcl}
-      c_0 &= & K_m\\
-      c_1 &= & B_m R_{TA} (1+\alpha_{Cu} T_{A})\\
-      c_2 &= & -B_m R_{TA} \alpha_{Cu} \\
-      c_3 &= & K_m K_B + D_m R_{TA} (1 + \alpha_{Cu} T_{A}) \\
-      c_4 &= & -D_m R_{TA} \alpha_{Cu} \\
-      c_5 &= & -\frac{1}{B_m} \\
-      c_6 &= & (R_{th1}+R_{th2})\\
-      c_7 &= & -K_b\\
-      c_8 &= & R_{TA} - \alpha_{Cu} T_A R_{TA} \\
-      c_{9} &=&  \alpha_{Cu} R_{TA} \\
-      c_{10} &=& -\alpha_{Cu}(R_{th1}+R_{th2}) \\
+      c_0 &= & \frac{K_m}{B_m}\\
+      c_1 &= & -\frac{D_m}{B_m}\\
+      c_2 &= & -\frac{1}{B_m} \\
+      c_3 &= & (R_{th1} + R_{th2})R_{TA} \\
+      c_4 &= & -\alpha_{Cu}(R_{th1}+R_{th2})R_{TA} \\
+      c_5 &= & -D_T \\
+      c_6 &= & D_T T_A
       \end{array}
       \f]
       The control vector \f$ \bf{u} \f$ is the voltage \f$ V \f$. <br>
@@ -121,7 +119,6 @@ namespace se3
       \f[ 
       \left(
       \begin{matrix}
-      i_a \\
       \tau_m\\
       V_b \\
       \end{matrix}
@@ -129,8 +126,7 @@ namespace se3
       = 
       \left(
       \begin{matrix}
-      \frac{V}{R} - \frac{K_b}{R}\dot{\theta}_m \\
-      \frac{V K_m}{R} - \frac{K_b K_m}{R}\dot{\theta}_m\\
+      K_m i_a \\
       K_b \dot{\theta}_m\\
       \end{matrix}
       \right)
@@ -144,11 +140,11 @@ namespace se3
    *  @tparam Scalar_ {description} 
    */
   template<typename Scalar_> 
-  class ActuatorDCTempNonLinearMotorData : ActuatorDataBase<ActuatorDCTempNonLinearMotorData<Scalar_> >
+  class ActuatorDCTempCurrentNLMotorData : ActuatorDataBase<ActuatorDCTempCurrentNLMotorData<Scalar_> >
   {
   public:
     typedef Scalar_ Scalar_t;
-    typedef typename Eigen::Matrix<Scalar_, 25,1 > Parameters_t;
+    typedef typename Eigen::Matrix<Scalar_, 19,1 > Parameters_t;
     typedef typename Eigen::Matrix<Scalar_, 3,1> Observations_t;
     typedef typename Eigen::Matrix<Scalar_, 6,1> S_t;
     typedef typename Eigen::Matrix<Scalar_, 3,1> X_t;
@@ -157,7 +153,7 @@ namespace se3
 
     enum InternalParameters
       {
-	P_ROTOR_INERTIA=13,
+	P_ROTOR_INERTIA=7,
 	P_TORQUE_CST,
 	P_SPEED_TORQUE_GRD,
 	P_BACK_EMF,
@@ -238,12 +234,16 @@ namespace se3
     void thermTimeCstWinding(Scalar_ c)
     {c_[P_THERM_TIME_CST_WINDING] = c; updateParameters();}
 
-    /// \brief Ambient temperature for the motor characteristics.
+    /// \brief Ambient temperature for the motor characteristics. \f$ T_A \f$
     /// Typically \f$ 25 C \f$
     /// Mandatory
     void thermAmbient(Scalar_ c)
     {c_[P_AMBIENT_TEMP] = c; updateParameters();}
-    
+
+    /// \brief Nominal current
+    void nominalCurrent(Scalar_ c)
+    { c_[P_NOMINAL_CURRENT] = c; updateParameters();}
+
     /// \brief Thermal dissipation \f$ D_T \f$
     void thermDissipation(Scalar_ c)
     { c_[P_HEAT_DISSIPATION] = c; updateParameters();}
@@ -296,46 +296,26 @@ namespace se3
     /// Update the first three parameters of the actuators:
     void updateParameters()
     {
-      // c_1 = torque_cst 
-      c_[0] = c_[P_TORQUE_CST];
+      // c_0 = torque_cst / rotorInertia
+      c_[0] = c_[P_TORQUE_CST]/c_[P_ROTOR_INERTIA];
 
-      // c_2 = B_m R_{TA} (1+T_A \alpha_{Cu} )
-      c_[1] = c_[P_ROTOR_INERTIA] * c_[P_TA_RESISTOR]*
-	(1+ c_[P_AMBIENT_TEMP] * alpha_cu_);
+      // c_1 = -speedTorqueGrad/rotorInertia
+      c_[1] = -  c_[P_SPEED_TORQUE_GRD]/c_[P_ROTOR_INERTIA];
     
-      // c_3 = -B_m R_{TA} \alpha_{Cu}
-      c_[2] = -c_[P_ROTOR_INERTIA] * c_[P_TA_RESISTOR] * alpha_cu_;
+      // c_2 = -1/rotorInertia
+      c_[2] = -1/c_[P_ROTOR_INERTIA];
       
-      // c_4 = K_B + D_m R_{TA} + D_m R_{TA} \alpha_{Cu} T_{A}
-      c_[3] = c_[P_BACK_EMF] * c_[P_TORQUE_CST] + c_[P_SPEED_TORQUE_GRD]*c_[P_TA_RESISTOR] *
-	(1+alpha_cu_ * c_[P_AMBIENT_TEMP]);
+      // c_3 = (r_th1 + r_th2) * R_Ta
+      c_[3] = (c_[P_THONE_RESISTOR] + c_[P_THTWO_RESISTOR])*c_[P_TA_RESISTOR];
 
-      // c_5 = -D_m R_{TA} \alpha_{Cu}
-      c_[4] = -c_[P_SPEED_TORQUE_GRD] * c_[P_TA_RESISTOR] * alpha_cu_;
+      // c_4 = -D_m R_{TA} \alpha_{Cu}
+      c_[4] = - alpha_cu_ *c_[3];
 
-      // c_6 = -frac{1}{B_m}
-      c_[5] = -1/c_[P_ROTOR_INERTIA];
+      // c_5 = -D_T
+      c_[5] = -c_[P_HEAT_DISSIPATION];
 
-      // c_7 = (R_{th1} + R_{th2})
-      c_[6] = c_[P_THONE_RESISTOR] + c_[P_THTWO_RESISTOR];
-
-      // c_8 = -K_b
-      c_[7] = -c_[P_BACK_EMF];
-
-      /// \f$ c_9 = R_{TA} - \alpha_{Cu} T_A R_{TA} \f$
-      c_[8] = c_[P_TA_RESISTOR] - alpha_cu_ * c_[P_AMBIENT_TEMP] * c_[P_TA_RESISTOR];
-
-      // \f$ c_{10} = \alpha_{Cu} R_{TA} \f$
-      c_[9] = alpha_cu_ *c_[P_TA_RESISTOR];
-
-      // \f$ c_{11} = -\alpha_{Cu} (R_{th1} + R_{th2}) \f$
-      c_[10] = alpha_cu_ * (c_[P_THONE_RESISTOR] + c_[P_THTWO_RESISTOR]);
-
-      // \f$ c_{11} = -D_T \f$
-      c_[11] = - c_[P_HEAT_DISSIPATION];
-
-      // \f$ c_{12} = D_T T_A \f$
-      c_[12] = c_[P_HEAT_DISSIPATION]*c_[P_AMBIENT_TEMP];
+      // c_6 = D_T T_A
+      c_[6] = c_[P_HEAT_DISSIPATION] * c_[P_AMBIENT_TEMP];
 
     }
 
@@ -360,52 +340,42 @@ namespace se3
    *  @tparam Scalar_ {description} 
    */
   template< typename Scalar_> 
-  class ActuatorDCTempNonLinearMotorModel : ActuatorModelBase<ActuatorDCTempNonLinearMotorModel<Scalar_> >
+  class ActuatorDCTempCurrentNLMotorModel : ActuatorModelBase<ActuatorDCTempCurrentNLMotorModel<Scalar_> >
   {
 
     typedef Eigen::Matrix<Scalar_,3,1,0> Vector3Scalar;
     
   public:
     typedef Scalar_ Scalar_t;
-    ActuatorDCTempNonLinearMotorModel() {}
+    ActuatorDCTempCurrentNLMotorModel() {}
 
-    void calc(typename ActuatorDCTempNonLinearMotorData<Scalar_>::dX_t & dstate,
-	      typename ActuatorDCTempNonLinearMotorData<Scalar_>::X_t & state,
-	      typename ActuatorDCTempNonLinearMotorData<Scalar_>::U_t & control,
+    void calc(typename ActuatorDCTempCurrentNLMotorData<Scalar_>::dX_t & dstate,
+	      typename ActuatorDCTempCurrentNLMotorData<Scalar_>::X_t & state,
+	      typename ActuatorDCTempCurrentNLMotorData<Scalar_>::U_t & control,
 	      Force & fext,
-	      ActuatorDCTempNonLinearMotorData<Scalar_> &data)
+	      ActuatorDCTempCurrentNLMotorData<Scalar_> &data)
     {
       // Update dstate
       dstate[0] = state[1];
-      dstate[1] = data.c()[0]/(data.c()[1] + data.c()[2]*state[2]) * control[0] +
-	state[1]*(data.c()[3]+data.c()[4]*state[2])/(data.c()[1] + data.c()[2]*state[2])
-	+ data.c()[5] *data.S().dot(fext.toVector());
-      double umc7x1 = control[0]-data.c()[7]*state[1];
-      
-      dstate[2] = data.c()[6]*umc7x1*umc7x1/
-	(data.c()[8] + data.c()[9]*state[2]+ data.c()[10]*umc7x1*umc7x1)
-	+data.c()[11]*state[2] +data.c()[12];
-      
+      dstate[1] = data.c()[0] * control[0] + data.c()[1] * state[1] + data.c()[2]*data.S().dot(fext.toVector());
+      dstate[2] = data.c()[3]*control[0]*control[0]/(1+data.c()[4]*control[0]*control[0])
+	- data.c()[5] * ( state[2] - data.c()[ActuatorDCTempCurrentNLMotorData<Scalar_>::P_AMBIENT_TEMP]);
       // Update observation
       // Current
-      data.h()[0] = control[0] /data.c()[ActuatorDCTempNonLinearMotorData<Scalar_>::P_THONE_RESISTOR ]
-	- data.c()[ActuatorDCTempNonLinearMotorData<Scalar_>::P_BACK_EMF] *state[1]/
-	data.c()[ActuatorDCTempNonLinearMotorData<Scalar_>::P_THONE_RESISTOR ];
+      data.h()[0] = data.c()[ActuatorDCTempCurrentNLMotorData<Scalar_>::P_TORQUE_CST]*control[0];
       // Motor torque
-      data.h()[1] = data.c()[ActuatorDCTempNonLinearMotorData<Scalar_>::P_TORQUE_CST] *data.h()[0];
-      // Back emf potential 
-      data.h()[2] = data.c()[ActuatorDCTempNonLinearMotorData<Scalar_>::P_BACK_EMF] * state[1];
+      data.h()[1] = data.c()[ActuatorDCTempCurrentNLMotorData<Scalar_>::P_BACK_EMF]*state[1];
     }
     
 
-    void get_force(ActuatorDCTempNonLinearMotorData<Scalar_> &data, Force &aForce) const
+    void get_force(ActuatorDCTempCurrentNLMotorData<Scalar_> &data, Force &aForce) const
     {
       aForce.linear(Vector3Scalar::Zero(3,1));
       aForce.angular(Vector3Scalar(0.0,0.0,data.h()[1]));
     }
 
-    ActuatorDCTempNonLinearMotorData<Scalar_> createData() const
-    { return ActuatorDCTempNonLinearMotorData<Scalar_>(); };
+    ActuatorDCTempCurrentNLMotorData<Scalar_> createData() const
+    { return ActuatorDCTempCurrentNLMotorData<Scalar_>(); };
     
   protected:
   
@@ -415,16 +385,16 @@ namespace se3
   };
   
   template <typename Scalar_>
-  struct adb_traits<ActuatorDCTempNonLinearMotorData<Scalar_> >
+  struct adb_traits<ActuatorDCTempCurrentNLMotorData<Scalar_> >
   {
-    typedef ActuatorDCTempNonLinearMotorData<Scalar_> ActuatorDataDerived;
+    typedef ActuatorDCTempCurrentNLMotorData<Scalar_> ActuatorDataDerived;
   };
 
   template <typename Scalar_>
-  struct amb_traits<ActuatorDCTempNonLinearMotorModel<Scalar_> >
+  struct amb_traits<ActuatorDCTempCurrentNLMotorModel<Scalar_> >
   {
-    typedef  ActuatorDCTempNonLinearMotorModel<Scalar_> ActuatorModelDerived;
-    typedef  ActuatorDCTempNonLinearMotorData<Scalar_> ActuatorDataDerived;
+    typedef  ActuatorDCTempCurrentNLMotorModel<Scalar_> ActuatorModelDerived;
+    typedef  ActuatorDCTempCurrentNLMotorData<Scalar_> ActuatorDataDerived;
   };
 
 
