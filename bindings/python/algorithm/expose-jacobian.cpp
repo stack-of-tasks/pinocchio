@@ -43,6 +43,20 @@ namespace se3
     }
     
     static Data::Matrix6x
+    get_jacobian_proxy(const Model & model,
+                       Data & data,
+                       Model::JointIndex jointId,
+                       bool local)
+    {
+      Data::Matrix6x J(6,model.nv); J.setZero();
+      
+      if(local) getJacobian<LOCAL> (model,data,jointId,J);
+      else getJacobian<WORLD> (model,data,jointId,J);
+      
+      return J;
+    }
+    
+    static Data::Matrix6x
     get_jacobian_time_variation_proxy(const Model & model,
                                   Data & data,
                                   Model::JointIndex jointId,
@@ -73,6 +87,14 @@ namespace se3
                        "frame (true = local, false = world)",
                        "update_kinematics (true = update the value of the total jacobian)"),
               "Computes the jacobian of a given given joint according to the given input configuration."
+              "If local is set to true, it returns the jacobian associated to the joint frame. Otherwise, it returns the jacobian of the frame coinciding with the world frame.");
+      
+      bp::def("getJacobian",get_jacobian_proxy,
+              bp::args("Model, the model of the kinematic tree",
+                       "Data, the data associated to the model where the results are stored",
+                       "Joint ID, the index of the joint.",
+                       "frame (true = local, false = world)"),
+              "Computes the jacobian of a given given joint according to the given entries in data."
               "If local is set to true, it returns the jacobian associated to the joint frame. Otherwise, it returns the jacobian of the frame coinciding with the world frame.");
       
       bp::def("computeJacobiansTimeVariation",computeJacobiansTimeVariation,
