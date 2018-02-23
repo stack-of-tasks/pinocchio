@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -20,6 +20,7 @@
 #define __se3_python_motion_hpp__
 
 #include <eigenpy/memory.hpp>
+#include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
@@ -105,6 +106,8 @@ namespace se3
         .staticmethod("Random")
         .def("Zero",&Motion::Zero,"Returns a zero Motion.")
         .staticmethod("Zero")
+        
+        .def_pickle(Pickle())
         ;
       }
 
@@ -121,6 +124,15 @@ namespace se3
       }
       
     private:
+      
+      struct Pickle : bp::pickle_suite
+      {
+        static
+        boost::python::tuple
+        getinitargs(const Motion & m)
+        { return bp::make_tuple((Vector3)m.linear(),(Vector3)m.angular()); }
+      };
+      
       static Vector3 getLinear(const Motion & self) { return self.linear(); }
       static void setLinear (Motion & self, const Vector3 & v) { self.linear(v); }
       static Vector3 getAngular(const Motion & self) { return self.angular(); }

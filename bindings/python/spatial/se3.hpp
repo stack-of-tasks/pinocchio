@@ -20,6 +20,7 @@
 #define __se3_python_se3_hpp__
 
 #include <eigenpy/memory.hpp>
+#include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/motion.hpp"
@@ -126,6 +127,8 @@ namespace se3
         .staticmethod("Identity")
         .def("Random",&SE3::Random,"Returns a random transformation.")
         .staticmethod("Random")
+        
+        .def_pickle(Pickle())
         ;
       }
       
@@ -141,6 +144,14 @@ namespace se3
         
       }
     private:
+      
+      struct Pickle : bp::pickle_suite
+      {
+        static
+        boost::python::tuple
+        getinitargs(const SE3 & M)
+        { return bp::make_tuple((Matrix3)M.rotation(),(Vector3)M.translation()); }
+      };  
       
       static Vector3 getTranslation(const SE3 & self) { return self.translation(); }
       static Matrix3 getRotation(const SE3 & self) { return self.rotation(); }
