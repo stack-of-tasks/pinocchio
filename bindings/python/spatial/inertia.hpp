@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -21,6 +21,7 @@
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/memory.hpp>
+#include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
@@ -111,6 +112,8 @@ namespace se3
              bp::args("mass","length_x","length_y","length_z"),
              "Returns an Inertia of a box shape with a mass and of dimension the semi axis of length_{x,y,z}.")
         .staticmethod("FromBox")
+        
+        .def_pickle(Pickle())
         ;
       }
       
@@ -159,6 +162,17 @@ namespace se3
         ;
         
       }
+      
+    private:
+      
+      struct Pickle : bp::pickle_suite
+      {
+        static
+        boost::python::tuple
+        getinitargs(const Inertia & I)
+        { return bp::make_tuple(I.mass(),(Vector3)I.lever(),I.inertia().matrix()); }
+      };
+      
 
     }; // struct InertiaPythonVisitor
     
