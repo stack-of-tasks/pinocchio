@@ -94,6 +94,12 @@ namespace se3
     
     neutralConfiguration.conservativeResize(nq);
     neutralConfiguration.tail(joint_model.nq()) = joint_model.neutralConfiguration();
+
+    rotorMass.conservativeResize(nv);
+    rotorGearRatio.conservativeResize(nv);
+
+    rotorMass.tail(joint_model.nv()).setZero();
+    rotorGearRatio.tail(joint_model.nv()).setZero();
     
     // Init and add joint index to its parent subtrees.
     subtrees.push_back(IndexVector(1));

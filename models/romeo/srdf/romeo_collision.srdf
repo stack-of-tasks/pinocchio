@@ -62,6 +62,65 @@
         <joint name="RWristYaw" value="0" />
         <joint name="TrunkYaw" value="0" />
     </group_state>
+
+    <rotor_params>
+        <joint name="HeadPitch" mass="1.0" gear_ratio="0.0" />
+        <joint name="HeadRoll" mass="0.0" gear_ratio="1.0" />
+        <joint name="LAnklePitch" mass="0.0" gear_ratio="0.0" />
+        <joint name="LAnkleRoll" mass="0.0" gear_ratio="0.0" />
+        <joint name="LElbowRoll" mass="0.0" gear_ratio="0.0" />
+        <joint name="LElbowYaw" mass="0.0" gear_ratio="0.0" />
+        <joint name="LFinger12" mass="0.0" gear_ratio="0.0" />
+        <joint name="LFinger13" mass="0.0" gear_ratio="0.0" />
+        <joint name="LFinger21" mass="0.0" gear_ratio="0.0" />
+        <joint name="LFinger22" mass="0.0" gear_ratio="0.0" />
+        <joint name="LFinger23" mass="0.0" gear_ratio="0.0" />
+        <joint name="LFinger31" mass="0.0" gear_ratio="0.0" />
+        <joint name="LFinger32" mass="0.0" gear_ratio="0.0" />
+        <joint name="LFinger33" mass="0.0" gear_ratio="0.0" />
+        <joint name="LHand" mass="0.0" gear_ratio="0.0" />
+        <joint name="LHipPitch" mass="0.0" gear_ratio="0.0" />
+        <joint name="LHipRoll" mass="0.0" gear_ratio="0.0" />
+        <joint name="LHipYaw" mass="0.0" gear_ratio="0.0" />
+        <joint name="LKneePitch" mass="0.0" gear_ratio="0.0" />
+        <joint name="LShoulderPitch" mass="0.0" gear_ratio="0.0" />
+        <joint name="LShoulderYaw" mass="0.0" gear_ratio="0.0" />
+        <joint name="LThumb1" mass="0.0" gear_ratio="0.0" />
+        <joint name="LThumb2" mass="0.0" gear_ratio="0.0" />
+        <joint name="LThumb3" mass="0.0" gear_ratio="0.0" />
+        <joint name="LWristPitch" mass="0.0" gear_ratio="0.0" />
+        <joint name="LWristRoll" mass="0.0" gear_ratio="0.0" />
+        <joint name="LWristYaw" mass="0.0" gear_ratio="0.0" />
+        <joint name="NeckPitch" mass="0.0" gear_ratio="0.0" />
+        <joint name="NeckYaw" mass="0.0" gear_ratio="0.0" />
+        <joint name="RAnklePitch" mass="0.0" gear_ratio="0.0" />
+        <joint name="RAnkleRoll" mass="0.0" gear_ratio="0.0" />
+        <joint name="RElbowRoll" mass="0.0" gear_ratio="0.0" />
+        <joint name="RElbowYaw" mass="0.0" gear_ratio="0.0" />
+        <joint name="RFinger12" mass="0.0" gear_ratio="0.0" />
+        <joint name="RFinger13" mass="0.0" gear_ratio="0.0" />
+        <joint name="RFinger21" mass="0.0" gear_ratio="0.0" />
+        <joint name="RFinger22" mass="0.0" gear_ratio="0.0" />
+        <joint name="RFinger23" mass="0.0" gear_ratio="0.0" />
+        <joint name="RFinger31" mass="0.0" gear_ratio="0.0" />
+        <joint name="RFinger32" mass="0.0" gear_ratio="0.0" />
+        <joint name="RFinger33" mass="0.0" gear_ratio="0.0" />
+        <joint name="RHand" mass="0.0" gear_ratio="0.0" />
+        <joint name="RHipPitch" mass="0.0" gear_ratio="0.0" />
+        <joint name="RHipRoll" mass="0.0" gear_ratio="0.0" />
+        <joint name="RHipYaw" mass="0.0" gear_ratio="0.0" />
+        <joint name="RKneePitch" mass="0.0" gear_ratio="0.0" />
+        <joint name="RShoulderPitch" mass="0.0" gear_ratio="0.0" />
+        <joint name="RShoulderYaw" mass="0.0" gear_ratio="0.0" />
+        <joint name="RThumb1" mass="0.0" gear_ratio="0.0" />
+        <joint name="RThumb2" mass="0.0" gear_ratio="0.0" />
+        <joint name="RThumb3" mass="0.0" gear_ratio="0.0" />
+        <joint name="RWristPitch" mass="0.0" gear_ratio="0.0" />
+        <joint name="RWristRoll" mass="0.0" gear_ratio="0.0" />
+        <joint name="RWristYaw" mass="0.0" gear_ratio="0.0" />
+        <joint name="TrunkYaw" mass="0.0" gear_ratio="0.0" />
+    </rotor_params>
+    
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
     <disable_collisions link1="HeadRollLink" link2="LHipPitchLink" reason="Never" />
     <disable_collisions link1="HeadRollLink" link2="LKneePitchLink" reason="Never" />

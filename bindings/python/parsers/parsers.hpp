@@ -130,6 +130,15 @@ namespace se3
         return se3::srdf::getNeutralConfigurationFromSrdf(model, filename, verbose);
       }
 
+      static bool loadRotorParamsFromSrdf(Model & model,
+                                          const std::string & filename,
+                                          bool verbose
+                                          )
+      {
+        return se3::srdf::loadRotorParamsFromSrdf(model, filename, verbose);
+      }
+
+      
       /* --- Expose --------------------------------------------------------- */
       static void expose();
     }; // struct ParsersPythonVisitor
@@ -191,6 +200,9 @@ namespace se3
                        ),
               "Get the neutral configuration of a given model associated to a SRDF file");
 
+      bp::def("loadRotorParamsFromSrdf",loadRotorParamsFromSrdf,
+              bp::args("Model for which we are loading the rotor parameters","srdf filename (string)", "verbosity"),
+              "Load the rotor parameters of a given model from an SRDF file. Results are stored in model.rotorMass and model.rotorGearRatio.");
     }
     
   }

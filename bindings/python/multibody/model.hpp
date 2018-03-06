@@ -98,6 +98,14 @@ namespace se3
                       make_getter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
                       "Joint's neutral configurations.")
+        .add_property("rotorMass",
+                      make_getter(&Model::rotorMass, bp::return_value_policy<bp::return_by_value>()),
+                      make_setter(&Model::rotorMass, bp::return_value_policy<bp::return_by_value>()),
+                      "Joint rotor masses.")
+        .add_property("rotorGearRatio",
+                      make_getter(&Model::rotorGearRatio, bp::return_value_policy<bp::return_by_value>()),
+                      make_setter(&Model::rotorGearRatio, bp::return_value_policy<bp::return_by_value>()),
+                      "Joint rotor gear ratios.")       
         .add_property("effortLimit",
                       make_getter(&Model::effortLimit, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::effortLimit, bp::return_value_policy<bp::return_by_value>()),
