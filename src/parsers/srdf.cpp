@@ -141,7 +141,73 @@ namespace se3
     }
     
 #endif // ifdef WITH_HPP_FCL
+    bool loadRotorParamsFromSrdf(Model & model,
+                                 const std::string & filename,
+                                 const bool verbose) throw (std::invalid_argument)
+    {
+      // Check extension
+      const std::string extension = filename.substr(filename.find_last_of('.')+1);
+      if (extension != "srdf")
+      {
+        const std::string exception_message (filename + " does not have the right extension.");
+        throw std::invalid_argument(exception_message);
+      }
+      
+      // Open file
+      std::ifstream srdf_stream(filename.c_str());
+      if (! srdf_stream.is_open())
+      {
+        const std::string exception_message (filename + " does not seem to be a valid file.");
+        throw std::invalid_argument(exception_message);
+      }
+      
+      // Read xml stream
+      using boost::property_tree::ptree;
+      ptree pt;
+      read_xml(srdf_stream, pt);
+      
+      // Iterate over all tags directly children of robot
+      BOOST_FOREACH(const ptree::value_type & v, pt.get_child("robot"))
+      {
+        // if we encounter a tag rotor_params
+        if (v.first == "rotor_params")
+        {
+          // Iterate over all the joint tags
+          BOOST_FOREACH(const ptree::value_type & joint, v.second)
+          {
+            if (joint.first == "joint")
+            {
+              std::string joint_name = joint.second.get<std::string>("<xmlattr>.name");
+              double rotor_mass = joint.second.get<double>("<xmlattr>.mass");
+              double rotor_gr = joint.second.get<double>("<xmlattr>.gear_ratio");
+              if (verbose)
+              {
+                std::cout << "(" << joint_name << " , " <<
+                  rotor_mass << " , " << rotor_gr << ")" << std::endl;
+              }
+              // Search in model the joint and its config id
+              Model::JointIndex joint_id = model.getJointId(joint_name);
 
+              if (joint_id != model.joints.size()) // != model.njoints
+              {
+                const JointModel & joint = model.joints[joint_id];
+                assert(joint.nv()==1);
+                model.rotorMass(joint.idx_v()) = rotor_mass;
+                model.rotorGearRatio(joint.idx_v()) = rotor_gr;  // joint with 1 dof
+              }
+              else
+              {
+                if (verbose) std::cout << "The Joint " << joint_name << " was not found in model" << std::endl;
+              }
+            }
+          }
+          return true; 
+        }
+      }
+      assert(false && "no rotor params found in the srdf file");  
+      return false; // warning : uninitialized vector is returned
+    }
+    
     Eigen::VectorXd getNeutralConfigurationFromSrdf(Model & model,
                                                            const std::string & filename,
                                                            const bool verbose) throw (std::invalid_argument)

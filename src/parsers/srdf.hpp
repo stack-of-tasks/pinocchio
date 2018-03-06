@@ -71,6 +71,21 @@ namespace se3
     Eigen::VectorXd getNeutralConfigurationFromSrdf(Model & model,
                                                     const std::string & filename,
                                                     const bool verbose = false) throw (std::invalid_argument);
+
+
+    ///
+    /// \brief Load the rotor params of a given model associated to a SRDF file.
+    ///        It throws if the SRDF file is incorrect.
+    ///
+    /// \param[in] model The Model for which we want the rotor parmeters
+    /// \param[in] filename The complete path to the SRDF file.
+    /// \param[in] verbose Verbosity mode.
+    ///
+    /// \return Boolean whether it loads or not.    
+    bool loadRotorParamsFromSrdf(Model & model,
+                                 const std::string & filename,
+                                 const bool verbose) throw (std::invalid_argument);
+    
   }
 } // namespace se3
 
