@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(readRotorParams)
 
   loadRotorParamsFromSrdf(model,srdf_filename,false);
   
-  BOOST_CHECK(model.rotorMass(model.joints[model.getJointId("HeadPitch")].idx_v())==1.0);
+  BOOST_CHECK(model.rotorInertia(model.joints[model.getJointId("HeadPitch")].idx_v())==1.0);
   BOOST_CHECK(model.rotorGearRatio(model.joints[model.getJointId("HeadRoll")].idx_v())==1.0);
 }
 

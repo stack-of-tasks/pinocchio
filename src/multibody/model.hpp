@@ -78,10 +78,10 @@ namespace se3
     /// \brief Vector of joint's neutral configurations
     Eigen::VectorXd neutralConfiguration;
 
-    /// \brief Vector of rotor masses
-    Eigen::VectorXd rotorMass;
+    /// \brief Vector of rotor inertia parameters
+    Eigen::VectorXd rotorInertia;
     
-    /// \brief Vector of rotor gear ratios
+    /// \brief Vector of rotor gear ratio parameters
     Eigen::VectorXd rotorGearRatio;
     
     /// \brief Vector of maximal joint torques

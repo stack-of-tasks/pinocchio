@@ -1,5 +1,5 @@
-      //
-// Copyright (c) 2015-2016 CNRS
+//
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -201,8 +201,10 @@ namespace se3
               "Get the neutral configuration of a given model associated to a SRDF file");
 
       bp::def("loadRotorParamsFromSrdf",loadRotorParamsFromSrdf,
-              bp::args("Model for which we are loading the rotor parameters","srdf filename (string)", "verbosity"),
-              "Load the rotor parameters of a given model from an SRDF file. Results are stored in model.rotorMass and model.rotorGearRatio.");
+              bp::args("Model for which we are loading the rotor parameters",
+                       "srdf filename (string)", "verbosity"),
+              "Load the rotor parameters of a given model from an SRDF file.\n"
+              "Results are stored in model.rotorInertia and model.rotorGearRatio.");
     }
     
   }

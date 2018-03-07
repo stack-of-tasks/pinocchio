@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -95,10 +95,10 @@ namespace se3
     neutralConfiguration.conservativeResize(nq);
     neutralConfiguration.tail(joint_model.nq()) = joint_model.neutralConfiguration();
 
-    rotorMass.conservativeResize(nv);
+    rotorInertia.conservativeResize(nv);
     rotorGearRatio.conservativeResize(nv);
 
-    rotorMass.tail(joint_model.nv()).setZero();
+    rotorInertia.tail(joint_model.nv()).setZero();
     rotorGearRatio.tail(joint_model.nv()).setZero();
     
     // Init and add joint index to its parent subtrees.

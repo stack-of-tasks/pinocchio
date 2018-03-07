@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -192,7 +192,7 @@ namespace se3
               {
                 const JointModel & joint = model.joints[joint_id];
                 assert(joint.nv()==1);
-                model.rotorMass(joint.idx_v()) = rotor_mass;
+                model.rotorInertia(joint.idx_v()) = rotor_mass;
                 model.rotorGearRatio(joint.idx_v()) = rotor_gr;  // joint with 1 dof
               }
               else
