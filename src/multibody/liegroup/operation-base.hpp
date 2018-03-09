@@ -154,6 +154,20 @@ namespace se3
                            const Eigen::MatrixBase<Tangent_t>& d);
 
     /**
+     * @brief      Computes the Jacobian of the difference operation
+     *
+     * @param[in]  q0    Initial configuration
+     * @param[in]  q1    Wished configuration
+     *
+     * @return     The Jacobian
+     */
+    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jdifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                            const Eigen::MatrixBase<ConfigR_t> & q1,
+                            const Eigen::MatrixBase<JacobianLOut_t>& J0,
+                            const Eigen::MatrixBase<JacobianROut_t>& J1);
+
+    /**
      * @brief      Squared distance between two configurations of the joint
      *
      * @param[in]  q0    Configuration 1

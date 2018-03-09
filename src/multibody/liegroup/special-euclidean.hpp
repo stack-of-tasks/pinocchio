@@ -53,7 +53,9 @@ namespace se3
   template<>
   struct SpecialEuclideanOperation<2> : public LieGroupOperationBase <SpecialEuclideanOperation<2> >
   {
-    typedef CartesianProductOperation <VectorSpaceOperation<2>, SpecialOrthogonalOperation<2> > R2crossSO2_t;
+    typedef VectorSpaceOperation<2>       R2_t;
+    typedef SpecialOrthogonalOperation<2> SO2_t;
+    typedef CartesianProductOperation <R2_t, SO2_t> R2crossSO2_t;
 
     SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialEuclideanOperation);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
@@ -89,29 +91,14 @@ namespace se3
       Mout(2,2) = 1;
     }
 
-    static Scalar log (const Matrix2& R)
-    {
-      Scalar theta;
-      const Scalar tr = R.trace();
-      const bool pos = (R (1, 0) > R (0, 1));
-      if (tr > 2)       theta = 0; // acos((3-1)/2)
-      else if (tr < -2) theta = (pos ? PI : -PI); // acos((-1-1)/2)
-      // Around 0, asin is numerically more stable than acos because
-      // acos(x) = PI/2 - x and asin(x) = x (the precision of x is not lost in PI/2).
-      else if (tr > 2 - 1e-2) theta = asin ((R(1,0) - R(0,1)) / 2);
-      else              theta = (pos ? acos (tr/2) : -acos(tr/2));
-      assert (theta == theta); // theta != NaN
-      return  theta;
-    }
-
     template <typename Tangent_t>
-    static void log (Matrix2& R, Vector2& p,
+    static void log (const Matrix2& R, const Vector2& p,
         const Eigen::MatrixBase<Tangent_t>& v)
     {
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,Tangent_t);
       Tangent_t& vout = const_cast< Tangent_t& >(v.derived());
 
-      Scalar t = log(R);
+      Scalar t = SO2_t::log(R);
       const Scalar tabs = std::fabs(t);
       const Scalar t2 = t*t;
       Scalar alpha;
@@ -125,6 +112,39 @@ namespace se3
       Matrix2 sk; sk << 0, -t/2, t/2, 0;
       vout.template head<2>().noalias() = alpha * p - sk * p;
       vout(2) = t;
+    }
+
+    template <typename JacobianOut_t>
+    static void Jlog (const Matrix2& R, const Vector2& p,
+        const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianOut_t, JacobianMatrix_t);
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+
+      Scalar t = SO2_t::log(R);
+      const Scalar tabs = std::fabs(t);
+      Scalar alpha, alpha_dot;
+      if (tabs < 1e-4) {
+        alpha = 1 - t*t/12;
+        alpha_dot = - t / 6 - t*t*t / 180;
+      } else {
+        Scalar st,ct; SINCOS (t, &st, &ct);
+        Scalar inv_2_1_ct = 0.5 / (1-ct);
+        // t * sin(t) / (2 * (1 - cos(t)) )
+        alpha = t*st*inv_2_1_ct;
+        // [ ( 1 - cos(t) ) * sin(t) + t * cos(t) - 1 ] / (2 * (1 - cos(t))^2 )
+        alpha_dot = (st-t) * inv_2_1_ct;
+      }
+
+      Matrix2 V;
+      V(0,0) = V(1,1) = alpha;
+      V(1,0) = - t / 2;
+      V(0,1) = - V(1,0);
+
+      Jout.template topLeftCorner <2,2>() = V * R;
+      Jout.template topRightCorner<2,1>() << alpha_dot*p[0] + p[1]/2, -p(0)/2 + alpha_dot*p(1);
+      Jout.template bottomLeftCorner<1,2>().setZero();
+      Jout(2,2) = 1;
     }
 
     /// Get dimension of Lie Group vector representation
@@ -164,6 +184,31 @@ namespace se3
       Vector2 t (R0.transpose() * (t1 - t0));
 
       log (R, t, d);
+    }
+
+    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                 const Eigen::MatrixBase<ConfigR_t> & q1,
+                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
+                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    {
+      Matrix2 R0, R1; Vector2 t0, t1;
+      forwardKinematics(R0, t0, q0);
+      forwardKinematics(R1, t1, q1);
+      Matrix2 R (R0.transpose() * R1);
+      Vector2 t (R0.transpose() * (t1 - t0));
+
+      Jlog (R, t, J1);
+
+      // pcross = [ y1-y0, - (x1 - x0) ]
+      Vector2 pcross (q1(1) - q0(1), q0(0) - q1(0));
+
+      JacobianLOut_t& J0v = const_cast< JacobianLOut_t& > (J0.derived());
+      J0v.template topLeftCorner <2,2> ().noalias() = - R.transpose();
+      J0v.template topRightCorner<2,1> ().noalias() = R1.transpose() * pcross;
+      J0v.template bottomLeftCorner <1,2> ().setZero();
+      J0v (2,2) = -1;
+      J0v.applyOnTheLeft(J1);
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -297,6 +342,32 @@ namespace se3
       const_cast < Eigen::MatrixBase<Tangent_t>& > (d)
         = log6(  SE3(p0.matrix(), q0.derived().template head<3>()).inverse()
                * SE3(p1.matrix(), q1.derived().template head<3>())).toVector();
+    }
+
+    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                 const Eigen::MatrixBase<ConfigR_t> & q1,
+                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
+                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    {
+      ConstQuaternionMap_t p0 (q0.derived().template tail<4>().data());
+      ConstQuaternionMap_t p1 (q1.derived().template tail<4>().data());
+      SE3::Matrix3 R0 (p0.matrix()),
+                   R1 (p1.matrix());
+      SE3 M (  SE3(R0, q0.derived().template head<3>()).inverse()
+             * SE3(R1, q1.derived().template head<3>()));
+
+      Jlog6 (M, J1);
+
+      SE3::Vector3 p1_p0 (q1.derived().template head<3>()
+                        - q0.derived().template head<3>());
+
+      JacobianLOut_t& J0v = const_cast< JacobianLOut_t& > (J0.derived());
+      J0v.template topLeftCorner <3,3> ().noalias() = - M.rotation().transpose();
+      J0v.template topRightCorner<3,3> ().noalias() = R1.transpose() * skew (p1_p0) * R0;
+      J0v.template bottomLeftCorner <3,3> ().setZero();
+      J0v.template bottomRightCorner<3,3> ().noalias() = - M.rotation().transpose();
+      J0v.applyOnTheLeft(J1);
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>

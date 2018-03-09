@@ -124,6 +124,21 @@ namespace se3 {
   }
 
   template <class Derived>
+  template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
+  void LieGroupOperationBase<Derived>::Jdifference(
+      const Eigen::MatrixBase<ConfigL_t> & q0,
+      const Eigen::MatrixBase<ConfigR_t> & q1,
+      const Eigen::MatrixBase<JacobianLOut_t>& J0,
+      const Eigen::MatrixBase<JacobianROut_t>& J1)
+  {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianLOut_t, JacobianMatrix_t);
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianROut_t, JacobianMatrix_t);
+    Derived::Jdifference_impl (q0, q1, J0, J1);
+  }
+
+  template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
   double LieGroupOperationBase<Derived>::squaredDistance(
       const Eigen::MatrixBase<ConfigL_t> & q0,

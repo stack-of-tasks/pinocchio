@@ -84,6 +84,17 @@ namespace se3
       const_cast< Eigen::MatrixBase<Tangent_t>& > (d) = q1 - q0;
     }
 
+    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> &,
+                                 const Eigen::MatrixBase<ConfigR_t> &,
+                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
+                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    {
+      const_cast< JacobianLOut_t& > (J0.derived()).setZero();
+      const_cast< JacobianLOut_t& > (J0.derived()).diagonal().setConstant(-1);
+      const_cast< JacobianROut_t& > (J1.derived()).setIdentity();
+    }
+
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
     static void integrate_impl(const Eigen::MatrixBase<ConfigIn_t> & q,
                                const Eigen::MatrixBase<Velocity_t> & v,
