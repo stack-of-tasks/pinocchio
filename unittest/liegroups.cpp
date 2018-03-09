@@ -21,8 +21,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-#define BOOST_TEST_MODULE liegroups
-
 #define EIGEN_VECTOR_IS_APPROX(Va, Vb, precision)                              \
   BOOST_CHECK_MESSAGE((Va).isApprox(Vb, precision),                            \
       "check " #Va ".isApprox(" #Vb ") failed "                                \
@@ -109,6 +107,50 @@ struct TestJoint{
 
 };
 
+struct LieGroup_Jdifference{
+  template <typename T>
+  void operator()(const T ) const
+  {
+    typedef typename T::ConfigVector_t ConfigVector_t;
+    typedef typename T::TangentVector_t TangentVector_t;
+    typedef typename T::JacobianMatrix_t JacobianMatrix_t;
+    typedef typename T::Scalar Scalar;
+
+    T lg;
+    std::cout << lg.name() << std::endl;
+    ConfigVector_t q[2], q_dv[2];
+    q[0] = lg.random();
+    q[1] = lg.random();
+    TangentVector_t va, vb, dv;
+    JacobianMatrix_t J[2];
+    dv.setZero();
+
+    lg.difference (q[0], q[1], va);
+    lg.Jdifference (q[0], q[1], J[0], J[1]);
+
+    const Scalar eps = 1e-6;
+    for (int k = 0; k < 2; ++k) {
+      std::cout << "Checking J" << k << '\n' << J[k] << std::endl;
+      q_dv[0] = q[0];
+      q_dv[1] = q[1];
+      // Check J[k]
+      for (int i = 0; i < dv.size(); ++i)
+      {
+        dv[i] = eps;
+        lg.integrate (q[k], dv, q_dv[k]);
+        lg.difference (q_dv[0], q_dv[1], vb);
+
+        // vb - va ~ J[k] * dv
+
+        TangentVector_t J_dv = J[k]*dv / eps;
+        TangentVector_t vb_va = (vb - va) / eps;
+        EIGEN_VECTOR_IS_APPROX (vb_va, J_dv, 1e-2);
+        dv[i] = 0;
+      }
+    }
+  }
+};
+
 struct LieGroup_Jintegrate{
   template <typename T>
   void operator()(const T ) const
@@ -161,6 +203,27 @@ BOOST_AUTO_TEST_CASE ( test_all )
     boost::mpl::for_each<Variant::types>(TestJoint());
   // FIXME JointModelComposite does not work.
   // boost::mpl::for_each<JointModelVariant::types>(TestJoint());
+}
+
+BOOST_AUTO_TEST_CASE ( Jdifference )
+{
+  typedef boost::mpl::vector<  VectorSpaceOperation<1>
+                             , VectorSpaceOperation<2>
+                             , SpecialOrthogonalOperation<2>
+                             , SpecialOrthogonalOperation<3>
+                             , SpecialEuclideanOperation<2>
+                             , SpecialEuclideanOperation<3>
+                             , CartesianProductOperation<
+                                 VectorSpaceOperation<2>,
+                                 SpecialOrthogonalOperation<2>
+                               >
+                             , CartesianProductOperation<
+                                 VectorSpaceOperation<3>,
+                                 SpecialOrthogonalOperation<3>
+                               >
+                             > Types;
+  for (int i = 0; i < 20; ++i)
+    boost::mpl::for_each<Types>(LieGroup_Jdifference());
 }
 
 BOOST_AUTO_TEST_CASE ( Jintegrate )
