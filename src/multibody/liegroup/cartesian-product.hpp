@@ -80,6 +80,32 @@ namespace se3
       LieGroup2::difference(q0.template tail<LieGroup2::NQ>(), q1.template tail<LieGroup2::NQ>(), out.template tail<LieGroup2::NV>());
     }
 
+    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                 const Eigen::MatrixBase<ConfigR_t> & q1,
+                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
+                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    {
+      JacobianLOut_t& J0out = const_cast< JacobianLOut_t& >(J0.derived());
+      J0out.template   topRightCorner<LieGroup1::NV,LieGroup2::NV>().setZero();
+      J0out.template bottomLeftCorner<LieGroup2::NV,LieGroup1::NV>().setZero();
+
+      JacobianROut_t& J1out = const_cast< JacobianROut_t& >(J1.derived());
+      J1out.template   topRightCorner<LieGroup1::NV,LieGroup2::NV>().setZero();
+      J1out.template bottomLeftCorner<LieGroup2::NV,LieGroup1::NV>().setZero();
+
+      LieGroup1::Jdifference(
+          q0.template head<LieGroup1::NQ>(),
+          q1.template tail<LieGroup1::NQ>(),
+          J0out.template topLeftCorner<LieGroup1::NV,LieGroup1::NV>(),
+          J1out.template topLeftCorner<LieGroup1::NV,LieGroup1::NV>());
+      LieGroup2::Jdifference(
+          q0.template tail<LieGroup2::NQ>(),
+          q1.template tail<LieGroup2::NQ>(),
+          J0out.template bottomRightCorner<LieGroup2::NV,LieGroup2::NV>(),
+          J1out.template bottomRightCorner<LieGroup2::NV,LieGroup2::NV>());
+    }
+
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
     static void integrate_impl(const Eigen::MatrixBase<ConfigIn_t> & q,
                                const Eigen::MatrixBase<Velocity_t> & v,
