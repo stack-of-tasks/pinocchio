@@ -106,6 +106,45 @@ namespace se3
     return log3 (R.derived(), theta);
   }
 
+  template <typename Scalar, typename _Vector3, typename _Matrix3>
+  void Jlog3 (const Scalar& theta,
+              const Eigen::MatrixBase<_Vector3>& log,
+              const Eigen::MatrixBase<_Matrix3>& Jlog)
+  {
+    _Matrix3& Jout = const_cast<_Matrix3&> (Jlog.derived());
+    if (theta < 1e-6)
+      Jout.setIdentity ();
+    else {
+      // Jlog = alpha I
+      Scalar ct,st; SINCOS (theta,&st,&ct);
+      const Scalar st_1mct = st/(1-ct);
+
+      Jout.setZero ();
+      Jout.diagonal().setConstant (theta*st_1mct);
+
+      // Jlog += r_{\times}/2
+      Jout(0,1) = -log(2); Jout(1,0) =  log(2);
+      Jout(0,2) =  log(1); Jout(2,0) = -log(1);
+      Jout(1,2) = -log(0); Jout(2,1) =  log(0);
+      Jout /= 2;
+
+      const Scalar alpha = 1/(theta*theta) - st_1mct/(2*theta);
+      Jout.noalias() += alpha * log * log.transpose ();
+    }
+  }
+
+  template <typename _D, typename _Matrix3>
+  void Jlog3 (const Eigen::MatrixBase<_D> & R,
+              const Eigen::MatrixBase<_Matrix3>& Jlog)
+  {
+    typedef typename _D::Scalar Scalar;
+    typedef Eigen::Matrix<Scalar,3,1> Vector3;
+
+    Scalar t;
+    Vector3 w(log3(R, t));
+    Jlog3 (t, w, Jlog);
+  }
+
   /// \brief Exp: se3 -> SE3.
   ///
   /// Return the integral of the input twist during time 1.
@@ -209,6 +248,56 @@ namespace se3
     Vector3 trans(M.template block<3,1>(0,3));
     SE3Tpl<typename D::Scalar,Eigen::internal::traits<D>::Options> m(rot, trans);
     return log6(m);
+  }
+
+  template <typename _Scalar, int _Options, typename D>
+  void Jlog6 (const SE3Tpl<_Scalar, _Options> & M,
+      const Eigen::MatrixBase<D>& Jlog)
+  {
+    typedef _Scalar Scalar;
+    typedef typename SE3Tpl<Scalar,_Options>::Vector3 Vector3;
+    typedef typename SE3Tpl<Scalar,_Options>::Matrix3 Matrix3;
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D, 6, 6);
+    D& value = const_cast<D&> (Jlog.derived());
+
+    const Matrix3 & R = M.rotation();
+    const Vector3 & p = M.translation();
+    Scalar t;
+    Vector3 w(log3(R, t));
+
+    Matrix3 J3;
+    Jlog3 (t, w, J3);
+
+    const Scalar t2 = t*t;
+    Scalar alpha, beta, beta_dot_over_theta;
+    if (fabs (t) < 1e-2) {
+      alpha = 1 - t2/12 - t2*t2/720;
+      beta = 1./12 + t2/720;
+      beta_dot_over_theta = 1. / 360.;
+    } else {
+      Scalar st,ct; SINCOS (t, &st, &ct);
+      alpha = t*st/(2*(1-ct));
+      beta = 1/(t2) - st/(2*t*(1-ct));
+      beta_dot_over_theta = -2/(t2*t2) +
+        (t + st) / (2*t2*t*(1-ct));
+    }
+
+    Matrix3 V (
+        alpha * Matrix3::Identity ()
+        - alphaSkew (.5, w) +
+        beta * w * w.transpose ());
+
+    Scalar wTp (w.dot (p));
+
+    Matrix3 J ((alphaSkew(.5, p) +
+          (beta_dot_over_theta*wTp)*w*w.transpose ()
+          - (t2*beta_dot_over_theta+2*beta)*p*w.transpose ()
+          + wTp * beta * Matrix3::Identity ()
+          + beta * w*p.transpose ()
+          ) * J3);
+
+    value << V * R          , J,
+             Matrix3::Zero(), J3;
   }
 } // namespace se3
 
