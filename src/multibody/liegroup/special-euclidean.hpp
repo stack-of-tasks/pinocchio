@@ -92,7 +92,7 @@ namespace se3
     }
 
     template <typename Tangent_t>
-    static void log (Matrix2& R, Vector2& p,
+    static void log (const Matrix2& R, const Vector2& p,
         const Eigen::MatrixBase<Tangent_t>& v)
     {
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,Tangent_t);
