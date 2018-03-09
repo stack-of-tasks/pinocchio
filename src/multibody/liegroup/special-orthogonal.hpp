@@ -49,6 +49,23 @@ namespace se3
   struct SpecialOrthogonalOperation<2> : public LieGroupOperationBase <SpecialOrthogonalOperation<2> >
   {
     SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
+    typedef Eigen::Matrix<Scalar,2,2> Matrix2;
+
+    static Scalar log (const Matrix2& R)
+    {
+      Scalar theta;
+      const Scalar tr = R.trace();
+      const bool pos = (R (1, 0) > 0);
+      if (tr > 2)       theta = 0; // acos((3-1)/2)
+      else if (tr < -2) theta = (pos ? PI : -PI); // acos((-1-1)/2)
+      // Around 0, asin is numerically more stable than acos because
+      // acos(x) = PI/2 - x and asin(x) = x (the precision of x is not lost in PI/2).
+      else if (tr > 2 - 1e-2) theta = asin ((R(1,0) - R(0,1)) / 2);
+      else              theta = (pos ? acos (tr/2) : -acos(tr/2));
+      assert (theta == theta); // theta != NaN
+      assert (fabs(theta - atan2 (R(1,0), R(0,0))) < 1e-6);
+      return theta;
+    }
 
     /// Get dimension of Lie Group vector representation
     ///
@@ -80,8 +97,11 @@ namespace se3
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      const_cast < Eigen::MatrixBase<Tangent_t>& > (d) [0]
-        = atan2 (q0(0)*q1(1) - q0(1)*q1(0), q0.dot(q1));
+      Matrix2 R; // R0.transpose() * R1;
+      R(0,0) = R(1,1) = q0.dot(q1);
+      R(1,0) = q0(0) * q1(1) - q0(1) * q1(0);
+      R(0,1) = - R(1,0);
+      const_cast < Tangent_t& > (d.derived()) [0] = log (R);
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>

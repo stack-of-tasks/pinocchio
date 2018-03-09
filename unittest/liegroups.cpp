@@ -21,6 +21,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#define BOOST_TEST_MODULE liegroups
+
 #define EIGEN_VECTOR_IS_APPROX(Va, Vb, precision)                              \
   BOOST_CHECK_MESSAGE((Va).isApprox(Vb, precision),                            \
       "check " #Va ".isApprox(" #Vb ") failed "                                \
@@ -144,7 +146,7 @@ struct LieGroup_Jintegrate{
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
-BOOST_AUTO_TEST_CASE ( test_all_liegroups )
+BOOST_AUTO_TEST_CASE ( test_all )
 {
   typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned
                           , JointModelSpherical, JointModelSphericalZYX
@@ -161,7 +163,7 @@ BOOST_AUTO_TEST_CASE ( test_all_liegroups )
   // boost::mpl::for_each<JointModelVariant::types>(TestJoint());
 }
 
-BOOST_AUTO_TEST_CASE ( liegroups_Jintegrate )
+BOOST_AUTO_TEST_CASE ( Jintegrate )
 {
   typedef boost::mpl::vector<  VectorSpaceOperation<1>
                              , VectorSpaceOperation<2>

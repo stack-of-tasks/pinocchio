@@ -53,7 +53,9 @@ namespace se3
   template<>
   struct SpecialEuclideanOperation<2> : public LieGroupOperationBase <SpecialEuclideanOperation<2> >
   {
-    typedef CartesianProductOperation <VectorSpaceOperation<2>, SpecialOrthogonalOperation<2> > R2crossSO2_t;
+    typedef VectorSpaceOperation<2>       R2_t;
+    typedef SpecialOrthogonalOperation<2> SO2_t;
+    typedef CartesianProductOperation <R2_t, SO2_t> R2crossSO2_t;
 
     SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialEuclideanOperation);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
@@ -89,21 +91,6 @@ namespace se3
       Mout(2,2) = 1;
     }
 
-    static Scalar log (const Matrix2& R)
-    {
-      Scalar theta;
-      const Scalar tr = R.trace();
-      const bool pos = (R (1, 0) > R (0, 1));
-      if (tr > 2)       theta = 0; // acos((3-1)/2)
-      else if (tr < -2) theta = (pos ? PI : -PI); // acos((-1-1)/2)
-      // Around 0, asin is numerically more stable than acos because
-      // acos(x) = PI/2 - x and asin(x) = x (the precision of x is not lost in PI/2).
-      else if (tr > 2 - 1e-2) theta = asin ((R(1,0) - R(0,1)) / 2);
-      else              theta = (pos ? acos (tr/2) : -acos(tr/2));
-      assert (theta == theta); // theta != NaN
-      return  theta;
-    }
-
     template <typename Tangent_t>
     static void log (Matrix2& R, Vector2& p,
         const Eigen::MatrixBase<Tangent_t>& v)
@@ -111,7 +98,7 @@ namespace se3
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,Tangent_t);
       Tangent_t& vout = const_cast< Tangent_t& >(v.derived());
 
-      Scalar t = log(R);
+      Scalar t = SO2_t::log(R);
       const Scalar tabs = std::fabs(t);
       const Scalar t2 = t*t;
       Scalar alpha;
