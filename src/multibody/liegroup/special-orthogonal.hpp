@@ -67,6 +67,11 @@ namespace se3
       return theta;
     }
 
+    static Scalar Jlog (const Matrix2&)
+    {
+      return 1;
+    }
+
     /// Get dimension of Lie Group vector representation
     ///
     /// For instance, for SO(3), the dimension of the vector representation is
@@ -102,6 +107,22 @@ namespace se3
       R(1,0) = q0(0) * q1(1) - q0(1) * q1(0);
       R(0,1) = - R(1,0);
       const_cast < Tangent_t& > (d.derived()) [0] = log (R);
+    }
+
+    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                 const Eigen::MatrixBase<ConfigR_t> & q1,
+                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
+                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    {
+      Matrix2 R; // R0.transpose() * R1;
+      R(0,0) = R(1,1) = q0.dot(q1);
+      R(1,0) = q0(0) * q1(1) - q0(1) * q1(0);
+      R(0,1) = - R(1,0);
+
+      Scalar w (Jlog(R));
+      const_cast< JacobianLOut_t& > (J0.derived()).coeffRef(0) = -w;
+      const_cast< JacobianROut_t& > (J1.derived()).coeffRef(0) =  w;
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -235,6 +256,22 @@ namespace se3
       ConstQuaternionMap_t p1 (q1.derived().data());
       const_cast < Eigen::MatrixBase<Tangent_t>& > (d)
         = log3((p0.matrix().transpose() * p1.matrix()).eval());
+    }
+
+    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                 const Eigen::MatrixBase<ConfigR_t> & q1,
+                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
+                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    {
+      ConstQuaternionMap_t p0 (q0.derived().data());
+      ConstQuaternionMap_t p1 (q1.derived().data());
+      Eigen::Matrix<Scalar, 3, 3> R = p0.matrix().transpose() * p1.matrix();
+
+      Jlog3 (R, J1);
+
+      JacobianLOut_t& J0v = const_cast< JacobianLOut_t& > (J0.derived());
+      J0v.noalias() = - J1.derived() * R.transpose();
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
