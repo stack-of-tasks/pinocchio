@@ -24,6 +24,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <urdf_parser/urdf_parser.h>
+
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
@@ -46,12 +48,24 @@ BOOST_AUTO_TEST_CASE ( build_model_from_XML )
   
   // Read file as XML
   std::ifstream file;
-  file.open(filename);
+  file.open(filename.c_str());
   std::string filestr((std::istreambuf_iterator<char>(file)),
                       std::istreambuf_iterator<char>());
   
   se3::Model model;
   se3::urdf::buildModelFromXML(filestr, model);
+  
+  BOOST_CHECK(model.nq == 31);
+}
+
+BOOST_AUTO_TEST_CASE ( build_model_from_UDRFTree )
+{
+  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
+  
+  ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
+  
+  se3::Model model;
+  se3::urdf::buildModel(urdfTree, model);
   
   BOOST_CHECK(model.nq == 31);
 }
@@ -75,12 +89,24 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint_from_XML )
   
   // Read file as XML
   std::ifstream file;
-  file.open(filename);
+  file.open(filename.c_str());
   std::string filestr((std::istreambuf_iterator<char>(file)),
                       std::istreambuf_iterator<char>());
   
   se3::Model model;
   se3::urdf::buildModelFromXML(filestr, se3::JointModelFreeFlyer(), model);
+  
+  BOOST_CHECK(model.nq == 38);
+}
+
+BOOST_AUTO_TEST_CASE ( build_model_with_joint_from_UDRFTree )
+{
+  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
+  
+  ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
+  
+  se3::Model model;
+  se3::urdf::buildModel(urdfTree, se3::JointModelFreeFlyer(), model);
   
   BOOST_CHECK(model.nq == 38);
 }
