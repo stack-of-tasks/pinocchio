@@ -16,6 +16,8 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <iostream>
+#include <fstream>
+#include <streambuf>
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/urdf.hpp"
@@ -38,6 +40,22 @@ BOOST_AUTO_TEST_CASE ( build_model )
   BOOST_CHECK(model.nq == 31);
 }
   
+BOOST_AUTO_TEST_CASE ( build_model_from_XML )
+{
+  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
+  
+  // Read file as XML
+  std::ifstream file;
+  file.open(filename);
+  std::string filestr((std::istreambuf_iterator<char>(file)),
+                      std::istreambuf_iterator<char>());
+  
+  se3::Model model;
+  se3::urdf::buildModelFromXML(filestr, model);
+  
+  BOOST_CHECK(model.nq == 31);
+}
+  
 BOOST_AUTO_TEST_CASE ( build_model_with_joint )
 {
   const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
@@ -47,6 +65,22 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint )
   se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(), model);
   se3::GeometryModel geomModel;
   se3::urdf::buildGeom(model, filename, se3::COLLISION, geomModel, dir);
+  
+  BOOST_CHECK(model.nq == 38);
+}
+
+BOOST_AUTO_TEST_CASE ( build_model_with_joint_from_XML )
+{
+  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
+  
+  // Read file as XML
+  std::ifstream file;
+  file.open(filename);
+  std::string filestr((std::istreambuf_iterator<char>(file)),
+                      std::istreambuf_iterator<char>());
+  
+  se3::Model model;
+  se3::urdf::buildModelFromXML(filestr, se3::JointModelFreeFlyer(), model);
   
   BOOST_CHECK(model.nq == 38);
 }

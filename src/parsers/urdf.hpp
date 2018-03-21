@@ -87,6 +87,39 @@ namespace se3
     Model & buildModel (const ::urdf::ModelInterfaceSharedPtr & urdfTree,
                         Model & model,
                         const bool verbose = false);
+    
+    ///
+    /// \brief Build the model from an XML stream with a particular joint as root of the model tree inside
+    /// the model given as reference argument.
+    ///
+    /// \param[in] xmlStream stream containing the URDF model.
+    /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] verbose Print parsing info.
+    /// \param[out] model Reference model where to put the parsed information.
+    /// \return Return the reference on argument model for convenience.
+    ///
+    /// \note urdfTree can be build from ::urdf::parseURDF
+    ///       or ::urdf::parseURDFFile
+    Model & buildModelFromXML(const std::string & xmlStream,
+                              const JointModelVariant & rootJoint,
+                              Model & model,
+                              const bool verbose = false)
+    throw (std::invalid_argument);
+    
+    ///
+    /// \brief Build the model from an XML stream
+    ///
+    /// \param[in] xmlStream stream containing the URDF model.
+    /// \param[in] verbose Print parsing info.
+    /// \param[out] model Reference model where to put the parsed information.
+    /// \return Return the reference on argument model for convenience.
+    ///
+    /// \note urdfTree can be build from ::urdf::parseURDF
+    ///       or ::urdf::parseURDFFile
+    Model & buildModelFromXML(const std::string & xmlStream,
+                              Model & model,
+                              const bool verbose = false)
+    throw (std::invalid_argument);
 
 
     /**

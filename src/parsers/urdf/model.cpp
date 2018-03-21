@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -586,9 +586,9 @@ namespace se3
       ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile (filename);
 
       if (urdfTree)
-	{
+      {
           return buildModel (urdfTree, root_joint, model, verbose);
-	}
+      }
       else
       {
         const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
@@ -602,12 +602,47 @@ namespace se3
     {
       ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile (filename);
       if (urdfTree)
-	{
+      {
           return buildModel (urdfTree, model, verbose);
-	}
+      }
       else
       {
         const std::string exception_message ("The file " + filename + " does not contain a valid URDF model.");
+        throw std::invalid_argument(exception_message);
+      }
+      
+      return model;
+    }
+              
+    Model & buildModelFromXML(const std::string & xmlStream,
+                              const JointModelVariant & rootJoint,
+                              Model & model,
+                              const bool verbose) throw (std::invalid_argument)
+    {
+      ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDF(xmlStream);
+      
+      if (urdfTree)
+        return buildModel(urdfTree, rootJoint, model, verbose);
+      else
+      {
+        const std::string exception_message ("The XML stream does not contain a valid URDF model.");
+        throw std::invalid_argument(exception_message);
+      }
+      
+      return model;
+    }
+              
+    Model & buildModelFromXML(const std::string & xmlStream,
+                              Model & model,
+                              const bool verbose) throw (std::invalid_argument)
+    {
+      ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDF(xmlStream);
+      
+      if (urdfTree)
+        return buildModel(urdfTree, model, verbose);
+      else
+      {
+        const std::string exception_message ("The XML stream does not contain a valid URDF model.");
         throw std::invalid_argument(exception_message);
       }
       
