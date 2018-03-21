@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -87,6 +87,39 @@ namespace se3
     Model & buildModel (const ::urdf::ModelInterfaceSharedPtr & urdfTree,
                         Model & model,
                         const bool verbose = false);
+    
+    ///
+    /// \brief Build the model from an XML stream with a particular joint as root of the model tree inside
+    /// the model given as reference argument.
+    ///
+    /// \param[in] xmlStream stream containing the URDF model.
+    /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] verbose Print parsing info.
+    /// \param[out] model Reference model where to put the parsed information.
+    /// \return Return the reference on argument model for convenience.
+    ///
+    /// \note urdfTree can be build from ::urdf::parseURDF
+    ///       or ::urdf::parseURDFFile
+    Model & buildModelFromXML(const std::string & xmlStream,
+                              const JointModelVariant & rootJoint,
+                              Model & model,
+                              const bool verbose = false)
+    throw (std::invalid_argument);
+    
+    ///
+    /// \brief Build the model from an XML stream
+    ///
+    /// \param[in] xmlStream stream containing the URDF model.
+    /// \param[in] verbose Print parsing info.
+    /// \param[out] model Reference model where to put the parsed information.
+    /// \return Return the reference on argument model for convenience.
+    ///
+    /// \note urdfTree can be build from ::urdf::parseURDF
+    ///       or ::urdf::parseURDFFile
+    Model & buildModelFromXML(const std::string & xmlStream,
+                              Model & model,
+                              const bool verbose = false)
+    throw (std::invalid_argument);
 
 
     /**
@@ -97,7 +130,7 @@ namespace se3
      * @param[in]  model         The model of the robot, built with
      *                           urdf::buildModel
      * @param[in]  filename      The URDF complete (absolute) file path
-     * @param[in]  packageDirs  A vector containing the different directories
+     * @param[in]  packageDirs   A vector containing the different directories
      *                           where to search for models and meshes, typically 
      *                           obtained from calling se3::rosPaths()
      *
@@ -106,7 +139,7 @@ namespace se3
      *
      * @return      Returns the reference on geom model for convenience.
      *
-     * \warning     If hpp-fcl has not been found during compilation, COLLISION types can not be loaded
+     * \warning     If hpp-fcl has not been found during compilation, COLLISION objects can not be loaded
      *
      */
     GeometryModel& buildGeom(const Model & model,
@@ -115,6 +148,36 @@ namespace se3
                              GeometryModel & geomModel,
                              const std::vector<std::string> & packageDirs = std::vector<std::string> ())
     throw (std::invalid_argument);
+    
+    /**
+     * @brief      Build The GeometryModel from a URDF file. Search for meshes
+     *             in the directories specified by the user first and then in
+     *             the environment variable ROS_PACKAGE_PATH
+     *
+     * @param[in]  model         The model of the robot, built with
+     *                           urdf::buildModel
+     * @param[in]  filename      The URDF complete (absolute) file path
+     * @param[in]  packageDir    A string containing the path to the directories of the meshes,
+     *                           typically obtained from calling se3::rosPaths().
+     *
+     * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
+     * @param[out]  geomModel    Reference where to put the parsed information.
+     *
+     * @return      Returns the reference on geom model for convenience.
+     *
+     * \warning     If hpp-fcl has not been found during compilation, COLLISION objects can not be loaded
+     *
+     */
+    inline GeometryModel& buildGeom(const Model & model,
+                                    const std::string & filename,
+                                    const GeometryType type,
+                                    GeometryModel & geomModel,
+                                    const std::string & packageDir)
+    throw (std::invalid_argument)
+    {
+      const std::vector<std::string> dirs(1,packageDir);
+      return buildGeom(model,filename,type,geomModel,dirs);
+    }
 
     /**
      * @brief      Build The GeometryModel from a URDF model. Search for meshes
@@ -124,7 +187,7 @@ namespace se3
      * @param[in]  model         The model of the robot, built with
      *                           urdf::buildModel
      * @param[in]  xmlStream     Stream containing the URDF model
-     * @param[in]  packageDirs  A vector containing the different directories
+     * @param[in]  packageDirs   A vector containing the different directories
      *                           where to search for models and meshes, typically
      *                           obtained from calling se3::rosPaths()
      *
@@ -133,15 +196,45 @@ namespace se3
      *
      * @return      Returns the reference on geom model for convenience.
      *
-     * \warning     If hpp-fcl has not been found during compilation, COLLISION types can not be loaded
+     * \warning     If hpp-fcl has not been found during compilation, COLLISION objects cannot be loaded
      *
      */
     GeometryModel& buildGeom(const Model & model,
-                             const std::istream& xmlStream,
+                             const std::istream & xmlStream,
                              const GeometryType type,
                              GeometryModel & geomModel,
                              const std::vector<std::string> & packageDirs = std::vector<std::string> ())
     throw (std::invalid_argument);
+    
+    /**
+     * @brief      Build The GeometryModel from a URDF model. Search for meshes
+     *             in the directories specified by the user first and then in
+     *             the environment variable ROS_PACKAGE_PATH
+     *
+     * @param[in]  model         The model of the robot, built with
+     *                           urdf::buildModel
+     * @param[in]  xmlStream     Stream containing the URDF model
+     * @param[in]  packageDir    A string containing the path to the directories of the meshes,
+     *                           typically obtained from calling se3::rosPaths().
+     *
+     * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
+     * @param[out]  geomModel    Reference where to put the parsed information.
+     *
+     * @return      Returns the reference on geom model for convenience.
+     *
+     * \warning     If hpp-fcl has not been found during compilation, COLLISION objects cannot be loaded
+     *
+     */
+    inline GeometryModel & buildGeom(const Model & model,
+                                     const std::istream & xmlStream,
+                                     const GeometryType type,
+                                     GeometryModel & geomModel,
+                                     const std::string & packageDir)
+    throw (std::invalid_argument)
+    {
+      const std::vector<std::string> dirs(1,packageDir);
+      return buildGeom(model,xmlStream,type,geomModel,dirs);
+    }
 
 
   } // namespace urdf

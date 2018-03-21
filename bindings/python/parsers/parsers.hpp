@@ -69,7 +69,23 @@ namespace se3
         se3::urdf::buildModel(filename, model);
         return model;
       }
-
+      
+      static Model buildModelFromXML(const std::string & XMLstream,
+                                     bp::object & root_joint_object
+                                     )
+      {
+        JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object)();
+        Model model;
+        se3::urdf::buildModelFromXML(XMLstream, root_joint, model);
+        return model;
+      }
+      
+      static Model buildModelFromXML(const std::string & XMLstream)
+      {
+        Model model;
+        se3::urdf::buildModelFromXML(XMLstream, model);
+        return model;
+      }
 
       static GeometryModel
       buildGeomFromUrdf(const Model & model,
@@ -151,36 +167,49 @@ namespace se3
       bp::def("buildModelFromUrdf",
               static_cast <Model (*) (const std::string &, bp::object &)> (&ParsersPythonVisitor::buildModelFromUrdf),
               bp::args("Filename (string)","Root Joint Model"),
-              "Parse the urdf file given in input and return a pinocchio model starting with the given root joint model"
-              "(remember to create the corresponding data structure)."
+              "Parse the URDF file given in input and return a pinocchio model starting with the given root joint model"
+              "(remember to then create the corresponding Data structure associated to the model)."
               );
       
       bp::def("buildModelFromUrdf",
               static_cast <Model (*) (const std::string &)> (&ParsersPythonVisitor::buildModelFromUrdf),
               bp::args("Filename (string)"),
-              "Parse the urdf file given in input and return a pinocchio model"
-              "(remember to create the corresponding data structure)."
+              "Parse the URDF file given in input and return a pinocchio model"
+              "(remember to then create the corresponding Data structure associated to the model)."
               );
       
+      bp::def("buildModelFromXML",
+              static_cast <Model (*) (const std::string &, bp::object &)> (&ParsersPythonVisitor::buildModelFromXML),
+              bp::args("XML stream (string)","Root Joint Model"),
+              "Parse the URDF XML stream given in input and return a pinocchio model starting with the given root joint model"
+              "(remember to then create the corresponding Data structure associated to the model)."
+              );
+      
+      bp::def("buildModelFromXML",
+              static_cast <Model (*) (const std::string &)> (&ParsersPythonVisitor::buildModelFromXML),
+              bp::args("XML stream (string)"),
+              "Parse the URDF XML stream given in input and return a pinocchio model"
+              "(remember to then create the corresponding Data structure associated to the model)."
+              );
       
       bp::def("buildGeomFromUrdf",
               static_cast <GeometryModel (*) (const Model &, const std::string &, const std::vector<std::string> &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)"
                        ),
-              "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model "
-              "(remember to create the corresponding data structures).");
+              "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model "
+              "(remember to then create the corresponding Data structure associated to the geometry model).");
       
       bp::def("buildGeomFromUrdf",
               static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)"),
-              "Parse the urdf file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model "
-              "(remember to create the corresponding data structures).");
+              "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model "
+              "(remember to then create the corresponding Data structure associated to the geometry model).");
       
 #ifdef WITH_HPP_FCL
       bp::def("removeCollisionPairsFromSrdf",removeCollisionPairsFromSrdf,
               bp::args("Model", "GeometryModel (where pairs are removed)","srdf filename (string)", "verbosity"
                        ),
-              "Parse an srdf file in order to desactivate collision pairs for a specific GeometryData and GeometryModel ");
+              "Parse an SRDF file in order to desactivate collision pairs for a specific GeometryData and GeometryModel ");
 
 #endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
@@ -190,7 +219,7 @@ namespace se3
               bp::args("Filename (string)",
                        "Free flyer (bool, false for a fixed robot)",
                        "Verbose option "),
-              "Parse the urdf file given in input and return a proper pinocchio model "
+              "Parse the URDF file given in input and return a proper pinocchio model "
               "(remember to create the corresponding data structure).");
 #endif // #ifdef WITH_LUA5
 
@@ -202,7 +231,7 @@ namespace se3
 
       bp::def("loadRotorParamsFromSrdf",loadRotorParamsFromSrdf,
               bp::args("Model for which we are loading the rotor parameters",
-                       "srdf filename (string)", "verbosity"),
+                       "SRDF filename (string)", "verbosity"),
               "Load the rotor parameters of a given model from an SRDF file.\n"
               "Results are stored in model.rotorInertia and model.rotorGearRatio.");
     }

@@ -15,6 +15,11 @@ It is built upon Eigen for linear algebra and FCL for collision detections. **Pi
 
 **Pinocchio** can be easily installed on various Linux and Unix distributions. Please refer to the [installation procedure](http://stack-of-tasks.github.io/pinocchio/download.html).
 
+## Tutorials 
+
+**Pinocchio** is comming with a large bunch of tutorials aiming at introducting the basic tools for robotics control.
+The content of the tutorials are described [here](http://projects.laas.fr/gepetto/index.php/Teach/Supaero2018) and the code source of these tutorials is located [here](https://github.com/stack-of-tasks/pinocchio-tutorials).
+
 ## Dependencies
 
 The Pinocchio software depends on several packages which
@@ -49,7 +54,7 @@ If you want to cite **Pinocchio** in your papers, please use the following bibte
       author = {Justin Carpentier and Florian Valenza and Nicolas Mansard and others},
       title = {Pinocchio: fast forward and inverse dynamics for poly-articulated systems},
       howpublished = {https://stack-of-tasks.github.io/pinocchio},
-      year = {2015--2017}
+      year = {2015--2018}
      }
 ```
 
