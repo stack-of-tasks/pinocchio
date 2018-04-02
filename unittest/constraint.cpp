@@ -33,10 +33,6 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_ForceSet )
 {
   using namespace se3;
-  typedef Eigen::Matrix<double,4,4> Matrix4;
-  typedef SE3::Matrix6 Matrix6;
-  typedef SE3::Vector3 Vector3;
-  typedef Force::Vector6 Vector6;
 
   SE3 amb = SE3::Random();
   SE3 bmc = SE3::Random();
