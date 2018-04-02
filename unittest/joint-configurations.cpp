@@ -145,7 +145,7 @@ void TestIntegrationJoint::operator()< JointModelComposite >(JointModelBase< Joi
   jmodel.calc(jdata,q1);
   SE3 M1 = jdata.M;
   
-  SE3 M1_exp = M0*exp6(v0);
+  // SE3 M1_exp = M0*exp6(v0);
   // The computations in JointModelComposite::calc() may be wrong, this results cannot be tested yet.
   // BOOST_CHECK_MESSAGE(M1.isApprox(M1_exp), std::string("Error when integrating " + jmodel.shortname()));
 }
