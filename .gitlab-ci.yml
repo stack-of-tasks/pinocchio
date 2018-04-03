@@ -1,96 +1,52 @@
 variables:
-    GIT_SSL_NO_VERIFY: "true"
-    GIT_SUBMODULE_STRATEGY: "recursive"
-    GIT_DEPTH: "3"
-
-stages:
-  - pages
-  - minimal
-  - full
+  GIT_SSL_NO_VERIFY: "true"
+  GIT_SUBMODULE_STRATEGY: "recursive"
+  GIT_DEPTH: "3"
+  NAMESPACE: stack-of-tasks
+  PROJECT: pinocchio
+  REGISTRY: eur0c.laas.fr:5000
+  IMAGE: "${REGISTRY}/${NAMESPACE}/${PROJECT}"
 
 cache:
   paths:
     - build/ccache
 
-.build_template: &build
-    script:
-        - mkdir -p build/ccache
-        - cd build
-        - export CCACHE_BASEDIR=${PWD}
-        - export CCACHE_DIR=${PWD}/ccache
-        - cmake .. -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-        - make
-        - make test
-        - make install
 
-build_minimal_14:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/minimal:14.04
-    stage: minimal
-    retry: 2
-    except:
-      - gh-pages
-
-build_full_14:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/full:14.04
-    stage: full
-    retry: 2
-    except:
-      - gh-pages
-    dependencies:
-      - build_minimal_14
-
-build_minimal_16:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/minimal:16.04
-    stage: minimal
-    retry: 2
-    except:
-      - gh-pages
-
-build_full_16:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/full:16.04
-    stage: full
-    retry: 2
-    except:
-      - gh-pages
-    dependencies:
-      - build_minimal_16
-
-build_minimal_zesty:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/minimal:zesty
-    stage: minimal
-    retry: 2
-    except:
-      - gh-pages
-    allow_failure: true
-
-build_full_zesty:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/full:zesty
-    stage: full
-    retry: 2
-    except:
-      - gh-pages
-    dependencies:
-      - build_minimal_zesty
-    allow_failure: true
-
-pages:
-  image: ruby:2.3
-  stage: pages
-  retry: 2
+.robotpkg-pinocchio: &robotpkg-pinocchio
   variables:
-    JEKYLL_ENV: production
+    ROBOTPKG: pinocchio
+    CATEGORY: wip
   before_script:
-    - gem install jekyll-sitemap
+    - mkdir -p build/ccache
+    - cd build
+    - export CCACHE_BASEDIR=${PWD}
+    - export CCACHE_DIR=${PWD}/ccache
   script:
-    - jekyll build -d public
-  artifacts:
-    paths:
-      - public
-  only:
+    - cd /root/robotpkg/${CATEGORY}/${ROBOTPKG}
+    - git pull
+    - echo "MASTER_REPOSITORY = git ${CI_PROJECT_DIR}" >> Makefile
+    - echo "REPOSITORY.pinocchio = git ${CI_PROJECT_DIR}" >> /opt/openrobots/etc/robotpkg.conf
+    - make checkout
+    - make install
+    - cd work.*/${PROJECT}*/
+    - make test
+    - make doc
+  except:
     - gh-pages
+
+
+robotpkg-pinocchio-14.04:
+  <<: *robotpkg-pinocchio
+  image: ${IMAGE}:14.04
+
+robotpkg-pinocchio-16.04:
+  <<: *robotpkg-pinocchio
+  image: ${IMAGE}:16.04
+
+robotpkg-pinocchio-17.10:
+  <<: *robotpkg-pinocchio
+  image: ${IMAGE}:17.10
+
+robotpkg-pinocchio-dubnium:
+  <<: *robotpkg-pinocchio
+  image: ${IMAGE}:dubnium

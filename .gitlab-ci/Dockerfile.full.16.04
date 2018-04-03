@@ -1,3 +1,0 @@
-FROM eur0c.laas.fr:4567/stack-of-tasks/pinocchio/minimal:16.04
-
-RUN apt-get update && apt-get install -qqy doxygen robotpkg-hpp-fcl liburdfdom-dev && rm -rf /var/lib/apt/lists/*
