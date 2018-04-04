@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -48,7 +48,7 @@ namespace se3
   template<>
   struct SpecialOrthogonalOperation<2> : public LieGroupOperationBase <SpecialOrthogonalOperation<2> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
+    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
 
     static Scalar log (const Matrix2& R)
