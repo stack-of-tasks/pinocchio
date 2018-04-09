@@ -241,7 +241,7 @@ namespace se3
     ///
     /// This simply corresponds to storing in a re-arranged manner the information stored
     /// in geomModel.geometryObjects and geomModel.collisionPairs.
-    /// \param[in] GeomModel the geometry model (const)
+    /// \param[in] geomModel the geometry model (const)
     ///
     /// \warning Outer objects are not duplicated (i.e. if a is in outerObjects[b], then
     /// b is not in outerObjects[a]).
@@ -255,7 +255,7 @@ namespace se3
     /// condition can be used to temporarily remove a pair without touching the model, in a versatile
     /// manner. 
     /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
-    /// \param[in] new value of the activation boolean (true by default).
+    /// \param[in] flag value of the activation boolean (true by default).
     void activateCollisionPair(const PairIndex pairId,const bool flag=true);
 
     /// Deactivate a collision pair.

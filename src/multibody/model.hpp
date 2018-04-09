@@ -60,19 +60,19 @@ namespace se3
     /// \brief Number of operational frames.
     int nframes;
 
-    /// \brief Spatial inertias of the body <i> expressed in the supporting joint frame <i>.
+    /// \brief Spatial inertias of the body *i* expressed in the supporting joint frame *i*.
     container::aligned_vector<Inertia> inertias;
     
-    /// \brief Placement (SE3) of the input of joint <i> regarding to the parent joint output <li>.
+    /// \brief Placement (SE3) of the input of joint *i* regarding to the parent joint output *li*.
     container::aligned_vector<SE3> jointPlacements;
 
-    /// \brief Model of joint <i>, encapsulated in a JointModelAccessor.
+    /// \brief Model of joint *i*, encapsulated in a JointModelAccessor.
     JointModelVector joints;
     
-    /// \brief Joint parent of joint <i>, denoted <li> (li==parents[i]).
+    /// \brief Joint parent of joint *i*, denoted *li* (li==parents[i]).
     std::vector<JointIndex> parents;
 
-    /// \brief Name of joint <i>
+    /// \brief Name of joint *i*
     std::vector<std::string> names;
     
     /// \brief Vector of joint's neutral configurations
@@ -98,8 +98,8 @@ namespace se3
     container::aligned_vector<Frame> frames;
     
     /// \brief Vector of subtrees.
-    /// subtree[j] corresponds to the subtree supported by the joint j.
-    /// The first element of subtree[j] is the index of the joint j itself.
+    /// subtree[j] corresponds to the subtree supported by the joint *j*.
+    /// The first element of subtree[j] is the index of the joint *j* itself.
     std::vector<IndexVector> subtrees;
 
     /// \brief Spatial gravity of the model.
@@ -260,7 +260,7 @@ namespace se3
     /// \warning If no joint is found, return the number of elements at time T.
     /// This can lead to errors if the model is expanded after this method is called
     /// (for example to get the id of a parent joint)
-    /// \param[in] index Index of the joint.
+    /// \param[in] name Name of the joint.
     ///
     /// \return Index of the joint.
     ///
@@ -397,7 +397,7 @@ namespace se3
     ///        and expressed in the local frame of the joint..
     container::aligned_vector<Inertia> Ycrb;
     
-    /// \brief Vector of sub-tree composite rigid body inertia time derivatives \f$ \dot{Y}_{crb}$\f. See Data::Ycrb for more details.
+    /// \brief Vector of sub-tree composite rigid body inertia time derivatives \f$ \dot{Y}_{crb}\f$. See Data::Ycrb for more details.
     container::aligned_vector<Inertia::Matrix6> dYcrb; // TODO: change with dense symmetric matrix6
     
     /// \brief The joint space inertia matrix (a square matrix of dim model.nv).
@@ -420,7 +420,7 @@ namespace se3
     
     // dCCRBA return quantities
     /// \brief Centroidal Momentum Matrix Time Variation
-    /// \note \f$ \dot{h_g} = A_g \ddot{q}\ + \dot{A_g}\dot{q}f$ maps the joint velocity and acceleration vectors to the time variation of the centroidal momentum.
+    /// \note \f$ \dot{h_g} = A_g \ddot{q}\ + \dot{A_g}\dot{q}\f$ maps the joint velocity and acceleration vectors to the time variation of the centroidal momentum.
     Matrix6x dAg;
     
     /// \brief Centroidal momentum quantity.
@@ -493,7 +493,7 @@ namespace se3
     /// \brief Inverse of the operational-space inertia matrix
     Eigen::MatrixXd JMinvJt;
     
-    /// \brief Cholesky decompostion of \JMinvJt.
+    /// \brief Cholesky decompostion of \f$\JMinvJt\f$.
     Eigen::LLT<Eigen::MatrixXd> llt_JMinvJt;
     
     /// \brief Lagrange Multipliers corresponding to the contact forces in se3::forwardDynamics.

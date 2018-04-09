@@ -530,7 +530,7 @@ GENERATE_LATEX         = YES
 # The EXTRA_PACKAGES tag can be to specify one or more names of LaTeX
 # packages that should be included in the LaTeX output.
 
-EXTRA_PACKAGES        += leftidx
+EXTRA_PACKAGES        +=
 
 #---------------------------------------------------------------------------
 # Configuration options related to the preprocessor

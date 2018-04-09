@@ -98,12 +98,12 @@ namespace se3
   }
 
 
-    /**
-     * @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
-     *
-     * @param[in]  joint         Index of the joint
-     * @param[in]  inner_object  Index of the GeometryObject that will be an inner object
-     */
+  //
+  // @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
+  //
+  // @param[in]  joint         Index of the joint
+  // @param[in]  inner_object  Index of the GeometryObject that will be an inner object
+  //
   // inline void GeometryModel::addInnerObject(const JointIndex joint_id, const GeomIndex inner_object)
   // {
   //   if (std::find(innerObjects[joint_id].begin(),
@@ -114,12 +114,12 @@ namespace se3
   //     std::cout << "inner object already added" << std::endl;
   // }
 
-    /**
-     * @brief      Associate a GeometryObject of type COLLISION to a joint's outer objects list
-     *
-     * @param[in]  joint         Index of the joint
-     * @param[in]  inner_object  Index of the GeometryObject that will be an outer object
-     */
+  //
+  // @brief      Associate a GeometryObject of type COLLISION to a joint's outer objects list
+  //
+  // @param[in]  joint         Index of the joint
+  // @param[in]  inner_object  Index of the GeometryObject that will be an outer object
+  //
   // inline void GeometryModel::addOutterObject (const JointIndex joint, const GeomIndex outer_object)
   // {
   //   if (std::find(outerObjects[joint].begin(),
