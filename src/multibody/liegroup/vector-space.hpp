@@ -49,8 +49,7 @@ namespace se3
     }
 
     /// Constructor
-    /// \param size size of the vector space: should be the equal to template
-    ///        argument for static sized vector-spaces.
+    /// \param other other VectorSpaceOperation from which to retrieve size
     VectorSpaceOperation (const VectorSpaceOperation& other) : Base (), size_ (other.size_.value())
     {
       assert (size_.value() >= 0);
@@ -113,7 +112,7 @@ namespace se3
     // template <class ConfigL_t, class ConfigR_t>
     // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
-    
+
     template <class Config_t>
     static void normalize_impl (const Eigen::MatrixBase<Config_t>& /*qout*/)
     {}

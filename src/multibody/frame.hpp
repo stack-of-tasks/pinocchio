@@ -60,7 +60,7 @@ namespace se3
     /// \param[in] name Name of the frame.
     /// \param[in] parent Index of the parent joint in the kinematic tree.
     /// \param[in] previousFrame Index of the parent frame in the kinematic tree.
-    /// \param[in] placement Placement of the frame wrt the parent joint frame.
+    /// \param[in] frame_placement Placement of the frame wrt the parent joint frame.
     /// \param[in] type The type of the frame, see the enum FrameType
     ///
     FrameTpl(const std::string & name,
