@@ -93,7 +93,7 @@ namespace se3
      *
      * @return     The 6D vector \f$ \phi \f$ such that
      * \f{equation*}
-     * \leftidx{^A}\phi = \begin{bmatrix} \leftidx{^A}f \\  \leftidx{^A}\tau \end{bmatrix}
+     * {}^{A}\phi = \begin{bmatrix} {}^{A}f \\  {}^{A}\tau \end{bmatrix}
      * \f}
      */
     ToVectorConstReturnType toVector() const { return derived().toVector_impl(); }

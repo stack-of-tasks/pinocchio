@@ -54,3 +54,4 @@ FORCE_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 #include "pinocchio/spatial/force-ref.hpp"
 
 #endif // ifndef __se3_force_hpp__
+
