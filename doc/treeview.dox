@@ -28,14 +28,8 @@ namespace pinocchio {
   //
 
   /** \page Chapters Chapters
-       - \subpage Chapters_SpatialAlgebra
-       - \subpage Chapters_RigidBodyDynamicModel
-       - \subpage Chapters_DynamicAlgorithms
-       - \subpage Chapters_DataDrivenAlgorithms
-       - \subpage Chapters_FclGeometries
-       - \subpage Chapters_CreatingModels
-       - \subpage Chapters_PythonBindings
-       - \subpage Chapters_crtp
+       - \subpage md_doc_Chapters_creating-models
+       - \subpage md_doc_Chapters_crtp
   */
 
   //

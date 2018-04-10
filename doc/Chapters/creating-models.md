@@ -1,3 +1,5 @@
+# Creating models
+<!--
 //
 // Copyright (c) 2016 CNRS
 // Author: Florent Lamiraux, Justin Carpentier, Florian Valenza
@@ -15,26 +17,22 @@
 // received a copy of the GNU Lesser General Public License along with
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
-
-namespace pinocchio
-{
-  
-/** \page Chapters_CreatingModels Creating models
+-->
 
 Here you can find the differents ways to create a model ( simple models, python/lua/urdf loading, Joint after Joint)
 
-\section Chapters_CreatingModels_introduction Introduction
+## Introduction
 
 In Pinocchio you can create Models in many ways. We have built-in parsers for different kind of format ( urdf, python, Lua)
 but you can also create a Model from scratch and fill it with the Joints you want.
 
-\section Chapters_CreatingModels_supported_formats Supported formats
+## Supported formats
 
 
-\subsection Chapters_CreatingModels_urdf Format urdf
+### Format urdf
 
 To load an urdf file in C++ code, copy the following lines:
-\code
+```
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/multibody/parser/urdf.hpp>
 #include <pinocchio/multibody/parser/utils.hpp>
@@ -45,24 +43,24 @@ const std::string filename = "path/to/file/model.urdf";
 se3::JointModelFreeflyer rootJoint;
 se3::Model model = se3::urdf::buildModel (filename, rootJoint, verbose);
 se3::Data data (model);
-\endcode
+```
 
-\subsection Chapters_CreatingModels_Python Format Python
+### Format Python
 
 To load a python file in C++ code, copy the following lines:
-\code
+```
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/multibody/parser/python.hpp>
 #include <pinocchio/multibody/parser/utils.hpp>
 #include <pinocchio/multibody/joint.hpp>
 
 //put here code to load from python
-\endcode
+```
 
-\subsection Chapters_CreatingModels_lua Format lua
+### Format lua
 
 To load an lua file in C++ code, copy the following lines:
-\code
+```
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/multibody/parser/lua.hpp>
 #include <pinocchio/multibody/parser/utils.hpp>
@@ -72,7 +70,4 @@ bool freeflyer = true;
 const std::string filename = "path/to/file/model.lua";
 se3::Model model = se3::lua::buildModel (filename, freeflyer);
 se3::Data data (model);
-\endcode
-
-*/  
-}
+```
