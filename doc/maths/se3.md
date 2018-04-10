@@ -1,5 +1,7 @@
 # CheatSheet: SE(3) operations
 
+<div class="center">
+
 \f$
 \newcommand{\BIN}{\begin{bmatrix}}
 \newcommand{\BOUT}{\end{bmatrix}}
@@ -266,3 +268,5 @@ For each joint \f$i\f$ from leaf to root, do:
 
 ### Nota
 It is more efficient to apply \f$X^{-1}\f$ than \f$X\f$. Similarly, it is more efficient to apply \f$X^{-*}\f$ than \f$X^*\f$. Therefore, it is better to store the transformations \f$^{\lambda(i)}m_i\f$ and \f$^0m_i\f$ than \f$^im_{\lambda(i)}\f$ and \f$^im_0\f$.
+
+</div>
