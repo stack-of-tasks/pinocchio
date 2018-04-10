@@ -291,8 +291,7 @@ WARN_LOGFILE           = @CMAKE_BINARY_DIR@/doc/doxygen.log
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                 = @CMAKE_SOURCE_DIR@/doc/additionalDoc \
-                        @CMAKE_SOURCE_DIR@/doc \
+INPUT                 = @CMAKE_SOURCE_DIR@/doc \
                         @CMAKE_SOURCE_DIR@/src
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
