@@ -1,6 +1,8 @@
+# Overview {#index}
+<!--
 //
-// Copyright (c) 2016 CNRS
-// Author: Florent Lamiraux, Justin Carpentier
+// Copyright (c) 2016, 2018 CNRS
+// Author: Florent Lamiraux, Justin Carpentier, Guilhem Saurel
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -15,48 +17,40 @@
 // received a copy of the GNU Lesser General Public License along with
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
+-->
 
-namespace pinocchio {
-
-/** \mainpage Overview
 
 This is the documentation of Pinocchio, the Eigen-like library for Rigid Body Dynamics computations.
 This library implements highly efficient kinematic and dynamic algorithms for multi-body systems making Pinocchio a versatile framework for robotics applications.
 
-\section pinocchio_section_installation Installation
+## Installation
 
 The full installation procedure can be found at https://github.com/stack-of-tasks/pinocchio/wiki/Installation.
 For further details about the project, please visit the GitHub page:
-https://github.com/stack-of-tasks/pinocchio 
+https://github.com/stack-of-tasks/pinocchio
 
-\section pinocchio_section_introduction Introduction
+## Introduction
 
 One of the main features is the separation between models (constant values representing an object) and data (used for intermediate computations).
 The two main classes are:
-\li se3::Model that represents a kinematic chain composed of joints that move
-    links with mass and inertia,
-\li se3::Data that stores intermediate data for kinematic and dynamic computations.
+- se3::Model that represents a kinematic chain composed of joints that move links with mass and inertia,
+- se3::Data that stores intermediate data for kinematic and dynamic computations.
 
-\section pinocchio_section_spatial_algebra Spatial Algebra
+## Spatial Algebra
 
 The library provides some classes to represent spatial quantities at the root of kinematic and dynamic computations. This main classes are reported below:
-\li se3::SE3Tpl represents a rigid placement, a mathematical representation of \f$ SE(3) \f$.
-\li se3::MotionTpl represents a spatial motion (linear and angular velocities), e.g. a spatial velocity or acceleration associated to a frame or a body. The spatial motion is the mathematical representation of \f$ se(3) \f$.
-\li se3::ForceTpl represents a spatial force, e.g. a spatial impulse or force associated to a body. The spatial force is the mathematical representation of \f$ se^{*}(3) \f$, the dual of \f$ se(3) \f$.
-\li se3::InertiaTpl represents a spatial inertia characterizing a rigid body and expressed in a given frame. This inertia is composed of mass, the position of the center of mass regarding to the frame and a rotational inertia.
+- se3::SE3Tpl represents a rigid placement, a mathematical representation of \f$ SE(3) \f$.
+- se3::MotionTpl represents a spatial motion (linear and angular velocities), e.g. a spatial velocity or acceleration associated to a frame or a body. The spatial motion is the mathematical representation of \f$ se(3) \f$.
+- se3::ForceTpl represents a spatial force, e.g. a spatial impulse or force associated to a body. The spatial force is the mathematical representation of \f$ se^{*}(3) \f$, the dual of \f$ se(3) \f$.
+- se3::InertiaTpl represents a spatial inertia characterizing a rigid body and expressed in a given frame. This inertia is composed of mass, the position of the center of mass regarding to the frame and a rotational inertia.
 
-\section pinocchio_section_algos Main Algorithms
+## Main Algorithms
 
-\section pinocchio_section_collision_checking Collision checking and distance computation
+## Collision checking and distance computation
 
 Collision checking between two bodies of the kinematic chain and external
 obstacles is implemented using library hpp-fcl (a modified version of
 Flexible Collision Library). The computation of the position of objects in 3D
 space for a given configuration is performed by the following classes:
-\li se3::GeometryModel that represents the collision objects associated to a joint stored in a se3::Model,
-\li se3::GeometryData that stores intermediate data like the position of objects
-in a given configuration of the kinematic chain.
-
-*/
-
-}
+- se3::GeometryModel that represents the collision objects associated to a joint stored in a se3::Model,
+- se3::GeometryData that stores intermediate data like the position of objects in a given configuration of the kinematic chain.
