@@ -27,6 +27,12 @@ namespace pinocchio {
   // Pages/ tutorials organization
   //
 
+  /** \page md_doc_maths_intro Mathematical Formulation
+       - \subpage md_doc_maths_geometry
+       - \subpage md_doc_maths_kinematics
+       - \subpage md_doc_maths_dynamics
+  */
+
   /** \page Chapters Chapters
        - \subpage md_doc_Chapters_creating-models
        - \subpage md_doc_Chapters_crtp
