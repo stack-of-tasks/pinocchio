@@ -31,6 +31,7 @@ namespace pinocchio {
        - \subpage md_doc_maths_geometry
        - \subpage md_doc_maths_kinematics
        - \subpage md_doc_maths_dynamics
+       - \subpage md_doc_maths_se3
   */
 
   /** \page Chapters Chapters
