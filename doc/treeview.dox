@@ -34,9 +34,9 @@ namespace pinocchio {
        - \subpage md_doc_maths_se3
   */
 
-  /** \page Chapters Chapters
-       - \subpage md_doc_Chapters_creating-models
-       - \subpage md_doc_Chapters_crtp
+  /** \page Usage Usage
+       - \subpage md_doc_usage_creating-models
+       - \subpage md_doc_usage_crtp
   */
 
   //
