@@ -39,6 +39,11 @@ namespace pinocchio {
        - \subpage md_doc_usage_crtp
   */
 
+  /** \page md_doc_tutorials_intro Tutorials
+       - \subpage md_doc_tutorials_direct-geometry
+       - \subpage md_doc_tutorials_inverse-kinematics
+  */
+
   //
   // Modules organization
   //
