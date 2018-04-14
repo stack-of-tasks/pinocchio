@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017 CNRS
+# Copyright (c) 2015-2018 CNRS
 #
 # This file is part of Pinocchio
 # Pinocchio is free software: you can redistribute it
@@ -23,10 +23,11 @@ class RobotWrapper(object):
 
     def initFromURDF(self,filename, package_dirs=None, root_joint=None, verbose=False):
         if root_joint is None:
-            model = se3.buildModelFromUrdf(filename)
+            se3.buildModelFromUrdf(filename, self.model)
         else:
-            model = se3.buildModelFromUrdf(filename, root_joint)
-
+            se3.buildModelFromUrdf(filename, root_joint, self.model)
+        
+        model = self.model
         if "buildGeomFromUrdf" not in dir(se3):
             collision_model = None
             visual_model = None
@@ -49,9 +50,12 @@ class RobotWrapper(object):
         RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
 
 
-    def __init__(self, model = se3.Model(), collision_model = None, visual_model = None, verbose=False):
-        
-        self.model = model
+    def __init__(self, model = None, collision_model = None, visual_model = None, verbose=False):
+
+        if model is None:
+            self.model = se3.Model()
+        else:
+            self.model = model
         self.data = self.model.createData()
 
         self.collision_model = collision_model
