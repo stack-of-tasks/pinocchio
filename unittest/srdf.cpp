@@ -32,9 +32,9 @@ BOOST_AUTO_TEST_CASE(removeCollisionPairs)
 {
   using namespace se3::urdf;
   using namespace se3::srdf;
-  const string model_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
+  const string model_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   const string model_dir = PINOCCHIO_SOURCE_DIR"/models/romeo";
-  const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/srdf/romeo_collision.srdf";
+  const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/srdf/romeo.srdf";
   
   Model model;
   buildModel(model_filename, model);
@@ -57,8 +57,8 @@ BOOST_AUTO_TEST_CASE(readNeutralConfig)
 {
   using namespace se3::urdf;
   using namespace se3::srdf;
-  const string model_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
-  const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/srdf/romeo_collision.srdf";
+  const string model_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
+  const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/srdf/romeo.srdf";
   
   Model model;
   buildModel(model_filename, model);
@@ -73,16 +73,16 @@ BOOST_AUTO_TEST_CASE(readRotorParams)
 {
   using namespace se3::urdf;
   using namespace se3::srdf;
-  const string model_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
-  const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/srdf/romeo_collision.srdf";
+  const string model_filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
+  const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.srdf";
   
   Model model;
   buildModel(model_filename, model);
 
   loadRotorParamsFromSrdf(model,srdf_filename,false);
   
-  BOOST_CHECK(model.rotorInertia(model.joints[model.getJointId("HeadPitch")].idx_v())==1.0);
-  BOOST_CHECK(model.rotorGearRatio(model.joints[model.getJointId("HeadRoll")].idx_v())==1.0);
+  BOOST_CHECK(model.rotorInertia(model.joints[model.getJointId("WAIST_P")].idx_v())==1.0);
+  BOOST_CHECK(model.rotorGearRatio(model.joints[model.getJointId("WAIST_R")].idx_v())==1.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
