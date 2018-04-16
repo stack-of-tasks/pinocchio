@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( build_model )
 {
-  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
+  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   const std::string dir = PINOCCHIO_SOURCE_DIR"/models/romeo";
   
   se3::Model model;
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE ( build_model )
   
 BOOST_AUTO_TEST_CASE ( build_model_from_XML )
 {
-  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
+  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   
   // Read file as XML
   std::ifstream file;
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE ( build_model_from_XML )
 
 BOOST_AUTO_TEST_CASE ( build_model_from_UDRFTree )
 {
-  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
+  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   
   ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
   
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE ( build_model_from_UDRFTree )
   
 BOOST_AUTO_TEST_CASE ( build_model_with_joint )
 {
-  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
+  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   const std::string dir = PINOCCHIO_SOURCE_DIR"/models/romeo";
   
   se3::Model model;
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint )
 
 BOOST_AUTO_TEST_CASE ( build_model_with_joint_from_XML )
 {
-  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
+  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   
   // Read file as XML
   std::ifstream file;
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint_from_XML )
 
 BOOST_AUTO_TEST_CASE ( build_model_with_joint_from_UDRFTree )
 {
-  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/urdf/romeo.urdf";
+  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   
   ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
   
