@@ -19,7 +19,7 @@ class TestGeometryObjectBindings(unittest.TestCase):
 
 
     current_file =  os.path.dirname(os.path.abspath(__file__))
-    pinocchio_models_dir = os.path.abspath(os.path.join(current_file, '../models/romeo'))
+    pinocchio_models_dir = os.path.abspath(os.path.join(current_file, '../models/romeo/romeo_description'))
     romeo_model_path = os.path.abspath(pinocchio_models_dir, '/urdf/romeo.urdf')
     hint_list = [pinocchio_models_dir, "wrong/hint"] # hint list
     robot = RobotWrapper(romeo_model_path, hint_list, se3.JointModelFreeFlyer())

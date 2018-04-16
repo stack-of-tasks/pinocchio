@@ -6,7 +6,7 @@ import os
 from pinocchio.robot_wrapper import RobotWrapper
 
 # Warning : the paths are here hard-coded. This file is only here as an example
-romeo_model_path = os.path.abspath(os.path.join(current_file, '../models/romeo'))
+romeo_model_path = os.path.abspath(os.path.join(current_file, '../models/romeo/romeo_description'))
 romeo_model_file = romeo_model_path + "/urdf/romeo.urdf"
 
 list_hints = [romeo_model_path,"titi"]

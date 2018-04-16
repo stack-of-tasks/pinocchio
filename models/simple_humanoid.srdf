@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<!--This does not replace URDF, and is not an extension of URDF.
+    This is a format for representing semantic information about the robot structure.
+    A URDF file must exist for this robot as well, where the joints and the links that are referenced are defined
+-->
+<robot name="romeo">
+
+    <rotor_params>
+        <joint name="WAIST_P" mass="1.0" gear_ratio="0.0" />
+        <joint name="WAIST_R" mass="0.0" gear_ratio="1.0" />
+        <joint name="CHEST" mass="0.0" gear_ratio="0.0" />
+        <joint name="LARM_SHOULDER_P" mass="0.0" gear_ratio="0.0" />
+        <joint name="LARM_SHOULDER_R" mass="0.0" gear_ratio="0.0" />
+        <joint name="LARM_SHOULDER_Y" mass="0.0" gear_ratio="0.0" />
+        <joint name="LARM_ELBOW" mass="0.0" gear_ratio="0.0" />
+        <joint name="LARM_WRIST_Y" mass="0.0" gear_ratio="0.0" />
+        <joint name="LARM_WRIST_P" mass="0.0" gear_ratio="0.0" />
+        <joint name="LARM_WRIST_R" mass="0.0" gear_ratio="0.0" />
+        <joint name="RARM_SHOULDER_P" mass="0.0" gear_ratio="0.0" />
+        <joint name="RARM_SHOULDER_R" mass="0.0" gear_ratio="0.0" />
+        <joint name="RARM_SHOULDER_Y" mass="0.0" gear_ratio="0.0" />
+        <joint name="RARM_ELBOW" mass="0.0" gear_ratio="0.0" />
+        <joint name="RARM_WRIST_Y" mass="0.0" gear_ratio="0.0" />
+        <joint name="RARM_WRIST_P" mass="0.0" gear_ratio="0.0" />
+        <joint name="RARM_WRIST_R" mass="0.0" gear_ratio="0.0" />
+        <joint name="LLEG_HIP_R" mass="0.0" gear_ratio="0.0" />
+        <joint name="LLEG_HIP_P" mass="0.0" gear_ratio="0.0" />
+        <joint name="LLEG_HIP_Y" mass="0.0" gear_ratio="0.0" />
+        <joint name="LLEG_KNEE" mass="0.0" gear_ratio="0.0" />
+        <joint name="LLEG_ANKLE_P" mass="0.0" gear_ratio="0.0" />
+        <joint name="LLEG_ANKLE_R" mass="0.0" gear_ratio="0.0" />
+        <joint name="RLEG_HIP_R" mass="0.0" gear_ratio="0.0" />
+        <joint name="RLEG_HIP_P" mass="0.0" gear_ratio="0.0" />
+        <joint name="RLEG_HIP_Y" mass="0.0" gear_ratio="0.0" />
+        <joint name="RLEG_KNEE" mass="0.0" gear_ratio="0.0" />
+        <joint name="RLEG_ANKLE_P" mass="0.0" gear_ratio="0.0" />
+        <joint name="RLEG_ANKLE_R" mass="0.0" gear_ratio="0.0" />
+    </rotor_params>
+
+</robot>
