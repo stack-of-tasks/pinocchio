@@ -1,20 +1,19 @@
-5. look ahead (aka motion planning)
-===================================
+# 5) look ahead (aka motion planning)
 
-Objective
----------
+## Objective
 
 The objective of this work is to introduce some key algorithm of motion
 planning: collision checking, probabilistic roadmaps, visibility PRM,
-A\* (a-star), random shortcut.
+\f$A^*\f$ (a-star), random shortcut.
 
-Tutorial 5.0: prerequisites
----------------------------
+## 5.0) prerequisites
 
-*Prerequisite \#1* A robot model with simple (static actuated) dynamics,
-like a UR5 manipulator robot. See Tutorial 1 for loading the UR5 robot.
+### Prerequisite 1
+A robot model with simple (static actuated) dynamics,
+like a UR5 manipulator robot. See Lab 1 for loading the UR5 robot.
 
-*Prerequisite \#2* A collision checking library, provided by Pinocchio.
+### Prerequisite 2
+A collision checking library, provided by Pinocchio.
 
 Pinocchio provides collision checking for a large class of 3D objects
 (sphere, capsule, box, triangle soup) using library FCL. Any 3D object
@@ -25,52 +24,58 @@ connected with Gepetto viewer (help is welcome to correct this, it would
 requires 4h work).
 
 An example of loading a capsule in Pinocchio and Gepetto viewer is
-below: \[source,python\] ---- obs =
-se3.GeometryObject.CreateCapsule(rad,length) \# Pinocchio obstacle
-object obs.name = "obs" \# Set object name obs.parentJoint = 0 \# Set
-object parent = 0 = universe obs.placement = se3.SE3(
-rotate('x',0.1)*rotate('y',0.1)*rotate('z',0.1), np.matrix(0.1\[:3\]).T
-) \# Set object placement wrt parent
-robot.collision\_model.addGeometryObject(obs,robot.model,False) \# Add
-object to collision model robot.visual\_model
-.addGeometryObject(obs,robot.model,False) \# Add object to visual model
-\# Also create a geometric object in gepetto viewer, with according
-name. robot.viewer.gui.addCapsule( "world/pinocchio/"+obs.name,
-rad,length, \[ 1.0, 0.2, 0.2, 1.0 \] ) ----
+below:
+```py
+obs = se3.GeometryObject.CreateCapsule(rad, length)  # Pinocchio obstacle object
+obs.name = "obs"                                     # Set object name
+obs.parentJoint = 0                                  # Set object parent = 0 = universe
+obs.placement = se3.SE3(rotate('x', .1) * rotate('y', .1) * rotate('z', .1), np.matrix([.1, .1, .1]).T)  # Set object placement wrt parent
+robot.collision_model.addGeometryObject(obs, robot.model, False) # Add object to collision model
+robot.visual_model.addGeometryObject(obs, robot.model, False)    # Add object to visual model
+# Also create a geometric object in gepetto viewer, with according name.
+robot.viewer.gui.addCapsule("world/pinocchio/" + obs.name, rad, length, [1.0, 0.2, 0.2, 1.0])
+```
 
 URDF specifications does not allow to define which collision pairs
 should be tested. By default, Pinocchio does not load any collision
 pair. A simple strategy is to add all pairs, but often, some meshes of
 the models induce wrong collision. Then manually remove them by testing
 valid configurations. To be clean, you can store the valid collision
-pair in a SRDF file. For UR5: \[source,python\] ----
-robot.collision\_model.addAllCollisionPairs() for idx in \[ 56,35,23 \]:
-robot.collision\_model.removeCollisionPair(robot.collision\_model.collisionPairs\[idx\])
-----
+pair in a SRDF file. For UR5:
+
+```py
+robot.collision_model.addAllCollisionPairs()
+for idx in [56, 35, 23]:
+    robot.collision_model.removeCollisionPair(robot.collision_model.collisionPairs[idx])
+```
 
 Collision checking are done through the following algorithms:
-\[source,python\] ----
-se3.updateGeometryPlacements(robot.model,robot.data,robot.collision\_model,robot.collision\_data,q)
-se3.computeCollision(robot.collision\_model,robot.collision\_data,pairId)
-se3.computeCollisions(robot.collision\_model,robot.collision\_data,False)
-\# last arg to stop early. ---- Both collision algorithms requires a
-preliminary update of placement and return True if configuration is in
-collision (False otherwise).
 
-Tutorial 5.1: Testing collision
--------------------------------
+```py
+se3.updateGeometryPlacements(robot.model, robot.data, robot.collision_model, robot.collision_data, q)
+se3.computeCollision(robot.collision_model, robot.collision_data, pairId)
+se3.computeCollisions(robot.collision_model, robot.collision_data, False)
+# last arg to stop early.
+```
+
+Both collision algorithms requires a
+preliminary update of placement and return `True` if configuration is in
+collision (`False` otherwise).
+
+## 5.1) Testing collision
 
 We need to define a simple function to check whether a configuration is
 respecting the robot constraints (joint limits and collision, plus any
 other inequality-defined constraints you might want).
 
-*Question 1* Implement the function +check+ taking a configuration q in
-argument and return True if and only if q is acceptable -- The solution
+#### Question 1
+
+Implement the function `check` taking a configuration `q` in
+argument and return `True` if and only if `q` is acceptable -- The solution
 only uses the 2 collision algorithms of Pinocchio listed above and
 standard python otherwise.
 
-Tutorial 5.2: Steering method
------------------------------
+## 5.2) Steering method
 
 We need to define a local controller, aka a steering method, to define
 the behavior of the robot when it tries to connect to configuration
@@ -87,28 +92,29 @@ Here we propose to implement the steering method and the path validation
 in a single connected method. More versatile implementation is obtained
 by defining two different functions.
 
-*Question 2* Implement a +connect+ function, that takes as argument an
-initial q1 and a final q2 configuration, and return True is it is
+#### Question 2
+Implement a `connect` function, that takes as argument an
+initial `q1` and a final `q2` configuration, and return `True` is it is
 possible to connect both using linear interpolation while avoiding
 collision. Optionally, the function should also returns the sampling of
 the path as a list of intermediate configurations -- The solution does
 not need any new Pinocchio calls.
 
-Tutorial 5.3: Nearest neighbors
--------------------------------
+## 5.3) Nearest neighbors
 
 Finally, we need a k-nearest-neighbors algorithms.
 
-*Question 3* Implement a function +nearestNeighbors+ that takes as
-argument a new configuration q, a list of candidates qs, and the number
-of requested neighbors k, and returns the list of the k nearest
-neighbors of q in qs. Optionally, the distance function that scores how
-close a configuration q1 is close to a configuration q2 might be also
-provided. If qs contains less that k elements, simply returns them all
+#### Question 3
+
+Implement a function `nearest_neighbors` that takes as
+argument a new configuration `q`, a list of candidates `qs`, and the number
+of requested neighbors `k`, and returns the list of the `k` nearest
+neighbors of `q` in `qs`. Optionally, the distance function that scores how
+close a configuration `q1` is close to a configuration `q2` might be also
+provided. If `qs` contains less that `k` elements, simply returns them all
 -- no new Pinocchio method is needed for the solution.
 
-Tutorial 5.2: Probabilistic roadmap
------------------------------------
+## 5.2) Probabilistic roadmap
 
 Basically, probabilistic roadmaps are build by maintaining a graph of
 configurations. At each iteration, a new configuration is randomly
@@ -124,30 +130,29 @@ neighbor in each of the already-sampled connected component.
 Configuration qnew is added to the graph only if one of the two
 following conditions is respected:
 
--   if qnew cannot be connected to any existing connected component
-
--   or if it can be connected to at least two connected component.
+- if qnew cannot be connected to any existing connected component
+- or if it can be connected to at least two connected component.
 
 In the second case, the connected components that can be connected are
 also merged.
 
 A graph structure with connected components is
-link:tp5\_graph\_py.html\[provided here\].
+[provided here](graph_8py_source.html).
 
-*Question 4* Implement a +visibilityPRM+ that takes in argument two
-start and goal configurations qstart and qgoal, and the number of random
-sampling that must be achieved before failing. The returns True if qgoal
-can be connected to qstart. The graph must also be returned -- no fancy
+#### Question 4
+Implement a `visibilityPRM` that takes in argument two
+start and goal configurations `qstart` and `qgoal`, and the number of random
+sampling that must be achieved before failing. The returns `True` if `qgoal`
+can be connected to `qstart`. The graph must also be returned -- no fancy
 Pinocchio algorithm is needed here.
 
 The PRM can be visualized in Gepetto-viewer using the function
-+displayPRM+ link:tp5\_prm\_display\_py.html\[provided here\].
+`display_prm` [provided here](prm__display_8py_source.html).
 
-Tutorial 5.4: Searching a path in the roadmap
----------------------------------------------
+## 5.4) Searching a path in the roadmap
 
-A\* is an algorithm to find the shortest path in a graph (discrete
-problem). A\* iterativelly explore the nodes of the graph starting for
+\f$A^*\f$ is an algorithm to find the shortest path in a graph (discrete
+problem). \f$A^*\f$ iterativelly explore the nodes of the graph starting for
 the given start. One a node gets explored, its exact cost from start
 (cost to here) is exactly known. Then, all its children are added to the
 "frontier" of the set of already-explored nodes. Cost from nodes of the
@@ -157,19 +162,18 @@ algorithm examines a node of the frontier, looking first at the node
 that is the most likely to be in the shortest path using the heuristic
 distance.
 
-See the fairly complete description of A\*
-link:http://theory.stanford.edu/\~amitp/GameProgramming/AStarComparison.html\#the-a-star-algorithm\[provided
-here\].
+See the fairly complete description of \f$A^*\f$
+[provided here](http://theory.stanford.edu/~amitp/GameProgramming/AStarComparison.html#the-a-star-algorithm).
 
-*Question 5* Implement the A\* algorithm. The A\* returns a sequence of
+#### Question 5
+Implement the \f$A^*\f$ algorithm. The \f$A^*\f$ returns a sequence of
 node ID from start to goal. We only work here with the existing graph of
 configuration, meaning that no new nodes a sampled, and no new collision
-test are computed. Pinocchio is not necessary here. A\* returns a list
+test are computed. Pinocchio is not necessary here. \f$A^*\f$ returns a list
 containing the indexes of the nodes of the PRM graph that one should
 cross to reach qgoal from qstart.
 
-Tutorial 5.4: Shortcut
-----------------------
+## 5.4) Shortcut
 
 Being given a list of configurations, a random shortcut simply randomly
 tries to shortcut some subpart of the list: it randomly selects the
@@ -178,22 +182,24 @@ the above-defined steering method). In case of success, it skips the
 unnecessary subpart. The algorithm iterates a given number of time.
 
 The shortcut can be run on either the list of configuration output by
-the A*, or on a sampling of the trajectory connecting the nodes of the
-A*. We propose here the second version.
+the \f$A^*\f$, or on a sampling of the trajectory connecting the nodes of the
+\f$A^*\f$. We propose here the second version.
 
-*Question 6* Defines a function +samplePath+ to uniformly sample that
-trajectory connecting the nodes selected by A*: for each edge of the A*
-optimal sequence, call +connect+ and add the resulting sampling to the
+#### Question 6
+Defines a function `sample_path` to uniformly sample that
+trajectory connecting the nodes selected by \f$A^*\f$: for each edge of the \f$A^*\f$
+optimal sequence, call `connect` and add the resulting sampling to the
 previously-computed sample. It takes as argument the PRM graph and the
-list of indexes computed by A\* and returns a list of robot
+list of indexes computed by \f$A^*\f$ and returns a list of robot
 configuration starting by qstart and ending by qgoal -- no Pinocchio
 method is needed here.
 
 The sampled path can be displayed in Gepetto-viewer using the function
-+displayPath+ link:prm\_display\[provided here\].
+`displayPath` [provided here](prm__display_8py_source.html).
 
-*Question 7* Implement the +shortcut+ algorithm that tries to randomly
+#### Question 7
+Implement the `shortcut` algorithm that tries to randomly
 connect two configuration of the sampled path. It takes the list of
-configuration output by +samplePath+ and the number of random shortcut
+configuration output by `sample_path` and the number of random shortcut
 it should tries. It returns an optimized list of configurations -- no
 Pinocchio method is needed here.
