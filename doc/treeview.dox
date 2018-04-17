@@ -27,21 +27,31 @@ namespace pinocchio {
   // Pages/ tutorials organization
   //
 
-  /** \page md_doc_maths_intro Mathematical Formulation
-       - \subpage md_doc_maths_geometry
-       - \subpage md_doc_maths_kinematics
-       - \subpage md_doc_maths_dynamics
-       - \subpage md_doc_maths_se3
+  /** \page md_doc_a-maths_intro Mathematical Formulation
+       - \subpage md_doc_a-maths_geometry
+       - \subpage md_doc_a-maths_kinematics
+       - \subpage md_doc_a-maths_dynamics
+       - \subpage md_doc_a-maths_se3
   */
 
-  /** \page Usage Usage
-       - \subpage md_doc_usage_creating-models
-       - \subpage md_doc_usage_crtp
+  /** \page md_doc_b-usage_intro Usage
+       - \subpage md_doc_b-usage_creating-models
+       - \subpage md_doc_b-usage_crtp
   */
 
-  /** \page md_doc_tutorials_intro Tutorials
-       - \subpage md_doc_tutorials_direct-geometry
-       - \subpage md_doc_tutorials_inverse-kinematics
+  /** \page md_doc_c-tutorials_intro Tutorials
+       - \subpage md_doc_c-tutorials_direct-geometry
+       - \subpage md_doc_c-tutorials_inverse-kinematics
+  */
+
+  /** \page md_doc_d-labs_intro Labs
+       - \subpage md_doc_d-labs_1-directgeom
+       - \subpage md_doc_d-labs_2-invgeom
+       - \subpage md_doc_d-labs_3-invkine
+       - \subpage md_doc_d-labs_4-dyn
+       - \subpage md_doc_d-labs_5-planner
+       - \subpage md_doc_d-labs_6-wpg
+       - \subpage md_doc_d-labs_7-learn
   */
 
   //
