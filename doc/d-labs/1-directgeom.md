@@ -1,8 +1,6 @@
-1. Move your body (aka direct geoemtry)
-=======================================
+# 1) Move your body (aka direct geometry)
 
-Objective
----------
+## Objective
 
 In this first series of exercises, we are going to start using the
 library Pinocchio. We will load in the simulator the model of a simple
@@ -14,98 +12,104 @@ The software Pinocchio is a C++ library provided with a python wrapping
 that allows us to control it with a python terminal. Let's see how it
 works.
 
-Tutorial 1.0. Tips
-------------------
+## 1.0) Tips
 
-Setup ~\~~\~\~
+### Setup
 
-For all the exercices, we suppose that Pinocchio is installed in a
-VirtualBox and the user ID is "student" (password student). The
-VirtualBox contains all the software to install. Alternatively,
-Pinocchio might be installed directly in any Ubuntu 14.04 / 16.04, after
-some work in other Linux, OSX, and likely in Windows (if you like to
-gamble).
+For this tutorial, you will need [Pinocchio](http://stack-of-tasks.github.io/pinocchio/download.html),
+[Gepetto GUI](https://github.com/humanoid-path-planner/gepetto-viewer-corba), and the description of the ur5 robot.
 
-Two directories have been created at the root of the homedir. The
-directory "student" is where you should develop your scripts. The
-directory "models" contains the models of the robot that we will use
-during the class.
+For this, the easiest way is to add [robotpkg apt repository](http://robotpkg.openrobots.org/debian.html) and launch:
+```
+sudo apt install robotpkg-pinocchio robotpkg-ur5-description robotpkg-gepetto-viewer-corba
+```
 
-Pinocchio has been installed using a software for "installation from
-sources" named +robot-pkg+. The sources of Pinocchio are available in
-+\~/robotpkg/wip/pinocchio/work.robotics/pinochio-1.2.2+. After
-compilation, the software has been installed in +/opt/openrobots'. See
-for example the python scripts in +/opt/openrobots/lib/python2.7+.
+### Python
 
-Python ~~\~~~\~ We remind you that you can open a python terminal in
-your own shell. Simply type : bash terminal ....
-student@student-virtualbox:\~\$ ipython &gt;&gt;&gt; .... Afterwards
-you'll just have to type your commands in this newly opened terminal.
+We remind you that you can open a python terminal in
+your own shell. Simply type :
+```
+student@student-virtualbox:~$ ipython
+>>>
+```
+Afterwards you'll just have to type your commands in this newly opened terminal.
 
 To close the python terminal, just type CTRL-D (CTRL-C first to
 interrupt any on-going execution).
 
 You can also write you command lines in a file and launch this script
 without entering the interactive mode (ie. without starting a new python
-terminal). In your shell, just type: bash terminal ....
-student@student-virtualbox:\~\$ ipython script.py &gt;&gt;&gt; ....
+terminal). In your shell, just type:
+```
+student@student-virtualbox:~$ ipython script.py
+>>>
+```
 
-Pinocchio ~\~~\~~~\~
+### Pinocchio
 
-*Basic mathematical objects:*
+#### Basic mathematical objects:
 
-In the following, we will use numpy Matrix class to represent matrices
+In the following, we will use numpy `Matrix` class to represent matrices
 and vectors. In numpy, vectors simply are matrices with one column. See
-the following example. \[source, python\] ---- import numpy as np A =
-np.matrix(\[ \[1,2,3,4\],\[5,6,7,8\]\]) \# Define a 2x4 matrix b =
-np.zeros(\[4,1\]) \# Define a 4 vector (ie a 4x1 matrix) initialized
-with 0. c = A\*b \# Obtain c by multiplying A by b. ----
+the following example.
+
+```py
+import numpy as np
+A = np.matrix([[1, 2, 3, 4], [5, 6, 7, 8]])  # Define a 2x4 matrix
+b = np.zeros([4, 1])  # Define a 4 vector (ie a 4x1 matrix) initialized with 0
+c = A * b             # Obtain c by multiplying A by b.
+```
 
 A bunch of useful functions are packaged in the utils of pinocchio.
 
-\[source,python\]
------------------
+```py
+from pinocchio.utils import *
+eye(6)                      # Return a 6x6 identity matrix
+zero(6)                     # Return a zero 6x1 vector
+zero([6, 4])                # Return az zero 6x4
+matrix rand(6)              # Random 6x1 vector
+isapprox(zero(6), rand(6))  # Test epsilon equality
+mprint(rand([6, 6]))        # Matlab-style print
+skew(rand(3))               # Skew "cross-product" 3x3 matrix from a 3x1 vector
+cross(rand(3), rand(3))     # Cross product of R^3
+rotate('x', 0.4)            # Build a rotation matrix of 0.4rad around X.
+```
 
-from pinocchio.utils import \* eye(6) \# Return a 6x6 identity matrix
-zero(6) \# Return a zero 6x1 vector zero(\[6,4\]) \# Return az zero 6x4
-matrix rand(6) \# Random 6x1 vector isapprox(zero(6),rand(6)) \# Test
-epsilon equality mprint(rand(\[6,6\])) \# Matlab-style print
-skew(rand(3)) \# Skew "cross-product" 3x3 matrix from a 3x1 vector
-cross(rand(3),rand(3)) \# Cross product of R\^3 rotate('x',0.4) \# Build
-a rotation matrix of 0.4rad around X. ----
+Specific classes are defined to represent objects of \f$SE(3)\f$, \f$se(3)\f$ and
+\f$se(3)^*\f$. Rigid displacements, elements of \f$SE(3)\f$, are represented by
+the class `SE3`.
 
-Specific classes are defined to represent objects of SE(3), se(3) and
-se(3)\^\*. Rigid displacements, elements of SE(3), are represented by
-the class SE3.
+```py
+import pinocchio as se3
+R = eye(3); p = zero(3)
+M0 = se3.SE3(R, p)
+M = se3.SE3.Random()
+M.translation = p; M.rotation = R
+```
 
-\[source,python\]
------------------
+Spatial velocities, elements of \f$se(3) = M^6\f$, are represented by the
+class `Motion`.
 
-import pinocchio as se3 R = eye(3); p = zero(3) M0 = se3.SE3(R,p) M =
-se3.SE3.Random() M.translation = p; M.rotation = R ----
+```py
+v = zero(3); w = zero(3)
+nu0 = se3.Motion(v, w)
+nu = se3.Motion.Random()
+nu.linear = v; nu.angular = w
+```
 
-Spatial velocities, elements of se(3) = M\^6, are represented by the
-class Motion.
+Spatial forces, elements of \f$se(3)^* = F^6\f$, are represented by the
+class `Force`.
 
-\[source,python\]
------------------
+```py
+f = zero(3); tau = zero(3)
+phi0 = se3.Force(f, tau)
+phi = se3.Force.Random()
+phi.linear = f; phi.angular = tau
+```
 
-v = zero(3); w = zero(3) nu0 = se3.Motion(v,w) nu = se3.Motion.Random()
-nu.linear = v; nu.angular = w ----
+## 1.1) Creating and displaying the robot
 
-Spatial forces, elements of se(3)\^\* = F\^6, are represented by the
-class Force.
-
-\[source,python\]
------------------
-
-f = zero(3); tau = zero(3) phi0 = se3.Force(f,tau) phi =
-se3.Force.Random() phi.linear = f; phi.angular = tau ----
-
-Tutorial 1.1. Creating and displaying the robot
------------------------------------------------
-
-Robot kinematic tree ~~~~\~~~~~~\~~~~\~~\~~
+### Robot kinematic tree
 
 The kinematic tree is represented by two C++ objects called Model (which
 contains the model constants: lengths, masses, names, etc) and Data
@@ -115,154 +119,162 @@ called RobotWrapper and is generic.
 
 For the next steps, we are going to work with the RobotWrapper.
 
-Import the class +RobotWrapper+ and create an instance of this class in
+Import the class `RobotWrapper` and create an instance of this class in
 the python terminal. At initialization, RobotWrapper will read the model
 description in the URDF file given as argument. In the following, we
 will use the model of the UR5 robot, available in the directory "models"
 of pinocchio (available in the homedir of the VBox).
 
-\[source, python\]
-------------------
+```py
+from pinocchio.robot_wrapper import RobotWrapper
 
-from pinocchio.robot\_wrapper import RobotWrapper
+PKG = '/opt/openrobots/share'
+URDF = PKG + '/ur5_description/urdf/ur5_gripper.urdf'
+robot = RobotWrapper(URDF, [PKG])
+```
 
-pkg = '/home/student/models/' urdf = pkg +
-'/ur\_description/urdf/ur5\_gripper.urdf' robot =
-RobotWrapper(urdf,\[pkg,\]) ---- The code of the RobotWrapper class is
-in
-/opt/openrobots/lib/python2.7/site-packages/pinocchio/robot\_wrapper.py
-. Do not hesitate to have a look at it and to take inspiration from the
+The code of the RobotWrapper class is in
+`/opt/openrobots/lib/python2.7/site-packages/pinocchio/robot_wrapper.py`.
+Do not hesitate to have a look at it and to take inspiration from the
 implementation of the class functions.
 
 UR5 is a fixed robot with one 6-DOF arms developed by the Danish company
 Universal Robot. All its 6 joints are revolute joints. Its configuration
-is in R\^6 and is not subject to any constraint. The model of UR5 is
+is in R^6 and is not subject to any constraint. The model of UR5 is
 described in a URDF file, with the visuals of the bodies of the robot
 being described as meshed (i.e. polygon soups) using the Collada format
-".dae". Both the URDF and the DAE files are available in the attached
-ZIP archive. Uncompressed it in the VirtualBox, for example in the
-directory "/home/student/models".
+".dae". Both the URDF and the DAE files are available in the package
+`robotpkg-ur5-description`
 
--   UR5 model and code
-    link:http://homepages.laas.fr/nmansard/teach/supaero2017/ur5.zip\[*ur5.zip*\]
+### Exploring the model
 
-Exploring the model ~~~\~~~~~~\~~~~\~~
-
-The robot model is available in robot.model. It contains the names of
-all the robot joint \[names\], the kinematic tree \[parents\] (i.e. the
+The robot model is available in `robot.model`. It contains the names of
+all the robot joint `names`, the kinematic tree `parents` (i.e. the
 graph of parents, 0 being the root and having no parents), the position
-of the current joint in the parent coordinate frame \[jointPosition\],
+of the current joint in the parent coordinate frame `jointPosition`,
 the mass, inertia and center-of-gravity position of all the bodies
-(condensed in a spatial inertia 6x6 matrix) \[inertias\] and the gravity
-of the associated world \[gravity\]. All these functions are documented
+(condensed in a spatial inertia 6x6 matrix) `inertias` and the gravity
+of the associated world `gravity`. All these functions are documented
 and are available in the correponding class dictionnary.
 
-\[source,python\]
------------------
+```py
+for name, function in robot.model.__class__.__dict__.items():
+    print(" \*\*\*\* ", name, ": ", function.__doc__)
+```
 
-for name,function in robot.model.**class**.**dict**.items(): print "
-\*\*\*\* ", name, ": ", function.**doc** ----
-
-Similarly, the robot data are available in robot.data. All the variables
+Similarly, the robot data are available in `robot.data`. All the variables
 allocated by the classical rigid-body dynamics algorithms are stored in
-robot.data and are available through the python wrapping. Similarly to
+`robot.data` and are available through the python wrapping. Similarly to
 the model object, the function are documented and are available from the
 class dictionnary. The most useful in the following will be the
 placement of the frame associated which each joint output stored in
-robot.data.oMi.
+`robot.data.oMi`.
 
 For example, the robot end effector corresponds to the output of the
-last joint, called +wrist\_1\_joint+. The ID of the joint in the joint
+last joint, called `wrist_1_joint`. The ID of the joint in the joint
 list can be recovered from its name, and then used to access its
 placement:
 
-\[source,python\]
------------------
+```py
+# Get index of end effector
 
-Get index of end effector
-=========================
+idx = robot.index('wrist_3_joint')
 
-idx = robot.index('wrist\_3\_joint')
+# Compute and get the placement of joint number idx
 
-Compute and get the placement of joint number idx
-=================================================
-
-placement = robot.position(q,idx) \# Be carreful, Python always returns
-references to values. \# You can often .copy() the object to avoid side
-effects \# Only get the placement placement =
-robot.data.oMi\[idx\].copy()
-
-------------------------------------------------------------------------
+placement = robot.position(q, idx)
+# Be carreful, Python always returns references to values.
+# You can often .copy() the object to avoid side effects
+# Only get the placement
+placement = robot.data.oMi[idx].copy()
+```
 
 Finally, some recurring datas (used in Model and Data) have been wrapped
 to functions in some python shortcuts, also available in RomeoWrapper:
-+The size of the robot configuration is given by nq. +The dimension of
-its tangent space (velocity) is nv. +The index of a joint in the tree
-can be accessed from its name by index (see above). +The classical
-algorithms are also binded: com, Jcom, mass, biais, joint gravity,
-position and velocity of each joint.
 
-\[source,python\]
------------------
+- The size of the robot configuration is given by `nq`.
+- The dimension of its tangent space (velocity) is `nv`.
+- The index of a joint in the tree can be accessed from its name by index (see above).
+- The classical algorithms are also binded: com, Jcom, mass, biais, joint gravity, position and velocity of each joint.
 
-q = zero(robot.nq) v = rand(robot.nv) robot.com(q) \# Compute the robot
-center of mass. robot.position(q,3) \# Compute the placement of joint 3
-----
+```py
+q = zero(robot.nq)
+v = rand(robot.nv)
+robot.com(q)  # Compute the robot center of mass.
+robot.position(q, 3)  # Compute the placement of joint 3
+```
 
-Display the robot ~\~~~~~~\~~~~~~~\~
+### Display the robot
 
-To display the robot, we need an external program called +Gepetto
-Viewer+. If you completed the installation in the previous page, you can
+To display the robot, we need an external program called *Gepetto
+Viewer*. If you completed the installation in the previous page, you can
 launch this program, open a new terminal in an empty workspace.
 
-.... student@student-virtualbox:\~\$ gepetto-gui .... This will start a
-server waiting for instructions. We will now create a client that will
+```
+student@student-virtualbox:~$ gepetto-gui
+```
+
+This will start a server waiting for instructions. We will now create a client that will
 ask the server to perform some requests (such as creating a window or
 displaying our robot)
 
 In a python terminal you can now load the visual model of the robot in
-the viewer \[source,python\] ---- robot.initDisplay(loadModel=True) ----
+the viewer:
+
+```py
+robot.initDisplay(loadModel=True)
+```
+
 This will flush the robot model inside the GUI. The argument
-"loadModel=True" is mandatory when you start or restart the GUI. In
-later call to your scripts, you can set the argument to "False". A side
-effector of "=True" is that it will move the viewpoint inside the GUI to
+`loadModel=True` is mandatory when you start or restart the GUI. In
+later call to your scripts, you can set the argument to `False`. A side
+effector of `=True` is that it will move the viewpoint inside the GUI to
 a reference zero position.
 
-More details about loading the model (optionnal)
-~~~~~~~~~~~~~~~~\~~~~~~~~~~~~~~~~~~~~~~\~~~~~~~~
+### More details about loading the model (optionnal)
 
 You can access the visual object composing the robot model by
-robot.visual\_model.geometryObject. \[source,python\] ---- visualObj =
-robot.visual\_model.geometryObjects\[4\] \# 3D object representing the
-robot forarm visualName = visualObj.name \# Name associated to this
-object visualRef = robot.viewerNodeNames(visualObj) \# Viewer reference
-(string) representing this object ----
+`robot.visual_model.geometryObject`.
 
-Moving one object \[source,python\] ---- q1 = \[1,1,1, 1,0,0,0\] \#
-x,y,z , quaternion robot.viewer.gui.applyConfiguration(visualRef,q1)
-robot.viewer.gui.refresh() \# Refresh the window. ----
+```py
+visualObj = robot.visual_model.geometryObjects[4]  # 3D object representing the robot forarm
+visualName = visualObj.name                        # Name associated to this object
+visualRef = robot.viewerNodeNames(visualObj)       # Viewer reference (string) representing this object
+```
+
+Moving one object
+
+```py
+q1 = [1, 1, 1, 1, 0, 0, 0]  # x, y, z, quaternion
+robot.viewer.gui.applyConfiguration(visualRef, q1)
+robot.viewer.gui.refresh()  # Refresh the window.
+```
 
 Additional objects can be created, like a sphere as follows.
-\[source,python\] ---- rgbt = \[1.0,0.2,0.2,1.0\] \#
-red-green-blue-transparency robot.viewer.gui.addSphere("world/sphere",
-.1, rgbt) \# .1 is the radius ----
+
+```py
+rgbt = [1.0, 0.2, 0.2, 1.0]  # red, green, blue, transparency
+robot.viewer.gui.addSphere("world/sphere", .1, rgbt)  # .1 is the radius
+```
 
 The exhaustive list of the object that can be created is available in
 the IDL of the GUI:
-+/opt/openrobots/share/idl/gepetto/corbaserver/graphical-interface.idl+
+`/opt/openrobots/share/idl/gepetto/corbaserver/graphical-interface.idl`
 
-Tutorial 1.2. Simple pick and place
------------------------------------
+## 1.2) Simple pick and place
 
 *Objectives:* Display the robot at a given configuration or along a
 given trajectory
 
-Pick: ~\~~\~\~
+### Pick:
 
-Say we have a target at position \[.5,.1,.2\] and we would like the
-robot to grasp it. \[source,python\] ----
-robot.viewer.gui.applyConfiguration("world/sphere",\[.5,.1,.2,
-1.,0.,0.,0.\]) robot.viewer.gui.refresh() \# Refresh the window. ----
+Say we have a target at position `[.5, .1, .2]` and we would like the
+robot to grasp it.
+
+```py
+robot.viewer.gui.applyConfiguration("world/sphere", [.5, .1, .2, 1.,0.,0.,0. ])
+robot.viewer.gui.refresh()  # Refresh the window.
+```
 
 First display a small sphere at this position to visualize it.
 
@@ -270,15 +282,15 @@ Then decide by any mean you want a configuration of the robot so that
 the end effector is touching the sphere.
 
 At the reference position you built, the end effector placement can be
-obtained by robot.position(q,6). Only the translation part of the
+obtained by `robot.position(q, 6)`. Only the translation part of the
 placement has been selected. The rotation is free.
 
-\[Optional\] Say now that the object is a rectangle and not a sphere.
+*Optional* Say now that the object is a rectangle and not a sphere.
 Pick the object at a reference position with the rotation that is
 imposed, so that the end effector is aligned with one of the faces of
 the rectangle.
 
-Place: ~~\~~~\~
+### Place:
 
 Choose any trajectory you want in the configuration space, starting from
 the reference position built in the previous exercice (it can be
@@ -290,14 +302,3 @@ can be used to slow down the loop.
 
 At each instant of your loop, recompute the position of the ball and
 display it so that it always "sticks" to the robot end effector.
-
-//// Homework --------
-
-Send by mail at nmansard@laas.fr a mail containing a single python file.
-The subject of the mail should start with +\[SUPAERO\] TP1+ When
-executed, the script should place the robot at the initial starting
-position where the end effector touches the sphere (optionally the
-rectangle) and move the robot with the sphere attached to the end
-effector.
-
-////
