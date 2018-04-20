@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
   typedef se3::GeometryData GeometryData;
 
 
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo.urdf";
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   std::vector < std::string > packageDirs;
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/romeo/";
   packageDirs.push_back(meshDir);
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE (radius)
   std::string filename = ROMEO_DESCRIPTION_MODEL_DIR"/romeo_description/urdf/romeo_small.urdf";
   packageDirs.push_back(ROMEO_DESCRIPTION_MODEL_DIR);
 #else
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo.urdf";
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/romeo/";
   packageDirs.push_back(meshDir);
 #endif // ROMEO_DESCRIPTION_MODEL_DIR
@@ -326,7 +326,7 @@ BOOST_AUTO_TEST_CASE ( romeo_joints_meshes_positions )
   std::string filename = ROMEO_DESCRIPTION_MODEL_DIR"/romeo_description/urdf/romeo_small.urdf";
   packageDirs.push_back(ROMEO_DESCRIPTION_MODEL_DIR);
 #else
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo.urdf";
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/romeo/";
   packageDirs.push_back(meshDir);
 #endif // ROMEO_DESCRIPTION_MODEL_DIR
@@ -436,7 +436,7 @@ BOOST_AUTO_TEST_CASE ( hrp2_mesh_distance)
   std::string filename = ROMEO_DESCRIPTION_MODEL_DIR"/romeo_description/urdf/romeo_small.urdf";
   packageDirs.push_back(ROMEO_DESCRIPTION_MODEL_DIR);
 #else
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo.urdf";
+  std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   std::string meshDir  = PINOCCHIO_SOURCE_DIR"/models/romeo/";
   packageDirs.push_back(meshDir);
 #endif // ROMEO_DESCRIPTION_MODEL_DIR
