@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
     BOOST_CHECK(data.J.isApprox(data_ref.J));
     
     VectorXd tau = data.C * v;
-    BOOST_CHECK(tau.isApprox(data_ref.tau));
+    BOOST_CHECK(tau.isApprox(data_ref.tau,Eigen::NumTraits<double>::dummy_precision()));
     
     dccrba(model,data_ref,q,v);
     crba(model,data_ref,q);
