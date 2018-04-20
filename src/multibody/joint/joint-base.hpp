@@ -76,7 +76,7 @@ namespace se3
 
 #define SE3_JOINT_TYPEDEF_ARG(prefix)         \
   typedef int Index;              \
-  typedef prefix traits<JointDerived>::Scalar Scalar;
+  typedef prefix traits<JointDerived>::Scalar Scalar;     \
   typedef prefix traits<JointDerived>::JointDataDerived JointDataDerived;      \
   typedef prefix traits<JointDerived>::JointModelDerived JointModelDerived;      \
   typedef prefix traits<JointDerived>::Constraint_t Constraint_t;    \
