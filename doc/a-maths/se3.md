@@ -223,9 +223,11 @@ The joint acceleration is:
 \f$^2\alpha_{12} = S \dot v_q + c_J + \ ^2\nu_{1} \times \ ^2\nu_{12}\f$
 
 where \f$c_J = \sum_{i=1}^{n_q} \dpartial{S}{q_i} \dot q_i\f$ (null in the usual cases) and \f$^2\nu_{1}\f$ is the
-velocity of the parent body with respect to an absolute (Galilean) coordinate system\footnote{The abosulte velocity
+velocity of the parent body with respect to an absolute (Galilean) coordinate system
+
+NB: The abosulte velocity
 \f$\nu_{1}\f$ is also the relative velocity wrt. the Galilean coordinate system \f$\Omega\f$. The exhaustive notation
-should be \f$\nu_{\Omega1}\f$ but \f$\nu_1\f$ is prefered for simplicity.}.
+should be \f$\nu_{\Omega1}\f$ but \f$\nu_1\f$ is prefered for simplicity.
 
 The joint calculations take as input the joint position \f$q\f$ and velocity \f$v_q\f$ and should output \f$^2M_1\f$,
 \f$^2\nu_{12}\f$ and \f$^2c\f$ (this last vector being often a trivial \f$0_6\f$ vector). In addition, the joint model
