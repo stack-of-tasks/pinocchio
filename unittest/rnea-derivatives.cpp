@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
     BOOST_CHECK(data.a[k].isApprox(data_ref.a[k]));
     BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
     BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
-    BOOST_CHECK(data.h[k].isApprox(Force::Zero()));
+    BOOST_CHECK(data.oh[k].isApprox(Force::Zero()));
   }
   
   BOOST_CHECK(data.tau.isApprox(tau0));
