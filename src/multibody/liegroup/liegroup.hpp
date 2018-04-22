@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -50,15 +50,6 @@ namespace se3 {
   template<int Axis> struct LieGroupTpl::operation <JointModelRevoluteUnbounded<Axis> > {
     typedef SpecialOrthogonalOperation<2> type;
   };
-
-  // TODO REMOVE: For testing purposes only
-  // template<>
-  // struct LieGroupTpl::operation <JointModelTranslation> {
-    // typedef CartesianProductOperation<
-      // CartesianProductOperation<typename LieGroup<JointModelPX>::type, typename LieGroup<JointModelPY>::type>,
-      // typename LieGroup<JointModelPZ>::type
-      // > type;
-  // };
 }
 
 #endif // ifndef __se3_lie_group_hpp__

@@ -31,42 +31,56 @@ using namespace se3;
 template <typename T>
 void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
 {
-    std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
-    typedef typename T::ConfigVector_t  ConfigVector_t;
-    typedef typename T::TangentVector_t TangentVector_t;
-
-    ConfigVector_t  q1(ConfigVector_t::Random (jmodel.nq()));
-    TangentVector_t q1_dot(TangentVector_t::Random (jmodel.nv()));
-    ConfigVector_t  q2(ConfigVector_t::Random (jmodel.nq()));
+  std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
+  typedef typename T::ConfigVector_t  ConfigVector_t;
+  typedef typename T::TangentVector_t TangentVector_t;
   
-    double u = 0.3;
-    // se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
-    // bool update_I = false;
+  ConfigVector_t  q1(ConfigVector_t::Random (jmodel.nq()));
+  TangentVector_t q1_dot(TangentVector_t::Random (jmodel.nv()));
+  ConfigVector_t  q2(ConfigVector_t::Random (jmodel.nq()));
+  
+  typedef typename LieGroup<T>::type LieGroupType;
+  static Eigen::VectorXd Ones (Eigen::VectorXd::Ones(jmodel.nq()));
+  double u = 0.3;
+  // se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
+  // bool update_I = false;
+  
+  q1 = LieGroupType().randomConfiguration(-Ones, Ones);
+  
+  
+  typename T::JointDataDerived jdata = jmodel.createData();
+  
+  jmodel.calc(jdata, q1, q1_dot);
+  SE3 M1 = jdata.M;
+  Motion v1 = jdata.v;
+  
+  q2 = LieGroupType::integrate(q1,q1_dot);
+  jmodel.calc(jdata,q2);
+  SE3 M2 = jdata.M;
+  
+  SE3 M2_exp = M1*exp6(v1);
+  
+  BOOST_CHECK_MESSAGE(M2.isApprox(M2_exp), std::string("Error when integrating1 " + jmodel.shortname()));
 
-    q1 = jmodel.random();
-    q2 = jmodel.random();
-
-    // jmodel.calc(jdata, q1, q1_dot);
-    // jmodel.calc_aba(jdata, Ia, update_I);
-
-    typedef typename LieGroup<T>::type LieGroupType;
-    // LieGroupType lg;
-
-    static Eigen::VectorXd Ones (Eigen::VectorXd::Ones(jmodel.nq()));
-
-    std::string error_prefix("LieGroup ");
-
-    BOOST_CHECK_MESSAGE(jmodel.nq() == LieGroupType::NQ, std::string(error_prefix + " - nq "));
-    BOOST_CHECK_MESSAGE(jmodel.nv() == LieGroupType::NV, std::string(error_prefix + " - nv "));
-
-    BOOST_CHECK_MESSAGE(jmodel.integrate(q1,q1_dot).isApprox(LieGroupType::integrate(q1,q1_dot)) ,std::string(error_prefix + " - integrate "));
-    BOOST_CHECK_MESSAGE(jmodel.interpolate(q1,q2,u).isApprox(LieGroupType::interpolate(q1,q2,u)) ,std::string(error_prefix + " - interpolate "));
-    BOOST_CHECK_MESSAGE
-      (jmodel.randomConfiguration( -1 * Ones, Ones).size() ==
-       LieGroupType().randomConfiguration(-1 * Ones, Ones).size(),
-       std::string(error_prefix + " - RandomConfiguration dimensions "));
-    BOOST_CHECK_MESSAGE(jmodel.difference(q1,q2).isApprox(LieGroupType::difference(q1,q2)) ,std::string(error_prefix + " - difference "));
-    BOOST_CHECK_MESSAGE(fabs(jmodel.distance(q1,q2) - LieGroupType::distance(q1,q2)) < 1e-12 ,std::string(error_prefix + " - distance "));
+  //
+  // jmodel.calc_aba(jdata, Ia, update_I);
+  
+  // LieGroupType lg;
+  
+  
+  std::string error_prefix("LieGroup ");
+  
+  BOOST_CHECK_MESSAGE(jmodel.nq() == LieGroupType::NQ, std::string(error_prefix + " - nq "));
+  BOOST_CHECK_MESSAGE(jmodel.nv() == LieGroupType::NV, std::string(error_prefix + " - nv "));
+  
+  BOOST_CHECK_MESSAGE(jmodel.integrate(q1,q1_dot).isApprox(LieGroupType::integrate(q1,q1_dot)) ,std::string(error_prefix + " - integrate "));
+  BOOST_CHECK_MESSAGE(jmodel.interpolate(q1,q2,u).isApprox(LieGroupType::interpolate(q1,q2,u)) ,std::string(error_prefix + " - interpolate "));
+  BOOST_CHECK_MESSAGE
+  (jmodel.randomConfiguration( -1 * Ones, Ones).size() ==
+   LieGroupType().randomConfiguration(-1 * Ones, Ones).size(),
+   std::string(error_prefix + " - RandomConfiguration dimensions "));
+  BOOST_CHECK_MESSAGE(jmodel.difference(q1,q2).isApprox(LieGroupType::difference(q1,q2)) ,std::string(error_prefix + " - difference "));
+  BOOST_CHECK_MESSAGE(fabs(jmodel.distance(q1,q2) - LieGroupType::distance(q1,q2)) < 1e-12 ,std::string(error_prefix + " - distance "));
   
   ConfigVector_t q_normalize(ConfigVector_t::Random());
   Eigen::VectorXd q_normalize_ref(q_normalize);
