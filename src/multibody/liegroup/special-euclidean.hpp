@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -42,14 +42,7 @@ namespace se3
     };
   };
 
-  template<> struct traits<SpecialEuclideanOperation<3> > {
-    typedef double Scalar;
-    enum {
-      NQ = 7,
-      NV = 6
-    };
-  };
-
+  // SE(2)
   template<>
   struct SpecialEuclideanOperation<2> : public LieGroupOperationBase <SpecialEuclideanOperation<2> >
   {
@@ -294,6 +287,14 @@ namespace se3
     }
   }; // struct SpecialEuclideanOperation<2>
 
+  template<> struct traits<SpecialEuclideanOperation<3> > {
+    typedef double Scalar;
+    enum {
+      NQ = 7,
+      NV = 6
+    };
+  };
+  
   /// SE(3)
   template<>
   struct SpecialEuclideanOperation<3> : public LieGroupOperationBase <SpecialEuclideanOperation<3> >
