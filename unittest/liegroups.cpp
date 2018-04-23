@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Joseph Mirabel
+// Copyright (c) 2017-2018, Joseph Mirabel, Justin Carpentier
 // Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
 //
 // This file is part of pinocchio.
@@ -20,6 +20,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+#include <boost/algorithm/string.hpp>
 
 #define EIGEN_VECTOR_IS_APPROX(Va, Vb, precision)                              \
   BOOST_CHECK_MESSAGE((Va).isApprox(Vb, precision),                            \
@@ -31,6 +32,7 @@ using namespace se3;
 template <typename T>
 void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
 {
+  typedef double Scalar;
   std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
   typedef typename T::ConfigVector_t  ConfigVector_t;
   typedef typename T::TangentVector_t TangentVector_t;
@@ -40,8 +42,8 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   ConfigVector_t  q2(ConfigVector_t::Random (jmodel.nq()));
   
   typedef typename LieGroup<T>::type LieGroupType;
-  static Eigen::VectorXd Ones (Eigen::VectorXd::Ones(jmodel.nq()));
-  double u = 0.3;
+  static ConfigVector_t Ones(ConfigVector_t::Ones(jmodel.nq()));
+  const Scalar u = 0.3;
   // se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
   // bool update_I = false;
   
@@ -50,6 +52,8 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   
   typename T::JointDataDerived jdata = jmodel.createData();
   
+  
+  // Check integrate
   jmodel.calc(jdata, q1, q1_dot);
   SE3 M1 = jdata.M;
   Motion v1 = jdata.v;
@@ -60,31 +64,72 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   
   SE3 M2_exp = M1*exp6(v1);
   
-  BOOST_CHECK_MESSAGE(M2.isApprox(M2_exp), std::string("Error when integrating1 " + jmodel.shortname()));
+  if(jmodel.shortname() != "JointModelSphericalZYX")
+  {
+    BOOST_CHECK_MESSAGE(M2.isApprox(M2_exp), std::string("Error when integrating1 " + jmodel.shortname()));
+  }
+  
+  // Check the reversability of integrate
+  ConfigVector_t q3 = LieGroupType::integrate(q2,-q1_dot);
+  jmodel.calc(jdata,q3);
+  SE3 M3 = jdata.M;
+  
+  BOOST_CHECK_MESSAGE(M3.isApprox(M1), std::string("Error when integrating back " + jmodel.shortname()));
+  
+  // Check interpolate
+  ConfigVector_t q_interpolate = LieGroupType::interpolate(q1,q2,0.);
+  BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q1), std::string("Error when interpolating " + jmodel.shortname()));
+  
+  q_interpolate = LieGroupType::interpolate(q1,q2,1.);
+  BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q2), std::string("Error when interpolating " + jmodel.shortname()));
+  
+  if(jmodel.shortname() != "JointModelSphericalZYX")
+  {
+    q_interpolate = LieGroupType::interpolate(q1,q2,u);
+    jmodel.calc(jdata,q_interpolate);
+    SE3 M_interpolate = jdata.M;
+    
+    SE3 M_interpolate_expected = M1*exp6(u*v1);
+    BOOST_CHECK_MESSAGE(M_interpolate_expected.isApprox(M_interpolate), std::string("Error when interpolating " + jmodel.shortname()));
+  }
 
-  //
-  // jmodel.calc_aba(jdata, Ia, update_I);
+  // Check differentiate
+  TangentVector_t vdiff = LieGroupType::difference(q1,q2);
+  BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot), std::string("Error when differentiating " + jmodel.shortname()));
   
-  // LieGroupType lg;
-  
+  // Check distance
+  Scalar dist = LieGroupType::distance(q1,q2);
+  BOOST_CHECK_MESSAGE(dist > 0., "distance - wrong results");
+  BOOST_CHECK_SMALL(std::fabs(dist-q1_dot.norm()), 1e-12);
   
   std::string error_prefix("LieGroup ");
   
   BOOST_CHECK_MESSAGE(jmodel.nq() == LieGroupType::NQ, std::string(error_prefix + " - nq "));
   BOOST_CHECK_MESSAGE(jmodel.nv() == LieGroupType::NV, std::string(error_prefix + " - nv "));
   
-  BOOST_CHECK_MESSAGE(jmodel.integrate(q1,q1_dot).isApprox(LieGroupType::integrate(q1,q1_dot)) ,std::string(error_prefix + " - integrate "));
-  BOOST_CHECK_MESSAGE(jmodel.interpolate(q1,q2,u).isApprox(LieGroupType::interpolate(q1,q2,u)) ,std::string(error_prefix + " - interpolate "));
   BOOST_CHECK_MESSAGE
-  (jmodel.randomConfiguration( -1 * Ones, Ones).size() ==
+  (jmodel.nq() ==
    LieGroupType().randomConfiguration(-1 * Ones, Ones).size(),
    std::string(error_prefix + " - RandomConfiguration dimensions "));
-  BOOST_CHECK_MESSAGE(jmodel.difference(q1,q2).isApprox(LieGroupType::difference(q1,q2)) ,std::string(error_prefix + " - difference "));
-  BOOST_CHECK_MESSAGE(fabs(jmodel.distance(q1,q2) - LieGroupType::distance(q1,q2)) < 1e-12 ,std::string(error_prefix + " - distance "));
-  
+
   ConfigVector_t q_normalize(ConfigVector_t::Random());
   Eigen::VectorXd q_normalize_ref(q_normalize);
-  jmodel.normalize(q_normalize_ref);
+  if(jmodel.shortname() == "JointModelSpherical")
+  {
+    q_normalize_ref /= q_normalize_ref.norm();
+  }
+  else if(jmodel.shortname() == "JointModelFreeFlyer")
+  {
+    q_normalize_ref.template tail<4>() /= q_normalize_ref.template tail<4>().norm();
+  }
+  else if(boost::algorithm::istarts_with(jmodel.shortname(),"JointModelRUB"))
+  {
+    q_normalize_ref /= q_normalize_ref.norm();
+  }
+  else if(jmodel.shortname() == "JointModelPlanar")
+  {
+    q_normalize_ref.template tail<2>() /= q_normalize_ref.template tail<2>().norm();
+  }
   LieGroupType::normalize(q_normalize);
   BOOST_CHECK_MESSAGE(q_normalize.isApprox(q_normalize_ref), std::string(error_prefix + " - normalize "));
 }
@@ -215,8 +260,10 @@ BOOST_AUTO_TEST_CASE ( test_all )
                           > Variant;
   for (int i = 0; i < 20; ++i)
     boost::mpl::for_each<Variant::types>(TestJoint());
+  
   // FIXME JointModelComposite does not work.
   // boost::mpl::for_each<JointModelVariant::types>(TestJoint());
+  
 }
 
 BOOST_AUTO_TEST_CASE ( Jdifference )
