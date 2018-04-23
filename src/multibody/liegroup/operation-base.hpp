@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,6 +18,7 @@
 #ifndef __se3_lie_group_operation_base_hpp__
 #define __se3_lie_group_operation_base_hpp__
 
+#include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/fwd.hpp" // struct traits
 
 #include <Eigen/Core>
@@ -25,29 +26,24 @@
 
 namespace se3
 {
-#define SE3_LIE_GROUP_PUBLIC_INTERFACE(Derived)                                \
-  typedef LieGroupOperationBase<Derived> Base;                                 \
-  typedef Base::Index Index;                                                   \
-  typedef traits<Derived>::Scalar Scalar;                                      \
-  enum {                                                                       \
-    NQ = Base::NQ,                                                             \
-    NV = Base::NV                                                              \
-  };                                                                           \
-  typedef Base::ConfigVector_t ConfigVector_t;                                 \
-  typedef Base::TangentVector_t TangentVector_t;                               \
-  typedef Base::JacobianMatrix_t JacobianMatrix_t
-
-#define SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(Derived)                            \
+  
+#define SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,TYPENAME)               \
   typedef          LieGroupOperationBase<Derived> Base;                        \
-  typedef typename Base::Index Index;                                          \
-  typedef typename traits<Derived>::Scalar Scalar;                             \
+  typedef TYPENAME Base::Index Index;                                          \
+  typedef TYPENAME traits<Derived>::Scalar Scalar;                             \
   enum {                                                                       \
     NQ = Base::NQ,                                                             \
     NV = Base::NV                                                              \
   };                                                                           \
-  typedef typename Base::ConfigVector_t ConfigVector_t;                        \
-  typedef typename Base::TangentVector_t TangentVector_t;                      \
-  typedef typename Base::JacobianMatrix_t JacobianMatrix_t
+  typedef TYPENAME Base::ConfigVector_t ConfigVector_t;                        \
+  typedef TYPENAME Base::TangentVector_t TangentVector_t;                      \
+  typedef TYPENAME Base::JacobianMatrix_t JacobianMatrix_t
+  
+#define SE3_LIE_GROUP_PUBLIC_INTERFACE(Derived)                                \
+SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
+  
+#define SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(Derived)                            \
+SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
 
   template<typename Derived>
   struct LieGroupOperationBase
