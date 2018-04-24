@@ -267,27 +267,27 @@ namespace se3 {
   typename LieGroupOperationBase <Derived>::Index
   LieGroupOperationBase <Derived>::nq () const
   {
-    return Derived::nq ();
+    return derived().nq();
   }
 
   template <class Derived>
   typename LieGroupOperationBase <Derived>::Index
   LieGroupOperationBase <Derived>::nv () const
   {
-    return Derived::nv ();
+    return derived().nv();
   }
 
   template <class Derived>
   typename LieGroupOperationBase <Derived>::ConfigVector_t
   LieGroupOperationBase <Derived>::neutral () const
   {
-    return Derived::neutral ();
+    return derived().neutral();
   }
 
   template <class Derived>
   std::string LieGroupOperationBase <Derived>::name () const
   {
-    return Derived::name ();
+    return derived().name();
   }
 
 } // namespace se3
