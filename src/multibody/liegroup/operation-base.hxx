@@ -140,7 +140,8 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  double LieGroupOperationBase<Derived>::squaredDistance(
+  typename LieGroupOperationBase<Derived>::Scalar
+  LieGroupOperationBase<Derived>::squaredDistance(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1)
   {
@@ -151,7 +152,8 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  double LieGroupOperationBase<Derived>::distance(
+  typename LieGroupOperationBase<Derived>::Scalar
+  LieGroupOperationBase<Derived>::distance(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1)
   {
@@ -244,7 +246,8 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  double LieGroupOperationBase<Derived>::squaredDistance_impl(
+  typename LieGroupOperationBase<Derived>::Scalar
+  LieGroupOperationBase<Derived>::squaredDistance_impl(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1)
   {

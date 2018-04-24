@@ -172,7 +172,7 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @return     The corresponding distance
      */
     template <class ConfigL_t, class ConfigR_t>
-    static double squaredDistance(const Eigen::MatrixBase<ConfigL_t> & q0,
+    static Scalar squaredDistance(const Eigen::MatrixBase<ConfigL_t> & q0,
                                   const Eigen::MatrixBase<ConfigR_t> & q1);
 
     /**
@@ -184,7 +184,7 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @return     The corresponding distance
      */
     template <class ConfigL_t, class ConfigR_t>
-    static double distance(const Eigen::MatrixBase<ConfigL_t> & q0,
+    static Scalar distance(const Eigen::MatrixBase<ConfigL_t> & q0,
                            const Eigen::MatrixBase<ConfigR_t> & q1);
 
     /**
@@ -237,7 +237,7 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     static void normalize_impl(const Eigen::MatrixBase<Config_t> & qout);
 
     template <class ConfigL_t, class ConfigR_t>
-    static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+    static Scalar squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        const Eigen::MatrixBase<ConfigR_t> & q1);
 
     template <class ConfigL_t, class ConfigR_t>
