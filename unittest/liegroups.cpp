@@ -15,6 +15,7 @@
 // pinocchio. If not, see <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
+#include "pinocchio/multibody/liegroup/liegroup-variant-visitors.hpp"
 
 #include "pinocchio/multibody/joint/joint.hpp"
 
@@ -412,6 +413,28 @@ BOOST_AUTO_TEST_CASE(test_dim_computation)
   BOOST_CHECK(dim == Eigen::Dynamic);
   dim = eval_set_dim<1,Eigen::Dynamic>::value;
   BOOST_CHECK(dim == Eigen::Dynamic);
+}
+
+struct TestLieGroupVariantVisitor
+{
+  template<typename Derived>
+  void operator() (const LieGroupOperationBase<Derived> & lg) const
+  {
+    LieGroupVariant lg_variant(lg.derived());
+    test(lg,lg_variant);
+  }
+  
+  template<typename Derived>
+  static void test(const LieGroupOperationBase<Derived> & lg, const LieGroupVariant & lg_variant)
+  {
+    BOOST_CHECK(lg.nq() == nq(lg_variant));
+    BOOST_CHECK(lg.nv() == nv(lg_variant));
+  }
+};
+
+BOOST_AUTO_TEST_CASE(test_liegroup_variant)
+{
+  boost::mpl::for_each<LieGroupVariant::types>(TestLieGroupVariantVisitor());
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
