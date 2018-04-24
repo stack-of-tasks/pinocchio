@@ -403,4 +403,15 @@ BOOST_AUTO_TEST_CASE ( test_size )
   BOOST_CHECK (r3xso3.name () == "R^3*SO(3)");
   BOOST_CHECK (r3xso3.neutral () == neutral);
 }
+
+BOOST_AUTO_TEST_CASE(test_dim_computation)
+{
+  int dim = eval_set_dim<1,1>::value ;
+  BOOST_CHECK(dim == 2);
+  dim = eval_set_dim<Eigen::Dynamic,1>::value;
+  BOOST_CHECK(dim == Eigen::Dynamic);
+  dim = eval_set_dim<1,Eigen::Dynamic>::value;
+  BOOST_CHECK(dim == Eigen::Dynamic);
+}
+
 BOOST_AUTO_TEST_SUITE_END ()

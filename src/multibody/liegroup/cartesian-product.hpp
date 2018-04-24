@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -22,14 +22,32 @@
 
 namespace se3
 {
+  template<int dim1, int dim2>
+  struct eval_set_dim
+  {
+    enum { value = dim1 + dim2 };
+  };
+  
+  template<int dim>
+  struct eval_set_dim<dim,Eigen::Dynamic>
+  {
+    enum { value = Eigen::Dynamic };
+  };
+
+  template<int dim>
+  struct eval_set_dim<Eigen::Dynamic,dim>
+  {
+    enum { value = Eigen::Dynamic };
+  };
+  
   template<typename LieGroup1, typename LieGroup2>
   struct CartesianProductOperation;
   template<typename LieGroup1, typename LieGroup2>
   struct traits<CartesianProductOperation<LieGroup1, LieGroup2> > {
     typedef double Scalar;
     enum {
-      NQ = LieGroup1::NQ + LieGroup2::NQ,
-      NV = LieGroup1::NV + LieGroup2::NV
+      NQ = eval_set_dim<LieGroup1::NQ,LieGroup2::NQ>::value,
+      NV = eval_set_dim<LieGroup1::NV,LieGroup2::NV>::value
     };
   };
 
