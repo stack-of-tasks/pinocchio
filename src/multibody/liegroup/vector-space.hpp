@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -20,7 +20,9 @@
 
 #include <stdexcept>
 
-#include <pinocchio/multibody/liegroup/operation-base.hpp>
+#include "pinocchio/multibody/liegroup/operation-base.hpp"
+
+#include <boost/integer/static_min_max.hpp>
 
 namespace se3
 {
@@ -41,7 +43,7 @@ namespace se3
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
     ///        argument for static sized vector-spaces.
-    VectorSpaceOperation (int size = Size) : size_ (size)
+    VectorSpaceOperation (int size = boost::static_signed_max<0,Size>::value) : size_ (size)
     {
       assert (size_.value() >= 0);
     }
@@ -65,9 +67,7 @@ namespace se3
 
     ConfigVector_t neutral () const
     {
-      ConfigVector_t n (size_.value());
-      n.setZero ();
-      return n;
+      return ConfigVector_t::Zero(size_.value());;
     }
 
     std::string name () const
