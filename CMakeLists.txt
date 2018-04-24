@@ -203,6 +203,7 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
 
 SET(${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS
   multibody/liegroup/liegroup.hpp
+  multibody/liegroup/liegroup-variant.hpp
   multibody/liegroup/operation-base.hpp
   multibody/liegroup/operation-base.hxx
   multibody/liegroup/vector-space.hpp
