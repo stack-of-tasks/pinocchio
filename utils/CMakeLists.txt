@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 CNRS
+# Copyright (c) 2015-2018 CNRS
 #
 # This file is part of Pinocchio
 # pinocchio is free software: you can redistribute it
@@ -33,6 +33,10 @@ MACRO(ADD_UTIL NAME UTIL_SRC PKGS)
     TARGET_LINK_BOOST_PYTHON(${NAME})
     TARGET_LINK_LIBRARIES(${NAME} ${PYTHON_LIBRARIES})
   ENDIF(BUILD_PYTHON_INTERFACE)
+
+  IF(HPP_FCL_FOUND)
+    PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-fcl)
+  ENDIF(HPP_FCL_FOUND)
 
   ADD_DEPENDENCIES(utils ${NAME})
 
