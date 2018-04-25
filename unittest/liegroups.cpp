@@ -59,7 +59,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   SE3 M1 = jdata.M;
   Motion v1 = jdata.v;
   
-  q2 = LieGroupType::integrate(q1,q1_dot);
+  q2 = LieGroupType().integrate(q1,q1_dot);
   jmodel.calc(jdata,q2);
   SE3 M2 = jdata.M;
   
@@ -71,22 +71,22 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   }
   
   // Check the reversability of integrate
-  ConfigVector_t q3 = LieGroupType::integrate(q2,-q1_dot);
+  ConfigVector_t q3 = LieGroupType().integrate(q2,-q1_dot);
   jmodel.calc(jdata,q3);
   SE3 M3 = jdata.M;
   
   BOOST_CHECK_MESSAGE(M3.isApprox(M1), std::string("Error when integrating back " + jmodel.shortname()));
   
   // Check interpolate
-  ConfigVector_t q_interpolate = LieGroupType::interpolate(q1,q2,0.);
+  ConfigVector_t q_interpolate = LieGroupType().interpolate(q1,q2,0.);
   BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q1), std::string("Error when interpolating " + jmodel.shortname()));
   
-  q_interpolate = LieGroupType::interpolate(q1,q2,1.);
+  q_interpolate = LieGroupType().interpolate(q1,q2,1.);
   BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q2), std::string("Error when interpolating " + jmodel.shortname()));
   
   if(jmodel.shortname() != "JointModelSphericalZYX")
   {
-    q_interpolate = LieGroupType::interpolate(q1,q2,u);
+    q_interpolate = LieGroupType().interpolate(q1,q2,u);
     jmodel.calc(jdata,q_interpolate);
     SE3 M_interpolate = jdata.M;
     
@@ -95,11 +95,11 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   }
 
   // Check differentiate
-  TangentVector_t vdiff = LieGroupType::difference(q1,q2);
+  TangentVector_t vdiff = LieGroupType().difference(q1,q2);
   BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot), std::string("Error when differentiating " + jmodel.shortname()));
   
   // Check distance
-  Scalar dist = LieGroupType::distance(q1,q2);
+  Scalar dist = LieGroupType().distance(q1,q2);
   BOOST_CHECK_MESSAGE(dist > 0., "distance - wrong results");
   BOOST_CHECK_SMALL(std::fabs(dist-q1_dot.norm()), 1e-12);
   
@@ -131,7 +131,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   {
     q_normalize_ref.template tail<2>() /= q_normalize_ref.template tail<2>().norm();
   }
-  LieGroupType::normalize(q_normalize);
+  LieGroupType().normalize(q_normalize);
   BOOST_CHECK_MESSAGE(q_normalize.isApprox(q_normalize_ref), std::string(error_prefix + " - normalize "));
 }
 

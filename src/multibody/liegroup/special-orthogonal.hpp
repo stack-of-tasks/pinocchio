@@ -121,8 +121,8 @@ namespace se3
       R(0,1) = - R(1,0);
 
       Scalar w (Jlog(R));
-      const_cast< JacobianLOut_t& > (J0.derived()).coeffRef(0) = -w;
-      const_cast< JacobianROut_t& > (J1.derived()).coeffRef(0) =  w;
+      const_cast< JacobianLOut_t& > (J0.derived()).coeffRef(0,0) = -w;
+      const_cast< JacobianROut_t& > (J1.derived()).coeffRef(0,0) =  w;
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -150,7 +150,7 @@ namespace se3
                                 const Eigen::MatrixBase<JacobianOut_t>& J)
     {
       JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
-      Jout(0) = 1;
+      Jout(0,0) = 1;
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>

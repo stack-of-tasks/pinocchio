@@ -89,83 +89,83 @@ namespace se3
     }
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
-    static void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+    void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
-                                const Eigen::MatrixBase<Tangent_t> & d)
+                                const Eigen::MatrixBase<Tangent_t> & d) const
     {
       Tangent_t& out = const_cast< Eigen::MatrixBase<Tangent_t>& > (d).derived();
-      LieGroup1::difference(q0.template head<LieGroup1::NQ>(), q1.template head<LieGroup1::NQ>(), out.template head<LieGroup1::NV>());
-      LieGroup2::difference(q0.template tail<LieGroup2::NQ>(), q1.template tail<LieGroup2::NQ>(), out.template tail<LieGroup2::NV>());
+      lg1_.difference(q0.head(lg1_.nq()), q1.head(lg1_.nq()), out.head(lg1_.nv()));
+      lg2_.difference(q0.tail(lg2_.nq()), q1.tail(lg2_.nq()), out.tail(lg2_.nv()));
     }
 
     template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+    void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                  const Eigen::MatrixBase<ConfigR_t> & q1,
                                  const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+                                 const Eigen::MatrixBase<JacobianROut_t>& J1) const
     {
       JacobianLOut_t& J0out = const_cast< JacobianLOut_t& >(J0.derived());
-      J0out.template   topRightCorner<LieGroup1::NV,LieGroup2::NV>().setZero();
-      J0out.template bottomLeftCorner<LieGroup2::NV,LieGroup1::NV>().setZero();
+      J0out.topRightCorner(lg1_.nv(),lg2_.nv()).setZero();
+      J0out.bottomLeftCorner(lg2_.nv(),lg1_.nv()).setZero();
 
       JacobianROut_t& J1out = const_cast< JacobianROut_t& >(J1.derived());
-      J1out.template   topRightCorner<LieGroup1::NV,LieGroup2::NV>().setZero();
-      J1out.template bottomLeftCorner<LieGroup2::NV,LieGroup1::NV>().setZero();
+      J1out.topRightCorner(lg1_.nv(),lg2_.nv()).setZero();
+      J1out.bottomLeftCorner(lg2_.nv(),lg1_.nv()).setZero();
 
-      LieGroup1::Jdifference(
-          q0.template head<LieGroup1::NQ>(),
-          q1.template tail<LieGroup1::NQ>(),
-          J0out.template topLeftCorner<LieGroup1::NV,LieGroup1::NV>(),
-          J1out.template topLeftCorner<LieGroup1::NV,LieGroup1::NV>());
-      LieGroup2::Jdifference(
-          q0.template tail<LieGroup2::NQ>(),
-          q1.template tail<LieGroup2::NQ>(),
-          J0out.template bottomRightCorner<LieGroup2::NV,LieGroup2::NV>(),
-          J1out.template bottomRightCorner<LieGroup2::NV,LieGroup2::NV>());
+      lg1_.Jdifference(
+          q0.head(lg1_.nq()),
+          q1.head(lg1_.nq()),
+          J0out.topLeftCorner(lg1_.nv(),lg1_.nv()),
+          J1out.topLeftCorner(lg1_.nv(),lg1_.nv()));
+      lg2_.Jdifference(
+          q0.tail(lg2_.nq()),
+          q1.tail(lg2_.nq()),
+          J0out.bottomRightCorner(lg2_.nv(),lg2_.nv()),
+          J1out.bottomRightCorner(lg2_.nv(),lg2_.nv()));
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
-    static void integrate_impl(const Eigen::MatrixBase<ConfigIn_t> & q,
+    void integrate_impl(const Eigen::MatrixBase<ConfigIn_t> & q,
                                const Eigen::MatrixBase<Velocity_t> & v,
-                               const Eigen::MatrixBase<ConfigOut_t> & qout)
+                               const Eigen::MatrixBase<ConfigOut_t> & qout) const
     {
       ConfigOut_t& out = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
-      LieGroup1::integrate(q.template head<LieGroup1::NQ>(), v.template head<LieGroup1::NV>(), out.template head<LieGroup1::NQ>());
-      LieGroup2::integrate(q.template tail<LieGroup2::NQ>(), v.template tail<LieGroup2::NV>(), out.template tail<LieGroup2::NQ>());
+      LieGroup1().integrate(q.head(lg1_.nq()), v.head(lg1_.nv()), out.head(lg1_.nq()));
+      LieGroup2().integrate(q.tail(lg2_.nq()), v.tail(lg2_.nv()), out.tail(lg2_.nq()));
     }
 
     template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> & v,
-                                const Eigen::MatrixBase<JacobianOut_t> & J)
+    void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> & v,
+                         const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
-      Jout.template   topRightCorner<LieGroup1::NV,LieGroup2::NV>().setZero();
-      Jout.template bottomLeftCorner<LieGroup2::NV,LieGroup1::NV>().setZero();
-      LieGroup1::Jintegrate(v.template head<LieGroup1::NV>(), Jout.template     topLeftCorner<LieGroup1::NV,LieGroup1::NV>());
-      LieGroup2::Jintegrate(v.template tail<LieGroup2::NV>(), Jout.template bottomRightCorner<LieGroup2::NV,LieGroup2::NV>());
+      Jout.topRightCorner(lg1_.nv(),lg2_.nv()).setZero();
+      Jout.bottomLeftCorner(lg2_.nv(),lg1_.nv()).setZero();
+      lg1_.Jintegrate(v.head(lg1_.nv()), Jout.topLeftCorner(lg1_.nv(),lg1_.nv()));
+      lg2_.Jintegrate(v.tail(lg2_.nv()), Jout.bottomRightCorner(lg2_.nv(),lg2_.nv()));
     }
 
     template <class ConfigL_t, class ConfigR_t>
-    static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                       const Eigen::MatrixBase<ConfigR_t> & q1)
+    Scalar squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                const Eigen::MatrixBase<ConfigR_t> & q1) const
     {
-      return LieGroup1::squaredDistance(q0.template head<LieGroup1::NQ>(), q1.template head<LieGroup1::NQ>())
-        +    LieGroup2::squaredDistance(q0.template tail<LieGroup2::NQ>(), q1.template tail<LieGroup2::NQ>());
+      return lg1_.squaredDistance(q0.head(lg1_.nq()), q1.head(lg1_.nq()))
+        +    lg2_.squaredDistance(q0.tail(lg2_.nq()), q1.tail(lg2_.nq()));
     }
     
     template <class Config_t>
-    static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
+    void normalize_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
-      LieGroup1::normalize(qout.derived().template head<LieGroup1::NQ>());
-      LieGroup2::normalize(qout.derived().template tail<LieGroup2::NQ>());
+      lg1_.normalize(qout.derived().head(lg1_.nq()));
+      lg2_.normalize(qout.derived().tail(lg2_.nq()));
     }
 
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       Config_t& out = const_cast< Eigen::MatrixBase<Config_t>& > (qout).derived();
-      LieGroup1 ().random(out.template head<LieGroup1::NQ>());
-      LieGroup2 ().random(out.template tail<LieGroup2::NQ>());
+      lg1_.random(out.head(lg1_.nq()));
+      lg2_.random(out.tail(lg2_.nq()));
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -175,21 +175,21 @@ namespace se3
       const
     {
       ConfigOut_t& out = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
-      LieGroup1 ().randomConfiguration(lower.template head<LieGroup1::NQ>(),
-                                       upper.template head<LieGroup1::NQ>(),
-                                       out.template head<LieGroup1::NQ>());
-      LieGroup2 ().randomConfiguration(lower.template tail<LieGroup2::NQ>(),
-                                       upper.template tail<LieGroup2::NQ>(),
-                                       out.template tail<LieGroup2::NQ>());
+      lg1_.randomConfiguration(lower.head(lg1_.nq()),
+                                       upper.head(lg1_.nq()),
+                                       out.head(lg1_.nq()));
+      lg2_.randomConfiguration(lower.tail(lg2_.nq()),
+                                       upper.tail(lg2_.nq()),
+                                       out.tail(lg2_.nq()));
     }
 
     template <class ConfigL_t, class ConfigR_t>
-    static bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                         const Eigen::MatrixBase<ConfigR_t> & q1,
-                                         const Scalar & prec)
+    bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                  const Eigen::MatrixBase<ConfigR_t> & q1,
+                                  const Scalar & prec)
     {
-      return LieGroup1::isSameConfiguration(q0.template head<LieGroup1::NQ>(), q1.template head<LieGroup1::NQ>(), prec)
-        +    LieGroup2::isSameConfiguration(q0.template tail<LieGroup2::NQ>(), q1.template tail<LieGroup2::NQ>(), prec);
+      return LieGroup1().isSameConfiguration(q0.head(lg1_.nq()), q1.head(lg1_.nq()), prec)
+        +    LieGroup2().isSameConfiguration(q0.tail(lg2_.nq()), q1.tail(lg2_.nq()), prec);
     }
   private:
     LieGroup1 lg1_;

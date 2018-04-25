@@ -270,7 +270,7 @@ namespace se3
                                          const Eigen::MatrixBase<ConfigR_t> & q1,
                                          const Scalar & prec)
     {
-      return R2crossSO2_t::isSameConfiguration(q0, q1, prec);
+      return R2crossSO2_t().isSameConfiguration(q0, q1, prec);
     }
 
     private:
@@ -443,7 +443,7 @@ namespace se3
                                          const Eigen::MatrixBase<ConfigR_t> & q1,
                                          const Scalar & prec)
     {
-      return R3crossSO3_t::isSameConfiguration(q0, q1, prec);
+      return R3crossSO3_t().isSameConfiguration(q0, q1, prec);
     }
   }; // struct SpecialEuclideanOperation<3>
 
