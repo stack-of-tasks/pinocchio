@@ -64,12 +64,12 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     /// \{
 
     /**
-     * @brief      Integrate joint's configuration for a tangent vector during one unit time
+     * @brief      Integrate a joint's configuration with a tangent vector during one unit time duration
      *
-     * @param[in]  q     initatial configuration  (size full model.nq)
-     * @param[in]  v     joint velocity (size full model.nv)
+     * @param[in]  q     the initial configuration.
+     * @param[in]  v     the tangent velocity.
      *
-     * @return     The configuration integrated
+     * @param[out] qout  the configuration integrated.
      */
     template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
     void integrate(const Eigen::MatrixBase<ConfigIn_t> & q,
@@ -79,9 +79,9 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     /**
      * @brief      Computes the Jacobian of the Integrate operation.
      *
-     * @param[in]  v     joint velocity (size full model.nv)
+     * @param[in]  v    tangent velocity.
      *
-     * @return     The Jacobian
+     * @param[out] J    the Jacobian of the Integrate operation.
      */
     template <class Tangent_t, class JacobianOut_t>
     void Jintegrate(const Eigen::MatrixBase<Tangent_t>  & v,
@@ -90,11 +90,11 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     /**
      * @brief      Interpolation between two joint's configurations
      *
-     * @param[in]  q0    Initial configuration to interpolate
-     * @param[in]  q1    Final configuration to interpolate
-     * @param[in]  u     u in [0;1] position along the interpolation.
+     * @param[in]  q0    the initial configuration to interpolate.
+     * @param[in]  q1    the final configuration to interpolate.
+     * @param[in]  u     in [0;1] the absicca along the interpolation.
      *
-     * @return     The interpolated configuration (q0 if u = 0, q1 if u = 1)
+     * @param[out] qout  the interpolated configuration (q0 if u = 0, q1 if u = 1)
      */
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     void interpolate(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -103,9 +103,10 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                      const Eigen::MatrixBase<ConfigOut_t>& qout) const;
     
     /**
-     * @brief      Normalize the joint configuration given as input. For instance, the quaternion must unitary.
+     * @brief      Normalize the joint configuration given as input.
+     *             For instance, the quaternion must be unitary.
      *
-     * @return     The normalized joint configuration.
+     * @param[out]     qout  the normalized joint configuration.
      */
     template <class Config_t>
     void normalize (const Eigen::MatrixBase<Config_t>& qout) const;
@@ -114,9 +115,9 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
      *
      * \warning    Do not take into account the joint limits. To shoot a configuration uniformingly
-     *             depending on joint limits, see randomConfiguration
+     *             depending on joint limits, see randomConfiguration.
      *
-     * @return     The joint configuration
+     * @param[out] qout  the random joint configuration.
      */
     template <class Config_t>
     void random (const Eigen::MatrixBase<Config_t>& qout) const;
@@ -125,10 +126,10 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @brief      Generate a configuration vector uniformly sampled among
      *             provided limits.
      *
-     * @param[in]  lower_pos_limit  lower joint limit
-     * @param[in]  upper_pos_limit  upper joint limit
+     * @param[in]  lower_pos_limit  the lower joint limit vector.
+     * @param[in]  upper_pos_limit  the upper joint limit vector.
      *
-     * @return     The joint configuration
+     * @param[out] qout             the random joint configuration in the two bounds.
      */
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     void randomConfiguration
@@ -137,25 +138,26 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      const Eigen::MatrixBase<ConfigOut_t> & qout) const;
 
     /**
-     * @brief      the tangent vector that must be integrated during one unit time to go from q0 to q1
+     * @brief      Computes the tangent vector that must be integrated during one unit time to go from q0 to q1.
      *
-     * @param[in]  q0    Initial configuration
-     * @param[in]  q1    Wished configuration
+     * @param[in]  q0    the initial configuration vector.
+     * @param[in]  q1    the terminal configuration vector.
      *
-     * @return     The corresponding velocity
+     * @param[out] v     the corresponding velocity.
      */
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     void difference(const Eigen::MatrixBase<ConfigL_t> & q0,
                     const Eigen::MatrixBase<ConfigR_t> & q1,
-                    const Eigen::MatrixBase<Tangent_t>& d) const;
+                    const Eigen::MatrixBase<Tangent_t>& v) const;
 
     /**
-     * @brief      Computes the Jacobian of the difference operation
+     * @brief      Computes the Jacobian of the difference operation.
      *
-     * @param[in]  q0    Initial configuration
-     * @param[in]  q1    Wished configuration
+     * @param[in]  q0    the initial configuration vector.
+     * @param[in]  q1    the terminal configuration vector.
      *
-     * @return     The Jacobian
+     * @param[out] J0    the Jacobian of the difference operation with respect to q0.
+     * @param[out] J1    the Jacobian of the difference operation with respect to q1.
      */
     template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
     void Jdifference(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -164,12 +166,12 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                      const Eigen::MatrixBase<JacobianROut_t>& J1) const;
 
     /**
-     * @brief      Squared distance between two configurations of the joint
+     * @brief      Squared distance between two joint configurations.
      *
-     * @param[in]  q0    Configuration 1
-     * @param[in]  q1    Configuration 2
+     * @param[in]  q0    the initial configuration vector.
+     * @param[in]  q1    the terminal configuration vector.
      *
-     * @return     The corresponding distance
+     * @param[out] d     the corresponding distance betwenn q0 and q1.
      */
     template <class ConfigL_t, class ConfigR_t>
     Scalar squaredDistance(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -178,17 +180,17 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     /**
      * @brief      Distance between two configurations of the joint
      *
-     * @param[in]  q0    Configuration 1
-     * @param[in]  q1    Configuration 2
+     * @param[in]  q0    the initial configuration vector.
+     * @param[in]  q1    the terminal configuration vector.
      *
-     * @return     The corresponding distance
+     * @return     The corresponding distance.
      */
     template <class ConfigL_t, class ConfigR_t>
     Scalar distance(const Eigen::MatrixBase<ConfigL_t> & q0,
                     const Eigen::MatrixBase<ConfigR_t> & q1) const;
 
     /**
-     * @brief      Check if two configurations are equivalent within the given precision
+     * @brief      Check if two configurations are equivalent within the given precision.
      *
      * @param[in]  q0    Configuration 0
      * @param[in]  q1    Configuration 1
