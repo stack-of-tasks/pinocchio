@@ -22,7 +22,7 @@
 
 #define PINOCCHIO_MACRO_EMPTY_ARG
 
-/// \brief Macro giving access to the equivalent type of D
+/// \brief Macro giving access to the equivalent plain type of D
 #define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type<D>::type
 
 /// \brief Macro giving access to the reference type of D
