@@ -218,14 +218,10 @@ BOOST_AUTO_TEST_CASE(test_kinematics)
   JointModelComposite jmodel_composite;
 
   SE3 config=SE3::Random();
-  //JointModelVariant joint_model;
   JointIndex parent=0;
 
   for(int i=0; i<10; i++)
   {
-    //joint_model = JointModelPX();
-    //JointModelPX joint_model();
-
     parent = model.addJoint(parent, JointModelRX(), config, "joint");
     jmodel_composite.addJoint(JointModelRX(),config);
 
@@ -242,10 +238,6 @@ BOOST_AUTO_TEST_CASE(test_kinematics)
   BOOST_CHECK(model.nv == model_c.nv);
   BOOST_CHECK(model.nq == model_c.nq);
   
-//  VectorXd ql(ConfigVector_t::Constant(model.nq,-M_PI));
-//  VectorXd qu(ConfigVector_t::Constant(model.nq,M_PI));
-//  
-//  ConfigVector_t q = jmodel.randomConfiguration(ql,qu);
   VectorXd q(VectorXd::Random(model.nv));
   forwardKinematics(model,data,q);
   forwardKinematics(model_c,data_c,q);
