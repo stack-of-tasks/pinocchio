@@ -199,27 +199,11 @@ namespace se3
       return JointDataDerived(jdata,nq(),nv());
     }
 
-    friend void jointCompositeCalcZeroOrder(const JointModelComposite &, JointDataComposite &, const Eigen::VectorXd &);
     friend struct JointCompositeCalcZeroOrderStep;
+    void calc(JointData & data, const Eigen::VectorXd & qs) const;
 
-    void calc(JointData & data, const Eigen::VectorXd & qs) const
-    {
-      assert(joints.size() > 0);
-      assert(data.joints.size() == joints.size());
-      
-      jointCompositeCalcZeroOrder(*this, data, qs);
-    }
-
-    friend void jointCompositeCalcFirstOrder(const JointModelComposite &, JointDataComposite &, const Eigen::VectorXd &, const Eigen::VectorXd &);
     friend struct JointCompositeCalcFirstOrderStep;
-
-    void calc(JointData & data, const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const
-    {
-      assert(joints.size() > 0);
-      assert(data.joints.size() == joints.size());
-
-      jointCompositeCalcFirstOrder(*this, data, qs, vs);
-    }   
+    void calc(JointData & data, const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const;
     
     void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
     {
