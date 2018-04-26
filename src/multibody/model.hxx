@@ -21,6 +21,7 @@
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/tools/string-generator.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/utility.hpp>
@@ -89,16 +90,16 @@ namespace se3
     // However, this option is not compiling in Travis (why?).
     // As efficiency of Model::addJoint is not critical, the dynamic bottomRows is used here.
     effortLimit.conservativeResize(nv);
-    jmodel.jointConfigSelector(effortLimit) = max_effort;
+    jmodel.jointVelocitySelector(effortLimit) = max_effort;
     velocityLimit.conservativeResize(nv);
-    jmodel.jointVelocitySelector(effortLimit) = max_velocity;
+    jmodel.jointVelocitySelector(velocityLimit) = max_velocity;
     lowerPositionLimit.conservativeResize(nq);
     jmodel.jointConfigSelector(lowerPositionLimit) = min_config;
     upperPositionLimit.conservativeResize(nq);
     jmodel.jointConfigSelector(upperPositionLimit) = max_config;
     
     neutralConfiguration.conservativeResize(nq);
-    neutralConfiguration.tail(joint_model.nq()) = joint_model.neutralConfiguration();
+    NeutralStepAlgo<LieGroupTpl,JointModelDerived>::run(jmodel,neutralConfiguration);
 
     rotorInertia.conservativeResize(nv);
     jmodel.jointVelocitySelector(rotorInertia).setZero();
