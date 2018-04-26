@@ -63,12 +63,15 @@ namespace se3
     
   };
 
-  inline void jointCompositeCalcZeroOrder(const JointModelComposite & model, JointDataComposite & data, const Eigen::VectorXd & qs)
+  inline void JointModelComposite::calc(JointData & data, const Eigen::VectorXd & qs) const
   {
-    for (int i=(int)(model.joints.size()-1); i >= 0; --i)
+    assert(joints.size() > 0);
+    assert(data.joints.size() == joints.size());
+
+    for (int i=(int)(joints.size()-1); i >= 0; --i)
     {
-      JointCompositeCalcZeroOrderStep::run(model.joints[(size_t)i], data.joints[(size_t)i],
-                                    JointCompositeCalcZeroOrderStep::ArgsType (model,data,qs)
+      JointCompositeCalcZeroOrderStep::run(joints[(size_t)i], data.joints[(size_t)i],
+                                    JointCompositeCalcZeroOrderStep::ArgsType (*this,data,qs)
                                     );
     }
     data.M = data.iMlast.front();
@@ -125,12 +128,15 @@ namespace se3
     
   };
 
-  inline void jointCompositeCalcFirstOrder(const JointModelComposite & model, JointDataComposite & data, const Eigen::VectorXd & qs, const Eigen::VectorXd & vs)
+  inline void JointModelComposite::calc(JointData & data, const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const
   {
-    for (int i=(int)(model.joints.size()-1); i >= 0; --i)
+    assert(joints.size() > 0);
+    assert(data.joints.size() == joints.size());
+
+    for (int i=(int)(joints.size()-1); i >= 0; --i)
     {
-      JointCompositeCalcFirstOrderStep::run(model.joints[(size_t)i], data.joints[(size_t)i],
-                                    JointCompositeCalcFirstOrderStep::ArgsType (model,data,qs,vs)
+      JointCompositeCalcFirstOrderStep::run(joints[(size_t)i], data.joints[(size_t)i],
+                                    JointCompositeCalcFirstOrderStep::ArgsType (*this,data,qs,vs)
                                     );
     }
     data.M = data.iMlast.front();
