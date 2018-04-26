@@ -186,7 +186,7 @@ namespace se3
     template <class ConfigL_t, class ConfigR_t>
     bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                   const Eigen::MatrixBase<ConfigR_t> & q1,
-                                  const Scalar & prec)
+                                  const Scalar & prec) const
     {
       return LieGroup1().isSameConfiguration(q0.head(lg1_.nq()), q1.head(lg1_.nq()), prec)
         +    LieGroup2().isSameConfiguration(q0.tail(lg2_.nq()), q1.tail(lg2_.nq()), prec);
