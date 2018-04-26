@@ -113,7 +113,6 @@ namespace se3
                     const Eigen::VectorXd & v,
                     Eigen::VectorXd & result)
     {
-      std::cout << jmodel.shortname() << std::endl;
       typename LieGroup_t::template operation<JointModel>::type lgo;
       lgo.integrate(jmodel.jointConfigSelector  (q),
                     jmodel.jointVelocitySelector(v),

@@ -427,8 +427,23 @@ struct TestLieGroupVariantVisitor
   template<typename Derived>
   static void test(const LieGroupOperationBase<Derived> & lg, const LieGroupVariant & lg_variant)
   {
+    typedef typename Derived::ConfigVector_t ConfigVector_t;
+    typedef typename Derived::TangentVector_t TangentVector_t;
+    
     BOOST_CHECK(lg.nq() == nq(lg_variant));
     BOOST_CHECK(lg.nv() == nv(lg_variant));
+    
+    BOOST_CHECK(lg.name() == name(lg_variant));
+    
+    BOOST_CHECK(lg.neutral() == neutral(lg_variant));
+    
+    ConfigVector_t q0 = lg.random();
+    TangentVector_t v = TangentVector_t::Random(lg.nv());
+    ConfigVector_t qout(lg.nq()), qout_ref(lg.nq());
+    lg.integrate(q0, v, qout_ref);
+    
+    integrate(lg_variant, q0, v, qout);
+    BOOST_CHECK(qout.isApprox(qout_ref));
   }
 };
 

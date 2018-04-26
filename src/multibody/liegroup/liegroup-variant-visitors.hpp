@@ -27,7 +27,7 @@ namespace se3
    * @brief      Visit a LieGroupVariant to get the dimension of
    *             the Lie group configuration space
    *
-   * @param[in]  lg  The LieGroupVariant.
+   * @param[in]  lg  the LieGroupVariant.
    *
    * @return     The dimension of the Lie group configuration space
    */
@@ -37,11 +37,56 @@ namespace se3
    * @brief      Visit a LieGroupVariant to get the dimension of
    *             the Lie group tangent space
    *
-   * @param[in]  lg  The LieGroupVariant.
+   * @param[in]  lg  the LieGroupVariant.
    *
    * @return     The dimension of the Lie group tangent space
    */
   inline int nv(const LieGroupVariant & lg);
+  
+  /**
+   * @brief      Visit a LieGroupVariant to get the name of it
+   *
+   * @param[in]  lg  the LieGroupVariant.
+   *
+   * @return     The Lie group name
+   */
+  inline std::string name(const LieGroupVariant & lg);
+  
+  /**
+   * @brief      Visit a LieGroupVariant to get the neutral element of it
+   *
+   * @param[in]  lg  the LieGroupVariant.
+   *
+   * @return     The Lie group neutral element
+   */
+  inline Eigen::VectorXd neutral(const LieGroupVariant & lg);
+  
+  /**
+   * @brief      Visit a LieGroupVariant to call its integrate method
+   *
+   * @param[in]  lg  the LieGroupVariant.
+   * @param[in]  q   the starting configuration.
+   * @param[in]  v   the tangent velocity.
+   *
+   */
+  template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
+  inline void integrate(const LieGroupVariant & lg,
+                        const Eigen::MatrixBase<ConfigIn_t> & q,
+                        const Eigen::MatrixBase<Tangent_t>  & v,
+                        const Eigen::MatrixBase<ConfigOut_t>& qout);
+  
+  
+  /**
+   * @brief      Visit a LieGroupVariant to call its integrate method
+   *
+   * @param[in]  lg  The LieGroupVariant.
+   *
+   */
+  template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
+  inline void integrate(const LieGroupVariant & lg,
+                        const Eigen::MatrixBase<ConfigIn_t> & q,
+                        const Eigen::MatrixBase<Tangent_t>  & v,
+                        const Eigen::MatrixBase<ConfigOut_t>& qout);
   
 }
 

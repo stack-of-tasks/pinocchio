@@ -19,15 +19,45 @@
 #define __se3_lie_group_variant_visitor_hxx__
 
 #include "pinocchio/multibody/liegroup/operation-base.hpp"
+#include "pinocchio/multibody/visitor.hpp"
+
+#include <string>
+
+#define LIE_GROUP_VISITOR(VISITOR) \
+VISITOR(ArgsType & args) : args(args) {} \
+ArgsType & args
 
 namespace se3
 {
+  
+  namespace visitor
+  {
+    namespace bf = boost::fusion;
+    
+    template<typename Visitor>
+    struct LieGroupVisitorBase : public boost::static_visitor<>
+    {
+      template<typename D>
+      void operator() (const LieGroupOperationBase<D> & lg) const
+      {
+        bf::invoke(&Visitor::template algo<D>,
+                   bf::append(boost::ref(lg),
+                              static_cast<const Visitor*>(this)->args));
+      }
+      
+      template<typename ArgsTmp>
+      static void run(const LieGroupVariant & lg,
+                      ArgsTmp args)
+      {
+        return boost::apply_visitor(Visitor(args),lg);
+      }
+    };
+  }
   /**
    * @brief Lie Group visitor of the dimension of the configuration space nq
    */
-  class LieGroupNqVisitor: public boost::static_visitor<int>
+  struct LieGroupNqVisitor: public boost::static_visitor<int>
   {
-  public:
     template<typename D>
     int operator()(const LieGroupOperationBase<D> & lg) const
     { return lg.nq(); }
@@ -40,9 +70,8 @@ namespace se3
   /**
    * @brief Lie Group visitor of the dimension of the tangent space nv
    */
-  class LieGroupNvVisitor: public boost::static_visitor<int>
+  struct LieGroupNvVisitor: public boost::static_visitor<int>
   {
-  public:
     template<typename D>
     int operator()(const LieGroupOperationBase<D> & lg) const
     { return lg.nv(); }
@@ -52,6 +81,77 @@ namespace se3
   };
   inline int nv(const LieGroupVariant & lg) { return LieGroupNvVisitor::run(lg); }
   
+  /**
+   * @brief Visitor of the Lie Group name
+   */
+  struct LieGroupNameVisitor: public boost::static_visitor<std::string>
+  {
+    template<typename D>
+    std::string operator()(const LieGroupOperationBase<D> & lg) const
+    { return lg.name(); }
+    
+    static std::string run(const LieGroupVariant & lg)
+    { return boost::apply_visitor( LieGroupNameVisitor(), lg ); }
+  };
+  inline std::string name(const LieGroupVariant & lg) { return LieGroupNameVisitor::run(lg); }
+  
+  /**
+   * @brief Visitor of the Lie Group neutral element
+   */
+  template<typename Vector>
+  struct LieGroupNeutralVisitor: public boost::static_visitor<Vector>
+  {
+    template<typename D>
+    Vector operator()(const LieGroupOperationBase<D> & lg) const
+    { return lg.neutral(); }
+    
+    static Vector run(const LieGroupVariant & lg)
+    { return boost::apply_visitor( LieGroupNeutralVisitor(), lg ); }
+  };
+  
+  inline Eigen::VectorXd neutral(const LieGroupVariant & lg)
+  { return LieGroupNeutralVisitor<Eigen::VectorXd>::run(lg); }
+  
+  /**
+   * @brief Visitor of the Lie Group integrate method
+   */
+  template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
+  struct LieGroupIntegrateVisitor : visitor::LieGroupVisitorBase< LieGroupIntegrateVisitor<ConfigIn_t,Tangent_t,ConfigOut_t> >
+  {
+    typedef boost::fusion::vector<const Eigen::MatrixBase<ConfigIn_t> &,
+                                  const Eigen::MatrixBase<Tangent_t> &,
+                                  const Eigen::MatrixBase<ConfigOut_t> &> ArgsType;
+    
+    LIE_GROUP_VISITOR(LieGroupIntegrateVisitor);
+    
+    template<typename D>
+    static void algo(const LieGroupOperationBase<D> & lg,
+                     const Eigen::MatrixBase<ConfigIn_t> & q,
+                     const Eigen::MatrixBase<Tangent_t>  & v,
+                     const Eigen::MatrixBase<ConfigOut_t>& qout)
+    {
+      ConfigOut_t & qout_ = const_cast< ConfigOut_t& >(qout.derived());
+      lg.integrate(Eigen::Ref<const typename D::ConfigVector_t>(q),
+                   Eigen::Ref<const typename D::TangentVector_t>(v),
+                   Eigen::Ref<typename D::ConfigVector_t>(qout_));
+    }
+    
+  };
+  
+  template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
+  inline void integrate(const LieGroupVariant & lg,
+                        const Eigen::MatrixBase<ConfigIn_t> & q,
+                        const Eigen::MatrixBase<Tangent_t>  & v,
+                        const Eigen::MatrixBase<ConfigOut_t>& qout)
+  {
+    typedef LieGroupIntegrateVisitor<ConfigIn_t,Tangent_t,ConfigOut_t> Operation;
+    assert(q.size() == nq(lg));
+    assert(v.size() == nv(lg));
+    assert(qout.size() == nq(lg));
+    
+    ConfigOut_t & qout_ = const_cast< ConfigOut_t& >(qout.derived());
+    Operation::run(lg,typename Operation::ArgsType(q,v,qout_));
+  }
 }
 
 #endif // ifndef __se3_lie_group_variant_visitor_hxx__
