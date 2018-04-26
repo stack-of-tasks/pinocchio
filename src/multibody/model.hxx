@@ -75,7 +75,8 @@ namespace se3
     Model::JointIndex idx = (Model::JointIndex) (njoints++);
     
     joints         .push_back(JointModel(joint_model.derived()));
-    boost::get<JointModelDerived>(joints.back()).setIndexes(idx,nq,nv);
+    JointModelDerived & jmodel = boost::get<JointModelDerived>(joints.back());
+    jmodel.setIndexes(idx,nq,nv);
     
     inertias       .push_back(Inertia::Zero());
     parents        .push_back(parent);
@@ -87,19 +88,22 @@ namespace se3
     // Optimal efficiency here would be using the static-dim bottomRows, while specifying the dimension in argument in the case where D::NV is Eigen::Dynamic.
     // However, this option is not compiling in Travis (why?).
     // As efficiency of Model::addJoint is not critical, the dynamic bottomRows is used here.
-    effortLimit.conservativeResize(nv);effortLimit.bottomRows(joint_model.nv()) = max_effort;
-    velocityLimit.conservativeResize(nv);velocityLimit.bottomRows(joint_model.nv()) = max_velocity;
-    lowerPositionLimit.conservativeResize(nq);lowerPositionLimit.bottomRows(joint_model.nq()) = min_config;
-    upperPositionLimit.conservativeResize(nq);upperPositionLimit.bottomRows(joint_model.nq()) = max_config;
+    effortLimit.conservativeResize(nv);
+    jmodel.jointConfigSelector(effortLimit) = max_effort;
+    velocityLimit.conservativeResize(nv);
+    jmodel.jointVelocitySelector(effortLimit) = max_velocity;
+    lowerPositionLimit.conservativeResize(nq);
+    jmodel.jointConfigSelector(lowerPositionLimit) = min_config;
+    upperPositionLimit.conservativeResize(nq);
+    jmodel.jointConfigSelector(upperPositionLimit) = max_config;
     
     neutralConfiguration.conservativeResize(nq);
     neutralConfiguration.tail(joint_model.nq()) = joint_model.neutralConfiguration();
 
     rotorInertia.conservativeResize(nv);
+    jmodel.jointVelocitySelector(rotorInertia).setZero();
     rotorGearRatio.conservativeResize(nv);
-
-    rotorInertia.tail(joint_model.nv()).setZero();
-    rotorGearRatio.tail(joint_model.nv()).setZero();
+    jmodel.jointVelocitySelector(rotorGearRatio).setZero();
     
     // Init and add joint index to its parent subtrees.
     subtrees.push_back(IndexVector(1));
