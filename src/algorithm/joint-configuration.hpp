@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -133,7 +133,7 @@ namespace se3
    * @brief         Return true if the given configurations are equivalents
    * \warning       Two configurations can be equivalent but not equally coefficient wise (e.g for quaternions)
    *
-   * @param[in]     model      Model
+   * @param[in]     model     Model
    * @param[in]     q1        The first configuraiton to compare
    * @param[in]     q2        The Second configuraiton to compare
    * @param[in]     prec      precision of the comparison
@@ -145,6 +145,29 @@ namespace se3
                                   const Eigen::VectorXd & q1,
                                   const Eigen::VectorXd & q2,
                                   const double & prec = Eigen::NumTraits<double>::dummy_precision());
+  
+  /**
+   * @brief         Return the neutral configuration element related to the model configuration space.
+   *
+   * @param[in]     model      Model
+   *
+   * @return        The neutral configuration element.
+   */
+  template<typename LieGroup_t>
+  inline Eigen::VectorXd neutral(const Model & model);
+  
+  /**
+   * @brief         Return the neutral configuration element related to the joint model
+   *
+   * @param[in]     jmodel      Model of the joint
+   *
+   * @return        The neutral configuration element.
+   */
+  template<typename LieGroup_t, typename JointModelDerived>
+  inline Eigen::VectorXd neutral(const JointModelBase<JointModelDerived> & jmodel);
+  
+  
+  
 } // namespace se3
 
 /* --- Details -------------------------------------------------------------------- */

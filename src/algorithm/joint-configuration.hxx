@@ -492,6 +492,49 @@ namespace se3
   {
     return isSameConfiguration<LieGroupTpl>(model, q1, q2, prec);
   }
+  
+  template<typename LieGroup_t, typename JointModel> struct NeutralStepAlgo;
+  
+  template<typename LieGroup_t>
+  struct NeutralStep : public fusion::JointModelVisitor< NeutralStep<LieGroup_t> >
+  {
+    typedef boost::fusion::vector<Eigen::VectorXd &> ArgsType;
+    
+    JOINT_MODEL_VISITOR_INIT(NeutralStep);
+    
+    SE3_DETAILS_VISITOR_METHOD_ALGO_1(NeutralStepAlgo, LieGroup_t)
+  };
+  
+  template<typename LieGroup_t, typename JointModel>
+  struct NeutralStepAlgo
+  {
+    static void run(const se3::JointModelBase<JointModel> & jmodel,
+                    Eigen::VectorXd & neutral_elt)
+    {
+      typename LieGroup_t::template operation<JointModel>::type lgo;
+      jmodel.jointConfigSelector(neutral_elt) = lgo.neutral();
+    }
+  };
+  
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NeutralStep, NeutralStepAlgo);
+  
+  template<typename LieGroup_t>
+  inline Eigen::VectorXd neutral(const Model & model)
+  {
+    Eigen::VectorXd neutral_elt(model.nq);
+    typename NeutralStep<LieGroup_t>::ArgsType args(neutral_elt);
+    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
+    {
+      NeutralStep<LieGroup_t>::run(model.joints[i], args);
+      
+    }
+    return neutral_elt;
+  }
+  
+  inline Eigen::VectorXd neutral(const Model & model)
+  {
+    return neutral<LieGroupTpl>(model);
+  }
 
 
 } // namespace se3
