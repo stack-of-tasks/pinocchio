@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -30,8 +30,11 @@ namespace se3
 {
   namespace details
   {
-    template<typename Algo> struct Dispatch {
-      static void run (const JointModelComposite& jmodel, typename Algo::ArgsType args)
+    template<typename Algo>
+    struct Dispatch
+    {
+      static void run (const JointModelComposite& jmodel,
+                       typename Algo::ArgsType args)
       {
         for (size_t i = 0; i < jmodel.joints.size(); ++i)
           Algo::run(jmodel.joints[i], args);
@@ -110,10 +113,11 @@ namespace se3
                     const Eigen::VectorXd & v,
                     Eigen::VectorXd & result)
     {
-      LieGroup_t::template operation<JointModel>::type
-        ::integrate (jmodel.jointConfigSelector  (q),
-                     jmodel.jointVelocitySelector(v),
-                     jmodel.jointConfigSelector  (result));
+      std::cout << jmodel.shortname() << std::endl;
+      typename LieGroup_t::template operation<JointModel>::type lgo;
+      lgo.integrate(jmodel.jointConfigSelector  (q),
+                    jmodel.jointVelocitySelector(v),
+                    jmodel.jointConfigSelector  (result));
     }
   };
 
@@ -166,11 +170,11 @@ namespace se3
                     const double u,
                     Eigen::VectorXd & result)
     {
-      LieGroup_t::template operation<JointModel>::type
-        ::interpolate (jmodel.jointConfigSelector(q0),
-                       jmodel.jointConfigSelector(q1),
-                       u,
-                       jmodel.jointConfigSelector(result));
+      typename LieGroup_t::template operation<JointModel>::type lgo;
+      lgo.interpolate(jmodel.jointConfigSelector(q0),
+                      jmodel.jointConfigSelector(q1),
+                      u,
+                      jmodel.jointConfigSelector(result));
     }
   };
 
@@ -223,10 +227,10 @@ namespace se3
                      const Eigen::VectorXd & q1,
                      Eigen::VectorXd & result)
     {
-      LieGroup_t::template operation<JointModel>::type
-        ::difference (jmodel.jointConfigSelector(q0),
-                      jmodel.jointConfigSelector(q1),
-                      jmodel.jointVelocitySelector(result));
+      typename LieGroup_t::template operation<JointModel>::type lgo;
+      lgo.difference(jmodel.jointConfigSelector(q0),
+                     jmodel.jointConfigSelector(q1),
+                     jmodel.jointVelocitySelector(result));
     }
   };
 
@@ -279,10 +283,9 @@ namespace se3
                     const Eigen::VectorXd & q1,
                     Eigen::VectorXd & distances)
     {
-      distances[(long)i] +=
-        LieGroup_t::template operation<JointModel>::type::squaredDistance(
-            jmodel.jointConfigSelector(q0),
-            jmodel.jointConfigSelector(q1));
+      typename LieGroup_t::template operation<JointModel>::type lgo;
+      distances[(long)i] += lgo.squaredDistance(jmodel.jointConfigSelector(q0),
+                                                jmodel.jointConfigSelector(q1));
     }
   };
 
@@ -350,8 +353,8 @@ namespace se3
                     const Eigen::VectorXd & lowerLimits,
                     const Eigen::VectorXd & upperLimits)
     {
-      typename LieGroup_t::template operation<JointModel>::type a;
-        a.randomConfiguration(jmodel.jointConfigSelector(lowerLimits),
+      typename LieGroup_t::template operation<JointModel>::type lgo;
+      lgo.randomConfiguration(jmodel.jointConfigSelector(lowerLimits),
                               jmodel.jointConfigSelector(upperLimits),
                               jmodel.jointConfigSelector(q));
     }
@@ -409,7 +412,8 @@ namespace se3
     static void run(const se3::JointModelBase<JointModel> & jmodel,
                     Eigen::VectorXd & qout)
     {
-      LieGroup_t::template operation<JointModel>::type::normalize(jmodel.jointConfigSelector(qout));
+      typename LieGroup_t::template operation<JointModel>::type lgo;
+      lgo.normalize(jmodel.jointConfigSelector(qout));
     }
   };
   
@@ -453,10 +457,10 @@ namespace se3
                     const Eigen::VectorXd & q2,
                     const double prec)
     {
-      isSame = isSame && LieGroup_t::template operation<JointModel>::type
-        ::isSameConfiguration(jmodel.jointConfigSelector(q1),
-                              jmodel.jointConfigSelector(q2),
-                              prec);
+      typename LieGroup_t::template operation<JointModel>::type lgo;
+      isSame &= lgo.isSameConfiguration(jmodel.jointConfigSelector(q1),
+                                        jmodel.jointConfigSelector(q2),
+                                        prec);
     }
   };
 
