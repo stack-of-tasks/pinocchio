@@ -29,7 +29,6 @@ Codename:       trusty
 2. Add robotpkg as source repository to apt:
 
 ```
-sudo sh -c "echo 'deb [arch=amd64] http://robotpkg.openrobots.org/wip/packages/debian/pub trusty robotpkg' >> /etc/apt/sources.list.d/robotpkg.list"
 sudo sh -c "echo 'deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub trusty robotpkg' >> /etc/apt/sources.list.d/robotpkg.list"
 ```
 
@@ -52,7 +51,7 @@ sudo apt-get update
 5. The installation of Pinocchio and its dependencies is made through the line:
 
 ```
-sudo apt install robotpkg-pinocchio
+sudo apt install robotpkg-py27-pinocchio
 ```
 
 It will install all the systems and additional required dependences.
