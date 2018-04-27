@@ -21,7 +21,7 @@
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/tools/string-generator.hpp"
-#include "pinocchio/algorithm/joint-configuration.hpp"
+#include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/utility.hpp>
