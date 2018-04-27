@@ -4,9 +4,10 @@
 
 ```py
 import pinocchio
+from os.path import join
 
-PKG = '/opt/openrobots/share/'
-URDF = PKG + 'ur5_description/urdf/ur5_gripper.urdf'
+PKG = '/opt/openrobots/share'
+URDF = join(PKG, 'ur5_description/urdf/ur5_gripper.urdf')
 
 robot = pinocchio.robot_wrapper.RobotWrapper(URDF, [PKG])
 robot.initDisplay(loadModel=True)

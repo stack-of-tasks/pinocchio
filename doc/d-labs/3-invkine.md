@@ -21,12 +21,13 @@ the tool. They are displayed when the robot moves.
 Example of how to use the robot is has below.
 
 ```py
+from os.path import join
 import pinocchio as se3
 from mobilerobot import MobileRobotWrapper
 from pinocchio.utils import *
 
 PKG = '/opt/openrobots/share'
-URDF = PKG + '/ur5_description/urdf/ur5_gripper.urdf'
+URDF = join(PKG, 'ur5_description/urdf/ur5_gripper.urdf')
 
 robot = MobileRobotWrapper(URDF, [PKG])
 robot.initDisplay(loadModel=True)
