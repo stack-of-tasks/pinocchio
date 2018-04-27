@@ -46,10 +46,11 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   
   typedef typename JointModel::ConfigVector_t ConfigVector_t;
   typedef typename JointModel::TangentVector_t TangentVector_t;
+  typedef typename LieGroup<JointModel>::type LieGroupType;
   
   ConfigVector_t ql(ConfigVector_t::Constant(jmodel.nq(),-M_PI));
   ConfigVector_t qu(ConfigVector_t::Constant(jmodel.nq(),M_PI));
-  ConfigVector_t q = jmodel.randomConfiguration(ql,qu);
+  ConfigVector_t q = LieGroupType().randomConfiguration(ql,qu);
   
   jmodel.calc(jdata,q);
   
@@ -59,7 +60,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   jmodel_composite.calc(jdata_composite,q);
   BOOST_CHECK(jdata_composite.M.isApprox((SE3)jdata.M));
   
-  q = jmodel.randomConfiguration(ql,qu);
+  q = LieGroupType().randomConfiguration(ql,qu);
   TangentVector_t v = TangentVector_t::Random(jmodel.nv());
   jmodel.calc(jdata,q,v);
   jmodel_composite.calc(jdata_composite,q,v);
@@ -67,21 +68,6 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   BOOST_CHECK(jdata_composite.M.isApprox((SE3)jdata.M));
   BOOST_CHECK(jdata_composite.v.isApprox((Motion)jdata.v));
   BOOST_CHECK(jdata_composite.c.isApprox((Motion)jdata.c));
-  
-  {
-    VectorXd q1(jmodel.random());
-    jmodel.normalize(q1);
-    VectorXd q2(jmodel.random());
-    jmodel.normalize(q2);
-    VectorXd v(VectorXd::Random(jmodel.nv()));
-    
-    BOOST_CHECK(jmodel_composite.integrate(q1,v).isApprox(jmodel.integrate(q1,v)));
-    BOOST_CHECK(jmodel_composite.difference(q1,q2).isApprox(jmodel.difference(q1,q2)));
-    
-    const double alpha = 0.2;
-    BOOST_CHECK(jmodel_composite.interpolate(q1,q2,alpha).isApprox(jmodel.interpolate(q1,q2,alpha)));
-    BOOST_CHECK(std::fabs(jmodel_composite.distance(q1,q2)-jmodel.distance(q1,q2))<= NumTraits<double>::dummy_precision());
-  }
   
   Inertia::Matrix6 I(Inertia::Random().matrix());
   jmodel.calc_aba(jdata,I,false);
@@ -110,16 +96,15 @@ struct TestJointComposite{
     test_joint_methods(jmodel);    
   }
 
-  void operator()(const JointModelBase<JointModelComposite> &) const
-  {
-    JointModelComposite jmodel_composite;
-    jmodel_composite.addJoint(se3::JointModelRX());
-    jmodel_composite.addJoint(se3::JointModelRY());
-    jmodel_composite.setIndexes(0,0,0);
-
-    test_joint_methods(jmodel_composite);
-
-  }
+//  void operator()(const JointModelBase<JointModelComposite> &) const
+//  {
+//    JointModelComposite jmodel_composite;
+//    jmodel_composite.addJoint(se3::JointModelRX());
+//    jmodel_composite.addJoint(se3::JointModelRY());
+//    jmodel_composite.setIndexes(0,0,0);
+//
+//    test_joint_methods(jmodel_composite);
+//  }
 
   void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
   {
@@ -143,7 +128,17 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE(test_basic)
 {
-  boost::mpl::for_each<JointModelVariant::types>(TestJointComposite());
+  typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned
+  , JointModelSpherical, JointModelSphericalZYX
+  , JointModelPX, JointModelPY, JointModelPZ
+  , JointModelPrismaticUnaligned
+  , JointModelFreeFlyer
+  , JointModelPlanar
+  , JointModelTranslation
+  , JointModelRUBX, JointModelRUBY, JointModelRUBZ
+  > Variant;
+  
+  boost::mpl::for_each<Variant::types>(TestJointComposite());
 }
 
 BOOST_AUTO_TEST_CASE(test_equivalent)
