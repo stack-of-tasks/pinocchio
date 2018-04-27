@@ -89,13 +89,26 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
     BOOST_CHECK(std::fabs(jmodel_composite.distance(q1,q2)-jmodel.distance(q1,q2))<= NumTraits<double>::dummy_precision());
   }
   
-  Inertia::Matrix6 I(Inertia::Random().matrix());
-  jmodel.calc_aba(jdata,I,false);
-  jmodel_composite.calc_aba(jdata_composite,I,false);
+  Inertia::Matrix6 I1(Inertia::Random().matrix());
+  Inertia::Matrix6 I2 = I1;
+
+  jmodel.calc_aba(jdata,I1,true);
+  jmodel_composite.calc_aba(jdata_composite,I2,true);
+
+  double prec = 1e-10; // higher tolerance to errors due to possible numerical imprecisions
   
-  BOOST_CHECK(jdata.U.isApprox(jdata_composite.U));
-  BOOST_CHECK(jdata.Dinv.isApprox(jdata_composite.Dinv));
-  BOOST_CHECK(jdata.UDinv.isApprox(jdata_composite.UDinv));
+  BOOST_CHECK(jdata.U.isApprox(jdata_composite.U,prec));
+  BOOST_CHECK(jdata.Dinv.isApprox(jdata_composite.Dinv,prec));
+  BOOST_CHECK(jdata.UDinv.isApprox(jdata_composite.UDinv,prec));
+
+  // Checking the inertia was correctly updated
+  // We use isApprox as usual, except for the freeflyer,
+  // where the correct result is exacly zero and isApprox would fail.
+  // Only for this single case, we use the infinity norm of the difference
+  if(jmodel.shortname() == "JointModelFreeFlyer")
+    BOOST_CHECK((I1-I2).lpNorm<Eigen::Infinity>() < prec);
+  else
+    BOOST_CHECK(I1.isApprox(I2,prec));
   
   /// TODO: Remove me. This is for testing purposes.
   Eigen::VectorXd qq = q;
