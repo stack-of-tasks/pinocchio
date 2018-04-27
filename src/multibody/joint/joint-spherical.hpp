@@ -327,9 +327,9 @@ namespace se3
       
       if (update_I)
       {
+        I.block<3,3> (Inertia::LINEAR,Inertia::LINEAR) -= data.UDinv.middleRows<3> (Inertia::LINEAR) * I.block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
         I.block<6,3> (0,Inertia::ANGULAR).setZero();
         I.block<3,3> (Inertia::ANGULAR,Inertia::LINEAR).setZero();
-        I.block<3,3> (Inertia::LINEAR,Inertia::LINEAR) -= data.UDinv.middleRows<3> (Inertia::LINEAR) * I.block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
       }
     }
     
