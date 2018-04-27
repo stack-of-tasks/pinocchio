@@ -523,6 +523,7 @@ namespace se3
     {
       return std::string("JointModelR") + axisLabel<axis>();
     }
+    static std::string classname();
     std::string shortname() const { return classname(); }
 
   }; // struct JointModelRevoluteTpl
