@@ -3,6 +3,8 @@ Load 4 times the UR5 model, plus a plate object on top of them, to feature a sim
 No optimization, this file is just an example of how to load the models.
 '''
 
+from os.path import join
+
 from pinocchio import SE3
 from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.utils import rotate, zero, eye, se3ToXYZQUAT, urdf
@@ -10,7 +12,7 @@ from pinocchio.utils import rotate, zero, eye, se3ToXYZQUAT, urdf
 import numpy as np
 
 PKG = '/opt/openrobots/share'
-URDF = PKG + '/ur5_description/urdf/ur5_gripper.urdf'
+URDF = join(PKG, 'ur5_description/urdf/ur5_gripper.urdf')
 
 
 def loadRobot(M0, name):

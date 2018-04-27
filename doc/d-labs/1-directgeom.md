@@ -127,9 +127,10 @@ of pinocchio (available in the homedir of the VBox).
 
 ```py
 from pinocchio.robot_wrapper import RobotWrapper
+from os.path import join
 
 PKG = '/opt/openrobots/share'
-URDF = PKG + '/ur5_description/urdf/ur5_gripper.urdf'
+URDF = join(PKG, 'ur5_description/urdf/ur5_gripper.urdf')
 robot = RobotWrapper(URDF, [PKG])
 ```
 
