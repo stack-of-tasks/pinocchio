@@ -313,6 +313,9 @@ namespace se3
     M.fill(0); Minv.setZero();
     for(Model::Index i=0;i<(Model::Index)(model.njoints);++i ) { Fcrb[i].resize(6,model.nv); }
     computeLastChild(model);
+    
+    /* Init for Coriolis */
+    C.fill(0.);
 
     /* Init for Cholesky */
     U.setIdentity();

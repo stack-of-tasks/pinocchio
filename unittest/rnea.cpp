@@ -202,6 +202,8 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
     using namespace Eigen;
     using namespace se3;
     
+    const double prec = Eigen::NumTraits<double>::dummy_precision();
+    
     Model model;
     buildModels::humanoidSimple(model);
     Data data_ref(model);
@@ -211,6 +213,9 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
     q.segment<4>(3).normalize();
     
     VectorXd v (VectorXd::Random(model.nv));
+    computeCoriolisMatrix(model,data,q,Eigen::VectorXd::Zero(model.nv));
+    BOOST_CHECK(data.C.isZero(prec));
+    
     
     model.gravity.setZero();
     rnea(model,data_ref,q,v,VectorXd::Zero(model.nv));
@@ -221,7 +226,7 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
     BOOST_CHECK(data.J.isApprox(data_ref.J));
     
     VectorXd tau = data.C * v;
-    BOOST_CHECK(tau.isApprox(data_ref.tau,Eigen::NumTraits<double>::dummy_precision()));
+    BOOST_CHECK(tau.isApprox(data_ref.tau,prec));
     
     dccrba(model,data_ref,q,v);
     crba(model,data_ref,q);
@@ -230,11 +235,11 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
     Motion vcom(data_ref.vcom[0],Data::Vector3::Zero());
     SE3 cM1(data.oMi[1]); cM1.translation() -= com;
     
-    BOOST_CHECK((cM1.toDualActionMatrix()*data_ref.M.topRows<6>()).isApprox(data_ref.Ag));
+    BOOST_CHECK((cM1.toDualActionMatrix()*data_ref.M.topRows<6>()).isApprox(data_ref.Ag,prec));
     
     Force dh_ref = cM1.act(Force(data_ref.tau.head<6>()));
     Force dh(data_ref.dAg * v);
-    BOOST_CHECK(dh.isApprox(dh_ref));
+    BOOST_CHECK(dh.isApprox(dh_ref,prec));
     
     {
       Data data_ref(model), data_ref_plus(model);
