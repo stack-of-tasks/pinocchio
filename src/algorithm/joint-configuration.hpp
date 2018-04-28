@@ -156,16 +156,6 @@ namespace se3
   template<typename LieGroup_t>
   inline Eigen::VectorXd neutral(const Model & model);
   
-  /**
-   * @brief         Return the neutral configuration element related to the joint model
-   *
-   * @param[in]     jmodel      Model of the joint
-   *
-   * @return        The neutral configuration element.
-   */
-  template<typename LieGroup_t, typename JointModelDerived>
-  inline Eigen::VectorXd neutral(const JointModelBase<JointModelDerived> & jmodel);
-  
   
   
 } // namespace se3
