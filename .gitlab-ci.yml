@@ -1,52 +1,64 @@
 variables:
-  GIT_SSL_NO_VERIFY: "true"
   GIT_SUBMODULE_STRATEGY: "recursive"
   GIT_DEPTH: "3"
   NAMESPACE: stack-of-tasks
   PROJECT: pinocchio
   REGISTRY: eur0c.laas.fr:5000
   IMAGE: "${REGISTRY}/${NAMESPACE}/${PROJECT}"
+  CCACHE_BASEDIR: "${CI_PROJECT_DIR}"
+  CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
 
 cache:
   paths:
-    - build/ccache
+    - ccache
 
 
 .robotpkg-pinocchio: &robotpkg-pinocchio
   variables:
     ROBOTPKG: pinocchio
-    CATEGORY: wip
+    CATEGORY: math
+  except:
+    - gh-pages
   before_script:
-    - mkdir -p build/ccache
-    - cd build
-    - export CCACHE_BASEDIR=${PWD}
-    - export CCACHE_DIR=${PWD}/ccache
+    - mkdir -p ccache
   script:
     - cd /root/robotpkg/${CATEGORY}/${ROBOTPKG}
     - git pull
-    - echo "MASTER_REPOSITORY = git ${CI_PROJECT_DIR}" >> Makefile
-    - echo "REPOSITORY.pinocchio = git ${CI_PROJECT_DIR}" >> /opt/openrobots/etc/robotpkg.conf
-    - make checkout
+    - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
     - make install
-    - cd work.*/${PROJECT}*/
+    - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
     - make check
     - make doc
-  except:
-    - gh-pages
+    - mv doc/doxygen-html ${CI_PROJECT_DIR}
 
 
 robotpkg-pinocchio-14.04:
   <<: *robotpkg-pinocchio
   image: ${IMAGE}:14.04
 
+
+robotpkg-pinocchio-18.04:
+  <<: *robotpkg-pinocchio
+  image: ${IMAGE}:18.04
+
+
 robotpkg-pinocchio-16.04:
   <<: *robotpkg-pinocchio
   image: ${IMAGE}:16.04
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - doxygen-html/
+
 
 robotpkg-pinocchio-17.10:
   <<: *robotpkg-pinocchio
   image: ${IMAGE}:17.10
 
+
 robotpkg-pinocchio-dubnium:
   <<: *robotpkg-pinocchio
   image: ${IMAGE}:dubnium
+
+
+
