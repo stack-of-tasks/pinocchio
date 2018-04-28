@@ -30,11 +30,14 @@
 
 using namespace se3;
 
+#define VERBOSE false
+#define IFVERBOSE if(VERBOSE)
+
 template <typename T>
 void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
 {
   typedef double Scalar;
-  std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
+  IFVERBOSE std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
   typedef typename T::ConfigVector_t  ConfigVector_t;
   typedef typename T::TangentVector_t TangentVector_t;
   
@@ -177,7 +180,7 @@ struct LieGroup_Jdifference{
     typedef typename T::Scalar Scalar;
 
     T lg;
-    std::cout << lg.name() << std::endl;
+    IFVERBOSE std::cout << lg.name() << std::endl;
     ConfigVector_t q[2], q_dv[2];
     q[0] = lg.random();
     q[1] = lg.random();
@@ -190,7 +193,7 @@ struct LieGroup_Jdifference{
 
     const Scalar eps = 1e-6;
     for (int k = 0; k < 2; ++k) {
-      std::cout << "Checking J" << k << '\n' << J[k] << std::endl;
+      IFVERBOSE std::cout << "Checking J" << k << '\n' << J[k] << std::endl;
       q_dv[0] = q[0];
       q_dv[1] = q[1];
       // Check J[k]
