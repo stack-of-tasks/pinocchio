@@ -37,6 +37,8 @@ template <typename T>
 void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
 {
   typedef double Scalar;
+  
+  const Scalar prec = Eigen::NumTraits<Scalar>::dummy_precision();
   IFVERBOSE std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
   typedef typename T::ConfigVector_t  ConfigVector_t;
   typedef typename T::TangentVector_t TangentVector_t;
@@ -94,17 +96,17 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
     SE3 M_interpolate = jdata.M;
     
     SE3 M_interpolate_expected = M1*exp6(u*v1);
-    BOOST_CHECK_MESSAGE(M_interpolate_expected.isApprox(M_interpolate), std::string("Error when interpolating " + jmodel.shortname()));
+    BOOST_CHECK_MESSAGE(M_interpolate_expected.isApprox(M_interpolate,1e2*prec), std::string("Error when interpolating " + jmodel.shortname()));
   }
 
   // Check differentiate
   TangentVector_t vdiff = LieGroupType().difference(q1,q2);
-  BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot), std::string("Error when differentiating " + jmodel.shortname()));
+  BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot,1e2*prec), std::string("Error when differentiating " + jmodel.shortname()));
   
   // Check distance
   Scalar dist = LieGroupType().distance(q1,q2);
   BOOST_CHECK_MESSAGE(dist > 0., "distance - wrong results");
-  BOOST_CHECK_SMALL(std::fabs(dist-q1_dot.norm()), 1e-12);
+  BOOST_CHECK_SMALL(std::fabs(dist-q1_dot.norm()), 10*prec);
   
   std::string error_prefix("LieGroup ");
   
