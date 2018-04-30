@@ -37,9 +37,9 @@ robotpkg-pinocchio-14.04:
   image: ${IMAGE}:14.04
 
 
-robotpkg-pinocchio-18.04:
-  <<: *robotpkg-pinocchio
-  image: ${IMAGE}:18.04
+#robotpkg-pinocchio-18.04:
+#  <<: *robotpkg-pinocchio
+#  image: ${IMAGE}:18.04
 
 
 robotpkg-pinocchio-16.04:
