@@ -32,7 +32,7 @@ class RobotWrapper(object):
             collision_model = None
             visual_model = None
             if verbose:
-                print 'Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.'
+                print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
         else:
             if package_dirs is None:
                 self.collision_model = se3.buildGeomFromUrdf(self.model, filename, se3.GeometryType.COLLISION)
@@ -78,7 +78,7 @@ class RobotWrapper(object):
                 self.visual_data = se3.GeometryData(self.visual_model)
 
         self.v0 = utils.zero(self.nv)
-        self.q0 = utils.zero(self.nq)
+        self.q0 = self.model.neutralConfiguration
 
     def increment(self, q, dq):
         q_next = se3.integrate(self.model,q,dq)
@@ -213,7 +213,7 @@ class RobotWrapper(object):
             return self.viewerCollisionGroupName + '/' + geometry_object.name
 
 
-    def initDisplay(self, windowName="pinocchio", sceneName="world", loadModel=False):
+    def initDisplay(self, windowName="python-pinocchio", sceneName="world", loadModel=False):
         """
         Init gepetto-viewer by loading the gui and creating a window.
         """
@@ -237,10 +237,10 @@ class RobotWrapper(object):
             gui.addSceneToWindow(sceneName, self.windowID)
             
             if loadModel:
-                self.loadDisplayModel(viewerRootNodeName)
+                self.loadDisplayModel()
         except:
-            print "Error while starting the viewer client. "
-            print "Check wheter gepetto-viewer is properly started"
+            print("Error while starting the viewer client. ")
+            print("Check wheter gepetto-viewer is properly started")
 
     # Create the scene displaying the robot meshes in gepetto-viewer
     def loadDisplayModel(self, rootNodeName="pinocchio"):
@@ -263,10 +263,7 @@ class RobotWrapper(object):
 
         # Start a new "scene" in this window, named "world", with just a floor.
         gui = self.viewer.gui
-        if not self.sceneName in rootNodeName:
-            self.viewerRootNodeName = self.sceneName + "/" + rootNodeName
-        else:
-            self.viewerRootNodeName = rootNodeName
+        self.viewerRootNodeName = self.sceneName + "/" + rootNodeName
 
         if not gui.nodeExists(self.viewerRootNodeName):
             gui.createGroup(self.viewerRootNodeName)
