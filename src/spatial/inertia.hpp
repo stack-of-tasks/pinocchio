@@ -407,8 +407,12 @@ namespace se3
 
       //// Block 2,2
       skewSquare(-v.linear(),mc,Iout_.template block<3,3>(ANGULAR,ANGULAR));
-//      typename Symmetric3::AlphaSkewSquare mcxcx(I.mass(),I.lever());
-//      const Symmetric3 I_mcxcx(I.inertia() - mcxcx);
+
+      // TODO: I do not why, but depending on the CPU, these three lines can give
+      // wrong output.
+      //      typename Symmetric3::AlphaSkewSquare mcxcx(I.mass(),I.lever());
+      //      const Symmetric3 I_mcxcx(I.inertia() - mcxcx);
+      //      Iout_.template block<3,3>(ANGULAR,ANGULAR) += I_mcxcx.vxs(v.angular());
       Symmetric3 mcxcx(typename Symmetric3::AlphaSkewSquare(I.mass(),I.lever()));
       Iout_.template block<3,3>(ANGULAR,ANGULAR) += I.inertia().vxs(v.angular());
       Iout_.template block<3,3>(ANGULAR,ANGULAR) -= mcxcx.vxs(v.angular());
