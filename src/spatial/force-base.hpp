@@ -155,7 +155,7 @@ namespace se3
     
     /** \return the dot product of *this with m     *
      */
-    Scalar dot(const Motion & m) const { return static_cast<Derived*>(this)->dot(m); }
+    Scalar dot(const Motion & m) const { return derived().dot(m); }
     
     
     /**
