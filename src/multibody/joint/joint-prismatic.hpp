@@ -233,7 +233,7 @@ namespace se3
     typedef typename MotionDerived::MotionPlain MotionPlain;
     const typename MotionDerived::ConstAngularType & w = m1.angular();
     const Scalar & vx = m2.v;
-    return MotionPlain(MotionPlain::Vector3(0,w[2]*vx,-w[1]*vx),
+    return MotionPlain(typename MotionPlain::Vector3(0,w[2]*vx,-w[1]*vx),
                        MotionPlain::Vector3::Zero());
    }
 
@@ -250,7 +250,7 @@ namespace se3
      typedef typename MotionDerived::MotionPlain MotionPlain;
      const typename MotionDerived::ConstAngularType & w = m1.angular();
      const Scalar & vx = m2.v;
-     return MotionPlain(MotionPlain::Vector3(-w[2]*vx,0,w[0]*vx),
+     return MotionPlain(typename MotionPlain::Vector3(-w[2]*vx,0,w[0]*vx),
                         MotionPlain::Vector3::Zero());
    }
 
@@ -267,7 +267,7 @@ namespace se3
      typedef typename MotionDerived::MotionPlain MotionPlain;
      const typename MotionDerived::ConstAngularType & w = m1.angular();
      const Scalar & vx = m2.v;
-     return MotionPlain(Motion::Vector3(w[1]*vx,-w[0]*vx,0),
+     return MotionPlain(typename Motion::Vector3(w[1]*vx,-w[0]*vx,0),
                         MotionPlain::Vector3::Zero());
    }
 
