@@ -77,7 +77,7 @@ namespace se3
       return derived();
     }
     
-    ForcePlain operator-() const { return derived().__minus__(); }
+    ForcePlain operator-() const { return derived().__opposite__(); }
     template<typename M1>
     ForcePlain operator+(const ForceDense<M1> & v) const { return derived().__plus__(v.derived()); }
     template<typename M1>
@@ -92,7 +92,7 @@ namespace se3
     template<typename M1>
     Derived & operator-=(const ForceDense<M1> & v) { return derived().__mequ__(v.derived()); }
 
-    ForcePlain __minus__() const { return ForcePlain(-linear(),-angular()); }
+    ForcePlain __opposite__() const { return ForcePlain(-linear(),-angular()); }
     
     template<typename M1>
     ForcePlain __plus__(const ForceDense<M1> & v) const

@@ -75,6 +75,7 @@ namespace se3
     using Base::angular;
     
     using Base::__plus__;
+    using Base::__opposite__;
     using Base::__minus__;
     using Base::__pequ__;
     using Base::__mequ__;

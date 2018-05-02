@@ -147,7 +147,7 @@ namespace se3
     
     /** \return an expression of the opposite of *this
      */
-    Derived operator-() const { return derived().__minus__(); }
+    Derived operator-() const { return derived().__opposite__(); }
     
     /** \return an expression of the difference of *this and phi
      */
