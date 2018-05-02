@@ -56,6 +56,24 @@ namespace se3
       return fout;
     }
     
+    template<typename Scalar>
+    MotionTpl<Scalar> operator*(const Scalar & s) const
+    {
+      typedef MotionTpl<Scalar> ReturnType;
+      ReturnType res;
+      for(Eigen::DenseIndex i = 0; i < dim; ++i)
+        res.toVector()[i] = i == axis ? s : Scalar(0);
+      
+      return res;
+    }
+    
+    template<typename Scalar>
+    friend inline MotionTpl<Scalar>
+    operator*(const Scalar & s, const SpatialAxis &)
+    {
+      return SpatialAxis() * s;
+    }
+    
     template<typename Derived>
     friend Derived & operator<<(MotionDense<Derived> & min,
                                 const SpatialAxis &)

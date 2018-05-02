@@ -709,6 +709,35 @@ BOOST_AUTO_TEST_CASE(test_cartesian_axis)
   BOOST_CHECK(AxisZ::cross(v).isApprox(Vector3d::Unit(2).cross(v)));
 }
 
+template<int axis>
+struct test_scalar_multiplication
+{
+  typedef se3::SpatialAxis<axis> Axis;
+  typedef double Scalar;
+  typedef se3::MotionTpl<Scalar> Motion;
+  
+  static void run()
+  {
+    const Scalar alpha = static_cast <Scalar> (rand()) / static_cast <Scalar> (RAND_MAX);
+    Motion r1 = Axis() * alpha;
+    Motion r2 = alpha * Axis();
+    
+    for(int k = 0; k < Axis::dim; ++k)
+    {
+      if(k==axis)
+      {
+        BOOST_CHECK(r1.toVector()[k] == alpha);
+        BOOST_CHECK(r2.toVector()[k] == alpha);
+      }
+      else
+      {
+        BOOST_CHECK(r1.toVector()[k] == Scalar(0));
+        BOOST_CHECK(r2.toVector()[k] == Scalar(0));
+      }
+    }
+  }
+};
+
 BOOST_AUTO_TEST_CASE(test_spatial_axis)
 {
   using namespace se3;
@@ -740,6 +769,14 @@ BOOST_AUTO_TEST_CASE(test_spatial_axis)
   vaxis << AxisWZ();
   BOOST_CHECK(AxisWZ::cross(v).isApprox(vaxis.cross(v)));
   BOOST_CHECK(AxisWZ::cross(f).isApprox(vaxis.cross(f)));
+  
+  // Test operation Axis * Scalar
+  test_scalar_multiplication<0>::run();
+  test_scalar_multiplication<1>::run();
+  test_scalar_multiplication<2>::run();
+  test_scalar_multiplication<3>::run();
+  test_scalar_multiplication<4>::run();
+  test_scalar_multiplication<5>::run();
   
   // Operations of Constraint on forces Sxf
   typedef SE3::Matrix6 Matrix6;
