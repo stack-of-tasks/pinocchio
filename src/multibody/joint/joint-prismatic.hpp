@@ -23,6 +23,7 @@
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/spatial/spatial-axis.hpp"
 
 #include <stdexcept>
 
@@ -53,14 +54,14 @@ namespace se3
     { return Eigen::Vector3d(v1[0],v1[1],v1[2]+vz.v); }
   } // namespace prismatic
 
-  template <int axis> struct MotionPrismatic;
-  template<int axis>
-  struct traits <MotionPrismatic < axis > >
+  template<typename _Scalar, int _axis> struct MotionPrismatic;
+  template<typename _Scalar, int _axis>
+  struct traits < MotionPrismatic<_Scalar,_axis> >
   {
-    typedef double Scalar;
-    typedef Eigen::Matrix<double,3,1,0> Vector3;
-    typedef Eigen::Matrix<double,6,1,0> Vector6;
-    typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef _Scalar Scalar;
+    typedef Eigen::Matrix<Scalar,3,1,0> Vector3;
+    typedef Eigen::Matrix<Scalar,6,1,0> Vector6;
+    typedef Eigen::Matrix<Scalar,6,6,0> Matrix6;
     typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
     typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Vector3 AngularType;
@@ -68,44 +69,41 @@ namespace se3
     typedef const Vector3 ConstAngularType;
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
-    typedef MotionTpl<double,0> MotionPlain;
+    typedef MotionTpl<Scalar,0> MotionPlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
     };
   }; // struct traits MotionPrismatic
 
-  template<int axis>
-  struct MotionPrismatic : MotionBase < MotionPrismatic < axis > >
+  template<typename _Scalar, int _axis>
+  struct MotionPrismatic : MotionBase < MotionPrismatic<_Scalar,_axis> >
   {
     MOTION_TYPEDEF_TPL(MotionPrismatic);
+    typedef SpatialAxis<_axis+LINEAR> Axis;
 
     MotionPrismatic()                   : v(NAN) {}
-    MotionPrismatic( const double & v ) : v(v)  {}
-    double v;
+    MotionPrismatic( const Scalar & v ) : v(v)  {}
+    Scalar v;
 
-    operator Motion() const
-    { 
-      return Motion(typename prismatic::CartesianVector3<axis>(v).vector(),
-                    Motion::Vector3::Zero()
-                    );
-    }
+    inline operator MotionPlain() const { return Axis() * v; }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & v_) const
     {
-      v_.linear()[axis] += v;
+      typedef typename MotionDense<Derived>::Scalar OtherScalar;
+      v_.linear()[_axis] += (OtherScalar) v;
     }
   }; // struct MotionPrismatic
 
-  template <int axis>
-  const MotionPrismatic<axis>& operator+ (const MotionPrismatic<axis>& m, const BiasZero&)
-  { return m; }
-
-  template <int axis>
-  Motion operator+( const MotionPrismatic<axis>& m1, const Motion& m2)
+  template<typename Scalar, int axis, typename MotionDerived>
+  typename MotionDerived::MotionPlain
+  operator+(const MotionPrismatic<Scalar,axis> & m1,
+            const MotionDense<MotionDerived> & m2)
   {
-    return Motion( m2.linear()+typename prismatic::CartesianVector3<axis>(m1.v),m2.angular()); 
+    typename MotionDerived::MotionPlain res(m2);
+    res += m1;
+    return res;
   }
 
   template<int axis> struct ConstraintPrismatic;
@@ -150,10 +148,11 @@ namespace se3
     typedef typename traits<ConstraintPrismatic>::DenseBase DenseBase;
 
     template<typename D>
-    MotionPrismatic<axis> operator*( const Eigen::MatrixBase<D> & v ) const
+    MotionPrismatic<Scalar,axis> operator*( const Eigen::MatrixBase<D> & v ) const
     {
 //        EIGEN_STATIC_ASSERT_SIZE_1x1(D); // There is actually a bug in Eigen with such a macro
-      return MotionPrismatic<axis>(v[0]);
+      assert(v.cols() == 1 && v.rows() == 1);
+      return MotionPrismatic<Scalar,axis>(v[0]);
     }
 
     Eigen::Matrix<double,6,1> se3Action(const SE3 & m) const
@@ -221,43 +220,55 @@ namespace se3
     static Eigen::Vector3d cartesianTranslation(const double & shift); 
   };
 
-  inline Motion operator^( const Motion& m1, const MotionPrismatic<0>& m2)
+  template<typename MotionDerived, typename Scalar>
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1,
+            const MotionPrismatic<Scalar,0>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
      * (x,y,z)^(v,0,0) = ( 0,zv,-yv )
      * nu1^(0,vx) = ( 0,wz1 vx,-wy1 vx,    0, 0, 0)
      */
-     const Motion::Vector3& w = m1.angular();
-     const double & vx = m2.v;
-     return Motion( Motion::Vector3(0,w[2]*vx,-w[1]*vx),
-       Motion::Vector3::Zero());
+    typedef typename MotionDerived::MotionPlain MotionPlain;
+    const typename MotionDerived::ConstAngularType & w = m1.angular();
+    const Scalar & vx = m2.v;
+    return MotionPlain(MotionPlain::Vector3(0,w[2]*vx,-w[1]*vx),
+                       MotionPlain::Vector3::Zero());
    }
 
-   inline Motion operator^( const Motion& m1, const MotionPrismatic<1>& m2)
+  template<typename MotionDerived, typename Scalar>
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1,
+            const MotionPrismatic<Scalar,1>& m2)
    {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
      * (x,y,z)^(0,v,0) = ( -zv,0,xv )
      * nu1^(0,vx) = ( -vz1 vx,0,vx1 vx,    0, 0, 0)
      */
-     const Motion::Vector3& w = m1.angular();
-     const double & vx = m2.v;
-     return Motion( Motion::Vector3(-w[2]*vx,0,w[0]*vx),
-       Motion::Vector3::Zero());
+     typedef typename MotionDerived::MotionPlain MotionPlain;
+     const typename MotionDerived::ConstAngularType & w = m1.angular();
+     const Scalar & vx = m2.v;
+     return MotionPlain(MotionPlain::Vector3(-w[2]*vx,0,w[0]*vx),
+                        MotionPlain::Vector3::Zero());
    }
 
-   inline Motion operator^( const Motion& m1, const MotionPrismatic<2>& m2)
+  template<typename MotionDerived, typename Scalar>
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1,
+            const MotionPrismatic<Scalar,2>& m2)
    {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
      * (x,y,z)^(0,0,v) = ( yv,-xv,0 )
      * nu1^(0,vx) = ( vy1 vx,-vx1 vx, 0,    0, 0, 0 )
      */
-     const Motion::Vector3& w = m1.angular();
-     const double & vx = m2.v;
-     return Motion( Motion::Vector3(w[1]*vx,-w[0]*vx,0),
-       Motion::Vector3::Zero());
+     typedef typename MotionDerived::MotionPlain MotionPlain;
+     const typename MotionDerived::ConstAngularType & w = m1.angular();
+     const Scalar & vx = m2.v;
+     return MotionPlain(Motion::Vector3(w[1]*vx,-w[0]*vx,0),
+                        MotionPlain::Vector3::Zero());
    }
 
   template<> inline
@@ -355,7 +366,7 @@ namespace se3
     typedef JointModelPrismatic<axis> JointModelDerived;
     typedef ConstraintPrismatic<axis> Constraint_t;
     typedef SE3 Transformation_t;
-    typedef MotionPrismatic<axis> Motion_t;
+    typedef MotionPrismatic<Scalar,axis> Motion_t;
     typedef BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,NV> F_t;
     
