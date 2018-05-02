@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -66,7 +66,7 @@ namespace se3
     MotionPlain operator/(const OtherScalar & alpha) const { return derived().__div__(alpha); }
     
     template<typename D>
-    typename internal::MotionAlgebraAction<D>::ReturnType cross(const D & d) const
+    typename internal::MotionAlgebraAction<D,Derived>::ReturnType cross(const D & d) const
     {
       return derived().cross_impl(d);
     }

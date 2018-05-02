@@ -54,8 +54,8 @@ namespace se3
       typedef typename traits< ForceRef<Vector6ArgType> >::ForcePlain ReturnType;
     };
     
-    template<typename Vector6ArgType>
-    struct MotionAlgebraAction< ForceRef<Vector6ArgType> >
+    template<typename Vector6ArgType, typename MotionDerived>
+    struct MotionAlgebraAction< ForceRef<Vector6ArgType>, MotionDerived >
     {
       typedef typename traits< ForceRef<Vector6ArgType> >::ForcePlain ReturnType;
     };

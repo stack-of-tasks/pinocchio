@@ -280,8 +280,8 @@ namespace se3
     struct SE3GroupAction<ConstraintPlanar >
     { typedef Eigen::Matrix<double,6,3> ReturnType; };
     
-    template<>
-    struct MotionAlgebraAction<ConstraintPlanar>
+    template<typename MotionDerived>
+    struct MotionAlgebraAction<ConstraintPlanar,MotionDerived>
     { typedef Eigen::Matrix<double,6,3> ReturnType; };
   }
 

@@ -260,8 +260,8 @@ namespace se3
       struct SE3GroupAction<ConstraintPrismaticUnaligned >  
       { typedef Eigen::Matrix<double,6,1> ReturnType; };
       
-      template<>
-      struct MotionAlgebraAction<ConstraintPrismaticUnaligned>
+      template<typename MotionDerived>
+      struct MotionAlgebraAction<ConstraintPrismaticUnaligned,MotionDerived>
       { typedef Eigen::Matrix<double,6,1> ReturnType; };
     }
 

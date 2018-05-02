@@ -218,8 +218,8 @@ namespace se3
     struct SE3GroupAction<ConstraintRotationalSubspace >
     { typedef Eigen::Matrix<double,6,3> ReturnType; };
     
-    template<>
-    struct MotionAlgebraAction<ConstraintRotationalSubspace>
+    template<typename MotionDerived>
+    struct MotionAlgebraAction<ConstraintRotationalSubspace,MotionDerived>
     { typedef Eigen::Matrix<double,6,3> ReturnType; };
   }
 

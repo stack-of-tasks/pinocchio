@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -29,10 +29,10 @@ namespace se3
       typedef typename SE3GroupAction< Derived >::ReturnType ReturnType;
     };
     
-    template<typename Derived>
-    struct MotionAlgebraAction< MotionDense<Derived> >
+    template<typename Derived, typename MotionDerived>
+    struct MotionAlgebraAction< MotionDense<Derived>, MotionDerived >
     {
-      typedef typename MotionAlgebraAction< Derived >::ReturnType ReturnType;
+      typedef typename MotionAlgebraAction< Derived, MotionDerived >::ReturnType ReturnType;
     };
   }
 
@@ -143,7 +143,7 @@ namespace se3
     { return phi.linear().dot(linear()) + phi.angular().dot(angular()); }
     
     template<typename D>
-    typename internal::MotionAlgebraAction<D>::ReturnType cross_impl(const D & d) const
+    typename internal::MotionAlgebraAction<D,Derived>::ReturnType cross_impl(const D & d) const
     {
       return d.motionAction(derived());
     }

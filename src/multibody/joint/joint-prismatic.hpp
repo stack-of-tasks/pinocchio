@@ -347,8 +347,8 @@ namespace se3
     struct SE3GroupAction< ConstraintPrismatic<axis> >
     { typedef Eigen::Matrix<double,6,1> ReturnType; };
     
-    template<int axis>
-    struct MotionAlgebraAction< ConstraintPrismatic<axis> >
+    template<int axis,typename MotionDerived>
+    struct MotionAlgebraAction< ConstraintPrismatic<axis>, MotionDerived >
     { typedef Eigen::Matrix<double,6,1> ReturnType; };
   }
 

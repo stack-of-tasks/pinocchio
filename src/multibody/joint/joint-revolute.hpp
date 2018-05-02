@@ -119,8 +119,8 @@ namespace se3
     struct SE3GroupAction< ConstraintRevolute<axis> >
     { typedef Eigen::Matrix<double,6,1> ReturnType; };
     
-    template<int axis>
-    struct MotionAlgebraAction< ConstraintRevolute<axis> >
+    template<int axis,typename MotionDerived>
+    struct MotionAlgebraAction< ConstraintRevolute<axis>, MotionDerived >
     { typedef Eigen::Matrix<double,6,1> ReturnType; };
   }
 

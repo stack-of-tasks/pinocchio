@@ -29,10 +29,10 @@ namespace se3
       typedef typename SE3GroupAction< Derived >::ReturnType ReturnType;
     };
     
-    template<typename Derived>
-    struct MotionAlgebraAction< ForceDense<Derived> >
+    template<typename Derived, typename MotionDerived>
+    struct MotionAlgebraAction< ForceDense<Derived>, MotionDerived >
     {
-      typedef typename MotionAlgebraAction< Derived >::ReturnType ReturnType;
+      typedef typename MotionAlgebraAction< Derived, MotionDerived >::ReturnType ReturnType;
     };
   }
   

@@ -368,8 +368,8 @@ namespace se3
       typedef Eigen::Matrix <double,6,3,0> ReturnType;
     };
     
-    template<>
-    struct MotionAlgebraAction<JointSphericalZYX::ConstraintRotationalSubspace>
+    template<typename MotionDerived>
+    struct MotionAlgebraAction<JointSphericalZYX::ConstraintRotationalSubspace,MotionDerived>
     {
       typedef Eigen::Matrix <double,6,3,0> ReturnType;
     };

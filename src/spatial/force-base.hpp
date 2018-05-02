@@ -189,7 +189,7 @@ namespace se3
     { return derived().se3ActionInverse_impl(m); }
     
     template<typename M1>
-    typename internal::MotionAlgebraAction<Derived>::ReturnType motionAction(const MotionDense<M1> & v) const
+    typename internal::MotionAlgebraAction<Derived,M1>::ReturnType motionAction(const MotionDense<M1> & v) const
     {
       return derived().motionAction(v.derived());
     }

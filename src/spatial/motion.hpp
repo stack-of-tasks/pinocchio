@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -55,7 +55,7 @@ namespace se3
     ///
     /// \brief Return type of the ation of a Motion onto an object of type D
     ///
-    template<typename D>
+    template<typename D, typename MotionDerived>
     struct MotionAlgebraAction { typedef D ReturnType; };
   }
 

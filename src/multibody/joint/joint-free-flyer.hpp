@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -136,8 +136,8 @@ namespace se3
     struct SE3GroupAction<ConstraintIdentity >  
     { typedef SE3::Matrix6 ReturnType; };
     
-    template<>
-    struct MotionAlgebraAction<ConstraintIdentity >
+    template<typename MotionDerived>
+    struct MotionAlgebraAction<ConstraintIdentity,MotionDerived>
     { typedef SE3::Matrix6 ReturnType; };
   }
 

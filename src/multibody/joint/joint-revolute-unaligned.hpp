@@ -267,8 +267,8 @@ namespace se3
       struct SE3GroupAction<ConstraintRevoluteUnaligned >  
       { typedef Eigen::Matrix<double,6,1> ReturnType; };
       
-      template<>
-      struct MotionAlgebraAction<ConstraintRevoluteUnaligned>
+      template<typename MotionDerived>
+      struct MotionAlgebraAction<ConstraintRevoluteUnaligned,MotionDerived>
       { typedef Eigen::Matrix<double,6,1> ReturnType; };
     }
 

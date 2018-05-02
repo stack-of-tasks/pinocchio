@@ -111,8 +111,8 @@ namespace se3
     struct SE3GroupAction< ConstraintTpl<Dim,Scalar,Options> >
     { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
     
-    template<int Dim, typename Scalar, int Options>
-    struct MotionAlgebraAction< ConstraintTpl<Dim,Scalar,Options> >
+    template<int Dim, typename Scalar, int Options, typename MotionDerived>
+    struct MotionAlgebraAction< ConstraintTpl<Dim,Scalar,Options>, MotionDerived >
     { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
   }
 
