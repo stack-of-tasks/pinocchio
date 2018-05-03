@@ -41,6 +41,8 @@ namespace se3
       ANGULAR = 3,
       Options = _Options
     };
+    
+    typedef MotionRef<Vector6> MotionRefType;
   }; // traits MotionTpl
   
   template<typename _Scalar, int _Options>
@@ -153,6 +155,8 @@ namespace se3
     MotionPlain __mult__(const OtherScalar & alpha) const
     { return MotionPlain(alpha*data); }
     
+    MotionRef<Vector6> ref() { return MotionRef<Vector6>(data); }
+
   protected:
     Vector6 data;
     

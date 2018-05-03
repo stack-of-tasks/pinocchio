@@ -42,7 +42,8 @@ namespace se3
   public:
     typedef MotionBase<Derived> Base;
     MOTION_TYPEDEF_TPL(Derived);
-    
+    typedef typename traits<Derived>::MotionRefType MotionRefType;
+
     using Base::linear;
     using Base::angular;
     using Base::derived;
@@ -210,6 +211,8 @@ namespace se3
       << "  w = " << angular().transpose () << std::endl;
     }
     
+    /// \returns a MotionRef on this.
+    MotionRefType ref() { return derived().ref(); }
     
   }; // class MotionDense
   

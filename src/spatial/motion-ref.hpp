@@ -44,7 +44,8 @@ namespace se3
     typedef DataRefType ToVectorReturnType;
     typedef typename EIGEN_REF_CONSTTYPE(Vector6ArgType) ConstDataRefType;
     typedef ConstDataRefType ToVectorConstReturnType;
-    
+    typedef MotionRef<Vector6ArgType> MotionRefType;
+
   }; // traits MotionRef
   
   namespace internal
@@ -149,6 +150,8 @@ namespace se3
     MotionPlain __mult__(const OtherScalar & alpha) const
     { return MotionPlain(alpha*m_ref); }
     
+    MotionRef & ref() { return *this; }
+
   protected:
     DataRefType m_ref;
 
