@@ -40,6 +40,8 @@ namespace se3
       ANGULAR = 3,
       Options = _Options
     };
+    
+    typedef ForceRef<Vector6> ForceRefType;
   }; // traits ForceTpl
   
   template<typename _Scalar, int _Options>
@@ -107,6 +109,8 @@ namespace se3
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3,3);
       linear_impl()=v;
     }
+    
+    ForceRef<Vector6> ref() { return ForceRef<Vector6>(data); }
     
   protected:
     Vector6 data;

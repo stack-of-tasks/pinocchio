@@ -42,6 +42,7 @@ namespace se3
   public:
     typedef ForceBase<Derived> Base;
     FORCE_TYPEDEF_TPL(Derived);
+    typedef typename traits<Derived>::ForceRefType ForceRefType;
     
     using Base::linear;
     using Base::angular;
@@ -185,6 +186,8 @@ namespace se3
       << "tau = " << angular().transpose () << std::endl;
     }
     
+    /// \returns a MotionRef on this.
+    ForceRefType ref() { return derived().ref(); }
     
   }; // class ForceDense
   

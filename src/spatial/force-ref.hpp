@@ -43,6 +43,7 @@ namespace se3
     typedef DataRefType ToVectorReturnType;
     typedef typename EIGEN_REF_CONSTTYPE(Vector6ArgType) ConstDataRefType;
     typedef ConstDataRefType ToVectorConstReturnType;
+    typedef MotionRef<Vector6ArgType> ForceRefType;
     
   }; // traits ForceRef
   
@@ -102,6 +103,8 @@ namespace se3
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3,3);
       linear_impl()=v;
     }
+    
+    ForceRef & ref() { return *this; }
     
   protected:
     DataRefType m_ref;
