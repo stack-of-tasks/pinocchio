@@ -184,6 +184,15 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   Motion bv_approx(bv);
   bv_approx.linear()[0] += eps;
   BOOST_CHECK(bv_approx.isApprox(bv,eps));
+  
+  // Test ref() method
+  {
+    Motion a(Motion::Random());
+    BOOST_CHECK(a.ref().isApprox(a));
+    
+    const Motion b(a);
+    BOOST_CHECK(b.isApprox(a.ref()));
+  }
 }
 
 BOOST_AUTO_TEST_CASE (test_motion_ref)
@@ -230,6 +239,16 @@ BOOST_AUTO_TEST_CASE (test_motion_ref)
   v.setRandom();
   v.setZero();
   BOOST_CHECK(v.isApprox(Motion::Zero()));
+  
+  // Test ref() method
+  {
+    Vector6 v6(Vector6::Random());
+    MotionV6 a(v6);
+    BOOST_CHECK(a.ref().isApprox(a));
+    
+    const Motion b(a);
+    BOOST_CHECK(b.isApprox(a.ref()));
+  }
   
 }
 
