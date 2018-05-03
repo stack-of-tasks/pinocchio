@@ -73,21 +73,21 @@ namespace se3
     using Base::operator=;
     
     ForceRef(const Eigen::MatrixBase<Vector6ArgType> & f_like)
-    : ref(const_cast<Vector6ArgType &>(f_like.derived()))
+    : m_ref(const_cast<Vector6ArgType &>(f_like.derived()))
     {
       EIGEN_STATIC_ASSERT(Vector6ArgType::ColsAtCompileTime == 1,
                           YOU_TRIED_CALLING_A_VECTOR_METHOD_ON_A_MATRIX);
       assert(f_like.size() == 6);
     }
     
-    ToVectorConstReturnType toVector_impl() const { return ref; }
-    ToVectorReturnType toVector_impl() { return ref; }
+    ToVectorConstReturnType toVector_impl() const { return m_ref; }
+    ToVectorReturnType toVector_impl() { return m_ref; }
     
     // Getters
-    ConstAngularType angular_impl() const { return ConstAngularType(ref.derived(),ANGULAR); }
-    ConstLinearType linear_impl()  const { return ConstLinearType(ref.derived(),LINEAR); }
-    AngularType angular_impl() { return ref.template segment<3> (ANGULAR); }
-    LinearType linear_impl()  { return ref.template segment<3> (LINEAR); }
+    ConstAngularType angular_impl() const { return ConstAngularType(m_ref.derived(),ANGULAR); }
+    ConstLinearType linear_impl()  const { return ConstLinearType(m_ref.derived(),LINEAR); }
+    AngularType angular_impl() { return m_ref.template segment<3> (ANGULAR); }
+    LinearType linear_impl()  { return m_ref.template segment<3> (LINEAR); }
     
     template<typename V3>
     void angular_impl(const Eigen::MatrixBase<V3> & w)
@@ -104,7 +104,7 @@ namespace se3
     }
     
   protected:
-    DataRefType ref;
+    DataRefType m_ref;
     
   }; // class MotionTpl
   
