@@ -322,6 +322,15 @@ BOOST_AUTO_TEST_CASE ( test_Force )
   Force bf_approx(bf);
   bf_approx.linear()[0] += eps/2.;
   BOOST_CHECK(bf_approx.isApprox(bf,eps));
+  
+  // Test ref() method
+  {
+    Force a(Force::Random());
+    BOOST_CHECK(a.ref().isApprox(a));
+    
+    const Force b(a);
+    BOOST_CHECK(b.isApprox(a.ref()));
+  }
 }
 
 BOOST_AUTO_TEST_CASE (test_force_ref)
@@ -369,6 +378,15 @@ BOOST_AUTO_TEST_CASE (test_force_ref)
   f.setZero();
   BOOST_CHECK(f.isApprox(Force::Zero()));
   
+  // Test ref() method
+  {
+    Vector6 v6(Vector6::Random());
+    ForceV6 a(v6);
+    BOOST_CHECK(a.ref().isApprox(a));
+    
+    const Force b(a);
+    BOOST_CHECK(b.isApprox(a.ref()));
+  }
 }
 
 BOOST_AUTO_TEST_CASE ( test_Inertia )
