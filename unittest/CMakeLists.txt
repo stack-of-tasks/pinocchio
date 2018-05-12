@@ -53,7 +53,11 @@ ENDMACRO(ADD_UNIT_TEST)
 # --- RULES -------------------------------------------------------------------
 # --- RULES -------------------------------------------------------------------
 # --- RULES -------------------------------------------------------------------
-ADD_CUSTOM_TARGET(check COMMAND ${CMAKE_CTEST_COMMAND})
+IF(APPLE)
+  ADD_CUSTOM_TARGET(check COMMAND export DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH} && ${CMAKE_CTEST_COMMAND})
+ELSE(APPLE)
+  ADD_CUSTOM_TARGET(check COMMAND ${CMAKE_CTEST_COMMAND})
+ENDIF(APPLE)
 
 ADD_UNIT_TEST(tspatial eigen3)
 IF(METAPOD_FOUND)
