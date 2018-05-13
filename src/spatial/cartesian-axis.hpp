@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -38,6 +38,24 @@ namespace se3
       typename EIGEN_PLAIN_TYPE(V3) res;
       cross(vin,res);
       return res;
+    }
+    
+    template<typename Scalar>
+    Eigen::Matrix<Scalar,dim,1> operator*(const Scalar & s) const
+    {
+      typedef Eigen::Matrix<Scalar,dim,1> ReturnType;
+      ReturnType res;
+      for(Eigen::DenseIndex i = 0; i < dim; ++i)
+        res[i] = i == axis ? s : Scalar(0);
+      
+      return res;
+    }
+    
+    template<typename Scalar>
+    friend inline Eigen::Matrix<Scalar,dim,1>
+    operator*(const Scalar & s, const CartesianAxis &)
+    {
+      return CartesianAxis() * s;
     }
     
   }; // struct CartesianAxis

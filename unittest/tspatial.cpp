@@ -735,6 +735,37 @@ BOOST_AUTO_TEST_CASE(test_skew_square)
   BOOST_CHECK(res.isApprox(ref));
 }
 
+template<int axis>
+struct test_scalar_multiplication_cartesian_axis
+{
+  typedef se3::CartesianAxis<axis> Axis;
+  typedef double Scalar;
+  typedef Eigen::Matrix<Scalar,3,1> Vector3;
+  
+  static void run()
+  {
+    const Scalar alpha = static_cast <Scalar> (rand()) / static_cast <Scalar> (RAND_MAX);
+    const Vector3 r1 = Axis() * alpha;
+    const Vector3 r2 = alpha * Axis();
+    
+    BOOST_CHECK(r1.isApprox(r2));
+    
+    for(int k = 0; k < Axis::dim; ++k)
+    {
+      if(k==axis)
+      {
+        BOOST_CHECK(r1[k] == alpha);
+        BOOST_CHECK(r2[k] == alpha);
+      }
+      else
+      {
+        BOOST_CHECK(r1[k] == Scalar(0));
+        BOOST_CHECK(r2[k] == Scalar(0));
+      }
+    }
+  }
+};
+
 BOOST_AUTO_TEST_CASE(test_cartesian_axis)
 {
   using namespace Eigen;
@@ -744,6 +775,10 @@ BOOST_AUTO_TEST_CASE(test_cartesian_axis)
   BOOST_CHECK(AxisX::cross(v).isApprox(Vector3d::Unit(0).cross(v)));
   BOOST_CHECK(AxisY::cross(v).isApprox(Vector3d::Unit(1).cross(v)));
   BOOST_CHECK(AxisZ::cross(v).isApprox(Vector3d::Unit(2).cross(v)));
+  
+  test_scalar_multiplication_cartesian_axis<0>::run();
+  test_scalar_multiplication_cartesian_axis<1>::run();
+  test_scalar_multiplication_cartesian_axis<2>::run();
 }
 
 template<int axis>
@@ -756,8 +791,10 @@ struct test_scalar_multiplication
   static void run()
   {
     const Scalar alpha = static_cast <Scalar> (rand()) / static_cast <Scalar> (RAND_MAX);
-    Motion r1 = Axis() * alpha;
-    Motion r2 = alpha * Axis();
+    const Motion r1 = Axis() * alpha;
+    const Motion r2 = alpha * Axis();
+    
+    BOOST_CHECK(r1.isApprox(r2));
     
     for(int k = 0; k < Axis::dim; ++k)
     {
