@@ -94,6 +94,15 @@ namespace se3
       return min.derived();
     }
     
+    template<typename MotionDerived, typename M2>
+    typename MotionDerived::MotionPlain
+    motionAction(const MotionDense<MotionDerived> & m) const
+    {
+      typename MotionDerived::MotionPlain res;
+      SpatialAxis::cross(m,res);
+      return -res;
+    }
+    
   }; // struct SpatialAxis
   
   template<int axis>
