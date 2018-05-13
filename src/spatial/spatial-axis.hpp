@@ -40,6 +40,8 @@ namespace se3
     enum { axis = _axis, dim = 6 };
     typedef CartesianAxis<_axis%3> CartesianAxis3;
     
+    enum { LINEAR = 0, ANGULAR = 3 };
+    
     template<typename Derived1, typename Derived2>
     inline static void cross(const MotionDense<Derived1> & min,
                              const MotionDense<Derived2> & mout);
@@ -100,7 +102,7 @@ namespace se3
                                        const MotionDense<Derived2> & mout)
   {
     Derived2 & mout_ = const_cast<MotionDense<Derived2> &>(mout).derived();
-    if(axis<3)
+    if((LINEAR == 0 && axis<3) || (LINEAR == 3 && axis >= 3))
     {
       mout_.angular().setZero();
       CartesianAxis3::cross(min.angular(),mout_.linear());
@@ -118,7 +120,7 @@ namespace se3
                                        const ForceDense<Derived2> & fout)
   {
     Derived2 & fout_ = const_cast<ForceDense<Derived2> &>(fout).derived();
-    if(axis<3)
+    if((LINEAR == 0 && axis<3) || (LINEAR == 3 && axis >= 3))
     {
       fout_.linear().setZero();
       CartesianAxis3::cross(fin.linear(),fout_.angular());
