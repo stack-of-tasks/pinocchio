@@ -24,8 +24,6 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 
-#include <stdexcept>
-
 namespace se3
 {
 

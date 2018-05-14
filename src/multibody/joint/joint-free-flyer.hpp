@@ -27,8 +27,6 @@
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/quaternion.hpp"
 
-#include <stdexcept>
-
 namespace se3
 {
 

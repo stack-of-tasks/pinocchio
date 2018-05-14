@@ -25,8 +25,6 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/spatial-axis.hpp"
 
-#include <stdexcept>
-
 namespace se3
 {
   
