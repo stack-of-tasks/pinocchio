@@ -146,6 +146,7 @@ namespace se3
     typedef typename traits<ConstraintPrismatic>::JointMotion JointMotion;
     typedef typename traits<ConstraintPrismatic>::JointForce JointForce;
     typedef typename traits<ConstraintPrismatic>::DenseBase DenseBase;
+    typedef SpatialAxis<LINEAR+axis> Axis;
 
     template<typename D>
     MotionPrismatic<Scalar,axis> operator*( const Eigen::MatrixBase<D> & v ) const
@@ -196,7 +197,8 @@ namespace se3
     DenseBase matrix_impl() const
     {
       DenseBase S;
-      S << prismatic::CartesianVector3<axis>(1).vector(), Eigen::Vector3d::Zero();
+      MotionRef<DenseBase> v(S);
+      v << Axis();
       return S;
     }
     
