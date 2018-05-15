@@ -822,26 +822,32 @@ BOOST_AUTO_TEST_CASE(test_spatial_axis)
   Motion vaxis;
   vaxis << AxisVX();
   BOOST_CHECK(AxisVX::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(v.cross(AxisVX()).isApprox(v.cross(vaxis)));
   BOOST_CHECK(AxisVX::cross(f).isApprox(vaxis.cross(f)));
   
   vaxis << AxisVY();
   BOOST_CHECK(AxisVY::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(v.cross(AxisVY()).isApprox(v.cross(vaxis)));
   BOOST_CHECK(AxisVY::cross(f).isApprox(vaxis.cross(f)));
   
   vaxis << AxisVZ();
   BOOST_CHECK(AxisVZ::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(v.cross(AxisVZ()).isApprox(v.cross(vaxis)));
   BOOST_CHECK(AxisVZ::cross(f).isApprox(vaxis.cross(f)));
   
   vaxis << AxisWX();
   BOOST_CHECK(AxisWX::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(v.cross(AxisWX()).isApprox(v.cross(vaxis)));
   BOOST_CHECK(AxisWX::cross(f).isApprox(vaxis.cross(f)));
   
   vaxis << AxisWY();
   BOOST_CHECK(AxisWY::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(v.cross(AxisWY()).isApprox(v.cross(vaxis)));
   BOOST_CHECK(AxisWY::cross(f).isApprox(vaxis.cross(f)));
   
   vaxis << AxisWZ();
   BOOST_CHECK(AxisWZ::cross(v).isApprox(vaxis.cross(v)));
+  BOOST_CHECK(v.cross(AxisWZ()).isApprox(v.cross(vaxis)));
   BOOST_CHECK(AxisWZ::cross(f).isApprox(vaxis.cross(f)));
   
   // Test operation Axis * Scalar
