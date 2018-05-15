@@ -152,6 +152,7 @@ SET(${PROJECT_NAME}_MATH_HEADERS
   )
 
 SET(${PROJECT_NAME}_TOOLS_HEADERS
+  tools/axis-label.hpp
   tools/timer.hpp
   tools/string-generator.hpp
   tools/file-explorer.hpp
