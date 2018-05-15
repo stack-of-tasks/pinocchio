@@ -28,30 +28,6 @@
 namespace se3
 {
   
-  namespace prismatic
-  {
-    template<int axis>
-    struct CartesianVector3
-    {
-      double v; 
-      CartesianVector3(const double & v) : v(v) {}
-      CartesianVector3() : v(NAN) {}
-      
-      Eigen::Vector3d vector() const;
-      operator Eigen::Vector3d () const { return vector(); }
-    }; // struct CartesianVector3
-    template<> inline Eigen::Vector3d CartesianVector3<0>::vector() const { return Eigen::Vector3d(v,0,0); }
-    template<> inline Eigen::Vector3d CartesianVector3<1>::vector() const { return Eigen::Vector3d(0,v,0); }
-    template<> inline Eigen::Vector3d CartesianVector3<2>::vector() const { return Eigen::Vector3d(0,0,v); }
-    
-    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<0> & vx)
-    { return Eigen::Vector3d(v1[0]+vx.v,v1[1],v1[2]); }
-    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<1> & vy)
-    { return Eigen::Vector3d(v1[0],v1[1]+vy.v,v1[2]); }
-    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & v1,const CartesianVector3<2> & vz)
-    { return Eigen::Vector3d(v1[0],v1[1],v1[2]+vz.v); }
-  } // namespace prismatic
-
   template<typename _Scalar, int _axis> struct MotionPrismatic;
   template<typename _Scalar, int _axis>
   struct traits < MotionPrismatic<_Scalar,_axis> >
@@ -211,7 +187,7 @@ namespace se3
 
   }; // struct ConstraintPrismatic
 
-  template<int axis> 
+  template<int axis>
   struct JointPrismatic
   {
     static Eigen::Vector3d cartesianTranslation(const double & shift); 
