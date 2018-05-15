@@ -31,7 +31,7 @@ namespace se3
   {
     template<int axis, typename MotionDerived>
     struct MotionAlgebraAction<SpatialAxis<axis>, MotionDerived>
-    { typedef typename MotionDerived::Plain ReturnType; };
+    { typedef typename MotionDerived::MotionPlain ReturnType; };
   }
   
   template<int _axis>
@@ -94,7 +94,7 @@ namespace se3
       return min.derived();
     }
     
-    template<typename MotionDerived, typename M2>
+    template<typename MotionDerived>
     typename MotionDerived::MotionPlain
     motionAction(const MotionDense<MotionDerived> & m) const
     {
