@@ -285,39 +285,41 @@ namespace se3
     { typedef Eigen::Matrix<Scalar,6,1> ReturnType; };
   }
   
-  struct JointPrismaticUnaligned;
-  template<>
-  struct traits<JointPrismaticUnaligned>
+  template<typename Scalar> struct JointPrismaticUnalignedTpl;
+  
+  template<typename _Scalar>
+  struct traits< JointPrismaticUnalignedTpl<_Scalar> >
   {
     enum {
       NQ = 1,
       NV = 1
     };
-    typedef double Scalar;
-    typedef JointDataPrismaticUnaligned JointDataDerived;
-    typedef JointModelPrismaticUnaligned JointModelDerived;
+    typedef _Scalar Scalar;
+    typedef JointDataPrismaticUnalignedTpl<Scalar> JointDataDerived;
+    typedef JointModelPrismaticUnalignedTpl<Scalar> JointModelDerived;
     typedef ConstraintPrismaticUnaligned<Scalar> Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionPrismaticUnaligned<Scalar> Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,NV> F_t;
+    typedef Eigen::Matrix<Scalar,6,NV> F_t;
     
     // [ABA]
-    typedef Eigen::Matrix<double,6,NV> U_t;
-    typedef Eigen::Matrix<double,NV,NV> D_t;
-    typedef Eigen::Matrix<double,6,NV> UD_t;
+    typedef Eigen::Matrix<Scalar,6,NV> U_t;
+    typedef Eigen::Matrix<Scalar,NV,NV> D_t;
+    typedef Eigen::Matrix<Scalar,6,NV> UD_t;
     
-    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
   };
 
-  template<> struct traits<JointDataPrismaticUnaligned> { typedef JointPrismaticUnaligned JointDerived; };
-  template<> struct traits<JointModelPrismaticUnaligned> { typedef JointPrismaticUnaligned JointDerived; };
+  template<typename Scalar> struct traits< JointDataPrismaticUnalignedTpl<Scalar> >
+  { typedef JointPrismaticUnalignedTpl<Scalar> JointDerived; };
 
-  struct JointDataPrismaticUnaligned : public JointDataBase <JointDataPrismaticUnaligned>
+  template<typename _Scalar>
+  struct JointDataPrismaticUnalignedTpl : public JointDataBase< JointDataPrismaticUnalignedTpl<_Scalar> >
   {
-    typedef JointPrismaticUnaligned JointDerived;
-    SE3_JOINT_TYPEDEF;
+    typedef JointPrismaticUnalignedTpl<_Scalar> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
     Transformation_t M;
     Constraint_t S;
@@ -331,35 +333,40 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataPrismaticUnaligned() :
-      M(1),
-      S(Eigen::Vector3d::Constant(NAN)),
-      v(Eigen::Vector3d::Constant(NAN),NAN),
-      U(), Dinv(), UDinv()
+    JointDataPrismaticUnalignedTpl()
+    : M(1)
+    , S(Motion_t::Vector3::Constant(NAN))
+    , v(Motion_t::Vector3::Constant(NAN),NAN)
+    , U(), Dinv(), UDinv()
     {}
     
-    JointDataPrismaticUnaligned(const Motion_t::Vector3 & axis) :
-      M(1),
-      S(axis),
-      v(axis,NAN),
-      U(), Dinv(), UDinv()
+    template<typename Vector3Like>
+    JointDataPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
+    : M(1)
+    , S(axis)
+    , v(axis,NAN)
+    , U(), Dinv(), UDinv()
     {}
 
-  }; // struct JointDataPrismaticUnaligned
+  }; // struct JointDataPrismaticUnalignedTpl
+  
+  template<typename Scalar> struct traits< JointModelPrismaticUnalignedTpl<Scalar> >
+  { typedef JointPrismaticUnalignedTpl<Scalar> JointDerived; };
 
-  struct JointModelPrismaticUnaligned : public JointModelBase <JointModelPrismaticUnaligned>
+  template<typename _Scalar>
+  struct JointModelPrismaticUnalignedTpl : public JointModelBase< JointModelPrismaticUnalignedTpl<_Scalar> >
   {
-    typedef JointPrismaticUnaligned JointDerived;
-    SE3_JOINT_TYPEDEF;
+    typedef JointPrismaticUnalignedTpl<_Scalar> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    using JointModelBase<JointModelPrismaticUnaligned>::id;
-    using JointModelBase<JointModelPrismaticUnaligned>::idx_q;
-    using JointModelBase<JointModelPrismaticUnaligned>::idx_v;
-    using JointModelBase<JointModelPrismaticUnaligned>::setIndexes;
+    using JointModelBase<JointModelPrismaticUnalignedTpl>::id;
+    using JointModelBase<JointModelPrismaticUnalignedTpl>::idx_q;
+    using JointModelBase<JointModelPrismaticUnalignedTpl>::idx_v;
+    using JointModelBase<JointModelPrismaticUnalignedTpl>::setIndexes;
     typedef Motion::Vector3 Vector3;
     
-    JointModelPrismaticUnaligned() : axis(Vector3::Constant(NAN))   {}
-    JointModelPrismaticUnaligned(Scalar x, Scalar y, Scalar z)
+    JointModelPrismaticUnalignedTpl() : axis(Vector3::Constant(NAN))   {}
+    JointModelPrismaticUnalignedTpl(Scalar x, Scalar y, Scalar z)
     {
       axis << x, y, z ;
       axis.normalize();
@@ -367,7 +374,7 @@ namespace se3
     }
     
     template<typename Vector3Like>
-    JointModelPrismaticUnaligned(const Eigen::MatrixBase<Vector3Like> & axis) : axis(axis)
+    JointModelPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis) : axis(axis)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
       assert(axis.isUnitary() && "Translation axis is not unitary");
@@ -403,7 +410,7 @@ namespace se3
     void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
     {
       data.U.noalias() = I.template block<6,3> (0,Inertia::LINEAR) * axis;
-      data.Dinv[0] = 1./axis.dot(data.U.segment <3> (Inertia::LINEAR));
+      data.Dinv[0] = Scalar(1)/axis.dot(data.U.template segment <3> (Inertia::LINEAR));
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
@@ -416,11 +423,15 @@ namespace se3
       return sqrt(Eigen::NumTraits<Scalar>::epsilon());
     }
 
-    static std::string classname() { return std::string("JointModelPrismaticUnaligned"); }
+    static std::string classname() { return std::string("JointModelPrismaticUnalignedTpl"); }
     std::string shortname() const { return classname(); }
 
     Vector3 axis;
-  }; // struct JointModelPrismaticUnaligned
+  }; // struct JointModelPrismaticUnalignedTpl
+  
+  typedef JointPrismaticUnalignedTpl<double> JointPrismaticUnaligned;
+  typedef JointDataPrismaticUnalignedTpl<double> JointDataPrismaticUnaligned;
+  typedef JointModelPrismaticUnalignedTpl<double> JointModelPrismaticUnaligned;
 
 } //namespace se3
 

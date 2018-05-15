@@ -40,8 +40,8 @@ namespace se3
   template<typename Scalar, int axis> struct JointModelPrismatic;
   template<typename Scalar, int axis> struct JointDataPrismatic;
 
-  struct JointModelPrismaticUnaligned;
-  struct JointDataPrismaticUnaligned;
+  template<typename Scalar> struct JointModelPrismaticUnalignedTpl;
+  template<typename Scalar> struct JointDataPrismaticUnalignedTpl;
 
   struct JointModelFreeFlyer;
   struct JointDataFreeFlyer;
