@@ -37,8 +37,8 @@ namespace se3
   struct JointModelSphericalZYX;
   struct JointDataSphericalZYX;
 
-  template<int axis> struct JointModelPrismatic;
-  template<int axis> struct JointDataPrismatic;
+  template<typename Scalar, int axis> struct JointModelPrismatic;
+  template<typename Scalar, int axis> struct JointDataPrismatic;
 
   struct JointModelPrismaticUnaligned;
   struct JointDataPrismaticUnaligned;
