@@ -99,8 +99,18 @@ namespace se3
     motionAction(const MotionDense<MotionDerived> & m) const
     {
       typename MotionDerived::MotionPlain res;
-      SpatialAxis::cross(m,res);
-      return -res;
+      if((LINEAR == 0 && axis<3) || (LINEAR == 3 && axis >= 3))
+      {
+        res.angular().setZero();
+        CartesianAxis3::cross(-m.angular(),res.linear());
+      }
+      else
+      {
+        CartesianAxis3::cross(-m.linear(),res.linear());
+        CartesianAxis3::cross(-m.angular(),res.angular());
+      }
+      
+      return res;
     }
     
   }; // struct SpatialAxis
