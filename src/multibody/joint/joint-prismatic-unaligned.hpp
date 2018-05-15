@@ -27,17 +27,18 @@
 namespace se3
 {
 
+  template<typename Scalar>
   struct MotionPrismaticUnaligned;
   
-  template <>
-  struct traits <MotionPrismaticUnaligned>
+  template<typename _Scalar>
+  struct traits< MotionPrismaticUnaligned<_Scalar> >
   {
-    typedef double Scalar;
+    typedef _Scalar Scalar;
     typedef Eigen::Matrix<Scalar,3,1,0> Vector3;
     typedef Eigen::Matrix<Scalar,6,1,0> Vector6;
     typedef Eigen::Matrix<Scalar,6,6,0> Matrix6;
-    typedef EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
-    typedef EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
+    typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
+    typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Vector3 AngularType;
     typedef Vector3 LinearType;
     typedef const Vector3 ConstAngularType;
@@ -50,15 +51,17 @@ namespace se3
     };
   }; // traits MotionPrismaticUnaligned
 
-  struct MotionPrismaticUnaligned : MotionBase <MotionPrismaticUnaligned>
+  template<typename _Scalar>
+  struct MotionPrismaticUnaligned : MotionBase < MotionPrismaticUnaligned<_Scalar> >
   {
-    MOTION_TYPEDEF(MotionPrismaticUnaligned);
+    MOTION_TYPEDEF_TPL(MotionPrismaticUnaligned);
 
     MotionPrismaticUnaligned () : axis(Vector3::Constant(NAN)), rate(NAN) {}
-    MotionPrismaticUnaligned (const Vector3 & axis, const Scalar rate) : axis(axis), rate(rate) {}
-
-    Vector3 axis;
-    Scalar rate;
+    
+    template<typename Vector3Like, typename S2>
+    MotionPrismaticUnaligned (const Eigen::MatrixBase<Vector3Like> & axis, const S2 rate)
+    : axis(axis), rate(rate)
+    { EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3); }
 
     operator Motion() const { return Motion(axis*rate, Vector3::Zero());}
     
@@ -67,14 +70,16 @@ namespace se3
     {
       v.linear() += axis * rate;
     }
+    
+    Vector3 axis;
+    Scalar rate;
   }; // struct MotionPrismaticUnaligned
 
-  inline const MotionPrismaticUnaligned & operator+ (const MotionPrismaticUnaligned & m, const BiasZero &)
-  { return m; }
-
-  inline Motion operator+ (const MotionPrismaticUnaligned & m1, const Motion & m2)
+  template<typename Scalar, typename MotionDerived>
+  inline typename MotionDerived::MotionPlain operator+ (const MotionPrismaticUnaligned<Scalar> & m1, const MotionDense<MotionDerived> & m2)
   {
-    return Motion(m1.rate*m1.axis + m2.linear(), m2.angular());
+    typedef typename MotionDerived::MotionPlain ReturnType;
+    return ReturnType(m1.rate*m1.axis + m2.linear(), m2.angular());
   }
 
   struct ConstraintPrismaticUnaligned;
@@ -123,10 +128,10 @@ namespace se3
       Vector3 axis;
 
       template<typename D>
-      MotionPrismaticUnaligned operator* (const Eigen::MatrixBase<D> & v) const
+      MotionPrismaticUnaligned<Scalar> operator* (const Eigen::MatrixBase<D> & v) const
       { 
       	EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,1);
-      	return MotionPrismaticUnaligned(axis,v[0]); 
+      	return MotionPrismaticUnaligned<Scalar>(axis,v[0]);
       }
 
       Vector6 se3Action (const SE3 & m) const
@@ -211,13 +216,17 @@ namespace se3
     }; // struct ConstraintPrismaticUnaligned
 
 
-    inline Motion operator^ (const Motion & m1, const MotionPrismaticUnaligned & m2)
-    {
-      /* m1xm2 = [ v1xw2 + w1xv2; w1xw2 ] = [ v1xw2; w1xw2 ] */
-      const Motion::Vector3 & w1 = m1.angular();
-      const Motion::Vector3 & v2 = m2.axis * m2.rate;
-      return Motion (w1.cross(v2), Motion::Vector3::Zero());
-    }
+  template<typename MotionDerived, typename Scalar>
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1,
+            const MotionPrismaticUnaligned<Scalar> & m2)
+  {
+    typedef typename MotionDerived::MotionPlain ReturnType;
+    /* m1xm2 = [ v1xw2 + w1xv2; w1xw2 ] = [ v1xw2; w1xw2 ] */
+    const typename MotionDerived::ConstAngularType & w1 = m1.angular();
+    const typename MotionPrismaticUnaligned<Scalar>::Vector3 & v2 = m2.axis * m2.rate;
+    return ReturnType(w1.cross(v2), ReturnType::Vector3::Zero());
+  }
 
     /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
     inline Eigen::Matrix<double,6,1>
@@ -276,7 +285,7 @@ namespace se3
       typedef JointModelPrismaticUnaligned JointModelDerived;
       typedef ConstraintPrismaticUnaligned Constraint_t;
       typedef SE3 Transformation_t;
-      typedef MotionPrismaticUnaligned Motion_t;
+      typedef MotionPrismaticUnaligned<Scalar> Motion_t;
       typedef BiasZero Bias_t;
       typedef Eigen::Matrix<double,6,NV> F_t;
       
