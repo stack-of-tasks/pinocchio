@@ -385,21 +385,6 @@ namespace se3
       return sqrt(Eigen::NumTraits<Scalar>::epsilon());
     }
 
-    ConfigVector_t neutralConfiguration_impl() const
-    { 
-      ConfigVector_t q;
-      q << 0;
-      return q;
-    } 
-
-    bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
-    {
-      const Scalar & q_1 = q1[idx_q()];
-      const Scalar & q_2 = q2[idx_q()];
-
-      return (fabs(q_1 - q_2) < prec);
-    }
-
     static std::string classname() { return std::string("JointModelPrismaticUnaligned"); }
     std::string shortname() const { return classname(); }
 
