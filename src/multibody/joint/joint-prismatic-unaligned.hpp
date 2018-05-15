@@ -82,11 +82,13 @@ namespace se3
     return ReturnType(m1.rate*m1.axis + m2.linear(), m2.angular());
   }
 
+  template<typename Scalar>
   struct ConstraintPrismaticUnaligned;
-  template <>
-  struct traits <ConstraintPrismaticUnaligned>
+  
+  template<typename _Scalar>
+  struct traits< ConstraintPrismaticUnaligned<_Scalar> >
   {
-    typedef double Scalar;
+    typedef _Scalar Scalar;
     typedef Eigen::Matrix<Scalar,3,1,0> Vector3;
     typedef Eigen::Matrix<Scalar,4,1,0> Vector4;
     typedef Eigen::Matrix<Scalar,6,1,0> Vector6;
@@ -114,106 +116,114 @@ namespace se3
     typedef const DenseBase ConstMatrixReturnType;
   }; // traits ConstraintPrismaticUnaligned
 
-    struct ConstraintPrismaticUnaligned : ConstraintBase <ConstraintPrismaticUnaligned>
+  template<typename _Scalar>
+  struct ConstraintPrismaticUnaligned : ConstraintBase < ConstraintPrismaticUnaligned<_Scalar> >
+  {
+    SPATIAL_TYPEDEF_TEMPLATE(ConstraintPrismaticUnaligned);
+    
+    enum { NV = 1, Options = 0 };
+    typedef typename traits<ConstraintPrismaticUnaligned>::JointMotion JointMotion;
+    typedef typename traits<ConstraintPrismaticUnaligned>::JointForce JointForce;
+    typedef typename traits<ConstraintPrismaticUnaligned>::DenseBase DenseBase;
+    
+    ConstraintPrismaticUnaligned () : axis (Vector3::Constant(NAN)) {}
+    
+    template<typename Vector3Like>
+    ConstraintPrismaticUnaligned (const Eigen::MatrixBase<Vector3Like> & axis)
+    : axis(axis)
+    { EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3); }
+
+    template<typename Derived>
+    MotionPrismaticUnaligned<Scalar> operator* (const Eigen::MatrixBase<Derived> & v) const
     {
-      SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintPrismaticUnaligned);
-      enum { NV = 1, Options = 0 };
-      typedef traits<ConstraintPrismaticUnaligned>::JointMotion JointMotion;
-      typedef traits<ConstraintPrismaticUnaligned>::JointForce JointForce;
-      typedef traits<ConstraintPrismaticUnaligned>::DenseBase DenseBase;
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived,1);
+      return MotionPrismaticUnaligned<Scalar>(axis,v[0]);
+    }
+    
+    template<typename S1, int O1>
+    Vector6 se3Action (const SE3Tpl<S1,O1> & m) const
+    {
+      Vector6 res;
+      res.template head<3>().noalias() = m.rotation()*axis;
+      res.template tail<3>().setZero();
+      return res;
+    }
+    
+    int nv_impl() const { return NV; }
+    
+    struct TransposeConst
+    {
+      typedef typename traits<ConstraintPrismaticUnaligned>::Scalar Scalar;
+      typedef typename traits<ConstraintPrismaticUnaligned>::Force Force;
+      typedef typename traits<ConstraintPrismaticUnaligned>::Vector6 Vector6;
       
-      ConstraintPrismaticUnaligned () : axis (Vector3::Constant(NAN)) {}
-      ConstraintPrismaticUnaligned (const Vector3 & axis) : axis(axis) {}
-               
-      Vector3 axis;
-
-      template<typename D>
-      MotionPrismaticUnaligned<Scalar> operator* (const Eigen::MatrixBase<D> & v) const
-      { 
-      	EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,1);
-      	return MotionPrismaticUnaligned<Scalar>(axis,v[0]);
-      }
-
-      Vector6 se3Action (const SE3 & m) const
+      const ConstraintPrismaticUnaligned & ref;
+      TransposeConst(const ConstraintPrismaticUnaligned & ref) : ref(ref) {}
+      
+      template<typename Derived>
+      Eigen::Matrix<
+      typename EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstLinearType),
+      1,1>
+      operator* (const ForceDense<Derived> & f) const
       {
-        Vector6 res;
-        res.head<3> () = m.rotation()*axis;
-        res.tail<3>().setZero();
-        return res;
-      }
-
-      int nv_impl() const { return NV; }
-
-      struct TransposeConst
-      {
-        typedef traits<ConstraintPrismaticUnaligned>::Scalar Scalar;
-        typedef traits<ConstraintPrismaticUnaligned>::Force Force;
-        typedef traits<ConstraintPrismaticUnaligned>::Vector6 Vector6;
-        
-      	const ConstraintPrismaticUnaligned & ref; 
-      	TransposeConst(const ConstraintPrismaticUnaligned & ref) : ref(ref) {}
-        
-        template<typename Derived>
-        Eigen::Matrix<
+        typedef Eigen::Matrix<
         typename EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstLinearType),
-        1,1>
-      	operator* (const ForceDense<Derived> & f) const
-      	{
-          typedef Eigen::Matrix<
-          typename EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstLinearType),
-          1,1> ReturnType;
-          
-          ReturnType res; res[0] = ref.axis.dot(f.linear());
-          return res;
-      	}
-
-        /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
-        template<typename D>
-        friend
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
-        const Eigen::Product<
-        Eigen::Transpose<const Vector3>,
-        typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
-        >
-#else
-        const typename Eigen::ProductReturnType<
-        Eigen::Transpose<const Vector3>,
-        typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
-        >::Type
-#endif
-        operator* (const TransposeConst & tc, const Eigen::MatrixBase<D> & F)
-        {
-          EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
-          /* Return ax.T * F[1:3,:] */
-          return tc.ref.axis.transpose () * F.template topRows<3> ();
-        }
-
-      };
-      TransposeConst transpose() const { return TransposeConst(*this); }
-
-
-      /* CRBA joint operators
-       *   - ForceSet::Block = ForceSet
-       *   - ForceSet operator* (Inertia Y,Constraint S)
-       *   - MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
-       *   - SE3::act(ForceSet::Block)
-       */
-      DenseBase matrix_impl() const
-      {
-        DenseBase S;
-      	S << axis, Vector3::Zero();
-      	return S;
-      }
-      
-      DenseBase motionAction(const Motion & m) const
-      {
-        DenseBase res;
-        res << m.angular().cross(axis), Vector3::Zero();
+        1,1> ReturnType;
         
+        ReturnType res; res[0] = ref.axis.dot(f.linear());
         return res;
       }
       
-    }; // struct ConstraintPrismaticUnaligned
+      /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
+      template<typename D>
+      friend
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
+      const Eigen::Product<
+      Eigen::Transpose<const Vector3>,
+      typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
+      >
+#else
+      const typename Eigen::ProductReturnType<
+      Eigen::Transpose<const Vector3>,
+      typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
+      >::Type
+#endif
+      operator* (const TransposeConst & tc, const Eigen::MatrixBase<D> & F)
+      {
+        EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
+        /* Return ax.T * F[1:3,:] */
+        return tc.ref.axis.transpose () * F.template topRows<3> ();
+      }
+      
+    };
+    TransposeConst transpose() const { return TransposeConst(*this); }
+    
+    
+    /* CRBA joint operators
+     *   - ForceSet::Block = ForceSet
+     *   - ForceSet operator* (Inertia Y,Constraint S)
+     *   - MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
+     *   - SE3::act(ForceSet::Block)
+     */
+    DenseBase matrix_impl() const
+    {
+      DenseBase S;
+      S << axis, Vector3::Zero();
+      return S;
+    }
+    
+    template<typename MotionDerived>
+    DenseBase motionAction(const MotionDense<MotionDerived> & v) const
+    {
+      DenseBase res;
+      res << v.angular().cross(axis), Vector3::Zero();
+      
+      return res;
+    }
+    
+    Vector3 axis;
+    
+  }; // struct ConstraintPrismaticUnaligned
 
 
   template<typename MotionDerived, typename Scalar>
@@ -228,75 +238,78 @@ namespace se3
     return ReturnType(w1.cross(v2), ReturnType::Vector3::Zero());
   }
 
-    /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-    inline Eigen::Matrix<double,6,1>
-    operator* (const Inertia & Y, const ConstraintPrismaticUnaligned & cpu)
-    { 
-      /* YS = [ m -mcx ; mcx I-mcxcx ] [ v ; 0 ] = [ mv ; mcxv ] */
-      const double & m                = Y.mass();
-      const Inertia::Vector3 & c      = Y.lever();
-
-      Eigen::Matrix<double,6,1> res;
-      res.head<3>() = m*cpu.axis;
-      res.tail<3>() = c.cross(res.head<3>());
-      return res;
-    }
+  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
+  template<typename S1, int O1, typename S2>
+  inline Eigen::Matrix<S1,6,1>
+  operator* (const InertiaTpl<S1,O1> & Y, const ConstraintPrismaticUnaligned<S2> & cpu)
+  {
+    typedef InertiaTpl<S1,O1> Inertia;
+    /* YS = [ m -mcx ; mcx I-mcxcx ] [ v ; 0 ] = [ mv ; mcxv ] */
+    const S1 & m                             = Y.mass();
+    const typename Inertia::Vector3 & c      = Y.lever();
+    
+    Eigen::Matrix<S1,6,1> res;
+    res.template head<3>().noalias() = m*cpu.axis;
+    res.template tail<3>() = c.cross(res.template head<3>());
+    return res;
+  }
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
-  inline
+  template<typename M6, typename S2>
 #if EIGEN_VERSION_AT_LEAST(3,2,90)
-  const Eigen::Product<
-  Eigen::Block<const Inertia::Matrix6,6,3>,
-  ConstraintPrismaticUnaligned::Vector3,
+  const typename Eigen::Product<
+  Eigen::Block<const M6,6,3>,
+  typename ConstraintPrismaticUnaligned<S2>::Vector3,
   Eigen::DefaultProduct>
 #else
-  const Eigen::ProductReturnType<
-  Eigen::Block<const Inertia::Matrix6,6,3>,
-  const ConstraintPrismaticUnaligned::Vector3
+  const typename Eigen::ProductReturnType<
+  Eigen::Block<const M6,6,3>,
+  const typename ConstraintPrismaticUnaligned<S2>::Vector3
   >::Type
 #endif
-  operator*(const Inertia::Matrix6 & Y, const ConstraintPrismaticUnaligned & cpu)
+  operator*(const Eigen::MatrixBase<M6> & Y, const ConstraintPrismaticUnaligned<S2> & cpu)
   {
-    return Y.block<6,3> (0,Inertia::LINEAR) * cpu.axis;
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6,6,6);
+    return Y.template block<6,3> (0,Inertia::LINEAR) * cpu.axis;
   }
 
   
-    namespace internal 
-    {
-      template<>
-      struct SE3GroupAction<ConstraintPrismaticUnaligned >  
-      { typedef Eigen::Matrix<double,6,1> ReturnType; };
-      
-      template<typename MotionDerived>
-      struct MotionAlgebraAction<ConstraintPrismaticUnaligned,MotionDerived>
-      { typedef Eigen::Matrix<double,6,1> ReturnType; };
-    }
-
-    struct JointPrismaticUnaligned;
-    template<>
-    struct traits<JointPrismaticUnaligned>
-    {
-      enum {
-        NQ = 1,
-        NV = 1
-      };
-      typedef double Scalar;
-      typedef JointDataPrismaticUnaligned JointDataDerived;
-      typedef JointModelPrismaticUnaligned JointModelDerived;
-      typedef ConstraintPrismaticUnaligned Constraint_t;
-      typedef SE3 Transformation_t;
-      typedef MotionPrismaticUnaligned<Scalar> Motion_t;
-      typedef BiasZero Bias_t;
-      typedef Eigen::Matrix<double,6,NV> F_t;
-      
-      // [ABA]
-      typedef Eigen::Matrix<double,6,NV> U_t;
-      typedef Eigen::Matrix<double,NV,NV> D_t;
-      typedef Eigen::Matrix<double,6,NV> UD_t;
-
-      typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
-      typedef Eigen::Matrix<double,NV,1> TangentVector_t;
+  namespace internal
+  {
+    template<typename Scalar>
+    struct SE3GroupAction< ConstraintPrismaticUnaligned<Scalar> >
+    { typedef Eigen::Matrix<Scalar,6,1> ReturnType; };
+    
+    template<typename Scalar, typename MotionDerived>
+    struct MotionAlgebraAction< ConstraintPrismaticUnaligned<Scalar>,MotionDerived >
+    { typedef Eigen::Matrix<Scalar,6,1> ReturnType; };
+  }
+  
+  struct JointPrismaticUnaligned;
+  template<>
+  struct traits<JointPrismaticUnaligned>
+  {
+    enum {
+      NQ = 1,
+      NV = 1
     };
+    typedef double Scalar;
+    typedef JointDataPrismaticUnaligned JointDataDerived;
+    typedef JointModelPrismaticUnaligned JointModelDerived;
+    typedef ConstraintPrismaticUnaligned<Scalar> Constraint_t;
+    typedef SE3 Transformation_t;
+    typedef MotionPrismaticUnaligned<Scalar> Motion_t;
+    typedef BiasZero Bias_t;
+    typedef Eigen::Matrix<double,6,NV> F_t;
+    
+    // [ABA]
+    typedef Eigen::Matrix<double,6,NV> U_t;
+    typedef Eigen::Matrix<double,NV,NV> D_t;
+    typedef Eigen::Matrix<double,6,NV> UD_t;
+    
+    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
+    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
+  };
 
   template<> struct traits<JointDataPrismaticUnaligned> { typedef JointPrismaticUnaligned JointDerived; };
   template<> struct traits<JointModelPrismaticUnaligned> { typedef JointPrismaticUnaligned JointDerived; };
@@ -353,34 +366,43 @@ namespace se3
       assert(axis.isUnitary() && "Translation axis is not unitary");
     }
     
-    JointModelPrismaticUnaligned(const Vector3 & axis) : axis(axis)
+    template<typename Vector3Like>
+    JointModelPrismaticUnaligned(const Eigen::MatrixBase<Vector3Like> & axis) : axis(axis)
     {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
       assert(axis.isUnitary() && "Translation axis is not unitary");
     }
 
     JointDataDerived createData() const { return JointDataDerived(axis); }
     
-    void calc(JointDataDerived & data, const Eigen::VectorXd & qs) const
+    template<typename ConfigVector>
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      const double & q = qs[idx_q()];
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigVector);
+      typedef typename ConfigVector::Scalar Scalar;
+      const Scalar & q = qs[idx_q()];
 
-      data.M.translation() = axis * q;
+      data.M.translation().noalias() = axis * q;
     }
 
+    template<typename ConfigVector, typename TangentVector>
     void calc(JointDataDerived & data,
-              const Eigen::VectorXd & qs,
-              const Eigen::VectorXd & vs) const
+              const typename Eigen::MatrixBase<ConfigVector> & qs,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      const Scalar & q = qs[idx_q()];
-      const Scalar & v = vs[idx_v()];
-
-      data.M.translation() = axis * q;
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(TangentVector);
+      calc(data,qs.derived());
+      
+      typedef typename TangentVector::Scalar S2;
+      const S2 & v = vs[idx_v()];
       data.v.rate = v;
     }
     
-    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
+    template<typename S2, int O2>
+    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
     {
-      data.U = I.block<6,3> (0,Inertia::LINEAR) * axis;
+      data.U.noalias() = I.template block<6,3> (0,Inertia::LINEAR) * axis;
       data.Dinv[0] = 1./axis.dot(data.U.segment <3> (Inertia::LINEAR));
       data.UDinv.noalias() = data.U * data.Dinv;
       
