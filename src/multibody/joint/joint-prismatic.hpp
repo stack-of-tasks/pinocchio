@@ -200,19 +200,16 @@ namespace se3
       return S;
     }
     
-    DenseBase motionAction(const Motion & m) const
+    template<typename MotionDerived>
+    DenseBase motionAction(const MotionDense<MotionDerived> & m) const
     {
       DenseBase res;
-      res << m.angular().cross(prismatic::CartesianVector3<axis>(1).vector()), Vector3::Zero();
-      
+      MotionRef<DenseBase> v(res);
+      v = m.cross(Axis());
       return res;
     }
 
   }; // struct ConstraintPrismatic
-
-
-
-
 
   template<int axis> 
   struct JointPrismatic
