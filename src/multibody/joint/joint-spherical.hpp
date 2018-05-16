@@ -236,44 +236,48 @@ namespace se3
     { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
   }
 
-  struct JointSpherical;
-  template<>
-  struct traits<JointSpherical>
+  template<typename Scalar, int Options> struct JointSphericalTpl;
+  
+  template<typename _Scalar, int _Options>
+  struct traits< JointSphericalTpl<_Scalar,_Options> >
   {
     enum {
       NQ = 4,
       NV = 3
     };
-    typedef double Scalar;
-    enum { Options = 0 };
-    typedef JointDataSpherical JointDataDerived;
-    typedef JointModelSpherical JointModelDerived;
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
+    typedef JointDataSphericalTpl<Scalar,Options> JointDataDerived;
+    typedef JointModelSphericalTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintRotationalSubspace<Scalar,Options> Constraint_t;
-    typedef SE3 Transformation_t;
+    typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionSpherical<Scalar,Options> Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,NV> F_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
-    typedef Eigen::Matrix<double,6,NV> U_t;
-    typedef Eigen::Matrix<double,NV,NV> D_t;
-    typedef Eigen::Matrix<double,6,NV> UD_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
+    typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
 
-    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
   };
-  template<> struct traits<JointDataSpherical> { typedef JointSpherical JointDerived; };
-  template<> struct traits<JointModelSpherical> { typedef JointSpherical JointDerived; };
+  
+  template<typename Scalar, int Options>
+  struct traits< JointDataSphericalTpl<Scalar,Options> >
+  { typedef JointSphericalTpl<Scalar,Options> JointDerived; };
+  
+  template<typename Scalar, int Options>
+  struct traits< JointModelSphericalTpl<Scalar,Options> >
+  { typedef JointSphericalTpl<Scalar,Options> JointDerived; };
 
-  struct JointDataSpherical : public JointDataBase<JointDataSpherical>
+  template<typename _Scalar, int _Options>
+  struct JointDataSphericalTpl : public JointDataBase< JointDataSphericalTpl<_Scalar,_Options> >
   {
-    typedef JointSpherical JointDerived;
-    SE3_JOINT_TYPEDEF;
+    typedef JointSphericalTpl<_Scalar,_Options> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    typedef Eigen::Matrix<double,6,6> Matrix6;
-    typedef Eigen::Matrix<double,3,1> Vector3;
-    typedef Eigen::Quaternion<double> Quaternion;
-    
     Constraint_t S;
     Transformation_t M;
     Motion_t v;
@@ -286,32 +290,31 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataSpherical () : M(1), U(), Dinv(), UDinv() {}
+    JointDataSphericalTpl () : M(1), U(), Dinv(), UDinv() {}
 
-  }; // struct JointDataSpherical
+  }; // struct JointDataSphericalTpl
 
-  struct JointModelSpherical : public JointModelBase<JointModelSpherical>
+  template<typename _Scalar, int _Options>
+  struct JointModelSphericalTpl : public JointModelBase< JointModelSphericalTpl<_Scalar,_Options> >
   {
-    typedef JointSpherical JointDerived;
-    SE3_JOINT_TYPEDEF;
+    typedef JointSphericalTpl<_Scalar,_Options> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    using JointModelBase<JointModelSpherical>::id;
-    using JointModelBase<JointModelSpherical>::idx_q;
-    using JointModelBase<JointModelSpherical>::idx_v;
-    using JointModelBase<JointModelSpherical>::setIndexes;
-    typedef Motion::Vector3 Vector3;
-    typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
+    using JointModelBase<JointModelSphericalTpl>::id;
+    using JointModelBase<JointModelSphericalTpl>::idx_q;
+    using JointModelBase<JointModelSphericalTpl>::idx_v;
+    using JointModelBase<JointModelSphericalTpl>::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
 
-    template<typename V>
-    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
+    template<typename ConfigVectorLike>
+    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVectorLike> & q_joint) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
-      //using std::sqrt;
-      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVectorLike);
+      typedef typename Eigen::Quaternion<typename ConfigVectorLike::Scalar,EIGEN_PLAIN_TYPE(ConfigVectorLike)::Options> Quaternion;
+      typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
 
-      ConstQuaternionMap_t quat(q_joint.derived().data());
+      ConstQuaternionMap quat(q_joint.derived().data());
       //assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
       assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= 1e-4);
       
@@ -319,42 +322,45 @@ namespace se3
       M.translation().setZero();
     }
 
-    void calc (JointDataDerived & data,
-               const Eigen::VectorXd & qs) const
+    template<typename ConfigVector>
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVector);
+      typedef typename Eigen::Quaternion<typename ConfigVector::Scalar,ConfigVector::Options> Quaternion;
+      typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
       
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ>(idx_q ());
+      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
       
-      ConstQuaternionMap_t quat(q.data());
-      data.M.rotation (quat.matrix());
+      ConstQuaternionMap quat(q.data());
+      data.M.rotation(quat.matrix());
     }
 
-    void calc (JointDataDerived & data,
-               const Eigen::VectorXd & qs,
-               const Eigen::VectorXd & vs ) const
+    template<typename ConfigVector, typename TangentVector>
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,TangentVector);
+      calc(data,qs.derived());
       
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
-      data.v () = vs.segment<NV> (idx_v ());
-
-      ConstQuaternionMap_t quat(q.data());
-      data.M.rotation (quat.matrix ());
+      data.v() = vs.template segment<NV>(idx_v());
     }
     
-    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
+    template<typename S2, int O2>
+    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
     {
-      data.U = I.block<6,3> (0,Inertia::ANGULAR);
-      data.Dinv = I.block<3,3> (Inertia::ANGULAR,Inertia::ANGULAR).inverse();
-      data.UDinv.middleRows<3> (Inertia::ANGULAR).setIdentity(); // can be put in data constructor
-      data.UDinv.middleRows<3> (Inertia::LINEAR) = data.U.block<3,3> (Inertia::LINEAR, 0) * data.Dinv;
+      data.U = I.template block<6,3>(0,Inertia::ANGULAR);
+      data.Dinv = I.template block<3,3>(Inertia::ANGULAR,Inertia::ANGULAR).inverse();
+      data.UDinv.template middleRows<3>(Inertia::ANGULAR).setIdentity(); // can be put in data constructor
+      data.UDinv.template middleRows<3>(Inertia::LINEAR) = data.U.template block<3,3>(Inertia::LINEAR, 0) * data.Dinv;
       
       if (update_I)
       {
-        I.block<6,3> (0,Inertia::ANGULAR).setZero();
-        I.block<3,3> (Inertia::ANGULAR,Inertia::LINEAR).setZero();
-        I.block<3,3> (Inertia::LINEAR,Inertia::LINEAR) -= data.UDinv.middleRows<3> (Inertia::LINEAR) * I.block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
+        I.template block<6,3>(0,Inertia::ANGULAR).setZero();
+        I.template block<3,3>(Inertia::ANGULAR,Inertia::LINEAR).setZero();
+        I.template block<3,3>(Inertia::LINEAR,Inertia::LINEAR)
+        -= data.UDinv.template middleRows<3>(Inertia::LINEAR) * I.template block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
       }
     }
     
@@ -367,7 +373,7 @@ namespace se3
     static std::string classname() { return std::string("JointModelSpherical"); }
     std::string shortname() const { return classname(); }
 
-  }; // struct JointModelSpherical
+  }; // struct JointModelSphericalTpl
 
 } // namespace se3
 

@@ -31,8 +31,11 @@ namespace se3
   template<int axis> struct JointModelRevoluteUnbounded;
   template<int axis> struct JointDataRevoluteUnbounded;
 
-  struct JointModelSpherical;
-  struct JointDataSpherical;
+  template<typename Scalar, int Options = 0> struct JointModelSphericalTpl;
+  typedef JointModelSphericalTpl<double> JointModelSpherical;
+  
+  template<typename Scalar, int Options = 0> struct JointDataSphericalTpl;
+  typedef JointDataSphericalTpl<double> JointDataSpherical;
 
   struct JointModelSphericalZYX;
   struct JointDataSphericalZYX;
