@@ -28,46 +28,50 @@
 namespace se3
 {
 
-  struct MotionTranslation;
-  template <>
-  struct traits < MotionTranslation >
+  template<typename Scalar, int Options> struct MotionTranslationTpl;
+  
+  template<typename _Scalar, int _Options>
+  struct traits< MotionTranslationTpl<_Scalar,_Options> >
   {
-    typedef double Scalar;
-    typedef Eigen::Matrix<double,3,1,0> Vector3;
-    typedef Eigen::Matrix<double,6,1,0> Vector6;
-    typedef Eigen::Matrix<double,6,6,0> Matrix6;
-    typedef EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
-    typedef EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
+    typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
+    typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Vector3 AngularType;
     typedef Vector3 LinearType;
     typedef const Vector3 ConstAngularType;
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
-    typedef MotionTpl<double,0> MotionPlain;
+    typedef MotionTpl<Scalar,Options> MotionPlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
     };
-  }; // traits MotionTranslation
+  }; // traits MotionTranslationTpl
 
-  struct MotionTranslation : MotionBase < MotionTranslation >
+  template<typename _Scalar, int _Options>
+  struct MotionTranslationTpl : MotionBase< MotionTranslationTpl<_Scalar,_Options> >
   {
-    MOTION_TYPEDEF(MotionTranslation);
+    MOTION_TYPEDEF_TPL(MotionTranslationTpl);
 
-    MotionTranslation ()                   : v (Motion::Vector3 (NAN, NAN, NAN)) {}
-    MotionTranslation (const Motion::Vector3 & v) : v (v)  {}
-    MotionTranslation (const MotionTranslation & other) : v (other.v)  {}
-    Vector3 v;
-
-    Vector3 & operator() () { return v; }
-    const Vector3 & operator() () const { return v; }
+    MotionTranslationTpl()                   : v (Motion::Vector3 (NAN, NAN, NAN)) {}
+    template<typename Vector3Like>
+    MotionTranslationTpl(const Eigen::MatrixBase<Vector3Like> & v) : v (v)  {}
+    
+    MotionTranslationTpl(const MotionTranslationTpl & other) : v (other.v)  {}
+ 
+    Vector3 & operator()() { return v; }
+    const Vector3 & operator()() const { return v; }
     
     operator Motion() const
     {
-      return Motion (v, Motion::Vector3::Zero ());
+      return Motion (v,Motion::Vector3::Zero());
     }
     
-    MotionTranslation & operator= (const MotionTranslation & other)
+    MotionTranslationTpl & operator=(const MotionTranslationTpl & other)
     {
       v = other.v;
       return *this;
@@ -79,14 +83,15 @@ namespace se3
       v_.linear() += v;
     }
     
-  }; // struct MotionTranslation
+    // data
+    Vector3 v;
+    
+  }; // struct MotionTranslationTpl
   
-  inline const MotionTranslation operator+ (const MotionTranslation & m, const BiasZero &)
-  { return m; }
-  
-  inline Motion operator+ (const MotionTranslation & m1, const Motion & m2)
+  template<typename S1, int O1, typename MotionDerived>
+  inline typename MotionDerived::MotionPlain operator+(const MotionTranslationTpl<S1,O1> & m1, const MotionDense<MotionDerived> & m2)
   {
-    return Motion (m2.linear () + m1.v, m2.angular ());
+    return typename MotionDerived::MotionPlain(m2.linear() + m1.v, m2.angular());
   }
   
   struct ConstraintTranslationSubspace;
@@ -128,10 +133,11 @@ namespace se3
     typedef traits<ConstraintTranslationSubspace>::JointMotion JointMotion;
     typedef traits<ConstraintTranslationSubspace>::JointForce JointForce;
     typedef traits<ConstraintTranslationSubspace>::DenseBase DenseBase;
-    ConstraintTranslationSubspace () {}
+    ConstraintTranslationSubspace() {}
     
-    Motion operator* (const MotionTranslation & vj) const
-    { return Motion (vj (), Motion::Vector3::Zero ()); }
+    template<typename S1, int O1>
+    Motion operator*(const MotionTranslationTpl<S1,O1> & vj) const
+    { return Motion(vj(), Motion::Vector3::Zero()); }
     
     int nv_impl() const { return NV; }
     
@@ -198,9 +204,14 @@ namespace se3
   }
   
   
-  inline Motion operator^ (const Motion & m1, const MotionTranslation & m2)
+  template<typename MotionDerived, typename S2, int O2>
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1,
+            const MotionTranslationTpl<S2,O2> & m2)
   {
-    return Motion (m1.angular ().cross (m2.v), Motion::Vector3::Zero ());
+    typedef typename MotionDerived::MotionPlain ReturnType;
+    return ReturnType(m1.angular().cross(m2.v),
+                      ReturnType::Vector3::Zero());
   }
   
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
@@ -236,11 +247,12 @@ namespace se3
       NV = 3
     };
     typedef double Scalar;
+    enum { Options = 0 };
     typedef JointDataTranslation JointDataDerived;
     typedef JointModelTranslation JointModelDerived;
     typedef ConstraintTranslationSubspace Constraint_t;
     typedef SE3 Transformation_t;
-    typedef MotionTranslation Motion_t;
+    typedef MotionTranslationTpl<Scalar,Options> Motion_t;
     typedef BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,NV> F_t;
     
