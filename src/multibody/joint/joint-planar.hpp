@@ -28,69 +28,74 @@
 
 namespace se3
 {
-
-  struct MotionPlanar;
-  template <>
-  struct traits< MotionPlanar >
+  
+  template<typename Scalar, int Options = 0> struct MotionPlanarTpl;
+  
+  template<typename _Scalar, int _Options>
+  struct traits< MotionPlanarTpl<_Scalar,_Options> >
   {
-    typedef double Scalar;
-    typedef Eigen::Matrix<double,3,1,0> Vector3;
-    typedef Eigen::Matrix<double,6,1,0> Vector6;
-    typedef Eigen::Matrix<double,6,6,0> Matrix6;
-    typedef EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
-    typedef EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
+    typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
+    typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Vector3 AngularType;
     typedef Vector3 LinearType;
     typedef const Vector3 ConstAngularType;
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
-    typedef MotionTpl<double,0> MotionPlain;
+    typedef MotionTpl<Scalar,Options> MotionPlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
     };
-  }; // traits MotionPlanar
+  }; // traits MotionPlanarTpl
 
-  struct MotionPlanar : MotionBase < MotionPlanar >
+  template<typename _Scalar, int _Options>
+  struct MotionPlanarTpl : MotionBase< MotionPlanarTpl<_Scalar,_Options> >
   {
-    MOTION_TYPEDEF(MotionPlanar);
+    MOTION_TYPEDEF_TPL(MotionPlanarTpl);
 
-    MotionPlanar () : x_dot_(NAN), y_dot_(NAN), theta_dot_(NAN)      {}
-    MotionPlanar (Scalar x_dot, Scalar y_dot, Scalar theta_dot) : x_dot_(x_dot), y_dot_(y_dot), theta_dot_(theta_dot)  {}
-    Scalar x_dot_;
-    Scalar y_dot_;
-    Scalar theta_dot_;
+    MotionPlanarTpl () : m_x_dot(NAN), m_y_dot(NAN), m_theta_dot(NAN) {}
+    
+    MotionPlanarTpl (Scalar x_dot, Scalar y_dot, Scalar theta_dot)
+    : m_x_dot(x_dot), m_y_dot(y_dot), m_theta_dot(theta_dot)
+    {}
 
     operator Motion() const
     {
-      return Motion (Motion::Vector3(x_dot_, y_dot_, 0.), Motion::Vector3(0., 0., theta_dot_));
+      return Motion(Motion::Vector3(m_x_dot, m_y_dot, Scalar(0)),
+                    Motion::Vector3(Scalar(0), Scalar(0), m_theta_dot));
     }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & v) const
     {
-      v.linear()[0] += x_dot_;
-      v.linear()[1] += y_dot_;
-      v.angular()[2] += theta_dot_;
+      v.linear()[0] += m_x_dot;
+      v.linear()[1] += m_y_dot;
+      v.angular()[2] += m_theta_dot;
     }
 
-  }; // struct MotionPlanar
-
-  inline const MotionPlanar operator+ (const MotionPlanar & m, const BiasZero &)
-  { return m; }
-
+    // data
+    Scalar m_x_dot;
+    Scalar m_y_dot;
+    Scalar m_theta_dot;
+  }; // struct MotionPlanarTpl
   
-  inline Motion operator+ (const MotionPlanar & m1, const Motion & m2)
+  template<typename Scalar, int Options, typename MotionDerived>
+  inline typename MotionDerived::MotionPlain
+  operator+(const MotionPlanarTpl<Scalar,Options> & m1, const MotionDense<MotionDerived> & m2)
   {
-    Motion result (m2);
-    result.linear ()[0] += m1.x_dot_;
-    result.linear ()[1] += m1.y_dot_;
+    typename MotionDerived::MotionPlain result(m2);
+    result.linear()[0] += m1.m_x_dot;
+    result.linear()[1] += m1.m_y_dot;
 
-    result.angular ()[2] += m1.theta_dot_;
+    result.angular()[2] += m1.m_theta_dot;
 
     return result;
   }
-
 
   struct ConstraintPlanar;
   template <>
@@ -135,7 +140,9 @@ namespace se3
     typedef traits<ConstraintPlanar>::DenseBase DenseBase;
 
 
-    Motion operator* (const MotionPlanar & vj) const
+    template<typename S1, int O1>
+    typename MotionPlanarTpl<S1,O1>::MotionPlain
+    operator*(const MotionPlanarTpl<S1,O1> & vj) const
     { return vj; }
 
     int nv_impl() const { return NV; }
@@ -218,16 +225,24 @@ namespace se3
     return result;
   }
 
-
-  inline Motion operator^ (const Motion & m1, const MotionPlanar & m2)
+  template<typename MotionDerived, typename S2, int O2>
+  inline typename MotionDerived::MotionPlain operator^ (const MotionDense<MotionDerived> & m1, const MotionPlanarTpl<S2,O2> & m2)
   {
-    Motion result;
+    typename MotionDerived::MotionPlain result;
+    typedef typename MotionDerived::Scalar Scalar;
 
-    const Motion::Vector3 & m1_t = m1.linear();
-    const Motion::Vector3 & m1_w = m1.angular();
+    const typename MotionDerived::ConstLinearType & m1_t = m1.linear();
+    const typename MotionDerived::ConstAngularType & m1_w = m1.angular();
 
-    result.angular () << m1_w(1) * m2.theta_dot_, - m1_w(0) * m2.theta_dot_, 0.;
-    result.linear () << m1_t(1) * m2.theta_dot_ - m1_w(2) * m2.y_dot_, - m1_t(0) * m2.theta_dot_ + m1_w(2) * m2.x_dot_, m1_w(0) * m2.y_dot_ - m1_w(1) * m2.x_dot_;
+    result.angular()
+    << m1_w(1) * m2.m_theta_dot
+    , - m1_w(0) * m2.m_theta_dot
+    , Scalar(0);
+    
+    result.linear()
+    << m1_t(1) * m2.m_theta_dot - m1_w(2) * m2.m_y_dot
+    , - m1_t(0) * m2.m_theta_dot + m1_w(2) * m2.m_x_dot
+    , m1_w(0) * m2.m_y_dot - m1_w(1) * m2.m_x_dot;
 
     return result;
   }
@@ -291,12 +306,13 @@ namespace se3
       NQ = 4,
       NV = 3
     };
+    enum { Options = 0 };
     typedef double Scalar;
     typedef JointDataPlanar JointDataDerived;
     typedef JointModelPlanar JointModelDerived;
     typedef ConstraintPlanar Constraint_t;
     typedef SE3 Transformation_t;
-    typedef MotionPlanar Motion_t;
+    typedef MotionPlanarTpl<Scalar,Options> Motion_t;
     typedef BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,NV> F_t;
     
@@ -382,9 +398,9 @@ namespace se3
       data.M.rotation ().topLeftCorner <2,2> () << c_theta, -s_theta, s_theta, c_theta;
       data.M.translation ().head <2> () = q.head<2> ();
 
-      data.v.x_dot_ = q_dot(0);
-      data.v.y_dot_ = q_dot(1);
-      data.v.theta_dot_ = q_dot(2);
+      data.v.m_x_dot = q_dot(0);
+      data.v.m_y_dot = q_dot(1);
+      data.v.m_theta_dot = q_dot(2);
     }
     
     void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
