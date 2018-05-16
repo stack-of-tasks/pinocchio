@@ -43,8 +43,11 @@ namespace se3
   template<typename Scalar> struct JointModelPrismaticUnalignedTpl;
   template<typename Scalar> struct JointDataPrismaticUnalignedTpl;
 
-  struct JointModelFreeFlyer;
-  struct JointDataFreeFlyer;
+  template<typename Scalar, int Options = 0> struct JointModelFreeFlyerTpl;
+  typedef JointModelFreeFlyerTpl<double> JointModelFreeFlyer;
+  
+  template<typename Scalar, int Options = 0> struct JointDataFreeFlyerTpl;
+  typedef JointDataFreeFlyerTpl<double> JointDataFreeFlyer;
 
   template<typename Scalar, int Options = 0> struct JointModelPlanarTpl;
   typedef JointModelPlanarTpl<double> JointModelPlanar;

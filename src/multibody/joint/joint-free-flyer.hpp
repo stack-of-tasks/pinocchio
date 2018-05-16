@@ -142,44 +142,47 @@ namespace se3
     { typedef typename SE3Tpl<S1,O1>::Matrix6 ReturnType; };
   }
 
-  struct JointFreeFlyer;
+  template<typename Scalar, int Options> struct JointFreeFlyerTpl;
 
-  template<>
-  struct traits<JointFreeFlyer>
+  template<typename _Scalar, int _Options>
+  struct traits< JointFreeFlyerTpl<_Scalar,_Options> >
   {
     enum {
       NQ = 7,
       NV = 6
     };
     typedef double Scalar;
-    enum { Options = 0 };
-    typedef JointDataFreeFlyer JointDataDerived;
-    typedef JointModelFreeFlyer JointModelDerived;
+    enum { Options = _Options };
+    typedef JointDataFreeFlyerTpl<Scalar,Options> JointDataDerived;
+    typedef JointModelFreeFlyerTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintIdentityTpl<Scalar,Options> Constraint_t;
-    typedef SE3 Transformation_t;
-    typedef Motion Motion_t;
+    typedef SE3Tpl<Scalar,Options> Transformation_t;
+    typedef MotionTpl<Scalar,Options> Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,NV> F_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
-    typedef Eigen::Matrix<double,6,NV> U_t;
-    typedef Eigen::Matrix<double,NV,NV> D_t;
-    typedef Eigen::Matrix<double,6,NV> UD_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
+    typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
 
-    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
   };
-  template<> struct traits<JointDataFreeFlyer> { typedef JointFreeFlyer JointDerived; };
-  template<> struct traits<JointModelFreeFlyer> { typedef JointFreeFlyer JointDerived; };
+  
+  template<typename Scalar, int Options>
+  struct traits< JointDataFreeFlyerTpl<Scalar,Options> >
+  { typedef JointFreeFlyerTpl<Scalar,Options> JointDerived; };
+  
+  template<typename Scalar, int Options>
+  struct traits< JointModelFreeFlyerTpl<Scalar,Options> >
+  { typedef JointFreeFlyerTpl<Scalar,Options> JointDerived; };
 
-  struct JointDataFreeFlyer : public JointDataBase<JointDataFreeFlyer>
+  template<typename _Scalar, int _Options>
+  struct JointDataFreeFlyerTpl : public JointDataBase< JointDataFreeFlyerTpl<_Scalar,_Options> >
   {
-    typedef JointFreeFlyer JointDerived;
-    SE3_JOINT_TYPEDEF;
-
-    typedef Eigen::Matrix<double,6,6> Matrix6;
-    typedef Eigen::Quaternion<double> Quaternion;
-    typedef Eigen::Matrix<double,3,1> Vector3;
+    typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
     
     Constraint_t S;
     Transformation_t M;
@@ -193,29 +196,29 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
     
-    JointDataFreeFlyer() : M(1), U(), Dinv(), UDinv(UD_t::Identity()) {}
+    JointDataFreeFlyerTpl() : M(1), U(), Dinv(), UDinv(UD_t::Identity()) {}
 
-  }; // struct JointDataFreeFlyer
+  }; // struct JointDataFreeFlyerTpl
 
-  struct JointModelFreeFlyer : public JointModelBase<JointModelFreeFlyer>
+  template<typename _Scalar, int _Options>
+  struct JointModelFreeFlyerTpl : public JointModelBase< JointModelFreeFlyerTpl<_Scalar,_Options> >
   {
-    typedef JointFreeFlyer JointDerived;
-    SE3_JOINT_TYPEDEF;
+    typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    using JointModelBase<JointModelFreeFlyer>::id;
-    using JointModelBase<JointModelFreeFlyer>::idx_q;
-    using JointModelBase<JointModelFreeFlyer>::idx_v;
-    using JointModelBase<JointModelFreeFlyer>::setIndexes;
-    typedef Motion::Vector3 Vector3;
+    using JointModelBase<JointModelFreeFlyerTpl>::id;
+    using JointModelBase<JointModelFreeFlyerTpl>::idx_q;
+    using JointModelBase<JointModelFreeFlyerTpl>::idx_v;
+    using JointModelBase<JointModelFreeFlyerTpl>::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
     
-    template<typename V>
-    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
+    template<typename ConfigVectorLike>
+    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVectorLike> & q_joint) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVectorLike);
       //using std::sqrt;
-      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
+      typedef Eigen::Map<const typename Transformation_t::Quaternion_t> ConstQuaternionMap_t;
 
       ConstQuaternionMap_t quat(q_joint.template tail<4>().data());
       //assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
@@ -225,34 +228,34 @@ namespace se3
       M.translation(q_joint.template head<3>());
     }
     
+    template<typename ConfigVector>
     void calc(JointDataDerived & data,
-              const Eigen::VectorXd & qs) const
+              const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigVector);
+      typedef typename Eigen::Quaternion<typename ConfigVector::Scalar,ConfigVector::Options> Quaternion;
+      typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
       
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
-      ConstQuaternionMap_t quat(q.tail<4> ().data());
+      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type q = qs.template segment<NQ>(idx_q());
+      ConstQuaternionMap quat(q.template tail<4> ().data());
       
-      data.M.rotation (quat.matrix());
-      data.M.translation (q.head<3>());
+      data.M.rotation(quat.matrix());
+      data.M.translation(q.template head<3>());
     }
     
+    template<typename ConfigVector, typename TangentVector>
     void calc(JointDataDerived & data,
-              const Eigen::VectorXd & qs,
-              const Eigen::VectorXd & vs ) const
+              const typename Eigen::MatrixBase<ConfigVector> & qs,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      typedef Eigen::Map<const SE3::Quaternion_t> ConstQuaternionMap_t;
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(TangentVector);
+      calc(data,qs.derived());
       
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
-      data.v = vs.segment<NV>(idx_v());
-
-      ConstQuaternionMap_t quat(q.tail<4> ().data());
-      
-      data.M.rotation (quat.matrix());
-      data.M.translation (q.head<3>());
+      data.v = vs.template segment<NV>(idx_v());
     }
     
-    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
+    template<typename S2, int O2>
+    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
     {
       data.U = I;
       data.Dinv = I.inverse();
@@ -270,7 +273,7 @@ namespace se3
     static std::string classname() { return std::string("JointModelFreeFlyer"); }
     std::string shortname() const { return classname(); }
 
-  }; // struct JointModelFreeFlyer
+  }; // struct JointModelFreeFlyerTpl
 
 } // namespace se3
 
