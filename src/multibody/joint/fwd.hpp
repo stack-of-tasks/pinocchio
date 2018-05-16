@@ -46,8 +46,11 @@ namespace se3
   struct JointModelFreeFlyer;
   struct JointDataFreeFlyer;
 
-  struct JointModelPlanar;
-  struct JointDataPlanar;
+  template<typename Scalar, int Options = 0> struct JointModelPlanarTpl;
+  typedef JointModelPlanarTpl<double> JointModelPlanar;
+  
+  template<typename Scalar, int Options = 0> struct JointDataPlanarTpl;
+  typedef JointDataPlanarTpl<double> JointDataPlanar;
 
   struct JointModelTranslation;
   struct JointDataTranslation;

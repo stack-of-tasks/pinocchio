@@ -313,39 +313,44 @@ namespace se3
     { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
   }
 
-  struct JointPlanar;
-  template<>
-  struct traits<JointPlanar>
+  template<typename Scalar, int Options> struct JointPlanarTpl;
+  
+  template<typename _Scalar, int _Options>
+  struct traits< JointPlanarTpl<_Scalar,_Options> >
   {
     enum {
       NQ = 4,
       NV = 3
     };
-    enum { Options = 0 };
-    typedef double Scalar;
-    typedef JointDataPlanar JointDataDerived;
-    typedef JointModelPlanar JointModelDerived;
+    enum { Options = _Options };
+    typedef _Scalar Scalar;
+    typedef JointDataPlanarTpl<Scalar,Options> JointDataDerived;
+    typedef JointModelPlanarTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintPlanarTpl<Scalar,Options> Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionPlanarTpl<Scalar,Options> Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,NV> F_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
-    typedef Eigen::Matrix<double,6,NV> U_t;
-    typedef Eigen::Matrix<double,NV,NV> D_t;
-    typedef Eigen::Matrix<double,6,NV> UD_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
+    typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
 
-    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
   };
-  template<> struct traits<JointDataPlanar> { typedef JointPlanar JointDerived; };
-  template<> struct traits<JointModelPlanar> { typedef JointPlanar JointDerived; };
+  
+  template<typename Scalar, int Options>
+  struct traits< JointDataPlanarTpl<Scalar,Options> > { typedef JointPlanarTpl<Scalar,Options> JointDerived; };
+  template<typename Scalar, int Options>
+  struct traits< JointModelPlanarTpl<Scalar,Options> > { typedef JointPlanarTpl<Scalar,Options> JointDerived; };
 
-  struct JointDataPlanar : public JointDataBase<JointDataPlanar>
+  template<typename _Scalar, int _Options>
+  struct JointDataPlanarTpl : public JointDataBase< JointDataPlanarTpl<_Scalar,_Options> >
   {
-    typedef JointPlanar JointDerived;
-    SE3_JOINT_TYPEDEF;
+    typedef JointPlanarTpl<_Scalar,_Options> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
     
     Constraint_t S;
     Transformation_t M;
@@ -359,19 +364,20 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataPlanar () : M(1), U(), Dinv(), UDinv() {}
+    JointDataPlanarTpl () : M(1), U(), Dinv(), UDinv() {}
 
-  }; // struct JointDataPlanar
+  }; // struct JointDataPlanarTpl
 
-  struct JointModelPlanar : public JointModelBase<JointModelPlanar>
+  template<typename _Scalar, int _Options>
+  struct JointModelPlanarTpl : public JointModelBase< JointModelPlanarTpl<_Scalar,_Options> >
   {
-    typedef JointPlanar JointDerived;
-    SE3_JOINT_TYPEDEF;
+    typedef JointPlanarTpl<_Scalar,_Options> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    using JointModelBase<JointModelPlanar>::id;
-    using JointModelBase<JointModelPlanar>::idx_q;
-    using JointModelBase<JointModelPlanar>::idx_v;
-    using JointModelBase<JointModelPlanar>::setIndexes;
+    using JointModelBase<JointModelPlanarTpl>::id;
+    using JointModelBase<JointModelPlanarTpl>::idx_q;
+    using JointModelBase<JointModelPlanarTpl>::idx_v;
+    using JointModelBase<JointModelPlanarTpl>::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
     
@@ -383,48 +389,51 @@ namespace se3
       const double& c_theta = q_joint(2),
                     s_theta = q_joint(3);
       
-      M.rotation().topLeftCorner<2,2>() << c_theta, -s_theta, s_theta, c_theta;
-      M.translation().head<2>() = q_joint.template head<2>();
+      M.rotation().template topLeftCorner<2,2>() << c_theta, -s_theta, s_theta, c_theta;
+      M.translation().template head<2>() = q_joint.template head<2>();
     }
 
-    void calc (JointDataDerived & data,
-               const Eigen::VectorXd & qs) const
+    template<typename ConfigVector>
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ>(idx_q ());
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigVector);
+      
+      typedef typename ConfigVector::Scalar Scalar;
+      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
 
-      const double& c_theta = q(2),
-                    s_theta = q(3);
+      const Scalar
+      &c_theta = q(2),
+      &s_theta = q(3);
 
-      data.M.rotation ().topLeftCorner <2,2> () << c_theta, -s_theta, s_theta, c_theta;
-      data.M.translation ().head <2> () = q.head<2> ();
+      data.M.rotation().template topLeftCorner<2,2>() << c_theta, -s_theta, s_theta, c_theta;
+      data.M.translation().template head<2>() = q.template head<2>();
 
     }
 
-    void calc (JointDataDerived & data,
-               const Eigen::VectorXd & qs,
-               const Eigen::VectorXd & vs ) const
+    template<typename ConfigVector, typename TangentVector>
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
-
-      const double& c_theta = q(2),
-                    s_theta = q(3);
-
-      data.M.rotation ().topLeftCorner <2,2> () << c_theta, -s_theta, s_theta, c_theta;
-      data.M.translation ().head <2> () = q.head<2> ();
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(TangentVector);
+      calc(data,qs.derived());
+      
+      typename TangentVector::template ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.template segment<NV>(idx_v ());
 
       data.v.m_x_dot = q_dot(0);
       data.v.m_y_dot = q_dot(1);
       data.v.m_theta_dot = q_dot(2);
     }
     
-    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
+    template<typename S2, int O2>
+    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
     {
-      data.U.leftCols<2> () = I.leftCols<2> ();
-      data.U.rightCols<1> () = I.rightCols<1> ();
-      Inertia::Matrix3 tmp;
-      tmp.leftCols<2> () = data.U.topRows<2> ().transpose();
-      tmp.rightCols<1> () = data.U.bottomRows<1> ();
+      data.U.template leftCols<2>() = I.template leftCols<2>();
+      data.U.template rightCols<1>() = I.template rightCols<1>();
+      Eigen::Matrix<S2,3,3,O2> tmp;
+      tmp.template leftCols<2>() = data.U.template topRows<2>().transpose();
+      tmp.template rightCols<1>() = data.U.template bottomRows<1>();
       data.Dinv = tmp.inverse();
       data.UDinv.noalias() = data.U * data.Dinv;
       
@@ -432,17 +441,16 @@ namespace se3
         I -= data.UDinv * data.U.transpose();
     }
     
-    ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    Scalar finiteDifferenceIncrement() const
     {
       using std::sqrt;
-      typedef ConfigVector_t::Scalar Scalar;
       return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
 
     static std::string classname() { return std::string("JointModelPlanar");}
     std::string shortname() const { return classname(); }
 
-  }; // struct JointModelPlanar
+  }; // struct JointModelPlanarTpl
 
 } // namespace se3
 
