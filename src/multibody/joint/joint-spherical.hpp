@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -32,58 +32,60 @@
 namespace se3
 {
 
-  struct MotionSpherical;
+  template<typename Scalar, int Options> struct MotionSpherical;
   
-  template <>
-  struct traits< MotionSpherical >
+  template<typename _Scalar, int _Options>
+  struct traits< MotionSpherical<_Scalar,_Options> >
   {
-    typedef double Scalar;
-    typedef Eigen::Matrix<double,3,1,0> Vector3;
-    typedef Eigen::Matrix<double,6,1,0> Vector6;
-    typedef Eigen::Matrix<double,6,6,0> Matrix6;
-    typedef EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
-    typedef EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
+    typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
+    typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Vector3 AngularType;
     typedef Vector3 LinearType;
     typedef const Vector3 ConstAngularType;
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
-    typedef MotionTpl<double,0> MotionPlain;
+    typedef MotionTpl<Scalar,Options> MotionPlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
     };
   }; // traits MotionSpherical
 
-  struct MotionSpherical : MotionBase < MotionSpherical >
+  template<typename _Scalar, int _Options>
+  struct MotionSpherical : MotionBase< MotionSpherical<_Scalar,_Options> >
   {
-    MOTION_TYPEDEF(MotionSpherical);
+    MOTION_TYPEDEF_TPL(MotionSpherical);
 
-    MotionSpherical ()                   : w (Motion::Vector3(NAN, NAN, NAN)) {}
-    MotionSpherical (const Motion::Vector3 & w) : w (w)  {}
-    Motion::Vector3 w;
+    MotionSpherical() : w (Motion::Vector3(NAN, NAN, NAN)) {}
+    MotionSpherical(const Motion::Vector3 & w) : w (w)  {}
 
-    Motion::Vector3 & operator() () { return w; }
-    const Motion::Vector3 & operator() () const { return w; }
+    Vector3 & operator() () { return w; }
+    const Vector3 & operator() () const { return w; }
 
     operator Motion() const
     {
-      return Motion (Motion::Vector3::Zero (), w);
+      return Motion(Motion::Vector3::Zero(), w);
     }
     
-    template<typename Derived>
-    void addTo(MotionDense<Derived> & v) const
+    template<typename MotionDerived>
+    void addTo(MotionDense<MotionDerived> & v) const
     {
       v.angular() += w;
     }
+    
+    Vector3 w;
   }; // struct MotionSpherical
 
-  inline const MotionSpherical operator+ (const MotionSpherical & m, const BiasZero & )
-  { return m; }
-
-  inline Motion operator+ (const MotionSpherical & m1, const Motion & m2)
+  template<typename S1, int O1, typename MotionDerived>
+  inline typename MotionDerived::MotionPlain
+  operator+(const MotionSpherical<S1,O1> & m1, const MotionDense<MotionDerived> & m2)
   {
-    return Motion( m2.linear(), m2.angular() + m1.w);
+    return typename MotionDerived::MotionPlain(m2.linear(),m2.angular() + m1.w);
   }
 
   struct ConstraintRotationalSubspace;
@@ -125,10 +127,6 @@ namespace se3
     typedef traits<ConstraintRotationalSubspace>::JointMotion JointMotion;
     typedef traits<ConstraintRotationalSubspace>::JointForce JointForce;
     typedef traits<ConstraintRotationalSubspace>::DenseBase DenseBase;
-
-    /// Missing operator*
-    // Motion operator* (const MotionSpherical & vj) const
-    // { return ??; }
 
     int nv_impl() const { return NV; }
     
@@ -190,10 +188,13 @@ namespace se3
     return Motion (Motion::Vector3::Zero (), v);
   }
 
-
-  inline Motion operator^ (const Motion & m1, const MotionSpherical & m2)
+  template<typename MotionDerived, typename S2, int O2>
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1,
+            const MotionSpherical<S2,O2> & m2)
   {
-    return Motion(m1.linear ().cross (m2.w), m1.angular ().cross (m2.w));
+    return typename MotionDerived::MotionPlain(m1.template linear().cross(m2.w),
+                                               m1.template angular().cross(m2.w));
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
@@ -232,11 +233,12 @@ namespace se3
       NV = 3
     };
     typedef double Scalar;
+    enum { Options = 0 };
     typedef JointDataSpherical JointDataDerived;
     typedef JointModelSpherical JointModelDerived;
     typedef ConstraintRotationalSubspace Constraint_t;
     typedef SE3 Transformation_t;
-    typedef MotionSpherical Motion_t;
+    typedef MotionSpherical<Scalar,Options> Motion_t;
     typedef BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,NV> F_t;
     
