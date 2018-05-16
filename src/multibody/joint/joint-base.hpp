@@ -174,6 +174,12 @@ namespace se3
       typedef typename Mat::template NColsBlockXpr<NV>::Type Type;
       typedef typename Mat::template ConstNColsBlockXpr<NV>::Type ConstType;
     };
+    template<class Mat>
+    struct RowsReturn
+    {
+      typedef typename Mat::template NRowsBlockXpr<NV>::Type Type;
+      typedef typename Mat::template ConstNRowsBlockXpr<NV>::Type ConstType;
+    };
   };
   template<>
   struct SizeDepType<Eigen::Dynamic>
@@ -189,6 +195,12 @@ namespace se3
     {
       typedef typename Mat::ColsBlockXpr Type;
       typedef typename Mat::ConstColsBlockXpr ConstType;
+    };
+    template<class Mat>
+    struct RowsReturn
+    {
+      typedef typename Mat::RowsBlockXpr Type;
+      typedef typename Mat::ConstRowsBlockXpr ConstType;
     };
   };
 
