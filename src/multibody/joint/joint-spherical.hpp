@@ -26,9 +26,6 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
 
-#include "pinocchio/spatial/explog.hpp"
-#include "pinocchio/math/quaternion.hpp"
-
 namespace se3
 {
 
