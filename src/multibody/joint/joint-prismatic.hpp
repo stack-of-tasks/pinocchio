@@ -285,11 +285,12 @@ namespace se3
   }
   
   /* [ABA] operator* (Inertia Y,Constraint S) */
-  template<int axis, typename Scalar>
-  inline const Inertia::Matrix6::ConstColXpr
-  operator*(const Inertia::Matrix6 & Y, const ConstraintPrismatic<Scalar,axis> & )
+  template<typename M6Like, typename S2, int axis>
+  inline const typename M6Like::ConstColXpr
+  operator*(const Eigen::MatrixBase<M6Like> & Y, const ConstraintPrismatic<S2,axis> &)
   {
-    return Y.col(Inertia::LINEAR + axis);
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
+    return Y.derived().col(Inertia::LINEAR + axis);
   }
 
   namespace internal 
