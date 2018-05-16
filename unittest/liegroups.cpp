@@ -108,7 +108,8 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   BOOST_CHECK_MESSAGE(dist > 0., "distance - wrong results");
   BOOST_CHECK_SMALL(std::fabs(dist-q1_dot.norm()), 10*prec);
   
-  std::string error_prefix("LieGroup ");
+  std::string error_prefix("LieGroup");
+  error_prefix += " on joint " + jmodel.shortname();
   
   BOOST_CHECK_MESSAGE(jmodel.nq() == LieGroupType::NQ, std::string(error_prefix + " - nq "));
   BOOST_CHECK_MESSAGE(jmodel.nv() == LieGroupType::NV, std::string(error_prefix + " - nv "));
