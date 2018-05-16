@@ -217,10 +217,10 @@ namespace se3
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVectorLike> & q_joint) const
     {
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVectorLike);
-      //using std::sqrt;
-      typedef Eigen::Map<const typename Transformation_t::Quaternion_t> ConstQuaternionMap_t;
+      typedef typename Eigen::Quaternion<typename ConfigVectorLike::Scalar,EIGEN_PLAIN_TYPE(ConfigVectorLike)::Options> Quaternion;
+      typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
 
-      ConstQuaternionMap_t quat(q_joint.template tail<4>().data());
+      ConstQuaternionMap quat(q_joint.template tail<4>().data());
       //assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
       assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= 1e-4);
       
@@ -237,7 +237,7 @@ namespace se3
       typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
       
       typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type q = qs.template segment<NQ>(idx_q());
-      ConstQuaternionMap quat(q.template tail<4> ().data());
+      ConstQuaternionMap quat(q.template tail<4>().data());
       
       data.M.rotation(quat.matrix());
       data.M.translation(q.template head<3>());
