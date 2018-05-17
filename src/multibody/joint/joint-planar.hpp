@@ -66,8 +66,8 @@ namespace se3
 
     operator MotionPlain() const
     {
-      return MotionPlain(MotionPlain::Vector3(m_x_dot,m_y_dot,Scalar(0)),
-                         MotionPlain::Vector3(Scalar(0),Scalar(0),m_theta_dot));
+      return MotionPlain(typename MotionPlain::Vector3(m_x_dot,m_y_dot,Scalar(0)),
+                         typename MotionPlain::Vector3(Scalar(0),Scalar(0),m_theta_dot));
     }
     
     template<typename Derived>
