@@ -58,8 +58,11 @@ namespace se3
   template<typename Scalar, int Options = 0> struct JointDataPlanarTpl;
   typedef JointDataPlanarTpl<double> JointDataPlanar;
 
-  struct JointModelTranslation;
-  struct JointDataTranslation;
+  template<typename Scalar, int Options = 0> struct JointModelTranslationTpl;
+  typedef JointModelTranslationTpl<double> JointModelTranslation;
+  
+  template<typename Scalar, int Options = 0> struct JointDataTranslationTpl;
+  typedef JointDataTranslationTpl<double> JointDataTranslation;
 
   struct JointModelComposite;
   struct JointDataComposite;

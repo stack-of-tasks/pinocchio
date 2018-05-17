@@ -258,44 +258,47 @@ namespace se3
   }
   
   
-  struct JointTranslation;
-  template<>
-  struct traits<JointTranslation>
+  template<typename Scalar, int Options> struct JointTranslationTpl;
+  
+  template<typename _Scalar, int _Options>
+  struct traits< JointTranslationTpl<_Scalar,_Options> >
   {
     enum {
       NQ = 3,
       NV = 3
     };
-    typedef double Scalar;
-    enum { Options = 0 };
-    typedef JointDataTranslation JointDataDerived;
-    typedef JointModelTranslation JointModelDerived;
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
+    typedef JointDataTranslationTpl<Scalar,Options> JointDataDerived;
+    typedef JointModelTranslationTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintTranslationTpl<Scalar,Options> Constraint_t;
-    typedef SE3 Transformation_t;
+    typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTranslationTpl<Scalar,Options> Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,NV> F_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
-    typedef Eigen::Matrix<double,6,NV> U_t;
-    typedef Eigen::Matrix<double,NV,NV> D_t;
-    typedef Eigen::Matrix<double,6,NV> UD_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
+    typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
 
-    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
-  }; // traits JointTranslation
+    typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+  }; // traits JointTranslationTpl
   
-  template<> struct traits<JointDataTranslation> { typedef JointTranslation JointDerived; };
-  template<> struct traits<JointModelTranslation> { typedef JointTranslation JointDerived; };
+  template<typename Scalar, int Options>
+  struct traits< JointDataTranslationTpl<Scalar,Options> >
+  { typedef JointTranslationTpl<Scalar,Options> JointDerived; };
+  
+  template<typename Scalar, int Options>
+  struct traits< JointModelTranslationTpl<Scalar,Options> >
+  { typedef JointTranslationTpl<Scalar,Options> JointDerived; };
 
-  struct JointDataTranslation : public JointDataBase<JointDataTranslation>
+  template<typename _Scalar, int _Options>
+  struct JointDataTranslationTpl : public JointDataBase< JointDataTranslationTpl<_Scalar,_Options> >
   {
-    typedef JointTranslation JointDerived;
-    SE3_JOINT_TYPEDEF;
-
-    typedef Eigen::Matrix<double,6,6> Matrix6;
-    typedef Eigen::Matrix<double,3,3> Matrix3;
-    typedef Eigen::Matrix<double,3,1> Vector3;
+    typedef JointTranslationTpl<_Scalar,_Options> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
     Constraint_t S;
     Transformation_t M;
@@ -309,48 +312,56 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataTranslation () : M(1), U(), Dinv(), UDinv() {}
+    JointDataTranslationTpl () : M(1), U(), Dinv(), UDinv() {}
 
-  }; // struct JointDataTranslation
+  }; // struct JointDataTranslationTpl
 
-  struct JointModelTranslation : public JointModelBase<JointModelTranslation>
+  template<typename _Scalar, int _Options>
+  struct JointModelTranslationTpl : public JointModelBase< JointModelTranslationTpl<_Scalar,_Options> >
   {
-    typedef JointTranslation JointDerived;
-    SE3_JOINT_TYPEDEF;
+    typedef JointTranslationTpl<_Scalar,_Options> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    using JointModelBase<JointModelTranslation>::id;
-    using JointModelBase<JointModelTranslation>::idx_q;
-    using JointModelBase<JointModelTranslation>::idx_v;
-    using JointModelBase<JointModelTranslation>::setIndexes;
-    typedef Motion::Vector3 Vector3;
+    using JointModelBase<JointModelTranslationTpl>::id;
+    using JointModelBase<JointModelTranslationTpl>::idx_q;
+    using JointModelBase<JointModelTranslationTpl>::idx_v;
+    using JointModelBase<JointModelTranslationTpl>::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
 
-    void calc (JointDataDerived & data,
-               const Eigen::VectorXd & qs) const
+    template<typename ConfigVector>
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      data.M.translation (qs.segment<NQ>(idx_q ()));
-    }
-    void calc (JointDataDerived & data,
-               const Eigen::VectorXd & qs,
-               const Eigen::VectorXd & vs ) const
-    {
-      data.M.translation (qs.segment<NQ> (idx_q ()));
-      data.v () = vs.segment<NQ> (idx_v ());
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVector);
+      data.M.translation(qs.template segment<NQ>(idx_q()));
     }
     
-    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
+    template<typename ConfigVector, typename TangentVector>
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      data.U = I.block<6,3> (0,Inertia::LINEAR);
-      data.Dinv = I.block<3,3> (Inertia::LINEAR,Inertia::LINEAR).inverse();
-      data.UDinv.middleRows<3> (Inertia::LINEAR).setIdentity(); // can be put in data constructor
-      data.UDinv.middleRows<3> (Inertia::ANGULAR) = data.U.block<3,3> (Inertia::ANGULAR, 0) * data.Dinv;
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,TangentVector);
+      calc(data,qs.derived());
+      
+      data.v() = vs.template segment<NQ>(idx_v());
+    }
+    
+    template<typename S2, int O2>
+    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    {
+      data.U = I.template middleCols<3>(Inertia::LINEAR);
+      data.Dinv = data.U.template middleRows<3>(Inertia::LINEAR).inverse();
+      data.UDinv.template middleRows<3>(Inertia::LINEAR).setIdentity(); // can be put in data constructor
+      data.UDinv.template middleRows<3>(Inertia::ANGULAR).noalias() = data.U.template middleRows<3>(Inertia::ANGULAR) * data.Dinv;
       
       if (update_I)
       {
-        I.block<6,3> (0,Inertia::LINEAR).setZero();
-        I.block<3,3> (Inertia::LINEAR,Inertia::ANGULAR).setZero();
-        I.block<3,3> (Inertia::ANGULAR,Inertia::ANGULAR) -= data.UDinv.middleRows<3> (Inertia::ANGULAR) * I.block<3,3> (Inertia::LINEAR, Inertia::ANGULAR);
+        I.template middleCols<3>(Inertia::LINEAR).setZero();
+        I.template block<3,3>(Inertia::LINEAR,Inertia::ANGULAR).setZero();
+        I.template block<3,3>(Inertia::ANGULAR,Inertia::ANGULAR)
+        -= data.UDinv.template middleRows<3>(Inertia::ANGULAR) * I.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
       }
     }
     
@@ -363,7 +374,7 @@ namespace se3
     static std::string classname() { return std::string("JointModelTranslation"); }
     std::string shortname() const { return classname(); }
 
-  }; // struct JointModelTranslation
+  }; // struct JointModelTranslationTpl
   
 } // namespace se3
 
