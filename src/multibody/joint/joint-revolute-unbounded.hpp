@@ -37,11 +37,12 @@ namespace se3
       NV = 1
     };
     typedef double Scalar;
+    enum { Options = 0 };
     typedef JointDataRevoluteUnbounded<axis> JointDataDerived;
     typedef JointModelRevoluteUnbounded<axis> JointModelDerived;
     typedef ConstraintRevolute<axis> Constraint_t;
     typedef SE3 Transformation_t;
-    typedef MotionRevolute<axis> Motion_t;
+    typedef MotionRevoluteTpl<Scalar,Options,axis> Motion_t;
     typedef BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,NV> F_t;
     

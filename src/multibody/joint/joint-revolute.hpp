@@ -23,12 +23,13 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/spatial/spatial-axis.hpp"
+#include "pinocchio/tools/axis-label.hpp"
 
 namespace se3
 {
 
-  template<int axis> struct SE3Revolute;
-  template<int axis> struct MotionRevolute;
+  template<typename Scalar, int Options, int axis> struct MotionRevoluteTpl;
 
   namespace revolute
   {
@@ -55,13 +56,14 @@ namespace se3
   } // namespace revolute
 
 
-  template<int axis>
-  struct traits< MotionRevolute < axis > >
+  template<typename _Scalar, int _Options, int axis>
+  struct traits< MotionRevoluteTpl<_Scalar,_Options,axis> >
   {
-    typedef double Scalar;
-    typedef Eigen::Matrix<double,3,1,0> Vector3;
-    typedef Eigen::Matrix<double,6,1,0> Vector6;
-    typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
     typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Vector3 AngularType;
@@ -69,44 +71,45 @@ namespace se3
     typedef const Vector3 ConstAngularType;
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
-    typedef MotionTpl<double,0> MotionPlain;
+    typedef MotionTpl<Scalar,Options> MotionPlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
     };
-  }; // traits MotionRevolute
+  }; // traits MotionRevoluteTpl
 
-  template<int axis>
-  struct MotionRevolute : MotionBase < MotionRevolute <axis > >
+  template<typename _Scalar, int _Options, int axis>
+  struct MotionRevoluteTpl : MotionBase< MotionRevoluteTpl<_Scalar,_Options,axis> >
   {
-    MOTION_TYPEDEF_TPL(MotionRevolute);
+    MOTION_TYPEDEF_TPL(MotionRevoluteTpl);
+    typedef SpatialAxis<axis+ANGULAR> Axis;
 
-    MotionRevolute()                   : w(NAN) {}
-    MotionRevolute( const double & w ) : w(w)  {}
-    double w;
-
-    operator Motion() const
+    MotionRevoluteTpl()                   : w(NAN) {}
+    
+    template<typename OtherScalar>
+    MotionRevoluteTpl(const OtherScalar & w) : w(w)  {}
+    
+    operator MotionPlain() const { return Axis() * w; }
+    
+    template<typename MotionDerived>
+    void addTo(MotionDense<MotionDerived> & v) const
     {
-      return Motion(Motion::Vector3::Zero(),
-        typename revolute::CartesianVector3<axis>(w).vector()
-        );
+      typedef typename MotionDense<MotionDerived>::Scalar OtherScalar;
+      v.angular()[axis] += (OtherScalar)w;
     }
     
-    template<typename Derived>
-    void addTo(MotionDense<Derived> & v) const
-    {
-      v.angular()[axis] += w;
-    }
-  }; // struct MotionRevolute
+    // data
+    Scalar w;
+  }; // struct MotionRevoluteTpl
 
-  template <int axis >
-  const MotionRevolute<axis>& operator+ (const MotionRevolute<axis>& m, const BiasZero&)
-  { return m; }
-
-  template<int axis >
-  Motion operator+( const MotionRevolute<axis>& m1, const Motion& m2)
+  template<typename S1, int O1, int axis, typename MotionDerived>
+  typename MotionDerived::MotionPlain
+  operator+(const MotionRevoluteTpl<S1,O1,axis> & m1,
+            const MotionDense<MotionDerived> & m2)
   {
-    return Motion( m2.linear(),m2.angular()+typename revolute::CartesianVector3<axis>(m1.w)); 
+    typename MotionDerived::MotionPlain res(m2);
+    res += m1;
+    return res;
   }
 
   template<int axis> struct ConstraintRevolute;
@@ -163,8 +166,8 @@ namespace se3
     typedef typename traits<ConstraintRevolute>::DenseBase DenseBase;
 
     template<typename D>
-    MotionRevolute<axis> operator*( const Eigen::MatrixBase<D> & v ) const
-    { return MotionRevolute<axis>(v[0]); }
+    MotionRevoluteTpl<Scalar,Options,axis> operator*( const Eigen::MatrixBase<D> & v ) const
+    { return MotionRevoluteTpl<Scalar,Options,axis>(v[0]); }
 
     Eigen::Matrix<double,6,1> se3Action(const SE3 & m) const
     { 
@@ -230,49 +233,58 @@ namespace se3
       static Eigen::Matrix3d cartesianRotation(const double & ca, const double & sa); 
   };
 
-  inline Motion operator^( const Motion& m1, const MotionRevolute<0>& m2)
+  template<typename MotionDerived, typename S2, int O2>
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteTpl<S2,O2,0>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(0,w2) = ( v1^w2      , w1^w2 )
      * (x,y,z)^(w,0,0) = ( 0,zw,-yw )
      * nu1^(0,wx) = ( 0,vz1 wx,-vy1 wx,    0,wz1 wx,-wy1 wx)
      */
-    const Motion::Vector3& v = m1.linear();
-    const Motion::Vector3& w = m1.angular();
-    const double & wx = m2.w;
-    return Motion( Motion::Vector3(0,v[2]*wx,-v[1]*wx),
-                   Motion::Vector3(0,w[2]*wx,-w[1]*wx)
-                 );
+    typedef typename MotionDerived::MotionPlain ReturnType;
+    const typename MotionDerived::ConstLinearType & v = m1.linear();
+    const typename MotionDerived::ConstAngularType & w = m1.angular();
+    const S2 & wx = m2.w;
+    return ReturnType(typename ReturnType::Vector3(0,v[2]*wx,-v[1]*wx),
+                      typename ReturnType::Vector3(0,w[2]*wx,-w[1]*wx)
+                      );
   }
 
-  inline Motion operator^( const Motion& m1, const MotionRevolute<1>& m2)
+  template<typename MotionDerived, typename S2, int O2>
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteTpl<S2,O2,1>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(0,w2) = ( v1^w2      , w1^w2 )
      * (x,y,z)^(0,w,0) = ( -z,0,x )
      * nu1^(0,wx) = ( -vz1 wx,0,vx1 wx,    -wz1 wx,0,wx1 wx)
      */
-    const Motion::Vector3& v = m1.linear();
-    const Motion::Vector3& w = m1.angular();
-    const double & wx = m2.w;
-    return Motion(  Motion::Vector3(-v[2]*wx,0, v[0]*wx),
-                    Motion::Vector3(-w[2]*wx,0, w[0]*wx)
-                 );
+    typedef typename MotionDerived::MotionPlain ReturnType;
+    const typename MotionDerived::ConstLinearType & v = m1.linear();
+    const typename MotionDerived::ConstAngularType & w = m1.angular();
+    const S2 & wx = m2.w;
+    return ReturnType(typename ReturnType::Vector3(-v[2]*wx,0, v[0]*wx),
+                      typename ReturnType::Vector3(-w[2]*wx,0, w[0]*wx)
+                      );
   }
 
-  inline Motion operator^( const Motion& m1, const MotionRevolute<2>& m2)
+  template<typename MotionDerived, typename S2, int O2>
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteTpl<S2,O2,2>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(0,w2) = ( v1^w2      , w1^w2 )
      * (x,y,z)^(0,0,w) = ( y,-x,0 )
      * nu1^(0,wx) = ( vy1 wx,-vx1 wx,0,    wy1 wx,-wx1 wx,0 )
      */
-    const Motion::Vector3& v = m1.linear();
-    const Motion::Vector3& w = m1.angular();
-    const double & wx = m2.w;
-    return Motion( Motion::Vector3(v[1]*wx,-v[0]*wx,0),
-                   Motion::Vector3(w[1]*wx,-w[0]*wx,0)
-                 );
+    typedef typename MotionDerived::MotionPlain ReturnType;
+    const typename MotionDerived::ConstLinearType & v = m1.linear();
+    const typename MotionDerived::ConstAngularType & w = m1.angular();
+    const S2 & wx = m2.w;
+    return ReturnType(typename ReturnType::Vector3(v[1]*wx,-v[0]*wx,0),
+                      typename ReturnType::Vector3(w[1]*wx,-w[0]*wx,0)
+                      );
     }
 
   template<> inline
@@ -387,11 +399,12 @@ namespace se3
       NV = 1
     };
     typedef double Scalar;
+    enum { Options = 0 };
     typedef JointDataRevolute<axis> JointDataDerived;
     typedef JointModelRevolute<axis> JointModelDerived;
     typedef ConstraintRevolute<axis> Constraint_t;
     typedef SE3 Transformation_t;
-    typedef MotionRevolute<axis> Motion_t;
+    typedef MotionRevoluteTpl<Scalar,Options,axis> Motion_t;
     typedef BiasZero Bias_t;
     typedef Eigen::Matrix<double,6,NV> F_t;
     
