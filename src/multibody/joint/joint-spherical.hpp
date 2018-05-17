@@ -140,7 +140,7 @@ namespace se3
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename MatrixDerived>
       const typename SizeDepType<3>::RowsReturn<MatrixDerived>::ConstType
-      operator*(const Eigen::MatrixBase<MatrixDerived> & F)
+      operator*(const Eigen::MatrixBase<MatrixDerived> & F) const
       {
         assert(F.rows()==6);
         return F.derived().template middleRows<3>(Inertia::ANGULAR);
@@ -222,7 +222,8 @@ namespace se3
   operator*(const Eigen::MatrixBase<M6Like> & Y,
             const ConstraintRotationalSubspace<S2,O2> &)
   {
-    return Y.derived().template middleCols<3>(Inertia::ANGULAR);
+    typedef ConstraintRotationalSubspace<S2,O2> Constraint;
+    return Y.derived().template middleCols<3>(Constraint::ANGULAR);
   }
   
   namespace internal
