@@ -85,10 +85,10 @@ namespace se3
     return typename MotionDerived::MotionPlain(m2.linear(),m2.angular() + m1.w);
   }
 
-  template<typename Scalar, int Options> struct ConstraintRotationalSubspace;
+  template<typename Scalar, int Options> struct ConstraintSphericalTpl;
   
   template<typename _Scalar, int _Options>
-  struct traits< ConstraintRotationalSubspace<_Scalar,_Options> >
+  struct traits< ConstraintSphericalTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -117,16 +117,16 @@ namespace se3
     typedef Eigen::Matrix<Scalar,6,3,Options> DenseBase;
     typedef DenseBase MatrixReturnType;
     typedef const DenseBase ConstMatrixReturnType;
-  }; // struct traits struct ConstraintRotationalSubspace
+  }; // struct traits struct ConstraintSphericalTpl
 
   template<typename _Scalar, int _Options>
-  struct ConstraintRotationalSubspace : public ConstraintBase< ConstraintRotationalSubspace<_Scalar,_Options> >
+  struct ConstraintSphericalTpl : public ConstraintBase< ConstraintSphericalTpl<_Scalar,_Options> >
   {
-    SPATIAL_TYPEDEF_TEMPLATE(ConstraintRotationalSubspace);
+    SPATIAL_TYPEDEF_TEMPLATE(ConstraintSphericalTpl);
     enum { NV = 3 };
-    typedef typename traits<ConstraintRotationalSubspace>::JointMotion JointMotion;
-    typedef typename traits<ConstraintRotationalSubspace>::JointForce JointForce;
-    typedef typename traits<ConstraintRotationalSubspace>::DenseBase DenseBase;
+    typedef typename traits<ConstraintSphericalTpl>::JointMotion JointMotion;
+    typedef typename traits<ConstraintSphericalTpl>::JointForce JointForce;
+    typedef typename traits<ConstraintSphericalTpl>::DenseBase DenseBase;
     
     int nv_impl() const { return NV; }
     
@@ -180,12 +180,12 @@ namespace se3
       return res;
     }
 
-  }; // struct ConstraintRotationalSubspace
+  }; // struct ConstraintSphericalTpl
 
               
   template<typename Scalar, int Options, typename Vector3Like>
   MotionSpherical<Scalar,Options>
-  operator*(const ConstraintRotationalSubspace<Scalar,Options> &,
+  operator*(const ConstraintSphericalTpl<Scalar,Options> &,
             const Eigen::MatrixBase<Vector3Like>& v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
@@ -205,7 +205,7 @@ namespace se3
   template<typename S1, int O1, typename S2, int O2>
   inline Eigen::Matrix<S2,6,3,O2>
   operator*(const InertiaTpl<S1,O1> & Y,
-            const ConstraintRotationalSubspace<S2,O2> &)
+            const ConstraintSphericalTpl<S2,O2> &)
   {
     typedef InertiaTpl<S1,O1> Inertia;
     Eigen::Matrix<S2,6,3,O2> M;
@@ -220,20 +220,20 @@ namespace se3
   template<typename M6Like, typename S2, int O2>
   inline const typename SizeDepType<3>::ColsReturn<M6Like>::ConstType
   operator*(const Eigen::MatrixBase<M6Like> & Y,
-            const ConstraintRotationalSubspace<S2,O2> &)
+            const ConstraintSphericalTpl<S2,O2> &)
   {
-    typedef ConstraintRotationalSubspace<S2,O2> Constraint;
+    typedef ConstraintSphericalTpl<S2,O2> Constraint;
     return Y.derived().template middleCols<3>(Constraint::ANGULAR);
   }
   
   namespace internal
   {
     template<typename S1, int O1>
-    struct SE3GroupAction< ConstraintRotationalSubspace<S1,O1> >
+    struct SE3GroupAction< ConstraintSphericalTpl<S1,O1> >
     { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
     
     template<typename S1, int O1, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintRotationalSubspace<S1,O1>,MotionDerived >
+    struct MotionAlgebraAction< ConstraintSphericalTpl<S1,O1>,MotionDerived >
     { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
   }
 
@@ -250,7 +250,7 @@ namespace se3
     enum { Options = _Options };
     typedef JointDataSphericalTpl<Scalar,Options> JointDataDerived;
     typedef JointModelSphericalTpl<Scalar,Options> JointModelDerived;
-    typedef ConstraintRotationalSubspace<Scalar,Options> Constraint_t;
+    typedef ConstraintSphericalTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionSpherical<Scalar,Options> Motion_t;
     typedef BiasZero Bias_t;
