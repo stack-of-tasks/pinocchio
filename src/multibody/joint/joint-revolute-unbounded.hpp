@@ -27,41 +27,46 @@
 namespace se3
 {
 
-  template<int axis> struct JointRevoluteUnbounded;
+  template<typename Scalar, int Options, int axis> struct JointRevoluteUnboundedTpl;
 
-  template<int axis>
-  struct traits< JointRevoluteUnbounded<axis> >
+  template<typename _Scalar, int _Options, int axis>
+  struct traits< JointRevoluteUnboundedTpl<_Scalar,_Options,axis> >
   {
     enum {
       NQ = 2,
       NV = 1
     };
-    typedef double Scalar;
-    enum { Options = 0 };
-    typedef JointDataRevoluteUnbounded<axis> JointDataDerived;
-    typedef JointModelRevoluteUnbounded<axis> JointModelDerived;
-    typedef ConstraintRevolute<axis> Constraint_t;
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
+    typedef JointDataRevoluteUnboundedTpl<Scalar,Options,axis> JointDataDerived;
+    typedef JointModelRevoluteUnboundedTpl<Scalar,Options,axis> JointModelDerived;
+    typedef ConstraintRevoluteTpl<Scalar,Options,axis> Constraint_t;
     typedef SE3 Transformation_t;
     typedef MotionRevoluteTpl<Scalar,Options,axis> Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,NV> F_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
-    typedef Eigen::Matrix<double,6,NV> U_t;
-    typedef Eigen::Matrix<double,NV,NV> D_t;
-    typedef Eigen::Matrix<double,6,NV> UD_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
+    typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
 
-    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
   };
 
-  template<int axis> struct traits< JointDataRevoluteUnbounded<axis> > { typedef JointRevoluteUnbounded<axis> JointDerived; };
-  template<int axis> struct traits< JointModelRevoluteUnbounded<axis> > { typedef JointRevoluteUnbounded<axis> JointDerived; };
+  template<typename Scalar, int Options, int axis>
+  struct traits< JointDataRevoluteUnboundedTpl<Scalar,Options,axis> >
+  { typedef JointRevoluteUnboundedTpl<Scalar,Options,axis> JointDerived; };
+  
+  template<typename Scalar, int Options, int axis>
+  struct traits< JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
+  { typedef JointRevoluteUnboundedTpl<Scalar,Options,axis> JointDerived; };
 
-  template<int axis>
-  struct JointDataRevoluteUnbounded : public JointDataBase< JointDataRevoluteUnbounded<axis> >
+  template<typename _Scalar, int _Options, int axis>
+  struct JointDataRevoluteUnboundedTpl : public JointDataBase< JointDataRevoluteUnboundedTpl<_Scalar,_Options,axis> >
   {
-    typedef JointRevoluteUnbounded<axis> JointDerived;
+    typedef JointRevoluteUnboundedTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
     Constraint_t S;
@@ -75,22 +80,21 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataRevoluteUnbounded() : M(1), U(), Dinv(), UDinv()
+    JointDataRevoluteUnboundedTpl() : M(1), U(), Dinv(), UDinv()
     {}
 
   }; // struct JointDataRevoluteUnbounded
 
-  template<int axis>
-  struct JointModelRevoluteUnbounded : public JointModelBase< JointModelRevoluteUnbounded<axis> >
+  template<typename _Scalar, int _Options, int axis>
+  struct JointModelRevoluteUnboundedTpl : public JointModelBase< JointModelRevoluteUnboundedTpl<_Scalar,_Options,axis> >
   {
-    typedef JointRevoluteUnbounded<axis> JointDerived;
+    typedef JointRevoluteUnboundedTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    using JointModelBase<JointModelRevoluteUnbounded>::id;
-    using JointModelBase<JointModelRevoluteUnbounded>::idx_q;
-    using JointModelBase<JointModelRevoluteUnbounded>::idx_v;
-    using JointModelBase<JointModelRevoluteUnbounded>::setIndexes;
-    typedef Motion::Vector3 Vector3;
+    using JointModelBase<JointModelRevoluteUnboundedTpl>::id;
+    using JointModelBase<JointModelRevoluteUnboundedTpl>::idx_q;
+    using JointModelBase<JointModelRevoluteUnboundedTpl>::idx_v;
+    using JointModelBase<JointModelRevoluteUnboundedTpl>::setIndexes;
     
     JointDataDerived createData() const { return JointDataDerived(); }
     void calc( JointDataDerived& data, 
@@ -101,7 +105,7 @@ namespace se3
       const double & ca = q(0);
       const double & sa = q(1);
 
-      data.M.rotation(JointRevolute<axis>::cartesianRotation(ca,sa));
+      JointRevoluteTpl<Scalar,_Options,axis>::cartesianRotation(ca,sa,data.M.rotation());
     }
 
     void calc( JointDataDerived& data, 
@@ -115,7 +119,7 @@ namespace se3
       const double & sa = q(1);
       const double & v = q_dot(0);
 
-      data.M.rotation(JointRevolute<axis>::cartesianRotation(ca,sa));
+      JointRevoluteTpl<Scalar,_Options,axis>::cartesianRotation(ca,sa,data.M.rotation());
       data.v.w = v;
     }
     
@@ -135,40 +139,25 @@ namespace se3
       return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
 
-    static std::string classname();
+    static std::string classname()
+    {
+      return std::string("JointModelRUB") + axisLabel<axis>();
+    }
     std::string shortname() const { return classname(); }
 
-  }; // struct JointModelRevoluteUnbounded
+  }; // struct JointModelRevoluteUnboundedTpl
+  
+  typedef JointRevoluteUnboundedTpl<double,0,0> JointRUBX;
+  typedef JointDataRevoluteUnboundedTpl<double,0,0> JointDataRUBX;
+  typedef JointModelRevoluteUnboundedTpl<double,0,0> JointModelRUBX;
 
-  typedef JointRevoluteUnbounded<0> JointRUBX;
-  typedef JointDataRevoluteUnbounded<0> JointDataRUBX;
-  typedef JointModelRevoluteUnbounded<0> JointModelRUBX;
+  typedef JointRevoluteUnboundedTpl<double,0,1> JointRUBY;
+  typedef JointDataRevoluteUnboundedTpl<double,0,1> JointDataRUBY;
+  typedef JointModelRevoluteUnboundedTpl<double,0,1> JointModelRUBY;
 
-  template<> inline
-  std::string JointModelRevoluteUnbounded<0>::classname()
-  {
-    return std::string("JointModelRUBX") ;
-  }
-
-  typedef JointRevoluteUnbounded<1> JointRUBY;
-  typedef JointDataRevoluteUnbounded<1> JointDataRUBY;
-  typedef JointModelRevoluteUnbounded<1> JointModelRUBY;
-
-  template<> inline
-  std::string JointModelRevoluteUnbounded<1>::classname()
-  {
-    return std::string("JointModelRUBY") ;
-  }
-
-  typedef JointRevoluteUnbounded<2> JointRUBZ;
-  typedef JointDataRevoluteUnbounded<2> JointDataRUBZ;
-  typedef JointModelRevoluteUnbounded<2> JointModelRUBZ;
-
-  template<> inline
-  std::string JointModelRevoluteUnbounded<2>::classname()
-  {
-    return std::string("JointModelRUBZ") ;
-  }
+  typedef JointRevoluteUnboundedTpl<double,0,2> JointRUBZ;
+  typedef JointDataRevoluteUnboundedTpl<double,0,2> JointDataRUBZ;
+  typedef JointModelRevoluteUnboundedTpl<double,0,2> JointModelRUBZ;
 
 } //namespace se3
 

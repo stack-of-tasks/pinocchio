@@ -22,14 +22,14 @@ namespace se3
 {
   enum { MAX_JOINT_NV = 6 };
 
-  template<int axis> struct JointModelRevolute;
-  template<int axis> struct JointDataRevolute;
+  template<typename Scalar, int Options, int axis> struct JointModelRevoluteTpl;
+  template<typename Scalar, int Options, int axis> struct JointDataRevoluteTpl;
 
   struct JointModelRevoluteUnaligned;
   struct JointDataRevoluteUnaligned;
 
-  template<int axis> struct JointModelRevoluteUnbounded;
-  template<int axis> struct JointDataRevoluteUnbounded;
+  template<typename Scalar, int Options, int axis> struct JointModelRevoluteUnboundedTpl;
+  template<typename Scalar, int Options, int axis> struct JointDataRevoluteUnboundedTpl;
 
   template<typename Scalar, int Options = 0> struct JointModelSphericalTpl;
   typedef JointModelSphericalTpl<double> JointModelSpherical;
