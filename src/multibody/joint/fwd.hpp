@@ -37,8 +37,11 @@ namespace se3
   template<typename Scalar, int Options = 0> struct JointDataSphericalTpl;
   typedef JointDataSphericalTpl<double> JointDataSpherical;
 
-  struct JointModelSphericalZYX;
-  struct JointDataSphericalZYX;
+  template<typename Scalar, int Options = 0> struct JointModelSphericalZYXTpl;
+  typedef JointModelSphericalZYXTpl<double> JointModelSphericalZYX;
+  
+  template<typename Scalar, int Options = 0> struct JointDataSphericalZYXTpl;
+  typedef JointDataSphericalZYXTpl<double> JointDataSphericalZYX;
 
   template<typename Scalar, int axis> struct JointModelPrismatic;
   template<typename Scalar, int axis> struct JointDataPrismatic;
