@@ -66,9 +66,9 @@ namespace se3
     Vector3 & operator()() { return v; }
     const Vector3 & operator()() const { return v; }
     
-    operator Motion() const
+    operator MotionPlain() const
     {
-      return Motion (v,Motion::Vector3::Zero());
+      return MotionPlain(v,MotionPlain::Vector3::Zero());
     }
     
     MotionTranslationTpl & operator=(const MotionTranslationTpl & other)

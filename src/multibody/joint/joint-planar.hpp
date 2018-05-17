@@ -64,10 +64,10 @@ namespace se3
     : m_x_dot(x_dot), m_y_dot(y_dot), m_theta_dot(theta_dot)
     {}
 
-    operator Motion() const
+    operator MotionPlain() const
     {
-      return Motion(Motion::Vector3(m_x_dot, m_y_dot, Scalar(0)),
-                    Motion::Vector3(Scalar(0), Scalar(0), m_theta_dot));
+      return MotionPlain(MotionPlain::Vector3(m_x_dot,m_y_dot,Scalar(0)),
+                         MotionPlain::Vector3(Scalar(0),Scalar(0),m_theta_dot));
     }
     
     template<typename Derived>

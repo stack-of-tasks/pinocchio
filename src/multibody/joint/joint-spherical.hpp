@@ -64,9 +64,9 @@ namespace se3
     Vector3 & operator() () { return w; }
     const Vector3 & operator() () const { return w; }
 
-    operator Motion() const
+    operator MotionPlain() const
     {
-      return Motion(Motion::Vector3::Zero(), w);
+      return MotionPlain(MotionPlain::Vector3::Zero(), w);
     }
     
     template<typename MotionDerived>

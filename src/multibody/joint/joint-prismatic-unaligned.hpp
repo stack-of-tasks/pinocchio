@@ -63,7 +63,8 @@ namespace se3
     : axis(axis), rate(rate)
     { EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3); }
 
-    operator Motion() const { return Motion(axis*rate, Vector3::Zero());}
+    operator MotionPlain() const
+    { return MotionPlain(axis*rate,MotionPlain::Vector3::Zero());}
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & v) const
