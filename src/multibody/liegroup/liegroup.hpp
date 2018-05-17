@@ -47,7 +47,8 @@ namespace se3 {
   template<> struct LieGroupTpl::operation <JointModelPlanar> {
     typedef SpecialEuclideanOperation<2> type;
   };
-  template<int Axis> struct LieGroupTpl::operation <JointModelRevoluteUnbounded<Axis> > {
+  template<typename Scalar, int Options, int axis>
+  struct LieGroupTpl::operation <JointModelRevoluteUnboundedTpl<Scalar,Options,axis> > {
     typedef SpecialOrthogonalOperation<2> type;
   };
 }
