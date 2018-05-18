@@ -43,11 +43,14 @@ namespace se3
   template<typename Scalar, int Options = 0> struct JointDataSphericalZYXTpl;
   typedef JointDataSphericalZYXTpl<double> JointDataSphericalZYX;
 
-  template<typename Scalar, int axis> struct JointModelPrismatic;
-  template<typename Scalar, int axis> struct JointDataPrismatic;
+  template<typename Scalar, int Options, int axis> struct JointModelPrismatic;
+  template<typename Scalar, int Options, int axis> struct JointDataPrismatic;
 
-  template<typename Scalar> struct JointModelPrismaticUnalignedTpl;
-  template<typename Scalar> struct JointDataPrismaticUnalignedTpl;
+  template<typename Scalar, int Options = 0> struct JointModelPrismaticUnalignedTpl;
+  typedef JointModelPrismaticUnalignedTpl<double> JointModelPrismaticUnaligned;
+
+  template<typename Scalar, int Options = 0> struct JointDataPrismaticUnalignedTpl;
+  typedef JointDataPrismaticUnalignedTpl<double> JointDataPrismaticUnaligned;
 
   template<typename Scalar, int Options = 0> struct JointModelFreeFlyerTpl;
   typedef JointModelFreeFlyerTpl<double> JointModelFreeFlyer;

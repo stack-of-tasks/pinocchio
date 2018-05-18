@@ -29,14 +29,16 @@
 namespace se3
 {
   
-  template<typename _Scalar, int _axis> struct MotionPrismatic;
-  template<typename _Scalar, int _axis>
-  struct traits < MotionPrismatic<_Scalar,_axis> >
+  template<typename Scalar, int Options, int _axis> struct MotionPrismatic;
+  
+  template<typename _Scalar, int _Options, int _axis>
+  struct traits < MotionPrismatic<_Scalar,_Options,_axis> >
   {
     typedef _Scalar Scalar;
-    typedef Eigen::Matrix<Scalar,3,1,0> Vector3;
-    typedef Eigen::Matrix<Scalar,6,1,0> Vector6;
-    typedef Eigen::Matrix<Scalar,6,6,0> Matrix6;
+    enum { Options = _Options };
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
     typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Vector3 AngularType;
@@ -44,15 +46,15 @@ namespace se3
     typedef const Vector3 ConstAngularType;
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
-    typedef MotionTpl<Scalar,0> MotionPlain;
+    typedef MotionTpl<Scalar,Options> MotionPlain;
     enum {
       LINEAR = 0,
       ANGULAR = 3
     };
   }; // struct traits MotionPrismatic
 
-  template<typename _Scalar, int _axis>
-  struct MotionPrismatic : MotionBase < MotionPrismatic<_Scalar,_axis> >
+  template<typename _Scalar, int _Options, int _axis>
+  struct MotionPrismatic : MotionBase < MotionPrismatic<_Scalar,_Options,_axis> >
   {
     MOTION_TYPEDEF_TPL(MotionPrismatic);
     typedef SpatialAxis<_axis+LINEAR> Axis;
@@ -71,9 +73,9 @@ namespace se3
     }
   }; // struct MotionPrismatic
 
-  template<typename Scalar, int axis, typename MotionDerived>
+  template<typename Scalar, int Options, int axis, typename MotionDerived>
   typename MotionDerived::MotionPlain
-  operator+(const MotionPrismatic<Scalar,axis> & m1,
+  operator+(const MotionPrismatic<Scalar,Options,axis> & m1,
             const MotionDense<MotionDerived> & m2)
   {
     typename MotionDerived::MotionPlain res(m2);
@@ -81,54 +83,56 @@ namespace se3
     return res;
   }
 
-  template<typename Scalar, int axis> struct ConstraintPrismatic;
-  template<typename _Scalar, int axis>
-  struct traits< ConstraintPrismatic<_Scalar,axis> >
+  template<typename Scalar, int Options, int axis> struct ConstraintPrismatic;
+  
+  template<typename _Scalar, int _Options, int axis>
+  struct traits< ConstraintPrismatic<_Scalar,_Options,axis> >
   {
     typedef _Scalar Scalar;
-    typedef Eigen::Matrix<Scalar,3,1,0> Vector3;
-    typedef Eigen::Matrix<Scalar,4,1,0> Vector4;
-    typedef Eigen::Matrix<Scalar,6,1,0> Vector6;
-    typedef Eigen::Matrix<Scalar,3,3,0> Matrix3;
-    typedef Eigen::Matrix<Scalar,4,4,0> Matrix4;
-    typedef Eigen::Matrix<Scalar,6,6,0> Matrix6;
+    enum { Options = _Options };
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,4,1,Options> Vector4;
+    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
+    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
+    typedef Eigen::Matrix<Scalar,4,4,Options> Matrix4;
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef Matrix3 Angular_t;
     typedef Vector3 Linear_t;
     typedef const Matrix3 ConstAngular_t;
     typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<Scalar,0> Quaternion_t;
-    typedef SE3Tpl<Scalar,0> SE3;
-    typedef ForceTpl<Scalar,0> Force;
-    typedef MotionTpl<Scalar,0> Motion;
-    typedef Symmetric3Tpl<Scalar,0> Symmetric3;
+    typedef Eigen::Quaternion<Scalar,Options> Quaternion_t;
+    typedef SE3Tpl<Scalar,Options> SE3;
+    typedef ForceTpl<Scalar,Options> Force;
+    typedef MotionTpl<Scalar,Options> Motion;
+    typedef Symmetric3Tpl<Scalar,Options> Symmetric3;
     enum {
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,1,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar,1,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar,6,1> DenseBase;
+    typedef Eigen::Matrix<Scalar,1,1,Options> JointMotion;
+    typedef Eigen::Matrix<Scalar,1,1,Options> JointForce;
+    typedef Eigen::Matrix<Scalar,6,1,Options> DenseBase;
     typedef DenseBase MatrixReturnType;
     typedef const DenseBase ConstMatrixReturnType;
   }; // traits ConstraintRevolute
 
-  template<typename _Scalar, int axis>
-  struct ConstraintPrismatic : ConstraintBase < ConstraintPrismatic <_Scalar,axis> >
+  template<typename _Scalar, int _Options, int axis>
+  struct ConstraintPrismatic : ConstraintBase < ConstraintPrismatic <_Scalar,_Options,axis> >
   {
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintPrismatic);
-    enum { NV = 1, Options = 0 };
+    enum { NV = 1, Options = _Options };
     typedef typename traits<ConstraintPrismatic>::JointMotion JointMotion;
     typedef typename traits<ConstraintPrismatic>::JointForce JointForce;
     typedef typename traits<ConstraintPrismatic>::DenseBase DenseBase;
     typedef SpatialAxis<LINEAR+axis> Axis;
 
     template<typename D>
-    MotionPrismatic<Scalar,axis> operator*( const Eigen::MatrixBase<D> & v ) const
+    MotionPrismatic<Scalar,Options,axis> operator*(const Eigen::MatrixBase<D> & v) const
     {
 //        EIGEN_STATIC_ASSERT_SIZE_1x1(D); // There is actually a bug in Eigen with such a macro
       assert(v.cols() == 1 && v.rows() == 1);
-      return MotionPrismatic<Scalar,axis>(v[0]);
+      return MotionPrismatic<Scalar,Options,axis>(v[0]);
     }
 
     template<typename S2, int O2>
@@ -190,10 +194,10 @@ namespace se3
 
   }; // struct ConstraintPrismatic
 
-  template<typename MotionDerived, typename Scalar>
+  template<typename MotionDerived, typename S1, int O1>
   inline typename MotionDerived::MotionPlain
   operator^(const MotionDense<MotionDerived> & m1,
-            const MotionPrismatic<Scalar,0>& m2)
+            const MotionPrismatic<S1,O1,0>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
@@ -202,15 +206,15 @@ namespace se3
      */
     typedef typename MotionDerived::MotionPlain MotionPlain;
     const typename MotionDerived::ConstAngularType & w = m1.angular();
-    const Scalar & vx = m2.v;
+    const S1 & vx = m2.v;
     return MotionPlain(typename MotionPlain::Vector3(0,w[2]*vx,-w[1]*vx),
                        MotionPlain::Vector3::Zero());
    }
 
-  template<typename MotionDerived, typename Scalar>
+  template<typename MotionDerived, typename S1, int O1>
   inline typename MotionDerived::MotionPlain
   operator^(const MotionDense<MotionDerived> & m1,
-            const MotionPrismatic<Scalar,1>& m2)
+            const MotionPrismatic<S1,O1,1>& m2)
    {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
@@ -219,15 +223,15 @@ namespace se3
      */
      typedef typename MotionDerived::MotionPlain MotionPlain;
      const typename MotionDerived::ConstAngularType & w = m1.angular();
-     const Scalar & vx = m2.v;
-     return MotionPlain(typename MotionPlain::Vector3(-w[2]*vx,0,w[0]*vx),
+     const S1 & vy = m2.v;
+     return MotionPlain(typename MotionPlain::Vector3(-w[2]*vy,0,w[0]*vy),
                         MotionPlain::Vector3::Zero());
    }
 
-  template<typename MotionDerived, typename Scalar>
+  template<typename MotionDerived, typename S1, int O1>
   inline typename MotionDerived::MotionPlain
   operator^(const MotionDense<MotionDerived> & m1,
-            const MotionPrismatic<Scalar,2>& m2)
+            const MotionPrismatic<S1,O1,2>& m2)
    {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
@@ -236,15 +240,15 @@ namespace se3
      */
      typedef typename MotionDerived::MotionPlain MotionPlain;
      const typename MotionDerived::ConstAngularType & w = m1.angular();
-     const Scalar & vx = m2.v;
-     return MotionPlain(typename Motion::Vector3(w[1]*vx,-w[0]*vx,0),
+     const S1 & vz = m2.v;
+     return MotionPlain(typename Motion::Vector3(w[1]*vz,-w[0]*vz,0),
                         MotionPlain::Vector3::Zero());
    }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  template<typename S1, int O1, typename S2>
+  template<typename S1, int O1, typename S2, int O2>
   inline Eigen::Matrix<S1,6,1,O1>
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismatic<S2,0> &)
+  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismatic<S2,O2,0> &)
   { 
     /* Y(:,0) = ( 1,0, 0, 0 , z , -y ) */
     const S1
@@ -256,9 +260,9 @@ namespace se3
     return res;
   }
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  template<typename S1, int O1, typename S2>
+  template<typename S1, int O1, typename S2, int O2>
   inline Eigen::Matrix<S1,6,1,O1>
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismatic<S2,1> & )
+  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismatic<S2,O2,1> & )
   { 
     /* Y(:,1) = ( 0,1, 0, -z , 0 , x) */
     const S1
@@ -270,9 +274,9 @@ namespace se3
     return res;
   }
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  template<typename S1, int O1, typename S2>
+  template<typename S1, int O1, typename S2, int O2>
   inline Eigen::Matrix<S1,6,1,O1>
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismatic<S2,2> & )
+  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismatic<S2,O2,2> & )
   { 
     /* Y(:,2) = ( 0,0, 1, y , -x , 0) */
     const S1
@@ -285,9 +289,9 @@ namespace se3
   }
   
   /* [ABA] operator* (Inertia Y,Constraint S) */
-  template<typename M6Like, typename S2, int axis>
+  template<typename M6Like, typename S2, int O2, int axis>
   inline const typename M6Like::ConstColXpr
-  operator*(const Eigen::MatrixBase<M6Like> & Y, const ConstraintPrismatic<S2,axis> &)
+  operator*(const Eigen::MatrixBase<M6Like> & Y, const ConstraintPrismatic<S2,O2,axis> &)
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
     return Y.derived().col(Inertia::LINEAR + axis);
@@ -295,20 +299,20 @@ namespace se3
 
   namespace internal 
   {
-    template<typename Scalar, int axis>
-    struct SE3GroupAction< ConstraintPrismatic<Scalar,axis> >
-    { typedef Eigen::Matrix<Scalar,6,1> ReturnType; };
+    template<typename Scalar, int Options, int axis>
+    struct SE3GroupAction< ConstraintPrismatic<Scalar,Options,axis> >
+    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
     
-    template<typename Scalar, int axis, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintPrismatic<Scalar,axis>, MotionDerived >
-    { typedef Eigen::Matrix<Scalar,6,1> ReturnType; };
+    template<typename Scalar, int Options, int axis, typename MotionDerived>
+    struct MotionAlgebraAction< ConstraintPrismatic<Scalar,Options,axis>, MotionDerived >
+    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
   }
   
-  template<typename Scalar, int axis> struct JointPrismatic {};
+  template<typename Scalar, int Options, int axis> struct JointPrismatic {};
  
   
-  template<typename Scalar>
-  struct JointPrismatic<Scalar,0>
+  template<typename Scalar, int Options>
+  struct JointPrismatic<Scalar,Options,0>
   {
     template<typename S1, typename S2, int O2>
     static void cartesianTranslation(const S1 & shift, SE3Tpl<S2,O2> & m)
@@ -317,8 +321,8 @@ namespace se3
     }
   };
   
-  template<typename Scalar>
-  struct JointPrismatic<Scalar,1>
+  template<typename Scalar, int Options>
+  struct JointPrismatic<Scalar,Options,1>
   {
     template<typename S1, typename S2, int O2>
     static void cartesianTranslation(const S1 & shift, SE3Tpl<S2,O2> & m)
@@ -327,8 +331,8 @@ namespace se3
     }
   };
   
-  template<typename Scalar>
-  struct JointPrismatic<Scalar,2>
+  template<typename Scalar, int Options>
+  struct JointPrismatic<Scalar,Options,2>
   {
     template<typename S1, typename S2, int O2>
     static void cartesianTranslation(const S1 & shift, SE3Tpl<S2,O2> & m)
@@ -337,38 +341,44 @@ namespace se3
     }
   };
 
-  template<typename _Scalar, int axis>
-  struct traits< JointPrismatic<_Scalar,axis> >
+  template<typename _Scalar, int _Options, int axis>
+  struct traits< JointPrismatic<_Scalar,_Options,axis> >
   {
     enum {
       NQ = 1,
       NV = 1
     };
     typedef _Scalar Scalar;
-    typedef JointDataPrismatic<Scalar,axis> JointDataDerived;
-    typedef JointModelPrismatic<Scalar,axis> JointModelDerived;
-    typedef ConstraintPrismatic<Scalar,axis> Constraint_t;
-    typedef SE3 Transformation_t;
-    typedef MotionPrismatic<Scalar,axis> Motion_t;
+    enum { Options = _Options };
+    typedef JointDataPrismatic<Scalar,Options,axis> JointDataDerived;
+    typedef JointModelPrismatic<Scalar,Options,axis> JointModelDerived;
+    typedef ConstraintPrismatic<Scalar,Options,axis> Constraint_t;
+    typedef SE3Tpl<Scalar,Options> Transformation_t;
+    typedef MotionPrismatic<Scalar,Options,axis> Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<Scalar,6,NV> F_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
-    typedef Eigen::Matrix<Scalar,6,NV> U_t;
-    typedef Eigen::Matrix<Scalar,NV,NV> D_t;
-    typedef Eigen::Matrix<Scalar,6,NV> UD_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
+    typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
 
-    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
   };
 
-  template<typename Scalar, int axis> struct traits< JointDataPrismatic<Scalar,axis> > { typedef JointPrismatic<Scalar,axis> JointDerived; };
-  template<typename Scalar, int axis> struct traits< JointModelPrismatic<Scalar,axis> > { typedef JointPrismatic<Scalar,axis> JointDerived; };
+  template<typename Scalar, int Options, int axis>
+  struct traits< JointDataPrismatic<Scalar,Options,axis> >
+  { typedef JointPrismatic<Scalar,Options,axis> JointDerived; };
+  
+  template<typename Scalar, int Options, int axis>
+  struct traits< JointModelPrismatic<Scalar,Options,axis> >
+  { typedef JointPrismatic<Scalar,Options,axis> JointDerived; };
 
-  template<typename _Scalar, int axis>
-  struct JointDataPrismatic : public JointDataBase< JointDataPrismatic<_Scalar,axis> >
+  template<typename _Scalar, int _Options, int axis>
+  struct JointDataPrismatic : public JointDataBase< JointDataPrismatic<_Scalar,_Options,axis> >
   {
-    typedef JointPrismatic<_Scalar,axis> JointDerived;
+    typedef JointPrismatic<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
     Constraint_t S;
@@ -388,10 +398,10 @@ namespace se3
 
   }; // struct JointDataPrismatic
 
-  template<typename _Scalar, int axis>
-  struct JointModelPrismatic : public JointModelBase< JointModelPrismatic<_Scalar,axis> >
+  template<typename _Scalar, int _Options, int axis>
+  struct JointModelPrismatic : public JointModelBase< JointModelPrismatic<_Scalar,_Options,axis> >
   {
-    typedef JointPrismatic<_Scalar,axis> JointDerived;
+    typedef JointPrismatic<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
     using JointModelBase<JointModelPrismatic>::id;
@@ -450,17 +460,17 @@ namespace se3
 
   }; // struct JointModelPrismatic
 
-  typedef JointPrismatic<double,0> JointPX;
-  typedef JointDataPrismatic<double,0> JointDataPX;
-  typedef JointModelPrismatic<double,0> JointModelPX;
+  typedef JointPrismatic<double,0,0> JointPX;
+  typedef JointDataPrismatic<double,0,0> JointDataPX;
+  typedef JointModelPrismatic<double,0,0> JointModelPX;
 
-  typedef JointPrismatic<double,1> JointPY;
-  typedef JointDataPrismatic<double,1> JointDataPY;
-  typedef JointModelPrismatic<double,1> JointModelPY;
+  typedef JointPrismatic<double,0,1> JointPY;
+  typedef JointDataPrismatic<double,0,1> JointDataPY;
+  typedef JointModelPrismatic<double,0,1> JointModelPY;
 
-  typedef JointPrismatic<double,2> JointPZ;
-  typedef JointDataPrismatic<double,2> JointDataPZ;
-  typedef JointModelPrismatic<double,2> JointModelPZ;
+  typedef JointPrismatic<double,0,2> JointPZ;
+  typedef JointDataPrismatic<double,0,2> JointDataPZ;
+  typedef JointModelPrismatic<double,0,2> JointModelPZ;
 
 } //namespace se3
 
