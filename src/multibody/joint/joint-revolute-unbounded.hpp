@@ -90,6 +90,8 @@ namespace se3
   {
     typedef JointRevoluteUnboundedTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
+    typedef JointRevoluteTpl<Scalar,_Options,axis> JointDerivedBase;
+    
 
     using JointModelBase<JointModelRevoluteUnboundedTpl>::id;
     using JointModelBase<JointModelRevoluteUnboundedTpl>::idx_q;
@@ -97,36 +99,38 @@ namespace se3
     using JointModelBase<JointModelRevoluteUnboundedTpl>::setIndexes;
     
     JointDataDerived createData() const { return JointDataDerived(); }
-    void calc( JointDataDerived& data, 
-     const Eigen::VectorXd & qs ) const
+    
+    template<typename ConfigVector>
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typename Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVector);
+      typedef typename ConfigVector::Scalar OtherScalar;
+      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type
+      & q = qs.template segment<NQ> (idx_q());
 
-      const double & ca = q(0);
-      const double & sa = q(1);
+      const OtherScalar & ca = q(0);
+      const OtherScalar & sa = q(1);
 
-      JointRevoluteTpl<Scalar,_Options,axis>::cartesianRotation(ca,sa,data.M.rotation());
+      JointDerivedBase::cartesianRotation(ca,sa,data.M.rotation());
     }
 
-    void calc( JointDataDerived& data, 
-     const Eigen::VectorXd & qs, 
-     const Eigen::VectorXd & vs ) const
+    template<typename ConfigVector, typename TangentVector>
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      typename Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
-      typename Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
-
-      const double & ca = q(0);
-      const double & sa = q(1);
-      const double & v = q_dot(0);
-
-      JointRevoluteTpl<Scalar,_Options,axis>::cartesianRotation(ca,sa,data.M.rotation());
-      data.v.w = v;
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,TangentVector);
+      calc(data,qs.derived());
+      
+      data.v.w = (Scalar)vs[idx_v()];;
     }
     
-    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
+    template<typename S2, int O2>
+    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
     {
       data.U = I.col(Inertia::ANGULAR + axis);
-      data.Dinv[0] = 1./I(Inertia::ANGULAR + axis,Inertia::ANGULAR + axis);
+      data.Dinv[0] = (Scalar)(1)/I(Inertia::ANGULAR + axis,Inertia::ANGULAR + axis);
       data.UDinv.noalias() = data.U * data.Dinv[0];
       
       if (update_I)

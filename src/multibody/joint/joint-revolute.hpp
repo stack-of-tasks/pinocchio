@@ -478,31 +478,35 @@ namespace se3
     using JointModelBase<JointModelRevoluteTpl>::setIndexes;
     
     JointDataDerived createData() const { return JointDataDerived(); }
-    void calc( JointDataDerived& data, 
-     const Eigen::VectorXd & qs ) const
+    
+    template<typename ConfigVector>
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      const double & q = qs[idx_q()];
-      double ca,sa; SINCOS (q,&sa,&ca);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVector);
+      typedef typename ConfigVector::Scalar OtherScalar;
+      
+      const OtherScalar & q = qs[idx_q()];
+      OtherScalar ca,sa; SINCOS(q,&sa,&ca);
       JointDerived::cartesianRotation(ca,sa,data.M.rotation());
     }
 
-    void calc( JointDataDerived& data, 
-     const Eigen::VectorXd & qs, 
-     const Eigen::VectorXd & vs ) const
+    template<typename ConfigVector, typename TangentVector>
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      const double & q = qs[idx_q()];
-      const double & v = vs[idx_v()];
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,TangentVector);
+      calc(data,qs.derived());
 
-      double ca,sa; SINCOS (q,&sa,&ca);
-
-      JointDerived::cartesianRotation(ca,sa,data.M.rotation());
-      data.v.w = v;
+      data.v.w = (Scalar)vs[idx_v()];;
     }
     
-    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
+    template<typename S2, int O2>
+    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
     {
       data.U = I.col(Inertia::ANGULAR + axis);
-      data.Dinv[0] = 1./I(Inertia::ANGULAR + axis,Inertia::ANGULAR + axis);
+      data.Dinv[0] = Scalar(1)/I(Inertia::ANGULAR + axis,Inertia::ANGULAR + axis);
       data.UDinv.noalias() = data.U * data.Dinv[0];
       
       if (update_I)
