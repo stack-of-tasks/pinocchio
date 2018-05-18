@@ -216,7 +216,6 @@ namespace se3
   }
 
   /* [ABA] Y*S operator*/
-  
   template<typename M6Like, typename S2, int O2>
   inline const typename SizeDepType<3>::ColsReturn<M6Like>::ConstType
   operator*(const Eigen::MatrixBase<M6Like> & Y,
