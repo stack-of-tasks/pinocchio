@@ -25,8 +25,11 @@ namespace se3
   template<typename Scalar, int Options, int axis> struct JointModelRevoluteTpl;
   template<typename Scalar, int Options, int axis> struct JointDataRevoluteTpl;
 
-  struct JointModelRevoluteUnaligned;
-  struct JointDataRevoluteUnaligned;
+  template<typename Scalar, int Options = 0> struct JointModelRevoluteUnalignedTpl;
+  typedef JointModelRevoluteUnalignedTpl<double> JointModelRevoluteUnaligned;
+  
+  template<typename Scalar, int Options = 0> struct JointDataRevoluteUnalignedTpl;
+  typedef JointDataRevoluteUnalignedTpl<double> JointDataRevoluteUnaligned;
 
   template<typename Scalar, int Options, int axis> struct JointModelRevoluteUnboundedTpl;
   template<typename Scalar, int Options, int axis> struct JointDataRevoluteUnboundedTpl;
