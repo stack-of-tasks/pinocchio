@@ -270,13 +270,13 @@ namespace se3
   inline
 #if EIGEN_VERSION_AT_LEAST(3,2,90)
   const typename Eigen::Product<
-  const typename SizeDepType<3>::ColsReturn<M6Like>::ConstType,
-  const typename ConstraintRevoluteUnalignedTpl<S2,O2>::Vector3
+  typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<M6Like>::ConstType>::type,
+  typename ConstraintRevoluteUnalignedTpl<S2,O2>::Vector3
   >
 #else
   const typename Eigen::ProductReturnType<
-  const typename SizeDepType<3>::ColsReturn<M6Like>::ConstType,
-  const typename ConstraintRevoluteUnalignedTpl<S2,O2>::Vector3
+  typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<M6Like>::ConstType>::type,
+  typename ConstraintRevoluteUnalignedTpl<S2,O2>::Vector3
   >::Type
 #endif
   operator*(const Eigen::MatrixBase<M6Like> & Y, const ConstraintRevoluteUnalignedTpl<S2,O2> & cru)

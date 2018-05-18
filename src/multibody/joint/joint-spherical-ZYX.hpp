@@ -355,13 +355,13 @@ namespace se3
   template<typename Matrix6Like, typename S2, int O2>
 #if EIGEN_VERSION_AT_LEAST(3,2,90)
   const typename Eigen::Product<
-  typename SizeDepType<3>::ColsReturn<Matrix6Like>::ConstType,
-  const typename ConstraintSphericalZYXTpl<S2,O2>::Matrix3
+  typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<Matrix6Like>::ConstType>::type,
+  typename ConstraintSphericalZYXTpl<S2,O2>::Matrix3
   >
 #else
   const typename Eigen::ProductReturnType<
-  typename SizeDepType<3>::ColsReturn<Matrix6Like>::ConstType,
-  const typename ConstraintSphericalZYXTpl<S2,O2>::Matrix3
+  typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<Matrix6Like>::ConstType>::type,
+  typename ConstraintSphericalZYXTpl<S2,O2>::Matrix3
   >::Type
 #endif
   operator*(const Eigen::MatrixBase<Matrix6Like> & Y,
