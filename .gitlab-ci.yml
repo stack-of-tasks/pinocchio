@@ -28,8 +28,8 @@ cache:
     - make install
     - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
     - make check
-    - make doc
-    - mv doc/doxygen-html ${CI_PROJECT_DIR}
+#    - make doc
+#    - mv doc/doxygen-html ${CI_PROJECT_DIR}
 
 
 robotpkg-pinocchio-14.04:
