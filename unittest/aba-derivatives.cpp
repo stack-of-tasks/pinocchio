@@ -132,4 +132,41 @@ BOOST_AUTO_TEST_CASE(test_aba)
   BOOST_CHECK(aba_partial_dtau.isApprox(aba_partial_dtau_fd,sqrt(alpha)));
 }
 
+BOOST_AUTO_TEST_CASE(test_aba_minimal_argument)
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  Model model;
+  buildModels::humanoidSimple(model);
+  
+  Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd tau(VectorXd::Random(model.nv));
+  VectorXd a(aba(model,data_ref,q,v,tau));
+  
+  MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
+  MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
+  Data::RowMatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
+  
+  computeABADerivatives(model, data_ref, q, v, tau, aba_partial_dq, aba_partial_dv, aba_partial_dtau);
+  
+  computeABADerivatives(model, data, q, v, tau);
+  
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
+  BOOST_CHECK(data.dVdq.isApprox(data_ref.dVdq));
+  BOOST_CHECK(data.dAdq.isApprox(data_ref.dAdq));
+  BOOST_CHECK(data.dAdv.isApprox(data_ref.dAdv));
+  BOOST_CHECK(data.dtau_dq.isApprox(data_ref.dtau_dq));
+  BOOST_CHECK(data.dtau_dv.isApprox(data_ref.dtau_dv));
+  BOOST_CHECK(data.Minv.isApprox(aba_partial_dtau));
+  BOOST_CHECK(data.ddq_dq.isApprox(aba_partial_dq));
+  BOOST_CHECK(data.ddq_dv.isApprox(aba_partial_dv));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
