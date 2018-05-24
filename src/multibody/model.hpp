@@ -546,6 +546,12 @@ namespace se3
     /// \brief Partial derivative of the joint torque vector with respect to the joint velocity.
     Eigen::MatrixXd dtau_dv;
     
+    /// \brief Partial derivative of the joint acceleration vector with respect to the joint configuration.
+    Eigen::MatrixXd ddq_dq;
+    
+    /// \brief Partial derivative of the joint acceleration vector with respect to the joint velocity.
+    Eigen::MatrixXd ddq_dv;
+    
     /// \brief Vector of joint placements wrt to algorithm end effector.
     container::aligned_vector<SE3> iMf;
 

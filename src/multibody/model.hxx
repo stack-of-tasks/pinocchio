@@ -290,6 +290,8 @@ namespace se3
     ,dAdv(6,model.nv)
     ,dtau_dq(Eigen::MatrixXd::Zero(model.nv,model.nv))
     ,dtau_dv(Eigen::MatrixXd::Zero(model.nv,model.nv))
+    ,ddq_dq(Eigen::MatrixXd::Zero(model.nv,model.nv))
+    ,ddq_dv(Eigen::MatrixXd::Zero(model.nv,model.nv))
     ,iMf((std::size_t)model.njoints)
     ,com((std::size_t)model.njoints)
     ,vcom((std::size_t)model.njoints)
