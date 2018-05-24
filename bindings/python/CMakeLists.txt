@@ -90,6 +90,7 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   algorithm/expose-rnea.cpp
   algorithm/expose-rnea-derivatives.cpp
   algorithm/expose-aba.cpp
+  algorithm/expose-aba-derivatives.cpp
   algorithm/expose-jacobian.cpp
   algorithm/expose-joints.cpp
   algorithm/expose-energy.cpp

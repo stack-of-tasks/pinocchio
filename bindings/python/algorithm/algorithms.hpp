@@ -42,6 +42,7 @@ namespace se3
     void exposeRegressor();
     
     void exposeRNEADerivatives();
+    void exposeABADerivatives();
 
     void exposeAlgorithms();
     
