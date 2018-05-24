@@ -78,7 +78,7 @@ namespace se3
   /// \param[in] v The joint velocity vector (dim model.nv).
   /// \param[in] a The joint acceleration vector (dim model.nv).
   ///
-  /// \returns The results are stored in data.dtau_dq, data.M and data.dtau_da which respectively correspond
+  /// \returns The results are stored in data.dtau_dq, data.dtau_dv and data.M which respectively correspond
   ///          to the partial derivatives of the joint torque vector with respect to the joint configuration, velocity and acceleration.
   ///          And as for se3::crba, only the upper triangular part of data.M is filled.
   ///
