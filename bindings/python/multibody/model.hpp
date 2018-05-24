@@ -78,11 +78,11 @@ namespace se3
 
       /* --- Exposing C++ API to python through the handler ----------------- */
       template<class PyClass>
-      void visit(PyClass& cl) const 
+      void visit(PyClass& cl) const
       {
         cl
         .def(bp::init<>("Default constructor. Constructs an empty model."))
-          // Class Members
+        // Class Members
         .add_property("nq", &Model::nq)
         .add_property("nv", &Model::nv)
         .add_property("njoints", &Model::njoints)
@@ -105,7 +105,7 @@ namespace se3
         .add_property("rotorGearRatio",
                       make_getter(&Model::rotorGearRatio, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::rotorGearRatio, bp::return_value_policy<bp::return_by_value>()),
-                      "Vector of rotor gear ratio parameters.")       
+                      "Vector of rotor gear ratio parameters.")
         .add_property("effortLimit",
                       make_getter(&Model::effortLimit, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::effortLimit, bp::return_value_policy<bp::return_by_value>()),
@@ -124,41 +124,41 @@ namespace se3
                       "Limit for joint upper position.")
         
         .def_readwrite("frames",&Model::frames,"Vector of frames contained in the model.")
-
+        
         .def_readwrite("subtrees",
                        &Model::subtrees,
                        "Vector of subtrees. subtree[j] corresponds to the subtree supported by the joint j.")
         
         .def_readwrite("gravity",&Model::gravity,"Motion vector corresponding to the gravity field expressed in the world Frame.")
-
-          // Class Methods
-          .def("addJoint",&ModelPythonVisitor::addJoint,bp::args("parent_id","joint_model","joint_placement","joint_name"),"Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
-          .def("addJointFrame", &Model::addJointFrame, bp::args("jointIndex", "frameIndex"), "add the joint at index jointIndex as a frame to the frame tree")
-          .def("appendBodyToJoint",&Model::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
-
-          .def("addBodyFrame", &Model::addBodyFrame, bp::args("body_name", "parentJoint", "body_plaement", "previous_frame(parent frame)"), "add a body to the frame tree")
-          .def("getBodyId",&Model::getBodyId, bp::args("name"), "Return the index of a frame of type BODY given by its name")
-          .def("existBodyName", &Model::existBodyName, bp::args("name"), "Check if a frame of type BODY exists, given its name")
-          .def("getJointId",&Model::getJointId, bp::args("name"), "Return the index of a joint given by its name")
-          .def("existJointName", &Model::existJointName, bp::args("name"), "Check if a joint given by its name exists")
+        
+        // Class Methods
+        .def("addJoint",&ModelPythonVisitor::addJoint,bp::args("parent_id","joint_model","joint_placement","joint_name"),"Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
+        .def("addJointFrame", &Model::addJointFrame, bp::args("jointIndex", "frameIndex"), "add the joint at index jointIndex as a frame to the frame tree")
+        .def("appendBodyToJoint",&Model::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
+        
+        .def("addBodyFrame", &Model::addBodyFrame, bp::args("body_name", "parentJoint", "body_plaement", "previous_frame(parent frame)"), "add a body to the frame tree")
+        .def("getBodyId",&Model::getBodyId, bp::args("name"), "Return the index of a frame of type BODY given by its name")
+        .def("existBodyName", &Model::existBodyName, bp::args("name"), "Check if a frame of type BODY exists, given its name")
+        .def("getJointId",&Model::getJointId, bp::args("name"), "Return the index of a joint given by its name")
+        .def("existJointName", &Model::existJointName, bp::args("name"), "Check if a joint given by its name exists")
         
         .def("getFrameId",&Model::getFrameId,getFrameId_overload(bp::arg("name"),"Returns the index of the frame given by its name. If the frame is not in the frames vector, it returns the current size of the frames vector."))
         .def("getFrameId",&Model::getFrameId,getFrameId_overload(bp::args("name","type"),"Returns the index of the frame given by its name and its type. If the frame is not in the frames vector, it returns the current size of the frames vector."))
-       
-        .def("existFrame",&Model::existFrame,existFrame_overload(bp::arg("name"),"Returns true if the frame given by its name exists inside the Model.")) 
+        
+        .def("existFrame",&Model::existFrame,existFrame_overload(bp::arg("name"),"Returns true if the frame given by its name exists inside the Model."))
         .def("existFrame",&Model::existFrame,existFrame_overload(bp::args("name","type"),"Returns true if the frame given by its name exists inside the Model with the given type."))
-
+        
         .def("addFrame",(bool (Model::*)(const std::string &,const JointIndex, const FrameIndex, const SE3 &,const FrameType &)) &Model::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
         .def("addFrame",(bool (Model::*)(const Frame &)) &Model::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
-
-          .def("createData",&ModelPythonVisitor::createData)
-          .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
-          .staticmethod("BuildEmptyModel")
-          .def("BuildHumanoidSimple",&ModelPythonVisitor::maker_humanoidSimple)
-          .staticmethod("BuildHumanoidSimple")
+        
+        .def("createData",&ModelPythonVisitor::createData)
+        .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
+        .staticmethod("BuildEmptyModel")
+        .def("BuildHumanoidSimple",&ModelPythonVisitor::maker_humanoidSimple)
+        .staticmethod("BuildHumanoidSimple")
         
         .def("check",(bool (Model::*)(const Data &) const) &Model::check,bp::arg("data"),"Check consistency of data wrt model.")
-          ;
+        ;
       }
 
       
