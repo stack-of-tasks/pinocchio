@@ -45,6 +45,30 @@ namespace se3
                                     Eigen::MatrixXd & aba_partial_dv,
                                     Data::RowMatrixXd & aba_partial_dtau);
   
+  ///
+  /// \brief The derivatives of the Articulated-Body algorithm.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  /// \param[in] tau The joint torque vector (dim model.nv).
+  ///
+  /// \returns The results are stored in data.ddq_dq, data.ddq_dv and data.Minv which respectively correspond
+  ///          to the partial derivatives of the joint acceleration vector with respect to the joint configuration, velocity and acceleration.
+  ///          And as for se3::computeMinverse, only the upper triangular part of data.Minv is filled.
+  ///
+  /// \sa se3::aba and \sa se3::computeABADerivatives.
+  ///
+  inline void computeABADerivatives(const Model & model,
+                                    Data & data,
+                                    const Eigen::VectorXd & q,
+                                    const Eigen::VectorXd & v,
+                                    const Eigen::VectorXd & tau)
+  {
+    computeABADerivatives(model,data,q,v,tau,
+                          data.ddq_dq,data.ddq_dv,data.Minv);
+  }
 
 } // namespace se3
 
