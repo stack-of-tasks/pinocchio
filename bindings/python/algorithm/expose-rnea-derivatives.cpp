@@ -42,7 +42,7 @@ namespace se3
                        "Velocity v (size Model::nv)",
                        "Acceleration a (size Model::nv)"),
               "Computes the RNEA derivatives, put the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
-              "which correspond to the partial derivative of the torque output with respect to the joint configuration,\n"
+              "which correspond to the partial derivatives of the torque output with respect to the joint configuration,\n"
               "velocity and acceleration vectors.");
     }
     
