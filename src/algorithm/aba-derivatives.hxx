@@ -27,9 +27,9 @@ namespace se3
 {
   struct computeABADerivativesForwardStep1 : public fusion::JointVisitor<computeABADerivativesForwardStep1>
   {
-    typedef boost::fusion::vector< const se3::Model &,
+    typedef boost::fusion::vector<
+    const se3::Model &,
     se3::Data &,
-    const Eigen::VectorXd &,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &
     > ArgsType;
@@ -42,14 +42,12 @@ namespace se3
                      const se3::Model & model,
                      se3::Data & data,
                      const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v,
-                     const Eigen::VectorXd & tau)
+                     const Eigen::VectorXd & v)
     {
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
       Motion & ov = data.ov[i];
-      Motion & oa = data.oa[i];
-      
+
       jmodel.calc(jdata.derived(),q,v);
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
@@ -330,7 +328,7 @@ namespace se3
     for(Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i)
     {
       computeABADerivativesForwardStep1::run(model.joints[i],data.joints[i],
-                                            computeABADerivativesForwardStep1::ArgsType(model,data,q,v,tau));
+                                            computeABADerivativesForwardStep1::ArgsType(model,data,q,v));
     }
     
     data.Fcrb[0].setZero();
