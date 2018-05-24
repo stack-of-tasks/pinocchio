@@ -21,6 +21,7 @@
 #include "pinocchio/multibody/model.hpp"
 
 #include <eigenpy/memory.hpp>
+#include <eigenpy/eigenpy.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Data)
@@ -75,7 +76,8 @@ namespace se3
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,ddq,"Joint accelerations (output of ABA)")
         .ADD_DATA_PROPERTY(container::aligned_vector<Inertia>,Ycrb,"Inertia of the sub-tree composit rigid body")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,M,"The joint space inertia matrix")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,C,"The Coriolis matrix such that c(q,v) = C(q,v)v")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Data::RowMatrixXd,Minv,"The inverse of the joint space inertia matrix")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,C,"The Coriolis C(q,v) matrix such that the Coriolis effects are given by c(q,v) = C(q,v)v")
         .ADD_DATA_PROPERTY(container::aligned_vector<Matrix6x>,Fcrb,"Spatial forces set, used in CRBA")
         .ADD_DATA_PROPERTY(std::vector<int>,lastChild,"Index of the last child (for CRBA)")
         .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree,"Dimension of the subtree motion space (for CRBA)")
@@ -105,6 +107,8 @@ namespace se3
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,C,"Joint space Coriolis matrix.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,dtau_dq,"Partial derivative of the joint torque vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
@@ -120,7 +124,8 @@ namespace se3
       static void expose()
       {
         bp::class_<Data>("Data",
-                         "Articulated rigid body data (const)",
+                         "Articulated rigid body data.\n"
+                         "It contains all the data that can be modified by the algorithms.",
                          bp::no_init)
         .def(DataPythonVisitor());
         
@@ -128,6 +133,8 @@ namespace se3
         .def(bp::vector_indexing_suite< container::aligned_vector<Vector3>, true >());
         bp::class_< std::vector<int> >("StdVec_int")
         .def(bp::vector_indexing_suite< std::vector<int> >());
+        
+        eigenpy::enableEigenPySpecific<Data::RowMatrixXd,Data::RowMatrixXd>();
       }
 
     };
