@@ -32,7 +32,7 @@ namespace se3
   /// \param[in] tau The joint torque vector (dim model.nv).
   /// \param[out] aba_partial_dq Partial derivative of the generalized torque vector with respect to the joint configuration.
   /// \param[out] aba_partial_dv Partial derivative of the generalized torque vector with respect to the joint velocity.
-  /// \param[out] aba_partial_dtau Partial derivative of the generalized torque vector with respect to the joint acceleration.
+  /// \param[out] aba_partial_dtau Partial derivative of the generalized torque vector with respect to the joint torque.
   ///
   /// \sa se3::aba
   ///
@@ -55,7 +55,7 @@ namespace se3
   /// \param[in] tau The joint torque vector (dim model.nv).
   ///
   /// \returns The results are stored in data.ddq_dq, data.ddq_dv and data.Minv which respectively correspond
-  ///          to the partial derivatives of the joint acceleration vector with respect to the joint configuration, velocity and acceleration.
+  ///          to the partial derivatives of the joint acceleration vector with respect to the joint configuration, velocity and torque.
   ///          And as for se3::computeMinverse, only the upper triangular part of data.Minv is filled.
   ///
   /// \sa se3::aba and \sa se3::computeABADerivatives.
