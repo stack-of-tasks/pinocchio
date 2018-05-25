@@ -4,6 +4,8 @@ purpose of this script is to exhibit the use of the exp and log map for
 interpolating SE(3) movements.
 '''
 
+from __future__ import print_function
+
 import robotviewer
 viewer = robotviewer.client('XML-RPC')
 try:
@@ -49,7 +51,7 @@ nu = se3.Motion(se3.log(M.inverse() * ME).vector() / N)
 for i in range(N):
     M = M * se3.exp(nu)
     viewer.updateElementConfig('RomeoTrunkYaw', se3ToRpy(M))
-print "Residuals = ", norm(se3.log(M.inverse() * ME).vector())
+print("Residuals = ", norm(se3.log(M.inverse() * ME).vector()))
 time.sleep(1)
 
 # Integrate a constant "log" velocity in reference frame.
@@ -59,7 +61,7 @@ nu = se3.Motion(se3.log(M.inverse() * ME).vector() / N)
 for i in range(N):
     M = M * se3.exp(nu)
     viewer.updateElementConfig('RomeoTrunkYaw', se3ToRpy(M))
-print "Residuals = ", norm(se3.log(M.inverse() * ME).vector())
+print("Residuals = ", norm(se3.log(M.inverse() * ME).vector()))
 time.sleep(1)
 
 # Integrate an exponential decay vector field toward ME.
@@ -69,7 +71,7 @@ for i in range(N):
     nu = se3.log(M.inverse() * ME).vector() * 1e-2
     M = M * se3.exp(nu)
     viewer.updateElementConfig('RomeoTrunkYaw', se3ToRpy(M))
-print "Residuals = ", norm(se3.log(M.inverse() * ME).vector())
+print("Residuals = ", norm(se3.log(M.inverse() * ME).vector()))
 time.sleep(1)
 
 # Integrate a straight-line vector field toward ME.
@@ -82,5 +84,5 @@ for i in range(N):
     nu = se3.Motion(v, w)
     M = M * se3.exp(nu)
     viewer.updateElementConfig('RomeoTrunkYaw', se3ToRpy(M))
-print "Residuals = ", norm(se3.log(M.inverse() * ME).vector())
+print("Residuals = ", norm(se3.log(M.inverse() * ME).vector()))
 time.sleep(1)

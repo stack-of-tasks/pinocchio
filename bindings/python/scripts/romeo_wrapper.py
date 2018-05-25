@@ -16,8 +16,8 @@
 
 import numpy as np
 
-import libpinocchio_pywrap as se3
-from robot_wrapper import RobotWrapper
+from . import libpinocchio_pywrap as se3
+from .robot_wrapper import RobotWrapper
 
 
 class RomeoWrapper(RobotWrapper):

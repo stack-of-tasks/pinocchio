@@ -14,6 +14,8 @@
 # Pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 import pinocchio as se3
 from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.utils import *
@@ -379,7 +381,7 @@ if __name__ == '__main__':
                     se3.computeAllTerms(robot.model,robot.data,q,vq1)
                     Htrue[:,i,j] = (robot.data.oMi[joint_i]*robot.data.a[joint_i]).vector.T
     
-    print 'Check hessian = \t\t', norm(H-Htrue)    
+    print('Check hessian = \t\t', norm(H-Htrue))    
 
     # --- dCRBA ---
     # --- dCRBA ---
@@ -405,7 +407,7 @@ if __name__ == '__main__':
     
     dM /= eps
     
-    print 'Check dCRBA = \t\t\t', max([ norm(Mp[:,:,diff]-dM[:,:,diff]) for diff in range(robot.model.nv) ])
+    print('Check dCRBA = \t\t\t', max([ norm(Mp[:,:,diff]-dM[:,:,diff]) for diff in range(robot.model.nv) ]))
     
     
     # --- vRNEA ---
@@ -431,18 +433,18 @@ if __name__ == '__main__':
             vq1[i] = vq1[j] = 1.0
             C[:,i,j] = (rnea0(q,vq1).T-C[:,i,i]-C[:,j,j]) /2
 
-    print "Check d/dv rnea = \t\t",norm(quad(Q,vq)-rnea0(q,vq))
-    print "Check C  = Q+Q.T = \t\t", norm((Q+Q.transpose(0,2,1))/2-C)
-    print "Check dM = C+C.T /2 \t\t", norm( Mp - (C+C.transpose(1,0,2)) )
-    print "Check dM = Q+Q.T+Q.T+Q.T /2 \t", norm( Mp - 
-                                            (Q+Q.transpose(0,2,1)+Q.transpose(1,0,2)+Q.transpose(2,0,1))/2 )
+    print("Check d/dv rnea = \t\t",norm(quad(Q,vq)-rnea0(q,vq)))
+    print("Check C  = Q+Q.T = \t\t", norm((Q+Q.transpose(0,2,1))/2-C))
+    print("Check dM = C+C.T /2 \t\t", norm( Mp - (C+C.transpose(1,0,2)) ))
+    print("Check dM = Q+Q.T+Q.T+Q.T /2 \t", norm( Mp - 
+                                            (Q+Q.transpose(0,2,1)+Q.transpose(1,0,2)+Q.transpose(2,0,1))/2 ))
 
     # --- CORIOLIS
     # --- CORIOLIS
     # --- CORIOLIS
     coriolis = Coriolis(robot)
     C = coriolis(q,vq)
-    print "Check coriolis \t\t\t",norm(C*vq-rnea0(q,vq))
+    print("Check coriolis \t\t\t",norm(C*vq-rnea0(q,vq)))
 
     # --- DRNEA
     # --- DRNEA
@@ -459,7 +461,7 @@ if __name__ == '__main__':
         dq = zero(NV); dq[i]=eps
         qdq = se3.integrate(robot.model,q,dq)
         Rd[:,i] = (se3.rnea(robot.model,robot.data,qdq,vq,aq)-r0)/eps
-    print "Check drnea    \t\t\t",norm(Rd-R)
+    print("Check drnea    \t\t\t",norm(Rd-R))
 
 
     

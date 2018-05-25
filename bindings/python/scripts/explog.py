@@ -19,7 +19,7 @@ import math
 
 import numpy as np
 
-import libpinocchio_pywrap as se3
+from . import libpinocchio_pywrap as se3
 
 
 def exp(x):

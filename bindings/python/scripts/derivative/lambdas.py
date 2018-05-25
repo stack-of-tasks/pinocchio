@@ -26,8 +26,8 @@ def jFromIdx(idxv,robot):
             return j
 
 parent = lambda i,robot: robot.model.parents[i]
-iv = lambda i,robot: range(robot.model.joints[i].idx_v,
-                     robot.model.joints[i].idx_v+robot.model.joints[i].nv)
+iv = lambda i,robot: list(range(robot.model.joints[i].idx_v,
+                     robot.model.joints[i].idx_v+robot.model.joints[i].nv))
 ancestors = lambda j,robot,res=[]: res if j==0 else ancestors(robot.model.parents[j],robot,[j,]+res)
 
 class ancestorOf:
