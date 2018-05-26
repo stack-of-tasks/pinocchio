@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -65,6 +65,7 @@ namespace se3
   /// \brief Computes the partial derivaties of the spatial acceleration of a given with respect to
   ///        the joint configuration, velocity and acceleration.
   ///        You must first call computForwardKinematicsDerivatives before calling this function.
+  ///        It is important to notice that a direct outcome (for free) of this algo is v_partial_dq and v_partial_dv which is equal to a_partial_da.
   ///
   /// \tparam rf Reference frame in which the Jacobian is expressed.
   ///
