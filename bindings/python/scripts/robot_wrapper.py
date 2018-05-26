@@ -14,8 +14,8 @@
 # Pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
 
-import libpinocchio_pywrap as se3
-import utils
+from . import libpinocchio_pywrap as se3
+from . import utils
 import time
 import os
 
@@ -42,7 +42,7 @@ class RobotWrapper(object):
                 self.collision_model = se3.buildGeomFromUrdf(self.model, filename, se3.GeometryType.COLLISION)
                 self.visual_model = se3.buildGeomFromUrdf(self.model, filename, se3.GeometryType.VISUAL)
             else:
-                if not all(isinstance(item, basestring) for item in package_dirs):
+                if not all(isinstance(item, str) for item in package_dirs):
                     raise Exception('The list of package directories is wrong. At least one is not a string')
                 else:
                     self.collision_model = se3.buildGeomFromUrdf(self.model, filename,
@@ -223,7 +223,7 @@ class RobotWrapper(object):
     def loadDisplayModel(self, rootNodeName="pinocchio"):
     
         def loadDisplayGeometryObject(geometry_object,geometry_type):
-            from rpy import npToTuple
+            from .rpy import npToTuple
             
             meshName = self.getViewerNodeName(geometry_object,geometry_type)
             meshPath = geometry_object.meshPath

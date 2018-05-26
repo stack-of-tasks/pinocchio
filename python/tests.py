@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import unittest, sys
 
 from bindings import TestSE3  # noqa
@@ -15,6 +17,6 @@ from rpy import TestRPY  # noqa
 from utils import TestUtils  # noqa
 
 if __name__ == '__main__':
-    print "Python version"
-    print sys.version_info
+    print("Python version")
+    print(sys.version_info)
     unittest.main()
