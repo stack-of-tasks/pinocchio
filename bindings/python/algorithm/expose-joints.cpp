@@ -73,11 +73,16 @@ namespace se3
               "Distance between two configurations.");
       
       bp::def("randomConfiguration",
+              (VectorXd (*)(const Model &))&randomConfiguration,
+              bp::arg("Model"),
+              "Generate a random configuration in the bounds given by the lower and upper limits contained in model.");
+      
+      bp::def("randomConfiguration",
               (VectorXd (*)(const Model &, const VectorXd &, const VectorXd &))&randomConfiguration,
               bp::args("Model",
                        "Joint lower limits (size Model::nq)",
                        "Joint upper limits (size Model::nq)"),
-              "Generate a random configuration ensuring provied joint limits are respected ");
+              "Generate a random configuration in the bounds given by the Joint lower and upper limits arguments.");
       
       bp::def("normalize",normalize_proxy,
               bp::args("Model",
