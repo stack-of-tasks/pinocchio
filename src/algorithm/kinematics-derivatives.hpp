@@ -24,7 +24,7 @@ namespace se3
 {
   
   ///
-  /// \brief Computes all the necessary quantities requiered to compute the derivatives of the placement, spatial velocity and acceleration
+  /// \brief Computes all the terms required to compute the derivatives of the placement, spatial velocity and acceleration
   ///        for any joint of the model.
   ///
   /// \param[in] model The model structure of the rigid body system.
