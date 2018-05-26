@@ -40,6 +40,7 @@ namespace se3
       
       // expose derivative version of the algorithms
       exposeRNEADerivatives();
+      exposeABADerivatives();
     }
     
   } // namespace python
