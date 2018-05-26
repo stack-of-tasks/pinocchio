@@ -35,11 +35,11 @@ namespace se3
   /// \remarks This function is similar to do a forwardKinematics(model,data,q,v) followed by a computeJacobians(model,data,q).
   ///          In addition, it computes the spatial velocity of the joint expressed in the world frame (see data.ov).
   ///
-  inline void computForwardKinematicsDerivatives(const Model & model,
-                                                 Data & data,
-                                                 const Eigen::VectorXd & q,
-                                                 const Eigen::VectorXd & v,
-                                                 const Eigen::VectorXd & a);
+  inline void computeForwardKinematicsDerivatives(const Model & model,
+                                                  Data & data,
+                                                  const Eigen::VectorXd & q,
+                                                  const Eigen::VectorXd & v,
+                                                  const Eigen::VectorXd & a);
   
   ///
   /// \brief Computes the partial derivaties of the spatial velocity of a given with respect to
