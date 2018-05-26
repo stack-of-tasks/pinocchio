@@ -92,6 +92,7 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   algorithm/expose-aba.cpp
   algorithm/expose-aba-derivatives.cpp
   algorithm/expose-jacobian.cpp
+  algorithm/expose-kinematics-derivatives.cpp
   algorithm/expose-joints.cpp
   algorithm/expose-energy.cpp
   algorithm/expose-frames.cpp

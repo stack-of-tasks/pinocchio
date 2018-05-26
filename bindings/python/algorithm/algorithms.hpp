@@ -43,6 +43,7 @@ namespace se3
     
     void exposeRNEADerivatives();
     void exposeABADerivatives();
+    void exposeKinematicsDerivatives();
 
     void exposeAlgorithms();
     
