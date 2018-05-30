@@ -119,7 +119,7 @@ namespace se3
 
     max_effort = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
     max_velocity = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
-    min_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
+    min_config = Eigen::VectorXd::Constant(joint_model.nq(), -std::numeric_limits<double>::max());
     max_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
 
     return addJoint(parent, joint_model, joint_placement, joint_name, max_effort, max_velocity, min_config, max_config);
