@@ -21,7 +21,7 @@ For this tutorial, you will need [Pinocchio](http://stack-of-tasks.github.io/pin
 
 For this, the easiest way is to add [robotpkg apt repository](http://robotpkg.openrobots.org/debian.html) and launch:
 ```
-sudo apt install robotpkg-pinocchio robotpkg-ur5-description robotpkg-gepetto-viewer-corba
+sudo apt install robotpkg-py27-pinocchio robotpkg-ur5-description robotpkg-gepetto-viewer-corba robotpkg-osg-dae
 ```
 
 ### Python
