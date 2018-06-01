@@ -6,10 +6,10 @@ versions and to resolve the dependencies.
 robotpkg is a package manager tailored for robotics softwares. It greatly simplifies the release of new versions along
 with the management of their dependencies.
 
-## Ubuntu LTS 12.04, 14.04, 16.04 and later
+## Ubuntu LTS 14.04, 16.04 and 18.04
 
 The software binaries of the packages managed by robotpkg are directly available through the apt repository
-of robotpkg for the Ubuntu LTS 12.04, 14.04, 16.04 and later. You just need to add the robotpkg apt repository to your
+of robotpkg for the Ubuntu LTS 14.04, 16.04 and 18.04. You just need to add the robotpkg apt repository to your
 sources.list and typically use `sudo apt install robotpkg- + packagename` to install a missing software and its
 dependencies. Below, we recall the steps to first add the robotpkg apt repository and then install Pinocchio.
 
