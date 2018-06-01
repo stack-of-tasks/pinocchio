@@ -193,7 +193,7 @@ namespace se3
   template<typename LieGroup_t>
   struct SquaredDistanceStep : public fusion::JointModelVisitor<SquaredDistanceStep<LieGroup_t> >
   {
-    typedef boost::fusion::vector<const Model::JointIndex,
+    typedef boost::fusion::vector<const JointIndex,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &,
     Eigen::VectorXd &
@@ -207,7 +207,7 @@ namespace se3
   template<typename LieGroup_t, typename JointModel>
   struct SquaredDistanceStepAlgo {
     static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    const Model::JointIndex i,
+                    const JointIndex i,
                     const Eigen::VectorXd & q0,
                     const Eigen::VectorXd & q1,
                     Eigen::VectorXd & distances)
