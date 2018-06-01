@@ -1,96 +1,101 @@
 variables:
-    GIT_SSL_NO_VERIFY: "true"
-    GIT_SUBMODULE_STRATEGY: "recursive"
-    GIT_DEPTH: "3"
-
-stages:
-  - pages
-  - minimal
-  - full
+  GIT_SUBMODULE_STRATEGY: "recursive"
+  GIT_DEPTH: "3"
+  CCACHE_BASEDIR: "${CI_PROJECT_DIR}"
+  CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
 
 cache:
   paths:
-    - build/ccache
+    - ccache
 
-.build_template: &build
-    script:
-        - mkdir -p build/ccache
-        - cd build
-        - export CCACHE_BASEDIR=${PWD}
-        - export CCACHE_DIR=${PWD}/ccache
-        - cmake .. -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-        - make
-        - make test
-        - make install
-
-build_minimal_14:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/minimal:14.04
-    stage: minimal
-    retry: 2
-    except:
-      - gh-pages
-
-build_full_14:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/full:14.04
-    stage: full
-    retry: 2
-    except:
-      - gh-pages
-    dependencies:
-      - build_minimal_14
-
-build_minimal_16:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/minimal:16.04
-    stage: minimal
-    retry: 2
-    except:
-      - gh-pages
-
-build_full_16:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/full:16.04
-    stage: full
-    retry: 2
-    except:
-      - gh-pages
-    dependencies:
-      - build_minimal_16
-
-build_minimal_zesty:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/minimal:zesty
-    stage: minimal
-    retry: 2
-    except:
-      - gh-pages
-    allow_failure: true
-
-build_full_zesty:
-    <<: *build
-    image: ${CI_REGISTRY_IMAGE}/full:zesty
-    stage: full
-    retry: 2
-    except:
-      - gh-pages
-    dependencies:
-      - build_minimal_zesty
-    allow_failure: true
-
-pages:
-  image: ruby:2.3
-  stage: pages
-  retry: 2
-  variables:
-    JEKYLL_ENV: production
-  before_script:
-    - gem install jekyll-sitemap
-  script:
-    - jekyll build -d public
-  artifacts:
-    paths:
-      - public
-  only:
+.robotpkg-pinocchio: &robotpkg-pinocchio
+  except:
     - gh-pages
+  before_script:
+    - mkdir -p ccache
+  script:
+    - cd /root/robotpkg/math/pinocchio
+    - git pull
+    - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
+    - make install
+    - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
+    - make check
+    - make doc
+    - mv doc/doxygen-html ${CI_PROJECT_DIR}
+
+
+robotpkg-pinocchio-14.04:
+  <<: *robotpkg-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:14.04
+
+robotpkg-pinocchio-dubnium:
+  <<: *robotpkg-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:dubnium
+
+robotpkg-pinocchio-16.04:
+  <<: *robotpkg-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:16.04
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - doxygen-html/
+
+robotpkg-pinocchio-18.04:
+  <<: *robotpkg-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:18.04
+
+
+.robotpkg-py-pinocchio: &robotpkg-py-pinocchio
+  except:
+    - gh-pages
+  before_script:
+    - mkdir -p ccache
+  script:
+    - cd /root/robotpkg/math/py-pinocchio
+    - git pull
+    - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
+    - make install
+    - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
+    - make check
+    - make doc
+    - mv doc/doxygen-html ${CI_PROJECT_DIR}
+
+
+robotpkg-py-pinocchio-14.04:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:14.04
+
+robotpkg-py-pinocchio-dubnium:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:dubnium
+
+robotpkg-py-pinocchio-16.04:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:16.04
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - doxygen-html/
+
+robotpkg-py-pinocchio-18.04:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
+
+robotpkg-py-pinocchio-py3-14.04:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
+
+robotpkg-py-pinocchio-py3-dubnium:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:dubnium
+
+robotpkg-py-pinocchio-py3-16.04:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:16.04
+
+robotpkg-py-pinocchio-py3-18.04:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
+
+
+

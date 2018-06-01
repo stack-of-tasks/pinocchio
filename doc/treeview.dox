@@ -27,26 +27,32 @@ namespace pinocchio {
   // Pages/ tutorials organization
   //
 
-  /** \page GettingStarted  Getting Started
-       - \subpage GettingStarted_install
-       - \subpage GettingStarted_simple_huma_IK
-       - \subpage GettingStarted_urdf_loading_viewer
-  */
-  
-  /** \page Chapters Chapters
-       - \subpage Chapters_SpatialAlgebra
-       - \subpage Chapters_RigidBodyDynamicModel
-       - \subpage Chapters_DynamicAlgorithms
-       - \subpage Chapters_DataDrivenAlgorithms
-       - \subpage Chapters_FclGeometries
-       - \subpage Chapters_CreatingModels
-       - \subpage Chapters_PythonBindings
-       - \subpage Chapters_crtp
+  /** \page md_doc_a-maths_intro Mathematical Formulation
+       - \subpage md_doc_a-maths_geometry
+       - \subpage md_doc_a-maths_kinematics
+       - \subpage md_doc_a-maths_dynamics
+       - \subpage md_doc_a-maths_se3
   */
 
-  /** \page Users Current Users
+  /** \page md_doc_b-usage_intro Usage
+       - \subpage md_doc_b-usage_creating-models
+       - \subpage md_doc_b-usage_crtp
   */
 
+  /** \page md_doc_c-tutorials_intro Tutorials
+       - \subpage md_doc_c-tutorials_direct-geometry
+       - \subpage md_doc_c-tutorials_inverse-kinematics
+  */
+
+  /** \page md_doc_d-labs_intro Labs
+       - \subpage md_doc_d-labs_1-directgeom
+       - \subpage md_doc_d-labs_2-invgeom
+       - \subpage md_doc_d-labs_3-invkine
+       - \subpage md_doc_d-labs_4-dyn
+       - \subpage md_doc_d-labs_5-planner
+       - \subpage md_doc_d-labs_6-wpg
+       - \subpage md_doc_d-labs_7-learn
+  */
 
   //
   // Modules organization
@@ -59,32 +65,32 @@ namespace pinocchio {
 
   /** \defgroup multibody_group Multibody */
   /** \addtogroup Joints_group Joints
-   *  \ingroup multibody_group 
+   *  \ingroup multibody_group
    */
 
 
   /** \defgroup parsers_group Parsers */
   /** \addtogroup Cinematic_group Cinematic
-   *  \ingroup parsers_group 
+   *  \ingroup parsers_group
    */
   /** \addtogroup Geometric_group Geometric
-   *  \ingroup parsers_group 
+   *  \ingroup parsers_group
    */
 
 
 
   /** \defgroup spatial_group Spatial */
   /** \addtogroup Motion_group Motion
-   *  \ingroup spatial_group 
+   *  \ingroup spatial_group
    */
   /** \defgroup Force_group Force
-   *  \ingroup spatial_group 
+   *  \ingroup spatial_group
    */
   /** \addtogroup Inertia_group Inertia
-   *  \ingroup spatial_group 
+   *  \ingroup spatial_group
    */
   /** \addtogroup SE3_group SE3
-   *  \ingroup spatial_group 
+   *  \ingroup spatial_group
    */
 
 
@@ -93,4 +99,4 @@ namespace pinocchio {
   /** \defgroup bench_group Benchmarks */
 
   /** \defgroup unittest_group Unittests */
-} 
+}

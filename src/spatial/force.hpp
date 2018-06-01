@@ -27,8 +27,8 @@
 /** \addtogroup Force_group Force
  *
  *  This module represents a spatial force, e.g. a spatial impulse or force associated to a body.
- *  The spatial force is the mathematical representation of \f$ se^{*}(3) \f$, the dual of \f$ se(3) \f$. 
- *  
+ *  The spatial force is the mathematical representation of \f$ se^{*}(3) \f$, the dual of \f$ se(3) \f$.
+ *
  *
  */
 
@@ -38,9 +38,9 @@ namespace se3
 
   /**
    * @brief      Base interface for forces representation.
-   * @details    The Class implements all 
+   * @details    The Class implements all
    * \ingroup Force_group
-   * 
+   *
    * @tparam     Derived  { description }
    */
   template< class Derived>
@@ -50,7 +50,7 @@ namespace se3
 
     typedef Derived  Derived_t;
     SPATIAL_TYPEDEF_TEMPLATE(Derived_t);
-    
+
   public:
     Derived_t & derived() { return *static_cast<Derived_t*>(this); }
     const Derived_t& derived() const { return *static_cast<const Derived_t*>(this); }
@@ -69,7 +69,7 @@ namespace se3
      * @return     The 3D vector associated to the linear part of the 6D force vector
      */
     ConstLinear_t linear() const { return derived().linear_impl(); }
-    
+
     /// \copydoc ForceBase::angular
     Angular_t angular() { return derived().angular_impl(); }
 
@@ -94,22 +94,22 @@ namespace se3
     /**
      * @brief      Return the force
      *
-     * @return     The 6D vector \f$ \phi \f$ such that 
+     * @return     The 6D vector \f$ \phi \f$ such that
      * \f{equation*}
-     * \leftidx{^A}\phi = \begin{bmatrix} \leftidx{^A}f \\  \leftidx{^A}\tau \end{bmatrix}
+     * {}^{A}\phi = \begin{bmatrix} {}^{A}f \\  {}^{A}\tau \end{bmatrix}
      * \f}
      */
     const Vector6 & toVector() const { return derived().toVector_impl(); }
 
     /// \copydoc ForceBase::toVector
     Vector6 & toVector() { return derived().toVector_impl(); }
-   
+
     /*
      * @brief C-style cast operator
      * \copydoc ForceBase::toVector
      */
     operator Vector6 () const { return toVector(); }
-    
+
 //    void disp(std::ostream & os) const
 //    {
 //      static_cast<const Derived_t*>(this)->disp_impl(os);
@@ -121,28 +121,28 @@ namespace se3
      *          fuzzy comparison such as isApprox()
      */
     bool operator== (const Derived_t & other) const {return derived().isEqual(other);}
-    
+
     /** \returns true if at least one coefficient of \c *this and \a other does not match.
      */
     bool operator!=(const Derived_t & other) const { return !(*this == other); }
-    
+
     /** \returns true if *this is approximately equal to other, within the precision given by prec.
      */
     bool isApprox(const Derived & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return derived().isApprox_impl(other, prec); }
-    
+
     /** \brief Copies the Derived Force into *this
      *  \return a reference to *this
      */
     Derived_t & operator= (const Derived_t & other) { return derived().__equl__(other); }
 
-    /** 
+    /**
      * \brief Replaces *this by *this + other.
      * \return a reference to *this
      */
     Derived_t & operator+= (const Derived_t & phi) { return derived().__pequ__(phi); }
-    
-    /** 
+
+    /**
      * \brief Replaces *this by *this - other.
      * \return a reference to *this
      */
@@ -163,7 +163,7 @@ namespace se3
     /** \return an expression of the difference of *this and phi
      */
     Derived_t operator-(const Derived_t & phi) const { return derived().__minus__(phi); }
-    
+
     /** \return the dot product of *this with m     *
      */
     Scalar dot(const Motion & m) const { return static_cast<Derived_t*>(this)->dot(m); }
@@ -172,11 +172,11 @@ namespace se3
     /**
      * @brief      Transform from A to B coordinates the Force represented by *this such that
      *             \f{equation*}
-     *             \leftidx{^B}f  =  \leftidx{^B}X_A^* * \leftidx{^A}f
+     *             {}^{B}f  =  {}^{B}X_A^* * {}^{A}f
      *             \f}
-     * 
-     * @param[in]  m     The rigid transformation \f$ \leftidx{^B}m_A \f$ whose coordinates transform for forces is
-     *                   \leftidx{^B}X_A^*  
+     *
+     * @param[in]  m     The rigid transformation \f$ {}^{B}m_A \f$ whose coordinates transform for forces is
+     *                   {}^{B}X_A^*
      *
      * @return     an expression of the force expressed in the new coordinates
      */
@@ -185,11 +185,11 @@ namespace se3
     /**
      * @brief      Transform from B to A coordinates the Force represented by *this such that
      *             \f{equation*}
-     *             \leftidx{^A}f  =  \leftidx{^A}X_B^* * \leftidx{^A}f
+     *             {}^{A}f  =  {}^{A}X_B^* * {}^{A}f
      *             \f}
-     * 
-     * @param[in]  m     The rigid transformation \f$ \leftidx{^B}m_A \f$ whose coordinates transform for forces is
-     *                   \leftidx{^B}X_A^*  
+     *
+     * @param[in]  m     The rigid transformation \f$ {}^{B}m_A \f$ whose coordinates transform for forces is
+     *                   {}^{B}X_A^*
      *
      * @return     an expression of the force expressed in the new coordinates
      */
@@ -197,7 +197,7 @@ namespace se3
 
     void disp(std::ostream & os) const { derived().disp_impl(os); }
     friend std::ostream & operator << (std::ostream & os, const ForceBase<Derived_t> & X)
-    { 
+    {
       X.disp(os);
       return os;
     }
@@ -301,7 +301,7 @@ namespace se3
       return ForceTpl(m.rotation().transpose()*linear_impl(),
         m.rotation().transpose()*(angular_impl() - m.translation().cross(linear_impl())) );
     }
-    
+
     bool isEqual (const ForceTpl & other) const { return data == other.data; }
 
     // Arithmetic operators
@@ -328,7 +328,7 @@ namespace se3
     ForceTpl __mult__(const double a) const { return ForceTpl(a*data); }
     ForceTpl __minus__() const { return ForceTpl(-data); }
     ForceTpl __minus__(const ForceTpl & phi) const { return ForceTpl(data - phi.data); }
-    
+
     bool isApprox_impl(const ForceTpl & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return data.isApprox(other.data, prec); }
 
@@ -344,7 +344,7 @@ namespace se3
     Linear_t linear_impl() { return data.template segment<3> (LINEAR);}
     /// \internal \copydoc ForceBase::linear(const Vector3 &)
     void linear_impl(const Vector3 & f) { data.template segment<3> (LINEAR) = f; }
-    
+
     Scalar dot(const Motion & m) const { return data.dot(m.toVector()); }
 
   protected:
