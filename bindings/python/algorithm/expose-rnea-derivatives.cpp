@@ -28,6 +28,9 @@ namespace se3
                                        const Eigen::VectorXd & a)
     {
       computeRNEADerivatives(model,data,q,v,a);
+      // Symmetrize M
+      data.M.triangularView<Eigen::StrictlyLower>()
+      = data.M.transpose().triangularView<Eigen::StrictlyLower>();
     }
     
     void exposeRNEADerivatives()
