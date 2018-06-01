@@ -19,6 +19,7 @@
 #include <boost/utility/binary.hpp>
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/algorithm/finite-differences.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"

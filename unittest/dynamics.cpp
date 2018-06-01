@@ -17,6 +17,7 @@
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/dynamics.hpp"
 #include "pinocchio/parsers/sample-models.hpp"

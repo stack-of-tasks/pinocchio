@@ -224,6 +224,8 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/frame.hpp
   multibody/model.hpp
   multibody/model.hxx
+  multibody/data.hpp
+  multibody/data.hxx
   multibody/visitor.hpp
   )
 

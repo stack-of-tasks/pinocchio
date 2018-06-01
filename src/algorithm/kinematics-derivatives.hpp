@@ -19,6 +19,7 @@
 #define __se3_kinematics_derivatives_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 
 namespace se3
 {

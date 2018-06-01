@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,7 +18,7 @@
 #ifndef __se3_python_data_hpp__
 #define __se3_python_data_hpp__
 
-#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 
 #include <eigenpy/memory.hpp>
 #include <eigenpy/eigenpy.hpp>

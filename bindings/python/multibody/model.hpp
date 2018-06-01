@@ -24,6 +24,7 @@
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"

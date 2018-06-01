@@ -74,7 +74,6 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( integration_test )
 {
   Model model; buildModel(model);
-  Data data(model);
 
   std::vector<Eigen::VectorXd> qs(2);
   std::vector<Eigen::VectorXd> qdots(2);
