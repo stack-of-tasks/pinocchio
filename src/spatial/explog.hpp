@@ -42,7 +42,7 @@ namespace se3
   typename Eigen::Matrix<typename Vector3Like::Scalar,3,3,Eigen::internal::traits<Vector3Like>::Options>
   exp3(const Eigen::MatrixBase<Vector3Like> & v)
   {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+    EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
     assert(v.size() == 3);
     
     typedef typename Vector3Like::Scalar Scalar;
