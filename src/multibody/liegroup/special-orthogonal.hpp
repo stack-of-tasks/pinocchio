@@ -51,17 +51,18 @@ namespace se3
     SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
 
-    static Scalar log (const Matrix2& R)
+    static Scalar log(const Matrix2 & R)
     {
       Scalar theta;
       const Scalar tr = R.trace();
-      const bool pos = (R (1, 0) > 0);
-      if (tr > 2)       theta = 0; // acos((3-1)/2)
-      else if (tr < -2) theta = (pos ? PI : -PI); // acos((-1-1)/2)
+      const bool pos = (R (1, 0) > Scalar(0));
+      const Scalar PI_value = PI<Scalar>();
+      if (tr > Scalar(2))       theta = Scalar(0); // acos((3-1)/2)
+      else if (tr < Scalar(-2)) theta = (pos ? PI_value : -PI_value); // acos((-1-1)/2)
       // Around 0, asin is numerically more stable than acos because
       // acos(x) = PI/2 - x and asin(x) = x (the precision of x is not lost in PI/2).
-      else if (tr > 2 - 1e-2) theta = asin ((R(1,0) - R(0,1)) / 2);
-      else              theta = (pos ? acos (tr/2) : -acos(tr/2));
+      else if (tr > Scalar(2) - 1e-2) theta = asin ((R(1,0) - R(0,1)) / Scalar(2));
+      else              theta = (pos ? acos (tr/Scalar(2)) : -acos(tr/Scalar(2)));
       assert (theta == theta); // theta != NaN
       assert (fabs(theta - atan2 (R(1,0), R(0,0))) < 1e-6);
       return theta;
@@ -88,7 +89,7 @@ namespace se3
 
     ConfigVector_t neutral () const
     {
-      ConfigVector_t n; n.setZero (); n [0] = 1;
+      ConfigVector_t n; n.setZero(); n[0] = Scalar(1);
       return n;
     }
 
@@ -167,8 +168,10 @@ namespace se3
       Scalar sinTheta = q0(0)*q1(1) - q0(1)*q1(0);
       Scalar theta = atan2(sinTheta, cosTheta);
       assert (fabs (sin (theta) - sinTheta) < 1e-8);
+      
+      const Scalar PI_value = PI<Scalar>();
 
-      if (fabs (theta) > 1e-6 && fabs (theta) < PI - 1e-6)
+      if (fabs (theta) > 1e-6 && fabs (theta) < PI_value - 1e-6)
       {
         out = (sin ((1-u)*theta)/sinTheta) * q0
             + (sin (   u *theta)/sinTheta) * q1;
@@ -199,8 +202,10 @@ namespace se3
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       Config_t& out = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
-      const Scalar angle = -PI + 2*PI * ((Scalar)rand())/RAND_MAX;
-      SINCOS (angle, &out(1), &out(0));
+      
+      const Scalar PI_value = PI<Scalar>();
+      const Scalar angle = -PI_value + Scalar(2)* PI_value * ((Scalar)rand())/RAND_MAX;
+      SINCOS(angle, &out(1), &out(0));
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -238,7 +243,7 @@ namespace se3
 
     ConfigVector_t neutral () const
     {
-      ConfigVector_t n; n.setZero (); n [3] = 1;
+      ConfigVector_t n; n.setZero (); n[3] = Scalar(1);
       return n;
     }
 
@@ -271,7 +276,7 @@ namespace se3
       Jlog3 (R, J1);
 
       JacobianLOut_t& J0v = const_cast< JacobianLOut_t& > (J0.derived());
-      J0v.noalias() = - J1.derived() * R.transpose();
+      J0v.noalias() = - J1 * R.transpose();
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
