@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -22,7 +22,17 @@
 
 namespace se3
 {
-  const double PI = boost::math::constants::pi<double>();
+  ///
+  /// \brief Returns the value of PI according to the template parameters Scalar
+  ///
+  /// \tparam Scalar The scalar type of the return pi value
+  ///
+  template<typename Scalar>
+  const Scalar PI()
+  { return boost::math::constants::pi<Scalar>(); }
+  
+  /// The value of PI for double scalar type
+  const double PId = PI<double>();
 }
 
 
