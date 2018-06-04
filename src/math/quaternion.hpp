@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,7 +18,7 @@
 #ifndef __math_quaternion_hpp__
 #define __math_quaternion_hpp__
 
-#include <pinocchio/math/fwd.hpp>
+#include "pinocchio/math/fwd.hpp"
 
 namespace se3
 {
@@ -30,17 +30,18 @@ namespace se3
   ///
   /// \return angle between the two quaternions
   ///
-  template <typename D>
-  typename D::Scalar angleBetweenQuaternions(const Eigen::QuaternionBase<D> & q1,
-                                             const Eigen::QuaternionBase<D> & q2)
+  template<typename D1, typename D2>
+  typename D1::Scalar
+  angleBetweenQuaternions(const Eigen::QuaternionBase<D1> & q1,
+                          const Eigen::QuaternionBase<D2> & q2)
   {
-    typedef typename D::Scalar Scalar;
+    typedef typename D1::Scalar Scalar;
     const Scalar innerprod = q1.dot(q2);
     Scalar theta = acos(innerprod);
-    const Scalar PIs = boost::math::constants::pi<Scalar>();
+    const Scalar PI_value = PI<Scalar>();
     
-    if (innerprod < 0)
-      return PIs - theta;
+    if(innerprod < 0)
+      return PI_value - theta;
     
     return theta;
   }
@@ -54,10 +55,10 @@ namespace se3
   ///
   /// \return Return true if the two input quaternions define the same rotation.
   ///
-  template <typename Derived, typename otherDerived>
-  bool defineSameRotation(const Eigen::QuaternionBase<Derived> & q1,
-                          const Eigen::QuaternionBase<otherDerived> & q2,
-                          const typename Derived::RealScalar & prec = Eigen::NumTraits<typename Derived::Scalar>::dummy_precision())
+  template<typename D1, typename D2>
+  bool defineSameRotation(const Eigen::QuaternionBase<D1> & q1,
+                          const Eigen::QuaternionBase<D2> & q2,
+                          const typename D1::RealScalar & prec = Eigen::NumTraits<typename D1::Scalar>::dummy_precision())
   {
     return (q1.coeffs().isApprox(q2.coeffs(), prec) || q1.coeffs().isApprox(-q2.coeffs(), prec) );
   }
@@ -83,7 +84,7 @@ namespace se3
   /// \note See
   /// http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html#title3
   /// to know the reason why the argument is const.
-  template <typename D>
+  template<typename D>
   void firstOrderNormalize(const Eigen::QuaternionBase<D> & q)
   {
     typedef typename D::Scalar Scalar;
@@ -92,18 +93,18 @@ namespace se3
     const Scalar epsilon = sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     assert(std::fabs(N2-1.) <= epsilon);
 #endif
-    const Scalar alpha = ((Scalar)3 - N2) / 2;
+    const Scalar alpha = ((Scalar)3 - N2) / Scalar(2);
     const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() *= alpha;
 #ifndef NDEBUG
-    const Scalar M = 3 * std::pow((Scalar)1.-epsilon, ((Scalar)-5)/2) / 4;
-    assert(std::fabs(q.norm() - 1) <=
-        std::max(M * sqrt(N2) * (N2 - 1)*(N2 - 1) / 2, Eigen::NumTraits<Scalar>::dummy_precision()));
+    const Scalar M = Scalar(3) * std::pow(Scalar(1)-epsilon, ((Scalar)-Scalar(5))/Scalar(2)) / Scalar(4);
+    assert(std::fabs(q.norm() - Scalar(1)) <=
+        std::max(M * sqrt(N2) * (N2 - Scalar(1))*(N2 - Scalar(1)) / Scalar(2), Eigen::NumTraits<Scalar>::dummy_precision()));
 #endif
   }
 
   /// Uniformly random quaternion sphere.
-  template <typename D>
-  void uniformRandom (const Eigen::QuaternionBase<D> & q)
+  template<typename D>
+  void uniformRandom(const Eigen::QuaternionBase<D> & q)
   {
     typedef typename D::Scalar Scalar;
     typedef Eigen::QuaternionBase<D> Base;
@@ -113,11 +114,12 @@ namespace se3
     const Scalar u2 = (Scalar)rand() / RAND_MAX;
     const Scalar u3 = (Scalar)rand() / RAND_MAX;
 
-    const Scalar mult1 = sqrt (1-u1);
-    const Scalar mult2 = sqrt (u1);
+    const Scalar mult1 = sqrt(Scalar(1)-u1);
+    const Scalar mult2 = sqrt(u1);
 
-    Scalar s2,c2; SINCOS(2.*PI*u2,&s2,&c2);
-    Scalar s3,c3; SINCOS(2.*PI*u3,&s3,&c3);
+    const Scalar PI_value = PI<Scalar>();
+    Scalar s2,c2; SINCOS(Scalar(2)*PI_value*u2,&s2,&c2);
+    Scalar s3,c3; SINCOS(Scalar(2)*PI_value*u3,&s3,&c3);
 
     const_cast <Base &> (q).w() = mult1 * s2;
     const_cast <Base &> (q).x() = mult1 * c2;
