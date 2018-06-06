@@ -239,7 +239,11 @@ namespace se3 {
   {
     if     (u == 0) const_cast<Eigen::MatrixBase<ConfigOut_t>&>(qout) = q0;
     else if(u == 1) const_cast<Eigen::MatrixBase<ConfigOut_t>&>(qout) = q1;
-    else integrate(q0, u * difference(q0, q1), qout);
+    else 
+    {
+      TangentVector_t vdiff(u * difference(q0, q1));
+      integrate(q0, vdiff, qout);
+    }
   }
 
   template <class Derived>
