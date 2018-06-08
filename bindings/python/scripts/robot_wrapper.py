@@ -14,8 +14,8 @@
 # Pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
 
-import libpinocchio_pywrap as se3
-import utils
+from . import libpinocchio_pywrap as se3
+from . import utils
 import time
 import os
 
@@ -32,13 +32,13 @@ class RobotWrapper(object):
             collision_model = None
             visual_model = None
             if verbose:
-                print 'Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.'
+                print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
         else:
             if package_dirs is None:
                 self.collision_model = se3.buildGeomFromUrdf(self.model, filename, se3.GeometryType.COLLISION)
                 self.visual_model = se3.buildGeomFromUrdf(self.model, filename, se3.GeometryType.VISUAL)
             else:
-                if not all(isinstance(item, basestring) for item in package_dirs):
+                if not all(isinstance(item, str) for item in package_dirs):
                     raise Exception('The list of package directories is wrong. At least one is not a string')
                 else:
                     collision_model = se3.buildGeomFromUrdf(model, filename,
@@ -78,7 +78,7 @@ class RobotWrapper(object):
                 self.visual_data = se3.GeometryData(self.visual_model)
 
         self.v0 = utils.zero(self.nv)
-        self.q0 = utils.zero(self.nq)
+        self.q0 = self.model.neutralConfiguration
 
     def increment(self, q, dq):
         q_next = se3.integrate(self.model,q,dq)
@@ -161,6 +161,13 @@ class RobotWrapper(object):
         parentJointAcc = self.data.a[frame.parent]
         return frame.placement.actInv(parentJointAcc)
 
+    def frameClassicAcceleration(self, index):
+        f = self.model.frames[index]
+        a = f.placement.actInv(self.data.a[f.parent])
+        v = f.placement.actInv(self.data.v[f.parent])
+        a.linear += np.cross(v.angular.T, v.linear.T).T
+        return a;
+
     def jacobian(self, q, index, update_kinematics=True, local_frame=True):
         return se3.jacobian(self.model, self.data, q, index, local_frame, update_kinematics)
 
@@ -184,26 +191,6 @@ class RobotWrapper(object):
     def framesKinematics(self, q): 
         se3.framesKinematics(self.model, self.data, q)
     
-    def framePosition(self, index):
-        f = self.model.frames[index]
-        return self.data.oMi[f.parent].act(f.placement)
-
-    def frameVelocity(self, index):
-        f = self.model.frames[index]
-        return f.placement.actInv(self.data.v[f.parent])
-    
-    ''' Return the spatial acceleration of the specified frame. '''
-    def frameAcceleration(self, index):
-        f = self.model.frames[index]
-        return f.placement.actInv(self.data.a[f.parent])
-    
-    def frameClassicAcceleration(self, index):
-        f = self.model.frames[index]
-        a = f.placement.actInv(self.data.a[f.parent])
-        v = f.placement.actInv(self.data.v[f.parent])
-        a.linear += np.cross(v.angular.T, v.linear.T).T
-        return a;
-
     ''' Call computeJacobians if update_geometry is true. If not, user should call computeJacobians first.
     Then call getJacobian and return the resulted jacobian matrix. Attention: if update_geometry is true, 
     the function computes all the jacobians of the model. It is therefore outrageously costly wrt a 
@@ -226,7 +213,7 @@ class RobotWrapper(object):
             return self.viewerCollisionGroupName + '/' + geometry_object.name
 
 
-    def initDisplay(self, windowName="pinocchio", sceneName="world", loadModel=False):
+    def initDisplay(self, windowName="python-pinocchio", sceneName="world", loadModel=False):
         """
         Init gepetto-viewer by loading the gui and creating a window.
         """
@@ -250,16 +237,16 @@ class RobotWrapper(object):
             gui.addSceneToWindow(sceneName, self.windowID)
             
             if loadModel:
-                self.loadDisplayModel(viewerRootNodeName)
+                self.loadDisplayModel()
         except:
-            print "Error while starting the viewer client. "
-            print "Check wheter gepetto-viewer is properly started"
+            print("Error while starting the viewer client. ")
+            print("Check wheter gepetto-viewer is properly started")
 
     # Create the scene displaying the robot meshes in gepetto-viewer
     def loadDisplayModel(self, rootNodeName="pinocchio"):
     
         def loadDisplayGeometryObject(geometry_object,geometry_type):
-            from rpy import npToTuple
+            from .rpy import npToTuple
             
             meshName = self.getViewerNodeName(geometry_object,geometry_type)
             meshPath = geometry_object.meshPath
@@ -276,10 +263,7 @@ class RobotWrapper(object):
 
         # Start a new "scene" in this window, named "world", with just a floor.
         gui = self.viewer.gui
-        if not self.sceneName in rootNodeName:
-            self.viewerRootNodeName = self.sceneName + "/" + rootNodeName
-        else:
-            self.viewerRootNodeName = rootNodeName
+        self.viewerRootNodeName = self.sceneName + "/" + rootNodeName
 
         if not gui.nodeExists(self.viewerRootNodeName):
             gui.createGroup(self.viewerRootNodeName)

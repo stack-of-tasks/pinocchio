@@ -17,6 +17,7 @@
 
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -38,8 +39,8 @@ template<typename JointModel>
 void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelComposite & jmodel_composite)
 {
   typedef typename JointModelBase<JointModel>::JointDataDerived JointData;
-  JointData jdata = jmodel.createData();
   
+  JointData jdata = jmodel.createData();
   JointDataComposite jdata_composite = jmodel_composite.createData();
   
   jmodel_composite.setIndexes(jmodel.id(), jmodel.idx_q(), jmodel.idx_v());
@@ -51,14 +52,15 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   ConfigVector_t ql(ConfigVector_t::Constant(jmodel.nq(),-M_PI));
   ConfigVector_t qu(ConfigVector_t::Constant(jmodel.nq(),M_PI));
   ConfigVector_t q = LieGroupType().randomConfiguration(ql,qu);
-  
-  jmodel.calc(jdata,q);
-  
+
   BOOST_CHECK(jmodel.nv() == jmodel_composite.nv());
   BOOST_CHECK(jmodel.nq() == jmodel_composite.nq());
   
+  jmodel.calc(jdata,q);
   jmodel_composite.calc(jdata_composite,q);
+  
   BOOST_CHECK(jdata_composite.M.isApprox((SE3)jdata.M));
+  BOOST_CHECK(constraint_xd(jdata_composite).matrix().isApprox(constraint_xd(jdata).matrix()));
   
   q = LieGroupType().randomConfiguration(ql,qu);
   TangentVector_t v = TangentVector_t::Random(jmodel.nv());
@@ -66,16 +68,50 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   jmodel_composite.calc(jdata_composite,q,v);
   
   BOOST_CHECK(jdata_composite.M.isApprox((SE3)jdata.M));
+  BOOST_CHECK(constraint_xd(jdata_composite).matrix().isApprox(constraint_xd(jdata).matrix()));
   BOOST_CHECK(jdata_composite.v.isApprox((Motion)jdata.v));
   BOOST_CHECK(jdata_composite.c.isApprox((Motion)jdata.c));
   
-  Inertia::Matrix6 I(Inertia::Random().matrix());
-  jmodel.calc_aba(jdata,I,false);
-  jmodel_composite.calc_aba(jdata_composite,I,false);
+  // TODO: Not yet checked
+//  {
+//    VectorXd q1(jmodel.random());
+//    jmodel.normalize(q1);
+//    VectorXd q2(jmodel.random());
+//    jmodel.normalize(q2);
+//    VectorXd v(VectorXd::Random(jmodel.nv()));
+//    
+//    BOOST_CHECK(jmodel_composite.integrate(q1,v).isApprox(jmodel.integrate(q1,v)));
+//
+//    TangentVector_t v1 = jmodel_composite.difference(q1,q2);
+//    TangentVector_t v2 = jmodel.difference(q1,q2);
+//
+//    BOOST_CHECK(v1.isApprox(v2));
+//    
+//    const double alpha = 0.2;
+//    BOOST_CHECK(jmodel_composite.interpolate(q1,q2,alpha).isApprox(jmodel.interpolate(q1,q2,alpha)));
+//    BOOST_CHECK(std::fabs(jmodel_composite.distance(q1,q2)-jmodel.distance(q1,q2))<= NumTraits<double>::dummy_precision());
+//  }
   
-  BOOST_CHECK(jdata.U.isApprox(jdata_composite.U));
-  BOOST_CHECK(jdata.Dinv.isApprox(jdata_composite.Dinv));
-  BOOST_CHECK(jdata.UDinv.isApprox(jdata_composite.UDinv));
+  Inertia::Matrix6 I1(Inertia::Random().matrix());
+  Inertia::Matrix6 I2 = I1;
+
+  jmodel.calc_aba(jdata,I1,true);
+  jmodel_composite.calc_aba(jdata_composite,I2,true);
+
+  double prec = 1e-10; // higher tolerance to errors due to possible numerical imprecisions
+  
+  BOOST_CHECK(jdata.U.isApprox(jdata_composite.U,prec));
+  BOOST_CHECK(jdata.Dinv.isApprox(jdata_composite.Dinv,prec));
+  BOOST_CHECK(jdata.UDinv.isApprox(jdata_composite.UDinv,prec));
+
+  // Checking the inertia was correctly updated
+  // We use isApprox as usual, except for the freeflyer,
+  // where the correct result is exacly zero and isApprox would fail.
+  // Only for this single case, we use the infinity norm of the difference
+  if(jmodel.shortname() == "JointModelFreeFlyer")
+    BOOST_CHECK((I1-I2).lpNorm<Eigen::Infinity>() < prec);
+  else
+    BOOST_CHECK(I1.isApprox(I2,prec));
   
   /// TODO: Remove me. This is for testing purposes.
   Eigen::VectorXd qq = q;
@@ -141,29 +177,28 @@ BOOST_AUTO_TEST_CASE(test_basic)
   boost::mpl::for_each<Variant::types>(TestJointComposite());
 }
 
-BOOST_AUTO_TEST_CASE(test_equivalent)
+BOOST_AUTO_TEST_CASE(vsZYX)
 {
-  {
-    JointModelSphericalZYX jmodel_spherical;
-    jmodel_spherical.setIndexes(0,0,0);
-    
-    JointModelComposite jmodel_composite((JointModelRZ()));
-    jmodel_composite.addJoint(JointModelRY());
-    jmodel_composite.addJoint(JointModelRX());
-    
-    test_joint_methods(jmodel_spherical, jmodel_composite);
-  }
+  JointModelSphericalZYX jmodel_spherical;
+  jmodel_spherical.setIndexes(0,0,0);
   
-  {
-    JointModelTranslation jmodel_translation;
-    jmodel_translation.setIndexes(0,0,0);
-    
-    JointModelComposite jmodel_composite((JointModelPX()));
-    jmodel_composite.addJoint(JointModelPY());
-    jmodel_composite.addJoint(JointModelPZ());
-    
-    test_joint_methods(jmodel_translation, jmodel_composite);
-  }
+  JointModelComposite jmodel_composite((JointModelRZ()));
+  jmodel_composite.addJoint(JointModelRY());
+  jmodel_composite.addJoint(JointModelRX());
+  
+  test_joint_methods(jmodel_spherical, jmodel_composite);
+}
+
+BOOST_AUTO_TEST_CASE(vsTranslation)
+{
+  JointModelTranslation jmodel_translation;
+  jmodel_translation.setIndexes(0,0,0);
+  
+  JointModelComposite jmodel_composite((JointModelPX()));
+  jmodel_composite.addJoint(JointModelPY());
+  jmodel_composite.addJoint(JointModelPZ());
+  
+  test_joint_methods(jmodel_translation, jmodel_composite);
 }
 
 BOOST_AUTO_TEST_CASE (test_recursive_variant)
@@ -200,6 +235,57 @@ BOOST_AUTO_TEST_CASE(test_copy)
   jmodel_composite_planar.calc(jdata_composite_planar,q1, q1_dot);
   model_copy.calc(data_copy,q1, q1_dot);
 
+}
+
+BOOST_AUTO_TEST_CASE(test_kinematics)
+{
+  Model model;
+  JointModelComposite jmodel_composite;
+
+  SE3 config=SE3::Random();
+  JointIndex parent=0;
+
+  for(int i=0; i<10; i++)
+  {
+    parent = model.addJoint(parent, JointModelRX(), config, "joint");
+    jmodel_composite.addJoint(JointModelRX(),config);
+
+    config.setRandom();
+  }
+
+  Data data(model);
+
+  Model model_c;
+  model_c.addJoint(0,jmodel_composite,SE3::Identity(),"joint");
+
+  Data data_c(model_c);
+
+  BOOST_CHECK(model.nv == model_c.nv);
+  BOOST_CHECK(model.nq == model_c.nq);
+  
+  VectorXd q(VectorXd::Random(model.nv));
+  forwardKinematics(model,data,q);
+  forwardKinematics(model_c,data_c,q);
+  
+  BOOST_CHECK(data.oMi.back().isApprox(data_c.oMi.back()));
+  
+  q.setRandom(model.nq);
+  VectorXd v(VectorXd::Random(model.nv));
+  forwardKinematics(model,data,q,v);
+  forwardKinematics(model_c,data_c,q,v);
+  
+  BOOST_CHECK(data.oMi.back().isApprox(data_c.oMi.back()));
+  BOOST_CHECK(data.v.back().isApprox(data_c.v.back()));
+
+  q.setRandom(model.nq);
+  v.setRandom(model.nv);
+  VectorXd a(VectorXd::Random(model.nv));
+  forwardKinematics(model,data,q,v,a);
+  forwardKinematics(model_c,data_c,q,v,a);
+
+  BOOST_CHECK(data.oMi.back().isApprox(data_c.oMi.back()));
+  BOOST_CHECK(data.v.back().isApprox(data_c.v.back()));
+  BOOST_CHECK(data.a.back().isApprox(data_c.a.back()));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

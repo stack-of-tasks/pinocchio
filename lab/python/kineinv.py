@@ -4,6 +4,8 @@ abscissia), dimension 3 (x,y,z coordinates), dimension 6 (SE3 exp integration)
 and dimension 6 (R3xSO3 integration, straightline in the cartesian space).
 '''
 
+from __future__ import print_function
+
 
 def kineinv_dim1(q0, xdes, N=100):
     '''
@@ -22,7 +24,7 @@ def kineinv_dim1(q0, xdes, N=100):
 
         robot.increment(q, qdot * 5e-2)
         robot.display(q)
-    print "Residuals = ", robot.Mrh(q).translation[0, 0] - xdes
+    print("Residuals = ", robot.Mrh(q).translation[0, 0] - xdes)
 
 
 def kineinv_dim3(q0, xdes, N=100):
@@ -42,7 +44,7 @@ def kineinv_dim3(q0, xdes, N=100):
 
         robot.increment(q, qdot * 5e-2)
         robot.display(q)
-    print "Residuals = ", npl.norm(robot.Mrh(q).translation[:3] - xdes)
+    print("Residuals = ", npl.norm(robot.Mrh(q).translation[:3] - xdes))
 
 
 def kineinv_dim6(q0, Mdes, straight=True, N=100):
@@ -72,7 +74,7 @@ def kineinv_dim6(q0, Mdes, straight=True, N=100):
 
         robot.increment(q, qdot * 5e-2)
         robot.display(q)
-    print "Residuals = ", npl.norm(se3.log(robot.Mrh(q).inverse() * Mdes).vector())
+    print("Residuals = ", npl.norm(se3.log(robot.Mrh(q).inverse() * Mdes).vector()))
 
 # --- MAIN ------------------------------------------------------
 if __name__ == '__main__':

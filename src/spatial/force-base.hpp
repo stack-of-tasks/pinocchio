@@ -19,6 +19,14 @@
 #ifndef __se3_force_base_hpp__
 #define __se3_force_base_hpp__
 
+/** \addtogroup Force_group Force
+ *
+ *  This module represents a spatial force, e.g. a spatial impulse or force associated to a body.
+ *  The spatial force is the mathematical representation of \f$ se^{*}(3) \f$, the dual of \f$ se(3) \f$.
+ *
+ *
+ */
+
 namespace se3
 {
   /**
@@ -83,7 +91,7 @@ namespace se3
      *
      * @return     The 6D vector \f$ \phi \f$ such that
      * \f{equation*}
-     * \leftidx{^A}\phi = \begin{bmatrix} \leftidx{^A}f \\  \leftidx{^A}\tau \end{bmatrix}
+     * {}^{A}\phi = \begin{bmatrix} {}^{A}f \\  {}^{A}\tau \end{bmatrix}
      * \f}
      */
     ToVectorConstReturnType toVector() const { return derived().toVector_impl(); }
@@ -161,11 +169,11 @@ namespace se3
     /**
      * @brief      Transform from A to B coordinates the Force represented by *this such that
      *             \f{equation*}
-     *             \leftidx{^B}f  =  \leftidx{^B}X_A^* * \leftidx{^A}f
+     *             {}^{B}f  =  {}^{B}X_A^* * {}^{A}f
      *             \f}
      *
-     * @param[in]  m     The rigid transformation \f$ \leftidx{^B}m_A \f$ whose coordinates transform for forces is
-     *                   \leftidx{^B}X_A^*
+     * @param[in]  m     The rigid transformation \f$ {}^{B}m_A \f$ whose coordinates transform for forces is
+     *                   {}^{B}X_A^*
      *
      * @return     an expression of the force expressed in the new coordinates
      */
@@ -176,11 +184,11 @@ namespace se3
     /**
      * @brief      Transform from B to A coordinates the Force represented by *this such that
      *             \f{equation*}
-     *             \leftidx{^A}f  =  \leftidx{^A}X_B^* * \leftidx{^A}f
+     *             {}^{A}f  =  {}^{A}X_B^* * {}^{A}f
      *             \f}
      *
-     * @param[in]  m     The rigid transformation \f$ \leftidx{^B}m_A \f$ whose coordinates transform for forces is
-     *                   \leftidx{^B}X_A^*
+     * @param[in]  m     The rigid transformation \f$ {}^{B}m_A \f$ whose coordinates transform for forces is
+     *                   {}^{B}X_A^*
      *
      * @return     an expression of the force expressed in the new coordinates
      */

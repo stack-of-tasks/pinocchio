@@ -80,7 +80,7 @@ namespace se3
     // JointDataComposite()  {} // can become necessary if we want a vector of JointDataComposite ?
     
     JointDataComposite(const JointDataVector & joint_data, const int /*nq*/, const int nv)
-    : joints(joint_data), iMlast(joint_data.size())
+    : joints(joint_data), iMlast(joint_data.size()), pjMi(joint_data.size())
     , S(nv)
     , M(), v(), c()
     , U(6,nv), Dinv(nv,nv), UDinv(6,nv)
@@ -89,9 +89,12 @@ namespace se3
     /// \brief Vector of joints
     JointDataVector joints;
    
-    /// \brief Transform from the joint i to the last joint
+    /// \brief Transforms from previous joint to last joint
     container::aligned_vector<Transformation_t> iMlast;
-//    boost::array<Transformation_t,_njoints> liMi;
+
+    /// \brief Transforms from previous joint to joint i
+    container::aligned_vector<Transformation_t> pjMi;
+
     Constraint_t S;
     Transformation_t M;
     Motion_t v;
@@ -137,7 +140,6 @@ namespace se3
     , jointPlacements()
     , m_nq(0)
     , m_nv(0)
-    , max_nv(0)
     {}
     
     ///
@@ -154,7 +156,6 @@ namespace se3
     , m_nv(jmodel.nv())
     , m_idx_q(1), m_nqs(1,jmodel.nq())
     , m_idx_v(1), m_nvs(1,jmodel.nv())
-    , max_nv(jmodel.nv())
     {}
     
     ///
@@ -170,7 +171,6 @@ namespace se3
     , m_nv(other.m_nv)
     , m_idx_q(other.m_idx_q), m_nqs(other.m_nqs)
     , m_idx_v(other.m_idx_v), m_nvs(other.m_nvs)
-    , max_nv(other.max_nv)
     {}
     
     
@@ -187,7 +187,6 @@ namespace se3
       jointPlacements.push_back(placement);
       
       m_nq += jmodel.nq(); m_nv += jmodel.nv();
-      max_nv = std::max(max_nv,jmodel.nv());
       
       updateJointIndexes();
     }
@@ -200,89 +199,11 @@ namespace se3
       return JointDataDerived(jdata,nq(),nv());
     }
 
-    void EIGEN_DONT_INLINE
-    calc(JointData & data, const Eigen::VectorXd & qs) const
-    {
-      assert(joints.size() > 0);
-      assert(data.joints.size() == joints.size());
-      
-      Transformation_t M_tmp;
-      Constraint_t::DenseBase S_tmp(6,max_nv);
-      
-      for (int k = (int)(joints.size()-1); k >= 0; --k)
-      {
-        const JointModelVariant & jmodel = joints[(size_t)k];
-        const JointDataVariant & jdata = data.joints[(size_t)k];
-        calc_zero_order(jmodel,data.joints[(size_t)k],qs);
-        
-        const int idx_v = m_idx_v[(size_t)k] - m_idx_v[0];
-        if(k == (int)(joints.size()-1))
-        {
-          data.iMlast[(size_t)k].setIdentity();
-          data.S.matrix().middleCols(idx_v,m_nvs[(size_t)k]) = constraint_xd(jdata).matrix();
-        }
-        else
-        {
-          M_tmp = jointPlacements[(size_t)k+1] * joint_transform(data.joints[(size_t)k+1]);
-          data.iMlast[(size_t)k] = M_tmp * data.iMlast[(size_t)k+1];
-          
-          S_tmp.leftCols(m_nvs[(size_t)k]) = constraint_xd(jdata).matrix();
-          motionSet::se3Action(data.iMlast[(size_t)k].inverse(),
-                               S_tmp.leftCols(m_nvs[(size_t)k]),
-                               data.S.matrix().middleCols(idx_v,m_nvs[(size_t)k]));
-        }
-      }
-      
-      M_tmp = jointPlacements[0] * joint_transform(data.joints[0]);
-      data.M = M_tmp * data.iMlast[0];
-    }
+    friend struct JointCompositeCalcZeroOrderStep;
+    void calc(JointData & data, const Eigen::VectorXd & qs) const;
 
-    void EIGEN_DONT_INLINE
-    calc(JointData & data,
-         const Eigen::VectorXd & qs,
-         const Eigen::VectorXd & vs) const
-    {
-      Transformation_t M_tmp;
-      Motion v_tmp;
-      Motion bias_tmp;
-      Constraint_t::DenseBase S_tmp(6,max_nv);
-      
-      
-      for (int k = (int)(joints.size()-1); k >= 0; --k)
-      {
-        const JointDataVariant & jdata = data.joints[(size_t)k];
-        calc_first_order(joints[(size_t)k],data.joints[(size_t)k],qs,vs);
-        
-        const int idx_v = m_idx_v[(size_t)k] - m_idx_v[0];
-        if(k == (int)(joints.size()-1))
-        {
-          data.iMlast[(size_t)k].setIdentity();
-          data.v = motion(jdata);
-          data.c = bias(jdata);
-          data.S.matrix().middleCols(idx_v,m_nvs[(size_t)k]) = constraint_xd(jdata).matrix();
-        }
-        else
-        {
-          M_tmp = jointPlacements[(size_t)k+1] * joint_transform(data.joints[(size_t)k+1]);
-          data.iMlast[(size_t)k] = M_tmp * data.iMlast[(size_t)k+1];
-          v_tmp = data.iMlast[(size_t)k].actInv(motion(jdata));
-          data.v += v_tmp;
-          data.c -= data.v.cross(v_tmp);
-          
-          bias_tmp = bias(jdata);
-          data.c += data.iMlast[(size_t)k].actInv(bias_tmp);
-          
-          S_tmp.leftCols(m_nvs[(size_t)k]) = constraint_xd(jdata).matrix();
-          motionSet::se3Action(data.iMlast[(size_t)k].inverse(),
-                               S_tmp.leftCols(m_nvs[(size_t)k]),
-                               data.S.matrix().middleCols(idx_v,m_nvs[(size_t)k]));
-        }
-      }
-      
-      M_tmp = jointPlacements[0] * joint_transform(data.joints[0]);
-      data.M = M_tmp * data.iMlast[0];
-    }
-   
+    friend struct JointCompositeCalcFirstOrderStep;
+    void calc(JointData & data, const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const;
     
     void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
     {
@@ -420,10 +341,6 @@ namespace se3
     std::vector<int> m_idx_v;
     /// \brief Dimension of the segment in the tangent vector
     std::vector<int> m_nvs;
-    
-    /// \brief Max nv dimensions for all joints contained in joints.
-    int max_nv;
-
   };
   
 
@@ -439,5 +356,9 @@ namespace se3
 
 } // namespace se3
 
+/* --- Details -------------------------------------------------------------- */
+/* --- Details -------------------------------------------------------------- */
+/* --- Details -------------------------------------------------------------- */
+#include "pinocchio/multibody/joint/joint-composite.hxx"
 
 #endif // ifndef __se3_joint_composite_hpp__

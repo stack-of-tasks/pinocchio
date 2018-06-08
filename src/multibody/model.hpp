@@ -60,19 +60,19 @@ namespace se3
     /// \brief Number of operational frames.
     int nframes;
 
-    /// \brief Spatial inertias of the body <i> expressed in the supporting joint frame <i>.
+    /// \brief Spatial inertias of the body *i* expressed in the supporting joint frame *i*.
     container::aligned_vector<Inertia> inertias;
     
-    /// \brief Placement (SE3) of the input of joint <i> regarding to the parent joint output <li>.
+    /// \brief Placement (SE3) of the input of joint *i* regarding to the parent joint output *li*.
     container::aligned_vector<SE3> jointPlacements;
 
-    /// \brief Model of joint <i>, encapsulated in a JointModelAccessor.
+    /// \brief Model of joint *i*, encapsulated in a JointModelAccessor.
     JointModelVector joints;
     
-    /// \brief Joint parent of joint <i>, denoted <li> (li==parents[i]).
+    /// \brief Joint parent of joint *i*, denoted *li* (li==parents[i]).
     std::vector<JointIndex> parents;
 
-    /// \brief Name of joint <i>
+    /// \brief Name of joint *i*
     std::vector<std::string> names;
     
     /// \brief Vector of joint's neutral configurations
@@ -98,8 +98,8 @@ namespace se3
     container::aligned_vector<Frame> frames;
     
     /// \brief Vector of subtrees.
-    /// subtree[j] corresponds to the subtree supported by the joint j.
-    /// The first element of subtree[j] is the index of the joint j itself.
+    /// subtree[j] corresponds to the subtree supported by the joint *j*.
+    /// The first element of subtree[j] is the index of the joint *j* itself.
     std::vector<IndexVector> subtrees;
 
     /// \brief Spatial gravity of the model.
@@ -260,9 +260,9 @@ namespace se3
     /// \warning If no joint is found, return the number of elements at time T.
     /// This can lead to errors if the model is expanded after this method is called
     /// (for example to get the id of a parent joint)
-    /// \param[in] index Index of the joint.
+    /// \param[in] name Name of the joint.
     ///
-    /// \return Index of the joint.
+    /// \return name Name of the joint.
     ///
     JointIndex getJointId(const std::string & name) const;
     

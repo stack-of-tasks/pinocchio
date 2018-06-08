@@ -17,10 +17,10 @@
 import numpy as np
 from pinocchio.robot_wrapper import RobotWrapper
 
-import libpinocchio_pywrap as se3
-import utils
-from explog import exp, log
-from libpinocchio_pywrap import *
+from . import libpinocchio_pywrap as se3
+from . import utils
+from .explog import exp, log
+from .libpinocchio_pywrap import *
 
 se3.AngleAxis.__repr__ = lambda s: 'AngleAxis(%s)' % s.vector()
 

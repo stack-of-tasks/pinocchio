@@ -37,6 +37,105 @@
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
+template<typename JointModel>
+void test_joint_methods(const se3::JointModelBase<JointModel> & jmodel)
+{
+  typedef typename se3::JointModelBase<JointModel>::JointDataDerived JointData;
+  typedef typename JointModel::ConfigVector_t ConfigVector_t;
+  typedef typename se3::LieGroup<JointModel>::type LieGroupType;
+
+  JointData jdata = jmodel.createData();
+
+  ConfigVector_t ql(ConfigVector_t::Constant(jmodel.nq(),-M_PI));
+  ConfigVector_t qu(ConfigVector_t::Constant(jmodel.nq(),M_PI));
+
+  ConfigVector_t q = LieGroupType().randomConfiguration(ql,qu);
+  se3::Inertia::Matrix6 I(se3::Inertia::Random().matrix());
+  se3::Inertia::Matrix6 I_check = I;
+
+  jmodel.calc(jdata,q);
+  jmodel.calc_aba(jdata,I,true);
+
+  Eigen::MatrixXd S = constraint_xd(jdata).matrix();
+  Eigen::MatrixXd U_check = I_check*S;
+  Eigen::MatrixXd D_check = S.transpose()*U_check;
+  Eigen::MatrixXd Dinv_check = D_check.inverse();
+  Eigen::MatrixXd UDinv_check = U_check*Dinv_check;
+  Eigen::MatrixXd update_check = U_check*Dinv_check*U_check.transpose();
+  I_check -= update_check;
+
+  BOOST_CHECK(jdata.U.isApprox(U_check));
+  BOOST_CHECK(jdata.Dinv.isApprox(Dinv_check));
+  BOOST_CHECK(jdata.UDinv.isApprox(UDinv_check));
+
+  // Checking the inertia was correctly updated
+  // We use isApprox as usual, except for the freeflyer,
+  // where the correct result is exacly zero and isApprox would fail.
+  // Only for this single case, we use the infinity norm of the difference
+  if(jmodel.shortname() == "JointModelFreeFlyer")
+    BOOST_CHECK((I-I_check).lpNorm<Eigen::Infinity>() < Eigen::NumTraits<double>::dummy_precision());
+  else
+    BOOST_CHECK(I.isApprox(I_check));
+}
+
+struct TestJointMethods{
+
+  template <typename JointModel>
+  void operator()(const se3::JointModelBase<JointModel> &) const
+  {
+    JointModel jmodel;
+    jmodel.setIndexes(0,0,0);
+
+    test_joint_methods(jmodel);
+  }
+
+  void operator()(const se3::JointModelBase<se3::JointModelComposite> &) const
+  {
+    se3::JointModelComposite jmodel_composite;
+    jmodel_composite.addJoint(se3::JointModelRX());
+    jmodel_composite.addJoint(se3::JointModelRY());
+    jmodel_composite.setIndexes(0,0,0);
+
+    //TODO: correct LieGroup
+    //test_joint_methods(jmodel_composite);
+
+  }
+
+  void operator()(const se3::JointModelBase<se3::JointModelRevoluteUnaligned> &) const
+  {
+    se3::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
+    jmodel.setIndexes(0,0,0);
+
+    test_joint_methods(jmodel);
+  }
+
+  void operator()(const se3::JointModelBase<se3::JointModelPrismaticUnaligned> &) const
+  {
+    se3::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
+    jmodel.setIndexes(0,0,0);
+
+    test_joint_methods(jmodel);
+  }
+
+};
+
+BOOST_AUTO_TEST_CASE( test_joint_basic )
+{
+  using namespace se3;
+
+  typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned
+  , JointModelSpherical, JointModelSphericalZYX
+  , JointModelPX, JointModelPY, JointModelPZ
+  , JointModelPrismaticUnaligned
+  , JointModelFreeFlyer
+  , JointModelPlanar
+  , JointModelTranslation
+  , JointModelRUBX, JointModelRUBY, JointModelRUBZ
+  > Variant;
+
+  boost::mpl::for_each<Variant::types>(TestJointMethods());
+}
+
 BOOST_AUTO_TEST_CASE ( test_aba_simple )
 {
   using namespace Eigen;

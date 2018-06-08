@@ -357,10 +357,10 @@ namespace se3
       
       if (update_I)
       {
-        I.template block<6,3>(0,Inertia::ANGULAR).setZero();
-        I.template block<3,3>(Inertia::ANGULAR,Inertia::LINEAR).setZero();
         I.template block<3,3>(Inertia::LINEAR,Inertia::LINEAR)
         -= data.UDinv.template middleRows<3>(Inertia::LINEAR) * I.template block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
+        I.template block<6,3>(0,Inertia::ANGULAR).setZero();
+        I.template block<3,3>(Inertia::ANGULAR,Inertia::LINEAR).setZero();
       }
     }
     

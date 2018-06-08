@@ -14,15 +14,17 @@
 # Pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 import sys
 
 import numpy as np
 import numpy.linalg as npl
 
-import libpinocchio_pywrap as se3
-from rpy import matrixToRpy, npToTTuple, npToTuple, rotate, rpyToMatrix
+from . import libpinocchio_pywrap as se3
+from .rpy import matrixToRpy, npToTTuple, npToTuple, rotate, rpyToMatrix
 
-from deprecation import deprecated
+from .deprecation import deprecated
 
 eye = lambda n: np.matrix(np.eye(n), np.double)
 zero = lambda n: np.matrix(np.zeros([n, 1] if isinstance(n, int) else n), np.double)
@@ -96,8 +98,8 @@ def mprint(M, name="ans",eps=1e-15):
         M = M.homogeneous
     ncol = M.shape[1]
     NC = 6
-    print name, " = "
-    print
+    print(name, " = ")
+    print()
 
     Mmin = lambda M: M.min() if np.nonzero(M)[1].shape[1]>0 else M.sum()
     Mmax = lambda M: M.max() if np.nonzero(M)[1].shape[1]>0 else M.sum()
@@ -110,15 +112,15 @@ def mprint(M, name="ans",eps=1e-15):
         cmin = i * 6
         cmax = (i + 1) * 6
         cmax = ncol if ncol < cmax else cmax
-        print "Columns %s through %s" % (cmin, cmax - 1)
-        print
+        print("Columns %s through %s" % (cmin, cmax - 1))
+        print()
         for r in range(M.shape[0]):
             sys.stdout.write("  ")
             for c in range(cmin, cmax):
                 if abs(M[r,c])>eps: sys.stdout.write(fmt % M[r,c]  + "   ")
                 else: sys.stdout.write(" 0"+" "*9)
-            print
-        print
+            print()
+        print()
 
 
 def fromListToVectorOfString(items):

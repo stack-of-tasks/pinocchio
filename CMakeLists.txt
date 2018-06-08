@@ -127,7 +127,7 @@ SET(BOOST_OPTIONAL_COMPONENTS "")
 
 IF(BUILD_PYTHON_INTERFACE)
   SET(BOOST_OPTIONAL_COMPONENTS ${BOOST_OPTIONAL_COMPONENTS} python)
-  FINDPYTHON(2.7 EXACT REQUIRED)
+  FINDPYTHON()
   INCLUDE_DIRECTORIES(SYSTEM ${PYTHON_INCLUDE_DIRS}) 
 ENDIF(BUILD_PYTHON_INTERFACE)
 
@@ -200,6 +200,7 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-basic-visitors.hpp
   multibody/joint/joint-basic-visitors.hxx
   multibody/joint/joint-composite.hpp
+  multibody/joint/joint-composite.hxx
   ) 
 
 SET(${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS

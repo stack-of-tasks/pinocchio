@@ -109,7 +109,7 @@ namespace se3
     ///        and expressed in the local frame of the joint..
     container::aligned_vector<Inertia> Ycrb;
     
-    /// \brief Vector of sub-tree composite rigid body inertia time derivatives \f$ \dot{Y}_{crb}$\f. See Data::Ycrb for more details.
+    /// \brief Vector of sub-tree composite rigid body inertia time derivatives \f$ \dot{Y}_{crb}\f$. See Data::Ycrb for more details.
     container::aligned_vector<Inertia::Matrix6> dYcrb; // TODO: change with dense symmetric matrix6
     
     /// \brief The joint space inertia matrix (a square matrix of dim model.nv).
@@ -174,7 +174,7 @@ namespace se3
     
     // dCCRBA return quantities
     /// \brief Centroidal Momentum Matrix Time Variation
-    /// \note \f$ \dot{h_g} = A_g \ddot{q}\ + \dot{A_g}\dot{q}f$ maps the joint velocity and acceleration vectors to the time variation of the centroidal momentum.
+    /// \note \f$ \dot{h_g} = A_g \ddot{q}\ + \dot{A_g}\dot{q}\f$ maps the joint velocity and acceleration vectors to the time variation of the centroidal momentum.
     Matrix6x dAg;
     
     /// \brief Centroidal momentum quantity.
@@ -271,7 +271,7 @@ namespace se3
     /// \brief Inverse of the operational-space inertia matrix
     Eigen::MatrixXd JMinvJt;
     
-    /// \brief Cholesky decompostion of \JMinvJt.
+    /// \brief Cholesky decompostion of \f$\JMinvJt\f$.
     Eigen::LLT<Eigen::MatrixXd> llt_JMinvJt;
     
     /// \brief Lagrange Multipliers corresponding to the contact forces in se3::forwardDynamics.
