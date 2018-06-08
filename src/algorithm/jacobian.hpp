@@ -42,6 +42,22 @@ namespace se3
                    const Eigen::VectorXd & q);
   
   ///
+  /// \brief Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.
+  ///        The result is accessible through data.J. This function assumes that se3::forwardKinematics has been called before.
+  ///
+  /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Jacobian, it is then possible to easily extract the Jacobian of a specific joint frame. \sa se3::getJacobian for doing this specific extraction.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  ///
+  /// \return The full model Jacobian (matrix 6 x model.nv).
+  ///
+  inline const Data::Matrix6x &
+  computeJacobians(const Model & model,
+                   Data & data);
+  
+  ///
   /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame or in the local frame (rf = LOCAL) of the joint.
   /// \note This jacobian is extracted from data.J. You have to run se3::computeJacobians before calling it.
   ///
