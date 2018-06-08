@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -55,7 +55,6 @@ namespace se3
   
   };
   
-  
   inline const Data::Matrix6x &
   computeJacobians(const Model & model, Data & data,
                    const Eigen::VectorXd & q)
@@ -68,6 +67,38 @@ namespace se3
                                 JacobiansForwardStep::ArgsType(model,data,q));
     }
   
+    return data.J;
+  }
+  
+  struct JacobiansForwardStep2 : public fusion::JointVisitor<JacobiansForwardStep2>
+  {
+    typedef boost::fusion::vector<se3::Data &> ArgsType;
+    
+    JOINT_VISITOR_INIT(JacobiansForwardStep2);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     se3::Data & data)
+    {
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+
+      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+    }
+    
+  };
+  
+  inline const Data::Matrix6x &
+  computeJacobians(const Model & model, Data & data)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    for( Model::JointIndex i=1; i< (Model::JointIndex) model.njoints;++i )
+    {
+      JacobiansForwardStep2::run(model.joints[i],data.joints[i],
+                                 JacobiansForwardStep2::ArgsType(data));
+    }
+    
     return data.J;
   }
   

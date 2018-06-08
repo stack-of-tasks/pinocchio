@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -71,6 +71,13 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 
   jacobian(model,data,q,idx,XJrh);
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
+  
+  /* Test computeJacobians with pre-computation of the forward kinematics */
+  Data data_fk(model);
+  forwardKinematics(model, data_fk, q);
+  computeJacobians(model, data_fk);
+  
+  BOOST_CHECK(data_fk.J.isApprox(data.J));
 
 }
 
