@@ -49,7 +49,6 @@ namespace se3
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] q The joint configuration vector (dim model.nq).
   ///
   /// \return The full model Jacobian (matrix 6 x model.nv).
   ///
