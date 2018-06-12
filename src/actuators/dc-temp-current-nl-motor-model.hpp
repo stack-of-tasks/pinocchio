@@ -48,7 +48,7 @@ namespace se3
       \begin{matrix}
       \dot{\theta}_m \\
       \frac{K_m}{B_m }i_a - \frac{D_m}{B_m} \dot{\theta}_m - \frac{\bf{S} \bf{f}_{ext}}{B_m} \\
-      \frac{(R_{th1} + R_{th2})R_{TA} i_a^2}{1-\alpha_{Cu}(R_{th1}+R_{th2})R_{TA}i_a^2 } -D_T (T - T_A)
+      \frac{R_{TA} i_a^2}{C(1-\alpha_{Cu}(R_{th1}+R_{th2})R_{TA}i_a^2) } - \frac{D_T}{C} (T - T_A)
       \end{matrix}
       \right)
       \f]
@@ -59,7 +59,8 @@ namespace se3
       \f$ D_m \f$ the motor friction and includes friction in the brushes and gears,
       the robot position \f$ \theta_m \f$,
       \f$ \tau_l \f$ the motor load,
-      \f$ K_b \f$ the back E.M.F. constant.
+      \f$ K_b \f$ the back E.M.F. constant,
+      \f$ C \f$ the heat capacity and \f$ D_T \f$ the thermal dissipation factor.
 
       Note that the winding resistor is increasing linearly with the temperature and is given by:
       \f[ R = R_{TA} (1 + \alpha_{Cu} (T -T_{A}))\f]
@@ -72,7 +73,7 @@ namespace se3
       the dynamic equation of the motor is given by:
       \f[ B_m \ddot{\theta}_m + D_m \dot{\theta}_m  = \tau_m - \bf{S} \bf{f}_{ext} \f] 
       the temperature variation is given by:
-      \f[ \dot{T} = \frac{(R_{th1}+R_{th2})R_{TA}i_a^2}{1-\alpha_{Cu} (R_{th1}+R_{th2}) R_{TA}i_a^2} - D_T (T -T_A)\f]
+      \f[ \dot{T} = \frac{R_{TA} i_a^2}{C(1-\alpha_{Cu}(R_{th1}+R_{th2})R_{TA}i_a^2) } - \frac{D_T}{C} (T - T_A)\f]
       
       As the dynamics can be also written:
       \f[
@@ -88,7 +89,7 @@ namespace se3
       \begin{matrix}
       x_1 \\
       c_0 i_a + c_{1} \dot{\theta}_m + c_2 \tau_l \\
-      \frac{c_3 i_a^2}{1 + c_4 i_a^2} + c_5 T +c_6\\
+      \frac{c_3 i_a^2}{c_4 + c_5 i_a^2} + c_6 T +c_7\\
       \end{matrix}
       \right)
       = 
@@ -96,7 +97,7 @@ namespace se3
       \begin{matrix}
       x_1 \\
       c_{0} u + c_1 x_1 + c_2 \bf{S}\bf{f}_{ext} \\
-      \frac{c_3 u^2}{1 + c_4 u^2} + c_5 x_2 + c_6\\
+      \frac{c_3 u^2}{c_4 + c_5 u^2} + c_6 x_2 + c_7\\
       \end{matrix}
       \right)
       \f]
@@ -108,9 +109,10 @@ namespace se3
       c_1 &= & -\frac{D_m}{B_m}\\
       c_2 &= & -\frac{1}{B_m} \\
       c_3 &= & (R_{th1} + R_{th2})R_{TA} \\
-      c_4 &= & -\alpha_{Cu}(R_{th1}+R_{th2})R_{TA} \\
-      c_5 &= & -D_T \\
-      c_6 &= & D_T T_A
+      c_4 &= & C \\
+      c_5 &= & -C\alpha_{Cu}(R_{th1}+R_{th2})R_{TA} \\
+      c_6 &= & -\frac{D_T}{C} \\
+      c_7 &= & \frac{D_T T_A}{C}
       \end{array}
       \f]
       The control vector \f$ \bf{u} \f$ is the voltage \f$ V \f$. <br>
@@ -144,7 +146,7 @@ namespace se3
   {
   public:
     typedef Scalar_ Scalar_t;
-    typedef typename Eigen::Matrix<Scalar_, 19,1 > Parameters_t;
+    typedef typename Eigen::Matrix<Scalar_, 21,1 > Parameters_t;
     typedef typename Eigen::Matrix<Scalar_, 3,1> Observations_t;
     typedef typename Eigen::Matrix<Scalar_, 6,1> S_t;
     typedef typename Eigen::Matrix<Scalar_, 3,1> X_t;
@@ -153,7 +155,7 @@ namespace se3
 
     enum InternalParameters
       {
-	P_ROTOR_INERTIA=7,
+	P_ROTOR_INERTIA=8,
 	P_TORQUE_CST,
 	P_SPEED_TORQUE_GRD,
 	P_BACK_EMF,
@@ -164,7 +166,8 @@ namespace se3
 	P_THERM_TIME_CST_WINDING,
 	P_AMBIENT_TEMP,
 	P_NOMINAL_CURRENT,
-	P_HEAT_DISSIPATION
+	P_HEAT_DISSIPATION,
+	P_HEAT_CAPACITY
       };
     /// Return observation vector.
     const Observations_t & h() const { return h_;}
@@ -245,9 +248,15 @@ namespace se3
     { c_[P_NOMINAL_CURRENT] = c; updateParameters();}
 
     /// \brief Thermal dissipation \f$ D_T \f$
+    /// units: W/K
     void thermDissipation(Scalar_ c)
     { c_[P_HEAT_DISSIPATION] = c; updateParameters();}
-    
+
+    /// \brief Heat Capacity \f$ C \f$
+    /// units: J/K
+    void heatCapacity(Scalar_ c)
+    { c_[P_HEAT_CAPACITY] = c; updateParameters();}
+
     void setS(S_t &S)
     {S_ = S;}
     ///@}
@@ -305,17 +314,20 @@ namespace se3
       // c_2 = -1/rotorInertia
       c_[2] = -1/c_[P_ROTOR_INERTIA];
       
-      // c_3 = (r_th1 + r_th2) * R_Ta
-      c_[3] = (c_[P_THONE_RESISTOR] + c_[P_THTWO_RESISTOR])*c_[P_TA_RESISTOR];
+      // c_3 = R_Ta
+      c_[3] = c_[P_TA_RESISTOR];
 
-      // c_4 = -D_m R_{TA} \alpha_{Cu}
-      c_[4] = - alpha_cu_ *c_[3];
+      // c_4 = C
+      c_[4] = c_[P_HEAT_CAPACITY];
 
-      // c_5 = -D_T
-      c_[5] = -c_[P_HEAT_DISSIPATION];
+      // c_5 = -C\alpha_{Cu}(R_{th1}+R_{th2})R_{TA} 
+      c_[5] = - alpha_cu_ *(c_[P_THONE_RESISTOR] + c_[P_THTWO_RESISTOR])*c_[3]*c_[4];
 
-      // c_6 = D_T T_A
-      c_[6] = c_[P_HEAT_DISSIPATION] * c_[P_AMBIENT_TEMP];
+      // c_5 = -D_T/C
+      c_[6] = -c_[P_HEAT_DISSIPATION]/c_[4];
+
+      // c_6 = D_T T_A/C
+      c_[7] = c_[P_HEAT_DISSIPATION] * c_[P_AMBIENT_TEMP]/c_[4];
 
     }
 
