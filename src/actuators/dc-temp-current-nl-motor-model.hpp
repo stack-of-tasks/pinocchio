@@ -108,7 +108,7 @@ namespace se3
       c_0 &= & \frac{K_m}{B_m}\\
       c_1 &= & -\frac{D_m}{B_m}\\
       c_2 &= & -\frac{1}{B_m} \\
-      c_3 &= & (R_{th1} + R_{th2})R_{TA} \\
+      c_3 &= & R_{TA} \\
       c_4 &= & C \\
       c_5 &= & -C\alpha_{Cu}(R_{th1}+R_{th2})R_{TA} \\
       c_6 &= & -\frac{D_T}{C} \\
