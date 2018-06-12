@@ -77,7 +77,7 @@ class RobotWrapper(object):
             else:
                 self.visual_data = se3.GeometryData(self.visual_model)
 
-        self.v0 = utils.zero(self.nv)
+        self.v0 = utils.zero(self.model.nv)
         self.q0 = self.model.neutralConfiguration
 
     def increment(self, q, dq):
