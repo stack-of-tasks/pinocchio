@@ -13,6 +13,9 @@ category_list:
         url: http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/md_doc_d-labs_1-directgeom.html
   - name: Documentation
     icon: book
+    links:
+      - name: Doxygen
+        url: http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/
   - name: Development
     icon: wrench
     links:

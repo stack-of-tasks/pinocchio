@@ -1,8 +1,0 @@
-<map id="JointModelComposite" name="JointModelComposite">
-<area shape="rect" id="node2" href="$structse3_1_1JointModelBase.html" title="JointModelBase\&lt; JointModel\lComposite \&gt;" alt="" coords="481,5,671,46"/>
-<area shape="rect" id="node3" href="$structse3_1_1traits_3_01JointModelComposite_01_4.html" title="traits\&lt; JointModelComposite \&gt;" alt="" coords="153,12,354,39"/>
-<area shape="rect" id="node4" href="$classse3_1_1container_1_1aligned__vector.html" title="aligned_vector\&lt; se3\l::SE3Tpl \&gt;" alt="" coords="507,70,645,111"/>
-<area shape="rect" id="node5" title="STL class. " alt="" coords="171,63,335,119"/>
-<area shape="rect" id="node8" title="STL class. " alt="" coords="164,143,343,199"/>
-<area shape="rect" id="node7" href="$classse3_1_1container_1_1aligned__vector.html" title="aligned_vector\&lt; JointModel\lVariant \&gt;" alt="" coords="485,141,667,182"/>
-</map>
