@@ -8,6 +8,9 @@ markdown: kramdown
 category_list:
   - name: Getting Started
     icon: graduation-cap
+    links:
+      - name: Tutorials
+        url: http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/md_doc_d-labs_1-directgeom.html
   - name: Documentation
     icon: book
   - name: Development
