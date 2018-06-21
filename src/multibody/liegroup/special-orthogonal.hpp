@@ -103,6 +103,10 @@ namespace se3
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
+      if (q0 == q1) {
+        (const_cast < Tangent_t& > (d.derived())).setZero ();
+        return;
+      }
       Matrix2 R; // R0.transpose() * R1;
       R(0,0) = R(1,1) = q0.dot(q1);
       R(1,0) = q0(0) * q1(1) - q0(1) * q1(0);
@@ -257,6 +261,10 @@ namespace se3
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
+      if (q0 == q1) {
+        (const_cast < Eigen::MatrixBase<Tangent_t>& > (d)).setZero ();
+        return;
+      }
       ConstQuaternionMap_t p0 (q0.derived().data());
       ConstQuaternionMap_t p1 (q1.derived().data());
       const_cast < Eigen::MatrixBase<Tangent_t>& > (d)
