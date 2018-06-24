@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -112,10 +112,6 @@ namespace se3
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-#ifdef WITH_HPP_FCL
-        bp::class_< std::vector<fcl::DistanceResult> >("StdVec_DistanceResult")
-        .def(bp::vector_indexing_suite< std::vector<fcl::DistanceResult> >());
-#endif // WITH_HPP_FCL
         bp::class_<GeometryData>("GeometryData",
                                  "Geometry data linked to a geometry model and data struct.",
                                  bp::no_init)

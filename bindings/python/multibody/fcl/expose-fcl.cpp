@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,6 +18,7 @@
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/multibody/fcl/contact.hpp"
 #include "pinocchio/bindings/python/multibody/fcl/collision-result.hpp"
+#include "pinocchio/bindings/python/multibody/fcl/distance-result.hpp"
 #include "pinocchio/bindings/python/multibody/fcl/collision-geometry.hpp"
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
@@ -34,6 +35,9 @@ namespace se3
       
       CollisionResultPythonVisitor::expose();
       StdVectorPythonVisitor<CollisionResultPythonVisitor::CollisionResult>::expose("StdVect_CollisionResult");
+      
+      DistanceResultPythonVisitor::expose();
+      StdVectorPythonVisitor<DistanceResultPythonVisitor::DistanceResult>::expose("StdVect_DistanceResult");
       
       CollisionGeometryPythonVisitor::expose();
     }
