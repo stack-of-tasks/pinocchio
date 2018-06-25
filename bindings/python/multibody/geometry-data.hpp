@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -25,23 +25,6 @@
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::GeometryData)
-
-//namespace fcl
-//{
-//#ifdef WITH_HPP_FCL
-//  // This operator is defined here temporary, as it is needed by vector_indexing_suite
-//  // It has also been defined in hpp-fcl in a pending pull request.
-//  // Once it has been integrated in releases of hpp-fcl, please remove this operator
-//  inline bool operator ==(const DistanceResult & dr1, const DistanceResult& dr2)
-//  {
-//    return dr1.min_distance == dr2.min_distance
-//        && dr1.o1 == dr2.o1
-//        && dr1.o2 == dr2.o2
-//        && dr1.nearest_points[0] == dr2.nearest_points[0]
-//        && dr1.nearest_points[1] == dr2.nearest_points[1];
-//  }
-//#endif
-//}
 
 namespace se3
 {
@@ -129,10 +112,6 @@ namespace se3
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-#ifdef WITH_HPP_FCL
-        bp::class_< std::vector<fcl::DistanceResult> >("StdVec_DistanceResult")
-        .def(bp::vector_indexing_suite< std::vector<fcl::DistanceResult> >());
-#endif // WITH_HPP_FCL
         bp::class_<GeometryData>("GeometryData",
                                  "Geometry data linked to a geometry model and data struct.",
                                  bp::no_init)

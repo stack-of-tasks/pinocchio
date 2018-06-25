@@ -116,7 +116,7 @@ IF(HPP_FCL_FOUND)
   SET(${PROJECT_NAME}_PYTHON_FCL_HEADERS
     multibody/fcl/contact.hpp
     multibody/fcl/collision-result.hpp
-  #  multibody/fcl/distance-result.hpp
+    multibody/fcl/distance-result.hpp
     multibody/fcl/collision-geometry.hpp
     )
 
