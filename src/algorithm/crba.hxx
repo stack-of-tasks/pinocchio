@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -175,29 +175,10 @@ namespace se3
 
       ColsBlock jF
         = data.Ag.middleCols <JointModel::NV> (jmodel.idx_v());
+      //        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
 
       forceSet::se3Action(data.oMi[i],jdata.U(),jF);
     }
-    
-//    static void algo(const se3::JointModelBase<JointModelComposite> & jmodel,
-//                     se3::JointDataBase<JointDataComposite> & jdata,
-//                     const se3::Model & model,
-//                     se3::Data & data)
-//    {
-//      typedef SizeDepType<JointModel::NV>::ColsReturn<Data::Matrix6x>::Type ColsBlock;
-//      
-//      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
-//      const Model::Index & parent = model.parents[i];
-//      
-//      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
-//      
-//      jdata.U() = data.Ycrb[i] * jdata.S();
-//      
-//      ColsBlock jF
-//        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
-//
-//      forceSet::se3Action(data.oMi[i],jdata.U(),jF);
-//    }
 
   }; // struct CcrbaBackwardStep
   
