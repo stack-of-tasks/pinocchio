@@ -118,7 +118,6 @@ namespace se3
     else // return the entry string
     {
       result_path = string;
-      assert(false && "the path does not respect the pattern package:// or file://");
     } 
 
     return result_path;
