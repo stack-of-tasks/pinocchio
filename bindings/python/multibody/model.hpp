@@ -94,6 +94,7 @@ namespace se3
         .add_property("joints",&Model::joints)
         .add_property("parents",&Model::parents)
         .add_property("names",&Model::names)
+        .add_property("name",&Model::name)
         
         .add_property("neutralConfiguration",
                       make_getter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
