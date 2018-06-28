@@ -24,7 +24,7 @@ We provide some basic examples on how to use **Pinocchio** in Python in the [exa
 ## Tutorials 
 
 **Pinocchio** is comming with a large bunch of tutorials aiming at introducting the basic tools for robotics control.
-The content of the tutorials are described [here](http://projects.laas.fr/gepetto/index.php/Teach/Supaero2018) and the code source of these tutorials is located [here](https://github.com/stack-of-tasks/pinocchio-tutorials).
+The content of the tutorials are described [here](http://projects.laas.fr/gepetto/index.php/Teach/Supaero2018) and the source code of these tutorials is located [here](https://github.com/stack-of-tasks/pinocchio-tutorials).
 
 ## Dependencies
 
