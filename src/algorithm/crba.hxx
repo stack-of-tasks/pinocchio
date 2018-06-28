@@ -98,6 +98,71 @@ namespace se3
       }
     }
   };
+  
+  struct CrbaForwardStepMinimal : public fusion::JointVisitor<CrbaForwardStepMinimal>
+  {
+    typedef boost::fusion::vector<const se3::Model&,
+    se3::Data &,
+    const Eigen::VectorXd &
+    > ArgsType;
+    
+    JOINT_VISITOR_INIT(CrbaForwardStepMinimal);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Eigen::VectorXd & q)
+    {
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      jmodel.calc(jdata.derived(),q);
+      
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      
+      const Model::JointIndex & parent = model.parents[i];
+      if (parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
+      else data.oMi[i] = data.liMi[i];
+      
+      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+      
+      data.Ycrb[i] = model.inertias[i];
+    }
+    
+  };
+  
+  struct CrbaBackwardStepMinimal : public fusion::JointVisitor<CrbaBackwardStepMinimal>
+  {
+    typedef boost::fusion::vector<const Model&,
+    Data&>  ArgsType;
+    
+    JOINT_VISITOR_INIT(CrbaBackwardStepMinimal);
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data)
+    {
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      
+      /* F[1:6,i] = Y*S */
+      jdata.U() = data.Ycrb[i] * jdata.S();
+      ColsBlock jF = data.Ag.middleCols<JointModel::NV>(jmodel.idx_v());
+      //        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
+      
+      forceSet::se3Action(data.oMi[i],jdata.U(),jF);
+      
+      /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
+      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      = jmodel.jointCols(data.J).transpose()*data.Ag.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      
+      const Model::JointIndex & parent = model.parents[i];
+      /*   Yli += liXi Yi */
+      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+    }
+  };
 
   inline const Eigen::MatrixXd&
   crba(const Model & model, Data& data,
@@ -117,6 +182,37 @@ namespace se3
                             CrbaBackwardStep::ArgsType(model,data));
     }
 
+    return data.M;
+  }
+  
+  inline const Eigen::MatrixXd &
+  crbaMinimal(const Model & model, Data & data,
+              const Eigen::VectorXd & q)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    for( Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i )
+    {
+      CrbaForwardStepMinimal::run(model.joints[i],data.joints[i],
+                                  CrbaForwardStepMinimal::ArgsType(model,data,q));
+    }
+    
+    for( Model::JointIndex i=(Model::JointIndex)(model.njoints-1);i>0;--i )
+    {
+      CrbaBackwardStepMinimal::run(model.joints[i],data.joints[i],
+                                   CrbaBackwardStepMinimal::ArgsType(model,data));
+    }
+    
+    // Retrieve the Centroidal Momemtum map
+    typedef Eigen::Block<Data::Matrix6x,3,-1> Block3x;
+    
+    data.com[0] = data.Ycrb[0].lever();
+    
+    const Block3x Ag_lin = data.Ag.middleRows<3>(Force::LINEAR);
+    Block3x Ag_ang = data.Ag.middleRows<3>(Force::ANGULAR);
+    for(long i = 0; i<model.nv; ++i)
+      Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
+    
     return data.M;
   }
   
