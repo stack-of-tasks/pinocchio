@@ -27,6 +27,7 @@
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
@@ -131,6 +132,33 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   
   #endif // ifndef NDEBUG
 
+}
+  
+BOOST_AUTO_TEST_CASE(test_minimal_crba)
+{
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model);
+  se3::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill(1.);
+  
+  Eigen::VectorXd q = randomConfiguration(model,model.lowerPositionLimit,model.upperPositionLimit);
+  Eigen::VectorXd v(Eigen::VectorXd::Random(model.nv));
+  
+  crba(model,data_ref,q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  crbaMinimal(model,data,q);
+  data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  BOOST_CHECK(data.M.isApprox(data_ref.M));
+  
+  ccrba(model,data_ref,q,v);
+  computeJacobians(model,data_ref,q);
+  BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  
 }
   
 BOOST_AUTO_TEST_CASE (test_ccrb)
