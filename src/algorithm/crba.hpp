@@ -45,6 +45,29 @@ namespace se3
        const Eigen::VectorXd & q);
   
   ///
+  /// \brief Computes the upper triangular part of the joint space inertia matrix M by
+  ///        using the Composite Rigid Body Algorithm (Chapter 6, Rigid-Body Dynamics Algorithms, R. Featherstone, 2008).
+  ///        The result is accessible through data.M.
+  ///
+  /// \note You can easly get data.M symetric by copying the stricly upper trinangular part
+  ///       in the stricly lower tringular part with
+  ///       data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  ///
+  /// \note A direct outcome of this algorithm is the computation of the centroidal momemntum matrix (data.Ag)
+  ///       and the joint jacobian matrix (data.J).
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  ///
+  /// \return The joint space inertia matrix with only the upper triangular part computed.
+  ///
+  inline const Eigen::MatrixXd &
+  crbaMinimal(const Model & model,
+              Data & data,
+              const Eigen::VectorXd & q);
+  
+  ///
   /// \brief Computes the Centroidal Momentum Matrix, the Composite Ridig Body Inertia as well as the centroidal momenta
   ///        according to the current joint configuration and velocity.
   ///

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -98,6 +98,71 @@ namespace se3
       }
     }
   };
+  
+  struct CrbaForwardStepMinimal : public fusion::JointVisitor<CrbaForwardStepMinimal>
+  {
+    typedef boost::fusion::vector<const se3::Model&,
+    se3::Data &,
+    const Eigen::VectorXd &
+    > ArgsType;
+    
+    JOINT_VISITOR_INIT(CrbaForwardStepMinimal);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Eigen::VectorXd & q)
+    {
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      jmodel.calc(jdata.derived(),q);
+      
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      
+      const Model::JointIndex & parent = model.parents[i];
+      if (parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
+      else data.oMi[i] = data.liMi[i];
+      
+      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+      
+      data.Ycrb[i] = model.inertias[i];
+    }
+    
+  };
+  
+  struct CrbaBackwardStepMinimal : public fusion::JointVisitor<CrbaBackwardStepMinimal>
+  {
+    typedef boost::fusion::vector<const Model&,
+    Data&>  ArgsType;
+    
+    JOINT_VISITOR_INIT(CrbaBackwardStepMinimal);
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data)
+    {
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      
+      /* F[1:6,i] = Y*S */
+      jdata.U() = data.Ycrb[i] * jdata.S();
+      ColsBlock jF = data.Ag.middleCols<JointModel::NV>(jmodel.idx_v());
+      //        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
+      
+      forceSet::se3Action(data.oMi[i],jdata.U(),jF);
+      
+      /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
+      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      = jmodel.jointCols(data.J).transpose()*data.Ag.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      
+      const Model::JointIndex & parent = model.parents[i];
+      /*   Yli += liXi Yi */
+      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+    }
+  };
 
   inline const Eigen::MatrixXd&
   crba(const Model & model, Data& data,
@@ -117,6 +182,37 @@ namespace se3
                             CrbaBackwardStep::ArgsType(model,data));
     }
 
+    return data.M;
+  }
+  
+  inline const Eigen::MatrixXd &
+  crbaMinimal(const Model & model, Data & data,
+              const Eigen::VectorXd & q)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    for( Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i )
+    {
+      CrbaForwardStepMinimal::run(model.joints[i],data.joints[i],
+                                  CrbaForwardStepMinimal::ArgsType(model,data,q));
+    }
+    
+    for( Model::JointIndex i=(Model::JointIndex)(model.njoints-1);i>0;--i )
+    {
+      CrbaBackwardStepMinimal::run(model.joints[i],data.joints[i],
+                                   CrbaBackwardStepMinimal::ArgsType(model,data));
+    }
+    
+    // Retrieve the Centroidal Momemtum map
+    typedef Eigen::Block<Data::Matrix6x,3,-1> Block3x;
+    
+    data.com[0] = data.Ycrb[0].lever();
+    
+    const Block3x Ag_lin = data.Ag.middleRows<3>(Force::LINEAR);
+    Block3x Ag_ang = data.Ag.middleRows<3>(Force::ANGULAR);
+    for(long i = 0; i<model.nv; ++i)
+      Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
+    
     return data.M;
   }
   
@@ -175,29 +271,10 @@ namespace se3
 
       ColsBlock jF
         = data.Ag.middleCols <JointModel::NV> (jmodel.idx_v());
+      //        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
 
       forceSet::se3Action(data.oMi[i],jdata.U(),jF);
     }
-    
-//    static void algo(const se3::JointModelBase<JointModelComposite> & jmodel,
-//                     se3::JointDataBase<JointDataComposite> & jdata,
-//                     const se3::Model & model,
-//                     se3::Data & data)
-//    {
-//      typedef SizeDepType<JointModel::NV>::ColsReturn<Data::Matrix6x>::Type ColsBlock;
-//      
-//      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
-//      const Model::Index & parent = model.parents[i];
-//      
-//      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
-//      
-//      jdata.U() = data.Ycrb[i] * jdata.S();
-//      
-//      ColsBlock jF
-//        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
-//
-//      forceSet::se3Action(data.oMi[i],jdata.U(),jF);
-//    }
 
   }; // struct CcrbaBackwardStep
   
@@ -207,7 +284,7 @@ namespace se3
         const Eigen::VectorXd & v)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    typedef Eigen::Block <Data::Matrix6x,3,-1> Block3x;
+    typedef Eigen::Block<Data::Matrix6x,3,-1> Block3x;
     
     forwardKinematics(model, data, q);
     data.Ycrb[0].setZero();
@@ -220,14 +297,16 @@ namespace se3
       CcrbaBackwardStep::run(model.joints[i],data.joints[i],
                              CcrbaBackwardStep::ArgsType(model,data));
     }
+    
+    // Express the centroidal map around the center of mass
     data.com[0] = data.Ycrb[0].lever();
     
-    const Block3x Ag_lin = data.Ag.middleRows<3> (Force::LINEAR);
-    Block3x Ag_ang = data.Ag.middleRows<3>  (Force::ANGULAR);
+    const Block3x Ag_lin = data.Ag.middleRows<3>(Force::LINEAR);
+    Block3x Ag_ang = data.Ag.middleRows<3>(Force::ANGULAR);
     for (long i = 0; i<model.nv; ++i)
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
     
-    data.hg = data.Ag*v;
+    data.hg.toVector().noalias() = data.Ag*v;
     
     data.Ig.mass() = data.Ycrb[0].mass();
     data.Ig.lever().setZero();
@@ -307,45 +386,12 @@ namespace se3
       
       // Calc Ag
       ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
-      rhsInertiaMult(Y,J_cols,Ag_cols);
+      motionSet::inertiaAction(Y,J_cols,Ag_cols);
       
       // Calc dAg = Ivx + vxI
       ColsBlock dAg_cols = jmodel.jointCols(data.dAg);
-      rhsInertiaMult(Y,dJ_cols,dAg_cols);
+      motionSet::inertiaAction(Y,dJ_cols,dAg_cols);
       dAg_cols += doYcrb * J_cols;
-    }
-    
-    template<typename Min, typename Mout>
-    static void rhsInertiaMultVector(const Inertia & Y,
-                                     const Eigen::MatrixBase<Min> & m,
-                                     const Eigen::MatrixBase<Mout> & f)
-    {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Min,6);
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Mout,6);
-      Mout & f_ = const_cast<Mout &>(f.derived());
-      
-      f_.template segment<3>(Inertia::LINEAR) = -Y.mass() * Y.lever().cross(m.template segment<3>(Motion::ANGULAR));
-      
-      f_.template segment<3>(Inertia::ANGULAR) = Y.inertia() * m.template segment<3>(Motion::ANGULAR);
-      f_.template segment<3>(Inertia::ANGULAR) += Y.lever().cross(f_.template segment<3>(Inertia::LINEAR));
-      f_.template segment<3>(Inertia::ANGULAR) += Y.mass() * Y.lever().cross(m.template segment<3>(Motion::LINEAR));
-      
-      f_.template segment<3>(Inertia::LINEAR) += Y.mass() * m.template segment<3>(Motion::LINEAR);
-    }
-    
-    template<typename Min, typename Mout>
-    static void rhsInertiaMult(const Inertia & Y,
-                               const Eigen::MatrixBase<Min> & J,
-                               const Eigen::MatrixBase<Mout> & F)
-    {
-      assert(J.cols() == F.cols());
-      Mout & F_ = const_cast<Mout &>(F.derived());
-      
-      for(int i = 0; i < J.cols(); ++i)
-      {
-        rhsInertiaMultVector(Y,J.col(i),F_.col(i));
-      }
-      
     }
     
   }; // struct DCcrbaBackwardStep
@@ -372,6 +418,8 @@ namespace se3
       DCcrbaBackwardStep::run(model.joints[i],data.joints[i],
                               DCcrbaBackwardStep::ArgsType(model,data));
     }
+    
+    // Express the centroidal map around the center of mass
     data.com[0] = data.oYcrb[0].lever();
     
     const Block3x Ag_lin = data.Ag.middleRows<3> (Force::LINEAR);
@@ -379,8 +427,8 @@ namespace se3
     for (long i = 0; i<model.nv; ++i)
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
     
-    data.hg = data.Ag*v;
-    data.vcom[0] = data.hg.linear()/data.oYcrb[0].mass();
+    data.hg.toVector().noalias() = data.Ag*v;
+    data.vcom[0].noalias() = data.hg.linear()/data.oYcrb[0].mass();
     
     const Block3x dAg_lin = data.dAg.middleRows<3>(Force::LINEAR);
     Block3x dAg_ang = data.dAg.middleRows<3>(Force::ANGULAR);
