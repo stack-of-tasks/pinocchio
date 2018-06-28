@@ -284,7 +284,7 @@ namespace se3
         const Eigen::VectorXd & v)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    typedef Eigen::Block <Data::Matrix6x,3,-1> Block3x;
+    typedef Eigen::Block<Data::Matrix6x,3,-1> Block3x;
     
     forwardKinematics(model, data, q);
     data.Ycrb[0].setZero();
@@ -297,14 +297,16 @@ namespace se3
       CcrbaBackwardStep::run(model.joints[i],data.joints[i],
                              CcrbaBackwardStep::ArgsType(model,data));
     }
+    
+    // Express the centroidal map around the center of mass
     data.com[0] = data.Ycrb[0].lever();
     
-    const Block3x Ag_lin = data.Ag.middleRows<3> (Force::LINEAR);
-    Block3x Ag_ang = data.Ag.middleRows<3>  (Force::ANGULAR);
+    const Block3x Ag_lin = data.Ag.middleRows<3>(Force::LINEAR);
+    Block3x Ag_ang = data.Ag.middleRows<3>(Force::ANGULAR);
     for (long i = 0; i<model.nv; ++i)
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
     
-    data.hg = data.Ag*v;
+    data.hg.toVector().noalias() = data.Ag*v;
     
     data.Ig.mass() = data.Ycrb[0].mass();
     data.Ig.lever().setZero();
@@ -384,45 +386,12 @@ namespace se3
       
       // Calc Ag
       ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
-      rhsInertiaMult(Y,J_cols,Ag_cols);
+      motionSet::inertiaAction(Y,J_cols,Ag_cols);
       
       // Calc dAg = Ivx + vxI
       ColsBlock dAg_cols = jmodel.jointCols(data.dAg);
-      rhsInertiaMult(Y,dJ_cols,dAg_cols);
+      motionSet::inertiaAction(Y,dJ_cols,dAg_cols);
       dAg_cols += doYcrb * J_cols;
-    }
-    
-    template<typename Min, typename Mout>
-    static void rhsInertiaMultVector(const Inertia & Y,
-                                     const Eigen::MatrixBase<Min> & m,
-                                     const Eigen::MatrixBase<Mout> & f)
-    {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Min,6);
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Mout,6);
-      Mout & f_ = const_cast<Mout &>(f.derived());
-      
-      f_.template segment<3>(Inertia::LINEAR) = -Y.mass() * Y.lever().cross(m.template segment<3>(Motion::ANGULAR));
-      
-      f_.template segment<3>(Inertia::ANGULAR) = Y.inertia() * m.template segment<3>(Motion::ANGULAR);
-      f_.template segment<3>(Inertia::ANGULAR) += Y.lever().cross(f_.template segment<3>(Inertia::LINEAR));
-      f_.template segment<3>(Inertia::ANGULAR) += Y.mass() * Y.lever().cross(m.template segment<3>(Motion::LINEAR));
-      
-      f_.template segment<3>(Inertia::LINEAR) += Y.mass() * m.template segment<3>(Motion::LINEAR);
-    }
-    
-    template<typename Min, typename Mout>
-    static void rhsInertiaMult(const Inertia & Y,
-                               const Eigen::MatrixBase<Min> & J,
-                               const Eigen::MatrixBase<Mout> & F)
-    {
-      assert(J.cols() == F.cols());
-      Mout & F_ = const_cast<Mout &>(F.derived());
-      
-      for(int i = 0; i < J.cols(); ++i)
-      {
-        rhsInertiaMultVector(Y,J.col(i),F_.col(i));
-      }
-      
     }
     
   }; // struct DCcrbaBackwardStep
@@ -449,6 +418,8 @@ namespace se3
       DCcrbaBackwardStep::run(model.joints[i],data.joints[i],
                               DCcrbaBackwardStep::ArgsType(model,data));
     }
+    
+    // Express the centroidal map around the center of mass
     data.com[0] = data.oYcrb[0].lever();
     
     const Block3x Ag_lin = data.Ag.middleRows<3> (Force::LINEAR);
@@ -456,8 +427,8 @@ namespace se3
     for (long i = 0; i<model.nv; ++i)
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
     
-    data.hg = data.Ag*v;
-    data.vcom[0] = data.hg.linear()/data.oYcrb[0].mass();
+    data.hg.toVector().noalias() = data.Ag*v;
+    data.vcom[0].noalias() = data.hg.linear()/data.oYcrb[0].mass();
     
     const Block3x dAg_lin = data.dAg.middleRows<3>(Force::LINEAR);
     Block3x dAg_ang = data.dAg.middleRows<3>(Force::ANGULAR);
