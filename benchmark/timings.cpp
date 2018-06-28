@@ -107,6 +107,13 @@ int main(int argc, const char ** argv)
       crba(model,data,qs[_smooth]);
     }
   std::cout << "CRBA = \t\t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    crbaMinimal(model,data,qs[_smooth]);
+  }
+  std::cout << "CRBA minimal = \t\t"; timer.toc(std::cout,NBT);
 
   timer.tic();
   SMOOTH(NBT)
