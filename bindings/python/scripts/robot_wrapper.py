@@ -197,7 +197,7 @@ class RobotWrapper(object):
     dedicated call. Use only with update_geometry for prototyping.
     '''
     def frameJacobian(self, q, index, update_geometry=True, local_frame=True):
-        return se3.frameJacobian(self.model, self.data, q, index, local_frame, update_geometry)
+        return se3.frameJacobian(self.model, self.data, index,q, local_frame, update_geometry)
 
     # --- ACCESS TO NAMES ----
     # Return the index of the joint whose name is given in argument.
