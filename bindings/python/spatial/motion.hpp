@@ -22,6 +22,7 @@
 #include <eigenpy/memory.hpp>
 #include <boost/python/tuple.hpp>
 
+#include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
@@ -39,6 +40,8 @@ namespace se3
     struct MotionPythonVisitor
       : public boost::python::def_visitor< MotionPythonVisitor<Motion> >
     {
+      enum { Options = traits<Motion>::Options };
+      
       typedef typename Motion::Scalar Scalar;
       typedef ForceTpl<Scalar,traits<Motion>::Options> Force;
       typedef typename Motion::Vector6 Vector6;
@@ -71,9 +74,9 @@ namespace se3
                       "Returns the components of *this as a 6d vector.")
         .add_property("np",&MotionPythonVisitor::getVector)
         
-        .def("se3Action",&Motion::se3Action,
+        .def("se3Action",&Motion::template se3Action<Scalar,Options>,
              bp::args("M"),"Returns the result of the action of M on *this.")
-        .def("se3ActionInverse",&Motion::se3ActionInverse,
+        .def("se3ActionInverse",&Motion::template se3ActionInverse<Scalar,Options>,
              bp::args("M"),"Returns the result of the action of the inverse of M on *this.")
         
         .add_property("action",&Motion::toActionMatrix,"Returns the action matrix of *this (acting on Motion).")
