@@ -145,12 +145,16 @@ namespace se3
       out *= (3 - norm2) / 2;
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  &,
-                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    template <class ConfigIn_t, class Tangent_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jintegrate_impl ( const Eigen::MatrixBase<ConfigIn_t> & /*q*/,
+                                  const Eigen::MatrixBase<Tangent_t>  & /*v*/,
+                                  const Eigen::MatrixBase<JacobianLOut_t>& Jq,
+                                  const Eigen::MatrixBase<JacobianROut_t>& Jv)
     {
-      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
-      Jout(0) = 1;
+      JacobianLOut_t& Jqout = const_cast< JacobianLOut_t& >(Jq.derived());
+      JacobianROut_t& Jvout = const_cast< JacobianROut_t& >(Jv.derived());
+      Jqout(0) = 1;
+      Jvout(0) = 1;
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -218,6 +222,7 @@ namespace se3
   {
     SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
 
+    typedef Eigen::Matrix<Scalar, 3, 3> Matrix3;
     typedef Eigen::Quaternion<Scalar> Quaternion_t;
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
     typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
@@ -289,12 +294,22 @@ namespace se3
       firstOrderNormalize(quaternion_result);
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  & v,
-                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    template <class ConfigIn_t, class Tangent_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jintegrate_impl ( const Eigen::MatrixBase<ConfigIn_t> & q,
+                                  const Eigen::MatrixBase<Tangent_t>  & v,
+                                  const Eigen::MatrixBase<JacobianLOut_t>& Jq,
+                                  const Eigen::MatrixBase<JacobianROut_t>& Jv)
     {
-      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
-      Jout = exp3(v).transpose();
+      JacobianLOut_t& JqOut = const_cast< JacobianLOut_t& >(Jq.derived());
+      JacobianROut_t& JvOut = const_cast< JacobianROut_t& >(Jv.derived());
+      JqOut = exp3(v).transpose();
+      Matrix3 R (ConstQuaternionMap_t(q.derived().data()).matrix());
+      Scalar vn = v.norm(), cvn, svn; SINCOS(vn, &svn, &cvn);
+      Scalar alpha = (2*(1-cvn) - vn * svn) / (2*vn*vn*(1-cvn));
+      Matrix3 Jexp (Matrix3::Identity());
+      Jexp.noalias() += alphaSkew(0.5, v);
+      Jexp.noalias() += alphaSkew(alpha,v)*skew(v);
+      JvOut = Jexp.inverse();
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>

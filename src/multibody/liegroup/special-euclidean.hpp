@@ -240,6 +240,30 @@ namespace se3
       toInverseActionMatrix (R, t, Jout);
     }
 
+    template <class ConfigIn_t, class Tangent_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jintegrate_impl ( const Eigen::MatrixBase<ConfigIn_t> & /*q*/,
+                                  const Eigen::MatrixBase<Tangent_t>  & v,
+                                  const Eigen::MatrixBase<JacobianLOut_t>& Jq,
+                                  const Eigen::MatrixBase<JacobianROut_t>& Jv)
+    {
+      JacobianLOut_t& Jqout = const_cast< JacobianLOut_t& >(Jq.derived());
+      JacobianROut_t& Jvout = const_cast< JacobianROut_t& >(Jv.derived());
+
+      Matrix2 R;
+      Vector2 t;
+      exp(v, R, t);
+
+      toInverseActionMatrix (R, t, Jqout);
+      SE3 M(SE3::Identity());
+      M.rotation().topLeftCorner<2,2>() = R;
+      M.translation().head<2>() = t;
+      Eigen::Matrix<Scalar,6,6> J;
+      Jlog6 (M, J);
+      J = J.inverse();
+      Jvout << J.topLeftCorner<2,2>(), J.topRightCorner<2,1>(),
+               J.bottomLeftCorner<1,2>(), J.bottomRightCorner<1,1>();
+    }
+
     // interpolate_impl use default implementation.
     // template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     // static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -389,12 +413,18 @@ namespace se3
       firstOrderNormalize(res_quat);
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  & v,
-                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    template <class ConfigIn_t, class Tangent_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jintegrate_impl ( const Eigen::MatrixBase<ConfigIn_t> & /*q*/,
+                                  const Eigen::MatrixBase<Tangent_t>  & v,
+                                  const Eigen::MatrixBase<JacobianLOut_t>& Jq,
+                                  const Eigen::MatrixBase<JacobianROut_t>& Jv)
     {
-      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
-      Jout = exp6(v).inverse().toActionMatrix();
+      JacobianLOut_t& Jqout = const_cast< JacobianLOut_t& >(Jq.derived());
+      JacobianROut_t& Jvout = const_cast< JacobianROut_t& >(Jv.derived());
+      SE3 M (exp6(v));
+      Jqout = M.inverse().toActionMatrix();
+      Jlog6 (M, Jvout);
+      Jvout = Jvout.inverse();
     }
 
     // interpolate_impl use default implementation.

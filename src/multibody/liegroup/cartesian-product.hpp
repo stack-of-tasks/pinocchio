@@ -116,15 +116,28 @@ namespace se3
       LieGroup2::integrate(q.template tail<LieGroup2::NQ>(), v.template tail<LieGroup2::NV>(), out.template tail<LieGroup2::NQ>());
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> & v,
-                                const Eigen::MatrixBase<JacobianOut_t> & J)
+    template <class ConfigIn_t, class Tangent_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jintegrate_impl ( const Eigen::MatrixBase<ConfigIn_t> & q,
+                                  const Eigen::MatrixBase<Tangent_t>  & v,
+                                  const Eigen::MatrixBase<JacobianLOut_t>& Jq,
+                                  const Eigen::MatrixBase<JacobianROut_t>& Jv)
     {
-      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
-      Jout.template   topRightCorner<LieGroup1::NV,LieGroup2::NV>().setZero();
-      Jout.template bottomLeftCorner<LieGroup2::NV,LieGroup1::NV>().setZero();
-      LieGroup1::Jintegrate(v.template head<LieGroup1::NV>(), Jout.template     topLeftCorner<LieGroup1::NV,LieGroup1::NV>());
-      LieGroup2::Jintegrate(v.template tail<LieGroup2::NV>(), Jout.template bottomRightCorner<LieGroup2::NV,LieGroup2::NV>());
+      JacobianLOut_t& Jqout = const_cast< JacobianLOut_t& >(Jq.derived());
+      JacobianROut_t& Jvout = const_cast< JacobianROut_t& >(Jv.derived());
+      Jqout.template   topRightCorner<LieGroup1::NV,LieGroup2::NV>().setZero();
+      Jqout.template bottomLeftCorner<LieGroup2::NV,LieGroup1::NV>().setZero();
+      Jvout.template   topRightCorner<LieGroup1::NV,LieGroup2::NV>().setZero();
+      Jvout.template bottomLeftCorner<LieGroup2::NV,LieGroup1::NV>().setZero();
+      LieGroup1::Jintegrate(
+          q.template head<LieGroup1::NQ>(),
+          v.template head<LieGroup1::NV>(),
+          Jqout.template     topLeftCorner<LieGroup1::NV,LieGroup1::NV>(),
+          Jvout.template     topLeftCorner<LieGroup1::NV,LieGroup1::NV>());
+      LieGroup2::Jintegrate(
+          q.template head<LieGroup2::NQ>(),
+          v.template tail<LieGroup2::NV>(),
+          Jqout.template     topLeftCorner<LieGroup2::NV,LieGroup2::NV>(),
+          Jvout.template     topLeftCorner<LieGroup2::NV,LieGroup2::NV>());
     }
 
     template <class ConfigL_t, class ConfigR_t>

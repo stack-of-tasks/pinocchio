@@ -38,14 +38,18 @@ namespace se3 {
   }
 
   template <class Derived>
-  template <class Tangent_t, class JacobianOut_t>
+  template <class ConfigIn_t, class Tangent_t, class JacobianLOut_t, class JacobianROut_t>
   void LieGroupOperationBase<Derived>::Jintegrate(
+      const Eigen::MatrixBase<ConfigIn_t> & q,
       const Eigen::MatrixBase<Tangent_t>  & v,
-      const Eigen::MatrixBase<JacobianOut_t>& J)
-  {
-    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
-    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(JacobianOut_t, JacobianMatrix_t);
-    Derived::Jintegrate_impl(v, J);
+      const Eigen::MatrixBase<JacobianLOut_t>& Jq,
+      const Eigen::MatrixBase<JacobianROut_t>& Jv)
+   {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigIn_t    , ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t     , TangentVector_t);
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianLOut_t, JacobianMatrix_t);
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianROut_t, JacobianMatrix_t);
+    Derived::Jintegrate_impl(q, v, Jq, Jv);
   }
 
   /**

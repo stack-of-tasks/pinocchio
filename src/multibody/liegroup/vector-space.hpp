@@ -103,11 +103,14 @@ namespace se3
       const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout) = q + v;
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> &,
-                                const Eigen::MatrixBase<JacobianOut_t> & J)
+    template <class ConfigIn_t, class Tangent_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jintegrate_impl ( const Eigen::MatrixBase<ConfigIn_t> & /*q*/,
+                                  const Eigen::MatrixBase<Tangent_t>  & /*v*/,
+                                  const Eigen::MatrixBase<JacobianLOut_t>& Jq,
+                                  const Eigen::MatrixBase<JacobianROut_t>& Jv)
     {
-      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+      const_cast< JacobianLOut_t& > (Jq.derived()).setIdentity();
+      const_cast< JacobianROut_t& > (Jv.derived()).setIdentity();
     }
 
     // template <class ConfigL_t, class ConfigR_t>

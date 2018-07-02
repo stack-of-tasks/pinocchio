@@ -82,14 +82,17 @@ namespace se3
 
     /**
      * @brief      Computes the Jacobian of the Integrate operation.
+     *             \f$ Jv * dv \approx (q + (v+dv)) - (q+v) \f$
      *
      * @param[in]  v     joint velocity (size full model.nv)
      *
      * @return     The Jacobian
      */
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate(const Eigen::MatrixBase<Tangent_t>  & v,
-                           const Eigen::MatrixBase<JacobianOut_t>& J);
+    template <class ConfigIn_t, class Tangent_t, class JacobianLOut_t, class JacobianROut_t>
+    static void Jintegrate(const Eigen::MatrixBase<ConfigIn_t> & q,
+                           const Eigen::MatrixBase<Tangent_t>  & v,
+                           const Eigen::MatrixBase<JacobianLOut_t>& Jq,
+                           const Eigen::MatrixBase<JacobianROut_t>& Jv);
 
     /**
      * @brief      Interpolation between two joint's configurations

@@ -168,8 +168,8 @@ struct LieGroup_Jintegrate{
 
     ConfigVector_t q_v = lg.integrate (q, v);
 
-    JacobianMatrix_t J;
-    lg.Jintegrate (v, J);
+    JacobianMatrix_t Jq, Jv;
+    lg.Jintegrate (q, v, Jq, Jv);
 
     const Scalar eps = 1e-6;
     for (int i = 0; i < v.size(); ++i)
@@ -177,9 +177,45 @@ struct LieGroup_Jintegrate{
       dv[i] = eps;
       ConfigVector_t q_dv = lg.integrate (q, dv);
       ConfigVector_t q_dv_v = lg.integrate (q_dv, v);
-      TangentVector_t J_dv = J*dv / eps;
+      TangentVector_t J_dv = Jq*dv / eps;
       // q_dv_v - q_v ~ J dv
       TangentVector_t dIntegrate = lg.difference (q_v, q_dv_v) / eps;
+      EIGEN_VECTOR_IS_APPROX (dIntegrate, J_dv, 1e-2);
+      dv[i] = 0;
+    }
+  }
+};
+
+struct LieGroup_Jintegrate2{
+  template <typename T>
+  void operator()(const T ) const
+  {
+    typedef typename T::ConfigVector_t ConfigVector_t;
+    typedef typename T::TangentVector_t TangentVector_t;
+    typedef typename T::JacobianMatrix_t JacobianMatrix_t;
+    typedef typename T::Scalar Scalar;
+
+    T lg;
+    ConfigVector_t q = lg.random();
+    TangentVector_t v, dv;
+    v.setRandom();
+    dv.setZero();
+
+    ConfigVector_t q_v = lg.integrate (q, v);
+
+    JacobianMatrix_t Jq, Jv;
+    lg.Jintegrate (q, v, Jq, Jv);
+    std::cout << Jv << std::endl;
+
+    const Scalar eps = 1e-6;
+    for (int i = 0; i < v.size(); ++i)
+    {
+      dv[i] = eps;
+      ConfigVector_t q_v_dv = lg.integrate (q, (v+dv).eval());
+      TangentVector_t J_dv = Jv*dv / eps;
+      // q_dv_v - q_v ~ J dv
+      TangentVector_t dIntegrate = lg.difference (q_v, q_v_dv) / eps;
+      std::cout << dIntegrate << std::endl;
       EIGEN_VECTOR_IS_APPROX (dIntegrate, J_dv, 1e-2);
       dv[i] = 0;
     }
@@ -243,8 +279,10 @@ BOOST_AUTO_TEST_CASE ( Jintegrate )
                                  SpecialOrthogonalOperation<3>
                                >
                              > Types;
-  for (int i = 0; i < 20; ++i)
+  for (int i = 0; i < 1; ++i) {
     boost::mpl::for_each<Types>(LieGroup_Jintegrate());
+    boost::mpl::for_each<Types>(LieGroup_Jintegrate2());
+  }
 }
 
 BOOST_AUTO_TEST_CASE ( test_vector_space )

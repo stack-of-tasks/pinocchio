@@ -53,12 +53,12 @@ namespace se3
   /// \return The vector entries of the skew-symmetric matrix.
   ///
   template <typename D>
-  inline Eigen::Matrix<typename D::Scalar,3,1,D::Options>
+  inline Eigen::Matrix<typename D::Scalar,3,1,Eigen::internal::plain_matrix_type<D>::type::Options>
   unSkew(const Eigen::MatrixBase<D> & M)
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
     assert((M + M.transpose()).isMuchSmallerThan(M));
-    Eigen::Matrix<typename D::Scalar,3,1,D::Options> v;
+    Eigen::Matrix<typename D::Scalar,3,1,Eigen::internal::plain_matrix_type<D>::type::Options> v;
     
     v[0] = 0.5 * (M(2,1) - M(1,2));
     v[1] = 0.5 * (M(0,2) - M(2,0));
@@ -67,11 +67,11 @@ namespace se3
   }
 
   template <typename D>
-  inline Eigen::Matrix<typename D::Scalar,3,3,D::Options>
+  inline Eigen::Matrix<typename D::Scalar,3,3,Eigen::internal::plain_matrix_type<D>::type::Options>
   alphaSkew (const typename D::Scalar s, const Eigen::MatrixBase<D> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,3);
-    Eigen::Matrix<typename D::Scalar,3,3,D::Options> m;
+    Eigen::Matrix<typename D::Scalar,3,3,Eigen::internal::plain_matrix_type<D>::type::Options> m;
     m(0,0) =  0   ;  m(0,1) = -v[2] * s;   m(0,2) =  v[1] * s;
     m(1,0) = - m(0,1);  m(1,1) =  0   ;   m(1,2) = -v[0] * s;
     m(2,0) = - m(0,2);  m(2,1) =  - m(1,2);   m(2,2) =  0;
