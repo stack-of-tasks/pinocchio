@@ -74,8 +74,13 @@ namespace se3
     bool isApprox(const Derived & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return derived().isApprox_impl(other, prec);}
     
-    MotionPlain se3Action(const SE3 & m) const { return derived().se3Action_impl(m); }
-    MotionPlain se3ActionInverse(const SE3 & m) const { return derived().se3ActionInverse_impl(m); }
+    template<typename S2, int O2>
+    MotionPlain se3Action(const SE3Tpl<S2,O2> & m) const
+    { return derived().se3Action_impl(m); }
+    
+    template<typename S2, int O2>
+    MotionPlain se3ActionInverse(const SE3Tpl<S2,O2> & m) const
+    { return derived().se3ActionInverse_impl(m); }
     
     Scalar dot(const Force & f) const { return derived().dot(f); }
     
