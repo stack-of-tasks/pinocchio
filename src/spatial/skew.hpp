@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -95,11 +95,11 @@ namespace se3
   ///
   /// \return The vector entries of the skew-symmetric matrix.
   ///
-  template <typename D>
-  inline Eigen::Matrix<typename D::Scalar,3,1,D::Options>
-  unSkew(const Eigen::MatrixBase<D> & M)
+  template <typename Matrix3>
+  inline Eigen::Matrix<typename EIGEN_PLAIN_TYPE(Matrix3)::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3)::Options>
+  unSkew(const Eigen::MatrixBase<Matrix3> & M)
   {
-    Eigen::Matrix<typename D::Scalar,3,1,D::Options> v;
+    Eigen::Matrix<typename EIGEN_PLAIN_TYPE(Matrix3)::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3)::Options> v;
     unSkew(M,v);
     return v;
   }
