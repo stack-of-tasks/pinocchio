@@ -166,7 +166,7 @@ namespace se3
     Matrix3 & C_ = const_cast<Eigen::MatrixBase<Matrix3> &>(C).derived();
     typedef typename Matrix3::RealScalar Scalar;
 
-    C_ = v*u.transpose();
+    C_.noalias() = v*u.transpose();
     const Scalar udotv(u.dot(v));
     C_.diagonal().array() -= udotv;
   }
