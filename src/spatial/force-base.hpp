@@ -69,22 +69,24 @@ namespace se3
     /**
      * @brief      Set the angular part of the force vector
      *
-     * @tparam V3 A vector 3 like type.
+     * @tparam V3Like A vector 3 like type.
      *
      * @param[in]  n
      */
-    template<typename V3>
-    void angular(const Eigen::MatrixBase<V3> & n) { derived().angular_impl(n.derived()); }
+    template<typename V3Like>
+    void angular(const Eigen::MatrixBase<V3Like> & n)
+    { derived().angular_impl(n.derived()); }
     
     /**
      * @brief      Set the linear part of the force vector
      *
-     * @tparam V3 A vector 3 like type.
+     * @tparam V3Like A vector 3 like type.
      *
      * @param[in]  f
      */
-    template<typename V3>
-    void linear(const Eigen::MatrixBase<V3> & f) { derived().linear_impl(f.derived()); }
+    template<typename V3Like>
+    void linear(const Eigen::MatrixBase<V3Like> & f)
+    { derived().linear_impl(f.derived()); }
     
     /**
      * @brief      Return the force as an Eigen vector.
@@ -103,14 +105,14 @@ namespace se3
      * @brief C-style cast operator
      * \copydoc ForceBase::toVector
      */
-    operator Vector6 () const { return toVector(); }
+    operator Vector6() const { return toVector(); }
     
     /** \returns true if each coefficients of \c *this and \a other are all exactly equal.
      * \warning When using floating point scalar values you probably should rather use a
      *          fuzzy comparison such as isApprox()
      */
     template<typename F2>
-    bool operator== (const ForceBase<F2> & other) const {return derived().isEqual_impl(other.derived());}
+    bool operator==(const ForceBase<F2> & other) const {return derived().isEqual_impl(other.derived());}
     
     /** \returns true if at least one coefficient of \c *this and \a other does not match.
      */
@@ -199,7 +201,8 @@ namespace se3
     { return derived().se3ActionInverse_impl(m); }
     
     template<typename M1>
-    typename internal::MotionAlgebraAction<Derived,M1>::ReturnType motionAction(const MotionDense<M1> & v) const
+    typename internal::MotionAlgebraAction<Derived,M1>::ReturnType
+    motionAction(const MotionDense<M1> & v) const
     {
       return derived().motionAction(v.derived());
     }

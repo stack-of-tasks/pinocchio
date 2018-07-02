@@ -36,23 +36,29 @@ namespace se3
     AngularType angular() { return derived().angular_impl(); }
     LinearType linear() { return derived().linear_impl(); }
     
-    template<typename V3>
-    void angular(const Eigen::MatrixBase<V3> & w) { derived().angular_impl(w.derived()); }
-    template<typename V3>
-    void linear(const Eigen::MatrixBase<V3> & v) { derived().linear_impl(v.derived()); }
+    template<typename V3Like>
+    void angular(const Eigen::MatrixBase<V3Like> & w)
+    { derived().angular_impl(w.derived()); }
+    
+    template<typename V3Like>
+    void linear(const Eigen::MatrixBase<V3Like> & v)
+    { derived().linear_impl(v.derived()); }
     
     ToVectorConstReturnType toVector() const { return derived().toVector_impl(); }
     ToVectorReturnType toVector() { return derived().toVector_impl(); }
-    operator Vector6 () const { return toVector(); }
+    operator Vector6() const { return toVector(); }
     
     ActionMatrixType toActionMatrix() const { return derived().toActionMatrix_impl(); }
     ActionMatrixType toDualActionMatrix() const { return derived().toDualActionMatrix_impl(); }
-    operator Matrix6 () const { return toActionMatrix(); }
+    operator Matrix6() const { return toActionMatrix(); }
     
     template<typename M2>
-    bool operator==(const MotionBase<M2> & other) const { return derived().isEqual_impl(other.derived());}
+    bool operator==(const MotionBase<M2> & other) const
+    { return derived().isEqual_impl(other.derived()); }
+    
     template<typename M2>
-    bool operator!=(const MotionBase<M2> & other) const { return !(derived() == other.derived()); }
+    bool operator!=(const MotionBase<M2> & other) const
+    { return !(derived() == other.derived()); }
     
     MotionPlain operator-() const { return derived().__opposite__(); }
     MotionPlain operator+(const Derived & v) const { return derived().__plus__(v); }
@@ -61,12 +67,15 @@ namespace se3
     Derived & operator-=(const Derived & v) { return derived().__mequ__(v); }
     
     template<typename OtherScalar>
-    MotionPlain operator*(const OtherScalar & alpha) const { return derived().__mult__(alpha); }
+    MotionPlain operator*(const OtherScalar & alpha) const
+    { return derived().__mult__(alpha); }
     template<typename OtherScalar>
-    MotionPlain operator/(const OtherScalar & alpha) const { return derived().__div__(alpha); }
+    MotionPlain operator/(const OtherScalar & alpha) const
+    { return derived().__div__(alpha); }
     
-    template<typename D>
-    typename internal::MotionAlgebraAction<D,Derived>::ReturnType cross(const D & d) const
+    template<typename OtherSpatialType>
+    typename internal::MotionAlgebraAction<OtherSpatialType,Derived>::ReturnType
+    cross(const OtherSpatialType & d) const
     {
       return derived().cross_impl(d);
     }
