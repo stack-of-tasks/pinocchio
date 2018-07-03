@@ -130,8 +130,22 @@ int main(int argc, const char ** argv)
       cholesky::decompose(model,data);
       total += timer.toc(timer.DEFAULT_UNIT);
     }
-  std::cout << "Cholesky = \t" << (total/NBT) 
+  std::cout << "Branch Induced Sparsity Cholesky = \t" << (total/NBT)
 	    << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
+  
+  total = 0;
+  Eigen::LDLT<Eigen::MatrixXd> Mldlt(data.M);
+  SMOOTH(NBT)
+  {
+    crba(model,data,qs[_smooth]);
+    data.M.triangularView<Eigen::StrictlyLower>()
+    = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+    timer.tic();
+    Mldlt.compute(data.M);
+    total += timer.toc(timer.DEFAULT_UNIT);
+  }
+  std::cout << "Dense Eigen Cholesky = \t" << (total/NBT)
+  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
  
   timer.tic();
   SMOOTH(NBT)
