@@ -121,6 +121,48 @@ namespace se3
     return log3(R.derived(), theta);
   }
 
+  /// \brief Derivative of \f$ \exp{r} \f$
+  /// \f[
+  ///     \frac{\sin{||r||}}{||r||}                       I_3
+  ///   - \frac{1-\cos{||r||}}{||r||^2}                   \left[ r \right]_x
+  ///   + \frac{1}{||n||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
+  /// \f]
+  template<typename Vector3Like, typename Matrix3Like>
+  void Jexp3(const Eigen::MatrixBase<Vector3Like> & r,
+             const Eigen::MatrixBase<Matrix3Like> & Jexp)
+  {
+    Matrix3Like & Jout = const_cast<Matrix3Like &>(Jexp.derived());
+    typedef typename Matrix3Like::Scalar Scalar;
+
+    Scalar n = r.norm(),a,b,c;
+    
+    if (n < 1e-6) {
+      Scalar n2 = n;
+
+      a =   Scalar(1)           - n/Scalar(6)   + n2/Scalar(120);
+      b = - Scalar(1)/Scalar(2) + n/Scalar(24)  - n2/Scalar(720);
+      c =   Scalar(1)/Scalar(6) - n/Scalar(120) + n2/Scalar(5040);
+    } else
+    {
+      Scalar n_inv = Scalar(1.)/n;
+      Scalar n2_inv = n_inv * n_inv;
+      Scalar cn,sn; SINCOS(n,&sn,&cn);
+
+      a = sn*n_inv;
+      b = - (1-cn)*n2_inv;
+      c = n2_inv * (1 - a);
+    }
+
+    Jout.setZero ();
+    Jout.diagonal().setConstant(a);
+
+    Jout(0,1) = -b*r[2]; Jout(1,0) = -Jout(0,1);
+    Jout(0,2) =  b*r[1]; Jout(2,0) = -Jout(0,2);
+    Jout(1,2) = -b*r[0]; Jout(2,1) = -Jout(1,2);
+
+    Jout.noalias() += c * r * r.transpose();
+  }
+
   template<typename Scalar, typename Vector3Like, typename Matrix3Like>
   void Jlog3(const Scalar & theta,
              const Eigen::MatrixBase<Vector3Like> & log,
@@ -274,6 +316,54 @@ namespace se3
     Vector3 trans(M.template block<3,1>(0,3));
     SE3Tpl<typename D::Scalar,Eigen::internal::traits<D>::Options> m(rot, trans);
     return log6(m);
+  }
+
+  template<typename MotionDerived, typename Matrix6Like>
+  void Jexp6(const MotionDense<MotionDerived>     & nu,
+             const Eigen::MatrixBase<Matrix6Like> & Jexp)
+  {
+    typedef typename MotionDerived::Scalar Scalar;
+    typedef typename MotionDerived::Vector3 Vector3;
+    typedef Eigen::Matrix<Scalar, 3, 3, Vector3::Options> Matrix3;
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6Like,6,6);
+    Matrix6Like & Jout = const_cast<Matrix6Like &> (Jexp.derived());
+
+    const typename MotionDerived::ConstLinearType  & v = nu.linear();
+    const typename MotionDerived::ConstAngularType & w = nu.angular();
+    const Scalar t = w.norm();
+
+    // Matrix3 J3;
+    // Jexp3(w, J3);
+    Jexp3(w, Jout.template bottomRightCorner<3,3>());
+    Jout.template topLeftCorner<3,3>() = Jout.template bottomRightCorner<3,3>();
+
+    const Scalar t2 = t*t;
+    Scalar beta, beta_dot_over_theta;
+    if (t < 1e-4) {
+      beta                = Scalar(1)/Scalar(12) + t2/Scalar(720);
+      beta_dot_over_theta = Scalar(1)/Scalar(360);
+    } else {
+      const Scalar tinv = Scalar(1)/t,
+                   t2inv = tinv*tinv;
+      Scalar st,ct; SINCOS (t, &st, &ct);
+      const Scalar inv_2_2ct = Scalar(1)/(Scalar(2)*(Scalar(1)-ct));
+
+      beta = t2inv - st*tinv*inv_2_2ct;
+      beta_dot_over_theta = -Scalar(2)*t2inv*t2inv +
+        (Scalar(1) + st*tinv) * t2inv * inv_2_2ct;
+    }
+
+    Vector3 p (Jout.template topLeftCorner<3,3>().transpose() * v);
+    Scalar wTp (w.dot (p));
+    Matrix3 J (alphaSkew(.5, p) +
+          (beta_dot_over_theta*wTp)                *w*w.transpose()
+          - (t2*beta_dot_over_theta+Scalar(2)*beta)*p*w.transpose()
+          + wTp * beta                             * Matrix3::Identity()
+          + beta                                   *w*p.transpose());
+
+    Jout.template topRightCorner<3,3>().noalias() =
+      - Jout.template topLeftCorner<3,3>() * J;
+    Jout.template bottomLeftCorner<3,3>().setZero();
   }
 
   template<typename Scalar, int Options, typename Matrix6Like>

@@ -68,7 +68,27 @@ BOOST_AUTO_TEST_CASE(Jlog3_fd)
   }
   BOOST_CHECK(Jfd.isApprox(Jlog, step));
 }
+
+BOOST_AUTO_TEST_CASE(Jexplog3)
+{
+  Motion v(Motion::Random());
   
+  Eigen::Matrix3d R (exp3(v.angular())),
+    Jexp, Jlog;
+  Jexp3 (v.angular(), Jexp);
+  Jlog3 (R          , Jlog);
+  
+  BOOST_CHECK((Jlog * Jexp).isIdentity());
+
+  SE3 M(SE3::Random());
+  R = M.rotation();
+  v.angular() = log3(R);
+  Jlog3 (R          , Jlog);
+  Jexp3 (v.angular(), Jexp);
+  
+  BOOST_CHECK((Jexp * Jlog).isIdentity());
+}
+
 BOOST_AUTO_TEST_CASE(explog6)
 {
   SE3 M(SE3::Random());
@@ -101,6 +121,25 @@ BOOST_AUTO_TEST_CASE(Jlog6_fd)
   BOOST_CHECK(Jfd.isApprox(Jlog, step));
 }
 
+BOOST_AUTO_TEST_CASE(Jexplog6)
+{
+  Motion v(Motion::Random());
+  
+  SE3 M (exp6(v));
+  SE3::Matrix6 Jexp, Jlog;
+  Jexp6 (v, Jexp);
+  Jlog6 (M, Jlog);
+
+  BOOST_CHECK((Jlog * Jexp).isIdentity());
+
+  M.setRandom();
+  
+  v = log6(M);
+  Jlog6 (M, Jlog);
+  Jexp6 (v, Jexp);
+
+  BOOST_CHECK((Jexp * Jlog).isIdentity());
+}
 
 BOOST_AUTO_TEST_CASE (test_basic)
 {
