@@ -134,15 +134,28 @@ namespace se3
       LieGroup2().integrate(q.tail(lg2_.nq()), v.tail(lg2_.nv()), out.tail(lg2_.nq()));
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> & v,
-                         const Eigen::MatrixBase<JacobianOut_t> & J) const
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t > & q,
+                            const Eigen::MatrixBase<Tangent_t> & v,
+                            const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
-      Jout.topRightCorner(lg1_.nv(),lg2_.nv()).setZero();
+      Jout.  topRightCorner(lg1_.nv(),lg2_.nv()).setZero();
       Jout.bottomLeftCorner(lg2_.nv(),lg1_.nv()).setZero();
-      lg1_.Jintegrate(v.head(lg1_.nv()), Jout.topLeftCorner(lg1_.nv(),lg1_.nv()));
-      lg2_.Jintegrate(v.tail(lg2_.nv()), Jout.bottomRightCorner(lg2_.nv(),lg2_.nv()));
+      lg1_.dIntegrate_dq(v.head(lg1_.nv()), Jout.    topLeftCorner(lg1_.nv(),lg1_.nv()));
+      lg2_.dIntegrate_dq(v.tail(lg2_.nv()), Jout.bottomRightCorner(lg2_.nv(),lg2_.nv()));
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t > & q,
+                            const Eigen::MatrixBase<Tangent_t> & v,
+                            const Eigen::MatrixBase<JacobianOut_t> & J) const
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      Jout.  topRightCorner(lg1_.nv(),lg2_.nv()).setZero();
+      Jout.bottomLeftCorner(lg2_.nv(),lg1_.nv()).setZero();
+      lg1_.dIntegrate_dv(v.head(lg1_.nv()), Jout.    topLeftCorner(lg1_.nv(),lg1_.nv()));
+      lg2_.dIntegrate_dv(v.tail(lg2_.nv()), Jout.bottomRightCorner(lg2_.nv(),lg2_.nv()));
     }
 
     template <class ConfigL_t, class ConfigR_t>
