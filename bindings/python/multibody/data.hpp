@@ -134,7 +134,7 @@ namespace se3
         bp::class_< std::vector<int> >("StdVec_int")
         .def(bp::vector_indexing_suite< std::vector<int> >());
         
-        eigenpy::enableEigenPySpecific<Data::RowMatrixXd,Data::RowMatrixXd>();
+        eigenpy::enableEigenPySpecific<Data::RowMatrixXd>();
       }
 
     };

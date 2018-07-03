@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -36,10 +36,10 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   typedef Eigen::Matrix<double,6,Eigen::Dynamic> Matrix6x;
   typedef Eigen::Matrix<double,3,Eigen::Dynamic> Matrix3x;
   
-  eigenpy::enableEigenPySpecific<Matrix6d,Matrix6d>();
-  eigenpy::enableEigenPySpecific<Vector6d,Vector6d>();
-  eigenpy::enableEigenPySpecific<Matrix6x,Matrix6x>();
-  eigenpy::enableEigenPySpecific<Matrix3x,Matrix3x>();
+  eigenpy::enableEigenPySpecific<Matrix6d>();
+  eigenpy::enableEigenPySpecific<Vector6d>();
+  eigenpy::enableEigenPySpecific<Matrix6x>();
+  eigenpy::enableEigenPySpecific<Matrix3x>();
 
   exposeSE3();
   exposeForce();
