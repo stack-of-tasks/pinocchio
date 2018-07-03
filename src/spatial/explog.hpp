@@ -368,23 +368,24 @@ namespace se3
     Jout.template bottomLeftCorner<3,3>().setZero();
   }
 
-  /// \brief Derivative of log6
-  /// \f[
-  /// \left(\begin{array}{cc}
-  /// Jlog3(R) & J * Jlog3(R) \\
-  ///     0    &     Jlog3(R) \\
-  /// \end{array}\right)
-  /// where
-  /// \f[
-  /// \begin{eqnarray}
-  /// J &=& 
-  /// \frac{1}{2}[\mathbf{p}]_{\times} + \dot{\beta} (\normr) \frac{\rot^T\mathbf{p}}{\normr}\rot\rot^T
-  /// - (\normr\dot{\beta} (\normr) + 2 \beta(\normr)) \mathbf{p}\rot^T\right.\\
-  /// &&\left. + \rot^T\mathbf{p}\beta (\normr)I_3 + \beta (\normr)\rot\mathbf{p}^T
-  /// \end{eqnarray}
-  /// \f]
-  /// and
-  /// \f[ \beta(x)=\left(\frac{1}{x^2} - \frac{\sin x}{2x(1-\cos x)}\right) \f]
+  /** \brief Derivative of log6
+   *  \f[
+   *  \left(\begin{array}{cc}
+   *  Jlog3(R) & J * Jlog3(R) \\
+   *      0    &     Jlog3(R) \\
+   *  \end{array}\right)
+   *  where
+   *  \f[
+   *  \begin{eqnarray}
+   *  J &=& 
+   *  \frac{1}{2}[\mathbf{p}]_{\times} + \dot{\beta} (\normr) \frac{\rot^T\mathbf{p}}{\normr}\rot\rot^T
+   *  - (\normr\dot{\beta} (\normr) + 2 \beta(\normr)) \mathbf{p}\rot^T\right.\\
+   *  &&\left. + \rot^T\mathbf{p}\beta (\normr)I_3 + \beta (\normr)\rot\mathbf{p}^T
+   *  \end{eqnarray}
+   *  \f]
+   *  and
+   *  \f[ \beta(x)=\left(\frac{1}{x^2} - \frac{\sin x}{2x(1-\cos x)}\right) \f]
+   */
   template<typename Scalar, int Options, typename Matrix6Like>
   void Jlog6(const SE3Tpl<Scalar, Options> & M,
              const Eigen::MatrixBase<Matrix6Like> & Jlog)
