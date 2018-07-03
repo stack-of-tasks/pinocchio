@@ -101,7 +101,7 @@ void aba_fd(const se3::Model & model, se3::Data & data_fd,
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    a_plus = rnea(model,data_fd,q_plus,v,tau);
+    a_plus = aba(model,data_fd,q_plus,v,tau);
     
     daba_dq.col(k) = (a_plus - a0)/alpha;
     v_eps[k] -= alpha;
@@ -112,7 +112,7 @@ void aba_fd(const se3::Model & model, se3::Data & data_fd,
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    a_plus = rnea(model,data_fd,q,v_plus,tau);
+    a_plus = aba(model,data_fd,q,v_plus,tau);
     
     daba_dv.col(k) = (a_plus - a0)/alpha;
     v_plus[k] -= alpha;
