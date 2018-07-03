@@ -37,18 +37,70 @@ BOOST_AUTO_TEST_CASE(exp)
   
 }
 
-BOOST_AUTO_TEST_CASE(explog)
+BOOST_AUTO_TEST_CASE(explog3)
 {
   SE3 M(SE3::Random());
-  Motion v(Motion::Random());
+  SE3::Matrix3 M_res = exp3(log3(M.rotation()));
+  BOOST_CHECK(M_res.isApprox(M.rotation()));
   
+  Motion::Vector3 v; v.setRandom();
+  Motion::Vector3 v_res = log3(exp3(v));
+  BOOST_CHECK(v_res.isApprox(v));
+}
+
+BOOST_AUTO_TEST_CASE(Jlog3_fd)
+{
+  SE3 M(SE3::Random());
+  SE3::Matrix3 R (M.rotation());
+  
+  SE3::Matrix3 Jfd, Jlog;
+  Jlog3 (R, Jlog);
+  Jfd.setZero();
+
+  Motion::Vector3 dR; dR.setZero();
+  double step = 0.0001;
+  for (int i = 0; i < 3; ++i)
+  {
+    dR[i] = step;
+    SE3::Matrix3 R_dR = R * exp3(dR);
+    Jfd.col(i) = (log3(R_dR) - log3(R)) / step;
+    dR[i] = 0;
+  }
+  BOOST_CHECK(Jfd.isApprox(Jlog, step));
+}
+  
+BOOST_AUTO_TEST_CASE(explog6)
+{
+  SE3 M(SE3::Random());
   SE3 M_res = exp6(log6(M));
-  
   BOOST_CHECK(M_res.isApprox(M));
   
+  Motion v(Motion::Random());
   Motion v_res = log6(exp6(v));
   BOOST_CHECK(v_res.toVector().isApprox(v.toVector()));
 }
+
+BOOST_AUTO_TEST_CASE(Jlog6_fd)
+{
+  SE3 M(SE3::Random());
+
+  SE3::Matrix6 Jfd, Jlog;
+  Jlog6 (M, Jlog);
+  Jfd.setZero();
+
+  Motion dM; dM.setZero();
+  double step = 0.001;
+  for (int i = 0; i < 6; ++i)
+  {
+    dM.toVector()[i] = step;
+    SE3 M_dM = M * exp6(dM);
+    Jfd.col(i) = (log6(M_dM).toVector() - log6(M).toVector()) / step;
+    dM.toVector()[i] = 0;
+  }
+
+  BOOST_CHECK(Jfd.isApprox(Jlog, step));
+}
+
 
 BOOST_AUTO_TEST_CASE (test_basic)
 {

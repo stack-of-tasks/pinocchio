@@ -296,26 +296,23 @@ namespace se3
     Jlog3(t, w, J3);
 
     const Scalar t2 = t*t;
-    Scalar alpha, beta, beta_dot_over_theta;
-    if (fabs(t) < 1e-2)
+    Scalar beta, beta_dot_over_theta;
+    if (t < 1e-4)
     {
-      alpha = Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720);
-      beta = Scalar(1)/Scalar(12) + t2/Scalar(720);
-      beta_dot_over_theta = Scalar(1) / Scalar(360);
+      beta                = Scalar(1)/Scalar(12) + t2/Scalar(720);
+      beta_dot_over_theta = Scalar(1)/Scalar(360);
     }
     else
     {
+      const Scalar tinv = Scalar(1)/t,
+                   t2inv = tinv*tinv;
       Scalar st,ct; SINCOS (t, &st, &ct);
-      alpha = t*st/(Scalar(2)*(Scalar(1)-ct));
-      beta = Scalar(1)/(t2) - st/(Scalar(2)*t*(Scalar(1)-ct));
-      beta_dot_over_theta = -Scalar(2)/(t2*t2) +
-        (t + st) / (Scalar(2)*t2*t*(Scalar(1)-ct));
-    }
+      const Scalar inv_2_2ct = Scalar(1)/(Scalar(2)*(Scalar(1)-ct));
 
-    Matrix3 V (
-        alpha * Matrix3::Identity()
-        - alphaSkew(.5, w) +
-        beta * w * w.transpose());
+      beta = t2inv - st*tinv*inv_2_2ct;
+      beta_dot_over_theta = -Scalar(2)*t2inv*t2inv +
+        (Scalar(1) + st*tinv) * t2inv * inv_2_2ct;
+    }
 
     Scalar wTp (w.dot (p));
 
@@ -326,7 +323,7 @@ namespace se3
           + beta * w*p.transpose()
           ) * J3);
 
-    value << V * R          , J,
+    value << J3             , J,
              Matrix3::Zero(), J3;
   }
 } // namespace se3
