@@ -87,6 +87,7 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   algorithm/expose-kinematics.cpp
   algorithm/expose-dynamics.cpp
   algorithm/expose-crba.cpp
+  algorithm/expose-centroidal.cpp
   algorithm/expose-rnea.cpp
   algorithm/expose-rnea-derivatives.cpp
   algorithm/expose-aba.cpp

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -30,6 +30,7 @@ namespace se3
     void exposeJointsAlgo();
     void exposeABA();
     void exposeCRBA();
+    void exposeCentroidal();
     void exposeRNEA();
     void exposeCOM();
     void exposeFramesAlgo();
