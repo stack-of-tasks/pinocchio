@@ -27,6 +27,7 @@ namespace se3
       exposeJointsAlgo();
       exposeABA();
       exposeCRBA();
+      exposeCentroidal();
       exposeRNEA();
       exposeCOM();
       exposeFramesAlgo();

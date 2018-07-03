@@ -16,29 +16,30 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
-#include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/centroidal.hpp"
 
 namespace se3
 {
   namespace python
   {
-    static Eigen::MatrixXd crba_proxy(const Model & model,
-                                      Data & data,
-                                      const Eigen::VectorXd & q)
-    {
-      data.M.fill(0);
-      crba(model,data,q);
-      data.M.triangularView<Eigen::StrictlyLower>()
-      = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-      return data.M;
-    }
     
-    void exposeCRBA()
+    void exposeCentroidal()
     {
-      bp::def("crba",crba_proxy,
+      
+      bp::def("ccrba",ccrba,
               bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)"),
-              "Computes CRBA, put the result in Data and return it.");
+                       "Joint configuration q (size Model::nq)",
+                       "Joint velocity v (size Model::nv)"),
+              "Computes the centroidal mapping, the centroidal momentum and the Centroidal Composite Rigid Body Inertia, puts the result in Data and returns the centroidal mapping.",
+              bp::return_value_policy<bp::return_by_value>());
+      
+      bp::def("dccrba",dccrba,
+              bp::args("Model","Data",
+                       "Joint configuration q (size Model::nq)",
+                       "Joint velocity v (size Model::nv)"),
+              "Computes the time derivative of the centroidal momentum matrix Ag in terms of q and v. It computes also the same information than ccrtba for the same price.",
+              bp::return_value_policy<bp::return_by_value>());
+      
     }
     
   } // namespace python
