@@ -28,7 +28,7 @@ namespace se3
                    Data & data,
                    const Eigen::VectorXd & q,
                    Model::JointIndex jointId,
-                   bool local,
+                   ReferenceFrame rf,
                    bool update_kinematics)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
@@ -36,7 +36,7 @@ namespace se3
       if (update_kinematics)
         computeJointJacobians(model,data,q);
       
-      if(local) getJointJacobian<LOCAL>(model,data,jointId,J);
+      if(rf == LOCAL) getJointJacobian<LOCAL>(model,data,jointId,J);
       else getJointJacobian<WORLD>(model,data,jointId,J);
       
       return J;
@@ -46,11 +46,11 @@ namespace se3
     get_jacobian_proxy(const Model & model,
                        Data & data,
                        Model::JointIndex jointId,
-                       bool local)
+                       ReferenceFrame rf)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
       
-      if(local) getJointJacobian<LOCAL>(model,data,jointId,J);
+      if(rf == LOCAL) getJointJacobian<LOCAL>(model,data,jointId,J);
       else getJointJacobian<WORLD>(model,data,jointId,J);
       
       return J;
@@ -60,11 +60,11 @@ namespace se3
     get_jacobian_time_variation_proxy(const Model & model,
                                   Data & data,
                                   Model::JointIndex jointId,
-                                  bool local)
+                                  ReferenceFrame rf)
     {
       Data::Matrix6x dJ(6,model.nv); dJ.setZero();
       
-      if(local) getJointJacobianTimeVariation<LOCAL>(model,data,jointId,dJ);
+      if(rf == LOCAL) getJointJacobianTimeVariation<LOCAL>(model,data,jointId,dJ);
       else getJointJacobianTimeVariation<WORLD>(model,data,jointId,dJ);
       
       return dJ;
@@ -85,40 +85,40 @@ namespace se3
               "The result is accessible through data.J. This function assumes that forwardKinematics has been called before",
               bp::return_value_policy<bp::return_by_value>());
       
-      bp::def("jacobian",jacobian_proxy,
+      bp::def("jointJacobian",jacobian_proxy,
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
                        "Joint configuration q (size Model::nq)",
                        "Joint ID, the index of the joint.",
-                       "frame (true = local, false = world)",
+                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)",
                        "update_kinematics (true = update the value of the total jacobian)"),
               "Computes the jacobian of a given given joint according to the given input configuration."
-              "If local is set to true, it returns the jacobian associated to the joint frame. Otherwise, it returns the jacobian of the frame coinciding with the world frame.");
+              "If rf is set to LOCAL, it returns the jacobian associated to the joint frame. Otherwise, it returns the jacobian of the frame coinciding with the world frame.");
       
       bp::def("getJointJacobian",get_jacobian_proxy,
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
                        "Joint ID, the index of the joint.",
-                       "frame (true = local, false = world)"),
+                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
               "Computes the jacobian of a given given joint according to the given entries in data."
-              "If local is set to true, it returns the jacobian associated to the joint frame. Otherwise, it returns the jacobian of the frame coinciding with the world frame.");
+              "If rf is set to LOCAL, it returns the jacobian associated to the joint frame. Otherwise, it returns the jacobian of the frame coinciding with the world frame.");
       
       bp::def("computeJointJacobiansTimeVariation",computeJointJacobiansTimeVariation,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),
-              "Computes the full model Jacobian variations with respect to time. It corresponds to dJ/dt which depends both on q and v."
-              "The result is accessible through data.dJ.",
+              "Computes the full model Jacobian variations with respect to time. It corresponds to dJ/dt which depends both on q and v. It also computes the joint Jacobian of the model (similar to computeJointJacobians)."
+              "The result is accessible through data.dJ and data.J.",
               bp::return_value_policy<bp::return_by_value>());
       
       bp::def("getJointJacobianTimeVariation",get_jacobian_time_variation_proxy,
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
                        "Joint ID, the index of the joint.",
-                       "frame (true = local, false = world)"),
+                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
               "Computes the Jacobian time variation of a specific joint frame expressed either in the world frame or in the local frame of the joint."
               "You have to call computeJointJacobiansTimeVariation first."
-              "If local is set to true, it returns the jacobian time variation associated to the joint frame. Otherwise, it returns the jacobian time variation of the frame coinciding with the world frame.");
+              "If rf is set to LOCAL, it returns the jacobian time variation associated to the joint frame. Otherwise, it returns the jacobian time variation of the frame coinciding with the world frame.");
     }
     
   } // namespace python
