@@ -28,7 +28,7 @@
 
 #include <iostream>
 
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <Eigen/StdVector>
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
@@ -38,7 +38,7 @@ int main(int argc, const char ** argv)
   using namespace Eigen;
   using namespace se3;
 
-  StackTicToc timer(StackTicToc::US);
+  PinocchioTicToc timer(PinocchioTicToc::US);
   #ifdef NDEBUG
   const int NBT = 1000*100;
   #else

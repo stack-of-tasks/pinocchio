@@ -35,7 +35,7 @@
 
 #include <iostream>
 
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 void rnea_fd(const se3::Model & model, se3::Data & data_fd,
              const Eigen::VectorXd & q,
@@ -129,7 +129,7 @@ int main(int argc, const char ** argv)
   using namespace Eigen;
   using namespace se3;
 
-  StackTicToc timer(StackTicToc::US);
+  PinocchioTicToc timer(PinocchioTicToc::US);
   #ifdef NDEBUG
   const int NBT = 1000*100;
   #else

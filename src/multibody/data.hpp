@@ -28,7 +28,7 @@
 #include "pinocchio/multibody/frame.hpp"
 #include "pinocchio/multibody/joint/joint.hpp"
 #include "pinocchio/deprecated.hh"
-#include "pinocchio/tools/string-generator.hpp"
+#include "pinocchio/utils/string-generator.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
 #include <iostream>

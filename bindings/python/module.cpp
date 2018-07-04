@@ -21,6 +21,7 @@
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/bindings/python/utils/version.hpp"
 
 namespace bp = boost::python;
 using namespace se3::python;
@@ -64,6 +65,8 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
 #ifdef WITH_HPP_FCL
   exposeFCL();
 #endif // WITH_HPP_FCL
+  
+  exposeVersion();
   
 }
  

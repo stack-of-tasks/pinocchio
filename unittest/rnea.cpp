@@ -32,7 +32,7 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <iostream>
 
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
     std::cout << "(the time score in debug mode is not relevant)  " ;
   #endif
 
-  StackTicToc timer(StackTicToc::US); timer.tic();
+  PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
   SMOOTH(NBT)
     {
       rnea(model,data,q,v,a);

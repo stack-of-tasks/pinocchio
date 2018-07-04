@@ -21,7 +21,7 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/dynamics.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <iostream>
 
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   
   q = Eigen::VectorXd::Zero(model.nq);
   
-  StackTicToc timer(StackTicToc::US); timer.tic();
+  PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
   SMOOTH(NBT)
   {
     se3::forwardDynamics(model, data, q, v, tau, J, gamma, true);

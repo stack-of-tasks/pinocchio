@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <iostream>
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 #include <Eigen/StdVector>
@@ -60,7 +60,7 @@ void checkQuaternionToMatrix(std::string label)
 
   using namespace Eigen;
 
-  StackTicToc timer(StackTicToc::NS);
+  PinocchioTicToc timer(PinocchioTicToc::NS);
 
   /* Random pre-initialization of all matrices in the stack. */
   std::vector< Quaterniond > q1s     (NBT);
@@ -87,7 +87,7 @@ void checkQuaternion(std::string label)
 
   using namespace Eigen;
 
-  StackTicToc timer(StackTicToc::NS);
+  PinocchioTicToc timer(PinocchioTicToc::NS);
 
   /* Random pre-initialization of all matrices in the stack. */
   std::vector< Quaterniond > q1s     (NBT);
@@ -116,7 +116,7 @@ void checkQuaternionQuaternion(std::string label)
 
   using namespace Eigen;
 
-  StackTicToc timer(StackTicToc::NS);
+  PinocchioTicToc timer(PinocchioTicToc::NS);
 
   /* Random pre-initialization of all matrices in the stack. */
   std::vector< Quaterniond > q1s     (NBT);
@@ -145,7 +145,7 @@ void checkQuaternionD(std::string label)
 
   using namespace Eigen;
 
-  StackTicToc timer(StackTicToc::NS);
+  PinocchioTicToc timer(PinocchioTicToc::NS);
 
   /* Random pre-initialization of all matrices in the stack. */
   std::vector< Quaterniond > q1s     (NBT);
@@ -178,7 +178,7 @@ void checkMatrix(std::string label)
 
   using namespace Eigen;
 
-  StackTicToc timer(StackTicToc::NS);
+  PinocchioTicToc timer(PinocchioTicToc::NS);
 
   /* Random pre-initialization of all matrices in the stack. */
   std::vector< Matrix<double,MSIZE,MSIZE,RC1> > R1s     (NBT);
@@ -206,7 +206,7 @@ void checkVector(std::string label)
 {
   using namespace Eigen;
 
-  StackTicToc timer(StackTicToc::NS);
+  PinocchioTicToc timer(PinocchioTicToc::NS);
   std::vector< Matrix<double,MSIZE,MSIZE> > R1s     (NBT);
   std::vector< Matrix<double,MSIZE,1> > v2s     (NBT);
   std::vector< Matrix<double,MSIZE,1> > v3s     (NBT);
@@ -231,7 +231,7 @@ void checkDMatrix(int MSIZE,std::string label)
 {
   using namespace Eigen;
 
-  StackTicToc timer(StackTicToc::NS);
+  PinocchioTicToc timer(PinocchioTicToc::NS);
   std::vector< MatrixXd > R1s     (NBT);
   std::vector< MatrixXd > R2s     (NBT);
   std::vector< MatrixXd > R3s     (NBT);
@@ -256,7 +256,7 @@ void checkDVector(int MSIZE,std::string label)
 {
   using namespace Eigen;
 
-  StackTicToc timer(StackTicToc::NS);
+  PinocchioTicToc timer(PinocchioTicToc::NS);
   std::vector< MatrixXd > R1s     (NBT);
   std::vector< MatrixXd > v2s     (NBT);
   std::vector< MatrixXd > v3s     (NBT);

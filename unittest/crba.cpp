@@ -32,7 +32,7 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <iostream>
 
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 
     Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
  
-    StackTicToc timer(StackTicToc::US); timer.tic();
+    PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
     SMOOTH(NBT)
       {
         crba(model,data,q);
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
     
     q = Eigen::VectorXd::Zero(model.nq);
    
-    StackTicToc timer(StackTicToc::US); timer.tic();
+    PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
     SMOOTH(NBT)
     {
       crba(model,data,q);

@@ -141,6 +141,7 @@ ADD_UNIT_TEST(joint-composite eigen3)
 
 ADD_UNIT_TEST(liegroups eigen3)
 ADD_UNIT_TEST(regressor eigen3)
+ADD_UNIT_TEST(version eigen3)
 
 # Derivatives algo
 ADD_UNIT_TEST(kinematics-derivatives eigen3)

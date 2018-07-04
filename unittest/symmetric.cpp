@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -33,7 +33,7 @@
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <boost/random.hpp>
 
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
         Rs[i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
 
       std::cout << "Pinocchio: ";
-      StackTicToc timer(StackTicToc::US); timer.tic();
+      PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
       SMOOTH(NBT)
       {
         timeSym3(S,Rs[_smooth],Sres[_smooth]);
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE ( test_metapod_LTI )
     Rs[i].randomInit();
   
   std::cout << "Metapod: ";
-  StackTicToc timer(StackTicToc::US); timer.tic();
+  PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
   SMOOTH(NBT)
   {
     timeLTI(S, Rs[_smooth], Sres[_smooth]);
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
     Rs[i] = (Eigen::Quaterniond(Eigen::Matrix<double,4,1>::Random())).normalized().matrix();
 
   std::cout << "Eigen: ";
-  StackTicToc timer(StackTicToc::US); timer.tic();
+  PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
   SMOOTH(NBT)
   {
     timeSelfAdj(Rs[_smooth],M,Sres[_smooth]);

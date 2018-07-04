@@ -44,12 +44,14 @@ ENDFOREACH(dep ${PKG_CONFIG_PYWRAP_REQUIRES})
 SET(${PYWRAP}_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITELIB}/${PROJECT_NAME})
 
 SET(${PROJECT_NAME}_PYTHON_HEADERS
+  utils/constant.hpp
   utils/eigen_container.hpp
   utils/handler.hpp
   utils/copyable.hpp
   utils/printable.hpp
   utils/std-vector.hpp
   utils/std-aligned-vector.hpp
+  utils/version.hpp
   fwd.hpp
   spatial/se3.hpp
   spatial/force.hpp
@@ -72,6 +74,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
 
 SET(${PROJECT_NAME}_PYTHON_SOURCES
   module.cpp
+  utils/version.cpp
   spatial/expose-SE3.cpp
   spatial/expose-motion.cpp
   spatial/expose-force.cpp

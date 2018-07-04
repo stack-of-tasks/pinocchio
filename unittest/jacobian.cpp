@@ -22,7 +22,7 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include <iostream>
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   se3::Data data(model);
 
   long flag = BOOST_BINARY(1111);
-  StackTicToc timer(StackTicToc::US); 
+  PinocchioTicToc timer(PinocchioTicToc::US); 
   #ifdef NDEBUG
     #ifdef _INTENSE_TESTING_
       const size_t NBT = 1000*1000;
