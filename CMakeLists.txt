@@ -156,6 +156,7 @@ SET(${PROJECT_NAME}_UTILS_HEADERS
   utils/timer.hpp
   utils/string-generator.hpp
   utils/file-explorer.hpp
+  utils/version.hpp
   )
 
 SET(${PROJECT_NAME}_SPATIAL_HEADERS
