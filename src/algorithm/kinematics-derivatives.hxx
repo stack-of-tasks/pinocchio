@@ -121,8 +121,8 @@ namespace se3
                      se3::Data & data,
                      const SE3 & oMlast,
                      const Motion & vlast,
-                     Data::Matrix6x & partial_dq,
-                     Data::Matrix6x & partial_dv)
+                     Data::Matrix6x & v_partial_dq,
+                     Data::Matrix6x & v_partial_dv)
     {
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
@@ -132,28 +132,28 @@ namespace se3
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
       // dvec/dv
-      ColsBlock partial_dv_cols = jmodel.jointCols(partial_dv);
+      ColsBlock v_partial_dv_cols = jmodel.jointCols(v_partial_dv);
       if(rf == WORLD)
-        partial_dv_cols = Jcols;
+        v_partial_dv_cols = Jcols;
       else
-        motionSet::se3ActionInverse(oMlast,Jcols,partial_dv_cols);
+        motionSet::se3ActionInverse(oMlast,Jcols,v_partial_dv_cols);
 
       // dvec/dq
-      ColsBlock partial_dq_cols = jmodel.jointCols(partial_dq);
+      ColsBlock v_partial_dq_cols = jmodel.jointCols(v_partial_dq);
       if(rf == WORLD)
       {
         if(parent > 0)
           vtmp = data.ov[parent] - vlast;
         else
           vtmp = -vlast;
-        motionSet::motionAction(vtmp,Jcols,partial_dq_cols);
+        motionSet::motionAction(vtmp,Jcols,v_partial_dq_cols);
       }
       else
       {
         if(parent > 0)
         {
           vtmp = oMlast.actInv(data.ov[parent]);
-          motionSet::motionAction(vtmp,partial_dv_cols,partial_dq_cols);
+          motionSet::motionAction(vtmp,v_partial_dv_cols,v_partial_dq_cols);
         }
       }
       
@@ -166,11 +166,11 @@ namespace se3
   inline void getJointVelocityDerivatives(const Model & model,
                                           Data & data,
                                           const Model::JointIndex jointId,
-                                          Data::Matrix6x & partial_dq,
-                                          Data::Matrix6x & partial_dv)
+                                          Data::Matrix6x & v_partial_dq,
+                                          Data::Matrix6x & v_partial_dv)
   {
-    assert( partial_dq.cols() ==  model.nv );
-    assert( partial_dv.cols() ==  model.nv );
+    assert( v_partial_dq.cols() ==  model.nv );
+    assert( v_partial_dv.cols() ==  model.nv );
     assert(model.check(data) && "data is not consistent with model.");
     
     const SE3 & oMlast = data.oMi[jointId];
@@ -181,10 +181,11 @@ namespace se3
       JointVelocityDerivativesBackwardStep<rf>::run(model.joints[i],
                                                     typename JointVelocityDerivativesBackwardStep<rf>::ArgsType(model,data,
                                                                                                                 oMlast,vlast,
-                                                                                                                partial_dq,
-                                                                                                                partial_dv));
+                                                                                                                v_partial_dq,
+                                                                                                                v_partial_dv));
     }
   
+    // Set back ov[0] to a zero value
     data.ov[0].setZero();
   }
   

@@ -59,8 +59,8 @@ namespace se3
   inline void getJointVelocityDerivatives(const Model & model,
                                           Data & data,
                                           const Model::JointIndex jointId,
-                                          Data::Matrix6x & partial_dq,
-                                          Data::Matrix6x & partial_dv);
+                                          Data::Matrix6x & v_partial_dq,
+                                          Data::Matrix6x & v_partial_dv);
   
   ///
   /// \brief Computes the partial derivaties of the spatial acceleration of a given with respect to
