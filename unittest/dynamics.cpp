@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   
   q = Eigen::VectorXd::Zero(model.nq);
   
-  StackTicToc timer(StackTicToc::US); timer.tic();
+  PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
   SMOOTH(NBT)
   {
     se3::forwardDynamics(model, data, q, v, tau, J, gamma, true);

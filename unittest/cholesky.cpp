@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   
 
   long flag = BOOST_BINARY(1000101);
-  StackTicToc timer(StackTicToc::US); 
+  PinocchioTicToc timer(PinocchioTicToc::US); 
   #ifdef NDEBUG
     #ifdef _INTENSE_TESTING_
       const size_t NBT = 1000*1000;
