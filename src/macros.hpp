@@ -21,14 +21,14 @@
 #include <Eigen/Core>
 
 /// \brief Define the current version of Pinocchio
-#define PINOCCHIO_WORLD_VERSION 1
-#define PINOCCHIO_MAJOR_VERSION 2
-#define PINOCCHIO_MINOR_VERSION 9
+#define PINOCCHIO_MAJOR_VERSION 1
+#define PINOCCHIO_MINOR_VERSION 2
+#define PINOCCHIO_PATCH_VERSION 9
 
 /// \brief Macro to check the current Pinocchio version against a version provided by x.y.z
-#define PINOCCHIO_VERSION_AT_LEAST(x,y,z) (PINOCCHIO_WORLD_VERSION>x || (PINOCCHIO_WORLD_VERSION>=x && \
-(PINOCCHIO_MAJOR_VERSION>y || (PINOCCHIO_MAJOR_VERSION>=y && \
-PINOCCHIO_MINOR_VERSION>=z))))
+#define PINOCCHIO_VERSION_AT_LEAST(x,y,z) (PINOCCHIO_MAJOR_VERSION>x || (PINOCCHIO_MAJOR_VERSION>=x && \
+(PINOCCHIO_MINOR_VERSION>y || (PINOCCHIO_MINOR_VERSION>=y && \
+PINOCCHIO_PATCH_VERSION>=z))))
 
 /// \brief Empty macro argument
 #define PINOCCHIO_MACRO_EMPTY_ARG
