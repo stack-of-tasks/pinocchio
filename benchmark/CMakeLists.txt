@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 CNRS
+# Copyright (c) 2015-2018 CNRS
 #
 # This file is part of Pinocchio
 # pinocchio is free software: you can redistribute it
@@ -17,6 +17,8 @@
 # ----------------------------------------------------
 # --- BENCHMARK --------------------------------------
 # ----------------------------------------------------
+ADD_CUSTOM_TARGET(bench)
+
 MACRO(ADD_BENCH bench_name)
 IF(BUILD_BENCHMARK)
   ADD_EXECUTABLE(${bench_name} ${bench_name}.cpp)
@@ -33,6 +35,8 @@ IF(NumExtraMacroArgs GREATER 0)
     PKG_CONFIG_USE_DEPENDENCY(${bench_name} eigen3)
   ENDIF(link_to_main_lib)
 ENDIF()
+
+ADD_DEPENDENCIES(bench ${bench_name})
 ENDMACRO(ADD_BENCH)
 
 MACRO(ADD_TEST_CFLAGS target flag)
