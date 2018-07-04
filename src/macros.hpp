@@ -30,6 +30,7 @@
 (PINOCCHIO_MAJOR_VERSION>y || (PINOCCHIO_MAJOR_VERSION>=y && \
 PINOCCHIO_MINOR_VERSION>=z))))
 
+/// \brief Empty macro argument
 #define PINOCCHIO_MACRO_EMPTY_ARG
 
 /// \brief Macro giving access to the equivalent plain type of D
@@ -48,6 +49,7 @@ D \
 >::type
 #endif
 
+/// \brief Macro giving access to the return type of the dot product operation
 #if EIGEN_VERSION_AT_LEAST(3,3,0)
 #define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
 Eigen::ScalarBinaryOpTraits< typename Eigen::internal::traits< D1 >::Scalar, typename Eigen::internal::traits< D2 >::Scalar >::ReturnType
@@ -56,6 +58,7 @@ Eigen::ScalarBinaryOpTraits< typename Eigen::internal::traits< D1 >::Scalar, typ
 Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::Scalar,typename Eigen::internal::traits< D2 >::Scalar>::ReturnType
 #endif
 
+/// \brief Fix issue concerning 3.2.90 and more versions of Eigen that do not define size_of_xpr_at_compile_time structure.
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,3,0)
 namespace se3
 {
