@@ -24,7 +24,7 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/spatial/spatial-axis.hpp"
-#include "pinocchio/tools/axis-label.hpp"
+#include "pinocchio/utils/axis-label.hpp"
 
 namespace se3
 {

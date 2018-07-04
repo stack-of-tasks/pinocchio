@@ -151,11 +151,11 @@ SET(${PROJECT_NAME}_MATH_HEADERS
   math/matrix.hpp
   )
 
-SET(${PROJECT_NAME}_TOOLS_HEADERS
-  tools/axis-label.hpp
-  tools/timer.hpp
-  tools/string-generator.hpp
-  tools/file-explorer.hpp
+SET(${PROJECT_NAME}_UTILS_HEADERS
+  utils/axis-label.hpp
+  utils/timer.hpp
+  utils/string-generator.hpp
+  utils/file-explorer.hpp
   )
 
 SET(${PROJECT_NAME}_SPATIAL_HEADERS
@@ -322,7 +322,7 @@ ENDIF(LUA5_FOUND)
 
 SET(HEADERS
   ${${PROJECT_NAME}_MATH_HEADERS}
-  ${${PROJECT_NAME}_TOOLS_HEADERS}
+  ${${PROJECT_NAME}_UTILS_HEADERS}
   ${${PROJECT_NAME}_SPATIAL_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS}
@@ -345,7 +345,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/liegro
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/lua")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/utils")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/container")
 

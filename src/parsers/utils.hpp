@@ -27,7 +27,7 @@
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 
-#include "pinocchio/tools/file-explorer.hpp"
+#include "pinocchio/utils/file-explorer.hpp"
 #include <boost/filesystem.hpp>
 
 #include <exception>

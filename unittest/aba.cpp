@@ -28,7 +28,7 @@
 #include "pinocchio/parsers/sample-models.hpp"
 
 #include "pinocchio/algorithm/compute-all-terms.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <iostream>
 

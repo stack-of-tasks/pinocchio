@@ -28,7 +28,7 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include <iostream>

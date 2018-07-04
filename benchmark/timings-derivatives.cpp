@@ -35,7 +35,7 @@
 
 #include <iostream>
 
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 void rnea_fd(const se3::Model & model, se3::Data & data_fd,
              const Eigen::VectorXd & q,

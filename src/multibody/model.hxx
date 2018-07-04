@@ -20,7 +20,7 @@
 #define __se3_model_hxx__
 
 #include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/tools/string-generator.hpp"
+#include "pinocchio/utils/string-generator.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
 
 #include <boost/bind.hpp>

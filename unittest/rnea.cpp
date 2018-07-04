@@ -32,7 +32,7 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <iostream>
 

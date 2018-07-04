@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <iostream>
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 #include <Eigen/StdVector>

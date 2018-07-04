@@ -32,7 +32,7 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <iostream>
 

@@ -33,7 +33,7 @@
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <boost/random.hpp>
 
