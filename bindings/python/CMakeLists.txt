@@ -184,6 +184,7 @@ INSTALL(TARGETS ${PYWRAP} DESTINATION ${${PYWRAP}_INSTALL_DIR})
 # --- INSTALL SCRIPTS 
 SET(PYTHON_FILES
   __init__.py
+  deprecated.py
   deprecation.py
   utils.py
   robot_wrapper.py
