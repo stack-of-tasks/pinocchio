@@ -15,19 +15,18 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-/* --- Unitary test symmetric.cpp This code tests and compares three ways of
+/* --- Unitary test symmetric.cpp This code tests and compares two ways of
  * expressing symmetric matrices. In addition to the unitary validation (test
  * of the basic operations), the code is validating the computation
  * performances of each methods.
  *
  * The three methods are:
  * - Eigen SelfAdjoint (a mask atop of a classical dense matrix) ==> the least efficient.
- * - Metapod Symmetric with LTI factorization.
  * - Pinocchio rewritting of Metapod code with LTI factor as well and minor improvement.
  *
+ * IMPORTANT: the following timings seems outdated.
  * Expected time scores on a I7 2.1GHz:
  * - Eigen: 2.5us
- * - Metapod: 4us
  * - Pinocchio: 6us
  */
 
@@ -259,46 +258,6 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
       }
       timer.toc(std::cout,NBT);
     }
-}
-
-/* --- METAPOD -------------------------------------------------------------- */
-/* --- METAPOD -------------------------------------------------------------- */
-/* --- METAPOD -------------------------------------------------------------- */
-
-BOOST_AUTO_TEST_CASE ( test_metapod_LTI )
-{
-#ifdef WITH_METAPOD
-  using namespace metapod::Spatial;
-
-  typedef ltI<double> Sym3;
-  typedef Eigen::Matrix3d Matrix3;
-  typedef RotationMatrixTpl<double> R3;
-
-  Matrix3 M = Matrix3::Random();
-  Sym3 S(M),S2;
-
-  R3 R; R.randomInit();
-
-  R.rotTSymmetricMatrix(S);
-  timeLTI(S,R,S2);
-  BOOST_CHECK(S2.toMatrix().isApprox(R.toMatrix().transpose()*S.toMatrix()*R.toMatrix(), 1e-12));
-  
-  const size_t NBT = 100000;
-  std::vector<Sym3> Sres (NBT);
-  std::vector<R3> Rs (NBT);
-  for(size_t i=0;i<NBT;++i) 
-    Rs[i].randomInit();
-  
-  std::cout << "Metapod: ";
-  PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
-  SMOOTH(NBT)
-  {
-    timeLTI(S, Rs[_smooth], Sres[_smooth]);
-  }
-  timer.toc(std::cout,NBT);
-#else
-  std::cout << "Metapod is not installed ... skipping this test. " << std::endl;
-#endif
 }
 
 /* --- EIGEN SYMMETRIC ------------------------------------------------------ */
