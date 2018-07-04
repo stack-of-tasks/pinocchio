@@ -224,9 +224,10 @@ namespace se3
       out.template tail<2>().noalias() = R0 * R.col(0);
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  & v,
-                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & v,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
     {
       JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
 
@@ -235,6 +236,20 @@ namespace se3
       exp(v, R, t);
 
       toInverseActionMatrix (R, t, Jout);
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & v,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      // TODO sparse version
+      MotionTpl<Scalar,0> nu; nu.toVector() << v.template head<2>(), 0, 0, 0, v[2]; 
+      Eigen::Matrix<Scalar,6,6> Jtmp6;
+      Jexp6(nu, Jtmp6);
+      Jout << Jtmp6.   topLeftCorner<2,2>(), Jtmp6.   topRightCorner<2,1>(),
+              Jtmp6.bottomLeftCorner<1,2>(), Jtmp6.bottomRightCorner<1,1>();
     }
 
     // interpolate_impl use default implementation.
@@ -398,12 +413,21 @@ namespace se3
       firstOrderNormalize(res_quat);
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  & v,
-                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & v,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
     {
       JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
       Jout = exp6(v).inverse().toActionMatrix();
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & v,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      Jexp6(MotionRef<Tangent_t>(v), J.derived());
     }
 
     // interpolate_impl use default implementation.

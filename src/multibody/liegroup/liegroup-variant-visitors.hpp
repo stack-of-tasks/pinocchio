@@ -75,19 +75,6 @@ namespace se3
                         const Eigen::MatrixBase<Tangent_t>  & v,
                         const Eigen::MatrixBase<ConfigOut_t>& qout);
   
-  
-  /**
-   * @brief      Visit a LieGroupVariant to call its integrate method
-   *
-   * @param[in]  lg  The LieGroupVariant.
-   *
-   */
-  template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
-  inline void integrate(const LieGroupVariant & lg,
-                        const Eigen::MatrixBase<ConfigIn_t> & q,
-                        const Eigen::MatrixBase<Tangent_t>  & v,
-                        const Eigen::MatrixBase<ConfigOut_t>& qout);
-  
 }
 
 /// Details

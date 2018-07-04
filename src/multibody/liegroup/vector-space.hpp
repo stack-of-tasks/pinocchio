@@ -109,6 +109,23 @@ namespace se3
       const_cast< JacobianOut_t& > (J.derived()).setIdentity();
     }
 
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & /*v*/,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & /*v*/,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+    }
+
+
     // template <class ConfigL_t, class ConfigR_t>
     // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)

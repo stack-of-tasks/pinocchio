@@ -79,13 +79,28 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     /**
      * @brief      Computes the Jacobian of the Integrate operation.
      *
+     * @param[in]  q    configuration
      * @param[in]  v    tangent velocity.
      *
-     * @param[out] J    the Jacobian of the Integrate operation.
+     * @param[out] J    the Jacobian of the Integrate operation wrt q.
      */
-    template <class Tangent_t, class JacobianOut_t>
-    void Jintegrate(const Eigen::MatrixBase<Tangent_t>  & v,
-                    const Eigen::MatrixBase<JacobianOut_t>& J) const;
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       const Eigen::MatrixBase<JacobianOut_t>& J) const;
+
+    /**
+     * @brief      Computes the Jacobian of the Integrate operation.
+     *
+     * @param[in]  q    configuration
+     * @param[in]  v    tangent velocity.
+     *
+     * @param[out] J    the Jacobian of the Integrate operation wrt v.
+     */
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       const Eigen::MatrixBase<JacobianOut_t>& J) const;
 
     /**
      * @brief      Interpolation between two joint's configurations

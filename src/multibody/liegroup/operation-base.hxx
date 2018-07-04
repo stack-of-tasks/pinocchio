@@ -38,14 +38,29 @@ namespace se3 {
   }
 
   template <class Derived>
-  template <class Tangent_t, class JacobianOut_t>
-  void LieGroupOperationBase<Derived>::Jintegrate(
+  template <class Config_t, class Tangent_t, class JacobianOut_t>
+  void LieGroupOperationBase<Derived>::dIntegrate_dq(
+      const Eigen::MatrixBase<Config_t >  & q,
       const Eigen::MatrixBase<Tangent_t>  & v,
       const Eigen::MatrixBase<JacobianOut_t>& J) const
   {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(JacobianOut_t, JacobianMatrix_t);
-    derived().Jintegrate_impl(v, J);
+    derived().dIntegrate_dq_impl(q, v, J);
+  }
+
+  template <class Derived>
+  template <class Config_t, class Tangent_t, class JacobianOut_t>
+  void LieGroupOperationBase<Derived>::dIntegrate_dv(
+      const Eigen::MatrixBase<Config_t >  & q,
+      const Eigen::MatrixBase<Tangent_t>  & v,
+      const Eigen::MatrixBase<JacobianOut_t>& J) const
+  {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(JacobianOut_t, JacobianMatrix_t);
+    derived().dIntegrate_dv_impl(q, v, J);
   }
 
   /**

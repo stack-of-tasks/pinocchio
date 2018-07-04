@@ -150,9 +150,19 @@ namespace se3
       out *= (3 - norm2) / 2;
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  &,
-                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & /*v*/,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      Jout(0,0) = 1;
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & /*v*/,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
     {
       JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
       Jout(0,0) = 1;
@@ -302,12 +312,21 @@ namespace se3
       firstOrderNormalize(quaternion_result);
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  & v,
-                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & v,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
     {
       JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
       Jout = exp3(v).transpose();
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & v,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      Jexp3 (v, J.derived());
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
