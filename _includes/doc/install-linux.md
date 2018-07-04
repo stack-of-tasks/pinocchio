@@ -23,16 +23,16 @@ Otherwise, go directly to instruction 5. Those instructions are similar to the i
 
 ```
 $ lsb_release -c
-Codename:       trusty
+Codename:       xenial
 ```
 
 2. Add robotpkg as source repository to apt:
 
 ```
-sudo sh -c "echo 'deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub trusty robotpkg' >> /etc/apt/sources.list.d/robotpkg.list"
+sudo sh -c "echo 'deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub xenial robotpkg' >> /etc/apt/sources.list.d/robotpkg.list"
 ```
 
-You may need to change trusty according to your current distribution codename.
+You may need to change xenial according to your current distribution codename.
 
 3. Register the authentication certificate of robotpkg:
 
