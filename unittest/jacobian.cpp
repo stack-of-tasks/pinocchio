@@ -48,11 +48,11 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   se3::Data data(model);
 
   VectorXd q = VectorXd::Zero(model.nq);
-  computeJacobians(model,data,q);
+  computeJointJacobians(model,data,q);
 
   Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.njoints-1); 
   Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
-  getJacobian<WORLD>(model,data,idx,Jrh);
+  getJointJacobian<WORLD>(model,data,idx,Jrh);
 
    /* Test J*q == v */
   VectorXd qdot = VectorXd::Random(model.nv);
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 
   /* Test local jacobian: rhJrh == rhXo oJrh */ 
   Data::Matrix6x rhJrh(6,model.nv); rhJrh.fill(0);
-  getJacobian<LOCAL>(model,data,idx,rhJrh);
+  getJointJacobian<LOCAL>(model,data,idx,rhJrh);
   Data::Matrix6x XJrh(6,model.nv); 
   motionSet::se3Action( data.oMi[idx].inverse(), Jrh,XJrh );
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
@@ -72,10 +72,10 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   jacobian(model,data,q,idx,XJrh);
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
   
-  /* Test computeJacobians with pre-computation of the forward kinematics */
+  /* Test computeJointJacobians with pre-computation of the forward kinematics */
   Data data_fk(model);
   forwardKinematics(model, data_fk, q);
-  computeJacobians(model, data_fk);
+  computeJointJacobians(model, data_fk);
   
   BOOST_CHECK(data_fk.J.isApprox(data.J));
 
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd a = VectorXd::Random(model.nv);
   
-  computeJacobiansTimeVariation(model,data,q,v);
+  computeJointJacobiansTimeVariation(model,data,q,v);
   
   BOOST_CHECK(isFinite(data.dJ));
   
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
   
   // Regarding to the world origin
-  getJacobian<WORLD>(model,data,idx,J);
-  getJacobianTimeVariation<WORLD>(model,data,idx,dJ);
+  getJointJacobian<WORLD>(model,data,idx,J);
+  getJointJacobianTimeVariation<WORLD>(model,data,idx,dJ);
   
   Motion v_idx(J*v);
   BOOST_CHECK(v_idx.isApprox(data_ref.oMi[idx].act(data_ref.v[idx])));
@@ -118,8 +118,8 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   
   
   // Regarding to the local frame
-  getJacobian<LOCAL>(model,data,idx,J);
-  getJacobianTimeVariation<LOCAL>(model,data,idx,dJ);
+  getJointJacobian<LOCAL>(model,data,idx,J);
+  getJointJacobianTimeVariation<LOCAL>(model,data,idx,dJ);
   
   v_idx = (Motion::Vector6)(J*v);
   BOOST_CHECK(v_idx.isApprox(data_ref.v[idx]));
@@ -136,19 +136,19 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
     q_plus = integrate(model,q,alpha*v);
     
     Data::Matrix6x J_ref(6,model.nv); J_ref.fill(0.);
-    computeJacobians(model,data_ref,q);
-    getJacobian<WORLD>(model,data_ref,idx,J_ref);
+    computeJointJacobians(model,data_ref,q);
+    getJointJacobian<WORLD>(model,data_ref,idx,J_ref);
     
     Data::Matrix6x J_ref_plus(6,model.nv); J_ref_plus.fill(0.);
-    computeJacobians(model,data_ref_plus,q_plus);
-    getJacobian<WORLD>(model,data_ref_plus,idx,J_ref_plus);
+    computeJointJacobians(model,data_ref_plus,q_plus);
+    getJointJacobian<WORLD>(model,data_ref_plus,idx,J_ref_plus);
     
     Data::Matrix6x dJ_ref(6,model.nv); dJ_ref.fill(0.);
     dJ_ref = (J_ref_plus - J_ref)/alpha;
     
-    computeJacobiansTimeVariation(model,data,q,v);
+    computeJointJacobiansTimeVariation(model,data,q,v);
     Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
-    getJacobianTimeVariation<WORLD>(model,data,idx,dJ);
+    getJointJacobianTimeVariation<WORLD>(model,data,idx,dJ);
     
     BOOST_CHECK(dJ.isApprox(dJ_ref,sqrt(alpha)));
   }
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     timer.tic();
     SMOOTH(NBT)
     {
-      computeJacobians(model,data,q);
+      computeJointJacobians(model,data,q);
     }
     if(verbose) std::cout << "Compute =\t";
     timer.toc(std::cout,NBT);
@@ -195,14 +195,14 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 
   if( flag >> 1 & 1 )
   {
-    computeJacobians(model,data,q);
+    computeJointJacobians(model,data,q);
     Model::Index idx = model.existJointName("rarm6")?model.getJointId("rarm6"):(Model::Index)(model.njoints-1); 
     Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
 
     timer.tic();
     SMOOTH(NBT)
     {
-      getJacobian<WORLD>(model,data,idx,Jrh);
+      getJointJacobian<WORLD>(model,data,idx,Jrh);
     }
     if(verbose) std::cout << "Copy =\t";
     timer.toc(std::cout,NBT);
@@ -210,14 +210,14 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   
   if( flag >> 2 & 1 )
   {
-    computeJacobians(model,data,q);
+    computeJointJacobians(model,data,q);
     Model::Index idx = model.existJointName("rarm6")?model.getJointId("rarm6"):(Model::Index)(model.njoints-1); 
     Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
 
     timer.tic();
     SMOOTH(NBT)
     {
-      getJacobian<LOCAL>(model,data,idx,Jrh);
+      getJointJacobian<LOCAL>(model,data,idx,Jrh);
     }
     if(verbose) std::cout << "Change frame =\t";
     timer.toc(std::cout,NBT);
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   
   if( flag >> 3 & 1 )
   {
-    computeJacobians(model,data,q);
+    computeJointJacobians(model,data,q);
     Model::Index idx = model.existJointName("rarm6")?model.getJointId("rarm6"):(Model::Index)(model.njoints-1); 
     Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
 

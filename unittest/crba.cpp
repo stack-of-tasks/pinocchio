@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(test_minimal_crba)
   BOOST_CHECK(data.M.isApprox(data_ref.M));
   
   ccrba(model,data_ref,q,v);
-  computeJacobians(model,data_ref,q);
+  computeJointJacobians(model,data_ref,q);
   BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
   BOOST_CHECK(data.J.isApprox(data_ref.J));
   

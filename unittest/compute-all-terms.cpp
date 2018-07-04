@@ -60,8 +60,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
 
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
-  computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
+  computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);
@@ -90,8 +90,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
 
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
-  computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
+  computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);
@@ -121,8 +121,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
 
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
-  computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
+  computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);
@@ -152,8 +152,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
 
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
-  computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
+  computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);

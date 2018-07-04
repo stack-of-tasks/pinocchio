@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   Data::Matrix6x Jjj(6,model.nv); Jjj.fill(0);
   Data::Matrix6x Jff(6,model.nv); Jff.fill(0);
   getFrameJacobian(model,data,idx,Jff);
-  getJacobian<LOCAL>(model, data_ref, parent_idx, Jjj);
+  getJointJacobian<LOCAL>(model, data_ref, parent_idx, Jjj);
 
   Motion nu_frame = Motion(Jff*q_dot);
   Motion nu_joint = Motion(Jjj*q_dot);
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   
   // In world frame
   getFrameJacobian<WORLD>(model,data,idx,Jff);
-  getJacobian<WORLD>(model, data_ref, parent_idx, Jjj);
+  getJointJacobian<WORLD>(model, data_ref, parent_idx, Jjj);
   BOOST_CHECK(Jff.isApprox(Jjj));
 }
 

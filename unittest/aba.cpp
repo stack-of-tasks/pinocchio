@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   container::aligned_vector<Force> fext(model.joints.size(), Force::Random());
   
   crba(model, data, q);
-  computeJacobians(model, data, q);
+  computeJointJacobians(model, data, q);
   nonLinearEffects(model, data, q, v);
   data.M.triangularView<Eigen::StrictlyLower>()
   = data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   VectorXd tau = data.M * a + data.nle;
   Data::Matrix6x J = Data::Matrix6x::Zero(6, model.nv);
   for(Model::Index i=1;i<(Model::Index)model.njoints;++i) {
-    getJacobian<LOCAL>(model, data, i, J);
+    getJointJacobian<LOCAL>(model, data, i, J);
     tau -= J.transpose()*fext[i].toVector();
     J.setZero();
   }

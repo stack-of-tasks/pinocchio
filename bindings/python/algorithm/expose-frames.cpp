@@ -43,7 +43,7 @@ namespace se3
                                                const bool local,
                                                const Eigen::VectorXd & q)
     {
-      computeJacobians(model,data,q);
+      computeJointJacobians(model,data,q);
       framesForwardKinematics(model,data);
   
       return frame_jacobian_proxy(model, data, frame_id, local);
@@ -85,7 +85,7 @@ namespace se3
               "The columns of the Jacobian are expressed in the frame coordinates.\n"
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
               "where v is the time derivative of the configuration q.\n"
-              "Be aware that computeJacobians and framesKinematics must have been called first.");
+              "Be aware that computeJointJacobians and framesKinematics must have been called first.");
       
     }
   } // namespace python

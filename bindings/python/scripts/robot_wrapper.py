@@ -16,6 +16,8 @@
 
 from . import libpinocchio_pywrap as se3
 from . import utils
+from .deprecation import deprecated
+
 import time
 import os
 
@@ -171,8 +173,12 @@ class RobotWrapper(object):
     def jacobian(self, q, index, update_kinematics=True, local_frame=True):
         return se3.jacobian(self.model, self.data, q, index, local_frame, update_kinematics)
 
+    @deprecated("This method is now deprecated. Please use computeJointJacobians instead.")
     def computeJacobians(self, q):
-        return se3.computeJacobians(self.model, self.data, q)
+        return se3.computeJointJacobians(self.model, self.data, q)
+
+    def computeJointJacobians(self, q):
+        return se3.computeJointJacobians(self.model, self.data, q)
 
     def updateGeometryPlacements(self, q=None, visual=False):
         if visual:
@@ -191,7 +197,7 @@ class RobotWrapper(object):
     def framesKinematics(self, q): 
         se3.framesKinematics(self.model, self.data, q)
     
-    ''' Call computeJacobians if update_geometry is true. If not, user should call computeJacobians first.
+    ''' Call computeJointJacobians if update_geometry is true. If not, user should call computeJointJacobians first.
     Then call getJacobian and return the resulted jacobian matrix. Attention: if update_geometry is true, 
     the function computes all the jacobians of the model. It is therefore outrageously costly wrt a 
     dedicated call. Use only with update_geometry for prototyping.

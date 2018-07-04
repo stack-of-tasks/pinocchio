@@ -68,7 +68,7 @@ namespace se3
     const Model::JointIndex & joint_id = frame.parent;
     if (rf == WORLD)
     {
-      getJacobian<WORLD>(model,data,joint_id,J);
+      getJointJacobian<WORLD>(model,data,joint_id,J);
       return;
     }
     
