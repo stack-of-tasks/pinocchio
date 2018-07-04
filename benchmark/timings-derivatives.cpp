@@ -21,6 +21,8 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/aba.hpp"
@@ -169,6 +171,7 @@ int main(int argc, const char ** argv)
   container::aligned_vector<VectorXd> qdots  (NBT);
   container::aligned_vector<VectorXd> qddots (NBT);
   container::aligned_vector<VectorXd> taus (NBT);
+  
   for(size_t i=0;i<NBT;++i)
   {
     qs[i]     = Eigen::VectorXd::Random(model.nq);
@@ -185,6 +188,20 @@ int main(int argc, const char ** argv)
   MatrixXd daba_dq(MatrixXd::Zero(model.nv,model.nv));
   MatrixXd daba_dv(MatrixXd::Zero(model.nv,model.nv));
   Data::RowMatrixXd daba_dtau(Data::RowMatrixXd::Zero(model.nv,model.nv));
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    forwardKinematics(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth]);
+  }
+  std::cout << "FK= \t\t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    computeForwardKinematicsDerivatives(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth]);
+  }
+  std::cout << "FK derivatives= \t\t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
