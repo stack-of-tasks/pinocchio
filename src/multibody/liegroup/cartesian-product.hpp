@@ -188,20 +188,30 @@ namespace se3
     LieGroup1 lg1_;
     LieGroup2 lg2_;
 
-    template <typename Config > typename Config ::template ConstFixedSegmentReturnType<LieGroup1::NQ>::Type Q1 (const Eigen::MatrixBase<Config >& q) const { return q.derived().template head<LieGroup1::NQ>(lg1_.nq()); }
-    template <typename Config > typename Config ::template ConstFixedSegmentReturnType<LieGroup2::NQ>::Type Q2 (const Eigen::MatrixBase<Config >& q) const { return q.derived().template tail<LieGroup2::NQ>(lg2_.nq()); }
-    template <typename Tangent> typename Tangent::template ConstFixedSegmentReturnType<LieGroup1::NV>::Type V1 (const Eigen::MatrixBase<Tangent>& v) const { return v.derived().template head<LieGroup1::NV>(lg1_.nv()); }
-    template <typename Tangent> typename Tangent::template ConstFixedSegmentReturnType<LieGroup2::NV>::Type V2 (const Eigen::MatrixBase<Tangent>& v) const { return v.derived().template tail<LieGroup2::NV>(lg2_.nv()); }
+    // VectorSpaceOperation<-1> within CartesianProductOperation will not work
+    // if Eigen version is lower than 3.2.1
+#if EIGEN_VERSION_AT_LEAST(3,2,1)
+# define REMOVE_IF_EIGEN_TOO_LOW(x) x
+#else
+# define REMOVE_IF_EIGEN_TOO_LOW(x)
+#endif
 
-    template <typename Config > typename Config ::template      FixedSegmentReturnType<LieGroup1::NQ>::Type Qo1 (const Eigen::MatrixBase<Config >& q) const { return const_cast<Config &>(q.derived()).template head<LieGroup1::NQ>(lg1_.nq()); }
-    template <typename Config > typename Config ::template      FixedSegmentReturnType<LieGroup2::NQ>::Type Qo2 (const Eigen::MatrixBase<Config >& q) const { return const_cast<Config &>(q.derived()).template tail<LieGroup2::NQ>(lg2_.nq()); }
-    template <typename Tangent> typename Tangent::template      FixedSegmentReturnType<LieGroup1::NV>::Type Vo1 (const Eigen::MatrixBase<Tangent>& v) const { return const_cast<Tangent&>(v.derived()).template head<LieGroup1::NV>(lg1_.nv()); }
-    template <typename Tangent> typename Tangent::template      FixedSegmentReturnType<LieGroup2::NV>::Type Vo2 (const Eigen::MatrixBase<Tangent>& v) const { return const_cast<Tangent&>(v.derived()).template tail<LieGroup2::NV>(lg2_.nv()); }
+    template <typename Config > typename Config ::template ConstFixedSegmentReturnType<LieGroup1::NQ>::Type Q1 (const Eigen::MatrixBase<Config >& q) const { return q.derived().template head<LieGroup1::NQ>(REMOVE_IF_EIGEN_TOO_LOW(lg1_.nq())); }
+    template <typename Config > typename Config ::template ConstFixedSegmentReturnType<LieGroup2::NQ>::Type Q2 (const Eigen::MatrixBase<Config >& q) const { return q.derived().template tail<LieGroup2::NQ>(REMOVE_IF_EIGEN_TOO_LOW(lg2_.nq())); }
+    template <typename Tangent> typename Tangent::template ConstFixedSegmentReturnType<LieGroup1::NV>::Type V1 (const Eigen::MatrixBase<Tangent>& v) const { return v.derived().template head<LieGroup1::NV>(REMOVE_IF_EIGEN_TOO_LOW(lg1_.nv())); }
+    template <typename Tangent> typename Tangent::template ConstFixedSegmentReturnType<LieGroup2::NV>::Type V2 (const Eigen::MatrixBase<Tangent>& v) const { return v.derived().template tail<LieGroup2::NV>(REMOVE_IF_EIGEN_TOO_LOW(lg2_.nv())); }
+
+    template <typename Config > typename Config ::template      FixedSegmentReturnType<LieGroup1::NQ>::Type Qo1 (const Eigen::MatrixBase<Config >& q) const { return const_cast<Config &>(q.derived()).template head<LieGroup1::NQ>(REMOVE_IF_EIGEN_TOO_LOW(lg1_.nq())); }
+    template <typename Config > typename Config ::template      FixedSegmentReturnType<LieGroup2::NQ>::Type Qo2 (const Eigen::MatrixBase<Config >& q) const { return const_cast<Config &>(q.derived()).template tail<LieGroup2::NQ>(REMOVE_IF_EIGEN_TOO_LOW(lg2_.nq())); }
+    template <typename Tangent> typename Tangent::template      FixedSegmentReturnType<LieGroup1::NV>::Type Vo1 (const Eigen::MatrixBase<Tangent>& v) const { return const_cast<Tangent&>(v.derived()).template head<LieGroup1::NV>(REMOVE_IF_EIGEN_TOO_LOW(lg1_.nv())); }
+    template <typename Tangent> typename Tangent::template      FixedSegmentReturnType<LieGroup2::NV>::Type Vo2 (const Eigen::MatrixBase<Tangent>& v) const { return const_cast<Tangent&>(v.derived()).template tail<LieGroup2::NV>(REMOVE_IF_EIGEN_TOO_LOW(lg2_.nv())); }
 
     template <typename Jac> Eigen::Block<Jac, LieGroup1::NV, LieGroup1::NV> J11 (const Eigen::MatrixBase<Jac>& J) const { return const_cast<Jac&>(J.derived()).template     topLeftCorner<LieGroup1::NV, LieGroup1::NV>(lg1_.nv(),lg1_.nv()); }
     template <typename Jac> Eigen::Block<Jac, LieGroup1::NV, LieGroup2::NV> J12 (const Eigen::MatrixBase<Jac>& J) const { return const_cast<Jac&>(J.derived()).template    topRightCorner<LieGroup1::NV, LieGroup2::NV>(lg1_.nv(),lg2_.nv()); }
     template <typename Jac> Eigen::Block<Jac, LieGroup2::NV, LieGroup1::NV> J21 (const Eigen::MatrixBase<Jac>& J) const { return const_cast<Jac&>(J.derived()).template  bottomLeftCorner<LieGroup2::NV, LieGroup1::NV>(lg2_.nv(),lg1_.nv()); }
     template <typename Jac> Eigen::Block<Jac, LieGroup2::NV, LieGroup2::NV> J22 (const Eigen::MatrixBase<Jac>& J) const { return const_cast<Jac&>(J.derived()).template bottomRightCorner<LieGroup2::NV, LieGroup2::NV>(lg2_.nv(),lg2_.nv()); }
+#undef REMOVE_IF_EIGEN_TOO_LOW
+
   }; // struct CartesianProductOperation
 
 } // namespace se3
