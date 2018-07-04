@@ -50,11 +50,11 @@ namespace se3
   /**
    * @brief      Returns the jacobian of the frame expresssed either expressed in the LOCAL frame coordinate system or in the WORLD coordinate system,
    *             depending on the value of the template parameter rf.
-   *             You must first call se3::computeJacobians followed by se3::framesForwardKinematics to update placement values in data structure.
+   *             You must first call se3::computeJointJacobians followed by se3::framesForwardKinematics to update placement values in data structure.
    *
    * @tparam     rf Reference frame in which the columns of the Jacobian are expressed.
    
-   * @remark     Similarly to se3::getJacobian with LOCAL or WORLD templated parameters, if rf == LOCAL, this function returns the Jacobian of the frame expressed
+   * @remark     Similarly to se3::getJointJacobian with LOCAL or WORLD templated parameters, if rf == LOCAL, this function returns the Jacobian of the frame expressed
    *             in the local coordinates of the frame, or if rl == WORDL, it returns the Jacobian expressed of the point coincident with the origin
    *             and expressed in a coordinate system aligned with the WORLD.
    *
@@ -63,7 +63,7 @@ namespace se3
    * @param[in]  frame_id    Id of the operational Frame
    * @param[out] J           The Jacobian of the Frame expressed in the coordinates Frame.
    *
-   * @warning    The function se3::computeJacobians and se3::framesForwardKinematics should have been called first.
+   * @warning    The function se3::computeJointJacobians and se3::framesForwardKinematics should have been called first.
    */
   template<ReferenceFrame rf>
   void getFrameJacobian(const Model & model,
@@ -73,14 +73,14 @@ namespace se3
   
   /**
    * @brief      Returns the jacobian of the frame expresssed the LOCAL frame coordinate system.
-   *             You must first call se3::computeJacobians followed by se3::framesForwardKinematics to update placement values in data structure.
+   *             You must first call se3::computeJointJacobians followed by se3::framesForwardKinematics to update placement values in data structure.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
    * @param[out] J           The Jacobian of the Frame expressed in the coordinates Frame.
    *
-   * @warning    The function se3::computeJacobians and se3::framesForwardKinematics should have been called first.
+   * @warning    The function se3::computeJointJacobians and se3::framesForwardKinematics should have been called first.
    */
    
   inline void getFrameJacobian(const Model & model,

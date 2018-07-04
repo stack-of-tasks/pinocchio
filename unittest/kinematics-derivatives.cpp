@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -58,10 +58,10 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_all)
     BOOST_CHECK(data.oa[i].isApprox(data_ref.oMi[i].act(data_ref.a[i])));
   }
   
-  computeJacobians(model,data_ref,q);
+  computeJointJacobians(model,data_ref,q);
   BOOST_CHECK(data.J.isApprox(data_ref.J));
   
-  computeJacobiansTimeVariation(model, data_ref, q, v);
+  computeJointJacobiansTimeVariation(model, data_ref, q, v);
   BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
 }
 
@@ -97,9 +97,9 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_velocity)
   
   Data::Matrix6x J_ref(6,model.nv); J_ref.setZero();
   Data::Matrix6x J_ref_local(6,model.nv); J_ref_local.setZero();
-  computeJacobians(model,data_ref,q);
-  getJacobian<WORLD>(model,data_ref,jointId,J_ref);
-  getJacobian<LOCAL>(model,data_ref,jointId,J_ref_local);
+  computeJointJacobians(model,data_ref,q);
+  getJointJacobian<WORLD>(model,data_ref,jointId,J_ref);
+  getJointJacobian<LOCAL>(model,data_ref,jointId,J_ref_local);
   
   BOOST_CHECK(partial_dv.isApprox(J_ref));
   BOOST_CHECK(partial_dv_local.isApprox(J_ref_local));
@@ -151,9 +151,9 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_velocity)
   
   BOOST_CHECK(partial_dq_local.isApprox(partial_dq_fd_local,sqrt(alpha)));
   
-//  computeJacobiansTimeVariation(model,data_ref,q,v);
+//  computeJointJacobiansTimeVariation(model,data_ref,q,v);
 //  Data::Matrix6x dJ_ref(6,model.nv); dJ_ref.setZero();
-//  getJacobianTimeVariation<WORLD>(model,data_ref,jointId,dJ_ref);
+//  getJointJacobianTimeVariation<WORLD>(model,data_ref,jointId,dJ_ref);
 //  BOOST_CHECK(partial_dq.isApprox(dJ_ref));
 //  
 //  std::cout << "partial_dq\n" << partial_dq << std::endl;
@@ -220,9 +220,9 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   
   Data::Matrix6x J_ref(6,model.nv); J_ref.setZero();
   Data::Matrix6x J_ref_local(6,model.nv); J_ref_local.setZero();
-  computeJacobians(model,data_ref,q);
-  getJacobian<WORLD>(model,data_ref,jointId,J_ref);
-  getJacobian<LOCAL>(model,data_ref,jointId,J_ref_local);
+  computeJointJacobians(model,data_ref,q);
+  getJointJacobian<WORLD>(model,data_ref,jointId,J_ref);
+  getJointJacobian<LOCAL>(model,data_ref,jointId,J_ref_local);
   
   BOOST_CHECK(a_partial_da.isApprox(J_ref));
   BOOST_CHECK(a_partial_da_local.isApprox(J_ref_local));

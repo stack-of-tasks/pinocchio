@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   VectorXd q = VectorXd::Ones(model.nq);
   q.segment <4> (3).normalize();
   
-  se3::computeJacobians(model, data, q);
+  se3::computeJointJacobians(model, data, q);
   
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
@@ -52,10 +52,10 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
   Data::Matrix6x J_LF (6, model.nv);
   J_LF.setZero();
-  getJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
+  getJointJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE ( test_ID )
   VectorXd q = VectorXd::Ones(model.nq);
   q.segment <4> (3).normalize();
   
-  se3::computeJacobians(model, data, q);
+  se3::computeJointJacobians(model, data, q);
   
   VectorXd v_before = VectorXd::Ones(model.nv);
   
@@ -114,10 +114,10 @@ BOOST_AUTO_TEST_CASE ( test_ID )
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
   Data::Matrix6x J_LF (6, model.nv);
   J_LF.setZero();
-  getJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
+  getJointJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   VectorXd q = VectorXd::Ones(model.nq);
   q.segment <4> (3).normalize();
   
-  se3::computeJacobians(model, data, q);
+  se3::computeJointJacobians(model, data, q);
   
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
@@ -185,9 +185,9 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   const std::string LF = "lleg6_joint";
   
   Data::Matrix6x J_RF (6, model.nv);
-  getJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
   Data::Matrix6x J_LF (6, model.nv);
-  getJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
+  getJointJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.topRows<6> () = J_RF;

@@ -114,7 +114,7 @@ namespace se3
   
   ///
   /// \brief Computes both the jacobian and the the center of mass position of a given model according to a particular joint configuration.
-  ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame. In addition, the algorithm also computes the Jacobian of all the joints (\sa se3::computeJacobians).
+  ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame. In addition, the algorithm also computes the Jacobian of all the joints (\sa se3::computeJointJacobians).
   ///        And data.com[i] gives the center of mass of the subtree supported by joint i (expressed in the world frame).
   ///
   /// \param[in] model The model structure of the rigid body system.

@@ -34,10 +34,10 @@ namespace se3
       Data::Matrix6x J(6,model.nv); J.setZero();
       
       if (update_kinematics)
-        computeJacobians(model,data,q);
+        computeJointJacobians(model,data,q);
       
-      if(local) getJacobian<LOCAL> (model,data,jointId,J);
-      else getJacobian<WORLD> (model,data,jointId,J);
+      if(local) getJointJacobian<LOCAL>(model,data,jointId,J);
+      else getJointJacobian<WORLD>(model,data,jointId,J);
       
       return J;
     }
@@ -50,8 +50,8 @@ namespace se3
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
       
-      if(local) getJacobian<LOCAL> (model,data,jointId,J);
-      else getJacobian<WORLD> (model,data,jointId,J);
+      if(local) getJointJacobian<LOCAL>(model,data,jointId,J);
+      else getJointJacobian<WORLD>(model,data,jointId,J);
       
       return J;
     }
@@ -64,23 +64,22 @@ namespace se3
     {
       Data::Matrix6x dJ(6,model.nv); dJ.setZero();
       
-      
-      if(local) getJacobianTimeVariation<LOCAL> (model,data,jointId,dJ);
-      else getJacobianTimeVariation<WORLD> (model,data,jointId,dJ);
+      if(local) getJointJacobianTimeVariation<LOCAL>(model,data,jointId,dJ);
+      else getJointJacobianTimeVariation<WORLD>(model,data,jointId,dJ);
       
       return dJ;
     }
   
     void exposeJacobian()
     {
-      bp::def("computeJacobians",(const Data::Matrix6x &(*)(const Model &, Data &, const Eigen::VectorXd &))&computeJacobians,
+      bp::def("computeJacobians",(const Data::Matrix6x &(*)(const Model &, Data &, const Eigen::VectorXd &))&computeJointJacobians,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)"),
               "Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.\n"
               "The result is accessible through data.J. This function computes also the forwardKinematics of the model.",
               bp::return_value_policy<bp::return_by_value>());
       
-      bp::def("computeJacobians",(const Data::Matrix6x &(*)(const Model &, Data &))&computeJacobians,
+      bp::def("computeJacobians",(const Data::Matrix6x &(*)(const Model &, Data &))&computeJointJacobians,
               bp::args("Model","Data"),
               "Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.\n"
               "The result is accessible through data.J. This function assumes that forwardKinematics has been called before",
@@ -96,7 +95,7 @@ namespace se3
               "Computes the jacobian of a given given joint according to the given input configuration."
               "If local is set to true, it returns the jacobian associated to the joint frame. Otherwise, it returns the jacobian of the frame coinciding with the world frame.");
       
-      bp::def("getJacobian",get_jacobian_proxy,
+      bp::def("getJointJacobian",get_jacobian_proxy,
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
                        "Joint ID, the index of the joint.",
@@ -104,20 +103,21 @@ namespace se3
               "Computes the jacobian of a given given joint according to the given entries in data."
               "If local is set to true, it returns the jacobian associated to the joint frame. Otherwise, it returns the jacobian of the frame coinciding with the world frame.");
       
-      bp::def("computeJacobiansTimeVariation",computeJacobiansTimeVariation,
+      bp::def("computeJacobiansTimeVariation",computeJointJacobiansTimeVariation,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),
-              "Calling computeJacobiansTimeVariation",
+              "Computes the full model Jacobian variations with respect to time. It corresponds to dJ/dt which depends both on q and v."
+              "The result is accessible through data.dJ.",
               bp::return_value_policy<bp::return_by_value>());
       
-      bp::def("getJacobianTimeVariation",get_jacobian_time_variation_proxy,
+      bp::def("getJointJacobianTimeVariation",get_jacobian_time_variation_proxy,
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
                        "Joint ID, the index of the joint.",
                        "frame (true = local, false = world)"),
               "Computes the Jacobian time variation of a specific joint frame expressed either in the world frame or in the local frame of the joint."
-              "You have to run computeJacobiansTimeVariation first."
+              "You have to call computeJointJacobiansTimeVariation first."
               "If local is set to true, it returns the jacobian time variation associated to the joint frame. Otherwise, it returns the jacobian time variation of the frame coinciding with the world frame.");
     }
     

@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
     
     model.gravity.setZero();
     rnea(model,data_ref,q,v,VectorXd::Zero(model.nv));
-    computeJacobiansTimeVariation(model,data_ref,q,v);
+    computeJointJacobiansTimeVariation(model,data_ref,q,v);
     computeCoriolisMatrix(model,data,q,v);
 
     BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));

@@ -151,14 +151,14 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
     {
-      computeJacobians(model,data,qs[_smooth]);
+      computeJointJacobians(model,data,qs[_smooth]);
     }
   std::cout << "Jacobian = \t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
   {
-    computeJacobiansTimeVariation(model,data,qs[_smooth],qdots[_smooth]);
+    computeJointJacobiansTimeVariation(model,data,qs[_smooth],qdots[_smooth]);
   }
   std::cout << "Jacobian Time Variation = \t"; timer.toc(std::cout,NBT);
 

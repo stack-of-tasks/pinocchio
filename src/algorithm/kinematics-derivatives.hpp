@@ -33,7 +33,7 @@ namespace se3
   /// \param[in] q The joint configuration (vector dim model.nq).
   /// \param[in] v The joint velocity (vector dim model.nv).
   ///
-  /// \remarks This function is similar to do a forwardKinematics(model,data,q,v) followed by a computeJacobians(model,data,q).
+  /// \remarks This function is similar to do a forwardKinematics(model,data,q,v) followed by a computeJointJacobians(model,data,q).
   ///          In addition, it computes the spatial velocity of the joint expressed in the world frame (see data.ov).
   ///
   inline void computeForwardKinematicsDerivatives(const Model & model,

@@ -25,14 +25,14 @@
 
 namespace se3
 {
-  struct JacobiansForwardStep : public fusion::JointVisitor<JacobiansForwardStep>
+  struct JointJacobiansForwardStep : public fusion::JointVisitor<JointJacobiansForwardStep>
   {
     typedef boost::fusion::vector <const se3::Model &,
                                    se3::Data &,
                                    const Eigen::VectorXd &
                                    > ArgsType;
     
-    JOINT_VISITOR_INIT(JacobiansForwardStep);
+    JOINT_VISITOR_INIT(JointJacobiansForwardStep);
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -56,25 +56,25 @@ namespace se3
   };
   
   inline const Data::Matrix6x &
-  computeJacobians(const Model & model, Data & data,
-                   const Eigen::VectorXd & q)
+  computeJointJacobians(const Model & model, Data & data,
+                        const Eigen::VectorXd & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
     for( Model::JointIndex i=1; i< (Model::JointIndex) model.njoints;++i )
     {
-      JacobiansForwardStep::run(model.joints[i],data.joints[i],
-                                JacobiansForwardStep::ArgsType(model,data,q));
+      JointJacobiansForwardStep::run(model.joints[i],data.joints[i],
+                                JointJacobiansForwardStep::ArgsType(model,data,q));
     }
   
     return data.J;
   }
   
-  struct JacobiansForwardStep2 : public fusion::JointVisitor<JacobiansForwardStep2>
+  struct JointJacobiansForwardStep2 : public fusion::JointVisitor<JointJacobiansForwardStep2>
   {
     typedef boost::fusion::vector<se3::Data &> ArgsType;
     
-    JOINT_VISITOR_INIT(JacobiansForwardStep2);
+    JOINT_VISITOR_INIT(JointJacobiansForwardStep2);
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -89,14 +89,14 @@ namespace se3
   };
   
   inline const Data::Matrix6x &
-  computeJacobians(const Model & model, Data & data)
+  computeJointJacobians(const Model & model, Data & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
     for( Model::JointIndex i=1; i< (Model::JointIndex) model.njoints;++i )
     {
-      JacobiansForwardStep2::run(model.joints[i],data.joints[i],
-                                 JacobiansForwardStep2::ArgsType(data));
+      JointJacobiansForwardStep2::run(model.joints[i],data.joints[i],
+                                 JointJacobiansForwardStep2::ArgsType(data));
     }
     
     return data.J;
@@ -106,7 +106,7 @@ namespace se3
    world frame or in the local frame depending on the template argument. The
    function computeJacobians should have been called first. */
   template<ReferenceFrame rf>
-  void getJacobian(const Model & model,
+  void getJointJacobian(const Model & model,
                    const Data & data,
                    const Model::JointIndex jointId,
                    Data::Matrix6x & J)
@@ -125,7 +125,7 @@ namespace se3
   }
   
   
-  struct JacobianForwardStep : public fusion::JointVisitor<JacobianForwardStep>
+  struct JointJacobianForwardStep : public fusion::JointVisitor<JointJacobianForwardStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
@@ -133,7 +133,7 @@ namespace se3
                                   se3::Data::Matrix6x &
                                   > ArgsType;
     
-    JOINT_VISITOR_INIT(JacobianForwardStep);
+    JOINT_VISITOR_INIT(JointJacobianForwardStep);
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -156,22 +156,22 @@ namespace se3
   
   };
   
-  inline void jacobian(const Model & model, Data & data,
-                       const Eigen::VectorXd & q,
-                       const Model::JointIndex jointId,
-                       Data::Matrix6x & J)
+  inline void jointJacobian(const Model & model, Data & data,
+                            const Eigen::VectorXd & q,
+                            const Model::JointIndex jointId,
+                            Data::Matrix6x & J)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
     data.iMf[jointId].setIdentity();
     for( Model::JointIndex i=jointId;i>0;i=model.parents[i] )
     {
-      JacobianForwardStep::run(model.joints[i],data.joints[i],
-                               JacobianForwardStep::ArgsType(model,data,q,J));
+      JointJacobianForwardStep::run(model.joints[i],data.joints[i],
+                               JointJacobianForwardStep::ArgsType(model,data,q,J));
     }
   }
   
-  struct JacobiansTimeVariationForwardStep : public fusion::JointVisitor<JacobiansTimeVariationForwardStep>
+  struct JointJacobiansTimeVariationForwardStep : public fusion::JointVisitor<JointJacobiansTimeVariationForwardStep>
   {
     typedef boost::fusion::vector <const se3::Model &,
     se3::Data &,
@@ -179,7 +179,7 @@ namespace se3
     const Eigen::VectorXd &
     > ArgsType;
     
-    JOINT_VISITOR_INIT(JacobiansTimeVariationForwardStep);
+    JOINT_VISITOR_INIT(JointJacobiansTimeVariationForwardStep);
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -225,27 +225,27 @@ namespace se3
   };
   
   inline const Data::Matrix6x &
-  computeJacobiansTimeVariation(const Model & model,
-                                Data & data,
-                                const Eigen::VectorXd & q,
-                                const Eigen::VectorXd & v)
+  computeJointJacobiansTimeVariation(const Model & model,
+                                     Data & data,
+                                     const Eigen::VectorXd & q,
+                                     const Eigen::VectorXd & v)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
     for(Model::JointIndex i=1; i< (Model::JointIndex) model.njoints;++i)
     {
-      JacobiansTimeVariationForwardStep::run(model.joints[i],data.joints[i],
-                                             JacobiansTimeVariationForwardStep::ArgsType(model,data,q,v));
+      JointJacobiansTimeVariationForwardStep::run(model.joints[i],data.joints[i],
+                                             JointJacobiansTimeVariationForwardStep::ArgsType(model,data,q,v));
     }
     
     return data.dJ;
   }
   
   template<ReferenceFrame rf>
-  void getJacobianTimeVariation(const Model & model,
-                                const Data & data,
-                                const Model::JointIndex jointId,
-                                Data::Matrix6x & dJ)
+  void getJointJacobianTimeVariation(const Model & model,
+                                     const Data & data,
+                                     const Model::JointIndex jointId,
+                                     Data::Matrix6x & dJ)
   {
     assert( dJ.rows() == data.dJ.rows() );
     assert( dJ.cols() == data.dJ.cols() );

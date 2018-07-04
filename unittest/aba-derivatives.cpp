@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(test_aba)
     BOOST_CHECK(data.doYcrb[k].isApprox(data_ref.doYcrb[k]));
   }
   
-  computeJacobians(model,data_ref,q);
+  computeJointJacobians(model,data_ref,q);
   BOOST_CHECK(data.J.isApprox(data_ref.J));
   
   aba(model,data_ref,q,v,tau);
