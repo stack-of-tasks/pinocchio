@@ -24,23 +24,23 @@ from .deprecation import deprecated
 @deprecated("This function has been renamed computeJointJacobians and will be removed in release 1.4.0 of Pinocchio. Please change for new computeJacobians.")
 def computeJacobians(model,data,q=None):
   if q is None:
-    return computeJointJacobians(model,data)
+    return se3.computeJointJacobians(model,data)
   else:
-    return computeJointJacobians(model,data,q)
+    return se3.computeJointJacobians(model,data,q)
 
 @deprecated("This function has been renamed jointJacobian and will be removed in release 1.4.0 of Pinocchio. Please change for new jointJacobian.")
 def jacobian(model,data,q,jointId,local,update_kinematics):
   if local:
-    return jointJacobian(model,data,q,jointId,se3.ReferenceFrame.LOCAL,update_kinematics)
+    return se3.jointJacobian(model,data,q,jointId,se3.ReferenceFrame.LOCAL,update_kinematics)
   else:
-    return jointJacobian(model,data,q,jointId,se3.ReferenceFrame.WORLD,update_kinematics)
+    return se3.jointJacobian(model,data,q,jointId,se3.ReferenceFrame.WORLD,update_kinematics)
 
 @deprecated("This function has been renamed getJointJacobian and will be removed in release 1.4.0 of Pinocchio. Please change for new getJointJacobian.")
-def getJointJacobian(model,data,jointId,local):
+def getJacobian(model,data,jointId,local):
   if local:
-    return getJointJacobian(model,data,jointId,se3.ReferenceFrame.LOCAL)
+    return se3.getJointJacobian(model,data,jointId,se3.ReferenceFrame.LOCAL)
   else:
-    return getJointJacobian(model,data,jointId,se3.ReferenceFrame.WORLD)
+    return se3.getJointJacobian(model,data,jointId,se3.ReferenceFrame.WORLD)
 
 @deprecated("This function has been renamed computeJacobiansTimeVariation and will be removed in release 1.4.0 of Pinocchio. Please change for new computeJacobiansTimeVariation.")
 def computeJacobiansTimeVariation(model,data,q,v):
@@ -49,8 +49,8 @@ def computeJacobiansTimeVariation(model,data,q,v):
 @deprecated("This function has been renamed getJointJacobianTimeVariation and will be removed in release 1.4.0 of Pinocchio. Please change for new getJointJacobianTimeVariation.")
 def getJacobianTimeVariation(model,data,jointId,local):
   if local:
-    return getJointJacobianTimeVariation(model,data,jointId,se3.ReferenceFrame.LOCAL)
+    return se3.getJointJacobianTimeVariation(model,data,jointId,se3.ReferenceFrame.LOCAL)
   else:
-    return getJointJacobianTimeVariation(model,data,jointId,se3.ReferenceFrame.WORLD)
+    return se3.getJointJacobianTimeVariation(model,data,jointId,se3.ReferenceFrame.WORLD)
 
 
