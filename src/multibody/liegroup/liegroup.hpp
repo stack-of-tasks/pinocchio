@@ -27,28 +27,28 @@
 #include "pinocchio/multibody/joint/fwd.hpp"
 
 namespace se3 {
-  struct LieGroupTpl {
+  struct LieGroupMap {
     template<typename JointModel> struct operation {
       typedef VectorSpaceOperation<JointModel::NQ> type;
     };
   };
   template<typename JointModel>
   struct LieGroup {
-    typedef typename LieGroupTpl::operation<JointModel>::type type;
+    typedef typename LieGroupMap::operation<JointModel>::type type;
   };
 
-  template<> struct LieGroupTpl::operation <JointModelComposite> {};
-  template<> struct LieGroupTpl::operation <JointModelSpherical> {
+  template<> struct LieGroupMap::operation <JointModelComposite> {};
+  template<> struct LieGroupMap::operation <JointModelSpherical> {
     typedef SpecialOrthogonalOperation<3> type;
   };
-  template<> struct LieGroupTpl::operation <JointModelFreeFlyer> {
+  template<> struct LieGroupMap::operation <JointModelFreeFlyer> {
     typedef SpecialEuclideanOperation<3> type;
   };
-  template<> struct LieGroupTpl::operation <JointModelPlanar> {
+  template<> struct LieGroupMap::operation <JointModelPlanar> {
     typedef SpecialEuclideanOperation<2> type;
   };
   template<typename Scalar, int Options, int axis>
-  struct LieGroupTpl::operation <JointModelRevoluteUnboundedTpl<Scalar,Options,axis> > {
+  struct LieGroupMap::operation <JointModelRevoluteUnboundedTpl<Scalar,Options,axis> > {
     typedef SpecialOrthogonalOperation<2> type;
   };
 }
