@@ -28,7 +28,7 @@ namespace se3
 {
   
 #define SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,TYPENAME)               \
-  typedef          LieGroupOperationBase<Derived> Base;                        \
+  typedef          LieGroupBase<Derived> Base;                        \
   typedef TYPENAME Base::Index Index;                                          \
   typedef TYPENAME traits<Derived>::Scalar Scalar;                             \
   enum {                                                                       \
@@ -46,7 +46,7 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
 
   template<typename Derived>
-  struct LieGroupOperationBase
+  struct LieGroupBase
   {
     typedef Derived LieGroupDerived;
     typedef int Index;
@@ -289,13 +289,13 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     /// Default constructor.
     ///
     /// Prevent the construction of derived class.
-    LieGroupOperationBase() {}
+    LieGroupBase() {}
 
     /// Copy constructor
     ///
     /// Prevent the copy of derived class.
-    LieGroupOperationBase( const LieGroupOperationBase & /*clone*/) {}
-  }; // struct LieGroupOperationBase
+    LieGroupBase( const LieGroupBase & /*clone*/) {}
+  }; // struct LieGroupBase
 
 } // namespace se3
 

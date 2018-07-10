@@ -439,14 +439,14 @@ BOOST_AUTO_TEST_CASE(test_dim_computation)
 struct TestLieGroupVariantVisitor
 {
   template<typename Derived>
-  void operator() (const LieGroupOperationBase<Derived> & lg) const
+  void operator() (const LieGroupBase<Derived> & lg) const
   {
     LieGroupVariant lg_variant(lg.derived());
     test(lg,lg_variant);
   }
   
   template<typename Derived>
-  static void test(const LieGroupOperationBase<Derived> & lg, const LieGroupVariant & lg_variant)
+  static void test(const LieGroupBase<Derived> & lg, const LieGroupVariant & lg_variant)
   {
     typedef typename Derived::ConfigVector_t ConfigVector_t;
     typedef typename Derived::TangentVector_t TangentVector_t;

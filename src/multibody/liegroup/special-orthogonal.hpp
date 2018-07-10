@@ -46,7 +46,7 @@ namespace se3
   };
 
   template<>
-  struct SpecialOrthogonalOperation<2> : public LieGroupOperationBase <SpecialOrthogonalOperation<2> >
+  struct SpecialOrthogonalOperation<2> : public LieGroupBase <SpecialOrthogonalOperation<2> >
   {
     SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
@@ -233,7 +233,7 @@ namespace se3
   }; // struct SpecialOrthogonalOperation<2>
 
   template<>
-  struct SpecialOrthogonalOperation<3> : public LieGroupOperationBase <SpecialOrthogonalOperation<3> >
+  struct SpecialOrthogonalOperation<3> : public LieGroupBase <SpecialOrthogonalOperation<3> >
   {
     SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
 
