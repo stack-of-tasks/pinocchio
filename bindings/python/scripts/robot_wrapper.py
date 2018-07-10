@@ -170,10 +170,20 @@ class RobotWrapper(object):
         a.linear += np.cross(v.angular.T, v.linear.T).T
         return a;
 
+    @deprecated("This method is now deprecated. Please use jointJacobian instead. It will be removed in release 1.4.0 of Pinocchio.")
     def jacobian(self, q, index, update_kinematics=True, local_frame=True):
-        return se3.jacobian(self.model, self.data, q, index, local_frame, update_kinematics)
+        if local_frame:
+            return se3.jointJacobian(self.model, self.data, q, index, se3.ReferenceFrame.LOCAL, update_kinematics)
+        else:
+            return se3.jointJacobian(self.model, self.data, q, index, se3.ReferenceFrame.WORLD, update_kinematics)
 
-    @deprecated("This method is now deprecated. Please use computeJointJacobians instead.")
+    def jointJacobian(self, q, index, update_kinematics=True, local_frame=True):
+        if local_frame:
+            return se3.jointJacobian(self.model, self.data, q, index, se3.ReferenceFrame.LOCAL, update_kinematics)
+        else:
+            return se3.jointJacobian(self.model, self.data, q, index, se3.ReferenceFrame.WORLD, update_kinematics)
+
+    @deprecated("This method is now deprecated. Please use computeJointJacobians instead. It will be removed in release 1.4.0 of Pinocchio.")
     def computeJacobians(self, q):
         return se3.computeJointJacobians(self.model, self.data, q)
 
@@ -197,14 +207,21 @@ class RobotWrapper(object):
     def framesKinematics(self, q): 
         se3.framesKinematics(self.model, self.data, q)
     
-    ''' Call computeJointJacobians if update_geometry is true. If not, user should call computeJointJacobians first.
-    Then call getJacobian and return the resulted jacobian matrix. Attention: if update_geometry is true, 
-    the function computes all the jacobians of the model. It is therefore outrageously costly wrt a 
-    dedicated call. Use only with update_geometry for prototyping.
     '''
-    def frameJacobian(self, q, index, update_geometry=True, local_frame=True):
-        return se3.frameJacobian(self.model, self.data, q, index, local_frame, update_geometry)
+        It computes the Jacobian of frame given by its id (frame_id) either expressed in the
+        local coordinate frame or in the world coordinate frame.
+    '''
+    def getFrameJacobian(self, frame_id, rf_frame):
+        return se3.getFrameJacobian(self.model, self.data, frame_id, rf_frame)
 
+    '''
+        Similar to getFrameJacobian but it also calls before se3.computeJointJacobians and
+        se3.framesKinematics to update internal value of self.data related to frames.
+    '''
+    def frameJacobian(self, q, frame_id, rf_frame):
+        return se3.frameJacobian(self.model, self.data, q, frame_id, rf_frame)
+
+  
     # --- ACCESS TO NAMES ----
     # Return the index of the joint whose name is given in argument.
     def index(self, name):
