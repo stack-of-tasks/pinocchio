@@ -23,13 +23,13 @@ namespace se3
   namespace python
   {
     
-    static Data::Matrix6x frame_jacobian_proxy(const Model & model,
-                                               Data & data,
-                                               const Model::FrameIndex frame_id,
-                                               const bool local)
+    static Data::Matrix6x get_frame_jacobian_proxy(const Model & model,
+                                                   Data & data,
+                                                   const Model::FrameIndex frame_id,
+                                                   ReferenceFrame rf)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
-      if(local)
+      if(rf == LOCAL)
         getFrameJacobian<LOCAL>(model, data, frame_id, J);
       else
         getFrameJacobian<WORLD>(model, data, frame_id, J);
@@ -39,14 +39,15 @@ namespace se3
     
     static Data::Matrix6x frame_jacobian_proxy(const Model & model,
                                                Data & data,
+                                               const Eigen::VectorXd & q,
                                                const Model::FrameIndex frame_id,
-                                               const bool local,
-                                               const Eigen::VectorXd & q)
+                                               ReferenceFrame rf
+                                               )
     {
       computeJointJacobians(model,data,q);
       framesForwardKinematics(model,data);
   
-      return frame_jacobian_proxy(model, data, frame_id, local);
+      return get_frame_jacobian_proxy(model, data, frame_id, rf);
     }
     
     void exposeFramesAlgo()
@@ -66,22 +67,22 @@ namespace se3
               "and put the results in data.");
       
       bp::def("frameJacobian",
-              (Data::Matrix6x (*)(const Model &, Data &, const Model::FrameIndex, const bool, const Eigen::VectorXd &))&frame_jacobian_proxy,
+              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &, const Model::FrameIndex, ReferenceFrame))&frame_jacobian_proxy,
               bp::args("Model","Data",
+                       "Configuration q (size Model::nq)",
                        "Operational frame ID (int)",
-                       "frame (true = local, false = world)",
-                       "Configuration q (size Model::nq)"),
-              "Compute the Jacobian of the frame given by its ID either in the local or the world frames."
+                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
+              "Computes the Jacobian of the frame given by its ID either in the local or the world frames."
               "The columns of the Jacobian are expressed in the frame coordinates.\n"
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
               "where v is the time derivative of the configuration q.");
       
-      bp::def("frameJacobian",
-              (Data::Matrix6x (*)(const Model &, Data &, const Model::FrameIndex, const bool))&frame_jacobian_proxy,
+      bp::def("getFrameJacobian",
+              (Data::Matrix6x (*)(const Model &, Data &, const Model::FrameIndex, ReferenceFrame))&get_frame_jacobian_proxy,
               bp::args("Model","Data",
                        "Operational frame ID (int)",
-                       "frame (true = local, false = world)"),
-              "Compute the Jacobian of the frame given by its ID either in the local or the world frames."
+                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
+              "Computes the Jacobian of the frame given by its ID either in the local or the world frames."
               "The columns of the Jacobian are expressed in the frame coordinates.\n"
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
               "where v is the time derivative of the configuration q.\n"
