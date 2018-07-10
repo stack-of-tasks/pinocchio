@@ -69,8 +69,8 @@ namespace se3
               (Data::Matrix6x (*)(const Model &, Data &, const Model::FrameIndex, const bool, const Eigen::VectorXd &))&frame_jacobian_proxy,
               bp::args("Model","Data",
                        "Operational frame ID (int)",
-                       "Configuration q (size Model::nq)",
-                       "frame (true = local, false = world)"),
+                       "frame (true = local, false = world)",
+                       "Configuration q (size Model::nq)"),
               "Compute the Jacobian of the frame given by its ID either in the local or the world frames."
               "The columns of the Jacobian are expressed in the frame coordinates.\n"
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
