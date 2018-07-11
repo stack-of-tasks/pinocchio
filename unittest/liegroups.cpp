@@ -105,7 +105,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   zero = LieGroupType().difference(q2,q2);
   BOOST_CHECK_MESSAGE (zero.isZero (0), std::string ("Error: difference between two equal configurations is not 0."));
 
-  // Check differentiate
+  // Check difference
   TangentVector_t vdiff = LieGroupType().difference(q1,q2);
   BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot,1e2*prec), std::string("Error when differentiating " + jmodel.shortname()));
   

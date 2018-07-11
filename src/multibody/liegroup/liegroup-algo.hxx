@@ -157,23 +157,23 @@ namespace se3
   
   SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(InterpolateStep, InterpolateStepAlgo);
   
-  template<typename LieGroup_t, typename JointModel> struct DifferentiateStepAlgo;
+  template<typename LieGroup_t, typename JointModel> struct DifferenceStepAlgo;
   
   template<typename LieGroup_t>
-  struct DifferentiateStep : public fusion::JointModelVisitor<DifferentiateStep<LieGroup_t> >
+  struct DifferenceStep : public fusion::JointModelVisitor<DifferenceStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<const Eigen::VectorXd &,
     const Eigen::VectorXd &,
     Eigen::VectorXd &
     > ArgsType;
     
-    JOINT_MODEL_VISITOR_INIT(DifferentiateStep);
+    JOINT_MODEL_VISITOR_INIT(DifferenceStep);
     
-    SE3_DETAILS_VISITOR_METHOD_ALGO_3(DifferentiateStepAlgo, LieGroup_t)
+    SE3_DETAILS_VISITOR_METHOD_ALGO_3(DifferenceStepAlgo, LieGroup_t)
   };
   
   template<typename LieGroup_t, typename JointModel>
-  struct DifferentiateStepAlgo {
+  struct DifferenceStepAlgo {
     static void run(const se3::JointModelBase<JointModel> & jmodel,
                     const Eigen::VectorXd & q0,
                     const Eigen::VectorXd & q1,
@@ -186,7 +186,7 @@ namespace se3
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(DifferentiateStep, DifferentiateStepAlgo);
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(DifferenceStep, DifferenceStepAlgo);
   
   template<typename LieGroup_t, typename JointModel> struct SquaredDistanceStepAlgo;
   

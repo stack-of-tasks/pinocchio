@@ -50,8 +50,8 @@ namespace se3
                        "Double u"),
               "Interpolate the model between two configurations.");
       
-      bp::def("differentiate",
-              (VectorXd (*)(const Model &, const VectorXd &, const VectorXd &))&differentiate,
+      bp::def("difference",
+              (VectorXd (*)(const Model &, const VectorXd &, const VectorXd &))&difference,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)"),

@@ -80,25 +80,25 @@ namespace se3
 
   template<typename LieGroup_t>
   inline Eigen::VectorXd
-  differentiate(const Model & model,
+  difference(const Model & model,
                      const Eigen::VectorXd & q0,
                      const Eigen::VectorXd & q1)
   {
     Eigen::VectorXd diff(model.nv);
-    typename DifferentiateStep<LieGroup_t>::ArgsType args(q0, q1, diff);
+    typename DifferenceStep<LieGroup_t>::ArgsType args(q0, q1, diff);
     for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
     {
-      DifferentiateStep<LieGroup_t>::run(model.joints[i], args);
+      DifferenceStep<LieGroup_t>::run(model.joints[i], args);
     }
     return diff;
   }
 
   inline Eigen::VectorXd
-  differentiate(const Model & model,
+  difference(const Model & model,
                      const Eigen::VectorXd & q0,
                      const Eigen::VectorXd & q1)
   {
-    return differentiate<LieGroupMap>(model, q0, q1);
+    return difference<LieGroupMap>(model, q0, q1);
   }
 
   template<typename LieGroup_t>
