@@ -35,7 +35,7 @@ namespace se3
             const Eigen::VectorXd & q,
             const Eigen::VectorXd & v)
   {
-    return integrate<LieGroupTpl>(model, q, v);
+    return integrate<LieGroupMap>(model, q, v);
   }
 
   template<typename LieGroup_t>
@@ -59,7 +59,7 @@ namespace se3
                const Eigen::VectorXd & q1,
                const double u)
   {
-    return interpolate<LieGroupTpl>(model, q0, q1, u);
+    return interpolate<LieGroupMap>(model, q0, q1, u);
   }
 
   template<typename LieGroup_t>
@@ -98,7 +98,7 @@ namespace se3
                      const Eigen::VectorXd & q0,
                      const Eigen::VectorXd & q1)
   {
-    return differentiate<LieGroupTpl>(model, q0, q1);
+    return differentiate<LieGroupMap>(model, q0, q1);
   }
 
   template<typename LieGroup_t>
@@ -121,7 +121,7 @@ namespace se3
                   const Eigen::VectorXd & q0,
                   const Eigen::VectorXd & q1)
   {
-    return squaredDistance<LieGroupTpl>(model, q0, q1);
+    return squaredDistance<LieGroupMap>(model, q0, q1);
   }
   
   template<typename LieGroup_t>
@@ -138,7 +138,7 @@ namespace se3
            const Eigen::VectorXd & q0,
            const Eigen::VectorXd & q1)
   {
-    return std::sqrt(squaredDistance<LieGroupTpl>(model, q0, q1).sum());
+    return std::sqrt(squaredDistance<LieGroupMap>(model, q0, q1).sum());
   }
 
   template<typename LieGroup_t>
@@ -157,7 +157,7 @@ namespace se3
   inline Eigen::VectorXd
   randomConfiguration(const Model & model, const Eigen::VectorXd & lowerLimits, const Eigen::VectorXd & upperLimits)
   {
-    return randomConfiguration<LieGroupTpl>(model, lowerLimits, upperLimits);
+    return randomConfiguration<LieGroupMap>(model, lowerLimits, upperLimits);
   }
 
   template<typename LieGroup_t>
@@ -170,7 +170,7 @@ namespace se3
   inline Eigen::VectorXd
   randomConfiguration(const Model & model)
   {
-    return randomConfiguration<LieGroupTpl>(model);
+    return randomConfiguration<LieGroupMap>(model);
   }
 
   template<typename LieGroup_t>
@@ -185,7 +185,7 @@ namespace se3
   
   inline void normalize(const Model & model, Eigen::VectorXd & qout)
   {
-    return normalize<LieGroupTpl>(model,qout);
+    return normalize<LieGroupMap>(model,qout);
   }
 
   template<typename LieGroup_t>
@@ -212,7 +212,7 @@ namespace se3
                       const Eigen::VectorXd & q2,
                       const double& prec = Eigen::NumTraits<double>::dummy_precision())
   {
-    return isSameConfiguration<LieGroupTpl>(model, q1, q2, prec);
+    return isSameConfiguration<LieGroupMap>(model, q1, q2, prec);
   }
   
 
@@ -232,7 +232,7 @@ namespace se3
   
   inline Eigen::VectorXd neutral(const Model & model)
   {
-    return neutral<LieGroupTpl>(model);
+    return neutral<LieGroupMap>(model);
   }
 
 

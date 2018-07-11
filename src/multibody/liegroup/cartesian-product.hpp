@@ -52,7 +52,7 @@ namespace se3
   };
 
   template<typename LieGroup1, typename LieGroup2>
-  struct CartesianProductOperation : public LieGroupOperationBase <CartesianProductOperation<LieGroup1, LieGroup2> >
+  struct CartesianProductOperation : public LieGroupBase <CartesianProductOperation<LieGroup1, LieGroup2> >
   {
     SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(CartesianProductOperation);
 

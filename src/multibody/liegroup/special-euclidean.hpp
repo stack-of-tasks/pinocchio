@@ -44,7 +44,7 @@ namespace se3
 
   // SE(2)
   template<>
-  struct SpecialEuclideanOperation<2> : public LieGroupOperationBase <SpecialEuclideanOperation<2> >
+  struct SpecialEuclideanOperation<2> : public LieGroupBase <SpecialEuclideanOperation<2> >
   {
     typedef VectorSpaceOperation<2>       R2_t;
     typedef SpecialOrthogonalOperation<2> SO2_t;
@@ -316,7 +316,7 @@ namespace se3
   
   /// SE(3)
   template<>
-  struct SpecialEuclideanOperation<3> : public LieGroupOperationBase <SpecialEuclideanOperation<3> >
+  struct SpecialEuclideanOperation<3> : public LieGroupBase <SpecialEuclideanOperation<3> >
   {
     typedef CartesianProductOperation <VectorSpaceOperation<3>, SpecialOrthogonalOperation<3> > R3crossSO3_t;
 

@@ -38,7 +38,7 @@ namespace se3
     struct LieGroupVisitorBase : public boost::static_visitor<>
     {
       template<typename D>
-      void operator() (const LieGroupOperationBase<D> & lg) const
+      void operator() (const LieGroupBase<D> & lg) const
       {
         bf::invoke(&Visitor::template algo<D>,
                    bf::append(boost::ref(lg),
@@ -59,7 +59,7 @@ namespace se3
   struct LieGroupNqVisitor: public boost::static_visitor<int>
   {
     template<typename D>
-    int operator()(const LieGroupOperationBase<D> & lg) const
+    int operator()(const LieGroupBase<D> & lg) const
     { return lg.nq(); }
     
     static int run(const LieGroupVariant & lg)
@@ -73,7 +73,7 @@ namespace se3
   struct LieGroupNvVisitor: public boost::static_visitor<int>
   {
     template<typename D>
-    int operator()(const LieGroupOperationBase<D> & lg) const
+    int operator()(const LieGroupBase<D> & lg) const
     { return lg.nv(); }
     
     static int run(const LieGroupVariant & lg)
@@ -87,7 +87,7 @@ namespace se3
   struct LieGroupNameVisitor: public boost::static_visitor<std::string>
   {
     template<typename D>
-    std::string operator()(const LieGroupOperationBase<D> & lg) const
+    std::string operator()(const LieGroupBase<D> & lg) const
     { return lg.name(); }
     
     static std::string run(const LieGroupVariant & lg)
@@ -102,7 +102,7 @@ namespace se3
   struct LieGroupNeutralVisitor: public boost::static_visitor<Vector>
   {
     template<typename D>
-    Vector operator()(const LieGroupOperationBase<D> & lg) const
+    Vector operator()(const LieGroupBase<D> & lg) const
     { return lg.neutral(); }
     
     static Vector run(const LieGroupVariant & lg)
@@ -125,7 +125,7 @@ namespace se3
     LIE_GROUP_VISITOR(LieGroupIntegrateVisitor);
     
     template<typename D>
-    static void algo(const LieGroupOperationBase<D> & lg,
+    static void algo(const LieGroupBase<D> & lg,
                      const Eigen::MatrixBase<ConfigIn_t> & q,
                      const Eigen::MatrixBase<Tangent_t>  & v,
                      const Eigen::MatrixBase<ConfigOut_t>& qout)

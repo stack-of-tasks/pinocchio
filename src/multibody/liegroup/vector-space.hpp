@@ -36,7 +36,7 @@ namespace se3
   };
 
   template<int Size = Eigen::Dynamic>
-  struct VectorSpaceOperation : public LieGroupOperationBase <VectorSpaceOperation<Size> >
+  struct VectorSpaceOperation : public LieGroupBase <VectorSpaceOperation<Size> >
   {
     SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(VectorSpaceOperation);
 

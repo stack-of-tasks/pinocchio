@@ -117,8 +117,8 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   Eigen::VectorXd qq = q;
   Eigen::VectorXd vv = v;
   Eigen::VectorXd res(jmodel_composite.nq());
-  typename se3::IntegrateStep<se3::LieGroupTpl>::ArgsType args(qq, vv, res);
-  se3::IntegrateStep<se3::LieGroupTpl>::run(jmodel_composite, args);
+  typename se3::IntegrateStep<se3::LieGroupMap>::ArgsType args(qq, vv, res);
+  se3::IntegrateStep<se3::LieGroupMap>::run(jmodel_composite, args);
 }
 
 struct TestJointComposite{
