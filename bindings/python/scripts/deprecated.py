@@ -53,4 +53,6 @@ def getJacobianTimeVariation(model,data,jointId,local):
   else:
     return se3.getJointJacobianTimeVariation(model,data,jointId,se3.ReferenceFrame.WORLD)
 
-
+@deprecated("This function has been renamed difference and will be removed in release 1.4.0 of Pinocchio. Please change for new difference.")
+def differentiate(model,q0,q1):
+  return difference(model,q0,q1)

@@ -100,9 +100,9 @@ BOOST_AUTO_TEST_CASE ( integrate_difference_test )
  Eigen::VectorXd q1(randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) ));
  Eigen::VectorXd qdot(Eigen::VectorXd::Random(model.nv));
 
- BOOST_CHECK_MESSAGE(isSameConfiguration(model, integrate(model, q0, differentiate(model, q0,q1)), q1), "Integrate (differentiate) - wrong results");
+ BOOST_CHECK_MESSAGE(isSameConfiguration(model, integrate(model, q0, difference(model, q0,q1)), q1), "Integrate (difference) - wrong results");
 
- BOOST_CHECK_MESSAGE(differentiate(model, q0, integrate(model,q0, qdot)).isApprox(qdot),"differentiate (integrate) - wrong results");
+ BOOST_CHECK_MESSAGE(difference(model, q0, integrate(model,q0, qdot)).isApprox(qdot),"difference (integrate) - wrong results");
 }
 
 
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE ( distance_configuration_test )
   double dist = distance(model,q0,q1);
   
   BOOST_CHECK_MESSAGE(dist > 0., "distance - wrong results");
-  BOOST_CHECK_SMALL(dist-differentiate(model,q0,q1).norm(), 1e-12);
+  BOOST_CHECK_SMALL(dist-difference(model,q0,q1).norm(), 1e-12);
 }
 
 BOOST_AUTO_TEST_CASE ( uniform_sampling_test )

@@ -54,15 +54,15 @@ namespace se3
   /**
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
-   * @param[in]  model   Model to be differentiated
+   * @param[in]  model   Model to be differenced
    * @param[in]  q0      Initial configuration (size model.nq)
    * @param[in]  q1      Wished configuration (size model.nq)
    * @return     The corresponding velocity (size model.nv)
    */
   template<typename LieGroup_t>
-  inline Eigen::VectorXd differentiate(const Model & model,
-                                       const Eigen::VectorXd & q0,
-                                       const Eigen::VectorXd & q1);
+  inline Eigen::VectorXd difference(const Model & model,
+                                    const Eigen::VectorXd & q0,
+                                    const Eigen::VectorXd & q1);
 
 
   /**
