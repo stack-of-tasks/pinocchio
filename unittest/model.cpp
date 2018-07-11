@@ -15,11 +15,11 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <boost/test/unit_test.hpp>
-#include <boost/utility/binary.hpp>
-
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
+
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
 
 using namespace se3;
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -15,6 +15,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
+
+#include "utils/macros.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>

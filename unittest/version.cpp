@@ -15,6 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include "utils/macros.hpp"
+
 #include <pinocchio/macros.hpp>
 #include <pinocchio/utils/version.hpp>
 

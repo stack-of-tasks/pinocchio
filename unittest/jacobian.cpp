@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   motionSet::se3Action( data.oMi[idx].inverse(), Jrh,XJrh );
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
 
-  jacobian(model,data,q,idx,XJrh);
+  jointJacobian(model,data,q,idx,XJrh);
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
   
   /* Test computeJointJacobians with pre-computation of the forward kinematics */
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     timer.tic();
     SMOOTH(NBT)
     {
-      jacobian(model,data,q,idx,Jrh);
+      jointJacobian(model,data,q,idx,Jrh);
     }
     if(verbose) std::cout << "Single jacobian =\t";
     timer.toc(std::cout,NBT);
