@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 CNRS
+# Copyright (c) 2015-2018 CNRS
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 # This file is part of Pinocchio
@@ -90,15 +90,8 @@ IF(LUA5_FOUND)
 ENDIF(LUA5_FOUND)
 
 IF(BUILD_PYTHON_INTERFACE)
-  IF (BUILD_UNIT_TESTS)
-    ADD_EXECUTABLE(python_parser python_parser.cpp)
-  ELSE (BUILD_UNIT_TESTS)
-    ADD_EXECUTABLE(python_parser EXCLUDE_FROM_ALL python_parser.cpp)
-  ENDIF (BUILD_UNIT_TESTS)
-  ADD_TEST_CFLAGS(python_parser "-DBOOST_TEST_DYN_LINK") 
+  ADD_UNIT_TEST(python_parser eigen3)
   ADD_TEST_CFLAGS(python_parser '-DPINOCCHIO_SOURCE_DIR=\\\"${${PROJECT_NAME}_SOURCE_DIR}\\\"')
-  SET(MODULE_NAME "python_parserTest")
-  ADD_TEST_CFLAGS(python_parser "-DBOOST_TEST_MODULE=${MODULE_NAME}") 
 
   TARGET_LINK_LIBRARIES(python_parser ${PYWRAP})
   TARGET_LINK_LIBRARIES(python_parser ${PYTHON_LIBRARIES})
