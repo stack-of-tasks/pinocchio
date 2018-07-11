@@ -160,11 +160,11 @@ BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
   rnea(model,data_rnea,q,v,a);
   VectorXd tau_ref(data_rnea.tau);
   Data::Matrix6x Jrf(Data::Matrix6x::Zero(6,model.nv));
-  jacobian(model,data_rnea,q,rf,Jrf);
+  jointJacobian(model,data_rnea,q,rf,Jrf);
   tau_ref -= Jrf.transpose() * Frf.toVector();
   
   Data::Matrix6x Jlf(Data::Matrix6x::Zero(6,model.nv));
-  jacobian(model,data_rnea,q,lf,Jlf);
+  jointJacobian(model,data_rnea,q,lf,Jlf);
   tau_ref -= Jlf.transpose() * Flf.toVector();
   
   rnea(model,data_rnea_fext,q,v,a,fext);
