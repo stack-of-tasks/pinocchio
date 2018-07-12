@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,7 +19,7 @@
 #define __se3_joint_basic_visitors_hpp__
 
 #include <Eigen/StdVector>
-#include "pinocchio/multibody/joint/joint-variant.hpp"
+#include "pinocchio/multibody/joint/joint-collection.hpp"
 
 
 namespace se3

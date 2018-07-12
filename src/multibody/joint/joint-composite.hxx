@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -23,20 +23,24 @@
 namespace se3 
 {
 
-  struct JointCompositeCalcZeroOrderStep : public fusion::JointVisitor<JointCompositeCalcZeroOrderStep>
+  template<typename JointCollection>
+  struct JointCompositeCalcZeroOrderStep : public fusion::JointVisitor< JointCompositeCalcZeroOrderStep<JointCollection> >
   {
-    typedef boost::fusion::vector<const se3::JointModelComposite &,
-                                  se3::JointDataComposite &,
+    typedef JointModelCompositeTpl<JointCollection> JointModelComposite;
+    typedef JointDataCompositeTpl<JointCollection> JointDataComposite;
+    
+    typedef boost::fusion::vector<const JointModelComposite &,
+                                  JointDataComposite &,
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_VISITOR_INIT (JointCompositeCalcZeroOrderStep);
+    JOINT_VISITOR_INIT (JointCompositeCalcZeroOrderStep<JointCollection>);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::JointModelComposite & model,
-                     se3::JointDataComposite & data,
+                     const JointModelComposite & model,
+                     JointDataComposite & data,
                      const Eigen::VectorXd & q)
     {
       const JointIndex & i  = jmodel.id();
@@ -62,36 +66,41 @@ namespace se3
     }
     
   };
-
-  inline void JointModelComposite::calc(JointData & data, const Eigen::VectorXd & qs) const
+  
+  template<typename JointCollection>
+  inline void JointModelCompositeTpl<JointCollection>::calc(JointData & data, const Eigen::VectorXd & qs) const
   {
     assert(joints.size() > 0);
     assert(data.joints.size() == joints.size());
+    
+    typedef JointCompositeCalcZeroOrderStep<JointCollection> Algo;
 
     for (int i=(int)(joints.size()-1); i >= 0; --i)
     {
-      JointCompositeCalcZeroOrderStep::run(joints[(size_t)i], data.joints[(size_t)i],
-                                    JointCompositeCalcZeroOrderStep::ArgsType (*this,data,qs)
-                                    );
+      Algo::run(joints[(size_t)i], data.joints[(size_t)i],typename Algo::ArgsType(*this,data,qs));
     }
     data.M = data.iMlast.front();
   }
 
-  struct JointCompositeCalcFirstOrderStep : public fusion::JointVisitor<JointCompositeCalcFirstOrderStep>
+  template<typename JointCollection>
+  struct JointCompositeCalcFirstOrderStep : public fusion::JointVisitor< JointCompositeCalcFirstOrderStep<JointCollection> >
   {
-    typedef boost::fusion::vector<const se3::JointModelComposite &,
-                                  se3::JointDataComposite &,
+    typedef JointModelCompositeTpl<JointCollection> JointModelComposite;
+    typedef JointDataCompositeTpl<JointCollection> JointDataComposite;
+    
+    typedef boost::fusion::vector<const JointModelComposite &,
+                                  JointDataComposite &,
                                   const Eigen::VectorXd &,
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_VISITOR_INIT (JointCompositeCalcFirstOrderStep);
+    JOINT_VISITOR_INIT (JointCompositeCalcFirstOrderStep<JointCollection>);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::JointModelComposite & model,
-                     se3::JointDataComposite & data,
+                     const JointModelComposite & model,
+                     JointDataComposite & data,
                      const Eigen::VectorXd & q,
                      const Eigen::VectorXd & v)
     {
@@ -128,17 +137,19 @@ namespace se3
     
   };
 
-  inline void JointModelComposite::calc(JointData & data, const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const
+  template<typename JointCollection>
+  inline void JointModelCompositeTpl<JointCollection>::calc(JointData & data, const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const
   {
     assert(joints.size() > 0);
     assert(data.joints.size() == joints.size());
+    
+    typedef JointCompositeCalcFirstOrderStep<JointCollection> Algo;
 
     for (int i=(int)(joints.size()-1); i >= 0; --i)
     {
-      JointCompositeCalcFirstOrderStep::run(joints[(size_t)i], data.joints[(size_t)i],
-                                    JointCompositeCalcFirstOrderStep::ArgsType (*this,data,qs,vs)
-                                    );
+      Algo::run(joints[(size_t)i], data.joints[(size_t)i],typename Algo::ArgsType (*this,data,qs,vs));
     }
+    
     data.M = data.iMlast.front();
   }
 

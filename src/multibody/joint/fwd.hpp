@@ -46,8 +46,8 @@ namespace se3
   template<typename Scalar, int Options = 0> struct JointDataSphericalZYXTpl;
   typedef JointDataSphericalZYXTpl<double> JointDataSphericalZYX;
 
-  template<typename Scalar, int Options, int axis> struct JointModelPrismatic;
-  template<typename Scalar, int Options, int axis> struct JointDataPrismatic;
+  template<typename Scalar, int Options, int axis> struct JointModelPrismaticTpl;
+  template<typename Scalar, int Options, int axis> struct JointDataPrismaticTpl;
 
   template<typename Scalar, int Options = 0> struct JointModelPrismaticUnalignedTpl;
   typedef JointModelPrismaticUnalignedTpl<double> JointModelPrismaticUnaligned;
@@ -73,8 +73,14 @@ namespace se3
   template<typename Scalar, int Options = 0> struct JointDataTranslationTpl;
   typedef JointDataTranslationTpl<double> JointDataTranslation;
 
-  struct JointModelComposite;
-  struct JointDataComposite;
+  template<typename Scalar, int Options = 0> struct JointCollectionDefaultTpl;
+  typedef JointCollectionDefaultTpl<double> JointCollectionDefault;
+  
+  template<typename JointCollection> struct JointModelCompositeTpl;
+  typedef JointModelCompositeTpl< JointCollectionDefaultTpl<double> > JointModelComposite;
+  
+  template<typename JointCollection> struct JointDataCompositeTpl;
+  typedef JointDataCompositeTpl< JointCollectionDefaultTpl<double> > JointDataComposite;
   
   struct JointModel;
   struct JointData;

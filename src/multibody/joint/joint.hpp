@@ -19,7 +19,7 @@
 #define __se3_joint_model_hpp__
 
 #include "pinocchio/assert.hpp"
-#include "pinocchio/multibody/joint/joint-variant.hpp"
+#include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
 #include "pinocchio/container/aligned-vector.hpp"
 

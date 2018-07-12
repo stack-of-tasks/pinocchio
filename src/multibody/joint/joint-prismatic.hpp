@@ -350,8 +350,8 @@ namespace se3
     };
     typedef _Scalar Scalar;
     enum { Options = _Options };
-    typedef JointDataPrismatic<Scalar,Options,axis> JointDataDerived;
-    typedef JointModelPrismatic<Scalar,Options,axis> JointModelDerived;
+    typedef JointDataPrismaticTpl<Scalar,Options,axis> JointDataDerived;
+    typedef JointModelPrismaticTpl<Scalar,Options,axis> JointModelDerived;
     typedef ConstraintPrismatic<Scalar,Options,axis> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionPrismatic<Scalar,Options,axis> Motion_t;
@@ -368,15 +368,15 @@ namespace se3
   };
 
   template<typename Scalar, int Options, int axis>
-  struct traits< JointDataPrismatic<Scalar,Options,axis> >
+  struct traits< JointDataPrismaticTpl<Scalar,Options,axis> >
   { typedef JointPrismatic<Scalar,Options,axis> JointDerived; };
   
   template<typename Scalar, int Options, int axis>
-  struct traits< JointModelPrismatic<Scalar,Options,axis> >
+  struct traits< JointModelPrismaticTpl<Scalar,Options,axis> >
   { typedef JointPrismatic<Scalar,Options,axis> JointDerived; };
 
   template<typename _Scalar, int _Options, int axis>
-  struct JointDataPrismatic : public JointDataBase< JointDataPrismatic<_Scalar,_Options,axis> >
+  struct JointDataPrismaticTpl : public JointDataBase< JointDataPrismaticTpl<_Scalar,_Options,axis> >
   {
     typedef JointPrismatic<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
@@ -393,21 +393,21 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataPrismatic() : M(1), U(), Dinv(), UDinv()
+    JointDataPrismaticTpl() : M(1), U(), Dinv(), UDinv()
     {}
 
-  }; // struct JointDataPrismatic
+  }; // struct JointDataPrismaticTpl
 
   template<typename _Scalar, int _Options, int axis>
-  struct JointModelPrismatic : public JointModelBase< JointModelPrismatic<_Scalar,_Options,axis> >
+  struct JointModelPrismaticTpl : public JointModelBase< JointModelPrismaticTpl<_Scalar,_Options,axis> >
   {
     typedef JointPrismatic<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    using JointModelBase<JointModelPrismatic>::id;
-    using JointModelBase<JointModelPrismatic>::idx_q;
-    using JointModelBase<JointModelPrismatic>::idx_v;
-    using JointModelBase<JointModelPrismatic>::setIndexes;
+    using JointModelBase<JointModelPrismaticTpl>::id;
+    using JointModelBase<JointModelPrismaticTpl>::idx_q;
+    using JointModelBase<JointModelPrismaticTpl>::idx_v;
+    using JointModelBase<JointModelPrismaticTpl>::setIndexes;
     
     JointDataDerived createData() const { return JointDataDerived(); }
     
@@ -458,19 +458,19 @@ namespace se3
     }
     std::string shortname() const { return classname(); }
 
-  }; // struct JointModelPrismatic
+  }; // struct JointModelPrismaticTpl
 
   typedef JointPrismatic<double,0,0> JointPX;
-  typedef JointDataPrismatic<double,0,0> JointDataPX;
-  typedef JointModelPrismatic<double,0,0> JointModelPX;
+  typedef JointDataPrismaticTpl<double,0,0> JointDataPX;
+  typedef JointModelPrismaticTpl<double,0,0> JointModelPX;
 
   typedef JointPrismatic<double,0,1> JointPY;
-  typedef JointDataPrismatic<double,0,1> JointDataPY;
-  typedef JointModelPrismatic<double,0,1> JointModelPY;
+  typedef JointDataPrismaticTpl<double,0,1> JointDataPY;
+  typedef JointModelPrismaticTpl<double,0,1> JointModelPY;
 
   typedef JointPrismatic<double,0,2> JointPZ;
-  typedef JointDataPrismatic<double,0,2> JointDataPZ;
-  typedef JointModelPrismatic<double,0,2> JointModelPZ;
+  typedef JointDataPrismaticTpl<double,0,2> JointDataPZ;
+  typedef JointModelPrismaticTpl<double,0,2> JointModelPZ;
 
 } //namespace se3
 
