@@ -82,8 +82,11 @@ namespace se3
   template<typename JointCollection> struct JointDataCompositeTpl;
   typedef JointDataCompositeTpl< JointCollectionDefaultTpl<double> > JointDataComposite;
   
-  struct JointModel;
-  struct JointData;
+  template<typename JointCollection> struct JointModelTpl;
+  typedef JointModelTpl<JointCollectionDefault> JointModel;
+  
+  template<typename JointCollection> struct JointDataTpl;
+  typedef JointDataTpl<JointCollectionDefault> JointData;
   
 }
 

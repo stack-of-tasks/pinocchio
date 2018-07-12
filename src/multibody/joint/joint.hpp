@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -26,44 +26,51 @@
 namespace se3
 {
 
-  struct Joint;
-  struct JointModel;
-  struct JointData;
+  template<typename JointCollection> struct JointTpl;
+  typedef JointTpl<JointCollectionDefault> Joint;
 
-  template<>
-  struct traits<Joint>
+  template<typename JointCollection>
+  struct traits< JointTpl<JointCollection> >
   {
     enum {
-      NQ = -1, // Dynamic because unknown at compilation
-      NV = -1
+      Options = JointCollection::Options,
+      NQ = Eigen::Dynamic, // Dynamic because unknown at compile time
+      NV = Eigen::Dynamic
     };
-    typedef double Scalar;
-    typedef JointData JointDataDerived;
-    typedef JointModel JointModelDerived;
-    typedef ConstraintXd Constraint_t;
-    typedef SE3 Transformation_t;
-    typedef Motion Motion_t;
-    typedef Motion Bias_t;
+    typedef typename JointCollection::Scalar Scalar;
+    typedef JointDataTpl<JointCollection> JointDataDerived;
+    typedef JointModelTpl<JointCollection> JointModelDerived;
+    typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
+    typedef SE3Tpl<Scalar,Options> Transformation_t;
+    typedef MotionTpl<Scalar,Options>  Motion_t;
+    typedef MotionTpl<Scalar,Options>  Bias_t;
 
-    typedef Eigen::Matrix<double,6,Eigen::Dynamic> F_t;
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> F_t;
     // [ABA]
-    typedef Eigen::Matrix<double,6,Eigen::Dynamic> U_t;
-    typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> D_t;
-    typedef Eigen::Matrix<double,6,Eigen::Dynamic> UD_t;
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> U_t;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> D_t;
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> UD_t;
 
-    typedef Eigen::Matrix<double,Eigen::Dynamic,1> ConfigVector_t;
-    typedef Eigen::Matrix<double,Eigen::Dynamic,1> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
   };
   
-  template<> struct traits<JointData> { typedef Joint JointDerived; };
-  template<> struct traits<JointModel> { typedef Joint JointDerived; };
+  template<typename JointCollection>
+  struct traits< JointDataTpl<JointCollection> >
+  { typedef JointTpl<JointCollection> JointDerived; };
+  
+  template<typename JointCollection>
+  struct traits< JointModelTpl<JointCollection> >
+  { typedef JointTpl<JointCollection> JointDerived; };
 
-  struct JointData : public JointDataBase<JointData> , JointDataVariant
+  template<typename JointCollection>
+  struct JointDataTpl : public JointDataBase< JointDataTpl<JointCollection> >, JointCollection::JointDataVariant
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef Joint JointDerived;
+    typedef JointTpl<JointCollection> JointDerived;
+    typedef typename JointCollection::JointDataVariant JointDataVariant;
     
-    SE3_JOINT_TYPEDEF;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
     JointDataVariant & toVariant() { return *static_cast<JointDataVariant*>(this); }
     const JointDataVariant & toVariant() const { return *static_cast<const JointDataVariant*>(this); }
@@ -79,39 +86,50 @@ namespace se3
     const D_t               Dinv()  const { return dinv_inertia(*this); }
     const UD_t              UDinv() const { return udinv_inertia(*this); }
 
-    JointData() : JointDataVariant() {}
-    JointData(const JointDataVariant & jdata) : JointDataVariant(jdata) {}
+    JointDataTpl() : JointDataVariant() {}
+    JointDataTpl(const JointDataVariant & jdata) : JointDataVariant(jdata) {}
 
   };
 
-  struct JointModel : public JointModelBase<JointModel> , JointModelVariant
+  template<typename JointCollection>
+  struct JointModelTpl : public JointModelBase< JointModelTpl<JointCollection> >, JointCollection::JointModelVariant
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef JointModelVariant JointModelBoostVariant;
-    typedef Joint JointDerived;
     
-    SE3_JOINT_TYPEDEF;
+    typedef typename JointCollection::JointDataVariant JointDataVariant;
+    typedef typename JointCollection::JointModelVariant JointModelVariant;
+    
+    typedef JointModelVariant JointModelBoostVariant;
+    typedef JointTpl<JointCollection> JointDerived;
+    
+    SE3_JOINT_TYPEDEF_TEMPLATE;
     SE3_JOINT_USE_INDEXES;
     using Base::id;
     using Base::setIndexes;
     using Base::operator==;
 
-    JointModel() : JointModelVariant() {}
-    JointModel(const JointModelVariant & model_variant) : JointModelVariant(model_variant)
+    JointModelTpl() : JointModelVariant() {}
+    JointModelTpl(const JointModelVariant & model_variant) : JointModelVariant(model_variant)
     {}
     
-    JointModelVariant& toVariant() { return *static_cast<JointModelVariant*>(this); }
-    const JointModelVariant& toVariant() const { return *static_cast<const JointModelVariant*>(this); }
+    JointModelVariant & toVariant()
+    { return *static_cast<JointModelVariant*>(this); }
+    
+    const JointModelVariant & toVariant() const
+    { return *static_cast<const JointModelVariant*>(this); }
 
-    JointDataVariant createData() { return ::se3::createData(*this); }
+    JointDataVariant createData()
+    { return ::se3::createData<JointCollection>(*this); }
 
-    void calc(JointData & data,const Eigen::VectorXd & q) const { calc_zero_order(*this,data,q); }
+    void calc(JointDataDerived & data,const Eigen::VectorXd & q) const
+    { calc_zero_order(*this,data,q); }
 
-    void calc(JointData & data, const Eigen::VectorXd & q, const Eigen::VectorXd & v) const
+    void calc(JointDataDerived & data, const Eigen::VectorXd & q, const Eigen::VectorXd & v) const
     { calc_first_order(*this,data,q,v); }
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     { ::se3::calc_aba(*this,data,I,update_I); }
+    
     std::string shortname() const { return ::se3::shortname(*this); }
     static std::string classname() { return "JointModel"; }
 
