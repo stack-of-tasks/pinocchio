@@ -18,9 +18,7 @@
 #ifndef __se3_joint_basic_visitors_hpp__
 #define __se3_joint_basic_visitors_hpp__
 
-#include <Eigen/StdVector>
 #include "pinocchio/multibody/joint/joint-collection.hpp"
-
 
 namespace se3
 {
