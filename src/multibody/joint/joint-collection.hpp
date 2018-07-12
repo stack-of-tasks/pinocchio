@@ -89,15 +89,60 @@ namespace se3
     JointModelRUBX, JointModelRUBY, JointModelRUBZ,
     boost::recursive_wrapper<JointModelComposite>
     > JointModelVariant;
+   
+    
+    // Joint Revolute
+    typedef JointDataRevoluteTpl<Scalar,Options,0> JointDataRX;
+    typedef JointDataRevoluteTpl<Scalar,Options,1> JointDataRY;
+    typedef JointDataRevoluteTpl<Scalar,Options,2> JointDataRZ;
+    
+    // Joint Revolute Unaligned
+    typedef JointDataRevoluteUnalignedTpl<Scalar,Options> JointDataRevoluteUnaligned;
+    
+    // Joint Revolute UBounded
+    typedef JointDataRevoluteUnboundedTpl<Scalar,Options,0> JointDataRUBX;
+    typedef JointDataRevoluteUnboundedTpl<Scalar,Options,1> JointDataRUBY;
+    typedef JointDataRevoluteUnboundedTpl<Scalar,Options,2> JointDataRUBZ;
+    
+    // Joint Prismatic
+    typedef JointDataPrismaticTpl<Scalar,Options,0> JointDataPX;
+    typedef JointDataPrismaticTpl<Scalar,Options,1> JointDataPY;
+    typedef JointDataPrismaticTpl<Scalar,Options,2> JointDataPZ;
+    
+    // Joint Prismatic Unaligned
+    typedef JointDataPrismaticUnalignedTpl<Scalar,Options> JointDataPrismaticUnaligned;
+    
+    // Joint Spherical
+    typedef JointDataSphericalTpl<Scalar,Options> JointDataSpherical;
+    
+    // Joint Spherical ZYX
+    typedef JointDataSphericalZYXTpl<Scalar,Options> JointDataSphericalZYX;
+    
+    // Joint Translation
+    typedef JointDataTranslationTpl<Scalar,Options> JointDataTranslation;
+    
+    // Joint FreeFlyer
+    typedef JointDataFreeFlyerTpl<Scalar,Options> JointDataFreeFlyer;
+    
+    // Joint Planar
+    typedef JointDataPlanarTpl<Scalar,Options> JointDataPlanar;
+    
+    // Joint Composite
+    typedef JointDataCompositeTpl<JointCollectionDefaultTpl> JointDataComposite;
+    
+    typedef boost::variant<
+    JointDataRX, JointDataRY, JointDataRZ
+    ,JointDataRevoluteUnaligned, JointDataSpherical,
+    JointDataSphericalZYX, JointDataPX, JointDataPY, JointDataPZ,
+    JointDataPrismaticUnaligned, JointDataFreeFlyer, JointDataPlanar, JointDataTranslation,
+    JointDataRUBX, JointDataRUBY, JointDataRUBZ,
+    boost::recursive_wrapper<JointDataComposite>
+    > JointDataVariant;
+
   };
   
   typedef JointCollectionDefault::JointModelVariant JointModelVariant;
-  
-  typedef boost::variant< JointDataRX, JointDataRY, JointDataRZ, JointDataRevoluteUnaligned, JointDataSpherical,
-  JointDataSphericalZYX, JointDataPX, JointDataPY, JointDataPZ, JointDataPrismaticUnaligned,
-  JointDataFreeFlyer, JointDataPlanar, JointDataTranslation,
-  JointDataRUBX, JointDataRUBY, JointDataRUBZ,
-  boost::recursive_wrapper<JointDataComposite> > JointDataVariant;
+  typedef JointCollectionDefault::JointDataVariant JointDataVariant;
   
 } // namespace se3
 

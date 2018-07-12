@@ -72,7 +72,7 @@ namespace se3
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-//    typedef typename JointCollection::JointDataVariant JointDataVariant;
+    typedef typename JointCollection::JointDataVariant JointDataVariant;
     
     typedef JointDataBase< JointDataCompositeTpl<JointCollection> > Base;
     typedef container::aligned_vector<JointDataVariant> JointDataVector;
