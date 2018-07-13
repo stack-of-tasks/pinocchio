@@ -30,7 +30,9 @@ namespace se3
    *
    * @return     The created JointDataVariant
    */
-  inline JointDataVariant createData(const JointModelVariant & jmodel);
+  template<typename JointCollection>
+  inline typename JointCollection::JointDataVariant
+  createData(const typename JointCollection::JointModelVariant & jmodel);
 
   
   /**

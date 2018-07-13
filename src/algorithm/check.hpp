@@ -40,13 +40,16 @@ namespace se3
     inline const AlgorithmCheckerDerived& derived() const 
     { return *static_cast<const AlgorithmCheckerDerived*>(this); }
 
-    inline bool checkModel(const Model & model) const { return derived().checkModel_impl(model); }
+    template<typename JointCollection>
+    inline bool checkModel(const ModelTpl<JointCollection> & model) const
+    { return derived().checkModel_impl(model); }
   };
 
-#define DEFINE_ALGO_CHECKER(NAME)                                       \
-  struct NAME##Checker : public AlgorithmCheckerBase<NAME##Checker>     \
-  {                                                                     \
-    inline bool checkModel_impl( const Model& ) const;                  \
+#define DEFINE_ALGO_CHECKER(NAME)                                           \
+  struct NAME##Checker : public AlgorithmCheckerBase<NAME##Checker>         \
+  {                                                                         \
+    template<typename JointCollection>                                      \
+    inline bool checkModel_impl(const ModelTpl<JointCollection> &) const;   \
   }
 
   /// Simple model checker, that assert that model.parents is indeed a tree.
@@ -64,7 +67,8 @@ namespace se3
    
     // Calls model.check for each checker in the fusion::list.
     // Each list element is supposed to implement the AlgorithmCheckerBase API.
-    bool checkModel_impl(const Model & model) const;
+    template<typename JointCollection>
+    bool checkModel_impl(const ModelTpl<JointCollection> & model) const;
       
     const ArgType & checkerList;
   };
@@ -87,7 +91,8 @@ namespace se3
     
     // Calls model.check for each checker in the fusion::list.
     // Each list element is supposed to implement the AlgorithmCheckerBase API.
-    bool checkModel_impl(const Model & model) const;
+    template<typename JointCollection>
+    bool checkModel_impl(const ModelTpl<JointCollection> & model) const;
     
     const ArgType & checkerList;
   };
@@ -106,7 +111,9 @@ namespace se3
   /// \param[in] data corresponding data
   ///
   /// \returns True if data is valid wrt model.
-  inline bool checkData(const Model & model, const Data & data);
+  template<typename JointCollection>
+  inline bool checkData(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data);
 
 } // namespace se3 
 

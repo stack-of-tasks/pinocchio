@@ -36,14 +36,37 @@
 
 namespace se3
 {
-  struct Model
+  
+  template<typename JointCollection>
+  struct ModelTpl
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
+    enum { Options = JointCollection::Options };
+    
+    typedef DataTpl<JointCollection> Data;
+    
+    typedef typename JointCollection::Scalar Scalar;
+    typedef SE3Tpl<Scalar,Options> SE3;
+    typedef MotionTpl<Scalar,Options> Motion;
+    typedef ForceTpl<Scalar,Options> Force;
+    typedef InertiaTpl<Scalar,Options> Inertia;
+    typedef FrameTpl<Scalar,Options> Frame;
+    
     typedef se3::Index Index;
     typedef se3::JointIndex JointIndex;
     typedef se3::GeomIndex GeomIndex;
     typedef se3::FrameIndex FrameIndex;
     typedef std::vector<Index> IndexVector;
+    
+    typedef JointModelTpl<JointCollection> JointModel;
+    typedef JointDataTpl<JointCollection> JointData;
+    
+    typedef container::aligned_vector<JointModel> JointModelVector;
+    typedef container::aligned_vector<JointData> JointDataVector;
+    
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
 
     /// \brief Dimension of the configuration vector representation.
     int nq;
@@ -76,23 +99,23 @@ namespace se3
     std::vector<std::string> names;
     
     /// \brief Vector of joint's neutral configurations
-    Eigen::VectorXd neutralConfiguration;
+    VectorXs neutralConfiguration;
 
     /// \brief Vector of rotor inertia parameters
-    Eigen::VectorXd rotorInertia;
+    VectorXs rotorInertia;
     
     /// \brief Vector of rotor gear ratio parameters
-    Eigen::VectorXd rotorGearRatio;
+    VectorXs rotorGearRatio;
     
     /// \brief Vector of maximal joint torques
-    Eigen::VectorXd effortLimit;
+    VectorXs effortLimit;
     /// \brief Vector of maximal joint velocities
-    Eigen::VectorXd velocityLimit;
+    VectorXs velocityLimit;
 
     /// \brief Lower joint configuration limit
-    Eigen::VectorXd lowerPositionLimit;
+    VectorXs lowerPositionLimit;
     /// \brief Upper joint configuration limit
-    Eigen::VectorXd upperPositionLimit;
+    VectorXs upperPositionLimit;
 
     /// \brief Vector of operational frames registered on the model.
     container::aligned_vector<Frame> frames;
@@ -106,13 +129,13 @@ namespace se3
     Motion gravity;
     
     /// \brief Default 3D gravity vector (=(0,0,-9.81)).
-    static const Eigen::Vector3d gravity981;
+    static const Vector3 gravity981;
 
     /// \brief Model name;
     std::string name;
 
     /// \brief Default constructor. Builds an empty model with no joints.
-    Model()
+    ModelTpl()
       : nq(0)
       , nv(0)
       , njoints(1)
@@ -136,7 +159,7 @@ namespace se3
       inertias[0].lever().fill (std::numeric_limits<double>::quiet_NaN());
       inertias[0].inertia().fill (std::numeric_limits<double>::quiet_NaN());
     }
-    ~Model() {} // std::cout << "Destroy model" << std::endl; }
+    ~ModelTpl() {} // std::cout << "Destroy model" << std::endl; }
     
     ///
     /// \brief Add a joint to the kinematic tree with given bounds.
@@ -161,12 +184,14 @@ namespace se3
     /// \sa Model::appendBodyToJoint, Model::addJointFrame
     ///
     template<typename JointModelDerived>
-    JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
+    JointIndex addJoint(const JointIndex parent,
+                        const JointModelBase<JointModelDerived> & joint_model,
+                        const SE3 & joint_placement,
                         const std::string & joint_name,
-                        const Eigen::VectorXd & max_effort,
-                        const Eigen::VectorXd & max_velocity,
-                        const Eigen::VectorXd & min_config,
-                        const Eigen::VectorXd & max_config
+                        const VectorXs & max_effort,
+                        const VectorXs & max_velocity,
+                        const VectorXs & min_config,
+                        const VectorXs & max_config
                         );
 
     ///
@@ -187,7 +212,9 @@ namespace se3
     /// \sa Model::appendBodyToJoint
     ///
     template<typename JointModelDerived>
-    JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
+    JointIndex addJoint(const JointIndex parent,
+                        const JointModelBase<JointModelDerived> & joint_model,
+                        const SE3 & joint_placement,
                         const std::string & joint_name
                         );
 
@@ -200,8 +227,8 @@ namespace se3
     ///
     /// \return The index of the new frame or -1 in case of error.
     ///
-    int addJointFrame (const JointIndex& jointIndex,
-                             int         frameIndex = -1);
+    int addJointFrame(const JointIndex& jointIndex,
+                      int frameIndex = -1);
 
     ///
     /// \brief Append a body to a given joint of the kinematic tree.
@@ -297,7 +324,8 @@ namespace se3
     ///
     /// \return Index of the frame.
     ///
-    FrameIndex getFrameId (const std::string & name, const FrameType& type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
+    FrameIndex getFrameId(const std::string & name,
+                          const FrameType & type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
     
     ///
     /// \brief Checks if a frame given by its name exists.
@@ -307,7 +335,8 @@ namespace se3
     ///
     /// \return Returns true if the frame exists.
     ///
-    bool existFrame (const std::string & name, const FrameType& type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
+    bool existFrame(const std::string & name,
+                    const FrameType& type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
     
     
     ///

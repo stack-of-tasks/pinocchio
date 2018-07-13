@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -30,9 +30,12 @@ namespace se3
   /**
    * @brief      CreateJointData visitor
    */
-  class CreateJointData: public boost::static_visitor<JointDataVariant>
+  template<typename JointCollection>
+  struct CreateJointData: public boost::static_visitor<typename JointCollection::JointDataVariant>
   {
-  public:
+    typedef typename JointCollection::JointModelVariant JointModelVariant;
+    typedef typename JointCollection::JointDataVariant JointDataVariant;
+    
     template<typename D>
     JointDataVariant operator()(const JointModelBase<D> & jmodel) const
     { return JointDataVariant(jmodel.createData()); }
@@ -40,9 +43,12 @@ namespace se3
     static JointDataVariant run( const JointModelVariant & jmodel)
     { return boost::apply_visitor( CreateJointData(), jmodel ); }
   };
-  inline JointDataVariant createData(const JointModelVariant & jmodel)
+  
+  template<typename JointCollection>
+  inline typename JointCollection::JointDataVariant
+  createData(const typename JointCollection::JointModelVariant & jmodel)
   {
-    return CreateJointData::run(jmodel);
+    return CreateJointData<JointCollection>::run(jmodel);
   }
 
   /**

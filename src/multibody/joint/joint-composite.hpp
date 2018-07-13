@@ -211,7 +211,7 @@ namespace se3
     {
       typename JointData::JointDataVector jdata(joints.size());
       for (int i = 0; i < (int)joints.size(); ++i)
-        jdata[(size_t)i] = ::se3::createData(joints[(size_t)i]);
+        jdata[(size_t)i] = ::se3::createData<JointCollection>(joints[(size_t)i]);
       return JointDataDerived(jdata,nq(),nv());
     }
 

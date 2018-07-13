@@ -41,11 +41,16 @@ namespace se3
       { return (typeMask & frame.type) && (name == frame.name); }
     };
   }
+  template<typename JointCollection>
+  const typename ModelTpl<JointCollection>::Vector3 ModelTpl<JointCollection>::gravity981(0,0,-9.81);
 
-  inline std::ostream& operator<<(std::ostream & os, const Model & model)
+  template<typename JointCollection>
+  inline std::ostream& operator<<(std::ostream & os, const ModelTpl<JointCollection> & model)
   {
+    typedef typename ModelTpl<JointCollection>::Index Index;
+    
     os << "Nb joints = " << model.njoints << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
-    for(Model::Index i=0;i<(Model::Index)(model.njoints);++i)
+    for(Index i=0;i<(Index)(model.njoints);++i)
     {
       os << "  Joint "<< model.names[i] << ": parent=" << model.parents[i]  << std::endl;
     }
@@ -53,16 +58,18 @@ namespace se3
     return os;
   }
   
+  template<typename JointCollection>
   template<typename JointModelDerived>
-  Model::JointIndex Model::addJoint(const Model::JointIndex parent,
-                                    const JointModelBase<JointModelDerived> & joint_model,
-                                    const SE3 & joint_placement,
-                                    const std::string & joint_name,
-                                    const Eigen::VectorXd & max_effort,
-                                    const Eigen::VectorXd & max_velocity,
-                                    const Eigen::VectorXd & min_config,
-                                    const Eigen::VectorXd & max_config
-                                    )
+  typename ModelTpl<JointCollection>::JointIndex
+  ModelTpl<JointCollection>::addJoint(const ModelTpl::JointIndex parent,
+                                      const JointModelBase<JointModelDerived> & joint_model,
+                                      const SE3 & joint_placement,
+                                      const std::string & joint_name,
+                                      const VectorXs & max_effort,
+                                      const VectorXs & max_velocity,
+                                      const VectorXs & min_config,
+                                      const VectorXs & max_config
+                                      )
   {
     assert( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
            &&(njoints==(int)parents.size())&&(njoints==(int)jointPlacements.size()) );
@@ -73,7 +80,7 @@ namespace se3
            && min_config.size() == joint_model.nq()
            && max_config.size() == joint_model.nq());
     
-    Model::JointIndex idx = (Model::JointIndex) (njoints++);
+    JointIndex idx = (JointIndex)(njoints++);
     
     joints         .push_back(JointModel(joint_model.derived()));
     JointModelDerived & jmodel = boost::get<JointModelDerived>(joints.back());
@@ -88,7 +95,7 @@ namespace se3
 
     // Optimal efficiency here would be using the static-dim bottomRows, while specifying the dimension in argument in the case where D::NV is Eigen::Dynamic.
     // However, this option is not compiling in Travis (why?).
-    // As efficiency of Model::addJoint is not critical, the dynamic bottomRows is used here.
+    // As efficiency of ModelTpl::addJoint is not critical, the dynamic bottomRows is used here.
     effortLimit.conservativeResize(nv);
     jmodel.jointVelocitySelector(effortLimit) = max_effort;
     velocityLimit.conservativeResize(nv);
@@ -113,25 +120,27 @@ namespace se3
     return idx;
   }
 
+  template<typename JointCollection>
   template<typename JointModelDerived>
-  Model::JointIndex Model::addJoint(const Model::JointIndex parent,
-                                    const JointModelBase<JointModelDerived> & joint_model,
-                                    const SE3 & joint_placement,
-                                    const std::string & joint_name
-                                    )
+  typename ModelTpl<JointCollection>::JointIndex
+  ModelTpl<JointCollection>::addJoint(const JointIndex parent,
+                                      const JointModelBase<JointModelDerived> & joint_model,
+                                      const SE3 & joint_placement,
+                                      const std::string & joint_name)
   {
-    Eigen::VectorXd max_effort, max_velocity, min_config, max_config;
+    VectorXs max_effort, max_velocity, min_config, max_config;
 
-    max_effort = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
-    max_velocity = Eigen::VectorXd::Constant(joint_model.nv(), std::numeric_limits<double>::max());
-    min_config = Eigen::VectorXd::Constant(joint_model.nq(), -std::numeric_limits<double>::max());
-    max_config = Eigen::VectorXd::Constant(joint_model.nq(), std::numeric_limits<double>::max());
+    max_effort = VectorXs::Constant(joint_model.nv(), std::numeric_limits<Scalar>::max());
+    max_velocity = VectorXs::Constant(joint_model.nv(), std::numeric_limits<Scalar>::max());
+    min_config = VectorXs::Constant(joint_model.nq(), -std::numeric_limits<Scalar>::max());
+    max_config = VectorXs::Constant(joint_model.nq(), std::numeric_limits<Scalar>::max());
 
     return addJoint(parent, joint_model, joint_placement, joint_name, max_effort, max_velocity, min_config, max_config);
   }
   
-  inline int Model::addJointFrame(const JointIndex& jidx,
-                                         int         fidx)
+  template<typename JointCollection>
+  inline int ModelTpl<JointCollection>::addJointFrame(const JointIndex & jidx,
+                                                      int         fidx)
   {
     if(fidx < 0) {
       // FIXED_JOINT is required because the parent can be the universe and its
@@ -143,20 +152,21 @@ namespace se3
     return addFrame(Frame(names[jidx],jidx,(FrameIndex)fidx,SE3::Identity(),JOINT));
   }
 
-
-  inline void Model::appendBodyToJoint(const Model::JointIndex joint_index,
-                                       const Inertia & Y,
-                                       const SE3 & body_placement)
+  template<typename JointCollection>
+  inline void ModelTpl<JointCollection>::appendBodyToJoint(const ModelTpl::JointIndex joint_index,
+                                                           const Inertia & Y,
+                                                           const SE3 & body_placement)
   {
     const Inertia & iYf = Y.se3Action(body_placement);
     inertias[joint_index] += iYf;
     nbodies++;
   }
 
-  inline int Model::addBodyFrame(const std::string & body_name,
-                                  const JointIndex  & parentJoint,
-                                  const SE3         & body_placement,
-                                        int           previousFrame)
+  template<typename JointCollection>
+  inline int ModelTpl<JointCollection>::addBodyFrame(const std::string & body_name,
+                                                     const JointIndex  & parentJoint,
+                                                     const SE3         & body_placement,
+                                                     int           previousFrame)
   {
     if(previousFrame < 0) {
       // FIXED_JOINT is required because the parent can be the universe and its
@@ -167,58 +177,68 @@ namespace se3
     return addFrame(Frame(body_name, parentJoint, (FrameIndex)previousFrame, body_placement, BODY));
   }
   
-  inline Model::JointIndex Model::getBodyId(const std::string & name) const
+  template<typename JointCollection>
+  inline typename ModelTpl<JointCollection>::JointIndex
+  ModelTpl<JointCollection>::getBodyId(const std::string & name) const
   {
     return getFrameId(name, BODY);
   }
   
-  inline bool Model::existBodyName(const std::string & name) const
+  template<typename JointCollection>
+  inline bool ModelTpl<JointCollection>::existBodyName(const std::string & name) const
   {
     return existFrame(name, BODY);
   }
 
-
-  inline Model::JointIndex Model::getJointId(const std::string & name) const
+  template<typename JointCollection>
+  inline typename  ModelTpl<JointCollection>::JointIndex
+  ModelTpl<JointCollection>::getJointId(const std::string & name) const
   {
     typedef std::vector<std::string>::iterator::difference_type it_diff_t;
     it_diff_t res = std::find(names.begin(),names.end(),name) - names.begin();
     assert((res<INT_MAX) && "Id superior to int range. Should never happen.");
-    return Model::JointIndex(res);
+    return ModelTpl::JointIndex(res);
   }
   
-  inline bool Model::existJointName(const std::string & name) const
+  template<typename JointCollection>
+  inline bool ModelTpl<JointCollection>::existJointName(const std::string & name) const
   {
     return (names.end() != std::find(names.begin(),names.end(),name));
   }
 
-  inline const std::string& Model::getJointName(const JointIndex index) const
+  template<typename JointCollection>
+  inline const std::string &
+  ModelTpl<JointCollection>::getJointName(const JointIndex index) const
   {
-    assert( index < (Model::JointIndex)joints.size() );
+    assert( index < (ModelTpl::JointIndex)joints.size() );
     return names[index];
   }
 
-  inline Model::FrameIndex Model::getFrameId( const std::string & name, const FrameType & type ) const
+  template<typename JointCollection>
+  inline typename ModelTpl<JointCollection>::FrameIndex
+  ModelTpl<JointCollection>::getFrameId(const std::string & name, const FrameType & type) const
   {
-    container::aligned_vector<Frame>::const_iterator it = std::find_if( frames.begin()
-                                                        , frames.end()
-                                                        , details::FilterFrame(name, type)
-                                                        );
+    typename container::aligned_vector<Frame>::const_iterator it
+    = std::find_if(frames.begin()
+                   ,frames.end()
+                   ,details::FilterFrame(name, type));
     assert(it != frames.end() && "Frame not found");
     assert((std::find_if( boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end())
         && "Several frames match the filter");
-    return Model::FrameIndex(it - frames.begin());
+    return FrameIndex(it - frames.begin());
+  }
+  
+  template<typename JointCollection>
+  inline bool ModelTpl<JointCollection>::existFrame(const std::string & name, const FrameType & type) const
+  {
+    return std::find_if(frames.begin(), frames.end(),
+                        details::FilterFrame(name, type)) != frames.end();
   }
 
-  inline bool Model::existFrame( const std::string & name, const FrameType & type) const
+  template<typename JointCollection>
+  inline int ModelTpl<JointCollection>::addFrame(const Frame & frame)
   {
-    return std::find_if( frames.begin(), frames.end(),
-        details::FilterFrame(name, type)) != frames.end();
-  }
-
-
-  inline int Model::addFrame( const Frame & frame )
-  {
-    if( !existFrame(frame.name, frame.type) )
+    if(!existFrame(frame.name, frame.type))
     {
       frames.push_back(frame);
       nframes++;
@@ -230,7 +250,8 @@ namespace se3
     }
   }
   
-  inline void Model::addJointIndexToParentSubtrees(const JointIndex joint_id)
+  template<typename JointCollection>
+  inline void ModelTpl<JointCollection>::addJointIndexToParentSubtrees(const JointIndex joint_id)
   {
     for(JointIndex parent = parents[joint_id]; parent>0; parent = parents[parent])
       subtrees[parent].push_back(joint_id);

@@ -32,7 +32,8 @@
 namespace se3
 {
   
-  inline Data::Data(const Model & model)
+  template<typename JointCollection>
+  inline DataTpl<JointCollection>::DataTpl(const ModelTpl<JointCollection> & model)
   : joints(0)
   , a((std::size_t)model.njoints)
   , oa((std::size_t)model.njoints)
@@ -102,17 +103,21 @@ namespace se3
   , impulse_c()
   , staticRegressor(3,4*(model.njoints-1))
   {
+    typedef typename Model::JointIndex JointIndex;
+    
     /* Create data strcture associated to the joints */
-    for(Model::Index i=0;i<(Model::JointIndex)(model.njoints);++i) 
-      joints.push_back(CreateJointData::run(model.joints[i]));
+    for(JointIndex i=0;i<(JointIndex)(model.njoints);++i)
+      joints.push_back(CreateJointData<JointCollection>::run(model.joints[i]));
 
     /* Init for CRBA */
-    M.fill(0); Minv.setZero();
-    for(Model::Index i=0;i<(Model::Index)(model.njoints);++i ) { Fcrb[i].resize(6,model.nv); }
+    M.setZero(); Minv.setZero();
+    for(JointIndex i=0;i<(JointIndex)(model.njoints);++i)
+    { Fcrb[i].resize(6,model.nv); }
+    
     computeLastChild(model);
     
     /* Init for Coriolis */
-    C.fill(0.);
+    C.setZero();
 
     /* Init for Cholesky */
     U.setIdentity();
@@ -136,9 +141,11 @@ namespace se3
     oMf[0].setIdentity();
   }
 
-  inline void Data::computeLastChild(const Model & model)
+  template<typename JointCollection>
+  inline void DataTpl<JointCollection>::computeLastChild(const ModelTpl<JointCollection> & model)
   {
-    typedef Model::Index Index;
+    typedef typename Model::Index Index;
+    
     std::fill(lastChild.begin(),lastChild.end(),-1);
     for( int i=model.njoints-1;i>=0;--i )
     {
@@ -152,22 +159,25 @@ namespace se3
     }
   }
 
-  inline void Data::computeParents_fromRow(const Model & model)
+  template<typename JointCollection>
+  inline void DataTpl<JointCollection>::computeParents_fromRow(const ModelTpl<JointCollection> & model)
   {
-    for( Model::Index joint=1;joint<(Model::Index)(model.njoints);joint++)
+    typedef typename Model::Index Index;
+    
+    for(Index joint=1;joint<(Index)(model.njoints);joint++)
     {
-      const Model::Index & parent = model.parents[joint];
+      const Index & parent = model.parents[joint];
       const int nvj    = nv   (model.joints[joint]);
       const int idx_vj = idx_v(model.joints[joint]);
       
-      if(parent>0) parents_fromRow[(Model::Index)idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
-      else         parents_fromRow[(Model::Index)idx_vj] = -1;
-      nvSubtree_fromRow[(Model::Index)idx_vj] = nvSubtree[joint];
+      if(parent>0) parents_fromRow[(Index)idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
+      else         parents_fromRow[(Index)idx_vj] = -1;
+      nvSubtree_fromRow[(Index)idx_vj] = nvSubtree[joint];
       
       for(int row=1;row<nvj;++row)
       {
-        parents_fromRow[(Model::Index)(idx_vj+row)] = idx_vj+row-1;
-        nvSubtree_fromRow[(Model::Index)(idx_vj+row)] = nvSubtree[joint]-row;
+        parents_fromRow[(Index)(idx_vj+row)] = idx_vj+row-1;
+        nvSubtree_fromRow[(Index)(idx_vj+row)] = nvSubtree[joint]-row;
       }
     }
   }

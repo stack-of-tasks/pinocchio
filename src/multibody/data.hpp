@@ -34,19 +34,46 @@
 
 namespace se3
 {
-  
-  struct Data
+ 
+  template<typename JointCollection>
+  struct DataTpl
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    /// \brief The 6d jacobian type (temporary)
-    typedef Eigen::Matrix<double,6,Eigen::Dynamic> Matrix6x;
-    /// \brief The 3d jacobian type (temporary)
-    typedef Eigen::Matrix<double,3,Eigen::Dynamic> Matrix3x;
-    typedef SE3::Vector3 Vector3;
+    enum { Options = JointCollection::Options };
     
-    typedef Eigen::Matrix<double,6,6,Eigen::RowMajor> RowMatrix6;
-    typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> RowMatrixXd;
+    typedef ModelTpl<JointCollection> Model;
+    
+    typedef typename JointCollection::Scalar Scalar;
+    typedef SE3Tpl<Scalar,Options> SE3;
+    typedef MotionTpl<Scalar,Options> Motion;
+    typedef ForceTpl<Scalar,Options> Force;
+    typedef InertiaTpl<Scalar,Options> Inertia;
+    typedef FrameTpl<Scalar,Options> Frame;
+    
+    typedef se3::Index Index;
+    typedef se3::JointIndex JointIndex;
+    typedef se3::GeomIndex GeomIndex;
+    typedef se3::FrameIndex FrameIndex;
+    typedef std::vector<Index> IndexVector;
+    
+    typedef JointModelTpl<JointCollection> JointModel;
+    typedef JointDataTpl<JointCollection> JointData;
+    
+    typedef container::aligned_vector<JointModel> JointModelVector;
+    typedef container::aligned_vector<JointData> JointDataVector;
+    
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    
+    /// \brief The 6d jacobian type (temporary)
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> Matrix6x;
+    /// \brief The 3d jacobian type (temporary)
+    typedef Eigen::Matrix<Scalar,3,Eigen::Dynamic,Options> Matrix3x;
+    
+    typedef Eigen::Matrix<Scalar,6,6,Eigen::RowMajor | Options> RowMatrix6;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor | Options> RowMatrixXd;
     
     /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.
@@ -88,17 +115,17 @@ namespace se3
     container::aligned_vector<SE3> liMi;
     
     /// \brief Vector of joint torques (dim model.nv).
-    Eigen::VectorXd tau;
+    VectorXs tau;
     
     /// \brief Vector of Non Linear Effects (dim model.nv). It corresponds to concatenation of the Coriolis, centrifugal and gravitational effects.
     /// \note  In the multibody dynamics equation \f$ M\ddot{q} + b(q, \dot{q}) = \tau \f$,
     ///        the non linear effects are associated to the term \f$b\f$.
-    Eigen::VectorXd nle;
+    VectorXs nle;
     
     /// \brief Vector of generalized gravity (dim model.nv).
     /// \note  In the multibody dynamics equation \f$ M\ddot{q} + c(q, \dot{q}) + g(q) = \tau \f$,
     ///        the gravity effect is associated to the \f$g\f$ term.
-    Eigen::VectorXd g;
+    VectorXs g;
 
     /// \brief Vector of absolute operationnel frame placements (wrt the world).
     container::aligned_vector<SE3> oMf;
@@ -108,16 +135,16 @@ namespace se3
     container::aligned_vector<Inertia> Ycrb;
     
     /// \brief Vector of sub-tree composite rigid body inertia time derivatives \f$ \dot{Y}_{crb}\f$. See Data::Ycrb for more details.
-    container::aligned_vector<Inertia::Matrix6> dYcrb; // TODO: change with dense symmetric matrix6
+    container::aligned_vector<typename Inertia::Matrix6> dYcrb; // TODO: change with dense symmetric matrix6
     
     /// \brief The joint space inertia matrix (a square matrix of dim model.nv).
-    Eigen::MatrixXd M;
+    MatrixXs M;
     
     /// \brief The inverse of the joint space inertia matrix (a square matrix of dim model.nv).
     RowMatrixXd Minv;
     
     /// \brief The Coriolis matrix (a square matrix of dim model.nv).
-    Eigen::MatrixXd C;
+    MatrixXs C;
     
     /// \brief Variation of the forceset with respect to the joint configuration.
     Matrix6x dFdq;
@@ -138,32 +165,32 @@ namespace se3
     Matrix6x IS;
 
     /// \brief Right variation of the inertia matrix
-    container::aligned_vector<Inertia::Matrix6> vxI;
+    container::aligned_vector<typename Inertia::Matrix6> vxI;
     
     /// \brief Left variation of the inertia matrix
-    container::aligned_vector<Inertia::Matrix6> Ivx;
+    container::aligned_vector<typename Inertia::Matrix6> Ivx;
     
     /// \brief Inertia quantities expressed in the world frame
     container::aligned_vector<Inertia> oYcrb;
     
     /// \brief Time variation of the inertia quantities expressed in the world frame
-    container::aligned_vector<Inertia::Matrix6> doYcrb;
+    container::aligned_vector<typename Inertia::Matrix6> doYcrb;
     
     /// \brief Temporary for derivative algorithms
-    Inertia::Matrix6 Itmp;
+    typename Inertia::Matrix6 Itmp;
     
     /// \brief Temporary for derivative algorithms
     RowMatrix6 M6tmpR;
     
     /// \brief The joint accelerations computed from ABA
-    Eigen::VectorXd ddq;
+    VectorXs ddq;
     
     // ABA internal data
     /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA]
-    container::aligned_vector<Inertia::Matrix6> Yaba;  // TODO: change with dense symmetric matrix6
+    container::aligned_vector<typename Inertia::Matrix6> Yaba;  // TODO: change with dense symmetric matrix6
     
     /// \brief Intermediate quantity corresponding to apparent torque [ABA]
-    Eigen::VectorXd u;                  // Joint Inertia
+    VectorXs u;                  // Joint Inertia
     
     // CCRBA return quantities
     /// \brief Centroidal Momentum Matrix
@@ -177,8 +204,15 @@ namespace se3
     
     /// \brief Centroidal momentum quantity.
     /// \note The centroidal momentum is expressed in the frame centered at the CoM and aligned with the inertial frame (i.e. the world frame).
+    /// \note \f$ h_g = \left( m\dot{c}, L_{g} \right); \f$. \f$ h_g \f$ is the stack of the linear momentum and the angular momemtum vectors.
     ///
     Force hg;
+    
+    /// \brief Centroidal momentum time derivative.
+    /// \note The centroidal momentum time derivative is expressed in the frame centered at the CoM and aligned with the inertial frame (i.e. the world frame).
+    /// \note \f$ \dot{h_g} = \left( m\ddot{c}, \dot{L}_{g} \right); \f$. \f$ \dot{h_g} \f$ is the stack of the linear momentum variation and the angular momemtum variation.
+    ///
+    Force dhg;
     
     /// \brief Centroidal Composite Rigid Body Inertia.
     /// \note \f$ hg = Ig v_{\text{mean}}\f$ map a mean velocity to the current centroil momentum quantity.
@@ -193,16 +227,16 @@ namespace se3
     std::vector<int> nvSubtree;
 
     /// \brief Joint space intertia matrix square root (upper trianglular part) computed with a Cholesky Decomposition.
-    Eigen::MatrixXd U;
+    MatrixXs U;
     
     /// \brief Diagonal of the joint space intertia matrix obtained by a Cholesky Decomposition.
-    Eigen::VectorXd D;
+    VectorXs D;
     
     /// \brief Diagonal inverse of the joint space intertia matrix obtained by a Cholesky Decomposition.
-    Eigen::VectorXd Dinv;
+    VectorXs Dinv;
     
     /// \brief Temporary of size NV used in Cholesky Decomposition.
-    Eigen::VectorXd tmp;
+    VectorXs tmp;
     
     /// \brief First previous non-zero row in M (used in Cholesky Decomposition).
     std::vector<int> parents_fromRow;
@@ -227,31 +261,31 @@ namespace se3
     Matrix6x dAdv;
     
     /// \brief Partial derivative of the joint torque vector with respect to the joint configuration.
-    Eigen::MatrixXd dtau_dq;
+    MatrixXs dtau_dq;
     
     /// \brief Partial derivative of the joint torque vector with respect to the joint velocity.
-    Eigen::MatrixXd dtau_dv;
+    MatrixXs dtau_dv;
     
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint configuration.
-    Eigen::MatrixXd ddq_dq;
+    MatrixXs ddq_dq;
     
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint velocity.
-    Eigen::MatrixXd ddq_dv;
+    MatrixXs ddq_dv;
     
     /// \brief Vector of joint placements wrt to algorithm end effector.
     container::aligned_vector<SE3> iMf;
 
     /// \brief Vector of subtree center of mass positions expressed in the root joint of the subtree. In other words, com[j] is the CoM position of the subtree supported by joint \f$ j \f$ and expressed in the joint frame \f$ j \f$. The element com[0] corresponds to the center of mass position of the whole model and expressed in the global frame.
-    container::aligned_vector<Eigen::Vector3d> com;
+    container::aligned_vector<Vector3> com;
     
     /// \brief Vector of subtree center of mass linear velocities expressed in the root joint of the subtree. In other words, vcom[j] is the CoM linear velocity of the subtree supported by joint \f$ j \f$ and expressed in the joint frame \f$ j \f$. The element vcom[0] corresponds to the velocity of the CoM of the whole model expressed in the global frame.
-    container::aligned_vector<Eigen::Vector3d> vcom;
+    container::aligned_vector<Vector3> vcom;
     
     /// \brief Vector of subtree center of mass linear accelerations expressed in the root joint of the subtree. In other words, acom[j] is the CoM linear acceleration of the subtree supported by joint \f$ j \f$ and expressed in the joint frame \f$ j \f$. The element acom[0] corresponds to the acceleration of the CoM of the whole model expressed in the global frame.
-    container::aligned_vector<Eigen::Vector3d> acom;
+    container::aligned_vector<Vector3> acom;
     
     /// \brief Vector of subtree mass. In other words, mass[j] is the mass of the subtree supported by joint \f$ j \f$. The element mass[0] corrresponds to the total mass of the model.
-    std::vector<double> mass;
+    std::vector<Scalar> mass;
     
     /// \brief Jacobien of center of mass.
     /// \note This Jacobian maps the joint velocity vector to the velocity of the center of mass, expressed in the inertial frame. In other words, \f$ v_{\text{CoM}} = J_{\text{CoM}} \dot{q}\f$.
@@ -259,33 +293,33 @@ namespace se3
 
     
     /// \brief Kinetic energy of the model.
-    double kinetic_energy;
+    Scalar kinetic_energy;
     
     /// \brief Potential energy of the model.
-    double potential_energy;
+    Scalar potential_energy;
     
     // Temporary variables used in forward dynamics
     
     /// \brief Inverse of the operational-space inertia matrix
-    Eigen::MatrixXd JMinvJt;
+    MatrixXs JMinvJt;
     
     /// \brief Cholesky decompostion of \f$\JMinvJt\f$.
-    Eigen::LLT<Eigen::MatrixXd> llt_JMinvJt;
+    Eigen::LLT<MatrixXs> llt_JMinvJt;
     
     /// \brief Lagrange Multipliers corresponding to the contact forces in se3::forwardDynamics.
-    Eigen::VectorXd lambda_c;
+    VectorXs lambda_c;
     
     /// \brief Temporary corresponding to \f$ \sqrt{D} U^{-1} J^{\top} \f$.
-    Eigen::MatrixXd sDUiJt;
+    MatrixXs sDUiJt;
     
     /// \brief Temporary corresponding to the residual torque \f$ \tau - b(q,\dot{q}) \f$.
-    Eigen::VectorXd torque_residual;
+    VectorXs torque_residual;
     
     /// \brief Generalized velocity after impact.
-    Eigen::VectorXd dq_after;
+    VectorXs dq_after;
     
     /// \brief Lagrange Multipliers corresponding to the contact impulses in se3::impulseDynamics.
-    Eigen::VectorXd impulse_c;
+    VectorXs impulse_c;
     
     // data related to regressor
     Matrix3x staticRegressor;
@@ -295,11 +329,11 @@ namespace se3
     ///
     /// \param[in] model The model structure of the rigid body system.
     ///
-    explicit Data(const Model & model);
+    explicit DataTpl(const Model & model);
 
   private:
-    void computeLastChild(const Model& model);
-    void computeParents_fromRow(const Model& model);
+    void computeLastChild(const Model & model);
+    void computeParents_fromRow(const Model & model);
 
   };
 

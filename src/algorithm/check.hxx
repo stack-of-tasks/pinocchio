@@ -27,46 +27,62 @@ namespace se3
   {
     // Dedicated structure for the fusion::accumulate algorithm: validate the check-algorithm
     // for all elements in a fusion list of AlgoCheckers.
+    template<typename JointCollection>
     struct AlgoFusionChecker
     {
       typedef bool result_type;
-      const Model& model;
+      typedef ModelTpl<JointCollection> Model;
+      const Model & model;
       
-      AlgoFusionChecker(const Model&model) : model(model) {}
+      AlgoFusionChecker(const Model & model) : model(model) {}
 
-      inline bool operator()(const bool& accumul, const boost::fusion::void_ &) const
+      inline bool operator()(const bool & accumul, const boost::fusion::void_ &) const
       { return accumul; }
       
       template<typename T>
-      inline bool operator()(const bool& accumul, const AlgorithmCheckerBase<T> & t) const
+      inline bool operator()(const bool & accumul, const AlgorithmCheckerBase<T> & t) const
       { return accumul && t.checkModel(model); }
     };
   } // namespace internal
 
   // Check the validity of the kinematic tree defined by parents.
-  inline bool ParentChecker::checkModel_impl( const Model& model ) const
+  template<typename JointCollection>
+  inline bool ParentChecker::checkModel_impl(const ModelTpl<JointCollection> & model) const
   {
-    for( JointIndex j=1;(int)j<model.njoints;++j )
-      if( model.parents[j]>=j ) return false;
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    for(JointIndex j=1;j<(JointIndex)model.njoints;++j)
+      if(model.parents[j]>=j)
+        return false;
 
     return true;
   }
 
 #if !defined(BOOST_FUSION_HAS_VARIADIC_LIST)
   template<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE,class T)>
-  bool AlgorithmCheckerList<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE,T)>::checkModel_impl(const Model& model) const
+  template<typename JointCollection>
+  bool AlgorithmCheckerList<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE,T)>
+  ::checkModel_impl(const ModelTpl<JointCollection> & model) const
   {
-    return boost::fusion::accumulate(checkerList,true,internal::AlgoFusionChecker(model));
+    return boost::fusion::accumulate(checkerList,
+                                     true,
+                                     internal::AlgoFusionChecker<JointCollection>(model));
   }
 #else
   template<class ...T>
-  bool AlgorithmCheckerList<T...>::checkModel_impl(const Model& model) const
+  template<typename JointCollection>
+  bool AlgorithmCheckerList<T...>::checkModel_impl(const ModelTpl<JointCollection> & model) const
   {
-    return boost::fusion::accumulate(checkerList,true,internal::AlgoFusionChecker(model));
+    return boost::fusion::accumulate(checkerList,
+                                     true,
+                                     internal::AlgoFusionChecker<JointCollection>(model));
   }
 #endif
 
-  inline bool checkData(const Model & model, const Data & data)
+  template<typename JointCollection>
+  inline bool checkData(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data)
   {
 #define CHECK_DATA(a)  if(!(a)) return false;
 
@@ -84,7 +100,10 @@ namespace se3
     CHECK_DATA( (int)data.Ycrb.size()     == model.njoints );
     CHECK_DATA( (int)data.Yaba.size()     == model.njoints );
     CHECK_DATA( (int)data.Fcrb.size()     == model.njoints );
-    BOOST_FOREACH(const Data::Matrix6x & F,data.Fcrb) CHECK_DATA( F.cols() == model.nv );
+    BOOST_FOREACH(const Data::Matrix6x & F,data.Fcrb)
+    {
+      CHECK_DATA( F.cols() == model.nv );
+    }
     CHECK_DATA( (int)data.iMf.size()      == model.njoints );
     CHECK_DATA( (int)data.iMf.size()      == model.njoints );
     CHECK_DATA( (int)data.com.size()      == model.njoints );
@@ -143,7 +162,9 @@ namespace se3
     return true;
   }
   
-  inline bool Model::check(const Data & data) const { return checkData(*this,data); }
+  template<typename JointCollection>
+  inline bool ModelTpl<JointCollection>::check(const DataTpl<JointCollection> & data) const
+  { return checkData(*this,data); }
 
 
 } // namespace se3 

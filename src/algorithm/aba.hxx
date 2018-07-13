@@ -426,9 +426,13 @@ namespace se3
 
   // Check whether all masses are nonzero and diagonal of inertia is nonzero
   // The second test is overconstraining.
-  inline bool ABAChecker::checkModel_impl( const Model& model ) const
+  template<typename JointCollection>
+  inline bool ABAChecker::checkModel_impl(const ModelTpl<JointCollection> & model) const
   {
-    for(JointIndex j=1;int(j)<model.njoints;j++)
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    for(JointIndex j=1;j<(JointIndex)model.njoints;j++)
       if(    (model.inertias[j].mass   ()           < 1e-5) 
           || (model.inertias[j].inertia().data()[0] < 1e-5)
           || (model.inertias[j].inertia().data()[3] < 1e-5)

@@ -222,21 +222,31 @@ namespace se3
 
   namespace internal
   {
-    inline bool isDescendant(const Model& model, const JointIndex j, const JointIndex root)
+    template<typename JointCollection>
+    inline bool isDescendant(const ModelTpl<JointCollection> & model,
+                             const typename ModelTpl<JointCollection>::JointIndex j,
+                             const typename ModelTpl<JointCollection>::JointIndex root)
     {
-      if(int(j)>=model.njoints)  return false;
-      if(j==0)                 return root==0;
+      typedef ModelTpl<JointCollection> Model;
+      typedef typename Model::JointIndex JointIndex;
+      
+      if(j>=(JointIndex)model.njoints)  return false;
+      if(j==0)                          return root==0;
       return (j==root) || isDescendant(model,model.parents[j],root);
     }
   }
   
-  inline bool CRBAChecker::checkModel_impl( const Model& model ) const
+  template<typename JointCollection>
+  inline bool CRBAChecker::checkModel_impl(const ModelTpl<JointCollection> & model) const
   {
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
     // For CRBA, the tree must be "compact", i.e. all descendants of a node i are stored
     // immediately after i in the "parents" map, i.e. forall joint i, the interval i+1..n-1
     // can be separated in two intervals [i+1..k] and [k+1..n-1], where any [i+1..k] is a descendant
     // of i and none of [k+1..n-1] is a descendant of i.
-    for( JointIndex i=1; int(i)<model.njoints-1; ++i ) // no need to check joints 0 and N-1
+    for(JointIndex i=1; i < (JointIndex)(model.njoints-1); ++i) // no need to check joints 0 and N-1
       {
         JointIndex k=i+1;
         while(internal::isDescendant(model,k,i)) ++k;
