@@ -46,31 +46,31 @@ namespace se3
   namespace fusion
   {
     namespace bf = boost::fusion;
-  
+    
     template<typename Visitor>
     struct JointVisitor : public boost::static_visitor<>
     {
       template<typename D>
       void operator() (const JointModelBase<D> & jmodel) const
       {
-	JointDataVariant& jdataSpec = static_cast<const Visitor*>(this)->jdata;
-
-	bf::invoke(&Visitor::template algo<D>,
-		   bf::append2(boost::ref(jmodel),
-			       boost::ref(boost::get<typename D::JointDataDerived>(jdataSpec)),
-			       static_cast<const Visitor*>(this)->args));
+        JointDataVariant& jdataSpec = static_cast<const Visitor*>(this)->jdata;
+        
+        bf::invoke(&Visitor::template algo<D>,
+                   bf::append2(boost::ref(jmodel),
+                               boost::ref(boost::get<typename D::JointDataDerived>(jdataSpec)),
+                               static_cast<const Visitor*>(this)->args));
       }
-
+      
       template<typename ArgsTmp>
       static void run(const JointModelVariant & jmodel,
-		      JointDataVariant & jdata,
-		      ArgsTmp args)
+                      JointDataVariant & jdata,
+                      ArgsTmp args)
       {
-	return boost::apply_visitor( Visitor(jdata,args),jmodel );
+        return boost::apply_visitor( Visitor(jdata,args),jmodel );
       }
     };
-
-
+    
+    
     template<typename Visitor>
     struct JointModelVisitor : public boost::static_visitor<>
     {
@@ -81,15 +81,15 @@ namespace se3
                    bf::append(boost::ref(jmodel),
                               static_cast<const Visitor*>(this)->args));
       }
-
+      
       template<typename ArgsTmp>
       static void run(const JointModelVariant & jmodel,
-          ArgsTmp args)
+                      ArgsTmp args)
       {
-  return boost::apply_visitor( Visitor(args),jmodel );
+        return boost::apply_visitor( Visitor(args),jmodel );
       }
     };
-  
+    
   } // namespace fusion
 } // namespace se3
 
