@@ -72,7 +72,8 @@ namespace se3
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    typedef typename JointCollection::JointDataVariant JointDataVariant;
+    typedef JointDataTpl<JointCollection> JointDataVariant;
+//    typedef typename JointCollection::JointDataVariant JointDataVariant;
     
     typedef JointDataBase< JointDataCompositeTpl<JointCollection> > Base;
     typedef container::aligned_vector<JointDataVariant> JointDataVector;
@@ -121,7 +122,9 @@ namespace se3
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    typedef typename JointCollection::JointModelVariant JointModelVariant;
+    typedef JointModelTpl<JointCollection> JointModelVariant;
+//    typedef typename JointCollection::JointModelVariant JointModelVariant;
+    
     typedef typename traits<JointModelCompositeTpl>::JointDerived JointType;
     typedef typename traits<JointType>::JointDataDerived JointDataDerived;
     
@@ -150,7 +153,7 @@ namespace se3
     using Base::nq;
     using Base::nv;
 
-    /// \brief Empty contructor
+    /// \brief Default contructor
     JointModelCompositeTpl()
     : joints()
     , jointPlacements()
@@ -159,25 +162,26 @@ namespace se3
     {}
     
     ///
-    /// \brief Default constructor with at least one joint
+    /// \brief Constructor with one joint.
     ///
     /// \param jmodel Model of the first joint.
     /// \param placement Placement of the first joint w.r.t. the joint origin.
     ///
     template<typename JointModel>
-    JointModelCompositeTpl(const JointModelBase<JointModel> & jmodel, const SE3 & placement = SE3::Identity())
-    : joints(1,jmodel.derived())
+    JointModelCompositeTpl(const JointModelBase<JointModel> & jmodel,
+                           const SE3 & placement = SE3::Identity())
+    : joints(1,(JointModelVariant)jmodel.derived())
     , jointPlacements(1,placement)
     , m_nq(jmodel.nq())
     , m_nv(jmodel.nv())
-    , m_idx_q(1), m_nqs(1,jmodel.nq())
-    , m_idx_v(1), m_nvs(1,jmodel.nv())
+    , m_idx_q(1,0), m_nqs(1,jmodel.nq())
+    , m_idx_v(1,0), m_nvs(1,jmodel.nv())
     {}
     
     ///
-    /// \brief Copy constructor
+    /// \brief Copy constructor.
     ///
-    /// \param other Model to copy.
+    /// \param other JointModel to copy.
     ///
     JointModelCompositeTpl(const JointModelCompositeTpl & other)
     : Base(other)
@@ -191,15 +195,15 @@ namespace se3
     
     
     ///
-    /// \brief Add a joint to the composition of joints
+    /// \brief Add a joint to the vector of joints.
     ///
     /// \param jmodel Model of the joint to add.
-    /// \param placement Placement of the joint relatively to its predecessor
+    /// \param placement Placement of the joint relatively to its predecessor.
     ///
     template<typename JointModel>
     void addJoint(const JointModelBase<JointModel> & jmodel, const SE3 & placement = SE3::Identity())
     {
-      joints.push_back(jmodel.derived());
+      joints.push_back((JointModelVariant)jmodel.derived());
       jointPlacements.push_back(placement);
       
       m_nq += jmodel.nq(); m_nv += jmodel.nv();
@@ -359,13 +363,16 @@ namespace se3
   };
   
 
-  inline std::ostream & operator << (std::ostream & os, const JointModelComposite & jmodel)
+  template<typename JointCollection>
+  inline std::ostream & operator <<(std::ostream & os, const JointModelCompositeTpl<JointCollection> & jmodel)
   {
-    typedef JointModelComposite::JointModelVector JointModelVector;
+    typedef typename JointModelCompositeTpl<JointCollection>::JointModelVector JointModelVector;
+    
     os << "JointModelComposite containing following models:\n" ;
-    for (JointModelVector::const_iterator it = jmodel.joints.begin();
+    for (typename JointModelVector::const_iterator it = jmodel.joints.begin();
          it != jmodel.joints.end(); ++it)
       os << "  " << shortname(*it) << std::endl;
+    
     return os;
   }
 
