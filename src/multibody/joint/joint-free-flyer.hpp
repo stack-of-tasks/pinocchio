@@ -151,7 +151,7 @@ namespace se3
       NQ = 7,
       NV = 6
     };
-    typedef double Scalar;
+    typedef _Scalar Scalar;
     enum { Options = _Options };
     typedef JointDataFreeFlyerTpl<Scalar,Options> JointDataDerived;
     typedef JointModelFreeFlyerTpl<Scalar,Options> JointModelDerived;

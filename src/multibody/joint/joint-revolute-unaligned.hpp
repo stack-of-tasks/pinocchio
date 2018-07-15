@@ -61,7 +61,8 @@ namespace se3
     template<typename Vector3Like, typename OtherScalar>
     MotionRevoluteUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis,
                                const OtherScalar & w)
-    : axis(axis), w(w)
+    : axis(axis)
+    , w(w)
     {}
 
     operator MotionPlain() const
@@ -78,7 +79,7 @@ namespace se3
     
     // data
     Vector3 axis;
-    double w;
+    Scalar w;
     
   }; // struct MotionRevoluteUnalignedTpl
 

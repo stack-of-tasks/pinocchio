@@ -381,13 +381,14 @@ namespace se3
 
     JointDataDerived createData() const { return JointDataDerived(); }
     
-    template<typename V>
-    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
+    template<typename ConfigVector>
+    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVector> & q_joint) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVector);
       
-      const double& c_theta = q_joint(2),
-                    s_theta = q_joint(3);
+      const Scalar
+      & c_theta = q_joint(2),
+      & s_theta = q_joint(3);
       
       M.rotation().template topLeftCorner<2,2>() << c_theta, -s_theta, s_theta, c_theta;
       M.translation().template head<2>() = q_joint.template head<2>();
