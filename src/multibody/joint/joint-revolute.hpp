@@ -31,31 +31,6 @@ namespace se3
 
   template<typename Scalar, int Options, int axis> struct MotionRevoluteTpl;
 
-  namespace revolute
-  {
-    template<int axis>
-    struct CartesianVector3
-    {
-      double w; 
-      CartesianVector3(const double w) : w(w) {}
-      CartesianVector3() : w(NAN) {}
-      
-      Eigen::Vector3d vector() const;
-      operator Eigen::Vector3d () const { return vector(); }
-    }; // struct CartesianVector3
-    template<> inline Eigen::Vector3d CartesianVector3<0>::vector() const { return Eigen::Vector3d(w,0,0); }
-    template<> inline Eigen::Vector3d CartesianVector3<1>::vector() const { return Eigen::Vector3d(0,w,0); }
-    template<> inline Eigen::Vector3d CartesianVector3<2>::vector() const { return Eigen::Vector3d(0,0,w); }
-    
-    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<0> & wx)
-    { return Eigen::Vector3d(w1[0]+wx.w,w1[1],w1[2]); }
-    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<1> & wy)
-    { return Eigen::Vector3d(w1[0],w1[1]+wy.w,w1[2]); }
-    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<2> & wz)
-    { return Eigen::Vector3d(w1[0],w1[1],w1[2]+wz.w); }
-  } // namespace revolute
-
-
   template<typename _Scalar, int _Options, int axis>
   struct traits< MotionRevoluteTpl<_Scalar,_Options,axis> >
   {
