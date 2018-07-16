@@ -44,7 +44,7 @@ def getJacobian(model,data,jointId,local):
 
 @deprecated("This function has been renamed computeJacobiansTimeVariation and will be removed in release 1.4.0 of Pinocchio. Please change for new computeJacobiansTimeVariation.")
 def computeJacobiansTimeVariation(model,data,q,v):
-  return computeJointJacobiansTimeVariation(model,data,q,v)
+  return se3.computeJointJacobiansTimeVariation(model,data,q,v)
 
 @deprecated("This function has been renamed getJointJacobianTimeVariation and will be removed in release 1.4.0 of Pinocchio. Please change for new getJointJacobianTimeVariation.")
 def getJacobianTimeVariation(model,data,jointId,local):
@@ -55,4 +55,4 @@ def getJacobianTimeVariation(model,data,jointId,local):
 
 @deprecated("This function has been renamed difference and will be removed in release 1.4.0 of Pinocchio. Please change for new difference.")
 def differentiate(model,q0,q1):
-  return difference(model,q0,q1)
+  return se3.difference(model,q0,q1)
