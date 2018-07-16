@@ -94,6 +94,13 @@ namespace se3
     JointDataTpl(const JointDataVariant & jdata_variant)
     : JointDataVariant(jdata_variant)
     {}
+    
+    template<typename JointDataDerived>
+    JointDataTpl(const JointDataBase<JointDataDerived> & jdata)
+    : JointCollection::JointDataVariant((JointDataVariant)jdata.derived())
+    {
+      BOOST_MPL_ASSERT((boost::mpl::contains<typename JointDataVariant::types,JointDataDerived>));
+    }
 
   };
 
