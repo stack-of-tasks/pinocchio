@@ -57,41 +57,43 @@ namespace se3
   {
     MOTION_TYPEDEF_TPL(MotionTranslationTpl);
 
-    MotionTranslationTpl()                   : v (Motion::Vector3 (NAN, NAN, NAN)) {}
+    MotionTranslationTpl()                   : rate(Motion::Vector3(NAN, NAN, NAN)) {}
     template<typename Vector3Like>
-    MotionTranslationTpl(const Eigen::MatrixBase<Vector3Like> & v) : v (v)  {}
+    MotionTranslationTpl(const Eigen::MatrixBase<Vector3Like> & v) : rate(v)  {}
     
-    MotionTranslationTpl(const MotionTranslationTpl & other) : v (other.v)  {}
+    MotionTranslationTpl(const MotionTranslationTpl & other) : rate(other.rate)  {}
  
-    Vector3 & operator()() { return v; }
-    const Vector3 & operator()() const { return v; }
+    Vector3 & operator()() { return rate; }
+    const Vector3 & operator()() const { return rate; }
     
     operator MotionPlain() const
     {
-      return MotionPlain(v,MotionPlain::Vector3::Zero());
+      return MotionPlain(rate,MotionPlain::Vector3::Zero());
     }
     
     MotionTranslationTpl & operator=(const MotionTranslationTpl & other)
     {
-      v = other.v;
+      rate = other.rate;
       return *this;
     }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & v_) const
     {
-      v_.linear() += v;
+      v_.linear() += rate;
     }
     
     // data
-    Vector3 v;
+    Vector3 rate;
     
   }; // struct MotionTranslationTpl
   
   template<typename S1, int O1, typename MotionDerived>
-  inline typename MotionDerived::MotionPlain operator+(const MotionTranslationTpl<S1,O1> & m1, const MotionDense<MotionDerived> & m2)
+  inline typename MotionDerived::MotionPlain
+  operator+(const MotionTranslationTpl<S1,O1> & m1,
+            const MotionDense<MotionDerived> & m2)
   {
-    return typename MotionDerived::MotionPlain(m2.linear() + m1.v, m2.angular());
+    return typename MotionDerived::MotionPlain(m2.linear() + m1.rate, m2.angular());
   }
   
   template<typename Scalar, int Options> struct ConstraintTranslationTpl;
@@ -217,7 +219,7 @@ namespace se3
             const MotionTranslationTpl<S2,O2> & m2)
   {
     typedef typename MotionDerived::MotionPlain ReturnType;
-    return ReturnType(m1.angular().cross(m2.v),
+    return ReturnType(m1.angular().cross(m2.rate),
                       ReturnType::Vector3::Zero());
   }
   
