@@ -24,27 +24,28 @@
 namespace se3
 {
   
-  template<typename _Scalar, int _Options=0> class SE3Tpl;
+  template<typename Scalar, int Options=0> class SE3Tpl;
 
   template<typename Derived> class MotionBase;
   template<typename Derived> class MotionDense;
   template<typename Vector6ArgType> class MotionRef;
-  template<typename _Scalar, int _Options=0> class MotionTpl;
+  template<typename Scalar, int Options=0> class MotionTpl;
   template<typename Scalar, int Options=0> struct BiasZeroTpl;
   
   template<typename Derived> class ForceBase;
   template<typename Derived> class ForceDense;
   template<typename Vector6ArgType> class ForceRef;
-  template<typename _Scalar, int _Options=0> class ForceTpl;
+  template<typename Scalar, int Options=0> class ForceTpl;
   
-  template<typename _Scalar, int _Options=0> class InertiaTpl;
-  template<typename _Scalar, int _Options=0> class Symmetric3Tpl;
+  template<typename Scalar, int Options=0> class InertiaTpl;
+  template<typename Scalar, int Options=0> class Symmetric3Tpl;
 
   typedef SE3Tpl        <double,0> SE3;
   typedef MotionTpl     <double,0> Motion;
   typedef ForceTpl      <double,0> Force;
   typedef InertiaTpl    <double,0> Inertia;
   typedef Symmetric3Tpl <double,0> Symmetric3;
+  typedef BiasZeroTpl   <double,0> BiasZero;
 
   template<class C> struct traits {};
 
