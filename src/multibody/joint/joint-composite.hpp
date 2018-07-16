@@ -24,7 +24,6 @@
 #include "pinocchio/container/aligned-vector.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 
-
 namespace se3
 {
 

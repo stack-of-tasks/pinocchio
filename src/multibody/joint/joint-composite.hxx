@@ -53,7 +53,7 @@ namespace se3
       if ( succ == model.joints.size() )
       {
         data.iMlast[i] = data.pjMi[i];
-        data.S.matrix().rightCols(model.m_nvs[i]) = constraint_xd(jdata.derived()).matrix();
+        data.S.matrix().rightCols(model.m_nvs[i]) = jdata.S().matrix();
       }
       else
       {
@@ -114,7 +114,7 @@ namespace se3
       if ( succ == model.joints.size() )
       {
         data.iMlast[i] = data.pjMi[i];
-        data.S.matrix().rightCols(model.m_nvs[i]) = constraint_xd(jdata.derived()).matrix();
+        data.S.matrix().rightCols(model.m_nvs[i]) = jdata.S().matrix();
         data.v = jdata.v();
         data.c = jdata.c();
       }
@@ -125,12 +125,12 @@ namespace se3
         data.iMlast[i] = data.pjMi[i] * data.iMlast[succ];
         data.S.matrix().middleCols(idx_v,model.m_nvs[i]) = data.iMlast[succ].inverse().act(jdata.S()); // TODO: avoid computing inverse
 
-        Motion v_tmp = data.iMlast[succ].actInv(motion(jdata.derived())); // TODO: avoid calling motion
+        Motion v_tmp = data.iMlast[succ].actInv(jdata.v());
 
         data.v += v_tmp;
 
         data.c -= data.v.cross(v_tmp);
-        data.c += data.iMlast[succ].actInv(bias(jdata.derived())); // TODO: avoid calling bias
+        data.c += data.iMlast[succ].actInv(jdata.c());
       }
  
     }
