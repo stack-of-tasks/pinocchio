@@ -20,7 +20,7 @@
 
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
-#include "pinocchio/multibody/joint/joint-composite.hpp"
+//#include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 
 namespace se3
@@ -31,7 +31,8 @@ namespace se3
    * @brief      CreateJointData visitor
    */
   template<typename JointCollection>
-  struct CreateJointData: public boost::static_visitor<typename JointCollection::JointDataVariant>
+  struct CreateJointData
+  : boost::static_visitor<typename JointCollection::JointDataVariant>
   {
     typedef typename JointCollection::JointModelVariant JointModelVariant;
     typedef typename JointCollection::JointDataVariant JointDataVariant;
@@ -55,32 +56,38 @@ namespace se3
    * @brief      JointCalcZeroOrderVisitor fusion visitor
    */
   
-  struct JointCalcZeroOrderVisitor : public fusion::JointVisitor<JointCalcZeroOrderVisitor>
+  struct JointCalcZeroOrderVisitor
+  : fusion::JointVisitor<JointCalcZeroOrderVisitor>
   {
     typedef boost::fusion::vector< const Eigen::VectorXd & > ArgsType;
 
     JOINT_VISITOR_INIT(JointCalcZeroOrderVisitor);
 
-    template<typename JointModel>
+    template<typename JointModel, typename ConfigVector>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const Eigen::VectorXd & q
-                     )
+                     const Eigen::MatrixBase<ConfigVector> & q)
     {
       jmodel.calc(jdata.derived(),q);
     }
 
   };
-  inline void calc_zero_order(const JointModelVariant & jmodel, JointDataVariant & jdata, const Eigen::VectorXd & q)
+  
+  template<typename JointCollection>
+  inline void calc_zero_order(const JointModelTpl<JointCollection> & jmodel,
+                              JointDataTpl<JointCollection> & jdata,
+                              const Eigen::VectorXd & q)
   {
-    JointCalcZeroOrderVisitor::run( jmodel, jdata, JointCalcZeroOrderVisitor::ArgsType(q) );
+    JointCalcZeroOrderVisitor::run(jmodel, jdata,
+                                   JointCalcZeroOrderVisitor::ArgsType(q));
   }
 
   /**
    * @brief      JointCalcFirstOrderVisitor fusion visitor
    */
   
-  struct JointCalcFirstOrderVisitor : public fusion::JointVisitor<JointCalcFirstOrderVisitor>
+  struct JointCalcFirstOrderVisitor
+  : fusion::JointVisitor<JointCalcFirstOrderVisitor>
   {
     typedef boost::fusion::vector< const Eigen::VectorXd &,
                                     const Eigen::VectorXd & > ArgsType;
@@ -98,7 +105,12 @@ namespace se3
     }
 
   };
-  inline void calc_first_order(const JointModelVariant & jmodel, JointDataVariant & jdata, const Eigen::VectorXd & q, const Eigen::VectorXd & v)
+  
+  template<typename JointCollection>
+  inline void calc_first_order(const JointModelTpl<JointCollection> & jmodel,
+                               JointDataTpl<JointCollection> & jdata,
+                               const Eigen::VectorXd & q,
+                               const Eigen::VectorXd & v)
   {
     JointCalcFirstOrderVisitor::run( jmodel, jdata, JointCalcFirstOrderVisitor::ArgsType(q,v) );
   }
@@ -108,7 +120,8 @@ namespace se3
    * @brief      JointCalcAbaVisitor fusion visitor
    */
   
-  struct JointCalcAbaVisitor : public fusion::JointVisitor<JointCalcAbaVisitor>
+  struct JointCalcAbaVisitor
+  : fusion::JointVisitor<JointCalcAbaVisitor>
   {
     typedef boost::fusion::vector< Inertia::Matrix6 &,
                                     const bool > ArgsType;
@@ -126,140 +139,177 @@ namespace se3
     }
 
   };
-  inline void calc_aba(const JointModelVariant & jmodel, JointDataVariant & jdata, Inertia::Matrix6 & I, const bool update_I)
+  
+  template<typename JointCollection>
+  inline void calc_aba(const JointModelTpl<JointCollection> & jmodel,
+                       JointDataTpl<JointCollection> & jdata,
+                       Inertia::Matrix6 & I,
+                       const bool update_I)
   {
     JointCalcAbaVisitor::run( jmodel, jdata, JointCalcAbaVisitor::ArgsType(I, update_I) );
   }
   
-  struct JointEpsVisitor: public boost::static_visitor<double>
+  template<typename Scalar>
+  struct JointEpsVisitor
+  : boost::static_visitor<Scalar>
   {
-  public:
     
-    template<typename D>
-    double operator()(const JointModelBase<D> & jmodel) const
+    template<typename JointModelDerived>
+    Scalar operator()(const JointModelBase<JointModelDerived> & jmodel) const
     { return jmodel.finiteDifferenceIncrement(); }
     
-    static double run(const JointModelVariant & jmodel)
+    template<typename JointCollection>
+    static Scalar run(const JointModelTpl<JointCollection> & jmodel)
     { return boost::apply_visitor(JointEpsVisitor(),jmodel); }
+    
   }; // struct JointEpsVisitor
   
-  inline double finiteDifferenceIncrement(const JointModelVariant & jmodel)
-  { return JointEpsVisitor::run(jmodel); }
+  template<typename JointCollection>
+  inline typename JointCollection::Scalar
+  finiteDifferenceIncrement(const JointModelTpl<JointCollection> & jmodel)
+  {
+    return JointEpsVisitor<typename JointCollection::Scalar>::run(jmodel);
+  }
 
   /**
    * @brief      JointNvVisitor visitor
    */
-  class JointNvVisitor: public boost::static_visitor<int>
+  struct JointNvVisitor
+  : boost::static_visitor<int>
   {
-  public:
-    template<typename D>
-    int operator()(const JointModelBase<D> & jmodel) const
+    template<typename JointModelDerived>
+    int operator()(const JointModelBase<JointModelDerived> & jmodel) const
     { return jmodel.nv(); }
     
-    static int run( const JointModelVariant & jmodel)
-    { return boost::apply_visitor( JointNvVisitor(), jmodel ); }
+    template<typename JointCollection>
+    static int run( const JointModelTpl<JointCollection> & jmodel)
+    { return boost::apply_visitor(JointNvVisitor(),jmodel); }
   };
-  inline int nv(const JointModelVariant & jmodel) { return JointNvVisitor::run(jmodel); }
+  
+  template<typename JointCollection>
+  inline int nv(const JointModelTpl<JointCollection> & jmodel)
+  { return JointNvVisitor::run(jmodel); }
 
 
   /**
    * @brief      JointNqVisitor visitor
    */
-  class JointNqVisitor: public boost::static_visitor<int>
+  struct JointNqVisitor
+  : boost::static_visitor<int>
   {
-  public:
-    template<typename D>
-    int operator()(const JointModelBase<D> & jmodel) const
+    template<typename JointModelDerived>
+    int operator()(const JointModelBase<JointModelDerived> & jmodel) const
     { return jmodel.nq(); }
     
-    static int run( const JointModelVariant & jmodel)
-    { return boost::apply_visitor( JointNqVisitor(), jmodel ); }
+    template<typename JointCollection>
+    static int run( const JointModelTpl<JointCollection> & jmodel)
+    { return boost::apply_visitor(JointNqVisitor(),jmodel); }
   };
-  inline int nq(const JointModelVariant & jmodel) { return JointNqVisitor::run(jmodel); }
+  
+  template<typename JointCollection>
+  inline int nq(const JointModelTpl<JointCollection> & jmodel)
+  { return JointNqVisitor::run(jmodel); }
 
   /**
    * @brief      JointIdxQVisitor visitor
    */
-  class JointIdxQVisitor: public boost::static_visitor<int>
+  struct JointIdxQVisitor
+  : boost::static_visitor<int>
   {
-  public:
-    template<typename D>
-    int operator()(const JointModelBase<D> & jmodel) const
+    template<typename JointModelDerived>
+    int operator()(const JointModelBase<JointModelDerived> & jmodel) const
     { return jmodel.idx_q(); }
     
-    static int run( const JointModelVariant & jmodel)
-    { return boost::apply_visitor( JointIdxQVisitor(), jmodel ); }
+    template<typename JointCollection>
+    static int run( const JointModelTpl<JointCollection> & jmodel)
+    { return boost::apply_visitor(JointIdxQVisitor(),jmodel); }
   };
-  inline int idx_q(const JointModelVariant & jmodel) { return JointIdxQVisitor::run(jmodel); }
+  
+  template<typename JointCollection>
+  inline int idx_q(const JointModelTpl<JointCollection> & jmodel)
+  { return JointIdxQVisitor::run(jmodel); }
 
   /**
    * @brief      JointIdxVVisitor visitor
    */
-  class JointIdxVVisitor: public boost::static_visitor<int>
+  struct JointIdxVVisitor
+  : boost::static_visitor<int>
   {
-  public:
-    template<typename D>
-    int operator()(const JointModelBase<D> & jmodel) const
+    template<typename JointModelDerived>
+    int operator()(const JointModelBase<JointModelDerived> & jmodel) const
     { return jmodel.idx_v(); }
     
-    static int run( const JointModelVariant & jmodel)
-    { return boost::apply_visitor( JointIdxVVisitor(), jmodel ); }
+    template<typename JointCollection>
+    static int run( const JointModelTpl<JointCollection> & jmodel)
+    { return boost::apply_visitor(JointIdxVVisitor(),jmodel); }
   };
-  inline int idx_v(const JointModelVariant & jmodel) { return JointIdxVVisitor::run(jmodel); }
+  
+  template<typename JointCollection>
+  inline int idx_v(const JointModelTpl<JointCollection> & jmodel) { return JointIdxVVisitor::run(jmodel); }
 
   /**
    * @brief      JointIdVisitor visitor
    */
-  class JointIdVisitor: public boost::static_visitor<JointIndex>
+  struct JointIdVisitor
+  : boost::static_visitor<JointIndex>
   {
-  public:
-    template<typename D>
-    JointIndex operator()(const JointModelBase<D> & jmodel) const
+    template<typename JointModelDerived>
+    JointIndex operator()(const JointModelBase<JointModelDerived> & jmodel) const
     { return jmodel.id(); }
     
-    static JointIndex run( const JointModelVariant & jmodel)
-    { return boost::apply_visitor( JointIdVisitor(), jmodel ); }
+    template<typename JointCollection>
+    static JointIndex run(const JointModelTpl<JointCollection> & jmodel)
+    { return boost::apply_visitor(JointIdVisitor(),jmodel); }
   };
-  inline JointIndex id(const JointModelVariant & jmodel) { return JointIdVisitor::run(jmodel); }
+  
+  template<typename JointCollection>
+  inline JointIndex id(const JointModelTpl<JointCollection> & jmodel) { return JointIdVisitor::run(jmodel); }
 
   /**
    * @brief      JointSetIndexesVisitor visitor
    */
-  class JointSetIndexesVisitor: public boost::static_visitor<>
+  struct JointSetIndexesVisitor
+  : boost::static_visitor<>
   {
-  public:
-
     JointIndex id;
     int q;
     int v;
 
-    JointSetIndexesVisitor(JointIndex id,int q,int v) : id(id),q(q),v(v) {}
+    JointSetIndexesVisitor(JointIndex id,int q,int v): id(id),q(q),v(v) {}
 
-    template<typename D>
-    void operator()(JointModelBase<D> & jmodel) const
+    template<typename JointModelDerived>
+    void operator()(JointModelBase<JointModelDerived> & jmodel) const
     { jmodel.setIndexes(id, q, v); }
     
-    static void run(JointModelVariant & jmodel, JointIndex id, int q, int v)
-    { return boost::apply_visitor( JointSetIndexesVisitor(id, q, v), jmodel ); }
+    template<typename JointCollection>
+    static void run(JointModelTpl<JointCollection> & jmodel, JointIndex id, int q, int v)
+    { return boost::apply_visitor(JointSetIndexesVisitor(id, q, v),jmodel); }
   };
-  inline void setIndexes(JointModelVariant & jmodel, JointIndex id, int q,int v) { return JointSetIndexesVisitor::run(jmodel, id, q, v); }
+  
+  template<typename JointCollection>
+  inline void setIndexes(JointModelTpl<JointCollection> & jmodel,
+                         JointIndex id, int q,int v)
+  { return JointSetIndexesVisitor::run(jmodel, id, q, v); }
 
 
   /**
    * @brief      JointShortnameVisitor visitor
    */
-  class JointShortnameVisitor: public boost::static_visitor<std::string>
+  struct JointShortnameVisitor
+  : boost::static_visitor<std::string>
   {
-  public:
-
-    template<typename D>
-    std::string operator()(const JointModelBase<D> & jmodel) const
+    template<typename JointModelDerived>
+    std::string operator()(const JointModelBase<JointModelDerived> & jmodel) const
     { return jmodel.shortname(); }
     
-    static std::string run(const JointModelVariant & jmodel)
-    { return boost::apply_visitor( JointShortnameVisitor(), jmodel ); }
+    template<typename JointCollection>
+    static std::string run(const JointModelTpl<JointCollection> & jmodel)
+    { return boost::apply_visitor(JointShortnameVisitor(),jmodel); }
   };
-  inline std::string shortname(const JointModelVariant & jmodel) { return JointShortnameVisitor::run(jmodel);}
+  
+  template<typename JointCollection>
+  inline std::string shortname(const JointModelTpl<JointCollection> & jmodel)
+  { return JointShortnameVisitor::run(jmodel);}
 
   //
   // Visitors on JointDatas
@@ -268,113 +318,200 @@ namespace se3
   /**
    * @brief      JointConstraintVisitor visitor
    */
-  class JointConstraintVisitor: public boost::static_visitor< ConstraintXd >
+  template<typename JointCollection>
+  struct JointConstraintVisitor
+  : boost::static_visitor< ConstraintTpl<Eigen::Dynamic,typename JointCollection::Scalar, JointCollection::Options> >
   {
-  public:
-    template <typename D>
-    ConstraintXd operator()(const JointDataBase<D> & jdata) const
-    {
-      return ConstraintXd(jdata.S().matrix()); }
+    typedef ConstraintTpl<Eigen::Dynamic,typename JointCollection::Scalar, JointCollection::Options> ReturnType;
     
-    static ConstraintXd run( const JointDataVariant & jdata)
-    { return boost::apply_visitor( JointConstraintVisitor (), jdata ); }
+    template<typename JointDataDerived>
+    ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
+    {
+      return ReturnType(jdata.S().matrix());
+    }
+    
+    static ReturnType run(const JointDataTpl<JointCollection> & jdata)
+    {
+      return boost::apply_visitor(JointConstraintVisitor(), jdata);
+    }
   };
-  inline ConstraintXd constraint_xd(const JointDataVariant & jdata) { return JointConstraintVisitor::run(jdata); }
+  
+  template<typename JointCollection>
+  inline ConstraintTpl<Eigen::Dynamic,typename JointCollection::Scalar, JointCollection::Options>
+  constraint_xd(const JointDataTpl<JointCollection> & jdata)
+  {
+    return JointConstraintVisitor<JointCollection>::run(jdata);
+  }
 
   /**
    * @brief      JointTransformVisitor visitor
    */
-  class JointTransformVisitor: public boost::static_visitor< SE3 >
+  template<typename JointCollection>
+  struct JointTransformVisitor
+  : boost::static_visitor< SE3Tpl<typename JointCollection::Scalar,JointCollection::Options> >
   {
-  public:
-    template <typename D>
-    SE3 operator()(const JointDataBase<D> & jdata) const
-    { return SE3(jdata.M()); }
+    typedef SE3Tpl<typename JointCollection::Scalar,JointCollection::Options> ReturnType;
     
-    static SE3 run( const JointDataVariant & jdata)
-    { return boost::apply_visitor( JointTransformVisitor (), jdata ); }
+    template<typename JointDataDerived>
+    ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
+    {
+      return ReturnType(jdata.M());
+    }
+    
+    static ReturnType run(const JointDataTpl<JointCollection> & jdata)
+    {
+      return boost::apply_visitor(JointTransformVisitor (), jdata);
+    }
   };
-  inline SE3 joint_transform(const JointDataVariant & jdata) { return JointTransformVisitor::run(jdata); }
+  
+  template<typename JointCollection>
+  inline SE3Tpl<typename JointCollection::Scalar,JointCollection::Options>
+  joint_transform(const JointDataTpl<JointCollection> & jdata)
+  {
+    return JointTransformVisitor<JointCollection>::run(jdata);
+  }
 
   /**
    * @brief      JointMotionVisitor visitor
    */
-  class JointMotionVisitor: public boost::static_visitor< Motion >
+  template<typename JointCollection>
+  struct JointMotionVisitor
+  : boost::static_visitor< MotionTpl<typename JointCollection::Scalar,JointCollection::Options> >
   {
-  public:
-    template <typename D>
-    Motion operator()(const JointDataBase<D> & jdata) const
-    { return Motion(jdata.v()); }
+    typedef MotionTpl<typename JointCollection::Scalar,JointCollection::Options> ReturnType;
     
-    static Motion run( const JointDataVariant & jdata)
-    { return boost::apply_visitor( JointMotionVisitor (), jdata ); }
+    template<typename JointDataDerived>
+    ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
+    {
+      return ReturnType(jdata.v());
+    }
+    
+    static ReturnType run(const JointDataTpl<JointCollection> & jdata)
+    {
+      return boost::apply_visitor(JointMotionVisitor(),jdata);
+    }
   };
-  inline Motion motion(const JointDataVariant & jdata) { return JointMotionVisitor::run(jdata); }
+  
+  template<typename JointCollection>
+  inline MotionTpl<typename JointCollection::Scalar,JointCollection::Options>
+  motion(const JointDataTpl<JointCollection> & jdata)
+  {
+    return JointMotionVisitor<JointCollection>::run(jdata);
+  }
 
   /**
    * @brief      JointBiasVisitor visitor
    */
-  class JointBiasVisitor: public boost::static_visitor< Motion >
+  template<typename JointCollection>
+  struct JointBiasVisitor
+  : boost::static_visitor< MotionTpl<typename JointCollection::Scalar,JointCollection::Options> >
   {
-  public:
-    template <typename D>
-    Motion operator()(const JointDataBase<D> & jdata) const
-    { return Motion(jdata.c()); }
+    typedef MotionTpl<typename JointCollection::Scalar,JointCollection::Options> ReturnType;
     
-    static Motion run( const JointDataVariant & jdata)
-    { return boost::apply_visitor( JointBiasVisitor (), jdata ); }
+    template<typename JointDataDerived>
+    ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
+    {
+      return ReturnType(jdata.c());
+    }
+    
+    static ReturnType run(const JointDataTpl<JointCollection> & jdata)
+    {
+      return boost::apply_visitor(JointBiasVisitor(), jdata);
+    }
   };
-  inline Motion bias(const JointDataVariant & jdata) { return JointBiasVisitor::run(jdata); }
-
-
-
+  
+  template<typename JointCollection>
+  inline MotionTpl<typename JointCollection::Scalar,JointCollection::Options>
+  bias(const JointDataTpl<JointCollection> & jdata)
+  {
+    return JointBiasVisitor<JointCollection>::run(jdata);
+  }
 
   /**
    * @brief      JointUInertiaVisitor visitor
    */
-   // Matrix6X typedefed in Data. Data not included here
-  class JointUInertiaVisitor: public boost::static_visitor< Eigen::Matrix<double,6,Eigen::Dynamic> >
+  template<typename JointCollection>
+  struct JointUInertiaVisitor
+  : boost::static_visitor< Eigen::Matrix<typename JointCollection::Scalar,6,Eigen::Dynamic, JointCollection::Options> >
   {
-  public:
-    template <typename D>
-    Eigen::Matrix<double,6,Eigen::Dynamic> operator()(const JointDataBase<D> & jdata) const
-    { return Eigen::Matrix<double,6,Eigen::Dynamic>(jdata.U()); }
+    typedef Eigen::Matrix<typename JointCollection::Scalar,6,Eigen::Dynamic, JointCollection::Options> ReturnType;
     
-    static Eigen::Matrix<double,6,Eigen::Dynamic> run( const JointDataVariant & jdata)
-    { return boost::apply_visitor( JointUInertiaVisitor (), jdata ); }
+    template<typename JointDataDerived>
+    ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
+    {
+      return ReturnType(jdata.U());
+    }
+    
+    static ReturnType run(const JointDataTpl<JointCollection> & jdata)
+    {
+      return boost::apply_visitor(JointUInertiaVisitor(), jdata);
+    }
   };
-  inline Eigen::Matrix<double,6,Eigen::Dynamic> u_inertia(const JointDataVariant & jdata) { return JointUInertiaVisitor::run(jdata); }
+  
+  template<typename JointCollection>
+  inline Eigen::Matrix<typename JointCollection::Scalar,6,Eigen::Dynamic, JointCollection::Options>
+  u_inertia(const JointDataTpl<JointCollection> & jdata)
+  {
+    return JointUInertiaVisitor<JointCollection>::run(jdata);
+  }
 
   /**
    * @brief      JointDInvInertiaVisitor visitor
    */
-  class JointDInvInertiaVisitor: public boost::static_visitor< Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> >
+  template<typename JointCollection>
+  struct JointDInvInertiaVisitor
+  : boost::static_visitor< Eigen::Matrix<typename JointCollection::Scalar,Eigen::Dynamic,Eigen::Dynamic,JointCollection::Options> >
   {
-  public:
-    template <typename D>
-    Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> operator()(const JointDataBase<D> & jdata) const
-    { return Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic>(jdata.Dinv()); }
+    typedef Eigen::Matrix<typename JointCollection::Scalar,Eigen::Dynamic,Eigen::Dynamic,JointCollection::Options> ReturnType;
     
-    static Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> run( const JointDataVariant & jdata)
-    { return boost::apply_visitor( JointDInvInertiaVisitor (), jdata ); }
+    template<typename JointDataDerived>
+    ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
+    {
+      return ReturnType(jdata.Dinv());
+    }
+    
+    static ReturnType run(const JointDataTpl<JointCollection> & jdata)
+    {
+      return boost::apply_visitor(JointDInvInertiaVisitor(), jdata);
+    }
   };
-  inline Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> dinv_inertia(const JointDataVariant & jdata) { return JointDInvInertiaVisitor::run(jdata); }
+  
+  template<typename JointCollection>
+  inline Eigen::Matrix<typename JointCollection::Scalar,Eigen::Dynamic,Eigen::Dynamic,JointCollection::Options>
+  dinv_inertia(const JointDataTpl<JointCollection> & jdata)
+  {
+    return JointDInvInertiaVisitor<JointCollection>::run(jdata);
+  }
 
   /**
    * @brief      JointUDInvInertiaVisitor visitor
    */
    // Matrix6X typedefed in Data. Data not included here
-  class JointUDInvInertiaVisitor: public boost::static_visitor< Eigen::Matrix<double,6,Eigen::Dynamic> >
+  template<typename JointCollection>
+  struct JointUDInvInertiaVisitor
+  : boost::static_visitor< Eigen::Matrix<typename JointCollection::Scalar,6,Eigen::Dynamic,JointCollection::Options> >
   {
-  public:
-    template <typename D>
-    Eigen::Matrix<double,6,Eigen::Dynamic> operator()(const JointDataBase<D> & jdata) const
-    { return Eigen::Matrix<double,6,Eigen::Dynamic>(jdata.UDinv()); }
+    typedef Eigen::Matrix<typename JointCollection::Scalar,6,Eigen::Dynamic,JointCollection::Options> ReturnType;
     
-    static Eigen::Matrix<double,6,Eigen::Dynamic> run( const JointDataVariant & jdata)
-    { return boost::apply_visitor( JointUDInvInertiaVisitor (), jdata ); }
+    template<typename JointDataDerived>
+    ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
+    {
+      return ReturnType(jdata.UDinv());
+    }
+    
+    static ReturnType run(const JointDataTpl<JointCollection> & jdata)
+    {
+      return boost::apply_visitor(JointUDInvInertiaVisitor(),jdata);
+      
+    }
   };
-  inline Eigen::Matrix<double,6,Eigen::Dynamic> udinv_inertia(const JointDataVariant & jdata) { return JointUDInvInertiaVisitor::run(jdata); }
+  
+  template<typename JointCollection>
+  inline Eigen::Matrix<typename JointCollection::Scalar,6,Eigen::Dynamic,JointCollection::Options>
+  udinv_inertia(const JointDataTpl<JointCollection> & jdata)
+  {
+    return JointUDInvInertiaVisitor<JointCollection>::run(jdata);
+  }
 
   /// @endcond
 
