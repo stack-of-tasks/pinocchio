@@ -33,7 +33,6 @@ void test_joint_methods(JointModel & jmodel, typename JointModel::JointDataDeriv
   Eigen::VectorXd q1(Eigen::VectorXd::Random (jmodel.nq()));
   Eigen::VectorXd q1_dot(Eigen::VectorXd::Random (jmodel.nv()));
   Eigen::VectorXd q2(Eigen::VectorXd::Random (jmodel.nq()));
-  double u = 0.3;
   se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
   bool update_I = false;
 
