@@ -19,6 +19,7 @@
 #define __se3_lie_group_algo_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
+#include "pinocchio/multibody/joint/joint-composite.hpp"
 
 namespace se3
 {
@@ -28,8 +29,9 @@ namespace se3
     template<typename Algo>
     struct Dispatch
     {
-      static void run (const JointModelComposite& jmodel,
-                       typename Algo::ArgsType args)
+      template<typename JointCollection>
+      static void run(const JointModelCompositeTpl<JointCollection> & jmodel,
+                      typename Algo::ArgsType args)
       {
         for (size_t i = 0; i < jmodel.joints.size(); ++i)
           Algo::run(jmodel.joints[i], args);
@@ -43,31 +45,35 @@ namespace se3
 #define SE3_DETAILS_WRITE_ARGS_4(JM) SE3_DETAILS_WRITE_ARGS_3(JM), typename boost::fusion::result_of::at_c<ArgsType, 3>::type a3
     
 #define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(Visitor, Algo)                 \
-  template <typename LieGroup_t> struct Algo <LieGroup_t, JointModelComposite> {                                         \
-    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                 \
-    static void run (SE3_DETAILS_WRITE_ARGS_1(JointModelComposite))         \
+  template <typename LieGroup_t, typename JointCollection>                    \
+  struct Algo <LieGroup_t, JointModelCompositeTpl<JointCollection> > {        \
+    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                  \
+    static void run (SE3_DETAILS_WRITE_ARGS_1(JointModelCompositeTpl<JointCollection>))         \
     { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0)); } \
   }
-    
+   
 #define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_2(Visitor, Algo)                 \
-  template <typename LieGroup_t> struct Algo <LieGroup_t, JointModelComposite> {                                         \
-    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                 \
-    static void run (SE3_DETAILS_WRITE_ARGS_2(JointModelComposite))         \
-    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0, a1)); } \
+  template <typename LieGroup_t, typename JointCollection>                    \
+  struct Algo <LieGroup_t, JointModelCompositeTpl<JointCollection> > {        \
+    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                  \
+    static void run (SE3_DETAILS_WRITE_ARGS_2(JointModelCompositeTpl<JointCollection>))         \
+    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0,a1)); } \
   }
     
 #define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(Visitor, Algo)                 \
-  template <typename LieGroup_t> struct Algo <LieGroup_t, JointModelComposite> {                                         \
-    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                 \
-    static void run (SE3_DETAILS_WRITE_ARGS_3(JointModelComposite))         \
-    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0, a1, a2)); } \
+  template <typename LieGroup_t, typename JointCollection>                    \
+  struct Algo <LieGroup_t, JointModelCompositeTpl<JointCollection> > {        \
+    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                  \
+    static void run (SE3_DETAILS_WRITE_ARGS_3(JointModelCompositeTpl<JointCollection>))         \
+    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0,a1,a2)); } \
   }
     
 #define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(Visitor, Algo)                 \
-  template <typename LieGroup_t> struct Algo <LieGroup_t, JointModelComposite> {                                         \
-    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                 \
-    static void run (SE3_DETAILS_WRITE_ARGS_4(JointModelComposite))         \
-    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0, a1, a2, a3)); } \
+  template <typename LieGroup_t, typename JointCollection>                    \
+  struct Algo <LieGroup_t, JointModelCompositeTpl<JointCollection> > {        \
+    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                  \
+    static void run (SE3_DETAILS_WRITE_ARGS_4(JointModelCompositeTpl<JointCollection>))         \
+    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0,a1,a2,a3)); } \
   }
     
 #define SE3_DETAILS_VISITOR_METHOD_ALGO_1(Algo, TplParam)                      \

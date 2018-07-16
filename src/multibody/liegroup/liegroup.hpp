@@ -26,31 +26,51 @@
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 
-namespace se3 {
-  struct LieGroupMap {
-    template<typename JointModel> struct operation {
+namespace se3
+{
+  struct LieGroupMap
+  {
+    template<typename JointModel>
+    struct operation
+    {
       typedef VectorSpaceOperation<JointModel::NQ> type;
     };
   };
+  
   template<typename JointModel>
-  struct LieGroup {
+  struct LieGroup
+  {
     typedef typename LieGroupMap::operation<JointModel>::type type;
   };
 
-  template<> struct LieGroupMap::operation <JointModelComposite> {};
-  template<> struct LieGroupMap::operation <JointModelSpherical> {
+  template<typename JointCollection>
+  struct LieGroupMap::operation< JointModelCompositeTpl<JointCollection> >
+  {};
+  
+  template<typename Scalar, int Options>
+  struct LieGroupMap::operation< JointModelSphericalTpl<Scalar,Options> >
+  {
     typedef SpecialOrthogonalOperation<3> type;
   };
-  template<> struct LieGroupMap::operation <JointModelFreeFlyer> {
+  
+  template<typename Scalar, int Options>
+  struct LieGroupMap::operation< JointModelFreeFlyerTpl<Scalar,Options> >
+  {
     typedef SpecialEuclideanOperation<3> type;
   };
-  template<> struct LieGroupMap::operation <JointModelPlanar> {
+  
+  template<typename Scalar, int Options>
+  struct LieGroupMap::operation< JointModelPlanarTpl<Scalar,Options> >
+  {
     typedef SpecialEuclideanOperation<2> type;
   };
+  
   template<typename Scalar, int Options, int axis>
-  struct LieGroupMap::operation <JointModelRevoluteUnboundedTpl<Scalar,Options,axis> > {
+  struct LieGroupMap::operation<JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
+  {
     typedef SpecialOrthogonalOperation<2> type;
   };
+  
 }
 
 #endif // ifndef __se3_lie_group_hpp__
