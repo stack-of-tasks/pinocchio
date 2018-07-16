@@ -29,10 +29,10 @@
 namespace se3
 {
   
-  template<typename Scalar, int Options, int _axis> struct MotionPrismatic;
+  template<typename Scalar, int Options, int _axis> struct MotionPrismaticTpl;
   
   template<typename _Scalar, int _Options, int _axis>
-  struct traits < MotionPrismatic<_Scalar,_Options,_axis> >
+  struct traits < MotionPrismaticTpl<_Scalar,_Options,_axis> >
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -51,17 +51,16 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-  }; // struct traits MotionPrismatic
+  }; // struct traits MotionPrismaticTpl
 
   template<typename _Scalar, int _Options, int _axis>
-  struct MotionPrismatic : MotionBase < MotionPrismatic<_Scalar,_Options,_axis> >
+  struct MotionPrismaticTpl : MotionBase < MotionPrismaticTpl<_Scalar,_Options,_axis> >
   {
-    MOTION_TYPEDEF_TPL(MotionPrismatic);
+    MOTION_TYPEDEF_TPL(MotionPrismaticTpl);
     typedef SpatialAxis<_axis+LINEAR> Axis;
 
-    MotionPrismatic()                   : v(NAN) {}
-    MotionPrismatic( const Scalar & v ) : v(v)  {}
-    Scalar v;
+    MotionPrismaticTpl()                   : v(NAN) {}
+    MotionPrismaticTpl( const Scalar & v ) : v(v)  {}
 
     inline operator MotionPlain() const { return Axis() * v; }
     
@@ -71,11 +70,13 @@ namespace se3
       typedef typename MotionDense<Derived>::Scalar OtherScalar;
       v_.linear()[_axis] += (OtherScalar) v;
     }
-  }; // struct MotionPrismatic
+    //data
+    Scalar v;
+  }; // struct MotionPrismaticTpl
 
   template<typename Scalar, int Options, int axis, typename MotionDerived>
   typename MotionDerived::MotionPlain
-  operator+(const MotionPrismatic<Scalar,Options,axis> & m1,
+  operator+(const MotionPrismaticTpl<Scalar,Options,axis> & m1,
             const MotionDense<MotionDerived> & m2)
   {
     typename MotionDerived::MotionPlain res(m2);
@@ -128,11 +129,11 @@ namespace se3
     typedef SpatialAxis<LINEAR+axis> Axis;
 
     template<typename D>
-    MotionPrismatic<Scalar,Options,axis> operator*(const Eigen::MatrixBase<D> & v) const
+    MotionPrismaticTpl<Scalar,Options,axis> operator*(const Eigen::MatrixBase<D> & v) const
     {
 //        EIGEN_STATIC_ASSERT_SIZE_1x1(D); // There is actually a bug in Eigen with such a macro
       assert(v.cols() == 1 && v.rows() == 1);
-      return MotionPrismatic<Scalar,Options,axis>(v[0]);
+      return MotionPrismaticTpl<Scalar,Options,axis>(v[0]);
     }
 
     template<typename S2, int O2>
@@ -197,7 +198,7 @@ namespace se3
   template<typename MotionDerived, typename S1, int O1>
   inline typename MotionDerived::MotionPlain
   operator^(const MotionDense<MotionDerived> & m1,
-            const MotionPrismatic<S1,O1,0>& m2)
+            const MotionPrismaticTpl<S1,O1,0>& m2)
   {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
@@ -214,7 +215,7 @@ namespace se3
   template<typename MotionDerived, typename S1, int O1>
   inline typename MotionDerived::MotionPlain
   operator^(const MotionDense<MotionDerived> & m1,
-            const MotionPrismatic<S1,O1,1>& m2)
+            const MotionPrismaticTpl<S1,O1,1>& m2)
    {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
@@ -231,7 +232,7 @@ namespace se3
   template<typename MotionDerived, typename S1, int O1>
   inline typename MotionDerived::MotionPlain
   operator^(const MotionDense<MotionDerived> & m1,
-            const MotionPrismatic<S1,O1,2>& m2)
+            const MotionPrismaticTpl<S1,O1,2>& m2)
    {
     /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
      * nu1^(v2,0) = ( w1^v2      , 0 )
@@ -354,7 +355,7 @@ namespace se3
     typedef JointModelPrismaticTpl<Scalar,Options,axis> JointModelDerived;
     typedef ConstraintPrismatic<Scalar,Options,axis> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
-    typedef MotionPrismatic<Scalar,Options,axis> Motion_t;
+    typedef MotionPrismaticTpl<Scalar,Options,axis> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
