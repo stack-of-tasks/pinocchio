@@ -56,7 +56,7 @@ void test_joint_methods(const se3::JointModelBase<JointModel> & jmodel)
   jmodel.calc(jdata,q);
   jmodel.calc_aba(jdata,I,true);
 
-  Eigen::MatrixXd S = constraint_xd(jdata).matrix();
+  Eigen::MatrixXd S = jdata.S.matrix();
   Eigen::MatrixXd U_check = I_check*S;
   Eigen::MatrixXd D_check = S.transpose()*U_check;
   Eigen::MatrixXd Dinv_check = D_check.inverse();

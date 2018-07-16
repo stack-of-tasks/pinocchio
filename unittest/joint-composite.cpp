@@ -60,7 +60,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   jmodel_composite.calc(jdata_composite,q);
   
   BOOST_CHECK(jdata_composite.M.isApprox((SE3)jdata.M));
-  BOOST_CHECK(constraint_xd(jdata_composite).matrix().isApprox(constraint_xd(jdata).matrix()));
+  BOOST_CHECK(jdata_composite.S.matrix().isApprox(jdata.S.matrix()));
   
   q = LieGroupType().randomConfiguration(ql,qu);
   TangentVector_t v = TangentVector_t::Random(jmodel.nv());
@@ -68,7 +68,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   jmodel_composite.calc(jdata_composite,q,v);
   
   BOOST_CHECK(jdata_composite.M.isApprox((SE3)jdata.M));
-  BOOST_CHECK(constraint_xd(jdata_composite).matrix().isApprox(constraint_xd(jdata).matrix()));
+  BOOST_CHECK(jdata_composite.S.matrix().isApprox(jdata.S.matrix()));
   BOOST_CHECK(jdata_composite.v.isApprox((Motion)jdata.v));
   BOOST_CHECK(jdata_composite.c.isApprox((Motion)jdata.c));
   
