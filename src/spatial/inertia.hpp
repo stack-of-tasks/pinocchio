@@ -310,15 +310,15 @@ namespace se3
       && I.isApprox(other.I,prec);
     }
 
-    InertiaTpl __plus__(const InertiaTpl &Yb) const
+    InertiaTpl __plus__(const InertiaTpl & Yb) const
     {
       /* Y_{a+b} = ( m_a+m_b,
        *             (m_a*c_a + m_b*c_b ) / (m_a + m_b),
        *             I_a + I_b - (m_a*m_b)/(m_a+m_b) * AB_x * AB_x )
        */
 
-      const double & mab = m+Yb.m;
-      const double mab_inv = 1./mab;
+      const Scalar & mab = m+Yb.m;
+      const Scalar mab_inv = 1./mab;
       const Vector3 & AB = (c-Yb.c).eval();
       return InertiaTpl( mab,
                          (m*c+Yb.m*Yb.c)*mab_inv,
@@ -328,8 +328,8 @@ namespace se3
     InertiaTpl& __pequ__(const InertiaTpl &Yb)
     {
       const InertiaTpl& Ya = *this;
-      const double & mab = Ya.m+Yb.m;
-      const double mab_inv = 1./mab;
+      const Scalar & mab = Ya.m+Yb.m;
+      const Scalar mab_inv = 1./mab;
       const Vector3 & AB = (Ya.c-Yb.c).eval();
       c *= (m*mab_inv); c += (Yb.m*mab_inv)*Yb.c; //c *= mab_inv;
       I += Yb.I; I -= (Ya.m*Yb.m*mab_inv)* typename Symmetric3::SkewSquare(AB);
