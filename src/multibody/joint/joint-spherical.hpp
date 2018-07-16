@@ -29,10 +29,10 @@
 namespace se3
 {
 
-  template<typename Scalar, int Options> struct MotionSpherical;
+  template<typename Scalar, int Options> struct MotionSphericalTpl;
   
   template<typename _Scalar, int _Options>
-  struct traits< MotionSpherical<_Scalar,_Options> >
+  struct traits< MotionSphericalTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -51,15 +51,15 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-  }; // traits MotionSpherical
+  }; // traits MotionSphericalTpl
 
   template<typename _Scalar, int _Options>
-  struct MotionSpherical : MotionBase< MotionSpherical<_Scalar,_Options> >
+  struct MotionSphericalTpl : MotionBase< MotionSphericalTpl<_Scalar,_Options> >
   {
-    MOTION_TYPEDEF_TPL(MotionSpherical);
+    MOTION_TYPEDEF_TPL(MotionSphericalTpl);
 
-    MotionSpherical() : w (Motion::Vector3(NAN, NAN, NAN)) {}
-    MotionSpherical(const Motion::Vector3 & w) : w (w)  {}
+    MotionSphericalTpl() : w (Motion::Vector3(NAN, NAN, NAN)) {}
+    MotionSphericalTpl(const Motion::Vector3 & w) : w (w)  {}
 
     Vector3 & operator() () { return w; }
     const Vector3 & operator() () const { return w; }
@@ -76,11 +76,11 @@ namespace se3
     }
     
     Vector3 w;
-  }; // struct MotionSpherical
+  }; // struct MotionSphericalTpl
 
   template<typename S1, int O1, typename MotionDerived>
   inline typename MotionDerived::MotionPlain
-  operator+(const MotionSpherical<S1,O1> & m1, const MotionDense<MotionDerived> & m2)
+  operator+(const MotionSphericalTpl<S1,O1> & m1, const MotionDense<MotionDerived> & m2)
   {
     return typename MotionDerived::MotionPlain(m2.linear(),m2.angular() + m1.w);
   }
@@ -184,18 +184,18 @@ namespace se3
 
               
   template<typename Scalar, int Options, typename Vector3Like>
-  MotionSpherical<Scalar,Options>
+  MotionSphericalTpl<Scalar,Options>
   operator*(const ConstraintSphericalTpl<Scalar,Options> &,
             const Eigen::MatrixBase<Vector3Like>& v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
-    return MotionSpherical<Scalar,Options>(v);
+    return MotionSphericalTpl<Scalar,Options>(v);
   }
 
   template<typename MotionDerived, typename S2, int O2>
   inline typename MotionDerived::MotionPlain
   operator^(const MotionDense<MotionDerived> & m1,
-            const MotionSpherical<S2,O2> & m2)
+            const MotionSphericalTpl<S2,O2> & m2)
   {
     return typename MotionDerived::MotionPlain(m1.template linear().cross(m2.w),
                                                m1.template angular().cross(m2.w));
@@ -251,7 +251,7 @@ namespace se3
     typedef JointModelSphericalTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintSphericalTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
-    typedef MotionSpherical<Scalar,Options> Motion_t;
+    typedef MotionSphericalTpl<Scalar,Options> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
