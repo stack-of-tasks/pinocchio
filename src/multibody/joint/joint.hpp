@@ -20,8 +20,11 @@
 
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
+#include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
 #include "pinocchio/container/aligned-vector.hpp"
+
+#include <boost/mpl/contains.hpp>
 
 namespace se3
 {
@@ -87,12 +90,15 @@ namespace se3
     const UD_t              UDinv() const { return udinv_inertia(*this); }
 
     JointDataTpl() : JointDataVariant() {}
-    JointDataTpl(const JointDataVariant & jdata) : JointDataVariant(jdata) {}
+    
+    JointDataTpl(const JointDataVariant & jdata_variant)
+    : JointDataVariant(jdata_variant)
+    {}
 
   };
 
   template<typename JointCollection>
-  struct JointModelTpl : public JointModelBase< JointModelTpl<JointCollection> >, JointCollection::JointModelVariant
+  struct JointModelTpl : JointModelBase< JointModelTpl<JointCollection> >, JointCollection::JointModelVariant
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -109,8 +115,17 @@ namespace se3
     using Base::operator==;
 
     JointModelTpl() : JointModelVariant() {}
-    JointModelTpl(const JointModelVariant & model_variant) : JointModelVariant(model_variant)
+    
+    JointModelTpl(const JointModelVariant & jmodel_variant)
+    : JointCollection::JointModelVariant(jmodel_variant)
     {}
+    
+    template<typename JointModelDerived>
+    JointModelTpl(const JointModelBase<JointModelDerived> & jmodel)
+    : JointCollection::JointModelVariant((JointModelVariant)jmodel.derived())
+    {
+      BOOST_MPL_ASSERT((boost::mpl::contains<typename JointModelVariant::types,JointModelDerived>));
+    }
     
     JointModelVariant & toVariant()
     { return *static_cast<JointModelVariant*>(this); }
@@ -118,13 +133,18 @@ namespace se3
     const JointModelVariant & toVariant() const
     { return *static_cast<const JointModelVariant*>(this); }
 
-    JointDataVariant createData()
+    JointDataDerived createData()
     { return ::se3::createData<JointCollection>(*this); }
 
-    void calc(JointDataDerived & data,const Eigen::VectorXd & q) const
+    template<typename ConfigVector>
+    void calc(JointDataDerived & data,
+              const Eigen::MatrixBase<ConfigVector> & q) const
     { calc_zero_order(*this,data,q); }
 
-    void calc(JointDataDerived & data, const Eigen::VectorXd & q, const Eigen::VectorXd & v) const
+    template<typename ConfigVector, typename TangentVector>
+    void calc(JointDataDerived & data,
+              const Eigen::MatrixBase<ConfigVector> & q,
+              const Eigen::MatrixBase<TangentVector> & v) const
     { calc_first_order(*this,data,q,v); }
     
     void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
@@ -141,7 +161,8 @@ namespace se3
 
     JointIndex     id()      const { return ::se3::id(*this); }
 
-    void setIndexes(JointIndex id,int nq,int nv) { ::se3::setIndexes(*this,id, nq, nv); }
+    void setIndexes(JointIndex id, int nq, int nv)
+    { ::se3::setIndexes(*this,id, nq, nv); }
   };
   
   typedef container::aligned_vector<JointData> JointDataVector;
