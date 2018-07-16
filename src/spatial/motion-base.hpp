@@ -84,11 +84,13 @@ namespace se3
     { return derived().isApprox_impl(other, prec);}
     
     template<typename S2, int O2>
-    MotionPlain se3Action(const SE3Tpl<S2,O2> & m) const
+    typename internal::SE3GroupAction<Derived>::ReturnType
+    se3Action(const SE3Tpl<S2,O2> & m) const
     { return derived().se3Action_impl(m); }
     
     template<typename S2, int O2>
-    MotionPlain se3ActionInverse(const SE3Tpl<S2,O2> & m) const
+    typename internal::SE3GroupAction<Derived>::ReturnType
+    se3ActionInverse(const SE3Tpl<S2,O2> & m) const
     { return derived().se3ActionInverse_impl(m); }
     
     Scalar dot(const Force & f) const { return derived().dot(f); }
