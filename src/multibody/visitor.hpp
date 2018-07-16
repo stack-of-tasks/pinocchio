@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015,2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -19,7 +19,7 @@
 #ifndef __se3_visitor_hpp__
 #define __se3_visitor_hpp__
 
-#define     BOOST_FUSION_INVOKE_MAX_ARITY 10
+#define BOOST_FUSION_INVOKE_MAX_ARITY 10
 #include <boost/fusion/include/invoke.hpp>
 #include <boost/fusion/include/algorithm.hpp>
 #include "pinocchio/multibody/joint/joint-collection.hpp"
@@ -50,59 +50,80 @@ namespace se3
     template<typename Visitor>
     struct JointVisitor : public boost::static_visitor<>
     {
-      template<typename D>
-      void operator() (const JointModelBase<D> & jmodel) const
+      Visitor & derived() { return *static_cast<Visitor*>(this); }
+      const Visitor & derived() const { return *static_cast<const Visitor*>(this); }
+      
+      template<typename ModelDerived>
+      void operator()(const JointModelBase<ModelDerived> & jmodel) const
       {
-        JointDataVariant& jdataSpec = static_cast<const Visitor*>(this)->jdata;
-        
-        bf::invoke(&Visitor::template algo<D>,
+        bf::invoke(&Visitor::template algo<ModelDerived>,
                    bf::append2(boost::ref(jmodel),
-                               boost::ref(boost::get<typename D::JointDataDerived>(jdataSpec)),
-                               static_cast<const Visitor*>(this)->args));
+                               boost::ref(boost::get<typename ModelDerived::JointDataDerived>(derived().jdata)),
+                               derived().args));
       }
       
-      template<typename ArgsTmp>
-      static void run(const JointModelVariant & jmodel,
-                      JointDataVariant & jdata,
+      template<typename JointCollection, typename ArgsTmp>
+      static void run(const JointModelTpl<JointCollection> & jmodel,
+                      JointDataTpl<JointCollection> & jdata,
                       ArgsTmp args)
       {
-        return boost::apply_visitor( Visitor(jdata,args),jmodel );
+        return boost::apply_visitor(Visitor(jdata,args),jmodel);
+      }
+      
+      template<typename JointModelDerived, typename ArgsTmp>
+      static void run(const JointModelBase<JointModelDerived> & jmodel,
+                      ArgsTmp args)
+      {
+        Visitor visit(args);
+        visit(jmodel.derived());
       }
     };
-    
     
     template<typename Visitor>
     struct JointModelVisitor : public boost::static_visitor<>
     {
-      template<typename D>
-      void operator() (const JointModelBase<D> & jmodel) const
+      
+      Visitor & derived() { return *static_cast<Visitor*>(this); }
+      const Visitor & derived() const { return *static_cast<const Visitor*>(this); }
+      
+      template<typename ModelDerived>
+      void operator()(const JointModelBase<ModelDerived> & jmodel) const
       {
-        bf::invoke(&Visitor::template algo<D>,
+        bf::invoke(&Visitor::template algo<ModelDerived>,
                    bf::append(boost::ref(jmodel),
-                              static_cast<const Visitor*>(this)->args));
+                              derived().args));
       }
       
-      template<typename ArgsTmp>
-      static void run(const JointModelVariant & jmodel,
+      template<typename JointCollection, typename ArgsTmp>
+      static void run(const JointModelTpl<JointCollection> & jmodel,
                       ArgsTmp args)
       {
-        return boost::apply_visitor( Visitor(args),jmodel );
+        return boost::apply_visitor(Visitor(args),jmodel);
+      }
+      
+      template<typename JointModelDerived, typename ArgsTmp>
+      static void run(const JointModelBase<JointModelDerived> & jmodel,
+                      ArgsTmp args)
+      {
+        Visitor visit(args);
+        visit(jmodel.derived());
       }
     };
     
   } // namespace fusion
 } // namespace se3
 
-#define JOINT_VISITOR_INIT(VISITOR)					\
-  VISITOR( JointDataVariant & jdata,ArgsType args ) : jdata(jdata),args(args) {} \
-  using se3::fusion::JointVisitor< VISITOR >::run;			\
-  JointDataVariant & jdata;						\
+#define JOINT_VISITOR_INIT(VISITOR)					                                \
+  VISITOR(JointDataVariant & jdata, ArgsType args)                          \
+  : jdata(jdata),args(args)                                                 \
+  {}                                                                        \
+  using se3::fusion::JointVisitor< VISITOR >::run;			                    \
+  JointDataVariant & jdata;						                                      \
   ArgsType args
 
-
-#define JOINT_MODEL_VISITOR_INIT(VISITOR)         \
-  VISITOR(ArgsType args ) : args(args) {} \
-  using se3::fusion::JointModelVisitor< VISITOR >::run;      \
+#define JOINT_MODEL_VISITOR_INIT(VISITOR)                                   \
+  VISITOR(ArgsType args) : args(args) {}                                 \
+  using se3::fusion::JointModelVisitor< VISITOR >::run;                     \
   ArgsType args
 
 #endif // ifndef __se3_visitor_hpp__
