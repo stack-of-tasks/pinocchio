@@ -305,7 +305,7 @@ namespace se3
     typedef ConstraintPrismaticUnaligned<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionPrismaticUnaligned<Scalar,Options> Motion_t;
-    typedef BiasZero Bias_t;
+    typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]

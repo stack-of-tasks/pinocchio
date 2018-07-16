@@ -30,7 +30,7 @@ namespace se3
   template<typename Derived> class MotionDense;
   template<typename Vector6ArgType> class MotionRef;
   template<typename _Scalar, int _Options=0> class MotionTpl;
-  struct BiasZero;
+  template<typename Scalar, int Options=0> struct BiasZeroTpl;
   
   template<typename Derived> class ForceBase;
   template<typename Derived> class ForceDense;
