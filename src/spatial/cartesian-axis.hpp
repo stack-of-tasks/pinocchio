@@ -63,7 +63,7 @@ namespace se3
   template<>
   template<typename V3_in, typename V3_out>
   inline void CartesianAxis<0>::cross(const Eigen::MatrixBase<V3_in> & vin,
-                                         const Eigen::MatrixBase<V3_out> & vout)
+                                      const Eigen::MatrixBase<V3_out> & vout)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
@@ -74,7 +74,7 @@ namespace se3
   template<>
   template<typename V3_in, typename V3_out>
   inline void CartesianAxis<1>::cross(const Eigen::MatrixBase<V3_in> & vin,
-                                         const Eigen::MatrixBase<V3_out> & vout)
+                                      const Eigen::MatrixBase<V3_out> & vout)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
@@ -85,7 +85,7 @@ namespace se3
   template<>
   template<typename V3_in, typename V3_out>
   inline void CartesianAxis<2>::cross(const Eigen::MatrixBase<V3_in> & vin,
-                                         const Eigen::MatrixBase<V3_out> & vout)
+                                      const Eigen::MatrixBase<V3_out> & vout)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
