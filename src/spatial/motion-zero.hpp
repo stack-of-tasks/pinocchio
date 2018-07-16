@@ -21,6 +21,22 @@
 
 namespace se3
 {
+  
+  namespace internal
+  {
+    
+    template<>
+    struct SE3GroupAction<BiasZero>
+    {
+      typedef BiasZero ReturnType;
+    };
+    
+    template<typename MotionDerived>
+    struct MotionAlgebraAction<BiasZero, MotionDerived>
+    {
+      typedef BiasZero ReturnType;
+    };
+  }
 
   template<>
   struct traits<BiasZero>
@@ -55,6 +71,36 @@ namespace se3
     
     template<typename D2>
     static void addTo(const MotionDense<D2> &) {}
+    
+    template<typename M1>
+    BiasZero motionAction(const MotionBase<M1> &) const
+    {
+      return BiasZero();
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3Action_impl(const SE3Tpl<S2,O2> &, MotionDense<D2> & v) const
+    {
+      v.setZero();
+    }
+    
+    template<typename S2, int O2>
+    BiasZero se3Action_impl(const SE3Tpl<S2,O2> &) const
+    {
+      return BiasZero();
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3ActionInverse_impl(const SE3Tpl<S2,O2> &, MotionDense<D2> & v) const
+    {
+      v.setZero();
+    }
+    
+    template<typename S2, int O2>
+    BiasZero se3ActionInverse_impl(const SE3Tpl<S2,O2> &) const
+    {
+      return BiasZero();
+    }
     
   }; // struct BiasZero
   

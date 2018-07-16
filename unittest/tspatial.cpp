@@ -259,6 +259,15 @@ BOOST_AUTO_TEST_CASE(test_motion_zero)
   
   BOOST_CHECK(v.toVector().isZero());
   BOOST_CHECK(BiasZero() == Motion::Zero());
+  
+  // SE3.act
+  SE3 m(SE3::Random());
+  BOOST_CHECK(m.act(BiasZero()) == Motion::Zero());
+  BOOST_CHECK(m.actInv(BiasZero()) == Motion::Zero());
+  
+  // Motion.cross
+  Motion v2(Motion::Random());
+  BOOST_CHECK(v2.cross(BiasZero()) == Motion::Zero());
 }
 
 BOOST_AUTO_TEST_CASE ( test_Force )
