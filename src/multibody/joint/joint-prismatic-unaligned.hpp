@@ -27,7 +27,23 @@
 namespace se3
 {
 
-  template<typename Scalar, int Options> struct MotionPrismaticUnalignedTpl;
+  template<typename Scalar, int Options=0> struct MotionPrismaticUnalignedTpl;
+  typedef MotionPrismaticUnalignedTpl<double> MotionPrismaticUnaligned;
+  
+  namespace internal
+  {
+    template<typename Scalar, int Options>
+    struct SE3GroupAction< MotionPrismaticUnalignedTpl<Scalar,Options> >
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+    
+    template<typename Scalar, int Options, typename MotionDerived>
+    struct MotionAlgebraAction< MotionPrismaticUnalignedTpl<Scalar,Options>, MotionDerived>
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+  }
   
   template<typename _Scalar, int _Options>
   struct traits< MotionPrismaticUnalignedTpl<_Scalar,_Options> >
@@ -56,10 +72,13 @@ namespace se3
   {
     MOTION_TYPEDEF_TPL(MotionPrismaticUnalignedTpl);
 
-    MotionPrismaticUnalignedTpl () : axis(Vector3::Constant(NAN)), rate(NAN) {}
+    MotionPrismaticUnalignedTpl()
+    : axis(Vector3::Constant(NAN)), rate(NAN)
+    {}
     
     template<typename Vector3Like, typename S2>
-    MotionPrismaticUnalignedTpl (const Eigen::MatrixBase<Vector3Like> & axis, const S2 rate)
+    MotionPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis,
+                                const S2 rate)
     : axis(axis), rate(rate)
     { EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3); }
 
@@ -70,6 +89,58 @@ namespace se3
     void addTo(MotionDense<Derived> & v) const
     {
       v.linear() += axis * rate;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      v.angular().setZero();
+      v.linear().noalias() = rate * (m.rotation() * axis); // TODO: check efficiency
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3Action_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3Action_impl(m,res);
+      return res;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      // Linear
+      v.linear().noalias() = rate * (m.rotation().transpose() * axis);
+      
+      // Angular
+      v.angular().setZero();
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3ActionInverse_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3ActionInverse_impl(m,res);
+      return res;
+    }
+    
+    template<typename M1, typename M2>
+    void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
+    {
+      // Linear
+      mout.linear().noalias() = v.angular().cross(axis);
+      mout.linear() *= rate;
+      
+      // Angular
+      mout.angular().setZero();
+    }
+    
+    template<typename M1>
+    MotionPlain motionAction(const MotionDense<M1> & v) const
+    {
+      MotionPlain res;
+      motionAction(v,res);
+      return res;
     }
     
     // data

@@ -31,6 +31,21 @@ namespace se3
   
   template<typename Scalar, int Options> struct BiasSphericalZYXTpl;
   
+  namespace internal
+  {
+    template<typename Scalar, int Options>
+    struct SE3GroupAction< BiasSphericalZYXTpl<Scalar,Options> >
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+    
+    template<typename Scalar, int Options, typename MotionDerived>
+    struct MotionAlgebraAction< BiasSphericalZYXTpl<Scalar,Options>, MotionDerived>
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+  }
+  
   template<typename _Scalar, int _Options>
   struct traits< BiasSphericalZYXTpl<_Scalar,_Options> >
   {
@@ -74,6 +89,64 @@ namespace se3
     void addTo(MotionDense<D2> & other) const
     { other.angular() += c_J; }
     
+    template<typename S2, int O2, typename D2>
+    void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      // Angular
+      v.angular().noalias() = m.rotation() * c_J;
+      
+      // Linear
+      v.linear().noalias() = m.translation().cross(v.angular());
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3Action_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3Action_impl(m,res);
+      return res;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      // Linear
+      // TODO: use v.angular() as temporary variable
+      Vector3 v3_tmp;
+      v3_tmp.noalias() = c_J.cross(m.translation());
+      v.linear().noalias() = m.rotation().transpose() * v3_tmp;
+      
+      // Angular
+      v.angular().noalias() = m.rotation().transpose() * c_J;
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3ActionInverse_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3ActionInverse_impl(m,res);
+      return res;
+    }
+    
+    template<typename M1, typename M2>
+    void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
+    {
+      // Linear
+      mout.linear().noalias() = v.linear().cross(c_J);
+      
+      // Angular
+      mout.angular().noalias() = v.angular().cross(c_J);
+    }
+    
+    template<typename M1>
+    MotionPlain motionAction(const MotionDense<M1> & v) const
+    {
+      MotionPlain res;
+      motionAction(v,res);
+      return res;
+    }
+    
+    // data
     Vector3 c_J;
   }; // struct BiasSphericalZYXTpl
   
@@ -87,7 +160,23 @@ namespace se3
   operator+(const BiasSphericalZYXTpl<S1,O1> & c, const MotionDense<MotionDerived> & v)
   { return typename MotionDerived::MotionPlain(v.linear(), v.angular() + c()); }
   
-  template<typename Scalar, int Options> struct MotionSphericalZYXTpl;
+  template<typename Scalar, int Options = 0> struct MotionSphericalZYXTpl;
+  typedef MotionSphericalZYXTpl<double> MotionSphericalZYX;
+  
+  namespace internal
+  {
+    template<typename Scalar, int Options>
+    struct SE3GroupAction< MotionSphericalZYXTpl<Scalar,Options> >
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+    
+    template<typename Scalar, int Options, typename MotionDerived>
+    struct MotionAlgebraAction< MotionSphericalZYXTpl<Scalar,Options>, MotionDerived>
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+  }
   
   template<typename Scalar, int Options>
   struct traits< MotionSphericalZYXTpl<Scalar,Options> >
@@ -99,34 +188,92 @@ namespace se3
   {
     MOTION_TYPEDEF_TPL(MotionSphericalZYXTpl);
 
-    MotionSphericalZYXTpl () : w(Vector3::Constant(NAN)) {}
+    MotionSphericalZYXTpl () : rate(Vector3::Constant(NAN)) {}
     
     template<typename Vector3Like>
-    MotionSphericalZYXTpl(const Eigen::MatrixBase<Vector3Like> & w) : w (w)
+    MotionSphericalZYXTpl(const Eigen::MatrixBase<Vector3Like> & w) : rate(w)
     {}
     
-    Vector3 & operator() () { return w; }
-    const Vector3 & operator() () const { return w; }
+    Vector3 & operator() () { return rate; }
+    const Vector3 & operator() () const { return rate; }
     
     operator MotionPlain() const
-    { return MotionPlain(MotionPlain::Vector3::Zero(),w); }
+    { return MotionPlain(MotionPlain::Vector3::Zero(),rate); }
     
-    operator Vector3() const { return w; }
+    operator Vector3() const { return rate; }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & v) const
     {
-      v.angular() += w;
+      v.angular() += rate;
     }
     
-    Vector3 w;
+    template<typename S2, int O2, typename D2>
+    void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      // Angular
+      v.angular().noalias() = m.rotation() * rate;
+      
+      // Linear
+      v.linear().noalias() = m.translation().cross(v.angular());
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3Action_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3Action_impl(m,res);
+      return res;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      // Linear
+      // TODO: use v.angular() as temporary variable
+      Vector3 v3_tmp;
+      v3_tmp.noalias() = rate.cross(m.translation());
+      v.linear().noalias() = m.rotation().transpose() * v3_tmp;
+      
+      // Angular
+      v.angular().noalias() = m.rotation().transpose() * rate;
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3ActionInverse_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3ActionInverse_impl(m,res);
+      return res;
+    }
+    
+    template<typename M1, typename M2>
+    void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
+    {
+      // Linear
+      mout.linear().noalias() = v.linear().cross(rate);
+      
+      // Angular
+      mout.angular().noalias() = v.angular().cross(rate);
+    }
+    
+    template<typename M1>
+    MotionPlain motionAction(const MotionDense<M1> & v) const
+    {
+      MotionPlain res;
+      motionAction(v,res);
+      return res;
+    }
+    
+    // data
+    Vector3 rate;
   }; // struct MotionSphericalZYXTpl
   
   template <typename S1, int O1, typename S2, int O2>
   inline MotionSphericalZYXTpl<S1,O1>
   operator+(const MotionSphericalZYXTpl<S1,O1> & m,
             const BiasSphericalZYXTpl<S2,O2> & c)
-  { return MotionSphericalZYXTpl<S1,O1>(m.w + c.c_J); }
+  { return MotionSphericalZYXTpl<S1,O1>(m.rate + c.c_J); }
   
   template <typename S1, int O1, typename MotionDerived>
   typename MotionDerived::MotionPlain
@@ -134,7 +281,7 @@ namespace se3
             const MotionDense<MotionDerived> & m2)
   {
     typedef typename MotionDerived::MotionPlain ReturnType;
-    return ReturnType(m2.linear(),m2.angular()+ m1.w);
+    return ReturnType(m2.linear(),m2.angular()+ m1.rate);
   }
   
   template<typename Scalar, int Options> struct ConstraintSphericalZYXTpl;
@@ -328,10 +475,10 @@ namespace se3
   inline typename MotionDerived::MotionPlain
   operator^(const MotionDense<MotionDerived> & m1, const MotionSphericalZYXTpl<S2,O2> & m2)
   {
-//    const Motion::Matrix3 m2_cross (skew (Motion::Vector3 (-m2.w)));
+//    const Motion::Matrix3 m2_cross (skew (Motion::Vector3 (-m2.rate)));
 //    return Motion(m2_cross * m1.linear (), m2_cross * m1.angular ());
     typedef typename MotionDerived::MotionPlain ReturnType;
-    return ReturnType(m1.linear().cross(m2.w), m1.angular().cross(m2.w));
+    return ReturnType(m1.linear().cross(m2.rate), m1.angular().cross(m2.rate));
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */

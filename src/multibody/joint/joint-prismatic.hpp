@@ -31,6 +31,21 @@ namespace se3
   
   template<typename Scalar, int Options, int _axis> struct MotionPrismaticTpl;
   
+  namespace internal
+  {
+    template<typename Scalar, int Options, int axis>
+    struct SE3GroupAction< MotionPrismaticTpl<Scalar,Options,axis> >
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+    
+    template<typename Scalar, int Options, int axis, typename MotionDerived>
+    struct MotionAlgebraAction< MotionPrismaticTpl<Scalar,Options,axis>, MotionDerived>
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+  }
+  
   template<typename _Scalar, int _Options, int _axis>
   struct traits < MotionPrismaticTpl<_Scalar,_Options,_axis> >
   {
@@ -57,21 +72,78 @@ namespace se3
   struct MotionPrismaticTpl : MotionBase < MotionPrismaticTpl<_Scalar,_Options,_axis> >
   {
     MOTION_TYPEDEF_TPL(MotionPrismaticTpl);
+    
+    enum { axis = _axis };
+    
     typedef SpatialAxis<_axis+LINEAR> Axis;
+    typedef typename Axis::CartesianAxis3 CartesianAxis3;
 
-    MotionPrismaticTpl()                   : v(NAN) {}
-    MotionPrismaticTpl( const Scalar & v ) : v(v)  {}
+    MotionPrismaticTpl()                   : rate(NAN) {}
+    MotionPrismaticTpl( const Scalar & v ) : rate(v)  {}
 
-    inline operator MotionPlain() const { return Axis() * v; }
+    inline operator MotionPlain() const { return Axis() * rate; }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & v_) const
     {
       typedef typename MotionDense<Derived>::Scalar OtherScalar;
-      v_.linear()[_axis] += (OtherScalar) v;
+      v_.linear()[_axis] += (OtherScalar) rate;
     }
+    
+    template<typename S2, int O2, typename D2>
+    void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      v.angular().setZero();
+      v.linear().noalias() = rate * (m.rotation().col(axis));
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3Action_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3Action_impl(m,res);
+      return res;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      // Linear
+      v.linear().noalias() = rate * (m.rotation().transpose().col(axis));
+      
+      // Angular
+      v.angular().setZero();
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3ActionInverse_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3ActionInverse_impl(m,res);
+      return res;
+    }
+    
+    template<typename M1, typename M2>
+    void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
+    {
+      // Linear
+      CartesianAxis3::cross(v.angular(),mout.linear());
+      mout.linear() *= -rate;
+      
+      // Angular
+      mout.angular().setZero();
+    }
+    
+    template<typename M1>
+    MotionPlain motionAction(const MotionDense<M1> & v) const
+    {
+      MotionPlain res;
+      motionAction(v,res);
+      return res;
+    }
+    
     //data
-    Scalar v;
+    Scalar rate;
   }; // struct MotionPrismaticTpl
 
   template<typename Scalar, int Options, int axis, typename MotionDerived>
@@ -207,7 +279,7 @@ namespace se3
      */
     typedef typename MotionDerived::MotionPlain MotionPlain;
     const typename MotionDerived::ConstAngularType & w = m1.angular();
-    const S1 & vx = m2.v;
+    const S1 & vx = m2.rate;
     return MotionPlain(typename MotionPlain::Vector3(0,w[2]*vx,-w[1]*vx),
                        MotionPlain::Vector3::Zero());
    }
@@ -224,7 +296,7 @@ namespace se3
      */
      typedef typename MotionDerived::MotionPlain MotionPlain;
      const typename MotionDerived::ConstAngularType & w = m1.angular();
-     const S1 & vy = m2.v;
+     const S1 & vy = m2.rate;
      return MotionPlain(typename MotionPlain::Vector3(-w[2]*vy,0,w[0]*vy),
                         MotionPlain::Vector3::Zero());
    }
@@ -241,7 +313,7 @@ namespace se3
      */
      typedef typename MotionDerived::MotionPlain MotionPlain;
      const typename MotionDerived::ConstAngularType & w = m1.angular();
-     const S1 & vz = m2.v;
+     const S1 & vz = m2.rate;
      return MotionPlain(typename Motion::Vector3(w[1]*vz,-w[0]*vz,0),
                         MotionPlain::Vector3::Zero());
    }
@@ -433,7 +505,7 @@ namespace se3
       
       typedef typename TangentVector::Scalar S2;
       const S2 & v = vs[idx_v()];
-      data.v.v = v;
+      data.v.rate = v;
     }
     
     template<typename S2, int O2>

@@ -21,6 +21,7 @@
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/spatial/cartesian-axis.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/motion.hpp"
@@ -30,6 +31,22 @@ namespace se3
 {
   
   template<typename Scalar, int Options = 0> struct MotionPlanarTpl;
+  typedef MotionPlanarTpl<double> MotionPlanar;
+  
+  namespace internal
+  {
+    template<typename Scalar, int Options>
+    struct SE3GroupAction< MotionPlanarTpl<Scalar,Options> >
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+    
+    template<typename Scalar, int Options, typename MotionDerived>
+    struct MotionAlgebraAction< MotionPlanarTpl<Scalar,Options>, MotionDerived>
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+  }
   
   template<typename _Scalar, int _Options>
   struct traits< MotionPlanarTpl<_Scalar,_Options> >
@@ -57,6 +74,8 @@ namespace se3
   struct MotionPlanarTpl : MotionBase< MotionPlanarTpl<_Scalar,_Options> >
   {
     MOTION_TYPEDEF_TPL(MotionPlanarTpl);
+    
+    typedef CartesianAxis<2> AxisZ;
 
     MotionPlanarTpl () : m_x_dot(NAN), m_y_dot(NAN), m_theta_dot(NAN) {}
     
@@ -76,6 +95,74 @@ namespace se3
       v.linear()[0] += m_x_dot;
       v.linear()[1] += m_y_dot;
       v.angular()[2] += m_theta_dot;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      v.angular().noalias() = m.rotation().col(2) * m_theta_dot;
+      v.linear().noalias() = m.translation().cross(v.angular());
+      v.linear() += m.rotation().col(0) * m_x_dot;
+      v.linear() += m.rotation().col(1) * m_y_dot;
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3Action_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3Action_impl(m,res);
+      return res;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      // Linear
+      // TODO: use v.angular() as temporary variable
+      Vector3 v3_tmp;
+      AxisZ::cross(m.translation(),v3_tmp);
+      v3_tmp *= m_theta_dot;
+      v3_tmp[0] += m_x_dot; v3_tmp[1] += m_y_dot;
+      v.linear().noalias() = m.rotation().transpose() * v3_tmp;
+      
+      // Angular
+      v.angular().noalias() = m.rotation().transpose().col(2) * m_theta_dot;
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3ActionInverse_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3ActionInverse_impl(m,res);
+      return res;
+    }
+    
+    template<typename M1, typename M2>
+    void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
+    {
+      // Linear
+//      mout.linear() = v.linear().cross(angular())+v.angular().cross(linear());
+      AxisZ::cross(v.linear(),mout.linear());
+      mout.linear() *= -m_theta_dot;
+      
+      typename M1::ConstAngularType w_in = v.angular();
+      typename M2::LinearType v_out = mout.linear();
+      
+      v_out[0] -= w_in[2] * m_y_dot;
+      v_out[1] += w_in[2] * m_x_dot;
+      v_out[2] += -w_in[1] * m_x_dot + w_in[0] * m_y_dot ;
+      
+      // Angular
+      AxisZ::cross(v.angular(),mout.angular());
+      mout.angular() *= -m_theta_dot;
+    }
+    
+    template<typename M1>
+    MotionPlain motionAction(const MotionDense<M1> & v) const
+    {
+      MotionPlain res;
+      motionAction(v,res);
+      return res;
     }
 
     // data

@@ -28,7 +28,23 @@
 namespace se3
 {
 
-  template<typename Scalar, int Options> struct MotionTranslationTpl;
+  template<typename Scalar, int Options=0> struct MotionTranslationTpl;
+  typedef MotionTranslationTpl<double> MotionTranslation;
+  
+  namespace internal
+  {
+    template<typename Scalar, int Options>
+    struct SE3GroupAction< MotionTranslationTpl<Scalar,Options> >
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+    
+    template<typename Scalar, int Options, typename MotionDerived>
+    struct MotionAlgebraAction< MotionTranslationTpl<Scalar,Options>, MotionDerived>
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+  }
   
   template<typename _Scalar, int _Options>
   struct traits< MotionTranslationTpl<_Scalar,_Options> >
@@ -81,6 +97,57 @@ namespace se3
     void addTo(MotionDense<Derived> & v_) const
     {
       v_.linear() += rate;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      v.angular().setZero();
+      v.linear().noalias() = m.rotation() * rate; // TODO: check efficiency
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3Action_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3Action_impl(m,res);
+      return res;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      // Linear
+      v.linear().noalias() = m.rotation().transpose() * rate;
+      
+      // Angular
+      v.angular().setZero();
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3ActionInverse_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3ActionInverse_impl(m,res);
+      return res;
+    }
+    
+    template<typename M1, typename M2>
+    void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
+    {
+      // Linear
+      mout.linear().noalias() = v.angular().cross(rate);
+      
+      // Angular
+      mout.angular().setZero();
+    }
+    
+    template<typename M1>
+    MotionPlain motionAction(const MotionDense<M1> & v) const
+    {
+      MotionPlain res;
+      motionAction(v,res);
+      return res;
     }
     
     // data

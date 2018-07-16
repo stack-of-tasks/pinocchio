@@ -28,7 +28,7 @@ namespace se3
 {
 
   template<typename Scalar, int Options, int axis> struct JointRevoluteUnboundedTpl;
-
+  
   template<typename _Scalar, int _Options, int axis>
   struct traits< JointRevoluteUnboundedTpl<_Scalar,_Options,axis> >
   {
@@ -92,7 +92,6 @@ namespace se3
     SE3_JOINT_TYPEDEF_TEMPLATE;
     typedef JointRevoluteTpl<Scalar,_Options,axis> JointDerivedBase;
     
-
     using JointModelBase<JointModelRevoluteUnboundedTpl>::id;
     using JointModelBase<JointModelRevoluteUnboundedTpl>::idx_q;
     using JointModelBase<JointModelRevoluteUnboundedTpl>::idx_v;
