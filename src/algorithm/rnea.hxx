@@ -34,8 +34,6 @@ namespace se3
 			    const Eigen::VectorXd &
 			    > ArgsType;
 
-    JOINT_VISITOR_INIT(RneaForwardStep);
-
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -69,8 +67,6 @@ namespace se3
                                   Data &
                                   > ArgsType;
     
-    JOINT_VISITOR_INIT(RneaBackwardStep);
-
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -148,8 +144,6 @@ namespace se3
     const Eigen::VectorXd &
     > ArgsType;
     
-    JOINT_VISITOR_INIT(NLEForwardStep);
-    
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -181,8 +175,6 @@ namespace se3
     typedef boost::fusion::vector<const Model &,
                                   Data &
                                   >  ArgsType;
-    
-    JOINT_VISITOR_INIT(NLEBackwardStep);
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
@@ -230,8 +222,6 @@ namespace se3
     const Eigen::VectorXd &
     > ArgsType;
     
-    JOINT_VISITOR_INIT(computeGeneralizedGravityForwardStep);
-    
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -257,8 +247,6 @@ namespace se3
     typedef boost::fusion::vector<const Model &,
     Data &
     >  ArgsType;
-    
-    JOINT_VISITOR_INIT(computeGeneralizedGravityBackwardStep);
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
@@ -305,8 +293,6 @@ namespace se3
     const Eigen::VectorXd &
     > ArgsType;
 
-    JOINT_VISITOR_INIT(CoriolisMatrixForwardStep);
-
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -346,13 +332,11 @@ namespace se3
 
   };
 
-  struct CoriolisMatrixBackwardStep : public fusion::JointModelVisitor<CoriolisMatrixBackwardStep>
+  struct CoriolisMatrixBackwardStep : public fusion::JointVisitor<CoriolisMatrixBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
     Data &
     > ArgsType;
-
-    JOINT_MODEL_VISITOR_INIT(CoriolisMatrixBackwardStep);
 
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,

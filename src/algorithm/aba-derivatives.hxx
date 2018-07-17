@@ -34,8 +34,6 @@ namespace se3
     const Eigen::VectorXd &
     > ArgsType;
     
-    JOINT_VISITOR_INIT(computeABADerivativesForwardStep1);
-    
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -84,8 +82,6 @@ namespace se3
     Data &,
     Data::RowMatrixXd &
     >  ArgsType;
-    
-    JOINT_VISITOR_INIT(computeABADerivativesBackwardStep1);
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
@@ -153,8 +149,6 @@ namespace se3
     Data::RowMatrixXd &
     > ArgsType;
     
-    JOINT_VISITOR_INIT(computeABADerivativesForwardStep2);
-    
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -219,13 +213,11 @@ namespace se3
     
   };
   
-  struct computeABADerivativesBackwardStep2 : public fusion::JointModelVisitor<computeABADerivativesBackwardStep2>
+  struct computeABADerivativesBackwardStep2 : public fusion::JointVisitor<computeABADerivativesBackwardStep2>
   {
     typedef boost::fusion::vector<const Model &,
     Data &
     >  ArgsType;
-    
-    JOINT_MODEL_VISITOR_INIT(computeABADerivativesBackwardStep2);
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,

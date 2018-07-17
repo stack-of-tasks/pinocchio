@@ -61,8 +61,6 @@ namespace se3
   {
     typedef boost::fusion::vector< const Eigen::VectorXd & > ArgsType;
 
-    JOINT_VISITOR_INIT(JointCalcZeroOrderVisitor);
-
     template<typename JointModel, typename ConfigVector>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -91,8 +89,6 @@ namespace se3
   {
     typedef boost::fusion::vector< const Eigen::VectorXd &,
                                     const Eigen::VectorXd & > ArgsType;
-
-    JOINT_VISITOR_INIT(JointCalcFirstOrderVisitor);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -125,8 +121,6 @@ namespace se3
   {
     typedef boost::fusion::vector< Inertia::Matrix6 &,
                                     const bool > ArgsType;
-
-    JOINT_VISITOR_INIT(JointCalcAbaVisitor);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,

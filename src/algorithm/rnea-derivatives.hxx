@@ -31,8 +31,6 @@ namespace se3
     const Eigen::VectorXd &
     > ArgsType;
     
-    JOINT_VISITOR_INIT(computeGeneralizedGravityDerivativeForwardStep);
-    
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -66,14 +64,12 @@ namespace se3
     
   };
   
-  struct computeGeneralizedGravityDerivativeBackwardStep : public fusion::JointModelVisitor<computeGeneralizedGravityDerivativeBackwardStep>
+  struct computeGeneralizedGravityDerivativeBackwardStep : public fusion::JointVisitor<computeGeneralizedGravityDerivativeBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
     Data &,
     Eigen::MatrixXd &
     >  ArgsType;
-    
-    JOINT_MODEL_VISITOR_INIT(computeGeneralizedGravityDerivativeBackwardStep);
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
@@ -155,8 +151,6 @@ namespace se3
     const Eigen::VectorXd &
     > ArgsType;
     
-    JOINT_VISITOR_INIT(computeRNEADerivativesForwardStep);
-    
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -237,7 +231,7 @@ namespace se3
     
   };
   
-  struct computeRNEADerivativesBackwardStep : public fusion::JointModelVisitor<computeRNEADerivativesBackwardStep>
+  struct computeRNEADerivativesBackwardStep : public fusion::JointVisitor<computeRNEADerivativesBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
     Data &,
@@ -245,8 +239,6 @@ namespace se3
     Eigen::MatrixXd &,
     Eigen::MatrixXd &
     >  ArgsType;
-    
-    JOINT_MODEL_VISITOR_INIT(computeRNEADerivativesBackwardStep);
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,

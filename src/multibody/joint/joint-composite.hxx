@@ -34,8 +34,6 @@ namespace se3
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_VISITOR_INIT (JointCompositeCalcZeroOrderStep<JointCollection>);
-
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -93,8 +91,6 @@ namespace se3
                                   const Eigen::VectorXd &,
                                   const Eigen::VectorXd &
                                   > ArgsType;
-
-    JOINT_VISITOR_INIT (JointCompositeCalcFirstOrderStep<JointCollection>);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,

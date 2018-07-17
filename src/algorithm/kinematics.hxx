@@ -30,8 +30,6 @@ namespace se3
                                   se3::Data &
                                   > ArgsType;
     
-    JOINT_VISITOR_INIT (emptyForwardStep);
-    
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> &,
                      se3::JointDataBase<typename JointModel::JointDataDerived> &,
@@ -78,8 +76,6 @@ namespace se3
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_VISITOR_INIT (ForwardKinematicZeroStep);
-
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -125,8 +121,6 @@ namespace se3
 				   const Eigen::VectorXd &,
 				   const Eigen::VectorXd &
 				   > ArgsType;
-
-    JOINT_VISITOR_INIT(ForwardKinematicFirstStep);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -181,8 +175,6 @@ namespace se3
     const Eigen::VectorXd &,
     const Eigen::VectorXd &
     > ArgsType;
-    
-    JOINT_VISITOR_INIT(ForwardKinematicSecondStep);
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,

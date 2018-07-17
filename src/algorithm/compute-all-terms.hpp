@@ -66,8 +66,6 @@ namespace se3
     const Eigen::VectorXd &
     > ArgsType;
 
-    JOINT_VISITOR_INIT(CATForwardStep);
-
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -125,8 +123,6 @@ namespace se3
   {
     typedef boost::fusion::vector<const Model &,
     Data &>  ArgsType;
-
-    JOINT_VISITOR_INIT(CATBackwardStep);
 
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,

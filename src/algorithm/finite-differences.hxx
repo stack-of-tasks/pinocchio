@@ -27,13 +27,11 @@ namespace se3
 {
   namespace details
   {
-    struct FinitDiffEpsVisitor : public fusion::JointModelVisitor<FinitDiffEpsVisitor>
+    struct FinitDiffEpsVisitor : public fusion::JointVisitor<FinitDiffEpsVisitor>
     {
       typedef boost::fusion::vector<
       Eigen::VectorXd &
       > ArgsType;
-      
-      JOINT_MODEL_VISITOR_INIT(FinitDiffEpsVisitor);
       
       template<typename JointModel>
       static void algo(const se3::JointModelBase<JointModel> & jmodel,

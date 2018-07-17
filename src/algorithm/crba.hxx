@@ -34,8 +34,6 @@ namespace se3
                                   const Eigen::VectorXd &
                                   > ArgsType;
 
-    JOINT_VISITOR_INIT(CrbaForwardStep);
-
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
 		     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -57,8 +55,6 @@ namespace se3
     typedef boost::fusion::vector<const Model&,
 				  Data&>  ArgsType;
     
-    JOINT_VISITOR_INIT(CrbaBackwardStep);
-
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -106,8 +102,6 @@ namespace se3
     const Eigen::VectorXd &
     > ArgsType;
     
-    JOINT_VISITOR_INIT(CrbaForwardStepMinimal);
-    
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -135,8 +129,6 @@ namespace se3
   {
     typedef boost::fusion::vector<const Model&,
     Data&>  ArgsType;
-    
-    JOINT_VISITOR_INIT(CrbaBackwardStepMinimal);
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,

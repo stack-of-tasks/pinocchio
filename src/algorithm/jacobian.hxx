@@ -32,8 +32,6 @@ namespace se3
                                    const Eigen::VectorXd &
                                    > ArgsType;
     
-    JOINT_VISITOR_INIT(JointJacobiansForwardStep);
-    
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -73,8 +71,6 @@ namespace se3
   struct JointJacobiansForwardStep2 : public fusion::JointVisitor<JointJacobiansForwardStep2>
   {
     typedef boost::fusion::vector<se3::Data &> ArgsType;
-    
-    JOINT_VISITOR_INIT(JointJacobiansForwardStep2);
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
@@ -133,8 +129,6 @@ namespace se3
                                   se3::Data::Matrix6x &
                                   > ArgsType;
     
-    JOINT_VISITOR_INIT(JointJacobianForwardStep);
-    
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -178,8 +172,6 @@ namespace se3
     const Eigen::VectorXd &,
     const Eigen::VectorXd &
     > ArgsType;
-    
-    JOINT_VISITOR_INIT(JointJacobiansTimeVariationForwardStep);
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,

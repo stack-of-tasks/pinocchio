@@ -101,14 +101,12 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct IntegrateStepAlgo;
   
   template<typename LieGroup_t>
-  struct IntegrateStep : public fusion::JointModelVisitor<IntegrateStep<LieGroup_t> >
+  struct IntegrateStep : public fusion::JointVisitor<IntegrateStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<const Eigen::VectorXd &,
     const Eigen::VectorXd &,
     Eigen::VectorXd &
     > ArgsType;
-    
-    JOINT_MODEL_VISITOR_INIT(IntegrateStep);
     
     SE3_DETAILS_VISITOR_METHOD_ALGO_3(IntegrateStepAlgo, LieGroup_t)
   };
@@ -132,15 +130,13 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct InterpolateStepAlgo;
   
   template<typename LieGroup_t>
-  struct InterpolateStep : public fusion::JointModelVisitor<InterpolateStep<LieGroup_t> >
+  struct InterpolateStep : public fusion::JointVisitor<InterpolateStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<const Eigen::VectorXd &,
     const Eigen::VectorXd &,
     const double,
     Eigen::VectorXd &
     > ArgsType;
-    
-    JOINT_MODEL_VISITOR_INIT(InterpolateStep);
     
     SE3_DETAILS_VISITOR_METHOD_ALGO_4(InterpolateStepAlgo, LieGroup_t)
   };
@@ -166,14 +162,12 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct DifferenceStepAlgo;
   
   template<typename LieGroup_t>
-  struct DifferenceStep : public fusion::JointModelVisitor<DifferenceStep<LieGroup_t> >
+  struct DifferenceStep : public fusion::JointVisitor<DifferenceStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<const Eigen::VectorXd &,
     const Eigen::VectorXd &,
     Eigen::VectorXd &
     > ArgsType;
-    
-    JOINT_MODEL_VISITOR_INIT(DifferenceStep);
     
     SE3_DETAILS_VISITOR_METHOD_ALGO_3(DifferenceStepAlgo, LieGroup_t)
   };
@@ -197,15 +191,13 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct SquaredDistanceStepAlgo;
   
   template<typename LieGroup_t>
-  struct SquaredDistanceStep : public fusion::JointModelVisitor<SquaredDistanceStep<LieGroup_t> >
+  struct SquaredDistanceStep : public fusion::JointVisitor<SquaredDistanceStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<const JointIndex,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &,
     Eigen::VectorXd &
     > ArgsType;
-    
-    JOINT_MODEL_VISITOR_INIT(SquaredDistanceStep);
     
     SE3_DETAILS_VISITOR_METHOD_ALGO_4(SquaredDistanceStepAlgo, LieGroup_t)
   };
@@ -229,14 +221,12 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct RandomConfigurationStepAlgo;
   
   template<typename LieGroup_t>
-  struct RandomConfigurationStep : public fusion::JointModelVisitor<RandomConfigurationStep<LieGroup_t> >
+  struct RandomConfigurationStep : public fusion::JointVisitor<RandomConfigurationStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<Eigen::VectorXd &,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &
     > ArgsType;
-    
-    JOINT_MODEL_VISITOR_INIT(RandomConfigurationStep);
     
     SE3_DETAILS_VISITOR_METHOD_ALGO_3(RandomConfigurationStepAlgo, LieGroup_t)
   };
@@ -262,11 +252,9 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct NormalizeStepAlgo;
   
   template<typename LieGroup_t>
-  struct NormalizeStep : public fusion::JointModelVisitor< NormalizeStep<LieGroup_t> >
+  struct NormalizeStep : public fusion::JointVisitor< NormalizeStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<Eigen::VectorXd &> ArgsType;
-    
-    JOINT_MODEL_VISITOR_INIT(NormalizeStep);
     
     SE3_DETAILS_VISITOR_METHOD_ALGO_1(NormalizeStepAlgo, LieGroup_t)
   };
@@ -287,14 +275,12 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct IsSameConfigurationStepAlgo;
   
   template<typename LieGroup_t>
-  struct IsSameConfigurationStep : public fusion::JointModelVisitor<IsSameConfigurationStep<LieGroup_t> >
+  struct IsSameConfigurationStep : public fusion::JointVisitor<IsSameConfigurationStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<bool &,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &,
     const double&> ArgsType;
-    
-    JOINT_MODEL_VISITOR_INIT(IsSameConfigurationStep);
     
     SE3_DETAILS_VISITOR_METHOD_ALGO_4(IsSameConfigurationStepAlgo, LieGroup_t)
   };
@@ -319,11 +305,9 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct NeutralStepAlgo;
   
   template<typename LieGroup_t>
-  struct NeutralStep : public fusion::JointModelVisitor< NeutralStep<LieGroup_t> >
+  struct NeutralStep : public fusion::JointVisitor< NeutralStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<Eigen::VectorXd &> ArgsType;
-    
-    JOINT_MODEL_VISITOR_INIT(NeutralStep);
     
     SE3_DETAILS_VISITOR_METHOD_ALGO_1(NeutralStepAlgo, LieGroup_t)
   };
