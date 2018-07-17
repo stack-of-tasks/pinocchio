@@ -51,7 +51,7 @@ namespace se3
   {
     namespace bf = boost::fusion;
     
-    template<typename Visitor>
+    template<typename JointVisitorDerived>
     struct JointVisitorBase : public boost::static_visitor<>
     {
       
@@ -101,7 +101,7 @@ namespace se3
         template<typename JointModelDerived>
         void operator()(const JointModelBase<JointModelDerived> & jmodel) const
         {
-          bf::invoke(&Visitor::template algo<JointModelDerived>,
+          bf::invoke(&JointVisitorDerived::template algo<JointModelDerived>,
                      bf::append2(boost::ref(jmodel),
                                  boost::ref(boost::get<typename JointModelDerived::JointDataDerived>(jdata)),
                                  args));
@@ -121,7 +121,7 @@ namespace se3
         template<typename JointModelDerived>
         void operator()(const JointModelBase<JointModelDerived> & jmodel) const
         {
-          bf::invoke(&Visitor::template algo<JointModelDerived>,
+          bf::invoke(&JointVisitorDerived::template algo<JointModelDerived>,
                      bf::append(boost::ref(jmodel),
                                 args));
         }
