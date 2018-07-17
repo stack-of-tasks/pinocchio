@@ -24,7 +24,7 @@
 namespace se3 
 {
   
-  struct emptyForwardStep : public fusion::JointVisitor<emptyForwardStep>
+  struct emptyForwardStep : public fusion::JointVisitorBase<emptyForwardStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &
@@ -69,7 +69,7 @@ namespace se3
     }
   }
   
-  struct ForwardKinematicZeroStep : public fusion::JointVisitor<ForwardKinematicZeroStep>
+  struct ForwardKinematicZeroStep : public fusion::JointVisitorBase<ForwardKinematicZeroStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
@@ -114,7 +114,7 @@ namespace se3
     }
   }
 
-  struct ForwardKinematicFirstStep : public fusion::JointVisitor<ForwardKinematicFirstStep>
+  struct ForwardKinematicFirstStep : public fusion::JointVisitorBase<ForwardKinematicFirstStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
 				   se3::Data &,
@@ -167,7 +167,7 @@ namespace se3
     }
   }
   
-  struct ForwardKinematicSecondStep : public fusion::JointVisitor<ForwardKinematicSecondStep>
+  struct ForwardKinematicSecondStep : public fusion::JointVisitorBase<ForwardKinematicSecondStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &,

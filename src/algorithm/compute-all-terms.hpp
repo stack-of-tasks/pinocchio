@@ -58,7 +58,7 @@ namespace se3
 namespace se3
 {
   
-  struct CATForwardStep : public fusion::JointVisitor<CATForwardStep>
+  struct CATForwardStep : public fusion::JointVisitorBase<CATForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &,
@@ -119,7 +119,7 @@ namespace se3
 
   };
 
-  struct CATBackwardStep : public fusion::JointVisitor<CATBackwardStep>
+  struct CATBackwardStep : public fusion::JointVisitorBase<CATBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
     Data &>  ArgsType;

@@ -28,7 +28,7 @@
 namespace se3
 {
   
-  struct CcrbaForwardStep : public fusion::JointVisitor<CcrbaForwardStep>
+  struct CcrbaForwardStep : public fusion::JointVisitorBase<CcrbaForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &,
@@ -56,7 +56,7 @@ namespace se3
     
   }; // struct CcrbaForwardStep
   
-  struct CcrbaBackwardStep : public fusion::JointVisitor<CcrbaBackwardStep>
+  struct CcrbaBackwardStep : public fusion::JointVisitorBase<CcrbaBackwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &
@@ -123,7 +123,7 @@ namespace se3
     return data.Ag;
   }
   
-  struct DCcrbaForwardStep : public fusion::JointVisitor<DCcrbaForwardStep>
+  struct DCcrbaForwardStep : public fusion::JointVisitorBase<DCcrbaForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &,
@@ -159,13 +159,12 @@ namespace se3
     
   }; // struct DCcrbaForwardStep
   
-  struct DCcrbaBackwardStep : public fusion::JointVisitor<DCcrbaBackwardStep>
+  struct DCcrbaBackwardStep : public fusion::JointVisitorBase<DCcrbaBackwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &
     > ArgsType;
     
-    JOINT_VISITOR_INIT(DCcrbaBackwardStep);
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,

@@ -27,7 +27,7 @@
 
 namespace se3 
 {
-  struct CrbaForwardStep : public fusion::JointVisitor<CrbaForwardStep>
+  struct CrbaForwardStep : public fusion::JointVisitorBase<CrbaForwardStep>
   {
     typedef boost::fusion::vector<const se3::Model&,
                                   se3::Data &,
@@ -50,7 +50,7 @@ namespace se3
 
   };
 
-  struct CrbaBackwardStep : public fusion::JointVisitor<CrbaBackwardStep>
+  struct CrbaBackwardStep : public fusion::JointVisitorBase<CrbaBackwardStep>
   {
     typedef boost::fusion::vector<const Model&,
 				  Data&>  ArgsType;
@@ -95,7 +95,7 @@ namespace se3
     }
   };
   
-  struct CrbaForwardStepMinimal : public fusion::JointVisitor<CrbaForwardStepMinimal>
+  struct CrbaForwardStepMinimal : public fusion::JointVisitorBase<CrbaForwardStepMinimal>
   {
     typedef boost::fusion::vector<const se3::Model&,
     se3::Data &,
@@ -125,7 +125,7 @@ namespace se3
     
   };
   
-  struct CrbaBackwardStepMinimal : public fusion::JointVisitor<CrbaBackwardStepMinimal>
+  struct CrbaBackwardStepMinimal : public fusion::JointVisitorBase<CrbaBackwardStepMinimal>
   {
     typedef boost::fusion::vector<const Model&,
     Data&>  ArgsType;

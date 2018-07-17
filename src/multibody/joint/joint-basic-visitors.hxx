@@ -57,7 +57,7 @@ namespace se3
    */
   
   struct JointCalcZeroOrderVisitor
-  : fusion::JointVisitor<JointCalcZeroOrderVisitor>
+  : fusion::JointVisitorBase<JointCalcZeroOrderVisitor>
   {
     typedef boost::fusion::vector< const Eigen::VectorXd & > ArgsType;
 
@@ -85,7 +85,7 @@ namespace se3
    */
   
   struct JointCalcFirstOrderVisitor
-  : fusion::JointVisitor<JointCalcFirstOrderVisitor>
+  : fusion::JointVisitorBase<JointCalcFirstOrderVisitor>
   {
     typedef boost::fusion::vector< const Eigen::VectorXd &,
                                     const Eigen::VectorXd & > ArgsType;
@@ -117,7 +117,7 @@ namespace se3
    */
   
   struct JointCalcAbaVisitor
-  : fusion::JointVisitor<JointCalcAbaVisitor>
+  : fusion::JointVisitorBase<JointCalcAbaVisitor>
   {
     typedef boost::fusion::vector< Inertia::Matrix6 &,
                                     const bool > ArgsType;

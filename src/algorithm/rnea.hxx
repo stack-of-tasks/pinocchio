@@ -25,7 +25,7 @@
 
 namespace se3
 {
-  struct RneaForwardStep : public fusion::JointVisitor<RneaForwardStep>
+  struct RneaForwardStep : public fusion::JointVisitorBase<RneaForwardStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
 			    se3::Data &,
@@ -61,7 +61,7 @@ namespace se3
 
   };
 
-  struct RneaBackwardStep : public fusion::JointVisitor<RneaBackwardStep>
+  struct RneaBackwardStep : public fusion::JointVisitorBase<RneaBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
                                   Data &
@@ -136,7 +136,7 @@ namespace se3
     return data.tau;
   }
   
-  struct NLEForwardStep : public fusion::JointVisitor<NLEForwardStep>
+  struct NLEForwardStep : public fusion::JointVisitorBase<NLEForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &,
@@ -170,7 +170,7 @@ namespace se3
     
   };
   
-  struct NLEBackwardStep : public fusion::JointVisitor<NLEBackwardStep>
+  struct NLEBackwardStep : public fusion::JointVisitorBase<NLEBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
                                   Data &
@@ -215,7 +215,7 @@ namespace se3
     return data.nle;
   }
   
-  struct computeGeneralizedGravityForwardStep : public fusion::JointVisitor<computeGeneralizedGravityForwardStep>
+  struct computeGeneralizedGravityForwardStep : public fusion::JointVisitorBase<computeGeneralizedGravityForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &,
@@ -242,7 +242,7 @@ namespace se3
     
   };
   
-  struct computeGeneralizedGravityBackwardStep : public fusion::JointVisitor<computeGeneralizedGravityBackwardStep>
+  struct computeGeneralizedGravityBackwardStep : public fusion::JointVisitorBase<computeGeneralizedGravityBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
     Data &
@@ -285,7 +285,7 @@ namespace se3
     return data.g;
   }
   
-  struct CoriolisMatrixForwardStep : public fusion::JointVisitor<CoriolisMatrixForwardStep>
+  struct CoriolisMatrixForwardStep : public fusion::JointVisitorBase<CoriolisMatrixForwardStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &,
@@ -332,7 +332,7 @@ namespace se3
 
   };
 
-  struct CoriolisMatrixBackwardStep : public fusion::JointVisitor<CoriolisMatrixBackwardStep>
+  struct CoriolisMatrixBackwardStep : public fusion::JointVisitorBase<CoriolisMatrixBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
     Data &

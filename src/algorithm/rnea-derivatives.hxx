@@ -24,7 +24,7 @@
 namespace se3
 {
   
-  struct computeGeneralizedGravityDerivativeForwardStep : public fusion::JointVisitor<computeGeneralizedGravityDerivativeForwardStep>
+  struct computeGeneralizedGravityDerivativeForwardStep : public fusion::JointVisitorBase<computeGeneralizedGravityDerivativeForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &,
@@ -64,7 +64,7 @@ namespace se3
     
   };
   
-  struct computeGeneralizedGravityDerivativeBackwardStep : public fusion::JointVisitor<computeGeneralizedGravityDerivativeBackwardStep>
+  struct computeGeneralizedGravityDerivativeBackwardStep : public fusion::JointVisitorBase<computeGeneralizedGravityDerivativeBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
     Data &,
@@ -142,7 +142,7 @@ namespace se3
     }
   }
   
-  struct computeRNEADerivativesForwardStep : public fusion::JointVisitor<computeRNEADerivativesForwardStep>
+  struct computeRNEADerivativesForwardStep : public fusion::JointVisitorBase<computeRNEADerivativesForwardStep>
   {
     typedef boost::fusion::vector< const se3::Model &,
     se3::Data &,
@@ -231,7 +231,7 @@ namespace se3
     
   };
   
-  struct computeRNEADerivativesBackwardStep : public fusion::JointVisitor<computeRNEADerivativesBackwardStep>
+  struct computeRNEADerivativesBackwardStep : public fusion::JointVisitorBase<computeRNEADerivativesBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
     Data &,

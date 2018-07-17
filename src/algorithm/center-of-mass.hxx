@@ -146,7 +146,7 @@ namespace se3
   /* --- JACOBIAN ---------------------------------------------------------- */
 
   struct JacobianCenterOfMassBackwardStep
-  : public fusion::JointVisitor<JacobianCenterOfMassBackwardStep>
+  : public fusion::JointVisitorBase<JacobianCenterOfMassBackwardStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,

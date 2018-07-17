@@ -24,7 +24,7 @@
 namespace se3
 {
   
-  struct ForwardKinematicsDerivativesForwardStep : public fusion::JointVisitor<ForwardKinematicsDerivativesForwardStep>
+  struct ForwardKinematicsDerivativesForwardStep : public fusion::JointVisitorBase<ForwardKinematicsDerivativesForwardStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &,
@@ -101,7 +101,7 @@ namespace se3
   }
   
   template<ReferenceFrame rf>
-  struct JointVelocityDerivativesBackwardStep : public fusion::JointVisitor< JointVelocityDerivativesBackwardStep<rf> >
+  struct JointVelocityDerivativesBackwardStep : public fusion::JointVisitorBase< JointVelocityDerivativesBackwardStep<rf> >
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &,
@@ -187,7 +187,7 @@ namespace se3
   
   template<ReferenceFrame rf>
   struct JointAccelerationDerivativesBackwardStep
-  : public fusion::JointVisitor< JointAccelerationDerivativesBackwardStep<rf> >
+  : public fusion::JointVisitorBase< JointAccelerationDerivativesBackwardStep<rf> >
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &,

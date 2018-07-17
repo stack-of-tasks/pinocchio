@@ -25,7 +25,7 @@
 
 namespace se3
 {
-  struct JointJacobiansForwardStep : public fusion::JointVisitor<JointJacobiansForwardStep>
+  struct JointJacobiansForwardStep : public fusion::JointVisitorBase<JointJacobiansForwardStep>
   {
     typedef boost::fusion::vector <const se3::Model &,
                                    se3::Data &,
@@ -68,7 +68,7 @@ namespace se3
     return data.J;
   }
   
-  struct JointJacobiansForwardStep2 : public fusion::JointVisitor<JointJacobiansForwardStep2>
+  struct JointJacobiansForwardStep2 : public fusion::JointVisitorBase<JointJacobiansForwardStep2>
   {
     typedef boost::fusion::vector<se3::Data &> ArgsType;
     
@@ -121,7 +121,7 @@ namespace se3
   }
   
   
-  struct JointJacobianForwardStep : public fusion::JointVisitor<JointJacobianForwardStep>
+  struct JointJacobianForwardStep : public fusion::JointVisitorBase<JointJacobianForwardStep>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
@@ -165,7 +165,7 @@ namespace se3
     }
   }
   
-  struct JointJacobiansTimeVariationForwardStep : public fusion::JointVisitor<JointJacobiansTimeVariationForwardStep>
+  struct JointJacobiansTimeVariationForwardStep : public fusion::JointVisitorBase<JointJacobiansTimeVariationForwardStep>
   {
     typedef boost::fusion::vector <const se3::Model &,
     se3::Data &,

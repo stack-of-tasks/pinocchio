@@ -26,7 +26,7 @@
 
 namespace se3
 {
-  struct AbaForwardStep1 : public fusion::JointVisitor<AbaForwardStep1>
+  struct AbaForwardStep1 : public fusion::JointVisitorBase<AbaForwardStep1>
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &,
@@ -60,7 +60,7 @@ namespace se3
     
   };
   
-  struct AbaBackwardStep : public fusion::JointVisitor<AbaBackwardStep>
+  struct AbaBackwardStep : public fusion::JointVisitorBase<AbaBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
     Data &> ArgsType;
@@ -158,7 +158,7 @@ namespace se3
     }
   };
   
-  struct AbaForwardStep2 : public fusion::JointVisitor<AbaForwardStep2>
+  struct AbaForwardStep2 : public fusion::JointVisitorBase<AbaForwardStep2>
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &
@@ -253,7 +253,7 @@ namespace se3
     return data.ddq;
   }
   
-  struct computeMinverseForwardStep1 : public fusion::JointVisitor<computeMinverseForwardStep1>
+  struct computeMinverseForwardStep1 : public fusion::JointVisitorBase<computeMinverseForwardStep1>
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &,
@@ -287,7 +287,7 @@ namespace se3
     
   };
   
-  struct computeMinverseBackwardStep : public fusion::JointVisitor<computeMinverseBackwardStep>
+  struct computeMinverseBackwardStep : public fusion::JointVisitorBase<computeMinverseBackwardStep>
   {
     typedef boost::fusion::vector<const Model &,
     Data &> ArgsType;
@@ -341,7 +341,7 @@ namespace se3
     }
   };
   
-  struct computeMinverseForwardStep2 : public fusion::JointVisitor<computeMinverseForwardStep2>
+  struct computeMinverseForwardStep2 : public fusion::JointVisitorBase<computeMinverseForwardStep2>
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &

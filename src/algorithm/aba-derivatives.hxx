@@ -25,7 +25,7 @@
 
 namespace se3
 {
-  struct computeABADerivativesForwardStep1 : public fusion::JointVisitor<computeABADerivativesForwardStep1>
+  struct computeABADerivativesForwardStep1 : public fusion::JointVisitorBase<computeABADerivativesForwardStep1>
   {
     typedef boost::fusion::vector<
     const se3::Model &,
@@ -76,7 +76,7 @@ namespace se3
     
   };
   
-  struct computeABADerivativesBackwardStep1 : public fusion::JointVisitor<computeABADerivativesBackwardStep1>
+  struct computeABADerivativesBackwardStep1 : public fusion::JointVisitorBase<computeABADerivativesBackwardStep1>
   {
     typedef boost::fusion::vector<const Model &,
     Data &,
@@ -142,7 +142,7 @@ namespace se3
     
   };
   
-  struct computeABADerivativesForwardStep2 : public fusion::JointVisitor<computeABADerivativesForwardStep2>
+  struct computeABADerivativesForwardStep2 : public fusion::JointVisitorBase<computeABADerivativesForwardStep2>
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &,
@@ -213,7 +213,7 @@ namespace se3
     
   };
   
-  struct computeABADerivativesBackwardStep2 : public fusion::JointVisitor<computeABADerivativesBackwardStep2>
+  struct computeABADerivativesBackwardStep2 : public fusion::JointVisitorBase<computeABADerivativesBackwardStep2>
   {
     typedef boost::fusion::vector<const Model &,
     Data &

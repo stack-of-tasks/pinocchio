@@ -24,7 +24,7 @@ namespace se3
 {
 
   template<typename JointCollection>
-  struct JointCompositeCalcZeroOrderStep : public fusion::JointVisitor< JointCompositeCalcZeroOrderStep<JointCollection> >
+  struct JointCompositeCalcZeroOrderStep : public fusion::JointVisitorBase< JointCompositeCalcZeroOrderStep<JointCollection> >
   {
     typedef JointModelCompositeTpl<JointCollection> JointModelComposite;
     typedef JointDataCompositeTpl<JointCollection> JointDataComposite;
@@ -81,7 +81,7 @@ namespace se3
   }
 
   template<typename JointCollection>
-  struct JointCompositeCalcFirstOrderStep : public fusion::JointVisitor< JointCompositeCalcFirstOrderStep<JointCollection> >
+  struct JointCompositeCalcFirstOrderStep : public fusion::JointVisitorBase< JointCompositeCalcFirstOrderStep<JointCollection> >
   {
     typedef JointModelCompositeTpl<JointCollection> JointModelComposite;
     typedef JointDataCompositeTpl<JointCollection> JointDataComposite;

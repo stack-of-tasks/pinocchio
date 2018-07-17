@@ -52,7 +52,7 @@ namespace se3
     namespace bf = boost::fusion;
     
     template<typename Visitor>
-    struct JointVisitor : public boost::static_visitor<>
+    struct JointVisitorBase : public boost::static_visitor<>
     {
       Visitor & derived() { return *static_cast<Visitor*>(this); }
       const Visitor & derived() const { return *static_cast<const Visitor*>(this); }

@@ -27,7 +27,7 @@ namespace se3
 {
   namespace details
   {
-    struct FinitDiffEpsVisitor : public fusion::JointVisitor<FinitDiffEpsVisitor>
+    struct FinitDiffEpsVisitor : public fusion::JointVisitorBase<FinitDiffEpsVisitor>
     {
       typedef boost::fusion::vector<
       Eigen::VectorXd &

@@ -28,7 +28,7 @@
 namespace se3
 {
 
-  struct SimpleVisitor : public se3::fusion::JointVisitor<SimpleVisitor>
+  struct SimpleVisitor : public se3::fusion::JointVisitorBase<SimpleVisitor>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
