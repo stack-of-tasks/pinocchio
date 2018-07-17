@@ -22,7 +22,7 @@
 
 #include <pinocchio/spatial/explog.hpp>
 #include <pinocchio/math/quaternion.hpp>
-#include <pinocchio/multibody/liegroup/operation-base.hpp>
+#include <pinocchio/multibody/liegroup/liegroup-base.hpp>
 
 namespace se3
 {

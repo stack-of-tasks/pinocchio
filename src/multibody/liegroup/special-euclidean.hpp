@@ -23,7 +23,7 @@
 #include <pinocchio/macros.hpp>
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/multibody/liegroup/operation-base.hpp"
+#include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 
 #include "pinocchio/multibody/liegroup/vector-space.hpp"
 #include "pinocchio/multibody/liegroup/cartesian-product.hpp"

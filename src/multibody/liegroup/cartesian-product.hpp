@@ -18,7 +18,7 @@
 #ifndef __se3_cartesian_product_operation_hpp__
 #define __se3_cartesian_product_operation_hpp__
 
-#include <pinocchio/multibody/liegroup/operation-base.hpp>
+#include <pinocchio/multibody/liegroup/liegroup-base.hpp>
 
 namespace se3
 {

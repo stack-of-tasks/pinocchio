@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 
-#include "pinocchio/multibody/liegroup/operation-base.hpp"
+#include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 
 #include <boost/integer/static_min_max.hpp>
 

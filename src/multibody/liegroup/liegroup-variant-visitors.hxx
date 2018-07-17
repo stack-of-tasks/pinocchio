@@ -18,7 +18,7 @@
 #ifndef __se3_lie_group_variant_visitor_hxx__
 #define __se3_lie_group_variant_visitor_hxx__
 
-#include "pinocchio/multibody/liegroup/operation-base.hpp"
+#include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 
 #include <string>
