@@ -332,9 +332,17 @@ namespace se3
                       );
   }
 
-  template<typename Scalar, int Options, int axis>
+  template<typename _Scalar, int _Options, int _axis>
   struct JointRevoluteTpl
   {
+    typedef _Scalar Scalar;
+    
+    enum
+    {
+      Options = _Options,
+      axis = _axis
+    };
+    
     template<typename S1, typename S2, typename Matrix3Like>
     static void cartesianRotation(const S1 & ca, const S2 & sa,
                                   const Eigen::MatrixBase<Matrix3Like> & res);

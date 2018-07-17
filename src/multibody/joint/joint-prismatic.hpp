@@ -381,11 +381,21 @@ namespace se3
     { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
   }
   
-  template<typename Scalar, int Options, int axis> struct JointPrismatic {};
+  template<typename _Scalar, int _Options, int _axis>
+  struct JointPrismaticTpl
+  {
+    typedef _Scalar Scalar;
+    
+    enum
+    {
+      Options = _Options,
+      axis = _axis
+    };
+  };
  
   
   template<typename Scalar, int Options>
-  struct JointPrismatic<Scalar,Options,0>
+  struct JointPrismaticTpl<Scalar,Options,0>
   {
     template<typename S1, typename S2, int O2>
     static void cartesianTranslation(const S1 & shift, SE3Tpl<S2,O2> & m)
@@ -395,7 +405,7 @@ namespace se3
   };
   
   template<typename Scalar, int Options>
-  struct JointPrismatic<Scalar,Options,1>
+  struct JointPrismaticTpl<Scalar,Options,1>
   {
     template<typename S1, typename S2, int O2>
     static void cartesianTranslation(const S1 & shift, SE3Tpl<S2,O2> & m)
@@ -405,7 +415,7 @@ namespace se3
   };
   
   template<typename Scalar, int Options>
-  struct JointPrismatic<Scalar,Options,2>
+  struct JointPrismaticTpl<Scalar,Options,2>
   {
     template<typename S1, typename S2, int O2>
     static void cartesianTranslation(const S1 & shift, SE3Tpl<S2,O2> & m)
@@ -415,7 +425,7 @@ namespace se3
   };
 
   template<typename _Scalar, int _Options, int axis>
-  struct traits< JointPrismatic<_Scalar,_Options,axis> >
+  struct traits< JointPrismaticTpl<_Scalar,_Options,axis> >
   {
     enum {
       NQ = 1,
@@ -442,16 +452,16 @@ namespace se3
 
   template<typename Scalar, int Options, int axis>
   struct traits< JointDataPrismaticTpl<Scalar,Options,axis> >
-  { typedef JointPrismatic<Scalar,Options,axis> JointDerived; };
+  { typedef JointPrismaticTpl<Scalar,Options,axis> JointDerived; };
   
   template<typename Scalar, int Options, int axis>
   struct traits< JointModelPrismaticTpl<Scalar,Options,axis> >
-  { typedef JointPrismatic<Scalar,Options,axis> JointDerived; };
+  { typedef JointPrismaticTpl<Scalar,Options,axis> JointDerived; };
 
   template<typename _Scalar, int _Options, int axis>
   struct JointDataPrismaticTpl : public JointDataBase< JointDataPrismaticTpl<_Scalar,_Options,axis> >
   {
-    typedef JointPrismatic<_Scalar,_Options,axis> JointDerived;
+    typedef JointPrismaticTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
     Constraint_t S;
@@ -474,7 +484,7 @@ namespace se3
   template<typename _Scalar, int _Options, int axis>
   struct JointModelPrismaticTpl : public JointModelBase< JointModelPrismaticTpl<_Scalar,_Options,axis> >
   {
-    typedef JointPrismatic<_Scalar,_Options,axis> JointDerived;
+    typedef JointPrismaticTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
     using JointModelBase<JointModelPrismaticTpl>::id;
@@ -533,15 +543,15 @@ namespace se3
 
   }; // struct JointModelPrismaticTpl
 
-  typedef JointPrismatic<double,0,0> JointPX;
+  typedef JointPrismaticTpl<double,0,0> JointPX;
   typedef JointDataPrismaticTpl<double,0,0> JointDataPX;
   typedef JointModelPrismaticTpl<double,0,0> JointModelPX;
 
-  typedef JointPrismatic<double,0,1> JointPY;
+  typedef JointPrismaticTpl<double,0,1> JointPY;
   typedef JointDataPrismaticTpl<double,0,1> JointDataPY;
   typedef JointModelPrismaticTpl<double,0,1> JointModelPY;
 
-  typedef JointPrismatic<double,0,2> JointPZ;
+  typedef JointPrismaticTpl<double,0,2> JointPZ;
   typedef JointDataPrismaticTpl<double,0,2> JointDataPZ;
   typedef JointModelPrismaticTpl<double,0,2> JointModelPZ;
 
