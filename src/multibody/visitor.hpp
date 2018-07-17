@@ -54,8 +54,6 @@ namespace se3
     template<typename Visitor>
     struct JointVisitorBase : public boost::static_visitor<>
     {
-      Visitor & derived() { return *static_cast<Visitor*>(this); }
-      const Visitor & derived() const { return *static_cast<const Visitor*>(this); }
       
       template<typename JointCollection, typename ArgsTmp>
       static void run(const JointModelTpl<JointCollection> & jmodel,
