@@ -52,14 +52,16 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     typedef Derived LieGroupDerived;
     typedef int Index;
     typedef typename traits<LieGroupDerived>::Scalar Scalar;
-    enum {
+    enum
+    {
+      Options = traits<LieGroupDerived>::Options,
       NQ = traits<LieGroupDerived>::NQ,
       NV = traits<LieGroupDerived>::NV
     };
 
-    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
-    typedef Eigen::Matrix<Scalar,NV,NV> JacobianMatrix_t;
+    typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,NV,NV,Options> JacobianMatrix_t;
 
     /// \name API with return value as argument
     /// \{
