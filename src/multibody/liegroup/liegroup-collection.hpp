@@ -27,7 +27,7 @@
 
 namespace se3
 {
-  template<typename _Scalar, int _Options>
+  template<typename _Scalar, int _Options = 0>
   struct LieGroupCollectionDefaultTpl
   {
     typedef _Scalar Scalar;
@@ -45,6 +45,8 @@ namespace se3
     > LieGroupVariant;
     
   };
+  
+  typedef LieGroupCollectionDefaultTpl<double> LieGroupCollectionDefault;
   
 }
 
