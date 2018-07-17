@@ -26,33 +26,40 @@
 
 namespace se3
 {
-  template<int Dim> struct VectorSpaceOperationTpl;
-  template<int Dim> struct traits<VectorSpaceOperationTpl<Dim> > {
-    typedef double Scalar;
+  template<int Dim, typename Scalar, int Options = 0> struct VectorSpaceOperationTpl;
+  
+  template<int Dim, typename _Scalar, int _Options>
+  struct traits< VectorSpaceOperationTpl<Dim,_Scalar,_Options> >
+  {
+    typedef _Scalar Scalar;
     enum {
+      Options = _Options,
       NQ = Dim,
       NV = Dim
     };
   };
 
-  template<int Dim = Eigen::Dynamic>
-  struct VectorSpaceOperationTpl : public LieGroupBase <VectorSpaceOperationTpl<Dim> >
+  template<int Dim, typename _Scalar, int _Options>
+  struct VectorSpaceOperationTpl
+  : public LieGroupBase< VectorSpaceOperationTpl<Dim,_Scalar,_Options> >
   {
     SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(VectorSpaceOperationTpl);
 
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
     ///        argument for static sized vector-spaces.
-    VectorSpaceOperationTpl (int size = boost::static_signed_max<0,Dim>::value) : size_ (size)
+    VectorSpaceOperationTpl(int size = boost::static_signed_max<0,Dim>::value)
+    : size_(size)
     {
-      assert (size_.value() >= 0);
+      assert(size_.value() >= 0);
     }
 
     /// Constructor
     /// \param other other VectorSpaceOperationTpl from which to retrieve size
-    VectorSpaceOperationTpl (const VectorSpaceOperationTpl& other) : Base (), size_ (other.size_.value())
+    VectorSpaceOperationTpl(const VectorSpaceOperationTpl & other)
+    : Base(), size_(other.size_.value())
     {
-      assert (size_.value() >= 0);
+      assert(size_.value() >= 0);
     }
 
     Index nq () const
@@ -160,7 +167,9 @@ namespace se3
         res[i] = lower_pos_limit[i] + (( upper_pos_limit[i] - lower_pos_limit[i]) * rand())/RAND_MAX;
       }
     }
+    
   private:
+    
     Eigen::internal::variable_if_dynamic<Index, Dim> size_;
   }; // struct VectorSpaceOperationTpl
 

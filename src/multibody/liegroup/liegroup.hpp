@@ -33,7 +33,7 @@ namespace se3
     template<typename JointModel>
     struct operation
     {
-      typedef VectorSpaceOperationTpl<JointModel::NQ> type;
+      typedef VectorSpaceOperationTpl<JointModel::NQ,typename JointModel::Scalar, JointModel::Options> type;
     };
   };
   

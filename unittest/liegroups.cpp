@@ -290,18 +290,18 @@ BOOST_AUTO_TEST_CASE ( test_all )
 
 BOOST_AUTO_TEST_CASE ( Jdifference )
 {
-  typedef boost::mpl::vector<  VectorSpaceOperationTpl<1>
-                             , VectorSpaceOperationTpl<2>
+  typedef boost::mpl::vector<  VectorSpaceOperationTpl<1,double>
+                             , VectorSpaceOperationTpl<2,double>
                              , SpecialOrthogonalOperationTpl<2>
                              , SpecialOrthogonalOperationTpl<3>
                              , SpecialEuclideanOperationTpl<2>
                              , SpecialEuclideanOperationTpl<3>
                              , CartesianProductOperation<
-                                 VectorSpaceOperationTpl<2>,
+                                 VectorSpaceOperationTpl<2,double>,
                                  SpecialOrthogonalOperationTpl<2>
                                >
                              , CartesianProductOperation<
-                                 VectorSpaceOperationTpl<3>,
+                                 VectorSpaceOperationTpl<3,double>,
                                  SpecialOrthogonalOperationTpl<3>
                                >
                              > Types;
@@ -311,18 +311,18 @@ BOOST_AUTO_TEST_CASE ( Jdifference )
 
 BOOST_AUTO_TEST_CASE ( Jintegrate )
 {
-  typedef boost::mpl::vector<  VectorSpaceOperationTpl<1>
-                             , VectorSpaceOperationTpl<2>
+  typedef boost::mpl::vector<  VectorSpaceOperationTpl<1,double>
+                             , VectorSpaceOperationTpl<2,double>
                              , SpecialOrthogonalOperationTpl<2>
                              , SpecialOrthogonalOperationTpl<3>
                              , SpecialEuclideanOperationTpl<2>
                              , SpecialEuclideanOperationTpl<3>
                              , CartesianProductOperation<
-                                 VectorSpaceOperationTpl<2>,
+                                 VectorSpaceOperationTpl<2,double>,
                                  SpecialOrthogonalOperationTpl<2>
                                >
                              , CartesianProductOperation<
-                                 VectorSpaceOperationTpl<3>,
+                                 VectorSpaceOperationTpl<3,double>,
                                  SpecialOrthogonalOperationTpl<3>
                                >
                              > Types;
@@ -332,7 +332,7 @@ BOOST_AUTO_TEST_CASE ( Jintegrate )
 
 BOOST_AUTO_TEST_CASE ( test_vector_space )
 {
-  typedef VectorSpaceOperationTpl<3> VSO_t;
+  typedef VectorSpaceOperationTpl<3,double> VSO_t;
   VSO_t::ConfigVector_t q,
     lo(VSO_t::ConfigVector_t::Constant(-std::numeric_limits<double>::infinity())),
     // lo(VSO_t::ConfigVector_t::Constant(                                       0)),
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE ( test_vector_space )
 BOOST_AUTO_TEST_CASE ( test_size )
 {
   // R^1: neutral = [0]
-  VectorSpaceOperationTpl <1> vs1;
+  VectorSpaceOperationTpl <1,double> vs1;
   Eigen::VectorXd neutral;
   neutral.resize (1);
   neutral.setZero ();
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE ( test_size )
   BOOST_CHECK (vs1.name () == "R^1");
   BOOST_CHECK (vs1.neutral () == neutral);
   // R^2: neutral = [0, 0]
-  VectorSpaceOperationTpl <2> vs2;
+  VectorSpaceOperationTpl <2,double> vs2;
   neutral.resize (2);
   neutral.setZero ();
   BOOST_CHECK (vs2.nq () == 2);
@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE ( test_size )
   BOOST_CHECK (vs2.name () == "R^2");
   BOOST_CHECK (vs2.neutral () == neutral);
   // R^3: neutral = [0, 0, 0]
-  VectorSpaceOperationTpl <3> vs3;
+  VectorSpaceOperationTpl <3,double> vs3;
   neutral.resize (3);
   neutral.setZero ();
   BOOST_CHECK (vs3.nq () == 3);
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE ( test_size )
   BOOST_CHECK (se3.name () == "SE(3)");
   BOOST_CHECK (se3.neutral () == neutral);
   // R^2 x SO(2): neutral = [0, 0, 1, 0]
-  CartesianProductOperation <VectorSpaceOperationTpl <2>,
+  CartesianProductOperation <VectorSpaceOperationTpl <2,double>,
                              SpecialOrthogonalOperationTpl <2> > r2xso2;
   neutral.resize (4); neutral.setZero ();
   neutral [2] = 1;
@@ -416,7 +416,7 @@ BOOST_AUTO_TEST_CASE ( test_size )
   BOOST_CHECK (r2xso2.name () == "R^2*SO(2)");
   BOOST_CHECK (r2xso2.neutral () == neutral);
   // R^3 x SO(3): neutral = [0, 0, 0, 0, 0, 0, 1]
-  CartesianProductOperation <VectorSpaceOperationTpl <3>,
+  CartesianProductOperation <VectorSpaceOperationTpl <3,double>,
                              SpecialOrthogonalOperationTpl <3> > r3xso3;
   neutral.resize (7); neutral.setZero ();
   neutral [6] = 1;

@@ -31,10 +31,10 @@ namespace se3
                          ,SpecialOrthogonalOperationTpl<3>
                          ,SpecialEuclideanOperationTpl<2>
                          ,SpecialEuclideanOperationTpl<3>
-                         ,VectorSpaceOperationTpl<1>
-                         ,VectorSpaceOperationTpl<2>
-                         ,VectorSpaceOperationTpl<3>
-                         ,VectorSpaceOperationTpl<Eigen::Dynamic>
+                         ,VectorSpaceOperationTpl<1,double>
+                         ,VectorSpaceOperationTpl<2,double>
+                         ,VectorSpaceOperationTpl<3,double>
+                         ,VectorSpaceOperationTpl<Eigen::Dynamic,double>
                         > LieGroupVariant;
   
 }
