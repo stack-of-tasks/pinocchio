@@ -290,19 +290,22 @@ BOOST_AUTO_TEST_CASE ( test_all )
 
 BOOST_AUTO_TEST_CASE ( Jdifference )
 {
-  typedef boost::mpl::vector<  VectorSpaceOperationTpl<1,double>
-                             , VectorSpaceOperationTpl<2,double>
-                             , SpecialOrthogonalOperationTpl<2>
-                             , SpecialOrthogonalOperationTpl<3>
-                             , SpecialEuclideanOperationTpl<2>
-                             , SpecialEuclideanOperationTpl<3>
+  typedef double Scalar;
+  enum { Options = 0 };
+  
+  typedef boost::mpl::vector<  VectorSpaceOperationTpl<1,Scalar,Options>
+                             , VectorSpaceOperationTpl<2,Scalar,Options>
+                             , SpecialOrthogonalOperationTpl<2,Scalar,Options>
+                             , SpecialOrthogonalOperationTpl<3,Scalar,Options>
+                             , SpecialEuclideanOperationTpl<2,Scalar,Options>
+                             , SpecialEuclideanOperationTpl<3,Scalar,Options>
                              , CartesianProductOperation<
-                                 VectorSpaceOperationTpl<2,double>,
-                                 SpecialOrthogonalOperationTpl<2>
+                                 VectorSpaceOperationTpl<2,Scalar,Options>,
+                                 SpecialOrthogonalOperationTpl<2,Scalar,Options>
                                >
                              , CartesianProductOperation<
-                                 VectorSpaceOperationTpl<3,double>,
-                                 SpecialOrthogonalOperationTpl<3>
+                                 VectorSpaceOperationTpl<3,Scalar,Options>,
+                                 SpecialOrthogonalOperationTpl<3,Scalar,Options>
                                >
                              > Types;
   for (int i = 0; i < 20; ++i)
@@ -311,19 +314,22 @@ BOOST_AUTO_TEST_CASE ( Jdifference )
 
 BOOST_AUTO_TEST_CASE ( Jintegrate )
 {
-  typedef boost::mpl::vector<  VectorSpaceOperationTpl<1,double>
-                             , VectorSpaceOperationTpl<2,double>
-                             , SpecialOrthogonalOperationTpl<2>
-                             , SpecialOrthogonalOperationTpl<3>
-                             , SpecialEuclideanOperationTpl<2>
-                             , SpecialEuclideanOperationTpl<3>
+  typedef double Scalar;
+  enum { Options = 0 };
+  
+  typedef boost::mpl::vector<  VectorSpaceOperationTpl<1,Scalar,Options>
+                             , VectorSpaceOperationTpl<2,Scalar,Options>
+                             , SpecialOrthogonalOperationTpl<2,Scalar,Options>
+                             , SpecialOrthogonalOperationTpl<3,Scalar,Options>
+                             , SpecialEuclideanOperationTpl<2,Scalar,Options>
+                             , SpecialEuclideanOperationTpl<3,Scalar,Options>
                              , CartesianProductOperation<
-                                 VectorSpaceOperationTpl<2,double>,
-                                 SpecialOrthogonalOperationTpl<2>
+                                 VectorSpaceOperationTpl<2,Scalar,Options>,
+                                 SpecialOrthogonalOperationTpl<2,Scalar,Options>
                                >
                              , CartesianProductOperation<
-                                 VectorSpaceOperationTpl<3,double>,
-                                 SpecialOrthogonalOperationTpl<3>
+                                 VectorSpaceOperationTpl<3,Scalar,Options>,
+                                 SpecialOrthogonalOperationTpl<3,Scalar,Options>
                                >
                              > Types;
   for (int i = 0; i < 20; ++i)
@@ -376,14 +382,14 @@ BOOST_AUTO_TEST_CASE ( test_size )
   BOOST_CHECK (vs3.name () == "R^3");
   BOOST_CHECK (vs3.neutral () == neutral);
   // SO(2): neutral = [1, 0]
-  SpecialOrthogonalOperationTpl <2> so2;
+  SpecialOrthogonalOperationTpl<2,double> so2;
   neutral.resize (2); neutral [0] = 1; neutral [1] = 0;
   BOOST_CHECK (so2.nq () == 2);
   BOOST_CHECK (so2.nv () == 1);
   BOOST_CHECK (so2.name () == "SO(2)");
   BOOST_CHECK (so2.neutral () == neutral);
   // SO(3): neutral = [0, 0, 0, 1]
-  SpecialOrthogonalOperationTpl <3> so3;
+  SpecialOrthogonalOperationTpl<3,double> so3;
   neutral.resize (4); neutral.setZero ();
   neutral [3] = 1;
   BOOST_CHECK (so3.nq () == 4);
@@ -391,7 +397,7 @@ BOOST_AUTO_TEST_CASE ( test_size )
   BOOST_CHECK (so3.name () == "SO(3)");
   BOOST_CHECK (so3.neutral () == neutral);
   // SE(2): neutral = [0, 0, 1, 0]
-  SpecialEuclideanOperationTpl <2> se2;
+  SpecialEuclideanOperationTpl <2,double> se2;
   neutral.resize (4); neutral.setZero ();
   neutral [2] = 1;
   BOOST_CHECK (se2.nq () == 4);
@@ -399,7 +405,7 @@ BOOST_AUTO_TEST_CASE ( test_size )
   BOOST_CHECK (se2.name () == "SE(2)");
   BOOST_CHECK (se2.neutral () == neutral);
   // SE(3): neutral = [0, 0, 0, 0, 0, 0, 1]
-  SpecialEuclideanOperationTpl <3> se3;
+  SpecialEuclideanOperationTpl <3,double> se3;
   neutral.resize (7); neutral.setZero ();
   neutral [6] = 1;
   BOOST_CHECK (se3.nq () == 7);
@@ -408,7 +414,7 @@ BOOST_AUTO_TEST_CASE ( test_size )
   BOOST_CHECK (se3.neutral () == neutral);
   // R^2 x SO(2): neutral = [0, 0, 1, 0]
   CartesianProductOperation <VectorSpaceOperationTpl <2,double>,
-                             SpecialOrthogonalOperationTpl <2> > r2xso2;
+                             SpecialOrthogonalOperationTpl <2,double> > r2xso2;
   neutral.resize (4); neutral.setZero ();
   neutral [2] = 1;
   BOOST_CHECK (r2xso2.nq () == 4);
@@ -417,7 +423,7 @@ BOOST_AUTO_TEST_CASE ( test_size )
   BOOST_CHECK (r2xso2.neutral () == neutral);
   // R^3 x SO(3): neutral = [0, 0, 0, 0, 0, 0, 1]
   CartesianProductOperation <VectorSpaceOperationTpl <3,double>,
-                             SpecialOrthogonalOperationTpl <3> > r3xso3;
+                             SpecialOrthogonalOperationTpl <3,double> > r3xso3;
   neutral.resize (7); neutral.setZero ();
   neutral [6] = 1;
   BOOST_CHECK (r3xso3.nq () == 7);

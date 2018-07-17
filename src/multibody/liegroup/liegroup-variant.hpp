@@ -27,10 +27,10 @@
 
 namespace se3
 {
-  typedef boost::variant< SpecialOrthogonalOperationTpl<2>
-                         ,SpecialOrthogonalOperationTpl<3>
-                         ,SpecialEuclideanOperationTpl<2>
-                         ,SpecialEuclideanOperationTpl<3>
+  typedef boost::variant< SpecialOrthogonalOperationTpl<2,double,0>
+                         ,SpecialOrthogonalOperationTpl<3,double,0>
+                         ,SpecialEuclideanOperationTpl<2,double,0>
+                         ,SpecialEuclideanOperationTpl<3,double,0>
                          ,VectorSpaceOperationTpl<1,double>
                          ,VectorSpaceOperationTpl<2,double>
                          ,VectorSpaceOperationTpl<3,double>

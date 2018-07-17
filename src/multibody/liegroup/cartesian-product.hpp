@@ -45,8 +45,9 @@ namespace se3
   
   template<typename LieGroup1, typename LieGroup2>
   struct traits<CartesianProductOperation<LieGroup1, LieGroup2> > {
-    typedef double Scalar;
+    typedef typename traits<LieGroup1>::Scalar Scalar;
     enum {
+      Options = traits<LieGroup1>::Options,
       NQ = eval_set_dim<LieGroup1::NQ,LieGroup2::NQ>::value,
       NV = eval_set_dim<LieGroup1::NV,LieGroup2::NV>::value
     };

@@ -26,29 +26,42 @@
 
 namespace se3
 {
-  template<int Dim> struct SpecialOrthogonalOperationTpl {};
-  template<int Dim> struct traits<SpecialOrthogonalOperationTpl<Dim> > {};
+  template<int Dim, typename Scalar, int Options = 0>
+  struct SpecialOrthogonalOperationTpl
+  {};
+  
+  template<int Dim, typename Scalar, int Options>
+  struct traits< SpecialOrthogonalOperationTpl<Dim,Scalar,Options> >
+  {};
 
-  template <> struct traits<SpecialOrthogonalOperationTpl<2> > {
-    typedef double Scalar;
-    enum {
+  template<typename _Scalar, int _Options>
+  struct traits< SpecialOrthogonalOperationTpl<2,_Scalar,_Options> >
+  {
+    typedef _Scalar Scalar;
+    enum
+    {
+      Options = _Options,
       NQ = 2,
       NV = 1
     };
   };
 
-  template <> struct traits<SpecialOrthogonalOperationTpl<3> > {
-    typedef double Scalar;
-    enum {
+  template<typename _Scalar, int _Options >
+  struct traits<SpecialOrthogonalOperationTpl<3,_Scalar,_Options> > {
+    typedef _Scalar Scalar;
+    enum
+    {
+      Options = _Options,
       NQ = 4,
       NV = 3
     };
   };
 
-  template<>
-  struct SpecialOrthogonalOperationTpl<2> : public LieGroupBase <SpecialOrthogonalOperationTpl<2> >
+  template<typename _Scalar, int _Options>
+  struct SpecialOrthogonalOperationTpl<2,_Scalar,_Options>
+  : public LieGroupBase< SpecialOrthogonalOperationTpl<2,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
+    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
 
     template<typename Matrix2Like>
@@ -241,12 +254,13 @@ namespace se3
     {
       random_impl(qout);
     }
-  }; // struct SpecialOrthogonalOperationTpl<2>
+  }; // struct SpecialOrthogonalOperationTpl<2,_Scalar,_Options>
 
-  template<>
-  struct SpecialOrthogonalOperationTpl<3> : public LieGroupBase <SpecialOrthogonalOperationTpl<3> >
+  template<typename _Scalar, int _Options>
+  struct SpecialOrthogonalOperationTpl<3,_Scalar,_Options>
+  : public LieGroupBase< SpecialOrthogonalOperationTpl<3,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
+    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
 
     typedef Eigen::Quaternion<Scalar> Quaternion_t;
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
@@ -399,7 +413,8 @@ namespace se3
 
       return defineSameRotation(quat1,quat2,prec);
     }
-  }; // struct SpecialOrthogonalOperationTpl<3>
+  }; // struct SpecialOrthogonalOperationTpl<3,_Scalar,_Options>
+  
 } // namespace se3
 
 #endif // ifndef __se3_special_orthogonal_operation_hpp__

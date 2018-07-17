@@ -50,25 +50,25 @@ namespace se3
   template<typename Scalar, int Options>
   struct LieGroupMap::operation< JointModelSphericalTpl<Scalar,Options> >
   {
-    typedef SpecialOrthogonalOperationTpl<3> type;
+    typedef SpecialOrthogonalOperationTpl<3,Scalar,Options> type;
   };
   
   template<typename Scalar, int Options>
   struct LieGroupMap::operation< JointModelFreeFlyerTpl<Scalar,Options> >
   {
-    typedef SpecialEuclideanOperationTpl<3> type;
+    typedef SpecialEuclideanOperationTpl<3,Scalar,Options> type;
   };
   
   template<typename Scalar, int Options>
   struct LieGroupMap::operation< JointModelPlanarTpl<Scalar,Options> >
   {
-    typedef SpecialEuclideanOperationTpl<2> type;
+    typedef SpecialEuclideanOperationTpl<2,Scalar,Options> type;
   };
   
   template<typename Scalar, int Options, int axis>
   struct LieGroupMap::operation<JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
   {
-    typedef SpecialOrthogonalOperationTpl<2> type;
+    typedef SpecialOrthogonalOperationTpl<2,Scalar,Options> type;
   };
   
 }

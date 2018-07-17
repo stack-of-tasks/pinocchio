@@ -32,6 +32,7 @@ namespace se3
   typedef TYPENAME Base::Index Index;                                          \
   typedef TYPENAME traits<Derived>::Scalar Scalar;                             \
   enum {                                                                       \
+    Options = traits<Derived>::Options,                                        \
     NQ = Base::NQ,                                                             \
     NV = Base::NV                                                              \
   };                                                                           \

@@ -31,28 +31,39 @@
 
 namespace se3
 {
-  template<int Dim> struct SpecialEuclideanOperationTpl {};
-  template<int Dim> struct traits<SpecialEuclideanOperationTpl<Dim> > {};
+  template<int Dim, typename Scalar, int Options = 0>
+  struct SpecialEuclideanOperationTpl
+  {};
+  
+  template<int Dim, typename Scalar, int Options>
+  struct traits< SpecialEuclideanOperationTpl<Dim,Scalar,Options> >
+  {};
 
-  template<> struct traits<SpecialEuclideanOperationTpl<2> > {
-    typedef double Scalar;
-    enum {
+  template<typename _Scalar, int _Options>
+  struct traits< SpecialEuclideanOperationTpl<2,_Scalar,_Options> >
+  {
+    typedef _Scalar Scalar;
+    enum
+    {
+      Options = _Options,
       NQ = 4,
       NV = 3
     };
   };
 
   // SE(2)
-  template<>
-  struct SpecialEuclideanOperationTpl<2> : public LieGroupBase <SpecialEuclideanOperationTpl<2> >
+  template<typename _Scalar, int _Options>
+  struct SpecialEuclideanOperationTpl<2,_Scalar,_Options>
+  : public LieGroupBase <SpecialEuclideanOperationTpl<2,_Scalar,_Options> >
   {
-    typedef VectorSpaceOperationTpl<2,double>       R2_t;
-    typedef SpecialOrthogonalOperationTpl<2> SO2_t;
+    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
+    
+    typedef VectorSpaceOperationTpl<2,Scalar,Options>       R2_t;
+    typedef SpecialOrthogonalOperationTpl<2,Scalar,Options> SO2_t;
     typedef CartesianProductOperation <R2_t, SO2_t> R2crossSO2_t;
-
-    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
-    typedef Eigen::Matrix<Scalar,2,2> Matrix2;
-    typedef Eigen::Matrix<Scalar,2,1> Vector2;
+    
+    typedef Eigen::Matrix<Scalar,2,2,Options> Matrix2;
+    typedef Eigen::Matrix<Scalar,2,1,Options> Vector2;
 
     template<typename TangentVector, typename Matrix2Like, typename Vector2Like>
     static void exp(const Eigen::MatrixBase<TangentVector> & v,
@@ -283,8 +294,8 @@ namespace se3
       MotionTpl<Scalar,0> nu; nu.toVector() << v.template head<2>(), 0, 0, 0, v[2]; 
       Eigen::Matrix<Scalar,6,6> Jtmp6;
       Jexp6(nu, Jtmp6);
-      Jout << Jtmp6.   topLeftCorner<2,2>(), Jtmp6.   topRightCorner<2,1>(),
-              Jtmp6.bottomLeftCorner<1,2>(), Jtmp6.bottomRightCorner<1,1>();
+      Jout << Jtmp6.template    topLeftCorner<2,2>(), Jtmp6.template    topRightCorner<2,1>(),
+              Jtmp6.template bottomLeftCorner<1,2>(), Jtmp6.template bottomRightCorner<1,1>();
     }
 
     // interpolate_impl use default implementation.
@@ -341,26 +352,31 @@ namespace se3
     }
   }; // struct SpecialEuclideanOperationTpl<2>
 
-  template<> struct traits<SpecialEuclideanOperationTpl<3> > {
-    typedef double Scalar;
-    enum {
+  template<typename _Scalar, int _Options>
+  struct traits< SpecialEuclideanOperationTpl<3,_Scalar,_Options> >
+  {
+    typedef _Scalar Scalar;
+    enum
+    {
+      Options = _Options,
       NQ = 7,
       NV = 6
     };
   };
   
   /// SE(3)
-  template<>
-  struct SpecialEuclideanOperationTpl<3> : public LieGroupBase <SpecialEuclideanOperationTpl<3> >
+  template<typename _Scalar, int _Options>
+  struct SpecialEuclideanOperationTpl<3,_Scalar,_Options>
+  : public LieGroupBase <SpecialEuclideanOperationTpl<3,_Scalar,_Options> >
   {
-    typedef CartesianProductOperation <VectorSpaceOperationTpl<3,double>, SpecialOrthogonalOperationTpl<3> > R3crossSO3_t;
+    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
+    
+    typedef CartesianProductOperation <VectorSpaceOperationTpl<3,Scalar,Options>, SpecialOrthogonalOperationTpl<3,Scalar,Options> > R3crossSO3_t;
 
-    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
-
-    typedef Eigen::Quaternion<Scalar> Quaternion_t;
+    typedef Eigen::Quaternion<Scalar,Options> Quaternion_t;
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
     typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
-    typedef SE3 Transformation_t;
+    typedef SE3Tpl<Scalar,Options> Transformation_t;
 
     /// Get dimension of Lie Group vector representation
     ///
