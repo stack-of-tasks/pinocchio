@@ -31,10 +31,10 @@
 
 namespace se3
 {
-  template<int N> struct SpecialEuclideanOperation {};
-  template<int N> struct traits<SpecialEuclideanOperation<N> > {};
+  template<int Dim> struct SpecialEuclideanOperationTpl {};
+  template<int Dim> struct traits<SpecialEuclideanOperationTpl<Dim> > {};
 
-  template<> struct traits<SpecialEuclideanOperation<2> > {
+  template<> struct traits<SpecialEuclideanOperationTpl<2> > {
     typedef double Scalar;
     enum {
       NQ = 4,
@@ -44,13 +44,13 @@ namespace se3
 
   // SE(2)
   template<>
-  struct SpecialEuclideanOperation<2> : public LieGroupBase <SpecialEuclideanOperation<2> >
+  struct SpecialEuclideanOperationTpl<2> : public LieGroupBase <SpecialEuclideanOperationTpl<2> >
   {
-    typedef VectorSpaceOperation<2>       R2_t;
-    typedef SpecialOrthogonalOperation<2> SO2_t;
+    typedef VectorSpaceOperationTpl<2>       R2_t;
+    typedef SpecialOrthogonalOperationTpl<2> SO2_t;
     typedef CartesianProductOperation <R2_t, SO2_t> R2crossSO2_t;
 
-    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialEuclideanOperation);
+    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
     typedef Eigen::Matrix<Scalar,2,1> Vector2;
 
@@ -339,9 +339,9 @@ namespace se3
       R << c_theta, -s_theta, s_theta, c_theta;
       t = q.template head<2>();
     }
-  }; // struct SpecialEuclideanOperation<2>
+  }; // struct SpecialEuclideanOperationTpl<2>
 
-  template<> struct traits<SpecialEuclideanOperation<3> > {
+  template<> struct traits<SpecialEuclideanOperationTpl<3> > {
     typedef double Scalar;
     enum {
       NQ = 7,
@@ -351,11 +351,11 @@ namespace se3
   
   /// SE(3)
   template<>
-  struct SpecialEuclideanOperation<3> : public LieGroupBase <SpecialEuclideanOperation<3> >
+  struct SpecialEuclideanOperationTpl<3> : public LieGroupBase <SpecialEuclideanOperationTpl<3> >
   {
-    typedef CartesianProductOperation <VectorSpaceOperation<3>, SpecialOrthogonalOperation<3> > R3crossSO3_t;
+    typedef CartesianProductOperation <VectorSpaceOperationTpl<3>, SpecialOrthogonalOperationTpl<3> > R3crossSO3_t;
 
-    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialEuclideanOperation);
+    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
 
     typedef Eigen::Quaternion<Scalar> Quaternion_t;
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
@@ -512,7 +512,7 @@ namespace se3
     {
       return R3crossSO3_t().isSameConfiguration(q0, q1, prec);
     }
-  }; // struct SpecialEuclideanOperation<3>
+  }; // struct SpecialEuclideanOperationTpl<3>
 
 } // namespace se3
 

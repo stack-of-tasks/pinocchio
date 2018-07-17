@@ -33,7 +33,7 @@ namespace se3
     template<typename JointModel>
     struct operation
     {
-      typedef VectorSpaceOperation<JointModel::NQ> type;
+      typedef VectorSpaceOperationTpl<JointModel::NQ> type;
     };
   };
   
@@ -50,25 +50,25 @@ namespace se3
   template<typename Scalar, int Options>
   struct LieGroupMap::operation< JointModelSphericalTpl<Scalar,Options> >
   {
-    typedef SpecialOrthogonalOperation<3> type;
+    typedef SpecialOrthogonalOperationTpl<3> type;
   };
   
   template<typename Scalar, int Options>
   struct LieGroupMap::operation< JointModelFreeFlyerTpl<Scalar,Options> >
   {
-    typedef SpecialEuclideanOperation<3> type;
+    typedef SpecialEuclideanOperationTpl<3> type;
   };
   
   template<typename Scalar, int Options>
   struct LieGroupMap::operation< JointModelPlanarTpl<Scalar,Options> >
   {
-    typedef SpecialEuclideanOperation<2> type;
+    typedef SpecialEuclideanOperationTpl<2> type;
   };
   
   template<typename Scalar, int Options, int axis>
   struct LieGroupMap::operation<JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
   {
-    typedef SpecialOrthogonalOperation<2> type;
+    typedef SpecialOrthogonalOperationTpl<2> type;
   };
   
 }

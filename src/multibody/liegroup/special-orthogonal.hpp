@@ -26,10 +26,10 @@
 
 namespace se3
 {
-  template<int N> struct SpecialOrthogonalOperation {};
-  template<int N> struct traits<SpecialOrthogonalOperation<N> > {};
+  template<int Dim> struct SpecialOrthogonalOperationTpl {};
+  template<int Dim> struct traits<SpecialOrthogonalOperationTpl<Dim> > {};
 
-  template <> struct traits<SpecialOrthogonalOperation<2> > {
+  template <> struct traits<SpecialOrthogonalOperationTpl<2> > {
     typedef double Scalar;
     enum {
       NQ = 2,
@@ -37,7 +37,7 @@ namespace se3
     };
   };
 
-  template <> struct traits<SpecialOrthogonalOperation<3> > {
+  template <> struct traits<SpecialOrthogonalOperationTpl<3> > {
     typedef double Scalar;
     enum {
       NQ = 4,
@@ -46,9 +46,9 @@ namespace se3
   };
 
   template<>
-  struct SpecialOrthogonalOperation<2> : public LieGroupBase <SpecialOrthogonalOperation<2> >
+  struct SpecialOrthogonalOperationTpl<2> : public LieGroupBase <SpecialOrthogonalOperationTpl<2> >
   {
-    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
+    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
 
     template<typename Matrix2Like>
@@ -241,12 +241,12 @@ namespace se3
     {
       random_impl(qout);
     }
-  }; // struct SpecialOrthogonalOperation<2>
+  }; // struct SpecialOrthogonalOperationTpl<2>
 
   template<>
-  struct SpecialOrthogonalOperation<3> : public LieGroupBase <SpecialOrthogonalOperation<3> >
+  struct SpecialOrthogonalOperationTpl<3> : public LieGroupBase <SpecialOrthogonalOperationTpl<3> >
   {
-    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
+    SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
 
     typedef Eigen::Quaternion<Scalar> Quaternion_t;
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
@@ -399,7 +399,7 @@ namespace se3
 
       return defineSameRotation(quat1,quat2,prec);
     }
-  }; // struct SpecialOrthogonalOperation<3>
+  }; // struct SpecialOrthogonalOperationTpl<3>
 } // namespace se3
 
 #endif // ifndef __se3_special_orthogonal_operation_hpp__

@@ -189,7 +189,7 @@ namespace se3
     LieGroup1 lg1_;
     LieGroup2 lg2_;
 
-    // VectorSpaceOperation<-1> within CartesianProductOperation will not work
+    // VectorSpaceOperationTpl<-1> within CartesianProductOperation will not work
     // if Eigen version is lower than 3.2.1
 #if EIGEN_VERSION_AT_LEAST(3,2,1)
 # define REMOVE_IF_EIGEN_TOO_LOW(x) x
