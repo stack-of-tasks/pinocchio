@@ -15,7 +15,8 @@
 // pinocchio. If not, see <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
-#include "pinocchio/multibody/liegroup/liegroup-variant-visitors.hpp"
+#include "pinocchio/multibody/liegroup/liegroup-collection.hpp"
+#include "pinocchio/multibody/liegroup/liegroup-generic.hpp"
 
 #include "pinocchio/multibody/joint/joint.hpp"
 
@@ -442,27 +443,28 @@ BOOST_AUTO_TEST_CASE(test_dim_computation)
   BOOST_CHECK(dim == Eigen::Dynamic);
 }
 
+template<typename LieGroupCollection>
 struct TestLieGroupVariantVisitor
 {
   template<typename Derived>
   void operator() (const LieGroupBase<Derived> & lg) const
   {
-    LieGroupVariant lg_variant(lg.derived());
-    test(lg,lg_variant);
+    LieGroupGenericTpl<LieGroupCollection> lg_generic(lg.derived());
+    test(lg,lg_generic);
   }
   
   template<typename Derived>
-  static void test(const LieGroupBase<Derived> & lg, const LieGroupVariant & lg_variant)
+  static void test(const LieGroupBase<Derived> & lg, const LieGroupGenericTpl<LieGroupCollection> & lg_generic)
   {
     typedef typename Derived::ConfigVector_t ConfigVector_t;
     typedef typename Derived::TangentVector_t TangentVector_t;
     
-    BOOST_CHECK(lg.nq() == nq(lg_variant));
-    BOOST_CHECK(lg.nv() == nv(lg_variant));
+    BOOST_CHECK(lg.nq() == nq(lg_generic));
+    BOOST_CHECK(lg.nv() == nv(lg_generic));
     
-    BOOST_CHECK(lg.name() == name(lg_variant));
+    BOOST_CHECK(lg.name() == name(lg_generic));
     
-    BOOST_CHECK(lg.neutral() == neutral(lg_variant));
+    BOOST_CHECK(lg.neutral() == neutral(lg_generic));
     
     ConfigVector_t q0 = lg.random();
     TangentVector_t v = TangentVector_t::Random(lg.nv());
@@ -479,7 +481,7 @@ struct TestLieGroupVariantVisitor
 
 BOOST_AUTO_TEST_CASE(test_liegroup_variant)
 {
-  boost::mpl::for_each<LieGroupVariant::types>(TestLieGroupVariantVisitor());
+  boost::mpl::for_each<LieGroupCollectionDefault::LieGroupVariant::types>(TestLieGroupVariantVisitor<LieGroupCollectionDefault>());
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

@@ -37,16 +37,16 @@ namespace se3
     template<typename Visitor>
     struct LieGroupVisitorBase : public boost::static_visitor<>
     {
-      template<typename D>
-      void operator() (const LieGroupBase<D> & lg) const
+      template<typename LieGroupDerived>
+      void operator() (const LieGroupBase<LieGroupDerived> & lg) const
       {
-        bf::invoke(&Visitor::template algo<D>,
+        bf::invoke(&Visitor::template algo<LieGroupDerived>,
                    bf::append(boost::ref(lg),
                               static_cast<const Visitor*>(this)->args));
       }
       
-      template<typename ArgsTmp>
-      static void run(const LieGroupVariant & lg,
+      template<typename LieGroupCollection, typename ArgsTmp>
+      static void run(const LieGroupGenericTpl<LieGroupCollection> & lg,
                       ArgsTmp args)
       {
         return boost::apply_visitor(Visitor(args),lg);
@@ -58,42 +58,54 @@ namespace se3
    */
   struct LieGroupNqVisitor: public boost::static_visitor<int>
   {
-    template<typename D>
-    int operator()(const LieGroupBase<D> & lg) const
+    template<typename LieGroupDerived>
+    int operator()(const LieGroupBase<LieGroupDerived> & lg) const
     { return lg.nq(); }
     
-    static int run(const LieGroupVariant & lg)
+    template<typename LieGroupCollection>
+    static int run(const LieGroupGenericTpl<LieGroupCollection> & lg)
     { return boost::apply_visitor( LieGroupNqVisitor(), lg ); }
   };
-  inline int nq(const LieGroupVariant & lg) { return LieGroupNqVisitor::run(lg); }
+  
+  template<typename LieGroupCollection>
+  inline int nq(const LieGroupGenericTpl<LieGroupCollection> & lg)
+  { return LieGroupNqVisitor::run(lg); }
   
   /**
    * @brief Lie Group visitor of the dimension of the tangent space nv
    */
   struct LieGroupNvVisitor: public boost::static_visitor<int>
   {
-    template<typename D>
-    int operator()(const LieGroupBase<D> & lg) const
+    template<typename LieGroupDerived>
+    int operator()(const LieGroupBase<LieGroupDerived> & lg) const
     { return lg.nv(); }
     
-    static int run(const LieGroupVariant & lg)
+    template<typename LieGroupCollection>
+    static int run(const LieGroupGenericTpl<LieGroupCollection> & lg)
     { return boost::apply_visitor( LieGroupNvVisitor(), lg ); }
   };
-  inline int nv(const LieGroupVariant & lg) { return LieGroupNvVisitor::run(lg); }
+  
+  template<typename LieGroupCollection>
+  inline int nv(const LieGroupGenericTpl<LieGroupCollection> & lg)
+  { return LieGroupNvVisitor::run(lg); }
   
   /**
    * @brief Visitor of the Lie Group name
    */
   struct LieGroupNameVisitor: public boost::static_visitor<std::string>
   {
-    template<typename D>
-    std::string operator()(const LieGroupBase<D> & lg) const
+    template<typename LieGroupDerived>
+    std::string operator()(const LieGroupBase<LieGroupDerived> & lg) const
     { return lg.name(); }
     
-    static std::string run(const LieGroupVariant & lg)
+    template<typename LieGroupCollection>
+    static std::string run(const LieGroupGenericTpl<LieGroupCollection> & lg)
     { return boost::apply_visitor( LieGroupNameVisitor(), lg ); }
   };
-  inline std::string name(const LieGroupVariant & lg) { return LieGroupNameVisitor::run(lg); }
+  
+  template<typename LieGroupCollection>
+  inline std::string name(const LieGroupGenericTpl<LieGroupCollection> & lg)
+  { return LieGroupNameVisitor::run(lg); }
   
   /**
    * @brief Visitor of the Lie Group neutral element
@@ -101,16 +113,22 @@ namespace se3
   template<typename Vector>
   struct LieGroupNeutralVisitor: public boost::static_visitor<Vector>
   {
-    template<typename D>
-    Vector operator()(const LieGroupBase<D> & lg) const
+    template<typename LieGroupDerived>
+    Vector operator()(const LieGroupBase<LieGroupDerived> & lg) const
     { return lg.neutral(); }
     
-    static Vector run(const LieGroupVariant & lg)
+    template<typename LieGroupCollection>
+    static Vector run(const LieGroupGenericTpl<LieGroupCollection> & lg)
     { return boost::apply_visitor( LieGroupNeutralVisitor(), lg ); }
   };
   
-  inline Eigen::VectorXd neutral(const LieGroupVariant & lg)
-  { return LieGroupNeutralVisitor<Eigen::VectorXd>::run(lg); }
+  template<typename LieGroupCollection>
+  inline Eigen::Matrix<typename LieGroupCollection::Scalar,Eigen::Dynamic,1,LieGroupCollection::Options>
+  neutral(const LieGroupGenericTpl<LieGroupCollection> & lg)
+  {
+    typedef Eigen::Matrix<typename LieGroupCollection::Scalar,Eigen::Dynamic,1,LieGroupCollection::Options> ReturnType;
+    return LieGroupNeutralVisitor<ReturnType>::run(lg);
+  }
   
   /**
    * @brief Visitor of the Lie Group integrate method
@@ -123,7 +141,6 @@ namespace se3
                                   ConfigOut_t &> ArgsType;
 
     LIE_GROUP_VISITOR(LieGroupIntegrateVisitor);
-
     template<typename LieGroupDerived>
     static void algo(const LieGroupBase<LieGroupDerived> & lg,
                      const Eigen::MatrixBase<ConfigIn_t> & q,
@@ -137,8 +154,8 @@ namespace se3
     }
   };
   
-  template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
-  inline void integrate(const LieGroupVariant & lg,
+  template<typename LieGroupCollection, class ConfigIn_t, class Tangent_t, class ConfigOut_t>
+  inline void integrate(const LieGroupGenericTpl<LieGroupCollection> & lg,
                         const Eigen::MatrixBase<ConfigIn_t> & q,
                         const Eigen::MatrixBase<Tangent_t>  & v,
                         const Eigen::MatrixBase<ConfigOut_t>& qout)

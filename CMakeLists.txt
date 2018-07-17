@@ -211,10 +211,12 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   ) 
 
 SET(${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS
+  multibody/liegroup/fwd.hpp
   multibody/liegroup/liegroup.hpp
   multibody/liegroup/liegroup-algo.hpp
   multibody/liegroup/liegroup-algo.hxx
   multibody/liegroup/liegroup-collection.hpp
+  multibody/liegroup/liegroup-generic.hpp
   multibody/liegroup/liegroup-variant.hpp
   multibody/liegroup/liegroup-variant-visitors.hpp
   multibody/liegroup/liegroup-variant-visitors.hxx
