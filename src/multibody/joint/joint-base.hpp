@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2016,2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -43,6 +43,7 @@ namespace se3
    typedef prefix traits<JointDerived>::D_t D_t;       \
    typedef prefix traits<JointDerived>::UD_t UD_t;       \
    enum {                  \
+    Options = traits<JointDerived>::Options,    \
     NQ = traits<JointDerived>::NQ,              \
     NV = traits<JointDerived>::NV               \
   };                        \
@@ -68,6 +69,7 @@ namespace se3
   typedef traits<JointDerived>::D_t D_t;       \
   typedef traits<JointDerived>::UD_t UD_t;       \
   enum {              \
+    Options = traits<JointDerived>::Options,    \
     NQ = traits<JointDerived>::NQ,         \
     NV = traits<JointDerived>::NV          \
   };                        \
@@ -88,6 +90,7 @@ namespace se3
   typedef prefix traits<JointDerived>::D_t D_t;       \
   typedef prefix traits<JointDerived>::UD_t UD_t;       \
   enum {                \
+    Options = traits<JointDerived>::Options,    \
     NQ = traits<JointDerived>::NQ,           \
     NV = traits<JointDerived>::NV            \
   };                        \
@@ -113,6 +116,7 @@ namespace se3
   typedef typename traits<JointDerived>::D_t D_t;       \
   typedef typename traits<JointDerived>::UD_t UD_t;       \
   enum {                   \
+    Options = traits<JointDerived>::Options,    \
     NQ = traits<JointDerived>::NQ,              \
     NV = traits<JointDerived>::NV               \
   };                        \
