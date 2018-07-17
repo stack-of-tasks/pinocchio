@@ -149,8 +149,8 @@ namespace se3
       ConfigOut_t& res = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
       for (int i = 0; i < nq (); ++i)
       {
-        if(lower_pos_limit[i] == -std::numeric_limits<Scalar>::infinity() ||
-           upper_pos_limit[i] ==  std::numeric_limits<Scalar>::infinity() )
+        if(lower_pos_limit[i] == -std::numeric_limits<typename ConfigL_t::Scalar>::infinity() ||
+           upper_pos_limit[i] ==  std::numeric_limits<typename ConfigR_t::Scalar>::infinity() )
         {
           std::ostringstream error;
           error << "non bounded limit. Cannot uniformly sample joint at rank " << i;

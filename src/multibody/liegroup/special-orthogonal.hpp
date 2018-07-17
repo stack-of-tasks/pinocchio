@@ -51,8 +51,14 @@ namespace se3
     SE3_LIE_GROUP_PUBLIC_INTERFACE(SpecialOrthogonalOperation);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
 
-    static Scalar log(const Matrix2 & R)
+    template<typename Matrix2Like>
+    static typename Matrix2Like::Scalar
+    log(const Eigen::MatrixBase<Matrix2Like> & R)
     {
+      
+      typedef typename Matrix2Like::Scalar Scalar;
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix2Like,2,2);
+      
       Scalar theta;
       const Scalar tr = R.trace();
       const bool pos = (R (1, 0) > Scalar(0));
@@ -68,9 +74,13 @@ namespace se3
       return theta;
     }
 
-    static Scalar Jlog (const Matrix2&)
+    template<typename Matrix2Like>
+    static typename Matrix2Like::Scalar
+    Jlog(const Eigen::MatrixBase<Matrix2Like> &)
     {
-      return 1;
+      typedef typename Matrix2Like::Scalar Scalar;
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix2Like,2,2);
+      return (Scalar)1;
     }
 
     /// Get dimension of Lie Group vector representation
@@ -81,6 +91,7 @@ namespace se3
     {
       return NQ;
     }
+    
     /// Get dimension of Lie Group tangent space
     Index nv () const
     {
@@ -332,7 +343,7 @@ namespace se3
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                  const Eigen::MatrixBase<ConfigR_t> & q1,
-                                 const Scalar& u,
+                                 const Scalar & u,
                                  const Eigen::MatrixBase<ConfigOut_t>& qout)
     {
       ConstQuaternionMap_t p0 (q0.derived().data());

@@ -54,87 +54,122 @@ namespace se3
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
     typedef Eigen::Matrix<Scalar,2,1> Vector2;
 
-    template <typename Tangent_t>
-    static void exp (const Eigen::MatrixBase<Tangent_t>& v, Matrix2& R, Vector2& t)
+    template<typename TangentVector, typename Matrix2Like, typename Vector2Like>
+    static void exp(const Eigen::MatrixBase<TangentVector> & v,
+                    const Eigen::MatrixBase<Matrix2Like> & R,
+                    const Eigen::MatrixBase<Vector2Like> & t)
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,Tangent_t);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,TangentVector);
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix2Like, 2, 2);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector2Like, 2);
 
-      const Scalar & omega = v(2);
+      typedef typename Matrix2Like::Scalar Scalar;
+      const Scalar omega = v(2);
       Scalar cv,sv; SINCOS(omega, &sv, &cv);
-      R << cv, -sv, sv, cv;
+      const_cast<Matrix2Like &>(R.derived()) << cv, -sv, sv, cv;
 
-      if (std::fabs (omega) > 1e-14) {
-        Vector2 vcross (-v(1), v(0));
+      if (std::fabs(omega) > 1e-14)
+      {
+        typename EIGEN_PLAIN_TYPE(Vector2Like) vcross(-v(1), v(0));
         vcross /= omega;
-        t = vcross - R * vcross;
-      } else {
-        t = v.template head<2>();
+        const_cast<Vector2Like &>(t.derived()).noalias() = vcross - R * vcross;
+      }
+      else
+      {
+        const_cast<Vector2Like &>(t.derived()) = v.template head<2>();
       }
     }
 
-    template <typename Matrix_t>
-    static void toInverseActionMatrix (const Matrix2& R, const Vector2& t, const Eigen::MatrixBase<Matrix_t>& M)
+    template<typename Matrix2Like, typename Vector2Like, typename Matrix3Like>
+    static void toInverseActionMatrix(const Eigen::MatrixBase<Matrix2Like> & R,
+                                      const Eigen::MatrixBase<Vector2Like> & t,
+                                      const Eigen::MatrixBase<Matrix3Like> & M)
     {
-      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix_t, 3, 3);
-      Matrix_t& Mout = const_cast <Matrix_t&> (M.derived());
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix2Like, 2, 2);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector2Like, 2);
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, 3, 3);
+      
+      typedef typename Matrix3Like::Scalar Scalar;
+      
+      Matrix3Like & Mout = const_cast<Matrix3Like&>(M.derived());
       Mout.template topLeftCorner<2,2>().noalias() = R.transpose();
-      Vector2 tinv (R.transpose() * t);
+      typename EIGEN_PLAIN_TYPE(Vector2Like) tinv(R.transpose() * t);
       Mout.template topRightCorner<2,1>() << - tinv(1), tinv(0);
       Mout.template bottomLeftCorner<1,2>().setZero();
-      Mout(2,2) = 1;
+      Mout(2,2) = (Scalar)1;
     }
 
-    template <typename Tangent_t>
-    static void log (const Matrix2& R, const Vector2& p,
-        const Eigen::MatrixBase<Tangent_t>& v)
+    template<typename Matrix2Like, typename Vector2Like, typename TangentVector>
+    static void log(const Eigen::MatrixBase<Matrix2Like> & R,
+                    const Eigen::MatrixBase<Vector2Like> & p,
+                    const Eigen::MatrixBase<TangentVector> & v)
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,Tangent_t);
-      Tangent_t& vout = const_cast< Tangent_t& >(v.derived());
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix2Like, 2, 2);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector2Like, 2);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,TangentVector);
+      
+      TangentVector & vout = const_cast<TangentVector &>(v.derived());
 
-      Scalar t = SO2_t::log(R);
-      const Scalar tabs = std::fabs(t);
-      const Scalar t2 = t*t;
-      Scalar alpha;
-      if (tabs < 1e-4) {
+      typedef typename Matrix2Like::Scalar Scalar1;
+      
+      Scalar1 t = SO2_t::log(R);
+      const Scalar1 tabs = std::fabs(t);
+      const Scalar1 t2 = t*t;
+      Scalar1 alpha;
+      if (tabs < 1e-4)
+      {
         alpha = 1 - t2/12 - t2*t2/720;
-      } else {
-        Scalar st,ct; SINCOS (tabs, &st, &ct);
+      }
+      else
+      {
+        Scalar1 st,ct; SINCOS(tabs, &st, &ct);
         alpha = tabs*st/(2*(1-ct));
       }
 
-      Matrix2 sk; sk << 0, -t/2, t/2, 0;
-      vout.template head<2>().noalias() = alpha * p - sk * p;
+      vout.template head<2>().noalias() = alpha * p;
+      vout(0) += t/2 * p(1);
+      vout(1) += -t/2 * p(0);
       vout(2) = t;
     }
 
-    template <typename JacobianOut_t>
-    static void Jlog (const Matrix2& R, const Vector2& p,
-        const Eigen::MatrixBase<JacobianOut_t>& J)
+    template<typename Matrix2Like, typename Vector2Like, typename JacobianOutLike>
+    static void Jlog(const Eigen::MatrixBase<Matrix2Like> & R,
+                     const Eigen::MatrixBase<Vector2Like> & p,
+                     const Eigen::MatrixBase<JacobianOutLike> & J)
     {
-      EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianOut_t, JacobianMatrix_t);
-      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix2Like, 2, 2);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector2Like, 2);
+      EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianOutLike, JacobianMatrix_t);
+      
+      JacobianOutLike & Jout = const_cast<JacobianOutLike &>(J.derived());
 
-      Scalar t = SO2_t::log(R);
-      const Scalar tabs = std::fabs(t);
-      Scalar alpha, alpha_dot;
-      if (tabs < 1e-4) {
-        alpha = 1 - t*t/12;
-        alpha_dot = - t / 6 - t*t*t / 180;
-      } else {
-        Scalar st,ct; SINCOS (t, &st, &ct);
-        Scalar inv_2_1_ct = 0.5 / (1-ct);
+      typedef typename Matrix2Like::Scalar Scalar1;
+      
+      Scalar1 t = SO2_t::log(R);
+      const Scalar1 tabs = std::fabs(t);
+      Scalar1 alpha, alpha_dot;
+      if (tabs < 1e-4)
+      {
+        Scalar1 t2 = t*t;
+        alpha = 1 - t2/12;
+        alpha_dot = - t / 6 - t2*t / 180;
+      }
+      else
+      {
+        Scalar1 st,ct; SINCOS(t, &st, &ct);
+        Scalar1 inv_2_1_ct = 0.5 / (1-ct);
         // t * sin(t) / (2 * (1 - cos(t)) )
         alpha = t*st*inv_2_1_ct;
         // [ ( 1 - cos(t) ) * sin(t) + t * cos(t) - 1 ] / (2 * (1 - cos(t))^2 )
         alpha_dot = (st-t) * inv_2_1_ct;
       }
 
-      Matrix2 V;
+      typename EIGEN_PLAIN_TYPE(Matrix2Like) V;
       V(0,0) = V(1,1) = alpha;
       V(1,0) = - t / 2;
       V(0,1) = - V(1,0);
 
-      Jout.template topLeftCorner <2,2>() = V * R;
+      Jout.template topLeftCorner <2,2>().noalias() = V * R;
       Jout.template topRightCorner<2,1>() << alpha_dot*p[0] + p[1]/2, -p(0)/2 + alpha_dot*p(1);
       Jout.template bottomLeftCorner<1,2>().setZero();
       Jout(2,2) = 1;

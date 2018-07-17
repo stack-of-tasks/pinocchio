@@ -42,6 +42,7 @@ namespace se3
   
   template<typename LieGroup1, typename LieGroup2>
   struct CartesianProductOperation;
+  
   template<typename LieGroup1, typename LieGroup2>
   struct traits<CartesianProductOperation<LieGroup1, LieGroup2> > {
     typedef double Scalar;
