@@ -26,6 +26,14 @@ namespace se3
   ///
   /// \brief The derivatives of the Articulated-Body algorithm.
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint torque vector.
+  /// \tparam MatrixType1 Type of the matrix containing the partial derivative with respect to the joint configuration vector.
+  /// \tparam MatrixType2 Type of the matrix containing the partial derivative with respect to the joint velocity vector.
+  /// \tparam MatrixType3 Type of the matrix containing the partial derivative with respect to the joint torque vector.
+  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -52,6 +60,11 @@ namespace se3
   
   ///
   /// \brief The derivatives of the Articulated-Body algorithm.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint torque vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
