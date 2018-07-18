@@ -29,7 +29,7 @@ namespace se3
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
-  /// \tparam TangentVectorType Type of the joint velocity vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
   /// \tparam TangentVectorType2 Type of the joint torque vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
@@ -53,7 +53,7 @@ namespace se3
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
-  /// \tparam TangentVectorType Type of the joint velocity vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
   /// \tparam TangentVectorType2 Type of the joint torque vector.
   /// \tparam ForceDerived Type of the external forces.
   ///
