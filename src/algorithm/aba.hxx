@@ -85,30 +85,6 @@ namespace se3
         data.Yaba[parent] += SE3actOn(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
-      
-      //      Data::Matrix6x & U = data.U_aba[i];
-      //      Eigen::MatrixXd & D_inv = data.D_inv_aba[i];
-      //
-      ////      const ConstraintXd::DenseBase S = ((ConstraintXd)jdata.S()).matrix();
-      //
-      //      U = data.Yaba[i] * ((ConstraintXd)jdata.S()).matrix();
-      ////      U = Data::Matrix6x::Zero(6, JointModelBase<JointModel>::NV);
-      //      D_inv = (jdata.S().transpose() * U.block(0,0,U.rows(), U.cols())).inverse();
-      ////      D_inv = Eigen::MatrixXd::Zero(JointModelBase<JointModel>::NV, JointModelBase<JointModel>::NV);
-      //      jmodel.jointVelocitySelector(data.tau) -= jdata.S().transpose()*data.f[i];
-      //      if(parent>0)
-      //      {
-      //        Inertia::Matrix6 & Ia = data.Yaba[i];
-      //        Force & pa = data.f[i];
-      //
-      //        Ia -= U * D_inv * U.transpose();
-      //
-      //        pa.toVector() += Ia * data.a[i].toVector() + U * D_inv * jmodel.jointVelocitySelector(data.tau);
-      ////        Inertia::Matrix6 tmp = data.liMi[i].inverse().toActionMatrix();
-      ////        data.Yaba[parent].triangularView<Eigen::Upper>() += tmp.transpose() * Ia.selfadjointView<Eigen::Upper>() * tmp;
-      //        data.Yaba[parent] += SE3actOn(data.liMi[i], Ia);
-      //        data.f[parent] += data.liMi[i].act(pa);
-      //      }
     }
     
     inline static Inertia::Matrix6 SE3actOn(const SE3 & M, const Inertia::Matrix6 & I)
