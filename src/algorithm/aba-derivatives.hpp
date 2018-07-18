@@ -35,16 +35,20 @@ namespace se3
   /// \param[out] aba_partial_dv Partial derivative of the generalized torque vector with respect to the joint velocity.
   /// \param[out] aba_partial_dtau Partial derivative of the generalized torque vector with respect to the joint torque.
   ///
+  /// \note aba_partial_dtau is in fact nothing more than the inverse of the joint space inertia matrix.
+  ///
   /// \sa se3::aba
   ///
-  inline void computeABADerivatives(const Model & model,
-                                    Data & data,
-                                    const Eigen::VectorXd & q,
-                                    const Eigen::VectorXd & v,
-                                    const Eigen::VectorXd & tau,
-                                    Eigen::MatrixXd & aba_partial_dq,
-                                    Eigen::MatrixXd & aba_partial_dv,
-                                    Data::RowMatrixXd & aba_partial_dtau);
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+           typename MatrixType1, typename MatrixType2, typename MatrixType3>
+  inline void computeABADerivatives(const ModelTpl<JointCollection> & model,
+                                    DataTpl<JointCollection> & data,
+                                    const Eigen::MatrixBase<ConfigVectorType> & q,
+                                    const Eigen::MatrixBase<TangentVectorType1> & v,
+                                    const Eigen::MatrixBase<TangentVectorType2> & tau,
+                                    const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                                    const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                                    const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau);
   
   ///
   /// \brief The derivatives of the Articulated-Body algorithm.
@@ -61,11 +65,12 @@ namespace se3
   ///
   /// \sa se3::aba and \sa se3::computeABADerivatives.
   ///
-  inline void computeABADerivatives(const Model & model,
-                                    Data & data,
-                                    const Eigen::VectorXd & q,
-                                    const Eigen::VectorXd & v,
-                                    const Eigen::VectorXd & tau)
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline void computeABADerivatives(const ModelTpl<JointCollection> & model,
+                                    DataTpl<JointCollection> & data,
+                                    const Eigen::MatrixBase<ConfigVectorType> & q,
+                                    const Eigen::MatrixBase<TangentVectorType1> & v,
+                                    const Eigen::MatrixBase<TangentVectorType2> & tau)
   {
     computeABADerivatives(model,data,q,v,tau,
                           data.ddq_dq,data.ddq_dv,data.Minv);

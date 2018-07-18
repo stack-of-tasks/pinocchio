@@ -33,8 +33,7 @@ namespace se3
     void exposeABADerivatives()
     {
       using namespace Eigen;
-      typedef container::aligned_vector<Force> ForceAlignedVector;
-      
+
       bp::def("computeABADerivatives",
               computeABADerivativesDefault,
               bp::args("Model","Data",
