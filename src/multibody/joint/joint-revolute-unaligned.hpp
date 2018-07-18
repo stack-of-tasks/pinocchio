@@ -443,16 +443,18 @@ namespace se3
   }; // struct JointDataRevoluteUnalignedTpl
 
   template<typename _Scalar, int _Options>
-  struct JointModelRevoluteUnalignedTpl : public JointModelBase< JointModelRevoluteUnalignedTpl<_Scalar,_Options> >
+  struct JointModelRevoluteUnalignedTpl
+  : public JointModelBase< JointModelRevoluteUnalignedTpl<_Scalar,_Options> >
   {
     typedef JointRevoluteUnalignedTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-    typedef Eigen::Matrix<_Scalar,3,1,_Options> Vector3;
-
-    using JointModelBase<JointModelRevoluteUnalignedTpl>::id;
-    using JointModelBase<JointModelRevoluteUnalignedTpl>::idx_q;
-    using JointModelBase<JointModelRevoluteUnalignedTpl>::idx_v;
-    using JointModelBase<JointModelRevoluteUnalignedTpl>::setIndexes;
+    typedef Eigen::Matrix<Scalar,3,1,_Options> Vector3;
+    
+    typedef JointModelBase<JointModelRevoluteUnalignedTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
     
     JointModelRevoluteUnalignedTpl() : axis(Eigen::Vector3d::Constant(NAN))   {}
     

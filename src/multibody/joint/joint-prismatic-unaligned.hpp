@@ -432,16 +432,19 @@ namespace se3
   { typedef JointPrismaticUnalignedTpl<Scalar,Options> JointDerived; };
 
   template<typename _Scalar, int _Options>
-  struct JointModelPrismaticUnalignedTpl : public JointModelBase< JointModelPrismaticUnalignedTpl<_Scalar,_Options> >
+  struct JointModelPrismaticUnalignedTpl
+  : public JointModelBase< JointModelPrismaticUnalignedTpl<_Scalar,_Options> >
   {
     typedef JointPrismaticUnalignedTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-
-    using JointModelBase<JointModelPrismaticUnalignedTpl>::id;
-    using JointModelBase<JointModelPrismaticUnalignedTpl>::idx_q;
-    using JointModelBase<JointModelPrismaticUnalignedTpl>::idx_v;
-    using JointModelBase<JointModelPrismaticUnalignedTpl>::setIndexes;
-    typedef Motion::Vector3 Vector3;
+    
+    typedef JointModelBase<JointModelPrismaticUnalignedTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
+    
+    typedef Eigen::Matrix<Scalar,3,1,_Options> Vector3;
     
     JointModelPrismaticUnalignedTpl() : axis(Vector3::Constant(NAN))   {}
     JointModelPrismaticUnalignedTpl(Scalar x, Scalar y, Scalar z)

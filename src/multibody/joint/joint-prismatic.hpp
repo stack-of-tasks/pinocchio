@@ -482,15 +482,17 @@ namespace se3
   }; // struct JointDataPrismaticTpl
 
   template<typename _Scalar, int _Options, int axis>
-  struct JointModelPrismaticTpl : public JointModelBase< JointModelPrismaticTpl<_Scalar,_Options,axis> >
+  struct JointModelPrismaticTpl
+  : public JointModelBase< JointModelPrismaticTpl<_Scalar,_Options,axis> >
   {
     typedef JointPrismaticTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-
-    using JointModelBase<JointModelPrismaticTpl>::id;
-    using JointModelBase<JointModelPrismaticTpl>::idx_q;
-    using JointModelBase<JointModelPrismaticTpl>::idx_v;
-    using JointModelBase<JointModelPrismaticTpl>::setIndexes;
+    
+    typedef JointModelBase<JointModelPrismaticTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
     
     JointDataDerived createData() const { return JointDataDerived(); }
     

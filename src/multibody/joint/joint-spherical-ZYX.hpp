@@ -596,15 +596,17 @@ namespace se3
   }; // strcut JointDataSphericalZYXTpl
 
   template<typename _Scalar, int _Options>
-  struct JointModelSphericalZYXTpl : public JointModelBase< JointModelSphericalZYXTpl<_Scalar,_Options> >
+  struct JointModelSphericalZYXTpl
+  : public JointModelBase< JointModelSphericalZYXTpl<_Scalar,_Options> >
   {
     typedef JointSphericalZYXTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-
-    using JointModelBase<JointModelSphericalZYXTpl>::id;
-    using JointModelBase<JointModelSphericalZYXTpl>::idx_q;
-    using JointModelBase<JointModelSphericalZYXTpl>::idx_v;
-    using JointModelBase<JointModelSphericalZYXTpl>::setIndexes;
+    
+    typedef JointModelBase<JointModelSphericalZYXTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
 

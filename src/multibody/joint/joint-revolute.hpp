@@ -528,10 +528,11 @@ namespace se3
     typedef JointRevoluteTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    using JointModelBase<JointModelRevoluteTpl>::id;
-    using JointModelBase<JointModelRevoluteTpl>::idx_q;
-    using JointModelBase<JointModelRevoluteTpl>::idx_v;
-    using JointModelBase<JointModelRevoluteTpl>::setIndexes;
+    typedef JointModelBase<JointModelRevoluteTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
     
     JointDataDerived createData() const { return JointDataDerived(); }
     

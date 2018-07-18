@@ -369,15 +369,17 @@ namespace se3
   }; // struct JointDataSphericalTpl
 
   template<typename _Scalar, int _Options>
-  struct JointModelSphericalTpl : public JointModelBase< JointModelSphericalTpl<_Scalar,_Options> >
+  struct JointModelSphericalTpl
+  : public JointModelBase< JointModelSphericalTpl<_Scalar,_Options> >
   {
     typedef JointSphericalTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-
-    using JointModelBase<JointModelSphericalTpl>::id;
-    using JointModelBase<JointModelSphericalTpl>::idx_q;
-    using JointModelBase<JointModelSphericalTpl>::idx_v;
-    using JointModelBase<JointModelSphericalTpl>::setIndexes;
+    
+    typedef JointModelBase<JointModelSphericalTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
 

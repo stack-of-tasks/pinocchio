@@ -456,15 +456,17 @@ namespace se3
   }; // struct JointDataPlanarTpl
 
   template<typename _Scalar, int _Options>
-  struct JointModelPlanarTpl : public JointModelBase< JointModelPlanarTpl<_Scalar,_Options> >
+  struct JointModelPlanarTpl
+  : public JointModelBase< JointModelPlanarTpl<_Scalar,_Options> >
   {
     typedef JointPlanarTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-
-    using JointModelBase<JointModelPlanarTpl>::id;
-    using JointModelBase<JointModelPlanarTpl>::idx_q;
-    using JointModelBase<JointModelPlanarTpl>::idx_v;
-    using JointModelBase<JointModelPlanarTpl>::setIndexes;
+    
+    typedef JointModelBase<JointModelPlanarTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
     

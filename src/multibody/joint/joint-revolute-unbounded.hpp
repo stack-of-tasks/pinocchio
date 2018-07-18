@@ -86,16 +86,18 @@ namespace se3
   }; // struct JointDataRevoluteUnbounded
 
   template<typename _Scalar, int _Options, int axis>
-  struct JointModelRevoluteUnboundedTpl : public JointModelBase< JointModelRevoluteUnboundedTpl<_Scalar,_Options,axis> >
+  struct JointModelRevoluteUnboundedTpl
+  : public JointModelBase< JointModelRevoluteUnboundedTpl<_Scalar,_Options,axis> >
   {
     typedef JointRevoluteUnboundedTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     typedef JointRevoluteTpl<Scalar,_Options,axis> JointDerivedBase;
     
-    using JointModelBase<JointModelRevoluteUnboundedTpl>::id;
-    using JointModelBase<JointModelRevoluteUnboundedTpl>::idx_q;
-    using JointModelBase<JointModelRevoluteUnboundedTpl>::idx_v;
-    using JointModelBase<JointModelRevoluteUnboundedTpl>::setIndexes;
+    typedef JointModelBase<JointModelRevoluteUnboundedTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
     
     JointDataDerived createData() const { return JointDataDerived(); }
     

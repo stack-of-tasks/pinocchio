@@ -386,15 +386,17 @@ namespace se3
   }; // struct JointDataTranslationTpl
 
   template<typename _Scalar, int _Options>
-  struct JointModelTranslationTpl : public JointModelBase< JointModelTranslationTpl<_Scalar,_Options> >
+  struct JointModelTranslationTpl
+  : public JointModelBase< JointModelTranslationTpl<_Scalar,_Options> >
   {
     typedef JointTranslationTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-
-    using JointModelBase<JointModelTranslationTpl>::id;
-    using JointModelBase<JointModelTranslationTpl>::idx_q;
-    using JointModelBase<JointModelTranslationTpl>::idx_v;
-    using JointModelBase<JointModelTranslationTpl>::setIndexes;
+    
+    typedef JointModelBase<JointModelTranslationTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
 

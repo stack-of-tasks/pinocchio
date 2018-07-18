@@ -201,15 +201,17 @@ namespace se3
   }; // struct JointDataFreeFlyerTpl
 
   template<typename _Scalar, int _Options>
-  struct JointModelFreeFlyerTpl : public JointModelBase< JointModelFreeFlyerTpl<_Scalar,_Options> >
+  struct JointModelFreeFlyerTpl
+  : public JointModelBase< JointModelFreeFlyerTpl<_Scalar,_Options> >
   {
     typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-
-    using JointModelBase<JointModelFreeFlyerTpl>::id;
-    using JointModelBase<JointModelFreeFlyerTpl>::idx_q;
-    using JointModelBase<JointModelFreeFlyerTpl>::idx_v;
-    using JointModelBase<JointModelFreeFlyerTpl>::setIndexes;
+    
+    typedef JointModelBase<JointModelFreeFlyerTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
     
