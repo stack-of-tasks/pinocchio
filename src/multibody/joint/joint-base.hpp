@@ -215,26 +215,37 @@ namespace se3
     
     typedef typename traits<Derived>::JointDerived JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-  
 
-    JointModelDerived& derived() { return *static_cast<Derived*>(this); }
-    const JointModelDerived& derived() const { return *static_cast<const Derived*>(this); }
+    JointModelDerived & derived() { return *static_cast<Derived*>(this); }
+    const JointModelDerived & derived() const { return *static_cast<const Derived*>(this); }
 
     JointDataDerived createData() const { return derived().createData(); }
     
-    void calc(JointDataDerived& data,
-              const Eigen::VectorXd & qs) const
-    { derived().calc(data,qs); }
+    template<typename ConfigVectorType>
+    void calc(JointDataDerived & data,
+              const Eigen::MatrixBase<ConfigVectorType> & qs) const
+    {
+      derived().calc(data,qs.derived());
+      
+    }
     
-    void calc(JointDataDerived& data,
-              const Eigen::VectorXd & qs,
-              const Eigen::VectorXd & vs) const
-    { derived().calc(data,qs,vs); }
+    template<typename ConfigVectorType, typename TangentVectorType>
+    void calc(JointDataDerived & data,
+              const Eigen::MatrixBase<ConfigVectorType> & qs,
+              const Eigen::MatrixBase<TangentVectorType> & vs) const
+    {
+      derived().calc(data,qs.derived(),vs.derived());
+      
+    }
     
+    template<typename Matrix6Type>
     void calc_aba(JointDataDerived & data,
-                  Inertia::Matrix6 & I,
+                  const Eigen::MatrixBase<Matrix6Type> & I,
                   const bool update_I = false) const
-    { derived().calc_aba(data, I, update_I); }
+    {
+      Matrix6Type & I_ = const_cast<Matrix6Type &>(I.derived());
+      derived().calc_aba(data, I_, update_I);
+    }
     
     ///
     /// \brief Return the resolution of the finite differerence increment according to the Scalar type
@@ -251,7 +262,8 @@ namespace se3
 
     int     nv()    const { return derived().nv_impl(); }
     int     nq()    const { return derived().nq_impl(); }
-    // Both _impl methods are reimplemented by dynamic-size joints.
+    
+    // Default _impl methods are reimplemented by dynamic-size joints.
     int     nv_impl() const { return NV; }
     int     nq_impl() const { return NQ; }
 
