@@ -28,15 +28,20 @@ namespace se3
   ///
   /// \note This void step allows to quantify the time spent in the rollout.
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   ///
-  inline void emptyForwardPass(const Model & model,
-                               Data & data);
+  template<typename JointCollection>
+  inline void emptyForwardPass(const ModelTpl<JointCollection> & model,
+                               DataTpl<JointCollection> & data);
   
   ///
   /// \brief Update the global placement of the joints oMi according to the relative
   ///        placements of the joints.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -44,33 +49,49 @@ namespace se3
   /// \remark This algorithm may be useful to call to update global joint placement
   ///         after calling se3::rnea, se3::aba, etc for example.
   ///
-  inline void updateGlobalPlacements(const Model & model, Data & data);
+  template<typename JointCollection>
+  inline void updateGlobalPlacements(const ModelTpl<JointCollection> & model,
+                                     DataTpl<JointCollection> & data);
   
   ///
   /// \brief Update the joint placements according to the current joint configuration.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration (vector dim model.nq).
   ///
-  inline void forwardKinematics(const Model & model,
-                                Data & data,
-                                const Eigen::VectorXd & q);
+  template<typename JointCollection, typename ConfigVectorType>
+  inline void forwardKinematics(const ModelTpl<JointCollection> & model,
+                                DataTpl<JointCollection> & data,
+                                const Eigen::MatrixBase<ConfigVectorType> & q);
 
   ///
   /// \brief Update the joint placements and spatial velocities according to the current joint configuration and velocity.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration (vector dim model.nq).
   /// \param[in] v The joint velocity (vector dim model.nv).
   ///
-  inline void forwardKinematics(const Model & model,
-                                Data & data,
-                                const Eigen::VectorXd & q,
-                                const Eigen::VectorXd & v);
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  inline void forwardKinematics(const ModelTpl<JointCollection> & model,
+                                DataTpl<JointCollection> & data,
+                                const Eigen::MatrixBase<ConfigVectorType> & q,
+                                const Eigen::MatrixBase<TangentVectorType> & v);
   ///
   /// \brief Update the joint placements, spatial velocities and spatial accelerations according to the current joint configuration, velocity and acceleration.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint acceleration vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -78,11 +99,12 @@ namespace se3
   /// \param[in] v The joint velocity (vector dim model.nv).
   /// \param[in] a The joint acceleration (vector dim model.nv).
   ///
-  inline void forwardKinematics(const Model & model,
-                                Data & data,
-                                const Eigen::VectorXd & q,
-                                const Eigen::VectorXd & v,
-                                const Eigen::VectorXd & a);
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline void forwardKinematics(const ModelTpl<JointCollection> & model,
+                                DataTpl<JointCollection> & data,
+                                const Eigen::MatrixBase<ConfigVectorType> & q,
+                                const Eigen::MatrixBase<TangentVectorType1> & v,
+                                const Eigen::MatrixBase<TangentVectorType2> & a);
 
 } // namespace se3 
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -27,14 +27,14 @@ namespace se3
     {
       using namespace Eigen;
       bp::def("forwardKinematics",
-              (void (*)(const Model &, Data &, const VectorXd &))&forwardKinematics,
+              &forwardKinematics<JointCollectionDefault,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
               "Compute the placements of all the frames of the kinematic "
               "tree and put the results in data.");
       
       bp::def("forwardKinematics",
-              (void (*)(const Model &, Data &, const VectorXd &, const VectorXd &))&forwardKinematics,
+              &forwardKinematics<JointCollectionDefault,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
@@ -42,7 +42,7 @@ namespace se3
               "tree and put the results in data.");
       
       bp::def("forwardKinematics",
-              (void (*)(const Model &, Data &, const VectorXd &, const VectorXd &, const VectorXd &))&forwardKinematics,
+              &forwardKinematics<JointCollectionDefault,VectorXd,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
