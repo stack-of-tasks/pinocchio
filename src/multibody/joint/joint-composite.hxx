@@ -23,15 +23,16 @@
 namespace se3 
 {
 
-  template<typename JointCollection>
-  struct JointCompositeCalcZeroOrderStep : public fusion::JointVisitorBase< JointCompositeCalcZeroOrderStep<JointCollection> >
+  template<typename JointCollection, typename ConfigVectorType>
+  struct JointCompositeCalcZeroOrderStep
+  : fusion::JointVisitorBase< JointCompositeCalcZeroOrderStep<JointCollection,ConfigVectorType> >
   {
     typedef JointModelCompositeTpl<JointCollection> JointModelComposite;
     typedef JointDataCompositeTpl<JointCollection> JointDataComposite;
     
     typedef boost::fusion::vector<const JointModelComposite &,
                                   JointDataComposite &,
-                                  const Eigen::VectorXd &
+                                  const ConfigVectorType &
                                   > ArgsType;
 
     template<typename JointModel>
@@ -39,7 +40,7 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const JointModelComposite & model,
                      JointDataComposite & data,
-                     const Eigen::VectorXd & q)
+                     const Eigen::MatrixBase<ConfigVectorType> & q)
     {
       const JointIndex & i  = jmodel.id();
       const JointIndex succ = i+1; // successor
@@ -66,30 +67,35 @@ namespace se3
   };
   
   template<typename JointCollection>
-  inline void JointModelCompositeTpl<JointCollection>::calc(JointData & data, const Eigen::VectorXd & qs) const
+  template<typename ConfigVectorType>
+  inline void JointModelCompositeTpl<JointCollection>::calc(JointData & data,
+                                                            const Eigen::MatrixBase<ConfigVectorType> & qs) const
   {
     assert(joints.size() > 0);
     assert(data.joints.size() == joints.size());
     
-    typedef JointCompositeCalcZeroOrderStep<JointCollection> Algo;
+    typedef JointCompositeCalcZeroOrderStep<JointCollection,ConfigVectorType> Algo;
 
     for (int i=(int)(joints.size()-1); i >= 0; --i)
     {
-      Algo::run(joints[(size_t)i], data.joints[(size_t)i],typename Algo::ArgsType(*this,data,qs));
+      Algo::run(joints[(size_t)i],
+                data.joints[(size_t)i],
+                typename Algo::ArgsType(*this,data,qs.derived()));
     }
     data.M = data.iMlast.front();
   }
 
-  template<typename JointCollection>
-  struct JointCompositeCalcFirstOrderStep : public fusion::JointVisitorBase< JointCompositeCalcFirstOrderStep<JointCollection> >
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  struct JointCompositeCalcFirstOrderStep
+  : public fusion::JointVisitorBase< JointCompositeCalcFirstOrderStep<JointCollection,ConfigVectorType,TangentVectorType> >
   {
     typedef JointModelCompositeTpl<JointCollection> JointModelComposite;
     typedef JointDataCompositeTpl<JointCollection> JointDataComposite;
     
     typedef boost::fusion::vector<const JointModelComposite &,
                                   JointDataComposite &,
-                                  const Eigen::VectorXd &,
-                                  const Eigen::VectorXd &
+                                  const ConfigVectorType &,
+                                  const TangentVectorType &
                                   > ArgsType;
 
     template<typename JointModel>
@@ -97,8 +103,8 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const JointModelComposite & model,
                      JointDataComposite & data,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v)
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType> & v)
     {
       const JointIndex & i  = jmodel.id();
       const JointIndex succ = i+1; // successor
@@ -107,7 +113,7 @@ namespace se3
 
       data.pjMi[i] = model.jointPlacements[i] * jdata.M ();
 
-      if ( succ == model.joints.size() )
+      if (succ == model.joints.size())
       {
         data.iMlast[i] = data.pjMi[i];
         data.S.matrix().rightCols(model.m_nvs[i]) = jdata.S().matrix();
@@ -134,19 +140,24 @@ namespace se3
   };
 
   template<typename JointCollection>
-  inline void JointModelCompositeTpl<JointCollection>::calc(JointData & data, const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const
+  template<typename ConfigVectorType, typename TangentVectorType>
+  inline void JointModelCompositeTpl<JointCollection>::calc(JointData & jdata,
+                                                            const Eigen::MatrixBase<ConfigVectorType> & qs,
+                                                            const Eigen::MatrixBase<TangentVectorType> & vs) const
   {
     assert(joints.size() > 0);
-    assert(data.joints.size() == joints.size());
+    assert(jdata.joints.size() == joints.size());
     
-    typedef JointCompositeCalcFirstOrderStep<JointCollection> Algo;
+    typedef JointCompositeCalcFirstOrderStep<JointCollection,ConfigVectorType,TangentVectorType> Algo;
 
     for (int i=(int)(joints.size()-1); i >= 0; --i)
     {
-      Algo::run(joints[(size_t)i], data.joints[(size_t)i],typename Algo::ArgsType (*this,data,qs,vs));
+      Algo::run(joints[(size_t)i],
+                jdata.joints[(size_t)i],
+                typename Algo::ArgsType(*this,jdata,qs.derived(),vs.derived()));
     }
     
-    data.M = data.iMlast.front();
+    jdata.M = jdata.iMlast.front();
   }
 
 } // namespace se3

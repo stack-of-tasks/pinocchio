@@ -218,13 +218,19 @@ namespace se3
       return JointDataDerived(jdata,nq(),nv());
     }
 
-    template<typename _JointCollection>
+    template<typename _JointCollection, typename ConfigVectorType>
     friend struct JointCompositeCalcZeroOrderStep;
-    void calc(JointData & data, const Eigen::VectorXd & qs) const;
+    
+    template<typename ConfigVectorType>
+    void calc(JointData & data, const Eigen::MatrixBase<ConfigVectorType> & qs) const;
 
-    template<typename _JointCollection>
+    template<typename _JointCollection,typename ConfigVectorType, typename TangentVectorType>
     friend struct JointCompositeCalcFirstOrderStep;
-    void calc(JointData & data, const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const;
+    
+    template<typename ConfigVectorType, typename TangentVectorType>
+    void calc(JointData & data,
+              const Eigen::MatrixBase<ConfigVectorType> & qs,
+              const Eigen::MatrixBase<TangentVectorType> & vs) const;
     
     void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
     {
