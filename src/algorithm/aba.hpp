@@ -27,6 +27,11 @@ namespace se3
   ///
   /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint torque vector.
+  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -45,6 +50,12 @@ namespace se3
 
   ///
   /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint torque vector.
+  /// \tparam ForceDerived Type of the external forces.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -66,6 +77,9 @@ namespace se3
   
   ///
   /// \brief Computes the inverse of the joint space inertia matrix using Articulated Body formulation.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
