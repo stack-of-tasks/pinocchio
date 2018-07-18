@@ -20,7 +20,6 @@
 
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
-//#include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 
 namespace se3
@@ -32,22 +31,22 @@ namespace se3
    */
   template<typename JointCollection>
   struct CreateJointData
-  : boost::static_visitor<typename JointCollection::JointDataVariant>
+  : boost::static_visitor< JointDataTpl<JointCollection> >
   {
     typedef typename JointCollection::JointModelVariant JointModelVariant;
-    typedef typename JointCollection::JointDataVariant JointDataVariant;
+    typedef JointDataTpl<JointCollection> JointDataVariant;
     
-    template<typename D>
-    JointDataVariant operator()(const JointModelBase<D> & jmodel) const
+    template<typename JointModelDerived>
+    JointDataVariant operator()(const JointModelBase<JointModelDerived> & jmodel) const
     { return JointDataVariant(jmodel.createData()); }
     
-    static JointDataVariant run( const JointModelVariant & jmodel)
-    { return boost::apply_visitor( CreateJointData(), jmodel ); }
+    static JointDataVariant run(const JointModelVariant & jmodel)
+    { return boost::apply_visitor(CreateJointData(), jmodel); }
   };
   
   template<typename JointCollection>
-  inline typename JointCollection::JointDataVariant
-  createData(const typename JointCollection::JointModelVariant & jmodel)
+  inline JointDataTpl<JointCollection>
+  createData(const JointModelTpl<JointCollection> & jmodel)
   {
     return CreateJointData<JointCollection>::run(jmodel);
   }
@@ -55,46 +54,48 @@ namespace se3
   /**
    * @brief      JointCalcZeroOrderVisitor fusion visitor
    */
-  
+  template<typename ConfigVectorType>
   struct JointCalcZeroOrderVisitor
-  : fusion::JointVisitorBase<JointCalcZeroOrderVisitor>
+  : fusion::JointVisitorBase< JointCalcZeroOrderVisitor<ConfigVectorType> >
   {
-    typedef boost::fusion::vector< const Eigen::VectorXd & > ArgsType;
+    typedef boost::fusion::vector<const ConfigVectorType &> ArgsType;
 
-    template<typename JointModel, typename ConfigVector>
+    template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const Eigen::MatrixBase<ConfigVector> & q)
+                     const Eigen::MatrixBase<ConfigVectorType> & q)
     {
       jmodel.calc(jdata.derived(),q);
     }
 
   };
   
-  template<typename JointCollection>
+  template<typename JointCollection, typename ConfigVectorType>
   inline void calc_zero_order(const JointModelTpl<JointCollection> & jmodel,
                               JointDataTpl<JointCollection> & jdata,
-                              const Eigen::VectorXd & q)
+                              const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    JointCalcZeroOrderVisitor::run(jmodel, jdata,
-                                   JointCalcZeroOrderVisitor::ArgsType(q));
+    typedef JointCalcZeroOrderVisitor<JointCollection> Algo;
+    
+    Algo::run(jmodel, jdata,
+              typename Algo::ArgsType(q.derived()));
   }
 
   /**
    * @brief      JointCalcFirstOrderVisitor fusion visitor
    */
-  
+  template<typename ConfigVectorType, typename TangentVectorType>
   struct JointCalcFirstOrderVisitor
-  : fusion::JointVisitorBase<JointCalcFirstOrderVisitor>
+  : fusion::JointVisitorBase< JointCalcFirstOrderVisitor<ConfigVectorType,TangentVectorType> >
   {
-    typedef boost::fusion::vector< const Eigen::VectorXd &,
-                                    const Eigen::VectorXd & > ArgsType;
+    typedef boost::fusion::vector<const ConfigVectorType &,
+                                  const TangentVectorType &> ArgsType;
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType> & v
                      )
     {
       jmodel.calc(jdata.derived(),q,v);
@@ -102,13 +103,15 @@ namespace se3
 
   };
   
-  template<typename JointCollection>
+  template<typename JointCollection,typename ConfigVectorType, typename TangentVectorType>
   inline void calc_first_order(const JointModelTpl<JointCollection> & jmodel,
                                JointDataTpl<JointCollection> & jdata,
-                               const Eigen::VectorXd & q,
-                               const Eigen::VectorXd & v)
+                               const Eigen::MatrixBase<ConfigVectorType> & q,
+                               const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    JointCalcFirstOrderVisitor::run( jmodel, jdata, JointCalcFirstOrderVisitor::ArgsType(q,v) );
+    typedef JointCalcFirstOrderVisitor<ConfigVectorType,TangentVectorType> Algo;
+    
+    Algo::run(jmodel, jdata, typename Algo::ArgsType(q.derived(),v.derived()));
   }
 
 
@@ -116,31 +119,37 @@ namespace se3
    * @brief      JointCalcAbaVisitor fusion visitor
    */
   
+  template<typename Matrix6Type>
   struct JointCalcAbaVisitor
-  : fusion::JointVisitorBase<JointCalcAbaVisitor>
+  : fusion::JointVisitorBase< JointCalcAbaVisitor<Matrix6Type> >
   {
-    typedef boost::fusion::vector< Inertia::Matrix6 &,
-                                    const bool > ArgsType;
+    
+    typedef boost::fusion::vector<Matrix6Type &,
+                                  const bool> ArgsType;
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     Inertia::Matrix6 & I,
+                     const Eigen::MatrixBase<Matrix6Type> & I,
                      const bool update_I
                      )
     {
+      Matrix6Type & I_ = const_cast<Matrix6Type &>(I.derived());
       jmodel.calc_aba(jdata.derived(),I,update_I);
     }
 
   };
   
-  template<typename JointCollection>
+  template<typename JointCollection, typename Matrix6Type>
   inline void calc_aba(const JointModelTpl<JointCollection> & jmodel,
                        JointDataTpl<JointCollection> & jdata,
-                       Inertia::Matrix6 & I,
+                       const Eigen::MatrixBase<Matrix6Type> & I,
                        const bool update_I)
   {
-    JointCalcAbaVisitor::run( jmodel, jdata, JointCalcAbaVisitor::ArgsType(I, update_I) );
+    typedef JointCalcAbaVisitor<Matrix6Type> Algo;
+    
+    Matrix6Type & I_ = const_cast<Matrix6Type &>(I.derived());
+    Algo::run(jmodel, jdata, typename Algo::ArgsType(I_, update_I) );
   }
   
   template<typename Scalar>

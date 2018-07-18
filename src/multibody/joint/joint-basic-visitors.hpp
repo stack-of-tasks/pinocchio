@@ -24,43 +24,52 @@ namespace se3
 {
   
   /**
-   * @brief      Visit a JointModelVariant through CreateData visitor to create a JointDataVariant
+   * @brief      Visit a JointModelTpl through CreateData visitor to create a JointDataTpl.
    *
-   * @param[in]  jmodel  The JointModelVariant we want to create a data for
+   * @tparam JointCollection    Collection of Joint types.
    *
-   * @return     The created JointDataVariant
+   * @param[in]  jmodel  The JointModelTpl we want to create a data for.
+   *
+   * @return     The created JointDataTpl
    */
   template<typename JointCollection>
-  inline typename JointCollection::JointDataVariant
-  createData(const typename JointCollection::JointModelVariant & jmodel);
+  inline JointDataTpl<JointCollection>
+  createData(const JointModelTpl<JointCollection> & jmodel);
 
   
   /**
    * @brief      Visit a JointDataVariant and the corresponding JointModelVariant through JointCalcZeroOrderVisitor
-   *             to compute the joint data kinematics at order zero
+   *             to compute the joint data kinematics at order zero.
+   *
+   * @tparam JointCollection    Collection of Joint types.
+   * @tparam ConfigVectorType   Type of the joint configuration vector.
    *
    * @param[in]  jmodel  The corresponding JointModelVariant to the JointDataVariant we want to update
    * @param      jdata   The JointDataVariant we want to update
    * @param[in]  q       The full model's (in which the joint belongs to) configuration vector
    */
-  template<typename JointCollection>
+  template<typename JointCollection, typename ConfigVectorType>
   inline void calc_zero_order(const JointModelTpl<JointCollection> & jmodel,
                               JointDataTpl<JointCollection> & jdata,
-                              const Eigen::VectorXd & q);
+                              const Eigen::MatrixBase<ConfigVectorType> & q);
 
   /**
    * @brief      Visit a JointDataVariant and the corresponding JointModelVariant through JointCalcFirstOrderVisitor
-   *             to compute the joint data kinematics at order one
+   *             to compute the joint data kinematics at order one.
+   *
+   * @tparam JointCollection    Collection of Joint types.
+   * @tparam ConfigVectorType   Type of the joint configuration vector.
+   * @tparam TangentVectorType  Type of the joint velocity vector.
    *
    * @param[in]  jmodel  The corresponding JointModelVariant to the JointDataVariant we want to update
    * @param      jdata   The JointDataVariant we want to update
    * @param[in]  q       The full model's (in which the joint belongs to) configuration vector
    */
-  template<typename JointCollection>
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
   inline void calc_first_order(const JointModelTpl<JointCollection> & jmodel,
                                JointDataTpl<JointCollection> & jdata,
-                               const Eigen::VectorXd & q,
-                               const Eigen::VectorXd & v);
+                               const Eigen::MatrixBase<ConfigVectorType> & q,
+                               const Eigen::MatrixBase<TangentVectorType> & v);
   
   
   /**
