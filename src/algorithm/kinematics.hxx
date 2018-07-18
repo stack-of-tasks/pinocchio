@@ -28,15 +28,18 @@ namespace se3
   struct EmptyForwardStep
   : fusion::JointVisitorBase< EmptyForwardStep<JointCollection> >
   {
-    typedef boost::fusion::vector<const ModelTpl<JointCollection> &,
-                                  DataTpl<JointCollection> &
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &
                                   > ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> &,
                      JointDataBase<typename JointModel::JointDataDerived> &,
-                     const ModelTpl<JointCollection> &,
-                     DataTpl<JointCollection> &)
+                     const Model> &,
+                     Data &)
     { // do nothing
     }
     
@@ -84,18 +87,21 @@ namespace se3
   struct ForwardKinematicZeroStep
   : fusion::JointVisitorBase< ForwardKinematicZeroStep<JointCollection,ConfigVectorType> >
   {
-    typedef boost::fusion::vector<const ModelTpl<JointCollection> &,
-                                  DataTpl<JointCollection> &,
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
                                   const ConfigVectorType &> ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const ModelTpl<JointCollection> & model,
-                     DataTpl<JointCollection> & data,
+                     const Model & model,
+                     Data & data,
                      const Eigen::MatrixBase<ConfigVectorType> & q)
     {
-      typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+      typedef typename Model::JointIndex JointIndex;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
@@ -134,8 +140,11 @@ namespace se3
   struct ForwardKinematicFirstStep
   : fusion::JointVisitorBase< ForwardKinematicFirstStep<JointCollection,ConfigVectorType,TangentVectorType> >
   {
-    typedef boost::fusion::vector<const ModelTpl<JointCollection> &,
-                                  DataTpl<JointCollection> &,
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
                                   const ConfigVectorType &,
                                   const TangentVectorType &
                                   > ArgsType;
@@ -143,8 +152,8 @@ namespace se3
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const ModelTpl<JointCollection> & model,
-                     DataTpl<JointCollection> & data,
+                     const Model & model,
+                     Data & data,
                      const Eigen::MatrixBase<ConfigVectorType> & q,
                      const Eigen::MatrixBase<TangentVectorType> & v)
     {
@@ -196,8 +205,11 @@ namespace se3
   struct ForwardKinematicSecondStep :
   fusion::JointVisitorBase< ForwardKinematicSecondStep<JointCollection,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
   {
-    typedef boost::fusion::vector<const ModelTpl<JointCollection> &,
-                                  DataTpl<JointCollection> &,
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
                                   const ConfigVectorType &,
                                   const TangentVectorType1 &,
                                   const TangentVectorType2 &
@@ -206,8 +218,8 @@ namespace se3
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const ModelTpl<JointCollection> & model,
-                     DataTpl<JointCollection> & data,
+                     const Model & model,
+                     Data & data,
                      const Eigen::MatrixBase<ConfigVectorType> & q,
                      const Eigen::MatrixBase<TangentVectorType1> & v,
                      const Eigen::MatrixBase<TangentVectorType2> & a)
