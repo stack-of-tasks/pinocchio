@@ -26,6 +26,12 @@ namespace se3
     void exposeKinematics()
     {
       using namespace Eigen;
+      bp::def("updateGlobalPlacements",
+              &updateGlobalPlacements<JointCollectionDefault>,
+              bp::args("Model","Data"),
+              "Updates the global placements of all the frames of the kinematic "
+              "tree and put the results in data according to the relative placements of the joints.");
+      
       bp::def("forwardKinematics",
               &forwardKinematics<JointCollectionDefault,VectorXd>,
               bp::args("Model","Data",
