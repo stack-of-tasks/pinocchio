@@ -58,6 +58,9 @@ Eigen::ScalarBinaryOpTraits< typename Eigen::internal::traits< D1 >::Scalar, typ
 Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::Scalar,typename Eigen::internal::traits< D2 >::Scalar>::ReturnType
 #endif
 
+/// \brief Macro for an automatic const_cast
+#define EIGEN_CONST_CAST(TYPE,OBJ) const_cast<TYPE &>(OBJ.derived())
+
 /// \brief Fix issue concerning 3.2.90 and more versions of Eigen that do not define size_of_xpr_at_compile_time structure.
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,3,0)
 namespace se3
