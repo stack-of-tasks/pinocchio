@@ -67,6 +67,13 @@ namespace se3
     
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    
+    /// \brief Dense vectorized version of a joint configuration vector.
+    typedef VectorXs ConfigVectorType;
+    
+    /// \brief Dense vectorized version of a joint tangent vector (e.g. velocity, acceleration, etc).
+    ///        It also handles the notion of co-tangent vector (e.g. torque, etc).
+    typedef VectorXs TangentVectorType;
 
     /// \brief Dimension of the configuration vector representation.
     int nq;
@@ -99,7 +106,7 @@ namespace se3
     std::vector<std::string> names;
     
     /// \brief Vector of joint's neutral configurations
-    VectorXs neutralConfiguration;
+    ConfigVectorType neutralConfiguration;
 
     /// \brief Vector of rotor inertia parameters
     VectorXs rotorInertia;
@@ -108,14 +115,16 @@ namespace se3
     VectorXs rotorGearRatio;
     
     /// \brief Vector of maximal joint torques
-    VectorXs effortLimit;
+    TangentVectorType effortLimit;
+    
     /// \brief Vector of maximal joint velocities
-    VectorXs velocityLimit;
+    TangentVectorType velocityLimit;
 
     /// \brief Lower joint configuration limit
-    VectorXs lowerPositionLimit;
+    ConfigVectorType lowerPositionLimit;
+    
     /// \brief Upper joint configuration limit
-    VectorXs upperPositionLimit;
+    ConfigVectorType upperPositionLimit;
 
     /// \brief Vector of operational frames registered on the model.
     container::aligned_vector<Frame> frames;
