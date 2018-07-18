@@ -489,7 +489,6 @@ namespace se3
   /**
    * @brief      JointUDInvInertiaVisitor visitor
    */
-   // Matrix6X typedefed in Data. Data not included here
   template<typename JointCollection>
   struct JointUDInvInertiaVisitor
   : boost::static_visitor< Eigen::Matrix<typename JointCollection::Scalar,6,Eigen::Dynamic,JointCollection::Options> >
