@@ -36,7 +36,7 @@ namespace se3
               &forwardKinematics<JointCollectionDefault,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
-              "Compute the placements of all the frames of the kinematic "
+              "Compute the global placements of all the joints of the kinematic "
               "tree and put the results in data.");
       
       bp::def("forwardKinematics",
@@ -44,7 +44,7 @@ namespace se3
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
-              "Compute the placements and spatial velocities of all the frames of the kinematic "
+              "Compute the global placements and local spatial velocities of all the joints of the kinematic "
               "tree and put the results in data.");
       
       bp::def("forwardKinematics",
@@ -53,7 +53,7 @@ namespace se3
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
                        "Acceleration a (size Model::nv)"),
-              "Compute the placements, spatial velocities and spatial accelerations of all the frames of the kinematic "
+              "Compute the global placements, local spatial velocities and spatial accelerations of all the joints of the kinematic "
               "tree and put the results in data.");
     }
     
