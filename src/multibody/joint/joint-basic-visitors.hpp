@@ -38,7 +38,7 @@ namespace se3
 
   
   /**
-   * @brief      Visit a JointDataVariant and the corresponding JointModelVariant through JointCalcZeroOrderVisitor
+   * @brief      Visit a JointModelTpl and the corresponding JointDataTpl through JointCalcZeroOrderVisitor
    *             to compute the joint data kinematics at order zero.
    *
    * @tparam JointCollection    Collection of Joint types.
@@ -54,7 +54,7 @@ namespace se3
                               const Eigen::MatrixBase<ConfigVectorType> & q);
 
   /**
-   * @brief      Visit a JointDataVariant and the corresponding JointModelVariant through JointCalcFirstOrderVisitor
+   * @brief      Visit a JointModelTpl and the corresponding JointDataTpl through JointCalcFirstOrderVisitor
    *             to compute the joint data kinematics at order one.
    *
    * @tparam JointCollection    Collection of Joint types.
@@ -73,18 +73,20 @@ namespace se3
   
   
   /**
-   * @brief      Visit a JointDataVariant and the corresponding JointModelVariant through JointCalcAbaVisitor to
-   * 
+   * @brief      Visit a JointModelTpl and the corresponding JointDataTpl through JointCalcAbaVisitor to.
    *
-   * @param[in]  jmodel  The corresponding JointModelVariant to the JointDataVariant we want to update
-   * @param      jdata   The JointDataVariant we want to update
-   * @param      I       Inertia matrix of the subtree following the jmodel in the kinematic chain as dense matrix
-   * @param[in]  update_I  If I should be updated or not
+   * @tparam JointCollection    Collection of Joint types.
+   * @tparam Matrix6Type        A matrix 6x6 like Eigen container.
+   *
+   * @param[in]         jmodel  The corresponding JointModelVariant to the JointDataVariant we want to update
+   * @param[inout]      jdata   The JointDataVariant we want to update
+   * @param[inout]      I       Inertia matrix of the subtree following the jmodel in the kinematic chain as dense matrix
+   * @param[in]         update_I  If I should be updated or not
    */
-  template<typename JointCollection>
+  template<typename JointCollection, typename Matrix6Type>
   inline void calc_aba(const JointModelTpl<JointCollection> & jmodel,
                        JointDataTpl<JointCollection> & jdata,
-                       Inertia::Matrix6 & I,
+                       const Eigen::MatrixBase<Matrix6Type> & I,
                        const bool update_I);
 
   ///

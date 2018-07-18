@@ -135,7 +135,7 @@ namespace se3
                      )
     {
       Matrix6Type & I_ = const_cast<Matrix6Type &>(I.derived());
-      jmodel.calc_aba(jdata.derived(),I,update_I);
+      jmodel.calc_aba(jdata.derived(),I_,update_I);
     }
 
   };
