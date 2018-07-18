@@ -612,7 +612,6 @@ namespace se3
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVector);
       typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
       
       typedef typename ConfigVector::Scalar S2;
@@ -642,8 +641,6 @@ namespace se3
               const typename Eigen::MatrixBase<ConfigVector> & qs,
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVector);
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,TangentVector);
       typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
       
       typedef typename ConfigVector::Scalar S2;
@@ -667,7 +664,8 @@ namespace se3
       c1 * s2, c2, Scalar(0),
       c1 * c2, -s2, Scalar(0);
     
-      typename TangentVector::template ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.template segment<NV>(idx_v());
+      typename TangentVector::template ConstFixedSegmentReturnType<NV>::Type
+      & q_dot = vs.template segment<NV>(idx_v());
 
       data.v().noalias() = data.S.S_minimal * q_dot;
 

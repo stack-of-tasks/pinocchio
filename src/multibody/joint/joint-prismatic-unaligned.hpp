@@ -464,7 +464,6 @@ namespace se3
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigVector);
       typedef typename ConfigVector::Scalar Scalar;
       const Scalar & q = qs[idx_q()];
 
@@ -476,7 +475,6 @@ namespace se3
               const typename Eigen::MatrixBase<ConfigVector> & qs,
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(TangentVector);
       calc(data,qs.derived());
       
       typedef typename TangentVector::Scalar S2;

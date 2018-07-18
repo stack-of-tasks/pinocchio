@@ -471,8 +471,6 @@ namespace se3
     template<typename ConfigVector>
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVector> & q_joint) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVector);
-      
       const Scalar
       & c_theta = q_joint(2),
       & s_theta = q_joint(3);
@@ -485,8 +483,6 @@ namespace se3
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigVector);
-      
       typedef typename ConfigVector::Scalar Scalar;
       typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
 
@@ -504,7 +500,6 @@ namespace se3
               const typename Eigen::MatrixBase<ConfigVector> & qs,
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(TangentVector);
       calc(data,qs.derived());
       
       typename TangentVector::template ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.template segment<NV>(idx_v ());
