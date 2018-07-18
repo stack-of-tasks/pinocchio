@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   MatrixXd rnea_partial_dq(model.nv,model.nv); rnea_partial_dq.setZero();
   MatrixXd rnea_partial_dv(model.nv,model.nv); rnea_partial_dv.setZero();
   MatrixXd rnea_partial_da(model.nv,model.nv); rnea_partial_da.setZero();
-  computeRNEADerivatives(model,data,q,0*v,0*a,rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
+  computeRNEADerivatives(model,data,q,VectorXd::Zero(model.nv),VectorXd::Zero(model.nv),rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
   
   MatrixXd g_partial_dq(model.nv,model.nv); g_partial_dq.setZero();
   computeGeneralizedGravityDerivatives(model,data_ref,q,g_partial_dq);
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   BOOST_CHECK(rnea_partial_dq.isApprox(g_partial_dq));
   BOOST_CHECK(data.tau.isApprox(data_ref.g));
   
-  VectorXd tau0 = rnea(model,data_fd,q,0*v,0*a);
+  VectorXd tau0 = rnea(model,data_fd,q,VectorXd::Zero(model.nv),VectorXd::Zero(model.nv));
   MatrixXd rnea_partial_dq_fd(model.nv,model.nv); rnea_partial_dq_fd.setZero();
   
   VectorXd v_eps(VectorXd::Zero(model.nv));
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    tau_plus = rnea(model,data_fd,q_plus,0*v,0*a);
+    tau_plus = rnea(model,data_fd,q_plus,VectorXd::Zero(model.nv),VectorXd::Zero(model.nv));
     
     rnea_partial_dq_fd.col(k) = (tau_plus - tau0)/alpha;
     v_eps[k] -= alpha;
@@ -129,15 +129,15 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    tau_plus = rnea(model,data_fd,q_plus,0*v,a);
+    tau_plus = rnea(model,data_fd,q_plus,VectorXd::Zero(model.nv),a);
 
     rnea_partial_dq_fd.col(k) = (tau_plus - tau0)/alpha;
     v_eps[k] -= alpha;
   }
   
   rnea_partial_dq.setZero();
-  computeRNEADerivatives(model,data,q,0*v,a,rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
-  forwardKinematics(model,data_ref,q,0*v,a);
+  computeRNEADerivatives(model,data,q,VectorXd::Zero(model.nv),a,rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
+  forwardKinematics(model,data_ref,q,VectorXd::Zero(model.nv),a);
   
   for(Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
   {
@@ -153,14 +153,14 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   // Check with q and v non zero
   const Motion gravity(model.gravity);
   model.gravity.setZero();
-  tau0 = rnea(model,data_fd,q,v,0*a);
+  tau0 = rnea(model,data_fd,q,v,VectorXd::Zero(model.nv));
   rnea_partial_dq_fd.setZero();
   
   for(int k = 0; k < model.nv; ++k)
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    tau_plus = rnea(model,data_fd,q_plus,v,0*a);
+    tau_plus = rnea(model,data_fd,q_plus,v,VectorXd::Zero(model.nv));
     
     rnea_partial_dq_fd.col(k) = (tau_plus - tau0)/alpha;
     v_eps[k] -= alpha;
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    tau_plus = rnea(model,data_fd,q,v_plus,0*a);
+    tau_plus = rnea(model,data_fd,q,v_plus,VectorXd::Zero(model.nv));
     
     rnea_partial_dv_fd.col(k) = (tau_plus - tau0)/alpha;
     v_plus[k] -= alpha;
@@ -180,8 +180,8 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   
   rnea_partial_dq.setZero();
   rnea_partial_dv.setZero();
-  computeRNEADerivatives(model,data,q,v,0*a,rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
-  forwardKinematics(model,data_ref,q,v,0*a);
+  computeRNEADerivatives(model,data,q,v,VectorXd::Zero(model.nv),rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
+  forwardKinematics(model,data_ref,q,v,VectorXd::Zero(model.nv));
   
   for(Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
   {
