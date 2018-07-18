@@ -67,6 +67,13 @@ namespace se3
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
     
+    /// \brief Dense vectorized version of a joint configuration vector.
+    typedef VectorXs ConfigVectorType;
+    
+    /// \brief Dense vectorized version of a joint tangent vector (e.g. velocity, acceleration, etc).
+    ///        It also handles the notion of co-tangent vector (e.g. torque, etc).
+    typedef VectorXs TangentVectorType;
+    
     /// \brief The 6d jacobian type (temporary)
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> Matrix6x;
     /// \brief The 3d jacobian type (temporary)
@@ -115,7 +122,7 @@ namespace se3
     container::aligned_vector<SE3> liMi;
     
     /// \brief Vector of joint torques (dim model.nv).
-    VectorXs tau;
+    TangentVectorType tau;
     
     /// \brief Vector of Non Linear Effects (dim model.nv). It corresponds to concatenation of the Coriolis, centrifugal and gravitational effects.
     /// \note  In the multibody dynamics equation \f$ M\ddot{q} + b(q, \dot{q}) = \tau \f$,
@@ -183,14 +190,14 @@ namespace se3
     RowMatrix6 M6tmpR;
     
     /// \brief The joint accelerations computed from ABA
-    VectorXs ddq;
+    TangentVectorType ddq;
     
     // ABA internal data
     /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA]
     container::aligned_vector<typename Inertia::Matrix6> Yaba;  // TODO: change with dense symmetric matrix6
     
     /// \brief Intermediate quantity corresponding to apparent torque [ABA]
-    VectorXs u;                  // Joint Inertia
+    TangentVectorType u;                  // Joint Inertia
     
     // CCRBA return quantities
     /// \brief Centroidal Momentum Matrix
@@ -316,7 +323,7 @@ namespace se3
     VectorXs torque_residual;
     
     /// \brief Generalized velocity after impact.
-    VectorXs dq_after;
+    TangentVectorType dq_after;
     
     /// \brief Lagrange Multipliers corresponding to the contact impulses in se3::impulseDynamics.
     VectorXs impulse_c;
