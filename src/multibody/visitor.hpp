@@ -52,7 +52,7 @@ namespace se3
     namespace bf = boost::fusion;
     
     template<typename JointVisitorDerived>
-    struct JointVisitorBase : public boost::static_visitor<>
+    struct JointVisitorBase
     {
       
       template<typename JointCollection, typename ArgsTmp>
