@@ -188,7 +188,7 @@ namespace se3
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Algo::run(model.joints[i],data.joints[i],
-                typename Algo::ArgsType(model,data,q,v));
+                typename Algo::ArgsType(model,data,q.derived(),v.derived()));
     }
   }
   
@@ -254,7 +254,7 @@ namespace se3
     for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
     {
       Algo::run(model.joints[i],data.joints[i],
-                typename Algo::ArgsType(model,data,q,v,a));
+                typename Algo::ArgsType(model,data,q.derived(),v.derived(),a.derived()));
     }
   }
 } // namespace se3
