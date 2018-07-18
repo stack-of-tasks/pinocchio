@@ -34,11 +34,10 @@ namespace se3
     
     void exposeABA()
     {
-      typedef Eigen::VectorXd DataVector;
-      typedef container::aligned_vector<Force> ForceAlignedVector;
+      using namespace Eigen;
 
       bp::def("aba",
-              (const DataVector& (*)(const Model&, Data&, const DataVector&, const DataVector&, const DataVector&)) &aba,
+              &aba<JointCollectionDefault,VectorXd,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
@@ -47,7 +46,7 @@ namespace se3
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("aba",
-              (const DataVector& (*)(const Model&, Data&, const DataVector&, const DataVector&, const DataVector&, const ForceAlignedVector&))&aba,
+              &aba<JointCollectionDefault,VectorXd,VectorXd,VectorXd,Force>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",

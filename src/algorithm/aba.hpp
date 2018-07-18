@@ -35,12 +35,13 @@ namespace se3
   ///
   /// \return The current joint acceleration stored in data.ddq.
   ///
-  inline const Eigen::VectorXd &
-  aba(const Model & model,
-      Data & data,
-      const Eigen::VectorXd & q,
-      const Eigen::VectorXd & v,
-      const Eigen::VectorXd & tau);
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<JointCollection>::TangentVectorType &
+  aba(const ModelTpl<JointCollection> & model,
+      DataTpl<JointCollection> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & tau);
 
   ///
   /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
@@ -54,13 +55,14 @@ namespace se3
   ///
   /// \return The current joint acceleration stored in data.ddq.
   ///
-  inline const Eigen::VectorXd &
-  aba(const Model & model,
-      Data & data,
-      const Eigen::VectorXd & q,
-      const Eigen::VectorXd & v,
-      const Eigen::VectorXd & tau,
-      const container::aligned_vector<Force> & fext);
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
+  inline const typename DataTpl<JointCollection>::TangentVectorType &
+  aba(const ModelTpl<JointCollection> & model,
+      DataTpl<JointCollection> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & tau,
+      const container::aligned_vector<ForceDerived> & fext);
   
   ///
   /// \brief Computes the inverse of the joint space inertia matrix using Articulated Body formulation.
@@ -71,10 +73,11 @@ namespace se3
   ///
   /// \return The inverse of the joint space inertia matrix stored in data.ddq.
   ///
-  inline const Data::RowMatrixXd &
-  computeMinverse(const Model & model,
-                  Data & data,
-                  const Eigen::VectorXd & q);
+  template<typename JointCollection, typename ConfigVectorType>
+  inline const typename DataTpl<JointCollection>::RowMatrixXd &
+  computeMinverse(const ModelTpl<JointCollection> & model,
+                  DataTpl<JointCollection> & data,
+                  const Eigen::MatrixBase<ConfigVectorType> & q);
 
 
   DEFINE_ALGO_CHECKER(ABA);
