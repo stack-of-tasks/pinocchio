@@ -114,7 +114,7 @@ namespace se3
             oss << "\"" << it->name << "\",";
           }
           oss << "]";
-          throw std::runtime_error (oss.str ().c_str ());
+          throw std::invalid_argument (oss.str ().c_str ());
         }
         FrameIndex jointFrameId = (FrameIndex) res; // C-style cast to remove polluting compilation warning. This is Bad practice. See issue #323 (rework indexes)
         appendBodyToJoint(model, jointFrameId, Y, SE3::Identity(), body_name);

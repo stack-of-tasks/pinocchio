@@ -191,11 +191,11 @@ namespace se3
 
           geometry = boost::shared_ptr < fcl::CollisionGeometry > (new fcl::Sphere (radius));
         }
-        else throw std::runtime_error (std::string ("Unknown geometry type :"));
+        else throw std::invalid_argument("Unknown geometry type :");
 
         if (!geometry)
         {
-          throw std::runtime_error(std::string("The polyhedron retrived is empty"));
+          throw std::invalid_argument("The polyhedron retrived is empty");
         }
 
         return geometry;

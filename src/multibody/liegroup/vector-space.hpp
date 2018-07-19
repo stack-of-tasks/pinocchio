@@ -162,7 +162,7 @@ namespace se3
           std::ostringstream error;
           error << "non bounded limit. Cannot uniformly sample joint at rank " << i;
           // assert(false && "non bounded limit. Cannot uniformly sample joint revolute");
-          throw std::runtime_error(error.str());
+          throw std::range_error(error.str());
         }
         res[i] = lower_pos_limit[i] + (( upper_pos_limit[i] - lower_pos_limit[i]) * rand())/RAND_MAX;
       }
