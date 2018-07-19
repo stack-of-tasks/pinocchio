@@ -38,7 +38,7 @@ namespace se3
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> &,
                      JointDataBase<typename JointModel::JointDataDerived> &,
-                     const Model> &,
+                     const Model &,
                      Data &)
     { // do nothing
     }
@@ -126,13 +126,12 @@ namespace se3
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
-    typedef ForwardKinematicZeroStep<JointCollection,ConfigVectorType> Algo;
     
+    typedef ForwardKinematicZeroStep<JointCollection,ConfigVectorType> Algo;
     for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
     {
       Algo::run(model.joints[i], data.joints[i],
-                typename Algo::ArgsType(model,data,q.derived())
-                );
+                typename Algo::ArgsType(model,data,q.derived()));
     }
   }
 
@@ -190,10 +189,10 @@ namespace se3
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
-    typedef ForwardKinematicFirstStep<JointCollection,ConfigVectorType,TangentVectorType> Algo;
     
     data.v[0].setZero();
 
+    typedef ForwardKinematicFirstStep<JointCollection,ConfigVectorType,TangentVectorType> Algo;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Algo::run(model.joints[i],data.joints[i],
@@ -224,8 +223,10 @@ namespace se3
                      const Eigen::MatrixBase<TangentVectorType1> & v,
                      const Eigen::MatrixBase<TangentVectorType2> & a)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
       
       jmodel.calc(jdata.derived(),q,v);
 
@@ -258,11 +259,11 @@ namespace se3
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
-    typedef ForwardKinematicSecondStep<JointCollection,ConfigVectorType,TangentVectorType1,TangentVectorType2> Algo;
     
     data.v[0].setZero();
     data.a[0].setZero();
     
+    typedef ForwardKinematicSecondStep<JointCollection,ConfigVectorType,TangentVectorType1,TangentVectorType2> Algo;
     for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
     {
       Algo::run(model.joints[i],data.joints[i],
