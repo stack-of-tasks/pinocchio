@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -29,7 +29,7 @@ namespace se3
       typedef container::aligned_vector<Force> ForceAlignedVector;
       
       bp::def("rnea",
-              (const VectorXd & (*)(const Model &, Data &, const VectorXd &, const VectorXd &, const VectorXd &))&rnea,
+              &rnea<JointCollectionDefault,VectorXd,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
@@ -38,7 +38,7 @@ namespace se3
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("rnea",
-              (const VectorXd & (*)(const Model &, Data &, const VectorXd &, const VectorXd &, const VectorXd &, const ForceAlignedVector &))&rnea,
+              &rnea<JointCollectionDefault,VectorXd,VectorXd,VectorXd,Force>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
@@ -49,7 +49,7 @@ namespace se3
       
 
       bp::def("nle",
-              (const VectorXd & (*)(const Model &, Data &, const VectorXd &, const VectorXd &))&nonLinearEffects,
+              &nonLinearEffects<JointCollectionDefault,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
