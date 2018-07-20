@@ -101,7 +101,8 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct IntegrateStepAlgo;
   
   template<typename LieGroup_t>
-  struct IntegrateStep : public fusion::JointVisitorBase<IntegrateStep<LieGroup_t> >
+  struct IntegrateStep
+  : public fusion::JointVisitorBase< IntegrateStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<const Eigen::VectorXd &,
     const Eigen::VectorXd &,
@@ -112,16 +113,21 @@ namespace se3
   };
   
   template<typename LieGroup_t, typename JointModel>
-  struct IntegrateStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    const Eigen::VectorXd & q,
-                    const Eigen::VectorXd & v,
-                    Eigen::VectorXd & result)
+  struct IntegrateStepAlgo
+  {
+    template<typename ConfigVectorIn, typename TangentVector, typename ConfigVectorOut>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn> & q,
+                    const Eigen::MatrixBase<TangentVector> & v,
+                    const Eigen::MatrixBase<ConfigVectorOut> & result)
     {
       typename LieGroup_t::template operation<JointModel>::type lgo;
+      
+      ConfigVectorOut & result_ = const_cast<ConfigVectorOut &>(result.derived());
+      
       lgo.integrate(jmodel.jointConfigSelector  (q),
                     jmodel.jointVelocitySelector(v),
-                    jmodel.jointConfigSelector  (result));
+                    jmodel.jointConfigSelector  (result_));
     }
   };
   
@@ -130,7 +136,8 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct InterpolateStepAlgo;
   
   template<typename LieGroup_t>
-  struct InterpolateStep : public fusion::JointVisitorBase<InterpolateStep<LieGroup_t> >
+  struct InterpolateStep
+  : public fusion::JointVisitorBase< InterpolateStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<const Eigen::VectorXd &,
     const Eigen::VectorXd &,
@@ -142,18 +149,20 @@ namespace se3
   };
   
   template<typename LieGroup_t, typename JointModel>
-  struct InterpolateStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    const Eigen::VectorXd & q0,
-                    const Eigen::VectorXd & q1,
-                    const double u,
-                    Eigen::VectorXd & result)
+  struct InterpolateStepAlgo
+  {
+    template<typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar, typename ConfigVectorOut>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                    const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+                    const Scalar & u,
+                    const Eigen::MatrixBase<ConfigVectorOut> & result)
     {
       typename LieGroup_t::template operation<JointModel>::type lgo;
-      lgo.interpolate(jmodel.jointConfigSelector(q0),
-                      jmodel.jointConfigSelector(q1),
+      lgo.interpolate(jmodel.jointConfigSelector(q0.derived()),
+                      jmodel.jointConfigSelector(q1.derived()),
                       u,
-                      jmodel.jointConfigSelector(result));
+                      jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorOut,result)));
     }
   };
   
@@ -162,7 +171,8 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct DifferenceStepAlgo;
   
   template<typename LieGroup_t>
-  struct DifferenceStep : public fusion::JointVisitorBase<DifferenceStep<LieGroup_t> >
+  struct DifferenceStep
+  : public fusion::JointVisitorBase< DifferenceStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<const Eigen::VectorXd &,
     const Eigen::VectorXd &,
@@ -173,16 +183,18 @@ namespace se3
   };
   
   template<typename LieGroup_t, typename JointModel>
-  struct DifferenceStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    const Eigen::VectorXd & q0,
-                    const Eigen::VectorXd & q1,
-                    Eigen::VectorXd & result)
+  struct DifferenceStepAlgo
+  {
+    template<typename ConfigVectorIn1, typename ConfigVectorIn2, typename TangentVectorOut>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                    const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+                    const Eigen::MatrixBase<TangentVectorOut> & result)
     {
       typename LieGroup_t::template operation<JointModel>::type lgo;
-      lgo.difference(jmodel.jointConfigSelector(q0),
-                     jmodel.jointConfigSelector(q1),
-                     jmodel.jointVelocitySelector(result));
+      lgo.difference(jmodel.jointConfigSelector(q0.derived()),
+                     jmodel.jointConfigSelector(q1.derived()),
+                     jmodel.jointVelocitySelector(EIGEN_CONST_CAST(TangentVectorOut,result)));
     }
   };
   
@@ -203,16 +215,19 @@ namespace se3
   };
   
   template<typename LieGroup_t, typename JointModel>
-  struct SquaredDistanceStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
+  struct SquaredDistanceStepAlgo
+  {
+    template<typename ConfigVectorIn1, typename ConfigVectorIn2, typename DistanceVectorOut>
+    static void run(const JointModelBase<JointModel> & jmodel,
                     const JointIndex i,
-                    const Eigen::VectorXd & q0,
-                    const Eigen::VectorXd & q1,
-                    Eigen::VectorXd & distances)
+                    const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                    const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+                    const Eigen::MatrixBase<DistanceVectorOut> & distances)
     {
       typename LieGroup_t::template operation<JointModel>::type lgo;
-      distances[(long)i] += lgo.squaredDistance(jmodel.jointConfigSelector(q0),
-                                                jmodel.jointConfigSelector(q1));
+      DistanceVectorOut & distances_ = EIGEN_CONST_CAST(DistanceVectorOut,distances);
+      distances_[(long)i] += lgo.squaredDistance(jmodel.jointConfigSelector(q0.derived()),
+                                                 jmodel.jointConfigSelector(q1.derived()));
     }
   };
   
@@ -221,7 +236,8 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct RandomConfigurationStepAlgo;
   
   template<typename LieGroup_t>
-  struct RandomConfigurationStep : public fusion::JointVisitorBase<RandomConfigurationStep<LieGroup_t> >
+  struct RandomConfigurationStep
+  : public fusion::JointVisitorBase< RandomConfigurationStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<Eigen::VectorXd &,
     const Eigen::VectorXd &,
@@ -232,16 +248,18 @@ namespace se3
   };
   
   template<typename LieGroup_t, typename JointModel>
-  struct RandomConfigurationStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    Eigen::VectorXd & q,
-                    const Eigen::VectorXd & lowerLimits,
-                    const Eigen::VectorXd & upperLimits)
+  struct RandomConfigurationStepAlgo
+  {
+    template<typename ConfigVectorIn1, typename ConfigVectorIn2, typename ConfigVectorIn3>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn1> & q,
+                    const Eigen::MatrixBase<ConfigVectorIn2> & lowerLimits,
+                    const Eigen::MatrixBase<ConfigVectorIn3> & upperLimits)
     {
       typename LieGroup_t::template operation<JointModel>::type lgo;
-      lgo.randomConfiguration(jmodel.jointConfigSelector(lowerLimits),
-                              jmodel.jointConfigSelector(upperLimits),
-                              jmodel.jointConfigSelector(q));
+      lgo.randomConfiguration(jmodel.jointConfigSelector(lowerLimits.derived()),
+                              jmodel.jointConfigSelector(upperLimits.derived()),
+                              jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorIn1,q)));
     }
   };
   
@@ -252,7 +270,8 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct NormalizeStepAlgo;
   
   template<typename LieGroup_t>
-  struct NormalizeStep : public fusion::JointVisitorBase< NormalizeStep<LieGroup_t> >
+  struct NormalizeStep
+  : public fusion::JointVisitorBase< NormalizeStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<Eigen::VectorXd &> ArgsType;
     
@@ -262,11 +281,12 @@ namespace se3
   template<typename LieGroup_t, typename JointModel>
   struct NormalizeStepAlgo
   {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    Eigen::VectorXd & qout)
+    template<typename ConfigVectorType>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorType> & qout)
     {
       typename LieGroup_t::template operation<JointModel>::type lgo;
-      lgo.normalize(jmodel.jointConfigSelector(qout));
+      lgo.normalize(jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorType,qout)));
     }
   };
   
@@ -275,7 +295,8 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct IsSameConfigurationStepAlgo;
   
   template<typename LieGroup_t>
-  struct IsSameConfigurationStep : public fusion::JointVisitorBase<IsSameConfigurationStep<LieGroup_t> >
+  struct IsSameConfigurationStep
+  : public fusion::JointVisitorBase< IsSameConfigurationStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<bool &,
     const Eigen::VectorXd &,
@@ -286,16 +307,18 @@ namespace se3
   };
   
   template<typename LieGroup_t, typename JointModel>
-  struct IsSameConfigurationStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
+  struct IsSameConfigurationStepAlgo
+  {
+    template<typename ConfigVectorIn1, typename ConfigVectorIn2>
+    static void run(const JointModelBase<JointModel> & jmodel,
                     bool & isSame,
-                    const Eigen::VectorXd & q1,
-                    const Eigen::VectorXd & q2,
-                    const double prec)
+                    const Eigen::MatrixBase<ConfigVectorIn1> & q1,
+                    const Eigen::MatrixBase<ConfigVectorIn2> & q2,
+                    const typename ConfigVectorIn1::Scalar & prec)
     {
       typename LieGroup_t::template operation<JointModel>::type lgo;
-      isSame &= lgo.isSameConfiguration(jmodel.jointConfigSelector(q1),
-                                        jmodel.jointConfigSelector(q2),
+      isSame &= lgo.isSameConfiguration(jmodel.jointConfigSelector(q1.derived()),
+                                        jmodel.jointConfigSelector(q2.derived()),
                                         prec);
     }
   };
@@ -305,7 +328,8 @@ namespace se3
   template<typename LieGroup_t, typename JointModel> struct NeutralStepAlgo;
   
   template<typename LieGroup_t>
-  struct NeutralStep : public fusion::JointVisitorBase< NeutralStep<LieGroup_t> >
+  struct NeutralStep
+  : public fusion::JointVisitorBase< NeutralStep<LieGroup_t> >
   {
     typedef boost::fusion::vector<Eigen::VectorXd &> ArgsType;
     
@@ -315,11 +339,12 @@ namespace se3
   template<typename LieGroup_t, typename JointModel>
   struct NeutralStepAlgo
   {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    Eigen::VectorXd & neutral_elt)
+    template<typename ConfigVectorType>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorType> & neutral_elt)
     {
       typename LieGroup_t::template operation<JointModel>::type lgo;
-      jmodel.jointConfigSelector(neutral_elt) = lgo.neutral();
+      jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorType,neutral_elt)) = lgo.neutral();
     }
   };
   
