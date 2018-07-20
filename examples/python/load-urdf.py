@@ -36,7 +36,8 @@ mesh_dir = model_path
 urdf_filename = "romeo_small.urdf"
 urdf_model_path = model_path + "/romeo_description/urdf/" + urdf_filename
 
-robot = RobotWrapper(urdf_model_path, [mesh_dir])
+robot = RobotWrapper()
+robot.initFromURDF(urdf_model_path, [mesh_dir])
 
 # alias
 model = robot.model
