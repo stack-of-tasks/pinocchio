@@ -87,7 +87,7 @@ namespace se3
   /// \return The angular velocity vector associated to the rotation matrix.
   ///
   template<typename Matrix3Like, typename S2>
-  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,Eigen::internal::traits<Matrix3Like>::Options>
+  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
   log3(const Eigen::MatrixBase<Matrix3Like> & R, S2 & theta)
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3);
@@ -137,7 +137,7 @@ namespace se3
   /// \return The angular velocity vector associated to the rotation matrix.
   ///
   template<typename Matrix3Like>
-  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,Eigen::internal::traits<Matrix3Like>::Options>
+  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
   log3(const Eigen::MatrixBase<Matrix3Like> & R)
   {
     typename Matrix3Like::Scalar theta;
@@ -221,7 +221,7 @@ namespace se3
              const Eigen::MatrixBase<Matrix3Like2> & Jlog)
   {
     typedef typename Matrix3Like1::Scalar Scalar;
-    typedef Eigen::Matrix<Scalar,3,1,Eigen::internal::traits<Matrix3Like1>::Options> Vector3;
+    typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like1)::Options> Vector3;
 
     Scalar t;
     Vector3 w(log3(R,t));
@@ -237,11 +237,11 @@ namespace se3
   /// \return The rigid transformation associated to the integration of the twist during time 1.
   ///
   template<typename MotionDerived>
-  SE3Tpl<typename MotionDerived::Scalar, Eigen::internal::traits<typename MotionDerived::Vector3>::Options>
+  SE3Tpl<typename MotionDerived::Scalar,EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options>
   exp6(const MotionDense<MotionDerived> & nu)
   {
     typedef typename MotionDerived::Scalar Scalar;
-    enum { Options = Eigen::internal::traits<typename MotionDerived::Vector3>::Options };
+    enum { Options = EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options };
 
     typedef SE3Tpl<Scalar,Options> SE3;
     
@@ -303,7 +303,7 @@ namespace se3
   /// \return The rigid transformation associated to the integration of the twist vector during time 1..
   ///
   template<typename Vector6Like>
-  SE3Tpl<typename Vector6Like::Scalar, Eigen::internal::traits<Vector6Like>::Options>
+  SE3Tpl<typename Vector6Like::Scalar,EIGEN_PLAIN_TYPE(Vector6Like)::Options>
   exp6(const Eigen::MatrixBase<Vector6Like> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
