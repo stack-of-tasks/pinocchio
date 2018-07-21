@@ -106,7 +106,8 @@ namespace se3
     jmodel.jointConfigSelector(upperPositionLimit) = max_config;
     
     neutralConfiguration.conservativeResize(nq);
-    NeutralStepAlgo<LieGroupMap,JointModelDerived>::run(jmodel,neutralConfiguration);
+    typedef NeutralStep<LieGroupMap,ConfigVectorType> NeutralVisitor;
+    NeutralStepAlgo<NeutralVisitor,JointModelDerived>::run(jmodel,neutralConfiguration);
 
     rotorInertia.conservativeResize(nv);
     jmodel.jointVelocitySelector(rotorInertia).setZero();

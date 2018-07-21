@@ -30,209 +30,272 @@
 /* --- Details -------------------------------------------------------------------- */
 namespace se3
 {
-  inline Eigen::VectorXd
-  integrate(const Model & model,
-            const Eigen::VectorXd & q,
-            const Eigen::VectorXd & v)
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  inline typename EIGEN_PLAIN_TYPE(ConfigVectorType)
+  integrate(const ModelTpl<JointCollection> & model,
+            const Eigen::MatrixBase<ConfigVectorType> & q,
+            const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    return integrate<LieGroupMap>(model, q, v);
+    return integrate<LieGroupMap,JointCollection,ConfigVectorType,TangentVectorType>(model, q.derived(), v.derived());
   }
 
-  template<typename LieGroup_t>
-  inline Eigen::VectorXd
-  integrate(const Model & model,
-            const Eigen::VectorXd & q,
-            const Eigen::VectorXd & v)
+  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  inline typename EIGEN_PLAIN_TYPE(ConfigVectorType)
+  integrate(const ModelTpl<JointCollection> & model,
+            const Eigen::MatrixBase<ConfigVectorType> & q,
+            const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    Eigen::VectorXd integ(model.nq);
-    typename IntegrateStep<LieGroup_t>::ArgsType args(q, v, integ);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
+    typedef typename EIGEN_PLAIN_TYPE(ConfigVectorType) ReturnType;
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    ReturnType res(model.nq);
+    
+    typedef IntegrateStep<LieGroup_t,ConfigVectorType,TangentVectorType,ReturnType> Algo;
+    typename Algo::ArgsType args(q.derived(),v.derived(),res);
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      IntegrateStep<LieGroup_t>::run (model.joints[i], args);
+      Algo::run(model.joints[i], args);
     }
-    return integ;
+    return res;
   }
 
-  inline Eigen::VectorXd
-  interpolate(const Model & model,
-               const Eigen::VectorXd & q0,
-               const Eigen::VectorXd & q1,
-               const double u)
+  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
+  inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  interpolate(const ModelTpl<JointCollection> & model,
+              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+              const Scalar & u)
   {
-    return interpolate<LieGroupMap>(model, q0, q1, u);
+    return interpolate<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2,Scalar>(model, q0, q1, u);
   }
 
-  template<typename LieGroup_t>
-  inline Eigen::VectorXd
-  interpolate(const Model & model,
-               const Eigen::VectorXd & q0,
-               const Eigen::VectorXd & q1,
-               const double u)
+  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
+  inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  interpolate(const ModelTpl<JointCollection> & model,
+              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+              const Scalar & u)
   {
-    Eigen::VectorXd interp(model.nq);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    typedef typename EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType;
+    typedef InterpolateStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar,ReturnType> Algo;
+    
+    ReturnType res(model.nq);
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      InterpolateStep<LieGroup_t>::run
-        (model.joints[i], typename InterpolateStep<LieGroup_t>::ArgsType (q0, q1, u, interp));
+      Algo::run(model.joints[i],
+                typename Algo::ArgsType(q0, q1, u, res));
     }
-    return interp;
+    
+    return res;
   }
 
-  template<typename LieGroup_t>
-  inline Eigen::VectorXd
-  difference(const Model & model,
-                     const Eigen::VectorXd & q0,
-                     const Eigen::VectorXd & q1)
+  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  difference(const ModelTpl<JointCollection> & model,
+             const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+             const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    Eigen::VectorXd diff(model.nv);
-    typename DifferenceStep<LieGroup_t>::ArgsType args(q0, q1, diff);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    typedef typename EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType;
+    
+    ReturnType res(model.nv);
+    
+    typedef DifferenceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,ReturnType> Algo;
+    typename Algo::ArgsType args(q0.derived(),q1.derived(),res);
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      DifferenceStep<LieGroup_t>::run(model.joints[i], args);
+      Algo::run(model.joints[i], args);
     }
-    return diff;
+    
+    return res;
   }
 
-  inline Eigen::VectorXd
-  difference(const Model & model,
-                     const Eigen::VectorXd & q0,
-                     const Eigen::VectorXd & q1)
+  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  difference(const ModelTpl<JointCollection> & model,
+             const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+             const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    return difference<LieGroupMap>(model, q0, q1);
+    return difference<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2>(model,q0.derived(),q1.derived());
   }
 
-  template<typename LieGroup_t>
-  inline Eigen::VectorXd
-  squaredDistance(const Model & model,
-                  const Eigen::VectorXd & q0,
-                  const Eigen::VectorXd & q1)
+  template<typename LieGroup_t,typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  squaredDistance(const ModelTpl<JointCollection> & model,
+                  const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                  const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    Eigen::VectorXd distances(Eigen::VectorXd::Zero(model.njoints-1));
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    typedef typename EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType;
+    
+    ReturnType distances(ReturnType::Zero(model.njoints-1));
+    typedef SquaredDistanceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,ReturnType> Algo;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      typename SquaredDistanceStep<LieGroup_t>::ArgsType args(i-1, q0, q1, distances);
-      SquaredDistanceStep<LieGroup_t>::run(model.joints[i], args);
+      typename Algo::ArgsType args(i-1,q0.derived(),q1.derived(), distances);
+      Algo::run(model.joints[i], args);
     }
+    
     return distances;
   }
 
-  inline Eigen::VectorXd
-  squaredDistance(const Model & model,
-                  const Eigen::VectorXd & q0,
-                  const Eigen::VectorXd & q1)
+  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  squaredDistance(const ModelTpl<JointCollection> & model,
+                  const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                  const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    return squaredDistance<LieGroupMap>(model, q0, q1);
+    return squaredDistance<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2>(model,q0.derived(),q1.derived());
   }
   
-  template<typename LieGroup_t>
-  inline double
-  distance(const Model & model,
-           const Eigen::VectorXd & q0,
-           const Eigen::VectorXd & q1)
+  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  typename JointCollection::Scalar
+  distance(const ModelTpl<JointCollection> & model,
+           const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+           const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    return std::sqrt(squaredDistance<LieGroup_t>(model, q0, q1).sum());
+    return std::sqrt(squaredDistance<LieGroup_t,JointCollection,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
   }
   
-  inline double
-  distance(const Model & model,
-           const Eigen::VectorXd & q0,
-           const Eigen::VectorXd & q1)
+  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  inline typename JointCollection::Scalar
+  distance(const ModelTpl<JointCollection> & model,
+           const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+           const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    return std::sqrt(squaredDistance<LieGroupMap>(model, q0, q1).sum());
+    return std::sqrt(squaredDistance<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
   }
 
-  template<typename LieGroup_t>
-  inline Eigen::VectorXd
-  randomConfiguration(const Model & model, const Eigen::VectorXd & lowerLimits, const Eigen::VectorXd & upperLimits)
+  template<typename LieGroup_t,typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType)
+  randomConfiguration(const ModelTpl<JointCollection> & model,
+                      const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
+                      const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits)
   {
-    Eigen::VectorXd q(model.nq);
-    typename RandomConfigurationStep<LieGroup_t>::ArgsType args(q, lowerLimits, upperLimits);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    typedef typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType) ReturnType;
+    
+    ReturnType q(model.nq);
+    typedef RandomConfigurationStep<LieGroup_t,ReturnType,ConfigVectorIn1,ConfigVectorIn2> Algo;
+    typename Algo::ArgsType args(EIGEN_CONST_CAST(ReturnType,q), lowerLimits.derived(), upperLimits.derived());
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      RandomConfigurationStep<LieGroup_t>::run(model.joints[i], args);
+      Algo::run(model.joints[i], args);
     }
+    
     return q;
   }
 
-  inline Eigen::VectorXd
-  randomConfiguration(const Model & model, const Eigen::VectorXd & lowerLimits, const Eigen::VectorXd & upperLimits)
+  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType)
+  randomConfiguration(const ModelTpl<JointCollection> & model,
+                      const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
+                      const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits)
   {
-    return randomConfiguration<LieGroupMap>(model, lowerLimits, upperLimits);
+    return randomConfiguration<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2>(model, lowerLimits.derived(), upperLimits.derived());
   }
 
-  template<typename LieGroup_t>
-  inline Eigen::VectorXd
-  randomConfiguration(const Model & model)
+  template<typename LieGroup_t,typename JointCollection>
+  typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType)
+  randomConfiguration(const ModelTpl<JointCollection> & model)
   {
-    return randomConfiguration<LieGroup_t>(model, model.lowerPositionLimit, model.upperPositionLimit);
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::ConfigVectorType ConfigVectorType;
+    return randomConfiguration<LieGroup_t,JointCollection,ConfigVectorType,ConfigVectorType>(model, model.lowerPositionLimit, model.upperPositionLimit);
   }
 
-  inline Eigen::VectorXd
-  randomConfiguration(const Model & model)
+  template<typename JointCollection>
+  typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType)
+  randomConfiguration(const ModelTpl<JointCollection> & model)
   {
-    return randomConfiguration<LieGroupMap>(model);
+    return randomConfiguration<LieGroupMap,JointCollection>(model);
   }
 
-  template<typename LieGroup_t>
-  inline void normalize(const Model & model, Eigen::VectorXd & qout)
+  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorType>
+  inline void normalize(const ModelTpl<JointCollection> & model,
+                        const Eigen::MatrixBase<ConfigVectorType> & qout)
   {
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i)
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef NormalizeStep<LieGroup_t,ConfigVectorType> Algo;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      NormalizeStep<LieGroup_t>::run(model.joints[i],
-                                     typename NormalizeStep<LieGroup_t>::ArgsType(qout));
+      Algo::run(model.joints[i],
+                typename Algo::ArgsType(EIGEN_CONST_CAST(ConfigVectorType,qout)));
     }
   }
   
-  inline void normalize(const Model & model, Eigen::VectorXd & qout)
+  template<typename JointCollection, typename ConfigVectorType>
+  inline void normalize(const ModelTpl<JointCollection> & model,
+                        const Eigen::MatrixBase<ConfigVectorType> & qout)
   {
-    return normalize<LieGroupMap>(model,qout);
+    return normalize<LieGroupMap,JointCollection,ConfigVectorType>(model,qout.derived());
   }
 
-  template<typename LieGroup_t>
+  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
   inline bool
-  isSameConfiguration(const Model & model,
-                      const Eigen::VectorXd & q1,
-                      const Eigen::VectorXd & q2,
-                      const double& prec)
+  isSameConfiguration(const ModelTpl<JointCollection> & model,
+                      const Eigen::MatrixBase<ConfigVectorIn1> & q1,
+                      const Eigen::MatrixBase<ConfigVectorIn2> & q2,
+                      const Scalar & prec)
   {
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
     bool result = true;
-    typename IsSameConfigurationStep<LieGroup_t>::ArgsType args (result, q1, q2, prec);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
+    typedef IsSameConfigurationStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar> Algo;
+    typename Algo::ArgsType args(result,q1.derived(),q2.derived(),prec);
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      IsSameConfigurationStep<LieGroup_t>::run(model.joints[i], args);
-      if( !result )
+      Algo::run(model.joints[i], args);
+      if(!result)
         return false;
     }
+    
     return true;
   }
 
+  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline bool
-  isSameConfiguration(const Model & model,
-                      const Eigen::VectorXd & q1,
-                      const Eigen::VectorXd & q2,
-                      const double& prec = Eigen::NumTraits<double>::dummy_precision())
+  isSameConfiguration(const ModelTpl<JointCollection> & model,
+                      const Eigen::MatrixBase<ConfigVectorIn1> & q1,
+                      const Eigen::MatrixBase<ConfigVectorIn2> & q2,
+                      const typename JointCollection::Scalar & prec = Eigen::NumTraits<typename JointCollection::Scalar>::dummy_precision())
   {
-    return isSameConfiguration<LieGroupMap>(model, q1, q2, prec);
+    typedef typename JointCollection::Scalar Scalar;
+    return isSameConfiguration<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2,Scalar>(model, q1.derived(), q2.derived(), prec);
   }
   
-
-  
-  template<typename LieGroup_t>
-  inline Eigen::VectorXd neutral(const Model & model)
+  template<typename LieGroup_t, typename JointCollection>
+  inline Eigen::Matrix<typename JointCollection::Scalar,Eigen::Dynamic,1,JointCollection::Options>
+  neutral(const ModelTpl<JointCollection> & model)
   {
-    Eigen::VectorXd neutral_elt(model.nq);
-    typename NeutralStep<LieGroup_t>::ArgsType args(neutral_elt);
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
+    typedef Eigen::Matrix<typename JointCollection::Scalar,Eigen::Dynamic,1,JointCollection::Options> ReturnType;
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    ReturnType neutral_elt(model.nq);
+    
+    typename NeutralStep<LieGroup_t,ReturnType>::ArgsType args(neutral_elt.derived());
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i )
     {
-      NeutralStep<LieGroup_t>::run(model.joints[i], args);
-      
+      NeutralStep<LieGroup_t,ReturnType>::run(model.joints[i],args);
     }
+    
     return neutral_elt;
   }
   
-  inline Eigen::VectorXd neutral(const Model & model)
+  template<typename JointCollection>
+  inline Eigen::Matrix<typename JointCollection::Scalar,Eigen::Dynamic,1,JointCollection::Options>
+  neutral(const ModelTpl<JointCollection> & model)
   {
-    return neutral<LieGroupMap>(model);
+    return neutral<LieGroupMap,JointCollection>(model);
   }
 
 
