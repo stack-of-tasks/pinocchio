@@ -30,20 +30,25 @@ namespace se3
       normalize(model,q);
       return q;
     }
+    
+    static Eigen::VectorXd randomConfiguration_proxy(const Model & model)
+    {
+      return randomConfiguration(model);
+    }
 
     void exposeJointsAlgo()
     {
       using namespace Eigen;
       
       bp::def("integrate",
-              (VectorXd (*)(const Model &, const VectorXd &, const VectorXd &))&integrate,
+              &integrate<JointCollectionDefault,VectorXd,VectorXd>,
               bp::args("Model",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
               "Integrate the model for a tangent vector during one unit time .");
       
       bp::def("interpolate",
-              (VectorXd (*)(const Model &, const VectorXd &, const VectorXd &, const double))&interpolate,
+              &interpolate<JointCollectionDefault,VectorXd,VectorXd,double>,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)",
@@ -51,7 +56,7 @@ namespace se3
               "Interpolate the model between two configurations.");
       
       bp::def("difference",
-              (VectorXd (*)(const Model &, const VectorXd &, const VectorXd &))&difference,
+              &difference<JointCollectionDefault,VectorXd,VectorXd>,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)"),
@@ -59,26 +64,26 @@ namespace se3
               "to go from q1 to q2");
       
       bp::def("squaredDistance",
-              (VectorXd (*)(const Model &, const VectorXd &, const VectorXd &))&squaredDistance,
+              &squaredDistance<JointCollectionDefault,VectorXd,VectorXd>,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)"),
               "Squared distance vector between two configurations.");
       
       bp::def("distance",
-              (double (*)(const Model &, const VectorXd &, const VectorXd &))&distance,
+              &distance<JointCollectionDefault,VectorXd,VectorXd>,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)"),
               "Distance between two configurations.");
       
       bp::def("randomConfiguration",
-              (VectorXd (*)(const Model &))&randomConfiguration,
+              &randomConfiguration_proxy,
               bp::arg("Model"),
               "Generate a random configuration in the bounds given by the lower and upper limits contained in model.");
       
       bp::def("randomConfiguration",
-              (VectorXd (*)(const Model &, const VectorXd &, const VectorXd &))&randomConfiguration,
+              &randomConfiguration<JointCollectionDefault,VectorXd,VectorXd>,
               bp::args("Model",
                        "Joint lower limits (size Model::nq)",
                        "Joint upper limits (size Model::nq)"),
@@ -90,7 +95,7 @@ namespace se3
               "return the configuration normalized ");
       
       bp::def("isSameConfiguration",
-              (bool (*)(const Model &, const VectorXd &, const VectorXd &, const double&))&isSameConfiguration,
+              &isSameConfiguration<JointCollectionDefault,VectorXd,VectorXd>,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)",
