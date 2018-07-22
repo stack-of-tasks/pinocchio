@@ -50,14 +50,14 @@ BOOST_AUTO_TEST_CASE(test_data_copy)
   forwardKinematics(model,data_ref,q,v,a);
   
   // Check zero order kinematic quantities
-  copy<0>(model,data_ref,data);
+  copy(model,data_ref,data,0);
   for(Model::JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
   {
     BOOST_CHECK(data.oMi[i] == data_ref.oMi[i]);
   }
   
   // Check first order kinematic quantities
-  copy<1>(model,data_ref,data);
+  copy(model,data_ref,data,1);
   for(Model::JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
   {
     BOOST_CHECK(data.oMi[i] == data_ref.oMi[i]);
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(test_data_copy)
   }
   
   // Check second order kinematic quantities
-  copy<2>(model,data_ref,data);
+  copy(model,data_ref,data,2);
   for(Model::JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
   {
     BOOST_CHECK(data.oMi[i] == data_ref.oMi[i]);

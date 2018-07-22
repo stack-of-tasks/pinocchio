@@ -33,9 +33,8 @@ namespace se3
   /// \param[in] dest  Data to which the values are copied
   /// \param[in] LEVEL if =0, copy oMi. If =1, also copy v. If =2, also copy a, a_gf and f.
   ///
-  template<int level>
   inline void
-  copy (const Model& model, const Data & origin, Data & dest );  
+  copy (const Model& model, const Data & origin, Data & dest , int LEVEL);
 
 } // namespace se3 
 
@@ -45,9 +44,8 @@ namespace se3
 
 namespace se3
 {
-  template<int LEVEL>
   inline void
-  copy (const Model& model, const Data & origin, Data & dest )
+  copy (const Model& model, const Data & origin, Data & dest, int LEVEL )
   {
     for( se3::JointIndex jid=1; int(jid)<model.njoints; ++ jid )
       {
