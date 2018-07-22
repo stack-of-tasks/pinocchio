@@ -60,7 +60,7 @@ namespace se3
           }
         if(LEVEL>=2) 
           {
-            dest.a[jid]    = origin.v   [jid];
+            dest.a[jid]    = origin.a   [jid];
             dest.a_gf[jid] = origin.a_gf[jid];
             dest.f[jid]    = origin.f   [jid];
           }
