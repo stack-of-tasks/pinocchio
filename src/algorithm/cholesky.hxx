@@ -27,9 +27,10 @@ namespace se3
   namespace cholesky
   {
 
-    inline const Eigen::MatrixXd &
-    decompose(const Model & model,
-              Data & data)
+    template<typename JointCollection>
+    inline const typename DataTpl<JointCollection>::MatrixXs &
+    decompose(const ModelTpl<JointCollection> & model,
+              DataTpl<JointCollection> & data)
     {
       /*
        *    D = zeros(n,1);
@@ -48,23 +49,25 @@ namespace se3
 #ifndef NDEBUG
       assert(model.check(data) && "data is not consistent with model.");
 #endif
+      typedef DataTpl<JointCollection> Data;
+      typedef typename JointCollection::Scalar Scalar;
       
-      const Eigen::MatrixXd & M = data.M;
-      Eigen::MatrixXd & U = data.U;
-      Eigen::VectorXd & D = data.D;
-      Eigen::VectorXd & Dinv = data.Dinv;
+      const typename Data::MatrixXs & M = data.M;
+      typename Data::MatrixXs & U = data.U;
+      typename Data::VectorXs & D = data.D;
+      typename Data::VectorXs & Dinv = data.Dinv;
       
       for(int j=model.nv-1;j>=0;--j )
       {
-        const int NVT = data.nvSubtree_fromRow[(Model::Index)j]-1;
-        Eigen::VectorXd::SegmentReturnType DUt = data.tmp.head(NVT);
+        const int NVT = data.nvSubtree_fromRow[(size_t)j]-1;
+        typename Data::VectorXs::SegmentReturnType DUt = data.tmp.head(NVT);
         if(NVT)
           DUt.noalias() = U.row(j).segment(j+1,NVT).transpose()
           .cwiseProduct(D.segment(j+1,NVT));
         
         D[j] = M(j,j) - U.row(j).segment(j+1,NVT).dot(DUt);
-        Dinv[j] = 1./D[j];
-        for(int _i = data.parents_fromRow[(Model::Index)j];_i >= 0;_i = data.parents_fromRow[(Model::Index)_i])
+        Dinv[j] = Scalar(1)/D[j];
+        for(int _i = data.parents_fromRow[(size_t)j]; _i >= 0;_i = data.parents_fromRow[(size_t)_i])
           U(_i,j) = (M(_i,j) - U.row(_i).segment(j+1,NVT).dot(DUt)) * Dinv[j];
       }
       
@@ -76,11 +79,12 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct Uv
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::Uv(model,data,m_.col(k));
         }
@@ -89,22 +93,25 @@ namespace se3
       template<typename Mat>
       struct Uv<Mat,1>
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
+          typedef DataTpl<JointCollection> Data;
+          
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
 #ifndef NDEBUG
           assert(model.check(data) && "data is not consistent with model.");
 #endif
           assert(v.size() == model.nv);
-          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
           
-          const Eigen::MatrixXd & U = data.U;
+          const typename Data::MatrixXs & U = data.U;
           const std::vector<int> & nvt = data.nvSubtree_fromRow;
           
           for(int k=0;k < model.nv-1;++k) // You can stop one step before nv
-            v_.row(k) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1) * v_.middleRows(k+1,nvt[(Model::Index)k]-1);
+            v_.row(k) += U.row(k).segment(k+1,nvt[(size_t)k]-1) * v_.middleRows(k+1,nvt[(size_t)k]-1);
         }
       };
       
@@ -112,12 +119,12 @@ namespace se3
     
     /* Compute U*v.
      * Nota: there is no smart way of doing U*D*v, so it is not proposed. */
-    template<typename Mat>
-    Mat & Uv(const Model & model,
-             const Data & data,
+    template<typename JointCollection, typename Mat>
+    Mat & Uv(const ModelTpl<JointCollection> & model,
+             const DataTpl<JointCollection> & data,
              const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      Mat & m_ = EIGEN_CONST_CAST(Mat,m);
       internal::Uv<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
       return m_.derived();
     }
@@ -127,11 +134,12 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct Utv
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::Utv(model,data,m_.col(k));
         }
@@ -140,35 +148,38 @@ namespace se3
       template<typename Mat>
       struct Utv<Mat,1>
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
+          typedef DataTpl<JointCollection> Data;
+          
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
 #ifndef NDEBUG
           assert(model.check(data) && "data is not consistent with model.");
 #endif
           assert(v.size() == model.nv);
-          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
           
-          const Eigen::MatrixXd & U = data.U;
+          const typename Data::MatrixXs & U = data.U;
           const std::vector<int> & nvt = data.nvSubtree_fromRow;
           
           for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
-            v_.segment(k+1,nvt[(Model::Index)k]-1) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v_[k];
-            //        v.middleRows(k+1,nvt[(Model::Index)k]-1) += U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
+            v_.segment(k+1,nvt[(size_t)k]-1) += U.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*v_[k];
+            //        v.middleRows(k+1,nvt[(size_t)k]-1) += U.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*v.row(k);
         }
       };
       
     } // namespace internal
 
     /* Compute U'*v */
-    template<typename Mat>
-    Mat & Utv(const Model & model,
-              const Data & data,
+    template<typename JointCollection, typename Mat>
+    Mat & Utv(const ModelTpl<JointCollection> & model,
+              const DataTpl<JointCollection> & data,
               const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      Mat & m_ = EIGEN_CONST_CAST(Mat,m);
       internal::Utv<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
       return m_.derived();
     }
@@ -178,11 +189,12 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct Uiv
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::Uiv(model,data,m_.col(k));
         }
@@ -191,22 +203,25 @@ namespace se3
       template<typename Mat>
       struct Uiv<Mat,1>
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
+          typedef DataTpl<JointCollection> Data;
+          
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
 #ifndef NDEBUG
           assert(model.check(data) && "data is not consistent with model.");
 #endif
           assert(v.size() == model.nv);
-          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
           
-          const Eigen::MatrixXd & U = data.U;
+          const typename Data::MatrixXs & U = data.U;
           const std::vector<int> & nvt = data.nvSubtree_fromRow;
           
-          for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
-            v_[k] -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1).dot(v_.segment(k+1,nvt[(Model::Index)k]-1));
+          for(int k=model.nv-2;k>=0;--k) // You can start from nv-2 (no child in nv-1)
+            v_[k] -= U.row(k).segment(k+1,nvt[(size_t)k]-1).dot(v_.segment(k+1,nvt[(size_t)k]-1));
         }
       };
       
@@ -215,12 +230,12 @@ namespace se3
     /* Compute U^{-1}*v 
      * Nota: there is no efficient way to compute D^{-1}U^{-1}v
      * in a single loop, so algorithm is not proposed.*/
-    template<typename Mat>
-    Mat & Uiv(const Model & model,
-              const Data & data ,
+    template<typename JointCollection, typename Mat>
+    Mat & Uiv(const ModelTpl<JointCollection> & model,
+              const DataTpl<JointCollection> & data,
               const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      Mat & m_ = EIGEN_CONST_CAST(Mat,m);
       internal::Uiv<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
       return m_.derived();
     }
@@ -230,11 +245,12 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct Utiv
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::Utiv(model,data,m_.col(k));
         }
@@ -243,31 +259,34 @@ namespace se3
       template<typename Mat>
       struct Utiv<Mat,1>
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
+          typedef DataTpl<JointCollection> Data;
+          
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
 #ifndef NDEBUG
           assert(model.check(data) && "data is not consistent with model.");
 #endif
           assert(v.size() == model.nv);
-          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
           
-          const Eigen::MatrixXd & U = data.U;
+          const typename Data::MatrixXs & U = data.U;
           const std::vector<int> & nvt = data.nvSubtree_fromRow;
           
-          for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv.
-            v_.segment(k+1,nvt[(Model::Index)k]-1) -= U.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose() * v_[k];
-          //        v.middleRows(k+1,nvt[(Model::Index)k]-1).transpose() -= v.row(k).transpose()*();
+          for(int k=0; k<model.nv-1; ++k) // You can stop one step before nv.
+            v_.segment(k+1,nvt[(size_t)k]-1) -= U.row(k).segment(k+1,nvt[(size_t)k]-1).transpose() * v_[k];
+          //        v.middleRows(k+1,nvt[(size_t)k]-1).transpose() -= v.row(k).transpose()*();
         }
       };
       
     } // namespace internal
 
-    template<typename Mat>
-    Mat & Utiv(const Model & model,
-               const Data & data ,
+    template<typename JointCollection, typename Mat>
+    Mat & Utiv(const ModelTpl<JointCollection> & model,
+               const DataTpl<JointCollection> & data,
                const Eigen::MatrixBase<Mat> & m)
     {
       Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
@@ -280,13 +299,14 @@ namespace se3
       template<typename Mat, typename MatRes, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct Mv
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & min,
                         const Eigen::MatrixBase<MatRes> & mout
                         )
         {
-          MatRes & mout_ = const_cast<Eigen::MatrixBase<MatRes> &>(mout).derived();
+          MatRes & mout_ = EIGEN_CONST_CAST(MatRes,mout);
           for(int k = 0; k < min.cols(); ++k)
             cholesky::Mv(model,data,min.col(k),mout_.col(k));
         }
@@ -295,11 +315,14 @@ namespace se3
       template<typename Mat, typename MatRes>
       struct Mv<Mat,MatRes,1>
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & vin,
                         const Eigen::MatrixBase<MatRes> & vout)
         {
+          typedef DataTpl<JointCollection> Data;
+          
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRes)
 #ifndef NDEBUG
@@ -307,26 +330,26 @@ namespace se3
 #endif
           assert(vin.size() == model.nv);
           assert(vout.size() == model.nv);
-          MatRes & vout_ = const_cast<Eigen::MatrixBase<MatRes> &>(vout).derived();
+          MatRes & vout_ = EIGEN_CONST_CAST(MatRes,vout);
           
-          const Eigen::MatrixXd & M = data.M;
+          const typename Data::MatrixXs & M = data.M;
           const std::vector<int> & nvt = data.nvSubtree_fromRow;
           
           for(int k=model.nv-1;k>=0;--k)
           {
-            vout_[k] = M.row(k).segment(k,nvt[(Model::Index)k]) * vin.segment(k,nvt[(Model::Index)k]);
-            vout_.segment(k+1,nvt[(Model::Index)k]-1) += M.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*vin[k];
-//            res.row(k) = M.row(k).segment(k,nvt[(Model::Index)k]) * v.middleRows(k,nvt[(Model::Index)k]);
-//            res.middleRows(k+1,nvt[(Model::Index)k]-1) += M.row(k).segment(k+1,nvt[(Model::Index)k]-1).transpose()*v.row(k);
+            vout_[k] = M.row(k).segment(k,nvt[(size_t)k]) * vin.segment(k,nvt[(size_t)k]);
+            vout_.segment(k+1,nvt[(size_t)k]-1) += M.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*vin[k];
+//            res.row(k) = M.row(k).segment(k,nvt[(size_t)k]) * v.middleRows(k,nvt[(size_t)k]);
+//            res.middleRows(k+1,nvt[(size_t)k]-1) += M.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*v.row(k);
           }
         }
       };
       
     } // namespace internal
     
-    template<typename Mat, typename MatRes>
-    MatRes & Mv(const Model & model,
-                const Data & data,
+    template<typename JointCollection, typename Mat, typename MatRes>
+    MatRes & Mv(const ModelTpl<JointCollection> & model,
+                const DataTpl<JointCollection> & data,
                 const Eigen::MatrixBase<Mat> & min,
                 const Eigen::MatrixBase<MatRes> & mout)
     {
@@ -335,9 +358,9 @@ namespace se3
       return mout_.derived();
     }
     
-    template<typename Mat>
-    typename EIGEN_PLAIN_TYPE(Mat) Mv(const Model & model,
-                                      const Data & data,
+    template<typename JointCollection, typename Mat>
+    typename EIGEN_PLAIN_TYPE(Mat) Mv(const ModelTpl<JointCollection> & model,
+                                      const DataTpl<JointCollection> & data,
                                       const Eigen::MatrixBase<Mat> & min)
     {
       typedef typename EIGEN_PLAIN_TYPE(Mat) ReturnType;
@@ -366,11 +389,12 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct UDUtv
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::UDUtv(model,data,m_.col(k));
         }
@@ -379,8 +403,9 @@ namespace se3
       template<typename Mat>
       struct UDUtv<Mat,1>
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
@@ -389,7 +414,7 @@ namespace se3
 #endif
           assert(v.size() == model.nv);
           
-          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
 
           cholesky::Utv(model,data,v_);
           v_.array() *= data.D.array();
@@ -399,15 +424,15 @@ namespace se3
       
     } // namespace internal
     
-    template<typename Mat>
-    Mat & UDUtv(const Model & model,
-                const Data & data,
+    template<typename JointCollection, typename Mat>
+    Mat & UDUtv(const ModelTpl<JointCollection> & model,
+                const DataTpl<JointCollection> & data,
                 const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      Mat & m_ = EIGEN_CONST_CAST(Mat,m);
       
       internal::UDUtv<Mat>::run(model,data,m_);
-      return m_.derived();
+      return m_;
     }
     
     namespace internal
@@ -415,11 +440,12 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct solve
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::solve(model,data,m_.col(k));
         }
@@ -428,8 +454,9 @@ namespace se3
       template<typename Mat>
       struct solve<Mat,1>
       {
-        static void run(const Model & model,
-                        const Data & data,
+        template<typename JointCollection>
+        static void run(const ModelTpl<JointCollection> & model,
+                        const DataTpl<JointCollection> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
@@ -437,7 +464,7 @@ namespace se3
           assert(model.check(data) && "data is not consistent with model.");
 #endif
           
-          Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
           
           cholesky::Uiv(model,data,v_);
           v_.array() *= data.Dinv.array();
@@ -447,21 +474,21 @@ namespace se3
       
     } // namespace internal
     
-    template<typename Mat>
-    Mat & solve(const Model & model,
-                const Data & data ,
+    template<typename JointCollection, typename Mat>
+    Mat & solve(const ModelTpl<JointCollection> & model,
+                const DataTpl<JointCollection> & data,
                 const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      Mat & m_ = EIGEN_CONST_CAST(Mat,m);
       internal::solve<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
       return m_.derived();
     }
     
     namespace internal
     {
-      template<typename Mat>
-      Mat & Miunit(const Model & model,
-                   const Data & data,
+      template<typename JointCollection, typename Mat>
+      Mat & Miunit(const ModelTpl<JointCollection> & model,
+                   const DataTpl<JointCollection> & data,
                    const int col,
                    const Eigen::MatrixBase<Mat> & v)
       {
@@ -473,15 +500,17 @@ namespace se3
         assert(col < model.nv);
         assert(v.rows() == model.nv);
         
-        const Eigen::MatrixXd & U = data.U;
+        typedef DataTpl<JointCollection> Data;
+        
+        const typename Data::MatrixXs & U = data.U;
         const std::vector<int> & nvt = data.nvSubtree_fromRow;
-        Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
+        Mat & v_ = EIGEN_CONST_CAST(Mat,v);
         
         const int last_col = std::min(col-1,model.nv-2); // You can start from nv-2 (no child in nv-1)
         v_[col] = 1.;
         for( int k=last_col;k>=0;--k )
         {
-          int nvt_max = std::min(col,nvt[(Model::Index)k]-1);
+          int nvt_max = std::min(col,nvt[(size_t)k]-1);
           v_[k] -= U.row(k).segment(k+1,nvt_max).dot(v_.segment(k+1,nvt_max));
         }
         
@@ -489,7 +518,7 @@ namespace se3
         
         for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv.
         {
-          int nvt_max = nvt[(Model::Index)k]-1;
+          int nvt_max = nvt[(size_t)k]-1;
           v_.segment(k+1,nvt_max) -= U.row(k).segment(k+1,nvt_max).transpose() * v_[k];
         }
         
@@ -497,9 +526,9 @@ namespace se3
       }
     }// namespace internal
     
-    template<typename Mat>
-    Mat & computeMinv(const Model & model,
-                      const Data & data,
+    template<typename JointCollection, typename Mat>
+    Mat & computeMinv(const ModelTpl<JointCollection> & model,
+                      const DataTpl<JointCollection> & data,
                       const Eigen::MatrixBase<Mat> & Minv)
     {
       assert(Minv.rows() == model.nv);
@@ -509,7 +538,7 @@ namespace se3
       assert(model.check(data) && "data is not consistent with model.");
 #endif
       
-      Mat & Minv_ = const_cast<Eigen::MatrixBase<Mat> &>(Minv).derived();
+      Mat & Minv_ = EIGEN_CONST_CAST(Mat,Minv);
       
       for(int k = 0; k < model.nv; ++k)
         internal::Miunit(model,data,k,Minv_.col(k));

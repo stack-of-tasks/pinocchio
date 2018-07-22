@@ -37,15 +37,17 @@ namespace se3
     ///
     ///       See https://en.wikipedia.org/wiki/Cholesky_decomposition for futher details.
     ///
+    /// \tparam JointCollection Collection of Joint types.
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     ///
     /// \return A reference to the upper triangular matrix \f$U\f$.
     ///
-    inline const Eigen::MatrixXd &
-    decompose(const Model & model,
-              Data & data);
+    template<typename JointCollection>
+    inline const typename DataTpl<JointCollection>::MatrixXs &
+    decompose(const ModelTpl<JointCollection> & model,
+              DataTpl<JointCollection> & data);
 
     ///
     /// \brief Return the solution \f$x\f$ of \f$ M x = y \f$ using the Cholesky decomposition stored in data given the entry \f$ y \f$. Act like solveInPlace of Eigen::LLT.
@@ -55,16 +57,21 @@ namespace se3
     ///           M(q) \ddot{q} + b(q, \dot{q}) = \tau \iff \ddot{q} = M(q)^{-1} (\tau - b(q, \dot{q}))
     ///       \f$
     ///
+    /// \tparam JointCollection Collection of Joint types.
+    ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     /// \param[inout] y The input matrix to inverse which also contains the result \f$x\f$ of the inversion.
     ///
-    template<typename Mat>
-    Mat & solve(const Model & model, const Data & data,
+    template<typename JointCollection, typename Mat>
+    Mat & solve(const ModelTpl<JointCollection> & model,
+                const DataTpl<JointCollection> & data,
                 const Eigen::MatrixBase<Mat> & y);
 
     ///
     /// \brief Performs the multiplication \f$ M v \f$ by using the sparsity pattern of the M matrix.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
@@ -72,13 +79,16 @@ namespace se3
     ///
     /// \return A the result of \f$ Mv \f$.
     ///
-    template<typename Mat>
-    typename EIGEN_PLAIN_TYPE(Mat) Mv(const Model & model,
-                                      const Data & data,
-                                      const Eigen::MatrixBase<Mat> & min);
+    template<typename JointCollection, typename Mat>
+    typename EIGEN_PLAIN_TYPE(Mat)
+    Mv(const ModelTpl<JointCollection> & model,
+       const DataTpl<JointCollection> & data,
+       const Eigen::MatrixBase<Mat> & min);
     
     ///
     /// \brief Performs the multiplication \f$ M v \f$ by using the sparsity pattern of the M matrix.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
@@ -87,9 +97,9 @@ namespace se3
     ///
     /// \return A reference of the result of \f$ Mv \f$.
     ///
-    template<typename Mat, typename MatRes>
-    MatRes & Mv(const Model & model,
-                const Data & data,
+    template<typename JointCollection, typename Mat, typename MatRes>
+    MatRes & Mv(const ModelTpl<JointCollection> & model,
+                const DataTpl<JointCollection> & data,
                 const Eigen::MatrixBase<Mat> & min,
                 const Eigen::MatrixBase<MatRes> & mout);
     
@@ -97,19 +107,23 @@ namespace se3
     ///
     /// \brief Performs the multiplication \f$ M v \f$ by using the Cholesky decomposition of M stored in data.
     ///
+    /// \tparam JointCollection Collection of Joint types.
+    ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     /// \param[inout] m The input matrix where the result of \f$ Mv \f$ is stored.
     ///
     /// \return A reference of the result of \f$ Mv \f$.
     ///
-    template<typename Mat>
-    Mat & UDUtv(const Model & model,
-                const Data & data,
+    template<typename JointCollection, typename Mat>
+    Mat & UDUtv(const ModelTpl<JointCollection> & model,
+                const DataTpl<JointCollection> & data,
                 const Eigen::MatrixBase<Mat> & m);
     
     ///
     /// \brief Perform the sparse multiplication \f$ Uv \f$ using the Cholesky decomposition stored in data and acting in place.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
@@ -117,13 +131,15 @@ namespace se3
     ///
     /// \return A reference to the result of \f$ Uv \f$ stored in v.
     ///
-    template<typename Mat>
-    Mat & Uv(const Model & model,
-             const Data & data,
+    template<typename JointCollection, typename Mat>
+    Mat & Uv(const ModelTpl<JointCollection> & model,
+             const DataTpl<JointCollection> & data,
              const Eigen::MatrixBase<Mat> & v);
     
     ///
     /// \brief Perform the sparse multiplication \f$ U^{\top}v \f$ using the Cholesky decomposition stored in data and acting in place.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
@@ -131,13 +147,15 @@ namespace se3
     ///
     /// \return A reference to the result of \f$ U^{\top}v \f$ stored in v.
     ///
-    template<typename Mat>
-    Mat & Utv(const Model & model,
-              const Data & data,
+    template<typename JointCollection, typename Mat>
+    Mat & Utv(const ModelTpl<JointCollection> & model,
+              const DataTpl<JointCollection> & data,
               const Eigen::MatrixBase<Mat> & v);
     
     ///
     /// \brief Perform the pivot inversion \f$ U^{-1}v \f$ using the Cholesky decomposition stored in data and acting in place.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
@@ -147,13 +165,15 @@ namespace se3
     ///
     /// \remark The result is similar to the code data.U.triangularView<Eigen::Upper> ().solveInPlace(v).
     ///
-    template<typename Mat>
-    Mat & Uiv(const Model & model,
-              const Data & data ,
+    template<typename JointCollection, typename Mat>
+    Mat & Uiv(const ModelTpl<JointCollection> & model,
+              const DataTpl<JointCollection> & data ,
               const Eigen::MatrixBase<Mat> & v);
     
     ///
     /// \brief Perform the pivot inversion \f$ U^{-\top}v \f$ using the Cholesky decomposition stored in data and acting in place.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
@@ -163,13 +183,15 @@ namespace se3
     ///
     /// \remark The result is similar to the code data.U.triangularView<Eigen::Upper> ().transpose().solveInPlace(v).
     ///
-    template<typename Mat>
-    Mat & Utiv(const Model & model,
-               const Data & data ,
+    template<typename JointCollection, typename Mat>
+    Mat & Utiv(const ModelTpl<JointCollection> & model,
+               const DataTpl<JointCollection> & data ,
                const Eigen::MatrixBase<Mat> & v);
     
     ///
     /// \brief Perform the sparse inversion \f$ M^{-1}v \f$ using the Cholesky decomposition stored in data and acting in place.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
@@ -177,13 +199,15 @@ namespace se3
     ///
     /// \return A reference to the result of \f$ M^{-1}v \f$ stored in v.
     ///
-    template<typename Mat>
-    Mat & solve(const Model & model,
-                const Data & data ,
+    template<typename JointCollection, typename Mat>
+    Mat & solve(const ModelTpl<JointCollection> & model,
+                const DataTpl<JointCollection> & data ,
                 const Eigen::MatrixBase<Mat> & v);
     
     ///
     /// \brief PComputes the inverse of the joint inertia matrix M from its Cholesky factorization.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
     ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
@@ -191,9 +215,9 @@ namespace se3
     ///
     /// \return A reference to the result.
     ///
-    template<typename Mat>
-    Mat & computeMinv(const Model & model,
-                      const Data & data,
+    template<typename JointCollection, typename Mat>
+    Mat & computeMinv(const ModelTpl<JointCollection> & model,
+                      const DataTpl<JointCollection> & data,
                       const Eigen::MatrixBase<Mat> & Minv);
     
   } // namespace cholesky  
