@@ -21,7 +21,6 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/aba.hpp"
-#include "pinocchio/algorithm/rnea-derivatives.hxx"
 
 namespace se3
 {
@@ -233,7 +232,18 @@ namespace se3
       
       // computes variation of inertias
       data.doYcrb[i] = data.oYcrb[i].variation(ov);
-      computeRNEADerivativesForwardStep::addForceCrossMatrix(data.oh[i],data.doYcrb[i]);
+      addForceCrossMatrix(data.oh[i],data.doYcrb[i]);
+    }
+    
+    template<typename ForceDerived, typename M6>
+    static void addForceCrossMatrix(const ForceDense<ForceDerived> & f, const Eigen::MatrixBase<M6> & mout)
+    {
+      M6 & mout_ = EIGEN_CONST_CAST(M6,mout);
+      typedef Eigen::Matrix<typename M6::Scalar,3,3,EIGEN_PLAIN_TYPE(M6)::Options> M3;
+      const M3 fx(skew(f.linear()));
+      mout_.template block<3,3>(ForceDerived::LINEAR,ForceDerived::ANGULAR) -= fx;
+      mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::LINEAR) -= fx;
+      mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::ANGULAR) -= skew(f.angular());
     }
     
   };
