@@ -28,6 +28,8 @@ namespace se3
   /// \brief Copy part of the data from <orig> to <dest>. Template parameter can be 
   /// used to select at which differential level the copy should occur.
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] orig  Data from which the values are copied.
   /// \param[out] dest  Data to which the values are copied
