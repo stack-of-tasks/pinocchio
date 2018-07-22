@@ -27,33 +27,38 @@ namespace se3
   namespace regressor
   {
     
-    inline Data::Matrix3x &
-    computeStaticRegressor(const Model & model,
-                           Data & data,
-                           const Eigen::VectorXd & q)
+    template<typename JointCollection, typename ConfigVectorType>
+    inline typename DataTpl<JointCollection>::Matrix3x &
+    computeStaticRegressor(const ModelTpl<JointCollection> & model,
+                           DataTpl<JointCollection> & data,
+                           const Eigen::MatrixBase<ConfigVectorType> & q)
     {
-#ifndef NDEBUG
       assert(model.check(data) && "data is not consistent with model.");
-#endif
       assert(q.size() == model.nq);
       
-      typedef Data::Matrix3x Matrix3x;
-      typedef SizeDepType<4>::ColsReturn<Matrix3x>::Type ColsBlock;
+      typedef typename JointCollection::Scalar Scalar;
+      typedef ModelTpl<JointCollection> Model;
+      typedef DataTpl<JointCollection> Data;
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::SE3 SE3;
+
+      typedef typename Data::Matrix3x Matrix3x;
+      typedef typename SizeDepType<4>::ColsReturn<Matrix3x>::Type ColsBlock;
       
       forwardKinematics(model,data,q);
       
       // Computes the total mass of the system
-      double mass = 0.;
-      for(int i = 1; i < model.njoints; ++i)
-        mass += model.inertias[(size_t)i].mass();
+      Scalar mass = Scalar(0);
+      for(JointIndex i = 1; i < (JointIndex)model.njoints; ++i)
+        mass += model.inertias[(JointIndex)i].mass();
       
-      const double mass_inv = 1./mass;
-      for(int i = 1; i < model.njoints; ++i)
+      const Scalar mass_inv = Scalar(1)/mass;
+      for(JointIndex i = 1; i < (JointIndex)model.njoints; ++i)
       {
-        const SE3 & oMi = data.oMi[(size_t)i];
-        ColsBlock sr_cols = data.staticRegressor.middleCols<4>((i-1)*4);
+        const SE3 & oMi = data.oMi[i];
+        ColsBlock sr_cols = data.staticRegressor.template middleCols<4>((Eigen::DenseIndex)(i-1)*4);
         sr_cols.col(0) = oMi.translation();
-        sr_cols.rightCols<3>() = oMi.rotation();
+        sr_cols.template rightCols<3>() = oMi.rotation();
         sr_cols *= mass_inv;
       }
       

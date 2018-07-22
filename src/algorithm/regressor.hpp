@@ -32,16 +32,20 @@ namespace se3
     /// \brief Computes the static regressor that links the center of mass positions of all the links
     ///        to the center of mass of the complete model according to the current configuration of the robot.
     ///
+    /// \tparam JointCollection Collection of Joint types.
+    /// \tparam ConfigVectorType Type of the joint configuration vector.
+    ///
     /// \param[in] model The model structure of the rigid body system.
     /// \param[in] data The data structure of the rigid body system.
     /// \param[in] q The joint configuration vector (dim model.nq).
     ///
     /// \return The static regressor of the system.
     ///
-    inline Data::Matrix3x &
-    computeStaticRegressor(const Model & model,
-                           Data & data,
-                           const Eigen::VectorXd & q);
+    template<typename JointCollection, typename ConfigVectorType>
+    inline typename DataTpl<JointCollection>::Matrix3x &
+    computeStaticRegressor(const ModelTpl<JointCollection> & model,
+                           DataTpl<JointCollection> & data,
+                           const Eigen::MatrixBase<ConfigVectorType> & q);
   }
   
 } // namespace se3
