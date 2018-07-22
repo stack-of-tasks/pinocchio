@@ -100,13 +100,12 @@ namespace se3
     }
   }
   
-  template<ReferenceFrame rf>
-  struct JointVelocityDerivativesBackwardStep : public fusion::JointVisitorBase< JointVelocityDerivativesBackwardStep<rf> >
+  struct JointVelocityDerivativesBackwardStep : public fusion::JointVisitorBase< JointVelocityDerivativesBackwardStep >
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &,
-    const SE3 &,
-    const Motion &,
+    const Model::JointIndex,
+    const ReferenceFrame,
     Data::Matrix6x &,
     Data::Matrix6x &
     > ArgsType;
@@ -115,14 +114,17 @@ namespace se3
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      const se3::Model & model,
                      se3::Data & data,
-                     const SE3 & oMlast,
-                     const Motion & vlast,
+                     const Model::JointIndex jointId,
+                     const ReferenceFrame rf,
                      Data::Matrix6x & v_partial_dq,
                      Data::Matrix6x & v_partial_dv)
     {
       const Model::JointIndex & i = jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
       Motion & vtmp = data.ov[0]; // Temporary variable
+      
+      const SE3 & oMlast = data.oMi[jointId];
+      const Motion & vlast = data.ov[jointId];
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
       ColsBlock Jcols = jmodel.jointCols(data.J);
@@ -158,40 +160,37 @@ namespace se3
     
   };
   
-  template<ReferenceFrame rf>
   inline void getJointVelocityDerivatives(const Model & model,
                                           Data & data,
                                           const Model::JointIndex jointId,
+                                          const ReferenceFrame rf,
                                           Data::Matrix6x & v_partial_dq,
                                           Data::Matrix6x & v_partial_dv)
   {
-    assert( v_partial_dq.cols() ==  model.nv );
-    assert( v_partial_dv.cols() ==  model.nv );
+    assert(v_partial_dq.cols() ==  model.nv);
+    assert(v_partial_dv.cols() ==  model.nv);
     assert(model.check(data) && "data is not consistent with model.");
-    
-    const SE3 & oMlast = data.oMi[jointId];
-    const Motion & vlast = data.ov[jointId];
     
     for(Model::JointIndex i = jointId; i > 0; i = model.parents[i])
     {
-      JointVelocityDerivativesBackwardStep<rf>::run(model.joints[i],
-                                                    typename JointVelocityDerivativesBackwardStep<rf>::ArgsType(model,data,
-                                                                                                                oMlast,vlast,
-                                                                                                                v_partial_dq,
-                                                                                                                v_partial_dv));
+      JointVelocityDerivativesBackwardStep::run(model.joints[i],
+                                                typename JointVelocityDerivativesBackwardStep<rf>::ArgsType(model,data,
+                                                                                                            jointId,rf,
+                                                                                                            v_partial_dq,
+                                                                                                            v_partial_dv));
     }
   
     // Set back ov[0] to a zero value
     data.ov[0].setZero();
   }
   
-  template<ReferenceFrame rf>
   struct JointAccelerationDerivativesBackwardStep
-  : public fusion::JointVisitorBase< JointAccelerationDerivativesBackwardStep<rf> >
+  : public fusion::JointVisitorBase< JointAccelerationDerivativesBackwardStep >
   {
     typedef boost::fusion::vector<const se3::Model &,
     se3::Data &,
     const Model::JointIndex,
+    const ReferenceFrame,
     Data::Matrix6x &,
     Data::Matrix6x &,
     Data::Matrix6x &,
@@ -203,6 +202,7 @@ namespace se3
                      const se3::Model & model,
                      se3::Data & data,
                      const Model::JointIndex jointId,
+                     const ReferenceFrame rf,
                      Data::Matrix6x & v_partial_dq,
                      Data::Matrix6x & a_partial_dq,
                      Data::Matrix6x & a_partial_dv,
@@ -291,30 +291,31 @@ namespace se3
     
   };
   
-  template<ReferenceFrame rf>
   inline void getJointAccelerationDerivatives(const Model & model,
                                               Data & data,
                                               const Model::JointIndex jointId,
+                                              const ReferenceFrame rf,
                                               Data::Matrix6x & v_partial_dq,
                                               Data::Matrix6x & a_partial_dq,
                                               Data::Matrix6x & a_partial_dv,
                                               Data::Matrix6x & a_partial_da)
   {
-    assert( v_partial_dq.cols() ==  model.nv );
-    assert( a_partial_dq.cols() ==  model.nv );
-    assert( a_partial_dv.cols() ==  model.nv );
-    assert( a_partial_da.cols() ==  model.nv );
+    assert(v_partial_dq.cols() ==  model.nv);
+    assert(a_partial_dq.cols() ==  model.nv);
+    assert(a_partial_dv.cols() ==  model.nv);
+    assert(a_partial_da.cols() ==  model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     for(Model::JointIndex i = jointId; i > 0; i = model.parents[i])
     {
-      JointAccelerationDerivativesBackwardStep<rf>::run(model.joints[i],
-                                                        typename JointAccelerationDerivativesBackwardStep<rf>::ArgsType(model,data,
-                                                                                                                        jointId,
-                                                                                                                        v_partial_dq,
-                                                                                                                        a_partial_dq,
-                                                                                                                        a_partial_dv,
-                                                                                                                        a_partial_da));
+      JointAccelerationDerivativesBackwardStep::run(model.joints[i],
+                                                    typename JointAccelerationDerivativesBackwardStep<rf>::ArgsType(model,data,
+                                                                                                                    jointId,
+                                                                                                                    rf,
+                                                                                                                    v_partial_dq,
+                                                                                                                    a_partial_dq,
+                                                                                                                    a_partial_dv,
+                                                                                                                    a_partial_da));
       
     }
     

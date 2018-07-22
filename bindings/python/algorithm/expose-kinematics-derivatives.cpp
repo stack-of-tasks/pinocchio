@@ -36,14 +36,8 @@ namespace se3
       Matrix6x partial_dq(Matrix6x::Zero(6,model.nv));
       Matrix6x partial_dv(Matrix6x::Zero(6,model.nv));
       
-      if(rf == WORLD)
-        getJointVelocityDerivatives<WORLD>(model,data,jointId,
-                                           partial_dq,partial_dv);
-      else if(rf == LOCAL)
-        getJointVelocityDerivatives<LOCAL>(model,data,jointId,
-                                           partial_dq,partial_dv);
-      else
-        assert(false && "must never happened - wrong Reference Frame input");
+      getJointVelocityDerivatives(model,data,jointId,rf,
+                                  partial_dq,partial_dv);
       
       return bp::make_tuple(partial_dq,partial_dv);
     }
@@ -60,17 +54,10 @@ namespace se3
       Matrix6x a_partial_dv(Matrix6x::Zero(6,model.nv));
       Matrix6x a_partial_da(Matrix6x::Zero(6,model.nv));
       
-      if(rf == WORLD)
-        getJointAccelerationDerivatives<WORLD>(model,data,jointId,
-                                               v_partial_dq,a_partial_dq,
-                                               a_partial_dv,a_partial_da);
-      else if(rf == LOCAL)
-        getJointAccelerationDerivatives<LOCAL>(model,data,jointId,
-                                               v_partial_dq,a_partial_dq,
-                                               a_partial_dv,a_partial_da);
-      else
-        assert(false && "must never happened - wrong Reference Frame input");
-      
+      getJointAccelerationDerivatives(model,data,jointId,rf,
+                                      v_partial_dq,a_partial_dq,
+                                      a_partial_dv,a_partial_da);
+
       return bp::make_tuple(v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
     }
     

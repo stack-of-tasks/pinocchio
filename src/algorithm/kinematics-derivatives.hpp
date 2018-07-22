@@ -47,18 +47,16 @@ namespace se3
   ///        the joint configuration and velocity.
   ///        You must first call computForwardKinematicsDerivatives before calling this function.
   ///
-  /// \tparam rf Reference frame in which the Jacobian is expressed.
-  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] jointId Index of the joint in model.
+  /// \param[in] rf Reference frame in which the Jacobian is expressed.
   /// \param[out] partial_dq Partial derivative of the joint velociy w.r.t. \f$ q \f$.
   /// \param[out] partial_dq Partial derivative of the joint velociy w.r.t. \f$ \dot{q} \f$.
   ///
-  template<ReferenceFrame rf>
   inline void getJointVelocityDerivatives(const Model & model,
                                           Data & data,
                                           const Model::JointIndex jointId,
+                                          const ReferenceFrame rf,
                                           Data::Matrix6x & v_partial_dq,
                                           Data::Matrix6x & v_partial_dv);
   
@@ -68,20 +66,19 @@ namespace se3
   ///        You must first call computForwardKinematicsDerivatives before calling this function.
   ///        It is important to notice that a direct outcome (for free) of this algo is v_partial_dq and v_partial_dv which is equal to a_partial_da.
   ///
-  /// \tparam rf Reference frame in which the Jacobian is expressed.
-  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] jointId Index of the joint in model.
+  /// \param[in] rf Reference frame in which the Jacobian is expressed.
   /// \param[out] v_partial_dq Partial derivative of the joint spatial velocity w.r.t. \f$ q \f$.
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ q \f$.
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{q} \f$.
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \ddot{q} \f$.
   ///
-  template<ReferenceFrame rf>
   inline void getJointAccelerationDerivatives(const Model & model,
                                               Data & data,
                                               const Model::JointIndex jointId,
+                                              const ReferenceFrame rf,
                                               Data::Matrix6x & v_partial_dq,
                                               Data::Matrix6x & a_partial_dq,
                                               Data::Matrix6x & a_partial_dv,
