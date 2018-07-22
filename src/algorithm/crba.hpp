@@ -33,16 +33,20 @@ namespace se3
   ///       in the stricly lower tringular part with
   ///       data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   ///
   /// \return The joint space inertia matrix with only the upper triangular part computed.
   ///
-  inline const Eigen::MatrixXd &
-  crba(const Model & model,
-       Data & data,
-       const Eigen::VectorXd & q);
+  template<typename JointCollection, typename ConfigVectorType>
+  inline const typename DataTpl<JointCollection>::MatrixXs &
+  crba(const ModelTpl<JointCollection> & model,
+       DataTpl<JointCollection> & data,
+       const Eigen::MatrixBase<ConfigVectorType> & q);
   
   ///
   /// \brief Computes the upper triangular part of the joint space inertia matrix M by
@@ -53,6 +57,9 @@ namespace se3
   ///       in the stricly lower tringular part with
   ///       data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
   /// \note A direct outcome of this algorithm is the computation of the centroidal momemntum matrix (data.Ag)
   ///       and the joint jacobian matrix (data.J).
   ///
@@ -62,10 +69,11 @@ namespace se3
   ///
   /// \return The joint space inertia matrix with only the upper triangular part computed.
   ///
-  inline const Eigen::MatrixXd &
-  crbaMinimal(const Model & model,
-              Data & data,
-              const Eigen::VectorXd & q);
+  template<typename JointCollection, typename ConfigVectorType>
+  inline const typename DataTpl<JointCollection>::MatrixXs &
+  crbaMinimal(const ModelTpl<JointCollection> & model,
+              DataTpl<JointCollection> & data,
+              const Eigen::MatrixBase<ConfigVectorType> & q);
 
   DEFINE_ALGO_CHECKER(CRBA);
 

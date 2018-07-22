@@ -27,21 +27,28 @@
 
 namespace se3 
 {
-  struct CrbaForwardStep : public fusion::JointVisitorBase<CrbaForwardStep>
+  template<typename JointCollection, typename ConfigVectorType>
+  struct CrbaForwardStep
+  : public fusion::JointVisitorBase< CrbaForwardStep<JointCollection,ConfigVectorType> >
   {
-    typedef boost::fusion::vector<const se3::Model&,
-                                  se3::Data &,
-                                  const Eigen::VectorXd &
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &
                                   > ArgsType;
 
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-		     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-		     const se3::Model & model,
-		     se3::Data & data,
-		     const Eigen::VectorXd & q)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q)
     {
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
       jmodel.calc(jdata.derived(),q);
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
@@ -50,10 +57,15 @@ namespace se3
 
   };
 
-  struct CrbaBackwardStep : public fusion::JointVisitorBase<CrbaBackwardStep>
+  template<typename JointCollection>
+  struct CrbaBackwardStep
+  : public fusion::JointVisitorBase< CrbaBackwardStep<JointCollection> >
   {
-    typedef boost::fusion::vector<const Model&,
-				  Data&>  ArgsType;
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+				                          Data &>  ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
@@ -68,8 +80,10 @@ namespace se3
        *   Yli += liXi Yi
        *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
        */
-      typedef Data::Matrix6x::ColsBlockXpr Block;
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Matrix6x::ColsBlockXpr Block;
+      const JointIndex & i = jmodel.id();
 
       /* F[1:6,i] = Y*S */
       //data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
@@ -79,7 +93,7 @@ namespace se3
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]) 
       = jdata.S().transpose()*data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
 
-      const Model::JointIndex & parent   = model.parents[i];
+      const JointIndex & parent = model.parents[i];
       if(parent>0)
       {
         /*   Yli += liXi Yi */
@@ -95,26 +109,33 @@ namespace se3
     }
   };
   
-  struct CrbaForwardStepMinimal : public fusion::JointVisitorBase<CrbaForwardStepMinimal>
+  template<typename JointCollection, typename ConfigVectorType>
+  struct CrbaForwardStepMinimal
+  : public fusion::JointVisitorBase< CrbaForwardStepMinimal<JointCollection,ConfigVectorType> >
   {
-    typedef boost::fusion::vector<const se3::Model&,
-    se3::Data &,
-    const Eigen::VectorXd &
-    > ArgsType;
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &
+                                  > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q)
     {
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
       jmodel.calc(jdata.derived(),q);
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       
-      const Model::JointIndex & parent = model.parents[i];
+      const JointIndex & parent = model.parents[i];
       if (parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
       else data.oMi[i] = data.liMi[i];
       
@@ -125,10 +146,15 @@ namespace se3
     
   };
   
-  struct CrbaBackwardStepMinimal : public fusion::JointVisitorBase<CrbaBackwardStepMinimal>
+  template<typename JointCollection>
+  struct CrbaBackwardStepMinimal
+  : public fusion::JointVisitorBase< CrbaBackwardStepMinimal<JointCollection> >
   {
-    typedef boost::fusion::vector<const Model&,
-    Data&>  ArgsType;
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &>  ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
@@ -136,12 +162,13 @@ namespace se3
                      const Model & model,
                      Data & data)
     {
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+      const JointIndex & i = jmodel.id();
       
       /* F[1:6,i] = Y*S */
       jdata.U() = data.Ycrb[i] * jdata.S();
-      ColsBlock jF = data.Ag.middleCols<JointModel::NV>(jmodel.idx_v());
+      ColsBlock jF = data.Ag.template middleCols<JointModel::NV>(jmodel.idx_v());
       //        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
       
       forceSet::se3Action(data.oMi[i],jdata.U(),jF);
@@ -150,58 +177,75 @@ namespace se3
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = jmodel.jointCols(data.J).transpose()*data.Ag.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
-      const Model::JointIndex & parent = model.parents[i];
+      const JointIndex & parent = model.parents[i];
       /*   Yli += liXi Yi */
       data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
     }
   };
 
-  inline const Eigen::MatrixXd&
-  crba(const Model & model, Data& data,
-       const Eigen::VectorXd & q)
+  
+  template<typename JointCollection, typename ConfigVectorType>
+  inline const typename DataTpl<JointCollection>::MatrixXs &
+  crba(const ModelTpl<JointCollection> & model,
+       DataTpl<JointCollection> & data,
+       const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq && "The configuration vector is not of right size");
     
-    for( Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i )
+    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    
+    typedef CrbaForwardStep<JointCollection,ConfigVectorType> Pass1;
+    for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
-      CrbaForwardStep::run(model.joints[i],data.joints[i],
-                           CrbaForwardStep::ArgsType(model,data,q));
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived()));
     }
     
-    for( Model::JointIndex i=(Model::JointIndex)(model.njoints-1);i>0;--i )
+    typedef CrbaBackwardStep<JointCollection> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
-      CrbaBackwardStep::run(model.joints[i],data.joints[i],
-                            CrbaBackwardStep::ArgsType(model,data));
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
     }
 
     return data.M;
   }
   
-  inline const Eigen::MatrixXd &
-  crbaMinimal(const Model & model, Data & data,
-              const Eigen::VectorXd & q)
+  template<typename JointCollection, typename ConfigVectorType>
+  inline const typename DataTpl<JointCollection>::MatrixXs &
+  crbaMinimal(const ModelTpl<JointCollection> & model,
+              DataTpl<JointCollection> & data,
+              const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq && "The configuration vector is not of right size");
     
-    for( Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i )
+    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    
+    typedef CrbaForwardStepMinimal<JointCollection,ConfigVectorType> Pass1;
+    for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
-      CrbaForwardStepMinimal::run(model.joints[i],data.joints[i],
-                                  CrbaForwardStepMinimal::ArgsType(model,data,q));
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived()));
     }
     
-    for( Model::JointIndex i=(Model::JointIndex)(model.njoints-1);i>0;--i )
+    typedef CrbaBackwardStepMinimal<JointCollection> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
-      CrbaBackwardStepMinimal::run(model.joints[i],data.joints[i],
-                                   CrbaBackwardStepMinimal::ArgsType(model,data));
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
     }
     
     // Retrieve the Centroidal Momemtum map
-    typedef Eigen::Block<Data::Matrix6x,3,-1> Block3x;
+    typedef DataTpl<JointCollection> Data;
+    typedef typename Data::Force Force;
+    typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
     
     data.com[0] = data.Ycrb[0].lever();
     
-    const Block3x Ag_lin = data.Ag.middleRows<3>(Force::LINEAR);
-    Block3x Ag_ang = data.Ag.middleRows<3>(Force::ANGULAR);
+    const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
+    Block3x Ag_ang = data.Ag.template middleRows<3>(Force::ANGULAR);
     for(long i = 0; i<model.nv; ++i)
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
     
