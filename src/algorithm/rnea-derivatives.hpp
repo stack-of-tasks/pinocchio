@@ -28,6 +28,10 @@ namespace se3
   /// \brief Computes the derivative of the generalized gravity contribution
   ///        with respect to the joint configuration.
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam ReturnMatrixType Type of the matrix containing the partial derivative of the gravity vector with respect to the joint configuration vector.
+  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -37,14 +41,24 @@ namespace se3
   ///
   /// \sa se3::computeGeneralizedGravity
   ///
+  template<typename JointCollection, typename ConfigVectorType, typename ReturnMatrixType>
   inline void
-  computeGeneralizedGravityDerivatives(const Model & model, Data & data,
-                                       const Eigen::VectorXd & q,
-                                       Eigen::MatrixXd & gravity_partial_dq);
+  computeGeneralizedGravityDerivatives(const ModelTpl<JointCollection> & model,
+                                       DataTpl<JointCollection> & data,
+                                       const Eigen::MatrixBase<ConfigVectorType> & q,
+                                       const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq);
   
   ///
   /// \brief Computes the derivatives of the Recursive Newton Euler Algorithms
   ///        with respect to the joint configuration and the joint velocity.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint acceleration vector.
+  /// \tparam MatrixType1 Type of the matrix containing the partial derivative with respect to the joint configuration vector.
+  /// \tparam MatrixType2 Type of the matrix containing the partial derivative with respect to the joint velocity vector.
+  /// \tparam MatrixType3 Type of the matrix containing the partial derivative with respect to the joint acceleration vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -60,18 +74,26 @@ namespace se3
   ///
   /// \sa se3::rnea
   ///
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  typename MatrixType1, typename MatrixType2, typename MatrixType3>
   inline void
-  computeRNEADerivatives(const Model & model, Data & data,
-                         const Eigen::VectorXd & q,
-                         const Eigen::VectorXd & v,
-                         const Eigen::VectorXd & a,
-                         Eigen::MatrixXd & rnea_partial_dq,
-                         Eigen::MatrixXd & rnea_partial_dv,
-                         Eigen::MatrixXd & rnea_partial_da);
+  computeRNEADerivatives(const ModelTpl<JointCollection> & model,
+                         DataTpl<JointCollection> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                         const Eigen::MatrixBase<TangentVectorType2> & a,
+                         const Eigen::MatrixBase<MatrixType1> & rnea_partial_dq,
+                         const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
+                         const Eigen::MatrixBase<MatrixType3> & rnea_partial_da);
   
   ///
   /// \brief Computes the derivatives of the Recursive Newton Euler Algorithms
   ///        with respect to the joint configuration and the joint velocity.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint acceleration vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -85,11 +107,13 @@ namespace se3
   ///
   /// \sa se3::rnea, se3::crba, se3::cholesky::decompose
   ///
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   inline void
-  computeRNEADerivatives(const Model & model, Data & data,
-                         const Eigen::VectorXd & q,
-                         const Eigen::VectorXd & v,
-                         const Eigen::VectorXd & a)
+  computeRNEADerivatives(const ModelTpl<JointCollection> & model,
+                         DataTpl<JointCollection> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                         const Eigen::MatrixBase<TangentVectorType2> & a)
   {
     computeRNEADerivatives(model,data,q,v,a,
                            data.dtau_dq, data.dtau_dv, data.M);

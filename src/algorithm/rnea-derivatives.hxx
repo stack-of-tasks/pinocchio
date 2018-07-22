@@ -24,25 +24,33 @@
 namespace se3
 {
   
-  struct computeGeneralizedGravityDerivativeForwardStep : public fusion::JointVisitorBase<computeGeneralizedGravityDerivativeForwardStep>
+  template<typename JointCollection, typename ConfigVectorType>
+  struct ComputeGeneralizedGravityDerivativeForwardStep
+  : public fusion::JointVisitorBase< ComputeGeneralizedGravityDerivativeForwardStep<JointCollection,ConfigVectorType> >
   {
-    typedef boost::fusion::vector< const se3::Model &,
-    se3::Data &,
-    const Eigen::VectorXd &
-    > ArgsType;
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &
+                                  > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
-      Motion & oa = data.a_gf[0];
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Motion Motion;
       
-      jmodel.calc(jdata.derived(),q);
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      const Motion & oa = data.a_gf[0];
+      
+      jmodel.calc(jdata.derived(),q.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       
@@ -54,35 +62,43 @@ namespace se3
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       data.of[i].setZero();
       
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
       J_cols = data.oMi[i].act(jdata.S());
       motionSet::motionAction(oa,J_cols,dAdq_cols);
-
     }
     
   };
   
-  struct computeGeneralizedGravityDerivativeBackwardStep : public fusion::JointVisitorBase<computeGeneralizedGravityDerivativeBackwardStep>
+  template<typename JointCollection, typename ReturnMatrixType>
+  struct ComputeGeneralizedGravityDerivativeBackwardStep
+  : public fusion::JointVisitorBase< ComputeGeneralizedGravityDerivativeBackwardStep<JointCollection,ReturnMatrixType> >
   {
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
     typedef boost::fusion::vector<const Model &,
-    Data &,
-    Eigen::MatrixXd &
-    >  ArgsType;
+                                  Data &,
+                                  ReturnMatrixType &
+                                  > ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      const Model & model,
                      Data & data,
-                     Eigen::MatrixXd & gravity_partial_dq)
+                     const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
-      Data::RowMatrix6 & M6tmpR = data.M6tmpR;
-      Motion & oa = data.a_gf[0];
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Motion Motion;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      
+      typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+      const Motion & oa = data.a_gf[0];
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
 
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
@@ -90,15 +106,16 @@ namespace se3
       
       motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
       
-      gravity_partial_dq.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      ReturnMatrixType & gravity_partial_dq_ = EIGEN_CONST_CAST(ReturnMatrixType,gravity_partial_dq);
+      gravity_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       data.of[i] = data.oYcrb[i] * oa;
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
       
       lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
-      for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
-        gravity_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
+      for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+        gravity_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
       
       jmodel.jointVelocitySelector(data.g).noalias() = J_cols.transpose()*data.of[i].toVector();
       if(parent>0)
@@ -108,60 +125,75 @@ namespace se3
     }
     
     template<typename Min, typename Mout>
-    static void lhsInertiaMult(const Inertia & Y,
+    static void lhsInertiaMult(const typename Data::Inertia & Y,
                                const Eigen::MatrixBase<Min> & J,
                                const Eigen::MatrixBase<Mout> & F)
     {
-      Mout & F_ = const_cast<Mout &>(F.derived());
+      Mout & F_ = EIGEN_CONST_CAST(Mout,F);
       motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
   
+  template<typename JointCollection, typename ConfigVectorType, typename ReturnMatrixType>
   inline void
-  computeGeneralizedGravityDerivatives(const Model & model, Data & data,
-                                       const Eigen::VectorXd & q,
-                                       Eigen::MatrixXd & gravity_partial_dq)
+  computeGeneralizedGravityDerivatives(const ModelTpl<JointCollection> & model,
+                                       DataTpl<JointCollection> & data,
+                                       const Eigen::MatrixBase<ConfigVectorType> & q,
+                                       const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
   {
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(gravity_partial_dq.cols() == model.nv);
     assert(gravity_partial_dq.rows() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
     data.a_gf[0] = -model.gravity;
     
-    for(Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i)
+    typedef ComputeGeneralizedGravityDerivativeForwardStep<JointCollection,ConfigVectorType> Pass1;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      computeGeneralizedGravityDerivativeForwardStep::run(model.joints[i],data.joints[i],
-                                                          computeGeneralizedGravityDerivativeForwardStep::ArgsType(model,data,q));
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q));
     }
     
-    for(size_t i=(size_t) (model.njoints-1);i>0;--i)
+    typedef ComputeGeneralizedGravityDerivativeBackwardStep<JointCollection,ReturnMatrixType> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
-      computeGeneralizedGravityDerivativeBackwardStep::run(model.joints[i],
-                                                           computeGeneralizedGravityDerivativeBackwardStep::ArgsType(model,data,gravity_partial_dq));
+      Pass2::run(model.joints[i],
+                 typename Pass2::ArgsType(model,data,EIGEN_CONST_CAST(ReturnMatrixType,gravity_partial_dq)));
     }
   }
   
-  struct computeRNEADerivativesForwardStep : public fusion::JointVisitorBase<computeRNEADerivativesForwardStep>
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  struct ComputeRNEADerivativesForwardStep
+  : public fusion::JointVisitorBase< ComputeRNEADerivativesForwardStep<JointCollection,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
   {
-    typedef boost::fusion::vector< const se3::Model &,
-    se3::Data &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &
-    > ArgsType;
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType1 &,
+                                  const TangentVectorType2 &
+                                  > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v,
-                     const Eigen::VectorXd & a)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType1> & v,
+                     const Eigen::MatrixBase<TangentVectorType2> & a)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Motion Motion;
+
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
       Motion & ov = data.ov[i];
       Motion & oa = data.oa[i];
       
@@ -192,7 +224,7 @@ namespace se3
       data.oh[i] = data.oYcrb[i] * ov;
       data.of[i] = data.oYcrb[i] * oa + ov.cross(data.oh[i]);
       
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
       ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
@@ -224,35 +256,42 @@ namespace se3
       M6 & mout_ = const_cast<Eigen::MatrixBase<M6> &>(mout).derived();
       typedef Eigen::Matrix<typename M6::Scalar,3,3,EIGEN_PLAIN_TYPE(M6)::Options> M3;
       const M3 fx(skew(f.linear()));
-      mout_.template block<3,3>(Force::LINEAR,Force::ANGULAR) -= fx;
-      mout_.template block<3,3>(Force::ANGULAR,Force::LINEAR) -= fx;
-      mout_.template block<3,3>(Force::ANGULAR,Force::ANGULAR) -= skew(f.angular());
+      mout_.template block<3,3>(ForceDerived::LINEAR,ForceDerived::ANGULAR) -= fx;
+      mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::LINEAR) -= fx;
+      mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::ANGULAR) -= skew(f.angular());
     }
     
   };
   
-  struct computeRNEADerivativesBackwardStep : public fusion::JointVisitorBase<computeRNEADerivativesBackwardStep>
+  template<typename JointCollection, typename MatrixType1, typename MatrixType2, typename MatrixType3>
+  struct ComputeRNEADerivativesBackwardStep
+  : public fusion::JointVisitorBase<ComputeRNEADerivativesBackwardStep<JointCollection,MatrixType1,MatrixType2,MatrixType3> >
   {
+    typedef ModelTpl<JointCollection> Model;
+    typedef DataTpl<JointCollection> Data;
+    
     typedef boost::fusion::vector<const Model &,
-    Data &,
-    Eigen::MatrixXd &,
-    Eigen::MatrixXd &,
-    Eigen::MatrixXd &
-    >  ArgsType;
+                                  Data &,
+                                  const MatrixType1 &,
+                                  const MatrixType2 &,
+                                  const MatrixType3 &
+                                  > ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      const Model & model,
                      Data & data,
-                     Eigen::MatrixXd & rnea_partial_dq,
-                     Eigen::MatrixXd & rnea_partial_dv,
-                     Eigen::MatrixXd & rnea_partial_da)
+                     const Eigen::MatrixBase<MatrixType1> & rnea_partial_dq,
+                     const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
+                     const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
-      Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
@@ -262,19 +301,23 @@ namespace se3
       ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
       ColsBlock dFda_cols = jmodel.jointCols(data.dFda);
       
+      MatrixType1 & rnea_partial_dq_ = EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq);
+      MatrixType2 & rnea_partial_dv_ = EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv);
+      MatrixType3 & rnea_partial_da_ = EIGEN_CONST_CAST(MatrixType3,rnea_partial_da);
+      
       // tau
       jmodel.jointVelocitySelector(data.tau).noalias() = J_cols.transpose()*data.of[i].toVector();
       
       // dtau/da similar to data.M
       motionSet::inertiaAction(data.oYcrb[i],J_cols,dFda_cols);
-      rnea_partial_da.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      rnea_partial_da_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFda.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       // dtau/dv
       motionSet::inertiaAction(data.oYcrb[i],dAdv_cols,dFdv_cols);
       dFdv_cols += data.doYcrb[i] * J_cols;
       
-      rnea_partial_dv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       // dtau/dq
@@ -282,7 +325,7 @@ namespace se3
       if(parent>0)
         dFdq_cols += data.doYcrb[i] * dVdq_cols;
 
-      rnea_partial_dq.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      rnea_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
@@ -290,16 +333,16 @@ namespace se3
       if(parent > 0)
       {
         lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
-        for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
-          rnea_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
-        for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
-          rnea_partial_dv.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdv.col(j);
+        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+          rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
+        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+          rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdv.col(j);
         
         M6tmpR.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.doYcrb[i];
-        for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
-          rnea_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.dVdq.col(j);
-        for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
-          rnea_partial_dv.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
+        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+          rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.dVdq.col(j);
+        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+          rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
       }
       
       if(parent>0)
@@ -311,23 +354,26 @@ namespace se3
     }
     
     template<typename Min, typename Mout>
-    static void lhsInertiaMult(const Inertia & Y,
+    static void lhsInertiaMult(const typename Data::Inertia & Y,
                                const Eigen::MatrixBase<Min> & J,
                                const Eigen::MatrixBase<Mout> & F)
     {
-      Mout & F_ = const_cast<Mout &>(F.derived());
+      Mout & F_ = EIGEN_CONST_CAST(Mout,F);
       motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
   
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  typename MatrixType1, typename MatrixType2, typename MatrixType3>
   inline void
-  computeRNEADerivatives(const Model & model, Data & data,
-                         const Eigen::VectorXd & q,
-                         const Eigen::VectorXd & v,
-                         const Eigen::VectorXd & a,
-                         Eigen::MatrixXd & rnea_partial_dq,
-                         Eigen::MatrixXd & rnea_partial_dv,
-                         Eigen::MatrixXd & rnea_partial_da)
+  computeRNEADerivatives(const ModelTpl<JointCollection> & model,
+                         DataTpl<JointCollection> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                         const Eigen::MatrixBase<TangentVectorType2> & a,
+                         const Eigen::MatrixBase<MatrixType1> & rnea_partial_dq,
+                         const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
+                         const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
   {
     assert(q.size() == model.nq && "The joint configuration vector is not of right size");
     assert(v.size() == model.nv && "The joint velocity vector is not of right size");
@@ -340,18 +386,26 @@ namespace se3
     assert(rnea_partial_da.rows() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
     data.oa[0] = -model.gravity;
     
-    for(Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i)
+    typedef ComputeRNEADerivativesForwardStep<JointCollection,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      computeRNEADerivativesForwardStep::run(model.joints[i],data.joints[i],
-                                             computeRNEADerivativesForwardStep::ArgsType(model,data,q,v,a));
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived(),a.derived()));
     }
     
-    for(size_t i=(size_t) (model.njoints-1);i>0;--i)
+    typedef ComputeRNEADerivativesBackwardStep<JointCollection,MatrixType1,MatrixType2,MatrixType3> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
-      computeRNEADerivativesBackwardStep::run(model.joints[i],
-                                              computeRNEADerivativesBackwardStep::ArgsType(model,data,rnea_partial_dq,rnea_partial_dv,rnea_partial_da));
+      Pass2::run(model.joints[i],
+                 typename Pass2::ArgsType(model,data,
+                                          EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq),
+                                          EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv),
+                                          EIGEN_CONST_CAST(MatrixType3,rnea_partial_da)));
     }
   }
   
