@@ -30,11 +30,15 @@ namespace se3
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] orig  Data from which the values are copied.
-  /// \param[in] dest  Data to which the values are copied
+  /// \param[out] dest  Data to which the values are copied
   /// \param[in] LEVEL if =0, copy oMi. If =1, also copy v. If =2, also copy a, a_gf and f.
   ///
+  template<typename JointCollection>
   inline void
-  copy (const Model& model, const Data & origin, Data & dest , int LEVEL);
+  copy(const ModelTpl<JointCollection> & model,
+       const DataTpl<JointCollection> & origin,
+       DataTpl<JointCollection> & dest,
+       int LEVEL);
 
 } // namespace se3 
 
@@ -44,10 +48,17 @@ namespace se3
 
 namespace se3
 {
+  template<typename JointCollection>
   inline void
-  copy (const Model& model, const Data & origin, Data & dest, int LEVEL )
+  copy(const ModelTpl<JointCollection> & model,
+       const DataTpl<JointCollection> & origin,
+       DataTpl<JointCollection> & dest,
+       int LEVEL)
   {
-    for( se3::JointIndex jid=1; int(jid)<model.njoints; ++ jid )
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    for(JointIndex jid=1; jid<(JointIndex)model.njoints; ++jid)
       {
         assert(LEVEL>=0);
 
