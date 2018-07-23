@@ -107,6 +107,7 @@ namespace se3
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     assert(a.size() == model.nv && "The acceleration vector is not of right size");
     
+    typedef ModelTpl<JointCollection> Model;
     typedef typename Model::JointIndex JointIndex;
     
     data.v[0].setZero();
@@ -144,7 +145,8 @@ namespace se3
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     assert(a.size() == model.nv && "The acceleration vector is not of right size");
     
-    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
     
     data.v[0].setZero();
     data.a_gf[0] = -model.gravity;
@@ -247,7 +249,8 @@ namespace se3
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     
-    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
     
     data.v[0].setZero ();
     data.a_gf[0] = -model.gravity;
@@ -336,7 +339,8 @@ namespace se3
     assert(model.check(data) && "data is not consistent with model.");
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     
-    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
     
     data.a_gf[0] = -model.gravity;
     
@@ -481,7 +485,8 @@ namespace se3
     assert(q.size() == model.nq);
     assert(v.size() == model.nv);
     
-    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
     
     typedef CoriolisMatrixForwardStep<JointCollection,ConfigVectorType,TangentVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
