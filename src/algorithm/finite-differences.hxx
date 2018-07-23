@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,7 +19,6 @@
 #define __se3_finite_differences_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
-#include <boost/foreach.hpp>
 
 /// @cond DEV
 
@@ -27,31 +26,40 @@ namespace se3
 {
   namespace details
   {
-    struct FinitDiffEpsVisitor : public fusion::JointVisitorBase<FinitDiffEpsVisitor>
+    template<typename JointCollection, typename TangentVectorType>
+    struct FinitDiffEpsVisitor
+    : public fusion::JointVisitorBase< FinitDiffEpsVisitor<JointCollection,TangentVectorType> >
     {
-      typedef boost::fusion::vector<
-      Eigen::VectorXd &
-      > ArgsType;
+      typedef boost::fusion::vector< TangentVectorType & > ArgsType;
       
       template<typename JointModel>
-      static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                       Eigen::VectorXd & fd_increment)
+      static void algo(const JointModelBase<JointModel> & jmodel,
+                       const Eigen::MatrixBase<TangentVectorType> & fd_increment)
       {
-        jmodel.jointVelocitySelector(fd_increment).fill(jmodel.finiteDifferenceIncrement());
+        jmodel.jointVelocitySelector(EIGEN_CONST_CAST(TangentVectorType,fd_increment))
+        .fill(jmodel.finiteDifferenceIncrement());
       }
       
     }; // struct FinitDiffEpsVisitor
     
   } // namespace details
   
-  inline Eigen::VectorXd finiteDifferenceIncrement(const Model & model)
+  template<typename JointCollection>
+  inline typename ModelTpl<JointCollection>::TangentVectorType
+  finiteDifferenceIncrement(const ModelTpl<JointCollection> & model)
   {
     using namespace se3::details;
-    Eigen::VectorXd fd_increment(model.nv);
-    for(std::size_t k = 1; k < model.joints.size(); ++k)
+    
+    typedef ModelTpl<JointCollection> Model;
+    typedef typename Model::JointIndex JointIndex;
+    typedef typename Model::TangentVectorType ReturnType;
+    
+    ReturnType fd_increment(model.nv);
+    typedef FinitDiffEpsVisitor<JointCollection,ReturnType> Algo;
+    typename Algo::ArgsType arg(fd_increment);
+    for(JointIndex k = 1; k < (JointIndex)model.njoints; ++k)
     {
-      const JointModel & jmodel = model.joints[k];
-      FinitDiffEpsVisitor::run(jmodel,FinitDiffEpsVisitor::ArgsType(fd_increment));
+      Algo::run(model.joints[k],arg);
     }
     
     return fd_increment;

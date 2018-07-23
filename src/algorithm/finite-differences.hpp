@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -25,11 +25,15 @@ namespace se3 {
   ///
   /// \brief Computes the finite difference increments for each degree of freedom according to the current joint configuration.
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  ///
   /// \input[in] model The model of the kinematic tree.
   ///
   /// \returns The finite difference increments for each degree of freedom.
   ///
-  inline Eigen::VectorXd finiteDifferenceIncrement(const Model & model);
+  template<typename JointCollection>
+  inline typename ModelTpl<JointCollection>::TangentVectorType
+  finiteDifferenceIncrement(const ModelTpl<JointCollection> & model);
 }
 
 /* --- Details -------------------------------------------------------------------- */
