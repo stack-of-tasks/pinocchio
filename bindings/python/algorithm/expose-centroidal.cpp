@@ -25,15 +25,18 @@ namespace se3
     
     void exposeCentroidal()
     {
+      using namespace Eigen;
       
-      bp::def("ccrba",ccrba,
+      bp::def("ccrba",
+              &ccrba<JointCollectionDefault,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),
               "Computes the centroidal mapping, the centroidal momentum and the Centroidal Composite Rigid Body Inertia, puts the result in Data and returns the centroidal mapping.",
               bp::return_value_policy<bp::return_by_value>());
       
-      bp::def("dccrba",dccrba,
+      bp::def("dccrba",
+              dccrba<JointCollectionDefault,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),

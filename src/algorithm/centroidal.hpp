@@ -29,6 +29,9 @@ namespace se3
   /// \brief Computes the Centroidal Momentum Matrix, the Composite Ridig Body Inertia as well as the centroidal momenta
   ///        according to the current joint configuration and velocity.
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -37,16 +40,21 @@ namespace se3
   ///
   /// \return The Centroidal Momentum Matrix Ag.
   ///
-  inline const Data::Matrix6x &
-  ccrba(const Model & model,
-        Data & data,
-        const Eigen::VectorXd & q,
-        const Eigen::VectorXd & v);
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<JointCollection>::Matrix6x &
+  ccrba(const ModelTpl<JointCollection> & model,
+        DataTpl<JointCollection> & data,
+        const Eigen::MatrixBase<ConfigVectorType> & q,
+        const Eigen::MatrixBase<TangentVectorType> & v);
   
   ///
   /// \brief Computes the time derivative of the Centroidal Momentum Matrix according to the current configuration and velocity vectors.
   ///
   /// \note The computed terms allow to decomposed the spatial momentum variation as following: \f$ \dot{h} = A_g \ddot{q} + \dot{A_g}(q,\dot{q})\dot{q}\f$.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -55,11 +63,12 @@ namespace se3
   ///
   /// \return The Centroidal Momentum Matrix time derivative dAg
   ///
-  inline const Data::Matrix6x &
-  dccrba(const Model & model,
-         Data & data,
-         const Eigen::VectorXd & q,
-         const Eigen::VectorXd & v);
+  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<JointCollection>::Matrix6x &
+  dccrba(const ModelTpl<JointCollection> & model,
+         DataTpl<JointCollection> & data,
+         const Eigen::MatrixBase<ConfigVectorType> & q,
+         const Eigen::MatrixBase<TangentVectorType> & v);
   
 } // namespace se3
 
