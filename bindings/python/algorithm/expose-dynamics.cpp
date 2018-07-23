@@ -28,10 +28,7 @@ namespace se3
       using namespace Eigen;
       
       bp::def("forwardDynamics",
-              (const VectorXd & (*)(const Model &, Data &,
-                                    const VectorXd &, const VectorXd &, const VectorXd &,
-                                    const MatrixXd &, const VectorXd &, const double, const bool))
-              &forwardDynamics,
+              &forwardDynamics<JointCollectionDefault,VectorXd,VectorXd,VectorXd,MatrixXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
@@ -44,10 +41,7 @@ namespace se3
               bp::return_value_policy<bp::return_by_value>());
       
       bp::def("impactDynamics",
-              (const VectorXd & (*)(const Model &, Data &,
-                                    const VectorXd &, const VectorXd &,
-                                    const MatrixXd &, const double, const bool))
-              &impulseDynamics,
+              &impulseDynamics<JointCollectionDefault,VectorXd,VectorXd,MatrixXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity before impact v_before (size Model::nv)",
