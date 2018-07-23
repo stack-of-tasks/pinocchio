@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -25,7 +25,10 @@ namespace se3
     
     void exposeEnergy()
     {
-      bp::def("kineticEnergy",kineticEnergy,
+      using namespace Eigen;
+      
+      bp::def("kineticEnergy",
+              &kineticEnergy<JointCollectionDefault,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
@@ -34,13 +37,14 @@ namespace se3
               "given joint configuration and velocity and stores the result "
               "in data.kinetic_energy. By default, the first order kinematic quantities of the model are updated.");
       
-      bp::def("potentialEnergy",potentialEnergy,
+      bp::def("potentialEnergy",
+              &potentialEnergy<JointCollectionDefault,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Update kinematics (bool)"),
               "Computes the potential energy of the model for the "
               "given the joint configuration and stores the result "
-              "in data.potential_energy. By default, the first order kinematic quantities of the model are updated.");
+              "in data.potential_energy. By default, the zero order kinematic quantities of the model are updated.");
     }
     
   } // namespace python
