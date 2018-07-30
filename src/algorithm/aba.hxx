@@ -50,7 +50,7 @@ namespace se3
       typedef typename Model::JointIndex JointIndex;
       
       const JointIndex & i = jmodel.id();
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       const JointIndex & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i] * jdata.M();
@@ -299,7 +299,7 @@ namespace se3
       typedef typename Model::JointIndex JointIndex;
       
       const JointIndex & i = jmodel.id();
-      jmodel.calc(jdata.derived(),q);
+      jmodel.calc(jdata.derived(),q.derived());
       
       const JointIndex & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i] * jdata.M();

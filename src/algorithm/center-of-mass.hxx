@@ -33,7 +33,7 @@ namespace se3
                const Eigen::MatrixBase<ConfigVectorType> & q,
                const bool computeSubtreeComs)
   {
-    forwardKinematics(model,data,q);
+    forwardKinematics(model,data,q.derived());
     
     const int LEVEL = 0;
     centerOfMass(model,data,LEVEL,computeSubtreeComs);
@@ -48,7 +48,7 @@ namespace se3
                const Eigen::MatrixBase<TangentVectorType> & v,
                const bool computeSubtreeComs)
   {
-    forwardKinematics(model,data,q,v);
+    forwardKinematics(model,data,q.derived(),v.derived());
     
     const int LEVEL = 1;
     centerOfMass(model,data,LEVEL,computeSubtreeComs);

@@ -52,7 +52,7 @@ namespace se3
       const JointIndex & parent = model.parents[i];
       typename Data::Motion & ov = data.ov[i];
 
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       data.v[i] = jdata.v();
@@ -367,7 +367,7 @@ namespace se3
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
-                 typename Pass1::ArgsType(model,data,q,v));
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
     }
     
     data.Fcrb[0].setZero();

@@ -89,7 +89,7 @@ namespace se3
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       // CRBA
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
@@ -238,7 +238,7 @@ namespace se3
     for(JointIndex i=1;i<(JointIndex) model.njoints;++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
-                 typename Pass1::ArgsType(model,data,q,v));
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
     }
 
     typedef CATBackwardStep<JointCollection> Pass2;

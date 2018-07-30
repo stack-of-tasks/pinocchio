@@ -45,7 +45,7 @@ namespace se3
       const JointIndex & i  = jmodel.id();
       const JointIndex succ = i+1; // successor
 
-      jmodel.calc(jdata.derived(), q);
+      jmodel.calc(jdata.derived(), q.derived());
 
       data.pjMi[i] = model.jointPlacements[i] * jdata.M ();
 
@@ -109,7 +109,7 @@ namespace se3
       const JointIndex & i  = jmodel.id();
       const JointIndex succ = i+1; // successor
 
-      jmodel.calc(jdata.derived(), q, v);
+      jmodel.calc(jdata.derived(), q.derived(), v.derived());
 
       data.pjMi[i] = model.jointPlacements[i] * jdata.M ();
 

@@ -94,7 +94,7 @@ namespace se3
     data.kinetic_energy = Scalar(0);
     
     if (update_kinematics)
-      forwardKinematics(model,data,q,v);
+      forwardKinematics(model,data,q.derived(),v.derived());
     
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
       data.kinetic_energy += model.inertias[i].vtiv(data.v[i]);

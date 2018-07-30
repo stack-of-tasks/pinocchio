@@ -115,7 +115,7 @@ namespace se3
                          const Eigen::MatrixBase<TangentVectorType1> & v,
                          const Eigen::MatrixBase<TangentVectorType2> & a)
   {
-    computeRNEADerivatives(model,data,q,v,a,
+    computeRNEADerivatives(model,data,q.derived(),v.derived(),a.derived(),
                            data.dtau_dq, data.dtau_dv, data.M);
   }
 

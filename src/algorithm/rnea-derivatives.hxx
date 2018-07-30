@@ -155,14 +155,15 @@ namespace se3
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
-                 typename Pass1::ArgsType(model,data,q));
+                 typename Pass1::ArgsType(model,data,q.derived()));
     }
     
     typedef ComputeGeneralizedGravityDerivativeBackwardStep<JointCollection,ReturnMatrixType> Pass2;
+    ReturnMatrixType & gravity_partial_dq_ = EIGEN_CONST_CAST(ReturnMatrixType,gravity_partial_dq);
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],
-                 typename Pass2::ArgsType(model,data,EIGEN_CONST_CAST(ReturnMatrixType,gravity_partial_dq)));
+                 typename Pass2::ArgsType(model,data,gravity_partial_dq_));
     }
   }
   
@@ -197,7 +198,7 @@ namespace se3
       Motion & ov = data.ov[i];
       Motion & oa = data.oa[i];
       
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       

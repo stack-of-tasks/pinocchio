@@ -49,7 +49,7 @@ namespace se3
       typedef typename Model::JointIndex JointIndex;
       
       const JointIndex & i = jmodel.id();
-      jmodel.calc(jdata.derived(),q);
+      jmodel.calc(jdata.derived(),q.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       data.Ycrb[i] = model.inertias[i];
@@ -131,7 +131,7 @@ namespace se3
       typedef typename Model::JointIndex JointIndex;
       
       const JointIndex & i = jmodel.id();
-      jmodel.calc(jdata.derived(),q);
+      jmodel.calc(jdata.derived(),q.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       

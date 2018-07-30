@@ -45,7 +45,7 @@ namespace se3
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      jmodel.calc(jdata.derived(),q);
+      jmodel.calc(jdata.derived(),q.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       data.Ycrb[i] = model.inertias[i];
@@ -155,7 +155,7 @@ namespace se3
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       data.Ycrb[i] = model.inertias[i];

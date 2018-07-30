@@ -45,7 +45,7 @@ namespace se3
       typedef typename Data::Matrix3x Matrix3x;
       typedef typename SizeDepType<4>::ColsReturn<Matrix3x>::Type ColsBlock;
       
-      forwardKinematics(model,data,q);
+      forwardKinematics(model,data,q.derived());
       
       // Computes the total mass of the system
       Scalar mass = Scalar(0);

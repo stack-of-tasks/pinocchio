@@ -65,7 +65,7 @@ namespace se3
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Eigen::MatrixBase<ConfigVectorType> & q)
     {
-      jmodel.calc(jdata.derived(),q);
+      jmodel.calc(jdata.derived(),q.derived());
     }
 
   };
@@ -98,7 +98,7 @@ namespace se3
                      const Eigen::MatrixBase<TangentVectorType> & v
                      )
     {
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
     }
 
   };

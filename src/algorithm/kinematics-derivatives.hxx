@@ -59,7 +59,7 @@ namespace se3
       Motion & ov = data.ov[i];
       Motion & oa = data.oa[i];
       
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       vi = jdata.v();

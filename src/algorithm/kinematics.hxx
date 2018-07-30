@@ -106,7 +106,7 @@ namespace se3
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
 
-      jmodel.calc(jdata.derived(),q);
+      jmodel.calc(jdata.derived(),q.derived());
 
       data.liMi[i] = model.jointPlacements[i] * jdata.M();
 
@@ -161,7 +161,7 @@ namespace se3
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       data.v[i] = jdata.v();
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
@@ -228,7 +228,7 @@ namespace se3
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
 
       data.v[i] = jdata.v();
       data.liMi[i] = model.jointPlacements[i] * jdata.M();
