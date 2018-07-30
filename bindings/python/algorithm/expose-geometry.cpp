@@ -28,14 +28,14 @@ namespace se3
       using namespace Eigen;
       
       bp::def("updateGeometryPlacements",
-              (void (*)(const Model &, Data &, const GeometryModel &, GeometryData &, const VectorXd &))&updateGeometryPlacements,
+              &updateGeometryPlacements<JointCollectionDefault,VectorXd>,
               bp::args("model", "data", "geometry model", "geometry data", "Configuration vector q (size Model::nq)"),
               "Update the placement of the collision objects according to the current configuration."
               "The algorithm also updates the current placement of the joint in Data."
               );
       
       bp::def("updateGeometryPlacements",
-              (void (*)(const Model &, const Data &, const GeometryModel &, GeometryData &))&updateGeometryPlacements,
+              &updateGeometryPlacements<JointCollectionDefault>,
               bp::args("model", "data", "geometry model", "geometry data"),
               "Update the placement of the collision objects according to the current joint placement stored in data."
               );
@@ -54,8 +54,7 @@ namespace se3
               );
       
       bp::def("computeCollisions",
-              (bool (*)(const Model &, Data &, const GeometryModel &, GeometryData &,
-                        const VectorXd &, const bool))&computeCollisions,
+              &computeCollisions<JointCollectionDefault,VectorXd>,
               bp::args("model","data","geometry model","geometry data","Configuration q (size Model::nq)", "bool"),
               "Update the geometry for a given configuration and"
               "determine if all collision pairs are effectively in collision or not."
@@ -75,7 +74,7 @@ namespace se3
               );
       
       bp::def("computeDistances",
-              (std::size_t (*)(const Model &, Data &, const GeometryModel &, GeometryData &, const VectorXd &))&computeDistances,
+              &computeDistances<JointCollectionDefault,VectorXd>,
               bp::args("model","data","geometry model","geometry data","Configuration q (size Model::nq)"),
               "Update the geometry for a given configuration and"
               "compute the distance between each collision pair"

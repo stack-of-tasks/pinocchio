@@ -31,32 +31,37 @@ namespace se3
   ///
   /// \brief Apply a forward kinematics and update the placement of the geometry objects.
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] geomModel The geometry model containing the collision objects.
   /// \param[out] geomData The geometry data containing the placements of the collision objects. See oMg field in GeometryData.
   /// \param[in] q The joint configuration vector (dim model.nq).
   ///
-  inline void updateGeometryPlacements(const Model & model,
-                                       Data & data,
+  template<typename JointCollection, typename ConfigVectorType>
+  inline void updateGeometryPlacements(const ModelTpl<JointCollection> & model,
+                                       DataTpl<JointCollection> & data,
                                        const GeometryModel & geomModel,
                                        GeometryData & geomData,
-                                       const Eigen::VectorXd & q
-                                       );
+                                       const Eigen::MatrixBase<ConfigVectorType> & q);
   
   ///
   /// \brief Update the placement of the geometry objects according to the current joint placements contained in data.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] geomModel The geometry model containing the collision objects.
   /// \param[out] geomData The geometry data containing the placements of the collision objects. See oMg field in GeometryData.
   ///
-  inline void updateGeometryPlacements(const Model & model,
-                                       const Data & data,
+  template<typename JointCollection>
+  inline void updateGeometryPlacements(const ModelTpl<JointCollection> & model,
+                                       const DataTpl<JointCollection> & data,
                                        const GeometryModel & geomModel,
-                                       GeometryData & geomData
-                                       );
+                                       GeometryData & geomData);
 
 #ifdef WITH_HPP_FCL
 
@@ -73,11 +78,14 @@ namespace se3
   ///
   bool computeCollision(const GeometryModel & geomModel,
                         GeometryData & geomData,
-                        const PairIndex & pairId
-                        );
-    
+                        const PairIndex & pairId);
+  
+  ///
   /// Compute the forward kinematics, update the geometry placements and
   /// calls computeCollision for every active pairs of GeometryData.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
   ///
   /// \param[in] model robot model (const)
   /// \param[out] data corresponding data (nonconst) where FK results are stored
@@ -87,16 +95,18 @@ namespace se3
   /// \param[in] stopAtFirstCollision if true, stop the loop on pairs after the first collision.
   /// \return When ComputeShortest is true, the index of the collision pair which has the shortest distance.
   ///         When ComputeShortest is false, the number of collision pairs.
+  ///
   /// \warning if stopAtFirstcollision = true, then the collisions vector will
   /// not be entirely fulfilled (of course).
   /// \note A similar function is available without model, data and q, not recomputing the FK.
-  inline bool computeCollisions(const Model & model,
-                                Data & data,
+  ///
+  template<typename JointCollection, typename ConfigVectorType>
+  inline bool computeCollisions(const ModelTpl<JointCollection> & model,
+                                DataTpl<JointCollection> & data,
                                 const GeometryModel & geomModel,
                                 GeometryData & geomData,
-                                const Eigen::VectorXd & q,
-                                const bool stopAtFirstCollision = false
-                                );
+                                const Eigen::MatrixBase<ConfigVectorType> & q,
+                                const bool stopAtFirstCollision = false);
 
   ///
   /// \brief Compute the minimal distance between collision objects of a *SINGLE* collison pair
@@ -111,34 +121,81 @@ namespace se3
   ///
   fcl::DistanceResult & computeDistance(const GeometryModel & geomModel,
                                         GeometryData & geomData,
-                                        const PairIndex & pairId
-                                        );
-    
+                                        const PairIndex & pairId);
+  
+  ///
   /// Compute the forward kinematics, update the geometry placements and
   /// calls computeDistance for every active pairs of GeometryData.
   ///
   /// \param[in] ComputeShortest default to true.
-  /// \param[in][out] model: robot model (const)
+  /// \param[in] model: robot model (const)
   /// \param[out] data: corresponding data (nonconst) where FK results are stored
   /// \param[in] geomModel: geometry model (const)
   /// \param[out] geomData: corresponding geometry data (nonconst) where distances are computed
   /// \param[in] q: robot configuration.
+  ///
   /// \return When ComputeShortest is true, the index of the collision pair which has the shortest distance.
   ///         When ComputeShortest is false, the number of collision pairs.
+  ///
   /// \note A similar function is available without model, data and q, not recomputing the FK.
-  template <bool ComputeShortest>
+  ///
+  template<bool ComputeShortest>
+  PINOCCHIO_DEPRECATED
   inline std::size_t computeDistances(const Model & model,
                                       Data & data,
                                       const GeometryModel & geomModel,
                                       GeometryData & geomData,
-                                      const Eigen::VectorXd & q
-                                      );
+                                      const Eigen::VectorXd & q);
+  
+  ///
+  /// Compute the forward kinematics, update the geometry placements and
+  /// calls computeDistance for every active pairs of GeometryData.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
+  /// \param[in] model: robot model (const)
+  /// \param[in] data: corresponding data (nonconst) where FK results are stored
+  /// \param[in] geomModel: geometry model (const)
+  /// \param[out] geomData: corresponding geometry data (nonconst) where distances are computed
+  /// \param[in] q: robot configuration.
+  ///
+  /// \note A similar function is available without model, data and q, not recomputing the FK.
+  ///
+  template<typename JointCollection, typename ConfigVectorType>
+  inline std::size_t computeDistances(const ModelTpl<JointCollection> & model,
+                                      DataTpl<JointCollection> & data,
+                                      const GeometryModel & geomModel,
+                                      GeometryData & geomData,
+                                      const Eigen::MatrixBase<ConfigVectorType> & q);
+  
+  ///
+  /// Compute the forward kinematics, update the geometry placements and
+  /// calls computeDistance for every active pairs of GeometryData.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  ///
+  /// \param[in] model: robot model (const)
+  /// \param[out] data: corresponding data (const)
+  /// \param[in] geomModel: geometry model (const)
+  /// \param[out] geomData: corresponding geometry data (nonconst) where distances are computed
+  ///
+  /// \note A similar function is available without model, data and q, not recomputing the FK.
+  ///
+  template<typename JointCollection>
+  inline std::size_t computeDistances(const ModelTpl<JointCollection> & model,
+                                      const DataTpl<JointCollection> & data,
+                                      const GeometryModel & geomModel,
+                                      GeometryData & geomData);
 
+  ///
   /// Compute the radius of the geometry volumes attached to every joints.
   /// \sa GeometryData::radius
-  inline void computeBodyRadius(const Model &         model,
+  ///
+  template<typename JointCollection>
+  inline void computeBodyRadius(const ModelTpl<JointCollection> & model,
                                 const GeometryModel & geomModel,
-                                GeometryData &        geomData);
+                                GeometryData & geomData);
 #endif // WITH_HPP_FCL
 
   ///

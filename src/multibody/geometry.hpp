@@ -110,7 +110,7 @@ namespace se3
     ///
     /// \param[in] pair The CollisionPair to add.
     ///
-    void addCollisionPair (const CollisionPair & pair);
+    void addCollisionPair(const CollisionPair & pair);
     
     ///
     /// \brief Add all possible collision pairs.
@@ -125,7 +125,7 @@ namespace se3
     ///
     /// \param[in] pair The CollisionPair to remove.
     ///
-    void removeCollisionPair (const CollisionPair& pair);
+    void removeCollisionPair(const CollisionPair& pair);
     
     ///
     /// \brief Remove all collision pairs from collisionPairs. Same as collisionPairs.clear().
@@ -139,7 +139,7 @@ namespace se3
     ///
     /// \return True if the CollisionPair exists, false otherwise.
     ///
-    bool existCollisionPair (const CollisionPair & pair) const;
+    bool existCollisionPair(const CollisionPair & pair) const;
     
     ///
     /// \brief Return the index of a given collision pair in collisionPairs.
@@ -148,7 +148,7 @@ namespace se3
     ///
     /// \return The index of the CollisionPair in collisionPairs.
     ///
-    PairIndex findCollisionPair (const CollisionPair & pair) const;
+    PairIndex findCollisionPair(const CollisionPair & pair) const;
     
 #endif // WITH_HPP_FCL
 
@@ -190,7 +190,7 @@ namespace se3
     ///
     /// \brief Vector gathering the result of the distance computation for all the collision pairs.
     ///
-    std::vector <fcl::DistanceResult> distanceResults;
+    std::vector<fcl::DistanceResult> distanceResults;
     
     ///
     /// \brief Defines what information should be computed by collision test.
@@ -200,7 +200,7 @@ namespace se3
     ///
     /// \brief Vector gathering the result of the collision computation for all the collision pairs.
     ///
-    std::vector <fcl::CollisionResult> collisionResults;
+    std::vector<fcl::CollisionResult> collisionResults;
 
     ///
     /// \brief Radius of the bodies, i.e. distance of the further point of the geometry model

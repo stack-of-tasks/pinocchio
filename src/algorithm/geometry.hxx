@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -25,12 +25,12 @@ namespace se3
   /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
   /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
   /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
-  inline void updateGeometryPlacements(const Model & model,
-                                       Data & data,
+  template<typename JointCollection, typename ConfigVectorType>
+  inline void updateGeometryPlacements(const ModelTpl<JointCollection> & model,
+                                       DataTpl<JointCollection> & data,
                                        const GeometryModel & geomModel,
                                        GeometryData & geomData,
-                                       const Eigen::VectorXd & q
-                                       )
+                                       const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
@@ -38,11 +38,11 @@ namespace se3
     updateGeometryPlacements(model, data, geomModel, geomData);
   }
   
-  inline void  updateGeometryPlacements(const Model & model,
-                                        const Data & data,
-                                        const GeometryModel & geomModel,
-                                        GeometryData & geomData
-                                        )
+  template<typename JointCollection>
+  inline void updateGeometryPlacements(const ModelTpl<JointCollection> & model,
+                                       const DataTpl<JointCollection> & data,
+                                       const GeometryModel & geomModel,
+                                       GeometryData & geomData)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
@@ -64,7 +64,7 @@ namespace se3
 
   inline bool computeCollision(const GeometryModel & geomModel,
                                GeometryData & geomData,
-                               const PairIndex& pairId)
+                               const PairIndex & pairId)
   {
     assert( pairId < geomModel.collisionPairs.size() );
     const CollisionPair & pair = geomModel.collisionPairs[pairId];
@@ -104,17 +104,17 @@ namespace se3
   }
   
   // WARNING, if stopAtFirstcollision = true, then the collisions vector will not be fulfilled.
-  inline bool computeCollisions(const Model & model,
-                                Data & data,
+  template<typename JointCollection, typename ConfigVectorType>
+  inline bool computeCollisions(const ModelTpl<JointCollection> & model,
+                                DataTpl<JointCollection> & data,
                                 const GeometryModel & geomModel,
                                 GeometryData & geomData,
-                                const Eigen::VectorXd & q,
-                                const bool stopAtFirstCollision
-                                )
+                                const Eigen::MatrixBase<ConfigVectorType> & q,
+                                const bool stopAtFirstCollision)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
-    updateGeometryPlacements (model, data, geomModel, geomData, q);
+    updateGeometryPlacements(model, data, geomModel, geomData, q);
     
     return computeCollisions(geomModel,geomData, stopAtFirstCollision);
   }
@@ -125,7 +125,7 @@ namespace se3
 
   inline fcl::DistanceResult & computeDistance(const GeometryModel & geomModel,
                                                GeometryData & geomData,
-                                               const PairIndex & pairId )
+                                               const PairIndex & pairId)
   {
     assert( pairId < geomModel.collisionPairs.size() );
     const CollisionPair & pair = geomModel.collisionPairs[pairId];
@@ -145,6 +145,7 @@ namespace se3
   
 
   template <bool COMPUTE_SHORTEST>
+  PINOCCHIO_DEPRECATED
   inline std::size_t computeDistances(const GeometryModel & geomModel,
                                       GeometryData & geomData)
   {
@@ -165,31 +166,69 @@ namespace se3
     return min_index;
   }
   
-  // Required to have a default template argument on templated free function
-  inline std::size_t computeDistances(const GeometryModel& geomModel,
+  inline std::size_t computeDistances(const GeometryModel & geomModel,
                                       GeometryData & geomData)
   {
-    return computeDistances<true>(geomModel,geomData);
+    std::size_t min_index = geomModel.collisionPairs.size();
+    double min_dist = std::numeric_limits<double>::infinity();
+    for (std::size_t cpt = 0; cpt < geomModel.collisionPairs.size(); ++cpt)
+    {
+      if(geomData.activeCollisionPairs[cpt])
+      {
+        computeDistance(geomModel,geomData,cpt);
+        if(geomData.distanceResults[cpt].min_distance < min_dist)
+        {
+          min_index = cpt;
+          min_dist = geomData.distanceResults[cpt].min_distance;
+        }
+      }
+    }
+    return min_index;
   }
   
   // Required to have a default template argument on templated free function
+  PINOCCHIO_DEPRECATED
   inline std::size_t computeDistances(const Model & model,
-                               Data & data,
-                               const GeometryModel & geomModel,
-                               GeometryData & geomData,
-                               const Eigen::VectorXd & q
-                               )
+                                      Data & data,
+                                      const GeometryModel & geomModel,
+                                      GeometryData & geomData,
+                                      const Eigen::VectorXd & q
+                                      )
   {
     return computeDistances<true>(model, data, geomModel, geomData, q);
   }
+  
+  template<typename JointCollection>
+  inline std::size_t computeDistances(const ModelTpl<JointCollection> & model,
+                                      const DataTpl<JointCollection> & data,
+                                      const GeometryModel & geomModel,
+                                      GeometryData & geomData)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    updateGeometryPlacements(model,data,geomModel,geomData);
+    return computeDistances(geomModel,geomData);
+  }
+  
+  template<typename JointCollection, typename ConfigVectorType>
+  inline std::size_t computeDistances(const ModelTpl<JointCollection> & model,
+                                      DataTpl<JointCollection> & data,
+                                      const GeometryModel & geomModel,
+                                      GeometryData & geomData,
+                                      const Eigen::MatrixBase<ConfigVectorType> & q)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    updateGeometryPlacements(model, data, geomModel, geomData, q);
+    return computeDistances(geomModel,geomData);
+  }
 
   template <bool ComputeShortest>
+  PINOCCHIO_DEPRECATED
   inline std::size_t computeDistances(const Model & model,
-                               Data & data,
-                               const GeometryModel & geomModel,
-                               GeometryData & geomData,
-                               const Eigen::VectorXd & q
-                               )
+                                      Data & data,
+                                      const GeometryModel & geomModel,
+                                      GeometryData & geomData,
+                                      const Eigen::VectorXd & q
+                                      )
   {
     assert(model.check(data) && "data is not consistent with model.");
     updateGeometryPlacements (model, data, geomModel, geomData, q);
@@ -211,9 +250,10 @@ namespace se3
   /// For all bodies of the model, compute the point of the geometry model
   /// that is the further from the center of the joint. This quantity is used 
   /// in some continuous collision test.
-  inline void computeBodyRadius(const Model &         model,
+  template<typename JointCollection>
+  inline void computeBodyRadius(const ModelTpl<JointCollection> & model,
                                 const GeometryModel & geomModel,
-                                GeometryData &        geomData)
+                                GeometryData & geomData)
   {
     geomData.radius.resize(model.joints.size(),0);
     BOOST_FOREACH(const GeometryObject & geom,geomModel.geometryObjects)
