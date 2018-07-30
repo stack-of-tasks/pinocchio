@@ -176,7 +176,6 @@ namespace se3
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-
     typedef typename Model::Frame Frame;
     typedef typename Model::SE3 SE3;
     

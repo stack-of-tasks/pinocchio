@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   model.upperPositionLimit.head<7>().fill( 1.);
   VectorXd q = randomConfiguration(model);
   VectorXd v = VectorXd::Ones(model.nv);
-
+  
   /// In local frame
   Model::Index idx = model.getFrameId(frame_name);
   const Frame & frame = model.frames[idx];
