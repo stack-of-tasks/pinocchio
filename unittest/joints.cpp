@@ -146,8 +146,8 @@ BOOST_AUTO_TEST_CASE (vsRX)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianRevoluteUnaligned;jacobianRevoluteUnaligned.resize(6,1);jacobianRevoluteUnaligned.setZero();
   computeJointJacobians(modelRX, dataRX, q);
   computeJointJacobians(modelRevoluteUnaligned, dataRevoluteUnaligned, q);
-  getJointJacobian<LOCAL>(modelRX, dataRX, 1, jacobianRX);
-  getJointJacobian<LOCAL>(modelRevoluteUnaligned, dataRevoluteUnaligned, 1, jacobianRevoluteUnaligned);
+  getJointJacobian(modelRX, dataRX, 1, LOCAL, jacobianRX);
+  getJointJacobian(modelRevoluteUnaligned, dataRevoluteUnaligned, 1, LOCAL, jacobianRevoluteUnaligned);
 
 
   BOOST_CHECK(jacobianRX.isApprox(jacobianRevoluteUnaligned));
@@ -236,8 +236,8 @@ BOOST_AUTO_TEST_CASE (vsPX)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianPrismaticUnaligned;jacobianPrismaticUnaligned.resize(6,1);jacobianPrismaticUnaligned.setZero();
   computeJointJacobians(modelPX, dataPX, q);
   computeJointJacobians(modelPrismaticUnaligned, dataPrismaticUnaligned, q);
-  getJointJacobian<LOCAL>(modelPX, dataPX, 1, jacobianPX);
-  getJointJacobian<LOCAL>(modelPrismaticUnaligned, dataPrismaticUnaligned, 1, jacobianPrismaticUnaligned);
+  getJointJacobian(modelPX, dataPX, 1, LOCAL, jacobianPX);
+  getJointJacobian(modelPrismaticUnaligned, dataPrismaticUnaligned, 1, LOCAL, jacobianPrismaticUnaligned);
 
   BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
 }
@@ -334,8 +334,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
   computeJointJacobians(modelSpherical, dataSpherical, q);
   computeJointJacobians(modelFreeflyer, dataFreeFlyer, qff);
-  getJointJacobian<LOCAL>(modelSpherical, dataSpherical, 1, jacobian_planar);
-  getJointJacobian<LOCAL>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
+  getJointJacobian(modelSpherical, dataSpherical, 1, LOCAL, jacobian_planar);
+  getJointJacobian(modelFreeflyer, dataFreeFlyer, 1, LOCAL, jacobian_ff);
 
 
   Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(3),
@@ -761,8 +761,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
   computeJointJacobians(modelPlanar, dataPlanar, q);
   computeJointJacobians(modelFreeflyer, dataFreeFlyer, qff);
-  getJointJacobian<LOCAL>(modelPlanar, dataPlanar, 1, jacobian_planar);
-  getJointJacobian<LOCAL>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
+  getJointJacobian(modelPlanar, dataPlanar, 1, LOCAL, jacobian_planar);
+  getJointJacobian(modelFreeflyer, dataFreeFlyer, 1, LOCAL, jacobian_ff);
 
   Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(0),
                                                                       jacobian_ff.col(1),
@@ -860,8 +860,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
   computeJointJacobians(modelTranslation, dataTranslation, q);
   computeJointJacobians(modelFreeflyer, dataFreeFlyer, qff);
-  getJointJacobian<LOCAL>(modelTranslation, dataTranslation, 1, jacobian_planar);
-  getJointJacobian<LOCAL>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
+  getJointJacobian(modelTranslation, dataTranslation, 1, LOCAL, jacobian_planar);
+  getJointJacobian(modelFreeflyer, dataFreeFlyer, 1, LOCAL, jacobian_ff);
 
 
   Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(0),
@@ -976,8 +976,8 @@ BOOST_AUTO_TEST_CASE (vsRX)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianPrismaticUnaligned;jacobianPrismaticUnaligned.resize(6,1);jacobianPrismaticUnaligned.setZero();
   computeJointJacobians(modelRX, dataRX, q_rx);
   computeJointJacobians(modelRevoluteUnbounded, dataRevoluteUnbounded, q_rubx);
-  getJointJacobian<LOCAL>(modelRX, dataRX, 1, jacobianPX);
-  getJointJacobian<LOCAL>(modelRevoluteUnbounded, dataRevoluteUnbounded, 1, jacobianPrismaticUnaligned);
+  getJointJacobian(modelRX, dataRX, 1, LOCAL, jacobianPX);
+  getJointJacobian(modelRevoluteUnbounded, dataRevoluteUnbounded, 1, LOCAL, jacobianPrismaticUnaligned);
 
 
   BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));

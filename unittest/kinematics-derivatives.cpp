@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_velocity)
   Data::Matrix6x J_ref(6,model.nv); J_ref.setZero();
   Data::Matrix6x J_ref_local(6,model.nv); J_ref_local.setZero();
   computeJointJacobians(model,data_ref,q);
-  getJointJacobian<WORLD>(model,data_ref,jointId,J_ref);
-  getJointJacobian<LOCAL>(model,data_ref,jointId,J_ref_local);
+  getJointJacobian(model,data_ref,jointId,WORLD,J_ref);
+  getJointJacobian(model,data_ref,jointId,LOCAL,J_ref_local);
   
   BOOST_CHECK(partial_dv.isApprox(J_ref));
   BOOST_CHECK(partial_dv_local.isApprox(J_ref_local));
@@ -221,8 +221,8 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   Data::Matrix6x J_ref(6,model.nv); J_ref.setZero();
   Data::Matrix6x J_ref_local(6,model.nv); J_ref_local.setZero();
   computeJointJacobians(model,data_ref,q);
-  getJointJacobian<WORLD>(model,data_ref,jointId,J_ref);
-  getJointJacobian<LOCAL>(model,data_ref,jointId,J_ref_local);
+  getJointJacobian(model,data_ref,jointId,WORLD,J_ref);
+  getJointJacobian(model,data_ref,jointId,LOCAL,J_ref_local);
   
   BOOST_CHECK(a_partial_da.isApprox(J_ref));
   BOOST_CHECK(a_partial_da_local.isApprox(J_ref_local));
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_against_classic_formula)
                                     v_partial_dq,
                                     a_partial_dq,a_partial_dv,a_partial_da);
     
-    getJointJacobianTimeVariation<WORLD>(model,data_ref,jointId,rhs);
+    getJointJacobianTimeVariation(model,data_ref,jointId,WORLD,rhs);
     
     v_partial_dq_ref.setZero(); v_partial_dv_ref.setZero();
     getJointVelocityDerivatives(model,data_ref,jointId,WORLD,

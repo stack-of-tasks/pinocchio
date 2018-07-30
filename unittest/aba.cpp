@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   VectorXd tau = data.M * a + data.nle;
   Data::Matrix6x J = Data::Matrix6x::Zero(6, model.nv);
   for(Model::Index i=1;i<(Model::Index)model.njoints;++i) {
-    getJointJacobian<LOCAL>(model, data, i, J);
+    getJointJacobian(model, data, i, LOCAL, J);
     tau -= J.transpose()*fext[i].toVector();
     J.setZero();
   }

@@ -36,8 +36,7 @@ namespace se3
       if (update_kinematics)
         computeJointJacobians(model,data,q);
       
-      if(rf == LOCAL) getJointJacobian<LOCAL>(model,data,jointId,J);
-      else getJointJacobian<WORLD>(model,data,jointId,J);
+      getJointJacobian(model,data,jointId,rf,J);
       
       return J;
     }
@@ -49,9 +48,7 @@ namespace se3
                        ReferenceFrame rf)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
-      
-      if(rf == LOCAL) getJointJacobian<LOCAL>(model,data,jointId,J);
-      else getJointJacobian<WORLD>(model,data,jointId,J);
+      getJointJacobian(model,data,jointId,rf,J);
       
       return J;
     }
@@ -63,9 +60,7 @@ namespace se3
                                   ReferenceFrame rf)
     {
       Data::Matrix6x dJ(6,model.nv); dJ.setZero();
-      
-      if(rf == LOCAL) getJointJacobianTimeVariation<LOCAL>(model,data,jointId,dJ);
-      else getJointJacobianTimeVariation<WORLD>(model,data,jointId,dJ);
+      getJointJacobianTimeVariation(model,data,jointId,rf,dJ);
       
       return dJ;
     }

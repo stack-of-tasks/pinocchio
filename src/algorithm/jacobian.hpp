@@ -108,11 +108,31 @@ namespace se3
   /// \param[in] jointId The id of the joint.
   /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
   ///
+  inline void getJointJacobian(const Model & model,
+                               const Data & data,
+                               const Model::JointIndex jointId,
+                               const ReferenceFrame rf,
+                               Data::Matrix6x & J);
+  
+  ///
+  /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame or in the local frame (rf = LOCAL) of the joint.
+  /// \note This jacobian is extracted from data.J. You have to run se3::computeJointJacobians before calling it.
+  ///
+  /// \tparam rf Reference frame in which the Jacobian is expressed.
+  ///
+  /// \param[in] localFrame Expressed the Jacobian in the local frame or world frame coordinates system.
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] jointId The id of the joint.
+  /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
+  ///
   template<ReferenceFrame rf>
+  PINOCCHIO_DEPRECATED
   void getJointJacobian(const Model & model,
                         const Data & data,
                         const Model::JointIndex jointId,
-                        Data::Matrix6x & J);
+                        Data::Matrix6x & J)
+  { getJointJacobian(model,data,jointId,rf,J); }
   
   ///
   /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame or in the local frame (rf = LOCAL) of the joint.
@@ -147,9 +167,9 @@ namespace se3
   ///
   /// \return The Jacobian of the specific joint frame expressed in the local frame of the joint (matrix 6 x model.nv).
   ///
-  /// \remark This function is equivalent to call first computeJacobians(model,data,q) and then call getJointJacobian<LOCAL>(model,data,jointId,J).
+  /// \remark This function is equivalent to call first computeJacobians(model,data,q) and then call getJointJacobian(model,data,jointId,LOCAL,J).
   ///         It is worth to call jacobian if you only need a single Jacobian for a specific joint. Otherwise, for several Jacobians, it is better
-  ///         to call computeJacobians(model,data,q) followed by getJointJacobian<LOCAL>(model,data,jointId,J) for each Jacobian.
+  ///         to call computeJacobians(model,data,q) followed by getJointJacobian(model,data,jointId,LOCAL,J) for each Jacobian.
   ///
   inline void jointJacobian(const Model & model,
                             Data & data,
@@ -256,11 +276,33 @@ namespace se3
   /// \param[in] jointId The id of the joint.
   /// \param[out] dJ A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill dJ with zero elements, e.g. dJ.fill(0.).
   ///
+  inline void getJointJacobianTimeVariation(const Model & model,
+                                            const Data & data,
+                                            const Model::JointIndex jointId,
+                                            const ReferenceFrame rf,
+                                            Data::Matrix6x & dJ);
+  
+  ///
+  /// \brief Computes the Jacobian time variation of a specific joint frame expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL) of the joint.
+  /// \note This jacobian is extracted from data.dJ. You have to run se3::computeJacobiansTimeVariation before calling it.
+  ///
+  /// \deprecated This function is now deprecated. Please refer now to se3::getJointJacobianTimeVariation for similar function with updated name.
+  ///
+  /// \tparam rf Reference frame in which the Jacobian is expressed.
+  ///
+  /// \param[in] localFrame Expressed the Jacobian in the local frame or world frame coordinates system.
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] jointId The id of the joint.
+  /// \param[out] dJ A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill dJ with zero elements, e.g. dJ.fill(0.).
+  ///
   template<ReferenceFrame rf>
-  void getJointJacobianTimeVariation(const Model & model,
-                                     const Data & data,
-                                     const Model::JointIndex jointId,
-                                     Data::Matrix6x & dJ);
+  PINOCCHIO_DEPRECATED
+  inline void getJointJacobianTimeVariation(const Model & model,
+                                            const Data & data,
+                                            const Model::JointIndex jointId,
+                                            Data::Matrix6x & dJ)
+  { getJointJacobianTimeVariation(model,data,jointId,rf,dJ); }
   
   ///
   /// \brief Computes the Jacobian time variation of a specific joint frame expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL) of the joint.
@@ -277,10 +319,10 @@ namespace se3
   ///
   template<ReferenceFrame rf>
   PINOCCHIO_DEPRECATED
-  void getJacobianTimeVariation(const Model & model,
-                                const Data & data,
-                                const Model::JointIndex jointId,
-                                Data::Matrix6x & dJ)
+  inline void getJacobianTimeVariation(const Model & model,
+                                       const Data & data,
+                                       const Model::JointIndex jointId,
+                                       Data::Matrix6x & dJ)
   { getJointJacobianTimeVariation<rf>(model,data,jointId,dJ); }
   
 } // namespace se3 

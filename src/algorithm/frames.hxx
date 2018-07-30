@@ -26,30 +26,41 @@ namespace se3
 {
   
   
-  inline void updateFramePlacements(const Model & model,
-                                    Data & data)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void updateFramePlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                    DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::FrameIndex FrameIndex;
+    typedef typename Model::JointIndex JointIndex;
+    
     // The following for loop starts by index 1 because the first frame is fixed
-    // and corresponds to the universe
-    for (Model::FrameIndex i=1; i < (Model::FrameIndex) model.nframes; ++i)
+    // and corresponds to the universe.s
+    for (FrameIndex i=1; i < (FrameIndex) model.nframes; ++i)
     {
       const Frame & frame = model.frames[i];
-      const Model::JointIndex & parent = frame.parent;
+      const JointIndex & parent = frame.parent;
       if (frame.placement.isIdentity())
         data.oMf[i] = data.oMi[parent];
       else
         data.oMf[i] = data.oMi[parent]*frame.placement;
     }
   }
-
-  inline const SE3 & updateFramePlacement(const Model & model,
-                                          Data & data,
-                                          const Model::FrameIndex frame_id)
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::SE3 &
+  updateFramePlacement(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id)
   {
-    const Frame & frame = model.frames[frame_id];
-    const Model::JointIndex & parent = frame.parent;
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    const typename Model::Frame & frame = model.frames[frame_id];
+    const typename Model::JointIndex & parent = frame.parent;
+    
     if (frame.placement.isIdentity())
       data.oMf[frame_id] = data.oMi[parent];
     else
@@ -57,15 +68,18 @@ namespace se3
     return data.oMf[frame_id];
   }
 
-  inline void framesForwardKinematics(const Model & model,
-                                      Data & data)
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void framesForwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     updateFramePlacements(model,data);
   }
 
-  inline void framesForwardKinematics(const Model & model,
-                                      Data & data,
-                                      const Eigen::VectorXd & q)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline void framesForwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                      const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
@@ -73,95 +87,117 @@ namespace se3
     updateFramePlacements(model, data);
   }
 
-  void getFrameVelocity(const Model & model,
-                        const Data & data,
-                        const Model::FrameIndex frame_id,
-                        Motion & frame_v)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MotionLike>
+  void getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                        const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                        const MotionDense<MotionLike> & frame_v)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
 
-    const Frame & frame = model.frames[frame_id];
-    const Model::JointIndex & parent = frame.parent;
-    frame_v = frame.placement.actInv(data.v[parent]);
+    const typename Model::Frame & frame = model.frames[frame_id];
+    const typename Model::JointIndex & parent = frame.parent;
+    const_cast<MotionLike &>(frame_v.derived()) = frame.placement.actInv(data.v[parent]);
   }
 
-  void getFrameAcceleration(const Model & model,
-                            const Data & data,
-                            const Model::FrameIndex frame_id,
-                            Motion & frame_a)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MotionLike>
+  void getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                            const MotionDense<MotionLike> & frame_a)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
-    const Frame & frame = model.frames[frame_id];
-    const Model::JointIndex & parent = frame.parent;
-    frame_a = frame.placement.actInv(data.a[parent]);
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    
+    const typename Model::Frame & frame = model.frames[frame_id];
+    const typename Model::JointIndex & parent = frame.parent;
+    const_cast<MotionLike &>(frame_a.derived()) = frame.placement.actInv(data.a[parent]);
   }
   
-  template<ReferenceFrame rf>
-  inline void getFrameJacobian(const Model & model,
-                               const Data & data,
-                               const Model::FrameIndex frame_id,
-                               Data::Matrix6x & J)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
+  inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                               const ReferenceFrame rf,
+                               const Eigen::MatrixBase<Matrix6xLike> & J)
   {
+    assert(J.rows() == 6);
     assert(J.cols() == model.nv);
     assert(data.J.cols() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Model::JointIndex JointIndex;
+    
     const Frame & frame = model.frames[frame_id];
-    const Model::JointIndex & joint_id = frame.parent;
-    if (rf == WORLD)
+    const JointIndex & joint_id = frame.parent;
+    if(rf == WORLD)
     {
-      getJointJacobian<WORLD>(model,data,joint_id,J);
+      getJointJacobian(model,data,joint_id,WORLD,EIGEN_CONST_CAST(Matrix6xLike,J));
       return;
     }
     
-    if (rf == LOCAL)
+    if(rf == LOCAL)
     {
-      const SE3 & oMframe = data.oMf[frame_id];
+      Matrix6xLike & J_ = EIGEN_CONST_CAST(Matrix6xLike,J);
+      const typename Data::SE3 & oMframe = data.oMf[frame_id];
       const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
       
-      for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
+      for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
       {
-        J.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector();
+        J_.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector(); // TODO: use MotionRef
       }
       return;
     }
   }
   
-  inline void getFrameJacobian(const Model & model,
-                               const Data & data,
-                               const Model::FrameIndex frame_id,
-                               Data::Matrix6x & J)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
+  inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                               const Eigen::MatrixBase<Matrix6xLike> & J)
   {
-    getFrameJacobian<LOCAL>(model,data,frame_id,J);
+    getFrameJacobian(model,data,frame_id,LOCAL,EIGEN_CONST_CAST(Matrix6xLike,J));
   }
 
-  template<ReferenceFrame rf>
-  void getFrameJacobianTimeVariation(const Model & model,
-                                     const Data & data,
-                                     const Model::FrameIndex frameId,
-                                     Data::Matrix6x & dJ)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
+  void getFrameJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                     const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                                     const ReferenceFrame rf,
+                                     const Eigen::MatrixBase<Matrix6xLike> & dJ)
   {
     assert( dJ.rows() == data.dJ.rows() );
     assert( dJ.cols() == data.dJ.cols() );    
     assert(model.check(data) && "data is not consistent with model.");
     
-    const Frame & frame = model.frames[frameId];
-    const Model::JointIndex & joint_id = frame.parent;
-    if (rf == WORLD)
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef typename Model::Frame Frame;
+    typedef typename Model::SE3 SE3;
+    
+    const Frame & frame = model.frames[frame_id];
+    const typename Model::JointIndex & joint_id = frame.parent;
+    if(rf == WORLD)
     {
-      getJointJacobianTimeVariation<WORLD>(model,data,joint_id,dJ);
+      getJointJacobianTimeVariation(model,data,joint_id,WORLD,EIGEN_CONST_CAST(Matrix6xLike,dJ));
       return;
     }
     
     if (rf == LOCAL)
     {
-      const SE3 & oMframe = data.oMf[frameId];
+      Matrix6xLike & dJ_ = EIGEN_CONST_CAST(Matrix6xLike,dJ);
+      const SE3 & oMframe = data.oMf[frame_id];
       const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
       
       for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
       {
-        dJ.col(j) = oMframe.actInv(Motion(data.dJ.col(j))).toVector();
+        dJ_.col(j) = oMframe.actInv(Motion(data.dJ.col(j))).toVector();
       }
       return;
     }    

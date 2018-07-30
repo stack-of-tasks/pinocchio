@@ -101,14 +101,14 @@ namespace se3
   /* Return the jacobian of the output frame attached to joint <jointId> in the
    world frame or in the local frame depending on the template argument. The
    function computeJacobians should have been called first. */
-  template<ReferenceFrame rf>
-  void getJointJacobian(const Model & model,
-                   const Data & data,
-                   const Model::JointIndex jointId,
-                   Data::Matrix6x & J)
+  inline void getJointJacobian(const Model & model,
+                               const Data & data,
+                               const Model::JointIndex jointId,
+                               const ReferenceFrame rf,
+                               Data::Matrix6x & J)
   {
-    assert( J.rows() == data.J.rows() );
-    assert( J.cols() == data.J.cols() );
+    assert( J.rows() == 6 );
+    assert( J.cols() == model.nv );
     assert(model.check(data) && "data is not consistent with model.");
     
     const SE3 & oMjoint = data.oMi[jointId];
@@ -123,19 +123,19 @@ namespace se3
   
   struct JointJacobianForwardStep : public fusion::JointVisitorBase<JointJacobianForwardStep>
   {
-    typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &,
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
                                   const Eigen::VectorXd &,
-                                  se3::Data::Matrix6x &
+                                  Data::Matrix6x &
                                   > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
                      const Eigen::VectorXd & q,
-                     se3::Data::Matrix6x & J)
+                     Data::Matrix6x & J)
     {
       const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
       const Model::JointIndex & parent = model.parents[i];
@@ -167,17 +167,17 @@ namespace se3
   
   struct JointJacobiansTimeVariationForwardStep : public fusion::JointVisitorBase<JointJacobiansTimeVariationForwardStep>
   {
-    typedef boost::fusion::vector <const se3::Model &,
-    se3::Data &,
+    typedef boost::fusion::vector <const Model &,
+    Data &,
     const Eigen::VectorXd &,
     const Eigen::VectorXd &
     > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
                      const Eigen::VectorXd & q,
                      const Eigen::VectorXd & v)
     {
@@ -233,14 +233,14 @@ namespace se3
     return data.dJ;
   }
   
-  template<ReferenceFrame rf>
-  void getJointJacobianTimeVariation(const Model & model,
-                                     const Data & data,
-                                     const Model::JointIndex jointId,
-                                     Data::Matrix6x & dJ)
+  inline void getJointJacobianTimeVariation(const Model & model,
+                                            const Data & data,
+                                            const Model::JointIndex jointId,
+                                            const ReferenceFrame rf,
+                                            Data::Matrix6x & dJ)
   {
-    assert( dJ.rows() == data.dJ.rows() );
-    assert( dJ.cols() == data.dJ.cols() );
+    assert( dJ.rows() == 6 );
+    assert( dJ.cols() == model.nv );
     assert(model.check(data) && "data is not consistent with model.");
     
     const SE3 & oMjoint = data.oMi[jointId];

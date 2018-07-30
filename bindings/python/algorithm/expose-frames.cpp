@@ -29,10 +29,7 @@ namespace se3
                                                    ReferenceFrame rf)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
-      if(rf == LOCAL)
-        getFrameJacobian<LOCAL>(model, data, frame_id, J);
-      else
-        getFrameJacobian<WORLD>(model, data, frame_id, J);
+      getFrameJacobian(model, data, frame_id, rf, J);
       
       return J;
     }
