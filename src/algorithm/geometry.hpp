@@ -141,6 +141,7 @@ namespace se3
                                 GeometryData &        geomData);
 #endif // WITH_HPP_FCL
 
+  ///
   /// Append geomModel2 to geomModel1
   ///
   /// The steps for appending are:
@@ -152,11 +153,13 @@ namespace se3
   ///
   /// \param[out] geomModel1   geometry model where the data is added
   /// \param[in]  geomModel2   geometry model from which new geometries are taken
+  ///
   /// \note Of course, the geomData corresponding to geomModel1 will not be valid anymore, 
   /// and should be updated (or more simply, re-created from the new setting of geomModel1).
   /// \todo This function is not asserted in unittest.
+  ///
   inline void appendGeometryModel(GeometryModel & geomModel1,
-                                  GeometryData & geomData1);
+                                  const GeometryModel & geomModel2);
 
 } // namespace se3 
 
