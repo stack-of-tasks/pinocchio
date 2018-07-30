@@ -55,9 +55,7 @@ namespace se3
                                             ReferenceFrame rf)
     {
       Data::Matrix6x dJ(6,model.nv); dJ.setZero();
-      
-      if(rf == LOCAL) getFrameJacobianTimeVariation<LOCAL>(model,data,jointId,dJ);
-      else getFrameJacobianTimeVariation<WORLD>(model,data,jointId,dJ);
+      getFrameJacobianTimeVariation(model,data,jointId,rf,dJ);
       
       return dJ;
     }
@@ -98,14 +96,15 @@ namespace se3
     
     void exposeFramesAlgo()
     {
+      using namespace Eigen;
       bp::def("updateFramePlacements",
-              (void (*)(const Model &, Data &))&updateFramePlacements,
+              &updateFramePlacements<double,0,JointCollectionDefaultTpl>,
               bp::args("Model","Data"),
               "Computes the placements of all the operational frames according to the current joint placement stored in data"
               "and puts the results in data.");
 
       bp::def("updateFramePlacement",
-              (const SE3 & (*)(const Model &, Data &, const Model::FrameIndex))&updateFramePlacement,
+              &updateFramePlacement<double,0,JointCollectionDefaultTpl>,
               bp::args("Model","Data","Operational frame ID (int)"),
               "Computes the placement of the given operational frames according to the current joint placement stored in data,"
               "puts the results in data and returns it.",
@@ -124,7 +123,7 @@ namespace se3
               "Second order forwardKinematics should be called first.");
       
       bp::def("framesForwardKinematics",
-              (void (*)(const Model &, Data &, const Eigen::VectorXd &))&framesForwardKinematics,
+              &framesForwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
               "Update first the placement of the joints according to the given configuration value."
@@ -132,7 +131,7 @@ namespace se3
               "and put the results in data.");
       
       bp::def("frameJacobian",
-              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &, const Model::FrameIndex, ReferenceFrame))&frame_jacobian_proxy,
+              &frame_jacobian_proxy,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Operational frame ID (int)",
@@ -143,7 +142,7 @@ namespace se3
               "where v is the time derivative of the configuration q.");
       
       bp::def("getFrameJacobian",
-              (Data::Matrix6x (*)(const Model &, Data &, const Model::FrameIndex, ReferenceFrame))&get_frame_jacobian_proxy,
+              &get_frame_jacobian_proxy,
               bp::args("Model","Data",
                        "Operational frame ID (int)",
                        "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
