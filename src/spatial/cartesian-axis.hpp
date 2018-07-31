@@ -40,6 +40,20 @@ namespace se3
       return res;
     }
     
+    template<typename Scalar, typename V3_in, typename V3_out>
+    inline static void alphaCross(const Scalar & s,
+                                  const Eigen::MatrixBase<V3_in> & vin,
+                                  const Eigen::MatrixBase<V3_out> & vout);
+    
+    template<typename Scalar, typename V3>
+    static typename EIGEN_PLAIN_TYPE(V3) alphaCross(const Scalar & s,
+                                                    const Eigen::MatrixBase<V3> & vin)
+    {
+      typename EIGEN_PLAIN_TYPE(V3) res;
+      alphaCross(s,vin,res);
+      return res;
+    }
+    
     template<typename Scalar>
     Eigen::Matrix<Scalar,dim,1> operator*(const Scalar & s) const
     {
@@ -91,6 +105,42 @@ namespace se3
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
     V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
     vout_[0] = -vin[1]; vout_[1] = vin[0]; vout_[2] = 0.;
+  }
+  
+  template<>
+  template<typename Scalar, typename V3_in, typename V3_out>
+  inline void CartesianAxis<0>::alphaCross(const Scalar & s,
+                                           const Eigen::MatrixBase<V3_in> & vin,
+                                           const Eigen::MatrixBase<V3_out> & vout)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
+    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    vout_[0] = 0.; vout_[1] = -s*vin[2]; vout_[2] = s*vin[1];
+  }
+  
+  template<>
+  template<typename Scalar, typename V3_in, typename V3_out>
+  inline void CartesianAxis<1>::alphaCross(const Scalar & s,
+                                           const Eigen::MatrixBase<V3_in> & vin,
+                                           const Eigen::MatrixBase<V3_out> & vout)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
+    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    vout_[0] = s*vin[2]; vout_[1] = 0.; vout_[2] = -s*vin[0];
+  }
+  
+  template<>
+  template<typename Scalar, typename V3_in, typename V3_out>
+  inline void CartesianAxis<2>::alphaCross(const Scalar & s,
+                                           const Eigen::MatrixBase<V3_in> & vin,
+                                           const Eigen::MatrixBase<V3_out> & vout)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
+    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    vout_[0] = -s*vin[1]; vout_[1] = s*vin[0]; vout_[2] = 0.;
   }
  
   typedef CartesianAxis<0> AxisX;

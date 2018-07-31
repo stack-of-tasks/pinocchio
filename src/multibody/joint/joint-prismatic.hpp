@@ -127,9 +127,8 @@ namespace se3
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
       // Linear
-      CartesianAxis3::cross(v.angular(),mout.linear());
-      mout.linear() *= -rate;
-      
+      CartesianAxis3::alphaCross(-rate,v.angular(),mout.linear());
+
       // Angular
       mout.angular().setZero();
     }

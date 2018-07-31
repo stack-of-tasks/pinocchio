@@ -130,12 +130,10 @@ namespace se3
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
       // Linear
-      CartesianAxis3::cross(v.linear(),mout.linear());
-      mout.linear() *= -w;
-      
+      CartesianAxis3::alphaCross(-w,v.linear(),mout.linear());
+
       // Angular
-      CartesianAxis3::cross(v.angular(),mout.angular());
-      mout.angular() *= -w;
+      CartesianAxis3::alphaCross(-w,v.angular(),mout.angular());
     }
     
     template<typename M1>
