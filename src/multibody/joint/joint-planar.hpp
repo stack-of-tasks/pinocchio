@@ -120,8 +120,7 @@ namespace se3
       // Linear
       // TODO: use v.angular() as temporary variable
       Vector3 v3_tmp;
-      AxisZ::cross(m.translation(),v3_tmp);
-      v3_tmp *= m_theta_dot;
+      AxisZ::alphaCross(m_theta_dot,m.translation(),v3_tmp);
       v3_tmp[0] += m_x_dot; v3_tmp[1] += m_y_dot;
       v.linear().noalias() = m.rotation().transpose() * v3_tmp;
       
@@ -141,9 +140,7 @@ namespace se3
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
       // Linear
-//      mout.linear() = v.linear().cross(angular())+v.angular().cross(linear());
-      AxisZ::cross(v.linear(),mout.linear());
-      mout.linear() *= -m_theta_dot;
+      AxisZ::alphaCross(-m_theta_dot,v.linear(),mout.linear());
       
       typename M1::ConstAngularType w_in = v.angular();
       typename M2::LinearType v_out = mout.linear();
@@ -153,8 +150,7 @@ namespace se3
       v_out[2] += -w_in[1] * m_x_dot + w_in[0] * m_y_dot ;
       
       // Angular
-      AxisZ::cross(v.angular(),mout.angular());
-      mout.angular() *= -m_theta_dot;
+      AxisZ::alphaCross(-m_theta_dot,v.angular(),mout.angular());
     }
     
     template<typename M1>
