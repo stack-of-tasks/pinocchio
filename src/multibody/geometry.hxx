@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -202,9 +202,9 @@ namespace se3
   {
     assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
 
-    CollisionPairsVector_t::iterator it = std::find(collisionPairs.begin(),
-                                                    collisionPairs.end(),
-                                                    pair);
+    CollisionPairVector::iterator it = std::find(collisionPairs.begin(),
+                                                 collisionPairs.end(),
+                                                 pair);
     if (it != collisionPairs.end()) { collisionPairs.erase(it); }
   }
   
@@ -219,9 +219,9 @@ namespace se3
   
   inline PairIndex GeometryModel::findCollisionPair (const CollisionPair & pair) const
   {
-    CollisionPairsVector_t::const_iterator it = std::find(collisionPairs.begin(),
-                                                          collisionPairs.end(),
-                                                          pair);
+    CollisionPairVector::const_iterator it = std::find(collisionPairs.begin(),
+                                                       collisionPairs.end(),
+                                                       pair);
     
     return (PairIndex) std::distance(collisionPairs.begin(), it);
   }

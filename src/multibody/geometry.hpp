@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -38,16 +38,18 @@ namespace se3
   struct GeometryModel
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    typedef container::aligned_vector<GeometryObject> GeometryObjectVector;
+    typedef std::vector<CollisionPair> CollisionPairVector;
     
     /// \brief The number of GeometryObjects
     Index ngeoms;
 
     /// \brief Vector of GeometryObjects used for collision computations
-    container::aligned_vector<GeometryObject> geometryObjects;
+    GeometryObjectVector geometryObjects;
     ///
     /// \brief Vector of collision pairs.
     ///
-    std::vector<CollisionPair> collisionPairs;
+    CollisionPairVector collisionPairs;
   
     GeometryModel()
       : ngeoms(0)
