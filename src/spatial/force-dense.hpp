@@ -126,8 +126,8 @@ namespace se3
     template<typename M1, typename M2>
     void motionAction(const MotionDense<M1> & v, ForceDense<M2> & fout) const
     {
-      fout.linear() = v.angular().cross(linear());
-      fout.angular() = v.angular().cross(angular())+v.linear().cross(linear());
+      fout.linear().noalias() = v.angular().cross(linear());
+      fout.angular().noalias() = v.angular().cross(angular())+v.linear().cross(linear());
     }
     
     template<typename M1>
@@ -151,8 +151,9 @@ namespace se3
     template<typename S2, int O2, typename D2>
     void se3Action_impl(const SE3Tpl<S2,O2> & m, ForceDense<D2> & f) const
     {
-      f.linear() = m.rotation()*linear();
-      f.angular() = m.rotation()*angular() + m.translation().cross(f.linear());
+      f.linear().noalias() = m.rotation()*linear();
+      f.angular().noalias() = m.rotation()*angular();
+      f.angular() += m.translation().cross(f.linear());
     }
     
     template<typename S2, int O2>
@@ -166,9 +167,8 @@ namespace se3
     template<typename S2, int O2, typename D2>
     void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, ForceDense<D2> & f) const
     {
-      f.linear() = angular()-m.translation().cross(linear());
-      f.angular() = m.rotation().transpose()*(f.linear());
-      f.linear() = m.rotation().transpose()*linear();
+      f.linear().noalias() = m.rotation().transpose()*linear();
+      f.angular().noalias() = m.rotation().transpose()*(angular()-m.translation().cross(linear()));
     }
     
     template<typename S2, int O2>

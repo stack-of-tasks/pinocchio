@@ -31,8 +31,8 @@ namespace se3
     Derived & derived() { return *static_cast<Derived*>(this); }
     const Derived& derived() const { return *static_cast<const Derived*>(this); }
     
-    ConstAngularType angular() const  { return derived().angular_impl(); }
-    ConstLinearType linear() const  { return derived().linear_impl(); }
+    ConstAngularType angular() const { return derived().angular_impl(); }
+    ConstLinearType linear() const { return derived().linear_impl(); }
     AngularType angular() { return derived().angular_impl(); }
     LinearType linear() { return derived().linear_impl(); }
     
