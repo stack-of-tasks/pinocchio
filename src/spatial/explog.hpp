@@ -233,8 +233,8 @@ namespace se3
       const Scalar inv_t = Scalar(1)/t;
       Matrix3 S(alphaSkew(inv_t, w));
       Scalar ct,st; SINCOS(t,&st,&ct);
-      Matrix3 V((Scalar(1) - ct) * inv_t * S + (Scalar(1) - st * inv_t) * S * S);
-      Vector3 p(v + V * v);
+      Matrix3 V((Scalar(1) - ct) * inv_t * S + inv_t * inv_t * (Scalar(1) - st * inv_t) * w * w.transpose());
+      Vector3 p(inv_t * st * v + V * v);
       return SE3(exp3(w), p);
     }
     else
