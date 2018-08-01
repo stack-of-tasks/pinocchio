@@ -168,6 +168,8 @@ SET(${PROJECT_NAME}_UTILS_HEADERS
 SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/symmetric3.hpp
   spatial/se3.hpp
+  spatial/se3-base.hpp
+  spatial/se3-tpl.hpp
   spatial/motion.hpp
   spatial/motion-base.hpp
   spatial/motion-dense.hpp

@@ -18,6 +18,8 @@
 #ifndef __se3_motion_dense_hpp__
 #define __se3_motion_dense_hpp__
 
+#include "pinocchio/spatial/skew.hpp"
+
 namespace se3
 {
   
