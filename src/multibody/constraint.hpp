@@ -46,6 +46,8 @@ namespace se3
     typedef typename traits<Derived>::ConstMatrixReturnType ConstMatrixReturnType;
 
   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     Derived & derived() { return *static_cast<Derived*>(this); }
     const Derived& derived() const { return *static_cast<const Derived*>(this); }
 

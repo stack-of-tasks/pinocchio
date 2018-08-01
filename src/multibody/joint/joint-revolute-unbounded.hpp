@@ -66,6 +66,7 @@ namespace se3
   template<typename _Scalar, int _Options, int axis>
   struct JointDataRevoluteUnboundedTpl : public JointDataBase< JointDataRevoluteUnboundedTpl<_Scalar,_Options,axis> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteUnboundedTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
@@ -89,6 +90,7 @@ namespace se3
   struct JointModelRevoluteUnboundedTpl
   : public JointModelBase< JointModelRevoluteUnboundedTpl<_Scalar,_Options,axis> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteUnboundedTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     typedef JointRevoluteTpl<Scalar,_Options,axis> JointDerivedBase;

@@ -71,6 +71,7 @@ namespace se3
   template<typename _Scalar, int _Options, int _axis>
   struct MotionPrismaticTpl : MotionBase < MotionPrismaticTpl<_Scalar,_Options,_axis> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MOTION_TYPEDEF_TPL(MotionPrismaticTpl);
     
     enum { axis = _axis };
@@ -192,6 +193,7 @@ namespace se3
   template<typename _Scalar, int _Options, int axis>
   struct ConstraintPrismatic : ConstraintBase < ConstraintPrismatic <_Scalar,_Options,axis> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintPrismatic);
     enum { NV = 1, Options = _Options };
     typedef typename traits<ConstraintPrismatic>::JointMotion JointMotion;
@@ -460,6 +462,7 @@ namespace se3
   template<typename _Scalar, int _Options, int axis>
   struct JointDataPrismaticTpl : public JointDataBase< JointDataPrismaticTpl<_Scalar,_Options,axis> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPrismaticTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
@@ -484,6 +487,7 @@ namespace se3
   struct JointModelPrismaticTpl
   : public JointModelBase< JointModelPrismaticTpl<_Scalar,_Options,axis> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPrismaticTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     

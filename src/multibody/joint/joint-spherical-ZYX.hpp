@@ -71,6 +71,8 @@ namespace se3
   template <typename _Scalar, int _Options>
   struct BiasSphericalZYXTpl : MotionBase< BiasSphericalZYXTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     MOTION_TYPEDEF_TPL(BiasSphericalZYXTpl);
     
     BiasSphericalZYXTpl () : c_J(Vector3::Constant(NAN)) {}
@@ -186,6 +188,8 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct MotionSphericalZYXTpl : MotionBase< BiasSphericalZYXTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     MOTION_TYPEDEF_TPL(MotionSphericalZYXTpl);
 
     MotionSphericalZYXTpl () : rate(Vector3::Constant(NAN)) {}
@@ -321,6 +325,8 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct ConstraintSphericalZYXTpl : public ConstraintBase< ConstraintSphericalZYXTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintSphericalZYXTpl);
     enum { NV = 3, Options = _Options };
     
@@ -576,6 +582,7 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct JointDataSphericalZYXTpl : public JointDataBase< JointDataSphericalZYXTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSphericalZYXTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     
@@ -599,6 +606,7 @@ namespace se3
   struct JointModelSphericalZYXTpl
   : public JointModelBase< JointModelSphericalZYXTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSphericalZYXTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     

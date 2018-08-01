@@ -73,6 +73,7 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct MotionPlanarTpl : MotionBase< MotionPlanarTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MOTION_TYPEDEF_TPL(MotionPlanarTpl);
     
     typedef CartesianAxis<2> AxisZ;
@@ -218,7 +219,7 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct ConstraintPlanarTpl : ConstraintBase< ConstraintPlanarTpl<_Scalar,_Options> >
   {
-
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintPlanarTpl);
     enum { NV = 3, Options = 0 }; // to check
     typedef typename traits<ConstraintPlanarTpl>::JointMotion JointMotion;
@@ -432,6 +433,7 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct JointDataPlanarTpl : public JointDataBase< JointDataPlanarTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPlanarTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     
@@ -455,6 +457,7 @@ namespace se3
   struct JointModelPlanarTpl
   : public JointModelBase< JointModelPlanarTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPlanarTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     

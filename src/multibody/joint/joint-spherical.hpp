@@ -72,6 +72,8 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct MotionSphericalTpl : MotionBase< MotionSphericalTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     MOTION_TYPEDEF_TPL(MotionSphericalTpl);
 
     MotionSphericalTpl() : w (Motion::Vector3(NAN, NAN, NAN)) {}
@@ -196,6 +198,8 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct ConstraintSphericalTpl : public ConstraintBase< ConstraintSphericalTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintSphericalTpl);
     enum { NV = 3 };
     typedef typename traits<ConstraintSphericalTpl>::JointMotion JointMotion;
@@ -349,6 +353,8 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct JointDataSphericalTpl : public JointDataBase< JointDataSphericalTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     typedef JointSphericalTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
@@ -372,6 +378,8 @@ namespace se3
   struct JointModelSphericalTpl
   : public JointModelBase< JointModelSphericalTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     typedef JointSphericalTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     

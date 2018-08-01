@@ -70,6 +70,7 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct MotionRevoluteUnalignedTpl : MotionBase< MotionRevoluteUnalignedTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MOTION_TYPEDEF_TPL(MotionRevoluteUnalignedTpl);
 
     MotionRevoluteUnalignedTpl() : axis(Vector3::Constant(NAN)), w(NAN) {}
@@ -207,6 +208,7 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct ConstraintRevoluteUnalignedTpl : ConstraintBase< ConstraintRevoluteUnalignedTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintRevoluteUnalignedTpl);
     enum { NV = 1, Options = _Options };
     typedef typename traits<ConstraintRevoluteUnalignedTpl>::JointMotion JointMotion;
@@ -415,6 +417,7 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct JointDataRevoluteUnalignedTpl : public JointDataBase< JointDataRevoluteUnalignedTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteUnalignedTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
@@ -446,6 +449,7 @@ namespace se3
   struct JointModelRevoluteUnalignedTpl
   : public JointModelBase< JointModelRevoluteUnalignedTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteUnalignedTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     typedef Eigen::Matrix<Scalar,3,1,_Options> Vector3;

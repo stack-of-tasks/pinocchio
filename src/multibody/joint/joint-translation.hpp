@@ -71,6 +71,8 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct MotionTranslationTpl : MotionBase< MotionTranslationTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     MOTION_TYPEDEF_TPL(MotionTranslationTpl);
 
     MotionTranslationTpl()                   : rate(Motion::Vector3(NAN, NAN, NAN)) {}
@@ -200,6 +202,8 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct ConstraintTranslationTpl : ConstraintBase< ConstraintTranslationTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintTranslationTpl);
     
     enum { NV = 3, Options = traits<ConstraintTranslationTpl>::Options };
@@ -366,6 +370,8 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct JointDataTranslationTpl : public JointDataBase< JointDataTranslationTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     typedef JointTranslationTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
@@ -389,6 +395,8 @@ namespace se3
   struct JointModelTranslationTpl
   : public JointModelBase< JointModelTranslationTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     typedef JointTranslationTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     

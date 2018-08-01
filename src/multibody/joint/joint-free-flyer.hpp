@@ -68,6 +68,7 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct ConstraintIdentityTpl : ConstraintBase< ConstraintIdentityTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintIdentityTpl);
     enum { NV = 6, Options = 0 };
     typedef typename traits<ConstraintIdentityTpl>::JointMotion JointMotion;
@@ -181,6 +182,7 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct JointDataFreeFlyerTpl : public JointDataBase< JointDataFreeFlyerTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     
@@ -204,6 +206,7 @@ namespace se3
   struct JointModelFreeFlyerTpl
   : public JointModelBase< JointModelFreeFlyerTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
     
