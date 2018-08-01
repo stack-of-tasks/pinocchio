@@ -327,8 +327,8 @@ namespace se3
     typedef MotionTpl<Scalar,Options> Motion;
     typedef typename SE3::Vector3 Vector3;
 
-    const typename SE3::ConstAngular_t & R = M.rotation();
-    const typename SE3::ConstLinear_t & p = M.translation();
+    typename SE3::ConstAngularRef R = M.rotation();
+    typename SE3::ConstLinearRef p = M.translation();
     
     Scalar t;
     Vector3 w(log3(R,t));
@@ -449,8 +449,8 @@ namespace se3
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6Like,6,6);
     Matrix6Like & value = const_cast<Matrix6Like &> (Jlog.derived());
 
-    const typename SE3::ConstAngular_t & R = M.rotation();
-    const typename SE3::ConstLinear_t & p = M.translation();
+    typename SE3::ConstAngularRef R = M.rotation();
+    typename SE3::ConstLinearRef p = M.translation();
     
     Scalar t;
     Vector3 w(log3(R,t));

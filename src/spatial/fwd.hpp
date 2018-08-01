@@ -24,7 +24,7 @@
 namespace se3
 {
   
-  template<typename Scalar, int Options=0> class SE3Tpl;
+  template<typename Scalar, int Options=0> struct SE3Tpl;
 
   template<typename Derived> class MotionBase;
   template<typename Derived> class MotionDense;

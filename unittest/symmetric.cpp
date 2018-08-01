@@ -31,12 +31,11 @@
  */
 
 #include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/spatial/skew.hpp"
 #include "pinocchio/utils/timer.hpp"
 
 #include <boost/random.hpp>
-
-
+#include <Eigen/Geometry>
 
 #include "pinocchio/spatial/symmetric3.hpp"
 

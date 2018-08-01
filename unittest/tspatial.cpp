@@ -35,27 +35,28 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_SE3 )
 {
   using namespace se3;
-  typedef Eigen::Matrix<double,4,4> Matrix4;
-  typedef SE3::Matrix6 Matrix6;
+  typedef SE3::HomogeneousMatrixType HomogeneousMatrixType;
+  typedef SE3::ActionMatrixType ActionMatrixType;
   typedef SE3::Vector3 Vector3;
+  typedef Eigen::Matrix<double,4,1> Vector4;
 
   SE3 amb = SE3::Random();
   SE3 bmc = SE3::Random();
   SE3 amc = amb*bmc;
 
-  Matrix4 aMb = amb;
-  Matrix4 bMc = bmc;
+  HomogeneousMatrixType aMb = amb;
+  HomogeneousMatrixType bMc = bmc;
 
   // Test internal product
-  Matrix4 aMc = amc;
+  HomogeneousMatrixType aMc = amc;
   BOOST_CHECK(aMc.isApprox(aMb*bMc, 1e-12));
 
-  Matrix4 bMa = amb.inverse();
+  HomogeneousMatrixType bMa = amb.inverse();
   BOOST_CHECK(bMa.isApprox(aMb.inverse(), 1e-12));
 
   // Test point action
   Vector3 p = Vector3::Random();
-  Eigen::Matrix<double,4,1> p4; p4.head(3) = p; p4[3] = 1;
+  Vector4 p4; p4.head(3) = p; p4[3] = 1;
 
   Vector3 Mp = (aMb*p4).head(3);
   BOOST_CHECK(amb.act(p).isApprox(Mp, 1e-12));
@@ -64,12 +65,12 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   BOOST_CHECK(amb.actInv(p).isApprox(Mip, 1e-12));
 
   // Test action matrix
-  Matrix6 aXb = amb;
-  Matrix6 bXc = bmc;
-  Matrix6 aXc = amc;
+  ActionMatrixType aXb = amb;
+  ActionMatrixType bXc = bmc;
+  ActionMatrixType aXc = amc;
   BOOST_CHECK(aXc.isApprox(aXb*bXc, 1e-12));
   
-  Matrix6 bXa = amb.inverse();
+  ActionMatrixType bXa = amb.inverse();
   BOOST_CHECK(bXa.isApprox(aXb.inverse(), 1e-12));
   
   // Test dual action matrix
@@ -86,7 +87,7 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
 BOOST_AUTO_TEST_CASE ( test_Motion )
 {
   using namespace se3;
-  typedef SE3::Matrix6 Matrix6;
+  typedef SE3::ActionMatrixType ActionMatrixType;
   typedef Motion::Vector6 Vector6;
 
   SE3 amb = SE3::Random();
@@ -124,11 +125,11 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   BOOST_CHECK( bv4.toVector().isApprox(bv2_vec, 1e-12));
 
   // Test action
-  Matrix6 aXb = amb;
+  ActionMatrixType aXb = amb;
   BOOST_CHECK(amb.act(bv).toVector().isApprox(aXb*bv_vec, 1e-12));
 
   // Test action inverse
-  Matrix6 bXc = bmc;
+  ActionMatrixType bXc = bmc;
   BOOST_CHECK(bmc.actInv(bv).toVector().isApprox(bXc.inverse()*bv_vec, 1e-12));
 
   // Test double action
@@ -273,7 +274,7 @@ BOOST_AUTO_TEST_CASE(test_motion_zero)
 BOOST_AUTO_TEST_CASE ( test_Force )
 {
   using namespace se3;
-  typedef SE3::Matrix6 Matrix6;
+  typedef SE3::ActionMatrixType ActionMatrixType;
   typedef Force::Vector6 Vector6;
 
   SE3 amb = SE3::Random();
@@ -308,11 +309,11 @@ BOOST_AUTO_TEST_CASE ( test_Force )
 
 
   // Test action
-  Matrix6 aXb = amb;
+  ActionMatrixType aXb = amb;
   BOOST_CHECK(amb.act(bf).toVector().isApprox(aXb.inverse().transpose()*bf_vec, 1e-12));
 
   // Test action inverse
-  Matrix6 bXc = bmc;
+  ActionMatrixType bXc = bmc;
   BOOST_CHECK(bmc.actInv(bf).toVector().isApprox(bXc.transpose()*bf_vec, 1e-12));
 
   // Test double action
@@ -754,7 +755,7 @@ BOOST_AUTO_TEST_CASE(test_skew)
 {
   using namespace se3;
   typedef SE3::Vector3 Vector3;
-  typedef SE3::Vector6 Vector6;
+  typedef Motion::Vector6 Vector6;
   
   Vector3 v3(Vector3::Random());
   Vector6 v6(Vector6::Random());
@@ -921,12 +922,12 @@ BOOST_AUTO_TEST_CASE(test_spatial_axis)
   test_scalar_multiplication<5>::run();
   
   // Operations of Constraint on forces Sxf
-  typedef SE3::Matrix6 Matrix6;
-  typedef Matrix6::ColXpr ColType;
+  typedef Motion::ActionMatrixType ActionMatrixType;
+  typedef ActionMatrixType::ColXpr ColType;
   typedef ForceRef<ColType> ForceRefOnColType;
   typedef MotionRef<ColType> MotionRefOnColType;
-  Matrix6 Sxf,Sxf_ref;
-  Matrix6 S(Matrix6::Identity());
+  ActionMatrixType Sxf,Sxf_ref;
+  ActionMatrixType S(ActionMatrixType::Identity());
   
   SpatialAxis<0>::cross(f,ForceRefOnColType(Sxf.col(0)));
   SpatialAxis<1>::cross(f,ForceRefOnColType(Sxf.col(1)));
