@@ -990,6 +990,34 @@ BOOST_AUTO_TEST_SUITE(JointRevolute)
   
   BOOST_AUTO_TEST_CASE(spatial)
   {
+    typedef TransformRevoluteTpl<double,0,0> TransformX;
+    typedef TransformRevoluteTpl<double,0,1> TransformY;
+    typedef TransformRevoluteTpl<double,0,2> TransformZ;
+    
+    typedef SE3::Vector3 Vector3;
+    
+    const double alpha = 0.2;
+    double sin_alpha, cos_alpha; SINCOS(alpha,&sin_alpha,&cos_alpha);
+    SE3 Mplain, Mrand(SE3::Random());
+    
+    TransformX Mx(sin_alpha,cos_alpha);
+    Mplain = Mx;
+    BOOST_CHECK(Mplain.translation().isZero());
+    BOOST_CHECK(Mplain.rotation().isApprox(Eigen::AngleAxisd(alpha,Vector3::UnitX()).toRotationMatrix()));
+    BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mx));
+    
+    TransformY My(sin_alpha,cos_alpha);
+    Mplain = My;
+    BOOST_CHECK(Mplain.translation().isZero());
+    BOOST_CHECK(Mplain.rotation().isApprox(Eigen::AngleAxisd(alpha,Vector3::UnitY()).toRotationMatrix()));
+    BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*My));
+    
+    TransformZ Mz(sin_alpha,cos_alpha);
+    Mplain = Mz;
+    BOOST_CHECK(Mplain.translation().isZero());
+    BOOST_CHECK(Mplain.rotation().isApprox(Eigen::AngleAxisd(alpha,Vector3::UnitZ()).toRotationMatrix()));
+    BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mz));
+    
     SE3 M(SE3::Random());
     Motion v(Motion::Random());
     

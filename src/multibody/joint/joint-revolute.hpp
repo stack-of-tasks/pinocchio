@@ -67,6 +67,136 @@ namespace se3
       ANGULAR = 3
     };
   }; // traits MotionRevoluteTpl
+  
+  template<typename Scalar, int Options, int axis> struct TransformRevoluteTpl;
+  
+  template<typename _Scalar, int _Options, int _axis>
+  struct traits< TransformRevoluteTpl<_Scalar,_Options,_axis> >
+  {
+    enum {
+      axis = _axis,
+      Options = _Options,
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+    typedef _Scalar Scalar;
+    typedef SE3Tpl<Scalar,Options> PlainType;
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
+    typedef Matrix3 AngularType;
+    typedef Matrix3 AngularRef;
+    typedef Matrix3 ConstAngularRef;
+    typedef typename Vector3::ConstantReturnType LinearType;
+    typedef typename Vector3::ConstantReturnType LinearRef;
+    typedef const typename Vector3::ConstantReturnType ConstLinearRef;
+    typedef typename traits<PlainType>::ActionMatrixType ActionMatrixType;
+    typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
+  }; // traits TransformRevoluteTpl
+  
+  namespace internal
+  {
+    template<typename Scalar, int Options, int axis>
+    struct SE3GroupAction< TransformRevoluteTpl<Scalar,Options,axis> >
+    { typedef typename traits <TransformRevoluteTpl<Scalar,Options,axis> >::PlainType ReturnType; };
+  }
+  
+  template<typename _Scalar, int _Options, int axis>
+  struct TransformRevoluteTpl : SE3Base< TransformRevoluteTpl<_Scalar,_Options,axis> >
+  {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    SE3_TYPEDEF_TPL(TransformRevoluteTpl);
+    typedef typename traits<TransformRevoluteTpl>::PlainType PlainType;
+    
+    TransformRevoluteTpl() {}
+    TransformRevoluteTpl(const Scalar & sin, const Scalar & cos)
+    : m_sin(sin), m_cos(cos)
+    {}
+    
+    PlainType plain() const
+    {
+      PlainType res(PlainType::Identity());
+      typename PlainType::AngularRef rot = res.rotation();
+      switch(axis)
+      {
+        case 0:
+        {
+          rot.coeffRef(1,1) = m_cos; rot.coeffRef(1,2) = -m_sin;
+          rot.coeffRef(2,1) = m_sin; rot.coeffRef(2,2) =  m_cos;
+          break;
+        }
+        case 1:
+        {
+          rot.coeffRef(0,0) =  m_cos; rot.coeffRef(0,2) = m_sin;
+          rot.coeffRef(2,0) = -m_sin; rot.coeffRef(2,2) = m_cos;
+          break;
+        }
+        case 2:
+        {
+          rot.coeffRef(0,0) = m_cos; rot.coeffRef(0,1) = -m_sin;
+          rot.coeffRef(1,0) = m_sin; rot.coeffRef(1,1) =  m_cos;
+          break;
+        }
+        default:
+        {
+          assert(false && "must nerver happened");
+          break;
+        }
+      }
+      
+      return res;
+    }
+    
+    operator PlainType() const { return plain(); }
+    
+    template<typename S2, int O2>
+    typename internal::SE3GroupAction<TransformRevoluteTpl>::ReturnType
+    se3action(const SE3Tpl<S2,O2> & m) const
+    {
+      typedef typename internal::SE3GroupAction<TransformRevoluteTpl>::ReturnType ReturnType;
+      ReturnType res;
+      switch(axis)
+      {
+        case 0:
+        {
+          res.rotation().col(0) = m.rotation().col(0);
+          res.rotation().col(1).noalias() = m_cos * m.rotation().col(1) + m_sin * m.rotation().col(2);
+          res.rotation().col(2).noalias() = res.rotation().col(0).cross(res.rotation().col(1));
+          break;
+        }
+        case 1:
+        {
+          res.rotation().col(1) = m.rotation().col(1);
+          res.rotation().col(2).noalias() = m_cos * m.rotation().col(2) + m_sin * m.rotation().col(0);
+          res.rotation().col(0).noalias() = res.rotation().col(1).cross(res.rotation().col(2));
+          break;
+        }
+        case 2:
+        {
+          res.rotation().col(2) = m.rotation().col(2);
+          res.rotation().col(0).noalias() = m_cos * m.rotation().col(0) + m_sin * m.rotation().col(1);
+          res.rotation().col(1).noalias() = res.rotation().col(2).cross(res.rotation().col(0));
+          break;
+        }
+        default:
+        {
+          assert(false && "must nerver happened");
+          break;
+        }
+      }
+      res.translation() = m.translation();
+      return res;
+    }
+    
+    const Scalar & sin() const { return m_sin; }
+    const Scalar & cos() const { return m_cos; }
+    
+    void setValues(const Scalar & sin, const Scalar & cos)
+    { m_sin = sin; m_cos = cos; }
+    
+  protected:
+    
+    Scalar m_sin, m_cos;
+  };
 
   template<typename _Scalar, int _Options, int axis>
   struct MotionRevoluteTpl : MotionBase< MotionRevoluteTpl<_Scalar,_Options,axis> >
