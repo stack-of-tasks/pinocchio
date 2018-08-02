@@ -76,7 +76,7 @@ namespace se3
     typedef typename traits<ConstraintIdentityTpl>::DenseBase DenseBase;
     
     template<typename S1, int O1>
-    typename SE3::Matrix6 se3Action(const SE3Tpl<S1,O1> & m) const
+    typename SE3::ActionMatrixType se3Action(const SE3Tpl<S1,O1> & m) const
     { return m.toActionMatrix(); }
     
     int nv_impl() const { return NV; }
@@ -136,11 +136,11 @@ namespace se3
   {
     template<typename S1, int O1>
     struct SE3GroupAction< ConstraintIdentityTpl<S1,O1> >
-    { typedef typename SE3Tpl<S1,O1>::Matrix6 ReturnType; };
+    { typedef typename SE3Tpl<S1,O1>::ActionMatrixType ReturnType; };
     
     template<typename S1, int O1, typename MotionDerived>
     struct MotionAlgebraAction< ConstraintIdentityTpl<S1,O1>,MotionDerived >
-    { typedef typename SE3Tpl<S1,O1>::Matrix6 ReturnType; };
+    { typedef typename SE3Tpl<S1,O1>::ActionMatrixType ReturnType; };
   }
 
   template<typename Scalar, int Options> struct JointFreeFlyerTpl;
