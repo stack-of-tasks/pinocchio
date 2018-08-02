@@ -39,7 +39,7 @@ namespace se3
   /// \return The rotational matrix associated to the integration of the angular velocity during time 1.
   ///
   template<typename Vector3Like>
-  typename Eigen::Matrix<typename Vector3Like::Scalar,3,3,Eigen::internal::traits<Vector3Like>::Options>
+  typename Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
   exp3(const Eigen::MatrixBase<Vector3Like> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
@@ -49,11 +49,34 @@ namespace se3
     typedef typename EIGEN_PLAIN_TYPE(Vector3Like) Vector3LikePlain;
     typedef Eigen::Matrix<Scalar,3,3,Vector3LikePlain::Options> Matrix3;
     
-    Scalar nv = v.norm();
-    if(nv > 1e-14)
-      return Eigen::AngleAxis<Scalar>(nv, v/nv).matrix();
+    const Scalar t2 = v.squaredNorm();
+    
+    const Scalar t = std::sqrt(t2);
+    if(t > Eigen::NumTraits<Scalar>::dummy_precision())
+    {
+      Scalar ct,st; SINCOS(t,&st,&ct);
+      const Scalar alpha_vxvx = (1 - ct)/t2;
+      const Scalar alpha_vx = (st)/t;
+      Matrix3 res(alpha_vxvx * v * v.transpose());
+      res.coeffRef(0,1) -= alpha_vx * v[2]; res.coeffRef(1,0) += alpha_vx * v[2];
+      res.coeffRef(0,2) += alpha_vx * v[1]; res.coeffRef(2,0) -= alpha_vx * v[1];
+      res.coeffRef(1,2) -= alpha_vx * v[0]; res.coeffRef(2,1) += alpha_vx * v[0];
+      res.diagonal().array() += ct;
+      
+      return res;
+    }
     else
-      return Matrix3::Identity();
+    {
+      const Scalar alpha_vxvx = Scalar(1)/Scalar(2) - t2/24;
+      const Scalar alpha_vx = Scalar(1) - t2/6;
+      Matrix3 res(alpha_vxvx * v * v.transpose());
+      res.coeffRef(0,1) -= alpha_vx * v[2]; res.coeffRef(1,0) += alpha_vx * v[2];
+      res.coeffRef(0,2) += alpha_vx * v[1]; res.coeffRef(2,0) -= alpha_vx * v[1];
+      res.coeffRef(1,2) -= alpha_vx * v[0]; res.coeffRef(2,1) += alpha_vx * v[0];
+      res.diagonal().array() += Scalar(1) - t2/2;
+      
+      return res;
+    }
   }
 
   /// \brief Same as \ref log3
@@ -219,26 +242,56 @@ namespace se3
   {
     typedef typename MotionDerived::Scalar Scalar;
     enum { Options = Eigen::internal::traits<typename MotionDerived::Vector3>::Options };
-    typedef typename SE3Tpl<Scalar,Options>::Vector3 Vector3;
-    typedef typename SE3Tpl<Scalar,Options>::Matrix3 Matrix3;
 
     typedef SE3Tpl<Scalar,Options> SE3;
     
     const typename MotionDerived::ConstAngularType & w = nu.angular();
     const typename MotionDerived::ConstLinearType & v = nu.linear();
     
-    Scalar t = w.norm();
-    if(t > 1e-15)
+    const Scalar t2 = w.squaredNorm();
+    
+    SE3 res;
+    typename SE3::Linear_t & trans = res.translation();
+    typename SE3::Angular_t & rot = res.rotation();
+    
+    const Scalar t = std::sqrt(t2);
+    if(t > Eigen::NumTraits<Scalar>::dummy_precision())
     {
-      const Scalar inv_t = Scalar(1)/t;
-      Matrix3 S(alphaSkew(inv_t, w));
       Scalar ct,st; SINCOS(t,&st,&ct);
-      Matrix3 V((Scalar(1) - ct) * inv_t * S + inv_t * inv_t * (Scalar(1) - st * inv_t) * w * w.transpose());
-      Vector3 p(inv_t * st * v + V * v);
-      return SE3(exp3(w), p);
+
+      const Scalar inv_t2 = Scalar(1)/t2;
+      const Scalar alpha_wxv = (Scalar(1) - ct)*inv_t2;
+      const Scalar alpha_v = (st)/t;
+      const Scalar alpha_w = (Scalar(1) - alpha_v)*inv_t2 * w.dot(v);
+      
+      // Linear
+      trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
+      
+      // Rotational
+      rot.noalias() = alpha_wxv * w * w.transpose();
+      rot.coeffRef(0,1) -= alpha_v * w[2]; rot.coeffRef(1,0) += alpha_v * w[2];
+      rot.coeffRef(0,2) += alpha_v * w[1]; rot.coeffRef(2,0) -= alpha_v * w[1];
+      rot.coeffRef(1,2) -= alpha_v * w[0]; rot.coeffRef(2,1) += alpha_v * w[0];
+      rot.diagonal().array() += ct;
     }
     else
-      return SE3(Matrix3::Identity(),v);
+    {
+      const Scalar alpha_wxv = Scalar(1)/Scalar(2) - t2/24;
+      const Scalar alpha_v = Scalar(1) - t2/6;
+      const Scalar alpha_w = Scalar(1)/Scalar(6) - t2/120;
+      
+      // Linear
+      trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
+      
+      // Rotational
+      rot.noalias() = alpha_wxv * w * w.transpose();
+      rot.coeffRef(0,1) -= alpha_v * w[2]; rot.coeffRef(1,0) += alpha_v * w[2];
+      rot.coeffRef(0,2) += alpha_v * w[1]; rot.coeffRef(2,0) -= alpha_v * w[1];
+      rot.coeffRef(1,2) -= alpha_v * w[0]; rot.coeffRef(2,1) += alpha_v * w[0];
+      rot.diagonal().array() += Scalar(1) - t2/2;
+    }
+    
+    return res;
   }
 
   /// \brief Exp: se3 -> SE3.
