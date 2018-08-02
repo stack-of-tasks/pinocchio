@@ -159,6 +159,14 @@ namespace se3
     res += m1;
     return res;
   }
+  
+  template<typename MotionDerived, typename S2, int O2, int axis>
+  EIGEN_STRONG_INLINE
+  typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteTpl<S2,O2,axis>& m2)
+  {
+    return m2.motionAction(m1);
+  }
 
   template<typename Scalar, int Options, int axis> struct ConstraintRevoluteTpl;
   
@@ -278,60 +286,6 @@ namespace se3
       return res;
     }
   }; // struct ConstraintRevoluteTpl
-
-  template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteTpl<S2,O2,0>& m2)
-  {
-    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
-     * nu1^(0,w2) = ( v1^w2      , w1^w2 )
-     * (x,y,z)^(w,0,0) = ( 0,zw,-yw )
-     * nu1^(0,wx) = ( 0,vz1 wx,-vy1 wx,    0,wz1 wx,-wy1 wx)
-     */
-    typedef typename MotionDerived::MotionPlain ReturnType;
-    const typename MotionDerived::ConstLinearType & v = m1.linear();
-    const typename MotionDerived::ConstAngularType & w = m1.angular();
-    const S2 & wx = m2.w;
-    return ReturnType(typename ReturnType::Vector3(0,v[2]*wx,-v[1]*wx),
-                      typename ReturnType::Vector3(0,w[2]*wx,-w[1]*wx)
-                      );
-  }
-
-  template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteTpl<S2,O2,1>& m2)
-  {
-    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
-     * nu1^(0,w2) = ( v1^w2      , w1^w2 )
-     * (x,y,z)^(0,w,0) = ( -z,0,x )
-     * nu1^(0,wx) = ( -vz1 wx,0,vx1 wx,    -wz1 wx,0,wx1 wx)
-     */
-    typedef typename MotionDerived::MotionPlain ReturnType;
-    const typename MotionDerived::ConstLinearType & v = m1.linear();
-    const typename MotionDerived::ConstAngularType & w = m1.angular();
-    const S2 & wx = m2.w;
-    return ReturnType(typename ReturnType::Vector3(-v[2]*wx,0, v[0]*wx),
-                      typename ReturnType::Vector3(-w[2]*wx,0, w[0]*wx)
-                      );
-  }
-
-  template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteTpl<S2,O2,2>& m2)
-  {
-    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
-     * nu1^(0,w2) = ( v1^w2      , w1^w2 )
-     * (x,y,z)^(0,0,w) = ( y,-x,0 )
-     * nu1^(0,wx) = ( vy1 wx,-vx1 wx,0,    wy1 wx,-wx1 wx,0 )
-     */
-    typedef typename MotionDerived::MotionPlain ReturnType;
-    const typename MotionDerived::ConstLinearType & v = m1.linear();
-    const typename MotionDerived::ConstAngularType & w = m1.angular();
-    const S2 & wx = m2.w;
-    return ReturnType(typename ReturnType::Vector3(v[1]*wx,-v[0]*wx,0),
-                      typename ReturnType::Vector3(w[1]*wx,-w[0]*wx,0)
-                      );
-  }
 
   template<typename _Scalar, int _Options, int _axis>
   struct JointRevoluteTpl
