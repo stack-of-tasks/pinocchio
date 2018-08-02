@@ -50,9 +50,9 @@ namespace se3
     typedef Eigen::Matrix<Scalar,3,3,Vector3LikePlain::Options> Matrix3;
     
     const Scalar t2 = v.squaredNorm();
-    const Scalar t = std::sqrt(t2);
     
-    if(t > 1e-8)
+    const Scalar t = std::sqrt(t2);
+    if(t > Eigen::NumTraits<Scalar>::dummy_precision())
     {
       Scalar ct,st; SINCOS(t,&st,&ct);
       const Scalar alpha_vxvx = (1 - ct)/t2;
@@ -249,13 +249,13 @@ namespace se3
     const typename MotionDerived::ConstLinearType & v = nu.linear();
     
     const Scalar t2 = w.squaredNorm();
-    const Scalar t = std::sqrt(t2);
     
     SE3 res;
     typename SE3::Linear_t & trans = res.translation();
     typename SE3::Angular_t & rot = res.rotation();
     
-    if(t > 1e-8)
+    const Scalar t = std::sqrt(t2);
+    if(t > Eigen::NumTraits<Scalar>::dummy_precision())
     {
       Scalar ct,st; SINCOS(t,&st,&ct);
 
