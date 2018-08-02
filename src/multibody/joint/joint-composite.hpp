@@ -383,6 +383,27 @@ namespace se3
 
 } // namespace se3
 
+#include <boost/type_traits.hpp>
+
+namespace boost
+{
+  template<typename JointCollection>
+  struct has_nothrow_constructor< ::se3::JointModelCompositeTpl<JointCollection> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename JointCollection>
+  struct has_nothrow_copy< ::se3::JointModelCompositeTpl<JointCollection> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename JointCollection>
+  struct has_nothrow_constructor< ::se3::JointDataCompositeTpl<JointCollection> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename JointCollection>
+  struct has_nothrow_copy< ::se3::JointDataCompositeTpl<JointCollection> >
+  : public integral_constant<bool,true> {};
+}
+
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */

@@ -512,8 +512,28 @@ namespace se3
     Vector3 axis;
   }; // struct JointModelPrismaticUnalignedTpl
   
-  typedef JointPrismaticUnalignedTpl<double,0> JointPrismaticUnaligned;
 } //namespace se3
+
+#include <boost/type_traits.hpp>
+
+namespace boost
+{
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::se3::JointModelPrismaticUnalignedTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::se3::JointModelPrismaticUnalignedTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::se3::JointDataPrismaticUnalignedTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::se3::JointDataPrismaticUnalignedTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+}
 
 
 #endif // ifndef __se3_joint_prismatic_unaligned_hpp__

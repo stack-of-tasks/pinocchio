@@ -526,5 +526,26 @@ namespace se3
 
 } //namespace se3
 
+#include <boost/type_traits.hpp>
+
+namespace boost
+{
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::se3::JointModelRevoluteUnalignedTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::se3::JointModelRevoluteUnalignedTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::se3::JointDataRevoluteUnalignedTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::se3::JointDataRevoluteUnalignedTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+}
+
 
 #endif // ifndef __se3_joint_revolute_unaligned_hpp__

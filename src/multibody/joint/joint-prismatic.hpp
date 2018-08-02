@@ -559,4 +559,25 @@ namespace se3
 
 } //namespace se3
 
+#include <boost/type_traits.hpp>
+
+namespace boost
+{
+  template<typename Scalar, int Options, int axis>
+  struct has_nothrow_constructor< ::se3::JointModelPrismaticTpl<Scalar,Options,axis> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options, int axis>
+  struct has_nothrow_copy< ::se3::JointModelPrismaticTpl<Scalar,Options,axis> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options, int axis>
+  struct has_nothrow_constructor< ::se3::JointDataPrismaticTpl<Scalar,Options,axis> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options, int axis>
+  struct has_nothrow_copy< ::se3::JointDataPrismaticTpl<Scalar,Options,axis> >
+  : public integral_constant<bool,true> {};
+}
+
 #endif // ifndef __se3_joint_prismatic_hpp__

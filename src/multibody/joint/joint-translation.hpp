@@ -455,4 +455,25 @@ namespace se3
   
 } // namespace se3
 
+#include <boost/type_traits.hpp>
+
+namespace boost
+{
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::se3::JointModelTranslationTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::se3::JointModelTranslationTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::se3::JointDataTranslationTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::se3::JointDataTranslationTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+}
+
 #endif // ifndef __se3_joint_translation_hpp__
