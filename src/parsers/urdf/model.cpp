@@ -91,10 +91,10 @@ namespace se3
                            const SE3 & joint_placement, const std::string & joint_name,
                            const ::urdf::InertialConstSharedPtr Y,
                            const std::string & body_name,
-                           const typename JointModel::TangentVector_t & max_effort   = JointModel::TangentVector_t::Constant( infty),
-                           const typename JointModel::TangentVector_t & max_velocity = JointModel::TangentVector_t::Constant( infty),
-                           const typename JointModel::ConfigVector_t  & min_config   = JointModel::ConfigVector_t ::Constant(-infty),
-                           const typename JointModel::ConfigVector_t  & max_config   = JointModel::ConfigVector_t ::Constant( infty))
+                           const typename JointModel::TangentVector_t & max_effort,
+                           const typename JointModel::TangentVector_t & max_velocity,
+                           const typename JointModel::ConfigVector_t  & min_config,
+                           const typename JointModel::ConfigVector_t  & max_config)
       {
         Model::JointIndex idx;
         const Frame & frame = model.frames[parentFrameId];
@@ -120,6 +120,22 @@ namespace se3
         appendBodyToJoint(model, jointFrameId, Y, SE3::Identity(), body_name);
       }
       
+      template<typename JointModel>
+      void addJointAndBody(Model & model, const JointModelBase<JointModel> & jmodel,
+                           const FrameIndex & parentFrameId,
+                           const SE3 & joint_placement, const std::string & joint_name,
+                           const ::urdf::InertialConstSharedPtr Y,
+                           const std::string & body_name)
+      {
+        const typename JointModel::TangentVector_t max_effort   = JointModel::TangentVector_t::Constant(jmodel.nv(), infty);
+        const typename JointModel::TangentVector_t max_velocity = JointModel::TangentVector_t::Constant(jmodel.nv(), infty);
+        const typename JointModel::ConfigVector_t  min_config   = JointModel::ConfigVector_t ::Constant(jmodel.nq(),-infty);
+        const typename JointModel::ConfigVector_t  max_config   = JointModel::ConfigVector_t ::Constant(jmodel.nq(), infty);
+        
+        addJointAndBody(model,jmodel.derived(),parentFrameId,joint_placement,joint_name,Y,body_name,
+                        max_effort,max_velocity,min_config,max_config);
+      }
+      
       ///
       /// \brief Shortcut for adding a fixed joint and directly append a body to it.
       ///
@@ -137,24 +153,6 @@ namespace se3
         if (fid < 0)
           throw std::invalid_argument ("Fixed joint " + joint_name + " could not be added.");
         appendBodyToJoint(model, (FrameIndex)fid, Y, SE3::Identity(), body_name);
-      }
-
-      ///
-      /// \brief Handle the case of JointModelComposite which is dynamic.
-      ///
-      void addJointAndBody(Model & model,
-                           const JointModelBase< JointModelComposite > & jmodel,
-                           const Model::JointIndex parent_id,
-                           const SE3 & joint_placement, const std::string & joint_name,
-                           const ::urdf::InertialConstSharedPtr Y,
-                           const std::string & body_name)
-      {
-        Model::JointIndex idx;
-        
-        idx = model.addJoint(parent_id,jmodel,
-                             joint_placement,joint_name);
-        
-        appendBodyToJoint(model,idx,Y,SE3::Identity(),body_name);
       }
 
       ///
@@ -335,10 +333,16 @@ namespace se3
                     joint_axis << joint->axis.x,joint->axis.y,joint->axis.z;
                     joint_info << " unaligned along (" << joint_axis.transpose() << ")";
                     
+                    
+                    typedef JointModelRevoluteUnaligned::ConfigVector_t ConfigVector_t;
+                    ConfigVector_t lower_position(-infty);
+                    ConfigVector_t upper_position(infty);
+                    
                     addJointAndBody(model,JointModelRevoluteUnaligned(joint_axis.normalized()),
                                     parentFrameId,jointPlacement,joint->name,
                                     Y,link->name,
-                                    max_effort,max_velocity);
+                                    max_effort,max_velocity,
+                                    lower_position,upper_position);
                     break;
                   }
                   default:
