@@ -41,7 +41,7 @@ namespace se3
     typedef JointDataRevoluteUnboundedTpl<Scalar,Options,axis> JointDataDerived;
     typedef JointModelRevoluteUnboundedTpl<Scalar,Options,axis> JointModelDerived;
     typedef ConstraintRevoluteTpl<Scalar,Options,axis> Constraint_t;
-    typedef SE3 Transformation_t;
+    typedef TransformRevoluteTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionRevoluteTpl<Scalar,Options,axis> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
@@ -81,7 +81,7 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataRevoluteUnboundedTpl() : M(1), U(), Dinv(), UDinv()
+    JointDataRevoluteUnboundedTpl() : M(NAN,NAN), U(), Dinv(), UDinv()
     {}
 
   }; // struct JointDataRevoluteUnbounded
@@ -114,7 +114,7 @@ namespace se3
       const OtherScalar & ca = q(0);
       const OtherScalar & sa = q(1);
 
-      JointDerivedBase::cartesianRotation(ca,sa,data.M.rotation());
+      data.M.setValues(sa,ca);
     }
 
     template<typename ConfigVector, typename TangentVector>
