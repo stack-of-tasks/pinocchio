@@ -74,9 +74,9 @@ namespace se3
               continue;
             }
 
-            typedef std::vector<CollisionPair> CollisionPairs_t;
+            typedef GeometryModel::CollisionPairVector CollisionPairVector;
             bool didRemove = false;
-            for(CollisionPairs_t::iterator _colPair = geomModel.collisionPairs.begin();
+            for(CollisionPairVector::iterator _colPair = geomModel.collisionPairs.begin();
                 _colPair != geomModel.collisionPairs.end(); ) {
               const CollisionPair& colPair (*_colPair);
               bool remove =
