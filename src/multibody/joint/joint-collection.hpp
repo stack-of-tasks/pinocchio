@@ -83,11 +83,14 @@ namespace se3
     
     typedef boost::variant<
     JointModelRX, JointModelRY, JointModelRZ
-    ,JointModelRevoluteUnaligned, JointModelSpherical,
-    JointModelSphericalZYX, JointModelPX, JointModelPY, JointModelPZ,
-    JointModelPrismaticUnaligned, JointModelFreeFlyer, JointModelPlanar, JointModelTranslation,
-    JointModelRUBX, JointModelRUBY, JointModelRUBZ,
-    boost::recursive_wrapper<JointModelComposite>
+    , JointModelFreeFlyer, JointModelPlanar
+    , JointModelRevoluteUnaligned
+    , JointModelSpherical, JointModelSphericalZYX
+    , JointModelPX, JointModelPY, JointModelPZ
+    , JointModelPrismaticUnaligned
+    , JointModelTranslation
+    , JointModelRUBX, JointModelRUBY, JointModelRUBZ
+    , boost::recursive_wrapper<JointModelComposite>
     > JointModelVariant;
    
     
@@ -132,11 +135,14 @@ namespace se3
     
     typedef boost::variant<
     JointDataRX, JointDataRY, JointDataRZ
-    ,JointDataRevoluteUnaligned, JointDataSpherical,
-    JointDataSphericalZYX, JointDataPX, JointDataPY, JointDataPZ,
-    JointDataPrismaticUnaligned, JointDataFreeFlyer, JointDataPlanar, JointDataTranslation,
-    JointDataRUBX, JointDataRUBY, JointDataRUBZ,
-    boost::recursive_wrapper<JointDataComposite>
+    , JointDataFreeFlyer, JointDataPlanar
+    , JointDataRevoluteUnaligned
+    , JointDataSpherical, JointDataSphericalZYX
+    , JointDataPX, JointDataPY, JointDataPZ
+    , JointDataPrismaticUnaligned
+    , JointDataTranslation
+    , JointDataRUBX, JointDataRUBY, JointDataRUBZ
+    , boost::recursive_wrapper<JointDataComposite>
     > JointDataVariant;
 
   };
