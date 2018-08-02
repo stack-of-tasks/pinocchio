@@ -691,7 +691,11 @@ namespace se3
       
       data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * data.S.S_minimal;
       Matrix3 tmp(data.S.S_minimal.transpose() * data.U.template middleRows<3>(Motion::ANGULAR));
-      data.Dinv = tmp.inverse();
+      
+      // compute inverse
+      data.Dinv.setIdentity();
+      tmp.llt().solveInPlace(data.Dinv);
+      
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)

@@ -518,7 +518,11 @@ namespace se3
       Eigen::Matrix<S2,3,3,O2> tmp;
       tmp.template leftCols<2>() = data.U.template topRows<2>().transpose();
       tmp.template rightCols<1>() = data.U.template bottomRows<1>();
-      data.Dinv = tmp.inverse();
+      
+      // compute inverse
+      data.Dinv.setIdentity();
+      tmp.llt().solveInPlace(data.Dinv);
+      
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)

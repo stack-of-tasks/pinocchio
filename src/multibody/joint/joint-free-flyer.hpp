@@ -261,7 +261,8 @@ namespace se3
     void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
     {
       data.U = I;
-      data.Dinv = I.inverse();
+      data.Dinv.setIdentity();
+      I.llt().solveInPlace(data.Dinv);
       
       if (update_I)
         I.setZero();

@@ -236,7 +236,10 @@ namespace se3
     {
       data.U.noalias() = I * data.S;
       Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> tmp (data.S.matrix().transpose() * data.U);
-      data.Dinv = tmp.inverse();
+      
+      // compute inverse
+      data.Dinv.setIdentity();
+      tmp.llt().solveInPlace(data.Dinv);
       data.UDinv.noalias() = data.U * data.Dinv;
 
       if (update_I)

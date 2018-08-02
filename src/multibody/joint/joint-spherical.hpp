@@ -433,7 +433,11 @@ namespace se3
     void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
     {
       data.U = I.template block<6,3>(0,Inertia::ANGULAR);
-      data.Dinv = I.template block<3,3>(Inertia::ANGULAR,Inertia::ANGULAR).inverse();
+      
+      // compute inverse
+      data.Dinv.setIdentity();
+      I.template block<3,3>(Inertia::ANGULAR,Inertia::ANGULAR).llt().solveInPlace(data.Dinv);
+      
       data.UDinv.template middleRows<3>(Inertia::ANGULAR).setIdentity(); // can be put in data constructor
       data.UDinv.template middleRows<3>(Inertia::LINEAR) = data.U.template block<3,3>(Inertia::LINEAR, 0) * data.Dinv;
       
