@@ -190,7 +190,8 @@ namespace se3
     const Scalar & sin() const { return m_sin; }
     const Scalar & cos() const { return m_cos; }
     
-    void setValues(const Scalar & sin, const Scalar & cos)
+    template<typename OtherScalar>
+    void setValues(const OtherScalar & sin, const OtherScalar & cos)
     { m_sin = sin; m_cos = cos; }
     
   protected:
