@@ -39,7 +39,7 @@ namespace se3
   /// \return The rotational matrix associated to the integration of the angular velocity during time 1.
   ///
   template<typename Vector3Like>
-  typename Eigen::Matrix<typename Vector3Like::Scalar,3,3,Eigen::internal::traits<Vector3Like>::Options>
+  typename Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
   exp3(const Eigen::MatrixBase<Vector3Like> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
@@ -49,11 +49,34 @@ namespace se3
     typedef typename EIGEN_PLAIN_TYPE(Vector3Like) Vector3LikePlain;
     typedef Eigen::Matrix<Scalar,3,3,Vector3LikePlain::Options> Matrix3;
     
-    Scalar nv = v.norm();
-    if(nv > 1e-14)
-      return Eigen::AngleAxis<Scalar>(nv, v/nv).matrix();
+    const Scalar t2 = v.squaredNorm();
+    const Scalar t = std::sqrt(t2);
+    
+    if(t > 1e-8)
+    {
+      Scalar ct,st; SINCOS(t,&st,&ct);
+      const Scalar alpha_vxvx = (1 - ct)/t2;
+      const Scalar alpha_vx = (st)/t;
+      Matrix3 res(alpha_vxvx * v * v.transpose());
+      res.coeffRef(0,1) -= alpha_vx * v[2]; res.coeffRef(1,0) += alpha_vx * v[2];
+      res.coeffRef(0,2) += alpha_vx * v[1]; res.coeffRef(2,0) -= alpha_vx * v[1];
+      res.coeffRef(1,2) -= alpha_vx * v[0]; res.coeffRef(2,1) += alpha_vx * v[0];
+      res.diagonal().array() += ct;
+      
+      return res;
+    }
     else
-      return Matrix3::Identity();
+    {
+      const Scalar alpha_vxvx = Scalar(1)/Scalar(2) - t2/24;
+      const Scalar alpha_vx = Scalar(1) - t2/6;
+      Matrix3 res(alpha_vxvx * v * v.transpose());
+      res.coeffRef(0,1) -= alpha_vx * v[2]; res.coeffRef(1,0) += alpha_vx * v[2];
+      res.coeffRef(0,2) += alpha_vx * v[1]; res.coeffRef(2,0) -= alpha_vx * v[1];
+      res.coeffRef(1,2) -= alpha_vx * v[0]; res.coeffRef(2,1) += alpha_vx * v[0];
+      res.diagonal().array() += Scalar(1) - t2/2;
+      
+      return res;
+    }
   }
 
   /// \brief Same as \ref log3

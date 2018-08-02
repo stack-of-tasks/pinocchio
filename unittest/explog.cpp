@@ -33,6 +33,11 @@ BOOST_AUTO_TEST_CASE(exp)
   Motion v(Motion::Random()); v.linear().setZero();
   
   SE3::Matrix3 R = exp3(v.angular());
+  BOOST_CHECK(R.isApprox(Eigen::AngleAxis<double>(v.angular().norm(), v.angular().normalized()).matrix()));
+  
+  SE3::Matrix3 R0 = exp3(SE3::Vector3::Zero());
+  BOOST_CHECK(R0.isIdentity());
+  
   M = exp6(v);
   
   BOOST_CHECK(R.isApprox(M.rotation()));
