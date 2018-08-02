@@ -1,5 +1,5 @@
 //
-// Copyright(c) 22018 CNRS
+// Copyright(c) 2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,6 +19,7 @@
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/copy.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
@@ -48,6 +49,7 @@ BOOST_AUTO_TEST_CASE(test_data_copy)
   
   Data data_ref(model), data(model);
   forwardKinematics(model,data_ref,q,v,a);
+  rnea(model,data_ref,q,v,a); // for a_gf to be initialized
   
   // Check zero order kinematic quantities
   copy(model,data_ref,data,0);
