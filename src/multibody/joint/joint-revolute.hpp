@@ -242,8 +242,7 @@ namespace se3
       // Linear
       // TODO: use v.angular() as temporary variable
       Vector3 v3_tmp;
-      CartesianAxis3::cross(m.translation(),v3_tmp);
-      v3_tmp *= w;
+      CartesianAxis3::alphaCross(w,m.translation(),v3_tmp);
       v.linear().noalias() = m.rotation().transpose() * v3_tmp;
       
       // Angular
