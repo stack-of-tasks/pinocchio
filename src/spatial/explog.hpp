@@ -231,10 +231,12 @@ namespace se3
     if(t > 1e-15)
     {
       const Scalar inv_t = Scalar(1)/t;
-      Matrix3 S(alphaSkew(inv_t, w));
       Scalar ct,st; SINCOS(t,&st,&ct);
-      Matrix3 V((Scalar(1) - ct) * inv_t * S + inv_t * inv_t * (Scalar(1) - st * inv_t) * w * w.transpose());
-      Vector3 p(inv_t * st * v + V * v);
+
+      const Scalar alpha_wxv = (Scalar(1) - ct) * inv_t * inv_t;
+      const Scalar alpha_v = inv_t * st;
+      const Scalar alpha_w = inv_t * inv_t * (Scalar(1) - st * inv_t) * w.dot(v);
+      Vector3 p(alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
       return SE3(exp3(w), p);
     }
     else
