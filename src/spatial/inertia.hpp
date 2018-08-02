@@ -350,8 +350,10 @@ namespace se3
     template<typename MotionDerived, typename ForceDerived>
     void __mult__(const MotionDense<MotionDerived> & v, ForceDense<ForceDerived> & f) const
     {
-      f.linear() = m*(v.linear() - c.cross(v.angular()));
-      f.angular() = c.cross(f.linear()) + I*v.angular();
+      f.linear().noalias() = m*(v.linear() - c.cross(v.angular()));
+      Symmetric3::rhsMult(I,v.angular(),f.angular());
+      f.angular() += c.cross(f.linear());
+//      f.angular().noalias() = c.cross(f.linear()) + I*v.angular();
     }
     
     Scalar vtiv_impl(const Motion & v) const
