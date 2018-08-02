@@ -427,58 +427,6 @@ namespace se3
       Options = _Options,
       axis = _axis
     };
-    
-    template<typename S1, typename S2, typename Matrix3Like>
-    static void cartesianRotation(const S1 & ca, const S2 & sa,
-                                  const Eigen::MatrixBase<Matrix3Like> & res);
-  };
-  
-  template<typename Scalar, int Options>
-  struct JointRevoluteTpl<Scalar,Options,0>
-  {
-    template<typename S1, typename S2, typename Matrix3Like>
-    static void cartesianRotation(const S1 & ca, const S2 & sa,
-                                  const Eigen::MatrixBase<Matrix3Like> & res)
-    {
-      Matrix3Like & res_ = const_cast<Matrix3Like &>(res.derived());
-      typedef typename Matrix3Like::Scalar OtherScalar;
-      res_ <<
-      OtherScalar(1), OtherScalar(0), OtherScalar(0),
-      OtherScalar(0),             ca,            -sa,
-      OtherScalar(0),             sa,             ca;
-    }
-  };
-  
-  template<typename Scalar, int Options>
-  struct JointRevoluteTpl<Scalar,Options,1>
-  {
-    template<typename S1, typename S2, typename Matrix3Like>
-    static void cartesianRotation(const S1 & ca, const S2 & sa,
-                                  const Eigen::MatrixBase<Matrix3Like> & res)
-    {
-      Matrix3Like & res_ = const_cast<Matrix3Like &>(res.derived());
-      typedef typename Matrix3Like::Scalar OtherScalar;
-      res_ <<
-                  ca, OtherScalar(0),               sa,
-      OtherScalar(0), OtherScalar(1),   OtherScalar(0),
-                 -sa, OtherScalar(0),               ca;
-    }
-  };
-  
-  template<typename Scalar, int Options>
-  struct JointRevoluteTpl<Scalar,Options,2>
-  {
-    template<typename S1, typename S2, typename Matrix3Like>
-    static void cartesianRotation(const S1 & ca, const S2 & sa,
-                                  const Eigen::MatrixBase<Matrix3Like> & res)
-    {
-      Matrix3Like & res_ = const_cast<Matrix3Like &>(res.derived());
-      typedef typename Matrix3Like::Scalar OtherScalar;
-      res_ <<
-                  ca,            -sa, OtherScalar(0),
-                  sa,             ca, OtherScalar(0),
-      OtherScalar(0), OtherScalar(0), OtherScalar(1);
-    }
   };
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
@@ -563,7 +511,7 @@ namespace se3
     typedef JointDataRevoluteTpl<Scalar,Options,axis> JointDataDerived;
     typedef JointModelRevoluteTpl<Scalar,Options,axis> JointModelDerived;
     typedef ConstraintRevoluteTpl<Scalar,Options,axis> Constraint_t;
-    typedef SE3Tpl<Scalar,Options> Transformation_t;
+    typedef TransformRevoluteTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionRevoluteTpl<Scalar,Options,axis> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
@@ -603,7 +551,7 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataRevoluteTpl() : M(1), U(), Dinv(), UDinv()
+    JointDataRevoluteTpl() : M(NAN,NAN), U(), Dinv(), UDinv()
     {}
 
   }; // struct JointDataRevoluteTpl
@@ -631,7 +579,7 @@ namespace se3
       
       const OtherScalar & q = qs[idx_q()];
       OtherScalar ca,sa; SINCOS(q,&sa,&ca);
-      JointDerived::cartesianRotation(ca,sa,data.M.rotation());
+      data.M.setValues(sa,ca);
     }
 
     template<typename ConfigVector, typename TangentVector>
