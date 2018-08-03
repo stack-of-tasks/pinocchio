@@ -83,7 +83,6 @@ ENDMACRO(TAG_LIBRARY_VERSION)
 # --- DEPENDANCIES -----------------------------------
 # ----------------------------------------------------
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
-ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.0")
 ADD_OPTIONAL_DEPENDENCY("hpp-fcl >= 0.5.1")
 
