@@ -155,6 +155,83 @@ namespace se3
     res += m1;
     return res;
   }
+  
+  template<typename Scalar, int Options, int axis> struct TransformPrismaticTpl;
+  
+  template<typename _Scalar, int _Options, int _axis>
+  struct traits< TransformPrismaticTpl<_Scalar,_Options,_axis> >
+  {
+    enum {
+      axis = _axis,
+      Options = _Options,
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+    typedef _Scalar Scalar;
+    typedef SE3Tpl<Scalar,Options> PlainType;
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
+    typedef Matrix3 AngularType;
+    typedef Matrix3 AngularRef;
+    typedef Matrix3 ConstAngularRef;
+    typedef typename Vector3::ConstantReturnType LinearType;
+    typedef typename Vector3::ConstantReturnType LinearRef;
+    typedef const typename Vector3::ConstantReturnType ConstLinearRef;
+    typedef typename traits<PlainType>::ActionMatrixType ActionMatrixType;
+    typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
+  }; // traits TransformPrismaticTpl
+  
+  namespace internal
+  {
+    template<typename Scalar, int Options, int axis>
+    struct SE3GroupAction< TransformPrismaticTpl<Scalar,Options,axis> >
+    { typedef typename traits <TransformPrismaticTpl<Scalar,Options,axis> >::PlainType ReturnType; };
+  }
+  
+  template<typename _Scalar, int _Options, int axis>
+  struct TransformPrismaticTpl : SE3Base< TransformPrismaticTpl<_Scalar,_Options,axis> >
+  {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    SE3_TYPEDEF_TPL(TransformPrismaticTpl);
+    typedef typename traits<TransformPrismaticTpl>::PlainType PlainType;
+    
+    typedef SpatialAxis<axis+LINEAR> Axis;
+    typedef typename Axis::CartesianAxis3 CartesianAxis3;
+    
+    TransformPrismaticTpl() {}
+    TransformPrismaticTpl(const Scalar & displacement)
+    : m_displacement(displacement)
+    {}
+    
+    PlainType plain() const
+    {
+      PlainType res(PlainType::Idenity());
+      res.rotation().setIdentity();
+      res.translation()[axis] = m_displacement;
+      
+      return res;
+    }
+    
+    operator PlainType() const { return plain(); }
+    
+    template<typename S2, int O2>
+    typename internal::SE3GroupAction<TransformPrismaticTpl>::ReturnType
+    se3action(const SE3Tpl<S2,O2> & m) const
+    {
+      typedef typename internal::SE3GroupAction<TransformPrismaticTpl>::ReturnType ReturnType;
+      ReturnType res(m);
+      res.translation()[axis] += m_displacement;
+      
+      return res;
+    }
+    
+    const Scalar & displacement() const { return m_displacement; }
+    Scalar & displacement() { return m_displacement; }
+
+  protected:
+    
+    Scalar m_displacement;
+  };
 
   template<typename Scalar, int Options, int axis> struct ConstraintPrismatic;
   

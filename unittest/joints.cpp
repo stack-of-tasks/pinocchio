@@ -506,6 +506,33 @@ BOOST_AUTO_TEST_SUITE ( JointPrismatic )
   
 BOOST_AUTO_TEST_CASE(spatial)
 {
+  typedef TransformPrismaticTpl<double,0,0> TransformX;
+  typedef TransformPrismaticTpl<double,0,1> TransformY;
+  typedef TransformPrismaticTpl<double,0,2> TransformZ;
+  
+  typedef SE3::Vector3 Vector3;
+  
+  const double displacement = 0.2;
+  SE3 Mplain, Mrand(SE3::Random());
+  
+  TransformX Mx(displacement);
+  Mplain = Mx;
+  BOOST_CHECK(Mplain.translation().isApprox(Vector3(displacement,0,0)));
+  BOOST_CHECK(Mplain.rotation().isIdentity());
+  BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mx));
+  
+  TransformY My(displacement);
+  Mplain = My;
+  BOOST_CHECK(Mplain.translation().isApprox(Vector3(0,displacement,0)));
+  BOOST_CHECK(Mplain.rotation().isIdentity());
+  BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*My));
+  
+  TransformZ Mz(displacement);
+  Mplain = Mz;
+  BOOST_CHECK(Mplain.translation().isApprox(Vector3(0,0,displacement)));
+  BOOST_CHECK(Mplain.rotation().isIdentity());
+  BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mz));
+  
   SE3 M(SE3::Random());
   Motion v(Motion::Random());
   
