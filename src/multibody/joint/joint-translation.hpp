@@ -165,6 +165,84 @@ namespace se3
     return typename MotionDerived::MotionPlain(m2.linear() + m1.rate, m2.angular());
   }
   
+  template<typename Scalar, int Options> struct TransformTranslationTpl;
+  
+  template<typename _Scalar, int _Options>
+  struct traits< TransformTranslationTpl<_Scalar,_Options> >
+  {
+    enum {
+      Options = _Options,
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+    typedef _Scalar Scalar;
+    typedef SE3Tpl<Scalar,Options> PlainType;
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
+    typedef typename Matrix3::IdentityReturnType AngularType;
+    typedef AngularType AngularRef;
+    typedef AngularType ConstAngularRef;
+    typedef Vector3 LinearType;
+    typedef LinearType & LinearRef;
+    typedef const LinearType & ConstLinearRef;
+    typedef typename traits<PlainType>::ActionMatrixType ActionMatrixType;
+    typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
+  }; // traits TransformTranslationTpl
+  
+  namespace internal
+  {
+    template<typename Scalar, int Options>
+    struct SE3GroupAction< TransformTranslationTpl<Scalar,Options> >
+    { typedef typename traits <TransformTranslationTpl<Scalar,Options> >::PlainType ReturnType; };
+  }
+  
+  template<typename _Scalar, int _Options>
+  struct TransformTranslationTpl
+  : SE3Base< TransformTranslationTpl<_Scalar,_Options> >
+  {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    SE3_TYPEDEF_TPL(TransformTranslationTpl);
+    typedef typename traits<TransformTranslationTpl>::PlainType PlainType;
+    
+    TransformTranslationTpl() {}
+    
+    template<typename Vector3Like>
+    TransformTranslationTpl(const Eigen::MatrixBase<Vector3Like> & translation)
+    : m_translation(translation)
+    {}
+    
+    PlainType plain() const
+    {
+      PlainType res(PlainType::Identity());
+      res.rotation().setIdentity();
+      res.translation() = translation();
+      
+      return res;
+    }
+    
+    operator PlainType() const { return plain(); }
+    
+    template<typename S2, int O2>
+    typename internal::SE3GroupAction<TransformTranslationTpl>::ReturnType
+    se3action(const SE3Tpl<S2,O2> & m) const
+    {
+      typedef typename internal::SE3GroupAction<TransformTranslationTpl>::ReturnType ReturnType;
+      ReturnType res(m);
+      res.translation() += translation();
+      
+      return res;
+    }
+    
+    ConstLinearRef translation() const { return m_translation; }
+    LinearRef translation() { return m_translation; }
+    
+    AngularType rotation() const { return AngularType(3,3); }
+    
+  protected:
+    
+    LinearType m_translation;
+  };
+  
   template<typename Scalar, int Options> struct ConstraintTranslationTpl;
   
   template<typename _Scalar, int _Options>
@@ -345,7 +423,7 @@ namespace se3
     typedef JointDataTranslationTpl<Scalar,Options> JointDataDerived;
     typedef JointModelTranslationTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintTranslationTpl<Scalar,Options> Constraint_t;
-    typedef SE3Tpl<Scalar,Options> Transformation_t;
+    typedef TransformTranslationTpl<Scalar,Options> Transformation_t;
     typedef MotionTranslationTpl<Scalar,Options> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
@@ -368,7 +446,8 @@ namespace se3
   { typedef JointTranslationTpl<Scalar,Options> JointDerived; };
 
   template<typename _Scalar, int _Options>
-  struct JointDataTranslationTpl : public JointDataBase< JointDataTranslationTpl<_Scalar,_Options> >
+  struct JointDataTranslationTpl
+  : public JointDataBase< JointDataTranslationTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -387,7 +466,10 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataTranslationTpl () : M(1), U(), Dinv(), UDinv() {}
+    JointDataTranslationTpl()
+    : M(Transformation_t::LinearType::Constant(NAN))
+    , U(), Dinv(), UDinv()
+    {}
 
   }; // struct JointDataTranslationTpl
 
@@ -412,7 +494,7 @@ namespace se3
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      data.M.translation(qs.template segment<NQ>(idx_q()));
+      data.M.translation() = this->jointConfigSelector(qs);
     }
     
     template<typename ConfigVector, typename TangentVector>
@@ -422,7 +504,7 @@ namespace se3
     {
       calc(data,qs.derived());
       
-      data.v() = vs.template segment<NQ>(idx_v());
+      data.v() = this->jointVelocitySelector(vs);
     }
     
     template<typename S2, int O2>

@@ -804,6 +804,18 @@ BOOST_AUTO_TEST_SUITE (JointTranslation)
   
 BOOST_AUTO_TEST_CASE(spatial)
 {
+  typedef TransformTranslationTpl<double,0> TransformTranslation;
+  typedef SE3::Vector3 Vector3;
+  
+  const Vector3 displacement(Vector3::Random());
+  SE3 Mplain, Mrand(SE3::Random());
+  
+  TransformTranslation Mtrans(displacement);
+  Mplain = Mtrans;
+  BOOST_CHECK(Mplain.translation().isApprox(displacement));
+  BOOST_CHECK(Mplain.rotation().isIdentity());
+  BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mtrans));
+  
   SE3 M(SE3::Random());
   Motion v(Motion::Random());
   
