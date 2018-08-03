@@ -21,6 +21,7 @@
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/joint-translation.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 
@@ -376,7 +377,7 @@ namespace se3
     typedef JointDataPrismaticUnalignedTpl<Scalar,Options> JointDataDerived;
     typedef JointModelPrismaticUnalignedTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintPrismaticUnaligned<Scalar,Options> Constraint_t;
-    typedef SE3Tpl<Scalar,Options> Transformation_t;
+    typedef TransformTranslationTpl<Scalar,Options> Transformation_t;
     typedef MotionPrismaticUnalignedTpl<Scalar,Options> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
@@ -414,7 +415,7 @@ namespace se3
     UD_t UDinv;
 
     JointDataPrismaticUnalignedTpl()
-    : M(1)
+    : M(Transformation_t::LinearType::Constant(NAN))
     , S(Motion_t::Vector3::Constant(NAN))
     , v(Motion_t::Vector3::Constant(NAN),NAN)
     , U(), Dinv(), UDinv()
@@ -422,7 +423,7 @@ namespace se3
     
     template<typename Vector3Like>
     JointDataPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
-    : M(1)
+    : M(Transformation_t::LinearType::Constant(NAN))
     , S(axis)
     , v(axis,NAN)
     , U(), Dinv(), UDinv()
