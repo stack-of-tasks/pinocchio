@@ -473,37 +473,6 @@ namespace se3
       axis = _axis
     };
   };
- 
-  
-  template<typename Scalar, int Options>
-  struct JointPrismaticTpl<Scalar,Options,0>
-  {
-    template<typename S1, typename S2, int O2>
-    static void cartesianTranslation(const S1 & shift, SE3Tpl<S2,O2> & m)
-    {
-      m.translation() << (S2)(shift), S2(0), S2(0);
-    }
-  };
-  
-  template<typename Scalar, int Options>
-  struct JointPrismaticTpl<Scalar,Options,1>
-  {
-    template<typename S1, typename S2, int O2>
-    static void cartesianTranslation(const S1 & shift, SE3Tpl<S2,O2> & m)
-    {
-      m.translation() << S2(0), (S2)(shift), S2(0);
-    }
-  };
-  
-  template<typename Scalar, int Options>
-  struct JointPrismaticTpl<Scalar,Options,2>
-  {
-    template<typename S1, typename S2, int O2>
-    static void cartesianTranslation(const S1 & shift, SE3Tpl<S2,O2> & m)
-    {
-      m.translation() << S2(0),  S2(0), (S2)(shift);
-    }
-  };
 
   template<typename _Scalar, int _Options, int axis>
   struct traits< JointPrismaticTpl<_Scalar,_Options,axis> >
@@ -517,7 +486,7 @@ namespace se3
     typedef JointDataPrismaticTpl<Scalar,Options,axis> JointDataDerived;
     typedef JointModelPrismaticTpl<Scalar,Options,axis> JointModelDerived;
     typedef ConstraintPrismatic<Scalar,Options,axis> Constraint_t;
-    typedef SE3Tpl<Scalar,Options> Transformation_t;
+    typedef TransformPrismaticTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionPrismaticTpl<Scalar,Options,axis> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
@@ -558,7 +527,7 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataPrismaticTpl() : M(1), U(), Dinv(), UDinv()
+    JointDataPrismaticTpl() : M(NAN), U(), Dinv(), UDinv()
     {}
 
   }; // struct JointDataPrismaticTpl
@@ -585,7 +554,7 @@ namespace se3
     {
       typedef typename ConfigVector::Scalar Scalar;
       const Scalar & q = qs[idx_q()];
-      JointDerived::cartesianTranslation(q,data.M);
+      data.M.displacement() = q;
     }
 
     template<typename ConfigVector, typename TangentVector>
