@@ -432,7 +432,7 @@ namespace se3
       
       // compute inverse
       data.Dinv.setIdentity();
-      I.template block<3,3>(Inertia::ANGULAR,Inertia::LINEAR).llt().solveInPlace(data.Dinv);
+      data.U.template middleRows<3>(Inertia::LINEAR).llt().solveInPlace(data.Dinv);
       
       data.UDinv.template middleRows<3>(Inertia::LINEAR).setIdentity(); // can be put in data constructor
       data.UDinv.template middleRows<3>(Inertia::ANGULAR).noalias() = data.U.template middleRows<3>(Inertia::ANGULAR) * data.Dinv;
