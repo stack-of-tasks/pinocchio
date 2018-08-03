@@ -15,14 +15,19 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lie_group_fwd_hpp__
-#define __se3_lie_group_fwd_hpp__
+#ifndef __se3_fwd_hpp__
+#define __se3_fwd_hpp__
 
-#include "pinocchio/fwd.hpp"
 
-namespace se3
-{
-  template<typename LieGroupCollection> struct LieGroupGenericTpl;
-}
+#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
 
-#endif // ifndef __se3_lie_group_fwd_hpp__
+  #ifdef PINOCCHIO_CPPAD_REQUIRES_MATRIX_BASE_PLUGIN
+    #define EIGEN_MATRIXBASE_PLUGIN <cppad/example/cppad_eigen.hpp>
+  #endif
+
+  #include <Eigen/Core>
+  #include <cppad/cppad.hpp>
+
+#endif
+
+#endif // #ifndef __se3_fwd_hpp__

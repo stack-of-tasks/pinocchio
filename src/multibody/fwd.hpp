@@ -18,6 +18,8 @@
 #ifndef __se3_multibody_fwd_hpp__
 #define __se3_multibody_fwd_hpp__
 
+#include "pinocchio/fwd.hpp"
+
 # include <cstddef> // std::size_t
 #include "pinocchio/multibody/joint/fwd.hpp"
 

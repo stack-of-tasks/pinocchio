@@ -18,6 +18,8 @@
 #ifndef __se3_joint_fwd_hpp__
 #define __se3_joint_fwd_hpp__
 
+#include "pinocchio/fwd.hpp"
+
 namespace se3
 {
   enum { MAX_JOINT_NV = 6 };

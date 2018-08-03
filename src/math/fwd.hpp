@@ -15,9 +15,10 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __math_fwd_hpp__
-#define __math_fwd_hpp__
+#ifndef __se3_math_fwd_hpp__
+#define __se3_math_fwd_hpp__
 
+#include "pinocchio/fwd.hpp"
 #include <boost/math/constants/constants.hpp>
 
 namespace se3
@@ -36,4 +37,4 @@ namespace se3
 }
 
 
-#endif //#ifndef __math_fwd_hpp__
+#endif //#ifndef __se3_math_fwd_hpp__
