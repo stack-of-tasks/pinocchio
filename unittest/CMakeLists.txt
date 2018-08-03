@@ -115,6 +115,13 @@ ADD_PINOCCHIO_UNIT_TEST(version eigen3)
 ADD_PINOCCHIO_UNIT_TEST(copy eigen3)
 
 # Derivatives algo
+<<<<<<< HEAD
 ADD_PINOCCHIO_UNIT_TEST(kinematics-derivatives eigen3)
 ADD_PINOCCHIO_UNIT_TEST(rnea-derivatives eigen3)
 ADD_PINOCCHIO_UNIT_TEST(aba-derivatives eigen3)
+
+# Automatic differentiation
+IF(CPPAD_FOUND)
+  ADD_PINOCCHIO_UNIT_TEST(cppad-basic "eigen3;cppad")
+ENDIF(CPPAD_FOUND)
+
