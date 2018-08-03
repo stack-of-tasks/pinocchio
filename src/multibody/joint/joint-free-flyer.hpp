@@ -60,8 +60,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar,6,1,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,6,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,6,Options> DenseBase;
-    typedef const DenseBase ConstMatrixReturnType;
-    typedef DenseBase MatrixReturnType;
+    typedef typename Matrix6::IdentityReturnType ConstMatrixReturnType;
+    typedef typename Matrix6::IdentityReturnType MatrixReturnType;
   }; // traits ConstraintRevolute
 
 
@@ -74,6 +74,7 @@ namespace se3
     typedef typename traits<ConstraintIdentityTpl>::JointMotion JointMotion;
     typedef typename traits<ConstraintIdentityTpl>::JointForce JointForce;
     typedef typename traits<ConstraintIdentityTpl>::DenseBase DenseBase;
+    typedef typename traits<ConstraintIdentityTpl>::MatrixReturnType MatrixReturnType;
     
     template<typename S1, int O1>
     typename SE3::ActionMatrixType se3Action(const SE3Tpl<S1,O1> & m) const
@@ -98,7 +99,7 @@ namespace se3
     };
     
     TransposeConst transpose() const { return TransposeConst(); }
-    DenseBase matrix_impl() const { return DenseBase::Identity(); }
+    MatrixReturnType matrix_impl() const { return DenseBase::Identity(); }
     
     template<typename MotionDerived>
     typename MotionDerived::ActionMatrixType
