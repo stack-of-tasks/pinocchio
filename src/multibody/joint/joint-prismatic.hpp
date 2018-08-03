@@ -156,6 +156,14 @@ namespace se3
     return res;
   }
   
+  template<typename MotionDerived, typename S2, int O2, int axis>
+  EIGEN_STRONG_INLINE
+  typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1, const MotionPrismaticTpl<S2,O2,axis> & m2)
+  {
+    return m2.motionAction(m1);
+  }
+  
   template<typename Scalar, int Options, int axis> struct TransformPrismaticTpl;
   
   template<typename _Scalar, int _Options, int _axis>
@@ -347,57 +355,6 @@ namespace se3
     }
 
   }; // struct ConstraintPrismatic
-
-  template<typename MotionDerived, typename S1, int O1>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1,
-            const MotionPrismaticTpl<S1,O1,0>& m2)
-  {
-    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
-     * nu1^(v2,0) = ( w1^v2      , 0 )
-     * (x,y,z)^(v,0,0) = ( 0,zv,-yv )
-     * nu1^(0,vx) = ( 0,wz1 vx,-wy1 vx,    0, 0, 0)
-     */
-    typedef typename MotionDerived::MotionPlain MotionPlain;
-    const typename MotionDerived::ConstAngularType & w = m1.angular();
-    const S1 & vx = m2.rate;
-    return MotionPlain(typename MotionPlain::Vector3(0,w[2]*vx,-w[1]*vx),
-                       MotionPlain::Vector3::Zero());
-   }
-
-  template<typename MotionDerived, typename S1, int O1>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1,
-            const MotionPrismaticTpl<S1,O1,1>& m2)
-   {
-    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
-     * nu1^(v2,0) = ( w1^v2      , 0 )
-     * (x,y,z)^(0,v,0) = ( -zv,0,xv )
-     * nu1^(0,vx) = ( -vz1 vx,0,vx1 vx,    0, 0, 0)
-     */
-     typedef typename MotionDerived::MotionPlain MotionPlain;
-     const typename MotionDerived::ConstAngularType & w = m1.angular();
-     const S1 & vy = m2.rate;
-     return MotionPlain(typename MotionPlain::Vector3(-w[2]*vy,0,w[0]*vy),
-                        MotionPlain::Vector3::Zero());
-   }
-
-  template<typename MotionDerived, typename S1, int O1>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1,
-            const MotionPrismaticTpl<S1,O1,2>& m2)
-   {
-    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
-     * nu1^(v2,0) = ( w1^v2      , 0 )
-     * (x,y,z)^(0,0,v) = ( yv,-xv,0 )
-     * nu1^(0,vx) = ( vy1 vx,-vx1 vx, 0,    0, 0, 0 )
-     */
-     typedef typename MotionDerived::MotionPlain MotionPlain;
-     const typename MotionDerived::ConstAngularType & w = m1.angular();
-     const S1 & vz = m2.rate;
-     return MotionPlain(typename Motion::Vector3(w[1]*vz,-w[0]*vz,0),
-                        MotionPlain::Vector3::Zero());
-   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   template<typename S1, int O1, typename S2, int O2>
