@@ -171,12 +171,12 @@ namespace se3
     typedef SE3Tpl<Scalar,Options> PlainType;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
     typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
-    typedef Matrix3 AngularType;
-    typedef Matrix3 AngularRef;
-    typedef Matrix3 ConstAngularRef;
-    typedef typename Vector3::ConstantReturnType LinearType;
-    typedef typename Vector3::ConstantReturnType LinearRef;
-    typedef const typename Vector3::ConstantReturnType ConstLinearRef;
+    typedef typename Matrix3::IdentityReturnType AngularType;
+    typedef AngularType AngularRef;
+    typedef AngularType ConstAngularRef;
+    typedef Vector3 LinearType;
+    typedef const Vector3 LinearRef;
+    typedef const Vector3 ConstLinearRef;
     typedef typename traits<PlainType>::ActionMatrixType ActionMatrixType;
     typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
   }; // traits TransformPrismaticTpl
@@ -205,7 +205,7 @@ namespace se3
     
     PlainType plain() const
     {
-      PlainType res(PlainType::Idenity());
+      PlainType res(PlainType::Identity());
       res.rotation().setIdentity();
       res.translation()[axis] = m_displacement;
       
@@ -227,6 +227,9 @@ namespace se3
     
     const Scalar & displacement() const { return m_displacement; }
     Scalar & displacement() { return m_displacement; }
+    
+    ConstLinearRef translation() const { return CartesianAxis3()*displacement(); };
+    AngularType rotation() const { return AngularType(3,3); }
 
   protected:
     
