@@ -152,5 +152,39 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
                               eps));
     }
   }
+
+  BOOST_AUTO_TEST_CASE(test_sincos)
+  {
+    using CppAD::AD;
+    using CppAD::NearEqual;
+    double eps99 = 99.0 * std::numeric_limits<double>::epsilon();
+    
+    typedef AD<double> AD_double;
+    
+    double x0 = 1.;
+    CPPAD_TESTVECTOR(AD_double) x(1), y(1), z(1);
+    x[0] = x0;
+    CppAD::Independent(x);
+    
+    y[0] = CppAD::cos(x[0]);
+    BOOST_CHECK(NearEqual(y[0],std::cos(x0),eps99,eps99));
+    CppAD::ADFun<double> fcos(x, y);
   
+    CPPAD_TESTVECTOR(double) x_eval(1);
+    x_eval[0] = x0;
+    CPPAD_TESTVECTOR(double) dy(1);
+    dy = fcos.Jacobian(x_eval);
+    BOOST_CHECK(NearEqual(dy[0],-std::sin(x0),eps99,eps99));
+
+    CppAD::Independent(x);
+    z[0] = CppAD::sin(x[0]);
+    BOOST_CHECK(NearEqual(z[0],std::sin(x0),eps99,eps99));
+    
+    CppAD::ADFun<double> fsin(x, z);
+
+    CPPAD_TESTVECTOR(double) dz(1);
+    dz = fsin.Jacobian(x_eval);
+    BOOST_CHECK(NearEqual(dz[0],std::cos(x0),eps99,eps99));
+  }
+
 BOOST_AUTO_TEST_SUITE_END()
