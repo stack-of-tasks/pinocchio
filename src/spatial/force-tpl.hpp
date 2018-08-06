@@ -76,8 +76,8 @@ namespace se3
       assert(v.size() == 6);
     }
     
-    template<typename S2,int O2>
-    explicit ForceTpl(const ForceTpl<S2,O2> & clone)
+    template<int O2>
+    explicit ForceTpl(const ForceTpl<Scalar,O2> & clone)
     : data(clone.toVector())
     {}
     
