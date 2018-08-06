@@ -49,15 +49,19 @@ namespace se3
   }; // traits SE3Tpl
   
   template<typename _Scalar, int _Options>
-  struct SE3Tpl : public SE3Base< SE3Tpl<_Scalar,_Options > >
+  struct SE3Tpl : public SE3Base< SE3Tpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SE3_TYPEDEF_TPL(SE3Tpl);
+    typedef SE3Base< SE3Tpl<_Scalar,_Options> > Base;
     typedef Eigen::Quaternion<Scalar,Options> Quaternion;
     typedef typename traits<SE3Tpl>::Vector3 Vector3;
     typedef typename traits<SE3Tpl>::Matrix3 Matrix3;
     typedef typename traits<SE3Tpl>::Vector4 Vector4;
     typedef typename traits<SE3Tpl>::Matrix6 Matrix6;
+    
+    using Base::rotation;
+    using Base::translation;
     
     SE3Tpl(): rot(), trans() {};
     
@@ -83,13 +87,12 @@ namespace se3
     , trans(LinearType::Zero())
     {}
     
-    template<typename S2, int O2>
-    SE3Tpl(const SE3Tpl<S2,O2> & clone)
+    template<int O2>
+    SE3Tpl(const SE3Tpl<Scalar,O2> & clone)
     : rot(clone.rotation()),trans(clone.translation()) {}
     
-    
-    template<typename S2, int O2>
-    SE3Tpl & operator=(const SE3Tpl<S2,O2> & other)
+    template<int O2>
+    SE3Tpl & operator=(const SE3Tpl<Scalar,O2> & other)
     {
       rot = other.rotation();
       trans = other.translation();
@@ -191,55 +194,60 @@ namespace se3
     }
     
     template<typename EigenDerived>
-    typename EigenDerived::PlainObject actOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p) const
-    { return (rot*p+trans).eval(); }
+    typename EigenDerived::PlainObject
+    actOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p) const
+    { return (rotation()*p+translation()).eval(); }
     
     template<typename MapDerived>
     Vector3 actOnEigenObject(const Eigen::MapBase<MapDerived> & p) const
-    { return Vector3(rot*p+trans); }
+    { return Vector3(rotation()*p+translation()); }
     
     template<typename EigenDerived>
-    typename EigenDerived::PlainObject actInvOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p) const
-    { return (rot.transpose()*(p-trans)).eval(); }
+    typename EigenDerived::PlainObject
+    actInvOnEigenObject(const Eigen::MatrixBase<EigenDerived> & p) const
+    { return (rotation().transpose()*(p-translation())).eval(); }
     
     template<typename MapDerived>
     Vector3 actInvOnEigenObject(const Eigen::MapBase<MapDerived> & p) const
-    { return Vector3(rot.transpose()*(p-trans)); }
+    { return Vector3(rotation().transpose()*(p-translation())); }
     
     Vector3 act_impl(const Vector3 & p) const
-    { return Vector3(rot*p+trans); }
+    { return Vector3(rotation()*p+translation()); }
     
     Vector3 actInv_impl(const Vector3 & p) const
-    { return Vector3(rot.transpose()*(p-trans)); }
+    { return Vector3(rotation().transpose()*(p-translation())); }
     
-    template<typename S2, int O2>
-    SE3Tpl act_impl(const SE3Tpl<S2,O2> & m2) const
-    { return SE3Tpl(rot*m2.rot,trans+rot*m2.trans);}
+    template<int O2>
+    SE3Tpl act_impl(const SE3Tpl<Scalar,O2> & m2) const
+    { return SE3Tpl(rot*m2.rotation()
+                    ,translation()+rotation()*m2.translation());}
     
-    template<typename S2, int O2>
-    SE3Tpl actInv_impl(const SE3Tpl<S2,O2> & m2) const
-    { return SE3Tpl(rot.transpose()*m2.rot, rot.transpose()*(m2.trans-trans));}
+    template<int O2>
+    SE3Tpl actInv_impl(const SE3Tpl<Scalar,O2> & m2) const
+    { return SE3Tpl(rot.transpose()*m2.rotation(),
+                    rot.transpose()*(m2.translation()-translation()));}
     
-    template<typename S2, int O2>
-    SE3Tpl __mult__(const SE3Tpl<S2,O2> & m2) const
+    template<int O2>
+    SE3Tpl __mult__(const SE3Tpl<Scalar,O2> & m2) const
     { return this->act_impl(m2);}
     
-    template<typename S2, int O2>
-    bool __equal__( const SE3Tpl<S2,O2> & m2 ) const
+    template<int O2>
+    bool __equal__(const SE3Tpl<Scalar,O2> & m2) const
     {
-      return (rotation_impl() == m2.rotation() && translation_impl() == m2.translation());
+      return (rotation() == m2.rotation() && translation() == m2.translation());
     }
     
-    template<typename S2, int O2>
-    bool isApprox_impl(const SE3Tpl<S2,O2> & m2,
+    template<int O2>
+    bool isApprox_impl(const SE3Tpl<Scalar,O2> & m2,
                        const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
-      return rot.isApprox(m2.rot, prec) && trans.isApprox(m2.trans, prec);
+      return rotation().isApprox(m2.rotation(), prec)
+      && translation().isApprox(m2.translation(), prec);
     }
     
     bool isIdentity(const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
-      return rot.isIdentity(prec) && trans.isZero(prec);
+      return rotation().isIdentity(prec) && translation().isZero(prec);
     }
     
     ConstAngularRef rotation_impl() const { return rot; }
