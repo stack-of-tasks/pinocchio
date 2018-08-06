@@ -20,6 +20,8 @@
 
 #ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
 #include "pinocchio/math/cppad.hpp"
+#else
+#include <Eigen/Core>
 #endif
 
 #endif // #ifndef __se3_fwd_hpp__
