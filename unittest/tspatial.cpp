@@ -82,6 +82,12 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   
   // Test isApprox
   BOOST_CHECK(identity.isApprox(identity));
+  
+  // Test cast
+  typedef SE3Tpl<float> SE3f;
+  SE3f::Matrix3 rot_float(amb.rotation().cast<float>());
+  SE3f amb_float = amb.cast<float>();
+  BOOST_CHECK(amb_float.isApprox(amb.cast<float>()));
 }
 
 BOOST_AUTO_TEST_CASE ( test_Motion )
