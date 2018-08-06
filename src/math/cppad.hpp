@@ -25,4 +25,21 @@
 #include <Eigen/Core>
 #include <cppad/cppad.hpp>
 
+namespace Eigen
+{
+  namespace internal
+  {
+    // Specialization of Eigen::internal::cast_impl for CppAD input types
+    template<typename Scalar>
+    struct cast_impl<CppAD::AD<Scalar>,Scalar>
+    {
+      EIGEN_DEVICE_FUNC
+      static inline Scalar run(const CppAD::AD<Scalar> & x)
+      {
+        return CppAD::Value(x);
+      }
+    };
+  }
+}
+
 #endif // #ifndef __se3_math_ccpad_hpp__
