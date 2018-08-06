@@ -249,6 +249,16 @@ namespace se3
     LinearRef translation_impl() { return trans;}
     void translation_impl(const LinearType & p) { trans = p; }
     
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    SE3Tpl<NewScalar,Options> cast() const
+    {
+      typedef SE3Tpl<NewScalar,Options> ReturnType;
+      ReturnType res(rot.template cast<NewScalar>(),
+                     trans.template cast<NewScalar>());
+      return res;
+    }
+    
   protected:
     AngularType rot;
     LinearType trans;
