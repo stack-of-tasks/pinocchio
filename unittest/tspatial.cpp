@@ -349,6 +349,14 @@ BOOST_AUTO_TEST_CASE ( test_Force )
     const Force b(a);
     BOOST_CHECK(b.isApprox(a.ref()));
   }
+  
+  // Test cast
+  {
+    typedef ForceTpl<float> Forcef;
+    Force a(Force::Random());
+    Forcef a_float = a.cast<float>();
+    BOOST_CHECK(a_float.isApprox(a.cast<float>()));
+  }
 }
 
 BOOST_AUTO_TEST_CASE (test_force_ref)

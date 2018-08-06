@@ -51,6 +51,7 @@ namespace se3
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef ForceDense<ForceTpl> Base;
     FORCE_TYPEDEF_TPL(ForceTpl);
+    enum { Options = _Options };
     
     using Base::operator=;
     using Base::linear;
@@ -111,6 +112,16 @@ namespace se3
     }
     
     ForceRef<Vector6> ref() { return ForceRef<Vector6>(data); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    ForceTpl<NewScalar,Options> cast() const
+    {
+      typedef ForceTpl<NewScalar,Options> ReturnType;
+      ReturnType res(linear().template cast<NewScalar>(),
+                     angular().template cast<NewScalar>());
+      return res;
+    }
     
   protected:
     Vector6 data;
