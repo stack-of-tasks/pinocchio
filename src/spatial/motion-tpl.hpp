@@ -52,6 +52,7 @@ namespace se3
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef MotionDense<MotionTpl> Base;
     MOTION_TYPEDEF_TPL(MotionTpl);
+    enum { Options = _Options };
 
     using Base::operator=;
     using Base::linear;
@@ -83,8 +84,8 @@ namespace se3
       assert(v.size() == 6);
     }
     
-    template<typename S2,int O2>
-    explicit MotionTpl(const MotionTpl<S2,O2> & clone)
+    template<int O2>
+    explicit MotionTpl(const MotionTpl<Scalar,O2> & clone)
     : data(clone.toVector())
     {}
     
@@ -119,32 +120,32 @@ namespace se3
     }
     
     // Specific operators for MotionTpl and MotionRef
-    template<typename S2, int O2>
-    MotionPlain __plus__(const MotionTpl<S2,O2> & v) const
+    template<int O2>
+    MotionPlain __plus__(const MotionTpl<Scalar,O2> & v) const
     { return MotionPlain(data+v.toVector()); }
     
     template<typename Vector6ArgType>
     MotionPlain __plus__(const MotionRef<Vector6ArgType> & v) const
     { return MotionPlain(data+v.toVector()); }
     
-    template<typename S2, int O2>
-    MotionPlain __minus__(const MotionTpl<S2,O2> & v) const
+    template<int O2>
+    MotionPlain __minus__(const MotionTpl<Scalar,O2> & v) const
     { return MotionPlain(data-v.toVector()); }
     
     template<typename Vector6ArgType>
     MotionPlain __minus__(const MotionRef<Vector6ArgType> & v) const
     { return MotionPlain(data-v.toVector()); }
     
-    template<typename S2, int O2>
-    MotionTpl & __pequ__(const MotionTpl<S2,O2> & v)
+    template<int O2>
+    MotionTpl & __pequ__(const MotionTpl<Scalar,O2> & v)
     { data += v.toVector(); return *this; }
     
     template<typename Vector6ArgType>
     MotionTpl & __pequ__(const MotionRef<Vector6ArgType> & v)
     { data += v.toVector(); return *this; }
     
-    template<typename S2, int O2>
-    MotionTpl & __mequ__(const MotionTpl<S2,O2> & v)
+    template<int O2>
+    MotionTpl & __mequ__(const MotionTpl<Scalar,O2> & v)
     { data -= v.toVector(); return *this; }
     
     template<typename Vector6ArgType>
@@ -156,6 +157,16 @@ namespace se3
     { return MotionPlain(alpha*data); }
     
     MotionRef<Vector6> ref() { return MotionRef<Vector6>(data); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    MotionTpl<NewScalar,Options> cast() const
+    {
+      typedef MotionTpl<NewScalar,Options> ReturnType;
+      ReturnType res(linear().template cast<NewScalar>(),
+                     angular().template cast<NewScalar>());
+      return res;
+    }
 
   protected:
     Vector6 data;

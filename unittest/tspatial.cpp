@@ -194,6 +194,14 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
     const Motion b(a);
     BOOST_CHECK(b.isApprox(a.ref()));
   }
+  
+  // Test cast
+  {
+    typedef MotionTpl<float> Motionf;
+    Motion a(Motion::Random());
+    Motionf a_float = a.cast<float>();
+    BOOST_CHECK(a_float.isApprox(a.cast<float>()));
+  }
 }
 
 BOOST_AUTO_TEST_CASE (test_motion_ref)
