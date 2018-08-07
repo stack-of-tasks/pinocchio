@@ -48,8 +48,6 @@ namespace se3
   typedef Symmetric3Tpl <double,0> Symmetric3;
   typedef BiasZeroTpl   <double,0> BiasZero;
 
-  template<class C> struct traits {};
-
   #define SPATIAL_TYPEDEF_TEMPLATE_GENERIC(derived,TYPENAME)              \
     typedef TYPENAME traits<derived>::Scalar Scalar; \
     typedef TYPENAME traits<derived>::Vector3 Vector3; \

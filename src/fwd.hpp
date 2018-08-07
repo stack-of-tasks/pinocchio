@@ -24,4 +24,13 @@
 #include <Eigen/Core>
 #endif
 
+namespace se3
+{
+  ///
+  /// \brief Common traits structure to fully define base classes for CRTP.
+  ///
+  template<class C> struct traits {};
+  
+}
+
 #endif // #ifndef __se3_fwd_hpp__
