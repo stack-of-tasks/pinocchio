@@ -278,9 +278,12 @@ namespace se3
       Base::operator=(other);
       m_nq = other.m_nq;
       m_nv = other.m_nv;
+      m_idx_q = other.m_idx_q;
+      m_idx_v = other.m_idx_v;
+      m_nqs = other.m_nqs;
+      m_nvs = other.m_nvs;
       joints = other.joints;
       jointPlacements = other.jointPlacements;
-      
         
       return *this;
     }
