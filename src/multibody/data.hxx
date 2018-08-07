@@ -107,7 +107,7 @@ namespace se3
     
     /* Create data strcture associated to the joints */
     for(JointIndex i=0;i<(JointIndex)(model.njoints);++i)
-      joints.push_back(CreateJointData<JointCollection>::run(model.joints[i]));
+      joints.push_back(CreateJointData<Scalar,Options,JointCollectionDefaultTpl>::run(model.joints[i]));
 
     /* Init for CRBA */
     M.setZero(); Minv.setZero();

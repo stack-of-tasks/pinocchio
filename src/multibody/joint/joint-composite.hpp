@@ -67,29 +67,21 @@ namespace se3
   struct traits< JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
   { typedef JointCompositeTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
   
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
   struct JointDataCompositeTpl
-  : public JointDataBase< JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  : public JointDataBase< JointDataCompositeTpl<_Scalar,_Options,JointCollectionTpl> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    typedef JointDataBase< JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> > Base;
+    typedef JointDataBase<JointDataCompositeTpl> Base;
+    typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
+    
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
-    
-    typedef JointDataTpl<JointCollection> JointDataVariant;
-//    typedef typename JointCollection::JointDataVariant JointDataVariant;
-    
-    typedef container::aligned_vector<JointDataVariant> JointDataVector;
-//    typedef boost::array<JointDataVariant,njoints> JointDataVector;
-    
-    typedef typename Base::Transformation_t Transformation_t;
-    typedef typename Base::Motion_t Motion_t;
-    typedef typename Base::Bias_t Bias_t;
-    typedef typename Base::Constraint_t Constraint_t;
-    typedef typename Base::U_t U_t;
-    typedef typename Base::D_t D_t;
-    typedef typename Base::UD_t UD_t;
+    typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointDataVariant;
 
+    typedef container::aligned_vector<JointDataVariant> JointDataVector;
+    
     // JointDataComposite()  {} // can become necessary if we want a vector of JointDataComposite ?
     
     JointDataCompositeTpl(const JointDataVector & joint_data, const int /*nq*/, const int nv)
@@ -126,30 +118,16 @@ namespace se3
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    typedef typename traits<JointModelCompositeTpl>::JointDerived JointType;
-    typedef typename traits<JointType>::JointDataDerived JointData;
-    typedef typename traits<JointType>::Scalar Scalar;
     typedef JointModelBase<JointModelCompositeTpl> Base;
-    
-    enum
-    {
-      Options = traits<JointType>::Options,
-      NV = traits<JointType>::NV,
-      NQ = traits<JointType>::NQ
-    };
+    typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
-    typedef JointModelTpl<JointCollection> JointModelVariant;
-//    typedef typename JointCollection::JointModelVariant JointModelVariant;
+    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelVariant;
 
     typedef SE3Tpl<Scalar,Options> SE3;
   
     typedef container::aligned_vector<JointModelVariant> JointModelVector;
-//    typedef boost::array<JointModelVariant,njoints> JointModelVector;
-    typedef typename traits<JointType>::Transformation_t Transformation_t;
-    typedef typename traits<JointType>::Constraint_t Constraint_t;
-    typedef typename traits<JointType>::ConfigVector_t ConfigVector_t;
-    typedef typename traits<JointType>::TangentVector_t TangentVector_t;
     
     using Base::id;
     using Base::idx_q;
@@ -216,29 +194,29 @@ namespace se3
       updateJointIndexes();
     }
     
-    JointData createData() const
+    JointDataDerived createData() const
     {
-      typename JointData::JointDataVector jdata(joints.size());
+      typename JointDataDerived::JointDataVector jdata(joints.size());
       for (int i = 0; i < (int)joints.size(); ++i)
-        jdata[(size_t)i] = ::se3::createData<JointCollection>(joints[(size_t)i]);
-      return JointData(jdata,nq(),nv());
+        jdata[(size_t)i] = ::se3::createData<Scalar,Options,JointCollectionTpl>(joints[(size_t)i]);
+      return JointDataDerived(jdata,nq(),nv());
     }
 
     template<typename, int, template<typename S, int O> class, typename>
     friend struct JointCompositeCalcZeroOrderStep;
     
     template<typename ConfigVectorType>
-    void calc(JointData & data, const Eigen::MatrixBase<ConfigVectorType> & qs) const;
+    void calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVectorType> & qs) const;
 
     template<typename, int, template<typename S, int O> class, typename, typename>
     friend struct JointCompositeCalcFirstOrderStep;
     
     template<typename ConfigVectorType, typename TangentVectorType>
-    void calc(JointData & data,
+    void calc(JointDataDerived & data,
               const Eigen::MatrixBase<ConfigVectorType> & qs,
               const Eigen::MatrixBase<TangentVectorType> & vs) const;
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
     {
       data.U.noalias() = I * data.S;
       Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> tmp (data.S.matrix().transpose() * data.U);

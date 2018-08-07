@@ -69,7 +69,7 @@ namespace se3
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   template<typename ConfigVectorType>
   inline void JointModelCompositeTpl<Scalar,Options,JointCollectionTpl>::
-  calc(JointData & data, const Eigen::MatrixBase<ConfigVectorType> & qs) const
+  calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVectorType> & qs) const
   {
     assert(joints.size() > 0);
     assert(data.joints.size() == joints.size());
@@ -142,7 +142,7 @@ namespace se3
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   template<typename ConfigVectorType, typename TangentVectorType>
   inline void JointModelCompositeTpl<Scalar,Options,JointCollectionTpl>
-  ::calc(JointData & jdata,
+  ::calc(JointDataDerived & jdata,
          const Eigen::MatrixBase<ConfigVectorType> & qs,
          const Eigen::MatrixBase<TangentVectorType> & vs) const
   {

@@ -41,10 +41,10 @@ namespace se3
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     enum { Options = JointCollection::Options };
+    typedef typename JointCollection::Scalar Scalar;
     
     typedef ModelTpl<JointCollection> Model;
     
-    typedef typename JointCollection::Scalar Scalar;
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
@@ -57,8 +57,8 @@ namespace se3
     typedef se3::FrameIndex FrameIndex;
     typedef std::vector<Index> IndexVector;
     
-    typedef JointModelTpl<JointCollection> JointModel;
-    typedef JointDataTpl<JointCollection> JointData;
+    typedef JointModelTpl<Scalar,Options,JointCollectionDefaultTpl> JointModel;
+    typedef JointDataTpl<Scalar,Options,JointCollectionDefaultTpl> JointData;
     
     typedef container::aligned_vector<JointModel> JointModelVector;
     typedef container::aligned_vector<JointData> JointDataVector;

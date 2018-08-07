@@ -29,20 +29,24 @@
 namespace se3
 {
 
-  template<typename JointCollection> struct JointTpl;
-  typedef JointTpl<JointCollectionDefault> Joint;
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointTpl;
+  typedef JointTpl<double> Joint;
 
-  template<typename JointCollection>
-  struct traits< JointTpl<JointCollection> >
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointTpl<_Scalar,_Options,JointCollectionTpl> >
   {
     enum {
-      Options = JointCollection::Options,
+      Options = _Options,
       NQ = Eigen::Dynamic, // Dynamic because unknown at compile time
       NV = Eigen::Dynamic
     };
-    typedef typename JointCollection::Scalar Scalar;
-    typedef JointDataTpl<JointCollection> JointDataDerived;
-    typedef JointModelTpl<JointCollection> JointModelDerived;
+    
+    typedef _Scalar Scalar;
+    typedef JointCollectionTpl<Scalar,Options> JointCollection;
+    typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointDataDerived;
+    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelDerived;
+    
     typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options>  Motion_t;
@@ -58,23 +62,29 @@ namespace se3
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
   };
   
-  template<typename JointCollection>
-  struct traits< JointDataTpl<JointCollection> >
-  { typedef JointTpl<JointCollection> JointDerived; };
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointDataTpl<Scalar,Options,JointCollectionTpl> >
+  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
   
-  template<typename JointCollection>
-  struct traits< JointModelTpl<JointCollection> >
-  { typedef JointTpl<JointCollection> JointDerived; };
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointModelTpl<Scalar,Options,JointCollectionTpl> >
+  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
 
-  template<typename JointCollection>
-  struct JointDataTpl : public JointDataBase< JointDataTpl<JointCollection> >, JointCollection::JointDataVariant
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct JointDataTpl
+  : public JointDataBase< JointDataTpl<_Scalar,_Options,JointCollectionTpl> >
+  , JointCollectionTpl<_Scalar,_Options>::JointDataVariant
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef JointTpl<JointCollection> JointDerived;
-    typedef typename JointCollection::JointDataVariant JointDataVariant;
+    
+    typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef JointDataBase<JointDataTpl> Base;
     
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
+    typedef JointCollectionTpl<_Scalar,_Options> JointCollection;
+    typedef typename JointCollection::JointDataVariant JointDataVariant;
+    
     JointDataVariant & toVariant() { return *static_cast<JointDataVariant*>(this); }
     const JointDataVariant & toVariant() const { return *static_cast<const JointDataVariant*>(this); }
 
@@ -104,19 +114,22 @@ namespace se3
 
   };
 
-  template<typename JointCollection>
-  struct JointModelTpl : JointModelBase< JointModelTpl<JointCollection> >, JointCollection::JointModelVariant
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct JointModelTpl
+  : JointModelBase< JointModelTpl<_Scalar,_Options,JointCollectionTpl> >
+  , JointCollectionTpl<_Scalar,_Options>::JointModelVariant
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
+    typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+
+    SE3_JOINT_TYPEDEF_TEMPLATE;
+    SE3_JOINT_USE_INDEXES;
+    
+    typedef JointCollectionTpl<Scalar,Options> JointCollection;
     typedef typename JointCollection::JointDataVariant JointDataVariant;
     typedef typename JointCollection::JointModelVariant JointModelVariant;
     
-    typedef JointModelVariant JointModelBoostVariant;
-    typedef JointTpl<JointCollection> JointDerived;
-    
-    SE3_JOINT_TYPEDEF_TEMPLATE;
-    SE3_JOINT_USE_INDEXES;
     using Base::id;
     using Base::setIndexes;
     using Base::operator==;
@@ -129,7 +142,7 @@ namespace se3
     
     template<typename JointModelDerived>
     JointModelTpl(const JointModelBase<JointModelDerived> & jmodel)
-    : JointCollection::JointModelVariant((JointModelVariant)jmodel.derived())
+    : JointModelVariant((JointModelVariant)jmodel.derived())
     {
       BOOST_MPL_ASSERT((boost::mpl::contains<typename JointModelVariant::types,JointModelDerived>));
     }
