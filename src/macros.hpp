@@ -30,6 +30,15 @@
 (PINOCCHIO_MINOR_VERSION>y || (PINOCCHIO_MINOR_VERSION>=y && \
 PINOCCHIO_PATCH_VERSION>=z))))
 
+namespace se3
+{
+  namespace internal
+  {
+    template<typename T> struct argument_type;
+    template<typename T, typename U> struct argument_type<T(U)> { typedef U type; };
+  }
+}
+
 /// \brief Empty macro argument
 #define PINOCCHIO_MACRO_EMPTY_ARG
 
