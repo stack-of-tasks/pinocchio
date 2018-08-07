@@ -40,10 +40,10 @@ namespace se3
   ///
   /// \return The Centroidal Momentum Matrix Ag.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<JointCollection>::Matrix6x &
-  ccrba(const ModelTpl<JointCollection> & model,
-        DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  ccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+        DataTpl<Scalar,Options,JointCollectionTpl> & data,
         const Eigen::MatrixBase<ConfigVectorType> & q,
         const Eigen::MatrixBase<TangentVectorType> & v);
   
@@ -63,10 +63,10 @@ namespace se3
   ///
   /// \return The Centroidal Momentum Matrix time derivative dAg
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<JointCollection>::Matrix6x &
-  dccrba(const ModelTpl<JointCollection> & model,
-         DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  dccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+         DataTpl<Scalar,Options,JointCollectionTpl> & data,
          const Eigen::MatrixBase<ConfigVectorType> & q,
          const Eigen::MatrixBase<TangentVectorType> & v);
   

@@ -27,10 +27,10 @@ namespace se3
   namespace cholesky
   {
 
-    template<typename JointCollection>
-    inline const typename DataTpl<JointCollection>::MatrixXs &
-    decompose(const ModelTpl<JointCollection> & model,
-              DataTpl<JointCollection> & data)
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+    decompose(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              DataTpl<Scalar,Options,JointCollectionTpl> & data)
     {
       /*
        *    D = zeros(n,1);
@@ -49,9 +49,8 @@ namespace se3
 #ifndef NDEBUG
       assert(model.check(data) && "data is not consistent with model.");
 #endif
-      typedef DataTpl<JointCollection> Data;
-      typedef typename JointCollection::Scalar Scalar;
-      
+      typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+
       const typename Data::MatrixXs & M = data.M;
       typename Data::MatrixXs & U = data.U;
       typename Data::VectorXs & D = data.D;
@@ -79,9 +78,9 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct Uv
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
           Mat & m_ = EIGEN_CONST_CAST(Mat,m);
@@ -93,12 +92,12 @@ namespace se3
       template<typename Mat>
       struct Uv<Mat,1>
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
-          typedef DataTpl<JointCollection> Data;
+          typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
 #ifndef NDEBUG
@@ -119,9 +118,9 @@ namespace se3
     
     /* Compute U*v.
      * Nota: there is no smart way of doing U*D*v, so it is not proposed. */
-    template<typename JointCollection, typename Mat>
-    Mat & Uv(const ModelTpl<JointCollection> & model,
-             const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & Uv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+             const DataTpl<Scalar,Options,JointCollectionTpl> & data,
              const Eigen::MatrixBase<Mat> & m)
     {
       Mat & m_ = EIGEN_CONST_CAST(Mat,m);
@@ -134,9 +133,9 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct Utv
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
           Mat & m_ = EIGEN_CONST_CAST(Mat,m);
@@ -148,12 +147,12 @@ namespace se3
       template<typename Mat>
       struct Utv<Mat,1>
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
-          typedef DataTpl<JointCollection> Data;
+          typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
 #ifndef NDEBUG
@@ -174,9 +173,9 @@ namespace se3
     } // namespace internal
 
     /* Compute U'*v */
-    template<typename JointCollection, typename Mat>
-    Mat & Utv(const ModelTpl<JointCollection> & model,
-              const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & Utv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const Eigen::MatrixBase<Mat> & m)
     {
       Mat & m_ = EIGEN_CONST_CAST(Mat,m);
@@ -189,9 +188,9 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct Uiv
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
           Mat & m_ = EIGEN_CONST_CAST(Mat,m);
@@ -203,12 +202,12 @@ namespace se3
       template<typename Mat>
       struct Uiv<Mat,1>
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
-          typedef DataTpl<JointCollection> Data;
+          typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
 #ifndef NDEBUG
@@ -230,9 +229,9 @@ namespace se3
     /* Compute U^{-1}*v 
      * Nota: there is no efficient way to compute D^{-1}U^{-1}v
      * in a single loop, so algorithm is not proposed.*/
-    template<typename JointCollection, typename Mat>
-    Mat & Uiv(const ModelTpl<JointCollection> & model,
-              const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & Uiv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const Eigen::MatrixBase<Mat> & m)
     {
       Mat & m_ = EIGEN_CONST_CAST(Mat,m);
@@ -245,9 +244,9 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct Utiv
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
           Mat & m_ = EIGEN_CONST_CAST(Mat,m);
@@ -259,12 +258,12 @@ namespace se3
       template<typename Mat>
       struct Utiv<Mat,1>
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
-          typedef DataTpl<JointCollection> Data;
+          typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
 #ifndef NDEBUG
@@ -284,9 +283,9 @@ namespace se3
       
     } // namespace internal
 
-    template<typename JointCollection, typename Mat>
-    Mat & Utiv(const ModelTpl<JointCollection> & model,
-               const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & Utiv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<Mat> & m)
     {
       Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
@@ -299,9 +298,9 @@ namespace se3
       template<typename Mat, typename MatRes, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct Mv
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & min,
                         const Eigen::MatrixBase<MatRes> & mout
                         )
@@ -315,13 +314,13 @@ namespace se3
       template<typename Mat, typename MatRes>
       struct Mv<Mat,MatRes,1>
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & vin,
                         const Eigen::MatrixBase<MatRes> & vout)
         {
-          typedef DataTpl<JointCollection> Data;
+          typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRes)
@@ -347,9 +346,9 @@ namespace se3
       
     } // namespace internal
     
-    template<typename JointCollection, typename Mat, typename MatRes>
-    MatRes & Mv(const ModelTpl<JointCollection> & model,
-                const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat, typename MatRes>
+    MatRes & Mv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<Mat> & min,
                 const Eigen::MatrixBase<MatRes> & mout)
     {
@@ -358,9 +357,9 @@ namespace se3
       return mout_.derived();
     }
     
-    template<typename JointCollection, typename Mat>
-    typename EIGEN_PLAIN_TYPE(Mat) Mv(const ModelTpl<JointCollection> & model,
-                                      const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    typename EIGEN_PLAIN_TYPE(Mat) Mv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                       const Eigen::MatrixBase<Mat> & min)
     {
       typedef typename EIGEN_PLAIN_TYPE(Mat) ReturnType;
@@ -389,9 +388,9 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct UDUtv
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
           Mat & m_ = EIGEN_CONST_CAST(Mat,m);
@@ -403,9 +402,9 @@ namespace se3
       template<typename Mat>
       struct UDUtv<Mat,1>
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
@@ -424,9 +423,9 @@ namespace se3
       
     } // namespace internal
     
-    template<typename JointCollection, typename Mat>
-    Mat & UDUtv(const ModelTpl<JointCollection> & model,
-                const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & UDUtv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<Mat> & m)
     {
       Mat & m_ = EIGEN_CONST_CAST(Mat,m);
@@ -440,9 +439,9 @@ namespace se3
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
       struct solve
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
           Mat & m_ = EIGEN_CONST_CAST(Mat,m);
@@ -454,9 +453,9 @@ namespace se3
       template<typename Mat>
       struct solve<Mat,1>
       {
-        template<typename JointCollection>
-        static void run(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data,
+        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+        static void run(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & v)
         {
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
@@ -474,9 +473,9 @@ namespace se3
       
     } // namespace internal
     
-    template<typename JointCollection, typename Mat>
-    Mat & solve(const ModelTpl<JointCollection> & model,
-                const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & solve(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<Mat> & m)
     {
       Mat & m_ = EIGEN_CONST_CAST(Mat,m);
@@ -486,9 +485,9 @@ namespace se3
     
     namespace internal
     {
-      template<typename JointCollection, typename Mat>
-      Mat & Miunit(const ModelTpl<JointCollection> & model,
-                   const DataTpl<JointCollection> & data,
+      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+      Mat & Miunit(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                    const int col,
                    const Eigen::MatrixBase<Mat> & v)
       {
@@ -500,7 +499,7 @@ namespace se3
         assert(col < model.nv);
         assert(v.rows() == model.nv);
         
-        typedef DataTpl<JointCollection> Data;
+        typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
         
         const typename Data::MatrixXs & U = data.U;
         const std::vector<int> & nvt = data.nvSubtree_fromRow;
@@ -526,9 +525,9 @@ namespace se3
       }
     }// namespace internal
     
-    template<typename JointCollection, typename Mat>
-    Mat & computeMinv(const ModelTpl<JointCollection> & model,
-                      const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & computeMinv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                       const Eigen::MatrixBase<Mat> & Minv)
     {
       assert(Minv.rows() == model.nv);

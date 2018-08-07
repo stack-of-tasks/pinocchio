@@ -28,7 +28,7 @@ namespace se3
       using namespace Eigen;
       
       bp::def("ccrba",
-              &ccrba<JointCollectionDefault,VectorXd,VectorXd>,
+              &ccrba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),
@@ -36,7 +36,7 @@ namespace se3
               bp::return_value_policy<bp::return_by_value>());
       
       bp::def("dccrba",
-              dccrba<JointCollectionDefault,VectorXd,VectorXd>,
+              dccrba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),

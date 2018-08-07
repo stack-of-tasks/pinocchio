@@ -26,10 +26,10 @@
 
 namespace se3
 {
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::Vector3 &
-  centerOfMass(const ModelTpl<JointCollection> & model,
-               DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<ConfigVectorType> & q,
                const bool computeSubtreeComs)
   {
@@ -40,10 +40,10 @@ namespace se3
     return data.com[0];
   }
 
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<JointCollection>::Vector3 &
-  centerOfMass(const ModelTpl<JointCollection> & model,
-               DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<ConfigVectorType> & q,
                const Eigen::MatrixBase<TangentVectorType> & v,
                const bool computeSubtreeComs)
@@ -55,10 +55,10 @@ namespace se3
     return data.com[0];
   }
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<JointCollection>::Vector3 &
-  centerOfMass(const ModelTpl<JointCollection> & model,
-               DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<ConfigVectorType> & q,
                const Eigen::MatrixBase<TangentVectorType1> & v,
                const Eigen::MatrixBase<TangentVectorType2> & a,
@@ -71,17 +71,17 @@ namespace se3
     return data.com[0];
   }
   
-  template<typename JointCollection>
-  inline void centerOfMass(const ModelTpl<JointCollection> & model,
-                           DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const int LEVEL,
                            const bool computeSubtreeComs)
   {
     assert(model.check(data) && "data is not consistent with model.");
     assert(LEVEL >= 0);
     
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef typename Model::JointIndex JointIndex;
     
@@ -158,10 +158,10 @@ namespace se3
       data.acom[0] /= data.mass[0];
   }
 
-  template<typename JointCollection>
-  inline const typename DataTpl<JointCollection>::Vector3 &
-  getComFromCrba(const ModelTpl<JointCollection> & model,
-                 DataTpl<JointCollection> & data)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  getComFromCrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                 DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
 #ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
@@ -173,12 +173,12 @@ namespace se3
   /* --- JACOBIAN ---------------------------------------------------------- */
   /* --- JACOBIAN ---------------------------------------------------------- */
 
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct JacobianCenterOfMassBackwardStep
-  : public fusion::JointVisitorBase< JacobianCenterOfMassBackwardStep<JointCollection> >
+  : public fusion::JointVisitorBase< JacobianCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -242,19 +242,18 @@ namespace se3
 
   };
 
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::Matrix3x &
-  jacobianCenterOfMass(const ModelTpl<JointCollection> & model,
-                       DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const Eigen::MatrixBase<ConfigVectorType> & q,
                        const bool computeSubtreeComs,
                        const bool updateKinematics)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef typename JointCollection::Scalar Scalar;
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef typename Model::JointIndex JointIndex;
     
@@ -278,7 +277,7 @@ namespace se3
     }
    
     // Backward step
-    typedef JacobianCenterOfMassBackwardStep<JointCollection> Pass2;
+    typedef JacobianCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i= (JointIndex) (model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
@@ -291,14 +290,14 @@ namespace se3
     return data.Jcom;
   }
 
-  template<typename JointCollection>
-  inline const typename DataTpl<JointCollection>::Matrix3x &
-  getJacobianComFromCrba(const ModelTpl<JointCollection> & model,
-                         DataTpl<JointCollection> & data)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  getJacobianComFromCrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef DataTpl<JointCollection> Data;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Data::SE3 SE3;
     
     const SE3 & oM1 = data.liMi[1];

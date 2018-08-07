@@ -41,9 +41,9 @@ namespace se3
   /// \remarks This function is similar to do a forwardKinematics(model,data,q,v) followed by a computeJointJacobians(model,data,q).
   ///          In addition, it computes the spatial velocity of the joint expressed in the world frame (see data.ov).
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline void computeForwardKinematicsDerivatives(const ModelTpl<JointCollection> & model,
-                                                  DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline void computeForwardKinematicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                   const Eigen::MatrixBase<ConfigVectorType> & q,
                                                   const Eigen::MatrixBase<TangentVectorType1> & v,
                                                   const Eigen::MatrixBase<TangentVectorType2> & a);
@@ -63,9 +63,9 @@ namespace se3
   /// \param[out] partial_dq Partial derivative of the joint velociy w.r.t. \f$ q \f$.
   /// \param[out] partial_dq Partial derivative of the joint velociy w.r.t. \f$ \dot{q} \f$.
   ///
-  template<typename JointCollection, typename Matrix6xOut1, typename Matrix6xOut2>
-  inline void getJointVelocityDerivatives(const ModelTpl<JointCollection> & model,
-                                          DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
+  inline void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                           const Model::JointIndex jointId,
                                           const ReferenceFrame rf,
                                           const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -92,9 +92,9 @@ namespace se3
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{q} \f$.
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \ddot{q} \f$.
   ///
-  template<typename JointCollection, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
-  inline void getJointAccelerationDerivatives(const ModelTpl<JointCollection> & model,
-                                              DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
+  inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                               const Model::JointIndex jointId,
                                               const ReferenceFrame rf,
                                               const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,

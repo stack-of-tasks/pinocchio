@@ -27,12 +27,12 @@
 
 namespace se3 
 {
-  template<typename JointCollection, typename ConfigVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct CrbaForwardStep
-  : public fusion::JointVisitorBase< CrbaForwardStep<JointCollection,ConfigVectorType> >
+  : public fusion::JointVisitorBase< CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -57,12 +57,12 @@ namespace se3
 
   };
 
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct CrbaBackwardStep
-  : public fusion::JointVisitorBase< CrbaBackwardStep<JointCollection> >
+  : public fusion::JointVisitorBase< CrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
 				                          Data &>  ArgsType;
@@ -109,12 +109,12 @@ namespace se3
     }
   };
   
-  template<typename JointCollection, typename ConfigVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct CrbaForwardStepMinimal
-  : public fusion::JointVisitorBase< CrbaForwardStepMinimal<JointCollection,ConfigVectorType> >
+  : public fusion::JointVisitorBase< CrbaForwardStepMinimal<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -146,12 +146,12 @@ namespace se3
     
   };
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct CrbaBackwardStepMinimal
-  : public fusion::JointVisitorBase< CrbaBackwardStepMinimal<JointCollection> >
+  : public fusion::JointVisitorBase< CrbaBackwardStepMinimal<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &>  ArgsType;
@@ -184,25 +184,25 @@ namespace se3
   };
 
   
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::MatrixXs &
-  crba(const ModelTpl<JointCollection> & model,
-       DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     
-    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
-    typedef CrbaForwardStep<JointCollection,ConfigVectorType> Pass1;
+    typedef CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived()));
     }
     
-    typedef CrbaBackwardStep<JointCollection> Pass2;
+    typedef CrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
@@ -212,25 +212,25 @@ namespace se3
     return data.M;
   }
   
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::MatrixXs &
-  crbaMinimal(const ModelTpl<JointCollection> & model,
-              DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  crbaMinimal(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     
-    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
-    typedef CrbaForwardStepMinimal<JointCollection,ConfigVectorType> Pass1;
+    typedef CrbaForwardStepMinimal<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived()));
     }
     
-    typedef CrbaBackwardStepMinimal<JointCollection> Pass2;
+    typedef CrbaBackwardStepMinimal<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
@@ -238,7 +238,7 @@ namespace se3
     }
     
     // Retrieve the Centroidal Momemtum map
-    typedef DataTpl<JointCollection> Data;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Data::Force Force;
     typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
     
@@ -258,12 +258,12 @@ namespace se3
 
   namespace internal
   {
-    template<typename JointCollection>
-    inline bool isDescendant(const ModelTpl<JointCollection> & model,
-                             const typename ModelTpl<JointCollection>::JointIndex j,
-                             const typename ModelTpl<JointCollection>::JointIndex root)
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    inline bool isDescendant(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex j,
+                             const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex root)
     {
-      typedef ModelTpl<JointCollection> Model;
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
       
       if(j>=(JointIndex)model.njoints)  return false;
@@ -272,10 +272,10 @@ namespace se3
     }
   }
   
-  template<typename JointCollection>
-  inline bool CRBAChecker::checkModel_impl(const ModelTpl<JointCollection> & model) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool CRBAChecker::checkModel_impl(const ModelTpl<Scalar,Options,JointCollectionTpl> & model) const
   {
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     // For CRBA, the tree must be "compact", i.e. all descendants of a node i are stored

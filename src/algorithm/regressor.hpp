@@ -41,10 +41,10 @@ namespace se3
     ///
     /// \return The static regressor of the system.
     ///
-    template<typename JointCollection, typename ConfigVectorType>
-    inline typename DataTpl<JointCollection>::Matrix3x &
-    computeStaticRegressor(const ModelTpl<JointCollection> & model,
-                           DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+    inline typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+    computeStaticRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const Eigen::MatrixBase<ConfigVectorType> & q);
   }
   

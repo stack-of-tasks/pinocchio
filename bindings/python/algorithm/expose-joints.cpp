@@ -41,14 +41,14 @@ namespace se3
       using namespace Eigen;
       
       bp::def("integrate",
-              &integrate<JointCollectionDefault,VectorXd,VectorXd>,
+              &integrate<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
               "Integrate the model for a tangent vector during one unit time .");
       
       bp::def("interpolate",
-              &interpolate<JointCollectionDefault,VectorXd,VectorXd,double>,
+              &interpolate<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)",
@@ -56,7 +56,7 @@ namespace se3
               "Interpolate the model between two configurations.");
       
       bp::def("difference",
-              &difference<JointCollectionDefault,VectorXd,VectorXd>,
+              &difference<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)"),
@@ -64,14 +64,14 @@ namespace se3
               "to go from q1 to q2");
       
       bp::def("squaredDistance",
-              &squaredDistance<JointCollectionDefault,VectorXd,VectorXd>,
+              &squaredDistance<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)"),
               "Squared distance vector between two configurations.");
       
       bp::def("distance",
-              &distance<JointCollectionDefault,VectorXd,VectorXd>,
+              &distance<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)"),
@@ -83,7 +83,7 @@ namespace se3
               "Generate a random configuration in the bounds given by the lower and upper limits contained in model.");
       
       bp::def("randomConfiguration",
-              &randomConfiguration<JointCollectionDefault,VectorXd,VectorXd>,
+              &randomConfiguration<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
                        "Joint lower limits (size Model::nq)",
                        "Joint upper limits (size Model::nq)"),
@@ -95,7 +95,7 @@ namespace se3
               "return the configuration normalized ");
       
       bp::def("isSameConfiguration",
-              &isSameConfiguration<JointCollectionDefault,VectorXd,VectorXd>,
+              &isSameConfiguration<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
                        "Configuration q1 (size Model::nq)",
                        "Configuration q2 (size Model::nq)",

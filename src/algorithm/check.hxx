@@ -27,11 +27,11 @@ namespace se3
   {
     // Dedicated structure for the fusion::accumulate algorithm: validate the check-algorithm
     // for all elements in a fusion list of AlgoCheckers.
-    template<typename JointCollection>
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     struct AlgoFusionChecker
     {
       typedef bool result_type;
-      typedef ModelTpl<JointCollection> Model;
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       const Model & model;
       
       AlgoFusionChecker(const Model & model) : model(model) {}
@@ -46,10 +46,10 @@ namespace se3
   } // namespace internal
 
   // Check the validity of the kinematic tree defined by parents.
-  template<typename JointCollection>
-  inline bool ParentChecker::checkModel_impl(const ModelTpl<JointCollection> & model) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool ParentChecker::checkModel_impl(const ModelTpl<Scalar,Options,JointCollectionTpl> & model) const
   {
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     for(JointIndex j=1;j<(JointIndex)model.njoints;++j)
@@ -61,28 +61,28 @@ namespace se3
 
 #if !defined(BOOST_FUSION_HAS_VARIADIC_LIST)
   template<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE,class T)>
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   bool AlgorithmCheckerList<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE,T)>
-  ::checkModel_impl(const ModelTpl<JointCollection> & model) const
+  ::checkModel_impl(const ModelTpl<Scalar,Options,JointCollectionTpl> & model) const
   {
     return boost::fusion::accumulate(checkerList,
                                      true,
-                                     internal::AlgoFusionChecker<JointCollection>(model));
+                                     internal::AlgoFusionChecker<Scalar,Options,JointCollectionTpl>(model));
   }
 #else
   template<class ...T>
-  template<typename JointCollection>
-  bool AlgorithmCheckerList<T...>::checkModel_impl(const ModelTpl<JointCollection> & model) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  bool AlgorithmCheckerList<T...>::checkModel_impl(const ModelTpl<Scalar,Options,JointCollectionTpl> & model) const
   {
     return boost::fusion::accumulate(checkerList,
                                      true,
-                                     internal::AlgoFusionChecker<JointCollection>(model));
+                                     internal::AlgoFusionChecker<Scalar,Options,JointCollectionTpl>(model));
   }
 #endif
 
-  template<typename JointCollection>
-  inline bool checkData(const ModelTpl<JointCollection> & model,
-                        const DataTpl<JointCollection> & data)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool checkData(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
 #define CHECK_DATA(a)  if(!(a)) return false;
 
@@ -162,8 +162,9 @@ namespace se3
     return true;
   }
   
-  template<typename JointCollection>
-  inline bool ModelTpl<JointCollection>::check(const DataTpl<JointCollection> & data) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool ModelTpl<Scalar,Options,JointCollectionTpl>::
+  check(const DataTpl<Scalar,Options,JointCollectionTpl> & data) const
   { return checkData(*this,data); }
 
 

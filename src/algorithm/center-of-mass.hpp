@@ -38,10 +38,10 @@ namespace se3
   ///
   /// \return The center of mass position of the full rigid body system expressed in the world frame.
   ///
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::Vector3 &
-  centerOfMass(const ModelTpl<JointCollection> & model,
-               DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<ConfigVectorType> & q,
                const bool computeSubtreeComs = true);
   
@@ -62,10 +62,10 @@ namespace se3
   ///
   /// \return The center of mass position of the full rigid body system expressed in the world frame.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<JointCollection>::Vector3 &
-  centerOfMass(const ModelTpl<JointCollection> & model,
-               DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<ConfigVectorType> & q,
                const Eigen::MatrixBase<TangentVectorType> & v,
                const bool computeSubtreeComs = true);
@@ -89,10 +89,10 @@ namespace se3
   ///
   /// \return The center of mass position of the full rigid body system expressed in the world frame.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<JointCollection>::Vector3 &
-  centerOfMass(const ModelTpl<JointCollection> & model,
-               DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<ConfigVectorType> & q,
                const Eigen::MatrixBase<TangentVectorType1> & v,
                const Eigen::MatrixBase<TangentVectorType2> & a,
@@ -110,9 +110,9 @@ namespace se3
   /// \param[in] LEVEL if =0, compytes CoM position, if =1, also computes CoM velocity and if =2, also computes CoM acceleration.
   /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
   ///
-  template<typename JointCollection>
-  inline void centerOfMass(const ModelTpl<JointCollection> & model,
-                           DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const int LEVEL,
                            const bool computeSubtreeComs = true);
   
@@ -127,9 +127,9 @@ namespace se3
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
   ///
-  template<typename JointCollection>
-  inline void centerOfMass(const ModelTpl<JointCollection> & model,
-                           DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const bool computeSubtreeComs)
   { centerOfMass(model,data,2,computeSubtreeComs); }
   
@@ -149,10 +149,10 @@ namespace se3
   ///
   /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
   ///
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::Matrix3x &
-  jacobianCenterOfMass(const ModelTpl<JointCollection> & model,
-                       DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const Eigen::MatrixBase<ConfigVectorType> & q,
                        const bool computeSubtreeComs = true,
                        const bool updateKinematics = true);
@@ -171,10 +171,10 @@ namespace se3
   ///
   /// \return The center of mass position of the rigid body system expressed in the world frame (vector 3).
   ///
-  template<typename JointCollection>
-  inline const typename DataTpl<JointCollection>::Vector3 &
-  getComFromCrba(const ModelTpl<JointCollection> & model,
-                 DataTpl<JointCollection> & data);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  getComFromCrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                 DataTpl<Scalar,Options,JointCollectionTpl> & data);
   
   ///
   /// \brief Extracts both the jacobian of the center of mass (CoM), the total mass of the system and the CoM position from the joint space inertia matrix (also called the mass matrix).
@@ -189,10 +189,10 @@ namespace se3
   ///
   /// \remark This extraction of inertial quantities is only valid for free-floating base systems.
   ///
-  template<typename JointCollection>
-  inline const typename DataTpl<JointCollection>::Matrix3x &
-  getJacobianComFromCrba(const ModelTpl<JointCollection> & model,
-                         DataTpl<JointCollection> & data);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  getJacobianComFromCrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data);
   
 } // namespace se3 
 

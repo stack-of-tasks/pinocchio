@@ -25,12 +25,12 @@
 
 namespace se3
 {
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   struct RneaForwardStep
-  : public fusion::JointVisitorBase< RneaForwardStep<JointCollection,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
+  : public fusion::JointVisitorBase< RneaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -68,11 +68,12 @@ namespace se3
 
   };
 
-  template<typename JointCollection>
-  struct RneaBackwardStep : public fusion::JointVisitorBase< RneaBackwardStep<JointCollection> >
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct RneaBackwardStep
+  : public fusion::JointVisitorBase< RneaBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &
@@ -94,10 +95,10 @@ namespace se3
     }
   };
 
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  rnea(const ModelTpl<JointCollection> & model,
-       DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  rnea(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q,
        const Eigen::MatrixBase<TangentVectorType1> & v,
        const Eigen::MatrixBase<TangentVectorType2> & a)
@@ -107,33 +108,35 @@ namespace se3
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     assert(a.size() == model.nv && "The acceleration vector is not of right size");
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     data.v[0].setZero();
     data.a_gf[0] = -model.gravity;
 
-    typedef RneaForwardStep<JointCollection,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
+    typedef RneaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
+    typename Pass1::ArgsType arg1(model,data,q.derived(),v.derived(),a.derived());
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
-                 typename Pass1::ArgsType(model,data,q.derived(),v.derived(),a.derived()));
+                 arg1);
     }
     
-    typedef RneaBackwardStep<JointCollection> Pass2;
+    typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    typename Pass2::ArgsType arg2(model,data);
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
-                 typename Pass2::ArgsType(model,data));
+                 arg2);
     }
 
     return data.tau;
   }
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  rnea(const ModelTpl<JointCollection> & model,
-       DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  rnea(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q,
        const Eigen::MatrixBase<TangentVectorType1> & v,
        const Eigen::MatrixBase<TangentVectorType2> & a,
@@ -145,13 +148,13 @@ namespace se3
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     assert(a.size() == model.nv && "The acceleration vector is not of right size");
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     data.v[0].setZero();
     data.a_gf[0] = -model.gravity;
     
-    typedef RneaForwardStep<JointCollection,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
+    typedef RneaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
@@ -159,7 +162,7 @@ namespace se3
       data.f[i] -= fext[i];
     }
     
-    typedef RneaBackwardStep<JointCollection> Pass2;
+    typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
@@ -170,12 +173,12 @@ namespace se3
     return data.tau;
   }
  
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct NLEForwardStep
-  : public fusion::JointVisitorBase< NLEForwardStep<JointCollection,ConfigVectorType,TangentVectorType> >
+  : public fusion::JointVisitorBase< NLEForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -211,12 +214,12 @@ namespace se3
     
   };
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct NLEBackwardStep
-  : public fusion::JointVisitorBase< NLEBackwardStep<JointCollection> >
+  : public fusion::JointVisitorBase< NLEBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &
@@ -238,10 +241,10 @@ namespace se3
     }
   };
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  nonLinearEffects(const ModelTpl<JointCollection> & model,
-                   DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  nonLinearEffects(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                    const Eigen::MatrixBase<ConfigVectorType> & q,
                    const Eigen::MatrixBase<TangentVectorType> & v)
   {
@@ -249,20 +252,20 @@ namespace se3
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     data.v[0].setZero ();
     data.a_gf[0] = -model.gravity;
     
-    typedef NLEForwardStep<JointCollection,ConfigVectorType,TangentVectorType> Pass1;
+    typedef NLEForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
     }
     
-    typedef NLEBackwardStep<JointCollection> Pass2;
+    typedef NLEBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
@@ -272,12 +275,12 @@ namespace se3
     return data.nle;
   }
   
-  template<typename JointCollection, typename ConfigVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct ComputeGeneralizedGravityForwardStep
-  : public fusion::JointVisitorBase< ComputeGeneralizedGravityForwardStep<JointCollection,ConfigVectorType> >
+  : public fusion::JointVisitorBase< ComputeGeneralizedGravityForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -306,9 +309,9 @@ namespace se3
     
   };
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeGeneralizedGravityBackwardStep
-  : public fusion::JointVisitorBase< ComputeGeneralizedGravityBackwardStep<JointCollection> >
+  : public fusion::JointVisitorBase< ComputeGeneralizedGravityBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef boost::fusion::vector<const Model &,
                                   Data &
@@ -330,28 +333,28 @@ namespace se3
     }
   };
   
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  computeGeneralizedGravity(const ModelTpl<JointCollection> & model,
-                            DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  computeGeneralizedGravity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     data.a_gf[0] = -model.gravity;
     
-    typedef ComputeGeneralizedGravityForwardStep<JointCollection,ConfigVectorType> Pass1;
+    typedef ComputeGeneralizedGravityForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived()));
     }
     
-    typedef ComputeGeneralizedGravityBackwardStep<JointCollection> Pass2;
+    typedef ComputeGeneralizedGravityBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
@@ -361,12 +364,12 @@ namespace se3
     return data.g;
   }
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct CoriolisMatrixForwardStep
-  : public fusion::JointVisitorBase< CoriolisMatrixForwardStep<JointCollection,ConfigVectorType,TangentVectorType> >
+  : public fusion::JointVisitorBase< CoriolisMatrixForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -416,12 +419,12 @@ namespace se3
 
   };
 
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct CoriolisMatrixBackwardStep
-  : public fusion::JointVisitorBase< CoriolisMatrixBackwardStep<JointCollection> >
+  : public fusion::JointVisitorBase< CoriolisMatrixBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &
@@ -474,10 +477,10 @@ namespace se3
     }
   };
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<JointCollection>::MatrixXs &
-  computeCoriolisMatrix(const ModelTpl<JointCollection> & model,
-                        DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  computeCoriolisMatrix(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<ConfigVectorType> & q,
                         const Eigen::MatrixBase<TangentVectorType> & v)
   {
@@ -485,17 +488,17 @@ namespace se3
     assert(q.size() == model.nq);
     assert(v.size() == model.nv);
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
-    typedef CoriolisMatrixForwardStep<JointCollection,ConfigVectorType,TangentVectorType> Pass1;
+    typedef CoriolisMatrixForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
     }
     
-    typedef CoriolisMatrixBackwardStep<JointCollection> Pass2;
+    typedef CoriolisMatrixBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],

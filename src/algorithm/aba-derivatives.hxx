@@ -25,12 +25,12 @@
 namespace se3
 {
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct ComputeABADerivativesForwardStep1
-  : public fusion::JointVisitorBase< ComputeABADerivativesForwardStep1<JointCollection,ConfigVectorType,TangentVectorType> >
+  : public fusion::JointVisitorBase< ComputeABADerivativesForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -82,12 +82,12 @@ namespace se3
     
   };
   
-  template<typename JointCollection, typename MatrixType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MatrixType>
   struct ComputeABADerivativesBackwardStep1
-  : public fusion::JointVisitorBase< ComputeABADerivativesBackwardStep1<JointCollection,MatrixType> >
+  : public fusion::JointVisitorBase< ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -148,7 +148,7 @@ namespace se3
       {
         typename Data::Force & pa = data.f[i];
         pa.toVector() += Ia * data.a[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
-        data.Yaba[parent] += AbaBackwardStep<JointCollection>::SE3actOn(data.liMi[i], Ia);
+        data.Yaba[parent] += AbaBackwardStep<Scalar,Options,JointCollectionTpl>::SE3actOn(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
 
@@ -156,12 +156,12 @@ namespace se3
     
   };
   
-  template<typename JointCollection, typename MatrixType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MatrixType>
   struct ComputeABADerivativesForwardStep2
-  : public fusion::JointVisitorBase< ComputeABADerivativesForwardStep2<JointCollection,MatrixType> >
+  : public fusion::JointVisitorBase< ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -248,12 +248,12 @@ namespace se3
     
   };
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeABADerivativesBackwardStep2
-  : public fusion::JointVisitorBase< ComputeABADerivativesBackwardStep2<JointCollection> >
+  : public fusion::JointVisitorBase< ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &>  ArgsType;
@@ -332,10 +332,10 @@ namespace se3
     }
   };
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void computeABADerivatives(const ModelTpl<JointCollection> & model,
-                                    DataTpl<JointCollection> & data,
+  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                     const Eigen::MatrixBase<ConfigVectorType> & q,
                                     const Eigen::MatrixBase<TangentVectorType1> & v,
                                     const Eigen::MatrixBase<TangentVectorType2> & tau,
@@ -354,7 +354,7 @@ namespace se3
     assert(aba_partial_dtau.rows() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
     data.a[0] = -model.gravity;
     data.oa[0] = -model.gravity;
@@ -363,7 +363,7 @@ namespace se3
     MatrixType3 & Minv_ = EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
     
     /// First, compute Minv and a, the joint acceleration vector
-    typedef ComputeABADerivativesForwardStep1<JointCollection,ConfigVectorType,TangentVectorType1> Pass1;
+    typedef ComputeABADerivativesForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
@@ -371,21 +371,21 @@ namespace se3
     }
     
     data.Fcrb[0].setZero();
-    typedef ComputeABADerivativesBackwardStep1<JointCollection,MatrixType3> Pass2;
+    typedef ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType3> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
     {
       Pass2::run(model.joints[i],data.joints[i],
                  typename Pass2::ArgsType(model,data,Minv_));
     }
     
-    typedef ComputeABADerivativesForwardStep2<JointCollection,MatrixType3> Pass3;
+    typedef ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType3> Pass3;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass3::run(model.joints[i],data.joints[i],
                  typename Pass3::ArgsType(model,data,Minv_));
     }
     
-    typedef ComputeABADerivativesBackwardStep2<JointCollection> Pass4;
+    typedef ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> Pass4;
     for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
     {
       Pass4::run(model.joints[i],

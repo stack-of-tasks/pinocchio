@@ -55,12 +55,12 @@ namespace se3
     struct JointVisitorBase
     {
       
-      template<typename JointCollection, typename ArgsTmp>
-      static void run(const JointModelTpl<JointCollection> & jmodel,
-                      JointDataTpl<JointCollection> & jdata,
+      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ArgsTmp>
+      static void run(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
+                      JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata,
                       ArgsTmp args)
       {
-        boost::apply_visitor(InternalVisitor<JointModelTpl<JointCollection>,ArgsTmp>(jdata,args),jmodel);
+        boost::apply_visitor(InternalVisitor<JointModelTpl<Scalar,Options,JointCollectionTpl>,ArgsTmp>(jdata,args),jmodel);
       }
       
       template<typename JointModelDerived, typename ArgsTmp>
@@ -72,8 +72,8 @@ namespace se3
         visitor(jmodel.derived());
       }
       
-      template<typename JointCollection, typename ArgsTmp>
-      static void run(const JointModelTpl<JointCollection> & jmodel,
+      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ArgsTmp>
+      static void run(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
                       ArgsTmp args)
       {
         boost::apply_visitor(ModelOnlyInternalVisitor<ArgsTmp>(args),jmodel);

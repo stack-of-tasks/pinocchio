@@ -34,11 +34,13 @@ namespace se3
   template<typename Scalar, int Options=0> struct FrameTpl;
   typedef FrameTpl<double> Frame;
   
-  template<typename JointCollection> struct ModelTpl;
-  typedef ModelTpl<JointCollectionDefault> Model;
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct ModelTpl;
+  typedef ModelTpl<double> Model;
   
-  template<typename JointCollection> struct DataTpl;
-  typedef DataTpl<JointCollectionDefault> Data;
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct DataTpl;
+  typedef DataTpl<double> Data;
   
   struct GeometryModel;
   struct GeometryData;

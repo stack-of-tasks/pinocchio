@@ -28,7 +28,7 @@ namespace se3
       using namespace Eigen;
       
       bp::def("rnea",
-              &rnea<JointCollectionDefault,VectorXd,VectorXd,VectorXd>,
+              &rnea<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
@@ -37,7 +37,7 @@ namespace se3
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("rnea",
-              &rnea<JointCollectionDefault,VectorXd,VectorXd,VectorXd,Force>,
+              &rnea<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd,Force>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
@@ -48,7 +48,7 @@ namespace se3
       
 
       bp::def("nle",
-              &nonLinearEffects<JointCollectionDefault,VectorXd,VectorXd>,
+              &nonLinearEffects<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
@@ -57,7 +57,7 @@ namespace se3
       
       
       bp::def("computeGeneralizedGravity",
-              &computeGeneralizedGravity<JointCollectionDefault,VectorXd>,
+              &computeGeneralizedGravity<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
               "Computes the generalized gravity contribution g(q) of the Lagrangian dynamics.",
@@ -65,7 +65,7 @@ namespace se3
       
       
       bp::def("computeCoriolisMatrix",
-              &computeCoriolisMatrix<JointCollectionDefault,VectorXd,VectorXd>,
+              &computeCoriolisMatrix<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),

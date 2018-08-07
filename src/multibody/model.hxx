@@ -41,13 +41,16 @@ namespace se3
       { return (typeMask & frame.type) && (name == frame.name); }
     };
   }
-  template<typename JointCollection>
-  const typename ModelTpl<JointCollection>::Vector3 ModelTpl<JointCollection>::gravity981(0,0,-9.81);
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  const typename ModelTpl<Scalar,Options,JointCollectionTpl>::
+  Vector3 ModelTpl<Scalar,Options,JointCollectionTpl>::gravity981(0,0,-9.81);
 
-  template<typename JointCollection>
-  inline std::ostream& operator<<(std::ostream & os, const ModelTpl<JointCollection> & model)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline std::ostream& operator<<(std::ostream & os,
+                                  const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
   {
-    typedef typename ModelTpl<JointCollection>::Index Index;
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::Index Index;
     
     os << "Nb joints = " << model.njoints << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
     for(Index i=0;i<(Index)(model.njoints);++i)
@@ -58,18 +61,18 @@ namespace se3
     return os;
   }
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   template<typename JointModelDerived>
-  typename ModelTpl<JointCollection>::JointIndex
-  ModelTpl<JointCollection>::addJoint(const ModelTpl::JointIndex parent,
-                                      const JointModelBase<JointModelDerived> & joint_model,
-                                      const SE3 & joint_placement,
-                                      const std::string & joint_name,
-                                      const VectorXs & max_effort,
-                                      const VectorXs & max_velocity,
-                                      const VectorXs & min_config,
-                                      const VectorXs & max_config
-                                      )
+  typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
+  ModelTpl<Scalar,Options,JointCollectionTpl>::addJoint(const JointIndex parent,
+                                                     const JointModelBase<JointModelDerived> & joint_model,
+                                                     const SE3 & joint_placement,
+                                                     const std::string & joint_name,
+                                                     const VectorXs & max_effort,
+                                                     const VectorXs & max_velocity,
+                                                     const VectorXs & min_config,
+                                                     const VectorXs & max_config
+                                                     )
   {
     assert( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
            &&(njoints==(int)parents.size())&&(njoints==(int)jointPlacements.size()) );
@@ -121,13 +124,13 @@ namespace se3
     return idx;
   }
 
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   template<typename JointModelDerived>
-  typename ModelTpl<JointCollection>::JointIndex
-  ModelTpl<JointCollection>::addJoint(const JointIndex parent,
-                                      const JointModelBase<JointModelDerived> & joint_model,
-                                      const SE3 & joint_placement,
-                                      const std::string & joint_name)
+  typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
+  ModelTpl<Scalar,Options,JointCollectionTpl>::addJoint(const JointIndex parent,
+                                                     const JointModelBase<JointModelDerived> & joint_model,
+                                                     const SE3 & joint_placement,
+                                                     const std::string & joint_name)
   {
     VectorXs max_effort, max_velocity, min_config, max_config;
 
@@ -139,9 +142,10 @@ namespace se3
     return addJoint(parent, joint_model, joint_placement, joint_name, max_effort, max_velocity, min_config, max_config);
   }
   
-  template<typename JointCollection>
-  inline int ModelTpl<JointCollection>::addJointFrame(const JointIndex & jidx,
-                                                      int         fidx)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline int ModelTpl<Scalar,Options,JointCollectionTpl>::
+  addJointFrame(const JointIndex & jidx,
+                int fidx)
   {
     if(fidx < 0) {
       // FIXED_JOINT is required because the parent can be the universe and its
@@ -153,21 +157,23 @@ namespace se3
     return addFrame(Frame(names[jidx],jidx,(FrameIndex)fidx,SE3::Identity(),JOINT));
   }
 
-  template<typename JointCollection>
-  inline void ModelTpl<JointCollection>::appendBodyToJoint(const ModelTpl::JointIndex joint_index,
-                                                           const Inertia & Y,
-                                                           const SE3 & body_placement)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void ModelTpl<Scalar,Options,JointCollectionTpl>::
+  appendBodyToJoint(const ModelTpl::JointIndex joint_index,
+                    const Inertia & Y,
+                    const SE3 & body_placement)
   {
     const Inertia & iYf = Y.se3Action(body_placement);
     inertias[joint_index] += iYf;
     nbodies++;
   }
 
-  template<typename JointCollection>
-  inline int ModelTpl<JointCollection>::addBodyFrame(const std::string & body_name,
-                                                     const JointIndex  & parentJoint,
-                                                     const SE3         & body_placement,
-                                                     int           previousFrame)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline int ModelTpl<Scalar,Options,JointCollectionTpl>::
+  addBodyFrame(const std::string & body_name,
+               const JointIndex  & parentJoint,
+               const SE3         & body_placement,
+               int           previousFrame)
   {
     if(previousFrame < 0) {
       // FIXED_JOINT is required because the parent can be the universe and its
@@ -178,22 +184,25 @@ namespace se3
     return addFrame(Frame(body_name, parentJoint, (FrameIndex)previousFrame, body_placement, BODY));
   }
   
-  template<typename JointCollection>
-  inline typename ModelTpl<JointCollection>::JointIndex
-  ModelTpl<JointCollection>::getBodyId(const std::string & name) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
+  ModelTpl<Scalar,Options,JointCollectionTpl>::
+  getBodyId(const std::string & name) const
   {
     return getFrameId(name, BODY);
   }
   
-  template<typename JointCollection>
-  inline bool ModelTpl<JointCollection>::existBodyName(const std::string & name) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool ModelTpl<Scalar,Options,JointCollectionTpl>::
+  existBodyName(const std::string & name) const
   {
     return existFrame(name, BODY);
   }
 
-  template<typename JointCollection>
-  inline typename  ModelTpl<JointCollection>::JointIndex
-  ModelTpl<JointCollection>::getJointId(const std::string & name) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline typename  ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
+  ModelTpl<Scalar,Options,JointCollectionTpl>::
+  getJointId(const std::string & name) const
   {
     typedef std::vector<std::string>::iterator::difference_type it_diff_t;
     it_diff_t res = std::find(names.begin(),names.end(),name) - names.begin();
@@ -201,23 +210,26 @@ namespace se3
     return ModelTpl::JointIndex(res);
   }
   
-  template<typename JointCollection>
-  inline bool ModelTpl<JointCollection>::existJointName(const std::string & name) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool ModelTpl<Scalar,Options,JointCollectionTpl>::
+  existJointName(const std::string & name) const
   {
     return (names.end() != std::find(names.begin(),names.end(),name));
   }
 
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline const std::string &
-  ModelTpl<JointCollection>::getJointName(const JointIndex index) const
+  ModelTpl<Scalar,Options,JointCollectionTpl>::
+  getJointName(const JointIndex index) const
   {
     assert( index < (ModelTpl::JointIndex)joints.size() );
     return names[index];
   }
 
-  template<typename JointCollection>
-  inline typename ModelTpl<JointCollection>::FrameIndex
-  ModelTpl<JointCollection>::getFrameId(const std::string & name, const FrameType & type) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
+  ModelTpl<Scalar,Options,JointCollectionTpl>::
+  getFrameId(const std::string & name, const FrameType & type) const
   {
     typename container::aligned_vector<Frame>::const_iterator it
     = std::find_if(frames.begin()
@@ -229,15 +241,17 @@ namespace se3
     return FrameIndex(it - frames.begin());
   }
   
-  template<typename JointCollection>
-  inline bool ModelTpl<JointCollection>::existFrame(const std::string & name, const FrameType & type) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool ModelTpl<Scalar,Options,JointCollectionTpl>::
+  existFrame(const std::string & name, const FrameType & type) const
   {
     return std::find_if(frames.begin(), frames.end(),
                         details::FilterFrame(name, type)) != frames.end();
   }
 
-  template<typename JointCollection>
-  inline int ModelTpl<JointCollection>::addFrame(const Frame & frame)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline int ModelTpl<Scalar,Options,JointCollectionTpl>::
+  addFrame(const Frame & frame)
   {
     if(!existFrame(frame.name, frame.type))
     {
@@ -251,8 +265,9 @@ namespace se3
     }
   }
   
-  template<typename JointCollection>
-  inline void ModelTpl<JointCollection>::addJointIndexToParentSubtrees(const JointIndex joint_id)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void ModelTpl<Scalar,Options,JointCollectionTpl>::
+  addJointIndexToParentSubtrees(const JointIndex joint_id)
   {
     for(JointIndex parent = parents[joint_id]; parent>0; parent = parents[parent])
       subtrees[parent].push_back(joint_id);

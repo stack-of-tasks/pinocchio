@@ -47,10 +47,10 @@ namespace se3
   ///
   /// \sa se3::aba
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
            typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void computeABADerivatives(const ModelTpl<JointCollection> & model,
-                                    DataTpl<JointCollection> & data,
+  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                     const Eigen::MatrixBase<ConfigVectorType> & q,
                                     const Eigen::MatrixBase<TangentVectorType1> & v,
                                     const Eigen::MatrixBase<TangentVectorType2> & tau,
@@ -78,9 +78,9 @@ namespace se3
   ///
   /// \sa se3::aba and \sa se3::computeABADerivatives.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline void computeABADerivatives(const ModelTpl<JointCollection> & model,
-                                    DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                     const Eigen::MatrixBase<ConfigVectorType> & q,
                                     const Eigen::MatrixBase<TangentVectorType1> & v,
                                     const Eigen::MatrixBase<TangentVectorType2> & tau)

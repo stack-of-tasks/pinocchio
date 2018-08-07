@@ -66,7 +66,7 @@ namespace se3
       using namespace Eigen;
       
       bp::def("computeForwardKinematicsDerivatives",
-              &computeForwardKinematicsDerivatives<JointCollectionDefault,VectorXd,VectorXd,VectorXd>,
+              &computeForwardKinematicsDerivatives<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",

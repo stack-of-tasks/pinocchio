@@ -60,11 +60,11 @@ namespace se3
   ///
   /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename ConstraintMatrixType, typename DriftVectorType>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  forwardDynamics(const ModelTpl<JointCollection> & model,
-                  DataTpl<JointCollection> & data,
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType1> & v,
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
@@ -81,7 +81,7 @@ namespace se3
     assert(J.rows() == gamma.size());
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef DataTpl<JointCollection> Data;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typename Data::TangentVectorType & a = data.ddq;
     typename Data::VectorXs & lambda_c = data.lambda_c;
@@ -143,14 +143,14 @@ namespace se3
   ///
   /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType, typename ConstraintMatrixType>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  impulseDynamics(const ModelTpl<JointCollection> & model,
-                  DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ConstraintMatrixType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType> & v_before,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const typename JointCollection::Scalar r_coeff = 0,
+                  const Scalar r_coeff = 0,
                   const bool updateKinematics = true
                   )
   {
@@ -159,7 +159,7 @@ namespace se3
     assert(J.cols() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef DataTpl<JointCollection> Data;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typename Data::VectorXs & impulse_c = data.impulse_c;
     typename Data::TangentVectorType & dq_after = data.dq_after;

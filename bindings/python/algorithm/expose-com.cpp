@@ -78,7 +78,7 @@ namespace se3
               "Computes the center of mass position, velocity and acceleration by storing the result in Data"
               "and returns the center of mass position of the full model expressed in the world frame.");
       
-      bp::def("jacobianCenterOfMass",&jacobianCenterOfMass<JointCollectionDefault,VectorXd>,
+      bp::def("jacobianCenterOfMass",&jacobianCenterOfMass<double,0,JointCollectionDefaultTpl,VectorXd>,
               jacobianCenterOfMass_overload(bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)"),
               "Computes the jacobian of the center of mass, puts the result in Data and return it.")[

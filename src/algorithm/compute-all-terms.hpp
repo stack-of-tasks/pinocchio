@@ -49,9 +49,9 @@ namespace se3
   /// \param[in] v The joint velocity vector (dim model.nv).
   ///
   /// \return All the results are stored in data. Please refer to the specific algorithm for further details.
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline void computeAllTerms(const ModelTpl<JointCollection> & model,
-                              DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline void computeAllTerms(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
                               const Eigen::MatrixBase<ConfigVectorType> & q,
                               const Eigen::MatrixBase<TangentVectorType> & v);
 
@@ -61,12 +61,12 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 namespace se3
 {
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct CATForwardStep
-  : public fusion::JointVisitorBase< CATForwardStep<JointCollection,ConfigVectorType,TangentVectorType> >
+  : public fusion::JointVisitorBase< CATForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -84,7 +84,6 @@ namespace se3
     {
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Inertia Inertia;
-      typedef typename JointCollection::Scalar Scalar;
 
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
@@ -128,12 +127,12 @@ namespace se3
 
   };
 
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct CATBackwardStep
-  : public fusion::JointVisitorBase <CATBackwardStep<JointCollection> >
+  : public fusion::JointVisitorBase <CATBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &
@@ -213,9 +212,9 @@ namespace se3
     }
   };
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline void computeAllTerms(const ModelTpl<JointCollection> & model,
-                              DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline void computeAllTerms(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
                               const Eigen::MatrixBase<ConfigVectorType> & q,
                               const Eigen::MatrixBase<TangentVectorType> & v)
   {
@@ -223,7 +222,7 @@ namespace se3
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
 
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     data.v[0].setZero();
@@ -234,14 +233,14 @@ namespace se3
     data.com[0].setZero();
     data.vcom[0].setZero();
 
-    typedef CATForwardStep<JointCollection,ConfigVectorType,TangentVectorType> Pass1;
+    typedef CATForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Pass1;
     for(JointIndex i=1;i<(JointIndex) model.njoints;++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
     }
 
-    typedef CATBackwardStep<JointCollection> Pass2;
+    typedef CATBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
     {
       Pass2::run(model.joints[i],data.joints[i],

@@ -27,20 +27,20 @@ namespace se3
     {
       using namespace Eigen;
       bp::def("updateGlobalPlacements",
-              &updateGlobalPlacements<JointCollectionDefault>,
+              &updateGlobalPlacements<double,0,JointCollectionDefaultTpl>,
               bp::args("Model","Data"),
               "Updates the global placements of all the frames of the kinematic "
               "tree and put the results in data according to the relative placements of the joints.");
       
       bp::def("forwardKinematics",
-              &forwardKinematics<JointCollectionDefault,VectorXd>,
+              &forwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
               "Compute the global placements of all the joints of the kinematic "
               "tree and put the results in data.");
       
       bp::def("forwardKinematics",
-              &forwardKinematics<JointCollectionDefault,VectorXd,VectorXd>,
+              &forwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
@@ -48,7 +48,7 @@ namespace se3
               "tree and put the results in data.");
       
       bp::def("forwardKinematics",
-              &forwardKinematics<JointCollectionDefault,VectorXd,VectorXd,VectorXd>,
+              &forwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",

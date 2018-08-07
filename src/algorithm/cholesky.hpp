@@ -44,10 +44,10 @@ namespace se3
     ///
     /// \return A reference to the upper triangular matrix \f$U\f$.
     ///
-    template<typename JointCollection>
-    inline const typename DataTpl<JointCollection>::MatrixXs &
-    decompose(const ModelTpl<JointCollection> & model,
-              DataTpl<JointCollection> & data);
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+    decompose(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
     ///
     /// \brief Return the solution \f$x\f$ of \f$ M x = y \f$ using the Cholesky decomposition stored in data given the entry \f$ y \f$. Act like solveInPlace of Eigen::LLT.
@@ -63,9 +63,9 @@ namespace se3
     /// \param[in] data The data structure of the rigid body system.
     /// \param[inout] y The input matrix to inverse which also contains the result \f$x\f$ of the inversion.
     ///
-    template<typename JointCollection, typename Mat>
-    Mat & solve(const ModelTpl<JointCollection> & model,
-                const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & solve(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<Mat> & y);
 
     ///
@@ -79,10 +79,10 @@ namespace se3
     ///
     /// \return A the result of \f$ Mv \f$.
     ///
-    template<typename JointCollection, typename Mat>
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
     typename EIGEN_PLAIN_TYPE(Mat)
-    Mv(const ModelTpl<JointCollection> & model,
-       const DataTpl<JointCollection> & data,
+    Mv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<Mat> & min);
     
     ///
@@ -97,9 +97,9 @@ namespace se3
     ///
     /// \return A reference of the result of \f$ Mv \f$.
     ///
-    template<typename JointCollection, typename Mat, typename MatRes>
-    MatRes & Mv(const ModelTpl<JointCollection> & model,
-                const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat, typename MatRes>
+    MatRes & Mv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<Mat> & min,
                 const Eigen::MatrixBase<MatRes> & mout);
     
@@ -115,9 +115,9 @@ namespace se3
     ///
     /// \return A reference of the result of \f$ Mv \f$.
     ///
-    template<typename JointCollection, typename Mat>
-    Mat & UDUtv(const ModelTpl<JointCollection> & model,
-                const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & UDUtv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<Mat> & m);
     
     ///
@@ -131,9 +131,9 @@ namespace se3
     ///
     /// \return A reference to the result of \f$ Uv \f$ stored in v.
     ///
-    template<typename JointCollection, typename Mat>
-    Mat & Uv(const ModelTpl<JointCollection> & model,
-             const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & Uv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+             const DataTpl<Scalar,Options,JointCollectionTpl> & data,
              const Eigen::MatrixBase<Mat> & v);
     
     ///
@@ -147,9 +147,9 @@ namespace se3
     ///
     /// \return A reference to the result of \f$ U^{\top}v \f$ stored in v.
     ///
-    template<typename JointCollection, typename Mat>
-    Mat & Utv(const ModelTpl<JointCollection> & model,
-              const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & Utv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const Eigen::MatrixBase<Mat> & v);
     
     ///
@@ -165,9 +165,9 @@ namespace se3
     ///
     /// \remark The result is similar to the code data.U.triangularView<Eigen::Upper> ().solveInPlace(v).
     ///
-    template<typename JointCollection, typename Mat>
-    Mat & Uiv(const ModelTpl<JointCollection> & model,
-              const DataTpl<JointCollection> & data ,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & Uiv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              const DataTpl<Scalar,Options,JointCollectionTpl> & data ,
               const Eigen::MatrixBase<Mat> & v);
     
     ///
@@ -183,9 +183,9 @@ namespace se3
     ///
     /// \remark The result is similar to the code data.U.triangularView<Eigen::Upper> ().transpose().solveInPlace(v).
     ///
-    template<typename JointCollection, typename Mat>
-    Mat & Utiv(const ModelTpl<JointCollection> & model,
-               const DataTpl<JointCollection> & data ,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & Utiv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               const DataTpl<Scalar,Options,JointCollectionTpl> & data ,
                const Eigen::MatrixBase<Mat> & v);
     
     ///
@@ -199,9 +199,9 @@ namespace se3
     ///
     /// \return A reference to the result of \f$ M^{-1}v \f$ stored in v.
     ///
-    template<typename JointCollection, typename Mat>
-    Mat & solve(const ModelTpl<JointCollection> & model,
-                const DataTpl<JointCollection> & data ,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & solve(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                const DataTpl<Scalar,Options,JointCollectionTpl> & data ,
                 const Eigen::MatrixBase<Mat> & v);
     
     ///
@@ -215,9 +215,9 @@ namespace se3
     ///
     /// \return A reference to the result.
     ///
-    template<typename JointCollection, typename Mat>
-    Mat & computeMinv(const ModelTpl<JointCollection> & model,
-                      const DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
+    Mat & computeMinv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                       const Eigen::MatrixBase<Mat> & Minv);
     
   } // namespace cholesky  

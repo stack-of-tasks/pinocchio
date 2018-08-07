@@ -137,29 +137,30 @@ struct TestJoint{
 namespace se3
 {
 
-  template<typename JointCollection> struct JointTest;
-  template<typename JointCollection> struct JointModelTest;
-  template<typename JointCollection> struct JointDataTest;
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl> struct JointTest;
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl> struct JointModelTest;
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl> struct JointDataTest;
   
-  template<typename JointCollection>
-  struct traits< JointDataTest<JointCollection> >
-  { typedef JointTpl<JointCollection> JointDerived; };
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct traits< JointDataTest<Scalar,Options,JointCollectionTpl> >
+  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
   
-  template<typename JointCollection>
-  struct traits< JointModelTest<JointCollection> >
-  { typedef JointTpl<JointCollection> JointDerived; };
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct traits< JointModelTest<Scalar,Options,JointCollectionTpl> >
+  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
   
-  template<typename JointCollection>
-  struct traits< JointTest<JointCollection> >
+  template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
+  struct traits< JointTest<_Scalar,_Options,JointCollectionTpl> >
   {
     enum {
-      Options = JointCollection::Options,
+      Options = _Options,
       NQ = Eigen::Dynamic, // Dynamic because unknown at compile time
       NV = Eigen::Dynamic
     };
-    typedef typename JointCollection::Scalar Scalar;
-    typedef JointDataTpl<JointCollection> JointDataDerived;
-    typedef JointModelTpl<JointCollection> JointModelDerived;
+    typedef _Scalar Scalar;
+    
+    typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointDataDerived;
+    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelDerived;
     typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options>  Motion_t;
@@ -175,13 +176,15 @@ namespace se3
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
   };
   
-  template<typename JointCollection>
-  struct JointModelTest : JointCollection::JointModelVariant, JointModelBase< JointModelTest<JointCollection> >
+  template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
+  struct JointModelTest
+  : JointCollectionTpl<_Scalar,_Options>::JointModelVariant
+  , JointModelBase< JointModelTest<_Scalar,_Options,JointCollectionTpl> >
   {
-    typedef JointTest<JointCollection> JointDerived;
+    typedef JointTest<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef JointCollectionTpl<_Scalar,_Options> JointCollection;
     typedef typename JointCollection::JointModelVariant VariantBase;
     typedef typename JointCollection::JointModelVariant JointModelVariant;
-    
     
     SE3_JOINT_TYPEDEF_TEMPLATE;
     
@@ -204,9 +207,9 @@ BOOST_AUTO_TEST_CASE(test_joint_from_joint_composite)
   JointModel jmodel_generic(jmodel_revolute_x);
   JointModelVariant jmodel_variant(jmodel_revolute_x);
   
-  JointModelTest<JointCollectionDefault> jmodel_test(jmodel_revolute_x);
-  std::vector< JointModelTest<JointCollectionDefault> > jmodel_test_vector;
-  jmodel_test_vector.push_back(JointModelTest<JointCollectionDefault>(jmodel_revolute_x));
+  JointModelTest<double,0,JointCollectionDefaultTpl> jmodel_test(jmodel_revolute_x);
+  std::vector< JointModelTest<double,0,JointCollectionDefaultTpl> > jmodel_test_vector;
+  jmodel_test_vector.push_back(JointModelTest<double,0,JointCollectionDefaultTpl>(jmodel_revolute_x));
   
   std::vector<JointModelVariant> jmodel_variant_vector;
   jmodel_variant_vector.push_back(jmodel_revolute_x);

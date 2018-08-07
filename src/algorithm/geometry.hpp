@@ -40,9 +40,9 @@ namespace se3
   /// \param[out] geomData The geometry data containing the placements of the collision objects. See oMg field in GeometryData.
   /// \param[in] q The joint configuration vector (dim model.nq).
   ///
-  template<typename JointCollection, typename ConfigVectorType>
-  inline void updateGeometryPlacements(const ModelTpl<JointCollection> & model,
-                                       DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline void updateGeometryPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                        const GeometryModel & geomModel,
                                        GeometryData & geomData,
                                        const Eigen::MatrixBase<ConfigVectorType> & q);
@@ -57,9 +57,9 @@ namespace se3
   /// \param[in] geomModel The geometry model containing the collision objects.
   /// \param[out] geomData The geometry data containing the placements of the collision objects. See oMg field in GeometryData.
   ///
-  template<typename JointCollection>
-  inline void updateGeometryPlacements(const ModelTpl<JointCollection> & model,
-                                       const DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void updateGeometryPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                        const GeometryModel & geomModel,
                                        GeometryData & geomData);
 
@@ -100,9 +100,9 @@ namespace se3
   /// not be entirely fulfilled (of course).
   /// \note A similar function is available without model, data and q, not recomputing the FK.
   ///
-  template<typename JointCollection, typename ConfigVectorType>
-  inline bool computeCollisions(const ModelTpl<JointCollection> & model,
-                                DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline bool computeCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                 const GeometryModel & geomModel,
                                 GeometryData & geomData,
                                 const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -162,9 +162,9 @@ namespace se3
   ///
   /// \note A similar function is available without model, data and q, not recomputing the FK.
   ///
-  template<typename JointCollection, typename ConfigVectorType>
-  inline std::size_t computeDistances(const ModelTpl<JointCollection> & model,
-                                      DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline std::size_t computeDistances(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                       const GeometryModel & geomModel,
                                       GeometryData & geomData,
                                       const Eigen::MatrixBase<ConfigVectorType> & q);
@@ -182,9 +182,9 @@ namespace se3
   ///
   /// \note A similar function is available without model, data and q, not recomputing the FK.
   ///
-  template<typename JointCollection>
-  inline std::size_t computeDistances(const ModelTpl<JointCollection> & model,
-                                      const DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline std::size_t computeDistances(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                       const GeometryModel & geomModel,
                                       GeometryData & geomData);
 
@@ -192,8 +192,8 @@ namespace se3
   /// Compute the radius of the geometry volumes attached to every joints.
   /// \sa GeometryData::radius
   ///
-  template<typename JointCollection>
-  inline void computeBodyRadius(const ModelTpl<JointCollection> & model,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void computeBodyRadius(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const GeometryModel & geomModel,
                                 GeometryData & geomData);
 #endif // WITH_HPP_FCL

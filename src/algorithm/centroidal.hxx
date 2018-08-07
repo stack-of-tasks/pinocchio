@@ -56,12 +56,12 @@ namespace se3
     
   }; // struct CcrbaForwardStep
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct CcrbaBackwardStep
-  : public fusion::JointVisitorBase< CcrbaBackwardStep<JointCollection> >
+  : public fusion::JointVisitorBase< CcrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &
@@ -91,10 +91,10 @@ namespace se3
     
   }; // struct CcrbaBackwardStep
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<JointCollection>::Matrix6x &
-  ccrba(const ModelTpl<JointCollection> & model,
-        DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  ccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+        DataTpl<Scalar,Options,JointCollectionTpl> & data,
         const Eigen::MatrixBase<ConfigVectorType> & q,
         const Eigen::MatrixBase<TangentVectorType> & v)
   {
@@ -102,8 +102,8 @@ namespace se3
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     
     forwardKinematics(model, data, q);
@@ -111,7 +111,7 @@ namespace se3
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
       data.Ycrb[i] = model.inertias[i];
     
-    typedef CcrbaBackwardStep<JointCollection> Pass2;
+    typedef CcrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
@@ -172,12 +172,12 @@ namespace se3
     
   }; // struct DCcrbaForwardStep
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct DCcrbaBackwardStep
-  : public fusion::JointVisitorBase< DCcrbaBackwardStep<JointCollection> >
+  : public fusion::JointVisitorBase< DCcrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &
@@ -220,10 +220,10 @@ namespace se3
     
   }; // struct DCcrbaBackwardStep
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<JointCollection>::Matrix6x &
-  dccrba(const ModelTpl<JointCollection> & model,
-         DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  dccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+         DataTpl<Scalar,Options,JointCollectionTpl> & data,
          const Eigen::MatrixBase<ConfigVectorType> & q,
          const Eigen::MatrixBase<TangentVectorType> & v)
   {
@@ -231,8 +231,8 @@ namespace se3
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     
     forwardKinematics(model,data,q,v);
@@ -244,7 +244,7 @@ namespace se3
       data.doYcrb[i] = data.oYcrb[i].variation(data.ov[i]);
     }
     
-    typedef DCcrbaBackwardStep<JointCollection> Pass2;
+    typedef DCcrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],

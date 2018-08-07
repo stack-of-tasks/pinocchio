@@ -33,9 +33,9 @@ namespace se3
    * @param[in]  v       Velocity (size model.nv)
    * @return     The integrated configuration (size model.nq)
    */
-  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorType)
-  integrate(const ModelTpl<JointCollection> & model,
+  integrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
             const Eigen::MatrixBase<ConfigVectorType> & q,
             const Eigen::MatrixBase<TangentVectorType> & v);
   /**
@@ -47,9 +47,9 @@ namespace se3
    * @param[in]  u       u in [0;1] position along the interpolation.
    * @return     The interpolated configuration (q0 if u = 0, q1 if u = 1)
    */
-  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
-  interpolate(const ModelTpl<JointCollection> & model,
+  interpolate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
               const Eigen::MatrixBase<ConfigVectorIn1> & q0,
               const Eigen::MatrixBase<ConfigVectorIn2> & q1,
               const Scalar & u);
@@ -62,9 +62,9 @@ namespace se3
    * @param[in]  q1      Wished configuration (size model.nq)
    * @return     The corresponding velocity (size model.nv)
    */
-  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
-  difference(const ModelTpl<JointCollection> & model,
+  difference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
              const Eigen::MatrixBase<ConfigVectorIn2> & q1);
 
@@ -77,9 +77,9 @@ namespace se3
    * @param[in]  q1         Configuration 1 (size model.nq)
    * @return     The corresponding squared distances for each joint (size model.njoints-1 = number of joints)
    */
-  template<typename LieGroup_t,typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
-  squaredDistance(const ModelTpl<JointCollection> & model,
+  squaredDistance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1);
   /**
@@ -90,9 +90,9 @@ namespace se3
    * @param[in]  q1         Configuration 1 (size model.nq)
    * @return     The distance between the two configurations
    */
-  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  typename JointCollection::Scalar
-  distance(const ModelTpl<JointCollection> & model,
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  Scalar
+  distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
            const Eigen::MatrixBase<ConfigVectorIn1> & q0,
            const Eigen::MatrixBase<ConfigVectorIn2> & q1);
 
@@ -107,9 +107,9 @@ namespace se3
    *
    * @return     The resulted configuration vector (size model.nq)
    */
-  template<typename LieGroup_t,typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType)
-  randomConfiguration(const ModelTpl<JointCollection> & model,
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  typename EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
+  randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits);
 
@@ -122,9 +122,9 @@ namespace se3
    * @param[in]  model   Model we want to generate a configuration vector of
    * @return     The resulted configuration vector (size model.nq)
    */
-  template<typename LieGroup_t,typename JointCollection>
-  typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType)
-  randomConfiguration(const ModelTpl<JointCollection> & model);
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  typename EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
+  randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model);
 
   /**
    * @brief         Normalize a configuration
@@ -132,8 +132,8 @@ namespace se3
    * @param[in]     model      Model
    * @param[in,out] q          Configuration to normalize
    */
-  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorType>
-  inline void normalize(const ModelTpl<JointCollection> & model,
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const Eigen::MatrixBase<ConfigVectorType> & qout);
   
   /**
@@ -147,9 +147,9 @@ namespace se3
    *
    * @return     Wheter the configurations are equivalent or not
    */
-  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline bool
-  isSameConfiguration(const ModelTpl<JointCollection> & model,
+  isSameConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<ConfigVectorIn1> & q1,
                       const Eigen::MatrixBase<ConfigVectorIn2> & q2,
                       const Scalar & prec);
@@ -161,9 +161,9 @@ namespace se3
    *
    * @return        The neutral configuration element.
    */
-  template<typename LieGroup_t, typename JointCollection>
-  inline Eigen::Matrix<typename JointCollection::Scalar,Eigen::Dynamic,1,JointCollection::Options>
-  neutral(const ModelTpl<JointCollection> & model);
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
+  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model);
 
 } // namespace se3
 

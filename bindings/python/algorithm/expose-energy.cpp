@@ -28,7 +28,7 @@ namespace se3
       using namespace Eigen;
       
       bp::def("kineticEnergy",
-              &kineticEnergy<JointCollectionDefault,VectorXd,VectorXd>,
+              &kineticEnergy<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
@@ -38,7 +38,7 @@ namespace se3
               "in data.kinetic_energy. By default, the first order kinematic quantities of the model are updated.");
       
       bp::def("potentialEnergy",
-              &potentialEnergy<JointCollectionDefault,VectorXd>,
+              &potentialEnergy<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Update kinematics (bool)"),

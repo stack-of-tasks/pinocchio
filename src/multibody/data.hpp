@@ -35,15 +35,17 @@
 namespace se3
 {
  
-  template<typename JointCollection>
+  template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
   struct DataTpl
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    enum { Options = JointCollection::Options };
-    typedef typename JointCollection::Scalar Scalar;
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef JointCollectionTpl<Scalar,Options> JointCollection;
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
@@ -57,8 +59,8 @@ namespace se3
     typedef se3::FrameIndex FrameIndex;
     typedef std::vector<Index> IndexVector;
     
-    typedef JointModelTpl<Scalar,Options,JointCollectionDefaultTpl> JointModel;
-    typedef JointDataTpl<Scalar,Options,JointCollectionDefaultTpl> JointData;
+    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModel;
+    typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointData;
     
     typedef container::aligned_vector<JointModel> JointModelVector;
     typedef container::aligned_vector<JointData> JointDataVector;

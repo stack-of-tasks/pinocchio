@@ -39,10 +39,10 @@ namespace se3
   ///
   /// \return The desired joint torques stored in data.tau.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  rnea(const ModelTpl<JointCollection> & model,
-       DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  rnea(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q,
        const Eigen::MatrixBase<TangentVectorType1> & v,
        const Eigen::MatrixBase<TangentVectorType2> & a);
@@ -65,10 +65,10 @@ namespace se3
   ///
   /// \return The desired joint torques stored in data.tau.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  rnea(const ModelTpl<JointCollection> & model,
-       DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  rnea(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q,
        const Eigen::MatrixBase<TangentVectorType1> & v,
        const Eigen::MatrixBase<TangentVectorType2> & a,
@@ -91,10 +91,10 @@ namespace se3
   ///
   /// \return The bias terms stored in data.nle.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  nonLinearEffects(const ModelTpl<JointCollection> & model,
-                   DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  nonLinearEffects(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                    const Eigen::MatrixBase<ConfigVectorType> & q,
                    const Eigen::MatrixBase<TangentVectorType> & v);
   
@@ -113,10 +113,10 @@ namespace se3
   ///
   /// \return The bias terms stored in data.g.
   ///
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  computeGeneralizedGravity(const ModelTpl<JointCollection> & model,
-                            DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  computeGeneralizedGravity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q);
   
   ///
@@ -136,10 +136,10 @@ namespace se3
   ///
   /// \return The Coriolis matrix stored in data.C.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<JointCollection>::MatrixXs &
-  computeCoriolisMatrix(const ModelTpl<JointCollection> & model,
-                        DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  computeCoriolisMatrix(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<ConfigVectorType> & q,
                         const Eigen::MatrixBase<TangentVectorType> & v);
 

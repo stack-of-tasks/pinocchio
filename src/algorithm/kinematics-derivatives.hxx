@@ -24,12 +24,12 @@
 namespace se3
 {
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   struct ForwardKinematicsDerivativesForwardStep
-  : public fusion::JointVisitorBase< ForwardKinematicsDerivativesForwardStep<JointCollection,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
+  : public fusion::JointVisitorBase< ForwardKinematicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -88,9 +88,9 @@ namespace se3
     
   };
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline void computeForwardKinematicsDerivatives(const ModelTpl<JointCollection> & model,
-                                                  DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline void computeForwardKinematicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                   const Eigen::MatrixBase<ConfigVectorType> & q,
                                                   const Eigen::MatrixBase<TangentVectorType1> & v,
                                                   const Eigen::MatrixBase<TangentVectorType2> & a)
@@ -100,13 +100,13 @@ namespace se3
     assert(a.size() == model.nv && "The acceleration vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     data.v[0].setZero();
     data.a[0].setZero();
     
-    typedef ForwardKinematicsDerivativesForwardStep<JointCollection,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
+    typedef ForwardKinematicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
@@ -114,12 +114,12 @@ namespace se3
     }
   }
   
-  template<typename JointCollection, typename Matrix6xOut1, typename Matrix6xOut2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
   struct JointVelocityDerivativesBackwardStep
-  : public fusion::JointVisitorBase< JointVelocityDerivativesBackwardStep<JointCollection,Matrix6xOut1,Matrix6xOut2> >
+  : public fusion::JointVisitorBase< JointVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -188,9 +188,9 @@ namespace se3
     
   };
   
-  template<typename JointCollection, typename Matrix6xOut1, typename Matrix6xOut2>
-  inline void getJointVelocityDerivatives(const ModelTpl<JointCollection> & model,
-                                          DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
+  inline void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                           const Model::JointIndex jointId,
                                           const ReferenceFrame rf,
                                           const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -203,10 +203,10 @@ namespace se3
     assert(v_partial_dv.cols() ==  model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
-    typedef JointVelocityDerivativesBackwardStep<JointCollection,Matrix6xOut1,Matrix6xOut2> Pass1;
+    typedef JointVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2> Pass1;
     for(JointIndex i = jointId; i > 0; i = model.parents[i])
     {
       Pass1::run(model.joints[i],
@@ -220,12 +220,12 @@ namespace se3
     data.ov[0].setZero();
   }
   
-  template<typename JointCollection, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
   struct JointAccelerationDerivativesBackwardStep
-  : public fusion::JointVisitorBase< JointAccelerationDerivativesBackwardStep<JointCollection,Matrix6xOut1,Matrix6xOut2,Matrix6xOut3,Matrix6xOut4> >
+  : public fusion::JointVisitorBase< JointAccelerationDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2,Matrix6xOut3,Matrix6xOut4> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -344,9 +344,9 @@ namespace se3
     
   };
   
-  template<typename JointCollection, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
-  inline void getJointAccelerationDerivatives(const ModelTpl<JointCollection> & model,
-                                              DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
+  inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                               const Model::JointIndex jointId,
                                               const ReferenceFrame rf,
                                               const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -365,10 +365,10 @@ namespace se3
     assert(a_partial_da.cols() ==  model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
-    typedef JointAccelerationDerivativesBackwardStep<JointCollection,Matrix6xOut1,Matrix6xOut2,Matrix6xOut3,Matrix6xOut4> Pass1;
+    typedef JointAccelerationDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2,Matrix6xOut3,Matrix6xOut4> Pass1;
     for(JointIndex i = jointId; i > 0; i = model.parents[i])
     {
       Pass1::run(model.joints[i],

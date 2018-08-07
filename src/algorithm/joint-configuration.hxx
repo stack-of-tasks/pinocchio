@@ -30,23 +30,23 @@
 /* --- Details -------------------------------------------------------------------- */
 namespace se3
 {
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorType)
-  integrate(const ModelTpl<JointCollection> & model,
+  integrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
             const Eigen::MatrixBase<ConfigVectorType> & q,
             const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    return integrate<LieGroupMap,JointCollection,ConfigVectorType,TangentVectorType>(model, q.derived(), v.derived());
+    return integrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType>(model, q.derived(), v.derived());
   }
 
-  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorType)
-  integrate(const ModelTpl<JointCollection> & model,
+  integrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
             const Eigen::MatrixBase<ConfigVectorType> & q,
             const Eigen::MatrixBase<TangentVectorType> & v)
   {
     typedef typename EIGEN_PLAIN_TYPE(ConfigVectorType) ReturnType;
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     ReturnType res(model.nq);
     
@@ -59,24 +59,24 @@ namespace se3
     return res;
   }
 
-  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
-  interpolate(const ModelTpl<JointCollection> & model,
+  interpolate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
               const Eigen::MatrixBase<ConfigVectorIn1> & q0,
               const Eigen::MatrixBase<ConfigVectorIn2> & q1,
               const Scalar & u)
   {
-    return interpolate<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2,Scalar>(model, q0, q1, u);
+    return interpolate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0, q1, u);
   }
 
-  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
-  interpolate(const ModelTpl<JointCollection> & model,
+  interpolate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
               const Eigen::MatrixBase<ConfigVectorIn1> & q0,
               const Eigen::MatrixBase<ConfigVectorIn2> & q1,
               const Scalar & u)
   {
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     typedef typename EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType;
     typedef InterpolateStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar,ReturnType> Algo;
@@ -91,13 +91,13 @@ namespace se3
     return res;
   }
 
-  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
-  difference(const ModelTpl<JointCollection> & model,
+  difference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
              const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     typedef typename EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType;
     
@@ -113,22 +113,22 @@ namespace se3
     return res;
   }
 
-  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
-  difference(const ModelTpl<JointCollection> & model,
+  difference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
              const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    return difference<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2>(model,q0.derived(),q1.derived());
+    return difference<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model,q0.derived(),q1.derived());
   }
 
-  template<typename LieGroup_t,typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  template<typename LieGroup_t,typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
-  squaredDistance(const ModelTpl<JointCollection> & model,
+  squaredDistance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     typedef typename EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType;
     
@@ -143,42 +143,42 @@ namespace se3
     return distances;
   }
 
-  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorIn1)
-  squaredDistance(const ModelTpl<JointCollection> & model,
+  squaredDistance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    return squaredDistance<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2>(model,q0.derived(),q1.derived());
+    return squaredDistance<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model,q0.derived(),q1.derived());
   }
   
-  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  typename JointCollection::Scalar
-  distance(const ModelTpl<JointCollection> & model,
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  Scalar
+  distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
            const Eigen::MatrixBase<ConfigVectorIn1> & q0,
            const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    return std::sqrt(squaredDistance<LieGroup_t,JointCollection,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
+    return std::sqrt(squaredDistance<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
   }
   
-  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline typename JointCollection::Scalar
-  distance(const ModelTpl<JointCollection> & model,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  inline Scalar
+  distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
            const Eigen::MatrixBase<ConfigVectorIn1> & q0,
            const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    return std::sqrt(squaredDistance<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
+    return std::sqrt(squaredDistance<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
   }
 
-  template<typename LieGroup_t,typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType)
-  randomConfiguration(const ModelTpl<JointCollection> & model,
+  template<typename LieGroup_t,typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  typename EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
+  randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits)
   {
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
-    typedef typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType) ReturnType;
+    typedef typename EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType)) ReturnType;
     
     ReturnType q(model.nq);
     typedef RandomConfigurationStep<LieGroup_t,ReturnType,ConfigVectorIn1,ConfigVectorIn2> Algo;
@@ -191,36 +191,36 @@ namespace se3
     return q;
   }
 
-  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType)
-  randomConfiguration(const ModelTpl<JointCollection> & model,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  typename EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
+  randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits)
   {
-    return randomConfiguration<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2>(model, lowerLimits.derived(), upperLimits.derived());
+    return randomConfiguration<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, lowerLimits.derived(), upperLimits.derived());
   }
 
-  template<typename LieGroup_t,typename JointCollection>
-  typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType)
-  randomConfiguration(const ModelTpl<JointCollection> & model)
+  template<typename LieGroup_t,typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  typename EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
+  randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
   {
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::ConfigVectorType ConfigVectorType;
-    return randomConfiguration<LieGroup_t,JointCollection,ConfigVectorType,ConfigVectorType>(model, model.lowerPositionLimit, model.upperPositionLimit);
+    return randomConfiguration<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorType,ConfigVectorType>(model, model.lowerPositionLimit, model.upperPositionLimit);
   }
 
-  template<typename JointCollection>
-  typename EIGEN_PLAIN_TYPE(typename ModelTpl<JointCollection>::ConfigVectorType)
-  randomConfiguration(const ModelTpl<JointCollection> & model)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  typename EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
+  randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
   {
-    return randomConfiguration<LieGroupMap,JointCollection>(model);
+    return randomConfiguration<LieGroupMap,Scalar,Options,JointCollectionTpl>(model);
   }
 
-  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorType>
-  inline void normalize(const ModelTpl<JointCollection> & model,
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const Eigen::MatrixBase<ConfigVectorType> & qout)
   {
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     typedef NormalizeStep<LieGroup_t,ConfigVectorType> Algo;
@@ -231,21 +231,21 @@ namespace se3
     }
   }
   
-  template<typename JointCollection, typename ConfigVectorType>
-  inline void normalize(const ModelTpl<JointCollection> & model,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const Eigen::MatrixBase<ConfigVectorType> & qout)
   {
-    return normalize<LieGroupMap,JointCollection,ConfigVectorType>(model,qout.derived());
+    return normalize<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType>(model,qout.derived());
   }
 
-  template<typename LieGroup_t, typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline bool
-  isSameConfiguration(const ModelTpl<JointCollection> & model,
+  isSameConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<ConfigVectorIn1> & q1,
                       const Eigen::MatrixBase<ConfigVectorIn2> & q2,
                       const Scalar & prec)
   {
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     bool result = true;
@@ -261,23 +261,22 @@ namespace se3
     return true;
   }
 
-  template<typename JointCollection, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline bool
-  isSameConfiguration(const ModelTpl<JointCollection> & model,
+  isSameConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<ConfigVectorIn1> & q1,
                       const Eigen::MatrixBase<ConfigVectorIn2> & q2,
-                      const typename JointCollection::Scalar & prec = Eigen::NumTraits<typename JointCollection::Scalar>::dummy_precision())
+                      const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
   {
-    typedef typename JointCollection::Scalar Scalar;
-    return isSameConfiguration<LieGroupMap,JointCollection,ConfigVectorIn1,ConfigVectorIn2,Scalar>(model, q1.derived(), q2.derived(), prec);
+    return isSameConfiguration<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q1.derived(), q2.derived(), prec);
   }
   
-  template<typename LieGroup_t, typename JointCollection>
-  inline Eigen::Matrix<typename JointCollection::Scalar,Eigen::Dynamic,1,JointCollection::Options>
-  neutral(const ModelTpl<JointCollection> & model)
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
+  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
   {
-    typedef Eigen::Matrix<typename JointCollection::Scalar,Eigen::Dynamic,1,JointCollection::Options> ReturnType;
-    typedef ModelTpl<JointCollection> Model;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ReturnType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     ReturnType neutral_elt(model.nq);
@@ -291,11 +290,11 @@ namespace se3
     return neutral_elt;
   }
   
-  template<typename JointCollection>
-  inline Eigen::Matrix<typename JointCollection::Scalar,Eigen::Dynamic,1,JointCollection::Options>
-  neutral(const ModelTpl<JointCollection> & model)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
+  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
   {
-    return neutral<LieGroupMap,JointCollection>(model);
+    return neutral<LieGroupMap,Scalar,Options,JointCollectionTpl>(model);
   }
 
 

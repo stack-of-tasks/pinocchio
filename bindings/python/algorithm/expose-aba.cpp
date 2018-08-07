@@ -37,7 +37,7 @@ namespace se3
       using namespace Eigen;
 
       bp::def("aba",
-              &aba<JointCollectionDefault,VectorXd,VectorXd,VectorXd>,
+              &aba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
@@ -46,7 +46,7 @@ namespace se3
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("aba",
-              &aba<JointCollectionDefault,VectorXd,VectorXd,VectorXd,Force>,
+              &aba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd,Force>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",

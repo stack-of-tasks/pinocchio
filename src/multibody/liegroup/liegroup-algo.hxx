@@ -29,8 +29,8 @@ namespace se3
     template<typename Algo>
     struct Dispatch
     {
-      template<typename JointCollection, typename ArgsType>
-      static void run(const JointModelCompositeTpl<JointCollection> & jmodel,
+      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ArgsType>
+      static void run(const JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> & jmodel,
                       ArgsType args)
       {
         for (size_t i = 0; i < jmodel.joints.size(); ++i)

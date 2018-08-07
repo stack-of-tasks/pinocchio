@@ -27,18 +27,17 @@ namespace se3
   namespace regressor
   {
     
-    template<typename JointCollection, typename ConfigVectorType>
-    inline typename DataTpl<JointCollection>::Matrix3x &
-    computeStaticRegressor(const ModelTpl<JointCollection> & model,
-                           DataTpl<JointCollection> & data,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+    inline typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+    computeStaticRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const Eigen::MatrixBase<ConfigVectorType> & q)
     {
       assert(model.check(data) && "data is not consistent with model.");
       assert(q.size() == model.nq);
       
-      typedef typename JointCollection::Scalar Scalar;
-      typedef ModelTpl<JointCollection> Model;
-      typedef DataTpl<JointCollection> Data;
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::SE3 SE3;
 

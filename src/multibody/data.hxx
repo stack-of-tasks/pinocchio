@@ -32,8 +32,9 @@
 namespace se3
 {
   
-  template<typename JointCollection>
-  inline DataTpl<JointCollection>::DataTpl(const ModelTpl<JointCollection> & model)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline DataTpl<Scalar,Options,JointCollectionTpl>::
+  DataTpl(const Model & model)
   : joints(0)
   , a((std::size_t)model.njoints)
   , oa((std::size_t)model.njoints)
@@ -141,8 +142,9 @@ namespace se3
     oMf[0].setIdentity();
   }
 
-  template<typename JointCollection>
-  inline void DataTpl<JointCollection>::computeLastChild(const ModelTpl<JointCollection> & model)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void DataTpl<Scalar,Options,JointCollectionTpl>::
+  computeLastChild(const Model & model)
   {
     typedef typename Model::Index Index;
     
@@ -159,8 +161,9 @@ namespace se3
     }
   }
 
-  template<typename JointCollection>
-  inline void DataTpl<JointCollection>::computeParents_fromRow(const ModelTpl<JointCollection> & model)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void DataTpl<Scalar,Options,JointCollectionTpl>
+  ::computeParents_fromRow(const Model & model)
   {
     typedef typename Model::Index Index;
     

@@ -40,10 +40,10 @@ namespace se3
   ///
   /// \return The current joint acceleration stored in data.ddq.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  aba(const ModelTpl<JointCollection> & model,
-      DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
       const Eigen::MatrixBase<ConfigVectorType> & q,
       const Eigen::MatrixBase<TangentVectorType1> & v,
       const Eigen::MatrixBase<TangentVectorType2> & tau);
@@ -66,10 +66,10 @@ namespace se3
   ///
   /// \return The current joint acceleration stored in data.ddq.
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  aba(const ModelTpl<JointCollection> & model,
-      DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
       const Eigen::MatrixBase<ConfigVectorType> & q,
       const Eigen::MatrixBase<TangentVectorType1> & v,
       const Eigen::MatrixBase<TangentVectorType2> & tau,
@@ -87,10 +87,10 @@ namespace se3
   ///
   /// \return The inverse of the joint space inertia matrix stored in data.ddq.
   ///
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::RowMatrixXd &
-  computeMinverse(const ModelTpl<JointCollection> & model,
-                  DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXd &
+  computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q);
 
 

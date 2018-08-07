@@ -40,10 +40,10 @@ namespace se3 {
   ///
   /// \return The kinetic energy of the system in [J].
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline typename JointCollection::Scalar
-  kineticEnergy(const ModelTpl<JointCollection> & model,
-                DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline Scalar
+  kineticEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<ConfigVectorType> & q,
                 const Eigen::MatrixBase<TangentVectorType> & v,
                 const bool update_kinematics = true);
@@ -61,10 +61,10 @@ namespace se3 {
   ///
   /// \return The potential energy of the system expressed in [J].
   ///
-  template<typename JointCollection, typename ConfigVectorType>
-  inline typename JointCollection::Scalar
-  potentialEnergy(const ModelTpl<JointCollection> & model,
-                  DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline Scalar
+  potentialEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const bool update_kinematics = true);
 }
@@ -75,10 +75,10 @@ namespace se3 {
 namespace se3
 {
    
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline typename JointCollection::Scalar
-  kineticEnergy(const ModelTpl<JointCollection> & model,
-                DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline Scalar
+  kineticEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<ConfigVectorType> & q,
                 const Eigen::MatrixBase<TangentVectorType> & v,
                 const bool update_kinematics)
@@ -87,10 +87,9 @@ namespace se3
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
-    typedef typename JointCollection::Scalar Scalar;
-    
+
     data.kinetic_energy = Scalar(0);
     
     if (update_kinematics)
@@ -104,21 +103,20 @@ namespace se3
     return data.kinetic_energy;
   }
   
-  template<typename JointCollection, typename ConfigVectorType>
-  inline typename JointCollection::Scalar
-  potentialEnergy(const ModelTpl<JointCollection> & model,
-                  DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline Scalar
+  potentialEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const bool update_kinematics)
   {
     assert(model.check(data) && "data is not consistent with model.");
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     typedef typename Model::Motion Motion;
-    typedef typename JointCollection::Scalar Scalar;
-    
+
     data.potential_energy = Scalar(0);
     const typename Motion::ConstLinearType & g = model.gravity.linear();
     

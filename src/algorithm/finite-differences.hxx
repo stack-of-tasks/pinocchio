@@ -26,9 +26,9 @@ namespace se3
 {
   namespace details
   {
-    template<typename JointCollection, typename TangentVectorType>
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType>
     struct FinitDiffEpsVisitor
-    : public fusion::JointVisitorBase< FinitDiffEpsVisitor<JointCollection,TangentVectorType> >
+    : public fusion::JointVisitorBase< FinitDiffEpsVisitor<Scalar,Options,JointCollectionTpl,TangentVectorType> >
     {
       typedef boost::fusion::vector< TangentVectorType & > ArgsType;
       
@@ -44,18 +44,18 @@ namespace se3
     
   } // namespace details
   
-  template<typename JointCollection>
-  inline typename ModelTpl<JointCollection>::TangentVectorType
-  finiteDifferenceIncrement(const ModelTpl<JointCollection> & model)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType
+  finiteDifferenceIncrement(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
   {
     using namespace se3::details;
     
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     typedef typename Model::TangentVectorType ReturnType;
     
     ReturnType fd_increment(model.nv);
-    typedef FinitDiffEpsVisitor<JointCollection,ReturnType> Algo;
+    typedef FinitDiffEpsVisitor<Scalar,Options,JointCollectionTpl,ReturnType> Algo;
     typename Algo::ArgsType arg(fd_increment);
     for(JointIndex k = 1; k < (JointIndex)model.njoints; ++k)
     {

@@ -35,11 +35,11 @@ namespace se3
   /// \param[out] dest  Data to which the values are copied
   /// \param[in] LEVEL if =0, copy oMi. If =1, also copy v. If =2, also copy a, a_gf and f.
   ///
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void
-  copy(const ModelTpl<JointCollection> & model,
-       const DataTpl<JointCollection> & origin,
-       DataTpl<JointCollection> & dest,
+  copy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       const DataTpl<Scalar,Options,JointCollectionTpl> & origin,
+       DataTpl<Scalar,Options,JointCollectionTpl> & dest,
        int LEVEL);
 
 } // namespace se3 
@@ -50,14 +50,14 @@ namespace se3
 
 namespace se3
 {
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void
-  copy(const ModelTpl<JointCollection> & model,
-       const DataTpl<JointCollection> & origin,
-       DataTpl<JointCollection> & dest,
+  copy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       const DataTpl<Scalar,Options,JointCollectionTpl> & origin,
+       DataTpl<Scalar,Options,JointCollectionTpl> & dest,
        int LEVEL)
   {
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     for(JointIndex jid=1; jid<(JointIndex)model.njoints; ++jid)

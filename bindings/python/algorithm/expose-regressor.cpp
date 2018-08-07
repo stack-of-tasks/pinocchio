@@ -28,7 +28,7 @@ namespace se3
       using namespace Eigen;
 
       bp::def("computeStaticRegressor",
-              &regressor::computeStaticRegressor<JointCollectionDefault,VectorXd>,
+              &regressor::computeStaticRegressor<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
               "Compute the static regressor that links the inertia parameters of the system to its center of mass position\n"

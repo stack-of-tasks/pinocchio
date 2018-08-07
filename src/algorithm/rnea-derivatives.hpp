@@ -41,10 +41,10 @@ namespace se3
   ///
   /// \sa se3::computeGeneralizedGravity
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename ReturnMatrixType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename ReturnMatrixType>
   inline void
-  computeGeneralizedGravityDerivatives(const ModelTpl<JointCollection> & model,
-                                       DataTpl<JointCollection> & data,
+  computeGeneralizedGravityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                        const Eigen::MatrixBase<ConfigVectorType> & q,
                                        const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq);
   
@@ -74,11 +74,11 @@ namespace se3
   ///
   /// \sa se3::rnea
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
   inline void
-  computeRNEADerivatives(const ModelTpl<JointCollection> & model,
-                         DataTpl<JointCollection> & data,
+  computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q,
                          const Eigen::MatrixBase<TangentVectorType1> & v,
                          const Eigen::MatrixBase<TangentVectorType2> & a,
@@ -107,10 +107,10 @@ namespace se3
   ///
   /// \sa se3::rnea, se3::crba, se3::cholesky::decompose
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   inline void
-  computeRNEADerivatives(const ModelTpl<JointCollection> & model,
-                         DataTpl<JointCollection> & data,
+  computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q,
                          const Eigen::MatrixBase<TangentVectorType1> & v,
                          const Eigen::MatrixBase<TangentVectorType2> & a)

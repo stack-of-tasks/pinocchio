@@ -31,9 +31,9 @@ namespace se3 {
   ///
   /// \returns The finite difference increments for each degree of freedom.
   ///
-  template<typename JointCollection>
-  inline typename ModelTpl<JointCollection>::TangentVectorType
-  finiteDifferenceIncrement(const ModelTpl<JointCollection> & model);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType
+  finiteDifferenceIncrement(const ModelTpl<Scalar,Options,JointCollectionTpl> & model);
 }
 
 /* --- Details -------------------------------------------------------------------- */

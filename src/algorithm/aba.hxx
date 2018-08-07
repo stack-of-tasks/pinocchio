@@ -26,12 +26,12 @@
 
 namespace se3
 {
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct AbaForwardStep1
-  : public fusion::JointVisitorBase< AbaForwardStep1<JointCollection,ConfigVectorType,TangentVectorType> >
+  : public fusion::JointVisitorBase< AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -67,12 +67,12 @@ namespace se3
     
   };
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct AbaBackwardStep
-  : public fusion::JointVisitorBase< AbaBackwardStep<JointCollection> >
+  : public fusion::JointVisitorBase< AbaBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &> ArgsType;
@@ -103,12 +103,12 @@ namespace se3
       }
     }
     
-    template<typename Scalar, int Options, typename Matrix6Type>
+    template<typename S2, int O2, typename Matrix6Type>
     inline static typename EIGEN_PLAIN_TYPE(Matrix6Type)
-    SE3actOn(const SE3Tpl<Scalar,Options> & M,
+    SE3actOn(const SE3Tpl<S2,O2> & M,
              const Eigen::MatrixBase<Matrix6Type> & I)
     {
-      typedef SE3Tpl<Scalar,Options> SE3;
+      typedef SE3Tpl<S2,O2> SE3;
       typedef typename SE3::Matrix3 Matrix3;
       typedef typename SE3::Vector3 Vector3;
       
@@ -158,12 +158,12 @@ namespace se3
     }
   };
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct AbaForwardStep2
-  : public fusion::JointVisitorBase< AbaForwardStep2<JointCollection> >
+  : public fusion::JointVisitorBase< AbaForwardStep2<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &> ArgsType;
@@ -188,10 +188,10 @@ namespace se3
     
   };
   
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  aba(const ModelTpl<JointCollection> & model,
-      DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
       const Eigen::MatrixBase<ConfigVectorType> & q,
       const Eigen::MatrixBase<TangentVectorType1> & v,
       const Eigen::MatrixBase<TangentVectorType2> & tau)
@@ -201,27 +201,27 @@ namespace se3
     assert(v.size() == model.nv && "The joint velocity vector is not of right size");
     assert(tau.size() == model.nv && "The joint acceleration vector is not of right size");
     
-    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
     data.v[0].setZero();
     data.a[0] = -model.gravity;
     data.u = tau;
     
-    typedef AbaForwardStep1<JointCollection,ConfigVectorType,TangentVectorType1> Pass1;
+    typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
     }
     
-    typedef AbaBackwardStep<JointCollection> Pass2;
+    typedef AbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
                  typename Pass2::ArgsType(model,data));
     }
     
-    typedef AbaForwardStep2<JointCollection> Pass3;
+    typedef AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass3::run(model.joints[i],data.joints[i],
@@ -231,10 +231,10 @@ namespace se3
     return data.ddq;
   }
 
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
-  inline const typename DataTpl<JointCollection>::TangentVectorType &
-  aba(const ModelTpl<JointCollection> & model,
-      DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
       const Eigen::MatrixBase<ConfigVectorType> & q,
       const Eigen::MatrixBase<TangentVectorType1> & v,
       const Eigen::MatrixBase<TangentVectorType2> & tau,
@@ -246,13 +246,13 @@ namespace se3
     assert(v.size() == model.nv && "The joint velocity vector is not of right size");
     assert(tau.size() == model.nv && "The joint acceleration vector is not of right size");
     
-    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
     data.v[0].setZero();
     data.a[0] = -model.gravity;
     data.u = tau;
     
-    typedef AbaForwardStep1<JointCollection,ConfigVectorType,TangentVectorType1> Pass1;
+    typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
     for(JointIndex i=1;i<(JointIndex)model.njoints;++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
@@ -260,14 +260,14 @@ namespace se3
       data.f[i] -= fext[i];
     }
     
-    typedef AbaBackwardStep<JointCollection> Pass2;
+    typedef AbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
                  typename Pass2::ArgsType(model,data));
     }
     
-    typedef AbaForwardStep2<JointCollection> Pass3;
+    typedef AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass3::run(model.joints[i],data.joints[i],
@@ -277,12 +277,12 @@ namespace se3
     return data.ddq;
   }
   
-  template<typename JointCollection, typename ConfigVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct ComputeMinverseForwardStep1
-  : public fusion::JointVisitorBase< ComputeMinverseForwardStep1<JointCollection,ConfigVectorType> >
+  : public fusion::JointVisitorBase< ComputeMinverseForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
@@ -318,12 +318,12 @@ namespace se3
     
   };
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeMinverseBackwardStep
-  : public fusion::JointVisitorBase< ComputeMinverseBackwardStep<JointCollection> >
+  : public fusion::JointVisitorBase< ComputeMinverseBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &> ArgsType;
@@ -377,16 +377,16 @@ namespace se3
       }
       
       if(parent > 0)
-        data.Yaba[parent] += AbaBackwardStep<JointCollection>::SE3actOn(data.liMi[i], Ia);
+        data.Yaba[parent] += AbaBackwardStep<Scalar,Options,JointCollectionTpl>::SE3actOn(data.liMi[i], Ia);
     }
   };
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeMinverseForwardStep2
-  : public fusion::JointVisitorBase< ComputeMinverseForwardStep2<JointCollection> >
+  : public fusion::JointVisitorBase< ComputeMinverseForwardStep2<Scalar,Options,JointCollectionTpl> >
   {
-    typedef ModelTpl<JointCollection> Model;
-    typedef DataTpl<JointCollection> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &> ArgsType;
@@ -424,18 +424,18 @@ namespace se3
     
   };
 
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::RowMatrixXd &
-  computeMinverse(const ModelTpl<JointCollection> & model,
-                  DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXd &
+  computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
     assert(q.size() == model.nq && "The joint configuration vector is not of right size");
     
-    typedef typename ModelTpl<JointCollection>::JointIndex JointIndex;
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
-    typedef ComputeMinverseForwardStep1<JointCollection,ConfigVectorType> Pass1;
+    typedef ComputeMinverseForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
@@ -443,14 +443,14 @@ namespace se3
     }
     
     data.Fcrb[0].setZero();
-    typedef ComputeMinverseBackwardStep<JointCollection> Pass2;
+    typedef ComputeMinverseBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
                  typename Pass2::ArgsType(model,data));
     }
 
-    typedef ComputeMinverseForwardStep2<JointCollection> Pass3;
+    typedef ComputeMinverseForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass3::run(model.joints[i],data.joints[i],
@@ -467,10 +467,10 @@ namespace se3
 
   // Check whether all masses are nonzero and diagonal of inertia is nonzero
   // The second test is overconstraining.
-  template<typename JointCollection>
-  inline bool ABAChecker::checkModel_impl(const ModelTpl<JointCollection> & model) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool ABAChecker::checkModel_impl(const ModelTpl<Scalar,Options,JointCollectionTpl> & model) const
   {
-    typedef ModelTpl<JointCollection> Model;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     for(JointIndex j=1;j<(JointIndex)model.njoints;j++)

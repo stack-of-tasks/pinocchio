@@ -42,10 +42,10 @@ namespace se3
   ///
   /// \return The joint space inertia matrix with only the upper triangular part computed.
   ///
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::MatrixXs &
-  crba(const ModelTpl<JointCollection> & model,
-       DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q);
   
   ///
@@ -69,10 +69,10 @@ namespace se3
   ///
   /// \return The joint space inertia matrix with only the upper triangular part computed.
   ///
-  template<typename JointCollection, typename ConfigVectorType>
-  inline const typename DataTpl<JointCollection>::MatrixXs &
-  crbaMinimal(const ModelTpl<JointCollection> & model,
-              DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  crbaMinimal(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const Eigen::MatrixBase<ConfigVectorType> & q);
 
   DEFINE_ALGO_CHECKER(CRBA);

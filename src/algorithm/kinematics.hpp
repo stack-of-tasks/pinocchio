@@ -33,9 +33,9 @@ namespace se3
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   ///
-  template<typename JointCollection>
-  inline void emptyForwardPass(const ModelTpl<JointCollection> & model,
-                               DataTpl<JointCollection> & data);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void emptyForwardPass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                               DataTpl<Scalar,Options,JointCollectionTpl> & data);
   
   ///
   /// \brief Update the global placement of the joints oMi according to the relative
@@ -49,9 +49,9 @@ namespace se3
   /// \remark This algorithm may be useful to call to update global joint placement
   ///         after calling se3::rnea, se3::aba, etc for example.
   ///
-  template<typename JointCollection>
-  inline void updateGlobalPlacements(const ModelTpl<JointCollection> & model,
-                                     DataTpl<JointCollection> & data);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void updateGlobalPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                     DataTpl<Scalar,Options,JointCollectionTpl> & data);
   
   ///
   /// \brief Update the joint placements according to the current joint configuration.
@@ -63,9 +63,9 @@ namespace se3
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration (vector dim model.nq).
   ///
-  template<typename JointCollection, typename ConfigVectorType>
-  inline void forwardKinematics(const ModelTpl<JointCollection> & model,
-                                DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                 const Eigen::MatrixBase<ConfigVectorType> & q);
 
   ///
@@ -80,9 +80,9 @@ namespace se3
   /// \param[in] q The joint configuration (vector dim model.nq).
   /// \param[in] v The joint velocity (vector dim model.nv).
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
-  inline void forwardKinematics(const ModelTpl<JointCollection> & model,
-                                DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                 const Eigen::MatrixBase<ConfigVectorType> & q,
                                 const Eigen::MatrixBase<TangentVectorType> & v);
   ///
@@ -99,9 +99,9 @@ namespace se3
   /// \param[in] v The joint velocity (vector dim model.nv).
   /// \param[in] a The joint acceleration (vector dim model.nv).
   ///
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline void forwardKinematics(const ModelTpl<JointCollection> & model,
-                                DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                 const Eigen::MatrixBase<ConfigVectorType> & q,
                                 const Eigen::MatrixBase<TangentVectorType1> & v,
                                 const Eigen::MatrixBase<TangentVectorType2> & a);

@@ -25,9 +25,9 @@ namespace se3
   /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
   /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
   /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
-  template<typename JointCollection, typename ConfigVectorType>
-  inline void updateGeometryPlacements(const ModelTpl<JointCollection> & model,
-                                       DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline void updateGeometryPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                        const GeometryModel & geomModel,
                                        GeometryData & geomData,
                                        const Eigen::MatrixBase<ConfigVectorType> & q)
@@ -38,9 +38,9 @@ namespace se3
     updateGeometryPlacements(model, data, geomModel, geomData);
   }
   
-  template<typename JointCollection>
-  inline void updateGeometryPlacements(const ModelTpl<JointCollection> & model,
-                                       const DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void updateGeometryPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                        const GeometryModel & geomModel,
                                        GeometryData & geomData)
   {
@@ -104,9 +104,9 @@ namespace se3
   }
   
   // WARNING, if stopAtFirstcollision = true, then the collisions vector will not be fulfilled.
-  template<typename JointCollection, typename ConfigVectorType>
-  inline bool computeCollisions(const ModelTpl<JointCollection> & model,
-                                DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline bool computeCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                 const GeometryModel & geomModel,
                                 GeometryData & geomData,
                                 const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -198,9 +198,9 @@ namespace se3
     return computeDistances<true>(model, data, geomModel, geomData, q);
   }
   
-  template<typename JointCollection>
-  inline std::size_t computeDistances(const ModelTpl<JointCollection> & model,
-                                      const DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline std::size_t computeDistances(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                       const GeometryModel & geomModel,
                                       GeometryData & geomData)
   {
@@ -209,9 +209,9 @@ namespace se3
     return computeDistances(geomModel,geomData);
   }
   
-  template<typename JointCollection, typename ConfigVectorType>
-  inline std::size_t computeDistances(const ModelTpl<JointCollection> & model,
-                                      DataTpl<JointCollection> & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline std::size_t computeDistances(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                       const GeometryModel & geomModel,
                                       GeometryData & geomData,
                                       const Eigen::MatrixBase<ConfigVectorType> & q)
@@ -250,8 +250,8 @@ namespace se3
   /// For all bodies of the model, compute the point of the geometry model
   /// that is the further from the center of the joint. This quantity is used 
   /// in some continuous collision test.
-  template<typename JointCollection>
-  inline void computeBodyRadius(const ModelTpl<JointCollection> & model,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void computeBodyRadius(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const GeometryModel & geomModel,
                                 GeometryData & geomData)
   {
