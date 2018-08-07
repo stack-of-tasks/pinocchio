@@ -43,7 +43,7 @@ namespace se3
 #define PINOCCHIO_MACRO_EMPTY_ARG
 
 /// \brief Macro giving access to the equivalent plain type of D
-#define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type<D>::type
+#define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type< typename se3::internal::argument_type<void(D)>::type >::type
 
 /// \brief Macro giving access to the reference type of D
 #define EIGEN_REF_CONSTTYPE(D) Eigen::internal::ref_selector<D>::type
