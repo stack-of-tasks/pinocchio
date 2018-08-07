@@ -117,7 +117,8 @@ namespace se3
   };
 
   template<typename JointCollection>
-  struct JointModelCompositeTpl : public JointModelBase< JointModelCompositeTpl<JointCollection> >
+  struct JointModelCompositeTpl
+  : public JointModelBase< JointModelCompositeTpl<JointCollection> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -272,7 +273,7 @@ namespace se3
     static std::string classname() { return std::string("JointModelCompositeTpl"); }
     std::string shortname() const { return classname(); }
 
-    JointModelComposite & operator=(const JointModelComposite & other)
+    JointModelCompositeTpl & operator=(const JointModelCompositeTpl & other)
     {
       Base::operator=(other);
       m_nq = other.m_nq;
