@@ -359,6 +359,10 @@ namespace se3
       }
     }
     
+    
+    /// \brief Dimensions of the config and tangent space of the composite joint.
+    int m_nq,m_nv;
+    
     /// Keep information of both the dimension and the position of the joints in the composition.
     
     /// \brief Index in the config vector
