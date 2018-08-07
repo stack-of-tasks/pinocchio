@@ -43,8 +43,8 @@ namespace se3
     typedef typename LieGroupMap::operation<JointModel>::type type;
   };
 
-  template<typename JointCollection>
-  struct LieGroupMap::operation< JointModelCompositeTpl<JointCollection> >
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct LieGroupMap::operation< JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
   {};
   
   template<typename Scalar, int Options>

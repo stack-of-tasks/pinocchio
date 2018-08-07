@@ -79,7 +79,7 @@ namespace se3
     typedef JointModelPlanarTpl<Scalar,Options> JointModelPlanar;
     
     // Joint Composite
-    typedef JointModelCompositeTpl<JointCollectionDefaultTpl> JointModelComposite;
+    typedef JointModelCompositeTpl<Scalar,Options,JointCollectionDefaultTpl> JointModelComposite;
     
     typedef boost::variant<
     JointModelRX, JointModelRY, JointModelRZ
@@ -131,7 +131,7 @@ namespace se3
     typedef JointDataPlanarTpl<Scalar,Options> JointDataPlanar;
     
     // Joint Composite
-    typedef JointDataCompositeTpl<JointCollectionDefaultTpl> JointDataComposite;
+    typedef JointDataCompositeTpl<Scalar,Options,JointCollectionDefaultTpl> JointDataComposite;
     
     typedef boost::variant<
     JointDataRX, JointDataRY, JointDataRZ

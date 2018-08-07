@@ -23,12 +23,12 @@
 namespace se3 
 {
 
-  template<typename JointCollection, typename ConfigVectorType>
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename ConfigVectorType>
   struct JointCompositeCalcZeroOrderStep
-  : fusion::JointVisitorBase< JointCompositeCalcZeroOrderStep<JointCollection,ConfigVectorType> >
+  : fusion::JointVisitorBase< JointCompositeCalcZeroOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
-    typedef JointModelCompositeTpl<JointCollection> JointModelComposite;
-    typedef JointDataCompositeTpl<JointCollection> JointDataComposite;
+    typedef JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> JointModelComposite;
+    typedef JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> JointDataComposite;
     
     typedef boost::fusion::vector<const JointModelComposite &,
                                   JointDataComposite &,
@@ -66,15 +66,15 @@ namespace se3
     
   };
   
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   template<typename ConfigVectorType>
-  inline void JointModelCompositeTpl<JointCollection>::calc(JointData & data,
-                                                            const Eigen::MatrixBase<ConfigVectorType> & qs) const
+  inline void JointModelCompositeTpl<Scalar,Options,JointCollectionTpl>::
+  calc(JointData & data, const Eigen::MatrixBase<ConfigVectorType> & qs) const
   {
     assert(joints.size() > 0);
     assert(data.joints.size() == joints.size());
     
-    typedef JointCompositeCalcZeroOrderStep<JointCollection,ConfigVectorType> Algo;
+    typedef JointCompositeCalcZeroOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Algo;
 
     for (int i=(int)(joints.size()-1); i >= 0; --i)
     {
@@ -85,12 +85,12 @@ namespace se3
     data.M = data.iMlast.front();
   }
 
-  template<typename JointCollection, typename ConfigVectorType, typename TangentVectorType>
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct JointCompositeCalcFirstOrderStep
-  : public fusion::JointVisitorBase< JointCompositeCalcFirstOrderStep<JointCollection,ConfigVectorType,TangentVectorType> >
+  : public fusion::JointVisitorBase< JointCompositeCalcFirstOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
-    typedef JointModelCompositeTpl<JointCollection> JointModelComposite;
-    typedef JointDataCompositeTpl<JointCollection> JointDataComposite;
+    typedef JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> JointModelComposite;
+    typedef JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> JointDataComposite;
     
     typedef boost::fusion::vector<const JointModelComposite &,
                                   JointDataComposite &,
@@ -139,16 +139,17 @@ namespace se3
     
   };
 
-  template<typename JointCollection>
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   template<typename ConfigVectorType, typename TangentVectorType>
-  inline void JointModelCompositeTpl<JointCollection>::calc(JointData & jdata,
-                                                            const Eigen::MatrixBase<ConfigVectorType> & qs,
-                                                            const Eigen::MatrixBase<TangentVectorType> & vs) const
+  inline void JointModelCompositeTpl<Scalar,Options,JointCollectionTpl>
+  ::calc(JointData & jdata,
+         const Eigen::MatrixBase<ConfigVectorType> & qs,
+         const Eigen::MatrixBase<TangentVectorType> & vs) const
   {
     assert(joints.size() > 0);
     assert(jdata.joints.size() == joints.size());
     
-    typedef JointCompositeCalcFirstOrderStep<JointCollection,ConfigVectorType,TangentVectorType> Algo;
+    typedef JointCompositeCalcFirstOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Algo;
 
     for (int i=(int)(joints.size()-1); i >= 0; --i)
     {

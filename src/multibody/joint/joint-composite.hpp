@@ -27,22 +27,23 @@
 namespace se3
 {
 
-  template<typename JointCollection> struct JointCompositeTpl;
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct JointCompositeTpl;
 
-  template<typename _JointCollection>
-  struct traits< JointCompositeTpl<_JointCollection> >
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> >
   {
-    typedef _JointCollection JointCollection;
+    typedef _Scalar Scalar;
     
     enum {
-      Options = JointCollection::Options,
+      Options = _Options,
       NQ = Eigen::Dynamic,
       NV = Eigen::Dynamic
     };
     
-    typedef typename JointCollection::Scalar Scalar;
-    typedef JointDataCompositeTpl<JointCollection> JointDataDerived;
-    typedef JointModelCompositeTpl<JointCollection> JointModelDerived;
+    typedef JointCollectionTpl<Scalar,Options> JointCollection;
+    typedef JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> JointDataDerived;
+    typedef JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> JointModelDerived;
     typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options> Motion_t;
@@ -58,23 +59,26 @@ namespace se3
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
   };
   
-  template<typename JointCollection>
-  struct traits< JointModelCompositeTpl<JointCollection> >
-  { typedef JointCompositeTpl<JointCollection> JointDerived; };
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  { typedef JointCompositeTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
   
-  template<typename JointCollection>
-  struct traits< JointDataCompositeTpl<JointCollection> >
-  { typedef JointCompositeTpl<JointCollection> JointDerived; };
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  { typedef JointCompositeTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
   
-  template<typename JointCollection>
-  struct JointDataCompositeTpl : public JointDataBase< JointDataCompositeTpl<JointCollection> >
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct JointDataCompositeTpl
+  : public JointDataBase< JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
+    typedef JointDataBase< JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> > Base;
+    typedef JointCollectionTpl<Scalar,Options> JointCollection;
     
     typedef JointDataTpl<JointCollection> JointDataVariant;
 //    typedef typename JointCollection::JointDataVariant JointDataVariant;
     
-    typedef JointDataBase< JointDataCompositeTpl<JointCollection> > Base;
     typedef container::aligned_vector<JointDataVariant> JointDataVector;
 //    typedef boost::array<JointDataVariant,njoints> JointDataVector;
     
@@ -116,17 +120,16 @@ namespace se3
 
   };
 
-  template<typename JointCollection>
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
   struct JointModelCompositeTpl
-  : public JointModelBase< JointModelCompositeTpl<JointCollection> >
+  : public JointModelBase< JointModelCompositeTpl<_Scalar,_Options,JointCollectionTpl> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    typedef JointModelTpl<JointCollection> JointModelVariant;
-//    typedef typename JointCollection::JointModelVariant JointModelVariant;
-    
     typedef typename traits<JointModelCompositeTpl>::JointDerived JointType;
-    typedef typename traits<JointType>::JointDataDerived JointDataDerived;
+    typedef typename traits<JointType>::JointDataDerived JointData;
+    typedef typename traits<JointType>::Scalar Scalar;
+    typedef JointModelBase<JointModelCompositeTpl> Base;
     
     enum
     {
@@ -135,10 +138,12 @@ namespace se3
       NQ = traits<JointType>::NQ
     };
     
-    typedef typename traits<JointType>::Scalar Scalar;
+    typedef JointCollectionTpl<Scalar,Options> JointCollection;
+    typedef JointModelTpl<JointCollection> JointModelVariant;
+//    typedef typename JointCollection::JointModelVariant JointModelVariant;
+
     typedef SE3Tpl<Scalar,Options> SE3;
-    typedef JointModelBase< JointModelCompositeTpl<JointCollection> > Base;
-    typedef JointDataCompositeTpl<JointCollection> JointData;
+  
     typedef container::aligned_vector<JointModelVariant> JointModelVector;
 //    typedef boost::array<JointModelVariant,njoints> JointModelVector;
     typedef typename traits<JointType>::Transformation_t Transformation_t;
@@ -216,16 +221,16 @@ namespace se3
       typename JointData::JointDataVector jdata(joints.size());
       for (int i = 0; i < (int)joints.size(); ++i)
         jdata[(size_t)i] = ::se3::createData<JointCollection>(joints[(size_t)i]);
-      return JointDataDerived(jdata,nq(),nv());
+      return JointData(jdata,nq(),nv());
     }
 
-    template<typename _JointCollection, typename ConfigVectorType>
+    template<typename, int, template<typename S, int O> class, typename>
     friend struct JointCompositeCalcZeroOrderStep;
     
     template<typename ConfigVectorType>
     void calc(JointData & data, const Eigen::MatrixBase<ConfigVectorType> & qs) const;
 
-    template<typename _JointCollection,typename ConfigVectorType, typename TangentVectorType>
+    template<typename, int, template<typename S, int O> class, typename, typename>
     friend struct JointCompositeCalcFirstOrderStep;
     
     template<typename ConfigVectorType, typename TangentVectorType>
@@ -292,8 +297,6 @@ namespace se3
     JointModelVector joints;
     /// \brief Vector of joint placements. Those placements correspond to the origin of the joint relatively to their parent.
     container::aligned_vector<SE3> jointPlacements;
-    /// \brief Dimensions of the config and tangent space of the composite joint.
-    int m_nq,m_nv;
 
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
@@ -337,6 +340,9 @@ namespace se3
     jointCols_impl(Eigen::MatrixBase<D>& A) const { return A.middleCols(Base::i_v,nv()); }
     
   protected:
+    
+    template<typename, int, template<typename,int> class>
+    friend struct JointModelCompositeTpl;
     
     /// \brief Update the indexes of the joints contained in the composition according
     /// to the position of the joint composite.
@@ -398,20 +404,20 @@ namespace se3
 
 namespace boost
 {
-  template<typename JointCollection>
-  struct has_nothrow_constructor< ::se3::JointModelCompositeTpl<JointCollection> >
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct has_nothrow_constructor< ::se3::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
   : public integral_constant<bool,true> {};
   
-  template<typename JointCollection>
-  struct has_nothrow_copy< ::se3::JointModelCompositeTpl<JointCollection> >
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct has_nothrow_copy< ::se3::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
   : public integral_constant<bool,true> {};
   
-  template<typename JointCollection>
-  struct has_nothrow_constructor< ::se3::JointDataCompositeTpl<JointCollection> >
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct has_nothrow_constructor< ::se3::JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
   : public integral_constant<bool,true> {};
   
-  template<typename JointCollection>
-  struct has_nothrow_copy< ::se3::JointDataCompositeTpl<JointCollection> >
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct has_nothrow_copy< ::se3::JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
   : public integral_constant<bool,true> {};
 }
 

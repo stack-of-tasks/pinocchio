@@ -78,11 +78,13 @@ namespace se3
   template<typename Scalar, int Options = 0> struct JointCollectionDefaultTpl;
   typedef JointCollectionDefaultTpl<double> JointCollectionDefault;
   
-  template<typename JointCollection> struct JointModelCompositeTpl;
-  typedef JointModelCompositeTpl< JointCollectionDefaultTpl<double> > JointModelComposite;
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointModelCompositeTpl;
+  typedef JointModelCompositeTpl<double> JointModelComposite;
   
-  template<typename JointCollection> struct JointDataCompositeTpl;
-  typedef JointDataCompositeTpl< JointCollectionDefaultTpl<double> > JointDataComposite;
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointDataCompositeTpl;
+  typedef JointDataCompositeTpl<double> JointDataComposite;
   
   template<typename JointCollection> struct JointModelTpl;
   typedef JointModelTpl<JointCollectionDefault> JointModel;
