@@ -1138,6 +1138,17 @@ BOOST_AUTO_TEST_SUITE(JointModelBase)
       test(jmodel);
     }
     
+    template<typename Scalar, int Options, template<typename,int> class JointCollection>
+    void operator()(const JointModelTpl<Scalar,Options,JointCollection> & ) const
+    {
+      typedef JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+      typedef JointModelTpl<Scalar,Options,JointCollection> JointModel;
+      JointModel jmodel((JointModelRX()));
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
     template<typename JointModel>
     static void test(const JointModelBase<JointModel> & jmodel)
     {
@@ -1154,6 +1165,15 @@ BOOST_AUTO_TEST_SUITE(JointModelBase)
   {
     typedef JointCollectionDefault::JointModelVariant JointModelVariant;
     boost::mpl::for_each<JointModelVariant::types>(TestJointModelIsEqual());
+    
+    JointModelRX joint_revolutex;
+    JointModelRY joint_revolutey;
+    
+    BOOST_CHECK(joint_revolutex != joint_revolutey);
+    
+    JointModel jmodelx(joint_revolutex);
+    jmodelx.setIndexes(0,0,0);
+    TestJointModelIsEqual::test(jmodelx);
   }
   
 BOOST_AUTO_TEST_SUITE_END()
