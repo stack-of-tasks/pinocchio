@@ -1102,3 +1102,59 @@ BOOST_AUTO_TEST_SUITE(JointRevoluteUnaligned)
   }
   
 BOOST_AUTO_TEST_SUITE_END()
+  
+BOOST_AUTO_TEST_SUITE(JointModelBase)
+  
+  struct TestJointModelIsEqual
+  {
+    template<typename JointModel>
+    void operator()(const se3::JointModelBase<JointModel> &) const
+    {
+      JointModel jmodel;
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options>
+    void operator()(const JointModelRevoluteUnalignedTpl<Scalar,Options> & ) const
+    {
+      typedef JointModelRevoluteUnalignedTpl<Scalar,Options> JointModelRevoluteUnaligned;
+      typedef typename JointModelRevoluteUnaligned::Vector3 Vector3;
+      JointModelRevoluteUnaligned jmodel(Vector3::Random().normalized());
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options>
+    void operator()(const JointModelPrismaticUnalignedTpl<Scalar,Options> & ) const
+    {
+      typedef JointModelPrismaticUnalignedTpl<Scalar,Options> JointModelPrismaticUnaligned;
+      typedef typename JointModelPrismaticUnaligned::Vector3 Vector3;
+      JointModelPrismaticUnaligned jmodel(Vector3::Random().normalized());
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename JointModel>
+    static void test(const JointModelBase<JointModel> & jmodel)
+    {
+      JointModel jmodel_copy = jmodel.derived();
+      BOOST_CHECK(jmodel_copy == jmodel.derived());
+      
+      JointModel jmodel_any;
+      BOOST_CHECK(jmodel_any != jmodel.derived());
+    }
+  };
+  
+  
+  BOOST_AUTO_TEST_CASE(isEqual)
+  {
+    typedef JointCollectionDefault::JointModelVariant JointModelVariant;
+    boost::mpl::for_each<JointModelVariant::types>(TestJointModelIsEqual());
+  }
+  
+BOOST_AUTO_TEST_SUITE_END()
+  
