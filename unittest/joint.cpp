@@ -238,4 +238,22 @@ BOOST_AUTO_TEST_CASE(test_empty_model)
   BOOST_CHECK(jmodel.idx_v() == -1);
 }
 
+BOOST_AUTO_TEST_CASE(isEqual)
+{
+  JointModelRX joint_revolutex;
+  JointModelRY joint_revolutey;
+  
+  BOOST_CHECK(joint_revolutex != joint_revolutey);
+  
+  JointModel jmodelx(joint_revolutex);
+  jmodelx.setIndexes(0,0,0);
+  
+  JointModel jmodelx_copy = jmodelx;
+  BOOST_CHECK(jmodelx_copy == jmodelx.derived());
+  
+  JointModel jmodely(joint_revolutey);
+  BOOST_CHECK(jmodely.toVariant() != jmodelx.toVariant());
+  BOOST_CHECK(jmodely != jmodelx);
+}
+
 BOOST_AUTO_TEST_SUITE_END ()
