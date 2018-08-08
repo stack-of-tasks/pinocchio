@@ -289,6 +289,21 @@ namespace se3
         
       return *this;
     }
+   
+    using Base::isEqual;
+    bool isEqual(const JointModelCompositeTpl & other) const
+    {
+      return Base::isEqual(other)
+      && nq() == other.nq()
+      && nv() == other.nv()
+      && m_idx_q == other.m_idx_q
+      && m_idx_v == other.m_idx_v
+      && m_nqs == other.m_nqs
+      && m_nvs == other.m_nvs
+      && joints == other.joints
+      && jointPlacements == other.jointPlacements
+      && njoints == other.njoints;
+    }
     
     /// \brief Vector of joints contained in the joint composite.
     JointModelVector joints;
