@@ -46,28 +46,26 @@
 using namespace se3;
 
 template <typename JoinData_t>
-void printOutJointData (
+void printOutJointData(
 #ifdef VERBOSE
   const Eigen::VectorXd & q,
   const Eigen::VectorXd & q_dot,
-  const JoinData_t & joint_data
-#else
-  const Eigen::VectorXd & ,
-  const Eigen::VectorXd & ,
-  const JoinData_t & 
-#endif
-                        )
+  const JoinData_t & joint_data)
 {
   using namespace std;
-
-#ifdef VERBOSE
+  
   cout << "q: " << q.transpose () << endl;
   cout << "q_dot: " << q_dot.transpose () << endl;
   cout << "Joint configuration:" << endl << joint_data.M << endl;
   cout << "v_J:\n" << (Motion) joint_data.v << endl;
   cout << "c_J:\n" << (Motion) joint_data.c << endl;
-#endif
 }
+#else
+const Eigen::VectorXd &,
+const Eigen::VectorXd &,
+const JoinData_t &)
+{}
+#endif
 
 template<typename D>
 void addJointAndBody(Model & model, const JointModelBase<D> & jmodel, const Model::JointIndex parent_id, const SE3 & joint_placement, const std::string & joint_name, const Inertia & Y)
@@ -78,9 +76,9 @@ void addJointAndBody(Model & model, const JointModelBase<D> & jmodel, const Mode
   model.appendBodyToJoint(idx,Y);
 }
 
-BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
+BOOST_AUTO_TEST_SUITE(JointRevoluteUnaligned)
 
-BOOST_AUTO_TEST_CASE (vsRX)
+BOOST_AUTO_TEST_CASE(vsRX)
 {
   using namespace se3;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
