@@ -298,7 +298,12 @@ namespace se3
     static std::string classname() { return Derived::classname(); }
     
     template <class OtherDerived>
-    bool operator==(const JointModelBase<OtherDerived> & other) const { return derived().isEqual(other); }
+    bool operator==(const JointModelBase<OtherDerived> & other) const
+    { return derived().isEqual(other); }
+    
+    template <class OtherDerived>
+    bool operator!=(const JointModelBase<OtherDerived> & other) const
+    { return !(derived() == other.derived()); }
     
     template <class OtherDerived>
     bool isEqual(const JointModelBase<OtherDerived> &) const { return false; }
