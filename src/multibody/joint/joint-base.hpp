@@ -299,7 +299,7 @@ namespace se3
     
     template <class OtherDerived>
     bool operator==(const JointModelBase<OtherDerived> & other) const
-    { return derived().isEqual(other); }
+    { return derived().isEqual(other.derived()); }
     
     template <class OtherDerived>
     bool operator!=(const JointModelBase<OtherDerived> & other) const
