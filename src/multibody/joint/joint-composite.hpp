@@ -145,6 +145,19 @@ namespace se3
     , njoints(0)
     {}
     
+    /// \brief Default contructor with a defined size
+    JointModelCompositeTpl(const size_t size)
+    : joints()
+    , jointPlacements()
+    , m_nq(0)
+    , m_nv(0)
+    , njoints(0)
+    {
+      joints.reserve(size); jointPlacements.reserve(size);
+      m_idx_q.reserve(size); m_idx_v.reserve(size);
+      m_nqs.reserve(size); m_nvs.reserve(size);
+    }
+    
     ///
     /// \brief Constructor with one joint.
     ///
