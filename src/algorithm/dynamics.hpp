@@ -56,6 +56,7 @@ namespace se3
                                                  const Eigen::VectorXd & tau,
                                                  const Eigen::MatrixXd & J,
                                                  const Eigen::VectorXd & gamma,
+                                                 const double inv_damping = 0.,
                                                  const bool updateKinematics = true
                                                  )
   {
@@ -85,6 +86,8 @@ namespace se3
     for(int k=0;k<model.nv;++k) data.sDUiJt.row(k) /= sqrt(data.D[k]);
     
     data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
+
+    data.JMinvJt.diagonal().array() += inv_damping;
     data.llt_JMinvJt.compute(data.JMinvJt);
     
     // Compute the Lagrange Multipliers
