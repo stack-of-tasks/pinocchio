@@ -142,6 +142,7 @@ namespace se3
     , jointPlacements()
     , m_nq(0)
     , m_nv(0)
+    , njoints(0)
     {}
     
     ///
@@ -159,6 +160,7 @@ namespace se3
     , m_nv(jmodel.nv())
     , m_idx_q(1,0), m_nqs(1,jmodel.nq())
     , m_idx_v(1,0), m_nvs(1,jmodel.nv())
+    , njoints(1)
     {}
     
     ///
@@ -174,6 +176,7 @@ namespace se3
     , m_nv(other.m_nv)
     , m_idx_q(other.m_idx_q), m_nqs(other.m_nqs)
     , m_idx_v(other.m_idx_v), m_nvs(other.m_nvs)
+    , njoints(other.njoints)
     {}
     
     
@@ -184,7 +187,8 @@ namespace se3
     /// \param placement Placement of the joint relatively to its predecessor.
     ///
     template<typename JointModel>
-    void addJoint(const JointModelBase<JointModel> & jmodel, const SE3 & placement = SE3::Identity())
+    void addJoint(const JointModelBase<JointModel> & jmodel,
+                  const SE3 & placement = SE3::Identity())
     {
       joints.push_back((JointModelVariant)jmodel.derived());
       jointPlacements.push_back(placement);
@@ -192,6 +196,7 @@ namespace se3
       m_nq += jmodel.nq(); m_nv += jmodel.nv();
       
       updateJointIndexes();
+      njoints++;
     }
     
     JointDataDerived createData() const
@@ -267,6 +272,7 @@ namespace se3
       m_nvs = other.m_nvs;
       joints = other.joints;
       jointPlacements = other.jointPlacements;
+      njoints = other.njoints;
         
       return *this;
     }
@@ -348,7 +354,7 @@ namespace se3
     
     
     /// \brief Dimensions of the config and tangent space of the composite joint.
-    int m_nq,m_nv;
+    int m_nq, m_nv;
     
     /// Keep information of both the dimension and the position of the joints in the composition.
     
@@ -360,6 +366,10 @@ namespace se3
     std::vector<int> m_idx_v;
     /// \brief Dimension of the segment in the tangent vector
     std::vector<int> m_nvs;
+    
+  public:
+    /// \brief Number of joints contained in the JointModelComposite
+    int njoints;
   };
   
 
