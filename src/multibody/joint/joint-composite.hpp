@@ -386,10 +386,10 @@ namespace se3
   };
   
 
-  template<typename JointCollection>
-  inline std::ostream & operator <<(std::ostream & os, const JointModelCompositeTpl<JointCollection> & jmodel)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline std::ostream & operator <<(std::ostream & os, const JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> & jmodel)
   {
-    typedef typename JointModelCompositeTpl<JointCollection>::JointModelVector JointModelVector;
+    typedef typename JointModelCompositeTpl<Scalar,Options,JointCollectionTpl>::JointModelVector JointModelVector;
     
     os << "JointModelComposite containing following models:\n" ;
     for (typename JointModelVector::const_iterator it = jmodel.joints.begin();
