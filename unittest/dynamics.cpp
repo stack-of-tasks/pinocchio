@@ -23,6 +23,8 @@
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/utils/timer.hpp"
 
+#include <Eigen/SVD>
+
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
@@ -91,6 +93,88 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   
   Eigen::VectorXd dynamics_residual (data.M * data.ddq + data.nle - tau - J.transpose()*data.lambda_c);
   BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
+}
+
+BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model,true);
+  se3::Data data(model);
+  
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.segment <4> (3).normalize();
+  
+  se3::computeJointJacobians(model, data, q);
+  
+  VectorXd v = VectorXd::Ones(model.nv);
+  VectorXd tau = VectorXd::Zero(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+  
+  Data::Matrix6x J_RF (6, model.nv);
+  J_RF.setZero();
+  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+
+  Eigen::MatrixXd J (12, model.nv);
+  J.setZero();
+  J.topRows<6> () = J_RF;
+  J.bottomRows<6> () = J_RF;
+  
+  Eigen::VectorXd gamma (VectorXd::Ones(12));
+
+  // Forward Dynamics with damping
+  se3::forwardDynamics(model, data, q, v, tau, J, gamma, 1e-12,true);
+
+  // Matrix Definitions
+  Eigen::MatrixXd H(J.transpose());
+  data.M.triangularView<Eigen::StrictlyLower>() =
+    data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  MatrixXd Minv (data.M.inverse());
+  MatrixXd JMinvJt (J * Minv * J.transpose());
+
+  // Check that JMinvJt is correctly formed
+  Eigen::MatrixXd G_ref(J.transpose());
+  cholesky::Uiv(model, data, G_ref);
+  for(int k=0;k<model.nv;++k) G_ref.row(k) /= sqrt(data.D[k]);
+  Eigen::MatrixXd H_ref(G_ref.transpose() * G_ref);
+  BOOST_CHECK(H_ref.isApprox(JMinvJt,1e-12));
+
+  //Find the ground truth
+  typedef Eigen::JacobiSVD<Eigen::MatrixXd> SVDType;
+  const double threshold = 1e-8;
+  SVDType svd(JMinvJt, Eigen::ComputeThinU | Eigen::ComputeThinV);
+  SVDType::SingularValuesType m_singularValues=svd.singularValues();
+  SVDType::SingularValuesType singularValues_inv;
+  singularValues_inv.resizeLike(m_singularValues);
+  for (unsigned int i=0; i<m_singularValues.size(); ++i)
+  {
+    if ( m_singularValues(i) > threshold )
+      singularValues_inv(i)=1.0/m_singularValues(i);
+    else singularValues_inv(i)=0;
+  }
+  MatrixXd JMinvJt_inv (JMinvJt.rows(), JMinvJt.cols());  
+  JMinvJt_inv = svd.matrixV()*singularValues_inv.asDiagonal()*svd.matrixU().transpose();
+
+  // Reference acceleration and lambda
+  VectorXd lambda_ref = -JMinvJt_inv * (J*Minv*(tau - data.nle) + gamma);
+  VectorXd a_ref = Minv*(tau - data.nle + J.transpose()*lambda_ref);
+  Eigen::VectorXd
+    dynamics_residual_ref(data.M * a_ref + data.nle - tau - J.transpose()*lambda_ref);
+  BOOST_CHECK(dynamics_residual_ref.norm() <= 1e-11);
+
+  // Actual lambda and acceleration
+  BOOST_CHECK(data.lambda_c.isApprox(lambda_ref, 1e-12));
+  BOOST_CHECK(data.ddq.isApprox(a_ref, 1e-12));
+  
+  // Actual Residuals
+  Eigen::VectorXd constraint_residual (J * data.ddq + gamma);  
+  Eigen::VectorXd dynamics_residual (data.M * data.ddq + data.nle - tau - J.transpose()*data.lambda_c);
+  BOOST_CHECK(constraint_residual.norm() <= 1e-10);  
+  BOOST_CHECK(dynamics_residual.norm() <= 1e-12); 
 }
 
 BOOST_AUTO_TEST_CASE ( test_ID )
