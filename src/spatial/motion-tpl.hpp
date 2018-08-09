@@ -66,19 +66,19 @@ namespace se3
     using Base::__mult__;
 
     // Constructors
-    MotionTpl() : data() {}
+    MotionTpl() : m_data() {}
     
     template<typename V1,typename V2>
     MotionTpl(const Eigen::MatrixBase<V1> & v, const Eigen::MatrixBase<V2> & w)
     {
       assert(v.size() == 3);
       assert(w.size() == 3);
-      data << v, w;
+      linear() = v; angular() = w;
     }
     
     template<typename V6>
     explicit MotionTpl(const Eigen::MatrixBase<V6> & v)
-    : data(v)
+    : m_data(v)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(V6);
       assert(v.size() == 6);
@@ -86,7 +86,7 @@ namespace se3
     
     template<int O2>
     explicit MotionTpl(const MotionTpl<Scalar,O2> & clone)
-    : data(clone.toVector())
+    : m_data(clone.toVector())
     {}
     
     template<typename M2>
@@ -97,14 +97,14 @@ namespace se3
     static MotionTpl Zero()   { return MotionTpl(Vector6::Zero());   }
     static MotionTpl Random() { return MotionTpl(Vector6::Random()); }
     
-    ToVectorConstReturnType toVector_impl() const { return data; }
-    ToVectorReturnType toVector_impl() { return data; }
+    ToVectorConstReturnType toVector_impl() const { return m_data; }
+    ToVectorReturnType toVector_impl() { return m_data; }
     
     // Getters
-    ConstAngularType angular_impl() const { return data.template segment<3> (ANGULAR); }
-    ConstLinearType linear_impl()  const { return data.template segment<3> (LINEAR); }
-    AngularType angular_impl() { return data.template segment<3> (ANGULAR); }
-    LinearType linear_impl()  { return data.template segment<3> (LINEAR); }
+    ConstAngularType angular_impl() const { return m_data.template segment<3> (ANGULAR); }
+    ConstLinearType linear_impl()  const { return m_data.template segment<3> (LINEAR); }
+    AngularType angular_impl() { return m_data.template segment<3> (ANGULAR); }
+    LinearType linear_impl()  { return m_data.template segment<3> (LINEAR); }
     
     template<typename V3>
     void angular_impl(const Eigen::MatrixBase<V3> & w)
@@ -122,41 +122,41 @@ namespace se3
     // Specific operators for MotionTpl and MotionRef
     template<int O2>
     MotionPlain __plus__(const MotionTpl<Scalar,O2> & v) const
-    { return MotionPlain(data+v.toVector()); }
+    { return MotionPlain(m_data+v.toVector()); }
     
     template<typename Vector6ArgType>
     MotionPlain __plus__(const MotionRef<Vector6ArgType> & v) const
-    { return MotionPlain(data+v.toVector()); }
+    { return MotionPlain(m_data+v.toVector()); }
     
     template<int O2>
     MotionPlain __minus__(const MotionTpl<Scalar,O2> & v) const
-    { return MotionPlain(data-v.toVector()); }
+    { return MotionPlain(m_data-v.toVector()); }
     
     template<typename Vector6ArgType>
     MotionPlain __minus__(const MotionRef<Vector6ArgType> & v) const
-    { return MotionPlain(data-v.toVector()); }
+    { return MotionPlain(m_data-v.toVector()); }
     
     template<int O2>
     MotionTpl & __pequ__(const MotionTpl<Scalar,O2> & v)
-    { data += v.toVector(); return *this; }
+    { m_data += v.toVector(); return *this; }
     
     template<typename Vector6ArgType>
     MotionTpl & __pequ__(const MotionRef<Vector6ArgType> & v)
-    { data += v.toVector(); return *this; }
+    { m_data += v.toVector(); return *this; }
     
     template<int O2>
     MotionTpl & __mequ__(const MotionTpl<Scalar,O2> & v)
-    { data -= v.toVector(); return *this; }
+    { m_data -= v.toVector(); return *this; }
     
     template<typename Vector6ArgType>
     MotionTpl & __mequ__(const MotionRef<Vector6ArgType> & v)
-    { data -= v.toVector(); return *this; }
+    { m_data -= v.toVector(); return *this; }
     
     template<typename OtherScalar>
     MotionPlain __mult__(const OtherScalar & alpha) const
-    { return MotionPlain(alpha*data); }
+    { return MotionPlain(alpha*m_data); }
     
-    MotionRef<Vector6> ref() { return MotionRef<Vector6>(data); }
+    MotionRef<Vector6> ref() { return MotionRef<Vector6>(m_data); }
     
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
     template<typename NewScalar>
@@ -169,7 +169,7 @@ namespace se3
     }
 
   protected:
-    Vector6 data;
+    Vector6 m_data;
     
   }; // class MotionTpl
   
