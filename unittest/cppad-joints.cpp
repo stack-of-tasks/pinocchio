@@ -26,13 +26,11 @@
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
-BOOST_AUTO_TEST_CASE(test_joints_motion_space)
+BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
 {
   using CppAD::AD;
   using CppAD::NearEqual;
-  using Eigen::Matrix;
-  using Eigen::Dynamic;
- 
+
   typedef AD<double> AD_double;
   typedef se3::JointCollectionDefaultTpl<AD_double> JointCollectionAD;
   typedef se3::JointCollectionDefaultTpl<double> JointCollection;
@@ -56,18 +54,18 @@ BOOST_AUTO_TEST_CASE(test_joints_motion_space)
   typedef JointModelRX::TangentVector_t TangentVector;
   typedef JointCollection::JointDataRX JointDataRX;
   
-  // Zero order
-  JointModelRXAD jmodel_ad; jmodel_ad.setIndexes(0,0,0);
-  JointDataRXAD jdata_ad(jmodel_ad.createData());
-  
-  typedef se3::LieGroup<JointModelRXAD>::type JointOperation;
-  ConfigVectorAD q_ad(jmodel_ad.nq()); JointOperation().random(q_ad);
-  
-  jmodel_ad.calc(jdata_ad,q_ad);
-  
-  ConfigVector q(q_ad.cast<double>());
   JointModelRX jmodel; jmodel.setIndexes(0,0,0);
   JointDataRX jdata(jmodel.createData());
+  
+  JointModelRXAD jmodel_ad = jmodel.cast<AD_double>();
+  JointDataRXAD jdata_ad(jmodel_ad.createData());
+  
+  typedef se3::LieGroup<JointModelRX>::type JointOperation;
+  ConfigVector q(jmodel.nq()); JointOperation().random(q);
+  ConfigVectorAD q_ad(q.cast<AD_double>());
+  
+   // Zero order
+  jmodel_ad.calc(jdata_ad,q_ad);
   jmodel.calc(jdata,q);
   
   SE3 M1(jdata.M);
