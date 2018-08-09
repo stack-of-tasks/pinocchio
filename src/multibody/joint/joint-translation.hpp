@@ -75,11 +75,16 @@ namespace se3
     
     MOTION_TYPEDEF_TPL(MotionTranslationTpl);
 
-    MotionTranslationTpl()                   : rate(Motion::Vector3(NAN, NAN, NAN)) {}
-    template<typename Vector3Like>
-    MotionTranslationTpl(const Eigen::MatrixBase<Vector3Like> & v) : rate(v)  {}
+    MotionTranslationTpl() : rate(NAN, NAN, NAN) {}
     
-    MotionTranslationTpl(const MotionTranslationTpl & other) : rate(other.rate)  {}
+    template<typename Vector3Like>
+    MotionTranslationTpl(const Eigen::MatrixBase<Vector3Like> & v)
+    : rate(v)
+    {}
+    
+    MotionTranslationTpl(const MotionTranslationTpl & other)
+    : rate(other.rate)
+    {}
  
     Vector3 & operator()() { return rate; }
     const Vector3 & operator()() const { return rate; }

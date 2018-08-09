@@ -76,8 +76,12 @@ namespace se3
     
     MOTION_TYPEDEF_TPL(MotionSphericalTpl);
 
-    MotionSphericalTpl() : w (Motion::Vector3(NAN, NAN, NAN)) {}
-    MotionSphericalTpl(const Motion::Vector3 & w) : w (w)  {}
+    MotionSphericalTpl() : w(NAN, NAN, NAN) {}
+    
+    template<typename Vector3Like>
+    MotionSphericalTpl(const Eigen::MatrixBase<Vector3Like> & w)
+    : w(w)
+    {}
 
     Vector3 & operator() () { return w; }
     const Vector3 & operator() () const { return w; }
