@@ -37,7 +37,7 @@ namespace se3
   ///           \text{s.t.} & & J (q) \ddot{q} + \gamma (q, \dot{q}) = 0 \end{eqnarray} \f$ </CENTER> <BR>
   ///       where \f$ \ddot{q}_{\text{free}} \f$ is the free acceleration (i.e. without constraints),
   ///       \f$ M \f$ is the mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \gamma \f$ is the constraint drift.
-  ///  By default, the constraint Jacobian is assumed to be full rank, and undamped cholesky inverse is performed.
+  ///  By default, the constraint Jacobian is assumed to be full rank, and undamped Cholesky inverse is performed.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -47,7 +47,8 @@ namespace se3
   /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
   /// \param[in] gamma The drift of the constraints (dim nb_constraints).
   /// \param[in] inv_damping Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.    
-  /// \param[in] updateKinematics If true, the algorithm calls first se3::computeAllTerms. Otherwise, it uses the current dynamic values stored in data.
+  /// \param[in] updateKinematics If true, the algorithm calls first se3::computeAllTerms. Otherwise, it uses the current dynamic values stored in data. \\
+  ///            \note A hint: 1e-12 as the damping factor gave good result in the particular case of redundancy in contact constraints on the two feet.
   ///
   /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
   ///
