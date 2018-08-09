@@ -314,6 +314,28 @@ namespace se3
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline std::string shortname(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
   { return JointShortnameVisitor::run(jmodel);}
+  
+  template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct JointCastVisitor
+  : fusion::JointVisitorBase< JointCastVisitor<NewScalar,Scalar,Options,JointCollectionTpl>, typename CastType< NewScalar,JointModelTpl<Scalar,Options,JointCollectionTpl> >::type >
+  {
+    typedef fusion::NoArg ArgsType;
+    
+    typedef typename CastType< NewScalar,JointModelTpl<Scalar,Options,JointCollectionTpl> >::type ReturnType;
+    
+    template<typename JointModelDerived>
+    static ReturnType algo(const JointModelBase<JointModelDerived> & jmodel)
+    { return ReturnType(jmodel.template cast<NewScalar>()); }
+
+  };
+  
+  template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  typename CastType< NewScalar,JointModelTpl<Scalar,Options,JointCollectionTpl> >::type
+  cast_joint(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
+  {
+    typedef JointCastVisitor<NewScalar,Scalar,Options,JointCollectionTpl> Algo;
+    return Algo::run(jmodel);
+  }
 
   //
   // Visitors on JointDatas

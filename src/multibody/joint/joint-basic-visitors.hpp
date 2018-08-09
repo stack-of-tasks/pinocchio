@@ -183,7 +183,20 @@ namespace se3
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline std::string shortname(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel);
- 
+  
+  /**
+   * @brief      Visit a JointModelTpl<Scalar,...> to cast it into JointModelTpl<NewScalar,...>
+   *
+   * @tparam     NewScalar new scalar type of of the JointModelTpl
+   *
+   * @param[in]  jmodel  The joint model to cast.
+   *
+   * @return     A new JointModelTpl<NewScalar,...> casted from JointModelTpl<Scalar,...>.
+   */
+  template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  typename CastType< NewScalar,JointModelTpl<Scalar,Options,JointCollectionTpl> >::type
+  cast_joint(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel);
+
   
   //
   // Visitors on JointDatas

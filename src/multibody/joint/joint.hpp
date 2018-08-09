@@ -113,6 +113,12 @@ namespace se3
     }
 
   };
+  
+  template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct CastType< NewScalar, JointModelTpl<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef JointModelTpl<NewScalar,Options,JointCollectionTpl> type;
+  };
 
   template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
   struct JointModelTpl
@@ -133,6 +139,7 @@ namespace se3
     using Base::id;
     using Base::setIndexes;
     using Base::operator==;
+    using Base::operator!=;
 
     JointModelTpl() : JointModelVariant() {}
     
@@ -155,6 +162,13 @@ namespace se3
 
     JointDataDerived createData()
     { return ::se3::createData<JointCollection>(*this); }
+
+    using Base::isEqual;
+    bool isEqual(const JointModelTpl & other) const
+    {
+      return Base::isEqual(other)
+      && toVariant() == other.toVariant();
+    }
 
     template<typename ConfigVector>
     void calc(JointDataDerived & data,
@@ -183,6 +197,13 @@ namespace se3
 
     void setIndexes(JointIndex id, int nq, int nv)
     { ::se3::setIndexes(*this,id, nq, nv); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelTpl<NewScalar,Options,JointCollectionTpl> cast() const
+    {
+      return cast_joint<NewScalar,Scalar,Options,JointCollectionTpl>(*this);
+    }
   };
   
   typedef container::aligned_vector<JointData> JointDataVector;
