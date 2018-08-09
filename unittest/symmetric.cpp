@@ -315,5 +315,15 @@ BOOST_AUTO_TEST_CASE(comparison)
   BOOST_CHECK(sym2 != sym1);
   BOOST_CHECK(sym1 == sym1);
 }
+
+BOOST_AUTO_TEST_CASE(cast)
+{
+  using namespace se3;
+  Symmetric3 sym(Symmetric3::Random());
+  
+  BOOST_CHECK(sym.cast<double>() == sym);
+  BOOST_CHECK(sym.cast<long double>().cast<double>() == sym);
+  
+}
 BOOST_AUTO_TEST_SUITE_END ()
 

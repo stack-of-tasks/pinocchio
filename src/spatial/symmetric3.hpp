@@ -475,6 +475,13 @@ namespace se3
 
       return Sres;
     }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    Symmetric3Tpl<NewScalar,Options> cast() const
+    {
+      return Symmetric3Tpl<NewScalar,Options>(m_data.template cast<NewScalar>());
+    }
 
   protected:
     Vector6 m_data;
