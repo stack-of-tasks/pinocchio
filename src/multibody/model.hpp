@@ -172,6 +172,54 @@ namespace se3
     ~ModelTpl() {} // std::cout << "Destroy model" << std::endl; }
     
     ///
+    /// \brief Equality comparison operator.
+    ///
+    /// \returns true if *this is equal to other.
+    ///
+    bool operator==(const ModelTpl & other) const
+    {
+      bool res =
+         other.nq == nq
+      && other.nv == nv
+      && other.njoints == njoints
+      && other.nbodies == nbodies
+      && other.nframes == nframes
+      && other.parents == parents
+      && other.names == names
+      && other.subtrees == subtrees
+      && other.gravity == gravity
+      && other.name == name
+
+      && other.neutralConfiguration == neutralConfiguration
+      && other.rotorInertia == rotorInertia
+      && other.rotorGearRatio == rotorGearRatio
+      && other.effortLimit == effortLimit
+      && other.velocityLimit == velocityLimit
+      && other.lowerPositionLimit == lowerPositionLimit
+      && other.upperPositionLimit == upperPositionLimit;
+      
+      if(!res) return res;
+      
+      for(size_t k = 1; k < inertias.size(); ++k)
+      {
+        res &= other.inertias[k] == inertias[k];
+        if(!res) return res;
+      }
+      
+      for(size_t k = 1; k < other.jointPlacements.size(); ++k)
+      {
+        res &= other.jointPlacements[k] == jointPlacements[k];
+        if(!res) return res;
+      }
+      
+      res &=
+         other.joints == joints
+      && other.frames == frames;
+      
+      return res;
+    }
+    
+    ///
     /// \brief Add a joint to the kinematic tree with given bounds.
     ///
     /// \remark This method does not add a Frame of same name to the vector of frames.

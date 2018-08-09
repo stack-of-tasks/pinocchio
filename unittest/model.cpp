@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -25,19 +25,27 @@ using namespace se3;
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
-BOOST_AUTO_TEST_CASE(test_model_subtree)
-{
-  Model model;
-  std::cout << "build model" << std::endl;
-  buildModels::humanoidRandom(model);
+  BOOST_AUTO_TEST_CASE(test_model_subtree)
+  {
+    Model model;
+    buildModels::humanoidSimple(model);
+    
+    Model::JointIndex idx_larm1 = model.getJointId("larm1_joint");
+    BOOST_CHECK(idx_larm1<(Model::JointIndex)model.njoints);
+    Model::IndexVector subtree = model.subtrees[idx_larm1];
+    BOOST_CHECK(subtree.size()==6);
+    
+    for(size_t i=1; i<subtree.size();++i)
+      BOOST_CHECK(model.parents[subtree[i]]==subtree[i-1]);
+  }
+
+  BOOST_AUTO_TEST_CASE(comparison)
+  {
+    Model model;
+    buildModels::humanoidSimple(model);
+    
+    BOOST_CHECK(model == model);
+  }
   
-  Model::JointIndex idx_larm1 = model.getJointId("larm1_joint");
-  BOOST_CHECK(idx_larm1<(Model::JointIndex)model.njoints);
-  Model::IndexVector subtree = model.subtrees[idx_larm1];
-  BOOST_CHECK(subtree.size()==6);
-  
-  for(size_t i=1; i<subtree.size();++i)
-    BOOST_CHECK(model.parents[subtree[i]]==subtree[i-1]);
-}
 
 BOOST_AUTO_TEST_SUITE_END()
