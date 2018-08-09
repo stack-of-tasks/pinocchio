@@ -325,13 +325,15 @@ namespace se3
       res.m_nqs = m_nqs;
       res.m_nvs = m_nvs;
       res.njoints = njoints;
-      for(size_t k = 0; jointPlacements.size(); ++k)
+      
+      res.joints.resize(joints.size());
+      res.jointPlacements.resize(jointPlacements.size());
+      for(size_t k = 0; k < jointPlacements.size(); ++k)
       {
-        res.joints.push_back(joints[k].template cast<NewScalar>());
-        res.jointPlacements.push_back(jointPlacements[k].template cast<NewScalar>());
+        res.joints[k] = joints[k].template cast<NewScalar>();
+        res.jointPlacements[k] = jointPlacements[k].template cast<NewScalar>();
       }
       
-      res.njoints = njoints;
       return res;
     }
     
