@@ -165,9 +165,9 @@ namespace se3
       // Model::addJointFrame and Model::addBodyFrame
       addFrame(Frame("universe", 0, 0, SE3::Identity(), FIXED_JOINT));
       // Inertia of universe has no sense.
-      inertias[0].mass() = std::numeric_limits<double>::quiet_NaN();
-      inertias[0].lever().fill (std::numeric_limits<double>::quiet_NaN());
-      inertias[0].inertia().fill (std::numeric_limits<double>::quiet_NaN());
+      inertias[0].mass() = std::numeric_limits<Scalar>::quiet_NaN();
+      inertias[0].lever().fill (std::numeric_limits<Scalar>::quiet_NaN());
+      inertias[0].inertia().fill (std::numeric_limits<Scalar>::quiet_NaN());
     }
     ~ModelTpl() {} // std::cout << "Destroy model" << std::endl; }
     
