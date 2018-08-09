@@ -303,5 +303,17 @@ BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
   }
   timer.toc(std::cout,NBT);
 }
+
+BOOST_AUTO_TEST_CASE(comparison)
+{
+  using namespace se3;
+  Symmetric3 sym1(Symmetric3::Random());
+  
+  Symmetric3 sym2(sym1);
+  sym2.data() *= 2;
+  
+  BOOST_CHECK(sym2 != sym1);
+  BOOST_CHECK(sym1 == sym1);
+}
 BOOST_AUTO_TEST_SUITE_END ()
 
