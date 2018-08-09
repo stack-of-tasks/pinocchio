@@ -415,7 +415,8 @@ namespace se3
   { typedef JointRevoluteUnalignedTpl<Scalar,Options> JointDerived; };
 
   template<typename _Scalar, int _Options>
-  struct JointDataRevoluteUnalignedTpl : public JointDataBase< JointDataRevoluteUnalignedTpl<_Scalar,_Options> >
+  struct JointDataRevoluteUnalignedTpl
+  : public JointDataBase< JointDataRevoluteUnalignedTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteUnalignedTpl<_Scalar,_Options> JointDerived;
@@ -434,13 +435,16 @@ namespace se3
     UD_t UDinv;
 
     JointDataRevoluteUnalignedTpl()
-      : M(1),S(Eigen::Vector3d::Constant(NAN)),v(Eigen::Vector3d::Constant(NAN),NAN)
-      , U(), Dinv(), UDinv()
+    : M(1)
+    , S(Constraint_t::Vector3::Constant(NAN))
+    , v(Motion_t::Vector3::Constant(NAN),NAN)
+    , U(), Dinv(), UDinv()
     {}
     
-    JointDataRevoluteUnalignedTpl(const Motion::Vector3 & axis)
-      : M(1),S(axis),v(axis,NAN)
-      , U(), Dinv(), UDinv()
+    template<typename Vector3Like>
+    JointDataRevoluteUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
+    : M(1),S(axis),v(axis,NAN)
+    , U(), Dinv(), UDinv()
     {}
 
   }; // struct JointDataRevoluteUnalignedTpl

@@ -396,12 +396,13 @@ namespace se3
   { typedef JointPrismaticUnalignedTpl<Scalar,Options> JointDerived; };
 
   template<typename _Scalar, int _Options>
-  struct JointDataPrismaticUnalignedTpl : public JointDataBase< JointDataPrismaticUnalignedTpl<_Scalar,_Options> >
+  struct JointDataPrismaticUnalignedTpl
+  : public JointDataBase< JointDataPrismaticUnalignedTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPrismaticUnalignedTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-
+    
     Transformation_t M;
     Constraint_t S;
     Motion_t v;
@@ -416,7 +417,7 @@ namespace se3
 
     JointDataPrismaticUnalignedTpl()
     : M(Transformation_t::LinearType::Constant(NAN))
-    , S(Motion_t::Vector3::Constant(NAN))
+    , S(Constraint_t::Vector3::Constant(NAN))
     , v(Motion_t::Vector3::Constant(NAN),NAN)
     , U(), Dinv(), UDinv()
     {}
