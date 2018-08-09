@@ -95,7 +95,11 @@ namespace se3
     void setIdentity() { m_data << 1, 0, 1, 0, 0, 1; }
 
     /* Requiered by Inertia::operator== */
-    bool operator== (const Symmetric3Tpl & S2) const { return m_data == S2.m_data; }
+    bool operator==(const Symmetric3Tpl & other) const
+    { return m_data == other.m_data; }
+    
+    bool operator!=(const Symmetric3Tpl & other) const
+    { return !(*this == other); }
     
     bool isApprox(const Symmetric3Tpl & other,
                   const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
