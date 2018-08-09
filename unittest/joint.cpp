@@ -256,4 +256,15 @@ BOOST_AUTO_TEST_CASE(isEqual)
   BOOST_CHECK(jmodely != jmodelx);
 }
 
+BOOST_AUTO_TEST_CASE(cast)
+{
+  JointModelRX joint_revolutex;
+  
+  JointModel jmodelx(joint_revolutex);
+  jmodelx.setIndexes(0,0,0);
+  
+  BOOST_CHECK(jmodelx.cast<double>() == jmodelx);
+  BOOST_CHECK(jmodelx.cast<long double>().cast<double>() == jmodelx);
+}
+
 BOOST_AUTO_TEST_SUITE_END ()

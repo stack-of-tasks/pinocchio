@@ -1157,9 +1157,9 @@ BOOST_AUTO_TEST_SUITE(JointModelBase)
       
       JointModel jmodel_any;
       BOOST_CHECK(jmodel_any != jmodel.derived());
+      BOOST_CHECK(!jmodel_any.isEqual(jmodel.derived()));
     }
   };
-  
   
   BOOST_AUTO_TEST_CASE(isEqual)
   {
@@ -1173,7 +1173,71 @@ BOOST_AUTO_TEST_SUITE(JointModelBase)
     
     JointModel jmodelx(joint_revolutex);
     jmodelx.setIndexes(0,0,0);
-    TestJointModelIsEqual::test(jmodelx);
+    TestJointModelIsEqual()(JointModel());
+    
+    JointModel jmodel_any;
+    BOOST_CHECK(jmodel_any != jmodelx);
+  }
+  
+  struct TestJointModelCast
+  {
+    template<typename JointModel>
+    void operator()(const se3::JointModelBase<JointModel> &) const
+    {
+      JointModel jmodel;
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options>
+    void operator()(const JointModelRevoluteUnalignedTpl<Scalar,Options> & ) const
+    {
+      typedef JointModelRevoluteUnalignedTpl<Scalar,Options> JointModelRevoluteUnaligned;
+      typedef typename JointModelRevoluteUnaligned::Vector3 Vector3;
+      JointModelRevoluteUnaligned jmodel(Vector3::Random().normalized());
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options>
+    void operator()(const JointModelPrismaticUnalignedTpl<Scalar,Options> & ) const
+    {
+      typedef JointModelPrismaticUnalignedTpl<Scalar,Options> JointModelPrismaticUnaligned;
+      typedef typename JointModelPrismaticUnaligned::Vector3 Vector3;
+      JointModelPrismaticUnaligned jmodel(Vector3::Random().normalized());
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options, template<typename,int> class JointCollection>
+    void operator()(const JointModelTpl<Scalar,Options,JointCollection> & ) const
+    {
+      typedef JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+      typedef JointModelTpl<Scalar,Options,JointCollection> JointModel;
+      JointModel jmodel((JointModelRX()));
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename JointModel>
+    static void test(const JointModelBase<JointModel> & jmodel)
+    {
+      typedef typename JointModel::Scalar Scalar;
+      BOOST_CHECK(jmodel.template cast<Scalar>() == jmodel);
+      BOOST_CHECK(jmodel.template cast<long double>().template cast<double>() == jmodel);
+    }
+  };
+  
+  BOOST_AUTO_TEST_CASE(cast)
+  {
+    typedef JointCollectionDefault::JointModelVariant JointModelVariant;
+    boost::mpl::for_each<JointModelVariant::types>(TestJointModelCast());
+    
+    TestJointModelCast()(JointModel());
   }
   
 BOOST_AUTO_TEST_SUITE_END()
