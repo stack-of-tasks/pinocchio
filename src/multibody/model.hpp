@@ -171,6 +171,53 @@ namespace se3
     }
     ~ModelTpl() {} // std::cout << "Destroy model" << std::endl; }
     
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    ModelTpl<NewScalar,Options,JointCollectionTpl> cast() const
+    {
+      typedef ModelTpl<NewScalar,Options,JointCollectionTpl> ReturnType;
+      ReturnType res;
+      res.nq = nq; res.nv = nv;
+      res.njoints = njoints;
+      res.nbodies = nbodies;
+      res.nframes = nframes;
+      res.parents = parents;
+      res.names = names;
+      res.subtrees = subtrees;
+      res.gravity = gravity.template cast<NewScalar>();
+      res.name = name;
+      
+      /// Eigen Vectors
+      res.neutralConfiguration = neutralConfiguration.template cast<NewScalar>();
+      res.rotorInertia = rotorInertia.template cast<NewScalar>();
+      res.rotorGearRatio = rotorGearRatio.template cast<NewScalar>();
+      res.effortLimit = effortLimit.template cast<NewScalar>();
+      res.velocityLimit = velocityLimit.template cast<NewScalar>();
+      res.lowerPositionLimit = lowerPositionLimit.template cast<NewScalar>();
+      res.upperPositionLimit = upperPositionLimit.template cast<NewScalar>();
+
+      /// reserve vectors
+      res.inertias.resize(inertias.size());
+      res.jointPlacements.resize(jointPlacements.size());
+      res.joints.resize(joints.size());
+      res.frames.resize(frames.size());
+
+      /// copy into vectors
+      for(size_t k = 0; k < joints.size(); ++k)
+      {
+        res.inertias[k] = inertias[k].template cast<NewScalar>();
+        res.jointPlacements[k] = jointPlacements[k].template cast<NewScalar>();
+        res.joints[k] = joints[k].template cast<NewScalar>();
+      }
+      
+      for(size_t k = 0; k < frames.size(); ++k)
+      {
+        res.frames[k] = frames[k].template cast<NewScalar>();
+      }
+      
+      return res;
+    }
+    
     ///
     /// \brief Equality comparison operator.
     ///

@@ -47,5 +47,13 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     BOOST_CHECK(model == model);
   }
   
+  BOOST_AUTO_TEST_CASE(cast)
+  {
+    Model model;
+    buildModels::humanoidSimple(model);
+    
+    BOOST_CHECK(model.cast<double>() == model);
+    BOOST_CHECK(model.cast<long double>().cast<double>() == model);
+  }
 
 BOOST_AUTO_TEST_SUITE_END()
