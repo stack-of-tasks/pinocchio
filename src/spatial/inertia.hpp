@@ -164,6 +164,7 @@ namespace se3
   public:
     friend class InertiaBase< InertiaTpl< _Scalar, _Options > >;
     SPATIAL_TYPEDEF_TEMPLATE(InertiaTpl);
+    enum { Options = _Options };
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef typename Symmetric3::AlphaSkewSquare AlphaSkewSquare;
@@ -479,6 +480,15 @@ namespace se3
       << "  m = " << mass() << "\n"
       << "  c = " << lever().transpose() << "\n"
       << "  I = \n" << inertia().matrix() << "";
+    }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    InertiaTpl<NewScalar,Options> cast() const
+    {
+      return InertiaTpl<NewScalar,Options>(static_cast<NewScalar>(mass()),
+                                           lever().template cast<NewScalar>(),
+                                           inertia().template cast<NewScalar>());
     }
 
   protected:

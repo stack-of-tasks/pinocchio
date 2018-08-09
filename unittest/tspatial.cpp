@@ -619,6 +619,15 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   
 }
 
+BOOST_AUTO_TEST_CASE(cast_inertia)
+{
+  using namespace se3;
+  Inertia Y(Inertia::Random());
+  
+  BOOST_CHECK(Y.cast<double>() == Y);
+  BOOST_CHECK(Y.cast<long double>().cast<double>() == Y);
+}
+
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )
 {
   using namespace se3;
