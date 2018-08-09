@@ -37,14 +37,14 @@ namespace se3
     /// \brief SE3 action on a set of forces, represented by a 6xN matrix whose each
     ///        column represent a spatial force.
     ///
-    template<int Op,typename Mat,typename MatRet>
-    static void se3Action(const SE3 & m,
+    template<int Op, typename Scalar, int Options, typename Mat, typename MatRet>
+    static void se3Action(const SE3Tpl<Scalar,Options> & m,
                           const Eigen::MatrixBase<Mat> & iF,
                           Eigen::MatrixBase<MatRet> const & jF);
     
     /// \brief Default implementation with assignment operator=
-    template<typename Mat,typename MatRet>
-    static void se3Action(const SE3 & m,
+    template<typename Scalar, int Options, typename Mat, typename MatRet>
+    static void se3Action(const SE3Tpl<Scalar,Options> & m,
                           const Eigen::MatrixBase<Mat> & iF,
                           Eigen::MatrixBase<MatRet> const & jF);
     
@@ -52,14 +52,14 @@ namespace se3
     /// \brief Inverse SE3 action on a set of forces, represented by a 6xN matrix whose each
     ///        column represent a spatial force.
     ///
-    template<int Op,typename Mat,typename MatRet>
-    static void se3ActionInverse(const SE3 & m,
+    template<int Op, typename Scalar, int Options, typename Mat, typename MatRet>
+    static void se3ActionInverse(const SE3Tpl<Scalar,Options> & m,
                                  const Eigen::MatrixBase<Mat> & iF,
                                  Eigen::MatrixBase<MatRet> const & jF);
     
     /// \brief Default implementation with assignment operator=
-    template<typename Mat,typename MatRet>
-    static void se3ActionInverse(const SE3 & m,
+    template<typename Scalar, int Options, typename Mat, typename MatRet>
+    static void se3ActionInverse(const SE3Tpl<Scalar,Options> & m,
                                  const Eigen::MatrixBase<Mat> & iF,
                                  Eigen::MatrixBase<MatRet> const & jF);
     
@@ -86,14 +86,14 @@ namespace se3
     /// \brief SE3 action on a set of motions, represented by a 6xN matrix whose
     ///        column represent a spatial motion.
     ///
-    template<int Op, typename Mat,typename MatRet>
-    static void se3Action(const SE3 & m,
+    template<int Op, typename Scalar, int Options, typename Mat,typename MatRet>
+    static void se3Action(const SE3Tpl<Scalar,Options> & m,
                           const Eigen::MatrixBase<Mat> & iV,
                           Eigen::MatrixBase<MatRet> const & jV);
     
     /// \brief Default implementation with assignment operator=
-    template<typename Mat,typename MatRet>
-    static void se3Action(const SE3 & m,
+    template<typename Scalar, int Options, typename Mat,typename MatRet>
+    static void se3Action(const SE3Tpl<Scalar,Options> & m,
                           const Eigen::MatrixBase<Mat> & iV,
                           Eigen::MatrixBase<MatRet> const & jV);
     
@@ -101,14 +101,14 @@ namespace se3
     /// \brief Inverse SE3 action on a set of motions, represented by a 6xN matrix whose
     ///        column represent a spatial motion.
     ///
-    template<int Op, typename Mat,typename MatRet>
-    static void se3ActionInverse(const SE3 & m,
+    template<int Op, typename Scalar, int Options, typename Mat,typename MatRet>
+    static void se3ActionInverse(const SE3Tpl<Scalar,Options> & m,
                                  const Eigen::MatrixBase<Mat> & iV,
                                  Eigen::MatrixBase<MatRet> const & jV);
     
     /// \brief Default implementation with assignment operator=
-    template<typename Mat,typename MatRet>
-    static void se3ActionInverse(const SE3 & m,
+    template<typename Scalar, int Options, typename Mat,typename MatRet>
+    static void se3ActionInverse(const SE3Tpl<Scalar,Options> & m,
                                  const Eigen::MatrixBase<Mat> & iV,
                                  Eigen::MatrixBase<MatRet> const & jV);
     
