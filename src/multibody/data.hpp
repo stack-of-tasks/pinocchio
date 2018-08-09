@@ -25,7 +25,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/fwd.hpp"
-#include "pinocchio/multibody/joint/joint.hpp"
+#include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/deprecated.hh"
 #include "pinocchio/container/aligned-vector.hpp"
 

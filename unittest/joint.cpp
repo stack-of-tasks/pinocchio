@@ -15,7 +15,7 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/multibody/joint/joint.hpp"
+#include "pinocchio/multibody/joint/joint-generic.hpp"
 
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 

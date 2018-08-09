@@ -21,7 +21,7 @@
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
-#include "pinocchio/multibody/joint/joint.hpp"
+#include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
 namespace se3

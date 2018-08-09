@@ -18,7 +18,7 @@
 #include "pinocchio/multibody/liegroup/liegroup-collection.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-generic.hpp"
 
-#include "pinocchio/multibody/joint/joint.hpp"
+#include "pinocchio/multibody/joint/joint-generic.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
