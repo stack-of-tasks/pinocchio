@@ -30,7 +30,7 @@ namespace se3
       bp::def("forwardDynamics",
               (const VectorXd & (*)(const Model &, Data &,
                                     const VectorXd &, const VectorXd &, const VectorXd &,
-                                    const MatrixXd &, const VectorXd &, const bool))
+                                    const MatrixXd &, const VectorXd &, const double, const bool))
               &forwardDynamics,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
@@ -38,7 +38,8 @@ namespace se3
                        "Joint torque tau (size Model::nv)",
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
                        "Contact drift gamma (size nb_constraint)",
-                       "Update kinematics (if true, it updates the dynamic variable according to the current state)"),
+                       "(double) Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.",                       
+                       "Update kinematics (if true, it updates the dynamic variable according to the current state )"),
               "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c",
               bp::return_value_policy<bp::return_by_value>());
       

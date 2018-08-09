@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   
   Eigen::MatrixXd H(J.transpose());
   
-  se3::forwardDynamics(model, data, q, v, tau, J, gamma, true);
+  se3::forwardDynamics(model, data, q, v, tau, J, gamma, 0.,true);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   MatrixXd Minv (data.M.inverse());
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
   SMOOTH(NBT)
   {
-    se3::forwardDynamics(model, data, q, v, tau, J, gamma, true);
+    se3::forwardDynamics(model, data, q, v, tau, J, gamma, 0., true);
   }
   timer.toc(std::cout,NBT);
   
