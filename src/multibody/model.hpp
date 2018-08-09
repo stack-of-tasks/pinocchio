@@ -146,18 +146,18 @@ namespace se3
 
     /// \brief Default constructor. Builds an empty model with no joints.
     ModelTpl()
-      : nq(0)
-      , nv(0)
-      , njoints(1)
-      , nbodies(1)
-      , nframes(0)
-      , inertias(1)
-      , jointPlacements(1, SE3::Identity())
-      , joints(1)
-      , parents(1, 0)
-      , names(1)
-      , subtrees(1)
-      , gravity( gravity981,Eigen::Vector3d::Zero() )
+    : nq(0)
+    , nv(0)
+    , njoints(1)
+    , nbodies(1)
+    , nframes(0)
+    , inertias(1)
+    , jointPlacements(1, SE3::Identity())
+    , joints(1)
+    , parents(1, 0)
+    , names(1)
+    , subtrees(1)
+    , gravity(gravity981,Vector3::Zero())
     {
       names[0]     = "universe";     // Should be "universe joint (trivial)"
       // FIXME Should the universe joint be a FIXED_JOINT even if it is
