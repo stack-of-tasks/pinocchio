@@ -411,7 +411,7 @@ namespace se3
     typedef JointDataPlanarTpl<Scalar,Options> JointDataDerived;
     typedef JointModelPlanarTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintPlanarTpl<Scalar,Options> Constraint_t;
-    typedef SE3 Transformation_t;
+    typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionPlanarTpl<Scalar,Options> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
