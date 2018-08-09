@@ -216,6 +216,14 @@ namespace se3
     operator MotionPlain() const { return Axis() * w; }
     
     template<typename MotionDerived>
+    void setTo(MotionDense<MotionDerived> & m) const
+    {
+      m.linear().setZero();
+      for(Eigen::DenseIndex k = 0; k < 3; ++k)
+        m.angular()[k] = k == axis ? w : 0;
+    }
+    
+    template<typename MotionDerived>
     void addTo(MotionDense<MotionDerived> & v) const
     {
       typedef typename MotionDense<MotionDerived>::Scalar OtherScalar;
@@ -259,6 +267,7 @@ namespace se3
     }
     
     template<typename M1, typename M2>
+    EIGEN_STRONG_INLINE
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
       // Linear
@@ -347,6 +356,7 @@ namespace se3
   struct ConstraintRevoluteTpl : ConstraintBase< ConstraintRevoluteTpl<_Scalar,_Options,axis> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintRevoluteTpl);
     enum { NV = 1, Options = 0 };
     typedef typename traits<ConstraintRevoluteTpl>::JointMotion JointMotion;
@@ -555,6 +565,12 @@ namespace se3
     {}
 
   }; // struct JointDataRevoluteTpl
+  
+  template<typename NewScalar, typename Scalar, int Options, int axis>
+  struct CastType< NewScalar, JointModelRevoluteTpl<Scalar,Options,axis> >
+  {
+    typedef JointModelRevoluteTpl<NewScalar,Options,axis> type;
+  };
 
   template<typename _Scalar, int _Options, int axis>
   struct JointModelRevoluteTpl : public JointModelBase< JointModelRevoluteTpl<_Scalar,_Options,axis> >
@@ -572,6 +588,7 @@ namespace se3
     JointDataDerived createData() const { return JointDataDerived(); }
     
     template<typename ConfigVector>
+    EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
@@ -583,6 +600,7 @@ namespace se3
     }
 
     template<typename ConfigVector, typename TangentVector>
+    EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs,
               const typename Eigen::MatrixBase<TangentVector> & vs) const
@@ -615,7 +633,17 @@ namespace se3
     }
     static std::string classname();
     std::string shortname() const { return classname(); }
-
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelRevoluteTpl<NewScalar,Options,axis> cast() const
+    {
+      typedef JointModelRevoluteTpl<NewScalar,Options,axis> ReturnType;
+      ReturnType res;
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
+    
   }; // struct JointModelRevoluteTpl
 
   typedef JointRevoluteTpl<double,0,0> JointRX;

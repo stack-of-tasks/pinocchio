@@ -445,6 +445,7 @@ namespace se3
 
   }; // struct JointDataRevoluteUnalignedTpl
 
+  JOINT_CAST_TYPE_SPECIALIZATION(JointModelRevoluteUnalignedTpl);
   template<typename _Scalar, int _Options>
   struct JointModelRevoluteUnalignedTpl
   : public JointModelBase< JointModelRevoluteUnalignedTpl<_Scalar,_Options> >
@@ -520,6 +521,16 @@ namespace se3
 
     static std::string classname() { return std::string("JointModelRevoluteUnaligned"); }
     std::string shortname() const { return classname(); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelRevoluteUnalignedTpl<NewScalar,Options> cast() const
+    {
+      typedef JointModelRevoluteUnalignedTpl<NewScalar,Options> ReturnType;
+      ReturnType res(axis.template cast<NewScalar>());
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
 
     Vector3 axis;
   }; // struct JointModelRevoluteUnalignedTpl

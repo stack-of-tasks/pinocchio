@@ -203,6 +203,7 @@ namespace se3
 
   }; // struct JointDataFreeFlyerTpl
 
+  JOINT_CAST_TYPE_SPECIALIZATION(JointModelFreeFlyerTpl);
   template<typename _Scalar, int _Options>
   struct JointModelFreeFlyerTpl
   : public JointModelBase< JointModelFreeFlyerTpl<_Scalar,_Options> >
@@ -277,6 +278,16 @@ namespace se3
 
     static std::string classname() { return std::string("JointModelFreeFlyer"); }
     std::string shortname() const { return classname(); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelFreeFlyerTpl<NewScalar,Options> cast() const
+    {
+      typedef JointModelFreeFlyerTpl<NewScalar,Options> ReturnType;
+      ReturnType res;
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
 
   }; // struct JointModelFreeFlyerTpl
 

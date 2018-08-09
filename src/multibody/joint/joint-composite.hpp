@@ -111,7 +111,13 @@ namespace se3
     UD_t UDinv;
 
   };
-
+ 
+  template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct CastType< NewScalar, JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef JointModelCompositeTpl<NewScalar,Options,JointCollectionTpl> type;
+  };
+  
   template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
   struct JointModelCompositeTpl
   : public JointModelBase< JointModelCompositeTpl<_Scalar,_Options,JointCollectionTpl> >
@@ -303,6 +309,30 @@ namespace se3
       && joints == other.joints
       && jointPlacements == other.jointPlacements
       && njoints == other.njoints;
+    }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelCompositeTpl<NewScalar,Options,JointCollectionTpl> cast() const
+    {
+      typedef JointModelCompositeTpl<NewScalar,Options,JointCollectionTpl> ReturnType;
+      ReturnType res((size_t)njoints);
+      res.setIndexes(id(),idx_q(),idx_v());
+      res.m_nq = m_nq;
+      res.m_nv = m_nv;
+      res.m_idx_q = m_idx_q;
+      res.m_idx_v = m_idx_v;
+      res.m_nqs = m_nqs;
+      res.m_nvs = m_nvs;
+      res.njoints = njoints;
+      for(size_t k = 0; jointPlacements.size(); ++k)
+      {
+        res.joints.push_back(joints[k].template cast<NewScalar>());
+        res.jointPlacements.push_back(jointPlacements[k].template cast<NewScalar>());
+      }
+      
+      res.njoints = njoints;
+      return res;
     }
     
     /// \brief Vector of joints contained in the joint composite.

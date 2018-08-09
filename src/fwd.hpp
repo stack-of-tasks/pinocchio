@@ -31,6 +31,11 @@ namespace se3
   ///
   template<class C> struct traits {};
   
+  ///
+  /// \brief Type of the cast of a class C templated by Scalar and Options, to a new NewScalar type.
+  ///        This class should be specialized for each types.
+  ///
+  template<typename NewScalar, class C> struct CastType;
 }
 
 #endif // #ifndef __se3_fwd_hpp__

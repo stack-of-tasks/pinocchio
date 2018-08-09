@@ -85,6 +85,12 @@ namespace se3
     {}
 
   }; // struct JointDataRevoluteUnbounded
+  
+  template<typename NewScalar, typename Scalar, int Options, int axis>
+  struct CastType< NewScalar, JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
+  {
+    typedef JointModelRevoluteUnboundedTpl<NewScalar,Options,axis> type;
+  };
 
   template<typename _Scalar, int _Options, int axis>
   struct JointModelRevoluteUnboundedTpl
@@ -149,6 +155,16 @@ namespace se3
       return std::string("JointModelRUB") + axisLabel<axis>();
     }
     std::string shortname() const { return classname(); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelRevoluteUnboundedTpl<NewScalar,Options,axis> cast() const
+    {
+      typedef JointModelRevoluteUnboundedTpl<NewScalar,Options,axis> ReturnType;
+      ReturnType res;
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
 
   }; // struct JointModelRevoluteUnboundedTpl
   

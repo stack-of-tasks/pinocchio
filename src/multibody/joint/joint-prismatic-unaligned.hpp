@@ -435,6 +435,7 @@ namespace se3
   struct traits< JointModelPrismaticUnalignedTpl<Scalar,Options> >
   { typedef JointPrismaticUnalignedTpl<Scalar,Options> JointDerived; };
 
+  JOINT_CAST_TYPE_SPECIALIZATION(JointModelPrismaticUnalignedTpl);
   template<typename _Scalar, int _Options>
   struct JointModelPrismaticUnalignedTpl
   : public JointModelBase< JointModelPrismaticUnalignedTpl<_Scalar,_Options> >
@@ -509,7 +510,16 @@ namespace se3
 
     static std::string classname() { return std::string("JointModelPrismaticUnalignedTpl"); }
     std::string shortname() const { return classname(); }
-
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelPrismaticUnalignedTpl<NewScalar,Options> cast() const
+    {
+      typedef JointModelPrismaticUnalignedTpl<NewScalar,Options> ReturnType;
+      ReturnType res(axis.template cast<NewScalar>());
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
     Vector3 axis;
   }; // struct JointModelPrismaticUnalignedTpl
   

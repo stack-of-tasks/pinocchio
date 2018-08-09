@@ -374,6 +374,7 @@ namespace se3
 
   }; // struct JointDataSphericalTpl
 
+  JOINT_CAST_TYPE_SPECIALIZATION(JointModelSphericalTpl);
   template<typename _Scalar, int _Options>
   struct JointModelSphericalTpl
   : public JointModelBase< JointModelSphericalTpl<_Scalar,_Options> >
@@ -458,6 +459,17 @@ namespace se3
 
     static std::string classname() { return std::string("JointModelSpherical"); }
     std::string shortname() const { return classname(); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelSphericalTpl<NewScalar,Options> cast() const
+    {
+      typedef JointModelSphericalTpl<NewScalar,Options> ReturnType;
+      ReturnType res;
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
+
 
   }; // struct JointModelSphericalTpl
 

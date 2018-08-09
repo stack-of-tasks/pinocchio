@@ -444,7 +444,7 @@ namespace se3
   template<typename Scalar, int Options>
   struct traits< JointModelTranslationTpl<Scalar,Options> >
   { typedef JointTranslationTpl<Scalar,Options> JointDerived; };
-
+  
   template<typename _Scalar, int _Options>
   struct JointDataTranslationTpl
   : public JointDataBase< JointDataTranslationTpl<_Scalar,_Options> >
@@ -473,6 +473,7 @@ namespace se3
 
   }; // struct JointDataTranslationTpl
 
+  JOINT_CAST_TYPE_SPECIALIZATION(JointModelTranslationTpl);
   template<typename _Scalar, int _Options>
   struct JointModelTranslationTpl
   : public JointModelBase< JointModelTranslationTpl<_Scalar,_Options> >
@@ -536,6 +537,16 @@ namespace se3
     
     static std::string classname() { return std::string("JointModelTranslation"); }
     std::string shortname() const { return classname(); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelTranslationTpl<NewScalar,Options> cast() const
+    {
+      typedef JointModelTranslationTpl<NewScalar,Options> ReturnType;
+      ReturnType res;
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
 
   }; // struct JointModelTranslationTpl
   

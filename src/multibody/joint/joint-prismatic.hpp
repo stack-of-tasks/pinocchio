@@ -488,6 +488,12 @@ namespace se3
     {}
 
   }; // struct JointDataPrismaticTpl
+  
+  template<typename NewScalar, typename Scalar, int Options, int axis>
+  struct CastType< NewScalar, JointModelPrismaticTpl<Scalar,Options,axis> >
+  {
+    typedef JointModelPrismaticTpl<NewScalar,Options,axis> type;
+  };
 
   template<typename _Scalar, int _Options, int axis>
   struct JointModelPrismaticTpl
@@ -548,6 +554,16 @@ namespace se3
       return std::string("JointModelP") + axisLabel<axis>();
     }
     std::string shortname() const { return classname(); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelPrismaticTpl<NewScalar,Options,axis> cast() const
+    {
+      typedef JointModelPrismaticTpl<NewScalar,Options,axis> ReturnType;
+      ReturnType res;
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
 
   }; // struct JointModelPrismaticTpl
 

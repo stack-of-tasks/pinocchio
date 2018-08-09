@@ -133,7 +133,12 @@ namespace se3
   using Base::idx_q; \
   using Base::idx_v
 
-
+#define JOINT_CAST_TYPE_SPECIALIZATION(JointModelTpl) \
+template<typename Scalar, int Options, typename NewScalar> \
+struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
+{ typedef JointModelTpl<NewScalar,Options> type; }
+  
+  
   template<typename Derived>
   struct JointDataBase
   {
@@ -296,6 +301,10 @@ namespace se3
     
     std::string shortname() const { return derived().shortname(); }
     static std::string classname() { return Derived::classname(); }
+    
+    template<typename NewScalar>
+    typename CastType<NewScalar,Derived>::type cast() const
+    { return derived().template cast<NewScalar>(); }
     
     template <class OtherDerived>
     bool operator==(const JointModelBase<OtherDerived> & other) const
