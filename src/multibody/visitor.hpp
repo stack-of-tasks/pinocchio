@@ -92,7 +92,7 @@ namespace se3
     private:
       
       template<typename JointModel, typename ArgType>
-      struct InternalVisitor : public boost::static_visitor<>
+      struct InternalVisitor : public boost::static_visitor<ReturnType>
       {
         typedef typename JointModel::JointDataDerived JointData;
         
