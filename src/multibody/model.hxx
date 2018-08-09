@@ -32,13 +32,19 @@ namespace se3
 {
   namespace details
   {
-    struct FilterFrame {
-      const std::string& name;
+    struct FilterFrame
+    {
+      const std::string & name;
       const FrameType & typeMask;
-      FilterFrame(const std::string& name, const FrameType& typeMask)
-        : name(name), typeMask(typeMask) {}
-      bool operator()(const Frame& frame) const
+      
+      FilterFrame(const std::string& name, const FrameType & typeMask)
+      : name(name), typeMask(typeMask)
+      {}
+      
+      template<typename Scalar, int Options>
+      bool operator()(const FrameTpl<Scalar,Options> & frame) const
       { return (typeMask & frame.type) && (name == frame.name); }
+      
     };
   }
   
