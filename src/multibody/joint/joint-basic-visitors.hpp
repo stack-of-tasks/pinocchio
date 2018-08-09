@@ -101,7 +101,7 @@ namespace se3
   finiteDifferenceIncrement(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel);
 
   /**
-   * @brief      Visit a JointModelVariant through JointNvVisitor to get the dimension of 
+   * @brief      Visit a JointModelTpl through JointNvVisitor to get the dimension of
    *             the joint tangent space
    *
    * @param[in]  jmodel  The JointModelVariant
@@ -114,7 +114,7 @@ namespace se3
 
   
   /**
-   * @brief      Visit a JointModelVariant through JointNqVisitor to get the dimension of 
+   * @brief      Visit a JointModelTpl through JointNqVisitor to get the dimension of
    *             the joint configuration space
    *
    * @param[in]  jmodel  The JointModelVariant
@@ -126,7 +126,7 @@ namespace se3
 
   
   /**
-   * @brief      Visit a JointModelVariant through JointIdxQVisitor to get the index in the full model configuration
+   * @brief      Visit a JointModelTpl through JointIdxQVisitor to get the index in the full model configuration
    *             space corresponding to the first degree of freedom of the Joint
    *
    * @param[in]  jmodel  The JointModelVariant
@@ -139,7 +139,7 @@ namespace se3
 
   
   /**
-   * @brief      Visit a JointModelVariant through JointIdxVVisitor to get the index in the full model tangent
+   * @brief      Visit a JointModelTpl through JointIdxVVisitor to get the index in the full model tangent
    *             space corresponding to the first joint tangent space degree
    *
    * @param[in]  jmodel  The JointModelVariant
@@ -152,7 +152,7 @@ namespace se3
 
   
   /**
-   * @brief      Visit a JointModelVariant through JointIdVisitor to get the index of the joint in the kinematic chain
+   * @brief      Visit a JointModelTpl through JointIdVisitor to get the index of the joint in the kinematic chain
    *
    * @param[in]  jmodel  The JointModelVariant
    *
@@ -162,7 +162,7 @@ namespace se3
   inline JointIndex id(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel);
 
   /**
-   * @brief      Visit a JointModelVariant through JointSetIndexesVisitor to set
+   * @brief      Visit a JointModelTpl through JointSetIndexesVisitor to set
    *             the indexes of the joint in the kinematic chain
    *
    * @param[in]  jmodel  The JointModelVariant
@@ -177,7 +177,7 @@ namespace se3
 
 
   /**
-   * @brief      Visit a JointModelVariant through JointShortnameVisitor to get the shortname of the derived joint model
+   * @brief      Visit a JointModelTpl through JointShortnameVisitor to get the shortname of the derived joint model
    *
    * @param      jmodel  The JointModelVariant we want the shortname of the type held in
    */
@@ -194,7 +194,7 @@ namespace se3
    * @brief      Visit a JointDataVariant through JointConstraintVisitor to get the joint constraint 
    *             as a dense constraint
    *
-   * @param[in]  jdata  The jdata
+   * @param[in]  jdata  The joint data to visit.
    *
    * @return     The constraint dense corresponding to the joint derived constraint
    */
@@ -203,10 +203,10 @@ namespace se3
   constraint_xd(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
 
   /**
-   * @brief      Visit a JointDataVariant through JointTransformVisitor to get the joint internal transform  (transform
-   *             between the entry frame and the exit frame of the joint)
+   * @brief      Visit a JointDataTpl through JointTransformVisitor to get the joint internal transform  (transform
+   *             between the entry frame and the exit frame of the joint).
    *
-   * @param[in]  jdata  The jdata
+   * @param[in]  jdata  The joint data to visit.
    *
    * @return     The joint transform corresponding to the joint derived transform (sXp)
    */
@@ -215,10 +215,10 @@ namespace se3
   joint_transform(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
 
   /**
-   * @brief      Visit a JointDataVariant through JointMotionVisitor to get the joint internal motion 
-   *             as a dense motion
+   * @brief      Visit a JointDataTpl through JointMotionVisitor to get the joint internal motion
+   *             as a dense motion.
    *
-   * @param[in]  jdata  The jdata
+   * @param[in]  jdata  The joint data to visit.
    *
    * @return     The motion dense corresponding to the joint derived motion
    */
@@ -227,10 +227,10 @@ namespace se3
   motion(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
 
   /**
-   * @brief      Visit a JointDataVariant through JointBiasVisitor to get the joint bias
-   *             as a dense motion
+   * @brief      Visit a JointDataTpl through JointBiasVisitor to get the joint bias
+   *             as a dense motion.
    *
-   * @param[in]  jdata  The jdata
+   * @param[in]  jdata  The joint data to visit.
    *
    * @return     The motion dense corresponding to the joint derived bias
    */
@@ -239,10 +239,10 @@ namespace se3
   bias(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
 
   /**
-   * @brief      Visit a JointDataVariant through JointUInertiaVisitor to get the U matrix of the inertia matrix 
-   *             decomposition
+   * @brief      Visit a JointDataTpl through JointUInertiaVisitor to get the U matrix of the inertia matrix
+   *             decomposition.
    *
-   * @param[in]  jdata  The jdata
+   * @param[in]  jdata  The joint data to visit.
    *
    * @return     The U matrix of the inertia matrix decomposition
    */
@@ -251,8 +251,8 @@ namespace se3
   u_inertia(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
 
   /**
-   * @brief      Visit a JointDataVariant through JointDInvInertiaVisitor to get the D^{-1} matrix of the inertia matrix 
-   *             decomposition
+   * @brief      Visit a JointDataTpl through JointDInvInertiaVisitor to get the D^{-1} matrix of the inertia matrix
+   *             decomposition.
    *
    * @param[in]  jdata  The jdata
    *
@@ -263,10 +263,10 @@ namespace se3
   dinv_inertia(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
 
   /**
-   * @brief      Visit a JointDataVariant through JointUDInvInertiaVisitor to get U*D^{-1} matrix of the inertia matrix 
-   *             decomposition
+   * @brief      Visit a JointDataTpl through JointUDInvInertiaVisitor to get U*D^{-1} matrix of the inertia matrix
+   *             decomposition.
    *
-   * @param[in]  jdata  The jdata
+   * @param[in]  jdata  The joint data to visit.
    *
    * @return     The U*D^{-1} matrix of the inertia matrix decomposition
    */
