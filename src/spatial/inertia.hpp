@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -170,51 +170,41 @@ namespace se3
     
   public:
     // Constructors
-    InertiaTpl() : m(), c(), I() {}
+    InertiaTpl()
+    {}
 
-    InertiaTpl(const Scalar m_, const Vector3 &c_, const Matrix3 &I_)
-    : m(m_), c(c_), I(I_)
+    InertiaTpl(const Scalar mass, const Vector3 & com, const Matrix3 & rotational_inertia)
+    : m_mass(mass), m_com(com), m_inertia(rotational_inertia)
     {}
     
     InertiaTpl(const Matrix6 & I6)
     {
       assert((I6 - I6.transpose()).isMuchSmallerThan(I6));
-      m = I6(LINEAR, LINEAR);
+      mass() = I6(LINEAR, LINEAR);
       const Matrix3 & mc_cross = I6.template block <3,3> (ANGULAR,LINEAR);
-      c = unSkew(mc_cross);
-      c /= m;
+      lever() = unSkew(mc_cross);
+      lever() /= mass();
       
       Matrix3 I3 (mc_cross * mc_cross);
-      I3 /= m;
+      I3 /= mass();
       I3 += I6.template block<3,3>(ANGULAR,ANGULAR);
-      I = Symmetric3(I3);
+      inertia() = Symmetric3(I3);
     }
 
-    InertiaTpl(Scalar _m, 
-     const Vector3 &_c, 
-     const Symmetric3 &_I)
-    : m(_m),
-    c(_c),
-    I(_I)
-    {
-
-    }
+    InertiaTpl(Scalar mass, const Vector3 & com, const Symmetric3 & rotational_inertia)
+    : m_mass(mass), m_com(com), m_inertia(rotational_inertia)
+    {}
+    
     InertiaTpl(const InertiaTpl & clone)  // Clone constructor for std::vector 
-    : m(clone.m),
-    c(clone.c),
-    I(clone.I)    
-    {
+    : m_mass(clone.mass()), m_com(clone.lever()), m_inertia(clone.inertia())
+    {}
 
-    }
-
-    template<typename S2,int O2>
-    InertiaTpl( const InertiaTpl<S2,O2> & clone )
-    : m(clone.mass()),
-    c(clone.lever()),
-    I(clone.inertia().matrix())
-    {
-
-    }
+    template<int O2>
+    InertiaTpl(const InertiaTpl<Scalar,O2> & clone)
+    : m_mass(clone.mass())
+    , m_com(clone.lever())
+    , m_inertia(clone.inertia().matrix())
+    {}
 
     // Initializers
     static InertiaTpl Zero() 
@@ -224,7 +214,7 @@ namespace se3
                         Symmetric3::Zero());
     }
     
-    void setZero() { m = 0.; c.setZero(); I.setZero(); }
+    void setZero() { mass() = 0.; lever().setZero(); inertia().setZero(); }
 
     static InertiaTpl Identity() 
     {
@@ -233,7 +223,7 @@ namespace se3
                         Symmetric3::Identity());
     }
     
-    void setIdentity () { m = 1.; c.setZero(); I.setIdentity(); }
+    void setIdentity () { mass() = 1.; lever().setZero(); inertia().setIdentity(); }
 
     static InertiaTpl Random()
     {
@@ -269,45 +259,44 @@ namespace se3
       return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, b, 0, 0, c));
     }
 
-    
     void setRandom()
     {
-      m = static_cast<Scalar> (std::rand()) / static_cast<Scalar> (RAND_MAX);
-      c.setRandom(); I.setRandom();
+      mass() = static_cast<Scalar>(std::rand())/static_cast<Scalar>(RAND_MAX);
+      lever().setRandom(); inertia().setRandom();
     }
 
     Matrix6 matrix_impl() const
     {
       Matrix6 M;
       
-      M.template block<3,3>(LINEAR, LINEAR ).setZero ();
-      M.template block<3,3>(LINEAR, LINEAR ).diagonal ().fill (m);
-      M.template block<3,3>(ANGULAR,LINEAR ) = alphaSkew(m,c);
-      M.template block<3,3>(LINEAR, ANGULAR) = -M.template block<3,3> (ANGULAR, LINEAR);
-      M.template block<3,3>(ANGULAR,ANGULAR) = (I - AlphaSkewSquare(m,c)).matrix();
+      M.template block<3,3>(LINEAR, LINEAR ).setZero();
+      M.template block<3,3>(LINEAR, LINEAR ).diagonal().fill (mass());
+      M.template block<3,3>(ANGULAR,LINEAR ) = alphaSkew(mass(),lever());
+      M.template block<3,3>(LINEAR, ANGULAR) = -M.template block<3,3>(ANGULAR, LINEAR);
+      M.template block<3,3>(ANGULAR,ANGULAR) = (inertia() - AlphaSkewSquare(mass(),lever())).matrix();
 
       return M;
     }
 
     // Arithmetic operators
-    InertiaTpl& __equl__ (const InertiaTpl& clone)
+    InertiaTpl & __equl__(const InertiaTpl & clone)
     {
-      m=clone.m; c=clone.c; I=clone.I;
+      mass()=clone.mass(); lever()=clone.lever(); inertia()=clone.inertia();
       return *this;
     }
 
     // Requiered by std::vector boost::python bindings. 
     bool isEqual( const InertiaTpl& Y2 ) const
     { 
-      return (m==Y2.m) && (c==Y2.c) && (I==Y2.I);
+      return (mass()==Y2.mass()) && (lever()==Y2.lever()) && (inertia()==Y2.inertia());
     }
     
     bool isApprox_impl(const InertiaTpl & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
       using std::fabs;
-      return fabs(m - other.m) <= prec
-      && c.isApprox(other.c,prec)
-      && I.isApprox(other.I,prec);
+      return fabs(mass() - other.mass()) <= prec
+      && lever().isApprox(other.lever(),prec)
+      && inertia().isApprox(other.inertia(),prec);
     }
 
     InertiaTpl __plus__(const InertiaTpl & Yb) const
@@ -317,23 +306,23 @@ namespace se3
        *             I_a + I_b - (m_a*m_b)/(m_a+m_b) * AB_x * AB_x )
        */
 
-      const Scalar & mab = m+Yb.m;
+      const Scalar & mab = mass()+Yb.mass();
       const Scalar mab_inv = 1./mab;
-      const Vector3 & AB = (c-Yb.c).eval();
-      return InertiaTpl( mab,
-                         (m*c+Yb.m*Yb.c)*mab_inv,
-                         I+Yb.I - (m*Yb.m*mab_inv)* typename Symmetric3::SkewSquare(AB));
+      const Vector3 & AB = (lever()-Yb.lever()).eval();
+      return InertiaTpl(mab,
+                        (mass()*lever()+Yb.mass()*Yb.lever())*mab_inv,
+                        inertia()+Yb.inertia() - (mass()*Yb.mass()*mab_inv)* typename Symmetric3::SkewSquare(AB));
     }
 
-    InertiaTpl& __pequ__(const InertiaTpl &Yb)
+    InertiaTpl& __pequ__(const InertiaTpl & Yb)
     {
       const InertiaTpl& Ya = *this;
-      const Scalar & mab = Ya.m+Yb.m;
+      const Scalar & mab = Ya.mass()+Yb.mass();
       const Scalar mab_inv = 1./mab;
-      const Vector3 & AB = (Ya.c-Yb.c).eval();
-      c *= (m*mab_inv); c += (Yb.m*mab_inv)*Yb.c; //c *= mab_inv;
-      I += Yb.I; I -= (Ya.m*Yb.m*mab_inv)* typename Symmetric3::SkewSquare(AB);
-      m  = mab;
+      const Vector3 & AB = (Ya.lever()-Yb.lever()).eval();
+      lever() *= (mass()*mab_inv); lever() += (Yb.mass()*mab_inv)*Yb.lever(); //c *= mab_inv;
+      inertia() += Yb.inertia(); inertia() -= (Ya.mass()*Yb.mass()*mab_inv)* typename Symmetric3::SkewSquare(AB);
+      mass() = mab;
       return *this;
     }
 
@@ -350,19 +339,19 @@ namespace se3
     template<typename MotionDerived, typename ForceDerived>
     void __mult__(const MotionDense<MotionDerived> & v, ForceDense<ForceDerived> & f) const
     {
-      f.linear().noalias() = m*(v.linear() - c.cross(v.angular()));
-      Symmetric3::rhsMult(I,v.angular(),f.angular());
-      f.angular() += c.cross(f.linear());
+      f.linear().noalias() = mass()*(v.linear() - lever().cross(v.angular()));
+      Symmetric3::rhsMult(inertia(),v.angular(),f.angular());
+      f.angular() += lever().cross(f.linear());
 //      f.angular().noalias() = c.cross(f.linear()) + I*v.angular();
     }
     
     Scalar vtiv_impl(const Motion & v) const
     {
-      const Vector3 cxw (c.cross(v.angular()));
-      Scalar res = m * (v.linear().squaredNorm() - 2.*v.linear().dot(cxw));
-      const Vector3 mcxcxw (-m*c.cross(cxw));
+      const Vector3 cxw (lever().cross(v.angular()));
+      Scalar res = mass() * (v.linear().squaredNorm() - 2.*v.linear().dot(cxw));
+      const Vector3 mcxcxw (-mass()*lever().cross(cxw));
       res += v.angular().dot(mcxcxw);
-      res += I.vtiv(v.angular());
+      res += inertia().vtiv(v.angular());
       
       return res;
     }
@@ -370,16 +359,16 @@ namespace se3
     Matrix6 variation(const Motion & v) const
     {
       Matrix6 res;
-      const Motion mv(v*m);
+      const Motion mv(v*mass());
       
-      res.template block<3,3>(LINEAR,ANGULAR) = -skew(mv.linear()) - skewSquare(mv.angular(),c) + skewSquare(c,mv.angular());
+      res.template block<3,3>(LINEAR,ANGULAR) = -skew(mv.linear()) - skewSquare(mv.angular(),lever()) + skewSquare(lever(),mv.angular());
       res.template block<3,3>(ANGULAR,LINEAR) = res.template block<3,3>(LINEAR,ANGULAR).transpose();
       
 //      res.template block<3,3>(LINEAR,LINEAR) = mv.linear()*c.transpose(); // use as temporary variable
 //      res.template block<3,3>(ANGULAR,ANGULAR) = res.template block<3,3>(LINEAR,LINEAR) - res.template block<3,3>(LINEAR,LINEAR).transpose();
-      res.template block<3,3>(ANGULAR,ANGULAR) = -skewSquare(mv.linear(),c) - skewSquare(c,mv.linear());
+      res.template block<3,3>(ANGULAR,ANGULAR) = -skewSquare(mv.linear(),lever()) - skewSquare(lever(),mv.linear());
       
-      res.template block<3,3>(LINEAR,LINEAR) = (I - AlphaSkewSquare(m,c)).matrix();
+      res.template block<3,3>(LINEAR,LINEAR) = (inertia() - AlphaSkewSquare(mass(),lever())).matrix();
       
       res.template block<3,3>(ANGULAR,ANGULAR) -= res.template block<3,3>(LINEAR,LINEAR) * skew(v.angular());
       res.template block<3,3>(ANGULAR,ANGULAR) += cross(v.angular(),res.template block<3,3>(LINEAR,LINEAR));
@@ -449,52 +438,53 @@ namespace se3
     }
 
     // Getters
-    Scalar           mass()    const { return m; }
-    const Vector3 &    lever()   const { return c; }
-    const Symmetric3 & inertia() const { return I; }
+    Scalar           mass()    const { return m_mass; }
+    const Vector3 &    lever()   const { return m_com; }
+    const Symmetric3 & inertia() const { return m_inertia; }
     
-    Scalar &   mass()    { return m; }
-    Vector3 &    lever()   { return c; }
-    Symmetric3 & inertia() { return I; }
+    Scalar &   mass()    { return m_mass; }
+    Vector3 &    lever()   { return m_com; }
+    Symmetric3 & inertia() { return m_inertia; }
 
     /// aI = aXb.act(bI)
     InertiaTpl se3Action_impl(const SE3 & M) const
     {
       /* The multiplication RIR' has a particular form that could be used, however it
-       * does not seems to be more efficient, see http://stackoverflow.com/questions/
+       * does not seems to be more efficient, see http://stackoverflow.m_comom/questions/
        * 13215467/eigen-best-way-to-evaluate-asa-transpose-and-store-the-result-in-a-symmetric .*/
-       return InertiaTpl( m,
-                          M.translation()+M.rotation()*c,
-                          I.rotate(M.rotation()) );
+       return InertiaTpl(mass(),
+                         M.translation()+M.rotation()*lever(),
+                         inertia().rotate(M.rotation()));
      }
 
     ///bI = aXb.actInv(aI)
     InertiaTpl se3ActionInverse_impl(const SE3 & M) const
     {
-      return InertiaTpl(m,
-                        M.rotation().transpose()*(c-M.translation()),
-                        I.rotate(M.rotation().transpose()) );
+      return InertiaTpl(mass(),
+                        M.rotation().transpose()*(lever()-M.translation()),
+                        inertia().rotate(M.rotation().transpose()) );
     }
 
     Force vxiv( const Motion& v ) const 
     {
-      const Vector3 & mcxw = m*c.cross(v.angular());
-      const Vector3 & mv_mcxw = m*v.linear()-mcxw;
+      const Vector3 & mcxw = mass()*lever().cross(v.angular());
+      const Vector3 & mv_mcxw = mass()*v.linear()-mcxw;
       return Force( v.angular().cross(mv_mcxw),
-                    v.angular().cross(c.cross(mv_mcxw)+I*v.angular())-v.linear().cross(mcxw) );
+                    v.angular().cross(lever().cross(mv_mcxw)+inertia()*v.angular())-v.linear().cross(mcxw) );
     }
 
     void disp_impl(std::ostream & os) const
     {
-      os  << "  m = " << m << "\n"
-      << "  c = " << c.transpose() << "\n"
-      << "  I = \n" << I.matrix() << "";
+      os
+      << "  m = " << mass() << "\n"
+      << "  c = " << lever().transpose() << "\n"
+      << "  I = \n" << inertia().matrix() << "";
     }
 
   protected:
-    Scalar m;
-    Vector3 c;
-    Symmetric3 I;
+    Scalar m_mass;
+    Vector3 m_com;
+    Symmetric3 m_inertia;
     
   }; // class InertiaTpl
     
