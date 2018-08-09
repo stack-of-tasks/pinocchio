@@ -480,6 +480,12 @@ namespace se3
 
     JointDataDerived createData() const { return JointDataDerived(axis); }
     
+    using Base::isEqual;
+    bool isEqual(const JointModelRevoluteUnalignedTpl & other) const
+    {
+      return Base::isEqual(other) && axis == other.axis;
+    }
+    
     template<typename ConfigVector>
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
@@ -532,6 +538,11 @@ namespace se3
       return res;
     }
 
+    // data
+    
+    ///
+    /// \brief 3d main axis of the joint.
+    ///
     Vector3 axis;
   }; // struct JointModelRevoluteUnalignedTpl
 
