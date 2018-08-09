@@ -91,6 +91,62 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   
   Eigen::VectorXd dynamics_residual (data.M * data.ddq + data.nle - tau - J.transpose()*data.lambda_c);
   BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
+  
+}
+
+BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model,true);
+  se3::Data data(model);
+  
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.segment <4> (3).normalize();
+  
+  se3::computeJointJacobians(model, data, q);
+  
+  VectorXd v = VectorXd::Ones(model.nv);
+  VectorXd tau = VectorXd::Zero(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+  
+  Data::Matrix6x J_RF (6, model.nv);
+  J_RF.setZero();
+  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+
+  Eigen::MatrixXd J (12, model.nv);
+  J.setZero();
+  J.topRows<6> () = J_RF;
+  J.bottomRows<6> () = J_RF;
+  
+  Eigen::VectorXd gamma (VectorXd::Ones(12));
+
+  // Forward Dynamics with damping
+  se3::forwardDynamics(model, data, q, v, tau, J, gamma, 1e-12,true);
+
+  // Matrix Definitions
+  Eigen::MatrixXd H(J.transpose());
+  data.M.triangularView<Eigen::StrictlyLower>() =
+    data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  MatrixXd Minv (data.M.inverse());
+  MatrixXd JMinvJt (J * Minv * J.transpose());
+
+  // Check that JMinvJt is correctly formed
+  Eigen::MatrixXd G_ref(J.transpose());
+  cholesky::Uiv(model, data, G_ref);
+  for(int k=0;k<model.nv;++k) G_ref.row(k) /= sqrt(data.D[k]);
+  Eigen::MatrixXd H_ref(G_ref.transpose() * G_ref);
+  BOOST_CHECK(H_ref.isApprox(JMinvJt,1e-12));
+
+  // Actual Residuals
+  Eigen::VectorXd constraint_residual (J * data.ddq + gamma);  
+  Eigen::VectorXd dynamics_residual (data.M * data.ddq + data.nle - tau - J.transpose()*data.lambda_c);
+  BOOST_CHECK(constraint_residual.norm() <= 1e-10);
+  BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
 }
 
 BOOST_AUTO_TEST_CASE ( test_ID )
