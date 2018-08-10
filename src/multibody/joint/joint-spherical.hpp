@@ -104,6 +104,11 @@ namespace se3
       other.angular() = w;
     }
     
+    MotionSphericalTpl __plus__(const MotionSphericalTpl & other) const
+    {
+      return MotionSphericalTpl(w + other.w);
+    }
+    
     template<typename S2, int O2, typename D2>
     void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
