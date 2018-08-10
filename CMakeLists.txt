@@ -260,6 +260,8 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/aba-derivatives.hxx
   algorithm/centroidal.hpp
   algorithm/centroidal.hxx
+  algorithm/centroidal-derivatives.hpp
+  algorithm/centroidal-derivatives.hxx
   algorithm/rnea.hpp
   algorithm/rnea.hxx
   algorithm/rnea-derivatives.hpp
