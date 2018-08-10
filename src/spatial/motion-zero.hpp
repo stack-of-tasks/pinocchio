@@ -74,7 +74,13 @@ namespace se3
     { return other.linear().isZero() && other.angular().isZero(); }
     
     template<typename D2>
-    static void addTo(const MotionDense<D2> &) {}
+    static void addTo(const MotionBase<D2> &) {}
+    
+    template<typename D2>
+    static void setTo(MotionBase<D2> & other)
+    {
+      other.setZero();
+    }
     
     template<typename M1>
     BiasZeroTpl motionAction(const MotionBase<M1> &) const

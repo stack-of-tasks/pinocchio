@@ -98,12 +98,11 @@ namespace se3
       other.angular()[2] += m_theta_dot;
     }
     
-    template<typename Derived>
-    void addTo(MotionDense<Derived> & v) const
+    template<typename MotionDerived>
+    void setTo(MotionDense<MotionDerived> & other) const
     {
-      v.linear()[0] += m_x_dot;
-      v.linear()[1] += m_y_dot;
-      v.angular()[2] += m_theta_dot;
+      other.linear()  << m_x_dot, m_y_dot,           0;
+      other.angular() <<       0,       0, m_theta_dot;
     }
     
     template<typename S2, int O2, typename D2>

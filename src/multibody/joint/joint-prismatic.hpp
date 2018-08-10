@@ -85,10 +85,18 @@ namespace se3
 //    inline operator MotionPlain() const { return Axis() * rate; }
     
     template<typename Derived>
-    void addTo(MotionDense<Derived> & v_) const
+    void addTo(MotionDense<Derived> & other) const
     {
       typedef typename MotionDense<Derived>::Scalar OtherScalar;
-      v_.linear()[_axis] += (OtherScalar) rate;
+      other.linear()[_axis] += (OtherScalar) rate;
+    }
+    
+    template<typename MotionDerived>
+    void setTo(MotionDense<MotionDerived> & other) const
+    {
+      for(Eigen::DenseIndex k = 0; k < 3; ++k)
+        other.linear()[k] = k == axis ? rate : 0;
+      other.angular().setZero();
     }
     
     template<typename S2, int O2, typename D2>

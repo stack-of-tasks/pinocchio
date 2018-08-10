@@ -93,6 +93,13 @@ namespace se3
     {
       v.angular() += axis*w;
     }
+    
+    template<typename Derived>
+    void setTo(MotionDense<Derived> & other) const
+    {
+      other.linear().setZero();
+      other.angular().noalias() = axis*w;
+    }
 
     template<typename S2, int O2, typename D2>
     void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const

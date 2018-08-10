@@ -91,6 +91,13 @@ namespace se3
       return derived();
     }
     
+    template<typename D2>
+    Derived & operator=(const MotionBase<D2> & other)
+    {
+      other.derived().setTo(derived());
+      return derived();
+    }
+    
     template<typename V6>
     Derived & operator=(const Eigen::MatrixBase<V6> & v)
     {

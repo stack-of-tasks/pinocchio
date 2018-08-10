@@ -88,16 +88,23 @@ namespace se3
 //    { return MotionPlain(axis*rate,MotionPlain::Vector3::Zero());}
     
     template<typename Derived>
-    void addTo(MotionDense<Derived> & v) const
+    void addTo(MotionDense<Derived> & other) const
     {
-      v.linear() += axis * rate;
+      other.linear() += axis * rate;
     }
     
+    template<typename Derived>
+    void setTo(MotionDense<Derived> & other) const
+    {
+      other.linear().noalias() = axis*rate;
+      other.angular().setZero();
+    }
+
     template<typename S2, int O2, typename D2>
     void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
-      v.angular().setZero();
       v.linear().noalias() = rate * (m.rotation() * axis); // TODO: check efficiency
+      v.angular().setZero();
     }
     
     template<typename S2, int O2>

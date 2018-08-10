@@ -97,10 +97,11 @@ namespace se3
       other.angular() += w;
     }
     
-    template<typename MotionDerived>
-    void addTo(MotionDense<MotionDerived> & v) const
+    template<typename Derived>
+    void setTo(MotionDense<Derived> & other) const
     {
-      v.angular() += w;
+      other.linear().setZero();
+      other.angular() = w;
     }
     
     template<typename S2, int O2, typename D2>

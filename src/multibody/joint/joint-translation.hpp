@@ -101,9 +101,16 @@ namespace se3
     }
     
     template<typename Derived>
-    void addTo(MotionDense<Derived> & v_) const
+    void addTo(MotionDense<Derived> & other) const
     {
-      v_.linear() += rate;
+      other.linear() += rate;
+    }
+    
+    template<typename Derived>
+    void setTo(MotionDense<Derived> & other) const
+    {
+      other.linear() = rate;
+      other.angular().setZero();
     }
     
     template<typename S2, int O2, typename D2>

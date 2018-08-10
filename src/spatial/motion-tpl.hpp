@@ -93,6 +93,10 @@ namespace se3
     explicit MotionTpl(const MotionDense<M2> & clone)
     { linear() = clone.linear(); angular() = clone.angular(); }
     
+    template<typename M2>
+    explicit MotionTpl(const MotionBase<M2> & clone)
+    { *this = clone; }
+    
     // initializers
     static MotionTpl Zero()   { return MotionTpl(Vector6::Zero());   }
     static MotionTpl Random() { return MotionTpl(Vector6::Random()); }
