@@ -135,6 +135,7 @@ namespace se3
     typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelVariant;
 
     typedef SE3Tpl<Scalar,Options> SE3;
+    typedef MotionTpl<Scalar,Options> Motion;
   
     typedef container::aligned_vector<JointModelVariant> JointModelVector;
     

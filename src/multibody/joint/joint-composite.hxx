@@ -111,7 +111,7 @@ namespace se3
 
       jmodel.calc(jdata.derived(), q.derived(), v.derived());
 
-      data.pjMi[i] = model.jointPlacements[i] * jdata.M ();
+      data.pjMi[i] = model.jointPlacements[i] * jdata.M();
 
       if (succ == model.joints.size())
       {
@@ -127,7 +127,7 @@ namespace se3
         data.iMlast[i] = data.pjMi[i] * data.iMlast[succ];
         data.S.matrix().middleCols(idx_v,model.m_nvs[i]) = data.iMlast[succ].inverse().act(jdata.S()); // TODO: avoid computing inverse
 
-        Motion v_tmp = data.iMlast[succ].actInv(jdata.v());
+        typename JointModelComposite::Motion v_tmp = data.iMlast[succ].actInv(jdata.v());
 
         data.v += v_tmp;
 
