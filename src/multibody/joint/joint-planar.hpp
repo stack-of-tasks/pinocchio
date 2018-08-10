@@ -23,7 +23,6 @@
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/spatial/cartesian-axis.hpp"
 #include "pinocchio/multibody/constraint.hpp"
-#include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 
