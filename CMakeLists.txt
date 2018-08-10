@@ -169,6 +169,7 @@ SET(${PROJECT_NAME}_MATH_HEADERS
 
 SET(${PROJECT_NAME}_UTILS_HEADERS
   utils/axis-label.hpp
+  utils/eigen-fix.hpp
   utils/timer.hpp
   utils/string-generator.hpp
   utils/file-explorer.hpp

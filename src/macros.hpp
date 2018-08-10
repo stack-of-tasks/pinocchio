@@ -19,6 +19,7 @@
 #define __se3_macros_hpp__
 
 #include <Eigen/Core>
+#include "pinocchio/utils/eigen-fix.hpp"
 
 /// \brief Define the current version of Pinocchio
 #define PINOCCHIO_MAJOR_VERSION 1
@@ -76,19 +77,4 @@ Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::S
 /// \brief Macro for an automatic const_cast
 #define EIGEN_CONST_CAST(TYPE,OBJ) const_cast<TYPE &>(OBJ.derived())
 
-/// \brief Fix issue concerning 3.2.90 and more versions of Eigen that do not define size_of_xpr_at_compile_time structure.
-#if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,3,0)
-namespace se3
-{
-  namespace internal
-  {
-    template<typename XprType> struct size_of_xpr_at_compile_time
-    {
-      enum { ret = Eigen::internal::size_at_compile_time<Eigen::internal::traits<XprType>::RowsAtCompileTime,Eigen::internal::traits<XprType>::ColsAtCompileTime>::ret };
-    };
-  }
-}
-#endif
-
 #endif // ifndef __se3_macros_hpp__
-
