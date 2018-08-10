@@ -38,7 +38,9 @@ namespace Eigen
     template<typename Scalar>
     struct cast_impl<CppAD::AD<Scalar>,Scalar>
     {
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
       EIGEN_DEVICE_FUNC
+#endif
       static inline Scalar run(const CppAD::AD<Scalar> & x)
       {
         return CppAD::Value(x);
