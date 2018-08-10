@@ -62,9 +62,9 @@ namespace se3
     bool operator!=(const MotionBase<M2> & other) const
     { return !(derived() == other.derived()); }
     
-    MotionPlain operator-() const { return derived().__opposite__(); }
-    MotionPlain operator+(const Derived & v) const { return derived().__plus__(v); }
-    MotionPlain operator-(const Derived & v) const { return derived().__minus__(v); }
+    Derived operator-() const { return derived().__opposite__(); }
+    Derived operator+(const Derived & v) const { return derived().__plus__(v); }
+    Derived operator-(const Derived & v) const { return derived().__minus__(v); }
     Derived & operator+=(const Derived & v) { return derived().__pequ__(v); }
     Derived & operator-=(const Derived & v) { return derived().__mequ__(v); }
     
