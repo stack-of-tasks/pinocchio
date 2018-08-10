@@ -85,10 +85,11 @@ namespace se3
     {  EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3); }
     
     template<typename Vector3Like>
-    Motion operator*(const Eigen::MatrixBase<Vector3Like> & v) const
+    MotionSphericalTpl<Scalar,Options>
+    operator*(const Eigen::MatrixBase<Vector3Like> & v) const
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
-      return Motion(Motion::Vector3::Zero(), S_minimal * v);
+      return MotionSphericalTpl<Scalar,Options>(S_minimal * v);
     }
     
     Matrix3 & operator() () { return S_minimal; }
