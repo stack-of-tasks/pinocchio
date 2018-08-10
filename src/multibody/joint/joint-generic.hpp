@@ -161,7 +161,7 @@ namespace se3
     { return *static_cast<const JointModelVariant*>(this); }
 
     JointDataDerived createData() const
-    { return ::se3::createData<JointCollection>(*this); }
+    { return ::se3::createData<Scalar,Options,JointCollectionTpl>(*this); }
 
     using Base::isEqual;
     bool isEqual(const JointModelTpl & other) const
