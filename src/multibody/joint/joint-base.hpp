@@ -190,6 +190,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
       typedef typename Mat::template ConstNRowsBlockXpr<NV>::Type ConstType;
     };
   };
+  
   template<>
   struct SizeDepType<Eigen::Dynamic>
   {
@@ -231,7 +232,6 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
               const Eigen::MatrixBase<ConfigVectorType> & qs) const
     {
       derived().calc(data,qs.derived());
-      
     }
     
     template<typename ConfigVectorType, typename TangentVectorType>
@@ -248,8 +248,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
                   const Eigen::MatrixBase<Matrix6Type> & I,
                   const bool update_I = false) const
     {
-      Matrix6Type & I_ = const_cast<Matrix6Type &>(I.derived());
-      derived().calc_aba(data, I_, update_I);
+      derived().calc_aba(data, EIGEN_CONST_CAST(Matrix6Type,I), update_I);
     }
     
     ///
@@ -319,7 +318,9 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     
     bool isEqual(const JointModelBase<Derived> & other) const
     {
-      return other.id() == id() && other.idx_q() == idx_q() && other.idx_v() == idx_v();
+      return other.id() == id()
+      && other.idx_q() == idx_q()
+      && other.idx_v() == idx_v();
     }
 
     /* Acces to dedicated segment in robot config space.  */
@@ -372,7 +373,8 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     /// Default constructor: protected.
     /// 
     /// Prevent the construction of stand-alone JointModelBase.
-    inline JointModelBase() : i_id(std::numeric_limits<JointIndex>::max()), i_q(-1), i_v(-1) {}
+    inline JointModelBase()
+    : i_id(std::numeric_limits<JointIndex>::max()), i_q(-1), i_v(-1) {}
     
     /// Copy constructor: protected.
     ///
@@ -384,9 +386,8 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     ///
     /// Copy of stand-alone JointModelBase are prevented, but can be used from inhereting
     /// objects. 
-    inline JointModelBase& operator= (const JointModelBase& clone) 
+    inline JointModelBase& operator=(const JointModelBase& clone)
     {
-//      setIndexes(clone.id(),clone.idx_q(),clone.idx_v());
       i_id = clone.i_id;
       i_q = clone.i_q;
       i_v = clone.i_v;
