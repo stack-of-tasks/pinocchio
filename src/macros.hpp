@@ -50,7 +50,7 @@ namespace se3
 #define EIGEN_PLAIN_COLUMN_MAJOR_TYPE(D) Eigen::internal::plain_matrix_type_column_major< typename se3::internal::argument_type<void(D)>::type >::type
 
 /// \brief Similar to macro EIGEN_PLAIN_TYPE but with guaranty to provite a row major type
-#define EIGEN_PLAIN_ROW_MAJOR_TYPE(D) Eigen::internal::plain_matrix_type_row_major< typename se3::internal::argument_type<void(D)>::type >::type
+#define EIGEN_PLAIN_ROW_MAJOR_TYPE(D) Eigen::internal::fix::plain_matrix_type_row_major< typename se3::internal::argument_type<void(D)>::type >::type
 
 /// \brief Macro giving access to the reference type of D
 #define EIGEN_REF_CONSTTYPE(D) Eigen::internal::ref_selector<D>::type

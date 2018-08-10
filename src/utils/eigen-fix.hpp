@@ -32,5 +32,32 @@ namespace se3
 }
 #endif
 
+namespace Eigen
+{
+  namespace internal
+  {
+    namespace fix
+    {
+      /* plain_matrix_type_row_major : same as plain_matrix_type but guaranteed to be row-major
+       */
+      template<typename T> struct plain_matrix_type_row_major
+      {
+        enum { Rows = traits<T>::RowsAtCompileTime,
+               Cols = traits<T>::ColsAtCompileTime,
+               MaxRows = traits<T>::MaxRowsAtCompileTime,
+               MaxCols = traits<T>::MaxColsAtCompileTime
+        };
+        typedef Matrix<typename traits<T>::Scalar,
+                      Rows,
+                      Cols,
+                      (MaxCols==1&&MaxRows!=1) ? ColMajor : RowMajor,
+                      MaxRows,
+                      MaxCols
+                > type;
+      };
+    }
+  }
+} // namespace fix
+
 #endif // ifndef __se3_utils_eigen_fix_hpp__
 
