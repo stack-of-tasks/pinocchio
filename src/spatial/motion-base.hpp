@@ -29,7 +29,7 @@ namespace se3
     MOTION_TYPEDEF_TPL(Derived);
     
     Derived & derived() { return *static_cast<Derived*>(this); }
-    const Derived& derived() const { return *static_cast<const Derived*>(this); }
+    const Derived & derived() const { return *static_cast<const Derived*>(this); }
     
     ConstAngularType angular() const { return derived().angular_impl(); }
     ConstLinearType linear() const { return derived().linear_impl(); }
@@ -51,6 +51,8 @@ namespace se3
     ActionMatrixType toActionMatrix() const { return derived().toActionMatrix_impl(); }
     ActionMatrixType toDualActionMatrix() const { return derived().toDualActionMatrix_impl(); }
     operator Matrix6() const { return toActionMatrix(); }
+    
+    void setZero() { derived().setZero(); }
     
     template<typename M2>
     bool operator==(const MotionBase<M2> & other) const
