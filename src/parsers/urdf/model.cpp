@@ -335,8 +335,8 @@ namespace se3
                     
                     
                     typedef JointModelRevoluteUnaligned::ConfigVector_t ConfigVector_t;
-                    ConfigVector_t lower_position(-infty);
-                    ConfigVector_t upper_position(infty);
+                    ConfigVector_t lower_position(ConfigVector_t::Constant(-infty));
+                    ConfigVector_t upper_position(ConfigVector_t::Constant(infty));
                     
                     addJointAndBody(model,JointModelRevoluteUnaligned(joint_axis.normalized()),
                                     parentFrameId,jointPlacement,joint->name,
