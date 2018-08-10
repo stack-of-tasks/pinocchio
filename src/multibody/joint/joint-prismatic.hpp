@@ -82,7 +82,7 @@ namespace se3
     MotionPrismaticTpl()                   : rate(NAN) {}
     MotionPrismaticTpl( const Scalar & v ) : rate(v)  {}
 
-    inline operator MotionPlain() const { return Axis() * rate; }
+//    inline operator MotionPlain() const { return Axis() * rate; }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & v_) const

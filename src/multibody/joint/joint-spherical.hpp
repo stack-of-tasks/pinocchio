@@ -86,9 +86,15 @@ namespace se3
     Vector3 & operator() () { return w; }
     const Vector3 & operator() () const { return w; }
 
-    operator MotionPlain() const
+//    operator MotionPlain() const
+//    {
+//      return MotionPlain(MotionPlain::Vector3::Zero(), w);
+//    }
+    
+    template<typename MotionDerived>
+    void addTo(MotionDense<MotionDerived> & other) const
     {
-      return MotionPlain(MotionPlain::Vector3::Zero(), w);
+      other.angular() += w;
     }
     
     template<typename MotionDerived>

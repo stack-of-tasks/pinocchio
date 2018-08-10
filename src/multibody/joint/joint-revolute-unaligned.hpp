@@ -82,11 +82,11 @@ namespace se3
     , w(w)
     {}
 
-    operator MotionPlain() const
-    { 
-      return MotionPlain(MotionPlain::Vector3::Zero(),
-                         axis*w);
-    }
+//    operator MotionPlain() const
+//    { 
+//      return MotionPlain(MotionPlain::Vector3::Zero(),
+//                         axis*w);
+//    }
     
     template<typename MotionDerived>
     void addTo(MotionDense<MotionDerived> & v) const

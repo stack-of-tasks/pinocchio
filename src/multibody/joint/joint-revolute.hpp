@@ -213,7 +213,7 @@ namespace se3
     template<typename OtherScalar>
     MotionRevoluteTpl(const OtherScalar & w) : w(w)  {}
     
-    operator MotionPlain() const { return Axis() * w; }
+//    operator MotionPlain() const { return Axis() * w; }
     
     template<typename MotionDerived>
     void setTo(MotionDense<MotionDerived> & m) const

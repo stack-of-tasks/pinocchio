@@ -84,10 +84,18 @@ namespace se3
     : m_x_dot(x_dot), m_y_dot(y_dot), m_theta_dot(theta_dot)
     {}
 
-    operator MotionPlain() const
+//    operator MotionPlain() const
+//    {
+//      return MotionPlain(typename MotionPlain::Vector3(m_x_dot,m_y_dot,Scalar(0)),
+//                         typename MotionPlain::Vector3(Scalar(0),Scalar(0),m_theta_dot));
+//    }
+    
+    template<typename Derived>
+    void addTo(MotionDense<Derived> & other) const
     {
-      return MotionPlain(typename MotionPlain::Vector3(m_x_dot,m_y_dot,Scalar(0)),
-                         typename MotionPlain::Vector3(Scalar(0),Scalar(0),m_theta_dot));
+      other.linear()[0] += m_x_dot;
+      other.linear()[1] += m_y_dot;
+      other.angular()[2] += m_theta_dot;
     }
     
     template<typename Derived>

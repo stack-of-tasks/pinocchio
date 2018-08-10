@@ -89,10 +89,10 @@ namespace se3
     Vector3 & operator()() { return rate; }
     const Vector3 & operator()() const { return rate; }
     
-    operator MotionPlain() const
-    {
-      return MotionPlain(rate,MotionPlain::Vector3::Zero());
-    }
+//    operator MotionPlain() const
+//    {
+//      return MotionPlain(rate,MotionPlain::Vector3::Zero());
+//    }
     
     MotionTranslationTpl & operator=(const MotionTranslationTpl & other)
     {

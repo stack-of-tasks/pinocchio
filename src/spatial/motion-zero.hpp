@@ -67,7 +67,7 @@ namespace se3
   {
     typedef typename traits<BiasZeroTpl>::MotionPlain MotionPlain;
     
-    operator MotionPlain () const { return MotionPlain::Zero(); }
+//    operator MotionPlain () const { return MotionPlain::Zero(); }
     
     template<typename D2>
     static bool isEqual_impl(const MotionDense<D2> & other)
