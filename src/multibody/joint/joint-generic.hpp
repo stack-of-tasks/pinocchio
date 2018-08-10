@@ -57,6 +57,15 @@ namespace se3
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> U_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> UD_t;
+    
+    typedef Constraint_t ConstraintTypeConstRef;
+    typedef Transformation_t TansformTypeConstRef;
+    typedef Motion_t MotionTypeConstRef;
+    typedef Bias_t BiasTypeConstRef;
+    typedef U_t UTypeConstRef;
+    typedef U_t UTypeRef;
+    typedef D_t DTypeConstRef;
+    typedef UD_t UDTypeConstRef;
 
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
@@ -80,7 +89,7 @@ namespace se3
     typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
     typedef JointDataBase<JointDataTpl> Base;
     
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
 
     typedef JointCollectionTpl<_Scalar,_Options> JointCollection;
     typedef typename JointCollection::JointDataVariant JointDataVariant;
@@ -88,16 +97,15 @@ namespace se3
     JointDataVariant & toVariant() { return *static_cast<JointDataVariant*>(this); }
     const JointDataVariant & toVariant() const { return *static_cast<const JointDataVariant*>(this); }
 
-    const Constraint_t      S() const  { return constraint_xd(*this); }
-    const Transformation_t  M() const  { return joint_transform(*this); }
-    const Motion_t          v() const  { return motion(*this); }
-    const Bias_t            c() const  { return bias(*this); }
+    Constraint_t      S() const  { return constraint_xd(*this); }
+    Transformation_t  M() const  { return joint_transform(*this); }
+    Motion_t          v() const  { return motion(*this); }
+    Bias_t            c() const  { return bias(*this); }
     
-    // // [ABA CCRBA]
-    const U_t               U()     const { return u_inertia(*this); }
-    U_t                     U()           { return u_inertia(*this); }
-    const D_t               Dinv()  const { return dinv_inertia(*this); }
-    const UD_t              UDinv() const { return udinv_inertia(*this); }
+    // [ABA CCRBA]
+    U_t               U()     const { return u_inertia(*this); }
+    D_t               Dinv()  const { return dinv_inertia(*this); }
+    UD_t              UDinv() const { return udinv_inertia(*this); }
 
     JointDataTpl() : JointDataVariant() {}
     
@@ -111,6 +119,15 @@ namespace se3
     {
       BOOST_MPL_ASSERT((boost::mpl::contains<typename JointDataVariant::types,JointDataDerived>));
     }
+    
+    /// Define all the standard accessors
+    Constraint_t S_accessor() const { return S(); }
+    Transformation_t M_accessor() const { return M(); }
+    Motion_t v_accessor() const { return v(); }
+    Bias_t c_accessor() const { return c(); }
+    U_t U_accessor() const { return U(); }
+    D_t Dinv_accessor() const { return Dinv(); }
+    UD_t UDinv_accessor() const { return UDinv(); }
 
   };
   

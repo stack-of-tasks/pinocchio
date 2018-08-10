@@ -19,6 +19,7 @@
 #ifndef __se3_joint_base_hpp__
 #define __se3_joint_base_hpp__
 
+#include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/joint/fwd.hpp"
 
@@ -27,104 +28,62 @@
 
 namespace se3
 {
-#ifdef __clang__
 
-#define SE3_JOINT_TYPEDEF_ARG(prefix)              \
-   typedef int Index;                \
-   typedef prefix traits<JointDerived>::Scalar Scalar;    \
-   typedef prefix traits<JointDerived>::JointDataDerived JointDataDerived;        \
-   typedef prefix traits<JointDerived>::JointModelDerived JointModelDerived;      \
-   typedef prefix traits<JointDerived>::Constraint_t Constraint_t;      \
-   typedef prefix traits<JointDerived>::Transformation_t Transformation_t; \
-   typedef prefix traits<JointDerived>::Motion_t Motion_t;        \
-   typedef prefix traits<JointDerived>::Bias_t Bias_t;        \
-   typedef prefix traits<JointDerived>::F_t F_t;          \
-   typedef prefix traits<JointDerived>::U_t U_t;       \
-   typedef prefix traits<JointDerived>::D_t D_t;       \
-   typedef prefix traits<JointDerived>::UD_t UD_t;       \
-   enum {                  \
+#define SE3_JOINT_TYPEDEF_GENERIC(TYPENAME)              \
+  typedef Eigen::DenseIndex Index;                \
+  typedef TYPENAME traits<JointDerived>::Scalar Scalar;    \
+  typedef TYPENAME traits<JointDerived>::JointDataDerived JointDataDerived;        \
+  typedef TYPENAME traits<JointDerived>::JointModelDerived JointModelDerived;      \
+  typedef TYPENAME traits<JointDerived>::Constraint_t Constraint_t;      \
+  typedef TYPENAME traits<JointDerived>::Transformation_t Transformation_t; \
+  typedef TYPENAME traits<JointDerived>::Motion_t Motion_t;        \
+  typedef TYPENAME traits<JointDerived>::Bias_t Bias_t;        \
+  typedef TYPENAME traits<JointDerived>::F_t F_t;          \
+  typedef TYPENAME traits<JointDerived>::U_t U_t;       \
+  typedef TYPENAME traits<JointDerived>::D_t D_t;       \
+  typedef TYPENAME traits<JointDerived>::UD_t UD_t;       \
+  enum {                  \
     Options = traits<JointDerived>::Options,    \
     NQ = traits<JointDerived>::NQ,              \
     NV = traits<JointDerived>::NV               \
   };                        \
-  typedef prefix traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef prefix traits<JointDerived>::TangentVector_t TangentVector_t
+  typedef TYPENAME traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
+  typedef TYPENAME traits<JointDerived>::TangentVector_t TangentVector_t
+  
+#define PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(TYPENAME)              \
+  SE3_JOINT_TYPEDEF_GENERIC(TYPENAME); \
+  typedef TYPENAME traits<JointDerived>::ConstraintTypeConstRef ConstraintTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::TansformTypeConstRef TansformTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::MotionTypeConstRef MotionTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::BiasTypeConstRef BiasTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::UTypeConstRef UTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::UTypeRef UTypeRef;      \
+  typedef TYPENAME traits<JointDerived>::DTypeConstRef DTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::UDTypeConstRef UDTypeConstRef
+  
+#ifdef __clang__
 
-#define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
-#define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
+  #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  
+  #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
 
 #elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 4) && (__GNUC_PATCHLEVEL__ == 2)
 
-#define SE3_JOINT_TYPEDEF_NOARG()       \
-  typedef int Index;            \
-  typedef traits<JointDerived>::Scalar Scalar;    \
-  typedef traits<JointDerived>::JointDataDerived JointDataDerived;     \
-  typedef traits<JointDerived>::JointModelDerived JointModelDerived;     \
-  typedef traits<JointDerived>::Constraint_t Constraint_t;   \
-  typedef traits<JointDerived>::Transformation_t Transformation_t; \
-  typedef traits<JointDerived>::Motion_t Motion_t;     \
-  typedef traits<JointDerived>::Bias_t Bias_t;       \
-  typedef traits<JointDerived>::F_t F_t;       \
-  typedef traits<JointDerived>::U_t U_t;       \
-  typedef traits<JointDerived>::D_t D_t;       \
-  typedef traits<JointDerived>::UD_t UD_t;       \
-  enum {              \
-    Options = traits<JointDerived>::Options,    \
-    NQ = traits<JointDerived>::NQ,         \
-    NV = traits<JointDerived>::NV          \
-  };                        \
-  typedef traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef traits<JointDerived>::TangentVector_t TangentVector_t
-
-#define SE3_JOINT_TYPEDEF_ARG(prefix)         \
-  typedef int Index;              \
-  typedef prefix traits<JointDerived>::Scalar Scalar;     \
-  typedef prefix traits<JointDerived>::JointDataDerived JointDataDerived;      \
-  typedef prefix traits<JointDerived>::JointModelDerived JointModelDerived;      \
-  typedef prefix traits<JointDerived>::Constraint_t Constraint_t;    \
-  typedef prefix traits<JointDerived>::Transformation_t Transformation_t;  \
-  typedef prefix traits<JointDerived>::Motion_t Motion_t;      \
-  typedef prefix traits<JointDerived>::Bias_t Bias_t;        \
-  typedef prefix traits<JointDerived>::F_t F_t;        \
-  typedef prefix traits<JointDerived>::U_t U_t;       \
-  typedef prefix traits<JointDerived>::D_t D_t;       \
-  typedef prefix traits<JointDerived>::UD_t UD_t;       \
-  enum {                \
-    Options = traits<JointDerived>::Options,    \
-    NQ = traits<JointDerived>::NQ,           \
-    NV = traits<JointDerived>::NV            \
-  };                        \
-  typedef prefix traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef prefix traits<JointDerived>::TangentVector_t TangentVector_t
-
-#define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_NOARG()
-#define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
+  #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  
+  #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
 
 #else
 
-#define SE3_JOINT_TYPEDEF_ARG()              \
-  typedef int Index;                 \
-  typedef typename traits<JointDerived>::Scalar Scalar;    \
-  typedef typename traits<JointDerived>::JointDataDerived JointDataDerived;         \
-  typedef typename traits<JointDerived>::JointModelDerived JointModelDerived;       \
-  typedef typename traits<JointDerived>::Constraint_t Constraint_t;       \
-  typedef typename traits<JointDerived>::Transformation_t Transformation_t; \
-  typedef typename traits<JointDerived>::Motion_t Motion_t;         \
-  typedef typename traits<JointDerived>::Bias_t Bias_t;         \
-  typedef typename traits<JointDerived>::F_t F_t;           \
-  typedef typename traits<JointDerived>::U_t U_t;       \
-  typedef typename traits<JointDerived>::D_t D_t;       \
-  typedef typename traits<JointDerived>::UD_t UD_t;       \
-  enum {                   \
-    Options = traits<JointDerived>::Options,    \
-    NQ = traits<JointDerived>::NQ,              \
-    NV = traits<JointDerived>::NV               \
-  };                        \
-  typedef typename traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef typename traits<JointDerived>::TangentVector_t TangentVector_t
-
-#define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
-#define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG()
+  #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
+  
+  #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
 
 #endif
 
@@ -139,28 +98,48 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
 { typedef JointModelTpl<NewScalar,Options> type; }
   
   
+#define JOINT_DATA_BASE_DEFAULT_ACCESSOR \
+  ConstraintTypeConstRef S_accessor() const { return S; } \
+  TansformTypeConstRef M_accessor() const { return M; } \
+  MotionTypeConstRef v_accessor() const { return v; } \
+  BiasTypeConstRef c_accessor() const { return c; } \
+  UTypeConstRef U_accessor() const { return U; } \
+  UTypeRef U_accessor() { return U; } \
+  DTypeConstRef Dinv_accessor() const { return Dinv; } \
+  UDTypeConstRef UDinv_accessor() const { return UDinv; }
+  
+#define JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE \
+  typedef const Constraint_t & ConstraintTypeConstRef; \
+  typedef const Transformation_t & TansformTypeConstRef; \
+  typedef const Motion_t & MotionTypeConstRef; \
+  typedef const Bias_t & BiasTypeConstRef; \
+  typedef const U_t & UTypeConstRef; \
+  typedef U_t & UTypeRef; \
+  typedef const D_t & DTypeConstRef; \
+  typedef const UD_t & UDTypeConstRef;
+  
   template<typename Derived>
   struct JointDataBase
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef typename traits<Derived>::JointDerived JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
 
-    JointDataDerived& derived() { return *static_cast<Derived*>(this); }
-    const JointDataDerived& derived() const { return *static_cast<const Derived*>(this); }
+    Derived & derived() { return *static_cast<Derived*>(this); }
+    const Derived & derived() const { return *static_cast<const Derived*>(this); }
 
-    const Constraint_t     & S() const  { return derived().S;   }
-    const Transformation_t & M() const  { return derived().M;   }
-    const Motion_t         & v() const  { return derived().v;   }
-    const Bias_t           & c() const  { return derived().c;   }
-    F_t & F()        { return derived().F; }
+    ConstraintTypeConstRef S() const     { return derived().S_accessor(); }
+    TansformTypeConstRef M() const     { return derived().M_accessor(); }
+    MotionTypeConstRef v() const     { return derived().v_accessor(); }
+    BiasTypeConstRef c() const     { return derived().c_accessor(); }
+    F_t & F()                              { return derived().F; }
     
-    const U_t & U() const { return derived().U; }
-    U_t & U() { return derived().U; }
-    const D_t & Dinv() const { return derived().Dinv; }
-    const UD_t & UDinv() const { return derived().UDinv; }
-
+    UTypeConstRef U() const     { return derived().U_accessor(); }
+    UTypeRef U()           { return derived().U_accessor(); }
+    DTypeConstRef Dinv() const  { return derived().Dinv_accessor(); }
+    UDTypeConstRef UDinv() const { return derived().UDinv_accessor(); }
+    
   protected:
     
     /// \brief Default constructor: protected.

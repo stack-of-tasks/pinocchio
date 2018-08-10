@@ -54,6 +54,8 @@ namespace se3
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> U_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> UD_t;
+    
+    JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
@@ -75,7 +77,8 @@ namespace se3
     
     typedef JointDataBase<JointDataCompositeTpl> Base;
     typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
     typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointDataVariant;
