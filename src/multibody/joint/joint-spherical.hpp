@@ -109,6 +109,17 @@ namespace se3
       return MotionSphericalTpl(w + other.w);
     }
     
+    bool isEqual_impl(const MotionSphericalTpl & other) const
+    {
+      return w == other.w;
+    }
+    
+    template<typename MotionDerived>
+    bool isEqual_impl(const MotionDense<MotionDerived> & other) const
+    {
+      return other.angular() == w && other.linear().isZero(0);
+    }
+    
     template<typename S2, int O2, typename D2>
     void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
