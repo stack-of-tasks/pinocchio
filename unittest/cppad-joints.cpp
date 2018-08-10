@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/fwd.hpp"
-#include "pinocchio/multibody/joint/joint-collection.hpp"
+#include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 
 #include <iostream>
@@ -84,8 +84,8 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
   jmodel_ad.calc(jdata_ad,q_ad,X);
   jmodel.calc(jdata,q,v);
   VectorXAD Y(6);
-  MotionAD m_ad = jdata_ad.v;
-  Motion m = jdata.v;
+  MotionAD m_ad(jdata_ad.v);
+  Motion m(jdata.v);
   ConstraintXd Sref(jdata.S.matrix());
   
   for(Eigen::DenseIndex k = 0; k < 3; ++k)
