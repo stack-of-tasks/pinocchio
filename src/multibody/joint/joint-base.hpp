@@ -258,7 +258,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     ///
     /// \returns The finite difference increment.
     ///
-    typename ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    Scalar finiteDifferenceIncrement() const
     { return derived().finiteDifferenceIncrement(); }
 
     JointIndex i_id; // ID of the joint in the multibody list.
