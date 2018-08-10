@@ -160,7 +160,7 @@ namespace se3
     const JointModelVariant & toVariant() const
     { return *static_cast<const JointModelVariant*>(this); }
 
-    JointDataDerived createData()
+    JointDataDerived createData() const
     { return ::se3::createData<JointCollection>(*this); }
 
     using Base::isEqual;
