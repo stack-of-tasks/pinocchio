@@ -15,7 +15,6 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/fwd.hpp"
 #include <boost/variant.hpp> // to avoid C99 warnings
 
 #include <cppad/cppad.hpp>

@@ -63,7 +63,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   // Check integrate
   jmodel.calc(jdata, q1, q1_dot);
   SE3 M1 = jdata.M;
-  Motion v1 = jdata.v;
+  Motion v1(jdata.v);
   
   q2 = LieGroupType().integrate(q1,q1_dot);
   jmodel.calc(jdata,q2);

@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_SUITE (JointPrismaticUnaligned)
     Motion v(Motion::Random());
     
     MotionPrismaticUnaligned mp(MotionPrismaticUnaligned::Vector3(1.,2.,3.),6.);
-    Motion mp_dense = mp;
+    Motion mp_dense(mp);
     
     BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
     BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_SUITE (JointSpherical)
     Motion v(Motion::Random());
     
     MotionSpherical mp(MotionSpherical::Vector3(1.,2.,3.));
-    Motion mp_dense = mp;
+    Motion mp_dense(mp);
     
     BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
     BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
@@ -354,8 +354,8 @@ BOOST_AUTO_TEST_SUITE (JointSphericalZYX)
     SE3 M(SE3::Random());
     Motion v(Motion::Random());
     
-    MotionSphericalZYX mp(MotionSpherical::Vector3(1.,2.,3.));
-    Motion mp_dense = mp;
+    MotionSpherical mp(MotionSpherical::Vector3(1.,2.,3.));
+    Motion mp_dense(mp);
     
     BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
     BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
@@ -535,7 +535,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   Motion v(Motion::Random());
   
   MotionPrismaticTpl<double,0,0> mp_x(2.);
-  Motion mp_dense_x = mp_x;
+  Motion mp_dense_x(mp_x);
   
   BOOST_CHECK(M.act(mp_x).isApprox(M.act(mp_dense_x)));
   BOOST_CHECK(M.actInv(mp_x).isApprox(M.actInv(mp_dense_x)));
@@ -543,7 +543,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   BOOST_CHECK(v.cross(mp_x).isApprox(v.cross(mp_dense_x)));
   
   MotionPrismaticTpl<double,0,1> mp_y(2.);
-  Motion mp_dense_y = mp_y;
+  Motion mp_dense_y(mp_y);
   
   BOOST_CHECK(M.act(mp_y).isApprox(M.act(mp_dense_y)));
   BOOST_CHECK(M.actInv(mp_y).isApprox(M.actInv(mp_dense_y)));
@@ -551,7 +551,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   BOOST_CHECK(v.cross(mp_y).isApprox(v.cross(mp_dense_y)));
   
   MotionPrismaticTpl<double,0,2> mp_z(2.);
-  Motion mp_dense_z = mp_z;
+  Motion mp_dense_z(mp_z);
   
   BOOST_CHECK(M.act(mp_z).isApprox(M.act(mp_dense_z)));
   BOOST_CHECK(M.actInv(mp_z).isApprox(M.actInv(mp_dense_z)));
@@ -698,7 +698,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   Motion v(Motion::Random());
   
   MotionPlanar mp(1.,2.,3.);
-  Motion mp_dense = mp;
+  Motion mp_dense(mp);
   
   BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
   BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
@@ -818,7 +818,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   Motion v(Motion::Random());
   
   MotionTranslation mp(MotionTranslation::Vector3(1.,2.,3.));
-  Motion mp_dense = mp;
+  Motion mp_dense(mp);
   
   BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
   BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
@@ -918,7 +918,7 @@ BOOST_AUTO_TEST_SUITE (JointRevoluteUnbounded)
     Motion v(Motion::Random());
     
     MotionRevoluteTpl<double,0,0> mp_x(2.);
-    Motion mp_dense_x = mp_x;
+    Motion mp_dense_x(mp_x);
     
     BOOST_CHECK(M.act(mp_x).isApprox(M.act(mp_dense_x)));
     BOOST_CHECK(M.actInv(mp_x).isApprox(M.actInv(mp_dense_x)));
@@ -926,7 +926,7 @@ BOOST_AUTO_TEST_SUITE (JointRevoluteUnbounded)
     BOOST_CHECK(v.cross(mp_x).isApprox(v.cross(mp_dense_x)));
     
     MotionRevoluteTpl<double,0,1> mp_y(2.);
-    Motion mp_dense_y = mp_y;
+    Motion mp_dense_y(mp_y);
     
     BOOST_CHECK(M.act(mp_y).isApprox(M.act(mp_dense_y)));
     BOOST_CHECK(M.actInv(mp_y).isApprox(M.actInv(mp_dense_y)));
@@ -934,7 +934,7 @@ BOOST_AUTO_TEST_SUITE (JointRevoluteUnbounded)
     BOOST_CHECK(v.cross(mp_y).isApprox(v.cross(mp_dense_y)));
     
     MotionRevoluteTpl<double,0,2> mp_z(2.);
-    Motion mp_dense_z = mp_z;
+    Motion mp_dense_z(mp_z);
     
     BOOST_CHECK(M.act(mp_z).isApprox(M.act(mp_dense_z)));
     BOOST_CHECK(M.actInv(mp_z).isApprox(M.actInv(mp_dense_z)));
@@ -1059,7 +1059,7 @@ BOOST_AUTO_TEST_SUITE(JointRevolute)
     Motion v(Motion::Random());
     
     MotionRevoluteTpl<double,0,0> mp_x(2.);
-    Motion mp_dense_x = mp_x;
+    Motion mp_dense_x(mp_x);
     
     BOOST_CHECK(M.act(mp_x).isApprox(M.act(mp_dense_x)));
     BOOST_CHECK(M.actInv(mp_x).isApprox(M.actInv(mp_dense_x)));
@@ -1067,7 +1067,7 @@ BOOST_AUTO_TEST_SUITE(JointRevolute)
     BOOST_CHECK(v.cross(mp_x).isApprox(v.cross(mp_dense_x)));
     
     MotionRevoluteTpl<double,0,1> mp_y(2.);
-    Motion mp_dense_y = mp_y;
+    Motion mp_dense_y(mp_y);
     
     BOOST_CHECK(M.act(mp_y).isApprox(M.act(mp_dense_y)));
     BOOST_CHECK(M.actInv(mp_y).isApprox(M.actInv(mp_dense_y)));
@@ -1075,7 +1075,7 @@ BOOST_AUTO_TEST_SUITE(JointRevolute)
     BOOST_CHECK(v.cross(mp_y).isApprox(v.cross(mp_dense_y)));
     
     MotionRevoluteTpl<double,0,2> mp_z(2.);
-    Motion mp_dense_z = mp_z;
+    Motion mp_dense_z(mp_z);
     
     BOOST_CHECK(M.act(mp_z).isApprox(M.act(mp_dense_z)));
     BOOST_CHECK(M.actInv(mp_z).isApprox(M.actInv(mp_dense_z)));
@@ -1093,7 +1093,7 @@ BOOST_AUTO_TEST_SUITE(JointRevoluteUnaligned)
     Motion v(Motion::Random());
     
     MotionRevoluteUnaligned mp(MotionRevoluteUnaligned::Vector3(1.,2.,3.),6.);
-    Motion mp_dense = mp;
+    Motion mp_dense(mp);
     
     BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
     BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
