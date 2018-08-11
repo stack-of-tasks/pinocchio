@@ -85,6 +85,13 @@ namespace se3
     explicit ForceTpl(const ForceDense<M2> & clone)
     { linear() = clone.linear(); angular() = clone.angular(); }
     
+    template<int O2>
+    ForceTpl & __equl__(const ForceTpl<Scalar,O2> & other)
+    {
+      m_data = other.toVector();
+      return *this;
+    }
+    
     // initializers
     static ForceTpl Zero()   { return ForceTpl(Vector6::Zero());   }
     static ForceTpl Random() { return ForceTpl(Vector6::Random()); }
