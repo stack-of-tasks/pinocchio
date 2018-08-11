@@ -86,16 +86,16 @@ namespace se3
     }
     
     ForcePlain operator-() const { return derived().__opposite__(); }
-    template<typename M1>
-    ForcePlain operator+(const ForceDense<M1> & v) const { return derived().__plus__(v.derived()); }
-    template<typename M1>
-    ForcePlain operator-(const ForceDense<M1> & v) const { return derived().__minus__(v.derived()); }
+    template<typename F1>
+    ForcePlain operator+(const ForceDense<F1> & f) const { return derived().__plus__(f.derived()); }
+    template<typename F1>
+    ForcePlain operator-(const ForceDense<F1> & f) const { return derived().__minus__(f.derived()); }
     
-    template<typename M1>
-    Derived & operator+=(const ForceDense<M1> & v) { return derived().__pequ__(v.derived()); }
-    template<typename M1>
-    Derived & operator+=(const ForceBase<M1> & v)
-    { v.derived().addTo(derived()); return derived(); }
+    template<typename F1>
+    Derived & operator+=(const ForceDense<F1> & f) { return derived().__pequ__(f.derived()); }
+    template<typename F1>
+    Derived & operator+=(const ForceBase<F1> & f)
+    { f.derived().addTo(derived()); return derived(); }
     
     template<typename M1>
     Derived & operator-=(const ForceDense<M1> & v) { return derived().__mequ__(v.derived()); }
@@ -193,7 +193,7 @@ namespace se3
       << "tau = " << angular().transpose () << std::endl;
     }
     
-    /// \returns a MotionRef on this.
+    /// \returns a ForceRef on this.
     ForceRefType ref() { return derived().ref(); }
     
   }; // class ForceDense
@@ -201,7 +201,7 @@ namespace se3
   /// Basic operations specialization
   template<typename F1>
   typename traits<F1>::ForcePlain operator*(const typename traits<F1>::Scalar alpha,
-                                             const ForceDense<F1> & f)
+                                            const ForceDense<F1> & f)
   { return f.derived()*alpha; }
   
 } // namespace se3
