@@ -84,6 +84,11 @@ namespace se3
   inline bool checkData(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef typename Model::JointModel JointModel;
+    
 #define CHECK_DATA(a)  if(!(a)) return false;
 
     // TODO JMinvJt,sDUiJt are never explicitly initialized.
@@ -100,7 +105,7 @@ namespace se3
     CHECK_DATA( (int)data.Ycrb.size()     == model.njoints );
     CHECK_DATA( (int)data.Yaba.size()     == model.njoints );
     CHECK_DATA( (int)data.Fcrb.size()     == model.njoints );
-    BOOST_FOREACH(const Data::Matrix6x & F,data.Fcrb)
+    BOOST_FOREACH(const typename Data::Matrix6x & F,data.Fcrb)
     {
       CHECK_DATA( F.cols() == model.nv );
     }
