@@ -394,7 +394,7 @@ namespace se3
     /// (for example to get the id of a parent joint)
     /// \param[in] name Name of the joint.
     ///
-    /// \return name Name of the joint.
+    /// \return Index of the joint.
     ///
     JointIndex getJointId(const std::string & name) const;
     
