@@ -304,6 +304,7 @@ namespace se3
     U_t U;
     D_t Dinv;
     UD_t UDinv;
+    D_t StU;
 
     JointDataSphericalZYXTpl () : M(1), U(), Dinv(), UDinv() {}
     
@@ -392,22 +393,20 @@ namespace se3
       data.c()(2) = -s1 * c2 * q_dot(0) * q_dot(1) - c1 * s2 * q_dot(0) * q_dot(2) - c2 * q_dot(1) * q_dot(2);
     }
     
-    template<typename S2, int O2>
-    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
-      typedef Eigen::Matrix<S2,3,3,O2> Matrix3;
-      
       data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * data.S.S_minimal;
-      Matrix3 tmp(data.S.S_minimal.transpose() * data.U.template middleRows<3>(Motion::ANGULAR));
+      data.StU.noalias() = data.S.S_minimal.transpose() * data.U.template middleRows<3>(Motion::ANGULAR);
       
       // compute inverse
       data.Dinv.setIdentity();
-      tmp.llt().solveInPlace(data.Dinv);
+      data.StU.llt().solveInPlace(data.Dinv);
       
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
-        I -= data.UDinv * data.U.transpose();
+        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
     Scalar finiteDifferenceIncrement() const

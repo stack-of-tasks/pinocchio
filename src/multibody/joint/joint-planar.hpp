@@ -440,6 +440,8 @@ namespace se3
     U_t U;
     D_t Dinv;
     UD_t UDinv;
+    
+    D_t StU;
 
     JointDataPlanarTpl () : M(1), U(), Dinv(), UDinv() {}
 
@@ -503,23 +505,23 @@ namespace se3
       data.v.m_theta_dot = q_dot(2);
     }
     
-    template<typename S2, int O2>
-    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
       data.U.template leftCols<2>() = I.template leftCols<2>();
       data.U.template rightCols<1>() = I.template rightCols<1>();
-      Eigen::Matrix<S2,3,3,O2> tmp;
-      tmp.template leftCols<2>() = data.U.template topRows<2>().transpose();
-      tmp.template rightCols<1>() = data.U.template bottomRows<1>();
+
+      data.StU.template leftCols<2>() = data.U.template topRows<2>().transpose();
+      data.StU.template rightCols<1>() = data.U.template bottomRows<1>();
       
       // compute inverse
       data.Dinv.setIdentity();
-      tmp.llt().solveInPlace(data.Dinv);
+      data.StU.llt().solveInPlace(data.Dinv);
       
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
-        I -= data.UDinv * data.U.transpose();
+        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
     Scalar finiteDifferenceIncrement() const

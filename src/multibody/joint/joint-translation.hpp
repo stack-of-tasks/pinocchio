@@ -522,8 +522,8 @@ namespace se3
       data.v() = this->jointVelocitySelector(vs);
     }
     
-    template<typename S2, int O2>
-    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
       data.U = I.template middleCols<3>(Inertia::LINEAR);
       
@@ -536,10 +536,11 @@ namespace se3
       
       if (update_I)
       {
-        I.template block<3,3>(Inertia::ANGULAR,Inertia::ANGULAR)
-        -= data.UDinv.template middleRows<3>(Inertia::ANGULAR) * I.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
-        I.template middleCols<3>(Inertia::LINEAR).setZero();
-        I.template block<3,3>(Inertia::LINEAR,Inertia::ANGULAR).setZero();
+        Matrix6Like & I_ = EIGEN_CONST_CAST(Matrix6Like,I);
+        I_.template block<3,3>(Inertia::ANGULAR,Inertia::ANGULAR)
+        -= data.UDinv.template middleRows<3>(Inertia::ANGULAR) * I_.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
+        I_.template middleCols<3>(Inertia::LINEAR).setZero();
+        I_.template block<3,3>(Inertia::LINEAR,Inertia::ANGULAR).setZero();
       }
     }
     

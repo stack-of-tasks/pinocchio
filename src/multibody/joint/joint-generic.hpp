@@ -198,8 +198,9 @@ namespace se3
               const Eigen::MatrixBase<TangentVector> & v) const
     { calc_first_order(*this,data,q,v); }
     
-    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
-    { ::se3::calc_aba(*this,data,I,update_I); }
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    { ::se3::calc_aba(*this,data,EIGEN_CONST_CAST(Matrix6Like,I),update_I); }
     
     std::string shortname() const { return ::se3::shortname(*this); }
     static std::string classname() { return "JointModel"; }

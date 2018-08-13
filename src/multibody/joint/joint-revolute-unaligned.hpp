@@ -518,15 +518,15 @@ namespace se3
       data.v.w = (Scalar)vs[idx_v()];
     }
     
-    template<typename S2, int O2>
-    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
       data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * axis;
       data.Dinv[0] = (Scalar)(1)/axis.dot(data.U.template segment<3>(Motion::ANGULAR));
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
-        I -= data.UDinv * data.U.transpose();
+        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
     Scalar finiteDifferenceIncrement() const

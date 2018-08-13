@@ -92,6 +92,7 @@ namespace se3
     , S(nv)
     , M(), v(), c()
     , U(6,nv), Dinv(nv,nv), UDinv(6,nv)
+    , StU(nv,nv)
     {}
     
     /// \brief Vector of joints
@@ -112,6 +113,8 @@ namespace se3
     U_t U;
     D_t Dinv;
     UD_t UDinv;
+    
+    D_t StU;
 
   };
  
@@ -136,6 +139,7 @@ namespace se3
 
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
+    typedef InertiaTpl<Scalar,Options> Inertia;
   
     typedef container::aligned_vector<JointModelVariant> JointModelVector;
     
@@ -244,18 +248,19 @@ namespace se3
               const Eigen::MatrixBase<ConfigVectorType> & qs,
               const Eigen::MatrixBase<TangentVectorType> & vs) const;
     
-    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
-      data.U.noalias() = I * data.S;
-      Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> tmp (data.S.matrix().transpose() * data.U);
+      data.U.noalias() = I * data.S.matrix();
+      data.StU.noalias() = data.S.matrix().transpose() * data.U;
       
       // compute inverse
       data.Dinv.setIdentity();
-      tmp.llt().solveInPlace(data.Dinv);
+      data.StU.llt().solveInPlace(data.Dinv);
       data.UDinv.noalias() = data.U * data.Dinv;
 
       if (update_I)
-        I -= data.UDinv * data.U.transpose();
+        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
 
     Scalar finiteDifferenceIncrement() const

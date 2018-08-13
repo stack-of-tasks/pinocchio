@@ -458,8 +458,8 @@ namespace se3
       data.v() = vs.template segment<NV>(idx_v());
     }
     
-    template<typename S2, int O2>
-    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
       data.U = I.template block<6,3>(0,Inertia::ANGULAR);
       
@@ -468,14 +468,15 @@ namespace se3
       data.U.template middleRows<3>(Inertia::ANGULAR).llt().solveInPlace(data.Dinv);
       
       data.UDinv.template middleRows<3>(Inertia::ANGULAR).setIdentity(); // can be put in data constructor
-      data.UDinv.template middleRows<3>(Inertia::LINEAR) = data.U.template block<3,3>(Inertia::LINEAR, 0) * data.Dinv;
+      data.UDinv.template middleRows<3>(Inertia::LINEAR).noalias() = data.U.template block<3,3>(Inertia::LINEAR, 0) * data.Dinv;
       
       if (update_I)
       {
-        I.template block<3,3>(Inertia::LINEAR,Inertia::LINEAR)
-        -= data.UDinv.template middleRows<3>(Inertia::LINEAR) * I.template block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
-        I.template block<6,3>(0,Inertia::ANGULAR).setZero();
-        I.template block<3,3>(Inertia::ANGULAR,Inertia::LINEAR).setZero();
+        Matrix6Like & I_ = EIGEN_CONST_CAST(Matrix6Like,I);
+        I_.template block<3,3>(Inertia::LINEAR,Inertia::LINEAR)
+        -= data.UDinv.template middleRows<3>(Inertia::LINEAR) * I_.template block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
+        I_.template block<6,3>(0,Inertia::ANGULAR).setZero();
+        I_.template block<3,3>(Inertia::ANGULAR,Inertia::LINEAR).setZero();
       }
     }
     

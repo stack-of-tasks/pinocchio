@@ -544,15 +544,15 @@ namespace se3
       data.v.rate = v;
     }
     
-    template<typename S2, int O2>
-    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
       data.U = I.col(Inertia::LINEAR + axis);
       data.Dinv[0] = 1./I(Inertia::LINEAR + axis, Inertia::LINEAR + axis);
       data.UDinv.noalias() = data.U * data.Dinv[0];
       
       if (update_I)
-        I -= data.UDinv * data.U.transpose();
+        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
     Scalar finiteDifferenceIncrement() const

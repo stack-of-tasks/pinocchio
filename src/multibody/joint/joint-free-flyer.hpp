@@ -271,15 +271,15 @@ namespace se3
       data.v = vs.template segment<NV>(idx_v());
     }
     
-    template<typename S2, int O2>
-    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
       data.U = I;
       data.Dinv.setIdentity();
       I.llt().solveInPlace(data.Dinv);
       
       if (update_I)
-        I.setZero();
+        EIGEN_CONST_CAST(Matrix6Like,I).setZero();
     }
 
     Scalar finiteDifferenceIncrement() const
