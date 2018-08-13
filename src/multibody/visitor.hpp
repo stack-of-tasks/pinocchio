@@ -20,10 +20,12 @@
 #define __se3_visitor_hpp__
 
 #define BOOST_FUSION_INVOKE_MAX_ARITY 10
-#include <boost/fusion/include/invoke.hpp>
-#include <boost/fusion/include/algorithm.hpp>
-#include "pinocchio/multibody/joint/joint-collection.hpp"
 
+#include <boost/variant.hpp>
+#include <boost/fusion/include/invoke.hpp>
+#include <boost/fusion/container/generation/make_vector.hpp>
+
+#include "pinocchio/multibody/joint/joint-base.hpp"
 
 namespace boost
 {
@@ -76,7 +78,7 @@ namespace se3
       
       template<typename JointModelDerived, typename ArgsTmp>
       static ReturnType run(const JointModelBase<JointModelDerived> & jmodel,
-                            typename JointModelDerived::JointDataDerived & jdata,
+                            typename JointModelBase<JointModelDerived>::JointDataDerived  & jdata,
                             ArgsTmp args)
       {
         InternalVisitor<JointModelDerived,ArgsTmp> visitor(jdata,args);
@@ -85,7 +87,7 @@ namespace se3
       
       template<typename JointModelDerived>
       static ReturnType run(const JointModelBase<JointModelDerived> & jmodel,
-                            typename JointModelDerived::JointDataDerived & jdata)
+                            typename JointModelBase<JointModelDerived>::JointDataDerived & jdata)
       {
         InternalVisitor<JointModelDerived,NoArg> visitor(jdata);
         return visitor(jmodel.derived());
@@ -138,7 +140,7 @@ namespace se3
         {
           return bf::invoke(&JointVisitorDerived::template algo<JointModelDerived>,
                             bf::append2(boost::ref(jmodel),
-                                        boost::ref(boost::get<typename JointModelDerived::JointDataDerived>(jdata)),
+                                        boost::ref(boost::get<typename JointModelBase<JointModelDerived>::JointDataDerived >(jdata)),
                                         args));
         }
         
@@ -160,8 +162,8 @@ namespace se3
         ReturnType operator()(const JointModelBase<JointModelDerived> & jmodel) const
         {
           return bf::invoke(&JointVisitorDerived::template algo<JointModelDerived>,
-                            bf::append(boost::ref(jmodel),
-                                       boost::ref(boost::get<typename JointModelDerived::JointDataDerived>(jdata)))
+                            bf::make_vector(boost::ref(jmodel),
+                                            boost::ref(boost::get<typename JointModelBase<JointModelDerived>::JointDataDerived >(jdata)))
                             );
         }
         
