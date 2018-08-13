@@ -57,7 +57,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,6,1,Options> JointMotion;
+    typedef MotionTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,6,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,6,Options> DenseBase;
     typedef typename Matrix6::IdentityReturnType ConstMatrixReturnType;
@@ -66,15 +66,24 @@ namespace se3
 
 
   template<typename _Scalar, int _Options>
-  struct ConstraintIdentityTpl : ConstraintBase< ConstraintIdentityTpl<_Scalar,_Options> >
+  struct ConstraintIdentityTpl
+  : ConstraintBase< ConstraintIdentityTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintIdentityTpl);
-    enum { NV = 6, Options = 0 };
+    
+    enum { NV = 6, Options = _Options };
     typedef typename traits<ConstraintIdentityTpl>::JointMotion JointMotion;
     typedef typename traits<ConstraintIdentityTpl>::JointForce JointForce;
     typedef typename traits<ConstraintIdentityTpl>::DenseBase DenseBase;
     typedef typename traits<ConstraintIdentityTpl>::MatrixReturnType MatrixReturnType;
+    
+    template<typename Vector6Like>
+    JointMotion __mult__(const Eigen::MatrixBase<Vector6Like> & vj) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
+      return JointMotion(vj);
+    }
     
     template<typename S1, int O1>
     typename SE3::ActionMatrixType se3Action(const SE3Tpl<S1,O1> & m) const

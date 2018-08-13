@@ -282,37 +282,38 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,3,1,Options> JointMotion;
+    typedef MotionTranslationTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,3,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,3,Options> DenseBase;
+    
     typedef DenseBase MatrixReturnType;
     typedef const DenseBase ConstMatrixReturnType;
   }; // traits ConstraintTranslationTpl
   
   template<typename _Scalar, int _Options>
-  struct ConstraintTranslationTpl : ConstraintBase< ConstraintTranslationTpl<_Scalar,_Options> >
+  struct ConstraintTranslationTpl
+  : ConstraintBase< ConstraintTranslationTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintTranslationTpl);
     
-    enum { NV = 3, Options = traits<ConstraintTranslationTpl>::Options };
+    enum { NV = 3, Options = _Options };
     typedef typename traits<ConstraintTranslationTpl>::JointMotion JointMotion;
     typedef typename traits<ConstraintTranslationTpl>::JointForce JointForce;
     typedef typename traits<ConstraintTranslationTpl>::DenseBase DenseBase;
     
     ConstraintTranslationTpl() {}
     
-    template<typename S1, int O1>
-    Motion operator*(const MotionTranslationTpl<S1,O1> & vj) const
-    { return Motion(vj(), Motion::Vector3::Zero()); }
+//    template<typename S1, int O1>
+//    Motion operator*(const MotionTranslationTpl<S1,O1> & vj) const
+//    { return Motion(vj(), Motion::Vector3::Zero()); }
     
     template<typename Vector3Like>
-    MotionTranslationTpl<Scalar,Options>
-    operator*(const Eigen::MatrixBase<Vector3Like> & v) const
+    JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & v) const
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
-      return MotionTranslationTpl<Scalar,Options>(v);
+      return JointMotion(v);
     }
     
     int nv_impl() const { return NV; }

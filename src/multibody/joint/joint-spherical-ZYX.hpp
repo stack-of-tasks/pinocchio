@@ -56,9 +56,10 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,3,1,Options> JointMotion;
+    typedef MotionSphericalTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,3,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,3,Options> DenseBase;
+    
     typedef DenseBase MatrixReturnType;
     typedef const DenseBase ConstMatrixReturnType;
   }; // struct traits struct ConstraintRotationalSubspace
@@ -69,8 +70,8 @@ namespace se3
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintSphericalZYXTpl);
-    enum { NV = 3, Options = _Options };
     
+    enum { NV = 3, Options = _Options };
     typedef typename traits<ConstraintSphericalZYXTpl>::JointMotion JointMotion;
     typedef typename traits<ConstraintSphericalZYXTpl>::JointForce JointForce;
     typedef typename traits<ConstraintSphericalZYXTpl>::DenseBase DenseBase;
@@ -85,11 +86,10 @@ namespace se3
     {  EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3); }
     
     template<typename Vector3Like>
-    MotionSphericalTpl<Scalar,Options>
-    operator*(const Eigen::MatrixBase<Vector3Like> & v) const
+    JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & v) const
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
-      return MotionSphericalTpl<Scalar,Options>(S_minimal * v);
+      return JointMotion(S_minimal * v);
     }
     
     Matrix3 & operator() () { return S_minimal; }
@@ -190,27 +190,6 @@ namespace se3
     Matrix3 S_minimal;
     
   }; // struct ConstraintSphericalZYXTpl
-  
-//  template <typename _Scalar, int _Options>
-//  struct JointSphericalZYXTpl
-//  {
-//    typedef _Scalar Scalar;
-//    enum { Options = _Options };
-//    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-//    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
-//    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
-//    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
-//    typedef MotionTpl<Scalar,Options> Motion;
-//    typedef ForceTpl<Scalar,Options> Force;
-//    typedef SE3Tpl<Scalar,Options> SE3;
-//
-//    typedef BiasSphericalZYXTpl<_Scalar,_Options> BiasSpherical;
-//    typedef MotionSphericalZYXTpl<_Scalar,_Options> MotionSpherical;
-//    typedef ConstraintSphericalZYXTpl<_Scalar,_Options> ConstraintRotationalSubspace;
-//
-//  }; // struct JointSphericalZYX
-  
-//  typedef JointSphericalZYXTpl<double,0> JointSphericalZYX;
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   template <typename S1, int O1, typename S2, int O2>

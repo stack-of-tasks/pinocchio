@@ -215,7 +215,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,3,1,Options> JointMotion;
+    typedef MotionSphericalTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,3,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,3,Options> DenseBase;
     typedef DenseBase MatrixReturnType;
@@ -223,17 +223,26 @@ namespace se3
   }; // struct traits struct ConstraintSphericalTpl
 
   template<typename _Scalar, int _Options>
-  struct ConstraintSphericalTpl : public ConstraintBase< ConstraintSphericalTpl<_Scalar,_Options> >
+  struct ConstraintSphericalTpl
+  : public ConstraintBase< ConstraintSphericalTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintSphericalTpl);
-    enum { NV = 3 };
+    
+    enum { NV = 3, Options = _Options };
     typedef typename traits<ConstraintSphericalTpl>::JointMotion JointMotion;
     typedef typename traits<ConstraintSphericalTpl>::JointForce JointForce;
     typedef typename traits<ConstraintSphericalTpl>::DenseBase DenseBase;
     
     int nv_impl() const { return NV; }
+    
+    template<typename Vector3Like>
+    JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & w) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+      return JointMotion(w);
+    }
     
     struct TransposeConst
     {
@@ -286,16 +295,6 @@ namespace se3
     }
 
   }; // struct ConstraintSphericalTpl
-
-              
-  template<typename Scalar, int Options, typename Vector3Like>
-  MotionSphericalTpl<Scalar,Options>
-  operator*(const ConstraintSphericalTpl<Scalar,Options> &,
-            const Eigen::MatrixBase<Vector3Like>& v)
-  {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
-    return MotionSphericalTpl<Scalar,Options>(v);
-  }
 
   template<typename MotionDerived, typename S2, int O2>
   inline typename MotionDerived::MotionPlain

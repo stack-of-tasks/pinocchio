@@ -279,7 +279,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,1,1,Options> JointMotion;
+    typedef MotionPrismaticTpl<Scalar,Options,axis> JointMotion;
     typedef Eigen::Matrix<Scalar,1,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,1,Options> DenseBase;
     typedef DenseBase MatrixReturnType;
@@ -292,17 +292,18 @@ namespace se3
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintPrismatic);
     enum { NV = 1, Options = _Options };
+    
     typedef typename traits<ConstraintPrismatic>::JointMotion JointMotion;
     typedef typename traits<ConstraintPrismatic>::JointForce JointForce;
     typedef typename traits<ConstraintPrismatic>::DenseBase DenseBase;
     typedef SpatialAxis<LINEAR+axis> Axis;
 
-    template<typename D>
-    MotionPrismaticTpl<Scalar,Options,axis> operator*(const Eigen::MatrixBase<D> & v) const
+    template<typename Vector1Like>
+    JointMotion __mult__(const Eigen::MatrixBase<Vector1Like> & v) const
     {
-//        EIGEN_STATIC_ASSERT_SIZE_1x1(D); // There is actually a bug in Eigen with such a macro
-      assert(v.cols() == 1 && v.rows() == 1);
-      return MotionPrismaticTpl<Scalar,Options,axis>(v[0]);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector1Like,1);
+      assert(v.size() == 1);
+      return JointMotion(v[0]);
     }
 
     template<typename S2, int O2>

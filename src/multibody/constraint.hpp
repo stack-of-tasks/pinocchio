@@ -49,9 +49,11 @@ namespace se3
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     Derived & derived() { return *static_cast<Derived*>(this); }
-    const Derived& derived() const { return *static_cast<const Derived*>(this); }
+    const Derived & derived() const { return *static_cast<const Derived*>(this); }
 
-    Motion operator* (const JointMotion& vj) const { return derived().__mult__(vj); }
+    template<typename VectorLike>
+    JointMotion operator*(const Eigen::MatrixBase<VectorLike> & vj) const
+    { return derived().__mult__(vj); }
 
     MatrixReturnType matrix() { return derived().matrix_impl(); }
     ConstMatrixReturnType matrix() const  { return derived().matrix_impl(); }
@@ -71,37 +73,42 @@ namespace se3
     }
     
     template<typename MotionDerived>
-    DenseBase motionAction(const MotionDense<MotionDerived> & v) const { return derived().motionAction(v); }
+    DenseBase motionAction(const MotionDense<MotionDerived> & v) const
+    { return derived().motionAction(v); }
 
   }; // class ConstraintBase
 
-  template<int D, typename T, int U>
-  struct traits< ConstraintTpl<D, T, U> >
+  template<int _Dim, typename _Scalar, int _Options>
+  struct traits< ConstraintTpl<_Dim, _Scalar, _Options> >
   {
-    typedef T Scalar;
-    typedef Eigen::Matrix<T,3,1,U> Vector3;
-    typedef Eigen::Matrix<T,4,1,U> Vector4;
-    typedef Eigen::Matrix<T,6,1,U> Vector6;
-    typedef Eigen::Matrix<T,3,3,U> Matrix3;
-    typedef Eigen::Matrix<T,4,4,U> Matrix4;
-    typedef Eigen::Matrix<T,6,6,U> Matrix6;
+    typedef _Scalar Scalar;
+    enum {
+      LINEAR = 0,
+      ANGULAR = 3,
+      Options = _Options,
+      Dim = _Dim
+    };
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,4,1,Options> Vector4;
+    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
+    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
+    typedef Eigen::Matrix<Scalar,4,4,Options> Matrix4;
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef Matrix3 Angular_t;
     typedef Vector3 Linear_t;
     typedef const Matrix3 ConstAngular_t;
     typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<T,U> Quaternion_t;
-    typedef SE3Tpl<T,U> SE3;
-    typedef ForceTpl<T,U> Force;
-    typedef MotionTpl<T,U> Motion;
-    typedef Symmetric3Tpl<T,U> Symmetric3;
-    enum {
-      LINEAR = 0,
-      ANGULAR = 3
-    };
-    typedef Eigen::Matrix<Scalar,D,1,U> JointMotion;
-    typedef Eigen::Matrix<Scalar,D,1,U> JointForce;
-    typedef Eigen::Matrix<Scalar,6,D> DenseBase;
+    typedef Eigen::Quaternion<Scalar,Options> Quaternion_t;
+    typedef SE3Tpl<Scalar,Options> SE3;
+    typedef ForceTpl<Scalar,Options> Force;
+    typedef MotionTpl<Scalar,Options> Motion;
+    typedef Symmetric3Tpl<Scalar,Options> Symmetric3;
+    
+    typedef MotionTpl<Scalar,Options> JointMotion;
+    typedef Eigen::Matrix<Scalar,Dim,1,Options> JointForce;
+    typedef Eigen::Matrix<Scalar,6,Dim,Options> DenseBase;
+    
     typedef typename EIGEN_REF_CONSTTYPE(DenseBase) ConstMatrixReturnType;
     typedef typename EIGEN_REF_TYPE(DenseBase) MatrixReturnType;
 
@@ -119,7 +126,8 @@ namespace se3
   }
 
   template<int _Dim, typename _Scalar, int _Options>
-  class ConstraintTpl : public ConstraintBase< ConstraintTpl<_Dim,_Scalar,_Options> >
+  class ConstraintTpl
+  : public ConstraintBase< ConstraintTpl<_Dim,_Scalar,_Options> >
   { 
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -165,9 +173,10 @@ namespace se3
 #endif
     }
 
-    Motion __mult__(const JointMotion& vj) const 
+    template<typename VectorLike>
+    JointMotion __mult__(const Eigen::MatrixBase<VectorLike> & vj) const
     {
-      return Motion(S*vj);
+      return JointMotion(S*vj);
     }
 
     struct Transpose
@@ -180,7 +189,7 @@ namespace se3
       { return (ref.S.transpose()*f.toVector()).eval(); }
 
       template<typename D>
-      typename Eigen::Matrix<_Scalar,NV,Eigen::Dynamic>
+      typename Eigen::Matrix<Scalar,NV,Eigen::Dynamic>
       operator*(const Eigen::MatrixBase<D> & F)
       {
         return (ref.S.transpose()*F).eval();
@@ -193,13 +202,7 @@ namespace se3
     MatrixReturnType matrix_impl() { return S; }
     ConstMatrixReturnType matrix_impl() const { return S; }
 
-    int nv_impl() const
-    {
-      if(NV == Eigen::Dynamic)
-        return (int)S.cols();
-      else
-        return NV;
-    }
+    int nv_impl() const { return (int)S.cols(); }
 
     template<typename S2,int O2>
     friend typename ConstraintTpl<_Dim,_Scalar,_Options>::DenseBase

@@ -192,7 +192,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,1,1,Options> JointMotion;
+    typedef MotionPrismaticUnalignedTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,1,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,1,Options> DenseBase;
     typedef DenseBase MatrixReturnType;
@@ -204,8 +204,8 @@ namespace se3
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintPrismaticUnaligned);
-    
     enum { NV = 1, Options = _Options };
+    
     typedef typename traits<ConstraintPrismaticUnaligned>::JointMotion JointMotion;
     typedef typename traits<ConstraintPrismaticUnaligned>::JointForce JointForce;
     typedef typename traits<ConstraintPrismaticUnaligned>::DenseBase DenseBase;
@@ -217,11 +217,11 @@ namespace se3
     : axis(axis)
     { EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3); }
 
-    template<typename Derived>
-    MotionPrismaticUnalignedTpl<Scalar,Options> operator*(const Eigen::MatrixBase<Derived> & v) const
+    template<typename Vector1Like>
+    JointMotion __mult__(const Eigen::MatrixBase<Vector1Like> & v) const
     {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived,1);
-      return MotionPrismaticUnalignedTpl<Scalar,Options>(axis,v[0]);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector1Like,1);
+      return JointMotion(axis,v[0]);
     }
     
     template<typename S1, int O1>

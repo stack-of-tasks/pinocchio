@@ -215,7 +215,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,3,1,Options> JointMotion;
+    typedef MotionPlanarTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,3,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,3,Options> DenseBase;
     typedef DenseBase MatrixReturnType;
@@ -227,15 +227,18 @@ namespace se3
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintPlanarTpl);
-    enum { NV = 3, Options = 0 }; // to check
+    
+    enum { NV = 3, Options = _Options }; // to check
     typedef typename traits<ConstraintPlanarTpl>::JointMotion JointMotion;
     typedef typename traits<ConstraintPlanarTpl>::JointForce JointForce;
     typedef typename traits<ConstraintPlanarTpl>::DenseBase DenseBase;
 
-    template<typename S1, int O1>
-    typename MotionPlanarTpl<S1,O1>::MotionPlain
-    operator*(const MotionPlanarTpl<S1,O1> & vj) const
-    { return vj; }
+    template<typename Vector3Like>
+    JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & vj) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+      return JointMotion(vj);
+    }
 
     int nv_impl() const { return NV; }
 
@@ -310,18 +313,6 @@ namespace se3
       return res;
     }
   }; // struct ConstraintPlanarTpl
-
-  template<typename Scalar, int Options, typename MatrixDerived>
-  MotionTpl<Scalar,Options> operator* (const ConstraintPlanarTpl<Scalar,Options> &, const Eigen::MatrixBase<MatrixDerived> & v)
-  {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(MatrixDerived,3);
-    
-    typedef MotionTpl<Scalar,Options> ReturnType;
-    ReturnType result(ReturnType::Zero());
-    result.linear().template head<2> () = v.template topRows<2>();
-    result.angular().template tail<1> () = v.template bottomRows<1>();
-    return result;
-  }
 
   template<typename MotionDerived, typename S2, int O2>
   inline typename MotionDerived::MotionPlain

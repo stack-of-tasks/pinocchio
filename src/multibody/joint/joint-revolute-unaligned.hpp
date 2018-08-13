@@ -205,7 +205,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,1,1,Options> JointMotion;
+    typedef MotionRevoluteUnalignedTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,1,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,1,Options> DenseBase;
     typedef DenseBase MatrixReturnType;
@@ -213,11 +213,13 @@ namespace se3
   }; // traits ConstraintRevoluteUnalignedTpl
 
   template<typename _Scalar, int _Options>
-  struct ConstraintRevoluteUnalignedTpl : ConstraintBase< ConstraintRevoluteUnalignedTpl<_Scalar,_Options> >
+  struct ConstraintRevoluteUnalignedTpl
+  : ConstraintBase< ConstraintRevoluteUnalignedTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintRevoluteUnalignedTpl);
     enum { NV = 1, Options = _Options };
+    
     typedef typename traits<ConstraintRevoluteUnalignedTpl>::JointMotion JointMotion;
     typedef typename traits<ConstraintRevoluteUnalignedTpl>::JointForce JointForce;
     typedef typename traits<ConstraintRevoluteUnalignedTpl>::DenseBase DenseBase;
@@ -229,12 +231,11 @@ namespace se3
     : axis(axis)
     {}
     
-    template<typename D>
-    MotionRevoluteUnalignedTpl<Scalar,Options>
-    operator*(const Eigen::MatrixBase<D> & v) const
+    template<typename Vector1Like>
+    JointMotion __mult__(const Eigen::MatrixBase<Vector1Like> & v) const
     {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,1);
-      return MotionRevoluteUnalignedTpl<Scalar,Options>(axis,v[0]);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector1Like,1);
+      return JointMotion(axis,v[0]);
     }
     
     template<typename S1, int O1>
