@@ -190,6 +190,7 @@ namespace se3
     
     /// \brief Temporary for derivative algorithms
     RowMatrix6 M6tmpR;
+    RowMatrix6 M6tmpR2;
     
     /// \brief The joint accelerations computed from ABA
     TangentVectorType ddq;

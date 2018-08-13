@@ -235,15 +235,18 @@ namespace se3
       J_cols = data.oMi[i].act(jdata.S());
       motionSet::motionAction(ov,J_cols,dJ_cols);
       motionSet::motionAction(data.oa[parent],J_cols,dAdq_cols);
-      dAdv_cols = dJ_cols;
+
       if(parent > 0)
       {
-        motionSet::motionAction(data.ov[parent],J_cols,dVdq_cols);
-        motionSet::motionAction<ADDTO>(data.ov[parent],dVdq_cols,dAdq_cols);
-        dAdv_cols += dVdq_cols;
+        motionSet::motionAction<ADDTO>(data.ov[parent],dJ_cols,dAdq_cols);
+        dVdq_cols = dJ_cols;
+        dAdv_cols.noalias() = 2*dJ_cols;
       }
       else
+      {
         dVdq_cols.setZero();
+        dAdv_cols = dJ_cols;
+      }
 
       // computes variation of inertias
       data.doYcrb[i] = data.oYcrb[i].variation(ov);
@@ -291,6 +294,7 @@ namespace se3
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+      typename Data::RowMatrix6 & M6tmpR2 = data.M6tmpR2;
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       
@@ -315,16 +319,20 @@ namespace se3
       = J_cols.transpose()*data.dFda.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       // dtau/dv
-      motionSet::inertiaAction(data.oYcrb[i],dAdv_cols,dFdv_cols);
-      dFdv_cols += data.doYcrb[i] * J_cols;
-      
+      dFdv_cols.noalias() = data.doYcrb[i] * J_cols;
+      motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdv_cols,dFdv_cols);
+
       rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       // dtau/dq
-      motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
       if(parent>0)
-        dFdq_cols += data.doYcrb[i] * dVdq_cols;
+      {
+        dFdq_cols.noalias() = data.doYcrb[i] * dVdq_cols;
+        motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdq_cols,dFdq_cols);
+      }
+      else
+        motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
 
       rnea_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
@@ -334,16 +342,19 @@ namespace se3
       if(parent > 0)
       {
         lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
+        M6tmpR2.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.doYcrb[i];
         for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
-          rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
+        {
+          rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
+          = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j)
+          + M6tmpR2.topRows(jmodel.nv()) * data.dVdq.col(j);
+        }
         for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
-          rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdv.col(j);
-        
-        M6tmpR.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.doYcrb[i];
-        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
-          rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.dVdq.col(j);
-        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
-          rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
+        {
+          rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
+          = M6tmpR.topRows(jmodel.nv()) * data.dAdv.col(j)
+          + M6tmpR2.topRows(jmodel.nv()) * data.J.col(j);
+        }
       }
       
       if(parent>0)
