@@ -91,13 +91,13 @@ namespace se3
     const Scalar N2 = q.squaredNorm();
 #ifndef NDEBUG
     const Scalar epsilon = sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
-    assert(std::fabs(N2-1.) <= epsilon);
+    assert(math::fabs(N2-1.) <= epsilon);
 #endif
     const Scalar alpha = ((Scalar)3 - N2) / Scalar(2);
     const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() *= alpha;
 #ifndef NDEBUG
     const Scalar M = Scalar(3) * std::pow(Scalar(1)-epsilon, ((Scalar)-Scalar(5))/Scalar(2)) / Scalar(4);
-    assert(std::fabs(q.norm() - Scalar(1)) <=
+    assert(math::fabs(q.norm() - Scalar(1)) <=
         std::max(M * sqrt(N2) * (N2 - Scalar(1))*(N2 - Scalar(1)) / Scalar(2), Eigen::NumTraits<Scalar>::dummy_precision()));
 #endif
   }

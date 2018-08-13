@@ -22,6 +22,7 @@
 #include <Eigen/Core>
 #include <iostream>
 
+#include "pinocchio/math/fwd.hpp"
 #include "pinocchio/spatial/symmetric3.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/motion.hpp"
@@ -294,7 +295,7 @@ namespace se3
     
     bool isApprox_impl(const InertiaTpl & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
-      using std::fabs;
+      using math::fabs;
       return fabs(mass() - other.mass()) <= prec
       && lever().isApprox(other.lever(),prec)
       && inertia().isApprox(other.inertia(),prec);

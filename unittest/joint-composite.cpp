@@ -89,7 +89,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
 //    
 //    const double alpha = 0.2;
 //    BOOST_CHECK(jmodel_composite.interpolate(q1,q2,alpha).isApprox(jmodel.interpolate(q1,q2,alpha)));
-//    BOOST_CHECK(std::fabs(jmodel_composite.distance(q1,q2)-jmodel.distance(q1,q2))<= NumTraits<double>::dummy_precision());
+//    BOOST_CHECK(math::fabs(jmodel_composite.distance(q1,q2)-jmodel.distance(q1,q2))<= NumTraits<double>::dummy_precision());
 //  }
   
   Inertia::Matrix6 I1(Inertia::Random().matrix());

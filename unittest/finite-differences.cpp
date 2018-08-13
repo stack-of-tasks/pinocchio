@@ -69,7 +69,7 @@ template<typename Matrix>
 void filterValue(MatrixBase<Matrix> & mat, typename Matrix::Scalar value)
 {
   for(int k = 0; k < mat.size(); ++k)
-    mat.derived().data()[k] =  std::fabs(mat.derived().data()[k]) <= value?0:mat.derived().data()[k];
+    mat.derived().data()[k] =  math::fabs(mat.derived().data()[k]) <= value?0:mat.derived().data()[k];
 }
 
 struct FiniteDiffJoint

@@ -240,8 +240,8 @@ namespace se3
       typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
 
       ConstQuaternionMap quat(q_joint.template tail<4>().data());
-      //assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
-      assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= 1e-4);
+      //assert(math::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
+      assert(math::fabs(quat.coeffs().squaredNorm()-1.) <= 1e-4);
       
       M.rotation(quat.matrix());
       M.translation(q_joint.template head<3>());

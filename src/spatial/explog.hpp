@@ -334,7 +334,7 @@ namespace se3
     Vector3 w(log3(R,t));
     const Scalar t2 = t*t;
     Scalar alpha, beta;
-    if (std::fabs(t) < 1e-4)
+    if (math::fabs(t) < 1e-4)
     {
       alpha = Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720);
       beta = Scalar(1)/Scalar(12) + t2/Scalar(720);

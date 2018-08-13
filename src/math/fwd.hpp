@@ -19,6 +19,7 @@
 #define __se3_math_fwd_hpp__
 
 #include "pinocchio/fwd.hpp"
+#include <math.h>
 #include <boost/math/constants/constants.hpp>
 
 namespace se3
@@ -34,7 +35,14 @@ namespace se3
   
   /// The value of PI for double scalar type
   const double PId = PI<double>();
+  
+  namespace math
+  {
+    using std::fabs;
+#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
+    using CppAD::fabs;
+#endif
+  }
 }
-
 
 #endif //#ifndef __se3_math_fwd_hpp__

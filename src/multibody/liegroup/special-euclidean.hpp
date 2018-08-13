@@ -79,7 +79,7 @@ namespace se3
       Scalar cv,sv; SINCOS(omega, &sv, &cv);
       const_cast<Matrix2Like &>(R.derived()) << cv, -sv, sv, cv;
 
-      if (std::fabs(omega) > 1e-14)
+      if (math::fabs(omega) > 1e-14)
       {
         typename EIGEN_PLAIN_TYPE(Vector2Like) vcross(-v(1), v(0));
         vcross /= omega;
@@ -124,7 +124,7 @@ namespace se3
       typedef typename Matrix2Like::Scalar Scalar1;
       
       Scalar1 t = SO2_t::log(R);
-      const Scalar1 tabs = std::fabs(t);
+      const Scalar1 tabs = math::fabs(t);
       const Scalar1 t2 = t*t;
       Scalar1 alpha;
       if (tabs < 1e-4)
@@ -157,7 +157,7 @@ namespace se3
       typedef typename Matrix2Like::Scalar Scalar1;
       
       Scalar1 t = SO2_t::log(R);
-      const Scalar1 tabs = std::fabs(t);
+      const Scalar1 tabs = math::fabs(t);
       Scalar1 alpha, alpha_dot;
       if (tabs < 1e-4)
       {

@@ -113,7 +113,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   // Check distance
   Scalar dist = LieGroupType().distance(q1,q2);
   BOOST_CHECK_MESSAGE(dist > 0., "distance - wrong results");
-  BOOST_CHECK_SMALL(std::fabs(dist-q1_dot.norm()), 10*prec);
+  BOOST_CHECK_SMALL(math::fabs(dist-q1_dot.norm()), 10*prec);
   
   std::string error_prefix("LieGroup");
   error_prefix += " on joint " + jmodel.shortname();
