@@ -446,6 +446,10 @@ BOOST_AUTO_TEST_CASE(test_dim_computation)
 template<typename LieGroupCollection>
 struct TestLieGroupVariantVisitor
 {
+  
+  typedef LieGroupGenericTpl<LieGroupCollection> LieGroupGeneric;
+
+  
   template<typename Derived>
   void operator() (const LieGroupBase<Derived> & lg) const
   {
@@ -454,11 +458,11 @@ struct TestLieGroupVariantVisitor
   }
   
   template<typename Derived>
-  static void test(const LieGroupBase<Derived> & lg, const LieGroupGenericTpl<LieGroupCollection> & lg_generic)
+  static void test(const LieGroupBase<Derived> & lg,
+                   const LieGroupGenericTpl<LieGroupCollection> & lg_generic)
   {
     typedef typename Derived::ConfigVector_t ConfigVector_t;
     typedef typename Derived::TangentVector_t TangentVector_t;
-    
     BOOST_CHECK(lg.nq() == nq(lg_generic));
     BOOST_CHECK(lg.nv() == nv(lg_generic));
     
@@ -466,15 +470,16 @@ struct TestLieGroupVariantVisitor
     
     BOOST_CHECK(lg.neutral() == neutral(lg_generic));
     
+    typedef typename LieGroupGeneric::ConfigVector_t ConfigVectorGeneric;
+    typedef typename LieGroupGeneric::TangentVector_t TangentVectorGeneric;
+    
     ConfigVector_t q0 = lg.random();
     TangentVector_t v = TangentVector_t::Random(lg.nv());
     ConfigVector_t qout_ref(lg.nq());
     lg.integrate(q0, v, qout_ref);
     
-    typedef Eigen::VectorXd ConfigVectorGeneric;
-    typedef Eigen::VectorXd TangentVectorGeneric;
     ConfigVectorGeneric qout(lg.nq());
-    integrate(lg_variant, ConfigVectorGeneric(q0), TangentVectorGeneric(v), qout);
+    integrate(lg_generic, ConfigVectorGeneric(q0), TangentVectorGeneric(v), qout);
     BOOST_CHECK(qout.isApprox(qout_ref));
   }
 };

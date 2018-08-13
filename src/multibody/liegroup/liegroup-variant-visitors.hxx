@@ -134,12 +134,12 @@ namespace se3
    * @brief Visitor of the Lie Group integrate method
    */
   template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
-  struct LieGroupIntegrateVisitor : visitor::LieGroupVisitorBase< LieGroupIntegrateVisitor<ConfigIn_t,Tangent_t,ConfigOut_t> >
+  struct LieGroupIntegrateVisitor
+  : visitor::LieGroupVisitorBase< LieGroupIntegrateVisitor<ConfigIn_t,Tangent_t,ConfigOut_t> >
   {
     typedef boost::fusion::vector<const ConfigIn_t &,
                                   const Tangent_t &,
                                   ConfigOut_t &> ArgsType;
-
     LIE_GROUP_VISITOR(LieGroupIntegrateVisitor);
     template<typename LieGroupDerived>
     static void algo(const LieGroupBase<LieGroupDerived> & lg,
