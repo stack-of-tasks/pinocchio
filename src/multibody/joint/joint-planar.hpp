@@ -82,6 +82,13 @@ namespace se3
     MotionPlanarTpl (Scalar x_dot, Scalar y_dot, Scalar theta_dot)
     : m_x_dot(x_dot), m_y_dot(y_dot), m_theta_dot(theta_dot)
     {}
+    
+    template<typename Vector3Like>
+    MotionPlanarTpl(const Eigen::MatrixBase<Vector3Like> & vj)
+    : m_x_dot(vj[0]), m_y_dot(vj[1]), m_theta_dot(vj[2])
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+    }
 
 //    operator MotionPlain() const
 //    {
