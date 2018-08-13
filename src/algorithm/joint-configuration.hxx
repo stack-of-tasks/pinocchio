@@ -158,7 +158,7 @@ namespace se3
            const Eigen::MatrixBase<ConfigVectorIn1> & q0,
            const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    return std::sqrt(squaredDistance<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
+    return math::sqrt(squaredDistance<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
@@ -167,7 +167,7 @@ namespace se3
            const Eigen::MatrixBase<ConfigVectorIn1> & q0,
            const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    return std::sqrt(squaredDistance<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
+    return math::sqrt(squaredDistance<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
   }
 
   template<typename LieGroup_t,typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>

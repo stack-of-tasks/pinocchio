@@ -56,8 +56,11 @@ namespace se3
   namespace math
   {
     using std::fabs;
+    using std::sqrt;
+    
 #ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
     using CppAD::fabs;
+    using CppAD::sqrt;
 #endif
   }
 }

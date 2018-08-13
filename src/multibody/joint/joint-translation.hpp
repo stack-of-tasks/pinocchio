@@ -546,7 +546,7 @@ namespace se3
     
     Scalar finiteDifferenceIncrement() const
     {
-      using std::sqrt;
+      using math::sqrt;
       return sqrt(Eigen::NumTraits<Scalar>::epsilon());
     }
     

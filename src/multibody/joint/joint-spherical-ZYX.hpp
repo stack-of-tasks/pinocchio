@@ -411,7 +411,7 @@ namespace se3
     
     Scalar finiteDifferenceIncrement() const
     {
-      using std::sqrt;
+      using math::sqrt;
       return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
 
