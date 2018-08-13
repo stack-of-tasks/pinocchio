@@ -22,6 +22,23 @@
 #include <math.h>
 #include <boost/math/constants/constants.hpp>
 
+#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
+namespace boost
+{
+  namespace math
+  {
+    namespace constants
+    {
+      namespace detail
+      {
+        template<typename Scalar>
+        struct constant_pi< CppAD::AD<Scalar> > : constant_pi<Scalar> {};
+      }
+    }
+  }
+}
+#endif
+
 namespace se3
 {
   ///
