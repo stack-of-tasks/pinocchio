@@ -105,9 +105,8 @@ namespace se3
     void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
       // Angular
-      v.angular().noalias() = m.rotation() * axis;
-      v.angular() *= w;
-      
+      v.angular().noalias() = w * m.rotation() * axis;
+
       // Linear
       v.linear().noalias() = m.translation().cross(v.angular());
     }
