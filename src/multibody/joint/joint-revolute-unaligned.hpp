@@ -327,11 +327,7 @@ namespace se3
   operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteUnalignedTpl<S2,O2> & m2)
   {
     /* m1xm2 = [ v1xw2 + w1xv2; w1xw2 ] = [ v1xw2; w1xw2 ] */
-    typedef typename MotionDerived::MotionPlain ReturnType;
-    const typename MotionDerived::ConstLinearType v1 = m1.linear();
-    const typename MotionDerived::ConstAngularType w1 = m1.angular();
-    const typename ReturnType::Vector3 w2(m2.axis * m2.w);
-    return ReturnType(v1.cross(w2),w1.cross(w2));
+    return m2.motionAction(m1);
   }
   
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */

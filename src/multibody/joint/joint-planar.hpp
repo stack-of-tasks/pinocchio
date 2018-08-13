@@ -324,25 +324,10 @@ namespace se3
   }
 
   template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain operator^ (const MotionDense<MotionDerived> & m1, const MotionPlanarTpl<S2,O2> & m2)
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1, const MotionPlanarTpl<S2,O2> & m2)
   {
-    typename MotionDerived::MotionPlain result;
-    typedef typename MotionDerived::Scalar Scalar;
-
-    const typename MotionDerived::ConstLinearType & m1_t = m1.linear();
-    const typename MotionDerived::ConstAngularType & m1_w = m1.angular();
-
-    result.angular()
-    << m1_w(1) * m2.m_theta_dot
-    , - m1_w(0) * m2.m_theta_dot
-    , Scalar(0);
-    
-    result.linear()
-    << m1_t(1) * m2.m_theta_dot - m1_w(2) * m2.m_y_dot
-    , - m1_t(0) * m2.m_theta_dot + m1_w(2) * m2.m_x_dot
-    , m1_w(0) * m2.m_y_dot - m1_w(1) * m2.m_x_dot;
-
-    return result;
+    return m2.motionAction(m1);
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */

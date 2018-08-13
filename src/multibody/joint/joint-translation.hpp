@@ -379,9 +379,7 @@ namespace se3
   operator^(const MotionDense<MotionDerived> & m1,
             const MotionTranslationTpl<S2,O2> & m2)
   {
-    typedef typename MotionDerived::MotionPlain ReturnType;
-    return ReturnType(m1.angular().cross(m2.rate),
-                      ReturnType::Vector3::Zero());
+    return m2.motionAction(m1);
   }
   
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */

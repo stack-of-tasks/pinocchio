@@ -302,8 +302,7 @@ namespace se3
   operator^(const MotionDense<MotionDerived> & m1,
             const MotionSphericalTpl<S2,O2> & m2)
   {
-    return typename MotionDerived::MotionPlain(m1.template linear().cross(m2.w),
-                                               m1.template angular().cross(m2.w));
+    return m2.motionAction(m1);
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
