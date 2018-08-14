@@ -51,8 +51,8 @@ namespace se3
     
     const Scalar t2 = v.squaredNorm();
     
-    const Scalar t = std::sqrt(t2);
-    if(t > Eigen::NumTraits<Scalar>::dummy_precision())
+    const Scalar t = math::sqrt(t2);
+    if(t > 1e-4)
     {
       Scalar ct,st; SINCOS(t,&st,&ct);
       const Scalar alpha_vxvx = (1 - ct)/t2;
