@@ -31,15 +31,12 @@ namespace se3
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    typedef boost::fusion::vector<const Model &,
-                                  Data &
-                                  > ArgsType;
-    
+    typedef fusion::NoArg ArgsType;
+
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> &,
-                     JointDataBase<typename JointModel::JointDataDerived> &,
-                     const Model &,
-                     Data &)
+                     JointDataBase<typename JointModel::JointDataDerived> &
+                     )
     { // do nothing
     }
     
@@ -57,8 +54,7 @@ namespace se3
     for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
     {
       Algo::run(model.joints[i],
-                data.joints[i],
-                typename Algo::ArgsType(model,data)
+                data.joints[i]
                 );
     }
   }
