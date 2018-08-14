@@ -86,15 +86,16 @@ namespace se3
   ///
   /// \return The angular velocity vector associated to the rotation matrix.
   ///
-  template<typename Matrix3Like, typename S2>
+  template<typename Matrix3Like>
   Eigen::Matrix<typename Matrix3Like::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
-  log3(const Eigen::MatrixBase<Matrix3Like> & R, S2 & theta)
+  log3(const Eigen::MatrixBase<Matrix3Like> & R,
+       typename Matrix3Like::Scalar & theta)
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3);
     typedef typename Matrix3Like::Scalar Scalar;
     typedef Eigen::Matrix<Scalar,3,1,Eigen::internal::traits<Matrix3Like>::Options> Vector3;
 
-    const Scalar PI_value = PI<Scalar>();
+    static const Scalar PI_value = PI<Scalar>();
     
     Vector3 res;
     const Scalar tr = R.trace();
@@ -141,7 +142,7 @@ namespace se3
   log3(const Eigen::MatrixBase<Matrix3Like> & R)
   {
     typename Matrix3Like::Scalar theta;
-    return log3(R.derived(), theta);
+    return log3(R.derived(),theta);
   }
 
   /// \brief Derivative of \f$ \exp{r} \f$
@@ -157,17 +158,19 @@ namespace se3
     Matrix3Like & Jout = const_cast<Matrix3Like &>(Jexp.derived());
     typedef typename Matrix3Like::Scalar Scalar;
 
-    Scalar n = r.norm(),a,b,c;
+    Scalar n2 = r.squaredNorm(),a,b,c;
+    Scalar n = math::sqrt(n2);
     
-    if (n < 1e-6) {
-      Scalar n2 = n;
+    if (n < 1e-6)
+    {
 
       a =   Scalar(1)           - n/Scalar(6)   + n2/Scalar(120);
       b = - Scalar(1)/Scalar(2) + n/Scalar(24)  - n2/Scalar(720);
       c =   Scalar(1)/Scalar(6) - n/Scalar(120) + n2/Scalar(5040);
-    } else
+    }
+    else
     {
-      Scalar n_inv = Scalar(1.)/n;
+      Scalar n_inv = Scalar(1)/n;
       Scalar n2_inv = n_inv * n_inv;
       Scalar cn,sn; SINCOS(n,&sn,&cn);
 
@@ -176,7 +179,7 @@ namespace se3
       c = n2_inv * (1 - a);
     }
 
-    Jout.setZero ();
+    Jout.setZero();
     Jout.diagonal().setConstant(a);
 
     Jout(0,1) = -b*r[2]; Jout(1,0) = -Jout(0,1);
@@ -202,8 +205,8 @@ namespace se3
       Scalar ct,st; SINCOS(theta,&st,&ct);
       const Scalar st_1mct = st/(Scalar(1)-ct);
 
-      Jout.setZero ();
-      Jout.diagonal().setConstant (theta*st_1mct);
+      Jout.setZero();
+      Jout.diagonal().setConstant(theta*st_1mct);
 
       // Jlog += r_{\times}/2
       Jout(0,1) = -log(2); Jout(1,0) =  log(2);
@@ -332,21 +335,22 @@ namespace se3
     typename SE3::ConstLinearRef p = M.translation();
     
     Scalar t;
-    Vector3 w(log3(R,t));
+    Vector3 w(log3(R,t)); // t in [0,π]
     const Scalar t2 = t*t;
     Scalar alpha, beta;
-    if (math::fabs(t) < 1e-4)
+    if (t < 1e-4)
     {
       alpha = Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720);
       beta = Scalar(1)/Scalar(12) + t2/Scalar(720);
-    } else
+    }
+    else
     {
       Scalar st,ct; SINCOS(t,&st,&ct);
       alpha = t*st/(Scalar(2)*(Scalar(1)-ct));
       beta = Scalar(1)/t2 - st/(Scalar(2)*t*(Scalar(1)-ct));
     }
     
-    return Motion(alpha * p - alphaSkew(0.5, w) * p + beta * w.dot(p) * w,
+    return Motion(alpha * p - 0.5 * w.cross(p) + beta * w.dot(p) * w,
                   w);
   }
 
@@ -395,10 +399,13 @@ namespace se3
 
     const Scalar t2 = t*t;
     Scalar beta, beta_dot_over_theta;
-    if (t < 1e-4) {
+    if (t < 1e-4)
+    {
       beta                = Scalar(1)/Scalar(12) + t2/Scalar(720);
       beta_dot_over_theta = Scalar(1)/Scalar(360);
-    } else {
+    }
+    else
+    {
       const Scalar tinv = Scalar(1)/t,
                    t2inv = tinv*tinv;
       Scalar st,ct; SINCOS (t, &st, &ct);
@@ -461,7 +468,7 @@ namespace se3
 
     const Scalar t2 = t*t;
     Scalar beta, beta_dot_over_theta;
-    if (t < 1e-4)
+    if(t < 1e-4)
     {
       beta                = Scalar(1)/Scalar(12) + t2/Scalar(720);
       beta_dot_over_theta = Scalar(1)/Scalar(360);
@@ -478,7 +485,7 @@ namespace se3
         (Scalar(1) + st*tinv) * t2inv * inv_2_2ct;
     }
 
-    Scalar wTp (w.dot (p));
+    Scalar wTp (w.dot(p));
 
     Matrix3 J ((alphaSkew(.5, p) +
           (beta_dot_over_theta*wTp)*w*w.transpose()
