@@ -251,14 +251,31 @@ namespace se3
     const Scalar t2 = w.squaredNorm();
     
     SE3 res;
-    typename SE3::Linear_t & trans = res.translation();
-    typename SE3::Angular_t & rot = res.rotation();
+    typename SE3::LinearType & trans = res.translation();
+    typename SE3::AngularType & rot = res.rotation();
     
-    const Scalar t = std::sqrt(t2);
-    if(t > 1e-4)
+    const Scalar t = math::sqrt(t2);
+    if(t < 1e-4)
+    {
+      // Taylor expansion
+      const Scalar alpha_wxv = Scalar(1)/Scalar(2) - t2/24;
+      const Scalar alpha_v = Scalar(1) - t2/6;
+      const Scalar alpha_w = (Scalar(1)/Scalar(6) - t2/120)*w.dot(v);
+      
+      // Linear
+      trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
+      
+      // Rotational
+      rot.noalias() = alpha_wxv * w * w.transpose();
+      rot.coeffRef(0,1) -= alpha_v * w[2]; rot.coeffRef(1,0) += alpha_v * w[2];
+      rot.coeffRef(0,2) += alpha_v * w[1]; rot.coeffRef(2,0) -= alpha_v * w[1];
+      rot.coeffRef(1,2) -= alpha_v * w[0]; rot.coeffRef(2,1) += alpha_v * w[0];
+      rot.diagonal().array() += Scalar(1) - t2/2;
+    }
+    else
     {
       Scalar ct,st; SINCOS(t,&st,&ct);
-
+      
       const Scalar inv_t2 = Scalar(1)/t2;
       const Scalar alpha_wxv = (Scalar(1) - ct)*inv_t2;
       const Scalar alpha_v = (st)/t;
@@ -273,22 +290,6 @@ namespace se3
       rot.coeffRef(0,2) += alpha_v * w[1]; rot.coeffRef(2,0) -= alpha_v * w[1];
       rot.coeffRef(1,2) -= alpha_v * w[0]; rot.coeffRef(2,1) += alpha_v * w[0];
       rot.diagonal().array() += ct;
-    }
-    else
-    {
-      const Scalar alpha_wxv = Scalar(1)/Scalar(2) - t2/24;
-      const Scalar alpha_v = Scalar(1) - t2/6;
-      const Scalar alpha_w = (Scalar(1)/Scalar(6) - t2/120) * w.dot(v);
-      
-      // Linear
-      trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
-      
-      // Rotational
-      rot.noalias() = alpha_wxv * w * w.transpose();
-      rot.coeffRef(0,1) -= alpha_v * w[2]; rot.coeffRef(1,0) += alpha_v * w[2];
-      rot.coeffRef(0,2) += alpha_v * w[1]; rot.coeffRef(2,0) -= alpha_v * w[1];
-      rot.coeffRef(1,2) -= alpha_v * w[0]; rot.coeffRef(2,1) += alpha_v * w[0];
-      rot.diagonal().array() += Scalar(1) - t2/2;
     }
     
     return res;
