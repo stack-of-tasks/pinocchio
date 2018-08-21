@@ -140,6 +140,9 @@ namespace se3
     oMi[0].setIdentity();
     liMi[0].setIdentity();
     oMf[0].setIdentity();
+    
+    Yaba[0].setZero();
+    Ycrb[0].setZero();
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
