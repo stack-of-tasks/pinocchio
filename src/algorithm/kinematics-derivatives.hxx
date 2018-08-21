@@ -62,15 +62,15 @@ namespace se3
       jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      vi = jdata.v();
-
+      
       if(parent>0)
-      {
         oMi = data.oMi[parent]*data.liMi[i];
-        vi += data.liMi[i].actInv(data.v[parent]);
-      }
       else
         oMi = data.liMi[i];
+      
+      vi = jdata.v();
+      if(parent>0)
+        vi += data.liMi[i].actInv(data.v[parent]);
       
       ai = jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (vi ^ jdata.v());
       if(parent>0)
