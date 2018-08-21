@@ -125,5 +125,6 @@ IF(CPPAD_FOUND)
   ADD_PINOCCHIO_UNIT_TEST(cppad-spatial "eigen3;cppad")
   ADD_PINOCCHIO_UNIT_TEST(cppad-joints "eigen3;cppad")
   ADD_PINOCCHIO_UNIT_TEST(cppad-algo "eigen3;cppad")
+  ADD_PINOCCHIO_UNIT_TEST(cppad-algo-derivatives "eigen3;cppad")
 ENDIF(CPPAD_FOUND)
 
