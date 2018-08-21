@@ -25,6 +25,7 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/aba.hpp"
+#include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include "pinocchio/parsers/sample-models.hpp"
@@ -158,6 +159,132 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
     Data::MatrixXs dtau_da_mat = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dtau_da.data(),model.nv,model.nv);
     BOOST_CHECK(dtau_da_mat.isApprox(rnea_partial_da));
     BOOST_CHECK(dtau_da_mat.isApprox(data.M));
+  }
+  
+}
+
+BOOST_AUTO_TEST_CASE(test_aba_derivatives)
+{
+  using CppAD::AD;
+  using CppAD::NearEqual;
+  
+  typedef double Scalar;
+  typedef AD<Scalar> ADScalar;
+  
+  typedef se3::ModelTpl<Scalar> Model;
+  typedef Model::Data Data;
+  
+  typedef se3::ModelTpl<ADScalar> ADModel;
+  typedef ADModel::Data ADData;
+  
+  Model model;
+  se3::buildModels::humanoidSimple(model);
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  Data data(model);
+  
+  ADModel ad_model = model.cast<ADScalar>();
+  ADData ad_data(ad_model);
+  
+  // Sample random configuration
+  typedef Model::ConfigVectorType CongigVectorType;
+  typedef Model::TangentVectorType TangentVectorType;
+  CongigVectorType q(model.nq);
+  q = se3::randomConfiguration(model);
+  
+  TangentVectorType v(TangentVectorType::Random(model.nv));
+  TangentVectorType tau(TangentVectorType::Random(model.nv));
+  
+  Eigen::MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
+  Eigen::MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
+  Eigen::MatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
+  
+  se3::computeABADerivatives(model,data,q,v,tau,
+                             aba_partial_dq,
+                             aba_partial_dv,
+                             aba_partial_dtau);
+  
+  aba_partial_dtau.triangularView<Eigen::StrictlyLower>()
+  = aba_partial_dtau.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  typedef ADModel::ConfigVectorType ADCongigVectorType;
+  typedef ADModel::TangentVectorType ADTangentVectorType;
+  
+  ADCongigVectorType ad_q = q.cast<ADScalar>();
+  ADTangentVectorType ad_dq = ADTangentVectorType::Zero(model.nv);
+  ADTangentVectorType ad_v = v.cast<ADScalar>();
+  ADTangentVectorType ad_tau = tau.cast<ADScalar>();
+  
+  typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> VectorXAD;
+  se3::computeMinverse(model,data,q);
+  data.Minv.triangularView<Eigen::StrictlyLower>()
+  = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  Data::TangentVectorType ddq = se3::aba(model,data,q,v,tau);
+  
+  // dddq_dq
+  {
+    CppAD::Independent(ad_dq);
+    ADCongigVectorType ad_q_plus = se3::integrate(ad_model,ad_q,ad_dq);
+    se3::aba(ad_model,ad_data,ad_q_plus,ad_v,ad_tau);
+    
+    VectorXAD Y(model.nv);
+    Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.ddq;
+    
+    CppAD::ADFun<Scalar> ad_fun(ad_dq,Y);
+    
+    CPPAD_TESTVECTOR(Scalar) x((size_t)model.nv);
+    Eigen::Map<Data::TangentVectorType>(x.data(),model.nv,1).setZero();
+    
+    CPPAD_TESTVECTOR(Scalar) ddq = ad_fun.Forward(0,x);
+    BOOST_CHECK(Eigen::Map<Data::TangentVectorType>(ddq.data(),model.nv,1).isApprox(data.ddq));
+    
+    CPPAD_TESTVECTOR(Scalar) ddq_dq = ad_fun.Jacobian(x);
+    Data::MatrixXs ddq_dq_mat = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(ddq_dq.data(),model.nv,model.nv);
+    BOOST_CHECK(ddq_dq_mat.isApprox(aba_partial_dq));
+  }
+  
+  // dddq_dv
+  {
+    CppAD::Independent(ad_v);
+    se3::aba(ad_model,ad_data,ad_q,ad_v,ad_tau);
+    
+    VectorXAD Y(model.nv);
+    Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.ddq;
+    
+    CppAD::ADFun<Scalar> ad_fun(ad_v,Y);
+    
+    CPPAD_TESTVECTOR(Scalar) x((size_t)model.nv);
+    Eigen::Map<Data::TangentVectorType>(x.data(),model.nv,1) = v;
+    
+    CPPAD_TESTVECTOR(Scalar) ddq = ad_fun.Forward(0,x);
+    BOOST_CHECK(Eigen::Map<Data::TangentVectorType>(ddq.data(),model.nv,1).isApprox(data.ddq));
+    
+    CPPAD_TESTVECTOR(Scalar) ddq_dv = ad_fun.Jacobian(x);
+    Data::MatrixXs ddq_dv_mat = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(ddq_dv.data(),model.nv,model.nv);
+    BOOST_CHECK(ddq_dv_mat.isApprox(aba_partial_dv));
+  }
+  
+  // dddq_da
+  {
+    CppAD::Independent(ad_tau);
+    se3::aba(ad_model,ad_data,ad_q,ad_v,ad_tau);
+    
+    VectorXAD Y(model.nv);
+    Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.ddq;
+    
+    CppAD::ADFun<Scalar> ad_fun(ad_tau,Y);
+    
+    CPPAD_TESTVECTOR(Scalar) x((size_t)model.nv);
+    Eigen::Map<Data::TangentVectorType>(x.data(),model.nv,1) = tau;
+    
+    CPPAD_TESTVECTOR(Scalar) ddq = ad_fun.Forward(0,x);
+    BOOST_CHECK(Eigen::Map<Data::TangentVectorType>(ddq.data(),model.nv,1).isApprox(data.ddq));
+    
+    CPPAD_TESTVECTOR(Scalar) ddq_dtau = ad_fun.Jacobian(x);
+    Data::MatrixXs ddq_dtau_mat = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(ddq_dtau.data(),model.nv,model.nv);
+    BOOST_CHECK(ddq_dtau_mat.isApprox(aba_partial_dtau));
+    BOOST_CHECK(ddq_dtau_mat.isApprox(data.Minv));
   }
   
 }
