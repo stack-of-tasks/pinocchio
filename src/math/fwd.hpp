@@ -57,10 +57,14 @@ namespace se3
   {
     using std::fabs;
     using std::sqrt;
+    using std::acos;
+    using std::pow;
     
 #ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
     using CppAD::fabs;
     using CppAD::sqrt;
+    using CppAD::acos;
+    using CppAD::pow;
 #endif
   }
 }
