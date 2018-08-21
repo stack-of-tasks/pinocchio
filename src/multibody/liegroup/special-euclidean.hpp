@@ -60,7 +60,7 @@ namespace se3
     
     typedef VectorSpaceOperationTpl<2,Scalar,Options>       R2_t;
     typedef SpecialOrthogonalOperationTpl<2,Scalar,Options> SO2_t;
-    typedef CartesianProductOperation <R2_t, SO2_t> R2crossSO2_t;
+    typedef CartesianProductOperation<R2_t, SO2_t> R2crossSO2_t;
     
     typedef Eigen::Matrix<Scalar,2,2,Options> Matrix2;
     typedef Eigen::Matrix<Scalar,2,1,Options> Vector2;
@@ -281,7 +281,7 @@ namespace se3
       Vector2 t;
       exp(v, R, t);
 
-      toInverseActionMatrix (R, t, Jout);
+      toInverseActionMatrix(R, t, Jout);
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -338,14 +338,14 @@ namespace se3
       return R2crossSO2_t().isSameConfiguration(q0, q1, prec);
     }
 
-    private:
-    template<typename V>
-    static void forwardKinematics(Matrix2 & R, Vector2 & t, const Eigen::MatrixBase<V>& q)
+  private:
+    template<typename Vector4Like>
+    static void forwardKinematics(Matrix2 & R, Vector2 & t, const Eigen::MatrixBase<Vector4Like> & q)
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,Vector4Like);
 
-      const double& c_theta = q(2),
-                    s_theta = q(3);
+      const typename Vector4Like::Scalar & c_theta = q(2),
+                                         & s_theta = q(3);
 
       R << c_theta, -s_theta, s_theta, c_theta;
       t = q.template head<2>();
@@ -377,6 +377,7 @@ namespace se3
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
     typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
+    typedef SE3Tpl<Scalar,Options> SE3;
 
     /// Get dimension of Lie Group vector representation
     ///
@@ -427,15 +428,15 @@ namespace se3
     {
       ConstQuaternionMap_t p0 (q0.derived().template tail<4>().data());
       ConstQuaternionMap_t p1 (q1.derived().template tail<4>().data());
-      SE3::Matrix3 R0 (p0.matrix()),
-                   R1 (p1.matrix());
+      typename SE3::Matrix3 R0 (p0.matrix()),
+                            R1 (p1.matrix());
       SE3 M (  SE3(R0, q0.derived().template head<3>()).inverse()
              * SE3(R1, q1.derived().template head<3>()));
 
       Jlog6 (M, J1);
 
-      SE3::Vector3 p1_p0 (q1.derived().template head<3>()
-                        - q0.derived().template head<3>());
+      typename SE3::Vector3 p1_p0 (q1.derived().template head<3>()
+                                   - q0.derived().template head<3>());
 
       JacobianLOut_t& J0v = const_cast< JacobianLOut_t& > (J0.derived());
       J0v.template topLeftCorner <3,3> ().noalias() = - M.rotation().transpose();
@@ -455,7 +456,8 @@ namespace se3
       QuaternionMap_t res_quat (out.template tail<4>().data());
 
       SE3 M0 (quat.matrix(), q.derived().template head<3>());
-      SE3 M1 (M0 * exp6(Motion(v)));
+      MotionRef<Velocity_t> mref_v(v);
+      SE3 M1 (M0 * exp6(mref_v));
 
       out.template head<3>() = M1.translation();
       res_quat = M1.rotation();
