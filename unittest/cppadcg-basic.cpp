@@ -18,6 +18,7 @@
 #include <boost/variant.hpp> // to avoid C99 warnings
 
 #include <cppad/cg.hpp>
+#include <Eigen/Core>
 
 #include <iostream>
 
@@ -73,6 +74,85 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     std::ostringstream code;
     handler.generateCode(code, langC, jac, nameGen);
     std::cout << code.str();
+  }
+    
+  BOOST_AUTO_TEST_CASE(test_dynamic_link)
+  {
+    using namespace CppAD;
+    using namespace CppAD::cg;
+    
+    // use a special object for source code generation
+    typedef CG<double> CGD;
+    typedef AD<CGD> ADCG;
+    
+    typedef AD<double> ADScalar;
+    
+    /***************************************************************************
+     *                               the model
+     **************************************************************************/
+    
+    // independent variable vector
+    std::vector<ADCG> x(2);
+    Independent(x);
+    
+    // dependent variable vector
+    std::vector<ADCG> y(1);
+    
+    // the model equation
+    ADCG a = x[0] / 1. + x[1] * x[1];
+    y[0] = a / 2;
+    
+    ADFun<CGD> fun(x, y);
+    
+    
+    /***************************************************************************
+     *                       Create the dynamic library
+     *                  (generates and compiles source code)
+     **************************************************************************/
+    // generates source code
+    ModelCSourceGen<double> cgen(fun, "model");
+    cgen.setCreateJacobian(true);
+    cgen.setCreateForwardOne(true);
+    cgen.setCreateReverseOne(true);
+    cgen.setCreateReverseTwo(true);
+    ModelLibraryCSourceGen<double> libcgen(cgen);
+    
+    // compile source code
+    DynamicModelLibraryProcessor<double> p(libcgen);
+    
+    GccCompiler<double> compiler;
+    std::unique_ptr<DynamicLib<double>> dynamicLib = p.createDynamicLibrary(compiler);
+    
+    // save to files (not really required)
+    SaveFilesModelLibraryProcessor<double> p2(libcgen);
+    p2.saveSources();
+    
+    /***************************************************************************
+     *                       Use the dynamic library
+     **************************************************************************/
+    
+    std::unique_ptr<GenericModel<double>> model = dynamicLib->model("model");
+    CPPAD_TESTVECTOR(double) xv(x.size()); xv[0] = 2.5; xv[1] = 3.5;
+    CPPAD_TESTVECTOR(double) jac = model->Jacobian(xv);
+    
+    std::vector<ADScalar> x_ad(2);
+    Independent(x_ad);
+    
+    // dependent variable vector
+    std::vector<ADScalar> y_ad(1);
+    
+    // the model equation
+    ADScalar a_ad = x_ad[0] / 1. + x_ad[1] * x_ad[1];
+    y_ad[0] = a_ad / 2;
+    
+    ADFun<double> ad_fun(x_ad, y_ad);
+
+    CPPAD_TESTVECTOR(double) jac_ref = ad_fun.Jacobian(xv);
+    
+    // print out the result
+    std::cout << jac[0] << " " << jac[1] << std::endl;
+    
+    BOOST_CHECK(Eigen::Map<Eigen::Vector2d>(jac.data()).isApprox(Eigen::Map<Eigen::Vector2d>(jac_ref.data())));
   }
 
 BOOST_AUTO_TEST_SUITE_END()
