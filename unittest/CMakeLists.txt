@@ -128,3 +128,8 @@ IF(CPPAD_FOUND)
   ADD_PINOCCHIO_UNIT_TEST(cppad-algo-derivatives "eigen3;cppad")
 ENDIF(CPPAD_FOUND)
 
+IF(CPPADCG_FOUND)
+  ADD_UNIT_TEST(cppadcg-basic "eigen3;cppadcg")
+  SET_PROPERTY(TARGET cppadcg-basic PROPERTY CXX_STANDARD 11)
+ENDIF(CPPADCG_FOUND)
+
