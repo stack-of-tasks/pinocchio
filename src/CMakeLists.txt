@@ -32,16 +32,6 @@ SET(${PROJECT_NAME}_PARSERS_SOURCES
   parsers/srdf.cpp
   )
 
-IF(URDFDOM_FOUND)
-  LIST(APPEND ${PROJECT_NAME}_PARSERS_SOURCES
-    parsers/urdf/model.cpp
-    )
-
-    LIST(APPEND ${PROJECT_NAME}_PARSERS_SOURCES
-      parsers/urdf/geometry.cpp
-      )
-ENDIF(URDFDOM_FOUND)
-
 IF(LUA5_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PARSERS_SOURCES 
       parsers/lua/lua_tables.cpp

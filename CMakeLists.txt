@@ -314,6 +314,8 @@ SET(${PROJECT_NAME}_PARSERS_HEADERS
 IF(URDFDOM_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
     parsers/urdf.hpp
+    parsers/urdf/model.hxx
+    parsers/urdf/geometry.hxx
     parsers/urdf/utils.hpp
     parsers/urdf/types.hpp
     )

@@ -575,7 +575,10 @@ namespace se3
         details::parseRootTree(m_root_link,m_model,root_joint,m_verbose);
       }
       
-      static void run(::urdf::LinkConstSharedPtr root_link, Model & model, const JointModelVariant & root_joint, const bool verbose)
+      static void run(::urdf::LinkConstSharedPtr root_link,
+                      Model & model,
+                      const JointModelVariant & root_joint,
+                      const bool verbose)
       {
         boost::apply_visitor(ParseRootTreeVisitor(root_link,model,verbose),root_joint);
       }
@@ -601,7 +604,9 @@ namespace se3
       return model;
     }
                 
-    Model& buildModel(const std::string & filename, Model& model,const bool verbose) 
+    Model & buildModel(const std::string & filename,
+                       Model & model,
+                       const bool verbose)
     throw (std::invalid_argument)
     {
       ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile (filename);
@@ -653,7 +658,7 @@ namespace se3
       return model;
     }
 
-    Model& buildModel(const ::urdf::ModelInterfaceSharedPtr & urdfTree,
+    Model & buildModel(const ::urdf::ModelInterfaceSharedPtr & urdfTree,
                       const JointModelVariant & root_joint,
                       Model & model,
                       const bool verbose)
@@ -664,7 +669,7 @@ namespace se3
       return model;
     }
                 
-    Model& buildModel(const ::urdf::ModelInterfaceSharedPtr & urdfTree,
+    Model & buildModel(const ::urdf::ModelInterfaceSharedPtr & urdfTree,
                       Model& model,
                       const bool verbose)
     {
