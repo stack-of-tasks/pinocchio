@@ -73,7 +73,7 @@ namespace se3
     return idx;
   }
   
-  GeomIndex GeometryModel::addGeometryObject(GeometryObject object)
+  inline GeomIndex GeometryModel::addGeometryObject(GeometryObject object)
   {    
     GeomIndex idx = (GeomIndex) (ngeoms ++);
     geometryObjects.push_back(object);
