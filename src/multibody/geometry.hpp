@@ -82,7 +82,7 @@ namespace se3
     PINOCCHIO_DEPRECATED
     GeomIndex addGeometryObject(GeometryObject object,
                                 const ModelTpl<S2,O2,_JointCollectionTpl> & model,
-                                const bool autofillJointParent);
+                                const bool autofillJointParent = false);
     
     /**
      * @brief      Add a geometry object to a GeometryModel.
