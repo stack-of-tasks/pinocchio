@@ -278,7 +278,7 @@ namespace se3
     {
       const Scalar alpha_wxv = Scalar(1)/Scalar(2) - t2/24;
       const Scalar alpha_v = Scalar(1) - t2/6;
-      const Scalar alpha_w = Scalar(1)/Scalar(6) - t2/120;
+      const Scalar alpha_w = (Scalar(1)/Scalar(6) - t2/120) * w.dot(v);
       
       // Linear
       trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
