@@ -363,12 +363,12 @@ namespace se3
             std::ostringstream geometry_object_suffix;
             geometry_object_suffix << "_" << objectId;
             const std::string & geometry_object_name = std::string(link_name + geometry_object_suffix.str());
-            geomModel.addGeometryObject(GeometryObject(geometry_object_name,
-                                                       frame_id, model.frames[frame_id].parent,
-                                                       geometry,
-                                                       geomPlacement, meshPath, meshScale,
-                                                       overrideMaterial, meshColor, meshTexturePath),
-                                        model);
+            GeometryObject geometry_object(geometry_object_name,
+                                           frame_id, model.frames[frame_id].parent,
+                                           geometry,
+                                           geomPlacement, meshPath, meshScale,
+                                           overrideMaterial, meshColor, meshTexturePath);
+            geomModel.addGeometryObject(geometry_object);
             ++objectId;
           }
         }
