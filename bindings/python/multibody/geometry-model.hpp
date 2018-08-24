@@ -47,7 +47,7 @@ namespace se3
         .add_property("geometryObjects",
                       &GeometryModel::geometryObjects,"Vector of geometries objects.")
 
-        .def("addGeometryObject",(GeometryModel::GeomIndex (GeometryModel::*)(GeometryObject))&GeometryModel::addGeometryObject,
+        .def("addGeometryObject",static_cast <GeometryModel::GeomIndex (GeometryModel::*)(GeometryObject)>(&GeometryModel::addGeometryObject),
              bp::arg("GeometryObject"),
              "Add a GeometryObject to a GeometryModel")
         .def("getGeometryId",&GeometryModel::getGeometryId)
