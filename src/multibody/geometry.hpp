@@ -46,6 +46,7 @@ namespace se3
     typedef container::aligned_vector<GeometryObject> GeometryObjectVector;
     typedef std::vector<CollisionPair> CollisionPairVector;
     
+    
     /// \brief The number of GeometryObjects
     Index ngeoms;
 
