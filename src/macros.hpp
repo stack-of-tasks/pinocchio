@@ -35,6 +35,9 @@
 (PINOCCHIO_MINOR_VERSION>y || (PINOCCHIO_MINOR_VERSION>=y && \
 PINOCCHIO_PATCH_VERSION>=z))))
 
+// This macro can be used to prevent from macro expansion, similarly to EIGEN_NOT_A_MACRO
+#define PINOCCHIO_NOT_A_MACRO
+
 namespace se3
 {
   namespace helper
