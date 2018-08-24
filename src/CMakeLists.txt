@@ -1,5 +1,5 @@
 # 
-# Copyright (c) 2015-2017 CNRS
+# Copyright (c) 2015-2018 CNRS
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 # 
 # This file is part of Pinocchio
@@ -23,10 +23,6 @@ ENDMACRO(ADD_TARGET_CFLAGS)
 # --- C++ --------------------------------------------
 # ----------------------------------------------------
 
-SET(${PROJECT_NAME}_MULTIBODY_SOURCES
-  multibody/model.cpp
-  )
-
 SET(${PROJECT_NAME}_PARSERS_SOURCES
   parsers/sample-models.cpp
   )
@@ -39,7 +35,6 @@ IF(LUA5_FOUND)
 ENDIF(LUA5_FOUND)
 
 SET(${PROJECT_NAME}_SOURCES
-  ${${PROJECT_NAME}_MULTIBODY_SOURCES}
   ${${PROJECT_NAME}_PARSERS_SOURCES}
 )
 
