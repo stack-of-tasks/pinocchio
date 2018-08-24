@@ -38,6 +38,12 @@ namespace se3
   struct GeometryModel
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
+    typedef double Scalar;
+    enum { Options = 0 };
+    
+    typedef SE3Tpl<Scalar,Options> SE3;
+    
     typedef container::aligned_vector<GeometryObject> GeometryObjectVector;
     typedef std::vector<CollisionPair> CollisionPairVector;
     
@@ -161,6 +167,11 @@ namespace se3
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
+    typedef double Scalar;
+    enum { Options = 0 };
+    
+    typedef SE3Tpl<Scalar,Options> SE3;
+    
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
@@ -168,7 +179,7 @@ namespace se3
     /// oMg is used for pinocchio (kinematics) computation but is translated to fcl type
     /// for fcl (collision) computation. The copy is done in collisionObjects[i]->setTransform(.)
     ///
-    container::aligned_vector<se3::SE3> oMg;
+    container::aligned_vector<SE3> oMg;
 
 #ifdef WITH_HPP_FCL
     ///

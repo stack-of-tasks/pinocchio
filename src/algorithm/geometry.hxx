@@ -260,7 +260,7 @@ namespace se3
     {
       const boost::shared_ptr<const fcl::CollisionGeometry> & fcl
         = geom.fcl;
-      const SE3 & jMb = geom.placement; // placement in joint.
+      const GeometryModel::SE3 & jMb = geom.placement; // placement in joint.
       const Model::JointIndex & i = geom.parentJoint;
       assert (i<geomData.radius.size());
 
