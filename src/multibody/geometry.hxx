@@ -28,23 +28,23 @@
 namespace se3
 {
   inline GeometryData::GeometryData(const GeometryModel & modelGeom)
-    : oMg(modelGeom.ngeoms)
-
+  : oMg(modelGeom.ngeoms)
+  
 #ifdef WITH_HPP_FCL
-    , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
-    , distanceRequest (true, 0, 0, fcl::GST_INDEP)
-    , distanceResults(modelGeom.collisionPairs.size())
-    , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
-    , collisionResults(modelGeom.collisionPairs.size())
-    , radius()
-    , collisionPairIndex(0)
-    , innerObjects()
-    , outerObjects()
+  , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
+  , distanceRequest (true, 0, 0, fcl::GST_INDEP)
+  , distanceResults(modelGeom.collisionPairs.size())
+  , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
+  , collisionResults(modelGeom.collisionPairs.size())
+  , radius()
+  , collisionPairIndex(0)
+  , innerObjects()
+  , outerObjects()
   {
     collisionObjects.reserve(modelGeom.geometryObjects.size());
     BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
-      { collisionObjects.push_back
-          (fcl::CollisionObject(geom.fcl)); }
+    { collisionObjects.push_back
+      (fcl::CollisionObject(geom.fcl)); }
     fillInnerOuterObjectMaps(modelGeom);
   }
 #else

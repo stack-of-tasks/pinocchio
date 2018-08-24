@@ -31,7 +31,6 @@
 #include <utility>
 #include <assert.h>
 
-
 namespace se3
 {
   
@@ -58,9 +57,9 @@ namespace se3
     CollisionPairVector collisionPairs;
   
     GeometryModel()
-      : ngeoms(0)
-      , geometryObjects()
-      , collisionPairs()
+    : ngeoms(0)
+    , geometryObjects()
+    , collisionPairs()
     { 
       const std::size_t num_max_collision_pairs = (ngeoms * (ngeoms-1))/2;
       collisionPairs.reserve(num_max_collision_pairs);
@@ -281,7 +280,7 @@ namespace se3
     /// manner. 
     /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
     /// \param[in] flag value of the activation boolean (true by default).
-    void activateCollisionPair(const PairIndex pairId,const bool flag=true);
+    void activateCollisionPair(const PairIndex pairId, const bool flag=true);
 
     /// Deactivate a collision pair.
     ///
