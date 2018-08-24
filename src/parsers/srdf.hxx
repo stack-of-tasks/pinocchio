@@ -107,10 +107,10 @@ namespace se3
     } // namespace details
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    void removeCollisionPairsFromSrdf(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      GeometryModel & geomModel,
-                                      const std::string & filename,
-                                      const bool verbose) throw (std::invalid_argument)
+    void removeCollisionPairs(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              GeometryModel & geomModel,
+                              const std::string & filename,
+                              const bool verbose) throw (std::invalid_argument)
     {
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
@@ -132,10 +132,10 @@ namespace se3
     }
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    void removeCollisionPairsFromSrdfString(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                            GeometryModel & geomModel,
-                                            const std::string & xmlString,
-                                            const bool verbose)
+    void removeCollisionPairsFromXML(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                     GeometryModel & geomModel,
+                                     const std::string & xmlString,
+                                     const bool verbose)
     {
       std::istringstream srdf_stream(xmlString);
       details::removeCollisionPairs(model, geomModel, srdf_stream, verbose);
@@ -144,9 +144,9 @@ namespace se3
 #endif // ifdef WITH_HPP_FCL
     
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    bool loadRotorParamsFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                 const std::string & filename,
-                                 const bool verbose) throw (std::invalid_argument)
+    bool loadRotorParameters(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             const std::string & filename,
+                             const bool verbose) throw (std::invalid_argument)
     {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef typename Model::JointModel JointModel;
@@ -216,9 +216,9 @@ namespace se3
     
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
-    getNeutralConfigurationFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                    const std::string & filename,
-                                    const bool verbose) throw (std::invalid_argument)
+    getNeutralConfiguration(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            const std::string & filename,
+                            const bool verbose) throw (std::invalid_argument)
     {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef typename Model::JointModel JointModel;

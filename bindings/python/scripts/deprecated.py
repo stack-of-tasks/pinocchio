@@ -79,3 +79,16 @@ def getJacobianTimeVariation(model,data,jointId,local):
 @deprecated("This function has been renamed difference and will be removed in release 1.4.0 of Pinocchio. Please change for new difference.")
 def differentiate(model,q0,q1):
   return se3.difference(model,q0,q1)
+
+@deprecated("This function has been renamed difference and will be removed in release 1.4.0 of Pinocchio. Please change for new getNeutralConfiguration function.")
+def getNeutralConfigurationFromSrdf(model, filename, verbose):
+  return se3.getNeutralConfiguration(model,filename,verbose)
+
+@deprecated("This function has been renamed difference and will be removed in release 1.4.0 of Pinocchio. Please change for new loadRotorParameters function.")
+def loadRotorParamsFromSrdf(model, filename, verbose):
+  return se3.loadRotorParams(model,filename,verbose)
+
+@deprecated("This function has been renamed difference and will be removed in release 1.4.0 of Pinocchio. Please change for new removeCollisionPairs function.")
+def removeCollisionPairsFromSrdf(model, geomModel, filename, verbose):
+  return se3.removeCollisionPairs(model,geomModel,filename,verbose)
+

@@ -127,18 +127,7 @@ namespace se3
         
         return geometry_model;
       }
-      
-#ifdef WITH_HPP_FCL
-      static void removeCollisionPairsFromSrdf(Model & model,
-                                               GeometryModel & geometry_model,
-                                               const std::string & filename,
-                                               bool verbose
-                                               )
-      {
-        se3::srdf::removeCollisionPairsFromSrdf(model,geometry_model,filename,verbose);
-      }
 
-#endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
 
 #ifdef WITH_LUA5
@@ -210,10 +199,16 @@ namespace se3
               "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model ");
       
 #ifdef WITH_HPP_FCL
-      bp::def("removeCollisionPairsFromSrdf",removeCollisionPairsFromSrdf,
-              bp::args("Model", "GeometryModel (where pairs are removed)","srdf filename (string)", "verbosity"
-                       ),
-              "Parse an SRDF file in order to desactivate collision pairs for a specific GeometryData and GeometryModel ");
+      
+      bp::def("removeCollisionPairs",
+              static_cast<void (*)(const Model &, GeometryModel &, const std::string &, const bool)>(&srdf::removeCollisionPairs),
+              bp::args("Model", "GeometryModel (where pairs are removed)","srdf filename (string)", "verbosity"),
+              "Parse an SRDF file in order to desactivte collision pairs for a specific GeometryModel.");
+      
+      bp::def("removeCollisionPairsFromXML",
+              static_cast<void (*)(const Model &, GeometryModel &, const std::string &, const bool)>(&srdf::removeCollisionPairsFromXML),
+              bp::args("Model", "GeometryModel (where pairs are removed)","string containing the XML-SRDF", "verbosity"),
+              "Parse an SRDF file in order to desactivte collision pairs for a specific GeometryModel.");
 
 #endif // #ifdef WITH_HPP_FCL
 #endif // #ifdef WITH_URDFDOM
@@ -226,14 +221,14 @@ namespace se3
               "Parse the URDF file given in input and return a proper pinocchio model");
 #endif // #ifdef WITH_LUA5
 
-      bp::def("getNeutralConfigurationFromSrdf",
-              static_cast<Model::ConfigVectorType (*)(Model &, const std::string &, const bool)>(&srdf::getNeutralConfigurationFromSrdf),
+      bp::def("getNeutralConfiguration",
+              static_cast<Model::ConfigVectorType (*)(Model &, const std::string &, const bool)>(&srdf::getNeutralConfiguration),
               bp::args("Model for which we want the neutral config","srdf filename (string)", "verbosity"
                        ),
               "Get the neutral configuration of a given model associated to a SRDF file");
 
-      bp::def("loadRotorParamsFromSrdf",
-              static_cast<bool (*)(Model &, const std::string &, const bool)>(&srdf::loadRotorParamsFromSrdf),
+      bp::def("loadRotorParameters",
+              static_cast<bool (*)(Model &, const std::string &, const bool)>(&srdf::loadRotorParameters),
               bp::args("Model for which we are loading the rotor parameters",
                        "SRDF filename (string)", "verbosity"),
               "Load the rotor parameters of a given model from an SRDF file.\n"

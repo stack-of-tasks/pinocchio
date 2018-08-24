@@ -27,6 +27,7 @@ namespace se3
   {
     
 #ifdef WITH_HPP_FCL
+    
     ///
     /// \brief Deactive all possible collision pairs mentioned in the SRDF file.
     ///        It throws if the SRDF file is incorrect.
@@ -38,27 +39,49 @@ namespace se3
     /// \param[in] verbose Verbosity mode (print removed collision pairs and undefined link inside the model).
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void removeCollisionPairs(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              GeometryModel & geomModel,
+                              const std::string & filename,
+                              const bool verbose = false) throw (std::invalid_argument);
+    
+    /// \copydoc removeCollisionPairs
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    PINOCCHIO_DEPRECATED
     void removeCollisionPairsFromSrdf(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                       GeometryModel & geomModel,
                                       const std::string & filename,
-                                      const bool verbose = false) throw (std::invalid_argument);
+                                      const bool verbose = false) throw (std::invalid_argument)
+    {
+      removeCollisionPairs(model,geomModel,filename,verbose);
+    }
+    
     ///
     /// \brief Deactive all possible collision pairs mentioned in the SRDF file.
     ///
     /// \param[in] model Model of the kinematic tree.
     /// \param[in] geomModel Model of the geometries.
     /// \param[out] data_geom Data containing the active collision pairs.
-    /// \param[in] xmlString the SRDF string.
+    /// \param[in] xmlString constaining the XML SRDF string.
     /// \param[in] verbose Verbosity mode (print removed collision pairs and undefined link inside the model).
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void removeCollisionPairsFromXML(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                     GeometryModel & geomModel,
+                                     const std::string & xmlString,
+                                     const bool verbose = false);
+    
+    /// \copydoc removeCollisionPairsFromXML
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    PINOCCHIO_DEPRECATED
     void removeCollisionPairsFromSrdfString(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                             GeometryModel & geomModel,
                                             const std::string & xmlString,
-                                            const bool verbose = false);
+                                            const bool verbose = false)
+    {
+      removeCollisionPairsFromXML(model,geomModel,xmlString,verbose);
+    }
     
 #endif // ifdef WITH_HPP_FCL
-    
 
     ///
     /// \brief Get the neutral configuration of a given model associated to a SRDF file.
@@ -72,11 +95,19 @@ namespace se3
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
+    getNeutralConfiguration(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            const std::string & filename,
+                            const bool verbose = false) throw (std::invalid_argument);
+    
+    /// \copydoc se3::srdf::getNeutralConfiguration
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    PINOCCHIO_DEPRECATED
+    typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
     getNeutralConfigurationFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                     const std::string & filename,
-                                    const bool verbose = false) throw (std::invalid_argument);
-
-
+                                    const bool verbose = false) throw (std::invalid_argument)
+    { return getNeutralConfiguration(model,filename,verbose); }
+    
     ///
     /// \brief Load the rotor params of a given model associated to a SRDF file.
     ///        It throws if the SRDF file is incorrect.
@@ -88,9 +119,19 @@ namespace se3
     /// \return Boolean whether it loads or not.
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    bool loadRotorParameters(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             const std::string & filename,
+                             const bool verbose = false) throw (std::invalid_argument);
+    
+    /// \copydoc se3::srdf::loadRotorParameters
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    PINOCCHIO_DEPRECATED
     bool loadRotorParamsFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                  const std::string & filename,
-                                 const bool verbose) throw (std::invalid_argument);
+                                 const bool verbose = false) throw (std::invalid_argument)
+    {
+      return loadRotorParameters(model,filename,verbose);
+    }
     
   }
 } // namespace se3
