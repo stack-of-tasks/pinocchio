@@ -50,7 +50,7 @@ namespace se3
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   const typename ModelTpl<Scalar,Options,JointCollectionTpl>::
-  Vector3 ModelTpl<Scalar,Options,JointCollectionTpl>::gravity981(0,0,-9.81);
+  Vector3 ModelTpl<Scalar,Options,JointCollectionTpl>::gravity981((Scalar)0,(Scalar)0,(Scalar)-9.81);
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline std::ostream& operator<<(std::ostream & os,
