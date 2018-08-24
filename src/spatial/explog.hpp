@@ -255,7 +255,7 @@ namespace se3
     typename SE3::Angular_t & rot = res.rotation();
     
     const Scalar t = std::sqrt(t2);
-    if(t > Eigen::NumTraits<Scalar>::dummy_precision())
+    if(t > 1e-4)
     {
       Scalar ct,st; SINCOS(t,&st,&ct);
 
@@ -278,7 +278,7 @@ namespace se3
     {
       const Scalar alpha_wxv = Scalar(1)/Scalar(2) - t2/24;
       const Scalar alpha_v = Scalar(1) - t2/6;
-      const Scalar alpha_w = Scalar(1)/Scalar(6) - t2/120;
+      const Scalar alpha_w = (Scalar(1)/Scalar(6) - t2/120) * w.dot(v);
       
       // Linear
       trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
