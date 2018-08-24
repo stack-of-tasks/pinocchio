@@ -21,7 +21,6 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
-
 namespace se3
 {
   namespace srdf
@@ -38,7 +37,8 @@ namespace se3
     /// \param[in] filename The complete path to the SRDF file.
     /// \param[in] verbose Verbosity mode (print removed collision pairs and undefined link inside the model).
     ///
-    void removeCollisionPairsFromSrdf(const Model& model,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void removeCollisionPairsFromSrdf(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                       GeometryModel & geomModel,
                                       const std::string & filename,
                                       const bool verbose = false) throw (std::invalid_argument);
@@ -51,7 +51,8 @@ namespace se3
     /// \param[in] xmlString the SRDF string.
     /// \param[in] verbose Verbosity mode (print removed collision pairs and undefined link inside the model).
     ///
-    void removeCollisionPairsFromSrdfString(const Model& model,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void removeCollisionPairsFromSrdfString(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                             GeometryModel & geomModel,
                                             const std::string & xmlString,
                                             const bool verbose = false);
@@ -68,9 +69,12 @@ namespace se3
     /// \param[in] verbose Verbosity mode.
     ///
     /// \return The neutral configuration as an eigen vector
-    Eigen::VectorXd getNeutralConfigurationFromSrdf(Model & model,
-                                                    const std::string & filename,
-                                                    const bool verbose = false) throw (std::invalid_argument);
+    ///
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
+    getNeutralConfigurationFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                    const std::string & filename,
+                                    const bool verbose = false) throw (std::invalid_argument);
 
 
     ///
@@ -81,8 +85,10 @@ namespace se3
     /// \param[in] filename The complete path to the SRDF file.
     /// \param[in] verbose Verbosity mode.
     ///
-    /// \return Boolean whether it loads or not.    
-    bool loadRotorParamsFromSrdf(Model & model,
+    /// \return Boolean whether it loads or not.
+    ///
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    bool loadRotorParamsFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                  const std::string & filename,
                                  const bool verbose) throw (std::invalid_argument);
     

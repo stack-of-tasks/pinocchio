@@ -39,10 +39,11 @@ namespace se3
 #ifdef WITH_HPP_FCL
     namespace details
     {
-      inline void removeCollisionPairs(const Model & model,
-                                       GeometryModel & geomModel,
-                                       std::istream & stream,
-                                       const bool verbose = false)
+      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+      void removeCollisionPairs(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                GeometryModel & geomModel,
+                                std::istream & stream,
+                                const bool verbose = false)
       {
         // Read xml stream
         using boost::property_tree::ptree;
@@ -65,8 +66,8 @@ namespace se3
               continue;
             }
 
-            const Model::JointIndex frame_id1 = model.getBodyId(link1);
-            const Model::JointIndex frame_id2 = model.getBodyId(link2);
+            const typename Model::FrameIndex frame_id1 = model.getBodyId(link1);
+            const typename Model::FrameIndex frame_id2 = model.getBodyId(link2);
 
             // Malformed SRDF
             if (frame_id1 == frame_id2)
@@ -82,14 +83,14 @@ namespace se3
                 _colPair != geomModel.collisionPairs.end(); ) {
               const CollisionPair& colPair (*_colPair);
               bool remove =
-                (
-                 (geomModel.geometryObjects[colPair.first ].parentFrame == frame_id1)
-                 && (geomModel.geometryObjects[colPair.second].parentFrame == frame_id2)
-                ) || (
-                  (geomModel.geometryObjects[colPair.second].parentFrame == frame_id1)
-                  && (geomModel.geometryObjects[colPair.first ].parentFrame == frame_id2)
-                  );
-
+              (
+               (geomModel.geometryObjects[colPair.first ].parentFrame == frame_id1)
+               && (geomModel.geometryObjects[colPair.second].parentFrame == frame_id2)
+               ) || (
+                     (geomModel.geometryObjects[colPair.second].parentFrame == frame_id1)
+                     && (geomModel.geometryObjects[colPair.first ].parentFrame == frame_id2)
+                     );
+              
               if (remove) {
                 _colPair = geomModel.collisionPairs.erase(_colPair);
                 didRemove = true;
@@ -105,7 +106,8 @@ namespace se3
       }
     } // namespace details
 
-    void removeCollisionPairsFromSrdf(const Model& model,
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void removeCollisionPairsFromSrdf(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                       GeometryModel & geomModel,
                                       const std::string & filename,
                                       const bool verbose) throw (std::invalid_argument)
@@ -129,21 +131,26 @@ namespace se3
       details::removeCollisionPairs(model, geomModel, srdf_stream, verbose);
     }
 
-    void removeCollisionPairsFromSrdfString(
-        const Model& model,
-        GeometryModel & geomModel,
-        const std::string & xmlString,
-        const bool verbose)
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void removeCollisionPairsFromSrdfString(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                            GeometryModel & geomModel,
+                                            const std::string & xmlString,
+                                            const bool verbose)
     {
       std::istringstream srdf_stream(xmlString);
       details::removeCollisionPairs(model, geomModel, srdf_stream, verbose);
     }
     
 #endif // ifdef WITH_HPP_FCL
-    bool loadRotorParamsFromSrdf(Model & model,
+    
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    bool loadRotorParamsFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                  const std::string & filename,
                                  const bool verbose) throw (std::invalid_argument)
     {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      typedef typename Model::JointModel JointModel;
+      
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
       if (extension != "srdf")
@@ -177,15 +184,15 @@ namespace se3
             if (joint.first == "joint")
             {
               std::string joint_name = joint.second.get<std::string>("<xmlattr>.name");
-              double rotor_mass = joint.second.get<double>("<xmlattr>.mass");
-              double rotor_gr = joint.second.get<double>("<xmlattr>.gear_ratio");
+              const Scalar rotor_mass = (Scalar)joint.second.get<double>("<xmlattr>.mass");
+              const Scalar rotor_gr = (Scalar)joint.second.get<double>("<xmlattr>.gear_ratio");
               if (verbose)
               {
                 std::cout << "(" << joint_name << " , " <<
-                  rotor_mass << " , " << rotor_gr << ")" << std::endl;
+                rotor_mass << " , " << rotor_gr << ")" << std::endl;
               }
               // Search in model the joint and its config id
-              Model::JointIndex joint_id = model.getJointId(joint_name);
+              typename Model::JointIndex joint_id = model.getJointId(joint_name);
 
               if (joint_id != model.joints.size()) // != model.njoints
               {
@@ -207,10 +214,15 @@ namespace se3
       return false; // warning : uninitialized vector is returned
     }
     
-    Eigen::VectorXd getNeutralConfigurationFromSrdf(Model & model,
-                                                    const std::string & filename,
-                                                    const bool verbose) throw (std::invalid_argument)
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
+    getNeutralConfigurationFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                    const std::string & filename,
+                                    const bool verbose) throw (std::invalid_argument)
     {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      typedef typename Model::JointModel JointModel;
+      
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
       if (extension != "srdf")
@@ -248,17 +260,18 @@ namespace se3
               if (joint.first == "joint")
               {
                 std::string joint_name = joint.second.get<std::string>("<xmlattr>.name");
-                double joint_config = joint.second.get<double>("<xmlattr>.value");
+                const Scalar joint_config = (Scalar)joint.second.get<double>("<xmlattr>.value");
                 if (verbose)
                 {
                   std::cout << "(" << joint_name << " , " << joint_config << ")" << std::endl;
                 }
                 // Search in model the joint and its config id
-                Model::JointIndex joint_id = model.getJointId(joint_name);
+                typename Model::JointIndex joint_id = model.getJointId(joint_name);
 
                 if (joint_id != model.joints.size()) // != model.njoints
                 {
                   const JointModel & joint = model.joints[joint_id];
+                  assert(joint.nq() == 1 && "SRDF:half_sitting only handles 1 DoF joints");
                   model.neutralConfiguration(joint.idx_q()) = joint_config; // joint with 1 dof
                   // model.neutralConfiguration.segment(joint.idx_q(),joint.nq()) = joint_config; // joint with more than 1 dof
                 }
@@ -273,8 +286,9 @@ namespace se3
           
         }
       } // BOOST_FOREACH
+      
       assert(false && "no half_sitting configuration found in the srdf file"); // Should we throw something here ?  
-      return Eigen::VectorXd::Constant(model.nq,NAN); // warning : uninitialized vector is returned
+      return ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType::Constant(model.nq,NAN); // warning : uninitialized vector is returned
     }
   }
 } // namespace se3
