@@ -62,16 +62,20 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   model.addBodyFrame("planar2_body", idx, SE3::Identity());
   
   boost::shared_ptr<fcl::Box> sample(new fcl::Box(1, 1, 1));
+  Model::FrameIndex body_id_1 = model.getBodyId("planar1_body");
+  Model::JointIndex joint_parent_1 = model.frames[body_id_1].parent;
   geomModel.addGeometryObject(GeometryObject("ff1_collision_object",
-                                             model.getBodyId("planar1_body"),0,
-                                             sample,SE3::Identity(), "", Eigen::Vector3d::Ones()),
-                              model,true);
+                                             model.getBodyId("planar1_body"),joint_parent_1,
+                                             sample,SE3::Identity(), "", Eigen::Vector3d::Ones())
+                              );
   
   boost::shared_ptr<fcl::Box> sample2(new fcl::Box(1, 1, 1));
+  Model::FrameIndex body_id_2 = model.getBodyId("planar2_body");
+  Model::JointIndex joint_parent_2 = model.frames[body_id_2].parent;
   geomModel.addGeometryObject(GeometryObject("ff2_collision_object",
-                                             model.getBodyId("planar2_body"),0,
-                                             sample2,SE3::Identity(), "", Eigen::Vector3d::Ones()),
-                              model,true);
+                                             model.getBodyId("planar2_body"),joint_parent_2,
+                                             sample2,SE3::Identity(), "", Eigen::Vector3d::Ones())
+                              );
 
   geomModel.addAllCollisionPairs();
   se3::Data data(model);
