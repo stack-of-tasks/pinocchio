@@ -255,7 +255,7 @@ namespace se3
     typename SE3::Angular_t & rot = res.rotation();
     
     const Scalar t = std::sqrt(t2);
-    if(t > Eigen::NumTraits<Scalar>::dummy_precision())
+    if(t > 1e-4)
     {
       Scalar ct,st; SINCOS(t,&st,&ct);
 
