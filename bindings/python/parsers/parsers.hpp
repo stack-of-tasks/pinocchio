@@ -152,23 +152,6 @@ namespace se3
         return model;
       }
 #endif // #ifdef WITH_LUA5
-
-      static Eigen::VectorXd getNeutralConfigurationFromSrdf(Model & model,
-                                                             const std::string & filename,
-                                                             bool verbose
-                                                            )
-      {
-        return se3::srdf::getNeutralConfigurationFromSrdf(model, filename, verbose);
-      }
-
-      static bool loadRotorParamsFromSrdf(Model & model,
-                                          const std::string & filename,
-                                          bool verbose
-                                          )
-      {
-        return se3::srdf::loadRotorParamsFromSrdf(model, filename, verbose);
-      }
-
       
       /* --- Expose --------------------------------------------------------- */
       static void expose();
@@ -243,13 +226,14 @@ namespace se3
               "Parse the URDF file given in input and return a proper pinocchio model");
 #endif // #ifdef WITH_LUA5
 
-      bp::def("getNeutralConfigurationFromSrdf",getNeutralConfigurationFromSrdf,
-              // static_cast <ModelHandler (*) ( const std::string &, bool)> (&ParsersPythonVisitor::getNeutralConfigurationFromSrdf),
+      bp::def("getNeutralConfigurationFromSrdf",
+              static_cast<Model::ConfigVectorType (*)(Model &, const std::string &, const bool)>(&srdf::getNeutralConfigurationFromSrdf),
               bp::args("Model for which we want the neutral config","srdf filename (string)", "verbosity"
                        ),
               "Get the neutral configuration of a given model associated to a SRDF file");
 
-      bp::def("loadRotorParamsFromSrdf",loadRotorParamsFromSrdf,
+      bp::def("loadRotorParamsFromSrdf",
+              static_cast<bool (*)(Model &, const std::string &, const bool)>(&srdf::loadRotorParamsFromSrdf),
               bp::args("Model for which we are loading the rotor parameters",
                        "SRDF filename (string)", "verbosity"),
               "Load the rotor parameters of a given model from an SRDF file.\n"
