@@ -15,6 +15,9 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
+#ifndef __se3_parser_srdf_hxx__
+#define __se3_parser_srdf_hxx__
+
 #include "pinocchio/parsers/srdf.hpp"
 
 #include "pinocchio/multibody/model.hpp"
@@ -27,7 +30,6 @@
 #include <fstream>
 #include <sstream>
 #include <boost/foreach.hpp>
-
 
 namespace se3
 {
@@ -276,3 +278,5 @@ namespace se3
     }
   }
 } // namespace se3
+
+#endif // ifndef __se3_parser_srdf_hxx__

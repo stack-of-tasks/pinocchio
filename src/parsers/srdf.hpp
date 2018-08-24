@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -88,5 +88,7 @@ namespace se3
     
   }
 } // namespace se3
+
+#include "pinocchio/parsers/srdf.hxx"
 
 #endif // ifndef __se3_parser_srdf_hpp__

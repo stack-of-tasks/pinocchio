@@ -309,6 +309,7 @@ SET(${PROJECT_NAME}_PARSERS_HEADERS
   parsers/sample-models.hpp
   parsers/utils.hpp
   parsers/srdf.hpp
+  parsers/srdf.hxx
   ) 
 
 IF(URDFDOM_FOUND)
