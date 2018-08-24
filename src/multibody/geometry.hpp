@@ -15,9 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_geom_hpp__
-#define __se3_geom_hpp__
-
+#ifndef __se3_multibody_geometry_hpp__
+#define __se3_multibody_geometry_hpp__
 
 #include "pinocchio/multibody/fcl.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -302,4 +301,4 @@ namespace se3
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/geometry.hxx"
 
-#endif // ifndef __se3_geom_hpp__
+#endif // ifndef __se3_multibody_geometry_hpp__

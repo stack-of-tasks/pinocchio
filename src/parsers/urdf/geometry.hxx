@@ -15,6 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
+#ifndef __se3_multibody_parsers_urdf_geometry_hxx__
+#define __se3_multibody_parsers_urdf_geometry_hxx__
 
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/urdf/utils.hpp"
@@ -33,7 +35,7 @@
 #include <boost/shared_ptr.hpp>
 
 #ifdef WITH_HPP_FCL
-#include <hpp/fcl/mesh_loader/assimp.h>
+  #include <hpp/fcl/mesh_loader/assimp.h>
 #endif // WITH_HPP_FCL
 
 namespace se3
@@ -462,3 +464,5 @@ namespace se3
 
   } // namespace urdf
 } // namespace se3
+            
+#endif // ifndef __se3_multibody_parsers_urdf_geometry_hxx__

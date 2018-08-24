@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_geometry_hxx__
-#define __se3_geometry_hxx__
+#ifndef __se3_multibody_geometry_hxx__
+#define __se3_multibody_geometry_hxx__
 
 #include <iostream>
 #include <map>
@@ -252,4 +252,4 @@ namespace se3
 
 /// @endcond
 
-#endif // ifndef __se3_geometry_hxx__
+#endif // ifndef __se3_multibody_geometry_hxx__
