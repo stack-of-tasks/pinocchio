@@ -21,6 +21,10 @@
 #include <Eigen/Core>
 #include "pinocchio/utils/eigen-fix.hpp"
 
+#if __cplusplus >= 201103L
+  #define PINOCCHIO_WITH_CXX11_SUPPORT
+#endif
+
 /// \brief Define the current version of Pinocchio
 #define PINOCCHIO_MAJOR_VERSION 1
 #define PINOCCHIO_MINOR_VERSION 3
