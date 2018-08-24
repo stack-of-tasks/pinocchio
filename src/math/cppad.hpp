@@ -27,8 +27,6 @@
 #define EIGEN_MATRIXBASE_PLUGIN <cppad/example/eigen_plugin.hpp>
 #endif
 
-#define CPPAD_EIGENVECTOR // CppAD will use Eigen::Vector for CPPAD_TESTVECTOR
-
 #include <Eigen/Core>
 #include <cppad/cppad.hpp>
 
