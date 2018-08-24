@@ -220,7 +220,7 @@ namespace se3
     {
       m.linear().setZero();
       for(Eigen::DenseIndex k = 0; k < 3; ++k)
-        m.angular()[k] = k == axis ? w : 0;
+        m.angular()[k] = k == axis ? w : (Scalar)0;
     }
     
     template<typename MotionDerived>

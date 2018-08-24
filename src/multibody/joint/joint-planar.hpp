@@ -108,8 +108,8 @@ namespace se3
     template<typename MotionDerived>
     void setTo(MotionDense<MotionDerived> & other) const
     {
-      other.linear()  << m_x_dot, m_y_dot,           0;
-      other.angular() <<       0,       0, m_theta_dot;
+      other.linear()  <<   m_x_dot,   m_y_dot,   (Scalar)0;
+      other.angular() << (Scalar)0, (Scalar)0, m_theta_dot;
     }
     
     template<typename S2, int O2, typename D2>

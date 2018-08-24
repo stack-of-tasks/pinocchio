@@ -95,7 +95,7 @@ namespace se3
     void setTo(MotionDense<MotionDerived> & other) const
     {
       for(Eigen::DenseIndex k = 0; k < 3; ++k)
-        other.linear()[k] = k == axis ? rate : 0;
+        other.linear()[k] = k == axis ? rate : (Scalar)0;
       other.angular().setZero();
     }
     
