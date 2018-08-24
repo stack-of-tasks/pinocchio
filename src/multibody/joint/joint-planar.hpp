@@ -77,9 +77,10 @@ namespace se3
     
     typedef CartesianAxis<2> AxisZ;
 
-    MotionPlanarTpl () : m_x_dot(NAN), m_y_dot(NAN), m_theta_dot(NAN) {}
+    MotionPlanarTpl() {}
     
-    MotionPlanarTpl (Scalar x_dot, Scalar y_dot, Scalar theta_dot)
+    MotionPlanarTpl(const Scalar & x_dot, const Scalar & y_dot,
+                    const Scalar & theta_dot)
     : m_x_dot(x_dot), m_y_dot(y_dot), m_theta_dot(theta_dot)
     {}
     

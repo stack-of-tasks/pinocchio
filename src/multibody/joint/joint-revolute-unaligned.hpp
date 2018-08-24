@@ -73,7 +73,7 @@ namespace se3
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MOTION_TYPEDEF_TPL(MotionRevoluteUnalignedTpl);
 
-    MotionRevoluteUnalignedTpl() : axis(Vector3::Constant(NAN)), w(NAN) {}
+    MotionRevoluteUnalignedTpl() {}
     
     template<typename Vector3Like, typename OtherScalar>
     MotionRevoluteUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis,
@@ -223,7 +223,7 @@ namespace se3
     typedef typename traits<ConstraintRevoluteUnalignedTpl>::JointForce JointForce;
     typedef typename traits<ConstraintRevoluteUnalignedTpl>::DenseBase DenseBase;
     
-    ConstraintRevoluteUnalignedTpl() : axis(Vector3::Constant(NAN)) {}
+    ConstraintRevoluteUnalignedTpl() {}
     
     template<typename Vector3Like>
     ConstraintRevoluteUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
@@ -440,12 +440,7 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataRevoluteUnalignedTpl()
-    : M(1)
-    , S(Constraint_t::Vector3::Constant(NAN))
-    , v(Motion_t::Vector3::Constant(NAN),NAN)
-    , U(), Dinv(), UDinv()
-    {}
+    JointDataRevoluteUnalignedTpl() {}
     
     template<typename Vector3Like>
     JointDataRevoluteUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
@@ -471,12 +466,11 @@ namespace se3
     using Base::idx_v;
     using Base::setIndexes;
     
-    JointModelRevoluteUnalignedTpl() : axis(Eigen::Vector3d::Constant(NAN))   {}
+    JointModelRevoluteUnalignedTpl() {}
     
-    template<typename OtherScalar>
-    JointModelRevoluteUnalignedTpl(const OtherScalar x, const OtherScalar y, const OtherScalar z)
+    JointModelRevoluteUnalignedTpl(const Scalar & x, const Scalar & y, const Scalar & z)
+    : axis(x,y,z)
     {
-      axis << x, y, z ;
       axis.normalize();
       assert(axis.isUnitary() && "Rotation axis is not unitary");
     }

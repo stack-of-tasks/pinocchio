@@ -288,7 +288,7 @@ namespace se3
       } // BOOST_FOREACH
       
       assert(false && "no half_sitting configuration found in the srdf file"); // Should we throw something here ?  
-      return ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType::Constant(model.nq,NAN); // warning : uninitialized vector is returned
+      return ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType::Constant(model.nq,(Scalar)NAN); // warning : uninitialized vector is returned
     }
   }
 } // namespace se3

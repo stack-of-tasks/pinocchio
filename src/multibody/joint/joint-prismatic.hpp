@@ -79,8 +79,8 @@ namespace se3
     typedef SpatialAxis<_axis+LINEAR> Axis;
     typedef typename Axis::CartesianAxis3 CartesianAxis3;
 
-    MotionPrismaticTpl()                   : rate(NAN) {}
-    MotionPrismaticTpl( const Scalar & v ) : rate(v)  {}
+    MotionPrismaticTpl() {}
+    MotionPrismaticTpl(const Scalar & v) : rate(v) {}
 
 //    inline operator MotionPlain() const { return Axis() * rate; }
     
@@ -496,8 +496,7 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataPrismaticTpl() : M(NAN), U(), Dinv(), UDinv()
-    {}
+    JointDataPrismaticTpl() {}
 
   }; // struct JointDataPrismaticTpl
   

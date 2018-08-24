@@ -84,8 +84,7 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataRevoluteUnboundedTpl() : M(NAN,NAN), U(), Dinv(), UDinv()
-    {}
+    JointDataRevoluteUnboundedTpl() {}
 
   }; // struct JointDataRevoluteUnbounded
   

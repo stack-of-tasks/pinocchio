@@ -76,9 +76,7 @@ namespace se3
     typedef typename traits<ConstraintSphericalZYXTpl>::JointForce JointForce;
     typedef typename traits<ConstraintSphericalZYXTpl>::DenseBase DenseBase;
     
-    ConstraintSphericalZYXTpl()
-    : S_minimal(Matrix3::Constant(NAN))
-    {}
+    ConstraintSphericalZYXTpl() {}
     
     template<typename Matrix3Like>
     ConstraintSphericalZYXTpl(const Eigen::MatrixBase<Matrix3Like> & subspace)

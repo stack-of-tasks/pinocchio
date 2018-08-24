@@ -76,7 +76,7 @@ namespace se3
     
     MOTION_TYPEDEF_TPL(MotionSphericalTpl);
 
-    MotionSphericalTpl() : w(NAN, NAN, NAN) {}
+    MotionSphericalTpl() {}
     
     template<typename Vector3Like>
     MotionSphericalTpl(const Eigen::MatrixBase<Vector3Like> & w)

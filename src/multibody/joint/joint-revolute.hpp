@@ -208,7 +208,7 @@ namespace se3
     typedef SpatialAxis<axis+ANGULAR> Axis;
     typedef typename Axis::CartesianAxis3 CartesianAxis3;
 
-    MotionRevoluteTpl()                   : w(NAN) {}
+    MotionRevoluteTpl() {}
     
     template<typename OtherScalar>
     MotionRevoluteTpl(const OtherScalar & w) : w(w)  {}
@@ -565,8 +565,7 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataRevoluteTpl() : M(NAN,NAN), U(), Dinv(), UDinv()
-    {}
+    JointDataRevoluteTpl() {}
 
   }; // struct JointDataRevoluteTpl
   

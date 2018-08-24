@@ -74,9 +74,7 @@ namespace se3
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MOTION_TYPEDEF_TPL(MotionPrismaticUnalignedTpl);
 
-    MotionPrismaticUnalignedTpl()
-    : axis(Vector3::Constant(NAN)), rate(NAN)
-    {}
+    MotionPrismaticUnalignedTpl() {}
     
     template<typename Vector3Like, typename S2>
     MotionPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis,
@@ -210,7 +208,7 @@ namespace se3
     typedef typename traits<ConstraintPrismaticUnaligned>::JointForce JointForce;
     typedef typename traits<ConstraintPrismaticUnaligned>::DenseBase DenseBase;
     
-    ConstraintPrismaticUnaligned() : axis(Vector3::Constant(NAN)) {}
+    ConstraintPrismaticUnaligned() {}
     
     template<typename Vector3Like>
     ConstraintPrismaticUnaligned(const Eigen::MatrixBase<Vector3Like> & axis)
@@ -421,18 +419,13 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataPrismaticUnalignedTpl()
-    : M(Transformation_t::LinearType::Constant(NAN))
-    , S(Constraint_t::Vector3::Constant(NAN))
-    , v(Motion_t::Vector3::Constant(NAN),NAN)
-    , U(), Dinv(), UDinv()
-    {}
+    JointDataPrismaticUnalignedTpl() {}
     
     template<typename Vector3Like>
     JointDataPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
-    : M(Transformation_t::LinearType::Constant(NAN))
+    : M()
     , S(axis)
-    , v(axis,NAN)
+    , v(axis,(Scalar)NAN)
     , U(), Dinv(), UDinv()
     {}
 

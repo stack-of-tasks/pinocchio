@@ -75,7 +75,7 @@ namespace se3
     
     MOTION_TYPEDEF_TPL(MotionTranslationTpl);
 
-    MotionTranslationTpl() : rate(NAN, NAN, NAN) {}
+    MotionTranslationTpl() {}
     
     template<typename Vector3Like>
     MotionTranslationTpl(const Eigen::MatrixBase<Vector3Like> & v)
@@ -480,10 +480,7 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataTranslationTpl()
-    : M(Transformation_t::LinearType::Constant(NAN))
-    , U(), Dinv(), UDinv()
-    {}
+    JointDataTranslationTpl() {}
 
   }; // struct JointDataTranslationTpl
 

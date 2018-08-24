@@ -159,18 +159,12 @@ namespace se3
     ConstraintTpl() : S() 
     {
       EIGEN_STATIC_ASSERT(_Dim!=Eigen::Dynamic,YOU_CALLED_A_DYNAMIC_SIZE_METHOD_ON_A_FIXED_SIZE_MATRIX_OR_VECTOR)
-#ifndef NDEBUG
-      S.fill( NAN ); 
-#endif
     }
     
     // It is only valid for dynamics size
     explicit ConstraintTpl(const int dim) : S(6,dim)
     {
       EIGEN_STATIC_ASSERT(_Dim==Eigen::Dynamic,YOU_CALLED_A_FIXED_SIZE_METHOD_ON_A_DYNAMIC_SIZE_MATRIX_OR_VECTOR)
-#ifndef NDEBUG
-      S.fill( NAN );
-#endif
     }
 
     template<typename VectorLike>
