@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -46,9 +46,9 @@ namespace se3
         .add_property("ngeoms", &GeometryModel::ngeoms, "Number of geometries contained in the Geometry Model.")
         .add_property("geometryObjects",
                       &GeometryModel::geometryObjects,"Vector of geometries objects.")
-        
-        .def("addGeometryObject", &GeometryModel::addGeometryObject,
-             bp::args("GeometryObject", "Model", "bool"),
+
+        .def("addGeometryObject",(GeometryModel::GeomIndex (GeometryModel::*)(GeometryObject))&GeometryModel::addGeometryObject,
+             bp::arg("GeometryObject"),
              "Add a GeometryObject to a GeometryModel")
         .def("getGeometryId",&GeometryModel::getGeometryId)
         .def("existGeometryName",&GeometryModel::existGeometryName)
