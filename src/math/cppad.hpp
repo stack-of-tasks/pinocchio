@@ -28,7 +28,11 @@
 #endif
 
 #include <Eigen/Core>
-#include <cppad/cppad.hpp>
+#if defined(PINOCCHIO_WITH_CPPADCG_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
+  #include <cppad/cg.hpp>
+#else
+  #include <cppad/cppad.hpp>
+#endif
 
 namespace Eigen
 {
