@@ -78,9 +78,21 @@ namespace se3
      * @return     The index of the new added GeometryObject in geometryObjects
      * @note object is a nonconst copy to ease the insertion code.
      */
-    inline GeomIndex addGeometryObject(GeometryObject object,
-                                       const Model & model,
-                                       const bool autofillJointParent = false);
+    template<typename S2, int O2, template<typename,int> class _JointCollectionTpl>
+    PINOCCHIO_DEPRECATED
+    GeomIndex addGeometryObject(GeometryObject object,
+                                const ModelTpl<S2,O2,_JointCollectionTpl> & model,
+                                const bool autofillJointParent);
+    
+    /**
+     * @brief      Add a geometry object to a GeometryModel.
+     *
+     * @param[in]  object     Object
+     *
+     * @return     The index of the new added GeometryObject in geometryObjects
+     * @note object is a nonconst copy to ease the insertion code.
+     */
+    GeomIndex addGeometryObject(GeometryObject object);
 
     /**
      * @brief      Return the index of a GeometryObject given by its name.

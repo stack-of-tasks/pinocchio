@@ -51,21 +51,30 @@ namespace se3
   {}
 #endif // WITH_HPP_FCL   
 
-  inline GeomIndex GeometryModel::addGeometryObject(GeometryObject object,
-                                                    const Model & model,
-                                                    const bool autofillJointParent)
+  template<typename S2, int O2, template<typename,int> class JointCollectionTpl>
+  PINOCCHIO_DEPRECATED
+  GeomIndex GeometryModel::addGeometryObject(GeometryObject object,
+                                             const ModelTpl<S2,O2,JointCollectionTpl> & model,
+                                             const bool autofillJointParent)
   {
     // TODO reenable when relevant: assert( (object.parentFrame != -1) || (object.parentJoint != -1) );
-
+    
     if( autofillJointParent )
       // TODO: this might be automatically done for some default value of parentJoint (eg ==-1)
-      object.parentJoint = model.frames[object.parentFrame].parent; 
-
+      object.parentJoint = model.frames[object.parentFrame].parent;
+    
     assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
            (model.frames[object.parentFrame].type == se3::BODY)  );
     assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
            (model.frames[object.parentFrame].parent == object.parentJoint) );
-
+    
+    GeomIndex idx = (GeomIndex) (ngeoms ++);
+    geometryObjects.push_back(object);
+    return idx;
+  }
+  
+  GeomIndex GeometryModel::addGeometryObject(GeometryObject object)
+  {    
     GeomIndex idx = (GeomIndex) (ngeoms ++);
     geometryObjects.push_back(object);
     return idx;
