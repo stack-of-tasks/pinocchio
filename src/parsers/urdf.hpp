@@ -38,11 +38,13 @@ namespace se3
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
-    /// 
-    Model& buildModel (const std::string & filename,
-                       const JointModelVariant & rootJoint,
-                       Model & model, 
-                       const bool verbose = false) throw (std::invalid_argument);
+    ///
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModel(const std::string & filename,
+               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
+               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               const bool verbose = false) throw (std::invalid_argument);
 
 
     ///
@@ -53,9 +55,11 @@ namespace se3
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
     ///
-    Model & buildModel (const std::string & filename,
-                        Model & model,
-                        const bool verbose = false) throw (std::invalid_argument);
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModel(const std::string & filename,
+               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               const bool verbose = false) throw (std::invalid_argument);
 
     ///
     /// \brief Build the model from a URDF model with a particular joint as root of the model tree inside
@@ -69,10 +73,12 @@ namespace se3
     ///
     /// \note urdfTree can be build from ::urdf::parseURDF
     ///       or ::urdf::parseURDFFile
-    Model & buildModel (const ::urdf::ModelInterfaceSharedPtr & urdfTree,
-                        const JointModelVariant & rootJoint,
-                        Model & model,
-                        const bool verbose = false);
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModel(const ::urdf::ModelInterfaceSharedPtr & urdfTree,
+               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
+               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               const bool verbose = false);
 
     ///
     /// \brief Build the model from a URDF model
@@ -84,9 +90,11 @@ namespace se3
     ///
     /// \note urdfTree can be build from ::urdf::parseURDF
     ///       or ::urdf::parseURDFFile
-    Model & buildModel (const ::urdf::ModelInterfaceSharedPtr & urdfTree,
-                        Model & model,
-                        const bool verbose = false);
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModel(const ::urdf::ModelInterfaceSharedPtr & urdfTree,
+               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               const bool verbose = false);
     
     ///
     /// \brief Build the model from an XML stream with a particular joint as root of the model tree inside
@@ -100,10 +108,12 @@ namespace se3
     ///
     /// \note urdfTree can be build from ::urdf::parseURDF
     ///       or ::urdf::parseURDFFile
-    Model & buildModelFromXML(const std::string & xmlStream,
-                              const JointModelVariant & rootJoint,
-                              Model & model,
-                              const bool verbose = false)
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModelFromXML(const std::string & xmlStream,
+                      const JointModelVariant & rootJoint,
+                      ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const bool verbose = false)
     throw (std::invalid_argument);
     
     ///
@@ -116,9 +126,11 @@ namespace se3
     ///
     /// \note urdfTree can be build from ::urdf::parseURDF
     ///       or ::urdf::parseURDFFile
-    Model & buildModelFromXML(const std::string & xmlStream,
-                              Model & model,
-                              const bool verbose = false)
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModelFromXML(const std::string & xmlStream,
+                      ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const bool verbose = false)
     throw (std::invalid_argument);
 
 
@@ -142,11 +154,12 @@ namespace se3
      * \warning     If hpp-fcl has not been found during compilation, COLLISION objects can not be loaded
      *
      */
-    GeometryModel& buildGeom(const Model & model,
-                             const std::string & filename,
-                             const GeometryType type,
-                             GeometryModel & geomModel,
-                             const std::vector<std::string> & packageDirs = std::vector<std::string> ())
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              const std::string & filename,
+                              const GeometryType type,
+                              GeometryModel & geomModel,
+                              const std::vector<std::string> & packageDirs = std::vector<std::string> ())
     throw (std::invalid_argument);
     
     /**
@@ -168,11 +181,12 @@ namespace se3
      * \warning     If hpp-fcl has not been found during compilation, COLLISION objects can not be loaded
      *
      */
-    inline GeometryModel& buildGeom(const Model & model,
-                                    const std::string & filename,
-                                    const GeometryType type,
-                                    GeometryModel & geomModel,
-                                    const std::string & packageDir)
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              const std::string & filename,
+                              const GeometryType type,
+                              GeometryModel & geomModel,
+                              const std::string & packageDir)
     throw (std::invalid_argument)
     {
       const std::vector<std::string> dirs(1,packageDir);
@@ -199,11 +213,12 @@ namespace se3
      * \warning     If hpp-fcl has not been found during compilation, COLLISION objects cannot be loaded
      *
      */
-    GeometryModel& buildGeom(const Model & model,
-                             const std::istream & xmlStream,
-                             const GeometryType type,
-                             GeometryModel & geomModel,
-                             const std::vector<std::string> & packageDirs = std::vector<std::string> ())
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              const std::istream & xmlStream,
+                              const GeometryType type,
+                              GeometryModel & geomModel,
+                              const std::vector<std::string> & packageDirs = std::vector<std::string> ())
     throw (std::invalid_argument);
     
     /**
@@ -225,11 +240,12 @@ namespace se3
      * \warning     If hpp-fcl has not been found during compilation, COLLISION objects cannot be loaded
      *
      */
-    inline GeometryModel & buildGeom(const Model & model,
-                                     const std::istream & xmlStream,
-                                     const GeometryType type,
-                                     GeometryModel & geomModel,
-                                     const std::string & packageDir)
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              const std::istream & xmlStream,
+                              const GeometryType type,
+                              GeometryModel & geomModel,
+                              const std::string & packageDir)
     throw (std::invalid_argument)
     {
       const std::vector<std::string> dirs(1,packageDir);
@@ -239,5 +255,8 @@ namespace se3
 
   } // namespace urdf
 } // namespace se3
+
+#include "pinocchio/parsers/urdf/model.hxx"
+#include "pinocchio/parsers/urdf/geometry.hxx"
 
 #endif // ifndef __se3_parsers_urdf_hpp__
