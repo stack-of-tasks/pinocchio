@@ -186,4 +186,22 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     BOOST_CHECK(NearEqual(dz[0],std::cos(x0),eps99,eps99));
   }
 
+  BOOST_AUTO_TEST_CASE(test_eigen_support)
+  {
+    using namespace CppAD;
+    
+    // use a special object for source code generation
+    typedef AD<double> ADScalar;
+    
+    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> ADVector;
+    
+    ADVector vec_zero(ADVector::Zero(100));
+    BOOST_CHECK(vec_zero.isZero());
+    
+    ADVector vec_ones(100);
+    vec_ones.fill(1);
+    BOOST_CHECK(vec_ones.isOnes());
+    
+  }
+
 BOOST_AUTO_TEST_SUITE_END()
