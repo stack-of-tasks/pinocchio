@@ -18,8 +18,6 @@
 #ifndef __se3_se3_hpp__
 #define __se3_se3_hpp__
 
-#include <Eigen/Core>
-
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/macros.hpp"
 

@@ -19,11 +19,9 @@
 #ifndef __se3_joint_base_hpp__
 #define __se3_joint_base_hpp__
 
-#include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/joint/fwd.hpp"
 
-#include <Eigen/Core>
 #include <limits>
 
 namespace se3

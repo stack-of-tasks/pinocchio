@@ -21,7 +21,7 @@
 
 #include <Eigen/Geometry>
 
-#include "pinocchio/macros.hpp"
+#include "pinocchio/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/motion.hpp"

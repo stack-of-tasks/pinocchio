@@ -18,7 +18,7 @@
 #ifndef __se3_cartesian_axis_hpp__
 #define __se3_cartesian_axis_hpp__
 
-#include <Eigen/Core>
+#include "pinocchio/fwd.hpp"
 
 namespace se3
 {

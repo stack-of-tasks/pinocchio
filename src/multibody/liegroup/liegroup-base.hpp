@@ -18,10 +18,8 @@
 #ifndef __se3_lie_group_operation_base_hpp__
 #define __se3_lie_group_operation_base_hpp__
 
-#include "pinocchio/macros.hpp"
-#include "pinocchio/spatial/fwd.hpp" // struct traits
+#include "pinocchio/fwd.hpp" // struct traits
 
-#include <Eigen/Core>
 #include <limits>
 
 namespace se3

@@ -18,8 +18,6 @@
 #ifndef __se3_joint_configuration_hpp__
 #define __se3_joint_configuration_hpp__
 
-#include <Eigen/Core>
-#include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 
 namespace se3

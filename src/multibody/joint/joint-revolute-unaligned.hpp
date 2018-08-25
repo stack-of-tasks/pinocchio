@@ -19,7 +19,7 @@
 #ifndef __se3_joint_revolute_unaligned_hpp__
 #define __se3_joint_revolute_unaligned_hpp__
 
-#include "pinocchio/macros.hpp"
+#include "pinocchio/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"

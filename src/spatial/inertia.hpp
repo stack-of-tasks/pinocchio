@@ -19,7 +19,6 @@
 #ifndef __se3_inertia_hpp__
 #define __se3_inertia_hpp__
 
-#include <Eigen/Core>
 #include <iostream>
 
 #include "pinocchio/math/fwd.hpp"

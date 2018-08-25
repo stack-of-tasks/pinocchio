@@ -22,7 +22,6 @@
 
 #include "utils/macros.hpp"
 
-#include <cmath>
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
