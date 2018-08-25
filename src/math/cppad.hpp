@@ -29,7 +29,7 @@
 
 #include <Eigen/Core>
 #if defined(PINOCCHIO_WITH_CPPADCG_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
-  #include <cppad/cg.hpp>
+  #include <cppad/cg/support/cppadcg_eigen.hpp>
 #else
   #include <cppad/cppad.hpp>
 #endif
