@@ -18,11 +18,15 @@
 #ifndef __se3_fwd_hpp__
 #define __se3_fwd_hpp__
 
+#include "pinocchio/macros.hpp"
+
 #ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
 #include "pinocchio/math/cppad.hpp"
 #else
 #include <Eigen/Core>
 #endif
+
+#include "pinocchio/eigen-macros.hpp"
 
 namespace se3
 {

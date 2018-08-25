@@ -367,6 +367,7 @@ SET(HEADERS
   exception.hpp
   assert.hpp
   macros.hpp
+  eigen-macros.hpp
   fwd.hpp
  )
 LIST(REMOVE_DUPLICATES HEADERS)
