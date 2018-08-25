@@ -17,8 +17,7 @@
 
 #include <boost/variant.hpp> // to avoid C99 warnings
 
-#include <cppad/cg.hpp>
-#include <Eigen/Core>
+#include <cppad/cg/support/cppadcg_eigen.hpp>
 
 #include <iostream>
 
@@ -74,6 +73,36 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     std::ostringstream code;
     handler.generateCode(code, langC, jac, nameGen);
     std::cout << code.str();
+  }
+    
+  BOOST_AUTO_TEST_CASE(test_eigen_support)
+  {
+    using namespace CppAD;
+    using namespace CppAD::cg;
+    
+    // use a special object for source code generation
+    typedef CG<double> CGD;
+    typedef AD<CGD> ADCG;
+    
+    typedef Eigen::Matrix<ADCG,Eigen::Dynamic,1> ADCGVector;
+    
+    ADCGVector vec_zero(ADCGVector::Zero(100));
+    BOOST_CHECK(vec_zero.isZero());
+    
+    ADCGVector vec_ones(10);
+    vec_ones.fill((ADCG)1);
+    BOOST_CHECK(vec_ones.isOnes());
+    
+    ADCG value_one(1.);
+    
+    ADCG value_nan;
+    value_nan = NAN;
+    
+    ADCGVector vec_nan(10);
+    vec_nan.fill((ADCG)NAN);
+//    BOOST_CHECK(vec_ones.allFinite());
+    std::cout << vec_nan.transpose() << std::endl;
+    
   }
     
   BOOST_AUTO_TEST_CASE(test_dynamic_link)
