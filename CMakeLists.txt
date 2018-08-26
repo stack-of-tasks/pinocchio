@@ -171,6 +171,7 @@ SET(${PROJECT_NAME}_MATH_HEADERS
   math/quaternion.hpp
   math/matrix.hpp
   math/cppad.hpp
+  math/cppadcg.hpp
   )
 
 SET(${PROJECT_NAME}_UTILS_HEADERS

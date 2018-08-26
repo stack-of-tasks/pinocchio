@@ -28,12 +28,11 @@
 #endif
 
 #if defined(PINOCCHIO_WITH_CPPADCG_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
-  #include <cppad/cg/support/cppadcg_eigen.hpp>
+  #include "pinocchio/math/cppadcg.hpp" // already include <Eigen/Dense>
 #else
   #include <cppad/cppad.hpp>
+  #include <Eigen/Dense>
 #endif
-
-#include <Eigen/Core>
 
 namespace Eigen
 {

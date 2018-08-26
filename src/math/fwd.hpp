@@ -33,6 +33,11 @@ namespace boost
       {
         template<typename Scalar>
         struct constant_pi< CppAD::AD<Scalar> > : constant_pi<Scalar> {};
+        
+#if defined(PINOCCHIO_WITH_CPPADCG_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
+        template<typename Scalar>
+        struct constant_pi< CppAD::cg::CG<Scalar> > : constant_pi<Scalar> {};
+#endif
       }
     }
   }

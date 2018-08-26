@@ -15,31 +15,29 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_fwd_hpp__
-#define __se3_fwd_hpp__
+#ifndef __se3_math_ccpadcg_hpp__
+#define __se3_math_ccpadcg_hpp__
 
-#include "pinocchio/macros.hpp"
+#include <cmath>
+#include <cppad/cg/support/cppadcg_eigen.hpp>
 
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
-#include "pinocchio/math/cppad.hpp"
-#else
-#include <Eigen/Dense>
-#endif
-
-#include "pinocchio/eigen-macros.hpp"
-
-namespace se3
+namespace Eigen
 {
-  ///
-  /// \brief Common traits structure to fully define base classes for CRTP.
-  ///
-  template<class C> struct traits {};
-  
-  ///
-  /// \brief Type of the cast of a class C templated by Scalar and Options, to a new NewScalar type.
-  ///        This class should be specialized for each types.
-  ///
-  template<typename NewScalar, class C> struct CastType;
+  namespace internal
+  {
+    // Specialization of Eigen::internal::cast_impl for CppAD input types
+    template<typename Scalar>
+    struct cast_impl<CppAD::cg::CG<Scalar>,Scalar>
+    {
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
+      EIGEN_DEVICE_FUNC
+#endif
+      static inline Scalar run(const CppAD::cg::CG<Scalar> & x)
+      {
+        return x.getValue();
+      }
+    };
+  }
 }
 
-#endif // #ifndef __se3_fwd_hpp__
+#endif // #ifndef __se3_math_ccpadcg_hpp__
