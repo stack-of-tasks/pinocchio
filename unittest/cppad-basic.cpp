@@ -204,4 +204,11 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     
   }
 
+  BOOST_AUTO_TEST_CASE(test_abs)
+  {
+    CppAD::AD<double> ad_value;
+    ad_value = -1.;
+    abs(ad_value);
+  }
+
 BOOST_AUTO_TEST_SUITE_END()
