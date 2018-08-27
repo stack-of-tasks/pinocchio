@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
   // Actual Residuals
   Eigen::VectorXd constraint_residual (J * data.ddq + gamma);  
   Eigen::VectorXd dynamics_residual (data.M * data.ddq + data.nle - tau - J.transpose()*data.lambda_c);
-  BOOST_CHECK(constraint_residual.norm() <= 1e-10);
+  BOOST_CHECK(constraint_residual.norm() <= 1e-9);
   BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
 }
 
