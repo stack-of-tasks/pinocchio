@@ -67,7 +67,7 @@ class RobotWrapper(object):
             self.collision_data = None
             self.visual_data = None
             if verbose:
-                print 'Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.'
+                print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
         else:
             if self.collision_model is None:
                 self.collision_data = None
@@ -137,6 +137,11 @@ class RobotWrapper(object):
             se3.forwardKinematics(self.model, self.data, q, v)
         return self.data.v[index]
 
+    def acceleration(self, q, v, a, index, update_kinematics=True):
+        if update_kinematics:
+            se3.forwardKinematics(self.model, self.data, q, v, a)
+        return self.data.a[index]
+
     def framePosition(self, q, index, update_kinematics=True):
         if update_kinematics:
             se3.forwardKinematics(self.model, self.data, q)
@@ -150,11 +155,6 @@ class RobotWrapper(object):
         frame = self.model.frames[index]
         parentJointVel = self.data.v[frame.parent]
         return frame.placement.actInv(parentJointVel)
-
-    def acceleration(self, q, v, a, index, update_kinematics=True):
-        if update_kinematics:
-            se3.forwardKinematics(self.model, self.data, q, v, a)
-        return self.data.a[index]
 
     def frameAcceleration(self, q, v, a, index, update_kinematics=True):
         if update_kinematics:
