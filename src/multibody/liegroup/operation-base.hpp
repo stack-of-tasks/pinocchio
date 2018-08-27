@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,6 +18,7 @@
 #ifndef __se3_lie_group_operation_base_hpp__
 #define __se3_lie_group_operation_base_hpp__
 
+#include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/fwd.hpp" // struct traits
 
 #include <Eigen/Core>
@@ -25,32 +26,27 @@
 
 namespace se3
 {
+  
+#define SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,TYPENAME)               \
+  typedef          LieGroupBase<Derived> Base;                        \
+  typedef TYPENAME Base::Index Index;                                          \
+  typedef TYPENAME traits<Derived>::Scalar Scalar;                             \
+  enum {                                                                       \
+    NQ = Base::NQ,                                                             \
+    NV = Base::NV                                                              \
+  };                                                                           \
+  typedef TYPENAME Base::ConfigVector_t ConfigVector_t;                        \
+  typedef TYPENAME Base::TangentVector_t TangentVector_t;                      \
+  typedef TYPENAME Base::JacobianMatrix_t JacobianMatrix_t
+  
 #define SE3_LIE_GROUP_PUBLIC_INTERFACE(Derived)                                \
-  typedef LieGroupOperationBase<Derived> Base;                                 \
-  typedef Base::Index Index;                                                   \
-  typedef traits<Derived>::Scalar Scalar;                                      \
-  enum {                                                                       \
-    NQ = Base::NQ,                                                             \
-    NV = Base::NV                                                              \
-  };                                                                           \
-  typedef Base::ConfigVector_t ConfigVector_t;                                 \
-  typedef Base::TangentVector_t TangentVector_t;                               \
-  typedef Base::JacobianMatrix_t JacobianMatrix_t
-
+SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
+  
 #define SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(Derived)                            \
-  typedef          LieGroupOperationBase<Derived> Base;                        \
-  typedef typename Base::Index Index;                                          \
-  typedef typename traits<Derived>::Scalar Scalar;                             \
-  enum {                                                                       \
-    NQ = Base::NQ,                                                             \
-    NV = Base::NV                                                              \
-  };                                                                           \
-  typedef typename Base::ConfigVector_t ConfigVector_t;                        \
-  typedef typename Base::TangentVector_t TangentVector_t;                      \
-  typedef typename Base::JacobianMatrix_t JacobianMatrix_t
+SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
 
   template<typename Derived>
-  struct LieGroupOperationBase
+  struct LieGroupBase
   {
     typedef Derived LieGroupDerived;
     typedef int Index;
@@ -68,59 +64,75 @@ namespace se3
     /// \{
 
     /**
-     * @brief      Integrate joint's configuration for a tangent vector during one unit time
+     * @brief      Integrate a joint's configuration with a tangent vector during one unit time duration
      *
-     * @param[in]  q     initatial configuration  (size full model.nq)
-     * @param[in]  v     joint velocity (size full model.nv)
+     * @param[in]  q     the initial configuration.
+     * @param[in]  v     the tangent velocity.
      *
-     * @return     The configuration integrated
+     * @param[out] qout  the configuration integrated.
      */
     template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
-    static void integrate(const Eigen::MatrixBase<ConfigIn_t> & q,
-                          const Eigen::MatrixBase<Tangent_t>  & v,
-                          const Eigen::MatrixBase<ConfigOut_t>& qout);
+    void integrate(const Eigen::MatrixBase<ConfigIn_t> & q,
+                   const Eigen::MatrixBase<Tangent_t>  & v,
+                   const Eigen::MatrixBase<ConfigOut_t>& qout) const;
 
     /**
      * @brief      Computes the Jacobian of the Integrate operation.
      *
-     * @param[in]  v     joint velocity (size full model.nv)
+     * @param[in]  q    configuration
+     * @param[in]  v    tangent velocity.
      *
-     * @return     The Jacobian
+     * @param[out] J    the Jacobian of the Integrate operation wrt q.
      */
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate(const Eigen::MatrixBase<Tangent_t>  & v,
-                           const Eigen::MatrixBase<JacobianOut_t>& J);
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       const Eigen::MatrixBase<JacobianOut_t>& J) const;
+
+    /**
+     * @brief      Computes the Jacobian of the Integrate operation.
+     *
+     * @param[in]  q    configuration
+     * @param[in]  v    tangent velocity.
+     *
+     * @param[out] J    the Jacobian of the Integrate operation wrt v.
+     */
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       const Eigen::MatrixBase<JacobianOut_t>& J) const;
 
     /**
      * @brief      Interpolation between two joint's configurations
      *
-     * @param[in]  q0    Initial configuration to interpolate
-     * @param[in]  q1    Final configuration to interpolate
-     * @param[in]  u     u in [0;1] position along the interpolation.
+     * @param[in]  q0    the initial configuration to interpolate.
+     * @param[in]  q1    the final configuration to interpolate.
+     * @param[in]  u     in [0;1] the absicca along the interpolation.
      *
-     * @return     The interpolated configuration (q0 if u = 0, q1 if u = 1)
+     * @param[out] qout  the interpolated configuration (q0 if u = 0, q1 if u = 1)
      */
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void interpolate(const Eigen::MatrixBase<ConfigL_t> & q0,
-                            const Eigen::MatrixBase<ConfigR_t> & q1,
-                            const Scalar& u,
-                            const Eigen::MatrixBase<ConfigOut_t>& qout);
+    void interpolate(const Eigen::MatrixBase<ConfigL_t> & q0,
+                     const Eigen::MatrixBase<ConfigR_t> & q1,
+                     const Scalar& u,
+                     const Eigen::MatrixBase<ConfigOut_t>& qout) const;
     
     /**
-     * @brief      Normalize the joint configuration given as input. For instance, the quaternion must unitary.
+     * @brief      Normalize the joint configuration given as input.
+     *             For instance, the quaternion must be unitary.
      *
-     * @return     The normalized joint configuration.
+     * @param[out]     qout  the normalized joint configuration.
      */
     template <class Config_t>
-    static void normalize (const Eigen::MatrixBase<Config_t>& qout);
+    void normalize (const Eigen::MatrixBase<Config_t>& qout) const;
 
     /**
      * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
      *
      * \warning    Do not take into account the joint limits. To shoot a configuration uniformingly
-     *             depending on joint limits, see uniformySample
+     *             depending on joint limits, see randomConfiguration.
      *
-     * @return     The joint configuration
+     * @param[out] qout  the random joint configuration.
      */
     template <class Config_t>
     void random (const Eigen::MatrixBase<Config_t>& qout) const;
@@ -129,10 +141,10 @@ namespace se3
      * @brief      Generate a configuration vector uniformly sampled among
      *             provided limits.
      *
-     * @param[in]  lower_pos_limit  lower joint limit
-     * @param[in]  upper_pos_limit  upper joint limit
+     * @param[in]  lower_pos_limit  the lower joint limit vector.
+     * @param[in]  upper_pos_limit  the upper joint limit vector.
      *
-     * @return     The joint configuration
+     * @param[out] qout             the random joint configuration in the two bounds.
      */
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     void randomConfiguration
@@ -141,79 +153,80 @@ namespace se3
      const Eigen::MatrixBase<ConfigOut_t> & qout) const;
 
     /**
-     * @brief      the tangent vector that must be integrated during one unit time to go from q0 to q1
+     * @brief      Computes the tangent vector that must be integrated during one unit time to go from q0 to q1.
      *
-     * @param[in]  q0    Initial configuration
-     * @param[in]  q1    Wished configuration
+     * @param[in]  q0    the initial configuration vector.
+     * @param[in]  q1    the terminal configuration vector.
      *
-     * @return     The corresponding velocity
+     * @param[out] v     the corresponding velocity.
      */
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
-    static void difference(const Eigen::MatrixBase<ConfigL_t> & q0,
-                           const Eigen::MatrixBase<ConfigR_t> & q1,
-                           const Eigen::MatrixBase<Tangent_t>& d);
+    void difference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                    const Eigen::MatrixBase<ConfigR_t> & q1,
+                    const Eigen::MatrixBase<Tangent_t>& v) const;
 
     /**
-     * @brief      Computes the Jacobian of the difference operation
+     * @brief      Computes the Jacobian of the difference operation.
      *
-     * @param[in]  q0    Initial configuration
-     * @param[in]  q1    Wished configuration
+     * @param[in]  q0    the initial configuration vector.
+     * @param[in]  q1    the terminal configuration vector.
      *
-     * @return     The Jacobian
+     * @param[out] J0    the Jacobian of the difference operation with respect to q0.
+     * @param[out] J1    the Jacobian of the difference operation with respect to q1.
      */
     template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    static void Jdifference(const Eigen::MatrixBase<ConfigL_t> & q0,
-                            const Eigen::MatrixBase<ConfigR_t> & q1,
-                            const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                            const Eigen::MatrixBase<JacobianROut_t>& J1);
+    void Jdifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                     const Eigen::MatrixBase<ConfigR_t> & q1,
+                     const Eigen::MatrixBase<JacobianLOut_t>& J0,
+                     const Eigen::MatrixBase<JacobianROut_t>& J1) const;
 
     /**
-     * @brief      Squared distance between two configurations of the joint
+     * @brief      Squared distance between two joint configurations.
      *
-     * @param[in]  q0    Configuration 1
-     * @param[in]  q1    Configuration 2
+     * @param[in]  q0    the initial configuration vector.
+     * @param[in]  q1    the terminal configuration vector.
      *
-     * @return     The corresponding distance
+     * @param[out] d     the corresponding distance betwenn q0 and q1.
      */
     template <class ConfigL_t, class ConfigR_t>
-    static double squaredDistance(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                  const Eigen::MatrixBase<ConfigR_t> & q1);
+    Scalar squaredDistance(const Eigen::MatrixBase<ConfigL_t> & q0,
+                           const Eigen::MatrixBase<ConfigR_t> & q1) const;
 
     /**
      * @brief      Distance between two configurations of the joint
      *
-     * @param[in]  q0    Configuration 1
-     * @param[in]  q1    Configuration 2
+     * @param[in]  q0    the initial configuration vector.
+     * @param[in]  q1    the terminal configuration vector.
      *
-     * @return     The corresponding distance
+     * @return     The corresponding distance.
      */
     template <class ConfigL_t, class ConfigR_t>
-    static double distance(const Eigen::MatrixBase<ConfigL_t> & q0,
-                           const Eigen::MatrixBase<ConfigR_t> & q1);
+    Scalar distance(const Eigen::MatrixBase<ConfigL_t> & q0,
+                    const Eigen::MatrixBase<ConfigR_t> & q1) const;
 
     /**
-     * @brief      Check if two configurations are equivalent within the given precision
+     * @brief      Check if two configurations are equivalent within the given precision.
      *
      * @param[in]  q0    Configuration 0
      * @param[in]  q1    Configuration 1
      */
     template <class ConfigL_t, class ConfigR_t>
-    static bool isSameConfiguration(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                    const Eigen::MatrixBase<ConfigR_t> & q1,
-                                    const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision());
+    bool isSameConfiguration(const Eigen::MatrixBase<ConfigL_t> & q0,
+                             const Eigen::MatrixBase<ConfigR_t> & q1,
+                             const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const;
     /// \}
 
     /// \name API that allocates memory
     /// \{
 
     template <class Config_t, class Tangent_t>
-    static ConfigVector_t integrate(const Eigen::MatrixBase<Config_t>  & q,
-                                    const Eigen::MatrixBase<Tangent_t> & v);
+    ConfigVector_t integrate(const Eigen::MatrixBase<Config_t>  & q,
+                             const Eigen::MatrixBase<Tangent_t> & v) const ;
 
     template <class ConfigL_t, class ConfigR_t>
-    static ConfigVector_t interpolate(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                      const Eigen::MatrixBase<ConfigR_t> & q1,
-                                      const Scalar& u);
+    ConfigVector_t interpolate(const Eigen::MatrixBase<ConfigL_t> & q0,
+                               const Eigen::MatrixBase<ConfigR_t> & q1,
+                               const Scalar& u) const;
 
     ConfigVector_t random() const;
 
@@ -223,8 +236,8 @@ namespace se3
      const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit) const;
 
     template <class ConfigL_t, class ConfigR_t>
-    static TangentVector_t difference(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                      const Eigen::MatrixBase<ConfigR_t> & q1);
+    TangentVector_t difference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                               const Eigen::MatrixBase<ConfigR_t> & q1) const;
     /// \}
 
 
@@ -232,22 +245,22 @@ namespace se3
     /// \{
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                 const Eigen::MatrixBase<ConfigR_t> & q1,
-                                 const Scalar& u,
-                                 const Eigen::MatrixBase<ConfigOut_t>& qout);
+    void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                          const Eigen::MatrixBase<ConfigR_t> & q1,
+                          const Scalar& u,
+                          const Eigen::MatrixBase<ConfigOut_t>& qout) const;
     
     template <class Config_t>
-    static void normalize_impl(const Eigen::MatrixBase<Config_t> & qout);
+    void normalize_impl(const Eigen::MatrixBase<Config_t> & qout) const;
 
     template <class ConfigL_t, class ConfigR_t>
-    static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                       const Eigen::MatrixBase<ConfigR_t> & q1);
+    Scalar squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                const Eigen::MatrixBase<ConfigR_t> & q1) const;
 
     template <class ConfigL_t, class ConfigR_t>
-    static bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                         const Eigen::MatrixBase<ConfigR_t> & q1,
-                                         const Scalar & prec);
+    bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                  const Eigen::MatrixBase<ConfigR_t> & q1,
+                                  const Scalar & prec) const;
     /// Get dimension of Lie Group vector representation
     ///
     /// For instance, for SO(3), the dimension of the vector representation is
@@ -276,13 +289,13 @@ namespace se3
     /// Default constructor.
     ///
     /// Prevent the construction of derived class.
-    LieGroupOperationBase() {}
+    LieGroupBase() {}
 
     /// Copy constructor
     ///
     /// Prevent the copy of derived class.
-    LieGroupOperationBase( const LieGroupOperationBase & /*clone*/) {}
-  }; // struct LieGroupOperationBase
+    LieGroupBase( const LieGroupBase & /*clone*/) {}
+  }; // struct LieGroupBase
 
 } // namespace se3
 

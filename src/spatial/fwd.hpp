@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -19,13 +19,24 @@
 #ifndef __se3_fwd_hpp__
 #define __se3_fwd_hpp__
 
-#include <Eigen/Core>
+#include "pinocchio/macros.hpp"
 
 namespace se3
 {
+  
   template<typename _Scalar, int _Options=0> class SE3Tpl;
+
+  template<typename Derived> class MotionBase;
+  template<typename Derived> class MotionDense;
+  template<typename Vector6ArgType> class MotionRef;
   template<typename _Scalar, int _Options=0> class MotionTpl;
+  struct BiasZero;
+  
+  template<typename Derived> class ForceBase;
+  template<typename Derived> class ForceDense;
+  template<typename Vector6ArgType> class ForceRef;
   template<typename _Scalar, int _Options=0> class ForceTpl;
+  
   template<typename _Scalar, int _Options=0> class InertiaTpl;
   template<typename _Scalar, int _Options=0> class Symmetric3Tpl;
 
@@ -37,51 +48,34 @@ namespace se3
 
   template<class C> struct traits {};
 
-  #define SPATIAL_TYPEDEF_TEMPLATE(derived)              \
-    typedef typename traits<derived>::Scalar Scalar; \
-    typedef typename traits<derived>::Vector3 Vector3; \
-    typedef typename traits<derived>::Vector4 Vector4; \
-    typedef typename traits<derived>::Vector6 Vector6; \
-    typedef typename traits<derived>::Matrix3 Matrix3; \
-    typedef typename traits<derived>::Matrix4 Matrix4; \
-    typedef typename traits<derived>::Matrix6 Matrix6; \
-    typedef typename traits<derived>::Angular_t Angular_t; \
-    typedef typename traits<derived>::Linear_t Linear_t; \
-    typedef typename traits<derived>::ConstAngular_t ConstAngular_t; \
-    typedef typename traits<derived>::ConstLinear_t ConstLinear_t; \
-    typedef typename traits<derived>::ActionMatrix_t ActionMatrix_t; \
-    typedef typename traits<derived>::Quaternion_t Quaternion_t; \
-    typedef typename traits<derived>::SE3 SE3; \
-    typedef typename traits<derived>::Force Force; \
-    typedef typename traits<derived>::Motion Motion; \
-    typedef typename traits<derived>::Symmetric3 Symmetric3; \
+  #define SPATIAL_TYPEDEF_TEMPLATE_GENERIC(derived,TYPENAME)              \
+    typedef TYPENAME traits<derived>::Scalar Scalar; \
+    typedef TYPENAME traits<derived>::Vector3 Vector3; \
+    typedef TYPENAME traits<derived>::Vector4 Vector4; \
+    typedef TYPENAME traits<derived>::Vector6 Vector6; \
+    typedef TYPENAME traits<derived>::Matrix3 Matrix3; \
+    typedef TYPENAME traits<derived>::Matrix4 Matrix4; \
+    typedef TYPENAME traits<derived>::Matrix6 Matrix6; \
+    typedef TYPENAME traits<derived>::Angular_t Angular_t; \
+    typedef TYPENAME traits<derived>::Linear_t Linear_t; \
+    typedef TYPENAME traits<derived>::ConstAngular_t ConstAngular_t; \
+    typedef TYPENAME traits<derived>::ConstLinear_t ConstLinear_t; \
+    typedef TYPENAME traits<derived>::ActionMatrix_t ActionMatrix_t; \
+    typedef TYPENAME traits<derived>::Quaternion_t Quaternion_t; \
+    typedef TYPENAME traits<derived>::SE3 SE3; \
+    typedef TYPENAME traits<derived>::Force Force; \
+    typedef TYPENAME traits<derived>::Motion Motion; \
+    typedef TYPENAME traits<derived>::Symmetric3 Symmetric3; \
     enum {  \
       LINEAR = traits<derived>::LINEAR,  \
       ANGULAR = traits<derived>::ANGULAR   \
     }
 
+  #define SPATIAL_TYPEDEF_TEMPLATE(derived)                 \
+    SPATIAL_TYPEDEF_TEMPLATE_GENERIC(derived,typename)
+  
   #define SPATIAL_TYPEDEF_NO_TEMPLATE(derived)              \
-    typedef traits<derived>::Scalar Scalar; \
-    typedef traits<derived>::Vector3 Vector3; \
-    typedef traits<derived>::Vector4 Vector4; \
-    typedef traits<derived>::Vector6 Vector6; \
-    typedef traits<derived>::Matrix3 Matrix3; \
-    typedef traits<derived>::Matrix4 Matrix4; \
-    typedef traits<derived>::Matrix6 Matrix6; \
-    typedef traits<derived>::Angular_t Angular_t; \
-    typedef traits<derived>::Linear_t Linear_t; \
-    typedef traits<derived>::ConstAngular_t ConstAngular_t; \
-    typedef traits<derived>::ConstLinear_t ConstLinear_t; \
-    typedef traits<derived>::ActionMatrix_t ActionMatrix_t; \
-    typedef traits<derived>::Quaternion_t Quaternion_t; \
-    typedef traits<derived>::SE3 SE3; \
-    typedef traits<derived>::Force Force; \
-    typedef traits<derived>::Motion Motion; \
-    typedef traits<derived>::Symmetric3 Symmetric3; \
-    enum {  \
-      LINEAR = traits<derived>::LINEAR,  \
-      ANGULAR = traits<derived>::ANGULAR   \
-    }
+    SPATIAL_TYPEDEF_TEMPLATE_GENERIC(derived,PINOCCHIO_MACRO_EMPTY_ARG)
 
 
 } // namespace se3

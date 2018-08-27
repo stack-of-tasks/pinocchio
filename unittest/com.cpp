@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,11 +16,12 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
 #include <iostream>
@@ -99,7 +100,7 @@ BOOST_AUTO_TEST_CASE ( test_com )
 //  se3::Data data(model);
 //
 //  long flag = BOOST_BINARY(1111);
-//  StackTicToc timer(StackTicToc::US); 
+//  PinocchioTicToc timer(PinocchioTicToc::US); 
 //  #ifdef NDEBUG
 //    #ifdef _INTENSE_TESTING_
 //      const size_t NBT = 1000*1000;

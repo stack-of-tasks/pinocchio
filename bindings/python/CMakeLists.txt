@@ -31,10 +31,11 @@ MACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
 ENDMACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
 
 # --- PYTHON TARGET --- #
-ADD_CUSTOM_TARGET(python EXCLUDE_FROM_ALL)
+ADD_CUSTOM_TARGET(python)
+SET_TARGET_PROPERTIES(python PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
 
 # --- DEPENDENCIES --- #
-SET(PKG_CONFIG_PYWRAP_REQUIRES "eigenpy >= 1.3.1")
+SET(PKG_CONFIG_PYWRAP_REQUIRES "eigenpy >= 1.4.0")
 FOREACH(dep ${PKG_CONFIG_PYWRAP_REQUIRES})
   ADD_COMPILE_DEPENDENCY(${dep})
 ENDFOREACH(dep ${PKG_CONFIG_PYWRAP_REQUIRES})
@@ -43,12 +44,14 @@ ENDFOREACH(dep ${PKG_CONFIG_PYWRAP_REQUIRES})
 SET(${PYWRAP}_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITELIB}/${PROJECT_NAME})
 
 SET(${PROJECT_NAME}_PYTHON_HEADERS
+  utils/constant.hpp
   utils/eigen_container.hpp
   utils/handler.hpp
   utils/copyable.hpp
   utils/printable.hpp
   utils/std-vector.hpp
   utils/std-aligned-vector.hpp
+  utils/version.hpp
   fwd.hpp
   spatial/se3.hpp
   spatial/force.hpp
@@ -71,6 +74,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
 
 SET(${PROJECT_NAME}_PYTHON_SOURCES
   module.cpp
+  utils/version.cpp
   spatial/expose-SE3.cpp
   spatial/expose-motion.cpp
   spatial/expose-force.cpp
@@ -86,9 +90,13 @@ SET(${PROJECT_NAME}_PYTHON_SOURCES
   algorithm/expose-kinematics.cpp
   algorithm/expose-dynamics.cpp
   algorithm/expose-crba.cpp
+  algorithm/expose-centroidal.cpp
   algorithm/expose-rnea.cpp
+  algorithm/expose-rnea-derivatives.cpp
   algorithm/expose-aba.cpp
+  algorithm/expose-aba-derivatives.cpp
   algorithm/expose-jacobian.cpp
+  algorithm/expose-kinematics-derivatives.cpp
   algorithm/expose-joints.cpp
   algorithm/expose-energy.cpp
   algorithm/expose-frames.cpp
@@ -112,7 +120,7 @@ IF(HPP_FCL_FOUND)
   SET(${PROJECT_NAME}_PYTHON_FCL_HEADERS
     multibody/fcl/contact.hpp
     multibody/fcl/collision-result.hpp
-  #  multibody/fcl/distance-result.hpp
+    multibody/fcl/distance-result.hpp
     multibody/fcl/collision-geometry.hpp
     )
 
@@ -179,6 +187,7 @@ INSTALL(TARGETS ${PYWRAP} DESTINATION ${${PYWRAP}_INSTALL_DIR})
 # --- INSTALL SCRIPTS 
 SET(PYTHON_FILES
   __init__.py
+  deprecated.py
   deprecation.py
   utils.py
   robot_wrapper.py

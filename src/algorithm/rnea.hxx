@@ -54,7 +54,7 @@ namespace se3
       
       data.v[i] = jdata.v();
       if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
-      
+
       data.a_gf[i] = jdata.S()*jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v()) ;
       data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
       
@@ -166,10 +166,10 @@ namespace se3
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       
       data.v[i] = jdata.v();
-      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[(size_t) parent]);
+      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
       
       data.a_gf[i]  = jdata.c() + (data.v[i] ^ jdata.v());
-      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[(size_t) parent]);
+      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
       
       data.f[i] = model.inertias[i]*data.a_gf[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
     }
@@ -194,7 +194,7 @@ namespace se3
       const Model::JointIndex & parent  = model.parents[i];
       
       jmodel.jointVelocitySelector(data.nle)  = jdata.S().transpose()*data.f[i];
-      if(parent>0) data.f[(size_t) parent] += data.liMi[i].act(data.f[i]);
+      if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
     }
   };
   
@@ -222,6 +222,207 @@ namespace se3
     
     return data.nle;
   }
+  
+  struct computeGeneralizedGravityForwardStep : public fusion::JointVisitor<computeGeneralizedGravityForwardStep>
+  {
+    typedef boost::fusion::vector< const se3::Model &,
+    se3::Data &,
+    const Eigen::VectorXd &
+    > ArgsType;
+    
+    JOINT_VISITOR_INIT(computeGeneralizedGravityForwardStep);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Eigen::VectorXd & q)
+    {
+      const Model::JointIndex & i = jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
+      
+      jmodel.calc(jdata.derived(),q);
+      
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      
+      data.a_gf[i] = data.liMi[i].actInv(data.a_gf[(size_t) parent]);
+      data.f[i] = model.inertias[i]*data.a_gf[i];
+    }
+    
+  };
+  
+  struct computeGeneralizedGravityBackwardStep : public fusion::JointVisitor<computeGeneralizedGravityBackwardStep>
+  {
+    typedef boost::fusion::vector<const Model &,
+    Data &
+    >  ArgsType;
+    
+    JOINT_VISITOR_INIT(computeGeneralizedGravityBackwardStep);
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data)
+    {
+      const Model::JointIndex & i = jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
+      
+      jmodel.jointVelocitySelector(data.g) = jdata.S().transpose()*data.f[i];
+      if(parent>0) data.f[(size_t) parent] += data.liMi[i].act(data.f[i]);
+    }
+  };
+  
+  inline const Eigen::VectorXd &
+  computeGeneralizedGravity(const Model & model, Data & data,
+                            const Eigen::VectorXd & q)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    data.a_gf[0] = -model.gravity;
+    
+    for(size_t i=1;i<(size_t) model.njoints;++i)
+    {
+      computeGeneralizedGravityForwardStep::run(model.joints[i],data.joints[i],
+                                     computeGeneralizedGravityForwardStep::ArgsType(model,data,q));
+    }
+    
+    for(size_t i=(size_t) (model.njoints-1);i>0;--i)
+    {
+      computeGeneralizedGravityBackwardStep::run(model.joints[i],data.joints[i],
+                                      computeGeneralizedGravityBackwardStep::ArgsType(model,data));
+    }
+    
+    return data.g;
+  }
+  
+  struct CoriolisMatrixForwardStep : public fusion::JointVisitor<CoriolisMatrixForwardStep>
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+    se3::Data &,
+    const Eigen::VectorXd &,
+    const Eigen::VectorXd &
+    > ArgsType;
+
+    JOINT_VISITOR_INIT(CoriolisMatrixForwardStep);
+
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Eigen::VectorXd & q,
+                     const Eigen::VectorXd & v)
+    {
+      const Model::JointIndex & i = jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
+
+      jmodel.calc(jdata.derived(),q,v);
+
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      if(parent>0) data.oMi[i] = data.oMi[parent] * data.liMi[i];
+      else data.oMi[i] = data.liMi[i];
+      
+      // express quantities in the world frame
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      
+      data.v[i] = jdata.v();
+      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
+      data.ov[i] = data.oMi[i].act(data.v[i]);
+      
+      // computes S expressed at the world frame
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      ColsBlock Jcols = jmodel.jointCols(data.J);
+      Jcols = data.oMi[i].act(jdata.S()); // collection of S expressed at the world frame
+
+      // computes vxS expressed at the world frame
+      ColsBlock dJcols = jmodel.jointCols(data.dJ);
+      motionSet::motionAction(data.ov[i],Jcols,dJcols);
+
+      // computes vxI
+      Inertia::vxi(data.ov[i],data.oYcrb[i],data.vxI[i]);
+    }
+
+  };
+
+  struct CoriolisMatrixBackwardStep : public fusion::JointModelVisitor<CoriolisMatrixBackwardStep>
+  {
+    typedef boost::fusion::vector<const Model &,
+    Data &
+    > ArgsType;
+
+    JOINT_MODEL_VISITOR_INIT(CoriolisMatrixBackwardStep);
+
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     const Model & model,
+                     Data & data)
+    {
+      const Model::JointIndex & i = jmodel.id();
+      const Model::JointIndex & parent = model.parents[i];
+      Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      ColsBlock dJcols = jmodel.jointCols(data.dJ);
+      ColsBlock Jcols = jmodel.jointCols(data.J);
+      
+      motionSet::inertiaAction(data.oYcrb[i],dJcols,jmodel.jointCols(data.dFdv));
+      jmodel.jointCols(data.dFdv) += data.vxI[i] * Jcols;
+
+      data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      = Jcols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      
+      lhsInertiaMult(data.oYcrb[i],Jcols.transpose(),M6tmpR.topRows(jmodel.nv()));
+      for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dJ.col(j);
+
+      M6tmpR.topRows(jmodel.nv()).noalias() = Jcols.transpose() * data.vxI[i];
+      for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
+
+      if(parent>0)
+      {
+        data.oYcrb[parent] += data.oYcrb[i];
+        data.vxI[parent] += data.vxI[i];
+      }
+      
+    }
+    
+    template<typename Min, typename Mout>
+    static void lhsInertiaMult(const Inertia & Y,
+                               const Eigen::MatrixBase<Min> & J,
+                               const Eigen::MatrixBase<Mout> & F)
+    {
+      Mout & F_ = const_cast<Mout &>(F.derived());
+      motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
+    }
+  };
+  
+  inline const Eigen::MatrixXd &
+  computeCoriolisMatrix(const Model & model, Data & data,
+                        const Eigen::VectorXd & q,
+                        const Eigen::VectorXd & v)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq);
+    assert(v.size() == model.nv);
+    
+    for(size_t i=1;i<(size_t) model.njoints;++i)
+    {
+      CoriolisMatrixForwardStep::run(model.joints[i],data.joints[i],
+                                     CoriolisMatrixForwardStep::ArgsType(model,data,q,v));
+    }
+    
+    for(size_t i=(size_t) (model.njoints-1);i>0;--i)
+    {
+      CoriolisMatrixBackwardStep::run(model.joints[i],  
+                                      CoriolisMatrixBackwardStep::ArgsType(model,data));
+    }
+    
+    return data.C;
+  }
+  
 } // namespace se3
 
 /// @endcond

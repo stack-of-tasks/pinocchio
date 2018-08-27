@@ -26,26 +26,41 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
-  void LieGroupOperationBase<Derived>::integrate(
+  void LieGroupBase<Derived>::integrate(
       const Eigen::MatrixBase<ConfigIn_t> & q,
       const Eigen::MatrixBase<Tangent_t>  & v,
-      const Eigen::MatrixBase<ConfigOut_t>& qout)
+      const Eigen::MatrixBase<ConfigOut_t>& qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigIn_t , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t  , TangentVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigOut_t, ConfigVector_t);
-    Derived::integrate_impl(q, v, qout);
+    derived().integrate_impl(q, v, qout);
   }
 
   template <class Derived>
-  template <class Tangent_t, class JacobianOut_t>
-  void LieGroupOperationBase<Derived>::Jintegrate(
+  template <class Config_t, class Tangent_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dIntegrate_dq(
+      const Eigen::MatrixBase<Config_t >  & q,
       const Eigen::MatrixBase<Tangent_t>  & v,
-      const Eigen::MatrixBase<JacobianOut_t>& J)
+      const Eigen::MatrixBase<JacobianOut_t>& J) const
   {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(JacobianOut_t, JacobianMatrix_t);
-    Derived::Jintegrate_impl(v, J);
+    derived().dIntegrate_dq_impl(q, v, J);
+  }
+
+  template <class Derived>
+  template <class Config_t, class Tangent_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dIntegrate_dv(
+      const Eigen::MatrixBase<Config_t >  & q,
+      const Eigen::MatrixBase<Tangent_t>  & v,
+      const Eigen::MatrixBase<JacobianOut_t>& J) const
+  {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(JacobianOut_t, JacobianMatrix_t);
+    derived().dIntegrate_dv_impl(q, v, J);
   }
 
   /**
@@ -59,25 +74,25 @@ namespace se3 {
    */
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-  void LieGroupOperationBase<Derived>::interpolate(
+  void LieGroupBase<Derived>::interpolate(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
       const Scalar& u,
-      const Eigen::MatrixBase<ConfigOut_t>& qout)
+      const Eigen::MatrixBase<ConfigOut_t>& qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t  , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t  , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigOut_t, ConfigVector_t);
-    Derived::interpolate_impl(q0, q1, u, qout);
+    Derived().interpolate_impl(q0, q1, u, qout);
   }
 
   template <class Derived>
   template <class Config_t>
-  void LieGroupOperationBase<Derived>::normalize
-  (const Eigen::MatrixBase<Config_t>& qout)
+  void LieGroupBase<Derived>::normalize
+  (const Eigen::MatrixBase<Config_t>& qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t, ConfigVector_t);
-    return Derived::normalize_impl (qout);
+    return derived().normalize_impl (qout);
   }
 
   /**
@@ -90,7 +105,7 @@ namespace se3 {
    */
   template <class Derived>
   template <class Config_t>
-  void LieGroupOperationBase<Derived>::random
+  void LieGroupBase<Derived>::random
   (const Eigen::MatrixBase<Config_t>& qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t, ConfigVector_t);
@@ -99,7 +114,7 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-  void LieGroupOperationBase<Derived>::randomConfiguration(
+  void LieGroupBase<Derived>::randomConfiguration(
       const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
       const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
       const Eigen::MatrixBase<ConfigOut_t> & qout) const
@@ -112,62 +127,64 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t, class Tangent_t>
-  void LieGroupOperationBase<Derived>::difference(
+  void LieGroupBase<Derived>::difference(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
-      const Eigen::MatrixBase<Tangent_t>& d)
+      const Eigen::MatrixBase<Tangent_t>& d) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t, TangentVector_t);
-    Derived::difference_impl(q0, q1, d);
+    derived().difference_impl(q0, q1, d);
   }
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-  void LieGroupOperationBase<Derived>::Jdifference(
+  void LieGroupBase<Derived>::Jdifference(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
       const Eigen::MatrixBase<JacobianLOut_t>& J0,
-      const Eigen::MatrixBase<JacobianROut_t>& J1)
+      const Eigen::MatrixBase<JacobianROut_t>& J1) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianLOut_t, JacobianMatrix_t);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianROut_t, JacobianMatrix_t);
-    Derived::Jdifference_impl (q0, q1, J0, J1);
+    derived().Jdifference_impl (q0, q1, J0, J1);
   }
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  double LieGroupOperationBase<Derived>::squaredDistance(
+  typename LieGroupBase<Derived>::Scalar
+  LieGroupBase<Derived>::squaredDistance(
       const Eigen::MatrixBase<ConfigL_t> & q0,
-      const Eigen::MatrixBase<ConfigR_t> & q1)
+      const Eigen::MatrixBase<ConfigR_t> & q1) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
-    return Derived::squaredDistance_impl(q0, q1);
+    return derived().squaredDistance_impl(q0, q1);
   }
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  double LieGroupOperationBase<Derived>::distance(
+  typename LieGroupBase<Derived>::Scalar
+  LieGroupBase<Derived>::distance(
       const Eigen::MatrixBase<ConfigL_t> & q0,
-      const Eigen::MatrixBase<ConfigR_t> & q1)
+      const Eigen::MatrixBase<ConfigR_t> & q1) const
   {
     return sqrt(squaredDistance(q0, q1));
   }
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  bool LieGroupOperationBase<Derived>::isSameConfiguration(
+  bool LieGroupBase<Derived>::isSameConfiguration(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
-      const Scalar & prec)
+      const Scalar & prec) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
-    return Derived::isSameConfiguration_impl(q0, q1, prec);
+    return derived().isSameConfiguration_impl(q0, q1, prec);
   }
 
   // ----------------- API that allocates memory ---------------------------- //
@@ -175,9 +192,9 @@ namespace se3 {
 
   template <class Derived>
   template <class Config_t, class Tangent_t>
-  typename LieGroupOperationBase<Derived>::ConfigVector_t LieGroupOperationBase<Derived>::integrate(
-      const Eigen::MatrixBase<Config_t>  & q,
-      const Eigen::MatrixBase<Tangent_t> & v)
+  typename LieGroupBase<Derived>::ConfigVector_t
+  LieGroupBase<Derived>::integrate(const Eigen::MatrixBase<Config_t>  & q,
+                                            const Eigen::MatrixBase<Tangent_t> & v) const
   {
     ConfigVector_t qout;
     integrate(q, v, qout);
@@ -186,10 +203,10 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  typename LieGroupOperationBase<Derived>::ConfigVector_t LieGroupOperationBase<Derived>::interpolate(
+  typename LieGroupBase<Derived>::ConfigVector_t LieGroupBase<Derived>::interpolate(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
-      const Scalar& u)
+      const Scalar& u) const
   {
     ConfigVector_t qout;
     interpolate(q0, q1, u, qout);
@@ -197,8 +214,8 @@ namespace se3 {
   }
 
   template <class Derived>
-  typename LieGroupOperationBase<Derived>::ConfigVector_t
-  LieGroupOperationBase<Derived>::random() const
+  typename LieGroupBase<Derived>::ConfigVector_t
+  LieGroupBase<Derived>::random() const
   {
     ConfigVector_t qout;
     random(qout);
@@ -207,8 +224,8 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  typename LieGroupOperationBase<Derived>::ConfigVector_t
-  LieGroupOperationBase<Derived>::randomConfiguration
+  typename LieGroupBase<Derived>::ConfigVector_t
+  LieGroupBase<Derived>::randomConfiguration
   (const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
    const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit) const
   {
@@ -219,9 +236,9 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  typename LieGroupOperationBase<Derived>::TangentVector_t LieGroupOperationBase<Derived>::difference(
+  typename LieGroupBase<Derived>::TangentVector_t LieGroupBase<Derived>::difference(
       const Eigen::MatrixBase<ConfigL_t> & q0,
-      const Eigen::MatrixBase<ConfigR_t> & q1)
+      const Eigen::MatrixBase<ConfigR_t> & q1) const
   {
     TangentVector_t diff;
     difference(q0, q1, diff);
@@ -231,11 +248,11 @@ namespace se3 {
   // ----------------- Default implementations ------------------------------ //
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-  void LieGroupOperationBase<Derived>::interpolate_impl(
+  void LieGroupBase<Derived>::interpolate_impl(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
       const Scalar& u,
-      const Eigen::MatrixBase<ConfigOut_t>& qout)
+      const Eigen::MatrixBase<ConfigOut_t>& qout) const
   {
     if     (u == 0) const_cast<Eigen::MatrixBase<ConfigOut_t>&>(qout) = q0;
     else if(u == 1) const_cast<Eigen::MatrixBase<ConfigOut_t>&>(qout) = q1;
@@ -248,9 +265,10 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  double LieGroupOperationBase<Derived>::squaredDistance_impl(
+  typename LieGroupBase<Derived>::Scalar
+  LieGroupBase<Derived>::squaredDistance_impl(
       const Eigen::MatrixBase<ConfigL_t> & q0,
-      const Eigen::MatrixBase<ConfigR_t> & q1)
+      const Eigen::MatrixBase<ConfigR_t> & q1) const
   {
     TangentVector_t t;
     difference(q0, q1, t);
@@ -259,39 +277,39 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
-  bool LieGroupOperationBase<Derived>::isSameConfiguration_impl(
+  bool LieGroupBase<Derived>::isSameConfiguration_impl(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
-      const Scalar & prec)
+      const Scalar & prec) const
   {
     return q0.isApprox(q1, prec);
   }
 
   template <class Derived>
-  typename LieGroupOperationBase <Derived>::Index
-  LieGroupOperationBase <Derived>::nq () const
+  typename LieGroupBase <Derived>::Index
+  LieGroupBase <Derived>::nq () const
   {
-    return Derived::nq ();
+    return derived().nq();
   }
 
   template <class Derived>
-  typename LieGroupOperationBase <Derived>::Index
-  LieGroupOperationBase <Derived>::nv () const
+  typename LieGroupBase <Derived>::Index
+  LieGroupBase <Derived>::nv () const
   {
-    return Derived::nv ();
+    return derived().nv();
   }
 
   template <class Derived>
-  typename LieGroupOperationBase <Derived>::ConfigVector_t
-  LieGroupOperationBase <Derived>::neutral () const
+  typename LieGroupBase <Derived>::ConfigVector_t
+  LieGroupBase <Derived>::neutral () const
   {
-    return Derived::neutral ();
+    return derived().neutral();
   }
 
   template <class Derived>
-  std::string LieGroupOperationBase <Derived>::name () const
+  std::string LieGroupBase <Derived>::name () const
   {
-    return Derived::name ();
+    return derived().name();
   }
 
 } // namespace se3

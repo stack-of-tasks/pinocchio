@@ -174,6 +174,12 @@ namespace se3
       typedef typename Mat::template NColsBlockXpr<NV>::Type Type;
       typedef typename Mat::template ConstNColsBlockXpr<NV>::Type ConstType;
     };
+    template<class Mat>
+    struct RowsReturn
+    {
+      typedef typename Mat::template NRowsBlockXpr<NV>::Type Type;
+      typedef typename Mat::template ConstNRowsBlockXpr<NV>::Type ConstType;
+    };
   };
   template<>
   struct SizeDepType<Eigen::Dynamic>
@@ -189,6 +195,12 @@ namespace se3
     {
       typedef typename Mat::ColsBlockXpr Type;
       typedef typename Mat::ConstColsBlockXpr ConstType;
+    };
+    template<class Mat>
+    struct RowsReturn
+    {
+      typedef typename Mat::RowsBlockXpr Type;
+      typedef typename Mat::ConstRowsBlockXpr ConstType;
     };
   };
 
@@ -228,108 +240,6 @@ namespace se3
     ///
     typename ConfigVector_t::Scalar finiteDifferenceIncrement() const
     { return derived().finiteDifferenceIncrement(); }
-
-    /**
-     * @brief      Integrate joint's configuration for a tangent vector during one unit time
-     *
-     * @param[in]  q     initatial configuration  (size full model.nq)
-     * @param[in]  v     joint velocity (size full model.nv)
-     *
-     * @return     The configuration integrated
-     */
-    ConfigVector_t integrate(const Eigen::VectorXd & q,const Eigen::VectorXd & v) const
-    { return derived().integrate_impl(q, v); } 
-
-
-    /**
-     * @brief      Interpolation between two joint's configurations
-     *
-     * @param[in]  q0    Initial configuration to interpolate
-     * @param[in]  q1    Final configuration to interpolate
-     * @param[in]  u     u in [0;1] position along the interpolation.
-     *
-     * @return     The interpolated configuration (q0 if u = 0, q1 if u = 1)
-     */
-    ConfigVector_t interpolate(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, double u) const
-    { return derived().interpolate_impl(q0, q1, u); }
-
-
-    /**
-     * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
-     *
-     * \warning    Do not take into account the joint limits. To shoot a configuration uniformingly
-     *             depending on joint limits, see uniformySample
-     *
-     * @return     The joint configuration
-     */
-    ConfigVector_t random() const
-    { return derived().random_impl(); } 
-
-    /**
-     * @brief      Generate a configuration vector uniformly sampled among
-     *             provided limits.
-     *
-     * @param[in]  lower_pos_limit  lower joint limit
-     * @param[in]  upper_pos_limit  upper joint limit
-     *
-     * @return     The joint configuration
-     */
-    ConfigVector_t randomConfiguration(const ConfigVector_t & lower_pos_limit,
-                                       const ConfigVector_t & upper_pos_limit) const
-    { return derived().randomConfiguration_impl(lower_pos_limit, upper_pos_limit); } 
-
-    
-    /**
-     * @brief      the tangent vector that must be integrated during one unit time to go from q0 to q1
-     *
-     * @param[in]  q0    Initial configuration
-     * @param[in]  q1    Wished configuration
-     *
-     * @return     The corresponding velocity
-     */
-    TangentVector_t difference(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
-    { return derived().difference_impl(q0, q1); } 
-
-    /**
-     * @brief      Distance between two configurations of the joint
-     *
-     * @param[in]  q0    Configuration 1
-     * @param[in]  q1    Configuration 2
-     *
-     * @return     The corresponding distance
-     */
-    double distance(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
-    { return derived().distance_impl(q0, q1); }
-
-    /**
-     * @brief      Get neutral configuration of joint
-     *
-     * @return     The joint's neutral configuration
-     */
-    ConfigVector_t neutralConfiguration() const
-    { return derived().neutralConfiguration_impl(); } 
-
-    /**
-     * @brief      Normalize a configuration
-     *
-     * @param[in,out]  q     Configuration to normalize (size full model.nq)
-     */
-    void normalize(Eigen::VectorXd & q) const
-    { return derived().normalize_impl(q); }
-
-    /**
-     * @brief      Default implementation of normalize
-     */
-    void normalize_impl(Eigen::VectorXd &) const { }
-
-    /**
-     * @brief      Check if two configurations are equivalent within the given precision 
-     *
-     * @param[in]  q1     Configuration 1 (size full model.nq)
-     * @param[in]  q2    Configuration 2 (size full model.nq)
-     */
-    bool isSameConfiguration(const Eigen::VectorXd & q1, const Eigen::VectorXd & q2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
-    { return derived().isSameConfiguration_impl(q1,q2, prec); }
 
     JointIndex i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.

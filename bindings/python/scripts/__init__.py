@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 CNRS
+# Copyright (c) 2015-2016,2018 CNRS
 #
 # This file is part of Pinocchio
 # Pinocchio is free software: you can redistribute it
@@ -21,6 +21,7 @@ from . import libpinocchio_pywrap as se3
 from . import utils
 from .explog import exp, log
 from .libpinocchio_pywrap import *
+from .deprecated import *
 
 se3.AngleAxis.__repr__ = lambda s: 'AngleAxis(%s)' % s.vector()
 

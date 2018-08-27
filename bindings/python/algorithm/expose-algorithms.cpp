@@ -27,6 +27,7 @@ namespace se3
       exposeJointsAlgo();
       exposeABA();
       exposeCRBA();
+      exposeCentroidal();
       exposeRNEA();
       exposeCOM();
       exposeFramesAlgo();
@@ -37,6 +38,11 @@ namespace se3
       exposeJacobian();
       exposeGeometryAlgo();
       exposeRegressor();
+      
+      // expose derivative version of the algorithms
+      exposeRNEADerivatives();
+      exposeABADerivatives();
+      exposeKinematicsDerivatives();
     }
     
   } // namespace python

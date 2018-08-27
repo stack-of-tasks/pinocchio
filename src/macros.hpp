@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -20,7 +20,46 @@
 
 #include <Eigen/Core>
 
-#ifdef EIGEN3_BETA_3_2_9x
+/// \brief Define the current version of Pinocchio
+#define PINOCCHIO_MAJOR_VERSION 1
+#define PINOCCHIO_MINOR_VERSION 2
+#define PINOCCHIO_PATCH_VERSION 9
+
+/// \brief Macro to check the current Pinocchio version against a version provided by x.y.z
+#define PINOCCHIO_VERSION_AT_LEAST(x,y,z) (PINOCCHIO_MAJOR_VERSION>x || (PINOCCHIO_MAJOR_VERSION>=x && \
+(PINOCCHIO_MINOR_VERSION>y || (PINOCCHIO_MINOR_VERSION>=y && \
+PINOCCHIO_PATCH_VERSION>=z))))
+
+/// \brief Empty macro argument
+#define PINOCCHIO_MACRO_EMPTY_ARG
+
+/// \brief Macro giving access to the equivalent plain type of D
+#define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type<D>::type
+
+/// \brief Macro giving access to the reference type of D
+#define EIGEN_REF_CONSTTYPE(D) Eigen::internal::ref_selector<D>::type
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
+#define EIGEN_REF_TYPE(D) Eigen::internal::ref_selector<D>::non_const_type
+#else
+#define EIGEN_REF_TYPE(D) \
+Eigen::internal::conditional< \
+bool(Eigen::internal::traits<D>::Flags & Eigen::NestByRefBit), \
+D &, \
+D \
+>::type
+#endif
+
+/// \brief Macro giving access to the return type of the dot product operation
+#if EIGEN_VERSION_AT_LEAST(3,3,0)
+#define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
+Eigen::ScalarBinaryOpTraits< typename Eigen::internal::traits< D1 >::Scalar, typename Eigen::internal::traits< D2 >::Scalar >::ReturnType
+#else
+#define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
+Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::Scalar,typename Eigen::internal::traits< D2 >::Scalar>::ReturnType
+#endif
+
+/// \brief Fix issue concerning 3.2.90 and more versions of Eigen that do not define size_of_xpr_at_compile_time structure.
+#if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,3,0)
 namespace se3
 {
   namespace internal
@@ -34,3 +73,4 @@ namespace se3
 #endif
 
 #endif // ifndef __se3_macros_hpp__
+

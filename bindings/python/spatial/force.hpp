@@ -22,6 +22,7 @@
 #include <eigenpy/memory.hpp>
 #include <boost/python/tuple.hpp>
 
+#include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
@@ -38,6 +39,8 @@ namespace se3
     struct ForcePythonVisitor
       : public boost::python::def_visitor< ForcePythonVisitor<Force> >
     {
+      enum { Options = traits<Motion>::Options };
+      
       typedef typename Force::Vector6 Vector6;
       typedef typename Force::Vector3 Vector3;
       typedef typename Force::Scalar Scalar;
@@ -67,9 +70,9 @@ namespace se3
                       "Returns the components of *this as a 6d vector.")
         .add_property("np",&ForcePythonVisitor::getVector)
         
-        .def("se3Action",&Force::se3Action,
+        .def("se3Action",&Force::template se3Action<Scalar,Options>,
              bp::args("M"),"Returns the result of the dual action of M on *this.")
-        .def("se3ActionInverse",&Force::se3ActionInverse,
+        .def("se3ActionInverse",&Force::template se3ActionInverse<Scalar,Options>,
              bp::args("M"),"Returns the result of the dual action of the inverse of M on *this.")
         
         .def("setZero",&ForcePythonVisitor::setZero,
@@ -86,8 +89,12 @@ namespace se3
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         
-        .def("isApprox",(bool (Force::*)(const Force & other, const Scalar & prec)) &Force::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
-        .def("isApprox",(bool (Force::*)(const Force & other)) &Force::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        .def(bp::self * Scalar())
+        .def(Scalar() * bp::self)
+        .def(bp::self / Scalar())
+        
+        .def("isApprox",(bool (Force::*)(const Force & other, const Scalar & prec) const) &Force::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
+        .def("isApprox",isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
         
         .def("Random",&Force::Random,"Returns a random Force.")
         .staticmethod("Random")
@@ -131,6 +138,9 @@ namespace se3
       
       static Vector6 getVector(const Force & self) { return self.toVector(); }
       static void setVector(Force & self, const Vector6 & f) { self = f; }
+      
+      static bool isApprox(const Force & self, const Force & other)
+      { return self.isApprox(other); }
 
     };
     

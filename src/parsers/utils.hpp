@@ -27,7 +27,7 @@
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
 
-#include "pinocchio/tools/file-explorer.hpp"
+#include "pinocchio/utils/file-explorer.hpp"
 #include <boost/filesystem.hpp>
 
 #include <exception>
@@ -118,7 +118,6 @@ namespace se3
     else // return the entry string
     {
       result_path = string;
-      assert(false && "the path does not respect the pattern package:// or file://");
     } 
 
     return result_path;

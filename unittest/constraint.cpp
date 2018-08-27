@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -15,22 +15,22 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <cmath>
-#include <iostream>
-
-#include "pinocchio/spatial/force.hpp"
-#include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/force-set.hpp"
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
 
+#include "utils/macros.hpp"
+
+#include <cmath>
+#include <iostream>
+
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
+BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
-BOOST_AUTO_TEST_CASE ( test_ForceSet )
+BOOST_AUTO_TEST_CASE (test_ForceSet)
 {
   using namespace se3;
 
@@ -76,10 +76,8 @@ BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
 
   ForceSet F2( Eigen::Matrix<double,3,9>::Random(),Eigen::Matrix<double,3,9>::Random() );
   Eigen::MatrixXd StF2 = S.transpose()*F2.block(5,3).matrix();
-  BOOST_CHECK(StF2.isApprox(ConstraintXd(S).matrix().transpose()*F2.matrix().block(0,5,6,3)
+  BOOST_CHECK(StF2.isApprox(S.matrix().transpose()*F2.matrix().block(0,5,6,3)
                             , 1e-12));
 }
 
-BOOST_AUTO_TEST_SUITE_END ()
-
-
+BOOST_AUTO_TEST_SUITE_END()

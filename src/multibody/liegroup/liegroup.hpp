@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -27,38 +27,30 @@
 #include "pinocchio/multibody/joint/fwd.hpp"
 
 namespace se3 {
-  struct LieGroupTpl {
+  struct LieGroupMap {
     template<typename JointModel> struct operation {
       typedef VectorSpaceOperation<JointModel::NQ> type;
     };
   };
   template<typename JointModel>
   struct LieGroup {
-    typedef typename LieGroupTpl::operation<JointModel>::type type;
+    typedef typename LieGroupMap::operation<JointModel>::type type;
   };
 
-  template<> struct LieGroupTpl::operation <JointModelComposite> {};
-  template<> struct LieGroupTpl::operation <JointModelSpherical> {
+  template<> struct LieGroupMap::operation <JointModelComposite> {};
+  template<> struct LieGroupMap::operation <JointModelSpherical> {
     typedef SpecialOrthogonalOperation<3> type;
   };
-  template<> struct LieGroupTpl::operation <JointModelFreeFlyer> {
+  template<> struct LieGroupMap::operation <JointModelFreeFlyer> {
     typedef SpecialEuclideanOperation<3> type;
   };
-  template<> struct LieGroupTpl::operation <JointModelPlanar> {
+  template<> struct LieGroupMap::operation <JointModelPlanar> {
     typedef SpecialEuclideanOperation<2> type;
   };
-  template<int Axis> struct LieGroupTpl::operation <JointModelRevoluteUnbounded<Axis> > {
+  template<typename Scalar, int Options, int axis>
+  struct LieGroupMap::operation <JointModelRevoluteUnboundedTpl<Scalar,Options,axis> > {
     typedef SpecialOrthogonalOperation<2> type;
   };
-
-  // TODO REMOVE: For testing purposes only
-  // template<>
-  // struct LieGroupTpl::operation <JointModelTranslation> {
-    // typedef CartesianProductOperation<
-      // CartesianProductOperation<typename LieGroup<JointModelPX>::type, typename LieGroup<JointModelPY>::type>,
-      // typename LieGroup<JointModelPZ>::type
-      // > type;
-  // };
 }
 
 #endif // ifndef __se3_lie_group_hpp__

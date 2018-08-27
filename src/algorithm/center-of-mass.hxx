@@ -135,7 +135,9 @@ namespace se3
   inline const SE3::Vector3 &
   getComFromCrba(const Model & model, Data & data)
   {
+#ifndef NDEBUG
     assert(model.check(data) && "data is not consistent with model.");
+#endif
     return data.com[0] = data.liMi[1].act(data.Ycrb[1].lever());
   }
 
@@ -252,6 +254,9 @@ namespace se3
   {
     assert(model.check(data) && "data is not consistent with model.");
     const SE3 & oM1 = data.liMi[1];
+    
+    // Extract the total mass of the system.
+    data.mass[0] = data.M(0,0);
     
     // As the 6 first rows of M*a are a wrench, we just need to multiply by the
     // relative rotation between the first joint and the world

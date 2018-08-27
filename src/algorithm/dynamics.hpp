@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,6 +19,7 @@
 #define __se3_dynamics_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/crba.hpp"
@@ -36,6 +37,7 @@ namespace se3
   ///           \text{s.t.} & & J (q) \ddot{q} + \gamma (q, \dot{q}) = 0 \end{eqnarray} \f$ </CENTER> <BR>
   ///       where \f$ \ddot{q}_{\text{free}} \f$ is the free acceleration (i.e. without constraints),
   ///       \f$ M \f$ is the mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \gamma \f$ is the constraint drift.
+  ///  By default, the constraint Jacobian is assumed to be full rank, and undamped Cholesky inverse is performed.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -44,7 +46,9 @@ namespace se3
   /// \param[in] tau The joint torque vector (dim model.nv).
   /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
   /// \param[in] gamma The drift of the constraints (dim nb_constraints).
-  /// \param[in] updateKinematics If true, the algorithm calls first se3::computeAllTerms. Otherwise, it uses the current dynamic values stored in data.
+  /// \param[in] inv_damping Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.    
+  /// \param[in] updateKinematics If true, the algorithm calls first se3::computeAllTerms. Otherwise, it uses the current dynamic values stored in data. \\
+  ///            \note A hint: 1e-12 as the damping factor gave good result in the particular case of redundancy in contact constraints on the two feet.
   ///
   /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
   ///
@@ -55,6 +59,7 @@ namespace se3
                                                  const Eigen::VectorXd & tau,
                                                  const Eigen::MatrixXd & J,
                                                  const Eigen::VectorXd & gamma,
+                                                 const double inv_damping = 0.,
                                                  const bool updateKinematics = true
                                                  )
   {
@@ -84,6 +89,8 @@ namespace se3
     for(int k=0;k<model.nv;++k) data.sDUiJt.row(k) /= sqrt(data.D[k]);
     
     data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
+
+    data.JMinvJt.diagonal().array() += inv_damping;
     data.llt_JMinvJt.compute(data.JMinvJt);
     
     // Compute the Lagrange Multipliers

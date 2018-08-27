@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -42,16 +42,9 @@ namespace se3
     };
   };
 
-  template<> struct traits<SpecialEuclideanOperation<3> > {
-    typedef double Scalar;
-    enum {
-      NQ = 7,
-      NV = 6
-    };
-  };
-
+  // SE(2)
   template<>
-  struct SpecialEuclideanOperation<2> : public LieGroupOperationBase <SpecialEuclideanOperation<2> >
+  struct SpecialEuclideanOperation<2> : public LieGroupBase <SpecialEuclideanOperation<2> >
   {
     typedef VectorSpaceOperation<2>       R2_t;
     typedef SpecialOrthogonalOperation<2> SO2_t;
@@ -177,6 +170,10 @@ namespace se3
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
+      if (q0 == q1) {
+        (const_cast <Eigen::MatrixBase<Tangent_t> &> (d)).setZero ();
+        return;
+      }
       Matrix2 R0, R1; Vector2 t0, t1;
       forwardKinematics(R0, t0, q0);
       forwardKinematics(R1, t1, q1);
@@ -227,9 +224,10 @@ namespace se3
       out.template tail<2>().noalias() = R0 * R.col(0);
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  & v,
-                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & v,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
     {
       JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
 
@@ -238,6 +236,20 @@ namespace se3
       exp(v, R, t);
 
       toInverseActionMatrix (R, t, Jout);
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & v,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      // TODO sparse version
+      MotionTpl<Scalar,0> nu; nu.toVector() << v.template head<2>(), 0, 0, 0, v[2]; 
+      Eigen::Matrix<Scalar,6,6> Jtmp6;
+      Jexp6(nu, Jtmp6);
+      Jout << Jtmp6.   topLeftCorner<2,2>(), Jtmp6.   topRightCorner<2,1>(),
+              Jtmp6.bottomLeftCorner<1,2>(), Jtmp6.bottomRightCorner<1,1>();
     }
 
     // interpolate_impl use default implementation.
@@ -277,7 +289,7 @@ namespace se3
                                          const Eigen::MatrixBase<ConfigR_t> & q1,
                                          const Scalar & prec)
     {
-      return R2crossSO2_t::isSameConfiguration(q0, q1, prec);
+      return R2crossSO2_t().isSameConfiguration(q0, q1, prec);
     }
 
     private:
@@ -294,9 +306,17 @@ namespace se3
     }
   }; // struct SpecialEuclideanOperation<2>
 
+  template<> struct traits<SpecialEuclideanOperation<3> > {
+    typedef double Scalar;
+    enum {
+      NQ = 7,
+      NV = 6
+    };
+  };
+  
   /// SE(3)
   template<>
-  struct SpecialEuclideanOperation<3> : public LieGroupOperationBase <SpecialEuclideanOperation<3> >
+  struct SpecialEuclideanOperation<3> : public LieGroupBase <SpecialEuclideanOperation<3> >
   {
     typedef CartesianProductOperation <VectorSpaceOperation<3>, SpecialOrthogonalOperation<3> > R3crossSO3_t;
 
@@ -337,6 +357,10 @@ namespace se3
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
+      if (q0 == q1) {
+        (const_cast < Eigen::MatrixBase<Tangent_t>& > (d)).setZero ();
+        return;
+      }
       ConstQuaternionMap_t p0 (q0.derived().template tail<4>().data());
       ConstQuaternionMap_t p1 (q1.derived().template tail<4>().data());
       const_cast < Eigen::MatrixBase<Tangent_t>& > (d)
@@ -389,12 +413,21 @@ namespace se3
       firstOrderNormalize(res_quat);
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t>  & v,
-                                const Eigen::MatrixBase<JacobianOut_t>& J)
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & v,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
     {
       JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
       Jout = exp6(v).inverse().toActionMatrix();
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & v,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      Jexp6(MotionRef<Tangent_t>(v), J.derived());
     }
 
     // interpolate_impl use default implementation.
@@ -442,7 +475,7 @@ namespace se3
                                          const Eigen::MatrixBase<ConfigR_t> & q1,
                                          const Scalar & prec)
     {
-      return R3crossSO3_t::isSameConfiguration(q0, q1, prec);
+      return R3crossSO3_t().isSameConfiguration(q0, q1, prec);
     }
   }; // struct SpecialEuclideanOperation<3>
 

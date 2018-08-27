@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -24,10 +24,12 @@
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include <iostream>
 #ifdef NDEBUG
@@ -48,8 +50,10 @@ BOOST_AUTO_TEST_CASE ( test_cholesky )
   se3::Model model;
   se3::buildModels::humanoidSimple(model,true);
   se3::Data data(model);
-
-  VectorXd q = VectorXd::Zero(model.nq);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
   data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
   crba(model,data,q);
  
@@ -88,9 +92,9 @@ BOOST_AUTO_TEST_CASE ( test_cholesky )
   Eigen::VectorXd Miv = v; se3::cholesky::solve(model,data,Miv);
   BOOST_CHECK(Miv.isApprox(M.inverse()*v, 1e-12));
 
-  Eigen::VectorXd Mv = v; se3::cholesky::Mv(model,data,Mv,true);
+  Eigen::VectorXd Mv = v; Mv = se3::cholesky::Mv(model,data,Mv);
   BOOST_CHECK(Mv.isApprox(M*v, 1e-12));
-  Mv = v;                 se3::cholesky::Mv(model,data,Mv,false);
+  Mv = v;                 se3::cholesky::UDUtv(model,data,Mv);
   BOOST_CHECK(Mv.isApprox(M*v, 1e-12));
 }
 
@@ -111,14 +115,16 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   se3::Model model;
   se3::buildModels::humanoidSimple(model,true);
   se3::Data data(model);
-
-  VectorXd q = VectorXd::Zero(model.nq);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
   data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
   crba(model,data,q);
   
 
   long flag = BOOST_BINARY(1000101);
-  StackTicToc timer(StackTicToc::US); 
+  PinocchioTicToc timer(PinocchioTicToc::US); 
   #ifdef NDEBUG
     #ifdef _INTENSE_TESTING_
       const size_t NBT = 1000*1000;
@@ -211,16 +217,65 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	}
       if( flag >> 6 & 1 )
 	{
-	  timer.tic();
-	  SMOOTH(NBT)
-	  {
-	    se3::cholesky::Mv(model,data,randvec[_smooth],true);
-	  }
-	  if(verbose) std::cout << "UDUtv =\t\t";
-	  timer.toc(std::cout,NBT);
+    timer.tic();
+    SMOOTH(NBT)
+    {
+      se3::cholesky::UDUtv(model,data,randvec[_smooth]);
+    }
+    if(verbose) std::cout << "UDUtv =\t\t";
+    timer.toc(std::cout,NBT);
 	}
     }
-
 }
+  
+  BOOST_AUTO_TEST_CASE(test_Minv_from_cholesky)
+  {
+    using namespace Eigen;
+    using namespace se3;
+    
+    se3::Model model;
+    se3::buildModels::humanoidSimple(model,true);
+    se3::Data data(model);
+    
+    model.lowerPositionLimit.head<3>().fill(-1.);
+    model.upperPositionLimit.head<3>().fill(1.);
+    VectorXd q = randomConfiguration(model);
+    crba(model,data,q);
+    data.M.triangularView<Eigen::StrictlyLower>() =
+    data.M.triangularView<Eigen::StrictlyUpper>().transpose();
+    MatrixXd Minv_ref(data.M.inverse());
+    
+    cholesky::decompose(model,data);
+    VectorXd v_unit(VectorXd::Unit(model.nv,0));
+
+    VectorXd Ui_v_unit(model.nv);
+    VectorXd Ui_v_unit_ref(model.nv);
+    
+    for(int k = 0; k < model.nv; ++k)
+    {
+      v_unit = VectorXd::Unit(model.nv,k);
+      Ui_v_unit.setZero();
+      cholesky::internal::Miunit(model,data,k,Ui_v_unit);
+      Ui_v_unit_ref = v_unit;
+      cholesky::Uiv(model,data,Ui_v_unit_ref);
+      Ui_v_unit_ref.array() *= data.Dinv.array();
+      cholesky::Utiv(model,data,Ui_v_unit_ref);
+
+      BOOST_CHECK(Ui_v_unit.isApprox(Ui_v_unit_ref));
+      
+      Ui_v_unit_ref = v_unit;
+      cholesky::solve(model,data,Ui_v_unit_ref);
+      BOOST_CHECK(Ui_v_unit.isApprox(Ui_v_unit_ref));
+      
+//      std::cout << "Ui_v_unit : " << Ui_v_unit.transpose() << std::endl;
+//      std::cout << "Ui_v_unit_ref : " << Ui_v_unit_ref.transpose() << std::endl << std::endl;;
+    }
+    
+    MatrixXd Minv(model.nv,model.nv);
+    Minv.setZero();
+    cholesky::computeMinv(model,data,Minv);
+    
+    BOOST_CHECK(Minv.isApprox(Minv_ref));
+  }
 
 BOOST_AUTO_TEST_SUITE_END ()

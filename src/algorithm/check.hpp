@@ -19,6 +19,7 @@
 #define __se3_check_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include <boost/fusion/container/list.hpp>
 #include <boost/fusion/container/generation/make_list.hpp>
 

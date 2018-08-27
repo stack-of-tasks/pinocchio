@@ -19,6 +19,7 @@
 #define __se3_energy_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
@@ -95,7 +96,7 @@ namespace se3
     assert(model.check(data) && "data is not consistent with model.");
     
     data.potential_energy = 0.;
-    const Motion::ConstLinear_t & g = model.gravity.linear();
+    const Motion::ConstLinearType & g = model.gravity.linear();
     SE3::Vector3 com_global;
     
     if (update_kinematics)

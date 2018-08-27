@@ -59,7 +59,6 @@ OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
 OPTION (BUILD_UNIT_TESTS "Build the unitary tests" ON)
 OPTION (BUILD_UTILS "Build the utils" OFF)
 OPTION (INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
-OPTION (BUILD_TESTS_WITH_HPP "Build geom tests and benchmarks with hpp to do comparisons" OFF)
 OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 OPTION (BUILD_WITH_LUA_SUPPORT "Build the lua parser" OFF)
 OPTION (BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
@@ -80,22 +79,6 @@ ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
 ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.0")
 ADD_OPTIONAL_DEPENDENCY("hpp-fcl >= 0.5.1")
-
-# Spetcial care of Eigen3 greater than 3.2.10
-IF(EIGEN3_FOUND)
-  IF(${EIGEN3_VERSION} VERSION_GREATER "3.2.10")
-    ADD_DEFINITIONS(-DEIGEN3_FUTURE)
-    SET(EIGEN3_FUTURE TRUE)
-    PKG_CONFIG_APPEND_CFLAGS("-DEIGEN3_FUTURE")
-    IF(${EIGEN3_VERSION} VERSION_LESS "3.3.0")
-      ADD_DEFINITIONS(-DEIGEN3_BETA_3_2_9x)
-      SET(EIGEN3_FUTURE TRUE)
-      PKG_CONFIG_APPEND_CFLAGS("-DEIGEN3_BETA_3_2_9x")
-    ENDIF(${EIGEN3_VERSION} VERSION_LESS "3.3.0")
-  ELSE(${EIGEN3_VERSION} VERSION_GREATER "3.2.10")
-    SET(EIGEN3_FUTURE FALSE)
-  ENDIF(${EIGEN3_VERSION} VERSION_GREATER "3.2.10")
-ENDIF(EIGEN3_FOUND)
 
 # Special care of urdfdom version
 IF(URDFDOM_FOUND)
@@ -144,7 +127,7 @@ SET(BOOST_OPTIONAL_COMPONENTS "")
 IF(BUILD_PYTHON_INTERFACE)
   SET(BOOST_OPTIONAL_COMPONENTS ${BOOST_OPTIONAL_COMPONENTS} python)
   FINDPYTHON()
-  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS}) 
+  INCLUDE_DIRECTORIES(SYSTEM ${PYTHON_INCLUDE_DIRS}) 
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 SET(BOOST_COMPONENTS ${BOOST_REQUIERED_COMPONENTS} ${BOOST_OPTIONAL_COMPONENTS} ${BOOST_BUILD_COMPONENTS})
@@ -154,7 +137,7 @@ SEARCH_FOR_BOOST()
 SET(CFLAGS_DEPENDENCIES)
 
 # Path to boost headers
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
@@ -167,22 +150,36 @@ SET(${PROJECT_NAME}_MATH_HEADERS
   math/matrix.hpp
   )
 
-SET(${PROJECT_NAME}_TOOLS_HEADERS
-  tools/timer.hpp
-  tools/string-generator.hpp
-  tools/file-explorer.hpp
+SET(${PROJECT_NAME}_UTILS_HEADERS
+  utils/axis-label.hpp
+  utils/timer.hpp
+  utils/string-generator.hpp
+  utils/file-explorer.hpp
+  utils/version.hpp
   )
 
 SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/symmetric3.hpp
   spatial/se3.hpp
   spatial/motion.hpp
+  spatial/motion-base.hpp
+  spatial/motion-dense.hpp
+  spatial/motion-tpl.hpp
+  spatial/motion-ref.hpp
+  spatial/motion-zero.hpp
   spatial/force.hpp
+  spatial/force-base.hpp
+  spatial/force-dense.hpp
+  spatial/force-tpl.hpp
+  spatial/force-ref.hpp
   spatial/inertia.hpp
   spatial/fwd.hpp
   spatial/skew.hpp
   spatial/act-on-set.hpp
+  spatial/act-on-set.hxx
   spatial/explog.hpp
+  spatial/cartesian-axis.hpp
+  spatial/spatial-axis.hpp
   )
 
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
@@ -208,6 +205,11 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
 
 SET(${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS
   multibody/liegroup/liegroup.hpp
+  multibody/liegroup/liegroup-algo.hpp
+  multibody/liegroup/liegroup-algo.hxx
+  multibody/liegroup/liegroup-variant.hpp
+  multibody/liegroup/liegroup-variant-visitors.hpp
+  multibody/liegroup/liegroup-variant-visitors.hxx
   multibody/liegroup/operation-base.hpp
   multibody/liegroup/operation-base.hxx
   multibody/liegroup/vector-space.hpp
@@ -223,14 +225,22 @@ SET(${PROJECT_NAME}_MULTIBODY_HEADERS
   multibody/frame.hpp
   multibody/model.hpp
   multibody/model.hxx
+  multibody/data.hpp
+  multibody/data.hxx
   multibody/visitor.hpp
   )
 
 SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/aba.hpp
   algorithm/aba.hxx
+  algorithm/aba-derivatives.hpp
+  algorithm/aba-derivatives.hxx
+  algorithm/centroidal.hpp
+  algorithm/centroidal.hxx
   algorithm/rnea.hpp
   algorithm/rnea.hxx
+  algorithm/rnea-derivatives.hpp
+  algorithm/rnea-derivatives.hxx
   algorithm/crba.hpp
   algorithm/crba.hxx
   algorithm/finite-differences.hpp
@@ -241,6 +251,8 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/cholesky.hxx
   algorithm/kinematics.hpp
   algorithm/kinematics.hxx
+  algorithm/kinematics-derivatives.hpp
+  algorithm/kinematics-derivatives.hxx
   algorithm/dynamics.hpp
   algorithm/center-of-mass.hpp
   algorithm/center-of-mass.hxx
@@ -310,7 +322,7 @@ ENDIF(LUA5_FOUND)
 
 SET(HEADERS
   ${${PROJECT_NAME}_MATH_HEADERS}
-  ${${PROJECT_NAME}_TOOLS_HEADERS}
+  ${${PROJECT_NAME}_UTILS_HEADERS}
   ${${PROJECT_NAME}_SPATIAL_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS}
   ${${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS}
@@ -333,7 +345,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/liegro
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/lua")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/tools")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/utils")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/container")
 

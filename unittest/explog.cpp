@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -16,6 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include "utils/macros.hpp"
+
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -31,23 +33,119 @@ BOOST_AUTO_TEST_CASE(exp)
   Motion v(Motion::Random()); v.linear().setZero();
   
   SE3::Matrix3 R = exp3(v.angular());
+  BOOST_CHECK(R.isApprox(Eigen::AngleAxis<double>(v.angular().norm(), v.angular().normalized()).matrix()));
+  
+  SE3::Matrix3 R0 = exp3(SE3::Vector3::Zero());
+  BOOST_CHECK(R0.isIdentity());
+  
   M = exp6(v);
   
   BOOST_CHECK(R.isApprox(M.rotation()));
   
 }
 
-BOOST_AUTO_TEST_CASE(explog)
+BOOST_AUTO_TEST_CASE(explog3)
 {
   SE3 M(SE3::Random());
+  SE3::Matrix3 M_res = exp3(log3(M.rotation()));
+  BOOST_CHECK(M_res.isApprox(M.rotation()));
+  
+  Motion::Vector3 v; v.setRandom();
+  Motion::Vector3 v_res = log3(exp3(v));
+  BOOST_CHECK(v_res.isApprox(v));
+}
+
+BOOST_AUTO_TEST_CASE(Jlog3_fd)
+{
+  SE3 M(SE3::Random());
+  SE3::Matrix3 R (M.rotation());
+  
+  SE3::Matrix3 Jfd, Jlog;
+  Jlog3 (R, Jlog);
+  Jfd.setZero();
+
+  Motion::Vector3 dR; dR.setZero();
+  double step = 0.0001;
+  for (int i = 0; i < 3; ++i)
+  {
+    dR[i] = step;
+    SE3::Matrix3 R_dR = R * exp3(dR);
+    Jfd.col(i) = (log3(R_dR) - log3(R)) / step;
+    dR[i] = 0;
+  }
+  BOOST_CHECK(Jfd.isApprox(Jlog, step));
+}
+
+BOOST_AUTO_TEST_CASE(Jexplog3)
+{
   Motion v(Motion::Random());
   
-  SE3 M_res = exp6(log6(M));
+  Eigen::Matrix3d R (exp3(v.angular())),
+    Jexp, Jlog;
+  Jexp3 (v.angular(), Jexp);
+  Jlog3 (R          , Jlog);
   
+  BOOST_CHECK((Jlog * Jexp).isIdentity());
+
+  SE3 M(SE3::Random());
+  R = M.rotation();
+  v.angular() = log3(R);
+  Jlog3 (R          , Jlog);
+  Jexp3 (v.angular(), Jexp);
+  
+  BOOST_CHECK((Jexp * Jlog).isIdentity());
+}
+
+BOOST_AUTO_TEST_CASE(explog6)
+{
+  SE3 M(SE3::Random());
+  SE3 M_res = exp6(log6(M));
   BOOST_CHECK(M_res.isApprox(M));
   
+  Motion v(Motion::Random());
   Motion v_res = log6(exp6(v));
   BOOST_CHECK(v_res.toVector().isApprox(v.toVector()));
+}
+
+BOOST_AUTO_TEST_CASE(Jlog6_fd)
+{
+  SE3 M(SE3::Random());
+
+  SE3::Matrix6 Jfd, Jlog;
+  Jlog6 (M, Jlog);
+  Jfd.setZero();
+
+  Motion dM; dM.setZero();
+  double step = 0.001;
+  for (int i = 0; i < 6; ++i)
+  {
+    dM.toVector()[i] = step;
+    SE3 M_dM = M * exp6(dM);
+    Jfd.col(i) = (log6(M_dM).toVector() - log6(M).toVector()) / step;
+    dM.toVector()[i] = 0;
+  }
+
+  BOOST_CHECK(Jfd.isApprox(Jlog, step));
+}
+
+BOOST_AUTO_TEST_CASE(Jexplog6)
+{
+  Motion v(Motion::Random());
+  
+  SE3 M (exp6(v));
+  SE3::Matrix6 Jexp, Jlog;
+  Jexp6 (v, Jexp);
+  Jlog6 (M, Jlog);
+
+  BOOST_CHECK((Jlog * Jexp).isIdentity());
+
+  M.setRandom();
+  
+  v = log6(M);
+  Jlog6 (M, Jlog);
+  Jexp6 (v, Jexp);
+
+  BOOST_CHECK((Jexp * Jlog).isIdentity());
 }
 
 BOOST_AUTO_TEST_CASE (test_basic)

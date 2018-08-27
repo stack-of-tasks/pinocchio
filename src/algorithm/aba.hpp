@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,6 +19,7 @@
 #define __se3_aba_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
 namespace se3
@@ -60,6 +61,20 @@ namespace se3
       const Eigen::VectorXd & v,
       const Eigen::VectorXd & tau,
       const container::aligned_vector<Force> & fext);
+  
+  ///
+  /// \brief Computes the inverse of the joint space inertia matrix using Articulated Body formulation.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  ///
+  /// \return The inverse of the joint space inertia matrix stored in data.ddq.
+  ///
+  inline const Data::RowMatrixXd &
+  computeMinverse(const Model & model,
+                  Data & data,
+                  const Eigen::VectorXd & q);
 
 
   DEFINE_ALGO_CHECKER(ABA);

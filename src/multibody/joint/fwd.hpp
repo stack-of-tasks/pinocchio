@@ -22,35 +22,56 @@ namespace se3
 {
   enum { MAX_JOINT_NV = 6 };
 
-  template<int axis> struct JointModelRevolute;
-  template<int axis> struct JointDataRevolute;
+  template<typename Scalar, int Options, int axis> struct JointModelRevoluteTpl;
+  template<typename Scalar, int Options, int axis> struct JointDataRevoluteTpl;
 
-  struct JointModelRevoluteUnaligned;
-  struct JointDataRevoluteUnaligned;
+  template<typename Scalar, int Options = 0> struct JointModelRevoluteUnalignedTpl;
+  typedef JointModelRevoluteUnalignedTpl<double> JointModelRevoluteUnaligned;
+  
+  template<typename Scalar, int Options = 0> struct JointDataRevoluteUnalignedTpl;
+  typedef JointDataRevoluteUnalignedTpl<double> JointDataRevoluteUnaligned;
 
-  template<int axis> struct JointModelRevoluteUnbounded;
-  template<int axis> struct JointDataRevoluteUnbounded;
+  template<typename Scalar, int Options, int axis> struct JointModelRevoluteUnboundedTpl;
+  template<typename Scalar, int Options, int axis> struct JointDataRevoluteUnboundedTpl;
 
-  struct JointModelSpherical;
-  struct JointDataSpherical;
+  template<typename Scalar, int Options = 0> struct JointModelSphericalTpl;
+  typedef JointModelSphericalTpl<double> JointModelSpherical;
+  
+  template<typename Scalar, int Options = 0> struct JointDataSphericalTpl;
+  typedef JointDataSphericalTpl<double> JointDataSpherical;
 
-  struct JointModelSphericalZYX;
-  struct JointDataSphericalZYX;
+  template<typename Scalar, int Options = 0> struct JointModelSphericalZYXTpl;
+  typedef JointModelSphericalZYXTpl<double> JointModelSphericalZYX;
+  
+  template<typename Scalar, int Options = 0> struct JointDataSphericalZYXTpl;
+  typedef JointDataSphericalZYXTpl<double> JointDataSphericalZYX;
 
-  template<int axis> struct JointModelPrismatic;
-  template<int axis> struct JointDataPrismatic;
+  template<typename Scalar, int Options, int axis> struct JointModelPrismatic;
+  template<typename Scalar, int Options, int axis> struct JointDataPrismatic;
 
-  struct JointModelPrismaticUnaligned;
-  struct JointDataPrismaticUnaligned;
+  template<typename Scalar, int Options = 0> struct JointModelPrismaticUnalignedTpl;
+  typedef JointModelPrismaticUnalignedTpl<double> JointModelPrismaticUnaligned;
 
-  struct JointModelFreeFlyer;
-  struct JointDataFreeFlyer;
+  template<typename Scalar, int Options = 0> struct JointDataPrismaticUnalignedTpl;
+  typedef JointDataPrismaticUnalignedTpl<double> JointDataPrismaticUnaligned;
 
-  struct JointModelPlanar;
-  struct JointDataPlanar;
+  template<typename Scalar, int Options = 0> struct JointModelFreeFlyerTpl;
+  typedef JointModelFreeFlyerTpl<double> JointModelFreeFlyer;
+  
+  template<typename Scalar, int Options = 0> struct JointDataFreeFlyerTpl;
+  typedef JointDataFreeFlyerTpl<double> JointDataFreeFlyer;
 
-  struct JointModelTranslation;
-  struct JointDataTranslation;
+  template<typename Scalar, int Options = 0> struct JointModelPlanarTpl;
+  typedef JointModelPlanarTpl<double> JointModelPlanar;
+  
+  template<typename Scalar, int Options = 0> struct JointDataPlanarTpl;
+  typedef JointDataPlanarTpl<double> JointDataPlanar;
+
+  template<typename Scalar, int Options = 0> struct JointModelTranslationTpl;
+  typedef JointModelTranslationTpl<double> JointModelTranslation;
+  
+  template<typename Scalar, int Options = 0> struct JointDataTranslationTpl;
+  typedef JointDataTranslationTpl<double> JointDataTranslation;
 
   struct JointModelComposite;
   struct JointDataComposite;

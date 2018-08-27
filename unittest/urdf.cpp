@@ -41,6 +41,21 @@ BOOST_AUTO_TEST_CASE ( build_model )
   
   BOOST_CHECK(model.nq == 31);
 }
+
+BOOST_AUTO_TEST_CASE ( build_model_simple_humanoid )
+{
+  const std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
+
+  se3::Model model;
+  se3::urdf::buildModel(filename, model);
+
+  BOOST_CHECK(model.nq == 29);
+  
+  se3::Model model_ff;
+  se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(), model_ff);
+  
+  BOOST_CHECK(model_ff.nq == 36);
+}
   
 BOOST_AUTO_TEST_CASE ( build_model_from_XML )
 {

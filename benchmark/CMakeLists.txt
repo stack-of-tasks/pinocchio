@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016 CNRS
+# Copyright (c) 2015-2018 CNRS
 #
 # This file is part of Pinocchio
 # pinocchio is free software: you can redistribute it
@@ -17,51 +17,54 @@
 # ----------------------------------------------------
 # --- BENCHMARK --------------------------------------
 # ----------------------------------------------------
+ADD_CUSTOM_TARGET(bench)
+
+MACRO(ADD_BENCH bench_name)
+IF(BUILD_BENCHMARK)
+  ADD_EXECUTABLE(${bench_name} ${bench_name}.cpp)
+ELSE(BUILD_BENCHMARK)
+  ADD_EXECUTABLE(${bench_name} EXCLUDE_FROM_ALL ${bench_name}.cpp)
+ENDIF(BUILD_BENCHMARK)
+SET(ExtraMacroArgs ${ARGN})
+LIST(LENGTH ExtraMacroArgs NumExtraMacroArgs)
+IF(NumExtraMacroArgs GREATER 0)
+  SET(link_to_main_lib ${ARGV1})
+  IF(link_to_main_lib)
+    SET_TARGET_PROPERTIES(${bench_name} PROPERTIES COMPILE_DEFINITIONS PINOCCHIO_SOURCE_DIR="${${PROJECT_NAME}_SOURCE_DIR}")
+    TARGET_LINK_LIBRARIES(${bench_name} ${PROJECT_NAME})
+    PKG_CONFIG_USE_DEPENDENCY(${bench_name} eigen3)
+  ENDIF(link_to_main_lib)
+ENDIF()
+
+ADD_DEPENDENCIES(bench ${bench_name})
+ENDMACRO(ADD_BENCH)
+
 MACRO(ADD_TEST_CFLAGS target flag)
   SET_PROPERTY(TARGET ${target} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
 ENDMACRO(ADD_TEST_CFLAGS)
 
+# timings
+# 
+ADD_BENCH(timings TRUE)
 
 # timings
 # 
-IF(BUILD_BENCHMARK)
-  ADD_EXECUTABLE(timings timings.cpp)
-ELSE(BUILD_BENCHMARK)
-  ADD_EXECUTABLE(timings EXCLUDE_FROM_ALL timings.cpp)
-ENDIF(BUILD_BENCHMARK)
-TARGET_LINK_LIBRARIES (timings ${PROJECT_NAME})
-SET_TARGET_PROPERTIES (timings PROPERTIES COMPILE_DEFINITIONS PINOCCHIO_SOURCE_DIR="${${PROJECT_NAME}_SOURCE_DIR}")
+ADD_BENCH(timings-cholesky TRUE)
+
+# timings derivatives
+# 
+ADD_BENCH(timings-derivatives TRUE)
+TARGET_LINK_LIBRARIES(timings-derivatives ${PROJECT_NAME})
 
 # timings-eigen
 # 
-IF(BUILD_BENCHMARK)
-  ADD_EXECUTABLE(timings-eigen timings-eigen.cpp)
-ELSE(BUILD_BENCHMARK)
-  ADD_EXECUTABLE(timings-eigen EXCLUDE_FROM_ALL timings-eigen.cpp)
-ENDIF(BUILD_BENCHMARK)
-PKG_CONFIG_USE_DEPENDENCY(timings-eigen eigen3)
+ADD_BENCH(timings-eigen)
 
-
-# geomTimings
+# timings-geometry
 # 
 IF(URDFDOM_FOUND AND HPP_FCL_FOUND)
-  IF(BUILD_BENCHMARK)
-    ADD_EXECUTABLE(geomTimings timings-geometry.cpp)
-  ELSE(BUILD_BENCHMARK)
-    ADD_EXECUTABLE(geomTimings EXCLUDE_FROM_ALL timings-geometry.cpp)
-  ENDIF(BUILD_BENCHMARK)
-
-    IF(BUILD_TESTS_WITH_HPP)
-      ADD_OPTIONAL_DEPENDENCY("hpp-model-urdf")
-      IF(HPP_MODEL_URDF_FOUND)
-        PKG_CONFIG_USE_DEPENDENCY(geomTimings hpp-model-urdf)
-        ADD_TEST_CFLAGS(geomTimings "-DWITH_HPP_MODEL_URDF")
-      ENDIF(HPP_MODEL_URDF_FOUND)
-    ENDIF(BUILD_TESTS_WITH_HPP)
-
-  TARGET_LINK_LIBRARIES (geomTimings ${PROJECT_NAME})
-  PKG_CONFIG_USE_DEPENDENCY(geomTimings hpp-fcl)
-  SET_TARGET_PROPERTIES (geomTimings PROPERTIES COMPILE_DEFINITIONS PINOCCHIO_SOURCE_DIR="${${PROJECT_NAME}_SOURCE_DIR}")
+  ADD_BENCH(timings-geometry TRUE)
+  PKG_CONFIG_USE_DEPENDENCY(timings-geometry hpp-fcl)
 ENDIF(URDFDOM_FOUND AND HPP_FCL_FOUND)
 
 

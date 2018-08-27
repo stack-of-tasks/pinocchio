@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -21,155 +21,168 @@
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
-#include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/quaternion.hpp"
-
-#include <stdexcept>
 
 namespace se3
 {
 
-  struct ConstraintIdentity;
+  template<typename Scalar, int Options> struct ConstraintIdentityTpl;
 
-  template <>
-  struct traits< ConstraintIdentity >
+  template<typename _Scalar, int _Options>
+  struct traits< ConstraintIdentityTpl<_Scalar,_Options> >
   {
-    typedef double Scalar;
-    typedef Eigen::Matrix<double,3,1,0> Vector3;
-    typedef Eigen::Matrix<double,4,1,0> Vector4;
-    typedef Eigen::Matrix<double,6,1,0> Vector6;
-    typedef Eigen::Matrix<double,3,3,0> Matrix3;
-    typedef Eigen::Matrix<double,4,4,0> Matrix4;
-    typedef Eigen::Matrix<double,6,6,0> Matrix6;
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,4,1,Options> Vector4;
+    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
+    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
+    typedef Eigen::Matrix<Scalar,4,4,Options> Matrix4;
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef Matrix3 Angular_t;
     typedef Vector3 Linear_t;
     typedef const Matrix3 ConstAngular_t;
     typedef const Vector3 ConstLinear_t;
     typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<double,0> Quaternion_t;
-    typedef SE3Tpl<double,0> SE3;
-    typedef ForceTpl<double,0> Force;
-    typedef MotionTpl<double,0> Motion;
-    typedef Symmetric3Tpl<double,0> Symmetric3;
+    typedef Eigen::Quaternion<Scalar,Options> Quaternion_t;
+    typedef SE3Tpl<Scalar,Options> SE3;
+    typedef ForceTpl<Scalar,Options> Force;
+    typedef MotionTpl<Scalar,Options> Motion;
+    typedef Symmetric3Tpl<Scalar,Options> Symmetric3;
     enum {
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,6,1,0> JointMotion;
-    typedef Eigen::Matrix<Scalar,6,1,0> JointForce;
-    typedef Eigen::Matrix<Scalar,6,6> DenseBase;
+    typedef Eigen::Matrix<Scalar,6,1,Options> JointMotion;
+    typedef Eigen::Matrix<Scalar,6,1,Options> JointForce;
+    typedef Eigen::Matrix<Scalar,6,6,Options> DenseBase;
+    typedef const DenseBase ConstMatrixReturnType;
+    typedef DenseBase MatrixReturnType;
   }; // traits ConstraintRevolute
 
 
-    struct ConstraintIdentity : ConstraintBase < ConstraintIdentity >
+  template<typename _Scalar, int _Options>
+  struct ConstraintIdentityTpl : ConstraintBase< ConstraintIdentityTpl<_Scalar,_Options> >
+  {
+    SPATIAL_TYPEDEF_TEMPLATE(ConstraintIdentityTpl);
+    enum { NV = 6, Options = 0 };
+    typedef typename traits<ConstraintIdentityTpl>::JointMotion JointMotion;
+    typedef typename traits<ConstraintIdentityTpl>::JointForce JointForce;
+    typedef typename traits<ConstraintIdentityTpl>::DenseBase DenseBase;
+    
+    template<typename S1, int O1>
+    typename SE3::Matrix6 se3Action(const SE3Tpl<S1,O1> & m) const
+    { return m.toActionMatrix(); }
+    
+    int nv_impl() const { return NV; }
+    
+    struct TransposeConst
     {
-      SPATIAL_TYPEDEF_NO_TEMPLATE(ConstraintIdentity);
-      enum { NV = 6, Options = 0 };
-      typedef traits<ConstraintIdentity>::JointMotion JointMotion;
-      typedef traits<ConstraintIdentity>::JointForce JointForce;
-      typedef traits<ConstraintIdentity>::DenseBase DenseBase;
-
-      SE3::Matrix6 se3Action(const SE3 & m) const { return m.toActionMatrix(); }
-
-      int nv_impl() const { return NV; }
-
-      struct TransposeConst 
+      template<typename Derived>
+      typename ForceDense<Derived>::ToVectorConstReturnType
+      operator*(const ForceDense<Derived> & phi)
+      {  return phi.toVector();  }
+      
+      /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
+      template<typename MatrixDerived>
+      typename EIGEN_REF_CONSTTYPE(MatrixDerived)
+      operator*(const Eigen::MatrixBase<MatrixDerived> & F)
       {
-        Force::Vector6 operator* (const Force & phi)
-        {  return phi.toVector();  }
-      };
-      
-      TransposeConst transpose() const { return TransposeConst(); }
-      operator ConstraintXd () const { return ConstraintXd(SE3::Matrix6::Identity()); }
-      
-      DenseBase variation(const Motion & m) const { return m.toActionMatrix(); }
-    }; // struct ConstraintIdentity
-
-    template<typename D>
-    Motion operator* (const ConstraintIdentity&, const Eigen::MatrixBase<D>& v)
-    {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,6);
-      return Motion(v);
-    }
-
+        return F.derived();
+      }
+    };
+    
+    TransposeConst transpose() const { return TransposeConst(); }
+    DenseBase matrix_impl() const { return DenseBase::Identity(); }
+    
+    template<typename MotionDerived>
+    typename MotionDerived::ActionMatrixType
+    motionAction(const MotionBase<MotionDerived> & v) const
+    { return v.toActionMatrix(); }
+    
+  }; // struct ConstraintIdentityTpl
+  
+  template<typename Scalar, int Options, typename Vector6Like>
+  typename ConstraintIdentityTpl<Scalar,Options>::Motion
+  operator*(const ConstraintIdentityTpl<Scalar,Options> &, const Eigen::MatrixBase<Vector6Like>& v)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
+    typedef typename ConstraintIdentityTpl<Scalar,Options>::Motion Motion;
+    return Motion(v);
+  }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  inline Inertia::Matrix6 operator* (const Inertia & Y, const ConstraintIdentity &)
+  template<typename S1, int O1, typename S2, int O2>
+  inline typename InertiaTpl<S1,O1>::Matrix6
+  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintIdentityTpl<S2,O2> &)
   {
     return Y.matrix();
   }
   
   /* [ABA] Y*S operator*/
-  inline const Inertia::Matrix6 & operator* (const Inertia::Matrix6 & Y, const ConstraintIdentity &)
+  template<typename Matrix6Like, typename S2, int O2>
+  inline typename EIGEN_REF_CONSTTYPE(Matrix6Like)
+  operator*(const Eigen::MatrixBase<Matrix6Like> & Y, const ConstraintIdentityTpl<S2,O2> &)
   {
-    return Y;
+    return Y.derived();
   }
   
-  inline Inertia::Matrix6 & operator* (Inertia::Matrix6 & Y, const ConstraintIdentity &)
-  {
-    return Y;
-  }
-  
-  inline Inertia::Matrix6 operator* (const ConstraintIdentity::TransposeConst &, const Inertia & Y)
-  {
-    return Y.matrix();
-  }
-
-  /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
-  template<typename D>
-  const Eigen::MatrixBase<D> & 
-  operator*( const ConstraintIdentity::TransposeConst &, const Eigen::MatrixBase<D> & F )
-  {
-    return F;
-  }
-
   namespace internal
   {
-    template<>
-    struct ActionReturn<ConstraintIdentity >  
-    { typedef SE3::Matrix6 Type; };
+    template<typename S1, int O1>
+    struct SE3GroupAction< ConstraintIdentityTpl<S1,O1> >
+    { typedef typename SE3Tpl<S1,O1>::Matrix6 ReturnType; };
+    
+    template<typename S1, int O1, typename MotionDerived>
+    struct MotionAlgebraAction< ConstraintIdentityTpl<S1,O1>,MotionDerived >
+    { typedef typename SE3Tpl<S1,O1>::Matrix6 ReturnType; };
   }
 
-  struct JointFreeFlyer;
+  template<typename Scalar, int Options> struct JointFreeFlyerTpl;
 
-  template<>
-  struct traits<JointFreeFlyer>
+  template<typename _Scalar, int _Options>
+  struct traits< JointFreeFlyerTpl<_Scalar,_Options> >
   {
     enum {
       NQ = 7,
       NV = 6
     };
     typedef double Scalar;
-    typedef JointDataFreeFlyer JointDataDerived;
-    typedef JointModelFreeFlyer JointModelDerived;
-    typedef ConstraintIdentity Constraint_t;
-    typedef SE3 Transformation_t;
-    typedef Motion Motion_t;
+    enum { Options = _Options };
+    typedef JointDataFreeFlyerTpl<Scalar,Options> JointDataDerived;
+    typedef JointModelFreeFlyerTpl<Scalar,Options> JointModelDerived;
+    typedef ConstraintIdentityTpl<Scalar,Options> Constraint_t;
+    typedef SE3Tpl<Scalar,Options> Transformation_t;
+    typedef MotionTpl<Scalar,Options> Motion_t;
     typedef BiasZero Bias_t;
-    typedef Eigen::Matrix<double,6,NV> F_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
-    typedef Eigen::Matrix<double,6,NV> U_t;
-    typedef Eigen::Matrix<double,NV,NV> D_t;
-    typedef Eigen::Matrix<double,6,NV> UD_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
+    typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
+    typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
 
-    typedef Eigen::Matrix<double,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<double,NV,1> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
   };
-  template<> struct traits<JointDataFreeFlyer> { typedef JointFreeFlyer JointDerived; };
-  template<> struct traits<JointModelFreeFlyer> { typedef JointFreeFlyer JointDerived; };
+  
+  template<typename Scalar, int Options>
+  struct traits< JointDataFreeFlyerTpl<Scalar,Options> >
+  { typedef JointFreeFlyerTpl<Scalar,Options> JointDerived; };
+  
+  template<typename Scalar, int Options>
+  struct traits< JointModelFreeFlyerTpl<Scalar,Options> >
+  { typedef JointFreeFlyerTpl<Scalar,Options> JointDerived; };
 
-  struct JointDataFreeFlyer : public JointDataBase<JointDataFreeFlyer>
+  template<typename _Scalar, int _Options>
+  struct JointDataFreeFlyerTpl : public JointDataBase< JointDataFreeFlyerTpl<_Scalar,_Options> >
   {
-    typedef JointFreeFlyer JointDerived;
-    SE3_JOINT_TYPEDEF;
-
-    typedef Eigen::Matrix<double,6,6> Matrix6;
-    typedef Eigen::Quaternion<double> Quaternion;
-    typedef Eigen::Matrix<double,3,1> Vector3;
+    typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
     
     Constraint_t S;
     Transformation_t M;
@@ -183,31 +196,31 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
     
-    JointDataFreeFlyer() : M(1), U(), Dinv(), UDinv(UD_t::Identity()) {}
+    JointDataFreeFlyerTpl() : M(1), U(), Dinv(), UDinv(UD_t::Identity()) {}
 
-  }; // struct JointDataFreeFlyer
+  }; // struct JointDataFreeFlyerTpl
 
-  struct JointModelFreeFlyer : public JointModelBase<JointModelFreeFlyer>
+  template<typename _Scalar, int _Options>
+  struct JointModelFreeFlyerTpl : public JointModelBase< JointModelFreeFlyerTpl<_Scalar,_Options> >
   {
-    typedef JointFreeFlyer JointDerived;
-    SE3_JOINT_TYPEDEF;
+    typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    using JointModelBase<JointModelFreeFlyer>::id;
-    using JointModelBase<JointModelFreeFlyer>::idx_q;
-    using JointModelBase<JointModelFreeFlyer>::idx_v;
-    using JointModelBase<JointModelFreeFlyer>::setIndexes;
-    typedef Motion::Vector3 Vector3;
+    using JointModelBase<JointModelFreeFlyerTpl>::id;
+    using JointModelBase<JointModelFreeFlyerTpl>::idx_q;
+    using JointModelBase<JointModelFreeFlyerTpl>::idx_v;
+    using JointModelBase<JointModelFreeFlyerTpl>::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
     
-    template<typename V>
-    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
+    template<typename ConfigVectorLike>
+    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVectorLike> & q_joint) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
-      //using std::sqrt;
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVectorLike);
+      typedef typename Eigen::Quaternion<typename ConfigVectorLike::Scalar,EIGEN_PLAIN_TYPE(ConfigVectorLike)::Options> Quaternion;
+      typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
 
-      ConstQuaternionMap_t quat(q_joint.template tail<4>().data());
+      ConstQuaternionMap quat(q_joint.template tail<4>().data());
       //assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
       assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= 1e-4);
       
@@ -215,34 +228,34 @@ namespace se3
       M.translation(q_joint.template head<3>());
     }
     
+    template<typename ConfigVector>
     void calc(JointDataDerived & data,
-              const Eigen::VectorXd & qs) const
+              const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigVector);
+      typedef typename Eigen::Quaternion<typename ConfigVector::Scalar,ConfigVector::Options> Quaternion;
+      typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
       
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
-      ConstQuaternionMap_t quat(q.tail<4> ().data());
+      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type q = qs.template segment<NQ>(idx_q());
+      ConstQuaternionMap quat(q.template tail<4>().data());
       
-      data.M.rotation (quat.matrix());
-      data.M.translation (q.head<3>());
+      data.M.rotation(quat.matrix());
+      data.M.translation(q.template head<3>());
     }
     
+    template<typename ConfigVector, typename TangentVector>
     void calc(JointDataDerived & data,
-              const Eigen::VectorXd & qs,
-              const Eigen::VectorXd & vs ) const
+              const typename Eigen::MatrixBase<ConfigVector> & qs,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(TangentVector);
+      calc(data,qs.derived());
       
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type q = qs.segment<NQ>(idx_q());
-      data.v = vs.segment<NV>(idx_v());
-
-      ConstQuaternionMap_t quat(q.tail<4> ().data());
-      
-      data.M.rotation (quat.matrix());
-      data.M.translation (q.head<3>());
+      data.v = vs.template segment<NV>(idx_v());
     }
     
-    void calc_aba(JointDataDerived & data, Inertia::Matrix6 & I, const bool update_I) const
+    template<typename S2, int O2>
+    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
     {
       data.U = I;
       data.Dinv = I.inverse();
@@ -256,133 +269,11 @@ namespace se3
       using std::sqrt;
       return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
-    
-    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const
-    {
-      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
-      
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q = qs.segment<NQ> (idx_q ());
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.segment<NV> (idx_v ());
-
-      ConfigVector_t res;
-      Transformation_t M0; forwardKinematics(M0,q);
-      Transformation_t M1(M0*exp6(Motion_t(q_dot)));
-
-      res.head<3>() = M1.translation();
-      QuaternionMap_t res_quat(res.tail<4>().data());
-      res_quat = M1.rotation();
-      // Norm of qs might be epsilon-different to 1, so M1.rotation might be epsilon-different to a rotation matrix.
-      // It is then safer to re-normalized after converting M1.rotation to quaternion.
-      firstOrderNormalize(res_quat);
-      
-      return res;
-    } 
-
-    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1, const double u) const
-    {
-      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
-      
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_0 = q0.segment<NQ> (idx_q ());
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
-
-      if (u == 0.) return q_0;
-      else if( u == 1.) return q_1;
-      else
-      {
-        // TODO: If integrate takes an arguments (ConfigVector_t, TangentVector_t), then we can merely do:
-        // TangentVector_t nu(u*difference(q0, q1));
-        // return integrate(q0, nu);
-
-        TangentVector_t nu(u*difference(q0, q1));
-        Transformation_t M0; forwardKinematics(M0,q_0);
-        Transformation_t M1(M0*exp6(Motion_t(nu)));
-
-        ConfigVector_t res;
-        res.head<3>() = M1.translation();
-        QuaternionMap_t res_quat(res.tail<4>().data());
-        res_quat = M1.rotation();
-        firstOrderNormalize(res_quat);
-        
-        return res;
-      }
-    }
-
-    ConfigVector_t random_impl() const
-    { 
-      ConfigVector_t q(ConfigVector_t::Random());
-
-      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
-      uniformRandom(QuaternionMap_t(q.segment<4>(3).data()));
-
-      return q;
-    } 
-
-    ConfigVector_t randomConfiguration_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit ) const throw (std::runtime_error)
-    {
-      ConfigVector_t result;
-      // Translational part
-      for (Index i = 0; i < 3; ++i)
-      {
-        if(lower_pos_limit[i] == -std::numeric_limits<double>::infinity() ||
-           upper_pos_limit[i] == std::numeric_limits<double>::infinity() )
-        {
-          std::ostringstream error;
-          error << "non bounded limit. Cannot uniformly sample joint nb " << id();
-          throw std::runtime_error(error.str());
-        }
-          
-        result[i] = lower_pos_limit[i] + (upper_pos_limit[i] - lower_pos_limit[i]) * (Scalar)(rand())/RAND_MAX;
-      }
-          
-      typedef Eigen::Map<Motion_t::Quaternion_t> QuaternionMap_t;
-      uniformRandom(QuaternionMap_t(result.segment<4>(3).data()));
-
-      return result;
-    }
-
-    TangentVector_t difference_impl(const Eigen::VectorXd & q0, const Eigen::VectorXd & q1) const
-    {
-      Transformation_t M0(Transformation_t::Identity()); forwardKinematics(M0, q0.segment<NQ> (idx_q ()));
-      Transformation_t M1(Transformation_t::Identity()); forwardKinematics(M1, q1.segment<NQ> (idx_q ()));
-
-      return se3::log6(M0.inverse()*M1);
-    } 
-
-    double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
-    { 
-      return difference_impl(q0,q1).norm();
-    } 
-
-    ConfigVector_t neutralConfiguration_impl() const
-    { 
-      ConfigVector_t q;
-      q << 0, 0, 0, // translation part
-           0, 0, 0, 1; // quaternion part
-      return q;
-    } 
-
-    void normalize_impl(Eigen::VectorXd& q) const
-    {
-      q.segment<4>(idx_q()+3).normalize();
-    }
-
-    bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
-    {
-      typedef Eigen::Map<const Motion_t::Quaternion_t> ConstQuaternionMap_t;
-
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_1 = q1.segment<NQ> (idx_q ());
-      Eigen::VectorXd::ConstFixedSegmentReturnType<NQ>::Type & q_2 = q2.segment<NQ> (idx_q ());
-
-      ConstQuaternionMap_t quat1(q_1.tail<4> ().data());
-      ConstQuaternionMap_t quat2(q_2.tail<4> ().data());
-
-      return ( q_1.head<3>().isApprox(q_2.head<3>(), prec) && defineSameRotation(quat1,quat2) );
-    }
 
     static std::string classname() { return std::string("JointModelFreeFlyer"); }
     std::string shortname() const { return classname(); }
 
-  }; // struct JointModelFreeFlyer
+  }; // struct JointModelFreeFlyerTpl
 
 } // namespace se3
 

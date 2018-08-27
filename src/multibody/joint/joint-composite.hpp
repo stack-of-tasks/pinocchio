@@ -227,111 +227,6 @@ namespace se3
       return eps;
     }
 
-    ConfigVector_t integrate_impl(const Eigen::VectorXd & qs,const Eigen::VectorXd & vs) const
-    {
-      ConfigVector_t result(nq());
-      for (size_t i = 0; i < joints.size(); ++i)
-      {
-        const JointModelVariant & jmodel = joints[i];
-        const int idx_q = m_idx_q[i];
-        const int nq = m_nqs[i];
-        result.segment(idx_q,nq) = ::se3::integrate(jmodel,qs,vs);
-      }
-      return result;
-    }
-
-    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
-    {
-      ConfigVector_t result(nq());
-      for (size_t i = 0; i < joints.size(); ++i)
-      {
-        const JointModelVariant & jmodel = joints[i];
-        const int idx_q = m_idx_q[i];
-        const int nq = m_nqs[i];
-        result.segment(idx_q,nq) = ::se3::interpolate(jmodel,q0,q1,u);
-      }
-      return result;
-    }
-
-    ConfigVector_t random_impl() const
-    { 
-      ConfigVector_t result(nq());
-      for (size_t i = 0; i < joints.size(); ++i)
-      {
-        const JointModelVariant & jmodel = joints[i];
-        const int idx_q = m_idx_q[i];
-        const int nq = m_nqs[i];
-        result.segment(idx_q,nq) = ::se3::random(jmodel);
-      }
-      return result;
-    } 
-
-    ConfigVector_t randomConfiguration_impl(const ConfigVector_t & lb,
-                                            const ConfigVector_t & ub) const throw (std::runtime_error)
-    { 
-      ConfigVector_t result(nq());
-      for (size_t i = 0; i < joints.size(); ++i)
-      {
-        const JointModelVariant & jmodel = joints[i];
-        const int idx_q = m_idx_q[i];
-        const int nq = m_nqs[i];
-        result.segment(idx_q,nq) =
-        ::se3::randomConfiguration(jmodel,
-                                   lb.segment(idx_q,nq),
-                                   ub.segment(idx_q,nq));
-      }
-      return result;
-    }
-
-    TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
-    { 
-      TangentVector_t result(nv());
-      for(size_t i = 0; i < joints.size(); ++i)
-      {
-        const JointModelVariant & jmodel = joints[i];
-        const int idx_v = m_idx_v[i];
-        const int nv = m_nvs[i];
-        result.segment(idx_v,nv) = ::se3::difference(jmodel,q0,q1);
-      }
-      return result;
-    } 
-
-    double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
-    { 
-      return difference_impl(q0,q1).norm();
-    }
-
-    void normalize_impl(Eigen::VectorXd & q) const
-    {
-      for (JointModelVector::const_iterator it = joints.begin(); it != joints.end(); ++it)
-        ::se3::normalize(*it,q);
-    }
-
-    ConfigVector_t neutralConfiguration_impl() const
-    {
-      ConfigVector_t result(nq());
-      int idx_q=0;
-      for (size_t i = 0; i < joints.size(); ++i)
-      {
-        const JointModelVariant & jmodel = joints[i];
-        const int nq = m_nqs[i];
-        result.segment(idx_q,nq) = ::se3::neutralConfiguration(jmodel);
-        idx_q += nq;
-      }
-      return result;
-    } 
-
-    bool isSameConfiguration_impl(const Eigen::VectorXd & q1, const Eigen::VectorXd & q2,
-                                  const Scalar & = Eigen::NumTraits<Scalar>::dummy_precision()) const
-    {
-      for (JointModelVector::const_iterator i = joints.begin(); i != joints.end(); ++i)
-      {
-        if ( !::se3::isSameConfiguration(*i, q1, q2) )
-          return false;
-      }
-      return true;
-    }
-
     int     nv_impl() const { return m_nv; }
     int     nq_impl() const { return m_nq; }
 
@@ -383,10 +278,10 @@ namespace se3
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
-    jointCols(const Eigen::MatrixBase<D>& A) const { return A.segment(i_v,nv());  }
+    jointCols(const Eigen::MatrixBase<D>& A) const { return A.middleCols(i_v,nv());  }
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
-    jointCols(Eigen::MatrixBase<D>& A) const { return A.segment(i_v,nv());  }
+    jointCols(Eigen::MatrixBase<D>& A) const { return A.middleCols(i_v,nv());  }
 
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType

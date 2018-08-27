@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -23,25 +23,31 @@ namespace se3
   namespace python
   {
     
-    static Data::Matrix6x frame_jacobian_proxy(const Model & model,
-                                               Data & data,
-                                               const Model::FrameIndex frame_id)
+    static Data::Matrix6x get_frame_jacobian_proxy(const Model & model,
+                                                   Data & data,
+                                                   const Model::FrameIndex frame_id,
+                                                   ReferenceFrame rf)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
-      getFrameJacobian(model, data, frame_id, J);
+      if(rf == LOCAL)
+        getFrameJacobian<LOCAL>(model, data, frame_id, J);
+      else
+        getFrameJacobian<WORLD>(model, data, frame_id, J);
       
       return J;
     }
     
     static Data::Matrix6x frame_jacobian_proxy(const Model & model,
                                                Data & data,
+                                               const Eigen::VectorXd & q,
                                                const Model::FrameIndex frame_id,
-                                               const Eigen::VectorXd & q)
+                                               ReferenceFrame rf
+                                               )
     {
-      computeJacobians(model,data,q);
+      computeJointJacobians(model,data,q);
       framesForwardKinematics(model,data);
   
-      return frame_jacobian_proxy(model, data, frame_id);
+      return get_frame_jacobian_proxy(model, data, frame_id, rf);
     }
     
     void exposeFramesAlgo()
@@ -61,24 +67,26 @@ namespace se3
               "and put the results in data.");
       
       bp::def("frameJacobian",
-              (Data::Matrix6x (*)(const Model &, Data &, const Model::FrameIndex, const Eigen::VectorXd &))&frame_jacobian_proxy,
+              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &, const Model::FrameIndex, ReferenceFrame))&frame_jacobian_proxy,
               bp::args("Model","Data",
+                       "Configuration q (size Model::nq)",
                        "Operational frame ID (int)",
-                       "Configuration q (size Model::nq)"),
-              "Compute the Jacobian of the frame given by its ID."
+                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
+              "Computes the Jacobian of the frame given by its ID either in the local or the world frames."
               "The columns of the Jacobian are expressed in the frame coordinates.\n"
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
               "where v is the time derivative of the configuration q.");
       
-      bp::def("frameJacobian",
-              (Data::Matrix6x (*)(const Model &, Data &, const Model::FrameIndex))&frame_jacobian_proxy,
+      bp::def("getFrameJacobian",
+              (Data::Matrix6x (*)(const Model &, Data &, const Model::FrameIndex, ReferenceFrame))&get_frame_jacobian_proxy,
               bp::args("Model","Data",
-                       "Operational frame ID (int)"),
-              "Compute the Jacobian of the frame given by its ID."
+                       "Operational frame ID (int)",
+                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
+              "Computes the Jacobian of the frame given by its ID either in the local or the world frames."
               "The columns of the Jacobian are expressed in the frame coordinates.\n"
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
               "where v is the time derivative of the configuration q.\n"
-              "Be aware that computeJacobians and framesKinematics must have been called first.");
+              "Be aware that computeJointJacobians and framesKinematics must have been called first.");
       
     }
   } // namespace python

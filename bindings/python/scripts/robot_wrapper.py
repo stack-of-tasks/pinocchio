@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017 CNRS
+# Copyright (c) 2015-2018 CNRS
 #
 # This file is part of Pinocchio
 # Pinocchio is free software: you can redistribute it
@@ -16,25 +16,23 @@
 
 from . import libpinocchio_pywrap as se3
 from . import utils
+from .deprecation import deprecated
+
 import time
 import os
 
 class RobotWrapper(object):
 
-    def __init__(self, filename, package_dirs=None, root_joint=None, verbose=False):
+    def initFromURDF(self,filename, package_dirs=None, root_joint=None, verbose=False):
         if root_joint is None:
-            self.model = se3.buildModelFromUrdf(filename)
+            se3.buildModelFromUrdf(filename, self.model)
         else:
-            self.model = se3.buildModelFromUrdf(filename, root_joint)
-
-        self.data = self.model.createData()
-        self.model_filename = filename
-
+            se3.buildModelFromUrdf(filename, root_joint, self.model)
+        
+        model = self.model
         if "buildGeomFromUrdf" not in dir(se3):
-            self.collision_model = None
-            self.visual_model = None
-            self.collision_data = None
-            self.visual_data = None
+            collision_model = None
+            visual_model = None
             if verbose:
                 print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
         else:
@@ -45,14 +43,43 @@ class RobotWrapper(object):
                 if not all(isinstance(item, str) for item in package_dirs):
                     raise Exception('The list of package directories is wrong. At least one is not a string')
                 else:
-                    self.collision_model = se3.buildGeomFromUrdf(self.model, filename,
-                                                                utils.fromListToVectorOfString(package_dirs), se3.GeometryType.COLLISION)
-                    self.visual_model = se3.buildGeomFromUrdf(self.model, filename,
-                                                                utils.fromListToVectorOfString(package_dirs), se3.GeometryType.VISUAL)
-            self.collision_data = se3.GeometryData(self.collision_model)
-            self.visual_data = se3.GeometryData(self.visual_model)
+                    collision_model = se3.buildGeomFromUrdf(model, filename,
+                                                            utils.fromListToVectorOfString(package_dirs), se3.GeometryType.COLLISION)
+                    visual_model = se3.buildGeomFromUrdf(model, filename,
+                                                         utils.fromListToVectorOfString(package_dirs), se3.GeometryType.VISUAL)
 
-        self.v0 = utils.zero(self.nv)
+
+        RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
+
+
+    def __init__(self, model = None, collision_model = None, visual_model = None, verbose=False):
+
+        if model is None:
+            self.model = se3.Model()
+        else:
+            self.model = model
+        self.data = self.model.createData()
+
+        self.collision_model = collision_model
+        self.visual_model = visual_model
+
+        if "buildGeomFromUrdf" not in dir(se3):
+            self.collision_data = None
+            self.visual_data = None
+            if verbose:
+                print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
+        else:
+            if self.collision_model is None:
+                self.collision_data = None
+            else:
+                self.collision_data = se3.GeometryData(self.collision_model)
+
+            if self.visual_model is None:
+                self.visual_data = None
+            else:
+                self.visual_data = se3.GeometryData(self.visual_model)
+
+        self.v0 = utils.zero(self.model.nv)
         self.q0 = self.model.neutralConfiguration
 
     def increment(self, q, dq):
@@ -136,20 +163,32 @@ class RobotWrapper(object):
         parentJointAcc = self.data.a[frame.parent]
         return frame.placement.actInv(parentJointAcc)
 
-    def frameClassicAcceleration(self, q, v, a, index, update_kinematics=True):
-        if update_kinematics:
-            se3.forwardKinematics(self.model, self.data, q, v, a)      
+    def frameClassicAcceleration(self, index):
         f = self.model.frames[index]
-        af = f.placement.actInv(self.data.a[f.parent])
-        vf = f.placement.actInv(self.data.v[f.parent])
-        af.linear += np.cross(vf.angular.T, vf.linear.T).T
-        return af;
+        a = f.placement.actInv(self.data.a[f.parent])
+        v = f.placement.actInv(self.data.v[f.parent])
+        a.linear += np.cross(v.angular.T, v.linear.T).T
+        return a;
 
+    @deprecated("This method is now deprecated. Please use jointJacobian instead. It will be removed in release 1.4.0 of Pinocchio.")
     def jacobian(self, q, index, update_kinematics=True, local_frame=True):
-        return se3.jacobian(self.model, self.data, q, index, local_frame, update_kinematics)
+        if local_frame:
+            return se3.jointJacobian(self.model, self.data, q, index, se3.ReferenceFrame.LOCAL, update_kinematics)
+        else:
+            return se3.jointJacobian(self.model, self.data, q, index, se3.ReferenceFrame.WORLD, update_kinematics)
 
+    def jointJacobian(self, q, index, update_kinematics=True, local_frame=True):
+        if local_frame:
+            return se3.jointJacobian(self.model, self.data, q, index, se3.ReferenceFrame.LOCAL, update_kinematics)
+        else:
+            return se3.jointJacobian(self.model, self.data, q, index, se3.ReferenceFrame.WORLD, update_kinematics)
+
+    @deprecated("This method is now deprecated. Please use computeJointJacobians instead. It will be removed in release 1.4.0 of Pinocchio.")
     def computeJacobians(self, q):
-        return se3.computeJacobians(self.model, self.data, q)
+        return se3.computeJointJacobians(self.model, self.data, q)
+
+    def computeJointJacobians(self, q):
+        return se3.computeJointJacobians(self.model, self.data, q)
 
     def updateGeometryPlacements(self, q=None, visual=False):
         if visual:
@@ -167,15 +206,22 @@ class RobotWrapper(object):
 
     def framesKinematics(self, q): 
         se3.framesKinematics(self.model, self.data, q)
-   
-    ''' Call computeJacobians if update_geometry is true. If not, user should call computeJacobians first.
-    Then call getJacobian and return the resulted jacobian matrix. Attention: if update_geometry is true, 
-    the function computes all the jacobians of the model. It is therefore outrageously costly wrt a 
-    dedicated call. Use only with update_geometry for prototyping.
+    
     '''
-    def frameJacobian(self, q, index, update_geometry=True, local_frame=True):
-        return se3.frameJacobian(self.model, self.data, q, index, local_frame, update_geometry)
+        It computes the Jacobian of frame given by its id (frame_id) either expressed in the
+        local coordinate frame or in the world coordinate frame.
+    '''
+    def getFrameJacobian(self, frame_id, rf_frame):
+        return se3.getFrameJacobian(self.model, self.data, frame_id, rf_frame)
 
+    '''
+        Similar to getFrameJacobian but it also calls before se3.computeJointJacobians and
+        se3.framesKinematics to update internal value of self.data related to frames.
+    '''
+    def frameJacobian(self, q, frame_id, rf_frame):
+        return se3.frameJacobian(self.model, self.data, q, frame_id, rf_frame)
+
+  
     # --- ACCESS TO NAMES ----
     # Return the index of the joint whose name is given in argument.
     def index(self, name):
@@ -277,7 +323,7 @@ class RobotWrapper(object):
         if self.display_collisions:
             self.updateGeometryPlacements(visual=False)
             for collision in self.collision_model.geometryObjects:
-                M = self.visual_data.oMg[self.collision_model.getGeometryId(collision.name)]
+                M = self.collision_data.oMg[self.collision_model.getGeometryId(collision.name)]
                 conf = utils.se3ToXYZQUAT(M)
                 gui.applyConfiguration(self.getViewerNodeName(collision,se3.GeometryType.COLLISION), conf)
 

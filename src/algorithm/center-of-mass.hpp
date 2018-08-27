@@ -20,6 +20,7 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 
 namespace se3
@@ -113,7 +114,7 @@ namespace se3
   
   ///
   /// \brief Computes both the jacobian and the the center of mass position of a given model according to a particular joint configuration.
-  ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame. In addition, the algorithm also computes the Jacobian of all the joints (\sa se3::computeJacobians).
+  ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame. In addition, the algorithm also computes the Jacobian of all the joints (\sa se3::computeJointJacobians).
   ///        And data.com[i] gives the center of mass of the subtree supported by joint i (expressed in the world frame).
   ///
   /// \param[in] model The model structure of the rigid body system.
@@ -146,13 +147,15 @@ namespace se3
   getComFromCrba(const Model & model, Data & data);
   
   ///
-  /// \brief Extracts both the jacobian of the center of mass (CoM) and the CoM position from the joint space inertia matrix (also called the mass matrix).
-  ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame.
+  /// \brief Extracts both the jacobian of the center of mass (CoM), the total mass of the system and the CoM position from the joint space inertia matrix (also called the mass matrix).
+  ///        The results are accessible through data.Jcom, data.mass[0] and data.com[0] and are both expressed in the world frame.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   ///
   /// \return The jacobian of the CoM expressed in the world frame (matrix 3 x model.nv).
+  ///
+  /// \remark This extraction of inertial quantities is only valid for free-floating base systems.
   ///
   inline const Data::Matrix3x &
   getJacobianComFromCrba(const Model & model, Data & data);

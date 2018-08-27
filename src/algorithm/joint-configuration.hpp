@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -54,15 +54,15 @@ namespace se3
   /**
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
-   * @param[in]  model   Model to be differentiated
+   * @param[in]  model   Model to be differenced
    * @param[in]  q0      Initial configuration (size model.nq)
    * @param[in]  q1      Wished configuration (size model.nq)
    * @return     The corresponding velocity (size model.nv)
    */
   template<typename LieGroup_t>
-  inline Eigen::VectorXd differentiate(const Model & model,
-                                       const Eigen::VectorXd & q0,
-                                       const Eigen::VectorXd & q1);
+  inline Eigen::VectorXd difference(const Model & model,
+                                    const Eigen::VectorXd & q0,
+                                    const Eigen::VectorXd & q1);
 
 
   /**
@@ -133,7 +133,7 @@ namespace se3
    * @brief         Return true if the given configurations are equivalents
    * \warning       Two configurations can be equivalent but not equally coefficient wise (e.g for quaternions)
    *
-   * @param[in]     model      Model
+   * @param[in]     model     Model
    * @param[in]     q1        The first configuraiton to compare
    * @param[in]     q2        The Second configuraiton to compare
    * @param[in]     prec      precision of the comparison
@@ -145,6 +145,19 @@ namespace se3
                                   const Eigen::VectorXd & q1,
                                   const Eigen::VectorXd & q2,
                                   const double & prec = Eigen::NumTraits<double>::dummy_precision());
+  
+  /**
+   * @brief         Return the neutral configuration element related to the model configuration space.
+   *
+   * @param[in]     model      Model
+   *
+   * @return        The neutral configuration element.
+   */
+  template<typename LieGroup_t>
+  inline Eigen::VectorXd neutral(const Model & model);
+  
+  
+  
 } // namespace se3
 
 /* --- Details -------------------------------------------------------------------- */

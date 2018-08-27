@@ -22,7 +22,9 @@
 #include <eigenpy/memory.hpp>
 #include <boost/python/tuple.hpp>
 
+#include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/motion.hpp"
+#include "pinocchio/spatial/force.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -38,10 +40,12 @@ namespace se3
     struct MotionPythonVisitor
       : public boost::python::def_visitor< MotionPythonVisitor<Motion> >
     {
-      typedef typename Motion::Force Force;
+      enum { Options = traits<Motion>::Options };
+      
+      typedef typename Motion::Scalar Scalar;
+      typedef ForceTpl<Scalar,traits<Motion>::Options> Force;
       typedef typename Motion::Vector6 Vector6;
       typedef typename Motion::Vector3 Vector3;
-      typedef typename Motion::Scalar Scalar;
 
     public:
 
@@ -70,9 +74,9 @@ namespace se3
                       "Returns the components of *this as a 6d vector.")
         .add_property("np",&MotionPythonVisitor::getVector)
         
-        .def("se3Action",&Motion::se3Action,
+        .def("se3Action",&Motion::template se3Action<Scalar,Options>,
              bp::args("M"),"Returns the result of the action of M on *this.")
-        .def("se3ActionInverse",&Motion::se3ActionInverse,
+        .def("se3ActionInverse",&Motion::template se3ActionInverse<Scalar,Options>,
              bp::args("M"),"Returns the result of the action of the inverse of M on *this.")
         
         .add_property("action",&Motion::toActionMatrix,"Returns the action matrix of *this (acting on Motion).")
@@ -99,8 +103,12 @@ namespace se3
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         
-        .def("isApprox",(bool (Motion::*)(const Motion & other, const Scalar & prec)) &Motion::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
-        .def("isApprox",(bool (Motion::*)(const Motion & other)) &Motion::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        .def(bp::self * Scalar())
+        .def(Scalar() * bp::self)
+        .def(bp::self / Scalar())
+        
+        .def("isApprox",(bool (Motion::*)(const Motion & other, const Scalar & prec) const) &Motion::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
+        .def("isApprox",isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
         
         .def("Random",&Motion::Random,"Returns a random Motion.")
         .staticmethod("Random")
@@ -143,6 +151,9 @@ namespace se3
       
       static void setZero(Motion & self) { self.setZero(); }
       static void setRandom(Motion & self) { self.setRandom(); }
+      
+      static bool isApprox(const Motion & self, const Motion & other)
+      { return self.isApprox(other); }
 
     };
     

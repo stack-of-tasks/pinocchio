@@ -112,31 +112,6 @@ namespace se3
     
     void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
     { ::se3::calc_aba(*this,data,I,update_I); }
-
-    ConfigVector_t integrate_impl(const Eigen::VectorXd & q,const Eigen::VectorXd & v) const
-    { return ::se3::integrate(*this,q,v); }
-
-    ConfigVector_t interpolate_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1, const double u) const
-    { return ::se3::interpolate(*this,q0,q1,u); }
-
-    ConfigVector_t randomConfiguration_impl(const ConfigVector_t & lower_pos_limit, const ConfigVector_t & upper_pos_limit) const throw (std::runtime_error)
-    { return ::se3::randomConfiguration(*this,lower_pos_limit,upper_pos_limit); }
-
-    TangentVector_t difference_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
-    { return ::se3::difference(*this,q0,q1); }
-
-    double distance_impl(const Eigen::VectorXd & q0,const Eigen::VectorXd & q1) const
-    { return ::se3::distance(*this,q0,q1); }
-
-    void normalize_impl(Eigen::VectorXd & q) const
-    { return ::se3::normalize(*this,q); }
-
-    ConfigVector_t neutralConfiguration_impl() const
-    { return ::se3::neutralConfiguration(*this); } 
-
-    bool isSameConfiguration_impl(const Eigen::VectorXd& q1, const Eigen::VectorXd& q2, const Scalar & = Eigen::NumTraits<Scalar>::dummy_precision()) const
-    { return ::se3::isSameConfiguration(*this, q1, q2);}
-
     std::string shortname() const { return ::se3::shortname(*this); }
     static std::string classname() { return "JointModel"; }
 

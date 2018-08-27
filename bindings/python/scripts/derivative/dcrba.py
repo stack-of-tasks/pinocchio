@@ -31,7 +31,7 @@ def hessian(robot,q,crossterms=False):
     '''
     lambdas.setRobotArgs(robot)
     H=np.zeros([6,robot.model.nv,robot.model.nv])
-    se3.computeJacobians(robot.model,robot.data,q)
+    se3.computeJointJacobians(robot.model,robot.data,q)
     J = robot.data.J
     skiplast = -1 if not crossterms else None
     for joint_i in range(1,robot.model.njoints):

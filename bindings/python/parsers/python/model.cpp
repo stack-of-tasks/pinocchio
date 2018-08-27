@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -30,17 +30,18 @@ namespace se3
     Model buildModel(const std::string & filename, const std::string & model_name, bool verbose) throw (bp::error_already_set)
     {
       Py_Initialize();
+      
       bp::object main_module = bp::import("__main__");
       // Get a dict for the global namespace to exec further python code with
       bp::dict globals = bp::extract<bp::dict>(main_module.attr("__dict__"));
 
       // We need to link to the pinocchio PyWrap. We delegate the dynamic loading to the python interpreter.
-      
-      bp::object cpp_module( (bp::handle<>(PyImport_AddModule("libpinocchio_pywrap"))) );
+      bp::object cpp_module( (bp::handle<>(bp::borrowed(PyImport_AddModule("libpinocchio_pywrap")))) );
 
       // That's it, you can exec your python script, starting with a model you
       // can update as you want.
-      try {
+      try
+      {
         bp::exec_file((bp::str)filename, globals);
       }
       catch (bp::error_already_set & e)
@@ -64,8 +65,11 @@ namespace se3
         std::cout << " degrees of freedom." << std::endl;
       }
       
-//      Py_Finalize();
+      // close interpreter
+      Py_Finalize();
+        
       return model;
     }
   } // namespace python
 } // namespace se3
+

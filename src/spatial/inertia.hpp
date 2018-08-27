@@ -58,10 +58,56 @@ namespace se3
     
     Derived_t& operator+= (const Derived_t & Yb) { return derived().__pequ__(Yb); }
     Derived_t operator+(const Derived_t & Yb) const { return derived().__plus__(Yb); }
-    Force operator*(const Motion & v) const    { return derived().__mult__(v); }
+    
+    template<typename MotionDerived>
+    ForceTpl<typename traits<MotionDerived>::Scalar,traits<MotionDerived>::Options>
+    operator*(const MotionDense<MotionDerived> & v) const
+    { return derived().__mult__(v); }
 
     Scalar vtiv(const Motion & v) const { return derived().vtiv_impl(v); }
     Matrix6 variation(const Motion & v) const { return derived().variation_impl(v); }
+    
+    /// \brief Time variation operator.
+    ///        It computes the time derivative of an inertia I corresponding to the formula \f$ \dot{I} = v \cross^{*} I \f$.
+    ///
+    /// \param[in] v The spatial velocity of the frame supporting the inertia.
+    /// \param[in] I The spatial inertia in motion.
+    /// \param[out] Iout The time derivative of the inertia I.
+    ///
+    template<typename M6>
+    static void vxi(const Motion & v, const Derived & I, const Eigen::MatrixBase<M6> & Iout)
+    {
+      EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(M6, Matrix6);
+      Derived::vxi_impl(v,I,Iout);
+    }
+    
+    Matrix6 vxi(const Motion & v) const
+    {
+      Matrix6 Iout;
+      vxi(v,derived(),Iout);
+      return Iout;
+    }
+    
+    /// \brief Time variation operator.
+    ///        It computes the time derivative of an inertia I corresponding to the formula \f$ \dot{I} = v \cross^{*} I \f$.
+    ///
+    /// \param[in] v The spatial velocity of the frame supporting the inertia.
+    /// \param[in] I The spatial inertia in motion.
+    /// \param[out] Iout The time derivative of the inertia I.
+    ///
+    template<typename M6>
+    static void ivx(const Motion & v, const Derived & I, const Eigen::MatrixBase<M6> & Iout)
+    {
+      EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(M6, Matrix6);
+      Derived::ivx_impl(v,I,Iout);
+    }
+    
+    Matrix6 ivx(const Motion & v) const
+    {
+      Matrix6 Iout;
+      ivx(v,derived(),Iout);
+      return Iout;
+    }
 
     void setZero() { derived().setZero(); }
     void setIdentity() { derived().setIdentity(); }
@@ -272,29 +318,40 @@ namespace se3
        */
 
       const double & mab = m+Yb.m;
+      const double mab_inv = 1./mab;
       const Vector3 & AB = (c-Yb.c).eval();
       return InertiaTpl( mab,
-                         (m*c+Yb.m*Yb.c)/mab,
-                         I+Yb.I - (m*Yb.m/mab)* typename Symmetric3::SkewSquare(AB));
+                         (m*c+Yb.m*Yb.c)*mab_inv,
+                         I+Yb.I - (m*Yb.m*mab_inv)* typename Symmetric3::SkewSquare(AB));
     }
 
     InertiaTpl& __pequ__(const InertiaTpl &Yb)
     {
       const InertiaTpl& Ya = *this;
       const double & mab = Ya.m+Yb.m;
+      const double mab_inv = 1./mab;
       const Vector3 & AB = (Ya.c-Yb.c).eval();
-      c *= m; c += Yb.m*Yb.c; c /= mab;
-      I += Yb.I; I -= (Ya.m*Yb.m/mab)* typename Symmetric3::SkewSquare(AB);
+      c *= (m*mab_inv); c += (Yb.m*mab_inv)*Yb.c; //c *= mab_inv;
+      I += Yb.I; I -= (Ya.m*Yb.m*mab_inv)* typename Symmetric3::SkewSquare(AB);
       m  = mab;
       return *this;
     }
 
-    Force __mult__(const Motion &v) const 
+    template<typename MotionDerived>
+    ForceTpl<typename traits<MotionDerived>::Scalar,traits<MotionDerived>::Options>
+    __mult__(const MotionDense<MotionDerived> & v) const
     {
-      Force f;
+      typedef ForceTpl<typename traits<MotionDerived>::Scalar,traits<MotionDerived>::Options> ReturnType;
+      ReturnType f;
+      __mult__(v,f);
+      return f;
+    }
+    
+    template<typename MotionDerived, typename ForceDerived>
+    void __mult__(const MotionDense<MotionDerived> & v, ForceDense<ForceDerived> & f) const
+    {
       f.linear() = m*(v.linear() - c.cross(v.angular()));
       f.angular() = c.cross(f.linear()) + I*v.angular();
-      return f;
     }
     
     Scalar vtiv_impl(const Motion & v) const
@@ -316,8 +373,8 @@ namespace se3
       res.template block<3,3>(LINEAR,ANGULAR) = -skew(mv.linear()) - skewSquare(mv.angular(),c) + skewSquare(c,mv.angular());
       res.template block<3,3>(ANGULAR,LINEAR) = res.template block<3,3>(LINEAR,ANGULAR).transpose();
       
-      res.template block<3,3>(LINEAR,LINEAR) = mv.linear()*c.transpose(); // use as temporary variable
-      res.template block<3,3>(ANGULAR,ANGULAR) = res.template block<3,3>(LINEAR,LINEAR) - res.template block<3,3>(LINEAR,LINEAR).transpose();
+//      res.template block<3,3>(LINEAR,LINEAR) = mv.linear()*c.transpose(); // use as temporary variable
+//      res.template block<3,3>(ANGULAR,ANGULAR) = res.template block<3,3>(LINEAR,LINEAR) - res.template block<3,3>(LINEAR,LINEAR).transpose();
       res.template block<3,3>(ANGULAR,ANGULAR) = -skewSquare(mv.linear(),c) - skewSquare(c,mv.linear());
       
       res.template block<3,3>(LINEAR,LINEAR) = (I - AlphaSkewSquare(m,c)).matrix();
@@ -327,6 +384,66 @@ namespace se3
       
       res.template block<3,3>(LINEAR,LINEAR).setZero();
       return res;
+    }
+    
+    template<typename M6>
+    static void vxi_impl(const Motion & v, const InertiaTpl & I, const Eigen::MatrixBase<M6> & Iout)
+    {
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6,6,6);
+      M6 & Iout_ = const_cast<Eigen::MatrixBase<M6> &>(Iout).derived();
+
+      // Block 1,1
+      alphaSkew(I.mass(),v.angular(),Iout_.template block<3,3>(LINEAR,LINEAR));
+//      Iout_.template block<3,3>(LINEAR,LINEAR) = alphaSkew(I.mass(),v.angular());
+      const Vector3 mc(I.mass()*I.lever());
+
+      // Block 1,2
+      skewSquare(-v.angular(),mc,Iout_.template block<3,3>(LINEAR,ANGULAR));
+      
+
+      //// Block 2,1
+      alphaSkew(I.mass(),v.linear(),Iout_.template block<3,3>(ANGULAR,LINEAR));
+      Iout_.template block<3,3>(ANGULAR,LINEAR) -= Iout_.template block<3,3>(LINEAR,ANGULAR);
+
+      //// Block 2,2
+      skewSquare(-v.linear(),mc,Iout_.template block<3,3>(ANGULAR,ANGULAR));
+
+      // TODO: I do not why, but depending on the CPU, these three lines can give
+      // wrong output.
+      //      typename Symmetric3::AlphaSkewSquare mcxcx(I.mass(),I.lever());
+      //      const Symmetric3 I_mcxcx(I.inertia() - mcxcx);
+      //      Iout_.template block<3,3>(ANGULAR,ANGULAR) += I_mcxcx.vxs(v.angular());
+      Symmetric3 mcxcx(typename Symmetric3::AlphaSkewSquare(I.mass(),I.lever()));
+      Iout_.template block<3,3>(ANGULAR,ANGULAR) += I.inertia().vxs(v.angular());
+      Iout_.template block<3,3>(ANGULAR,ANGULAR) -= mcxcx.vxs(v.angular());
+      
+    }
+    
+    template<typename M6>
+    static void ivx_impl(const Motion & v, const InertiaTpl & I, const Eigen::MatrixBase<M6> & Iout)
+    {
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6,6,6);
+      M6 & Iout_ = const_cast<Eigen::MatrixBase<M6> &>(Iout).derived();
+      
+      // Block 1,1
+      alphaSkew(I.mass(),v.angular(),Iout_.template block<3,3>(LINEAR,LINEAR));
+      
+      // Block 2,1
+      const Vector3 mc(I.mass()*I.lever());
+      skewSquare(mc,v.angular(),Iout_.template block<3,3>(ANGULAR,LINEAR));
+      
+      // Block 1,2
+      alphaSkew(I.mass(),v.linear(),Iout_.template block<3,3>(LINEAR,ANGULAR));
+      
+      // Block 2,2
+      cross(-I.lever(),Iout_.template block<3,3>(ANGULAR,LINEAR),Iout_.template block<3,3>(ANGULAR,ANGULAR));
+      Iout_.template block<3,3>(ANGULAR,ANGULAR) += I.inertia().svx(v.angular());
+      for(int k = 0; k < 3; ++k)
+        Iout_.template block<3,3>(ANGULAR,ANGULAR).col(k) += I.lever().cross(Iout_.template block<3,3>(LINEAR,ANGULAR).col(k));
+
+      // Block 1,2
+      Iout_.template block<3,3>(LINEAR,ANGULAR) -= Iout_.template block<3,3>(ANGULAR,LINEAR);
+      
     }
 
     // Getters

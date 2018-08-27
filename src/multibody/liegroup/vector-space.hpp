@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -20,7 +20,9 @@
 
 #include <stdexcept>
 
-#include <pinocchio/multibody/liegroup/operation-base.hpp>
+#include "pinocchio/multibody/liegroup/operation-base.hpp"
+
+#include <boost/integer/static_min_max.hpp>
 
 namespace se3
 {
@@ -34,14 +36,14 @@ namespace se3
   };
 
   template<int Size = Eigen::Dynamic>
-  struct VectorSpaceOperation : public LieGroupOperationBase <VectorSpaceOperation<Size> >
+  struct VectorSpaceOperation : public LieGroupBase <VectorSpaceOperation<Size> >
   {
     SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(VectorSpaceOperation);
 
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
     ///        argument for static sized vector-spaces.
-    VectorSpaceOperation (int size = Size) : size_ (size)
+    VectorSpaceOperation (int size = boost::static_signed_max<0,Size>::value) : size_ (size)
     {
       assert (size_.value() >= 0);
     }
@@ -64,9 +66,7 @@ namespace se3
 
     ConfigVector_t neutral () const
     {
-      ConfigVector_t n (size_.value());
-      n.setZero ();
-      return n;
+      return ConfigVector_t::Zero(size_.value());;
     }
 
     std::string name () const
@@ -108,6 +108,23 @@ namespace se3
     {
       const_cast< JacobianOut_t& > (J.derived()).setIdentity();
     }
+
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & /*v*/,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianOut_t>
+    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t>  & /*v*/,
+                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+    {
+      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+    }
+
 
     // template <class ConfigL_t, class ConfigR_t>
     // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,

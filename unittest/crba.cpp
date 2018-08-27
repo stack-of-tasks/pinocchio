@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -24,12 +24,15 @@
  */
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <iostream>
 
@@ -86,7 +89,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 
     Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
  
-    StackTicToc timer(StackTicToc::US); timer.tic();
+    PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
     SMOOTH(NBT)
       {
         crba(model,data,q);
@@ -121,7 +124,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
     
     q = Eigen::VectorXd::Zero(model.nq);
    
-    StackTicToc timer(StackTicToc::US); timer.tic();
+    PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
     SMOOTH(NBT)
     {
       crba(model,data,q);
@@ -132,89 +135,32 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 
 }
   
-BOOST_AUTO_TEST_CASE (test_ccrb)
+BOOST_AUTO_TEST_CASE(test_minimal_crba)
 {
   se3::Model model;
   se3::buildModels::humanoidSimple(model);
   se3::Data data(model), data_ref(model);
   
-  Eigen::VectorXd q = Eigen::VectorXd::Ones(model.nq);
-  q.segment <4> (3).normalize();
-  Eigen::VectorXd v = Eigen::VectorXd::Ones(model.nv);
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill(1.);
+  
+  Eigen::VectorXd q = randomConfiguration(model,model.lowerPositionLimit,model.upperPositionLimit);
+  Eigen::VectorXd v(Eigen::VectorXd::Random(model.nv));
   
   crba(model,data_ref,q);
   data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
-  data_ref.Ycrb[0] = data_ref.liMi[1].act(data_ref.Ycrb[1]);
   
-  se3::SE3 cMo (se3::SE3::Matrix3::Identity(), -getComFromCrba(model, data_ref));
+  crbaMinimal(model,data,q);
+  data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
-  ccrba(model, data, q, v);
-  BOOST_CHECK(data.com[0].isApprox(-cMo.translation(),1e-12));
-  BOOST_CHECK(data.Ycrb[0].matrix().isApprox(data_ref.Ycrb[0].matrix(),1e-12));
+  BOOST_CHECK(data.M.isApprox(data_ref.M));
   
-  se3::Inertia Ig_ref (cMo.act(data.Ycrb[0]));
-  BOOST_CHECK(data.Ig.matrix().isApprox(Ig_ref.matrix(),1e-12));
+  ccrba(model,data_ref,q,v);
+  computeJointJacobians(model,data_ref,q);
+  BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
   
-  se3::SE3 oM1 (data_ref.liMi[1]);
-  se3::SE3 cM1 (cMo * oM1);
-  
-  se3::Data::Matrix6x Ag_ref (cM1.inverse().toActionMatrix().transpose() * data_ref.M.topRows <6> ());
-  BOOST_CHECK(data.Ag.isApprox(Ag_ref,1e-12));
 }
-  
-  BOOST_AUTO_TEST_CASE (test_dccrb)
-  {
-    using namespace se3;
-    Model model;
-    buildModels::humanoidSimple(model);
-    addJointAndBody(model,JointModelSpherical(),"larm6_joint","larm7");
-    Data data(model), data_ref(model);
-    
-    model.lowerPositionLimit.head<7>().fill(-1.);
-    model.upperPositionLimit.head<7>().fill(1.);
-    
-    Eigen::VectorXd q = randomConfiguration(model,model.lowerPositionLimit,model.upperPositionLimit);
-    Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
-    Eigen::VectorXd a = Eigen::VectorXd::Random(model.nv);
-    
-    const Eigen::VectorXd g = rnea(model,data_ref,q,0*v,0*a);
-    rnea(model,data_ref,q,v,a);
-    
-    crba(model,data_ref,q);
-    data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
-    
-    SE3::Vector3 com = data_ref.Ycrb[1].lever();
-    SE3 cMo(SE3::Identity());
-    cMo.translation() = -getComFromCrba(model, data_ref);
-    
-    
-    SE3 oM1 (data_ref.liMi[1]);
-    SE3 cM1 (cMo * oM1);
-    Data::Matrix6x Ag_ref (cM1.toDualActionMatrix() * data_ref.M.topRows <6> ());
-
-    Force hdot_ref(cM1.act(Force(data_ref.tau.head<6>() - g.head<6>())));
-    
-    ccrba(model,data_ref,q,v);
-    dccrba(model,data,q,v);
-    BOOST_CHECK(data.Ag.isApprox(Ag_ref));
-    BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
-    dccrba(model,data,q,0*v);
-    BOOST_CHECK(data.dAg.isZero());
-    
-    
-    centerOfMass(model,data_ref,q,v,a);
-    BOOST_CHECK(data_ref.vcom[0].isApprox(data_ref.hg.linear()/data_ref.M(0,0)));
-    BOOST_CHECK(data_ref.acom[0].isApprox(hdot_ref.linear()/data_ref.M(0,0)));
-    dccrba(model,data,q,v);
-    
-    Force::Vector6 test1(data.Ag * a);
-    Force::Vector6 test2(data.dAg * v);
-    
-    
-    Force hdot(data.Ag * a + data.dAg * v);
-    BOOST_CHECK(hdot.isApprox(hdot_ref));
-    
-  }
 
 BOOST_AUTO_TEST_SUITE_END ()
 

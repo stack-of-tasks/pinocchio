@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,6 +19,7 @@
 #define __se3_kinematics_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 
 namespace se3
 {
@@ -46,7 +47,7 @@ namespace se3
   inline void updateGlobalPlacements(const Model & model, Data & data);
   
   ///
-  /// \brief Update the joint placement according to the current joint configuration.
+  /// \brief Update the joint placements according to the current joint configuration.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -57,7 +58,7 @@ namespace se3
                                 const Eigen::VectorXd & q);
 
   ///
-  /// \brief Update the joint placement according to the current joint configuration and velocity.
+  /// \brief Update the joint placements and spatial velocities according to the current joint configuration and velocity.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -69,7 +70,7 @@ namespace se3
                                 const Eigen::VectorXd & q,
                                 const Eigen::VectorXd & v);
   ///
-  /// \brief Update the joint placement according to the current joint configuration, velocity and acceleration.
+  /// \brief Update the joint placements, spatial velocities and spatial accelerations according to the current joint configuration, velocity and acceleration.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,6 +18,7 @@
 #ifndef __se3_aba_hxx__
 #define __se3_aba_hxx__
 
+#include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
@@ -50,15 +51,9 @@ namespace se3
       data.liMi[i] = model.jointPlacements[i] * jdata.M();
       
       data.v[i] = jdata.v();
-      
       if (parent>0)
-      {
-        data.oMi[i] = data.oMi[parent] * data.liMi[i];
         data.v[i] += data.liMi[i].actInv(data.v[parent]);
-      }
-      else
-        data.oMi[i] = data.liMi[i];
-      
+
       data.a[i] = jdata.c() + (data.v[i] ^ jdata.v());
       
       data.Yaba[i] = model.inertias[i].matrix();
@@ -86,8 +81,7 @@ namespace se3
       
       jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose()*data.f[i];
       jmodel.calc_aba(jdata.derived(), Ia, parent > 0);
-      jmodel.jointVelocitySelector(data.ddq) = jdata.Dinv() * jmodel.jointVelocitySelector(data.u);
-      
+
       if (parent > 0)
       {
         Force & pa = data.f[i];
@@ -142,11 +136,18 @@ namespace se3
       Block3 Co = res.block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
       Block3 Do = res.block<3,3> (Inertia::ANGULAR, Inertia::ANGULAR);
       
-      Ao = R*Ai*R.transpose();
-      Bo = R*Bi*R.transpose();
-      Do.row(0) = t.cross(Bo.col(0));
-      Do.row(1) = t.cross(Bo.col(1));
-      Do.row(2) = t.cross(Bo.col(2));
+      Do.noalias() = R*Ai; // tmp variable
+      Ao.noalias() = Do*R.transpose();
+      
+      Do.noalias() = R*Bi; // tmp variable
+      Bo.noalias() = Do*R.transpose();
+      
+      Co.noalias() = R*Di; // tmp variable
+      Do.noalias() = Co*R.transpose();
+
+      Do.row(0) += t.cross(Bo.col(0));
+      Do.row(1) += t.cross(Bo.col(1));
+      Do.row(2) += t.cross(Bo.col(2));
       
       Co.col(0) = t.cross(Ao.col(0));
       Co.col(1) = t.cross(Ao.col(1));
@@ -157,7 +158,6 @@ namespace se3
       Do.col(0) += t.cross(Bo.col(0));
       Do.col(1) += t.cross(Bo.col(1));
       Do.col(2) += t.cross(Bo.col(2));
-      Do += R*Di*R.transpose();
       return res;
     }
   };
@@ -180,7 +180,8 @@ namespace se3
       const Model::Index & parent = model.parents[i];
       
       data.a[i] += data.liMi[i].actInv(data.a[parent]);
-      jmodel.jointVelocitySelector(data.ddq) -= jdata.UDinv().transpose() * data.a[i].toVector();
+      jmodel.jointVelocitySelector(data.ddq).noalias() =
+      jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.a[i].toVector();
       
       data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
     }
@@ -257,8 +258,166 @@ namespace se3
     
     return data.ddq;
   }
+  
+  struct computeMinverseForwardStep1 : public fusion::JointVisitor<computeMinverseForwardStep1>
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+    se3::Data &,
+    const Eigen::VectorXd &
+    > ArgsType;
+    
+    JOINT_VISITOR_INIT(computeMinverseForwardStep1);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data,
+                     const Eigen::VectorXd & q)
+    {
+      const Model::JointIndex & i = jmodel.id();
+      jmodel.calc(jdata.derived(),q);
+      
+      const Model::Index & parent = model.parents[i];
+      data.liMi[i] = model.jointPlacements[i] * jdata.M();
+      
+      if (parent>0)
+        data.oMi[i] = data.oMi[parent] * data.liMi[i];
+      else
+        data.oMi[i] = data.liMi[i];
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      J_cols = data.oMi[i].act(jdata.S());
+      
+      data.Yaba[i] = model.inertias[i].matrix();
+    }
+    
+  };
+  
+  struct computeMinverseBackwardStep : public fusion::JointVisitor<computeMinverseBackwardStep>
+  {
+    typedef boost::fusion::vector<const Model &,
+    Data &> ArgsType;
+    
+    JOINT_VISITOR_INIT(computeMinverseBackwardStep);
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data)
+    {
+      const Model::JointIndex & i = jmodel.id();
+      const Model::Index & parent  = model.parents[i];
+      Inertia::Matrix6 & Ia = data.Yaba[i];
+      Data::RowMatrixXd & Minv = data.Minv;
+      Data::Matrix6x & Fcrb = data.Fcrb[0];
+      Data::Matrix6x & FcrbTmp = data.Fcrb.back();
 
+      jmodel.calc_aba(jdata.derived(), Ia, parent > 0);
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
 
+      ColsBlock U_cols = jmodel.jointCols(data.IS);
+      forceSet::se3Action(data.oMi[i],jdata.U(),U_cols); // expressed in the world frame
+
+      Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),jmodel.nv()) = jdata.Dinv();
+      const int nv_children = data.nvSubtree[i] - jmodel.nv();
+      if(nv_children > 0)
+      {
+        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock SDinv_cols = jmodel.jointCols(data.SDinv);
+        SDinv_cols.noalias() = J_cols * jdata.Dinv();
+        
+        Minv.block(jmodel.idx_v(),jmodel.idx_v()+jmodel.nv(),jmodel.nv(),nv_children).noalias()
+        = -SDinv_cols.transpose() * Fcrb.middleCols(jmodel.idx_v()+jmodel.nv(),nv_children);
+      
+        if(parent > 0)
+        {
+          FcrbTmp.leftCols(data.nvSubtree[i]).noalias()
+          = U_cols * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
+          Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]) += FcrbTmp.leftCols(data.nvSubtree[i]);
+        }
+      }
+      else
+      {
+        Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]).noalias()
+        = U_cols * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
+      }
+      
+      if(parent > 0)
+        data.Yaba[parent] += AbaBackwardStep::SE3actOn(data.liMi[i], Ia);
+    }
+  };
+  
+  struct computeMinverseForwardStep2 : public fusion::JointVisitor<computeMinverseForwardStep2>
+  {
+    typedef boost::fusion::vector<const se3::Model &,
+    se3::Data &
+    > ArgsType;
+    
+    JOINT_VISITOR_INIT(computeMinverseForwardStep2);
+    
+    template<typename JointModel>
+    static void algo(const se3::JointModelBase<JointModel> & jmodel,
+                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const se3::Model & model,
+                     se3::Data & data)
+    {
+      const Model::JointIndex & i = jmodel.id();
+      const Model::Index & parent = model.parents[i];
+      Data::RowMatrixXd & Minv = data.Minv;
+      Data::Matrix6x & FcrbTmp = data.Fcrb.back();
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      ColsBlock UDinv_cols = jmodel.jointCols(data.UDinv);
+      forceSet::se3Action(data.oMi[i],jdata.UDinv(),UDinv_cols); // expressed in the world frame
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+
+      if(parent > 0)
+      {
+        FcrbTmp.topRows(jmodel.nv()).rightCols(model.nv - jmodel.idx_v()).noalias()
+        = UDinv_cols.transpose() * data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
+        Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v())
+        -= FcrbTmp.topRows(jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
+      }
+      
+      data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()).noalias() = J_cols * Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
+      if(parent > 0)
+        data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()) += data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
+    }
+    
+  };
+
+  inline const Data::RowMatrixXd &
+  computeMinverse(const Model & model,
+                  Data & data,
+                  const Eigen::VectorXd & q)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
+    {
+      computeMinverseForwardStep1::run(model.joints[i],data.joints[i],
+                                       computeMinverseForwardStep1::ArgsType(model,data,q));
+    }
+    
+    data.Fcrb[0].setZero();
+    for( Model::Index i=(Model::Index)model.njoints-1;i>0;--i )
+    {
+      computeMinverseBackwardStep::run(model.joints[i],data.joints[i],
+                                       computeMinverseBackwardStep::ArgsType(model,data));
+    }
+
+    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
+    {
+      computeMinverseForwardStep2::run(model.joints[i],data.joints[i],
+                                       computeMinverseForwardStep2::ArgsType(model,data));
+    }
+    
+    return data.Minv;
+  }
 
 
   // --- CHECKER ---------------------------------------------------------------

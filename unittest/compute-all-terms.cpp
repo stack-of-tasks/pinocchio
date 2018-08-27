@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,12 +19,13 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <boost/test/unit_test.hpp>
 
@@ -59,8 +60,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
 
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
-  computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
+  computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);
@@ -89,8 +90,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
 
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
-  computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
+  computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);
@@ -120,8 +121,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
 
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
-  computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
+  computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);
@@ -151,8 +152,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
 
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
-  computeJacobians(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
+  computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
   kineticEnergy(model, data_other, q, v, true);
   potentialEnergy(model, data_other, q, true);

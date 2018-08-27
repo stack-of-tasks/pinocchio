@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,7 +19,9 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
@@ -32,7 +34,7 @@
 
 #include <iostream>
 
-#include "pinocchio/tools/timer.hpp"
+#include "pinocchio/utils/timer.hpp"
 
 #include <Eigen/StdVector>
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
@@ -42,7 +44,7 @@ int main(int argc, const char ** argv)
   using namespace Eigen;
   using namespace se3;
 
-  StackTicToc timer(StackTicToc::US);
+  PinocchioTicToc timer(PinocchioTicToc::US);
   #ifdef NDEBUG
   const int NBT = 1000*100;
   #else
@@ -106,6 +108,13 @@ int main(int argc, const char ** argv)
       crba(model,data,qs[_smooth]);
     }
   std::cout << "CRBA = \t\t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    crbaMinimal(model,data,qs[_smooth]);
+  }
+  std::cout << "CRBA minimal = \t\t"; timer.toc(std::cout,NBT);
 
   timer.tic();
   SMOOTH(NBT)
@@ -122,20 +131,34 @@ int main(int argc, const char ** argv)
       cholesky::decompose(model,data);
       total += timer.toc(timer.DEFAULT_UNIT);
     }
-  std::cout << "Cholesky = \t" << (total/NBT) 
+  std::cout << "Branch Induced Sparsity Cholesky = \t" << (total/NBT)
 	    << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
+  
+  total = 0;
+  Eigen::LDLT<Eigen::MatrixXd> Mldlt(data.M);
+  SMOOTH(NBT)
+  {
+    crba(model,data,qs[_smooth]);
+    data.M.triangularView<Eigen::StrictlyLower>()
+    = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+    timer.tic();
+    Mldlt.compute(data.M);
+    total += timer.toc(timer.DEFAULT_UNIT);
+  }
+  std::cout << "Dense Eigen Cholesky = \t" << (total/NBT)
+  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
  
   timer.tic();
   SMOOTH(NBT)
     {
-      computeJacobians(model,data,qs[_smooth]);
+      computeJointJacobians(model,data,qs[_smooth]);
     }
   std::cout << "Jacobian = \t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
   {
-    computeJacobiansTimeVariation(model,data,qs[_smooth],qdots[_smooth]);
+    computeJointJacobiansTimeVariation(model,data,qs[_smooth],qdots[_smooth]);
   }
   std::cout << "Jacobian Time Variation = \t"; timer.toc(std::cout,NBT);
 
@@ -195,6 +218,20 @@ int main(int argc, const char ** argv)
     emptyForwardPass(model,data);
   }
   std::cout << "Empty Forward Pass = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    computeCoriolisMatrix(model,data,qs[_smooth],qdots[_smooth]);
+  }
+  std::cout << "Coriolis Matrix = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    computeMinverse(model,data,qs[_smooth]);
+  }
+  std::cout << "Minv = \t"; timer.toc(std::cout,NBT);
 
   std::cout << "--" << std::endl;
   return 0;

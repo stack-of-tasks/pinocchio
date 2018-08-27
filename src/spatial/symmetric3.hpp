@@ -149,6 +149,8 @@ namespace se3
       const Vector3 & v;
       
       AlphaSkewSquare(const Scalar & m, const SkewSquare & v) : m(m),v(v.v) {}
+      AlphaSkewSquare(const Scalar & m, const Vector3 & v) : m(m),v(v) {}
+      
       operator Symmetric3Tpl () const 
       {
         const Scalar & x = v[0], & y = v[1], & z = v[2];
@@ -230,6 +232,126 @@ namespace se3
       
       return data_(0)*xx + data_(2)*yy + data_(5)*zz + 2.*(data_(1)*xy + data_(3)*xz + data_(4)*yz);
     }
+    
+    ///
+    /// \brief Performs the operation \f$ M = [v]_{\cross} S_{3} \f$.
+    ///        This operation is equivalent to applying the cross product of v on each column of S.
+    ///
+    /// \tparam Vector3, Matrix3
+    ///
+    /// \param[in]  v  a vector of dimension 3.
+    /// \param[in]  S3 a symmetric matrix of dimension 3x3.
+    /// \param[out] M  an output matrix of dimension 3x3.
+    ///
+    template<typename Vector3, typename Matrix3>
+    static void vxs(const Eigen::MatrixBase<Vector3> & v,
+                    const Symmetric3Tpl & S3,
+                    const Eigen::MatrixBase<Matrix3> & M)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
+      
+      const Scalar & a = S3.data()[0];
+      const Scalar & b = S3.data()[1];
+      const Scalar & c = S3.data()[2];
+      const Scalar & d = S3.data()[3];
+      const Scalar & e = S3.data()[4];
+      const Scalar & f = S3.data()[5];
+      
+      
+      const typename Vector3::RealScalar & v0 = v[0];
+      const typename Vector3::RealScalar & v1 = v[1];
+      const typename Vector3::RealScalar & v2 = v[2];
+      
+      Matrix3 & M_ = const_cast<Eigen::MatrixBase<Matrix3> &>(M).derived();
+      M_(0,0) = d * v1 - b * v2;
+      M_(1,0) = a * v2 - d * v0;
+      M_(2,0) = b * v0 - a * v1;
+      
+      M_(0,1) = e * v1 - c * v2;
+      M_(1,1) = b * v2 - e * v0;
+      M_(2,1) = c * v0 - b * v1;
+      
+      M_(0,2) = f * v1 - e * v2;
+      M_(1,2) = d * v2 - f * v0;
+      M_(2,2) = e * v0 - d * v1;
+    }
+    
+    ///
+    /// \brief Performs the operation \f$ [v]_{\cross} S \f$.
+    ///        This operation is equivalent to applying the cross product of v on each column of S.
+    ///
+    /// \tparam Vector3
+    ///
+    /// \param[in]  v  a vector of dimension 3.
+    ///
+    /// \returns the result \f$ [v]_{\cross} S \f$.
+    ///
+    template<typename Vector3>
+    Matrix3 vxs(const Eigen::MatrixBase<Vector3> & v) const
+    {
+      Matrix3 M;
+      vxs(v,*this,M);
+      return M;
+    }
+    
+    ///
+    /// \brief Performs the operation \f$ M = S_{3} [v]_{\cross \f$.
+    ///
+    /// \tparam Vector3, Matrix3
+    ///
+    /// \param[in]  v  a vector of dimension 3.
+    /// \param[in]  S3 a symmetric matrix of dimension 3x3.
+    /// \param[out] M  an output matrix of dimension 3x3.
+    ///
+    template<typename Vector3, typename Matrix3>
+    static void svx(const Eigen::MatrixBase<Vector3> & v,
+                    const Symmetric3Tpl & S3,
+                    const Eigen::MatrixBase<Matrix3> & M)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
+      
+      const Scalar & a = S3.data()[0];
+      const Scalar & b = S3.data()[1];
+      const Scalar & c = S3.data()[2];
+      const Scalar & d = S3.data()[3];
+      const Scalar & e = S3.data()[4];
+      const Scalar & f = S3.data()[5];
+      
+      const typename Vector3::RealScalar & v0 = v[0];
+      const typename Vector3::RealScalar & v1 = v[1];
+      const typename Vector3::RealScalar & v2 = v[2];
+      
+      Matrix3 & M_ = const_cast<Eigen::MatrixBase<Matrix3> &>(M).derived();
+      M_(0,0) = b * v2 - d * v1;
+      M_(1,0) = c * v2 - e * v1;
+      M_(2,0) = e * v2 - f * v1;
+      
+      M_(0,1) = d * v0 - a * v2;
+      M_(1,1) = e * v0 - b * v2;
+      M_(2,1) = f * v0 - d * v2;
+      
+      M_(0,2) = a * v1 - b * v0;
+      M_(1,2) = b * v1 - c * v0;
+      M_(2,2) = d * v1 - e * v0;
+    }
+    
+    /// \brief Performs the operation \f$ M = S_{3} [v]_{\cross \f$.
+    ///
+    /// \tparam Vector3
+    ///
+    /// \param[in]  v  a vector of dimension 3.
+    ///
+    /// \returns the result \f$ S [v]_{\cross} \f$.
+    ///
+    template<typename Vector3>
+    Matrix3 svx(const Eigen::MatrixBase<Vector3> & v) const
+    {
+      Matrix3 M;
+      svx(v,*this,M);
+      return M;
+    }
 
     Symmetric3Tpl operator+(const Symmetric3Tpl & s2) const
     {
@@ -241,15 +363,29 @@ namespace se3
       data_ += s2.data_; return *this;
     }
 
-    Vector3 operator*(const Vector3 &v) const
+    template<typename V3in, typename V3out>
+    static void rhsMult(const Symmetric3Tpl & S3,
+                        const Eigen::MatrixBase<V3in> & vin,
+                        const Eigen::MatrixBase<V3out> & vout)
     {
-      return Vector3(
-		     data_(0) * v(0) + data_(1) * v(1) + data_(3) * v(2),
-		     data_(1) * v(0) + data_(2) * v(1) + data_(4) * v(2),
-		     data_(3) * v(0) + data_(4) * v(1) + data_(5) * v(2)
-		     );		     
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(V3in,Vector3);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(V3out,Vector3);
+      
+      Eigen::MatrixBase<V3out> & vout_ = const_cast<Eigen::MatrixBase<V3out>&>(vout);
+      
+      vout_[0] = S3.data_(0) * vin[0] + S3.data_(1) * vin[1] + S3.data_(3) * vin[2];
+      vout_[1] = S3.data_(1) * vin[0] + S3.data_(2) * vin[1] + S3.data_(4) * vin[2];
+      vout_[2] = S3.data_(3) * vin[0] + S3.data_(4) * vin[1] + S3.data_(5) * vin[2];
     }
 
+    template<typename V3>
+    Vector3 operator*(const Eigen::MatrixBase<V3> & v) const
+    {
+      Vector3 res;
+      rhsMult(*this,v,res);
+      return res;
+    }
+    
     // Matrix3 operator*(const Matrix3 &a) const
     // {
     //   Matrix3 r;

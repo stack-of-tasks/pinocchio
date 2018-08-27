@@ -20,6 +20,7 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/energy.hpp"
@@ -32,7 +33,7 @@ namespace se3
   ///         - se3::forwardKinematics
   ///         - se3::crba
   ///         - se3::nonLinearEffects
-  ///         - se3::computeJacobians
+  ///         - se3::computeJointJacobians
   ///         - se3::centerOfMass
   ///         - se3::jacobianCenterOfMass
   ///         - se3::kineticEnergy

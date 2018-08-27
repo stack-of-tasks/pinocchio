@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -24,58 +24,151 @@ namespace se3
 {
   
   ///
+  /// \brief Computes the skew representation of a given 3d vector,
+  ///        i.e. the antisymmetric matrix representation of the cross product operator (\f$ [v]_{\cross} x = v \cross x \f$)
+  ///
+  /// \param[in]  v a vector of dimension 3.
+  /// \param[out] M the skew matrix representation of dimension 3x3.
+  ///
+  template <typename Vector3, typename Matrix3>
+  inline void skew(const Eigen::MatrixBase<Vector3> & v,
+                   const Eigen::MatrixBase<Matrix3> & M)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
+    
+    Matrix3 & M_ = const_cast<Eigen::MatrixBase<Matrix3> &>(M).derived();
+    typedef typename Matrix3::RealScalar Scalar;
+    
+    M_(0,0) = Scalar(0);  M_(0,1) = -v[2];      M_(0,2) = v[1];
+    M_(1,0) = v[2];       M_(1,1) = Scalar(0);  M_(1,2) = -v[0];
+    M_(2,0) = -v[1];      M_(2,1) = v[0];       M_(2,2) = Scalar(0);
+  }
+  
+  ///
   /// \brief Computes the skew representation of a given 3D vector,
   ///        i.e. the antisymmetric matrix representation of the cross product operator.
   ///
-  /// \param[in] v A vector of dimension 3.
+  /// \param[in] v a vector of dimension 3.
   ///
   /// \return The skew matrix representation of v.
   ///
   template <typename D>
-  inline Eigen::Matrix<typename D::Scalar,3,3,Eigen::internal::plain_matrix_type<D>::type::Options>
+  inline Eigen::Matrix<typename D::Scalar,3,3,EIGEN_PLAIN_TYPE(D)::Options>
   skew(const Eigen::MatrixBase<D> & v)
   {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,3);
-    Eigen::Matrix<typename D::Scalar,3,3,Eigen::internal::plain_matrix_type<D>::type::Options> m;
-    m(0,0) =  0   ;  m(0,1) = -v[2];   m(0,2) =  v[1];
-    m(1,0) =  v[2];  m(1,1) =  0   ;   m(1,2) = -v[0];
-    m(2,0) = -v[1];  m(2,1) =  v[0];   m(2,2) =  0   ;
-    return m;
+    Eigen::Matrix<typename D::Scalar,3,3,EIGEN_PLAIN_TYPE(D)::Options> M;
+    skew(v,M);
+    return M;
   }
-
   
   ///
-  /// \brief Inverse operation related to skew. From a given skew-symmetric matrix M
-  /// of dimension 3x3, it extracts the supporting vector, i.e. the entries of M.
+  /// \brief Inverse of skew operator. From a given skew-symmetric matrix M
+  ///        of dimension 3x3, it extracts the supporting vector, i.e. the entries of M.
+  ///        Mathematically speacking, it computes \f$ v \f$ such that \f$ M x = v \cross x \f$.
   ///
-  /// \param[in] M A 3x3 matrix.
+  /// \param[in]  M a 3x3 skew symmetric matrix.
+  /// \param[out] v the 3d vector representation of M.
+  ///
+  template <typename Matrix3, typename Vector3>
+  inline void unSkew(const Eigen::MatrixBase<Matrix3> & M,
+                     const Eigen::MatrixBase<Vector3> & v)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
+    assert((M + M.transpose()).isMuchSmallerThan(M));
+    
+    Vector3 & v_ = const_cast<Eigen::MatrixBase<Vector3> &>(v).derived();
+    typedef typename Vector3::RealScalar Scalar;
+    
+    v_[0] = Scalar(0.5) * (M(2,1) - M(1,2));
+    v_[1] = Scalar(0.5) * (M(0,2) - M(2,0));
+    v_[2] = Scalar(0.5) * (M(1,0) - M(0,1));
+  }
+  
+  ///
+  /// \brief Inverse of skew operator. From a given skew-symmetric matrix M
+  ///        of dimension 3x3, it extracts the supporting vector, i.e. the entries of M.
+  ///        Mathematically speacking, it computes \f$ v \f$ such that \f$ M x = v \cross x \f$.
+  ///
+  /// \param[in] M a 3x3 matrix.
   ///
   /// \return The vector entries of the skew-symmetric matrix.
   ///
-  template <typename D>
-  inline Eigen::Matrix<typename D::Scalar,3,1,D::Options>
-  unSkew(const Eigen::MatrixBase<D> & M)
+  template <typename Matrix3>
+  inline Eigen::Matrix<typename EIGEN_PLAIN_TYPE(Matrix3)::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3)::Options>
+  unSkew(const Eigen::MatrixBase<Matrix3> & M)
   {
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
-    assert((M + M.transpose()).isMuchSmallerThan(M));
-    Eigen::Matrix<typename D::Scalar,3,1,D::Options> v;
-    
-    v[0] = 0.5 * (M(2,1) - M(1,2));
-    v[1] = 0.5 * (M(0,2) - M(2,0));
-    v[2] = 0.5 * (M(1,0) - M(0,1));
+    Eigen::Matrix<typename EIGEN_PLAIN_TYPE(Matrix3)::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3)::Options> v;
+    unSkew(M,v);
     return v;
   }
 
-  template <typename D>
-  inline Eigen::Matrix<typename D::Scalar,3,3,D::Options>
-  alphaSkew (const typename D::Scalar s, const Eigen::MatrixBase<D> & v)
+  ///
+  /// \brief Computes the skew representation of a given 3d vector multiplied by a given scalar.
+  ///        i.e. the antisymmetric matrix representation of the cross product operator (\f$ [\alpha v]_{\cross} x = \alpha v \cross x \f$)
+  ///
+  /// \param[in]  alpha a real scalar.
+  /// \param[in]  v a vector of dimension 3.
+  /// \param[out] M the skew matrix representation of dimension 3x3.
+  ///
+  template <typename Scalar, typename Vector3, typename Matrix3>
+  void alphaSkew(const Scalar alpha,
+                 const Eigen::MatrixBase<Vector3> & v,
+                 const Eigen::MatrixBase<Matrix3> & M)
   {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D,3);
-    Eigen::Matrix<typename D::Scalar,3,3,D::Options> m;
-    m(0,0) =  0   ;  m(0,1) = -v[2] * s;   m(0,2) =  v[1] * s;
-    m(1,0) = - m(0,1);  m(1,1) =  0   ;   m(1,2) = -v[0] * s;
-    m(2,0) = - m(0,2);  m(2,1) =  - m(1,2);   m(2,2) =  0;
-    return m;
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
+    
+    Matrix3 & M_ = const_cast<Eigen::MatrixBase<Matrix3> &>(M).derived();
+    typedef typename Matrix3::RealScalar RealScalar;
+    
+    M_(0,0) = RealScalar(0);  M_(0,1) = -v[2] * alpha;  M_(0,2) = v[1] * alpha;
+    M_(1,0) = -M_(0,1);       M_(1,1) = RealScalar(0);  M_(1,2) = -v[0] * alpha;
+    M_(2,0) = -M_(0,2);       M_(2,1) = -M_(1,2);       M_(2,2) = RealScalar(0);
+  }
+  
+  ///
+  /// \brief Computes the skew representation of a given 3d vector multiplied by a given scalar.
+  ///        i.e. the antisymmetric matrix representation of the cross product operator (\f$ [\alpha v]_{\cross} x = \alpha v \cross x \f$)
+  ///
+  /// \param[in]  alpha a real scalar.
+  /// \param[in]  v a vector of dimension 3.
+  ///
+  /// \returns the skew matrix representation of \f$ \alpha v \f$.
+  ///
+  template <typename Scalar, typename Vector3>
+  inline Eigen::Matrix<typename Vector3::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3)::Options>
+  alphaSkew(const Scalar alpha,
+            const Eigen::MatrixBase<Vector3> & v)
+  {
+    Eigen::Matrix<typename Vector3::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3)::Options> M;
+    alphaSkew(alpha,v,M);
+    return M;
+  }
+  
+  ///
+  /// \brief Computes the square cross product linear operator C(u,v) such that for any vector w, \f$ u \times ( v \times w ) = C(u,v) w \f$.
+  ///
+  /// \param[in]  u a 3 dimensional vector.
+  /// \param[in]  v a 3 dimensional vector.
+  /// \param[out] C the skew square matrix representation of dimension 3x3.
+  ///
+  template <typename V1, typename V2, typename Matrix3>
+  inline void skewSquare(const Eigen::MatrixBase<V1> & u,
+                         const Eigen::MatrixBase<V2> & v,
+                         const Eigen::MatrixBase<Matrix3> & C)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V1,3);
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V2,3);
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
+    
+    Matrix3 & C_ = const_cast<Eigen::MatrixBase<Matrix3> &>(C).derived();
+    typedef typename Matrix3::RealScalar Scalar;
+
+    C_.noalias() = v*u.transpose();
+    const Scalar udotv(u.dot(v));
+    C_.diagonal().array() -= udotv;
   }
   
   ///
@@ -84,35 +177,59 @@ namespace se3
   /// \param[in] u A 3 dimensional vector.
   /// \param[in] v A 3 dimensional vector.
   ///
-  /// \return The square cross product C matrix.
+  /// \return The square cross product matrix C.
   ///
-  template <typename D1, typename D2>
-  inline Eigen::Matrix<typename D1::Scalar,3,3,Eigen::internal::plain_matrix_type<D1>::type::Options>
-  skewSquare(const Eigen::MatrixBase<D1> & u, const Eigen::MatrixBase<D2> & v)
+  template <typename V1, typename V2>
+  inline Eigen::Matrix<typename V1::Scalar,3,3,EIGEN_PLAIN_TYPE(V1)::Options>
+  skewSquare(const Eigen::MatrixBase<V1> & u,
+             const Eigen::MatrixBase<V2> & v)
   {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D1,3);
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(D2,3);
     
-    typedef Eigen::DiagonalMatrix<typename D1::Scalar,3> DiagonalMatrix;
+    Eigen::Matrix<typename V1::Scalar,3,3,EIGEN_PLAIN_TYPE(V1)::Options> M;
+    skewSquare(u,v,M);
+    return M;
+  }
+  
+  ///
+  /// \brief Applies the cross product onto the columns of M.
+  ///
+  /// \param[in] v      a vector of dimension 3.
+  /// \param[in] Min    a 3 rows matrix.
+  /// \param[out] Mout  a 3 rows matrix.
+  ///
+  /// \return the results of \f$ Mout = [v]_{\cross} Min \f$.
+  ///
+  template <typename Vector3, typename Matrix3xIn, typename Matrix3xOut>
+  inline void cross(const Eigen::MatrixBase<Vector3> & v,
+                    const Eigen::MatrixBase<Matrix3xIn> & Min,
+                    const Eigen::MatrixBase<Matrix3xOut> & Mout)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
+    EIGEN_STATIC_ASSERT(Matrix3xIn::RowsAtCompileTime==3,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+    EIGEN_STATIC_ASSERT(Matrix3xOut::RowsAtCompileTime==3,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
     
-    const typename D1::Scalar udotv(u.dot(v));
-    Eigen::Matrix<typename D1::Scalar,3,3,Eigen::internal::plain_matrix_type<D1>::type::Options> res(v*u.transpose());
-    res -= DiagonalMatrix(udotv,udotv,udotv);
+    Matrix3xOut & Mout_ = const_cast<Eigen::MatrixBase<Matrix3xOut> &>(Mout).derived();
     
-    return res;
+    Mout_.row(0) = v[1]*Min.row(2) - v[2]*Min.row(1);
+    Mout_.row(1) = v[2]*Min.row(0) - v[0]*Min.row(2);
+    Mout_.row(2) = v[0]*Min.row(1) - v[1]*Min.row(0);
   }
 
-  template <typename V,typename M>
-  inline Eigen::Matrix<typename M::Scalar,3,M::ColsAtCompileTime,Eigen::internal::plain_matrix_type<M>::type::Options>
-  cross(const Eigen::MatrixBase<V> & v,
-	const Eigen::MatrixBase<M> & m)
+  ///
+  /// \brief Applies the cross product onto the columns of M.
+  ///
+  /// \param[in] v a vector of dimension 3.
+  /// \param[in] M a 3 rows matrix.
+  ///
+  /// \return the results of \f$ [v]_{\cross} M \f$.
+  ///
+  template <typename Vector3, typename Matrix3x>
+  inline typename EIGEN_PLAIN_TYPE(Matrix3x)
+  cross(const Eigen::MatrixBase<Vector3> & v,
+        const Eigen::MatrixBase<Matrix3x> & M)
   {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V,3);
-
-    Eigen::Matrix<typename M::Scalar,3,M::ColsAtCompileTime,Eigen::internal::plain_matrix_type<M>::type::Options> res (3,m.cols());
-    res.row(0) = v[1]*m.row(2) - v[2]*m.row(1);
-    res.row(1) = v[2]*m.row(0) - v[0]*m.row(2);
-    res.row(2) = v[0]*m.row(1) - v[1]*m.row(0);
+    typename EIGEN_PLAIN_TYPE(Matrix3x) res(3,M.cols());
+    cross(v,M,res);
     return res;
   }
   
