@@ -118,24 +118,23 @@ namespace se3
   template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
   struct LieGroupIntegrateVisitor : visitor::LieGroupVisitorBase< LieGroupIntegrateVisitor<ConfigIn_t,Tangent_t,ConfigOut_t> >
   {
-    typedef boost::fusion::vector<const Eigen::MatrixBase<ConfigIn_t> &,
-                                  const Eigen::MatrixBase<Tangent_t> &,
-                                  const Eigen::MatrixBase<ConfigOut_t> &> ArgsType;
-    
+    typedef boost::fusion::vector<const ConfigIn_t &,
+                                  const Tangent_t &,
+                                  ConfigOut_t &> ArgsType;
+
     LIE_GROUP_VISITOR(LieGroupIntegrateVisitor);
-    
-    template<typename D>
-    static void algo(const LieGroupBase<D> & lg,
+
+    template<typename LieGroupDerived>
+    static void algo(const LieGroupBase<LieGroupDerived> & lg,
                      const Eigen::MatrixBase<ConfigIn_t> & q,
                      const Eigen::MatrixBase<Tangent_t>  & v,
                      const Eigen::MatrixBase<ConfigOut_t>& qout)
     {
       ConfigOut_t & qout_ = const_cast< ConfigOut_t& >(qout.derived());
-      lg.integrate(Eigen::Ref<const typename D::ConfigVector_t>(q),
-                   Eigen::Ref<const typename D::TangentVector_t>(v),
-                   Eigen::Ref<typename D::ConfigVector_t>(qout_));
+      lg.integrate(Eigen::Ref<const typename LieGroupDerived::ConfigVector_t>(q),
+                   Eigen::Ref<const typename LieGroupDerived::TangentVector_t>(v),
+                   Eigen::Ref<typename LieGroupDerived::ConfigVector_t>(qout_));
     }
-    
   };
   
   template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
@@ -144,13 +143,17 @@ namespace se3
                         const Eigen::MatrixBase<Tangent_t>  & v,
                         const Eigen::MatrixBase<ConfigOut_t>& qout)
   {
+    EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigIn_t)
+    EIGEN_STATIC_ASSERT_VECTOR_ONLY(Tangent_t)
+    EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigOut_t)
+    
     typedef LieGroupIntegrateVisitor<ConfigIn_t,Tangent_t,ConfigOut_t> Operation;
     assert(q.size() == nq(lg));
     assert(v.size() == nv(lg));
     assert(qout.size() == nq(lg));
     
     ConfigOut_t & qout_ = const_cast< ConfigOut_t& >(qout.derived());
-    Operation::run(lg,typename Operation::ArgsType(q,v,qout_));
+    Operation::run(lg,typename Operation::ArgsType(q.derived(),v.derived(),qout_.derived()));
   }
 }
 

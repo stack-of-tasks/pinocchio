@@ -460,10 +460,13 @@ struct TestLieGroupVariantVisitor
     
     ConfigVector_t q0 = lg.random();
     TangentVector_t v = TangentVector_t::Random(lg.nv());
-    ConfigVector_t qout(lg.nq()), qout_ref(lg.nq());
+    ConfigVector_t qout_ref(lg.nq());
     lg.integrate(q0, v, qout_ref);
     
-    integrate(lg_variant, q0, v, qout);
+    typedef Eigen::VectorXd ConfigVectorGeneric;
+    typedef Eigen::VectorXd TangentVectorGeneric;
+    ConfigVectorGeneric qout(lg.nq());
+    integrate(lg_variant, ConfigVectorGeneric(q0), TangentVectorGeneric(v), qout);
     BOOST_CHECK(qout.isApprox(qout_ref));
   }
 };
