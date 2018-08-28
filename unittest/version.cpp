@@ -20,6 +20,9 @@
 #include <pinocchio/macros.hpp>
 #include <pinocchio/utils/version.hpp>
 
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
+
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_version)
