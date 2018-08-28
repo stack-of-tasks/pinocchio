@@ -22,6 +22,7 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
+#include <boost/align/is_aligned.hpp>
 
 namespace se3
 {
@@ -49,21 +50,31 @@ namespace se3
                      const Eigen::MatrixBase<TangentVectorType2> & a)
     {
       typedef typename Model::JointIndex JointIndex;
-      
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
-      
-      jmodel.calc(jdata.derived(),q.derived(),v.derived());
-      
-      data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      
-      data.v[i] = jdata.v();
-      if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
 
-      data.a_gf[i] = jdata.S()*jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v()) ;
-      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
+
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
+
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+//      data.liMi[i].setIdentity();
+
+      data.v[i] = jdata.v();
+      if(parent>0)
+        data.v[i] += data.liMi[i].actInv(data.v[parent]);
       
-      data.f[i] = model.inertias[i]*data.a_gf[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
+      data.a_gf[i] = jdata.c() + (data.v[i] ^ jdata.v());
+      data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(a);
+      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
+//
+//      data.f[i] = model.inertias[i]*data.a_gf[i];// + model.inertias[i].vxiv(data.v[i]); // -f_ext
+//      data.h[i] = model.inertias[i]*data.v[i];
+      model.inertias[i].__mult__(data.v[i],data.h[i]);
+      model.inertias[i].__mult__(data.a_gf[i],data.f[i]);
+      data.f[i] += data.v[i].cross(data.h[i]);
+//      data.h[i].motionAction(data.v[i],data.f[i]);
+//      data.f[i] = model.inertias[i].vxiv(data.v[i]);
+//      data.f[i].setZero();
     }
 
   };
@@ -87,10 +98,10 @@ namespace se3
     {
       typedef typename Model::JointIndex JointIndex;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent  = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       
-      jmodel.jointVelocitySelector(data.tau)  = jdata.S().transpose()*data.f[i];
+      jmodel.jointVelocitySelector(data.tau) = jdata.S().transpose()*data.f[i];
       if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
     }
   };
