@@ -23,16 +23,20 @@ import os
 
 class RobotWrapper(object):
 
-    def initFromURDF(self,filename, package_dirs=None, root_joint=None, verbose=False):
+    def __init__(self, filename, package_dirs=None, root_joint=None, verbose=False):
         if root_joint is None:
-            se3.buildModelFromUrdf(filename, self.model)
+            self.model = se3.buildModelFromUrdf(filename)
         else:
-            se3.buildModelFromUrdf(filename, root_joint, self.model)
-        
-        model = self.model
+            self.model = se3.buildModelFromUrdf(filename, root_joint)
+
+        self.data = self.model.createData()
+        self.model_filename = filename
+
         if "buildGeomFromUrdf" not in dir(se3):
-            collision_model = None
-            visual_model = None
+            self.collision_model = None
+            self.visual_model = None
+            self.collision_data = None
+            self.visual_data = None
             if verbose:
                 print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
         else:
@@ -43,48 +47,15 @@ class RobotWrapper(object):
                 if not all(isinstance(item, str) for item in package_dirs):
                     raise Exception('The list of package directories is wrong. At least one is not a string')
                 else:
-                    collision_model = se3.buildGeomFromUrdf(model, filename,
-                                                            utils.fromListToVectorOfString(package_dirs), se3.GeometryType.COLLISION)
-                    visual_model = se3.buildGeomFromUrdf(model, filename,
-                                                         utils.fromListToVectorOfString(package_dirs), se3.GeometryType.VISUAL)
+                    self.collision_model = se3.buildGeomFromUrdf(self.model, filename,
+                                                                utils.fromListToVectorOfString(package_dirs), se3.GeometryType.COLLISION)
+                    self.visual_model = se3.buildGeomFromUrdf(self.model, filename,
+                                                                utils.fromListToVectorOfString(package_dirs), se3.GeometryType.VISUAL)
+            self.collision_data = se3.GeometryData(self.collision_model)
+            self.visual_data = se3.GeometryData(self.visual_model)
 
-
-        RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
-
-
-    def __init__(self, model = None, collision_model = None, visual_model = None, verbose=False):
-
-        if model is None:
-            self.model = se3.Model()
-        else:
-            self.model = model
-        self.data = self.model.createData()
-
-        self.collision_model = collision_model
-        self.visual_model = visual_model
-
-        if "buildGeomFromUrdf" not in dir(se3):
-            self.collision_data = None
-            self.visual_data = None
-            if verbose:
-                print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
-        else:
-            if self.collision_model is None:
-                self.collision_data = None
-            else:
-                self.collision_data = se3.GeometryData(self.collision_model)
-
-            if self.visual_model is None:
-                self.visual_data = None
-            else:
-                self.visual_data = se3.GeometryData(self.visual_model)
-
-        self.v0 = utils.zero(self.model.nv)
+        self.v0 = utils.zero(self.nv)
         self.q0 = self.model.neutralConfiguration
-
-    def increment(self, q, dq):
-        q_next = se3.integrate(self.model,q,dq)
-        q[:] = q_next[:]
 
     @property
     def nq(self):
