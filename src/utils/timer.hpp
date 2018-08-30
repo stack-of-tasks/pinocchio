@@ -48,7 +48,7 @@ struct PinocchioTicToc
     gettimeofday(&(stack.top()),NULL);
   }
   
-  inline double toc(const Unit factor)
+  inline double toc(const Unit factor = DEFAULT_UNIT)
   {
     gettimeofday(&t0,NULL);
     double dt = (t0-stack.top())*factor;
