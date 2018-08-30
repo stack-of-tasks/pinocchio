@@ -73,7 +73,6 @@ ADD_BENCH(timings-eigen)
 # 
 IF(URDFDOM_FOUND AND HPP_FCL_FOUND)
   ADD_BENCH(timings-geometry TRUE)
-  PKG_CONFIG_USE_DEPENDENCY(timings-geometry hpp-fcl)
 ENDIF(URDFDOM_FOUND AND HPP_FCL_FOUND)
 
 
