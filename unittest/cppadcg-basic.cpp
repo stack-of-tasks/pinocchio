@@ -17,7 +17,6 @@
 
 #include <boost/variant.hpp> // to avoid C99 warnings
 
-#include <cppad/cg/support/cppadcg_eigen.hpp>
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
@@ -79,12 +78,8 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     
   BOOST_AUTO_TEST_CASE(test_eigen_support)
   {
-    using namespace CppAD;
-    using namespace CppAD::cg;
-    
-    // use a special object for source code generation
-    typedef CG<double> CGD;
-    typedef AD<CGD> ADCG;
+    typedef CppAD::cg::CG<double> CGD;
+    typedef CppAD::AD<CGD> ADCG;
     
     typedef Eigen::Matrix<ADCG,Eigen::Dynamic,1> ADCGVector;
     
