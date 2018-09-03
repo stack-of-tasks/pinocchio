@@ -311,10 +311,11 @@ namespace se3
             const ConstraintSphericalTpl<S2,O2> &)
   {
     typedef InertiaTpl<S1,O1> Inertia;
+    typedef typename Inertia::Symmetric3 Symmetric3;
     Eigen::Matrix<S2,6,3,O2> M;
     //    M.block <3,3> (Inertia::LINEAR, 0) = - Y.mass () * skew(Y.lever ());
     M.template block<3,3>(Inertia::LINEAR,0) = alphaSkew(-Y.mass(), Y.lever());
-    M.template block<3,3>(Inertia::ANGULAR,0) = (Y.inertia() - Symmetric3::AlphaSkewSquare(Y.mass(), Y.lever())).matrix();
+    M.template block<3,3>(Inertia::ANGULAR,0) = (Y.inertia() - typename Symmetric3::AlphaSkewSquare(Y.mass(), Y.lever())).matrix();
     return M;
   }
 
