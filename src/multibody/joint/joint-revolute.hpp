@@ -455,7 +455,7 @@ namespace se3
     const typename Inertia::Symmetric3 & I = Y.inertia();
     
     Eigen::Matrix<S2,6,1,O2> res;
-    res << 0.0,-m*z,m*y,
+    res << (S2)0,-m*z,m*y,
     I(0,0)+m*(y*y+z*z),
     I(0,1)-m*x*y,
     I(0,2)-m*x*z ;
@@ -475,7 +475,7 @@ namespace se3
     &z = Y.lever()[2];
     const typename Inertia::Symmetric3 & I = Y.inertia();
     Eigen::Matrix<S2,6,1,O2> res;
-    res << m*z,0,-m*x,
+    res << m*z,(S2)0,-m*x,
     I(1,0)-m*x*y,
     I(1,1)+m*(x*x+z*z),
     I(1,2)-m*y*z ;
@@ -494,7 +494,7 @@ namespace se3
     &y = Y.lever()[1],
     &z = Y.lever()[2];
     const typename Inertia::Symmetric3 & I = Y.inertia();
-    Eigen::Matrix<S2,6,1,O2> res; res << -m*y,m*x,0,
+    Eigen::Matrix<S2,6,1,O2> res; res << -m*y,m*x,(S2)0,
     I(2,0)-m*x*z,
     I(2,1)-m*y*z,
     I(2,2)+m*(x*x+y*y) ;

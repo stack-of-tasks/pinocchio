@@ -444,7 +444,9 @@ namespace se3
     
     template<typename Vector3Like>
     JointDataRevoluteUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
-    : M(1),S(axis),v(axis,NAN)
+    : M(1)
+    , S(axis)
+    , v(axis,(Scalar)NAN)
     , U(), Dinv(), UDinv()
     {}
 

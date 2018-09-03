@@ -349,7 +349,7 @@ namespace se3
     const typename Inertia::Vector3 mc(mass * com);
     M.template rightCols<1>().template head<2>() << -mc(1), mc(0);
 
-    M.template bottomLeftCorner<3,2>() << 0., -mc(2), mc(2), 0., -mc(1), mc(0);
+    M.template bottomLeftCorner<3,2>() << (Scalar)0, -mc(2), mc(2), (Scalar)0, -mc(1), mc(0);
     M.template rightCols<1>().template tail<3>() = inertia.data().template tail<3>();
     M.template rightCols<1>()[3] -= mc(0)*com(2);
     M.template rightCols<1>()[4] -= mc(1)*com(2);
