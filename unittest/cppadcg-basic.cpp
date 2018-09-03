@@ -89,16 +89,27 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     ADCGVector vec_ones(10);
     vec_ones.fill((ADCG)1);
     BOOST_CHECK(vec_ones.isOnes());
+//    std::cout << (ADCG)1 << std::endl;
     
     ADCG value_one(1.);
     
     ADCG value_nan;
     value_nan = NAN;
-    
+
+    // nan
     ADCGVector vec_nan(10);
     vec_nan.fill((ADCG)NAN);
-//    BOOST_CHECK(vec_ones.allFinite());
-    std::cout << vec_nan.transpose() << std::endl;
+////    BOOST_CHECK(vec_ones.allFinite());
+//    std::cout << vec_nan.transpose() << std::endl;
+//
+//    // abs
+    ADCG val_minus_one(-1.);
+    ADCG val_abs(abs(val_minus_one));
+    ADCGVector vec_minus_one(10); vec_minus_one.fill(val_minus_one);
+    vec_minus_one.array().abs();
+
+    BOOST_CHECK(!vec_ones.isUnitary());
+    
     
   }
     
@@ -149,6 +160,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     
     }
   }
+    
   BOOST_AUTO_TEST_CASE(test_dynamic_link)
   {
     using namespace CppAD;
