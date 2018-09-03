@@ -67,6 +67,94 @@ namespace se3
     
   };
   
+  namespace internal
+  {
+    
+    template<typename Scalar>
+    struct SE3actOn
+    {
+      template<int Options, typename Matrix6Type>
+      static typename EIGEN_PLAIN_TYPE(Matrix6Type)
+      run(const SE3Tpl<Scalar,Options> & M,
+          const Eigen::MatrixBase<Matrix6Type> & I)
+      {
+        typedef SE3Tpl<Scalar,Options> SE3;
+        typedef typename SE3::Matrix3 Matrix3;
+        typedef typename SE3::Vector3 Vector3;
+        
+        typedef const Eigen::Block<Matrix6Type,3,3> constBlock3;
+        
+        typedef typename EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
+        typedef Eigen::Block<ReturnType,3,3> Block3;
+        
+        Matrix6Type & I_ = EIGEN_CONST_CAST(Matrix6Type,I);
+        const constBlock3 & Ai = I_.template block<3,3>(Inertia::LINEAR, Inertia::LINEAR);
+        const constBlock3 & Bi = I_.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
+        const constBlock3 & Di = I_.template block<3,3>(Inertia::ANGULAR, Inertia::ANGULAR);
+        
+        const Matrix3 & R = M.rotation();
+        const Vector3 & t = M.translation();
+        
+        ReturnType res;
+        Block3 Ao = res.template block<3,3>(Inertia::LINEAR, Inertia::LINEAR);
+        Block3 Bo = res.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
+        Block3 Co = res.template block<3,3>(Inertia::ANGULAR, Inertia::LINEAR);
+        Block3 Do = res.template block<3,3>(Inertia::ANGULAR, Inertia::ANGULAR);
+        
+        Do.noalias() = R*Ai; // tmp variable
+        Ao.noalias() = Do*R.transpose();
+        
+        Do.noalias() = R*Bi; // tmp variable
+        Bo.noalias() = Do*R.transpose();
+        
+        Co.noalias() = R*Di; // tmp variable
+        Do.noalias() = Co*R.transpose();
+        
+        Do.row(0) += t.cross(Bo.col(0));
+        Do.row(1) += t.cross(Bo.col(1));
+        Do.row(2) += t.cross(Bo.col(2));
+        
+        Co.col(0) = t.cross(Ao.col(0));
+        Co.col(1) = t.cross(Ao.col(1));
+        Co.col(2) = t.cross(Ao.col(2));
+        Co += Bo.transpose();
+        
+        Bo = Co.transpose();
+        Do.col(0) += t.cross(Bo.col(0));
+        Do.col(1) += t.cross(Bo.col(1));
+        Do.col(2) += t.cross(Bo.col(2));
+        
+        return res;
+      }
+    };
+    
+#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
+    /// \brief Partial specialization for CppAD::AGtypes
+    template<typename _Scalar>
+    struct SE3actOn< CppAD::AD<_Scalar> >
+    {
+      typedef CppAD::AD<_Scalar> Scalar;
+      
+      template<int Options, typename Matrix6Type>
+      static typename EIGEN_PLAIN_TYPE(Matrix6Type)
+      run(const SE3Tpl<Scalar,Options> & M,
+          const Eigen::MatrixBase<Matrix6Type> & I)
+      {
+        typedef SE3Tpl<Scalar,Options> SE3;
+        
+        typedef typename EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
+        
+        const SE3 Minv = M.inverse();
+        typename SE3::ActionMatrixType dual_action_matrix(M.toDualActionMatrix());
+        typename SE3::ActionMatrixType action_matrix(Minv.toActionMatrix());
+        ReturnType intermediate_result(dual_action_matrix*I);
+        ReturnType res = intermediate_result*action_matrix;
+        return res;
+      }
+    };
+#endif
+  }
+  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct AbaBackwardStep
   : public fusion::JointVisitorBase< AbaBackwardStep<Scalar,Options,JointCollectionTpl> >
@@ -98,65 +186,14 @@ namespace se3
       {
         Force & pa = data.f[i];
         pa.toVector() += Ia * data.a[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
-        data.Yaba[parent] += SE3actOn(data.liMi[i], Ia);
+        data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.oMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
     }
     
-    template<typename S2, int O2, typename Matrix6Type>
-    inline static typename EIGEN_PLAIN_TYPE(Matrix6Type)
-    SE3actOn(const SE3Tpl<S2,O2> & M,
-             const Eigen::MatrixBase<Matrix6Type> & I)
-    {
-      typedef SE3Tpl<S2,O2> SE3;
-      typedef typename SE3::Matrix3 Matrix3;
-      typedef typename SE3::Vector3 Vector3;
-      
-      typedef const Eigen::Block<Matrix6Type,3,3> constBlock3;
-      
-      typedef typename EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
-      typedef Eigen::Block<ReturnType,3,3> Block3;
-      
-      Matrix6Type & I_ = const_cast<Matrix6Type &>(I.derived());
-      const constBlock3 & Ai = I_.template block<3,3>(Inertia::LINEAR, Inertia::LINEAR);
-      const constBlock3 & Bi = I_.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
-      const constBlock3 & Di = I_.template block<3,3>(Inertia::ANGULAR, Inertia::ANGULAR);
-      
-      const Matrix3 & R = M.rotation();
-      const Vector3 & t = M.translation();
-      
-      ReturnType res;
-      Block3 Ao = res.template block<3,3>(Inertia::LINEAR, Inertia::LINEAR);
-      Block3 Bo = res.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
-      Block3 Co = res.template block<3,3>(Inertia::ANGULAR, Inertia::LINEAR);
-      Block3 Do = res.template block<3,3>(Inertia::ANGULAR, Inertia::ANGULAR);
-      
-      Do.noalias() = R*Ai; // tmp variable
-      Ao.noalias() = Do*R.transpose();
-      
-      Do.noalias() = R*Bi; // tmp variable
-      Bo.noalias() = Do*R.transpose();
-      
-      Co.noalias() = R*Di; // tmp variable
-      Do.noalias() = Co*R.transpose();
-
-      Do.row(0) += t.cross(Bo.col(0));
-      Do.row(1) += t.cross(Bo.col(1));
-      Do.row(2) += t.cross(Bo.col(2));
-      
-      Co.col(0) = t.cross(Ao.col(0));
-      Co.col(1) = t.cross(Ao.col(1));
-      Co.col(2) = t.cross(Ao.col(2));
-      Co += Bo.transpose();
-      
-      Bo = Co.transpose();
-      Do.col(0) += t.cross(Bo.col(0));
-      Do.col(1) += t.cross(Bo.col(1));
-      Do.col(2) += t.cross(Bo.col(2));
-      
-      return res;
-    }
   };
+  
+  
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct AbaForwardStep2
@@ -182,7 +219,6 @@ namespace se3
       data.a[i] += data.liMi[i].actInv(data.a[parent]);
       jmodel.jointVelocitySelector(data.ddq).noalias() =
       jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.a[i].toVector();
-      
       data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
     }
     
@@ -220,7 +256,7 @@ namespace se3
       Pass2::run(model.joints[i],data.joints[i],
                  typename Pass2::ArgsType(model,data));
     }
-    
+
     typedef AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
@@ -377,7 +413,7 @@ namespace se3
       }
       
       if(parent > 0)
-        data.Yaba[parent] += AbaBackwardStep<Scalar,Options,JointCollectionTpl>::SE3actOn(data.liMi[i], Ia);
+        data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
     }
   };
   
