@@ -183,6 +183,11 @@ SET(${PROJECT_NAME}_UTILS_HEADERS
   utils/version.hpp
   )
 
+SET(${PROJECT_NAME}_CODEGEN_HEADERS
+  codegen/code-generator-base.hpp
+  codegen/code-generator-algo.hpp
+  )
+
 SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/symmetric3.hpp
   spatial/se3.hpp
@@ -365,6 +370,7 @@ SET(HEADERS
   ${${PROJECT_NAME}_PARSERS_HEADERS}
   ${${PROJECT_NAME}_ALGORITHM_HEADERS}
   ${${PROJECT_NAME}_CONTAINER_HEADERS}
+  ${${PROJECT_NAME}_CODEGEN_HEADERS}
   exception.hpp
   assert.hpp
   macros.hpp
@@ -385,6 +391,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/utils")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/container")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/codegen")
 
 FOREACH(header ${HEADERS})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)
