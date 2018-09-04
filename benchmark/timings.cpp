@@ -56,13 +56,27 @@ int main(int argc, const char ** argv)
 
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
   if(argc>1) filename = argv[1];
+  
+  bool with_ff = true;
+  if(argc>2)
+  {
+    const std::string ff_option = argv[2];
+    if(ff_option == "-no-ff")
+      with_ff = false;
+  }
+  
   if( filename == "HS") 
     se3::buildModels::humanoidRandom(model,true);
   else if( filename == "H2" )
     se3::buildModels::humanoid2d(model);
   else
-    se3::urdf::buildModel(filename,JointModelFreeFlyer(),model);
+    if(with_ff)
+      se3::urdf::buildModel(filename,JointModelFreeFlyer(),model);
+    else
+      se3::urdf::buildModel(filename,model);
   std::cout << "nq = " << model.nq << std::endl;
+  
+  
 
   se3::Data data(model);
   VectorXd q = VectorXd::Random(model.nq);
