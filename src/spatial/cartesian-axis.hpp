@@ -72,6 +72,16 @@ namespace se3
       return CartesianAxis() * s;
     }
     
+    template<typename Vector3Like>
+    static void setTo(const Eigen::MatrixBase<Vector3Like> v3)
+    {
+      Vector3Like & v3_ = EIGEN_CONST_CAST(Vector3Like,v3);
+      typedef typename Vector3Like::Scalar Scalar;
+      
+      for(Eigen::DenseIndex i = 0; i < dim; ++i)
+        v3_[i] = i == axis ? Scalar(1) : Scalar(0);
+    }
+    
   }; // struct CartesianAxis
   
   template<>
