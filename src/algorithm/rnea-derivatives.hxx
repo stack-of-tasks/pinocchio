@@ -240,7 +240,7 @@ namespace se3
       {
         motionSet::motionAction<ADDTO>(data.ov[parent],dJ_cols,dAdq_cols);
         dVdq_cols = dJ_cols;
-        dAdv_cols.noalias() = 2*dJ_cols;
+        dAdv_cols.noalias() = (Scalar)2*dJ_cols;
       }
       else
       {
