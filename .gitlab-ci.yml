@@ -18,6 +18,7 @@ cache:
     - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
     - make install
     - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
+    - make build_tests
     - make test
 
 robotpkg-pinocchio-14.04-release:
