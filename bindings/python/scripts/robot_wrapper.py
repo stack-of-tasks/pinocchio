@@ -20,6 +20,7 @@ from .deprecation import deprecated
 
 import time
 import os
+import numpy as np
 
 class RobotWrapper(object):
 
