@@ -74,6 +74,7 @@ namespace se3
   /**
    * @brief      Returns the jacobian of the frame expresssed the LOCAL frame coordinate system.
    *             You must first call se3::computeJointJacobians followed by se3::framesForwardKinematics to update placement values in data structure.
+   \deprecated This function is now deprecated. Please call se3::getFrameJacobian<ReferenceFrame> for same functionality
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
@@ -82,7 +83,7 @@ namespace se3
    *
    * @warning    The function se3::computeJointJacobians and se3::framesForwardKinematics should have been called first.
    */
-   
+  PINOCCHIO_DEPRECATED   
   inline void getFrameJacobian(const Model & model,
                                const Data & data,
                                const Model::FrameIndex frame_id,
