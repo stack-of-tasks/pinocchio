@@ -1,0 +1,85 @@
+*** Overview
+- ABSTRACT (taken from SII paper)
+- Installation link
+- Simplest example with compilation command (load urdf and run rnea)
+- More complete example with C++ and Python (load model and run a loop for an IK with 3D task)
+- How to cite Pinocchios
+- Presentation of the content of the documentation.
+
+*** List of features
+# Take the list from SII, shorten the description and add url links to the doc.
+# This should act as an index of the remaining of the doc.
+- Spatial algebra
+- Model and data
+- Supported kinematic models
+- Dealing with Lie group geometry
+- Geometric models
+- Main algorithms
+- Analytical derivatives
+- Automatic differentiation and source code generation
+
+*** Mathematics
+# For each subpart, add the list of "main related topics" toward algo description, specification, etc
+# and add the direct url toward corresponding pages of the doc.
+- Overview: rigid dynamics, joint dynamics, articulated dynamics, algorithms
+- Rigid bodies: geomtry, kinematics and dynamics
+- Joint dynamics: geometry, configuration space, kinematics, tangent space, list of joints
+- Articulated dynamics: kinematic tree, configuration and velocity, geometry, kinematics and jacobian, inverse and direct dynamics
+- Collision volums
+- Main algorithm: list taken from SII
+- Templatization, autodiff, code gen
+
+*** Implementation
+- Overview: what is making Pinocchio efficient
+- CRTP concept
+- Spatial Algebra module
+- Model / Data separation
+- Joint module
+- Loading the model
+- Algorithm module
+- Templatization (concept, code gen, auto diff)
+- Python bindings
+- Unit test
+
+*** Tutorials
+# These should be a bunch of simple examples in Python and C++ doing key functionnalities.
+# They should be chosen so that the documentation is evident.
+- Loading the model
+- Computing the dynamics RNEA, bias forces b(q,v), gravity g(q), CRBA M(q)
+- Contact dynamics
+- Loading and displaying the model
+- Collision detection and distances
+- Derivatives of the dynamics (with finite diff checking)
+- Code generation
+- Inverse geometry
+- Inverse kinematics (clik)
+- Task space inverse dynamics
+- QP (normal forces) unilateral contact dynamics (if we can write it concise enough)
+- Posture generation using derivatives (if we can write it concise enough)
+- A RRT planner for a robot arm (if we can write it concise enough)
+
+*** Benchmarks
+- Overview of algo with plots
+- Description of how to run the benchmarks
+
+*** Success stories
+# List of projects succesfully using pinocchio
+- TSID
+- HPP
+- DDP
+- Supaero class
+- WAN demonstration
+- List of papers with videos based on Pinocchio
+
+*** Modules
+# Main classes and functions (functions are yet missing)
+- Spatial
+- Multibody
+- Joint
+- Parsers
+- Algorithms
+# We also yet have benchmarks and unittests in the list. Better put then otherwise, is it not?
+
+*** Python "cheat sheet"
+# Main functionalities and commands to be used in python.
+# No clear ideas yet about how to present that info.
