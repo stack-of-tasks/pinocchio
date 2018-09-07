@@ -30,6 +30,8 @@
 - Templatization, autodiff, code gen
 
 *** Implementation
+# Should we put implementation before mathematics. If not, we should make clear in the math
+# section that the reader may want to jump to the implementation section and skip the math.
 - Overview: what is making Pinocchio efficient
 - CRTP concept
 - Spatial Algebra module
@@ -44,6 +46,11 @@
 *** Tutorials
 # These should be a bunch of simple examples in Python and C++ doing key functionnalities.
 # They should be chosen so that the documentation is evident.
+# The code example both in C++ and Python should be in a stand-alone plain .cpp and .py file,
+# possibly added in unittest/doc/*.cpp and unittest/doc/python/*.py (to be defined).
+# It would then be straight forward to check at commit time that the .cpp are respecting
+# the current API of Pinocchio. If adding .py test feature in our build test, extending
+# to .py file test would be easy as well.
 - Loading the model
 - Computing the dynamics RNEA, bias forces b(q,v), gravity g(q), CRBA M(q)
 - Contact dynamics
@@ -83,3 +90,8 @@
 *** Python "cheat sheet"
 # Main functionalities and commands to be used in python.
 # No clear ideas yet about how to present that info.
+
+*** Python Sphinx documentation
+# To be added once Sphinx doc of Pinocchio is mature.
+# OStasse suggests a new project that allows inserting sphinx in doxygen.
+# We first have to generate a stand-alone sphinx of pinocchio and double check that we are happy with it.
