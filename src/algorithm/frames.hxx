@@ -103,7 +103,7 @@ namespace se3
     assert( dJ.cols() == data.dJ.cols() );    
     assert(model.check(data) && "data is not consistent with model.");
     
-    const Frame & frame = model.frames[frame_id];
+    const Frame & frame = model.frames[frameId];
     const Model::JointIndex & joint_id = frame.parent;
     if (rf == WORLD)
     {
@@ -113,7 +113,7 @@ namespace se3
     
     if (rf == LOCAL)
     {
-      const SE3 & oMframe = data.oMf[frame_id];
+      const SE3 & oMframe = data.oMf[frameId];
       const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
       
       for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
