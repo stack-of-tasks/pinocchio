@@ -74,6 +74,7 @@ namespace se3
   /**
    * @brief      Returns the jacobian of the frame expresssed the LOCAL frame coordinate system.
    *             You must first call se3::computeJointJacobians followed by se3::framesForwardKinematics to update placement values in data structure.
+   \deprecated This function is now deprecated. Please call se3::getFrameJacobian<ReferenceFrame> for same functionality
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
@@ -82,11 +83,30 @@ namespace se3
    *
    * @warning    The function se3::computeJointJacobians and se3::framesForwardKinematics should have been called first.
    */
-   
+  PINOCCHIO_DEPRECATED   
   inline void getFrameJacobian(const Model & model,
                                const Data & data,
                                const Model::FrameIndex frame_id,
                                Data::Matrix6x & J);
+
+  ///
+  /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL).
+  /// \note This jacobian is extracted from data.dJ. You have to run se3::computeJacobiansTimeVariation before calling it.
+  ///
+  /// \tparam rf Reference frame in which the Jacobian is expressed.
+  ///
+  /// \param[in] localFrame Expressed the Jacobian in the local frame or world frame coordinates system.
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] frameId The index of the frame.
+  /// \param[out] dJ A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill dJ with zero elements, e.g. dJ.fill(0.).
+  ///
+  template<ReferenceFrame rf>
+  void getFrameJacobianTimeVariation(const Model & model,
+                                     const Data & data,
+                                     const Model::FrameIndex frameId,
+                                     Data::Matrix6x & dJ);
+  
  
 } // namespace se3
 

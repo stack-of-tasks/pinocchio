@@ -93,6 +93,38 @@ namespace se3
     getFrameJacobian<LOCAL>(model,data,frame_id,J);
   }
 
+  template<ReferenceFrame rf>
+  void getFrameJacobianTimeVariation(const Model & model,
+                                     const Data & data,
+                                     const Model::FrameIndex frameId,
+                                     Data::Matrix6x & dJ)
+  {
+    assert( dJ.rows() == data.dJ.rows() );
+    assert( dJ.cols() == data.dJ.cols() );    
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    const Frame & frame = model.frames[frameId];
+    const Model::JointIndex & joint_id = frame.parent;
+    if (rf == WORLD)
+    {
+      getJointJacobianTimeVariation<WORLD>(model,data,joint_id,dJ);
+      return;
+    }
+    
+    if (rf == LOCAL)
+    {
+      const SE3 & oMframe = data.oMf[frameId];
+      const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+      
+      for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
+      {
+        dJ.col(j) = oMframe.actInv(Motion(data.dJ.col(j))).toVector();
+      }
+      return;
+    }    
+  }
+  
+
 } // namespace se3
 
 #endif // ifndef __se3_frames_hxx__

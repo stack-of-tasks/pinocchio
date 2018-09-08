@@ -49,6 +49,36 @@ namespace se3
   
       return get_frame_jacobian_proxy(model, data, frame_id, rf);
     }
+
+
+    static Data::Matrix6x
+    get_frame_jacobian_time_variation_proxy(const Model & model,
+                                            Data & data,
+                                            Model::FrameIndex jointId,
+                                            ReferenceFrame rf)
+    {
+      Data::Matrix6x dJ(6,model.nv); dJ.setZero();
+      
+      if(rf == LOCAL) getFrameJacobianTimeVariation<LOCAL>(model,data,jointId,dJ);
+      else getFrameJacobianTimeVariation<WORLD>(model,data,jointId,dJ);
+      
+      return dJ;
+    }
+
+    static Data::Matrix6x frame_jacobian_time_variation_proxy(const Model & model,
+                                                              Data & data,
+                                                              const Eigen::VectorXd & q,
+                                                              const Eigen::VectorXd & v,
+                                                              const Model::FrameIndex frame_id,
+                                                              ReferenceFrame rf
+                                                              )
+    {
+      computeJointJacobiansTimeVariation(model,data,q,v);
+      framesForwardKinematics(model,data);
+  
+      return get_frame_jacobian_time_variation_proxy(model, data, frame_id, rf);
+    }        
+
     
     void exposeFramesAlgo()
     {
@@ -87,7 +117,28 @@ namespace se3
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
               "where v is the time derivative of the configuration q.\n"
               "Be aware that computeJointJacobians and framesKinematics must have been called first.");
-      
+
+      bp::def("frameJacobianTimeVariation",
+              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &,const Eigen::VectorXd &, const Model::FrameIndex, ReferenceFrame))&frame_jacobian_time_variation_proxy,
+              bp::args("Model","Data",
+                       "Configuration q (size Model::nq)",
+                       "Joint velocity v (size Model::nv)",                       
+                       "Operational frame ID (int)",
+                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
+              "Computes the Jacobian Time Variation of the frame given by its ID either in the local or the world frames."
+              "The columns of the Jacobian time variation are expressed in the frame coordinates.\n"
+              "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
+              "where v is the time derivative of the configuration q.");      
+
+      bp::def("getFrameJacobianTimeVariation",get_frame_jacobian_time_variation_proxy,
+              bp::args("Model, the model of the kinematic tree",
+                       "Data, the data associated to the model where the results are stored",
+                       "Frame ID, the index of the frame.",
+                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
+              "Returns the Jacobian time variation of a specific frame (specified by Frame ID) expressed either in the world or the local frame."
+              "You have to call computeJointJacobiansTimeVariation and framesKinematics first."
+              "If rf is set to LOCAL, it returns the jacobian time variation associated to the frame index. Otherwise, it returns the jacobian time variation of the frame coinciding with the world frame.");
+
     }
   } // namespace python
 } // namespace se3
