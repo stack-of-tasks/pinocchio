@@ -6,10 +6,10 @@ Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
 [![Coverage Status](https://coveralls.io/repos/github/stack-of-tasks/pinocchio/badge.svg?branch=devel)](https://coveralls.io/github/stack-of-tasks/pinocchio?branch=devel)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/7824/badge.svg)](https://scan.coverity.com/projects/pinocchio)
 
-**Pinocchio** instatiates state-of-the-art Rigid Body Algotithms for poly-articulated systems based on revisited Roy Featherstone's algorithms.
+**Pinocchio** instantiates state-of-the-art Rigid Body Algorithms for poly-articulated systems based on revisited Roy Featherstone's algorithms.
 In addition, **Pinocchio** instantiates analytical derivatives of the main Rigid-Body Algorithms like the Recursive Newton-Euler Algorithms or the Articulated-Body Algorithm.
-**Pinocchio** is first tailored for legged robotics applications, but it can be used in extra contextes.
-It is built upon Eigen for linear algebra and FCL for collision detections. **Pinocchio** comes with a Python interface for fast code protyping.
+**Pinocchio** is first tailored for legged robotics applications, but it can be used in extra contexts.
+It is built upon Eigen for linear algebra and FCL for collision detection. **Pinocchio** comes with a Python interface for fast code prototyping.
 
 **Pinocchio** is now at the hearth of various robotics softwares as the [Stack-of-Tasks](http://stack-of-tasks.github.io) or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc).
 
@@ -23,7 +23,7 @@ We provide some basic examples on how to use **Pinocchio** in Python in the [exa
 
 ## Tutorials 
 
-**Pinocchio** is comming with a large bunch of tutorials aiming at introducting the basic tools for robotics control.
+**Pinocchio** is coming with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
 The content of the tutorials are described [here](http://projects.laas.fr/gepetto/index.php/Teach/Supaero2018) and the source code of these tutorials is located [here](https://github.com/stack-of-tasks/pinocchio-tutorials).
 
 ## Dependencies
