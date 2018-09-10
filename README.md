@@ -43,7 +43,7 @@ The content of the tutorials are described [here](http://projects.laas.fr/gepett
 ### Optional dependencies
    - urdfdom (version >= 0.2)
    - LUA 5.1
-   - [FCL](https://github.com/flexible-collision-library/fcl)
+   - [HPP-FCL](https://github.com/humanoid-path-planner/hpp-fcl)
    
 ### Python bindings
    - Python 2.7 or 3.0
