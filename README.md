@@ -78,4 +78,4 @@ You need to ask a question? You may either directly post a [new issue](https://g
 
 ## Acknowledgments
 
-The development of **Pinocchio** is supported by the [Gepetto team](http://projects.laas.fr/gepetto/) @LAAS-CNRS.
+The development of **Pinocchio** is supported by the [Gepetto team](http://projects.laas.fr/gepetto/) [@LAAS-CNRS](http://www.laas.fr) and by the [Willow team](https://www.di.ens.fr/willow/) [@INRIA](http://www.inria.fr).
