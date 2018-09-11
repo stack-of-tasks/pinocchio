@@ -200,7 +200,7 @@ namespace se3
                 const Model::JointIndex jointId)
   {
     data.J.setZero();
-    jacobian(model,data,q,jointId,data.J);
+    jointJacobian(model,data,q,jointId,data.J);
     
     return data.J;
   }
