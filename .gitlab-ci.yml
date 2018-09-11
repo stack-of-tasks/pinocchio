@@ -18,7 +18,6 @@ cache:
     - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
     - make install
     - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
-    - make build_tests
     - make test
 
 robotpkg-pinocchio-14.04-release:
@@ -43,30 +42,31 @@ robotpkg-pinocchio-18.04-release:
     - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
     - make install
     - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
-
-robotpkg-py-pinocchio-py3-18.04-release:
-  <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
-
-robotpkg-py-pinocchio-16.04-release:
-  <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:16.04
-
-robotpkg-py-pinocchio-18.04-release:
-  <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
-
-robotpkg-py-pinocchio-py3-14.04-release:
-  <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
+    - make test
 
 robotpkg-py-pinocchio-14.04-release:
   <<: *robotpkg-py-pinocchio
   image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:14.04
 
+robotpkg-py-pinocchio-py3-14.04-release:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
+
+robotpkg-py-pinocchio-16.04-release:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:16.04
+
 robotpkg-py-pinocchio-py3-16.04-release:
   <<: *robotpkg-py-pinocchio
   image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:16.04
+
+robotpkg-py-pinocchio-18.04-release:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
+
+robotpkg-py-pinocchio-py3-18.04-release:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
 
 doc-coverage:
   <<: *robotpkg-py-pinocchio
