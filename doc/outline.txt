@@ -21,16 +21,21 @@
 # It contains a description of all most important features of Pinocchio, from the user's point of view
 # Each section consists of a page and it teaches the user how to use a certain feature, using code snippets.
 - Spatial Algebra module
-- Model and data   # just explain the concept of model and data and what they contain. The explanation on how to build and/or load a model is delayed to the two following pages (explicitely say so from the start). Just use buildModels::humanoidSimple(model) in the snippets
-- Joints # Or: Building the model: joints and bodies. Maybe merge this section with previous one?
+- Model and data
+  # just explain the concept of model and data and what they contain. The explanation on how to build and/or load a model is delayed to the two following pages (explicitely say so from the start). Just use buildModels::humanoidSimple(model) in the snippets [pending v2.0]
+- Joints [pending v2.0]
+  # Or: Building the model: joints and bodies. Maybe merge this section with previous one?
+  # @nmansard : I prefer this way of separing models of joint models.
 - Loading the model  # how to load from an external file
 - Dealing with Lie group geometry
-- Kinematic algorithms
-- Dynamic algorithms
-- Operational frames # as frames are not necessary to understand the previous sections, it could be a good idea to treat them separately. Introduce them here together with the related algorithms
+- Kinematic algorithms [pending v2.0]
+- Dynamic algorithms [pending v2.0]
+- Operational frames
+  # as frames are not necessary to understand the previous sections, it could be a good idea to treat them separately. Introduce them here together with the related algorithms
+  # @ nmansard good idea
 - Geometric models   # with related algos
-- Analytical derivatives
-- Automatic differentiation and source code generation
+- Analytical derivatives [pending v2.0]
+- Automatic differentiation and source code generation [pending v2.0]
 - Python bindings
 - Unit test
 
@@ -99,10 +104,10 @@
 *** Modules
 # Main classes and functions (functions are yet missing)
 - Spatial
-- Multibody
-- Joint
+- Multibody [pending v2.0]
+- Joint [pending v2.0]
 - Parsers
-- Algorithms
+- Algorithms [pending v2.0]
 # We also yet have benchmarks and unittests in the list. Better put then otherwise, is it not?
 
 *** Python "cheat sheet"
