@@ -2,7 +2,10 @@
 - ABSTRACT (taken from SII paper)
 - Installation link
 - Simplest example with compilation command (load urdf and run rnea)
-- More complete example with C++ and Python (load model and run a loop for an IK with 3D task) # I don't think it's needed. It can go in the tutorials (Gabriele)
+- More complete example with C++ and Python (load model and run a loop for an IK with 3D task)
+  # @GabrieleBndn I don't think it's needed. It can go in the tutorials
+  # @nmansard     Eigen copy-paste. It might be nice for visibility. Let's try, it is not much work.  
+- About Python wrapings (philosphy and example)
 - How to cite Pinocchio
 - Presentation of the content of the documentation.
 
@@ -31,7 +34,7 @@
 - Python bindings
 - Unit test
 
-*** Tutorials
+*** Examples
 # These should be a bunch of simple examples in Python and C++ doing key functionnalities.
 # They should be chosen so that the documentation is evident.
 # The code example both in C++ and Python should be in a stand-alone plain .cpp and .py file,
@@ -52,6 +55,7 @@
 - QP (normal forces) unilateral contact dynamics (if we can write it concise enough)
 - Posture generation using derivatives (if we can write it concise enough)
 - A RRT planner for a robot arm (if we can write it concise enough)
+- A RL tensorflow example (if we can write it concise enough)
 
 *** Mathematics
 # For each subpart, add the list of "main related topics" toward algo description, specification, etc
@@ -63,6 +67,15 @@
 - Collision volums
 - Main algorithm: list taken from SII
 - Templatization, autodiff, code gen
+
+*** Practical exercises
+# Documented exercises, could be followed by a newcomer to learn py-based Pinocchio
+# Based on @nmansard class
+- Intro
+- Inverse geometry
+- Inverse kinematics
+- Contact dynamics
+- Optimal control and reinforcement learning
 
 *** Implementation / Technical details
 - Overview: what is making Pinocchio efficient
