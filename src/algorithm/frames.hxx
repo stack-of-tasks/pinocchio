@@ -53,6 +53,43 @@ namespace se3
     forwardKinematics(model, data, q);
     framesForwardKinematics(model, data);
   }
+
+  inline const SE3 & frameForwardKinematics(const Model & model,
+                                            Data & data,
+                                            const Model::FrameIndex frame_id)
+  {
+    const Frame & frame = model.frames[frame_id];
+    const Model::JointIndex & parent = frame.parent;
+    if (frame.placement.isIdentity())
+      data.oMf[frame_id] = data.oMi[parent];
+    else
+      data.oMf[frame_id] = data.oMi[parent]*frame.placement;
+    return data.oMf[frame_id];
+  }
+
+  void getFrameVelocity(const Model & model,
+                        const Data & data,
+                        const Model::FrameIndex frame_id,
+                        Motion & frame_v)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+
+    const Frame & frame = model.frames[frame_id];
+    const Model::JointIndex & parent = frame.parent;
+    frame_v = frame.placement.actInv(data.v[parent]);
+  }
+
+  void getFrameAcceleration(const Model & model,
+                            const Data & data,
+                            const Model::FrameIndex frame_id,
+                            Motion & frame_a)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+
+    const Frame & frame = model.frames[frame_id];
+    const Model::JointIndex & parent = frame.parent;
+    frame_a = frame.placement.actInv(data.a[parent]);
+  }
   
   template<ReferenceFrame rf>
   inline void getFrameJacobian(const Model & model,

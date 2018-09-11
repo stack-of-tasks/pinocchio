@@ -25,7 +25,7 @@ namespace se3
 {
 
   /**
-   * @brief      Updates the position of each frame contained in the model
+   * @brief      Updates the placement of each frame contained in the model
    *
    * @param[in]  model  The kinematic model.
    * @param      data   Data associated to model.
@@ -48,14 +48,62 @@ namespace se3
                                       const Eigen::VectorXd & q);
 
   /**
-   * @brief      Returns the jacobian of the frame expresssed either expressed in the LOCAL frame coordinate system or in the WORLD coordinate system,
+   * @brief      Updates the placement of the given frame.
+   *
+   * @param[in]  model        The kinematic model.
+   * @param      data         Data associated to model.
+   * @param[in]  frame_id     Id of the operational Frame.
+   *
+   * @return     A reference to the frame placement stored in data.oMf[frame_id]
+   *
+   * @warning    One of the algorithms forwardKinematics should have been called first
+   */
+  inline const SE3 & frameForwardKinematics(const Model & model,
+                                            Data & data,
+                                            const Model::FrameIndex frame_id);
+
+  /**
+   * @brief      Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system.
+   *             You must first call se3::forwardKinematics to update placement and velocity values in data structure.
+   *
+   * @param[in]  model       The kinematic model
+   * @param[in]  data        Data associated to model
+   * @param[in]  frame_id    Id of the operational Frame
+   * @param[out] frame_v     The spatial velocity of the Frame expressed in the coordinates Frame.
+   *
+   * @warning    Fist or second order forwardKinematics should have been called first
+   */
+  void getFrameVelocity(const Model & model,
+                        const Data & data,
+                        const Model::FrameIndex frame_id,
+                        Motion & frame_v);
+
+  /**
+   * @brief      Returns the spatial acceleration of the frame expressed in the LOCAL frame coordinate system.
+   *             You must first call se3::forwardKinematics to update placement values in data structure.
+   *
+   * @param[in]  model       The kinematic model
+   * @param[in]  data        Data associated to model
+   * @param[in]  frame_id    Id of the operational Frame
+   * @param[out] frame_a     The spatial acceleration of the Frame expressed in the coordinates Frame.
+   *
+   * @warning    Second order forwardKinematics should have been called first
+   */
+  void getFrameAcceleration(const Model & model,
+                            const Data & data,
+                            const Model::FrameIndex frame_id,
+                            Motion & frame_a);
+
+
+  /**
+   * @brief      Returns the jacobian of the frame expressed either in the LOCAL frame coordinate system or in the WORLD coordinate system,
    *             depending on the value of the template parameter rf.
    *             You must first call se3::computeJointJacobians followed by se3::framesForwardKinematics to update placement values in data structure.
    *
    * @tparam     rf Reference frame in which the columns of the Jacobian are expressed.
-   
+   *
    * @remark     Similarly to se3::getJointJacobian with LOCAL or WORLD templated parameters, if rf == LOCAL, this function returns the Jacobian of the frame expressed
-   *             in the local coordinates of the frame, or if rl == WORDL, it returns the Jacobian expressed of the point coincident with the origin
+   *             in the local coordinates of the frame, or if rl == WORLD, it returns the Jacobian expressed of the point coincident with the origin
    *             and expressed in a coordinate system aligned with the WORLD.
    *
    * @param[in]  model       The kinematic model
@@ -63,7 +111,7 @@ namespace se3
    * @param[in]  frame_id    Id of the operational Frame
    * @param[out] J           The Jacobian of the Frame expressed in the coordinates Frame.
    *
-   * @warning    The function se3::computeJointJacobians and se3::framesForwardKinematics should have been called first.
+   * @warning    The functions se3::computeJointJacobians and se3::framesForwardKinematics should have been called first.
    */
   template<ReferenceFrame rf>
   void getFrameJacobian(const Model & model,
