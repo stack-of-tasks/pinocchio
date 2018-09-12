@@ -30,6 +30,8 @@ def deprecated(instructions):
 
             return func(*args, **kwargs)
 
+        if wrapper.__doc__ is None:
+            wrapper.__doc__ = instructions
         return wrapper
 
     return decorator
