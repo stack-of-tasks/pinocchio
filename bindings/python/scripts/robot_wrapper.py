@@ -78,6 +78,22 @@ class RobotWrapper(object):
             return self.data.com[0], self.data.vcom[0], self.data.acom[0]
         return se3.centerOfMass(self.model, self.data, q)
 
+    def vcom(self, q, v):
+        se3.centerOfMass(self.model, self.data, q, v)
+        return self.data.vcom[0]
+
+    def acom(self, q, v, a):
+        se3.centerOfMass(self.model, self.data, q, v, a)
+        return self.data.acom[0]
+
+    def centroidalMomentum(self, q, v):
+        se3.ccrba(self.model, self.data, q, v)
+        return self.data.hg
+
+    def centroidalMomentumVariation(self, q, v, a):
+        se3.dccrba(self.model, self.data, q, v)
+        return se3.Force(self.data.Ag*a+self.data.dAg*v)
+
     def Jcom(self, q):
         return se3.jacobianCenterOfMass(self.model, self.data, q)
 
