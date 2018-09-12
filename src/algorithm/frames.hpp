@@ -32,6 +32,35 @@ namespace se3
    *
    * @warning    One of the algorithms forwardKinematics should have been called first
    */
+  inline void updateFramePlacements(const Model & model,
+                                    Data & data);
+
+  /**
+   * @brief      Updates the placement of the given frame.
+   *
+   * @param[in]  model        The kinematic model.
+   * @param      data         Data associated to model.
+   * @param[in]  frame_id     Id of the operational Frame.
+   *
+   * @return     A reference to the frame placement stored in data.oMf[frame_id]
+   *
+   * @warning    One of the algorithms forwardKinematics should have been called first
+   */
+  inline const SE3 & updateFramePlacement(const Model & model,
+                                          Data & data,
+                                          const Model::FrameIndex frame_id);
+
+  /**
+   * @brief      Updates the placement of each frame contained in the model
+   *
+   * @deprecated This function is now deprecated. Please call se3::updateFramePlacements for same functionality
+   *
+   * @param[in]  model  The kinematic model.
+   * @param      data   Data associated to model.
+   *
+   * @warning    One of the algorithms forwardKinematics should have been called first
+   */
+  PINOCCHIO_DEPRECATED
   inline void framesForwardKinematics(const Model & model,
                                       Data & data);
 
@@ -46,21 +75,6 @@ namespace se3
   inline void framesForwardKinematics(const Model & model,
                                       Data & data,
                                       const Eigen::VectorXd & q);
-
-  /**
-   * @brief      Updates the placement of the given frame.
-   *
-   * @param[in]  model        The kinematic model.
-   * @param      data         Data associated to model.
-   * @param[in]  frame_id     Id of the operational Frame.
-   *
-   * @return     A reference to the frame placement stored in data.oMf[frame_id]
-   *
-   * @warning    One of the algorithms forwardKinematics should have been called first
-   */
-  inline const SE3 & frameForwardKinematics(const Model & model,
-                                            Data & data,
-                                            const Model::FrameIndex frame_id);
 
   /**
    * @brief      Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system.

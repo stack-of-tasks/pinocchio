@@ -26,13 +26,13 @@ namespace se3
 {
   
   
-  inline void framesForwardKinematics(const Model & model,
-                                      Data & data)
+  inline void updateFramePlacements(const Model & model,
+                                    Data & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
     // The following for loop starts by index 1 because the first frame is fixed
-    // and corresponds to the universe.s
+    // and corresponds to the universe
     for (Model::FrameIndex i=1; i < (Model::FrameIndex) model.nframes; ++i)
     {
       const Frame & frame = model.frames[i];
@@ -43,20 +43,10 @@ namespace se3
         data.oMf[i] = data.oMi[parent]*frame.placement;
     }
   }
-  
-  inline void framesForwardKinematics(const Model & model,
-                                      Data & data,
-                                      const Eigen::VectorXd & q)
-  {
-    assert(model.check(data) && "data is not consistent with model.");
-    
-    forwardKinematics(model, data, q);
-    framesForwardKinematics(model, data);
-  }
 
-  inline const SE3 & frameForwardKinematics(const Model & model,
-                                            Data & data,
-                                            const Model::FrameIndex frame_id)
+  inline const SE3 & updateFramePlacement(const Model & model,
+                                          Data & data,
+                                          const Model::FrameIndex frame_id)
   {
     const Frame & frame = model.frames[frame_id];
     const Model::JointIndex & parent = frame.parent;
@@ -65,6 +55,22 @@ namespace se3
     else
       data.oMf[frame_id] = data.oMi[parent]*frame.placement;
     return data.oMf[frame_id];
+  }
+
+  inline void framesForwardKinematics(const Model & model,
+                                      Data & data)
+  {
+    updateFramePlacements(model,data);
+  }
+
+  inline void framesForwardKinematics(const Model & model,
+                                      Data & data,
+                                      const Eigen::VectorXd & q)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    forwardKinematics(model, data, q);
+    updateFramePlacements(model, data);
   }
 
   void getFrameVelocity(const Model & model,

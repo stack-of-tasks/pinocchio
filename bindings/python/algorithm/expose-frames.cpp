@@ -45,7 +45,7 @@ namespace se3
                                                )
     {
       computeJointJacobians(model,data,q);
-      framesForwardKinematics(model,data);
+      updateFramePlacements(model,data);
   
       return get_frame_jacobian_proxy(model, data, frame_id, rf);
     }
@@ -74,21 +74,59 @@ namespace se3
                                                               )
     {
       computeJointJacobiansTimeVariation(model,data,q,v);
-      framesForwardKinematics(model,data);
+      updateFramePlacements(model,data);
   
       return get_frame_jacobian_time_variation_proxy(model, data, frame_id, rf);
     }        
 
+    static Motion get_frame_velocity_proxy(const Model & model,
+                                           Data & data,
+                                           const Model::FrameIndex frame_id
+                                           )
+    {
+      Motion v;
+      getFrameVelocity(model,data,frame_id,v);
+      return v;
+    }
+
+    static Motion get_frame_acceleration_proxy(const Model & model,
+                                               Data & data,
+                                               const Model::FrameIndex frame_id
+                                               )
+    {
+      Motion a;
+      getFrameAcceleration(model,data,frame_id,a);
+      return a;
+    }
     
     void exposeFramesAlgo()
     {
-      bp::def("framesKinematics",
-              (void (*)(const Model &, Data &))&framesForwardKinematics,
+      bp::def("updateFramePlacements",
+              (void (*)(const Model &, Data &))&updateFramePlacements,
               bp::args("Model","Data"),
               "Computes the placements of all the operational frames according to the current joint placement stored in data"
-              "and put the results in data.");
+              "and puts the results in data.");
+
+      bp::def("updateFramePlacement",
+              (const SE3 & (*)(const Model &, Data &, const Model::FrameIndex))&updateFramePlacement,
+              bp::args("Model","Data","Operational frame ID (int)"),
+              "Computes the placement of the given operational frames according to the current joint placement stored in data,"
+              "puts the results in data and returns it.",
+              bp::return_value_policy<bp::return_by_value>());
+
+      bp::def("getFrameVelocity",
+              (Motion (*)(const Model &, Data &, const Model::FrameIndex))&get_frame_velocity_proxy,
+              bp::args("Model","Data","Operational frame ID (int)"),
+              "Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system."
+              "Fist or second order forwardKinematics should be called first.");
+
+      bp::def("getFrameAcceleration",
+              (Motion (*)(const Model &, Data &, const Model::FrameIndex))&get_frame_acceleration_proxy,
+              bp::args("Model","Data","Operational frame ID (int)"),
+              "Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system."
+              "Second order forwardKinematics should be called first.");
       
-      bp::def("framesKinematics",
+      bp::def("framesForwardKinematics",
               (void (*)(const Model &, Data &, const Eigen::VectorXd &))&framesForwardKinematics,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
