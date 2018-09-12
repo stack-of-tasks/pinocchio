@@ -60,6 +60,108 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
 }
 
+BOOST_AUTO_TEST_CASE ( test_update_placements )
+{
+  using namespace Eigen;
+  using namespace se3;
+
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model);
+  Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
+  const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
+  const SE3 & framePlacement = SE3::Random();
+  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
+  Model::FrameIndex frame_idx = model.getFrameId(frame_name);
+  se3::Data data(model);
+  se3::Data data_ref(model);
+
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.middleRows<4> (3).normalize();
+
+  forwardKinematics(model, data, q);
+  updateFramePlacements(model, data);
+
+  framesForwardKinematics(model, data_ref, q);
+
+  BOOST_CHECK(data.oMf[frame_idx].isApprox(data_ref.oMf[frame_idx]));
+}
+
+BOOST_AUTO_TEST_CASE ( test_update_single_placement )
+{
+  using namespace Eigen;
+  using namespace se3;
+
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model);
+  Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
+  const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
+  const SE3 & framePlacement = SE3::Random();
+  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
+  Model::FrameIndex frame_idx = model.getFrameId(frame_name);
+  se3::Data data(model);
+  se3::Data data_ref(model);
+
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.middleRows<4> (3).normalize();
+
+  forwardKinematics(model, data, q);
+  updateFramePlacement(model, data, frame_idx);
+
+  framesForwardKinematics(model, data_ref, q);
+
+  BOOST_CHECK(data.oMf[frame_idx].isApprox(data_ref.oMf[frame_idx]));
+}
+
+BOOST_AUTO_TEST_CASE ( test_velocity )
+{
+  using namespace Eigen;
+  using namespace se3;
+
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model);
+  Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
+  const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
+  const SE3 & framePlacement = SE3::Random();
+  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
+  Model::FrameIndex frame_idx = model.getFrameId(frame_name);
+  se3::Data data(model);
+
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.middleRows<4> (3).normalize();
+  VectorXd v = VectorXd::Ones(model.nv);
+  forwardKinematics(model, data, q, v);
+
+  Motion vf;
+  getFrameVelocity(model, data, frame_idx, vf);
+
+  BOOST_CHECK(vf.isApprox(framePlacement.actInv(data.v[parent_idx])));
+}
+
+BOOST_AUTO_TEST_CASE ( test_acceleration )
+{
+  using namespace Eigen;
+  using namespace se3;
+
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model);
+  Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
+  const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
+  const SE3 & framePlacement = SE3::Random();
+  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
+  Model::FrameIndex frame_idx = model.getFrameId(frame_name);
+  se3::Data data(model);
+
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.middleRows<4> (3).normalize();
+  VectorXd v = VectorXd::Ones(model.nv);
+  VectorXd a = VectorXd::Ones(model.nv);
+  forwardKinematics(model, data, q, v, a);
+
+  Motion af;
+  getFrameAcceleration(model, data, frame_idx, af);
+
+  BOOST_CHECK(af.isApprox(framePlacement.actInv(data.a[parent_idx])));
+}
 
 BOOST_AUTO_TEST_CASE ( test_jacobian )
 {
@@ -86,7 +188,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
   Data::Matrix6x Jjj(6,model.nv); Jjj.fill(0);
   Data::Matrix6x Jff(6,model.nv); Jff.fill(0);
-  getFrameJacobian(model,data,idx,Jff);
+  getFrameJacobian<LOCAL>(model,data,idx,Jff);
   getJointJacobian<LOCAL>(model, data_ref, parent_idx, Jjj);
 
   Motion nu_frame = Motion(Jff*q_dot);
@@ -123,9 +225,10 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
   VectorXd a = VectorXd::Random(model.nv);
   
   computeJointJacobiansTimeVariation(model,data,q,v);
+  updateFramePlacements(model,data);
+
   forwardKinematics(model,data_ref,q,v,a);
-  framesForwardKinematics(model,data_ref);
-  framesForwardKinematics(model,data);
+  updateFramePlacements(model,data_ref);  
 
   BOOST_CHECK(isFinite(data.dJ));
 
@@ -174,7 +277,7 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     Data::Matrix6x J_ref_world(6,model.nv), J_ref_local(6,model.nv);
     J_ref_world.fill(0.);     J_ref_local.fill(0.);
     computeJointJacobians(model,data_ref,q);
-    framesForwardKinematics(model,data_ref);
+    updateFramePlacements(model,data_ref);
     const SE3 & oMf_q = data_ref.oMf[idx];
     getFrameJacobian<WORLD>(model,data_ref,idx,J_ref_world);
     getFrameJacobian<LOCAL>(model,data_ref,idx,J_ref_local);
@@ -183,7 +286,7 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     Data::Matrix6x J_ref_plus_world(6,model.nv), J_ref_plus_local(6,model.nv);
     J_ref_plus_world.fill(0.);    J_ref_plus_local.fill(0.);
     computeJointJacobians(model,data_ref_plus,q_plus);
-    framesForwardKinematics(model,data_ref_plus);
+    updateFramePlacements(model,data_ref_plus);
     const SE3 & oMf_qplus = data_ref_plus.oMf[idx];
     getFrameJacobian<WORLD>(model,data_ref_plus,idx,J_ref_plus_world);
     getFrameJacobian<LOCAL>(model,data_ref_plus,idx,J_ref_plus_local);
@@ -199,7 +302,7 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     //data
     computeJointJacobiansTimeVariation(model,data,q,v);
     forwardKinematics(model,data,q,v);
-    framesForwardKinematics(model,data);
+    updateFramePlacements(model,data);
     Data::Matrix6x dJ_world(6,model.nv), dJ_local(6,model.nv);
     dJ_world.fill(0.);    dJ_local.fill(0.);
     getFrameJacobianTimeVariation<WORLD>(model,data,idx,dJ_world);
