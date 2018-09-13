@@ -1,6 +1,8 @@
+# Please don't edit this file, and use the version generated at
+# http://rainboard.laas.fr/project/pinocchio/.gitlab-ci.yml
+
 variables:
   GIT_SUBMODULE_STRATEGY: "recursive"
-  GIT_DEPTH: "3"
   CCACHE_BASEDIR: "${CI_PROJECT_DIR}"
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
 
@@ -13,8 +15,9 @@ cache:
     - gh-pages
   script:
     - mkdir -p ccache
-    - cd /root/robotpkg/math/pinocchio
+    - cd /root/robotpkg/math
     - git pull
+    - cd pinocchio
     - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
     - make install
     - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
@@ -37,8 +40,12 @@ robotpkg-pinocchio-18.04-release:
     - gh-pages
   script:
     - mkdir -p ccache
-    - cd /root/robotpkg/math/py-pinocchio
+    - cd /root/robotpkg/math
     - git pull
+    - cd pinocchio
+    - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
+    - cd ..
+    - cd py-pinocchio
     - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
     - make install
     - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
