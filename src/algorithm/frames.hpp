@@ -87,10 +87,10 @@ namespace se3
    *
    * @warning    Fist or second order forwardKinematics should have been called first
    */
-  void getFrameVelocity(const Model & model,
-                        const Data & data,
-                        const Model::FrameIndex frame_id,
-                        Motion & frame_v);
+  inline void getFrameVelocity(const Model & model,
+                               const Data & data,
+                               const Model::FrameIndex frame_id,
+                               Motion & frame_v);
 
   /**
    * @brief      Returns the spatial acceleration of the frame expressed in the LOCAL frame coordinate system.
@@ -103,10 +103,10 @@ namespace se3
    *
    * @warning    Second order forwardKinematics should have been called first
    */
-  void getFrameAcceleration(const Model & model,
-                            const Data & data,
-                            const Model::FrameIndex frame_id,
-                            Motion & frame_a);
+  inline void getFrameAcceleration(const Model & model,
+                                   const Data & data,
+                                   const Model::FrameIndex frame_id,
+                                   Motion & frame_a);
 
 
   /**
