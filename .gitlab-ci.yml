@@ -58,6 +58,7 @@ robotpkg-py-pinocchio-14.04-release:
 robotpkg-py-pinocchio-py3-14.04-release:
   <<: *robotpkg-py-pinocchio
   image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
+  allow_failure: true
 
 robotpkg-py-pinocchio-16.04-release:
   <<: *robotpkg-py-pinocchio
@@ -66,6 +67,7 @@ robotpkg-py-pinocchio-16.04-release:
 robotpkg-py-pinocchio-py3-16.04-release:
   <<: *robotpkg-py-pinocchio
   image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:16.04
+  allow_failure: true
 
 robotpkg-py-pinocchio-18.04-release:
   <<: *robotpkg-py-pinocchio
@@ -74,6 +76,7 @@ robotpkg-py-pinocchio-18.04-release:
 robotpkg-py-pinocchio-py3-18.04-release:
   <<: *robotpkg-py-pinocchio
   image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
+  allow_failure: true
 
 doc-coverage:
   <<: *robotpkg-py-pinocchio
@@ -93,4 +96,3 @@ doc-coverage:
     paths:
       - doxygen-html/
       - coverage/
-
