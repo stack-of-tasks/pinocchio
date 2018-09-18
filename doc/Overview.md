@@ -19,47 +19,42 @@
 // <http://www.gnu.org/licenses/>.
 -->
 
+## Abstract
 
-This is the documentation of Pinocchio, the Eigen-like library for Rigid Body Dynamics computations.
-This library implements highly efficient kinematic and dynamic algorithms for multi-body systems making Pinocchio a versatile framework for robotics applications.
+We introduce Pinocchio, an open-source software framework that implements rigid body dynamics algorithms and their
+analytical derivatives. Pinocchio does not only include standard algorithms employed in robotics (e.g. forward and
+inverse dynamics) but provides additional features essential for the control, the planning and the simulation of
+robots. In this paper, we describe these features and detail the programming patterns and design which make Pinocchio
+efficient. We also offer a short tutorial for easy handling of the framework.
 
 ## Installation
 
 The full installation procedure can be found on the Github Pages of the project:
 http://stack-of-tasks.github.io/pinocchio/download.html.
 
-## Introduction
+## Simplest example with compilation command
 
-One of the main features is the separation between models (constant values representing an object) and data (used for intermediate computations).
-The two main classes are:
-- se3::Model that represents a kinematic chain composed of joints that move links with mass and inertia,
-- se3::Data that stores intermediate data for kinematic and dynamic computations.
+TODO: load urdf & run rnea
 
-### Spatial Algebra
+## More complex example with C++ & Python
 
-The library provides some classes to represent spatial quantities at the root of kinematic and dynamic computations. This main classes are reported below:
-- se3::SE3Tpl represents a rigid placement, a mathematical representation of \f$ SE(3) \f$.
-- se3::MotionTpl represents a spatial motion (linear and angular velocities), e.g. a spatial velocity or acceleration associated to a frame or a body. The spatial motion is the mathematical representation of \f$ se(3) \f$.
-- se3::ForceTpl represents a spatial force, e.g. a spatial impulse or force associated to a body. The spatial force is the mathematical representation of \f$ se^{*}(3) \f$, the dual of \f$ se(3) \f$.
-- se3::InertiaTpl represents a spatial inertia characterizing a rigid body and expressed in a given frame. This inertia is composed of mass, the position of the center of mass regarding to the frame and a rotational inertia.
+TODO: load model and run loop for an IK with 3D task
 
-### Main Algorithms
 
-### Collision checking and distance computation
+## About Python wrapings
 
-Collision checking between two bodies of the kinematic chain and external
-obstacles is implemented using library hpp-fcl (a modified version of
-Flexible Collision Library). The computation of the position of objects in 3D
-space for a given configuration is performed by the following classes:
-- se3::GeometryModel that represents the collision objects associated to a joint stored in a se3::Model,
-- se3::GeometryData that stores intermediate data like the position of objects in a given configuration of the kinematic chain.
+TODO philosophy and example
 
-## Further reading
+## How to cite Pinocchio
 
-This documentation starts with a preview of the [Mathematical Formulation of operations in
-SE(3)](md_doc_a-maths_se3.html).
+TODO: ref
 
-After this, we explain [how to use](md_doc_b-usage_intro.html) this library in different use cases, and we provide
-[quick tutorials](md_doc_c-tutorials_intro.html) for classical tasks.
+## Presentation of the content of the documentation
 
-If you need an in-depth understanding of the topic, we also have [Labs](md_doc_d-labs_intro.html) for you.
+
+
+
+
+
+
+

@@ -19,7 +19,7 @@
 #ifndef __se3_force_base_hpp__
 #define __se3_force_base_hpp__
 
-/** \addtogroup Force_group Force
+/**
  *
  *  This module represents a spatial force, e.g. a spatial impulse or force associated to a body.
  *  The spatial force is the mathematical representation of \f$ se^{*}(3) \f$, the dual of \f$ se(3) \f$.
