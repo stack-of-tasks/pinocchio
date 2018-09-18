@@ -1,6 +1,8 @@
+# Please don't edit this file, and use the version generated at
+# http://rainboard.laas.fr/project/pinocchio/.gitlab-ci.yml
+
 variables:
   GIT_SUBMODULE_STRATEGY: "recursive"
-  GIT_DEPTH: "3"
   CCACHE_BASEDIR: "${CI_PROJECT_DIR}"
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
 
@@ -13,12 +15,12 @@ cache:
     - gh-pages
   script:
     - mkdir -p ccache
-    - cd /root/robotpkg/math/pinocchio
+    - cd /root/robotpkg/math
     - git pull
+    - cd pinocchio
     - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
     - make install
     - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
-    - make build_tests
     - make test
 
 robotpkg-pinocchio-14.04-release:
@@ -38,35 +40,43 @@ robotpkg-pinocchio-18.04-release:
     - gh-pages
   script:
     - mkdir -p ccache
-    - cd /root/robotpkg/math/py-pinocchio
+    - cd /root/robotpkg/math
     - git pull
+    - cd pinocchio
+    - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
+    - cd ..
+    - cd py-pinocchio
     - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
     - make install
     - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
-
-robotpkg-py-pinocchio-py3-18.04-release:
-  <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
-
-robotpkg-py-pinocchio-16.04-release:
-  <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:16.04
-
-robotpkg-py-pinocchio-18.04-release:
-  <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
-
-robotpkg-py-pinocchio-py3-14.04-release:
-  <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
+    - make test
 
 robotpkg-py-pinocchio-14.04-release:
   <<: *robotpkg-py-pinocchio
   image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:14.04
 
+robotpkg-py-pinocchio-py3-14.04-release:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
+  allow_failure: true
+
+robotpkg-py-pinocchio-16.04-release:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:16.04
+
 robotpkg-py-pinocchio-py3-16.04-release:
   <<: *robotpkg-py-pinocchio
   image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:16.04
+  allow_failure: true
+
+robotpkg-py-pinocchio-18.04-release:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
+
+robotpkg-py-pinocchio-py3-18.04-release:
+  <<: *robotpkg-py-pinocchio
+  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
+  allow_failure: true
 
 doc-coverage:
   <<: *robotpkg-py-pinocchio
@@ -86,4 +96,3 @@ doc-coverage:
     paths:
       - doxygen-html/
       - coverage/
-

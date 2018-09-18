@@ -78,6 +78,22 @@ class RobotWrapper(object):
             return self.data.com[0], self.data.vcom[0], self.data.acom[0]
         return se3.centerOfMass(self.model, self.data, q)
 
+    def vcom(self, q, v):
+        se3.centerOfMass(self.model, self.data, q, v)
+        return self.data.vcom[0]
+
+    def acom(self, q, v, a):
+        se3.centerOfMass(self.model, self.data, q, v, a)
+        return self.data.acom[0]
+
+    def centroidalMomentum(self, q, v):
+        se3.ccrba(self.model, self.data, q, v)
+        return self.data.hg
+
+    def centroidalMomentumVariation(self, q, v, a):
+        se3.dccrba(self.model, self.data, q, v)
+        return se3.Force(self.data.Ag*a+self.data.dAg*v)
+
     def Jcom(self, q):
         return se3.jacobianCenterOfMass(self.model, self.data, q)
 
@@ -99,7 +115,11 @@ class RobotWrapper(object):
         else:
             se3.forwardKinematics(self.model, self.data, q)
 
+    @deprecated("This method is now renamed placement. Please use placement instead.")
     def position(self, q, index, update_kinematics=True):
+        return self.placement(q, index, update_kinematics)
+
+    def placement(self, q, index, update_kinematics=True):
         if update_kinematics:
             se3.forwardKinematics(self.model, self.data, q)
         return self.data.oMi[index]
@@ -114,32 +134,29 @@ class RobotWrapper(object):
             se3.forwardKinematics(self.model, self.data, q, v, a)
         return self.data.a[index]
 
+    @deprecated("This method is now renamed framePlacement. Please use framePlacement instead.")
     def framePosition(self, q, index, update_kinematics=True):
+        return self.framePlacement(q, index, update_kinematics)
+
+    def framePlacement(self, q, index, update_kinematics=True):
         if update_kinematics:
             se3.forwardKinematics(self.model, self.data, q)
-        frame = self.model.frames[index]
-        parentPos = self.data.oMi[frame.parent]
-        return parentPos.act(frame.placement)
+        return se3.updateFramePlacement(self.model, self.data, index)
 
     def frameVelocity(self, q, v, index, update_kinematics=True):
         if update_kinematics:
             se3.forwardKinematics(self.model, self.data, q, v)
-        frame = self.model.frames[index]
-        parentJointVel = self.data.v[frame.parent]
-        return frame.placement.actInv(parentJointVel)
+        return se3.getFrameVelocity(self.model, self.data, index)
 
     def frameAcceleration(self, q, v, a, index, update_kinematics=True):
         if update_kinematics:
             se3.forwardKinematics(self.model, self.data, q, v, a)
-        frame = self.model.frames[index]
-        parentJointAcc = self.data.a[frame.parent]
-        return frame.placement.actInv(parentJointAcc)
+        return se3.getFrameAcceleration(self.model, self.data, index)
 
     def frameClassicAcceleration(self, index):
-        f = self.model.frames[index]
-        a = f.placement.actInv(self.data.a[f.parent])
-        v = f.placement.actInv(self.data.v[f.parent])
-        a.linear += np.cross(v.angular.T, v.linear.T).T
+        v = se3.getFrameVelocity(self.model, self.data, index)
+        a = se3.getFrameAcceleration(self.model, self.data, index)
+        a.linear += np.cross(v.angular, v.linear, axis=0)
         return a;
 
     @deprecated("This method is now deprecated. Please use jointJacobian instead. It will be removed in release 1.4.0 of Pinocchio.")
@@ -175,9 +192,12 @@ class RobotWrapper(object):
         else:
             se3.updateGeometryPlacements(self.model, self.data, geom_model, geom_data)
 
-
+    @deprecated("This method is now renamed framesForwardKinematics. Please use framesForwardKinematics instead.")
     def framesKinematics(self, q): 
-        se3.framesKinematics(self.model, self.data, q)
+        se3.framesForwardKinematics(self.model, self.data, q)
+
+    def framesForwardKinematics(self, q): 
+        se3.framesForwardKinematics(self.model, self.data, q)
     
     '''
         It computes the Jacobian of frame given by its id (frame_id) either expressed in the
@@ -188,7 +208,7 @@ class RobotWrapper(object):
 
     '''
         Similar to getFrameJacobian but it also calls before se3.computeJointJacobians and
-        se3.framesKinematics to update internal value of self.data related to frames.
+        se3.framesForwardKinematics to update internal value of self.data related to frames.
     '''
     def frameJacobian(self, q, frame_id, rf_frame):
         return se3.frameJacobian(self.model, self.data, q, frame_id, rf_frame)
