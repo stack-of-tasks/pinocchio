@@ -574,4 +574,4 @@ INCLUDE_PATH          = @PROJECT_SOURCE_DIR@/src
 
 TAGFILES               =
 
-
+EXAMPLE_PATH = @PROJECT_SOURCE_DIR@/examples
