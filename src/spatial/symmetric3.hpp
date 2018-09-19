@@ -234,7 +234,7 @@ namespace se3
     }
     
     ///
-    /// \brief Performs the operation \f$ M = [v]_{\cross} S_{3} \f$.
+    /// \brief Performs the operation \f$ M = [v]_{\times} S_{3} \f$.
     ///        This operation is equivalent to applying the cross product of v on each column of S.
     ///
     /// \tparam Vector3, Matrix3
@@ -278,14 +278,14 @@ namespace se3
     }
     
     ///
-    /// \brief Performs the operation \f$ [v]_{\cross} S \f$.
+    /// \brief Performs the operation \f$ [v]_{\times} S \f$.
     ///        This operation is equivalent to applying the cross product of v on each column of S.
     ///
     /// \tparam Vector3
     ///
     /// \param[in]  v  a vector of dimension 3.
     ///
-    /// \returns the result \f$ [v]_{\cross} S \f$.
+    /// \returns the result \f$ [v]_{\times} S \f$.
     ///
     template<typename Vector3>
     Matrix3 vxs(const Eigen::MatrixBase<Vector3> & v) const
@@ -296,7 +296,7 @@ namespace se3
     }
     
     ///
-    /// \brief Performs the operation \f$ M = S_{3} [v]_{\cross \f$.
+    /// \brief Performs the operation \f$ M = S_{3} [v]_{\times \f$.
     ///
     /// \tparam Vector3, Matrix3
     ///
@@ -337,13 +337,13 @@ namespace se3
       M_(2,2) = d * v1 - e * v0;
     }
     
-    /// \brief Performs the operation \f$ M = S_{3} [v]_{\cross \f$.
+    /// \brief Performs the operation \f$ M = S_{3} [v]_{\times \f$.
     ///
     /// \tparam Vector3
     ///
     /// \param[in]  v  a vector of dimension 3.
     ///
-    /// \returns the result \f$ S [v]_{\cross} \f$.
+    /// \returns the result \f$ S [v]_{\times} \f$.
     ///
     template<typename Vector3>
     Matrix3 svx(const Eigen::MatrixBase<Vector3> & v) const
