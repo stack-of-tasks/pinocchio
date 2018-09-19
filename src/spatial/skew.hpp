@@ -25,7 +25,7 @@ namespace se3
   
   ///
   /// \brief Computes the skew representation of a given 3d vector,
-  ///        i.e. the antisymmetric matrix representation of the cross product operator (\f$ [v]_{\cross} x = v \cross x \f$)
+  ///        i.e. the antisymmetric matrix representation of the cross product operator (\f$ [v]_{\times} x = v \times x \f$)
   ///
   /// \param[in]  v a vector of dimension 3.
   /// \param[out] M the skew matrix representation of dimension 3x3.
@@ -65,7 +65,7 @@ namespace se3
   ///
   /// \brief Inverse of skew operator. From a given skew-symmetric matrix M
   ///        of dimension 3x3, it extracts the supporting vector, i.e. the entries of M.
-  ///        Mathematically speacking, it computes \f$ v \f$ such that \f$ M x = v \cross x \f$.
+  ///        Mathematically speacking, it computes \f$ v \f$ such that \f$ M x = v \times x \f$.
   ///
   /// \param[in]  M a 3x3 skew symmetric matrix.
   /// \param[out] v the 3d vector representation of M.
@@ -89,7 +89,7 @@ namespace se3
   ///
   /// \brief Inverse of skew operator. From a given skew-symmetric matrix M
   ///        of dimension 3x3, it extracts the supporting vector, i.e. the entries of M.
-  ///        Mathematically speacking, it computes \f$ v \f$ such that \f$ M x = v \cross x \f$.
+  ///        Mathematically speacking, it computes \f$ v \f$ such that \f$ M x = v \times x \f$.
   ///
   /// \param[in] M a 3x3 matrix.
   ///
@@ -106,7 +106,7 @@ namespace se3
 
   ///
   /// \brief Computes the skew representation of a given 3d vector multiplied by a given scalar.
-  ///        i.e. the antisymmetric matrix representation of the cross product operator (\f$ [\alpha v]_{\cross} x = \alpha v \cross x \f$)
+  ///        i.e. the antisymmetric matrix representation of the cross product operator (\f$ [\alpha v]_{\times} x = \alpha v \times x \f$)
   ///
   /// \param[in]  alpha a real scalar.
   /// \param[in]  v a vector of dimension 3.
@@ -130,7 +130,7 @@ namespace se3
   
   ///
   /// \brief Computes the skew representation of a given 3d vector multiplied by a given scalar.
-  ///        i.e. the antisymmetric matrix representation of the cross product operator (\f$ [\alpha v]_{\cross} x = \alpha v \cross x \f$)
+  ///        i.e. the antisymmetric matrix representation of the cross product operator (\f$ [\alpha v]_{\times} x = \alpha v \times x \f$)
   ///
   /// \param[in]  alpha a real scalar.
   /// \param[in]  v a vector of dimension 3.
@@ -197,7 +197,7 @@ namespace se3
   /// \param[in] Min    a 3 rows matrix.
   /// \param[out] Mout  a 3 rows matrix.
   ///
-  /// \return the results of \f$ Mout = [v]_{\cross} Min \f$.
+  /// \return the results of \f$ Mout = [v]_{\times} Min \f$.
   ///
   template <typename Vector3, typename Matrix3xIn, typename Matrix3xOut>
   inline void cross(const Eigen::MatrixBase<Vector3> & v,
@@ -221,7 +221,7 @@ namespace se3
   /// \param[in] v a vector of dimension 3.
   /// \param[in] M a 3 rows matrix.
   ///
-  /// \return the results of \f$ [v]_{\cross} M \f$.
+  /// \return the results of \f$ [v]_{\times} M \f$.
   ///
   template <typename Vector3, typename Matrix3x>
   inline typename EIGEN_PLAIN_TYPE(Matrix3x)
