@@ -21,7 +21,6 @@ from __future__ import print_function
 from . import libpinocchio_pywrap as se3 
 from .deprecation import deprecated
 
-<<<<<<< HEAD
 @deprecated("This function has been deprecated. Please use buildSampleModelHumanoid or buildSampleModelHumanoidRandom instead.")
 def buildSampleModelHumanoidSimple(usingFF=True):
     return se3.buildSampleModelHumanoidRandom(usingFF)
@@ -39,20 +38,13 @@ def _Model__BuildEmptyModel():
 se3.Model.BuildEmptyModel = staticmethod(_Model__BuildEmptyModel)
 
 @deprecated("This function has been renamed updateFramePlacements when taking two arguments, and framesForwardKinematics when taking three. Please change your code to the appropriate method.")
-=======
-@deprecated("This function has been renamed updateFramePlacements when taking two arguments, and framesForwardKinematics when taking three. Please change to the appropriate method.")
->>>>>>> [frames] renaming, bindings, RobotWrapper, deprecating
 def framesKinematics(model,data,q=None):
   if q is None:
     se3.updateFramePlacements(model,data)
   else:
     se3.framesForwardKinematics(model,data,q)
 
-<<<<<<< HEAD
 @deprecated("This function has been renamed computeJointJacobians and will be removed in release 1.4.0 of Pinocchio. Please change for new computeJointJacobians.")
-=======
-@deprecated("This function has been renamed computeJointJacobians and will be removed in release 1.4.0 of Pinocchio. Please change for new computeJacobians.")
->>>>>>> [frames] renaming, bindings, RobotWrapper, deprecating
 def computeJacobians(model,data,q=None):
   if q is None:
     return se3.computeJointJacobians(model,data)
