@@ -21,6 +21,14 @@ from __future__ import print_function
 from . import libpinocchio_pywrap as se3 
 from .deprecation import deprecated
 
+
+@deprecated("This function has been renamed updateFramePlacements when taking two arguments, and framesForwardKinematics when taking three. Please change your code to the appropriate method.")
+def framesKinematics(model,data,q=None):
+  if q is None:
+    se3.updateFramePlacements(model,data)
+  else:
+    se3.framesForwardKinematics(model,data,q)
+
 @deprecated("This function has been renamed computeJointJacobians and will be removed in release 1.4.0 of Pinocchio. Please change for new computeJointJacobians.")
 def computeJacobians(model,data,q=None):
   if q is None:
