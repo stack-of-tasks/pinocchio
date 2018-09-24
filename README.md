@@ -13,9 +13,13 @@ It is built upon Eigen for linear algebra and FCL for collision detection. **Pin
 
 **Pinocchio** is now at the hearth of various robotics softwares as the [Stack-of-Tasks](http://stack-of-tasks.github.io) or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc).
 
+## Ongoing developments
+
+If you want to follow the current developments, you can directly refer to the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel).
+
 ## Installation
 
-**Pinocchio** can be easily installed on various Linux and Unix distributions. Please refer to the [installation procedure](http://stack-of-tasks.github.io/pinocchio/download.html).
+**Pinocchio** can be easily installed on various Linux (Ubuntu, Fedora, etc.) and Unix distributions (Mac OS X, BSD, etc.). Please refer to the [installation procedure](http://stack-of-tasks.github.io/pinocchio/download.html).
 
 ## Examples
 
@@ -53,7 +57,7 @@ The content of the tutorials are described [here](http://projects.laas.fr/gepett
 
 ## Citing Pinocchio
 
-To cite **Pinocchio** in your academic research, please use the following bibtex line:
+To cite **Pinocchio** in your academic research, please use the following bibtex lines:
 ```
 @misc{pinocchioweb,
       author = {Justin Carpentier and Florian Valenza and Nicolas Mansard and others},
@@ -62,19 +66,33 @@ To cite **Pinocchio** in your academic research, please use the following bibtex
       year = {2015--2018}
      }
 ```
+
 The algorithms for the analytical derivatives of rigid-body dynamics algorithms are detailed here:
 ```
 @inproceedings{carpentier2018analytical,
-  title={Analytical Derivatives of Rigid Body Dynamics Algorithms},
-  author={Carpentier, Justin and Mansard, Nicolas},
-  booktitle={Robotics: Science and Systems},
-  year={2018}
+  title = {Analytical Derivatives of Rigid Body Dynamics Algorithms},
+  author = {Carpentier, Justin and Mansard, Nicolas},
+  booktitle = {Robotics: Science and Systems},
+  year = {2018}
 }
 ```
 
-## Questions
+## Questions and Issues
 
-You need to ask a question? You may either directly post a [new issue](https://github.com/stack-of-tasks/pinocchio/issues) or use the mailing list <pinocchio@laas.fr>
+You have a question or an issue? You may either directly open a [new issue](https://github.com/stack-of-tasks/pinocchio/issues) or use the mailing list <pinocchio@laas.fr>.
+
+## Credits
+
+The following people have been involved in the development of **Pinocchio**:
+
+- [Justin Carpentier](https://jcarpent.github.io) (INRIA): main developer and manager of the project
+- [Nicolas Mansard](http://projects.laas.fr/gepetto/index.php/Members/NicolasMansard) (LAAS-CNRS): project instructor
+- [Guilhem Saurel](http://projects.laas.fr/gepetto/index.php/Members/GuilhemSaurel) (LAAS-CNRS): continuous integration and deployment
+- [Joseph Mirabel](http://jmirabel.github.io/) (LAAS-CNRS): Lie groups support
+- [Antonio El Khoury](https://www.linkedin.com/in/antonioelkhoury) (Wandercraft): bug fixes
+- [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): bug fixes
+
+If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution here.
 
 ## Acknowledgments
 
