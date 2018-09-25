@@ -200,7 +200,7 @@ namespace se3
                 const Model::JointIndex jointId)
   {
     data.J.setZero();
-    jacobian(model,data,q,jointId,data.J);
+    jointJacobian(model,data,q,jointId,data.J);
     
     return data.J;
   }
@@ -248,8 +248,6 @@ namespace se3
   /// \brief Computes the Jacobian time variation of a specific joint frame expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL) of the joint.
   /// \note This jacobian is extracted from data.dJ. You have to run se3::computeJacobiansTimeVariation before calling it.
   ///
-  /// \deprecated This function is now deprecated. Please refer now to se3::getJointJacobianTimeVariation for similar function with updated name.
-  ///
   /// \tparam rf Reference frame in which the Jacobian is expressed.
   ///
   /// \param[in] localFrame Expressed the Jacobian in the local frame or world frame coordinates system.
@@ -267,6 +265,7 @@ namespace se3
   ///
   /// \brief Computes the Jacobian time variation of a specific joint frame expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL) of the joint.
   /// \note This jacobian is extracted from data.dJ. You have to run se3::computeJointJacobiansTimeVariation before calling it.
+  /// \deprecated This function is now deprecated. Please refer now to se3::getJointJacobianTimeVariation for similar function with updated name.  
   ///
   /// \tparam rf Reference frame in which the Jacobian is expressed.
   ///

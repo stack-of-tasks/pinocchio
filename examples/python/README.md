@@ -2,11 +2,11 @@
 
 This directory contains minimal examples on how to use **Pinocchio** with the Python bindings. 
 
-# Loading a model
+## Loading a model
 
 - Loading a URDF model: `python -i load-urdf.py`
 
-# Computing analytical derivatives of rigid body dynamics algorithms
+## Computing analytical derivatives of rigid body dynamics algorithms
 
 - Computing forward kinematics derivatives: `python -i kinematics-derivatives.py` 
 - Computing forward dynamics (fd) derivatives: `python -i fd-derivatives.py` 

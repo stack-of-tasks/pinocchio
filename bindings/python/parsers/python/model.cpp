@@ -20,17 +20,23 @@
 #include <iostream>
 #include <Python.h>
 #include <boost/shared_ptr.hpp>
+#include <boost/version.hpp>
+
+// Boost 1.58
+#if BOOST_VERSION / 100 % 1000 == 58
+#include <fstream>
+#endif
 
 namespace se3
 {
   namespace python
   {
     namespace bp = boost::python;
-    
+
     Model buildModel(const std::string & filename, const std::string & model_name, bool verbose) throw (bp::error_already_set)
     {
       Py_Initialize();
-      
+
       bp::object main_module = bp::import("__main__");
       // Get a dict for the global namespace to exec further python code with
       bp::dict globals = bp::extract<bp::dict>(main_module.attr("__dict__"));
@@ -42,13 +48,23 @@ namespace se3
       // can update as you want.
       try
       {
+// Boost 1.58
+#if BOOST_VERSION / 100 % 1000 == 58
+        // Avoid a segv with exec_file
+        // See: https://github.com/boostorg/python/pull/15
+        std::ifstream t(filename.c_str());
+        std::stringstream buffer;
+        buffer << t.rdbuf();
+        bp::exec(buffer.str().c_str(), globals);
+#else // default implementation
         bp::exec_file((bp::str)filename, globals);
+#endif
       }
       catch (bp::error_already_set & e)
       {
         PyErr_PrintEx(0);
       }
-      
+
       Model model;
       try
       {
@@ -64,10 +80,10 @@ namespace se3
         std::cout << "Your model has been built. It has " << model.nv;
         std::cout << " degrees of freedom." << std::endl;
       }
-      
+
       // close interpreter
       Py_Finalize();
-        
+
       return model;
     }
   } // namespace python
