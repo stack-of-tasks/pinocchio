@@ -3,7 +3,7 @@ Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
 
 [![License LGPL 3](https://img.shields.io/badge/license-LGPLv3-green.svg)](http://www.gnu.org/licenses/lgpl-3.0.txt)
 [![Build Status](https://travis-ci.org/stack-of-tasks/pinocchio.svg?branch=devel)](https://travis-ci.org/stack-of-tasks/pinocchio)
-[![Coverage Status](https://coveralls.io/repos/github/stack-of-tasks/pinocchio/badge.svg?branch=devel)](https://coveralls.io/github/stack-of-tasks/pinocchio?branch=devel)
+[![Coverage report](https://gepgitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/coverage.svg?job=doc-coverage)](http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/coverage/)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/7824/badge.svg)](https://scan.coverity.com/projects/pinocchio)
 
 **Pinocchio** instantiates state-of-the-art Rigid Body Algorithms for poly-articulated systems based on revisited Roy Featherstone's algorithms.
@@ -25,7 +25,7 @@ If you want to follow the current developments, you can directly refer to the [d
 
 We provide some basic examples on how to use **Pinocchio** in Python in the [examples/python](./examples/python/README.md) directory.
 
-## Tutorials 
+## Tutorials
 
 **Pinocchio** is coming with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
 The content of the tutorials are described [here](http://projects.laas.fr/gepetto/index.php/Teach/Supaero2018) and the source code of these tutorials is located [here](https://github.com/stack-of-tasks/pinocchio-tutorials).
@@ -39,16 +39,16 @@ The content of the tutorials are described [here](http://projects.laas.fr/gepett
    - pkg-config
    - Boost with components unit_test_framework
    - G++/CLANG
-   
+
 ### Core dependencies
-   - Eigen3 (version >= 3.0.5)   
-   - Boost with components filesystem 
-   
+   - Eigen3 (version >= 3.0.5)
+   - Boost with components filesystem
+
 ### Optional dependencies
    - urdfdom (version >= 0.2)
    - LUA 5.1
    - [HPP-FCL](https://github.com/humanoid-path-planner/hpp-fcl)
-   
+
 ### Python bindings
    - Python 2.7 or 3.0
    - Numpy
