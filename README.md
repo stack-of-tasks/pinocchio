@@ -23,7 +23,7 @@ If you want to follow the current developments, you can directly refer to the [d
 
 ## Examples
 
-We provide some basic examples on how to use **Pinocchio** in Python in the [examples/python](./examples/python/REAME.md) directory.
+We provide some basic examples on how to use **Pinocchio** in Python in the [examples/python](./examples/python/README.md) directory.
 
 ## Tutorials 
 
