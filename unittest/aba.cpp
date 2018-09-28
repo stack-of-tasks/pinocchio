@@ -147,16 +147,19 @@ BOOST_AUTO_TEST_CASE ( test_aba_simple )
   se3::Data data_ref(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
+  q.segment<4>(3).normalize();
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
   
-  computeAllTerms(model, data_ref, q, v);
-  data_ref.M.triangularView<Eigen::StrictlyLower>()
-    = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
-  
-  tau = data_ref.M * a + data_ref.nle;
+  tau = rnea(model, data_ref, q, v, a);
   aba(model, data, q, v, tau);
+  
+  for(size_t k = 1; k < (size_t)model.njoints; ++k)
+  {
+    BOOST_CHECK(data_ref.liMi[k].isApprox(data.liMi[k]));
+    BOOST_CHECK(data_ref.v[k].isApprox(data.v[k]));
+  }
   
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
   
