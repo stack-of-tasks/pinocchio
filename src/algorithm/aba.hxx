@@ -186,7 +186,7 @@ namespace se3
       {
         Force & pa = data.f[i];
         pa.toVector() += Ia * data.a[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
-        data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.oMi[i], Ia);
+        data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
     }
