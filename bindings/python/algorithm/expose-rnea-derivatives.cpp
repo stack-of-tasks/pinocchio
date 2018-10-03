@@ -29,6 +29,7 @@ namespace se3
                                                         const Eigen::VectorXd & q)
     {
       Data::MatrixXs res(model.nv,model.nv);
+      res.setZero();
       se3::computeGeneralizedGravityDerivatives(model,data,q,res);
       return res;
     }

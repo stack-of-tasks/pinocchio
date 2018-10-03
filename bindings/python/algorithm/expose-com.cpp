@@ -80,7 +80,9 @@ namespace se3
       
       bp::def("jacobianCenterOfMass",&jacobianCenterOfMass<double,0,JointCollectionDefaultTpl,VectorXd>,
               jacobianCenterOfMass_overload(bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)"),
+                       "Joint configuration q (size Model::nq)",
+                       "computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees",
+                       "updateKinematics If true, the algorithm updates first the geometry of the tree. Otherwise, it uses the current kinematics stored in data."),
               "Computes the jacobian of the center of mass, puts the result in Data and return it.")[
               bp::return_value_policy<bp::return_by_value>()]);
       

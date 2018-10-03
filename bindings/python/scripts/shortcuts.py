@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2016,2018 CNRS
+# Copyright (c) 2018 CNRS
 #
 # This file is part of Pinocchio
 # Pinocchio is free software: you can redistribute it
@@ -14,15 +14,8 @@
 # Pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
 
-import numpy as np
-from pinocchio.robot_wrapper import RobotWrapper
+## In this file, some shortcuts are provided ##
 
 from . import libpinocchio_pywrap as se3
-from . import utils
-from .explog import exp, log
-from .libpinocchio_pywrap import *
-from .deprecated import *
-from .shortcuts import *
 
-se3.AngleAxis.__repr__ = lambda s: 'AngleAxis(%s)' % s.vector()
-
+nle = se3.nonLinearEffects

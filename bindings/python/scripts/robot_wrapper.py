@@ -121,11 +121,15 @@ class RobotWrapper(object):
     def mass(self, q):
         return se3.crba(self.model, self.data, q)
 
+    def nle(self, q, v):
+        return se3.nonLinearEffects(self.model, self.data, q, v)
+
+    @deprecated("This method is now renamed nle. Please use nle instead.")
     def bias(self, q, v):
-        return se3.nle(self.model, self.data, q, v)
+        return se3.nonLinearEffects(self.model, self.data, q, v)
 
     def gravity(self, q):
-        return se3.rnea(self.model, self.data, q, self.v0, self.v0)
+        return se3.computeGeneralizedGravity(self.model, self.data, q)
 
     def forwardKinematics(self, q, v=None, a=None):
         if v is not None:

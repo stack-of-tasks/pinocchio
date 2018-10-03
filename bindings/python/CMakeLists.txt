@@ -195,6 +195,7 @@ SET(PYTHON_FILES
   romeo_wrapper.py
   rpy.py
   explog.py
+  shortcuts.py
   )
 
 FOREACH(python ${PYTHON_FILES})
