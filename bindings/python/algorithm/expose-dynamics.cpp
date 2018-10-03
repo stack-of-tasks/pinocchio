@@ -23,6 +23,9 @@ namespace se3
   namespace python
   {
    
+    BOOST_PYTHON_FUNCTION_OVERLOADS(forwardDynamics_overloads, forwardDynamics, 7, 9)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamics_overloads, impulseDynamics, 5, 7)
+
     void exposeDynamics()
     {
       using namespace Eigen;
@@ -32,6 +35,7 @@ namespace se3
                                     const VectorXd &, const VectorXd &, const VectorXd &,
                                     const MatrixXd &, const VectorXd &, const double, const bool))
               &forwardDynamics,
+              forwardDynamics_overloads(
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
@@ -39,23 +43,24 @@ namespace se3
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
                        "Contact drift gamma (size nb_constraint)",
                        "(double) Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.",                       
-                       "Update kinematics (if true, it updates the dynamic variable according to the current state )"),
-              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c",
-              bp::return_value_policy<bp::return_by_value>());
+                       "Update kinematics (if true, it updates the dynamic variable according to the current state)"),
+              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c"
+              )[bp::return_value_policy<bp::return_by_value>()]);
       
-      bp::def("impactDynamics",
+      bp::def("impulseDynamics",
               (const VectorXd & (*)(const Model &, Data &,
                                     const VectorXd &, const VectorXd &,
                                     const MatrixXd &, const double, const bool))
               &impulseDynamics,
+              impulseDynamics_overloads(
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity before impact v_before (size Model::nv)",
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact.",
+                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
                        "Update kinematics (if true, it updates only the joint space inertia matrix)"),
-              "Solve the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c",
-              bp::return_value_policy<bp::return_by_value>());
+              "Solve the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c"
+              )[bp::return_value_policy<bp::return_by_value>()]);
     }
     
   } // namespace python

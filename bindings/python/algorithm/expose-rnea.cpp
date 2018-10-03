@@ -48,12 +48,27 @@ namespace se3
               bp::return_value_policy<bp::return_by_value>());
       
 
-      bp::def("nle",
+      bp::def("nonLinearEffects",
               (const VectorXd & (*)(const Model &, Data &, const VectorXd &, const VectorXd &))&nonLinearEffects,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
               "Compute the Non Linear Effects (coriolis, centrifugal and gravitational effects), put the result in Data and return it.",
+              bp::return_value_policy<bp::return_by_value>());
+
+      bp::def("computeGeneralizedGravity",
+              (const VectorXd & (*)(const Model &, Data &, const VectorXd &))&computeGeneralizedGravity,
+              bp::args("Model","Data",
+                       "Configuration q (size Model::nq)"),
+              "Compute the generalized gravity contribution, put the result in Data::g and return it",
+              bp::return_value_policy<bp::return_by_value>());
+
+      bp::def("computeCoriolisMatrix",
+              (const MatrixXd & (*)(const Model &, Data &, const VectorXd &, const VectorXd &))&computeCoriolisMatrix,
+              bp::args("Model","Data",
+                       "Configuration q (size Model::nq)",
+                       "Velocity v (size Model::nv)"),
+              "Compute the Coriolis Matrix, put the result in Data::C and return it",
               bp::return_value_policy<bp::return_by_value>());
       
     }
