@@ -40,12 +40,11 @@ namespace se3
       
       if(setRandomLimits)
         idx = model.addJoint(model.getJointId(parent_name),joint,
-                             SE3::Random(),
-                             name + "_joint",
-                             TV::Random() + TV::Constant(1),
-                             TV::Random() + TV::Constant(1),
-                             CV::Random() - CV::Constant(1),
-                             CV::Random() + CV::Constant(1)
+                             placement, name + "_joint",
+                             TV::Random() + TV::Constant(1), // effort
+                             TV::Random() + TV::Constant(1), // vel
+                             CV::Random() - CV::Constant(1), // qmin
+                             CV::Random() + CV::Constant(1)  // qmax
                              );
       else
         idx = model.addJoint(model.getJointId(parent_name),joint,
@@ -90,15 +89,15 @@ namespace se3
       // root
       if(! usingFF )
       {
-        addJointAndBody(model, JointModelRX(), "universe", "ff1", Id, false);
-        addJointAndBody(model, JointModelRY(), "ff1_joint", "ff2", Id, false);
-        addJointAndBody(model, JointModelRZ(), "ff2_joint", "ff3", Id, false);
-        addJointAndBody(model, JointModelRZ(), "ff3_joint", "ff4", Id, false);
-        addJointAndBody(model, JointModelRY(), "ff4_joint", "ff5", Id, false);
-        addJointAndBody(model, JointModelRX(), "ff5_joint", "root", Id, false);
+        addJointAndBody(model, JointModelPX(), "universe", "ff1", Id);
+        addJointAndBody(model, JointModelPY(), "ff1_joint", "ff2", Id);
+        addJointAndBody(model, JointModelPZ(), "ff2_joint", "ff3", Id);
+        addJointAndBody(model, JointModelRZ(), "ff3_joint", "ff4", Id);
+        addJointAndBody(model, JointModelRY(), "ff4_joint", "ff5", Id);
+        addJointAndBody(model, JointModelRX(), "ff5_joint", "root", Id);
       }
       else
-        addJointAndBody(model, JointModelFreeFlyer(), "universe", "root", Id, false);
+        addJointAndBody(model, JointModelFreeFlyer(), "universe", "root", Id);
 
       // lleg
       addJointAndBody(model,JointModelRX(),"root_joint","lleg1");
