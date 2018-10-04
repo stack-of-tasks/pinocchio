@@ -14,13 +14,16 @@
 # Pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
 
-## In this file, are reported some depracated functions that are still maintain until the next important release 1.4.0 ##
+## In this file, are reported some deprecated functions that are still maintained until the next important release 1.4.0 ##
 
 from __future__ import print_function
 
 from . import libpinocchio_pywrap as se3 
 from .deprecation import deprecated
 
+@deprecated("This function has been renamed to impulseDynamics for consistency with the C++ interface. Please change for impulseDynamics.")
+def impactDynamics(model, data, q, v_before, J, r_coeff=0.0, update_kinematics=True):
+  return se3.impulseDynamics(model, data, q, v_before, J, r_coeff, update_kinematics)
 
 @deprecated("This function has been renamed updateFramePlacements when taking two arguments, and framesForwardKinematics when taking three. Please change your code to the appropriate method.")
 def framesKinematics(model,data,q=None):

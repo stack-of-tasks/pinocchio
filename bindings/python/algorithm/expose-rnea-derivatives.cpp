@@ -32,11 +32,22 @@ namespace se3
       data.M.triangularView<Eigen::StrictlyLower>()
       = data.M.transpose().triangularView<Eigen::StrictlyLower>();
     }
+
+    Eigen::MatrixXd
+    computeGeneralizedGravityDerivatives_proxy(const Model & model,
+                                               Data & data,
+                                               const Eigen::VectorXd & q)
+    {
+      Eigen::MatrixXd gravity_partial_dq(model.nv,model.nv);
+      gravity_partial_dq.setZero();
+      computeGeneralizedGravityDerivatives(model,data,q,gravity_partial_dq);
+      return gravity_partial_dq;
+    }
     
     void exposeRNEADerivatives()
     {
       using namespace Eigen;
-      typedef container::aligned_vector<Force> ForceAlignedVector;
+      //typedef container::aligned_vector<Force> ForceAlignedVector;
       
       bp::def("computeRNEADerivatives",
               computeRNEADerivativesDefault,
@@ -47,6 +58,12 @@ namespace se3
               "Computes the RNEA derivatives, put the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
               "which correspond to the partial derivatives of the torque output with respect to the joint configuration,\n"
               "velocity and acceleration vectors.");
+
+      bp::def("computeGeneralizedGravityDerivatives",
+              computeGeneralizedGravityDerivatives_proxy,
+              bp::args("Model","Data",
+                       "Configuration q (size Model::nq)"),
+              "Returns the derivative of the generalized gravity contribution with respect to the joint configuration.");
     }
     
     
