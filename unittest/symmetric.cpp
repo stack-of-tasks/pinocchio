@@ -20,9 +20,9 @@
  * of the basic operations), the code is validating the computation
  * performances of each methods.
  *
- * The three methods are:
+ * The two methods are:
  * - Eigen SelfAdjoint (a mask atop of a classical dense matrix) ==> the least efficient.
- * - Pinocchio rewritting of Metapod code with LTI factor as well and minor improvement.
+ * - Pinocchio rewriting of Metapod code with LTI factor as well and minor improvement.
  *
  * IMPORTANT: the following timings seems outdated.
  * Expected time scores on a I7 2.1GHz:
@@ -54,23 +54,6 @@ void timeSym3(const se3::Symmetric3 & S,
 {
   res = S.rotate(R);
 }
-
-#ifdef WITH_METAPOD
-
-#include <metapod/tools/spatial/lti.hh>
-#include <metapod/tools/spatial/rm-general.hh>
-
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(metapod::Spatial::ltI<double>)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(metapod::Spatial::RotationMatrixTpl<double>)
-
-void timeLTI(const metapod::Spatial::ltI<double>& S,
-       const metapod::Spatial::RotationMatrixTpl<double>& R, 
-       metapod::Spatial::ltI<double> & res)
-{
-  res = R.rotTSymmetricMatrix(S);
-}
-
-#endif
 
 void timeSelfAdj( const Eigen::Matrix3d & A,
       const Eigen::Matrix3d & Sdense,
