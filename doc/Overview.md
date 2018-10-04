@@ -19,22 +19,36 @@
 // <http://www.gnu.org/licenses/>.
 -->
 
-## Abstract
+# What is Pinocchio?
 
-We introduce Pinocchio, an open-source software framework that implements rigid body dynamics algorithms and their
-analytical derivatives. Pinocchio does not only include standard algorithms employed in robotics (e.g. forward and
-inverse dynamics) but provides additional features essential for the control, the planning and the simulation of
-robots. In this paper, we describe these features and detail the programming patterns and design which make Pinocchio
-efficient. We also offer a short tutorial for easy handling of the framework.
+Pinocchio is a library for efficiently computing the dynamics (and derivatives) of a robot model, and behing, any articulated rigid-body model you would like (avatar in a simulator, skeletal model for biomechanics).
+Pinocchio is one of the most efficient library for computing the dynamics of articulated bodies.
+It implements the classical algorithms following the methods described in Featherstone 2009 book (many thanks to him).
+It also introduce efficient variations of some of these algorithms, some new ones and algorithms to compute the derivatives of the main algorithms.
 
-## Installation
+Pinocchio is open-source, mostly written in C++ with Python bindings, and distributed under LGPL-v3 licence.
+Contributions are welcome.
+
+In this doc, we will find the usual description of the library functionalities, a quick tutorial to catch over the mathematics behind the implementation, a bunch of examples about how to implement classical applications (inverse kinematics, contact dynamics, collision detection, etc) and a set of practical exercices for beginners.
+
+# Installation
+
+Pinocchio is best installed from APT packaging on Ubuntu 14.04 and 16.04, from our repository.
+Every released is validated in the main Linux distribution and OSX, for which installation from source should be straightforward.
 
 The full installation procedure can be found on the Github Pages of the project:
 http://stack-of-tasks.github.io/pinocchio/download.html.
 
-## Simplest example with compilation command
+# Simplest example with compilation command
 
-TODO: load urdf & run rnea
+## C++
+\include overview-simple.cpp
+
+## Python
+\include overview-simple.py
+
+
+
 
 ## More complex example with C++ & Python
 
