@@ -3,9 +3,9 @@ import pinocchio
 model = pinocchio.Model.BuildHumanoidSimple()
 data = model.createData()
 
-q = pinocchio.randomConfiguration(model)
-v = pinocchio.utils.rand(model.nv)
-a = pinocchio.utils.rand(model.nv)
+q = pinocchio.neutral(model)
+v = pinocchio.utils.zero(model.nv)
+a = pinocchio.utils.zero(model.nv)
 
-pinocchio.rnea(model,data,q,v,a)
-
+rnea = pinocchio.rnea(model,data,q,v,a)
+print(rnea.T)
