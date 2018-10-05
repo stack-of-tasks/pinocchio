@@ -89,8 +89,8 @@ doc-coverage:
     - make doc
     - mv doc/doxygen-html ${CI_PROJECT_DIR}
     - mkdir -p ${CI_PROJECT_DIR}/coverage/
-    - gcovr -r . --exclude bindings/python
-    - gcovr -r . --exclude bindings/python --html --html-details -o ${CI_PROJECT_DIR}/coverage/index.html
+    - gcovr -r . --exclude .*bindings/python
+    - gcovr -r . --exclude .*bindings/python --html --html-details -o ${CI_PROJECT_DIR}/coverage/index.html
   artifacts:
     expire_in: 1 day
     paths:
