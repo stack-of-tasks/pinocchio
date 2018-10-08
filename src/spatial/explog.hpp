@@ -78,7 +78,40 @@ namespace se3
       return res;
     }
   }
-
+  
+  /// \brief Exp: so3 -> SO3 (quaternion)/
+  ///
+  /// Return the integral of the velocity vector as a queternion.
+  ///
+  /// \param[in] v The angular velocity vector.
+  /// \param[out] qout The quanternion where the result is stored.
+  ///
+  template<typename Vector3Like, typename QuaternionLike>
+  void exp3(const Eigen::MatrixBase<Vector3Like> & v,
+            Eigen::QuaternionBase<QuaternionLike> & quat_out)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
+    assert(v.size() == 3);
+    
+    typedef typename Vector3Like::Scalar Scalar;
+    
+    const Scalar t2 = v.squaredNorm();
+    
+    const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon()); // Precision for the Taylor series expansion.
+    if(t2 > ts_prec)
+    {
+      const Scalar t = math::sqrt(t2);
+      Eigen::AngleAxis<Scalar> aa(t,v/t);
+      quat_out = aa;
+    }
+    else
+    {
+      quat_out.vec().noalias() = (Scalar(1/2) - t2/48) * v;
+      quat_out.w() = Scalar(1) - t2/8;
+    }
+    
+  }
+  
   /// \brief Same as \ref log3
   ///
   /// \param[in] R the rotation matrix.
