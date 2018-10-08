@@ -42,6 +42,22 @@ BOOST_AUTO_TEST_CASE(exp)
   
   BOOST_CHECK(R.isApprox(M.rotation()));
   
+  R = exp3(SE3::Vector3::Zero());
+  BOOST_CHECK(R.isIdentity());
+  
+  // Quaternion
+  Eigen::Quaterniond quat;
+  exp3(v.angular(),quat);
+  BOOST_CHECK(quat.toRotationMatrix().isApprox(M.rotation()));
+
+  exp3(SE3::Vector3::Zero(),quat);
+  BOOST_CHECK(quat.toRotationMatrix().isIdentity());
+  
+  // Check QuaternionMap
+  Eigen::Vector4d vec4;
+  Eigen::QuaternionMapd quat_map(vec4.data());
+  exp3(v.angular(),quat_map);
+  BOOST_CHECK(quat_map.toRotationMatrix().isApprox(M.rotation()));
 }
 
 BOOST_AUTO_TEST_CASE(explog3)
