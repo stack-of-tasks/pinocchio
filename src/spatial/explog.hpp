@@ -179,7 +179,6 @@ namespace se3
       c = n2_inv * (1 - a);
     }
 
-    Jout.setZero();
     Jout.diagonal().setConstant(a);
 
     Jout(0,1) = -b*r[2]; Jout(1,0) = -Jout(0,1);
