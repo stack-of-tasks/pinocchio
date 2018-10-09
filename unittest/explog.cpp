@@ -111,6 +111,15 @@ BOOST_AUTO_TEST_CASE(explog3)
   Motion::Vector3 v; v.setRandom();
   Motion::Vector3 v_res = log3(exp3(v));
   BOOST_CHECK(v_res.isApprox(v));
+  
+  Eigen::Quaterniond quat;
+  quat = M.rotation();
+  Eigen::Quaterniond quat_res;
+  exp3(log3(quat),quat_res);
+  BOOST_CHECK(quat_res.isApprox(quat) || quat_res.coeffs().isApprox(-quat.coeffs()));
+  
+  exp3(v,quat);
+  BOOST_CHECK(log3(quat).isApprox(v));
 }
 
 BOOST_AUTO_TEST_CASE(Jlog3_fd)
