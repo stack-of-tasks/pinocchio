@@ -60,6 +60,48 @@ BOOST_AUTO_TEST_CASE(exp)
   BOOST_CHECK(quat_map.toRotationMatrix().isApprox(M.rotation()));
 }
 
+BOOST_AUTO_TEST_CASE(log)
+{
+  SE3 M(SE3::Identity());
+  Motion v(Motion::Random()); v.linear().setZero();
+  
+  SE3::Vector3 omega = log3(M.rotation());
+  BOOST_CHECK(omega.isZero());
+  
+  M.setRandom();
+  M.translation().setZero();
+  
+  v = log6(M);
+  omega = log3(M.rotation());
+  BOOST_CHECK(omega.isApprox(v.angular()));
+  
+  // Quaternion
+  Eigen::Quaterniond quat(SE3::Matrix3::Identity());
+  omega = log3(quat);
+  BOOST_CHECK(omega.isZero());
+
+  for(int k = 0; k < 1e3; ++k)
+  {
+    quat = M.rotation();
+    BOOST_CHECK(quat.toRotationMatrix().isApprox(M.rotation()));
+    double theta;
+    omega = log3(quat,theta);
+    const double PI_value = PI<double>();
+    BOOST_CHECK(omega.norm() <= PI_value);
+    double theta_ref;
+    SE3::Vector3 omega_ref = log3(quat.toRotationMatrix(),theta_ref);
+    
+    BOOST_CHECK(omega.isApprox(omega_ref));
+  }
+
+
+  // Check QuaternionMap
+  Eigen::Vector4d vec4;
+  Eigen::QuaternionMapd quat_map(vec4.data());
+  quat_map = SE3::Random().rotation();
+  BOOST_CHECK(log3(quat_map).isApprox(log3(quat_map.toRotationMatrix())));
+}
+
 BOOST_AUTO_TEST_CASE(explog3)
 {
   SE3 M(SE3::Random());
