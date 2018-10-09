@@ -106,7 +106,7 @@ namespace se3
     }
     else
     {
-      quat_out.vec().noalias() = (Scalar(1/2) - t2/48) * v;
+      quat_out.vec().noalias() = (Scalar(1)/Scalar(2) - t2/48) * v;
       quat_out.w() = Scalar(1) - t2/8;
     }
     
