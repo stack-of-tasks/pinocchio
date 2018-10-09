@@ -143,6 +143,34 @@ BOOST_AUTO_TEST_CASE(Jlog3_fd)
   BOOST_CHECK(Jfd.isApprox(Jlog, step));
 }
 
+BOOST_AUTO_TEST_CASE(Jexp3_quat_fd)
+{
+  typedef double Scalar;
+  SE3 M(SE3::Random());
+  SE3::Matrix3 R(M.rotation());
+  SE3::Quaternion quat(R);
+  
+  typedef Eigen::Matrix<Scalar,4,3> Matrix43;
+  Matrix43 Jexp3, Jexp3_fd;
+  se3::Jexp3(quat,Jexp3);
+  
+  SE3::Vector3 dw; dw.setZero();
+  const double eps = 1e-8;
+  
+  SE3::Quaternion dquat, quat_plus;
+  for(int i = 0; i < 3; ++i)
+  {
+    dw[i] = eps;
+    dquat.vec() = dw;
+    dquat.w() = 0.;
+    quat_plus = quat * dquat;
+    Jexp3_fd.col(i) = (quat_plus.coeffs()) / eps;
+    dw[i] = 0;
+  }
+  
+  BOOST_CHECK(Jexp3.isApprox(Jexp3_fd));
+}
+
 BOOST_AUTO_TEST_CASE(Jexplog3)
 {
   Motion v(Motion::Random());
