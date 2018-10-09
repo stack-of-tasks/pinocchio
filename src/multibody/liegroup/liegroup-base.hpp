@@ -78,12 +78,15 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                    const Eigen::MatrixBase<ConfigOut_t>& qout) const;
 
     /**
-     * @brief      Computes the Jacobian of the Integrate operation.
+     * @brief      Computes the Jacobian of the log of the Integrate operation with respect to the configuration vector.
      *
-     * @param[in]  q    configuration
-     * @param[in]  v    tangent velocity.
+     * @details    This Jacobian corresponds to the Jacobian of \f$ (\bm{q} \oplus \delta \bm{q}) \oplus \bm{v} \f$ with
+     *             \f$ \delta \bm{q} \rightarrow 0 \f$.
      *
-     * @param[out] J    the Jacobian of the Integrate operation wrt q.
+     * @param[in]  q    configuration vector.
+     * @param[in]  v    tangent vector.
+     *
+     * @param[out] J    the Jacobian of the log of the Integrate operation w.r.t. the configuration vector q.
      */
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
@@ -91,12 +94,15 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                        const Eigen::MatrixBase<JacobianOut_t>& J) const;
 
     /**
-     * @brief      Computes the Jacobian of the Integrate operation.
+     * @brief      Computes the Jacobian of the log of the Integrate operation with respect to the tangent vector.
      *
-     * @param[in]  q    configuration
-     * @param[in]  v    tangent velocity.
+     * @details    This Jacobian corresponds to the Jacobian of \f$ \bm{q} \oplus (\bm{v}  + \delta \bm{v}) \f$ with
+     *             \f$ \delta \bm{v} \rightarrow 0 \f$.
      *
-     * @param[out] J    the Jacobian of the Integrate operation wrt v.
+     * @param[in]  q    configuration vector.
+     * @param[in]  v    tangent vector.
+     *
+     * @param[out] J    the Jacobian of the log of the Integrate operation w.r.t. the tangent vector v.
      */
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
