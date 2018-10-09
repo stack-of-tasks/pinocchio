@@ -342,8 +342,8 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & v,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
-      Jout = exp3(v).transpose();
+      JacobianOut_t & Jout = const_cast< JacobianOut_t& >(J.derived());
+      Jout = exp3(-v);
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -351,7 +351,7 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & v,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      Jexp3 (v, J.derived());
+      Jexp3(v, J.derived());
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
