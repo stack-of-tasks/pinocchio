@@ -224,6 +224,7 @@ struct LieGroup_Jdifference{
   }
 };
 
+template<bool around_identity>
 struct LieGroup_Jintegrate{
   template <typename T>
   void operator()(const T ) const
@@ -236,7 +237,11 @@ struct LieGroup_Jintegrate{
     T lg;
     ConfigVector_t q = lg.random();
     TangentVector_t v, dq, dv;
-    v.setRandom();
+    if(around_identity)
+      v.setZero();
+    else
+      v.setRandom();
+    
     dq.setZero();
     dv.setZero();
 
@@ -335,7 +340,10 @@ BOOST_AUTO_TEST_CASE ( Jintegrate )
                                >
                              > Types;
   for (int i = 0; i < 20; ++i)
-    boost::mpl::for_each<Types>(LieGroup_Jintegrate());
+    boost::mpl::for_each<Types>(LieGroup_Jintegrate<false>());
+  
+  // Around identity
+  boost::mpl::for_each<Types>(LieGroup_Jintegrate<true>());
 }
 
 BOOST_AUTO_TEST_CASE ( test_vector_space )
