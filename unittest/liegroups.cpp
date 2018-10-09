@@ -214,8 +214,7 @@ struct LieGroup_Jdifference{
         lg.difference (q_dv[0], q_dv[1], vb);
 
         // vb - va ~ J[k] * dv
-
-        TangentVector_t J_dv = J[k]*dv / eps;
+        TangentVector_t J_dv = J[k].col(i);
         TangentVector_t vb_va = (vb - va) / eps;
         EIGEN_VECTOR_IS_APPROX (vb_va, J_dv, 1e-2);
         dv[i] = 0;
