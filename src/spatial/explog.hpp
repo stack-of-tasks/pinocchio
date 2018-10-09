@@ -97,7 +97,7 @@ namespace se3
     
     const Scalar t2 = v.squaredNorm();
     
-    const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon()); // Precision for the Taylor series expansion.
+    static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon()); // Precision for the Taylor series expansion.
     if(t2 > ts_prec)
     {
       const Scalar t = math::sqrt(t2);
@@ -126,8 +126,8 @@ namespace se3
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3);
     typedef typename Matrix3Like::Scalar Scalar;
-    typedef Eigen::Matrix<Scalar,3,1,Eigen::internal::traits<Matrix3Like>::Options> Vector3;
-
+    typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
+    
     static const Scalar PI_value = PI<Scalar>();
     
     Vector3 res;
@@ -161,7 +161,7 @@ namespace se3
     
     return res;
   }
-
+  
   /// \brief Log: SO3 -> so3.
   ///
   /// Pseudo-inverse of log from \f$ SO3 -> { v \in so3, ||v|| \le pi } \f$.
@@ -177,7 +177,71 @@ namespace se3
     typename Matrix3Like::Scalar theta;
     return log3(R.derived(),theta);
   }
+  
+  /// \brief Same as \ref log3 but with quaternion vector as input.
+  ///
+  /// \param[in] quat the quaternion vector.
+  /// \param[out] theta the angle value.
+  ///
+  /// \return The angular velocity vector associated to the rotation matrix.
+  ///
+  template<typename QuaternionLike>
+  Eigen::Matrix<typename QuaternionLike::Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
+  log3(const Eigen::QuaternionBase<QuaternionLike> & quat,
+       typename QuaternionLike::Scalar & theta)
+  {
+    typedef typename QuaternionLike::Scalar Scalar;
+    typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options> Vector3;
 
+    Vector3 res;
+    const Scalar norm_squared = quat.vec().squaredNorm();
+    const Scalar norm = math::sqrt(norm_squared);
+    static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon());
+    if(norm_squared < ts_prec)
+    {
+      const Scalar y_x = norm / quat.w();
+      theta = (1 - y_x * y_x / 3) * y_x;
+      res.noalias() = (Scalar(1) + norm_squared / (6 * quat.w() * quat.w())) * quat.vec();
+    }
+    else
+    {
+      static const Scalar PI_value = PI<Scalar>();
+      Scalar theta_2;
+      // Here, y is always positive
+      if(quat.w() >= 0.) // x >= 0. in atan2(y,x)
+      {
+        theta_2 = math::atan2(norm,quat.w());
+        theta = 2.*theta_2;
+        res.noalias() = (theta / math::sin(theta_2)) * quat.vec();
+      }
+      else
+      { // We take here the oposite as we want to have theta in [-pi;pi];
+        theta_2 = PI_value - math::atan2(norm,quat.w());
+        theta = 2.*theta_2;
+        res.noalias() = -(theta / math::sin(theta_2)) * quat.vec();
+      }
+    }
+    
+    return res;
+  }
+  
+  /// \brief Log: SO3 -> so3.
+  ///
+  /// Pseudo-inverse of log from \f$ SO3 -> { v \in so3, ||v|| \le pi } \f$.
+  ///
+  /// \param[in] R The rotation matrix.
+  ///
+  /// \return The angular velocity vector associated to the rotation matrix.
+  ///
+  template<typename QuaternionLike>
+  Eigen::Matrix<typename QuaternionLike::Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
+  log3(const Eigen::QuaternionBase<QuaternionLike> & quat)
+  {
+    typename QuaternionLike::Scalar theta;
+    return log3(quat.derived(),theta);
+  }
+
+  
   /// \brief Derivative of \f$ \exp{r} \f$
   /// \f[
   ///     \frac{\sin{||r||}}{||r||}                       I_3
