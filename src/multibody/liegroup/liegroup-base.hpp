@@ -300,6 +300,6 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
 
 } // namespace se3
 
-#include "pinocchio/multibody/liegroup/operation-base.hxx"
+#include "pinocchio/multibody/liegroup/liegroup-base.hxx"
 
 #endif // ifndef __se3_lie_group_operation_base_hpp__
