@@ -472,7 +472,7 @@ namespace se3
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
       JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
-      Jout = exp6(-MotionRef<Tangent_t>(v)).toActionMatrix();
+      Jout = exp6(MotionRef<Tangent_t>(v)).toDualActionMatrix().transpose();
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
