@@ -66,6 +66,8 @@ namespace se3
     typedef container::aligned_vector<JointModel> JointModelVector;
     typedef container::aligned_vector<JointData> JointDataVector;
     
+    typedef container::aligned_vector<Frame> FrameVector;
+    
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
     
@@ -128,7 +130,7 @@ namespace se3
     ConfigVectorType upperPositionLimit;
 
     /// \brief Vector of operational frames registered on the model.
-    container::aligned_vector<Frame> frames;
+    FrameVector frames;
     
     /// \brief Vector of subtrees.
     /// subtree[j] corresponds to the subtree supported by the joint *j*.
