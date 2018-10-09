@@ -235,8 +235,9 @@ struct LieGroup_Jintegrate{
 
     T lg;
     ConfigVector_t q = lg.random();
-    TangentVector_t v, dv;
+    TangentVector_t v, dq, dv;
     v.setRandom();
+    dq.setZero();
     dv.setZero();
 
     ConfigVector_t q_v = lg.integrate (q, v);
@@ -248,22 +249,22 @@ struct LieGroup_Jintegrate{
     const Scalar eps = 1e-6;
     for (int i = 0; i < v.size(); ++i)
     {
-      dv[i] = eps;
-      ConfigVector_t q_dv = lg.integrate (q, dv);
+      dq[i] = dv[i] = eps;
+      ConfigVector_t q_dq = lg.integrate (q, dq);
 
-      ConfigVector_t q_dv_v = lg.integrate (q_dv, v);
-      TangentVector_t Jq_dv = Jq*dv / eps;
+      ConfigVector_t q_dq_v = lg.integrate (q_dq, v);
+      TangentVector_t Jq_dq = Jq.col(i);
       // q_dv_v - q_v ~ Jq dv
-      TangentVector_t dI_dq = lg.difference (q_v, q_dv_v) / eps;
-      EIGEN_VECTOR_IS_APPROX (dI_dq, Jq_dv, 1e-2);
+      TangentVector_t dI_dq = lg.difference (q_v, q_dq_v) / eps;
+      EIGEN_VECTOR_IS_APPROX (dI_dq, Jq_dq, 1e-2);
 
       ConfigVector_t q_v_dv = lg.integrate (q, (v+dv).eval());
-      TangentVector_t Jv_dv = Jv*dv / eps;
+      TangentVector_t Jv_dv = Jv.col(i);
       // q_v_dv - q_v ~ Jv dv
       TangentVector_t dI_dv = lg.difference (q_v, q_v_dv) / eps;
       EIGEN_VECTOR_IS_APPROX (dI_dv, Jv_dv, 1e-2);
 
-      dv[i] = 0;
+      dq[i] = dv[i] = 0;
     }
   }
 };
