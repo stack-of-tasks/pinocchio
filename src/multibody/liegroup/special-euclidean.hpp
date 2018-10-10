@@ -83,11 +83,11 @@ namespace se3
       {
         typename EIGEN_PLAIN_TYPE(Vector2Like) vcross(-v(1), v(0));
         vcross /= omega;
-        const_cast<Vector2Like &>(t.derived()).noalias() = vcross - R * vcross;
+        EIGEN_CONST_CAST(Vector2Like,t).noalias() = vcross - R * vcross;
       }
       else
       {
-        const_cast<Vector2Like &>(t.derived()) = v.template head<2>();
+        EIGEN_CONST_CAST(Vector2Like,t) = v.template head<2>();
       }
     }
 
@@ -102,8 +102,8 @@ namespace se3
       
       typedef typename Matrix3Like::Scalar Scalar;
       
-      Matrix3Like & Mout = const_cast<Matrix3Like&>(M.derived());
-      Mout.template topLeftCorner<2,2>().noalias() = R.transpose();
+      Matrix3Like & Mout = EIGEN_CONST_CAST(Matrix3Like,M);
+      Mout.template topLeftCorner<2,2>() = R.transpose();
       typename EIGEN_PLAIN_TYPE(Vector2Like) tinv(R.transpose() * t);
       Mout.template topRightCorner<2,1>() << - tinv(1), tinv(0);
       Mout.template bottomLeftCorner<1,2>().setZero();
@@ -119,7 +119,7 @@ namespace se3
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector2Like, 2);
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,TangentVector);
       
-      TangentVector & vout = const_cast<TangentVector &>(v.derived());
+      TangentVector & vout = EIGEN_CONST_CAST(TangentVector,v);
 
       typedef typename Matrix2Like::Scalar Scalar1;
       
@@ -152,7 +152,7 @@ namespace se3
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector2Like, 2);
       EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianOutLike, JacobianMatrix_t);
       
-      JacobianOutLike & Jout = const_cast<JacobianOutLike &>(J.derived());
+      JacobianOutLike & Jout = EIGEN_CONST_CAST(JacobianOutLike,J);
 
       typedef typename Matrix2Like::Scalar Scalar1;
       
@@ -216,8 +216,9 @@ namespace se3
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      if (q0 == q1) {
-        (const_cast <Eigen::MatrixBase<Tangent_t> &> (d)).setZero ();
+      if (q0 == q1)
+      {
+        EIGEN_CONST_CAST(Tangent_t,d).setZero();
         return;
       }
       Matrix2 R0, R1; Vector2 t0, t1;
@@ -226,7 +227,7 @@ namespace se3
       Matrix2 R (R0.transpose() * R1);
       Vector2 t (R0.transpose() * (t1 - t0));
 
-      log (R, t, d);
+      log(R, t, d);
     }
 
     template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
@@ -246,10 +247,10 @@ namespace se3
       // pcross = [ y1-y0, - (x1 - x0) ]
       Vector2 pcross (q1(1) - q0(1), q0(0) - q1(0));
 
-      JacobianLOut_t& J0v = const_cast< JacobianLOut_t& > (J0.derived());
-      J0v.template topLeftCorner <2,2> ().noalias() = - R.transpose();
-      J0v.template topRightCorner<2,1> ().noalias() = R1.transpose() * pcross;
-      J0v.template bottomLeftCorner <1,2> ().setZero();
+      JacobianLOut_t & J0v = EIGEN_CONST_CAST(JacobianLOut_t,J0);
+      J0v.template topLeftCorner <2,2>() = - R.transpose();
+      J0v.template topRightCorner<2,1>().noalias() = R1.transpose() * pcross;
+      J0v.template bottomLeftCorner<1,2>().setZero();
       J0v (2,2) = -1;
       J0v.applyOnTheLeft(J1);
     }
@@ -259,7 +260,7 @@ namespace se3
                                const Eigen::MatrixBase<Velocity_t> & v,
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
-      ConfigOut_t& out = const_cast< ConfigOut_t& >(qout.derived());
+      ConfigOut_t & out = EIGEN_CONST_CAST(ConfigOut_t,qout);
 
       Matrix2 R0, R;
       Vector2 t0, t;
@@ -275,7 +276,7 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & v,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
 
       Matrix2 R;
       Vector2 t;
@@ -285,11 +286,11 @@ namespace se3
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
-    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
-                                   const Eigen::MatrixBase<Tangent_t>  & v,
-                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t> & v,
+                                   const Eigen::MatrixBase<JacobianOut_t> & J)
     {
-      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
       // TODO sparse version
       MotionTpl<Scalar,0> nu; nu.toVector() << v.template head<2>(), 0, 0, 0, v[2]; 
       Eigen::Matrix<Scalar,6,6> Jtmp6;
@@ -311,8 +312,7 @@ namespace se3
     template <class Config_t>
     static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
     {
-      Config_t& qout_ = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
-      qout_.template tail<2>().normalize();
+      EIGEN_CONST_CAST(Config_t,qout).template tail<2>().normalize();
     }
 
     template <class Config_t>
@@ -409,13 +409,14 @@ namespace se3
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      if (q0 == q1) {
-        (const_cast < Eigen::MatrixBase<Tangent_t>& > (d)).setZero ();
+      if (q0 == q1)
+      {
+        EIGEN_CONST_CAST(Tangent_t,d).setZero();
         return;
       }
       ConstQuaternionMap_t p0 (q0.derived().template tail<4>().data());
       ConstQuaternionMap_t p1 (q1.derived().template tail<4>().data());
-      const_cast < Eigen::MatrixBase<Tangent_t>& > (d)
+      EIGEN_CONST_CAST(Tangent_t,d)
         = log6(  SE3(p0.matrix(), q0.derived().template head<3>()).inverse()
                * SE3(p1.matrix(), q1.derived().template head<3>())).toVector();
     }
@@ -438,11 +439,11 @@ namespace se3
       typename SE3::Vector3 p1_p0 (q1.derived().template head<3>()
                                    - q0.derived().template head<3>());
 
-      JacobianLOut_t& J0v = const_cast< JacobianLOut_t& > (J0.derived());
-      J0v.template topLeftCorner <3,3> ().noalias() = - M.rotation().transpose();
+      JacobianLOut_t& J0v = EIGEN_CONST_CAST(JacobianLOut_t,J0);
+      J0v.template topLeftCorner <3,3> () = - M.rotation().transpose();
       J0v.template topRightCorner<3,3> ().noalias() = R1.transpose() * skew (p1_p0) * R0;
       J0v.template bottomLeftCorner <3,3> ().setZero();
-      J0v.template bottomRightCorner<3,3> ().noalias() = - M.rotation().transpose();
+      J0v.template bottomRightCorner<3,3> () = - M.rotation().transpose();
       J0v.applyOnTheLeft(J1);
     }
 
@@ -451,7 +452,7 @@ namespace se3
                                const Eigen::MatrixBase<Velocity_t> & v,
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
-      ConfigOut_t& out = (const_cast< Eigen::MatrixBase<ConfigOut_t>& >(qout)).derived();
+      ConfigOut_t & out = EIGEN_CONST_CAST(ConfigOut_t,qout);
       ConstQuaternionMap_t quat(q.derived().template tail<4>().data());
       QuaternionMap_t res_quat (out.template tail<4>().data());
 
@@ -471,7 +472,7 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & v,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout = exp6(MotionRef<Tangent_t>(v)).toDualActionMatrix().transpose();
     }
 

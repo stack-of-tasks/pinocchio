@@ -87,7 +87,7 @@ namespace se3
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      const_cast< Eigen::MatrixBase<Tangent_t>& > (d) = q1 - q0;
+      EIGEN_CONST_CAST(Tangent_t,d) = q1 - q0;
     }
 
     template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
@@ -96,9 +96,9 @@ namespace se3
                                  const Eigen::MatrixBase<JacobianLOut_t>& J0,
                                  const Eigen::MatrixBase<JacobianROut_t>& J1)
     {
-      const_cast< JacobianLOut_t& > (J0.derived()).setZero();
-      const_cast< JacobianLOut_t& > (J0.derived()).diagonal().setConstant(-1);
-      const_cast< JacobianROut_t& > (J1.derived()).setIdentity();
+      EIGEN_CONST_CAST(JacobianLOut_t,J0).setZero();
+      EIGEN_CONST_CAST(JacobianLOut_t,J0).diagonal().setConstant(-1);
+      EIGEN_CONST_CAST(JacobianROut_t,J1).setIdentity();
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -113,7 +113,7 @@ namespace se3
     static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> &,
                                 const Eigen::MatrixBase<JacobianOut_t> & J)
     {
-      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+      EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -121,7 +121,7 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+      EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -129,7 +129,7 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+      EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
 
 
@@ -144,7 +144,7 @@ namespace se3
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
-      const_cast< Eigen::MatrixBase<Config_t>& > (qout).setRandom();
+      EIGEN_CONST_CAST(Config_t,qout).setRandom();
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -153,7 +153,7 @@ namespace se3
      const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
      const Eigen::MatrixBase<ConfigOut_t> & qout) const
     {
-      ConfigOut_t& res = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
+      ConfigOut_t & res = EIGEN_CONST_CAST(ConfigOut_t,qout).derived();
       for (int i = 0; i < nq (); ++i)
       {
         if(lower_pos_limit[i] == -std::numeric_limits<typename ConfigL_t::Scalar>::infinity() ||

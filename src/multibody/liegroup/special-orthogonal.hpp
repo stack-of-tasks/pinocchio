@@ -128,14 +128,14 @@ namespace se3
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
       if (q0 == q1) {
-        (const_cast < Tangent_t& > (d.derived())).setZero ();
+        EIGEN_CONST_CAST(Tangent_t,d).setZero();
         return;
       }
       Matrix2 R; // R0.transpose() * R1;
       R(0,0) = R(1,1) = q0.dot(q1);
       R(1,0) = q0(0) * q1(1) - q0(1) * q1(0);
       R(0,1) = - R(1,0);
-      const_cast < Tangent_t& > (d.derived()) [0] = log (R);
+      EIGEN_CONST_CAST(Tangent_t,d)[0] = log(R);
     }
 
     template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
@@ -150,8 +150,8 @@ namespace se3
       R(0,1) = - R(1,0);
 
       Scalar w (Jlog(R));
-      const_cast< JacobianLOut_t& > (J0.derived()).coeffRef(0,0) = -w;
-      const_cast< JacobianROut_t& > (J1.derived()).coeffRef(0,0) =  w;
+      EIGEN_CONST_CAST(JacobianLOut_t,J0).coeffRef(0,0) = -w;
+      EIGEN_CONST_CAST(JacobianROut_t,J1).coeffRef(0,0) =  w;
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -159,7 +159,7 @@ namespace se3
                                const Eigen::MatrixBase<Velocity_t> & v,
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
-      ConfigOut_t& out = (const_cast< Eigen::MatrixBase<ConfigOut_t>& >(qout)).derived();
+      ConfigOut_t & out = EIGEN_CONST_CAST(ConfigOut_t,qout);
 
       const Scalar & ca = q(0);
       const Scalar & sa = q(1);
@@ -179,7 +179,7 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout(0,0) = 1;
     }
 
@@ -188,7 +188,7 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      JacobianOut_t& Jout = const_cast< JacobianOut_t& >(J.derived());
+      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout(0,0) = 1;
     }
 
@@ -198,10 +198,10 @@ namespace se3
                                  const Scalar& u,
                                  const Eigen::MatrixBase<ConfigOut_t>& qout)
     {
-      ConfigOut_t& out = (const_cast< Eigen::MatrixBase<ConfigOut_t>& >(qout)).derived();
+      ConfigOut_t & out = EIGEN_CONST_CAST(ConfigOut_t,qout);
 
-      assert ( (q0.norm() - 1) < 1e-8 && "initial configuration not normalized");
-      assert ( (q1.norm() - 1) < 1e-8 && "final configuration not normalized");
+      assert ( std::abs(q0.norm() - 1) < 1e-8 && "initial configuration not normalized");
+      assert ( std::abs(q1.norm() - 1) < 1e-8 && "final configuration not normalized");
       Scalar cosTheta = q0.dot(q1);
       Scalar sinTheta = q0(0)*q1(1) - q0(1)*q1(0);
       Scalar theta = atan2(sinTheta, cosTheta);
@@ -239,7 +239,7 @@ namespace se3
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
-      Config_t& out = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
+      Config_t & out = EIGEN_CONST_CAST(Config_t,qout);
       
       const Scalar PI_value = PI<Scalar>();
       const Scalar angle = -PI_value + Scalar(2)* PI_value * ((Scalar)rand())/RAND_MAX;
@@ -297,12 +297,12 @@ namespace se3
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
       if (q0 == q1) {
-        (const_cast < Eigen::MatrixBase<Tangent_t>& > (d)).setZero ();
+        EIGEN_CONST_CAST(Tangent_t,d).setZero();
         return;
       }
       ConstQuaternionMap_t p0 (q0.derived().data());
       ConstQuaternionMap_t p1 (q1.derived().data());
-      const_cast < Eigen::MatrixBase<Tangent_t>& > (d)
+      EIGEN_CONST_CAST(Tangent_t,d)
         = log3((p0.matrix().transpose() * p1.matrix()).eval());
     }
 
@@ -317,9 +317,7 @@ namespace se3
       Eigen::Matrix<Scalar, 3, 3> R = p0.matrix().transpose() * p1.matrix();
 
       Jlog3 (R, J1);
-
-      JacobianLOut_t& J0v = const_cast< JacobianLOut_t& > (J0.derived());
-      J0v.noalias() = - J1 * R.transpose();
+      EIGEN_CONST_CAST(JacobianLOut_t,J0).noalias() = - J1 * R.transpose();
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -328,13 +326,11 @@ namespace se3
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
       ConstQuaternionMap_t quat(q.derived().data());
-      QuaternionMap_t quaternion_result (
-          (const_cast< Eigen::MatrixBase<ConfigOut_t>& >(qout)).derived().data()
-          );
+      QuaternionMap_t quat_map(EIGEN_CONST_CAST(ConfigOut_t,qout).data());
 
-      Quaternion_t pOmega(exp3(v));
-      quaternion_result = quat * pOmega;
-      firstOrderNormalize(quaternion_result);
+      Quaternion_t pOmega; (exp3(v,pOmega));
+      quat_map = quat * pOmega;
+      firstOrderNormalize(quat_map);
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -342,14 +338,14 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & v,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      JacobianOut_t & Jout = const_cast< JacobianOut_t& >(J.derived());
+      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout = exp3(-v);
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & v,
-                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+                                   const Eigen::MatrixBase<JacobianOut_t> & J)
     {
       Jexp3(v, J.derived());
     }
@@ -362,11 +358,9 @@ namespace se3
     {
       ConstQuaternionMap_t p0 (q0.derived().data());
       ConstQuaternionMap_t p1 (q1.derived().data());
-      QuaternionMap_t quaternion_result (
-          (const_cast< Eigen::MatrixBase<ConfigOut_t>& >(qout)).derived().data()
-          );
+      QuaternionMap_t quat_map(EIGEN_CONST_CAST(ConfigOut_t,qout).data());
 
-      quaternion_result = p0.slerp(u, p1);
+      quat_map = p0.slerp(u, p1);
     }
 
     template <class ConfigL_t, class ConfigR_t>
@@ -379,19 +373,17 @@ namespace se3
     }
     
     template <class Config_t>
-    static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
+    static void normalize_impl(const Eigen::MatrixBase<Config_t>& qout)
     {
-      Config_t& qout_ = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
+      Config_t & qout_ = EIGEN_CONST_CAST(Config_t,qout);
       qout_.normalize();
     }
 
     template <class Config_t>
-    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
+    void random_impl(const Eigen::MatrixBase<Config_t> & qout) const
     {
-      QuaternionMap_t out (
-          (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived().data()
-          );
-      uniformRandom(out);
+      QuaternionMap_t quat_map(EIGEN_CONST_CAST(Config_t,qout).data());
+      uniformRandom(quat_map);
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
