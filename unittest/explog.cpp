@@ -120,6 +120,16 @@ BOOST_AUTO_TEST_CASE(explog3)
   
   exp3(v,quat);
   BOOST_CHECK(log3(quat).isApprox(v));
+  
+  SE3::Matrix3 R_next = M.rotation() * exp3(v);
+  Motion::Vector3 v_est = log3(M.rotation().transpose() * R_next);
+  BOOST_CHECK(v_est.isApprox(v));
+  
+  SE3::Quaternion quat_v;
+  exp3(v,quat_v);
+  SE3::Quaternion quat_next = quat * quat_v;
+  v_est = log3(quat.conjugate() * quat_next);
+  BOOST_CHECK(v_est.isApprox(v));
 }
 
 BOOST_AUTO_TEST_CASE(Jlog3_fd)
@@ -132,15 +142,37 @@ BOOST_AUTO_TEST_CASE(Jlog3_fd)
   Jfd.setZero();
 
   Motion::Vector3 dR; dR.setZero();
-  double step = 0.0001;
+  const double eps = 1e-8;
   for (int i = 0; i < 3; ++i)
   {
-    dR[i] = step;
+    dR[i] = eps;
     SE3::Matrix3 R_dR = R * exp3(dR);
-    Jfd.col(i) = (log3(R_dR) - log3(R)) / step;
+    Jfd.col(i) = (log3(R_dR) - log3(R)) / eps;
     dR[i] = 0;
   }
-  BOOST_CHECK(Jfd.isApprox(Jlog, step));
+  BOOST_CHECK(Jfd.isApprox(Jlog, std::sqrt(eps)));
+}
+
+BOOST_AUTO_TEST_CASE(Jexp3_fd)
+{
+  SE3 M(SE3::Random());
+  SE3::Matrix3 R (M.rotation());
+
+  Motion::Vector3 v = log3(R);
+
+  SE3::Matrix3 Jexp_fd, Jexp;
+  Jexp3(v, Jexp);
+
+  Motion::Vector3 dv; dv.setZero();
+  const double eps = 1e-8;
+  for (int i = 0; i < 3; ++i)
+  {
+    dv[i] = eps;
+    SE3::Matrix3 R_next = exp3(v+dv);
+    Jexp_fd.col(i) = log3(R.transpose()*R_next) / eps;
+    dv[i] = 0;
+  }
+  BOOST_CHECK(Jexp_fd.isApprox(Jexp, std::sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_CASE(Jexp3_quat_fd)
