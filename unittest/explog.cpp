@@ -52,6 +52,7 @@ BOOST_AUTO_TEST_CASE(exp)
 
   exp3(SE3::Vector3::Zero(),quat);
   BOOST_CHECK(quat.toRotationMatrix().isIdentity());
+  BOOST_CHECK(quat.vec().isZero() && quat.coeffs().tail<1>().isOnes());
   
   // Check QuaternionMap
   Eigen::Vector4d vec4;
@@ -201,6 +202,35 @@ BOOST_AUTO_TEST_CASE(Jexp3_quat_fd)
   BOOST_CHECK(Jexp3.isApprox(Jexp3_fd,sqrt(eps)));
 }
 
+BOOST_AUTO_TEST_CASE(Jexp3_quat)
+{
+  SE3 M(SE3::Random());
+  SE3::Quaternion quat(M.rotation());
+  
+  Motion dv(Motion::Zero());
+  const double eps = 1e-8;
+  
+  typedef Eigen::Matrix<double,7,6> Matrix76;
+  Matrix76 Jexp6_fd, Jexp6_quat; Jexp6_quat.setZero();
+  typedef Eigen::Matrix<double,4,3> Matrix43;
+  Matrix43 Jexp3_quat; Jexp3(quat,Jexp3_quat);
+  SE3 M_next;
+  
+  Jexp6_quat.middleRows<3>(Motion::LINEAR).middleCols<3>(Motion::LINEAR) = M.rotation();
+  Jexp6_quat.middleRows<4>(Motion::ANGULAR).middleCols<3>(Motion::ANGULAR) = Jexp3_quat;// * Jlog6_SE3.middleRows<3>(Motion::ANGULAR);
+  for(int i = 0; i < 6; ++i)
+  {
+    dv.toVector()[i] = eps;
+    M_next = M * exp6(dv);
+    const SE3::Quaternion quat_next(M_next.rotation());
+    Jexp6_fd.middleRows<3>(Motion::LINEAR).col(i) = (M_next.translation() - M.translation())/eps;
+    Jexp6_fd.middleRows<4>(Motion::ANGULAR).col(i) = (quat_next.coeffs() - quat.coeffs())/eps;
+    dv.toVector()[i] = 0.;
+  }
+  
+  BOOST_CHECK(Jexp6_quat.isApprox(Jexp6_fd,sqrt(eps)));
+}
+
 BOOST_AUTO_TEST_CASE(Jexplog3)
 {
   Motion v(Motion::Random());
@@ -241,7 +271,7 @@ BOOST_AUTO_TEST_CASE(Jlog6_fd)
   Jfd.setZero();
 
   Motion dM; dM.setZero();
-  double step = 0.001;
+  double step = 1e-8;
   for (int i = 0; i < 6; ++i)
   {
     dM.toVector()[i] = step;
@@ -250,7 +280,7 @@ BOOST_AUTO_TEST_CASE(Jlog6_fd)
     dM.toVector()[i] = 0;
   }
 
-  BOOST_CHECK(Jfd.isApprox(Jlog, step));
+  BOOST_CHECK(Jfd.isApprox(Jlog, sqrt(step)));
 }
 
 BOOST_AUTO_TEST_CASE(Jexplog6)
