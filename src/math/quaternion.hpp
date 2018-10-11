@@ -38,7 +38,7 @@ namespace se3
     typedef typename D1::Scalar Scalar;
     const Scalar innerprod = q1.dot(q2);
     Scalar theta = acos(innerprod);
-    const Scalar PI_value = PI<Scalar>();
+    static const Scalar PI_value = PI<Scalar>();
     
     if(innerprod < 0)
       return PI_value - theta;
