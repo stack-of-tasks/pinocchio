@@ -106,14 +106,14 @@ namespace se3
                                const Eigen::MatrixBase<Velocity_t> & v,
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
-      const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout) = q + v;
+      EIGEN_CONST_CAST(ConfigOut_t,qout) = q + v;
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> &,
-                                const Eigen::MatrixBase<JacobianOut_t> & J)
+    template <class Config_t, class Jacobian_t>
+    static void integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> &,
+                                                const Eigen::MatrixBase<Jacobian_t> & J)
     {
-      EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
+      EIGEN_CONST_CAST(Jacobian_t,J).setIdentity();
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
