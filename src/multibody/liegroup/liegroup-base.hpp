@@ -76,9 +76,26 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void integrate(const Eigen::MatrixBase<ConfigIn_t> & q,
                    const Eigen::MatrixBase<Tangent_t>  & v,
                    const Eigen::MatrixBase<ConfigOut_t>& qout) const;
+    
+    /**
+     * @brief      Computes the Jacobian of the integrate operator around zero.
+     *
+     * @details    This function computes the Jacobian of the configuration vector variation (component-vise) with respect to a small variation
+     *             in the tangent.
+     *
+     * @param[in]  q    configuration vector.
+     *
+     * @param[out] J    the Jacobian of the log of the Integrate operation w.r.t. the configuration vector q.
+     *
+     * @remarks    This function might be useful for instance when using google-ceres to compute the Jacobian of the integrate operation.
+     */
+    template<class Config_t, class Jacobian_t>
+    void integrateCoeffWiseJacobian(const Eigen::MatrixBase<Config_t >  & q,
+                                    const Eigen::MatrixBase<Jacobian_t> & J) const;
+
 
     /**
-     * @brief      Computes the Jacobian of the log of the Integrate operation with respect to the configuration vector.
+     * @brief      Computes the Jacobian of a small variation of the configuration vector into tangent space at identity.
      *
      * @details    This Jacobian corresponds to the Jacobian of \f$ (\bm{q} \oplus \delta \bm{q}) \oplus \bm{v} \f$ with
      *             \f$ \delta \bm{q} \rightarrow 0 \f$.
@@ -86,7 +103,7 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector.
      *
-     * @param[out] J    the Jacobian of the log of the Integrate operation w.r.t. the configuration vector q.
+     * @param[out] J    the Jacobian of the Integrate operation w.r.t. the configuration vector q.
      */
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
@@ -94,7 +111,7 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                        const Eigen::MatrixBase<JacobianOut_t>& J) const;
 
     /**
-     * @brief      Computes the Jacobian of the log of the Integrate operation with respect to the tangent vector.
+     * @brief      Computes the Jacobian of a small variation of the tangent vector into tangent space at identity.
      *
      * @details    This Jacobian corresponds to the Jacobian of \f$ \bm{q} \oplus (\bm{v}  + \delta \bm{v}) \f$ with
      *             \f$ \delta \bm{v} \rightarrow 0 \f$.
@@ -102,7 +119,7 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector.
      *
-     * @param[out] J    the Jacobian of the log of the Integrate operation w.r.t. the tangent vector v.
+     * @param[out] J    the Jacobian of the Integrate operation w.r.t. the tangent vector v.
      */
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,

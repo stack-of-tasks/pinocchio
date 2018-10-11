@@ -173,6 +173,15 @@ namespace se3
       const Scalar norm2 = q.squaredNorm();
       out *= (3 - norm2) / 2;
     }
+    
+    template <class Config_t, class Jacobian_t>
+    static void integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> & q,
+                                                const Eigen::MatrixBase<Jacobian_t> & J)
+    {
+      assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
+      Jacobian_t & Jout = EIGEN_CONST_CAST(Jacobian_t,J);
+      Jout << -q[1], q[0];
+    }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
@@ -331,6 +340,16 @@ namespace se3
       Quaternion_t pOmega; (exp3(v,pOmega));
       quat_map = quat * pOmega;
       firstOrderNormalize(quat_map);
+    }
+    
+    template <class Config_t, class Jacobian_t>
+    static void integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> & q,
+                                                const Eigen::MatrixBase<Jacobian_t> & J)
+    {
+      assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
+
+      ConstQuaternionMap_t quat_map(q.derived().data());
+      Jexp3(quat_map,EIGEN_CONST_CAST(Jacobian_t,J).template topLeftCorner<NQ,NV>());
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>

@@ -123,6 +123,20 @@ namespace se3
       lg1_.integrate(Q1(q), V1(v), Qo1(qout));
       lg2_.integrate(Q2(q), V2(v), Qo2(qout));
     }
+    
+    template <class Config_t, class Jacobian_t>
+    void integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> & q,
+                                         const Eigen::MatrixBase<Jacobian_t> & J) const
+    {
+      assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
+      Jacobian_t & J_ = EIGEN_CONST_CAST(Jacobian_t,J);
+      J_.topRightCorner(lg1_.nq(),lg2_.nv()).setZero();
+      J_.bottomLeftCorner(lg2_.nq(),lg1_.nv()).setZero();
+      
+      lg1_.integrateCoeffWiseJacobian(Q1(q),
+                                      J_.topLeftCorner(lg1_.nq(),lg1_.nv()));
+      lg2_.integrateCoeffWiseJacobian(Q2(q), J_.bottomRightCorner(lg2_.nq(),lg2_.nv()));
+    }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t > & q,

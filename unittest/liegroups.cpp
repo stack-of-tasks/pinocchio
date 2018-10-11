@@ -56,9 +56,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   
   q1 = LieGroupType().randomConfiguration(-Ones, Ones);
   
-  
   typename T::JointDataDerived jdata = jmodel.createData();
-  
   
   // Check integrate
   jmodel.calc(jdata, q1, q1_dot);
@@ -273,6 +271,40 @@ struct LieGroup_Jintegrate{
   }
 };
 
+struct LieGroup_JintegrateCoeffWise
+{
+  template <typename T>
+  void operator()(const T ) const
+  {
+    typedef typename T::ConfigVector_t ConfigVector_t;
+    typedef typename T::TangentVector_t TangentVector_t;
+    typedef typename T::Scalar Scalar;
+    
+    T lg;
+    ConfigVector_t q = lg.random();
+    TangentVector_t dv(TangentVector_t::Zero(lg.nv()));
+    
+    
+    typedef Eigen::Matrix<Scalar,T::NQ,T::NV> JacobianCoeffs;
+    JacobianCoeffs Jintegrate(JacobianCoeffs::Zero(lg.nq(),lg.nv()));
+    lg.integrateCoeffWiseJacobian(q,Jintegrate);
+    JacobianCoeffs Jintegrate_fd(JacobianCoeffs::Zero(lg.nq(),lg.nv()));;
+
+    const Scalar eps = 1e-6;
+    for (int i = 0; i < lg.nv(); ++i)
+    {
+      dv[i] = eps;
+      ConfigVector_t q_next(ConfigVector_t::Zero(lg.nq()));
+      lg.integrate(q, dv,q_next);
+      Jintegrate_fd.col(i) = (q_next - q)/eps;
+      
+      dv[i] = 0;
+    }
+
+    BOOST_CHECK(Jintegrate.isApprox(Jintegrate_fd,sqrt(eps)));
+  }
+};
+
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_all )
@@ -343,6 +375,32 @@ BOOST_AUTO_TEST_CASE ( Jintegrate )
   
   // Around identity
   boost::mpl::for_each<Types>(LieGroup_Jintegrate<true>());
+}
+
+
+BOOST_AUTO_TEST_CASE(JintegrateCoeffWise)
+{
+  typedef double Scalar;
+  enum { Options = 0 };
+  
+  typedef boost::mpl::vector<  VectorSpaceOperationTpl<1,Scalar,Options>
+  , VectorSpaceOperationTpl<2,Scalar,Options>
+  , SpecialOrthogonalOperationTpl<2,Scalar,Options>
+  , SpecialOrthogonalOperationTpl<3,Scalar,Options>
+  , SpecialEuclideanOperationTpl<2,Scalar,Options>
+  , SpecialEuclideanOperationTpl<3,Scalar,Options>
+  , CartesianProductOperation<
+  VectorSpaceOperationTpl<2,Scalar,Options>,
+  SpecialOrthogonalOperationTpl<2,Scalar,Options>
+  >
+  , CartesianProductOperation<
+  VectorSpaceOperationTpl<3,Scalar,Options>,
+  SpecialOrthogonalOperationTpl<3,Scalar,Options>
+  >
+  > Types;
+  for (int i = 0; i < 1; ++i)
+    boost::mpl::for_each<Types>(LieGroup_JintegrateCoeffWise());
+  
 }
 
 BOOST_AUTO_TEST_CASE ( test_vector_space )

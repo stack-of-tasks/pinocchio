@@ -26,15 +26,27 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
-  void LieGroupBase<Derived>::integrate(
-      const Eigen::MatrixBase<ConfigIn_t> & q,
-      const Eigen::MatrixBase<Tangent_t>  & v,
-      const Eigen::MatrixBase<ConfigOut_t>& qout) const
+  void LieGroupBase<Derived>
+  ::integrate(const Eigen::MatrixBase<ConfigIn_t> & q,
+              const Eigen::MatrixBase<Tangent_t>  & v,
+              const Eigen::MatrixBase<ConfigOut_t>& qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigIn_t , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t  , TangentVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigOut_t, ConfigVector_t);
     derived().integrate_impl(q, v, qout);
+  }
+  
+  template <class Derived>
+  template<class Config_t, class Jacobian_t>
+  void LieGroupBase<Derived>::
+  integrateCoeffWiseJacobian(const Eigen::MatrixBase<Config_t >  & q,
+                             const Eigen::MatrixBase<Jacobian_t> & J) const
+  {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
+
+    derived().integrateCoeffWiseJacobian_impl(q,J);
+    
   }
 
   template <class Derived>
