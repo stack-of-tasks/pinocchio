@@ -467,6 +467,7 @@ namespace se3
 
       out.template head<3>() = M1.translation();
       res_quat = M1.rotation();
+      if(res_quat.dot(quat) < 0) res_quat.coeffs() *= -1.;
       // Norm of qs might be epsilon-different to 1, so M1.rotation might be epsilon-different to a rotation matrix.
       // It is then safer to re-normalized after converting M1.rotation to quaternion.
       firstOrderNormalize(res_quat);
