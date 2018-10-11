@@ -189,18 +189,16 @@ BOOST_AUTO_TEST_CASE(Jexp3_quat_fd)
   SE3::Vector3 dw; dw.setZero();
   const double eps = 1e-8;
   
-  SE3::Quaternion dquat, quat_plus;
   for(int i = 0; i < 3; ++i)
   {
     dw[i] = eps;
-    dquat.vec() = dw;
-    dquat.w() = 0.;
-    quat_plus = quat * dquat;
-    Jexp3_fd.col(i) = (quat_plus.coeffs()) / eps;
+    SE3::Matrix3 R_plus = quat.toRotationMatrix() * exp3(dw);
+    SE3::Quaternion quat_plus(R_plus);
+    Jexp3_fd.col(i) = (quat_plus.coeffs() - quat.coeffs()) / eps;
     dw[i] = 0;
   }
   
-  BOOST_CHECK(Jexp3.isApprox(Jexp3_fd));
+  BOOST_CHECK(Jexp3.isApprox(Jexp3_fd,sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_CASE(Jexplog3)

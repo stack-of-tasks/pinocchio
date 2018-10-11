@@ -299,9 +299,9 @@ namespace se3
   {
     Matrix43Like & Jout = EIGEN_CONST_CAST(Matrix43Like,Jexp);
 
-    skew(quat.vec(),Jout.template topRows<3>());
-    Jout.template topRows<3>().diagonal().array() += quat.w();
-    Jout.template bottomRows<1>() = - quat.vec().transpose();
+    skew(0.5 * quat.vec(),Jout.template topRows<3>());
+    Jout.template topRows<3>().diagonal().array() += 0.5 * quat.w();
+    Jout.template bottomRows<1>() = - 0.5 * quat.vec().transpose();
   }
 
   template<typename Scalar, typename Vector3Like, typename Matrix3Like>
