@@ -505,14 +505,14 @@ namespace se3
 
     const typename MotionDerived::ConstLinearType  & v = nu.linear();
     const typename MotionDerived::ConstAngularType & w = nu.angular();
-    const Scalar t = w.norm();
+    const Scalar t2 = w.squaredNorm();
+    const Scalar t = math::sqrt(t2);
 
     // Matrix3 J3;
     // Jexp3(w, J3);
     Jexp3(w, Jout.template bottomRightCorner<3,3>());
     Jout.template topLeftCorner<3,3>() = Jout.template bottomRightCorner<3,3>();
 
-    const Scalar t2 = t*t;
     Scalar beta, beta_dot_over_theta;
     if (t < 1e-4)
     {
