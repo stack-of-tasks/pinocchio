@@ -100,26 +100,26 @@ namespace se3
     ///
     /// For instance, for SO(3), the dimension of the vector representation is
     /// 4 (quaternion) while the dimension of the tangent space is 3.
-    Index nq () const
+    static Index nq()
     {
       return NQ;
     }
     
     /// Get dimension of Lie Group tangent space
-    Index nv () const
+    static Index nv()
     {
       return NV;
     }
 
-    ConfigVector_t neutral () const
+    static ConfigVector_t neutral()
     {
-      ConfigVector_t n; n.setZero(); n[0] = Scalar(1);
+      ConfigVector_t n; n << Scalar(1), Scalar(0);
       return n;
     }
 
-    std::string name () const
+    static std::string name()
     {
-      return std::string ("SO(2)");
+      return std::string("SO(2)");
     }
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
@@ -270,25 +270,25 @@ namespace se3
     ///
     /// For instance, for SO(3), the dimension of the vector representation is
     /// 4 (quaternion) while the dimension of the tangent space is 3.
-    Index nq () const
+    static Index nq()
     {
       return NQ;
     }
     /// Get dimension of Lie Group tangent space
-    Index nv () const
+    static Index nv()
     {
       return NV;
     }
 
-    ConfigVector_t neutral () const
+    static ConfigVector_t neutral()
     {
       ConfigVector_t n; n.setZero (); n[3] = Scalar(1);
       return n;
     }
 
-    std::string name () const
+    static std::string name()
     {
-      return std::string ("SO(3)");
+      return std::string("SO(3)");
     }
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>

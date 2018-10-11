@@ -190,25 +190,25 @@ namespace se3
     ///
     /// For instance, for SO(3), the dimension of the vector representation is
     /// 4 (quaternion) while the dimension of the tangent space is 3.
-    Index nq () const
+    static Index nq()
     {
       return NQ;
     }
     /// Get dimension of Lie Group tangent space
-    Index nv () const
+    static Index nv()
     {
       return NV;
     }
 
-    ConfigVector_t neutral () const
+    static ConfigVector_t neutral()
     {
-      ConfigVector_t n; n.setZero (); n [2] = 1;
+      ConfigVector_t n; n << Scalar(0), Scalar(0), Scalar(1), Scalar(0);
       return n;
     }
 
-    std::string name () const
+    static std::string name()
     {
-      return std::string ("SE(2)");
+      return std::string("SE(2)");
     }
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
@@ -338,17 +338,22 @@ namespace se3
       return R2crossSO2_t().isSameConfiguration(q0, q1, prec);
     }
 
-  private:
-    template<typename Vector4Like>
-    static void forwardKinematics(Matrix2 & R, Vector2 & t, const Eigen::MatrixBase<Vector4Like> & q)
+  protected:
+    
+    template<typename Matrix2Like, typename Vector2Like, typename Vector4Like>
+    static void forwardKinematics(const Eigen::MatrixBase<Matrix2Like> & R,
+                                  const Eigen::MatrixBase<Vector2Like> & t,
+                                  const Eigen::MatrixBase<Vector4Like> & q)
     {
+      EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix2Like, Matrix2);
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Vector2Like, Vector2);
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,Vector4Like);
 
+      EIGEN_CONST_CAST(Vector2Like,t) = q.template head<2>();
       const typename Vector4Like::Scalar & c_theta = q(2),
                                          & s_theta = q(3);
-
-      R << c_theta, -s_theta, s_theta, c_theta;
-      t = q.template head<2>();
+      EIGEN_CONST_CAST(Matrix2Like,R) << c_theta, -s_theta, s_theta, c_theta;
+      
     }
   }; // struct SpecialEuclideanOperationTpl<2>
 
@@ -383,25 +388,25 @@ namespace se3
     ///
     /// For instance, for SO(3), the dimension of the vector representation is
     /// 4 (quaternion) while the dimension of the tangent space is 3.
-    Index nq () const
+    static Index nq()
     {
       return NQ;
     }
     /// Get dimension of Lie Group tangent space
-    Index nv () const
+    static Index nv()
     {
       return NV;
     }
 
-    ConfigVector_t neutral () const
+    static ConfigVector_t neutral()
     {
-      ConfigVector_t n; n.setZero (); n [6] = 1;
+      ConfigVector_t n; n.template head<6>().setZero(); n[6] = 1;
       return n;
     }
 
-    std::string name () const
+    static std::string name()
     {
-      return std::string ("SE(3)");
+      return std::string("SE(3)");
     }
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
