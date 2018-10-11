@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2018 CNRS, INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -408,6 +408,55 @@ namespace se3
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived(),v.derived(),a.derived()));
+    }
+    
+    typedef ComputeRNEADerivativesBackwardStep<Scalar,Options,JointCollectionTpl,MatrixType1,MatrixType2,MatrixType3> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      Pass2::run(model.joints[i],
+                 typename Pass2::ArgsType(model,data,
+                                          EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq),
+                                          EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv),
+                                          EIGEN_CONST_CAST(MatrixType3,rnea_partial_da)));
+    }
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  typename MatrixType1, typename MatrixType2, typename MatrixType3>
+  inline void
+  computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                         const Eigen::MatrixBase<TangentVectorType2> & a,
+                         const container::aligned_vector< ForceTpl<Scalar,Options> > fext,
+                         const Eigen::MatrixBase<MatrixType1> & rnea_partial_dq,
+                         const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
+                         const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
+  {
+    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
+    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
+    assert(a.size() == model.nv && "The joint acceleration vector is not of right size");
+    assert(fext.size() == (size_t)model.njoints && "The size of the external forces is not of right size");
+    assert(rnea_partial_dq.cols() == model.nv);
+    assert(rnea_partial_dq.rows() == model.nv);
+    assert(rnea_partial_dv.cols() == model.nv);
+    assert(rnea_partial_dv.rows() == model.nv);
+    assert(rnea_partial_da.cols() == model.nv);
+    assert(rnea_partial_da.rows() == model.nv);
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    data.oa[0] = -model.gravity;
+    
+    typedef ComputeRNEADerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived(),a.derived()));
+      data.of[i] -= data.oMi[i].act(fext[i]);
     }
     
     typedef ComputeRNEADerivativesBackwardStep<Scalar,Options,JointCollectionTpl,MatrixType1,MatrixType2,MatrixType3> Pass2;

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2018 CNRS, INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -259,6 +259,101 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   BOOST_CHECK(rnea_partial_dv.isApprox(data2.dtau_dv));
   BOOST_CHECK(rnea_partial_da.isApprox(data2.M));
   
+}
+
+BOOST_AUTO_TEST_CASE(test_rnea_derivatives_fext)
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  Model model;
+  buildModels::humanoidSimple(model);
+  typedef Model::Force Force;
+  
+  Data data(model), data_fd(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd a(VectorXd::Random(model.nv));
+  
+  typedef container::aligned_vector<Force> ForceVector;
+  ForceVector fext((size_t)model.njoints);
+  for(ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
+    (*it).setRandom();
+  
+  /// Check againt computeGeneralizedGravityDerivatives
+  MatrixXd rnea_partial_dq(model.nv,model.nv); rnea_partial_dq.setZero();
+  MatrixXd rnea_partial_dv(model.nv,model.nv); rnea_partial_dv.setZero();
+  MatrixXd rnea_partial_da(model.nv,model.nv); rnea_partial_da.setZero();
+  
+  computeRNEADerivatives(model,data,q,v,a,fext,rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
+  rnea(model,data_ref,q,v,a,fext);
+  
+  BOOST_CHECK(data.tau.isApprox(data_ref.tau));
+  
+  computeRNEADerivatives(model,data_ref,q,v,a);
+  BOOST_CHECK(rnea_partial_dv.isApprox(data_ref.dtau_dv));
+  BOOST_CHECK(rnea_partial_da.isApprox(data_ref.M));
+  
+  MatrixXd rnea_partial_dq_fd(model.nv,model.nv); rnea_partial_dq_fd.setZero();
+  MatrixXd rnea_partial_dv_fd(model.nv,model.nv); rnea_partial_dv_fd.setZero();
+  MatrixXd rnea_partial_da_fd(model.nv,model.nv); rnea_partial_da_fd.setZero();
+  
+  VectorXd v_eps(VectorXd::Zero(model.nv));
+  VectorXd q_plus(model.nq);
+  VectorXd tau_plus(model.nv);
+  const double eps = 1e-8;
+  
+  const VectorXd tau_ref = rnea(model,data_ref,q,v,a,fext);
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_eps[k] = eps;
+    q_plus = integrate(model,q,v_eps);
+    tau_plus = rnea(model,data_fd,q_plus,v,a,fext);
+    
+    rnea_partial_dq_fd.col(k) = (tau_plus - tau_ref) / eps;
+    
+    v_eps[k] = 0.;
+  }
+  BOOST_CHECK(rnea_partial_dq.isApprox(rnea_partial_dq_fd,sqrt(eps)));
+  
+  VectorXd v_plus(v);
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_plus[k] += eps;
+    
+    tau_plus = rnea(model,data_fd,q,v_plus,a,fext);
+    
+    rnea_partial_dv_fd.col(k) = (tau_plus - tau_ref) / eps;
+    
+    v_plus[k] -= eps;
+  }
+  BOOST_CHECK(rnea_partial_dv.isApprox(rnea_partial_dv_fd,sqrt(eps)));
+  
+  VectorXd a_plus(a);
+  for(int k = 0; k < model.nv; ++k)
+  {
+    a_plus[k] += eps;
+    
+    tau_plus = rnea(model,data_fd,q,v,a_plus,fext);
+    
+    rnea_partial_da_fd.col(k) = (tau_plus - tau_ref) / eps;
+    
+    a_plus[k] -= eps;
+  }
+  
+  rnea_partial_da.triangularView<Eigen::Lower>() = rnea_partial_da.transpose().triangularView<Eigen::Lower>();
+  BOOST_CHECK(rnea_partial_da.isApprox(rnea_partial_da_fd,sqrt(eps)));
+
+  // test the shortcut
+  Data data_shortcut(model);
+  computeRNEADerivatives(model,data_shortcut,q,v,a,fext);
+  BOOST_CHECK(data_shortcut.dtau_dq.isApprox(rnea_partial_dq));
+  BOOST_CHECK(data_shortcut.dtau_dv.isApprox(rnea_partial_dv));
+  data_shortcut.M.triangularView<Eigen::Lower>() = data_shortcut.M.transpose().triangularView<Eigen::Lower>();
+  BOOST_CHECK(data_shortcut.M.isApprox(rnea_partial_da));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
