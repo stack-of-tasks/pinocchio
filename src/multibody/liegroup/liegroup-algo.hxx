@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018 CNRS, INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -376,6 +376,37 @@ namespace se3
   };
   
   SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NeutralStepAlgo);
+  
+  template<typename Visitor, typename JointModel> struct IntegrateCoeffWiseJacobianStepAlgo;
+  
+  template<typename LieGroup_t, typename ConfigVectorType, typename JacobianMatrix>
+  struct IntegrateCoeffWiseJacobianStep
+  : public fusion::JointVisitorBase< IntegrateCoeffWiseJacobianStep<LieGroup_t,ConfigVectorType,JacobianMatrix> >
+  {
+    typedef boost::fusion::vector<const ConfigVectorType &, JacobianMatrix &> ArgsType;
+    
+    SE3_DETAILS_VISITOR_METHOD_ALGO_2(IntegrateCoeffWiseJacobianStepAlgo,
+                                      IntegrateCoeffWiseJacobianStep)
+  };
+  
+  template<typename Visitor, typename JointModel>
+  struct IntegrateCoeffWiseJacobianStepAlgo
+  {
+    template<typename ConfigVectorType, typename JacobianMatrix>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorType> & q,
+                    const Eigen::MatrixBase<JacobianMatrix> & jacobian)
+    {
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typedef typename LieGroupMap::template operation<JointModel>::type LieGroup;
+      LieGroup lgo;
+      lgo.integrateCoeffWiseJacobian(jmodel.jointConfigSelector(q.derived()),
+                                     EIGEN_CONST_CAST(JacobianMatrix,jacobian).template block<LieGroup::NQ,LieGroup::NV>(jmodel.idx_q(),jmodel.idx_v(),jmodel.nq(),jmodel.nv()));
+    }
+  };
+  
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_2(IntegrateCoeffWiseJacobianStepAlgo);
   
 }
 
