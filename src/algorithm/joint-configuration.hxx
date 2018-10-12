@@ -296,6 +296,32 @@ namespace se3
   {
     return neutral<LieGroupMap,Scalar,Options,JointCollectionTpl>(model);
   }
+  
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector, typename JacobianMatrix>
+  inline void
+  integrateCoeffWiseJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             const Eigen::MatrixBase<ConfigVector> & q,
+                             const Eigen::MatrixBase<JacobianMatrix> & jacobian)
+  {
+    assert(jacobian.rows() == model.nq && jacobian.cols() == model.nv
+           && "The jacobian does not have the right dimension");
+    
+    typedef IntegrateCoeffWiseJacobianStep<LieGroup_t,ConfigVector,JacobianMatrix> Algo;
+    typename Algo::ArgsType args(q.derived(),EIGEN_CONST_CAST(JacobianMatrix,jacobian));
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i],args);
+    }
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector, typename JacobianMatrix>
+  inline void
+  integrateCoeffWiseJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             const Eigen::MatrixBase<ConfigVector> & q,
+                             const Eigen::MatrixBase<JacobianMatrix> & jacobian)
+  {
+    return integrateCoeffWiseJacobian<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVector,JacobianMatrix>(model,q,jacobian);
+  }
 
 
 } // namespace se3

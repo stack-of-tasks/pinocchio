@@ -89,10 +89,9 @@ namespace se3
    * @return     The distance between the two configurations
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  Scalar
-  distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-           const Eigen::MatrixBase<ConfigVectorIn1> & q0,
-           const Eigen::MatrixBase<ConfigVectorIn2> & q1);
+  Scalar distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                  const Eigen::MatrixBase<ConfigVectorIn2> & q1);
 
   /**
    * @brief      Generate a configuration vector uniformly sampled among provided limits.
@@ -162,6 +161,22 @@ namespace se3
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
   neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model);
+  
+  /**
+   * @brief         Return the Jacobian of the integrate function for the components of the config vector.
+   *
+   * @param[in]     model      Model of rigid body system.
+   * @param[out]    jacobian   The Jacobian of the integrate operation.
+   *
+   * @details       This function is often required for the numerical solvers that are working on the
+   *                tangent of the configuration space, instead of the configuration space itself.
+   *
+   */
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector, typename JacobianMatrix>
+  inline void
+  integrateCoeffWiseJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             const Eigen::MatrixBase<ConfigVector> & q,
+                             const Eigen::MatrixBase<JacobianMatrix> & jacobian);
 
 } // namespace se3
 

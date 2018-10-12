@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2018 CNRS, INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -16,6 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/math/quaternion.hpp"
 
@@ -164,6 +165,34 @@ BOOST_AUTO_TEST_CASE ( normalize_test )
   BOOST_CHECK(fabs(q.segment<4>(7).norm() - 1) < Eigen::NumTraits<double>::epsilon()); // quaternion of spherical joint
   const int n = model.nq - 7 - 4 - 4; // free flyer + spherical + planar
   BOOST_CHECK(q.tail(n).isApprox(Eigen::VectorXd::Ones(n)));
+}
+
+BOOST_AUTO_TEST_CASE ( integrateCoeffWiseJacobian_test )
+{
+  Model model; buildModels::humanoidSimple(model);
+  
+  Eigen::VectorXd q(Eigen::VectorXd::Ones(model.nq));
+  se3::normalize(model, q);
+  
+  Eigen::MatrixXd jac(model.nq,model.nv); jac.setZero();
+ 
+  integrateCoeffWiseJacobian(model,q,jac);
+  
+ 
+  Eigen::MatrixXd jac_fd(model.nq,model.nv);
+  Eigen::VectorXd q_plus;
+  const double eps = 1e-8;
+  
+  Eigen::VectorXd v_eps(Eigen::VectorXd::Zero(model.nv));
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_eps[k] = eps;
+    q_plus = integrate(model,q,v_eps);
+    jac_fd.col(k) = (q_plus - q)/eps;
+    
+    v_eps[k] = 0.;
+  }
+  BOOST_CHECK(jac.isApprox(jac_fd,sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
