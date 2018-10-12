@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018 CNRS, INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -35,7 +35,7 @@
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
-BOOST_AUTO_TEST_CASE(test_aba)
+BOOST_AUTO_TEST_CASE(test_aba_derivatives)
 {
   using namespace Eigen;
   using namespace se3;
@@ -168,6 +168,100 @@ BOOST_AUTO_TEST_CASE(test_aba_minimal_argument)
   BOOST_CHECK(data.Minv.isApprox(aba_partial_dtau));
   BOOST_CHECK(data.ddq_dq.isApprox(aba_partial_dq));
   BOOST_CHECK(data.ddq_dv.isApprox(aba_partial_dv));
+}
+
+BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  Model model;
+  buildModels::humanoidSimple(model);
+  
+  Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd tau(VectorXd::Random(model.nv));
+  VectorXd a(aba(model,data_ref,q,v,tau));
+  
+  typedef container::aligned_vector<Force> ForceVector;
+  ForceVector fext((size_t)model.njoints);
+  for(ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
+    (*it).setRandom();
+  
+  MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
+  MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
+  Data::RowMatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
+  
+  computeABADerivatives(model, data, q, v, tau, fext,
+                        aba_partial_dq, aba_partial_dv, aba_partial_dtau);
+  
+  aba(model,data_ref,q,v,tau,fext);
+//  updateGlobalPlacements(model, data_ref);
+//  for(size_t k =1; k < (size_t)model.njoints; ++k)
+//  {
+//    BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
+//    BOOST_CHECK(daita.of[k].isApprox(data_ref.oMi[k].act(data.f[k])));
+//
+//  }
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+  
+  computeABADerivatives(model,data_ref,q,v,tau);
+  BOOST_CHECK(aba_partial_dv.isApprox(data_ref.ddq_dv));
+  BOOST_CHECK(aba_partial_dtau.isApprox(data_ref.Minv));
+  
+  MatrixXd aba_partial_dq_fd(model.nv,model.nv); aba_partial_dq_fd.setZero();
+  MatrixXd aba_partial_dv_fd(model.nv,model.nv); aba_partial_dv_fd.setZero();
+  MatrixXd aba_partial_dtau_fd(model.nv,model.nv); aba_partial_dtau_fd.setZero();
+  
+  Data data_fd(model);
+  const VectorXd a0 = aba(model,data_fd,q,v,tau,fext);
+  VectorXd v_eps(VectorXd::Zero(model.nv));
+  VectorXd q_plus(model.nq);
+  VectorXd a_plus(model.nv);
+  const double alpha = 1e-8;
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_eps[k] += alpha;
+    q_plus = integrate(model,q,v_eps);
+    a_plus = aba(model,data_fd,q_plus,v,tau,fext);
+
+    aba_partial_dq_fd.col(k) = (a_plus - a0)/alpha;
+    v_eps[k] -= alpha;
+  }
+  BOOST_CHECK(aba_partial_dq.isApprox(aba_partial_dq_fd,sqrt(alpha)));
+
+  VectorXd v_plus(v);
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_plus[k] += alpha;
+    a_plus = aba(model,data_fd,q,v_plus,tau,fext);
+
+    aba_partial_dv_fd.col(k) = (a_plus - a0)/alpha;
+    v_plus[k] -= alpha;
+  }
+  BOOST_CHECK(aba_partial_dv.isApprox(aba_partial_dv_fd,sqrt(alpha)));
+
+  VectorXd tau_plus(tau);
+  for(int k = 0; k < model.nv; ++k)
+  {
+    tau_plus[k] += alpha;
+    a_plus = aba(model,data_fd,q,v,tau_plus,fext);
+
+    aba_partial_dtau_fd.col(k) = (a_plus - a0)/alpha;
+    tau_plus[k] -= alpha;
+  }
+  BOOST_CHECK(aba_partial_dtau.isApprox(aba_partial_dtau_fd,sqrt(alpha)));
+  
+  // test the shortcut
+  Data data_shortcut(model);
+  computeABADerivatives(model,data_shortcut,q,v,tau,fext);
+  BOOST_CHECK(data_shortcut.ddq_dq.isApprox(aba_partial_dq));
+  BOOST_CHECK(data_shortcut.ddq_dv.isApprox(aba_partial_dv));
+  BOOST_CHECK(data_shortcut.Minv.isApprox(aba_partial_dtau));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
