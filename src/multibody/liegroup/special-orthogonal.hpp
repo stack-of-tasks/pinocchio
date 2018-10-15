@@ -171,7 +171,7 @@ namespace se3
       out << cosOmega * ca - sinOmega * sa,
              sinOmega * ca + cosOmega * sa;
       const Scalar norm2 = q.squaredNorm();
-      out *= (3 - norm2) / 2;
+      out *= (3 - norm2) / 2; // First order approximation of the normalization of the quaternion
     }
     
     template <class Config_t, class Jacobian_t>
@@ -339,7 +339,7 @@ namespace se3
 
       Quaternion_t pOmega; (exp3(v,pOmega));
       quat_map = quat * pOmega;
-      firstOrderNormalize(quat_map);
+      quaternion::firstOrderNormalize(quat_map);
     }
     
     template <class Config_t, class Jacobian_t>
@@ -402,7 +402,7 @@ namespace se3
     void random_impl(const Eigen::MatrixBase<Config_t> & qout) const
     {
       QuaternionMap_t quat_map(EIGEN_CONST_CAST(Config_t,qout).data());
-      uniformRandom(quat_map);
+      quaternion::uniformRandom(quat_map);
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -422,7 +422,7 @@ namespace se3
       ConstQuaternionMap_t quat1(q0.derived().data());
       ConstQuaternionMap_t quat2(q1.derived().data());
 
-      return defineSameRotation(quat1,quat2,prec);
+      return quaternion::defineSameRotation(quat1,quat2,prec);
     }
   }; // struct SpecialOrthogonalOperationTpl<3,_Scalar,_Options>
   

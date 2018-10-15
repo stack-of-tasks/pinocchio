@@ -30,9 +30,9 @@ bool configurations_are_equals(const Eigen::VectorXd & conf1, const Eigen::Vecto
   long size = conf1.size();
   if ( ! conf1.segment<3>(0).isApprox(conf2.segment<3>(0)) )
     return false;
-  if( ! defineSameRotation(Eigen::Quaterniond(conf1.segment<4>(3)), Eigen::Quaterniond(conf2.segment<4>(3))))
+  if( ! quaternion::defineSameRotation(Eigen::Quaterniond(conf1.segment<4>(3)), Eigen::Quaterniond(conf2.segment<4>(3))))
     return false;
-  if( ! defineSameRotation(Eigen::Quaterniond(conf1.segment<4>(7)), Eigen::Quaterniond(conf2.segment<4>(7))))
+  if( ! quaternion::defineSameRotation(Eigen::Quaterniond(conf1.segment<4>(7)), Eigen::Quaterniond(conf2.segment<4>(7))))
     return false;
   if ( ! conf1.segment(11, size-11).isApprox(conf2.segment(11, size-11)) )
     return false;
