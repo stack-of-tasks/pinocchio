@@ -243,6 +243,43 @@ namespace se3
       return log3(quat.derived(),theta);
     }
     
+    ///
+    /// \brief Derivative of \f$ q = \exp{\bm{v} + \delta\bm{v}} \f$ where \f$ \delta\bm{v} \f$
+    ///        is a small perturbation of \f$ \bm{v} \f$ at identity.
+    ///
+    /// \returns The Jacobian of the quaternion components variation.
+    ///
+    template<typename Vector3Like, typename Matrix43Like>
+    void Jexp3CoeffWise(const Eigen::MatrixBase<Vector3Like> & v,
+                        const Eigen::MatrixBase<Matrix43Like> & Jexp)
+    {
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix43Like,4,3);
+      Matrix43Like & Jout = EIGEN_CONST_CAST(Matrix43Like,Jexp);
+      
+      typedef typename Vector3Like::Scalar Scalar;
+      
+      const Scalar n2 = v.squaredNorm();
+      const Scalar n = math::sqrt(n2);
+      const Scalar theta = Scalar(0.5) * n;
+      const Scalar theta2 = Scalar(0.25) * n2;
+      
+      if(n2 > math::sqrt(Eigen::NumTraits<Scalar>::epsilon()))
+      {
+        Scalar c, s;
+        SINCOS(theta,&s,&c);
+        Jout.template topRows<3>().noalias() = ((0.5/n2) * (c - 2*s/n)) * v * v.transpose();
+        Jout.template topRows<3>().diagonal().array() += s/n;
+        Jout.template bottomRows<1>().noalias() = -s/(2*n) * v.transpose();
+      }
+      else
+      {
+        Jout.template topRows<3>().noalias() =  (-1./12. + n2/480.) * v * v.transpose();
+        Jout.template topRows<3>().diagonal().array() += Scalar(0.5) * (1 - theta2/6);
+        Jout.template bottomRows<1>().noalias() = (Scalar(-0.25) * (1 - theta2/6)) * v.transpose();
+        
+      }
+    }
+    
   } // namespace quaternion
   
   /// Deprecated functions. They are now in the se3::pinocchio namespace

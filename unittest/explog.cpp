@@ -184,27 +184,50 @@ BOOST_AUTO_TEST_CASE(Jexp3_fd)
 BOOST_AUTO_TEST_CASE(Jexp3_quat_fd)
 {
   typedef double Scalar;
-  SE3 M(SE3::Random());
-  SE3::Matrix3 R(M.rotation());
-  SE3::Quaternion quat(R);
+  SE3::Vector3 w; w.setRandom();
+  SE3::Quaternion quat; quaternion::exp3(w,quat);
   
   typedef Eigen::Matrix<Scalar,4,3> Matrix43;
   Matrix43 Jexp3, Jexp3_fd;
-  se3::Jexp3(quat,Jexp3);
-  
+  quaternion::Jexp3CoeffWise(w,Jexp3);
   SE3::Vector3 dw; dw.setZero();
   const double eps = 1e-8;
   
   for(int i = 0; i < 3; ++i)
   {
     dw[i] = eps;
-    SE3::Matrix3 R_plus = quat.toRotationMatrix() * exp3(dw);
-    SE3::Quaternion quat_plus(R_plus);
+    SE3::Quaternion quat_plus; quaternion::exp3(w + dw,quat_plus);
     Jexp3_fd.col(i) = (quat_plus.coeffs() - quat.coeffs()) / eps;
     dw[i] = 0;
   }
-  
   BOOST_CHECK(Jexp3.isApprox(Jexp3_fd,sqrt(eps)));
+  
+  SE3::Matrix3 Jlog;
+  se3::Jlog3(quat.toRotationMatrix(),Jlog);
+  
+  Matrix43 Jexp_quat_local;
+  se3::Jexp3(quat,Jexp_quat_local);
+  
+  
+  Matrix43 Jcompositon = Jexp3 * Jlog;
+  BOOST_CHECK(Jcompositon.isApprox(Jexp_quat_local));
+//  std::cout << "Jcompositon\n" << Jcompositon << std::endl;
+//  std::cout << "Jexp_quat_local\n" << Jexp_quat_local << std::endl;
+  
+  // Arount zero
+  w.setZero();
+  w.fill(1e-4);
+  quaternion::exp3(w,quat);
+  quaternion::Jexp3CoeffWise(w,Jexp3);
+  for(int i = 0; i < 3; ++i)
+  {
+    dw[i] = eps;
+    SE3::Quaternion quat_plus; quaternion::exp3(w + dw,quat_plus);
+    Jexp3_fd.col(i) = (quat_plus.coeffs() - quat.coeffs()) / eps;
+    dw[i] = 0;
+  }
+  BOOST_CHECK(Jexp3.isApprox(Jexp3_fd,sqrt(eps)));
+
 }
 
 BOOST_AUTO_TEST_CASE(Jexp3_quat)
