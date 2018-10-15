@@ -20,6 +20,7 @@ class TestForceBindings(unittest.TestCase):
         self.assertTrue(np.allclose(self.v3zero, f.angular))
         self.assertTrue(np.allclose(self.v6zero, f.vector))
 
+    # TODO: this is not nice, since a random vector can *in theory* be zero
     def test_setRandom(self):
         f = se3.Force.Zero()
         f.setRandom()
@@ -37,7 +38,7 @@ class TestForceBindings(unittest.TestCase):
 
     def test_set_linear(self):
         f = se3.Force.Zero()
-        lin =  rand(3)  # TODO np.matrix([1,2,3],np.double) OR np.matrix( np.array([1,2,3], np.double), np.double)
+        lin =  rand(3)
         f.linear = lin
         self.assertTrue(np.allclose(f.linear, lin))
 
@@ -62,11 +63,11 @@ class TestForceBindings(unittest.TestCase):
     def test_se3_action(self):
         f = se3.Force.Random()
         m = se3.SE3.Random()
-        self.assertTrue(np.allclose((m * f).vector, np.linalg.inv(m.action.T) * f.vector))
+        self.assertTrue(np.allclose((m * f).vector,  np.linalg.inv(m.action.T) * f.vector))
+        self.assertTrue(np.allclose(m.act(f).vector, np.linalg.inv(m.action.T) * f.vector))
         self.assertTrue(np.allclose((m.actInv(f)).vector, m.action.T * f.vector))
-        v = se3.Motion.Random()
-        f = se3.Force(np.vstack([v.vector[3:], v.vector[:3]]))
-        self.assertTrue(np.allclose((v ** f).vector, zero(6)))
+        v = se3.Motion(np.vstack([f.vector[3:], f.vector[:3]]))
+        self.assertTrue(np.allclose((v ^ f).vector, zero(6)))
 
-
-
+if __name__ == '__main__':
+    unittest.main()

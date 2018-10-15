@@ -5,12 +5,12 @@ import os
 
 from pinocchio.robot_wrapper import RobotWrapper
 
-# Warning : the paths are here hard-coded. This file is only here as an example
-romeo_model_path = os.path.abspath(os.path.join(current_file, '../models/romeo/romeo_description'))
-romeo_model_file = romeo_model_path + "/urdf/romeo.urdf"
-
-list_hints = [romeo_model_path,"titi"]
-robot = RobotWrapper(romeo_model_file,list_hints, se3.JointModelFreeFlyer())
+# TODO: do not use romeo
+current_file =  os.path.dirname(os.path.abspath(__file__))
+romeo_model_dir = os.path.abspath(os.path.join(current_file, '../models/romeo'))
+romeo_model_path = os.path.abspath(os.path.join(romeo_model_dir, 'romeo_description/urdf/romeo.urdf'))
+hint_list = [romeo_model_dir, "wrong/hint"] # hint list
+robot = RobotWrapper(romeo_model_path, hint_list, se3.JointModelFreeFlyer())
 
 robot.initDisplay()
 robot.loadDisplayModel("world/pinocchio")
@@ -26,4 +26,3 @@ q0 = np.matrix([
 ]).T
 
 robot.display(q0)
-

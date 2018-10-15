@@ -20,6 +20,7 @@ class TestMotionBindings(unittest.TestCase):
         self.assertTrue(np.allclose(self.v3zero, v.angular))
         self.assertTrue(np.allclose(self.v6zero, v.vector))
 
+    # TODO: this is not nice, since a random vector can *in theory* be zero
     def test_setRandom(self):
         v = se3.Motion.Zero()
         v.setRandom()
@@ -37,7 +38,7 @@ class TestMotionBindings(unittest.TestCase):
 
     def test_set_linear(self):
         v = se3.Motion.Zero()
-        lin =  rand(3)  # TODO np.matrix([1,2,3],np.double) OR np.matrix( np.array([1,2,3], np.double), np.double)
+        lin =  rand(3)
         v.linear = lin
         self.assertTrue(np.allclose(v.linear, lin))
 
@@ -62,8 +63,10 @@ class TestMotionBindings(unittest.TestCase):
     def test_se3_action(self):
         m = se3.SE3.Random()
         v = se3.Motion.Random()
-        self.assertTrue(np.allclose((m * v).vector, m.action * v.vector))
+        self.assertTrue(np.allclose((m * v).vector,  m.action * v.vector))
+        self.assertTrue(np.allclose(m.act(v).vector, m.action * v.vector))
         self.assertTrue(np.allclose((m.actInv(v)).vector, np.linalg.inv(m.action) * v.vector))
-        self.assertTrue(np.allclose((v ** v).vector, zero(6)))
+        self.assertTrue(np.allclose((v ^ v).vector, zero(6)))
 
-
+if __name__ == '__main__':
+    unittest.main()
