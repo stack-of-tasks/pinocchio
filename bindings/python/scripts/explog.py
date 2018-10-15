@@ -42,9 +42,9 @@ def log(x):
     if np.isscalar(x):
         return math.log(x)
     if isinstance(x, np.ndarray):
-        if len(x) == 4:
+        if x.shape == (4, 4):
             return se3.log6FromMatrix(x)
-        if len(x) == 3:
+        if x.shape == (3, 3):
             return se3.log3(x)
         raise ValueError('Error only 3 and 4 matrices are allowed.')
     raise ValueError('Error log is only defined for real, matrix3, matrix4 and se3.SE3 objects.')
