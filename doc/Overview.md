@@ -112,20 +112,58 @@ In Python, just run it:
 
 ## Explaination of the program
 
-This program loads a model of a manipulator robot from a URDF file, decides an arbitrary initial configuration and desired effector position, and performs an inverse kinematics to reach this target.
+This program loads a model of a manipulator robot from a URDF file, computes the forward kinematics at an arbitrary initial configuration and display the position of each robot joint with its name.
 
-In C++, we need the header of the urdf parser, and of algorithms related to jacobian and joint-configuration computations.
+In C++, we need the headers of the model, the urdf parser and the forward-kinematics algorithms. In Python, Pinocchio and NumPy (numerics for Python) contexts are needed.
+
+The model is built by parsing the urdf model: the .urdf file should be directly provided to the parser. Here we do not parse (yet) the geometries, i.e. the shape of the bodies, but only the kinematic tree with names, lengths, inertias. The Data object is then built from the Model object, like in the previous example.
+
+The forward kinematics is simply computed by providing the model, the associated data and the robot configuration. Then, a loop goes through the kinematic tree (from root to leaves) and display for each joint its name and position in world frame. For the 6-dof manipulator UR5, there are 7 joints to be displayed, with the first joint being the "universe" i.e. the reference world frame from which everything is expressed.
+
+# About Python wrapings
+
+Pinocchio is written in C++, with a full template-based C++ API, for efficiency purpose. All the functionalities are available in C++. Extension of the library should be preferably in C++.
+
+However, C++ efficiency comes with a higher work cost, especially for newcomers. For this reason, all the interface is exposed in Python. We tried to build the Python API as much as possible as a mirror of the C++ interface. The major difference is that the C++ interface is proposed using Eigen objects for matrices and vectors, that are exposed as Numpy Matrix in Python.
+
+When working with Pinocchio, we often suggest to first prototype your ideas in Python. Both the auto-typing and the scripting make it much faster to develop. Once you are happy with your prototype, then translate it in C++ while binding the API to have a mirror in Python that you can use to extend your idea. 
+
+# How to cite Pinocchio
+
+Happy with Pinocchio? Please cite use with the following format.
+
+### Easy solution: cite our paper available in HAL
+The Pinocchio C++ library -- A fast and flexible implementation of rigid body dynamics algorithms and their analytical derivatives, by  J. Carpentier, G. Saurel, G. Buondonno, J. Mirabel, F. Lamiraux, O. Stasse and N. Mansard, in HAL ref 01866228
+
+\@article{carpentier-sii19, \n
+&nbsp;&nbsp;  title={The Pinocchio C++ library--A fast and flexible implementation of rigid body dynamics algorithms and their analytical derivatives},\n
+&nbsp;&nbsp; author={J. Carpentier and G. Saurel and G. Buondonno and J. Mirabel and F. Lamiraux and O. Stasse and N. Mansard},\n
+&nbsp;&nbsp; year={2018}\n
+}
 
 
-## About Python wrapings
+### Citing the software package
 
-TODO philosophy and example
+Pinocchio: fast forward and inverse dynamics for poly-articulated systems, 2015–2018, by J. Carpentier, J. Mirabel, N. Mansard et al, at https://stack-of-tasks. github.io/pinocchio
 
-## How to cite Pinocchio
+### Citing the derivative algorithms
 
-TODO: ref
+Analytical derivatives of rigid body dynamics algorithms, 2018, by J. Carpentier and N. Mansard, in Robotics: Science and Systems
 
-## Presentation of the content of the documentation
+\@inproceedings{carpentier-rss18, \n
+&nbsp;&nbsp;  title={Analytical derivatives of rigid body dynamics algorithms}, \n
+&nbsp;&nbsp;  author={Carpentier, Justin and Mansard, Nicolas}, \n
+&nbsp;&nbsp;  booktitle={Robotics: Science and Systems (RSS'18)}, \n
+&nbsp;&nbsp;  year={2018}\n
+}
+
+# Presentation of the content of the documentation
+
+This documentation is mostly composed of several examples and tutorials for newcomers, along with a technical documentation and a reference guide. If you want to make sure Pinocchio matches your needs, you may first want to check the list of features. Several examples in C++ and Python will then give you directly the keys to implement the most classical applications based on a rigid-body library. For nonexpert, we also provide the main mathematical fundamentals, based on Featherstone's formulations (you may prefer to buy and read the original book if you never did). A long tutorial in Python contains everything you need if you are not a Python expert and want to start with Pinocchio. This tutorial was first written as a class material for Master class about robotics.
+
+
+
+
 
 
 
