@@ -518,4 +518,6 @@ namespace se3
   }
 } // namespace se3
 
+#include "pinocchio/spatial/explog-quaternion.hpp"
+
 #endif //#ifndef __spatial_explog_hpp__

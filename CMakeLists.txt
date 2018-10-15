@@ -210,6 +210,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/act-on-set.hpp
   spatial/act-on-set.hxx
   spatial/explog.hpp
+  spatial/explog-quaternion.hpp
   spatial/cartesian-axis.hpp
   spatial/spatial-axis.hpp
   )
