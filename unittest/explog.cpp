@@ -181,6 +181,17 @@ BOOST_AUTO_TEST_CASE(Jexp3_fd)
   BOOST_CHECK(Jexp_fd.isApprox(Jexp, std::sqrt(eps)));
 }
 
+template<typename QuaternionLike, typename Matrix43Like>
+void Jexp3QuatLocal(const Eigen::QuaternionBase<QuaternionLike> & quat,
+                    const Eigen::MatrixBase<Matrix43Like> & Jexp)
+{
+  Matrix43Like & Jout = EIGEN_CONST_CAST(Matrix43Like,Jexp);
+  
+  skew(0.5 * quat.vec(),Jout.template topRows<3>());
+  Jout.template topRows<3>().diagonal().array() += 0.5 * quat.w();
+  Jout.template bottomRows<1>() = -0.5 * quat.vec().transpose();
+}
+
 BOOST_AUTO_TEST_CASE(Jexp3_quat_fd)
 {
   typedef double Scalar;
@@ -206,7 +217,7 @@ BOOST_AUTO_TEST_CASE(Jexp3_quat_fd)
   se3::Jlog3(quat.toRotationMatrix(),Jlog);
   
   Matrix43 Jexp_quat_local;
-  se3::Jexp3(quat,Jexp_quat_local);
+  Jexp3QuatLocal(quat,Jexp_quat_local);
   
   
   Matrix43 Jcompositon = Jexp3 * Jlog;
@@ -241,7 +252,7 @@ BOOST_AUTO_TEST_CASE(Jexp3_quat)
   typedef Eigen::Matrix<double,7,6> Matrix76;
   Matrix76 Jexp6_fd, Jexp6_quat; Jexp6_quat.setZero();
   typedef Eigen::Matrix<double,4,3> Matrix43;
-  Matrix43 Jexp3_quat; Jexp3(quat,Jexp3_quat);
+  Matrix43 Jexp3_quat; Jexp3QuatLocal(quat,Jexp3_quat);
   SE3 M_next;
   
   Jexp6_quat.middleRows<3>(Motion::LINEAR).middleCols<3>(Motion::LINEAR) = M.rotation();

@@ -189,24 +189,6 @@ namespace se3
 
     Jout.noalias() += c * r * r.transpose();
   }
-  
-  ///
-  /// \brief Derivative of \f$ \bm{q} \oplus \exp{\bm{v}} \f$ where \f$ \bm{v} \f$ belongs to the tangent space of \f$SO(3)\f$
-  /// \f[
-  ///    \left[ q.vec \right]_x + q.w I_3 \\
-  ///    q.vec^T
-  /// \f]
-  ///
-  template<typename QuaternionLike, typename Matrix43Like>
-  void Jexp3(const Eigen::QuaternionBase<QuaternionLike> & quat,
-             const Eigen::MatrixBase<Matrix43Like> & Jexp)
-  {
-    Matrix43Like & Jout = EIGEN_CONST_CAST(Matrix43Like,Jexp);
-    
-    skew(0.5 * quat.vec(),Jout.template topRows<3>());
-    Jout.template topRows<3>().diagonal().array() += 0.5 * quat.w();
-    Jout.template bottomRows<1>() = -0.5 * quat.vec().transpose();
-  }
 
   template<typename Scalar, typename Vector3Like, typename Matrix3Like>
   void Jlog3(const Scalar & theta,
