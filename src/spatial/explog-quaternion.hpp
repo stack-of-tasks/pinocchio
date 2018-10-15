@@ -176,6 +176,24 @@ namespace se3
         
       }
     }
+    
+    ///
+    /// \brief Computes the Jacobian of log3 operator for a unit quaternion.
+    ///
+    /// \param[in] quat A unit quaternion representing the input rotation.
+    /// \param[out] Jlog The resulting Jacobian of the log operator.
+    ///
+    template<typename QuaternionLike, typename Matrix3Like>
+    void Jlog3(const Eigen::QuaternionBase<QuaternionLike> & quat,
+               const Eigen::MatrixBase<Matrix3Like> & Jlog)
+    {
+      typedef typename QuaternionLike::Scalar Scalar;
+      typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Coefficients)::Options> Vector3;
+      
+      Scalar t;
+      Vector3 w(log3(quat,t));
+      se3::Jlog3(t,w,Jlog);
+    }
   } // namespace quaternion
 }
 

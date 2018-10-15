@@ -290,6 +290,20 @@ BOOST_AUTO_TEST_CASE(Jexplog3)
   BOOST_CHECK((Jexp * Jlog).isIdentity());
 }
 
+BOOST_AUTO_TEST_CASE(Jlog3_quat)
+{
+  SE3::Vector3 w; w.setRandom();
+  SE3::Quaternion quat; quaternion::exp3(w,quat);
+  
+  SE3::Matrix3 R(quat.toRotationMatrix());
+  
+  SE3::Matrix3 res, res_ref;
+  quaternion::Jlog3(quat,res);
+  Jlog3(R,res_ref);
+  
+  BOOST_CHECK(res.isApprox(res_ref));
+}
+
 BOOST_AUTO_TEST_CASE(explog6)
 {
   SE3 M(SE3::Random());
