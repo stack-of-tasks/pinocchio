@@ -50,7 +50,7 @@ namespace se3
     using Base::isApprox;
     
     Derived & setZero() { linear().setZero(); angular().setZero(); return derived(); }
-    Derived & setRandom() { linear().setZero(); angular().setZero(); return derived(); }
+    Derived & setRandom() { linear().setRandom(); angular().setRandom(); return derived(); }
     
     template<typename D2>
     bool isEqual_impl(const ForceDense<D2> & other) const
