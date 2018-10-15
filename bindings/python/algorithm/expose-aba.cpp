@@ -23,7 +23,7 @@ namespace se3
   namespace python
   {
     
-    const Data::RowMatrixXd &
+    const Data::RowMatrixXs &
     computeMinverse_proxy(const Model & model, Data & data, const Eigen::VectorXd & q)
     {
       computeMinverse(model,data,q);

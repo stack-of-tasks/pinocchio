@@ -82,7 +82,7 @@ namespace se3
     typedef Eigen::Matrix<Scalar,3,Eigen::Dynamic,Options> Matrix3x;
     
     typedef Eigen::Matrix<Scalar,6,6,Eigen::RowMajor | Options> RowMatrix6;
-    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor | Options> RowMatrixXd;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor | Options> RowMatrixXs;
     
     /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.
@@ -150,7 +150,7 @@ namespace se3
     MatrixXs M;
     
     /// \brief The inverse of the joint space inertia matrix (a square matrix of dim model.nv).
-    RowMatrixXd Minv;
+    RowMatrixXs Minv;
     
     /// \brief The Coriolis matrix (a square matrix of dim model.nv).
     MatrixXs C;

@@ -88,7 +88,7 @@ namespace se3
   /// \return The inverse of the joint space inertia matrix stored in data.ddq.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXd &
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
   computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q);

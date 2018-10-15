@@ -377,7 +377,7 @@ namespace se3
       const JointIndex & parent  = model.parents[i];
       
       typename Inertia::Matrix6 & Ia = data.Yaba[i];
-      typename Data::RowMatrixXd & Minv = data.Minv;
+      typename Data::RowMatrixXs & Minv = data.Minv;
       typename Data::Matrix6x & Fcrb = data.Fcrb[0];
       typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
 
@@ -437,7 +437,7 @@ namespace se3
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
-      typename Data::RowMatrixXd & Minv = data.Minv;
+      typename Data::RowMatrixXs & Minv = data.Minv;
       typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
@@ -461,7 +461,7 @@ namespace se3
   };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXd &
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
   computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q)

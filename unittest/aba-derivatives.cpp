@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   
   MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
   MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
-  Data::RowMatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
+  Data::RowMatrixXs aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
   
   computeABADerivatives(model, data, q, v, tau, aba_partial_dq, aba_partial_dv, aba_partial_dtau);
   computeRNEADerivatives(model,data_ref,q,v,a);
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(test_aba_minimal_argument)
   
   MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
   MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
-  Data::RowMatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
+  Data::RowMatrixXs aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
   
   computeABADerivatives(model, data_ref, q, v, tau, aba_partial_dq, aba_partial_dv, aba_partial_dtau);
   
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   
   MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
   MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
-  Data::RowMatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
+  Data::RowMatrixXs aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
   
   computeABADerivatives(model, data, q, v, tau, fext,
                         aba_partial_dq, aba_partial_dv, aba_partial_dtau);
