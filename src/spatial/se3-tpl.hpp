@@ -20,6 +20,7 @@
 #define __se3_se3_tpl_hpp__
 
 #include <Eigen/Geometry>
+#include "pinocchio/math/quaternion.hpp"
 
 namespace se3
 {
@@ -120,8 +121,7 @@ namespace se3
     
     SE3Tpl & setRandom()
     {
-      Quaternion q(Vector4::Random());
-      q.normalize();
+      Quaternion q; quaternion::uniformRandom(q);
       rot = q.matrix();
       trans.setRandom();
       
