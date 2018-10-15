@@ -127,6 +127,122 @@ namespace se3
       EIGEN_CONST_CAST(Derived,q).y() = mult2 * s3;
       EIGEN_CONST_CAST(Derived,q).z() = mult2 * c3;
     }
+    
+    ///
+    /// \brief Exp: so3 -> SO3 (quaternion)
+    ///
+    /// \returns the integral of the velocity vector as a queternion.
+    ///
+    /// \param[in] v The angular velocity vector.
+    /// \param[out] qout The quanternion where the result is stored.
+    ///
+    template<typename Vector3Like, typename QuaternionLike>
+    void exp3(const Eigen::MatrixBase<Vector3Like> & v,
+              Eigen::QuaternionBase<QuaternionLike> & quat_out)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
+      assert(v.size() == 3);
+      
+      typedef typename Vector3Like::Scalar Scalar;
+      
+      const Scalar t2 = v.squaredNorm();
+      
+      static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon()); // Precision for the Taylor series expansion.
+      if(t2 > ts_prec)
+      {
+        const Scalar t = math::sqrt(t2);
+        Eigen::AngleAxis<Scalar> aa(t,v/t);
+        quat_out = aa;
+      }
+      else
+      {
+        quat_out.vec().noalias() = (Scalar(1)/Scalar(2) - t2/48) * v;
+        quat_out.w() = Scalar(1) - t2/8;
+      }
+      
+    }
+    
+    ///
+    /// \brief Exp: so3 -> SO3 (quaternion)
+    ///
+    /// \returns the integral of the velocity vector as a queternion.
+    ///
+    /// \param[in] v The angular velocity vector.
+    ///
+    template<typename Vector3Like>
+    Eigen::Quaternion<typename Vector3Like::Scalar, EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    exp3(const Eigen::MatrixBase<Vector3Like> & v)
+    {
+      typedef Eigen::Quaternion<typename Vector3Like::Scalar, EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
+      ReturnType res; exp3(v,res);
+      return res;
+    }
+    
+    ///
+    /// \brief Same as \ref log3 but with a unit quaternion as input.
+    ///
+    /// \param[in] quat the unit quaternion.
+    /// \param[out] theta the angle value (resuling from compurations).
+    ///
+    /// \return The angular velocity vector associated to the rotation matrix.
+    ///
+    template<typename QuaternionLike>
+    Eigen::Matrix<typename QuaternionLike::Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
+    log3(const Eigen::QuaternionBase<QuaternionLike> & quat,
+         typename QuaternionLike::Scalar & theta)
+    {
+      typedef typename QuaternionLike::Scalar Scalar;
+      typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options> Vector3;
+      
+      Vector3 res;
+      const Scalar norm_squared = quat.vec().squaredNorm();
+      const Scalar norm = math::sqrt(norm_squared);
+      static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon());
+      if(norm_squared < ts_prec)
+      {
+        const Scalar y_x = norm / quat.w();
+        theta = (1 - y_x * y_x / 3) * y_x;
+        res.noalias() = (Scalar(1) + norm_squared / (6 * quat.w() * quat.w())) * quat.vec();
+      }
+      else
+      {
+        static const Scalar PI_value = PI<Scalar>();
+        Scalar theta_2;
+        // Here, y is always positive
+        if(quat.w() >= 0.) // x >= 0. in atan2(y,x)
+        {
+          theta_2 = math::atan2(norm,quat.w());
+          theta = 2.*theta_2;
+          res.noalias() = (theta / math::sin(theta_2)) * quat.vec();
+        }
+        else
+        { // We take here the oposite as we want to have theta in [-pi;pi];
+          theta_2 = PI_value - math::atan2(norm,quat.w());
+          theta = 2.*theta_2;
+          res.noalias() = -(theta / math::sin(theta_2)) * quat.vec();
+        }
+      }
+      
+      return res;
+    }
+    
+    ///
+    /// \brief Log: SO3 -> so3.
+    ///
+    /// Pseudo-inverse of log from \f$ SO3 -> { v \in so3, ||v|| \le pi } \f$.
+    ///
+    /// \param[in] quat The unit quaternion representing a certain rotation.
+    ///
+    /// \return The angular velocity vector associated to the quaternion.
+    ///
+    template<typename QuaternionLike>
+    Eigen::Matrix<typename QuaternionLike::Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
+    log3(const Eigen::QuaternionBase<QuaternionLike> & quat)
+    {
+      typename QuaternionLike::Scalar theta;
+      return log3(quat.derived(),theta);
+    }
+    
   } // namespace quaternion
   
   /// Deprecated functions. They are now in the se3::pinocchio namespace

@@ -79,39 +79,6 @@ namespace se3
     }
   }
   
-  /// \brief Exp: so3 -> SO3 (quaternion)/
-  ///
-  /// Return the integral of the velocity vector as a queternion.
-  ///
-  /// \param[in] v The angular velocity vector.
-  /// \param[out] qout The quanternion where the result is stored.
-  ///
-  template<typename Vector3Like, typename QuaternionLike>
-  void exp3(const Eigen::MatrixBase<Vector3Like> & v,
-            Eigen::QuaternionBase<QuaternionLike> & quat_out)
-  {
-    EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
-    assert(v.size() == 3);
-    
-    typedef typename Vector3Like::Scalar Scalar;
-    
-    const Scalar t2 = v.squaredNorm();
-    
-    static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon()); // Precision for the Taylor series expansion.
-    if(t2 > ts_prec)
-    {
-      const Scalar t = math::sqrt(t2);
-      Eigen::AngleAxis<Scalar> aa(t,v/t);
-      quat_out = aa;
-    }
-    else
-    {
-      quat_out.vec().noalias() = (Scalar(1)/Scalar(2) - t2/48) * v;
-      quat_out.w() = Scalar(1) - t2/8;
-    }
-    
-  }
-  
   /// \brief Same as \ref log3
   ///
   /// \param[in] R the rotation matrix.
@@ -177,69 +144,6 @@ namespace se3
     typename Matrix3Like::Scalar theta;
     return log3(R.derived(),theta);
   }
-  
-  /// \brief Same as \ref log3 but with quaternion vector as input.
-  ///
-  /// \param[in] quat the quaternion vector.
-  /// \param[out] theta the angle value.
-  ///
-  /// \return The angular velocity vector associated to the rotation matrix.
-  ///
-  template<typename QuaternionLike>
-  Eigen::Matrix<typename QuaternionLike::Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
-  log3(const Eigen::QuaternionBase<QuaternionLike> & quat,
-       typename QuaternionLike::Scalar & theta)
-  {
-    typedef typename QuaternionLike::Scalar Scalar;
-    typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options> Vector3;
-
-    Vector3 res;
-    const Scalar norm_squared = quat.vec().squaredNorm();
-    const Scalar norm = math::sqrt(norm_squared);
-    static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon());
-    if(norm_squared < ts_prec)
-    {
-      const Scalar y_x = norm / quat.w();
-      theta = (1 - y_x * y_x / 3) * y_x;
-      res.noalias() = (Scalar(1) + norm_squared / (6 * quat.w() * quat.w())) * quat.vec();
-    }
-    else
-    {
-      static const Scalar PI_value = PI<Scalar>();
-      Scalar theta_2;
-      // Here, y is always positive
-      if(quat.w() >= 0.) // x >= 0. in atan2(y,x)
-      {
-        theta_2 = math::atan2(norm,quat.w());
-        theta = 2.*theta_2;
-        res.noalias() = (theta / math::sin(theta_2)) * quat.vec();
-      }
-      else
-      { // We take here the oposite as we want to have theta in [-pi;pi];
-        theta_2 = PI_value - math::atan2(norm,quat.w());
-        theta = 2.*theta_2;
-        res.noalias() = -(theta / math::sin(theta_2)) * quat.vec();
-      }
-    }
-    
-    return res;
-  }
-  
-  /// \brief Log: SO3 -> so3.
-  ///
-  /// Pseudo-inverse of log from \f$ SO3 -> { v \in so3, ||v|| \le pi } \f$.
-  ///
-  /// \param[in] R The rotation matrix.
-  ///
-  /// \return The angular velocity vector associated to the rotation matrix.
-  ///
-  template<typename QuaternionLike>
-  Eigen::Matrix<typename QuaternionLike::Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
-  log3(const Eigen::QuaternionBase<QuaternionLike> & quat)
-  {
-    typename QuaternionLike::Scalar theta;
-    return log3(quat.derived(),theta);
-  }
 
   ///
   /// \brief Derivative of \f$ \exp{r} \f$
@@ -298,10 +202,10 @@ namespace se3
              const Eigen::MatrixBase<Matrix43Like> & Jexp)
   {
     Matrix43Like & Jout = EIGEN_CONST_CAST(Matrix43Like,Jexp);
-
+    
     skew(0.5 * quat.vec(),Jout.template topRows<3>());
     Jout.template topRows<3>().diagonal().array() += 0.5 * quat.w();
-    Jout.template bottomRows<1>() = - 0.5 * quat.vec().transpose();
+    Jout.template bottomRows<1>() = -0.5 * quat.vec().transpose();
   }
 
   template<typename Scalar, typename Vector3Like, typename Matrix3Like>

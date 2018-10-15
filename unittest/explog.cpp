@@ -47,17 +47,17 @@ BOOST_AUTO_TEST_CASE(exp)
   
   // Quaternion
   Eigen::Quaterniond quat;
-  exp3(v.angular(),quat);
+  quaternion::exp3(v.angular(),quat);
   BOOST_CHECK(quat.toRotationMatrix().isApprox(M.rotation()));
 
-  exp3(SE3::Vector3::Zero(),quat);
+  quaternion::exp3(SE3::Vector3::Zero(),quat);
   BOOST_CHECK(quat.toRotationMatrix().isIdentity());
   BOOST_CHECK(quat.vec().isZero() && quat.coeffs().tail<1>().isOnes());
   
   // Check QuaternionMap
   Eigen::Vector4d vec4;
   Eigen::QuaternionMapd quat_map(vec4.data());
-  exp3(v.angular(),quat_map);
+  quaternion::exp3(v.angular(),quat_map);
   BOOST_CHECK(quat_map.toRotationMatrix().isApprox(M.rotation()));
 }
 
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(log)
   
   // Quaternion
   Eigen::Quaterniond quat(SE3::Matrix3::Identity());
-  omega = log3(quat);
+  omega = quaternion::log3(quat);
   BOOST_CHECK(omega.isZero());
 
   for(int k = 0; k < 1e3; ++k)
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(log)
     quat = M.rotation();
     BOOST_CHECK(quat.toRotationMatrix().isApprox(M.rotation()));
     double theta;
-    omega = log3(quat,theta);
+    omega = quaternion::log3(quat,theta);
     const double PI_value = PI<double>();
     BOOST_CHECK(omega.norm() <= PI_value);
     double theta_ref;
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(log)
   Eigen::Vector4d vec4;
   Eigen::QuaternionMapd quat_map(vec4.data());
   quat_map = SE3::Random().rotation();
-  BOOST_CHECK(log3(quat_map).isApprox(log3(quat_map.toRotationMatrix())));
+  BOOST_CHECK(quaternion::log3(quat_map).isApprox(log3(quat_map.toRotationMatrix())));
 }
 
 BOOST_AUTO_TEST_CASE(explog3)
@@ -112,24 +112,29 @@ BOOST_AUTO_TEST_CASE(explog3)
   Motion::Vector3 v; v.setRandom();
   Motion::Vector3 v_res = log3(exp3(v));
   BOOST_CHECK(v_res.isApprox(v));
-  
+}
+
+BOOST_AUTO_TEST_CASE(explog3_quaternion)
+{
+  SE3 M(SE3::Random());
   Eigen::Quaterniond quat;
   quat = M.rotation();
   Eigen::Quaterniond quat_res;
-  exp3(log3(quat),quat_res);
+  quaternion::exp3(quaternion::log3(quat),quat_res);
   BOOST_CHECK(quat_res.isApprox(quat) || quat_res.coeffs().isApprox(-quat.coeffs()));
   
-  exp3(v,quat);
-  BOOST_CHECK(log3(quat).isApprox(v));
+  Motion::Vector3 v; v.setRandom();
+  quaternion::exp3(v,quat);
+  BOOST_CHECK(quaternion::log3(quat).isApprox(v));
   
   SE3::Matrix3 R_next = M.rotation() * exp3(v);
   Motion::Vector3 v_est = log3(M.rotation().transpose() * R_next);
   BOOST_CHECK(v_est.isApprox(v));
   
   SE3::Quaternion quat_v;
-  exp3(v,quat_v);
+  quaternion::exp3(v,quat_v);
   SE3::Quaternion quat_next = quat * quat_v;
-  v_est = log3(quat.conjugate() * quat_next);
+  v_est = quaternion::log3(quat.conjugate() * quat_next);
   BOOST_CHECK(v_est.isApprox(v));
 }
 
