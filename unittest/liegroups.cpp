@@ -284,13 +284,13 @@ struct LieGroup_JintegrateCoeffWise
     ConfigVector_t q = lg.random();
     TangentVector_t dv(TangentVector_t::Zero(lg.nv()));
     
-    
+//    std::cout << "name: " << lg.name() << std::endl;
     typedef Eigen::Matrix<Scalar,T::NQ,T::NV> JacobianCoeffs;
     JacobianCoeffs Jintegrate(JacobianCoeffs::Zero(lg.nq(),lg.nv()));
     lg.integrateCoeffWiseJacobian(q,Jintegrate);
     JacobianCoeffs Jintegrate_fd(JacobianCoeffs::Zero(lg.nq(),lg.nv()));;
 
-    const Scalar eps = 1e-6;
+    const Scalar eps = 1e-8;
     for (int i = 0; i < lg.nv(); ++i)
     {
       dv[i] = eps;
@@ -302,6 +302,8 @@ struct LieGroup_JintegrateCoeffWise
     }
 
     BOOST_CHECK(Jintegrate.isApprox(Jintegrate_fd,sqrt(eps)));
+//    std::cout << "Jintegrate\n" << Jintegrate << std::endl;
+//    std::cout << "Jintegrate_fd\n" << Jintegrate_fd << std::endl;
   }
 };
 
@@ -398,7 +400,7 @@ BOOST_AUTO_TEST_CASE(JintegrateCoeffWise)
   SpecialOrthogonalOperationTpl<3,Scalar,Options>
   >
   > Types;
-  for (int i = 0; i < 1; ++i)
+  for (int i = 0; i < 20; ++i)
     boost::mpl::for_each<Types>(LieGroup_JintegrateCoeffWise());
   
 }

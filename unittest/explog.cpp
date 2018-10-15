@@ -83,8 +83,11 @@ BOOST_AUTO_TEST_CASE(log)
 
   for(int k = 0; k < 1e3; ++k)
   {
-    quat = M.rotation();
-    BOOST_CHECK(quat.toRotationMatrix().isApprox(M.rotation()));
+    SE3::Vector3 w; w.setRandom();
+    quaternion::exp3(w,quat);
+    SE3::Matrix3 rot = exp3(w);
+    
+    BOOST_CHECK(quat.toRotationMatrix().isApprox(rot));
     double theta;
     omega = quaternion::log3(quat,theta);
     const double PI_value = PI<double>();

@@ -337,7 +337,7 @@ namespace se3
       ConstQuaternionMap_t quat(q.derived().data());
       QuaternionMap_t quat_map(EIGEN_CONST_CAST(ConfigOut_t,qout).data());
 
-      Quaternion_t pOmega; (exp3(v,pOmega));
+      Quaternion_t pOmega; quaternion::exp3(v,pOmega);
       quat_map = quat * pOmega;
       quaternion::firstOrderNormalize(quat_map);
     }
@@ -347,9 +347,28 @@ namespace se3
                                                 const Eigen::MatrixBase<Jacobian_t> & J)
     {
       assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
+      
+      typedef typename EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlain;
+      typedef typename JacobianPlain::Scalar Scalar;
+      typedef SE3Tpl<Scalar,JacobianPlain::Options> SE3;
+      typedef typename SE3::Vector3 Vector3;
+      typedef typename SE3::Matrix3 Matrix3;
 
       ConstQuaternionMap_t quat_map(q.derived().data());
-      Jexp3(quat_map,EIGEN_CONST_CAST(Jacobian_t,J).template topLeftCorner<NQ,NV>());
+      Eigen::Matrix<Scalar,NQ,NV,JacobianPlain::Options> Jexp3QuatCoeffWise;
+      
+      Scalar theta;
+      Vector3 v = quaternion::log3(quat_map,theta);
+      quaternion::Jexp3CoeffWise(v,Jexp3QuatCoeffWise);
+      Matrix3 Jlog;
+      Jlog3(theta,v,Jlog);
+      
+      if(quat_map.w() >= 0.) // comes from the log3 for quaternions which may change the sign.
+        EIGEN_CONST_CAST(Jacobian_t,J).noalias() = Jexp3QuatCoeffWise * Jlog;
+      else
+        EIGEN_CONST_CAST(Jacobian_t,J).noalias() = -Jexp3QuatCoeffWise * Jlog;
+        
+//      Jexp3(quat_map,EIGEN_CONST_CAST(Jacobian_t,J).template topLeftCorner<NQ,NV>());
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
