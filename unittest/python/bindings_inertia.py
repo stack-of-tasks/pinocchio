@@ -27,7 +27,7 @@ class TestInertiaBindings(unittest.TestCase):
         self.assertTrue(np.allclose(self.v3zero, Y.lever))
         self.assertTrue(np.allclose(self.m3ones, Y.inertia))
 
-
+    # TODO: this is not nice, since a random matrix can *in theory* be unity
     def test_setRandom(self):
         Y = se3.Inertia.Identity()
         Y.setRandom()
@@ -65,8 +65,7 @@ class TestInertiaBindings(unittest.TestCase):
         Y = se3.Inertia.Zero()
         iner = rand([3,3])
         iner = (iner + iner.T) / 2.  # Symmetrize the matrix
-        vec6_iner = np.matrix([iner[0,0],iner[0,1], iner[1,1], iner[0,2], iner[1,2], iner[2,2]], np.double)
-        Y.inertia = vec6_iner
+        Y.inertia = iner
         self.assertTrue(np.allclose(Y.inertia, iner))
 
     def test_internal_sums(self):
@@ -80,8 +79,9 @@ class TestInertiaBindings(unittest.TestCase):
         Y = se3.Inertia.Random()
         v = se3.Motion.Random()
         self.assertTrue(np.allclose((Y * v).vector, Y.matrix() * v.vector))
-        self.assertTrue(np.allclose((m * Y).matrix(), m.inverse().action.T * Y.matrix() * m.inverse().action))
+        self.assertTrue(np.allclose((m * Y).matrix(),  m.inverse().action.T * Y.matrix() * m.inverse().action))
+        self.assertTrue(np.allclose(m.act(Y).matrix(), m.inverse().action.T * Y.matrix() * m.inverse().action))
         self.assertTrue(np.allclose((m.actInv(Y)).matrix(), m.action.T * Y.matrix() * m.action))
 
-
-
+if __name__ == '__main__':
+    unittest.main()
