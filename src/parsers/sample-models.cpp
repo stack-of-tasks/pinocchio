@@ -137,6 +137,64 @@ namespace se3
 
     }
 
+    void manipulator(Model & model)
+    {
+      typedef typename JointModelRX::ConfigVector_t CV;
+      typedef typename JointModelRX::TangentVector_t TV;
+
+      Model::JointIndex idx = 0;
+
+      SE3 Marm(Eigen::Matrix3d::Identity(),Eigen::Vector3d(0,0,1));
+      SE3 I4 = SE3::Identity();
+      Inertia Ijoint = Inertia(.1,Eigen::Vector3d::Zero(),Eigen::Matrix3d::Identity()*.01);
+      Inertia Iarm   = Inertia(1.,Eigen::Vector3d(0,0,.5),Eigen::Matrix3d::Identity()*.1 );
+      CV qmin = CV::Constant(-3.14), qmax   = CV::Constant(3.14);
+      TV vmax = TV::Constant(-10),   taumax = TV::Constant(10);
+
+      idx = model.addJoint(idx,JointModelRX(),I4  ,"shoulder1_joint", vmax,taumax,qmin,qmax);
+      model.appendBodyToJoint(idx,Ijoint);
+      model.addJointFrame(idx);
+      model.addBodyFrame("shoulder1_body",idx);
+
+      idx = model.addJoint(idx,JointModelRY(),I4  ,"shoulder2_joint", vmax,taumax,qmin,qmax);
+      model.appendBodyToJoint(idx,Ijoint);
+      model.addJointFrame(idx);
+      model.addBodyFrame("shoulder2_body",idx);
+
+      idx = model.addJoint(idx,JointModelRZ(),I4  ,"shoulder3_joint", vmax,taumax,qmin,qmax);
+      model.appendBodyToJoint(idx,Iarm);
+      model.addJointFrame(idx);
+      model.addBodyFrame("upperarm_body",idx);
+
+      idx = model.addJoint(idx,JointModelRX(),Marm,"elbow_joint",     vmax,taumax,qmin,qmax);
+      model.appendBodyToJoint(idx,Iarm);
+      model.addJointFrame(idx);
+      model.addBodyFrame("lowerarm_body",idx);
+
+      idx = model.addJoint(idx,JointModelRX(),Marm,"wrist1_joint",    vmax,taumax,qmin,qmax);
+      model.appendBodyToJoint(idx,Ijoint);
+      model.addJointFrame(idx);
+      model.addBodyFrame("wrist1_body",idx);
+
+      idx = model.addJoint(idx,JointModelRZ(),I4  ,"wrist2_joint",    vmax,taumax,qmin,qmax);
+      model.appendBodyToJoint(idx,Iarm);
+      model.addJointFrame(idx);
+      model.addBodyFrame("effector_body",idx);
+
+    }
+
+    void manipulatorGeometries(const Model& model, GeometryModel & geom)
+    {
+      GeometryObject upperArm("upperarm_object",
+                              model.getBodyId("upperarm_body"),0,
+                              boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.1, 1)),
+                              SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(.5,0,0)) );
+      geom.addGeometryObject(upperArm,model,true);
+
+    }
+
+
+    
   } // namespace buildModels
   
 } // namespace se3

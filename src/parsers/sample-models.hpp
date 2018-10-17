@@ -20,6 +20,7 @@
 #define __se3_sample_models_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/geometry.hpp"
 
 namespace se3
 {
@@ -28,7 +29,9 @@ namespace se3
 
     void humanoid2d(Model& model);
     void humanoidSimple(Model& model, bool usingFF = true);
-
+    void manipulator(Model& model);
+    void manipulatorGeometries(const Model& model, GeometryModel & geom);
+    
   } // namespace buildModels
 } // namespace se3
 
