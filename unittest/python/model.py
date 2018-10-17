@@ -54,3 +54,6 @@ class TestModel(TestCase):
             self.assertApprox(data.v[i].np, zero(6))
         self.assertApprox(data.a_gf[0].np, -model.gravity.np)
         self.assertApprox(data.f[-1], model.inertias[-1] * data.a_gf[-1])
+
+if __name__ == '__main__':
+    unittest.main()

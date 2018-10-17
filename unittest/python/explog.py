@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 import pinocchio as se3
+from pinocchio.utils import rand
 from pinocchio.explog import exp, log
 
 from test_case import TestCase
@@ -13,11 +14,13 @@ class TestExpLog(TestCase):
         self.assertApprox(log(42), math.log(42))
         self.assertApprox(exp(log(42)), 42)
         self.assertApprox(log(exp(42)), 42)
-        m = np.matrix(list(range(1, 4)), np.double).T
+        m = rand(3)
+        self.assertTrue(np.linalg.norm(m) < np.pi) # necessary for next test
         self.assertApprox(log(exp(m)), m)
         m = se3.SE3.Random()
         self.assertApprox(exp(log(m)), m)
-        m = np.matrix([float(i) / 10 for i in range(1, 7)]).T
+        m = rand(6)
+        self.assertTrue(np.linalg.norm(m) < np.pi) # necessary for next test (actually, only angular part)
         self.assertApprox(log(exp(m)), m)
         m = np.eye(4)
         self.assertApprox(exp(log(m)).homogeneous, m)
@@ -29,3 +32,8 @@ class TestExpLog(TestCase):
             log(list(range(3)))
         with self.assertRaises(ValueError):
             log(np.zeros(5))
+        with self.assertRaises(ValueError):
+            log(np.zeros((3,1)))
+
+if __name__ == '__main__':
+    unittest.main()
