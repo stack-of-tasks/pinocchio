@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -806,6 +806,29 @@ BOOST_AUTO_TEST_CASE(test_skew)
   
   BOOST_CHECK(res41.isApprox(res42));
   
+}
+
+BOOST_AUTO_TEST_CASE(test_addSkew)
+{
+  using namespace se3;
+  typedef SE3::Vector3 Vector3;
+  typedef SE3::Matrix3 Matrix3;
+  
+  Vector3 v(Vector3::Random());
+  Matrix3 M(Matrix3::Random());
+  Matrix3 Mcopy(M);
+  
+  addSkew(v,M);
+  Matrix3 Mref = Mcopy + skew(v);
+  BOOST_CHECK(M.isApprox(Mref));
+  
+  Mref += skew(-v);
+  addSkew(-v,M);
+  BOOST_CHECK(M.isApprox(Mcopy));
+  
+  M.setZero();
+  addSkew(v,M);
+  BOOST_CHECK(M.isApprox(skew(v)));
 }
 
 BOOST_AUTO_TEST_CASE(test_skew_square)

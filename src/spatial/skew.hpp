@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -60,6 +60,27 @@ namespace se3
     Eigen::Matrix<typename D::Scalar,3,3,EIGEN_PLAIN_TYPE(D)::Options> M;
     skew(v,M);
     return M;
+  }
+  
+  ///
+  /// \brief Add skew matrix represented by a 3d vector to a given matrix,
+  ///        i.e. add the antisymmetric matrix representation of the cross product operator (\f$ [v]_{\cross} x = v \cross x \f$)
+  ///
+  /// \param[in]  v a vector of dimension 3.
+  /// \param[out] M the 3x3 matrix to which the skew matrix is added.
+  ///
+  template <typename Vector3Like, typename Matrix3Like>
+  inline void addSkew(const Eigen::MatrixBase<Vector3Like> & v,
+                      const Eigen::MatrixBase<Matrix3Like> & M)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3);
+    
+    Matrix3Like & M_ = EIGEN_CONST_CAST(Matrix3Like,M);
+    
+                          M_(0,1) -= v[2];      M_(0,2) += v[1];
+    M_(1,0) += v[2];                            M_(1,2) -= v[0];
+    M_(2,0) -= v[1];      M_(2,1) += v[0];                     ;
   }
   
   ///
