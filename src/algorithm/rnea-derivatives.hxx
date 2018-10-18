@@ -255,14 +255,13 @@ namespace se3
     }
     
     template<typename ForceDerived, typename M6>
-    static void addForceCrossMatrix(const ForceDense<ForceDerived> & f, const Eigen::MatrixBase<M6> & mout)
+    static void addForceCrossMatrix(const ForceDense<ForceDerived> & f,
+                                    const Eigen::MatrixBase<M6> & mout)
     {
-      M6 & mout_ = const_cast<Eigen::MatrixBase<M6> &>(mout).derived();
-      typedef Eigen::Matrix<typename M6::Scalar,3,3,EIGEN_PLAIN_TYPE(M6)::Options> M3;
-      const M3 fx(skew(f.linear()));
-      mout_.template block<3,3>(ForceDerived::LINEAR,ForceDerived::ANGULAR) -= fx;
-      mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::LINEAR) -= fx;
-      mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::ANGULAR) -= skew(f.angular());
+      M6 & mout_ = EIGEN_CONST_CAST(M6,mout);
+      addSkew(-f.linear(),mout_.template block<3,3>(ForceDerived::LINEAR,ForceDerived::ANGULAR));
+      addSkew(-f.linear(),mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::LINEAR));
+      addSkew(-f.angular(),mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::ANGULAR));
     }
     
   };
