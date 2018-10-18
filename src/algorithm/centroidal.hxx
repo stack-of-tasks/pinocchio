@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -27,34 +27,6 @@
 
 namespace se3
 {
-  
-  struct CcrbaForwardStep : public fusion::JointVisitorBase<CcrbaForwardStep>
-  {
-    typedef boost::fusion::vector< const Model &,
-    Data &,
-    const Eigen::VectorXd &
-    > ArgsType;
-    
-    template<typename JointModel>
-    static void algo(const JointModelBase<JointModel> & jmodel,
-                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const Model & model,
-                     Data & data,
-                     const Eigen::VectorXd & q)
-    {
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
-      const JointIndex & parent = model.parents[i];
-      
-      jmodel.calc(jdata.derived(),q.derived());
-      
-      data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      data.Ycrb[i] = model.inertias[i];
-      
-      if (parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
-      else data.oMi[i] = data.liMi[i];
-    }
-    
-  }; // struct CcrbaForwardStep
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct CcrbaBackwardStep
@@ -275,11 +247,6 @@ namespace se3
     
     return data.dAg;
   }
-  
-  // --- CHECKER ---------------------------------------------------------------
-  // --- CHECKER ---------------------------------------------------------------
-  // --- CHECKER ---------------------------------------------------------------
-  
   
 } // namespace se3
 
