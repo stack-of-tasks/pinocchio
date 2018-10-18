@@ -108,42 +108,6 @@ namespace se3
     return data.Ag;
   }
   
-  struct DCcrbaForwardStep : public fusion::JointVisitorBase<DCcrbaForwardStep>
-  {
-    typedef boost::fusion::vector< const Model &,
-    Data &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &
-    > ArgsType;
-    
-    template<typename JointModel>
-    static void algo(const JointModelBase<JointModel> & jmodel,
-                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const Model & model,
-                     Data & data,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v)
-    {
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
-      const JointIndex & parent = model.parents[i];
-      
-      jmodel.calc(jdata.derived(),q.derived(),v.derived());
-      
-      data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      data.Ycrb[i] = model.inertias[i];
-      
-      data.v[i] = jdata.v();
-      
-      if (parent>0)
-      {
-        data.oMi[i] = data.oMi[parent]*data.liMi[i];
-        data.v[i] += data.liMi[i].actInv(data.v[parent]);
-      }
-      else data.oMi[i] = data.liMi[i];
-    }
-    
-  }; // struct DCcrbaForwardStep
-  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct DCcrbaBackwardStep
   : public fusion::JointVisitorBase< DCcrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
