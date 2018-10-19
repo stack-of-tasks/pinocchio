@@ -585,4 +585,6 @@ TAGFILES               =
 
 EXAMPLE_PATH = @PROJECT_SOURCE_DIR@/examples
 
+# A dedicated BIB_PATH would be preferable
+EXAMPLE_PATH += @PROJECT_SOURCE_DIR@/doc/bib
 

@@ -23,7 +23,7 @@
 
 Pinocchio is a library for efficiently computing the dynamics (and derivatives) of a robot model, and behing, any articulated rigid-body model you would like (avatar in a simulator, skeletal model for biomechanics).
 Pinocchio is one of the most efficient library for computing the dynamics of articulated bodies.
-It implements the classical algorithms following the methods described in Featherstone 2009 book (many thanks to him).
+It implements the classical algorithms following the methods described in Featherstone 2008 book (many thanks to him).
 It also introduce efficient variations of some of these algorithms, some new ones and algorithms to compute the derivatives of the main algorithms.
 
 Pinocchio is open-source, mostly written in C++ with Python bindings, and distributed under LGPL-v3 licence.
@@ -44,27 +44,36 @@ http://stack-of-tasks.github.io/pinocchio/download.html.
 We start by a simple program to compute the robot inverse dynamics. It is given in both C++ and Python version.
 
 <table class="manual">
-<tr><th>C++ version</th><th>Python version</th></tr>
-<tr><td>
-\include overview-simple.cpp
-</td>
-<td>
-\include overview-simple.py
-</td></tr></table>
+  <tr>
+    <th>overview-simple.cpp</th>
+    <th>overview-simple.py</th>
+  </tr>
+  <tr>
+    <td valign="top">
+      \include overview-simple.cpp
+    </td>
+    <td valign="top">
+      \include overview-simple.py
+    </td>
+  </tr>
+</table>
 
 \subsection OverviewSimpleCompile Compiling and running your program
 
 You would compile the C++ version by including Pinocchio and Eigen header directories.
 
-\code g++ -I /usr/include/eigen -I /path/to/pinocchio/include sample-rnea.cpp -L /path/to/pinocchio/lib -lpinocchio -o sample-rnea \endcode
+\code g++ -I /path/to/eigen -I /path/to/pinocchio/include overview-simple.cpp -L /path/to/pinocchio/lib -lpinocchio -o overview-simple \endcode
 
-You might then run it using
+where `/path/to/pinocchio` is your chosen installation directory for pinocchio.
+On Linux or Mac OS X, the path to eigen will usually be something like `/usr/include/eigen`, otherwise it might be retrived with `pkg-config --cflags eigen3`.
 
-\code ./sample-rnea \endcode
+Once your code is compiled, you might then run it using
+
+\code ./overview-simple \endcode
 
 In Python, just run it:
 
-\code python sample-rnea.py \endcode
+\code python overview-simple.py \endcode
 
 \subsection OverviewSimpleExplain Explaination of the program
 
@@ -87,28 +96,34 @@ We just print it, also the corresponding values are difficult to interpret.
 \section OverviewComplex More complex example with C++ & Python
 
 <table class="manual">
-<tr><th>C++ version</th><th>Python version</th></tr>
-<tr><td>
-\include overview-urdf.cpp
-</td>
-<td>
-\include overview-urdf.py
-</td></tr></table>
+  <tr>
+    <th>overview-urdf.cpp</th>
+    <th>overview-urdf.py</th>
+  </tr>
+  <tr>
+    <td valign="top">
+      \include overview-urdf.cpp
+    </td>
+    <td valign="top">
+      \include overview-urdf.py
+    </td>
+  </tr>
+</table>
 
 \subsection OverviewComplexCompile Compiling and running your program
 
 This time, we must specify that URDFDOM is needed, as the model will be parsed from URDF.
 
-\code g++ -I /usr/include/eigen3/  -I  /path/to/pinocchio/include -L /path/to/pinocchio/lib -DURDFDOM_TYPEDEF_SHARED_PTR -DWITH_URDFDOM  ../examples/sample-urdf.cpp  -lpinocchio -o sample-urdf \endcode
+\code g++ -I /path/to/eigen  -I  /path/to/pinocchio/include -L /path/to/pinocchio/lib -DURDFDOM_TYPEDEF_SHARED_PTR -DWITH_URDFDOM  ../examples/overview-urdf.cpp  -lpinocchio -o overview-urdf \endcode
 
-The program typically runs with a UR5 URDF description, that can be found for example in this repository https://github.com/humanoid-path-planner/universal_robot
+The program typically runs with a UR5 URDF description, that can be found for example in this repository https://github.com/humanoid-path-planner/ur_description
 
 Launch the program from the directory containing the ur5.urdf file
-\code cd /path/to/ur5.urdf && ./sample-urdf \endcode
+\code cd /path/to/ur5.urdf && ./overview-urdf \endcode
 
 In Python, just run it:
 
-\code python sample-urdf \endcode
+\code python overview-urdf \endcode
 
 \subsection OverviewComplexExplain Explaination of the program
 
@@ -120,7 +135,7 @@ The model is built by parsing the urdf model: the .urdf file should be directly 
 
 The forward kinematics is simply computed by providing the model, the associated data and the robot configuration. Then, a loop goes through the kinematic tree (from root to leaves) and display for each joint its name and position in world frame. For the 6-dof manipulator UR5, there are 7 joints to be displayed, with the first joint being the "universe" i.e. the reference world frame from which everything is expressed.
 
-\section OverviewPython About Python wrapings
+\section OverviewPython About Python wrappings
 
 Pinocchio is written in C++, with a full template-based C++ API, for efficiency purpose. All the functionalities are available in C++. Extension of the library should be preferably in C++.
 
@@ -132,32 +147,27 @@ When working with Pinocchio, we often suggest to first prototype your ideas in P
 
 Happy with Pinocchio? Please cite use with the following format.
 
-### Easy solution: cite our paper available in HAL
-The Pinocchio C++ library -- A fast and flexible implementation of rigid body dynamics algorithms and their analytical derivatives, by  J. Carpentier, G. Saurel, G. Buondonno, J. Mirabel, F. Lamiraux, O. Stasse and N. Mansard, in HAL ref 01866228
+### Easy solution: cite our open access paper
+The following is the preferred way to cite Pinocchio.
+The paper is publicly available in HAL ([ref 01866228](https://hal.archives-ouvertes.fr/hal-01866228 "Pinocchio paper")).
 
-\@article{carpentier-sii19, \n
-&nbsp;&nbsp;  title={The Pinocchio C++ library--A fast and flexible implementation of rigid body dynamics algorithms and their analytical derivatives},\n
-&nbsp;&nbsp; author={J. Carpentier and G. Saurel and G. Buondonno and J. Mirabel and F. Lamiraux and O. Stasse and N. Mansard},\n
-&nbsp;&nbsp; year={2018}\n
-}
+\include carpentier-sii19.bib
 
 
 ### Citing the software package
+Additionally, if you want to cite the software package, you might want to resort to the following citation.
 
-Pinocchio: fast forward and inverse dynamics for poly-articulated systems, 2015–2018, by J. Carpentier, J. Mirabel, N. Mansard et al, at https://stack-of-tasks. github.io/pinocchio
+\include pinocchioweb.bib
 
 ### Citing the derivative algorithms
 
-Analytical derivatives of rigid body dynamics algorithms, 2018, by J. Carpentier and N. Mansard, in Robotics: Science and Systems
+A great novelty of Pinocchio is that the derivatives of rigid body dynamics algorithms are made publicly available, for the first time.
+If you want to refer to the new algorithms, without explicitley mentioning Pinocchio,
 
-\@inproceedings{carpentier-rss18, \n
-&nbsp;&nbsp;  title={Analytical derivatives of rigid body dynamics algorithms}, \n
-&nbsp;&nbsp;  author={Carpentier, Justin and Mansard, Nicolas}, \n
-&nbsp;&nbsp;  booktitle={Robotics: Science and Systems (RSS'18)}, \n
-&nbsp;&nbsp;  year={2018}\n
-}
+\include carpentier-rss18.bib
 
-\section OverviewConclu Where to go from here?  
+
+\section OverviewConclu Where to go from here?
 
 This documentation is mostly composed of several examples and tutorials for newcomers, along with a technical documentation and a reference guide. If you want to make sure Pinocchio matches your needs, you may first want to check the list of features. Several examples in C++ and Python will then give you directly the keys to implement the most classical applications based on a rigid-body library. For nonexpert, we also provide the main mathematical fundamentals, based on Featherstone's formulations (you may prefer to buy and read the original book if you never did). A long tutorial in Python contains everything you need if you are not a Python expert and want to start with Pinocchio. This tutorial was first written as a class material for Master class about robotics. 
 
