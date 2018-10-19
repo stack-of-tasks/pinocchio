@@ -54,6 +54,20 @@ namespace se3
         return geom;
       }
       
+      static Model buildSampleModelHumanoid()
+      {
+        Model model;
+        buildModels::humanoid(model);
+        return model;
+      }
+      
+      static GeometryModel buildSampleGeometryModelHumanoid(const Model& model)
+      {
+        GeometryModel geom;
+        buildModels::humanoidGeometries(model,geom);
+        return geom;
+      }
+      
       /* --- Expose --------------------------------------------------------- */
       static void expose();
     }; // struct SampleModelsPythonVisitor
@@ -75,6 +89,17 @@ namespace se3
               static_cast <GeometryModel (*) (const Model&)> (&SampleModelsPythonVisitor::buildSampleGeometryModelManipulator),
               bp::args("Model (model)"),
               "Generate a (hard-coded) geometry model of a simple manipulator."
+              );
+      
+      bp::def("buildSampleModelHumanoid",
+              static_cast <Model (*) ()> (&SampleModelsPythonVisitor::buildSampleModelHumanoid),
+              "Generate a (hard-coded) model of a simple humanoid."
+              );
+
+      bp::def("buildSampleGeometryModelHumanoid",
+              static_cast <GeometryModel (*) (const Model&)> (&SampleModelsPythonVisitor::buildSampleGeometryModelHumanoid),
+              bp::args("Model (model)"),
+              "Generate a (hard-coded) geometry model of a simple humanoid."
               );
       
     }

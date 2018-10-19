@@ -22,6 +22,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/geometry.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
 #include <boost/test/unit_test.hpp>
@@ -30,7 +31,7 @@
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
-BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid )
+BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid_simple )
 {
   se3::Model model;
   se3::buildModels::humanoidSimple(model,true);
@@ -56,7 +57,27 @@ BOOST_AUTO_TEST_CASE ( build_model_sample_manipulator )
   se3::Data data(model);
   se3::GeometryModel geom;
   se3::buildModels::manipulatorGeometries(model,geom);
+}
+
+BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid )
+{
+  se3::Model model;
+  se3::buildModels::humanoid(model);
+  se3::Data data(model);
+
+  BOOST_CHECK(model.nq == 35);
+  BOOST_CHECK(model.nv == 34);
+
+  se3::GeometryModel geom;
+  se3::buildModels::humanoidGeometries(model,geom);
+  se3::GeometryData geomdata(geom);
   
+  Eigen::VectorXd q(model.nq);
+  se3::forwardKinematics(model,data,q);
+  se3::updateGeometryPlacements(model,data,geom,geomdata,q);
+
+  /* We might want to check here the joint namings, and validate the 
+   * direct geometry with respect to reference values. */
 }
 
 

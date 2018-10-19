@@ -137,12 +137,15 @@ namespace se3
 
     }
 
-    void manipulator(Model & model)
+    static void addManipulator(Model & model,
+                               Model::JointIndex rootJoint = 0,
+                               const SE3 & Mroot = SE3::Identity(),
+                               const std::string pre = "")
     {
       typedef typename JointModelRX::ConfigVector_t CV;
       typedef typename JointModelRX::TangentVector_t TV;
 
-      Model::JointIndex idx = 0;
+      Model::JointIndex idx = rootJoint;
 
       SE3 Marm(Eigen::Matrix3d::Identity(),Eigen::Vector3d(0,0,1));
       SE3 I4 = SE3::Identity();
@@ -151,50 +154,190 @@ namespace se3
       CV qmin = CV::Constant(-3.14), qmax   = CV::Constant(3.14);
       TV vmax = TV::Constant(-10),   taumax = TV::Constant(10);
 
-      idx = model.addJoint(idx,JointModelRX(),I4  ,"shoulder1_joint", vmax,taumax,qmin,qmax);
+      idx = model.addJoint(idx,JointModelRX(),Mroot,pre+"shoulder1_joint", vmax,taumax,qmin,qmax);
       model.appendBodyToJoint(idx,Ijoint);
       model.addJointFrame(idx);
-      model.addBodyFrame("shoulder1_body",idx);
+      model.addBodyFrame(pre+"shoulder1_body",idx);
 
-      idx = model.addJoint(idx,JointModelRY(),I4  ,"shoulder2_joint", vmax,taumax,qmin,qmax);
+      idx = model.addJoint(idx,JointModelRY(),I4   ,pre+"shoulder2_joint", vmax,taumax,qmin,qmax);
       model.appendBodyToJoint(idx,Ijoint);
       model.addJointFrame(idx);
-      model.addBodyFrame("shoulder2_body",idx);
+      model.addBodyFrame(pre+"shoulder2_body",idx);
 
-      idx = model.addJoint(idx,JointModelRZ(),I4  ,"shoulder3_joint", vmax,taumax,qmin,qmax);
+      idx = model.addJoint(idx,JointModelRZ(),I4   ,pre+"shoulder3_joint", vmax,taumax,qmin,qmax);
       model.appendBodyToJoint(idx,Iarm);
       model.addJointFrame(idx);
-      model.addBodyFrame("upperarm_body",idx);
+      model.addBodyFrame(pre+"upperarm_body",idx);
 
-      idx = model.addJoint(idx,JointModelRX(),Marm,"elbow_joint",     vmax,taumax,qmin,qmax);
+      idx = model.addJoint(idx,JointModelRY(),Marm ,pre+"elbow_joint",     vmax,taumax,qmin,qmax);
       model.appendBodyToJoint(idx,Iarm);
       model.addJointFrame(idx);
-      model.addBodyFrame("lowerarm_body",idx);
+      model.addBodyFrame(pre+"lowerarm_body",idx);
+      model.addBodyFrame(pre+"elbow_body",idx);
 
-      idx = model.addJoint(idx,JointModelRX(),Marm,"wrist1_joint",    vmax,taumax,qmin,qmax);
+      idx = model.addJoint(idx,JointModelRX(),Marm ,pre+"wrist1_joint",    vmax,taumax,qmin,qmax);
       model.appendBodyToJoint(idx,Ijoint);
       model.addJointFrame(idx);
-      model.addBodyFrame("wrist1_body",idx);
+      model.addBodyFrame(pre+"wrist1_body",idx);
 
-      idx = model.addJoint(idx,JointModelRZ(),I4  ,"wrist2_joint",    vmax,taumax,qmin,qmax);
+      idx = model.addJoint(idx,JointModelRY(),I4   ,pre+"wrist2_joint",    vmax,taumax,qmin,qmax);
       model.appendBodyToJoint(idx,Iarm);
       model.addJointFrame(idx);
-      model.addBodyFrame("effector_body",idx);
+      model.addBodyFrame(pre+"effector_body",idx);
 
     }
 
-    void manipulatorGeometries(const Model& model, GeometryModel & geom)
+    /* Add a 6DOF manipulator shoulder-elbow-wrist geometries to an existing model. 
+     * <model> is the the kinematic chain, constant.
+     * <geom> is the geometry model where the new geoms are added.
+     * <pre> is the prefix (string) before every name in the model.
+     */
+    static void addManipulatorGeometries(const Model& model,
+                                         GeometryModel & geom,
+                                         const std::string & pre = "")
     {
-      GeometryObject upperArm("upperarm_object",
-                              model.getBodyId("upperarm_body"),0,
-                              boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.1, 1)),
-                              SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(.5,0,0)) );
+      GeometryObject shoulderBall(pre+"shoulder_object",
+                                  model.getBodyId(pre+"shoulder1_body"),/*NR*/0,
+                                  boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                                  SE3::Identity());
+      geom.addGeometryObject(shoulderBall,model,true);
+      
+      GeometryObject elbowBall(pre+"elbow_object",
+                               model.getBodyId(pre+"elbow_body"),/*NR*/0,
+                               boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                               SE3::Identity());
+      geom.addGeometryObject(elbowBall,model,true);
+      
+      GeometryObject wristBall(pre+"wrist_object",
+                               model.getBodyId(pre+"wrist1_body"),/*NR*/0,
+                               boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                               SE3::Identity());
+      geom.addGeometryObject(wristBall,model,true);
+
+      GeometryObject upperArm(pre+"upperarm_object",
+                              model.getBodyId(pre+"upperarm_body"),/*NR*/0,
+                              boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
+                              SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
       geom.addGeometryObject(upperArm,model,true);
 
+      GeometryObject lowerArm(pre+"lowerarm_object",
+                              model.getBodyId(pre+"lowerarm_body"),/*NR*/0,
+                              boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
+                              SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
+      geom.addGeometryObject(lowerArm,model,true);
+
+      GeometryObject effectorArm(pre+"effector_object",
+                                 model.getBodyId(pre+"effector_body"),/*NR*/0,
+                                 boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .2)),
+                                 SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.1)) );
+      geom.addGeometryObject(effectorArm,model,true);
     }
 
 
+    void manipulator(Model& model) { addManipulator(model); }
+    void manipulatorGeometries(const Model& model, GeometryModel & geom)
+    { addManipulatorGeometries(model,geom); }
+
+    static const Eigen::Vector3d AX_X(1,0,0);
+    static const Eigen::Vector3d AX_Y(0,1,0);
+    static const Eigen::Vector3d AX_Z(0,0,1);
     
+    static Eigen::Matrix3d rotate(const double angle, const Eigen::Vector3d & axis)
+    { return Eigen::AngleAxisd(angle,axis).toRotationMatrix(); }
+    
+    void humanoid(Model & model, bool usingFF)
+    {
+      using namespace Eigen;
+      typedef typename JointModelRX::ConfigVector_t CV;
+      typedef typename JointModelRX::TangentVector_t TV;
+     
+      Model::JointIndex idx,chest,ffidx;
+
+      SE3 Marm(Eigen::Matrix3d::Identity(),Eigen::Vector3d(0,0,1));
+      SE3 I4 = SE3::Identity();
+      Inertia Ijoint = Inertia(.1,Eigen::Vector3d::Zero(),Eigen::Matrix3d::Identity()*.01);
+      Inertia Iarm   = Inertia(1.,Eigen::Vector3d(0,0,.5),Eigen::Matrix3d::Identity()*.1 );
+      CV qmin = CV::Constant(-3.14), qmax   = CV::Constant(3.14);
+      TV vmax = TV::Constant(-10),   taumax = TV::Constant(10);
+
+      /* --- Free flyer --- */
+      if(usingFF)
+          ffidx = model.addJoint(0,JointModelFreeFlyer(),SE3::Identity(),"freeflyer_joint");
+      else
+        {
+          JointModelComposite jff((JointModelTranslation()));
+          jff.addJoint(JointModelSphericalZYX());
+          ffidx = model.addJoint(0,jff,SE3::Identity(),"freeflyer_joint");
+        }
+      model.addJointFrame(ffidx);
+
+      /* --- Lower limbs --- */
+
+      AngleAxisd(M_PI,Vector3d(1,0,0)).toRotationMatrix();
+
+      addManipulator(model,ffidx,SE3(rotate(M_PI,AX_X),Vector3d(0,-0.2,-.1)),"rleg");
+      addManipulator(model,ffidx,SE3(rotate(M_PI,AX_X),Vector3d(0, 0.2,-.1)),"lleg");
+
+      model.jointPlacements[7 ].rotation() = rotate(M_PI/2,AX_Y); // rotate right foot
+      model.jointPlacements[13].rotation() = rotate(M_PI/2,AX_Y); // rotate left  foot
+      
+      /* --- Chest --- */
+      idx = model.addJoint(ffidx,JointModelRX(),I4 ,"chest1_joint",    vmax,taumax,qmin,qmax);
+      model.appendBodyToJoint(idx,Ijoint);
+      model.addJointFrame(idx);
+      model.addBodyFrame("chest1_body",idx);
+
+      idx = model.addJoint(idx,JointModelRY(),I4 ,"chest2_joint",    vmax,taumax,qmin,qmax);
+      model.appendBodyToJoint(idx,Iarm);
+      model.addJointFrame(idx);
+      model.addBodyFrame("chest2_body",idx);
+
+      chest = idx;
+
+      /* --- Head --- */
+      idx = model.addJoint(idx,JointModelRX(),
+                           SE3(Matrix3d::Identity(),Vector3d(0.,0.,1.)),
+                           "head1_joint",    vmax,taumax,qmin,qmax);
+      model.appendBodyToJoint(idx,Ijoint);
+      model.addJointFrame(idx);
+      model.addBodyFrame("head1_body",idx);
+
+      idx = model.addJoint(idx,JointModelRY(),I4 ,"head2_joint",    vmax,taumax,qmin,qmax);
+      model.appendBodyToJoint(idx,Iarm);
+      model.addJointFrame(idx);
+      model.addBodyFrame("head2_body",idx);
+
+      /* --- Upper Limbs --- */
+      addManipulator(model,chest,SE3(rotate(M_PI,AX_X),Vector3d(0,-0.3, 1.)),"rarm");
+      addManipulator(model,chest,SE3(rotate(M_PI,AX_X),Vector3d(0, 0.3, 1.)),"larm");
+    }
+
+    void humanoidGeometries(const Model& model, GeometryModel & geom)
+    {
+      addManipulatorGeometries(model,geom,"rleg");
+      addManipulatorGeometries(model,geom,"lleg");
+      addManipulatorGeometries(model,geom,"rarm");
+      addManipulatorGeometries(model,geom,"larm");
+
+      GeometryObject chestBall("chest_object",
+                               model.getBodyId("chest1_body"),/*NR*/0,
+                               boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                               SE3::Identity());
+      geom.addGeometryObject(chestBall,model,true);
+
+      GeometryObject headBall("head_object",
+                               model.getBodyId("head2_body"),/*NR*/0,
+                               boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.25)),
+                               SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
+      geom.addGeometryObject(headBall,model,true);
+
+      GeometryObject chestArm("chest2_object",
+                              model.getBodyId("chest2_body"),/*NR*/0,
+                              boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
+                              SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
+      geom.addGeometryObject(chestArm,model,true);
+    }
+
   } // namespace buildModels
   
 } // namespace se3
