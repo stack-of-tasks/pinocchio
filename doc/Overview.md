@@ -21,27 +21,31 @@
 
 \section OverviewIntro What is Pinocchio?
 
-Pinocchio is a library for efficiently computing the dynamics (and derivatives) of a robot model, and behing, any articulated rigid-body model you would like (avatar in a simulator, skeletal model for biomechanics).
-Pinocchio is one of the most efficient library for computing the dynamics of articulated bodies.
-It implements the classical algorithms following the methods described in Featherstone 2008 book (many thanks to him).
-It also introduce efficient variations of some of these algorithms, some new ones and algorithms to compute the derivatives of the main algorithms.
+Pinocchio is a library for efficiently computing the dynamics (and derivatives) of a robot model, or of any articulated rigid-body model you would like (avatars in a simulator, skeletal models for biomechanics, etc.).
+Pinocchio is one of the most efficient libraries for computing the dynamics of articulated bodies.
+It implements the classical algorithms following the methods described in Featherstone's 2008
+[book](http://www.springer.com/engineering/robotics/book/978-0-387-74314-1 "Rigid Body Dinamics Algorithms")
+(many thanks to him).
+It also introduces efficient variations of some of them, plus some new ones, notably including a full set of algorithms to compute the derivatives of the main ones.
 
 Pinocchio is open-source, mostly written in C++ with Python bindings, and distributed under LGPL-v3 licence.
 Contributions are welcome.
 
-In this doc, we will find the usual description of the library functionalities, a quick tutorial to catch over the mathematics behind the implementation, a bunch of examples about how to implement classical applications (inverse kinematics, contact dynamics, collision detection, etc) and a set of practical exercices for beginners.
+In this doc, you will find the usual description of the library functionalities, a quick tutorial to catch over the mathematics behind the implementation, a bunch of examples about how to implement classical applications (inverse kinematics, contact dynamics, collision detection, etc) and a set of practical exercices for beginners.
 
 \section OverviewInstall How to install Pinocchio?
 
-Pinocchio is best installed from APT packaging on Ubuntu 14.04 and 16.04, from our repository.
-Every released is validated in the main Linux distribution and OSX, for which installation from source should be straightforward.
+Pinocchio is best installed from APT packaging on Ubuntu 14.04, 16.04 and 18.04, from our repository.
+On Mac OS X, we support the installation of Pinocchio through the Homebrew package manager.
+On systems for which binaries are not provided, installation from source should be straightforward.
+Every release is validated in the main Linux distributions and Mac OS X.
 
 The full installation procedure can be found on the Github Pages of the project:
 http://stack-of-tasks.github.io/pinocchio/download.html.
 
 \section OverviewSimple Simplest example with compilation command
 
-We start by a simple program to compute the robot inverse dynamics. It is given in both C++ and Python version.
+We start with a simple program to compute the robot inverse dynamics. It is given in both C++ and Python version.
 
 <table class="manual">
   <tr>
@@ -60,12 +64,13 @@ We start by a simple program to compute the robot inverse dynamics. It is given 
 
 \subsection OverviewSimpleCompile Compiling and running your program
 
-You would compile the C++ version by including Pinocchio and Eigen header directories.
+You can compile the C++ version by including Pinocchio and Eigen header directories.
 
 \code g++ -I /path/to/eigen -I /path/to/pinocchio/include/ -L /path/to/pinocchio/lib/ overview-simple.cpp -lpinocchio -o overview-simple \endcode
 
-where `/path/to/pinocchio` is your chosen installation directory for pinocchio.
-On Linux or Mac OS X, the path to eigen will usually be something like `/usr/include/eigen`, otherwise it might be retrived with `pkg-config --cflags eigen3`.
+where `/path/to/pinocchio` is your chosen installation directory for Pinocchio.
+If you do not know Eigen's installation path, you can retrive it with `pkg-config --cflags eigen3`.
+On Linux, it will usually be something like `/usr/include/eigen3/`.
 
 Once your code is compiled, you might then run it using
 
@@ -77,23 +82,25 @@ In Python, just run it:
 
 \subsection OverviewSimpleExplain Explaination of the program
 
-This program load a robot model, create a data structure for algorithm buffering, and run the Recursive-Newton-Euler Algorithm (rnea) to compute the robot inverse dynamics.
+This program loads a robot model, creates a data structure for algorithm buffering, and runs the Recursive Newton-Euler Algorithm (RNEA) to compute the robot inverse dynamics.
 
-We first include the proper files. In C++, there is not yet an rationalization of the include files. Here we have to include the sample model (where the parameters of the model we are using in the test are defined), and the header files defining the robot neutral position and the RNEA function. In Python, the library is easier to include by just importing pinocchio.
+We first include the proper files. In C++, there is not yet a rationalization of the include files. Here we have to include the sample model (where the parameters of the model we are using in the test are defined), and the header files defining the robot neutral position and the RNEA function. In Python, the library is easier to include by just importing pinocchio.
 
-The first paragraph defines the model. In C++, we first define the object, then allocate it to be our sample model (a human-like kinematic tree with random parameters, very useful for small tests). In Python, the model is created while calling the sample humanoid model.
-The model class contains the constant parameters of the robot (masses, segment length, body names, etc), i.e. the parameters that are not to be modified by the algorithms. As most algorithms need extra room for storage of internal values, we also have to allocate a Data structure, dedicated to the model. Pinocchio relies on a strict separation between constant parameters, in Model, and calculus buffer, in Data.
+The first paragraph defines the model. In C++, we first define the object, then allocate it to be our sample model (a human-like kinematic tree with random parameters, very useful for small tests). In Python, the model is created by calling a single command.
+The model class contains the constant parameters of the robot (masses, segment length, body names, etc), i.e. the parameters that are not to be modified by the algorithms. As most algorithms need extra room for storage of internal values, we also have to allocate a Data structure, dedicated to the model. Pinocchio relies on a strict separation between constant parameters, in Model, and computation buffer, in Data.
 
-Inverse dynamics computes the needed torque to track a trajectory defined by position, velocity and acceleration in the configuration space.
+Inverse dynamics computes the needed torque to track a trajectory defined by the joint position, velocity and acceleration.
 Velocity and acceleration are plain vectors, and can be initialized to any value.
-The configuration might be more complex (e.g. contains quaternion).
-Consequently, helper functions are provides to initialized to zero (neutral) or random configuration, or make sure a configuration is valid (normalize).
+Their dimension is `model.nv`, corresponding to the number of instantaneous degrees of freedom of the robot.
+The configuration might be more complex than that of a simple manipulator (e.g. it can contain quaternions).
+Consequently, helper functions are provided to initialize a configuration to zero (neutral) or to a random value, or to make sure a configuration is valid (normalize).
 
-Finally, we call the rnea function, by providing the robot model, the corresponding data, and the current configuration, velocity and acceleration.
-The result is a vector of dimension model.nv. It is also stored in data.tau if needed.
-We just print it, also the corresponding values are difficult to interpret.
+Finally, we call the `rnea` function, by providing the robot model, the corresponding data, and the current configuration, velocity and acceleration.
+The result is a vector of dimension `model.nv`. It is also stored in `data.tau`, in case it's needed.
+We just print it. Notice that, in Python, we use numpy to represent matrices and vectors.
+Therefore `tau` is `numpy` matrix object, and so are `q`, `v` and `a`.
 
-\section OverviewComplex More complex example with C++ & Python
+\section OverviewComplex More complex example with C++ and Python
 
 <table class="manual">
   <tr>
@@ -127,25 +134,25 @@ In Python, just run it:
 
 \subsection OverviewComplexExplain Explaination of the program
 
-This program loads a model of a manipulator robot from a URDF file, computes the forward kinematics at an arbitrary initial configuration and display the position of each robot joint with its name.
+This program loads a model of a manipulator robot from a URDF file, computes the forward kinematics at a random initial configuration and displays the position of each robot joint with its name.
 
-In C++, we need the headers of the model, the urdf parser and the forward-kinematics algorithms. In Python, Pinocchio and NumPy (numerics for Python) contexts are needed.
+In C++, we need the headers of the model, the urdf parser, the random configuration and the forward-kinematics algorithms. In Python, only the Pinocchio module is needed.
 
-The model is built by parsing the urdf model: the .urdf file should be directly provided to the parser. Here we do not parse (yet) the geometries, i.e. the shape of the bodies, but only the kinematic tree with names, lengths, inertias. The Data object is then built from the Model object, like in the previous example.
+The model is built by parsing the urdf model: the URDF file should be directly provided to the parser. Here we do not parse the geometries (yet), i.e. the shape of the bodies, but only the kinematic tree with names, lengths, and inertial properties. The Data object is then built from the Model object, like in the previous example. Next, we compute a random configuration and we print it.
 
-The forward kinematics is simply computed by providing the model, the associated data and the robot configuration. Then, a loop goes through the kinematic tree (from root to leaves) and display for each joint its name and position in world frame. For the 6-dof manipulator UR5, there are 7 joints to be displayed, with the first joint being the "universe" i.e. the reference world frame from which everything is expressed.
+The forward kinematics is simply computed by providing the model, the associated data and the robot configuration. Then, a loop goes through the kinematic tree (from root to leaves) and displays for each joint its name and position in the world frame. For the 6-DOF manipulator UR5, there are 7 joints to be displayed, with the first joint being the "universe", i.e. the reference world frame from which everything is expressed.
 
 \section OverviewPython About Python wrappings
 
-Pinocchio is written in C++, with a full template-based C++ API, for efficiency purpose. All the functionalities are available in C++. Extension of the library should be preferably in C++.
+Pinocchio is written in C++, with a full template-based C++ API, for efficiency purposes. All the functionalities are available in C++. Extension of the library should be preferably in C++.
 
-However, C++ efficiency comes with a higher work cost, especially for newcomers. For this reason, all the interface is exposed in Python. We tried to build the Python API as much as possible as a mirror of the C++ interface. The major difference is that the C++ interface is proposed using Eigen objects for matrices and vectors, that are exposed as Numpy Matrix in Python.
+However, C++ efficiency comes with a higher work cost, especially for newcomers. For this reason, all the interface is exposed in Python. We tried to build the Python API as much as possible as a mirror of the C++ interface. The greatest difference is that the C++ interface is proposed using Eigen objects for matrices and vectors, that are exposed as NumPy matrices in Python.
 
-When working with Pinocchio, we often suggest to first prototype your ideas in Python. Both the auto-typing and the scripting make it much faster to develop. Once you are happy with your prototype, then translate it in C++ while binding the API to have a mirror in Python that you can use to extend your idea. 
+When working with Pinocchio, we often suggest to first prototype your ideas in Python. Both the auto-typing and the scripting make it much faster to develop. Once you are happy with your prototype, then translate it in C++ while binding the API to have a mirror in Python that you can use to extend your idea.
 
 \section OverviewCite How to cite Pinocchio
 
-Happy with Pinocchio? Please cite use with the following format.
+Happy with Pinocchio? Please cite us with the following format.
 
 ### Easy solution: cite our open access paper
 The following is the preferred way to cite Pinocchio.
@@ -161,19 +168,19 @@ Additionally, if you want to cite the software package, you might want to resort
 
 ### Citing the derivative algorithms
 
-A great novelty of Pinocchio is that the derivatives of rigid body dynamics algorithms are made publicly available, for the first time.
-If you want to refer to the new algorithms, without explicitley mentioning Pinocchio,
+A great novelty of Pinocchio is that the derivatives of rigid body dynamics algorithms are made publicly available for the first time.
+If you want to refer to the new algorithms, without explicitley mentioning Pinocchio, you can cite
 
 \include carpentier-rss18.bib
 
 
 \section OverviewConclu Where to go from here?
 
-This documentation is mostly composed of several examples and tutorials for newcomers, along with a technical documentation and a reference guide. If you want to make sure Pinocchio matches your needs, you may first want to check the list of features. Several examples in C++ and Python will then give you directly the keys to implement the most classical applications based on a rigid-body library. For nonexpert, we also provide the main mathematical fundamentals, based on Featherstone's formulations (you may prefer to buy and read the original book if you never did). A long tutorial in Python contains everything you need if you are not a Python expert and want to start with Pinocchio. This tutorial was first written as a class material for Master class about robotics. 
+This documentation is mostly composed of several examples and tutorials for newcomers, along with a technical documentation and a reference guide. If you want to make sure Pinocchio matches your needs, you may first want to check the list of features. Several examples in C++ and Python will then directly give you the keys to implement the most classical applications based on a rigid-body library. For nonexperts, we also provide the main mathematical fundamentals, based on Featherstone's formulations (you may prefer to buy and read the original book if you never did). A long tutorial in Python contains everything you need if you are not a Python expert and want to start with Pinocchio. This tutorial was first written as course material for a Master class about robotics. 
 
-That's it for beginners. We then give an overview of the technical choices we did to write the library and makes it efficient. Read this section if you want to extend the C++ library core, in particular if you are not familiar with the curriously-recursive template pattern (used for example in Eigen). A description of the benchmark we did to test the library efficiency is also provided. 
+That's it for beginners. We then give an overview of the technical choices we made to write the library and make it efficient. Read this section if you want to extend the C++ library core, in particular if you are not familiar with the curiously-recursive template pattern (used for example in Eigen). A description of the benchmarks we did to test the library efficiency is also provided. 
 
-By the way, Pinocchio has been deeply inspired by <a href="http://http://eigen.tuxfamily.org/">Eigen</a> (hence the structure of this page and the title of its last section). The API of our library is Eigen-based. If you are not comfortable with Eigen and want to use Pinocchio in C++, you better have to follow the <a href="http://eigen.tuxfamily.org/dox/group__TutorialMatrixClass.html">basic Eigen tutorials</a> first.
+By the way, Pinocchio has been deeply inspired by <a href="http://http://eigen.tuxfamily.org/">Eigen</a> (hence the structure of this page and the title of this last section). The API of our library is Eigen-based. If you are not comfortable with Eigen and want to use Pinocchio in C++, you better have to follow the <a href="http://eigen.tuxfamily.org/dox/group__TutorialMatrixClass.html">basic Eigen tutorials</a> first.
 
 
 
