@@ -62,7 +62,7 @@ We start by a simple program to compute the robot inverse dynamics. It is given 
 
 You would compile the C++ version by including Pinocchio and Eigen header directories.
 
-\code g++ -I /path/to/eigen -I /path/to/pinocchio/include overview-simple.cpp -L /path/to/pinocchio/lib -lpinocchio -o overview-simple \endcode
+\code g++ -I /path/to/eigen -I /path/to/pinocchio/include/ -L /path/to/pinocchio/lib/ overview-simple.cpp -lpinocchio -o overview-simple \endcode
 
 where `/path/to/pinocchio` is your chosen installation directory for pinocchio.
 On Linux or Mac OS X, the path to eigen will usually be something like `/usr/include/eigen`, otherwise it might be retrived with `pkg-config --cflags eigen3`.
@@ -114,16 +114,16 @@ We just print it, also the corresponding values are difficult to interpret.
 
 This time, we must specify that URDFDOM is needed, as the model will be parsed from URDF.
 
-\code g++ -I /path/to/eigen  -I  /path/to/pinocchio/include -L /path/to/pinocchio/lib -DURDFDOM_TYPEDEF_SHARED_PTR -DWITH_URDFDOM  ../examples/overview-urdf.cpp  -lpinocchio -o overview-urdf \endcode
+\code g++ -I /path/to/eigen -I /path/to/pinocchio/include/ -L /path/to/pinocchio/lib/ -DURDFDOM_TYPEDEF_SHARED_PTR -DWITH_URDFDOM overview-urdf.cpp -lpinocchio -o overview-urdf \endcode
 
 The program typically runs with a UR5 URDF description, that can be found for example in this repository https://github.com/humanoid-path-planner/ur_description
 
-Launch the program from the directory containing the ur5.urdf file
-\code cd /path/to/ur5.urdf && ./overview-urdf \endcode
+Now you can launch the program:
+\code ./overview-urdf /path/to/ur5.urdf \endcode
 
 In Python, just run it:
 
-\code python overview-urdf \endcode
+\code python overview-urdf.py /path/to/ur5.urdf \endcode
 
 \subsection OverviewComplexExplain Explaination of the program
 

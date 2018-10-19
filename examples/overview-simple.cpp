@@ -11,6 +11,6 @@ int main()
   Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
   Eigen::VectorXd a = Eigen::VectorXd::Zero(model.nv);
 
-  const Eigen::VectorXd & rnea = se3::rnea(model,data,q,v,a);
-  std::cout << rnea.transpose() << std::endl;
+  const Eigen::VectorXd & tau = se3::rnea(model,data,q,v,a);
+  std::cout << "tau = " << tau.transpose() << std::endl;
 }
