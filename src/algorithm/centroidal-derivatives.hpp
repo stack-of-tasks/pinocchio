@@ -29,6 +29,14 @@ namespace se3
   /// \brief Computes the analytical derivatives of the centroidal dynamics with respect to
   ///        the joint configuration vector, velocity and acceleration.
   ///
+  /// \details Computes the first order approximation of the centroidal dynamics time derivative
+  ///          and corresponds to the following equation
+  ///          \f$
+  ///               d\dot{h_{g}} = \frac{\partial \dot{h_{g}}}{\partial \bm{q}} d\bm{q}
+  ///                            + \frac{\partial \dot{h_{g}}}{\partial \bm{v}} d\bm{v}
+  ///                            + \frac{\partial \dot{h_{g}}}{\partial \bm{a}} d\bm{a}
+  ///          \f$
+  ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
   /// \tparam TangentVectorType Type of the joint velocity vector.
@@ -41,6 +49,9 @@ namespace se3
   /// \param[out] dhdot_dq The partial derivative of the centroidal dynamics with respect to the configuration vector (dim 6 x model.nv).
   /// \param[out] dhdot_dv The partial derivative of the centroidal dynamics with respect to the velocity vector (dim 6 x model.nv).
   /// \param[out] dhdot_da The partial derivative of the centroidal dynamics with respect to the acceleration vector (dim 6 x model.nv).
+  ///
+  /// \result It also computes the current centroidal dynamics and its time derivative.
+  ///         For information, the centroidal momentum matrix is equivalent to dhdot_da.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
