@@ -137,7 +137,9 @@ namespace se3
       
       if(do_velocity)
         data.vcom[parent] += liMi.rotation()*data.vcom[i];
-      data.acom[parent] += liMi.rotation()*data.acom[i];
+      
+      if(do_acceleration)
+        data.acom[parent] += liMi.rotation()*data.acom[i];
       
       if(computeSubtreeComs)
       {
