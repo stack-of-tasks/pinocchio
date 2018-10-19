@@ -23,9 +23,10 @@
 #endif
 
 /// \brief Macro to check the current Pinocchio version against a version provided by x.y.z
-#define PINOCCHIO_VERSION_AT_LEAST(x,y,z) (PINOCCHIO_MAJOR_VERSION>x || (PINOCCHIO_MAJOR_VERSION>=x && \
-(PINOCCHIO_MINOR_VERSION>y || (PINOCCHIO_MINOR_VERSION>=y && \
-PINOCCHIO_PATCH_VERSION>=z))))
+#define PINOCCHIO_VERSION_AT_LEAST(x,y,z) \
+          (PINOCCHIO_MAJOR_VERSION>x || (PINOCCHIO_MAJOR_VERSION>=x && \
+          (PINOCCHIO_MINOR_VERSION>y || (PINOCCHIO_MINOR_VERSION>=y && \
+          PINOCCHIO_PATCH_VERSION>=z))))
 
 // This macro can be used to prevent from macro expansion, similarly to EIGEN_NOT_A_MACRO
 #define PINOCCHIO_NOT_A_MACRO
