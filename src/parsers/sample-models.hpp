@@ -30,10 +30,37 @@ namespace se3
     void humanoid2d(Model& model);
     void humanoidSimple(Model& model, bool usingFF = true);
 
+    /** \brief Create a 6-DOF kinematic chain shoulder-elbow-wrist.
+     *
+     * \param model: model, typically given empty, where the kinematic chain is added.
+     */
     void manipulator(Model& model);
+    /** \brief Create the geometries on top of the kinematic model created by manipulator function.
+     *
+     * \param model, const, kinematic chain typically produced by the function manipulator(model).
+     * \warning this method is expecting specific namings of the kinematic chain, use it with care
+     * not using after manipulator(model).
+     */
     void manipulatorGeometries(const Model& model, GeometryModel & geom);
 
+    /** \brief Create a 28-DOF kinematic chain of a floating humanoid robot.
+     * 
+     * The kinematic chain has 4 limbs shoulder-elbow-wrist, one 2-dof torso, one
+     * 2-dof neck. The float joint is either a free-float joint JointModelFreeFloating
+     * (with nq=7 and nv=6), or a composite joint with 3 prismatic and 1 roll-pitch-yaw.
+     * Using a free-floating or a composite joint is decided by the boolean usingFF.
+     *
+     * \param model: model, typically given empty, where the kinematic chain is added.
+     * \param usingFF: if True, implement the chain with a plain JointModelFreeFloating; if False,
+     * uses a composite joint. This changes the size of the configuration space (35 vs 34).
+     */
     void humanoid(Model& model,bool usingFF=true);
+    /** \brief Create the geometries on top of the kinematic model created by humanoid function.
+     *
+     * \param model, const, kinematic chain typically produced by the function humanoid(model).
+     * \warning this method is expecting specific namings of the kinematic chain, use it with care
+     * not using after humanoid(model).
+     */
     void humanoidGeometries(const Model& model, GeometryModel & geom);
 
   } // namespace buildModels

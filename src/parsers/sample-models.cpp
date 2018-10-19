@@ -238,10 +238,6 @@ namespace se3
     void manipulatorGeometries(const Model& model, GeometryModel & geom)
     { addManipulatorGeometries(model,geom); }
 
-    static const Eigen::Vector3d AX_X(1,0,0);
-    static const Eigen::Vector3d AX_Y(0,1,0);
-    static const Eigen::Vector3d AX_Z(0,0,1);
-    
     static Eigen::Matrix3d rotate(const double angle, const Eigen::Vector3d & axis)
     { return Eigen::AngleAxisd(angle,axis).toRotationMatrix(); }
     
@@ -275,11 +271,11 @@ namespace se3
 
       AngleAxisd(M_PI,Vector3d(1,0,0)).toRotationMatrix();
 
-      addManipulator(model,ffidx,SE3(rotate(M_PI,AX_X),Vector3d(0,-0.2,-.1)),"rleg");
-      addManipulator(model,ffidx,SE3(rotate(M_PI,AX_X),Vector3d(0, 0.2,-.1)),"lleg");
+      addManipulator(model,ffidx,SE3(rotate(M_PI,Vector3d::UnitX()),Vector3d(0,-0.2,-.1)),"rleg");
+      addManipulator(model,ffidx,SE3(rotate(M_PI,Vector3d::UnitX()),Vector3d(0, 0.2,-.1)),"lleg");
 
-      model.jointPlacements[7 ].rotation() = rotate(M_PI/2,AX_Y); // rotate right foot
-      model.jointPlacements[13].rotation() = rotate(M_PI/2,AX_Y); // rotate left  foot
+      model.jointPlacements[7 ].rotation() = rotate(M_PI/2,Vector3d::UnitY()); // rotate right foot
+      model.jointPlacements[13].rotation() = rotate(M_PI/2,Vector3d::UnitY()); // rotate left  foot
       
       /* --- Chest --- */
       idx = model.addJoint(ffidx,JointModelRX(),I4 ,"chest1_joint",    vmax,taumax,qmin,qmax);
@@ -308,8 +304,8 @@ namespace se3
       model.addBodyFrame("head2_body",idx);
 
       /* --- Upper Limbs --- */
-      addManipulator(model,chest,SE3(rotate(M_PI,AX_X),Vector3d(0,-0.3, 1.)),"rarm");
-      addManipulator(model,chest,SE3(rotate(M_PI,AX_X),Vector3d(0, 0.3, 1.)),"larm");
+      addManipulator(model,chest,SE3(rotate(M_PI,Vector3d::UnitX()),Vector3d(0,-0.3, 1.)),"rarm");
+      addManipulator(model,chest,SE3(rotate(M_PI,Vector3d::UnitX()),Vector3d(0, 0.3, 1.)),"larm");
     }
 
     void humanoidGeometries(const Model& model, GeometryModel & geom)
