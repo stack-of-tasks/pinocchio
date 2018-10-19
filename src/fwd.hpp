@@ -19,9 +19,9 @@
 #define __se3_fwd_hpp__
 
 #include "pinocchio/macros.hpp"
-#include "pinocchio/deprecated.hh"
-#include "pinocchio/warning.hh"
-#include "pinocchio/config.hh"
+#include "pinocchio/deprecated.hpp"
+#include "pinocchio/warning.hpp"
+#include "pinocchio/config.hpp"
 
 #ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
 #include "pinocchio/math/cppad.hpp"

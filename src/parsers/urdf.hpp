@@ -20,7 +20,6 @@
 #define __se3_parsers_urdf_hpp__
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/deprecated.hh"
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/parsers/urdf/types.hpp"
 
