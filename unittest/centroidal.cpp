@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -249,6 +249,73 @@ BOOST_AUTO_TEST_CASE (test_dccrb)
     BOOST_CHECK((dAg*v).isApprox(dhdq*v,sqrt(alpha)));
     
   }
+}
+
+BOOST_AUTO_TEST_CASE (test_computeCentroidalDynamics)
+{
+  using namespace se3;
+  Model model;
+  buildModels::humanoidSimple(model);
+  addJointAndBody(model,JointModelSpherical(),"larm6_joint","larm7");
+  Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  
+  Eigen::VectorXd q = randomConfiguration(model,model.lowerPositionLimit,model.upperPositionLimit);
+  Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+  Eigen::VectorXd a = Eigen::VectorXd::Random(model.nv);
+  
+  ccrba(model,data_ref,q,v);
+  forwardKinematics(model,data_ref,q,v);
+  centerOfMass(model,data_ref,q,v,false);
+  computeCentroidalDynamics(model,data,q,v);
+  
+  BOOST_CHECK(data.mass[0] == data_ref.mass[0]);
+  BOOST_CHECK(data.com[0].isApprox(data_ref.com[0]));
+  BOOST_CHECK(data.hg.isApprox(data_ref.hg));
+  for(size_t k = 1; k < (size_t)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.mass[k] == data_ref.mass[k]);
+    BOOST_CHECK(data.com[k].isApprox(data_ref.com[k]));
+    BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
+  }
+  
+  computeCentroidalDynamics(model,data,q,v,a);
+  model.gravity.setZero();
+  rnea(model,data_ref,q,v,a);
+  dccrba(model,data_ref,q,v);
+  const Force hgdot(data_ref.Ag * a + data_ref.dAg * v);
+  
+  BOOST_CHECK(data.mass[0] == data_ref.mass[0]);
+  BOOST_CHECK(data.com[0].isApprox(data_ref.com[0]));
+  BOOST_CHECK(data.hg.isApprox(data_ref.hg));
+  BOOST_CHECK(data.dhg.isApprox(hgdot));
+  for(size_t k = 1; k < (size_t)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.mass[k] == data_ref.mass[k]);
+    BOOST_CHECK(data.com[k].isApprox(data_ref.com[k]));
+    BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
+    BOOST_CHECK(data.a[k].isApprox(data_ref.a_gf[k]));
+    BOOST_CHECK(data.f[k].isApprox(data_ref.f[k]));
+  }
+  
+  // Check against finite differences
+  Data data_fd(model);
+  const double eps = 1e-8;
+  Eigen::VectorXd v_plus = v + eps * a;
+  Eigen::VectorXd q_plus = integrate(model,q,eps*v);
+  
+  const Force hg = computeCentroidalDynamics(model,data_fd,q,v);
+  const SE3::Vector3 com = data_fd.com[0];
+  const Force hg_plus = computeCentroidalDynamics(model,data_fd,q_plus,v_plus);
+  const SE3::Vector3 com_plus = data_fd.com[0];
+  
+  SE3 transform(SE3::Identity());
+  transform.translation() = com_plus - com;
+  Force dhg_ref = (transform.act(hg_plus) - hg)/eps;
+
+  BOOST_CHECK(data.dhg.isApprox(dhg_ref,sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
