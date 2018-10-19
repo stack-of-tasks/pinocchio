@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -21,11 +21,6 @@
 #if __cplusplus >= 201103L
   #define PINOCCHIO_WITH_CXX11_SUPPORT
 #endif
-
-/// \brief Define the current version of Pinocchio
-#define PINOCCHIO_MAJOR_VERSION 1
-#define PINOCCHIO_MINOR_VERSION 3
-#define PINOCCHIO_PATCH_VERSION 2
 
 /// \brief Macro to check the current Pinocchio version against a version provided by x.y.z
 #define PINOCCHIO_VERSION_AT_LEAST(x,y,z) (PINOCCHIO_MAJOR_VERSION>x || (PINOCCHIO_MAJOR_VERSION>=x && \
