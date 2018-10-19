@@ -150,7 +150,8 @@ namespace se3
     void Jexp3CoeffWise(const Eigen::MatrixBase<Vector3Like> & v,
                         const Eigen::MatrixBase<Matrix43Like> & Jexp)
     {
-      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix43Like,4,3);
+//      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix43Like,4,3);
+      assert(Jexp.rows() == 4 && Jexp.cols() == 3 && "Jexp does have the right size.");
       Matrix43Like & Jout = EIGEN_CONST_CAST(Matrix43Like,Jexp);
       
       typedef typename Vector3Like::Scalar Scalar;
