@@ -247,6 +247,10 @@ namespace se3
     assert(dhdot_da.rows() == 6);
     assert(model.check(data) && "data is not consistent with model.");
     
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Model::JointIndex JointIndex;
+    
     typedef CentroidalDynDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
@@ -262,7 +266,6 @@ namespace se3
     }
     
     // expressed all the quantities around the center of mass
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Data::Inertia Inertia;
 
     const Inertia & Ytot = data.oYcrb[0];
@@ -273,10 +276,10 @@ namespace se3
     
     // Compute the centroidal quantities
     data.hg = data.oh[0];
-    data.hg.angular() += data.hg.linear().cross(data.com[0]);
+    data.hg.angular() += data.hg.linear().cross(com);
     
     data.dhg = data.of[0];
-    data.dhg.angular() += data.dhg.linear().cross(data.com[0]);
+    data.dhg.angular() += data.dhg.linear().cross(com);
     
     // Compute centroidal inertia
     data.Ig.mass() = Ytot.mass();
@@ -285,6 +288,115 @@ namespace se3
     
     // Compute the partial derivatives
     translateForceSet(data.dFdq,com,EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
+    translateForceSet(data.dFdv,com,EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
+    translateForceSet(data.dFda,com,EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct GetCentroidalDynDerivativesBackwardStep
+  : public fusion::JointVisitorBase<GetCentroidalDynDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &
+                                  > ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     const Model & model,
+                     Data & data)
+    {
+      typedef typename Model::JointIndex JointIndex;
+
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+      typename Data::Force & ftmp = data.f[0];
+      typename Data::Matrix6x & Ftmp = data.Fcrb[0];
+
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
+      ColsBlock Ftmp_cols = jmodel.jointCols(Ftmp);
+      
+      ftmp = data.oYcrb[i] * data.oa[0];
+      Ftmp_cols = dFdq_cols;
+      motionSet::act<RMTO>(J_cols,ftmp,Ftmp_cols);
+      
+//      motionSet::motionAction(data.oa[0],J_cols,dAdq_cols);
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Inertia::Matrix6>::Type ColsM6Block;
+      ColsM6Block M6tmp = data.Itmp.template leftCols<JointModel::NV>(jmodel.nv());
+      motionSet::motionAction(data.oa[0],J_cols,M6tmp);
+      
+//      motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdq_cols,Ftmp_cols);
+      motionSet::inertiaAction<RMTO>(data.oYcrb[i],M6tmp,Ftmp_cols);
+      
+      data.oh[parent] += data.oh[i];
+      if(parent == 0)
+      {
+        data.of[0] += data.of[i];
+        data.oYcrb[0] += data.oYcrb[i];
+      }
+    }
+  }; // struct GetCentroidalDynDerivativesBackwardStep
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+           typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
+  inline void
+  getCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Eigen::MatrixBase<Matrix6xLike1> & dhdot_dq,
+                                   const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
+                                   const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
+  {
+    assert(dhdot_dq.cols() == model.nv);
+    assert(dhdot_dq.rows() == 6);
+    assert(dhdot_dv.cols() == model.nv);
+    assert(dhdot_dv.rows() == 6);
+    assert(dhdot_da.cols() == model.nv);
+    assert(dhdot_da.rows() == 6);
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Model::JointIndex JointIndex;
+    
+    // compute first data.oh[0] and data.of[0]
+    data.oh[0].setZero(); data.of[0].setZero(); data.oYcrb[0].setZero();
+    typedef GetCentroidalDynDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      Pass2::run(model.joints[i],typename Pass2::ArgsType(model,data));
+    }
+    
+    typedef typename Data::Inertia Inertia;
+    
+    const Inertia & Ytot = data.oYcrb[0];
+    const typename Inertia::Vector3 & com = Ytot.lever();
+    
+    // Center of mass of the system
+    data.com[0] = com;
+    data.mass[0] = Ytot.mass();
+    
+    // Remove the gravity contribution
+    data.of[0] += Ytot * model.gravity;
+    
+    // Compute the centroidal quantities
+    data.hg = data.oh[0];
+    data.hg.angular() += data.hg.linear().cross(com);
+    
+    data.dhg = data.of[0];
+    data.dhg.angular() += data.dhg.linear().cross(com);
+    
+    // Compute centroidal inertia
+    data.Ig.mass() = Ytot.mass();
+    data.Ig.lever().setZero();
+    data.Ig.inertia() = Ytot.inertia();
+    
+    // Retrieve the partial derivatives from RNEA derivatives
+    translateForceSet(data.Fcrb[0],com,EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
     translateForceSet(data.dFdv,com,EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
     translateForceSet(data.dFda,com,EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
   }

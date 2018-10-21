@@ -20,7 +20,7 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/centroidal-derivatives.hpp"
-#include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -160,6 +160,55 @@ BOOST_AUTO_TEST_CASE (test_centroidal_derivatives)
   }
   
   BOOST_CHECK(dhdot_da.isApprox(dhdot_da_fd,sqrt(eps)));
+  
+}
+
+BOOST_AUTO_TEST_CASE (test_retrieve_centroidal_derivatives)
+{
+  se3::Model model;
+  se3::buildModels::humanoidSimple(model);
+  se3::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  
+  Eigen::VectorXd q = se3::randomConfiguration(model);
+  Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+  Eigen::VectorXd a = Eigen::VectorXd::Random(model.nv);
+  
+  se3::Data::Matrix6x dhdot_dq(6,model.nv), dhdot_dv(6,model.nv), dhdot_da(6,model.nv);
+  se3::Data::Matrix6x dhdot_dq_ref(6,model.nv), dhdot_dv_ref(6,model.nv), dhdot_da_ref(6,model.nv);
+  
+  se3::computeCentroidalDynamicsDerivatives(model,data_ref,q,v,a,
+                                            dhdot_dq_ref,dhdot_dv_ref,dhdot_da_ref);
+  
+  se3::computeRNEADerivatives(model,data,q,v,a);
+  se3::getCentroidalDynamicsDerivatives(model,data,
+                                        dhdot_dq,dhdot_dv,dhdot_da);
+  
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  
+  for(se3::Model::JointIndex k = 1; k < (se3::Model::JointIndex)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.oYcrb[k].isApprox(data_ref.oYcrb[k]));
+    se3::Force force_ref = data_ref.of[k];
+    se3::Force gravity_contribution = data.oYcrb[k] * (-model.gravity);
+    se3::Force force = data.of[k] - gravity_contribution;
+    BOOST_CHECK(force.isApprox(force_ref));
+  }
+  
+  BOOST_CHECK(data.com[0].isApprox(data_ref.com[0]));
+  
+  BOOST_CHECK(data.hg.isApprox(data_ref.hg));
+  BOOST_CHECK(data.dhg.isApprox(data_ref.dhg));
+  
+  BOOST_CHECK(data.Fcrb[0].isApprox(data_ref.dFdq));
+  BOOST_CHECK(data.dFdv.isApprox(data_ref.dFdv));
+  BOOST_CHECK(data.dFda.isApprox(data_ref.dFda));
+  
+  BOOST_CHECK(dhdot_dq.isApprox(dhdot_dq_ref));
+  BOOST_CHECK(dhdot_dv.isApprox(dhdot_dv_ref));
+  BOOST_CHECK(dhdot_da.isApprox(dhdot_da_ref));
   
 }
 
