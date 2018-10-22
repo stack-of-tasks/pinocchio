@@ -50,7 +50,7 @@ namespace se3
     using Base::isApprox;
 
     Derived & setZero() { linear().setZero(); angular().setZero(); return derived(); }
-    Derived & setRandom() { linear().setZero(); angular().setZero(); return derived(); }
+    Derived & setRandom() { linear().setRandom(); angular().setRandom(); return derived(); }
     
     ActionMatrixType toActionMatrix_impl() const
     {
