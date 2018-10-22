@@ -3,9 +3,9 @@ import pinocchio
 model = pinocchio.Model.BuildHumanoidSimple()
 data = model.createData()
 
-q = pinocchio.neutral(model)
+q = model.neutralConfiguration
 v = pinocchio.utils.zero(model.nv)
 a = pinocchio.utils.zero(model.nv)
 
-rnea = pinocchio.rnea(model,data,q,v,a)
-print(rnea.T)
+tau = pinocchio.rnea(model,data,q,v,a)
+print 'tau = ', tau.T

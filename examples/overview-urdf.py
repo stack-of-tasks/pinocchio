@@ -1,10 +1,11 @@
-import numpy
 import pinocchio
+from sys import argv
 
-filename = "ur5.urdf" 
+filename = "ur5.urdf" if len(argv)<2 else argv[1]
 model    = pinocchio.buildModelFromUrdf(filename)
 data     = model.createData()
-q        = numpy.matrix([ 2, -.5, 1.8, 1.8, 2.6, -2 ]).T
+q        = pinocchio.randomConfiguration(model)
+print 'q = ', q.T
 
 pinocchio.forwardKinematics(model,data,q)
 
