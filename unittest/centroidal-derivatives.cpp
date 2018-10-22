@@ -161,6 +161,12 @@ BOOST_AUTO_TEST_CASE (test_centroidal_derivatives)
   
   BOOST_CHECK(dhdot_da.isApprox(dhdot_da_fd,sqrt(eps)));
   
+  se3::computeRNEADerivatives(model,data_ref,q,v,a);
+  BOOST_CHECK(data.dAdv.isApprox(data_ref.dAdv));
+  BOOST_CHECK(data.dAdq.isApprox(data_ref.dAdq));
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
+  BOOST_CHECK(data.dVdq.isApprox(data_ref.dVdq));
 }
 
 BOOST_AUTO_TEST_CASE (test_retrieve_centroidal_derivatives)
