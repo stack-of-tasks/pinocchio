@@ -362,6 +362,15 @@ namespace se3
         data.doYcrb[parent] += data.doYcrb[i];
         data.of[parent] += data.of[i];
       }
+      
+      // Restore the status of dAdq_cols (remove gravity)
+      assert(model.gravity.angular().isZero() && "The gravity must be a pure force vector, no angular part");
+      for(Eigen::Index k =0; k < jmodel.nv(); ++k)
+      {
+        MotionRef<typename ColsBlock::ColXpr> min(J_cols.col(k));
+        MotionRef<typename ColsBlock::ColXpr> mout(dAdq_cols.col(k));
+        mout.linear() += model.gravity.linear().cross(min.angular());
+      }
     }
     
     template<typename Min, typename Mout>
