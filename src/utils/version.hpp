@@ -18,7 +18,7 @@
 #ifndef __se3_utils_version_hpp__
 #define __se3_utils_version_hpp__
 
-#include "pinocchio/macros.hpp"
+#include "pinocchio/config.hpp"
 
 #include <string>
 #include <iostream>
