@@ -315,23 +315,35 @@ namespace se3
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       typename Data::Force & ftmp = data.f[0];
+      typename Data::Motion & vtmp = data.v[0];
       typename Data::Matrix6x & Ftmp = data.Fcrb[0];
 
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
       ColsBlock Ftmp_cols = jmodel.jointCols(Ftmp);
       
-      ftmp = data.oYcrb[i] * data.oa[0];
       Ftmp_cols = dFdq_cols;
-      motionSet::act<RMTO>(J_cols,ftmp,Ftmp_cols);
+//      ftmp = data.oYcrb[i] * data.oa[0];
+//      motionSet::act<RMTO>(J_cols,ftmp,Ftmp_cols);
+//
+////      motionSet::motionAction(data.oa[0],J_cols,dAdq_cols);
+//      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Inertia::Matrix6>::Type ColsM6Block;
+//      ColsM6Block M6tmp = data.Itmp.template leftCols<JointModel::NV>(jmodel.nv());
+//      motionSet::motionAction(data.oa[0],J_cols,M6tmp);
+//
+//
+////      motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdq_cols,Ftmp_cols);
+//      motionSet::inertiaAction<RMTO>(data.oYcrb[i],M6tmp,Ftmp_cols);
       
-//      motionSet::motionAction(data.oa[0],J_cols,dAdq_cols);
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Inertia::Matrix6>::Type ColsM6Block;
-      ColsM6Block M6tmp = data.Itmp.template leftCols<JointModel::NV>(jmodel.nv());
-      motionSet::motionAction(data.oa[0],J_cols,M6tmp);
-      
-//      motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdq_cols,Ftmp_cols);
-      motionSet::inertiaAction<RMTO>(data.oYcrb[i],M6tmp,Ftmp_cols);
+      ftmp.linear() = data.oYcrb[i].mass() * model.gravity.linear();
+      for(Eigen::Index k = 0; k < jmodel.nv(); ++k)
+      {
+        MotionRef<typename ColsBlock::ColXpr> mref(J_cols.col(k));
+        vtmp.linear() = mref.linear() + mref.angular().cross(data.oYcrb[i].lever());
+        
+        ForceRef<typename ColsBlock::ColXpr> fout(Ftmp_cols.col(k));
+        fout.angular() += vtmp.linear().cross(ftmp.linear());
+      }
       
       data.oh[parent] += data.oh[i];
       if(parent == 0)
