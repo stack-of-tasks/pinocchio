@@ -96,10 +96,16 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   MatrixXd rnea_partial_dv(model.nv,model.nv); rnea_partial_dv.setZero();
   MatrixXd rnea_partial_da(model.nv,model.nv); rnea_partial_da.setZero();
   computeRNEADerivatives(model,data,q,VectorXd::Zero(model.nv),VectorXd::Zero(model.nv),rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
+  rnea(model,data_ref,q,VectorXd::Zero(model.nv),VectorXd::Zero(model.nv));
+  for(Model::JointIndex k = 1; k < model.njoints; ++k)
+  {
+    BOOST_CHECK(data.of[k].isApprox(data.oMi[k].act(data_ref.f[k])));
+  }
   
   MatrixXd g_partial_dq(model.nv,model.nv); g_partial_dq.setZero();
   computeGeneralizedGravityDerivatives(model,data_ref,q,g_partial_dq);
   
+  BOOST_CHECK(data.dFdq.isApprox(data_ref.dFdq));
   BOOST_CHECK(rnea_partial_dq.isApprox(g_partial_dq));
   BOOST_CHECK(data.tau.isApprox(data_ref.g));
   
@@ -354,6 +360,35 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_fext)
   BOOST_CHECK(data_shortcut.dtau_dv.isApprox(rnea_partial_dv));
   data_shortcut.M.triangularView<Eigen::Lower>() = data_shortcut.M.transpose().triangularView<Eigen::Lower>();
   BOOST_CHECK(data_shortcut.M.isApprox(rnea_partial_da));
+}
+
+BOOST_AUTO_TEST_CASE(test_rnea_derivatives_vs_kinematics_derivatives)
+{
+  using namespace Eigen;
+  using namespace se3;
+  
+  Model model;
+  buildModels::humanoidSimple(model);
+  typedef Model::Force Force;
+  
+  Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd a(VectorXd::Random(model.nv));
+  
+  /// Check againt computeGeneralizedGravityDerivatives
+  MatrixXd rnea_partial_dq(model.nv,model.nv); rnea_partial_dq.setZero();
+  MatrixXd rnea_partial_dv(model.nv,model.nv); rnea_partial_dv.setZero();
+  MatrixXd rnea_partial_da(model.nv,model.nv); rnea_partial_da.setZero();
+  
+  computeRNEADerivatives(model,data,q,v,a,rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
+  computeForwardKinematicsDerivatives(model,data_ref,q,v,a);
+  
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
