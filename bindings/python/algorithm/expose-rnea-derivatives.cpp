@@ -24,6 +24,15 @@ namespace se3
   {
     
     typedef container::aligned_vector<Force> ForceAlignedVector;
+    
+    Data::MatrixXs computeGeneralizedGravityDerivatives(const Model & model, Data & data,
+                                                        const Eigen::VectorXd & q)
+    {
+      Data::MatrixXs res(model.nv,model.nv);
+      se3::computeGeneralizedGravityDerivatives(model,data,q,res);
+      return res;
+    }
+    
     void computeRNEADerivatives(const Model & model, Data & data,
                                       const Eigen::VectorXd & q,
                                       const Eigen::VectorXd & v,
@@ -50,7 +59,13 @@ namespace se3
     void exposeRNEADerivatives()
     {
       using namespace Eigen;
-      typedef container::aligned_vector<Force> ForceAlignedVector;
+      
+      bp::def("computeGeneralizedGravityDerivatives",
+              computeGeneralizedGravityDerivatives,
+              bp::args("Model","Data",
+                       "q: configuration vector (size model.nq)"),
+              "Computes the derivative of the generalized gravity contribution\n"
+              "with respect to the joint configuration.");
       
       bp::def("computeRNEADerivatives",
               computeRNEADerivatives,
