@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -22,12 +22,26 @@ namespace se3
 {
   namespace python
   {
-    void computeRNEADerivativesDefault(const Model & model, Data & data,
-                                       const Eigen::VectorXd & q,
-                                       const Eigen::VectorXd & v,
-                                       const Eigen::VectorXd & a)
+    
+    typedef container::aligned_vector<Force> ForceAlignedVector;
+    void computeRNEADerivatives(const Model & model, Data & data,
+                                      const Eigen::VectorXd & q,
+                                      const Eigen::VectorXd & v,
+                                      const Eigen::VectorXd & a)
     {
-      computeRNEADerivatives(model,data,q,v,a);
+      se3::computeRNEADerivatives(model,data,q,v,a);
+      // Symmetrize M
+      data.M.triangularView<Eigen::StrictlyLower>()
+      = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+    }
+    
+    void computeRNEADerivatives_fext(const Model & model, Data & data,
+                                     const Eigen::VectorXd & q,
+                                     const Eigen::VectorXd & v,
+                                     const Eigen::VectorXd & a,
+                                     const ForceAlignedVector & fext)
+    {
+      se3::computeRNEADerivatives(model,data,q,v,a,fext);
       // Symmetrize M
       data.M.triangularView<Eigen::StrictlyLower>()
       = data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -39,12 +53,24 @@ namespace se3
       typedef container::aligned_vector<Force> ForceAlignedVector;
       
       bp::def("computeRNEADerivatives",
-              computeRNEADerivativesDefault,
+              computeRNEADerivatives,
               bp::args("Model","Data",
-                       "Configuration q (size Model::nq)",
-                       "Velocity v (size Model::nv)",
-                       "Acceleration a (size Model::nv)"),
+                       "q: configuration vector (size model.nq)",
+                       "v: velocity vector (size model.nv)",
+                       "a: acceleration vector (size model.nv)"),
               "Computes the RNEA derivatives, put the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
+              "which correspond to the partial derivatives of the torque output with respect to the joint configuration,\n"
+              "velocity and acceleration vectors.");
+      
+      bp::def("computeRNEADerivatives",
+              computeRNEADerivatives_fext,
+              bp::args("Model","Data",
+                       "q: configuration vector (size model.nq)",
+                       "v: velocity vector (size model.nv)",
+                       "a: acceleration vector (size model.nv)",
+                       "fext: vector external forces (size model.njoints)"),
+              "Computes the RNEA derivatives with external contact foces,\n"
+              "put the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
               "which correspond to the partial derivatives of the torque output with respect to the joint configuration,\n"
               "velocity and acceleration vectors.");
     }
