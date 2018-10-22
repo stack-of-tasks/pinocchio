@@ -389,6 +389,14 @@ COLS_IN_ALPHA_INDEX    = 4
 # configuration options related to the HTML output
 #---------------------------------------------------------------------------
 
+# With the PROJECT_LOGO tag one can specify an logo or icon that is
+# included in the documentation. The maximum height of the logo should not
+# exceed 55 pixels and the maximum width should not exceed 200 pixels.
+# Doxygen will copy the logo to the output directory.
+
+PROJECT_LOGO           = @PROJECT_SOURCE_DIR@/doc/pinocchio.png
+HTML_EXTRA_FILES       += pinocchio.png
+
 # The HTML_HEADER tag can be used to specify a personal HTML header for
 # each generated HTML page. If it is left blank doxygen will generate a
 # standard header. Note that when using a custom header you are responsible
@@ -400,7 +408,8 @@ COLS_IN_ALPHA_INDEX    = 4
 # have to redo this when upgrading to a newer version of doxygen or when
 # changing the value of configuration settings such as GENERATE_TREEVIEW!
 
-HTML_HEADER            =
+HTML_HEADER            = @PROJECT_SOURCE_DIR@/doc/header.html
+HTML_EXTRA_FILES       += @PROJECT_SOURCE_DIR@/doc/pinocchio.ico
 
 # The HTML_FOOTER tag can be used to specify a personal HTML footer for
 # each generated HTML page. If it is left blank doxygen will generate a
@@ -575,3 +584,7 @@ INCLUDE_PATH          = @PROJECT_SOURCE_DIR@/src
 TAGFILES               =
 
 EXAMPLE_PATH = @PROJECT_SOURCE_DIR@/examples
+
+# A dedicated BIB_PATH would be preferable
+EXAMPLE_PATH += @PROJECT_SOURCE_DIR@/doc/bib
+
