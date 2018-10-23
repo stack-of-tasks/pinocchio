@@ -60,8 +60,7 @@ namespace se3
         data.oMi[i] = data.liMi[i];
       
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
-      data.of[i].setZero();
-      
+
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
