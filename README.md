@@ -30,7 +30,7 @@ It is built upon Eigen for linear algebra and FCL for collision detection. **Pin
 
 **Pinocchio** is multi-thread friendly.  
 **Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
-**Pinocchio** is cross-platform.
+**Pinocchio** is supported on MacOs and many Linux distribution ([See build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
 
 ## Ongoing developments
 
