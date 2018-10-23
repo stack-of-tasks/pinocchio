@@ -13,6 +13,25 @@ It is built upon Eigen for linear algebra and FCL for collision detection. **Pin
 
 **Pinocchio** is now at the hearth of various robotics softwares as the [Stack-of-Tasks](http://stack-of-tasks.github.io) or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc).
 
+## Pinocchio features
+
+**Pinocchio** is fast:
+
+   - C++ template library,
+   - cache friendly,
+   - automatic code generation support.
+
+**Pinocchio** implements rigid body dynamics algorithms:
+
+   - forward kinematics and its analytical derivatives
+   - forward and inverse dynamics,
+   - analytical derivatives of forward and inverse dynamics,
+   - centroidal dynamics.
+
+**Pinocchio** is multi-thread friendly.  
+**Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
+**Pinocchio** is cross-platform.
+
 ## Ongoing developments
 
 If you want to follow the current developments, you can directly refer to the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel).
