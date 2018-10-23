@@ -91,6 +91,7 @@ The following people have been involved in the development of **Pinocchio**:
 - [Joseph Mirabel](http://jmirabel.github.io/) (LAAS-CNRS): Lie groups support
 - [Antonio El Khoury](https://www.linkedin.com/in/antonioelkhoury) (Wandercraft): bug fixes
 - [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): bug fixes
+- [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and FCL support
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution here.
 
