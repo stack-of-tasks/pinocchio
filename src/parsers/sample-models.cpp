@@ -84,7 +84,7 @@ namespace se3
 
     }
 
-    void humanoidSimple(Model & model, bool usingFF)
+    void humanoidRandom(Model & model, bool usingFF)
     {
       // root
       if(! usingFF )
@@ -140,7 +140,7 @@ namespace se3
     static void addManipulator(Model & model,
                                Model::JointIndex rootJoint = 0,
                                const SE3 & Mroot = SE3::Identity(),
-                               const std::string pre = "")
+                               const std::string& pre = "")
     {
       typedef typename JointModelRX::ConfigVector_t CV;
       typedef typename JointModelRX::TangentVector_t TV;

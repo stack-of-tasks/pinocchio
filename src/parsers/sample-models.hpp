@@ -25,11 +25,7 @@
 namespace se3
 {
   namespace buildModels
-  {
-
-    void humanoid2d(Model& model);
-    void humanoidSimple(Model& model, bool usingFF = true);
-
+  {  
     /** \brief Create a 6-DOF kinematic chain shoulder-elbow-wrist.
      *
      * \param model: model, typically given empty, where the kinematic chain is added.
@@ -62,7 +58,31 @@ namespace se3
      * not using after humanoid(model).
      */
     void humanoidGeometries(const Model& model, GeometryModel & geom);
+    
+    /** \brief Create a humanoid kinematic tree with 6D limbs and random joint placement.
+     *
+     * This method is only meant to be used in unittest. Due to random placement and masses,
+     * the resulting model is likely to not correspond to any physically-plausible model. 
+     * You may want to consider se3::humanoid and se3::humanoidGeometries functions that
+     * rather define a plain and non-random model. 
+     * \param model: model, typically given empty, where the kinematic chain is added.
+     * \param usingFF: if True, implement the chain with a plain JointModelFreeFloating; if False,
+     * uses a composite joint. This changes the size of the configuration space (35 vs 34).
+     */
+    void humanoidRandom(Model& model, bool usingFF = true);
 
+    /** \brief Create a random humanoid tree with 2d limbs.
+     * \ deprecated This function has been replaced by the non-random se3::humanoid function.
+     */
+    PINOCCHIO_DEPRECATED
+    void humanoid2d(Model& model);
+
+    /** \brief Alias of humanoidRandom, for compatibility reasons.
+     * \deprecated use se3::humanoid or se3::humanoidRandom instead. 
+     */
+    PINOCCHIO_DEPRECATED
+    inline void humanoidSimple(Model& model, bool usingFF = true) { humanoidRandom(model,usingFF); }
+   
   } // namespace buildModels
 } // namespace se3
 
