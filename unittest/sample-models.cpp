@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid )
   se3::buildModels::humanoidGeometries(model,geom);
   se3::GeometryData geomdata(geom);
   
-  Eigen::VectorXd q(model.nq);
+  Eigen::VectorXd q = se3::neutral(model);
   se3::forwardKinematics(model,data,q);
   se3::updateGeometryPlacements(model,data,geom,geomdata,q);
 
