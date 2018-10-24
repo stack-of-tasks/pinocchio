@@ -18,9 +18,6 @@
 #ifndef __se3_python_sample_models_hpp__
 #define __se3_python_sample_models_hpp__
 
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
-
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/multibody/data.hpp"
 #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
