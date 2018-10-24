@@ -59,6 +59,7 @@ ADD_PINOCCHIO_UNIT_TEST(com eigen3)
 ADD_PINOCCHIO_UNIT_TEST(jacobian eigen3)
 ADD_PINOCCHIO_UNIT_TEST(cholesky eigen3)
 ADD_PINOCCHIO_UNIT_TEST(dynamics eigen3)
+ADD_PINOCCHIO_UNIT_TEST(sample-models eigen3)
 
 IF(URDFDOM_FOUND)
   ADD_PINOCCHIO_UNIT_TEST(urdf "eigen3;urdfdom")

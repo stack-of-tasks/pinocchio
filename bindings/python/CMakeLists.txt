@@ -70,6 +70,7 @@ SET(${PROJECT_NAME}_PYTHON_HEADERS
   multibody/joint/joint-derived.hpp
   algorithm/algorithms.hpp 
   parsers/parsers.hpp
+  parsers/sample-models.hpp
   )
 
 SET(${PROJECT_NAME}_PYTHON_SOURCES
