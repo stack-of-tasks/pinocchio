@@ -21,6 +21,21 @@ from __future__ import print_function
 from . import libpinocchio_pywrap as se3 
 from .deprecation import deprecated
 
+@deprecated("This function has been deprecated. Please use buildSampleModelHumanoid or buildSampleModelHumanoidRandom instead.")
+def buildSampleModelHumanoidSimple(usingFF=True):
+    return se3.buildSampleModelHumanoidRandom(usingFF)
+
+@deprecated("Static method Model.BuildHumanoidSimple has been deprecated. Please use function buildSampleModelHumanoid or buildSampleModelHumanoidRandom instead.")
+def _Model__BuildHumanoidSimple(usingFF=True):
+    return se3.buildSampleModelHumanoidRandom(usingFF)
+
+se3.Model.BuildHumanoidSimple = staticmethod(_Model__BuildHumanoidSimple)
+
+@deprecated("Static method Model.BuildEmptyModel has been deprecated. Please use the empty Model constructor instead.")
+def _Model__BuildEmptyModel():
+    return se3.Model()
+
+se3.Model.BuildEmptyModel = staticmethod(_Model__BuildEmptyModel)
 
 @deprecated("This function has been renamed updateFramePlacements when taking two arguments, and framesForwardKinematics when taking three. Please change your code to the appropriate method.")
 def framesKinematics(model,data,q=None):

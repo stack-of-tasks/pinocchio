@@ -41,9 +41,10 @@ namespace se3
 
     /** \brief Create a 28-DOF kinematic chain of a floating humanoid robot.
      * 
-     * The kinematic chain has 4 limbs shoulder-elbow-wrist, one 2-dof torso, one
-     * 2-dof neck. The float joint is either a free-float joint JointModelFreeFloating
-     * (with nq=7 and nv=6), or a composite joint with 3 prismatic and 1 roll-pitch-yaw.
+     * The kinematic chain has four 6-DOF limbs shoulder-elbow-wrist, one 2-DOF torso, one
+     * 2-DOF neck. The float joint is either a JointModelFreeFloating (with nq=7 and nv=6),
+     * or a composite joint with a JointModelTranslation
+     * and a roll-pitch-yaw joint JointModelSphericalZYX (with total nq=nv=6).
      * Using a free-floating or a composite joint is decided by the boolean usingFF.
      *
      * \param model: model, typically given empty, where the kinematic chain is added.
@@ -59,7 +60,7 @@ namespace se3
      */
     void humanoidGeometries(const Model& model, GeometryModel & geom);
     
-    /** \brief Create a humanoid kinematic tree with 6D limbs and random joint placement.
+    /** \brief Create a humanoid kinematic tree with 6-DOF limbs and random joint placements.
      *
      * This method is only meant to be used in unittest. Due to random placement and masses,
      * the resulting model is likely to not correspond to any physically-plausible model. 
@@ -67,7 +68,7 @@ namespace se3
      * rather define a plain and non-random model. 
      * \param model: model, typically given empty, where the kinematic chain is added.
      * \param usingFF: if True, implement the chain with a plain JointModelFreeFloating; if False,
-     * uses a composite joint. This changes the size of the configuration space (35 vs 34).
+     * uses 3 prismatic + 3 revolute joints. This changes the size of the configuration space (33 vs 32).
      */
     void humanoidRandom(Model& model, bool usingFF = true);
 
