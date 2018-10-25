@@ -30,10 +30,17 @@ namespace se3
     struct SampleModelsPythonVisitor
     {
 
-      static Model buildSampleModelHumanoidSimple(bool usingFF)
+      static Model buildSampleModelHumanoidRandom()
       {
         Model model;
-        buildModels::humanoidSimple(model,usingFF);
+        buildModels::humanoidRandom(model);
+        return model;
+      }
+
+      static Model buildSampleModelHumanoidRandom(bool usingFF)
+      {
+        Model model;
+        buildModels::humanoidRandom(model,usingFF);
         return model;
       }
 
@@ -57,6 +64,13 @@ namespace se3
         buildModels::humanoid(model);
         return model;
       }
+
+      static Model buildSampleModelHumanoid(bool usingFF)
+      {
+        Model model;
+        buildModels::humanoid(model,usingFF);
+        return model;
+      }
       
       static GeometryModel buildSampleGeometryModelHumanoid(const Model& model)
       {
@@ -71,10 +85,15 @@ namespace se3
 
     inline void SampleModelsPythonVisitor::expose()
     {
-      bp::def("buildSampleModelHumanoidSimple",
-              static_cast <Model (*) (bool)> (&SampleModelsPythonVisitor::buildSampleModelHumanoidSimple),
+      bp::def("buildSampleModelHumanoidRandom",
+              static_cast <Model (*) ()> (&SampleModelsPythonVisitor::buildSampleModelHumanoidRandom),
+              "Generate a (hard-coded) model of a humanoid robot with 6-DOF limbs and random joint placements.\nOnly meant for unit tests."
+              );
+
+      bp::def("buildSampleModelHumanoidRandom",
+              static_cast <Model (*) (bool)> (&SampleModelsPythonVisitor::buildSampleModelHumanoidRandom),
               bp::args("bool (usingFreeFlyer)"),
-              "Generate a (hard-coded) model of a simple humanoid robot."
+              "Generate a (hard-coded) model of a humanoid robot with 6-DOF limbs and random joint placements.\nOnly meant for unit tests."
               );
 
       bp::def("buildSampleModelManipulator",
@@ -90,6 +109,12 @@ namespace se3
       
       bp::def("buildSampleModelHumanoid",
               static_cast <Model (*) ()> (&SampleModelsPythonVisitor::buildSampleModelHumanoid),
+              "Generate a (hard-coded) model of a simple humanoid."
+              );
+
+      bp::def("buildSampleModelHumanoid",
+              static_cast <Model (*) (bool)> (&SampleModelsPythonVisitor::buildSampleModelHumanoid),
+              bp::args("bool (usingFreeFlyer)"),
               "Generate a (hard-coded) model of a simple humanoid."
               );
 
