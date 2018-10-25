@@ -403,6 +403,22 @@ BOOST_AUTO_TEST_CASE(JintegrateCoeffWise)
   for (int i = 0; i < 20; ++i)
     boost::mpl::for_each<Types>(LieGroup_JintegrateCoeffWise());
   
+  {
+    typedef SpecialEuclideanOperationTpl<3,Scalar,Options> LieGroup;
+    typedef LieGroup::ConfigVector_t ConfigVector_t;
+    typedef LieGroup::TangentVector_t TangentVector_t;
+    LieGroup lg;
+    
+    ConfigVector_t q = lg.random();
+//    TangentVector_t dv(TangentVector_t::Zero(lg.nv()));
+    
+    typedef Eigen::Matrix<Scalar,LieGroup::NQ,LieGroup::NV> JacobianCoeffs;
+    JacobianCoeffs Jintegrate(JacobianCoeffs::Zero(lg.nq(),lg.nv()));
+    lg.integrateCoeffWiseJacobian(q,Jintegrate);
+    
+    
+   
+  }
 }
 
 BOOST_AUTO_TEST_CASE ( test_vector_space )
