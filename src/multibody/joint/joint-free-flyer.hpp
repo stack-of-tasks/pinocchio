@@ -118,11 +118,12 @@ namespace se3
   }; // struct ConstraintIdentityTpl
   
   template<typename Scalar, int Options, typename Vector6Like>
-  typename ConstraintIdentityTpl<Scalar,Options>::Motion
+  MotionRef<Vector6Like>
   operator*(const ConstraintIdentityTpl<Scalar,Options> &, const Eigen::MatrixBase<Vector6Like>& v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
-    typedef typename ConstraintIdentityTpl<Scalar,Options>::Motion Motion;
+//    typedef typename ConstraintIdentityTpl<Scalar,Options>::Motion Motion;
+    typedef MotionRef<Vector6Like> Motion;
     return Motion(v);
   }
 
@@ -248,6 +249,7 @@ namespace se3
     }
     
     template<typename ConfigVector>
+    EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
@@ -255,13 +257,14 @@ namespace se3
       typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
       
       typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type q = qs.template segment<NQ>(idx_q());
-      ConstQuaternionMap quat(q.template tail<4>().data());
-      
-      data.M.rotation(quat.matrix());
       data.M.translation(q.template head<3>());
+      
+      ConstQuaternionMap quat(q.template tail<4>().data());
+      data.M.rotation(quat.matrix());
     }
     
     template<typename ConfigVector, typename TangentVector>
+    EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs,
               const typename Eigen::MatrixBase<TangentVector> & vs) const
