@@ -7,40 +7,35 @@ ones = lambda n: np.matrix(np.ones([n, 1] if isinstance(n, int) else n), np.doub
 
 class TestSE3Bindings(unittest.TestCase):
 
-    v3zero = zero(3)
-    v3ones = ones(3)
-    m3zero = zero([3,3])
-    m3ones = eye(3)
-    m4ones = eye(4)
-
     def test_identity(self):
         transform = se3.SE3.Identity()
-        self.assertTrue(np.allclose(self.v3zero,transform.translation))
-        self.assertTrue(np.allclose(self.m3ones, transform.rotation))
-        self.assertTrue(np.allclose(self.m4ones, transform.homogeneous))
+        self.assertTrue(np.allclose(zero(3),transform.translation))
+        self.assertTrue(np.allclose(eye(3), transform.rotation))
+        self.assertTrue(np.allclose(eye(4), transform.homogeneous))
+        self.assertTrue(np.allclose(eye(6), transform.action))
         transform.setRandom()
         transform.setIdentity()
-        self.assertTrue(np.allclose(self.m4ones, transform.homogeneous))
+        self.assertTrue(np.allclose(eye(4), transform.homogeneous))
 
     def test_get_translation(self):
         transform = se3.SE3.Identity()
-        self.assertTrue(np.allclose(transform.translation, self.v3zero))
+        self.assertTrue(np.allclose(transform.translation, zero(3)))
 
     def test_get_rotation(self):
         transform = se3.SE3.Identity()
-        self.assertTrue(np.allclose(transform.rotation, self.m3ones))
+        self.assertTrue(np.allclose(transform.rotation, eye(3)))
 
     def test_set_translation(self):
         transform = se3.SE3.Identity()
-        transform.translation = self.v3ones
-        self.assertFalse(np.allclose(transform.translation, self.v3zero))
-        self.assertTrue(np.allclose(transform.translation, self.v3ones))
+        transform.translation = ones(3)
+        self.assertFalse(np.allclose(transform.translation, zero(3)))
+        self.assertTrue(np.allclose(transform.translation, ones(3)))
 
     def test_set_rotation(self):
         transform = se3.SE3.Identity()
-        transform.rotation = self.m3zero
-        self.assertFalse(np.allclose(transform.rotation, self.m3ones))
-        self.assertTrue(np.allclose(transform.rotation, self.m3zero))
+        transform.rotation = zero([3,3])
+        self.assertFalse(np.allclose(transform.rotation, eye(3)))
+        self.assertTrue(np.allclose(transform.rotation, zero([3,3])))
 
     def test_homogeneous(self):
         amb = se3.SE3.Random()
@@ -56,7 +51,7 @@ class TestSE3Bindings(unittest.TestCase):
         self.assertTrue(np.allclose(aXb[3:,3:], amb.rotation)) # bottom right 33 corner = rotation of amb
         tblock = skew(amb.translation)*amb.rotation
         self.assertTrue(np.allclose(aXb[:3,3:], tblock))       # top right 33 corner = translation + rotation
-        self.assertTrue(np.allclose(aXb[3:,:3], self.m3zero))  # bottom left 33 corner = 0
+        self.assertTrue(np.allclose(aXb[3:,:3], zero([3,3])))  # bottom left 33 corner = 0
 
     def test_inverse(self):
         amb = se3.SE3.Random()

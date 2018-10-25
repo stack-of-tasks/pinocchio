@@ -1,40 +1,31 @@
 import unittest
 import pinocchio as se3
 import numpy as np
-from pinocchio.utils import eye,zero,rand
-
-ones = lambda n: np.matrix(np.ones([n, 1] if isinstance(n, int) else n), np.double)
+from pinocchio.utils import zero,rand
 
 class TestMotionBindings(unittest.TestCase):
 
-    v3zero = zero(3)
-    v6zero = zero(6)
-    v3ones = ones(3)
-    m3zero = zero([3,3])
-    m3ones = eye(3)
-    m4ones = eye(4)
-
     def test_zero_getters(self):
         v = se3.Motion.Zero()
-        self.assertTrue(np.allclose(self.v3zero, v.linear))
-        self.assertTrue(np.allclose(self.v3zero, v.angular))
-        self.assertTrue(np.allclose(self.v6zero, v.vector))
+        self.assertTrue(np.allclose(zero(3), v.linear))
+        self.assertTrue(np.allclose(zero(3), v.angular))
+        self.assertTrue(np.allclose(zero(6), v.vector))
 
     # TODO: this is not nice, since a random vector can *in theory* be zero
     def test_setRandom(self):
         v = se3.Motion.Zero()
         v.setRandom()
-        self.assertFalse(np.allclose(self.v3zero, v.linear))
-        self.assertFalse(np.allclose(self.v3zero, v.angular))
-        self.assertFalse(np.allclose(self.v6zero, v.vector))
+        self.assertFalse(np.allclose(zero(3), v.linear))
+        self.assertFalse(np.allclose(zero(3), v.angular))
+        self.assertFalse(np.allclose(zero(6), v.vector))
 
     def test_setZero(self):
         v = se3.Motion.Zero()
         v.setRandom()
         v.setZero()
-        self.assertTrue(np.allclose(self.v3zero, v.linear))
-        self.assertTrue(np.allclose(self.v3zero, v.angular))
-        self.assertTrue(np.allclose(self.v6zero, v.vector))
+        self.assertTrue(np.allclose(zero(3), v.linear))
+        self.assertTrue(np.allclose(zero(3), v.angular))
+        self.assertTrue(np.allclose(zero(6), v.vector))
 
     def test_set_linear(self):
         v = se3.Motion.Zero()

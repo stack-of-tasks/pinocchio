@@ -6,10 +6,10 @@ from test_case import TestCase
 
 class TestModel(TestCase):
     def setUp(self):
-        self.model = se3.Model.BuildHumanoidSimple()
+        self.model = se3.buildSampleModelHumanoidRandom()
 
     def test_empty_model_sizes(self):
-        model = se3.Model.BuildEmptyModel()
+        model = se3.Model()
         self.assertEqual(model.nbodies, 1)
         self.assertEqual(model.nq, 0)
         self.assertEqual(model.nv, 0)
