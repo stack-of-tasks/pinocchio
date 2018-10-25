@@ -189,20 +189,26 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                     const Eigen::MatrixBase<ConfigR_t> & q1,
                     const Eigen::MatrixBase<Tangent_t>& v) const;
 
+    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
+    void Jdifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                     const Eigen::MatrixBase<ConfigR_t> & q1,
+                     const Eigen::MatrixBase<JacobianLOut_t>& J0,
+                     const Eigen::MatrixBase<JacobianROut_t>& J1) const
+    PINOCCHIO_DEPRECATED;
+
     /**
      * @brief      Computes the Jacobian of the difference operation.
      *
      * @param[in]  q0    the initial configuration vector.
      * @param[in]  q1    the terminal configuration vector.
+     * @tparam[in] iVar  0 (resp. 1) to get the Jacobian with respect to q0 (resp. q1).
      *
-     * @param[out] J0    the Jacobian of the difference operation with respect to q0.
-     * @param[out] J1    the Jacobian of the difference operation with respect to q1.
+     * @param[out] J     the Jacobian of the difference operation.
      */
-    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    void Jdifference(const Eigen::MatrixBase<ConfigL_t> & q0,
-                     const Eigen::MatrixBase<ConfigR_t> & q1,
-                     const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                     const Eigen::MatrixBase<JacobianROut_t>& J1) const;
+    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference_dq(const Eigen::MatrixBase<ConfigL_t> & q0,
+                        const Eigen::MatrixBase<ConfigR_t> & q1,
+                        const Eigen::MatrixBase<JacobianOut_t>& J) const;
 
     /**
      * @brief      Squared distance between two joint configurations.

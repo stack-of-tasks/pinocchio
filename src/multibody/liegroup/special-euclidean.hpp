@@ -230,11 +230,10 @@ namespace se3
       log(R, t, d);
     }
 
-    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                 const Eigen::MatrixBase<ConfigR_t> & q1,
-                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference_dqimpl (const Eigen::MatrixBase<ConfigL_t> & q0,
+                             const Eigen::MatrixBase<ConfigR_t> & q1,
+                             const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
       Matrix2 R0, R1; Vector2 t0, t1;
       forwardKinematics(R0, t0, q0);
@@ -242,17 +241,22 @@ namespace se3
       Matrix2 R (R0.transpose() * R1);
       Vector2 t (R0.transpose() * (t1 - t0));
 
-      Jlog (R, t, J1);
+      if (iVar == 0) {
+        JacobianMatrix_t J1;
+        Jlog (R, t, J1);
 
-      // pcross = [ y1-y0, - (x1 - x0) ]
-      Vector2 pcross (q1(1) - q0(1), q0(0) - q1(0));
+        // pcross = [ y1-y0, - (x1 - x0) ]
+        Vector2 pcross (q1(1) - q0(1), q0(0) - q1(0));
 
-      JacobianLOut_t & J0v = EIGEN_CONST_CAST(JacobianLOut_t,J0);
-      J0v.template topLeftCorner <2,2>() = - R.transpose();
-      J0v.template topRightCorner<2,1>().noalias() = R1.transpose() * pcross;
-      J0v.template bottomLeftCorner<1,2>().setZero();
-      J0v (2,2) = -1;
-      J0v.applyOnTheLeft(J1);
+        JacobianOut_t& J0 = EIGEN_CONST_CAST(JacobianOut_t, J);
+        J0.template topLeftCorner <2,2> ().noalias() = - R.transpose();
+        J0.template topRightCorner<2,1> ().noalias() = R1.transpose() * pcross;
+        J0.template bottomLeftCorner <1,2> ().setZero();
+        J0 (2,2) = -1;
+        J0.applyOnTheLeft(J1);
+      } else if (iVar == 1) {
+        Jlog (R, t, J);
+      }
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -442,11 +446,10 @@ namespace se3
                * SE3(p1.matrix(), q1.derived().template head<3>())).toVector();
     }
 
-    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                 const Eigen::MatrixBase<ConfigR_t> & q1,
-                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference_dqimpl (const Eigen::MatrixBase<ConfigL_t> & q0,
+                             const Eigen::MatrixBase<ConfigR_t> & q1,
+                             const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
       ConstQuaternionMap_t p0 (q0.derived().template tail<4>().data());
       ConstQuaternionMap_t p1 (q1.derived().template tail<4>().data());
@@ -455,17 +458,22 @@ namespace se3
       SE3 M (  SE3(R0, q0.derived().template head<3>()).inverse()
              * SE3(R1, q1.derived().template head<3>()));
 
-      Jlog6 (M, J1);
+      if (iVar == 0) {
+        JacobianMatrix_t J1;
+        Jlog6 (M, J1);
 
-      typename SE3::Vector3 p1_p0 (q1.derived().template head<3>()
-                                   - q0.derived().template head<3>());
+        typename SE3::Vector3 p1_p0 (  q1.derived().template head<3>()
+                                     - q0.derived().template head<3>());
 
-      JacobianLOut_t& J0v = EIGEN_CONST_CAST(JacobianLOut_t,J0);
-      J0v.template topLeftCorner <3,3> () = - M.rotation().transpose();
-      J0v.template topRightCorner<3,3> ().noalias() = R1.transpose() * skew (p1_p0) * R0;
-      J0v.template bottomLeftCorner <3,3> ().setZero();
-      J0v.template bottomRightCorner<3,3> () = - M.rotation().transpose();
-      J0v.applyOnTheLeft(J1);
+        JacobianOut_t& J0 = EIGEN_CONST_CAST(JacobianOut_t,J);
+        J0.template topLeftCorner <3,3> ().noalias() = - M.rotation().transpose();
+        J0.template topRightCorner<3,3> ().noalias() = R1.transpose() * skew (p1_p0) * R0;
+        J0.template bottomLeftCorner <3,3> ().setZero();
+        J0.template bottomRightCorner<3,3> ().noalias() = - M.rotation().transpose();
+        J0.applyOnTheLeft(J1);
+      } else if (iVar == 1) {
+        Jlog6 (M, J);
+      }
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>

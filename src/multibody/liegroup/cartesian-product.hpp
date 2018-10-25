@@ -99,20 +99,16 @@ namespace se3
       lg2_.difference(Q2(q0), Q2(q1), Vo2(d));
     }
 
-    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                 const Eigen::MatrixBase<ConfigR_t> & q1,
-                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                                 const Eigen::MatrixBase<JacobianROut_t>& J1) const
+    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference_dqimpl (const Eigen::MatrixBase<ConfigL_t> & q0,
+                             const Eigen::MatrixBase<ConfigR_t> & q1,
+                             const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
-      J12(J0).setZero();
-      J21(J0).setZero();
+      J12(J).setZero();
+      J21(J).setZero();
 
-      J12(J1).setZero();
-      J21(J1).setZero();
-
-      lg1_.Jdifference (Q1(q0), Q1(q1), J11(J0), J11(J1));
-      lg2_.Jdifference (Q2(q0), Q2(q1), J22(J0), J22(J1));
+      lg1_.template dDifference_dq<iVar> (Q1(q0), Q1(q1), J11(J));
+      lg2_.template dDifference_dq<iVar> (Q2(q0), Q2(q1), J22(J));
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>

@@ -138,11 +138,10 @@ namespace se3
       EIGEN_CONST_CAST(Tangent_t,d)[0] = log(R);
     }
 
-    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                 const Eigen::MatrixBase<ConfigR_t> & q1,
-                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference_dqimpl (const Eigen::MatrixBase<ConfigL_t> & q0,
+                             const Eigen::MatrixBase<ConfigR_t> & q1,
+                             const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
       Matrix2 R; // R0.transpose() * R1;
       R(0,0) = R(1,1) = q0.dot(q1);
@@ -150,8 +149,7 @@ namespace se3
       R(0,1) = - R(1,0);
 
       Scalar w (Jlog(R));
-      EIGEN_CONST_CAST(JacobianLOut_t,J0).coeffRef(0,0) = -w;
-      EIGEN_CONST_CAST(JacobianROut_t,J1).coeffRef(0,0) =  w;
+      EIGEN_CONST_CAST(JacobianOut_t,J).coeffRef(0,0) = ((iVar==0) ? -w : w);
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -315,18 +313,23 @@ namespace se3
         = log3((p0.matrix().transpose() * p1.matrix()).eval());
     }
 
-    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                 const Eigen::MatrixBase<ConfigR_t> & q1,
-                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference_dqimpl (const Eigen::MatrixBase<ConfigL_t> & q0,
+                             const Eigen::MatrixBase<ConfigR_t> & q1,
+                             const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
       ConstQuaternionMap_t p0 (q0.derived().data());
       ConstQuaternionMap_t p1 (q1.derived().data());
       Eigen::Matrix<Scalar, 3, 3> R = p0.matrix().transpose() * p1.matrix();
 
-      Jlog3 (R, J1);
-      EIGEN_CONST_CAST(JacobianLOut_t,J0).noalias() = - J1 * R.transpose();
+      if (iVar == 0) {
+        JacobianMatrix_t J1;
+        Jlog3 (R, J1);
+
+        EIGEN_CONST_CAST(JacobianOut_t,J).noalias() = - J1 * R.transpose();
+      } else if (iVar == 1) {
+        Jlog3 (R, J);
+      }
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
