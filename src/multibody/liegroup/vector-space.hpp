@@ -83,15 +83,15 @@ namespace se3
       const_cast< Eigen::MatrixBase<Tangent_t>& > (d) = q1 - q0;
     }
 
-    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> &,
-                                 const Eigen::MatrixBase<ConfigR_t> &,
-                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference_dqimpl (const Eigen::MatrixBase<ConfigL_t> &,
+                             const Eigen::MatrixBase<ConfigR_t> &,
+                             const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
-      const_cast< JacobianLOut_t& > (J0.derived()).setZero();
-      const_cast< JacobianLOut_t& > (J0.derived()).diagonal().setConstant(-1);
-      const_cast< JacobianROut_t& > (J1.derived()).setIdentity();
+      if (iVar == 0)
+        const_cast< JacobianOut_t& > (J.derived()).noalias() = - JacobianMatrix_t::Identity();
+      else if (iVar == 1)
+        const_cast< JacobianOut_t& > (J.derived()).setIdentity();
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
