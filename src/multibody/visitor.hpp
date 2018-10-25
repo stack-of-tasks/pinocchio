@@ -144,6 +144,8 @@ namespace se3
                                         args));
         }
         
+        ReturnType operator()(const JointModelVoid) {return;}
+        
         JointData & jdata;
         ArgType args;
       };
@@ -184,6 +186,8 @@ namespace se3
                             bf::append(boost::ref(jmodel),
                                        args));
         }
+        
+        ReturnType operator()(const JointModelVoid) {return;}
         
         ArgType args;
       };

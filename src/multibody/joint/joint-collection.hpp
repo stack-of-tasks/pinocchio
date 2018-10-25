@@ -22,8 +22,8 @@
 #include "pinocchio/multibody/joint/joint-free-flyer.hpp"
 #include "pinocchio/multibody/joint/joint-planar.hpp"
 #include "pinocchio/multibody/joint/joint-prismatic.hpp"
-#include "pinocchio/multibody/joint/joint-prismatic-unaligned.hpp"
 #include "pinocchio/multibody/joint/joint-revolute-unaligned.hpp"
+#include "pinocchio/multibody/joint/joint-prismatic-unaligned.hpp"
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
 #include "pinocchio/multibody/joint/joint-revolute-unbounded.hpp"
 #include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
@@ -82,6 +82,7 @@ namespace se3
     typedef JointModelCompositeTpl<Scalar,Options,JointCollectionDefaultTpl> JointModelComposite;
     
     typedef boost::variant<
+//    JointModelVoid,
     JointModelRX, JointModelRY, JointModelRZ
     , JointModelFreeFlyer, JointModelPlanar
     , JointModelRevoluteUnaligned
@@ -134,6 +135,7 @@ namespace se3
     typedef JointDataCompositeTpl<Scalar,Options,JointCollectionDefaultTpl> JointDataComposite;
     
     typedef boost::variant<
+//    JointDataVoid
     JointDataRX, JointDataRY, JointDataRZ
     , JointDataFreeFlyer, JointDataPlanar
     , JointDataRevoluteUnaligned

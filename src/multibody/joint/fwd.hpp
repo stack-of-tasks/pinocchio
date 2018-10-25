@@ -23,6 +23,9 @@
 namespace se3
 {
   enum { MAX_JOINT_NV = 6 };
+  
+  struct JointModelVoid {};
+  struct JointDataVoid {};
 
   template<typename Scalar, int Options, int axis> struct JointModelRevoluteTpl;
   template<typename Scalar, int Options, int axis> struct JointDataRevoluteTpl;
