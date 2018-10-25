@@ -39,7 +39,7 @@ class ModelWrapper(object):
     def __init__(self, name=None, display=False):
         self.visuals = [('universe', se3.SE3.Identity(), se3.SE3.Identity().translation)]
         self.name = self.__class__.__name__ if name is None else name
-        self.model = se3.Model.BuildEmptyModel()
+        self.model = se3.Model()
         self.display = display
         self.add_joints()
 
