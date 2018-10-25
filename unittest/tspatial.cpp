@@ -421,54 +421,6 @@ BOOST_AUTO_TEST_CASE (test_force_ref)
   }
 }
 
-BOOST_AUTO_TEST_CASE (test_force_ref)
-{
-  using namespace se3;
-  typedef SE3::Matrix6 Matrix6;
-  typedef Force::Vector6 Vector6;
-  
-  typedef ForceRef<Vector6> ForceV6;
-  
-  Force f_ref(Force::Random());
-  ForceV6 f(f_ref.toVector());
-  
-  BOOST_CHECK(f_ref.isApprox(f));
-  
-  ForceV6::ForcePlain f2(f*2.);
-  Force f2_ref(f_ref*2.);
-  
-  BOOST_CHECK(f2_ref.isApprox(f2));
-  
-  f2 = f_ref + f;
-  BOOST_CHECK(f2_ref.isApprox(f2));
-  
-  f = f2;
-  BOOST_CHECK(f2.isApprox(f));
-  
-  f2 = f - f;
-  BOOST_CHECK(f2.isApprox(Force::Zero()));
-  
-  SE3 M(SE3::Identity());
-  f2 = M.act(f);
-  BOOST_CHECK(f2.isApprox(f));
-  
-  f2 = M.actInv(f);
-  BOOST_CHECK(f2.isApprox(f));
-  
-  Motion v(Motion::Random());
-  f_ref.setRandom();
-  f = f_ref;
-  f2 = v.cross(f);
-  f2_ref = v.cross(f_ref);
-  
-  BOOST_CHECK(f2.isApprox(f2_ref));
-  
-  f.setRandom();
-  f.setZero();
-  BOOST_CHECK(f.isApprox(Force::Zero()));
-  
-}
-
 BOOST_AUTO_TEST_CASE ( test_Inertia )
 {
   using namespace se3;

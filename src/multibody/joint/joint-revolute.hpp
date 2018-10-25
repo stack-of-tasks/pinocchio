@@ -634,7 +634,6 @@ namespace se3
     {
       return std::string("JointModelR") + axisLabel<axis>();
     }
-    static std::string classname();
     std::string shortname() const { return classname(); }
     
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
