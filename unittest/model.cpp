@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
   BOOST_AUTO_TEST_CASE(test_model_subtree)
   {
     Model model;
-    buildModels::humanoidSimple(model);
+    buildModels::humanoidRandom(model);
     
     Model::JointIndex idx_larm1 = model.getJointId("larm1_joint");
     BOOST_CHECK(idx_larm1<(Model::JointIndex)model.njoints);
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
   BOOST_AUTO_TEST_CASE(comparison)
   {
     Model model;
-    buildModels::humanoidSimple(model);
+    buildModels::humanoidRandom(model);
     
     BOOST_CHECK(model == model);
   }
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
   BOOST_AUTO_TEST_CASE(cast)
   {
     Model model;
-    buildModels::humanoidSimple(model);
+    buildModels::humanoidRandom(model);
     
     BOOST_CHECK(model.cast<double>() == model);
     BOOST_CHECK(model.cast<long double>().cast<double>() == model);
