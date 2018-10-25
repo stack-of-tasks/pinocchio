@@ -41,10 +41,10 @@ namespace se3
       if(setRandomLimits)
         idx = model.addJoint(model.getJointId(parent_name),joint,
                              placement, name + "_joint",
-                             TV::Random() + TV::Constant(1), // effort
-                             TV::Random() + TV::Constant(1), // vel
-                             CV::Random() - CV::Constant(1), // qmin
-                             CV::Random() + CV::Constant(1)  // qmax
+                             TV::Random(joint.nv(),1) + TV::Constant(joint.nv(),1,1), // effort
+                             TV::Random(joint.nv(),1) + TV::Constant(joint.nv(),1,1), // vel
+                             CV::Random(joint.nq(),1) - CV::Constant(joint.nq(),1,1), // qmin
+                             CV::Random(joint.nq(),1) + CV::Constant(joint.nq(),1,1)  // qmax
                              );
       else
         idx = model.addJoint(model.getJointId(parent_name),joint,
@@ -89,12 +89,9 @@ namespace se3
       // root
       if(! usingFF )
       {
-        addJointAndBody(model, JointModelPX(), "universe", "ff1", Id);
-        addJointAndBody(model, JointModelPY(), "ff1_joint", "ff2", Id);
-        addJointAndBody(model, JointModelPZ(), "ff2_joint", "ff3", Id);
-        addJointAndBody(model, JointModelRZ(), "ff3_joint", "ff4", Id);
-        addJointAndBody(model, JointModelRY(), "ff4_joint", "ff5", Id);
-        addJointAndBody(model, JointModelRX(), "ff5_joint", "root", Id);
+        JointModelComposite jff((JointModelTranslation()));
+        jff.addJoint(JointModelSphericalZYX());
+        addJointAndBody(model, jff, "universe", "root", Id);
       }
       else
         addJointAndBody(model, JointModelFreeFlyer(), "universe", "root", Id);

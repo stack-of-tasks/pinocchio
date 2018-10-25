@@ -1,23 +1,11 @@
 import unittest
 import pinocchio as se3
 import numpy as np
-from pinocchio.utils import eye,zero,rand
-import os
-
-ones = lambda n: np.matrix(np.ones([n, 1] if isinstance(n, int) else n), np.double)
 
 class TestFrameBindings(unittest.TestCase):
 
-    v3zero = zero(3)
-    v6zero = zero(6)
-    v3ones = ones(3)
-    m3zero = zero([3,3])
-    m6zero = zero([6,6])
-    m3ones = eye(3)
-    m4ones = eye(4)
-
     def setUp(self):
-        self.model = se3.Model.BuildHumanoidSimple()
+        self.model = se3.buildSampleModelHumanoidRandom()
         self.parent_idx = self.model.getJointId("rarm2_joint") if self.model.existJointName("rarm2_joint") else (self.model.njoints-1)
         self.frame_name = self.model.names[self.parent_idx] + "_frame"
         self.frame_placement = se3.SE3.Random()

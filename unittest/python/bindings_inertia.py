@@ -3,52 +3,42 @@ import pinocchio as se3
 import numpy as np
 from pinocchio.utils import eye,zero,rand
 
-ones = lambda n: np.matrix(np.ones([n, 1] if isinstance(n, int) else n), np.double)
-
 class TestInertiaBindings(unittest.TestCase):
-
-    v3zero = zero(3)
-    v6zero = zero(6)
-    v3ones = ones(3)
-    m3zero = zero([3,3])
-    m6zero = zero([6,6])
-    m3ones = eye(3)
-    m4ones = eye(4)
 
     def test_zero_getters(self):
         Y = se3.Inertia.Zero()
         self.assertTrue(Y.mass == 0)
-        self.assertTrue(np.allclose(self.v3zero, Y.lever))
-        self.assertTrue(np.allclose(self.m3zero, Y.inertia))
+        self.assertTrue(np.allclose(zero(3), Y.lever))
+        self.assertTrue(np.allclose(zero([3,3]), Y.inertia))
 
     def test_identity_getters(self):
         Y = se3.Inertia.Identity()
         self.assertTrue(Y.mass == 1)
-        self.assertTrue(np.allclose(self.v3zero, Y.lever))
-        self.assertTrue(np.allclose(self.m3ones, Y.inertia))
+        self.assertTrue(np.allclose(zero(3), Y.lever))
+        self.assertTrue(np.allclose(eye(3), Y.inertia))
 
     # TODO: this is not nice, since a random matrix can *in theory* be unity
     def test_setRandom(self):
         Y = se3.Inertia.Identity()
         Y.setRandom()
         self.assertFalse(Y.mass == 1)
-        self.assertFalse(np.allclose(self.v3zero, Y.lever))
-        self.assertFalse(np.allclose(self.m3ones, Y.inertia))
+        self.assertFalse(np.allclose(zero(3), Y.lever))
+        self.assertFalse(np.allclose(eye(3), Y.inertia))
 
     def test_setZero(self):
         Y = se3.Inertia.Zero()
         Y.setRandom()
         Y.setZero()
         self.assertTrue(Y.mass == 0)
-        self.assertTrue(np.allclose(self.v3zero, Y.lever))
-        self.assertTrue(np.allclose(self.m3zero, Y.inertia))
+        self.assertTrue(np.allclose(zero(3), Y.lever))
+        self.assertTrue(np.allclose(zero([3,3]), Y.inertia))
 
     def test_setIdentity(self):
         Y = se3.Inertia.Zero()
         Y.setIdentity()
         self.assertTrue(Y.mass == 1)
-        self.assertTrue(np.allclose(self.v3zero, Y.lever))
-        self.assertTrue(np.allclose(self.m3ones, Y.inertia))
+        self.assertTrue(np.allclose(zero(3), Y.lever))
+        self.assertTrue(np.allclose(eye(3), Y.inertia))
 
     def test_set_mass(self):
         Y = se3.Inertia.Zero()

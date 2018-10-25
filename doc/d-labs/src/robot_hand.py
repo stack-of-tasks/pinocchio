@@ -148,7 +148,7 @@ class Robot(object):
     def __init__(self):
         self.viewer = Display()
         self.visuals = []
-        self.model = se3.Model.BuildEmptyModel()
+        self.model = se3.Model()
         self.createHand()
         self.data = self.model.createData()
         self.q0 = zero(self.model.nq)

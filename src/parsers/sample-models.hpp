@@ -68,7 +68,8 @@ namespace se3
      * rather define a plain and non-random model. 
      * \param model: model, typically given empty, where the kinematic chain is added.
      * \param usingFF: if True, implement the chain with a plain JointModelFreeFloating; if False,
-     * uses 3 prismatic + 3 revolute joints. This changes the size of the configuration space (33 vs 32).
+     * uses a composite joint translation + roll-pitch-yaw.
+     * This changes the size of the configuration space (33 vs 32).
      */
     void humanoidRandom(Model& model, bool usingFF = true);
 

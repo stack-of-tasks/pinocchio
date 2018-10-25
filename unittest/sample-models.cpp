@@ -31,7 +31,7 @@
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
-BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid_simple )
+BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid_random )
 {
   se3::Model model;
   se3::buildModels::humanoidRandom(model,true);
