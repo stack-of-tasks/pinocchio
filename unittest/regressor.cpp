@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(test_static_regressor)
   using namespace Eigen;
   using namespace se3;
   
-  se3::Model model; buildModels::humanoidSimple(model);
+  se3::Model model; buildModels::humanoidRandom(model);
   
   se3::Data data(model);
   se3::Data data_ref(model);

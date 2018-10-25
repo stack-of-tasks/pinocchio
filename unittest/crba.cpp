@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_crba )
 {
   se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   se3::Data data(model);
   
   #ifdef NDEBUG
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 BOOST_AUTO_TEST_CASE(test_minimal_crba)
 {
   se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   se3::Data data(model), data_ref(model);
   
   model.lowerPositionLimit.head<7>().fill(-1.);

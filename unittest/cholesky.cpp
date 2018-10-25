@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE ( test_cholesky )
   using namespace se3;
 
   se3::Model model;
-  se3::buildModels::humanoidSimple(model,true);
+  se3::buildModels::humanoidRandom(model,true);
   se3::Data data(model);
   
   model.lowerPositionLimit.head<3>().fill(-1.);
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   using namespace se3;
 
   se3::Model model;
-  se3::buildModels::humanoidSimple(model,true);
+  se3::buildModels::humanoidRandom(model,true);
   se3::Data data(model);
   
   model.lowerPositionLimit.head<3>().fill(-1.);
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     using namespace se3;
     
     se3::Model model;
-    se3::buildModels::humanoidSimple(model,true);
+    se3::buildModels::humanoidRandom(model,true);
     se3::Data data(model);
     
     model.lowerPositionLimit.head<3>().fill(-1.);

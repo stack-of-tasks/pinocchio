@@ -34,13 +34,13 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid_simple )
 {
   se3::Model model;
-  se3::buildModels::humanoidSimple(model,true);
+  se3::buildModels::humanoidRandom(model,true);
 
   BOOST_CHECK(model.nq == 33);
   BOOST_CHECK(model.nv == 32);
 
   se3::Model modelff;
-  se3::buildModels::humanoidSimple(modelff,false);
+  se3::buildModels::humanoidRandom(modelff,false);
 
   BOOST_CHECK(modelff.nq == 32);
   BOOST_CHECK(modelff.nv == 32);

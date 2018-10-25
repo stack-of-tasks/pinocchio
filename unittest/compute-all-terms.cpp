@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   using namespace Eigen;
   using namespace se3;
 
-  se3::Model model; buildModels::humanoidSimple(model);
+  se3::Model model; buildModels::humanoidRandom(model);
   se3::Data data(model); data.M.fill (0.);
   se3::Data data_other(model); data_other.M.fill (0.);
 
