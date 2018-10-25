@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(test_generalized_gravity_derivatives)
   using namespace se3;
 
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Data data(model), data_fd(model);
   
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Data data(model), data_fd(model), data_ref(model);
   

@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(test_aba)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Data data(model), data_ref(model);
   
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(test_aba_minimal_argument)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Data data(model), data_ref(model);
   

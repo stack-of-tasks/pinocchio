@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(test_model_subtree)
 {
   Model model;
   std::cout << "build model" << std::endl;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Model::JointIndex idx_larm1 = model.getJointId("larm1_joint");
   BOOST_CHECK(idx_larm1<(Model::JointIndex)model.njoints);

@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_all)
   using namespace se3;
 
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Data data(model), data_ref(model);
   
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_velocity)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Data data(model), data_ref(model);
   
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Data data(model), data_ref(model);
   

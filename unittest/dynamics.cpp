@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   using namespace se3;
   
   se3::Model model;
-  se3::buildModels::humanoidSimple(model,true);
+  se3::buildModels::humanoidRandom(model,true);
   se3::Data data(model);
   
   VectorXd q = VectorXd::Ones(model.nq);
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
   using namespace se3;
   
   se3::Model model;
-  se3::buildModels::humanoidSimple(model,true);
+  se3::buildModels::humanoidRandom(model,true);
   se3::Data data(model);
   
   VectorXd q = VectorXd::Ones(model.nq);
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE ( test_ID )
   using namespace se3;
   
   se3::Model model;
-  se3::buildModels::humanoidSimple(model,true);
+  se3::buildModels::humanoidRandom(model,true);
   se3::Data data(model);
   
   VectorXd q = VectorXd::Ones(model.nq);
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   using namespace se3;
   
   se3::Model model;
-  se3::buildModels::humanoidSimple(model,true);
+  se3::buildModels::humanoidRandom(model,true);
   se3::Data data(model);
   
 #ifdef NDEBUG
