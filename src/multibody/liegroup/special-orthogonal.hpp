@@ -348,14 +348,15 @@ namespace se3
     {
       assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
       
-      typedef typename EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlain;
-      typedef typename JacobianPlain::Scalar Scalar;
-      typedef SE3Tpl<Scalar,JacobianPlain::Options> SE3;
+      typedef typename EIGEN_PLAIN_TYPE(Config_t) ConfigPlainType;
+      typedef typename EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlainType;
+      typedef typename ConfigPlainType::Scalar Scalar;
+      typedef SE3Tpl<Scalar,ConfigPlainType::Options> SE3;
       typedef typename SE3::Vector3 Vector3;
       typedef typename SE3::Matrix3 Matrix3;
 
       ConstQuaternionMap_t quat_map(q.derived().data());
-      Eigen::Matrix<Scalar,NQ,NV,JacobianPlain::Options> Jexp3QuatCoeffWise;
+      Eigen::Matrix<Scalar,NQ,NV,JacobianPlainType::Options|Eigen::RowMajor> Jexp3QuatCoeffWise;
       
       Scalar theta;
       Vector3 v = quaternion::log3(quat_map,theta);

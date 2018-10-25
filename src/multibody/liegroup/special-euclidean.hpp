@@ -495,8 +495,9 @@ namespace se3
     {
       assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
       
-      typedef typename EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlain;
-      typedef typename JacobianPlain::Scalar Scalar;
+      typedef typename EIGEN_PLAIN_TYPE(Config_t) ConfigPlainType;
+      typedef typename EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlainType;
+      typedef typename ConfigPlainType::Scalar Scalar;
       Jacobian_t & Jout = EIGEN_CONST_CAST(Jacobian_t,J);
       Jout.setZero();
       
@@ -504,8 +505,8 @@ namespace se3
       Jout.template topLeftCorner<3,3>() = quat_map.toRotationMatrix();
 //      Jexp3(quat,Jout.template bottomRightCorner<4,3>());
       
-      typedef Eigen::Matrix<Scalar,4,3,JacobianPlain::Options> Jacobian43;
-      typedef SE3Tpl<Scalar,JacobianPlain::Options> SE3;
+      typedef Eigen::Matrix<Scalar,4,3,JacobianPlainType::Options|Eigen::RowMajor> Jacobian43;
+      typedef SE3Tpl<Scalar,ConfigPlainType::Options> SE3;
       Jacobian43 Jexp3QuatCoeffWise;
       
       Scalar theta;
@@ -513,6 +514,9 @@ namespace se3
       quaternion::Jexp3CoeffWise(v,Jexp3QuatCoeffWise);
       typename SE3::Matrix3 Jlog;
       Jlog3(theta,v,Jlog);
+      
+//      std::cout << "Jexp3QuatCoeffWise\n" << Jexp3QuatCoeffWise << std::endl;
+//      std::cout << "Jlog\n" << Jlog << std::endl;
       
       if(quat_map.w() >= 0.) // comes from the log3 for quaternions which may change the sign.
         EIGEN_CONST_CAST(Jacobian_t,J).template bottomRightCorner<4,3>().noalias() = Jexp3QuatCoeffWise * Jlog;
