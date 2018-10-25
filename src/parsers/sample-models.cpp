@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -142,8 +142,8 @@ namespace se3
                                const SE3 & Mroot = SE3::Identity(),
                                const std::string& pre = "")
     {
-      typedef typename JointModelRX::ConfigVector_t CV;
-      typedef typename JointModelRX::TangentVector_t TV;
+      typedef JointModelRX::ConfigVector_t CV;
+      typedef JointModelRX::TangentVector_t TV;
 
       Model::JointIndex idx = rootJoint;
 
@@ -244,8 +244,8 @@ namespace se3
     void humanoid(Model & model, bool usingFF)
     {
       using namespace Eigen;
-      typedef typename JointModelRX::ConfigVector_t CV;
-      typedef typename JointModelRX::TangentVector_t TV;
+      typedef JointModelRX::ConfigVector_t CV;
+      typedef JointModelRX::TangentVector_t TV;
      
       Model::JointIndex idx,chest,ffidx;
 
