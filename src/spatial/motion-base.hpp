@@ -63,10 +63,10 @@ namespace se3
     { return !(derived() == other.derived()); }
     
     Derived operator-() const { return derived().__opposite__(); }
-    Derived operator+(const Derived & v) const { return derived().__plus__(v); }
-    Derived operator-(const Derived & v) const { return derived().__minus__(v); }
-    Derived & operator+=(const Derived & v) { return derived().__pequ__(v); }
-    Derived & operator-=(const Derived & v) { return derived().__mequ__(v); }
+    Derived operator+(const MotionBase<Derived> & v) const { return derived().__plus__(v.derived()); }
+    Derived operator-(const MotionBase<Derived> & v) const { return derived().__minus__(v.derived()); }
+    Derived & operator+=(const MotionBase<Derived> & v) { return derived().__pequ__(v.derived()); }
+    Derived & operator-=(const MotionBase<Derived> & v) { return derived().__mequ__(v.derived()); }
     
     template<typename OtherScalar>
     MotionPlain operator*(const OtherScalar & alpha) const
@@ -95,7 +95,8 @@ namespace se3
     se3ActionInverse(const SE3Tpl<S2,O2> & m) const
     { return derived().se3ActionInverse_impl(m); }
     
-    Scalar dot(const Force & f) const { return derived().dot(f); }
+    template<typename ForceDerived>
+    Scalar dot(const ForceDense<ForceDerived> & f) const { return derived().dot(f.derived()); }
     
     void disp(std::ostream & os) const { derived().disp_impl(os); }
     friend std::ostream & operator << (std::ostream & os, const MotionBase<Derived> & v)
