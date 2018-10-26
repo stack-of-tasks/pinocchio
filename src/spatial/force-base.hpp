@@ -127,23 +127,23 @@ namespace se3
     /** \brief Copies the Derived Force into *this
      *  \return a reference to *this
      */
-    Derived & operator= (const Derived & other) { return derived().__equl__(other); }
+    Derived & operator= (const ForceBase<Derived> & other) { return derived().__equl__(other.derived()); }
     
     /**
      * \brief Replaces *this by *this + other.
      * \return a reference to *this
      */
-    Derived & operator+= (const Derived & phi) { return derived().__pequ__(phi); }
+    Derived & operator+= (const ForceBase<Derived> & phi) { return derived().__pequ__(phi.derived()); }
     
     /**
      * \brief Replaces *this by *this - other.
      * \return a reference to *this
      */
-    Derived & operator-= (const Derived & phi) { return derived().__mequ__(phi); }
+    Derived & operator-= (const ForceBase<Derived> & phi) { return derived().__mequ__(phi.derived()); }
     
     /** \return an expression of the sum of *this and other
      */
-    Derived operator+(const Derived & phi) const { return derived().__plus__(phi); }
+    Derived operator+(const ForceBase<Derived> & phi) const { return derived().__plus__(phi.derived()); }
     
     /** \return an expression of *this scaled by the factor alpha
      */
@@ -161,11 +161,12 @@ namespace se3
     
     /** \return an expression of the difference of *this and phi
      */
-    Derived operator-(const Derived & phi) const { return derived().__minus__(phi); }
+    Derived operator-(const ForceBase<Derived> & phi) const { return derived().__minus__(phi.derived()); }
     
     /** \return the dot product of *this with m     *
      */
-    Scalar dot(const Motion & m) const { return derived().dot(m); }
+    template<typename MotionDerived>
+    Scalar dot(const MotionDense<MotionDerived> & m) const { return derived().dot(m.derived()); }
     
     
     /**
