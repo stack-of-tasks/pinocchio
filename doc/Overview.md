@@ -86,18 +86,22 @@ This program loads a robot model, creates a data structure for algorithm bufferi
 
 We first include the proper files. In C++, there is not yet a rationalization of the include files. Here we have to include the sample model (where the parameters of the model we are using in the test are defined), and the header files defining the robot neutral position and the RNEA function. In Python, the library is easier to include by just importing pinocchio.
 
-The first paragraph defines the model. In C++, we first define the object, then allocate it to be our sample model (a human-like kinematic tree with random parameters, very useful for small tests). In Python, the model is created by calling a single command.
+The first paragraph defines the model. In C++, we first define the object, then allocate it to be our sample model (a simple built-in manipulator, very useful for small tests). In Python, the model is created by calling a single command.
 The model class contains the constant parameters of the robot (masses, segment length, body names, etc), i.e. the parameters that are not to be modified by the algorithms. As most algorithms need extra room for storage of internal values, we also have to allocate a Data structure, dedicated to the model. Pinocchio relies on a strict separation between constant parameters, in Model, and computation buffer, in Data.
 
-Inverse dynamics computes the needed torque to track a trajectory defined by the joint position, velocity and acceleration.
+Inverse dynamics computes the needed torque to track a trajectory defined by the joint configuration, velocity and acceleration.
+In the second paragraph, we define these three quantities.
 Velocity and acceleration are plain vectors, and can be initialized to any value.
 Their dimension is `model.nv`, corresponding to the number of instantaneous degrees of freedom of the robot.
-The configuration might be more complex than that of a simple manipulator (e.g. it can contain quaternions).
+The configuration might be more complex than this (e.g. it can contain quaternions).
+This is not the case in the current example, where we have a simple manipulator, but it might cause difficulties for more complicated models, such as humanoids.
 Consequently, helper functions are provided to initialize a configuration to zero (neutral) or to a random value, or to make sure a configuration is valid (normalize).
+
 
 Finally, we call the `rnea` function, by providing the robot model, the corresponding data, and the current configuration, velocity and acceleration.
 The result is a vector of dimension `model.nv`. It is also stored in `data.tau`, in case it's needed.
-We just print it. Notice that, in Python, we use numpy to represent matrices and vectors.
+For a manipulator, this value corresponds to the joint torque required to achieve the given motion. We just print it.
+Notice that, in Python, we use numpy to represent matrices and vectors.
 Therefore `tau` is `numpy` matrix object, and so are `q`, `v` and `a`.
 
 \section OverviewComplex More complex example with C++ and Python

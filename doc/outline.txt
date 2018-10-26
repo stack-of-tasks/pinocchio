@@ -22,7 +22,7 @@
 # Each section consists of a page and it teaches the user how to use a certain feature, using code snippets.
 - Spatial Algebra module
 - Model and data
-  # just explain the concept of model and data and what they contain. The explanation on how to build and/or load a model is delayed to the two following pages (explicitely say so from the start). Just use buildModels::humanoidSimple(model) in the snippets [pending v2.0]
+  # just explain the concept of model and data and what they contain. The explanation on how to build and/or load a model is delayed to the two following pages (explicitely say so from the start). Just use buildModels::humanoid(model) in the snippets [pending v2.0]
 - Joints [pending v2.0]
   # Or: Building the model: joints and bodies. Maybe merge this section with previous one?
   # @nmansard : I prefer this way of separing models of joint models.
