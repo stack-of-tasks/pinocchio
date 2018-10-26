@@ -22,7 +22,6 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
-#include <boost/align/is_aligned.hpp>
 
 namespace se3
 {
