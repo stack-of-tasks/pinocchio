@@ -13,6 +13,25 @@ It is built upon Eigen for linear algebra and FCL for collision detection. **Pin
 
 **Pinocchio** is now at the hearth of various robotics softwares as the [Stack-of-Tasks](http://stack-of-tasks.github.io) or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc).
 
+## Pinocchio features
+
+**Pinocchio** is fast:
+
+   - C++ template library,
+   - cache friendly,
+   - automatic code generation support.
+
+**Pinocchio** implements rigid body dynamics algorithms:
+
+   - forward kinematics and its analytical derivatives
+   - forward and inverse dynamics,
+   - analytical derivatives of forward and inverse dynamics,
+   - centroidal dynamics.
+
+**Pinocchio** is multi-thread friendly.  
+**Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
+**Pinocchio** is supported on MacOs and many Linux distribution ([See build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
+
 ## Ongoing developments
 
 If you want to follow the current developments, you can directly refer to the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel).
@@ -29,31 +48,6 @@ We provide some basic examples on how to use **Pinocchio** in Python in the [exa
 
 **Pinocchio** is coming with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
 The content of the tutorials are described [here](http://projects.laas.fr/gepetto/index.php/Teach/Supaero2018) and the source code of these tutorials is located [here](https://github.com/stack-of-tasks/pinocchio-tutorials).
-
-## Dependencies
-
-**Pinocchio** depends on few additional packages which have to be available on your machine.
-
-### Build dependencies
-   - cmake (version >= 2.6)
-   - pkg-config
-   - Boost with components unit_test_framework
-   - G++/CLANG
-
-### Core dependencies
-   - Eigen3 (version >= 3.0.5)
-   - Boost with components filesystem
-
-### Optional dependencies
-   - urdfdom (version >= 0.2)
-   - LUA 5.1
-   - [HPP-FCL](https://github.com/humanoid-path-planner/hpp-fcl)
-
-### Python bindings
-   - Python 2.7 or 3.0
-   - Numpy
-   - [EigenPy](https://github.com/stack-of-tasks/eigenpy.git)
-   - Boost Python
 
 ## Citing Pinocchio
 
@@ -91,6 +85,7 @@ The following people have been involved in the development of **Pinocchio**:
 - [Joseph Mirabel](http://jmirabel.github.io/) (LAAS-CNRS): Lie groups support
 - [Antonio El Khoury](https://www.linkedin.com/in/antonioelkhoury) (Wandercraft): bug fixes
 - [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): bug fixes
+- [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and FCL support
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution here.
 

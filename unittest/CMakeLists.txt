@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018 CNRS
+# Copyright (c) 2015-2018 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 # This file is part of Pinocchio
@@ -49,6 +49,10 @@ ENDMACRO(ADD_PINOCCHIO_UNIT_TEST)
 # --- RULES -------------------------------------------------------------------
 # --- RULES -------------------------------------------------------------------
 
+# Math components
+ADD_PINOCCHIO_UNIT_TEST(sincos eigen3)
+
+# Pinocchio features
 ADD_PINOCCHIO_UNIT_TEST(tspatial eigen3)
 ADD_PINOCCHIO_UNIT_TEST(symmetric eigen3)
 ADD_PINOCCHIO_UNIT_TEST(aba eigen3)
@@ -59,6 +63,7 @@ ADD_PINOCCHIO_UNIT_TEST(com eigen3)
 ADD_PINOCCHIO_UNIT_TEST(jacobian eigen3)
 ADD_PINOCCHIO_UNIT_TEST(cholesky eigen3)
 ADD_PINOCCHIO_UNIT_TEST(dynamics eigen3)
+ADD_PINOCCHIO_UNIT_TEST(sample-models eigen3)
 
 IF(URDFDOM_FOUND)
   ADD_PINOCCHIO_UNIT_TEST(urdf "eigen3;urdfdom")

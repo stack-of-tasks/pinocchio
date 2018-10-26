@@ -151,7 +151,7 @@ int main(int argc, const char ** argv)
   }
     
   if( filename == "HS") 
-    buildModels::humanoidSimple(model,true);
+    buildModels::humanoidRandom(model,true);
   else if( filename == "H2" )
     buildModels::humanoid2d(model);
   else

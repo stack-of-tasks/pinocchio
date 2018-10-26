@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE ( test_com )
   using namespace se3;
 
   se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   se3::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE ( test_com )
 //  using namespace se3;
 //
 //  se3::Model model;
-//  se3::buildModels::humanoidSimple(model);
+//  se3::buildModels::humanoidRandom(model);
 //  se3::Data data(model);
 //
 //  long flag = BOOST_BINARY(1111);

@@ -56,7 +56,7 @@ class Pendulum:
         '''Create a Pinocchio model of a N-pendulum, with N the argument <nbJoint>.'''
         self.viewer     = Display()
         self.visuals    = []
-        self.model      = se3.Model.BuildEmptyModel()
+        self.model      = se3.Model()
         self.createPendulum(nbJoint)
         self.data       = self.model.createData()
 

@@ -10,7 +10,8 @@ from bindings_force import TestForceBindings
 from bindings_motion import TestMotionBindings
 from bindings_inertia import TestInertiaBindings
 from bindings_frame import TestFrameBindings
-from bindings_geometry_object import TestGeometryObjectBindings  # noqa. Needs to remove romeo
+from bindings_geometry_object import TestGeometryObjectBindings
+from bindings_geometry_object_urdf import TestGeometryObjectUrdfBindings
 from explog import TestExpLog
 from model import TestModel
 from rpy import TestRPY

@@ -1,40 +1,31 @@
 import unittest
 import pinocchio as se3
 import numpy as np
-from pinocchio.utils import eye,zero,rand
-
-ones = lambda n: np.matrix(np.ones([n, 1] if isinstance(n, int) else n), np.double)
+from pinocchio.utils import zero,rand
 
 class TestForceBindings(unittest.TestCase):
 
-    v3zero = zero(3)
-    v6zero = zero(6)
-    v3ones = ones(3)
-    m3zero = zero([3,3])
-    m3ones = eye(3)
-    m4ones = eye(4)
-
     def test_zero_getters(self):
         f = se3.Force.Zero()
-        self.assertTrue(np.allclose(self.v3zero, f.linear))
-        self.assertTrue(np.allclose(self.v3zero, f.angular))
-        self.assertTrue(np.allclose(self.v6zero, f.vector))
+        self.assertTrue(np.allclose(zero(3), f.linear))
+        self.assertTrue(np.allclose(zero(3), f.angular))
+        self.assertTrue(np.allclose(zero(6), f.vector))
 
     # TODO: this is not nice, since a random vector can *in theory* be zero
     def test_setRandom(self):
         f = se3.Force.Zero()
         f.setRandom()
-        self.assertFalse(np.allclose(self.v3zero, f.linear))
-        self.assertFalse(np.allclose(self.v3zero, f.angular))
-        self.assertFalse(np.allclose(self.v6zero, f.vector))
+        self.assertFalse(np.allclose(zero(3), f.linear))
+        self.assertFalse(np.allclose(zero(3), f.angular))
+        self.assertFalse(np.allclose(zero(6), f.vector))
 
     def test_setZero(self):
         f = se3.Force.Zero()
         f.setRandom()
         f.setZero()
-        self.assertTrue(np.allclose(self.v3zero, f.linear))
-        self.assertTrue(np.allclose(self.v3zero, f.angular))
-        self.assertTrue(np.allclose(self.v6zero, f.vector))
+        self.assertTrue(np.allclose(zero(3), f.linear))
+        self.assertTrue(np.allclose(zero(3), f.angular))
+        self.assertTrue(np.allclose(zero(6), f.vector))
 
     def test_set_linear(self):
         f = se3.Force.Zero()

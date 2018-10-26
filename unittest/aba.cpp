@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE ( test_aba_simple )
   using namespace Eigen;
   using namespace se3;
 
-  se3::Model model; buildModels::humanoidSimple(model);
+  se3::Model model; buildModels::humanoidRandom(model);
   
   se3::Data data(model);
   se3::Data data_ref(model);
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   using namespace Eigen;
   using namespace se3;
   
-  se3::Model model; buildModels::humanoidSimple(model);
+  se3::Model model; buildModels::humanoidRandom(model);
   
   se3::Data data(model);
   
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
   using namespace Eigen;
   using namespace se3;
   
-  se3::Model model; buildModels::humanoidSimple(model);
+  se3::Model model; buildModels::humanoidRandom(model);
   
   se3::Data data(model);
   se3::Data data_ref(model);
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE ( test_computeMinverse )
   using namespace se3;
   
   se3::Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   model.gravity.setZero();
   
   se3::Data data(model);

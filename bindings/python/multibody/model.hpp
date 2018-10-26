@@ -154,10 +154,6 @@ namespace se3
         .def("addFrame",(bool (Model::*)(const Frame &)) &Model::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
         
         .def("createData",&ModelPythonVisitor::createData)
-        .def("BuildEmptyModel",&ModelPythonVisitor::maker_empty)
-        .staticmethod("BuildEmptyModel")
-        .def("BuildHumanoidSimple",&ModelPythonVisitor::maker_humanoidSimple)
-        .staticmethod("BuildHumanoidSimple")
         
         .def("check",(bool (Model::*)(const Data &) const) &Model::check,bp::arg("data"),"Check consistency of data wrt model.")
         ;
@@ -175,14 +171,6 @@ namespace se3
       }
       
       static Data createData(const Model & model) { return Data(model); }
-      static Model maker_empty() { return Model(); }
-      
-      static Model maker_humanoidSimple()
-      {
-        Model model;
-        buildModels::humanoidSimple(model);
-        return model;
-      }
 
       ///
       /// \brief Provide equivalent to python list index function for

@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE ( test_check )
 {
   using namespace boost::fusion;
 
-  se3::Model model; buildModels::humanoidSimple(model);
+  se3::Model model; buildModels::humanoidRandom(model);
   
   BOOST_CHECK(model.check (Check1()));
   BOOST_CHECK(model.check (CRBAChecker()));

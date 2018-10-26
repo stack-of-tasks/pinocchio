@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE(increment)
   typedef double Scalar;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   VectorXd fd_increment(model.nv);
   fd_increment = finiteDifferenceIncrement(model);
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE (test_S_finit_diff)
 BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
 {
   se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   se3::Data data(model);
   
   const VectorXd fd_increment = finiteDifferenceIncrement(model);

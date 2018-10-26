@@ -51,7 +51,7 @@ int main(int argc, const char ** argv)
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
   if(argc>1) filename = argv[1];
   if( filename == "HS") 
-    se3::buildModels::humanoidSimple(model,true);
+    se3::buildModels::humanoidRandom(model,true);
   else if( filename == "H2" )
     se3::buildModels::humanoid2d(model);
   else
