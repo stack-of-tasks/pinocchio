@@ -21,7 +21,7 @@
 #include "pinocchio/config.hpp"
 
 #include <string>
-#include <iostream>
+#include <sstream>
 
 namespace se3
 {
