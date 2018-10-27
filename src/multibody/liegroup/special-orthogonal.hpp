@@ -364,7 +364,8 @@ namespace se3
       Matrix3 Jlog;
       Jlog3(theta,v,Jlog);
       
-      if(quat_map.w() >= 0.) // comes from the log3 for quaternions which may change the sign.
+//      if(quat_map.w() >= 0.) // comes from the log3 for quaternions which may change the sign.
+      if(quat_map.coeffs()[3] >= 0.) // comes from the log3 for quaternions which may change the sign.
         EIGEN_CONST_CAST(Jacobian_t,J).noalias() = Jexp3QuatCoeffWise * Jlog;
       else
         EIGEN_CONST_CAST(Jacobian_t,J).noalias() = -Jexp3QuatCoeffWise * Jlog;
