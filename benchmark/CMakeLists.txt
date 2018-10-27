@@ -67,15 +67,15 @@ ADD_BENCH(timings-cholesky TRUE)
 
 # timings derivatives
 # 
-ADD_BENCH(timings-derivatives TRUE)
-TARGET_LINK_LIBRARIES(timings-derivatives ${PROJECT_NAME})
-IF(CPPAD_FOUND)
-  PKG_CONFIG_USE_DEPENDENCY(timings-derivatives "cppad")
-ENDIF(CPPAD_FOUND)
-IF(CPPADCG_FOUND)
-  SET_PROPERTY(TARGET timings-derivatives PROPERTY CXX_STANDARD 11)
-  PKG_CONFIG_USE_DEPENDENCY(timings-derivatives "cppadcg")
-ENDIF(CPPADCG_FOUND)
+#ADD_BENCH(timings-derivatives TRUE)
+#TARGET_LINK_LIBRARIES(timings-derivatives ${PROJECT_NAME})
+#IF(CPPAD_FOUND)
+#  PKG_CONFIG_USE_DEPENDENCY(timings-derivatives "cppad")
+#ENDIF(CPPAD_FOUND)
+#IF(CPPADCG_FOUND)
+#  SET_PROPERTY(TARGET timings-derivatives PROPERTY CXX_STANDARD 11)
+#  PKG_CONFIG_USE_DEPENDENCY(timings-derivatives "cppadcg")
+#ENDIF(CPPADCG_FOUND)
 
 # timings-eigen
 # 
