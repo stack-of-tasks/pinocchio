@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018, Joseph Mirabel, Justin Carpentier
+// Copyright (c) 2017-2018, CNRS
 // Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
 //
 // This file is part of pinocchio.
