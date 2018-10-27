@@ -1103,7 +1103,7 @@ BOOST_AUTO_TEST_SUITE(JointRevoluteUnaligned)
   
 BOOST_AUTO_TEST_SUITE_END()
   
-BOOST_AUTO_TEST_SUITE(JointModelBase)
+BOOST_AUTO_TEST_SUITE(JointModelBase_test)
   
   struct TestJointModelIsEqual
   {
