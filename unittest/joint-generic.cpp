@@ -252,7 +252,8 @@ BOOST_AUTO_TEST_CASE(isEqual)
   BOOST_CHECK(jmodelx_copy == jmodelx.derived());
   
   JointModel jmodely(joint_revolutey);
-  BOOST_CHECK(jmodely.toVariant() != jmodelx.toVariant());
+  // TDDO: the comparison of two variants is not supported by some old version of BOOST
+//  BOOST_CHECK(jmodely.toVariant() != jmodelx.toVariant());
   BOOST_CHECK(jmodely != jmodelx);
 }
 
