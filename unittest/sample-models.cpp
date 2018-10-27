@@ -16,8 +16,6 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <iostream>
-#include <fstream>
-#include <streambuf>
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -26,8 +24,6 @@
 #include "pinocchio/parsers/sample-models.hpp"
 
 #include <boost/test/unit_test.hpp>
-
-
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
@@ -83,7 +79,5 @@ BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid )
   /* We might want to check here the joint namings, and validate the 
    * direct geometry with respect to reference values. */
 }
-
-
 
 BOOST_AUTO_TEST_SUITE_END()
