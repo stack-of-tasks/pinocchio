@@ -32,6 +32,7 @@ namespace se3
      */
     void manipulator(Model & model);
     
+#ifdef WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by manipulator function.
      *
      * \param model, const, kinematic chain typically produced by the function manipulator(model).
@@ -39,6 +40,7 @@ namespace se3
      * not using after manipulator(model).
      */
     void manipulatorGeometries(const Model & model, GeometryModel & geom);
+#endif
 
     /** \brief Create a 28-DOF kinematic chain of a floating humanoid robot.
      * 
@@ -53,6 +55,8 @@ namespace se3
      * uses a composite joint. This changes the size of the configuration space (35 vs 34).
      */
     void humanoid(Model & model, bool usingFF=true);
+    
+#ifdef WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by humanoid function.
      *
      * \param model, const, kinematic chain typically produced by the function humanoid(model).
@@ -60,6 +64,7 @@ namespace se3
      * not using after humanoid(model).
      */
     void humanoidGeometries(const Model & model, GeometryModel & geom);
+#endif
     
     /** \brief Create a humanoid kinematic tree with 6-DOF limbs and random joint placements.
      *

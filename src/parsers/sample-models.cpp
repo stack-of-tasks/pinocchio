@@ -24,7 +24,6 @@ namespace se3
   {
     const SE3 Id = SE3::Identity();
 
-    
     template<typename JointModel>
     static void addJointAndBody(Model & model,
                                 const JointModelBase<JointModel> & joint,
@@ -184,6 +183,7 @@ namespace se3
 
     }
 
+#ifdef WITH_HPP_FCL
     /* Add a 6DOF manipulator shoulder-elbow-wrist geometries to an existing model. 
      * <model> is the the kinematic chain, constant.
      * <geom> is the geometry model where the new geoms are added.
@@ -229,11 +229,14 @@ namespace se3
                                  SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.1)) );
       geom.addGeometryObject(effectorArm,model,true);
     }
-
+#endif
 
     void manipulator(Model & model) { addManipulator(model); }
+    
+#ifdef WITH_HPP_FCL
     void manipulatorGeometries(const Model & model, GeometryModel & geom)
     { addManipulatorGeometries(model,geom); }
+#endif
 
     static Eigen::Matrix3d rotate(const double angle, const Eigen::Vector3d & axis)
     { return Eigen::AngleAxisd(angle,axis).toRotationMatrix(); }
@@ -305,6 +308,7 @@ namespace se3
       addManipulator(model,chest,SE3(rotate(M_PI,Vector3d::UnitX()),Vector3d(0, 0.3, 1.)),"larm");
     }
 
+#ifdef WITH_HPP_FCL
     void humanoidGeometries(const Model & model, GeometryModel & geom)
     {
       addManipulatorGeometries(model,geom,"rleg");
@@ -330,6 +334,7 @@ namespace se3
                               SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
       geom.addGeometryObject(chestArm,model,true);
     }
+#endif
 
   } // namespace buildModels
   
