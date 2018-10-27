@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE (test_centroidal_derivatives)
   Eigen::VectorXd v_eps(model.nv,1); v_eps.setZero();
   se3::Data::Matrix6x dhdot_dq_fd(6,model.nv);
   
-  for(Eigen::Index k = 0; k < model.nv; ++k)
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
   {
     v_eps[k] = eps;
     q_plus = se3::integrate(model,q,v_eps);
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE (test_centroidal_derivatives)
   Eigen::VectorXd v_plus(v);
   se3::Data::Matrix6x dhdot_dv_fd(6,model.nv);
   
-  for(Eigen::Index k = 0; k < model.nv; ++k)
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
   {
     v_plus[k] += eps;
     
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE (test_centroidal_derivatives)
   Eigen::VectorXd a_plus(a);
   se3::Data::Matrix6x dhdot_da_fd(6,model.nv);
   
-  for(Eigen::Index k = 0; k < model.nv; ++k)
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
   {
     a_plus[k] += eps;
     

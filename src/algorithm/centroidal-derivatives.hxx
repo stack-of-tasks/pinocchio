@@ -211,7 +211,7 @@ namespace se3
 
       assert(Fin.cols() == Fout.cols() && "Fin and Fout do not have the same number of columns");
 
-      for(Eigen::Index k = 0; k < Fin.cols(); ++k)
+      for(Eigen::DenseIndex k = 0; k < Fin.cols(); ++k)
       {
         typedef ForceRef<typename Matrix6xLikeIn::ColXpr> ForceTypeIn;
         typedef ForceRef<typename Matrix6xLikeOut::ColXpr> ForceTypeOut;
@@ -325,7 +325,7 @@ namespace se3
       Ftmp_cols = dFdq_cols;
       
       ftmp.linear() = data.oYcrb[i].mass() * model.gravity.linear();
-      for(Eigen::Index k = 0; k < jmodel.nv(); ++k)
+      for(Eigen::DenseIndex k = 0; k < jmodel.nv(); ++k)
       {
         MotionRef<typename ColsBlock::ColXpr> mref(J_cols.col(k));
         vtmp.linear() = mref.linear() + mref.angular().cross(data.oYcrb[i].lever());

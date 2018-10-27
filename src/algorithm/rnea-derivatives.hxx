@@ -364,7 +364,7 @@ namespace se3
       
       // Restore the status of dAdq_cols (remove gravity)
       assert(model.gravity.angular().isZero() && "The gravity must be a pure force vector, no angular part");
-      for(Eigen::Index k =0; k < jmodel.nv(); ++k)
+      for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
       {
         MotionRef<typename ColsBlock::ColXpr> min(J_cols.col(k));
         MotionRef<typename ColsBlock::ColXpr> mout(dAdq_cols.col(k));
