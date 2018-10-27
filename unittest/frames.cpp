@@ -1,4 +1,4 @@
-//
+              //
 // Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
@@ -220,15 +220,16 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
   Data::Matrix6x Jjj(6,model.nv); Jjj.fill(0);
   Data::Matrix6x Jff(6,model.nv); Jff.fill(0);
+
   computeJointJacobians(model,data,q);
   updateFramePlacement(model, data, idx);
-  getFrameJacobian<LOCAL>(model, data,    idx,         Jff);
+  getFrameJacobian(model, data,     idx,        LOCAL, Jff);
   computeJointJacobians(model,data_ref,q);
-  getJointJacobian<LOCAL>(model, data_ref, parent_idx, Jjj);
+  getJointJacobian(model, data_ref, parent_idx, LOCAL, Jjj);
 
   Motion nu_frame = Motion(Jff*v);
   Motion nu_joint = Motion(Jjj*v);
-
+  
   const SE3::ActionMatrixType jXf = frame.placement.toActionMatrix();
   Data::Matrix6x Jjj_from_frame(jXf * Jff);
   BOOST_CHECK(Jjj_from_frame.isApprox(Jjj));
