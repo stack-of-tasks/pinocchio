@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     typedef ADModel::Data ADData;
     
     Model model;
-    se3::buildModels::humanoidSimple(model);
+    se3::buildModels::humanoidRandom(model);
     model.lowerPositionLimit.head<3>().fill(-1.);
     model.upperPositionLimit.head<3>().fill(1.);
     Data data(model);

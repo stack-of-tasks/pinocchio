@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(test_mass_matrix)
   typedef ADModel::Data ADData;
   
   Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
   Data data(model);
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_jacobian)
   typedef ADModel::Data ADData;
 
   Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
   Data data(model);

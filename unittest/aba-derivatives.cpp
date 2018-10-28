@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Data data(model), data_ref(model);
   

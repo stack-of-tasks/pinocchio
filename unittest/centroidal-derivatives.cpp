@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_SUITE( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE (test_centroidal_derivatives)
 {
   se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   se3::Data data(model), data_ref(model);
   
   model.lowerPositionLimit.head<7>().fill(-1.);
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE (test_centroidal_derivatives)
 BOOST_AUTO_TEST_CASE (test_retrieve_centroidal_derivatives)
 {
   se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   se3::Data data(model), data_ref(model);
   
   model.lowerPositionLimit.head<7>().fill(-1.);

@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE (test_computeCentroidalDynamics)
 {
   using namespace se3;
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   addJointAndBody(model,JointModelSpherical(),"larm6_joint","larm7");
   Data data(model), data_ref(model);
   

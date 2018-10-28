@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE ( normalize_test )
 
 BOOST_AUTO_TEST_CASE ( integrateCoeffWiseJacobian_test )
 {
-  Model model; buildModels::humanoidSimple(model);
+  Model model; buildModels::humanoidRandom(model);
   
   Eigen::VectorXd q(Eigen::VectorXd::Ones(model.nq));
   se3::normalize(model, q);

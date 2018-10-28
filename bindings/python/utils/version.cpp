@@ -28,7 +28,7 @@ namespace se3
     
     namespace bp = boost::python;
     
-    BOOST_PYTHON_FUNCTION_OVERLOADS(printVersion_overload, printVersion, 0, 1);
+    BOOST_PYTHON_FUNCTION_OVERLOADS(printVersion_overload, printVersion, 0, 1)
     
     void exposeVersion()
     {

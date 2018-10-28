@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_against_classic_formula)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model,true);
+  buildModels::humanoidRandom(model,true);
   
   Data data(model), data_ref(model);
   

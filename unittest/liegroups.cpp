@@ -406,7 +406,6 @@ BOOST_AUTO_TEST_CASE(JintegrateCoeffWise)
   {
     typedef SpecialEuclideanOperationTpl<3,Scalar,Options> LieGroup;
     typedef LieGroup::ConfigVector_t ConfigVector_t;
-    typedef LieGroup::TangentVector_t TangentVector_t;
     LieGroup lg;
     
     ConfigVector_t q = lg.random();

@@ -118,7 +118,6 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     typedef CppAD::cg::CG<double> CGScalar;
     typedef CppAD::AD<double> ADScalar;
     typedef CppAD::AD<float> ADFloat;
-    typedef CppAD::AD<CGScalar> ADCG;
     typedef se3::ModelTpl<CGScalar> CGModel;
     
     se3::SE3 M(se3::SE3::Random());
@@ -147,7 +146,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     CGJointModelPrismaticUnaligned cg_jmodel_prismatic(axis.cast<CGScalar>());
     
     se3::Model model;
-    se3::buildModels::humanoidSimple(model);
+    se3::buildModels::humanoidRandom(model);
     
     CGModel cg_model = model.cast<CGScalar>();
     

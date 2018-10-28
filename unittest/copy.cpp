@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(test_data_copy)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   model.upperPositionLimit.head<3>().fill(100);
   model.upperPositionLimit.segment<4>(3).setOnes();

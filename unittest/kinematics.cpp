@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_zero)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Data data(model), data_ref(model);
   
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_first)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Data data(model);
   
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_second)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   
   Data data(model);
   

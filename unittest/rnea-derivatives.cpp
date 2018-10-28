@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   MatrixXd rnea_partial_da(model.nv,model.nv); rnea_partial_da.setZero();
   computeRNEADerivatives(model,data,q,VectorXd::Zero(model.nv),VectorXd::Zero(model.nv),rnea_partial_dq,rnea_partial_dv,rnea_partial_da);
   rnea(model,data_ref,q,VectorXd::Zero(model.nv),VectorXd::Zero(model.nv));
-  for(Model::JointIndex k = 1; k < model.njoints; ++k)
+  for(Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
   {
     BOOST_CHECK(data.of[k].isApprox(data.oMi[k].act(data_ref.f[k])));
   }
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_fext)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   typedef Model::Force Force;
   
   Data data(model), data_fd(model), data_ref(model);
@@ -368,9 +368,8 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_vs_kinematics_derivatives)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
-  typedef Model::Force Force;
-  
+  buildModels::humanoidRandom(model);
+
   Data data(model), data_ref(model);
   
   model.lowerPositionLimit.head<3>().fill(-1.);
