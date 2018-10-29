@@ -16,8 +16,6 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <iostream>
-#include <fstream>
-#include <streambuf>
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -26,8 +24,6 @@
 #include "pinocchio/parsers/sample-models.hpp"
 
 #include <boost/test/unit_test.hpp>
-
-
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
@@ -54,9 +50,11 @@ BOOST_AUTO_TEST_CASE ( build_model_sample_manipulator )
   BOOST_CHECK(model.nq == 6);
   BOOST_CHECK(model.nv == 6);
 
+#ifdef WITH_HPP_FCL
   se3::Data data(model);
   se3::GeometryModel geom;
   se3::buildModels::manipulatorGeometries(model,geom);
+#endif
 }
 
 BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid )
@@ -68,6 +66,7 @@ BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid )
   BOOST_CHECK(model.nq == 35);
   BOOST_CHECK(model.nv == 34);
 
+#ifdef WITH_HPP_FCL
   se3::GeometryModel geom;
   se3::buildModels::humanoidGeometries(model,geom);
   se3::GeometryData geomdata(geom);
@@ -75,11 +74,10 @@ BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid )
   Eigen::VectorXd q = se3::neutral(model);
   se3::forwardKinematics(model,data,q);
   se3::updateGeometryPlacements(model,data,geom,geomdata,q);
+#endif
 
   /* We might want to check here the joint namings, and validate the 
    * direct geometry with respect to reference values. */
 }
-
-
 
 BOOST_AUTO_TEST_SUITE_END()

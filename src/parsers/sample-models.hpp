@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -30,14 +30,17 @@ namespace se3
      *
      * \param model: model, typically given empty, where the kinematic chain is added.
      */
-    void manipulator(Model& model);
+    void manipulator(Model & model);
+    
+#ifdef WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by manipulator function.
      *
      * \param model, const, kinematic chain typically produced by the function manipulator(model).
      * \warning this method is expecting specific namings of the kinematic chain, use it with care
      * not using after manipulator(model).
      */
-    void manipulatorGeometries(const Model& model, GeometryModel & geom);
+    void manipulatorGeometries(const Model & model, GeometryModel & geom);
+#endif
 
     /** \brief Create a 28-DOF kinematic chain of a floating humanoid robot.
      * 
@@ -51,14 +54,17 @@ namespace se3
      * \param usingFF: if True, implement the chain with a plain JointModelFreeFloating; if False,
      * uses a composite joint. This changes the size of the configuration space (35 vs 34).
      */
-    void humanoid(Model& model,bool usingFF=true);
+    void humanoid(Model & model, bool usingFF=true);
+    
+#ifdef WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by humanoid function.
      *
      * \param model, const, kinematic chain typically produced by the function humanoid(model).
      * \warning this method is expecting specific namings of the kinematic chain, use it with care
      * not using after humanoid(model).
      */
-    void humanoidGeometries(const Model& model, GeometryModel & geom);
+    void humanoidGeometries(const Model & model, GeometryModel & geom);
+#endif
     
     /** \brief Create a humanoid kinematic tree with 6-DOF limbs and random joint placements.
      *
@@ -71,19 +77,19 @@ namespace se3
      * uses a composite joint translation + roll-pitch-yaw.
      * This changes the size of the configuration space (33 vs 32).
      */
-    void humanoidRandom(Model& model, bool usingFF = true);
+    void humanoidRandom(Model & model, bool usingFF = true);
 
     /** \brief Create a random humanoid tree with 2d limbs.
      * \ deprecated This function has been replaced by the non-random se3::humanoid function.
      */
     PINOCCHIO_DEPRECATED
-    void humanoid2d(Model& model);
+    void humanoid2d(Model & model);
 
     /** \brief Alias of humanoidRandom, for compatibility reasons.
      * \deprecated use se3::humanoid or se3::humanoidRandom instead. 
      */
     PINOCCHIO_DEPRECATED
-    inline void humanoidSimple(Model& model, bool usingFF = true) { humanoidRandom(model,usingFF); }
+    inline void humanoidSimple(Model & model, bool usingFF = true) { humanoidRandom(model,usingFF); }
    
   } // namespace buildModels
 } // namespace se3
