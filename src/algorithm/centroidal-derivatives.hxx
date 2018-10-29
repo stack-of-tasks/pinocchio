@@ -83,7 +83,7 @@ namespace se3
       
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       ov = data.oMi[i].act(data.v[i]);
-      oa = data.oMi[i].act(data.a[i]) + data.oa[0]; // add gravity contribution
+      oa = data.oMi[i].act(data.a[i]);
       
       data.oh[i] = data.oYcrb[i] * ov;
       data.of[i] = data.oYcrb[i] * oa + ov.cross(data.oh[i]);
@@ -199,7 +199,7 @@ namespace se3
   
   namespace
   {
-    // TODO: should me moved to ForceSet
+    // TODO: should be moved to ForceSet
     template<typename Matrix6xLikeIn, typename Vector3Like, typename Matrix6xLikeOut>
     inline void translateForceSet(const Eigen::MatrixBase<Matrix6xLikeIn> & Fin,
                                   const Eigen::MatrixBase<Vector3Like> & v3,
@@ -259,6 +259,8 @@ namespace se3
     }
     
     data.oYcrb[0].setZero();
+    data.oh[0].setZero();
+    data.of[0].setZero();
     typedef CentroidalDynDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
@@ -270,6 +272,9 @@ namespace se3
 
     const Inertia & Ytot = data.oYcrb[0];
     const typename Inertia::Vector3 & com = Ytot.lever();
+    
+    // Mass of the system
+    data.mass[0] = Ytot.mass();
     
     // Center of mass of the system
     data.com[0] = Ytot.lever();

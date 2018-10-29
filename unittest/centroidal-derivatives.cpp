@@ -65,9 +65,9 @@ static void addJointAndBody(se3::Model & model,
       model.addBodyFrame(name + "_body", idx);
       }
 
-BOOST_AUTO_TEST_SUITE( BOOST_TEST_MODULE )
+BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
   
-BOOST_AUTO_TEST_CASE (test_centroidal_derivatives)
+BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
 {
   se3::Model model;
   se3::buildModels::humanoidRandom(model);
@@ -94,9 +94,23 @@ BOOST_AUTO_TEST_CASE (test_centroidal_derivatives)
   BOOST_CHECK(dhdot_da.isApprox(data_ref.Ag));
   
   se3::computeCentroidalDynamics(model,data_ref,q,v,a);
+  for(size_t k = 1; k < (size_t)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
+    BOOST_CHECK(data.ov[k].isApprox(data.oMi[k].act(data_ref.v[k])));
+    BOOST_CHECK(data.oa[k].isApprox(data.oMi[k].act(data_ref.a[k])));
+    BOOST_CHECK(data.oh[k].isApprox(data.oMi[k].act(data_ref.h[k])));
+  }
+
+  BOOST_CHECK(data.mass[0] == data_ref.mass[0]);
+  BOOST_CHECK(data.com[0].isApprox(data_ref.com[0]));
+  
+  BOOST_CHECK(data.oh[0].isApprox(data_ref.h[0]));
+  BOOST_CHECK(data.of[0].isApprox(data_ref.f[0]));
+
   BOOST_CHECK(data.hg.isApprox(data_ref.hg));
   BOOST_CHECK(data.dhg.isApprox(data_ref.dhg));
-  
+
   se3::Data data_fd(model);
   
   const double eps = 1e-8;
@@ -169,7 +183,7 @@ BOOST_AUTO_TEST_CASE (test_centroidal_derivatives)
   BOOST_CHECK(data.dVdq.isApprox(data_ref.dVdq));
 }
 
-BOOST_AUTO_TEST_CASE (test_retrieve_centroidal_derivatives)
+BOOST_AUTO_TEST_CASE(test_retrieve_centroidal_derivatives)
 {
   se3::Model model;
   se3::buildModels::humanoidRandom(model);
@@ -207,7 +221,7 @@ BOOST_AUTO_TEST_CASE (test_retrieve_centroidal_derivatives)
   
   BOOST_CHECK(data.hg.isApprox(data_ref.hg));
   BOOST_CHECK(data.dhg.isApprox(data_ref.dhg));
-  
+
   BOOST_CHECK(data.Fcrb[0].isApprox(data_ref.dFdq));
   BOOST_CHECK(data.dFdv.isApprox(data_ref.dFdv));
   BOOST_CHECK(data.dFda.isApprox(data_ref.dFda));
