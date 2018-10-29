@@ -27,6 +27,11 @@ namespace se3
   ///
   /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint torque vector.
+  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
@@ -35,15 +40,22 @@ namespace se3
   ///
   /// \return The current joint acceleration stored in data.ddq.
   ///
-  inline const Eigen::VectorXd &
-  aba(const Model & model,
-      Data & data,
-      const Eigen::VectorXd & q,
-      const Eigen::VectorXd & v,
-      const Eigen::VectorXd & tau);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & tau);
 
   ///
   /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint torque vector.
+  /// \tparam ForceDerived Type of the external forces.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -54,16 +66,20 @@ namespace se3
   ///
   /// \return The current joint acceleration stored in data.ddq.
   ///
-  inline const Eigen::VectorXd &
-  aba(const Model & model,
-      Data & data,
-      const Eigen::VectorXd & q,
-      const Eigen::VectorXd & v,
-      const Eigen::VectorXd & tau,
-      const container::aligned_vector<Force> & fext);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & tau,
+      const container::aligned_vector<ForceDerived> & fext);
   
   ///
   /// \brief Computes the inverse of the joint space inertia matrix using Articulated Body formulation.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -71,10 +87,11 @@ namespace se3
   ///
   /// \return The inverse of the joint space inertia matrix stored in data.ddq.
   ///
-  inline const Data::RowMatrixXd &
-  computeMinverse(const Model & model,
-                  Data & data,
-                  const Eigen::VectorXd & q);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
+  computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<ConfigVectorType> & q);
 
 
   DEFINE_ALGO_CHECKER(ABA);

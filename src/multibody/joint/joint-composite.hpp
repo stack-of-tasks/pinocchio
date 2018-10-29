@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,71 +19,80 @@
 #define __se3_joint_composite_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
-#include "pinocchio/multibody/joint/joint-variant.hpp"
+#include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 
-
 namespace se3
 {
 
-  struct JointComposite;
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct JointCompositeTpl;
 
-  template<>
-  struct traits<JointComposite>
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> >
   {
-
+    typedef _Scalar Scalar;
+    
     enum {
+      Options = _Options,
       NQ = Eigen::Dynamic,
       NV = Eigen::Dynamic
     };
     
-    typedef double Scalar;
-    typedef JointDataComposite JointDataDerived;
-    typedef JointModelComposite JointModelDerived;
-    typedef ConstraintXd Constraint_t;
-    typedef SE3 Transformation_t;
-    typedef Motion Motion_t;
-    typedef Motion Bias_t;
+    typedef JointCollectionTpl<Scalar,Options> JointCollection;
+    typedef JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> JointDataDerived;
+    typedef JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> JointModelDerived;
+    typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
+    typedef SE3Tpl<Scalar,Options> Transformation_t;
+    typedef MotionTpl<Scalar,Options> Motion_t;
+    typedef MotionTpl<Scalar,Options> Bias_t;
 
-    typedef Eigen::Matrix<double,6,Eigen::Dynamic> F_t;
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> F_t;
     // [ABA]
-    typedef Eigen::Matrix<double,6,Eigen::Dynamic> U_t;
-    typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> D_t;
-    typedef Eigen::Matrix<double,6,Eigen::Dynamic> UD_t;
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> U_t;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> D_t;
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> UD_t;
+    
+    JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
-    typedef Eigen::Matrix<double,Eigen::Dynamic,1> ConfigVector_t;
-    typedef Eigen::Matrix<double,Eigen::Dynamic,1> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
   };
   
-  template<> struct traits< JointDataComposite > { typedef JointComposite JointDerived; };
-  template<> struct traits< JointModelComposite > { typedef JointComposite JointDerived; };
-
-  struct JointDataComposite : public JointDataBase< JointDataComposite >
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  { typedef JointCompositeTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  { typedef JointCompositeTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct JointDataCompositeTpl
+  : public JointDataBase< JointDataCompositeTpl<_Scalar,_Options,JointCollectionTpl> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    typedef JointDataBase<JointDataComposite> Base;
-    typedef JointComposite Joint;
-    typedef container::aligned_vector<JointDataVariant> JointDataVector;
-//    typedef boost::array<JointDataVariant,njoints> JointDataVector;
+    typedef JointDataBase<JointDataCompositeTpl> Base;
+    typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
-    typedef Base::Transformation_t Transformation_t;
-    typedef Base::Motion_t Motion_t;
-    typedef Base::Bias_t Bias_t;
-    typedef Base::Constraint_t Constraint_t;
-    typedef Base::U_t U_t;
-    typedef Base::D_t D_t;
-    typedef Base::UD_t UD_t;
+    typedef JointCollectionTpl<Scalar,Options> JointCollection;
+    typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointDataVariant;
 
+    typedef container::aligned_vector<JointDataVariant> JointDataVector;
+    
     // JointDataComposite()  {} // can become necessary if we want a vector of JointDataComposite ?
     
-    JointDataComposite(const JointDataVector & joint_data, const int /*nq*/, const int nv)
+    JointDataCompositeTpl(const JointDataVector & joint_data, const int /*nq*/, const int nv)
     : joints(joint_data), iMlast(joint_data.size()), pjMi(joint_data.size())
     , S(nv)
     , M(), v(), c()
     , U(6,nv), Dinv(nv,nv), UDinv(6,nv)
+    , StU(nv,nv)
     {}
     
     /// \brief Vector of joints
@@ -104,28 +113,35 @@ namespace se3
     U_t U;
     D_t Dinv;
     UD_t UDinv;
+    
+    D_t StU;
 
   };
-
-  struct JointModelComposite : public JointModelBase< JointModelComposite >
+ 
+  template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct CastType< NewScalar, JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef JointModelCompositeTpl<NewScalar,Options,JointCollectionTpl> type;
+  };
+  
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct JointModelCompositeTpl
+  : public JointModelBase< JointModelCompositeTpl<_Scalar,_Options,JointCollectionTpl> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    enum
-    {
-      NV = traits<JointComposite>::NV,
-      NQ = traits<JointComposite>::NQ
-    };
+    typedef JointModelBase<JointModelCompositeTpl> Base;
+    typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    SE3_JOINT_TYPEDEF_TEMPLATE;
     
-    typedef traits<JointComposite>::Scalar Scalar;
-    typedef JointModelBase<JointModelComposite> Base;
-    typedef JointDataComposite JointData;
+    typedef JointCollectionTpl<Scalar,Options> JointCollection;
+    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelVariant;
+
+    typedef SE3Tpl<Scalar,Options> SE3;
+    typedef MotionTpl<Scalar,Options> Motion;
+    typedef InertiaTpl<Scalar,Options> Inertia;
+  
     typedef container::aligned_vector<JointModelVariant> JointModelVector;
-//    typedef boost::array<JointModelVariant,njoints> JointModelVector;
-    typedef traits<JointComposite>::Transformation_t Transformation_t;
-    typedef traits<JointComposite>::Constraint_t Constraint_t;
-    typedef traits<JointComposite>::ConfigVector_t ConfigVector_t;
-    typedef traits<JointComposite>::TangentVector_t TangentVector_t;
     
     using Base::id;
     using Base::idx_q;
@@ -134,36 +150,52 @@ namespace se3
     using Base::nq;
     using Base::nv;
 
-    /// \brief Empty contructor
-    JointModelComposite()
+    /// \brief Default contructor
+    JointModelCompositeTpl()
     : joints()
     , jointPlacements()
     , m_nq(0)
     , m_nv(0)
+    , njoints(0)
     {}
     
+    /// \brief Default contructor with a defined size
+    JointModelCompositeTpl(const size_t size)
+    : joints()
+    , jointPlacements()
+    , m_nq(0)
+    , m_nv(0)
+    , njoints(0)
+    {
+      joints.reserve(size); jointPlacements.reserve(size);
+      m_idx_q.reserve(size); m_idx_v.reserve(size);
+      m_nqs.reserve(size); m_nvs.reserve(size);
+    }
+    
     ///
-    /// \brief Default constructor with at least one joint
+    /// \brief Constructor with one joint.
     ///
     /// \param jmodel Model of the first joint.
-    /// \param placement Placement of the first joint wrt the joint origin
+    /// \param placement Placement of the first joint w.r.t. the joint origin.
     ///
     template<typename JointModel>
-    JointModelComposite(const JointModelBase<JointModel> & jmodel, const SE3 & placement = SE3::Identity())
-    : joints(1,jmodel.derived())
+    JointModelCompositeTpl(const JointModelBase<JointModel> & jmodel,
+                           const SE3 & placement = SE3::Identity())
+    : joints(1,(JointModelVariant)jmodel.derived())
     , jointPlacements(1,placement)
     , m_nq(jmodel.nq())
     , m_nv(jmodel.nv())
-    , m_idx_q(1), m_nqs(1,jmodel.nq())
-    , m_idx_v(1), m_nvs(1,jmodel.nv())
+    , m_idx_q(1,0), m_nqs(1,jmodel.nq())
+    , m_idx_v(1,0), m_nvs(1,jmodel.nv())
+    , njoints(1)
     {}
     
     ///
-    /// \brief Copy constructor
+    /// \brief Copy constructor.
     ///
-    /// \param other Model to copy.
+    /// \param other JointModel to copy.
     ///
-    JointModelComposite(const JointModelComposite & other)
+    JointModelCompositeTpl(const JointModelCompositeTpl & other)
     : Base(other)
     , joints(other.joints)
     , jointPlacements(other.jointPlacements)
@@ -171,65 +203,79 @@ namespace se3
     , m_nv(other.m_nv)
     , m_idx_q(other.m_idx_q), m_nqs(other.m_nqs)
     , m_idx_v(other.m_idx_v), m_nvs(other.m_nvs)
+    , njoints(other.njoints)
     {}
     
     
     ///
-    /// \brief Add a joint to the composition of joints
+    /// \brief Add a joint to the vector of joints.
     ///
     /// \param jmodel Model of the joint to add.
-    /// \param placement Placement of the joint relatively to its predecessor
+    /// \param placement Placement of the joint relatively to its predecessor.
     ///
     template<typename JointModel>
-    void addJoint(const JointModelBase<JointModel> & jmodel, const SE3 & placement = SE3::Identity())
+    void addJoint(const JointModelBase<JointModel> & jmodel,
+                  const SE3 & placement = SE3::Identity())
     {
-      joints.push_back(jmodel.derived());
+      joints.push_back((JointModelVariant)jmodel.derived());
       jointPlacements.push_back(placement);
       
       m_nq += jmodel.nq(); m_nv += jmodel.nv();
       
       updateJointIndexes();
+      njoints++;
     }
     
-    JointData createData() const
+    JointDataDerived createData() const
     {
-      JointData::JointDataVector jdata(joints.size());
+      typename JointDataDerived::JointDataVector jdata(joints.size());
       for (int i = 0; i < (int)joints.size(); ++i)
-        jdata[(size_t)i] = ::se3::createData(joints[(size_t)i]);
+        jdata[(size_t)i] = ::se3::createData<Scalar,Options,JointCollectionTpl>(joints[(size_t)i]);
       return JointDataDerived(jdata,nq(),nv());
     }
 
+    template<typename, int, template<typename S, int O> class, typename>
     friend struct JointCompositeCalcZeroOrderStep;
-    void calc(JointData & data, const Eigen::VectorXd & qs) const;
-
-    friend struct JointCompositeCalcFirstOrderStep;
-    void calc(JointData & data, const Eigen::VectorXd & qs, const Eigen::VectorXd & vs) const;
     
-    void calc_aba(JointData & data, Inertia::Matrix6 & I, const bool update_I) const
+    template<typename ConfigVectorType>
+    void calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVectorType> & qs) const;
+
+    template<typename, int, template<typename S, int O> class, typename, typename>
+    friend struct JointCompositeCalcFirstOrderStep;
+    
+    template<typename ConfigVectorType, typename TangentVectorType>
+    void calc(JointDataDerived & data,
+              const Eigen::MatrixBase<ConfigVectorType> & qs,
+              const Eigen::MatrixBase<TangentVectorType> & vs) const;
+    
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
-      data.U.noalias() = I * data.S;
-      Eigen::MatrixXd tmp (data.S.matrix().transpose() * data.U);
-      data.Dinv = tmp.inverse();
+      data.U.noalias() = I * data.S.matrix();
+      data.StU.noalias() = data.S.matrix().transpose() * data.U;
+      
+      // compute inverse
+      data.Dinv.setIdentity();
+      data.StU.llt().solveInPlace(data.Dinv);
       data.UDinv.noalias() = data.U * data.Dinv;
 
       if (update_I)
-        I -= data.UDinv * data.U.transpose();
+        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
 
     Scalar finiteDifferenceIncrement() const
     {
       using std::max;
       Scalar eps = 0;
-      for(JointModelVector::const_iterator it = joints.begin();
+      for(typename JointModelVector::const_iterator it = joints.begin();
           it != joints.end(); ++it)
         eps = max((Scalar)::se3::finiteDifferenceIncrement(*it),eps);
       
       return eps;
     }
 
-    int     nv_impl() const { return m_nv; }
-    int     nq_impl() const { return m_nq; }
-
+    int nv_impl() const { return m_nv; }
+    int nq_impl() const { return m_nq; }
 
     /**
      * @brief      Update the indexes of subjoints in the stack 
@@ -240,72 +286,116 @@ namespace se3
       updateJointIndexes();
     }
 
-    static std::string classname() { return std::string("JointModelComposite"); }
+    static std::string classname() { return std::string("JointModelCompositeTpl"); }
     std::string shortname() const { return classname(); }
 
-    JointModelComposite & operator=(const JointModelComposite & other)
+    JointModelCompositeTpl & operator=(const JointModelCompositeTpl & other)
     {
       Base::operator=(other);
       m_nq = other.m_nq;
       m_nv = other.m_nv;
+      m_idx_q = other.m_idx_q;
+      m_idx_v = other.m_idx_v;
+      m_nqs = other.m_nqs;
+      m_nvs = other.m_nvs;
       joints = other.joints;
       jointPlacements = other.jointPlacements;
-      
+      njoints = other.njoints;
         
       return *this;
+    }
+   
+    using Base::isEqual;
+    bool isEqual(const JointModelCompositeTpl & other) const
+    {
+      return Base::isEqual(other)
+      && nq() == other.nq()
+      && nv() == other.nv()
+      && m_idx_q == other.m_idx_q
+      && m_idx_v == other.m_idx_v
+      && m_nqs == other.m_nqs
+      && m_nvs == other.m_nvs
+      && joints == other.joints
+      && jointPlacements == other.jointPlacements
+      && njoints == other.njoints;
+    }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelCompositeTpl<NewScalar,Options,JointCollectionTpl> cast() const
+    {
+      typedef JointModelCompositeTpl<NewScalar,Options,JointCollectionTpl> ReturnType;
+      ReturnType res((size_t)njoints);
+      res.setIndexes(id(),idx_q(),idx_v());
+      res.m_nq = m_nq;
+      res.m_nv = m_nv;
+      res.m_idx_q = m_idx_q;
+      res.m_idx_v = m_idx_v;
+      res.m_nqs = m_nqs;
+      res.m_nvs = m_nvs;
+      res.njoints = njoints;
+      
+      res.joints.resize(joints.size());
+      res.jointPlacements.resize(jointPlacements.size());
+      for(size_t k = 0; k < jointPlacements.size(); ++k)
+      {
+        res.joints[k] = joints[k].template cast<NewScalar>();
+        res.jointPlacements[k] = jointPlacements[k].template cast<NewScalar>();
+      }
+      
+      return res;
     }
     
     /// \brief Vector of joints contained in the joint composite.
     JointModelVector joints;
     /// \brief Vector of joint placements. Those placements correspond to the origin of the joint relatively to their parent.
     container::aligned_vector<SE3> jointPlacements;
-    /// \brief Dimensions of the config and tangent space of the composite joint.
-    int m_nq,m_nv;
 
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
-    jointConfigSelector(const Eigen::MatrixBase<D>& a) const { return a.segment(i_q,nq()); }
+    jointConfigSelector(const Eigen::MatrixBase<D>& a) const { return a.segment(Base::i_q,nq()); }
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type
-    jointConfigSelector( Eigen::MatrixBase<D>& a) const { return a.segment(i_q,nq()); }
+    jointConfigSelector( Eigen::MatrixBase<D>& a) const { return a.segment(Base::i_q,nq()); }
 
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointVelocitySelector(const Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv());  }
+    jointVelocitySelector(const Eigen::MatrixBase<D>& a) const { return a.segment(Base::i_v,nv());  }
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointVelocitySelector( Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv());  }
+    jointVelocitySelector( Eigen::MatrixBase<D>& a) const { return a.segment(Base::i_v,nv());  }
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
-    jointCols(const Eigen::MatrixBase<D>& A) const { return A.middleCols(i_v,nv());  }
+    jointCols(const Eigen::MatrixBase<D>& A) const { return A.middleCols(Base::i_v,nv());  }
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
-    jointCols(Eigen::MatrixBase<D>& A) const { return A.middleCols(i_v,nv());  }
+    jointCols(Eigen::MatrixBase<D>& A) const { return A.middleCols(Base::i_v,nv());  }
 
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
-    jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(i_q,nq()); }
+    jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(Base::i_q,nq()); }
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
-    jointConfigSelector_impl(Eigen::MatrixBase<D>& a) const { return a.segment(i_q,nq()); }
+    jointConfigSelector_impl(Eigen::MatrixBase<D>& a) const { return a.segment(Base::i_q,nq()); }
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
-    jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv()); }
+    jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const { return a.segment(Base::i_v,nv()); }
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
-    jointVelocitySelector_impl(Eigen::MatrixBase<D>& a) const { return a.segment(i_v,nv()); }
+    jointVelocitySelector_impl(Eigen::MatrixBase<D>& a) const { return a.segment(Base::i_v,nv()); }
 
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template ColsReturn<D>::ConstType 
-    jointCols_impl(const Eigen::MatrixBase<D>& A) const { return A.middleCols(i_v,nv()); }
+    jointCols_impl(const Eigen::MatrixBase<D>& A) const { return A.middleCols(Base::i_v,nv()); }
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template ColsReturn<D>::Type 
-    jointCols_impl(Eigen::MatrixBase<D>& A) const { return A.middleCols(i_v,nv()); }
-    
-    
+    jointCols_impl(Eigen::MatrixBase<D>& A) const { return A.middleCols(Base::i_v,nv()); }
     
   protected:
+    
+    template<typename, int, template<typename,int> class>
+    friend struct JointModelCompositeTpl;
     
     /// \brief Update the indexes of the joints contained in the composition according
     /// to the position of the joint composite.
@@ -331,6 +421,10 @@ namespace se3
       }
     }
     
+    
+    /// \brief Dimensions of the config and tangent space of the composite joint.
+    int m_nq, m_nv;
+    
     /// Keep information of both the dimension and the position of the joints in the composition.
     
     /// \brief Index in the config vector
@@ -341,20 +435,48 @@ namespace se3
     std::vector<int> m_idx_v;
     /// \brief Dimension of the segment in the tangent vector
     std::vector<int> m_nvs;
+    
+  public:
+    /// \brief Number of joints contained in the JointModelComposite
+    int njoints;
   };
   
 
-  inline std::ostream & operator << (std::ostream & os, const JointModelComposite & jmodel)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline std::ostream & operator <<(std::ostream & os, const JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> & jmodel)
   {
-    typedef JointModelComposite::JointModelVector JointModelVector;
+    typedef typename JointModelCompositeTpl<Scalar,Options,JointCollectionTpl>::JointModelVector JointModelVector;
+    
     os << "JointModelComposite containing following models:\n" ;
-    for (JointModelVector::const_iterator it = jmodel.joints.begin();
+    for (typename JointModelVector::const_iterator it = jmodel.joints.begin();
          it != jmodel.joints.end(); ++it)
       os << "  " << shortname(*it) << std::endl;
+    
     return os;
   }
 
 } // namespace se3
+
+#include <boost/type_traits.hpp>
+
+namespace boost
+{
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct has_nothrow_constructor< ::se3::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct has_nothrow_copy< ::se3::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct has_nothrow_constructor< ::se3::JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct has_nothrow_copy< ::se3::JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  : public integral_constant<bool,true> {};
+}
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */

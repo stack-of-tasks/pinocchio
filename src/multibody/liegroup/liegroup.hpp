@@ -26,31 +26,51 @@
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 
-namespace se3 {
-  struct LieGroupMap {
-    template<typename JointModel> struct operation {
-      typedef VectorSpaceOperation<JointModel::NQ> type;
+namespace se3
+{
+  struct LieGroupMap
+  {
+    template<typename JointModel>
+    struct operation
+    {
+      typedef VectorSpaceOperationTpl<JointModel::NQ,typename JointModel::Scalar, JointModel::Options> type;
     };
   };
+  
   template<typename JointModel>
-  struct LieGroup {
+  struct LieGroup
+  {
     typedef typename LieGroupMap::operation<JointModel>::type type;
   };
 
-  template<> struct LieGroupMap::operation <JointModelComposite> {};
-  template<> struct LieGroupMap::operation <JointModelSpherical> {
-    typedef SpecialOrthogonalOperation<3> type;
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct LieGroupMap::operation< JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  {};
+  
+  template<typename Scalar, int Options>
+  struct LieGroupMap::operation< JointModelSphericalTpl<Scalar,Options> >
+  {
+    typedef SpecialOrthogonalOperationTpl<3,Scalar,Options> type;
   };
-  template<> struct LieGroupMap::operation <JointModelFreeFlyer> {
-    typedef SpecialEuclideanOperation<3> type;
+  
+  template<typename Scalar, int Options>
+  struct LieGroupMap::operation< JointModelFreeFlyerTpl<Scalar,Options> >
+  {
+    typedef SpecialEuclideanOperationTpl<3,Scalar,Options> type;
   };
-  template<> struct LieGroupMap::operation <JointModelPlanar> {
-    typedef SpecialEuclideanOperation<2> type;
+  
+  template<typename Scalar, int Options>
+  struct LieGroupMap::operation< JointModelPlanarTpl<Scalar,Options> >
+  {
+    typedef SpecialEuclideanOperationTpl<2,Scalar,Options> type;
   };
+  
   template<typename Scalar, int Options, int axis>
-  struct LieGroupMap::operation <JointModelRevoluteUnboundedTpl<Scalar,Options,axis> > {
-    typedef SpecialOrthogonalOperation<2> type;
+  struct LieGroupMap::operation<JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
+  {
+    typedef SpecialOrthogonalOperationTpl<2,Scalar,Options> type;
   };
+  
 }
 
 #endif // ifndef __se3_lie_group_hpp__

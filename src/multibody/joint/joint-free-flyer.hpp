@@ -57,25 +57,36 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,6,1,Options> JointMotion;
+    typedef MotionTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,6,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,6,Options> DenseBase;
-    typedef const DenseBase ConstMatrixReturnType;
-    typedef DenseBase MatrixReturnType;
+    typedef typename Matrix6::IdentityReturnType ConstMatrixReturnType;
+    typedef typename Matrix6::IdentityReturnType MatrixReturnType;
   }; // traits ConstraintRevolute
 
 
   template<typename _Scalar, int _Options>
-  struct ConstraintIdentityTpl : ConstraintBase< ConstraintIdentityTpl<_Scalar,_Options> >
+  struct ConstraintIdentityTpl
+  : ConstraintBase< ConstraintIdentityTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintIdentityTpl);
-    enum { NV = 6, Options = 0 };
+    
+    enum { NV = 6, Options = _Options };
     typedef typename traits<ConstraintIdentityTpl>::JointMotion JointMotion;
     typedef typename traits<ConstraintIdentityTpl>::JointForce JointForce;
     typedef typename traits<ConstraintIdentityTpl>::DenseBase DenseBase;
+    typedef typename traits<ConstraintIdentityTpl>::MatrixReturnType MatrixReturnType;
+    
+    template<typename Vector6Like>
+    JointMotion __mult__(const Eigen::MatrixBase<Vector6Like> & vj) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
+      return JointMotion(vj);
+    }
     
     template<typename S1, int O1>
-    typename SE3::Matrix6 se3Action(const SE3Tpl<S1,O1> & m) const
+    typename SE3::ActionMatrixType se3Action(const SE3Tpl<S1,O1> & m) const
     { return m.toActionMatrix(); }
     
     int nv_impl() const { return NV; }
@@ -97,7 +108,7 @@ namespace se3
     };
     
     TransposeConst transpose() const { return TransposeConst(); }
-    DenseBase matrix_impl() const { return DenseBase::Identity(); }
+    MatrixReturnType matrix_impl() const { return DenseBase::Identity(); }
     
     template<typename MotionDerived>
     typename MotionDerived::ActionMatrixType
@@ -107,11 +118,12 @@ namespace se3
   }; // struct ConstraintIdentityTpl
   
   template<typename Scalar, int Options, typename Vector6Like>
-  typename ConstraintIdentityTpl<Scalar,Options>::Motion
+  MotionRef<Vector6Like>
   operator*(const ConstraintIdentityTpl<Scalar,Options> &, const Eigen::MatrixBase<Vector6Like>& v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
-    typedef typename ConstraintIdentityTpl<Scalar,Options>::Motion Motion;
+//    typedef typename ConstraintIdentityTpl<Scalar,Options>::Motion Motion;
+    typedef MotionRef<Vector6Like> Motion;
     return Motion(v);
   }
 
@@ -135,11 +147,11 @@ namespace se3
   {
     template<typename S1, int O1>
     struct SE3GroupAction< ConstraintIdentityTpl<S1,O1> >
-    { typedef typename SE3Tpl<S1,O1>::Matrix6 ReturnType; };
+    { typedef typename SE3Tpl<S1,O1>::ActionMatrixType ReturnType; };
     
     template<typename S1, int O1, typename MotionDerived>
     struct MotionAlgebraAction< ConstraintIdentityTpl<S1,O1>,MotionDerived >
-    { typedef typename SE3Tpl<S1,O1>::Matrix6 ReturnType; };
+    { typedef typename SE3Tpl<S1,O1>::ActionMatrixType ReturnType; };
   }
 
   template<typename Scalar, int Options> struct JointFreeFlyerTpl;
@@ -151,20 +163,22 @@ namespace se3
       NQ = 7,
       NV = 6
     };
-    typedef double Scalar;
+    typedef _Scalar Scalar;
     enum { Options = _Options };
     typedef JointDataFreeFlyerTpl<Scalar,Options> JointDataDerived;
     typedef JointModelFreeFlyerTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintIdentityTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options> Motion_t;
-    typedef BiasZero Bias_t;
+    typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
+    
+    JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
@@ -181,8 +195,10 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct JointDataFreeFlyerTpl : public JointDataBase< JointDataFreeFlyerTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
     Constraint_t S;
     Transformation_t M;
@@ -200,16 +216,20 @@ namespace se3
 
   }; // struct JointDataFreeFlyerTpl
 
+  JOINT_CAST_TYPE_SPECIALIZATION(JointModelFreeFlyerTpl);
   template<typename _Scalar, int _Options>
-  struct JointModelFreeFlyerTpl : public JointModelBase< JointModelFreeFlyerTpl<_Scalar,_Options> >
+  struct JointModelFreeFlyerTpl
+  : public JointModelBase< JointModelFreeFlyerTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-
-    using JointModelBase<JointModelFreeFlyerTpl>::id;
-    using JointModelBase<JointModelFreeFlyerTpl>::idx_q;
-    using JointModelBase<JointModelFreeFlyerTpl>::idx_v;
-    using JointModelBase<JointModelFreeFlyerTpl>::setIndexes;
+    
+    typedef JointModelBase<JointModelFreeFlyerTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
     
@@ -221,60 +241,92 @@ namespace se3
       typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
 
       ConstQuaternionMap quat(q_joint.template tail<4>().data());
-      //assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
-      assert(std::fabs(quat.coeffs().squaredNorm()-1.) <= 1e-4);
+      //assert(math::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
+      assert(math::fabs(quat.coeffs().squaredNorm()-1.) <= 1e-4);
       
       M.rotation(quat.matrix());
       M.translation(q_joint.template head<3>());
     }
     
     template<typename ConfigVector>
+    EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigVector);
       typedef typename Eigen::Quaternion<typename ConfigVector::Scalar,ConfigVector::Options> Quaternion;
       typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
       
       typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type q = qs.template segment<NQ>(idx_q());
-      ConstQuaternionMap quat(q.template tail<4>().data());
-      
-      data.M.rotation(quat.matrix());
       data.M.translation(q.template head<3>());
+      
+      ConstQuaternionMap quat(q.template tail<4>().data());
+      data.M.rotation(quat.matrix());
     }
     
     template<typename ConfigVector, typename TangentVector>
+    EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs,
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(TangentVector);
       calc(data,qs.derived());
       
       data.v = vs.template segment<NV>(idx_v());
     }
     
-    template<typename S2, int O2>
-    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
       data.U = I;
-      data.Dinv = I.inverse();
+      data.Dinv.setIdentity();
+      I.llt().solveInPlace(data.Dinv);
       
       if (update_I)
-        I.setZero();
+        EIGEN_CONST_CAST(Matrix6Like,I).setZero();
     }
 
     Scalar finiteDifferenceIncrement() const
     {
-      using std::sqrt;
+      using math::sqrt;
       return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
 
     static std::string classname() { return std::string("JointModelFreeFlyer"); }
     std::string shortname() const { return classname(); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelFreeFlyerTpl<NewScalar,Options> cast() const
+    {
+      typedef JointModelFreeFlyerTpl<NewScalar,Options> ReturnType;
+      ReturnType res;
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
 
   }; // struct JointModelFreeFlyerTpl
 
 } // namespace se3
+
+#include <boost/type_traits.hpp>
+
+namespace boost
+{
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::se3::JointModelFreeFlyerTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::se3::JointModelFreeFlyerTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::se3::JointDataFreeFlyerTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::se3::JointDataFreeFlyerTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+}
 
 #endif // ifndef __se3_joint_free_flyer_hpp__

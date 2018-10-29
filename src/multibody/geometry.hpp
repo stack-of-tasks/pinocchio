@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -15,9 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_geom_hpp__
-#define __se3_geom_hpp__
-
+#ifndef __se3_multibody_geometry_hpp__
+#define __se3_multibody_geometry_hpp__
 
 #include "pinocchio/multibody/fcl.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -31,7 +30,6 @@
 #include <utility>
 #include <assert.h>
 
-
 namespace se3
 {
   
@@ -39,20 +37,30 @@ namespace se3
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
+    typedef double Scalar;
+    enum { Options = 0 };
+    
+    typedef SE3Tpl<Scalar,Options> SE3;
+    
+    typedef container::aligned_vector<GeometryObject> GeometryObjectVector;
+    typedef std::vector<CollisionPair> CollisionPairVector;
+    
+    typedef se3::GeomIndex GeomIndex;
+    
     /// \brief The number of GeometryObjects
     Index ngeoms;
 
     /// \brief Vector of GeometryObjects used for collision computations
-    container::aligned_vector<GeometryObject> geometryObjects;
+    GeometryObjectVector geometryObjects;
     ///
     /// \brief Vector of collision pairs.
     ///
-    std::vector<CollisionPair> collisionPairs;
+    CollisionPairVector collisionPairs;
   
     GeometryModel()
-      : ngeoms(0)
-      , geometryObjects()
-      , collisionPairs()
+    : ngeoms(0)
+    , geometryObjects()
+    , collisionPairs()
     { 
       const std::size_t num_max_collision_pairs = (ngeoms * (ngeoms-1))/2;
       collisionPairs.reserve(num_max_collision_pairs);
@@ -70,9 +78,21 @@ namespace se3
      * @return     The index of the new added GeometryObject in geometryObjects
      * @note object is a nonconst copy to ease the insertion code.
      */
-    inline GeomIndex addGeometryObject(GeometryObject object,
-                                       const Model & model,
-                                       const bool autofillJointParent = false);
+    template<typename S2, int O2, template<typename,int> class _JointCollectionTpl>
+    PINOCCHIO_DEPRECATED
+    GeomIndex addGeometryObject(GeometryObject object,
+                                const ModelTpl<S2,O2,_JointCollectionTpl> & model,
+                                const bool autofillJointParent = false);
+    
+    /**
+     * @brief      Add a geometry object to a GeometryModel.
+     *
+     * @param[in]  object     Object
+     *
+     * @return     The index of the new added GeometryObject in geometryObjects
+     * @note object is a nonconst copy to ease the insertion code.
+     */
+    GeomIndex addGeometryObject(GeometryObject object);
 
     /**
      * @brief      Return the index of a GeometryObject given by its name.
@@ -110,7 +130,7 @@ namespace se3
     ///
     /// \param[in] pair The CollisionPair to add.
     ///
-    void addCollisionPair (const CollisionPair & pair);
+    void addCollisionPair(const CollisionPair & pair);
     
     ///
     /// \brief Add all possible collision pairs.
@@ -125,7 +145,7 @@ namespace se3
     ///
     /// \param[in] pair The CollisionPair to remove.
     ///
-    void removeCollisionPair (const CollisionPair& pair);
+    void removeCollisionPair(const CollisionPair& pair);
     
     ///
     /// \brief Remove all collision pairs from collisionPairs. Same as collisionPairs.clear().
@@ -139,7 +159,7 @@ namespace se3
     ///
     /// \return True if the CollisionPair exists, false otherwise.
     ///
-    bool existCollisionPair (const CollisionPair & pair) const;
+    bool existCollisionPair(const CollisionPair & pair) const;
     
     ///
     /// \brief Return the index of a given collision pair in collisionPairs.
@@ -148,7 +168,7 @@ namespace se3
     ///
     /// \return The index of the CollisionPair in collisionPairs.
     ///
-    PairIndex findCollisionPair (const CollisionPair & pair) const;
+    PairIndex findCollisionPair(const CollisionPair & pair) const;
     
 #endif // WITH_HPP_FCL
 
@@ -159,6 +179,11 @@ namespace se3
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
+    typedef double Scalar;
+    enum { Options = 0 };
+    
+    typedef SE3Tpl<Scalar,Options> SE3;
+    
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
@@ -166,7 +191,7 @@ namespace se3
     /// oMg is used for pinocchio (kinematics) computation but is translated to fcl type
     /// for fcl (collision) computation. The copy is done in collisionObjects[i]->setTransform(.)
     ///
-    container::aligned_vector<se3::SE3> oMg;
+    container::aligned_vector<SE3> oMg;
 
 #ifdef WITH_HPP_FCL
     ///
@@ -190,7 +215,7 @@ namespace se3
     ///
     /// \brief Vector gathering the result of the distance computation for all the collision pairs.
     ///
-    std::vector <fcl::DistanceResult> distanceResults;
+    std::vector<fcl::DistanceResult> distanceResults;
     
     ///
     /// \brief Defines what information should be computed by collision test.
@@ -200,7 +225,7 @@ namespace se3
     ///
     /// \brief Vector gathering the result of the collision computation for all the collision pairs.
     ///
-    std::vector <fcl::CollisionResult> collisionResults;
+    std::vector<fcl::CollisionResult> collisionResults;
 
     ///
     /// \brief Radius of the bodies, i.e. distance of the further point of the geometry model
@@ -256,7 +281,7 @@ namespace se3
     /// manner. 
     /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
     /// \param[in] flag value of the activation boolean (true by default).
-    void activateCollisionPair(const PairIndex pairId,const bool flag=true);
+    void activateCollisionPair(const PairIndex pairId, const bool flag=true);
 
     /// Deactivate a collision pair.
     ///
@@ -276,4 +301,4 @@ namespace se3
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/geometry.hxx"
 
-#endif // ifndef __se3_geom_hpp__
+#endif // ifndef __se3_multibody_geometry_hpp__

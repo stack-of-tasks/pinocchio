@@ -26,15 +26,43 @@ namespace se3 {
 
   template <class Derived>
   template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
-  void LieGroupBase<Derived>::integrate(
-      const Eigen::MatrixBase<ConfigIn_t> & q,
-      const Eigen::MatrixBase<Tangent_t>  & v,
-      const Eigen::MatrixBase<ConfigOut_t>& qout) const
+  void LieGroupBase<Derived>
+  ::integrate(const Eigen::MatrixBase<ConfigIn_t> & q,
+              const Eigen::MatrixBase<Tangent_t>  & v,
+              const Eigen::MatrixBase<ConfigOut_t>& qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigIn_t , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t  , TangentVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigOut_t, ConfigVector_t);
     derived().integrate_impl(q, v, qout);
+  }
+  
+  template <class Derived>
+  template<class Config_t, class Jacobian_t>
+  void LieGroupBase<Derived>::
+  integrateCoeffWiseJacobian(const Eigen::MatrixBase<Config_t >  & q,
+                             const Eigen::MatrixBase<Jacobian_t> & J) const
+  {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
+
+    derived().integrateCoeffWiseJacobian_impl(q,J);
+    
+  }
+
+  template <class Derived>
+  template <ArgumentPosition arg, class Config_t, class Tangent_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
+                  const Eigen::MatrixBase<Tangent_t>  & v,
+                  const Eigen::MatrixBase<JacobianOut_t>& J) const
+  {
+    PINOCCHIO_STATIC_ASSERT(arg==ARG0||arg==ARG1, arg_SHOULD_BE_ARG0_OR_ARG1);
+    switch (arg) {
+      case ARG0:
+        dIntegrate_dq(q,v,J); return;
+      case ARG1:
+        dIntegrate_dv(q,v,J); return;
+      default: return;
+    }
   }
 
   template <class Derived>
@@ -146,11 +174,22 @@ namespace se3 {
       const Eigen::MatrixBase<JacobianLOut_t>& J0,
       const Eigen::MatrixBase<JacobianROut_t>& J1) const
   {
+    derived().template dDifference<ARG0> (q0, q1, J0);
+    derived().template dDifference<ARG1> (q0, q1, J1);
+  }
+
+  template <class Derived>
+  template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dDifference(
+      const Eigen::MatrixBase<ConfigL_t> & q0,
+      const Eigen::MatrixBase<ConfigR_t> & q1,
+      const Eigen::MatrixBase<JacobianOut_t>& J) const
+  {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
-    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianLOut_t, JacobianMatrix_t);
-    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianROut_t, JacobianMatrix_t);
-    derived().Jdifference_impl (q0, q1, J0, J1);
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianOut_t, JacobianMatrix_t);
+    PINOCCHIO_STATIC_ASSERT(arg==ARG0||arg==ARG1, arg_SHOULD_BE_ARG0_OR_ARG1);
+    derived().template dDifference_impl<arg> (q0, q1, J);
   }
 
   template <class Derived>

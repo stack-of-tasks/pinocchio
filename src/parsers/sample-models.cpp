@@ -197,37 +197,37 @@ namespace se3
                                   model.getBodyId(pre+"shoulder1_body"),/*NR*/0,
                                   boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                   SE3::Identity());
-      geom.addGeometryObject(shoulderBall,model,true);
+      geom.addGeometryObject(shoulderBall);
       
       GeometryObject elbowBall(pre+"elbow_object",
                                model.getBodyId(pre+"elbow_body"),/*NR*/0,
                                boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                SE3::Identity());
-      geom.addGeometryObject(elbowBall,model,true);
+      geom.addGeometryObject(elbowBall);
       
       GeometryObject wristBall(pre+"wrist_object",
                                model.getBodyId(pre+"wrist1_body"),/*NR*/0,
                                boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                SE3::Identity());
-      geom.addGeometryObject(wristBall,model,true);
+      geom.addGeometryObject(wristBall);
 
       GeometryObject upperArm(pre+"upperarm_object",
                               model.getBodyId(pre+"upperarm_body"),/*NR*/0,
                               boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
                               SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
-      geom.addGeometryObject(upperArm,model,true);
+      geom.addGeometryObject(upperArm);
 
       GeometryObject lowerArm(pre+"lowerarm_object",
                               model.getBodyId(pre+"lowerarm_body"),/*NR*/0,
                               boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
                               SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
-      geom.addGeometryObject(lowerArm,model,true);
+      geom.addGeometryObject(lowerArm);
 
       GeometryObject effectorArm(pre+"effector_object",
                                  model.getBodyId(pre+"effector_body"),/*NR*/0,
                                  boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .2)),
                                  SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.1)) );
-      geom.addGeometryObject(effectorArm,model,true);
+      geom.addGeometryObject(effectorArm);
     }
 #endif
 
@@ -320,19 +320,19 @@ namespace se3
                                model.getBodyId("chest1_body"),/*NR*/0,
                                boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                SE3::Identity());
-      geom.addGeometryObject(chestBall,model,true);
+      geom.addGeometryObject(chestBall);
 
       GeometryObject headBall("head_object",
                                model.getBodyId("head2_body"),/*NR*/0,
                                boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.25)),
                                SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
-      geom.addGeometryObject(headBall,model,true);
+      geom.addGeometryObject(headBall);
 
       GeometryObject chestArm("chest2_object",
                               model.getBodyId("chest2_body"),/*NR*/0,
                               boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
                               SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
-      geom.addGeometryObject(chestArm,model,true);
+      geom.addGeometryObject(chestArm);
     }
 #endif
 

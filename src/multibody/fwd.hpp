@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,7 +18,10 @@
 #ifndef __se3_multibody_fwd_hpp__
 #define __se3_multibody_fwd_hpp__
 
+#include "pinocchio/fwd.hpp"
+
 # include <cstddef> // std::size_t
+#include "pinocchio/multibody/joint/fwd.hpp"
 
 namespace se3
 {
@@ -28,13 +31,19 @@ namespace se3
   typedef Index FrameIndex;
   typedef Index PairIndex;
   
-  template<typename _Scalar, int _Options=0> struct FrameTpl;
-  struct Model;
-  struct Data;
+  template<typename Scalar, int Options=0> struct FrameTpl;
+  typedef FrameTpl<double> Frame;
+  
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct ModelTpl;
+  typedef ModelTpl<double> Model;
+  
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct DataTpl;
+  typedef DataTpl<double> Data;
+  
   struct GeometryModel;
   struct GeometryData;
-  
-  typedef FrameTpl<double> Frame;
   
   enum ReferenceFrame
   {

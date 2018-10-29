@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -18,59 +18,54 @@
 #ifndef __se3_macros_hpp__
 #define __se3_macros_hpp__
 
-#include <Eigen/Core>
-
-/// \brief Define the current version of Pinocchio
-#define PINOCCHIO_MAJOR_VERSION 1
-#define PINOCCHIO_MINOR_VERSION 3
-#define PINOCCHIO_PATCH_VERSION 2
+#if __cplusplus >= 201103L
+  #define PINOCCHIO_WITH_CXX11_SUPPORT
+#endif
 
 /// \brief Macro to check the current Pinocchio version against a version provided by x.y.z
-#define PINOCCHIO_VERSION_AT_LEAST(x,y,z) (PINOCCHIO_MAJOR_VERSION>x || (PINOCCHIO_MAJOR_VERSION>=x && \
-(PINOCCHIO_MINOR_VERSION>y || (PINOCCHIO_MINOR_VERSION>=y && \
-PINOCCHIO_PATCH_VERSION>=z))))
+#define PINOCCHIO_VERSION_AT_LEAST(x,y,z) \
+          (PINOCCHIO_MAJOR_VERSION>x || (PINOCCHIO_MAJOR_VERSION>=x && \
+          (PINOCCHIO_MINOR_VERSION>y || (PINOCCHIO_MINOR_VERSION>=y && \
+          PINOCCHIO_PATCH_VERSION>=z))))
+
+// This macro can be used to prevent from macro expansion, similarly to EIGEN_NOT_A_MACRO
+#define PINOCCHIO_NOT_A_MACRO
+
+namespace se3
+{
+  namespace helper
+  {
+    template<typename T> struct argument_type;
+    template<typename T, typename U> struct argument_type<T(U)> { typedef U type; };
+  }
+}
 
 /// \brief Empty macro argument
 #define PINOCCHIO_MACRO_EMPTY_ARG
 
-/// \brief Macro giving access to the equivalent plain type of D
-#define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type<D>::type
+/// Ensure that a matrix (or vector) is of correct size (compile-time and run-time assertion)
+#define PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(type,M,nrows,ncols)              \
+  EIGEN_STATIC_ASSERT(   (type::RowsAtCompileTime == Eigen::Dynamic || type::RowsAtCompileTime == nrows) \
+                      && (type::ColsAtCompileTime == Eigen::Dynamic || type::ColsAtCompileTime == ncols),\
+                      THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);    \
+  assert(M.rows()==nrows && M.cols()==ncols);
 
-/// \brief Macro giving access to the reference type of D
-#define EIGEN_REF_CONSTTYPE(D) Eigen::internal::ref_selector<D>::type
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
-#define EIGEN_REF_TYPE(D) Eigen::internal::ref_selector<D>::non_const_type
-#else
-#define EIGEN_REF_TYPE(D) \
-Eigen::internal::conditional< \
-bool(Eigen::internal::traits<D>::Flags & Eigen::NestByRefBit), \
-D &, \
-D \
->::type
-#endif
+/// Static assertion.
+/// \param condition a boolean convertible expression
+/// \param msg a valid C++ variable name.
+#define PINOCCHIO_STATIC_ASSERT(condition,msg)                                 \
+  { int msg[(condition) ? 1 : -1]; /*avoid unused-variable warning*/ (void) msg; }
 
-/// \brief Macro giving access to the return type of the dot product operation
-#if EIGEN_VERSION_AT_LEAST(3,3,0)
-#define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
-Eigen::ScalarBinaryOpTraits< typename Eigen::internal::traits< D1 >::Scalar, typename Eigen::internal::traits< D2 >::Scalar >::ReturnType
-#else
-#define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
-Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::Scalar,typename Eigen::internal::traits< D2 >::Scalar>::ReturnType
-#endif
-
-/// \brief Fix issue concerning 3.2.90 and more versions of Eigen that do not define size_of_xpr_at_compile_time structure.
-#if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,3,0)
 namespace se3
 {
-  namespace internal
+  namespace helper
   {
-    template<typename XprType> struct size_of_xpr_at_compile_time
+    template<typename D, template<typename> class TypeAccess>
+    struct handle_return_type_without_typename
     {
-      enum { ret = Eigen::internal::size_at_compile_time<Eigen::internal::traits<XprType>::RowsAtCompileTime,Eigen::internal::traits<XprType>::ColsAtCompileTime>::ret };
+      typedef typename TypeAccess< typename argument_type<void(D)>::type >::type type;
     };
   }
 }
-#endif
 
 #endif // ifndef __se3_macros_hpp__
-

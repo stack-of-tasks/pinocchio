@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -26,10 +26,9 @@ namespace se3
     void exposeRNEA()
     {
       using namespace Eigen;
-      typedef container::aligned_vector<Force> ForceAlignedVector;
       
       bp::def("rnea",
-              (const VectorXd & (*)(const Model &, Data &, const VectorXd &, const VectorXd &, const VectorXd &))&rnea,
+              &rnea<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
@@ -38,7 +37,7 @@ namespace se3
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("rnea",
-              (const VectorXd & (*)(const Model &, Data &, const VectorXd &, const VectorXd &, const VectorXd &, const ForceAlignedVector &))&rnea,
+              &rnea<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd,Force>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
@@ -49,11 +48,28 @@ namespace se3
       
 
       bp::def("nle",
-              (const VectorXd & (*)(const Model &, Data &, const VectorXd &, const VectorXd &))&nonLinearEffects,
+              &nonLinearEffects<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
               "Compute the Non Linear Effects (coriolis, centrifugal and gravitational effects), put the result in Data and return it.",
+              bp::return_value_policy<bp::return_by_value>());
+      
+      
+      bp::def("computeGeneralizedGravity",
+              &computeGeneralizedGravity<double,0,JointCollectionDefaultTpl,VectorXd>,
+              bp::args("Model","Data",
+                       "Configuration q (size Model::nq)"),
+              "Computes the generalized gravity contribution g(q) of the Lagrangian dynamics.",
+              bp::return_value_policy<bp::return_by_value>());
+      
+      
+      bp::def("computeCoriolisMatrix",
+              &computeCoriolisMatrix<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+              bp::args("Model","Data",
+                       "Configuration q (size Model::nq)",
+                       "Velocity v (size Model::nv)"),
+              "Computes the Coriolis Matrix C(q,v) of the Lagrangian dynamics.",
               bp::return_value_policy<bp::return_by_value>());
       
     }

@@ -20,6 +20,7 @@
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/dynamics.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/utils/timer.hpp"
 
@@ -52,10 +53,10 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+  getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
   Data::Matrix6x J_LF (6, model.nv);
   J_LF.setZero();
-  getJointJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
+  getJointJacobian(model, data, model.getJointId(LF), LOCAL, J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -115,7 +116,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+  getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
 
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -170,10 +171,10 @@ BOOST_AUTO_TEST_CASE ( test_ID )
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+  getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
   Data::Matrix6x J_LF (6, model.nv);
   J_LF.setZero();
-  getJointJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
+  getJointJacobian(model, data, model.getJointId(LF), LOCAL, J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -241,9 +242,9 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   const std::string LF = "lleg6_joint";
   
   Data::Matrix6x J_RF (6, model.nv);
-  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+  getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
   Data::Matrix6x J_LF (6, model.nv);
-  getJointJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
+  getJointJacobian(model, data, model.getJointId(LF), LOCAL, J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.topRows<6> () = J_RF;
@@ -251,8 +252,10 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   
   Eigen::VectorXd gamma (VectorXd::Ones(12));
   
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
   
-  q = Eigen::VectorXd::Zero(model.nq);
+  q = se3::randomConfiguration(model);
   
   PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
   SMOOTH(NBT)

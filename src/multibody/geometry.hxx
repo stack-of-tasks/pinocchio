@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_geometry_hxx__
-#define __se3_geometry_hxx__
+#ifndef __se3_multibody_geometry_hxx__
+#define __se3_multibody_geometry_hxx__
 
 #include <iostream>
 #include <map>
@@ -28,44 +28,53 @@
 namespace se3
 {
   inline GeometryData::GeometryData(const GeometryModel & modelGeom)
-    : oMg(modelGeom.ngeoms)
-
+  : oMg(modelGeom.ngeoms)
+  
 #ifdef WITH_HPP_FCL
-    , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
-    , distanceRequest (true, 0, 0, fcl::GST_INDEP)
-    , distanceResults(modelGeom.collisionPairs.size())
-    , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
-    , collisionResults(modelGeom.collisionPairs.size())
-    , radius()
-    , collisionPairIndex(0)
-    , innerObjects()
-    , outerObjects()
+  , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
+  , distanceRequest (true, 0, 0, fcl::GST_INDEP)
+  , distanceResults(modelGeom.collisionPairs.size())
+  , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
+  , collisionResults(modelGeom.collisionPairs.size())
+  , radius()
+  , collisionPairIndex(0)
+  , innerObjects()
+  , outerObjects()
   {
     collisionObjects.reserve(modelGeom.geometryObjects.size());
     BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
-      { collisionObjects.push_back
-          (fcl::CollisionObject(geom.fcl)); }
+    { collisionObjects.push_back
+      (fcl::CollisionObject(geom.fcl)); }
     fillInnerOuterObjectMaps(modelGeom);
   }
 #else
   {}
 #endif // WITH_HPP_FCL   
 
-  inline GeomIndex GeometryModel::addGeometryObject(GeometryObject object,
-                                                    const Model & model,
-                                                    const bool autofillJointParent)
+  template<typename S2, int O2, template<typename,int> class JointCollectionTpl>
+  PINOCCHIO_DEPRECATED
+  GeomIndex GeometryModel::addGeometryObject(GeometryObject object,
+                                             const ModelTpl<S2,O2,JointCollectionTpl> & model,
+                                             const bool autofillJointParent)
   {
     // TODO reenable when relevant: assert( (object.parentFrame != -1) || (object.parentJoint != -1) );
-
+    
     if( autofillJointParent )
       // TODO: this might be automatically done for some default value of parentJoint (eg ==-1)
-      object.parentJoint = model.frames[object.parentFrame].parent; 
-
+      object.parentJoint = model.frames[object.parentFrame].parent;
+    
     assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
            (model.frames[object.parentFrame].type == se3::BODY)  );
     assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
            (model.frames[object.parentFrame].parent == object.parentJoint) );
-
+    
+    GeomIndex idx = (GeomIndex) (ngeoms ++);
+    geometryObjects.push_back(object);
+    return idx;
+  }
+  
+  inline GeomIndex GeometryModel::addGeometryObject(GeometryObject object)
+  {    
     GeomIndex idx = (GeomIndex) (ngeoms ++);
     geometryObjects.push_back(object);
     return idx;
@@ -202,9 +211,9 @@ namespace se3
   {
     assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
 
-    CollisionPairsVector_t::iterator it = std::find(collisionPairs.begin(),
-                                                    collisionPairs.end(),
-                                                    pair);
+    CollisionPairVector::iterator it = std::find(collisionPairs.begin(),
+                                                 collisionPairs.end(),
+                                                 pair);
     if (it != collisionPairs.end()) { collisionPairs.erase(it); }
   }
   
@@ -219,9 +228,9 @@ namespace se3
   
   inline PairIndex GeometryModel::findCollisionPair (const CollisionPair & pair) const
   {
-    CollisionPairsVector_t::const_iterator it = std::find(collisionPairs.begin(),
-                                                          collisionPairs.end(),
-                                                          pair);
+    CollisionPairVector::const_iterator it = std::find(collisionPairs.begin(),
+                                                       collisionPairs.end(),
+                                                       pair);
     
     return (PairIndex) std::distance(collisionPairs.begin(), it);
   }
@@ -243,4 +252,4 @@ namespace se3
 
 /// @endcond
 
-#endif // ifndef __se3_geometry_hxx__
+#endif // ifndef __se3_multibody_geometry_hxx__

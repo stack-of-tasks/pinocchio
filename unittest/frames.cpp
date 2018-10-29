@@ -1,4 +1,4 @@
-//
+              //
 // Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
@@ -38,6 +38,36 @@ inline bool isFinite(const Eigen::MatrixBase<Derived> & x)
 
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
+
+BOOST_AUTO_TEST_CASE(frame_basic)
+{
+  using namespace se3;
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  BOOST_CHECK(model.frames.size() >= size_t(model.njoints));
+  for(Model::FrameVector::const_iterator it = model.frames.begin();
+      it != model.frames.end(); ++it)
+  {
+    const Frame & frame = *it;
+    BOOST_CHECK(frame == frame);
+    Frame frame_copy(frame);
+    BOOST_CHECK(frame_copy == frame);
+  }
+  
+  std::ostringstream os;
+  os << Frame() << std::endl;
+  BOOST_CHECK(!os.str().empty());
+}
+
+BOOST_AUTO_TEST_CASE(cast)
+{
+  using namespace se3;
+  Frame frame("toto",0,0,SE3::Random(),OP_FRAME);
+  
+  BOOST_CHECK(frame.cast<double>() == frame);
+  BOOST_CHECK(frame.cast<long double>().cast<double>() == frame);
+}
 
 BOOST_AUTO_TEST_CASE ( test_kinematics )
 {
@@ -183,31 +213,32 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   model.upperPositionLimit.head<7>().fill( 1.);
   VectorXd q = randomConfiguration(model);
   VectorXd v = VectorXd::Ones(model.nv);
-
+  
   /// In local frame
   Model::Index idx = model.getFrameId(frame_name);
   const Frame & frame = model.frames[idx];
   BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
   Data::Matrix6x Jjj(6,model.nv); Jjj.fill(0);
   Data::Matrix6x Jff(6,model.nv); Jff.fill(0);
+
   computeJointJacobians(model,data,q);
   updateFramePlacement(model, data, idx);
-  getFrameJacobian<LOCAL>(model, data,    idx,         Jff);
+  getFrameJacobian(model,     data,        idx, LOCAL, Jff);
   computeJointJacobians(model,data_ref,q);
-  getJointJacobian<LOCAL>(model, data_ref, parent_idx, Jjj);
+  getJointJacobian(model, data_ref, parent_idx, LOCAL, Jjj);
 
   Motion nu_frame = Motion(Jff*v);
   Motion nu_joint = Motion(Jjj*v);
   
-  const SE3::ActionMatrix_t jXf = frame.placement.toActionMatrix();
+  const SE3::ActionMatrixType jXf = frame.placement.toActionMatrix();
   Data::Matrix6x Jjj_from_frame(jXf * Jff);
   BOOST_CHECK(Jjj_from_frame.isApprox(Jjj));
   
   BOOST_CHECK(nu_frame.isApprox(frame.placement.actInv(nu_joint), 1e-12));
   
   // In world frame
-  getFrameJacobian<WORLD>(model,data,idx,Jff);
-  getJointJacobian<WORLD>(model, data_ref, parent_idx, Jjj);
+  getFrameJacobian(model,data,idx,WORLD,Jff);
+  getJointJacobian(model, data_ref, parent_idx,WORLD, Jjj);
   BOOST_CHECK(Jff.isApprox(Jjj));
 }
 
@@ -246,8 +277,8 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
   Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
   
   // Regarding to the world origin
-  getFrameJacobian<WORLD>(model,data,idx,J);
-  getFrameJacobianTimeVariation<WORLD>(model,data,idx,dJ);
+  getFrameJacobian(model,data,idx,WORLD,J);
+  getFrameJacobianTimeVariation(model,data,idx,WORLD,dJ);
   
   Motion v_idx(J*v);
   const Motion & v_ref_local = frame.placement.actInv(data_ref.v[parent_idx]);
@@ -261,8 +292,8 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
   
   J.fill(0.);  dJ.fill(0.);
   // Regarding to the local frame
-  getFrameJacobian<LOCAL>(model,data,idx,J);
-  getFrameJacobianTimeVariation<LOCAL>(model,data,idx,dJ);
+  getFrameJacobian(model,data,idx,LOCAL,J);
+  getFrameJacobianTimeVariation(model,data,idx,LOCAL,dJ);
   
   v_idx = (Motion::Vector6)(J*v);
   BOOST_CHECK(v_idx.isApprox(v_ref_local));
@@ -284,8 +315,8 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     computeJointJacobians(model,data_ref,q);
     updateFramePlacements(model,data_ref);
     const SE3 & oMf_q = data_ref.oMf[idx];
-    getFrameJacobian<WORLD>(model,data_ref,idx,J_ref_world);
-    getFrameJacobian<LOCAL>(model,data_ref,idx,J_ref_local);
+    getFrameJacobian(model,data_ref,idx,WORLD,J_ref_world);
+    getFrameJacobian(model,data_ref,idx,LOCAL,J_ref_local);
     
     //data_ref_plus
     Data::Matrix6x J_ref_plus_world(6,model.nv), J_ref_plus_local(6,model.nv);
@@ -293,8 +324,8 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     computeJointJacobians(model,data_ref_plus,q_plus);
     updateFramePlacements(model,data_ref_plus);
     const SE3 & oMf_qplus = data_ref_plus.oMf[idx];
-    getFrameJacobian<WORLD>(model,data_ref_plus,idx,J_ref_plus_world);
-    getFrameJacobian<LOCAL>(model,data_ref_plus,idx,J_ref_plus_local);
+    getFrameJacobian(model,data_ref_plus,idx,WORLD,J_ref_plus_world);
+    getFrameJacobian(model,data_ref_plus,idx,LOCAL,J_ref_plus_local);
 
     //Move J_ref_plus_local to reference frame
     J_ref_plus_local = (oMf_q.inverse()*oMf_qplus).toActionMatrix()*(J_ref_plus_local);
@@ -310,8 +341,8 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     updateFramePlacements(model,data);
     Data::Matrix6x dJ_world(6,model.nv), dJ_local(6,model.nv);
     dJ_world.fill(0.);    dJ_local.fill(0.);
-    getFrameJacobianTimeVariation<WORLD>(model,data,idx,dJ_world);
-    getFrameJacobianTimeVariation<LOCAL>(model,data,idx,dJ_local);
+    getFrameJacobianTimeVariation(model,data,idx,WORLD,dJ_world);
+    getFrameJacobianTimeVariation(model,data,idx,LOCAL,dJ_local);
 
     BOOST_CHECK(dJ_world.isApprox(dJ_ref_world,sqrt(alpha)));
     BOOST_CHECK(dJ_local.isApprox(dJ_ref_local,sqrt(alpha)));   

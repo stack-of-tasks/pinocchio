@@ -16,37 +16,37 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_fwd_hpp__
-#define __se3_fwd_hpp__
+#ifndef __se3_spatial_fwd_hpp__
+#define __se3_spatial_fwd_hpp__
 
+#include "pinocchio/fwd.hpp"
 #include "pinocchio/macros.hpp"
 
 namespace se3
 {
   
-  template<typename _Scalar, int _Options=0> class SE3Tpl;
+  template<typename Scalar, int Options=0> struct SE3Tpl;
 
   template<typename Derived> class MotionBase;
   template<typename Derived> class MotionDense;
   template<typename Vector6ArgType> class MotionRef;
-  template<typename _Scalar, int _Options=0> class MotionTpl;
-  struct BiasZero;
+  template<typename Scalar, int Options=0> class MotionTpl;
+  template<typename Scalar, int Options=0> struct BiasZeroTpl;
   
   template<typename Derived> class ForceBase;
   template<typename Derived> class ForceDense;
   template<typename Vector6ArgType> class ForceRef;
-  template<typename _Scalar, int _Options=0> class ForceTpl;
+  template<typename Scalar, int Options=0> class ForceTpl;
   
-  template<typename _Scalar, int _Options=0> class InertiaTpl;
-  template<typename _Scalar, int _Options=0> class Symmetric3Tpl;
+  template<typename Scalar, int Options=0> class InertiaTpl;
+  template<typename Scalar, int Options=0> class Symmetric3Tpl;
 
   typedef SE3Tpl        <double,0> SE3;
   typedef MotionTpl     <double,0> Motion;
   typedef ForceTpl      <double,0> Force;
   typedef InertiaTpl    <double,0> Inertia;
   typedef Symmetric3Tpl <double,0> Symmetric3;
-
-  template<class C> struct traits {};
+  typedef BiasZeroTpl   <double,0> BiasZero;
 
   #define SPATIAL_TYPEDEF_TEMPLATE_GENERIC(derived,TYPENAME)              \
     typedef TYPENAME traits<derived>::Scalar Scalar; \
@@ -80,4 +80,4 @@ namespace se3
 
 } // namespace se3
 
-#endif // ifndef __se3_fwd_hpp__
+#endif // ifndef __se3_spatial_fwd_hpp__

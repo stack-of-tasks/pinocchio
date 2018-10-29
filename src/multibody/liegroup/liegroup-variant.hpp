@@ -27,14 +27,14 @@
 
 namespace se3
 {
-  typedef boost::variant< SpecialOrthogonalOperation<2>
-                         ,SpecialOrthogonalOperation<3>
-                         ,SpecialEuclideanOperation<2>
-                         ,SpecialEuclideanOperation<3>
-                         ,VectorSpaceOperation<1>
-                         ,VectorSpaceOperation<2>
-                         ,VectorSpaceOperation<3>
-                         ,VectorSpaceOperation<Eigen::Dynamic>
+  typedef boost::variant< SpecialOrthogonalOperationTpl<2,double,0>
+                         ,SpecialOrthogonalOperationTpl<3,double,0>
+                         ,SpecialEuclideanOperationTpl<2,double,0>
+                         ,SpecialEuclideanOperationTpl<3,double,0>
+                         ,VectorSpaceOperationTpl<1,double>
+                         ,VectorSpaceOperationTpl<2,double>
+                         ,VectorSpaceOperationTpl<3,double>
+                         ,VectorSpaceOperationTpl<Eigen::Dynamic,double>
                         > LieGroupVariant;
   
 }

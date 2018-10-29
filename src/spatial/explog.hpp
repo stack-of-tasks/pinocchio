@@ -21,7 +21,7 @@
 
 #include <Eigen/Geometry>
 
-#include "pinocchio/macros.hpp"
+#include "pinocchio/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/motion.hpp"
@@ -42,17 +42,16 @@ namespace se3
   typename Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
   exp3(const Eigen::MatrixBase<Vector3Like> & v)
   {
-    EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
-    assert(v.size() == 3);
-    
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector3Like, v, 3, 1);
+
     typedef typename Vector3Like::Scalar Scalar;
     typedef typename EIGEN_PLAIN_TYPE(Vector3Like) Vector3LikePlain;
     typedef Eigen::Matrix<Scalar,3,3,Vector3LikePlain::Options> Matrix3;
     
     const Scalar t2 = v.squaredNorm();
     
-    const Scalar t = std::sqrt(t2);
-    if(t > Eigen::NumTraits<Scalar>::dummy_precision())
+    const Scalar t = math::sqrt(t2);
+    if(t > 1e-4)
     {
       Scalar ct,st; SINCOS(t,&st,&ct);
       const Scalar alpha_vxvx = (1 - ct)/t2;
@@ -78,7 +77,7 @@ namespace se3
       return res;
     }
   }
-
+  
   /// \brief Same as \ref log3
   ///
   /// \param[in] R the rotation matrix.
@@ -86,15 +85,17 @@ namespace se3
   ///
   /// \return The angular velocity vector associated to the rotation matrix.
   ///
-  template<typename Matrix3Like, typename S2>
-  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,Eigen::internal::traits<Matrix3Like>::Options>
-  log3(const Eigen::MatrixBase<Matrix3Like> & R, S2 & theta)
+  template<typename Matrix3Like>
+  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
+  log3(const Eigen::MatrixBase<Matrix3Like> & R,
+       typename Matrix3Like::Scalar & theta)
   {
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3);
-    typedef typename Matrix3Like::Scalar Scalar;
-    typedef Eigen::Matrix<Scalar,3,1,Eigen::internal::traits<Matrix3Like>::Options> Vector3;
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, R, 3, 3);
 
-    const Scalar PI_value = PI<Scalar>();
+    typedef typename Matrix3Like::Scalar Scalar;
+    typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
+    
+    static const Scalar PI_value = PI<Scalar>();
     
     Vector3 res;
     const Scalar tr = R.trace();
@@ -127,7 +128,7 @@ namespace se3
     
     return res;
   }
-
+  
   /// \brief Log: SO3 -> so3.
   ///
   /// Pseudo-inverse of log from \f$ SO3 -> { v \in so3, ||v|| \le pi } \f$.
@@ -137,37 +138,46 @@ namespace se3
   /// \return The angular velocity vector associated to the rotation matrix.
   ///
   template<typename Matrix3Like>
-  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,Eigen::internal::traits<Matrix3Like>::Options>
+  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
   log3(const Eigen::MatrixBase<Matrix3Like> & R)
   {
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, R, 3, 3);
+
     typename Matrix3Like::Scalar theta;
-    return log3(R.derived(), theta);
+    return log3(R.derived(),theta);
   }
 
+  ///
   /// \brief Derivative of \f$ \exp{r} \f$
   /// \f[
   ///     \frac{\sin{||r||}}{||r||}                       I_3
   ///   - \frac{1-\cos{||r||}}{||r||^2}                   \left[ r \right]_x
   ///   + \frac{1}{||n||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
   /// \f]
+  ///
   template<typename Vector3Like, typename Matrix3Like>
   void Jexp3(const Eigen::MatrixBase<Vector3Like> & r,
              const Eigen::MatrixBase<Matrix3Like> & Jexp)
   {
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector3Like, r   , 3, 1);
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, Jexp, 3, 3);
+
     Matrix3Like & Jout = const_cast<Matrix3Like &>(Jexp.derived());
     typedef typename Matrix3Like::Scalar Scalar;
 
-    Scalar n = r.norm(),a,b,c;
+    Scalar n2 = r.squaredNorm(),a,b,c;
+    Scalar n = math::sqrt(n2);
     
-    if (n < 1e-6) {
-      Scalar n2 = n;
+    if (n < 1e-6)
+    {
 
       a =   Scalar(1)           - n/Scalar(6)   + n2/Scalar(120);
       b = - Scalar(1)/Scalar(2) + n/Scalar(24)  - n2/Scalar(720);
       c =   Scalar(1)/Scalar(6) - n/Scalar(120) + n2/Scalar(5040);
-    } else
+    }
+    else
     {
-      Scalar n_inv = Scalar(1.)/n;
+      Scalar n_inv = Scalar(1)/n;
       Scalar n2_inv = n_inv * n_inv;
       Scalar cn,sn; SINCOS(n,&sn,&cn);
 
@@ -176,7 +186,6 @@ namespace se3
       c = n2_inv * (1 - a);
     }
 
-    Jout.setZero ();
     Jout.diagonal().setConstant(a);
 
     Jout(0,1) = -b*r[2]; Jout(1,0) = -Jout(0,1);
@@ -191,6 +200,9 @@ namespace se3
              const Eigen::MatrixBase<Vector3Like> & log,
              const Eigen::MatrixBase<Matrix3Like> & Jlog)
   {
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector3Like,  log, 3, 1);
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, Jlog, 3, 3);
+
     Matrix3Like & Jout = const_cast<Matrix3Like &>(Jlog.derived());
     typedef typename Matrix3Like::Scalar Scalar3;
     
@@ -202,8 +214,8 @@ namespace se3
       Scalar ct,st; SINCOS(theta,&st,&ct);
       const Scalar st_1mct = st/(Scalar(1)-ct);
 
-      Jout.setZero ();
-      Jout.diagonal().setConstant (theta*st_1mct);
+      Jout.setZero();
+      Jout.diagonal().setConstant(theta*st_1mct);
 
       // Jlog += r_{\times}/2
       Jout(0,1) = -log(2); Jout(1,0) =  log(2);
@@ -220,8 +232,11 @@ namespace se3
   void Jlog3(const Eigen::MatrixBase<Matrix3Like1> & R,
              const Eigen::MatrixBase<Matrix3Like2> & Jlog)
   {
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like1,    R, 3, 3);
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like2, Jlog, 3, 3);
+
     typedef typename Matrix3Like1::Scalar Scalar;
-    typedef Eigen::Matrix<Scalar,3,1,Eigen::internal::traits<Matrix3Like1>::Options> Vector3;
+    typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like1)::Options> Vector3;
 
     Scalar t;
     Vector3 w(log3(R,t));
@@ -237,11 +252,11 @@ namespace se3
   /// \return The rigid transformation associated to the integration of the twist during time 1.
   ///
   template<typename MotionDerived>
-  SE3Tpl<typename MotionDerived::Scalar, Eigen::internal::traits<typename MotionDerived::Vector3>::Options>
+  SE3Tpl<typename MotionDerived::Scalar,EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options>
   exp6(const MotionDense<MotionDerived> & nu)
   {
     typedef typename MotionDerived::Scalar Scalar;
-    enum { Options = Eigen::internal::traits<typename MotionDerived::Vector3>::Options };
+    enum { Options = EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options };
 
     typedef SE3Tpl<Scalar,Options> SE3;
     
@@ -251,14 +266,31 @@ namespace se3
     const Scalar t2 = w.squaredNorm();
     
     SE3 res;
-    typename SE3::Linear_t & trans = res.translation();
-    typename SE3::Angular_t & rot = res.rotation();
+    typename SE3::LinearType & trans = res.translation();
+    typename SE3::AngularType & rot = res.rotation();
     
-    const Scalar t = std::sqrt(t2);
-    if(t > 1e-4)
+    const Scalar t = math::sqrt(t2);
+    if(t < 1e-4)
+    {
+      // Taylor expansion
+      const Scalar alpha_wxv = Scalar(1)/Scalar(2) - t2/24;
+      const Scalar alpha_v = Scalar(1) - t2/6;
+      const Scalar alpha_w = (Scalar(1)/Scalar(6) - t2/120)*w.dot(v);
+      
+      // Linear
+      trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
+      
+      // Rotational
+      rot.noalias() = alpha_wxv * w * w.transpose();
+      rot.coeffRef(0,1) -= alpha_v * w[2]; rot.coeffRef(1,0) += alpha_v * w[2];
+      rot.coeffRef(0,2) += alpha_v * w[1]; rot.coeffRef(2,0) -= alpha_v * w[1];
+      rot.coeffRef(1,2) -= alpha_v * w[0]; rot.coeffRef(2,1) += alpha_v * w[0];
+      rot.diagonal().array() += Scalar(1) - t2/2;
+    }
+    else
     {
       Scalar ct,st; SINCOS(t,&st,&ct);
-
+      
       const Scalar inv_t2 = Scalar(1)/t2;
       const Scalar alpha_wxv = (Scalar(1) - ct)*inv_t2;
       const Scalar alpha_v = (st)/t;
@@ -274,22 +306,6 @@ namespace se3
       rot.coeffRef(1,2) -= alpha_v * w[0]; rot.coeffRef(2,1) += alpha_v * w[0];
       rot.diagonal().array() += ct;
     }
-    else
-    {
-      const Scalar alpha_wxv = Scalar(1)/Scalar(2) - t2/24;
-      const Scalar alpha_v = Scalar(1) - t2/6;
-      const Scalar alpha_w = (Scalar(1)/Scalar(6) - t2/120) * w.dot(v);
-      
-      // Linear
-      trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
-      
-      // Rotational
-      rot.noalias() = alpha_wxv * w * w.transpose();
-      rot.coeffRef(0,1) -= alpha_v * w[2]; rot.coeffRef(1,0) += alpha_v * w[2];
-      rot.coeffRef(0,2) += alpha_v * w[1]; rot.coeffRef(2,0) -= alpha_v * w[1];
-      rot.coeffRef(1,2) -= alpha_v * w[0]; rot.coeffRef(2,1) += alpha_v * w[0];
-      rot.diagonal().array() += Scalar(1) - t2/2;
-    }
     
     return res;
   }
@@ -303,10 +319,11 @@ namespace se3
   /// \return The rigid transformation associated to the integration of the twist vector during time 1..
   ///
   template<typename Vector6Like>
-  SE3Tpl<typename Vector6Like::Scalar, Eigen::internal::traits<Vector6Like>::Options>
+  SE3Tpl<typename Vector6Like::Scalar,EIGEN_PLAIN_TYPE(Vector6Like)::Options>
   exp6(const Eigen::MatrixBase<Vector6Like> & v)
   {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector6Like, v, 6, 1);
+
     MotionRef<Vector6Like> nu(v);
     return exp6(nu);
   }
@@ -327,25 +344,26 @@ namespace se3
     typedef MotionTpl<Scalar,Options> Motion;
     typedef typename SE3::Vector3 Vector3;
 
-    const typename SE3::ConstAngular_t & R = M.rotation();
-    const typename SE3::ConstLinear_t & p = M.translation();
+    typename SE3::ConstAngularRef R = M.rotation();
+    typename SE3::ConstLinearRef p = M.translation();
     
     Scalar t;
-    Vector3 w(log3(R,t));
+    Vector3 w(log3(R,t)); // t in [0,π]
     const Scalar t2 = t*t;
     Scalar alpha, beta;
-    if (std::fabs(t) < 1e-4)
+    if (t < 1e-4)
     {
       alpha = Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720);
       beta = Scalar(1)/Scalar(12) + t2/Scalar(720);
-    } else
+    }
+    else
     {
       Scalar st,ct; SINCOS(t,&st,&ct);
       alpha = t*st/(Scalar(2)*(Scalar(1)-ct));
       beta = Scalar(1)/t2 - st/(Scalar(2)*t*(Scalar(1)-ct));
     }
     
-    return Motion(alpha * p - alphaSkew(0.5, w) * p + beta * w.dot(p) * w,
+    return Motion(alpha * p - 0.5 * w.cross(p) + beta * w.dot(p) * w,
                   w);
   }
 
@@ -357,17 +375,18 @@ namespace se3
   ///
   /// \return The twist associated to the rigid transformation during time 1.
   ///
-  template<typename D>
-  MotionTpl<typename D::Scalar,Eigen::internal::traits<D>::Options>
-  log6(const Eigen::MatrixBase<D> & M)
+  template<typename Matrix4Like>
+  MotionTpl<typename Matrix4Like::Scalar,Eigen::internal::traits<Matrix4Like>::Options>
+  log6(const Eigen::MatrixBase<Matrix4Like> & M)
   {
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D, 4, 4);
-    typedef typename SE3Tpl<typename D::Scalar,D::Options>::Vector3 Vector3;
-    typedef typename SE3Tpl<typename D::Scalar,D::Options>::Matrix3 Matrix3;
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix4Like, M, 4, 4);
+
+    typedef typename SE3Tpl<typename Matrix4Like::Scalar,Matrix4Like::Options>::Vector3 Vector3;
+    typedef typename SE3Tpl<typename Matrix4Like::Scalar,Matrix4Like::Options>::Matrix3 Matrix3;
 
     Matrix3 rot(M.template block<3,3>(0,0));
     Vector3 trans(M.template block<3,1>(0,3));
-    SE3Tpl<typename D::Scalar,Eigen::internal::traits<D>::Options> m(rot, trans);
+    SE3Tpl<typename Matrix4Like::Scalar,Eigen::internal::traits<Matrix4Like>::Options> m(rot, trans);
     return log6(m);
   }
 
@@ -377,27 +396,31 @@ namespace se3
   void Jexp6(const MotionDense<MotionDerived>     & nu,
              const Eigen::MatrixBase<Matrix6Like> & Jexp)
   {
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix6Like, Jexp, 6, 6);
+
     typedef typename MotionDerived::Scalar Scalar;
     typedef typename MotionDerived::Vector3 Vector3;
     typedef Eigen::Matrix<Scalar, 3, 3, Vector3::Options> Matrix3;
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6Like,6,6);
     Matrix6Like & Jout = const_cast<Matrix6Like &> (Jexp.derived());
 
     const typename MotionDerived::ConstLinearType  & v = nu.linear();
     const typename MotionDerived::ConstAngularType & w = nu.angular();
-    const Scalar t = w.norm();
+    const Scalar t2 = w.squaredNorm();
+    const Scalar t = math::sqrt(t2);
 
     // Matrix3 J3;
     // Jexp3(w, J3);
     Jexp3(w, Jout.template bottomRightCorner<3,3>());
     Jout.template topLeftCorner<3,3>() = Jout.template bottomRightCorner<3,3>();
 
-    const Scalar t2 = t*t;
     Scalar beta, beta_dot_over_theta;
-    if (t < 1e-4) {
+    if (t < 1e-4)
+    {
       beta                = Scalar(1)/Scalar(12) + t2/Scalar(720);
       beta_dot_over_theta = Scalar(1)/Scalar(360);
-    } else {
+    }
+    else
+    {
       const Scalar tinv = Scalar(1)/t,
                    t2inv = tinv*tinv;
       Scalar st,ct; SINCOS (t, &st, &ct);
@@ -443,14 +466,16 @@ namespace se3
   void Jlog6(const SE3Tpl<Scalar, Options> & M,
              const Eigen::MatrixBase<Matrix6Like> & Jlog)
   {
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix6Like, Jlog, 6, 6);
+
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef typename SE3::Vector3 Vector3;
     typedef typename SE3::Matrix3 Matrix3;
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6Like,6,6);
     Matrix6Like & value = const_cast<Matrix6Like &> (Jlog.derived());
 
-    const typename SE3::ConstAngular_t & R = M.rotation();
-    const typename SE3::ConstLinear_t & p = M.translation();
+    typename SE3::ConstAngularRef R = M.rotation();
+    typename SE3::ConstLinearRef p = M.translation();
     
     Scalar t;
     Vector3 w(log3(R,t));
@@ -460,7 +485,7 @@ namespace se3
 
     const Scalar t2 = t*t;
     Scalar beta, beta_dot_over_theta;
-    if (t < 1e-4)
+    if(t < 1e-4)
     {
       beta                = Scalar(1)/Scalar(12) + t2/Scalar(720);
       beta_dot_over_theta = Scalar(1)/Scalar(360);
@@ -477,7 +502,7 @@ namespace se3
         (Scalar(1) + st*tinv) * t2inv * inv_2_2ct;
     }
 
-    Scalar wTp (w.dot (p));
+    Scalar wTp (w.dot(p));
 
     Matrix3 J ((alphaSkew(.5, p) +
           (beta_dot_over_theta*wTp)*w*w.transpose()
@@ -490,5 +515,7 @@ namespace se3
              Matrix3::Zero(), J3;
   }
 } // namespace se3
+
+#include "pinocchio/spatial/explog-quaternion.hpp"
 
 #endif //#ifndef __spatial_explog_hpp__

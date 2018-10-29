@@ -22,6 +22,10 @@ export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-hpp-fcl robotpkg-assimp robo
 # When this script is called the current directory is ./custom_travis
 . ./.travis/run ../.travis/before_install
 
+# Git fetch tags
+git fetch --tags
+git tag
+
 # End debug mode
 set +v
 set +x

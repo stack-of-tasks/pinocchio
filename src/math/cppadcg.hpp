@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -15,9 +15,29 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/multibody/model.hpp"
+#ifndef __se3_math_ccpadcg_hpp__
+#define __se3_math_ccpadcg_hpp__
 
-namespace se3
+#include <cmath>
+#include <cppad/cg/support/cppadcg_eigen.hpp>
+
+namespace Eigen
 {
-  const Eigen::Vector3d Model::gravity981 (0,0,-9.81);
+  namespace internal
+  {
+    // Specialization of Eigen::internal::cast_impl for CppAD input types
+    template<typename Scalar>
+    struct cast_impl<CppAD::cg::CG<Scalar>,Scalar>
+    {
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
+      EIGEN_DEVICE_FUNC
+#endif
+      static inline Scalar run(const CppAD::cg::CG<Scalar> & x)
+      {
+        return x.getValue();
+      }
+    };
+  }
 }
+
+#endif // #ifndef __se3_math_ccpadcg_hpp__

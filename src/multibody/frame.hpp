@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -83,11 +83,27 @@ namespace se3
     template<typename S2, int O2>
     bool operator == (const FrameTpl<S2,O2> & other) const
     {
-      return name == other.name && parent == other.parent
+      return name == other.name
+      && parent == other.parent
       && previousFrame == other.previousFrame
       && placement == other.placement
       && type == other.type ;
     }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    FrameTpl<NewScalar,Options> cast() const
+    {
+      typedef FrameTpl<NewScalar,Options> ReturnType;
+      ReturnType res(name,
+                     parent,
+                     previousFrame,
+                     placement.template cast<NewScalar>(),
+                     type);
+      return res;
+    }
+    
+    // data
     
     /// \brief Name of the frame.
     std::string name;

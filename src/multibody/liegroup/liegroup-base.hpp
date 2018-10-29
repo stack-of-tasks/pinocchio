@@ -18,10 +18,8 @@
 #ifndef __se3_lie_group_operation_base_hpp__
 #define __se3_lie_group_operation_base_hpp__
 
-#include "pinocchio/macros.hpp"
-#include "pinocchio/spatial/fwd.hpp" // struct traits
+#include "pinocchio/multibody/liegroup/fwd.hpp"
 
-#include <Eigen/Core>
 #include <limits>
 
 namespace se3
@@ -32,6 +30,7 @@ namespace se3
   typedef TYPENAME Base::Index Index;                                          \
   typedef TYPENAME traits<Derived>::Scalar Scalar;                             \
   enum {                                                                       \
+    Options = traits<Derived>::Options,                                        \
     NQ = Base::NQ,                                                             \
     NV = Base::NV                                                              \
   };                                                                           \
@@ -51,14 +50,16 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     typedef Derived LieGroupDerived;
     typedef int Index;
     typedef typename traits<LieGroupDerived>::Scalar Scalar;
-    enum {
+    enum
+    {
+      Options = traits<LieGroupDerived>::Options,
       NQ = traits<LieGroupDerived>::NQ,
       NV = traits<LieGroupDerived>::NV
     };
 
-    typedef Eigen::Matrix<Scalar,NQ,1> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1> TangentVector_t;
-    typedef Eigen::Matrix<Scalar,NV,NV> JacobianMatrix_t;
+    typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    typedef Eigen::Matrix<Scalar,NV,NV,Options> JacobianMatrix_t;
 
     /// \name API with return value as argument
     /// \{
@@ -75,14 +76,50 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void integrate(const Eigen::MatrixBase<ConfigIn_t> & q,
                    const Eigen::MatrixBase<Tangent_t>  & v,
                    const Eigen::MatrixBase<ConfigOut_t>& qout) const;
+    
+    /**
+     * @brief      Computes the Jacobian of the integrate operator around zero.
+     *
+     * @details    This function computes the Jacobian of the configuration vector variation (component-vise) with respect to a small variation
+     *             in the tangent.
+     *
+     * @param[in]  q    configuration vector.
+     *
+     * @param[out] J    the Jacobian of the log of the Integrate operation w.r.t. the configuration vector q.
+     *
+     * @remarks    This function might be useful for instance when using google-ceres to compute the Jacobian of the integrate operation.
+     */
+    template<class Config_t, class Jacobian_t>
+    void integrateCoeffWiseJacobian(const Eigen::MatrixBase<Config_t >  & q,
+                                    const Eigen::MatrixBase<Jacobian_t> & J) const;
 
     /**
-     * @brief      Computes the Jacobian of the Integrate operation.
+     * @brief      Computes the Jacobian of a small variation of the configuration vector into tangent space at identity.
      *
-     * @param[in]  q    configuration
-     * @param[in]  v    tangent velocity.
+     * @details    This Jacobian corresponds to the Jacobian of \f$ (\bm{q} \oplus \delta \bm{q}) \oplus \bm{v} \f$ with
+     *             \f$ \delta \bm{q} \rightarrow 0 \f$.
      *
-     * @param[out] J    the Jacobian of the Integrate operation wrt q.
+     * @param[in]  q    configuration vector.
+     * @param[in]  v    tangent vector.
+     * @tparam[in] arg  ARG0 (resp. ARG1) to get the Jacobian with respect to q (resp. v).
+     *
+     * @param[out] J    the Jacobian of the Integrate operation w.r.t. the argument arg.
+     */
+    template <ArgumentPosition arg, class Config_t, class Tangent_t, class JacobianOut_t>
+    void dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
+                    const Eigen::MatrixBase<Tangent_t>  & v,
+                    const Eigen::MatrixBase<JacobianOut_t>& J) const;
+
+    /**
+     * @brief      Computes the Jacobian of a small variation of the configuration vector into tangent space at identity.
+     *
+     * @details    This Jacobian corresponds to the Jacobian of \f$ (\bm{q} \oplus \delta \bm{q}) \oplus \bm{v} \f$ with
+     *             \f$ \delta \bm{q} \rightarrow 0 \f$.
+     *
+     * @param[in]  q    configuration vector.
+     * @param[in]  v    tangent vector.
+     *
+     * @param[out] J    the Jacobian of the Integrate operation w.r.t. the configuration vector q.
      */
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
@@ -90,12 +127,15 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                        const Eigen::MatrixBase<JacobianOut_t>& J) const;
 
     /**
-     * @brief      Computes the Jacobian of the Integrate operation.
+     * @brief      Computes the Jacobian of a small variation of the tangent vector into tangent space at identity.
      *
-     * @param[in]  q    configuration
-     * @param[in]  v    tangent velocity.
+     * @details    This Jacobian corresponds to the Jacobian of \f$ \bm{q} \oplus (\bm{v}  + \delta \bm{v}) \f$ with
+     *             \f$ \delta \bm{v} \rightarrow 0 \f$.
      *
-     * @param[out] J    the Jacobian of the Integrate operation wrt v.
+     * @param[in]  q    configuration vector.
+     * @param[in]  v    tangent vector.
+     *
+     * @param[out] J    the Jacobian of the Integrate operation w.r.t. the tangent vector v.
      */
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
@@ -165,20 +205,26 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                     const Eigen::MatrixBase<ConfigR_t> & q1,
                     const Eigen::MatrixBase<Tangent_t>& v) const;
 
+    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
+    void Jdifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                     const Eigen::MatrixBase<ConfigR_t> & q1,
+                     const Eigen::MatrixBase<JacobianLOut_t>& J0,
+                     const Eigen::MatrixBase<JacobianROut_t>& J1) const
+    PINOCCHIO_DEPRECATED;
+
     /**
      * @brief      Computes the Jacobian of the difference operation.
      *
      * @param[in]  q0    the initial configuration vector.
      * @param[in]  q1    the terminal configuration vector.
+     * @tparam[in] arg   ARG0 (resp. ARG1) to get the Jacobian with respect to q0 (resp. q1).
      *
-     * @param[out] J0    the Jacobian of the difference operation with respect to q0.
-     * @param[out] J1    the Jacobian of the difference operation with respect to q1.
+     * @param[out] J     the Jacobian of the difference operation.
      */
-    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    void Jdifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
                      const Eigen::MatrixBase<ConfigR_t> & q1,
-                     const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                     const Eigen::MatrixBase<JacobianROut_t>& J1) const;
+                     const Eigen::MatrixBase<JacobianOut_t>& J) const;
 
     /**
      * @brief      Squared distance between two joint configurations.
@@ -299,6 +345,6 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
 
 } // namespace se3
 
-#include "pinocchio/multibody/liegroup/operation-base.hxx"
+#include "pinocchio/multibody/liegroup/liegroup-base.hxx"
 
 #endif // ifndef __se3_lie_group_operation_base_hpp__

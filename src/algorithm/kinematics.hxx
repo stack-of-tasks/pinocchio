@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2018 CNRS
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -24,45 +24,52 @@
 namespace se3 
 {
   
-  struct emptyForwardStep : public fusion::JointVisitor<emptyForwardStep>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct EmptyForwardStep
+  : fusion::JointVisitorBase< EmptyForwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &
-                                  > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT (emptyForwardStep);
-    
+    typedef fusion::NoArg ArgsType;
+
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> &,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> &,
-                     const se3::Model &,
-                     se3::Data &)
+    static void algo(const JointModelBase<JointModel> &,
+                     JointDataBase<typename JointModel::JointDataDerived> &
+                     )
     { // do nothing
     }
     
   };
-  
-  inline void emptyForwardPass(const Model & model,
-                               Data & data)
+ 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void emptyForwardPass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                               DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
-    for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    typedef EmptyForwardStep<Scalar,Options,JointCollectionTpl> Algo;
+    
+    for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
     {
-      emptyForwardStep::run(model.joints[i],
-                            data.joints[i],
-                            emptyForwardStep::ArgsType (model,data)
-                            );
+      Algo::run(model.joints[i],
+                data.joints[i]
+                );
     }
   }
   
-  inline void updateGlobalPlacements(const Model & model, Data & data)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void updateGlobalPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                     DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
-    for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    
+    for(JointIndex i=1; i <(JointIndex) model.njoints; ++i)
     {
-      const Model::JointIndex & parent = model.parents[i];
+      const JointIndex & parent = model.parents[i];
       
       if (parent>0)
         data.oMi[i] = data.oMi[parent] * data.liMi[i];
@@ -71,75 +78,86 @@ namespace se3
     }
   }
   
-  struct ForwardKinematicZeroStep : public fusion::JointVisitor<ForwardKinematicZeroStep>
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  struct ForwardKinematicZeroStep
+  : fusion::JointVisitorBase< ForwardKinematicZeroStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &,
-                                  const Eigen::VectorXd &
-                                  > ArgsType;
-
-    JOINT_VISITOR_INIT (ForwardKinematicZeroStep);
-
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &> ArgsType;
+    
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
 
-      jmodel.calc (jdata.derived (), q);
+      jmodel.calc(jdata.derived(),q.derived());
 
-      data.liMi[i] = model.jointPlacements[i] * jdata.M ();
+      data.liMi[i] = model.jointPlacements[i] * jdata.M();
 
       if (parent>0)
         data.oMi[i] = data.oMi[parent] * data.liMi[i];
       else
         data.oMi[i] = data.liMi[i];
     }
-    
   };
 
-  inline void
-  forwardKinematics(const Model & model,
-                    Data & data,
-                    const Eigen::VectorXd & q)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
     
-    for (Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i)
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    
+    typedef ForwardKinematicZeroStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Algo;
+    for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
     {
-      ForwardKinematicZeroStep::run(model.joints[i], data.joints[i],
-                                    ForwardKinematicZeroStep::ArgsType (model,data,q)
-                                    );
+      Algo::run(model.joints[i], data.joints[i],
+                typename Algo::ArgsType(model,data,q.derived()));
     }
   }
 
-  struct ForwardKinematicFirstStep : public fusion::JointVisitor<ForwardKinematicFirstStep>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  struct ForwardKinematicFirstStep
+  : fusion::JointVisitorBase< ForwardKinematicFirstStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-				   se3::Data &,
-				   const Eigen::VectorXd &,
-				   const Eigen::VectorXd &
-				   > ArgsType;
-
-    JOINT_VISITOR_INIT(ForwardKinematicFirstStep);
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType &
+                                  > ArgsType;
 
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType> & v)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
       
-      jmodel.calc(jdata.derived(),q,v);
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       data.v[i] = jdata.v();
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
@@ -155,48 +173,58 @@ namespace se3
 
   };
 
-  inline void
-  forwardKinematics(const Model & model, Data & data,
-                    const Eigen::VectorXd & q,
-                    const Eigen::VectorXd & v)
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                const Eigen::MatrixBase<ConfigVectorType> & q,
+                                const Eigen::MatrixBase<TangentVectorType> & v)
   {
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
     
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    
     data.v[0].setZero();
 
-    for( Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i )
+    typedef ForwardKinematicFirstStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Algo;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      ForwardKinematicFirstStep::run(model.joints[i],data.joints[i],
-                                     ForwardKinematicFirstStep::ArgsType(model,data,q,v));
+      Algo::run(model.joints[i],data.joints[i],
+                typename Algo::ArgsType(model,data,q.derived(),v.derived()));
     }
   }
   
-  struct ForwardKinematicSecondStep : public fusion::JointVisitor<ForwardKinematicSecondStep>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  struct ForwardKinematicSecondStep :
+  fusion::JointVisitorBase< ForwardKinematicSecondStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-    se3::Data &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &
-    > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(ForwardKinematicSecondStep);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType1 &,
+                                  const TangentVectorType2 &
+                                  > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v,
-                     const Eigen::VectorXd & a)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType1> & v,
+                     const Eigen::MatrixBase<TangentVectorType2> & a)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
       
-      jmodel.calc(jdata.derived(),q,v);
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
 
       data.v[i] = jdata.v();
       data.liMi[i] = model.jointPlacements[i] * jdata.M();
@@ -214,24 +242,28 @@ namespace se3
     }
   };
   
-  inline void
-  forwardKinematics(const Model & model, Data & data,
-                    const Eigen::VectorXd & q,
-                    const Eigen::VectorXd & v,
-                    const Eigen::VectorXd & a)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                const Eigen::MatrixBase<ConfigVectorType> & q,
+                                const Eigen::MatrixBase<TangentVectorType1> & v,
+                                const Eigen::MatrixBase<TangentVectorType2> & a)
   {
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     assert(a.size() == model.nv && "The acceleration vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
     
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    
     data.v[0].setZero();
     data.a[0].setZero();
     
-    for( Model::JointIndex i=1; i < (Model::JointIndex) model.njoints; ++i )
+    typedef ForwardKinematicSecondStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Algo;
+    for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
     {
-      ForwardKinematicSecondStep::run(model.joints[i],data.joints[i],
-                                      ForwardKinematicSecondStep::ArgsType(model,data,q,v,a));
+      Algo::run(model.joints[i],data.joints[i],
+                typename Algo::ArgsType(model,data,q.derived(),v.derived(),a.derived()));
     }
   }
 } // namespace se3

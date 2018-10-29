@@ -28,14 +28,12 @@
 namespace se3
 {
 
-  struct SimpleVisitor : public se3::fusion::JointVisitor<SimpleVisitor>
+  struct SimpleVisitor : public se3::fusion::JointVisitorBase<SimpleVisitor>
   {
     typedef boost::fusion::vector<const se3::Model &,
                                   se3::Data &,
                                   JointIndex
                                   > ArgsType;
-
-    JOINT_VISITOR_INIT(SimpleVisitor);
 
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,

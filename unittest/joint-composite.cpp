@@ -60,7 +60,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   jmodel_composite.calc(jdata_composite,q);
   
   BOOST_CHECK(jdata_composite.M.isApprox((SE3)jdata.M));
-  BOOST_CHECK(constraint_xd(jdata_composite).matrix().isApprox(constraint_xd(jdata).matrix()));
+  BOOST_CHECK(jdata_composite.S.matrix().isApprox(jdata.S.matrix()));
   
   q = LieGroupType().randomConfiguration(ql,qu);
   TangentVector_t v = TangentVector_t::Random(jmodel.nv());
@@ -68,7 +68,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   jmodel_composite.calc(jdata_composite,q,v);
   
   BOOST_CHECK(jdata_composite.M.isApprox((SE3)jdata.M));
-  BOOST_CHECK(constraint_xd(jdata_composite).matrix().isApprox(constraint_xd(jdata).matrix()));
+  BOOST_CHECK(jdata_composite.S.matrix().isApprox(jdata.S.matrix()));
   BOOST_CHECK(jdata_composite.v.isApprox((Motion)jdata.v));
   BOOST_CHECK(jdata_composite.c.isApprox((Motion)jdata.c));
   
@@ -89,7 +89,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
 //    
 //    const double alpha = 0.2;
 //    BOOST_CHECK(jmodel_composite.interpolate(q1,q2,alpha).isApprox(jmodel.interpolate(q1,q2,alpha)));
-//    BOOST_CHECK(std::fabs(jmodel_composite.distance(q1,q2)-jmodel.distance(q1,q2))<= NumTraits<double>::dummy_precision());
+//    BOOST_CHECK(math::fabs(jmodel_composite.distance(q1,q2)-jmodel.distance(q1,q2))<= NumTraits<double>::dummy_precision());
 //  }
   
   Inertia::Matrix6 I1(Inertia::Random().matrix());
@@ -112,13 +112,6 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
     BOOST_CHECK((I1-I2).lpNorm<Eigen::Infinity>() < prec);
   else
     BOOST_CHECK(I1.isApprox(I2,prec));
-  
-  /// TODO: Remove me. This is for testing purposes.
-  Eigen::VectorXd qq = q;
-  Eigen::VectorXd vv = v;
-  Eigen::VectorXd res(jmodel_composite.nq());
-  typename se3::IntegrateStep<se3::LieGroupMap>::ArgsType args(qq, vv, res);
-  se3::IntegrateStep<se3::LieGroupMap>::run(jmodel_composite, args);
 }
 
 struct TestJointComposite{

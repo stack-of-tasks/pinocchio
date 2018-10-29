@@ -15,10 +15,35 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __math_fwd_hpp__
-#define __math_fwd_hpp__
+#ifndef __se3_math_fwd_hpp__
+#define __se3_math_fwd_hpp__
 
+#include "pinocchio/fwd.hpp"
+#include <math.h>
 #include <boost/math/constants/constants.hpp>
+#include "pinocchio/math/sincos.hpp"
+
+#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
+namespace boost
+{
+  namespace math
+  {
+    namespace constants
+    {
+      namespace detail
+      {
+        template<typename Scalar>
+        struct constant_pi< CppAD::AD<Scalar> > : constant_pi<Scalar> {};
+        
+#if defined(PINOCCHIO_WITH_CPPADCG_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
+        template<typename Scalar>
+        struct constant_pi< CppAD::cg::CG<Scalar> > : constant_pi<Scalar> {};
+#endif
+      }
+    }
+  }
+}
+#endif
 
 namespace se3
 {
@@ -33,7 +58,32 @@ namespace se3
   
   /// The value of PI for double scalar type
   const double PId = PI<double>();
+  
+  namespace math
+  {
+    using std::fabs;
+    using std::sqrt;
+    using std::atan;
+    using std::acos;
+    using std::asin;
+    using std::pow;
+    using std::cos;
+    using std::sin;
+    
+#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
+    using CppAD::fabs;
+    using CppAD::sqrt;
+    using CppAD::atan;
+    using CppAD::acos;
+    using CppAD::asin;
+    using CppAD::atan2;
+    using CppAD::pow;
+    using CppAD::cos;
+    using CppAD::sin;
+#else
+    using std::atan2;
+#endif
+  }
 }
 
-
-#endif //#ifndef __math_fwd_hpp__
+#endif //#ifndef __se3_math_fwd_hpp__

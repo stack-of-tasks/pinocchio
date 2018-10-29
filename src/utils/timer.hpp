@@ -32,6 +32,7 @@ struct PinocchioTicToc
 {
   enum Unit { S = 1, MS = 1000, US = 1000000, NS = 1000000000 };
   Unit DEFAULT_UNIT;
+  
   static std::string unitName(Unit u)
   {
     switch(u) { case S: return "s"; case MS: return "ms"; case US: return "us"; case NS: return "ns"; }
@@ -48,6 +49,8 @@ struct PinocchioTicToc
     gettimeofday(&(stack.top()),NULL);
   }
   
+  inline double toc() { return toc(DEFAULT_UNIT); };
+  
   inline double toc(const Unit factor)
   {
     gettimeofday(&t0,NULL);
@@ -55,6 +58,7 @@ struct PinocchioTicToc
     stack.pop();
     return dt;
   }
+  
   inline void toc(std::ostream & os, double SMOOTH=1)
   {
     os << toc(DEFAULT_UNIT)/SMOOTH << " " << unitName(DEFAULT_UNIT) << std::endl;

@@ -30,10 +30,10 @@ namespace se3
 
 #define DEFAULT_CHECKERS makeDefaultCheckerList()
 
-  inline bool Model::check() const { return this->check(DEFAULT_CHECKERS); }
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool ModelTpl<Scalar,Options,JointCollectionTpl>::check() const
+  { return this->check(DEFAULT_CHECKERS); }
 
 } // namespace se3 
 
 #endif // ifndef __se3_default_check_hpp__
-
-

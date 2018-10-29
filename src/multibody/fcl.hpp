@@ -53,8 +53,6 @@ namespace se3
 
   }; // struct CollisionPair
 
-  typedef std::vector<CollisionPair> CollisionPairsVector_t;
-
 #ifndef WITH_HPP_FCL  
 
   namespace fcl

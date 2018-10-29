@@ -18,9 +18,14 @@
 #ifndef __se3_joint_fwd_hpp__
 #define __se3_joint_fwd_hpp__
 
+#include "pinocchio/fwd.hpp"
+
 namespace se3
 {
   enum { MAX_JOINT_NV = 6 };
+  
+  struct JointModelVoid {};
+  struct JointDataVoid {};
 
   template<typename Scalar, int Options, int axis> struct JointModelRevoluteTpl;
   template<typename Scalar, int Options, int axis> struct JointDataRevoluteTpl;
@@ -46,8 +51,8 @@ namespace se3
   template<typename Scalar, int Options = 0> struct JointDataSphericalZYXTpl;
   typedef JointDataSphericalZYXTpl<double> JointDataSphericalZYX;
 
-  template<typename Scalar, int Options, int axis> struct JointModelPrismatic;
-  template<typename Scalar, int Options, int axis> struct JointDataPrismatic;
+  template<typename Scalar, int Options, int axis> struct JointModelPrismaticTpl;
+  template<typename Scalar, int Options, int axis> struct JointDataPrismaticTpl;
 
   template<typename Scalar, int Options = 0> struct JointModelPrismaticUnalignedTpl;
   typedef JointModelPrismaticUnalignedTpl<double> JointModelPrismaticUnaligned;
@@ -73,11 +78,24 @@ namespace se3
   template<typename Scalar, int Options = 0> struct JointDataTranslationTpl;
   typedef JointDataTranslationTpl<double> JointDataTranslation;
 
-  struct JointModelComposite;
-  struct JointDataComposite;
+  template<typename Scalar, int Options = 0> struct JointCollectionDefaultTpl;
+  typedef JointCollectionDefaultTpl<double> JointCollectionDefault;
   
-  struct JointModel;
-  struct JointData;
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointModelCompositeTpl;
+  typedef JointModelCompositeTpl<double> JointModelComposite;
+  
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointDataCompositeTpl;
+  typedef JointDataCompositeTpl<double> JointDataComposite;
+  
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointModelTpl;
+  typedef JointModelTpl<double> JointModel;
+  
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointDataTpl;
+  typedef JointDataTpl<double> JointData;
   
 }
 

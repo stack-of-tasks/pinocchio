@@ -19,6 +19,7 @@
 #ifndef __math_sincos_hpp__
 #define __math_sincos_hpp__
 
+#include "pinocchio/fwd.hpp"
 #include <cmath>
 
 namespace se3
@@ -27,17 +28,17 @@ namespace se3
   template<typename Scalar> struct SINCOSAlgo;
   
   
-  /// 
+  ///
   /// \brief Computes sin/cos values of a given input scalar.
-  /// 
+  ///
   /// \tparam Scalar Type of the input/output variables
-  /// 
+  ///
   /// \param[in] a The input scalar from which we evalute the sin and cos.
   /// \param[inout] sa Variable containing the sin of a.
   /// \param[inout] ca Variable containing the cos of a.
-  /// 
+  ///
   template<typename Scalar>
-  void SINCOS(const Scalar & a, Scalar * sa, Scalar * ca) 
+  void SINCOS(const Scalar & a, Scalar * sa, Scalar * ca)
   {
     SINCOSAlgo<Scalar>::run(a,sa,ca);
   }
@@ -97,6 +98,21 @@ namespace se3
 #endif
     }
   };
+
+#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
+  
+  /// Implementation for CppAD scalar types.
+  template<typename Scalar>
+  struct SINCOSAlgo< CppAD::AD<Scalar> >
+  {
+    static void run(const CppAD::AD<Scalar> & a, CppAD::AD<Scalar> * sa, CppAD::AD<Scalar> * ca)
+    {
+      (*sa) = CppAD::sin(a); (*ca) = CppAD::cos(a);
+    }
+  };
+  
+#endif
+ 
 }
 
 #endif //#ifndef __math_sincos_hpp__

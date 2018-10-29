@@ -18,9 +18,8 @@
 #ifndef __se3_force_set_hpp__
 #define __se3_force_set_hpp__
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
 #include "pinocchio/spatial/fwd.hpp"
+#include <Eigen/Geometry>
 
 namespace se3
 {

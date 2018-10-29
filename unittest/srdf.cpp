@@ -28,7 +28,7 @@ using namespace std;
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
-BOOST_AUTO_TEST_CASE(removeCollisionPairs)
+BOOST_AUTO_TEST_CASE(test_removeCollisionPairs)
 {
   using namespace se3::urdf;
   using namespace se3::srdf;
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(removeCollisionPairs)
   
   const size_t num_init_col_pairs = geom_model.collisionPairs.size();
   
-  removeCollisionPairsFromSrdf(model,geom_model,srdf_filename,false);
+  removeCollisionPairs(model,geom_model,srdf_filename,false);
   const size_t num_col_pairs = geom_model.collisionPairs.size();
   
   BOOST_CHECK(num_init_col_pairs > num_col_pairs);
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(readNeutralConfig)
   Model model;
   buildModel(model_filename, model);
 
-  Eigen::VectorXd q = getNeutralConfigurationFromSrdf(model,srdf_filename,false);
+  Eigen::VectorXd q = getNeutralConfiguration(model,srdf_filename,false);
   
   BOOST_CHECK(q.size() == model.nq);
   BOOST_CHECK(!q.isZero());
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(readRotorParams)
   Model model;
   buildModel(model_filename, model);
 
-  loadRotorParamsFromSrdf(model,srdf_filename,false);
+  loadRotorParameters(model,srdf_filename,false);
   
   BOOST_CHECK(model.rotorInertia(model.joints[model.getJointId("WAIST_P")].idx_v())==1.0);
   BOOST_CHECK(model.rotorGearRatio(model.joints[model.getJointId("WAIST_R")].idx_v())==1.0);

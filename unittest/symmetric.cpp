@@ -31,12 +31,11 @@
  */
 
 #include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/spatial/skew.hpp"
 #include "pinocchio/utils/timer.hpp"
 
 #include <boost/random.hpp>
-
-
+#include <Eigen/Geometry>
 
 #include "pinocchio/spatial/symmetric3.hpp"
 
@@ -303,6 +302,28 @@ BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
     timeSelfAdj(Rs[_smooth],M,Sres[_smooth]);
   }
   timer.toc(std::cout,NBT);
+}
+
+BOOST_AUTO_TEST_CASE(comparison)
+{
+  using namespace se3;
+  Symmetric3 sym1(Symmetric3::Random());
+  
+  Symmetric3 sym2(sym1);
+  sym2.data() *= 2;
+  
+  BOOST_CHECK(sym2 != sym1);
+  BOOST_CHECK(sym1 == sym1);
+}
+
+BOOST_AUTO_TEST_CASE(cast)
+{
+  using namespace se3;
+  Symmetric3 sym(Symmetric3::Random());
+  
+  BOOST_CHECK(sym.cast<double>() == sym);
+  BOOST_CHECK(sym.cast<long double>().cast<double>() == sym);
+  
 }
 BOOST_AUTO_TEST_SUITE_END ()
 

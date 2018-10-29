@@ -26,6 +26,7 @@ INCLUDE(cmake/test.cmake)
 SET(PROJECT_NAME pinocchio)
 SET(PROJECT_DESCRIPTION "Rigid multi body dynamics algorithms")
 SET(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
+SET(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
 OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" ON)
 
 SET(DOXYGEN_USE_MATHJAX YES)
@@ -83,9 +84,24 @@ ENDMACRO(TAG_LIBRARY_VERSION)
 # --- DEPENDANCIES -----------------------------------
 # ----------------------------------------------------
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
-ADD_OPTIONAL_DEPENDENCY("metapod >= 1.0.7")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.0")
 ADD_OPTIONAL_DEPENDENCY("hpp-fcl >= 0.5.1")
+ADD_OPTIONAL_DEPENDENCY("cppad")
+
+IF(CPPAD_FOUND)
+  ADD_DEFINITIONS(-DPINOCCHIO_WITH_CPPAD_SUPPORT)
+  PKG_CONFIG_APPEND_CFLAGS("-DPINOCCHIO_WITH_CPPAD_SUPPORT")
+  IF(NOT ${CPPAD_VERSION} VERSION_GREATER "3.3.0")
+    ADD_DEFINITIONS(-DPINOCCHIO_CPPAD_REQUIRES_MATRIX_BASE_PLUGIN)
+    PKG_CONFIG_APPEND_CFLAGS("-DPINOCCHIO_CPPAD_REQUIRES_MATRIX_BASE_PLUGIN")
+  ENDIF(NOT ${CPPAD_VERSION} VERSION_GREATER "3.3.0")
+
+  ADD_OPTIONAL_DEPENDENCY("cppadcg")
+  IF(CPPADCG_FOUND)
+    ADD_DEFINITIONS(-DPINOCCHIO_WITH_CPPADCG_SUPPORT)
+    PKG_CONFIG_APPEND_CFLAGS("-DPINOCCHIO_WITH_CPPADCG_SUPPORT")
+  ENDIF(CPPADCG_FOUND)
+ENDIF(CPPAD_FOUND)
 
 # Special care of urdfdom version
 IF(URDFDOM_FOUND)
@@ -155,19 +171,29 @@ SET(${PROJECT_NAME}_MATH_HEADERS
   math/sincos.hpp
   math/quaternion.hpp
   math/matrix.hpp
+  math/cppad.hpp
+  math/cppadcg.hpp
   )
 
 SET(${PROJECT_NAME}_UTILS_HEADERS
   utils/axis-label.hpp
+  utils/eigen-fix.hpp
   utils/timer.hpp
   utils/string-generator.hpp
   utils/file-explorer.hpp
   utils/version.hpp
   )
 
+SET(${PROJECT_NAME}_CODEGEN_HEADERS
+  codegen/code-generator-base.hpp
+  codegen/code-generator-algo.hpp
+  )
+
 SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/symmetric3.hpp
   spatial/se3.hpp
+  spatial/se3-base.hpp
+  spatial/se3-tpl.hpp
   spatial/motion.hpp
   spatial/motion-base.hpp
   spatial/motion-dense.hpp
@@ -185,6 +211,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
   spatial/act-on-set.hpp
   spatial/act-on-set.hxx
   spatial/explog.hpp
+  spatial/explog-quaternion.hpp
   spatial/cartesian-axis.hpp
   spatial/spatial-axis.hpp
   )
@@ -192,6 +219,7 @@ SET(${PROJECT_NAME}_SPATIAL_HEADERS
 SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/fwd.hpp
   multibody/joint/joint-base.hpp
+  multibody/joint/joint-collection.hpp
   multibody/joint/joint-revolute.hpp
   multibody/joint/joint-revolute-unaligned.hpp
   multibody/joint/joint-revolute-unbounded.hpp
@@ -202,8 +230,7 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   multibody/joint/joint-planar.hpp
   multibody/joint/joint-translation.hpp
   multibody/joint/joint-free-flyer.hpp
-  multibody/joint/joint-variant.hpp
-  multibody/joint/joint.hpp
+  multibody/joint/joint-generic.hpp
   multibody/joint/joint-basic-visitors.hpp
   multibody/joint/joint-basic-visitors.hxx
   multibody/joint/joint-composite.hpp
@@ -211,14 +238,17 @@ SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
   ) 
 
 SET(${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS
+  multibody/liegroup/fwd.hpp
   multibody/liegroup/liegroup.hpp
   multibody/liegroup/liegroup-algo.hpp
   multibody/liegroup/liegroup-algo.hxx
+  multibody/liegroup/liegroup-collection.hpp
+  multibody/liegroup/liegroup-generic.hpp
   multibody/liegroup/liegroup-variant.hpp
   multibody/liegroup/liegroup-variant-visitors.hpp
   multibody/liegroup/liegroup-variant-visitors.hxx
-  multibody/liegroup/operation-base.hpp
-  multibody/liegroup/operation-base.hxx
+  multibody/liegroup/liegroup-base.hpp
+  multibody/liegroup/liegroup-base.hxx
   multibody/liegroup/vector-space.hpp
   multibody/liegroup/cartesian-product.hpp
   multibody/liegroup/special-orthogonal.hpp
@@ -244,6 +274,8 @@ SET(${PROJECT_NAME}_ALGORITHM_HEADERS
   algorithm/aba-derivatives.hxx
   algorithm/centroidal.hpp
   algorithm/centroidal.hxx
+  algorithm/centroidal-derivatives.hpp
+  algorithm/centroidal-derivatives.hxx
   algorithm/rnea.hpp
   algorithm/rnea.hxx
   algorithm/rnea-derivatives.hpp
@@ -285,11 +317,14 @@ SET(${PROJECT_NAME}_PARSERS_HEADERS
   parsers/sample-models.hpp
   parsers/utils.hpp
   parsers/srdf.hpp
+  parsers/srdf.hxx
   ) 
 
 IF(URDFDOM_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
     parsers/urdf.hpp
+    parsers/urdf/model.hxx
+    parsers/urdf/geometry.hxx
     parsers/urdf/utils.hpp
     parsers/urdf/types.hpp
     )
@@ -337,9 +372,12 @@ SET(HEADERS
   ${${PROJECT_NAME}_PARSERS_HEADERS}
   ${${PROJECT_NAME}_ALGORITHM_HEADERS}
   ${${PROJECT_NAME}_CONTAINER_HEADERS}
+  ${${PROJECT_NAME}_CODEGEN_HEADERS}
   exception.hpp
   assert.hpp
   macros.hpp
+  eigen-macros.hpp
+  fwd.hpp
  )
 LIST(REMOVE_DUPLICATES HEADERS)
 
@@ -355,6 +393,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/utils")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/container")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/codegen")
 
 FOREACH(header ${HEADERS})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)

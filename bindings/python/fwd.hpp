@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -18,6 +18,8 @@
 
 #ifndef __se3_python_python_hpp__
 #define __se3_python_python_hpp__
+
+#include "pinocchio/fwd.hpp"
 
 namespace se3
 {

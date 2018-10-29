@@ -18,7 +18,7 @@
 #ifndef __se3_cartesian_product_operation_hpp__
 #define __se3_cartesian_product_operation_hpp__
 
-#include <pinocchio/multibody/liegroup/operation-base.hpp>
+#include <pinocchio/multibody/liegroup/liegroup-base.hpp>
 
 namespace se3
 {
@@ -42,10 +42,12 @@ namespace se3
   
   template<typename LieGroup1, typename LieGroup2>
   struct CartesianProductOperation;
+  
   template<typename LieGroup1, typename LieGroup2>
   struct traits<CartesianProductOperation<LieGroup1, LieGroup2> > {
-    typedef double Scalar;
+    typedef typename traits<LieGroup1>::Scalar Scalar;
     enum {
+      Options = traits<LieGroup1>::Options,
       NQ = eval_set_dim<LieGroup1::NQ,LieGroup2::NQ>::value,
       NV = eval_set_dim<LieGroup1::NV,LieGroup2::NV>::value
     };
@@ -97,20 +99,16 @@ namespace se3
       lg2_.difference(Q2(q0), Q2(q1), Vo2(d));
     }
 
-    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                 const Eigen::MatrixBase<ConfigR_t> & q1,
-                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                                 const Eigen::MatrixBase<JacobianROut_t>& J1) const
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference (const Eigen::MatrixBase<ConfigL_t> & q0,
+                      const Eigen::MatrixBase<ConfigR_t> & q1,
+                      const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
-      J12(J0).setZero();
-      J21(J0).setZero();
+      J12(J).setZero();
+      J21(J).setZero();
 
-      J12(J1).setZero();
-      J21(J1).setZero();
-
-      lg1_.Jdifference (Q1(q0), Q1(q1), J11(J0), J11(J1));
-      lg2_.Jdifference (Q2(q0), Q2(q1), J22(J0), J22(J1));
+      lg1_.template dDifference<arg> (Q1(q0), Q1(q1), J11(J));
+      lg2_.template dDifference<arg> (Q2(q0), Q2(q1), J22(J));
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -120,6 +118,20 @@ namespace se3
     {
       lg1_.integrate(Q1(q), V1(v), Qo1(qout));
       lg2_.integrate(Q2(q), V2(v), Qo2(qout));
+    }
+    
+    template <class Config_t, class Jacobian_t>
+    void integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> & q,
+                                         const Eigen::MatrixBase<Jacobian_t> & J) const
+    {
+      assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
+      Jacobian_t & J_ = EIGEN_CONST_CAST(Jacobian_t,J);
+      J_.topRightCorner(lg1_.nq(),lg2_.nv()).setZero();
+      J_.bottomLeftCorner(lg2_.nq(),lg1_.nv()).setZero();
+      
+      lg1_.integrateCoeffWiseJacobian(Q1(q),
+                                      J_.topLeftCorner(lg1_.nq(),lg1_.nv()));
+      lg2_.integrateCoeffWiseJacobian(Q2(q), J_.bottomRightCorner(lg2_.nq(),lg2_.nv()));
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -188,7 +200,7 @@ namespace se3
     LieGroup1 lg1_;
     LieGroup2 lg2_;
 
-    // VectorSpaceOperation<-1> within CartesianProductOperation will not work
+    // VectorSpaceOperationTpl<-1> within CartesianProductOperation will not work
     // if Eigen version is lower than 3.2.1
 #if EIGEN_VERSION_AT_LEAST(3,2,1)
 # define REMOVE_IF_EIGEN_TOO_LOW(x) x

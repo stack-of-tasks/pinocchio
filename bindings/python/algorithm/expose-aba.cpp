@@ -23,7 +23,7 @@ namespace se3
   namespace python
   {
     
-    const Data::RowMatrixXd &
+    const Data::RowMatrixXs &
     computeMinverse_proxy(const Model & model, Data & data, const Eigen::VectorXd & q)
     {
       computeMinverse(model,data,q);
@@ -34,11 +34,10 @@ namespace se3
     
     void exposeABA()
     {
-      typedef Eigen::VectorXd DataVector;
-      typedef container::aligned_vector<Force> ForceAlignedVector;
+      using namespace Eigen;
 
       bp::def("aba",
-              (const DataVector& (*)(const Model&, Data&, const DataVector&, const DataVector&, const DataVector&)) &aba,
+              &aba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
@@ -47,7 +46,7 @@ namespace se3
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("aba",
-              (const DataVector& (*)(const Model&, Data&, const DataVector&, const DataVector&, const DataVector&, const ForceAlignedVector&))&aba,
+              &aba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd,Force>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",

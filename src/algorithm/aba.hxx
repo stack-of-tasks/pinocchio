@@ -26,28 +26,33 @@
 
 namespace se3
 {
-  struct AbaForwardStep1 : public fusion::JointVisitor<AbaForwardStep1>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  struct AbaForwardStep1
+  : public fusion::JointVisitorBase< AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-    se3::Data &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &
-    > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(AbaForwardStep1);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType &
+                                  > ArgsType;
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v)
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType> & v)
     {
-      const Model::JointIndex & i = jmodel.id();
-      jmodel.calc(jdata.derived(),q,v);
+      typedef typename Model::JointIndex JointIndex;
       
-      const Model::Index & parent = model.parents[i];
+      const JointIndex & i = jmodel.id();
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
+      
+      const JointIndex & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i] * jdata.M();
       
       data.v[i] = jdata.v();
@@ -62,12 +67,103 @@ namespace se3
     
   };
   
-  struct AbaBackwardStep : public fusion::JointVisitor<AbaBackwardStep>
+  namespace internal
   {
-    typedef boost::fusion::vector<const Model &,
-    Data &> ArgsType;
     
-    JOINT_VISITOR_INIT(AbaBackwardStep);
+    template<typename Scalar>
+    struct SE3actOn
+    {
+      template<int Options, typename Matrix6Type>
+      static typename EIGEN_PLAIN_TYPE(Matrix6Type)
+      run(const SE3Tpl<Scalar,Options> & M,
+          const Eigen::MatrixBase<Matrix6Type> & I)
+      {
+        typedef SE3Tpl<Scalar,Options> SE3;
+        typedef typename SE3::Matrix3 Matrix3;
+        typedef typename SE3::Vector3 Vector3;
+        
+        typedef const Eigen::Block<Matrix6Type,3,3> constBlock3;
+        
+        typedef typename EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
+        typedef Eigen::Block<ReturnType,3,3> Block3;
+        
+        Matrix6Type & I_ = EIGEN_CONST_CAST(Matrix6Type,I);
+        const constBlock3 & Ai = I_.template block<3,3>(Inertia::LINEAR, Inertia::LINEAR);
+        const constBlock3 & Bi = I_.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
+        const constBlock3 & Di = I_.template block<3,3>(Inertia::ANGULAR, Inertia::ANGULAR);
+        
+        const Matrix3 & R = M.rotation();
+        const Vector3 & t = M.translation();
+        
+        ReturnType res;
+        Block3 Ao = res.template block<3,3>(Inertia::LINEAR, Inertia::LINEAR);
+        Block3 Bo = res.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
+        Block3 Co = res.template block<3,3>(Inertia::ANGULAR, Inertia::LINEAR);
+        Block3 Do = res.template block<3,3>(Inertia::ANGULAR, Inertia::ANGULAR);
+        
+        Do.noalias() = R*Ai; // tmp variable
+        Ao.noalias() = Do*R.transpose();
+        
+        Do.noalias() = R*Bi; // tmp variable
+        Bo.noalias() = Do*R.transpose();
+        
+        Co.noalias() = R*Di; // tmp variable
+        Do.noalias() = Co*R.transpose();
+        
+        Do.row(0) += t.cross(Bo.col(0));
+        Do.row(1) += t.cross(Bo.col(1));
+        Do.row(2) += t.cross(Bo.col(2));
+        
+        Co.col(0) = t.cross(Ao.col(0));
+        Co.col(1) = t.cross(Ao.col(1));
+        Co.col(2) = t.cross(Ao.col(2));
+        Co += Bo.transpose();
+        
+        Bo = Co.transpose();
+        Do.col(0) += t.cross(Bo.col(0));
+        Do.col(1) += t.cross(Bo.col(1));
+        Do.col(2) += t.cross(Bo.col(2));
+        
+        return res;
+      }
+    };
+    
+#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
+    /// \brief Partial specialization for CppAD::AGtypes
+    template<typename _Scalar>
+    struct SE3actOn< CppAD::AD<_Scalar> >
+    {
+      typedef CppAD::AD<_Scalar> Scalar;
+      
+      template<int Options, typename Matrix6Type>
+      static typename EIGEN_PLAIN_TYPE(Matrix6Type)
+      run(const SE3Tpl<Scalar,Options> & M,
+          const Eigen::MatrixBase<Matrix6Type> & I)
+      {
+        typedef SE3Tpl<Scalar,Options> SE3;
+        
+        typedef typename EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
+        
+        const SE3 Minv = M.inverse();
+        typename SE3::ActionMatrixType dual_action_matrix(M.toDualActionMatrix());
+        typename SE3::ActionMatrixType action_matrix(Minv.toActionMatrix());
+        ReturnType intermediate_result(dual_action_matrix*I);
+        ReturnType res = intermediate_result*action_matrix;
+        return res;
+      }
+    };
+#endif
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct AbaBackwardStep
+  : public fusion::JointVisitorBase< AbaBackwardStep<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &> ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
@@ -75,9 +171,13 @@ namespace se3
                      const Model & model,
                      Data & data)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::Index & parent  = model.parents[i];
-      Inertia::Matrix6 & Ia = data.Yaba[i];
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Inertia Inertia;
+      typedef typename Data::Force Force;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent  = model.parents[i];
+      typename Inertia::Matrix6 & Ia = data.Yaba[i];
       
       jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose()*data.f[i];
       jmodel.calc_aba(jdata.derived(), Ia, parent > 0);
@@ -86,199 +186,158 @@ namespace se3
       {
         Force & pa = data.f[i];
         pa.toVector() += Ia * data.a[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
-        data.Yaba[parent] += SE3actOn(data.liMi[i], Ia);
+        data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
-      
-      //      Data::Matrix6x & U = data.U_aba[i];
-      //      Eigen::MatrixXd & D_inv = data.D_inv_aba[i];
-      //
-      ////      const ConstraintXd::DenseBase S = ((ConstraintXd)jdata.S()).matrix();
-      //
-      //      U = data.Yaba[i] * ((ConstraintXd)jdata.S()).matrix();
-      ////      U = Data::Matrix6x::Zero(6, JointModelBase<JointModel>::NV);
-      //      D_inv = (jdata.S().transpose() * U.block(0,0,U.rows(), U.cols())).inverse();
-      ////      D_inv = Eigen::MatrixXd::Zero(JointModelBase<JointModel>::NV, JointModelBase<JointModel>::NV);
-      //      jmodel.jointVelocitySelector(data.tau) -= jdata.S().transpose()*data.f[i];
-      //      if(parent>0)
-      //      {
-      //        Inertia::Matrix6 & Ia = data.Yaba[i];
-      //        Force & pa = data.f[i];
-      //
-      //        Ia -= U * D_inv * U.transpose();
-      //
-      //        pa.toVector() += Ia * data.a[i].toVector() + U * D_inv * jmodel.jointVelocitySelector(data.tau);
-      ////        Inertia::Matrix6 tmp = data.liMi[i].inverse().toActionMatrix();
-      ////        data.Yaba[parent].triangularView<Eigen::Upper>() += tmp.transpose() * Ia.selfadjointView<Eigen::Upper>() * tmp;
-      //        data.Yaba[parent] += SE3actOn(data.liMi[i], Ia);
-      //        data.f[parent] += data.liMi[i].act(pa);
-      //      }
     }
     
-    inline static Inertia::Matrix6 SE3actOn(const SE3 & M, const Inertia::Matrix6 & I)
-    {
-      typedef Inertia::Matrix6 Matrix6;
-      typedef SE3::Matrix3 Matrix3;
-      typedef SE3::Vector3 Vector3;
-      typedef Eigen::Block<const Matrix6,3,3> constBlock3;
-      typedef Eigen::Block<Matrix6,3,3> Block3;
-      
-      const constBlock3 & Ai = I.block<3,3> (Inertia::LINEAR, Inertia::LINEAR);
-      const constBlock3 & Bi = I.block<3,3> (Inertia::LINEAR, Inertia::ANGULAR);
-      const constBlock3 & Di = I.block<3,3> (Inertia::ANGULAR, Inertia::ANGULAR);
-      
-      const Matrix3 & R = M.rotation();
-      const Vector3 & t = M.translation();
-      
-      Matrix6 res;
-      Block3 Ao = res.block<3,3> (Inertia::LINEAR, Inertia::LINEAR);
-      Block3 Bo = res.block<3,3> (Inertia::LINEAR, Inertia::ANGULAR);
-      Block3 Co = res.block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
-      Block3 Do = res.block<3,3> (Inertia::ANGULAR, Inertia::ANGULAR);
-      
-      Do.noalias() = R*Ai; // tmp variable
-      Ao.noalias() = Do*R.transpose();
-      
-      Do.noalias() = R*Bi; // tmp variable
-      Bo.noalias() = Do*R.transpose();
-      
-      Co.noalias() = R*Di; // tmp variable
-      Do.noalias() = Co*R.transpose();
-
-      Do.row(0) += t.cross(Bo.col(0));
-      Do.row(1) += t.cross(Bo.col(1));
-      Do.row(2) += t.cross(Bo.col(2));
-      
-      Co.col(0) = t.cross(Ao.col(0));
-      Co.col(1) = t.cross(Ao.col(1));
-      Co.col(2) = t.cross(Ao.col(2));
-      Co += Bo.transpose();
-      
-      Bo = Co.transpose();
-      Do.col(0) += t.cross(Bo.col(0));
-      Do.col(1) += t.cross(Bo.col(1));
-      Do.col(2) += t.cross(Bo.col(2));
-      return res;
-    }
   };
   
-  struct AbaForwardStep2 : public fusion::JointVisitor<AbaForwardStep2>
+  
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct AbaForwardStep2
+  : public fusion::JointVisitorBase< AbaForwardStep2<Scalar,Options,JointCollectionTpl> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-    se3::Data &
-    > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(AbaForwardStep2);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &> ArgsType;
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data)
+                     const Model & model,
+                     Data & data)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::Index & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
       
       data.a[i] += data.liMi[i].actInv(data.a[parent]);
       jmodel.jointVelocitySelector(data.ddq).noalias() =
       jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.a[i].toVector();
-      
       data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
     }
     
   };
   
-  inline const Eigen::VectorXd &
-  aba(const Model & model,
-      Data & data,
-      const Eigen::VectorXd & q,
-      const Eigen::VectorXd & v,
-      const Eigen::VectorXd & tau)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & tau)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
+    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
+    assert(tau.size() == model.nv && "The joint acceleration vector is not of right size");
+    
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
     data.v[0].setZero();
     data.a[0] = -model.gravity;
     data.u = tau;
     
-    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
+    typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      AbaForwardStep1::run(model.joints[i],data.joints[i],
-                           AbaForwardStep1::ArgsType(model,data,q,v));
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
     }
     
-    for( Model::Index i=(Model::Index)model.njoints-1;i>0;--i )
+    typedef AbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
     {
-      AbaBackwardStep::run(model.joints[i],data.joints[i],
-                           AbaBackwardStep::ArgsType(model,data));
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
     }
-    
-    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
+
+    typedef AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      AbaForwardStep2::run(model.joints[i],data.joints[i],
-                           AbaForwardStep2::ArgsType(model,data));
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data));
     }
     
     return data.ddq;
   }
 
-  inline const Eigen::VectorXd &
-  aba(const Model & model,
-      Data & data,
-      const Eigen::VectorXd & q,
-      const Eigen::VectorXd & v,
-      const Eigen::VectorXd & tau,
-      const container::aligned_vector<Force> & fext)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & tau,
+      const container::aligned_vector<ForceDerived> & fext)
 
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
+    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
+    assert(tau.size() == model.nv && "The joint acceleration vector is not of right size");
+    
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
     data.v[0].setZero();
     data.a[0] = -model.gravity;
     data.u = tau;
     
-    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
+    typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+    for(JointIndex i=1;i<(JointIndex)model.njoints;++i)
     {
-      AbaForwardStep1::run(model.joints[i],data.joints[i],
-                           AbaForwardStep1::ArgsType(model,data,q,v));
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
       data.f[i] -= fext[i];
     }
     
-    for( Model::Index i=(Model::Index)model.njoints-1;i>0;--i )
+    typedef AbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
     {
-      AbaBackwardStep::run(model.joints[i],data.joints[i],
-                           AbaBackwardStep::ArgsType(model,data));
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
     }
     
-    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
+    typedef AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      AbaForwardStep2::run(model.joints[i],data.joints[i],
-                           AbaForwardStep2::ArgsType(model,data));
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data));
     }
     
     return data.ddq;
   }
   
-  struct computeMinverseForwardStep1 : public fusion::JointVisitor<computeMinverseForwardStep1>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  struct ComputeMinverseForwardStep1
+  : public fusion::JointVisitorBase< ComputeMinverseForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-    se3::Data &,
-    const Eigen::VectorXd &
-    > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(computeMinverseForwardStep1);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &
+                                  > ArgsType;
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q)
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q)
     {
-      const Model::JointIndex & i = jmodel.id();
-      jmodel.calc(jdata.derived(),q);
+      typedef typename Model::JointIndex JointIndex;
       
-      const Model::Index & parent = model.parents[i];
+      const JointIndex & i = jmodel.id();
+      jmodel.calc(jdata.derived(),q.derived());
+      
+      const JointIndex & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i] * jdata.M();
       
       if (parent>0)
@@ -286,7 +345,7 @@ namespace se3
       else
         data.oMi[i] = data.liMi[i];
       
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
       J_cols = data.oMi[i].act(jdata.S());
       
@@ -295,12 +354,15 @@ namespace se3
     
   };
   
-  struct computeMinverseBackwardStep : public fusion::JointVisitor<computeMinverseBackwardStep>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct ComputeMinverseBackwardStep
+  : public fusion::JointVisitorBase< ComputeMinverseBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef boost::fusion::vector<const Model &,
-    Data &> ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(computeMinverseBackwardStep);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &> ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
@@ -308,16 +370,20 @@ namespace se3
                      const Model & model,
                      Data & data)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::Index & parent  = model.parents[i];
-      Inertia::Matrix6 & Ia = data.Yaba[i];
-      Data::RowMatrixXd & Minv = data.Minv;
-      Data::Matrix6x & Fcrb = data.Fcrb[0];
-      Data::Matrix6x & FcrbTmp = data.Fcrb.back();
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Inertia Inertia;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent  = model.parents[i];
+      
+      typename Inertia::Matrix6 & Ia = data.Yaba[i];
+      typename Data::RowMatrixXs & Minv = data.Minv;
+      typename Data::Matrix6x & Fcrb = data.Fcrb[0];
+      typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
 
       jmodel.calc_aba(jdata.derived(), Ia, parent > 0);
       
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
 
       ColsBlock U_cols = jmodel.jointCols(data.IS);
       forceSet::se3Action(data.oMi[i],jdata.U(),U_cols); // expressed in the world frame
@@ -347,30 +413,34 @@ namespace se3
       }
       
       if(parent > 0)
-        data.Yaba[parent] += AbaBackwardStep::SE3actOn(data.liMi[i], Ia);
+        data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
     }
   };
   
-  struct computeMinverseForwardStep2 : public fusion::JointVisitor<computeMinverseForwardStep2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct ComputeMinverseForwardStep2
+  : public fusion::JointVisitorBase< ComputeMinverseForwardStep2<Scalar,Options,JointCollectionTpl> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-    se3::Data &
-    > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(computeMinverseForwardStep2);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &> ArgsType;
     
     template<typename JointModel>
     static void algo(const se3::JointModelBase<JointModel> & jmodel,
                      se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data)
+                     const Model & model,
+                     Data & data)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::Index & parent = model.parents[i];
-      Data::RowMatrixXd & Minv = data.Minv;
-      Data::Matrix6x & FcrbTmp = data.Fcrb.back();
+      typedef typename Model::JointIndex JointIndex;
       
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      typename Data::RowMatrixXs & Minv = data.Minv;
+      typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock UDinv_cols = jmodel.jointCols(data.UDinv);
       forceSet::se3Action(data.oMi[i],jdata.UDinv(),UDinv_cols); // expressed in the world frame
       ColsBlock J_cols = jmodel.jointCols(data.J);
@@ -390,30 +460,37 @@ namespace se3
     
   };
 
-  inline const Data::RowMatrixXd &
-  computeMinverse(const Model & model,
-                  Data & data,
-                  const Eigen::VectorXd & q)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
+  computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
     
-    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    
+    typedef ComputeMinverseForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      computeMinverseForwardStep1::run(model.joints[i],data.joints[i],
-                                       computeMinverseForwardStep1::ArgsType(model,data,q));
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived()));
     }
     
     data.Fcrb[0].setZero();
-    for( Model::Index i=(Model::Index)model.njoints-1;i>0;--i )
+    typedef ComputeMinverseBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
-      computeMinverseBackwardStep::run(model.joints[i],data.joints[i],
-                                       computeMinverseBackwardStep::ArgsType(model,data));
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
     }
 
-    for(Model::Index i=1;i<(Model::Index)model.njoints;++i)
+    typedef ComputeMinverseForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      computeMinverseForwardStep2::run(model.joints[i],data.joints[i],
-                                       computeMinverseForwardStep2::ArgsType(model,data));
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data));
     }
     
     return data.Minv;
@@ -426,9 +503,13 @@ namespace se3
 
   // Check whether all masses are nonzero and diagonal of inertia is nonzero
   // The second test is overconstraining.
-  inline bool ABAChecker::checkModel_impl( const Model& model ) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool ABAChecker::checkModel_impl(const ModelTpl<Scalar,Options,JointCollectionTpl> & model) const
   {
-    for(JointIndex j=1;int(j)<model.njoints;j++)
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    for(JointIndex j=1;j<(JointIndex)model.njoints;j++)
       if(    (model.inertias[j].mass   ()           < 1e-5) 
           || (model.inertias[j].inertia().data()[0] < 1e-5)
           || (model.inertias[j].inertia().data()[3] < 1e-5)

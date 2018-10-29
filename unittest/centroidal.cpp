@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -196,6 +196,126 @@ BOOST_AUTO_TEST_CASE (test_dccrb)
     BOOST_CHECK(dAg.isApprox(dAg_ref,sqrt(alpha)));
     BOOST_CHECK(dAg.isApprox(dAg_ref_from_M,sqrt(alpha)));
   }
+  
+  // Compute tensor dAg/dq
+  {
+    std::vector<Data::Matrix6x> dAgdq((size_t)model.nv,Data::Matrix6x::Zero(6,model.nv));
+    Data data(model), data_fd(model);
+    Eigen::VectorXd v_fd(Eigen::VectorXd::Zero(model.nv));
+    ccrba(model,data_fd,q,v);
+    SE3 oMc_ref(SE3::Identity());
+    oMc_ref.translation() = data_fd.com[0];
+    
+    Data::Matrix6x Ag0 = oMc_ref.toDualActionMatrix() * data_fd.Ag;
+    const Force hg0 = oMc_ref.act(data_fd.hg);
+    
+    Data::Matrix6x Ag_fd(6,model.nv);
+    Force hg_fd;
+    const double alpha = 1e-8;
+    Eigen::VectorXd q_plus(model.nq);
+    Data::Matrix6x dhdq(6,model.nv);
+    for(int k = 0; k < model.nv; ++k)
+    {
+      v_fd[k] = alpha;
+      q_plus = integrate(model,q,v_fd);
+      ccrba(model,data_fd,q_plus,v);
+      SE3 oMc_fd(SE3::Identity());
+      oMc_fd.translation() = data_fd.com[0];
+      Ag_fd = oMc_fd.toDualActionMatrix() * data_fd.Ag;
+      hg_fd = oMc_fd.act(data_fd.hg);
+      dAgdq[(size_t)k] = (Ag_fd - Ag0)/alpha;
+      dhdq.col(k) = (hg_fd - hg0).toVector()/alpha;
+      v_fd[k] = 0.;
+    }
+    
+    Data::Matrix6x dAg_ref(6,model.nv); dAg_ref.setZero();
+    for(int k = 0; k < model.nv; ++k)
+    {
+      dAg_ref += dAgdq[(size_t)k] * v[k];
+    }
+    
+    Data::Matrix6x dAg_ref_bis(6,model.nv); dAg_ref_bis.setZero();
+    for(int k = 0; k < model.nv; ++k)
+    {
+      dAg_ref_bis.col(k) = dAgdq[(size_t)k] * v;
+    }
+    
+    dccrba(model, data, q, v);
+    SE3 oMc(SE3::Identity());
+    oMc.translation() = data.com[0];
+    Data::Matrix6x dAg = oMc.toDualActionMatrix() * data.dAg;
+    BOOST_CHECK(dAg.isApprox(dAg_ref,sqrt(alpha)));
+    BOOST_CHECK(dhdq.isApprox(dAg_ref_bis,sqrt(alpha)));
+    BOOST_CHECK((dAg*v).isApprox(dhdq*v,sqrt(alpha)));
+    
+  }
+}
+
+BOOST_AUTO_TEST_CASE (test_computeCentroidalDynamics)
+{
+  using namespace se3;
+  Model model;
+  buildModels::humanoidRandom(model);
+  addJointAndBody(model,JointModelSpherical(),"larm6_joint","larm7");
+  Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  
+  Eigen::VectorXd q = randomConfiguration(model,model.lowerPositionLimit,model.upperPositionLimit);
+  Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+  Eigen::VectorXd a = Eigen::VectorXd::Random(model.nv);
+  
+  ccrba(model,data_ref,q,v);
+  forwardKinematics(model,data_ref,q,v);
+  centerOfMass(model,data_ref,q,v,false);
+  computeCentroidalDynamics(model,data,q,v);
+  
+  BOOST_CHECK(data.mass[0] == data_ref.mass[0]);
+  BOOST_CHECK(data.com[0].isApprox(data_ref.com[0]));
+  BOOST_CHECK(data.hg.isApprox(data_ref.hg));
+  for(size_t k = 1; k < (size_t)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.mass[k] == data_ref.mass[k]);
+    BOOST_CHECK(data.com[k].isApprox(data_ref.com[k]));
+    BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
+  }
+  
+  computeCentroidalDynamics(model,data,q,v,a);
+  model.gravity.setZero();
+  rnea(model,data_ref,q,v,a);
+  dccrba(model,data_ref,q,v);
+  const Force hgdot(data_ref.Ag * a + data_ref.dAg * v);
+  
+  BOOST_CHECK(data.mass[0] == data_ref.mass[0]);
+  BOOST_CHECK(data.com[0].isApprox(data_ref.com[0]));
+  BOOST_CHECK(data.hg.isApprox(data_ref.hg));
+  BOOST_CHECK(data.dhg.isApprox(hgdot));
+  for(size_t k = 1; k < (size_t)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.mass[k] == data_ref.mass[k]);
+    BOOST_CHECK(data.com[k].isApprox(data_ref.com[k]));
+    BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
+    BOOST_CHECK(data.a[k].isApprox(data_ref.a_gf[k]));
+    BOOST_CHECK(data.f[k].isApprox(data_ref.f[k]));
+  }
+  
+  // Check against finite differences
+  Data data_fd(model);
+  const double eps = 1e-8;
+  Eigen::VectorXd v_plus = v + eps * a;
+  Eigen::VectorXd q_plus = integrate(model,q,eps*v);
+  
+  const Force hg = computeCentroidalDynamics(model,data_fd,q,v);
+  const SE3::Vector3 com = data_fd.com[0];
+  const Force hg_plus = computeCentroidalDynamics(model,data_fd,q_plus,v_plus);
+  const SE3::Vector3 com_plus = data_fd.com[0];
+  
+  SE3 transform(SE3::Identity());
+  transform.translation() = com_plus - com;
+  Force dhg_ref = (transform.act(hg_plus) - hg)/eps;
+
+  BOOST_CHECK(data.dhg.isApprox(dhg_ref,sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

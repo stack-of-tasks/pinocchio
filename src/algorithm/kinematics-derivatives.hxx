@@ -24,52 +24,59 @@
 namespace se3
 {
   
-  struct ForwardKinematicsDerivativesForwardStep : public fusion::JointVisitor<ForwardKinematicsDerivativesForwardStep>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  struct ForwardKinematicsDerivativesForwardStep
+  : public fusion::JointVisitorBase< ForwardKinematicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-    se3::Data &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &
-    > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(ForwardKinematicsDerivativesForwardStep);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType1 &,
+                                  const TangentVectorType2 &
+                                  > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v,
-                     const Eigen::VectorXd & a)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType1> & v,
+                     const Eigen::MatrixBase<TangentVectorType2> & a)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::SE3 SE3;
+      typedef typename Data::Motion Motion;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
       SE3 & oMi = data.oMi[i];
       Motion & vi = data.v[i];
       Motion & ai = data.a[i];
       Motion & ov = data.ov[i];
       Motion & oa = data.oa[i];
       
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      vi = jdata.v();
-
+      
       if(parent>0)
-      {
         oMi = data.oMi[parent]*data.liMi[i];
-        vi += data.liMi[i].actInv(data.v[parent]);
-      }
       else
         oMi = data.liMi[i];
+      
+      vi = jdata.v();
+      if(parent>0)
+        vi += data.liMi[i].actInv(data.v[parent]);
       
       ai = jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (vi ^ jdata.v());
       if(parent>0)
         ai += data.liMi[i].actInv(data.a[parent]);
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock dJcols = jmodel.jointCols(data.dJ);
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
@@ -81,65 +88,84 @@ namespace se3
     
   };
   
-  inline void
-  computeForwardKinematicsDerivatives(const Model & model, Data & data,
-                                      const Eigen::VectorXd & q,
-                                      const Eigen::VectorXd & v,
-                                      const Eigen::VectorXd & a)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline void computeForwardKinematicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                                                  const Eigen::MatrixBase<TangentVectorType1> & v,
+                                                  const Eigen::MatrixBase<TangentVectorType2> & a)
   {
     assert(q.size() == model.nq && "The configuration vector is not of right size");
     assert(v.size() == model.nv && "The velocity vector is not of right size");
     assert(a.size() == model.nv && "The acceleration vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
     
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
     data.v[0].setZero();
     data.a[0].setZero();
     
-    for(Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i)
+    typedef ForwardKinematicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      ForwardKinematicsDerivativesForwardStep::run(model.joints[i],data.joints[i],
-                                                   ForwardKinematicsDerivativesForwardStep::ArgsType(model,data,q,v,a));
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived(),a.derived()));
     }
   }
   
-  template<ReferenceFrame rf>
-  struct JointVelocityDerivativesBackwardStep : public fusion::JointModelVisitor< JointVelocityDerivativesBackwardStep<rf> >
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
+  struct JointVelocityDerivativesBackwardStep
+  : public fusion::JointVisitorBase< JointVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-    se3::Data &,
-    const SE3 &,
-    const Motion &,
-    Data::Matrix6x &,
-    Data::Matrix6x &
-    > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_MODEL_VISITOR_INIT(JointVelocityDerivativesBackwardStep);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const typename Model::JointIndex,
+                                  const ReferenceFrame,
+                                  Matrix6xOut1 &,
+                                  Matrix6xOut2 &
+                                  > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const SE3 & oMlast,
-                     const Motion & vlast,
-                     Data::Matrix6x & v_partial_dq,
-                     Data::Matrix6x & v_partial_dv)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     const Model & model,
+                     Data & data,
+                     const typename Model::JointIndex jointId,
+                     const ReferenceFrame rf,
+                     const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                     const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::SE3 SE3;
+      typedef typename Data::Motion Motion;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
       Motion & vtmp = data.ov[0]; // Temporary variable
+      
+      const SE3 & oMlast = data.oMi[jointId];
+      const Motion & vlast = data.ov[jointId];
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut1>::Type ColsBlockOut1;
+      Matrix6xOut1 & v_partial_dq_ = EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq);
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut2>::Type ColsBlockOut2;
+      Matrix6xOut2 & v_partial_dv_ = EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv);
+      
       // dvec/dv
-      ColsBlock v_partial_dv_cols = jmodel.jointCols(v_partial_dv);
+      ColsBlockOut2 v_partial_dv_cols = jmodel.jointCols(v_partial_dv_);
       if(rf == WORLD)
         v_partial_dv_cols = Jcols;
       else
         motionSet::se3ActionInverse(oMlast,Jcols,v_partial_dv_cols);
 
       // dvec/dq
-      ColsBlock v_partial_dq_cols = jmodel.jointCols(v_partial_dq);
+      ColsBlockOut1 v_partial_dq_cols = jmodel.jointCols(v_partial_dq_);
       if(rf == WORLD)
       {
         if(parent > 0)
@@ -162,60 +188,72 @@ namespace se3
     
   };
   
-  template<ReferenceFrame rf>
-  inline void getJointVelocityDerivatives(const Model & model,
-                                          Data & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
+  inline void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                           const Model::JointIndex jointId,
-                                          Data::Matrix6x & v_partial_dq,
-                                          Data::Matrix6x & v_partial_dv)
+                                          const ReferenceFrame rf,
+                                          const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                          const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
   {
-    assert( v_partial_dq.cols() ==  model.nv );
-    assert( v_partial_dv.cols() ==  model.nv );
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Data::Matrix6x);
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Data::Matrix6x);
+    
+    assert(v_partial_dq.cols() ==  model.nv);
+    assert(v_partial_dv.cols() ==  model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
-    const SE3 & oMlast = data.oMi[jointId];
-    const Motion & vlast = data.ov[jointId];
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
     
-    for(Model::JointIndex i = jointId; i > 0; i = model.parents[i])
+    typedef JointVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2> Pass1;
+    for(JointIndex i = jointId; i > 0; i = model.parents[i])
     {
-      JointVelocityDerivativesBackwardStep<rf>::run(model.joints[i],
-                                                    typename JointVelocityDerivativesBackwardStep<rf>::ArgsType(model,data,
-                                                                                                                oMlast,vlast,
-                                                                                                                v_partial_dq,
-                                                                                                                v_partial_dv));
+      Pass1::run(model.joints[i],
+                 typename Pass1::ArgsType(model,data,
+                                          jointId,rf,
+                                          EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
+                                          EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv)));
     }
   
     // Set back ov[0] to a zero value
     data.ov[0].setZero();
   }
   
-  template<ReferenceFrame rf>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
   struct JointAccelerationDerivativesBackwardStep
-  : public fusion::JointModelVisitor< JointAccelerationDerivativesBackwardStep<rf> >
+  : public fusion::JointVisitorBase< JointAccelerationDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2,Matrix6xOut3,Matrix6xOut4> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-    se3::Data &,
-    const Model::JointIndex,
-    Data::Matrix6x &,
-    Data::Matrix6x &,
-    Data::Matrix6x &,
-    Data::Matrix6x &
-    > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_MODEL_VISITOR_INIT(JointAccelerationDerivativesBackwardStep);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const typename Model::JointIndex,
+                                  const ReferenceFrame,
+                                  Matrix6xOut1 &,
+                                  Matrix6xOut2 &,
+                                  Matrix6xOut3 &,
+                                  Matrix6xOut4 &
+                                  > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Model::JointIndex jointId,
-                     Data::Matrix6x & v_partial_dq,
-                     Data::Matrix6x & a_partial_dq,
-                     Data::Matrix6x & a_partial_dv,
-                     Data::Matrix6x & a_partial_da)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     const Model & model,
+                     Data & data,
+                     const typename Model::JointIndex jointId,
+                     const ReferenceFrame rf,
+                     const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                     const Eigen::MatrixBase<Matrix6xOut2> & a_partial_dq,
+                     const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
+                     const Eigen::MatrixBase<Matrix6xOut4> & a_partial_da)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::SE3 SE3;
+      typedef typename Data::Motion Motion;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
       Motion & vtmp = data.ov[0]; // Temporary variable
       Motion & atmp = data.oa[0]; // Temporary variable
       
@@ -223,14 +261,23 @@ namespace se3
       const Motion & vlast = data.ov[jointId];
       const Motion & alast = data.oa[jointId];
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock dJcols = jmodel.jointCols(data.dJ);
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
-      ColsBlock v_partial_dq_cols = jmodel.jointCols(v_partial_dq);
-      ColsBlock a_partial_dq_cols = jmodel.jointCols(a_partial_dq);
-      ColsBlock a_partial_dv_cols = jmodel.jointCols(a_partial_dv);
-      ColsBlock a_partial_da_cols = jmodel.jointCols(a_partial_da);
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut1>::Type ColsBlockOut1;
+      Matrix6xOut1 & v_partial_dq_ = EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq);
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut2>::Type ColsBlockOut2;
+      Matrix6xOut2 & a_partial_dq_ = EIGEN_CONST_CAST(Matrix6xOut2,a_partial_dq);
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut3>::Type ColsBlockOut3;
+      Matrix6xOut3 & a_partial_dv_ = EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dv);
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut4>::Type ColsBlockOut4;
+      Matrix6xOut4 & a_partial_da_ = EIGEN_CONST_CAST(Matrix6xOut4,a_partial_da);
+      
+      ColsBlockOut1 v_partial_dq_cols = jmodel.jointCols(v_partial_dq_);
+      ColsBlockOut2 a_partial_dq_cols = jmodel.jointCols(a_partial_dq_);
+      ColsBlockOut3 a_partial_dv_cols = jmodel.jointCols(a_partial_dv_);
+      ColsBlockOut4 a_partial_da_cols = jmodel.jointCols(a_partial_da_);
       
       // dacc/da
       if(rf == WORLD)
@@ -297,30 +344,41 @@ namespace se3
     
   };
   
-  template<ReferenceFrame rf>
-  inline void getJointAccelerationDerivatives(const Model & model,
-                                              Data & data,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
+  inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                               const Model::JointIndex jointId,
-                                              Data::Matrix6x & v_partial_dq,
-                                              Data::Matrix6x & a_partial_dq,
-                                              Data::Matrix6x & a_partial_dv,
-                                              Data::Matrix6x & a_partial_da)
+                                              const ReferenceFrame rf,
+                                              const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                              const Eigen::MatrixBase<Matrix6xOut2> & a_partial_dq,
+                                              const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
+                                              const Eigen::MatrixBase<Matrix6xOut4> & a_partial_da)
   {
-    assert( v_partial_dq.cols() ==  model.nv );
-    assert( a_partial_dq.cols() ==  model.nv );
-    assert( a_partial_dv.cols() ==  model.nv );
-    assert( a_partial_da.cols() ==  model.nv );
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Data::Matrix6x);
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Data::Matrix6x);
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut3,Data::Matrix6x);
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut4,Data::Matrix6x);
+    
+    assert(v_partial_dq.cols() ==  model.nv);
+    assert(a_partial_dq.cols() ==  model.nv);
+    assert(a_partial_dv.cols() ==  model.nv);
+    assert(a_partial_da.cols() ==  model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
-    for(Model::JointIndex i = jointId; i > 0; i = model.parents[i])
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef JointAccelerationDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2,Matrix6xOut3,Matrix6xOut4> Pass1;
+    for(JointIndex i = jointId; i > 0; i = model.parents[i])
     {
-      JointAccelerationDerivativesBackwardStep<rf>::run(model.joints[i],
-                                                        typename JointAccelerationDerivativesBackwardStep<rf>::ArgsType(model,data,
-                                                                                                                        jointId,
-                                                                                                                        v_partial_dq,
-                                                                                                                        a_partial_dq,
-                                                                                                                        a_partial_dv,
-                                                                                                                        a_partial_da));
+      Pass1::run(model.joints[i],
+                 typename Pass1::ArgsType(model,data,
+                                          jointId,
+                                          rf,
+                                          EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
+                                          EIGEN_CONST_CAST(Matrix6xOut2,a_partial_dq),
+                                          EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dv),
+                                          EIGEN_CONST_CAST(Matrix6xOut4,a_partial_da)));
       
     }
     

@@ -29,10 +29,10 @@ namespace se3
     MOTION_TYPEDEF_TPL(Derived);
     
     Derived & derived() { return *static_cast<Derived*>(this); }
-    const Derived& derived() const { return *static_cast<const Derived*>(this); }
+    const Derived & derived() const { return *static_cast<const Derived*>(this); }
     
-    ConstAngularType angular() const  { return derived().angular_impl(); }
-    ConstLinearType linear() const  { return derived().linear_impl(); }
+    ConstAngularType angular() const { return derived().angular_impl(); }
+    ConstLinearType linear() const { return derived().linear_impl(); }
     AngularType angular() { return derived().angular_impl(); }
     LinearType linear() { return derived().linear_impl(); }
     
@@ -52,6 +52,8 @@ namespace se3
     ActionMatrixType toDualActionMatrix() const { return derived().toDualActionMatrix_impl(); }
     operator Matrix6() const { return toActionMatrix(); }
     
+    void setZero() { derived().setZero(); }
+    
     template<typename M2>
     bool operator==(const MotionBase<M2> & other) const
     { return derived().isEqual_impl(other.derived()); }
@@ -60,11 +62,11 @@ namespace se3
     bool operator!=(const MotionBase<M2> & other) const
     { return !(derived() == other.derived()); }
     
-    MotionPlain operator-() const { return derived().__opposite__(); }
-    MotionPlain operator+(const Derived & v) const { return derived().__plus__(v); }
-    MotionPlain operator-(const Derived & v) const { return derived().__minus__(v); }
-    Derived & operator+=(const Derived & v) { return derived().__pequ__(v); }
-    Derived & operator-=(const Derived & v) { return derived().__mequ__(v); }
+    Derived operator-() const { return derived().__opposite__(); }
+    Derived operator+(const MotionBase<Derived> & v) const { return derived().__plus__(v.derived()); }
+    Derived operator-(const MotionBase<Derived> & v) const { return derived().__minus__(v.derived()); }
+    Derived & operator+=(const MotionBase<Derived> & v) { return derived().__pequ__(v.derived()); }
+    Derived & operator-=(const MotionBase<Derived> & v) { return derived().__mequ__(v.derived()); }
     
     template<typename OtherScalar>
     MotionPlain operator*(const OtherScalar & alpha) const
@@ -84,14 +86,17 @@ namespace se3
     { return derived().isApprox_impl(other, prec);}
     
     template<typename S2, int O2>
-    MotionPlain se3Action(const SE3Tpl<S2,O2> & m) const
+    typename internal::SE3GroupAction<Derived>::ReturnType
+    se3Action(const SE3Tpl<S2,O2> & m) const
     { return derived().se3Action_impl(m); }
     
     template<typename S2, int O2>
-    MotionPlain se3ActionInverse(const SE3Tpl<S2,O2> & m) const
+    typename internal::SE3GroupAction<Derived>::ReturnType
+    se3ActionInverse(const SE3Tpl<S2,O2> & m) const
     { return derived().se3ActionInverse_impl(m); }
     
-    Scalar dot(const Force & f) const { return derived().dot(f); }
+    template<typename ForceDerived>
+    Scalar dot(const ForceDense<ForceDerived> & f) const { return derived().dot(f.derived()); }
     
     void disp(std::ostream & os) const { derived().disp_impl(os); }
     friend std::ostream & operator << (std::ostream & os, const MotionBase<Derived> & v)

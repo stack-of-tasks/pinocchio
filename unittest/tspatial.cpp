@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -35,27 +35,28 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_SE3 )
 {
   using namespace se3;
-  typedef Eigen::Matrix<double,4,4> Matrix4;
-  typedef SE3::Matrix6 Matrix6;
+  typedef SE3::HomogeneousMatrixType HomogeneousMatrixType;
+  typedef SE3::ActionMatrixType ActionMatrixType;
   typedef SE3::Vector3 Vector3;
+  typedef Eigen::Matrix<double,4,1> Vector4;
 
   SE3 amb = SE3::Random();
   SE3 bmc = SE3::Random();
   SE3 amc = amb*bmc;
 
-  Matrix4 aMb = amb;
-  Matrix4 bMc = bmc;
+  HomogeneousMatrixType aMb = amb;
+  HomogeneousMatrixType bMc = bmc;
 
   // Test internal product
-  Matrix4 aMc = amc;
+  HomogeneousMatrixType aMc = amc;
   BOOST_CHECK(aMc.isApprox(aMb*bMc, 1e-12));
 
-  Matrix4 bMa = amb.inverse();
+  HomogeneousMatrixType bMa = amb.inverse();
   BOOST_CHECK(bMa.isApprox(aMb.inverse(), 1e-12));
 
   // Test point action
   Vector3 p = Vector3::Random();
-  Eigen::Matrix<double,4,1> p4; p4.head(3) = p; p4[3] = 1;
+  Vector4 p4; p4.head(3) = p; p4[3] = 1;
 
   Vector3 Mp = (aMb*p4).head(3);
   BOOST_CHECK(amb.act(p).isApprox(Mp, 1e-12));
@@ -64,12 +65,12 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   BOOST_CHECK(amb.actInv(p).isApprox(Mip, 1e-12));
 
   // Test action matrix
-  Matrix6 aXb = amb;
-  Matrix6 bXc = bmc;
-  Matrix6 aXc = amc;
+  ActionMatrixType aXb = amb;
+  ActionMatrixType bXc = bmc;
+  ActionMatrixType aXc = amc;
   BOOST_CHECK(aXc.isApprox(aXb*bXc, 1e-12));
   
-  Matrix6 bXa = amb.inverse();
+  ActionMatrixType bXa = amb.inverse();
   BOOST_CHECK(bXa.isApprox(aXb.inverse(), 1e-12));
   
   // Test dual action matrix
@@ -81,12 +82,18 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   
   // Test isApprox
   BOOST_CHECK(identity.isApprox(identity));
+  
+  // Test cast
+  typedef SE3Tpl<float> SE3f;
+  SE3f::Matrix3 rot_float(amb.rotation().cast<float>());
+  SE3f amb_float = amb.cast<float>();
+  BOOST_CHECK(amb_float.isApprox(amb.cast<float>()));
 }
 
 BOOST_AUTO_TEST_CASE ( test_Motion )
 {
   using namespace se3;
-  typedef SE3::Matrix6 Matrix6;
+  typedef SE3::ActionMatrixType ActionMatrixType;
   typedef Motion::Vector6 Vector6;
 
   SE3 amb = SE3::Random();
@@ -124,11 +131,11 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   BOOST_CHECK( bv4.toVector().isApprox(bv2_vec, 1e-12));
 
   // Test action
-  Matrix6 aXb = amb;
+  ActionMatrixType aXb = amb;
   BOOST_CHECK(amb.act(bv).toVector().isApprox(aXb*bv_vec, 1e-12));
 
   // Test action inverse
-  Matrix6 bXc = bmc;
+  ActionMatrixType bXc = bmc;
   BOOST_CHECK(bmc.actInv(bv).toVector().isApprox(bXc.inverse()*bv_vec, 1e-12));
 
   // Test double action
@@ -193,6 +200,14 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
     const Motion b(a);
     BOOST_CHECK(b.isApprox(a.ref()));
   }
+  
+  // Test cast
+  {
+    typedef MotionTpl<float> Motionf;
+    Motion a(Motion::Random());
+    Motionf a_float = a.cast<float>();
+    BOOST_CHECK(a_float.isApprox(a.cast<float>()));
+  }
 }
 
 BOOST_AUTO_TEST_CASE (test_motion_ref)
@@ -255,16 +270,25 @@ BOOST_AUTO_TEST_CASE (test_motion_ref)
 BOOST_AUTO_TEST_CASE(test_motion_zero)
 {
   using namespace se3;
-  Motion v = BiasZero();
+  Motion v((BiasZero()));
   
   BOOST_CHECK(v.toVector().isZero());
   BOOST_CHECK(BiasZero() == Motion::Zero());
+  
+  // SE3.act
+  SE3 m(SE3::Random());
+  BOOST_CHECK(m.act(BiasZero()) == Motion::Zero());
+  BOOST_CHECK(m.actInv(BiasZero()) == Motion::Zero());
+  
+  // Motion.cross
+  Motion v2(Motion::Random());
+  BOOST_CHECK(v2.cross(BiasZero()) == Motion::Zero());
 }
 
 BOOST_AUTO_TEST_CASE ( test_Force )
 {
   using namespace se3;
-  typedef SE3::Matrix6 Matrix6;
+  typedef SE3::ActionMatrixType ActionMatrixType;
   typedef Force::Vector6 Vector6;
 
   SE3 amb = SE3::Random();
@@ -299,11 +323,11 @@ BOOST_AUTO_TEST_CASE ( test_Force )
 
 
   // Test action
-  Matrix6 aXb = amb;
+  ActionMatrixType aXb = amb;
   BOOST_CHECK(amb.act(bf).toVector().isApprox(aXb.inverse().transpose()*bf_vec, 1e-12));
 
   // Test action inverse
-  Matrix6 bXc = bmc;
+  ActionMatrixType bXc = bmc;
   BOOST_CHECK(bmc.actInv(bf).toVector().isApprox(bXc.transpose()*bf_vec, 1e-12));
 
   // Test double action
@@ -330,6 +354,14 @@ BOOST_AUTO_TEST_CASE ( test_Force )
     
     const Force b(a);
     BOOST_CHECK(b.isApprox(a.ref()));
+  }
+  
+  // Test cast
+  {
+    typedef ForceTpl<float> Forcef;
+    Force a(Force::Random());
+    Forcef a_float = a.cast<float>();
+    BOOST_CHECK(a_float.isApprox(a.cast<float>()));
   }
 }
 
@@ -539,6 +571,15 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   
 }
 
+BOOST_AUTO_TEST_CASE(cast_inertia)
+{
+  using namespace se3;
+  Inertia Y(Inertia::Random());
+  
+  BOOST_CHECK(Y.cast<double>() == Y);
+  BOOST_CHECK(Y.cast<long double>().cast<double>() == Y);
+}
+
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )
 {
   using namespace se3;
@@ -697,7 +738,7 @@ BOOST_AUTO_TEST_CASE(test_skew)
 {
   using namespace se3;
   typedef SE3::Vector3 Vector3;
-  typedef SE3::Vector6 Vector6;
+  typedef Motion::Vector6 Vector6;
   
   Vector3 v3(Vector3::Random());
   Vector6 v6(Vector6::Random());
@@ -717,6 +758,29 @@ BOOST_AUTO_TEST_CASE(test_skew)
   
   BOOST_CHECK(res41.isApprox(res42));
   
+}
+
+BOOST_AUTO_TEST_CASE(test_addSkew)
+{
+  using namespace se3;
+  typedef SE3::Vector3 Vector3;
+  typedef SE3::Matrix3 Matrix3;
+  
+  Vector3 v(Vector3::Random());
+  Matrix3 M(Matrix3::Random());
+  Matrix3 Mcopy(M);
+  
+  addSkew(v,M);
+  Matrix3 Mref = Mcopy + skew(v);
+  BOOST_CHECK(M.isApprox(Mref));
+  
+  Mref += skew(-v);
+  addSkew(-v,M);
+  BOOST_CHECK(M.isApprox(Mcopy));
+  
+  M.setZero();
+  addSkew(v,M);
+  BOOST_CHECK(M.isApprox(skew(v)));
 }
 
 BOOST_AUTO_TEST_CASE(test_skew_square)
@@ -771,10 +835,15 @@ BOOST_AUTO_TEST_CASE(test_cartesian_axis)
   using namespace Eigen;
   using namespace se3;
   Vector3d v(Vector3d::Random());
+  const double alpha = 3;
+  Vector3d v2(alpha*v);
   
   BOOST_CHECK(AxisX::cross(v).isApprox(Vector3d::Unit(0).cross(v)));
   BOOST_CHECK(AxisY::cross(v).isApprox(Vector3d::Unit(1).cross(v)));
   BOOST_CHECK(AxisZ::cross(v).isApprox(Vector3d::Unit(2).cross(v)));
+  BOOST_CHECK(AxisX::alphaCross(alpha,v).isApprox(Vector3d::Unit(0).cross(v2)));
+  BOOST_CHECK(AxisY::alphaCross(alpha,v).isApprox(Vector3d::Unit(1).cross(v2)));
+  BOOST_CHECK(AxisZ::alphaCross(alpha,v).isApprox(Vector3d::Unit(2).cross(v2)));
   
   test_scalar_multiplication_cartesian_axis<0>::run();
   test_scalar_multiplication_cartesian_axis<1>::run();
@@ -859,12 +928,12 @@ BOOST_AUTO_TEST_CASE(test_spatial_axis)
   test_scalar_multiplication<5>::run();
   
   // Operations of Constraint on forces Sxf
-  typedef SE3::Matrix6 Matrix6;
-  typedef Matrix6::ColXpr ColType;
+  typedef Motion::ActionMatrixType ActionMatrixType;
+  typedef ActionMatrixType::ColXpr ColType;
   typedef ForceRef<ColType> ForceRefOnColType;
   typedef MotionRef<ColType> MotionRefOnColType;
-  Matrix6 Sxf,Sxf_ref;
-  Matrix6 S(Matrix6::Identity());
+  ActionMatrixType Sxf,Sxf_ref;
+  ActionMatrixType S(ActionMatrixType::Identity());
   
   SpatialAxis<0>::cross(f,ForceRefOnColType(Sxf.col(0)));
   SpatialAxis<1>::cross(f,ForceRefOnColType(Sxf.col(1)));

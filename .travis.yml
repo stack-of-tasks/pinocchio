@@ -3,6 +3,8 @@ python:
   - "2.7"
 sudo: required
 dist: trusty
+git:
+  depth: false
 compiler:
   - gcc
 # - clang

@@ -48,6 +48,7 @@ namespace se3
     using Base::angular;
     using Base::derived;
     using Base::isApprox;
+    using Base::operator=;
     
     Derived & setZero() { linear().setZero(); angular().setZero(); return derived(); }
     Derived & setRandom() { linear().setRandom(); angular().setRandom(); return derived(); }
@@ -62,7 +63,7 @@ namespace se3
     
     // Arithmetic operators
     template<typename D2>
-    Derived & operator=(const ForceDense<D2> & other)
+    Derived & __equl__(const ForceDense<D2> & other)
     {
       linear() = other.linear();
       angular() = other.angular();
@@ -78,17 +79,23 @@ namespace se3
       return derived();
     }
     
-    ForcePlain operator-() const { return derived().__opposite__(); }
-    template<typename M1>
-    ForcePlain operator+(const ForceDense<M1> & v) const { return derived().__plus__(v.derived()); }
-    template<typename M1>
-    ForcePlain operator-(const ForceDense<M1> & v) const { return derived().__minus__(v.derived()); }
+    template<typename D2>
+    Derived & operator=(const ForceDense<D2> & other)
+    {
+      return derived().__equl__(other.derived());
+    }
     
-    template<typename M1>
-    Derived & operator+=(const ForceDense<M1> & v) { return derived().__pequ__(v.derived()); }
-    template<typename M1>
-    Derived & operator+=(const ForceBase<M1> & v)
-    { v.derived().addTo(derived()); return derived(); }
+    ForcePlain operator-() const { return derived().__opposite__(); }
+    template<typename F1>
+    ForcePlain operator+(const ForceDense<F1> & f) const { return derived().__plus__(f.derived()); }
+    template<typename F1>
+    ForcePlain operator-(const ForceDense<F1> & f) const { return derived().__minus__(f.derived()); }
+    
+    template<typename F1>
+    Derived & operator+=(const ForceDense<F1> & f) { return derived().__pequ__(f.derived()); }
+    template<typename F1>
+    Derived & operator+=(const ForceBase<F1> & f)
+    { f.derived().addTo(derived()); return derived(); }
     
     template<typename M1>
     Derived & operator-=(const ForceDense<M1> & v) { return derived().__mequ__(v.derived()); }
@@ -126,8 +133,8 @@ namespace se3
     template<typename M1, typename M2>
     void motionAction(const MotionDense<M1> & v, ForceDense<M2> & fout) const
     {
-      fout.linear() = v.angular().cross(linear());
-      fout.angular() = v.angular().cross(angular())+v.linear().cross(linear());
+      fout.linear().noalias() = v.angular().cross(linear());
+      fout.angular().noalias() = v.angular().cross(angular())+v.linear().cross(linear());
     }
     
     template<typename M1>
@@ -151,8 +158,9 @@ namespace se3
     template<typename S2, int O2, typename D2>
     void se3Action_impl(const SE3Tpl<S2,O2> & m, ForceDense<D2> & f) const
     {
-      f.linear() = m.rotation()*linear();
-      f.angular() = m.rotation()*angular() + m.translation().cross(f.linear());
+      f.linear().noalias() = m.rotation()*linear();
+      f.angular().noalias() = m.rotation()*angular();
+      f.angular() += m.translation().cross(f.linear());
     }
     
     template<typename S2, int O2>
@@ -166,9 +174,8 @@ namespace se3
     template<typename S2, int O2, typename D2>
     void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, ForceDense<D2> & f) const
     {
-      f.linear() = angular()-m.translation().cross(linear());
-      f.angular() = m.rotation().transpose()*(f.linear());
-      f.linear() = m.rotation().transpose()*linear();
+      f.linear().noalias() = m.rotation().transpose()*linear();
+      f.angular().noalias() = m.rotation().transpose()*(angular()-m.translation().cross(linear()));
     }
     
     template<typename S2, int O2>
@@ -186,7 +193,7 @@ namespace se3
       << "tau = " << angular().transpose () << std::endl;
     }
     
-    /// \returns a MotionRef on this.
+    /// \returns a ForceRef on this.
     ForceRefType ref() { return derived().ref(); }
     
   }; // class ForceDense
@@ -194,7 +201,7 @@ namespace se3
   /// Basic operations specialization
   template<typename F1>
   typename traits<F1>::ForcePlain operator*(const typename traits<F1>::Scalar alpha,
-                                             const ForceDense<F1> & f)
+                                            const ForceDense<F1> & f)
   { return f.derived()*alpha; }
   
 } // namespace se3

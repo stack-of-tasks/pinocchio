@@ -76,7 +76,7 @@ namespace se3
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,ddq,"Joint accelerations (output of ABA)")
         .ADD_DATA_PROPERTY(container::aligned_vector<Inertia>,Ycrb,"Inertia of the sub-tree composit rigid body")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,M,"The joint space inertia matrix")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Data::RowMatrixXd,Minv,"The inverse of the joint space inertia matrix")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Data::RowMatrixXs,Minv,"The inverse of the joint space inertia matrix")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,C,"The Coriolis C(q,v) matrix such that the Coriolis effects are given by c(q,v) = C(q,v)v")
         .ADD_DATA_PROPERTY(container::aligned_vector<Matrix6x>,Fcrb,"Spatial forces set, used in CRBA")
         .ADD_DATA_PROPERTY(std::vector<int>,lastChild,"Index of the last child (for CRBA)")
@@ -134,7 +134,7 @@ namespace se3
         bp::class_< std::vector<int> >("StdVec_int")
         .def(bp::vector_indexing_suite< std::vector<int> >());
         
-        eigenpy::enableEigenPySpecific<Data::RowMatrixXd>();
+        eigenpy::enableEigenPySpecific<Data::RowMatrixXs>();
       }
 
     };
