@@ -50,6 +50,21 @@ namespace se3 {
   }
 
   template <class Derived>
+  template <DerivativeWrtArgument arg, class Config_t, class Tangent_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
+                  const Eigen::MatrixBase<Tangent_t>  & v,
+                  const Eigen::MatrixBase<JacobianOut_t>& J) const
+  {
+    switch (arg) {
+      case darg0:
+        dIntegrate_dq(q,v,J); return;
+      case darg1:
+        dIntegrate_dv(q,v,J); return;
+      default: return;
+    }
+  }
+
+  template <class Derived>
   template <class Config_t, class Tangent_t, class JacobianOut_t>
   void LieGroupBase<Derived>::dIntegrate_dq(
       const Eigen::MatrixBase<Config_t >  & q,

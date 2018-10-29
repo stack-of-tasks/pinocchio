@@ -93,6 +93,21 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void integrateCoeffWiseJacobian(const Eigen::MatrixBase<Config_t >  & q,
                                     const Eigen::MatrixBase<Jacobian_t> & J) const;
 
+    /**
+     * @brief      Computes the Jacobian of a small variation of the configuration vector into tangent space at identity.
+     *
+     * @details    This Jacobian corresponds to the Jacobian of \f$ (\bm{q} \oplus \delta \bm{q}) \oplus \bm{v} \f$ with
+     *             \f$ \delta \bm{q} \rightarrow 0 \f$.
+     *
+     * @param[in]  q    configuration vector.
+     * @param[in]  v    tangent vector.
+     *
+     * @param[out] J    the Jacobian of the Integrate operation w.r.t. the argument arg.
+     */
+    template <DerivativeWrtArgument arg, class Config_t, class Tangent_t, class JacobianOut_t>
+    void dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
+                    const Eigen::MatrixBase<Tangent_t>  & v,
+                    const Eigen::MatrixBase<JacobianOut_t>& J) const;
 
     /**
      * @brief      Computes the Jacobian of a small variation of the configuration vector into tangent space at identity.
