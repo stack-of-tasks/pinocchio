@@ -50,16 +50,16 @@ namespace se3 {
   }
 
   template <class Derived>
-  template <DerivativeWrtArgument arg, class Config_t, class Tangent_t, class JacobianOut_t>
+  template <ArgumentPosition arg, class Config_t, class Tangent_t, class JacobianOut_t>
   void LieGroupBase<Derived>::dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
                   const Eigen::MatrixBase<Tangent_t>  & v,
                   const Eigen::MatrixBase<JacobianOut_t>& J) const
   {
-    PINOCCHIO_STATIC_ASSERT(arg==darg0||arg==darg1, arg_SHOULD_BE_qarg0_OR_qarg1);
+    PINOCCHIO_STATIC_ASSERT(arg==ARG0||arg==ARG1, arg_SHOULD_BE_ARG0_OR_ARG1);
     switch (arg) {
-      case darg0:
+      case ARG0:
         dIntegrate_dq(q,v,J); return;
-      case darg1:
+      case ARG1:
         dIntegrate_dv(q,v,J); return;
       default: return;
     }
@@ -174,12 +174,12 @@ namespace se3 {
       const Eigen::MatrixBase<JacobianLOut_t>& J0,
       const Eigen::MatrixBase<JacobianROut_t>& J1) const
   {
-    derived().template dDifference<darg0> (q0, q1, J0);
-    derived().template dDifference<darg1> (q0, q1, J1);
+    derived().template dDifference<ARG0> (q0, q1, J0);
+    derived().template dDifference<ARG1> (q0, q1, J1);
   }
 
   template <class Derived>
-  template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+  template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
   void LieGroupBase<Derived>::dDifference(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
@@ -188,7 +188,7 @@ namespace se3 {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianOut_t, JacobianMatrix_t);
-    PINOCCHIO_STATIC_ASSERT(arg==darg0||arg==darg1, arg_SHOULD_BE_qarg0_OR_qarg1);
+    PINOCCHIO_STATIC_ASSERT(arg==ARG0||arg==ARG1, arg_SHOULD_BE_ARG0_OR_ARG1);
     derived().template dDifference_impl<arg> (q0, q1, J);
   }
 

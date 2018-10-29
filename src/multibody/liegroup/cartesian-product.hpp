@@ -99,7 +99,7 @@ namespace se3
       lg2_.difference(Q2(q0), Q2(q1), Vo2(d));
     }
 
-    template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference (const Eigen::MatrixBase<ConfigL_t> & q0,
                       const Eigen::MatrixBase<ConfigR_t> & q1,
                       const Eigen::MatrixBase<JacobianOut_t>& J) const

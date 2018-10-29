@@ -138,7 +138,7 @@ namespace se3
       EIGEN_CONST_CAST(Tangent_t,d)[0] = log(R);
     }
 
-    template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> & q0,
                            const Eigen::MatrixBase<ConfigR_t> & q1,
                            const Eigen::MatrixBase<JacobianOut_t>& J) const
@@ -149,7 +149,7 @@ namespace se3
       R(0,1) = - R(1,0);
 
       Scalar w (Jlog(R));
-      EIGEN_CONST_CAST(JacobianOut_t,J).coeffRef(0,0) = ((arg==darg0) ? -w : w);
+      EIGEN_CONST_CAST(JacobianOut_t,J).coeffRef(0,0) = ((arg==ARG0) ? -w : w);
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -313,7 +313,7 @@ namespace se3
         = log3((p0.matrix().transpose() * p1.matrix()).eval());
     }
 
-    template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> & q0,
                            const Eigen::MatrixBase<ConfigR_t> & q1,
                            const Eigen::MatrixBase<JacobianOut_t>& J) const
@@ -322,12 +322,12 @@ namespace se3
       ConstQuaternionMap_t p1 (q1.derived().data());
       Eigen::Matrix<Scalar, 3, 3> R = p0.matrix().transpose() * p1.matrix();
 
-      if (arg == darg0) {
+      if (arg == ARG0) {
         JacobianMatrix_t J1;
         Jlog3 (R, J1);
 
         EIGEN_CONST_CAST(JacobianOut_t,J).noalias() = - J1 * R.transpose();
-      } else if (arg == darg1) {
+      } else if (arg == ARG1) {
         Jlog3 (R, J);
       }
     }

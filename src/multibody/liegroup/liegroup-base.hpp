@@ -101,10 +101,11 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector.
+     * @tparam[in] arg  ARG0 (resp. ARG1) to get the Jacobian with respect to q (resp. v).
      *
      * @param[out] J    the Jacobian of the Integrate operation w.r.t. the argument arg.
      */
-    template <DerivativeWrtArgument arg, class Config_t, class Tangent_t, class JacobianOut_t>
+    template <ArgumentPosition arg, class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
                     const Eigen::MatrixBase<Tangent_t>  & v,
                     const Eigen::MatrixBase<JacobianOut_t>& J) const;
@@ -216,11 +217,11 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]  q0    the initial configuration vector.
      * @param[in]  q1    the terminal configuration vector.
-     * @tparam[in] arg   darg0 (resp. darg1) to get the Jacobian with respect to q0 (resp. q1).
+     * @tparam[in] arg   ARG0 (resp. ARG1) to get the Jacobian with respect to q0 (resp. q1).
      *
      * @param[out] J     the Jacobian of the difference operation.
      */
-    template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
                      const Eigen::MatrixBase<ConfigR_t> & q1,
                      const Eigen::MatrixBase<JacobianOut_t>& J) const;

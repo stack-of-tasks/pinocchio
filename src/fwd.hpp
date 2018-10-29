@@ -43,6 +43,17 @@ namespace se3
   ///        This class should be specialized for each types.
   ///
   template<typename NewScalar, class C> struct CastType;
+
+  /// \brief Argument position.
+  ///        Used as template parameter to refer to an argument.
+  enum ArgumentPosition
+  {
+    ARG0 = 0,
+    ARG1 = 1,
+    ARG2 = 2,
+    ARG3 = 3,
+    ARG4 = 4
+  };
 }
 
 #endif // #ifndef __se3_fwd_hpp__

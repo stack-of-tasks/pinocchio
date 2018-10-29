@@ -230,7 +230,7 @@ namespace se3
       log(R, t, d);
     }
 
-    template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> & q0,
                            const Eigen::MatrixBase<ConfigR_t> & q1,
                            const Eigen::MatrixBase<JacobianOut_t>& J) const
@@ -241,7 +241,7 @@ namespace se3
       Matrix2 R (R0.transpose() * R1);
       Vector2 t (R0.transpose() * (t1 - t0));
 
-      if (arg == darg0) {
+      if (arg == ARG0) {
         JacobianMatrix_t J1;
         Jlog (R, t, J1);
 
@@ -254,7 +254,7 @@ namespace se3
         J0.template bottomLeftCorner <1,2> ().setZero();
         J0 (2,2) = -1;
         J0.applyOnTheLeft(J1);
-      } else if (arg == darg1) {
+      } else if (arg == ARG1) {
         Jlog (R, t, J);
       }
     }
@@ -446,7 +446,7 @@ namespace se3
                * SE3(p1.matrix(), q1.derived().template head<3>())).toVector();
     }
 
-    template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> & q0,
                            const Eigen::MatrixBase<ConfigR_t> & q1,
                            const Eigen::MatrixBase<JacobianOut_t>& J) const
@@ -458,7 +458,7 @@ namespace se3
       SE3 M (  SE3(R0, q0.derived().template head<3>()).inverse()
              * SE3(R1, q1.derived().template head<3>()));
 
-      if (arg == darg0) {
+      if (arg == ARG0) {
         JacobianMatrix_t J1;
         Jlog6 (M, J1);
 
@@ -471,7 +471,7 @@ namespace se3
         J0.template bottomLeftCorner <3,3> ().setZero();
         J0.template bottomRightCorner<3,3> ().noalias() = - M.rotation().transpose();
         J0.applyOnTheLeft(J1);
-      } else if (arg == darg1) {
+      } else if (arg == ARG1) {
         Jlog6 (M, J);
       }
     }

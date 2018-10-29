@@ -197,8 +197,8 @@ struct LieGroup_Jdifference{
     dv.setZero();
 
     lg.difference (q[0], q[1], va);
-    lg.template dDifference<darg0> (q[0], q[1], J[0]);
-    lg.template dDifference<darg1> (q[0], q[1], J[1]);
+    lg.template dDifference<ARG0> (q[0], q[1], J[0]);
+    lg.template dDifference<ARG1> (q[0], q[1], J[1]);
 
     const Scalar eps = 1e-6;
     for (int k = 0; k < 2; ++k) {
