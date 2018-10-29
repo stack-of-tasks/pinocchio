@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 
   computeJointJacobians(model,data,q);
   updateFramePlacement(model, data, idx);
-  getFrameJacobian(model, data,     idx,        LOCAL, Jff);
+  getFrameJacobian(model,     data,        idx, LOCAL, Jff);
   computeJointJacobians(model,data_ref,q);
   getJointJacobian(model, data_ref, parent_idx, LOCAL, Jjj);
 
