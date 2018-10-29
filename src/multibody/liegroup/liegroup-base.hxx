@@ -55,6 +55,7 @@ namespace se3 {
                   const Eigen::MatrixBase<Tangent_t>  & v,
                   const Eigen::MatrixBase<JacobianOut_t>& J) const
   {
+    PINOCCHIO_STATIC_ASSERT(arg==darg0||arg==darg1, arg_SHOULD_BE_qarg0_OR_qarg1);
     switch (arg) {
       case darg0:
         dIntegrate_dq(q,v,J); return;
@@ -187,8 +188,7 @@ namespace se3 {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianOut_t, JacobianMatrix_t);
-    int CHECK_THAT_iVar_IS_ZERO_OR_ONE[(iVar==0||iVar==1) ? 1 : -1];
-    (void) CHECK_THAT_iVar_IS_ZERO_OR_ONE;
+    PINOCCHIO_STATIC_ASSERT(arg==darg0||arg==darg1, arg_SHOULD_BE_qarg0_OR_qarg1);
     derived().template dDifference_impl<arg> (q0, q1, J);
   }
 

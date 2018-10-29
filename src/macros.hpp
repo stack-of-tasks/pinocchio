@@ -50,6 +50,12 @@ namespace se3
                       THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);    \
   assert(M.rows()==nrows && M.cols()==ncols);
 
+/// Static assertion.
+/// \param condition a boolean convertible expression
+/// \param msg a valid C++ variable name.
+#define PINOCCHIO_STATIC_ASSERT(condition,msg)                                 \
+  { int msg[(condition) ? 1 : -1]; /*avoid unused-variable warning*/ (void) msg; }
+
 namespace se3
 {
   namespace helper
