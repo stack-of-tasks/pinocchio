@@ -158,13 +158,13 @@ namespace se3 {
       const Eigen::MatrixBase<JacobianLOut_t>& J0,
       const Eigen::MatrixBase<JacobianROut_t>& J1) const
   {
-    derived().template dDifference_dq<0> (q0, q1, J0);
-    derived().template dDifference_dq<1> (q0, q1, J1);
+    derived().template dDifference<darg0> (q0, q1, J0);
+    derived().template dDifference<darg1> (q0, q1, J1);
   }
 
   template <class Derived>
-  template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
-  void LieGroupBase<Derived>::dDifference_dq(
+  template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dDifference(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
       const Eigen::MatrixBase<JacobianOut_t>& J) const
@@ -174,7 +174,7 @@ namespace se3 {
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianOut_t, JacobianMatrix_t);
     int CHECK_THAT_iVar_IS_ZERO_OR_ONE[(iVar==0||iVar==1) ? 1 : -1];
     (void) CHECK_THAT_iVar_IS_ZERO_OR_ONE;
-    derived().template dDifference_dqimpl<iVar> (q0, q1, J);
+    derived().template dDifference_impl<arg> (q0, q1, J);
   }
 
   template <class Derived>

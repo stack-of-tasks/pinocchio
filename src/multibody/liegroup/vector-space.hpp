@@ -90,14 +90,14 @@ namespace se3
       EIGEN_CONST_CAST(Tangent_t,d) = q1 - q0;
     }
 
-    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
-    void dDifference_dqimpl (const Eigen::MatrixBase<ConfigL_t> &,
-                             const Eigen::MatrixBase<ConfigR_t> &,
-                             const Eigen::MatrixBase<JacobianOut_t>& J) const
+    template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> &,
+                           const Eigen::MatrixBase<ConfigR_t> &,
+                           const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
-      if (iVar == 0)
+      if (arg == darg0)
         EIGEN_CONST_CAST(JacobianOut_t,J).noalias() = - JacobianMatrix_t::Identity();
-      else if (iVar == 1)
+      else if (arg == darg1)
         EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
 

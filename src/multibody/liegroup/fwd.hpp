@@ -23,6 +23,15 @@
 namespace se3
 {
   template<typename LieGroupCollection> struct LieGroupGenericTpl;
+
+  enum DerivativeWrtArgument
+  {
+    darg0 = 0,
+    darg1 = 1,
+    darg2 = 2,
+    darg3 = 3,
+    darg4 = 4
+  };
 }
 
 #endif // ifndef __se3_lie_group_fwd_hpp__

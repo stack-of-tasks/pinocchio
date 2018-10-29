@@ -99,16 +99,16 @@ namespace se3
       lg2_.difference(Q2(q0), Q2(q1), Vo2(d));
     }
 
-    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
-    void dDifference_dqimpl (const Eigen::MatrixBase<ConfigL_t> & q0,
-                             const Eigen::MatrixBase<ConfigR_t> & q1,
-                             const Eigen::MatrixBase<JacobianOut_t>& J) const
+    template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference (const Eigen::MatrixBase<ConfigL_t> & q0,
+                      const Eigen::MatrixBase<ConfigR_t> & q1,
+                      const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
       J12(J).setZero();
       J21(J).setZero();
 
-      lg1_.template dDifference_dq<iVar> (Q1(q0), Q1(q1), J11(J));
-      lg2_.template dDifference_dq<iVar> (Q2(q0), Q2(q1), J22(J));
+      lg1_.template dDifference<arg> (Q1(q0), Q1(q1), J11(J));
+      lg2_.template dDifference<arg> (Q2(q0), Q2(q1), J22(J));
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>

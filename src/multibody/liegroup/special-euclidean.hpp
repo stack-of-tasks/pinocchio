@@ -230,10 +230,10 @@ namespace se3
       log(R, t, d);
     }
 
-    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
-    void dDifference_dqimpl (const Eigen::MatrixBase<ConfigL_t> & q0,
-                             const Eigen::MatrixBase<ConfigR_t> & q1,
-                             const Eigen::MatrixBase<JacobianOut_t>& J) const
+    template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> & q0,
+                           const Eigen::MatrixBase<ConfigR_t> & q1,
+                           const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
       Matrix2 R0, R1; Vector2 t0, t1;
       forwardKinematics(R0, t0, q0);
@@ -241,7 +241,7 @@ namespace se3
       Matrix2 R (R0.transpose() * R1);
       Vector2 t (R0.transpose() * (t1 - t0));
 
-      if (iVar == 0) {
+      if (arg == darg0) {
         JacobianMatrix_t J1;
         Jlog (R, t, J1);
 
@@ -254,7 +254,7 @@ namespace se3
         J0.template bottomLeftCorner <1,2> ().setZero();
         J0 (2,2) = -1;
         J0.applyOnTheLeft(J1);
-      } else if (iVar == 1) {
+      } else if (arg == darg1) {
         Jlog (R, t, J);
       }
     }
@@ -446,10 +446,10 @@ namespace se3
                * SE3(p1.matrix(), q1.derived().template head<3>())).toVector();
     }
 
-    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
-    void dDifference_dqimpl (const Eigen::MatrixBase<ConfigL_t> & q0,
-                             const Eigen::MatrixBase<ConfigR_t> & q1,
-                             const Eigen::MatrixBase<JacobianOut_t>& J) const
+    template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> & q0,
+                           const Eigen::MatrixBase<ConfigR_t> & q1,
+                           const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
       ConstQuaternionMap_t p0 (q0.derived().template tail<4>().data());
       ConstQuaternionMap_t p1 (q1.derived().template tail<4>().data());
@@ -458,7 +458,7 @@ namespace se3
       SE3 M (  SE3(R0, q0.derived().template head<3>()).inverse()
              * SE3(R1, q1.derived().template head<3>()));
 
-      if (iVar == 0) {
+      if (arg == darg0) {
         JacobianMatrix_t J1;
         Jlog6 (M, J1);
 
@@ -471,7 +471,7 @@ namespace se3
         J0.template bottomLeftCorner <3,3> ().setZero();
         J0.template bottomRightCorner<3,3> ().noalias() = - M.rotation().transpose();
         J0.applyOnTheLeft(J1);
-      } else if (iVar == 1) {
+      } else if (arg == darg1) {
         Jlog6 (M, J);
       }
     }

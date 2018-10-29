@@ -18,7 +18,7 @@
 #ifndef __se3_lie_group_operation_base_hpp__
 #define __se3_lie_group_operation_base_hpp__
 
-#include "pinocchio/fwd.hpp" // struct traits
+#include "pinocchio/multibody/liegroup/fwd.hpp"
 
 #include <limits>
 
@@ -201,14 +201,14 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]  q0    the initial configuration vector.
      * @param[in]  q1    the terminal configuration vector.
-     * @tparam[in] iVar  0 (resp. 1) to get the Jacobian with respect to q0 (resp. q1).
+     * @tparam[in] arg   darg0 (resp. darg1) to get the Jacobian with respect to q0 (resp. q1).
      *
      * @param[out] J     the Jacobian of the difference operation.
      */
-    template <int iVar, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
-    void dDifference_dq(const Eigen::MatrixBase<ConfigL_t> & q0,
-                        const Eigen::MatrixBase<ConfigR_t> & q1,
-                        const Eigen::MatrixBase<JacobianOut_t>& J) const;
+    template <DerivativeWrtArgument arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                     const Eigen::MatrixBase<ConfigR_t> & q1,
+                     const Eigen::MatrixBase<JacobianOut_t>& J) const;
 
     /**
      * @brief      Squared distance between two joint configurations.
