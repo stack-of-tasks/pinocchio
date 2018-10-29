@@ -21,7 +21,6 @@
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/multibody/data.hpp"
 #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
-#include "pinocchio/bindings/python/multibody/geometry-data.hpp"
 
 namespace se3
 {
@@ -51,12 +50,14 @@ namespace se3
         return model;
       }
       
+#ifdef WITH_HPP_FCL
       static GeometryModel buildSampleGeometryModelManipulator(const Model& model)
       {
         GeometryModel geom;
         buildModels::manipulatorGeometries(model,geom);
         return geom;
       }
+#endif
       
       static Model buildSampleModelHumanoid()
       {
@@ -72,12 +73,14 @@ namespace se3
         return model;
       }
       
+#ifdef WITH_HPP_FCL
       static GeometryModel buildSampleGeometryModelHumanoid(const Model& model)
       {
         GeometryModel geom;
         buildModels::humanoidGeometries(model,geom);
         return geom;
       }
+#endif
       
       /* --- Expose --------------------------------------------------------- */
       static void expose();
@@ -101,11 +104,13 @@ namespace se3
               "Generate a (hard-coded) model of a simple manipulator."
               );
 
+#ifdef WITH_HPP_FCL
       bp::def("buildSampleGeometryModelManipulator",
               static_cast <GeometryModel (*) (const Model&)> (&SampleModelsPythonVisitor::buildSampleGeometryModelManipulator),
               bp::args("Model (model)"),
               "Generate a (hard-coded) geometry model of a simple manipulator."
               );
+#endif
       
       bp::def("buildSampleModelHumanoid",
               static_cast <Model (*) ()> (&SampleModelsPythonVisitor::buildSampleModelHumanoid),
@@ -118,11 +123,13 @@ namespace se3
               "Generate a (hard-coded) model of a simple humanoid."
               );
 
+#ifdef WITH_HPP_FCL
       bp::def("buildSampleGeometryModelHumanoid",
               static_cast <GeometryModel (*) (const Model&)> (&SampleModelsPythonVisitor::buildSampleGeometryModelHumanoid),
               bp::args("Model (model)"),
               "Generate a (hard-coded) geometry model of a simple humanoid."
               );
+#endif
       
     }
     
