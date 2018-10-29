@@ -60,10 +60,8 @@ int main(int argc, const char ** argv)
       with_ff = false;
   }
   
-  if( filename == "HS") 
+  if( filename == "H")
     se3::buildModels::humanoidRandom(model,true);
-  else if( filename == "H2" )
-    se3::buildModels::humanoid2d(model);
   else
     if(with_ff)
       se3::urdf::buildModel(filename,JointModelFreeFlyer(),model);

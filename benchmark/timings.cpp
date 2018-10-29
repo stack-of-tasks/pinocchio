@@ -67,8 +67,6 @@ int main(int argc, const char ** argv)
   
   if( filename == "HS") 
     se3::buildModels::humanoidRandom(model,true);
-  else if( filename == "H2" )
-    se3::buildModels::humanoid2d(model);
   else
     if(with_ff)
       se3::urdf::buildModel(filename,JointModelFreeFlyer(),model);
