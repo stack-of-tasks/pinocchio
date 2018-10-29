@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_SUITE( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE (test_ccrba)
 {
   se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   se3::Data data(model), data_ref(model);
   
   Eigen::VectorXd q = Eigen::VectorXd::Ones(model.nq);
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE (test_dccrb)
 {
   using namespace se3;
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   addJointAndBody(model,JointModelSpherical(),"larm6_joint","larm7");
   Data data(model), data_ref(model);
   

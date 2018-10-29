@@ -1,20 +1,18 @@
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/parsers/urdf.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 int main(int argc, char ** argv)
 {
-  std::string filename = (argc<=1) ? "ur5.urdf" : argv[1];
   se3::Model model;
-  se3::urdf::buildModel(filename,model); 
+  se3::buildModels::manipulator(model);
   se3::Data data(model);
 
   const int    JOINT_ID = 6;
   const double DT       = 1e-1;
   Eigen::VectorXd q     = se3::neutral(model);
-  Eigen::Vector3d xdes;        xdes << 0, -0.5, 0.5;
+  Eigen::Vector3d xdes;        xdes << 0.5, -0.5, 0.5;
 
   se3::Data::Matrix6x J(6,model.nv); J.setZero();
   unsigned int svdOptions = Eigen::ComputeThinU | Eigen::ComputeThinV;
@@ -35,6 +33,6 @@ int main(int argc, char ** argv)
   se3::forwardKinematics(model,data,q);
   const Eigen::Vector3d & x   = data.oMi[JOINT_ID].translation();
   const Eigen::Vector3d & err = x-xdes;
-  std::cout << "final error: " << err.transpose() << std::endl;
+  std::cout << "\nfinal error: " << err.transpose() << std::endl;
  
 }

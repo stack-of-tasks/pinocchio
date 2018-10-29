@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(test_kinetic_energy)
   using namespace se3;
   
   se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   se3::Data data(model);
   
   VectorXd q = VectorXd::Zero(model.nq);

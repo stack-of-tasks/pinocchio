@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   using namespace se3;
 
   se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   se3::Data data(model);
 
   VectorXd q = VectorXd::Zero(model.nq);
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   using namespace se3;
   
   se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   se3::Data data(model);
   se3::Data data_ref(model);
   
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   using namespace se3;
 
   se3::Model model;
-  se3::buildModels::humanoidSimple(model);
+  se3::buildModels::humanoidRandom(model);
   se3::Data data(model);
 
   long flag = BOOST_BINARY(1111);

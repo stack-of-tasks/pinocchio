@@ -1,6 +1,6 @@
 import pinocchio
 
-model = pinocchio.Model.BuildHumanoidSimple()
+model = pinocchio.buildSampleModelManipulator()
 data = model.createData()
 
 q = model.neutralConfiguration

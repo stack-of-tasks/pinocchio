@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
   using namespace Eigen;
   using namespace se3;
 
-  se3::Model model; buildModels::humanoidSimple(model);
+  se3::Model model; buildModels::humanoidRandom(model);
   
   se3::Data data(model);
   data.v[0] = Motion::Zero();
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE ( test_nle_vs_rnea )
   using namespace Eigen;
   using namespace se3;
   
-  se3::Model model; buildModels::humanoidSimple(model);
+  se3::Model model; buildModels::humanoidRandom(model);
   se3::Data data_nle(model);
   se3::Data data_rnea(model);
   
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   Data data_rnea_fext(model);
   Data data_rnea(model);
   
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
   using namespace se3;
   
   Model model;
-  buildModels::humanoidSimple(model);
+  buildModels::humanoidRandom(model);
   Data data_rnea(model);
   Data data(model);
   
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
     const double prec = Eigen::NumTraits<double>::dummy_precision();
     
     Model model;
-    buildModels::humanoidSimple(model);
+    buildModels::humanoidRandom(model);
     Data data_ref(model);
     Data data(model);
     

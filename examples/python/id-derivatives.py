@@ -28,7 +28,7 @@ import numpy as np
 
 # Create model and data
 
-model = pin.Model.BuildHumanoidSimple()
+model = pin.buildSampleModelHumanoidRandom()
 data = model.createData()
 
 # Set bounds (by default they are undefinded for a the Simple Humanoid model)

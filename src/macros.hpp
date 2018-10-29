@@ -22,8 +22,8 @@
 
 /// \brief Define the current version of Pinocchio
 #define PINOCCHIO_MAJOR_VERSION 1
-#define PINOCCHIO_MINOR_VERSION 2
-#define PINOCCHIO_PATCH_VERSION 9
+#define PINOCCHIO_MINOR_VERSION 3
+#define PINOCCHIO_PATCH_VERSION 2
 
 /// \brief Macro to check the current Pinocchio version against a version provided by x.y.z
 #define PINOCCHIO_VERSION_AT_LEAST(x,y,z) (PINOCCHIO_MAJOR_VERSION>x || (PINOCCHIO_MAJOR_VERSION>=x && \

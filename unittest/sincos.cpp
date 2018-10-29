@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2018 INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -15,29 +15,42 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
+#include "utils/macros.hpp"
+#include "pinocchio/math/sincos.hpp"
+#include <cstdlib>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace se3;
-
-BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
-
-BOOST_AUTO_TEST_CASE(test_model_subtree)
+template<typename Scalar>
+void testSINCOS(int n)
 {
-  Model model;
-  std::cout << "build model" << std::endl;
-  buildModels::humanoidRandom(model);
-  
-  Model::JointIndex idx_larm1 = model.getJointId("larm1_joint");
-  BOOST_CHECK(idx_larm1<(Model::JointIndex)model.njoints);
-  Model::IndexVector subtree = model.subtrees[idx_larm1];
-  BOOST_CHECK(subtree.size()==6);
-  
-  for(size_t i=1; i<subtree.size();++i)
-    BOOST_CHECK(model.parents[subtree[i]]==subtree[i-1]);
+  for(int k = 0; k < n; ++k)
+  {
+    Scalar sin_value, cos_value;
+    Scalar alpha = (Scalar)std::rand()/(Scalar)RAND_MAX;
+    se3::SINCOS(alpha,&sin_value,&cos_value);
+    
+    Scalar sin_value_ref = std::sin(alpha),
+           cos_value_ref = std::cos(alpha);
+    
+    BOOST_CHECK(sin_value == sin_value_ref);
+    BOOST_CHECK(cos_value == cos_value_ref);
+  }
+}
+
+BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+
+BOOST_AUTO_TEST_CASE(test_sincos)
+{
+#ifndef NDEBUG
+  const int n = 1e3;
+#else
+  const int n = 1e6;
+#endif
+  testSINCOS<float>(n);
+  testSINCOS<double>(n);
+  testSINCOS<long double>(n);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
