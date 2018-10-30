@@ -272,6 +272,37 @@ struct LieGroup_Jintegrate{
   }
 };
 
+struct LieGroup_JintegrateJdifference{
+  template <typename T>
+  void operator()(const T ) const
+  {
+    typedef typename T::ConfigVector_t ConfigVector_t;
+    typedef typename T::TangentVector_t TangentVector_t;
+    typedef typename T::JacobianMatrix_t JacobianMatrix_t;
+
+    T lg;
+    IFVERBOSE std::cout << lg.name() << std::endl;
+    ConfigVector_t qa, qb (lg.nq());
+    qa = lg.random();
+    TangentVector_t v (lg.nv());
+    v.setRandom ();
+    lg.integrate(qa, v, qb);
+
+    JacobianMatrix_t Jd_qb, Ji_v;
+
+    lg.template dDifference<ARG1> (qa, qb, Jd_qb);
+    lg.template dIntegrate <ARG1> (qa, v , Ji_v );
+
+    BOOST_CHECK_MESSAGE ((Jd_qb * Ji_v).isIdentity(),
+        "Jd_qb\n" <<
+        Jd_qb << '\n' <<
+        "* Ji_v\n" <<
+        Ji_v << '\n' <<
+        "!= Identity\n" <<
+        Jd_qb * Ji_v << '\n');
+  }
+};
+
 struct LieGroup_JintegrateCoeffWise
 {
   template <typename T>
@@ -380,6 +411,29 @@ BOOST_AUTO_TEST_CASE ( Jintegrate )
   boost::mpl::for_each<Types>(LieGroup_Jintegrate<true>());
 }
 
+BOOST_AUTO_TEST_CASE ( Jintegrate_Jdifference )
+{
+  typedef double Scalar;
+  enum { Options = 0 };
+  
+  typedef boost::mpl::vector<  VectorSpaceOperationTpl<1,Scalar,Options>
+                             , VectorSpaceOperationTpl<2,Scalar,Options>
+                             , SpecialOrthogonalOperationTpl<2,Scalar,Options>
+                             , SpecialOrthogonalOperationTpl<3,Scalar,Options>
+                             , SpecialEuclideanOperationTpl<2,Scalar,Options>
+                             , SpecialEuclideanOperationTpl<3,Scalar,Options>
+                             , CartesianProductOperation<
+                                 VectorSpaceOperationTpl<2,Scalar,Options>,
+                                 SpecialOrthogonalOperationTpl<2,Scalar,Options>
+                               >
+                             , CartesianProductOperation<
+                                 VectorSpaceOperationTpl<3,Scalar,Options>,
+                                 SpecialOrthogonalOperationTpl<3,Scalar,Options>
+                               >
+                             > Types;
+  for (int i = 0; i < 20; ++i)
+    boost::mpl::for_each<Types>(LieGroup_JintegrateJdifference());
+}
 
 BOOST_AUTO_TEST_CASE(JintegrateCoeffWise)
 {
