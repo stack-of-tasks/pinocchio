@@ -92,7 +92,7 @@ namespace se3
      * @return     The index of the new added GeometryObject in geometryObjects
      * @note object is a nonconst copy to ease the insertion code.
      */
-    GeomIndex addGeometryObject(GeometryObject object);
+    GeomIndex addGeometryObject(const GeometryObject & object);
 
     /**
      * @brief      Return the index of a GeometryObject given by its name.
