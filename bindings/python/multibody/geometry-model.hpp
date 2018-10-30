@@ -47,9 +47,13 @@ namespace se3
         .add_property("geometryObjects",
                       &GeometryModel::geometryObjects,"Vector of geometries objects.")
 
-        .def("addGeometryObject",static_cast <GeometryModel::GeomIndex (GeometryModel::*)(GeometryObject)>(&GeometryModel::addGeometryObject),
+        .def("addGeometryObject",static_cast <GeometryModel::GeomIndex (GeometryModel::*)(const GeometryObject &)>(&GeometryModel::addGeometryObject),
              bp::arg("GeometryObject"),
-             "Add a GeometryObject to a GeometryModel")
+             "Add a GeometryObject to a GeometryModel").def("addGeometryObject",static_cast <GeometryModel::GeomIndex (GeometryModel::*)(const GeometryObject &,
+                                                                                                                                         const Model &)>(&GeometryModel::addGeometryObject),
+                                                            bp::args("GeometryObject",
+                                                                     "model: a moddel of the system"),
+                                                            "Add a GeometryObject to a GeometryModel and set its parent joint by reading its value in model")
         .def("getGeometryId",&GeometryModel::getGeometryId)
         .def("existGeometryName",&GeometryModel::existGeometryName)
 #ifdef WITH_HPP_FCL
