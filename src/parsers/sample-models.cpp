@@ -193,38 +193,46 @@ namespace se3
                                          GeometryModel & geom,
                                          const std::string & pre = "")
     {
+      FrameIndex parentFrame;
+
+      parentFrame = model.getBodyId(pre+"shoulder1_body");
       GeometryObject shoulderBall(pre+"shoulder_object",
-                                  model.getBodyId(pre+"shoulder1_body"),/*NR*/0,
+                                  parentFrame, model.frames[parentFrame].parent,
                                   boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                   SE3::Identity());
       geom.addGeometryObject(shoulderBall);
       
+      parentFrame = model.getBodyId(pre+"elbow_body");
       GeometryObject elbowBall(pre+"elbow_object",
-                               model.getBodyId(pre+"elbow_body"),/*NR*/0,
+                               parentFrame, model.frames[parentFrame].parent,
                                boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                SE3::Identity());
       geom.addGeometryObject(elbowBall);
       
+      parentFrame = model.getBodyId(pre+"wrist1_body");
       GeometryObject wristBall(pre+"wrist_object",
-                               model.getBodyId(pre+"wrist1_body"),/*NR*/0,
+                              parentFrame, model.frames[parentFrame].parent,
                                boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                SE3::Identity());
       geom.addGeometryObject(wristBall);
 
+      parentFrame = model.getBodyId(pre+"upperarm_body");
       GeometryObject upperArm(pre+"upperarm_object",
-                              model.getBodyId(pre+"upperarm_body"),/*NR*/0,
+                              parentFrame, model.frames[parentFrame].parent,
                               boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
                               SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
       geom.addGeometryObject(upperArm);
 
+      parentFrame = model.getBodyId(pre+"lowerarm_body");
       GeometryObject lowerArm(pre+"lowerarm_object",
-                              model.getBodyId(pre+"lowerarm_body"),/*NR*/0,
+                              parentFrame, model.frames[parentFrame].parent,
                               boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
                               SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
       geom.addGeometryObject(lowerArm);
 
+      parentFrame = model.getBodyId(pre+"effector_body");
       GeometryObject effectorArm(pre+"effector_object",
-                                 model.getBodyId(pre+"effector_body"),/*NR*/0,
+                                 parentFrame, model.frames[parentFrame].parent,
                                  boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .2)),
                                  SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.1)) );
       geom.addGeometryObject(effectorArm);
@@ -316,20 +324,25 @@ namespace se3
       addManipulatorGeometries(model,geom,"rarm");
       addManipulatorGeometries(model,geom,"larm");
 
+      FrameIndex parentFrame;
+
+      parentFrame = model.getBodyId("chest1_body");
       GeometryObject chestBall("chest_object",
-                               model.getBodyId("chest1_body"),/*NR*/0,
+                               parentFrame, model.frames[parentFrame].parent,
                                boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                SE3::Identity());
       geom.addGeometryObject(chestBall);
 
+      parentFrame = model.getBodyId("head2_body");
       GeometryObject headBall("head_object",
-                               model.getBodyId("head2_body"),/*NR*/0,
+                               parentFrame, model.frames[parentFrame].parent,
                                boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.25)),
                                SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
       geom.addGeometryObject(headBall);
 
+      parentFrame = model.getBodyId("chest2_body");
       GeometryObject chestArm("chest2_object",
-                              model.getBodyId("chest2_body"),/*NR*/0,
+                              parentFrame, model.frames[parentFrame].parent,
                               boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
                               SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0,0,0.5)) );
       geom.addGeometryObject(chestArm);
