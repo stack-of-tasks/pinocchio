@@ -70,6 +70,7 @@ namespace se3
 
     /**
      * @brief      Add a geometry object to a GeometryModel
+     * @deprecated This method has been set to deprecated. Please use other signature of addGeometryObject.
      *
      * @param[in]  object     Object 
      * @param[in]  model      Corresponding model, used to assert the attributes of object.
@@ -82,15 +83,33 @@ namespace se3
     PINOCCHIO_DEPRECATED
     GeomIndex addGeometryObject(GeometryObject object,
                                 const ModelTpl<S2,O2,_JointCollectionTpl> & model,
-                                const bool autofillJointParent = false);
+                                const bool autofillJointParent)
+    {
+      if(autofillJointParent)
+        addGeometryObject(object,model);
+      else
+        addGeometryObject(object);
+    }
+    
+    /**
+     * @brief      Add a geometry object to a GeometryModel and set its parent joint.
+     *
+     * @param[in]  object     Object
+     * @param[in]  model      Corresponding model, used to assert the attributes of object.
+     *
+     * @return     The index of the new added GeometryObject in geometryObjects
+     * @note object is a nonconst copy to ease the insertion code.
+     */
+    template<typename S2, int O2, template<typename,int> class _JointCollectionTpl>
+    GeomIndex addGeometryObject(const GeometryObject & object,
+                                const ModelTpl<S2,O2,_JointCollectionTpl> & model);
     
     /**
      * @brief      Add a geometry object to a GeometryModel.
      *
      * @param[in]  object     Object
      *
-     * @return     The index of the new added GeometryObject in geometryObjects
-     * @note object is a nonconst copy to ease the insertion code.
+     * @return     The index of the new added GeometryObject in geometryObjects.
      */
     GeomIndex addGeometryObject(const GeometryObject & object);
 
