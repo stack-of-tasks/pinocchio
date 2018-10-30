@@ -23,12 +23,30 @@ namespace se3
   namespace python
   {
    
+    BOOST_PYTHON_FUNCTION_OVERLOADS(forwardDynamics_overloads, forwardDynamics, 7, 9)
+
+    // TODO: overloading impulseDynamics directly, as done for forwardDynamics, was apparently not working (it crashed for 5 arguments)
+    // Therefore, it was necessary to resort to a proxy
+    static const Eigen::VectorXd & impulseDynamics_proxy(const Model & model,
+                                                         Data & data,
+                                                         const Eigen::VectorXd & q,
+                                                         const Eigen::VectorXd & v_before,
+                                                         const Eigen::MatrixXd & J,
+                                                         const double r_coeff = 0.0,
+                                                         const bool updateKinematics = true)
+    {
+      return impulseDynamics(model, data, q, v_before, J, r_coeff, updateKinematics);
+    }
+
+    BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamics_overloads, impulseDynamics_proxy, 5, 7)
+
     void exposeDynamics()
     {
       using namespace Eigen;
       
       bp::def("forwardDynamics",
               &forwardDynamics<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd,MatrixXd,VectorXd>,
+              forwardDynamics_overloads(
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
@@ -36,20 +54,21 @@ namespace se3
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
                        "Contact drift gamma (size nb_constraint)",
                        "(double) Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.",                       
-                       "Update kinematics (if true, it updates the dynamic variable according to the current state )"),
-              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c",
-              bp::return_value_policy<bp::return_by_value>());
-      
-      bp::def("impactDynamics",
-              &impulseDynamics<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,MatrixXd>,
+                       "Update kinematics (if true, it updates the dynamic variable according to the current state)"),
+              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c"
+              )[bp::return_value_policy<bp::return_by_value>()]);
+
+      bp::def("impulseDynamics",
+              &impulseDynamics_proxy,
+              impulseDynamics_overloads(
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity before impact v_before (size Model::nv)",
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact.",
+                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
                        "Update kinematics (if true, it updates only the joint space inertia matrix)"),
-              "Solve the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c",
-              bp::return_value_policy<bp::return_by_value>());
+              "Solve the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c"
+              )[bp::return_value_policy<bp::return_by_value>()]);
     }
     
   } // namespace python

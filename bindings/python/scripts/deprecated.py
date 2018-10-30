@@ -14,12 +14,16 @@
 # Pinocchio If not, see
 # <http://www.gnu.org/licenses/>.
 
-## In this file, are reported some depracated functions that are still maintain until the next important release 1.4.0 ##
+## In this file, are reported some deprecated functions that are still maintained until the next important future releases ##
 
 from __future__ import print_function
 
 from . import libpinocchio_pywrap as se3 
 from .deprecation import deprecated
+
+@deprecated("This function has been renamed to impulseDynamics for consistency with the C++ interface. Please change for impulseDynamics.")
+def impactDynamics(model, data, q, v_before, J, r_coeff=0.0, update_kinematics=True):
+  return se3.impulseDynamics(model, data, q, v_before, J, r_coeff, update_kinematics)
 
 @deprecated("This function has been deprecated. Please use buildSampleModelHumanoid or buildSampleModelHumanoidRandom instead.")
 def buildSampleModelHumanoidSimple(usingFF=True):
@@ -44,51 +48,51 @@ def framesKinematics(model,data,q=None):
   else:
     se3.framesForwardKinematics(model,data,q)
 
-@deprecated("This function has been renamed computeJointJacobians and will be removed in release 1.4.0 of Pinocchio. Please change for new computeJointJacobians.")
+@deprecated("This function has been renamed computeJointJacobians and will be removed in future releases of Pinocchio. Please change for new computeJointJacobians.")
 def computeJacobians(model,data,q=None):
   if q is None:
     return se3.computeJointJacobians(model,data)
   else:
     return se3.computeJointJacobians(model,data,q)
 
-@deprecated("This function has been renamed jointJacobian and will be removed in release 1.4.0 of Pinocchio. Please change for new jointJacobian function.")
+@deprecated("This function has been renamed jointJacobian and will be removed in future releases of Pinocchio. Please change for new jointJacobian function.")
 def jacobian(model,data,q,jointId,local,update_kinematics):
   if local:
     return se3.jointJacobian(model,data,q,jointId,se3.ReferenceFrame.LOCAL,update_kinematics)
   else:
     return se3.jointJacobian(model,data,q,jointId,se3.ReferenceFrame.WORLD,update_kinematics)
 
-@deprecated("This function has been renamed getJointJacobian and will be removed in release 1.4.0 of Pinocchio. Please change for new getJointJacobian function.")
+@deprecated("This function has been renamed getJointJacobian and will be removed in future releases of Pinocchio. Please change for new getJointJacobian function.")
 def getJacobian(model,data,jointId,local):
   if local:
     return se3.getJointJacobian(model,data,jointId,se3.ReferenceFrame.LOCAL)
   else:
     return se3.getJointJacobian(model,data,jointId,se3.ReferenceFrame.WORLD)
 
-@deprecated("This function has been renamed computeJacobiansTimeVariation and will be removed in release 1.4.0 of Pinocchio. Please change for new computeJointJacobiansTimeVariation.")
+@deprecated("This function has been renamed computeJacobiansTimeVariation and will be removed in future releases of Pinocchio. Please change for new computeJointJacobiansTimeVariation.")
 def computeJacobiansTimeVariation(model,data,q,v):
   return se3.computeJointJacobiansTimeVariation(model,data,q,v)
 
-@deprecated("This function has been renamed getJointJacobianTimeVariation and will be removed in release 1.4.0 of Pinocchio. Please change for new getJointJacobianTimeVariation function.")
+@deprecated("This function has been renamed getJointJacobianTimeVariation and will be removed in future releases of Pinocchio. Please change for new getJointJacobianTimeVariation function.")
 def getJacobianTimeVariation(model,data,jointId,local):
   if local:
     return se3.getJointJacobianTimeVariation(model,data,jointId,se3.ReferenceFrame.LOCAL)
   else:
     return se3.getJointJacobianTimeVariation(model,data,jointId,se3.ReferenceFrame.WORLD)
 
-@deprecated("This function has been renamed difference and will be removed in release 1.4.0 of Pinocchio. Please change for new difference function.")
+@deprecated("This function has been renamed difference and will be removed in future releases of Pinocchio. Please change for new difference function.")
 def differentiate(model,q0,q1):
   return se3.difference(model,q0,q1)
 
-@deprecated("This function has been renamed difference and will be removed in release 1.4.0 of Pinocchio. Please change for new getNeutralConfiguration function.")
+@deprecated("This function has been renamed difference and will be removed in future releases of Pinocchio. Please change for new getNeutralConfiguration function.")
 def getNeutralConfigurationFromSrdf(model, filename, verbose):
   return se3.getNeutralConfiguration(model,filename,verbose)
 
-@deprecated("This function has been renamed difference and will be removed in release 1.4.0 of Pinocchio. Please change for new loadRotorParameters function.")
+@deprecated("This function has been renamed difference and will be removed in future releases of Pinocchio. Please change for new loadRotorParameters function.")
 def loadRotorParamsFromSrdf(model, filename, verbose):
   return se3.loadRotorParams(model,filename,verbose)
 
-@deprecated("This function has been renamed difference and will be removed in release 1.4.0 of Pinocchio. Please change for new removeCollisionPairs function.")
+@deprecated("This function has been renamed difference and will be removed in future releases of Pinocchio. Please change for new removeCollisionPairs function.")
 def removeCollisionPairsFromSrdf(model, geomModel, filename, verbose):
   return se3.removeCollisionPairs(model,geomModel,filename,verbose)
 
