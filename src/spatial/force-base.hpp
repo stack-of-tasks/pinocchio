@@ -127,7 +127,8 @@ namespace se3
     /** \brief Copies the Derived Force into *this
      *  \return a reference to *this
      */
-    Derived & operator= (const ForceBase<Derived> & other) { return derived().__equl__(other.derived()); }
+    Derived & operator=(const ForceBase<Derived> & other)
+    { return derived().setFrom(other.derived()); }
     
     /**
      * \brief Replaces *this by *this + other.

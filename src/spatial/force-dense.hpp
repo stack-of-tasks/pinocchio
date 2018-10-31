@@ -63,11 +63,17 @@ namespace se3
     
     // Arithmetic operators
     template<typename D2>
-    Derived & __equl__(const ForceDense<D2> & other)
+    Derived & setFrom(const ForceDense<D2> & other)
     {
       linear() = other.linear();
       angular() = other.angular();
       return derived();
+    }
+    
+    template<typename D2>
+    Derived & operator=(const ForceDense<D2> & other)
+    {
+      return derived().setFrom(other.derived());
     }
     
     template<typename V6>
@@ -77,12 +83,6 @@ namespace se3
       linear() = v.template segment<3>(LINEAR);
       angular() = v.template segment<3>(ANGULAR);
       return derived();
-    }
-    
-    template<typename D2>
-    Derived & operator=(const ForceDense<D2> & other)
-    {
-      return derived().__equl__(other.derived());
     }
     
     ForcePlain operator-() const { return derived().__opposite__(); }
