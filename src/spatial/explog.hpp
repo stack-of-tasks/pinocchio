@@ -470,7 +470,6 @@ namespace se3
 
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef typename SE3::Vector3 Vector3;
-    typedef typename SE3::Matrix3 Matrix3;
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6Like,6,6);
     Matrix6Like & value = const_cast<Matrix6Like &> (Jlog.derived());
 
@@ -513,12 +512,13 @@ namespace se3
 
     Scalar wTp = w.dot(p);
 
+    Vector3 v3_tmp((beta_dot_over_theta*wTp)*w - (t2*beta_dot_over_theta+Scalar(2)*beta)*p);
     // C can be treated as a temporary variable
-    C.noalias() = alphaSkew(.5, p) +
-          (beta_dot_over_theta*wTp)*w*w.transpose()
-          - (t2*beta_dot_over_theta+Scalar(2)*beta)*p*w.transpose()
-          + wTp * beta * Matrix3::Identity()
-          + beta * w*p.transpose();
+    C.noalias() = v3_tmp * w.transpose();
+    C.noalias() += beta * w * p.transpose();
+    C.diagonal().array() += wTp * beta;
+    addSkew(.5*p,C);
+    
     B.noalias() = C * A;
     C.setZero();
   }
