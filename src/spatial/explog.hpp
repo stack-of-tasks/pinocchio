@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -479,9 +479,18 @@ namespace se3
     
     Scalar t;
     Vector3 w(log3(R,t));
-
-    Matrix3 J3;
-    Jlog3(t, w, J3);
+    
+    // value is decomposed as following:
+    // value = [ A, B;
+    //           C, D ]
+    typedef Eigen::Block<Matrix6Like,3,3,Matrix6Like::IsRowMajor> Block33;
+    Block33 A = value.template topLeftCorner<3,3>();
+    Block33 B = value.template topRightCorner<3,3>();
+    Block33 C = value.template bottomLeftCorner<3,3>();
+    Block33 D = value.template bottomRightCorner<3,3>();
+    
+    Jlog3(t, w, A);
+    D = A;
 
     const Scalar t2 = t*t;
     Scalar beta, beta_dot_over_theta;
@@ -502,17 +511,16 @@ namespace se3
         (Scalar(1) + st*tinv) * t2inv * inv_2_2ct;
     }
 
-    Scalar wTp (w.dot(p));
+    Scalar wTp = w.dot(p);
 
-    Matrix3 J ((alphaSkew(.5, p) +
+    // C can be treated as a temporary variable
+    C.noalias() = alphaSkew(.5, p) +
           (beta_dot_over_theta*wTp)*w*w.transpose()
           - (t2*beta_dot_over_theta+Scalar(2)*beta)*p*w.transpose()
           + wTp * beta * Matrix3::Identity()
-          + beta * w*p.transpose()
-          ) * J3);
-
-    value << J3             , J,
-             Matrix3::Zero(), J3;
+          + beta * w*p.transpose();
+    B.noalias() = C * A;
+    C.setZero();
   }
 } // namespace se3
 
