@@ -304,7 +304,7 @@ namespace se3
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
         
-        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef MotionRef<const Mat> MotionRefOnMat;
         typedef MotionRef<MatRet> MotionRefOnMatRet;
         
         MotionRefOnMat min(iV.derived());
@@ -380,7 +380,7 @@ namespace se3
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
         
-        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef MotionRef<const Mat> MotionRefOnMat;
         typedef MotionRef<MatRet> MotionRefOnMatRet;
         
         MotionRefOnMat min(iV.derived());
@@ -505,7 +505,7 @@ namespace se3
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
         
-        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef MotionRef<const Mat> MotionRefOnMat;
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         MotionRefOnMat min(iV.derived());
         ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jV).derived());
@@ -557,7 +557,7 @@ namespace se3
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
         
-        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef MotionRef<const Mat> MotionRefOnMat;
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         
         MotionRefOnMat vin(iV.derived());

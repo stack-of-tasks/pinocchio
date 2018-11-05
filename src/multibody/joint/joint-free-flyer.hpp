@@ -118,13 +118,14 @@ namespace se3
   }; // struct ConstraintIdentityTpl
   
   template<typename Scalar, int Options, typename Vector6Like>
-  MotionRef<Vector6Like>
-  operator*(const ConstraintIdentityTpl<Scalar,Options> &, const Eigen::MatrixBase<Vector6Like>& v)
+  MotionRef<const Vector6Like>
+  operator*(const ConstraintIdentityTpl<Scalar,Options> &,
+            const Eigen::MatrixBase<Vector6Like> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
 //    typedef typename ConstraintIdentityTpl<Scalar,Options>::Motion Motion;
-    typedef MotionRef<Vector6Like> Motion;
-    return Motion(v);
+    typedef MotionRef<const Vector6Like> Motion;
+    return Motion(v.derived());
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
