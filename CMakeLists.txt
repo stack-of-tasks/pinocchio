@@ -223,9 +223,10 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/utils")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/container")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/codegen")
-
+SET(HEADERS_)
 FOREACH(header ${HEADERS})
   STRING(REGEX REPLACE "${PROJECT_SOURCE_DIR}/src/" "" header ${header})
+  LIST(APPEND HEADERS_ ${header})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)
   GET_FILENAME_COMPONENT(headerPath ${header} PATH)
   EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
@@ -235,6 +236,7 @@ FOREACH(header ${HEADERS})
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${headerPath}
           PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
 ENDFOREACH(header)
+SET(HEADERS ${HEADERS_})
 
 # --- MAIN LIBRARY -------------------------------------------------------------
 ADD_SUBDIRECTORY(src)
