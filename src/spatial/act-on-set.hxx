@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -49,7 +49,7 @@ namespace se3
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
         
-        typedef ForceRef<Mat> ForceRefOnMat;
+        typedef ForceRef<const Mat> ForceRefOnMat;
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         
         ForceRefOnMat fin(iF.derived());
@@ -133,7 +133,7 @@ namespace se3
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
         
-        typedef ForceRef<Mat> ForceRefOnMat;
+        typedef ForceRef<const Mat> ForceRefOnMat;
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         
         ForceRefOnMat fin(iF.derived());
@@ -182,7 +182,7 @@ namespace se3
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
         
-        typedef ForceRef<Mat> ForceRefOnMat;
+        typedef ForceRef<const Mat> ForceRefOnMat;
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         
         ForceRefOnMat fin(iF.derived());
@@ -304,7 +304,7 @@ namespace se3
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
         
-        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef MotionRef<const Mat> MotionRefOnMat;
         typedef MotionRef<MatRet> MotionRefOnMatRet;
         
         MotionRefOnMat min(iV.derived());
@@ -380,7 +380,7 @@ namespace se3
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
         
-        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef MotionRef<const Mat> MotionRefOnMat;
         typedef MotionRef<MatRet> MotionRefOnMatRet;
         
         MotionRefOnMat min(iV.derived());
@@ -505,7 +505,7 @@ namespace se3
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
         
-        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef MotionRef<const Mat> MotionRefOnMat;
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         MotionRefOnMat min(iV.derived());
         ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jV).derived());
@@ -557,7 +557,7 @@ namespace se3
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
         
-        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef MotionRef<const Mat> MotionRefOnMat;
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         
         MotionRefOnMat vin(iV.derived());

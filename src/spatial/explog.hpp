@@ -324,7 +324,7 @@ namespace se3
   {
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector6Like, v, 6, 1);
 
-    MotionRef<Vector6Like> nu(v);
+    MotionRef<const Vector6Like> nu(v.derived());
     return exp6(nu);
   }
 

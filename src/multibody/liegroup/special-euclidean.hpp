@@ -486,7 +486,7 @@ namespace se3
       QuaternionMap_t res_quat (out.template tail<4>().data());
 
       SE3 M0 (quat.matrix(), q.derived().template head<3>());
-      MotionRef<Velocity_t> mref_v(v);
+      MotionRef<const Velocity_t> mref_v(v.derived());
       SE3 M1 (M0 * exp6(mref_v));
 
       out.template head<3>() = M1.translation();
@@ -539,7 +539,7 @@ namespace se3
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
       JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
-      Jout = exp6(MotionRef<Tangent_t>(v)).toDualActionMatrix().transpose();
+      Jout = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -547,7 +547,7 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & v,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      Jexp6(MotionRef<Tangent_t>(v), J.derived());
+      Jexp6(MotionRef<const Tangent_t>(v.derived()), J.derived());
     }
 
     // interpolate_impl use default implementation.

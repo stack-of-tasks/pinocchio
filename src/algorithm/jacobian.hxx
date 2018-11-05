@@ -139,6 +139,7 @@ namespace se3
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Data::Matrix6x::ConstColXpr M6xColXpr;
     
     Matrix6Like & J_ = EIGEN_CONST_CAST(Matrix6Like,J);
     
@@ -147,7 +148,11 @@ namespace se3
     for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
     {
       if(rf == WORLD)   J_.col(j) = data.J.col(j);
-      else              J_.col(j) = oMjoint.actInv(Motion(data.J.col(j))).toVector(); // TODO: use MotionRef
+      else
+      {
+        const MotionRef<M6xColXpr> mref(data.J.col(j).derived());
+        J_.col(j) = oMjoint.actInv(mref).toVector();
+      }
     }
   }
   
