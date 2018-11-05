@@ -1,5 +1,5 @@
 # 
-# Copyright (c) 2015-2018 CNRS
+# Copyright (c) 2015-2018 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 # 
 # This file is part of Pinocchio
@@ -33,6 +33,9 @@ ENDMACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
 # --- PYTHON TARGET --- #
 ADD_CUSTOM_TARGET(python)
 SET_TARGET_PROPERTIES(python PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
+
+SET(PYWRAP ${PROJECT_NAME}_pywrap)
+SET(PYWRAP ${PYWRAP} PARENT_SCOPE)
 
 # --- DEPENDENCIES --- #
 SET(PKG_CONFIG_PYWRAP_REQUIRES "eigenpy >= 1.4.0")
