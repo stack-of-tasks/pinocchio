@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -73,8 +73,8 @@ namespace se3
     
     using Base::operator=;
     
-    ForceRef(const Eigen::MatrixBase<Vector6ArgType> & f_like)
-    : m_ref(const_cast<Vector6ArgType &>(f_like.derived()))
+    ForceRef(typename EIGEN_REF_TYPE(Vector6ArgType) f_like)
+    : m_ref(f_like)
     {
       EIGEN_STATIC_ASSERT(Vector6ArgType::ColsAtCompileTime == 1,
                           YOU_TRIED_CALLING_A_VECTOR_METHOD_ON_A_MATRIX);
@@ -109,7 +109,38 @@ namespace se3
   protected:
     DataRefType m_ref;
     
-  }; // class MotionTpl
+  }; // class ForceRef<Vector6Like>
+  
+  template<typename Vector6ArgType>
+  class ForceRef<const Vector6ArgType>
+  : public ForceDense< ForceRef<const Vector6ArgType> >
+  {
+  public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    typedef ForceDense<ForceRef> Base;
+    typedef typename traits<ForceRef>::DataRefType DataRefType;
+    FORCE_TYPEDEF_TPL(ForceRef);
+    
+    ForceRef(typename EIGEN_REF_CONSTTYPE(Vector6ArgType) f_like)
+    : m_ref(f_like)
+    {
+      EIGEN_STATIC_ASSERT(Vector6ArgType::ColsAtCompileTime == 1,
+                          YOU_TRIED_CALLING_A_VECTOR_METHOD_ON_A_MATRIX);
+      assert(f_like.size() == 6);
+    }
+    
+    ToVectorConstReturnType toVector_impl() const { return m_ref; }
+    
+    // Getters
+    ConstAngularType angular_impl() const { return ConstAngularType(m_ref.derived(),ANGULAR); }
+    ConstLinearType linear_impl()  const { return ConstLinearType(m_ref.derived(),LINEAR); }
+    
+    const ForceRef & ref() const { return *this; }
+    
+  protected:
+    DataRefType m_ref;
+    
+  }; // class ForceRef<Vector6Like>
   
 } // namespace se3
 
