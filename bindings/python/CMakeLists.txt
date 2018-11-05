@@ -18,6 +18,7 @@
 # --- MACROS --- #
 MACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
   FOREACH(header ${HEADERS})
+    STRING(REGEX REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" header ${header}) 
     GET_FILENAME_COMPONENT(headerName ${header} NAME)
     GET_FILENAME_COMPONENT(headerPath ${header} PATH)
     EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
@@ -46,95 +47,39 @@ ENDFOREACH(dep ${PKG_CONFIG_PYWRAP_REQUIRES})
 # --- LIBRARY --- #
 SET(${PYWRAP}_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITELIB}/${PROJECT_NAME})
 
-SET(${PROJECT_NAME}_PYTHON_HEADERS
-  utils/constant.hpp
-  utils/eigen_container.hpp
-  utils/handler.hpp
-  utils/copyable.hpp
-  utils/printable.hpp
-  utils/std-vector.hpp
-  utils/std-aligned-vector.hpp
-  utils/version.hpp
-  fwd.hpp
-  spatial/se3.hpp
-  spatial/force.hpp
-  spatial/motion.hpp
-  spatial/inertia.hpp
-  spatial/explog.hpp
-  multibody/frame.hpp
-  multibody/model.hpp
-  multibody/data.hpp
-  multibody/geometry-object.hpp
-  multibody/geometry-model.hpp
-  multibody/geometry-data.hpp
-  multibody/joint/joints-models.hpp
-  multibody/joint/joints-variant.hpp
-  multibody/joint/joint.hpp
-  multibody/joint/joint-derived.hpp
-  algorithm/algorithms.hpp 
-  parsers/parsers.hpp
-  parsers/sample-models.hpp
-  )
+FILE(GLOB_RECURSE ${PROJECT_NAME}_PYTHON_HEADERS
+     ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp 
+     ) 
 
-SET(${PROJECT_NAME}_PYTHON_SOURCES
-  module.cpp
-  utils/version.cpp
-  spatial/expose-SE3.cpp
-  spatial/expose-motion.cpp
-  spatial/expose-force.cpp
-  spatial/expose-inertia.cpp
-  spatial/expose-explog.cpp
-  multibody/expose-frame.cpp
-  multibody/expose-model.cpp
-  multibody/expose-data.cpp
-  multibody/expose-geometry.cpp
-  multibody/joint/expose-joints.cpp
-  algorithm/expose-algorithms.cpp
-  algorithm/expose-com.cpp
-  algorithm/expose-kinematics.cpp
-  algorithm/expose-dynamics.cpp
-  algorithm/expose-crba.cpp
-  algorithm/expose-centroidal.cpp
-  algorithm/expose-rnea.cpp
-  algorithm/expose-rnea-derivatives.cpp
-  algorithm/expose-aba.cpp
-  algorithm/expose-aba-derivatives.cpp
-  algorithm/expose-jacobian.cpp
-  algorithm/expose-kinematics-derivatives.cpp
-  algorithm/expose-joints.cpp
-  algorithm/expose-energy.cpp
-  algorithm/expose-frames.cpp
-  algorithm/expose-cat.cpp
-  algorithm/expose-geometry.cpp
-  algorithm/expose-regressor.cpp
-  parsers/expose-parsers.cpp
-  )
+FILE(GLOB_RECURSE ${PROJECT_NAME}_PYTHON_SOURCES
+     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp 
+     ) 
 
 # Parser for Python model
+LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS
+  parsers/python.hpp
+  )
 SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
   parsers/python.hpp
   )
 
-SET(${PROJECT_NAME}_PARSER_PYTHON_SOURCES
+LIST(APPEND ${PROJECT_NAME}_PYTHON_SOURCES
   parsers/python/model.cpp
   )
 
 # Python exposition of FCL
-IF(HPP_FCL_FOUND)
-  SET(${PROJECT_NAME}_PYTHON_FCL_HEADERS
+IF(NOT HPP_FCL_FOUND)
+  LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_HEADERS
     multibody/fcl/contact.hpp
     multibody/fcl/collision-result.hpp
     multibody/fcl/distance-result.hpp
     multibody/fcl/collision-geometry.hpp
     )
 
-  SET(${PROJECT_NAME}_PYTHON_FCL_SOURCES
+  LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_SOURCES
     multibody/fcl/expose-fcl.cpp
     )
-
-  LIST(APPEND ${PROJECT_NAME}_PYTHON_HEADERS ${${PROJECT_NAME}_PYTHON_FCL_HEADERS}) 
-  LIST(APPEND ${PROJECT_NAME}_PYTHON_SOURCES ${${PROJECT_NAME}_PYTHON_FCL_SOURCES}) 
-ENDIF(HPP_FCL_FOUND)
+ENDIF(NOT HPP_FCL_FOUND)
 
 LIST(APPEND HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
 LIST(REMOVE_DUPLICATES HEADERS)
@@ -158,8 +103,8 @@ SYMLINK_AND_INSTALL_HEADERS("${${PROJECT_NAME}_PARSER_PYTHON_HEADERS}" "")
 
 # --- COMPILE WRAPPER
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
-SET(${PYWRAP}_SOURCES ${${PROJECT_NAME}_PYTHON_SOURCES} ${${PROJECT_NAME}_PARSER_PYTHON_SOURCES})
-SET(${PYWRAP}_HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS} ${${PROJECT_NAME}_PARSER_PYTHON_HEADERS})
+SET(${PYWRAP}_SOURCES ${${PROJECT_NAME}_PYTHON_SOURCES})
+SET(${PYWRAP}_HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
 
 ADD_LIBRARY(${PYWRAP} SHARED ${${PYWRAP}_SOURCES} ${${PYWRAP}_HEADERS})
 ADD_DEPENDENCIES(python ${PYWRAP})
