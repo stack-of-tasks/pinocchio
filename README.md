@@ -7,8 +7,9 @@ Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/7824/badge.svg)](https://scan.coverity.com/projects/pinocchio)
 
 **Pinocchio** instantiates state-of-the-art Rigid Body Algorithms for poly-articulated systems based on revisited Roy Featherstone's algorithms.
-In addition, **Pinocchio** instantiates analytical derivatives of the main Rigid-Body Algorithms like the Recursive Newton-Euler Algorithms or the Articulated-Body Algorithm.
-**Pinocchio** is first tailored for legged robotics applications, but it can be used in extra contexts.
+Besides, **Pinocchio** instantiates analytical derivatives of the main Rigid-Body Algorithms like the Recursive Newton-Euler Algorithms or the Articulated-Body Algorithm.
+
+**Pinocchio** is first tailored for legged robotics applications, but it can be used in extra contexts (biomechanics, computer graphics, etc.)
 It is built upon Eigen for linear algebra and FCL for collision detection. **Pinocchio** comes with a Python interface for fast code prototyping.
 
 **Pinocchio** is now at the hearth of various robotics softwares as the [Stack-of-Tasks](http://stack-of-tasks.github.io) or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc).
@@ -23,14 +24,18 @@ It is built upon Eigen for linear algebra and FCL for collision detection. **Pin
 
 **Pinocchio** implements rigid body dynamics algorithms:
 
-   - forward kinematics and its analytical derivatives
-   - forward and inverse dynamics,
-   - analytical derivatives of forward and inverse dynamics,
-   - centroidal dynamics.
+   - forward kinematics and its analytical derivatives,
+   - forward/inverse dynamics and their analytical derivatives,
+   - centroidal dynamics and its analytical derivatives.
+
+**Pinocchio** is flexible:
+
+   - header only,
+   - C++11 compliant.
 
 **Pinocchio** is multi-thread friendly.  
 **Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
-**Pinocchio** is supported on MacOs and many Linux distribution ([See build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
+**Pinocchio** is supported on Mac Os X and many Linux distributions ([See build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
 
 ## Ongoing developments
 
