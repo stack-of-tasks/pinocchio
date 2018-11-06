@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018 CNRS
+# Copyright (c) 2015-2018 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 # This file is part of Pinocchio
@@ -165,221 +165,50 @@ INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
-
-SET(${PROJECT_NAME}_MATH_HEADERS
-  math/fwd.hpp
-  math/sincos.hpp
-  math/quaternion.hpp
-  math/matrix.hpp
-  math/cppad.hpp
-  math/cppadcg.hpp
-  )
-
-SET(${PROJECT_NAME}_UTILS_HEADERS
-  utils/axis-label.hpp
-  utils/eigen-fix.hpp
-  utils/timer.hpp
-  utils/string-generator.hpp
-  utils/file-explorer.hpp
-  utils/version.hpp
-  )
-
-SET(${PROJECT_NAME}_CODEGEN_HEADERS
-  codegen/code-generator-base.hpp
-  codegen/code-generator-algo.hpp
-  )
-
-SET(${PROJECT_NAME}_SPATIAL_HEADERS
-  spatial/symmetric3.hpp
-  spatial/se3.hpp
-  spatial/se3-base.hpp
-  spatial/se3-tpl.hpp
-  spatial/motion.hpp
-  spatial/motion-base.hpp
-  spatial/motion-dense.hpp
-  spatial/motion-tpl.hpp
-  spatial/motion-ref.hpp
-  spatial/motion-zero.hpp
-  spatial/force.hpp
-  spatial/force-base.hpp
-  spatial/force-dense.hpp
-  spatial/force-tpl.hpp
-  spatial/force-ref.hpp
-  spatial/inertia.hpp
-  spatial/fwd.hpp
-  spatial/skew.hpp
-  spatial/act-on-set.hpp
-  spatial/act-on-set.hxx
-  spatial/explog.hpp
-  spatial/explog-quaternion.hpp
-  spatial/cartesian-axis.hpp
-  spatial/spatial-axis.hpp
-  )
-
-SET(${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS
-  multibody/joint/fwd.hpp
-  multibody/joint/joint-base.hpp
-  multibody/joint/joint-collection.hpp
-  multibody/joint/joint-revolute.hpp
-  multibody/joint/joint-revolute-unaligned.hpp
-  multibody/joint/joint-revolute-unbounded.hpp
-  multibody/joint/joint-spherical.hpp
-  multibody/joint/joint-spherical-ZYX.hpp
-  multibody/joint/joint-prismatic.hpp
-  multibody/joint/joint-prismatic-unaligned.hpp
-  multibody/joint/joint-planar.hpp
-  multibody/joint/joint-translation.hpp
-  multibody/joint/joint-free-flyer.hpp
-  multibody/joint/joint-generic.hpp
-  multibody/joint/joint-basic-visitors.hpp
-  multibody/joint/joint-basic-visitors.hxx
-  multibody/joint/joint-composite.hpp
-  multibody/joint/joint-composite.hxx
-  ) 
-
-SET(${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS
-  multibody/liegroup/fwd.hpp
-  multibody/liegroup/liegroup.hpp
-  multibody/liegroup/liegroup-algo.hpp
-  multibody/liegroup/liegroup-algo.hxx
-  multibody/liegroup/liegroup-collection.hpp
-  multibody/liegroup/liegroup-generic.hpp
-  multibody/liegroup/liegroup-variant.hpp
-  multibody/liegroup/liegroup-variant-visitors.hpp
-  multibody/liegroup/liegroup-variant-visitors.hxx
-  multibody/liegroup/liegroup-base.hpp
-  multibody/liegroup/liegroup-base.hxx
-  multibody/liegroup/vector-space.hpp
-  multibody/liegroup/cartesian-product.hpp
-  multibody/liegroup/special-orthogonal.hpp
-  multibody/liegroup/special-euclidean.hpp
-  ) 
-
-SET(${PROJECT_NAME}_MULTIBODY_HEADERS
-  multibody/fwd.hpp
-  multibody/constraint.hpp
-  multibody/force-set.hpp
-  multibody/frame.hpp
-  multibody/model.hpp
-  multibody/model.hxx
-  multibody/data.hpp
-  multibody/data.hxx
-  multibody/visitor.hpp
-  )
-
-SET(${PROJECT_NAME}_ALGORITHM_HEADERS
-  algorithm/aba.hpp
-  algorithm/aba.hxx
-  algorithm/aba-derivatives.hpp
-  algorithm/aba-derivatives.hxx
-  algorithm/centroidal.hpp
-  algorithm/centroidal.hxx
-  algorithm/centroidal-derivatives.hpp
-  algorithm/centroidal-derivatives.hxx
-  algorithm/rnea.hpp
-  algorithm/rnea.hxx
-  algorithm/rnea-derivatives.hpp
-  algorithm/rnea-derivatives.hxx
-  algorithm/crba.hpp
-  algorithm/crba.hxx
-  algorithm/finite-differences.hpp
-  algorithm/finite-differences.hxx
-  algorithm/jacobian.hpp
-  algorithm/jacobian.hxx
-  algorithm/cholesky.hpp
-  algorithm/cholesky.hxx
-  algorithm/kinematics.hpp
-  algorithm/kinematics.hxx
-  algorithm/kinematics-derivatives.hpp
-  algorithm/kinematics-derivatives.hxx
-  algorithm/dynamics.hpp
-  algorithm/center-of-mass.hpp
-  algorithm/center-of-mass.hxx
-  algorithm/joint-configuration.hpp
-  algorithm/joint-configuration.hxx
-  algorithm/energy.hpp
-  algorithm/frames.hpp
-  algorithm/frames.hxx
-  algorithm/compute-all-terms.hpp
-  algorithm/copy.hpp
-  algorithm/check.hpp
-  algorithm/check.hxx
-  algorithm/default-check.hpp
-  algorithm/regressor.hpp
-  algorithm/regressor.hxx
-  )
-
-SET(${PROJECT_NAME}_CONTAINER_HEADERS
-  container/aligned-vector.hpp
-  )
-
-SET(${PROJECT_NAME}_PARSERS_HEADERS
-  parsers/sample-models.hpp
-  parsers/utils.hpp
-  parsers/srdf.hpp
-  parsers/srdf.hxx
-  ) 
+FILE(GLOB_RECURSE HEADERS 
+     ${PROJECT_SOURCE_DIR}/src/*.hpp 
+     ${PROJECT_SOURCE_DIR}/src/*.hxx 
+     ) 
 
 IF(URDFDOM_FOUND)
-  LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-    parsers/urdf.hpp
-    parsers/urdf/model.hxx
-    parsers/urdf/geometry.hxx
-    parsers/urdf/utils.hpp
-    parsers/urdf/types.hpp
-    )
-
   ADD_DEFINITIONS(-DWITH_URDFDOM)
   LIST(APPEND CFLAGS_DEPENDENCIES "-DWITH_URDFDOM")
+ELSE(URDFDOM_FOUND)
+  LIST(REMOVE_ITEM HEADERS
+    ${PROJECT_SOURCE_DIR}/src/parsers/urdf.hpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/urdf/model.hxx
+    ${PROJECT_SOURCE_DIR}/src/parsers/urdf/geometry.hxx
+    ${PROJECT_SOURCE_DIR}/src/parsers/urdf/utils.hpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/urdf/types.hpp
+    )
 ENDIF(URDFDOM_FOUND)
 
-LIST(APPEND ${PROJECT_NAME}_MULTIBODY_HEADERS
-  multibody/fcl.hpp
-  multibody/fcl.hxx
-  multibody/geometry.hpp
-  multibody/geometry.hxx
-  )
-LIST(APPEND ${PROJECT_NAME}_ALGORITHM_HEADERS
-  algorithm/geometry.hpp
-  algorithm/geometry.hxx
-  )
-IF(HPP_FCL_FOUND)
-  LIST(APPEND ${PROJECT_NAME}_SPATIAL_HEADERS
-    spatial/fcl-pinocchio-conversions.hpp
-    )
 
+IF(HPP_FCL_FOUND)
   ADD_DEFINITIONS(-DWITH_HPP_FCL)
   LIST(APPEND CFLAGS_DEPENDENCIES "-DWITH_HPP_FCL")
+ELSE(HPP_FCL_FOUND)
+  LIST(REMOVE_ITEM HEADERS 
+    ${PROJECT_SOURCE_DIR}/src/spatial/fcl-pinocchio-conversions.hpp
+    )
 ENDIF(HPP_FCL_FOUND)
 
 IF(LUA5_FOUND)
-  LIST(APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-    parsers/lua.hpp
-    parsers/lua/lua_tables.hpp
-    )
-
   ADD_DEFINITIONS(-DWITH_LUA5)
   LIST(APPEND CFLAGS_DEPENDENCIES "-DWITH_LUA5")
+ELSE(LUA5_FOUND)
+  LIST(REMOVE_ITEM HEADERS
+    ${PROJECT_SOURCE_DIR}/src/parsers/lua.hpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/lua/lua_tables.hpp
+    )
 ENDIF(LUA5_FOUND)
 
-SET(HEADERS
-  ${${PROJECT_NAME}_MATH_HEADERS}
-  ${${PROJECT_NAME}_UTILS_HEADERS}
-  ${${PROJECT_NAME}_SPATIAL_HEADERS}
-  ${${PROJECT_NAME}_MULTIBODY_JOINT_HEADERS}
-  ${${PROJECT_NAME}_MULTIBODY_LIEGROUP_HEADERS}
-  ${${PROJECT_NAME}_MULTIBODY_HEADERS}
-  ${${PROJECT_NAME}_PARSERS_HEADERS}
-  ${${PROJECT_NAME}_ALGORITHM_HEADERS}
-  ${${PROJECT_NAME}_CONTAINER_HEADERS}
-  ${${PROJECT_NAME}_CODEGEN_HEADERS}
-  exception.hpp
-  assert.hpp
-  macros.hpp
-  eigen-macros.hpp
-  fwd.hpp
- )
-LIST(REMOVE_DUPLICATES HEADERS)
+
+LIST(APPEND HEADERS
+     exception.hpp
+     assert.hpp
+     macros.hpp
+     )
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/math")
@@ -394,8 +223,10 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/utils")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/container")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/codegen")
-
+SET(HEADERS_)
 FOREACH(header ${HEADERS})
+  STRING(REGEX REPLACE "${PROJECT_SOURCE_DIR}/src/" "" header ${header})
+  LIST(APPEND HEADERS_ ${header})
   GET_FILENAME_COMPONENT(headerName ${header} NAME)
   GET_FILENAME_COMPONENT(headerPath ${header} PATH)
   EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
@@ -405,12 +236,12 @@ FOREACH(header ${HEADERS})
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${headerPath}
           PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
 ENDFOREACH(header)
+SET(HEADERS ${HEADERS_})
 
 # --- MAIN LIBRARY -------------------------------------------------------------
 ADD_SUBDIRECTORY(src)
 
 # --- BINDINGS -----------------------------------------------------------------
-SET(PYWRAP ${PROJECT_NAME}_pywrap)
 ADD_SUBDIRECTORY(bindings)
 
 # --- EXECUTABLES --------------------------------------------------------------
