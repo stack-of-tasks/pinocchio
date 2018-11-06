@@ -108,7 +108,9 @@ namespace se3
     // From runs of hpp-constraints/tests/logarithm.cc: 1e-6 is too small.
     if (theta < PI_value - 1e-2)
     {
-      const Scalar t = ((theta > TaylorSeriesExpansion<Scalar>::template precision<4>())? theta / sin(theta) : Scalar(1)) / Scalar(2);
+      const Scalar t = ((theta > TaylorSeriesExpansion<Scalar>::template precision<4>())
+                        ? theta / sin(theta)
+                        : Scalar(1)) / Scalar(2);
       res(0) = t * (R (2, 1) - R (1, 2));
       res(1) = t * (R (0, 2) - R (2, 0));
       res(2) = t * (R (1, 0) - R (0, 1));
@@ -171,10 +173,9 @@ namespace se3
     
     if (n < TaylorSeriesExpansion<Scalar>::template precision<4>())
     {
-
-      a =   Scalar(1)           - n/Scalar(6)   + n2/Scalar(120);
-      b = - Scalar(1)/Scalar(2) + n/Scalar(24)  - n2/Scalar(720);
-      c =   Scalar(1)/Scalar(6) - n/Scalar(120) + n2/Scalar(5040);
+      a =   Scalar(1)           - n2/Scalar(6);
+      b = - Scalar(1)/Scalar(2) - n2/Scalar(24);
+      c =   Scalar(1)/Scalar(6) - n2/Scalar(120);
     }
     else
     {
@@ -205,27 +206,30 @@ namespace se3
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, Jlog, 3, 3);
 
     Matrix3Like & Jout = const_cast<Matrix3Like &>(Jlog.derived());
-    typedef typename Matrix3Like::Scalar Scalar3;
-    
+
     if (theta < TaylorSeriesExpansion<Scalar>::template precision<4>())
-      Jout.setIdentity();
+    {
+      const Scalar alpha = Scalar(1)/Scalar(12) + theta*theta / Scalar(720);
+      Jout.noalias() = alpha * log * log.transpose();
+      
+      Jout.diagonal().array() += Scalar(0.5) * (2 - theta*theta / Scalar(6));
+      
+      // Jlog += r_{\times}/2
+      addSkew(0.5 * log, Jlog);
+    }
     else
     {
       // Jlog = alpha I
       Scalar ct,st; SINCOS(theta,&st,&ct);
       const Scalar st_1mct = st/(Scalar(1)-ct);
+      
+      const Scalar alpha = Scalar(1)/(theta*theta) - st_1mct/(Scalar(2)*theta);
+      Jout.noalias() = alpha * log * log.transpose();
 
-      Jout.setZero();
-      Jout.diagonal().setConstant(theta*st_1mct);
+      Jout.diagonal().array() += Scalar(0.5) * (theta*st_1mct);
 
       // Jlog += r_{\times}/2
-      Jout(0,1) = -log(2); Jout(1,0) =  log(2);
-      Jout(0,2) =  log(1); Jout(2,0) = -log(1);
-      Jout(1,2) = -log(0); Jout(2,1) =  log(0);
-      Jout /= Scalar3(2);
-
-      const Scalar alpha = Scalar(1)/(theta*theta) - st_1mct/(Scalar(2)*theta);
-      Jout += alpha * log * log.transpose();
+      addSkew(0.5 * log, Jlog);
     }
   }
 
