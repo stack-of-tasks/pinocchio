@@ -24,6 +24,7 @@
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/sincos.hpp"
+#include "pinocchio/math/taylor-expansion.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/skew.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -51,7 +52,7 @@ namespace se3
     const Scalar t2 = v.squaredNorm();
     
     const Scalar t = math::sqrt(t2);
-    if(t > 1e-4)
+    if(t > TaylorSeriesExpansion<Scalar>::template precision<4>())
     {
       Scalar ct,st; SINCOS(t,&st,&ct);
       const Scalar alpha_vxvx = (1 - ct)/t2;
@@ -107,7 +108,7 @@ namespace se3
     // From runs of hpp-constraints/tests/logarithm.cc: 1e-6 is too small.
     if (theta < PI_value - 1e-2)
     {
-      const Scalar t = ((theta > 1e-6)? theta / sin(theta) : Scalar(1)) / Scalar(2);
+      const Scalar t = ((theta > TaylorSeriesExpansion<Scalar>::template precision<4>())? theta / sin(theta) : Scalar(1)) / Scalar(2);
       res(0) = t * (R (2, 1) - R (1, 2));
       res(1) = t * (R (0, 2) - R (2, 0));
       res(2) = t * (R (1, 0) - R (0, 1));
@@ -168,7 +169,7 @@ namespace se3
     Scalar n2 = r.squaredNorm(),a,b,c;
     Scalar n = math::sqrt(n2);
     
-    if (n < 1e-6)
+    if (n < TaylorSeriesExpansion<Scalar>::template precision<4>())
     {
 
       a =   Scalar(1)           - n/Scalar(6)   + n2/Scalar(120);
@@ -206,7 +207,7 @@ namespace se3
     Matrix3Like & Jout = const_cast<Matrix3Like &>(Jlog.derived());
     typedef typename Matrix3Like::Scalar Scalar3;
     
-    if (theta < 1e-6)
+    if (theta < TaylorSeriesExpansion<Scalar>::template precision<4>())
       Jout.setIdentity();
     else
     {
@@ -270,7 +271,7 @@ namespace se3
     typename SE3::AngularType & rot = res.rotation();
     
     const Scalar t = math::sqrt(t2);
-    if(t < 1e-4)
+    if(t < TaylorSeriesExpansion<Scalar>::template precision<4>())
     {
       // Taylor expansion
       const Scalar alpha_wxv = Scalar(1)/Scalar(2) - t2/24;
@@ -351,7 +352,7 @@ namespace se3
     Vector3 w(log3(R,t)); // t in [0,π]
     const Scalar t2 = t*t;
     Scalar alpha, beta;
-    if (t < 1e-4)
+    if (t < TaylorSeriesExpansion<Scalar>::template precision<4>())
     {
       alpha = Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720);
       beta = Scalar(1)/Scalar(12) + t2/Scalar(720);
@@ -414,7 +415,7 @@ namespace se3
     Jout.template topLeftCorner<3,3>() = Jout.template bottomRightCorner<3,3>();
 
     Scalar beta, beta_dot_over_theta;
-    if (t < 1e-4)
+    if (t < TaylorSeriesExpansion<Scalar>::template precision<4>())
     {
       beta                = Scalar(1)/Scalar(12) + t2/Scalar(720);
       beta_dot_over_theta = Scalar(1)/Scalar(360);
@@ -493,7 +494,7 @@ namespace se3
 
     const Scalar t2 = t*t;
     Scalar beta, beta_dot_over_theta;
-    if(t < 1e-4)
+    if(t < TaylorSeriesExpansion<Scalar>::template precision<4>())
     {
       beta                = Scalar(1)/Scalar(12) + t2/Scalar(720);
       beta_dot_over_theta = Scalar(1)/Scalar(360);
