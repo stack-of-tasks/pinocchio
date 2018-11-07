@@ -42,7 +42,7 @@ namespace se3
     template<int degree>
     static Scalar precision()
     {
-      static Scalar value = std::pow(std::numeric_limits<Scalar>::epsilon(),Scalar(1.)/Scalar(degree));
+      static Scalar value = std::pow(std::numeric_limits<Scalar>::epsilon(),Scalar(1)/Scalar(degree+1));
       return value;
     }
   }; // struct TaylorSeriesExpansion
