@@ -22,7 +22,7 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
@@ -53,7 +53,7 @@ namespace se3
 
   }; // struct CollisionPair
 
-#ifndef WITH_HPP_FCL  
+#ifndef PINOCCHIO_WITH_HPP_FCL  
 
   namespace fcl
   {
@@ -74,7 +74,7 @@ namespace se3
 
   }
 
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
 
 enum GeometryType
 {

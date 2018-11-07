@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -19,6 +19,7 @@
 #define __se3_fwd_hpp__
 
 #include "pinocchio/macros.hpp"
+#include "pinocchio/deprecated-macros.hpp"
 #include "pinocchio/deprecated.hpp"
 #include "pinocchio/warning.hpp"
 #include "pinocchio/config.hpp"

@@ -142,7 +142,7 @@ namespace se3
      */
     PINOCCHIO_DEPRECATED const std::string & getGeometryName(const GeomIndex index) const;
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     ///
     /// \brief Add a collision pair into the vector of collision_pairs.
     ///        The method check before if the given CollisionPair is already included.
@@ -189,7 +189,7 @@ namespace se3
     ///
     PairIndex findCollisionPair(const CollisionPair & pair) const;
     
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
 
     friend std::ostream& operator<<(std::ostream & os, const GeometryModel & model_geom);
   }; // struct GeometryModel
@@ -212,7 +212,7 @@ namespace se3
     ///
     container::aligned_vector<SE3> oMg;
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     ///
     /// \brief Collision objects (ie a fcl placed geometry).
     ///
@@ -273,12 +273,12 @@ namespace se3
     /// Outer objects can be seen as geometry objects that may often be
     /// obstacles to the Inner objects of given joint
     std::map < JointIndex, GeomIndexList >  outerObjects;
-#endif // WITH_HPP_FCL   
+#endif // PINOCCHIO_WITH_HPP_FCL   
 
     GeometryData(const GeometryModel & geomModel);
     ~GeometryData() {};
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
 
     /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
     /// collisionPairs. 
@@ -308,7 +308,7 @@ namespace se3
     /// \sa activateCollisionPair
     void deactivateCollisionPair(const PairIndex pairId);
 
-#endif //WITH_HPP_FCL
+#endif //PINOCCHIO_WITH_HPP_FCL
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
     
   }; // struct GeometryData

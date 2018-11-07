@@ -30,7 +30,7 @@ namespace se3
   inline GeometryData::GeometryData(const GeometryModel & modelGeom)
   : oMg(modelGeom.ngeoms)
   
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
   , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
   , distanceRequest (true, 0, 0, fcl::GST_INDEP)
   , distanceResults(modelGeom.collisionPairs.size())
@@ -49,7 +49,7 @@ namespace se3
   }
 #else
   {}
-#endif // WITH_HPP_FCL   
+#endif // PINOCCHIO_WITH_HPP_FCL   
   
   template<typename S2, int O2, template<typename,int> class JointCollectionTpl>
   GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object,
@@ -132,7 +132,7 @@ namespace se3
   //     std::cout << "outer object already added" << std::endl;
   // }
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
   inline void GeometryData::fillInnerOuterObjectMaps(const GeometryModel & geomModel)
   {
     innerObjects.clear();
@@ -162,7 +162,7 @@ namespace se3
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryData & geomData)
   {
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     os << "Number of collision pairs = " << geomData.activeCollisionPairs.size() << std::endl;
     
     for(PairIndex i=0;i<(PairIndex)(geomData.activeCollisionPairs.size());++i)
@@ -177,7 +177,7 @@ namespace se3
     return os;
   }
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
   
   inline void GeometryModel::addCollisionPair (const CollisionPair & pair)
   {
@@ -240,7 +240,7 @@ namespace se3
     activeCollisionPairs[pairId] = false;
   }
 
-#endif //WITH_HPP_FCL
+#endif //PINOCCHIO_WITH_HPP_FCL
 } // namespace se3
 
 /// @endcond

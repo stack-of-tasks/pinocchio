@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE ( build_model_sample_manipulator )
   BOOST_CHECK(model.nq == 6);
   BOOST_CHECK(model.nv == 6);
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
   se3::Data data(model);
   se3::GeometryModel geom;
   se3::buildModels::manipulatorGeometries(model,geom);
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid )
   BOOST_CHECK(model.nq == 35);
   BOOST_CHECK(model.nv == 34);
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
   se3::GeometryModel geom;
   se3::buildModels::humanoidGeometries(model,geom);
   se3::GeometryData geomdata(geom);

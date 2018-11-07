@@ -183,7 +183,7 @@ namespace se3
 
     }
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     /* Add a 6DOF manipulator shoulder-elbow-wrist geometries to an existing model. 
      * <model> is the the kinematic chain, constant.
      * <geom> is the geometry model where the new geoms are added.
@@ -241,7 +241,7 @@ namespace se3
 
     void manipulator(Model & model) { addManipulator(model); }
     
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     void manipulatorGeometries(const Model & model, GeometryModel & geom)
     { addManipulatorGeometries(model,geom); }
 #endif
@@ -316,7 +316,7 @@ namespace se3
       addManipulator(model,chest,SE3(rotate(M_PI,Vector3d::UnitX()),Vector3d(0, 0.3, 1.)),"larm");
     }
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     void humanoidGeometries(const Model & model, GeometryModel & geom)
     {
       addManipulatorGeometries(model,geom,"rleg");

@@ -73,7 +73,7 @@ namespace se3
         .def_readonly("oMg",
                       &GeometryData::oMg,
                       "Vector of collision objects placement relative to the world.")
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
         .def_readonly("activeCollisionPairs",
                       &GeometryData::activeCollisionPairs,
                       "Vector of active CollisionPairs")
@@ -104,7 +104,7 @@ namespace se3
              bp::args("pairIndex (int)"),
              "Deactivate pair ID <pairIndex> in geomModel.collisionPairs.")
 
-#endif // WITH_HPP_FCL        
+#endif // PINOCCHIO_WITH_HPP_FCL        
         ;
       }
              

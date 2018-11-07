@@ -36,7 +36,7 @@ namespace se3
   namespace srdf
   {
     
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     namespace details
     {
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -141,7 +141,7 @@ namespace se3
       details::removeCollisionPairs(model, geomModel, srdf_stream, verbose);
     }
     
-#endif // ifdef WITH_HPP_FCL
+#endif // ifdef PINOCCHIO_WITH_HPP_FCL
     
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     bool loadRotorParameters(ModelTpl<Scalar,Options,JointCollectionTpl> & model,

@@ -63,7 +63,7 @@ namespace se3
                                        const GeometryModel & geomModel,
                                        GeometryData & geomData);
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
 
   ///
   /// \brief Compute the collision status between a *SINGLE* collision pair.
@@ -196,7 +196,7 @@ namespace se3
   inline void computeBodyRadius(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const GeometryModel & geomModel,
                                 GeometryData & geomData);
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
 
   ///
   /// Append geomModel2 to geomModel1

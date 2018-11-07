@@ -53,7 +53,7 @@ namespace se3
   } 
   
 
-#ifdef WITH_HPP_FCL  
+#ifdef PINOCCHIO_WITH_HPP_FCL  
 
   inline bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
   {
@@ -62,7 +62,7 @@ namespace se3
             && lhs.getAABB().max_ == rhs.getAABB().max_;
   }
   
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
   
   inline bool operator==(const GeometryObject & lhs, const GeometryObject & rhs)
   {
