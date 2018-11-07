@@ -64,6 +64,7 @@ OPTION (INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 OPTION (BUILD_WITH_LUA_SUPPORT "Build the lua parser" OFF)
 OPTION (BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
+OPTION (DISABLE_DEPRECATED_MACRO_WARNING "Disable warnings related to deprecated macro" OFF)
 
 IF (INITIALIZE_WITH_NAN)
   MESSAGE (STATUS "Initialize with NaN all the Eigen entries.")
@@ -79,6 +80,10 @@ ENDIF(BUILD_UNIT_TESTS)
 MACRO(TAG_LIBRARY_VERSION target)
   SET_TARGET_PROPERTIES(${target} PROPERTIES SOVERSION ${PROJECT_VERSION})
 ENDMACRO(TAG_LIBRARY_VERSION)
+
+IF(DISABLE_DEPRECATED_MACRO_WARNING)
+  ADD_DEFINITIONS(-DPINOCCHIO_DISABLE_DEPRECATED_MACRO_WARNING)
+ENDIF(DISABLE_DEPRECATED_MACRO_WARNING)
 
 # ----------------------------------------------------
 # --- DEPENDANCIES -----------------------------------
