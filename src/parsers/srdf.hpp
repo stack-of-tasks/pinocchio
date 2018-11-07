@@ -26,7 +26,7 @@ namespace se3
   namespace srdf
   {
     
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     
     ///
     /// \brief Deactive all possible collision pairs mentioned in the SRDF file.
@@ -81,7 +81,7 @@ namespace se3
       removeCollisionPairsFromXML(model,geomModel,xmlString,verbose);
     }
     
-#endif // ifdef WITH_HPP_FCL
+#endif // ifdef PINOCCHIO_WITH_HPP_FCL
 
     ///
     /// \brief Get the neutral configuration of a given model associated to a SRDF file.

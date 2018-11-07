@@ -40,7 +40,7 @@ namespace se3
               "Update the placement of the collision objects according to the current joint placement stored in data."
               );
       
-#ifdef WITH_HPP_FCL       
+#ifdef PINOCCHIO_WITH_HPP_FCL       
       bp::def("computeCollision",computeCollision,
               bp::args("geometry model", "geometry data", "collision pair index"),
               "Check if the collision objects of a collision pair for a given Geometry Model and Data are in collision."
@@ -79,7 +79,7 @@ namespace se3
               "Update the geometry for a given configuration and"
               "compute the distance between each collision pair"
               );
-#endif // WITH_HPP_FCL      
+#endif // PINOCCHIO_WITH_HPP_FCL      
     }
   } // namespace python
 } // namespace se3

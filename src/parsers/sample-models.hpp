@@ -32,7 +32,7 @@ namespace se3
      */
     void manipulator(Model & model);
     
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by manipulator function.
      *
      * \param model, const, kinematic chain typically produced by the function manipulator(model).
@@ -56,7 +56,7 @@ namespace se3
      */
     void humanoid(Model & model, bool usingFF=true);
     
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by humanoid function.
      *
      * \param model, const, kinematic chain typically produced by the function humanoid(model).

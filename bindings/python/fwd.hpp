@@ -47,9 +47,9 @@ namespace se3
     // Expose algorithms
     void exposeAlgorithms();
     
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     void exposeFCL();
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
 
   } // namespace python
 } // namespace se3

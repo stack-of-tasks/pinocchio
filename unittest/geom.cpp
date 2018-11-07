@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 }
 
 
-#if defined(WITH_URDFDOM) && defined(WITH_HPP_FCL)
+#if defined(PINOCCHIO_WITH_URDFDOM) && defined(PINOCCHIO_WITH_HPP_FCL)
 BOOST_AUTO_TEST_CASE (radius)
 {
   std::vector < std::string > packageDirs;
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE (radius)
   se3::computeBodyRadius(model, geom, geomData);
   BOOST_FOREACH( double radius, geomData.radius) BOOST_CHECK(radius>=0.);
 }
-#endif // if defined(WITH_URDFDOM) && defined(WITH_HPP_FCL)
+#endif // if defined(PINOCCHIO_WITH_URDFDOM) && defined(PINOCCHIO_WITH_HPP_FCL)
 
 BOOST_AUTO_TEST_SUITE_END ()
 

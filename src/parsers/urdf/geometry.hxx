@@ -34,9 +34,9 @@
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
   #include <hpp/fcl/mesh_loader/assimp.h>
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
 
 namespace se3
 {
@@ -94,7 +94,7 @@ namespace se3
        LinkMap_t links_;
      };
 
-#ifdef WITH_HPP_FCL      
+#ifdef PINOCCHIO_WITH_HPP_FCL      
       typedef fcl::BVHModel< fcl::OBBRSS > PolyhedronType;
       typedef boost::shared_ptr <PolyhedronType> PolyhedronPtrType;
 
@@ -202,7 +202,7 @@ namespace se3
 
         return geometry;
       }
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
 
      /**
       * @brief Get the first geometry attached to a link
@@ -212,7 +212,7 @@ namespace se3
       * @return Either the first collision or visual
       */
       template<typename T>
-      inline URDF_SHARED_PTR(const T)
+      inline PINOCCHIO_URDF_SHARED_PTR(const T)
       getLinkGeometry(const ::urdf::LinkConstSharedPtr link);
       
       template<>
@@ -240,7 +240,7 @@ namespace se3
       *
       */
       template<typename urdfObject>
-      inline bool getVisualMaterial(const URDF_SHARED_PTR(urdfObject) urdf_object,std::string & meshTexturePath,
+      inline bool getVisualMaterial(const PINOCCHIO_URDF_SHARED_PTR(urdfObject) urdf_object,std::string & meshTexturePath,
                                     Eigen::Vector4d & meshColor, const std::vector<std::string> & package_dirs);
       
       template<>
@@ -279,7 +279,7 @@ namespace se3
       * @return the array of either collisions or visuals
       */
       template<typename T>
-      inline const std::vector< URDF_SHARED_PTR(T) > &
+      inline const std::vector< PINOCCHIO_URDF_SHARED_PTR(T) > &
       getLinkGeometryArray(const ::urdf::LinkConstSharedPtr link);
       
       template<>
@@ -313,7 +313,7 @@ namespace se3
                                              GeometryModel & geomModel,
                                              const std::vector<std::string> & package_dirs) throw (std::invalid_argument)
       {
-        typedef std::vector< URDF_SHARED_PTR(GeometryType) > VectorSharedT;
+        typedef std::vector< PINOCCHIO_URDF_SHARED_PTR(GeometryType) > VectorSharedT;
         typedef GeometryModel::SE3 SE3;
 
         if(getLinkGeometry<GeometryType>(link))
@@ -338,8 +338,8 @@ namespace se3
           for (typename VectorSharedT::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)
           {
             meshPath.clear();
-#ifdef WITH_HPP_FCL
-#ifdef URDFDOM_COLLISION_WITH_GROUP_NAME
+#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
             const std::string & geom_name = (*i)->group_name;
 #else
             const std::string & geom_name = (*i)->name;
@@ -355,7 +355,7 @@ namespace se3
             }
 
             const boost::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
 
             Eigen::Vector4d meshColor;
             std::string meshTexturePath;

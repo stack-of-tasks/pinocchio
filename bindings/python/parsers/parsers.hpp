@@ -23,16 +23,16 @@
 
 #include "pinocchio/bindings/python/multibody/data.hpp"
 
-#ifdef WITH_URDFDOM
+#ifdef PINOCCHIO_WITH_URDFDOM
   #include "pinocchio/parsers/urdf.hpp"
 #endif
 
   #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
   #include "pinocchio/bindings/python/multibody/geometry-data.hpp"
 
-#ifdef WITH_LUA5
+#ifdef PINOCCHIO_WITH_LUA5
   #include "pinocchio/parsers/lua.hpp"
-#endif // #ifdef WITH_LUA5
+#endif // #ifdef PINOCCHIO_WITH_LUA5
 
 #include "pinocchio/parsers/srdf.hpp"
 
@@ -51,7 +51,7 @@ namespace se3
       };
       
       
-#ifdef WITH_URDFDOM
+#ifdef PINOCCHIO_WITH_URDFDOM
       
       static Model buildModelFromUrdf(const std::string & filename)
       {
@@ -128,9 +128,9 @@ namespace se3
         return geometry_model;
       }
 
-#endif // #ifdef WITH_URDFDOM
+#endif // #ifdef PINOCCHIO_WITH_URDFDOM
 
-#ifdef WITH_LUA5
+#ifdef PINOCCHIO_WITH_LUA5
       static Model buildModelFromLua(const std::string & filename,
                                             bool ff,
                                             bool verbose
@@ -140,7 +140,7 @@ namespace se3
         model = se3::lua::buildModel (filename, ff, verbose);
         return model;
       }
-#endif // #ifdef WITH_LUA5
+#endif // #ifdef PINOCCHIO_WITH_LUA5
       
       /* --- Expose --------------------------------------------------------- */
       static void expose();
@@ -148,7 +148,7 @@ namespace se3
 
     inline void ParsersPythonVisitor::expose()
     {
-#ifdef WITH_URDFDOM
+#ifdef PINOCCHIO_WITH_URDFDOM
       
       
       bp::def("buildModelFromUrdf",
@@ -198,7 +198,7 @@ namespace se3
               bp::args("Model to assosiate the Geometry","filename (string)"),
               "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model ");
       
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
       
       bp::def("removeCollisionPairs",
               static_cast<void (*)(const Model &, GeometryModel &, const std::string &, const bool)>(&srdf::removeCollisionPairs),
@@ -210,16 +210,16 @@ namespace se3
               bp::args("Model", "GeometryModel (where pairs are removed)","string containing the XML-SRDF", "verbosity"),
               "Parse an SRDF file in order to desactivte collision pairs for a specific GeometryModel.");
 
-#endif // #ifdef WITH_HPP_FCL
-#endif // #ifdef WITH_URDFDOM
+#endif // #ifdef PINOCCHIO_WITH_HPP_FCL
+#endif // #ifdef PINOCCHIO_WITH_URDFDOM
       
-#ifdef WITH_LUA5
+#ifdef PINOCCHIO_WITH_LUA5
       bp::def("buildModelFromLua",buildModelFromLua,
               bp::args("Filename (string)",
                        "Free flyer (bool, false for a fixed robot)",
                        "Verbose option "),
               "Parse the URDF file given in input and return a proper pinocchio model");
-#endif // #ifdef WITH_LUA5
+#endif // #ifdef PINOCCHIO_WITH_LUA5
 
       bp::def("getNeutralConfiguration",
               static_cast<Model::ConfigVectorType (*)(Model &, const std::string &, const bool)>(&srdf::getNeutralConfiguration),

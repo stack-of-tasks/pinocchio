@@ -61,9 +61,9 @@ int main()
   se3::Model model;
   se3::urdf::buildModel(romeo_filename, se3::JointModelFreeFlyer(),model);
   se3::GeometryModel geom_model; se3::urdf::buildGeom(model, romeo_filename, COLLISION, geom_model, package_dirs);
-#ifdef WITH_HPP_FCL  
+#ifdef PINOCCHIO_WITH_HPP_FCL  
   geom_model.addAllCollisionPairs();
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
    
   Data data(model);
   GeometryData geom_data(geom_model);
@@ -95,7 +95,7 @@ int main()
   double update_col_time = timer.toc(PinocchioTicToc::US)/NBT - geom_time;
   std::cout << "Update Collision Geometry < false > = \t" << update_col_time << " " << PinocchioTicToc::unitName(PinocchioTicToc::US) << std::endl;
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
   timer.tic();
   SMOOTH(NBT)
   {
@@ -129,6 +129,6 @@ int main()
   std::cout << "Compute distance between two geometry objects (mean time) = \t" << computeDistancesTime / double(geom_model.collisionPairs.size())
             << " " << PinocchioTicToc::unitName(PinocchioTicToc::US) << " " << geom_model.collisionPairs.size() << " col pairs" << std::endl;
 
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
   return 0;
 }

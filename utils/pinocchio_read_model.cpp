@@ -21,11 +21,11 @@
 
 #include "pinocchio/multibody/model.hpp"
 
-#ifdef WITH_URDFDOM
+#ifdef PINOCCHIO_WITH_URDFDOM
   #include "pinocchio/parsers/urdf.hpp"
 #endif
 
-#ifdef WITH_LUA5
+#ifdef PINOCCHIO_WITH_LUA5
   #include "pinocchio/parsers/lua.hpp"
 #endif
 
@@ -66,14 +66,14 @@ int main(int argc, char *argv[])
   switch(extension_type)
   {
     case se3::URDF:
-#ifdef WITH_URDFDOM
+#ifdef PINOCCHIO_WITH_URDFDOM
       se3::urdf::buildModel(filename,model,verbose);
 #else
       std::cerr << "It seems that the URDFDOM module has not been found during the Cmake process." << std::endl;
 #endif
       break;
     case se3::LUA:
-#ifdef WITH_LUA5
+#ifdef PINOCCHIO_WITH_LUA5
       model = se3::lua::buildModel(filename, false, verbose);
 #else
       std::cerr << "It seems that the LUA module has not been found during the Cmake process." << std::endl;

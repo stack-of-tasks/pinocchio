@@ -51,12 +51,12 @@ namespace se3
       const Model::JointIndex & joint = geomModel.geometryObjects[i].parentJoint;
       if (joint>0) geomData.oMg[i] =  (data.oMi[joint] * geomModel.geometryObjects[i].placement);
       else         geomData.oMg[i] =  geomModel.geometryObjects[i].placement;
-#ifdef WITH_HPP_FCL  
+#ifdef PINOCCHIO_WITH_HPP_FCL  
       geomData.collisionObjects[i].setTransform( toFclTransform3f(geomData.oMg[i]) );
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
     }
   }
-#ifdef WITH_HPP_FCL  
+#ifdef PINOCCHIO_WITH_HPP_FCL  
 
   /* --- COLLISIONS ----------------------------------------------------------------- */
   /* --- COLLISIONS ----------------------------------------------------------------- */
@@ -283,7 +283,7 @@ namespace se3
   }
 
 #undef SE3_GEOM_AABB
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
 
   /* --- APPEND GEOMETRY MODEL ----------------------------------------------------------- */
 

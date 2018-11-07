@@ -56,7 +56,7 @@ namespace se3
                                                             "Add a GeometryObject to a GeometryModel and set its parent joint by reading its value in model")
         .def("getGeometryId",&GeometryModel::getGeometryId)
         .def("existGeometryName",&GeometryModel::existGeometryName)
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
         .add_property("collisionPairs",
                       &GeometryModel::collisionPairs,
                       "Vector of collision pairs.")
@@ -80,7 +80,7 @@ namespace se3
              bp::args("co1 (index)","co2 (index)"),
              "Return the index of a collision pair given by the index of the two collision objects exists or not."
              " Remark: co1 < co2")
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
         ;
       }
       

@@ -50,7 +50,7 @@ namespace se3
         return model;
       }
       
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
       static GeometryModel buildSampleGeometryModelManipulator(const Model& model)
       {
         GeometryModel geom;
@@ -73,7 +73,7 @@ namespace se3
         return model;
       }
       
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
       static GeometryModel buildSampleGeometryModelHumanoid(const Model& model)
       {
         GeometryModel geom;
@@ -104,7 +104,7 @@ namespace se3
               "Generate a (hard-coded) model of a simple manipulator."
               );
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def("buildSampleGeometryModelManipulator",
               static_cast <GeometryModel (*) (const Model&)> (&SampleModelsPythonVisitor::buildSampleGeometryModelManipulator),
               bp::args("Model (model)"),
@@ -123,7 +123,7 @@ namespace se3
               "Generate a (hard-coded) model of a simple humanoid."
               );
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def("buildSampleGeometryModelHumanoid",
               static_cast <GeometryModel (*) (const Model&)> (&SampleModelsPythonVisitor::buildSampleGeometryModelHumanoid),
               bp::args("Model (model)"),
