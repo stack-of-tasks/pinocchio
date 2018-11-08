@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016,2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 // This file is part of Pinocchio
@@ -344,6 +344,19 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
     jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
+    
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::ConstType
+    jointRows(const Eigen::MatrixBase<D>& A) const       { return derived().jointRows_impl(A); }
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::ConstType
+    jointRows_impl(const Eigen::MatrixBase<D>& A) const       { return A.template middleRows<NV>(i_v); }
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::Type
+    jointRows(Eigen::MatrixBase<D>& A) const       { return derived().jointRows_impl(A); }
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::Type
+    jointRows_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleRows<NV>(i_v); }
 
   protected:
 
