@@ -94,10 +94,10 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                                     const Eigen::MatrixBase<Jacobian_t> & J) const;
 
     /**
-     * @brief      Computes the Jacobian of a small variation of the configuration vector into tangent space at identity.
+     * @brief      Computes the Jacobian of a small variation of the configuration vector or the tangent vector into tangent space at identity.
      *
      * @details    This Jacobian corresponds to the Jacobian of \f$ (\bm{q} \oplus \delta \bm{q}) \oplus \bm{v} \f$ with
-     *             \f$ \delta \bm{q} \rightarrow 0 \f$.
+     *             \f$ \delta \bm{q} \rightarrow 0 \f$ if arg == ARG0 or \f$ \delta \bm{v} \rightarrow 0 \f$ if arg == ARG1.
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector.
@@ -213,7 +213,7 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     PINOCCHIO_DEPRECATED;
 
     /**
-     * @brief      Computes the Jacobian of the difference operation.
+     * @brief      Computes the Jacobian of the difference operation with respect to q0 or q1.
      *
      * @param[in]  q0    the initial configuration vector.
      * @param[in]  q1    the terminal configuration vector.
