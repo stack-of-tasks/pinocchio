@@ -15,12 +15,12 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_cartesian_axis_hpp__
-#define __se3_cartesian_axis_hpp__
+#ifndef __pinocchio_cartesian_axis_hpp__
+#define __pinocchio_cartesian_axis_hpp__
 
 #include "pinocchio/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   template<int _axis>
@@ -159,4 +159,4 @@ namespace se3
 
 }
 
-#endif // __se3_cartesian_axis_hpp__
+#endif // __pinocchio_cartesian_axis_hpp__

@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_multibody_geometry_hxx__
-#define __se3_multibody_geometry_hxx__
+#ifndef __pinocchio_multibody_geometry_hxx__
+#define __pinocchio_multibody_geometry_hxx__
 
 #include <iostream>
 #include <map>
@@ -25,7 +25,7 @@
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
   inline GeometryData::GeometryData(const GeometryModel & modelGeom)
   : oMg(modelGeom.ngeoms)
@@ -56,7 +56,7 @@ namespace se3
                                              const ModelTpl<S2,O2,JointCollectionTpl> & model)
   {
     assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
-           (model.frames[object.parentFrame].type == se3::BODY)  );
+           (model.frames[object.parentFrame].type == pinocchio::BODY)  );
     assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
            (model.frames[object.parentFrame].parent == object.parentJoint) );
     
@@ -241,8 +241,8 @@ namespace se3
   }
 
 #endif //PINOCCHIO_WITH_HPP_FCL
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __se3_multibody_geometry_hxx__
+#endif // ifndef __pinocchio_multibody_geometry_hxx__

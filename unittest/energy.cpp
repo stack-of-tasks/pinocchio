@@ -29,11 +29,11 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE(test_kinetic_energy)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
   
   VectorXd q = VectorXd::Zero(model.nq);
   VectorXd v = VectorXd::Ones(model.nv);

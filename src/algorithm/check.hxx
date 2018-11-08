@@ -15,13 +15,13 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_check_hxx__
-#define __se3_check_hxx__
+#ifndef __pinocchio_check_hxx__
+#define __pinocchio_check_hxx__
 
 #include <boost/fusion/algorithm.hpp>
 #include <boost/foreach.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace internal
   {
@@ -173,6 +173,6 @@ namespace se3
   { return checkData(*this,data); }
 
 
-} // namespace se3 
+} // namespace pinocchio 
 
-#endif // ifndef __se3_check_hxx__
+#endif // ifndef __pinocchio_check_hxx__

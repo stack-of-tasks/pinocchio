@@ -16,10 +16,10 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_force_tpl_hpp__
-#define __se3_force_tpl_hpp__
+#ifndef __pinocchio_force_tpl_hpp__
+#define __pinocchio_force_tpl_hpp__
 
-namespace se3
+namespace pinocchio
 {
   template<typename _Scalar, int _Options>
   struct traits< ForceTpl<_Scalar, _Options> >
@@ -128,6 +128,6 @@ namespace se3
     
   }; // class ForceTpl
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_force_tpl_hpp__
+#endif // ifndef __pinocchio_force_tpl_hpp__

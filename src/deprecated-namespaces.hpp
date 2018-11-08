@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2018 INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -15,24 +15,11 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __pinocchio_fcl_convertion_hpp__
-#define __pinocchio_fcl_convertion_hpp__
+#ifndef __pinocchio_deprecated_namespaces_hpp__
+#define __pinocchio_deprecated_namespaces_hpp__
 
-#include <hpp/fcl/math/transform.h>
-#include "pinocchio/spatial/se3.hpp"
+#if PINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_1 // do not warn
+  namespace se3 = ::pinocchio;
+#endif
 
-namespace pinocchio
-{
-  inline fcl::Transform3f toFclTransform3f(const SE3 & m)
-  {
-    return fcl::Transform3f(m.rotation(), m.translation());
-  }
-
-  inline SE3 toPinocchioSE3(const fcl::Transform3f & tf)
-  {
-    return SE3(tf.getRotation(), tf.getTranslation());
-  }
-
-} // namespace pinocchio
-
-#endif // ifndef __pinocchio_fcl_convertion_hpp__
+#endif // ifndef __pinocchio_deprecated_namespaces_hpp__

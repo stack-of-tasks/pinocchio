@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lie_group_hpp__
-#define __se3_lie_group_hpp__
+#ifndef __pinocchio_lie_group_hpp__
+#define __pinocchio_lie_group_hpp__
 
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/liegroup/vector-space.hpp"
@@ -26,7 +26,7 @@
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   struct LieGroupMap
   {
@@ -73,4 +73,4 @@ namespace se3
   
 }
 
-#endif // ifndef __se3_lie_group_hpp__
+#endif // ifndef __pinocchio_lie_group_hpp__

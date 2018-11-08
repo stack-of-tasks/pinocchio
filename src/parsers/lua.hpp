@@ -15,18 +15,18 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lua_hpp__
-#define __se3_lua_hpp__
+#ifndef __pinocchio_lua_hpp__
+#define __pinocchio_lua_hpp__
 
 #include <string>
 #include "pinocchio/multibody/model.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace lua
   {
     Model buildModel (const std::string & filename, bool freeFlyer = false, bool verbose = false);
   } // namespace lua
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_lua_hpp__
+#endif // ifndef __pinocchio_lua_hpp__

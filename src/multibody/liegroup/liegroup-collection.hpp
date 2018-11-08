@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lie_group_collection_hpp__
-#define __se3_lie_group_collection_hpp__
+#ifndef __pinocchio_lie_group_collection_hpp__
+#define __pinocchio_lie_group_collection_hpp__
 
 #include "pinocchio/multibody/liegroup/vector-space.hpp"
 #include "pinocchio/multibody/liegroup/cartesian-product.hpp"
@@ -25,7 +25,7 @@
 
 #include <boost/variant.hpp>
 
-namespace se3
+namespace pinocchio
 {
   template<typename _Scalar, int _Options = 0>
   struct LieGroupCollectionDefaultTpl
@@ -50,5 +50,5 @@ namespace se3
   
 }
 
-#endif // ifndef __se3_lie_group_collection_hpp__
+#endif // ifndef __pinocchio_lie_group_collection_hpp__
 

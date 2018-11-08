@@ -43,7 +43,7 @@
 
 //#define VERBOSE
 
-using namespace se3;
+using namespace pinocchio;
 
 template <typename JoinData_t>
 void printOutJointData(
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_SUITE(JointRevoluteUnaligned)
 
 BOOST_AUTO_TEST_CASE(vsRX)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_SUITE (JointPrismaticUnaligned)
 
 BOOST_AUTO_TEST_CASE (vsPX)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_SUITE (JointSpherical)
 
 BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 6, 1> Vector6;
   typedef Eigen::Matrix <double, 7, 1> VectorFF;
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 {
   // WARNIG : Dynamic algorithm's results cannot be compared to FreeFlyer's ones because 
   // of the representation of the rotation and the ConstraintSubspace difference.
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 6, 1> Vector6;
   typedef Eigen::Matrix <double, 7, 1> VectorFF;
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
@@ -454,7 +454,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
 
 BOOST_AUTO_TEST_CASE ( test_crba )
 {
-  using namespace se3;
+  using namespace pinocchio;
   using namespace std;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
@@ -561,7 +561,7 @@ BOOST_AUTO_TEST_CASE(spatial)
 
 BOOST_AUTO_TEST_CASE ( test_kinematics )
 {
-  using namespace se3;
+  using namespace pinocchio;
 
 
   Motion expected_v_J (Motion::Zero ());
@@ -611,7 +611,7 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
@@ -655,7 +655,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
 
 BOOST_AUTO_TEST_CASE ( test_crba )
 {
-  using namespace se3;
+  using namespace pinocchio;
   using namespace std;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
@@ -708,7 +708,7 @@ BOOST_AUTO_TEST_CASE(spatial)
 
 BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 6, 1> Vector6;
   typedef Eigen::Matrix <double, 4, 1> VectorPl;
@@ -828,7 +828,7 @@ BOOST_AUTO_TEST_CASE(spatial)
 
 BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 6, 1> Vector6;
   typedef Eigen::Matrix <double, 7, 1> VectorFF;
@@ -1108,7 +1108,7 @@ BOOST_AUTO_TEST_SUITE(JointModelBase_test)
   struct TestJointModelIsEqual
   {
     template<typename JointModel>
-    void operator()(const se3::JointModelBase<JointModel> &) const
+    void operator()(const pinocchio::JointModelBase<JointModel> &) const
     {
       JointModel jmodel;
       jmodel.setIndexes(0,0,0);
@@ -1182,7 +1182,7 @@ BOOST_AUTO_TEST_SUITE(JointModelBase_test)
   struct TestJointModelCast
   {
     template<typename JointModel>
-    void operator()(const se3::JointModelBase<JointModel> &) const
+    void operator()(const pinocchio::JointModelBase<JointModel> &) const
     {
       JointModel jmodel;
       jmodel.setIndexes(0,0,0);

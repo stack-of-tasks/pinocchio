@@ -15,20 +15,20 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_jacobian_hpp__
-#define __se3_jacobian_hpp__
+#ifndef __pinocchio_jacobian_hpp__
+#define __pinocchio_jacobian_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.
   ///        The result is accessible through data.J. This function computes also the forwardKinematics of the model.
   ///
-  /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Jacobian, it is then possible to easily extract the Jacobian of a specific joint frame. \sa se3::getJointJacobian for doing this specific extraction.
+  /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Jacobian, it is then possible to easily extract the Jacobian of a specific joint frame. \sa pinocchio::getJointJacobian for doing this specific extraction.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -49,9 +49,9 @@ namespace se3
   /// \brief Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.
   ///        The result is accessible through data.J. This function computes also the forwardKinematics of the model.
   ///
-  /// \deprecated This function is now deprecated. Please refer now to se3::computeJointJacobians for similar function with updated name.
+  /// \deprecated This function is now deprecated. Please refer now to pinocchio::computeJointJacobians for similar function with updated name.
   ///
-  /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Jacobian, it is then possible to easily extract the Jacobian of a specific joint frame. \sa se3::getJointJacobian for doing this specific extraction.
+  /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Jacobian, it is then possible to easily extract the Jacobian of a specific joint frame. \sa pinocchio::getJointJacobian for doing this specific extraction.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -68,9 +68,9 @@ namespace se3
   
   ///
   /// \brief Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.
-  ///        The result is accessible through data.J. This function assumes that se3::forwardKinematics has been called before.
+  ///        The result is accessible through data.J. This function assumes that pinocchio::forwardKinematics has been called before.
   ///
-  /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Jacobian, it is then possible to easily extract the Jacobian of a specific joint frame. \sa se3::getJointJacobian for doing this specific extraction.
+  /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Jacobian, it is then possible to easily extract the Jacobian of a specific joint frame. \sa pinocchio::getJointJacobian for doing this specific extraction.
   ///
   /// \tparam JointCollection Collection of Joint types.
   ///
@@ -86,11 +86,11 @@ namespace se3
   
   ///
   /// \brief Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.
-  ///        The result is accessible through data.J. This function assumes that se3::forwardKinematics has been called before.
+  ///        The result is accessible through data.J. This function assumes that pinocchio::forwardKinematics has been called before.
   ///
-  /// \deprecated This function is now deprecated. Please refer now to se3::computeJointJacobians for similar function with updated name.
+  /// \deprecated This function is now deprecated. Please refer now to pinocchio::computeJointJacobians for similar function with updated name.
   ///
-  /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Jacobian, it is then possible to easily extract the Jacobian of a specific joint frame. \sa se3::getJointJacobian for doing this specific extraction.
+  /// \note This Jacobian does not correspond to any specific joint frame Jacobian. From this Jacobian, it is then possible to easily extract the Jacobian of a specific joint frame. \sa pinocchio::getJointJacobian for doing this specific extraction.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -105,7 +105,7 @@ namespace se3
   
   ///
   /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame or in the local frame (rf = LOCAL) of the joint.
-  /// \note This jacobian is extracted from data.J. You have to run se3::computeJointJacobians before calling it.
+  /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJointJacobians before calling it.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
@@ -125,7 +125,7 @@ namespace se3
   
   ///
   /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame or in the local frame (rf = LOCAL) of the joint.
-  /// \note This jacobian is extracted from data.J. You have to run se3::computeJointJacobians before calling it.
+  /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJointJacobians before calling it.
   ///
   /// \tparam rf Reference frame in which the Jacobian is expressed.
   ///
@@ -145,9 +145,9 @@ namespace se3
   
   ///
   /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame or in the local frame (rf = LOCAL) of the joint.
-  /// \note This jacobian is extracted from data.J. You have to run se3::computeJacobians before calling it.
+  /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJacobians before calling it.
   ///
-  /// \deprecated This function is now deprecated. Please refer now to se3::getJointJacobian for similar function with updated name.
+  /// \deprecated This function is now deprecated. Please refer now to pinocchio::getJointJacobian for similar function with updated name.
   ///
   /// \tparam rf Reference frame in which the Jacobian is expressed.
   ///
@@ -194,7 +194,7 @@ namespace se3
   ///
   /// \brief Computes the Jacobian of a specific joint frame expressed in the local frame of the joint and store the result in the input argument J.
   ///
-  /// \deprecated This function is now deprecated. Please refer now to se3::jointJacobian for similar function with updated name.
+  /// \deprecated This function is now deprecated. Please refer now to pinocchio::jointJacobian for similar function with updated name.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -265,7 +265,7 @@ namespace se3
   /// \brief Computes the full model Jacobian variations with respect to time. It corresponds to dJ/dt which depends both on q and v.
   ///        The result is accessible through data.dJ.
   ///
-  /// \deprecated This function is now deprecated. Please refer now to se3::computeJointJacobiansTimeVariation for similar function with updated name.
+  /// \deprecated This function is now deprecated. Please refer now to pinocchio::computeJointJacobiansTimeVariation for similar function with updated name.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -284,7 +284,7 @@ namespace se3
   
   ///
   /// \brief Computes the Jacobian time variation of a specific joint frame expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL) of the joint.
-  /// \note This jacobian is extracted from data.dJ. You have to run se3::computeJacobiansTimeVariation before calling it.
+  /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJacobiansTimeVariation before calling it.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
@@ -304,9 +304,9 @@ namespace se3
   
   ///
   /// \brief Computes the Jacobian time variation of a specific joint frame expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL) of the joint.
-  /// \note This jacobian is extracted from data.dJ. You have to run se3::computeJacobiansTimeVariation before calling it.
+  /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJacobiansTimeVariation before calling it.
   ///
-  /// \deprecated This function is now deprecated. Please refer now to se3::getJointJacobianTimeVariation for similar function with updated name.
+  /// \deprecated This function is now deprecated. Please refer now to pinocchio::getJointJacobianTimeVariation for similar function with updated name.
   ///
   /// \tparam rf Reference frame in which the Jacobian is expressed.
   ///
@@ -326,10 +326,10 @@ namespace se3
   
   ///
   /// \brief Computes the Jacobian time variation of a specific joint frame expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL) of the joint.
-  /// \note This jacobian is extracted from data.dJ. You have to run se3::computeJointJacobiansTimeVariation before calling it.
-  /// \deprecated This function is now deprecated. Please refer now to se3::getJointJacobianTimeVariation for similar function with updated name.  
+  /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJointJacobiansTimeVariation before calling it.
+  /// \deprecated This function is now deprecated. Please refer now to pinocchio::getJointJacobianTimeVariation for similar function with updated name.  
   ///
-  /// \deprecated This function is now deprecated. Please refer now to se3::getJacobianTimeVariation for similar function without ReferenceFrame template parameters.
+  /// \deprecated This function is now deprecated. Please refer now to pinocchio::getJacobianTimeVariation for similar function without ReferenceFrame template parameters.
   ///
   /// \tparam rf Reference frame in which the Jacobian is expressed.
   ///
@@ -347,7 +347,7 @@ namespace se3
                                        Data::Matrix6x & dJ)
   { getJointJacobianTimeVariation<rf>(model,data,jointId,dJ); }
   
-} // namespace se3 
+} // namespace pinocchio 
 
 /* --- Details -------------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------------- */
@@ -355,4 +355,4 @@ namespace se3
 
 #include "pinocchio/algorithm/jacobian.hxx"
 
-#endif // ifndef __se3_jacobian_hpp__
+#endif // ifndef __pinocchio_jacobian_hpp__

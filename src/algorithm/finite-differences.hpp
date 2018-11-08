@@ -15,12 +15,12 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_finite_differences_hpp__
-#define __se3_finite_differences_hpp__
+#ifndef __pinocchio_finite_differences_hpp__
+#define __pinocchio_finite_differences_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 
-namespace se3 {
+namespace pinocchio {
   
   ///
   /// \brief Computes the finite difference increments for each degree of freedom according to the current joint configuration.
@@ -39,4 +39,4 @@ namespace se3 {
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/finite-differences.hxx"
 
-#endif // ifndef __se3_finite_differences_hpp__
+#endif // ifndef __pinocchio_finite_differences_hpp__

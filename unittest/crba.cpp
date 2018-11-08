@@ -40,14 +40,14 @@
 #include <boost/utility/binary.hpp>
 
 template<typename JointModel>
-static void addJointAndBody(se3::Model & model,
-                            const se3::JointModelBase<JointModel> & joint,
+static void addJointAndBody(pinocchio::Model & model,
+                            const pinocchio::JointModelBase<JointModel> & joint,
                             const std::string & parent_name,
                             const std::string & name,
-                            const se3::SE3 placement = se3::SE3::Random(),
+                            const pinocchio::SE3 placement = pinocchio::SE3::Random(),
                             bool setRandomLimits = true)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef typename JointModel::ConfigVector_t CV;
   typedef typename JointModel::TangentVector_t TV;
   
@@ -76,9 +76,9 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_crba )
 {
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
   
   #ifdef NDEBUG
     #ifdef _INTENSE_TESTING_
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   #else
     const size_t NBT = 1;
     using namespace Eigen;
-    using namespace se3;
+    using namespace pinocchio;
 
     Eigen::MatrixXd M(model.nv,model.nv);
     Eigen::VectorXd q = Eigen::VectorXd::Ones(model.nq);
@@ -137,9 +137,9 @@ BOOST_AUTO_TEST_CASE ( test_crba )
   
 BOOST_AUTO_TEST_CASE(test_minimal_crba)
 {
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model), data_ref(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model), data_ref(model);
   
   model.lowerPositionLimit.head<7>().fill(-1.);
   model.upperPositionLimit.head<7>().fill(1.);

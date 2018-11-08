@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_aba_hxx__
-#define __se3_aba_hxx__
+#ifndef __pinocchio_aba_hxx__
+#define __pinocchio_aba_hxx__
 
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/multibody/visitor.hpp"
@@ -24,7 +24,7 @@
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct AbaForwardStep1
@@ -40,8 +40,8 @@ namespace se3
                                   > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data,
                      const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -206,8 +206,8 @@ namespace se3
                                   Data &> ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data)
     {
@@ -326,8 +326,8 @@ namespace se3
                                   > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data,
                      const Eigen::MatrixBase<ConfigVectorType> & q)
@@ -428,8 +428,8 @@ namespace se3
                                   Data &> ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data)
     {
@@ -518,8 +518,8 @@ namespace se3
     return true;
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __se3_aba_hxx__
+#endif // ifndef __pinocchio_aba_hxx__

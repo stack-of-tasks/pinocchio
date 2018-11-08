@@ -15,12 +15,12 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_basic_visitors_hpp__
-#define __se3_joint_basic_visitors_hpp__
+#ifndef __pinocchio_joint_basic_visitors_hpp__
+#define __pinocchio_joint_basic_visitors_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   /**
@@ -287,7 +287,7 @@ namespace se3
   inline Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options>
   udinv_inertia(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
   
-} // namespace se3
+} // namespace pinocchio
 
 
 /* --- Details -------------------------------------------------------------------- */
@@ -295,4 +295,4 @@ namespace se3
 // #include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
 
 
-#endif // ifndef __se3_joint_basic_visitors_hpp__
+#endif // ifndef __pinocchio_joint_basic_visitors_hpp__

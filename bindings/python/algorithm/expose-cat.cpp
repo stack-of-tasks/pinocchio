@@ -18,7 +18,7 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -43,4 +43,4 @@ namespace se3
               "in the same loop and put the results in data.");
     }
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

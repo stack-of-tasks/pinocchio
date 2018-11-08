@@ -15,14 +15,14 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_basic_visitors_hxx__
-#define __se3_joint_basic_visitors_hxx__
+#ifndef __pinocchio_joint_basic_visitors_hxx__
+#define __pinocchio_joint_basic_visitors_hxx__
 
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 
-namespace se3
+namespace pinocchio
 {
   /// @cond DEV
   
@@ -62,8 +62,8 @@ namespace se3
     typedef boost::fusion::vector<const ConfigVectorType &> ArgsType;
 
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Eigen::MatrixBase<ConfigVectorType> & q)
     {
       jmodel.calc(jdata.derived(),q.derived());
@@ -93,8 +93,8 @@ namespace se3
                                   const TangentVectorType &> ArgsType;
 
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Eigen::MatrixBase<ConfigVectorType> & q,
                      const Eigen::MatrixBase<TangentVectorType> & v
                      )
@@ -129,8 +129,8 @@ namespace se3
                                   const bool> ArgsType;
 
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Eigen::MatrixBase<Matrix6Type> & I,
                      const bool update_I
                      )
@@ -540,6 +540,6 @@ namespace se3
 
   /// @endcond
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_joint_basic_visitors_hxx__
+#endif // ifndef __pinocchio_joint_basic_visitors_hxx__

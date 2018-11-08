@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_geometry_data_hpp__
-#define __se3_python_geometry_data_hpp__
+#ifndef __pinocchio_python_geometry_data_hpp__
+#define __pinocchio_python_geometry_data_hpp__
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <eigenpy/memory.hpp>
@@ -24,9 +24,9 @@
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::GeometryData)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -123,7 +123,7 @@ namespace se3
 
     };
     
-  }} // namespace se3::python
+  }} // namespace pinocchio::python
 
-#endif // ifndef __se3_python_geometry_data_hpp__
+#endif // ifndef __pinocchio_python_geometry_data_hpp__
 

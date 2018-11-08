@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_collection_hpp__
-#define __se3_joint_collection_hpp__
+#ifndef __pinocchio_joint_collection_hpp__
+#define __pinocchio_joint_collection_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-free-flyer.hpp"
@@ -33,7 +33,7 @@
 #include <boost/variant.hpp>
 #include <boost/variant/recursive_wrapper.hpp>
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename _Scalar, int _Options>
@@ -152,6 +152,6 @@ namespace se3
   typedef JointCollectionDefault::JointModelVariant JointModelVariant;
   typedef JointCollectionDefault::JointDataVariant JointDataVariant;
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_joint_collection_hpp__
+#endif // ifndef __pinocchio_joint_collection_hpp__

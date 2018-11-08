@@ -60,26 +60,26 @@ int main(int argc, char *argv[])
   }
   
   // Check extension of the file
-  se3::ModelFileExtensionType extension_type = se3::checkModelFileExtension(filename);
-  se3::Model model;
+  pinocchio::ModelFileExtensionType extension_type = pinocchio::checkModelFileExtension(filename);
+  pinocchio::Model model;
   
   switch(extension_type)
   {
-    case se3::URDF:
+    case pinocchio::URDF:
 #ifdef PINOCCHIO_WITH_URDFDOM
-      se3::urdf::buildModel(filename,model,verbose);
+      pinocchio::urdf::buildModel(filename,model,verbose);
 #else
       std::cerr << "It seems that the URDFDOM module has not been found during the Cmake process." << std::endl;
 #endif
       break;
-    case se3::LUA:
+    case pinocchio::LUA:
 #ifdef PINOCCHIO_WITH_LUA5
-      model = se3::lua::buildModel(filename, false, verbose);
+      model = pinocchio::lua::buildModel(filename, false, verbose);
 #else
       std::cerr << "It seems that the LUA module has not been found during the Cmake process." << std::endl;
 #endif
       break;
-    case se3::UNKNOWN:
+    case pinocchio::UNKNOWN:
       std::cerr << "Unknown extension of " << filename << std::endl;
       return -1;
       break;

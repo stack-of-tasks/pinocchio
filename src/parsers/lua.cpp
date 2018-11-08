@@ -28,8 +28,8 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/model.hpp"
 
-typedef se3::SE3::Vector3 Vector3;
-typedef se3::SE3::Matrix3 Matrix3;
+typedef pinocchio::SE3::Vector3 Vector3;
+typedef pinocchio::SE3::Matrix3 Matrix3;
 
 template<> Vector3 LuaTableNode::getDefault<Vector3> (const Vector3 & default_value)
 {
@@ -90,9 +90,9 @@ template<> Matrix3 LuaTableNode::getDefault<Matrix3> (const Matrix3 & default_va
   return result;
 }
 
-template<> se3::SE3 LuaTableNode::getDefault<se3::SE3> (const se3::SE3 & default_value)
+template<> pinocchio::SE3 LuaTableNode::getDefault<pinocchio::SE3> (const pinocchio::SE3 & default_value)
 {
-  se3::SE3 result (default_value);
+  pinocchio::SE3 result (default_value);
 
   if (stackQueryValue()) {
     LuaTable vector_table = LuaTable::fromLuaState (luaTable->L);
@@ -106,9 +106,9 @@ template<> se3::SE3 LuaTableNode::getDefault<se3::SE3> (const se3::SE3 & default
   return result;
 }
 
-template<> se3::Inertia LuaTableNode::getDefault<se3::Inertia> (const se3::Inertia & default_value)
+template<> pinocchio::Inertia LuaTableNode::getDefault<pinocchio::Inertia> (const pinocchio::Inertia & default_value)
 {
-  se3::Inertia result (default_value);
+  pinocchio::Inertia result (default_value);
 
   if (stackQueryValue()) {
     LuaTable vector_table = LuaTable::fromLuaState (luaTable->L);
@@ -121,7 +121,7 @@ template<> se3::Inertia LuaTableNode::getDefault<se3::Inertia> (const se3::Inert
     com = vector_table["com"].getDefault<Vector3> (Vector3::Zero ());
     inertia_matrix = vector_table["inertia"].getDefault<Matrix3> (Matrix3::Identity ());
 
-    result = se3::Inertia (mass, com, inertia_matrix);
+    result = pinocchio::Inertia (mass, com, inertia_matrix);
   }
 
   stackRestore();

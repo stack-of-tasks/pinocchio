@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_centroidal_hxx__
-#define __se3_centroidal_hxx__
+#ifndef __pinocchio_centroidal_hxx__
+#define __pinocchio_centroidal_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
@@ -25,7 +25,7 @@
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
@@ -407,9 +407,9 @@ namespace se3
     return data.dAg;
   }
   
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __se3_centroidal_hxx__
+#endif // ifndef __pinocchio_centroidal_hxx__
 

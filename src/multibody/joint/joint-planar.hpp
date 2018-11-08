@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_planar_hpp__
-#define __se3_joint_planar_hpp__
+#ifndef __pinocchio_joint_planar_hpp__
+#define __pinocchio_joint_planar_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -26,7 +26,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename Scalar, int Options = 0> struct MotionPlanarTpl;
@@ -546,27 +546,27 @@ namespace se3
 
   }; // struct JointModelPlanarTpl
 
-} // namespace se3
+} // namespace pinocchio
 
 #include <boost/type_traits.hpp>
 
 namespace boost
 {
   template<typename Scalar, int Options>
-  struct has_nothrow_constructor< ::se3::JointModelPlanarTpl<Scalar,Options> >
+  struct has_nothrow_constructor< ::pinocchio::JointModelPlanarTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_copy< ::se3::JointModelPlanarTpl<Scalar,Options> >
+  struct has_nothrow_copy< ::pinocchio::JointModelPlanarTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_constructor< ::se3::JointDataPlanarTpl<Scalar,Options> >
+  struct has_nothrow_constructor< ::pinocchio::JointDataPlanarTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_copy< ::se3::JointDataPlanarTpl<Scalar,Options> >
+  struct has_nothrow_copy< ::pinocchio::JointDataPlanarTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __se3_joint_planar_hpp__
+#endif // ifndef __pinocchio_joint_planar_hpp__

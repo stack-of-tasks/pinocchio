@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_eigen_container_hpp__
-#define __se3_python_eigen_container_hpp__
+#ifndef __pinocchio_python_eigen_container_hpp__
+#define __pinocchio_python_eigen_container_hpp__
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
@@ -25,7 +25,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/python/return_internal_reference.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -77,7 +77,7 @@ namespace se3
       }
     };
 
-  }} // namespace se3::python
+  }} // namespace pinocchio::python
 
-#endif // ifndef __se3_python_eigen_container_hpp__
+#endif // ifndef __pinocchio_python_eigen_container_hpp__
 

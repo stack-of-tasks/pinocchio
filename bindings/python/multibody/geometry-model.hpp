@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_geometry_model_hpp__
-#define __se3_python_geometry_model_hpp__
+#ifndef __pinocchio_python_geometry_model_hpp__
+#define __pinocchio_python_geometry_model_hpp__
 
 #include <eigenpy/memory.hpp>
 
@@ -24,9 +24,9 @@
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::GeometryModel)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryModel)
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -100,6 +100,6 @@ namespace se3
     };
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_python_geometry_model_hpp__
+#endif // ifndef __pinocchio_python_geometry_model_hpp__

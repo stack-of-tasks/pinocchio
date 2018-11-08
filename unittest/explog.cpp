@@ -23,7 +23,7 @@
 
 #include "pinocchio/spatial/explog.hpp"
 
-using namespace se3;
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(Jexp3_quat_fd)
   BOOST_CHECK(Jexp3.isApprox(Jexp3_fd,sqrt(eps)));
   
   SE3::Matrix3 Jlog;
-  se3::Jlog3(quat.toRotationMatrix(),Jlog);
+  pinocchio::Jlog3(quat.toRotationMatrix(),Jlog);
   
   Matrix43 Jexp_quat_local;
   Jexp3QuatLocal(quat,Jexp_quat_local);
@@ -361,38 +361,38 @@ BOOST_AUTO_TEST_CASE(Jexplog6)
 
 BOOST_AUTO_TEST_CASE (test_basic)
 {
-  typedef se3::SE3::Vector3 Vector3;
-  typedef se3::SE3::Matrix3 Matrix3;
+  typedef pinocchio::SE3::Vector3 Vector3;
+  typedef pinocchio::SE3::Matrix3 Matrix3;
   typedef Eigen::Matrix4d Matrix4;
-  typedef se3::Motion::Vector6 Vector6;
+  typedef pinocchio::Motion::Vector6 Vector6;
   
   const double EPSILON = 1e-12;
   
   // exp3 and log3.
   Vector3 v3(Vector3::Random());
-  Matrix3 R(se3::exp3(v3));
+  Matrix3 R(pinocchio::exp3(v3));
   BOOST_CHECK(R.transpose().isApprox(R.inverse(), EPSILON));
   BOOST_CHECK_SMALL(R.determinant() - 1.0, EPSILON);
-  Vector3 v3FromLog(se3::log3(R));
+  Vector3 v3FromLog(pinocchio::log3(R));
   BOOST_CHECK(v3.isApprox(v3FromLog, EPSILON));
   
   // exp6 and log6.
-  se3::Motion nu = se3::Motion::Random();
-  se3::SE3 m = se3::exp6(nu);
+  pinocchio::Motion nu = pinocchio::Motion::Random();
+  pinocchio::SE3 m = pinocchio::exp6(nu);
   BOOST_CHECK(m.rotation().transpose().isApprox(m.rotation().inverse(),
                                                 EPSILON));
   BOOST_CHECK_SMALL(m.rotation().determinant() - 1.0, EPSILON);
-  se3::Motion nuFromLog(se3::log6(m));
+  pinocchio::Motion nuFromLog(pinocchio::log6(m));
   BOOST_CHECK(nu.linear().isApprox(nuFromLog.linear(), EPSILON));
   BOOST_CHECK(nu.angular().isApprox(nuFromLog.angular(), EPSILON));
   
   Vector6 v6(Vector6::Random());
-  se3::SE3 m2(se3::exp6(v6));
+  pinocchio::SE3 m2(pinocchio::exp6(v6));
   BOOST_CHECK(m2.rotation().transpose().isApprox(m2.rotation().inverse(),
                                                  EPSILON));
   BOOST_CHECK_SMALL(m2.rotation().determinant() - 1.0, EPSILON);
   Matrix4 M = m2.toHomogeneousMatrix();
-  se3::Motion nu2FromLog(se3::log6(M));
+  pinocchio::Motion nu2FromLog(pinocchio::log6(M));
   Vector6 v6FromLog(nu2FromLog.toVector());
   BOOST_CHECK(v6.isApprox(v6FromLog, EPSILON));
 }

@@ -15,13 +15,13 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_aba_derivatives_hpp__
-#define __se3_aba_derivatives_hpp__
+#ifndef __pinocchio_aba_derivatives_hpp__
+#define __pinocchio_aba_derivatives_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief The derivatives of the Articulated-Body algorithm.
@@ -45,7 +45,7 @@ namespace se3
   ///
   /// \note aba_partial_dtau is in fact nothing more than the inverse of the joint space inertia matrix.
   ///
-  /// \sa se3::aba
+  /// \sa pinocchio::aba
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
            typename MatrixType1, typename MatrixType2, typename MatrixType3>
@@ -80,7 +80,7 @@ namespace se3
   ///
   /// \note aba_partial_dtau is in fact nothing more than the inverse of the joint space inertia matrix.
   ///
-  /// \sa se3::aba
+  /// \sa pinocchio::aba
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
@@ -110,9 +110,9 @@ namespace se3
   ///
   /// \returns The results are stored in data.ddq_dq, data.ddq_dv and data.Minv which respectively correspond
   ///          to the partial derivatives of the joint acceleration vector with respect to the joint configuration, velocity and torque.
-  ///          And as for se3::computeMinverse, only the upper triangular part of data.Minv is filled.
+  ///          And as for pinocchio::computeMinverse, only the upper triangular part of data.Minv is filled.
   ///
-  /// \sa se3::aba and \sa se3::computeABADerivatives.
+  /// \sa pinocchio::aba and \sa pinocchio::computeABADerivatives.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -142,9 +142,9 @@ namespace se3
   ///
   /// \returns The results are stored in data.ddq_dq, data.ddq_dv and data.Minv which respectively correspond
   ///          to the partial derivatives of the joint acceleration vector with respect to the joint configuration, velocity and torque.
-  ///          And as for se3::computeMinverse, only the upper triangular part of data.Minv is filled.
+  ///          And as for pinocchio::computeMinverse, only the upper triangular part of data.Minv is filled.
   ///
-  /// \sa se3::aba and \sa se3::computeABADerivatives.
+  /// \sa pinocchio::aba and \sa pinocchio::computeABADerivatives.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -158,9 +158,9 @@ namespace se3
                           data.ddq_dq,data.ddq_dv,data.Minv);
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/aba-derivatives.hxx"
 
-#endif // ifndef __se3_aba_derivatives_hpp__
+#endif // ifndef __pinocchio_aba_derivatives_hpp__

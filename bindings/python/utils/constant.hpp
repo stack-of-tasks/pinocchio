@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_utils_constant_hpp__
-#define __se3_python_utils_constant_hpp__
+#ifndef __pinocchio_python_utils_constant_hpp__
+#define __pinocchio_python_utils_constant_hpp__
 
 #include <boost/python/scope.hpp>
 
@@ -43,4 +43,4 @@ namespace boost
   } // namespace python
 } // namespace boost
 
-#endif // ifndef __se3_python_utils_constant_hpp__
+#endif // ifndef __pinocchio_python_utils_constant_hpp__

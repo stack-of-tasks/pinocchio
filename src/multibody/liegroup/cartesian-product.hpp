@@ -15,12 +15,12 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_cartesian_product_operation_hpp__
-#define __se3_cartesian_product_operation_hpp__
+#ifndef __pinocchio_cartesian_product_operation_hpp__
+#define __pinocchio_cartesian_product_operation_hpp__
 
 #include <pinocchio/multibody/liegroup/liegroup-base.hpp>
 
-namespace se3
+namespace pinocchio
 {
   template<int dim1, int dim2>
   struct eval_set_dim
@@ -226,6 +226,6 @@ namespace se3
 
   }; // struct CartesianProductOperation
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_cartesian_product_operation_hpp__
+#endif // ifndef __pinocchio_cartesian_product_operation_hpp__

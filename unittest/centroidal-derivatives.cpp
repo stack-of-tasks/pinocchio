@@ -33,14 +33,14 @@
 #include <boost/utility/binary.hpp>
 
 template<typename JointModel>
-static void addJointAndBody(se3::Model & model,
-                            const se3::JointModelBase<JointModel> & joint,
+static void addJointAndBody(pinocchio::Model & model,
+                            const pinocchio::JointModelBase<JointModel> & joint,
                             const std::string & parent_name,
                             const std::string & name,
-                            const se3::SE3 placement = se3::SE3::Random(),
+                            const pinocchio::SE3 placement = pinocchio::SE3::Random(),
                             bool setRandomLimits = true)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef typename JointModel::ConfigVector_t CV;
   typedef typename JointModel::TangentVector_t TV;
   
@@ -69,22 +69,22 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
   
 BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
 {
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model), data_ref(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model), data_ref(model);
   
   model.lowerPositionLimit.head<7>().fill(-1.);
   model.upperPositionLimit.head<7>().fill( 1.);
   
-  Eigen::VectorXd q = se3::randomConfiguration(model);
+  Eigen::VectorXd q = pinocchio::randomConfiguration(model);
   Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
   Eigen::VectorXd a = Eigen::VectorXd::Random(model.nv);
   
-  se3::Data::Matrix6x dhdot_dq(6,model.nv), dhdot_dv(6,model.nv), dhdot_da(6,model.nv);
-  se3::computeCentroidalDynamicsDerivatives(model,data,q,v,a,
+  pinocchio::Data::Matrix6x dhdot_dq(6,model.nv), dhdot_dv(6,model.nv), dhdot_da(6,model.nv);
+  pinocchio::computeCentroidalDynamicsDerivatives(model,data,q,v,a,
                                             dhdot_dq,dhdot_dv,dhdot_da);
   
-  se3::ccrba(model,data_ref,q,v);
+  pinocchio::ccrba(model,data_ref,q,v);
 
   for(size_t k = 0; k < (size_t)model.njoints; ++k)
   {
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
   }
   BOOST_CHECK(dhdot_da.isApprox(data_ref.Ag));
   
-  se3::computeCentroidalDynamics(model,data_ref,q,v,a);
+  pinocchio::computeCentroidalDynamics(model,data_ref,q,v,a);
   for(size_t k = 1; k < (size_t)model.njoints; ++k)
   {
     BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
@@ -111,27 +111,27 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
   BOOST_CHECK(data.hg.isApprox(data_ref.hg));
   BOOST_CHECK(data.dhg.isApprox(data_ref.dhg));
 
-  se3::Data data_fd(model);
+  pinocchio::Data data_fd(model);
   
   const double eps = 1e-8;
-  const se3::Force dhg = se3::computeCentroidalDynamics(model,data_fd,q,v,a);
-  const se3::Force::Vector3 com = data_fd.com[0];
+  const pinocchio::Force dhg = pinocchio::computeCentroidalDynamics(model,data_fd,q,v,a);
+  const pinocchio::Force::Vector3 com = data_fd.com[0];
   
   // Check dhdot_dq with finite differences
   Eigen::VectorXd q_plus(model.nq,1);
   Eigen::VectorXd v_eps(model.nv,1); v_eps.setZero();
-  se3::Data::Matrix6x dhdot_dq_fd(6,model.nv);
+  pinocchio::Data::Matrix6x dhdot_dq_fd(6,model.nv);
   
   for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
   {
     v_eps[k] = eps;
-    q_plus = se3::integrate(model,q,v_eps);
+    q_plus = pinocchio::integrate(model,q,v_eps);
     
-    const se3::Force & dhg_plus
-    = se3::computeCentroidalDynamics(model,data_fd,q_plus,v,a);
-    const se3::Force::Vector3 com_plus = data_fd.com[0];
+    const pinocchio::Force & dhg_plus
+    = pinocchio::computeCentroidalDynamics(model,data_fd,q_plus,v,a);
+    const pinocchio::Force::Vector3 com_plus = data_fd.com[0];
     
-    se3::SE3 transform(se3::SE3::Identity());
+    pinocchio::SE3 transform(pinocchio::SE3::Identity());
     transform.translation() = com_plus - com;
     
     dhdot_dq_fd.col(k) = (transform.act(dhg_plus) - dhg).toVector()/eps;
@@ -143,14 +143,14 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
   
   // Check dhdot_dv with finite differences
   Eigen::VectorXd v_plus(v);
-  se3::Data::Matrix6x dhdot_dv_fd(6,model.nv);
+  pinocchio::Data::Matrix6x dhdot_dv_fd(6,model.nv);
   
   for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
   {
     v_plus[k] += eps;
     
-    const se3::Force & dhg_plus
-    = se3::computeCentroidalDynamics(model,data_fd,q,v_plus,a);
+    const pinocchio::Force & dhg_plus
+    = pinocchio::computeCentroidalDynamics(model,data_fd,q,v_plus,a);
     dhdot_dv_fd.col(k) = (dhg_plus - dhg).toVector()/eps;
     
     v_plus[k] -= eps;
@@ -160,14 +160,14 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
   
   // Check dhdot_da with finite differences
   Eigen::VectorXd a_plus(a);
-  se3::Data::Matrix6x dhdot_da_fd(6,model.nv);
+  pinocchio::Data::Matrix6x dhdot_da_fd(6,model.nv);
   
   for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
   {
     a_plus[k] += eps;
     
-    const se3::Force & dhg_plus
-    = se3::computeCentroidalDynamics(model,data_fd,q,v,a_plus);
+    const pinocchio::Force & dhg_plus
+    = pinocchio::computeCentroidalDynamics(model,data_fd,q,v,a_plus);
     dhdot_da_fd.col(k) = (dhg_plus - dhg).toVector()/eps;
     
     a_plus[k] -= eps;
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
   
   BOOST_CHECK(dhdot_da.isApprox(dhdot_da_fd,sqrt(eps)));
   
-  se3::computeRNEADerivatives(model,data_ref,q,v,a);
+  pinocchio::computeRNEADerivatives(model,data_ref,q,v,a);
   BOOST_CHECK(data.dAdv.isApprox(data_ref.dAdv));
   BOOST_CHECK(data.dAdq.isApprox(data_ref.dAdq));
   BOOST_CHECK(data.J.isApprox(data_ref.J));
@@ -185,35 +185,35 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
 
 BOOST_AUTO_TEST_CASE(test_retrieve_centroidal_derivatives)
 {
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model), data_ref(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model), data_ref(model);
   
   model.lowerPositionLimit.head<7>().fill(-1.);
   model.upperPositionLimit.head<7>().fill( 1.);
   
-  Eigen::VectorXd q = se3::randomConfiguration(model);
+  Eigen::VectorXd q = pinocchio::randomConfiguration(model);
   Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
   Eigen::VectorXd a = Eigen::VectorXd::Random(model.nv);
   
-  se3::Data::Matrix6x dhdot_dq(6,model.nv), dhdot_dv(6,model.nv), dhdot_da(6,model.nv);
-  se3::Data::Matrix6x dhdot_dq_ref(6,model.nv), dhdot_dv_ref(6,model.nv), dhdot_da_ref(6,model.nv);
+  pinocchio::Data::Matrix6x dhdot_dq(6,model.nv), dhdot_dv(6,model.nv), dhdot_da(6,model.nv);
+  pinocchio::Data::Matrix6x dhdot_dq_ref(6,model.nv), dhdot_dv_ref(6,model.nv), dhdot_da_ref(6,model.nv);
   
-  se3::computeCentroidalDynamicsDerivatives(model,data_ref,q,v,a,
+  pinocchio::computeCentroidalDynamicsDerivatives(model,data_ref,q,v,a,
                                             dhdot_dq_ref,dhdot_dv_ref,dhdot_da_ref);
   
-  se3::computeRNEADerivatives(model,data,q,v,a);
-  se3::getCentroidalDynamicsDerivatives(model,data,
+  pinocchio::computeRNEADerivatives(model,data,q,v,a);
+  pinocchio::getCentroidalDynamicsDerivatives(model,data,
                                         dhdot_dq,dhdot_dv,dhdot_da);
   
   BOOST_CHECK(data.J.isApprox(data_ref.J));
   
-  for(se3::Model::JointIndex k = 1; k < (se3::Model::JointIndex)model.njoints; ++k)
+  for(pinocchio::Model::JointIndex k = 1; k < (pinocchio::Model::JointIndex)model.njoints; ++k)
   {
     BOOST_CHECK(data.oYcrb[k].isApprox(data_ref.oYcrb[k]));
-    se3::Force force_ref = data_ref.of[k];
-    se3::Force gravity_contribution = data.oYcrb[k] * (-model.gravity);
-    se3::Force force = data.of[k] - gravity_contribution;
+    pinocchio::Force force_ref = data_ref.of[k];
+    pinocchio::Force gravity_contribution = data.oYcrb[k] * (-model.gravity);
+    pinocchio::Force force = data.of[k] - gravity_contribution;
     BOOST_CHECK(force.isApprox(force_ref));
   }
   

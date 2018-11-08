@@ -15,12 +15,12 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lie_group_operation_base_hxx__
-#define __se3_lie_group_operation_base_hxx__
+#ifndef __pinocchio_lie_group_operation_base_hxx__
+#define __pinocchio_lie_group_operation_base_hxx__
 
 #include "pinocchio/macros.hpp"
 
-namespace se3 {
+namespace pinocchio {
 
   // --------------- API with return value as argument ---------------------- //
 
@@ -351,6 +351,6 @@ namespace se3 {
     return derived().name();
   }
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // __se3_lie_group_operation_base_hxx__
+#endif // __pinocchio_lie_group_operation_base_hxx__

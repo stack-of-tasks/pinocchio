@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_parser_srdf_hxx__
-#define __se3_parser_srdf_hxx__
+#ifndef __pinocchio_parser_srdf_hxx__
+#define __pinocchio_parser_srdf_hxx__
 
 #include "pinocchio/parsers/srdf.hpp"
 
@@ -31,7 +31,7 @@
 #include <sstream>
 #include <boost/foreach.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace srdf
   {
@@ -291,6 +291,6 @@ namespace se3
       return ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType::Constant(model.nq,(Scalar)NAN); // warning : uninitialized vector is returned
     }
   }
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_parser_srdf_hxx__
+#endif // ifndef __pinocchio_parser_srdf_hxx__

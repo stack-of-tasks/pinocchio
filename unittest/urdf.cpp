@@ -34,10 +34,10 @@ BOOST_AUTO_TEST_CASE ( build_model )
   const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   const std::string dir = PINOCCHIO_SOURCE_DIR"/models/romeo";
   
-  se3::Model model;
-  se3::urdf::buildModel(filename, model);
-  se3::GeometryModel geomModel;
-  se3::urdf::buildGeom(model, filename, se3::COLLISION, geomModel, dir);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename, model);
+  pinocchio::GeometryModel geomModel;
+  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, dir);
   
   BOOST_CHECK(model.nq == 31);
 }
@@ -46,13 +46,13 @@ BOOST_AUTO_TEST_CASE ( build_model_simple_humanoid )
 {
   const std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
-  se3::Model model;
-  se3::urdf::buildModel(filename, model);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename, model);
 
   BOOST_CHECK(model.nq == 29);
   
-  se3::Model model_ff;
-  se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(), model_ff);
+  pinocchio::Model model_ff;
+  pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model_ff);
   
   BOOST_CHECK(model_ff.nq == 36);
 }
@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_CASE ( build_model_from_XML )
   std::string filestr((std::istreambuf_iterator<char>(file)),
                       std::istreambuf_iterator<char>());
   
-  se3::Model model;
-  se3::urdf::buildModelFromXML(filestr, model);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModelFromXML(filestr, model);
   
   BOOST_CHECK(model.nq == 31);
 }
@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE ( build_model_from_UDRFTree )
   
   ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
   
-  se3::Model model;
-  se3::urdf::buildModel(urdfTree, model);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(urdfTree, model);
   
   BOOST_CHECK(model.nq == 31);
 }
@@ -90,10 +90,10 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint )
   const std::string filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   const std::string dir = PINOCCHIO_SOURCE_DIR"/models/romeo";
   
-  se3::Model model;
-  se3::urdf::buildModel(filename, se3::JointModelFreeFlyer(), model);
-  se3::GeometryModel geomModel;
-  se3::urdf::buildGeom(model, filename, se3::COLLISION, geomModel, dir);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model);
+  pinocchio::GeometryModel geomModel;
+  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, dir);
   
   BOOST_CHECK(model.nq == 38);
 }
@@ -108,8 +108,8 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint_from_XML )
   std::string filestr((std::istreambuf_iterator<char>(file)),
                       std::istreambuf_iterator<char>());
   
-  se3::Model model;
-  se3::urdf::buildModelFromXML(filestr, se3::JointModelFreeFlyer(), model);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModelFromXML(filestr, pinocchio::JointModelFreeFlyer(), model);
   
   BOOST_CHECK(model.nq == 38);
 }
@@ -120,8 +120,8 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint_from_UDRFTree )
   
   ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
   
-  se3::Model model;
-  se3::urdf::buildModel(urdfTree, se3::JointModelFreeFlyer(), model);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(urdfTree, pinocchio::JointModelFreeFlyer(), model);
   
   BOOST_CHECK(model.nq == 38);
 }

@@ -15,14 +15,14 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_algorithm_centroidal_derivatives_hpp__
-#define __se3_algorithm_centroidal_derivatives_hpp__
+#ifndef __pinocchio_algorithm_centroidal_derivatives_hpp__
+#define __pinocchio_algorithm_centroidal_derivatives_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   ///
@@ -68,7 +68,7 @@ namespace se3
                                        const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da);
   ///
   /// \brief Retrive the analytical derivatives of the centroidal dynamics from the RNEA derivatives.
-  ///        se3::computeRNEADerivatives should have been called first.
+  ///        pinocchio::computeRNEADerivatives should have been called first.
   ///
   /// \details Computes the first order approximation of the centroidal dynamics time derivative
   ///          and corresponds to the following equation
@@ -97,9 +97,9 @@ namespace se3
                                    const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da);
   
   
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/centroidal-derivatives.hxx"
 
-#endif // ifndef __se3_algorithm_centroidal_derivatives_hpp__
+#endif // ifndef __pinocchio_algorithm_centroidal_derivatives_hpp__

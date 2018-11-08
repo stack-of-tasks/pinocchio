@@ -24,7 +24,7 @@
 #include "pinocchio/bindings/python/utils/version.hpp"
 
 namespace bp = boost::python;
-using namespace se3::python;
+using namespace pinocchio::python;
 
 BOOST_PYTHON_MODULE(libpinocchio_pywrap)
 {
@@ -49,9 +49,9 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   exposeJoints();
   exposeExplog();
   
-  bp::enum_< ::se3::ReferenceFrame >("ReferenceFrame")
-  .value("WORLD",::se3::WORLD)
-  .value("LOCAL",::se3::LOCAL)
+  bp::enum_< ::pinocchio::ReferenceFrame >("ReferenceFrame")
+  .value("WORLD",::pinocchio::WORLD)
+  .value("LOCAL",::pinocchio::LOCAL)
   ;
 
   exposeModel();

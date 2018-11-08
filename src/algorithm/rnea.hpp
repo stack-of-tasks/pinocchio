@@ -15,13 +15,13 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_rnea_hpp__
-#define __se3_rnea_hpp__
+#ifndef __pinocchio_rnea_hpp__
+#define __pinocchio_rnea_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
   
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief The Recursive Newton-Euler algorithm. It computes the inverse dynamics, aka the joint torques according to the current state of the system and the desired joint accelerations.
@@ -78,7 +78,7 @@ namespace se3
   /// \brief Computes the non-linear effects (Corriolis, centrifual and gravitationnal effects), also called the bias terms \f$ b(q,\dot{q}) \f$ of the Lagrangian dynamics:
   /// <CENTER> \f$ \begin{eqnarray} M \ddot{q} + b(q, \dot{q}) = \tau  \end{eqnarray} \f$ </CENTER> <BR>
   ///
-  /// \note This function is equivalent to se3::rnea(model, data, q, v, 0).
+  /// \note This function is equivalent to pinocchio::rnea(model, data, q, v, 0).
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -102,7 +102,7 @@ namespace se3
   /// \brief Computes the generalized gravity contribution \f$ g(q) \f$ of the Lagrangian dynamics:
   /// <CENTER> \f$ \begin{eqnarray} M \ddot{q} + c(q, \dot{q}) + g(q) = \tau  \end{eqnarray} \f$ </CENTER> <BR>
   ///
-  /// \note This function is equivalent to se3::rnea(model, data, q, 0, 0).
+  /// \note This function is equivalent to pinocchio::rnea(model, data, q, 0, 0).
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -143,9 +143,9 @@ namespace se3
                         const Eigen::MatrixBase<ConfigVectorType> & q,
                         const Eigen::MatrixBase<TangentVectorType> & v);
 
-} // namespace se3 
+} // namespace pinocchio 
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/rnea.hxx"
 
-#endif // ifndef __se3_rnea_hpp__
+#endif // ifndef __pinocchio_rnea_hpp__

@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_motion_hpp__
-#define __se3_motion_hpp__
+#ifndef __pinocchio_motion_hpp__
+#define __pinocchio_motion_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/macros.hpp"
@@ -47,7 +47,7 @@ MOTION_TYPEDEF_GENERIC(Derived,typename)
 #define MOTION_TYPEDEF(Derived) \
 MOTION_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 
-namespace se3
+namespace pinocchio
 {
   namespace internal
   {
@@ -58,7 +58,7 @@ namespace se3
     struct MotionAlgebraAction { typedef D ReturnType; };
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 #include "pinocchio/spatial/motion-base.hpp"
 #include "pinocchio/spatial/motion-dense.hpp"
@@ -66,4 +66,4 @@ namespace se3
 #include "pinocchio/spatial/motion-ref.hpp"
 #include "pinocchio/spatial/motion-zero.hpp"
 
-#endif // ifndef __se3_motion_hpp__
+#endif // ifndef __pinocchio_motion_hpp__

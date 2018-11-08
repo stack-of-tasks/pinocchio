@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(test_aba_derivatives)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
 BOOST_AUTO_TEST_CASE(test_aba_minimal_argument)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(test_aba_minimal_argument)
 BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);

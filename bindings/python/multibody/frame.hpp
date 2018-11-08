@@ -15,15 +15,15 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_frame_hpp__
-#define __se3_python_frame_hpp__
+#ifndef __pinocchio_python_frame_hpp__
+#define __pinocchio_python_frame_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -73,6 +73,6 @@ namespace se3
     
 
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_python_frame_hpp__
+#endif // ifndef __pinocchio_python_frame_hpp__

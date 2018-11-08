@@ -22,7 +22,7 @@
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -30,7 +30,7 @@ namespace se3
     static void exposeVariants()
     {
       boost::mpl::for_each<JointModelVariant::types>(exposer());
-      bp::to_python_converter<se3::JointModelVariant, jointModelVariantVisitor>();
+      bp::to_python_converter<pinocchio::JointModelVariant, jointModelVariantVisitor>();
     }
     
     void exposeJoints()
@@ -42,4 +42,4 @@ namespace se3
     }
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

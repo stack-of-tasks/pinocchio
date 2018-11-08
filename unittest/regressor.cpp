@@ -31,12 +31,12 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(test_static_regressor)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model; buildModels::humanoidRandom(model);
+  pinocchio::Model model; buildModels::humanoidRandom(model);
   
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
   
   model.lowerPositionLimit.head<7>().fill(-1.);
   model.upperPositionLimit.head<7>().fill(1.);

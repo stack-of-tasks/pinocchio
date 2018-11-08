@@ -15,15 +15,15 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_utils_version_hpp__
-#define __se3_utils_version_hpp__
+#ifndef __pinocchio_utils_version_hpp__
+#define __pinocchio_utils_version_hpp__
 
 #include "pinocchio/config.hpp"
 
 #include <string>
 #include <sstream>
 
-namespace se3
+namespace pinocchio
 {
   
   ///
@@ -65,4 +65,4 @@ namespace se3
   }
 }
 
-#endif // __se3_utils_version_hpp__
+#endif // __pinocchio_utils_version_hpp__

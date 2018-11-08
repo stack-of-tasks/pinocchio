@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_special_orthogonal_operation_hpp__
-#define __se3_special_orthogonal_operation_hpp__
+#ifndef __pinocchio_special_orthogonal_operation_hpp__
+#define __pinocchio_special_orthogonal_operation_hpp__
 
 #include <limits>
 
@@ -24,7 +24,7 @@
 #include <pinocchio/math/quaternion.hpp>
 #include <pinocchio/multibody/liegroup/liegroup-base.hpp>
 
-namespace se3
+namespace pinocchio
 {
   template<int Dim, typename Scalar, int Options = 0>
   struct SpecialOrthogonalOperationTpl
@@ -450,6 +450,6 @@ namespace se3
     }
   }; // struct SpecialOrthogonalOperationTpl<3,_Scalar,_Options>
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_special_orthogonal_operation_hpp__
+#endif // ifndef __pinocchio_special_orthogonal_operation_hpp__

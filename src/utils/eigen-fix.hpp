@@ -15,12 +15,12 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_utils_eigen_fix_hpp__
-#define __se3_utils_eigen_fix_hpp__
+#ifndef __pinocchio_utils_eigen_fix_hpp__
+#define __pinocchio_utils_eigen_fix_hpp__
 
 /// \brief Fix issue concerning 3.2.90 and more versions of Eigen that do not define size_of_xpr_at_compile_time structure.
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,3,0)
-namespace se3
+namespace pinocchio
 {
   namespace internal
   {
@@ -59,5 +59,5 @@ namespace Eigen
   }
 } // namespace fix
 
-#endif // ifndef __se3_utils_eigen_fix_hpp__
+#endif // ifndef __pinocchio_utils_eigen_fix_hpp__
 

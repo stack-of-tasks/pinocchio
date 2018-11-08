@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_prismatic_hpp__
-#define __se3_joint_prismatic_hpp__
+#ifndef __pinocchio_joint_prismatic_hpp__
+#define __pinocchio_joint_prismatic_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -26,7 +26,7 @@
 #include "pinocchio/spatial/spatial-axis.hpp"
 #include "pinocchio/utils/axis-label.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename Scalar, int Options, int _axis> struct MotionPrismaticTpl;
@@ -590,27 +590,27 @@ namespace se3
   typedef JointDataPrismaticTpl<double,0,2> JointDataPZ;
   typedef JointModelPrismaticTpl<double,0,2> JointModelPZ;
 
-} //namespace se3
+} //namespace pinocchio
 
 #include <boost/type_traits.hpp>
 
 namespace boost
 {
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_constructor< ::se3::JointModelPrismaticTpl<Scalar,Options,axis> >
+  struct has_nothrow_constructor< ::pinocchio::JointModelPrismaticTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_copy< ::se3::JointModelPrismaticTpl<Scalar,Options,axis> >
+  struct has_nothrow_copy< ::pinocchio::JointModelPrismaticTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_constructor< ::se3::JointDataPrismaticTpl<Scalar,Options,axis> >
+  struct has_nothrow_constructor< ::pinocchio::JointDataPrismaticTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_copy< ::se3::JointDataPrismaticTpl<Scalar,Options,axis> >
+  struct has_nothrow_copy< ::pinocchio::JointDataPrismaticTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __se3_joint_prismatic_hpp__
+#endif // ifndef __pinocchio_joint_prismatic_hpp__

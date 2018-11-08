@@ -16,10 +16,10 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_motion_zero_hpp__
-#define __se3_motion_zero_hpp__
+#ifndef __pinocchio_motion_zero_hpp__
+#define __pinocchio_motion_zero_hpp__
 
-namespace se3
+namespace pinocchio
 {
   
   namespace internal
@@ -124,6 +124,6 @@ namespace se3
                               const MotionBase<M1> & v)
   { return v.derived(); }
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_motion_zero_hpp__
+#endif // ifndef __pinocchio_motion_zero_hpp__

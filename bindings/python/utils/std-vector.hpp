@@ -15,15 +15,15 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_utils_std_vector_hpp__
-#define __se3_python_utils_std_vector_hpp__
+#ifndef __pinocchio_python_utils_std_vector_hpp__
+#define __pinocchio_python_utils_std_vector_hpp__
 
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <string>
 #include <vector>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -50,6 +50,6 @@ namespace se3
       }
     };
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_python_utils_std_vector_hpp__
+#endif // ifndef __pinocchio_python_utils_std_vector_hpp__

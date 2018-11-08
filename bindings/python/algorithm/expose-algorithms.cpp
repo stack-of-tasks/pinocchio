@@ -17,7 +17,7 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -46,4 +46,4 @@ namespace se3
     }
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

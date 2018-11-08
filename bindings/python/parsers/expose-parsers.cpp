@@ -18,7 +18,7 @@
 #include "pinocchio/bindings/python/parsers/parsers.hpp"
 #include "pinocchio/bindings/python/parsers/sample-models.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -30,4 +30,4 @@ namespace se3
     }
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

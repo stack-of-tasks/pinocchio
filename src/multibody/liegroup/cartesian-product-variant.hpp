@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_cartesian_product_variant_hpp__
-#define __se3_cartesian_product_variant_hpp__
+#ifndef __pinocchio_cartesian_product_variant_hpp__
+#define __pinocchio_cartesian_product_variant_hpp__
 
 #include "pinocchio/multibody/liegroup/operation-base.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-variant.hpp"
@@ -24,7 +24,7 @@
 
 #include <vector>
 
-namespace se3
+namespace pinocchio
 {
   
   struct CartesianProductOperationVariant;
@@ -83,15 +83,15 @@ namespace se3
     void append(const LieGroupVariant & lg)
     {
       liegroups.push_back(lg);
-      const Index lg_nq = ::se3::nq(lg); lg_nqs.push_back(lg_nq); m_nq += lg_nq;
-      const Index lg_nv = ::se3::nv(lg); lg_nvs.push_back(lg_nv); m_nv += lg_nv;
+      const Index lg_nq = ::pinocchio::nq(lg); lg_nqs.push_back(lg_nq); m_nq += lg_nq;
+      const Index lg_nv = ::pinocchio::nv(lg); lg_nvs.push_back(lg_nv); m_nv += lg_nv;
       
       if(liegroups.size() > 1)
         m_name += " x ";
-      m_name += ::se3::name(lg);
+      m_name += ::pinocchio::name(lg);
       
       m_neutral.conservativeResize(m_nq);
-      m_neutral.tail(lg_nq) = ::se3::neutral(lg);
+      m_neutral.tail(lg_nq) = ::pinocchio::neutral(lg);
       
     }
     
@@ -117,7 +117,7 @@ namespace se3
       {
         const Index & nq = lg_nqs[k];
         const Index & nv = lg_nvs[k];
-        ::se3::integrate(liegroups[k],
+        ::pinocchio::integrate(liegroups[k],
                          q.segment(id_q,lg_nqs[k]),
                          v.segment(id_v,lg_nvs[k]),
                          qout_.segment(id_q,lg_nqs[k]));
@@ -153,6 +153,6 @@ namespace se3
     
   };
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_cartesian_product_variant_hpp__
+#endif // ifndef __pinocchio_cartesian_product_variant_hpp__

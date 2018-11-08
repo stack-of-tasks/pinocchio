@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_special_euclidean_operation_hpp__
-#define __se3_special_euclidean_operation_hpp__
+#ifndef __pinocchio_special_euclidean_operation_hpp__
+#define __pinocchio_special_euclidean_operation_hpp__
 
 #include <limits>
 
@@ -29,7 +29,7 @@
 #include "pinocchio/multibody/liegroup/cartesian-product.hpp"
 #include "pinocchio/multibody/liegroup/special-orthogonal.hpp"
 
-namespace se3
+namespace pinocchio
 {
   template<int Dim, typename Scalar, int Options = 0>
   struct SpecialEuclideanOperationTpl
@@ -599,6 +599,6 @@ namespace se3
     }
   }; // struct SpecialEuclideanOperationTpl<3>
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_special_euclidean_operation_hpp__
+#endif // ifndef __pinocchio_special_euclidean_operation_hpp__

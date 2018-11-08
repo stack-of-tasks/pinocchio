@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lie_group_variant_visitor_hxx__
-#define __se3_lie_group_variant_visitor_hxx__
+#ifndef __pinocchio_lie_group_variant_visitor_hxx__
+#define __pinocchio_lie_group_variant_visitor_hxx__
 
 #include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 #include "pinocchio/multibody/visitor.hpp"
@@ -27,7 +27,7 @@
 VISITOR(ArgsType & args) : args(args) {} \
 ArgsType & args
 
-namespace se3
+namespace pinocchio
 {
   
   namespace visitor
@@ -174,5 +174,5 @@ namespace se3
   }
 }
 
-#endif // ifndef __se3_lie_group_variant_visitor_hxx__
+#endif // ifndef __pinocchio_lie_group_variant_visitor_hxx__
 

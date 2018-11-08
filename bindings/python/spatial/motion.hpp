@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_motion_hpp__
-#define __se3_python_motion_hpp__
+#ifndef __pinocchio_python_motion_hpp__
+#define __pinocchio_python_motion_hpp__
 
 #include <eigenpy/memory.hpp>
 #include <boost/python/tuple.hpp>
@@ -28,9 +28,9 @@
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Motion)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Motion)
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -159,7 +159,7 @@ namespace se3
     
 
 
-  }} // namespace se3::python
+  }} // namespace pinocchio::python
 
-#endif // ifndef __se3_python_se3_hpp__
+#endif // ifndef __pinocchio_python_se3_hpp__
 

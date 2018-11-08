@@ -21,7 +21,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace se3;
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 

@@ -15,15 +15,15 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_spatial_axis_hpp__
-#define __se3_spatial_axis_hpp__
+#ifndef __pinocchio_spatial_axis_hpp__
+#define __pinocchio_spatial_axis_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/cartesian-axis.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
 
-namespace se3
+namespace pinocchio
 {
   template<int axis> struct SpatialAxis;
   
@@ -160,4 +160,4 @@ namespace se3
   typedef SpatialAxis<5> AxisWZ;
 }
 
-#endif // __se3_spatial_axis_hpp__
+#endif // __pinocchio_spatial_axis_hpp__

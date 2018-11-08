@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_fcl_hpp__
-#define __se3_fcl_hpp__
+#ifndef __pinocchio_fcl_hpp__
+#define __pinocchio_fcl_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
@@ -39,7 +39,7 @@
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
 
-namespace se3
+namespace pinocchio
 {
   struct CollisionPair: public std::pair<GeomIndex, GeomIndex>
   {
@@ -161,7 +161,7 @@ struct GeometryObject
 };
   
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
@@ -169,4 +169,4 @@ struct GeometryObject
 #include "pinocchio/multibody/fcl.hxx"
 
 
-#endif // ifndef __se3_fcl_hpp__
+#endif // ifndef __pinocchio_fcl_hpp__

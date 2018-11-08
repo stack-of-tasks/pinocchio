@@ -15,13 +15,13 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_math_taylor_expansion_hpp__
-#define __se3_math_taylor_expansion_hpp__
+#ifndef __pinocchio_math_taylor_expansion_hpp__
+#define __pinocchio_math_taylor_expansion_hpp__
 
 #include <cmath>
 #include <limits>
 
-namespace se3
+namespace pinocchio
 {
   
   ///
@@ -49,4 +49,4 @@ namespace se3
   
 }
 
-#endif // ifndef __se3_math_taylor_expansion_hpp__
+#endif // ifndef __pinocchio_math_taylor_expansion_hpp__

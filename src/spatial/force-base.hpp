@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_force_base_hpp__
-#define __se3_force_base_hpp__
+#ifndef __pinocchio_force_base_hpp__
+#define __pinocchio_force_base_hpp__
 
 /** \addtogroup Force_group Force
  *
@@ -27,7 +27,7 @@
  *
  */
 
-namespace se3
+namespace pinocchio
 {
   /**
    * @brief      Base interface for forces representation.
@@ -218,6 +218,6 @@ namespace se3
     
   }; // class ForceBase
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_force_base_hpp__
+#endif // ifndef __pinocchio_force_base_hpp__

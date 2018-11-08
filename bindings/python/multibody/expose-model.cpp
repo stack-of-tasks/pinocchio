@@ -18,7 +18,7 @@
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/multibody/model.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -29,4 +29,4 @@ namespace se3
     }
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

@@ -15,10 +15,10 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_force_ref_hpp__
-#define __se3_force_ref_hpp__
+#ifndef __pinocchio_force_ref_hpp__
+#define __pinocchio_force_ref_hpp__
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename Vector6ArgType>
@@ -142,6 +142,6 @@ namespace se3
     
   }; // class ForceRef<Vector6Like>
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_force_ref_hpp__
+#endif // ifndef __pinocchio_force_ref_hpp__

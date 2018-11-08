@@ -45,14 +45,14 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     
     typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> ADVector;
     
-    typedef se3::ModelTpl<Scalar> Model;
+    typedef pinocchio::ModelTpl<Scalar> Model;
     typedef Model::Data Data;
     
-    typedef se3::ModelTpl<ADScalar> ADModel;
+    typedef pinocchio::ModelTpl<ADScalar> ADModel;
     typedef ADModel::Data ADData;
     
     Model model;
-    se3::buildModels::humanoidRandom(model);
+    pinocchio::buildModels::humanoidRandom(model);
     model.lowerPositionLimit.head<3>().fill(-1.);
     model.upperPositionLimit.head<3>().fill(1.);
     Data data(model);
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     typedef Model::ConfigVectorType CongigVectorType;
     typedef Model::TangentVectorType TangentVectorType;
     CongigVectorType q(model.nq);
-    q = se3::randomConfiguration(model);
+    q = pinocchio::randomConfiguration(model);
     
     TangentVectorType v(TangentVectorType::Random(model.nv));
     TangentVectorType a(TangentVectorType::Random(model.nv));
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     ADTangentVectorType & X = ad_a;
     CppAD::Independent(X);
     
-    se3::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
+    pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
     ADVector Y(model.nv); Y = ad_data.tau;
     
     CppAD::ADFun<CGScalar> fun(X,Y);
@@ -112,10 +112,10 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     CPPAD_TESTVECTOR(Scalar) tau = rnea_generated->ForwardZero(x);
     
     Eigen::Map<TangentVectorType> tau_map(tau.data(),model.nv,1);
-    Data::TangentVectorType tau_ref = se3::rnea(model,data,q,v,a);
+    Data::TangentVectorType tau_ref = pinocchio::rnea(model,data,q,v,a);
     BOOST_CHECK(tau_map.isApprox(tau_ref));
     
-    se3::crba(model,data,q);
+    pinocchio::crba(model,data,q);
     data.M.triangularView<Eigen::StrictlyLower>()
     = data.M.transpose().triangularView<Eigen::StrictlyLower>();
     

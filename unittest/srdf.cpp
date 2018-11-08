@@ -23,15 +23,15 @@
 
 #include <boost/test/unit_test.hpp>
 
-using namespace se3;
+using namespace pinocchio;
 using namespace std;
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE(test_removeCollisionPairs)
 {
-  using namespace se3::urdf;
-  using namespace se3::srdf;
+  using namespace pinocchio::urdf;
+  using namespace pinocchio::srdf;
   const string model_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   const string model_dir = PINOCCHIO_SOURCE_DIR"/models/romeo";
   const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/srdf/romeo.srdf";
@@ -55,8 +55,8 @@ BOOST_AUTO_TEST_CASE(test_removeCollisionPairs)
   
 BOOST_AUTO_TEST_CASE(readNeutralConfig)
 {
-  using namespace se3::urdf;
-  using namespace se3::srdf;
+  using namespace pinocchio::urdf;
+  using namespace pinocchio::srdf;
   const string model_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
   const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/srdf/romeo.srdf";
   
@@ -71,8 +71,8 @@ BOOST_AUTO_TEST_CASE(readNeutralConfig)
 
 BOOST_AUTO_TEST_CASE(readRotorParams)
 {
-  using namespace se3::urdf;
-  using namespace se3::srdf;
+  using namespace pinocchio::urdf;
+  using namespace pinocchio::srdf;
   const string model_filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
   const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.srdf";
   

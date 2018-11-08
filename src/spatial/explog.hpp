@@ -29,7 +29,7 @@
 #include "pinocchio/spatial/skew.hpp"
 #include "pinocchio/spatial/se3.hpp"
 
-namespace se3
+namespace pinocchio
 {
   /// \brief Exp: so3 -> SO3.
   ///
@@ -527,7 +527,7 @@ namespace se3
     B.noalias() = C * A;
     C.setZero();
   }
-} // namespace se3
+} // namespace pinocchio
 
 #include "pinocchio/spatial/explog-quaternion.hpp"
 

@@ -18,7 +18,7 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -30,7 +30,7 @@ namespace se3
     {
       Data::MatrixXs res(model.nv,model.nv);
       res.setZero();
-      se3::computeGeneralizedGravityDerivatives(model,data,q,res);
+      pinocchio::computeGeneralizedGravityDerivatives(model,data,q,res);
       return res;
     }
     
@@ -39,7 +39,7 @@ namespace se3
                                       const Eigen::VectorXd & v,
                                       const Eigen::VectorXd & a)
     {
-      se3::computeRNEADerivatives(model,data,q,v,a);
+      pinocchio::computeRNEADerivatives(model,data,q,v,a);
       // Symmetrize M
       data.M.triangularView<Eigen::StrictlyLower>()
       = data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -51,7 +51,7 @@ namespace se3
                                      const Eigen::VectorXd & a,
                                      const ForceAlignedVector & fext)
     {
-      se3::computeRNEADerivatives(model,data,q,v,a,fext);
+      pinocchio::computeRNEADerivatives(model,data,q,v,a,fext);
       // Symmetrize M
       data.M.triangularView<Eigen::StrictlyLower>()
       = data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -94,4 +94,4 @@ namespace se3
     
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

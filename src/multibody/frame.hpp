@@ -15,15 +15,15 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_frame_hpp__
-#define __se3_frame_hpp__
+#ifndef __pinocchio_frame_hpp__
+#define __pinocchio_frame_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 
 #include <string>
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief Enum on the possible types of frame
@@ -44,7 +44,7 @@ namespace se3
   struct FrameTpl
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef se3::JointIndex JointIndex;
+    typedef pinocchio::JointIndex JointIndex;
     enum { Options = _Options };
     typedef _Scalar Scalar;
     typedef SE3Tpl<Scalar,Options> SE3;
@@ -138,6 +138,6 @@ namespace se3
     return os;
   }
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_frame_hpp__
+#endif // ifndef __pinocchio_frame_hpp__

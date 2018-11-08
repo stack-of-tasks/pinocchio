@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_translation_hpp__
-#define __se3_joint_translation_hpp__
+#ifndef __pinocchio_joint_translation_hpp__
+#define __pinocchio_joint_translation_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -25,7 +25,7 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   template<typename Scalar, int Options=0> struct MotionTranslationTpl;
@@ -562,27 +562,27 @@ namespace se3
 
   }; // struct JointModelTranslationTpl
   
-} // namespace se3
+} // namespace pinocchio
 
 #include <boost/type_traits.hpp>
 
 namespace boost
 {
   template<typename Scalar, int Options>
-  struct has_nothrow_constructor< ::se3::JointModelTranslationTpl<Scalar,Options> >
+  struct has_nothrow_constructor< ::pinocchio::JointModelTranslationTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_copy< ::se3::JointModelTranslationTpl<Scalar,Options> >
+  struct has_nothrow_copy< ::pinocchio::JointModelTranslationTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_constructor< ::se3::JointDataTranslationTpl<Scalar,Options> >
+  struct has_nothrow_constructor< ::pinocchio::JointDataTranslationTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_copy< ::se3::JointDataTranslationTpl<Scalar,Options> >
+  struct has_nothrow_copy< ::pinocchio::JointDataTranslationTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __se3_joint_translation_hpp__
+#endif // ifndef __pinocchio_joint_translation_hpp__

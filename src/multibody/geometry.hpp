@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_multibody_geometry_hpp__
-#define __se3_multibody_geometry_hpp__
+#ifndef __pinocchio_multibody_geometry_hpp__
+#define __pinocchio_multibody_geometry_hpp__
 
 #include "pinocchio/multibody/fcl.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -30,7 +30,7 @@
 #include <utility>
 #include <assert.h>
 
-namespace se3
+namespace pinocchio
 {
   
   struct GeometryModel
@@ -45,7 +45,7 @@ namespace se3
     typedef container::aligned_vector<GeometryObject> GeometryObjectVector;
     typedef std::vector<CollisionPair> CollisionPairVector;
     
-    typedef se3::GeomIndex GeomIndex;
+    typedef pinocchio::GeomIndex GeomIndex;
     
     /// \brief The number of GeometryObjects
     Index ngeoms;
@@ -313,11 +313,11 @@ namespace se3
     
   }; // struct GeometryData
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/geometry.hxx"
 
-#endif // ifndef __se3_multibody_geometry_hpp__
+#endif // ifndef __pinocchio_multibody_geometry_hpp__

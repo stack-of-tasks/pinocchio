@@ -15,15 +15,15 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_joint_dense_hpp__
-#define __se3_python_joint_dense_hpp__
+#ifndef __pinocchio_python_joint_dense_hpp__
+#define __pinocchio_python_joint_dense_hpp__
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -66,7 +66,7 @@ namespace se3
     
 
 
-  }} // namespace se3::python
+  }} // namespace pinocchio::python
 
-#endif // ifndef __se3_python_joint_dense_hpp__
+#endif // ifndef __pinocchio_python_joint_dense_hpp__
 

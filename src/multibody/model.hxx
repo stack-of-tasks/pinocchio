@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_model_hxx__
-#define __se3_model_hxx__
+#ifndef __pinocchio_model_hxx__
+#define __pinocchio_model_hxx__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/utils/string-generator.hpp"
@@ -28,7 +28,7 @@
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
   namespace details
   {
@@ -279,8 +279,8 @@ namespace se3
       subtrees[parent].push_back(joint_id);
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __se3_model_hxx__
+#endif // ifndef __pinocchio_model_hxx__

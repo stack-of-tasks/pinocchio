@@ -15,19 +15,19 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_eigen_macros_hpp__
-#define __se3_eigen_macros_hpp__
+#ifndef __pinocchio_eigen_macros_hpp__
+#define __pinocchio_eigen_macros_hpp__
 
 #include "pinocchio/utils/eigen-fix.hpp"
 
 /// \brief Macro giving access to the equivalent plain type of D
-#define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type< typename se3::helper::argument_type<void(D)>::type >::type
+#define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type< typename pinocchio::helper::argument_type<void(D)>::type >::type
 
 /// \brief Similar to macro EIGEN_PLAIN_TYPE but with guaranty to provite a column major type
-#define EIGEN_PLAIN_COLUMN_MAJOR_TYPE(D) se3::helper::handle_return_type_without_typename<D,Eigen::internal::plain_matrix_type_column_major>::type
+#define EIGEN_PLAIN_COLUMN_MAJOR_TYPE(D) pinocchio::helper::handle_return_type_without_typename<D,Eigen::internal::plain_matrix_type_column_major>::type
 
 /// \brief Similar to macro EIGEN_PLAIN_TYPE but with guaranty to provite a row major type
-#define EIGEN_PLAIN_ROW_MAJOR_TYPE(D) se3::helper::handle_return_type_without_typename<D,Eigen::internal::fix::plain_matrix_type_row_major>::type
+#define EIGEN_PLAIN_ROW_MAJOR_TYPE(D) pinocchio::helper::handle_return_type_without_typename<D,Eigen::internal::fix::plain_matrix_type_row_major>::type
 
 /// \brief Macro giving access to the reference type of D
 #define EIGEN_REF_CONSTTYPE(D) Eigen::internal::ref_selector<D>::type
@@ -54,4 +54,4 @@ Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::S
 /// \brief Macro for an automatic const_cast
 #define EIGEN_CONST_CAST(TYPE,OBJ) const_cast<TYPE &>(OBJ.derived())
 
-#endif // ifndef __se3_eigen_macros_hpp__
+#endif // ifndef __pinocchio_eigen_macros_hpp__

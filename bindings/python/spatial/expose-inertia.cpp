@@ -19,7 +19,7 @@
 #include "pinocchio/bindings/python/spatial/inertia.hpp"
 #include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -31,4 +31,4 @@ namespace se3
     }
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

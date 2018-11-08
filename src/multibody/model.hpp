@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_model_hpp__
-#define __se3_model_hpp__
+#ifndef __pinocchio_model_hpp__
+#define __pinocchio_model_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -33,7 +33,7 @@
 
 #include <iostream>
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
@@ -53,10 +53,10 @@ namespace se3
     typedef InertiaTpl<Scalar,Options> Inertia;
     typedef FrameTpl<Scalar,Options> Frame;
     
-    typedef se3::Index Index;
-    typedef se3::JointIndex JointIndex;
-    typedef se3::GeomIndex GeomIndex;
-    typedef se3::FrameIndex FrameIndex;
+    typedef pinocchio::Index Index;
+    typedef pinocchio::JointIndex JointIndex;
+    typedef pinocchio::GeomIndex GeomIndex;
+    typedef pinocchio::FrameIndex FrameIndex;
     typedef std::vector<Index> IndexVector;
     
     typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModel;
@@ -485,11 +485,11 @@ namespace se3
     void addJointIndexToParentSubtrees(const JointIndex joint_id);
   };
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/model.hxx"
 
-#endif // ifndef __se3_model_hpp__
+#endif // ifndef __pinocchio_model_hpp__

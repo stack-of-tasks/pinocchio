@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_math_ccpad_hpp__
-#define __se3_math_ccpad_hpp__
+#ifndef __pinocchio_math_ccpad_hpp__
+#define __pinocchio_math_ccpad_hpp__
 
 // Do not include this file directly.
 // Copy and use directly the intructions from <cppad/example/cppad_eigen.hpp>
@@ -123,4 +123,4 @@ namespace CppAD
   {  return x * x; }
 }
 
-#endif // #ifndef __se3_math_ccpad_hpp__
+#endif // #ifndef __pinocchio_math_ccpad_hpp__

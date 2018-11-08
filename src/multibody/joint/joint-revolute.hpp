@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_revolute_hpp__
-#define __se3_joint_revolute_hpp__
+#ifndef __pinocchio_joint_revolute_hpp__
+#define __pinocchio_joint_revolute_hpp__
 
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -26,7 +26,7 @@
 #include "pinocchio/spatial/spatial-axis.hpp"
 #include "pinocchio/utils/axis-label.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   template<typename Scalar, int Options, int axis> struct MotionRevoluteTpl;
@@ -660,27 +660,27 @@ namespace se3
   typedef JointDataRevoluteTpl<double,0,2> JointDataRZ;
   typedef JointModelRevoluteTpl<double,0,2> JointModelRZ;
 
-} //namespace se3
+} //namespace pinocchio
 
 #include <boost/type_traits.hpp>
 
 namespace boost
 {
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_constructor< ::se3::JointModelRevoluteTpl<Scalar,Options,axis> >
+  struct has_nothrow_constructor< ::pinocchio::JointModelRevoluteTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_copy< ::se3::JointModelRevoluteTpl<Scalar,Options,axis> >
+  struct has_nothrow_copy< ::pinocchio::JointModelRevoluteTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_constructor< ::se3::JointDataRevoluteTpl<Scalar,Options,axis> >
+  struct has_nothrow_constructor< ::pinocchio::JointDataRevoluteTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_copy< ::se3::JointDataRevoluteTpl<Scalar,Options,axis> >
+  struct has_nothrow_copy< ::pinocchio::JointDataRevoluteTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __se3_joint_revolute_hpp__
+#endif // ifndef __pinocchio_joint_revolute_hpp__

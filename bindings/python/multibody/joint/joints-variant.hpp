@@ -15,15 +15,15 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_joints_variant_hpp__
-#define __se3_python_joints_variant_hpp__
+#ifndef __pinocchio_python_joints_variant_hpp__
+#define __pinocchio_python_joints_variant_hpp__
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-models.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -49,11 +49,11 @@ namespace se3
       void operator()(T)
       {
         expose_constructors<T>(bp::class_<T>(T::classname().c_str(),bp::init<>()).def(JointPythonVisitor<T>()));
-        bp::implicitly_convertible<T,se3::JointModelVariant>();
+        bp::implicitly_convertible<T,pinocchio::JointModelVariant>();
       }
     };
 
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_python_joints_variant_hpp__
+#endif // ifndef __pinocchio_python_joints_variant_hpp__

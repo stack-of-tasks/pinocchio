@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE ( buildModel )
   #ifndef NDEBUG
    std::cout << "Parse filename \"" << filename << "\"" << std::endl;
   #endif
-  se3::Model model = se3::python::buildModel(filename,"model",false);
+  pinocchio::Model model = pinocchio::python::buildModel(filename,"model",false);
   #ifndef NDEBUG
    std::cout << "This model has \"" << model.nq << "\" DoF" << std::endl;
   #endif

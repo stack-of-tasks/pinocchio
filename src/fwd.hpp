@@ -15,12 +15,14 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_fwd_hpp__
-#define __se3_fwd_hpp__
+#ifndef __pinocchio_fwd_hpp__
+#define __pinocchio_fwd_hpp__
+
+/// Forward declarion of main pinocchio namespace
+namespace pinocchio {}
 
 #include "pinocchio/macros.hpp"
-#include "pinocchio/deprecated-macros.hpp"
-#include "pinocchio/deprecated.hpp"
+#include "pinocchio/deprecation.hpp"
 #include "pinocchio/warning.hpp"
 #include "pinocchio/config.hpp"
 
@@ -32,7 +34,7 @@
 
 #include "pinocchio/eigen-macros.hpp"
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief Common traits structure to fully define base classes for CRTP.
@@ -57,4 +59,4 @@ namespace se3
   };
 }
 
-#endif // #ifndef __se3_fwd_hpp__
+#endif // #ifndef __pinocchio_fwd_hpp__

@@ -15,13 +15,13 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_act_on_set_hpp__
-#define __se3_act_on_set_hpp__
+#ifndef __pinocchio_act_on_set_hpp__
+#define __pinocchio_act_on_set_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   enum AssignmentOperatorType
@@ -162,8 +162,8 @@ namespace se3
     
   }  // namespace MotionSet
 
-} // namespace se3
+} // namespace pinocchio
 
 #include "pinocchio/spatial/act-on-set.hxx"
 
-#endif // ifndef __se3_act_on_set_hpp__
+#endif // ifndef __pinocchio_act_on_set_hpp__

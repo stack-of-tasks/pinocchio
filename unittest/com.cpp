@@ -34,11 +34,11 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_com )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE ( test_com )
   centerOfMass(model,data,q,v,a);
   nonLinearEffects(model, data, q, v);
   
-  se3::SE3::Vector3 acom_from_nle (data.nle.head <3> ()/data.mass[0]);
+  pinocchio::SE3::Vector3 acom_from_nle (data.nle.head <3> ()/data.mass[0]);
   BOOST_CHECK((data.liMi[1].rotation() * acom_from_nle).isApprox(data.acom[0], 1e-12));
 
 	/* Test Jcom against CRBA  */
@@ -93,11 +93,11 @@ BOOST_AUTO_TEST_CASE ( test_com )
 //BOOST_AUTO_TEST_CASE ( test_timings )
 //{
 //  using namespace Eigen;
-//  using namespace se3;
+//  using namespace pinocchio;
 //
-//  se3::Model model;
-//  se3::buildModels::humanoidRandom(model);
-//  se3::Data data(model);
+//  pinocchio::Model model;
+//  pinocchio::buildModels::humanoidRandom(model);
+//  pinocchio::Data data(model);
 //
 //  long flag = BOOST_BINARY(1111);
 //  PinocchioTicToc timer(PinocchioTicToc::US); 

@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_data_hpp__
-#define __se3_data_hpp__
+#ifndef __pinocchio_data_hpp__
+#define __pinocchio_data_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -31,7 +31,7 @@
 #include <iostream>
 #include <Eigen/Cholesky>
 
-namespace se3
+namespace pinocchio
 {
  
   template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
@@ -52,10 +52,10 @@ namespace se3
     typedef InertiaTpl<Scalar,Options> Inertia;
     typedef FrameTpl<Scalar,Options> Frame;
     
-    typedef se3::Index Index;
-    typedef se3::JointIndex JointIndex;
-    typedef se3::GeomIndex GeomIndex;
-    typedef se3::FrameIndex FrameIndex;
+    typedef pinocchio::Index Index;
+    typedef pinocchio::JointIndex JointIndex;
+    typedef pinocchio::GeomIndex GeomIndex;
+    typedef pinocchio::FrameIndex FrameIndex;
     typedef std::vector<Index> IndexVector;
     
     typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModel;
@@ -83,7 +83,7 @@ namespace se3
     typedef Eigen::Matrix<Scalar,6,6,Eigen::RowMajor | Options> RowMatrix6;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor | Options> RowMatrixXs;
     
-    /// \brief Vector of se3::JointData associated to the se3::JointModel stored in model, 
+    /// \brief Vector of pinocchio::JointData associated to the pinocchio::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.
     JointDataVector joints;
     
@@ -254,7 +254,7 @@ namespace se3
     std::vector<int> nvSubtree_fromRow;
     
     /// \brief Jacobian of joint placements.
-    /// \note The columns of J corresponds to the basis of the spatial velocities of each joint and expressed at the origin of the inertial frame. In other words, if \f$ v_{J_{i}} = S_{i} \dot{q}_{i}\f$ is the relative velocity of the joint i regarding to its parent, then \f$J = \begin{bmatrix} ^{0}X_{1} S_{1} & \cdots & ^{0}X_{i} S_{i} & \cdots & ^{0}X_{\text{nj}} S_{\text{nj}} \end{bmatrix} \f$. This Jacobian has no special meaning. To get the jacobian of a precise joint, you need to call se3::getJointJacobian
+    /// \note The columns of J corresponds to the basis of the spatial velocities of each joint and expressed at the origin of the inertial frame. In other words, if \f$ v_{J_{i}} = S_{i} \dot{q}_{i}\f$ is the relative velocity of the joint i regarding to its parent, then \f$J = \begin{bmatrix} ^{0}X_{1} S_{1} & \cdots & ^{0}X_{i} S_{i} & \cdots & ^{0}X_{\text{nj}} S_{\text{nj}} \end{bmatrix} \f$. This Jacobian has no special meaning. To get the jacobian of a precise joint, you need to call pinocchio::getJointJacobian
     Matrix6x J;
     
     /// \brief Derivative of the Jacobian with respect to the time.
@@ -315,7 +315,7 @@ namespace se3
     /// \brief Cholesky decompostion of \f$\JMinvJt\f$.
     Eigen::LLT<MatrixXs> llt_JMinvJt;
     
-    /// \brief Lagrange Multipliers corresponding to the contact forces in se3::forwardDynamics.
+    /// \brief Lagrange Multipliers corresponding to the contact forces in pinocchio::forwardDynamics.
     VectorXs lambda_c;
     
     /// \brief Temporary corresponding to \f$ \sqrt{D} U^{-1} J^{\top} \f$.
@@ -327,14 +327,14 @@ namespace se3
     /// \brief Generalized velocity after impact.
     TangentVectorType dq_after;
     
-    /// \brief Lagrange Multipliers corresponding to the contact impulses in se3::impulseDynamics.
+    /// \brief Lagrange Multipliers corresponding to the contact impulses in pinocchio::impulseDynamics.
     VectorXs impulse_c;
     
     // data related to regressor
     Matrix3x staticRegressor;
     
     ///
-    /// \brief Default constructor of se3::Data from a se3::Model.
+    /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
     ///
     /// \param[in] model The model structure of the rigid body system.
     ///
@@ -346,12 +346,12 @@ namespace se3
 
   };
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/data.hxx"
 
-#endif // ifndef __se3_data_hpp__
+#endif // ifndef __pinocchio_data_hpp__
 

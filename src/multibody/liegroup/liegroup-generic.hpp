@@ -15,13 +15,13 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lie_group_generic_hpp__
-#define __se3_lie_group_generic_hpp__
+#ifndef __pinocchio_lie_group_generic_hpp__
+#define __pinocchio_lie_group_generic_hpp__
 
 #include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-variant-visitors.hpp"
 
-namespace se3
+namespace pinocchio
 {
   template<typename LieGroupCollection> struct LieGroupGenericTpl;
   
@@ -62,11 +62,11 @@ namespace se3
     LieGroupVariant & toVariant()
     { return static_cast<LieGroupVariant &>(*this); }
     
-    int nq() const { return ::se3::nq(*this); }
-    int nv() const { return ::se3::nv(*this); }
+    int nq() const { return ::pinocchio::nq(*this); }
+    int nv() const { return ::pinocchio::nv(*this); }
   };
   
 }
 
-#endif // ifndef __se3_lie_group_generic_hpp__
+#endif // ifndef __pinocchio_lie_group_generic_hpp__
 

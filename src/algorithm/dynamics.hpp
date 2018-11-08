@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_dynamics_hpp__
-#define __se3_dynamics_hpp__
+#ifndef __pinocchio_dynamics_hpp__
+#define __pinocchio_dynamics_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -27,7 +27,7 @@
 
 #include <Eigen/Cholesky>
 
-namespace se3
+namespace pinocchio
 {
   
   ///
@@ -55,7 +55,7 @@ namespace se3
   /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
   /// \param[in] gamma The drift of the constraints (dim nb_constraints).
   /// \param[in] inv_damping Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.    
-  /// \param[in] updateKinematics If true, the algorithm calls first se3::computeAllTerms. Otherwise, it uses the current dynamic values stored in data. \\
+  /// \param[in] updateKinematics If true, the algorithm calls first pinocchio::computeAllTerms. Otherwise, it uses the current dynamic values stored in data. \\
   ///            \note A hint: 1e-12 as the damping factor gave good result in the particular case of redundancy in contact constraints on the two feet.
   ///
   /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
@@ -139,7 +139,7 @@ namespace se3
   /// \param[in] v_before The joint velocity before impact (vector dim model.nv).
   /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
   /// \param[in] r_coeff The coefficient of restitution. Must be in [0;1].
-  /// \param[in] updateKinematics If true, the algorithm calls first se3::crba. Otherwise, it uses the current mass matrix value stored in data.
+  /// \param[in] updateKinematics If true, the algorithm calls first pinocchio::crba. Otherwise, it uses the current mass matrix value stored in data.
   ///
   /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.
   ///
@@ -190,7 +190,7 @@ namespace se3
     
     return dq_after;
   }
-} // namespace se3
+} // namespace pinocchio
 
 
-#endif // ifndef __se3_dynamics_hpp__
+#endif // ifndef __pinocchio_dynamics_hpp__

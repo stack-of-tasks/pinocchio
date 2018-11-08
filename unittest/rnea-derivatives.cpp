@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(test_generalized_gravity_derivatives)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
   Model model;
   buildModels::humanoidRandom(model);
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(test_generalized_gravity_derivatives)
 BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
 BOOST_AUTO_TEST_CASE(test_rnea_derivatives_fext)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_fext)
 BOOST_AUTO_TEST_CASE(test_rnea_derivatives_vs_kinematics_derivatives)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);

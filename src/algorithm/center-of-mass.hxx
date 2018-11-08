@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_center_of_mass_hxx__
-#define __se3_center_of_mass_hxx__
+#ifndef __pinocchio_center_of_mass_hxx__
+#define __pinocchio_center_of_mass_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/multibody/visitor.hpp"
@@ -24,7 +24,7 @@
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
@@ -319,8 +319,8 @@ namespace se3
     return data.Jcom;
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __se3_center_of_mass_hxx__
+#endif // ifndef __pinocchio_center_of_mass_hxx__

@@ -15,14 +15,14 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lie_group_operation_base_hpp__
-#define __se3_lie_group_operation_base_hpp__
+#ifndef __pinocchio_lie_group_operation_base_hpp__
+#define __pinocchio_lie_group_operation_base_hpp__
 
 #include "pinocchio/multibody/liegroup/fwd.hpp"
 
 #include <limits>
 
-namespace se3
+namespace pinocchio
 {
   
 #define SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,TYPENAME)               \
@@ -343,8 +343,8 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     LieGroupBase( const LieGroupBase & /*clone*/) {}
   }; // struct LieGroupBase
 
-} // namespace se3
+} // namespace pinocchio
 
 #include "pinocchio/multibody/liegroup/liegroup-base.hxx"
 
-#endif // ifndef __se3_lie_group_operation_base_hpp__
+#endif // ifndef __pinocchio_lie_group_operation_base_hpp__

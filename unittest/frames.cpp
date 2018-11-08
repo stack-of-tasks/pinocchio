@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE(frame_basic)
 {
-  using namespace se3;
+  using namespace pinocchio;
   Model model;
   buildModels::humanoidRandom(model);
   
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(frame_basic)
 
 BOOST_AUTO_TEST_CASE(cast)
 {
-  using namespace se3;
+  using namespace pinocchio;
   Frame frame("toto",0,0,SE3::Random(),OP_FRAME);
   
   BOOST_CHECK(frame.cast<double>() == frame);
@@ -72,15 +72,15 @@ BOOST_AUTO_TEST_CASE(cast)
 BOOST_AUTO_TEST_CASE ( test_kinematics )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
-  se3::Data data(model);
+  pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -93,17 +93,17 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 BOOST_AUTO_TEST_CASE ( test_update_placements )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   Model::FrameIndex frame_idx = model.getFrameId(frame_name);
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -119,17 +119,17 @@ BOOST_AUTO_TEST_CASE ( test_update_placements )
 BOOST_AUTO_TEST_CASE ( test_update_single_placement )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   Model::FrameIndex frame_idx = model.getFrameId(frame_name);
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -145,16 +145,16 @@ BOOST_AUTO_TEST_CASE ( test_update_single_placement )
 BOOST_AUTO_TEST_CASE ( test_velocity )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   Model::FrameIndex frame_idx = model.getFrameId(frame_name);
-  se3::Data data(model);
+  pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -170,16 +170,16 @@ BOOST_AUTO_TEST_CASE ( test_velocity )
 BOOST_AUTO_TEST_CASE ( test_acceleration )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   Model::FrameIndex frame_idx = model.getFrameId(frame_name);
-  se3::Data data(model);
+  pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE ( test_acceleration )
 BOOST_AUTO_TEST_CASE ( test_jacobian )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
   Model model;
   buildModels::humanoidRandom(model);
@@ -206,8 +206,8 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   BOOST_CHECK(model.existFrame(frame_name));
   
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
   
   model.lowerPositionLimit.head<7>().fill(-1.);
   model.upperPositionLimit.head<7>().fill( 1.);
@@ -245,16 +245,16 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));  
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
   
   VectorXd q = randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) );
   VectorXd v = VectorXd::Random(model.nv);

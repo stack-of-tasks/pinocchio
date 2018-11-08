@@ -22,7 +22,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace se3;
+using namespace pinocchio;
 using namespace Eigen;
 
 template<typename JointModel>
@@ -128,8 +128,8 @@ struct TestJointComposite{
 //  void operator()(const JointModelBase<JointModelComposite> &) const
 //  {
 //    JointModelComposite jmodel_composite;
-//    jmodel_composite.addJoint(se3::JointModelRX());
-//    jmodel_composite.addJoint(se3::JointModelRY());
+//    jmodel_composite.addJoint(pinocchio::JointModelRX());
+//    jmodel_composite.addJoint(pinocchio::JointModelRY());
 //    jmodel_composite.setIndexes(0,0,0);
 //
 //    test_joint_methods(jmodel_composite);

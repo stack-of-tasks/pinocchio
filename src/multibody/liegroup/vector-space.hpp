@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_vector_space_operation_hpp__
-#define __se3_vector_space_operation_hpp__
+#ifndef __pinocchio_vector_space_operation_hpp__
+#define __pinocchio_vector_space_operation_hpp__
 
 #include <stdexcept>
 
@@ -24,7 +24,7 @@
 
 #include <boost/integer/static_min_max.hpp>
 
-namespace se3
+namespace pinocchio
 {
   template<int Dim, typename Scalar, int Options = 0> struct VectorSpaceOperationTpl;
   
@@ -173,6 +173,6 @@ namespace se3
     Eigen::internal::variable_if_dynamic<Index, Dim> size_;
   }; // struct VectorSpaceOperationTpl
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_vector_space_operation_hpp__
+#endif // ifndef __pinocchio_vector_space_operation_hpp__

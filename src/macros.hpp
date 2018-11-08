@@ -15,12 +15,18 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_macros_hpp__
-#define __se3_macros_hpp__
+#ifndef __pinocchio_macros_hpp__
+#define __pinocchio_macros_hpp__
 
 #if __cplusplus >= 201103L
   #define PINOCCHIO_WITH_CXX11_SUPPORT
 #endif
+
+#define PINOCCHIO_STRING_LITERAL(string) #string
+
+/// \remarks The following two macros should be adapted for WIN32
+#define PINOCCHIO_PRAGMA_MESSAGE(the_message) PINOCCHIO_STRING_LITERAL(message(the_message))
+#define PINOCCHIO_PRAGMA_MESSAGE_CALL(the_message) _Pragma(PINOCCHIO_PRAGMA_MESSAGE(the_message))
 
 /// \brief Macro to check the current Pinocchio version against a version provided by x.y.z
 #define PINOCCHIO_VERSION_AT_LEAST(x,y,z) \
@@ -31,7 +37,7 @@
 // This macro can be used to prevent from macro expansion, similarly to EIGEN_NOT_A_MACRO
 #define PINOCCHIO_NOT_A_MACRO
 
-namespace se3
+namespace pinocchio
 {
   namespace helper
   {
@@ -56,7 +62,7 @@ namespace se3
 #define PINOCCHIO_STATIC_ASSERT(condition,msg)                                 \
   { int msg[(condition) ? 1 : -1]; /*avoid unused-variable warning*/ (void) msg; }
 
-namespace se3
+namespace pinocchio
 {
   namespace helper
   {
@@ -68,4 +74,4 @@ namespace se3
   }
 }
 
-#endif // ifndef __se3_macros_hpp__
+#endif // ifndef __pinocchio_macros_hpp__

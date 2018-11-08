@@ -16,13 +16,13 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_sample_models_hpp__
-#define __se3_sample_models_hpp__
+#ifndef __pinocchio_sample_models_hpp__
+#define __pinocchio_sample_models_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace buildModels
   {  
@@ -70,7 +70,7 @@ namespace se3
      *
      * This method is only meant to be used in unittest. Due to random placement and masses,
      * the resulting model is likely to not correspond to any physically-plausible model. 
-     * You may want to consider se3::humanoid and se3::humanoidGeometries functions that
+     * You may want to consider pinocchio::humanoid and pinocchio::humanoidGeometries functions that
      * rather define a plain and non-random model. 
      * \param model: model, typically given empty, where the kinematic chain is added.
      * \param usingFF: if True, implement the chain with a plain JointModelFreeFloating; if False,
@@ -80,19 +80,19 @@ namespace se3
     void humanoidRandom(Model & model, bool usingFF = true);
 
     /** \brief Create a random humanoid tree with 2d limbs.
-     * \ deprecated This function has been replaced by the non-random se3::humanoid function.
+     * \ deprecated This function has been replaced by the non-random pinocchio::humanoid function.
      */
     PINOCCHIO_DEPRECATED
     void humanoid2d(Model & model);
 
     /** \brief Alias of humanoidRandom, for compatibility reasons.
-     * \deprecated use se3::humanoid or se3::humanoidRandom instead. 
+     * \deprecated use pinocchio::humanoid or pinocchio::humanoidRandom instead. 
      */
     PINOCCHIO_DEPRECATED
     inline void humanoidSimple(Model & model, bool usingFF = true)
     { humanoidRandom(model,usingFF); }
    
   } // namespace buildModels
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_sample_models_hpp__
+#endif // ifndef __pinocchio_sample_models_hpp__

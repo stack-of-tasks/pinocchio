@@ -18,7 +18,7 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -82,4 +82,4 @@ namespace se3
 #endif // PINOCCHIO_WITH_HPP_FCL      
     }
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

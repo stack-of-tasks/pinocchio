@@ -15,15 +15,15 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_rnea_derivatives_hpp__
-#define __se3_rnea_derivatives_hpp__
+#ifndef __pinocchio_rnea_derivatives_hpp__
+#define __pinocchio_rnea_derivatives_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
 #include "pinocchio/container/aligned-vector.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   ///
@@ -41,7 +41,7 @@ namespace se3
   ///
   /// \remark gravity_partial_dq must be first initialized with zeros (gravity_partial_dq.setZero).
   ///
-  /// \sa se3::computeGeneralizedGravity
+  /// \sa pinocchio::computeGeneralizedGravity
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename ReturnMatrixType>
   inline void
@@ -72,9 +72,9 @@ namespace se3
   /// \param[out] rnea_partial_da Partial derivative of the generalized torque vector with respect to the joint acceleration.
   ///
   /// \remark rnea_partial_dq, rnea_partial_dv and rnea_partial_da must be first initialized with zeros (rnea_partial_dq.setZero(),etc).
-  ///         As for se3::crba, only the upper triangular part of rnea_partial_da is filled.
+  ///         As for pinocchio::crba, only the upper triangular part of rnea_partial_da is filled.
   ///
-  /// \sa se3::rnea
+  /// \sa pinocchio::rnea
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
@@ -111,9 +111,9 @@ namespace se3
   /// \param[out] rnea_partial_da Partial derivative of the generalized torque vector with respect to the joint acceleration.
   ///
   /// \remark rnea_partial_dq, rnea_partial_dv and rnea_partial_da must be first initialized with zeros (rnea_partial_dq.setZero(),etc).
-  ///         As for se3::crba, only the upper triangular part of rnea_partial_da is filled.
+  ///         As for pinocchio::crba, only the upper triangular part of rnea_partial_da is filled.
   ///
-  /// \sa se3::rnea
+  /// \sa pinocchio::rnea
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
@@ -145,9 +145,9 @@ namespace se3
   ///
   /// \returns The results are stored in data.dtau_dq, data.dtau_dv and data.M which respectively correspond
   ///          to the partial derivatives of the joint torque vector with respect to the joint configuration, velocity and acceleration.
-  ///          As for se3::crba, only the upper triangular part of data.M is filled.
+  ///          As for pinocchio::crba, only the upper triangular part of data.M is filled.
   ///
-  /// \sa se3::rnea, se3::crba, se3::cholesky::decompose
+  /// \sa pinocchio::rnea, pinocchio::crba, pinocchio::cholesky::decompose
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   inline void
@@ -179,9 +179,9 @@ namespace se3
   ///
   /// \returns The results are stored in data.dtau_dq, data.dtau_dv and data.M which respectively correspond
   ///          to the partial derivatives of the joint torque vector with respect to the joint configuration, velocity and acceleration.
-  ///          As for se3::crba, only the upper triangular part of data.M is filled.
+  ///          As for pinocchio::crba, only the upper triangular part of data.M is filled.
   ///
-  /// \sa se3::rnea, se3::crba, se3::cholesky::decompose
+  /// \sa pinocchio::rnea, pinocchio::crba, pinocchio::cholesky::decompose
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   inline void
@@ -197,8 +197,8 @@ namespace se3
   }
 
 
-} // namespace se3 
+} // namespace pinocchio 
 
 #include "pinocchio/algorithm/rnea-derivatives.hxx"
 
-#endif // ifndef __se3_rnea_derivatives_hpp__
+#endif // ifndef __pinocchio_rnea_derivatives_hpp__

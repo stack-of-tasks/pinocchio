@@ -15,14 +15,14 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_frames_hxx__
-#define __se3_frames_hxx__
+#ifndef __pinocchio_frames_hxx__
+#define __pinocchio_frames_hxx__
 
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
-namespace se3 
+namespace pinocchio 
 {
   
   
@@ -202,6 +202,6 @@ namespace se3
   }
   
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_frames_hxx__
+#endif // ifndef __pinocchio_frames_hxx__

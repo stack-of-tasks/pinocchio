@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_fcl_contact_hpp__
-#define __se3_python_fcl_contact_hpp__
+#ifndef __pinocchio_python_fcl_contact_hpp__
+#define __pinocchio_python_fcl_contact_hpp__
 
 #include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
 #include <hpp/fcl/collision_data.h>
@@ -25,7 +25,7 @@
 #include <boost/python/copy_const_reference.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -104,6 +104,6 @@ namespace se3
     } // namespace fcl
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
-#endif // namespace __se3_python_fcl_contact_hpp__
+#endif // namespace __pinocchio_python_fcl_contact_hpp__

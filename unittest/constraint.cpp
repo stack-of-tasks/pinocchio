@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE (test_ForceSet)
 {
-  using namespace se3;
+  using namespace pinocchio;
 
   SE3 amb = SE3::Random();
   SE3 bmc = SE3::Random();
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE (test_ForceSet)
 
 BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
 {
-  using namespace se3;
+  using namespace pinocchio;
 
   Inertia Y = Inertia::Random();
   JointDataRX::Constraint_t S;

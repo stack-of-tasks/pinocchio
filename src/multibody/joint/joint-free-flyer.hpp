@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_free_flyer_hpp__
-#define __se3_joint_free_flyer_hpp__
+#ifndef __pinocchio_joint_free_flyer_hpp__
+#define __pinocchio_joint_free_flyer_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -27,7 +27,7 @@
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/quaternion.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   template<typename Scalar, int Options> struct ConstraintIdentityTpl;
@@ -307,27 +307,27 @@ namespace se3
 
   }; // struct JointModelFreeFlyerTpl
 
-} // namespace se3
+} // namespace pinocchio
 
 #include <boost/type_traits.hpp>
 
 namespace boost
 {
   template<typename Scalar, int Options>
-  struct has_nothrow_constructor< ::se3::JointModelFreeFlyerTpl<Scalar,Options> >
+  struct has_nothrow_constructor< ::pinocchio::JointModelFreeFlyerTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_copy< ::se3::JointModelFreeFlyerTpl<Scalar,Options> >
+  struct has_nothrow_copy< ::pinocchio::JointModelFreeFlyerTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_constructor< ::se3::JointDataFreeFlyerTpl<Scalar,Options> >
+  struct has_nothrow_constructor< ::pinocchio::JointDataFreeFlyerTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_copy< ::se3::JointDataFreeFlyerTpl<Scalar,Options> >
+  struct has_nothrow_copy< ::pinocchio::JointDataFreeFlyerTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __se3_joint_free_flyer_hpp__
+#endif // ifndef __pinocchio_joint_free_flyer_hpp__

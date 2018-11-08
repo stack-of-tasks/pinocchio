@@ -15,12 +15,12 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_motion_dense_hpp__
-#define __se3_motion_dense_hpp__
+#ifndef __pinocchio_motion_dense_hpp__
+#define __pinocchio_motion_dense_hpp__
 
 #include "pinocchio/spatial/skew.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   namespace internal
@@ -242,6 +242,6 @@ namespace se3
                                              const MotionDense<M1> & v)
   { return v*alpha; }
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_motion_dense_hpp__
+#endif // ifndef __pinocchio_motion_dense_hpp__

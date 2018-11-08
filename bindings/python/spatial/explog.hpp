@@ -16,14 +16,14 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_explog_hpp__
-# define __se3_python_explog_hpp__
+#ifndef __pinocchio_python_explog_hpp__
+# define __pinocchio_python_explog_hpp__
 
 # include <eigenpy/eigenpy.hpp>
 
 # include "pinocchio/spatial/explog.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -95,6 +95,6 @@ namespace se3
       }
     };
   } // namespace python
-} //namespace se3
+} //namespace pinocchio
 
-#endif // ifndef __se3_python_explog_hpp__
+#endif // ifndef __pinocchio_python_explog_hpp__

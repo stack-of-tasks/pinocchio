@@ -15,12 +15,12 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_spatial_explog_quaternion_hpp__
-#define __se3_spatial_explog_quaternion_hpp__
+#ifndef __pinocchio_spatial_explog_quaternion_hpp__
+#define __pinocchio_spatial_explog_quaternion_hpp__
 
 #include "pinocchio/math/quaternion.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace quaternion
   {
@@ -193,9 +193,9 @@ namespace se3
       
       Scalar t;
       Vector3 w(log3(quat,t));
-      se3::Jlog3(t,w,Jlog);
+      pinocchio::Jlog3(t,w,Jlog);
     }
   } // namespace quaternion
 }
 
-#endif // ifndef __se3_spatial_explog_quaternion_hpp__
+#endif // ifndef __pinocchio_spatial_explog_quaternion_hpp__

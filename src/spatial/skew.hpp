@@ -15,12 +15,12 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_skew_hpp__
-#define __se3_skew_hpp__
+#ifndef __pinocchio_skew_hpp__
+#define __pinocchio_skew_hpp__
 
 #include "pinocchio/macros.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   ///
@@ -254,6 +254,6 @@ namespace se3
     return res;
   }
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_skew_hpp__
+#endif // ifndef __pinocchio_skew_hpp__

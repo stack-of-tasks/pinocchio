@@ -15,13 +15,13 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_algorithm_hpp__
-#define __se3_python_algorithm_hpp__
+#ifndef __pinocchio_python_algorithm_hpp__
+#define __pinocchio_python_algorithm_hpp__
 
 #include <boost/python.hpp>
 #include "pinocchio/bindings/python/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -49,7 +49,7 @@ namespace se3
     void exposeAlgorithms();
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_python_algorithm_hpp__
+#endif // ifndef __pinocchio_python_algorithm_hpp__
 

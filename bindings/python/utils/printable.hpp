@@ -15,12 +15,12 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_utils_printable_hpp__
-#define __se3_python_utils_printable_hpp__
+#ifndef __pinocchio_python_utils_printable_hpp__
+#define __pinocchio_python_utils_printable_hpp__
 
 #include <boost/python.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -43,6 +43,6 @@ namespace se3
       }
     };
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_python_utils_printable_hpp__
+#endif // ifndef __pinocchio_python_utils_printable_hpp__

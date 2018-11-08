@@ -15,13 +15,13 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_regressor_hpp__
-#define __se3_regressor_hpp__
+#ifndef __pinocchio_regressor_hpp__
+#define __pinocchio_regressor_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   namespace regressor
@@ -48,9 +48,9 @@ namespace se3
                            const Eigen::MatrixBase<ConfigVectorType> & q);
   }
   
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/regressor.hxx"
 
-#endif // ifndef __se3_regressor_hpp__
+#endif // ifndef __pinocchio_regressor_hpp__

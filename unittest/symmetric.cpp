@@ -45,11 +45,11 @@
 
 #include <Eigen/StdVector>
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix3d)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Symmetric3)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(pinocchio::Symmetric3)
 
-void timeSym3(const se3::Symmetric3 & S,
-        const se3::Symmetric3::Matrix3 & R,
-        se3::Symmetric3 & res)
+void timeSym3(const pinocchio::Symmetric3 & S,
+        const pinocchio::Symmetric3::Matrix3 & R,
+        pinocchio::Symmetric3 & res)
 {
   res = S.rotate(R);
 }
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 /* --- PINOCCHIO ------------------------------------------------------------ */
 BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Symmetric3::Matrix3 Matrix3;
   typedef Symmetric3::Vector3 Vector3;
   
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
 
 BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix3d Matrix3;
   typedef Eigen::SelfAdjointView<Matrix3,Eigen::Upper> Sym3;
 
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
 
 BOOST_AUTO_TEST_CASE(comparison)
 {
-  using namespace se3;
+  using namespace pinocchio;
   Symmetric3 sym1(Symmetric3::Random());
   
   Symmetric3 sym2(sym1);
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE(comparison)
 
 BOOST_AUTO_TEST_CASE(cast)
 {
-  using namespace se3;
+  using namespace pinocchio;
   Symmetric3 sym(Symmetric3::Random());
   
   BOOST_CHECK(sym.cast<double>() == sym);

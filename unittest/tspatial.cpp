@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_SE3 )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef SE3::HomogeneousMatrixType HomogeneousMatrixType;
   typedef SE3::ActionMatrixType ActionMatrixType;
   typedef SE3::Vector3 Vector3;
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
 
 BOOST_AUTO_TEST_CASE ( test_Motion )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef SE3::ActionMatrixType ActionMatrixType;
   typedef Motion::Vector6 Vector6;
 
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
 
 BOOST_AUTO_TEST_CASE (test_motion_ref)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Motion::Vector6 Vector6;
   
   typedef MotionRef<Vector6> MotionV6;
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE (test_motion_ref)
 
 BOOST_AUTO_TEST_CASE(test_motion_zero)
 {
-  using namespace se3;
+  using namespace pinocchio;
   Motion v((BiasZero()));
   
   BOOST_CHECK(v.toVector().isZero());
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE(test_motion_zero)
 
 BOOST_AUTO_TEST_CASE ( test_Force )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef SE3::ActionMatrixType ActionMatrixType;
   typedef Force::Vector6 Vector6;
 
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE ( test_Force )
 
 BOOST_AUTO_TEST_CASE (test_force_ref)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Force::Vector6 Vector6;
 
   typedef ForceRef<Vector6> ForceV6;
@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE (test_force_ref)
 
 BOOST_AUTO_TEST_CASE ( test_Inertia )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Inertia::Matrix6 Matrix6;
 
   Inertia aI = Inertia::Random();
@@ -573,7 +573,7 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
 
 BOOST_AUTO_TEST_CASE(cast_inertia)
 {
-  using namespace se3;
+  using namespace pinocchio;
   Inertia Y(Inertia::Random());
   
   BOOST_CHECK(Y.cast<double>() == Y);
@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE(cast_inertia)
 
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )
 {
-  using namespace se3;
+  using namespace pinocchio;
   const int N = 20;
   typedef Eigen::Matrix<double,6,N> Matrix6N;
   SE3 jMi = SE3::Random();
@@ -736,7 +736,7 @@ BOOST_AUTO_TEST_CASE ( test_ActOnSet )
 
 BOOST_AUTO_TEST_CASE(test_skew)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef SE3::Vector3 Vector3;
   typedef Motion::Vector6 Vector6;
   
@@ -762,7 +762,7 @@ BOOST_AUTO_TEST_CASE(test_skew)
 
 BOOST_AUTO_TEST_CASE(test_addSkew)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef SE3::Vector3 Vector3;
   typedef SE3::Matrix3 Matrix3;
   
@@ -785,7 +785,7 @@ BOOST_AUTO_TEST_CASE(test_addSkew)
 
 BOOST_AUTO_TEST_CASE(test_skew_square)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef SE3::Vector3 Vector3;
   typedef SE3::Matrix3 Matrix3;
   
@@ -802,7 +802,7 @@ BOOST_AUTO_TEST_CASE(test_skew_square)
 template<int axis>
 struct test_scalar_multiplication_cartesian_axis
 {
-  typedef se3::CartesianAxis<axis> Axis;
+  typedef pinocchio::CartesianAxis<axis> Axis;
   typedef double Scalar;
   typedef Eigen::Matrix<Scalar,3,1> Vector3;
   
@@ -833,7 +833,7 @@ struct test_scalar_multiplication_cartesian_axis
 BOOST_AUTO_TEST_CASE(test_cartesian_axis)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   Vector3d v(Vector3d::Random());
   const double alpha = 3;
   Vector3d v2(alpha*v);
@@ -853,9 +853,9 @@ BOOST_AUTO_TEST_CASE(test_cartesian_axis)
 template<int axis>
 struct test_scalar_multiplication
 {
-  typedef se3::SpatialAxis<axis> Axis;
+  typedef pinocchio::SpatialAxis<axis> Axis;
   typedef double Scalar;
-  typedef se3::MotionTpl<Scalar> Motion;
+  typedef pinocchio::MotionTpl<Scalar> Motion;
   
   static void run()
   {
@@ -883,7 +883,7 @@ struct test_scalar_multiplication
 
 BOOST_AUTO_TEST_CASE(test_spatial_axis)
 {
-  using namespace se3;
+  using namespace pinocchio;
   
   Motion v(Motion::Random());
   Force f(Force::Random());

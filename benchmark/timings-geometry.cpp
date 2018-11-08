@@ -41,7 +41,7 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
 int main()
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
   PinocchioTicToc timer(PinocchioTicToc::US);
   #ifdef NDEBUG
@@ -58,9 +58,9 @@ int main()
   std::string romeo_meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   package_dirs.push_back(romeo_meshDir);
 
-  se3::Model model;
-  se3::urdf::buildModel(romeo_filename, se3::JointModelFreeFlyer(),model);
-  se3::GeometryModel geom_model; se3::urdf::buildGeom(model, romeo_filename, COLLISION, geom_model, package_dirs);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(romeo_filename, pinocchio::JointModelFreeFlyer(),model);
+  pinocchio::GeometryModel geom_model; pinocchio::urdf::buildGeom(model, romeo_filename, COLLISION, geom_model, package_dirs);
 #ifdef PINOCCHIO_WITH_HPP_FCL  
   geom_model.addAllCollisionPairs();
 #endif // PINOCCHIO_WITH_HPP_FCL
@@ -100,7 +100,7 @@ int main()
   SMOOTH(NBT)
   {
     updateGeometryPlacements(model,data,geom_model,geom_data,qs_romeo[_smooth]);
-    for (std::vector<se3::CollisionPair>::iterator it = geom_model.collisionPairs.begin(); it != geom_model.collisionPairs.end(); ++it)
+    for (std::vector<pinocchio::CollisionPair>::iterator it = geom_model.collisionPairs.begin(); it != geom_model.collisionPairs.end(); ++it)
     {
       computeCollision(geom_model,geom_data,std::size_t(it-geom_model.collisionPairs.begin()));
     }

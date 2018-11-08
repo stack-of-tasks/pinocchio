@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_generic_hpp__
-#define __se3_joint_generic_hpp__
+#ifndef __pinocchio_joint_generic_hpp__
+#define __pinocchio_joint_generic_hpp__
 
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
@@ -26,7 +26,7 @@
 
 #include <boost/mpl/contains.hpp>
 
-namespace se3
+namespace pinocchio
 {
 
   template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
@@ -178,7 +178,7 @@ namespace se3
     { return *static_cast<const JointModelVariant*>(this); }
 
     JointDataDerived createData() const
-    { return ::se3::createData<Scalar,Options,JointCollectionTpl>(*this); }
+    { return ::pinocchio::createData<Scalar,Options,JointCollectionTpl>(*this); }
 
     using Base::isEqual;
     bool isEqual(const JointModelTpl & other) const
@@ -200,21 +200,21 @@ namespace se3
     
     template<typename Matrix6Like>
     void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
-    { ::se3::calc_aba(*this,data,EIGEN_CONST_CAST(Matrix6Like,I),update_I); }
+    { ::pinocchio::calc_aba(*this,data,EIGEN_CONST_CAST(Matrix6Like,I),update_I); }
     
-    std::string shortname() const { return ::se3::shortname(*this); }
+    std::string shortname() const { return ::pinocchio::shortname(*this); }
     static std::string classname() { return "JointModel"; }
 
-    int     nq_impl() const { return ::se3::nq(*this); }
-    int     nv_impl() const { return ::se3::nv(*this); }
+    int     nq_impl() const { return ::pinocchio::nq(*this); }
+    int     nv_impl() const { return ::pinocchio::nv(*this); }
 
-    int     idx_q()   const { return ::se3::idx_q(*this); }
-    int     idx_v()   const { return ::se3::idx_v(*this); }
+    int     idx_q()   const { return ::pinocchio::idx_q(*this); }
+    int     idx_v()   const { return ::pinocchio::idx_v(*this); }
 
-    JointIndex     id()      const { return ::se3::id(*this); }
+    JointIndex     id()      const { return ::pinocchio::id(*this); }
 
     void setIndexes(JointIndex id, int nq, int nv)
-    { ::se3::setIndexes(*this,id, nq, nv); }
+    { ::pinocchio::setIndexes(*this,id, nq, nv); }
     
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
     template<typename NewScalar>
@@ -227,6 +227,6 @@ namespace se3
   typedef container::aligned_vector<JointData> JointDataVector;
   typedef container::aligned_vector<JointModel> JointModelVector;
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_joint_generic_hpp__
+#endif // ifndef __pinocchio_joint_generic_hpp__

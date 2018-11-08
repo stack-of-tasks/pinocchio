@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_inertia_hpp__
-#define __se3_inertia_hpp__
+#ifndef __pinocchio_inertia_hpp__
+#define __pinocchio_inertia_hpp__
 
 #include <iostream>
 
@@ -27,7 +27,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/skew.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   template< class Derived>
@@ -498,6 +498,6 @@ namespace se3
     
   }; // class InertiaTpl
     
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_inertia_hpp__
+#endif // ifndef __pinocchio_inertia_hpp__

@@ -15,15 +15,15 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_parsers_urdf_utils_hpp__
-#define __se3_parsers_urdf_utils_hpp__
+#ifndef __pinocchio_parsers_urdf_utils_hpp__
+#define __pinocchio_parsers_urdf_utils_hpp__
 
 #include <urdf_model/model.h>
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace urdf
   {
@@ -33,7 +33,7 @@ namespace se3
     ///
     /// \param[in] Y The input URDF Inertia.
     ///
-    /// \return The converted Spatial Inertia se3::Inertia.
+    /// \return The converted Spatial Inertia pinocchio::Inertia.
     ///
     inline Inertia convertFromUrdf (const ::urdf::Inertial & Y)
     {
@@ -55,7 +55,7 @@ namespace se3
     ///
     /// \param[in] M The input URDF Pose.
     ///
-    /// \return The converted pose/transform se3::SE3.
+    /// \return The converted pose/transform pinocchio::SE3.
     ///
     inline SE3 convertFromUrdf (const ::urdf::Pose & M)
     {
@@ -74,7 +74,7 @@ namespace se3
     ///
     /// \param[in] axis The input URDF axis.
     ///
-    /// \return The property of the particular axis se3::urdf::CartesianAxis.
+    /// \return The property of the particular axis pinocchio::urdf::CartesianAxis.
     ///
     inline CartesianAxis extractCartesianAxis (const ::urdf::Vector3 & axis)
     {
@@ -90,4 +90,4 @@ namespace se3
 
   } //urdf
 } // se3
-#endif // __se3_parsers_urdf_utils_hpp__
+#endif // __pinocchio_parsers_urdf_utils_hpp__

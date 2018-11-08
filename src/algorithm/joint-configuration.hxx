@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_configuration_hxx__
-#define __se3_joint_configuration_hxx__
+#ifndef __pinocchio_joint_configuration_hxx__
+#define __pinocchio_joint_configuration_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -28,7 +28,7 @@
 #include <cmath>
 
 /* --- Details -------------------------------------------------------------------- */
-namespace se3
+namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorType)
@@ -324,7 +324,7 @@ namespace se3
   }
 
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_joint_configuration_hxx__
+#endif // ifndef __pinocchio_joint_configuration_hxx__
 

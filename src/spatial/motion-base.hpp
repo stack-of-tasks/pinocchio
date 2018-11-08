@@ -16,10 +16,10 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_motion_base_hpp__
-#define __se3_motion_base_hpp__
+#ifndef __pinocchio_motion_base_hpp__
+#define __pinocchio_motion_base_hpp__
 
-namespace se3
+namespace pinocchio
 {
   
   template<class Derived>
@@ -107,6 +107,6 @@ namespace se3
     
   }; // class MotionBase
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_motion_base_hpp__
+#endif // ifndef __pinocchio_motion_base_hpp__

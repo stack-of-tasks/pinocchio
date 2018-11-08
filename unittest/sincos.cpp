@@ -29,7 +29,7 @@ void testSINCOS(int n)
   {
     Scalar sin_value, cos_value;
     Scalar alpha = (Scalar)std::rand()/(Scalar)RAND_MAX;
-    se3::SINCOS(alpha,&sin_value,&cos_value);
+    pinocchio::SINCOS(alpha,&sin_value,&cos_value);
     
     Scalar sin_value_ref = std::sin(alpha),
            cos_value_ref = std::cos(alpha);

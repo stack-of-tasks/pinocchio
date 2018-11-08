@@ -26,7 +26,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace se3;
+using namespace pinocchio;
 using namespace Eigen;
 
 template<bool local>
@@ -143,10 +143,10 @@ void FiniteDiffJoint::operator()< JointModelComposite > (JointModelBase<JointMod
 //  typedef typename JointModel::ConfigVector_t CV;
 //  typedef typename JointModel::TangentVector_t TV;
 //
-//  se3::JointModelComposite jmodel((se3::JointModelRX())/*, (se3::JointModelRY())*/);
+//  pinocchio::JointModelComposite jmodel((pinocchio::JointModelRX())/*, (pinocchio::JointModelRY())*/);
 //  jmodel.setIndexes(0,0,0);
 //
-//  se3::JointModelComposite::JointDataDerived jdata = jmodel.createData();
+//  pinocchio::JointModelComposite::JointDataDerived jdata = jmodel.createData();
 //
 //  CV q = jmodel.random();
 //  jmodel.calc(jdata,q);
@@ -205,9 +205,9 @@ BOOST_AUTO_TEST_CASE (test_S_finit_diff)
 
 BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
 {
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
   
   const VectorXd fd_increment = finiteDifferenceIncrement(model);
 
