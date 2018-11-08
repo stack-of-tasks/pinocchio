@@ -19,9 +19,7 @@
 #define __pinocchio_deprecated_namespaces_hpp__
 
 #if PINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_1 // do not warn
-  #define se3 ::pinocchio
-#else
-  #define se3 PINOCCHIO_PRAGMA_MESSAGE_CALL("The se3 namespace has been deprecated since version 2.0.0. Please use namespace pinocchio instead.") ::pinocchio
+  namespace se3 = ::pinocchio;
 #endif
 
 #endif // ifndef __pinocchio_deprecated_namespaces_hpp__

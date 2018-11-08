@@ -18,6 +18,9 @@
 #ifndef __pinocchio_fwd_hpp__
 #define __pinocchio_fwd_hpp__
 
+/// Forward declarion of main pinocchio namespace
+namespace pinocchio {}
+
 #include "pinocchio/macros.hpp"
 #include "pinocchio/deprecation.hpp"
 #include "pinocchio/warning.hpp"
