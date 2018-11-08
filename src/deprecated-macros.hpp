@@ -19,29 +19,20 @@
 #define __pinocchio_deprecated_macros_hpp__
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  #ifndef WITH_HPP_FCL
-    #define WITH_HPP_FCL // for backward compatibility
-  #endif
-  #ifndef PINOCCHIO_DISABLE_DEPRECATED_MACRO_WARNING
-    #pragma message("'WITH_HPP_FCL' is deprecated. Please use PINOCCHIO_WITH_HPP_FCL instead.")
+  #ifdef PINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_1 // for backward compatibility
+    #define WITH_HPP_FCL
   #endif
 #endif
 
 #ifdef PINOCCHIO_WITH_URDFDOM
-  #ifndef WITH_URDFDOM
-    #define WITH_URDFDOM // for backward compatibility
-  #endif
-  #ifndef PINOCCHIO_DISABLE_DEPRECATED_MACRO_WARNING
-    #pragma message("'WITH_URDFDOM' is deprecated. Please use PINOCCHIO_WITH_URDFDOM instead.")
+  #ifdef PINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_1 // for backward compatibility
+    #define WITH_URDFDOM
   #endif
 #endif
 
 #ifdef PINOCCHIO_WITH_LUA5
-  #ifndef WITH_LUA5
-    #define WITH_LUA5 // for backward compatibility
-  #endif
-  #ifndef PINOCCHIO_DISABLE_DEPRECATED_MACRO_WARNING
-    #pragma message("'WITH_LUA5' is deprecated. Please use PINOCCHIO_WITH_LUA5 instead.")
+  #ifdef PINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_1 // for backward compatibility
+    #define WITH_LUA5
   #endif
 #endif
 
