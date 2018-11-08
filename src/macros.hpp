@@ -37,7 +37,7 @@
 // This macro can be used to prevent from macro expansion, similarly to EIGEN_NOT_A_MACRO
 #define PINOCCHIO_NOT_A_MACRO
 
-namespace se3
+namespace pinocchio
 {
   namespace helper
   {
@@ -62,7 +62,7 @@ namespace se3
 #define PINOCCHIO_STATIC_ASSERT(condition,msg)                                 \
   { int msg[(condition) ? 1 : -1]; /*avoid unused-variable warning*/ (void) msg; }
 
-namespace se3
+namespace pinocchio
 {
   namespace helper
   {

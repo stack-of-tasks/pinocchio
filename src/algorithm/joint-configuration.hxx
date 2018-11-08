@@ -28,7 +28,7 @@
 #include <cmath>
 
 /* --- Details -------------------------------------------------------------------- */
-namespace se3
+namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline typename EIGEN_PLAIN_TYPE(ConfigVectorType)
@@ -324,7 +324,7 @@ namespace se3
   }
 
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_joint_configuration_hxx__
 

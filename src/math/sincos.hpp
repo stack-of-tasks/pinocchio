@@ -22,7 +22,7 @@
 #include "pinocchio/fwd.hpp"
 #include <cmath>
 
-namespace se3
+namespace pinocchio
 {
   /// Forward declaration
   template<typename Scalar> struct SINCOSAlgo;

@@ -21,7 +21,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief Browse through the kinematic structure with a void step.
@@ -47,7 +47,7 @@ namespace se3
   /// \param[in] data The data structure of the rigid body system.
   ///
   /// \remark This algorithm may be useful to call to update global joint placement
-  ///         after calling se3::rnea, se3::aba, etc for example.
+  ///         after calling pinocchio::rnea, pinocchio::aba, etc for example.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void updateGlobalPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -106,7 +106,7 @@ namespace se3
                                 const Eigen::MatrixBase<TangentVectorType1> & v,
                                 const Eigen::MatrixBase<TangentVectorType2> & a);
 
-} // namespace se3 
+} // namespace pinocchio 
 
 /* --- Details -------------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------------- */

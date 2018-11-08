@@ -37,7 +37,7 @@
 int main(int argc, const char ** argv)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
   PinocchioTicToc timer(PinocchioTicToc::US);
   #ifdef NDEBUG
@@ -47,7 +47,7 @@ int main(int argc, const char ** argv)
     std::cout << "(the time score in debug mode is not relevant) " << std::endl;
   #endif
     
-  se3::Model model;
+  pinocchio::Model model;
 
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
   if(argc>1) filename = argv[1];
@@ -61,18 +61,18 @@ int main(int argc, const char ** argv)
   }
   
   if( filename == "H")
-    se3::buildModels::humanoidRandom(model,true);
+    pinocchio::buildModels::humanoidRandom(model,true);
   else
     if(with_ff)
-      se3::urdf::buildModel(filename,JointModelFreeFlyer(),model);
+      pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(),model);
     else
-      se3::urdf::buildModel(filename,model);
+      pinocchio::urdf::buildModel(filename,model);
   
   std::cout << "nq = " << model.nq << std::endl;
   std::cout << "nv = " << model.nv << std::endl;
   std::cout << "--" << std::endl;
 
-  se3::Data data(model);
+  pinocchio::Data data(model);
   
   CodeGenRNEA<double> rnea_code_gen(model);
   rnea_code_gen.initLib();
@@ -98,10 +98,10 @@ int main(int argc, const char ** argv)
   aba_derivatives_code_gen.initLib();
   aba_derivatives_code_gen.loadLib();
 
-  se3::container::aligned_vector<VectorXd> qs     (NBT);
-  se3::container::aligned_vector<VectorXd> qdots  (NBT);
-  se3::container::aligned_vector<VectorXd> qddots (NBT);
-  se3::container::aligned_vector<VectorXd> taus (NBT);
+  pinocchio::container::aligned_vector<VectorXd> qs     (NBT);
+  pinocchio::container::aligned_vector<VectorXd> qdots  (NBT);
+  pinocchio::container::aligned_vector<VectorXd> qddots (NBT);
+  pinocchio::container::aligned_vector<VectorXd> taus (NBT);
   
   for(size_t i=0;i<NBT;++i)
   {

@@ -20,7 +20,7 @@
 
 #include <boost/python/overloads.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -89,4 +89,4 @@ namespace se3
     }
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

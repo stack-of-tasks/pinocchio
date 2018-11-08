@@ -21,7 +21,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
   
-namespace se3
+namespace pinocchio
 {
   namespace cholesky
   {
@@ -221,7 +221,7 @@ namespace se3
                       const Eigen::MatrixBase<Mat> & Minv);
     
   } // namespace cholesky  
-} // namespace se3 
+} // namespace pinocchio 
 
 /* --- Details -------------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------------- */

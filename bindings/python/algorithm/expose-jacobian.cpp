@@ -18,7 +18,7 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -121,4 +121,4 @@ namespace se3
     }
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

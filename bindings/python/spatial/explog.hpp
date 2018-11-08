@@ -23,7 +23,7 @@
 
 # include "pinocchio/spatial/explog.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -95,6 +95,6 @@ namespace se3
       }
     };
   } // namespace python
-} //namespace se3
+} //namespace pinocchio
 
 #endif // ifndef __pinocchio_python_explog_hpp__

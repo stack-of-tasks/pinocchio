@@ -31,7 +31,7 @@
 
 #include "pinocchio/eigen-macros.hpp"
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief Common traits structure to fully define base classes for CRTP.

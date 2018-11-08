@@ -21,7 +21,7 @@
 #include <boost/python.hpp>
 #include "pinocchio/bindings/python/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -49,7 +49,7 @@ namespace se3
     void exposeAlgorithms();
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_algorithm_hpp__
 

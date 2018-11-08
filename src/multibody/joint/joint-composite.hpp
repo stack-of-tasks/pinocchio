@@ -24,7 +24,7 @@
 #include "pinocchio/container/aligned-vector.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
@@ -230,7 +230,7 @@ namespace se3
     {
       typename JointDataDerived::JointDataVector jdata(joints.size());
       for (int i = 0; i < (int)joints.size(); ++i)
-        jdata[(size_t)i] = ::se3::createData<Scalar,Options,JointCollectionTpl>(joints[(size_t)i]);
+        jdata[(size_t)i] = ::pinocchio::createData<Scalar,Options,JointCollectionTpl>(joints[(size_t)i]);
       return JointDataDerived(jdata,nq(),nv());
     }
 
@@ -269,7 +269,7 @@ namespace se3
       Scalar eps = 0;
       for(typename JointModelVector::const_iterator it = joints.begin();
           it != joints.end(); ++it)
-        eps = max((Scalar)::se3::finiteDifferenceIncrement(*it),eps);
+        eps = max((Scalar)::pinocchio::finiteDifferenceIncrement(*it),eps);
       
       return eps;
     }
@@ -414,9 +414,9 @@ namespace se3
         JointModelVariant & joint = joints[i];
         
         m_idx_q[i] = idx_q; m_idx_v[i] = idx_v;
-        ::se3::setIndexes(joint,i,idx_q,idx_v);
-        m_nqs[i] = ::se3::nq(joint);
-        m_nvs[i] = ::se3::nv(joint);
+        ::pinocchio::setIndexes(joint,i,idx_q,idx_v);
+        m_nqs[i] = ::pinocchio::nq(joint);
+        m_nvs[i] = ::pinocchio::nv(joint);
         idx_q += m_nqs[i]; idx_v += m_nvs[i];
       }
     }
@@ -455,26 +455,26 @@ namespace se3
     return os;
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 #include <boost/type_traits.hpp>
 
 namespace boost
 {
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct has_nothrow_constructor< ::se3::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  struct has_nothrow_constructor< ::pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct has_nothrow_copy< ::se3::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  struct has_nothrow_copy< ::pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct has_nothrow_constructor< ::se3::JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  struct has_nothrow_constructor< ::pinocchio::JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct has_nothrow_copy< ::se3::JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  struct has_nothrow_copy< ::pinocchio::JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
   : public integral_constant<bool,true> {};
 }
 

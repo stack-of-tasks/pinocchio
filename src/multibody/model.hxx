@@ -28,7 +28,7 @@
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
   namespace details
   {
@@ -279,7 +279,7 @@ namespace se3
       subtrees[parent].push_back(joint_id);
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 

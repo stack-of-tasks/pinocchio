@@ -19,7 +19,7 @@
 #ifndef __pinocchio_se3_base_hpp__
 #define __pinocchio_se3_base_hpp__
 
-namespace se3
+namespace pinocchio
 {
   /** The rigid transform aMb can be seen in two ways:
    *
@@ -114,6 +114,6 @@ namespace se3
     
   }; // struct SE3Base
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_se3_base_hpp__

@@ -23,13 +23,13 @@
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
     void exposeFCL()
     {
-      using namespace se3::python::fcl;
+      using namespace pinocchio::python::fcl;
       ContactPythonVisitor::expose();
       StdVectorPythonVisitor<ContactPythonVisitor::Contact>::expose("StdVect_Contact");
       
@@ -43,4 +43,4 @@ namespace se3
     }
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

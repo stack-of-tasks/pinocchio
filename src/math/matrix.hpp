@@ -20,7 +20,7 @@
 
 #include <Eigen/Dense>
 
-namespace se3
+namespace pinocchio
 {
 
   template<typename Derived>

@@ -23,7 +23,7 @@
 #include <string>
 #include <sstream>
 
-namespace se3
+namespace pinocchio
 {
   
   ///

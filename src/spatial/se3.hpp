@@ -43,7 +43,7 @@ SE3_TYPEDEF_GENERIC(Derived,typename)
 #define SE3_TYPEDEF(Derived) \
 SE3_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 
-namespace se3
+namespace pinocchio
 {
 
   /* Type returned by the "se3Action" and "se3ActionInverse" functions. */
@@ -53,7 +53,7 @@ namespace se3
     struct SE3GroupAction { typedef D ReturnType; };
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 #include "pinocchio/spatial/se3-base.hpp"
 #include "pinocchio/spatial/se3-tpl.hpp"

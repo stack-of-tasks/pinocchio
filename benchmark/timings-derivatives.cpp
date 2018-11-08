@@ -33,7 +33,7 @@
 #include "pinocchio/utils/timer.hpp"
 
 template<typename Matrix1, typename Matrix2, typename Matrix3>
-void rnea_fd(const se3::Model & model, se3::Data & data_fd,
+void rnea_fd(const pinocchio::Model & model, pinocchio::Data & data_fd,
              const Eigen::VectorXd & q,
              const Eigen::VectorXd & v,
              const Eigen::VectorXd & a,
@@ -82,13 +82,13 @@ void rnea_fd(const se3::Model & model, se3::Data & data_fd,
   
 }
 
-void aba_fd(const se3::Model & model, se3::Data & data_fd,
+void aba_fd(const pinocchio::Model & model, pinocchio::Data & data_fd,
             const Eigen::VectorXd & q,
             const Eigen::VectorXd & v,
             const Eigen::VectorXd & tau,
             Eigen::MatrixXd & daba_dq,
             Eigen::MatrixXd & daba_dv,
-            se3::Data::RowMatrixXs & daba_dtau)
+            pinocchio::Data::RowMatrixXs & daba_dtau)
 {
   using namespace Eigen;
   VectorXd v_eps(VectorXd::Zero(model.nv));
@@ -127,7 +127,7 @@ void aba_fd(const se3::Model & model, se3::Data & data_fd,
 int main(int argc, const char ** argv)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
   PinocchioTicToc timer(PinocchioTicToc::US);
   #ifdef NDEBUG
@@ -154,10 +154,10 @@ int main(int argc, const char ** argv)
     buildModels::humanoidRandom(model,true);
   else
     if(with_ff)
-      se3::urdf::buildModel(filename,JointModelFreeFlyer(),model);
-//      se3::urdf::buildModel(filename,JointModelRX(),model);
+      pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(),model);
+//      pinocchio::urdf::buildModel(filename,JointModelRX(),model);
     else
-      se3::urdf::buildModel(filename,model);
+      pinocchio::urdf::buildModel(filename,model);
   std::cout << "nq = " << model.nq << std::endl;
   std::cout << "nv = " << model.nv << std::endl;
 

@@ -18,7 +18,7 @@
 #ifndef __pinocchio_act_on_set_hxx__
 #define __pinocchio_act_on_set_hxx__
 
-namespace se3
+namespace pinocchio
 {
   
   namespace internal 
@@ -654,6 +654,6 @@ namespace se3
 
   }  // namespace motionSet
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_act_on_set_hxx__

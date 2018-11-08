@@ -38,7 +38,7 @@
   #include <hpp/fcl/mesh_loader/assimp.h>
 #endif // PINOCCHIO_WITH_HPP_FCL
 
-namespace se3
+namespace pinocchio
 {
   namespace urdf
   {
@@ -463,6 +463,6 @@ namespace se3
       }
 
   } // namespace urdf
-} // namespace se3
+} // namespace pinocchio
             
 #endif // ifndef __pinocchio_multibody_parsers_urdf_geometry_hxx__

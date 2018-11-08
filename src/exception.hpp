@@ -21,7 +21,7 @@
 #include <exception>
 #include <string>
 
-namespace se3
+namespace pinocchio
 {
   class Exception : public std::exception
   {

@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_all)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
   Model model;
   buildModels::humanoidRandom(model);
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_all)
 BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_velocity)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_velocity)
 BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
 BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_against_classic_formula)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model,true);

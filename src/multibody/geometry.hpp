@@ -30,7 +30,7 @@
 #include <utility>
 #include <assert.h>
 
-namespace se3
+namespace pinocchio
 {
   
   struct GeometryModel
@@ -45,7 +45,7 @@ namespace se3
     typedef container::aligned_vector<GeometryObject> GeometryObjectVector;
     typedef std::vector<CollisionPair> CollisionPairVector;
     
-    typedef se3::GeomIndex GeomIndex;
+    typedef pinocchio::GeomIndex GeomIndex;
     
     /// \brief The number of GeometryObjects
     Index ngeoms;
@@ -313,7 +313,7 @@ namespace se3
     
   }; // struct GeometryData
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */

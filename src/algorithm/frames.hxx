@@ -22,7 +22,7 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
-namespace se3 
+namespace pinocchio 
 {
   
   
@@ -202,6 +202,6 @@ namespace se3
   }
   
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_frames_hxx__

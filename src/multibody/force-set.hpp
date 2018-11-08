@@ -21,7 +21,7 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include <Eigen/Geometry>
 
-namespace se3
+namespace pinocchio
 {
   template<typename _Scalar, int _Options>
   class ForceSetTpl
@@ -175,7 +175,7 @@ namespace se3
   }
 
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_force_set_hpp__
 

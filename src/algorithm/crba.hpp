@@ -22,7 +22,7 @@
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/check.hpp"
   
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief Computes the upper triangular part of the joint space inertia matrix M by
@@ -77,7 +77,7 @@ namespace se3
 
   DEFINE_ALGO_CHECKER(CRBA);
 
-} // namespace se3 
+} // namespace pinocchio 
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/crba.hxx"

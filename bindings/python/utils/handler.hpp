@@ -20,7 +20,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -87,7 +87,7 @@ namespace se3
     };
 
 
-  }} // namespace se3::python
+  }} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_handler_hpp__
 

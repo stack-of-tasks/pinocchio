@@ -19,7 +19,7 @@
 #ifndef __pinocchio_motion_tpl_hpp__
 #define __pinocchio_motion_tpl_hpp__
 
-namespace se3
+namespace pinocchio
 {
   template<typename _Scalar, int _Options>
   struct traits< MotionTpl<_Scalar, _Options> >
@@ -177,6 +177,6 @@ namespace se3
     
   }; // class MotionTpl
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_motion_tpl_hpp__

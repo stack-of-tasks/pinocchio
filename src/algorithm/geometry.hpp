@@ -25,7 +25,7 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   ///
@@ -218,7 +218,7 @@ namespace se3
   inline void appendGeometryModel(GeometryModel & geomModel1,
                                   const GeometryModel & geomModel2);
 
-} // namespace se3 
+} // namespace pinocchio 
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/geometry.hxx"

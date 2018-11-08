@@ -27,7 +27,7 @@
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 
-namespace se3
+namespace pinocchio
 {
   template<typename _Scalar>
   struct CodeGenRNEA : public CodeGenBase<_Scalar>
@@ -66,7 +66,7 @@ namespace se3
       ad_v = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
       ad_a = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
       
-      se3::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
+      pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
       
       ad_Y = ad_data.tau;
       
@@ -164,7 +164,7 @@ namespace se3
       ad_v = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
       ad_tau = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
       
-      se3::aba(ad_model,ad_data,ad_q,ad_v,ad_tau);
+      pinocchio::aba(ad_model,ad_data,ad_q,ad_v,ad_tau);
       ad_Y = ad_data.ddq;
       
       ad_fun.Dependent(ad_X,ad_Y);
@@ -258,7 +258,7 @@ namespace se3
       Eigen::DenseIndex it = 0;
       ad_q = ad_X.segment(it,ad_model.nq); it += ad_model.nq;
       
-      se3::crba(ad_model,ad_data,ad_q);
+      pinocchio::crba(ad_model,ad_data,ad_q);
       Eigen::DenseIndex it_Y = 0;
       
       for(Eigen::DenseIndex i = 0; i < ad_model.nv; ++i)
@@ -346,7 +346,7 @@ namespace se3
       Eigen::DenseIndex it = 0;
       ad_q = ad_X.segment(it,ad_model.nq); it += ad_model.nq;
       
-      se3::computeMinverse(ad_model,ad_data,ad_q);
+      pinocchio::computeMinverse(ad_model,ad_data,ad_q);
       Eigen::DenseIndex it_Y = 0;
       for(Eigen::DenseIndex i = 0; i < ad_model.nv; ++i)
       {
@@ -447,7 +447,7 @@ namespace se3
       ad_v = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
       ad_a = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
       
-      se3::computeRNEADerivatives(ad_model,ad_data,
+      pinocchio::computeRNEADerivatives(ad_model,ad_data,
                                   ad_q,ad_v,ad_a,
                                   ad_dtau_dq,ad_dtau_dv,ad_dtau_da);
       
@@ -556,7 +556,7 @@ namespace se3
       ad_v = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
       ad_tau = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
       
-      se3::computeABADerivatives(ad_model,ad_data,
+      pinocchio::computeABADerivatives(ad_model,ad_data,
                                  ad_q,ad_v,ad_tau,
                                  ad_dddq_dq,ad_dddq_dv,ad_dddq_dtau);
       
@@ -616,7 +616,7 @@ namespace se3
     ADTangentVectorType ad_v, ad_tau;
   };
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifdef PINOCCHIO_WITH_CPPADCG_SUPPORT
 

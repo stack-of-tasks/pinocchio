@@ -25,7 +25,7 @@
 
 /// @cond DEV
 
-namespace se3 
+namespace pinocchio 
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct CrbaForwardStep
@@ -293,7 +293,7 @@ namespace se3
   }
 
 
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 

@@ -22,7 +22,7 @@
 #include <iostream>
 #include <vector>
 
-namespace se3
+namespace pinocchio
 {
 
   /**

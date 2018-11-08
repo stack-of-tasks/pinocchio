@@ -20,7 +20,7 @@
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   /**
@@ -287,7 +287,7 @@ namespace se3
   inline Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options>
   udinv_inertia(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
   
-} // namespace se3
+} // namespace pinocchio
 
 
 /* --- Details -------------------------------------------------------------------- */

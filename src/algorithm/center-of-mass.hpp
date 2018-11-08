@@ -21,7 +21,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   ///
@@ -135,7 +135,7 @@ namespace se3
   
   ///
   /// \brief Computes both the jacobian and the the center of mass position of a given model according to a particular joint configuration.
-  ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame. In addition, the algorithm also computes the Jacobian of all the joints (\sa se3::computeJointJacobians).
+  ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame. In addition, the algorithm also computes the Jacobian of all the joints (\sa pinocchio::computeJointJacobians).
   ///        And data.com[i] gives the center of mass of the subtree supported by joint i (expressed in the world frame).
   ///
   /// \tparam JointCollection Collection of Joint types.
@@ -194,7 +194,7 @@ namespace se3
   getJacobianComFromCrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data);
   
-} // namespace se3 
+} // namespace pinocchio 
 
 /* --- Details -------------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------------- */

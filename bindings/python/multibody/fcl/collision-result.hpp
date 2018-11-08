@@ -25,7 +25,7 @@
 #include <boost/python/return_internal_reference.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -76,6 +76,6 @@ namespace se3
     } // namespace fcl
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
 #endif // namespace __pinocchio_python_fcl_collision_result_hpp__

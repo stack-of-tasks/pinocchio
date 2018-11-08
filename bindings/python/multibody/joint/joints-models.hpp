@@ -22,7 +22,7 @@
 #include <eigenpy/eigenpy.hpp>
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -42,6 +42,6 @@ namespace se3
       return cl.def(bp::init<double, double, double> ((bp::args("x"), bp::args("y"), bp::args("z")), "Init JointRevoluteUnaligned from the components x, y, z of the axis"));
     }
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_joint_models_hpp__

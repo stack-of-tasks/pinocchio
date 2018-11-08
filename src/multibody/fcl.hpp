@@ -39,7 +39,7 @@
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
 
-namespace se3
+namespace pinocchio
 {
   struct CollisionPair: public std::pair<GeomIndex, GeomIndex>
   {
@@ -161,7 +161,7 @@ struct GeometryObject
 };
   
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */

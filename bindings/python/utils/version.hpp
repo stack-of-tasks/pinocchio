@@ -20,7 +20,7 @@
 
 #include "pinocchio/bindings/python/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -28,6 +28,6 @@ namespace se3
     void exposeVersion();
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_utils_version_hpp__

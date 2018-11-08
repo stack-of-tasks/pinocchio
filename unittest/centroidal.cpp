@@ -32,14 +32,14 @@
 #include <boost/utility/binary.hpp>
 
 template<typename JointModel>
-static void addJointAndBody(se3::Model & model,
-                            const se3::JointModelBase<JointModel> & joint,
+static void addJointAndBody(pinocchio::Model & model,
+                            const pinocchio::JointModelBase<JointModel> & joint,
                             const std::string & parent_name,
                             const std::string & name,
-                            const se3::SE3 placement = se3::SE3::Random(),
+                            const pinocchio::SE3 placement = pinocchio::SE3::Random(),
                             bool setRandomLimits = true)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef typename JointModel::ConfigVector_t CV;
   typedef typename JointModel::TangentVector_t TV;
   
@@ -68,9 +68,9 @@ BOOST_AUTO_TEST_SUITE( BOOST_TEST_MODULE )
   
 BOOST_AUTO_TEST_CASE (test_ccrba)
 {
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model), data_ref(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model), data_ref(model);
   
   Eigen::VectorXd q = Eigen::VectorXd::Ones(model.nq);
   q.segment <4> (3).normalize();
@@ -80,25 +80,25 @@ BOOST_AUTO_TEST_CASE (test_ccrba)
   data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   data_ref.Ycrb[0] = data_ref.liMi[1].act(data_ref.Ycrb[1]);
   
-  se3::SE3 cMo (se3::SE3::Matrix3::Identity(), -getComFromCrba(model, data_ref));
+  pinocchio::SE3 cMo (pinocchio::SE3::Matrix3::Identity(), -getComFromCrba(model, data_ref));
   
   ccrba(model, data, q, v);
   BOOST_CHECK(data.com[0].isApprox(-cMo.translation(),1e-12));
   BOOST_CHECK(data.Ycrb[0].matrix().isApprox(data_ref.Ycrb[0].matrix(),1e-12));
   
-  se3::Inertia Ig_ref (cMo.act(data.Ycrb[0]));
+  pinocchio::Inertia Ig_ref (cMo.act(data.Ycrb[0]));
   BOOST_CHECK(data.Ig.matrix().isApprox(Ig_ref.matrix(),1e-12));
   
-  se3::SE3 oM1 (data_ref.liMi[1]);
-  se3::SE3 cM1 (cMo * oM1);
+  pinocchio::SE3 oM1 (data_ref.liMi[1]);
+  pinocchio::SE3 cM1 (cMo * oM1);
   
-  se3::Data::Matrix6x Ag_ref (cM1.inverse().toActionMatrix().transpose() * data_ref.M.topRows <6> ());
+  pinocchio::Data::Matrix6x Ag_ref (cM1.inverse().toActionMatrix().transpose() * data_ref.M.topRows <6> ());
   BOOST_CHECK(data.Ag.isApprox(Ag_ref,1e-12));
 }
   
 BOOST_AUTO_TEST_CASE (test_dccrb)
 {
-  using namespace se3;
+  using namespace pinocchio;
   Model model;
   buildModels::humanoidRandom(model);
   addJointAndBody(model,JointModelSpherical(),"larm6_joint","larm7");
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE (test_dccrb)
 
 BOOST_AUTO_TEST_CASE (test_computeCentroidalDynamics)
 {
-  using namespace se3;
+  using namespace pinocchio;
   Model model;
   buildModels::humanoidRandom(model);
   addJointAndBody(model,JointModelSpherical(),"larm6_joint","larm7");

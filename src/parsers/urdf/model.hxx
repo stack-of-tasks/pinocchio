@@ -31,7 +31,7 @@
 #include <boost/foreach.hpp>
 #include <limits>
 
-namespace se3
+namespace pinocchio
 {
   namespace urdf
   {
@@ -727,6 +727,6 @@ namespace se3
     }
 
   } // namespace urdf
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_multibody_parsers_urdf_model_hxx__

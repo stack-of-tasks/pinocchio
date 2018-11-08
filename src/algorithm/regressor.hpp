@@ -21,7 +21,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   namespace regressor
@@ -48,7 +48,7 @@ namespace se3
                            const Eigen::MatrixBase<ConfigVectorType> & q);
   }
   
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/regressor.hxx"

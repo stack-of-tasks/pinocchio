@@ -25,7 +25,7 @@
 #include <pinocchio/algorithm/default-check.hpp>
 #include <iostream>
 
-using namespace se3;
+using namespace pinocchio;
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE ( test_check )
 {
   using namespace boost::fusion;
 
-  se3::Model model; buildModels::humanoidRandom(model);
+  pinocchio::Model model; buildModels::humanoidRandom(model);
   
   BOOST_CHECK(model.check (Check1()));
   BOOST_CHECK(model.check (CRBAChecker()));
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE ( test_check )
   BOOST_CHECK(model.check(makeAlgoCheckerList(Check1(),ParentChecker(),CRBAChecker()) ));
   BOOST_CHECK(model.check(DEFAULT_CHECKERS));
 
-  se3::Data data(model);
+  pinocchio::Data data(model);
   BOOST_CHECK(checkData(model,data));
   BOOST_CHECK(model.check(data));
   

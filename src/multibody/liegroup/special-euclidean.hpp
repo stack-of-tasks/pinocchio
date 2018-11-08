@@ -29,7 +29,7 @@
 #include "pinocchio/multibody/liegroup/cartesian-product.hpp"
 #include "pinocchio/multibody/liegroup/special-orthogonal.hpp"
 
-namespace se3
+namespace pinocchio
 {
   template<int Dim, typename Scalar, int Options = 0>
   struct SpecialEuclideanOperationTpl
@@ -599,6 +599,6 @@ namespace se3
     }
   }; // struct SpecialEuclideanOperationTpl<3>
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_special_euclidean_operation_hpp__

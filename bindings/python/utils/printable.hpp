@@ -20,7 +20,7 @@
 
 #include <boost/python.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -43,6 +43,6 @@ namespace se3
       }
     };
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_utils_printable_hpp__

@@ -21,7 +21,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   ///
@@ -104,7 +104,7 @@ namespace se3
 
  
 
-} // namespace se3 
+} // namespace pinocchio 
 
 #include "pinocchio/algorithm/kinematics-derivatives.hxx"
 

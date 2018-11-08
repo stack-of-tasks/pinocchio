@@ -20,7 +20,7 @@
 
 #include "pinocchio/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   enum { MAX_JOINT_NV = 6 };
   

@@ -41,11 +41,11 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_jacobian )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Zero(model.nq);
   computeJointJacobians(model,data,q);
@@ -84,12 +84,12 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
   
   VectorXd q = randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) );
   VectorXd v = VectorXd::Random(model.nv);
@@ -159,11 +159,11 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
 BOOST_AUTO_TEST_CASE ( test_timings )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
 
   long flag = BOOST_BINARY(1111);
   PinocchioTicToc timer(PinocchioTicToc::US); 

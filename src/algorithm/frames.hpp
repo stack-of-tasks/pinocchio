@@ -21,7 +21,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   /**
@@ -58,7 +58,7 @@ namespace se3
 
   /**
    * @brief      First calls the forwardKinematics on the model, then computes the placement of each frame.
-   *             /sa se3::forwardKinematics.
+   *             /sa pinocchio::forwardKinematics.
    *
    * @tparam JointCollection Collection of Joint types.
    * @tparam ConfigVectorType Type of the joint configuration vector.
@@ -75,7 +75,7 @@ namespace se3
 
   /**
    * @brief      Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system.
-   *             You must first call se3::forwardKinematics to update placement and velocity values in data structure.
+   *             You must first call pinocchio::forwardKinematics to update placement and velocity values in data structure.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
@@ -93,9 +93,9 @@ namespace se3
   /**
    * @brief      Returns the jacobian of the frame expresssed either expressed in the LOCAL frame coordinate system or in the WORLD coordinate system,
    *             depending on the value of rf.
-   *             You must first call se3::computeJointJacobians followed by se3::framesForwardKinematics to update placement values in data structure.
+   *             You must first call pinocchio::computeJointJacobians followed by pinocchio::framesForwardKinematics to update placement values in data structure.
    *
-   * @remark     Similarly to se3::getJointJacobian with LOCAL or WORLD parameters, if rf == LOCAL, this function returns the Jacobian of the frame expressed
+   * @remark     Similarly to pinocchio::getJointJacobian with LOCAL or WORLD parameters, if rf == LOCAL, this function returns the Jacobian of the frame expressed
    *             in the local coordinates of the frame, or if rl == WORDL, it returns the Jacobian expressed of the point coincident with the origin
    *             and expressed in a coordinate system aligned with the WORLD.
    *
@@ -108,7 +108,7 @@ namespace se3
    * @param[in]  rf          Reference frame in which the Jacobian is expressed.
    * @param[out] J           The Jacobian of the Frame expressed in the coordinates Frame.
    *
-   * @warning    The function se3::computeJointJacobians and se3::framesForwardKinematics should have been called first.
+   * @warning    The function pinocchio::computeJointJacobians and pinocchio::framesForwardKinematics should have been called first.
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -120,7 +120,7 @@ namespace se3
 
    /**
    * @brief      Returns the spatial acceleration of the frame expressed in the LOCAL frame coordinate system.
-   *             You must first call se3::forwardKinematics to update placement values in data structure.
+   *             You must first call pinocchio::forwardKinematics to update placement values in data structure.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
@@ -138,12 +138,12 @@ namespace se3
   /**
    * @brief      Returns the jacobian of the frame expresssed either expressed in the LOCAL frame coordinate system or in the WORLD coordinate system,
    *             depending on the value of rf.
-   *             You must first call se3::computeJointJacobians followed by se3::updateFramePlacements to update placement values in data structure.
+   *             You must first call pinocchio::computeJointJacobians followed by pinocchio::updateFramePlacements to update placement values in data structure.
    *
    * @tparam     rf Reference frame in which the columns of the Jacobian are expressed.
-   * @deprecated This function is now deprecated. Please call se3::getFrameJacobian for same functionality.
+   * @deprecated This function is now deprecated. Please call pinocchio::getFrameJacobian for same functionality.
    
-   * @remark     Similarly to se3::getJointJacobian with LOCAL or WORLD parameters, if rf == LOCAL, this function returns the Jacobian of the frame expressed
+   * @remark     Similarly to pinocchio::getJointJacobian with LOCAL or WORLD parameters, if rf == LOCAL, this function returns the Jacobian of the frame expressed
    *             in the local coordinates of the frame, or if rl == WORDL, it returns the Jacobian expressed of the point coincident with the origin
    *             and expressed in a coordinate system aligned with the WORLD.
    *
@@ -153,7 +153,7 @@ namespace se3
    * @param[in] rf Reference frame in which the Jacobian is expressed.
    * @param[out] J           The Jacobian of the Frame expressed in the coordinates Frame.
    *
-   * @warning    The functions se3::computeJointJacobians and se3::updateFramePlacements should have been called first.
+   * @warning    The functions pinocchio::computeJointJacobians and pinocchio::updateFramePlacements should have been called first.
    */
   template<ReferenceFrame rf>
   PINOCCHIO_DEPRECATED
@@ -165,8 +165,8 @@ namespace se3
   
   /**
    * @brief      Returns the jacobian of the frame expresssed in the LOCAL coordinate system of the frame.
-   *             You must first call se3::computeJointJacobians followed by se3::updateFramePlacements to update placement values in data structure.
-   * @deprecated This function is now deprecated. Please call se3::getFrameJacobian for same functionality
+   *             You must first call pinocchio::computeJointJacobians followed by pinocchio::updateFramePlacements to update placement values in data structure.
+   * @deprecated This function is now deprecated. Please call pinocchio::getFrameJacobian for same functionality
    *
    * @tparam JointCollection Collection of Joint types.
    * @tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
@@ -176,7 +176,7 @@ namespace se3
    * @param[in]  frame_id    Id of the operational Frame
    * @param[out] J           The Jacobian of the Frame expressed in the coordinates Frame.
    *
-   * @warning    The function se3::computeJointJacobians and se3::updateFramePlacements should have been called first.
+   * @warning    The function pinocchio::computeJointJacobians and pinocchio::updateFramePlacements should have been called first.
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   PINOCCHIO_DEPRECATED
@@ -187,7 +187,7 @@ namespace se3
   
   ///
   /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL).
-  /// \note This jacobian is extracted from data.dJ. You have to run se3::computeJacobiansTimeVariation before calling it.
+  /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJacobiansTimeVariation before calling it.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
@@ -207,8 +207,8 @@ namespace se3
 
   ///
   /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL).
-  /// \note This jacobian is extracted from data.dJ. You have to run se3::computeJacobiansTimeVariation before calling it.
-  /// \deprecated This function is now deprecated. Please call se3::getFrameJacobianTimeVariation for same functionality
+  /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJacobiansTimeVariation before calling it.
+  /// \deprecated This function is now deprecated. Please call pinocchio::getFrameJacobianTimeVariation for same functionality
   ///
   /// \tparam rf Reference frame in which the Jacobian is expressed.
   ///
@@ -228,7 +228,7 @@ namespace se3
     getFrameJacobianTimeVariation(model,data,frameId,rf,dJ);
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/frames.hxx"

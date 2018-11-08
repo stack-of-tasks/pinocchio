@@ -20,7 +20,7 @@
 
 #include "pinocchio/math/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace quaternion
   {
@@ -130,7 +130,7 @@ namespace se3
     
   } // namespace quaternion
   
-  /// Deprecated functions. They are now in the se3::pinocchio namespace
+  /// Deprecated functions. They are now in the pinocchio::pinocchio namespace
   
   /// This function has been replaced by quaternion::angleBetweenQuaternions.
   template<typename D1, typename D2>

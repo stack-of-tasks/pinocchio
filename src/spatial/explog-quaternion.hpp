@@ -20,7 +20,7 @@
 
 #include "pinocchio/math/quaternion.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace quaternion
   {
@@ -193,7 +193,7 @@ namespace se3
       
       Scalar t;
       Vector3 w(log3(quat,t));
-      se3::Jlog3(t,w,Jlog);
+      pinocchio::Jlog3(t,w,Jlog);
     }
   } // namespace quaternion
 }

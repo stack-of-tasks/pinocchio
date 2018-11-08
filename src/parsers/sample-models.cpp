@@ -18,7 +18,7 @@
 
 #include "pinocchio/parsers/sample-models.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace buildModels
   {
@@ -359,4 +359,4 @@ namespace se3
 
   } // namespace buildModels
   
-} // namespace se3
+} // namespace pinocchio

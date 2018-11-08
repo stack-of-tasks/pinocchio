@@ -20,7 +20,7 @@
 
 #include "pinocchio/multibody/liegroup/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   /**

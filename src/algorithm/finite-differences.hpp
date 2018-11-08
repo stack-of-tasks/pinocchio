@@ -20,7 +20,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 
-namespace se3 {
+namespace pinocchio {
   
   ///
   /// \brief Computes the finite difference increments for each degree of freedom according to the current joint configuration.

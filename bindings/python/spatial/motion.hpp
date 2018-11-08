@@ -28,9 +28,9 @@
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Motion)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Motion)
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -159,7 +159,7 @@ namespace se3
     
 
 
-  }} // namespace se3::python
+  }} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_se3_hpp__
 

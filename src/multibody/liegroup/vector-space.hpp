@@ -24,7 +24,7 @@
 
 #include <boost/integer/static_min_max.hpp>
 
-namespace se3
+namespace pinocchio
 {
   template<int Dim, typename Scalar, int Options = 0> struct VectorSpaceOperationTpl;
   
@@ -173,6 +173,6 @@ namespace se3
     Eigen::internal::variable_if_dynamic<Index, Dim> size_;
   }; // struct VectorSpaceOperationTpl
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_vector_space_operation_hpp__

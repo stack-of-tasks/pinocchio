@@ -21,7 +21,7 @@
 #include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-variant-visitors.hpp"
 
-namespace se3
+namespace pinocchio
 {
   template<typename LieGroupCollection> struct LieGroupGenericTpl;
   
@@ -62,8 +62,8 @@ namespace se3
     LieGroupVariant & toVariant()
     { return static_cast<LieGroupVariant &>(*this); }
     
-    int nq() const { return ::se3::nq(*this); }
-    int nv() const { return ::se3::nv(*this); }
+    int nq() const { return ::pinocchio::nq(*this); }
+    int nv() const { return ::pinocchio::nv(*this); }
   };
   
 }

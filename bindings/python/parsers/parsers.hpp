@@ -36,7 +36,7 @@
 
 #include "pinocchio/parsers/srdf.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -56,14 +56,14 @@ namespace se3
       static Model buildModelFromUrdf(const std::string & filename)
       {
         Model model;
-        se3::urdf::buildModel(filename, model);
+        pinocchio::urdf::buildModel(filename, model);
         return model;
       }
       
       static void buildModelFromUrdf(const std::string & filename,
                                      Model & model)
       {
-        se3::urdf::buildModel(filename, model);
+        pinocchio::urdf::buildModel(filename, model);
       }
 
       static Model buildModelFromUrdf(const std::string & filename,
@@ -72,7 +72,7 @@ namespace se3
       {
         JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object)();
         Model model;
-        se3::urdf::buildModel(filename, root_joint, model);
+        pinocchio::urdf::buildModel(filename, root_joint, model);
         return model;
       }
       
@@ -82,7 +82,7 @@ namespace se3
                                      )
       {
         JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object)();
-        se3::urdf::buildModel(filename, root_joint, model);
+        pinocchio::urdf::buildModel(filename, root_joint, model);
       }
       
       static Model buildModelFromXML(const std::string & XMLstream,
@@ -91,14 +91,14 @@ namespace se3
       {
         JointModelVariant root_joint = bp::extract<JointModelVariant> (root_joint_object)();
         Model model;
-        se3::urdf::buildModelFromXML(XMLstream, root_joint, model);
+        pinocchio::urdf::buildModelFromXML(XMLstream, root_joint, model);
         return model;
       }
       
       static Model buildModelFromXML(const std::string & XMLstream)
       {
         Model model;
-        se3::urdf::buildModelFromXML(XMLstream, model);
+        pinocchio::urdf::buildModelFromXML(XMLstream, model);
         return model;
       }
 
@@ -110,7 +110,7 @@ namespace se3
       {
         std::vector<std::string> hints;
         GeometryModel geometry_model;
-        se3::urdf::buildGeom(model,filename,type,geometry_model,hints);
+        pinocchio::urdf::buildGeom(model,filename,type,geometry_model,hints);
         
         return geometry_model;
       }
@@ -123,7 +123,7 @@ namespace se3
                         )
       {
         GeometryModel geometry_model;
-        se3::urdf::buildGeom(model,filename,type,geometry_model,package_dirs);
+        pinocchio::urdf::buildGeom(model,filename,type,geometry_model,package_dirs);
         
         return geometry_model;
       }
@@ -137,7 +137,7 @@ namespace se3
                                             )
       {
         Model model;
-        model = se3::lua::buildModel (filename, ff, verbose);
+        model = pinocchio::lua::buildModel (filename, ff, verbose);
         return model;
       }
 #endif // #ifdef PINOCCHIO_WITH_LUA5
@@ -236,6 +236,6 @@ namespace se3
     }
     
   }
-} // namespace se3::python
+} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_parsers_hpp__

@@ -19,7 +19,7 @@
 #ifndef __pinocchio_motion_base_hpp__
 #define __pinocchio_motion_base_hpp__
 
-namespace se3
+namespace pinocchio
 {
   
   template<class Derived>
@@ -107,6 +107,6 @@ namespace se3
     
   }; // class MotionBase
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_motion_base_hpp__

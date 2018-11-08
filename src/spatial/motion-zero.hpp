@@ -19,7 +19,7 @@
 #ifndef __pinocchio_motion_zero_hpp__
 #define __pinocchio_motion_zero_hpp__
 
-namespace se3
+namespace pinocchio
 {
   
   namespace internal
@@ -124,6 +124,6 @@ namespace se3
                               const MotionBase<M1> & v)
   { return v.derived(); }
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_motion_zero_hpp__

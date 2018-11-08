@@ -26,7 +26,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename Scalar, int Options = 0> struct MotionPlanarTpl;
@@ -546,26 +546,26 @@ namespace se3
 
   }; // struct JointModelPlanarTpl
 
-} // namespace se3
+} // namespace pinocchio
 
 #include <boost/type_traits.hpp>
 
 namespace boost
 {
   template<typename Scalar, int Options>
-  struct has_nothrow_constructor< ::se3::JointModelPlanarTpl<Scalar,Options> >
+  struct has_nothrow_constructor< ::pinocchio::JointModelPlanarTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_copy< ::se3::JointModelPlanarTpl<Scalar,Options> >
+  struct has_nothrow_copy< ::pinocchio::JointModelPlanarTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_constructor< ::se3::JointDataPlanarTpl<Scalar,Options> >
+  struct has_nothrow_constructor< ::pinocchio::JointDataPlanarTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_copy< ::se3::JointDataPlanarTpl<Scalar,Options> >
+  struct has_nothrow_copy< ::pinocchio::JointDataPlanarTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
 }
 

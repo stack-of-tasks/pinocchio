@@ -24,7 +24,7 @@
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
@@ -319,7 +319,7 @@ namespace se3
     return data.Jcom;
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 

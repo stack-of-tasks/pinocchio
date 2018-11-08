@@ -22,7 +22,7 @@
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
@@ -96,7 +96,7 @@ namespace se3
 
   DEFINE_ALGO_CHECKER(ABA);
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/aba.hxx"

@@ -24,7 +24,7 @@
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/joint/joint-revolute.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   template<typename Scalar, int Options, int axis> struct JointRevoluteUnboundedTpl;
@@ -182,7 +182,7 @@ namespace se3
   typedef JointDataRevoluteUnboundedTpl<double,0,2> JointDataRUBZ;
   typedef JointModelRevoluteUnboundedTpl<double,0,2> JointModelRUBZ;
 
-} //namespace se3
+} //namespace pinocchio
 
 
 #include <boost/type_traits.hpp>
@@ -190,19 +190,19 @@ namespace se3
 namespace boost
 {
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_constructor< ::se3::JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
+  struct has_nothrow_constructor< ::pinocchio::JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_copy< ::se3::JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
+  struct has_nothrow_copy< ::pinocchio::JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_constructor< ::se3::JointDataRevoluteUnboundedTpl<Scalar,Options,axis> >
+  struct has_nothrow_constructor< ::pinocchio::JointDataRevoluteUnboundedTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options, int axis>
-  struct has_nothrow_copy< ::se3::JointDataRevoluteUnboundedTpl<Scalar,Options,axis> >
+  struct has_nothrow_copy< ::pinocchio::JointDataRevoluteUnboundedTpl<Scalar,Options,axis> >
   : public integral_constant<bool,true> {};
 }
 

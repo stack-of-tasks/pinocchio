@@ -21,7 +21,7 @@
 #include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   enum AssignmentOperatorType
@@ -162,7 +162,7 @@ namespace se3
     
   }  // namespace MotionSet
 
-} // namespace se3
+} // namespace pinocchio
 
 #include "pinocchio/spatial/act-on-set.hxx"
 

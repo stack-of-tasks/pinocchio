@@ -24,7 +24,7 @@
 
 #include <limits>
 
-namespace se3
+namespace pinocchio
 {
 
 #define SE3_JOINT_TYPEDEF_GENERIC(TYPENAME)              \
@@ -373,6 +373,6 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
 
   }; // struct JointModelBase
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_joint_base_hpp__

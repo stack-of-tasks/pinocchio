@@ -22,7 +22,7 @@
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/macros.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename Scalar, int Options=0> struct SE3Tpl;
@@ -78,6 +78,6 @@ namespace se3
     SPATIAL_TYPEDEF_TEMPLATE_GENERIC(derived,PINOCCHIO_MACRO_EMPTY_ARG)
 
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_spatial_fwd_hpp__

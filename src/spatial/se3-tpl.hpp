@@ -22,7 +22,7 @@
 #include <Eigen/Geometry>
 #include "pinocchio/math/quaternion.hpp"
 
-namespace se3
+namespace pinocchio
 {
   template<typename _Scalar, int _Options>
   struct traits< SE3Tpl<_Scalar,_Options> >
@@ -273,7 +273,7 @@ namespace se3
     
   }; // class SE3Tpl
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_se3_tpl_hpp__
 

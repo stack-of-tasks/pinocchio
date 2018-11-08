@@ -24,9 +24,9 @@
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::GeometryData)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -123,7 +123,7 @@ namespace se3
 
     };
     
-  }} // namespace se3::python
+  }} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_geometry_data_hpp__
 

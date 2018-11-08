@@ -18,7 +18,7 @@
 #ifndef __pinocchio_axis_label_hpp__
 #define __pinocchio_axis_label_hpp__
 
-namespace se3
+namespace pinocchio
 {
   
   ///

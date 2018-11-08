@@ -27,7 +27,7 @@
 #include <fstream>
 #endif
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -87,5 +87,5 @@ namespace se3
       return model;
     }
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 

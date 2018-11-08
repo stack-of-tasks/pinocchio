@@ -23,7 +23,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
 
-namespace se3
+namespace pinocchio
 {
   template<int axis> struct SpatialAxis;
   

@@ -23,7 +23,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace se3;
+using namespace pinocchio;
 
 bool configurations_are_equals(const Eigen::VectorXd & conf1, const Eigen::VectorXd & conf2)
 {
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE ( normalize_test )
   Model model; buildModel(model);
 
   Eigen::VectorXd q (Eigen::VectorXd::Ones(model.nq));
-  se3::normalize(model, q);
+  pinocchio::normalize(model, q);
 
   BOOST_CHECK(q.head<3>().isApprox(Eigen::VectorXd::Ones(3)));
   BOOST_CHECK(fabs(q.segment<4>(3).norm() - 1) < Eigen::NumTraits<double>::epsilon()); // quaternion of freeflyer
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE ( integrateCoeffWiseJacobian_test )
   Model model; buildModels::humanoidRandom(model);
   
   Eigen::VectorXd q(Eigen::VectorXd::Ones(model.nq));
-  se3::normalize(model, q);
+  pinocchio::normalize(model, q);
   
   Eigen::MatrixXd jac(model.nq,model.nv); jac.setZero();
  

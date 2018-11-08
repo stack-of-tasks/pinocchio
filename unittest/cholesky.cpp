@@ -45,11 +45,11 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_cholesky )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model,true);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model);
   
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE ( test_cholesky )
   data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
   crba(model,data,q);
  
-  se3::cholesky::decompose(model,data);
+  pinocchio::cholesky::decompose(model,data);
   data.M.triangularView<Eigen::StrictlyLower>() = 
   data.M.triangularView<Eigen::StrictlyUpper>().transpose();
   
@@ -76,25 +76,25 @@ BOOST_AUTO_TEST_CASE ( test_cholesky )
   Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
 // std::cout << "v = [" << v.transpose() << "]';" << std::endl;
 
-  Eigen::VectorXd Uv = v; se3::cholesky::Uv(model,data,Uv);
+  Eigen::VectorXd Uv = v; pinocchio::cholesky::Uv(model,data,Uv);
   BOOST_CHECK(Uv.isApprox(U*v, 1e-12));
 
-  Eigen::VectorXd Utv = v; se3::cholesky::Utv(model,data,Utv);
+  Eigen::VectorXd Utv = v; pinocchio::cholesky::Utv(model,data,Utv);
   BOOST_CHECK(Utv.isApprox(U.transpose()*v, 1e-12));
 
-  Eigen::VectorXd Uiv = v; se3::cholesky::Uiv(model,data,Uiv);
+  Eigen::VectorXd Uiv = v; pinocchio::cholesky::Uiv(model,data,Uiv);
   BOOST_CHECK(Uiv.isApprox(U.inverse()*v, 1e-12));
 
 
-  Eigen::VectorXd Utiv = v; se3::cholesky::Utiv(model,data,Utiv);
+  Eigen::VectorXd Utiv = v; pinocchio::cholesky::Utiv(model,data,Utiv);
   BOOST_CHECK(Utiv.isApprox(U.transpose().inverse()*v, 1e-12));
 
-  Eigen::VectorXd Miv = v; se3::cholesky::solve(model,data,Miv);
+  Eigen::VectorXd Miv = v; pinocchio::cholesky::solve(model,data,Miv);
   BOOST_CHECK(Miv.isApprox(M.inverse()*v, 1e-12));
 
-  Eigen::VectorXd Mv = v; Mv = se3::cholesky::Mv(model,data,Mv);
+  Eigen::VectorXd Mv = v; Mv = pinocchio::cholesky::Mv(model,data,Mv);
   BOOST_CHECK(Mv.isApprox(M*v, 1e-12));
-  Mv = v;                 se3::cholesky::UDUtv(model,data,Mv);
+  Mv = v;                 pinocchio::cholesky::UDUtv(model,data,Mv);
   BOOST_CHECK(Mv.isApprox(M*v, 1e-12));
 }
 
@@ -110,11 +110,11 @@ BOOST_AUTO_TEST_CASE ( test_cholesky )
 BOOST_AUTO_TEST_CASE ( test_timings )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model,true);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model);
   
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
       timer.tic();
       SMOOTH(NBT)
       {
-	se3::cholesky::decompose(model,data);
+	pinocchio::cholesky::decompose(model,data);
       }
       if(verbose) std::cout << "Decompose =\t";
       timer.toc(std::cout,NBT);
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  timer.tic();
 	  SMOOTH(NBT)
 	  {
-	    se3::cholesky::solve(model,data,randvec[_smooth]);
+	    pinocchio::cholesky::solve(model,data,randvec[_smooth]);
 	  }
 	  if(verbose) std::cout << "solve =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  timer.tic();
 	  SMOOTH(NBT)
 	  {
-	    se3::cholesky::Uv(model,data,randvec[_smooth]);
+	    pinocchio::cholesky::Uv(model,data,randvec[_smooth]);
 	  }
 	  if(verbose) std::cout << "Uv =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  timer.tic();
 	  SMOOTH(NBT)
 	  {
-	    se3::cholesky::Uiv(model,data,randvec[_smooth]);
+	    pinocchio::cholesky::Uiv(model,data,randvec[_smooth]);
 	  }
 	  if(verbose) std::cout << "Uiv =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 	  Eigen::VectorXd res;
 	  SMOOTH(NBT)
 	  {
-	    res = se3::cholesky::Mv(model,data,randvec[_smooth]);
+	    res = pinocchio::cholesky::Mv(model,data,randvec[_smooth]);
 	  }
 	  if(verbose) std::cout << "Mv =\t\t";
 	  timer.toc(std::cout,NBT);
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     timer.tic();
     SMOOTH(NBT)
     {
-      se3::cholesky::UDUtv(model,data,randvec[_smooth]);
+      pinocchio::cholesky::UDUtv(model,data,randvec[_smooth]);
     }
     if(verbose) std::cout << "UDUtv =\t\t";
     timer.toc(std::cout,NBT);
@@ -231,11 +231,11 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   BOOST_AUTO_TEST_CASE(test_Minv_from_cholesky)
   {
     using namespace Eigen;
-    using namespace se3;
+    using namespace pinocchio;
     
-    se3::Model model;
-    se3::buildModels::humanoidRandom(model,true);
-    se3::Data data(model);
+    pinocchio::Model model;
+    pinocchio::buildModels::humanoidRandom(model,true);
+    pinocchio::Data data(model);
     
     model.lowerPositionLimit.head<3>().fill(-1.);
     model.upperPositionLimit.head<3>().fill(1.);

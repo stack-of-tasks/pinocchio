@@ -20,7 +20,7 @@
 
 #include "pinocchio/spatial/skew.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   namespace internal
@@ -242,6 +242,6 @@ namespace se3
                                              const MotionDense<M1> & v)
   { return v*alpha; }
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_motion_dense_hpp__

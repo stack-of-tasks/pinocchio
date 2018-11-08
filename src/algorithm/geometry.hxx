@@ -20,7 +20,7 @@
 
 #include <boost/foreach.hpp>
 
-namespace se3 
+namespace pinocchio 
 {
   /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
   /* --- GEOMETRY PLACEMENTS -------------------------------------------------------- */
@@ -320,6 +320,6 @@ namespace se3
     }
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifnded __pinocchio_algo_geometry_hxx__

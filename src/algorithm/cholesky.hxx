@@ -22,7 +22,7 @@
 
 /// @cond DEV
 
-namespace se3 
+namespace pinocchio 
 {
   namespace cholesky
   {
@@ -546,7 +546,7 @@ namespace se3
     }
 
   } //   namespace cholesky
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 

@@ -21,7 +21,7 @@
 #include <boost/fusion/algorithm.hpp>
 #include <boost/foreach.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace internal
   {
@@ -173,6 +173,6 @@ namespace se3
   { return checkData(*this,data); }
 
 
-} // namespace se3 
+} // namespace pinocchio 
 
 #endif // ifndef __pinocchio_check_hxx__

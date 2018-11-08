@@ -25,7 +25,7 @@
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
@@ -407,7 +407,7 @@ namespace se3
     translateForceSet(data.dFda,com,EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
   }
   
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 

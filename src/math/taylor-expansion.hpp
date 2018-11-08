@@ -21,7 +21,7 @@
 #include <cmath>
 #include <limits>
 
-namespace se3
+namespace pinocchio
 {
   
   ///

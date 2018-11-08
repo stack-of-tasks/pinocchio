@@ -45,7 +45,7 @@ namespace boost
 }
 #endif
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief Returns the value of PI according to the template parameters Scalar

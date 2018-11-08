@@ -22,7 +22,7 @@
 #include <iostream>
 
 
-namespace se3
+namespace pinocchio
 {
 
   ///
@@ -89,7 +89,7 @@ namespace se3
   }
 
 
-} // namespace se3
+} // namespace pinocchio
 
 
 #endif // ifndef __pinocchio_fcl_hxx__

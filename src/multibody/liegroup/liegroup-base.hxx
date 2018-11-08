@@ -20,7 +20,7 @@
 
 #include "pinocchio/macros.hpp"
 
-namespace se3 {
+namespace pinocchio {
 
   // --------------- API with return value as argument ---------------------- //
 
@@ -351,6 +351,6 @@ namespace se3 {
     return derived().name();
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // __pinocchio_lie_group_operation_base_hxx__

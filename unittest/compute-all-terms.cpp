@@ -43,11 +43,11 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_against_algo )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model; buildModels::humanoidRandom(model);
-  se3::Data data(model); data.M.fill (0.);
-  se3::Data data_other(model); data_other.M.fill (0.);
+  pinocchio::Model model; buildModels::humanoidRandom(model);
+  pinocchio::Data data(model); data.M.fill (0.);
+  pinocchio::Data data_other(model); data_other.M.fill (0.);
 
   VectorXd q (VectorXd::Random(model.nq));
   VectorXd v (VectorXd::Random(model.nv));

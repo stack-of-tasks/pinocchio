@@ -21,7 +21,7 @@
 #include <string>
 #include <cstdlib>
 
-namespace se3
+namespace pinocchio
 {
 
   ///

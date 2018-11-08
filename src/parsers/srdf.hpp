@@ -21,7 +21,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace srdf
   {
@@ -99,7 +99,7 @@ namespace se3
                             const std::string & filename,
                             const bool verbose = false) throw (std::invalid_argument);
     
-    /// \copydoc se3::srdf::getNeutralConfiguration
+    /// \copydoc pinocchio::srdf::getNeutralConfiguration
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     PINOCCHIO_DEPRECATED
     typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
@@ -123,7 +123,7 @@ namespace se3
                              const std::string & filename,
                              const bool verbose = false) throw (std::invalid_argument);
     
-    /// \copydoc se3::srdf::loadRotorParameters
+    /// \copydoc pinocchio::srdf::loadRotorParameters
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     PINOCCHIO_DEPRECATED
     bool loadRotorParamsFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -134,7 +134,7 @@ namespace se3
     }
     
   }
-} // namespace se3
+} // namespace pinocchio
 
 #include "pinocchio/parsers/srdf.hxx"
 

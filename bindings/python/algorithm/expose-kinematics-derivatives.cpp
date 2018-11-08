@@ -20,7 +20,7 @@
 
 #include <boost/python/tuple.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -101,4 +101,4 @@ namespace se3
     
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

@@ -47,7 +47,7 @@ namespace boost
   }
 }
 
-namespace se3
+namespace pinocchio
 {
   namespace fusion
   {
@@ -208,6 +208,6 @@ namespace se3
     }; // struct JointVisitorBase
     
   } // namespace fusion
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_visitor_hpp__

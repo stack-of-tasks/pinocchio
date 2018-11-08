@@ -21,7 +21,7 @@
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   namespace regressor
@@ -65,6 +65,6 @@ namespace se3
     }
   }
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_regressor_hxx__

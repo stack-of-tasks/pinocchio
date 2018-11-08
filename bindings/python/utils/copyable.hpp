@@ -20,7 +20,7 @@
 
 #include <boost/python.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -41,6 +41,6 @@ namespace se3
       static C copy(const C & self) { return C(self); }
     };
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_utils_copyable_hpp__

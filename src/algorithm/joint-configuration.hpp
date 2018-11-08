@@ -20,7 +20,7 @@
 
 #include "pinocchio/multibody/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   /**
@@ -189,7 +189,7 @@ namespace se3
                              const Eigen::MatrixBase<ConfigVector> & q,
                              const Eigen::MatrixBase<JacobianMatrix> & jacobian);
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/joint-configuration.hxx"

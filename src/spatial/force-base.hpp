@@ -27,7 +27,7 @@
  *
  */
 
-namespace se3
+namespace pinocchio
 {
   /**
    * @brief      Base interface for forces representation.
@@ -218,6 +218,6 @@ namespace se3
     
   }; // class ForceBase
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_force_base_hpp__

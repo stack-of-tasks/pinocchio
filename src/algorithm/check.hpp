@@ -27,7 +27,7 @@
 #define PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE 5
 #endif
 
-namespace se3
+namespace pinocchio
 {
 
   /// CRTP class describing the API of the checkers 
@@ -115,7 +115,7 @@ namespace se3
   inline bool checkData(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
-} // namespace se3 
+} // namespace pinocchio 
 
 
   /* --- Details -------------------------------------------------------------------- */

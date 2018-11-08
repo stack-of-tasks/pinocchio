@@ -29,7 +29,7 @@
 
 #include "pinocchio/macros.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   template<typename _Scalar, int _Options>
@@ -488,7 +488,7 @@ namespace se3
     
   };
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_symmetric3_hpp__
 

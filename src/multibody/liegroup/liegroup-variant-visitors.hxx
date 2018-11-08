@@ -27,7 +27,7 @@
 VISITOR(ArgsType & args) : args(args) {} \
 ArgsType & args
 
-namespace se3
+namespace pinocchio
 {
   
   namespace visitor

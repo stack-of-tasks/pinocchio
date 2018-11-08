@@ -24,7 +24,7 @@
 #include <pinocchio/math/quaternion.hpp>
 #include <pinocchio/multibody/liegroup/liegroup-base.hpp>
 
-namespace se3
+namespace pinocchio
 {
   template<int Dim, typename Scalar, int Options = 0>
   struct SpecialOrthogonalOperationTpl
@@ -450,6 +450,6 @@ namespace se3
     }
   }; // struct SpecialOrthogonalOperationTpl<3,_Scalar,_Options>
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_special_orthogonal_operation_hpp__

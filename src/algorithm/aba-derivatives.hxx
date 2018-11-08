@@ -22,7 +22,7 @@
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -479,7 +479,7 @@ namespace se3
   }
   
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_aba_derivatives_hxx__
 

@@ -25,7 +25,7 @@
 
 #include <boost/variant.hpp>
 
-namespace se3
+namespace pinocchio
 {
   template<typename _Scalar, int _Options = 0>
   struct LieGroupCollectionDefaultTpl

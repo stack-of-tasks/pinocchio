@@ -54,11 +54,11 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
     _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
   #endif
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model; buildModels::humanoidRandom(model);
+  pinocchio::Model model; buildModels::humanoidRandom(model);
   
-  se3::Data data(model);
+  pinocchio::Data data(model);
   data.v[0] = Motion::Zero();
   data.a[0] = -model.gravity;
 
@@ -85,11 +85,11 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
 BOOST_AUTO_TEST_CASE ( test_nle_vs_rnea )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model; buildModels::humanoidRandom(model);
-  se3::Data data_nle(model);
-  se3::Data data_rnea(model);
+  pinocchio::Model model; buildModels::humanoidRandom(model);
+  pinocchio::Data data_nle(model);
+  pinocchio::Data data_rnea(model);
   
   VectorXd q (VectorXd::Random(model.nq));
   VectorXd v (VectorXd::Random(model.nv));
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE ( test_nle_vs_rnea )
 BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
 BOOST_AUTO_TEST_CASE(test_compute_gravity)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
   BOOST_AUTO_TEST_CASE(test_compute_coriolis)
   {
     using namespace Eigen;
-    using namespace se3;
+    using namespace pinocchio;
     
     const double prec = Eigen::NumTraits<double>::dummy_precision();
     

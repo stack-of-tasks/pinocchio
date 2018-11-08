@@ -21,7 +21,7 @@
 #include <hpp/fcl/math/transform.h>
 #include "pinocchio/spatial/se3.hpp"
 
-namespace se3
+namespace pinocchio
 {
   inline fcl::Transform3f toFclTransform3f(const SE3 & m)
   {
@@ -33,6 +33,6 @@ namespace se3
     return SE3(tf.getRotation(), tf.getTranslation());
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_fcl_convertion_hpp__

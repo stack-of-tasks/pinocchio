@@ -22,7 +22,7 @@
 
 #include <limits>
 
-namespace se3
+namespace pinocchio
 {
   
 #define SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,TYPENAME)               \
@@ -343,7 +343,7 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     LieGroupBase( const LieGroupBase & /*clone*/) {}
   }; // struct LieGroupBase
 
-} // namespace se3
+} // namespace pinocchio
 
 #include "pinocchio/multibody/liegroup/liegroup-base.hxx"
 

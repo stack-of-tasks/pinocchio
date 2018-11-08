@@ -47,7 +47,7 @@ MOTION_TYPEDEF_GENERIC(Derived,typename)
 #define MOTION_TYPEDEF(Derived) \
 MOTION_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 
-namespace se3
+namespace pinocchio
 {
   namespace internal
   {
@@ -58,7 +58,7 @@ namespace se3
     struct MotionAlgebraAction { typedef D ReturnType; };
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 #include "pinocchio/spatial/motion-base.hpp"
 #include "pinocchio/spatial/motion-dense.hpp"

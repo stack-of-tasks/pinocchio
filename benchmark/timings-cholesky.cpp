@@ -36,7 +36,7 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
 int main(int argc, const char ** argv)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
   PinocchioTicToc timer(PinocchioTicToc::US);
   #ifdef NDEBUG
@@ -46,19 +46,19 @@ int main(int argc, const char ** argv)
     std::cout << "(the time score in debug mode is not relevant) " << std::endl;
   #endif
     
-  se3::Model model;
+  pinocchio::Model model;
 
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
   if(argc>1) filename = argv[1];
   if( filename == "HS") 
-    se3::buildModels::humanoidRandom(model,true);
+    pinocchio::buildModels::humanoidRandom(model,true);
   else if( filename == "H2" )
-    se3::buildModels::humanoid2d(model);
+    pinocchio::buildModels::humanoid2d(model);
   else
-    se3::urdf::buildModel(filename,JointModelFreeFlyer(),model);
+    pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(),model);
   std::cout << "nq = " << model.nq << std::endl;
 
-  se3::Data data(model);
+  pinocchio::Data data(model);
   VectorXd q = VectorXd::Random(model.nq);
   VectorXd qdot = VectorXd::Random(model.nv);
   VectorXd qddot = VectorXd::Random(model.nv);

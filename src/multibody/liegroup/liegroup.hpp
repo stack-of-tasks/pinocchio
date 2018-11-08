@@ -26,7 +26,7 @@
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   struct LieGroupMap
   {

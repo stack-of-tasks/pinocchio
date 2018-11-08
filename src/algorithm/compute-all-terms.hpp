@@ -26,18 +26,18 @@
 #include "pinocchio/algorithm/energy.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief Computes efficiently all the terms needed for dynamic simulation. It is equivalent to the call at the same time to:
-  ///         - se3::forwardKinematics
-  ///         - se3::crba
-  ///         - se3::nonLinearEffects
-  ///         - se3::computeJointJacobians
-  ///         - se3::centerOfMass
-  ///         - se3::jacobianCenterOfMass
-  ///         - se3::kineticEnergy
-  ///         - se3::potentialEnergy
+  ///         - pinocchio::forwardKinematics
+  ///         - pinocchio::crba
+  ///         - pinocchio::nonLinearEffects
+  ///         - pinocchio::computeJointJacobians
+  ///         - pinocchio::centerOfMass
+  ///         - pinocchio::jacobianCenterOfMass
+  ///         - pinocchio::kineticEnergy
+  ///         - pinocchio::potentialEnergy
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -55,11 +55,11 @@ namespace se3
                               const Eigen::MatrixBase<ConfigVectorType> & q,
                               const Eigen::MatrixBase<TangentVectorType> & v);
 
-} // namespace se3
+} // namespace pinocchio
 
 
 /* --- Details -------------------------------------------------------------------- */
-namespace se3
+namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct CATForwardStep
@@ -259,7 +259,7 @@ namespace se3
     potentialEnergy(model, data, q, false);
 
   }
-} // namespace se3
+} // namespace pinocchio
 
 
 #endif // ifndef __pinocchio_compute_all_terms_hpp__

@@ -20,7 +20,7 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 
-namespace se3 
+namespace pinocchio 
 {
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename ConfigVectorType>
@@ -36,8 +36,8 @@ namespace se3
                                   > ArgsType;
 
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const JointModelComposite & model,
                      JointDataComposite & data,
                      const Eigen::MatrixBase<ConfigVectorType> & q)
@@ -99,8 +99,8 @@ namespace se3
                                   > ArgsType;
 
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const JointModelComposite & model,
                      JointDataComposite & data,
                      const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -161,6 +161,6 @@ namespace se3
     jdata.M = jdata.iMlast.front();
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_joint_composite_hxx__

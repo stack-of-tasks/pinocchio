@@ -23,7 +23,7 @@
 
 #ifdef PINOCCHIO_WITH_CPPADCG_SUPPORT
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename _Scalar>
@@ -35,12 +35,12 @@ namespace se3
     
     enum { Options = 0 };
     
-    typedef se3::ModelTpl<Scalar,Options> Model;
-    typedef se3::DataTpl<Scalar,Options> Data;
-    typedef se3::ModelTpl<CGScalar,Options> CGModel;
-    typedef se3::DataTpl<CGScalar,Options> CGData;
-    typedef se3::ModelTpl<ADScalar,Options> ADModel;
-    typedef se3::DataTpl<ADScalar,Options> ADData;
+    typedef pinocchio::ModelTpl<Scalar,Options> Model;
+    typedef pinocchio::DataTpl<Scalar,Options> Data;
+    typedef pinocchio::ModelTpl<CGScalar,Options> CGModel;
+    typedef pinocchio::DataTpl<CGScalar,Options> CGData;
+    typedef pinocchio::ModelTpl<ADScalar,Options> ADModel;
+    typedef pinocchio::DataTpl<ADScalar,Options> ADData;
     
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
@@ -186,7 +186,7 @@ namespace se3
     
   }; // struct CodeGenBase
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // PINOCCHIO_WITH_CPPADCG_SUPPORT
 

@@ -29,14 +29,14 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid_random )
 {
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model,true);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
 
   BOOST_CHECK(model.nq == 33);
   BOOST_CHECK(model.nv == 32);
 
-  se3::Model modelff;
-  se3::buildModels::humanoidRandom(modelff,false);
+  pinocchio::Model modelff;
+  pinocchio::buildModels::humanoidRandom(modelff,false);
 
   BOOST_CHECK(modelff.nq == 32);
   BOOST_CHECK(modelff.nv == 32);
@@ -44,36 +44,36 @@ BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid_random )
 
 BOOST_AUTO_TEST_CASE ( build_model_sample_manipulator )
 {
-  se3::Model model;
-  se3::buildModels::manipulator(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::manipulator(model);
 
   BOOST_CHECK(model.nq == 6);
   BOOST_CHECK(model.nv == 6);
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  se3::Data data(model);
-  se3::GeometryModel geom;
-  se3::buildModels::manipulatorGeometries(model,geom);
+  pinocchio::Data data(model);
+  pinocchio::GeometryModel geom;
+  pinocchio::buildModels::manipulatorGeometries(model,geom);
 #endif
 }
 
 BOOST_AUTO_TEST_CASE ( build_model_sample_humanoid )
 {
-  se3::Model model;
-  se3::buildModels::humanoid(model);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoid(model);
+  pinocchio::Data data(model);
 
   BOOST_CHECK(model.nq == 35);
   BOOST_CHECK(model.nv == 34);
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  se3::GeometryModel geom;
-  se3::buildModels::humanoidGeometries(model,geom);
-  se3::GeometryData geomdata(geom);
+  pinocchio::GeometryModel geom;
+  pinocchio::buildModels::humanoidGeometries(model,geom);
+  pinocchio::GeometryData geomdata(geom);
   
-  Eigen::VectorXd q = se3::neutral(model);
-  se3::forwardKinematics(model,data,q);
-  se3::updateGeometryPlacements(model,data,geom,geomdata,q);
+  Eigen::VectorXd q = pinocchio::neutral(model);
+  pinocchio::forwardKinematics(model,data,q);
+  pinocchio::updateGeometryPlacements(model,data,geom,geomdata,q);
 #endif
 
   /* We might want to check here the joint namings, and validate the 

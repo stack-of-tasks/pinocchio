@@ -21,7 +21,7 @@
 #include <vector>
 #include <Eigen/StdVector>
 
-namespace se3
+namespace pinocchio
 {
   namespace container
   {
@@ -64,6 +64,6 @@ namespace se3
     
   } // namespace container
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_container_aligned_vector_hpp__

@@ -22,7 +22,7 @@
 #include "pinocchio/bindings/python/multibody/data.hpp"
 #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -134,6 +134,6 @@ namespace se3
     }
     
   }
-} // namespace se3::python
+} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_sample_models_hpp__

@@ -23,7 +23,7 @@
 
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -66,7 +66,7 @@ namespace se3
     
 
 
-  }} // namespace se3::python
+  }} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_joint_dense_hpp__
 

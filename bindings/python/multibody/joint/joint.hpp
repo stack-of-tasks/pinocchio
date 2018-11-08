@@ -24,7 +24,7 @@
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -64,7 +64,7 @@ namespace se3
         bp::class_<JointModel>("JointModel",
                                "Generic Joint Model",
                                bp::no_init)
-        .def(bp::init<se3::JointModelVariant>())
+        .def(bp::init<pinocchio::JointModelVariant>())
         .def(JointModelPythonVisitor())
         .def(PrintableVisitor<JointModel>())
         ;
@@ -72,6 +72,6 @@ namespace se3
 
     }; 
     
-}} // namespace se3::python
+}} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_joint_hpp__

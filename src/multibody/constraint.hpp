@@ -30,7 +30,7 @@
 // S^T : f_J \in lie(Q)^* ~= R^nv -> f    \in F^6
 
 
-namespace se3
+namespace pinocchio
 {
   template<int _Dim, typename _Scalar, int _Options=0> class ConstraintTpl;
 
@@ -250,6 +250,6 @@ namespace se3
   typedef ConstraintTpl<6,double,0> Constraint6d;
   typedef ConstraintTpl<Eigen::Dynamic,double,0> ConstraintXd;
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_constraint_hpp__

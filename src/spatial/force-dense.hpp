@@ -18,7 +18,7 @@
 #ifndef __pinocchio_force_dense_hpp__
 #define __pinocchio_force_dense_hpp__
 
-namespace se3
+namespace pinocchio
 {
   
   namespace internal
@@ -204,6 +204,6 @@ namespace se3
                                             const ForceDense<F1> & f)
   { return f.derived()*alpha; }
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_force_dense_hpp__

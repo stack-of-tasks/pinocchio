@@ -23,7 +23,7 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
-namespace se3 {
+namespace pinocchio {
   
   ///
   /// \brief Computes the kinetic energy of the system.
@@ -72,7 +72,7 @@ namespace se3 {
 /* --- Details -------------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------------- */
-namespace se3
+namespace pinocchio
 {
    
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>

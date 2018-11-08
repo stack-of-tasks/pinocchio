@@ -20,7 +20,7 @@
 
 #include "pinocchio/macros.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   ///
@@ -254,6 +254,6 @@ namespace se3
     return res;
   }
   
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_skew_hpp__

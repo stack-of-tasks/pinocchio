@@ -32,7 +32,7 @@
 
 #include <exception>
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief Supported model file extensions
@@ -123,6 +123,6 @@ namespace se3
     return result_path;
    }
 
-} // namespace se3
+} // namespace pinocchio
 
 #endif // __pinocchio_parsers_utils_hpp__

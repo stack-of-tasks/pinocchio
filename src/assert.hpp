@@ -18,7 +18,7 @@
 #ifndef __pinocchio_assert_hpp__
 #define __pinocchio_assert_hpp__
 
-namespace se3
+namespace pinocchio
 {
   namespace internal 
   {
@@ -44,9 +44,9 @@ namespace se3
   } // namespace internat
 
 
-} // namespace se3 
+} // namespace pinocchio 
 
 #define SE3_STATIC_ASSERT(CONDITION,MSG)			\
-  if(se3::internal::static_assertion<bool(CONDITION)>::MSG) {}
+  if(pinocchio::internal::static_assertion<bool(CONDITION)>::MSG) {}
 
 #endif // ifndef __pinocchio_assert_hpp__

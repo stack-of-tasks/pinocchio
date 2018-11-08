@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(test_version)
 {
   using namespace std;
-  using namespace se3;
+  using namespace pinocchio;
   
   const string delimiter = ".";
   ostringstream version_ref;

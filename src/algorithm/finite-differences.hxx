@@ -22,7 +22,7 @@
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
   namespace details
   {
@@ -48,7 +48,7 @@ namespace se3
   inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType
   finiteDifferenceIncrement(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
   {
-    using namespace se3::details;
+    using namespace pinocchio::details;
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -64,7 +64,7 @@ namespace se3
     
     return fd_increment;
   }
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 

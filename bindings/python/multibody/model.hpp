@@ -31,9 +31,9 @@
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Model)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Model)
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -227,7 +227,7 @@ namespace se3
     
 
 
-  }} // namespace se3::python
+  }} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_model_hpp__
 

@@ -22,7 +22,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace se3;
+using namespace pinocchio;
 
 template <typename JointModel>
 void test_joint_methods(JointModel & jmodel, typename JointModel::JointDataDerived & jdata)
@@ -33,7 +33,7 @@ void test_joint_methods(JointModel & jmodel, typename JointModel::JointDataDeriv
   Eigen::VectorXd q1(Eigen::VectorXd::Random (jmodel.nq()));
   Eigen::VectorXd q1_dot(Eigen::VectorXd::Random (jmodel.nv()));
   Eigen::VectorXd q2(Eigen::VectorXd::Random (jmodel.nq()));
-  se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
+  pinocchio::Inertia::Matrix6 Ia(pinocchio::Inertia::Random().matrix());
   bool update_I = false;
 
   q1 = LieGroupType().random();
@@ -42,8 +42,8 @@ void test_joint_methods(JointModel & jmodel, typename JointModel::JointDataDeriv
   jmodel.calc(jdata, q1, q1_dot);
   jmodel.calc_aba(jdata, Ia, update_I);
 
-  se3::JointModel jma(jmodel);
-  se3::JointData jda(jdata);
+  pinocchio::JointModel jma(jmodel);
+  pinocchio::JointData jda(jdata);
 
   jma.calc(jda, q1, q1_dot);
   jma.calc_aba(jda, Ia, update_I);
@@ -58,7 +58,7 @@ void test_joint_methods(JointModel & jmodel, typename JointModel::JointDataDeriv
 
   BOOST_CHECK_MESSAGE(jda.S().matrix().isApprox(jdata.S.matrix()),std::string(error_prefix + " - ConstraintXd "));
   BOOST_CHECK_MESSAGE( (jda.M()).isApprox((jdata.M)),std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
-  BOOST_CHECK_MESSAGE( (jda.v()).isApprox( (se3::Motion(jdata.v))),std::string(error_prefix + " - Joint motions "));
+  BOOST_CHECK_MESSAGE( (jda.v()).isApprox( (pinocchio::Motion(jdata.v))),std::string(error_prefix + " - Joint motions "));
   BOOST_CHECK_MESSAGE((jda.c()) == (jdata.c),std::string(error_prefix + " - Joint bias "));
 
   BOOST_CHECK_MESSAGE((jda.U()).isApprox(jdata.U),std::string(error_prefix + " - Joint U inertia matrix decomposition "));
@@ -98,43 +98,43 @@ struct TestJoint{
     test_joint_methods(jmodel, jdata);
   }
 
-  void operator()(const se3::JointModelComposite & ) const
+  void operator()(const pinocchio::JointModelComposite & ) const
   {
-    // se3::JointModelComposite jmodel(2);
-    // jmodel.addJointModel(se3::JointModelRX());
-    // jmodel.addJointModel(se3::JointModelRY());
+    // pinocchio::JointModelComposite jmodel(2);
+    // jmodel.addJointModel(pinocchio::JointModelRX());
+    // jmodel.addJointModel(pinocchio::JointModelRY());
 
-    se3::JointModelComposite jmodel((se3::JointModelRX()));
-    jmodel.addJoint(se3::JointModelRY());
+    pinocchio::JointModelComposite jmodel((pinocchio::JointModelRX()));
+    jmodel.addJoint(pinocchio::JointModelRY());
     jmodel.setIndexes(0,0,0);
 
-    se3::JointModelComposite::JointDataDerived jdata = jmodel.createData();
+    pinocchio::JointModelComposite::JointDataDerived jdata = jmodel.createData();
 
     // TODO: fixme when LieGroups will be implemented for JointModelComposite
 //    test_joint_methods(jmodel, jdata);
   }
 
-  void operator()(const se3::JointModelRevoluteUnaligned & ) const
+  void operator()(const pinocchio::JointModelRevoluteUnaligned & ) const
   {
-    se3::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
+    pinocchio::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
     jmodel.setIndexes(0,0,0);
-    se3::JointModelRevoluteUnaligned::JointDataDerived jdata = jmodel.createData();
+    pinocchio::JointModelRevoluteUnaligned::JointDataDerived jdata = jmodel.createData();
 
     test_joint_methods(jmodel, jdata);
   }
 
-  void operator()(const se3::JointModelPrismaticUnaligned & ) const
+  void operator()(const pinocchio::JointModelPrismaticUnaligned & ) const
   {
-    se3::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
+    pinocchio::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
     jmodel.setIndexes(0,0,0);
-    se3::JointModelPrismaticUnaligned::JointDataDerived jdata = jmodel.createData();
+    pinocchio::JointModelPrismaticUnaligned::JointDataDerived jdata = jmodel.createData();
 
     test_joint_methods(jmodel, jdata);
   }
 
 };
 
-namespace se3
+namespace pinocchio
 {
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl> struct JointTest;

@@ -24,7 +24,7 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   template<typename Scalar, int Options=0> struct MotionRevoluteUnalignedTpl;
@@ -552,26 +552,26 @@ namespace se3
     Vector3 axis;
   }; // struct JointModelRevoluteUnalignedTpl
 
-} //namespace se3
+} //namespace pinocchio
 
 #include <boost/type_traits.hpp>
 
 namespace boost
 {
   template<typename Scalar, int Options>
-  struct has_nothrow_constructor< ::se3::JointModelRevoluteUnalignedTpl<Scalar,Options> >
+  struct has_nothrow_constructor< ::pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_copy< ::se3::JointModelRevoluteUnalignedTpl<Scalar,Options> >
+  struct has_nothrow_copy< ::pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_constructor< ::se3::JointDataRevoluteUnalignedTpl<Scalar,Options> >
+  struct has_nothrow_constructor< ::pinocchio::JointDataRevoluteUnalignedTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
   
   template<typename Scalar, int Options>
-  struct has_nothrow_copy< ::se3::JointDataRevoluteUnalignedTpl<Scalar,Options> >
+  struct has_nothrow_copy< ::pinocchio::JointDataRevoluteUnalignedTpl<Scalar,Options> >
   : public integral_constant<bool,true> {};
 }
 

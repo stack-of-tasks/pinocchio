@@ -25,7 +25,7 @@
 
 #include <boost/variant.hpp>
 
-namespace se3
+namespace pinocchio
 {
   typedef boost::variant< SpecialOrthogonalOperationTpl<2,double,0>
                          ,SpecialOrthogonalOperationTpl<3,double,0>

@@ -27,9 +27,9 @@
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Inertia)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Inertia)
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -181,6 +181,6 @@ namespace se3
     }; // struct InertiaPythonVisitor
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_se3_hpp__

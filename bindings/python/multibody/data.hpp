@@ -24,9 +24,9 @@
 #include <eigenpy/eigenpy.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::Data)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Data)
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -139,7 +139,7 @@ namespace se3
 
     };
     
-  }} // namespace se3::python
+  }} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_data_hpp__
 

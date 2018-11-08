@@ -29,7 +29,7 @@
       "check " #Va ".isApprox(" #Vb ") failed "                                \
       "[\n" << (Va).transpose() << "\n!=\n" << (Vb).transpose() << "\n]")
 
-using namespace se3;
+using namespace pinocchio;
 
 #define VERBOSE false
 #define IFVERBOSE if(VERBOSE)
@@ -51,7 +51,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   typedef typename LieGroup<T>::type LieGroupType;
   static ConfigVector_t Ones(ConfigVector_t::Ones(jmodel.nq()));
   const Scalar u = 0.3;
-  // se3::Inertia::Matrix6 Ia(se3::Inertia::Random().matrix());
+  // pinocchio::Inertia::Matrix6 Ia(pinocchio::Inertia::Random().matrix());
   // bool update_I = false;
   
   q1 = LieGroupType().randomConfiguration(-Ones, Ones);
@@ -158,20 +158,20 @@ struct TestJoint{
     test_lie_group_methods(jmodel, jdata);    
   }
 
-  void operator()(const se3::JointModelRevoluteUnaligned & ) const
+  void operator()(const pinocchio::JointModelRevoluteUnaligned & ) const
   {
-    se3::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
+    pinocchio::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
     jmodel.setIndexes(0,0,0);
-    se3::JointModelRevoluteUnaligned::JointDataDerived jdata = jmodel.createData();
+    pinocchio::JointModelRevoluteUnaligned::JointDataDerived jdata = jmodel.createData();
 
     test_lie_group_methods(jmodel, jdata);
   }
 
-  void operator()(const se3::JointModelPrismaticUnaligned & ) const
+  void operator()(const pinocchio::JointModelPrismaticUnaligned & ) const
   {
-    se3::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
+    pinocchio::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
     jmodel.setIndexes(0,0,0);
-    se3::JointModelPrismaticUnaligned::JointDataDerived jdata = jmodel.createData();
+    pinocchio::JointModelPrismaticUnaligned::JointDataDerived jdata = jmodel.createData();
 
     test_lie_group_methods(jmodel, jdata);
   }

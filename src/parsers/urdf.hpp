@@ -23,7 +23,7 @@
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/parsers/urdf/types.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace urdf
   {
@@ -143,7 +143,7 @@ namespace se3
      * @param[in]  filename      The URDF complete (absolute) file path
      * @param[in]  packageDirs   A vector containing the different directories
      *                           where to search for models and meshes, typically 
-     *                           obtained from calling se3::rosPaths()
+     *                           obtained from calling pinocchio::rosPaths()
      *
      * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
      * @param[out]  geomModel    Reference where to put the parsed information.
@@ -170,7 +170,7 @@ namespace se3
      *                           urdf::buildModel
      * @param[in]  filename      The URDF complete (absolute) file path
      * @param[in]  packageDir    A string containing the path to the directories of the meshes,
-     *                           typically obtained from calling se3::rosPaths().
+     *                           typically obtained from calling pinocchio::rosPaths().
      *
      * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
      * @param[out]  geomModel    Reference where to put the parsed information.
@@ -202,7 +202,7 @@ namespace se3
      * @param[in]  xmlStream     Stream containing the URDF model
      * @param[in]  packageDirs   A vector containing the different directories
      *                           where to search for models and meshes, typically
-     *                           obtained from calling se3::rosPaths()
+     *                           obtained from calling pinocchio::rosPaths()
      *
      * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
      * @param[out]  geomModel    Reference where to put the parsed information.
@@ -229,7 +229,7 @@ namespace se3
      *                           urdf::buildModel
      * @param[in]  xmlStream     Stream containing the URDF model
      * @param[in]  packageDir    A string containing the path to the directories of the meshes,
-     *                           typically obtained from calling se3::rosPaths().
+     *                           typically obtained from calling pinocchio::rosPaths().
      *
      * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
      * @param[out]  geomModel    Reference where to put the parsed information.
@@ -253,7 +253,7 @@ namespace se3
 
 
   } // namespace urdf
-} // namespace se3
+} // namespace pinocchio
 
 #include "pinocchio/parsers/urdf/model.hxx"
 #include "pinocchio/parsers/urdf/geometry.hxx"
