@@ -147,6 +147,43 @@ namespace pinocchio
   
   SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(IntegrateStepAlgo);
   
+  template<typename Visitor, typename JointModel> struct dIntegrateStepAlgo;
+  
+  template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename JacobianMatrixType>
+  struct dIntegrateStep
+  : public fusion::JointVisitorBase< dIntegrateStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixType> >
+  {
+    typedef boost::fusion::vector<const ConfigVectorIn &,
+                                  const TangentVectorIn &,
+                                  JacobianMatrixType &,
+                                  const ArgumentPosition &
+                                  > ArgsType;
+    
+    SE3_DETAILS_VISITOR_METHOD_ALGO_4(dIntegrateStepAlgo, dIntegrateStep)
+  };
+  
+  template<typename Visitor, typename JointModel>
+  struct dIntegrateStepAlgo
+  {
+    template<typename ConfigVectorIn, typename TangentVector, typename JacobianMatrixType>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn> & q,
+                    const Eigen::MatrixBase<TangentVector> & v,
+                    const Eigen::MatrixBase<JacobianMatrixType> & mat,
+                    const ArgumentPosition & arg)
+    {
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      lgo.dIntegrate(jmodel.jointConfigSelector  (q.derived()),
+                     jmodel.jointVelocitySelector(v.derived()),
+                     jmodel.jointBlock(EIGEN_CONST_CAST(JacobianMatrixType,mat)),
+                     arg);
+    }
+  };
+  
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(dIntegrateStepAlgo);
+  
   template<typename Visitor, typename JointModel> struct InterpolateStepAlgo;
   
   template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar, typename ConfigVectorOut>
