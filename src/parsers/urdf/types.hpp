@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_parsers_urdf_types_hpp__
-#define __se3_parsers_urdf_types_hpp__
+#ifndef __pinocchio_parsers_urdf_types_hpp__
+#define __pinocchio_parsers_urdf_types_hpp__
 
 #include <urdf_model/model.h>
 
@@ -93,4 +93,4 @@ namespace urdf
 
 #endif // PINOCCHIO_URDFDOM_TYPEDEF_SHARED_PTR
 
-#endif // ifndef __se3_parsers_urdf_types_hpp__
+#endif // ifndef __pinocchio_parsers_urdf_types_hpp__

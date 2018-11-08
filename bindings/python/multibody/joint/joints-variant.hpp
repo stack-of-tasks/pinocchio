@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_joints_variant_hpp__
-#define __se3_python_joints_variant_hpp__
+#ifndef __pinocchio_python_joints_variant_hpp__
+#define __pinocchio_python_joints_variant_hpp__
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/eigenpy.hpp>
@@ -56,4 +56,4 @@ namespace se3
   } // namespace python
 } // namespace se3
 
-#endif // ifndef __se3_python_joints_variant_hpp__
+#endif // ifndef __pinocchio_python_joints_variant_hpp__

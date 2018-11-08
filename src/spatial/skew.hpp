@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_skew_hpp__
-#define __se3_skew_hpp__
+#ifndef __pinocchio_skew_hpp__
+#define __pinocchio_skew_hpp__
 
 #include "pinocchio/macros.hpp"
 
@@ -256,4 +256,4 @@ namespace se3
   
 } // namespace se3
 
-#endif // ifndef __se3_skew_hpp__
+#endif // ifndef __pinocchio_skew_hpp__

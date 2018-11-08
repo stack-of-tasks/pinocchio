@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_se3_base_hpp__
-#define __se3_se3_base_hpp__
+#ifndef __pinocchio_se3_base_hpp__
+#define __pinocchio_se3_base_hpp__
 
 namespace se3
 {
@@ -116,4 +116,4 @@ namespace se3
   
 } // namespace se3
 
-#endif // ifndef __se3_se3_base_hpp__
+#endif // ifndef __pinocchio_se3_base_hpp__

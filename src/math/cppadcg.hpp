@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_math_ccpadcg_hpp__
-#define __se3_math_ccpadcg_hpp__
+#ifndef __pinocchio_math_ccpadcg_hpp__
+#define __pinocchio_math_ccpadcg_hpp__
 
 #include <cmath>
 #include <cppad/cg/support/cppadcg_eigen.hpp>
@@ -40,4 +40,4 @@ namespace Eigen
   }
 }
 
-#endif // #ifndef __se3_math_ccpadcg_hpp__
+#endif // #ifndef __pinocchio_math_ccpadcg_hpp__

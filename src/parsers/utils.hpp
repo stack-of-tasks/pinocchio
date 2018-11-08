@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_parsers_utils_hpp__
-#define __se3_parsers_utils_hpp__
+#ifndef __pinocchio_parsers_utils_hpp__
+#define __pinocchio_parsers_utils_hpp__
 
 #include <iostream>
 #include <limits>
@@ -125,4 +125,4 @@ namespace se3
 
 } // namespace se3
 
-#endif // __se3_parsers_utils_hpp__
+#endif // __pinocchio_parsers_utils_hpp__

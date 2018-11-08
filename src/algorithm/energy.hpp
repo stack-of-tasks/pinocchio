@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_energy_hpp__
-#define __se3_energy_hpp__
+#ifndef __pinocchio_energy_hpp__
+#define __pinocchio_energy_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -133,4 +133,4 @@ namespace se3
     return data.potential_energy;
   }
 }
-#endif // __se3_energy_hpp__
+#endif // __pinocchio_energy_hpp__

@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_inertia_hpp__
-#define __se3_inertia_hpp__
+#ifndef __pinocchio_inertia_hpp__
+#define __pinocchio_inertia_hpp__
 
 #include <iostream>
 
@@ -500,4 +500,4 @@ namespace se3
     
 } // namespace se3
 
-#endif // ifndef __se3_inertia_hpp__
+#endif // ifndef __pinocchio_inertia_hpp__

@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_container_aligned_vector_hpp__
-#define __se3_container_aligned_vector_hpp__
+#ifndef __pinocchio_container_aligned_vector_hpp__
+#define __pinocchio_container_aligned_vector_hpp__
 
 #include <vector>
 #include <Eigen/StdVector>
@@ -66,4 +66,4 @@ namespace se3
   
 } // namespace se3
 
-#endif // ifndef __se3_container_aligned_vector_hpp__
+#endif // ifndef __pinocchio_container_aligned_vector_hpp__

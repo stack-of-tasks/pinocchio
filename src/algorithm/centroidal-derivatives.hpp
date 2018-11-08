@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_algorithm_centroidal_derivatives_hpp__
-#define __se3_algorithm_centroidal_derivatives_hpp__
+#ifndef __pinocchio_algorithm_centroidal_derivatives_hpp__
+#define __pinocchio_algorithm_centroidal_derivatives_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -102,4 +102,4 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/centroidal-derivatives.hxx"
 
-#endif // ifndef __se3_algorithm_centroidal_derivatives_hpp__
+#endif // ifndef __pinocchio_algorithm_centroidal_derivatives_hpp__

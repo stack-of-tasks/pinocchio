@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_parser_srdf_hpp__
-#define __se3_parser_srdf_hpp__
+#ifndef __pinocchio_parser_srdf_hpp__
+#define __pinocchio_parser_srdf_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
@@ -138,4 +138,4 @@ namespace se3
 
 #include "pinocchio/parsers/srdf.hxx"
 
-#endif // ifndef __se3_parser_srdf_hpp__
+#endif // ifndef __pinocchio_parser_srdf_hpp__

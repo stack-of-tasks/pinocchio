@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_axis_label_hpp__
-#define __se3_axis_label_hpp__
+#ifndef __pinocchio_axis_label_hpp__
+#define __pinocchio_axis_label_hpp__
 
 namespace se3
 {
@@ -35,4 +35,4 @@ namespace se3
   template<> inline char axisLabel<2>() { return 'Z'; }
 }
 
-#endif // __se3_axis_label_hpp__
+#endif // __pinocchio_axis_label_hpp__

@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_generic_hpp__
-#define __se3_joint_generic_hpp__
+#ifndef __pinocchio_joint_generic_hpp__
+#define __pinocchio_joint_generic_hpp__
 
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
@@ -229,4 +229,4 @@ namespace se3
 
 } // namespace se3
 
-#endif // ifndef __se3_joint_generic_hpp__
+#endif // ifndef __pinocchio_joint_generic_hpp__

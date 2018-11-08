@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_composite_hpp__
-#define __se3_joint_composite_hpp__
+#ifndef __pinocchio_joint_composite_hpp__
+#define __pinocchio_joint_composite_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
@@ -483,4 +483,4 @@ namespace boost
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/joint/joint-composite.hxx"
 
-#endif // ifndef __se3_joint_composite_hpp__
+#endif // ifndef __pinocchio_joint_composite_hpp__

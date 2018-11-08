@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_parsers_urdf_utils_hpp__
-#define __se3_parsers_urdf_utils_hpp__
+#ifndef __pinocchio_parsers_urdf_utils_hpp__
+#define __pinocchio_parsers_urdf_utils_hpp__
 
 #include <urdf_model/model.h>
 
@@ -90,4 +90,4 @@ namespace se3
 
   } //urdf
 } // se3
-#endif // __se3_parsers_urdf_utils_hpp__
+#endif // __pinocchio_parsers_urdf_utils_hpp__

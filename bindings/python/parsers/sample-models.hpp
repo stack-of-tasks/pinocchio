@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_sample_models_hpp__
-#define __se3_python_sample_models_hpp__
+#ifndef __pinocchio_python_sample_models_hpp__
+#define __pinocchio_python_sample_models_hpp__
 
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/multibody/data.hpp"
@@ -136,4 +136,4 @@ namespace se3
   }
 } // namespace se3::python
 
-#endif // ifndef __se3_python_sample_models_hpp__
+#endif // ifndef __pinocchio_python_sample_models_hpp__

@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_se3_hpp__
-#define __se3_se3_hpp__
+#ifndef __pinocchio_se3_hpp__
+#define __pinocchio_se3_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/macros.hpp"
@@ -58,4 +58,4 @@ namespace se3
 #include "pinocchio/spatial/se3-base.hpp"
 #include "pinocchio/spatial/se3-tpl.hpp"
 
-#endif // ifndef __se3_se3_hpp__
+#endif // ifndef __pinocchio_se3_hpp__

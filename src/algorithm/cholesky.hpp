@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_cholesky_hpp__
-#define __se3_cholesky_hpp__
+#ifndef __pinocchio_cholesky_hpp__
+#define __pinocchio_cholesky_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -228,4 +228,4 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/cholesky.hxx"
 
-#endif // ifndef __se3_cholesky_hpp__
+#endif // ifndef __pinocchio_cholesky_hpp__

@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_basic_visitors_hxx__
-#define __se3_joint_basic_visitors_hxx__
+#ifndef __pinocchio_joint_basic_visitors_hxx__
+#define __pinocchio_joint_basic_visitors_hxx__
 
 #include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
@@ -542,4 +542,4 @@ namespace se3
 
 } // namespace se3
 
-#endif // ifndef __se3_joint_basic_visitors_hxx__
+#endif // ifndef __pinocchio_joint_basic_visitors_hxx__

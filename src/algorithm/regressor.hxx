@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_regressor_hxx__
-#define __se3_regressor_hxx__
+#ifndef __pinocchio_regressor_hxx__
+#define __pinocchio_regressor_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
@@ -67,4 +67,4 @@ namespace se3
   
 } // namespace se3
 
-#endif // ifndef __se3_regressor_hxx__
+#endif // ifndef __pinocchio_regressor_hxx__

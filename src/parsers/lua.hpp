@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lua_hpp__
-#define __se3_lua_hpp__
+#ifndef __pinocchio_lua_hpp__
+#define __pinocchio_lua_hpp__
 
 #include <string>
 #include "pinocchio/multibody/model.hpp"
@@ -29,4 +29,4 @@ namespace se3
   } // namespace lua
 } // namespace se3
 
-#endif // ifndef __se3_lua_hpp__
+#endif // ifndef __pinocchio_lua_hpp__

@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lie_group_algo_hxx__
-#define __se3_lie_group_algo_hxx__
+#ifndef __pinocchio_lie_group_algo_hxx__
+#define __pinocchio_lie_group_algo_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/joint/joint-composite.hpp"
@@ -410,4 +410,4 @@ namespace se3
   
 }
 
-#endif // ifndef __se3_lie_group_algo_hxx__
+#endif // ifndef __pinocchio_lie_group_algo_hxx__

@@ -15,11 +15,11 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_deprecated_namespaces_hpp__
-#define __se3_deprecated_namespaces_hpp__
+#ifndef __pinocchio_deprecated_namespaces_hpp__
+#define __pinocchio_deprecated_namespaces_hpp__
 
 #ifdef PINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_1
 #define se3 PINOCCHIO_PRAGMA_MESSAGE_CALL("The se3 namespace has been set to deprecated since version 2.0.0. Please use namespace pinocchio instead") pinocchio
 #endif
 
-#endif // ifndef __se3_deprecated_namespaces_hpp__
+#endif // ifndef __pinocchio_deprecated_namespaces_hpp__

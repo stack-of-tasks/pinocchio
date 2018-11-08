@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_act_on_set_hxx__
-#define __se3_act_on_set_hxx__
+#ifndef __pinocchio_act_on_set_hxx__
+#define __pinocchio_act_on_set_hxx__
 
 namespace se3
 {
@@ -656,4 +656,4 @@ namespace se3
 
 } // namespace se3
 
-#endif // ifndef __se3_act_on_set_hxx__
+#endif // ifndef __pinocchio_act_on_set_hxx__

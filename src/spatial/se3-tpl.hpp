@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_se3_tpl_hpp__
-#define __se3_se3_tpl_hpp__
+#ifndef __pinocchio_se3_tpl_hpp__
+#define __pinocchio_se3_tpl_hpp__
 
 #include <Eigen/Geometry>
 #include "pinocchio/math/quaternion.hpp"
@@ -275,5 +275,5 @@ namespace se3
   
 } // namespace se3
 
-#endif // ifndef __se3_se3_tpl_hpp__
+#endif // ifndef __pinocchio_se3_tpl_hpp__
 

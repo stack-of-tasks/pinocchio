@@ -24,8 +24,8 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-#ifndef __se3_symmetric3_hpp__
-#define __se3_symmetric3_hpp__
+#ifndef __pinocchio_symmetric3_hpp__
+#define __pinocchio_symmetric3_hpp__
 
 #include "pinocchio/macros.hpp"
 
@@ -490,5 +490,5 @@ namespace se3
 
 } // namespace se3
 
-#endif // ifndef __se3_symmetric3_hpp__
+#endif // ifndef __pinocchio_symmetric3_hpp__
 

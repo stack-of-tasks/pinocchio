@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_visitor_hpp__
-#define __se3_visitor_hpp__
+#ifndef __pinocchio_visitor_hpp__
+#define __pinocchio_visitor_hpp__
 
 #define BOOST_FUSION_INVOKE_MAX_ARITY 10
 
@@ -210,4 +210,4 @@ namespace se3
   } // namespace fusion
 } // namespace se3
 
-#endif // ifndef __se3_visitor_hpp__
+#endif // ifndef __pinocchio_visitor_hpp__

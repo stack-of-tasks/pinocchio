@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_algo_geometry_hpp__
-#define __se3_algo_geometry_hpp__
+#ifndef __pinocchio_algo_geometry_hpp__
+#define __pinocchio_algo_geometry_hpp__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -223,4 +223,4 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/geometry.hxx"
 
-#endif // ifndef __se3_algo_geometry_hpp__
+#endif // ifndef __pinocchio_algo_geometry_hpp__

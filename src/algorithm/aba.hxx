@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_aba_hxx__
-#define __se3_aba_hxx__
+#ifndef __pinocchio_aba_hxx__
+#define __pinocchio_aba_hxx__
 
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/multibody/visitor.hpp"
@@ -522,4 +522,4 @@ namespace se3
 
 /// @endcond
 
-#endif // ifndef __se3_aba_hxx__
+#endif // ifndef __pinocchio_aba_hxx__

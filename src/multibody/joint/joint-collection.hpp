@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_collection_hpp__
-#define __se3_joint_collection_hpp__
+#ifndef __pinocchio_joint_collection_hpp__
+#define __pinocchio_joint_collection_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-free-flyer.hpp"
@@ -154,4 +154,4 @@ namespace se3
   
 } // namespace se3
 
-#endif // ifndef __se3_joint_collection_hpp__
+#endif // ifndef __pinocchio_joint_collection_hpp__

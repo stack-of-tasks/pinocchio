@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_algo_geometry_hxx__
-#define __se3_algo_geometry_hxx__
+#ifndef __pinocchio_algo_geometry_hxx__
+#define __pinocchio_algo_geometry_hxx__
 
 #include <boost/foreach.hpp>
 
@@ -322,4 +322,4 @@ namespace se3
 
 } // namespace se3
 
-#endif // ifnded __se3_algo_geometry_hxx__
+#endif // ifnded __pinocchio_algo_geometry_hxx__

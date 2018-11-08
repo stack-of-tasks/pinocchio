@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_revolute_unaligned_hpp__
-#define __se3_joint_revolute_unaligned_hpp__
+#ifndef __pinocchio_joint_revolute_unaligned_hpp__
+#define __pinocchio_joint_revolute_unaligned_hpp__
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -576,4 +576,4 @@ namespace boost
 }
 
 
-#endif // ifndef __se3_joint_revolute_unaligned_hpp__
+#endif // ifndef __pinocchio_joint_revolute_unaligned_hpp__

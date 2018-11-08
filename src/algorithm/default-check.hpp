@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_default_check_hpp__
-#define __se3_default_check_hpp__
+#ifndef __pinocchio_default_check_hpp__
+#define __pinocchio_default_check_hpp__
 
 #include <pinocchio/algorithm/check.hpp>
 #include <pinocchio/algorithm/aba.hpp>
@@ -36,4 +36,4 @@ namespace se3
 
 } // namespace se3 
 
-#endif // ifndef __se3_default_check_hpp__
+#endif // ifndef __pinocchio_default_check_hpp__

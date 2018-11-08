@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_macros_hpp__
-#define __se3_macros_hpp__
+#ifndef __pinocchio_macros_hpp__
+#define __pinocchio_macros_hpp__
 
 #if __cplusplus >= 201103L
   #define PINOCCHIO_WITH_CXX11_SUPPORT
@@ -74,4 +74,4 @@ namespace se3
   }
 }
 
-#endif // ifndef __se3_macros_hpp__
+#endif // ifndef __pinocchio_macros_hpp__

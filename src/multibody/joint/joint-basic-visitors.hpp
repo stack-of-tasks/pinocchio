@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_basic_visitors_hpp__
-#define __se3_joint_basic_visitors_hpp__
+#ifndef __pinocchio_joint_basic_visitors_hpp__
+#define __pinocchio_joint_basic_visitors_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 
@@ -295,4 +295,4 @@ namespace se3
 // #include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
 
 
-#endif // ifndef __se3_joint_basic_visitors_hpp__
+#endif // ifndef __pinocchio_joint_basic_visitors_hpp__

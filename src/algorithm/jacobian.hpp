@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_jacobian_hpp__
-#define __se3_jacobian_hpp__
+#ifndef __pinocchio_jacobian_hpp__
+#define __pinocchio_jacobian_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -355,4 +355,4 @@ namespace se3
 
 #include "pinocchio/algorithm/jacobian.hxx"
 
-#endif // ifndef __se3_jacobian_hpp__
+#endif // ifndef __pinocchio_jacobian_hpp__

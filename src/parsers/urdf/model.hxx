@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_multibody_parsers_urdf_model_hxx__
-#define __se3_multibody_parsers_urdf_model_hxx__
+#ifndef __pinocchio_multibody_parsers_urdf_model_hxx__
+#define __pinocchio_multibody_parsers_urdf_model_hxx__
 
 #include "pinocchio/math/matrix.hpp"
 #include "pinocchio/parsers/urdf.hpp"
@@ -729,4 +729,4 @@ namespace se3
   } // namespace urdf
 } // namespace se3
 
-#endif // ifndef __se3_multibody_parsers_urdf_model_hxx__
+#endif // ifndef __pinocchio_multibody_parsers_urdf_model_hxx__

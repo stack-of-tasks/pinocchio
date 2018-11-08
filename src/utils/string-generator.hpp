@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_string_generator_hpp__
-#define __se3_string_generator_hpp__
+#ifndef __pinocchio_string_generator_hpp__
+#define __pinocchio_string_generator_hpp__
 
 #include <string>
 #include <cstdlib>
@@ -45,4 +45,4 @@ namespace se3
   }
 }
 
-#endif // __se3_string_generator_hpp__
+#endif // __pinocchio_string_generator_hpp__

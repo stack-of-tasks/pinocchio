@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_deprecated_macros_hpp__
-#define __se3_deprecated_macros_hpp__
+#ifndef __pinocchio_deprecated_macros_hpp__
+#define __pinocchio_deprecated_macros_hpp__
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
   #ifndef WITH_HPP_FCL
@@ -45,4 +45,4 @@
   #endif
 #endif
 
-#endif // ifndef __se3_deprecated_macros_hpp__
+#endif // ifndef __pinocchio_deprecated_macros_hpp__

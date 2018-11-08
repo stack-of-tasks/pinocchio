@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_pythonparser_hpp__
-#define __se3_pythonparser_hpp__
+#ifndef __pinocchio_pythonparser_hpp__
+#define __pinocchio_pythonparser_hpp__
 
 #include <boost/python.hpp>
 
@@ -43,4 +43,4 @@ namespace se3
   
 } // namespace se3
 
-#endif // ifndef __se3_pythonparser_hpp__
+#endif // ifndef __pinocchio_pythonparser_hpp__

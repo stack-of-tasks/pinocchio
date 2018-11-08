@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_eigen_macros_hpp__
-#define __se3_eigen_macros_hpp__
+#ifndef __pinocchio_eigen_macros_hpp__
+#define __pinocchio_eigen_macros_hpp__
 
 #include "pinocchio/utils/eigen-fix.hpp"
 
@@ -54,4 +54,4 @@ Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::S
 /// \brief Macro for an automatic const_cast
 #define EIGEN_CONST_CAST(TYPE,OBJ) const_cast<TYPE &>(OBJ.derived())
 
-#endif // ifndef __se3_eigen_macros_hpp__
+#endif // ifndef __pinocchio_eigen_macros_hpp__

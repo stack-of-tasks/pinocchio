@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_fcl_convertion_hpp__
-#define __se3_fcl_convertion_hpp__
+#ifndef __pinocchio_fcl_convertion_hpp__
+#define __pinocchio_fcl_convertion_hpp__
 
 #include <hpp/fcl/math/transform.h>
 #include "pinocchio/spatial/se3.hpp"
@@ -35,4 +35,4 @@ namespace se3
 
 } // namespace se3
 
-#endif // ifndef __se3_fcl_convertion_hpp__
+#endif // ifndef __pinocchio_fcl_convertion_hpp__

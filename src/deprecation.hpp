@@ -15,11 +15,11 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_deprecation_hpp__
-#define __se3_deprecation_hpp__
+#ifndef __pinocchio_deprecation_hpp__
+#define __pinocchio_deprecation_hpp__
 
 #include "pinocchio/deprecated.hpp"
 #include "pinocchio/deprecated-macros.hpp"
 #include "pinocchio/deprecated-namespaces.hpp"
 
-#endif // ifndef __se3_deprecation_hpp__
+#endif // ifndef __pinocchio_deprecation_hpp__

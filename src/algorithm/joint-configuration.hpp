@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_configuration_hpp__
-#define __se3_joint_configuration_hpp__
+#ifndef __pinocchio_joint_configuration_hpp__
+#define __pinocchio_joint_configuration_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 
@@ -194,5 +194,5 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/joint-configuration.hxx"
 
-#endif // ifndef __se3_joint_configuration_hpp__
+#endif // ifndef __pinocchio_joint_configuration_hpp__
 

@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_exception_hpp__
-#define __se3_exception_hpp__
+#ifndef __pinocchio_exception_hpp__
+#define __pinocchio_exception_hpp__
 
 #include <exception>
 #include <string>
@@ -42,4 +42,4 @@ namespace se3
 
 } // namespace 
 
-#endif // ifndef __se3_exception_hpp__
+#endif // ifndef __pinocchio_exception_hpp__

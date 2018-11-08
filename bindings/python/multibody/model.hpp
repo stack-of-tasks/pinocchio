@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_model_hpp__
-#define __se3_python_model_hpp__
+#ifndef __pinocchio_python_model_hpp__
+#define __pinocchio_python_model_hpp__
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/python/overloads.hpp>
@@ -229,5 +229,5 @@ namespace se3
 
   }} // namespace se3::python
 
-#endif // ifndef __se3_python_model_hpp__
+#endif // ifndef __pinocchio_python_model_hpp__
 

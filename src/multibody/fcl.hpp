@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_fcl_hpp__
-#define __se3_fcl_hpp__
+#ifndef __pinocchio_fcl_hpp__
+#define __pinocchio_fcl_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
@@ -169,4 +169,4 @@ struct GeometryObject
 #include "pinocchio/multibody/fcl.hxx"
 
 
-#endif // ifndef __se3_fcl_hpp__
+#endif // ifndef __pinocchio_fcl_hpp__

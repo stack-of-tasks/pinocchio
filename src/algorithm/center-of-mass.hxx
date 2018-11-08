@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_center_of_mass_hxx__
-#define __se3_center_of_mass_hxx__
+#ifndef __pinocchio_center_of_mass_hxx__
+#define __pinocchio_center_of_mass_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/multibody/visitor.hpp"
@@ -323,4 +323,4 @@ namespace se3
 
 /// @endcond
 
-#endif // ifndef __se3_center_of_mass_hxx__
+#endif // ifndef __pinocchio_center_of_mass_hxx__

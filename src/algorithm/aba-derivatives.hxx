@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_aba_derivatives_hxx__
-#define __se3_aba_derivatives_hxx__
+#ifndef __pinocchio_aba_derivatives_hxx__
+#define __pinocchio_aba_derivatives_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
@@ -481,5 +481,5 @@ namespace se3
   
 } // namespace se3
 
-#endif // ifndef __se3_aba_derivatives_hxx__
+#endif // ifndef __pinocchio_aba_derivatives_hxx__
 

@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_frame_hpp__
-#define __se3_python_frame_hpp__
+#ifndef __pinocchio_python_frame_hpp__
+#define __pinocchio_python_frame_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
@@ -75,4 +75,4 @@ namespace se3
   } // namespace python
 } // namespace se3
 
-#endif // ifndef __se3_python_frame_hpp__
+#endif // ifndef __pinocchio_python_frame_hpp__

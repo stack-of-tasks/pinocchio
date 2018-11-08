@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_revolute_hpp__
-#define __se3_joint_revolute_hpp__
+#ifndef __pinocchio_joint_revolute_hpp__
+#define __pinocchio_joint_revolute_hpp__
 
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -683,4 +683,4 @@ namespace boost
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __se3_joint_revolute_hpp__
+#endif // ifndef __pinocchio_joint_revolute_hpp__

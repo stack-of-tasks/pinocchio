@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_fcl_hxx__
-#define __se3_fcl_hxx__
+#ifndef __pinocchio_fcl_hxx__
+#define __pinocchio_fcl_hxx__
 
 
 #include <iostream>
@@ -92,4 +92,4 @@ namespace se3
 } // namespace se3
 
 
-#endif // ifndef __se3_fcl_hxx__
+#endif // ifndef __pinocchio_fcl_hxx__

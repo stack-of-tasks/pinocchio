@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_frames_hpp__
-#define __se3_frames_hpp__
+#ifndef __pinocchio_frames_hpp__
+#define __pinocchio_frames_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -233,4 +233,4 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/frames.hxx"
 
-#endif // ifndef __se3_frames_hpp__
+#endif // ifndef __pinocchio_frames_hpp__

@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_force_hpp__
-#define __se3_force_hpp__
+#ifndef __pinocchio_force_hpp__
+#define __pinocchio_force_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -51,5 +51,5 @@ FORCE_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 #include "pinocchio/spatial/force-tpl.hpp"
 #include "pinocchio/spatial/force-ref.hpp"
 
-#endif // ifndef __se3_force_hpp__
+#endif // ifndef __pinocchio_force_hpp__
 

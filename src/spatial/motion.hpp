@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_motion_hpp__
-#define __se3_motion_hpp__
+#ifndef __pinocchio_motion_hpp__
+#define __pinocchio_motion_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/macros.hpp"
@@ -66,4 +66,4 @@ namespace se3
 #include "pinocchio/spatial/motion-ref.hpp"
 #include "pinocchio/spatial/motion-zero.hpp"
 
-#endif // ifndef __se3_motion_hpp__
+#endif // ifndef __pinocchio_motion_hpp__

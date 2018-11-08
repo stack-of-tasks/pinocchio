@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_planar_hpp__
-#define __se3_joint_planar_hpp__
+#ifndef __pinocchio_joint_planar_hpp__
+#define __pinocchio_joint_planar_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -569,4 +569,4 @@ namespace boost
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __se3_joint_planar_hpp__
+#endif // ifndef __pinocchio_joint_planar_hpp__

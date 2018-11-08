@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_data_hxx__
-#define __se3_data_hxx__
+#ifndef __pinocchio_data_hxx__
+#define __pinocchio_data_hxx__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -192,4 +192,4 @@ namespace se3
 
 /// @endcond
 
-#endif // ifndef __se3_data_hxx__
+#endif // ifndef __pinocchio_data_hxx__

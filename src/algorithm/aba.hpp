@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_aba_hpp__
-#define __se3_aba_hpp__
+#ifndef __pinocchio_aba_hpp__
+#define __pinocchio_aba_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -101,4 +101,4 @@ namespace se3
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/aba.hxx"
 
-#endif // ifndef __se3_aba_hpp__
+#endif // ifndef __pinocchio_aba_hpp__

@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_force_set_hpp__
-#define __se3_force_set_hpp__
+#ifndef __pinocchio_force_set_hpp__
+#define __pinocchio_force_set_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include <Eigen/Geometry>
@@ -177,5 +177,5 @@ namespace se3
 
 } // namespace se3
 
-#endif // ifndef __se3_force_set_hpp__
+#endif // ifndef __pinocchio_force_set_hpp__
 

@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_utils_version_hpp__
-#define __se3_python_utils_version_hpp__
+#ifndef __pinocchio_python_utils_version_hpp__
+#define __pinocchio_python_utils_version_hpp__
 
 #include "pinocchio/bindings/python/fwd.hpp"
 
@@ -30,4 +30,4 @@ namespace se3
   } // namespace python
 } // namespace se3
 
-#endif // ifndef __se3_python_utils_version_hpp__
+#endif // ifndef __pinocchio_python_utils_version_hpp__

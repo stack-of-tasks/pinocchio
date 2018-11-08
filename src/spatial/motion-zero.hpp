@@ -16,8 +16,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_motion_zero_hpp__
-#define __se3_motion_zero_hpp__
+#ifndef __pinocchio_motion_zero_hpp__
+#define __pinocchio_motion_zero_hpp__
 
 namespace se3
 {
@@ -126,4 +126,4 @@ namespace se3
   
 } // namespace se3
 
-#endif // ifndef __se3_motion_zero_hpp__
+#endif // ifndef __pinocchio_motion_zero_hpp__

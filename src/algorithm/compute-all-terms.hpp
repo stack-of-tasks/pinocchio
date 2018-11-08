@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_compute_all_terms_hpp__
-#define __se3_compute_all_terms_hpp__
+#ifndef __pinocchio_compute_all_terms_hpp__
+#define __pinocchio_compute_all_terms_hpp__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -262,5 +262,5 @@ namespace se3
 } // namespace se3
 
 
-#endif // ifndef __se3_compute_all_terms_hpp__
+#endif // ifndef __pinocchio_compute_all_terms_hpp__
 

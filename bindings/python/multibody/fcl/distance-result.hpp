@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_fcl_distance_result_hpp__
-#define __se3_python_fcl_distance_result_hpp__
+#ifndef __pinocchio_python_fcl_distance_result_hpp__
+#define __pinocchio_python_fcl_distance_result_hpp__
 
 #include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
 #include <hpp/fcl/collision_data.h>
@@ -77,4 +77,4 @@ namespace se3
   } // namespace python
 } // namespace se3
 
-#endif // namespace __se3_python_fcl_distance_result_hpp__
+#endif // namespace __pinocchio_python_fcl_distance_result_hpp__

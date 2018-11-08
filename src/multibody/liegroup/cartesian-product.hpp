@@ -15,8 +15,8 @@
 // Pinocchio If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_cartesian_product_operation_hpp__
-#define __se3_cartesian_product_operation_hpp__
+#ifndef __pinocchio_cartesian_product_operation_hpp__
+#define __pinocchio_cartesian_product_operation_hpp__
 
 #include <pinocchio/multibody/liegroup/liegroup-base.hpp>
 
@@ -228,4 +228,4 @@ namespace se3
 
 } // namespace se3
 
-#endif // ifndef __se3_cartesian_product_operation_hpp__
+#endif // ifndef __pinocchio_cartesian_product_operation_hpp__
