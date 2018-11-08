@@ -89,7 +89,8 @@ namespace se3
      * \deprecated use se3::humanoid or se3::humanoidRandom instead. 
      */
     PINOCCHIO_DEPRECATED
-    inline void humanoidSimple(Model & model, bool usingFF = true) { humanoidRandom(model,usingFF); }
+    inline void humanoidSimple(Model & model, bool usingFF = true)
+    { humanoidRandom(model,usingFF); }
    
   } // namespace buildModels
 } // namespace se3

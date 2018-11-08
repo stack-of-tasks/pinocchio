@@ -22,7 +22,7 @@ namespace se3
 {
   namespace buildModels
   {
-    const SE3 Id = SE3::Identity();
+    static const SE3 Id = SE3::Identity();
 
     template<typename JointModel>
     static void addJointAndBody(Model & model,
@@ -93,7 +93,11 @@ namespace se3
         addJointAndBody(model, jff, "universe", "root", Id);
       }
       else
+      {
         addJointAndBody(model, JointModelFreeFlyer(), "universe", "root", Id);
+        model.lowerPositionLimit.segment<4>(3).fill(-1.);
+        model.upperPositionLimit.segment<4>(3).fill( 1.);
+      }
 
       // lleg
       addJointAndBody(model,JointModelRX(),"root_joint","lleg1");
@@ -266,13 +270,17 @@ namespace se3
 
       /* --- Free flyer --- */
       if(usingFF)
-          ffidx = model.addJoint(0,JointModelFreeFlyer(),SE3::Identity(),"freeflyer_joint");
+      {
+        ffidx = model.addJoint(0,JointModelFreeFlyer(),SE3::Identity(),"freeflyer_joint");
+        model.lowerPositionLimit.segment<4>(3).fill(-1.);
+        model.upperPositionLimit.segment<4>(3).fill( 1.);
+      }
       else
-        {
-          JointModelComposite jff((JointModelTranslation()));
-          jff.addJoint(JointModelSphericalZYX());
-          ffidx = model.addJoint(0,jff,SE3::Identity(),"freeflyer_joint");
-        }
+      {
+        JointModelComposite jff((JointModelTranslation()));
+        jff.addJoint(JointModelSphericalZYX());
+        ffidx = model.addJoint(0,jff,SE3::Identity(),"freeflyer_joint");
+      }
       model.addJointFrame(ffidx);
 
       /* --- Lower limbs --- */
