@@ -108,7 +108,29 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     template <ArgumentPosition arg, class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
                     const Eigen::MatrixBase<Tangent_t>  & v,
-                    const Eigen::MatrixBase<JacobianOut_t>& J) const;
+                    const Eigen::MatrixBase<JacobianOut_t>& J) const
+    {
+      PINOCCHIO_STATIC_ASSERT(arg==ARG0||arg==ARG1, arg_SHOULD_BE_ARG0_OR_ARG1);
+      return dIntegrate(q,v,J,arg);
+    }
+    
+    /**
+     * @brief      Computes the Jacobian of a small variation of the configuration vector or the tangent vector into tangent space at identity.
+     *
+     * @details    This Jacobian corresponds to the Jacobian of \f$ (\bm{q} \oplus \delta \bm{q}) \oplus \bm{v} \f$ with
+     *             \f$ \delta \bm{q} \rightarrow 0 \f$ if arg == ARG0 or \f$ \delta \bm{v} \rightarrow 0 \f$ if arg == ARG1.
+     *
+     * @param[in]  q    configuration vector.
+     * @param[in]  v    tangent vector.
+     * @param[in] arg  ARG0 (resp. ARG1) to get the Jacobian with respect to q (resp. v).
+     *
+     * @param[out] J    the Jacobian of the Integrate operation w.r.t. the argument arg.
+     */
+    template<class Config_t, class Tangent_t, class JacobianOut_t>
+    void dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
+                    const Eigen::MatrixBase<Tangent_t>  & v,
+                    const Eigen::MatrixBase<JacobianOut_t> & J,
+                    const ArgumentPosition arg) const;
 
     /**
      * @brief      Computes the Jacobian of a small variation of the configuration vector into tangent space at identity.
