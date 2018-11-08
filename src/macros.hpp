@@ -22,6 +22,12 @@
   #define PINOCCHIO_WITH_CXX11_SUPPORT
 #endif
 
+#define PINOCCHIO_STRING_LITERAL(string) #string
+
+/// \remarks The following two macros should be adapted for WIN32
+#define PINOCCHIO_PRAGMA_MESSAGE(the_message) PINOCCHIO_STRING_LITERAL(message(the_message))
+#define PINOCCHIO_PRAGMA_MESSAGE_CALL(the_message) _Pragma(PINOCCHIO_PRAGMA_MESSAGE(the_message))
+
 /// \brief Macro to check the current Pinocchio version against a version provided by x.y.z
 #define PINOCCHIO_VERSION_AT_LEAST(x,y,z) \
           (PINOCCHIO_MAJOR_VERSION>x || (PINOCCHIO_MAJOR_VERSION>=x && \

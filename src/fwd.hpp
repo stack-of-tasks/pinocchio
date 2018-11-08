@@ -19,8 +19,7 @@
 #define __se3_fwd_hpp__
 
 #include "pinocchio/macros.hpp"
-#include "pinocchio/deprecated-macros.hpp"
-#include "pinocchio/deprecated.hpp"
+#include "pinocchio/deprecation.hpp"
 #include "pinocchio/warning.hpp"
 #include "pinocchio/config.hpp"
 
