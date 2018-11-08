@@ -123,10 +123,10 @@ namespace se3
     TangentVectorType velocityLimit;
 
     /// \brief Lower joint configuration limit
-    ConfigVectorType lowerPositionLimit;
+    VectorXs lowerPositionLimit;
     
     /// \brief Upper joint configuration limit
-    ConfigVectorType upperPositionLimit;
+    VectorXs upperPositionLimit;
 
     /// \brief Vector of operational frames registered on the model.
     FrameVector frames;

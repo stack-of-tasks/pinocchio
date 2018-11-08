@@ -29,6 +29,7 @@ namespace se3
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
    * @param[in]  v       Velocity (size model.nv)
+   *
    * @return     The integrated configuration (size model.nq)
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -43,6 +44,7 @@ namespace se3
    * @param[in]  q0      Initial configuration vector (size model.nq)
    * @param[in]  q1      Final configuration vector (size model.nq)
    * @param[in]  u       u in [0;1] position along the interpolation.
+   *
    * @return     The interpolated configuration (q0 if u = 0, q1 if u = 1)
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
@@ -58,6 +60,7 @@ namespace se3
    * @param[in]  model   Model to be differenced
    * @param[in]  q0      Initial configuration (size model.nq)
    * @param[in]  q1      Wished configuration (size model.nq)
+   *
    * @return     The corresponding velocity (size model.nv)
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
@@ -73,6 +76,7 @@ namespace se3
    * @param[in]  model      Model we want to compute the distance
    * @param[in]  q0         Configuration 0 (size model.nq)
    * @param[in]  q1         Configuration 1 (size model.nq)
+   *
    * @return     The corresponding squared distances for each joint (size model.njoints-1 = number of joints)
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
@@ -86,6 +90,7 @@ namespace se3
    * @param[in]  model      Model we want to compute the distance
    * @param[in]  q0         Configuration 0 (size model.nq)
    * @param[in]  q1         Configuration 1 (size model.nq)
+   *
    * @return     The distance between the two configurations
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
@@ -96,9 +101,11 @@ namespace se3
   /**
    * @brief      Generate a configuration vector uniformly sampled among provided limits.
    *
-   *\warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
+   * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
    *
-   * @param[in]  model        Model we want to generate a configuration vector of
+   * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
+   *
+   * @param[in]  model        Model for which we want to generate a configuration vector.
    * @param[in]  lowerLimits  Joints lower limits
    * @param[in]  upperLimits  Joints upper limits
    *
@@ -113,10 +120,13 @@ namespace se3
   /**
    * @brief      Generate a configuration vector uniformly sampled among the joint limits of the specified Model.
    *
-   *\warning     If limits are infinite (no one specified when adding a body or no modification directly in my_model.{lowerPositionLimit,upperPositionLimit},
+   * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
+   *
+   * @warning    If limits are infinite (no one specified when adding a body or no modification directly in my_model.{lowerPositionLimit,upperPositionLimit},
    *             exceptions may be thrown in the joint implementation of uniformlySample
    *
-   * @param[in]  model   Model we want to generate a configuration vector of
+   * @param[in]  model   Model for which we want to generate a configuration vector.
+   *
    * @return     The resulted configuration vector (size model.nq)
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -128,6 +138,7 @@ namespace se3
    *
    * @param[in]     model      Model
    * @param[in,out] q          Configuration to normalize
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -135,7 +146,7 @@ namespace se3
   
   /**
    * @brief         Return true if the given configurations are equivalents
-   * \warning       Two configurations can be equivalent but not equally coefficient wise (e.g for quaternions)
+   * @warning       Two configurations can be equivalent but not equally coefficient wise (e.g for quaternions)
    *
    * @param[in]     model     Model
    * @param[in]     q1        The first configuraiton to compare
