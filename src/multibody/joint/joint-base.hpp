@@ -325,14 +325,14 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     jointConfigSelector(const Eigen::MatrixBase<D>& a) const       { return derived().jointConfigSelector_impl(a); }
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType 
-    jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NQ>(i_q); }
+    jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NQ>(i_q,nq()); }
     // Non-const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type 
     jointConfigSelector( Eigen::MatrixBase<D>& a) const { return derived().jointConfigSelector_impl(a); }
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type 
-    jointConfigSelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NQ>(i_q); }
+    jointConfigSelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NQ>(i_q,nq()); }
 
     /* Acces to dedicated segment in robot config velocity space.  */
     // Const access
@@ -341,40 +341,40 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     jointVelocitySelector(const Eigen::MatrixBase<D>& a) const       { return derived().jointVelocitySelector_impl(a); }
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
-    jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NV>(i_v); }
+    jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NV>(i_v,nv()); }
     // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
     jointVelocitySelector( Eigen::MatrixBase<D>& a) const { return derived().jointVelocitySelector_impl(a); }
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
-    jointVelocitySelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
+    jointVelocitySelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v,nv()); }
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
     jointCols(const Eigen::MatrixBase<D>& A) const       { return derived().jointCols_impl(A); }
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
-    jointCols_impl(const Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
+    jointCols_impl(const Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v,nv()); }
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
     jointCols(Eigen::MatrixBase<D>& A) const       { return derived().jointCols_impl(A); }
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
-    jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
+    jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v,nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
     jointRows(const Eigen::MatrixBase<D>& A) const       { return derived().jointRows_impl(A); }
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
-    jointRows_impl(const Eigen::MatrixBase<D>& A) const       { return A.template middleRows<NV>(i_v); }
+    jointRows_impl(const Eigen::MatrixBase<D>& A) const       { return A.template middleRows<NV>(i_v,nv()); }
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::Type
     jointRows(Eigen::MatrixBase<D>& A) const       { return derived().jointRows_impl(A); }
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::Type
-    jointRows_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleRows<NV>(i_v); }
+    jointRows_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleRows<NV>(i_v,nv()); }
     
     /// \brief Returns a block of dimension nv()xnv() located at position i_v,i_v in the matrix Mat
     template<typename D>
