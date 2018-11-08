@@ -154,17 +154,26 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
       typedef typename Mat::template FixedSegmentReturnType<NV>::Type Type;
       typedef typename Mat::template ConstFixedSegmentReturnType<NV>::Type ConstType;
     };
+    
     template<class Mat>
     struct ColsReturn
     {
       typedef typename Mat::template NColsBlockXpr<NV>::Type Type;
       typedef typename Mat::template ConstNColsBlockXpr<NV>::Type ConstType;
     };
+    
     template<class Mat>
     struct RowsReturn
     {
       typedef typename Mat::template NRowsBlockXpr<NV>::Type Type;
       typedef typename Mat::template ConstNRowsBlockXpr<NV>::Type ConstType;
+    };
+    
+    template<class Mat>
+    struct BlockReturn
+    {
+      typedef Eigen::Block<Mat, NV, NV> Type;
+      typedef const Eigen::Block<const Mat, NV, NV> ConstType;
     };
   };
   
@@ -177,17 +186,26 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
       typedef typename Mat::SegmentReturnType Type;
       typedef typename Mat::ConstSegmentReturnType ConstType;
     };
+    
     template<class Mat>
     struct ColsReturn
     {
       typedef typename Mat::ColsBlockXpr Type;
       typedef typename Mat::ConstColsBlockXpr ConstType;
     };
+    
     template<class Mat>
     struct RowsReturn
     {
       typedef typename Mat::RowsBlockXpr Type;
       typedef typename Mat::ConstRowsBlockXpr ConstType;
+    };
+    
+    template<class Mat>
+    struct BlockReturn
+    {
+      typedef Eigen::Block<Mat> Type;
+      typedef const Eigen::Block<const Mat> ConstType;
     };
   };
 
