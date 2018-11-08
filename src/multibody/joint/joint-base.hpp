@@ -375,6 +375,27 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::Type
     jointRows_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleRows<NV>(i_v); }
+    
+    /// \brief Returns a block of dimension nv()xnv() located at position i_v,i_v in the matrix Mat
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::ConstType
+    jointBlock(const Eigen::MatrixBase<D> & Mat) const
+    { return derived().jointBlock_impl(Mat); }
+    
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::ConstType
+    jointBlock_impl(const Eigen::MatrixBase<D> & Mat) const
+    { return Mat.template block<NV,NV>(i_v,i_v,nv(),nv()); }
+    
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::Type
+    jointBlock(Eigen::MatrixBase<D> & Mat) const
+    { return derived().jointBlock_impl(Mat); }
+    
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::Type
+    jointBlock_impl(Eigen::MatrixBase<D> & Mat) const
+    { return Mat.template block<NV,NV>(i_v,i_v,nv(),nv()); }
 
   protected:
 
