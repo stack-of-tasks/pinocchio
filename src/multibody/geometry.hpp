@@ -86,9 +86,9 @@ namespace pinocchio
                                 const bool autofillJointParent)
     {
       if(autofillJointParent)
-        addGeometryObject(object,model);
+        return addGeometryObject(object,model);
       else
-        addGeometryObject(object);
+        return addGeometryObject(object);
     }
     
     /**
