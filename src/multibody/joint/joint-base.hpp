@@ -155,12 +155,52 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
       typedef typename Mat::template ConstFixedSegmentReturnType<NV>::Type ConstType;
     };
     
+    template<typename D>
+    static typename SegmentReturn<D>::ConstType
+    segment(const Eigen::MatrixBase<D> & mat,
+            typename Eigen::DenseBase<D>::Index start,
+            typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template segment<NV>(start);
+    }
+    
+    template<typename D>
+    static typename SegmentReturn<D>::Type
+    segment(Eigen::MatrixBase<D> & mat,
+            typename Eigen::DenseBase<D>::Index start,
+            typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template segment<NV>(start);
+    }
+    
     template<class Mat>
     struct ColsReturn
     {
       typedef typename Mat::template NColsBlockXpr<NV>::Type Type;
       typedef typename Mat::template ConstNColsBlockXpr<NV>::Type ConstType;
     };
+    
+    template<typename D>
+    static typename ColsReturn<D>::ConstType
+    middleCols(const Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template middleCols<NV>(start);
+    }
+    
+    template<typename D>
+    static typename ColsReturn<D>::Type
+    middleCols(Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template middleCols<NV>(start);
+    }
     
     template<class Mat>
     struct RowsReturn
@@ -169,12 +209,58 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
       typedef typename Mat::template ConstNRowsBlockXpr<NV>::Type ConstType;
     };
     
+    template<typename D>
+    static typename RowsReturn<D>::ConstType
+    middleRows(const Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template middleRows<NV>(start);
+    }
+    
+    template<typename D>
+    static typename RowsReturn<D>::Type
+    middleRows(Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template middleRows<NV>(start);
+    }
+    
     template<class Mat>
     struct BlockReturn
     {
       typedef Eigen::Block<Mat, NV, NV> Type;
       typedef const Eigen::Block<const Mat, NV, NV> ConstType;
     };
+    
+    template<typename D>
+    static typename BlockReturn<D>::ConstType
+    block(const Eigen::MatrixBase<D> & mat,
+          typename Eigen::DenseBase<D>::Index row_id,
+          typename Eigen::DenseBase<D>::Index col_id,
+          typename Eigen::DenseBase<D>::Index row_size_block = NV,
+          typename Eigen::DenseBase<D>::Index col_size_block = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(row_size_block);
+      PINOCCHIO_UNUSED_VARIABLE(col_size_block);
+      return mat.template block<NV,NV>(row_id,col_id);
+    }
+    
+    template<typename D>
+    static typename BlockReturn<D>::Type
+    block(Eigen::MatrixBase<D> & mat,
+          typename Eigen::DenseBase<D>::Index row_id,
+          typename Eigen::DenseBase<D>::Index col_id,
+          typename Eigen::DenseBase<D>::Index row_size_block = NV,
+          typename Eigen::DenseBase<D>::Index col_size_block = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(row_size_block);
+      PINOCCHIO_UNUSED_VARIABLE(col_size_block);
+      return mat.template block<NV,NV>(row_id,col_id);
+    }
   };
   
   template<>
@@ -187,12 +273,48 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
       typedef typename Mat::ConstSegmentReturnType ConstType;
     };
     
+    template<typename D>
+    static typename SegmentReturn<D>::ConstType
+    segment(const Eigen::MatrixBase<D> & mat,
+            typename Eigen::DenseBase<D>::Index start,
+            typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.segment(start,size);
+    }
+    
+    template<typename D>
+    static typename SegmentReturn<D>::Type
+    segment(Eigen::MatrixBase<D> & mat,
+            typename Eigen::DenseBase<D>::Index start,
+            typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.segment(start,size);
+    }
+    
     template<class Mat>
     struct ColsReturn
     {
       typedef typename Mat::ColsBlockXpr Type;
       typedef typename Mat::ConstColsBlockXpr ConstType;
     };
+    
+    template<typename D>
+    static typename ColsReturn<D>::ConstType
+    middleCols(const Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.middleCols(start,size);
+    }
+    
+    template<typename D>
+    static typename ColsReturn<D>::Type
+    middleCols(Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.middleCols(start,size);
+    }
     
     template<class Mat>
     struct RowsReturn
@@ -201,12 +323,52 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
       typedef typename Mat::ConstRowsBlockXpr ConstType;
     };
     
+    template<typename D>
+    static typename RowsReturn<D>::ConstType
+    middleRows(const Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.middleRows(start,size);
+    }
+    
+    template<typename D>
+    static typename RowsReturn<D>::Type
+    middleRows(Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.middleRows(start,size);
+    }
+    
     template<class Mat>
     struct BlockReturn
     {
       typedef Eigen::Block<Mat> Type;
       typedef const Eigen::Block<const Mat> ConstType;
     };
+    
+    template<typename D>
+    static typename BlockReturn<D>::ConstType
+    block(const Eigen::MatrixBase<D> & mat,
+          typename Eigen::DenseBase<D>::Index row_id,
+          typename Eigen::DenseBase<D>::Index col_id,
+          typename Eigen::DenseBase<D>::Index row_size_block,
+          typename Eigen::DenseBase<D>::Index col_size_block)
+    {
+      return mat.block(row_id,col_id,row_size_block,col_size_block);
+    }
+    
+    template<typename D>
+    static typename BlockReturn<D>::Type
+    block(Eigen::MatrixBase<D> & mat,
+          typename Eigen::DenseBase<D>::Index row_id,
+          typename Eigen::DenseBase<D>::Index col_id,
+          typename Eigen::DenseBase<D>::Index row_size_block,
+          typename Eigen::DenseBase<D>::Index col_size_block)
+    {
+      return mat.block(row_id,col_id,row_size_block,col_size_block);
+    }
   };
 
   template<typename Derived>
@@ -328,7 +490,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType 
     jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const
-    { return a.template segment<NQ>(i_q,nq()); }
+    { return SizeDepType<NQ>::segment(a,i_q,nq()); }
     
     // Non-const access
     template<typename D>
@@ -339,7 +501,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type 
     jointConfigSelector_impl( Eigen::MatrixBase<D>& a) const
-    { return a.template segment<NQ>(i_q,nq()); }
+    { return SizeDepType<NQ>::segment(a,i_q,nq()); }
 
     /* Acces to dedicated segment in robot config velocity space.  */
     // Const access
@@ -351,7 +513,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
     jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const
-    { return a.template segment<NV>(i_v,nv()); }
+    { return SizeDepType<NV>::segment(a,i_v,nv()); }
     
     // Non-const access
     template<typename D>
@@ -362,7 +524,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
     jointVelocitySelector_impl( Eigen::MatrixBase<D>& a) const
-    { return a.template segment<NV>(i_v,nv()); }
+    { return SizeDepType<NV>::segment(a,i_v,nv()); }
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
@@ -372,7 +534,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
     jointCols_impl(const Eigen::MatrixBase<D>& A) const
-    { return A.template middleCols<NV>(i_v,nv()); }
+    { return SizeDepType<NV>::middleCols(A,i_v,nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
@@ -382,7 +544,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
     jointCols_impl(Eigen::MatrixBase<D>& A) const
-    { return A.template middleCols<NV>(i_v,nv()); }
+    { return SizeDepType<NV>::middleCols(A,i_v,nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
@@ -392,7 +554,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
     jointRows_impl(const Eigen::MatrixBase<D>& A) const
-    { return A.template middleRows<NV>(i_v,nv()); }
+    { return SizeDepType<NV>::middleRows(A,i_v,nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::Type
@@ -402,7 +564,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::Type
     jointRows_impl(Eigen::MatrixBase<D>& A) const
-    { return A.template middleRows<NV>(i_v,nv()); }
+    { return SizeDepType<NV>::middleRows(A,i_v,nv()); }
     
     /// \brief Returns a block of dimension nv()xnv() located at position i_v,i_v in the matrix Mat
     template<typename D>
@@ -413,7 +575,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::ConstType
     jointBlock_impl(const Eigen::MatrixBase<D> & Mat) const
-    { return Mat.template block<NV,NV>(i_v,i_v,nv(),nv()); }
+    { return SizeDepType<NV>::block(Mat,i_v,i_v,nv(),nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::Type
@@ -423,7 +585,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::Type
     jointBlock_impl(Eigen::MatrixBase<D> & Mat) const
-    { return Mat.template block<NV,NV>(i_v,i_v,nv(),nv()); }
+    { return SizeDepType<NV>::block(Mat,i_v,i_v,nv(),nv()); }
 
   protected:
 
