@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -37,6 +37,24 @@ namespace pinocchio
   integrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
             const Eigen::MatrixBase<ConfigVectorType> & q,
             const Eigen::MatrixBase<TangentVectorType> & v);
+  
+  /**
+   * @brief      Computes the Jacobian of a small variation of the configuration vector or the tangent vector into the tangent space at identity.
+   *
+   * @param[in]  model   Model that must be integrated
+   * @param[in]  q       Initial configuration (size model.nq)
+   * @param[in]  v       Velocity (size model.nv)
+   * @param[out] J       Jacobian of the Integrate operation, either with respect to q or v (size model.nv x model.nv).
+   * @param[in]  arg     Argument (either q or v) with respect to which the
+   *
+   */
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
+  void dIntegrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                  const Eigen::MatrixBase<TangentVectorType> & v,
+                  const Eigen::MatrixBase<JacobianMatrixType> & J,
+                  const ArgumentPosition arg);
+  
   /**
    * @brief      Interpolate the model between two configurations
    *

@@ -86,11 +86,72 @@ BOOST_AUTO_TEST_CASE ( integration_test )
   qs[0] = Eigen::VectorXd::Ones(model.nq);
   qs[0].segment<4>(3) /= qs[0].segment<4>(3).norm(); // quaternion of freeflyer
   qs[0].segment<4>(7) /= qs[0].segment<4>(7).norm(); // quaternion of spherical joint
+  qs[0].segment<2>(11+2) /= qs[0].segment<2>(11+2).norm(); // planar joint
  
   qdots[0] = Eigen::VectorXd::Zero(model.nv);
   results[0] = integrate(model,qs[0],qdots[0]);
 
   BOOST_CHECK_MESSAGE(results[0].isApprox(qs[0], 1e-12), "integration of full body with zero velocity - wrong results");
+}
+
+BOOST_AUTO_TEST_CASE ( diff_integration_test )
+{
+  Model model; buildModel(model);
+  
+  std::vector<Eigen::VectorXd> qs(2);
+  std::vector<Eigen::VectorXd> vs(2);
+  std::vector<Eigen::MatrixXd> results(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  std::vector<Eigen::MatrixXd> results_fd(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  
+  qs[0] = Eigen::VectorXd::Ones(model.nq);
+  qs[0].segment<4>(3) /= qs[0].segment<4>(3).norm(); // quaternion of freeflyer
+  qs[0].segment<4>(7) /= qs[0].segment<4>(7).norm(); // quaternion of spherical joint
+  qs[0].segment<2>(11+2) /= qs[0].segment<2>(11+2).norm(); // planar joint
+  
+  vs[0] = Eigen::VectorXd::Zero(model.nv);
+  vs[1] = Eigen::VectorXd::Ones(model.nv);
+  dIntegrate(model,qs[0],vs[0],results[0],ARG0);
+  
+  Eigen::VectorXd q_fd(model.nq), v_fd(model.nv); v_fd.setZero();
+  const double eps = 1e-8;
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_fd[k] = eps;
+    q_fd = integrate(model,qs[0],v_fd);
+    results_fd[0].col(k) = difference(model,qs[0],q_fd)/eps;
+    v_fd[k] = 0.;
+  }
+  BOOST_CHECK(results[0].isIdentity(sqrt(eps)));
+  BOOST_CHECK(results[0].isApprox(results_fd[0],sqrt(eps)));
+  
+  dIntegrate(model,qs[0],vs[0],results[1],ARG1);
+  BOOST_CHECK(results[1].isApprox(results[0]));
+  
+  dIntegrate(model,qs[0],vs[1],results[0],ARG0);
+  Eigen::VectorXd q_fd_intermediate(model.nq);
+  Eigen::VectorXd q0_plus_v = integrate(model,qs[0],vs[1]);
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_fd[k] = eps;
+    q_fd_intermediate = integrate(model,qs[0],v_fd);
+    q_fd = integrate(model,q_fd_intermediate,vs[1]);
+    results_fd[0].col(k) = difference(model,q0_plus_v,q_fd)/eps;
+    v_fd[k] = 0.;
+  }
+  
+  BOOST_CHECK(results[0].isApprox(results_fd[0],sqrt(eps)));
+  
+  dIntegrate(model,qs[0],vs[1],results[1],ARG1);
+  v_fd = vs[1];
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_fd[k] += eps;
+    q_fd = integrate(model,qs[0],v_fd);
+    results_fd[1].col(k) = difference(model,q0_plus_v,q_fd)/eps;
+    v_fd[k] -= eps;
+  }
+  
+  BOOST_CHECK(results[1].isApprox(results_fd[1],sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_CASE ( integrate_difference_test )

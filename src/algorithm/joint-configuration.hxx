@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2018 CNRS INRIA
 //
 // This file is part of Pinocchio
 // Pinocchio is free software: you can redistribute it
@@ -57,6 +57,34 @@ namespace pinocchio
       Algo::run(model.joints[i], args);
     }
     return res;
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
+  void dIntegrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                  const Eigen::MatrixBase<TangentVectorType> & v,
+                  const Eigen::MatrixBase<JacobianMatrixType> & J,
+                  const ArgumentPosition arg)
+  {
+    return dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), J.derived(),arg);
+  }
+  
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
+  void dIntegrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                  const Eigen::MatrixBase<TangentVectorType> & v,
+                  const Eigen::MatrixBase<JacobianMatrixType> & J,
+                  const ArgumentPosition arg)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef dIntegrateStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType> Algo;
+    typename Algo::ArgsType args(q.derived(),v.derived(),EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i], args);
+    }
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
