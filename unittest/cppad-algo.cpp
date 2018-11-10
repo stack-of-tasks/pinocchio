@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -43,14 +30,14 @@ BOOST_AUTO_TEST_CASE(test_mass_matrix)
   typedef double Scalar;
   typedef AD<Scalar> ADScalar;
   
-  typedef se3::ModelTpl<Scalar> Model;
+  typedef pinocchio::ModelTpl<Scalar> Model;
   typedef Model::Data Data;
 
-  typedef se3::ModelTpl<ADScalar> ADModel;
+  typedef pinocchio::ModelTpl<ADScalar> ADModel;
   typedef ADModel::Data ADData;
   
   Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::buildModels::humanoidRandom(model);
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
   Data data(model);
@@ -62,7 +49,7 @@ BOOST_AUTO_TEST_CASE(test_mass_matrix)
   typedef Model::ConfigVectorType CongigVectorType;
   typedef Model::TangentVectorType TangentVectorType;
   CongigVectorType q(model.nq);
-  q = se3::randomConfiguration(model);
+  q = pinocchio::randomConfiguration(model);
 
   TangentVectorType v(TangentVectorType::Random(model.nv));
   TangentVectorType a(TangentVectorType::Random(model.nv));
@@ -75,15 +62,15 @@ BOOST_AUTO_TEST_CASE(test_mass_matrix)
   ADTangentVectorType ad_a = a.cast<ADScalar>();
   
   typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> VectorXAD;
-  se3::crba(model,data,q);
+  pinocchio::crba(model,data,q);
   data.M.triangularView<Eigen::StrictlyLower>()
   = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
-  Data::TangentVectorType tau = se3::rnea(model,data,q,v,a);
+  Data::TangentVectorType tau = pinocchio::rnea(model,data,q,v,a);
   
   {
     CppAD::Independent(ad_a);
-    se3::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
+    pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
 
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.tau;
@@ -104,14 +91,14 @@ BOOST_AUTO_TEST_CASE(test_mass_matrix)
   
   ADTangentVectorType ad_tau = tau.cast<ADScalar>();
   
-  se3::computeMinverse(model,data,q);
+  pinocchio::computeMinverse(model,data,q);
   data.Minv.triangularView<Eigen::StrictlyLower>()
   = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
   
-  se3::aba(model,data,q,v,tau);
+  pinocchio::aba(model,data,q,v,tau);
   {
     CppAD::Independent(ad_tau);
-    se3::aba(ad_model,ad_data,ad_q,ad_v,ad_tau);
+    pinocchio::aba(ad_model,ad_data,ad_q,ad_v,ad_tau);
     
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.ddq;
@@ -140,15 +127,15 @@ BOOST_AUTO_TEST_CASE(test_kinematics_jacobian)
   typedef double Scalar;
   typedef AD<Scalar> ADScalar;
 
-  typedef se3::ModelTpl<Scalar> Model;
+  typedef pinocchio::ModelTpl<Scalar> Model;
   typedef Model::Data Data;
   typedef Model::Motion Motion;
   
-  typedef se3::ModelTpl<ADScalar> ADModel;
+  typedef pinocchio::ModelTpl<ADScalar> ADModel;
   typedef ADModel::Data ADData;
 
   Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::buildModels::humanoidRandom(model);
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
   Data data(model);
@@ -160,7 +147,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_jacobian)
   typedef Model::ConfigVectorType CongigVectorType;
   typedef Model::TangentVectorType TangentVectorType;
   CongigVectorType q(model.nq);
-  q = se3::randomConfiguration(model);
+  q = pinocchio::randomConfiguration(model);
 
   TangentVectorType v(TangentVectorType::Random(model.nv));
   TangentVectorType a(TangentVectorType::Random(model.nv));
@@ -175,18 +162,18 @@ BOOST_AUTO_TEST_CASE(test_kinematics_jacobian)
   // Test if the jacobian of a precise link is given by dv_link/dv
   const std::string joint_name = "rarm5_joint";
   Model::JointIndex joint_id = model.getJointId(joint_name);
-  se3::computeJointJacobiansTimeVariation(model,data,q,v);
-  se3::forwardKinematics(model,data,q,v,a);
+  pinocchio::computeJointJacobiansTimeVariation(model,data,q,v);
+  pinocchio::forwardKinematics(model,data,q,v,a);
 
   Data::Matrix6x J_local(6,model.nv), J_global(6,model.nv);
   J_local.setZero(); J_global.setZero();
   Data::Matrix6x dJ_local(6,model.nv), dJ_global(6,model.nv);
   dJ_local.setZero(); dJ_global.setZero();
-  se3::getJointJacobian(model,data,joint_id,se3::LOCAL,J_local);
-  se3::getJointJacobian(model,data,joint_id,se3::WORLD,J_global);
+  pinocchio::getJointJacobian(model,data,joint_id,pinocchio::LOCAL,J_local);
+  pinocchio::getJointJacobian(model,data,joint_id,pinocchio::WORLD,J_global);
   
-  se3::getJointJacobianTimeVariation(model,data,joint_id,se3::LOCAL,dJ_local);
-  se3::getJointJacobianTimeVariation(model,data,joint_id,se3::WORLD,dJ_global);
+  pinocchio::getJointJacobianTimeVariation(model,data,joint_id,pinocchio::LOCAL,dJ_local);
+  pinocchio::getJointJacobianTimeVariation(model,data,joint_id,pinocchio::WORLD,dJ_global);
 
   const ADData::Motion & v_local = ad_data.v[joint_id];
   const ADData::Motion & a_local = ad_data.a[joint_id];
@@ -195,7 +182,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_jacobian)
   
   {
     CppAD::Independent(ad_v);
-    se3::forwardKinematics(ad_model,ad_data,ad_q,ad_v,ad_a);
+    pinocchio::forwardKinematics(ad_model,ad_data,ad_q,ad_v,ad_a);
 
     const ADData::Motion v_global = ad_data.oMi[joint_id].act(v_local);
 
@@ -253,7 +240,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_jacobian)
   
   {
     CppAD::Independent(ad_a);
-    se3::forwardKinematics(ad_model,ad_data,ad_q,ad_v,ad_a);
+    pinocchio::forwardKinematics(ad_model,ad_data,ad_q,ad_v,ad_a);
     
     VectorXAD Y(6*2);
     Eigen::DenseIndex current_id = 0;

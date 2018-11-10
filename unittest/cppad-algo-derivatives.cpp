@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -45,14 +32,14 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   typedef double Scalar;
   typedef AD<Scalar> ADScalar;
   
-  typedef se3::ModelTpl<Scalar> Model;
+  typedef pinocchio::ModelTpl<Scalar> Model;
   typedef Model::Data Data;
 
-  typedef se3::ModelTpl<ADScalar> ADModel;
+  typedef pinocchio::ModelTpl<ADScalar> ADModel;
   typedef ADModel::Data ADData;
   
   Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::buildModels::humanoidRandom(model);
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
   Data data(model);
@@ -64,7 +51,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   typedef Model::ConfigVectorType CongigVectorType;
   typedef Model::TangentVectorType TangentVectorType;
   CongigVectorType q(model.nq);
-  q = se3::randomConfiguration(model);
+  q = pinocchio::randomConfiguration(model);
 
   TangentVectorType v(TangentVectorType::Random(model.nv));
   TangentVectorType a(TangentVectorType::Random(model.nv));
@@ -73,7 +60,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   Eigen::MatrixXd rnea_partial_dv(model.nv,model.nv); rnea_partial_dv.setZero();
   Eigen::MatrixXd rnea_partial_da(model.nv,model.nv); rnea_partial_da.setZero();
   
-  se3::computeRNEADerivatives(model,data,q,v,a,
+  pinocchio::computeRNEADerivatives(model,data,q,v,a,
                               rnea_partial_dq,
                               rnea_partial_dv,
                               rnea_partial_da);
@@ -90,17 +77,17 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   ADTangentVectorType ad_a = a.cast<ADScalar>();
   
   typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> VectorXAD;
-  se3::crba(model,data,q);
+  pinocchio::crba(model,data,q);
   data.M.triangularView<Eigen::StrictlyLower>()
   = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
-  Data::TangentVectorType tau = se3::rnea(model,data,q,v,a);
+  Data::TangentVectorType tau = pinocchio::rnea(model,data,q,v,a);
   
   // dtau_dq
   {
     CppAD::Independent(ad_dq);
-    ADCongigVectorType ad_q_plus = se3::integrate(ad_model,ad_q,ad_dq);
-    se3::rnea(ad_model,ad_data,ad_q_plus,ad_v,ad_a);
+    ADCongigVectorType ad_q_plus = pinocchio::integrate(ad_model,ad_q,ad_dq);
+    pinocchio::rnea(ad_model,ad_data,ad_q_plus,ad_v,ad_a);
     
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.tau;
@@ -121,7 +108,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   // dtau_dv
   {
     CppAD::Independent(ad_v);
-    se3::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
+    pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
 
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.tau;
@@ -142,7 +129,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   // dtau_da
   {
     CppAD::Independent(ad_a);
-    se3::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
+    pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
     
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.tau;
@@ -171,14 +158,14 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   typedef double Scalar;
   typedef AD<Scalar> ADScalar;
   
-  typedef se3::ModelTpl<Scalar> Model;
+  typedef pinocchio::ModelTpl<Scalar> Model;
   typedef Model::Data Data;
   
-  typedef se3::ModelTpl<ADScalar> ADModel;
+  typedef pinocchio::ModelTpl<ADScalar> ADModel;
   typedef ADModel::Data ADData;
   
   Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::buildModels::humanoidRandom(model);
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
   Data data(model);
@@ -190,7 +177,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   typedef Model::ConfigVectorType CongigVectorType;
   typedef Model::TangentVectorType TangentVectorType;
   CongigVectorType q(model.nq);
-  q = se3::randomConfiguration(model);
+  q = pinocchio::randomConfiguration(model);
   
   TangentVectorType v(TangentVectorType::Random(model.nv));
   TangentVectorType tau(TangentVectorType::Random(model.nv));
@@ -199,7 +186,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   Eigen::MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
   Eigen::MatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
   
-  se3::computeABADerivatives(model,data,q,v,tau,
+  pinocchio::computeABADerivatives(model,data,q,v,tau,
                              aba_partial_dq,
                              aba_partial_dv,
                              aba_partial_dtau);
@@ -216,17 +203,17 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   ADTangentVectorType ad_tau = tau.cast<ADScalar>();
   
   typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> VectorXAD;
-  se3::computeMinverse(model,data,q);
+  pinocchio::computeMinverse(model,data,q);
   data.Minv.triangularView<Eigen::StrictlyLower>()
   = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
   
-  Data::TangentVectorType ddq = se3::aba(model,data,q,v,tau);
+  Data::TangentVectorType ddq = pinocchio::aba(model,data,q,v,tau);
   
   // dddq_dq
   {
     CppAD::Independent(ad_dq);
-    ADCongigVectorType ad_q_plus = se3::integrate(ad_model,ad_q,ad_dq);
-    se3::aba(ad_model,ad_data,ad_q_plus,ad_v,ad_tau);
+    ADCongigVectorType ad_q_plus = pinocchio::integrate(ad_model,ad_q,ad_dq);
+    pinocchio::aba(ad_model,ad_data,ad_q_plus,ad_v,ad_tau);
     
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.ddq;
@@ -247,7 +234,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   // dddq_dv
   {
     CppAD::Independent(ad_v);
-    se3::aba(ad_model,ad_data,ad_q,ad_v,ad_tau);
+    pinocchio::aba(ad_model,ad_data,ad_q,ad_v,ad_tau);
     
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.ddq;
@@ -268,7 +255,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   // dddq_da
   {
     CppAD::Independent(ad_tau);
-    se3::aba(ad_model,ad_data,ad_q,ad_v,ad_tau);
+    pinocchio::aba(ad_model,ad_data,ad_q,ad_v,ad_tau);
     
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.ddq;
