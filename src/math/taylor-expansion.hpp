@@ -5,7 +5,7 @@
 #ifndef __pinocchio_math_taylor_expansion_hpp__
 #define __pinocchio_math_taylor_expansion_hpp__
 
-#include <cmath>
+#include "pinocchio/math/fwd.hpp"
 #include <limits>
 
 namespace pinocchio
@@ -33,6 +33,27 @@ namespace pinocchio
       return value;
     }
   }; // struct TaylorSeriesExpansion
+  
+#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
+  
+  template<typename Scalar>
+  struct TaylorSeriesExpansion< CppAD::AD<Scalar> > : TaylorSeriesExpansion<Scalar>
+  {
+    typedef TaylorSeriesExpansion<Scalar> Base;
+    using Base::precision;
+  };
+  
+#if defined(PINOCCHIO_WITH_CPPADCG_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
+  
+  template<typename Scalar>
+  struct TaylorSeriesExpansion< CppAD::cg::CG<Scalar> > : TaylorSeriesExpansion<Scalar>
+  {
+    typedef TaylorSeriesExpansion<Scalar> Base;
+    using Base::precision;
+  };
+  
+#endif
+#endif
   
 }
 
