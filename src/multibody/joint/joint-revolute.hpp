@@ -102,34 +102,7 @@ namespace pinocchio
     PlainType plain() const
     {
       PlainType res(PlainType::Identity());
-      typename PlainType::AngularRef rot = res.rotation();
-      switch(axis)
-      {
-        case 0:
-        {
-          rot.coeffRef(1,1) = m_cos; rot.coeffRef(1,2) = -m_sin;
-          rot.coeffRef(2,1) = m_sin; rot.coeffRef(2,2) =  m_cos;
-          break;
-        }
-        case 1:
-        {
-          rot.coeffRef(0,0) =  m_cos; rot.coeffRef(0,2) = m_sin;
-          rot.coeffRef(2,0) = -m_sin; rot.coeffRef(2,2) = m_cos;
-          break;
-        }
-        case 2:
-        {
-          rot.coeffRef(0,0) = m_cos; rot.coeffRef(0,1) = -m_sin;
-          rot.coeffRef(1,0) = m_sin; rot.coeffRef(1,1) =  m_cos;
-          break;
-        }
-        default:
-        {
-          assert(false && "must nerver happened");
-          break;
-        }
-      }
-      
+      _setRotation (res.rotation());
       return res;
     }
     
@@ -180,10 +153,46 @@ namespace pinocchio
     template<typename OtherScalar>
     void setValues(const OtherScalar & sin, const OtherScalar & cos)
     { m_sin = sin; m_cos = cos; }
+
+    LinearType translation() const { return LinearType::Zero(3); };
+    AngularType rotation() const {
+      AngularType m(AngularType::Identity(3));
+      _setRotation (m);
+      return m;
+    }
     
   protected:
     
     Scalar m_sin, m_cos;
+    inline void _setRotation (typename PlainType::AngularRef& rot) const
+    {
+      switch(axis)
+      {
+        case 0:
+        {
+          rot.coeffRef(1,1) = m_cos; rot.coeffRef(1,2) = -m_sin;
+          rot.coeffRef(2,1) = m_sin; rot.coeffRef(2,2) =  m_cos;
+          break;
+        }
+        case 1:
+        {
+          rot.coeffRef(0,0) =  m_cos; rot.coeffRef(0,2) = m_sin;
+          rot.coeffRef(2,0) = -m_sin; rot.coeffRef(2,2) = m_cos;
+          break;
+        }
+        case 2:
+        {
+          rot.coeffRef(0,0) = m_cos; rot.coeffRef(0,1) = -m_sin;
+          rot.coeffRef(1,0) = m_sin; rot.coeffRef(1,1) =  m_cos;
+          break;
+        }
+        default:
+        {
+          assert(false && "must nerver happened");
+          break;
+        }
+      }
+    }
   };
 
   template<typename _Scalar, int _Options, int axis>
