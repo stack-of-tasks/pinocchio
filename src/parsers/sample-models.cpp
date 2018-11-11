@@ -9,41 +9,13 @@ namespace pinocchio
 {
   namespace buildModels
   {
-    static const SE3 Id = SE3::Identity();
-
-    template<typename JointModel>
-    static void addJointAndBody(Model & model,
-                                const JointModelBase<JointModel> & joint,
-                                const std::string & parent_name,
-                                const std::string & name,
-                                const SE3 & placement = SE3::Random(),
-                                bool setRandomLimits = true)
-    {
-      typedef typename JointModel::ConfigVector_t CV;
-      typedef typename JointModel::TangentVector_t TV;
-      
-      Model::JointIndex idx;
-      
-      if(setRandomLimits)
-        idx = model.addJoint(model.getJointId(parent_name),joint,
-                             placement, name + "_joint",
-                             TV::Random(joint.nv(),1) + TV::Constant(joint.nv(),1,1), // effort
-                             TV::Random(joint.nv(),1) + TV::Constant(joint.nv(),1,1), // vel
-                             CV::Random(joint.nq(),1) - CV::Constant(joint.nq(),1,1), // qmin
-                             CV::Random(joint.nq(),1) + CV::Constant(joint.nq(),1,1)  // qmax
-                             );
-      else
-        idx = model.addJoint(model.getJointId(parent_name),joint,
-                             placement, name + "_joint");
-        
-      model.addJointFrame(idx);
-      
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
-      model.addBodyFrame(name + "_body", idx);
-    }
+    using details::addJointAndBody;
 
     void humanoid2d(Model & model)
     {
+      using details::addJointAndBody;
+      static const SE3 Id = SE3::Identity();
+
       // root
       addJointAndBody(model, JointModelRX(), "universe", "ff1", Id, false);
       addJointAndBody(model, JointModelRY(), "ff1_joint", "root", Id, false);
@@ -70,59 +42,6 @@ namespace pinocchio
 
     }
 
-    void humanoidRandom(Model & model, bool usingFF)
-    {
-      // root
-      if(! usingFF )
-      {
-        JointModelComposite jff((JointModelTranslation()));
-        jff.addJoint(JointModelSphericalZYX());
-        addJointAndBody(model, jff, "universe", "root", Id);
-      }
-      else
-      {
-        addJointAndBody(model, JointModelFreeFlyer(), "universe", "root", Id);
-        model.lowerPositionLimit.segment<4>(3).fill(-1.);
-        model.upperPositionLimit.segment<4>(3).fill( 1.);
-      }
-
-      // lleg
-      addJointAndBody(model,JointModelRX(),"root_joint","lleg1");
-      addJointAndBody(model,JointModelRY(),"lleg1_joint","lleg2");
-      addJointAndBody(model,JointModelRZ(),"lleg2_joint","lleg3");
-      addJointAndBody(model,JointModelRY(),"lleg3_joint","lleg4");
-      addJointAndBody(model,JointModelRY(),"lleg4_joint","lleg5");
-      addJointAndBody(model,JointModelRX(),"lleg5_joint","lleg6");
-      
-      // rleg
-      addJointAndBody(model,JointModelRX(),"root_joint","rleg1");
-      addJointAndBody(model,JointModelRY(),"rleg1_joint","rleg2");
-      addJointAndBody(model,JointModelRZ(),"rleg2_joint","rleg3");
-      addJointAndBody(model,JointModelRY(),"rleg3_joint","rleg4");
-      addJointAndBody(model,JointModelRY(),"rleg4_joint","rleg5");
-      addJointAndBody(model,JointModelRX(),"rleg5_joint","rleg6");
-
-      // trunc
-      addJointAndBody(model,JointModelRY(),"root_joint","torso1");
-      addJointAndBody(model,JointModelRZ(),"torso1_joint","chest");
-      
-      // rarm
-      addJointAndBody(model,JointModelRX(),"chest_joint","rarm1");
-      addJointAndBody(model,JointModelRY(),"rarm1_joint","rarm2");
-      addJointAndBody(model,JointModelRZ(),"rarm2_joint","rarm3");
-      addJointAndBody(model,JointModelRY(),"rarm3_joint","rarm4");
-      addJointAndBody(model,JointModelRY(),"rarm4_joint","rarm5");
-      addJointAndBody(model,JointModelRX(),"rarm5_joint","rarm6");
-      
-      // larm
-      addJointAndBody(model,JointModelRX(),"chest_joint","larm1");
-      addJointAndBody(model,JointModelRY(),"larm1_joint","larm2");
-      addJointAndBody(model,JointModelRZ(),"larm2_joint","larm3");
-      addJointAndBody(model,JointModelRY(),"larm3_joint","larm4");
-      addJointAndBody(model,JointModelRY(),"larm4_joint","larm5");
-      addJointAndBody(model,JointModelRX(),"larm5_joint","larm6");
-
-    }
 
     static void addManipulator(Model & model,
                                Model::JointIndex rootJoint = 0,
