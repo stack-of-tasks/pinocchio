@@ -32,7 +32,7 @@ def log(x):
         if x.shape == (4, 4):
             M = pin.SE3()
             M.rotation = x[:3,:3]
-            M.translation = x[:3,-1]
+            M.translation = np.matrix(x[:3,-1]).T
             return pin.log6(M)
         if x.shape == (3, 3):
             return pin.log3(x)

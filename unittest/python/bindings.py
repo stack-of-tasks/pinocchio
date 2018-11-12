@@ -1,3 +1,4 @@
+import unittest
 import pinocchio as se3
 from pinocchio.utils import np, npl, rand, skew, zero
 
@@ -91,10 +92,6 @@ class TestSE3(TestCase):
         self.assertApprox(m ^ f, m.cross(f))
         with self.assertRaises(TypeError):
             m ^ 2
-
-    def test_exp(self):
-        m = se3.Motion.Random()
-        self.assertApprox(se3.exp(m), se3.exp6FromMotion(m))
 
 if __name__ == '__main__':
     unittest.main()
