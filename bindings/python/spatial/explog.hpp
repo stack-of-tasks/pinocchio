@@ -1,86 +1,58 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
 #ifndef __pinocchio_python_explog_hpp__
-# define __pinocchio_python_explog_hpp__
+#define __pinocchio_python_explog_hpp__
 
-# include <eigenpy/eigenpy.hpp>
-
-# include "pinocchio/spatial/explog.hpp"
+#include "pinocchio/spatial/explog.hpp"
 
 namespace pinocchio
 {
   namespace python
   {
-    namespace bp = boost::python;
     
-    struct ExplogPythonVisitor
+    template<typename Vector3Like>
+    typename Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    Jexp3_proxy(const Eigen::MatrixBase<Vector3Like> & v)
     {
-      typedef Eigen::Matrix3d Matrix3d;
-      typedef Eigen::Vector3d Vector3d;
-      typedef Eigen::Matrix4d Matrix4d;
-      typedef Eigen::Matrix<double,6,1> Vector6d;
-
-      static Matrix3d exp3_proxy(const Vector3d & v)
-      {
-        return exp3(v);
-      }
-
-      static Vector3d log3_proxy(const Matrix3d & R)
-      {
-        return log3(R);
-      }
-
-      static SE3 exp6FromMotion_proxy(const Motion & nu)
-      {
-        return exp6(nu);
-      }
-
-      static SE3 exp6FromVector_proxy(const Vector6d & v)
-      {
-        return exp6(v);
-      }
-
-      static Motion log6FromSE3_proxy(const SE3 & m)
-      {
-        return log6(m);
-      }
-
-      static Motion log6FromMatrix_proxy(const Matrix4d & M)
-      {
-        return log6(M);
-      }
-
-      static void expose()
-      {
-        bp::def("exp3",exp3_proxy,
-                bp::args("Angular velocity (double size 3)"),
-                "Exp: so3 -> SO3. Return the integral of the input"
-                " angular velocity during time 1.");
-        bp::def("log3",log3_proxy,
-                bp::args("Rotation matrix (double size 3x3)"),
-                "Log: SO3 -> so3. Pseudo-inverse of log from SO3"
-                " -> { v in so3, ||v|| < 2pi }.Exp: so3 -> SO3.");
-        bp::def("exp6FromMotion",exp6FromMotion_proxy,
-                bp::args("Spatial velocity (se3.Motion)"),
-                "Exp: se3 -> SE3. Return the integral of the input"
-                " spatial velocity during time 1.");
-        bp::def("exp6FromVector",exp6FromVector_proxy,
-                bp::args("Spatial velocity (double size 6)"),
-                "Exp: se3 -> SE3. Return the integral of the input"
-                " spatial velocity during time 1.");
-        bp::def("log6FromSE3",log6FromSE3_proxy,
-                bp::args("Spatial transform (se3.SE3)"),
-                "Log: SE3 -> se3. Pseudo-inverse of exp from SE3"
-                " -> { v,w in se3, ||w|| < 2pi }.");
-        bp::def("log6FromMatrix",log6FromMatrix_proxy,
-                bp::args("Spatial transform (double size 4x4)"),
-                "Log: SE3 -> se3. Pseudo-inverse of exp from SE3"
-                " -> { v,w in se3, ||w|| < 2pi }.");
-      }
-    };
+      typedef Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
+      ReturnType res; Jexp3(v,res);
+      return res;
+    }
+    
+    template<typename Matrix3Like>
+    typename EIGEN_PLAIN_TYPE(Matrix3Like) Jlog3_proxy(const Eigen::MatrixBase<Matrix3Like> & M)
+    {
+      typedef typename EIGEN_PLAIN_TYPE(Matrix3Like) ReturnType;
+      ReturnType res; Jlog3(M,res);
+      return res;
+    }
+    
+    template<typename Scalar, int Options>
+    SE3Tpl<Scalar,Options> exp6_proxy(const MotionTpl<Scalar,Options> & v)
+    {
+      return exp6(v);
+    }
+    
+    template<typename Scalar, int Options>
+    typename SE3Tpl<Scalar,Options>::Matrix6 Jlog6_proxy(const SE3Tpl<Scalar,Options> & M)
+    {
+      typedef typename SE3Tpl<Scalar,Options>::Matrix6 ReturnType;
+      ReturnType res; Jlog6(M,res);
+      return res;
+    }
+    
+    template<typename Scalar, int Options>
+    typename MotionTpl<Scalar,Options>::Matrix6
+    Jexp6_proxy(const MotionTpl<Scalar,Options> & v)
+    {
+      typedef typename MotionTpl<Scalar,Options>::Matrix6 ReturnType;
+      ReturnType res; Jexp6(v,res);
+      return res;
+    }
+    
   } // namespace python
 } //namespace pinocchio
 

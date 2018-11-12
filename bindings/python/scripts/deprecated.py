@@ -84,3 +84,11 @@ def loadRotorParamsFromSrdf(model, filename, verbose):
 def removeCollisionPairsFromSrdf(model, geomModel, filename, verbose):
   return se3.removeCollisionPairs(model,geomModel,filename,verbose)
 
+@deprecated("This function signature has been changed and will be removed in future releases of Pinocchio. Please change for new signature of the jacobianCenterOfMass function.")
+def jacobianCenterOfMass(model, data, q, computeSubtreeComs, updateKinematics):
+  return se3.jacobianCenterOfMass(model,data,q,computeSubtreeComs,updateKinematics)
+
+@deprecated("This function will be removed in future releases of Pinocchio. You can build a SE3 transform from a rotation matrix and a translation vector and use the standard log function to recover the same behavior.")
+def exp6FromVector(vector6):
+  v = se3.Motion(vector6)
+  return se3.exp6(v)

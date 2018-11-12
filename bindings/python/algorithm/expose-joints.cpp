@@ -76,6 +76,11 @@ namespace pinocchio
                        "Joint upper limits (size Model::nq)"),
               "Generate a random configuration in the bounds given by the Joint lower and upper limits arguments.");
       
+      bp::def("neutral",
+              &neutral<double,0,JointCollectionDefaultTpl>,
+              bp::arg("Model"),
+              "Returns the neutral configuration vector associated to the model.");
+      
       bp::def("normalize",normalize_proxy,
               bp::args("Model",
                        "Configuration q (size Model::nq)"),
