@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -36,7 +23,7 @@ computeV(const Eigen::MatrixBase<Vector3Like> & v3)
   typedef ReturnType Matrix3;
   
   Scalar t2 = v3.squaredNorm();
-  const Scalar t = se3::math::sqrt(t2);
+  const Scalar t = pinocchio::math::sqrt(t2);
   Scalar alpha, beta, zeta;
   
   if (t < 1e-4)
@@ -47,7 +34,7 @@ computeV(const Eigen::MatrixBase<Vector3Like> & v3)
   }
   else
   {
-    Scalar st,ct; se3::SINCOS(t,&st,&ct);
+    Scalar st,ct; pinocchio::SINCOS(t,&st,&ct);
     alpha = st/t;
     beta = (1-ct)/t2;
     zeta = (1 - alpha)/(t2);
@@ -55,7 +42,7 @@ computeV(const Eigen::MatrixBase<Vector3Like> & v3)
   
   Matrix3 V
   = alpha * Matrix3::Identity()
-  + beta * se3::skew(v3)
+  + beta * pinocchio::skew(v3)
   + zeta * v3 * v3.transpose();
   
   return V;
@@ -70,7 +57,7 @@ computeVinv(const Eigen::MatrixBase<Vector3Like> & v3)
   typedef ReturnType Matrix3;
   
   Scalar t2 = v3.squaredNorm();
-  const Scalar t = se3::math::sqrt(t2);
+  const Scalar t = pinocchio::math::sqrt(t2);
   
   Scalar alpha, beta;
   if (t < 1e-4)
@@ -80,14 +67,14 @@ computeVinv(const Eigen::MatrixBase<Vector3Like> & v3)
   }
   else
   {
-    Scalar st,ct; se3::SINCOS(t,&st,&ct);
+    Scalar st,ct; pinocchio::SINCOS(t,&st,&ct);
     alpha = t*st/(Scalar(2)*(Scalar(1)-ct));
     beta = Scalar(1)/t2 - st/(Scalar(2)*t*(Scalar(1)-ct));
   }
   
   Matrix3 Vinv
   = alpha * Matrix3::Identity()
-  - 0.5 * se3::skew(v3)
+  - 0.5 * pinocchio::skew(v3)
   + beta * v3 * v3.transpose();
   
   return Vinv;
@@ -101,18 +88,18 @@ BOOST_AUTO_TEST_CASE(test_log3)
   typedef double Scalar;
   typedef AD<Scalar> ADScalar;
 
-  typedef se3::SE3Tpl<Scalar> SE3;
-  typedef se3::MotionTpl<Scalar> Motion;
-  typedef se3::SE3Tpl<ADScalar> ADSE3;
-  typedef se3::MotionTpl<ADScalar> ADMotion;
+  typedef pinocchio::SE3Tpl<Scalar> SE3;
+  typedef pinocchio::MotionTpl<Scalar> Motion;
+  typedef pinocchio::SE3Tpl<ADScalar> ADSE3;
+  typedef pinocchio::MotionTpl<ADScalar> ADMotion;
 
   Motion v(Motion::Zero());
   SE3 M(SE3::Random()); M.translation().setZero();
 
-  SE3::Matrix3 rot_next = M.rotation() * se3::exp3(v.angular());
+  SE3::Matrix3 rot_next = M.rotation() * pinocchio::exp3(v.angular());
 
   SE3::Matrix3 Jlog3;
-  se3::Jlog3(M.rotation(), Jlog3);
+  pinocchio::Jlog3(M.rotation(), Jlog3);
 
   typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> Matrix;
   typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> ADVector;
@@ -128,8 +115,8 @@ BOOST_AUTO_TEST_CASE(test_log3)
   CppAD::Independent(X);
   ADMotion::Vector3 X_ = X;
 
-  ADSE3::Matrix3 ad_rot_next = rot * se3::exp3(X_);
-  ADMotion::Vector3 log_R_next = se3::log3(ad_rot_next);
+  ADSE3::Matrix3 ad_rot_next = rot * pinocchio::exp3(X_);
+  ADMotion::Vector3 log_R_next = pinocchio::log3(ad_rot_next);
 
   ADVector Y(3);
   Y = log_R_next;
@@ -142,7 +129,7 @@ BOOST_AUTO_TEST_CASE(test_log3)
   CPPAD_TESTVECTOR(Scalar) nu_next_vec = map.Forward(0,x);
   Motion::Vector3 nu_next(Eigen::Map<Motion::Vector3>(nu_next_vec.data()));
 
-  SE3::Matrix3 rot_next_from_map = se3::exp3(nu_next);
+  SE3::Matrix3 rot_next_from_map = pinocchio::exp3(nu_next);
 
   CPPAD_TESTVECTOR(Scalar) jac = map.Jacobian(x);
 
@@ -160,10 +147,10 @@ BOOST_AUTO_TEST_CASE(test_explog_translation)
   typedef double Scalar;
   typedef AD<Scalar> ADScalar;
   
-  typedef se3::SE3Tpl<Scalar> SE3;
-  typedef se3::MotionTpl<Scalar> Motion;
-  typedef se3::SE3Tpl<ADScalar> ADSE3;
-  typedef se3::MotionTpl<ADScalar> ADMotion;
+  typedef pinocchio::SE3Tpl<Scalar> SE3;
+  typedef pinocchio::MotionTpl<Scalar> Motion;
+  typedef pinocchio::SE3Tpl<ADScalar> ADSE3;
+  typedef pinocchio::MotionTpl<ADScalar> ADMotion;
   
   Motion v(Motion::Zero());
   SE3 M(SE3::Random()); //M.rotation().setIdentity();
@@ -176,7 +163,7 @@ BOOST_AUTO_TEST_CASE(test_explog_translation)
     BOOST_CHECK((V*Vinv).isIdentity());
   }
   
-  SE3 M_next = M * se3::exp6(v);
+  SE3 M_next = M * pinocchio::exp6(v);
 //  BOOST_CHECK(M_next.rotation().isIdentity());
   
   typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> Matrix;
@@ -192,8 +179,8 @@ BOOST_AUTO_TEST_CASE(test_explog_translation)
   CppAD::Independent(X);
   ADMotion::Vector6 X_ = X;
   
-  se3::MotionRef<ADMotion::Vector6> ad_v_ref(X_);
-  ADSE3 ad_M_next = ad_M * se3::exp6(ad_v_ref);
+  pinocchio::MotionRef<ADMotion::Vector6> ad_v_ref(X_);
+  ADSE3 ad_M_next = ad_M * pinocchio::exp6(ad_v_ref);
 
   ADVector Y(6);
   Y.head<3>() = ad_M_next.translation();
@@ -227,16 +214,16 @@ BOOST_AUTO_TEST_CASE(test_explog)
   typedef double Scalar;
   typedef AD<Scalar> ADScalar;
 
-  typedef se3::SE3Tpl<Scalar> SE3;
-  typedef se3::MotionTpl<Scalar> Motion;
-  typedef se3::SE3Tpl<ADScalar> ADSE3;
-  typedef se3::MotionTpl<ADScalar> ADMotion;
+  typedef pinocchio::SE3Tpl<Scalar> SE3;
+  typedef pinocchio::MotionTpl<Scalar> Motion;
+  typedef pinocchio::SE3Tpl<ADScalar> ADSE3;
+  typedef pinocchio::MotionTpl<ADScalar> ADMotion;
 
   Motion v(Motion::Zero());
   SE3 M(SE3::Random()); //M.translation().setZero();
 
   SE3::Matrix6 Jlog6;
-  se3::Jlog6(M, Jlog6);
+  pinocchio::Jlog6(M, Jlog6);
 
   typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> Matrix;
   typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> ADVector;
@@ -251,10 +238,10 @@ BOOST_AUTO_TEST_CASE(test_explog)
 
   CppAD::Independent(X);
   ADMotion::Vector6 X_ = X;
-  se3::MotionRef< ADMotion::Vector6> v_X(X_);
+  pinocchio::MotionRef< ADMotion::Vector6> v_X(X_);
 
-  ADSE3 ad_M_next = ad_M * se3::exp6(v_X);
-  ADMotion ad_log_M_next = se3::log6(ad_M_next);
+  ADSE3 ad_M_next = ad_M * pinocchio::exp6(v_X);
+  ADMotion ad_log_M_next = pinocchio::log6(ad_M_next);
 
   ADVector Y(6);
   Y.segment<3>(Motion::LINEAR) = ad_log_M_next.linear();
@@ -289,10 +276,10 @@ BOOST_AUTO_TEST_CASE(test_explog)
   }
   
   SE3::Matrix6 Jlog6_analytic;
-  se3::Jlog6(M, Jlog6_analytic);
+  pinocchio::Jlog6(M, Jlog6_analytic);
   
   BOOST_CHECK(Jlog6.isApprox(Jlog6_analytic));
-  BOOST_CHECK(Jlog6_fd.isApprox(Jlog6,se3::math::sqrt(eps)));
+  BOOST_CHECK(Jlog6_fd.isApprox(Jlog6,pinocchio::math::sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

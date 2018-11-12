@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-generic.hpp"
@@ -33,14 +20,14 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
   using CppAD::NearEqual;
 
   typedef AD<double> AD_double;
-  typedef se3::JointCollectionDefaultTpl<AD_double> JointCollectionAD;
-  typedef se3::JointCollectionDefaultTpl<double> JointCollection;
+  typedef pinocchio::JointCollectionDefaultTpl<AD_double> JointCollectionAD;
+  typedef pinocchio::JointCollectionDefaultTpl<double> JointCollection;
   
-  typedef se3::SE3Tpl<AD_double> SE3AD;
-  typedef se3::MotionTpl<AD_double> MotionAD;
-  typedef se3::SE3Tpl<double> SE3;
-  typedef se3::MotionTpl<double> Motion;
-  typedef se3::ConstraintTpl<Eigen::Dynamic,double> ConstraintXd;
+  typedef pinocchio::SE3Tpl<AD_double> SE3AD;
+  typedef pinocchio::MotionTpl<AD_double> MotionAD;
+  typedef pinocchio::SE3Tpl<double> SE3;
+  typedef pinocchio::MotionTpl<double> Motion;
+  typedef pinocchio::ConstraintTpl<Eigen::Dynamic,double> ConstraintXd;
   
   typedef Eigen::Matrix<AD_double,Eigen::Dynamic,1> VectorXAD;
   typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> MatrixX;
@@ -61,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
   JointModelRXAD jmodel_ad = jmodel.cast<AD_double>();
   JointDataRXAD jdata_ad(jmodel_ad.createData());
   
-  typedef se3::LieGroup<JointModelRX>::type JointOperation;
+  typedef pinocchio::LieGroup<JointModelRX>::type JointOperation;
   ConfigVector q(jmodel.nq()); JointOperation().random(q);
   ConfigVectorAD q_ad(q.cast<AD_double>());
   
@@ -115,7 +102,7 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
 struct TestADOnJoints
 {
   template<typename JointModel>
-  void operator()(const se3::JointModelBase<JointModel> &) const
+  void operator()(const pinocchio::JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
     jmodel.setIndexes(0,0,0);
@@ -124,9 +111,9 @@ struct TestADOnJoints
   }
   
   template<typename Scalar, int Options>
-  void operator()(const se3::JointModelRevoluteUnalignedTpl<Scalar,Options> & ) const
+  void operator()(const pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> & ) const
   {
-    typedef se3::JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
+    typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
     jmodel.setIndexes(0,0,0);
@@ -135,9 +122,9 @@ struct TestADOnJoints
   }
   
   template<typename Scalar, int Options>
-  void operator()(const se3::JointModelPrismaticUnalignedTpl<Scalar,Options> & ) const
+  void operator()(const pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> & ) const
   {
-    typedef se3::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
+    typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
     jmodel.setIndexes(0,0,0);
@@ -146,10 +133,10 @@ struct TestADOnJoints
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollection>
-  void operator()(const se3::JointModelTpl<Scalar,Options,JointCollection> & ) const
+  void operator()(const pinocchio::JointModelTpl<Scalar,Options,JointCollection> & ) const
   {
-    typedef se3::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
-    typedef se3::JointModelTpl<Scalar,Options,JointCollection> JointModel;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    typedef pinocchio::JointModelTpl<Scalar,Options,JointCollection> JointModel;
     JointModel jmodel((JointModelRX()));
     jmodel.setIndexes(0,0,0);
     
@@ -157,11 +144,11 @@ struct TestADOnJoints
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollection>
-  void operator()(const se3::JointModelCompositeTpl<Scalar,Options,JointCollection> & ) const
+  void operator()(const pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> & ) const
   {
-    typedef se3::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
-    typedef se3::JointModelRevoluteTpl<Scalar,Options,1> JointModelRY;
-    typedef se3::JointModelCompositeTpl<Scalar,Options,JointCollection> JointModel;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,1> JointModelRY;
+    typedef pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> JointModel;
     JointModel jmodel((JointModelRX()));
     jmodel.addJoint(JointModelRY());
     jmodel.setIndexes(0,0,0);
@@ -170,7 +157,7 @@ struct TestADOnJoints
   }
   
   template<typename JointModel>
-  static void test(const se3::JointModelBase<JointModel> & jmodel)
+  static void test(const pinocchio::JointModelBase<JointModel> & jmodel)
   {
     using CppAD::AD;
     using CppAD::NearEqual;
@@ -180,16 +167,16 @@ struct TestADOnJoints
     
     typedef AD<Scalar> AD_scalar;
 
-    typedef se3::SE3Tpl<AD_scalar> SE3AD;
-    typedef se3::MotionTpl<AD_scalar> MotionAD;
-    typedef se3::SE3Tpl<Scalar> SE3;
-    typedef se3::MotionTpl<Scalar> Motion;
-    typedef se3::ConstraintTpl<Eigen::Dynamic,Scalar> ConstraintXd;
+    typedef pinocchio::SE3Tpl<AD_scalar> SE3AD;
+    typedef pinocchio::MotionTpl<AD_scalar> MotionAD;
+    typedef pinocchio::SE3Tpl<Scalar> SE3;
+    typedef pinocchio::MotionTpl<Scalar> Motion;
+    typedef pinocchio::ConstraintTpl<Eigen::Dynamic,Scalar> ConstraintXd;
     
     typedef Eigen::Matrix<AD_scalar,Eigen::Dynamic,1> VectorXAD;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> MatrixX;
     
-    typedef typename se3::CastType<AD_scalar,JointModel>::type JointModelAD;
+    typedef typename pinocchio::CastType<AD_scalar,JointModel>::type JointModelAD;
     typedef typename JointModelAD::JointDataDerived JointDataAD;
     
     typedef typename JointModelAD::ConfigVector_t ConfigVectorAD;
@@ -198,17 +185,17 @@ struct TestADOnJoints
     typedef typename JointModel::TangentVector_t TangentVector;
     
     JointData jdata(jmodel.createData());
-    se3::JointDataBase<JointData> & jdata_base = jdata;
+    pinocchio::JointDataBase<JointData> & jdata_base = jdata;
     
     JointModelAD jmodel_ad = jmodel.template cast<AD_scalar>();
     JointDataAD jdata_ad(jmodel_ad.createData());
-    se3::JointDataBase<JointDataAD> & jdata_ad_base = jdata_ad;
+    pinocchio::JointDataBase<JointDataAD> & jdata_ad_base = jdata_ad;
     
     ConfigVector q(jmodel.nq());
     ConfigVector lb(ConfigVector::Constant(jmodel.nq(),-1.));
     ConfigVector ub(ConfigVector::Constant(jmodel.nq(),1.));
     
-    typedef se3::RandomConfigurationStep<se3::LieGroupMap,ConfigVector,ConfigVector,ConfigVector> RandomConfigAlgo;
+    typedef pinocchio::RandomConfigurationStep<pinocchio::LieGroupMap,ConfigVector,ConfigVector,ConfigVector> RandomConfigAlgo;
     RandomConfigAlgo::run(jmodel.derived(),typename RandomConfigAlgo::ArgsType(q,lb,ub));
     
     ConfigVectorAD q_ad(q.template cast<AD_scalar>());
@@ -263,10 +250,10 @@ struct TestADOnJoints
 
 BOOST_AUTO_TEST_CASE(test_all_joints)
 {
-  typedef se3::JointCollectionDefault::JointModelVariant JointModelVariant;
+  typedef pinocchio::JointCollectionDefault::JointModelVariant JointModelVariant;
   boost::mpl::for_each<JointModelVariant::types>(TestADOnJoints());
 
-  TestADOnJoints()(se3::JointModel());
+  TestADOnJoints()(pinocchio::JointModel());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

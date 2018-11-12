@@ -31,6 +31,7 @@ namespace pinocchio
                                        const GeometryModel & geomModel,
                                        GeometryData & geomData)
   {
+    PINOCCHIO_UNUSED_VARIABLE(model);
     assert(model.check(data) && "data is not consistent with model.");
     
     for (GeomIndex i=0; i < (GeomIndex) geomModel.ngeoms; ++i)

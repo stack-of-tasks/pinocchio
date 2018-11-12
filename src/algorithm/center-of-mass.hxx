@@ -152,9 +152,9 @@ namespace pinocchio
   getComFromCrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                  DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
-#ifndef NDEBUG
+    PINOCCHIO_UNUSED_VARIABLE(model);
+    
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     return data.com[0] = data.liMi[1].act(data.Ycrb[1].lever());
   }
 
@@ -232,12 +232,36 @@ namespace pinocchio
   };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  PINOCCHIO_DEPRECATED
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
   jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const Eigen::MatrixBase<ConfigVectorType> & q,
                        const bool computeSubtreeComs,
                        const bool updateKinematics)
+  {
+    if(updateKinematics)
+      return jacobianCenterOfMass(model,data,q,computeSubtreeComs);
+    else
+      return jacobianCenterOfMass(model,data,computeSubtreeComs);
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const Eigen::MatrixBase<ConfigVectorType> & q,
+                       const bool computeSubtreeComs)
+  {
+    forwardKinematics(model, data, q);
+    return jacobianCenterOfMass(model, data, computeSubtreeComs);
+  }
+    
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const bool computeSubtreeComs)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
@@ -251,10 +275,6 @@ namespace pinocchio
     
     data.com[0].setZero();
     data.mass[0] = Scalar(0);
-    
-    // Forward step
-    if(updateKinematics)
-      forwardKinematics(model, data, q);
       
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
@@ -284,6 +304,7 @@ namespace pinocchio
   getJacobianComFromCrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
+    PINOCCHIO_UNUSED_VARIABLE(model);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
