@@ -53,7 +53,7 @@ namespace pinocchio
       return res;
     }
     
-    Eigen::Vector3d log3_proxy(Eigen::Matrix3d R)
+    Eigen::Vector3d log3_proxy(const Eigen::Matrix3d & R)
     {
       return log3(R);
     }

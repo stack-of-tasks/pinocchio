@@ -35,7 +35,7 @@ namespace pinocchio
       template<class T>
       void operator()(T)
       {
-        expose_model<T>(bp::class_<T>(T::classname().c_str(),bp::init<>()).def(JointPythonVisitor<T>()));
+        expose_joint_model<T>(bp::class_<T>(T::classname().c_str(),bp::init<>()).def(JointPythonVisitor<T>()));
         bp::implicitly_convertible<T,pinocchio::JointModelVariant>();
       }
     };

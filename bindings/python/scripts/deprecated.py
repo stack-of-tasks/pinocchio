@@ -102,8 +102,8 @@ def log6FromSE3(transform):
   return pin.log6(transform)
 
 @deprecated("This function will be removed in future releases of Pinocchio. You can build a SE3 transform from a rotation matrix and a translation vector and use the standard log function to recover the same behavior.")
-def log6FromMatrix(vector6):
+def log6FromMatrix(matrix4):
   M = pin.SE3()
-  M.rotation = x[:3,:3]
-  M.translation = x[:3,-1]
+  M.rotation = matrix4[:3,:3]
+  M.translation = np.matrix(matrix4[:3,-1]).T
   return pin.log6(M)

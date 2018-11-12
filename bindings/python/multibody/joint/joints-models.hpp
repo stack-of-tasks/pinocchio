@@ -17,16 +17,16 @@ namespace pinocchio
     namespace bp = boost::python;
 
 
-    // generic expose_model : do nothing special
+    // generic expose_joint_model : do nothing special
     template <class T>
-    inline bp::class_<T>& expose_model(bp::class_<T>& cl)
+    inline bp::class_<T>& expose_joint_model(bp::class_<T>& cl)
     {
       return cl;
     }
 
     // specialization for JointModelRevoluteUnaligned
     template<>
-    inline bp::class_<JointModelRevoluteUnaligned>& expose_model<JointModelRevoluteUnaligned> (bp::class_<JointModelRevoluteUnaligned> & cl)
+    inline bp::class_<JointModelRevoluteUnaligned>& expose_joint_model<JointModelRevoluteUnaligned> (bp::class_<JointModelRevoluteUnaligned> & cl)
     {
       return cl
                .def(bp::init<double, double, double> (bp::args("x", "y", "z"), "Init JointModelRevoluteUnaligned from the components x, y, z of the axis"))
@@ -40,7 +40,7 @@ namespace pinocchio
 
     // specialization for JointModelPrismaticUnaligned
     template<>
-    inline bp::class_<JointModelPrismaticUnaligned>& expose_model<JointModelPrismaticUnaligned> (bp::class_<JointModelPrismaticUnaligned> & cl)
+    inline bp::class_<JointModelPrismaticUnaligned>& expose_joint_model<JointModelPrismaticUnaligned> (bp::class_<JointModelPrismaticUnaligned> & cl)
     {
       return cl
                .def(bp::init<double, double, double> (bp::args("x", "y", "z"), "Init JointModelPrismaticUnaligned from the components x, y, z of the axis"))
@@ -83,7 +83,7 @@ namespace pinocchio
     BOOST_PYTHON_FUNCTION_OVERLOADS(addJoint_proxy_overloads,addJoint_proxy,2,3)
 
     template<>
-    inline bp::class_<JointModelComposite>& expose_model<JointModelComposite> (bp::class_<JointModelComposite> & cl)
+    inline bp::class_<JointModelComposite>& expose_joint_model<JointModelComposite> (bp::class_<JointModelComposite> & cl)
     {
       return cl
                .def(bp::init<const size_t> (bp::args("size"), "Init JointModelComposite with a defined size"))
