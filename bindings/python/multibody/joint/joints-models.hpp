@@ -16,17 +16,37 @@ namespace pinocchio
     namespace bp = boost::python;
 
 
-    // generic expose_constructor : do nothing special
+    // generic expose_model : do nothing special
     template <class T>
-    inline bp::class_<T>& expose_constructors(bp::class_<T>& cl)
+    inline bp::class_<T>& expose_model(bp::class_<T>& cl)
     {
       return cl;
     }
 
     template<>
-    inline bp::class_<JointModelRevoluteUnaligned>& expose_constructors<JointModelRevoluteUnaligned> (bp::class_<JointModelRevoluteUnaligned> & cl)
+    inline bp::class_<JointModelRevoluteUnaligned>& expose_model<JointModelRevoluteUnaligned> (bp::class_<JointModelRevoluteUnaligned> & cl)
     {
-      return cl.def(bp::init<double, double, double> ((bp::args("x"), bp::args("y"), bp::args("z")), "Init JointRevoluteUnaligned from the components x, y, z of the axis"));
+      return cl
+               .def(bp::init<double, double, double> (bp::args("x", "y", "z"), "Init JointModelRevoluteUnaligned from the components x, y, z of the axis"))
+               .def(bp::init<Eigen::Vector3d> (bp::args("axis"), "Init JointModelRevoluteUnaligned from an axis with x-y-z components"))
+               .add_property("axis",
+                             make_getter(&JointModelRevoluteUnaligned::axis, bp::return_value_policy<bp::return_by_value>()),
+                             make_setter(&JointModelRevoluteUnaligned::axis, bp::return_value_policy<bp::return_by_value>()),
+                             "Rotation axis of the JointModelRevoluteUnaligned.")
+               ;
+    }
+
+    template<>
+    inline bp::class_<JointModelPrismaticUnaligned>& expose_model<JointModelPrismaticUnaligned> (bp::class_<JointModelPrismaticUnaligned> & cl)
+    {
+      return cl
+               .def(bp::init<double, double, double> (bp::args("x", "y", "z"), "Init JointModelPrismaticUnaligned from the components x, y, z of the axis"))
+               .def(bp::init<Eigen::Vector3d> (bp::args("axis"), "Init JointModelPrismaticUnaligned from an axis with x-y-z components"))
+               .add_property("axis",
+                             make_getter(&JointModelPrismaticUnaligned::axis, bp::return_value_policy<bp::return_by_value>()),
+                             make_setter(&JointModelPrismaticUnaligned::axis, bp::return_value_policy<bp::return_by_value>()),
+                             "Translation axis of the JointModelPrismaticUnaligned.")
+               ;
     }
   } // namespace python
 } // namespace pinocchio

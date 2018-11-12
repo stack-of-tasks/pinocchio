@@ -468,6 +468,7 @@ namespace pinocchio
     JointModelRevoluteUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
     : axis(axis)
     {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
       assert(axis.isUnitary() && "Rotation axis is not unitary");
     }
 

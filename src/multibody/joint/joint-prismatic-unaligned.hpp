@@ -439,16 +439,17 @@ namespace pinocchio
     
     typedef Eigen::Matrix<Scalar,3,1,_Options> Vector3;
     
-    JointModelPrismaticUnalignedTpl() : axis(Vector3::Constant(NAN))   {}
+    JointModelPrismaticUnalignedTpl() {}
     JointModelPrismaticUnalignedTpl(Scalar x, Scalar y, Scalar z)
+    : axis(x,y,z)
     {
-      axis << x, y, z ;
       axis.normalize();
       assert(axis.isUnitary() && "Translation axis is not unitary");
     }
     
     template<typename Vector3Like>
-    JointModelPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis) : axis(axis)
+    JointModelPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
+    : axis(axis)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
       assert(axis.isUnitary() && "Translation axis is not unitary");
@@ -501,7 +502,7 @@ namespace pinocchio
       return sqrt(Eigen::NumTraits<Scalar>::epsilon());
     }
 
-    static std::string classname() { return std::string("JointModelPrismaticUnalignedTpl"); }
+    static std::string classname() { return std::string("JointModelPrismaticUnaligned"); }
     std::string shortname() const { return classname(); }
     
     /// \returns An expression of *this with the Scalar type casted to NewScalar.

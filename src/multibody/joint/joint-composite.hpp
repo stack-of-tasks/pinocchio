@@ -273,7 +273,7 @@ namespace pinocchio
       updateJointIndexes();
     }
 
-    static std::string classname() { return std::string("JointModelCompositeTpl"); }
+    static std::string classname() { return std::string("JointModelComposite"); }
     std::string shortname() const { return classname(); }
 
     JointModelCompositeTpl & operator=(const JointModelCompositeTpl & other)
