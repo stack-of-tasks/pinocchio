@@ -66,7 +66,7 @@ namespace pinocchio
     typedef JointModelPlanarTpl<Scalar,Options> JointModelPlanar;
     
     // Joint Composite
-    typedef JointModelCompositeTpl<Scalar,Options,JointCollectionDefaultTpl> JointModelComposite;
+    typedef JointModelCompositeTpl<Scalar,Options,::pinocchio::JointCollectionDefaultTpl> JointModelComposite;
     
     typedef boost::variant<
 //    JointModelVoid,
@@ -119,7 +119,7 @@ namespace pinocchio
     typedef JointDataPlanarTpl<Scalar,Options> JointDataPlanar;
     
     // Joint Composite
-    typedef JointDataCompositeTpl<Scalar,Options,JointCollectionDefaultTpl> JointDataComposite;
+    typedef JointDataCompositeTpl<Scalar,Options,::pinocchio::JointCollectionDefaultTpl> JointDataComposite;
     
     typedef boost::variant<
 //    JointDataVoid

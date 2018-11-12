@@ -64,7 +64,8 @@ namespace pinocchio
      * uses a composite joint translation + roll-pitch-yaw.
      * This changes the size of the configuration space (33 vs 32).
      */
-    void humanoidRandom(Model & model, bool usingFF = true);
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void humanoidRandom(ModelTpl<Scalar,Options,JointCollectionTpl> & model, bool usingFF = true);
 
     /** \brief Create a random humanoid tree with 2d limbs.
      * \ deprecated This function has been replaced by the non-random pinocchio::humanoid function.
@@ -75,11 +76,13 @@ namespace pinocchio
     /** \brief Alias of humanoidRandom, for compatibility reasons.
      * \deprecated use pinocchio::humanoid or pinocchio::humanoidRandom instead. 
      */
-    PINOCCHIO_DEPRECATED
-    inline void humanoidSimple(Model & model, bool usingFF = true)
-    { humanoidRandom(model,usingFF); }
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    inline void humanoidSimple(ModelTpl<Scalar,Options,JointCollectionTpl> & model, bool usingFF = true)
+    PINOCCHIO_DEPRECATED;
    
   } // namespace buildModels
 } // namespace pinocchio
+
+#include "pinocchio/parsers/sample-models.hxx"
 
 #endif // ifndef __pinocchio_sample_models_hpp__
