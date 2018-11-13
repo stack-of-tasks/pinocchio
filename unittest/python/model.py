@@ -1,3 +1,4 @@
+import unittest
 import pinocchio as se3
 from pinocchio.utils import np, zero
 
