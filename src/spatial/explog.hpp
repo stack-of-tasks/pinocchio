@@ -373,12 +373,7 @@ namespace pinocchio
   {
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix4Like, M, 4, 4);
 
-    typedef typename SE3Tpl<typename Matrix4Like::Scalar,Matrix4Like::Options>::Vector3 Vector3;
-    typedef typename SE3Tpl<typename Matrix4Like::Scalar,Matrix4Like::Options>::Matrix3 Matrix3;
-
-    Matrix3 rot(M.template block<3,3>(0,0));
-    Vector3 trans(M.template block<3,1>(0,3));
-    SE3Tpl<typename Matrix4Like::Scalar,Eigen::internal::traits<Matrix4Like>::Options> m(rot, trans);
+    SE3Tpl<typename Matrix4Like::Scalar,Eigen::internal::traits<Matrix4Like>::Options> m(M);
     return log6(m);
   }
 
