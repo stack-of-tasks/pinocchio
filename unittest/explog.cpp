@@ -157,6 +157,10 @@ BOOST_AUTO_TEST_CASE(Jexp3_fd)
   Motion::Vector3 v = log3(R);
 
   SE3::Matrix3 Jexp_fd, Jexp;
+
+  Jexp3(Motion::Vector3::Zero(), Jexp);
+  BOOST_CHECK(Jexp.isIdentity());
+
   Jexp3(v, Jexp);
 
   Motion::Vector3 dv; dv.setZero();

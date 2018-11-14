@@ -30,10 +30,7 @@ def log(x):
         return math.log(x)
     if isinstance(x, np.ndarray):
         if x.shape == (4, 4):
-            M = pin.SE3()
-            M.rotation = x[:3,:3]
-            M.translation = np.matrix(x[:3,-1]).T
-            return pin.log6(M)
+            return pin.log6(x)
         if x.shape == (3, 3):
             return pin.log3(x)
         raise ValueError('Error only 3 and 4 matrices are allowed.')
