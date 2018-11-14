@@ -14,8 +14,8 @@ namespace pinocchio
   {
     
     template<typename Vector3Like>
-    typename Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
-    Jexp3_proxy(const Eigen::MatrixBase<Vector3Like> & v)
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    Jexp3_proxy(const Vector3Like & v)
     {
       typedef Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
       ReturnType res; Jexp3(v,res);
@@ -23,7 +23,8 @@ namespace pinocchio
     }
     
     template<typename Matrix3Like>
-    typename EIGEN_PLAIN_TYPE(Matrix3Like) Jlog3_proxy(const Eigen::MatrixBase<Matrix3Like> & M)
+    typename EIGEN_PLAIN_TYPE(Matrix3Like)
+    Jlog3_proxy(const Matrix3Like & M)
     {
       typedef typename EIGEN_PLAIN_TYPE(Matrix3Like) ReturnType;
       ReturnType res; Jlog3(M,res);
@@ -53,9 +54,18 @@ namespace pinocchio
       return res;
     }
     
-    Eigen::Vector3d log3_proxy(const Eigen::Matrix3d & R)
+    template<typename Matrix3Like>
+    Eigen::Matrix<typename Matrix3Like::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
+    log3_proxy(const Matrix3Like & R)
     {
       return log3(R);
+    }
+    
+    template<typename Matrix4Like>
+    MotionTpl<typename Matrix4Like::Scalar,EIGEN_PLAIN_TYPE(Matrix4Like)::Options>
+    log6_proxy(const Matrix4Like & homegenous_matrix)
+    {
+      return log6(homegenous_matrix);
     }
     
   } // namespace python
