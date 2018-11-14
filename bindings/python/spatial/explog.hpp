@@ -54,9 +54,18 @@ namespace pinocchio
       return res;
     }
     
-    Eigen::Vector3d log3_proxy(const Eigen::Matrix3d & R)
+    template<typename Matrix3Like>
+    Eigen::Matrix<typename Matrix3Like::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
+    log3_proxy(const Matrix3Like & R)
     {
       return log3(R);
+    }
+    
+    template<typename Matrix4Like>
+    MotionTpl<typename Matrix4Like::Scalar,EIGEN_PLAIN_TYPE(Matrix4Like)::Options>
+    log6_proxy(const Matrix4Like & homegenous_matrix)
+    {
+      return log6(homegenous_matrix);
     }
     
   } // namespace python

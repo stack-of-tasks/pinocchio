@@ -25,7 +25,7 @@ namespace pinocchio
               "Jacobian of exp(R) which maps from the tangent of SO(3) at exp(v) to"
               " the tangent of SO(3) at Identity.");
       
-      bp::def("log3",&log3_proxy,
+      bp::def("log3",&log3_proxy<Eigen::Matrix3d>,
               bp::arg("Rotation matrix (matrix of size 3x3))"),
               "Log: SO3 -> so3. Pseudo-inverse of log from SO3"
               " -> { v in so3, ||v|| < 2pi }.Exp: so3 -> SO3.");
@@ -50,7 +50,7 @@ namespace pinocchio
               "Log: SE3 -> se3. Pseudo-inverse of exp from SE3"
               " -> { v,w in se3, ||w|| < 2pi }.");
       
-      bp::def("log6",&log6<Eigen::Matrix4d>,
+      bp::def("log6",&log6_proxy<Eigen::Matrix4d>,
               bp::arg("Homegenious matrix (matrix 4x4)"),
               "Log: SE3 -> se3. Pseudo-inverse of exp from SE3"
               " -> { v,w in se3, ||w|| < 2pi }.");
