@@ -14,8 +14,8 @@ namespace pinocchio
   {
     
     template<typename Vector3Like>
-    typename Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
-    Jexp3_proxy(const Eigen::MatrixBase<Vector3Like> & v)
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    Jexp3_proxy(const Vector3Like & v)
     {
       typedef Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
       ReturnType res; Jexp3(v,res);
@@ -23,7 +23,8 @@ namespace pinocchio
     }
     
     template<typename Matrix3Like>
-    typename EIGEN_PLAIN_TYPE(Matrix3Like) Jlog3_proxy(const Eigen::MatrixBase<Matrix3Like> & M)
+    typename EIGEN_PLAIN_TYPE(Matrix3Like)
+    Jlog3_proxy(const Matrix3Like & M)
     {
       typedef typename EIGEN_PLAIN_TYPE(Matrix3Like) ReturnType;
       ReturnType res; Jlog3(M,res);
