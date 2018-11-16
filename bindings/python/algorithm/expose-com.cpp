@@ -12,7 +12,9 @@ namespace pinocchio
   namespace python
   {
     
-    BOOST_PYTHON_FUNCTION_OVERLOADS(jacobianCenterOfMass_overload,jacobianCenterOfMass,3,4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(jacobianCenterOfMassUpdate_overload,jacobianCenterOfMass,3,4)
+
+    BOOST_PYTHON_FUNCTION_OVERLOADS(jacobianCenterOfMassNoUpdate_overload,jacobianCenterOfMass,2,3)
     
     static SE3::Vector3
     com_0_proxy(const Model& model,
@@ -67,12 +69,18 @@ namespace pinocchio
       
       bp::def("jacobianCenterOfMass",
               (const Data::Matrix3x & (*)(const Model &, Data &, const Eigen::MatrixBase<Eigen::VectorXd> &, bool))&jacobianCenterOfMass<double,0,JointCollectionDefaultTpl,VectorXd>,
-              jacobianCenterOfMass_overload(bp::args("Model","Data",
+              jacobianCenterOfMassUpdate_overload(bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees"),
               "Computes the jacobian of the center of mass, puts the result in Data and return it.")[
               bp::return_value_policy<bp::return_by_value>()]);
       
+            bp::def("jacobianCenterOfMass",
+              (const Data::Matrix3x & (*)(const Model &, Data &, bool))&jacobianCenterOfMass<double,0,JointCollectionDefaultTpl>,
+              jacobianCenterOfMassNoUpdate_overload(bp::args("Model","Data",
+                       "computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees"),
+              "Computes the jacobian of the center of mass, puts the result in Data and return it.")[
+              bp::return_value_policy<bp::return_by_value>()]);
     }
     
   } // namespace python
