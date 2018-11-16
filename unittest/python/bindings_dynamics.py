@@ -22,21 +22,28 @@ class TestDynamicsBindings(TestCase):
         self.v = rand(self.model.nv)
         self.tau = rand(self.model.nv)
 
+        self.v0 = zero(self.model.nv)
+        self.tau0 = zero(self.model.nv)
+        self.tolerance = 1e-9
+
         # we compute J on a different self.data
         self.J = se3.jointJacobian(self.model,self.model.createData(),self.q,self.model.getJointId('lleg6_joint'),se3.ReferenceFrame.LOCAL,True)
         self.gamma = zero(6)
 
     def test_forwardDynamics7(self):
-        ddq = se3.forwardDynamics(self.model,self.data,self.q,self.v,self.tau,self.J,self.gamma)
-        self.assertFalse(np.isnan(ddq).any())
+        self.model.gravity = se3.Motion.Zero()
+        ddq = se3.forwardDynamics(self.model,self.data,self.q,self.v0,self.tau0,self.J,self.gamma)
+        self.assertLess(np.linalg.norm(ddq), self.tolerance)
 
     def test_forwardDynamics8(self):
-        ddq = se3.forwardDynamics(self.model,self.data,self.q,self.v,self.tau,self.J,self.gamma,r_coeff)
-        self.assertFalse(np.isnan(ddq).any())
+        self.model.gravity = se3.Motion.Zero()
+        ddq = se3.forwardDynamics(self.model,self.data,self.q,self.v0,self.tau0,self.J,self.gamma,r_coeff)
+        self.assertLess(np.linalg.norm(ddq), self.tolerance)
 
     def test_forwardDynamics9(self):
-        ddq = se3.forwardDynamics(self.model,self.data,self.q,self.v,self.tau,self.J,self.gamma,r_coeff,update_kinematics)
-        self.assertFalse(np.isnan(ddq).any())
+        self.model.gravity = se3.Motion.Zero()
+        ddq = se3.forwardDynamics(self.model,self.data,self.q,self.v0,self.tau0,self.J,self.gamma,r_coeff,update_kinematics)
+        self.assertLess(np.linalg.norm(ddq), self.tolerance)
 
     def test_forwardDynamics789(self):
         data7 = self.data
@@ -50,16 +57,16 @@ class TestDynamicsBindings(TestCase):
         self.assertTrue((ddq8==ddq9).all())
 
     def test_impulseDynamics5(self):
-        ddq = se3.impulseDynamics(self.model,self.data,self.q,self.v,self.J)
-        self.assertFalse(np.isnan(ddq).any())
+        vnext = se3.impulseDynamics(self.model,self.data,self.q,self.v0,self.J)
+        self.assertLess(np.linalg.norm(vnext), self.tolerance)
 
     def test_impulseDynamics6(self):
-        ddq = se3.impulseDynamics(self.model,self.data,self.q,self.v,self.J,inv_damping)
-        self.assertFalse(np.isnan(ddq).any())
+        vnext = se3.impulseDynamics(self.model,self.data,self.q,self.v0,self.J,inv_damping)
+        self.assertLess(np.linalg.norm(vnext), self.tolerance)
 
     def test_impulseDynamics7(self):
-        ddq = se3.impulseDynamics(self.model,self.data,self.q,self.v,self.J,inv_damping,update_kinematics)
-        self.assertFalse(np.isnan(ddq).any())
+        vnext = se3.impulseDynamics(self.model,self.data,self.q,self.v0,self.J,inv_damping,update_kinematics)
+        self.assertLess(np.linalg.norm(vnext), self.tolerance)
 
     def test_impulseDynamics567(self):
         data5 = self.data
