@@ -11,10 +11,6 @@ ENDMACRO(ADD_TARGET_CFLAGS)
 # --- C++ --------------------------------------------
 # ----------------------------------------------------
 
-SET(${PROJECT_NAME}_PARSERS_SOURCES
-  parsers/sample-models.cpp
-  )
-
 IF(LUA5_FOUND)
   LIST(APPEND ${PROJECT_NAME}_PARSERS_SOURCES 
       parsers/lua/lua_tables.cpp

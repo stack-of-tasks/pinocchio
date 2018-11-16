@@ -17,7 +17,9 @@ namespace pinocchio
      *
      * \param model: model, typically given empty, where the kinematic chain is added.
      */
-    void manipulator(Model & model);
+    template<typename Scalar, int Options,
+             template<typename,int> class JointCollectionTpl>
+    void manipulator(ModelTpl<Scalar,Options,JointCollectionTpl> & model);
     
 #ifdef PINOCCHIO_WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by manipulator function.
@@ -26,7 +28,10 @@ namespace pinocchio
      * \warning this method is expecting specific namings of the kinematic chain, use it with care
      * not using after manipulator(model).
      */
-    void manipulatorGeometries(const Model & model, GeometryModel & geom);
+    template<typename Scalar, int Options,
+    template<typename,int> class JointCollectionTpl>
+    void manipulatorGeometries(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                               GeometryModel & geom);
 #endif
 
     /** \brief Create a 28-DOF kinematic chain of a floating humanoid robot.
@@ -41,7 +46,10 @@ namespace pinocchio
      * \param usingFF: if True, implement the chain with a plain JointModelFreeFloating; if False,
      * uses a composite joint. This changes the size of the configuration space (35 vs 34).
      */
-    void humanoid(Model & model, bool usingFF=true);
+    template<typename Scalar, int Options,
+             template<typename,int> class JointCollectionTpl>
+    void humanoid(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  bool usingFF=true);
     
 #ifdef PINOCCHIO_WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by humanoid function.
@@ -50,7 +58,10 @@ namespace pinocchio
      * \warning this method is expecting specific namings of the kinematic chain, use it with care
      * not using after humanoid(model).
      */
-    void humanoidGeometries(const Model & model, GeometryModel & geom);
+    template<typename Scalar, int Options,
+             template<typename,int> class JointCollectionTpl>
+    void humanoidGeometries(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            GeometryModel & geom);
 #endif
     
     /** \brief Create a humanoid kinematic tree with 6-DOF limbs and random joint placements.
@@ -71,14 +82,14 @@ namespace pinocchio
      * \ deprecated This function has been replaced by the non-random pinocchio::humanoid function.
      */
     PINOCCHIO_DEPRECATED
-    void humanoid2d(Model & model);
+    inline void humanoid2d(Model & model);
 
     /** \brief Alias of humanoidRandom, for compatibility reasons.
      * \deprecated use pinocchio::humanoid or pinocchio::humanoidRandom instead. 
      */
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    inline void humanoidSimple(ModelTpl<Scalar,Options,JointCollectionTpl> & model, bool usingFF = true)
-    PINOCCHIO_DEPRECATED;
+    PINOCCHIO_DEPRECATED
+    inline void humanoidSimple(ModelTpl<Scalar,Options,JointCollectionTpl> & model, bool usingFF = true);
    
   } // namespace buildModels
 } // namespace pinocchio
