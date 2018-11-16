@@ -2,7 +2,7 @@ import unittest
 from math import sqrt
 
 import numpy as np
-import pinocchio as se3
+import pinocchio as pin
 from pinocchio.utils import (XYZQUATToSe3, cross, isapprox, se3ToXYZQUAT)
 
 from test_case import TestCase
@@ -16,7 +16,7 @@ class TestUtils(TestCase):
         self.assertApprox(cross(a, b), c)
 
     def test_se3ToXYZQUAT_XYZQUATToSe3(self):
-        m = se3.SE3.Identity()
+        m = pin.SE3.Identity()
         m.translation = np.matrix('1. 2. 3.').T
         m.rotation = np.matrix('1. 0. 0.;0. 0. -1.;0. 1. 0.')  # rotate('x', pi / 2)
         self.assertApprox(se3ToXYZQUAT(m), [1., 2., 3., sqrt(2) / 2, 0, 0, sqrt(2) / 2])

@@ -1,5 +1,5 @@
 import unittest
-import pinocchio as se3
+import pinocchio as pin
 from pinocchio.utils import np, zero
 
 from test_case import TestCase
@@ -7,10 +7,10 @@ from test_case import TestCase
 
 class TestModel(TestCase):
     def setUp(self):
-        self.model = se3.buildSampleModelHumanoidRandom()
+        self.model = pin.buildSampleModelHumanoidRandom()
 
     def test_empty_model_sizes(self):
-        model = se3.Model()
+        model = pin.Model()
         self.assertEqual(model.nbodies, 1)
         self.assertEqual(model.nq, 0)
         self.assertEqual(model.nv, 0)
@@ -48,9 +48,9 @@ class TestModel(TestCase):
         qdot = zero(model.nv)
         qddot = zero(model.nv)
         for i in range(model.nbodies):
-            data.a[i] = se3.Motion.Zero()
+            data.a[i] = pin.Motion.Zero()
 
-        se3.rnea(model, data, q, qdot, qddot)
+        pin.rnea(model, data, q, qdot, qddot)
         for i in range(model.nbodies):
             self.assertApprox(data.v[i].np, zero(6))
         self.assertApprox(data.a_gf[0].np, -model.gravity.np)

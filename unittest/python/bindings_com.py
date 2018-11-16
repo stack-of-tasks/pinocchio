@@ -1,6 +1,6 @@
 import unittest
 from test_case import TestCase
-import pinocchio as se3
+import pinocchio as pin
 from pinocchio.utils import rand, zero
 import numpy as np
 
@@ -14,18 +14,18 @@ update_kinematics = True
 class TestComBindings(TestCase):
 
     def setUp(self):
-        self.model = se3.buildSampleModelHumanoidRandom()
+        self.model = pin.buildSampleModelHumanoidRandom()
         self.data = self.model.createData()
 
         qmax = np.matrix(np.full((self.model.nv,1),np.pi))
-        self.q = se3.randomConfiguration(self.model,-qmax,qmax)
+        self.q = pin.randomConfiguration(self.model,-qmax,qmax)
 
     def test_Jcom_update3(self):
-        Jcom = se3.jacobianCenterOfMass(self.model,self.data,self.q)
+        Jcom = pin.jacobianCenterOfMass(self.model,self.data,self.q)
         self.assertFalse(np.isnan(Jcom).any())
 
     def test_Jcom_update4(self):
-        Jcom = se3.jacobianCenterOfMass(self.model,self.data,self.q,True)
+        Jcom = pin.jacobianCenterOfMass(self.model,self.data,self.q,True)
         self.assertFalse(np.isnan(Jcom).any())
         self.assertFalse(np.isnan(self.data.com[1]).any())
 
@@ -33,10 +33,10 @@ class TestComBindings(TestCase):
         data_no = self.data
         data_up = self.model.createData()
 
-        se3.forwardKinematics(self.model,data_no,self.q)
-        Jcom_no = se3.jacobianCenterOfMass(self.model,data_no)
+        pin.forwardKinematics(self.model,data_no,self.q)
+        Jcom_no = pin.jacobianCenterOfMass(self.model,data_no)
 
-        Jcom_up = se3.jacobianCenterOfMass(self.model,data_up,self.q)
+        Jcom_up = pin.jacobianCenterOfMass(self.model,data_up,self.q)
 
         self.assertTrue((Jcom_no==Jcom_up).all())
 
@@ -44,10 +44,10 @@ class TestComBindings(TestCase):
         data_no = self.data
         data_up = self.model.createData()
 
-        se3.forwardKinematics(self.model,data_no,self.q)
-        Jcom_no = se3.jacobianCenterOfMass(self.model,data_no,True)
+        pin.forwardKinematics(self.model,data_no,self.q)
+        Jcom_no = pin.jacobianCenterOfMass(self.model,data_no,True)
 
-        Jcom_up = se3.jacobianCenterOfMass(self.model,data_up,self.q,True)
+        Jcom_up = pin.jacobianCenterOfMass(self.model,data_up,self.q,True)
 
         self.assertTrue((Jcom_no==Jcom_up).all())
         self.assertTrue((data_no.com[1]==data_up.com[1]).all())

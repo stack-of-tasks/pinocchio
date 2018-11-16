@@ -1,16 +1,16 @@
 import unittest
-import pinocchio as se3
+import pinocchio as pin
 import numpy as np
 
 class TestFrameBindings(unittest.TestCase):
 
     def setUp(self):
-        self.model = se3.buildSampleModelHumanoidRandom()
+        self.model = pin.buildSampleModelHumanoidRandom()
         self.parent_idx = self.model.getJointId("rarm2_joint") if self.model.existJointName("rarm2_joint") else (self.model.njoints-1)
         self.frame_name = self.model.names[self.parent_idx] + "_frame"
-        self.frame_placement = se3.SE3.Random()
-        self.frame_type = se3.FrameType.OP_FRAME
-        self.model.addFrame(se3.Frame(self.frame_name, self.parent_idx, 0, self.frame_placement, self.frame_type))
+        self.frame_placement = pin.SE3.Random()
+        self.frame_type = pin.FrameType.OP_FRAME
+        self.model.addFrame(pin.Frame(self.frame_name, self.parent_idx, 0, self.frame_placement, self.frame_type))
         self.frame_idx = self.model.getFrameId(self.frame_name)
 
     def tearDown(self):
@@ -19,8 +19,8 @@ class TestFrameBindings(unittest.TestCase):
     def test_type_get_set(self):
         f = self.model.frames[self.frame_idx]
         self.assertTrue(f.type == self.frame_type)
-        f.type = se3.FrameType.BODY
-        self.assertTrue(f.type == se3.FrameType.BODY)
+        f.type = pin.FrameType.BODY
+        self.assertTrue(f.type == pin.FrameType.BODY)
 
     def test_name_get_set(self):    
         f = self.model.frames[self.frame_idx]
@@ -38,7 +38,7 @@ class TestFrameBindings(unittest.TestCase):
     def test_placement_get_set(self):
         f = self.model.frames[self.frame_idx]
         self.assertTrue(np.allclose(f.placement.homogeneous, self.frame_placement.homogeneous))
-        new_placement = se3.SE3.Random()
+        new_placement = pin.SE3.Random()
         f.placement = new_placement
         self.assertTrue(np.allclose(f.placement.homogeneous, new_placement.homogeneous))
 
