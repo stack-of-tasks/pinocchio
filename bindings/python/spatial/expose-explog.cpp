@@ -15,7 +15,7 @@ namespace pinocchio
     void exposeExplog()
     {
       
-      bp::def("exp3",&exp3<Eigen::Vector3d>,
+      bp::def("exp3",&exp3_proxy<Eigen::Vector3d>,
               bp::arg("Angular velocity (vector of size 3)"),
               "Exp: so3 -> SO3. Return the integral of the input"
               " angular velocity during time 1.");

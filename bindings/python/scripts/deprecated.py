@@ -89,7 +89,7 @@ def jacobianCenterOfMass(model, data, *args):
   if len(args)==3:
     import warnings
     import inspect
-    message = "This function signature has been changed and will be removed in future releases of Pinocchio. Please change for new signature of the jacobianCenterOfMass function."
+    message = "This function signature has been deprecated and will be removed in future releases of Pinocchio. Please change for one of the new signatures of the jacobianCenterOfMass function."
     frame = inspect.currentframe().f_back
     warnings.warn_explicit(message,
                            category=DeprecatedWarning,
@@ -103,7 +103,12 @@ def jacobianCenterOfMass(model, data, *args):
     else:
       return pin.jacobianCenterOfMass(model,data,computeSubtreeComs)
   else:
-      return pin.jacobianCenterOfMass(model,data,*args)
+    return pin.jacobianCenterOfMass(model,data,*args)
+jacobianCenterOfMass.__doc__ =  (
+  pin.jacobianCenterOfMass.__doc__
+  + '\n\njacobianCenterOfMass( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (bool)computeSubtreeComs, (bool)updateKinematics) -> object :'
+  + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
+)
 
 @deprecated("This function will be removed in future releases of Pinocchio. You can use exp or exp6.")
 def exp6FromMotion(motion):
