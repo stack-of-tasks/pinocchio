@@ -1,32 +1,32 @@
 import unittest
-import pinocchio as se3
+import pinocchio as pin
 import numpy as np
 
 class TestJointCompositeBindings(unittest.TestCase):
 
     def test_basic(self):
-        jc = se3.JointModelComposite()
+        jc = pin.JointModelComposite()
         self.assertTrue(hasattr(jc,'joints'))
 
     def test_empty_constructor(self):
-        jc = se3.JointModelComposite()
+        jc = pin.JointModelComposite()
         self.assertTrue(jc.nq==0)
         self.assertTrue(len(jc.joints)==0)
 
     def test_reserve_constructor(self):
-        jc = se3.JointModelComposite(2)
+        jc = pin.JointModelComposite(2)
         self.assertTrue(jc.nq==0)
         self.assertTrue(len(jc.joints)==0)
 
     def test_add_joint(self):
-        j1 = se3.JointModelRX()
+        j1 = pin.JointModelRX()
         self.assertTrue(j1.nq==1)
-        j2 = se3.JointModelRY()
+        j2 = pin.JointModelRY()
         self.assertTrue(j2.nq==1)
-        j3 = se3.JointModelRZ()
+        j3 = pin.JointModelRZ()
         self.assertTrue(j3.nq==1)
 
-        jc = se3.JointModelComposite(2)
+        jc = pin.JointModelComposite(2)
         self.assertTrue(jc.nq==0)
         self.assertTrue(len(jc.joints)==0)
 
@@ -38,7 +38,7 @@ class TestJointCompositeBindings(unittest.TestCase):
         self.assertTrue(jc.nq==2)
         self.assertTrue(len(jc.joints)==2)
 
-        jc.addJoint(j3,se3.SE3.Identity())
+        jc.addJoint(j3,pin.SE3.Identity())
         self.assertTrue(jc.nq==3)
         self.assertTrue(len(jc.joints)==3)
         

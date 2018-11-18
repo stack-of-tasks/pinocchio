@@ -6,7 +6,7 @@ from math import atan2, pi, sqrt
 
 import numpy as np
 
-from . import libpinocchio_pywrap as se3
+from . import libpinocchio_pywrap as pin
 
 
 def npToTTuple(M):
@@ -32,7 +32,7 @@ def rotate(axis, ang):
     cood = {'x': 0, 'y': 1, 'z': 2}
     u = np.matrix(np.zeros([3, 1]), np.double)
     u[cood[axis]] = 1.0
-    return se3.AngleAxis(ang, u).matrix()
+    return pin.AngleAxis(ang, u).matrix()
 
 
 def rpyToMatrix(rpy):

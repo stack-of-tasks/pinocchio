@@ -9,7 +9,7 @@ import sys
 import numpy as np
 import numpy.linalg as npl
 
-from . import libpinocchio_pywrap as se3
+from . import libpinocchio_pywrap as pin
 from .rpy import matrixToRpy, npToTTuple, npToTuple, rotate, rpyToMatrix
 
 from .deprecation import deprecated
@@ -33,7 +33,7 @@ def se3ToXYZQUAT(M):
     Convert the input SE3 object to a 7D tuple of floats [X,Y,Z,Q1,Q2,Q3,Q4] .
     '''
     xyz = M.translation
-    quat = se3.Quaternion(M.rotation).coeffs()
+    quat = pin.Quaternion(M.rotation).coeffs()
     return [float(xyz[0, 0]), float(xyz[1, 0]), float(xyz[2, 0]),
             float(quat[0, 0]), float(quat[1, 0]), float(quat[2, 0]), float(quat[3, 0])]
 
@@ -44,7 +44,7 @@ def XYZQUATToSe3(xyzq):
     '''
     if isinstance(xyzq, (tuple, list)):
         xyzq = np.matrix(xyzq, np.float).T
-    return se3.SE3(se3.Quaternion(xyzq[6, 0], xyzq[3, 0], xyzq[4, 0], xyzq[5, 0]).matrix(), xyzq[:3])
+    return pin.SE3(pin.Quaternion(xyzq[6, 0], xyzq[3, 0], xyzq[4, 0], xyzq[5, 0]).matrix(), xyzq[:3])
 
 
 @deprecated('Now useless.')
@@ -82,7 +82,7 @@ def mprint(M, name="ans",eps=1e-15):
     '''
     Matlab-style pretty matrix print.
     '''
-    if isinstance(M, se3.SE3):
+    if isinstance(M, pin.SE3):
         M = M.homogeneous
     ncol = M.shape[1]
     NC = 6
@@ -112,7 +112,7 @@ def mprint(M, name="ans",eps=1e-15):
 
 
 def fromListToVectorOfString(items):
-    vector = se3.StdVec_StdString()
+    vector = pin.StdVec_StdString()
     vector.extend(item for item in items)
     return vector
 

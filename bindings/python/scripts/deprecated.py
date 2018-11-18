@@ -7,7 +7,7 @@
 from __future__ import print_function
 
 from . import libpinocchio_pywrap as pin 
-from .deprecation import deprecated
+from .deprecation import deprecated, DeprecatedWarning
 
 @deprecated("This function has been renamed to impulseDynamics for consistency with the C++ interface. Please change for impulseDynamics.")
 def impactDynamics(model, data, q, v_before, J, r_coeff=0.0, update_kinematics=True):
@@ -84,9 +84,31 @@ def loadRotorParamsFromSrdf(model, filename, verbose):
 def removeCollisionPairsFromSrdf(model, geomModel, filename, verbose):
   return pin.removeCollisionPairs(model,geomModel,filename,verbose)
 
-@deprecated("This function signature has been changed and will be removed in future releases of Pinocchio. Please change for new signature of the jacobianCenterOfMass function.")
-def jacobianCenterOfMass(model, data, q, computeSubtreeComs, updateKinematics):
-  return pin.jacobianCenterOfMass(model,data,q,computeSubtreeComs,updateKinematics)
+# This function is only deprecated when using a specific signature. Therefore, it needs special care
+def jacobianCenterOfMass(model, data, *args):
+  if len(args)==3:
+    import warnings
+    import inspect
+    message = "This function signature has been deprecated and will be removed in future releases of Pinocchio. Please change for one of the new signatures of the jacobianCenterOfMass function."
+    frame = inspect.currentframe().f_back
+    warnings.warn_explicit(message,
+                           category=DeprecatedWarning,
+                           filename=inspect.getfile(frame.f_code),
+                           lineno=frame.f_lineno)
+    q = args[0]
+    computeSubtreeComs = args[1]
+    updateKinematics = args[2]
+    if updateKinematics:
+      return pin.jacobianCenterOfMass(model,data,q,computeSubtreeComs)
+    else:
+      return pin.jacobianCenterOfMass(model,data,computeSubtreeComs)
+  else:
+    return pin.jacobianCenterOfMass(model,data,*args)
+jacobianCenterOfMass.__doc__ =  (
+  pin.jacobianCenterOfMass.__doc__
+  + '\n\njacobianCenterOfMass( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (bool)computeSubtreeComs, (bool)updateKinematics) -> object :'
+  + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
+)
 
 @deprecated("This function will be removed in future releases of Pinocchio. You can use exp or exp6.")
 def exp6FromMotion(motion):

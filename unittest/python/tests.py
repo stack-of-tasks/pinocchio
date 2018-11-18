@@ -13,6 +13,7 @@ from bindings_frame import TestFrameBindings
 from bindings_geometry_object import TestGeometryObjectBindings
 from bindings_geometry_object_urdf import TestGeometryObjectUrdfBindings
 from bindings_dynamics import TestDynamicsBindings
+from bindings_com import TestComBindings
 from bindings_joint_composite import TestJointCompositeBindings
 from explog import TestExpLog
 from model import TestModel

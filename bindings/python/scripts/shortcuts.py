@@ -4,6 +4,6 @@
 
 ## In this file, some shortcuts are provided ##
 
-from . import libpinocchio_pywrap as se3
+from . import libpinocchio_pywrap as pin
 
-nle = se3.nonLinearEffects
+nle = pin.nonLinearEffects

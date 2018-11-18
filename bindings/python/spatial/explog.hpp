@@ -12,6 +12,13 @@ namespace pinocchio
 {
   namespace python
   {
+  
+    template<typename Vector3Like>
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    exp3_proxy(const Vector3Like & v)
+    {
+      return exp3(v);
+    }
     
     template<typename Vector3Like>
     Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
