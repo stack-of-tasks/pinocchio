@@ -113,7 +113,7 @@ namespace pinocchio
   {
     
     typedef boost::fusion::vector<Matrix6Type &,
-                                  const bool> ArgsType;
+                                  const bool &> ArgsType;
 
     template<typename JointModel>
     static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
