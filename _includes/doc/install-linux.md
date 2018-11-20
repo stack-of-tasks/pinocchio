@@ -65,7 +65,7 @@ point inside this directory. For instance:
 ```
 export PATH=/opt/openrobots/bin:$PATH
 export PKG_CONFIG_PATH=/opt/openrobots/lib/pkgconfig:$PKG_CONFIG_PATH
-export LD_LIBRARY_PATH=/opt/openrobots/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/opt/openrobots/lib:/opt/openrobots/lib/plugin:$LD_LIBRARY_PATH
 export PYTHONPATH=/opt/openrobots/lib/python2.7/site-packages:$PYTHONPATH
 ```
 
