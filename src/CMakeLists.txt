@@ -3,10 +3,6 @@
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 # 
 
-MACRO(ADD_TARGET_CFLAGS target flag)
-  SET_PROPERTY(TARGET ${target} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
-ENDMACRO(ADD_TARGET_CFLAGS)
-
 # ----------------------------------------------------
 # --- C++ --------------------------------------------
 # ----------------------------------------------------
