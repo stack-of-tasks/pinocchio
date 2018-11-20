@@ -171,7 +171,7 @@ namespace pinocchio
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
-                                  const bool
+                                  const bool &
                                   > ArgsType;
   
     template<typename JointModel>

@@ -248,7 +248,7 @@ namespace pinocchio
   struct SquaredDistanceStep
   : public fusion::JointVisitorBase<SquaredDistanceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,DistanceVectorOut> >
   {
-    typedef boost::fusion::vector<const JointIndex,
+    typedef boost::fusion::vector<const JointIndex &,
                                   const ConfigVectorIn1 &,
                                   const ConfigVectorIn2 &,
                                   DistanceVectorOut &

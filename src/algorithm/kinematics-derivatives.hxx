@@ -110,8 +110,8 @@ namespace pinocchio
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
-                                  const typename Model::JointIndex,
-                                  const ReferenceFrame,
+                                  const typename Model::JointIndex &,
+                                  const ReferenceFrame &,
                                   Matrix6xOut1 &,
                                   Matrix6xOut2 &
                                   > ArgsType;
@@ -216,8 +216,8 @@ namespace pinocchio
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
-                                  const typename Model::JointIndex,
-                                  const ReferenceFrame,
+                                  const typename Model::JointIndex &,
+                                  const ReferenceFrame &,
                                   Matrix6xOut1 &,
                                   Matrix6xOut2 &,
                                   Matrix6xOut3 &,
@@ -377,4 +377,3 @@ namespace pinocchio
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_kinematics_derivatives_hxx__
-
