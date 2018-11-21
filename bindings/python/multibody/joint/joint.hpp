@@ -34,7 +34,6 @@ namespace pinocchio
         .add_property("idx_v",&JointModelPythonVisitor::getIdx_v)
         .add_property("nq",&JointModelPythonVisitor::getNq)
         .add_property("nv",&JointModelPythonVisitor::getNv)
-
         .def("setIndexes",&JointModel::setIndexes)
         .def("shortname",&JointModel::shortname)
         ;
