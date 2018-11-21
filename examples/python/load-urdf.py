@@ -22,7 +22,7 @@
 ##
 
 import pinocchio as pin
-from pinocchio.romeo_wrapper import RobotWrapper
+from pinocchio.robot_wrapper import RobotWrapper
 
 DISPLAY = False
 
@@ -36,8 +36,7 @@ mesh_dir = model_path
 urdf_filename = "romeo_small.urdf"
 urdf_model_path = model_path + "/romeo_description/urdf/" + urdf_filename
 
-robot = RobotWrapper()
-robot.initFromURDF(urdf_model_path, [mesh_dir])
+robot = RobotWrapper.BuildFromURDF(urdf_model_path, [mesh_dir], pin.JointModelFreeFlyer())
 
 # alias
 model = robot.model

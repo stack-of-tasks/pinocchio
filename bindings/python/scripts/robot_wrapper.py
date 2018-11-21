@@ -12,6 +12,12 @@ import numpy as np
 
 class RobotWrapper(object):
 
+    @staticmethod
+    def BuildFromURDF(filename, package_dirs=None, root_joint=None, verbose=False):
+        robot = RobotWrapper()
+        robot.initFromURDF(filename, package_dirs, root_joint, verbose)
+        return robot
+
     def initFromURDF(self,filename, package_dirs=None, root_joint=None, verbose=False):
         if root_joint is None:
             model = pin.buildModelFromUrdf(filename)
@@ -179,11 +185,11 @@ class RobotWrapper(object):
         else:
             return pin.jointJacobian(self.model, self.data, q, index, pin.ReferenceFrame.WORLD, update_kinematics)
 
-    def jointJacobian(self, q, index, update_kinematics=True, local_frame=True):
-        if local_frame:
-            return pin.jointJacobian(self.model, self.data, q, index, pin.ReferenceFrame.LOCAL, update_kinematics)
-        else:
-            return pin.jointJacobian(self.model, self.data, q, index, pin.ReferenceFrame.WORLD, update_kinematics)
+    def jointJacobian(self, q, index, rf_frame=pin.ReferenceFrame.LOCAL, update_kinematics=True):
+        return pin.jointJacobian(self.model, self.data, q, index, rf_frame, update_kinematics)
+
+    def getJointJacobian(self, index, rf_frame=pin.ReferenceFrame.LOCAL):
+        return pin.getFrameJacobian(self.model, self.data, index, rf_frame)
 
     @deprecated("This method is now deprecated. Please use computeJointJacobians instead. It will be removed in release 1.4.0 of Pinocchio.")
     def computeJacobians(self, q):
@@ -216,14 +222,14 @@ class RobotWrapper(object):
         It computes the Jacobian of frame given by its id (frame_id) either expressed in the
         local coordinate frame or in the world coordinate frame.
     '''
-    def getFrameJacobian(self, frame_id, rf_frame):
+    def getFrameJacobian(self, frame_id, rf_frame=pin.ReferenceFrame.LOCAL):
         return pin.getFrameJacobian(self.model, self.data, frame_id, rf_frame)
 
     '''
         Similar to getFrameJacobian but it also calls before pin.computeJointJacobians and
-        pin.framesForwardKinematics to update internal value of self.data related to frames.
+        pin.updateFramePlacements to update internal value of self.data related to frames.
     '''
-    def frameJacobian(self, q, frame_id, rf_frame):
+    def frameJacobian(self, q, frame_id, rf_frame=pin.ReferenceFrame.LOCAL):
         return pin.frameJacobian(self.model, self.data, q, frame_id, rf_frame)
 
   
