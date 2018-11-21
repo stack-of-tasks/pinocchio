@@ -157,6 +157,15 @@ BOOST_AUTO_TEST_CASE(test_basic)
   boost::mpl::for_each<Variant::types>(TestJointComposite());
 }
 
+BOOST_AUTO_TEST_CASE(chain)
+{
+  JointModelComposite jmodel_composite;
+  jmodel_composite.addJoint(JointModelRZ()).addJoint(JointModelRY(),SE3::Random()).addJoint(JointModelRX());
+  BOOST_CHECK_MESSAGE( jmodel_composite.nq() == 3, "Chain did not work");
+  BOOST_CHECK_MESSAGE( jmodel_composite.nv() == 3, "Chain did not work");
+  BOOST_CHECK_MESSAGE( jmodel_composite.njoints == 3, "Chain did not work");
+}
+
 BOOST_AUTO_TEST_CASE(vsZYX)
 {
   JointModelSphericalZYX jmodel_spherical;

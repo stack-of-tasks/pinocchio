@@ -54,7 +54,7 @@ namespace pinocchio
 
     // specialization for JointModelComposite
 
-    struct JointModelCompositeAddJointVisitor : public boost::static_visitor<void>
+    struct JointModelCompositeAddJointVisitor : public boost::static_visitor<JointModelComposite &>
     {
       JointModelComposite & m_joint_composite;
       const SE3 & m_joint_placement;
@@ -66,22 +66,22 @@ namespace pinocchio
       {}
 
       template <typename JointModelDerived>
-      void operator()(JointModelDerived & jmodel) const
+      JointModelComposite & operator()(JointModelDerived & jmodel) const
       {
         return m_joint_composite.addJoint(jmodel,m_joint_placement);
       }
     }; // struct JointModelCompositeAddJointVisitor
 
-    static void addJoint_proxy(JointModelComposite & joint_composite,
-                               const JointModelVariant & jmodel_variant,
-                               const SE3 & joint_placement = SE3::Identity())
+    static JointModelComposite & addJoint_proxy(JointModelComposite & joint_composite,
+                                                const JointModelVariant & jmodel_variant,
+                                                const SE3 & joint_placement = SE3::Identity())
     {
       return boost::apply_visitor(JointModelCompositeAddJointVisitor(joint_composite,joint_placement), jmodel_variant);
     }
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(addJoint_proxy_overloads,addJoint_proxy,2,3)
 
-    struct JointModelCompositeConstructorVisitor : public boost::static_visitor<boost::shared_ptr<JointModelComposite> >
+    struct JointModelCompositeConstructorVisitor : public boost::static_visitor<JointModelComposite* >
     {
       const SE3 & m_joint_placement;
 
@@ -90,19 +90,19 @@ namespace pinocchio
       {}
 
       template <typename JointModelDerived>
-      boost::shared_ptr<JointModelComposite> operator()(JointModelDerived & jmodel) const
+      JointModelComposite* operator()(JointModelDerived & jmodel) const
       {
-        return boost::shared_ptr<JointModelComposite>(new JointModelComposite(jmodel,m_joint_placement));
+        return new JointModelComposite(jmodel,m_joint_placement);
       }
     }; // struct JointModelCompositeConstructorVisitor
 
-    static boost::shared_ptr<JointModelComposite> init_proxy1(const JointModelVariant & jmodel_variant)
+    static JointModelComposite* init_proxy1(const JointModelVariant & jmodel_variant)
     {
       return boost::apply_visitor(JointModelCompositeConstructorVisitor(SE3::Identity()), jmodel_variant);
     }
 
-    static boost::shared_ptr<JointModelComposite> init_proxy2(const JointModelVariant & jmodel_variant,
-                                                              const SE3 & joint_placement)
+    static JointModelComposite* init_proxy2(const JointModelVariant & jmodel_variant,
+                                            const SE3 & joint_placement)
     {
       return boost::apply_visitor(JointModelCompositeConstructorVisitor(joint_placement), jmodel_variant);
     }
@@ -127,11 +127,13 @@ namespace pinocchio
                     "Init JointModelComposite from a joint and a placement"
                    )
                .add_property("joints",&JointModelComposite::joints)
+               .add_property("jointPlacements",&JointModelComposite::jointPlacements)
+               .add_property("njoints",&JointModelComposite::njoints)
                .def("addJoint",
                     &addJoint_proxy,
                     addJoint_proxy_overloads(bp::args("joint_model","joint_placement"),
                                              "Add a joint to the vector of joints."
-                                            )
+                                            )[bp::return_internal_reference<>()]
                    )
                ;
     }

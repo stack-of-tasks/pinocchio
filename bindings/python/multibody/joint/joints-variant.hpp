@@ -9,6 +9,7 @@
 #include <eigenpy/eigenpy.hpp>
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-models.hpp"
+#include "pinocchio/bindings/python/utils/printable.hpp"
 
 namespace pinocchio
 {
@@ -35,7 +36,13 @@ namespace pinocchio
       template<class T>
       void operator()(T)
       {
-        expose_joint_model<T>(bp::class_<T>(T::classname().c_str(),bp::init<>()).def(JointPythonVisitor<T>()));
+        expose_joint_model<T>(
+            bp::class_<T>(T::classname().c_str(),
+                          T::classname().c_str(),
+                          bp::init<>())
+            .def(JointPythonVisitor<T>())
+            .def(PrintableVisitor<T>())
+        );
         bp::implicitly_convertible<T,pinocchio::JointModelVariant>();
       }
     };

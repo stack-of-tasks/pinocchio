@@ -26,7 +26,6 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         cl
-        //.def(bp::init<>()) // this should be already exposed
         // All are add_properties cause ReadOnly
         .add_property("id",&JointPythonVisitor::getId)
         .add_property("idx_q",&JointPythonVisitor::getIdx_q)
