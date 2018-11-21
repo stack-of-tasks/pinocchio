@@ -179,7 +179,7 @@ namespace pinocchio
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data,
-                     const bool computeSubtreeComs)
+                     const bool & computeSubtreeComs)
     {
       const JointIndex & i      = (JointIndex) jmodel.id();
       const JointIndex & parent = model.parents[i];

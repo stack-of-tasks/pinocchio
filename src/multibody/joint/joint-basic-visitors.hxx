@@ -119,7 +119,7 @@ namespace pinocchio
     static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
                      pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Eigen::MatrixBase<Matrix6Type> & I,
-                     const bool update_I
+                     const bool & update_I
                      )
     {
       Matrix6Type & I_ = const_cast<Matrix6Type &>(I.derived());

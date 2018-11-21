@@ -262,7 +262,7 @@ namespace pinocchio
   {
     template<typename ConfigVectorIn1, typename ConfigVectorIn2, typename DistanceVectorOut>
     static void run(const JointModelBase<JointModel> & jmodel,
-                    const JointIndex i,
+                    const JointIndex & i,
                     const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                     const Eigen::MatrixBase<ConfigVectorIn2> & q1,
                     const Eigen::MatrixBase<DistanceVectorOut> & distances)
