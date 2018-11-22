@@ -26,15 +26,15 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         cl
-        .def(bp::init<>())
         // All are add_properties cause ReadOnly
         .add_property("id",&JointPythonVisitor::getId)
         .add_property("idx_q",&JointPythonVisitor::getIdx_q)
         .add_property("idx_v",&JointPythonVisitor::getIdx_v)
         .add_property("nq",&JointPythonVisitor::getNq)
         .add_property("nv",&JointPythonVisitor::getNv)
-        .def("setIndexes",&JointModelDerived::setIndexes);
-
+        .def("setIndexes",&JointModelDerived::setIndexes)
+        .def("shortname",&JointModelDerived::shortname)
+        ;
       }
 
       static JointIndex getId( const JointModelDerived & self ) { return self.id(); }

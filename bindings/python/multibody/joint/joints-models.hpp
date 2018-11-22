@@ -54,41 +54,87 @@ namespace pinocchio
 
     // specialization for JointModelComposite
 
-    struct JointModelCompositeAddJointVisitor : public boost::static_visitor<void>
+    struct JointModelCompositeAddJointVisitor : public boost::static_visitor<JointModelComposite &>
     {
       JointModelComposite & m_joint_composite;
       const SE3 & m_joint_placement;
 
       JointModelCompositeAddJointVisitor(JointModelComposite & joint_composite,
-                      const SE3 & joint_placement)
+                                         const SE3 & joint_placement)
       : m_joint_composite(joint_composite)
       , m_joint_placement(joint_placement)
       {}
 
       template <typename JointModelDerived>
-      void operator()(JointModelDerived & jmodel) const
+      JointModelComposite & operator()(JointModelDerived & jmodel) const
       {
         return m_joint_composite.addJoint(jmodel,m_joint_placement);
       }
     }; // struct JointModelCompositeAddJointVisitor
 
-    static void addJoint_proxy(JointModelComposite & joint_composite,
-                         bp::object jmodel,
-                         const SE3 & joint_placement = SE3::Identity())
+    static JointModelComposite & addJoint_proxy(JointModelComposite & joint_composite,
+                                                const JointModelVariant & jmodel_variant,
+                                                const SE3 & joint_placement = SE3::Identity())
     {
-      JointModelVariant jmodel_variant = bp::extract<JointModelVariant> (jmodel)();
-      boost::apply_visitor(JointModelCompositeAddJointVisitor(joint_composite,joint_placement), jmodel_variant);
+      return boost::apply_visitor(JointModelCompositeAddJointVisitor(joint_composite,joint_placement), jmodel_variant);
     }
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(addJoint_proxy_overloads,addJoint_proxy,2,3)
+
+    struct JointModelCompositeConstructorVisitor : public boost::static_visitor<JointModelComposite* >
+    {
+      const SE3 & m_joint_placement;
+
+      JointModelCompositeConstructorVisitor(const SE3 & joint_placement)
+      : m_joint_placement(joint_placement)
+      {}
+
+      template <typename JointModelDerived>
+      JointModelComposite* operator()(JointModelDerived & jmodel) const
+      {
+        return new JointModelComposite(jmodel,m_joint_placement);
+      }
+    }; // struct JointModelCompositeConstructorVisitor
+
+    static JointModelComposite* init_proxy1(const JointModelVariant & jmodel_variant)
+    {
+      return boost::apply_visitor(JointModelCompositeConstructorVisitor(SE3::Identity()), jmodel_variant);
+    }
+
+    static JointModelComposite* init_proxy2(const JointModelVariant & jmodel_variant,
+                                            const SE3 & joint_placement)
+    {
+      return boost::apply_visitor(JointModelCompositeConstructorVisitor(joint_placement), jmodel_variant);
+    }
 
     template<>
     inline bp::class_<JointModelComposite>& expose_joint_model<JointModelComposite> (bp::class_<JointModelComposite> & cl)
     {
       return cl
                .def(bp::init<const size_t> (bp::args("size"), "Init JointModelComposite with a defined size"))
+               .def("__init__",
+                    bp::make_constructor(init_proxy1,
+                                         bp::default_call_policies(),
+                                         bp::args("joint_model")
+                                        ),
+                    "Init JointModelComposite from a joint"
+                   )
+               .def("__init__",
+                    bp::make_constructor(init_proxy2,
+                                         bp::default_call_policies(),
+                                         bp::args("joint_model","joint_placement")
+                                        ),
+                    "Init JointModelComposite from a joint and a placement"
+                   )
                .add_property("joints",&JointModelComposite::joints)
-               .def("addJoint",&addJoint_proxy,addJoint_proxy_overloads(bp::args("joint_model","joint_placement"),"Add a joint to the vector of joints."))
+               .add_property("jointPlacements",&JointModelComposite::jointPlacements)
+               .add_property("njoints",&JointModelComposite::njoints)
+               .def("addJoint",
+                    &addJoint_proxy,
+                    addJoint_proxy_overloads(bp::args("joint_model","joint_placement"),
+                                             "Add a joint to the vector of joints."
+                                            )[bp::return_internal_reference<>()]
+                   )
                ;
     }
   } // namespace python

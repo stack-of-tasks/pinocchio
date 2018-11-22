@@ -200,9 +200,11 @@ namespace pinocchio
     /// \param jmodel Model of the joint to add.
     /// \param placement Placement of the joint relatively to its predecessor.
     ///
+    /// \return A reference to *this
+    ///
     template<typename JointModel>
-    void addJoint(const JointModelBase<JointModel> & jmodel,
-                  const SE3 & placement = SE3::Identity())
+    JointModelDerived & addJoint(const JointModelBase<JointModel> & jmodel,
+                                 const SE3 & placement = SE3::Identity())
     {
       joints.push_back((JointModelVariant)jmodel.derived());
       jointPlacements.push_back(placement);
@@ -211,6 +213,8 @@ namespace pinocchio
       
       updateJointIndexes();
       njoints++;
+
+      return *this;
     }
     
     JointDataDerived createData() const
