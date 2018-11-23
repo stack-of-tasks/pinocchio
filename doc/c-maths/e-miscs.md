@@ -2,6 +2,6 @@
 
 ## Templatization
 
-## Auto-differenciation
+## Auto-differentiation
 
 ## Code Generation

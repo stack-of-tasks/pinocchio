@@ -40,7 +40,7 @@ namespace pinocchio {
         - \subpage md_doc_a-features_h-frames
         - \subpage md_doc_a-features_i-geometric-models
         - \subpage md_doc_a-features_j-analytical-derivatives
-        - \subpage md_doc_a-features_k-automatic-differenciation
+        - \subpage md_doc_a-features_k-automatic-differentiation
         - \subpage md_doc_a-features_l-python
         - \subpage md_doc_a-features_m-tests
   */

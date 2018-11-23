@@ -18,12 +18,12 @@ You will need the two Python libraries: *SciPy* (scientific Python) and
 SciPy can be installed by `sudo apt-get install python-scipy`.
 Examples of calls of
 these two functions are given below. We will use both solvers with
-numerical (finite-differencing) differenciation, to avoid the extra work
+numerical (finite-differencing) differentiation, to avoid the extra work
 of differencing the cost and constraint functions by hand. In general,
 it is strongly advice to first test a numerical program with finite
 differencing, before implementing the true derivatives only if needed.
 In any case, the true derivatives must always be checked by comparing
-the results with the finite differenciation.
+the results with the finite differentiation.
 
 Additionally, the provided implementation of BFGS allows the user to
 provide a callback function and track the path taken by the solver, but
