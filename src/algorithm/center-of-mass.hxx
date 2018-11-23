@@ -1,85 +1,98 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_center_of_mass_hxx__
-#define __se3_center_of_mass_hxx__
+#ifndef __pinocchio_center_of_mass_hxx__
+#define __pinocchio_center_of_mass_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
+#include "pinocchio/multibody/visitor.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
-  inline const SE3::Vector3 &
-  centerOfMass(const Model & model, Data & data,
-               const Eigen::VectorXd & q,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
+               const Eigen::MatrixBase<ConfigVectorType> & q,
                const bool computeSubtreeComs)
   {
-    forwardKinematics(model,data,q);
+    forwardKinematics(model,data,q.derived());
     
-    centerOfMass(model,data,computeSubtreeComs);
+    const int LEVEL = 0;
+    centerOfMass(model,data,LEVEL,computeSubtreeComs);
     return data.com[0];
   }
 
-  inline const SE3::Vector3 &
-  centerOfMass(const Model & model, Data & data,
-               const Eigen::VectorXd & q,
-               const Eigen::VectorXd & v,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
+               const Eigen::MatrixBase<ConfigVectorType> & q,
+               const Eigen::MatrixBase<TangentVectorType> & v,
                const bool computeSubtreeComs)
   {
-    forwardKinematics(model,data,q,v);
+    forwardKinematics(model,data,q.derived(),v.derived());
     
-    centerOfMass<true,true,false>(model,data,computeSubtreeComs);
+    const int LEVEL = 1;
+    centerOfMass(model,data,LEVEL,computeSubtreeComs);
     return data.com[0];
   }
   
-  inline const SE3::Vector3 &
-  centerOfMass(const Model & model, Data & data,
-               const Eigen::VectorXd & q,
-               const Eigen::VectorXd & v,
-               const Eigen::VectorXd & a,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
+               const Eigen::MatrixBase<ConfigVectorType> & q,
+               const Eigen::MatrixBase<TangentVectorType1> & v,
+               const Eigen::MatrixBase<TangentVectorType2> & a,
                const bool computeSubtreeComs)
   {
     forwardKinematics(model,data,q,v,a);
     
-    centerOfMass<true,true,true>(model,data,computeSubtreeComs);
+    const int LEVEL = 2;
+    centerOfMass(model,data,LEVEL,computeSubtreeComs);
     return data.com[0];
   }
   
-  template<bool do_position, bool do_velocity, bool do_acceleration>
-  inline void centerOfMass(const Model & model, Data & data,
-                    const bool computeSubtreeComs)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const int LEVEL,
+                           const bool computeSubtreeComs)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    using namespace se3;
+    assert(LEVEL >= 0);
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef typename Data::SE3 SE3;
+    typedef typename Data::Motion Motion;
+    typedef typename Data::Inertia Inertia;
+    
+    const bool do_position = (LEVEL>=0);
+    const bool do_velocity = (LEVEL>=1);
+    const bool do_acceleration = (LEVEL>=2);
 
     data.mass[0] = 0;
     if(do_position)
-      data.com[0].setZero ();
+      data.com[0].setZero();
     if(do_velocity)
-      data.vcom[0].setZero ();
+      data.vcom[0].setZero();
     if(do_acceleration)
-      data.acom[0].setZero ();
+      data.acom[0].setZero();
 
     // Forward Step
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
+    for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
-      const double mass = model.inertias[i].mass();
-      const SE3::Vector3 & lever = model.inertias[i].lever();
+      const typename Inertia::Scalar  & mass = model.inertias[i].mass();
+      const typename SE3::Vector3 & lever = model.inertias[i].lever();
 
       const Motion & v = data.v[i];
       const Motion & a = data.a[i];
@@ -87,20 +100,20 @@ namespace se3
       data.mass[i] = mass;
       
       if(do_position)
-        data.com[i]  = mass * lever;
+        data.com[i].noalias()  = mass * lever;
 
       if(do_velocity)
-        data.vcom[i] = mass * (v.angular().cross(lever) + v.linear());
+        data.vcom[i].noalias() = mass * (v.angular().cross(lever) + v.linear());
       
       if(do_acceleration)
-        data.acom[i] = mass * (a.angular().cross(lever) + a.linear())
+        data.acom[i].noalias() = mass * (a.angular().cross(lever) + a.linear())
                      + v.angular().cross(data.vcom[i]); // take into accound the coriolis part of the acceleration
     }
     
     // Backward Step
-    for(Model::JointIndex i=(Model::JointIndex)(model.njoints-1); i>0; --i)
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
-      const Model::JointIndex & parent = model.parents[i];
+      const JointIndex & parent = model.parents[i];
       const SE3 & liMi = data.liMi[i];
       
       data.mass[parent] += data.mass[i];
@@ -111,7 +124,9 @@ namespace se3
       
       if(do_velocity)
         data.vcom[parent] += liMi.rotation()*data.vcom[i];
-      data.acom[parent] += liMi.rotation()*data.acom[i];
+      
+      if(do_acceleration)
+        data.acom[parent] += liMi.rotation()*data.acom[i];
       
       if(computeSubtreeComs)
       {
@@ -132,12 +147,14 @@ namespace se3
       data.acom[0] /= data.mass[0];
   }
 
-  inline const SE3::Vector3 &
-  getComFromCrba(const Model & model, Data & data)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  getComFromCrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                 DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
-#ifndef NDEBUG
+    PINOCCHIO_UNUSED_VARIABLE(model);
+    
     assert(model.check(data) && "data is not consistent with model.");
-#endif
     return data.com[0] = data.liMi[1].act(data.Ycrb[1].lever());
   }
 
@@ -145,42 +162,44 @@ namespace se3
   /* --- JACOBIAN ---------------------------------------------------------- */
   /* --- JACOBIAN ---------------------------------------------------------- */
 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct JacobianCenterOfMassBackwardStep
-  : public fusion::JointVisitor<JacobianCenterOfMassBackwardStep>
+  : public fusion::JointVisitorBase< JacobianCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &,
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
                                   const bool
                                   > ArgsType;
   
-    JOINT_VISITOR_INIT(JacobianCenterOfMassBackwardStep);
-    
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model& model,
-                     se3::Data& data,
-                     const bool computeSubtreeComs )
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const bool computeSubtreeComs)
     {
-      const Model::JointIndex & i      = (Model::JointIndex) jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      const JointIndex & i      = (JointIndex) jmodel.id();
+      const JointIndex & parent = model.parents[i];
 
       data.com[parent]  += data.com[i];
       data.mass[parent] += data.mass[i];
 
-      typedef Data::Matrix6x Matrix6x;
+      typedef typename Data::Matrix6x Matrix6x;
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
       
       ColBlock Jcols = jmodel.jointCols(data.J);
       Jcols = data.oMi[i].act(jdata.S());
       
-      if (JointModel::NV == -1)
+      if(JointModel::NV == Eigen::Dynamic)
       {
-        if( jmodel.nv() ==1 )
+        if(jmodel.nv() == 1)
         {
-        data.Jcom.col(jmodel.idx_v())
-        = data.mass[i] * Jcols.template topLeftCorner<3,1>()
-        - data.com[i].cross(Jcols.template bottomLeftCorner<3,1>()) ;
+          data.Jcom.col(jmodel.idx_v())
+          = data.mass[i] * Jcols.template topLeftCorner<3,1>()
+          - data.com[i].cross(Jcols.template bottomLeftCorner<3,1>()) ;
         }
         else
         {
@@ -191,11 +210,11 @@ namespace se3
       }
       else
       {
-        if( JointModel::NV ==1 )
+        if(JointModel::NV == 1)
         {
-        data.Jcom.col(jmodel.idx_v())
-        = data.mass[i] * Jcols.template topLeftCorner<3,1>()
-        - data.com[i].cross(Jcols.template bottomLeftCorner<3,1>()) ;
+          data.Jcom.col(jmodel.idx_v())
+          = data.mass[i] * Jcols.template topLeftCorner<3,1>()
+          - data.com[i].cross(Jcols.template bottomLeftCorner<3,1>()) ;
         }
         else
         {
@@ -212,35 +231,66 @@ namespace se3
 
   };
 
-  inline const Data::Matrix3x &
-  jacobianCenterOfMass(const Model & model, Data & data,
-                       const Eigen::VectorXd & q,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  PINOCCHIO_DEPRECATED
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const Eigen::MatrixBase<ConfigVectorType> & q,
                        const bool computeSubtreeComs,
                        const bool updateKinematics)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    data.com[0].setZero ();
-    data.mass[0] = 0;
+    if(updateKinematics)
+      return jacobianCenterOfMass(model,data,q,computeSubtreeComs);
+    else
+      return jacobianCenterOfMass(model,data,computeSubtreeComs);
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const Eigen::MatrixBase<ConfigVectorType> & q,
+                       const bool computeSubtreeComs)
+  {
+    forwardKinematics(model, data, q);
+    return jacobianCenterOfMass(model, data, computeSubtreeComs);
+  }
     
-    // Forward step
-    if (updateKinematics)
-      forwardKinematics(model, data, q);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const bool computeSubtreeComs)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef typename Data::SE3 SE3;
+    typedef typename Data::Inertia Inertia;
+    
+    data.com[0].setZero();
+    data.mass[0] = Scalar(0);
       
-    for(Model::JointIndex i=1;i<(Model::JointIndex)(model.njoints);++i)
+    for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
-      const double mass = model.inertias[i].mass();
-      const SE3::Vector3 & lever = model.inertias[i].lever();
+      const typename Inertia::Scalar & mass = model.inertias[i].mass();
+      const typename SE3::Vector3 & lever = model.inertias[i].lever();
       
       data.mass[i] = mass;
-      data.com[i] = mass*data.oMi[i].act(lever);
+      data.com[i].noalias() = mass*data.oMi[i].act(lever);
     }
    
     // Backward step
-    for( Model::JointIndex i= (Model::JointIndex) (model.njoints-1);i>0;--i )
+    typedef JacobianCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i= (JointIndex) (model.njoints-1); i>0; --i)
     {
-      JacobianCenterOfMassBackwardStep
-      ::run(model.joints[i],data.joints[i],
-            JacobianCenterOfMassBackwardStep::ArgsType(model,data,computeSubtreeComs));
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data,computeSubtreeComs));
     }
     
     data.com[0] /= data.mass[0];
@@ -249,10 +299,17 @@ namespace se3
     return data.Jcom;
   }
 
-  inline const Data::Matrix3x &
-  getJacobianComFromCrba(const Model & model, Data & data)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  getJacobianComFromCrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
+    PINOCCHIO_UNUSED_VARIABLE(model);
     assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Data::SE3 SE3;
+    
     const SE3 & oM1 = data.liMi[1];
     
     // Extract the total mass of the system.
@@ -260,17 +317,18 @@ namespace se3
     
     // As the 6 first rows of M*a are a wrench, we just need to multiply by the
     // relative rotation between the first joint and the world
-    const SE3::Matrix3 oR1_over_m (oM1.rotation() / data.M(0,0));
+    const typename SE3::Matrix3 oR1_over_m (oM1.rotation() / data.M(0,0));
     
     // I don't know why, but the colwise multiplication is much more faster
     // than the direct Eigen multiplication
-    for (long k=0; k<model.nv;++k)
-      data.Jcom.col(k) = oR1_over_m * data.M.topRows<3> ().col(k);
+    for(long k=0; k<model.nv;++k)
+      data.Jcom.col(k).noalias() = oR1_over_m * data.M.template topRows<3>().col(k);
+    
     return data.Jcom;
   }
 
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __se3_center_of_mass_hxx__
+#endif // ifndef __pinocchio_center_of_mass_hxx__

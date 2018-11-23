@@ -1,19 +1,6 @@
-//
+              //
 // Copyright (c) 2016-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -39,18 +26,48 @@ inline bool isFinite(const Eigen::MatrixBase<Derived> & x)
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
+BOOST_AUTO_TEST_CASE(frame_basic)
+{
+  using namespace pinocchio;
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  BOOST_CHECK(model.frames.size() >= size_t(model.njoints));
+  for(Model::FrameVector::const_iterator it = model.frames.begin();
+      it != model.frames.end(); ++it)
+  {
+    const Frame & frame = *it;
+    BOOST_CHECK(frame == frame);
+    Frame frame_copy(frame);
+    BOOST_CHECK(frame_copy == frame);
+  }
+  
+  std::ostringstream os;
+  os << Frame() << std::endl;
+  BOOST_CHECK(!os.str().empty());
+}
+
+BOOST_AUTO_TEST_CASE(cast)
+{
+  using namespace pinocchio;
+  Frame frame("toto",0,0,SE3::Random(),OP_FRAME);
+  
+  BOOST_CHECK(frame.cast<double>() == frame);
+  BOOST_CHECK(frame.cast<long double>().cast<double>() == frame);
+}
+
 BOOST_AUTO_TEST_CASE ( test_kinematics )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
-  se3::Data data(model);
+  pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -63,17 +80,17 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 BOOST_AUTO_TEST_CASE ( test_update_placements )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   Model::FrameIndex frame_idx = model.getFrameId(frame_name);
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -89,17 +106,17 @@ BOOST_AUTO_TEST_CASE ( test_update_placements )
 BOOST_AUTO_TEST_CASE ( test_update_single_placement )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   Model::FrameIndex frame_idx = model.getFrameId(frame_name);
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -115,16 +132,16 @@ BOOST_AUTO_TEST_CASE ( test_update_single_placement )
 BOOST_AUTO_TEST_CASE ( test_velocity )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   Model::FrameIndex frame_idx = model.getFrameId(frame_name);
-  se3::Data data(model);
+  pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -140,16 +157,16 @@ BOOST_AUTO_TEST_CASE ( test_velocity )
 BOOST_AUTO_TEST_CASE ( test_acceleration )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   Model::FrameIndex frame_idx = model.getFrameId(frame_name);
-  se3::Data data(model);
+  pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -166,7 +183,7 @@ BOOST_AUTO_TEST_CASE ( test_acceleration )
 BOOST_AUTO_TEST_CASE ( test_jacobian )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
   Model model;
   buildModels::humanoidRandom(model);
@@ -176,54 +193,55 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   BOOST_CHECK(model.existFrame(frame_name));
   
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
   
   model.lowerPositionLimit.head<7>().fill(-1.);
   model.upperPositionLimit.head<7>().fill( 1.);
   VectorXd q = randomConfiguration(model);
   VectorXd v = VectorXd::Ones(model.nv);
-
+  
   /// In local frame
   Model::Index idx = model.getFrameId(frame_name);
   const Frame & frame = model.frames[idx];
   BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
   Data::Matrix6x Jjj(6,model.nv); Jjj.fill(0);
   Data::Matrix6x Jff(6,model.nv); Jff.fill(0);
+
   computeJointJacobians(model,data,q);
   updateFramePlacement(model, data, idx);
-  getFrameJacobian<LOCAL>(model, data,    idx,         Jff);
+  getFrameJacobian(model,     data,        idx, LOCAL, Jff);
   computeJointJacobians(model,data_ref,q);
-  getJointJacobian<LOCAL>(model, data_ref, parent_idx, Jjj);
+  getJointJacobian(model, data_ref, parent_idx, LOCAL, Jjj);
 
   Motion nu_frame = Motion(Jff*v);
   Motion nu_joint = Motion(Jjj*v);
   
-  const SE3::ActionMatrix_t jXf = frame.placement.toActionMatrix();
+  const SE3::ActionMatrixType jXf = frame.placement.toActionMatrix();
   Data::Matrix6x Jjj_from_frame(jXf * Jff);
   BOOST_CHECK(Jjj_from_frame.isApprox(Jjj));
   
   BOOST_CHECK(nu_frame.isApprox(frame.placement.actInv(nu_joint), 1e-12));
   
   // In world frame
-  getFrameJacobian<WORLD>(model,data,idx,Jff);
-  getJointJacobian<WORLD>(model, data_ref, parent_idx, Jjj);
+  getFrameJacobian(model,data,idx,WORLD,Jff);
+  getJointJacobian(model, data_ref, parent_idx,WORLD, Jjj);
   BOOST_CHECK(Jff.isApprox(Jjj));
 }
 
 BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
   model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));  
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
   
   VectorXd q = randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) );
   VectorXd v = VectorXd::Random(model.nv);
@@ -246,8 +264,8 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
   Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
   
   // Regarding to the world origin
-  getFrameJacobian<WORLD>(model,data,idx,J);
-  getFrameJacobianTimeVariation<WORLD>(model,data,idx,dJ);
+  getFrameJacobian(model,data,idx,WORLD,J);
+  getFrameJacobianTimeVariation(model,data,idx,WORLD,dJ);
   
   Motion v_idx(J*v);
   const Motion & v_ref_local = frame.placement.actInv(data_ref.v[parent_idx]);
@@ -261,8 +279,8 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
   
   J.fill(0.);  dJ.fill(0.);
   // Regarding to the local frame
-  getFrameJacobian<LOCAL>(model,data,idx,J);
-  getFrameJacobianTimeVariation<LOCAL>(model,data,idx,dJ);
+  getFrameJacobian(model,data,idx,LOCAL,J);
+  getFrameJacobianTimeVariation(model,data,idx,LOCAL,dJ);
   
   v_idx = (Motion::Vector6)(J*v);
   BOOST_CHECK(v_idx.isApprox(v_ref_local));
@@ -284,8 +302,8 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     computeJointJacobians(model,data_ref,q);
     updateFramePlacements(model,data_ref);
     const SE3 & oMf_q = data_ref.oMf[idx];
-    getFrameJacobian<WORLD>(model,data_ref,idx,J_ref_world);
-    getFrameJacobian<LOCAL>(model,data_ref,idx,J_ref_local);
+    getFrameJacobian(model,data_ref,idx,WORLD,J_ref_world);
+    getFrameJacobian(model,data_ref,idx,LOCAL,J_ref_local);
     
     //data_ref_plus
     Data::Matrix6x J_ref_plus_world(6,model.nv), J_ref_plus_local(6,model.nv);
@@ -293,8 +311,8 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     computeJointJacobians(model,data_ref_plus,q_plus);
     updateFramePlacements(model,data_ref_plus);
     const SE3 & oMf_qplus = data_ref_plus.oMf[idx];
-    getFrameJacobian<WORLD>(model,data_ref_plus,idx,J_ref_plus_world);
-    getFrameJacobian<LOCAL>(model,data_ref_plus,idx,J_ref_plus_local);
+    getFrameJacobian(model,data_ref_plus,idx,WORLD,J_ref_plus_world);
+    getFrameJacobian(model,data_ref_plus,idx,LOCAL,J_ref_plus_local);
 
     //Move J_ref_plus_local to reference frame
     J_ref_plus_local = (oMf_q.inverse()*oMf_qplus).toActionMatrix()*(J_ref_plus_local);
@@ -310,8 +328,8 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     updateFramePlacements(model,data);
     Data::Matrix6x dJ_world(6,model.nv), dJ_local(6,model.nv);
     dJ_world.fill(0.);    dJ_local.fill(0.);
-    getFrameJacobianTimeVariation<WORLD>(model,data,idx,dJ_world);
-    getFrameJacobianTimeVariation<LOCAL>(model,data,idx,dJ_local);
+    getFrameJacobianTimeVariation(model,data,idx,WORLD,dJ_world);
+    getFrameJacobianTimeVariation(model,data,idx,LOCAL,dJ_local);
 
     BOOST_CHECK(dJ_world.isApprox(dJ_ref_world,sqrt(alpha)));
     BOOST_CHECK(dJ_local.isApprox(dJ_ref_local,sqrt(alpha)));   

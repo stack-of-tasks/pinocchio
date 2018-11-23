@@ -2,141 +2,20 @@
 // Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_spherical_ZYX_hpp__
-#define __se3_joint_spherical_ZYX_hpp__
+#ifndef __pinocchio_joint_spherical_ZYX_hpp__
+#define __pinocchio_joint_spherical_ZYX_hpp__
 #include <iostream>
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
 
-namespace se3
+namespace pinocchio
 {
-  
-  template<typename Scalar, int Options> struct BiasSphericalZYXTpl;
-  
-  template<typename _Scalar, int _Options>
-  struct traits< BiasSphericalZYXTpl<_Scalar,_Options> >
-  {
-    typedef _Scalar Scalar;
-    enum { Options = _Options };
-    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
-    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
-    typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
-    typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
-    typedef Matrix6 ActionMatrixType;
-    typedef typename Vector6::template FixedSegmentReturnType<3>::Type LinearType;
-    typedef typename Vector6::template FixedSegmentReturnType<3>::Type AngularType;
-    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstLinearType;
-    typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstAngularType;
-    typedef MotionTpl<Scalar,_Options> MotionPlain;
-    enum {
-      LINEAR = 0,
-      ANGULAR = 3
-    };
-  };
-  
-  template <typename _Scalar, int _Options>
-  struct BiasSphericalZYXTpl : MotionBase< BiasSphericalZYXTpl<_Scalar,_Options> >
-  {
-    MOTION_TYPEDEF_TPL(BiasSphericalZYXTpl);
-    
-    BiasSphericalZYXTpl () : c_J(Vector3::Constant(NAN)) {}
-    
-    operator MotionPlain () const
-    { return MotionPlain(MotionPlain::Vector3::Zero(),c_J); }
-    
-    Vector3 & operator() () { return c_J; }
-    const Vector3 & operator() () const { return c_J; }
-    
-    template<typename D2>
-    bool isEqual_impl(const MotionDense<D2> & other) const
-    { return other.linear().isZero() && other.angular() == c_J; }
-    
-    template<typename D2>
-    void addTo(MotionDense<D2> & other) const
-    { other.angular() += c_J; }
-    
-    Vector3 c_J;
-  }; // struct BiasSphericalZYXTpl
-  
-  template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain
-  operator+(const MotionDense<MotionDerived> & v, const BiasSphericalZYXTpl<S2,O2> & c)
-  { return typename MotionDerived::MotionPlain(v.linear(), v.angular() + c()); }
-  
-  template<typename S1, int O1, typename MotionDerived>
-  inline typename MotionDerived::MotionPlain
-  operator+(const BiasSphericalZYXTpl<S1,O1> & c, const MotionDense<MotionDerived> & v)
-  { return typename MotionDerived::MotionPlain(v.linear(), v.angular() + c()); }
-  
-  template<typename Scalar, int Options> struct MotionSphericalZYXTpl;
-  
-  template<typename Scalar, int Options>
-  struct traits< MotionSphericalZYXTpl<Scalar,Options> >
-  : traits< BiasSphericalZYXTpl<Scalar,Options> >
-  {};
-  
-  template<typename _Scalar, int _Options>
-  struct MotionSphericalZYXTpl : MotionBase< BiasSphericalZYXTpl<_Scalar,_Options> >
-  {
-    MOTION_TYPEDEF_TPL(MotionSphericalZYXTpl);
-
-    MotionSphericalZYXTpl () : w(Vector3::Constant(NAN)) {}
-    
-    template<typename Vector3Like>
-    MotionSphericalZYXTpl(const Eigen::MatrixBase<Vector3Like> & w) : w (w)
-    {}
-    
-    Vector3 & operator() () { return w; }
-    const Vector3 & operator() () const { return w; }
-    
-    operator MotionPlain() const
-    { return MotionPlain(MotionPlain::Vector3::Zero(),w); }
-    
-    operator Vector3() const { return w; }
-    
-    template<typename Derived>
-    void addTo(MotionDense<Derived> & v) const
-    {
-      v.angular() += w;
-    }
-    
-    Vector3 w;
-  }; // struct MotionSphericalZYXTpl
-  
-  template <typename S1, int O1, typename S2, int O2>
-  inline MotionSphericalZYXTpl<S1,O1>
-  operator+(const MotionSphericalZYXTpl<S1,O1> & m,
-            const BiasSphericalZYXTpl<S2,O2> & c)
-  { return MotionSphericalZYXTpl<S1,O1>(m.w + c.c_J); }
-  
-  template <typename S1, int O1, typename MotionDerived>
-  typename MotionDerived::MotionPlain
-  operator+(const MotionSphericalZYXTpl<S1,O1> & m1,
-            const MotionDense<MotionDerived> & m2)
-  {
-    typedef typename MotionDerived::MotionPlain ReturnType;
-    return ReturnType(m2.linear(),m2.angular()+ m1.w);
-  }
-  
   template<typename Scalar, int Options> struct ConstraintSphericalZYXTpl;
   
   template <typename _Scalar, int _Options>
@@ -164,9 +43,10 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,3,1,Options> JointMotion;
+    typedef MotionSphericalTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,3,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,3,Options> DenseBase;
+    
     typedef DenseBase MatrixReturnType;
     typedef const DenseBase ConstMatrixReturnType;
   }; // struct traits struct ConstraintRotationalSubspace
@@ -174,35 +54,28 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct ConstraintSphericalZYXTpl : public ConstraintBase< ConstraintSphericalZYXTpl<_Scalar,_Options> >
   {
-    SPATIAL_TYPEDEF_TEMPLATE(ConstraintSphericalZYXTpl);
-    enum { NV = 3, Options = _Options };
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
+    SPATIAL_TYPEDEF_TEMPLATE(ConstraintSphericalZYXTpl);
+    
+    enum { NV = 3, Options = _Options };
     typedef typename traits<ConstraintSphericalZYXTpl>::JointMotion JointMotion;
     typedef typename traits<ConstraintSphericalZYXTpl>::JointForce JointForce;
     typedef typename traits<ConstraintSphericalZYXTpl>::DenseBase DenseBase;
     
-    ConstraintSphericalZYXTpl()
-    : S_minimal(Matrix3::Constant(NAN))
-    {}
+    ConstraintSphericalZYXTpl() {}
     
     template<typename Matrix3Like>
     ConstraintSphericalZYXTpl(const Eigen::MatrixBase<Matrix3Like> & subspace)
     : S_minimal(subspace)
     {  EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3); }
     
-    template<typename S1, int O1>
-    Motion operator*(const MotionSphericalZYXTpl<S1,O1> & vj) const
-    { return Motion(Motion::Vector3::Zero(),
-                    S_minimal * vj());
-      
-    }
     template<typename Vector3Like>
-    Motion operator*(const Eigen::MatrixBase<Vector3Like> & v) const
+    JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & v) const
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
-      return Motion(Motion::Vector3::Zero(), S_minimal * v);
+      return JointMotion(S_minimal * v);
     }
-    
     
     Matrix3 & operator() () { return S_minimal; }
     const Matrix3 & operator() () const { return S_minimal; }
@@ -302,37 +175,6 @@ namespace se3
     Matrix3 S_minimal;
     
   }; // struct ConstraintSphericalZYXTpl
-  
-//  template <typename _Scalar, int _Options>
-//  struct JointSphericalZYXTpl
-//  {
-//    typedef _Scalar Scalar;
-//    enum { Options = _Options };
-//    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-//    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
-//    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
-//    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
-//    typedef MotionTpl<Scalar,Options> Motion;
-//    typedef ForceTpl<Scalar,Options> Force;
-//    typedef SE3Tpl<Scalar,Options> SE3;
-//
-//    typedef BiasSphericalZYXTpl<_Scalar,_Options> BiasSpherical;
-//    typedef MotionSphericalZYXTpl<_Scalar,_Options> MotionSpherical;
-//    typedef ConstraintSphericalZYXTpl<_Scalar,_Options> ConstraintRotationalSubspace;
-//
-//  }; // struct JointSphericalZYX
-  
-//  typedef JointSphericalZYXTpl<double,0> JointSphericalZYX;
-
-  template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1, const MotionSphericalZYXTpl<S2,O2> & m2)
-  {
-//    const Motion::Matrix3 m2_cross (skew (Motion::Vector3 (-m2.w)));
-//    return Motion(m2_cross * m1.linear (), m2_cross * m1.angular ());
-    typedef typename MotionDerived::MotionPlain ReturnType;
-    return ReturnType(m1.linear().cross(m2.w), m1.angular().cross(m2.w));
-  }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   template <typename S1, int O1, typename S2, int O2>
@@ -405,14 +247,16 @@ namespace se3
     typedef JointModelSphericalZYXTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintSphericalZYXTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
-    typedef MotionSphericalZYXTpl<Scalar,Options> Motion_t;
-    typedef BiasSphericalZYXTpl<Scalar,Options> Bias_t;
+    typedef MotionSphericalTpl<Scalar,Options> Motion_t;
+    typedef MotionSphericalTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
+    
+    JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
@@ -429,8 +273,10 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct JointDataSphericalZYXTpl : public JointDataBase< JointDataSphericalZYXTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSphericalZYXTpl<_Scalar,_Options> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
     Constraint_t S;
     Transformation_t M;
@@ -443,21 +289,26 @@ namespace se3
     U_t U;
     D_t Dinv;
     UD_t UDinv;
+    D_t StU;
 
     JointDataSphericalZYXTpl () : M(1), U(), Dinv(), UDinv() {}
     
   }; // strcut JointDataSphericalZYXTpl
 
+  JOINT_CAST_TYPE_SPECIALIZATION(JointModelSphericalZYXTpl);
   template<typename _Scalar, int _Options>
-  struct JointModelSphericalZYXTpl : public JointModelBase< JointModelSphericalZYXTpl<_Scalar,_Options> >
+  struct JointModelSphericalZYXTpl
+  : public JointModelBase< JointModelSphericalZYXTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSphericalZYXTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-
-    using JointModelBase<JointModelSphericalZYXTpl>::id;
-    using JointModelBase<JointModelSphericalZYXTpl>::idx_q;
-    using JointModelBase<JointModelSphericalZYXTpl>::idx_v;
-    using JointModelBase<JointModelSphericalZYXTpl>::setIndexes;
+    
+    typedef JointModelBase<JointModelSphericalZYXTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
 
@@ -465,7 +316,6 @@ namespace se3
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVector);
       typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
       
       typedef typename ConfigVector::Scalar S2;
@@ -495,8 +345,6 @@ namespace se3
               const typename Eigen::MatrixBase<ConfigVector> & qs,
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVector);
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,TangentVector);
       typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
       
       typedef typename ConfigVector::Scalar S2;
@@ -520,7 +368,8 @@ namespace se3
       c1 * s2, c2, Scalar(0),
       c1 * c2, -s2, Scalar(0);
     
-      typename TangentVector::template ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.template segment<NV>(idx_v());
+      typename TangentVector::template ConstFixedSegmentReturnType<NV>::Type
+      & q_dot = vs.template segment<NV>(idx_v());
 
       data.v().noalias() = data.S.S_minimal * q_dot;
 
@@ -529,31 +378,64 @@ namespace se3
       data.c()(2) = -s1 * c2 * q_dot(0) * q_dot(1) - c1 * s2 * q_dot(0) * q_dot(2) - c2 * q_dot(1) * q_dot(2);
     }
     
-    template<typename S2, int O2>
-    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
-      typedef Eigen::Matrix<S2,3,3,O2> Matrix3;
-      
       data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * data.S.S_minimal;
-      Matrix3 tmp(data.S.S_minimal.transpose() * data.U.template middleRows<3>(Motion::ANGULAR));
-      data.Dinv = tmp.inverse();
+      data.StU.noalias() = data.S.S_minimal.transpose() * data.U.template middleRows<3>(Motion::ANGULAR);
+      
+      // compute inverse
+      data.Dinv.setIdentity();
+      data.StU.llt().solveInPlace(data.Dinv);
+      
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
-        I -= data.UDinv * data.U.transpose();
+        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
     Scalar finiteDifferenceIncrement() const
     {
-      using std::sqrt;
+      using math::sqrt;
       return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
 
     static std::string classname() { return std::string("JointModelSphericalZYX"); }
     std::string shortname() const { return classname(); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelSphericalZYXTpl<NewScalar,Options> cast() const
+    {
+      typedef JointModelSphericalZYXTpl<NewScalar,Options> ReturnType;
+      ReturnType res;
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
 
   }; // struct JointModelSphericalZYXTpl
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_joint_spherical_ZYX_hpp__
+#include <boost/type_traits.hpp>
+
+namespace boost
+{
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::pinocchio::JointModelSphericalZYXTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::pinocchio::JointModelSphericalZYXTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::pinocchio::JointDataSphericalZYXTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::pinocchio::JointDataSphericalZYXTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+}
+
+#endif // ifndef __pinocchio_joint_spherical_ZYX_hpp__

@@ -1,12 +1,12 @@
 import unittest
-import pinocchio as se3
+import pinocchio as pin
 import numpy as np
 
 class TestGeometryObjectBindings(unittest.TestCase):
 
     def setUp(self):
-        model = se3.buildSampleModelHumanoid()
-        self.collision_model = se3.buildSampleGeometryModelHumanoid(model)
+        model = pin.buildSampleModelHumanoid()
+        self.collision_model = pin.buildSampleGeometryModelHumanoid(model)
 
     def test_name_get_set(self):
         col = self.collision_model.geometryObjects[0]
@@ -21,8 +21,8 @@ class TestGeometryObjectBindings(unittest.TestCase):
         self.assertTrue(col.parentJoint == 3)
 
     def test_placement_get_set(self):
-        m = se3.SE3.Identity()
-        new_m = se3.SE3.Random()
+        m = pin.SE3.Identity()
+        new_m = pin.SE3.Random()
         col = self.collision_model.geometryObjects[0]
         self.assertTrue(np.allclose(col.placement.homogeneous,m.homogeneous))
         col.placement = new_m

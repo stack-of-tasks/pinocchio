@@ -1,28 +1,15 @@
 //
 // Copyright (c) 2015-2016 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_fcl_hpp__
-#define __se3_fcl_hpp__
+#ifndef __pinocchio_fcl_hpp__
+#define __pinocchio_fcl_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
 #include <hpp/fcl/collision_object.h>
 #include <hpp/fcl/collision.h>
 #include <hpp/fcl/distance.h>
@@ -39,7 +26,7 @@
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
 
-namespace se3
+namespace pinocchio
 {
   struct CollisionPair: public std::pair<GeomIndex, GeomIndex>
   {
@@ -53,9 +40,7 @@ namespace se3
 
   }; // struct CollisionPair
 
-  typedef std::vector<CollisionPair> CollisionPairsVector_t;
-
-#ifndef WITH_HPP_FCL  
+#ifndef PINOCCHIO_WITH_HPP_FCL  
 
   namespace fcl
   {
@@ -76,7 +61,7 @@ namespace se3
 
   }
 
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
 
 enum GeometryType
 {
@@ -163,7 +148,7 @@ struct GeometryObject
 };
   
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
@@ -171,4 +156,4 @@ struct GeometryObject
 #include "pinocchio/multibody/fcl.hxx"
 
 
-#endif // ifndef __se3_fcl_hpp__
+#endif // ifndef __pinocchio_fcl_hpp__

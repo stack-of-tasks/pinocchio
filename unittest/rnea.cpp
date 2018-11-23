@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 /*
  * Unittest of the RNE algorithm. The code simply test that the algorithm does
@@ -54,11 +41,11 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
     _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
   #endif
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model; buildModels::humanoidRandom(model);
+  pinocchio::Model model; buildModels::humanoidRandom(model);
   
-  se3::Data data(model);
+  pinocchio::Data data(model);
   data.v[0] = Motion::Zero();
   data.a[0] = -model.gravity;
 
@@ -85,11 +72,11 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
 BOOST_AUTO_TEST_CASE ( test_nle_vs_rnea )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model; buildModels::humanoidRandom(model);
-  se3::Data data_nle(model);
-  se3::Data data_rnea(model);
+  pinocchio::Model model; buildModels::humanoidRandom(model);
+  pinocchio::Data data_nle(model);
+  pinocchio::Data data_rnea(model);
   
   VectorXd q (VectorXd::Random(model.nq));
   VectorXd v (VectorXd::Random(model.nv));
@@ -137,7 +124,7 @@ BOOST_AUTO_TEST_CASE ( test_nle_vs_rnea )
 BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -175,7 +162,7 @@ BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
 BOOST_AUTO_TEST_CASE(test_compute_gravity)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -202,7 +189,7 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
   BOOST_AUTO_TEST_CASE(test_compute_coriolis)
   {
     using namespace Eigen;
-    using namespace se3;
+    using namespace pinocchio;
     
     const double prec = Eigen::NumTraits<double>::dummy_precision();
     

@@ -1,25 +1,11 @@
-
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2018 CNRS INRIA
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_motion_ref_hpp__
-#define __se3_motion_ref_hpp__
+#ifndef __pinocchio_motion_ref_hpp__
+#define __pinocchio_motion_ref_hpp__
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename Vector6ArgType>
@@ -82,8 +68,8 @@ namespace se3
     using Base::__mequ__;
     using Base::__mult__;
     
-    MotionRef(const Eigen::MatrixBase<Vector6ArgType> & v_like)
-    : m_ref(const_cast<Vector6ArgType &>(v_like.derived()))
+    MotionRef(typename EIGEN_REF_TYPE(Vector6ArgType) v_like)
+    : m_ref(v_like)
     {
       EIGEN_STATIC_ASSERT(Vector6ArgType::ColsAtCompileTime == 1,
                           YOU_TRIED_CALLING_A_VECTOR_METHOD_ON_A_MATRIX);
@@ -155,8 +141,69 @@ namespace se3
   protected:
     DataRefType m_ref;
 
-  }; // class MotionTpl
+  }; // class MotionRef<Vector6Like>
   
-} // namespace se3
+  template<typename Vector6ArgType>
+  class MotionRef<const Vector6ArgType>
+  : public MotionDense< MotionRef<const Vector6ArgType> >
+  {
+  public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    typedef MotionDense<MotionRef> Base;
+    typedef typename traits<MotionRef>::DataRefType DataRefType;
+    MOTION_TYPEDEF_TPL(MotionRef);
+    
+    using Base::operator=;
+    using Base::linear;
+    using Base::angular;
+    
+    using Base::__plus__;
+    using Base::__opposite__;
+    using Base::__minus__;
+    using Base::__mult__;
+    
+    MotionRef(typename EIGEN_REF_CONSTTYPE(Vector6ArgType) v_like)
+    : m_ref(v_like)
+    {
+      EIGEN_STATIC_ASSERT(Vector6ArgType::ColsAtCompileTime == 1,
+                          YOU_TRIED_CALLING_A_VECTOR_METHOD_ON_A_MATRIX);
+      assert(v_like.size() == 6);
+    }
+    
+    ToVectorConstReturnType toVector_impl() const { return m_ref; }
+    
+    // Getters
+    ConstAngularType angular_impl() const { return ConstAngularType(m_ref.derived(),ANGULAR); }
+    ConstLinearType linear_impl()  const { return ConstLinearType(m_ref.derived(),LINEAR); }
+    
+    // Specific operators for MotionTpl and MotionRef
+    template<typename S1, int O1>
+    MotionPlain __plus__(const MotionTpl<S1,O1> & v) const
+    { return MotionPlain(m_ref+v.toVector()); }
+    
+    template<typename Vector6Like>
+    MotionPlain __plus__(const MotionRef<Vector6ArgType> & v) const
+    { return MotionPlain(m_ref+v.toVector()); }
+    
+    template<typename S1, int O1>
+    MotionPlain __minus__(const MotionTpl<S1,O1> & v) const
+    { return MotionPlain(m_ref-v.toVector()); }
+    
+    template<typename Vector6Like>
+    MotionPlain __minus__(const MotionRef<Vector6ArgType> & v) const
+    { return MotionPlain(m_ref-v.toVector()); }
+    
+    template<typename OtherScalar>
+    MotionPlain __mult__(const OtherScalar & alpha) const
+    { return MotionPlain(alpha*m_ref); }
+    
+    const MotionRef & ref() const { return *this; }
+    
+  protected:
+    DataRefType m_ref;
+    
+  }; // class MotionRef<const Vector6Like>
+  
+} // namespace pinocchio
 
-#endif // ifndef __se3_motion_ref_hpp__
+#endif // ifndef __pinocchio_motion_ref_hpp__

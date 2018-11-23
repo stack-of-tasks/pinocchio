@@ -2,22 +2,9 @@
 // Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_revolute_hpp__
-#define __se3_joint_revolute_hpp__
+#ifndef __pinocchio_joint_revolute_hpp__
+#define __pinocchio_joint_revolute_hpp__
 
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -26,35 +13,25 @@
 #include "pinocchio/spatial/spatial-axis.hpp"
 #include "pinocchio/utils/axis-label.hpp"
 
-namespace se3
+namespace pinocchio
 {
 
   template<typename Scalar, int Options, int axis> struct MotionRevoluteTpl;
-
-  namespace revolute
+  
+  namespace internal
   {
-    template<int axis>
-    struct CartesianVector3
+    template<typename Scalar, int Options, int axis>
+    struct SE3GroupAction< MotionRevoluteTpl<Scalar,Options,axis> >
     {
-      double w; 
-      CartesianVector3(const double w) : w(w) {}
-      CartesianVector3() : w(NAN) {}
-      
-      Eigen::Vector3d vector() const;
-      operator Eigen::Vector3d () const { return vector(); }
-    }; // struct CartesianVector3
-    template<> inline Eigen::Vector3d CartesianVector3<0>::vector() const { return Eigen::Vector3d(w,0,0); }
-    template<> inline Eigen::Vector3d CartesianVector3<1>::vector() const { return Eigen::Vector3d(0,w,0); }
-    template<> inline Eigen::Vector3d CartesianVector3<2>::vector() const { return Eigen::Vector3d(0,0,w); }
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
     
-    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<0> & wx)
-    { return Eigen::Vector3d(w1[0]+wx.w,w1[1],w1[2]); }
-    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<1> & wy)
-    { return Eigen::Vector3d(w1[0],w1[1]+wy.w,w1[2]); }
-    inline Eigen::Vector3d operator+ (const Eigen::Vector3d & w1,const CartesianVector3<2> & wz)
-    { return Eigen::Vector3d(w1[0],w1[1],w1[2]+wz.w); }
-  } // namespace revolute
-
+    template<typename Scalar, int Options, int axis, typename MotionDerived>
+    struct MotionAlgebraAction< MotionRevoluteTpl<Scalar,Options,axis>, MotionDerived>
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+  }
 
   template<typename _Scalar, int _Options, int axis>
   struct traits< MotionRevoluteTpl<_Scalar,_Options,axis> >
@@ -77,25 +54,231 @@ namespace se3
       ANGULAR = 3
     };
   }; // traits MotionRevoluteTpl
+  
+  template<typename Scalar, int Options, int axis> struct TransformRevoluteTpl;
+  
+  template<typename _Scalar, int _Options, int _axis>
+  struct traits< TransformRevoluteTpl<_Scalar,_Options,_axis> >
+  {
+    enum {
+      axis = _axis,
+      Options = _Options,
+      LINEAR = 0,
+      ANGULAR = 3
+    };
+    typedef _Scalar Scalar;
+    typedef SE3Tpl<Scalar,Options> PlainType;
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
+    typedef Matrix3 AngularType;
+    typedef Matrix3 AngularRef;
+    typedef Matrix3 ConstAngularRef;
+    typedef typename Vector3::ConstantReturnType LinearType;
+    typedef typename Vector3::ConstantReturnType LinearRef;
+    typedef const typename Vector3::ConstantReturnType ConstLinearRef;
+    typedef typename traits<PlainType>::ActionMatrixType ActionMatrixType;
+    typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
+  }; // traits TransformRevoluteTpl
+  
+  namespace internal
+  {
+    template<typename Scalar, int Options, int axis>
+    struct SE3GroupAction< TransformRevoluteTpl<Scalar,Options,axis> >
+    { typedef typename traits <TransformRevoluteTpl<Scalar,Options,axis> >::PlainType ReturnType; };
+  }
+  
+  template<typename _Scalar, int _Options, int axis>
+  struct TransformRevoluteTpl : SE3Base< TransformRevoluteTpl<_Scalar,_Options,axis> >
+  {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    SE3_TYPEDEF_TPL(TransformRevoluteTpl);
+    typedef typename traits<TransformRevoluteTpl>::PlainType PlainType;
+    
+    TransformRevoluteTpl() {}
+    TransformRevoluteTpl(const Scalar & sin, const Scalar & cos)
+    : m_sin(sin), m_cos(cos)
+    {}
+    
+    PlainType plain() const
+    {
+      PlainType res(PlainType::Identity());
+      _setRotation (res.rotation());
+      return res;
+    }
+    
+    operator PlainType() const { return plain(); }
+    
+    template<typename S2, int O2>
+    typename internal::SE3GroupAction<TransformRevoluteTpl>::ReturnType
+    se3action(const SE3Tpl<S2,O2> & m) const
+    {
+      typedef typename internal::SE3GroupAction<TransformRevoluteTpl>::ReturnType ReturnType;
+      ReturnType res;
+      switch(axis)
+      {
+        case 0:
+        {
+          res.rotation().col(0) = m.rotation().col(0);
+          res.rotation().col(1).noalias() = m_cos * m.rotation().col(1) + m_sin * m.rotation().col(2);
+          res.rotation().col(2).noalias() = res.rotation().col(0).cross(res.rotation().col(1));
+          break;
+        }
+        case 1:
+        {
+          res.rotation().col(1) = m.rotation().col(1);
+          res.rotation().col(2).noalias() = m_cos * m.rotation().col(2) + m_sin * m.rotation().col(0);
+          res.rotation().col(0).noalias() = res.rotation().col(1).cross(res.rotation().col(2));
+          break;
+        }
+        case 2:
+        {
+          res.rotation().col(2) = m.rotation().col(2);
+          res.rotation().col(0).noalias() = m_cos * m.rotation().col(0) + m_sin * m.rotation().col(1);
+          res.rotation().col(1).noalias() = res.rotation().col(2).cross(res.rotation().col(0));
+          break;
+        }
+        default:
+        {
+          assert(false && "must nerver happened");
+          break;
+        }
+      }
+      res.translation() = m.translation();
+      return res;
+    }
+    
+    const Scalar & sin() const { return m_sin; }
+    const Scalar & cos() const { return m_cos; }
+    
+    template<typename OtherScalar>
+    void setValues(const OtherScalar & sin, const OtherScalar & cos)
+    { m_sin = sin; m_cos = cos; }
+
+    LinearType translation() const { return LinearType::Zero(3); };
+    AngularType rotation() const {
+      AngularType m(AngularType::Identity(3));
+      _setRotation (m);
+      return m;
+    }
+    
+  protected:
+    
+    Scalar m_sin, m_cos;
+    inline void _setRotation (typename PlainType::AngularRef& rot) const
+    {
+      switch(axis)
+      {
+        case 0:
+        {
+          rot.coeffRef(1,1) = m_cos; rot.coeffRef(1,2) = -m_sin;
+          rot.coeffRef(2,1) = m_sin; rot.coeffRef(2,2) =  m_cos;
+          break;
+        }
+        case 1:
+        {
+          rot.coeffRef(0,0) =  m_cos; rot.coeffRef(0,2) = m_sin;
+          rot.coeffRef(2,0) = -m_sin; rot.coeffRef(2,2) = m_cos;
+          break;
+        }
+        case 2:
+        {
+          rot.coeffRef(0,0) = m_cos; rot.coeffRef(0,1) = -m_sin;
+          rot.coeffRef(1,0) = m_sin; rot.coeffRef(1,1) =  m_cos;
+          break;
+        }
+        default:
+        {
+          assert(false && "must nerver happened");
+          break;
+        }
+      }
+    }
+  };
 
   template<typename _Scalar, int _Options, int axis>
   struct MotionRevoluteTpl : MotionBase< MotionRevoluteTpl<_Scalar,_Options,axis> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     MOTION_TYPEDEF_TPL(MotionRevoluteTpl);
     typedef SpatialAxis<axis+ANGULAR> Axis;
+    typedef typename Axis::CartesianAxis3 CartesianAxis3;
 
-    MotionRevoluteTpl()                   : w(NAN) {}
+    MotionRevoluteTpl() {}
     
     template<typename OtherScalar>
     MotionRevoluteTpl(const OtherScalar & w) : w(w)  {}
     
-    operator MotionPlain() const { return Axis() * w; }
+//    operator MotionPlain() const { return Axis() * w; }
+    
+    template<typename MotionDerived>
+    void setTo(MotionDense<MotionDerived> & m) const
+    {
+      m.linear().setZero();
+      for(Eigen::DenseIndex k = 0; k < 3; ++k)
+        m.angular()[k] = k == axis ? w : (Scalar)0;
+    }
     
     template<typename MotionDerived>
     void addTo(MotionDense<MotionDerived> & v) const
     {
       typedef typename MotionDense<MotionDerived>::Scalar OtherScalar;
       v.angular()[axis] += (OtherScalar)w;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      v.angular().noalias() = m.rotation().col(axis) * w;
+      v.linear().noalias() = m.translation().cross(v.angular());
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3Action_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3Action_impl(m,res);
+      return res;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      // Linear
+      // TODO: use v.angular() as temporary variable
+      Vector3 v3_tmp;
+      CartesianAxis3::alphaCross(w,m.translation(),v3_tmp);
+      v.linear().noalias() = m.rotation().transpose() * v3_tmp;
+      
+      // Angular
+      v.angular().noalias() = m.rotation().transpose().col(axis) * w;
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3ActionInverse_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3ActionInverse_impl(m,res);
+      return res;
+    }
+    
+    template<typename M1, typename M2>
+    EIGEN_STRONG_INLINE
+    void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
+    {
+      // Linear
+      CartesianAxis3::alphaCross(-w,v.linear(),mout.linear());
+
+      // Angular
+      CartesianAxis3::alphaCross(-w,v.angular(),mout.angular());
+    }
+    
+    template<typename M1>
+    MotionPlain motionAction(const MotionDense<M1> & v) const
+    {
+      MotionPlain res;
+      motionAction(v,res);
+      return res;
     }
     
     // data
@@ -110,6 +293,14 @@ namespace se3
     typename MotionDerived::MotionPlain res(m2);
     res += m1;
     return res;
+  }
+  
+  template<typename MotionDerived, typename S2, int O2, int axis>
+  EIGEN_STRONG_INLINE
+  typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteTpl<S2,O2,axis>& m2)
+  {
+    return m2.motionAction(m1);
   }
 
   template<typename Scalar, int Options, int axis> struct ConstraintRevoluteTpl;
@@ -150,7 +341,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,1,1,Options> JointMotion;
+    typedef MotionRevoluteTpl<Scalar,Options,axis> JointMotion;
     typedef Eigen::Matrix<Scalar,1,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,1,Options> DenseBase;
     typedef DenseBase MatrixReturnType;
@@ -158,19 +349,22 @@ namespace se3
   }; // traits ConstraintRevoluteTpl
 
   template<typename _Scalar, int _Options, int axis>
-  struct ConstraintRevoluteTpl : ConstraintBase< ConstraintRevoluteTpl<_Scalar,_Options,axis> >
-  { 
+  struct ConstraintRevoluteTpl
+  : ConstraintBase< ConstraintRevoluteTpl<_Scalar,_Options,axis> >
+  {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintRevoluteTpl);
-    enum { NV = 1, Options = 0 };
+    enum { NV = 1, Options = _Options };
+    
     typedef typename traits<ConstraintRevoluteTpl>::JointMotion JointMotion;
     typedef typename traits<ConstraintRevoluteTpl>::JointForce JointForce;
     typedef typename traits<ConstraintRevoluteTpl>::DenseBase DenseBase;
     typedef SpatialAxis<ANGULAR+axis> Axis;
 
     template<typename Vector1Like>
-    MotionRevoluteTpl<Scalar,Options,axis>
-    operator*(const Eigen::MatrixBase<Vector1Like> & v) const
-    { return MotionRevoluteTpl<Scalar,Options,axis>(v[0]); }
+    JointMotion __mult__(const Eigen::MatrixBase<Vector1Like> & v) const
+    { return JointMotion(v[0]); }
 
     template<typename S1, int O1>
     Eigen::Matrix<Scalar,6,1,Options>
@@ -230,114 +424,16 @@ namespace se3
     }
   }; // struct ConstraintRevoluteTpl
 
-  template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteTpl<S2,O2,0>& m2)
-  {
-    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
-     * nu1^(0,w2) = ( v1^w2      , w1^w2 )
-     * (x,y,z)^(w,0,0) = ( 0,zw,-yw )
-     * nu1^(0,wx) = ( 0,vz1 wx,-vy1 wx,    0,wz1 wx,-wy1 wx)
-     */
-    typedef typename MotionDerived::MotionPlain ReturnType;
-    const typename MotionDerived::ConstLinearType & v = m1.linear();
-    const typename MotionDerived::ConstAngularType & w = m1.angular();
-    const S2 & wx = m2.w;
-    return ReturnType(typename ReturnType::Vector3(0,v[2]*wx,-v[1]*wx),
-                      typename ReturnType::Vector3(0,w[2]*wx,-w[1]*wx)
-                      );
-  }
-
-  template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteTpl<S2,O2,1>& m2)
-  {
-    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
-     * nu1^(0,w2) = ( v1^w2      , w1^w2 )
-     * (x,y,z)^(0,w,0) = ( -z,0,x )
-     * nu1^(0,wx) = ( -vz1 wx,0,vx1 wx,    -wz1 wx,0,wx1 wx)
-     */
-    typedef typename MotionDerived::MotionPlain ReturnType;
-    const typename MotionDerived::ConstLinearType & v = m1.linear();
-    const typename MotionDerived::ConstAngularType & w = m1.angular();
-    const S2 & wx = m2.w;
-    return ReturnType(typename ReturnType::Vector3(-v[2]*wx,0, v[0]*wx),
-                      typename ReturnType::Vector3(-w[2]*wx,0, w[0]*wx)
-                      );
-  }
-
-  template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteTpl<S2,O2,2>& m2)
-  {
-    /* nu1^nu2    = ( v1^w2+w1^v2, w1^w2 )
-     * nu1^(0,w2) = ( v1^w2      , w1^w2 )
-     * (x,y,z)^(0,0,w) = ( y,-x,0 )
-     * nu1^(0,wx) = ( vy1 wx,-vx1 wx,0,    wy1 wx,-wx1 wx,0 )
-     */
-    typedef typename MotionDerived::MotionPlain ReturnType;
-    const typename MotionDerived::ConstLinearType & v = m1.linear();
-    const typename MotionDerived::ConstAngularType & w = m1.angular();
-    const S2 & wx = m2.w;
-    return ReturnType(typename ReturnType::Vector3(v[1]*wx,-v[0]*wx,0),
-                      typename ReturnType::Vector3(w[1]*wx,-w[0]*wx,0)
-                      );
-  }
-
-  template<typename Scalar, int Options, int axis>
+  template<typename _Scalar, int _Options, int _axis>
   struct JointRevoluteTpl
   {
-    template<typename S1, typename S2, typename Matrix3Like>
-    static void cartesianRotation(const S1 & ca, const S2 & sa,
-                                  const Eigen::MatrixBase<Matrix3Like> & res);
-  };
-  
-  template<typename Scalar, int Options>
-  struct JointRevoluteTpl<Scalar,Options,0>
-  {
-    template<typename S1, typename S2, typename Matrix3Like>
-    static void cartesianRotation(const S1 & ca, const S2 & sa,
-                                  const Eigen::MatrixBase<Matrix3Like> & res)
+    typedef _Scalar Scalar;
+    
+    enum
     {
-      Matrix3Like & res_ = const_cast<Matrix3Like &>(res.derived());
-      typedef typename Matrix3Like::Scalar OtherScalar;
-      res_ <<
-      OtherScalar(1), OtherScalar(0), OtherScalar(0),
-      OtherScalar(0),             ca,            -sa,
-      OtherScalar(0),             sa,             ca;
-    }
-  };
-  
-  template<typename Scalar, int Options>
-  struct JointRevoluteTpl<Scalar,Options,1>
-  {
-    template<typename S1, typename S2, typename Matrix3Like>
-    static void cartesianRotation(const S1 & ca, const S2 & sa,
-                                  const Eigen::MatrixBase<Matrix3Like> & res)
-    {
-      Matrix3Like & res_ = const_cast<Matrix3Like &>(res.derived());
-      typedef typename Matrix3Like::Scalar OtherScalar;
-      res_ <<
-                  ca, OtherScalar(0),               sa,
-      OtherScalar(0), OtherScalar(1),   OtherScalar(0),
-                 -sa, OtherScalar(0),               ca;
-    }
-  };
-  
-  template<typename Scalar, int Options>
-  struct JointRevoluteTpl<Scalar,Options,2>
-  {
-    template<typename S1, typename S2, typename Matrix3Like>
-    static void cartesianRotation(const S1 & ca, const S2 & sa,
-                                  const Eigen::MatrixBase<Matrix3Like> & res)
-    {
-      Matrix3Like & res_ = const_cast<Matrix3Like &>(res.derived());
-      typedef typename Matrix3Like::Scalar OtherScalar;
-      res_ <<
-                  ca,            -sa, OtherScalar(0),
-                  sa,             ca, OtherScalar(0),
-      OtherScalar(0), OtherScalar(0), OtherScalar(1);
-    }
+      Options = _Options,
+      axis = _axis
+    };
   };
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
@@ -355,7 +451,7 @@ namespace se3
     const typename Inertia::Symmetric3 & I = Y.inertia();
     
     Eigen::Matrix<S2,6,1,O2> res;
-    res << 0.0,-m*z,m*y,
+    res << (S2)0,-m*z,m*y,
     I(0,0)+m*(y*y+z*z),
     I(0,1)-m*x*y,
     I(0,2)-m*x*z ;
@@ -375,7 +471,7 @@ namespace se3
     &z = Y.lever()[2];
     const typename Inertia::Symmetric3 & I = Y.inertia();
     Eigen::Matrix<S2,6,1,O2> res;
-    res << m*z,0,-m*x,
+    res << m*z,(S2)0,-m*x,
     I(1,0)-m*x*y,
     I(1,1)+m*(x*x+z*z),
     I(1,2)-m*y*z ;
@@ -394,7 +490,7 @@ namespace se3
     &y = Y.lever()[1],
     &z = Y.lever()[2];
     const typename Inertia::Symmetric3 & I = Y.inertia();
-    Eigen::Matrix<S2,6,1,O2> res; res << -m*y,m*x,0,
+    Eigen::Matrix<S2,6,1,O2> res; res << -m*y,m*x,(S2)0,
     I(2,0)-m*x*z,
     I(2,1)-m*y*z,
     I(2,2)+m*(x*x+y*y) ;
@@ -422,15 +518,17 @@ namespace se3
     typedef JointDataRevoluteTpl<Scalar,Options,axis> JointDataDerived;
     typedef JointModelRevoluteTpl<Scalar,Options,axis> JointModelDerived;
     typedef ConstraintRevoluteTpl<Scalar,Options,axis> Constraint_t;
-    typedef SE3Tpl<Scalar,Options> Transformation_t;
+    typedef TransformRevoluteTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionRevoluteTpl<Scalar,Options,axis> Motion_t;
-    typedef BiasZero Bias_t;
+    typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
+    
+    JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
@@ -447,8 +545,10 @@ namespace se3
   template<typename _Scalar, int _Options, int axis>
   struct JointDataRevoluteTpl : public JointDataBase< JointDataRevoluteTpl<_Scalar,_Options,axis> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteTpl<_Scalar,_Options,axis> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    JOINT_DATA_BASE_DEFAULT_ACCESSOR
 
     Constraint_t S;
     Transformation_t M;
@@ -461,61 +561,68 @@ namespace se3
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataRevoluteTpl() : M(1), U(), Dinv(), UDinv()
-    {}
+    JointDataRevoluteTpl() {}
 
   }; // struct JointDataRevoluteTpl
+  
+  template<typename NewScalar, typename Scalar, int Options, int axis>
+  struct CastType< NewScalar, JointModelRevoluteTpl<Scalar,Options,axis> >
+  {
+    typedef JointModelRevoluteTpl<NewScalar,Options,axis> type;
+  };
 
   template<typename _Scalar, int _Options, int axis>
   struct JointModelRevoluteTpl : public JointModelBase< JointModelRevoluteTpl<_Scalar,_Options,axis> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteTpl<_Scalar,_Options,axis> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
 
-    using JointModelBase<JointModelRevoluteTpl>::id;
-    using JointModelBase<JointModelRevoluteTpl>::idx_q;
-    using JointModelBase<JointModelRevoluteTpl>::idx_v;
-    using JointModelBase<JointModelRevoluteTpl>::setIndexes;
+    typedef JointModelBase<JointModelRevoluteTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
     
     JointDataDerived createData() const { return JointDataDerived(); }
     
     template<typename ConfigVector>
+    EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVector);
       typedef typename ConfigVector::Scalar OtherScalar;
       
       const OtherScalar & q = qs[idx_q()];
       OtherScalar ca,sa; SINCOS(q,&sa,&ca);
-      JointDerived::cartesianRotation(ca,sa,data.M.rotation());
+      data.M.setValues(sa,ca);
     }
 
     template<typename ConfigVector, typename TangentVector>
+    EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs,
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,TangentVector);
       calc(data,qs.derived());
 
       data.v.w = (Scalar)vs[idx_v()];;
     }
     
-    template<typename S2, int O2>
-    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
       data.U = I.col(Inertia::ANGULAR + axis);
       data.Dinv[0] = Scalar(1)/I(Inertia::ANGULAR + axis,Inertia::ANGULAR + axis);
       data.UDinv.noalias() = data.U * data.Dinv[0];
       
       if (update_I)
-        I -= data.UDinv * data.U.transpose();
+        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
     Scalar finiteDifferenceIncrement() const
     {
-      using std::sqrt;
+      using math::sqrt;
       return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
 
@@ -524,7 +631,17 @@ namespace se3
       return std::string("JointModelR") + axisLabel<axis>();
     }
     std::string shortname() const { return classname(); }
-
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelRevoluteTpl<NewScalar,Options,axis> cast() const
+    {
+      typedef JointModelRevoluteTpl<NewScalar,Options,axis> ReturnType;
+      ReturnType res;
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
+    
   }; // struct JointModelRevoluteTpl
 
   typedef JointRevoluteTpl<double,0,0> JointRX;
@@ -539,6 +656,27 @@ namespace se3
   typedef JointDataRevoluteTpl<double,0,2> JointDataRZ;
   typedef JointModelRevoluteTpl<double,0,2> JointModelRZ;
 
-} //namespace se3
+} //namespace pinocchio
 
-#endif // ifndef __se3_joint_revolute_hpp__
+#include <boost/type_traits.hpp>
+
+namespace boost
+{
+  template<typename Scalar, int Options, int axis>
+  struct has_nothrow_constructor< ::pinocchio::JointModelRevoluteTpl<Scalar,Options,axis> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options, int axis>
+  struct has_nothrow_copy< ::pinocchio::JointModelRevoluteTpl<Scalar,Options,axis> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options, int axis>
+  struct has_nothrow_constructor< ::pinocchio::JointDataRevoluteTpl<Scalar,Options,axis> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options, int axis>
+  struct has_nothrow_copy< ::pinocchio::JointDataRevoluteTpl<Scalar,Options,axis> >
+  : public integral_constant<bool,true> {};
+}
+
+#endif // ifndef __pinocchio_joint_revolute_hpp__

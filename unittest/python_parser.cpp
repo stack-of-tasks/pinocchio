@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2016-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
@@ -32,7 +19,7 @@ BOOST_AUTO_TEST_CASE ( buildModel )
   #ifndef NDEBUG
    std::cout << "Parse filename \"" << filename << "\"" << std::endl;
   #endif
-  se3::Model model = se3::python::buildModel(filename,"model",false);
+  pinocchio::Model model = pinocchio::python::buildModel(filename,"model",false);
   #ifndef NDEBUG
    std::cout << "This model has \"" << model.nq << "\" DoF" << std::endl;
   #endif

@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -41,18 +28,18 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_jacobian )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Zero(model.nq);
   computeJointJacobians(model,data,q);
 
   Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.njoints-1); 
   Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
-  getJointJacobian<WORLD>(model,data,idx,Jrh);
+  getJointJacobian(model,data,idx,WORLD,Jrh);
 
    /* Test J*q == v */
   VectorXd qdot = VectorXd::Random(model.nv);
@@ -64,7 +51,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 
   /* Test local jacobian: rhJrh == rhXo oJrh */ 
   Data::Matrix6x rhJrh(6,model.nv); rhJrh.fill(0);
-  getJointJacobian<LOCAL>(model,data,idx,rhJrh);
+  getJointJacobian(model,data,idx,LOCAL,rhJrh);
   Data::Matrix6x XJrh(6,model.nv); 
   motionSet::se3Action( data.oMi[idx].inverse(), Jrh,XJrh );
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
@@ -84,12 +71,12 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
   
   VectorXd q = randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) );
   VectorXd v = VectorXd::Random(model.nv);
@@ -106,8 +93,8 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
   
   // Regarding to the world origin
-  getJointJacobian<WORLD>(model,data,idx,J);
-  getJointJacobianTimeVariation<WORLD>(model,data,idx,dJ);
+  getJointJacobian(model,data,idx,WORLD,J);
+  getJointJacobianTimeVariation(model,data,idx,WORLD,dJ);
   
   Motion v_idx(J*v);
   BOOST_CHECK(v_idx.isApprox(data_ref.oMi[idx].act(data_ref.v[idx])));
@@ -118,8 +105,8 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   
   
   // Regarding to the local frame
-  getJointJacobian<LOCAL>(model,data,idx,J);
-  getJointJacobianTimeVariation<LOCAL>(model,data,idx,dJ);
+  getJointJacobian(model,data,idx,LOCAL,J);
+  getJointJacobianTimeVariation(model,data,idx,LOCAL,dJ);
   
   v_idx = (Motion::Vector6)(J*v);
   BOOST_CHECK(v_idx.isApprox(data_ref.v[idx]));
@@ -137,18 +124,18 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
     
     Data::Matrix6x J_ref(6,model.nv); J_ref.fill(0.);
     computeJointJacobians(model,data_ref,q);
-    getJointJacobian<WORLD>(model,data_ref,idx,J_ref);
+    getJointJacobian(model,data_ref,idx,WORLD,J_ref);
     
     Data::Matrix6x J_ref_plus(6,model.nv); J_ref_plus.fill(0.);
     computeJointJacobians(model,data_ref_plus,q_plus);
-    getJointJacobian<WORLD>(model,data_ref_plus,idx,J_ref_plus);
+    getJointJacobian(model,data_ref_plus,idx,WORLD,J_ref_plus);
     
     Data::Matrix6x dJ_ref(6,model.nv); dJ_ref.fill(0.);
     dJ_ref = (J_ref_plus - J_ref)/alpha;
     
     computeJointJacobiansTimeVariation(model,data,q,v);
     Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
-    getJointJacobianTimeVariation<WORLD>(model,data,idx,dJ);
+    getJointJacobianTimeVariation(model,data,idx,WORLD,dJ);
     
     BOOST_CHECK(dJ.isApprox(dJ_ref,sqrt(alpha)));
   }
@@ -159,11 +146,11 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
 BOOST_AUTO_TEST_CASE ( test_timings )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
 
   long flag = BOOST_BINARY(1111);
   PinocchioTicToc timer(PinocchioTicToc::US); 
@@ -202,7 +189,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     timer.tic();
     SMOOTH(NBT)
     {
-      getJointJacobian<WORLD>(model,data,idx,Jrh);
+      getJointJacobian(model,data,idx,WORLD,Jrh);
     }
     if(verbose) std::cout << "Copy =\t";
     timer.toc(std::cout,NBT);
@@ -217,7 +204,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     timer.tic();
     SMOOTH(NBT)
     {
-      getJointJacobian<LOCAL>(model,data,idx,Jrh);
+      getJointJacobian(model,data,idx,LOCAL,Jrh);
     }
     if(verbose) std::cout << "Change frame =\t";
     timer.toc(std::cout,NBT);

@@ -1,58 +1,52 @@
 //
 // Copyright (c) 2016-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_vector_space_operation_hpp__
-#define __se3_vector_space_operation_hpp__
+#ifndef __pinocchio_vector_space_operation_hpp__
+#define __pinocchio_vector_space_operation_hpp__
 
 #include <stdexcept>
 
-#include "pinocchio/multibody/liegroup/operation-base.hpp"
+#include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 
 #include <boost/integer/static_min_max.hpp>
 
-namespace se3
+namespace pinocchio
 {
-  template<int Size> struct VectorSpaceOperation;
-  template<int Size> struct traits<VectorSpaceOperation<Size> > {
-    typedef double Scalar;
+  template<int Dim, typename Scalar, int Options = 0> struct VectorSpaceOperationTpl;
+  
+  template<int Dim, typename _Scalar, int _Options>
+  struct traits< VectorSpaceOperationTpl<Dim,_Scalar,_Options> >
+  {
+    typedef _Scalar Scalar;
     enum {
-      NQ = Size,
-      NV = Size
+      Options = _Options,
+      NQ = Dim,
+      NV = Dim
     };
   };
 
-  template<int Size = Eigen::Dynamic>
-  struct VectorSpaceOperation : public LieGroupBase <VectorSpaceOperation<Size> >
+  template<int Dim, typename _Scalar, int _Options>
+  struct VectorSpaceOperationTpl
+  : public LieGroupBase< VectorSpaceOperationTpl<Dim,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(VectorSpaceOperation);
+    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(VectorSpaceOperationTpl);
 
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
     ///        argument for static sized vector-spaces.
-    VectorSpaceOperation (int size = boost::static_signed_max<0,Size>::value) : size_ (size)
+    VectorSpaceOperationTpl(int size = boost::static_signed_max<0,Dim>::value)
+    : size_(size)
     {
-      assert (size_.value() >= 0);
+      assert(size_.value() >= 0);
     }
 
     /// Constructor
-    /// \param other other VectorSpaceOperation from which to retrieve size
-    VectorSpaceOperation (const VectorSpaceOperation& other) : Base (), size_ (other.size_.value())
+    /// \param other other VectorSpaceOperationTpl from which to retrieve size
+    VectorSpaceOperationTpl(const VectorSpaceOperationTpl & other)
+    : Base(), size_(other.size_.value())
     {
-      assert (size_.value() >= 0);
+      assert(size_.value() >= 0);
     }
 
     Index nq () const
@@ -80,18 +74,18 @@ namespace se3
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      const_cast< Eigen::MatrixBase<Tangent_t>& > (d) = q1 - q0;
+      EIGEN_CONST_CAST(Tangent_t,d) = q1 - q0;
     }
 
-    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    static void Jdifference_impl(const Eigen::MatrixBase<ConfigL_t> &,
-                                 const Eigen::MatrixBase<ConfigR_t> &,
-                                 const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                                 const Eigen::MatrixBase<JacobianROut_t>& J1)
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> &,
+                           const Eigen::MatrixBase<ConfigR_t> &,
+                           const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
-      const_cast< JacobianLOut_t& > (J0.derived()).setZero();
-      const_cast< JacobianLOut_t& > (J0.derived()).diagonal().setConstant(-1);
-      const_cast< JacobianROut_t& > (J1.derived()).setIdentity();
+      if (arg == ARG0)
+        EIGEN_CONST_CAST(JacobianOut_t,J).noalias() = - JacobianMatrix_t::Identity();
+      else if (arg == ARG1)
+        EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -99,14 +93,14 @@ namespace se3
                                const Eigen::MatrixBase<Velocity_t> & v,
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
-      const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout) = q + v;
+      EIGEN_CONST_CAST(ConfigOut_t,qout) = q + v;
     }
 
-    template <class Tangent_t, class JacobianOut_t>
-    static void Jintegrate_impl(const Eigen::MatrixBase<Tangent_t> &,
-                                const Eigen::MatrixBase<JacobianOut_t> & J)
+    template <class Config_t, class Jacobian_t>
+    static void integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> &,
+                                                const Eigen::MatrixBase<Jacobian_t> & J)
     {
-      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+      EIGEN_CONST_CAST(Jacobian_t,J).setIdentity();
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -114,7 +108,7 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+      EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -122,7 +116,7 @@ namespace se3
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      const_cast< JacobianOut_t& > (J.derived()).setIdentity();
+      EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
 
 
@@ -137,7 +131,7 @@ namespace se3
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
-      const_cast< Eigen::MatrixBase<Config_t>& > (qout).setRandom();
+      EIGEN_CONST_CAST(Config_t,qout).setRandom();
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -146,24 +140,26 @@ namespace se3
      const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
      const Eigen::MatrixBase<ConfigOut_t> & qout) const
     {
-      ConfigOut_t& res = const_cast< Eigen::MatrixBase<ConfigOut_t>& > (qout).derived();
+      ConfigOut_t & res = EIGEN_CONST_CAST(ConfigOut_t,qout).derived();
       for (int i = 0; i < nq (); ++i)
       {
-        if(lower_pos_limit[i] == -std::numeric_limits<Scalar>::infinity() ||
-           upper_pos_limit[i] ==  std::numeric_limits<Scalar>::infinity() )
+        if(lower_pos_limit[i] == -std::numeric_limits<typename ConfigL_t::Scalar>::infinity() ||
+           upper_pos_limit[i] ==  std::numeric_limits<typename ConfigR_t::Scalar>::infinity() )
         {
           std::ostringstream error;
           error << "non bounded limit. Cannot uniformly sample joint at rank " << i;
           // assert(false && "non bounded limit. Cannot uniformly sample joint revolute");
-          throw std::runtime_error(error.str());
+          throw std::range_error(error.str());
         }
         res[i] = lower_pos_limit[i] + (( upper_pos_limit[i] - lower_pos_limit[i]) * rand())/RAND_MAX;
       }
     }
+    
   private:
-    Eigen::internal::variable_if_dynamic<Index, Size> size_;
-  }; // struct VectorSpaceOperation
+    
+    Eigen::internal::variable_if_dynamic<Index, Dim> size_;
+  }; // struct VectorSpaceOperationTpl
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_vector_space_operation_hpp__
+#endif // ifndef __pinocchio_vector_space_operation_hpp__

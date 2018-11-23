@@ -2,19 +2,6 @@
 // Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/geometry.hpp>
@@ -24,7 +11,7 @@
 #include "pinocchio/bindings/python/utils/version.hpp"
 
 namespace bp = boost::python;
-using namespace se3::python;
+using namespace pinocchio::python;
 
 BOOST_PYTHON_MODULE(libpinocchio_pywrap)
 {
@@ -49,9 +36,9 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   exposeJoints();
   exposeExplog();
   
-  bp::enum_< ::se3::ReferenceFrame >("ReferenceFrame")
-  .value("WORLD",::se3::WORLD)
-  .value("LOCAL",::se3::LOCAL)
+  bp::enum_< ::pinocchio::ReferenceFrame >("ReferenceFrame")
+  .value("WORLD",::pinocchio::WORLD)
+  .value("LOCAL",::pinocchio::LOCAL)
   ;
 
   exposeModel();
@@ -62,9 +49,9 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   exposeAlgorithms();
   exposeParsers();
   
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
   exposeFCL();
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
   
   exposeVersion();
   

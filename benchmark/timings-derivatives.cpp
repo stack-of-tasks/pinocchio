@@ -1,25 +1,7 @@
 //
 // Copyright (c) 2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/multibody/visitor.hpp"
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
@@ -37,14 +19,19 @@
 
 #include "pinocchio/utils/timer.hpp"
 
-void rnea_fd(const se3::Model & model, se3::Data & data_fd,
+template<typename Matrix1, typename Matrix2, typename Matrix3>
+void rnea_fd(const pinocchio::Model & model, pinocchio::Data & data_fd,
              const Eigen::VectorXd & q,
              const Eigen::VectorXd & v,
              const Eigen::VectorXd & a,
-             Eigen::MatrixXd & drnea_dq,
-             Eigen::MatrixXd & drnea_dv,
-             Eigen::MatrixXd & drnea_da)
+             const Eigen::MatrixBase<Matrix1> & _drnea_dq,
+             const Eigen::MatrixBase<Matrix2> & _drnea_dv,
+             const Eigen::MatrixBase<Matrix3> & _drnea_da)
 {
+  Matrix1 & drnea_dq = EIGEN_CONST_CAST(Matrix1,_drnea_dq);
+  Matrix2 & drnea_dv = EIGEN_CONST_CAST(Matrix2,_drnea_dv);
+  Matrix3 & drnea_da = EIGEN_CONST_CAST(Matrix3,_drnea_da);
+  
   using namespace Eigen;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -77,18 +64,18 @@ void rnea_fd(const se3::Model & model, se3::Data & data_fd,
   
   // dRNEA/da
   drnea_da = crba(model,data_fd,q);
-  drnea_da.triangularView<Eigen::StrictlyLower>()
-  = drnea_da.transpose().triangularView<Eigen::StrictlyLower>();
+  drnea_da.template triangularView<Eigen::StrictlyLower>()
+  = drnea_da.transpose().template triangularView<Eigen::StrictlyLower>();
   
 }
 
-void aba_fd(const se3::Model & model, se3::Data & data_fd,
+void aba_fd(const pinocchio::Model & model, pinocchio::Data & data_fd,
             const Eigen::VectorXd & q,
             const Eigen::VectorXd & v,
             const Eigen::VectorXd & tau,
             Eigen::MatrixXd & daba_dq,
             Eigen::MatrixXd & daba_dv,
-            se3::Data::RowMatrixXd & daba_dtau)
+            pinocchio::Data::RowMatrixXs & daba_dtau)
 {
   using namespace Eigen;
   VectorXd v_eps(VectorXd::Zero(model.nv));
@@ -127,7 +114,7 @@ void aba_fd(const se3::Model & model, se3::Data & data_fd,
 int main(int argc, const char ** argv)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
   PinocchioTicToc timer(PinocchioTicToc::US);
   #ifdef NDEBUG
@@ -152,13 +139,12 @@ int main(int argc, const char ** argv)
     
   if( filename == "HS") 
     buildModels::humanoidRandom(model,true);
-  else if( filename == "H2" )
-    buildModels::humanoid2d(model);
   else
     if(with_ff)
-      se3::urdf::buildModel(filename,JointModelFreeFlyer(),model);
+      pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(),model);
+//      pinocchio::urdf::buildModel(filename,JointModelRX(),model);
     else
-      se3::urdf::buildModel(filename,model);
+      pinocchio::urdf::buildModel(filename,model);
   std::cout << "nq = " << model.nq << std::endl;
   std::cout << "nv = " << model.nv << std::endl;
 
@@ -180,14 +166,14 @@ int main(int argc, const char ** argv)
     qddots[i] = Eigen::VectorXd::Random(model.nv);
     taus[i] = Eigen::VectorXd::Random(model.nv);
   }
-
-  MatrixXd drnea_dq(MatrixXd::Zero(model.nv,model.nv));
-  MatrixXd drnea_dv(MatrixXd::Zero(model.nv,model.nv));
+  
+  EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXd) drnea_dq(MatrixXd::Zero(model.nv,model.nv));
+  EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXd) drnea_dv(MatrixXd::Zero(model.nv,model.nv));
   MatrixXd drnea_da(MatrixXd::Zero(model.nv,model.nv));
  
   MatrixXd daba_dq(MatrixXd::Zero(model.nv,model.nv));
   MatrixXd daba_dv(MatrixXd::Zero(model.nv,model.nv));
-  Data::RowMatrixXd daba_dtau(Data::RowMatrixXd::Zero(model.nv,model.nv));
+  Data::RowMatrixXs daba_dtau(Data::RowMatrixXs::Zero(model.nv,model.nv));
   
   timer.tic();
   SMOOTH(NBT)
@@ -195,14 +181,14 @@ int main(int argc, const char ** argv)
     forwardKinematics(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth]);
   }
   std::cout << "FK= \t\t"; timer.toc(std::cout,NBT);
-  
+
   timer.tic();
   SMOOTH(NBT)
   {
     computeForwardKinematicsDerivatives(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth]);
   }
   std::cout << "FK derivatives= \t\t"; timer.toc(std::cout,NBT);
-  
+
   timer.tic();
   SMOOTH(NBT)
   {
@@ -217,15 +203,15 @@ int main(int argc, const char ** argv)
                            drnea_dq,drnea_dv,drnea_da);
   }
   std::cout << "RNEA derivatives= \t\t"; timer.toc(std::cout,NBT);
-  
+
   timer.tic();
-  SMOOTH(NBT)
+  SMOOTH(NBT/100)
   {
     rnea_fd(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth],
             drnea_dq,drnea_dv,drnea_da);
   }
-  std::cout << "RNEA finite differences= \t\t"; timer.toc(std::cout,NBT);
-  
+  std::cout << "RNEA finite differences= \t\t"; timer.toc(std::cout,NBT/100);
+
   timer.tic();
   SMOOTH(NBT)
   {
@@ -248,7 +234,7 @@ int main(int argc, const char ** argv)
            daba_dq,daba_dv,daba_dtau);
   }
   std::cout << "ABA finite differences= \t\t"; timer.toc(std::cout,NBT);
-  
+
   timer.tic();
   SMOOTH(NBT)
   {

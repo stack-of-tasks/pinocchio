@@ -2,34 +2,37 @@
 // Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_planar_hpp__
-#define __se3_joint_planar_hpp__
+#ifndef __pinocchio_joint_planar_hpp__
+#define __pinocchio_joint_planar_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/spatial/cartesian-axis.hpp"
 #include "pinocchio/multibody/constraint.hpp"
-#include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   template<typename Scalar, int Options = 0> struct MotionPlanarTpl;
+  typedef MotionPlanarTpl<double> MotionPlanar;
+  
+  namespace internal
+  {
+    template<typename Scalar, int Options>
+    struct SE3GroupAction< MotionPlanarTpl<Scalar,Options> >
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+    
+    template<typename Scalar, int Options, typename MotionDerived>
+    struct MotionAlgebraAction< MotionPlanarTpl<Scalar,Options>, MotionDerived>
+    {
+      typedef MotionTpl<Scalar,Options> ReturnType;
+    };
+  }
   
   template<typename _Scalar, int _Options>
   struct traits< MotionPlanarTpl<_Scalar,_Options> >
@@ -56,26 +59,108 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct MotionPlanarTpl : MotionBase< MotionPlanarTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MOTION_TYPEDEF_TPL(MotionPlanarTpl);
-
-    MotionPlanarTpl () : m_x_dot(NAN), m_y_dot(NAN), m_theta_dot(NAN) {}
     
-    MotionPlanarTpl (Scalar x_dot, Scalar y_dot, Scalar theta_dot)
+    typedef CartesianAxis<2> AxisZ;
+
+    MotionPlanarTpl() {}
+    
+    MotionPlanarTpl(const Scalar & x_dot, const Scalar & y_dot,
+                    const Scalar & theta_dot)
     : m_x_dot(x_dot), m_y_dot(y_dot), m_theta_dot(theta_dot)
     {}
-
-    operator MotionPlain() const
+    
+    template<typename Vector3Like>
+    MotionPlanarTpl(const Eigen::MatrixBase<Vector3Like> & vj)
+    : m_x_dot(vj[0]), m_y_dot(vj[1]), m_theta_dot(vj[2])
     {
-      return MotionPlain(typename MotionPlain::Vector3(m_x_dot,m_y_dot,Scalar(0)),
-                         typename MotionPlain::Vector3(Scalar(0),Scalar(0),m_theta_dot));
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
     }
+
+//    operator MotionPlain() const
+//    {
+//      return MotionPlain(typename MotionPlain::Vector3(m_x_dot,m_y_dot,Scalar(0)),
+//                         typename MotionPlain::Vector3(Scalar(0),Scalar(0),m_theta_dot));
+//    }
     
     template<typename Derived>
-    void addTo(MotionDense<Derived> & v) const
+    void addTo(MotionDense<Derived> & other) const
     {
-      v.linear()[0] += m_x_dot;
-      v.linear()[1] += m_y_dot;
-      v.angular()[2] += m_theta_dot;
+      other.linear()[0] += m_x_dot;
+      other.linear()[1] += m_y_dot;
+      other.angular()[2] += m_theta_dot;
+    }
+    
+    template<typename MotionDerived>
+    void setTo(MotionDense<MotionDerived> & other) const
+    {
+      other.linear()  <<   m_x_dot,   m_y_dot,   (Scalar)0;
+      other.angular() << (Scalar)0, (Scalar)0, m_theta_dot;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      v.angular().noalias() = m.rotation().col(2) * m_theta_dot;
+      v.linear().noalias() = m.translation().cross(v.angular());
+      v.linear() += m.rotation().col(0) * m_x_dot;
+      v.linear() += m.rotation().col(1) * m_y_dot;
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3Action_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3Action_impl(m,res);
+      return res;
+    }
+    
+    template<typename S2, int O2, typename D2>
+    void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    {
+      // Linear
+      // TODO: use v.angular() as temporary variable
+      Vector3 v3_tmp;
+      AxisZ::alphaCross(m_theta_dot,m.translation(),v3_tmp);
+      v3_tmp[0] += m_x_dot; v3_tmp[1] += m_y_dot;
+      v.linear().noalias() = m.rotation().transpose() * v3_tmp;
+      
+      // Angular
+      v.angular().noalias() = m.rotation().transpose().col(2) * m_theta_dot;
+    }
+    
+    template<typename S2, int O2>
+    MotionPlain se3ActionInverse_impl(const SE3Tpl<S2,O2> & m) const
+    {
+      MotionPlain res;
+      se3ActionInverse_impl(m,res);
+      return res;
+    }
+    
+    template<typename M1, typename M2>
+    void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
+    {
+      // Linear
+      AxisZ::alphaCross(-m_theta_dot,v.linear(),mout.linear());
+      
+      typename M1::ConstAngularType w_in = v.angular();
+      typename M2::LinearType v_out = mout.linear();
+      
+      v_out[0] -= w_in[2] * m_y_dot;
+      v_out[1] += w_in[2] * m_x_dot;
+      v_out[2] += -w_in[1] * m_x_dot + w_in[0] * m_y_dot ;
+      
+      // Angular
+      AxisZ::alphaCross(-m_theta_dot,v.angular(),mout.angular());
+    }
+    
+    template<typename M1>
+    MotionPlain motionAction(const MotionDense<M1> & v) const
+    {
+      MotionPlain res;
+      motionAction(v,res);
+      return res;
     }
 
     // data
@@ -125,7 +210,7 @@ namespace se3
       LINEAR = 0,
       ANGULAR = 3
     };
-    typedef Eigen::Matrix<Scalar,3,1,Options> JointMotion;
+    typedef MotionPlanarTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,3,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,3,Options> DenseBase;
     typedef DenseBase MatrixReturnType;
@@ -135,17 +220,20 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct ConstraintPlanarTpl : ConstraintBase< ConstraintPlanarTpl<_Scalar,_Options> >
   {
-
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     SPATIAL_TYPEDEF_TEMPLATE(ConstraintPlanarTpl);
-    enum { NV = 3, Options = 0 }; // to check
+    
+    enum { NV = 3, Options = _Options }; // to check
     typedef typename traits<ConstraintPlanarTpl>::JointMotion JointMotion;
     typedef typename traits<ConstraintPlanarTpl>::JointForce JointForce;
     typedef typename traits<ConstraintPlanarTpl>::DenseBase DenseBase;
 
-    template<typename S1, int O1>
-    typename MotionPlanarTpl<S1,O1>::MotionPlain
-    operator*(const MotionPlanarTpl<S1,O1> & vj) const
-    { return vj; }
+    template<typename Vector3Like>
+    JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & vj) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+      return JointMotion(vj);
+    }
 
     int nv_impl() const { return NV; }
 
@@ -221,38 +309,11 @@ namespace se3
     }
   }; // struct ConstraintPlanarTpl
 
-  template<typename Scalar, int Options, typename MatrixDerived>
-  MotionTpl<Scalar,Options> operator* (const ConstraintPlanarTpl<Scalar,Options> &, const Eigen::MatrixBase<MatrixDerived> & v)
-  {
-    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(MatrixDerived,3);
-    
-    typedef MotionTpl<Scalar,Options> ReturnType;
-    ReturnType result(ReturnType::Zero());
-    result.linear().template head<2> () = v.template topRows<2>();
-    result.angular().template tail<1> () = v.template bottomRows<1>();
-    return result;
-  }
-
   template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain operator^ (const MotionDense<MotionDerived> & m1, const MotionPlanarTpl<S2,O2> & m2)
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1, const MotionPlanarTpl<S2,O2> & m2)
   {
-    typename MotionDerived::MotionPlain result;
-    typedef typename MotionDerived::Scalar Scalar;
-
-    const typename MotionDerived::ConstLinearType & m1_t = m1.linear();
-    const typename MotionDerived::ConstAngularType & m1_w = m1.angular();
-
-    result.angular()
-    << m1_w(1) * m2.m_theta_dot
-    , - m1_w(0) * m2.m_theta_dot
-    , Scalar(0);
-    
-    result.linear()
-    << m1_t(1) * m2.m_theta_dot - m1_w(2) * m2.m_y_dot
-    , - m1_t(0) * m2.m_theta_dot + m1_w(2) * m2.m_x_dot
-    , m1_w(0) * m2.m_y_dot - m1_w(1) * m2.m_x_dot;
-
-    return result;
+    return m2.motionAction(m1);
   }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
@@ -275,7 +336,7 @@ namespace se3
     const typename Inertia::Vector3 mc(mass * com);
     M.template rightCols<1>().template head<2>() << -mc(1), mc(0);
 
-    M.template bottomLeftCorner<3,2>() << 0., -mc(2), mc(2), 0., -mc(1), mc(0);
+    M.template bottomLeftCorner<3,2>() << (Scalar)0, -mc(2), mc(2), (Scalar)0, -mc(1), mc(0);
     M.template rightCols<1>().template tail<3>() = inertia.data().template tail<3>();
     M.template rightCols<1>()[3] -= mc(0)*com(2);
     M.template rightCols<1>()[4] -= mc(1)*com(2);
@@ -327,15 +388,17 @@ namespace se3
     typedef JointDataPlanarTpl<Scalar,Options> JointDataDerived;
     typedef JointModelPlanarTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintPlanarTpl<Scalar,Options> Constraint_t;
-    typedef SE3 Transformation_t;
+    typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionPlanarTpl<Scalar,Options> Motion_t;
-    typedef BiasZero Bias_t;
+    typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
+    
+    JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
@@ -349,8 +412,10 @@ namespace se3
   template<typename _Scalar, int _Options>
   struct JointDataPlanarTpl : public JointDataBase< JointDataPlanarTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPlanarTpl<_Scalar,_Options> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
     Constraint_t S;
     Transformation_t M;
@@ -363,31 +428,36 @@ namespace se3
     U_t U;
     D_t Dinv;
     UD_t UDinv;
+    
+    D_t StU;
 
     JointDataPlanarTpl () : M(1), U(), Dinv(), UDinv() {}
 
   }; // struct JointDataPlanarTpl
 
+  JOINT_CAST_TYPE_SPECIALIZATION(JointModelPlanarTpl);
   template<typename _Scalar, int _Options>
-  struct JointModelPlanarTpl : public JointModelBase< JointModelPlanarTpl<_Scalar,_Options> >
+  struct JointModelPlanarTpl
+  : public JointModelBase< JointModelPlanarTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPlanarTpl<_Scalar,_Options> JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-
-    using JointModelBase<JointModelPlanarTpl>::id;
-    using JointModelBase<JointModelPlanarTpl>::idx_q;
-    using JointModelBase<JointModelPlanarTpl>::idx_v;
-    using JointModelBase<JointModelPlanarTpl>::setIndexes;
+    
+    typedef JointModelBase<JointModelPlanarTpl> Base;
+    using Base::id;
+    using Base::idx_q;
+    using Base::idx_v;
+    using Base::setIndexes;
 
     JointDataDerived createData() const { return JointDataDerived(); }
     
-    template<typename V>
-    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<V> & q_joint) const
+    template<typename ConfigVector>
+    inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVector> & q_joint) const
     {
-      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,V);
-      
-      const double& c_theta = q_joint(2),
-                    s_theta = q_joint(3);
+      const Scalar
+      & c_theta = q_joint(2),
+      & s_theta = q_joint(3);
       
       M.rotation().template topLeftCorner<2,2>() << c_theta, -s_theta, s_theta, c_theta;
       M.translation().template head<2>() = q_joint.template head<2>();
@@ -397,8 +467,6 @@ namespace se3
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigVector);
-      
       typedef typename ConfigVector::Scalar Scalar;
       typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
 
@@ -416,7 +484,6 @@ namespace se3
               const typename Eigen::MatrixBase<ConfigVector> & qs,
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(TangentVector);
       calc(data,qs.derived());
       
       typename TangentVector::template ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.template segment<NV>(idx_v ());
@@ -426,32 +493,67 @@ namespace se3
       data.v.m_theta_dot = q_dot(2);
     }
     
-    template<typename S2, int O2>
-    void calc_aba(JointDataDerived & data, Eigen::Matrix<S2,6,6,O2> & I, const bool update_I) const
+    template<typename Matrix6Like>
+    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
       data.U.template leftCols<2>() = I.template leftCols<2>();
       data.U.template rightCols<1>() = I.template rightCols<1>();
-      Eigen::Matrix<S2,3,3,O2> tmp;
-      tmp.template leftCols<2>() = data.U.template topRows<2>().transpose();
-      tmp.template rightCols<1>() = data.U.template bottomRows<1>();
-      data.Dinv = tmp.inverse();
+
+      data.StU.template leftCols<2>() = data.U.template topRows<2>().transpose();
+      data.StU.template rightCols<1>() = data.U.template bottomRows<1>();
+      
+      // compute inverse
+      data.Dinv.setIdentity();
+      data.StU.llt().solveInPlace(data.Dinv);
+      
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
-        I -= data.UDinv * data.U.transpose();
+        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
     Scalar finiteDifferenceIncrement() const
     {
-      using std::sqrt;
+      using math::sqrt;
       return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
     }
 
     static std::string classname() { return std::string("JointModelPlanar");}
     std::string shortname() const { return classname(); }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    JointModelPlanarTpl<NewScalar,Options> cast() const
+    {
+      typedef JointModelPlanarTpl<NewScalar,Options> ReturnType;
+      ReturnType res;
+      res.setIndexes(id(),idx_q(),idx_v());
+      return res;
+    }
 
   }; // struct JointModelPlanarTpl
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_joint_planar_hpp__
+#include <boost/type_traits.hpp>
+
+namespace boost
+{
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::pinocchio::JointModelPlanarTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::pinocchio::JointModelPlanarTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_constructor< ::pinocchio::JointDataPlanarTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+  
+  template<typename Scalar, int Options>
+  struct has_nothrow_copy< ::pinocchio::JointDataPlanarTpl<Scalar,Options> >
+  : public integral_constant<bool,true> {};
+}
+
+#endif // ifndef __pinocchio_joint_planar_hpp__

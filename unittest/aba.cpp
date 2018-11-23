@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2016-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -38,11 +25,11 @@
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 template<typename JointModel>
-void test_joint_methods(const se3::JointModelBase<JointModel> & jmodel)
+void test_joint_methods(const pinocchio::JointModelBase<JointModel> & jmodel)
 {
-  typedef typename se3::JointModelBase<JointModel>::JointDataDerived JointData;
+  typedef typename pinocchio::JointModelBase<JointModel>::JointDataDerived JointData;
   typedef typename JointModel::ConfigVector_t ConfigVector_t;
-  typedef typename se3::LieGroup<JointModel>::type LieGroupType;
+  typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
 
   JointData jdata = jmodel.createData();
 
@@ -50,13 +37,13 @@ void test_joint_methods(const se3::JointModelBase<JointModel> & jmodel)
   ConfigVector_t qu(ConfigVector_t::Constant(jmodel.nq(),M_PI));
 
   ConfigVector_t q = LieGroupType().randomConfiguration(ql,qu);
-  se3::Inertia::Matrix6 I(se3::Inertia::Random().matrix());
-  se3::Inertia::Matrix6 I_check = I;
+  pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Random().matrix());
+  pinocchio::Inertia::Matrix6 I_check = I;
 
   jmodel.calc(jdata,q);
   jmodel.calc_aba(jdata,I,true);
 
-  Eigen::MatrixXd S = constraint_xd(jdata).matrix();
+  Eigen::MatrixXd S = jdata.S.matrix();
   Eigen::MatrixXd U_check = I_check*S;
   Eigen::MatrixXd D_check = S.transpose()*U_check;
   Eigen::MatrixXd Dinv_check = D_check.inverse();
@@ -81,7 +68,7 @@ void test_joint_methods(const se3::JointModelBase<JointModel> & jmodel)
 struct TestJointMethods{
 
   template <typename JointModel>
-  void operator()(const se3::JointModelBase<JointModel> &) const
+  void operator()(const pinocchio::JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
     jmodel.setIndexes(0,0,0);
@@ -89,11 +76,11 @@ struct TestJointMethods{
     test_joint_methods(jmodel);
   }
 
-  void operator()(const se3::JointModelBase<se3::JointModelComposite> &) const
+  void operator()(const pinocchio::JointModelBase<pinocchio::JointModelComposite> &) const
   {
-    se3::JointModelComposite jmodel_composite;
-    jmodel_composite.addJoint(se3::JointModelRX());
-    jmodel_composite.addJoint(se3::JointModelRY());
+    pinocchio::JointModelComposite jmodel_composite;
+    jmodel_composite.addJoint(pinocchio::JointModelRX());
+    jmodel_composite.addJoint(pinocchio::JointModelRY());
     jmodel_composite.setIndexes(0,0,0);
 
     //TODO: correct LieGroup
@@ -101,17 +88,17 @@ struct TestJointMethods{
 
   }
 
-  void operator()(const se3::JointModelBase<se3::JointModelRevoluteUnaligned> &) const
+  void operator()(const pinocchio::JointModelBase<pinocchio::JointModelRevoluteUnaligned> &) const
   {
-    se3::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
+    pinocchio::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
     jmodel.setIndexes(0,0,0);
 
     test_joint_methods(jmodel);
   }
 
-  void operator()(const se3::JointModelBase<se3::JointModelPrismaticUnaligned> &) const
+  void operator()(const pinocchio::JointModelBase<pinocchio::JointModelPrismaticUnaligned> &) const
   {
-    se3::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
+    pinocchio::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
     jmodel.setIndexes(0,0,0);
 
     test_joint_methods(jmodel);
@@ -121,7 +108,7 @@ struct TestJointMethods{
 
 BOOST_AUTO_TEST_CASE( test_joint_basic )
 {
-  using namespace se3;
+  using namespace pinocchio;
 
   typedef boost::variant< JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned
   , JointModelSpherical, JointModelSphericalZYX
@@ -139,24 +126,27 @@ BOOST_AUTO_TEST_CASE( test_joint_basic )
 BOOST_AUTO_TEST_CASE ( test_aba_simple )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model; buildModels::humanoidRandom(model);
+  pinocchio::Model model; buildModels::humanoidRandom(model);
   
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
+  q.segment<4>(3).normalize();
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
   
-  computeAllTerms(model, data_ref, q, v);
-  data_ref.M.triangularView<Eigen::StrictlyLower>()
-    = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
-  
-  tau = data_ref.M * a + data_ref.nle;
+  tau = rnea(model, data_ref, q, v, a);
   aba(model, data, q, v, tau);
+  
+  for(size_t k = 1; k < (size_t)model.njoints; ++k)
+  {
+    BOOST_CHECK(data_ref.liMi[k].isApprox(data.liMi[k]));
+    BOOST_CHECK(data_ref.v[k].isApprox(data.v[k]));
+  }
   
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
   
@@ -165,11 +155,11 @@ BOOST_AUTO_TEST_CASE ( test_aba_simple )
 BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model; buildModels::humanoidRandom(model);
+  pinocchio::Model model; buildModels::humanoidRandom(model);
   
-  se3::Data data(model);
+  pinocchio::Data data(model);
   
   VectorXd q = VectorXd::Random(model.nq);
   q.segment<4>(3).normalize();
@@ -188,7 +178,7 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   VectorXd tau = data.M * a + data.nle;
   Data::Matrix6x J = Data::Matrix6x::Zero(6, model.nv);
   for(Model::Index i=1;i<(Model::Index)model.njoints;++i) {
-    getJointJacobian<LOCAL>(model, data, i, J);
+    getJointJacobian(model, data, i, LOCAL, J);
     tau -= J.transpose()*fext[i].toVector();
     J.setZero();
   }
@@ -200,12 +190,12 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
 BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model; buildModels::humanoidRandom(model);
+  pinocchio::Model model; buildModels::humanoidRandom(model);
   
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
   
   VectorXd q = VectorXd::Ones(model.nq);
   VectorXd v = VectorXd::Ones(model.nv);
@@ -231,14 +221,14 @@ BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
 BOOST_AUTO_TEST_CASE ( test_computeMinverse )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model;
+  pinocchio::Model model;
   buildModels::humanoidRandom(model);
   model.gravity.setZero();
   
-  se3::Data data(model);
-  se3::Data data_ref(model);
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
   
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);

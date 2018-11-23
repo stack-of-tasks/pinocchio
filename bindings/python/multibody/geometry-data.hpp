@@ -1,22 +1,9 @@
 //
 // Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_geometry_data_hpp__
-#define __se3_python_geometry_data_hpp__
+#ifndef __pinocchio_python_geometry_data_hpp__
+#define __pinocchio_python_geometry_data_hpp__
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <eigenpy/memory.hpp>
@@ -24,9 +11,9 @@
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::GeometryData)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -73,7 +60,7 @@ namespace se3
         .def_readonly("oMg",
                       &GeometryData::oMg,
                       "Vector of collision objects placement relative to the world.")
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
         .def_readonly("activeCollisionPairs",
                       &GeometryData::activeCollisionPairs,
                       "Vector of active CollisionPairs")
@@ -104,7 +91,7 @@ namespace se3
              bp::args("pairIndex (int)"),
              "Deactivate pair ID <pairIndex> in geomModel.collisionPairs.")
 
-#endif // WITH_HPP_FCL        
+#endif // PINOCCHIO_WITH_HPP_FCL        
         ;
       }
              
@@ -123,7 +110,7 @@ namespace se3
 
     };
     
-  }} // namespace se3::python
+  }} // namespace pinocchio::python
 
-#endif // ifndef __se3_python_geometry_data_hpp__
+#endif // ifndef __pinocchio_python_geometry_data_hpp__
 

@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2015-2016,2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -22,7 +9,6 @@
 
 #include "utils/macros.hpp"
 
-#include <cmath>
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
@@ -32,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE (test_ForceSet)
 {
-  using namespace se3;
+  using namespace pinocchio;
 
   SE3 amb = SE3::Random();
   SE3 bmc = SE3::Random();
@@ -66,7 +52,7 @@ BOOST_AUTO_TEST_CASE (test_ForceSet)
 
 BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
 {
-  using namespace se3;
+  using namespace pinocchio;
 
   Inertia Y = Inertia::Random();
   JointDataRX::Constraint_t S;

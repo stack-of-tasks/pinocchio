@@ -1,54 +1,45 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018 CNRS, INRIA
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_aba_derivatives_hxx__
-#define __se3_aba_derivatives_hxx__
+#ifndef __pinocchio_aba_derivatives_hxx__
+#define __pinocchio_aba_derivatives_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/aba.hpp"
-#include "pinocchio/algorithm/rnea-derivatives.hxx"
 
-namespace se3
+namespace pinocchio
 {
-  struct computeABADerivativesForwardStep1 : public fusion::JointVisitor<computeABADerivativesForwardStep1>
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  struct ComputeABADerivativesForwardStep1
+  : public fusion::JointVisitorBase< ComputeABADerivativesForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
-    typedef boost::fusion::vector<
-    const se3::Model &,
-    se3::Data &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &
-    > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(computeABADerivativesForwardStep1);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType &
+                                  > ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType> & v)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
-      Motion & ov = data.ov[i];
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      typename Data::Motion & ov = data.ov[i];
 
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       data.v[i] = jdata.v();
@@ -70,45 +61,50 @@ namespace se3
       data.of[i] = ov.cross(data.oh[i]);
       data.f[i] = data.oMi[i].actInv(data.of[i]);
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
       J_cols = data.oMi[i].act(jdata.S());
-
     }
     
   };
   
-  struct computeABADerivativesBackwardStep1 : public fusion::JointVisitor<computeABADerivativesBackwardStep1>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MatrixType>
+  struct ComputeABADerivativesBackwardStep1
+  : public fusion::JointVisitorBase< ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType> >
   {
-    typedef boost::fusion::vector<const Model &,
-    Data &,
-    Data::RowMatrixXd &
-    >  ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(computeABADerivativesBackwardStep1);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  MatrixType &>  ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data,
-                     Data::RowMatrixXd & Minv)
+                     const Eigen::MatrixBase<MatrixType> & Minv)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
 
-      Inertia::Matrix6 & Ia = data.Yaba[i];
+      typename Data::Inertia::Matrix6 & Ia = data.Yaba[i];
       jmodel.calc_aba(jdata.derived(), Ia, parent > 0);
       
-      Data::Matrix6x & Fcrb = data.Fcrb[0];
-      Data::Matrix6x & FcrbTmp = data.Fcrb.back();
+      typename Data::Matrix6x & Fcrb = data.Fcrb[0];
+      typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
 
       ColsBlock U_cols = jmodel.jointCols(data.IS);
       forceSet::se3Action(data.oMi[i],jdata.U(),U_cols); // expressed in the world frame
       
-      Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),jmodel.nv()) = jdata.Dinv();
+      MatrixType & Minv_ = EIGEN_CONST_CAST(MatrixType,Minv);
+      
+      Minv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),jmodel.nv()) = jdata.Dinv();
       const int nv_children = data.nvSubtree[i] - jmodel.nv();
       if(nv_children > 0)
       {
@@ -116,29 +112,29 @@ namespace se3
         ColsBlock SDinv_cols = jmodel.jointCols(data.SDinv);
         SDinv_cols.noalias() = J_cols * jdata.Dinv();
         
-        Minv.block(jmodel.idx_v(),jmodel.idx_v()+jmodel.nv(),jmodel.nv(),nv_children).noalias()
+        Minv_.block(jmodel.idx_v(),jmodel.idx_v()+jmodel.nv(),jmodel.nv(),nv_children).noalias()
         = -SDinv_cols.transpose() * Fcrb.middleCols(jmodel.idx_v()+jmodel.nv(),nv_children);
         
         if(parent > 0)
         {
           FcrbTmp.leftCols(data.nvSubtree[i]).noalias()
-          = U_cols * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
+          = U_cols * Minv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
           Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]) += FcrbTmp.leftCols(data.nvSubtree[i]);
         }
       }
       else // This a leaf of the kinematic tree
       {
         Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]).noalias()
-        = U_cols * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
+        = U_cols * Minv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
       }
       
       jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose()*data.f[i];
 
       if (parent > 0)
       {
-        Force & pa = data.f[i];
+        typename Data::Force & pa = data.f[i];
         pa.toVector() += Ia * data.a[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
-        data.Yaba[parent] += AbaBackwardStep::SE3actOn(data.liMi[i], Ia);
+        data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
 
@@ -146,27 +142,32 @@ namespace se3
     
   };
   
-  struct computeABADerivativesForwardStep2 : public fusion::JointVisitor<computeABADerivativesForwardStep2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MatrixType>
+  struct ComputeABADerivativesForwardStep2
+  : public fusion::JointVisitorBase< ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-    se3::Data &,
-    Data::RowMatrixXd &
-    > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(computeABADerivativesForwardStep2);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  MatrixType &> ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     Data::RowMatrixXd & Minv)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     MatrixType & Minv)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::Index & parent = model.parents[i];
-      Motion & ov = data.ov[i];
-      Motion & oa = data.oa[i];
-      Force & of = data.of[i];
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      
+      typename Data::Motion & ov = data.ov[i];
+      typename Data::Motion & oa = data.oa[i];
+      typename Data::Force & of = data.of[i];
       
       data.a[i] += data.liMi[i].actInv(data.a[parent]);
       jmodel.jointVelocitySelector(data.ddq).noalias() =
@@ -176,22 +177,25 @@ namespace se3
       oa = data.oMi[i].act(data.a[i]);
       of = data.oYcrb[i] * oa + ov.cross(data.oh[i]);
 
-      Data::Matrix6x & FcrbTmp = data.Fcrb.back();
+      typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
       
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock UDinv_cols = jmodel.jointCols(data.UDinv);
       forceSet::se3Action(data.oMi[i],jdata.UDinv(),UDinv_cols); // expressed in the world frame
 
+      MatrixType & Minv_ = EIGEN_CONST_CAST(MatrixType,Minv);
+      
       if(parent > 0)
       {
         FcrbTmp.topRows(jmodel.nv()).rightCols(model.nv - jmodel.idx_v()).noalias()
         = UDinv_cols.transpose() * data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
-        Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v())
+        Minv_.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v())
         -= FcrbTmp.topRows(jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
       }
       
       ColsBlock J_cols = jmodel.jointCols(data.J);
-      data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()).noalias() = J_cols * Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
+      data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()).noalias()
+      = J_cols * Minv_.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
       if(parent > 0)
         data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()) += data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
       
@@ -214,32 +218,48 @@ namespace se3
       
       // computes variation of inertias
       data.doYcrb[i] = data.oYcrb[i].variation(ov);
-      computeRNEADerivativesForwardStep::addForceCrossMatrix(data.oh[i],data.doYcrb[i]);
+      addForceCrossMatrix(data.oh[i],data.doYcrb[i]);
+    }
+    
+    template<typename ForceDerived, typename M6>
+    static void addForceCrossMatrix(const ForceDense<ForceDerived> & f, const Eigen::MatrixBase<M6> & mout)
+    {
+      M6 & mout_ = EIGEN_CONST_CAST(M6,mout);
+      typedef Eigen::Matrix<typename M6::Scalar,3,3,EIGEN_PLAIN_TYPE(M6)::Options> M3;
+      const M3 fx(skew(f.linear()));
+      mout_.template block<3,3>(ForceDerived::LINEAR,ForceDerived::ANGULAR) -= fx;
+      mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::LINEAR) -= fx;
+      mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::ANGULAR) -= skew(f.angular());
     }
     
   };
   
-  struct computeABADerivativesBackwardStep2 : public fusion::JointModelVisitor<computeABADerivativesBackwardStep2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct ComputeABADerivativesBackwardStep2
+  : public fusion::JointVisitorBase< ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> >
   {
-    typedef boost::fusion::vector<const Model &,
-    Data &
-    >  ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_MODEL_VISITOR_INIT(computeABADerivativesBackwardStep2);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &>  ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      const Model & model,
                      Data & data)
     {
-      const Model::JointIndex & i = jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
-      Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+      typedef typename Model::JointIndex JointIndex;
       
-      Eigen::MatrixXd & rnea_partial_dq = data.dtau_dq;
-      Eigen::MatrixXd & rnea_partial_dv = data.dtau_dv;
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      
+      typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+      
+      typename Data::MatrixXs & rnea_partial_dq = data.dtau_dq;
+      typename Data::MatrixXs & rnea_partial_dv = data.dtau_dv;
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
@@ -268,15 +288,15 @@ namespace se3
       if(parent > 0)
       {
         lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
-        for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
+        for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
           rnea_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
-        for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
+        for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
           rnea_partial_dv.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdv.col(j);
         
         M6tmpR.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.doYcrb[i];
-        for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
+        for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
           rnea_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.dVdq.col(j);
-        for(int j = data.parents_fromRow[(Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(Model::Index)j])
+        for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
           rnea_partial_dv.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
       }
       
@@ -286,10 +306,19 @@ namespace se3
         data.doYcrb[parent] += data.doYcrb[i];
         data.of[parent] += data.of[i];
       }
+      
+      // Restore the status of dAdq_cols (remove gravity)
+      assert(model.gravity.angular().isZero() && "The gravity must be a pure force vector, no angular part");
+      for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
+      {
+        MotionRef<typename ColsBlock::ColXpr> min(J_cols.col(k));
+        MotionRef<typename ColsBlock::ColXpr> mout(dAdq_cols.col(k));
+        mout.linear() += model.gravity.linear().cross(min.angular());
+      }
     }
     
     template<typename Min, typename Mout>
-    static void lhsInertiaMult(const Inertia & Y,
+    static void lhsInertiaMult(const typename Data::Inertia & Y,
                                const Eigen::MatrixBase<Min> & J,
                                const Eigen::MatrixBase<Mout> & F)
     {
@@ -298,14 +327,16 @@ namespace se3
     }
   };
   
-  inline void computeABADerivatives(const Model & model,
-                                    Data & data,
-                                    const Eigen::VectorXd & q,
-                                    const Eigen::VectorXd & v,
-                                    const Eigen::VectorXd & tau,
-                                    Eigen::MatrixXd & aba_partial_dq,
-                                    Eigen::MatrixXd & aba_partial_dv,
-                                    Data::RowMatrixXd & aba_partial_dtau)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  typename MatrixType1, typename MatrixType2, typename MatrixType3>
+  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                    const Eigen::MatrixBase<ConfigVectorType> & q,
+                                    const Eigen::MatrixBase<TangentVectorType1> & v,
+                                    const Eigen::MatrixBase<TangentVectorType2> & tau,
+                                    const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                                    const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                                    const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
   {
     assert(q.size() == model.nq && "The joint configuration vector is not of right size");
     assert(v.size() == model.nv && "The joint velocity vector is not of right size");
@@ -318,48 +349,124 @@ namespace se3
     assert(aba_partial_dtau.rows() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    
     data.a[0] = -model.gravity;
     data.oa[0] = -model.gravity;
     data.u = tau;
     
-    Data::RowMatrixXd & Minv = aba_partial_dtau;
+    MatrixType3 & Minv_ = EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
     
     /// First, compute Minv and a, the joint acceleration vector
-    for(Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i)
+    typedef ComputeABADerivativesForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      computeABADerivativesForwardStep1::run(model.joints[i],data.joints[i],
-                                            computeABADerivativesForwardStep1::ArgsType(model,data,q,v));
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
     }
     
     data.Fcrb[0].setZero();
-    for(size_t i=(size_t) (model.njoints-1);i>0;--i)
+    typedef ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType3> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
     {
-      computeABADerivativesBackwardStep1::run(model.joints[i],data.joints[i],
-                                              computeABADerivativesBackwardStep1::ArgsType(model,data,Minv));
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data,Minv_));
     }
     
-    for(Model::JointIndex i=1; i<(Model::JointIndex) model.njoints; ++i)
+    typedef ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType3> Pass3;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      computeABADerivativesForwardStep2::run(model.joints[i],data.joints[i],
-                                             computeABADerivativesForwardStep2::ArgsType(model,data,Minv));
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data,Minv_));
     }
     
-    for(size_t i=(size_t) (model.njoints-1);i>0;--i)
+    typedef ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> Pass4;
+    for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
     {
-      computeABADerivativesBackwardStep2::run(model.joints[i],
-                                              computeABADerivativesBackwardStep2::ArgsType(model,data));
+      Pass4::run(model.joints[i],
+                 typename Pass4::ArgsType(model,data));
     }
     
-    Minv.triangularView<Eigen::StrictlyLower>()
-    = Minv.transpose().triangularView<Eigen::StrictlyLower>();
+    Minv_.template triangularView<Eigen::StrictlyLower>()
+    = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
     
-    aba_partial_dq.noalias() = -Minv*data.dtau_dq;
-    aba_partial_dv.noalias() = -Minv*data.dtau_dv;
+    EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
+    EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  typename MatrixType1, typename MatrixType2, typename MatrixType3>
+  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                    const Eigen::MatrixBase<ConfigVectorType> & q,
+                                    const Eigen::MatrixBase<TangentVectorType1> & v,
+                                    const Eigen::MatrixBase<TangentVectorType2> & tau,
+                                    const container::aligned_vector< ForceTpl<Scalar,Options> > fext,
+                                    const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                                    const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                                    const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+  {
+    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
+    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
+    assert(tau.size() == model.nv && "The joint acceleration vector is not of right size");
+    assert(fext.size() == (size_t)model.njoints && "The size of the external forces is not of right size");
+    assert(aba_partial_dq.cols() == model.nv);
+    assert(aba_partial_dq.rows() == model.nv);
+    assert(aba_partial_dv.cols() == model.nv);
+    assert(aba_partial_dv.rows() == model.nv);
+    assert(aba_partial_dtau.cols() == model.nv);
+    assert(aba_partial_dtau.rows() == model.nv);
+    assert(model.check(data) && "data is not consistent with model.");
     
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    
+    data.a[0] = -model.gravity;
+    data.oa[0] = -model.gravity;
+    data.u = tau;
+    
+    MatrixType3 & Minv_ = EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
+    
+    /// First, compute Minv and a, the joint acceleration vector
+    typedef ComputeABADerivativesForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
+      data.f[i] -= fext[i];
+    }
+    
+    data.Fcrb[0].setZero();
+    typedef ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType3> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data,Minv_));
+    }
+    
+    typedef ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType3> Pass3;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data,Minv_));
+      data.of[i] -= data.oMi[i].act(fext[i]);
+    }
+    
+    typedef ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> Pass4;
+    for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
+    {
+      Pass4::run(model.joints[i],
+                 typename Pass4::ArgsType(model,data));
+    }
+    
+    Minv_.template triangularView<Eigen::StrictlyLower>()
+    = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
+    
+    EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
+    EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
   }
   
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_aba_derivatives_hxx__
+#endif // ifndef __pinocchio_aba_derivatives_hxx__
 

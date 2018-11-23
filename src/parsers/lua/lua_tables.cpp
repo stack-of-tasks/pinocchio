@@ -536,7 +536,7 @@ size_t LuaTableNode::length()
 
   if (stackQueryValue())
   {
-#ifdef LUA_VERSION_GREATER_5_2
+#ifdef PINOCCHIO_LUA_VERSION_GREATER_5_2
     result = lua_rawlen(luaTable->L, -1);
 #else
     result = lua_objlen(luaTable->L, -1);
@@ -699,7 +699,7 @@ int LuaTable::length()
   }
   size_t result = 0;
 
-#ifdef LUA_VERSION_GREATER_5_2
+#ifdef PINOCCHIO_LUA_VERSION_GREATER_5_2
   result = lua_rawlen(L, -1);
 #else
   result = lua_objlen(L, -1);

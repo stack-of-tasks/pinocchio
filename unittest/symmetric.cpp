@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2015-2016,2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 /* --- Unitary test symmetric.cpp This code tests and compares two ways of
  * expressing symmetric matrices. In addition to the unitary validation (test
@@ -31,12 +18,11 @@
  */
 
 #include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/spatial/skew.hpp"
 #include "pinocchio/utils/timer.hpp"
 
 #include <boost/random.hpp>
-
-
+#include <Eigen/Geometry>
 
 #include "pinocchio/spatial/symmetric3.hpp"
 
@@ -46,11 +32,11 @@
 
 #include <Eigen/StdVector>
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix3d)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(se3::Symmetric3)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(pinocchio::Symmetric3)
 
-void timeSym3(const se3::Symmetric3 & S,
-        const se3::Symmetric3::Matrix3 & R,
-        se3::Symmetric3 & res)
+void timeSym3(const pinocchio::Symmetric3 & S,
+        const pinocchio::Symmetric3::Matrix3 & R,
+        pinocchio::Symmetric3 & res)
 {
   res = S.rotate(R);
 }
@@ -89,7 +75,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 /* --- PINOCCHIO ------------------------------------------------------------ */
 BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Symmetric3::Matrix3 Matrix3;
   typedef Symmetric3::Vector3 Vector3;
   
@@ -266,7 +252,7 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
 
 BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix3d Matrix3;
   typedef Eigen::SelfAdjointView<Matrix3,Eigen::Upper> Sym3;
 
@@ -303,6 +289,28 @@ BOOST_AUTO_TEST_CASE ( test_eigen_SelfAdj )
     timeSelfAdj(Rs[_smooth],M,Sres[_smooth]);
   }
   timer.toc(std::cout,NBT);
+}
+
+BOOST_AUTO_TEST_CASE(comparison)
+{
+  using namespace pinocchio;
+  Symmetric3 sym1(Symmetric3::Random());
+  
+  Symmetric3 sym2(sym1);
+  sym2.data() *= 2;
+  
+  BOOST_CHECK(sym2 != sym1);
+  BOOST_CHECK(sym1 == sym1);
+}
+
+BOOST_AUTO_TEST_CASE(cast)
+{
+  using namespace pinocchio;
+  Symmetric3 sym(Symmetric3::Random());
+  
+  BOOST_CHECK(sym.cast<double>() == sym);
+  BOOST_CHECK(sym.cast<long double>().cast<double>() == sym);
+  
 }
 BOOST_AUTO_TEST_SUITE_END ()
 

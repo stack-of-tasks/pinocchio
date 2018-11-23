@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 /*
  * Compare the value obtained with the RNEA with the values obtained from
@@ -45,10 +32,10 @@ BOOST_AUTO_TEST_CASE ( test_000 )
 {
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
-  se3::Model model;
-  se3::urdf::buildModel(filename,se3::JointModelFreeFlyer(),model);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename,pinocchio::JointModelFreeFlyer(),model);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
-  se3::Data data(model);
+  pinocchio::Data data(model);
 
   
   Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
@@ -71,10 +58,10 @@ BOOST_AUTO_TEST_CASE( test_0V0 )
 {
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
-  se3::Model model;
-  se3::urdf::buildModel(filename,se3::JointModelFreeFlyer(),model);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename,pinocchio::JointModelFreeFlyer(),model);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
-  se3::Data data(model);
+  pinocchio::Data data(model);
 
   
   Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
@@ -97,10 +84,10 @@ BOOST_AUTO_TEST_CASE( test_0VA )
 {
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
-  se3::Model model;
-  se3::urdf::buildModel(filename,se3::JointModelFreeFlyer(),model);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename,pinocchio::JointModelFreeFlyer(),model);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
-  se3::Data data(model);
+  pinocchio::Data data(model);
 
   
   Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
@@ -121,10 +108,10 @@ BOOST_AUTO_TEST_CASE( test_Q00 )
 {
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
-  se3::Model model;
-  se3::urdf::buildModel(filename,se3::JointModelFreeFlyer(),model);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename,pinocchio::JointModelFreeFlyer(),model);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
-  se3::Data data(model);
+  pinocchio::Data data(model);
 
   
   Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
@@ -150,10 +137,10 @@ BOOST_AUTO_TEST_CASE( test_QVA )
 {
   std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
 
-  se3::Model model;
-  se3::urdf::buildModel(filename,se3::JointModelFreeFlyer(),model);
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename,pinocchio::JointModelFreeFlyer(),model);
   model.gravity.linear( Eigen::Vector3d(0,0,-9.8));
-  se3::Data data(model);
+  pinocchio::Data data(model);
 
   
   Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);

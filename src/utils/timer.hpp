@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2015,2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include <sys/time.h>
 #include <iostream>
@@ -32,6 +19,7 @@ struct PinocchioTicToc
 {
   enum Unit { S = 1, MS = 1000, US = 1000000, NS = 1000000000 };
   Unit DEFAULT_UNIT;
+  
   static std::string unitName(Unit u)
   {
     switch(u) { case S: return "s"; case MS: return "ms"; case US: return "us"; case NS: return "ns"; }
@@ -48,6 +36,8 @@ struct PinocchioTicToc
     gettimeofday(&(stack.top()),NULL);
   }
   
+  inline double toc() { return toc(DEFAULT_UNIT); };
+  
   inline double toc(const Unit factor)
   {
     gettimeofday(&t0,NULL);
@@ -55,6 +45,7 @@ struct PinocchioTicToc
     stack.pop();
     return dt;
   }
+  
   inline void toc(std::ostream & os, double SMOOTH=1)
   {
     os << toc(DEFAULT_UNIT)/SMOOTH << " " << unitName(DEFAULT_UNIT) << std::endl;

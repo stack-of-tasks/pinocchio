@@ -1,126 +1,74 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_base_hpp__
-#define __se3_joint_base_hpp__
+#ifndef __pinocchio_joint_base_hpp__
+#define __pinocchio_joint_base_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/joint/fwd.hpp"
 
-#include <Eigen/Core>
 #include <limits>
 
-namespace se3
+namespace pinocchio
 {
-#ifdef __clang__
 
-#define SE3_JOINT_TYPEDEF_ARG(prefix)              \
-   typedef int Index;                \
-   typedef prefix traits<JointDerived>::Scalar Scalar;    \
-   typedef prefix traits<JointDerived>::JointDataDerived JointDataDerived;        \
-   typedef prefix traits<JointDerived>::JointModelDerived JointModelDerived;      \
-   typedef prefix traits<JointDerived>::Constraint_t Constraint_t;      \
-   typedef prefix traits<JointDerived>::Transformation_t Transformation_t; \
-   typedef prefix traits<JointDerived>::Motion_t Motion_t;        \
-   typedef prefix traits<JointDerived>::Bias_t Bias_t;        \
-   typedef prefix traits<JointDerived>::F_t F_t;          \
-   typedef prefix traits<JointDerived>::U_t U_t;       \
-   typedef prefix traits<JointDerived>::D_t D_t;       \
-   typedef prefix traits<JointDerived>::UD_t UD_t;       \
-   enum {                  \
+#define SE3_JOINT_TYPEDEF_GENERIC(TYPENAME)              \
+  typedef Eigen::DenseIndex Index;                \
+  typedef TYPENAME traits<JointDerived>::Scalar Scalar;    \
+  typedef TYPENAME traits<JointDerived>::JointDataDerived JointDataDerived;        \
+  typedef TYPENAME traits<JointDerived>::JointModelDerived JointModelDerived;      \
+  typedef TYPENAME traits<JointDerived>::Constraint_t Constraint_t;      \
+  typedef TYPENAME traits<JointDerived>::Transformation_t Transformation_t; \
+  typedef TYPENAME traits<JointDerived>::Motion_t Motion_t;        \
+  typedef TYPENAME traits<JointDerived>::Bias_t Bias_t;        \
+  typedef TYPENAME traits<JointDerived>::F_t F_t;          \
+  typedef TYPENAME traits<JointDerived>::U_t U_t;       \
+  typedef TYPENAME traits<JointDerived>::D_t D_t;       \
+  typedef TYPENAME traits<JointDerived>::UD_t UD_t;       \
+  enum {                  \
+    Options = traits<JointDerived>::Options,    \
     NQ = traits<JointDerived>::NQ,              \
     NV = traits<JointDerived>::NV               \
   };                        \
-  typedef prefix traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef prefix traits<JointDerived>::TangentVector_t TangentVector_t
+  typedef TYPENAME traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
+  typedef TYPENAME traits<JointDerived>::TangentVector_t TangentVector_t
+  
+#define PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(TYPENAME)              \
+  SE3_JOINT_TYPEDEF_GENERIC(TYPENAME); \
+  typedef TYPENAME traits<JointDerived>::ConstraintTypeConstRef ConstraintTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::TansformTypeConstRef TansformTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::MotionTypeConstRef MotionTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::BiasTypeConstRef BiasTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::UTypeConstRef UTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::UTypeRef UTypeRef;      \
+  typedef TYPENAME traits<JointDerived>::DTypeConstRef DTypeConstRef;      \
+  typedef TYPENAME traits<JointDerived>::UDTypeConstRef UDTypeConstRef
+  
+#ifdef __clang__
 
-#define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
-#define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
+  #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  
+  #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
 
 #elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 4) && (__GNUC_PATCHLEVEL__ == 2)
 
-#define SE3_JOINT_TYPEDEF_NOARG()       \
-  typedef int Index;            \
-  typedef traits<JointDerived>::Scalar Scalar;    \
-  typedef traits<JointDerived>::JointDataDerived JointDataDerived;     \
-  typedef traits<JointDerived>::JointModelDerived JointModelDerived;     \
-  typedef traits<JointDerived>::Constraint_t Constraint_t;   \
-  typedef traits<JointDerived>::Transformation_t Transformation_t; \
-  typedef traits<JointDerived>::Motion_t Motion_t;     \
-  typedef traits<JointDerived>::Bias_t Bias_t;       \
-  typedef traits<JointDerived>::F_t F_t;       \
-  typedef traits<JointDerived>::U_t U_t;       \
-  typedef traits<JointDerived>::D_t D_t;       \
-  typedef traits<JointDerived>::UD_t UD_t;       \
-  enum {              \
-    NQ = traits<JointDerived>::NQ,         \
-    NV = traits<JointDerived>::NV          \
-  };                        \
-  typedef traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef traits<JointDerived>::TangentVector_t TangentVector_t
-
-#define SE3_JOINT_TYPEDEF_ARG(prefix)         \
-  typedef int Index;              \
-  typedef prefix traits<JointDerived>::Scalar Scalar;     \
-  typedef prefix traits<JointDerived>::JointDataDerived JointDataDerived;      \
-  typedef prefix traits<JointDerived>::JointModelDerived JointModelDerived;      \
-  typedef prefix traits<JointDerived>::Constraint_t Constraint_t;    \
-  typedef prefix traits<JointDerived>::Transformation_t Transformation_t;  \
-  typedef prefix traits<JointDerived>::Motion_t Motion_t;      \
-  typedef prefix traits<JointDerived>::Bias_t Bias_t;        \
-  typedef prefix traits<JointDerived>::F_t F_t;        \
-  typedef prefix traits<JointDerived>::U_t U_t;       \
-  typedef prefix traits<JointDerived>::D_t D_t;       \
-  typedef prefix traits<JointDerived>::UD_t UD_t;       \
-  enum {                \
-    NQ = traits<JointDerived>::NQ,           \
-    NV = traits<JointDerived>::NV            \
-  };                        \
-  typedef prefix traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef prefix traits<JointDerived>::TangentVector_t TangentVector_t
-
-#define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_NOARG()
-#define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG(typename)
+  #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  
+  #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
 
 #else
 
-#define SE3_JOINT_TYPEDEF_ARG()              \
-  typedef int Index;                 \
-  typedef typename traits<JointDerived>::Scalar Scalar;    \
-  typedef typename traits<JointDerived>::JointDataDerived JointDataDerived;         \
-  typedef typename traits<JointDerived>::JointModelDerived JointModelDerived;       \
-  typedef typename traits<JointDerived>::Constraint_t Constraint_t;       \
-  typedef typename traits<JointDerived>::Transformation_t Transformation_t; \
-  typedef typename traits<JointDerived>::Motion_t Motion_t;         \
-  typedef typename traits<JointDerived>::Bias_t Bias_t;         \
-  typedef typename traits<JointDerived>::F_t F_t;           \
-  typedef typename traits<JointDerived>::U_t U_t;       \
-  typedef typename traits<JointDerived>::D_t D_t;       \
-  typedef typename traits<JointDerived>::UD_t UD_t;       \
-  enum {                   \
-    NQ = traits<JointDerived>::NQ,              \
-    NV = traits<JointDerived>::NV               \
-  };                        \
-  typedef typename traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef typename traits<JointDerived>::TangentVector_t TangentVector_t
-
-#define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_ARG()
-#define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_ARG()
+  #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
+  
+  #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
 
 #endif
 
@@ -129,29 +77,54 @@ namespace se3
   using Base::idx_q; \
   using Base::idx_v
 
-
+#define JOINT_CAST_TYPE_SPECIALIZATION(JointModelTpl) \
+template<typename Scalar, int Options, typename NewScalar> \
+struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
+{ typedef JointModelTpl<NewScalar,Options> type; }
+  
+  
+#define JOINT_DATA_BASE_DEFAULT_ACCESSOR \
+  ConstraintTypeConstRef S_accessor() const { return S; } \
+  TansformTypeConstRef M_accessor() const { return M; } \
+  MotionTypeConstRef v_accessor() const { return v; } \
+  BiasTypeConstRef c_accessor() const { return c; } \
+  UTypeConstRef U_accessor() const { return U; } \
+  UTypeRef U_accessor() { return U; } \
+  DTypeConstRef Dinv_accessor() const { return Dinv; } \
+  UDTypeConstRef UDinv_accessor() const { return UDinv; }
+  
+#define JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE \
+  typedef const Constraint_t & ConstraintTypeConstRef; \
+  typedef const Transformation_t & TansformTypeConstRef; \
+  typedef const Motion_t & MotionTypeConstRef; \
+  typedef const Bias_t & BiasTypeConstRef; \
+  typedef const U_t & UTypeConstRef; \
+  typedef U_t & UTypeRef; \
+  typedef const D_t & DTypeConstRef; \
+  typedef const UD_t & UDTypeConstRef;
+  
   template<typename Derived>
   struct JointDataBase
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef typename traits<Derived>::JointDerived JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
 
-    JointDataDerived& derived() { return *static_cast<Derived*>(this); }
-    const JointDataDerived& derived() const { return *static_cast<const Derived*>(this); }
+    Derived & derived() { return *static_cast<Derived*>(this); }
+    const Derived & derived() const { return *static_cast<const Derived*>(this); }
 
-    const Constraint_t     & S() const  { return derived().S;   }
-    const Transformation_t & M() const  { return derived().M;   }
-    const Motion_t         & v() const  { return derived().v;   }
-    const Bias_t           & c() const  { return derived().c;   }
-    F_t & F()        { return derived().F; }
+    ConstraintTypeConstRef S() const     { return derived().S_accessor(); }
+    TansformTypeConstRef M() const     { return derived().M_accessor(); }
+    MotionTypeConstRef v() const     { return derived().v_accessor(); }
+    BiasTypeConstRef c() const     { return derived().c_accessor(); }
+    F_t & F()                              { return derived().F; }
     
-    const U_t & U() const { return derived().U; }
-    U_t & U() { return derived().U; }
-    const D_t & Dinv() const { return derived().Dinv; }
-    const UD_t & UDinv() const { return derived().UDinv; }
-
+    UTypeConstRef U() const     { return derived().U_accessor(); }
+    UTypeRef U()           { return derived().U_accessor(); }
+    DTypeConstRef Dinv() const  { return derived().Dinv_accessor(); }
+    UDTypeConstRef UDinv() const { return derived().UDinv_accessor(); }
+    
   protected:
     
     /// \brief Default constructor: protected.
@@ -168,19 +141,115 @@ namespace se3
       typedef typename Mat::template FixedSegmentReturnType<NV>::Type Type;
       typedef typename Mat::template ConstFixedSegmentReturnType<NV>::Type ConstType;
     };
+    
+    template<typename D>
+    static typename SegmentReturn<D>::ConstType
+    segment(const Eigen::MatrixBase<D> & mat,
+            typename Eigen::DenseBase<D>::Index start,
+            typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template segment<NV>(start);
+    }
+    
+    template<typename D>
+    static typename SegmentReturn<D>::Type
+    segment(Eigen::MatrixBase<D> & mat,
+            typename Eigen::DenseBase<D>::Index start,
+            typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template segment<NV>(start);
+    }
+    
     template<class Mat>
     struct ColsReturn
     {
       typedef typename Mat::template NColsBlockXpr<NV>::Type Type;
       typedef typename Mat::template ConstNColsBlockXpr<NV>::Type ConstType;
     };
+    
+    template<typename D>
+    static typename ColsReturn<D>::ConstType
+    middleCols(const Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template middleCols<NV>(start);
+    }
+    
+    template<typename D>
+    static typename ColsReturn<D>::Type
+    middleCols(Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template middleCols<NV>(start);
+    }
+    
     template<class Mat>
     struct RowsReturn
     {
       typedef typename Mat::template NRowsBlockXpr<NV>::Type Type;
       typedef typename Mat::template ConstNRowsBlockXpr<NV>::Type ConstType;
     };
+    
+    template<typename D>
+    static typename RowsReturn<D>::ConstType
+    middleRows(const Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template middleRows<NV>(start);
+    }
+    
+    template<typename D>
+    static typename RowsReturn<D>::Type
+    middleRows(Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(size);
+      return mat.template middleRows<NV>(start);
+    }
+    
+    template<class Mat>
+    struct BlockReturn
+    {
+      typedef Eigen::Block<Mat, NV, NV> Type;
+      typedef const Eigen::Block<const Mat, NV, NV> ConstType;
+    };
+    
+    template<typename D>
+    static typename BlockReturn<D>::ConstType
+    block(const Eigen::MatrixBase<D> & mat,
+          typename Eigen::DenseBase<D>::Index row_id,
+          typename Eigen::DenseBase<D>::Index col_id,
+          typename Eigen::DenseBase<D>::Index row_size_block = NV,
+          typename Eigen::DenseBase<D>::Index col_size_block = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(row_size_block);
+      PINOCCHIO_UNUSED_VARIABLE(col_size_block);
+      return mat.template block<NV,NV>(row_id,col_id);
+    }
+    
+    template<typename D>
+    static typename BlockReturn<D>::Type
+    block(Eigen::MatrixBase<D> & mat,
+          typename Eigen::DenseBase<D>::Index row_id,
+          typename Eigen::DenseBase<D>::Index col_id,
+          typename Eigen::DenseBase<D>::Index row_size_block = NV,
+          typename Eigen::DenseBase<D>::Index col_size_block = NV)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(row_size_block);
+      PINOCCHIO_UNUSED_VARIABLE(col_size_block);
+      return mat.template block<NV,NV>(row_id,col_id);
+    }
   };
+  
   template<>
   struct SizeDepType<Eigen::Dynamic>
   {
@@ -190,18 +259,103 @@ namespace se3
       typedef typename Mat::SegmentReturnType Type;
       typedef typename Mat::ConstSegmentReturnType ConstType;
     };
+    
+    template<typename D>
+    static typename SegmentReturn<D>::ConstType
+    segment(const Eigen::MatrixBase<D> & mat,
+            typename Eigen::DenseBase<D>::Index start,
+            typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.segment(start,size);
+    }
+    
+    template<typename D>
+    static typename SegmentReturn<D>::Type
+    segment(Eigen::MatrixBase<D> & mat,
+            typename Eigen::DenseBase<D>::Index start,
+            typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.segment(start,size);
+    }
+    
     template<class Mat>
     struct ColsReturn
     {
       typedef typename Mat::ColsBlockXpr Type;
       typedef typename Mat::ConstColsBlockXpr ConstType;
     };
+    
+    template<typename D>
+    static typename ColsReturn<D>::ConstType
+    middleCols(const Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.middleCols(start,size);
+    }
+    
+    template<typename D>
+    static typename ColsReturn<D>::Type
+    middleCols(Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.middleCols(start,size);
+    }
+    
     template<class Mat>
     struct RowsReturn
     {
       typedef typename Mat::RowsBlockXpr Type;
       typedef typename Mat::ConstRowsBlockXpr ConstType;
     };
+    
+    template<typename D>
+    static typename RowsReturn<D>::ConstType
+    middleRows(const Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.middleRows(start,size);
+    }
+    
+    template<typename D>
+    static typename RowsReturn<D>::Type
+    middleRows(Eigen::MatrixBase<D> & mat,
+               typename Eigen::DenseBase<D>::Index start,
+               typename Eigen::DenseBase<D>::Index size)
+    {
+      return mat.middleRows(start,size);
+    }
+    
+    template<class Mat>
+    struct BlockReturn
+    {
+      typedef Eigen::Block<Mat> Type;
+      typedef const Eigen::Block<const Mat> ConstType;
+    };
+    
+    template<typename D>
+    static typename BlockReturn<D>::ConstType
+    block(const Eigen::MatrixBase<D> & mat,
+          typename Eigen::DenseBase<D>::Index row_id,
+          typename Eigen::DenseBase<D>::Index col_id,
+          typename Eigen::DenseBase<D>::Index row_size_block,
+          typename Eigen::DenseBase<D>::Index col_size_block)
+    {
+      return mat.block(row_id,col_id,row_size_block,col_size_block);
+    }
+    
+    template<typename D>
+    static typename BlockReturn<D>::Type
+    block(Eigen::MatrixBase<D> & mat,
+          typename Eigen::DenseBase<D>::Index row_id,
+          typename Eigen::DenseBase<D>::Index col_id,
+          typename Eigen::DenseBase<D>::Index row_size_block,
+          typename Eigen::DenseBase<D>::Index col_size_block)
+    {
+      return mat.block(row_id,col_id,row_size_block,col_size_block);
+    }
   };
 
   template<typename Derived>
@@ -211,26 +365,35 @@ namespace se3
     
     typedef typename traits<Derived>::JointDerived JointDerived;
     SE3_JOINT_TYPEDEF_TEMPLATE;
-  
 
-    JointModelDerived& derived() { return *static_cast<Derived*>(this); }
-    const JointModelDerived& derived() const { return *static_cast<const Derived*>(this); }
+    JointModelDerived & derived() { return *static_cast<Derived*>(this); }
+    const JointModelDerived & derived() const { return *static_cast<const Derived*>(this); }
 
     JointDataDerived createData() const { return derived().createData(); }
     
-    void calc(JointDataDerived& data,
-              const Eigen::VectorXd & qs) const
-    { derived().calc(data,qs); }
+    template<typename ConfigVectorType>
+    void calc(JointDataDerived & data,
+              const Eigen::MatrixBase<ConfigVectorType> & qs) const
+    {
+      derived().calc(data,qs.derived());
+    }
     
-    void calc(JointDataDerived& data,
-              const Eigen::VectorXd & qs,
-              const Eigen::VectorXd & vs) const
-    { derived().calc(data,qs,vs); }
+    template<typename ConfigVectorType, typename TangentVectorType>
+    void calc(JointDataDerived & data,
+              const Eigen::MatrixBase<ConfigVectorType> & qs,
+              const Eigen::MatrixBase<TangentVectorType> & vs) const
+    {
+      derived().calc(data,qs.derived(),vs.derived());
+      
+    }
     
+    template<typename Matrix6Type>
     void calc_aba(JointDataDerived & data,
-                  Inertia::Matrix6 & I,
+                  const Eigen::MatrixBase<Matrix6Type> & I,
                   const bool update_I = false) const
-    { derived().calc_aba(data, I, update_I); }
+    {
+      derived().calc_aba(data, EIGEN_CONST_CAST(Matrix6Type,I), update_I);
+    }
     
     ///
     /// \brief Return the resolution of the finite differerence increment according to the Scalar type
@@ -238,7 +401,7 @@ namespace se3
     ///
     /// \returns The finite difference increment.
     ///
-    typename ConfigVector_t::Scalar finiteDifferenceIncrement() const
+    Scalar finiteDifferenceIncrement() const
     { return derived().finiteDifferenceIncrement(); }
 
     JointIndex i_id; // ID of the joint in the multibody list.
@@ -247,7 +410,8 @@ namespace se3
 
     int     nv()    const { return derived().nv_impl(); }
     int     nq()    const { return derived().nq_impl(); }
-    // Both _impl methods are reimplemented by dynamic-size joints.
+    
+    // Default _impl methods are reimplemented by dynamic-size joints.
     int     nv_impl() const { return NV; }
     int     nq_impl() const { return NQ; }
 
@@ -281,82 +445,156 @@ namespace se3
     std::string shortname() const { return derived().shortname(); }
     static std::string classname() { return Derived::classname(); }
     
+    template<typename NewScalar>
+    typename CastType<NewScalar,Derived>::type cast() const
+    { return derived().template cast<NewScalar>(); }
+    
     template <class OtherDerived>
-    bool operator==(const JointModelBase<OtherDerived> & other) const { return derived().isEqual(other); }
+    bool operator==(const JointModelBase<OtherDerived> & other) const
+    { return derived().isEqual(other.derived()); }
+    
+    template <class OtherDerived>
+    bool operator!=(const JointModelBase<OtherDerived> & other) const
+    { return !(derived() == other.derived()); }
     
     template <class OtherDerived>
     bool isEqual(const JointModelBase<OtherDerived> &) const { return false; }
     
     bool isEqual(const JointModelBase<Derived> & other) const
     {
-      return other.id() == id() && other.idx_q() == idx_q() && other.idx_v() == idx_v();
+      return other.id() == id()
+      && other.idx_q() == idx_q()
+      && other.idx_v() == idx_v();
     }
 
     /* Acces to dedicated segment in robot config space.  */
     // Const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType 
-    jointConfigSelector(const Eigen::MatrixBase<D>& a) const       { return derived().jointConfigSelector_impl(a); }
+    jointConfigSelector(const Eigen::MatrixBase<D>& a) const
+    { return derived().jointConfigSelector_impl(a); }
+    
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType 
-    jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NQ>(i_q); }
+    jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const
+    { return SizeDepType<NQ>::segment(a,i_q,nq()); }
+    
     // Non-const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type 
-    jointConfigSelector( Eigen::MatrixBase<D>& a) const { return derived().jointConfigSelector_impl(a); }
+    jointConfigSelector( Eigen::MatrixBase<D>& a) const
+    { return derived().jointConfigSelector_impl(a); }
+    
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type 
-    jointConfigSelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NQ>(i_q); }
+    jointConfigSelector_impl( Eigen::MatrixBase<D>& a) const
+    { return SizeDepType<NQ>::segment(a,i_q,nq()); }
 
     /* Acces to dedicated segment in robot config velocity space.  */
     // Const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
-    jointVelocitySelector(const Eigen::MatrixBase<D>& a) const       { return derived().jointVelocitySelector_impl(a); }
+    jointVelocitySelector(const Eigen::MatrixBase<D>& a) const
+    { return derived().jointVelocitySelector_impl(a); }
+    
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
-    jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const   { return a.template segment<NV>(i_v); }
+    jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const
+    { return SizeDepType<NV>::segment(a,i_v,nv()); }
+    
     // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
-    jointVelocitySelector( Eigen::MatrixBase<D>& a) const { return derived().jointVelocitySelector_impl(a); }
+    jointVelocitySelector( Eigen::MatrixBase<D>& a) const
+    { return derived().jointVelocitySelector_impl(a); }
+    
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
-    jointVelocitySelector_impl( Eigen::MatrixBase<D>& a) const { return a.template segment<NV>(i_v); }
+    jointVelocitySelector_impl( Eigen::MatrixBase<D>& a) const
+    { return SizeDepType<NV>::segment(a,i_v,nv()); }
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
-    jointCols(const Eigen::MatrixBase<D>& A) const       { return derived().jointCols_impl(A); }
+    jointCols(const Eigen::MatrixBase<D>& A) const
+    { return derived().jointCols_impl(A); }
+    
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
-    jointCols_impl(const Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
+    jointCols_impl(const Eigen::MatrixBase<D>& A) const
+    { return SizeDepType<NV>::middleCols(A,i_v,nv()); }
+    
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
-    jointCols(Eigen::MatrixBase<D>& A) const       { return derived().jointCols_impl(A); }
+    jointCols(Eigen::MatrixBase<D>& A) const
+    { return derived().jointCols_impl(A); }
+    
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
-    jointCols_impl(Eigen::MatrixBase<D>& A) const       { return A.template middleCols<NV>(i_v); }
+    jointCols_impl(Eigen::MatrixBase<D>& A) const
+    { return SizeDepType<NV>::middleCols(A,i_v,nv()); }
+    
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::ConstType
+    jointRows(const Eigen::MatrixBase<D>& A) const
+    { return derived().jointRows_impl(A); }
+    
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::ConstType
+    jointRows_impl(const Eigen::MatrixBase<D>& A) const
+    { return SizeDepType<NV>::middleRows(A,i_v,nv()); }
+    
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::Type
+    jointRows(Eigen::MatrixBase<D>& A) const
+    { return derived().jointRows_impl(A); }
+    
+    template<typename D>
+    typename SizeDepType<NV>::template RowsReturn<D>::Type
+    jointRows_impl(Eigen::MatrixBase<D>& A) const
+    { return SizeDepType<NV>::middleRows(A,i_v,nv()); }
+    
+    /// \brief Returns a block of dimension nv()xnv() located at position i_v,i_v in the matrix Mat
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::ConstType
+    jointBlock(const Eigen::MatrixBase<D> & Mat) const
+    { return derived().jointBlock_impl(Mat); }
+    
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::ConstType
+    jointBlock_impl(const Eigen::MatrixBase<D> & Mat) const
+    { return SizeDepType<NV>::block(Mat,i_v,i_v,nv(),nv()); }
+    
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::Type
+    jointBlock(Eigen::MatrixBase<D> & Mat) const
+    { return derived().jointBlock_impl(Mat); }
+    
+    template<typename D>
+    typename SizeDepType<NV>::template BlockReturn<D>::Type
+    jointBlock_impl(Eigen::MatrixBase<D> & Mat) const
+    { return SizeDepType<NV>::block(Mat,i_v,i_v,nv(),nv()); }
 
   protected:
 
     /// Default constructor: protected.
     /// 
     /// Prevent the construction of stand-alone JointModelBase.
-    inline JointModelBase() : i_id(std::numeric_limits<JointIndex>::max()), i_q(-1), i_v(-1) {}
+    inline JointModelBase()
+    : i_id(std::numeric_limits<JointIndex>::max()), i_q(-1), i_v(-1) {}
     
     /// Copy constructor: protected.
     ///
     /// Copy of stand-alone JointModelBase are prevented, but can be used from inhereting
     /// objects. Copy is done by calling copy operator.
-    inline JointModelBase( const JointModelBase& clone) { *this = clone; }
+    inline JointModelBase(const JointModelBase & clone)
+    { *this = clone; }
     
     /// Copy operator: protected.
     ///
     /// Copy of stand-alone JointModelBase are prevented, but can be used from inhereting
     /// objects. 
-    inline JointModelBase& operator= (const JointModelBase& clone) 
+    inline JointModelBase & operator=(const JointModelBase & clone)
     {
-//      setIndexes(clone.id(),clone.idx_q(),clone.idx_v());
       i_id = clone.i_id;
       i_q = clone.i_q;
       i_v = clone.i_v;
@@ -365,6 +603,6 @@ namespace se3
 
   }; // struct JointModelBase
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_joint_base_hpp__
+#endif // ifndef __pinocchio_joint_base_hpp__

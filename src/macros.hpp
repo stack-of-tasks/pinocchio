@@ -1,76 +1,67 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2018 CNRS INRIA
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_macros_hpp__
-#define __se3_macros_hpp__
+#ifndef __pinocchio_macros_hpp__
+#define __pinocchio_macros_hpp__
 
-#include <Eigen/Core>
+#if __cplusplus >= 201103L
+  #define PINOCCHIO_WITH_CXX11_SUPPORT
+#endif
 
-/// \brief Define the current version of Pinocchio
-#define PINOCCHIO_MAJOR_VERSION 1
-#define PINOCCHIO_MINOR_VERSION 3
-#define PINOCCHIO_PATCH_VERSION 2
+#define PINOCCHIO_STRING_LITERAL(string) #string
+
+/// \remarks The following two macros should be adapted for WIN32
+#define PINOCCHIO_PRAGMA_MESSAGE(the_message) PINOCCHIO_STRING_LITERAL(message(the_message))
+#define PINOCCHIO_PRAGMA_MESSAGE_CALL(the_message) _Pragma(PINOCCHIO_PRAGMA_MESSAGE(the_message))
 
 /// \brief Macro to check the current Pinocchio version against a version provided by x.y.z
-#define PINOCCHIO_VERSION_AT_LEAST(x,y,z) (PINOCCHIO_MAJOR_VERSION>x || (PINOCCHIO_MAJOR_VERSION>=x && \
-(PINOCCHIO_MINOR_VERSION>y || (PINOCCHIO_MINOR_VERSION>=y && \
-PINOCCHIO_PATCH_VERSION>=z))))
+#define PINOCCHIO_VERSION_AT_LEAST(x,y,z) \
+          (PINOCCHIO_MAJOR_VERSION>x || (PINOCCHIO_MAJOR_VERSION>=x && \
+          (PINOCCHIO_MINOR_VERSION>y || (PINOCCHIO_MINOR_VERSION>=y && \
+          PINOCCHIO_PATCH_VERSION>=z))))
+
+// This macro can be used to prevent from macro expansion, similarly to EIGEN_NOT_A_MACRO
+#define PINOCCHIO_NOT_A_MACRO
+
+namespace pinocchio
+{
+  namespace helper
+  {
+    template<typename T> struct argument_type;
+    template<typename T, typename U> struct argument_type<T(U)> { typedef U type; };
+  }
+}
 
 /// \brief Empty macro argument
 #define PINOCCHIO_MACRO_EMPTY_ARG
 
-/// \brief Macro giving access to the equivalent plain type of D
-#define EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type<D>::type
+/// \brief Helper to declare that a parameter is unused
+#define PINOCCHIO_UNUSED_VARIABLE(var) (void)(var)
 
-/// \brief Macro giving access to the reference type of D
-#define EIGEN_REF_CONSTTYPE(D) Eigen::internal::ref_selector<D>::type
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
-#define EIGEN_REF_TYPE(D) Eigen::internal::ref_selector<D>::non_const_type
-#else
-#define EIGEN_REF_TYPE(D) \
-Eigen::internal::conditional< \
-bool(Eigen::internal::traits<D>::Flags & Eigen::NestByRefBit), \
-D &, \
-D \
->::type
-#endif
+/// Ensure that a matrix (or vector) is of correct size (compile-time and run-time assertion)
+#define PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(type,M,nrows,ncols)              \
+  EIGEN_STATIC_ASSERT(   (type::RowsAtCompileTime == Eigen::Dynamic || type::RowsAtCompileTime == nrows) \
+                      && (type::ColsAtCompileTime == Eigen::Dynamic || type::ColsAtCompileTime == ncols),\
+                      THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);    \
+  assert(M.rows()==nrows && M.cols()==ncols);
 
-/// \brief Macro giving access to the return type of the dot product operation
-#if EIGEN_VERSION_AT_LEAST(3,3,0)
-#define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
-Eigen::ScalarBinaryOpTraits< typename Eigen::internal::traits< D1 >::Scalar, typename Eigen::internal::traits< D2 >::Scalar >::ReturnType
-#else
-#define EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2) \
-Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::Scalar,typename Eigen::internal::traits< D2 >::Scalar>::ReturnType
-#endif
+/// Static assertion.
+/// \param condition a boolean convertible expression
+/// \param msg a valid C++ variable name.
+#define PINOCCHIO_STATIC_ASSERT(condition,msg)                                 \
+  { int msg[(condition) ? 1 : -1]; /*avoid unused-variable warning*/ (void) msg; }
 
-/// \brief Fix issue concerning 3.2.90 and more versions of Eigen that do not define size_of_xpr_at_compile_time structure.
-#if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,3,0)
-namespace se3
+namespace pinocchio
 {
-  namespace internal
+  namespace helper
   {
-    template<typename XprType> struct size_of_xpr_at_compile_time
+    template<typename D, template<typename> class TypeAccess>
+    struct handle_return_type_without_typename
     {
-      enum { ret = Eigen::internal::size_at_compile_time<Eigen::internal::traits<XprType>::RowsAtCompileTime,Eigen::internal::traits<XprType>::ColsAtCompileTime>::ret };
+      typedef typename TypeAccess< typename argument_type<void(D)>::type >::type type;
     };
   }
 }
-#endif
 
-#endif // ifndef __se3_macros_hpp__
-
+#endif // ifndef __pinocchio_macros_hpp__

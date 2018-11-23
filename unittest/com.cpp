@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -34,11 +21,11 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_com )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
   q.middleRows<4> (3).normalize();
@@ -67,7 +54,7 @@ BOOST_AUTO_TEST_CASE ( test_com )
   centerOfMass(model,data,q,v,a);
   nonLinearEffects(model, data, q, v);
   
-  se3::SE3::Vector3 acom_from_nle (data.nle.head <3> ()/data.mass[0]);
+  pinocchio::SE3::Vector3 acom_from_nle (data.nle.head <3> ()/data.mass[0]);
   BOOST_CHECK((data.liMi[1].rotation() * acom_from_nle).isApprox(data.acom[0], 1e-12));
 
 	/* Test Jcom against CRBA  */
@@ -93,11 +80,11 @@ BOOST_AUTO_TEST_CASE ( test_com )
 //BOOST_AUTO_TEST_CASE ( test_timings )
 //{
 //  using namespace Eigen;
-//  using namespace se3;
+//  using namespace pinocchio;
 //
-//  se3::Model model;
-//  se3::buildModels::humanoidRandom(model);
-//  se3::Data data(model);
+//  pinocchio::Model model;
+//  pinocchio::buildModels::humanoidRandom(model);
+//  pinocchio::Data data(model);
 //
 //  long flag = BOOST_BINARY(1111);
 //  PinocchioTicToc timer(PinocchioTicToc::US); 

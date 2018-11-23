@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -43,11 +30,11 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_against_algo )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
-  se3::Model model; buildModels::humanoidRandom(model);
-  se3::Data data(model); data.M.fill (0.);
-  se3::Data data_other(model); data_other.M.fill (0.);
+  pinocchio::Model model; buildModels::humanoidRandom(model);
+  pinocchio::Data data(model); data.M.fill (0.);
+  pinocchio::Data data_other(model); data_other.M.fill (0.);
 
   VectorXd q (VectorXd::Random(model.nq));
   VectorXd v (VectorXd::Random(model.nv));
