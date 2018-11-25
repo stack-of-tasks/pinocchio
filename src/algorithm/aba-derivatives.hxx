@@ -356,6 +356,7 @@ namespace pinocchio
     data.u = tau;
     
     MatrixType3 & Minv_ = EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
+    Minv_.template triangularView<Eigen::Upper>().setZero();
     
     /// First, compute Minv and a, the joint acceleration vector
     typedef ComputeABADerivativesForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
@@ -425,6 +426,7 @@ namespace pinocchio
     data.u = tau;
     
     MatrixType3 & Minv_ = EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
+    Minv_.template triangularView<Eigen::Upper>().setZero();
     
     /// First, compute Minv and a, the joint acceleration vector
     typedef ComputeABADerivativesForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;

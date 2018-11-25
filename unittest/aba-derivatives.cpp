@@ -251,4 +251,46 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   BOOST_CHECK(data_shortcut.Minv.isApprox(aba_partial_dtau));
 }
 
+BOOST_AUTO_TEST_CASE(test_multiple_calls)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  Data data1(model), data2(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd tau(VectorXd::Random(model.nv));
+  
+  computeABADerivatives(model,data1,q,v,tau);
+  data2 = data1;
+  
+  for(int k = 0; k < 20; ++k)
+  {
+    computeABADerivatives(model,data1,q,v,tau);
+  }
+  
+  BOOST_CHECK(data1.J.isApprox(data2.J));
+  BOOST_CHECK(data1.dJ.isApprox(data2.dJ));
+  BOOST_CHECK(data1.dVdq.isApprox(data2.dVdq));
+  BOOST_CHECK(data1.dAdq.isApprox(data2.dAdq));
+  BOOST_CHECK(data1.dAdv.isApprox(data2.dAdv));
+  
+  BOOST_CHECK(data1.dFdq.isApprox(data2.dFdq));
+  BOOST_CHECK(data1.dFdv.isApprox(data2.dFdv));
+  BOOST_CHECK(data1.dFda.isApprox(data2.dFda));
+  
+  BOOST_CHECK(data1.dtau_dq.isApprox(data2.dtau_dq));
+  BOOST_CHECK(data1.dtau_dv.isApprox(data2.dtau_dv));
+  
+  BOOST_CHECK(data1.ddq_dq.isApprox(data2.ddq_dq));
+  BOOST_CHECK(data1.ddq_dv.isApprox(data2.ddq_dv));
+  BOOST_CHECK(data1.Minv.isApprox(data2.Minv));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

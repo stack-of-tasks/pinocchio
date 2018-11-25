@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2018 CNRS, INRIA
 //
 
 #ifndef __pinocchio_aba_hxx__
@@ -457,6 +457,7 @@ namespace pinocchio
     assert(q.size() == model.nq && "The joint configuration vector is not of right size");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    data.Minv.template triangularView<Eigen::Upper>().setZero();
     
     typedef ComputeMinverseForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
