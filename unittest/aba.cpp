@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2018 CNRS, INRIA
 //
 
 #include "pinocchio/spatial/fwd.hpp"
@@ -257,4 +257,30 @@ BOOST_AUTO_TEST_CASE ( test_computeMinverse )
 //  std::cout << "Minv_ref:\n" << Minv_ref.bottomRows<10>() << std::endl;
   
 }
+
+BOOST_AUTO_TEST_CASE(test_multiple_calls)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  Data data1(model), data2(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  
+  computeMinverse(model,data1,q);
+  data2 = data1;
+  
+  for(int k = 0; k < 20; ++k)
+  {
+    computeMinverse(model,data1,q);
+  }
+  
+  BOOST_CHECK(data1.Minv.isApprox(data2.Minv));
+}
+
 BOOST_AUTO_TEST_SUITE_END ()

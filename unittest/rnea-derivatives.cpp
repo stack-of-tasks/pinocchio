@@ -377,4 +377,43 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_vs_kinematics_derivatives)
   BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
 }
 
+BOOST_AUTO_TEST_CASE(test_multiple_calls)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  Data data1(model), data2(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd a(VectorXd::Random(model.nv));
+  
+  computeRNEADerivatives(model,data1,q,v,a);
+  data2 = data1;
+  
+  for(int k = 0; k < 20; ++k)
+  {
+    computeRNEADerivatives(model,data1,q,v,a);
+  }
+  
+  BOOST_CHECK(data1.J.isApprox(data2.J));
+  BOOST_CHECK(data1.dJ.isApprox(data2.dJ));
+  BOOST_CHECK(data1.dVdq.isApprox(data2.dVdq));
+  BOOST_CHECK(data1.dAdq.isApprox(data2.dAdq));
+  BOOST_CHECK(data1.dAdv.isApprox(data2.dAdv));
+  
+  BOOST_CHECK(data1.dFdq.isApprox(data2.dFdq));
+  BOOST_CHECK(data1.dFdv.isApprox(data2.dFdv));
+  BOOST_CHECK(data1.dFda.isApprox(data2.dFda));
+  
+  BOOST_CHECK(data1.dtau_dq.isApprox(data2.dtau_dq));
+  BOOST_CHECK(data1.dtau_dv.isApprox(data2.dtau_dv));
+  BOOST_CHECK(data1.M.isApprox(data2.M));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
