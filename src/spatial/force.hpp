@@ -2,26 +2,11 @@
 // Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_force_hpp__
-#define __se3_force_hpp__
+#ifndef __pinocchio_force_hpp__
+#define __pinocchio_force_hpp__
 
-#include <Eigen/Core>
 #include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/motion.hpp"
 
@@ -53,5 +38,5 @@ FORCE_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 #include "pinocchio/spatial/force-tpl.hpp"
 #include "pinocchio/spatial/force-ref.hpp"
 
-#endif // ifndef __se3_force_hpp__
+#endif // ifndef __pinocchio_force_hpp__
 

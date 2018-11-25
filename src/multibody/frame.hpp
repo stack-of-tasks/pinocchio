@@ -1,29 +1,16 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016,2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_frame_hpp__
-#define __se3_frame_hpp__
+#ifndef __pinocchio_frame_hpp__
+#define __pinocchio_frame_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 
 #include <string>
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief Enum on the possible types of frame
@@ -44,7 +31,7 @@ namespace se3
   struct FrameTpl
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef se3::JointIndex JointIndex;
+    typedef pinocchio::JointIndex JointIndex;
     enum { Options = _Options };
     typedef _Scalar Scalar;
     typedef SE3Tpl<Scalar,Options> SE3;
@@ -83,11 +70,27 @@ namespace se3
     template<typename S2, int O2>
     bool operator == (const FrameTpl<S2,O2> & other) const
     {
-      return name == other.name && parent == other.parent
+      return name == other.name
+      && parent == other.parent
       && previousFrame == other.previousFrame
       && placement == other.placement
       && type == other.type ;
     }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    FrameTpl<NewScalar,Options> cast() const
+    {
+      typedef FrameTpl<NewScalar,Options> ReturnType;
+      ReturnType res(name,
+                     parent,
+                     previousFrame,
+                     placement.template cast<NewScalar>(),
+                     type);
+      return res;
+    }
+    
+    // data
     
     /// \brief Name of the frame.
     std::string name;
@@ -122,6 +125,6 @@ namespace se3
     return os;
   }
 
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_frame_hpp__
+#endif // ifndef __pinocchio_frame_hpp__

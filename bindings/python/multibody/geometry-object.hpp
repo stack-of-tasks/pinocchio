@@ -1,31 +1,18 @@
 //
 // Copyright (c) 2017 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_geometry_object_hpp__
-#define __se3_python_geometry_object_hpp__
+#ifndef __pinocchio_python_geometry_object_hpp__
+#define __pinocchio_python_geometry_object_hpp__
 
 #include <boost/python.hpp>
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/multibody/geometry.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(se3::GeometryObject)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryObject)
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -56,14 +43,14 @@ namespace se3
         .def_readonly("overrideMaterial", &GeometryObject::overrideMaterial, "Boolean that tells whether material information is stored in Geometry object")
         .def_readonly("meshTexturePath", &GeometryObject::meshTexturePath, "Absolute path to the mesh texture file")
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
           .def("CreateCapsule", &GeometryObjectPythonVisitor::maker_capsule)
           .staticmethod("CreateCapsule")
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
         ;
       }
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
       static GeometryObject maker_capsule( const double radius , const double length)
       {
         return GeometryObject("",FrameIndex(0),JointIndex(0),
@@ -71,7 +58,7 @@ namespace se3
                               SE3::Identity());
 
       }
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
 
       static void expose()
       {
@@ -92,6 +79,6 @@ namespace se3
     
 
   } // namespace python
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_python_geometry_object_hpp__
+#endif // ifndef __pinocchio_python_geometry_object_hpp__

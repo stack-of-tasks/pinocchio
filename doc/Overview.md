@@ -66,7 +66,7 @@ We start with a simple program to compute the robot inverse dynamics. It is give
 
 You can compile the C++ version by including Pinocchio and Eigen header directories.
 
-\code g++ -I /path/to/eigen -I /path/to/pinocchio/include/ -L /path/to/pinocchio/lib/ overview-simple.cpp -lpinocchio -o overview-simple \endcode
+\code g++ -I /path/to/eigen -I /path/to/pinocchio/include/ overview-simple.cpp -o overview-simple \endcode
 
 where `/path/to/pinocchio` is your chosen installation directory for Pinocchio.
 If you do not know Eigen's installation path, you can retrive it with `pkg-config --cflags eigen3`.
@@ -80,7 +80,7 @@ In Python, just run it:
 
 \code python overview-simple.py \endcode
 
-\subsection OverviewSimpleExplain Explaination of the program
+\subsection OverviewSimpleExplain Explanation of the program
 
 This program loads a robot model, creates a data structure for algorithm buffering, and runs the Recursive Newton-Euler Algorithm (RNEA) to compute the robot inverse dynamics.
 
@@ -104,6 +104,18 @@ For a manipulator, this value corresponds to the joint torque required to achiev
 Notice that, in Python, we use numpy to represent matrices and vectors.
 Therefore `tau` is `numpy` matrix object, and so are `q`, `v` and `a`.
 
+Before we move on, a little tip: in our examples, we generaly include the whole namespace `pinocchio` for clarity.
+However, if you feel like "pinocchio" is too long to type, the recommended shorthands are
+```
+namespace pin = pinocchio;
+```
+in C++
+and
+```
+import pinocchio as pin
+```
+in Python.
+
 \section OverviewComplex More complex example with C++ and Python
 
 <table class="manual">
@@ -124,8 +136,9 @@ Therefore `tau` is `numpy` matrix object, and so are `q`, `v` and `a`.
 \subsection OverviewComplexCompile Compiling and running your program
 
 This time, we must specify that URDFDOM is needed, as the model will be parsed from URDF.
+Also, we need to link to `liburdfdom_model` and to `libboost_system`.
 
-\code g++ -I /path/to/eigen -I /path/to/pinocchio/include/ -L /path/to/pinocchio/lib/ -DURDFDOM_TYPEDEF_SHARED_PTR -DWITH_URDFDOM overview-urdf.cpp -lpinocchio -o overview-urdf \endcode
+\code g++ -I /path/to/eigen -I /path/to/pinocchio/include/ -DPINOCCHIO_URDFDOM_TYPEDEF_SHARED_PTR -DPINOCCHIO_WITH_URDFDOM overview-urdf.cpp -lboost_system -lurdfdom_model -o overview-urdf \endcode
 
 The program typically runs with a UR5 URDF description, that can be found for example in this repository https://github.com/humanoid-path-planner/ur_description
 
@@ -136,7 +149,7 @@ In Python, just run it:
 
 \code python overview-urdf.py /path/to/ur5.urdf \endcode
 
-\subsection OverviewComplexExplain Explaination of the program
+\subsection OverviewComplexExplain Explanation of the program
 
 This program loads a model of a manipulator robot from a URDF file, computes the forward kinematics at a random initial configuration and displays the position of each robot joint with its name.
 

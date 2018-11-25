@@ -1,24 +1,11 @@
 //
 // Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -36,8 +23,7 @@ namespace se3
       if (update_kinematics)
         computeJointJacobians(model,data,q);
       
-      if(rf == LOCAL) getJointJacobian<LOCAL>(model,data,jointId,J);
-      else getJointJacobian<WORLD>(model,data,jointId,J);
+      getJointJacobian(model,data,jointId,rf,J);
       
       return J;
     }
@@ -49,9 +35,7 @@ namespace se3
                        ReferenceFrame rf)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
-      
-      if(rf == LOCAL) getJointJacobian<LOCAL>(model,data,jointId,J);
-      else getJointJacobian<WORLD>(model,data,jointId,J);
+      getJointJacobian(model,data,jointId,rf,J);
       
       return J;
     }
@@ -63,23 +47,25 @@ namespace se3
                                   ReferenceFrame rf)
     {
       Data::Matrix6x dJ(6,model.nv); dJ.setZero();
-      
-      if(rf == LOCAL) getJointJacobianTimeVariation<LOCAL>(model,data,jointId,dJ);
-      else getJointJacobianTimeVariation<WORLD>(model,data,jointId,dJ);
+      getJointJacobianTimeVariation(model,data,jointId,rf,dJ);
       
       return dJ;
     }
   
     void exposeJacobian()
     {
-      bp::def("computeJointJacobians",(const Data::Matrix6x &(*)(const Model &, Data &, const Eigen::VectorXd &))&computeJointJacobians,
+      using namespace Eigen;
+      
+      bp::def("computeJointJacobians",
+              &computeJointJacobians<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)"),
               "Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.\n"
               "The result is accessible through data.J. This function computes also the forwardKinematics of the model.",
               bp::return_value_policy<bp::return_by_value>());
 
-      bp::def("computeJointJacobians",(const Data::Matrix6x &(*)(const Model &, Data &))&computeJointJacobians,
+      bp::def("computeJointJacobians",
+              &computeJointJacobians<double,0,JointCollectionDefaultTpl>,
               bp::args("Model","Data"),
               "Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.\n"
               "The result is accessible through data.J. This function assumes that forwardKinematics has been called before",
@@ -103,7 +89,7 @@ namespace se3
               "Computes the jacobian of a given given joint according to the given entries in data."
               "If rf is set to LOCAL, it returns the jacobian associated to the joint frame. Otherwise, it returns the jacobian of the frame coinciding with the world frame.");
       
-      bp::def("computeJointJacobiansTimeVariation",computeJointJacobiansTimeVariation,
+      bp::def("computeJointJacobiansTimeVariation",computeJointJacobiansTimeVariation<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),
@@ -122,4 +108,4 @@ namespace se3
     }
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

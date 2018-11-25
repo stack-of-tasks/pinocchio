@@ -2,27 +2,14 @@
 // Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_sample_models_hpp__
-#define __se3_sample_models_hpp__
+#ifndef __pinocchio_sample_models_hpp__
+#define __pinocchio_sample_models_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace buildModels
   {  
@@ -30,16 +17,21 @@ namespace se3
      *
      * \param model: model, typically given empty, where the kinematic chain is added.
      */
-    void manipulator(Model & model);
+    template<typename Scalar, int Options,
+             template<typename,int> class JointCollectionTpl>
+    void manipulator(ModelTpl<Scalar,Options,JointCollectionTpl> & model);
     
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by manipulator function.
      *
      * \param model, const, kinematic chain typically produced by the function manipulator(model).
      * \warning this method is expecting specific namings of the kinematic chain, use it with care
      * not using after manipulator(model).
      */
-    void manipulatorGeometries(const Model & model, GeometryModel & geom);
+    template<typename Scalar, int Options,
+    template<typename,int> class JointCollectionTpl>
+    void manipulatorGeometries(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                               GeometryModel & geom);
 #endif
 
     /** \brief Create a 28-DOF kinematic chain of a floating humanoid robot.
@@ -54,44 +46,54 @@ namespace se3
      * \param usingFF: if True, implement the chain with a plain JointModelFreeFloating; if False,
      * uses a composite joint. This changes the size of the configuration space (35 vs 34).
      */
-    void humanoid(Model & model, bool usingFF=true);
+    template<typename Scalar, int Options,
+             template<typename,int> class JointCollectionTpl>
+    void humanoid(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  bool usingFF=true);
     
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by humanoid function.
      *
      * \param model, const, kinematic chain typically produced by the function humanoid(model).
      * \warning this method is expecting specific namings of the kinematic chain, use it with care
      * not using after humanoid(model).
      */
-    void humanoidGeometries(const Model & model, GeometryModel & geom);
+    template<typename Scalar, int Options,
+             template<typename,int> class JointCollectionTpl>
+    void humanoidGeometries(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            GeometryModel & geom);
 #endif
     
     /** \brief Create a humanoid kinematic tree with 6-DOF limbs and random joint placements.
      *
      * This method is only meant to be used in unittest. Due to random placement and masses,
      * the resulting model is likely to not correspond to any physically-plausible model. 
-     * You may want to consider se3::humanoid and se3::humanoidGeometries functions that
+     * You may want to consider pinocchio::humanoid and pinocchio::humanoidGeometries functions that
      * rather define a plain and non-random model. 
      * \param model: model, typically given empty, where the kinematic chain is added.
      * \param usingFF: if True, implement the chain with a plain JointModelFreeFloating; if False,
      * uses a composite joint translation + roll-pitch-yaw.
      * This changes the size of the configuration space (33 vs 32).
      */
-    void humanoidRandom(Model & model, bool usingFF = true);
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void humanoidRandom(ModelTpl<Scalar,Options,JointCollectionTpl> & model, bool usingFF = true);
 
     /** \brief Create a random humanoid tree with 2d limbs.
-     * \ deprecated This function has been replaced by the non-random se3::humanoid function.
+     * \ deprecated This function has been replaced by the non-random pinocchio::humanoid function.
      */
     PINOCCHIO_DEPRECATED
-    void humanoid2d(Model & model);
+    inline void humanoid2d(Model & model);
 
     /** \brief Alias of humanoidRandom, for compatibility reasons.
-     * \deprecated use se3::humanoid or se3::humanoidRandom instead. 
+     * \deprecated use pinocchio::humanoid or pinocchio::humanoidRandom instead. 
      */
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     PINOCCHIO_DEPRECATED
-    inline void humanoidSimple(Model & model, bool usingFF = true) { humanoidRandom(model,usingFF); }
+    inline void humanoidSimple(ModelTpl<Scalar,Options,JointCollectionTpl> & model, bool usingFF = true);
    
   } // namespace buildModels
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_sample_models_hpp__
+#include "pinocchio/parsers/sample-models.hxx"
+
+#endif // ifndef __pinocchio_sample_models_hpp__

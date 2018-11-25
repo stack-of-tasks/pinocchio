@@ -1,73 +1,81 @@
 //
 // Copyright (c) 2016-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_check_hxx__
-#define __se3_check_hxx__
+#ifndef __pinocchio_check_hxx__
+#define __pinocchio_check_hxx__
 
 #include <boost/fusion/algorithm.hpp>
 #include <boost/foreach.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace internal
   {
     // Dedicated structure for the fusion::accumulate algorithm: validate the check-algorithm
     // for all elements in a fusion list of AlgoCheckers.
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     struct AlgoFusionChecker
     {
       typedef bool result_type;
-      const Model& model;
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      const Model & model;
       
-      AlgoFusionChecker(const Model&model) : model(model) {}
+      AlgoFusionChecker(const Model & model) : model(model) {}
 
-      inline bool operator()(const bool& accumul, const boost::fusion::void_ &) const
+      inline bool operator()(const bool & accumul, const boost::fusion::void_ &) const
       { return accumul; }
       
       template<typename T>
-      inline bool operator()(const bool& accumul, const AlgorithmCheckerBase<T> & t) const
+      inline bool operator()(const bool & accumul, const AlgorithmCheckerBase<T> & t) const
       { return accumul && t.checkModel(model); }
     };
   } // namespace internal
 
   // Check the validity of the kinematic tree defined by parents.
-  inline bool ParentChecker::checkModel_impl( const Model& model ) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool ParentChecker::checkModel_impl(const ModelTpl<Scalar,Options,JointCollectionTpl> & model) const
   {
-    for( JointIndex j=1;(int)j<model.njoints;++j )
-      if( model.parents[j]>=j ) return false;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    for(JointIndex j=1;j<(JointIndex)model.njoints;++j)
+      if(model.parents[j]>=j)
+        return false;
 
     return true;
   }
 
 #if !defined(BOOST_FUSION_HAS_VARIADIC_LIST)
   template<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE,class T)>
-  bool AlgorithmCheckerList<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE,T)>::checkModel_impl(const Model& model) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  bool AlgorithmCheckerList<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE,T)>
+  ::checkModel_impl(const ModelTpl<Scalar,Options,JointCollectionTpl> & model) const
   {
-    return boost::fusion::accumulate(checkerList,true,internal::AlgoFusionChecker(model));
+    return boost::fusion::accumulate(checkerList,
+                                     true,
+                                     internal::AlgoFusionChecker<Scalar,Options,JointCollectionTpl>(model));
   }
 #else
   template<class ...T>
-  bool AlgorithmCheckerList<T...>::checkModel_impl(const Model& model) const
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  bool AlgorithmCheckerList<T...>::checkModel_impl(const ModelTpl<Scalar,Options,JointCollectionTpl> & model) const
   {
-    return boost::fusion::accumulate(checkerList,true,internal::AlgoFusionChecker(model));
+    return boost::fusion::accumulate(checkerList,
+                                     true,
+                                     internal::AlgoFusionChecker<Scalar,Options,JointCollectionTpl>(model));
   }
 #endif
 
-  inline bool checkData(const Model & model, const Data & data)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool checkData(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef typename Model::JointModel JointModel;
+    
 #define CHECK_DATA(a)  if(!(a)) return false;
 
     // TODO JMinvJt,sDUiJt are never explicitly initialized.
@@ -84,7 +92,10 @@ namespace se3
     CHECK_DATA( (int)data.Ycrb.size()     == model.njoints );
     CHECK_DATA( (int)data.Yaba.size()     == model.njoints );
     CHECK_DATA( (int)data.Fcrb.size()     == model.njoints );
-    BOOST_FOREACH(const Data::Matrix6x & F,data.Fcrb) CHECK_DATA( F.cols() == model.nv );
+    BOOST_FOREACH(const typename Data::Matrix6x & F,data.Fcrb)
+    {
+      CHECK_DATA( F.cols() == model.nv );
+    }
     CHECK_DATA( (int)data.iMf.size()      == model.njoints );
     CHECK_DATA( (int)data.iMf.size()      == model.njoints );
     CHECK_DATA( (int)data.com.size()      == model.njoints );
@@ -143,9 +154,12 @@ namespace se3
     return true;
   }
   
-  inline bool Model::check(const Data & data) const { return checkData(*this,data); }
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline bool ModelTpl<Scalar,Options,JointCollectionTpl>::
+  check(const DataTpl<Scalar,Options,JointCollectionTpl> & data) const
+  { return checkData(*this,data); }
 
 
-} // namespace se3 
+} // namespace pinocchio 
 
-#endif // ifndef __se3_check_hxx__
+#endif // ifndef __pinocchio_check_hxx__

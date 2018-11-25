@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016 CNRS
+# Copyright (c) 2016-2018 CNRS INRIA
 #
 # This file is part of Pinocchio
 # pinocchio is free software: you can redistribute it
@@ -16,4 +16,5 @@
 
 IF(BUILD_PYTHON_INTERFACE)
   ADD_SUBDIRECTORY(python)
+  SET(PYWRAP ${PYWRAP} PARENT_SCOPE)
 ENDIF(BUILD_PYTHON_INTERFACE)

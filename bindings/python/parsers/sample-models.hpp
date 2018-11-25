@@ -1,28 +1,15 @@
 //
 // Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_python_sample_models_hpp__
-#define __se3_python_sample_models_hpp__
+#ifndef __pinocchio_python_sample_models_hpp__
+#define __pinocchio_python_sample_models_hpp__
 
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/multibody/data.hpp"
 #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -50,7 +37,7 @@ namespace se3
         return model;
       }
       
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
       static GeometryModel buildSampleGeometryModelManipulator(const Model& model)
       {
         GeometryModel geom;
@@ -73,7 +60,7 @@ namespace se3
         return model;
       }
       
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
       static GeometryModel buildSampleGeometryModelHumanoid(const Model& model)
       {
         GeometryModel geom;
@@ -104,7 +91,7 @@ namespace se3
               "Generate a (hard-coded) model of a simple manipulator."
               );
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def("buildSampleGeometryModelManipulator",
               static_cast <GeometryModel (*) (const Model&)> (&SampleModelsPythonVisitor::buildSampleGeometryModelManipulator),
               bp::args("Model (model)"),
@@ -123,7 +110,7 @@ namespace se3
               "Generate a (hard-coded) model of a simple humanoid."
               );
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def("buildSampleGeometryModelHumanoid",
               static_cast <GeometryModel (*) (const Model&)> (&SampleModelsPythonVisitor::buildSampleGeometryModelHumanoid),
               bp::args("Model (model)"),
@@ -134,6 +121,6 @@ namespace se3
     }
     
   }
-} // namespace se3::python
+} // namespace pinocchio::python
 
-#endif // ifndef __se3_python_sample_models_hpp__
+#endif // ifndef __pinocchio_python_sample_models_hpp__

@@ -1,5 +1,5 @@
 import unittest
-import pinocchio as se3
+import pinocchio as pin
 import os
 
 class TestGeometryObjectUrdfBindings(unittest.TestCase):
@@ -11,8 +11,8 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
         expected_mesh_path = os.path.join(model_dir,'romeo_description/meshes/V1/collision/LHipPitch.dae')
 
         hint_list = [model_dir, "wrong/hint"]
-        model = se3.buildModelFromUrdf(model_path, se3.JointModelFreeFlyer())
-        collision_model = se3.buildGeomFromUrdf(model, model_path, se3.utils.fromListToVectorOfString(hint_list), se3.GeometryType.COLLISION)
+        model = pin.buildModelFromUrdf(model_path, pin.JointModelFreeFlyer())
+        collision_model = pin.buildGeomFromUrdf(model, model_path, pin.utils.fromListToVectorOfString(hint_list), pin.GeometryType.COLLISION)
 
         col = collision_model.geometryObjects[1]
         self.assertTrue(col.meshPath == expected_mesh_path)

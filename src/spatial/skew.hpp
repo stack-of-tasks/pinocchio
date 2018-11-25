@@ -1,26 +1,13 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_skew_hpp__
-#define __se3_skew_hpp__
+#ifndef __pinocchio_skew_hpp__
+#define __pinocchio_skew_hpp__
 
 #include "pinocchio/macros.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   ///
@@ -60,6 +47,27 @@ namespace se3
     Eigen::Matrix<typename D::Scalar,3,3,EIGEN_PLAIN_TYPE(D)::Options> M;
     skew(v,M);
     return M;
+  }
+  
+  ///
+  /// \brief Add skew matrix represented by a 3d vector to a given matrix,
+  ///        i.e. add the antisymmetric matrix representation of the cross product operator (\f$ [v]_{\cross} x = v \cross x \f$)
+  ///
+  /// \param[in]  v a vector of dimension 3.
+  /// \param[out] M the 3x3 matrix to which the skew matrix is added.
+  ///
+  template <typename Vector3Like, typename Matrix3Like>
+  inline void addSkew(const Eigen::MatrixBase<Vector3Like> & v,
+                      const Eigen::MatrixBase<Matrix3Like> & M)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3);
+    
+    Matrix3Like & M_ = EIGEN_CONST_CAST(Matrix3Like,M);
+    
+                          M_(0,1) -= v[2];      M_(0,2) += v[1];
+    M_(1,0) += v[2];                            M_(1,2) -= v[0];
+    M_(2,0) -= v[1];      M_(2,1) += v[0];                     ;
   }
   
   ///
@@ -233,6 +241,6 @@ namespace se3
     return res;
   }
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_skew_hpp__
+#endif // ifndef __pinocchio_skew_hpp__

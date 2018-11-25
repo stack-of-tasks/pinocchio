@@ -1,26 +1,13 @@
 //
 // Copyright (c) 2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 
 #include <boost/python/tuple.hpp>
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -36,14 +23,8 @@ namespace se3
       Matrix6x partial_dq(Matrix6x::Zero(6,model.nv));
       Matrix6x partial_dv(Matrix6x::Zero(6,model.nv));
       
-      if(rf == WORLD)
-        getJointVelocityDerivatives<WORLD>(model,data,jointId,
-                                           partial_dq,partial_dv);
-      else if(rf == LOCAL)
-        getJointVelocityDerivatives<LOCAL>(model,data,jointId,
-                                           partial_dq,partial_dv);
-      else
-        assert(false && "must never happened - wrong Reference Frame input");
+      getJointVelocityDerivatives(model,data,jointId,rf,
+                                  partial_dq,partial_dv);
       
       return bp::make_tuple(partial_dq,partial_dv);
     }
@@ -60,25 +41,19 @@ namespace se3
       Matrix6x a_partial_dv(Matrix6x::Zero(6,model.nv));
       Matrix6x a_partial_da(Matrix6x::Zero(6,model.nv));
       
-      if(rf == WORLD)
-        getJointAccelerationDerivatives<WORLD>(model,data,jointId,
-                                               v_partial_dq,a_partial_dq,
-                                               a_partial_dv,a_partial_da);
-      else if(rf == LOCAL)
-        getJointAccelerationDerivatives<LOCAL>(model,data,jointId,
-                                               v_partial_dq,a_partial_dq,
-                                               a_partial_dv,a_partial_da);
-      else
-        assert(false && "must never happened - wrong Reference Frame input");
-      
+      getJointAccelerationDerivatives(model,data,jointId,rf,
+                                      v_partial_dq,a_partial_dq,
+                                      a_partial_dv,a_partial_da);
+
       return bp::make_tuple(v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
     }
     
     void exposeKinematicsDerivatives()
     {
+      using namespace Eigen;
       
       bp::def("computeForwardKinematicsDerivatives",
-              computeForwardKinematicsDerivatives,
+              &computeForwardKinematicsDerivatives<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
@@ -113,4 +88,4 @@ namespace se3
     
     
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

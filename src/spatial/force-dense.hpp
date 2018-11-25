@@ -1,24 +1,11 @@
 //
 // Copyright (c) 2017-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_force_dense_hpp__
-#define __se3_force_dense_hpp__
+#ifndef __pinocchio_force_dense_hpp__
+#define __pinocchio_force_dense_hpp__
 
-namespace se3
+namespace pinocchio
 {
   
   namespace internal
@@ -48,6 +35,7 @@ namespace se3
     using Base::angular;
     using Base::derived;
     using Base::isApprox;
+    using Base::operator=;
     
     Derived & setZero() { linear().setZero(); angular().setZero(); return derived(); }
     Derived & setRandom() { linear().setRandom(); angular().setRandom(); return derived(); }
@@ -62,11 +50,17 @@ namespace se3
     
     // Arithmetic operators
     template<typename D2>
-    Derived & operator=(const ForceDense<D2> & other)
+    Derived & setFrom(const ForceDense<D2> & other)
     {
       linear() = other.linear();
       angular() = other.angular();
       return derived();
+    }
+    
+    template<typename D2>
+    Derived & operator=(const ForceDense<D2> & other)
+    {
+      return derived().setFrom(other.derived());
     }
     
     template<typename V6>
@@ -79,16 +73,16 @@ namespace se3
     }
     
     ForcePlain operator-() const { return derived().__opposite__(); }
-    template<typename M1>
-    ForcePlain operator+(const ForceDense<M1> & v) const { return derived().__plus__(v.derived()); }
-    template<typename M1>
-    ForcePlain operator-(const ForceDense<M1> & v) const { return derived().__minus__(v.derived()); }
+    template<typename F1>
+    ForcePlain operator+(const ForceDense<F1> & f) const { return derived().__plus__(f.derived()); }
+    template<typename F1>
+    ForcePlain operator-(const ForceDense<F1> & f) const { return derived().__minus__(f.derived()); }
     
-    template<typename M1>
-    Derived & operator+=(const ForceDense<M1> & v) { return derived().__pequ__(v.derived()); }
-    template<typename M1>
-    Derived & operator+=(const ForceBase<M1> & v)
-    { v.derived().addTo(derived()); return derived(); }
+    template<typename F1>
+    Derived & operator+=(const ForceDense<F1> & f) { return derived().__pequ__(f.derived()); }
+    template<typename F1>
+    Derived & operator+=(const ForceBase<F1> & f)
+    { f.derived().addTo(derived()); return derived(); }
     
     template<typename M1>
     Derived & operator-=(const ForceDense<M1> & v) { return derived().__mequ__(v.derived()); }
@@ -126,8 +120,8 @@ namespace se3
     template<typename M1, typename M2>
     void motionAction(const MotionDense<M1> & v, ForceDense<M2> & fout) const
     {
-      fout.linear() = v.angular().cross(linear());
-      fout.angular() = v.angular().cross(angular())+v.linear().cross(linear());
+      fout.linear().noalias() = v.angular().cross(linear());
+      fout.angular().noalias() = v.angular().cross(angular())+v.linear().cross(linear());
     }
     
     template<typename M1>
@@ -151,8 +145,9 @@ namespace se3
     template<typename S2, int O2, typename D2>
     void se3Action_impl(const SE3Tpl<S2,O2> & m, ForceDense<D2> & f) const
     {
-      f.linear() = m.rotation()*linear();
-      f.angular() = m.rotation()*angular() + m.translation().cross(f.linear());
+      f.linear().noalias() = m.rotation()*linear();
+      f.angular().noalias() = m.rotation()*angular();
+      f.angular() += m.translation().cross(f.linear());
     }
     
     template<typename S2, int O2>
@@ -166,9 +161,8 @@ namespace se3
     template<typename S2, int O2, typename D2>
     void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, ForceDense<D2> & f) const
     {
-      f.linear() = angular()-m.translation().cross(linear());
-      f.angular() = m.rotation().transpose()*(f.linear());
-      f.linear() = m.rotation().transpose()*linear();
+      f.linear().noalias() = m.rotation().transpose()*linear();
+      f.angular().noalias() = m.rotation().transpose()*(angular()-m.translation().cross(linear()));
     }
     
     template<typename S2, int O2>
@@ -186,7 +180,7 @@ namespace se3
       << "tau = " << angular().transpose () << std::endl;
     }
     
-    /// \returns a MotionRef on this.
+    /// \returns a ForceRef on this.
     ForceRefType ref() { return derived().ref(); }
     
   }; // class ForceDense
@@ -194,9 +188,9 @@ namespace se3
   /// Basic operations specialization
   template<typename F1>
   typename traits<F1>::ForcePlain operator*(const typename traits<F1>::Scalar alpha,
-                                             const ForceDense<F1> & f)
+                                            const ForceDense<F1> & f)
   { return f.derived()*alpha; }
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_force_dense_hpp__
+#endif // ifndef __pinocchio_force_dense_hpp__

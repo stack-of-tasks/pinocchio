@@ -1,22 +1,9 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_geometry_hxx__
-#define __se3_geometry_hxx__
+#ifndef __pinocchio_multibody_geometry_hxx__
+#define __pinocchio_multibody_geometry_hxx__
 
 #include <iostream>
 #include <map>
@@ -25,47 +12,49 @@
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
   inline GeometryData::GeometryData(const GeometryModel & modelGeom)
-    : oMg(modelGeom.ngeoms)
-
-#ifdef WITH_HPP_FCL
-    , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
-    , distanceRequest (true, 0, 0, fcl::GST_INDEP)
-    , distanceResults(modelGeom.collisionPairs.size())
-    , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
-    , collisionResults(modelGeom.collisionPairs.size())
-    , radius()
-    , collisionPairIndex(0)
-    , innerObjects()
-    , outerObjects()
+  : oMg(modelGeom.ngeoms)
+  
+#ifdef PINOCCHIO_WITH_HPP_FCL
+  , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
+  , distanceRequest (true, 0, 0, fcl::GST_INDEP)
+  , distanceResults(modelGeom.collisionPairs.size())
+  , collisionRequest (1, false, false, 1, false, true, fcl::GST_INDEP)
+  , collisionResults(modelGeom.collisionPairs.size())
+  , radius()
+  , collisionPairIndex(0)
+  , innerObjects()
+  , outerObjects()
   {
     collisionObjects.reserve(modelGeom.geometryObjects.size());
     BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
-      { collisionObjects.push_back
-          (fcl::CollisionObject(geom.fcl)); }
+    { collisionObjects.push_back
+      (fcl::CollisionObject(geom.fcl)); }
     fillInnerOuterObjectMaps(modelGeom);
   }
 #else
   {}
-#endif // WITH_HPP_FCL   
-
-  inline GeomIndex GeometryModel::addGeometryObject(GeometryObject object,
-                                                    const Model & model,
-                                                    const bool autofillJointParent)
+#endif // PINOCCHIO_WITH_HPP_FCL   
+  
+  template<typename S2, int O2, template<typename,int> class JointCollectionTpl>
+  GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object,
+                                             const ModelTpl<S2,O2,JointCollectionTpl> & model)
   {
-    // TODO reenable when relevant: assert( (object.parentFrame != -1) || (object.parentJoint != -1) );
-
-    if( autofillJointParent )
-      // TODO: this might be automatically done for some default value of parentJoint (eg ==-1)
-      object.parentJoint = model.frames[object.parentFrame].parent; 
-
     assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
-           (model.frames[object.parentFrame].type == se3::BODY)  );
+           (model.frames[object.parentFrame].type == pinocchio::BODY)  );
     assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
            (model.frames[object.parentFrame].parent == object.parentJoint) );
-
+    
+    GeomIndex idx = (GeomIndex) (ngeoms ++);
+    geometryObjects.push_back(object);
+    geometryObjects.back().parentJoint = model.frames[object.parentFrame].parent;
+    return idx;
+  }
+  
+  inline GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object)
+  {
     GeomIndex idx = (GeomIndex) (ngeoms ++);
     geometryObjects.push_back(object);
     return idx;
@@ -130,7 +119,7 @@ namespace se3
   //     std::cout << "outer object already added" << std::endl;
   // }
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
   inline void GeometryData::fillInnerOuterObjectMaps(const GeometryModel & geomModel)
   {
     innerObjects.clear();
@@ -160,7 +149,7 @@ namespace se3
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryData & geomData)
   {
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
     os << "Number of collision pairs = " << geomData.activeCollisionPairs.size() << std::endl;
     
     for(PairIndex i=0;i<(PairIndex)(geomData.activeCollisionPairs.size());++i)
@@ -175,7 +164,7 @@ namespace se3
     return os;
   }
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
   
   inline void GeometryModel::addCollisionPair (const CollisionPair & pair)
   {
@@ -202,9 +191,9 @@ namespace se3
   {
     assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
 
-    CollisionPairsVector_t::iterator it = std::find(collisionPairs.begin(),
-                                                    collisionPairs.end(),
-                                                    pair);
+    CollisionPairVector::iterator it = std::find(collisionPairs.begin(),
+                                                 collisionPairs.end(),
+                                                 pair);
     if (it != collisionPairs.end()) { collisionPairs.erase(it); }
   }
   
@@ -219,9 +208,9 @@ namespace se3
   
   inline PairIndex GeometryModel::findCollisionPair (const CollisionPair & pair) const
   {
-    CollisionPairsVector_t::const_iterator it = std::find(collisionPairs.begin(),
-                                                          collisionPairs.end(),
-                                                          pair);
+    CollisionPairVector::const_iterator it = std::find(collisionPairs.begin(),
+                                                       collisionPairs.end(),
+                                                       pair);
     
     return (PairIndex) std::distance(collisionPairs.begin(), it);
   }
@@ -238,9 +227,9 @@ namespace se3
     activeCollisionPairs[pairId] = false;
   }
 
-#endif //WITH_HPP_FCL
-} // namespace se3
+#endif //PINOCCHIO_WITH_HPP_FCL
+} // namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __se3_geometry_hxx__
+#endif // ifndef __pinocchio_multibody_geometry_hxx__

@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2016 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -22,7 +9,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace se3;
+using namespace pinocchio;
 using namespace Eigen;
 
 template<typename JointModel>
@@ -60,7 +47,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   jmodel_composite.calc(jdata_composite,q);
   
   BOOST_CHECK(jdata_composite.M.isApprox((SE3)jdata.M));
-  BOOST_CHECK(constraint_xd(jdata_composite).matrix().isApprox(constraint_xd(jdata).matrix()));
+  BOOST_CHECK(jdata_composite.S.matrix().isApprox(jdata.S.matrix()));
   
   q = LieGroupType().randomConfiguration(ql,qu);
   TangentVector_t v = TangentVector_t::Random(jmodel.nv());
@@ -68,7 +55,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   jmodel_composite.calc(jdata_composite,q,v);
   
   BOOST_CHECK(jdata_composite.M.isApprox((SE3)jdata.M));
-  BOOST_CHECK(constraint_xd(jdata_composite).matrix().isApprox(constraint_xd(jdata).matrix()));
+  BOOST_CHECK(jdata_composite.S.matrix().isApprox(jdata.S.matrix()));
   BOOST_CHECK(jdata_composite.v.isApprox((Motion)jdata.v));
   BOOST_CHECK(jdata_composite.c.isApprox((Motion)jdata.c));
   
@@ -89,7 +76,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
 //    
 //    const double alpha = 0.2;
 //    BOOST_CHECK(jmodel_composite.interpolate(q1,q2,alpha).isApprox(jmodel.interpolate(q1,q2,alpha)));
-//    BOOST_CHECK(std::fabs(jmodel_composite.distance(q1,q2)-jmodel.distance(q1,q2))<= NumTraits<double>::dummy_precision());
+//    BOOST_CHECK(math::fabs(jmodel_composite.distance(q1,q2)-jmodel.distance(q1,q2))<= NumTraits<double>::dummy_precision());
 //  }
   
   Inertia::Matrix6 I1(Inertia::Random().matrix());
@@ -112,13 +99,6 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
     BOOST_CHECK((I1-I2).lpNorm<Eigen::Infinity>() < prec);
   else
     BOOST_CHECK(I1.isApprox(I2,prec));
-  
-  /// TODO: Remove me. This is for testing purposes.
-  Eigen::VectorXd qq = q;
-  Eigen::VectorXd vv = v;
-  Eigen::VectorXd res(jmodel_composite.nq());
-  typename se3::IntegrateStep<se3::LieGroupMap>::ArgsType args(qq, vv, res);
-  se3::IntegrateStep<se3::LieGroupMap>::run(jmodel_composite, args);
 }
 
 struct TestJointComposite{
@@ -135,8 +115,8 @@ struct TestJointComposite{
 //  void operator()(const JointModelBase<JointModelComposite> &) const
 //  {
 //    JointModelComposite jmodel_composite;
-//    jmodel_composite.addJoint(se3::JointModelRX());
-//    jmodel_composite.addJoint(se3::JointModelRY());
+//    jmodel_composite.addJoint(pinocchio::JointModelRX());
+//    jmodel_composite.addJoint(pinocchio::JointModelRY());
 //    jmodel_composite.setIndexes(0,0,0);
 //
 //    test_joint_methods(jmodel_composite);
@@ -175,6 +155,15 @@ BOOST_AUTO_TEST_CASE(test_basic)
   > Variant;
   
   boost::mpl::for_each<Variant::types>(TestJointComposite());
+}
+
+BOOST_AUTO_TEST_CASE(chain)
+{
+  JointModelComposite jmodel_composite;
+  jmodel_composite.addJoint(JointModelRZ()).addJoint(JointModelRY(),SE3::Random()).addJoint(JointModelRX());
+  BOOST_CHECK_MESSAGE( jmodel_composite.nq() == 3, "Chain did not work");
+  BOOST_CHECK_MESSAGE( jmodel_composite.nv() == 3, "Chain did not work");
+  BOOST_CHECK_MESSAGE( jmodel_composite.njoints == 3, "Chain did not work");
 }
 
 BOOST_AUTO_TEST_CASE(vsZYX)

@@ -1,34 +1,76 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_centroidal_hpp__
-#define __se3_centroidal_hpp__
+#ifndef __pinocchio_centroidal_hpp__
+#define __pinocchio_centroidal_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
-namespace se3
+namespace pinocchio
 {
+  
+  ///
+  /// \brief Computes the Centroidal dynamics, a.k.a. the total momenta of the system
+  ///        expressed around the center of mass.
+  ///
+  /// \tparam Scalar The scalar type.
+  /// \tparam Options Eigen Alignment options.
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  ///
+  /// \returns The centroidal momenta (stored in data.hg).
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+          typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  computeCentroidalDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const Eigen::MatrixBase<ConfigVectorType> & q,
+                            const Eigen::MatrixBase<TangentVectorType> & v);
+  ///
+  /// \brief Computes the Centroidal dynamics and its time derivatives, a.k.a. the total momenta of the system and its time derivative
+  ///        expressed around the center of mass.
+  ///
+  /// \tparam Scalar The scalar type.
+  /// \tparam Options Eigen Alignment options.
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint acceleration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  /// \param[in] a The joint acceleration vector (dim model.nv).
+  ///
+  /// \returns The centroidal momenta time derivative (stored in data.dhg).
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+          typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  computeCentroidalDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const Eigen::MatrixBase<ConfigVectorType> & q,
+                            const Eigen::MatrixBase<TangentVectorType1> & v,
+                            const Eigen::MatrixBase<TangentVectorType2> & a);
   
   ///
   /// \brief Computes the Centroidal Momentum Matrix, the Composite Ridig Body Inertia as well as the centroidal momenta
   ///        according to the current joint configuration and velocity.
   ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -37,16 +79,21 @@ namespace se3
   ///
   /// \return The Centroidal Momentum Matrix Ag.
   ///
-  inline const Data::Matrix6x &
-  ccrba(const Model & model,
-        Data & data,
-        const Eigen::VectorXd & q,
-        const Eigen::VectorXd & v);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  ccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+        DataTpl<Scalar,Options,JointCollectionTpl> & data,
+        const Eigen::MatrixBase<ConfigVectorType> & q,
+        const Eigen::MatrixBase<TangentVectorType> & v);
   
   ///
   /// \brief Computes the time derivative of the Centroidal Momentum Matrix according to the current configuration and velocity vectors.
   ///
   /// \note The computed terms allow to decomposed the spatial momentum variation as following: \f$ \dot{h} = A_g \ddot{q} + \dot{A_g}(q,\dot{q})\dot{q}\f$.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -55,15 +102,16 @@ namespace se3
   ///
   /// \return The Centroidal Momentum Matrix time derivative dAg
   ///
-  inline const Data::Matrix6x &
-  dccrba(const Model & model,
-         Data & data,
-         const Eigen::VectorXd & q,
-         const Eigen::VectorXd & v);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  dccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+         const Eigen::MatrixBase<ConfigVectorType> & q,
+         const Eigen::MatrixBase<TangentVectorType> & v);
   
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/centroidal.hxx"
 
-#endif // ifndef __se3_centroidal_hpp__
+#endif // ifndef __pinocchio_centroidal_hpp__

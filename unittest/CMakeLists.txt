@@ -2,18 +2,6 @@
 # Copyright (c) 2015-2018 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
-# This file is part of Pinocchio
-# pinocchio is free software: you can redistribute it
-# and/or modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation, either version
-# 3 of the License, or (at your option) any later version.
-# pinocchio is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Lesser Public License for more details. You should have
-# received a copy of the GNU Lesser General Public License along with
-# pinocchio If not, see
-# <http://www.gnu.org/licenses/>.
 
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
@@ -64,6 +52,7 @@ ADD_PINOCCHIO_UNIT_TEST(jacobian eigen3)
 ADD_PINOCCHIO_UNIT_TEST(cholesky eigen3)
 ADD_PINOCCHIO_UNIT_TEST(dynamics eigen3)
 ADD_PINOCCHIO_UNIT_TEST(sample-models eigen3)
+ADD_PINOCCHIO_UNIT_TEST(kinematics eigen3)
 
 IF(URDFDOM_FOUND)
   ADD_PINOCCHIO_UNIT_TEST(urdf "eigen3;urdfdom")
@@ -101,7 +90,7 @@ ADD_PINOCCHIO_UNIT_TEST(compute-all-terms eigen3)
 ADD_PINOCCHIO_UNIT_TEST(energy eigen3)
 ADD_PINOCCHIO_UNIT_TEST(frames eigen3)
 ADD_PINOCCHIO_UNIT_TEST(joint-configurations eigen3)
-ADD_PINOCCHIO_UNIT_TEST(joint eigen3)
+ADD_PINOCCHIO_UNIT_TEST(joint-generic eigen3)
 ADD_PINOCCHIO_UNIT_TEST(explog eigen3)
 ADD_PINOCCHIO_UNIT_TEST(finite-differences eigen3)
 ADD_PINOCCHIO_UNIT_TEST(visitor eigen3)
@@ -111,8 +100,27 @@ ADD_PINOCCHIO_UNIT_TEST(joint-composite eigen3)
 ADD_PINOCCHIO_UNIT_TEST(liegroups eigen3)
 ADD_PINOCCHIO_UNIT_TEST(regressor eigen3)
 ADD_PINOCCHIO_UNIT_TEST(version eigen3)
+ADD_PINOCCHIO_UNIT_TEST(copy eigen3)
 
 # Derivatives algo
 ADD_PINOCCHIO_UNIT_TEST(kinematics-derivatives eigen3)
 ADD_PINOCCHIO_UNIT_TEST(rnea-derivatives eigen3)
 ADD_PINOCCHIO_UNIT_TEST(aba-derivatives eigen3)
+ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives eigen3)
+
+# Automatic differentiation
+IF(CPPAD_FOUND)
+  ADD_PINOCCHIO_UNIT_TEST(cppad-basic "eigen3;cppad")
+  ADD_PINOCCHIO_UNIT_TEST(cppad-spatial "eigen3;cppad")
+  ADD_PINOCCHIO_UNIT_TEST(cppad-joints "eigen3;cppad")
+  ADD_PINOCCHIO_UNIT_TEST(cppad-algo "eigen3;cppad")
+  ADD_PINOCCHIO_UNIT_TEST(cppad-algo-derivatives "eigen3;cppad")
+ENDIF(CPPAD_FOUND)
+
+IF(CPPADCG_FOUND)
+  ADD_PINOCCHIO_UNIT_TEST(cppadcg-basic "eigen3;cppadcg")
+  SET_PROPERTY(TARGET cppadcg-basic PROPERTY CXX_STANDARD 11)
+  ADD_PINOCCHIO_UNIT_TEST(cppadcg-algo "eigen3;cppadcg")
+  SET_PROPERTY(TARGET cppadcg-algo PROPERTY CXX_STANDARD 11)
+ENDIF(CPPADCG_FOUND)
+

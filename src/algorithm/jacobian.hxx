@@ -1,50 +1,42 @@
 //
 // Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_jacobian_hxx__
-#define __se3_jacobian_hxx__
+#ifndef __pinocchio_jacobian_hxx__
+#define __pinocchio_jacobian_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
 /// @cond DEV
 
-namespace se3
+namespace pinocchio
 {
-  struct JointJacobiansForwardStep : public fusion::JointVisitor<JointJacobiansForwardStep>
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  struct JointJacobiansForwardStep
+  : public fusion::JointVisitorBase< JointJacobiansForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
-    typedef boost::fusion::vector <const se3::Model &,
-                                   se3::Data &,
-                                   const Eigen::VectorXd &
-                                   > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(JointJacobiansForwardStep);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &> ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q)
     {
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
       
-      jmodel.calc(jdata.derived(),q);
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      
+      jmodel.calc(jdata.derived(),q.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
@@ -55,48 +47,65 @@ namespace se3
   
   };
   
-  inline const Data::Matrix6x &
-  computeJointJacobians(const Model & model, Data & data,
-                        const Eigen::VectorXd & q)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  computeJointJacobians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                        const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq && "The configuration vector is not of right size");
     
-    for( Model::JointIndex i=1; i< (Model::JointIndex) model.njoints;++i )
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef JointJacobiansForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
-      JointJacobiansForwardStep::run(model.joints[i],data.joints[i],
-                                JointJacobiansForwardStep::ArgsType(model,data,q));
+      Pass::run(model.joints[i],data.joints[i],
+                typename Pass::ArgsType(model,data,q.derived()));
     }
   
     return data.J;
   }
   
-  struct JointJacobiansForwardStep2 : public fusion::JointVisitor<JointJacobiansForwardStep2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct JointJacobiansForwardStep2
+  : public fusion::JointVisitorBase< JointJacobiansForwardStep2<Scalar,Options,JointCollectionTpl> >
   {
-    typedef boost::fusion::vector<se3::Data &> ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(JointJacobiansForwardStep2);
+    typedef boost::fusion::vector<Data &> ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     se3::Data & data)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     Data & data)
     {
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
-
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
       jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
     }
     
   };
   
-  inline const Data::Matrix6x &
-  computeJointJacobians(const Model & model, Data & data)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  computeJointJacobians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
-    for( Model::JointIndex i=1; i< (Model::JointIndex) model.njoints;++i )
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef JointJacobiansForwardStep2<Scalar,Options,JointCollectionTpl> Pass;
+    for(JointIndex i=1; i< (JointIndex)model.njoints; ++i)
     {
-      JointJacobiansForwardStep2::run(model.joints[i],data.joints[i],
-                                 JointJacobiansForwardStep2::ArgsType(data));
+      Pass::run(model.joints[i],data.joints[i],
+                typename Pass::ArgsType(data));
     }
     
     return data.J;
@@ -105,97 +114,124 @@ namespace se3
   /* Return the jacobian of the output frame attached to joint <jointId> in the
    world frame or in the local frame depending on the template argument. The
    function computeJacobians should have been called first. */
-  template<ReferenceFrame rf>
-  void getJointJacobian(const Model & model,
-                   const Data & data,
-                   const Model::JointIndex jointId,
-                   Data::Matrix6x & J)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
+  inline void getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex jointId,
+                               const ReferenceFrame rf,
+                               const Eigen::MatrixBase<Matrix6Like> & J)
   {
-    assert( J.rows() == data.J.rows() );
-    assert( J.cols() == data.J.cols() );
+    assert( J.rows() == 6 );
+    assert( J.cols() == model.nv );
     assert(model.check(data) && "data is not consistent with model.");
     
-    const SE3 & oMjoint = data.oMi[jointId];
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Data::Matrix6x::ConstColXpr M6xColXpr;
+    
+    Matrix6Like & J_ = EIGEN_CONST_CAST(Matrix6Like,J);
+    
+    const typename Data::SE3 & oMjoint = data.oMi[jointId];
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
     for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
     {
-      if(rf == WORLD)   J.col(j) = data.J.col(j);
-      else              J.col(j) = oMjoint.actInv(Motion(data.J.col(j))).toVector();
+      if(rf == WORLD)   J_.col(j) = data.J.col(j);
+      else
+      {
+        const MotionRef<M6xColXpr> mref(data.J.col(j).derived());
+        J_.col(j) = oMjoint.actInv(mref).toVector();
+      }
     }
   }
   
-  
-  struct JointJacobianForwardStep : public fusion::JointVisitor<JointJacobianForwardStep>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+  struct JointJacobianForwardStep
+  : public fusion::JointVisitorBase< JointJacobianForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6Like> >
   {
-    typedef boost::fusion::vector<const se3::Model &,
-                                  se3::Data &,
-                                  const Eigen::VectorXd &,
-                                  se3::Data::Matrix6x &
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  Matrix6Like &
                                   > ArgsType;
     
-    JOINT_VISITOR_INIT(JointJacobianForwardStep);
-    
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q,
-                     se3::Data::Matrix6x & J)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<Matrix6Like> & J)
     {
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
       
-      jmodel.calc(jdata.derived(),q);
+      jmodel.calc(jdata.derived(),q.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       data.iMf[parent] = data.liMi[i]*data.iMf[i];
       
-      jmodel.jointCols(J) = data.iMf[i].inverse().act(jdata.S());
+      Matrix6Like & J_ = EIGEN_CONST_CAST(Matrix6Like,J);
+      jmodel.jointCols(J_) = data.iMf[i].inverse().act(jdata.S()); // TODO: use MotionRef
     }
   
   };
   
-  inline void jointJacobian(const Model & model, Data & data,
-                            const Eigen::VectorXd & q,
-                            const Model::JointIndex jointId,
-                            Data::Matrix6x & J)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+  inline void jointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const Eigen::MatrixBase<ConfigVectorType> & q,
+                            const JointIndex jointId,
+                            const Eigen::MatrixBase<Matrix6Like> & J)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq && "The configuration vector is not of right size");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
     
     data.iMf[jointId].setIdentity();
-    for( Model::JointIndex i=jointId;i>0;i=model.parents[i] )
+    typedef JointJacobianForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6Like> Pass;
+    for(JointIndex i=jointId; i>0; i=model.parents[i])
     {
-      JointJacobianForwardStep::run(model.joints[i],data.joints[i],
-                               JointJacobianForwardStep::ArgsType(model,data,q,J));
+      Pass::run(model.joints[i],data.joints[i],
+                typename Pass::ArgsType(model,data,q,EIGEN_CONST_CAST(Matrix6Like,J)));
     }
   }
   
-  struct JointJacobiansTimeVariationForwardStep : public fusion::JointVisitor<JointJacobiansTimeVariationForwardStep>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  struct JointJacobiansTimeVariationForwardStep
+  : public fusion::JointVisitorBase< JointJacobiansTimeVariationForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
-    typedef boost::fusion::vector <const se3::Model &,
-    se3::Data &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &
-    > ArgsType;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    JOINT_VISITOR_INIT(JointJacobiansTimeVariationForwardStep);
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType &> ArgsType;
     
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType> & v)
     {
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::SE3 SE3;
+      typedef typename Data::Motion Motion;
+      
+      const JointIndex & i = (JointIndex) jmodel.id();
+      const JointIndex & parent = model.parents[i];
       
       SE3 & oMi = data.oMi[i];
       Motion & vJ = data.v[i];
       
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       vJ = jdata.v();
       
@@ -215,7 +251,7 @@ namespace se3
       // Spatial velocity of joint i expressed in the global frame o
       data.ov[i] = oMi.act(vJ);
       
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock dJcols = jmodel.jointCols(data.dJ);
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
@@ -224,45 +260,57 @@ namespace se3
     
   };
   
-  inline const Data::Matrix6x &
-  computeJointJacobiansTimeVariation(const Model & model,
-                                     Data & data,
-                                     const Eigen::VectorXd & q,
-                                     const Eigen::VectorXd & v)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  computeJointJacobiansTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                                     const Eigen::MatrixBase<TangentVectorType> & v)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq && "The configuration vector is not of right size");
+    assert(v.size() == model.nv && "The velocity vector is not of right size");
     
-    for(Model::JointIndex i=1; i< (Model::JointIndex) model.njoints;++i)
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef JointJacobiansTimeVariationForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Pass;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      JointJacobiansTimeVariationForwardStep::run(model.joints[i],data.joints[i],
-                                             JointJacobiansTimeVariationForwardStep::ArgsType(model,data,q,v));
+      Pass::run(model.joints[i],data.joints[i],
+                typename Pass::ArgsType(model,data,q.derived(),v.derived()));
     }
     
     return data.dJ;
   }
   
-  template<ReferenceFrame rf>
-  void getJointJacobianTimeVariation(const Model & model,
-                                     const Data & data,
-                                     const Model::JointIndex jointId,
-                                     Data::Matrix6x & dJ)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
+  inline void getJointJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                            const JointIndex jointId,
+                                            const ReferenceFrame rf,
+                                            const Eigen::MatrixBase<Matrix6Like> & dJ)
   {
-    assert( dJ.rows() == data.dJ.rows() );
-    assert( dJ.cols() == data.dJ.cols() );
+    assert( dJ.rows() == 6 );
+    assert( dJ.cols() == model.nv );
     assert(model.check(data) && "data is not consistent with model.");
     
-    const SE3 & oMjoint = data.oMi[jointId];
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    Matrix6Like & dJ_ = EIGEN_CONST_CAST(Matrix6Like,dJ);
+    
+    const typename Data::SE3 & oMjoint = data.oMi[jointId];
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
-    for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
+    for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
     {
-      if(rf == WORLD)   dJ.col(j) = data.dJ.col(j);
-      else              dJ.col(j) = oMjoint.actInv(Motion(data.dJ.col(j))).toVector();
+      if(rf == WORLD)   dJ_.col(j) = data.dJ.col(j);
+      else              dJ_.col(j) = oMjoint.actInv(Motion(data.dJ.col(j))).toVector(); // TODO: use MotionRef
     }
   }
   
   
-} // namespace se3
+} // namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __se3_jacobian_hxx__
+#endif // ifndef __pinocchio_jacobian_hxx__

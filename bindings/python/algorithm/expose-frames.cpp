@@ -1,24 +1,11 @@
 //
 // Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/frames.hpp"
 
-namespace se3
+namespace pinocchio
 {
   namespace python
   {
@@ -29,10 +16,7 @@ namespace se3
                                                    ReferenceFrame rf)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
-      if(rf == LOCAL)
-        getFrameJacobian<LOCAL>(model, data, frame_id, J);
-      else
-        getFrameJacobian<WORLD>(model, data, frame_id, J);
+      getFrameJacobian(model, data, frame_id, rf, J);
       
       return J;
     }
@@ -58,9 +42,7 @@ namespace se3
                                             ReferenceFrame rf)
     {
       Data::Matrix6x dJ(6,model.nv); dJ.setZero();
-      
-      if(rf == LOCAL) getFrameJacobianTimeVariation<LOCAL>(model,data,jointId,dJ);
-      else getFrameJacobianTimeVariation<WORLD>(model,data,jointId,dJ);
+      getFrameJacobianTimeVariation(model,data,jointId,rf,dJ);
       
       return dJ;
     }
@@ -101,14 +83,15 @@ namespace se3
     
     void exposeFramesAlgo()
     {
+      using namespace Eigen;
       bp::def("updateFramePlacements",
-              (void (*)(const Model &, Data &))&updateFramePlacements,
+              &updateFramePlacements<double,0,JointCollectionDefaultTpl>,
               bp::args("Model","Data"),
               "Computes the placements of all the operational frames according to the current joint placement stored in data"
               "and puts the results in data.");
 
       bp::def("updateFramePlacement",
-              (const SE3 & (*)(const Model &, Data &, const Model::FrameIndex))&updateFramePlacement,
+              &updateFramePlacement<double,0,JointCollectionDefaultTpl>,
               bp::args("Model","Data","Operational frame ID (int)"),
               "Computes the placement of the given operational frames according to the current joint placement stored in data,"
               "puts the results in data and returns it.",
@@ -127,7 +110,7 @@ namespace se3
               "Second order forwardKinematics should be called first.");
       
       bp::def("framesForwardKinematics",
-              (void (*)(const Model &, Data &, const Eigen::VectorXd &))&framesForwardKinematics,
+              &framesForwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
               "Update first the placement of the joints according to the given configuration value."
@@ -135,7 +118,7 @@ namespace se3
               "and put the results in data.");
       
       bp::def("frameJacobian",
-              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &, const Model::FrameIndex, ReferenceFrame))&frame_jacobian_proxy,
+              &frame_jacobian_proxy,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Operational frame ID (int)",
@@ -146,7 +129,7 @@ namespace se3
               "where v is the time derivative of the configuration q.");
       
       bp::def("getFrameJacobian",
-              (Data::Matrix6x (*)(const Model &, Data &, const Model::FrameIndex, ReferenceFrame))&get_frame_jacobian_proxy,
+              &get_frame_jacobian_proxy,
               bp::args("Model","Data",
                        "Operational frame ID (int)",
                        "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
@@ -179,4 +162,4 @@ namespace se3
 
     }
   } // namespace python
-} // namespace se3
+} // namespace pinocchio

@@ -1,26 +1,18 @@
 //
 // Copyright (c) 2016 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_joint_fwd_hpp__
-#define __se3_joint_fwd_hpp__
+#ifndef __pinocchio_joint_fwd_hpp__
+#define __pinocchio_joint_fwd_hpp__
 
-namespace se3
+#include "pinocchio/fwd.hpp"
+
+namespace pinocchio
 {
   enum { MAX_JOINT_NV = 6 };
+  
+  struct JointModelVoid {};
+  struct JointDataVoid {};
 
   template<typename Scalar, int Options, int axis> struct JointModelRevoluteTpl;
   template<typename Scalar, int Options, int axis> struct JointDataRevoluteTpl;
@@ -46,8 +38,8 @@ namespace se3
   template<typename Scalar, int Options = 0> struct JointDataSphericalZYXTpl;
   typedef JointDataSphericalZYXTpl<double> JointDataSphericalZYX;
 
-  template<typename Scalar, int Options, int axis> struct JointModelPrismatic;
-  template<typename Scalar, int Options, int axis> struct JointDataPrismatic;
+  template<typename Scalar, int Options, int axis> struct JointModelPrismaticTpl;
+  template<typename Scalar, int Options, int axis> struct JointDataPrismaticTpl;
 
   template<typename Scalar, int Options = 0> struct JointModelPrismaticUnalignedTpl;
   typedef JointModelPrismaticUnalignedTpl<double> JointModelPrismaticUnaligned;
@@ -73,12 +65,25 @@ namespace se3
   template<typename Scalar, int Options = 0> struct JointDataTranslationTpl;
   typedef JointDataTranslationTpl<double> JointDataTranslation;
 
-  struct JointModelComposite;
-  struct JointDataComposite;
+  template<typename Scalar, int Options = 0> struct JointCollectionDefaultTpl;
+  typedef JointCollectionDefaultTpl<double> JointCollectionDefault;
   
-  struct JointModel;
-  struct JointData;
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointModelCompositeTpl;
+  typedef JointModelCompositeTpl<double> JointModelComposite;
+  
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointDataCompositeTpl;
+  typedef JointDataCompositeTpl<double> JointDataComposite;
+  
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointModelTpl;
+  typedef JointModelTpl<double> JointModel;
+  
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointDataTpl;
+  typedef JointDataTpl<double> JointData;
   
 }
 
-#endif // ifndef __se3_joint_fwd_hpp__
+#endif // ifndef __pinocchio_joint_fwd_hpp__

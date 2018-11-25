@@ -2,22 +2,9 @@
 // Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_force_base_hpp__
-#define __se3_force_base_hpp__
+#ifndef __pinocchio_force_base_hpp__
+#define __pinocchio_force_base_hpp__
 
 /**
  *
@@ -27,7 +14,7 @@
  *
  */
 
-namespace se3
+namespace pinocchio
 {
   /**
    * @brief      Base interface for forces representation.
@@ -127,23 +114,24 @@ namespace se3
     /** \brief Copies the Derived Force into *this
      *  \return a reference to *this
      */
-    Derived & operator= (const Derived & other) { return derived().__equl__(other); }
+    Derived & operator=(const ForceBase<Derived> & other)
+    { return derived().setFrom(other.derived()); }
     
     /**
      * \brief Replaces *this by *this + other.
      * \return a reference to *this
      */
-    Derived & operator+= (const Derived & phi) { return derived().__pequ__(phi); }
+    Derived & operator+= (const ForceBase<Derived> & phi) { return derived().__pequ__(phi.derived()); }
     
     /**
      * \brief Replaces *this by *this - other.
      * \return a reference to *this
      */
-    Derived & operator-= (const Derived & phi) { return derived().__mequ__(phi); }
+    Derived & operator-= (const ForceBase<Derived> & phi) { return derived().__mequ__(phi.derived()); }
     
     /** \return an expression of the sum of *this and other
      */
-    Derived operator+(const Derived & phi) const { return derived().__plus__(phi); }
+    Derived operator+(const ForceBase<Derived> & phi) const { return derived().__plus__(phi.derived()); }
     
     /** \return an expression of *this scaled by the factor alpha
      */
@@ -161,11 +149,12 @@ namespace se3
     
     /** \return an expression of the difference of *this and phi
      */
-    Derived operator-(const Derived & phi) const { return derived().__minus__(phi); }
+    Derived operator-(const ForceBase<Derived> & phi) const { return derived().__minus__(phi.derived()); }
     
     /** \return the dot product of *this with m     *
      */
-    Scalar dot(const Motion & m) const { return derived().dot(m); }
+    template<typename MotionDerived>
+    Scalar dot(const MotionDense<MotionDerived> & m) const { return derived().dot(m.derived()); }
     
     
     /**
@@ -216,6 +205,6 @@ namespace se3
     
   }; // class ForceBase
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_force_base_hpp__
+#endif // ifndef __pinocchio_force_base_hpp__

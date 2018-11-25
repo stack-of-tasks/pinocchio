@@ -25,8 +25,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __se3_parser_lua_tables_hpp____
-#define __se3_parser_lua_tables_hpp____
+#ifndef __pinocchio_parser_lua_tables_hpp____
+#define __pinocchio_parser_lua_tables_hpp____
 
 #include <iostream>
 #include <assert.h>
@@ -220,4 +220,4 @@ struct LuaTable {
 };
 
 
-#endif // ifndef __se3_parser_lua_tables_hpp____
+#endif // ifndef __pinocchio_parser_lua_tables_hpp____

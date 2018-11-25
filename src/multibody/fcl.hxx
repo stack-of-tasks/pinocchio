@@ -1,28 +1,15 @@
 //
 // Copyright (c) 2015-2016 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_fcl_hxx__
-#define __se3_fcl_hxx__
+#ifndef __pinocchio_fcl_hxx__
+#define __pinocchio_fcl_hxx__
 
 
 #include <iostream>
 
 
-namespace se3
+namespace pinocchio
 {
 
   ///
@@ -53,7 +40,7 @@ namespace se3
   } 
   
 
-#ifdef WITH_HPP_FCL  
+#ifdef PINOCCHIO_WITH_HPP_FCL  
 
   inline bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
   {
@@ -62,7 +49,7 @@ namespace se3
             && lhs.getAABB().max_ == rhs.getAABB().max_;
   }
   
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
   
   inline bool operator==(const GeometryObject & lhs, const GeometryObject & rhs)
   {
@@ -89,7 +76,7 @@ namespace se3
   }
 
 
-} // namespace se3
+} // namespace pinocchio
 
 
-#endif // ifndef __se3_fcl_hxx__
+#endif // ifndef __pinocchio_fcl_hxx__

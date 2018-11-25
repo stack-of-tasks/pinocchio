@@ -1,22 +1,9 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_compute_all_terms_hpp__
-#define __se3_compute_all_terms_hpp__
+#ifndef __pinocchio_compute_all_terms_hpp__
+#define __pinocchio_compute_all_terms_hpp__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -26,18 +13,22 @@
 #include "pinocchio/algorithm/energy.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
-namespace se3
+namespace pinocchio
 {
   ///
   /// \brief Computes efficiently all the terms needed for dynamic simulation. It is equivalent to the call at the same time to:
-  ///         - se3::forwardKinematics
-  ///         - se3::crba
-  ///         - se3::nonLinearEffects
-  ///         - se3::computeJointJacobians
-  ///         - se3::centerOfMass
-  ///         - se3::jacobianCenterOfMass
-  ///         - se3::kineticEnergy
-  ///         - se3::potentialEnergy
+  ///         - pinocchio::forwardKinematics
+  ///         - pinocchio::crba
+  ///         - pinocchio::nonLinearEffects
+  ///         - pinocchio::computeJointJacobians
+  ///         - pinocchio::centerOfMass
+  ///         - pinocchio::jacobianCenterOfMass
+  ///         - pinocchio::kineticEnergy
+  ///         - pinocchio::potentialEnergy
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -45,44 +36,46 @@ namespace se3
   /// \param[in] v The joint velocity vector (dim model.nv).
   ///
   /// \return All the results are stored in data. Please refer to the specific algorithm for further details.
-  inline void
-  computeAllTerms(const Model & model,
-                  Data & data,
-                  const Eigen::VectorXd & q,
-                  const Eigen::VectorXd & v);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline void computeAllTerms(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                              const Eigen::MatrixBase<ConfigVectorType> & q,
+                              const Eigen::MatrixBase<TangentVectorType> & v);
 
-} // namespace se3
+} // namespace pinocchio
 
 
 /* --- Details -------------------------------------------------------------------- */
-namespace se3
+namespace pinocchio
 {
-  
-  struct CATForwardStep : public fusion::JointVisitor<CATForwardStep>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  struct CATForwardStep
+  : public fusion::JointVisitorBase< CATForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
-    typedef boost::fusion::vector< const se3::Model &,
-    se3::Data &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &
-    > ArgsType;
-
-    JOINT_VISITOR_INIT(CATForwardStep);
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType &
+                                  > ArgsType;
 
     template<typename JointModel>
-    static void algo(const se3::JointModelBase<JointModel> & jmodel,
-                     se3::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const se3::Model & model,
-                     se3::Data & data,
-                     const Eigen::VectorXd & q,
-                     const Eigen::VectorXd & v)
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType> & v)
     {
-      using namespace Eigen;
-      using namespace se3;
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Inertia Inertia;
 
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
       
-      jmodel.calc(jdata.derived(),q,v);
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       // CRBA
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
@@ -110,23 +103,27 @@ namespace se3
       data.f[i] = model.inertias[i]*data.a_gf[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
       
       // CoM
-      const double mass = model.inertias[i].mass();
-      const SE3::Vector3 & lever = model.inertias[i].lever();
+      const Scalar & mass = model.inertias[i].mass();
+      const typename Inertia::Vector3 & lever = model.inertias[i].lever();
       
-      data.com[i]  = mass * lever;
+      data.com[i].noalias() = mass * lever;
       data.mass[i] = mass;
 
-      data.vcom[i] = mass * (data.v[i].angular().cross(lever) + data.v[i].linear());
+      data.vcom[i].noalias() = mass * (data.v[i].angular().cross(lever) + data.v[i].linear());
     }
 
   };
 
-  struct CATBackwardStep : public fusion::JointVisitor<CATBackwardStep>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct CATBackwardStep
+  : public fusion::JointVisitorBase <CATBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
     typedef boost::fusion::vector<const Model &,
-    Data &>  ArgsType;
-
-    JOINT_VISITOR_INIT(CATBackwardStep);
+                                  Data &
+                                  > ArgsType;
 
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
@@ -141,8 +138,11 @@ namespace se3
        *   Yli += liXi Yi
        *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
        */
-      const Model::JointIndex & i = (Model::JointIndex) jmodel.id();
-      const Model::JointIndex & parent = model.parents[i];
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::SE3 SE3;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
       const SE3 & oMi = data.oMi[i];
 
       /* F[1:6,i] = Y*S */
@@ -153,7 +153,7 @@ namespace se3
       = jdata.S().transpose()*data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
 
 
-      jmodel.jointVelocitySelector(data.nle)  = jdata.S().transpose()*data.f[i];
+      jmodel.jointVelocitySelector(data.nle) = jdata.S().transpose()*data.f[i];
       if(parent>0)
       {
         /*   Yli += liXi Yi */
@@ -175,12 +175,12 @@ namespace se3
       data.com[parent] += (liMi.rotation()*data.com[i]
                            + data.mass[i] * liMi.translation());
       
-      SE3::Vector3 com_in_world (oMi.rotation() * data.com[i] + data.mass[i] * oMi.translation());
+      typename SE3::Vector3 com_in_world(oMi.rotation() * data.com[i] + data.mass[i] * oMi.translation());
       
       data.vcom[parent] += liMi.rotation()*data.vcom[i];
       data.mass[parent] += data.mass[i];
       
-      typedef Data::Matrix6x Matrix6x;
+      typedef typename Data::Matrix6x Matrix6x;
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
       
       ColBlock Jcols = jmodel.jointCols(data.J);
@@ -199,31 +199,39 @@ namespace se3
     }
   };
   
-  inline void
-  computeAllTerms(const Model & model,
-                  Data & data,
-                  const Eigen::VectorXd & q,
-                  const Eigen::VectorXd & v)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline void computeAllTerms(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                              const Eigen::MatrixBase<ConfigVectorType> & q,
+                              const Eigen::MatrixBase<TangentVectorType> & v)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq && "The configuration vector is not of right size");
+    assert(v.size() == model.nv && "The velocity vector is not of right size");
+
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
     data.v[0].setZero();
     data.a[0].setZero();
     data.a_gf[0] = -model.gravity;
     
     data.mass[0] = 0;
-    data.com[0].setZero ();
-    data.vcom[0].setZero ();
+    data.com[0].setZero();
+    data.vcom[0].setZero();
 
-    for(Model::JointIndex i=1;i<(Model::JointIndex) model.njoints;++i)
+    typedef CATForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Pass1;
+    for(JointIndex i=1;i<(JointIndex) model.njoints;++i)
     {
-      CATForwardStep::run(model.joints[i],data.joints[i],
-                          CATForwardStep::ArgsType(model,data,q,v));
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
     }
 
-    for(Model::JointIndex i=(Model::JointIndex)(model.njoints-1);i>0;--i)
+    typedef CATBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
     {
-      CATBackwardStep::run(model.joints[i],data.joints[i],
-                           CATBackwardStep::ArgsType(model,data));
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
     }
     
     // CoM
@@ -238,8 +246,8 @@ namespace se3
     potentialEnergy(model, data, q, false);
 
   }
-} // namespace se3
+} // namespace pinocchio
 
 
-#endif // ifndef __se3_compute_all_terms_hpp__
+#endif // ifndef __pinocchio_compute_all_terms_hpp__
 

@@ -1,26 +1,13 @@
 //
 // Copyright (c) 2017-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_cartesian_axis_hpp__
-#define __se3_cartesian_axis_hpp__
+#ifndef __pinocchio_cartesian_axis_hpp__
+#define __pinocchio_cartesian_axis_hpp__
 
-#include <Eigen/Core>
+#include "pinocchio/fwd.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   template<int _axis>
@@ -37,6 +24,20 @@ namespace se3
     {
       typename EIGEN_PLAIN_TYPE(V3) res;
       cross(vin,res);
+      return res;
+    }
+    
+    template<typename Scalar, typename V3_in, typename V3_out>
+    inline static void alphaCross(const Scalar & s,
+                                  const Eigen::MatrixBase<V3_in> & vin,
+                                  const Eigen::MatrixBase<V3_out> & vout);
+    
+    template<typename Scalar, typename V3>
+    static typename EIGEN_PLAIN_TYPE(V3) alphaCross(const Scalar & s,
+                                                    const Eigen::MatrixBase<V3> & vin)
+    {
+      typename EIGEN_PLAIN_TYPE(V3) res;
+      alphaCross(s,vin,res);
       return res;
     }
     
@@ -58,12 +59,22 @@ namespace se3
       return CartesianAxis() * s;
     }
     
+    template<typename Vector3Like>
+    static void setTo(const Eigen::MatrixBase<Vector3Like> v3)
+    {
+      Vector3Like & v3_ = EIGEN_CONST_CAST(Vector3Like,v3);
+      typedef typename Vector3Like::Scalar Scalar;
+      
+      for(Eigen::DenseIndex i = 0; i < dim; ++i)
+        v3_[i] = i == axis ? Scalar(1) : Scalar(0);
+    }
+    
   }; // struct CartesianAxis
   
   template<>
   template<typename V3_in, typename V3_out>
   inline void CartesianAxis<0>::cross(const Eigen::MatrixBase<V3_in> & vin,
-                                         const Eigen::MatrixBase<V3_out> & vout)
+                                      const Eigen::MatrixBase<V3_out> & vout)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
@@ -74,7 +85,7 @@ namespace se3
   template<>
   template<typename V3_in, typename V3_out>
   inline void CartesianAxis<1>::cross(const Eigen::MatrixBase<V3_in> & vin,
-                                         const Eigen::MatrixBase<V3_out> & vout)
+                                      const Eigen::MatrixBase<V3_out> & vout)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
@@ -85,12 +96,48 @@ namespace se3
   template<>
   template<typename V3_in, typename V3_out>
   inline void CartesianAxis<2>::cross(const Eigen::MatrixBase<V3_in> & vin,
-                                         const Eigen::MatrixBase<V3_out> & vout)
+                                      const Eigen::MatrixBase<V3_out> & vout)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
     V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
     vout_[0] = -vin[1]; vout_[1] = vin[0]; vout_[2] = 0.;
+  }
+  
+  template<>
+  template<typename Scalar, typename V3_in, typename V3_out>
+  inline void CartesianAxis<0>::alphaCross(const Scalar & s,
+                                           const Eigen::MatrixBase<V3_in> & vin,
+                                           const Eigen::MatrixBase<V3_out> & vout)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
+    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    vout_[0] = 0.; vout_[1] = -s*vin[2]; vout_[2] = s*vin[1];
+  }
+  
+  template<>
+  template<typename Scalar, typename V3_in, typename V3_out>
+  inline void CartesianAxis<1>::alphaCross(const Scalar & s,
+                                           const Eigen::MatrixBase<V3_in> & vin,
+                                           const Eigen::MatrixBase<V3_out> & vout)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
+    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    vout_[0] = s*vin[2]; vout_[1] = 0.; vout_[2] = -s*vin[0];
+  }
+  
+  template<>
+  template<typename Scalar, typename V3_in, typename V3_out>
+  inline void CartesianAxis<2>::alphaCross(const Scalar & s,
+                                           const Eigen::MatrixBase<V3_in> & vin,
+                                           const Eigen::MatrixBase<V3_out> & vout)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
+    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    vout_[0] = -s*vin[1]; vout_[1] = s*vin[0]; vout_[2] = 0.;
   }
  
   typedef CartesianAxis<0> AxisX;
@@ -99,4 +146,4 @@ namespace se3
 
 }
 
-#endif // __se3_cartesian_axis_hpp__
+#endif // __pinocchio_cartesian_axis_hpp__

@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2016-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -26,7 +13,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace se3;
+using namespace pinocchio;
 using namespace Eigen;
 
 template<bool local>
@@ -69,7 +56,7 @@ template<typename Matrix>
 void filterValue(MatrixBase<Matrix> & mat, typename Matrix::Scalar value)
 {
   for(int k = 0; k < mat.size(); ++k)
-    mat.derived().data()[k] =  std::fabs(mat.derived().data()[k]) <= value?0:mat.derived().data()[k];
+    mat.derived().data()[k] =  math::fabs(mat.derived().data()[k]) <= value?0:mat.derived().data()[k];
 }
 
 struct FiniteDiffJoint
@@ -143,10 +130,10 @@ void FiniteDiffJoint::operator()< JointModelComposite > (JointModelBase<JointMod
 //  typedef typename JointModel::ConfigVector_t CV;
 //  typedef typename JointModel::TangentVector_t TV;
 //
-//  se3::JointModelComposite jmodel((se3::JointModelRX())/*, (se3::JointModelRY())*/);
+//  pinocchio::JointModelComposite jmodel((pinocchio::JointModelRX())/*, (pinocchio::JointModelRY())*/);
 //  jmodel.setIndexes(0,0,0);
 //
-//  se3::JointModelComposite::JointDataDerived jdata = jmodel.createData();
+//  pinocchio::JointModelComposite::JointDataDerived jdata = jmodel.createData();
 //
 //  CV q = jmodel.random();
 //  jmodel.calc(jdata,q);
@@ -205,9 +192,9 @@ BOOST_AUTO_TEST_CASE (test_S_finit_diff)
 
 BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
 {
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
   
   const VectorXd fd_increment = finiteDifferenceIncrement(model);
 
@@ -218,11 +205,11 @@ BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
   Model::Index idx = model.existJointName("rarm2")?model.getJointId("rarm2"):(Model::Index)(model.njoints-1);
   Data::Matrix6x Jrh(6,model.nv); Jrh.fill(0);
   
-  getJointJacobian<WORLD>(model,data,idx,Jrh);
+  getJointJacobian(model,data,idx,WORLD,Jrh);
   Data::Matrix6x Jrh_finite_diff = finiteDiffJacobian<false>(model,data,q,idx);
   BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,fd_increment.maxCoeff()*1e1));
   
-  getJointJacobian<LOCAL>(model,data,idx,Jrh);
+  getJointJacobian(model,data,idx,LOCAL,Jrh);
   Jrh_finite_diff = finiteDiffJacobian<true>(model,data,q,idx);
   BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,fd_increment.maxCoeff()*1e1));
 }

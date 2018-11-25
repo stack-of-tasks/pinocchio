@@ -1,24 +1,13 @@
 //
 // Copyright (c) 2017-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_motion_dense_hpp__
-#define __se3_motion_dense_hpp__
+#ifndef __pinocchio_motion_dense_hpp__
+#define __pinocchio_motion_dense_hpp__
 
-namespace se3
+#include "pinocchio/spatial/skew.hpp"
+
+namespace pinocchio
 {
   
   namespace internal
@@ -86,6 +75,13 @@ namespace se3
     {
       linear() = other.linear();
       angular() = other.angular();
+      return derived();
+    }
+    
+    template<typename D2>
+    Derived & operator=(const MotionBase<D2> & other)
+    {
+      other.derived().setTo(derived());
       return derived();
     }
     
@@ -177,8 +173,8 @@ namespace se3
     template<typename S2, int O2, typename D2>
     void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
-      v.angular() = m.rotation()*angular();
-      v.linear() = m.rotation()*linear() + m.translation().cross(v.angular());
+      v.angular().noalias() = m.rotation()*angular();
+      v.linear().noalias() = m.rotation()*linear() + m.translation().cross(v.angular());
     }
     
     template<typename S2, int O2>
@@ -190,10 +186,11 @@ namespace se3
     }
     
     template<typename S2, int O2, typename D2>
+    EIGEN_STRONG_INLINE
     void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
-      v.linear() = m.rotation().transpose()*(linear()-m.translation().cross(angular()));
-      v.angular() = m.rotation().transpose()*angular();
+      v.linear().noalias() = m.rotation().transpose()*(linear()-m.translation().cross(angular()));
+      v.angular().noalias() = m.rotation().transpose()*angular();
     }
     
     template<typename S2, int O2>
@@ -232,6 +229,6 @@ namespace se3
                                              const MotionDense<M1> & v)
   { return v*alpha; }
   
-} // namespace se3
+} // namespace pinocchio
 
-#endif // ifndef __se3_motion_dense_hpp__
+#endif // ifndef __pinocchio_motion_dense_hpp__

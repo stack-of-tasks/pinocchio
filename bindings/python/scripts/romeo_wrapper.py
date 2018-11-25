@@ -1,29 +1,17 @@
 #
 # Copyright (c) 2015-2016 CNRS
 #
-# This file is part of Pinocchio
-# Pinocchio is free software: you can redistribute it
-# and/or modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation, either version
-# 3 of the License, or (at your option) any later version.
-# Pinocchio is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Lesser Public License for more details. You should have
-# received a copy of the GNU Lesser General Public License along with
-# Pinocchio If not, see
-# <http://www.gnu.org/licenses/>.
 
 import numpy as np
 
-from . import libpinocchio_pywrap as se3
+from . import libpinocchio_pywrap as pin
 from .robot_wrapper import RobotWrapper
 
 
 class RomeoWrapper(RobotWrapper):
 
-    def __init__(self, filename, package_dirs=None):
-        RobotWrapper.__init__(self, filename, package_dirs=package_dirs, root_joint=se3.JointModelFreeFlyer())
+    def __init__(self, filename, package_dirs=None, verbose=False):
+        self.initFromURDF(filename, package_dirs=package_dirs, root_joint=pin.JointModelFreeFlyer(), verbose=verbose)
         self.q0 = np.matrix([
             0, 0, 0.840252, 0, 0, 0, 1,                      # Free flyer
             0, 0, -0.3490658, 0.6981317, -0.3490658, 0,      # left leg
@@ -52,7 +40,7 @@ class RomeoWrapper(RobotWrapper):
         return self.jacobian(q, self.rh)
 
     def wJrh(self, q):
-        return se3.jacobian(self.model, self.data, self.rh, q, False)
+        return pin.jacobian(self.model, self.data, self.rh, q, False)
 
     def vrh(self, q, v):
         return self.velocity(q, v, self.rh)

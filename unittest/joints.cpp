@@ -2,19 +2,6 @@
 // Copyright (c) 2015-2016,2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
@@ -43,31 +30,29 @@
 
 //#define VERBOSE
 
-using namespace se3;
+using namespace pinocchio;
 
 template <typename JoinData_t>
-void printOutJointData (
+void printOutJointData(
 #ifdef VERBOSE
   const Eigen::VectorXd & q,
   const Eigen::VectorXd & q_dot,
-  const JoinData_t & joint_data
-#else
-  const Eigen::VectorXd & ,
-  const Eigen::VectorXd & ,
-  const JoinData_t & 
-#endif
-                        )
+  const JoinData_t & joint_data)
 {
   using namespace std;
-
-#ifdef VERBOSE
+  
   cout << "q: " << q.transpose () << endl;
   cout << "q_dot: " << q_dot.transpose () << endl;
   cout << "Joint configuration:" << endl << joint_data.M << endl;
   cout << "v_J:\n" << (Motion) joint_data.v << endl;
   cout << "c_J:\n" << (Motion) joint_data.c << endl;
-#endif
 }
+#else
+const Eigen::VectorXd &,
+const Eigen::VectorXd &,
+const JoinData_t &)
+{}
+#endif
 
 template<typename D>
 void addJointAndBody(Model & model, const JointModelBase<D> & jmodel, const Model::JointIndex parent_id, const SE3 & joint_placement, const std::string & joint_name, const Inertia & Y)
@@ -78,11 +63,11 @@ void addJointAndBody(Model & model, const JointModelBase<D> & jmodel, const Mode
   model.appendBodyToJoint(idx,Y);
 }
 
-BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
+BOOST_AUTO_TEST_SUITE(JointRevoluteUnaligned)
 
-BOOST_AUTO_TEST_CASE (vsRX)
+BOOST_AUTO_TEST_CASE(vsRX)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
@@ -92,7 +77,7 @@ BOOST_AUTO_TEST_CASE (vsRX)
   Model modelRX, modelRevoluteUnaligned;
 
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
+  SE3 pos(1); pos.translation() = SE3::LinearType(1.,0.,0.);
 
   JointModelRevoluteUnaligned joint_model_RU(axis);
   
@@ -146,8 +131,8 @@ BOOST_AUTO_TEST_CASE (vsRX)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianRevoluteUnaligned;jacobianRevoluteUnaligned.resize(6,1);jacobianRevoluteUnaligned.setZero();
   computeJointJacobians(modelRX, dataRX, q);
   computeJointJacobians(modelRevoluteUnaligned, dataRevoluteUnaligned, q);
-  getJointJacobian<LOCAL>(modelRX, dataRX, 1, jacobianRX);
-  getJointJacobian<LOCAL>(modelRevoluteUnaligned, dataRevoluteUnaligned, 1, jacobianRevoluteUnaligned);
+  getJointJacobian(modelRX, dataRX, 1, LOCAL, jacobianRX);
+  getJointJacobian(modelRevoluteUnaligned, dataRevoluteUnaligned, 1, LOCAL, jacobianRevoluteUnaligned);
 
 
   BOOST_CHECK(jacobianRX.isApprox(jacobianRevoluteUnaligned));
@@ -155,10 +140,24 @@ BOOST_AUTO_TEST_CASE (vsRX)
 BOOST_AUTO_TEST_SUITE_END ()
 
 BOOST_AUTO_TEST_SUITE (JointPrismaticUnaligned)
+  
+  BOOST_AUTO_TEST_CASE(spatial)
+  {
+    SE3 M(SE3::Random());
+    Motion v(Motion::Random());
+    
+    MotionPrismaticUnaligned mp(MotionPrismaticUnaligned::Vector3(1.,2.,3.),6.);
+    Motion mp_dense(mp);
+    
+    BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
+    BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
+    
+    BOOST_CHECK(v.cross(mp).isApprox(v.cross(mp_dense)));
+  }
 
 BOOST_AUTO_TEST_CASE (vsPX)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
@@ -168,7 +167,7 @@ BOOST_AUTO_TEST_CASE (vsPX)
   Model modelPX, modelPrismaticUnaligned;
 
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
+  SE3 pos(1); pos.translation() = SE3::LinearType(1.,0.,0.);
 
   JointModelPrismaticUnaligned joint_model_PU(axis);
   
@@ -222,18 +221,32 @@ BOOST_AUTO_TEST_CASE (vsPX)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianPrismaticUnaligned;jacobianPrismaticUnaligned.resize(6,1);jacobianPrismaticUnaligned.setZero();
   computeJointJacobians(modelPX, dataPX, q);
   computeJointJacobians(modelPrismaticUnaligned, dataPrismaticUnaligned, q);
-  getJointJacobian<LOCAL>(modelPX, dataPX, 1, jacobianPX);
-  getJointJacobian<LOCAL>(modelPrismaticUnaligned, dataPrismaticUnaligned, 1, jacobianPrismaticUnaligned);
+  getJointJacobian(modelPX, dataPX, 1, LOCAL, jacobianPX);
+  getJointJacobian(modelPrismaticUnaligned, dataPrismaticUnaligned, 1, LOCAL, jacobianPrismaticUnaligned);
 
   BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
 }
 BOOST_AUTO_TEST_SUITE_END ()
 
 BOOST_AUTO_TEST_SUITE (JointSpherical)
+  
+  BOOST_AUTO_TEST_CASE(spatial)
+  {
+    SE3 M(SE3::Random());
+    Motion v(Motion::Random());
+    
+    MotionSpherical mp(MotionSpherical::Vector3(1.,2.,3.));
+    Motion mp_dense(mp);
+    
+    BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
+    BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
+    
+    BOOST_CHECK(v.cross(mp).isApprox(v.cross(mp_dense)));
+  }
 
 BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 6, 1> Vector6;
   typedef Eigen::Matrix <double, 7, 1> VectorFF;
@@ -242,7 +255,7 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Model modelSpherical, modelFreeflyer;
 
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
+  SE3 pos(1); pos.translation() = SE3::LinearType(1.,0.,0.);
 
   addJointAndBody(modelSpherical,JointModelSpherical(),0,pos,"spherical",inertia);
   addJointAndBody(modelFreeflyer,JointModelFreeFlyer(),0,pos,"free-flyer",inertia);
@@ -306,8 +319,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
   computeJointJacobians(modelSpherical, dataSpherical, q);
   computeJointJacobians(modelFreeflyer, dataFreeFlyer, qff);
-  getJointJacobian<LOCAL>(modelSpherical, dataSpherical, 1, jacobian_planar);
-  getJointJacobian<LOCAL>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
+  getJointJacobian(modelSpherical, dataSpherical, 1, LOCAL, jacobian_planar);
+  getJointJacobian(modelFreeflyer, dataFreeFlyer, 1, LOCAL, jacobian_ff);
 
 
   Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(3),
@@ -322,12 +335,26 @@ BOOST_AUTO_TEST_SUITE_END ()
 
 
 BOOST_AUTO_TEST_SUITE (JointSphericalZYX)
+  
+  BOOST_AUTO_TEST_CASE(spatial)
+  {
+    SE3 M(SE3::Random());
+    Motion v(Motion::Random());
+    
+    MotionSpherical mp(MotionSpherical::Vector3(1.,2.,3.));
+    Motion mp_dense(mp);
+    
+    BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
+    BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
+    
+    BOOST_CHECK(v.cross(mp).isApprox(v.cross(mp_dense)));
+  }
 
 BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 {
   // WARNIG : Dynamic algorithm's results cannot be compared to FreeFlyer's ones because 
   // of the representation of the rotation and the ConstraintSubspace difference.
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 6, 1> Vector6;
   typedef Eigen::Matrix <double, 7, 1> VectorFF;
@@ -336,7 +363,7 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Model modelSphericalZYX, modelFreeflyer;
 
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
+  SE3 pos(1); pos.translation() = SE3::LinearType(1.,0.,0.);
 
   addJointAndBody(modelSphericalZYX,JointModelSphericalZYX(),0,pos,"spherical-zyx",inertia);
   addJointAndBody(modelFreeflyer,JointModelFreeFlyer(),0,pos,"free-flyer",inertia);
@@ -373,7 +400,7 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
@@ -414,7 +441,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
 
 BOOST_AUTO_TEST_CASE ( test_crba )
 {
-  using namespace se3;
+  using namespace pinocchio;
   using namespace std;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
@@ -461,10 +488,67 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 BOOST_AUTO_TEST_SUITE_END ()
 
 BOOST_AUTO_TEST_SUITE ( JointPrismatic )
+  
+BOOST_AUTO_TEST_CASE(spatial)
+{
+  typedef TransformPrismaticTpl<double,0,0> TransformX;
+  typedef TransformPrismaticTpl<double,0,1> TransformY;
+  typedef TransformPrismaticTpl<double,0,2> TransformZ;
+  
+  typedef SE3::Vector3 Vector3;
+  
+  const double displacement = 0.2;
+  SE3 Mplain, Mrand(SE3::Random());
+  
+  TransformX Mx(displacement);
+  Mplain = Mx;
+  BOOST_CHECK(Mplain.translation().isApprox(Vector3(displacement,0,0)));
+  BOOST_CHECK(Mplain.rotation().isIdentity());
+  BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mx));
+  
+  TransformY My(displacement);
+  Mplain = My;
+  BOOST_CHECK(Mplain.translation().isApprox(Vector3(0,displacement,0)));
+  BOOST_CHECK(Mplain.rotation().isIdentity());
+  BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*My));
+  
+  TransformZ Mz(displacement);
+  Mplain = Mz;
+  BOOST_CHECK(Mplain.translation().isApprox(Vector3(0,0,displacement)));
+  BOOST_CHECK(Mplain.rotation().isIdentity());
+  BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mz));
+  
+  SE3 M(SE3::Random());
+  Motion v(Motion::Random());
+  
+  MotionPrismaticTpl<double,0,0> mp_x(2.);
+  Motion mp_dense_x(mp_x);
+  
+  BOOST_CHECK(M.act(mp_x).isApprox(M.act(mp_dense_x)));
+  BOOST_CHECK(M.actInv(mp_x).isApprox(M.actInv(mp_dense_x)));
+  
+  BOOST_CHECK(v.cross(mp_x).isApprox(v.cross(mp_dense_x)));
+  
+  MotionPrismaticTpl<double,0,1> mp_y(2.);
+  Motion mp_dense_y(mp_y);
+  
+  BOOST_CHECK(M.act(mp_y).isApprox(M.act(mp_dense_y)));
+  BOOST_CHECK(M.actInv(mp_y).isApprox(M.actInv(mp_dense_y)));
+  
+  BOOST_CHECK(v.cross(mp_y).isApprox(v.cross(mp_dense_y)));
+  
+  MotionPrismaticTpl<double,0,2> mp_z(2.);
+  Motion mp_dense_z(mp_z);
+  
+  BOOST_CHECK(M.act(mp_z).isApprox(M.act(mp_dense_z)));
+  BOOST_CHECK(M.actInv(mp_z).isApprox(M.actInv(mp_dense_z)));
+  
+  BOOST_CHECK(v.cross(mp_z).isApprox(v.cross(mp_dense_z)));
+}
 
 BOOST_AUTO_TEST_CASE ( test_kinematics )
 {
-  using namespace se3;
+  using namespace pinocchio;
 
 
   Motion expected_v_J (Motion::Zero ());
@@ -514,7 +598,7 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
 
@@ -558,7 +642,7 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
 
 BOOST_AUTO_TEST_CASE ( test_crba )
 {
-  using namespace se3;
+  using namespace pinocchio;
   using namespace std;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 3, 3> Matrix3;
@@ -594,10 +678,24 @@ BOOST_AUTO_TEST_CASE ( test_crba )
 BOOST_AUTO_TEST_SUITE_END ()
 
 BOOST_AUTO_TEST_SUITE (JointPlanar)
+  
+BOOST_AUTO_TEST_CASE(spatial)
+{
+  SE3 M(SE3::Random());
+  Motion v(Motion::Random());
+  
+  MotionPlanar mp(1.,2.,3.);
+  Motion mp_dense(mp);
+  
+  BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
+  BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
+  
+  BOOST_CHECK(v.cross(mp).isApprox(v.cross(mp_dense)));
+}
 
 BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 6, 1> Vector6;
   typedef Eigen::Matrix <double, 4, 1> VectorPl;
@@ -607,7 +705,7 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Model modelPlanar, modelFreeflyer;
 
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
+  SE3 pos(1); pos.translation() = SE3::LinearType(1.,0.,0.);
 
   addJointAndBody(modelPlanar,JointModelPlanar(),0,SE3::Identity(),"planar",inertia);
   addJointAndBody(modelFreeflyer,JointModelFreeFlyer(),0,SE3::Identity(),"free-flyer",inertia);
@@ -675,8 +773,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
   computeJointJacobians(modelPlanar, dataPlanar, q);
   computeJointJacobians(modelFreeflyer, dataFreeFlyer, qff);
-  getJointJacobian<LOCAL>(modelPlanar, dataPlanar, 1, jacobian_planar);
-  getJointJacobian<LOCAL>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
+  getJointJacobian(modelPlanar, dataPlanar, 1, LOCAL, jacobian_planar);
+  getJointJacobian(modelFreeflyer, dataFreeFlyer, 1, LOCAL, jacobian_ff);
 
   Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(0),
                                                                       jacobian_ff.col(1),
@@ -688,10 +786,36 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 BOOST_AUTO_TEST_SUITE_END ()
 
 BOOST_AUTO_TEST_SUITE (JointTranslation)
+  
+BOOST_AUTO_TEST_CASE(spatial)
+{
+  typedef TransformTranslationTpl<double,0> TransformTranslation;
+  typedef SE3::Vector3 Vector3;
+  
+  const Vector3 displacement(Vector3::Random());
+  SE3 Mplain, Mrand(SE3::Random());
+  
+  TransformTranslation Mtrans(displacement);
+  Mplain = Mtrans;
+  BOOST_CHECK(Mplain.translation().isApprox(displacement));
+  BOOST_CHECK(Mplain.rotation().isIdentity());
+  BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mtrans));
+  
+  SE3 M(SE3::Random());
+  Motion v(Motion::Random());
+  
+  MotionTranslation mp(MotionTranslation::Vector3(1.,2.,3.));
+  Motion mp_dense(mp);
+  
+  BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
+  BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
+  
+  BOOST_CHECK(v.cross(mp).isApprox(v.cross(mp_dense)));
+}
 
 BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef Eigen::Matrix <double, 3, 1> Vector3;
   typedef Eigen::Matrix <double, 6, 1> Vector6;
   typedef Eigen::Matrix <double, 7, 1> VectorFF;
@@ -700,7 +824,7 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Model modelTranslation, modelFreeflyer;
 
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
+  SE3 pos(1); pos.translation() = SE3::LinearType(1.,0.,0.);
 
   addJointAndBody(modelTranslation,JointModelTranslation(),0,SE3::Identity(),"translation",inertia);
   addJointAndBody(modelFreeflyer,JointModelFreeFlyer(),0,SE3::Identity(),"free-flyer",inertia);
@@ -760,8 +884,8 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobian_ff;jacobian_ff.resize(6,6);jacobian_ff.setZero();
   computeJointJacobians(modelTranslation, dataTranslation, q);
   computeJointJacobians(modelFreeflyer, dataFreeFlyer, qff);
-  getJointJacobian<LOCAL>(modelTranslation, dataTranslation, 1, jacobian_planar);
-  getJointJacobian<LOCAL>(modelFreeflyer, dataFreeFlyer, 1, jacobian_ff);
+  getJointJacobian(modelTranslation, dataTranslation, 1, LOCAL, jacobian_planar);
+  getJointJacobian(modelFreeflyer, dataFreeFlyer, 1, LOCAL, jacobian_ff);
 
 
   Eigen::Matrix<double, 6, 3> jacobian_expected; jacobian_expected << jacobian_ff.col(0),
@@ -774,6 +898,36 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 BOOST_AUTO_TEST_SUITE_END ()
 
 BOOST_AUTO_TEST_SUITE (JointRevoluteUnbounded)
+  
+  BOOST_AUTO_TEST_CASE(spatial)
+  {
+    SE3 M(SE3::Random());
+    Motion v(Motion::Random());
+    
+    MotionRevoluteTpl<double,0,0> mp_x(2.);
+    Motion mp_dense_x(mp_x);
+    
+    BOOST_CHECK(M.act(mp_x).isApprox(M.act(mp_dense_x)));
+    BOOST_CHECK(M.actInv(mp_x).isApprox(M.actInv(mp_dense_x)));
+    
+    BOOST_CHECK(v.cross(mp_x).isApprox(v.cross(mp_dense_x)));
+    
+    MotionRevoluteTpl<double,0,1> mp_y(2.);
+    Motion mp_dense_y(mp_y);
+    
+    BOOST_CHECK(M.act(mp_y).isApprox(M.act(mp_dense_y)));
+    BOOST_CHECK(M.actInv(mp_y).isApprox(M.actInv(mp_dense_y)));
+    
+    BOOST_CHECK(v.cross(mp_y).isApprox(v.cross(mp_dense_y)));
+    
+    MotionRevoluteTpl<double,0,2> mp_z(2.);
+    Motion mp_dense_z(mp_z);
+    
+    BOOST_CHECK(M.act(mp_z).isApprox(M.act(mp_dense_z)));
+    BOOST_CHECK(M.actInv(mp_z).isApprox(M.actInv(mp_dense_z)));
+    
+    BOOST_CHECK(v.cross(mp_z).isApprox(v.cross(mp_dense_z)));
+  }
 
 BOOST_AUTO_TEST_CASE (vsRX)
 {
@@ -784,7 +938,7 @@ BOOST_AUTO_TEST_CASE (vsRX)
   Model modelRX, modelRevoluteUnbounded;
 
   Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-  SE3 pos(1); pos.translation() = SE3::Linear_t(1.,0.,0.);
+  SE3 pos(1); pos.translation() = SE3::LinearType(1.,0.,0.);
 
   JointModelRUBX joint_model_RUX;
   addJointAndBody(modelRX,JointModelRX(),0,SE3::Identity(),"rx",inertia);
@@ -846,8 +1000,8 @@ BOOST_AUTO_TEST_CASE (vsRX)
   Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianPrismaticUnaligned;jacobianPrismaticUnaligned.resize(6,1);jacobianPrismaticUnaligned.setZero();
   computeJointJacobians(modelRX, dataRX, q_rx);
   computeJointJacobians(modelRevoluteUnbounded, dataRevoluteUnbounded, q_rubx);
-  getJointJacobian<LOCAL>(modelRX, dataRX, 1, jacobianPX);
-  getJointJacobian<LOCAL>(modelRevoluteUnbounded, dataRevoluteUnbounded, 1, jacobianPrismaticUnaligned);
+  getJointJacobian(modelRX, dataRX, 1, LOCAL, jacobianPX);
+  getJointJacobian(modelRevoluteUnbounded, dataRevoluteUnbounded, 1, LOCAL, jacobianPrismaticUnaligned);
 
 
   BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
@@ -855,3 +1009,223 @@ BOOST_AUTO_TEST_CASE (vsRX)
 
 }
 BOOST_AUTO_TEST_SUITE_END ()
+  
+BOOST_AUTO_TEST_SUITE(JointRevolute)
+  
+  BOOST_AUTO_TEST_CASE(spatial)
+  {
+    typedef TransformRevoluteTpl<double,0,0> TransformX;
+    typedef TransformRevoluteTpl<double,0,1> TransformY;
+    typedef TransformRevoluteTpl<double,0,2> TransformZ;
+    
+    typedef SE3::Vector3 Vector3;
+    
+    const double alpha = 0.2;
+    double sin_alpha, cos_alpha; SINCOS(alpha,&sin_alpha,&cos_alpha);
+    SE3 Mplain, Mrand(SE3::Random());
+    
+    TransformX Mx(sin_alpha,cos_alpha);
+    Mplain = Mx;
+    BOOST_CHECK(Mplain.translation().isZero());
+    BOOST_CHECK(Mplain.rotation().isApprox(Eigen::AngleAxisd(alpha,Vector3::UnitX()).toRotationMatrix()));
+    BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mx));
+    
+    TransformY My(sin_alpha,cos_alpha);
+    Mplain = My;
+    BOOST_CHECK(Mplain.translation().isZero());
+    BOOST_CHECK(Mplain.rotation().isApprox(Eigen::AngleAxisd(alpha,Vector3::UnitY()).toRotationMatrix()));
+    BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*My));
+    
+    TransformZ Mz(sin_alpha,cos_alpha);
+    Mplain = Mz;
+    BOOST_CHECK(Mplain.translation().isZero());
+    BOOST_CHECK(Mplain.rotation().isApprox(Eigen::AngleAxisd(alpha,Vector3::UnitZ()).toRotationMatrix()));
+    BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mz));
+    
+    SE3 M(SE3::Random());
+    Motion v(Motion::Random());
+    
+    MotionRevoluteTpl<double,0,0> mp_x(2.);
+    Motion mp_dense_x(mp_x);
+    
+    BOOST_CHECK(M.act(mp_x).isApprox(M.act(mp_dense_x)));
+    BOOST_CHECK(M.actInv(mp_x).isApprox(M.actInv(mp_dense_x)));
+    
+    BOOST_CHECK(v.cross(mp_x).isApprox(v.cross(mp_dense_x)));
+    
+    MotionRevoluteTpl<double,0,1> mp_y(2.);
+    Motion mp_dense_y(mp_y);
+    
+    BOOST_CHECK(M.act(mp_y).isApprox(M.act(mp_dense_y)));
+    BOOST_CHECK(M.actInv(mp_y).isApprox(M.actInv(mp_dense_y)));
+    
+    BOOST_CHECK(v.cross(mp_y).isApprox(v.cross(mp_dense_y)));
+    
+    MotionRevoluteTpl<double,0,2> mp_z(2.);
+    Motion mp_dense_z(mp_z);
+    
+    BOOST_CHECK(M.act(mp_z).isApprox(M.act(mp_dense_z)));
+    BOOST_CHECK(M.actInv(mp_z).isApprox(M.actInv(mp_dense_z)));
+    
+    BOOST_CHECK(v.cross(mp_z).isApprox(v.cross(mp_dense_z)));
+  }
+  
+BOOST_AUTO_TEST_SUITE_END()
+  
+BOOST_AUTO_TEST_SUITE(JointRevoluteUnaligned)
+  
+  BOOST_AUTO_TEST_CASE(spatial)
+  {
+    SE3 M(SE3::Random());
+    Motion v(Motion::Random());
+    
+    MotionRevoluteUnaligned mp(MotionRevoluteUnaligned::Vector3(1.,2.,3.),6.);
+    Motion mp_dense(mp);
+    
+    BOOST_CHECK(M.act(mp).isApprox(M.act(mp_dense)));
+    BOOST_CHECK(M.actInv(mp).isApprox(M.actInv(mp_dense)));
+    
+    BOOST_CHECK(v.cross(mp).isApprox(v.cross(mp_dense)));
+  }
+  
+BOOST_AUTO_TEST_SUITE_END()
+  
+BOOST_AUTO_TEST_SUITE(JointModelBase_test)
+  
+  struct TestJointModelIsEqual
+  {
+    template<typename JointModel>
+    void operator()(const pinocchio::JointModelBase<JointModel> &) const
+    {
+      JointModel jmodel;
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options>
+    void operator()(const JointModelRevoluteUnalignedTpl<Scalar,Options> & ) const
+    {
+      typedef JointModelRevoluteUnalignedTpl<Scalar,Options> JointModelRevoluteUnaligned;
+      typedef typename JointModelRevoluteUnaligned::Vector3 Vector3;
+      JointModelRevoluteUnaligned jmodel(Vector3::Random().normalized());
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options>
+    void operator()(const JointModelPrismaticUnalignedTpl<Scalar,Options> & ) const
+    {
+      typedef JointModelPrismaticUnalignedTpl<Scalar,Options> JointModelPrismaticUnaligned;
+      typedef typename JointModelPrismaticUnaligned::Vector3 Vector3;
+      JointModelPrismaticUnaligned jmodel(Vector3::Random().normalized());
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options, template<typename,int> class JointCollection>
+    void operator()(const JointModelTpl<Scalar,Options,JointCollection> & ) const
+    {
+      typedef JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+      typedef JointModelTpl<Scalar,Options,JointCollection> JointModel;
+      JointModel jmodel((JointModelRX()));
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename JointModel>
+    static void test(const JointModelBase<JointModel> & jmodel)
+    {
+      JointModel jmodel_copy = jmodel.derived();
+      BOOST_CHECK(jmodel_copy == jmodel.derived());
+      
+      JointModel jmodel_any;
+      BOOST_CHECK(jmodel_any != jmodel.derived());
+      BOOST_CHECK(!jmodel_any.isEqual(jmodel.derived()));
+    }
+  };
+  
+  BOOST_AUTO_TEST_CASE(isEqual)
+  {
+    typedef JointCollectionDefault::JointModelVariant JointModelVariant;
+    boost::mpl::for_each<JointModelVariant::types>(TestJointModelIsEqual());
+    
+    JointModelRX joint_revolutex;
+    JointModelRY joint_revolutey;
+    
+    BOOST_CHECK(joint_revolutex != joint_revolutey);
+    
+    JointModel jmodelx(joint_revolutex);
+    jmodelx.setIndexes(0,0,0);
+    TestJointModelIsEqual()(JointModel());
+    
+    JointModel jmodel_any;
+    BOOST_CHECK(jmodel_any != jmodelx);
+  }
+  
+  struct TestJointModelCast
+  {
+    template<typename JointModel>
+    void operator()(const pinocchio::JointModelBase<JointModel> &) const
+    {
+      JointModel jmodel;
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options>
+    void operator()(const JointModelRevoluteUnalignedTpl<Scalar,Options> & ) const
+    {
+      typedef JointModelRevoluteUnalignedTpl<Scalar,Options> JointModelRevoluteUnaligned;
+      typedef typename JointModelRevoluteUnaligned::Vector3 Vector3;
+      JointModelRevoluteUnaligned jmodel(Vector3::Random().normalized());
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options>
+    void operator()(const JointModelPrismaticUnalignedTpl<Scalar,Options> & ) const
+    {
+      typedef JointModelPrismaticUnalignedTpl<Scalar,Options> JointModelPrismaticUnaligned;
+      typedef typename JointModelPrismaticUnaligned::Vector3 Vector3;
+      JointModelPrismaticUnaligned jmodel(Vector3::Random().normalized());
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options, template<typename,int> class JointCollection>
+    void operator()(const JointModelTpl<Scalar,Options,JointCollection> & ) const
+    {
+      typedef JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+      typedef JointModelTpl<Scalar,Options,JointCollection> JointModel;
+      JointModel jmodel((JointModelRX()));
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename JointModel>
+    static void test(const JointModelBase<JointModel> & jmodel)
+    {
+      typedef typename JointModel::Scalar Scalar;
+      BOOST_CHECK(jmodel.template cast<Scalar>() == jmodel);
+      BOOST_CHECK(jmodel.template cast<long double>().template cast<double>() == jmodel);
+    }
+  };
+  
+  BOOST_AUTO_TEST_CASE(cast)
+  {
+    typedef JointCollectionDefault::JointModelVariant JointModelVariant;
+    boost::mpl::for_each<JointModelVariant::types>(TestJointModelCast());
+    
+    TestJointModelCast()(JointModel());
+  }
+  
+BOOST_AUTO_TEST_SUITE_END()
+  

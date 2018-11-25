@@ -2,48 +2,67 @@
 // Copyright (c) 2015-2018 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_model_hpp__
-#define __se3_model_hpp__
+#ifndef __pinocchio_model_hpp__
+#define __pinocchio_model_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
-#include "pinocchio/multibody/joint/joint.hpp"
-#include "pinocchio/deprecated.hh"
-#include "pinocchio/utils/string-generator.hpp"
+#include "pinocchio/multibody/joint/joint-generic.hpp"
+
 #include "pinocchio/container/aligned-vector.hpp"
 
 #include <iostream>
-#include <Eigen/Cholesky>
 
-namespace se3
+namespace pinocchio
 {
-  struct Model
+  
+  template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
+  struct ModelTpl
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef se3::Index Index;
-    typedef se3::JointIndex JointIndex;
-    typedef se3::GeomIndex GeomIndex;
-    typedef se3::FrameIndex FrameIndex;
+    
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
+    
+    typedef JointCollectionTpl<Scalar,Options> JointCollection;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+
+    typedef SE3Tpl<Scalar,Options> SE3;
+    typedef MotionTpl<Scalar,Options> Motion;
+    typedef ForceTpl<Scalar,Options> Force;
+    typedef InertiaTpl<Scalar,Options> Inertia;
+    typedef FrameTpl<Scalar,Options> Frame;
+    
+    typedef pinocchio::Index Index;
+    typedef pinocchio::JointIndex JointIndex;
+    typedef pinocchio::GeomIndex GeomIndex;
+    typedef pinocchio::FrameIndex FrameIndex;
     typedef std::vector<Index> IndexVector;
+    
+    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModel;
+    typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointData;
+    
+    typedef container::aligned_vector<JointModel> JointModelVector;
+    typedef container::aligned_vector<JointData> JointDataVector;
+    
+    typedef container::aligned_vector<Frame> FrameVector;
+    
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    
+    /// \brief Dense vectorized version of a joint configuration vector.
+    typedef VectorXs ConfigVectorType;
+    
+    /// \brief Dense vectorized version of a joint tangent vector (e.g. velocity, acceleration, etc).
+    ///        It also handles the notion of co-tangent vector (e.g. torque, etc).
+    typedef VectorXs TangentVectorType;
 
     /// \brief Dimension of the configuration vector representation.
     int nq;
@@ -76,26 +95,28 @@ namespace se3
     std::vector<std::string> names;
     
     /// \brief Vector of joint's neutral configurations
-    Eigen::VectorXd neutralConfiguration;
+    ConfigVectorType neutralConfiguration;
 
     /// \brief Vector of rotor inertia parameters
-    Eigen::VectorXd rotorInertia;
+    VectorXs rotorInertia;
     
     /// \brief Vector of rotor gear ratio parameters
-    Eigen::VectorXd rotorGearRatio;
+    VectorXs rotorGearRatio;
     
     /// \brief Vector of maximal joint torques
-    Eigen::VectorXd effortLimit;
+    TangentVectorType effortLimit;
+    
     /// \brief Vector of maximal joint velocities
-    Eigen::VectorXd velocityLimit;
+    TangentVectorType velocityLimit;
 
     /// \brief Lower joint configuration limit
-    Eigen::VectorXd lowerPositionLimit;
+    VectorXs lowerPositionLimit;
+    
     /// \brief Upper joint configuration limit
-    Eigen::VectorXd upperPositionLimit;
+    VectorXs upperPositionLimit;
 
     /// \brief Vector of operational frames registered on the model.
-    container::aligned_vector<Frame> frames;
+    FrameVector frames;
     
     /// \brief Vector of subtrees.
     /// subtree[j] corresponds to the subtree supported by the joint *j*.
@@ -106,25 +127,25 @@ namespace se3
     Motion gravity;
     
     /// \brief Default 3D gravity vector (=(0,0,-9.81)).
-    static const Eigen::Vector3d gravity981;
+    static const Vector3 gravity981;
 
     /// \brief Model name;
     std::string name;
 
     /// \brief Default constructor. Builds an empty model with no joints.
-    Model()
-      : nq(0)
-      , nv(0)
-      , njoints(1)
-      , nbodies(1)
-      , nframes(0)
-      , inertias(1)
-      , jointPlacements(1, SE3::Identity())
-      , joints(1)
-      , parents(1, 0)
-      , names(1)
-      , subtrees(1)
-      , gravity( gravity981,Eigen::Vector3d::Zero() )
+    ModelTpl()
+    : nq(0)
+    , nv(0)
+    , njoints(1)
+    , nbodies(1)
+    , nframes(0)
+    , inertias(1)
+    , jointPlacements(1, SE3::Identity())
+    , joints(1)
+    , parents(1, 0)
+    , names(1)
+    , subtrees(1)
+    , gravity(gravity981,Vector3::Zero())
     {
       names[0]     = "universe";     // Should be "universe joint (trivial)"
       // FIXME Should the universe joint be a FIXED_JOINT even if it is
@@ -132,11 +153,106 @@ namespace se3
       // Model::addJointFrame and Model::addBodyFrame
       addFrame(Frame("universe", 0, 0, SE3::Identity(), FIXED_JOINT));
       // Inertia of universe has no sense.
-      inertias[0].mass() = std::numeric_limits<double>::quiet_NaN();
-      inertias[0].lever().fill (std::numeric_limits<double>::quiet_NaN());
-      inertias[0].inertia().fill (std::numeric_limits<double>::quiet_NaN());
+      inertias[0].mass() = std::numeric_limits<Scalar>::quiet_NaN();
+      inertias[0].lever().fill (std::numeric_limits<Scalar>::quiet_NaN());
+      inertias[0].inertia().fill (std::numeric_limits<Scalar>::quiet_NaN());
     }
-    ~Model() {} // std::cout << "Destroy model" << std::endl; }
+    ~ModelTpl() {} // std::cout << "Destroy model" << std::endl; }
+    
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    ModelTpl<NewScalar,Options,JointCollectionTpl> cast() const
+    {
+      typedef ModelTpl<NewScalar,Options,JointCollectionTpl> ReturnType;
+      ReturnType res;
+      res.nq = nq; res.nv = nv;
+      res.njoints = njoints;
+      res.nbodies = nbodies;
+      res.nframes = nframes;
+      res.parents = parents;
+      res.names = names;
+      res.subtrees = subtrees;
+      res.gravity = gravity.template cast<NewScalar>();
+      res.name = name;
+      
+      /// Eigen Vectors
+      res.neutralConfiguration = neutralConfiguration.template cast<NewScalar>();
+      res.rotorInertia = rotorInertia.template cast<NewScalar>();
+      res.rotorGearRatio = rotorGearRatio.template cast<NewScalar>();
+      res.effortLimit = effortLimit.template cast<NewScalar>();
+      res.velocityLimit = velocityLimit.template cast<NewScalar>();
+      res.lowerPositionLimit = lowerPositionLimit.template cast<NewScalar>();
+      res.upperPositionLimit = upperPositionLimit.template cast<NewScalar>();
+
+      /// reserve vectors
+      res.inertias.resize(inertias.size());
+      res.jointPlacements.resize(jointPlacements.size());
+      res.joints.resize(joints.size());
+      res.frames.resize(frames.size());
+
+      /// copy into vectors
+      for(size_t k = 0; k < joints.size(); ++k)
+      {
+        res.inertias[k] = inertias[k].template cast<NewScalar>();
+        res.jointPlacements[k] = jointPlacements[k].template cast<NewScalar>();
+        res.joints[k] = joints[k].template cast<NewScalar>();
+      }
+      
+      for(size_t k = 0; k < frames.size(); ++k)
+      {
+        res.frames[k] = frames[k].template cast<NewScalar>();
+      }
+      
+      return res;
+    }
+    
+    ///
+    /// \brief Equality comparison operator.
+    ///
+    /// \returns true if *this is equal to other.
+    ///
+    bool operator==(const ModelTpl & other) const
+    {
+      bool res =
+         other.nq == nq
+      && other.nv == nv
+      && other.njoints == njoints
+      && other.nbodies == nbodies
+      && other.nframes == nframes
+      && other.parents == parents
+      && other.names == names
+      && other.subtrees == subtrees
+      && other.gravity == gravity
+      && other.name == name
+
+      && other.neutralConfiguration == neutralConfiguration
+      && other.rotorInertia == rotorInertia
+      && other.rotorGearRatio == rotorGearRatio
+      && other.effortLimit == effortLimit
+      && other.velocityLimit == velocityLimit
+      && other.lowerPositionLimit == lowerPositionLimit
+      && other.upperPositionLimit == upperPositionLimit;
+      
+      if(!res) return res;
+      
+      for(size_t k = 1; k < inertias.size(); ++k)
+      {
+        res &= other.inertias[k] == inertias[k];
+        if(!res) return res;
+      }
+      
+      for(size_t k = 1; k < other.jointPlacements.size(); ++k)
+      {
+        res &= other.jointPlacements[k] == jointPlacements[k];
+        if(!res) return res;
+      }
+      
+      res &=
+         other.joints == joints
+      && other.frames == frames;
+      
+      return res;
+    }
     
     ///
     /// \brief Add a joint to the kinematic tree with given bounds.
@@ -161,12 +277,14 @@ namespace se3
     /// \sa Model::appendBodyToJoint, Model::addJointFrame
     ///
     template<typename JointModelDerived>
-    JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
+    JointIndex addJoint(const JointIndex parent,
+                        const JointModelBase<JointModelDerived> & joint_model,
+                        const SE3 & joint_placement,
                         const std::string & joint_name,
-                        const Eigen::VectorXd & max_effort,
-                        const Eigen::VectorXd & max_velocity,
-                        const Eigen::VectorXd & min_config,
-                        const Eigen::VectorXd & max_config
+                        const VectorXs & max_effort,
+                        const VectorXs & max_velocity,
+                        const VectorXs & min_config,
+                        const VectorXs & max_config
                         );
 
     ///
@@ -187,7 +305,9 @@ namespace se3
     /// \sa Model::appendBodyToJoint
     ///
     template<typename JointModelDerived>
-    JointIndex addJoint(const JointIndex parent, const JointModelBase<JointModelDerived> & joint_model, const SE3 & joint_placement,
+    JointIndex addJoint(const JointIndex parent,
+                        const JointModelBase<JointModelDerived> & joint_model,
+                        const SE3 & joint_placement,
                         const std::string & joint_name
                         );
 
@@ -200,8 +320,8 @@ namespace se3
     ///
     /// \return The index of the new frame or -1 in case of error.
     ///
-    int addJointFrame (const JointIndex& jointIndex,
-                             int         frameIndex = -1);
+    int addJointFrame(const JointIndex& jointIndex,
+                      int frameIndex = -1);
 
     ///
     /// \brief Append a body to a given joint of the kinematic tree.
@@ -262,7 +382,7 @@ namespace se3
     /// (for example to get the id of a parent joint)
     /// \param[in] name Name of the joint.
     ///
-    /// \return name Name of the joint.
+    /// \return Index of the joint.
     ///
     JointIndex getJointId(const std::string & name) const;
     
@@ -297,7 +417,8 @@ namespace se3
     ///
     /// \return Index of the frame.
     ///
-    FrameIndex getFrameId (const std::string & name, const FrameType& type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
+    FrameIndex getFrameId(const std::string & name,
+                          const FrameType & type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
     
     ///
     /// \brief Checks if a frame given by its name exists.
@@ -307,7 +428,8 @@ namespace se3
     ///
     /// \return Returns true if the frame exists.
     ///
-    bool existFrame (const std::string & name, const FrameType& type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
+    bool existFrame(const std::string & name,
+                    const FrameType& type = (FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )) const;
     
     
     ///
@@ -350,11 +472,11 @@ namespace se3
     void addJointIndexToParentSubtrees(const JointIndex joint_id);
   };
 
-} // namespace se3
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/model.hxx"
 
-#endif // ifndef __se3_model_hpp__
+#endif // ifndef __pinocchio_model_hpp__

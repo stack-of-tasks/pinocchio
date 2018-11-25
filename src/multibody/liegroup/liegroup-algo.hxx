@@ -1,26 +1,14 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018 CNRS, INRIA
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
-#ifndef __se3_lie_group_algo_hxx__
-#define __se3_lie_group_algo_hxx__
+#ifndef __pinocchio_lie_group_algo_hxx__
+#define __pinocchio_lie_group_algo_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
+#include "pinocchio/multibody/joint/joint-composite.hpp"
 
-namespace se3
+namespace pinocchio
 {
   
   namespace details
@@ -28,8 +16,9 @@ namespace se3
     template<typename Algo>
     struct Dispatch
     {
-      static void run (const JointModelComposite& jmodel,
-                       typename Algo::ArgsType args)
+      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ArgsType>
+      static void run(const JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> & jmodel,
+                      ArgsType args)
       {
         for (size_t i = 0; i < jmodel.joints.size(); ++i)
           Algo::run(jmodel.joints[i], args);
@@ -42,299 +31,407 @@ namespace se3
 #define SE3_DETAILS_WRITE_ARGS_3(JM) SE3_DETAILS_WRITE_ARGS_2(JM), typename boost::fusion::result_of::at_c<ArgsType, 2>::type a2
 #define SE3_DETAILS_WRITE_ARGS_4(JM) SE3_DETAILS_WRITE_ARGS_3(JM), typename boost::fusion::result_of::at_c<ArgsType, 3>::type a3
     
-#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(Visitor, Algo)                 \
-  template <typename LieGroup_t> struct Algo <LieGroup_t, JointModelComposite> {                                         \
-    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                 \
-    static void run (SE3_DETAILS_WRITE_ARGS_1(JointModelComposite))         \
-    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0)); } \
+#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(Algo)                          \
+  template <typename Visitor, typename JointCollection>                       \
+  struct Algo <Visitor, JointModelCompositeTpl<JointCollection> > {           \
+    typedef typename Visitor::ArgsType ArgsType;                              \
+    static void run (SE3_DETAILS_WRITE_ARGS_1(JointModelCompositeTpl<JointCollection>))         \
+    { ::pinocchio::details::Dispatch< Visitor >::run(jmodel.derived(), ArgsType(a0)); } \
+  }
+   
+#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_2(Algo)                 \
+  template <typename Visitor, typename JointCollection>                    \
+  struct Algo <Visitor, JointModelCompositeTpl<JointCollection> > {        \
+    typedef typename Visitor::ArgsType ArgsType;                  \
+    static void run (SE3_DETAILS_WRITE_ARGS_2(JointModelCompositeTpl<JointCollection>))         \
+    { ::pinocchio::details::Dispatch< Visitor >::run(jmodel.derived(), ArgsType(a0,a1)); } \
   }
     
-#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_2(Visitor, Algo)                 \
-  template <typename LieGroup_t> struct Algo <LieGroup_t, JointModelComposite> {                                         \
-    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                 \
-    static void run (SE3_DETAILS_WRITE_ARGS_2(JointModelComposite))         \
-    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0, a1)); } \
+#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(Algo)                 \
+  template <typename Visitor, typename JointCollection>                    \
+  struct Algo <Visitor, JointModelCompositeTpl<JointCollection> > {        \
+    typedef typename Visitor::ArgsType ArgsType;                  \
+    static void run (SE3_DETAILS_WRITE_ARGS_3(JointModelCompositeTpl<JointCollection>))         \
+    { ::pinocchio::details::Dispatch< Visitor >::run(jmodel.derived(), ArgsType(a0,a1,a2)); } \
   }
     
-#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(Visitor, Algo)                 \
-  template <typename LieGroup_t> struct Algo <LieGroup_t, JointModelComposite> {                                         \
-    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                 \
-    static void run (SE3_DETAILS_WRITE_ARGS_3(JointModelComposite))         \
-    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0, a1, a2)); } \
+#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(Algo)                 \
+  template <typename Visitor, typename JointCollection>                    \
+  struct Algo <Visitor, JointModelCompositeTpl<JointCollection> > {        \
+    typedef typename Visitor::ArgsType ArgsType;                  \
+    static void run (SE3_DETAILS_WRITE_ARGS_4(JointModelCompositeTpl<JointCollection>))         \
+    { ::pinocchio::details::Dispatch< Visitor >::run(jmodel.derived(), ArgsType(a0,a1,a2,a3)); } \
   }
     
-#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(Visitor, Algo)                 \
-  template <typename LieGroup_t> struct Algo <LieGroup_t, JointModelComposite> {                                         \
-    typedef typename Visitor<LieGroup_t>::ArgsType ArgsType;                 \
-    static void run (SE3_DETAILS_WRITE_ARGS_4(JointModelComposite))         \
-    { ::se3::details::Dispatch< Visitor<LieGroup_t> >::run(jmodel.derived(), ArgsType(a0, a1, a2, a3)); } \
-  }
-    
-#define SE3_DETAILS_VISITOR_METHOD_ALGO_1(Algo, TplParam)                      \
+#define SE3_DETAILS_VISITOR_METHOD_ALGO_1(Algo, Visitor)                      \
+    typedef LieGroup_t LieGroupMap;                                              \
     template<typename JointModel>                                              \
     static void algo(SE3_DETAILS_WRITE_ARGS_1(JointModel))                     \
-    { Algo<TplParam, JointModel>::run(jmodel, a0); }
+    { AlgoDispatch<JointModel>::run(jmodel, a0); }                   \
+    template<typename JointModel>                            \
+    struct AlgoDispatch : Algo<Visitor, JointModel>                            \
+    { using Algo<Visitor, JointModel>::run; };
     
-#define SE3_DETAILS_VISITOR_METHOD_ALGO_2(Algo, TplParam)                      \
+#define SE3_DETAILS_VISITOR_METHOD_ALGO_2(Algo, Visitor)                      \
+    typedef LieGroup_t LieGroupMap;                                              \
     template<typename JointModel>                                              \
     static void algo(SE3_DETAILS_WRITE_ARGS_2(JointModel))                     \
-    { Algo<TplParam, JointModel>::run(jmodel, a0, a1); }
+    { AlgoDispatch<JointModel>::run(jmodel, a0, a1); }               \
+    template<typename JointModel>                            \
+    struct AlgoDispatch : Algo<Visitor, JointModel>                            \
+    { using Algo<Visitor, JointModel>::run; };
     
-#define SE3_DETAILS_VISITOR_METHOD_ALGO_3(Algo, TplParam)                      \
+#define SE3_DETAILS_VISITOR_METHOD_ALGO_3(Algo, Visitor)                      \
+    typedef LieGroup_t LieGroupMap;                                              \
     template<typename JointModel>                                              \
     static void algo(SE3_DETAILS_WRITE_ARGS_3(JointModel))                     \
-    { Algo<TplParam, JointModel>::run(jmodel, a0, a1, a2); }
+    { AlgoDispatch<JointModel>::run(jmodel, a0, a1, a2); }           \
+    template<typename JointModel>                            \
+    struct AlgoDispatch : Algo<Visitor, JointModel>                            \
+    { using Algo<Visitor, JointModel>::run; };
     
-#define SE3_DETAILS_VISITOR_METHOD_ALGO_4(Algo, TplParam)                      \
+#define SE3_DETAILS_VISITOR_METHOD_ALGO_4(Algo, Visitor)                      \
+    typedef LieGroup_t LieGroupMap;                                              \
     template<typename JointModel>                                              \
     static void algo(SE3_DETAILS_WRITE_ARGS_4(JointModel))                     \
-    { Algo<TplParam, JointModel>::run(jmodel, a0, a1, a2, a3); }
-    
+    { AlgoDispatch<JointModel>::run(jmodel, a0, a1, a2, a3); }       \
+    template<typename JointModel>                            \
+    struct AlgoDispatch : Algo<Visitor, JointModel>                            \
+    { using Algo<Visitor, JointModel>::run; };
   } // namespace details
   
-  template<typename LieGroup_t, typename JointModel> struct IntegrateStepAlgo;
+  template<typename Visitor, typename JointModel> struct IntegrateStepAlgo;
   
-  template<typename LieGroup_t>
-  struct IntegrateStep : public fusion::JointModelVisitor<IntegrateStep<LieGroup_t> >
+  template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename ConfigVectorOut>
+  struct IntegrateStep
+  : public fusion::JointVisitorBase< IntegrateStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,ConfigVectorOut> >
   {
-    typedef boost::fusion::vector<const Eigen::VectorXd &,
-    const Eigen::VectorXd &,
-    Eigen::VectorXd &
-    > ArgsType;
+    typedef boost::fusion::vector<const ConfigVectorIn &,
+                                  const TangentVectorIn &,
+                                  ConfigVectorOut &
+                                  > ArgsType;
     
-    JOINT_MODEL_VISITOR_INIT(IntegrateStep);
-    
-    SE3_DETAILS_VISITOR_METHOD_ALGO_3(IntegrateStepAlgo, LieGroup_t)
+    SE3_DETAILS_VISITOR_METHOD_ALGO_3(IntegrateStepAlgo, IntegrateStep)
   };
   
-  template<typename LieGroup_t, typename JointModel>
-  struct IntegrateStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    const Eigen::VectorXd & q,
-                    const Eigen::VectorXd & v,
-                    Eigen::VectorXd & result)
+  template<typename Visitor, typename JointModel>
+  struct IntegrateStepAlgo
+  {
+    template<typename ConfigVectorIn, typename TangentVector, typename ConfigVectorOut>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn> & q,
+                    const Eigen::MatrixBase<TangentVector> & v,
+                    const Eigen::MatrixBase<ConfigVectorOut> & result)
     {
-      typename LieGroup_t::template operation<JointModel>::type lgo;
-      lgo.integrate(jmodel.jointConfigSelector  (q),
-                    jmodel.jointVelocitySelector(v),
-                    jmodel.jointConfigSelector  (result));
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      lgo.integrate(jmodel.jointConfigSelector  (q.derived()),
+                    jmodel.jointVelocitySelector(v.derived()),
+                    jmodel.jointConfigSelector  (EIGEN_CONST_CAST(ConfigVectorOut,result)));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(IntegrateStep, IntegrateStepAlgo);
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(IntegrateStepAlgo);
   
-  template<typename LieGroup_t, typename JointModel> struct InterpolateStepAlgo;
+  template<typename Visitor, typename JointModel> struct dIntegrateStepAlgo;
   
-  template<typename LieGroup_t>
-  struct InterpolateStep : public fusion::JointModelVisitor<InterpolateStep<LieGroup_t> >
+  template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename JacobianMatrixType>
+  struct dIntegrateStep
+  : public fusion::JointVisitorBase< dIntegrateStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixType> >
   {
-    typedef boost::fusion::vector<const Eigen::VectorXd &,
-    const Eigen::VectorXd &,
-    const double,
-    Eigen::VectorXd &
-    > ArgsType;
+    typedef boost::fusion::vector<const ConfigVectorIn &,
+                                  const TangentVectorIn &,
+                                  JacobianMatrixType &,
+                                  const ArgumentPosition &
+                                  > ArgsType;
     
-    JOINT_MODEL_VISITOR_INIT(InterpolateStep);
-    
-    SE3_DETAILS_VISITOR_METHOD_ALGO_4(InterpolateStepAlgo, LieGroup_t)
+    SE3_DETAILS_VISITOR_METHOD_ALGO_4(dIntegrateStepAlgo, dIntegrateStep)
   };
   
-  template<typename LieGroup_t, typename JointModel>
-  struct InterpolateStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    const Eigen::VectorXd & q0,
-                    const Eigen::VectorXd & q1,
-                    const double u,
-                    Eigen::VectorXd & result)
+  template<typename Visitor, typename JointModel>
+  struct dIntegrateStepAlgo
+  {
+    template<typename ConfigVectorIn, typename TangentVector, typename JacobianMatrixType>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn> & q,
+                    const Eigen::MatrixBase<TangentVector> & v,
+                    const Eigen::MatrixBase<JacobianMatrixType> & mat,
+                    const ArgumentPosition & arg)
     {
-      typename LieGroup_t::template operation<JointModel>::type lgo;
-      lgo.interpolate(jmodel.jointConfigSelector(q0),
-                      jmodel.jointConfigSelector(q1),
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      lgo.dIntegrate(jmodel.jointConfigSelector  (q.derived()),
+                     jmodel.jointVelocitySelector(v.derived()),
+                     jmodel.jointBlock(EIGEN_CONST_CAST(JacobianMatrixType,mat)),
+                     arg);
+    }
+  };
+  
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(dIntegrateStepAlgo);
+  
+  template<typename Visitor, typename JointModel> struct InterpolateStepAlgo;
+  
+  template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar, typename ConfigVectorOut>
+  struct InterpolateStep
+  : public fusion::JointVisitorBase< InterpolateStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar,ConfigVectorOut  > >
+  {
+    typedef boost::fusion::vector<const ConfigVectorIn1 &,
+                                  const ConfigVectorIn2 &,
+                                  const Scalar &,
+                                  ConfigVectorOut &
+                                  > ArgsType;
+    
+    SE3_DETAILS_VISITOR_METHOD_ALGO_4(InterpolateStepAlgo, InterpolateStep)
+  };
+  
+  template<typename Visitor, typename JointModel>
+  struct InterpolateStepAlgo
+  {
+    template<typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar, typename ConfigVectorOut>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                    const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+                    const Scalar & u,
+                    const Eigen::MatrixBase<ConfigVectorOut> & result)
+    {
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      lgo.interpolate(jmodel.jointConfigSelector(q0.derived()),
+                      jmodel.jointConfigSelector(q1.derived()),
                       u,
-                      jmodel.jointConfigSelector(result));
+                      jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorOut,result)));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(InterpolateStep, InterpolateStepAlgo);
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(InterpolateStepAlgo);
   
-  template<typename LieGroup_t, typename JointModel> struct DifferenceStepAlgo;
+  template<typename Visitor, typename JointModel> struct DifferenceStepAlgo;
   
-  template<typename LieGroup_t>
-  struct DifferenceStep : public fusion::JointModelVisitor<DifferenceStep<LieGroup_t> >
+  template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename TangentVectorOut>
+  struct DifferenceStep
+  : public fusion::JointVisitorBase< DifferenceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,TangentVectorOut> >
   {
-    typedef boost::fusion::vector<const Eigen::VectorXd &,
-    const Eigen::VectorXd &,
-    Eigen::VectorXd &
-    > ArgsType;
+    typedef boost::fusion::vector<const ConfigVectorIn1 &,
+                                  const ConfigVectorIn2 &,
+                                  TangentVectorOut &
+                                  > ArgsType;
     
-    JOINT_MODEL_VISITOR_INIT(DifferenceStep);
-    
-    SE3_DETAILS_VISITOR_METHOD_ALGO_3(DifferenceStepAlgo, LieGroup_t)
+    SE3_DETAILS_VISITOR_METHOD_ALGO_3(DifferenceStepAlgo, DifferenceStep)
   };
   
-  template<typename LieGroup_t, typename JointModel>
-  struct DifferenceStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    const Eigen::VectorXd & q0,
-                    const Eigen::VectorXd & q1,
-                    Eigen::VectorXd & result)
+  template<typename Visitor, typename JointModel>
+  struct DifferenceStepAlgo
+  {
+    template<typename ConfigVectorIn1, typename ConfigVectorIn2, typename TangentVectorOut>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                    const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+                    const Eigen::MatrixBase<TangentVectorOut> & result)
     {
-      typename LieGroup_t::template operation<JointModel>::type lgo;
-      lgo.difference(jmodel.jointConfigSelector(q0),
-                     jmodel.jointConfigSelector(q1),
-                     jmodel.jointVelocitySelector(result));
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      lgo.difference(jmodel.jointConfigSelector(q0.derived()),
+                     jmodel.jointConfigSelector(q1.derived()),
+                     jmodel.jointVelocitySelector(EIGEN_CONST_CAST(TangentVectorOut,result)));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(DifferenceStep, DifferenceStepAlgo);
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(DifferenceStepAlgo);
   
-  template<typename LieGroup_t, typename JointModel> struct SquaredDistanceStepAlgo;
+  template<typename Visitor, typename JointModel> struct SquaredDistanceStepAlgo;
   
-  template<typename LieGroup_t>
-  struct SquaredDistanceStep : public fusion::JointModelVisitor<SquaredDistanceStep<LieGroup_t> >
+  template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename DistanceVectorOut>
+  struct SquaredDistanceStep
+  : public fusion::JointVisitorBase<SquaredDistanceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,DistanceVectorOut> >
   {
     typedef boost::fusion::vector<const JointIndex,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &,
-    Eigen::VectorXd &
-    > ArgsType;
+                                  const ConfigVectorIn1 &,
+                                  const ConfigVectorIn2 &,
+                                  DistanceVectorOut &
+                                  > ArgsType;
     
-    JOINT_MODEL_VISITOR_INIT(SquaredDistanceStep);
-    
-    SE3_DETAILS_VISITOR_METHOD_ALGO_4(SquaredDistanceStepAlgo, LieGroup_t)
+    SE3_DETAILS_VISITOR_METHOD_ALGO_4(SquaredDistanceStepAlgo, SquaredDistanceStep)
   };
   
-  template<typename LieGroup_t, typename JointModel>
-  struct SquaredDistanceStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
+  template<typename Visitor, typename JointModel>
+  struct SquaredDistanceStepAlgo
+  {
+    template<typename ConfigVectorIn1, typename ConfigVectorIn2, typename DistanceVectorOut>
+    static void run(const JointModelBase<JointModel> & jmodel,
                     const JointIndex i,
-                    const Eigen::VectorXd & q0,
-                    const Eigen::VectorXd & q1,
-                    Eigen::VectorXd & distances)
+                    const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                    const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+                    const Eigen::MatrixBase<DistanceVectorOut> & distances)
     {
-      typename LieGroup_t::template operation<JointModel>::type lgo;
-      distances[(long)i] += lgo.squaredDistance(jmodel.jointConfigSelector(q0),
-                                                jmodel.jointConfigSelector(q1));
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      DistanceVectorOut & distances_ = EIGEN_CONST_CAST(DistanceVectorOut,distances);
+      distances_[(long)i] += lgo.squaredDistance(jmodel.jointConfigSelector(q0.derived()),
+                                                 jmodel.jointConfigSelector(q1.derived()));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(SquaredDistanceStep, SquaredDistanceStepAlgo);
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(SquaredDistanceStepAlgo);
   
-  template<typename LieGroup_t, typename JointModel> struct RandomConfigurationStepAlgo;
+  template<typename Visitor, typename JointModel> struct RandomConfigurationStepAlgo;
   
-  template<typename LieGroup_t>
-  struct RandomConfigurationStep : public fusion::JointModelVisitor<RandomConfigurationStep<LieGroup_t> >
+  template<typename LieGroup_t,typename ConfigVectorOut, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  struct RandomConfigurationStep
+  : public fusion::JointVisitorBase< RandomConfigurationStep<LieGroup_t,ConfigVectorOut,ConfigVectorIn1,ConfigVectorIn2> >
   {
-    typedef boost::fusion::vector<Eigen::VectorXd &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &
-    > ArgsType;
+    typedef boost::fusion::vector<ConfigVectorOut &,
+                                  const ConfigVectorIn1 &,
+                                  const ConfigVectorIn2 &
+                                  > ArgsType;
     
-    JOINT_MODEL_VISITOR_INIT(RandomConfigurationStep);
-    
-    SE3_DETAILS_VISITOR_METHOD_ALGO_3(RandomConfigurationStepAlgo, LieGroup_t)
+    SE3_DETAILS_VISITOR_METHOD_ALGO_3(RandomConfigurationStepAlgo, RandomConfigurationStep)
   };
   
-  template<typename LieGroup_t, typename JointModel>
-  struct RandomConfigurationStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    Eigen::VectorXd & q,
-                    const Eigen::VectorXd & lowerLimits,
-                    const Eigen::VectorXd & upperLimits)
+  template<typename Visitor, typename JointModel>
+  struct RandomConfigurationStepAlgo
+  {
+    template<typename ConfigVectorOut, typename ConfigVectorIn1, typename ConfigVectorIn2>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorOut> & q,
+                    const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
+                    const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits)
     {
-      typename LieGroup_t::template operation<JointModel>::type lgo;
-      lgo.randomConfiguration(jmodel.jointConfigSelector(lowerLimits),
-                              jmodel.jointConfigSelector(upperLimits),
-                              jmodel.jointConfigSelector(q));
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      lgo.randomConfiguration(jmodel.jointConfigSelector(lowerLimits.derived()),
+                              jmodel.jointConfigSelector(upperLimits.derived()),
+                              jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorOut,q)));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(RandomConfigurationStep, RandomConfigurationStepAlgo);
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(RandomConfigurationStepAlgo);
   
+  template<typename Visitor, typename JointModel> struct NormalizeStepAlgo;
   
-  
-  template<typename LieGroup_t, typename JointModel> struct NormalizeStepAlgo;
-  
-  template<typename LieGroup_t>
-  struct NormalizeStep : public fusion::JointModelVisitor< NormalizeStep<LieGroup_t> >
+  template<typename LieGroup_t, typename ConfigVectorType>
+  struct NormalizeStep
+  : public fusion::JointVisitorBase< NormalizeStep<LieGroup_t,ConfigVectorType> >
   {
-    typedef boost::fusion::vector<Eigen::VectorXd &> ArgsType;
+    typedef boost::fusion::vector<ConfigVectorType &> ArgsType;
     
-    JOINT_MODEL_VISITOR_INIT(NormalizeStep);
-    
-    SE3_DETAILS_VISITOR_METHOD_ALGO_1(NormalizeStepAlgo, LieGroup_t)
+    SE3_DETAILS_VISITOR_METHOD_ALGO_1(NormalizeStepAlgo, NormalizeStep)
   };
   
-  template<typename LieGroup_t, typename JointModel>
+  template<typename Visitor, typename JointModel>
   struct NormalizeStepAlgo
   {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    Eigen::VectorXd & qout)
+    template<typename ConfigVectorType>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorType> & qout)
     {
-      typename LieGroup_t::template operation<JointModel>::type lgo;
-      lgo.normalize(jmodel.jointConfigSelector(qout));
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      lgo.normalize(jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorType,qout)));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NormalizeStep, NormalizeStepAlgo);
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NormalizeStepAlgo);
   
-  template<typename LieGroup_t, typename JointModel> struct IsSameConfigurationStepAlgo;
+  template<typename Visitor, typename JointModel> struct IsSameConfigurationStepAlgo;
   
-  template<typename LieGroup_t>
-  struct IsSameConfigurationStep : public fusion::JointModelVisitor<IsSameConfigurationStep<LieGroup_t> >
+  template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
+  struct IsSameConfigurationStep
+  : public fusion::JointVisitorBase< IsSameConfigurationStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar> >
   {
     typedef boost::fusion::vector<bool &,
-    const Eigen::VectorXd &,
-    const Eigen::VectorXd &,
-    const double&> ArgsType;
+                                  const ConfigVectorIn1 &,
+                                  const ConfigVectorIn2 &,
+                                  const Scalar &> ArgsType;
     
-    JOINT_MODEL_VISITOR_INIT(IsSameConfigurationStep);
-    
-    SE3_DETAILS_VISITOR_METHOD_ALGO_4(IsSameConfigurationStepAlgo, LieGroup_t)
+    SE3_DETAILS_VISITOR_METHOD_ALGO_4(IsSameConfigurationStepAlgo, IsSameConfigurationStep)
   };
   
-  template<typename LieGroup_t, typename JointModel>
-  struct IsSameConfigurationStepAlgo {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
+  template<typename Visitor, typename JointModel>
+  struct IsSameConfigurationStepAlgo
+  {
+    template<typename ConfigVectorIn1, typename ConfigVectorIn2>
+    static void run(const JointModelBase<JointModel> & jmodel,
                     bool & isSame,
-                    const Eigen::VectorXd & q1,
-                    const Eigen::VectorXd & q2,
-                    const double prec)
+                    const Eigen::MatrixBase<ConfigVectorIn1> & q1,
+                    const Eigen::MatrixBase<ConfigVectorIn2> & q2,
+                    const typename ConfigVectorIn1::Scalar & prec)
     {
-      typename LieGroup_t::template operation<JointModel>::type lgo;
-      isSame &= lgo.isSameConfiguration(jmodel.jointConfigSelector(q1),
-                                        jmodel.jointConfigSelector(q2),
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      isSame &= lgo.isSameConfiguration(jmodel.jointConfigSelector(q1.derived()),
+                                        jmodel.jointConfigSelector(q2.derived()),
                                         prec);
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(IsSameConfigurationStep, IsSameConfigurationStepAlgo);
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(IsSameConfigurationStepAlgo);
   
-  template<typename LieGroup_t, typename JointModel> struct NeutralStepAlgo;
+  template<typename Visitor, typename JointModel> struct NeutralStepAlgo;
   
-  template<typename LieGroup_t>
-  struct NeutralStep : public fusion::JointModelVisitor< NeutralStep<LieGroup_t> >
+  template<typename LieGroup_t, typename ConfigVectorType>
+  struct NeutralStep
+  : public fusion::JointVisitorBase< NeutralStep<LieGroup_t,ConfigVectorType> >
   {
-    typedef boost::fusion::vector<Eigen::VectorXd &> ArgsType;
+    typedef boost::fusion::vector<ConfigVectorType &> ArgsType;
     
-    JOINT_MODEL_VISITOR_INIT(NeutralStep);
-    
-    SE3_DETAILS_VISITOR_METHOD_ALGO_1(NeutralStepAlgo, LieGroup_t)
+    SE3_DETAILS_VISITOR_METHOD_ALGO_1(NeutralStepAlgo, NeutralStep)
   };
   
-  template<typename LieGroup_t, typename JointModel>
+  template<typename Visitor, typename JointModel>
   struct NeutralStepAlgo
   {
-    static void run(const se3::JointModelBase<JointModel> & jmodel,
-                    Eigen::VectorXd & neutral_elt)
+    template<typename ConfigVectorType>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorType> & neutral_elt)
     {
-      typename LieGroup_t::template operation<JointModel>::type lgo;
-      jmodel.jointConfigSelector(neutral_elt) = lgo.neutral();
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorType,neutral_elt)) = lgo.neutral();
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NeutralStep, NeutralStepAlgo);
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NeutralStepAlgo);
+  
+  template<typename Visitor, typename JointModel> struct IntegrateCoeffWiseJacobianStepAlgo;
+  
+  template<typename LieGroup_t, typename ConfigVectorType, typename JacobianMatrix>
+  struct IntegrateCoeffWiseJacobianStep
+  : public fusion::JointVisitorBase< IntegrateCoeffWiseJacobianStep<LieGroup_t,ConfigVectorType,JacobianMatrix> >
+  {
+    typedef boost::fusion::vector<const ConfigVectorType &, JacobianMatrix &> ArgsType;
+    
+    SE3_DETAILS_VISITOR_METHOD_ALGO_2(IntegrateCoeffWiseJacobianStepAlgo,
+                                      IntegrateCoeffWiseJacobianStep)
+  };
+  
+  template<typename Visitor, typename JointModel>
+  struct IntegrateCoeffWiseJacobianStepAlgo
+  {
+    template<typename ConfigVectorType, typename JacobianMatrix>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorType> & q,
+                    const Eigen::MatrixBase<JacobianMatrix> & jacobian)
+    {
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typedef typename LieGroupMap::template operation<JointModel>::type LieGroup;
+      LieGroup lgo;
+      lgo.integrateCoeffWiseJacobian(jmodel.jointConfigSelector(q.derived()),
+                                     EIGEN_CONST_CAST(JacobianMatrix,jacobian).template block<LieGroup::NQ,LieGroup::NV>(jmodel.idx_q(),jmodel.idx_v(),jmodel.nq(),jmodel.nv()));
+    }
+  };
+  
+  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_2(IntegrateCoeffWiseJacobianStepAlgo);
   
 }
 
-#endif // ifndef __se3_lie_group_algo_hxx__
+#endif // ifndef __pinocchio_lie_group_algo_hxx__

@@ -1,19 +1,6 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2018 CNRS INRIA
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -32,14 +19,14 @@
 #include <boost/utility/binary.hpp>
 
 template<typename JointModel>
-static void addJointAndBody(se3::Model & model,
-                            const se3::JointModelBase<JointModel> & joint,
+static void addJointAndBody(pinocchio::Model & model,
+                            const pinocchio::JointModelBase<JointModel> & joint,
                             const std::string & parent_name,
                             const std::string & name,
-                            const se3::SE3 placement = se3::SE3::Random(),
+                            const pinocchio::SE3 placement = pinocchio::SE3::Random(),
                             bool setRandomLimits = true)
 {
-  using namespace se3;
+  using namespace pinocchio;
   typedef typename JointModel::ConfigVector_t CV;
   typedef typename JointModel::TangentVector_t TV;
   
@@ -68,9 +55,9 @@ BOOST_AUTO_TEST_SUITE( BOOST_TEST_MODULE )
   
 BOOST_AUTO_TEST_CASE (test_ccrba)
 {
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model);
-  se3::Data data(model), data_ref(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model), data_ref(model);
   
   Eigen::VectorXd q = Eigen::VectorXd::Ones(model.nq);
   q.segment <4> (3).normalize();
@@ -80,25 +67,25 @@ BOOST_AUTO_TEST_CASE (test_ccrba)
   data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   data_ref.Ycrb[0] = data_ref.liMi[1].act(data_ref.Ycrb[1]);
   
-  se3::SE3 cMo (se3::SE3::Matrix3::Identity(), -getComFromCrba(model, data_ref));
+  pinocchio::SE3 cMo (pinocchio::SE3::Matrix3::Identity(), -getComFromCrba(model, data_ref));
   
   ccrba(model, data, q, v);
   BOOST_CHECK(data.com[0].isApprox(-cMo.translation(),1e-12));
   BOOST_CHECK(data.Ycrb[0].matrix().isApprox(data_ref.Ycrb[0].matrix(),1e-12));
   
-  se3::Inertia Ig_ref (cMo.act(data.Ycrb[0]));
+  pinocchio::Inertia Ig_ref (cMo.act(data.Ycrb[0]));
   BOOST_CHECK(data.Ig.matrix().isApprox(Ig_ref.matrix(),1e-12));
   
-  se3::SE3 oM1 (data_ref.liMi[1]);
-  se3::SE3 cM1 (cMo * oM1);
+  pinocchio::SE3 oM1 (data_ref.liMi[1]);
+  pinocchio::SE3 cM1 (cMo * oM1);
   
-  se3::Data::Matrix6x Ag_ref (cM1.inverse().toActionMatrix().transpose() * data_ref.M.topRows <6> ());
+  pinocchio::Data::Matrix6x Ag_ref (cM1.inverse().toActionMatrix().transpose() * data_ref.M.topRows <6> ());
   BOOST_CHECK(data.Ag.isApprox(Ag_ref,1e-12));
 }
   
 BOOST_AUTO_TEST_CASE (test_dccrb)
 {
-  using namespace se3;
+  using namespace pinocchio;
   Model model;
   buildModels::humanoidRandom(model);
   addJointAndBody(model,JointModelSpherical(),"larm6_joint","larm7");
@@ -196,6 +183,126 @@ BOOST_AUTO_TEST_CASE (test_dccrb)
     BOOST_CHECK(dAg.isApprox(dAg_ref,sqrt(alpha)));
     BOOST_CHECK(dAg.isApprox(dAg_ref_from_M,sqrt(alpha)));
   }
+  
+  // Compute tensor dAg/dq
+  {
+    std::vector<Data::Matrix6x> dAgdq((size_t)model.nv,Data::Matrix6x::Zero(6,model.nv));
+    Data data(model), data_fd(model);
+    Eigen::VectorXd v_fd(Eigen::VectorXd::Zero(model.nv));
+    ccrba(model,data_fd,q,v);
+    SE3 oMc_ref(SE3::Identity());
+    oMc_ref.translation() = data_fd.com[0];
+    
+    Data::Matrix6x Ag0 = oMc_ref.toDualActionMatrix() * data_fd.Ag;
+    const Force hg0 = oMc_ref.act(data_fd.hg);
+    
+    Data::Matrix6x Ag_fd(6,model.nv);
+    Force hg_fd;
+    const double alpha = 1e-8;
+    Eigen::VectorXd q_plus(model.nq);
+    Data::Matrix6x dhdq(6,model.nv);
+    for(int k = 0; k < model.nv; ++k)
+    {
+      v_fd[k] = alpha;
+      q_plus = integrate(model,q,v_fd);
+      ccrba(model,data_fd,q_plus,v);
+      SE3 oMc_fd(SE3::Identity());
+      oMc_fd.translation() = data_fd.com[0];
+      Ag_fd = oMc_fd.toDualActionMatrix() * data_fd.Ag;
+      hg_fd = oMc_fd.act(data_fd.hg);
+      dAgdq[(size_t)k] = (Ag_fd - Ag0)/alpha;
+      dhdq.col(k) = (hg_fd - hg0).toVector()/alpha;
+      v_fd[k] = 0.;
+    }
+    
+    Data::Matrix6x dAg_ref(6,model.nv); dAg_ref.setZero();
+    for(int k = 0; k < model.nv; ++k)
+    {
+      dAg_ref += dAgdq[(size_t)k] * v[k];
+    }
+    
+    Data::Matrix6x dAg_ref_bis(6,model.nv); dAg_ref_bis.setZero();
+    for(int k = 0; k < model.nv; ++k)
+    {
+      dAg_ref_bis.col(k) = dAgdq[(size_t)k] * v;
+    }
+    
+    dccrba(model, data, q, v);
+    SE3 oMc(SE3::Identity());
+    oMc.translation() = data.com[0];
+    Data::Matrix6x dAg = oMc.toDualActionMatrix() * data.dAg;
+    BOOST_CHECK(dAg.isApprox(dAg_ref,sqrt(alpha)));
+    BOOST_CHECK(dhdq.isApprox(dAg_ref_bis,sqrt(alpha)));
+    BOOST_CHECK((dAg*v).isApprox(dhdq*v,sqrt(alpha)));
+    
+  }
+}
+
+BOOST_AUTO_TEST_CASE (test_computeCentroidalDynamics)
+{
+  using namespace pinocchio;
+  Model model;
+  buildModels::humanoidRandom(model);
+  addJointAndBody(model,JointModelSpherical(),"larm6_joint","larm7");
+  Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  
+  Eigen::VectorXd q = randomConfiguration(model,model.lowerPositionLimit,model.upperPositionLimit);
+  Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+  Eigen::VectorXd a = Eigen::VectorXd::Random(model.nv);
+  
+  ccrba(model,data_ref,q,v);
+  forwardKinematics(model,data_ref,q,v);
+  centerOfMass(model,data_ref,q,v,false);
+  computeCentroidalDynamics(model,data,q,v);
+  
+  BOOST_CHECK(data.mass[0] == data_ref.mass[0]);
+  BOOST_CHECK(data.com[0].isApprox(data_ref.com[0]));
+  BOOST_CHECK(data.hg.isApprox(data_ref.hg));
+  for(size_t k = 1; k < (size_t)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.mass[k] == data_ref.mass[k]);
+    BOOST_CHECK(data.com[k].isApprox(data_ref.com[k]));
+    BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
+  }
+  
+  computeCentroidalDynamics(model,data,q,v,a);
+  model.gravity.setZero();
+  rnea(model,data_ref,q,v,a);
+  dccrba(model,data_ref,q,v);
+  const Force hgdot(data_ref.Ag * a + data_ref.dAg * v);
+  
+  BOOST_CHECK(data.mass[0] == data_ref.mass[0]);
+  BOOST_CHECK(data.com[0].isApprox(data_ref.com[0]));
+  BOOST_CHECK(data.hg.isApprox(data_ref.hg));
+  BOOST_CHECK(data.dhg.isApprox(hgdot));
+  for(size_t k = 1; k < (size_t)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.mass[k] == data_ref.mass[k]);
+    BOOST_CHECK(data.com[k].isApprox(data_ref.com[k]));
+    BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
+    BOOST_CHECK(data.a[k].isApprox(data_ref.a_gf[k]));
+    BOOST_CHECK(data.f[k].isApprox(data_ref.f[k]));
+  }
+  
+  // Check against finite differences
+  Data data_fd(model);
+  const double eps = 1e-8;
+  Eigen::VectorXd v_plus = v + eps * a;
+  Eigen::VectorXd q_plus = integrate(model,q,eps*v);
+  
+  const Force hg = computeCentroidalDynamics(model,data_fd,q,v);
+  const SE3::Vector3 com = data_fd.com[0];
+  const Force hg_plus = computeCentroidalDynamics(model,data_fd,q_plus,v_plus);
+  const SE3::Vector3 com_plus = data_fd.com[0];
+  
+  SE3 transform(SE3::Identity());
+  transform.translation() = com_plus - com;
+  Force dhg_ref = (transform.act(hg_plus) - hg)/eps;
+
+  BOOST_CHECK(data.dhg.isApprox(dhg_ref,sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

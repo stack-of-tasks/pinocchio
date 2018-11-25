@@ -1,25 +1,13 @@
 //
 // Copyright (c) 2016,2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/dynamics.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/utils/timer.hpp"
 
@@ -33,16 +21,16 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( test_FD )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model,true);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model);
   
   VectorXd q = VectorXd::Ones(model.nq);
   q.segment <4> (3).normalize();
   
-  se3::computeJointJacobians(model, data, q);
+  pinocchio::computeJointJacobians(model, data, q);
   
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
@@ -52,10 +40,10 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+  getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
   Data::Matrix6x J_LF (6, model.nv);
   J_LF.setZero();
-  getJointJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
+  getJointJacobian(model, data, model.getJointId(LF), LOCAL, J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -66,7 +54,7 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   
   Eigen::MatrixXd H(J.transpose());
   
-  se3::forwardDynamics(model, data, q, v, tau, J, gamma, 0.,true);
+  pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 0.,true);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   MatrixXd Minv (data.M.inverse());
@@ -97,16 +85,16 @@ BOOST_AUTO_TEST_CASE ( test_FD )
 BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model,true);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model);
   
   VectorXd q = VectorXd::Ones(model.nq);
   q.segment <4> (3).normalize();
   
-  se3::computeJointJacobians(model, data, q);
+  pinocchio::computeJointJacobians(model, data, q);
   
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
@@ -115,7 +103,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+  getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
 
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -125,7 +113,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
   Eigen::VectorXd gamma (VectorXd::Ones(12));
 
   // Forward Dynamics with damping
-  se3::forwardDynamics(model, data, q, v, tau, J, gamma, 1e-12,true);
+  pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 1e-12,true);
 
   // Matrix Definitions
   Eigen::MatrixXd H(J.transpose());
@@ -152,16 +140,16 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
 BOOST_AUTO_TEST_CASE ( test_ID )
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model,true);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model);
   
   VectorXd q = VectorXd::Ones(model.nq);
   q.segment <4> (3).normalize();
   
-  se3::computeJointJacobians(model, data, q);
+  pinocchio::computeJointJacobians(model, data, q);
   
   VectorXd v_before = VectorXd::Ones(model.nv);
   
@@ -170,10 +158,10 @@ BOOST_AUTO_TEST_CASE ( test_ID )
   
   Data::Matrix6x J_RF (6, model.nv);
   J_RF.setZero();
-  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+  getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
   Data::Matrix6x J_LF (6, model.nv);
   J_LF.setZero();
-  getJointJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
+  getJointJacobian(model, data, model.getJointId(LF), LOCAL, J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.setZero();
@@ -184,7 +172,7 @@ BOOST_AUTO_TEST_CASE ( test_ID )
   
   Eigen::MatrixXd H(J.transpose());
   
-  se3::impulseDynamics(model, data, q, v_before, J, r_coeff, true);
+  pinocchio::impulseDynamics(model, data, q, v_before, J, r_coeff, true);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   MatrixXd Minv (data.M.inverse());
@@ -211,11 +199,11 @@ BOOST_AUTO_TEST_CASE ( test_ID )
 BOOST_AUTO_TEST_CASE (timings_fd_llt)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
-  se3::Model model;
-  se3::buildModels::humanoidRandom(model,true);
-  se3::Data data(model);
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model);
   
 #ifdef NDEBUG
 #ifdef _INTENSE_TESTING_
@@ -232,7 +220,7 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   VectorXd q = VectorXd::Ones(model.nq);
   q.segment <4> (3).normalize();
   
-  se3::computeJointJacobians(model, data, q);
+  pinocchio::computeJointJacobians(model, data, q);
   
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
@@ -241,9 +229,9 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   const std::string LF = "lleg6_joint";
   
   Data::Matrix6x J_RF (6, model.nv);
-  getJointJacobian<LOCAL> (model, data, model.getJointId(RF), J_RF);
+  getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
   Data::Matrix6x J_LF (6, model.nv);
-  getJointJacobian<LOCAL> (model, data, model.getJointId(LF), J_LF);
+  getJointJacobian(model, data, model.getJointId(LF), LOCAL, J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
   J.topRows<6> () = J_RF;
@@ -251,13 +239,15 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   
   Eigen::VectorXd gamma (VectorXd::Ones(12));
   
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
   
-  q = Eigen::VectorXd::Zero(model.nq);
+  q = pinocchio::randomConfiguration(model);
   
   PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
   SMOOTH(NBT)
   {
-    se3::forwardDynamics(model, data, q, v, tau, J, gamma, 0., true);
+    pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 0., true);
   }
   timer.toc(std::cout,NBT);
   

@@ -1,22 +1,10 @@
 #
 # Copyright (c) 2016 CNRS
 #
-# This file is part of Pinocchio
-# Pinocchio is free software: you can redistribute it
-# and/or modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation, either version
-# 3 of the License, or (at your option) any later version.
-# Pinocchio is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Lesser Public License for more details. You should have
-# received a copy of the GNU Lesser General Public License along with
-# Pinocchio If not, see
-# <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
 
-import pinocchio as se3
+import pinocchio as pin
 from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.utils import *
 from numpy.linalg import norm
@@ -31,7 +19,7 @@ def hessian(robot,q,crossterms=False):
     '''
     lambdas.setRobotArgs(robot)
     H=np.zeros([6,robot.model.nv,robot.model.nv])
-    se3.computeJointJacobians(robot.model,robot.data,q)
+    pin.computeJointJacobians(robot.model,robot.data,q)
     J = robot.data.J
     skiplast = -1 if not crossterms else None
     for joint_i in range(1,robot.model.njoints):
@@ -69,7 +57,7 @@ class DCRBA:
         robot = self.robot
         self.H = hessian(robot,q)
         self.J = robot.data.J.copy()
-        se3.crba(robot.model,robot.data,q)
+        pin.crba(robot.model,robot.data,q)
         self.Y =[ (robot.data.oMi[i]*robot.data.Ycrb[i]).matrix() for i in range(0,robot.model.njoints) ]
 
         self.dM = np.zeros([robot.model.nv,]*3)
@@ -220,7 +208,7 @@ class Coriolis:
         Sxv = self.Sxv
         H = hessian(robot,q)
 
-        se3.computeAllTerms(robot.model,robot.data,q,vq)
+        pin.computeAllTerms(robot.model,robot.data,q,vq)
         J = robot.data.J
         oMi=robot.data.oMi
         v = [ (oMi[i]*robot.data.v[i]).vector      for i in range(NJ) ]
@@ -284,7 +272,7 @@ class DRNEA:
         
     def __call__(self,q,vq,aq):
         robot   = self.robot
-        se3.rnea(robot.model,robot.data,q,vq,aq)
+        pin.rnea(robot.model,robot.data,q,vq,aq)
         NJ      = robot.model.njoints
         NV      = robot.model.nv
         J       = robot.data.J
@@ -359,7 +347,7 @@ if __name__ == '__main__':
 
     robot = RobotWrapper('/home/nmansard/src/pinocchio/pinocchio/models/romeo/urdf/romeo.urdf',
                          [ '/home/nmansard/src/pinocchio/pinocchio/models/romeo/', ],
-                         se3.JointModelFreeFlyer()
+                         pin.JointModelFreeFlyer()
                          )
     q  = rand(robot.model.nq); q[3:7] /= norm(q[3:7])
     vq = rand(robot.model.nv)
@@ -378,7 +366,7 @@ if __name__ == '__main__':
                 for j in iv(joint_j):
                     vq1 *= 0
                     vq1[i] = vq1[j] = 1.0
-                    se3.computeAllTerms(robot.model,robot.data,q,vq1)
+                    pin.computeAllTerms(robot.model,robot.data,q,vq1)
                     Htrue[:,i,j] = (robot.data.oMi[joint_i]*robot.data.a[joint_i]).vector.T
     
     print('Check hessian = \t\t', norm(H-Htrue))    
@@ -398,12 +386,12 @@ if __name__ == '__main__':
     
     for diff in range(robot.model.nv):
     
-        dM[:,:,diff] = -se3.crba(robot.model,robot.data,q)
+        dM[:,:,diff] = -pin.crba(robot.model,robot.data,q)
     
         dq *=0; dq[diff] = eps
-        qdq = se3.integrate(robot.model,q,dq)
+        qdq = pin.integrate(robot.model,q,dq)
     
-        dM[:,:,diff] += se3.crba(robot.model,robot.data,qdq)
+        dM[:,:,diff] += pin.crba(robot.model,robot.data,qdq)
     
     dM /= eps
     
@@ -418,8 +406,8 @@ if __name__ == '__main__':
     Q = vrnea(q)
 
     # --- Compute C from rnea, for future check
-    robot.model.gravity = se3.Motion.Zero()
-    rnea0 = lambda q,vq: se3.nle(robot.model,robot.data,q,vq)
+    robot.model.gravity = pin.Motion.Zero()
+    rnea0 = lambda q,vq: pin.nle(robot.model,robot.data,q,vq)
     vq1 = vq*0
     C = np.zeros([robot.model.nv,]*3)
     for i in range(robot.model.nv):
@@ -456,11 +444,11 @@ if __name__ == '__main__':
     NV = robot.model.nv
     Rd = zero([NV,NV])
     eps = 1e-8
-    r0 = se3.rnea(robot.model,robot.data,q,vq,aq).copy()
+    r0 = pin.rnea(robot.model,robot.data,q,vq,aq).copy()
     for i in range(NV):
         dq = zero(NV); dq[i]=eps
-        qdq = se3.integrate(robot.model,q,dq)
-        Rd[:,i] = (se3.rnea(robot.model,robot.data,qdq,vq,aq)-r0)/eps
+        qdq = pin.integrate(robot.model,q,dq)
+        Rd[:,i] = (pin.rnea(robot.model,robot.data,qdq,vq,aq)-r0)/eps
     print("Check drnea    \t\t\t",norm(Rd-R))
 
 

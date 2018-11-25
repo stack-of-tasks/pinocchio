@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2015-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -41,7 +28,7 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
 int main()
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
   PinocchioTicToc timer(PinocchioTicToc::US);
   #ifdef NDEBUG
@@ -58,12 +45,12 @@ int main()
   std::string romeo_meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
   package_dirs.push_back(romeo_meshDir);
 
-  se3::Model model;
-  se3::urdf::buildModel(romeo_filename, se3::JointModelFreeFlyer(),model);
-  se3::GeometryModel geom_model; se3::urdf::buildGeom(model, romeo_filename, COLLISION, geom_model, package_dirs);
-#ifdef WITH_HPP_FCL  
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(romeo_filename, pinocchio::JointModelFreeFlyer(),model);
+  pinocchio::GeometryModel geom_model; pinocchio::urdf::buildGeom(model, romeo_filename, COLLISION, geom_model, package_dirs);
+#ifdef PINOCCHIO_WITH_HPP_FCL  
   geom_model.addAllCollisionPairs();
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
    
   Data data(model);
   GeometryData geom_data(geom_model);
@@ -95,12 +82,12 @@ int main()
   double update_col_time = timer.toc(PinocchioTicToc::US)/NBT - geom_time;
   std::cout << "Update Collision Geometry < false > = \t" << update_col_time << " " << PinocchioTicToc::unitName(PinocchioTicToc::US) << std::endl;
 
-#ifdef WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL
   timer.tic();
   SMOOTH(NBT)
   {
     updateGeometryPlacements(model,data,geom_model,geom_data,qs_romeo[_smooth]);
-    for (std::vector<se3::CollisionPair>::iterator it = geom_model.collisionPairs.begin(); it != geom_model.collisionPairs.end(); ++it)
+    for (std::vector<pinocchio::CollisionPair>::iterator it = geom_model.collisionPairs.begin(); it != geom_model.collisionPairs.end(); ++it)
     {
       computeCollision(geom_model,geom_data,std::size_t(it-geom_model.collisionPairs.begin()));
     }
@@ -129,6 +116,6 @@ int main()
   std::cout << "Compute distance between two geometry objects (mean time) = \t" << computeDistancesTime / double(geom_model.collisionPairs.size())
             << " " << PinocchioTicToc::unitName(PinocchioTicToc::US) << " " << geom_model.collisionPairs.size() << " col pairs" << std::endl;
 
-#endif // WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL
   return 0;
 }

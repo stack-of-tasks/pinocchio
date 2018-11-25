@@ -1,19 +1,6 @@
 //
 // Copyright (c) 2017-2018 CNRS
 //
-// This file is part of Pinocchio
-// Pinocchio is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// Pinocchio is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// Pinocchio If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -33,7 +20,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_all)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
 
   Model model;
   buildModels::humanoidRandom(model);
@@ -68,7 +55,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_all)
 BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_velocity)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -89,17 +76,17 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_velocity)
   Data::Matrix6x partial_dv(6,model.nv); partial_dv.setZero();
   Data::Matrix6x partial_dv_local(6,model.nv); partial_dv_local.setZero();
   
-  getJointVelocityDerivatives<WORLD>(model,data,jointId,
-                                     partial_dq,partial_dv);
+  getJointVelocityDerivatives(model,data,jointId,WORLD,
+                              partial_dq,partial_dv);
   
-  getJointVelocityDerivatives<LOCAL>(model,data,jointId,
-                                     partial_dq_local,partial_dv_local);
+  getJointVelocityDerivatives(model,data,jointId,LOCAL,
+                              partial_dq_local,partial_dv_local);
   
   Data::Matrix6x J_ref(6,model.nv); J_ref.setZero();
   Data::Matrix6x J_ref_local(6,model.nv); J_ref_local.setZero();
   computeJointJacobians(model,data_ref,q);
-  getJointJacobian<WORLD>(model,data_ref,jointId,J_ref);
-  getJointJacobian<LOCAL>(model,data_ref,jointId,J_ref_local);
+  getJointJacobian(model,data_ref,jointId,WORLD,J_ref);
+  getJointJacobian(model,data_ref,jointId,LOCAL,J_ref_local);
   
   BOOST_CHECK(partial_dv.isApprox(J_ref));
   BOOST_CHECK(partial_dv_local.isApprox(J_ref_local));
@@ -164,7 +151,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_velocity)
 BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
 {
   using namespace Eigen;
-  using namespace se3;
+  using namespace pinocchio;
   
   Model model;
   buildModels::humanoidRandom(model);
@@ -190,13 +177,13 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   Data::Matrix6x a_partial_da(6,model.nv); a_partial_da.setZero();
   Data::Matrix6x a_partial_da_local(6,model.nv); a_partial_da_local.setZero();
   
-  getJointAccelerationDerivatives<WORLD>(model,data,jointId,
-                                         v_partial_dq,
-                                         a_partial_dq,a_partial_dv,a_partial_da);
+  getJointAccelerationDerivatives(model,data,jointId,WORLD,
+                                  v_partial_dq,
+                                  a_partial_dq,a_partial_dv,a_partial_da);
   
-  getJointAccelerationDerivatives<LOCAL>(model,data,jointId,
-                                         v_partial_dq_local,
-                                         a_partial_dq_local,a_partial_dv_local,a_partial_da_local);
+  getJointAccelerationDerivatives(model,data,jointId,LOCAL,
+                                  v_partial_dq_local,
+                                  a_partial_dq_local,a_partial_dv_local,a_partial_da_local);
   
   // Check v_partial_dq against getJointVelocityDerivatives
   {
@@ -207,12 +194,12 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
     Data::Matrix6x v_partial_dv_ref(6,model.nv); v_partial_dv_ref.setZero();
     Data::Matrix6x v_partial_dq_ref_local(6,model.nv); v_partial_dq_ref_local.setZero();
     
-    getJointVelocityDerivatives<WORLD>(model,data_v,jointId,
-                                       v_partial_dq_ref,v_partial_dv_ref);
+    getJointVelocityDerivatives(model,data_v,jointId,WORLD,
+                                v_partial_dq_ref,v_partial_dv_ref);
     
     BOOST_CHECK(v_partial_dq.isApprox(v_partial_dq_ref));
-    getJointVelocityDerivatives<LOCAL>(model,data_v,jointId,
-                                       v_partial_dq_ref_local,v_partial_dv_ref);
+    getJointVelocityDerivatives(model,data_v,jointId,LOCAL,
+                                v_partial_dq_ref_local,v_partial_dv_ref);
     
     BOOST_CHECK(v_partial_dq_local.isApprox(v_partial_dq_ref_local));
   }
@@ -221,8 +208,8 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   Data::Matrix6x J_ref(6,model.nv); J_ref.setZero();
   Data::Matrix6x J_ref_local(6,model.nv); J_ref_local.setZero();
   computeJointJacobians(model,data_ref,q);
-  getJointJacobian<WORLD>(model,data_ref,jointId,J_ref);
-  getJointJacobian<LOCAL>(model,data_ref,jointId,J_ref_local);
+  getJointJacobian(model,data_ref,jointId,WORLD,J_ref);
+  getJointJacobian(model,data_ref,jointId,LOCAL,J_ref_local);
   
   BOOST_CHECK(a_partial_da.isApprox(J_ref));
   BOOST_CHECK(a_partial_da_local.isApprox(J_ref_local));
@@ -287,14 +274,14 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
 //  a.setZero();
   
   computeForwardKinematicsDerivatives(model,data,q,v,a);
-  getJointAccelerationDerivatives<WORLD>(model,data,jointId,
-                                         v_partial_dq,
-                                         a_partial_dq,a_partial_dv,a_partial_da);
+  getJointAccelerationDerivatives(model,data,jointId,WORLD,
+                                  v_partial_dq,
+                                  a_partial_dq,a_partial_dv,a_partial_da);
   
   
-  getJointAccelerationDerivatives<LOCAL>(model,data,jointId,
-                                         v_partial_dq_local,
-                                         a_partial_dq_local,a_partial_dv_local,a_partial_da_local);
+  getJointAccelerationDerivatives(model,data,jointId,LOCAL,
+                                  v_partial_dq_local,
+                                  a_partial_dq_local,a_partial_dv_local,a_partial_da_local);
   
   Eigen::VectorXd q_plus(q), v_eps(Eigen::VectorXd::Zero(model.nv));
   forwardKinematics(model,data_ref,q,v,a);
@@ -316,6 +303,180 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
 
   BOOST_CHECK(a_partial_dq_local.isApprox(a_partial_dq_fd_local,sqrt(alpha)));
  
+}
+
+BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_against_classic_formula)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model,true);
+  
+  Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd a(VectorXd::Random(model.nv));
+  
+  const Model::JointIndex jointId = model.existJointName("rarm4_joint")?model.getJointId("rarm4_joint"):(Model::Index)(model.njoints-1);
+  Data::Matrix6x v_partial_dq(6,model.nv); v_partial_dq.setZero();
+  Data::Matrix6x v_partial_dq_ref(6,model.nv); v_partial_dq_ref.setZero();
+  Data::Matrix6x v_partial_dv_ref(6,model.nv); v_partial_dv_ref.setZero();
+  Data::Matrix6x a_partial_dq(6,model.nv); a_partial_dq.setZero();
+  Data::Matrix6x a_partial_dv(6,model.nv); a_partial_dv.setZero();
+  Data::Matrix6x a_partial_da(6,model.nv); a_partial_da.setZero();
+  
+  // LOCAL: da/dv == dJ/dt + dv/dq
+//  {
+//    Data::Matrix6x rhs(6,model.nv); rhs.setZero();
+//    
+//    v_partial_dq.setZero();
+//    a_partial_dq.setZero();
+//    a_partial_dv.setZero();
+//    a_partial_da.setZero();
+//    
+//    computeForwardKinematicsDerivatives(model,data_ref,q,v,a);
+//    computeForwardKinematicsDerivatives(model,data,q,v,a);
+//    
+//    getJointAccelerationDerivatives<LOCAL>(model,data,jointId,
+//                                           v_partial_dq,
+//                                           a_partial_dq,a_partial_dv,a_partial_da);
+//    
+//    getJointJacobianTimeVariation<LOCAL>(model,data_ref,jointId,rhs);
+//    
+//    v_partial_dq_ref.setZero(); v_partial_dv_ref.setZero();
+//    getJointVelocityDerivatives<LOCAL>(model,data_ref,jointId,
+//                                       v_partial_dq_ref,v_partial_dv_ref);
+//    rhs += v_partial_dq_ref;
+//    BOOST_CHECK(a_partial_dv.isApprox(rhs,1e-12));
+//    
+//    std::cout << "a_partial_dv\n" << a_partial_dv << std::endl;
+//    std::cout << "rhs\n" << rhs << std::endl;
+//  }
+  
+  // WORLD: da/dv == dJ/dt + dv/dq
+  {
+    Data::Matrix6x rhs(6,model.nv); rhs.setZero();
+    
+    v_partial_dq.setZero();
+    a_partial_dq.setZero();
+    a_partial_dv.setZero();
+    a_partial_da.setZero();
+    
+    computeForwardKinematicsDerivatives(model,data_ref,q,v,a);
+    computeForwardKinematicsDerivatives(model,data,q,v,a);
+    
+    getJointAccelerationDerivatives(model,data,jointId,WORLD,
+                                    v_partial_dq,
+                                    a_partial_dq,a_partial_dv,a_partial_da);
+    
+    getJointJacobianTimeVariation(model,data_ref,jointId,WORLD,rhs);
+    
+    v_partial_dq_ref.setZero(); v_partial_dv_ref.setZero();
+    getJointVelocityDerivatives(model,data_ref,jointId,WORLD,
+                                v_partial_dq_ref,v_partial_dv_ref);
+    rhs += v_partial_dq_ref;
+    BOOST_CHECK(a_partial_dv.isApprox(rhs,1e-12));
+    
+//    std::cout << "a_partial_dv\n" << a_partial_dv << std::endl;
+//    std::cout << "rhs\n" << rhs << std::endl;
+  }
+  
+//  // WORLD: da/dq == d/dt(dv/dq)
+//  {
+//    const double alpha = 1e-8;
+//    Eigen::VectorXd q_plus(model.nq), v_plus(model.nv);
+//
+//    Data data_plus(model);
+//    v_plus = v + alpha * a;
+//    q_plus = integrate(model,q,alpha*v);
+//
+//    computeForwardKinematicsDerivatives(model,data_plus,q_plus,v_plus,a);
+//    computeForwardKinematicsDerivatives(model,data_ref,q,v,a);
+//
+//    Data::Matrix6x v_partial_dq_plus(6,model.nv); v_partial_dq_plus.setZero();
+//    Data::Matrix6x v_partial_dv_plus(6,model.nv); v_partial_dv_plus.setZero();
+//
+//    v_partial_dq_ref.setZero(); v_partial_dv_ref.setZero();
+//
+//    v_partial_dq.setZero();
+//    a_partial_dq.setZero();
+//    a_partial_dv.setZero();
+//    a_partial_da.setZero();
+//
+//    getJointVelocityDerivatives<WORLD>(model,data_ref,jointId,
+//                                       v_partial_dq_ref,v_partial_dv_ref);
+//    getJointVelocityDerivatives<WORLD>(model,data_plus,jointId,
+//                                       v_partial_dq_plus,v_partial_dv_plus);
+//
+//    getJointAccelerationDerivatives<WORLD>(model,data_ref,jointId,
+//                                           v_partial_dq,
+//                                           a_partial_dq,a_partial_dv,a_partial_da);
+//
+//    Data::Matrix6x a_partial_dq_fd(6,model.nv); a_partial_dq_fd.setZero();
+//    {
+//      Data data_fd(model);
+//      VectorXd q_fd(model.nq), v_eps(model.nv); v_eps.setZero();
+//      for(int k = 0; k < model.nv; ++k)
+//      {
+//        v_eps[k] += alpha;
+//        q_fd = integrate(model,q,v_eps);
+//        forwardKinematics(model,data_fd,q_fd,v,a);
+//        a_partial_dq_fd.col(k) = (data_fd.oMi[jointId].act(data_fd.a[jointId]) - data_ref.oa[jointId]).toVector()/alpha;
+//        v_eps[k] = 0.;
+//      }
+//    }
+//
+//    Data::Matrix6x rhs = (v_partial_dq_plus - v_partial_dq_ref)/alpha;
+//    BOOST_CHECK(a_partial_dq.isApprox(rhs,sqrt(alpha)));
+//
+//    std::cout << "a_partial_dq\n" << a_partial_dq << std::endl;
+//    std::cout << "a_partial_dq_fd\n" << a_partial_dq_fd << std::endl;
+//    std::cout << "rhs\n" << rhs << std::endl;
+//  }
+  
+  // LOCAL: da/dq == d/dt(dv/dq)
+  {
+    const double alpha = 1e-8;
+    Eigen::VectorXd q_plus(model.nq), v_plus(model.nv);
+    
+    Data data_plus(model);
+    v_plus = v + alpha * a;
+    q_plus = integrate(model,q,alpha*v);
+    
+    computeForwardKinematicsDerivatives(model,data_plus,q_plus,v_plus,a);
+    computeForwardKinematicsDerivatives(model,data_ref,q,v,a);
+    
+    Data::Matrix6x v_partial_dq_plus(6,model.nv); v_partial_dq_plus.setZero();
+    Data::Matrix6x v_partial_dv_plus(6,model.nv); v_partial_dv_plus.setZero();
+    
+    v_partial_dq_ref.setZero(); v_partial_dv_ref.setZero();
+    
+    v_partial_dq.setZero();
+    a_partial_dq.setZero();
+    a_partial_dv.setZero();
+    a_partial_da.setZero();
+    
+    getJointVelocityDerivatives(model,data_ref,jointId,LOCAL,
+                                       v_partial_dq_ref,v_partial_dv_ref);
+    getJointVelocityDerivatives(model,data_plus,jointId,LOCAL,
+                                v_partial_dq_plus,v_partial_dv_plus);
+    
+    getJointAccelerationDerivatives(model,data_ref,jointId,LOCAL,
+                                    v_partial_dq,
+                                    a_partial_dq,a_partial_dv,a_partial_da);
+    
+    Data::Matrix6x rhs = (v_partial_dq_plus - v_partial_dq_ref)/alpha;
+    BOOST_CHECK(a_partial_dq.isApprox(rhs,sqrt(alpha)));
+    
+//    std::cout << "a_partial_dq\n" << a_partial_dq << std::endl;
+//    std::cout << "rhs\n" << rhs << std::endl;
+  }
+  
+  
 }
 
 BOOST_AUTO_TEST_SUITE_END()
