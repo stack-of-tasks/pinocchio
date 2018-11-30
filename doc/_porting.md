@@ -18,10 +18,6 @@ Relevant changes are listed below.
 \subsection PortingCHeaderonly Header-only
 Pinocchio is now fully header-only. This means you do not have to link to the Pinocchio library when compiling your code.
 On the other hand, you might need to link to additional system libraries.
-For instance, when using URDF, you now need to add
-```
--lboost_system -lurdfdom_model
-```
 
 \subsection PortingCNamespace Namespace
 The most important change is the namespace.
@@ -48,14 +44,12 @@ The following marcos are not employed anymore
 WITH_HPP_FCL
 WITH_URDFDOM
 WITH_LUA5
-URDFDOM_TYPEDEF_SHARED_PTR
 ```
 in favor of
 ```
 PINOCCHIO_WITH_HPP_FCL
 PINOCCHIO_WITH_URDFDOM
 PINOCCHIO_WITH_LUA5
-PINOCCHIO_URDFDOM_TYPEDEF_SHARED_PTR
 ```
 Therefore, you now need to issue the new macros in your compilation commands.
 
