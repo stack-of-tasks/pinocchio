@@ -51,7 +51,7 @@ namespace pinocchio
   
   ///
   /// \brief Add skew matrix represented by a 3d vector to a given matrix,
-  ///        i.e. add the antisymmetric matrix representation of the cross product operator (\f$ [v]_{\cross} x = v \cross x \f$)
+  ///        i.e. add the antisymmetric matrix representation of the cross product operator (\f$ [v]_{\times} x = v \times x \f$)
   ///
   /// \param[in]  v a vector of dimension 3.
   /// \param[out] M the 3x3 matrix to which the skew matrix is added.
