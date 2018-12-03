@@ -45,7 +45,7 @@ namespace pinocchio
 } // namespace pinocchio
 
 
-/* --- Details -------------------------------------------------------------------- */
+/** --- \cond Details -------------------------------------------------------------------- */
 namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -246,7 +246,7 @@ namespace pinocchio
     potentialEnergy(model, data, q, false);
 
   }
-} // namespace pinocchio
+} /// \endcond namespace pinocchio
 
 
 #endif // ifndef __pinocchio_compute_all_terms_hpp__
