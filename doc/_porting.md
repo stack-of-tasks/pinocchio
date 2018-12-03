@@ -1,5 +1,7 @@
 # Porting from Pinocchio 1.3.3 to 2.0.0
 
+\section PortingIntro What is included
+
 This section describes how to port your code from the latest Pinocchio 1 release (1.3.3) to 2.0.
 
 Note that this section does not cover API changes that were made *before* Pinocchio 1.3.3.
@@ -9,11 +11,15 @@ In particular, remove all calls to deprecated methods and replace them appropria
 
 The vast majority of the changes took place in C++.
 
-# Changes in C++
+\section PortingC Changes in C++
 Although the class system was heavily re-worked, it should not make a lot of difference from the user's point of view.
 Relevant changes are listed below.
 
-## Namespace
+\subsection PortingCHeaderonly Header-only
+Pinocchio is now fully header-only. This means you do not have to link to the Pinocchio library when compiling your code.
+On the other hand, you might need to link to additional system libraries.
+
+\subsection PortingCNamespace Namespace
 The most important change is the namespace.
 Now, the top-level Pinocchio namespace is not `se3` anymore, but `pinocchio`.
 
@@ -31,7 +37,7 @@ In order to make it work, you need to compile it with the following flag
 -DPINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_1
 ```
 
-## Deprecated macros
+\subsection PortingCMacros Deprecated macros
 
 The following marcos are not employed anymore
 ```
@@ -45,12 +51,14 @@ PINOCCHIO_WITH_HPP_FCL
 PINOCCHIO_WITH_URDFDOM
 PINOCCHIO_WITH_LUA5
 ```
-In order to make them work, you can still do
+Therefore, you now need to issue the new macros in your compilation commands.
+
+If you are using them in your code, in order to make them work, you can do
 ```
 -DPINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_1
 ```
 
-## Method signatures
+\subsection PortingCSignature Method signatures
 Many methods which were taking a `ReferenceFrame = {WORLD/LOCAL}` enum as template parameter, such as `getJointJacobian`,
 are now deprecated. The reference frame is now passed as an input.
 For instance, you should switch from
@@ -64,16 +72,16 @@ getJointJacobian(model,data,jointId,LOCAL,J);
 
 Notice that in principle your old code will still work, but you will get deprecation warnings.
 
-# Changes in Python
+\section PortingPython Changes in Python
 Changes in Python are relatively minor.
 
-## Namespace
+\subsection PortingPythonNamespace Namespace
 
 No real changes took place, but you are encouraged to stop using the idiom `import pinocchio as se3`.
 
 From now on, the recommended practice is `import pinocchio as pin`.
 
-## RobotWrapper
+\subsection PortingPythonRobotWrapper RobotWrapper
 
 The constructor signature has changed from
 ```
