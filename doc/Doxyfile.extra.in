@@ -100,7 +100,7 @@ HIDE_UNDOC_MEMBERS     = NO
 # If set to NO (the default) these classes will be included in the various
 # overviews. This option has no effect if EXTRACT_ALL is enabled.
 
-#HIDE_UNDOC_CLASSES     = NO
+HIDE_UNDOC_CLASSES     = YES
 
 # If the HIDE_FRIEND_COMPOUNDS tag is set to YES, Doxygen will hide all
 # friend (class|struct|union) declarations.
@@ -316,6 +316,7 @@ FILE_PATTERNS          = *.cc *.cpp *.h *.hpp *.hxx *.hh *.dox *.md *.py
 # for example use the pattern */test/*
 
 EXCLUDE_PATTERNS      += CMake* \
+                         */d-practical-exercises/src/* \
                          *.txt \
                          *.sh \
                          *.orig \
@@ -338,7 +339,8 @@ EXCLUDE_PATTERNS      += CMake* \
 # wildcard * is used, a substring. Examples: ANamespace, AClass,
 # AClass::ANamespace, ANamespace::*Test
 
-EXCLUDE_SYMBOLS        = internal::*
+EXCLUDE_SYMBOLS        = internal::* \
+                         *Visitor
 
 # The IMAGE_PATH tag can be used to specify one or more files or
 # directories that contain image that are included in the documentation (see
@@ -423,8 +425,20 @@ HTML_FOOTER            =
 # will generate a default style sheet. Note that doxygen will try to copy
 # the style sheet file to the HTML output directory, so don't put your own
 # style sheet in the HTML output directory as well, or it will be erased!
+# NOTE: It is recommended to use HTML_EXTRA_STYLESHEET instead of this tag,
+# as it is more robust and this tag (HTML_STYLESHEET)
+# will in the future become obsolete.
 
 #HTML_STYLESHEET        = @PROJECT_SOURCE_DIR@/doc/package.css
+
+# The HTML_EXTRA_STYLESHEET tag can be used to specify additional user-defined
+# cascading style sheets that are included after the standard style sheets
+# created by doxygen. Using this option one can overrule certain style aspects.
+# This is preferred over using HTML_STYLESHEET since it does not replace
+# the standard style sheet and is therefore more robust against future updates.
+# Doxygen will copy the style sheet files to the output directory.
+
+HTML_EXTRA_STYLESHEET        = @PROJECT_SOURCE_DIR@/doc/customdoxygen.css
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output.
 # Doxygen will adjust the colors in the style sheet and background images

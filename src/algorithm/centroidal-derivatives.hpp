@@ -19,9 +19,9 @@ namespace pinocchio
   /// \details Computes the first order approximation of the centroidal dynamics time derivative
   ///          and corresponds to the following equation
   ///          \f$
-  ///               d\dot{h_{g}} = \frac{\partial \dot{h_{g}}}{\partial \bm{q}} d\bm{q}
-  ///                            + \frac{\partial \dot{h_{g}}}{\partial \bm{v}} d\bm{v}
-  ///                            + \frac{\partial \dot{h_{g}}}{\partial \bm{a}} d\bm{a}
+  ///               d\dot{h_{g}} = \frac{\partial \dot{h_{g}}}{\partial \mathbf{q}} d\mathbf{q}
+  ///                            + \frac{\partial \dot{h_{g}}}{\partial \mathbf{v}} d\mathbf{v}
+  ///                            + \frac{\partial \dot{h_{g}}}{\partial \mathbf{a}} d\mathbf{a}
   ///          \f$
   ///
   /// \tparam JointCollection Collection of Joint types.
@@ -60,9 +60,9 @@ namespace pinocchio
   /// \details Computes the first order approximation of the centroidal dynamics time derivative
   ///          and corresponds to the following equation
   ///          \f$
-  ///               d\dot{h_{g}} = \frac{\partial \dot{h_{g}}}{\partial \bm{q}} d\bm{q}
-  ///                            + \frac{\partial \dot{h_{g}}}{\partial \bm{v}} d\bm{v}
-  ///                            + \frac{\partial \dot{h_{g}}}{\partial \bm{a}} d\bm{a}
+  ///               d\dot{h_{g}} = \frac{\partial \dot{h_{g}}}{\partial \mathbf{q}} d\mathbf{q}
+  ///                            + \frac{\partial \dot{h_{g}}}{\partial \mathbf{v}} d\mathbf{v}
+  ///                            + \frac{\partial \dot{h_{g}}}{\partial \mathbf{a}} d\mathbf{a}
   ///          \f$
   ///
   /// \param[in] model The model structure of the rigid body system.

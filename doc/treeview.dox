@@ -103,9 +103,9 @@ namespace pinocchio {
   // Modules organization
   //
 
-  /** \defgroup spatial_group Spatial */
-  /** \defgroup multibody_group Multibody */
-  /** \defgroup joint_group Joint */
-  /** \defgroup parsers_group Parsers */
-  /** \defgroup algorithms_group Algorithms */
+  /** \defgroup spatial Spatial */
+  /** \defgroup multibody Multibody */
+  /** \defgroup joint Joint */
+  /** \defgroup parsers Parsers */
+  /** \defgroup algorithms Algorithms */
 }
