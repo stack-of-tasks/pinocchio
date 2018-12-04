@@ -83,8 +83,8 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     /**
      * @brief      Computes the Jacobian of a small variation of the configuration vector or the tangent vector into tangent space at identity.
      *
-     * @details    This Jacobian corresponds to the Jacobian of \f$ (\bm{q} \oplus \delta \bm{q}) \oplus \bm{v} \f$ with
-     *             \f$ \delta \bm{q} \rightarrow 0 \f$ if arg == ARG0 or \f$ \delta \bm{v} \rightarrow 0 \f$ if arg == ARG1.
+     * @details    This Jacobian corresponds to the Jacobian of \f$ (\mathbf{q} \oplus \delta \mathbf{q}) \oplus \mathbf{v} \f$ with
+     *             \f$ \delta \mathbf{q} \rightarrow 0 \f$ if arg == ARG0 or \f$ \delta \mathbf{v} \rightarrow 0 \f$ if arg == ARG1.
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector.
@@ -104,8 +104,8 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     /**
      * @brief      Computes the Jacobian of a small variation of the configuration vector or the tangent vector into tangent space at identity.
      *
-     * @details    This Jacobian corresponds to the Jacobian of \f$ (\bm{q} \oplus \delta \bm{q}) \oplus \bm{v} \f$ with
-     *             \f$ \delta \bm{q} \rightarrow 0 \f$ if arg == ARG0 or \f$ \delta \bm{v} \rightarrow 0 \f$ if arg == ARG1.
+     * @details    This Jacobian corresponds to the Jacobian of \f$ (\mathbf{q} \oplus \delta \mathbf{q}) \oplus \mathbf{v} \f$ with
+     *             \f$ \delta \mathbf{q} \rightarrow 0 \f$ if arg == ARG0 or \f$ \delta \mathbf{v} \rightarrow 0 \f$ if arg == ARG1.
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector.
@@ -122,8 +122,8 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     /**
      * @brief      Computes the Jacobian of a small variation of the configuration vector into tangent space at identity.
      *
-     * @details    This Jacobian corresponds to the Jacobian of \f$ (\bm{q} \oplus \delta \bm{q}) \oplus \bm{v} \f$ with
-     *             \f$ \delta \bm{q} \rightarrow 0 \f$.
+     * @details    This Jacobian corresponds to the Jacobian of \f$ (\mathbf{q} \oplus \delta \mathbf{q}) \oplus \mathbf{v} \f$ with
+     *             \f$ \delta \mathbf{q} \rightarrow 0 \f$.
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector.
@@ -138,8 +138,8 @@ SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     /**
      * @brief      Computes the Jacobian of a small variation of the tangent vector into tangent space at identity.
      *
-     * @details    This Jacobian corresponds to the Jacobian of \f$ \bm{q} \oplus (\bm{v}  + \delta \bm{v}) \f$ with
-     *             \f$ \delta \bm{v} \rightarrow 0 \f$.
+     * @details    This Jacobian corresponds to the Jacobian of \f$ \mathbf{q} \oplus (\mathbf{v}  + \delta \mathbf{v}) \f$ with
+     *             \f$ \delta \mathbf{v} \rightarrow 0 \f$.
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector.

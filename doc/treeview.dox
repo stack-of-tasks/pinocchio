@@ -20,6 +20,7 @@
 // This file strutures pages and modules into a convenient hierarchical structure.
 //
 
+/// \brief Main pinocchio namespace
 namespace pinocchio {
 
 
@@ -108,4 +109,28 @@ namespace pinocchio {
   /** \defgroup joint Joint */
   /** \defgroup parsers Parsers */
   /** \defgroup algorithms Algorithms */
+
+  /// \namespace pinocchio::container
+  /// \brief Specialized containers
+
+  /// \namespace pinocchio::buildModels
+  /// \brief Build simple models
+
+  /// \namespace pinocchio::forceSet
+  /// \brief Group force actions
+
+  /// \namespace pinocchio::motionSet
+  /// \brief Group motion actions
+
+  /// \namespace pinocchio::quaternion
+  /// \brief Quaternion operations
+
+  /// \namespace pinocchio::regressor
+  /// \brief Regressor computation
+
+  /// \namespace pinocchio::urdf
+  /// \brief URDF parsing
+
+  /// \namespace pinocchio::srdf
+  /// \brief SRDF parsing
 }
