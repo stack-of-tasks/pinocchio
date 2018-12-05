@@ -1,0 +1,120 @@
+*** Overview
+- ABSTRACT (taken from SII paper)
+- Installation link
+- Simplest example with compilation command (load urdf and run rnea)
+- More complete example with C++ and Python (load model and run a loop for an IK with 3D task)
+  # @GabrieleBndn I don't think it's needed. It can go in the tutorials
+  # @nmansard     Eigen copy-paste. It might be nice for visibility. Let's try, it is not much work.  
+- About Python wrapings (philosphy and example)
+- How to cite Pinocchio
+- Presentation of the content of the documentation.
+
+*** List of features
+# Take the list from SII, shorten the description and add url links to the doc.
+# This should act as an index for the "Features" part
+# Normally, it should be contained in a single page
+# It should contain url links for each page contained in "Features", possibly with short descriptions taken from SII
+# As an alternative, it may be directly moved to the next section as an introductory page
+
+*** Features
+# This section will be modeled on Eigen's "long tutorial".
+# It contains a description of all most important features of Pinocchio, from the user's point of view
+# Each section consists of a page and it teaches the user how to use a certain feature, using code snippets.
+- Spatial Algebra module
+- Model and data
+  # just explain the concept of model and data and what they contain. The explanation on how to build and/or load a model is delayed to the two following pages (explicitely say so from the start). Just use buildModels::humanoid(model) in the snippets [pending v2.0]
+- Joints [pending v2.0]
+  # Or: Building the model: joints and bodies. Maybe merge this section with previous one?
+  # @nmansard : I prefer this way of separing models of joint models.
+- Loading the model  # how to load from an external file
+- Dealing with Lie group geometry
+- Kinematic algorithms [pending v2.0]
+- Dynamic algorithms [pending v2.0]
+- Operational frames
+  # as frames are not necessary to understand the previous sections, it could be a good idea to treat them separately. Introduce them here together with the related algorithms
+  # @ nmansard good idea
+- Geometric models   # with related algos
+- Analytical derivatives [pending v2.0]
+- Automatic differentiation and source code generation [pending v2.0]
+- Python bindings
+- Unit test
+
+*** Examples
+# These should be a bunch of simple examples in Python and C++ doing key functionnalities.
+# They should be chosen so that the documentation is evident.
+# The code example both in C++ and Python should be in a stand-alone plain .cpp and .py file,
+# possibly added in unittest/doc/*.cpp and unittest/doc/python/*.py (to be defined).
+# It would then be straight forward to check at commit time that the .cpp are respecting
+# the current API of Pinocchio. If adding .py test feature in our build test, extending
+# to .py file test would be easy as well.
+- Loading the model
+- Computing the dynamics RNEA, bias forces b(q,v), gravity g(q), CRBA M(q)
+- Contact dynamics
+- Loading and displaying the model
+- Collision detection and distances
+- Derivatives of the dynamics (with finite diff checking)
+- Code generation
+- Inverse geometry
+- Inverse kinematics (clik)
+- Task space inverse dynamics
+- QP (normal forces) unilateral contact dynamics (if we can write it concise enough)
+- Posture generation using derivatives (if we can write it concise enough)
+- A RRT planner for a robot arm (if we can write it concise enough)
+- A RL tensorflow example (if we can write it concise enough)
+
+*** Mathematics
+# For each subpart, add the list of "main related topics" toward algo description, specification, etc
+# and add the direct url toward corresponding pages of the doc.
+- Overview: rigid dynamics, joint dynamics, articulated dynamics, algorithms
+- Rigid bodies: geomtry, kinematics and dynamics
+- Joint dynamics: geometry, configuration space, kinematics, tangent space, list of joints
+- Articulated dynamics: kinematic tree, configuration and velocity, geometry, kinematics and jacobian, inverse and direct dynamics
+- Collision volums
+- Main algorithm: list taken from SII
+- Templatization, autodiff, code gen
+
+*** Practical exercises
+# Documented exercises, could be followed by a newcomer to learn py-based Pinocchio
+# Based on @nmansard class
+- Intro
+- Inverse geometry
+- Inverse kinematics
+- Contact dynamics
+- Optimal control and reinforcement learning
+
+*** Implementation / Technical details
+- Overview: what is making Pinocchio efficient
+- Handling the sparsity
+- CRTP concept
+- Templatization, autodiff, code gen
+
+*** Benchmarks
+- Overview of algo with plots
+- Description of how to run the benchmarks
+
+*** Success stories
+# List of projects succesfully using pinocchio
+- TSID
+- HPP
+- DDP
+- Supaero class
+- WAN demonstration
+- List of papers with videos based on Pinocchio
+
+*** Modules
+# Main classes and functions (functions are yet missing)
+- Spatial
+- Multibody [pending v2.0]
+- Joint [pending v2.0]
+- Parsers
+- Algorithms [pending v2.0]
+# We also yet have benchmarks and unittests in the list. Better put then otherwise, is it not?
+
+*** Python "cheat sheet"
+# Main functionalities and commands to be used in python.
+# No clear ideas yet about how to present that info.
+
+*** Python Sphinx documentation
+# To be added once Sphinx doc of Pinocchio is mature.
+# OStasse suggests a new project that allows inserting sphinx in doxygen.
+# We first have to generate a stand-alone sphinx of pinocchio and double check that we are happy with it.

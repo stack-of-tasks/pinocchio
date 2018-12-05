@@ -1,0 +1,19 @@
+/* Customizing Doxygen output */
+
+/* Needed to allow line breaks in tables*/
+.memberdecls {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Needed to break long template names*/
+.memTemplItemLeft {
+  white-space: normal !important;
+  word-wrap: break-word;
+}
+
+/* Needed to break long template names*/
+.memItemLeft {
+  white-space: normal !important;
+  word-wrap: break-word;
+}

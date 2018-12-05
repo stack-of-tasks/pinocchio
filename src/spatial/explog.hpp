@@ -434,16 +434,18 @@ namespace pinocchio
   /** \brief Derivative of log6
    *  \f[
    *  \left(\begin{array}{cc}
-   *  Jlog3(R) & J * Jlog3(R) \\
-   *      0    &     Jlog3(R) \\
+   *  \text{Jlog3}(R) & J * \text{Jlog3}(R) \\
+   *            0     &     \text{Jlog3}(R) \\
    *  \end{array}\right)
+   *  \f]
    *  where
    *  \f[
+   *  \def\rot{R}
    *  \begin{eqnarray}
    *  J &=& 
-   *  \frac{1}{2}[\mathbf{p}]_{\times} + \dot{\beta} (\normr) \frac{\rot^T\mathbf{p}}{\normr}\rot\rot^T
-   *  - (\normr\dot{\beta} (\normr) + 2 \beta(\normr)) \mathbf{p}\rot^T\right.\\
-   *  &&\left. + \rot^T\mathbf{p}\beta (\normr)I_3 + \beta (\normr)\rot\mathbf{p}^T
+   *  \left.\frac{1}{2}[\mathbf{p}]_{\times} + \dot{\beta} (||r||) \frac{\rot^T\mathbf{p}}{||r||}\rot\rot^T
+   *  - (||r||\dot{\beta} (||r||) + 2 \beta(||r||)) \mathbf{p}\rot^T\right.\\
+   *  &&\left. + \rot^T\mathbf{p}\beta (||r||)I_3 + \beta (||r||)\rot\mathbf{p}^T\right.
    *  \end{eqnarray}
    *  \f]
    *  and

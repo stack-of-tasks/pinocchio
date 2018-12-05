@@ -9,6 +9,12 @@
 
 namespace pinocchio
 {
+
+  /**
+   * \addtogroup joint
+   * @{
+   */
+
   enum { MAX_JOINT_NV = 6 };
   
   struct JointModelVoid {};
@@ -84,6 +90,10 @@ namespace pinocchio
   struct JointDataTpl;
   typedef JointDataTpl<double> JointData;
   
+  /**
+   * @}
+   */
+  // end of group joint
 }
 
 #endif // ifndef __pinocchio_joint_fwd_hpp__
