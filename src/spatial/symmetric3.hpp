@@ -287,7 +287,7 @@ namespace pinocchio
     }
     
     ///
-    /// \brief Performs the operation \f$ M = S_{3} [v]_{\times \f$.
+    /// \brief Performs the operation \f$ M = S_{3} [v]_{\times} \f$.
     ///
     /// \tparam Vector3, Matrix3
     ///
@@ -328,7 +328,7 @@ namespace pinocchio
       M_(2,2) = d * v1 - e * v0;
     }
     
-    /// \brief Performs the operation \f$ M = S_{3} [v]_{\times \f$.
+    /// \brief Performs the operation \f$ M = S_{3} [v]_{\times} \f$.
     ///
     /// \tparam Vector3
     ///
