@@ -128,8 +128,8 @@ namespace pinocchio
     }
     
     ///
-    /// \brief Derivative of \f$ q = \exp{\bm{v} + \delta\bm{v}} \f$ where \f$ \delta\bm{v} \f$
-    ///        is a small perturbation of \f$ \bm{v} \f$ at identity.
+    /// \brief Derivative of \f$ q = \exp{\mathbf{v} + \delta\mathbf{v}} \f$ where \f$ \delta\mathbf{v} \f$
+    ///        is a small perturbation of \f$ \mathbf{v} \f$ at identity.
     ///
     /// \returns The Jacobian of the quaternion components variation.
     ///

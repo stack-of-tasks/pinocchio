@@ -28,12 +28,22 @@ namespace pinocchio
   template<typename Scalar, int Options=0> class InertiaTpl;
   template<typename Scalar, int Options=0> class Symmetric3Tpl;
 
+  /**
+   * \addtogroup spatial
+   * @{
+   */
+
   typedef SE3Tpl        <double,0> SE3;
   typedef MotionTpl     <double,0> Motion;
   typedef ForceTpl      <double,0> Force;
   typedef InertiaTpl    <double,0> Inertia;
   typedef Symmetric3Tpl <double,0> Symmetric3;
   typedef BiasZeroTpl   <double,0> BiasZero;
+
+  /**
+   * @}
+   */
+  // end of group spatial
 
   #define SPATIAL_TYPEDEF_TEMPLATE_GENERIC(derived,TYPENAME)              \
     typedef TYPENAME traits<derived>::Scalar Scalar; \

@@ -55,7 +55,7 @@ namespace pinocchio
     Matrix6 variation(const Motion & v) const { return derived().variation_impl(v); }
     
     /// \brief Time variation operator.
-    ///        It computes the time derivative of an inertia I corresponding to the formula \f$ \dot{I} = v \cross^{*} I \f$.
+    ///        It computes the time derivative of an inertia I corresponding to the formula \f$ \dot{I} = v \times^{*} I \f$.
     ///
     /// \param[in] v The spatial velocity of the frame supporting the inertia.
     /// \param[in] I The spatial inertia in motion.
@@ -76,7 +76,7 @@ namespace pinocchio
     }
     
     /// \brief Time variation operator.
-    ///        It computes the time derivative of an inertia I corresponding to the formula \f$ \dot{I} = v \cross^{*} I \f$.
+    ///        It computes the time derivative of an inertia I corresponding to the formula \f$ \dot{I} = v \times^{*} I \f$.
     ///
     /// \param[in] v The spatial velocity of the frame supporting the inertia.
     /// \param[in] I The spatial inertia in motion.

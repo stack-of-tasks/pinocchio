@@ -20,6 +20,7 @@
 // This file strutures pages and modules into a convenient hierarchical structure.
 //
 
+/// \brief Main pinocchio namespace
 namespace pinocchio {
 
 
@@ -29,76 +30,107 @@ namespace pinocchio {
 
   // \page md_doc__porting
 
-  /** \page md_doc_a-maths_intro Mathematical Formulation
-       - \subpage md_doc_a-maths_geometry
-       - \subpage md_doc_a-maths_kinematics
-       - \subpage md_doc_a-maths_dynamics
-       - \subpage md_doc_a-maths_se3
+  /** \page md_doc_a-features_intro Features
+        - \subpage md_doc_a-features_a-spatial
+        - \subpage md_doc_a-features_b-model-data
+        - \subpage md_doc_a-features_c-joints
+        - \subpage md_doc_a-features_d-model
+        - \subpage md_doc_a-features_e-lie
+        - \subpage md_doc_a-features_f-kinematic
+        - \subpage md_doc_a-features_g-dynamic
+        - \subpage md_doc_a-features_h-frames
+        - \subpage md_doc_a-features_i-geometric-models
+        - \subpage md_doc_a-features_j-analytical-derivatives
+        - \subpage md_doc_a-features_k-automatic-differentiation
+        - \subpage md_doc_a-features_l-python
+        - \subpage md_doc_a-features_m-tests
   */
 
-  /** \page md_doc_b-usage_intro Usage
-       - \subpage md_doc_b-usage_creating-models
-       - \subpage md_doc_b-usage_crtp
+  /** \page md_doc_b-examples_intro Examples
+        - \subpage md_doc_b-examples_a-model
+        - \subpage md_doc_b-examples_b-dynamics
+        - \subpage md_doc_b-examples_c-contact
+        - \subpage md_doc_b-examples_d-display
+        - \subpage md_doc_b-examples_e-collisions
+        - \subpage md_doc_b-examples_f-derivatives
+        - \subpage md_doc_b-examples_g-code-generation
+        - \subpage md_doc_b-examples_h-inverse-geometry
+        - \subpage md_doc_b-examples_i-inverse-kinematics
+        - \subpage md_doc_b-examples_j-tsid
+        - \subpage md_doc_b-examples_k-qp
+        - \subpage md_doc_b-examples_l-postures
+        - \subpage md_doc_b-examples_m-rrt
+        - \subpage md_doc_b-examples_n-rl
   */
 
-  /** \page md_doc_c-tutorials_intro Tutorials
-       - \subpage md_doc_c-tutorials_direct-geometry
-       - \subpage md_doc_c-tutorials_inverse-kinematics
+  /** \page md_doc_c-maths_intro Mathematical Formulation
+        - \subpage md_doc_c-maths_a-overview
+        - \subpage md_doc_c-maths_b-rigid-bodies
+        - \subpage md_doc_c-maths_c-joints
+        - \subpage md_doc_c-maths_d-articulated
+        - \subpage md_doc_c-maths_dynamics
+        - \subpage md_doc_c-maths_e-collisions
+        - \subpage md_doc_c-maths_e-miscs
+        - \subpage md_doc_c-maths_f-algorithms
+        - \subpage md_doc_c-maths_se3
   */
 
-  /** \page md_doc_d-labs_intro Labs
-       - \subpage md_doc_d-labs_1-directgeom
-       - \subpage md_doc_d-labs_2-invgeom
-       - \subpage md_doc_d-labs_3-invkine
-       - \subpage md_doc_d-labs_4-dyn
-       - \subpage md_doc_d-labs_5-planner
-       - \subpage md_doc_d-labs_6-wpg
-       - \subpage md_doc_d-labs_7-learn
+  /** \page md_doc_d-practical-exercises_intro Practical Exercises
+       - \subpage md_doc_d-practical-exercises_1-directgeom
+       - \subpage md_doc_d-practical-exercises_2-invgeom
+       - \subpage md_doc_d-practical-exercises_3-invkine
+       - \subpage md_doc_d-practical-exercises_4-dyn
+       - \subpage md_doc_d-practical-exercises_5-planner
+       - \subpage md_doc_d-practical-exercises_6-wpg
+       - \subpage md_doc_d-practical-exercises_7-learn
+  */
+
+  /** \page md_doc_e-implementation_intro Implementation / Technical details
+        - \subpage md_doc_e-implementation_a-overview
+        - \subpage md_doc_e-implementation_b-sparsity
+        - \subpage md_doc_e-implementation_c-crtp
+        - \subpage md_doc_e-implementation_d-miscs
+  */
+
+  /** \page md_doc_f-benchmarks_intro Benchmarks
+        - \subpage md_doc_f-benchmarks_a-overview
+        - \subpage md_doc_f-benchmarks_b-howto
+  */
+
+  /** \page md_doc_g-success-stories_intro Success Stories
   */
 
   //
   // Modules organization
   //
 
-  /** \defgroup algorithm_group Algorithms */
-  /** \defgroup math_group Math */
+  /** \defgroup spatial Spatial */
+  /** \defgroup multibody Multibody */
+  /** \defgroup joint Joint */
+  /** \defgroup parsers Parsers */
+  /** \defgroup algorithms Algorithms */
 
+  /// \namespace pinocchio::container
+  /// \brief Specialized containers
 
+  /// \namespace pinocchio::buildModels
+  /// \brief Build simple models
 
-  /** \defgroup multibody_group Multibody */
-  /** \addtogroup Joints_group Joints
-   *  \ingroup multibody_group
-   */
+  /// \namespace pinocchio::forceSet
+  /// \brief Group force actions
 
+  /// \namespace pinocchio::motionSet
+  /// \brief Group motion actions
 
-  /** \defgroup parsers_group Parsers */
-  /** \addtogroup Cinematic_group Cinematic
-   *  \ingroup parsers_group
-   */
-  /** \addtogroup Geometric_group Geometric
-   *  \ingroup parsers_group
-   */
+  /// \namespace pinocchio::quaternion
+  /// \brief Quaternion operations
 
+  /// \namespace pinocchio::regressor
+  /// \brief Regressor computation
 
+  /// \namespace pinocchio::urdf
+  /// \brief URDF parsing
 
-  /** \defgroup spatial_group Spatial */
-  /** \addtogroup Motion_group Motion
-   *  \ingroup spatial_group
-   */
-  /** \defgroup Force_group Force
-   *  \ingroup spatial_group
-   */
-  /** \addtogroup Inertia_group Inertia
-   *  \ingroup spatial_group
-   */
-  /** \addtogroup SE3_group SE3
-   *  \ingroup spatial_group
-   */
-
-
-  /** \defgroup tools_group Tools */
-
-  /** \defgroup bench_group Benchmarks */
-
-  /** \defgroup unittest_group Unittests */
+  /// \namespace pinocchio::srdf
+  /// \brief SRDF parsing
 }
