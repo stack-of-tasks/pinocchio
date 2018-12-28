@@ -10,6 +10,17 @@
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/parsers/urdf/types.hpp"
 
+/// \cond
+// Commented because this is needed in function prototypes.
+//#ifdef PINOCCHIO_WITH_HPP_FCL
+namespace fcl
+{
+  class MeshLoader;
+  typedef boost::shared_ptr<fcl::MeshLoader> MeshLoaderPtr;
+}
+//#endif // PINOCCHIO_WITH_HPP_FCL
+/// \endcond
+
 namespace pinocchio
 {
   namespace urdf
@@ -133,6 +144,7 @@ namespace pinocchio
      *                           obtained from calling pinocchio::rosPaths()
      *
      * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
+     * @param[in]   meshLoader   object used to load meshes: fcl::MeshLoader [default] or fcl::CachedMeshLoader.
      * @param[out]  geomModel    Reference where to put the parsed information.
      *
      * @return      Returns the reference on geom model for convenience.
@@ -145,7 +157,8 @@ namespace pinocchio
                               const std::string & filename,
                               const GeometryType type,
                               GeometryModel & geomModel,
-                              const std::vector<std::string> & packageDirs = std::vector<std::string> ())
+                              const std::vector<std::string> & packageDirs = std::vector<std::string> (),
+                              fcl::MeshLoaderPtr meshLoader = fcl::MeshLoaderPtr())
     throw (std::invalid_argument);
     
     /**
@@ -160,6 +173,7 @@ namespace pinocchio
      *                           typically obtained from calling pinocchio::rosPaths().
      *
      * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
+     * @param[in]   meshLoader   object used to load meshes: fcl::MeshLoader [default] or fcl::CachedMeshLoader.
      * @param[out]  geomModel    Reference where to put the parsed information.
      *
      * @return      Returns the reference on geom model for convenience.
@@ -172,11 +186,12 @@ namespace pinocchio
                               const std::string & filename,
                               const GeometryType type,
                               GeometryModel & geomModel,
-                              const std::string & packageDir)
+                              const std::string & packageDir,
+                              fcl::MeshLoaderPtr meshLoader = fcl::MeshLoaderPtr())
     throw (std::invalid_argument)
     {
       const std::vector<std::string> dirs(1,packageDir);
-      return buildGeom(model,filename,type,geomModel,dirs);
+      return buildGeom(model,filename,type,geomModel,dirs,meshLoader);
     }
 
     /**
@@ -192,6 +207,7 @@ namespace pinocchio
      *                           obtained from calling pinocchio::rosPaths()
      *
      * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
+     * @param[in]   meshLoader   object used to load meshes: fcl::MeshLoader [default] or fcl::CachedMeshLoader.
      * @param[out]  geomModel    Reference where to put the parsed information.
      *
      * @return      Returns the reference on geom model for convenience.
@@ -204,7 +220,8 @@ namespace pinocchio
                               const std::istream & xmlStream,
                               const GeometryType type,
                               GeometryModel & geomModel,
-                              const std::vector<std::string> & packageDirs = std::vector<std::string> ())
+                              const std::vector<std::string> & packageDirs = std::vector<std::string> (),
+                              fcl::MeshLoaderPtr meshLoader = fcl::MeshLoaderPtr())
     throw (std::invalid_argument);
     
     /**
@@ -219,6 +236,7 @@ namespace pinocchio
      *                           typically obtained from calling pinocchio::rosPaths().
      *
      * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
+     * @param[in]   meshLoader   object used to load meshes: fcl::MeshLoader [default] or fcl::CachedMeshLoader.
      * @param[out]  geomModel    Reference where to put the parsed information.
      *
      * @return      Returns the reference on geom model for convenience.
@@ -231,11 +249,12 @@ namespace pinocchio
                               const std::istream & xmlStream,
                               const GeometryType type,
                               GeometryModel & geomModel,
-                              const std::string & packageDir)
+                              const std::string & packageDir,
+                              fcl::MeshLoaderPtr meshLoader = fcl::MeshLoaderPtr())
     throw (std::invalid_argument)
     {
       const std::vector<std::string> dirs(1,packageDir);
-      return buildGeom(model,xmlStream,type,geomModel,dirs);
+      return buildGeom(model,xmlStream,type,geomModel,dirs, meshLoader);
     }
 
 
