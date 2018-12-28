@@ -7,6 +7,7 @@
 #include "pinocchio/bindings/python/multibody/fcl/collision-result.hpp"
 #include "pinocchio/bindings/python/multibody/fcl/distance-result.hpp"
 #include "pinocchio/bindings/python/multibody/fcl/collision-geometry.hpp"
+#include "pinocchio/bindings/python/multibody/fcl/mesh-loader.hpp"
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
@@ -27,6 +28,8 @@ namespace pinocchio
       StdVectorPythonVisitor<DistanceResultPythonVisitor::DistanceResult>::expose("StdVect_DistanceResult");
       
       CollisionGeometryPythonVisitor::expose();
+
+      MeshLoaderPythonVisitor::expose();
     }
     
   } // namespace python
