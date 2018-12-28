@@ -115,6 +115,34 @@ namespace pinocchio
         return geometry_model;
       }
 
+      static GeometryModel
+      buildGeomFromUrdf(const Model & model,
+                        const std::string & filename,
+                        const GeometryType type,
+                        const fcl::MeshLoaderPtr& meshLoader
+                        )
+      {
+        std::vector<std::string> hints;
+        GeometryModel geometry_model;
+        pinocchio::urdf::buildGeom(model,filename,type,geometry_model,hints,meshLoader);
+        
+        return geometry_model;
+      }
+
+      static GeometryModel
+      buildGeomFromUrdf(const Model & model,
+                        const std::string & filename,
+                        const std::vector<std::string> & package_dirs,
+                        const GeometryType type,
+                        const fcl::MeshLoaderPtr& meshLoader
+                        )
+      {
+        GeometryModel geometry_model;
+        pinocchio::urdf::buildGeom(model,filename,type,geometry_model,package_dirs,meshLoader);
+        
+        return geometry_model;
+      }
+
 #endif // #ifdef PINOCCHIO_WITH_URDFDOM
 
 #ifdef PINOCCHIO_WITH_LUA5
@@ -182,6 +210,17 @@ namespace pinocchio
       
       bp::def("buildGeomFromUrdf",
               static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              bp::args("Model to assosiate the Geometry","filename (string)"),
+              "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model ");
+
+      bp::def("buildGeomFromUrdf",
+              static_cast <GeometryModel (*) (const Model &, const std::string &, const std::vector<std::string> &, const GeometryType, const fcl::MeshLoaderPtr&)> (&ParsersPythonVisitor::buildGeomFromUrdf),
+              bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)"
+                       ),
+              "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model ");
+      
+      bp::def("buildGeomFromUrdf",
+              static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType, const fcl::MeshLoaderPtr&)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)"),
               "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model ");
       

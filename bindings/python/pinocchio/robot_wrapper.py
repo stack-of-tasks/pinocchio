@@ -18,7 +18,7 @@ class RobotWrapper(object):
         robot.initFromURDF(filename, package_dirs, root_joint, verbose)
         return robot
 
-    def initFromURDF(self,filename, package_dirs=None, root_joint=None, verbose=False):
+    def initFromURDF(self,filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None):
         if root_joint is None:
             model = pin.buildModelFromUrdf(filename)
         else:
@@ -31,16 +31,16 @@ class RobotWrapper(object):
                 print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
         else:
             if package_dirs is None:
-                self.collision_model = pin.buildGeomFromUrdf(self.model, filename, pin.GeometryType.COLLISION)
-                self.visual_model = pin.buildGeomFromUrdf(self.model, filename, pin.GeometryType.VISUAL)
+                self.collision_model = pin.buildGeomFromUrdf(self.model, filename, pin.GeometryType.COLLISION,meshLoader)
+                self.visual_model = pin.buildGeomFromUrdf(self.model, filename, pin.GeometryType.VISUAL, meshLoader)
             else:
                 if not all(isinstance(item, str) for item in package_dirs):
                     raise Exception('The list of package directories is wrong. At least one is not a string')
                 else:
                     collision_model = pin.buildGeomFromUrdf(model, filename,
-                                                            utils.fromListToVectorOfString(package_dirs), pin.GeometryType.COLLISION)
+                                                            utils.fromListToVectorOfString(package_dirs), pin.GeometryType.COLLISION, meshLoader)
                     visual_model = pin.buildGeomFromUrdf(model, filename,
-                                                         utils.fromListToVectorOfString(package_dirs), pin.GeometryType.VISUAL)
+                                                         utils.fromListToVectorOfString(package_dirs), pin.GeometryType.VISUAL, meshLoader)
 
 
         RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
