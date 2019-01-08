@@ -23,6 +23,19 @@ namespace pinocchio
       return randomConfiguration(model);
     }
 
+    bp::tuple dIntegrate_proxy(const Model & model,
+                               const Eigen::VectorXd& q,
+                               const Eigen::VectorXd& dq)
+    {
+      Eigen::MatrixXd J0(Eigen::MatrixXd::Zero(model.nv,model.nv));
+      Eigen::MatrixXd J1(Eigen::MatrixXd::Zero(model.nv,model.nv));
+
+      dIntegrate(model,q,dq,J0,ARG0);
+      dIntegrate(model,q,dq,J1,ARG1);
+
+      return bp::make_tuple(J0,J1);
+    }
+
     void exposeJointsAlgo()
     {
       using namespace Eigen;
@@ -34,6 +47,22 @@ namespace pinocchio
                        "Velocity v (size Model::nv)"),
               "Integrate the model for a tangent vector during one unit time .");
       
+      bp::enum_<ArgumentPosition>("ArgumentPosition")
+        .value("ARG0",ARG0)
+        .value("ARG1",ARG1)
+        .value("ARG2",ARG2)
+        .value("ARG3",ARG3)
+        .value("ARG4",ARG4)
+        ;
+
+      bp::def("dIntegrate",
+              &dIntegrate_proxy,
+              bp::args("Model",
+                       "Configuration q (size Model::nq)",
+                       "Velocity v (size Model::nv)"),
+              "Compute the partial derivatives of integrate function with respect to first "
+              "and second argument, and return the two jacobian as a tuple. ");
+
       bp::def("interpolate",
               &interpolate<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
