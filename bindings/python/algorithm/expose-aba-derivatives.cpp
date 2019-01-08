@@ -17,7 +17,7 @@ namespace pinocchio
       computeABADerivatives(model,data,q,v,tau);
     }
     typedef container::aligned_vector<Force> ForceAlignedVector;
-   void computeABADerivatives_fext(const Model & model, Data & data,
+    void computeABADerivatives_fext(const Model & model, Data & data,
                                     const Eigen::VectorXd & q,
                                     const Eigen::VectorXd & v,
                                     const Eigen::VectorXd & tau,
@@ -25,7 +25,7 @@ namespace pinocchio
     {
       computeABADerivatives(model,data,q,v,tau,fext);
     }
-    
+
     void exposeABADerivatives()
     {
       using namespace Eigen;
@@ -53,6 +53,5 @@ namespace pinocchio
               "velocity and torque vectors.\n"
               "The forces are of type StdVect_Force.");
     }
-    
   } // namespace python
 } // namespace pinocchio
