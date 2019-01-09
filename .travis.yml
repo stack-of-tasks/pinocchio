@@ -2,7 +2,7 @@ language: generic
 python:
   - "2.7"
 sudo: required
-dist: trusty
+dist: xenial
 git:
   depth: false
 compiler:
@@ -31,6 +31,9 @@ only:
   - debian
   - devel
 matrix:
+  include:
+    - dist: trusty
+    - dist: xenial
 allow_failures:
   - compiler:
 before_install: ./travis_custom/custom_before_install
