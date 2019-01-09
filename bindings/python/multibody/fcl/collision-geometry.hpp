@@ -34,7 +34,6 @@ namespace pinocchio
           .def("getNodeType",&CollisionGeometry::getNodeType,"Get the node type.")
           
           .def("computeLocalAABB",&CollisionGeometry::computeLocalAABB)
-          .def("isOccupied",&CollisionGeometry::isOccupied)
           .def("isFree",&CollisionGeometry::isFree)
           .def("isUncertain",&CollisionGeometry::isUncertain)
           
