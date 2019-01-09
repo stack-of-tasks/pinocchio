@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS, INRIA
+// Copyright (c) 2018)2019 CNRS, INRIA
 //
 
 #ifndef __pinocchio_lie_group_algo_hxx__
@@ -268,10 +268,9 @@ namespace pinocchio
                     const Eigen::MatrixBase<DistanceVectorOut> & distances)
     {
       typedef typename Visitor::LieGroupMap LieGroupMap;
-      
       typename LieGroupMap::template operation<JointModel>::type lgo;
       DistanceVectorOut & distances_ = EIGEN_CONST_CAST(DistanceVectorOut,distances);
-      distances_[(long)i] += lgo.squaredDistance(jmodel.jointConfigSelector(q0.derived()),
+      distances_[(Eigen::DenseIndex)i] += lgo.squaredDistance(jmodel.jointConfigSelector(q0.derived()),
                                                  jmodel.jointConfigSelector(q1.derived()));
     }
   };

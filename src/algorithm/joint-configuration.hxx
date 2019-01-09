@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS INRIA
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_configuration_hxx__
@@ -149,10 +149,10 @@ namespace pinocchio
     
     ReturnType distances(ReturnType::Zero(model.njoints-1));
     typedef SquaredDistanceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,ReturnType> Algo;
-    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    for(JointIndex i=0; i<(JointIndex) model.njoints-1; ++i)
     {
-      typename Algo::ArgsType args(i-1,q0.derived(),q1.derived(), distances);
-      Algo::run(model.joints[i], args);
+      typename Algo::ArgsType args(i,q0.derived(),q1.derived(), distances);
+      Algo::run(model.joints[i+1], args);
     }
     
     return distances;
