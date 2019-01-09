@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2019 CNRS, INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -21,7 +21,7 @@ Data::Matrix6x finiteDiffJacobian(const Model & model, Data & data, const Eigen:
 {
   Data::Matrix6x res(6,model.nv); res.setZero();
   VectorXd q_integrate (model.nq);
-  VectorXd v_integrate (model.nq); v_integrate.setZero();
+  VectorXd v_integrate (model.nv); v_integrate.setZero();
   
   forwardKinematics(model,data,q);
   const SE3 oMi_ref = data.oMi[joint_id];

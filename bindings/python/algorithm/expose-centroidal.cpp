@@ -27,7 +27,7 @@ namespace pinocchio
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),
-              "Computes the time derivative of the centroidal momentum matrix Ag in terms of q and v. It computes also the same information than ccrtba for the same price.",
+              "Computes the time derivative of the centroidal momentum matrix Ag in terms of q and v. It computes also the same information than ccrba for the same price.",
               bp::return_value_policy<bp::return_by_value>());
       
     }
