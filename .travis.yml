@@ -31,6 +31,9 @@ only:
   - debian
   - devel
 matrix:
+  include:
+    - dist: trusty
+    - dist: xenial
 allow_failures:
   - compiler:
 before_install: ./travis_custom/custom_before_install
