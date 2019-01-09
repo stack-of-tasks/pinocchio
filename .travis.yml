@@ -2,7 +2,7 @@ language: generic
 python:
   - "2.7"
 sudo: required
-dist: trusty
+dist: xenial
 git:
   depth: false
 compiler:

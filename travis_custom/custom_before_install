@@ -5,8 +5,8 @@ set -e
 set -x
 set -v
 
-# Add robotpkg 
-sudo sh -c "echo \"deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub trusty robotpkg\" >> /etc/apt/sources.list "
+# Add robotpkg
+sudo sh -c "echo \"deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub xenial robotpkg\" >> /etc/apt/sources.list "
 curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -
 
 # show memory usage before install
