@@ -110,8 +110,8 @@ namespace pinocchio
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
-                                  const typename Model::JointIndex,
-                                  const ReferenceFrame,
+                                  const typename Model::JointIndex &,
+                                  const ReferenceFrame &,
                                   Matrix6xOut1 &,
                                   Matrix6xOut2 &
                                   > ArgsType;
@@ -120,8 +120,8 @@ namespace pinocchio
     static void algo(const JointModelBase<JointModel> & jmodel,
                      const Model & model,
                      Data & data,
-                     const typename Model::JointIndex jointId,
-                     const ReferenceFrame rf,
+                     const typename Model::JointIndex & jointId,
+                     const ReferenceFrame & rf,
                      const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
                      const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
     {
@@ -216,8 +216,8 @@ namespace pinocchio
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
-                                  const typename Model::JointIndex,
-                                  const ReferenceFrame,
+                                  const typename Model::JointIndex &,
+                                  const ReferenceFrame &,
                                   Matrix6xOut1 &,
                                   Matrix6xOut2 &,
                                   Matrix6xOut3 &,
@@ -228,8 +228,8 @@ namespace pinocchio
     static void algo(const JointModelBase<JointModel> & jmodel,
                      const Model & model,
                      Data & data,
-                     const typename Model::JointIndex jointId,
-                     const ReferenceFrame rf,
+                     const typename Model::JointIndex & jointId,
+                     const ReferenceFrame & rf,
                      const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
                      const Eigen::MatrixBase<Matrix6xOut2> & a_partial_dq,
                      const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
