@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_basic_visitors_hxx__
@@ -113,13 +113,13 @@ namespace pinocchio
   {
     
     typedef boost::fusion::vector<Matrix6Type &,
-                                  const bool> ArgsType;
+                                  const bool &> ArgsType;
 
     template<typename JointModel>
     static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
                      pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Eigen::MatrixBase<Matrix6Type> & I,
-                     const bool update_I
+                     const bool & update_I
                      )
     {
       Matrix6Type & I_ = const_cast<Matrix6Type &>(I.derived());
