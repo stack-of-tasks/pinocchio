@@ -147,7 +147,12 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   MatrixXd dddq_dq_anal = -Ainv.topRows(model.nv).leftCols(model.nv) * data_check.dtau_dq;
   dddq_dq_anal -= Ainv.topRows(model.nv).rightCols(6) * a_partial_dq;
   
+  MatrixXd dlambda_dq_anal = Ainv.bottomRows(6).leftCols(model.nv) * data_check.dtau_dq;
+  dlambda_dq_anal += Ainv.bottomRows(6).rightCols(6) * a_partial_dq;
+  
   BOOST_CHECK(dddq_dq_anal.isApprox(dddq_dq,std::sqrt(eps)));
+  BOOST_CHECK(dlambda_dq_anal.isApprox(dlambda_dq,std::sqrt(eps)));
+  
 
 }
 
