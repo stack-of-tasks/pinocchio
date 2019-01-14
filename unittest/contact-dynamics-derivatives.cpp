@@ -1,0 +1,155 @@
+//
+// Copyright (c) 2019 INRIA
+//
+
+#include "pinocchio/algorithm/jacobian.hpp"
+#include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/rnea-derivatives.hpp"
+#include "pinocchio/algorithm/kinematics-derivatives.hpp"
+#include "pinocchio/algorithm/contact-dynamics.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
+#include "pinocchio/parsers/sample-models.hpp"
+
+#include <iostream>
+
+#include <boost/test/unit_test.hpp>
+#include <boost/utility/binary.hpp>
+
+BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
+
+BOOST_AUTO_TEST_CASE ( test_FD )
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model), data_check(model);
+  
+  VectorXd q = VectorXd::Ones(model.nq);
+  normalize(model,q);
+
+  computeJointJacobians(model, data, q);
+  
+  VectorXd v = VectorXd::Ones(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+  const Model::JointIndex RF_id = model.getJointId(RF);
+//  const std::string LF = "lleg6_joint";
+//  const Model::JointIndex LF_id = model.getJointId(LF);
+  
+  Data::Matrix6x J_RF(6,model.nv); J_RF.setZero();
+  getJointJacobian(model, data, RF_id, LOCAL, J_RF);
+  Motion::Vector6 gamma_RF; gamma_RF.setZero();
+  
+  forwardDynamics(model, data, q, v, tau, J_RF, gamma_RF);
+  VectorXd ddq_ref = data.ddq;
+  Force::Vector6 contact_force_ref = data.lambda_c;
+  
+  container::aligned_vector<Force> fext((size_t)model.njoints,Force::Zero());
+  fext[RF_id] = ForceRef<Force::Vector6>(contact_force_ref);
+  
+  // check call to RNEA
+  rnea(model,data_check,q,v,ddq_ref,fext);
+  
+  BOOST_CHECK(data_check.tau.isApprox(tau));
+  BOOST_CHECK(data_check.a[RF_id].toVector().isApprox(-gamma_RF));
+  
+  Data data_fd(model);
+  VectorXd q_plus(model.nq);
+  VectorXd v_eps(model.nv); v_eps.setZero();
+  VectorXd v_plus(v);
+  VectorXd tau_plus(tau);
+  const double eps = 1e-8;
+  
+  // check: dddq_dtau and dlambda_dtau
+  MatrixXd dddq_dtau(model.nv,model.nv);
+  Data::Matrix6x dlambda_dtau(6,model.nv);
+  
+  for(int k = 0; k < model.nv; ++k)
+  {
+    tau_plus[k] += eps;
+    forwardDynamics(model, data_fd, q, v, tau_plus, J_RF, gamma_RF);
+    
+    const Data::TangentVectorType & ddq_plus = data_fd.ddq;
+    Force::Vector6 contact_force_plus = data_fd.lambda_c;
+    
+    dddq_dtau.col(k) = (ddq_plus - ddq_ref)/eps;
+    dlambda_dtau.col(k) = (contact_force_plus - contact_force_ref)/eps;
+    
+    tau_plus[k] -= eps;
+  }
+    
+  MatrixXd A(model.nv+6,model.nv+6);
+  data.M.transpose().triangularView<Eigen::Upper>() = data.M.triangularView<Eigen::Upper>();
+  A.topLeftCorner(model.nv,model.nv) = data.M;
+  A.bottomLeftCorner(6, model.nv) = J_RF;
+  A.topRightCorner(model.nv, 6) = J_RF.transpose();
+  A.bottomRightCorner(6,6).setZero();
+  
+  MatrixXd Ainv = A.inverse();
+  BOOST_CHECK(Ainv.topRows(model.nv).leftCols(model.nv).isApprox(dddq_dtau,std::sqrt(eps)));
+  BOOST_CHECK(Ainv.bottomRows(6).leftCols(model.nv).isApprox(-dlambda_dtau,std::sqrt(eps)));
+  
+  // check: dddq_dv and dlambda_dv
+  MatrixXd dddq_dv(model.nv,model.nv);
+  Data::Matrix6x dlambda_dv(6,model.nv);
+  
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_plus[k] += eps;
+    forwardDynamics(model, data_fd, q, v_plus, tau, J_RF, gamma_RF);
+    
+    const Data::TangentVectorType & ddq_plus = data_fd.ddq;
+    Force::Vector6 contact_force_plus = data_fd.lambda_c;
+    
+    dddq_dv.col(k) = (ddq_plus - ddq_ref)/eps;
+    dlambda_dv.col(k) = (contact_force_plus - contact_force_ref)/eps;
+    
+    v_plus[k] -= eps;
+  }
+  
+  computeRNEADerivatives(model,data_check,q,v,VectorXd::Zero(model.nv));
+  MatrixXd dddq_dv_anal = -Ainv.topRows(model.nv).leftCols(model.nv) * data_check.dtau_dv;
+  MatrixXd dlambda_dv_anal = -Ainv.bottomRows(6).leftCols(model.nv) * data_check.dtau_dv;
+  
+  BOOST_CHECK(dddq_dv_anal.isApprox(dddq_dv,std::sqrt(eps)));
+  BOOST_CHECK(dlambda_dv_anal.isApprox(-dlambda_dv,std::sqrt(eps)));
+  
+  MatrixXd dddq_dq(model.nv,model.nv);
+  Data::Matrix6x dlambda_dq(6,model.nv);
+
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_eps[k] = eps;
+    q_plus = integrate(model,q,v_eps);
+    computeJointJacobians(model, data_fd, q_plus);
+    getJointJacobian(model, data_fd, RF_id, LOCAL, J_RF);
+    forwardDynamics(model, data_fd, q_plus, v, tau, J_RF, gamma_RF);
+    
+    const Data::TangentVectorType & ddq_plus = data_fd.ddq;
+    Force::Vector6 contact_force_plus = data_fd.lambda_c;
+    
+    dddq_dq.col(k) = (ddq_plus - ddq_ref)/eps;
+    dlambda_dq.col(k) = (contact_force_plus - contact_force_ref)/eps;
+    
+    v_eps[k] = 0.;
+  }
+  
+  computeRNEADerivatives(model,data_check,q,v,ddq_ref,fext);
+  Data::Matrix6x v_partial_dq(6,model.nv), a_partial_dq(6,model.nv), a_partial_dv(6,model.nv), a_partial_da(6,model.nv);
+  v_partial_dq.setZero(); a_partial_dq.setZero(); a_partial_dv.setZero(); a_partial_da.setZero();
+  Data data_kin(model);
+  computeForwardKinematicsDerivatives(model,data_kin,q,VectorXd::Zero(model.nv),ddq_ref);
+  getJointAccelerationDerivatives(model,data_kin,RF_id,LOCAL,v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
+  
+  MatrixXd dddq_dq_anal = -Ainv.topRows(model.nv).leftCols(model.nv) * data_check.dtau_dq;
+  dddq_dq_anal -= Ainv.topRows(model.nv).rightCols(6) * a_partial_dq;
+  
+  BOOST_CHECK(dddq_dq_anal.isApprox(dddq_dq,std::sqrt(eps)));
+
+}
+
+BOOST_AUTO_TEST_SUITE_END ()
+
