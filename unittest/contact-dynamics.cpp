@@ -1,12 +1,12 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2019 CNRS, INRIA
 //
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/dynamics.hpp"
+#include "pinocchio/algorithm/contact-dynamics.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/utils/timer.hpp"

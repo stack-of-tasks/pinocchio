@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018 CNRS INRIA
+# Copyright (c) 2015-2019 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
@@ -50,7 +50,7 @@ ADD_PINOCCHIO_UNIT_TEST(centroidal eigen3)
 ADD_PINOCCHIO_UNIT_TEST(com eigen3)
 ADD_PINOCCHIO_UNIT_TEST(jacobian eigen3)
 ADD_PINOCCHIO_UNIT_TEST(cholesky eigen3)
-ADD_PINOCCHIO_UNIT_TEST(dynamics eigen3)
+ADD_PINOCCHIO_UNIT_TEST(contact-dynamics eigen3)
 ADD_PINOCCHIO_UNIT_TEST(sample-models eigen3)
 ADD_PINOCCHIO_UNIT_TEST(kinematics eigen3)
 
