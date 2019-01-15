@@ -64,6 +64,15 @@ To cite **Pinocchio** in your academic research, please use the following bibtex
       year = {2015--2019}
      }
 ```
+and the following one for the reference to the paper introducing Pinocchio:
+```
+@inproceedings{carpentier2019pinocchio,
+  title={The Pinocchio C++ library -- A fast and flexible implementation of rigid body dynamics algorithms and their analytical derivatives},
+  author={Carpentier, Justin and Saurel, Guilhem and Buondonno, Gabriele and Mirabel, Joseph and Lamiraux, Florent and Stasse, Olivier and Mansard, Nicolas},
+  booktitle={IEEE International Symposium on System Integrations (SII)},
+  year={2019}
+}
+```
 
 The algorithms for the analytical derivatives of rigid-body dynamics algorithms are detailed here:
 ```
