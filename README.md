@@ -11,7 +11,7 @@ Besides, **Pinocchio** provides the analytical derivatives of the main Rigid-Bod
 **Pinocchio** is first tailored for legged robotics applications, but it can be used in extra contexts (biomechanics, computer graphics, etc.)
 It is built upon Eigen for linear algebra and FCL for collision detection. **Pinocchio** comes with a Python interface for fast code prototyping.
 
-**Pinocchio** is now at the hearth of various robotics softwares as the [Stack-of-Tasks](http://stack-of-tasks.github.io) or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc).
+**Pinocchio** is now at the heart of various robotics softwares as the [Stack-of-Tasks](http://stack-of-tasks.github.io) or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc).
 
 If you want to learn more on **Pinocchio** internal behaviors and main features, we invite you to read the related [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228).
 
