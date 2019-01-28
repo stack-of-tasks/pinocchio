@@ -5,6 +5,39 @@
 -->
 <robot name="romeo">
 
+  <group_state name="half_sitting" group="all">
+        <joint name="root_joint" value="0. 0. 1. 0. 0. 0. 1." />
+        <joint name="WAIST_P" value="1.0" />
+        <joint name="WAIST_R"  value="1.0" />
+        <joint name="CHEST"  value="0.0" />
+        <joint name="LARM_SHOULDER_P"  value="0.0" />
+        <joint name="LARM_SHOULDER_R"  value="0.0" />
+        <joint name="LARM_SHOULDER_Y"  value="0.0" />
+        <joint name="LARM_ELBOW"  value="0.0" />
+        <joint name="LARM_WRIST_Y"  value="0.0" />
+        <joint name="LARM_WRIST_P"  value="0.0" />
+        <joint name="LARM_WRIST_R"  value="0.0" />
+        <joint name="RARM_SHOULDER_P"  value="0.0" />
+        <joint name="RARM_SHOULDER_R"  value="0.0" />
+        <joint name="RARM_SHOULDER_Y"  value="0.0" />
+        <joint name="RARM_ELBOW"  value="0.0" />
+        <joint name="RARM_WRIST_Y"  value="0.0" />
+        <joint name="RARM_WRIST_P"  value="0.0" />
+        <joint name="RARM_WRIST_R"  value="0.0" />
+        <joint name="LLEG_HIP_R"  value="0.0" />
+        <joint name="LLEG_HIP_P"  value="0.0" />
+        <joint name="LLEG_HIP_Y"  value="0.0" />
+        <joint name="LLEG_KNEE"  value="0.0" />
+        <joint name="LLEG_ANKLE_P"  value="0.0" />
+        <joint name="LLEG_ANKLE_R"  value="0.0" />
+        <joint name="RLEG_HIP_R"  value="0.0" />
+        <joint name="RLEG_HIP_P"  value="0.0" />
+        <joint name="RLEG_HIP_Y"  value="0.0" />
+        <joint name="RLEG_KNEE"  value="0.0" />
+        <joint name="RLEG_ANKLE_P"  value="0.0" />
+        <joint name="RLEG_ANKLE_R"  value="0.0" />
+    </group_state>
+      
     <rotor_params>
         <joint name="WAIST_P" mass="1.0" gear_ratio="0.0" />
         <joint name="WAIST_R" mass="0.0" gear_ratio="1.0" />
