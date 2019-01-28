@@ -209,7 +209,7 @@ namespace pinocchio
     {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef typename Model::JointModel JointModel;
-      
+
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
       if (extension != "srdf")
@@ -247,19 +247,21 @@ namespace pinocchio
               if (joint_tag.first == "joint")
               {
                 std::string joint_name = joint_tag.second.get<std::string>("<xmlattr>.name");
-                const Scalar joint_config = (Scalar)joint_tag.second.get<double>("<xmlattr>.value");
                 typename Model::JointIndex joint_id = model.getJointId(joint_name);
 
                 // Search in model the joint and its config id
                 if (joint_id != model.joints.size()) // != model.njoints
                 {
                   const JointModel & joint = model.joints[joint_id];
-                  assert(joint.nq() == 1 && "SRDF:half_sitting only handles 1 DoF joints");
-                  model.neutralConfiguration(joint.idx_q()) = joint_config; // joint with 1 dof
-                  // model.neutralConfiguration.segment(joint.idx_q(),joint.nq()) = joint_config; // joint with more than 1 dof
+                  typename Model::ConfigVectorType joint_config(joint.nq());
+                  const std::string joint_val = joint_tag.second.get<std::string>("<xmlattr>.value");
+                  std::istringstream config_string(joint_val);
+                  const std::vector<double> config_vec((std::istream_iterator<double>(config_string)), std::istream_iterator<double>());
+                  joint_config = ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType::Map(config_vec.data(), config_vec.size());
+                  model.neutralConfiguration.segment(joint.idx_q(),joint.nq()) = joint_config;
                   if (verbose)
                   {
-                    std::cout << "(" << joint_name << " , " << joint_config << ")" << std::endl;
+                    std::cout << "(" << joint_name << " , " << joint_config.transpose() << ")" << std::endl;
                   }
                 }
                 else
