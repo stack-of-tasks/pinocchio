@@ -44,8 +44,8 @@ BOOST_AUTO_TEST_CASE(readNeutralConfig)
 {
   using namespace pinocchio::urdf;
   using namespace pinocchio::srdf;
-  const string model_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
-  const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/srdf/romeo.srdf";
+  const string model_filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
+  const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.srdf";
   
   Model model;
   buildModel(model_filename, model);
