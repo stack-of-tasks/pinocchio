@@ -256,8 +256,8 @@ namespace pinocchio
                   typename Model::ConfigVectorType joint_config(joint.nq());
                   const std::string joint_val = joint_tag.second.get<std::string>("<xmlattr>.value");
                   std::istringstream config_string(joint_val);
-                  const std::vector<double> config_vec((std::istream_iterator<double>(config_string)), std::istream_iterator<double>());
-                  joint_config = ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType::Map(config_vec.data(), config_vec.size());
+                  std::vector<double> config_vec((std::istream_iterator<double>(config_string)), std::istream_iterator<double>());
+                  joint_config = Eigen::Map<typename Model::ConfigVectorType>(config_vec.data(), config_vec.size());
                   model.neutralConfiguration.segment(joint.idx_q(),joint.nq()) = joint_config;
                   if (verbose)
                   {
