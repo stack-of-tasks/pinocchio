@@ -242,13 +242,14 @@ namespace pinocchio
           if( name == "half_sitting")
           {
             // Iterate over all the joint tags
-            BOOST_FOREACH(const ptree::value_type & joint, v.second)
+            BOOST_FOREACH(const ptree::value_type & joint_tag, v.second)
             {
-              if (joint.first == "joint")
+              if (joint_tag.first == "joint")
               {
-                std::string joint_name = joint.second.get<std::string>("<xmlattr>.name");
-                const Scalar joint_config = (Scalar)joint.second.get<double>("<xmlattr>.value");
+                std::string joint_name = joint_tag.second.get<std::string>("<xmlattr>.name");
+                const Scalar joint_config = (Scalar)joint_tag.second.get<double>("<xmlattr>.value");
                 typename Model::JointIndex joint_id = model.getJointId(joint_name);
+
                 // Search in model the joint and its config id
                 if (joint_id != model.joints.size()) // != model.njoints
                 {
