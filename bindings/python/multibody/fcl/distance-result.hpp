@@ -23,7 +23,7 @@ namespace pinocchio
       
       struct DistanceResultPythonVisitor : public bp::def_visitor<DistanceResultPythonVisitor>
       {
-        typedef ::fcl::DistanceResult DistanceResult;
+        typedef ::hpp::fcl::DistanceResult DistanceResult;
         
         template<class PyClass>
         void visit(PyClass& cl) const
@@ -54,8 +54,8 @@ namespace pinocchio
         
       private:
         
-        static ::fcl::Vec3f getNearestPoint1(const DistanceResult & res) { return res.nearest_points[0]; }
-        static ::fcl::Vec3f getNearestPoint2(const DistanceResult & res) { return res.nearest_points[1]; }
+        static ::hpp::fcl::Vec3f getNearestPoint1(const DistanceResult & res) { return res.nearest_points[0]; }
+        static ::hpp::fcl::Vec3f getNearestPoint2(const DistanceResult & res) { return res.nearest_points[1]; }
         
       };
       

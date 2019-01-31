@@ -61,6 +61,10 @@ namespace pinocchio
 
   }
 
+#else
+
+  namespace fcl = hpp::fcl;
+
 #endif // PINOCCHIO_WITH_HPP_FCL
 
 enum GeometryType
