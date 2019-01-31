@@ -30,16 +30,24 @@ class RobotWrapper(object):
             if verbose:
                 print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
         else:
+            if verbose and "removeCollisionPairs" not in dir(pin) and meshLoader is not None:
+                print('Info: Pinocchio was compiled without hpp-fcl. meshLoader is ignored.')
+            def _buildGeomFromUrdf (model, filename, geometryType, meshLoader):
+                if "removeCollisionPairs" not in dir(pin):
+                    return pin.buildGeomFromUrdf(model, filename, geometryType)
+                else:
+                    return pin.buildGeomFromUrdf(model, filename, geometryType,meshLoader)
+
             if package_dirs is None:
-                self.collision_model = pin.buildGeomFromUrdf(self.model, filename, pin.GeometryType.COLLISION,meshLoader)
-                self.visual_model = pin.buildGeomFromUrdf(self.model, filename, pin.GeometryType.VISUAL, meshLoader)
+                self.collision_model = _buildGeomFromUrdf(self.model, filename, pin.GeometryType.COLLISION,meshLoader)
+                self.visual_model = _buildGeomFromUrdf(self.model, filename, pin.GeometryType.VISUAL, meshLoader)
             else:
                 if not all(isinstance(item, str) for item in package_dirs):
                     raise Exception('The list of package directories is wrong. At least one is not a string')
                 else:
-                    collision_model = pin.buildGeomFromUrdf(model, filename,
+                    collision_model = _buildGeomFromUrdf(model, filename,
                                                             utils.fromListToVectorOfString(package_dirs), pin.GeometryType.COLLISION, meshLoader)
-                    visual_model = pin.buildGeomFromUrdf(model, filename,
+                    visual_model = _buildGeomFromUrdf(model, filename,
                                                          utils.fromListToVectorOfString(package_dirs), pin.GeometryType.VISUAL, meshLoader)
 
 
