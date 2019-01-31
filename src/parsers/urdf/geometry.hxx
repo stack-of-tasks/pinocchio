@@ -445,7 +445,9 @@ namespace pinocchio
         std::vector<std::string> ros_pkg_paths = rosPaths();
         hint_directories.insert(hint_directories.end(), ros_pkg_paths.begin(), ros_pkg_paths.end());
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
         if (!meshLoader) meshLoader = fcl::MeshLoaderPtr(new fcl::MeshLoader);
+#endif // ifdef PINOCCHIO_WITH_HPP_FCL
         
         details::parseTreeForGeom(tree, meshLoader, tree.urdf_->getRoot(), model, geomModel, hint_directories,type);
         return geomModel;
