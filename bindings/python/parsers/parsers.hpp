@@ -115,6 +115,7 @@ namespace pinocchio
         return geometry_model;
       }
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
       static GeometryModel
       buildGeomFromUrdf(const Model & model,
                         const std::string & filename,
@@ -142,6 +143,8 @@ namespace pinocchio
         
         return geometry_model;
       }
+
+#endif // #ifdef PINOCCHIO_WITH_HPP_FCL
 
 #endif // #ifdef PINOCCHIO_WITH_URDFDOM
 
@@ -213,6 +216,8 @@ namespace pinocchio
               bp::args("Model to assosiate the Geometry","filename (string)"),
               "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model ");
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
+
       bp::def("buildGeomFromUrdf",
               static_cast <GeometryModel (*) (const Model &, const std::string &, const std::vector<std::string> &, const GeometryType, const fcl::MeshLoaderPtr&)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)"
@@ -223,8 +228,6 @@ namespace pinocchio
               static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType, const fcl::MeshLoaderPtr&)> (&ParsersPythonVisitor::buildGeomFromUrdf),
               bp::args("Model to assosiate the Geometry","filename (string)"),
               "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model ");
-      
-#ifdef PINOCCHIO_WITH_HPP_FCL
       
       bp::def("removeCollisionPairs",
               static_cast<void (*)(const Model &, GeometryModel &, const std::string &, const bool)>(&srdf::removeCollisionPairs),
