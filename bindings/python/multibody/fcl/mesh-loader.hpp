@@ -23,10 +23,10 @@ namespace pinocchio
       
       struct MeshLoaderPythonVisitor : public bp::def_visitor<MeshLoaderPythonVisitor>
       {
-        typedef ::fcl::MeshLoader MeshLoader;
+        typedef ::hpp::fcl::MeshLoader MeshLoader;
         typedef boost::shared_ptr<MeshLoader> MeshLoaderPtr_t;
 
-        typedef ::fcl::CachedMeshLoader CachedMeshLoader;
+        typedef ::hpp::fcl::CachedMeshLoader CachedMeshLoader;
         typedef boost::shared_ptr<CachedMeshLoader> CachedMeshLoaderPtr_t;
 
         template <typename T>
