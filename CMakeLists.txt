@@ -69,7 +69,7 @@ MACRO(TAG_LIBRARY_VERSION target)
 ENDMACRO(TAG_LIBRARY_VERSION)
 
 # ----------------------------------------------------
-# --- DEPENDANCIES -----------------------------------
+# --- DEPENDENCIES -----------------------------------
 # ----------------------------------------------------
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.0")
