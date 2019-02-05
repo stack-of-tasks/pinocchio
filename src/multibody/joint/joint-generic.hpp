@@ -5,7 +5,6 @@
 #ifndef __pinocchio_joint_generic_hpp__
 #define __pinocchio_joint_generic_hpp__
 
-#include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
