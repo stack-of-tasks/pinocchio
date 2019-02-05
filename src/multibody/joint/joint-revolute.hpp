@@ -91,7 +91,7 @@ namespace pinocchio
   struct TransformRevoluteTpl : SE3Base< TransformRevoluteTpl<_Scalar,_Options,axis> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    SE3_TYPEDEF_TPL(TransformRevoluteTpl);
+    PINOCCHIO_SE3_TYPEDEF_TPL(TransformRevoluteTpl);
     typedef typename traits<TransformRevoluteTpl>::PlainType PlainType;
     
     TransformRevoluteTpl() {}
@@ -576,7 +576,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteTpl<_Scalar,_Options,axis> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
 
     typedef JointModelBase<JointModelRevoluteTpl> Base;
     using Base::id;

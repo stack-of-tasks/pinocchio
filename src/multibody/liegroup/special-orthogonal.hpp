@@ -48,7 +48,7 @@ namespace pinocchio
   struct SpecialOrthogonalOperationTpl<2,_Scalar,_Options>
   : public LieGroupBase< SpecialOrthogonalOperationTpl<2,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
+    PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
 
     template<typename Matrix2Like>
@@ -254,7 +254,7 @@ namespace pinocchio
   struct SpecialOrthogonalOperationTpl<3,_Scalar,_Options>
   : public LieGroupBase< SpecialOrthogonalOperationTpl<3,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
+    PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
 
     typedef Eigen::Quaternion<Scalar> Quaternion_t;
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;

@@ -133,8 +133,8 @@ namespace pinocchio
     
     typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
 
-    SE3_JOINT_TYPEDEF_TEMPLATE;
-    SE3_JOINT_USE_INDEXES;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_USE_INDEXES;
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
     typedef typename JointCollection::JointDataVariant JointDataVariant;

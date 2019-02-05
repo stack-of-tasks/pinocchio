@@ -195,7 +195,7 @@ namespace pinocchio
   struct TransformPrismaticTpl : SE3Base< TransformPrismaticTpl<_Scalar,_Options,axis> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    SE3_TYPEDEF_TPL(TransformPrismaticTpl);
+    PINOCCHIO_SE3_TYPEDEF_TPL(TransformPrismaticTpl);
     typedef typename traits<TransformPrismaticTpl>::PlainType PlainType;
     
     typedef SpatialAxis<axis+LINEAR> Axis;
@@ -499,7 +499,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPrismaticTpl<_Scalar,_Options,axis> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
     
     typedef JointModelBase<JointModelPrismaticTpl> Base;
     using Base::id;

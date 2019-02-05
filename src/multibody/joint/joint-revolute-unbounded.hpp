@@ -87,7 +87,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteUnboundedTpl<_Scalar,_Options,axis> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
     typedef JointRevoluteTpl<Scalar,_Options,axis> JointDerivedBase;
     
     typedef JointModelBase<JointModelRevoluteUnboundedTpl> Base;

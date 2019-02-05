@@ -43,7 +43,7 @@ namespace pinocchio
   template<typename LieGroup1, typename LieGroup2>
   struct CartesianProductOperation : public LieGroupBase <CartesianProductOperation<LieGroup1, LieGroup2> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(CartesianProductOperation);
+    PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(CartesianProductOperation);
 
     CartesianProductOperation () : lg1_ (), lg2_ ()
     {

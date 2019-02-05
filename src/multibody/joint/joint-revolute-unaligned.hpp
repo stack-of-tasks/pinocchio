@@ -446,7 +446,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteUnalignedTpl<_Scalar,_Options> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
     typedef Eigen::Matrix<Scalar,3,1,_Options> Vector3;
     
     typedef JointModelBase<JointModelRevoluteUnalignedTpl> Base;

@@ -200,7 +200,7 @@ namespace pinocchio
   : SE3Base< TransformTranslationTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    SE3_TYPEDEF_TPL(TransformTranslationTpl);
+    PINOCCHIO_SE3_TYPEDEF_TPL(TransformTranslationTpl);
     typedef typename traits<TransformTranslationTpl>::PlainType PlainType;
     
     TransformTranslationTpl() {}
@@ -479,7 +479,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef JointTranslationTpl<_Scalar,_Options> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
     
     typedef JointModelBase<JointModelTranslationTpl> Base;
     using Base::id;

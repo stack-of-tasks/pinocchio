@@ -119,7 +119,7 @@ namespace pinocchio
     
     typedef JointModelBase<JointModelCompositeTpl> Base;
     typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
     typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelVariant;

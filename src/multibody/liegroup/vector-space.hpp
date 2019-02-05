@@ -30,7 +30,7 @@ namespace pinocchio
   struct VectorSpaceOperationTpl
   : public LieGroupBase< VectorSpaceOperationTpl<Dim,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(VectorSpaceOperationTpl);
+    PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(VectorSpaceOperationTpl);
 
     /// Constructor
     /// \param size size of the vector space: should be the equal to template

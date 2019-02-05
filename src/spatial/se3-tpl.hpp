@@ -40,7 +40,7 @@ namespace pinocchio
   struct SE3Tpl : public SE3Base< SE3Tpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    SE3_TYPEDEF_TPL(SE3Tpl);
+    PINOCCHIO_SE3_TYPEDEF_TPL(SE3Tpl);
     typedef SE3Base< SE3Tpl<_Scalar,_Options> > Base;
     typedef Eigen::Quaternion<Scalar,Options> Quaternion;
     typedef typename traits<SE3Tpl>::Vector3 Vector3;

@@ -43,7 +43,7 @@ namespace pinocchio
   struct SpecialEuclideanOperationTpl<2,_Scalar,_Options>
   : public LieGroupBase <SpecialEuclideanOperationTpl<2,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
+    PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
     
     typedef VectorSpaceOperationTpl<2,Scalar,Options>       R2_t;
     typedef SpecialOrthogonalOperationTpl<2,Scalar,Options> SO2_t;
@@ -381,7 +381,7 @@ namespace pinocchio
   struct SpecialEuclideanOperationTpl<3,_Scalar,_Options>
   : public LieGroupBase <SpecialEuclideanOperationTpl<3,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
+    PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
     
     typedef CartesianProductOperation <VectorSpaceOperationTpl<3,Scalar,Options>, SpecialOrthogonalOperationTpl<3,Scalar,Options> > R3crossSO3_t;
 

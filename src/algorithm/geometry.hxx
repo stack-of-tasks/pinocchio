@@ -229,7 +229,7 @@ namespace pinocchio
 
   /// Given p1..3 being either "min" or "max", return one of the corners of the 
   /// AABB cub of the FCL object.
-#define SE3_GEOM_AABB(FCL,p1,p2,p3)                                     \
+#define PINOCCHIO_GEOM_AABB(FCL,p1,p2,p3)                                     \
   SE3::Vector3(                                                         \
     FCL->aabb_local.p1##_ [0],                                          \
     FCL->aabb_local.p2##_ [1],                                          \
@@ -256,21 +256,21 @@ namespace pinocchio
 
       // The radius is simply the one of the 8 corners of the AABB cube, expressed 
       // in the joint frame, whose norm is the highest.
-      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,min,min,min)).squaredNorm(),radius);
-      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,min,min,max)).squaredNorm(),radius);
-      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,min,max,min)).squaredNorm(),radius);
-      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,min,max,max)).squaredNorm(),radius);
-      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,max,min,min)).squaredNorm(),radius);
-      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,max,min,max)).squaredNorm(),radius);
-      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,max,max,min)).squaredNorm(),radius);
-      radius = std::max (jMb.act(SE3_GEOM_AABB(fcl,max,max,max)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,min,min,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,min,min,max)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,min,max,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,min,max,max)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,max,min,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,max,min,max)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,max,max,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,max,max,max)).squaredNorm(),radius);
 
       // Don't forget to sqroot the squared norm before storing it.
       geomData.radius[i] = sqrt(radius);
     }
   }
 
-#undef SE3_GEOM_AABB
+#undef PINOCCHIO_GEOM_AABB
 #endif // PINOCCHIO_WITH_HPP_FCL
 
   /* --- APPEND GEOMETRY MODEL ----------------------------------------------------------- */
