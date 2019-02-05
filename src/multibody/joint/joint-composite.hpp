@@ -119,7 +119,7 @@ namespace pinocchio
     
     typedef JointModelBase<JointModelCompositeTpl> Base;
     typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
     typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelVariant;
@@ -251,7 +251,7 @@ namespace pinocchio
       data.UDinv.noalias() = data.U * data.Dinv;
 
       if (update_I)
-        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
 
     Scalar finiteDifferenceIncrement() const

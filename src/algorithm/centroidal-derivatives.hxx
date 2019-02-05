@@ -108,7 +108,7 @@ namespace pinocchio
     static void addForceCrossMatrix(const ForceDense<ForceDerived> & f,
                                     const Eigen::MatrixBase<M6> & mout)
     {
-      M6 & mout_ = EIGEN_CONST_CAST(M6,mout);
+      M6 & mout_ = PINOCCHIO_EIGEN_CONST_CAST(M6,mout);
       addSkew(-f.linear(),mout_.template block<3,3>(ForceDerived::LINEAR,ForceDerived::ANGULAR));
       addSkew(-f.linear(),mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::LINEAR));
       addSkew(-f.angular(),mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::ANGULAR));
@@ -179,7 +179,7 @@ namespace pinocchio
                                const Eigen::MatrixBase<Min> & J,
                                const Eigen::MatrixBase<Mout> & F)
     {
-      Mout & F_ = EIGEN_CONST_CAST(Mout,F);
+      Mout & F_ = PINOCCHIO_EIGEN_CONST_CAST(Mout,F);
       motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   }; // struct CentroidalDynDerivativesBackwardStep
@@ -202,8 +202,8 @@ namespace pinocchio
       {
         typedef ForceRef<typename Matrix6xLikeIn::ColXpr> ForceTypeIn;
         typedef ForceRef<typename Matrix6xLikeOut::ColXpr> ForceTypeOut;
-        ForceTypeOut fout(EIGEN_CONST_CAST(Matrix6xLikeOut,Fout).col(k));
-        const ForceTypeIn fin(EIGEN_CONST_CAST(Matrix6xLikeIn,Fin).col(k));
+        ForceTypeOut fout(PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLikeOut,Fout).col(k));
+        const ForceTypeIn fin(PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLikeIn,Fin).col(k));
         fout.linear() = fin.linear();
         fout.angular().noalias() = fin.angular() - v3.cross(fin.linear());
       }
@@ -279,9 +279,9 @@ namespace pinocchio
     data.Ig.inertia() = Ytot.inertia();
     
     // Compute the partial derivatives
-    translateForceSet(data.dFdq,com,EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
-    translateForceSet(data.dFdv,com,EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
-    translateForceSet(data.dFda,com,EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
+    translateForceSet(data.dFdq,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
+    translateForceSet(data.dFdv,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
+    translateForceSet(data.dFda,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -389,9 +389,9 @@ namespace pinocchio
     data.Ig.inertia() = Ytot.inertia();
     
     // Retrieve the partial derivatives from RNEA derivatives
-    translateForceSet(data.Fcrb[0],com,EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
-    translateForceSet(data.dFdv,com,EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
-    translateForceSet(data.dFda,com,EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
+    translateForceSet(data.Fcrb[0],com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
+    translateForceSet(data.dFdv,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
+    translateForceSet(data.dFda,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
   }
   
 } // namespace pinocchio

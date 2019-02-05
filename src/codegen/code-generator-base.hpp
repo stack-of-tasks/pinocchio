@@ -122,7 +122,7 @@ namespace pinocchio
     {
       assert(build_forward);
       
-      generatedFun_ptr->ForwardZero(EIGEN_CONST_CAST(Vector,x),y);
+      generatedFun_ptr->ForwardZero(PINOCCHIO_EIGEN_CONST_CAST(Vector,x),y);
     }
     
     template<typename Vector>
@@ -130,7 +130,7 @@ namespace pinocchio
     {
       assert(build_jacobian);
       
-      CppAD::cg::ArrayView<const Scalar> x_(EIGEN_CONST_CAST(Vector,x).data(),(size_t)x.size());
+      CppAD::cg::ArrayView<const Scalar> x_(PINOCCHIO_EIGEN_CONST_CAST(Vector,x).data(),(size_t)x.size());
       CppAD::cg::ArrayView<Scalar> jac_(jac.data(),(size_t)jac.size());
       generatedFun_ptr->Jacobian(x_,jac_);
     }

@@ -43,7 +43,7 @@ namespace pinocchio
   struct SpecialEuclideanOperationTpl<2,_Scalar,_Options>
   : public LieGroupBase <SpecialEuclideanOperationTpl<2,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
+    PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
     
     typedef VectorSpaceOperationTpl<2,Scalar,Options>       R2_t;
     typedef SpecialOrthogonalOperationTpl<2,Scalar,Options> SO2_t;
@@ -68,13 +68,13 @@ namespace pinocchio
 
       if (math::fabs(omega) > 1e-14)
       {
-        typename EIGEN_PLAIN_TYPE(Vector2Like) vcross(-v(1), v(0));
+        typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector2Like) vcross(-v(1), v(0));
         vcross /= omega;
-        EIGEN_CONST_CAST(Vector2Like,t).noalias() = vcross - R * vcross;
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).noalias() = vcross - R * vcross;
       }
       else
       {
-        EIGEN_CONST_CAST(Vector2Like,t) = v.template head<2>();
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t) = v.template head<2>();
       }
     }
 
@@ -89,9 +89,9 @@ namespace pinocchio
       
       typedef typename Matrix3Like::Scalar Scalar;
       
-      Matrix3Like & Mout = EIGEN_CONST_CAST(Matrix3Like,M);
+      Matrix3Like & Mout = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,M);
       Mout.template topLeftCorner<2,2>() = R.transpose();
-      typename EIGEN_PLAIN_TYPE(Vector2Like) tinv(R.transpose() * t);
+      typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector2Like) tinv(R.transpose() * t);
       Mout.template topRightCorner<2,1>() << - tinv(1), tinv(0);
       Mout.template bottomLeftCorner<1,2>().setZero();
       Mout(2,2) = (Scalar)1;
@@ -106,7 +106,7 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector2Like, 2);
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(TangentVector_t,TangentVector);
       
-      TangentVector & vout = EIGEN_CONST_CAST(TangentVector,v);
+      TangentVector & vout = PINOCCHIO_EIGEN_CONST_CAST(TangentVector,v);
 
       typedef typename Matrix2Like::Scalar Scalar1;
       
@@ -139,7 +139,7 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector2Like, 2);
       EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianOutLike, JacobianMatrix_t);
       
-      JacobianOutLike & Jout = EIGEN_CONST_CAST(JacobianOutLike,J);
+      JacobianOutLike & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOutLike,J);
 
       typedef typename Matrix2Like::Scalar Scalar1;
       
@@ -162,7 +162,7 @@ namespace pinocchio
         alpha_dot = (st-t) * inv_2_1_ct;
       }
 
-      typename EIGEN_PLAIN_TYPE(Matrix2Like) V;
+      typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix2Like) V;
       V(0,0) = V(1,1) = alpha;
       V(1,0) = - t / 2;
       V(0,1) = - V(1,0);
@@ -205,7 +205,7 @@ namespace pinocchio
     {
       if (q0 == q1)
       {
-        EIGEN_CONST_CAST(Tangent_t,d).setZero();
+        PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d).setZero();
         return;
       }
       Matrix2 R0, R1; Vector2 t0, t1;
@@ -235,7 +235,7 @@ namespace pinocchio
         // pcross = [ y1-y0, - (x1 - x0) ]
         Vector2 pcross (q1(1) - q0(1), q0(0) - q1(0));
 
-        JacobianOut_t& J0 = EIGEN_CONST_CAST(JacobianOut_t, J);
+        JacobianOut_t& J0 = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J);
         J0.template topLeftCorner <2,2> ().noalias() = - R.transpose();
         J0.template topRightCorner<2,1> ().noalias() = R1.transpose() * pcross;
         J0.template bottomLeftCorner <1,2> ().setZero();
@@ -251,7 +251,7 @@ namespace pinocchio
                                const Eigen::MatrixBase<Velocity_t> & v,
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
-      ConfigOut_t & out = EIGEN_CONST_CAST(ConfigOut_t,qout);
+      ConfigOut_t & out = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
 
       Matrix2 R0, R;
       Vector2 t0, t;
@@ -268,7 +268,7 @@ namespace pinocchio
     {
       assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
       
-      Jacobian_t & Jout = EIGEN_CONST_CAST(Jacobian_t,J);
+      Jacobian_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J);
       Jout.setZero();
       
       const typename Config_t::Scalar & c_theta = q(2),
@@ -283,7 +283,7 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Tangent_t>  & v,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
+      JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
 
       Matrix2 R;
       Vector2 t;
@@ -297,7 +297,7 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Tangent_t> & v,
                                    const Eigen::MatrixBase<JacobianOut_t> & J)
     {
-      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
+      JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       // TODO sparse version
       MotionTpl<Scalar,0> nu; nu.toVector() << v.template head<2>(), 0, 0, 0, v[2]; 
       Eigen::Matrix<Scalar,6,6> Jtmp6;
@@ -319,7 +319,7 @@ namespace pinocchio
     template <class Config_t>
     static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
     {
-      EIGEN_CONST_CAST(Config_t,qout).template tail<2>().normalize();
+      PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout).template tail<2>().normalize();
     }
 
     template <class Config_t>
@@ -356,10 +356,10 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Vector2Like, Vector2);
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,Vector4Like);
 
-      EIGEN_CONST_CAST(Vector2Like,t) = q.template head<2>();
+      PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t) = q.template head<2>();
       const typename Vector4Like::Scalar & c_theta = q(2),
                                          & s_theta = q(3);
-      EIGEN_CONST_CAST(Matrix2Like,R) << c_theta, -s_theta, s_theta, c_theta;
+      PINOCCHIO_EIGEN_CONST_CAST(Matrix2Like,R) << c_theta, -s_theta, s_theta, c_theta;
       
     }
   }; // struct SpecialEuclideanOperationTpl<2>
@@ -381,7 +381,7 @@ namespace pinocchio
   struct SpecialEuclideanOperationTpl<3,_Scalar,_Options>
   : public LieGroupBase <SpecialEuclideanOperationTpl<3,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
+    PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialEuclideanOperationTpl);
     
     typedef CartesianProductOperation <VectorSpaceOperationTpl<3,Scalar,Options>, SpecialOrthogonalOperationTpl<3,Scalar,Options> > R3crossSO3_t;
 
@@ -423,12 +423,12 @@ namespace pinocchio
     {
       if (q0 == q1)
       {
-        EIGEN_CONST_CAST(Tangent_t,d).setZero();
+        PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d).setZero();
         return;
       }
       ConstQuaternionMap_t p0 (q0.derived().template tail<4>().data());
       ConstQuaternionMap_t p1 (q1.derived().template tail<4>().data());
-      EIGEN_CONST_CAST(Tangent_t,d)
+      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
         = log6(  SE3(p0.matrix(), q0.derived().template head<3>()).inverse()
                * SE3(p1.matrix(), q1.derived().template head<3>())).toVector();
     }
@@ -452,7 +452,7 @@ namespace pinocchio
         typename SE3::Vector3 p1_p0 (  q1.derived().template head<3>()
                                      - q0.derived().template head<3>());
 
-        JacobianOut_t& J0 = EIGEN_CONST_CAST(JacobianOut_t,J);
+        JacobianOut_t& J0 = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
         J0.template topLeftCorner <3,3> ().noalias() = - M.rotation().transpose();
         J0.template topRightCorner<3,3> ().noalias() = R1.transpose() * skew (p1_p0) * R0;
         J0.template bottomLeftCorner <3,3> ().setZero();
@@ -468,7 +468,7 @@ namespace pinocchio
                                const Eigen::MatrixBase<Velocity_t> & v,
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
-      ConfigOut_t & out = EIGEN_CONST_CAST(ConfigOut_t,qout);
+      ConfigOut_t & out = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
       ConstQuaternionMap_t quat(q.derived().template tail<4>().data());
       QuaternionMap_t res_quat (out.template tail<4>().data());
 
@@ -490,10 +490,10 @@ namespace pinocchio
     {
       assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
       
-      typedef typename EIGEN_PLAIN_TYPE(Config_t) ConfigPlainType;
-      typedef typename EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlainType;
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t) ConfigPlainType;
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlainType;
       typedef typename ConfigPlainType::Scalar Scalar;
-      Jacobian_t & Jout = EIGEN_CONST_CAST(Jacobian_t,J);
+      Jacobian_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J);
       Jout.setZero();
       
       ConstQuaternionMap_t quat_map(q.derived().template tail<4>().data());
@@ -515,9 +515,9 @@ namespace pinocchio
       
 //      if(quat_map.w() >= 0.) // comes from the log3 for quaternions which may change the sign.
       if(quat_map.coeffs()[3] >= 0.) // comes from the log3 for quaternions which may change the sign.
-        EIGEN_CONST_CAST(Jacobian_t,J).template bottomRightCorner<4,3>().noalias() = Jexp3QuatCoeffWise * Jlog;
+        PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J).template bottomRightCorner<4,3>().noalias() = Jexp3QuatCoeffWise * Jlog;
       else
-        EIGEN_CONST_CAST(Jacobian_t,J).template bottomRightCorner<4,3>().noalias() = -Jexp3QuatCoeffWise * Jlog;
+        PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J).template bottomRightCorner<4,3>().noalias() = -Jexp3QuatCoeffWise * Jlog;
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -525,7 +525,7 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Tangent_t>  & v,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
+      JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
     }
 

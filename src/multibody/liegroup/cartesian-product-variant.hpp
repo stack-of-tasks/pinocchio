@@ -31,7 +31,7 @@ namespace pinocchio
   ///
   struct CartesianProductOperationVariant : public LieGroupOperationBase<CartesianProductOperationVariant>
   {
-    SE3_LIE_GROUP_PUBLIC_INTERFACE(CartesianProductOperationVariant);
+    PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE(CartesianProductOperationVariant);
     
     /// \brief Default constructor
     CartesianProductOperationVariant()

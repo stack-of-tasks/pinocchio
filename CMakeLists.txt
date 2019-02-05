@@ -197,7 +197,6 @@ ENDIF(LUA5_FOUND)
 
 LIST(APPEND HEADERS
      exception.hpp
-     assert.hpp
      macros.hpp
      )
 

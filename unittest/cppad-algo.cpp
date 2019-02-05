@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(test_mass_matrix)
     BOOST_CHECK(Eigen::Map<Data::TangentVectorType>(tau.data(),model.nv,1).isApprox(data.tau));
 
     CPPAD_TESTVECTOR(Scalar) dtau_da = ad_fun.Jacobian(x);
-    Data::MatrixXs M = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dtau_da.data(),model.nv,model.nv);
+    Data::MatrixXs M = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dtau_da.data(),model.nv,model.nv);
     BOOST_CHECK(M.isApprox(data.M));
 
   }
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(test_mass_matrix)
     BOOST_CHECK(Eigen::Map<Data::TangentVectorType>(ddq.data(),model.nv,1).isApprox(a));
     
     CPPAD_TESTVECTOR(Scalar) dddq_da = ad_fun.Jacobian(x);
-    Data::MatrixXs Minv = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dddq_da.data(),model.nv,model.nv);
+    Data::MatrixXs Minv = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dddq_da.data(),model.nv,model.nv);
     BOOST_CHECK(Minv.isApprox(data.Minv));
     
   }
@@ -229,9 +229,9 @@ BOOST_AUTO_TEST_CASE(test_kinematics_jacobian)
     CPPAD_TESTVECTOR(Scalar) dY_dv = vjoint.Jacobian(x);
 
     Scalar * dY_dv_ptr = dY_dv.data();
-    Data::Matrix6x ad_J_local = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::Matrix6x)>(dY_dv_ptr,6,model.nv);
+    Data::Matrix6x ad_J_local = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::Matrix6x)>(dY_dv_ptr,6,model.nv);
     dY_dv_ptr += ad_J_local.size();
-    Data::Matrix6x ad_J_global = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::Matrix6x)>(dY_dv_ptr,6,model.nv);
+    Data::Matrix6x ad_J_global = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::Matrix6x)>(dY_dv_ptr,6,model.nv);
     dY_dv_ptr += ad_J_global.size();
 
     BOOST_CHECK(ad_J_local.isApprox(J_local));
@@ -274,9 +274,9 @@ BOOST_AUTO_TEST_CASE(test_kinematics_jacobian)
     CPPAD_TESTVECTOR(Scalar) dY_da = ajoint.Jacobian(x);
     
     Scalar * dY_da_ptr = dY_da.data();
-    Data::Matrix6x ad_dv_da = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::Matrix6x)>(dY_da_ptr,6,model.nv);
+    Data::Matrix6x ad_dv_da = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::Matrix6x)>(dY_da_ptr,6,model.nv);
     dY_da_ptr += ad_dv_da.size();
-    Data::Matrix6x ad_J_local = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::Matrix6x)>(dY_da_ptr,6,model.nv);
+    Data::Matrix6x ad_J_local = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::Matrix6x)>(dY_da_ptr,6,model.nv);
     dY_da_ptr += ad_J_local.size();
 
     BOOST_CHECK(ad_dv_da.isZero());

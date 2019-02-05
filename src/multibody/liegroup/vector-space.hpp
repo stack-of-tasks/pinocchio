@@ -30,7 +30,7 @@ namespace pinocchio
   struct VectorSpaceOperationTpl
   : public LieGroupBase< VectorSpaceOperationTpl<Dim,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(VectorSpaceOperationTpl);
+    PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(VectorSpaceOperationTpl);
 
     /// Constructor
     /// \param size size of the vector space: should be the equal to template
@@ -74,7 +74,7 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      EIGEN_CONST_CAST(Tangent_t,d) = q1 - q0;
+      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d) = q1 - q0;
     }
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
@@ -83,9 +83,9 @@ namespace pinocchio
                            const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
       if (arg == ARG0)
-        EIGEN_CONST_CAST(JacobianOut_t,J).noalias() = - JacobianMatrix_t::Identity();
+        PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).noalias() = - JacobianMatrix_t::Identity();
       else if (arg == ARG1)
-        EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
+        PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -93,14 +93,14 @@ namespace pinocchio
                                const Eigen::MatrixBase<Velocity_t> & v,
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
-      EIGEN_CONST_CAST(ConfigOut_t,qout) = q + v;
+      PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout) = q + v;
     }
 
     template <class Config_t, class Jacobian_t>
     static void integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> &,
                                                 const Eigen::MatrixBase<Jacobian_t> & J)
     {
-      EIGEN_CONST_CAST(Jacobian_t,J).setIdentity();
+      PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J).setIdentity();
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -108,7 +108,7 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
+      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -116,7 +116,7 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
+      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
 
 
@@ -131,7 +131,7 @@ namespace pinocchio
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
-      EIGEN_CONST_CAST(Config_t,qout).setRandom();
+      PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout).setRandom();
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -140,7 +140,7 @@ namespace pinocchio
      const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
      const Eigen::MatrixBase<ConfigOut_t> & qout) const
     {
-      ConfigOut_t & res = EIGEN_CONST_CAST(ConfigOut_t,qout).derived();
+      ConfigOut_t & res = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout).derived();
       for (int i = 0; i < nq (); ++i)
       {
         if(lower_pos_limit[i] == -std::numeric_limits<typename ConfigL_t::Scalar>::infinity() ||

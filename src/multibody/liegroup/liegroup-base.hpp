@@ -12,7 +12,7 @@
 namespace pinocchio
 {
   
-#define SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,TYPENAME)               \
+#define PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,TYPENAME)               \
   typedef          LieGroupBase<Derived> Base;                        \
   typedef TYPENAME Base::Index Index;                                          \
   typedef TYPENAME traits<Derived>::Scalar Scalar;                             \
@@ -25,11 +25,11 @@ namespace pinocchio
   typedef TYPENAME Base::TangentVector_t TangentVector_t;                      \
   typedef TYPENAME Base::JacobianMatrix_t JacobianMatrix_t
   
-#define SE3_LIE_GROUP_PUBLIC_INTERFACE(Derived)                                \
-SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
+#define PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE(Derived)                                \
+PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
   
-#define SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(Derived)                            \
-SE3_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
+#define PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(Derived)                            \
+PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
 
   template<typename Derived>
   struct LieGroupBase

@@ -109,10 +109,10 @@ namespace pinocchio
       Scalar s2,c2; SINCOS(Scalar(2)*PI_value*u2,&s2,&c2);
       Scalar s3,c3; SINCOS(Scalar(2)*PI_value*u3,&s3,&c3);
       
-      EIGEN_CONST_CAST(Derived,q).w() = mult1 * s2;
-      EIGEN_CONST_CAST(Derived,q).x() = mult1 * c2;
-      EIGEN_CONST_CAST(Derived,q).y() = mult2 * s3;
-      EIGEN_CONST_CAST(Derived,q).z() = mult2 * c3;
+      PINOCCHIO_EIGEN_CONST_CAST(Derived,q).w() = mult1 * s2;
+      PINOCCHIO_EIGEN_CONST_CAST(Derived,q).x() = mult1 * c2;
+      PINOCCHIO_EIGEN_CONST_CAST(Derived,q).y() = mult2 * s3;
+      PINOCCHIO_EIGEN_CONST_CAST(Derived,q).z() = mult2 * c3;
     }
     
   } // namespace quaternion

@@ -8,7 +8,7 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/macros.hpp"
 
-#define SE3_TYPEDEF_GENERIC(Derived,TYPENAME) \
+#define PINOCCHIO_SE3_TYPEDEF_GENERIC(Derived,TYPENAME) \
 typedef TYPENAME traits<Derived>::Scalar Scalar; \
 typedef TYPENAME traits<Derived>::AngularType AngularType; \
 typedef TYPENAME traits<Derived>::LinearType LinearType; \
@@ -24,11 +24,11 @@ LINEAR = traits<Derived>::LINEAR,  \
 ANGULAR = traits<Derived>::ANGULAR \
 }
 
-#define SE3_TYPEDEF_TPL(Derived) \
-SE3_TYPEDEF_GENERIC(Derived,typename)
+#define PINOCCHIO_SE3_TYPEDEF_TPL(Derived) \
+PINOCCHIO_SE3_TYPEDEF_GENERIC(Derived,typename)
 
-#define SE3_TYPEDEF(Derived) \
-SE3_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
+#define PINOCCHIO_SE3_TYPEDEF(Derived) \
+PINOCCHIO_SE3_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 
 namespace pinocchio
 {

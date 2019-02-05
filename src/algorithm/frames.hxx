@@ -124,13 +124,13 @@ namespace pinocchio
     const JointIndex & joint_id = frame.parent;
     if(rf == WORLD)
     {
-      getJointJacobian(model,data,joint_id,WORLD,EIGEN_CONST_CAST(Matrix6xLike,J));
+      getJointJacobian(model,data,joint_id,WORLD,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
       return;
     }
     
     if(rf == LOCAL)
     {
-      Matrix6xLike & J_ = EIGEN_CONST_CAST(Matrix6xLike,J);
+      Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J);
       const typename Data::SE3 & oMframe = data.oMf[frame_id];
       const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
       
@@ -148,7 +148,7 @@ namespace pinocchio
                                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
                                const Eigen::MatrixBase<Matrix6xLike> & J)
   {
-    getFrameJacobian(model,data,frame_id,LOCAL,EIGEN_CONST_CAST(Matrix6xLike,J));
+    getFrameJacobian(model,data,frame_id,LOCAL,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
@@ -170,13 +170,13 @@ namespace pinocchio
     const typename Model::JointIndex & joint_id = frame.parent;
     if(rf == WORLD)
     {
-      getJointJacobianTimeVariation(model,data,joint_id,WORLD,EIGEN_CONST_CAST(Matrix6xLike,dJ));
+      getJointJacobianTimeVariation(model,data,joint_id,WORLD,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,dJ));
       return;
     }
     
     if (rf == LOCAL)
     {
-      Matrix6xLike & dJ_ = EIGEN_CONST_CAST(Matrix6xLike,dJ);
+      Matrix6xLike & dJ_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,dJ);
       const SE3 & oMframe = data.oMf[frame_id];
       const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
       

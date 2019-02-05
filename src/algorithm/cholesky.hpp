@@ -67,7 +67,7 @@ namespace pinocchio
     /// \return A the result of \f$ Mv \f$.
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
-    typename EIGEN_PLAIN_TYPE(Mat)
+    typename PINOCCHIO_EIGEN_PLAIN_TYPE(Mat)
     Mv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<Mat> & min);

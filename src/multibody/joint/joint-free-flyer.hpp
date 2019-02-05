@@ -87,7 +87,7 @@ namespace pinocchio
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename MatrixDerived>
-      typename EIGEN_REF_CONSTTYPE(MatrixDerived)
+      typename PINOCCHIO_EIGEN_REF_CONST_TYPE(MatrixDerived)
       operator*(const Eigen::MatrixBase<MatrixDerived> & F)
       {
         return F.derived();
@@ -125,7 +125,7 @@ namespace pinocchio
   
   /* [ABA] Y*S operator*/
   template<typename Matrix6Like, typename S2, int O2>
-  inline typename EIGEN_REF_CONSTTYPE(Matrix6Like)
+  inline typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Matrix6Like)
   operator*(const Eigen::MatrixBase<Matrix6Like> & Y, const ConstraintIdentityTpl<S2,O2> &)
   {
     return Y.derived();
@@ -211,7 +211,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
     
     typedef JointModelBase<JointModelFreeFlyerTpl> Base;
     using Base::id;
@@ -225,7 +225,7 @@ namespace pinocchio
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVectorLike> & q_joint) const
     {
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVectorLike);
-      typedef typename Eigen::Quaternion<typename ConfigVectorLike::Scalar,EIGEN_PLAIN_TYPE(ConfigVectorLike)::Options> Quaternion;
+      typedef typename Eigen::Quaternion<typename ConfigVectorLike::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorLike)::Options> Quaternion;
       typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
 
       ConstQuaternionMap quat(q_joint.template tail<4>().data());
@@ -270,7 +270,7 @@ namespace pinocchio
       I.llt().solveInPlace(data.Dinv);
       
       if (update_I)
-        EIGEN_CONST_CAST(Matrix6Like,I).setZero();
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).setZero();
     }
 
     Scalar finiteDifferenceIncrement() const

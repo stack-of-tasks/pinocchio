@@ -27,11 +27,11 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,4,4,Options> Matrix4;
     typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef Matrix3 AngularType;
-    typedef typename EIGEN_REF_TYPE(Matrix3) AngularRef;
-    typedef typename EIGEN_REF_CONSTTYPE(Matrix3) ConstAngularRef;
+    typedef typename PINOCCHIO_EIGEN_REF_TYPE(Matrix3) AngularRef;
+    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Matrix3) ConstAngularRef;
     typedef Vector3 LinearType;
-    typedef typename EIGEN_REF_TYPE(Vector3) LinearRef;
-    typedef typename EIGEN_REF_CONSTTYPE(Vector3) ConstLinearRef;
+    typedef typename PINOCCHIO_EIGEN_REF_TYPE(Vector3) LinearRef;
+    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector3) ConstLinearRef;
     typedef Matrix6 ActionMatrixType;
     typedef Matrix4 HomogeneousMatrixType;
   }; // traits SE3Tpl
@@ -40,7 +40,7 @@ namespace pinocchio
   struct SE3Tpl : public SE3Base< SE3Tpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    SE3_TYPEDEF_TPL(SE3Tpl);
+    PINOCCHIO_SE3_TYPEDEF_TPL(SE3Tpl);
     typedef SE3Base< SE3Tpl<_Scalar,_Options> > Base;
     typedef Eigen::Quaternion<Scalar,Options> Quaternion;
     typedef typename traits<SE3Tpl>::Vector3 Vector3;

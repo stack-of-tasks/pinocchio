@@ -61,7 +61,7 @@ namespace pinocchio
     struct SE3actOn
     {
       template<int Options, typename Matrix6Type>
-      static typename EIGEN_PLAIN_TYPE(Matrix6Type)
+      static typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type)
       run(const SE3Tpl<Scalar,Options> & M,
           const Eigen::MatrixBase<Matrix6Type> & I)
       {
@@ -71,10 +71,10 @@ namespace pinocchio
         
         typedef const Eigen::Block<Matrix6Type,3,3> constBlock3;
         
-        typedef typename EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
+        typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
         typedef Eigen::Block<ReturnType,3,3> Block3;
         
-        Matrix6Type & I_ = EIGEN_CONST_CAST(Matrix6Type,I);
+        Matrix6Type & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I);
         const constBlock3 & Ai = I_.template block<3,3>(Inertia::LINEAR, Inertia::LINEAR);
         const constBlock3 & Bi = I_.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
         const constBlock3 & Di = I_.template block<3,3>(Inertia::ANGULAR, Inertia::ANGULAR);
@@ -123,13 +123,13 @@ namespace pinocchio
       typedef CppAD::AD<_Scalar> Scalar;
       
       template<int Options, typename Matrix6Type>
-      static typename EIGEN_PLAIN_TYPE(Matrix6Type)
+      static typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type)
       run(const SE3Tpl<Scalar,Options> & M,
           const Eigen::MatrixBase<Matrix6Type> & I)
       {
         typedef SE3Tpl<Scalar,Options> SE3;
         
-        typedef typename EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
+        typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
         
         const SE3 Minv = M.inverse();
         typename SE3::ActionMatrixType dual_action_matrix(M.toDualActionMatrix());

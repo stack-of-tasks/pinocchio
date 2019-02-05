@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(test_log3)
 
   CPPAD_TESTVECTOR(Scalar) jac = map.Jacobian(x);
 
-  Matrix jacobian = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Matrix)>(jac.data(),3,3);
+  Matrix jacobian = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Matrix)>(jac.data(),3,3);
 
   BOOST_CHECK(rot_next_from_map.isApprox(rot_next));
   BOOST_CHECK(jacobian.isApprox(Jlog3));
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(test_explog_translation)
   
   CPPAD_TESTVECTOR(Scalar) jac = map.Jacobian(x);
   
-  Matrix jacobian = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Matrix)>(jac.data(),Y.size(),X.size());
+  Matrix jacobian = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Matrix)>(jac.data(),Y.size(),X.size());
   
   BOOST_CHECK(jacobian.topLeftCorner(3,3).isApprox(M.rotation()));
   
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(test_explog)
 
   CPPAD_TESTVECTOR(Scalar) jac = map.Jacobian(x);
 
-  Matrix jacobian = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Matrix)>(jac.data(),6,6);
+  Matrix jacobian = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Matrix)>(jac.data(),6,6);
 
   // Check using finite differencies
   Motion dv(Motion::Zero());

@@ -23,7 +23,7 @@ namespace pinocchio
   template<class Derived>
   struct SE3Base
   {
-    SE3_TYPEDEF_TPL(Derived);
+    PINOCCHIO_SE3_TYPEDEF_TPL(Derived);
     
     Derived & derived() { return *static_cast<Derived*>(this); }
     const Derived& derived() const { return *static_cast<const Derived*>(this); }

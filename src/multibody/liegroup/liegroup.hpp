@@ -5,7 +5,6 @@
 #ifndef __pinocchio_lie_group_hpp__
 #define __pinocchio_lie_group_hpp__
 
-#include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/liegroup/vector-space.hpp"
 #include "pinocchio/multibody/liegroup/cartesian-product.hpp"
 #include "pinocchio/multibody/liegroup/special-orthogonal.hpp"

@@ -41,8 +41,8 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
     typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
     typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
-    typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
-    typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
+    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6) ToVectorConstReturnType;
+    typedef typename PINOCCHIO_EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Vector3 AngularType;
     typedef Vector3 LinearType;
     typedef const Vector3 ConstAngularType;
@@ -231,12 +231,12 @@ namespace pinocchio
       
       template<typename Derived>
       Eigen::Matrix<
-      typename EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstLinearType),
+      typename PINOCCHIO_EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstLinearType),
       1,1>
       operator* (const ForceDense<Derived> & f) const
       {
         typedef Eigen::Matrix<
-        typename EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstLinearType),
+        typename PINOCCHIO_EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<Derived>::ConstLinearType),
         1,1> ReturnType;
         
         ReturnType res; res[0] = ref.axis.dot(f.linear());
@@ -429,7 +429,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPrismaticUnalignedTpl<_Scalar,_Options> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
     
     typedef JointModelBase<JointModelPrismaticUnalignedTpl> Base;
     using Base::id;
@@ -493,7 +493,7 @@ namespace pinocchio
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
-        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
     Scalar finiteDifferenceIncrement() const

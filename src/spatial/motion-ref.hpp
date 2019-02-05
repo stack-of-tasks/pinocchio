@@ -12,7 +12,7 @@ namespace pinocchio
   struct traits< MotionRef<Vector6ArgType> >
   {
     typedef typename Vector6ArgType::Scalar Scalar;
-    typedef typename EIGEN_PLAIN_TYPE(Vector6ArgType) Vector6;
+    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6ArgType) Vector6;
     enum {
       LINEAR = 0,
       ANGULAR = 3,
@@ -26,9 +26,9 @@ namespace pinocchio
     typedef typename Vector6ArgType::template ConstFixedSegmentReturnType<3>::Type ConstLinearType;
     typedef typename Vector6ArgType::template ConstFixedSegmentReturnType<3>::Type ConstAngularType;
     typedef MotionTpl<Scalar,Options> MotionPlain;
-    typedef typename EIGEN_REF_TYPE(Vector6ArgType) DataRefType;
+    typedef typename PINOCCHIO_EIGEN_REF_TYPE(Vector6ArgType) DataRefType;
     typedef DataRefType ToVectorReturnType;
-    typedef typename EIGEN_REF_CONSTTYPE(Vector6ArgType) ConstDataRefType;
+    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6ArgType) ConstDataRefType;
     typedef ConstDataRefType ToVectorConstReturnType;
     typedef MotionRef<Vector6ArgType> MotionRefType;
 
@@ -68,7 +68,7 @@ namespace pinocchio
     using Base::__mequ__;
     using Base::__mult__;
     
-    MotionRef(typename EIGEN_REF_TYPE(Vector6ArgType) v_like)
+    MotionRef(typename PINOCCHIO_EIGEN_REF_TYPE(Vector6ArgType) v_like)
     : m_ref(v_like)
     {
       EIGEN_STATIC_ASSERT(Vector6ArgType::ColsAtCompileTime == 1,
@@ -162,7 +162,7 @@ namespace pinocchio
     using Base::__minus__;
     using Base::__mult__;
     
-    MotionRef(typename EIGEN_REF_CONSTTYPE(Vector6ArgType) v_like)
+    MotionRef(typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6ArgType) v_like)
     : m_ref(v_like)
     {
       EIGEN_STATIC_ASSERT(Vector6ArgType::ColsAtCompileTime == 1,

@@ -5,7 +5,6 @@
 #ifndef __pinocchio_joint_generic_hpp__
 #define __pinocchio_joint_generic_hpp__
 
-#include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
@@ -133,8 +132,8 @@ namespace pinocchio
     
     typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
 
-    SE3_JOINT_TYPEDEF_TEMPLATE;
-    SE3_JOINT_USE_INDEXES;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_USE_INDEXES;
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
     typedef typename JointCollection::JointDataVariant JointDataVariant;
@@ -187,7 +186,7 @@ namespace pinocchio
     
     template<typename Matrix6Like>
     void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
-    { ::pinocchio::calc_aba(*this,data,EIGEN_CONST_CAST(Matrix6Like,I),update_I); }
+    { ::pinocchio::calc_aba(*this,data,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),update_I); }
     
     std::string shortname() const { return ::pinocchio::shortname(*this); }
     static std::string classname() { return "JointModel"; }

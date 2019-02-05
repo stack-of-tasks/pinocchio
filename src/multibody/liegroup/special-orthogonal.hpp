@@ -48,7 +48,7 @@ namespace pinocchio
   struct SpecialOrthogonalOperationTpl<2,_Scalar,_Options>
   : public LieGroupBase< SpecialOrthogonalOperationTpl<2,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
+    PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
 
     template<typename Matrix2Like>
@@ -115,14 +115,14 @@ namespace pinocchio
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
       if (q0 == q1) {
-        EIGEN_CONST_CAST(Tangent_t,d).setZero();
+        PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d).setZero();
         return;
       }
       Matrix2 R; // R0.transpose() * R1;
       R(0,0) = R(1,1) = q0.dot(q1);
       R(1,0) = q0(0) * q1(1) - q0(1) * q1(0);
       R(0,1) = - R(1,0);
-      EIGEN_CONST_CAST(Tangent_t,d)[0] = log(R);
+      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)[0] = log(R);
     }
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
@@ -136,7 +136,7 @@ namespace pinocchio
       R(0,1) = - R(1,0);
 
       Scalar w (Jlog(R));
-      EIGEN_CONST_CAST(JacobianOut_t,J).coeffRef(0,0) = ((arg==ARG0) ? -w : w);
+      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).coeffRef(0,0) = ((arg==ARG0) ? -w : w);
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -144,7 +144,7 @@ namespace pinocchio
                                const Eigen::MatrixBase<Velocity_t> & v,
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
-      ConfigOut_t & out = EIGEN_CONST_CAST(ConfigOut_t,qout);
+      ConfigOut_t & out = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
 
       const Scalar & ca = q(0);
       const Scalar & sa = q(1);
@@ -164,7 +164,7 @@ namespace pinocchio
                                                 const Eigen::MatrixBase<Jacobian_t> & J)
     {
       assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
-      Jacobian_t & Jout = EIGEN_CONST_CAST(Jacobian_t,J);
+      Jacobian_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J);
       Jout << -q[1], q[0];
     }
 
@@ -173,7 +173,7 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
+      JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout(0,0) = 1;
     }
 
@@ -182,7 +182,7 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
+      JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout(0,0) = 1;
     }
 
@@ -192,7 +192,7 @@ namespace pinocchio
                                  const Scalar& u,
                                  const Eigen::MatrixBase<ConfigOut_t>& qout)
     {
-      ConfigOut_t & out = EIGEN_CONST_CAST(ConfigOut_t,qout);
+      ConfigOut_t & out = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
 
       assert ( std::abs(q0.norm() - 1) < 1e-8 && "initial configuration not normalized");
       assert ( std::abs(q1.norm() - 1) < 1e-8 && "final configuration not normalized");
@@ -233,7 +233,7 @@ namespace pinocchio
     template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
-      Config_t & out = EIGEN_CONST_CAST(Config_t,qout);
+      Config_t & out = PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout);
       
       const Scalar PI_value = PI<Scalar>();
       const Scalar angle = -PI_value + Scalar(2)* PI_value * ((Scalar)rand())/RAND_MAX;
@@ -254,7 +254,7 @@ namespace pinocchio
   struct SpecialOrthogonalOperationTpl<3,_Scalar,_Options>
   : public LieGroupBase< SpecialOrthogonalOperationTpl<3,_Scalar,_Options> >
   {
-    SE3_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
+    PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
 
     typedef Eigen::Quaternion<Scalar> Quaternion_t;
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
@@ -291,12 +291,12 @@ namespace pinocchio
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
       if (q0 == q1) {
-        EIGEN_CONST_CAST(Tangent_t,d).setZero();
+        PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d).setZero();
         return;
       }
       ConstQuaternionMap_t p0 (q0.derived().data());
       ConstQuaternionMap_t p1 (q1.derived().data());
-      EIGEN_CONST_CAST(Tangent_t,d)
+      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
         = log3((p0.matrix().transpose() * p1.matrix()).eval());
     }
 
@@ -313,7 +313,7 @@ namespace pinocchio
         JacobianMatrix_t J1;
         Jlog3 (R, J1);
 
-        EIGEN_CONST_CAST(JacobianOut_t,J).noalias() = - J1 * R.transpose();
+        PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).noalias() = - J1 * R.transpose();
       } else if (arg == ARG1) {
         Jlog3 (R, J);
       }
@@ -325,7 +325,7 @@ namespace pinocchio
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
       ConstQuaternionMap_t quat(q.derived().data());
-      QuaternionMap_t quat_map(EIGEN_CONST_CAST(ConfigOut_t,qout).data());
+      QuaternionMap_t quat_map(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout).data());
 
       Quaternion_t pOmega; quaternion::exp3(v,pOmega);
       quat_map = quat * pOmega;
@@ -338,8 +338,8 @@ namespace pinocchio
     {
       assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
       
-      typedef typename EIGEN_PLAIN_TYPE(Config_t) ConfigPlainType;
-      typedef typename EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlainType;
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t) ConfigPlainType;
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlainType;
       typedef typename ConfigPlainType::Scalar Scalar;
       typedef SE3Tpl<Scalar,ConfigPlainType::Options> SE3;
       typedef typename SE3::Vector3 Vector3;
@@ -356,11 +356,11 @@ namespace pinocchio
       
 //      if(quat_map.w() >= 0.) // comes from the log3 for quaternions which may change the sign.
       if(quat_map.coeffs()[3] >= 0.) // comes from the log3 for quaternions which may change the sign.
-        EIGEN_CONST_CAST(Jacobian_t,J).noalias() = Jexp3QuatCoeffWise * Jlog;
+        PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J).noalias() = Jexp3QuatCoeffWise * Jlog;
       else
-        EIGEN_CONST_CAST(Jacobian_t,J).noalias() = -Jexp3QuatCoeffWise * Jlog;
+        PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J).noalias() = -Jexp3QuatCoeffWise * Jlog;
         
-//      Jexp3(quat_map,EIGEN_CONST_CAST(Jacobian_t,J).template topLeftCorner<NQ,NV>());
+//      Jexp3(quat_map,PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J).template topLeftCorner<NQ,NV>());
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -368,7 +368,7 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Tangent_t>  & v,
                                    const Eigen::MatrixBase<JacobianOut_t>& J)
     {
-      JacobianOut_t & Jout = EIGEN_CONST_CAST(JacobianOut_t,J);
+      JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout = exp3(-v);
     }
 
@@ -388,7 +388,7 @@ namespace pinocchio
     {
       ConstQuaternionMap_t p0 (q0.derived().data());
       ConstQuaternionMap_t p1 (q1.derived().data());
-      QuaternionMap_t quat_map(EIGEN_CONST_CAST(ConfigOut_t,qout).data());
+      QuaternionMap_t quat_map(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout).data());
 
       quat_map = p0.slerp(u, p1);
     }
@@ -405,14 +405,14 @@ namespace pinocchio
     template <class Config_t>
     static void normalize_impl(const Eigen::MatrixBase<Config_t>& qout)
     {
-      Config_t & qout_ = EIGEN_CONST_CAST(Config_t,qout);
+      Config_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout);
       qout_.normalize();
     }
 
     template <class Config_t>
     void random_impl(const Eigen::MatrixBase<Config_t> & qout) const
     {
-      QuaternionMap_t quat_map(EIGEN_CONST_CAST(Config_t,qout).data());
+      QuaternionMap_t quat_map(PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout).data());
       quaternion::uniformRandom(quat_map);
     }
 

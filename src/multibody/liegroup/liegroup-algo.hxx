@@ -25,75 +25,75 @@ namespace pinocchio
       }
     };
     
-#define SE3_DETAILS_WRITE_ARGS_0(JM)                               const JointModelBase<JM> & jmodel
-#define SE3_DETAILS_WRITE_ARGS_1(JM) SE3_DETAILS_WRITE_ARGS_0(JM), typename boost::fusion::result_of::at_c<ArgsType, 0>::type a0
-#define SE3_DETAILS_WRITE_ARGS_2(JM) SE3_DETAILS_WRITE_ARGS_1(JM), typename boost::fusion::result_of::at_c<ArgsType, 1>::type a1
-#define SE3_DETAILS_WRITE_ARGS_3(JM) SE3_DETAILS_WRITE_ARGS_2(JM), typename boost::fusion::result_of::at_c<ArgsType, 2>::type a2
-#define SE3_DETAILS_WRITE_ARGS_4(JM) SE3_DETAILS_WRITE_ARGS_3(JM), typename boost::fusion::result_of::at_c<ArgsType, 3>::type a3
+#define PINOCCHIO_DETAILS_WRITE_ARGS_0(JM)                               const JointModelBase<JM> & jmodel
+#define PINOCCHIO_DETAILS_WRITE_ARGS_1(JM) PINOCCHIO_DETAILS_WRITE_ARGS_0(JM), typename boost::fusion::result_of::at_c<ArgsType, 0>::type a0
+#define PINOCCHIO_DETAILS_WRITE_ARGS_2(JM) PINOCCHIO_DETAILS_WRITE_ARGS_1(JM), typename boost::fusion::result_of::at_c<ArgsType, 1>::type a1
+#define PINOCCHIO_DETAILS_WRITE_ARGS_3(JM) PINOCCHIO_DETAILS_WRITE_ARGS_2(JM), typename boost::fusion::result_of::at_c<ArgsType, 2>::type a2
+#define PINOCCHIO_DETAILS_WRITE_ARGS_4(JM) PINOCCHIO_DETAILS_WRITE_ARGS_3(JM), typename boost::fusion::result_of::at_c<ArgsType, 3>::type a3
     
-#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(Algo)                          \
+#define PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_1(Algo)                          \
   template <typename Visitor, typename JointCollection>                       \
   struct Algo <Visitor, JointModelCompositeTpl<JointCollection> > {           \
     typedef typename Visitor::ArgsType ArgsType;                              \
-    static void run (SE3_DETAILS_WRITE_ARGS_1(JointModelCompositeTpl<JointCollection>))         \
+    static void run (PINOCCHIO_DETAILS_WRITE_ARGS_1(JointModelCompositeTpl<JointCollection>))         \
     { ::pinocchio::details::Dispatch< Visitor >::run(jmodel.derived(), ArgsType(a0)); } \
   }
    
-#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_2(Algo)                 \
+#define PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_2(Algo)                 \
   template <typename Visitor, typename JointCollection>                    \
   struct Algo <Visitor, JointModelCompositeTpl<JointCollection> > {        \
     typedef typename Visitor::ArgsType ArgsType;                  \
-    static void run (SE3_DETAILS_WRITE_ARGS_2(JointModelCompositeTpl<JointCollection>))         \
+    static void run (PINOCCHIO_DETAILS_WRITE_ARGS_2(JointModelCompositeTpl<JointCollection>))         \
     { ::pinocchio::details::Dispatch< Visitor >::run(jmodel.derived(), ArgsType(a0,a1)); } \
   }
     
-#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(Algo)                 \
+#define PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_3(Algo)                 \
   template <typename Visitor, typename JointCollection>                    \
   struct Algo <Visitor, JointModelCompositeTpl<JointCollection> > {        \
     typedef typename Visitor::ArgsType ArgsType;                  \
-    static void run (SE3_DETAILS_WRITE_ARGS_3(JointModelCompositeTpl<JointCollection>))         \
+    static void run (PINOCCHIO_DETAILS_WRITE_ARGS_3(JointModelCompositeTpl<JointCollection>))         \
     { ::pinocchio::details::Dispatch< Visitor >::run(jmodel.derived(), ArgsType(a0,a1,a2)); } \
   }
     
-#define SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(Algo)                 \
+#define PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(Algo)                 \
   template <typename Visitor, typename JointCollection>                    \
   struct Algo <Visitor, JointModelCompositeTpl<JointCollection> > {        \
     typedef typename Visitor::ArgsType ArgsType;                  \
-    static void run (SE3_DETAILS_WRITE_ARGS_4(JointModelCompositeTpl<JointCollection>))         \
+    static void run (PINOCCHIO_DETAILS_WRITE_ARGS_4(JointModelCompositeTpl<JointCollection>))         \
     { ::pinocchio::details::Dispatch< Visitor >::run(jmodel.derived(), ArgsType(a0,a1,a2,a3)); } \
   }
     
-#define SE3_DETAILS_VISITOR_METHOD_ALGO_1(Algo, Visitor)                      \
+#define PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_1(Algo, Visitor)                      \
     typedef LieGroup_t LieGroupMap;                                              \
     template<typename JointModel>                                              \
-    static void algo(SE3_DETAILS_WRITE_ARGS_1(JointModel))                     \
+    static void algo(PINOCCHIO_DETAILS_WRITE_ARGS_1(JointModel))                     \
     { AlgoDispatch<JointModel>::run(jmodel, a0); }                   \
     template<typename JointModel>                            \
     struct AlgoDispatch : Algo<Visitor, JointModel>                            \
     { using Algo<Visitor, JointModel>::run; };
     
-#define SE3_DETAILS_VISITOR_METHOD_ALGO_2(Algo, Visitor)                      \
+#define PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_2(Algo, Visitor)                      \
     typedef LieGroup_t LieGroupMap;                                              \
     template<typename JointModel>                                              \
-    static void algo(SE3_DETAILS_WRITE_ARGS_2(JointModel))                     \
+    static void algo(PINOCCHIO_DETAILS_WRITE_ARGS_2(JointModel))                     \
     { AlgoDispatch<JointModel>::run(jmodel, a0, a1); }               \
     template<typename JointModel>                            \
     struct AlgoDispatch : Algo<Visitor, JointModel>                            \
     { using Algo<Visitor, JointModel>::run; };
     
-#define SE3_DETAILS_VISITOR_METHOD_ALGO_3(Algo, Visitor)                      \
+#define PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_3(Algo, Visitor)                      \
     typedef LieGroup_t LieGroupMap;                                              \
     template<typename JointModel>                                              \
-    static void algo(SE3_DETAILS_WRITE_ARGS_3(JointModel))                     \
+    static void algo(PINOCCHIO_DETAILS_WRITE_ARGS_3(JointModel))                     \
     { AlgoDispatch<JointModel>::run(jmodel, a0, a1, a2); }           \
     template<typename JointModel>                            \
     struct AlgoDispatch : Algo<Visitor, JointModel>                            \
     { using Algo<Visitor, JointModel>::run; };
     
-#define SE3_DETAILS_VISITOR_METHOD_ALGO_4(Algo, Visitor)                      \
+#define PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(Algo, Visitor)                      \
     typedef LieGroup_t LieGroupMap;                                              \
     template<typename JointModel>                                              \
-    static void algo(SE3_DETAILS_WRITE_ARGS_4(JointModel))                     \
+    static void algo(PINOCCHIO_DETAILS_WRITE_ARGS_4(JointModel))                     \
     { AlgoDispatch<JointModel>::run(jmodel, a0, a1, a2, a3); }       \
     template<typename JointModel>                            \
     struct AlgoDispatch : Algo<Visitor, JointModel>                            \
@@ -111,7 +111,7 @@ namespace pinocchio
                                   ConfigVectorOut &
                                   > ArgsType;
     
-    SE3_DETAILS_VISITOR_METHOD_ALGO_3(IntegrateStepAlgo, IntegrateStep)
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_3(IntegrateStepAlgo, IntegrateStep)
   };
   
   template<typename Visitor, typename JointModel>
@@ -128,11 +128,11 @@ namespace pinocchio
       typename LieGroupMap::template operation<JointModel>::type lgo;
       lgo.integrate(jmodel.jointConfigSelector  (q.derived()),
                     jmodel.jointVelocitySelector(v.derived()),
-                    jmodel.jointConfigSelector  (EIGEN_CONST_CAST(ConfigVectorOut,result)));
+                    jmodel.jointConfigSelector  (PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut,result)));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(IntegrateStepAlgo);
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_3(IntegrateStepAlgo);
   
   template<typename Visitor, typename JointModel> struct dIntegrateStepAlgo;
   
@@ -146,7 +146,7 @@ namespace pinocchio
                                   const ArgumentPosition &
                                   > ArgsType;
     
-    SE3_DETAILS_VISITOR_METHOD_ALGO_4(dIntegrateStepAlgo, dIntegrateStep)
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(dIntegrateStepAlgo, dIntegrateStep)
   };
   
   template<typename Visitor, typename JointModel>
@@ -164,12 +164,12 @@ namespace pinocchio
       typename LieGroupMap::template operation<JointModel>::type lgo;
       lgo.dIntegrate(jmodel.jointConfigSelector  (q.derived()),
                      jmodel.jointVelocitySelector(v.derived()),
-                     jmodel.jointBlock(EIGEN_CONST_CAST(JacobianMatrixType,mat)),
+                     jmodel.jointBlock(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,mat)),
                      arg);
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(dIntegrateStepAlgo);
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(dIntegrateStepAlgo);
   
   template<typename Visitor, typename JointModel> struct InterpolateStepAlgo;
   
@@ -183,7 +183,7 @@ namespace pinocchio
                                   ConfigVectorOut &
                                   > ArgsType;
     
-    SE3_DETAILS_VISITOR_METHOD_ALGO_4(InterpolateStepAlgo, InterpolateStep)
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(InterpolateStepAlgo, InterpolateStep)
   };
   
   template<typename Visitor, typename JointModel>
@@ -202,11 +202,11 @@ namespace pinocchio
       lgo.interpolate(jmodel.jointConfigSelector(q0.derived()),
                       jmodel.jointConfigSelector(q1.derived()),
                       u,
-                      jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorOut,result)));
+                      jmodel.jointConfigSelector(PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut,result)));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(InterpolateStepAlgo);
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(InterpolateStepAlgo);
   
   template<typename Visitor, typename JointModel> struct DifferenceStepAlgo;
   
@@ -219,7 +219,7 @@ namespace pinocchio
                                   TangentVectorOut &
                                   > ArgsType;
     
-    SE3_DETAILS_VISITOR_METHOD_ALGO_3(DifferenceStepAlgo, DifferenceStep)
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_3(DifferenceStepAlgo, DifferenceStep)
   };
   
   template<typename Visitor, typename JointModel>
@@ -236,11 +236,11 @@ namespace pinocchio
       typename LieGroupMap::template operation<JointModel>::type lgo;
       lgo.difference(jmodel.jointConfigSelector(q0.derived()),
                      jmodel.jointConfigSelector(q1.derived()),
-                     jmodel.jointVelocitySelector(EIGEN_CONST_CAST(TangentVectorOut,result)));
+                     jmodel.jointVelocitySelector(PINOCCHIO_EIGEN_CONST_CAST(TangentVectorOut,result)));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(DifferenceStepAlgo);
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_3(DifferenceStepAlgo);
   
   template<typename Visitor, typename JointModel> struct SquaredDistanceStepAlgo;
   
@@ -254,7 +254,7 @@ namespace pinocchio
                                   DistanceVectorOut &
                                   > ArgsType;
     
-    SE3_DETAILS_VISITOR_METHOD_ALGO_4(SquaredDistanceStepAlgo, SquaredDistanceStep)
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(SquaredDistanceStepAlgo, SquaredDistanceStep)
   };
   
   template<typename Visitor, typename JointModel>
@@ -269,13 +269,13 @@ namespace pinocchio
     {
       typedef typename Visitor::LieGroupMap LieGroupMap;
       typename LieGroupMap::template operation<JointModel>::type lgo;
-      DistanceVectorOut & distances_ = EIGEN_CONST_CAST(DistanceVectorOut,distances);
+      DistanceVectorOut & distances_ = PINOCCHIO_EIGEN_CONST_CAST(DistanceVectorOut,distances);
       distances_[(Eigen::DenseIndex)i] += lgo.squaredDistance(jmodel.jointConfigSelector(q0.derived()),
                                                  jmodel.jointConfigSelector(q1.derived()));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(SquaredDistanceStepAlgo);
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(SquaredDistanceStepAlgo);
   
   template<typename Visitor, typename JointModel> struct RandomConfigurationStepAlgo;
   
@@ -288,7 +288,7 @@ namespace pinocchio
                                   const ConfigVectorIn2 &
                                   > ArgsType;
     
-    SE3_DETAILS_VISITOR_METHOD_ALGO_3(RandomConfigurationStepAlgo, RandomConfigurationStep)
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_3(RandomConfigurationStepAlgo, RandomConfigurationStep)
   };
   
   template<typename Visitor, typename JointModel>
@@ -305,11 +305,11 @@ namespace pinocchio
       typename LieGroupMap::template operation<JointModel>::type lgo;
       lgo.randomConfiguration(jmodel.jointConfigSelector(lowerLimits.derived()),
                               jmodel.jointConfigSelector(upperLimits.derived()),
-                              jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorOut,q)));
+                              jmodel.jointConfigSelector(PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut,q)));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_3(RandomConfigurationStepAlgo);
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_3(RandomConfigurationStepAlgo);
   
   template<typename Visitor, typename JointModel> struct NormalizeStepAlgo;
   
@@ -319,7 +319,7 @@ namespace pinocchio
   {
     typedef boost::fusion::vector<ConfigVectorType &> ArgsType;
     
-    SE3_DETAILS_VISITOR_METHOD_ALGO_1(NormalizeStepAlgo, NormalizeStep)
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_1(NormalizeStepAlgo, NormalizeStep)
   };
   
   template<typename Visitor, typename JointModel>
@@ -332,11 +332,11 @@ namespace pinocchio
       typedef typename Visitor::LieGroupMap LieGroupMap;
       
       typename LieGroupMap::template operation<JointModel>::type lgo;
-      lgo.normalize(jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorType,qout)));
+      lgo.normalize(jmodel.jointConfigSelector(PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorType,qout)));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NormalizeStepAlgo);
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NormalizeStepAlgo);
   
   template<typename Visitor, typename JointModel> struct IsSameConfigurationStepAlgo;
   
@@ -349,7 +349,7 @@ namespace pinocchio
                                   const ConfigVectorIn2 &,
                                   const Scalar &> ArgsType;
     
-    SE3_DETAILS_VISITOR_METHOD_ALGO_4(IsSameConfigurationStepAlgo, IsSameConfigurationStep)
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(IsSameConfigurationStepAlgo, IsSameConfigurationStep)
   };
   
   template<typename Visitor, typename JointModel>
@@ -371,7 +371,7 @@ namespace pinocchio
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_4(IsSameConfigurationStepAlgo);
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(IsSameConfigurationStepAlgo);
   
   template<typename Visitor, typename JointModel> struct NeutralStepAlgo;
   
@@ -381,7 +381,7 @@ namespace pinocchio
   {
     typedef boost::fusion::vector<ConfigVectorType &> ArgsType;
     
-    SE3_DETAILS_VISITOR_METHOD_ALGO_1(NeutralStepAlgo, NeutralStep)
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_1(NeutralStepAlgo, NeutralStep)
   };
   
   template<typename Visitor, typename JointModel>
@@ -394,11 +394,11 @@ namespace pinocchio
       typedef typename Visitor::LieGroupMap LieGroupMap;
       
       typename LieGroupMap::template operation<JointModel>::type lgo;
-      jmodel.jointConfigSelector(EIGEN_CONST_CAST(ConfigVectorType,neutral_elt)) = lgo.neutral();
+      jmodel.jointConfigSelector(PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorType,neutral_elt)) = lgo.neutral();
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NeutralStepAlgo);
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NeutralStepAlgo);
   
   template<typename Visitor, typename JointModel> struct IntegrateCoeffWiseJacobianStepAlgo;
   
@@ -408,7 +408,7 @@ namespace pinocchio
   {
     typedef boost::fusion::vector<const ConfigVectorType &, JacobianMatrix &> ArgsType;
     
-    SE3_DETAILS_VISITOR_METHOD_ALGO_2(IntegrateCoeffWiseJacobianStepAlgo,
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_2(IntegrateCoeffWiseJacobianStepAlgo,
                                       IntegrateCoeffWiseJacobianStep)
   };
   
@@ -425,11 +425,11 @@ namespace pinocchio
       typedef typename LieGroupMap::template operation<JointModel>::type LieGroup;
       LieGroup lgo;
       lgo.integrateCoeffWiseJacobian(jmodel.jointConfigSelector(q.derived()),
-                                     EIGEN_CONST_CAST(JacobianMatrix,jacobian).template block<LieGroup::NQ,LieGroup::NV>(jmodel.idx_q(),jmodel.idx_v(),jmodel.nq(),jmodel.nv()));
+                                     PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrix,jacobian).template block<LieGroup::NQ,LieGroup::NV>(jmodel.idx_q(),jmodel.idx_v(),jmodel.nq(),jmodel.nv()));
     }
   };
   
-  SE3_DETAILS_DISPATCH_JOINT_COMPOSITE_2(IntegrateCoeffWiseJacobianStepAlgo);
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_2(IntegrateCoeffWiseJacobianStepAlgo);
   
 }
 

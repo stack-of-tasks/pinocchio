@@ -54,10 +54,10 @@ namespace pinocchio
     /// \param[in] v The angular velocity vector.
     ///
     template<typename Vector3Like>
-    Eigen::Quaternion<typename Vector3Like::Scalar, EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    Eigen::Quaternion<typename Vector3Like::Scalar, PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     exp3(const Eigen::MatrixBase<Vector3Like> & v)
     {
-      typedef Eigen::Quaternion<typename Vector3Like::Scalar, EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
+      typedef Eigen::Quaternion<typename Vector3Like::Scalar, PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
       ReturnType res; exp3(v,res);
       return res;
     }
@@ -71,12 +71,12 @@ namespace pinocchio
     /// \return The angular velocity vector associated to the rotation matrix.
     ///
     template<typename QuaternionLike>
-    Eigen::Matrix<typename QuaternionLike::Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
+    Eigen::Matrix<typename QuaternionLike::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
     log3(const Eigen::QuaternionBase<QuaternionLike> & quat,
          typename QuaternionLike::Scalar & theta)
     {
       typedef typename QuaternionLike::Scalar Scalar;
-      typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options> Vector3;
+      typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options> Vector3;
       
       Vector3 res;
       const Scalar norm_squared = quat.vec().squaredNorm();
@@ -120,7 +120,7 @@ namespace pinocchio
     /// \return The angular velocity vector associated to the quaternion.
     ///
     template<typename QuaternionLike>
-    Eigen::Matrix<typename QuaternionLike::Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
+    Eigen::Matrix<typename QuaternionLike::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
     log3(const Eigen::QuaternionBase<QuaternionLike> & quat)
     {
       typename QuaternionLike::Scalar theta;
@@ -139,7 +139,7 @@ namespace pinocchio
     {
 //      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix43Like,4,3);
       assert(Jexp.rows() == 4 && Jexp.cols() == 3 && "Jexp does have the right size.");
-      Matrix43Like & Jout = EIGEN_CONST_CAST(Matrix43Like,Jexp);
+      Matrix43Like & Jout = PINOCCHIO_EIGEN_CONST_CAST(Matrix43Like,Jexp);
       
       typedef typename Vector3Like::Scalar Scalar;
       
@@ -176,7 +176,7 @@ namespace pinocchio
                const Eigen::MatrixBase<Matrix3Like> & Jlog)
     {
       typedef typename QuaternionLike::Scalar Scalar;
-      typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(typename QuaternionLike::Coefficients)::Options> Vector3;
+      typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Coefficients)::Options> Vector3;
       
       Scalar t;
       Vector3 w(log3(quat,t));

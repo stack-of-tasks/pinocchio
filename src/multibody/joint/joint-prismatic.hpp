@@ -41,8 +41,8 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
     typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
     typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
-    typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
-    typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
+    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6) ToVectorConstReturnType;
+    typedef typename PINOCCHIO_EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Vector3 AngularType;
     typedef Vector3 LinearType;
     typedef const Vector3 ConstAngularType;
@@ -195,7 +195,7 @@ namespace pinocchio
   struct TransformPrismaticTpl : SE3Base< TransformPrismaticTpl<_Scalar,_Options,axis> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    SE3_TYPEDEF_TPL(TransformPrismaticTpl);
+    PINOCCHIO_SE3_TYPEDEF_TPL(TransformPrismaticTpl);
     typedef typename traits<TransformPrismaticTpl>::PlainType PlainType;
     
     typedef SpatialAxis<axis+LINEAR> Axis;
@@ -499,7 +499,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPrismaticTpl<_Scalar,_Options,axis> JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
     
     typedef JointModelBase<JointModelPrismaticTpl> Base;
     using Base::id;
@@ -538,7 +538,7 @@ namespace pinocchio
       data.UDinv.noalias() = data.U * data.Dinv[0];
       
       if (update_I)
-        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
     Scalar finiteDifferenceIncrement() const

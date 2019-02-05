@@ -14,7 +14,7 @@
 namespace pinocchio
 {
 
-#define SE3_JOINT_TYPEDEF_GENERIC(TYPENAME)              \
+#define PINOCCHIO_JOINT_TYPEDEF_GENERIC(TYPENAME)              \
   typedef Eigen::DenseIndex Index;                \
   typedef TYPENAME traits<JointDerived>::Scalar Scalar;    \
   typedef TYPENAME traits<JointDerived>::JointDataDerived JointDataDerived;        \
@@ -36,7 +36,7 @@ namespace pinocchio
   typedef TYPENAME traits<JointDerived>::TangentVector_t TangentVector_t
   
 #define PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(TYPENAME)              \
-  SE3_JOINT_TYPEDEF_GENERIC(TYPENAME); \
+  PINOCCHIO_JOINT_TYPEDEF_GENERIC(TYPENAME); \
   typedef TYPENAME traits<JointDerived>::ConstraintTypeConstRef ConstraintTypeConstRef;      \
   typedef TYPENAME traits<JointDerived>::TansformTypeConstRef TansformTypeConstRef;      \
   typedef TYPENAME traits<JointDerived>::MotionTypeConstRef MotionTypeConstRef;      \
@@ -48,31 +48,31 @@ namespace pinocchio
   
 #ifdef __clang__
 
-  #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  #define PINOCCHIO_JOINT_TYPEDEF PINOCCHIO_JOINT_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
   #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
   
-  #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_TYPEDEF_GENERIC(typename)
   #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
 
 #elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 4) && (__GNUC_PATCHLEVEL__ == 2)
 
-  #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  #define PINOCCHIO_JOINT_TYPEDEF PINOCCHIO_JOINT_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
   #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
   
-  #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_TYPEDEF_GENERIC(typename)
   #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
 
 #else
 
-  #define SE3_JOINT_TYPEDEF SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_TYPEDEF PINOCCHIO_JOINT_TYPEDEF_GENERIC(typename)
   #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
   
-  #define SE3_JOINT_TYPEDEF_TEMPLATE SE3_JOINT_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_TYPEDEF_GENERIC(typename)
   #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
 
 #endif
 
-#define SE3_JOINT_USE_INDEXES \
+#define PINOCCHIO_JOINT_USE_INDEXES \
   typedef JointModelBase<JointModelDerived> Base; \
   using Base::idx_q; \
   using Base::idx_v
@@ -364,7 +364,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef typename traits<Derived>::JointDerived JointDerived;
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
 
     JointModelDerived & derived() { return *static_cast<Derived*>(this); }
     const JointModelDerived & derived() const { return *static_cast<const Derived*>(this); }
@@ -392,7 +392,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
                   const Eigen::MatrixBase<Matrix6Type> & I,
                   const bool update_I = false) const
     {
-      derived().calc_aba(data, EIGEN_CONST_CAST(Matrix6Type,I), update_I);
+      derived().calc_aba(data, PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I), update_I);
     }
     
     ///

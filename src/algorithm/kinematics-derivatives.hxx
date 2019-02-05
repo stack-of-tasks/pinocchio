@@ -140,9 +140,9 @@ namespace pinocchio
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut1>::Type ColsBlockOut1;
-      Matrix6xOut1 & v_partial_dq_ = EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq);
+      Matrix6xOut1 & v_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq);
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut2>::Type ColsBlockOut2;
-      Matrix6xOut2 & v_partial_dv_ = EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv);
+      Matrix6xOut2 & v_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv);
       
       // dvec/dv
       ColsBlockOut2 v_partial_dv_cols = jmodel.jointCols(v_partial_dv_);
@@ -199,8 +199,8 @@ namespace pinocchio
       Pass1::run(model.joints[i],
                  typename Pass1::ArgsType(model,data,
                                           jointId,rf,
-                                          EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
-                                          EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv)));
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv)));
     }
   
     // Set back ov[0] to a zero value
@@ -253,13 +253,13 @@ namespace pinocchio
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut1>::Type ColsBlockOut1;
-      Matrix6xOut1 & v_partial_dq_ = EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq);
+      Matrix6xOut1 & v_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq);
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut2>::Type ColsBlockOut2;
-      Matrix6xOut2 & a_partial_dq_ = EIGEN_CONST_CAST(Matrix6xOut2,a_partial_dq);
+      Matrix6xOut2 & a_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,a_partial_dq);
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut3>::Type ColsBlockOut3;
-      Matrix6xOut3 & a_partial_dv_ = EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dv);
+      Matrix6xOut3 & a_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dv);
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut4>::Type ColsBlockOut4;
-      Matrix6xOut4 & a_partial_da_ = EIGEN_CONST_CAST(Matrix6xOut4,a_partial_da);
+      Matrix6xOut4 & a_partial_da_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut4,a_partial_da);
       
       ColsBlockOut1 v_partial_dq_cols = jmodel.jointCols(v_partial_dq_);
       ColsBlockOut2 a_partial_dq_cols = jmodel.jointCols(a_partial_dq_);
@@ -362,10 +362,10 @@ namespace pinocchio
                  typename Pass1::ArgsType(model,data,
                                           jointId,
                                           rf,
-                                          EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
-                                          EIGEN_CONST_CAST(Matrix6xOut2,a_partial_dq),
-                                          EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dv),
-                                          EIGEN_CONST_CAST(Matrix6xOut4,a_partial_da)));
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,a_partial_dq),
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dv),
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut4,a_partial_da)));
       
     }
     

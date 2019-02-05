@@ -128,7 +128,7 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Data::Matrix6x::ConstColXpr M6xColXpr;
     
-    Matrix6Like & J_ = EIGEN_CONST_CAST(Matrix6Like,J);
+    Matrix6Like & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J);
     
     const typename Data::SE3 & oMjoint = data.oMi[jointId];
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
@@ -173,7 +173,7 @@ namespace pinocchio
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       data.iMf[parent] = data.liMi[i]*data.iMf[i];
       
-      Matrix6Like & J_ = EIGEN_CONST_CAST(Matrix6Like,J);
+      Matrix6Like & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J);
       jmodel.jointCols(J_) = data.iMf[i].inverse().act(jdata.S()); // TODO: use MotionRef
     }
   
@@ -197,7 +197,7 @@ namespace pinocchio
     for(JointIndex i=jointId; i>0; i=model.parents[i])
     {
       Pass::run(model.joints[i],data.joints[i],
-                typename Pass::ArgsType(model,data,q,EIGEN_CONST_CAST(Matrix6Like,J)));
+                typename Pass::ArgsType(model,data,q,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J)));
     }
   }
   
@@ -297,7 +297,7 @@ namespace pinocchio
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    Matrix6Like & dJ_ = EIGEN_CONST_CAST(Matrix6Like,dJ);
+    Matrix6Like & dJ_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,dJ);
     
     const typename Data::SE3 & oMjoint = data.oMi[jointId];
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;

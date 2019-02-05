@@ -28,9 +28,9 @@ void rnea_fd(const pinocchio::Model & model, pinocchio::Data & data_fd,
              const Eigen::MatrixBase<Matrix2> & _drnea_dv,
              const Eigen::MatrixBase<Matrix3> & _drnea_da)
 {
-  Matrix1 & drnea_dq = EIGEN_CONST_CAST(Matrix1,_drnea_dq);
-  Matrix2 & drnea_dv = EIGEN_CONST_CAST(Matrix2,_drnea_dv);
-  Matrix3 & drnea_da = EIGEN_CONST_CAST(Matrix3,_drnea_da);
+  Matrix1 & drnea_dq = PINOCCHIO_EIGEN_CONST_CAST(Matrix1,_drnea_dq);
+  Matrix2 & drnea_dv = PINOCCHIO_EIGEN_CONST_CAST(Matrix2,_drnea_dv);
+  Matrix3 & drnea_da = PINOCCHIO_EIGEN_CONST_CAST(Matrix3,_drnea_da);
   
   using namespace Eigen;
   VectorXd v_eps(VectorXd::Zero(model.nv));
@@ -167,8 +167,8 @@ int main(int argc, const char ** argv)
     taus[i] = Eigen::VectorXd::Random(model.nv);
   }
   
-  EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXd) drnea_dq(MatrixXd::Zero(model.nv,model.nv));
-  EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXd) drnea_dv(MatrixXd::Zero(model.nv,model.nv));
+  PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXd) drnea_dq(MatrixXd::Zero(model.nv,model.nv));
+  PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXd) drnea_dv(MatrixXd::Zero(model.nv,model.nv));
   MatrixXd drnea_da(MatrixXd::Zero(model.nv,model.nv));
  
   MatrixXd daba_dq(MatrixXd::Zero(model.nv,model.nv));

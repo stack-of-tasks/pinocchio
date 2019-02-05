@@ -5,7 +5,6 @@
 #ifndef __pinocchio_joint_basic_visitors_hxx__
 #define __pinocchio_joint_basic_visitors_hxx__
 
-#include "pinocchio/assert.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 

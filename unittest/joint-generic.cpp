@@ -173,7 +173,7 @@ namespace pinocchio
     typedef typename JointCollection::JointModelVariant VariantBase;
     typedef typename JointCollection::JointModelVariant JointModelVariant;
     
-    SE3_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
     
     JointModelTest(const JointModelVariant & jmodel)
     : VariantBase(jmodel)

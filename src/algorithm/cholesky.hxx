@@ -70,7 +70,7 @@ namespace pinocchio
                         const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
+          Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::Uv(model,data,m_.col(k));
         }
@@ -91,7 +91,7 @@ namespace pinocchio
           assert(model.check(data) && "data is not consistent with model.");
 #endif
           assert(v.size() == model.nv);
-          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
+          Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
           
           const typename Data::MatrixXs & U = data.U;
           const std::vector<int> & nvt = data.nvSubtree_fromRow;
@@ -110,7 +110,7 @@ namespace pinocchio
              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
              const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & m_ = EIGEN_CONST_CAST(Mat,m);
+      Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
       internal::Uv<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
       return m_.derived();
     }
@@ -125,7 +125,7 @@ namespace pinocchio
                         const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
+          Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::Utv(model,data,m_.col(k));
         }
@@ -146,7 +146,7 @@ namespace pinocchio
           assert(model.check(data) && "data is not consistent with model.");
 #endif
           assert(v.size() == model.nv);
-          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
+          Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
           
           const typename Data::MatrixXs & U = data.U;
           const std::vector<int> & nvt = data.nvSubtree_fromRow;
@@ -165,7 +165,7 @@ namespace pinocchio
               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & m_ = EIGEN_CONST_CAST(Mat,m);
+      Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
       internal::Utv<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
       return m_.derived();
     }
@@ -180,7 +180,7 @@ namespace pinocchio
                         const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
+          Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::Uiv(model,data,m_.col(k));
         }
@@ -201,7 +201,7 @@ namespace pinocchio
           assert(model.check(data) && "data is not consistent with model.");
 #endif
           assert(v.size() == model.nv);
-          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
+          Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
           
           const typename Data::MatrixXs & U = data.U;
           const std::vector<int> & nvt = data.nvSubtree_fromRow;
@@ -221,7 +221,7 @@ namespace pinocchio
               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & m_ = EIGEN_CONST_CAST(Mat,m);
+      Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
       internal::Uiv<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
       return m_.derived();
     }
@@ -236,7 +236,7 @@ namespace pinocchio
                         const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
+          Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::Utiv(model,data,m_.col(k));
         }
@@ -257,7 +257,7 @@ namespace pinocchio
           assert(model.check(data) && "data is not consistent with model.");
 #endif
           assert(v.size() == model.nv);
-          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
+          Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
           
           const typename Data::MatrixXs & U = data.U;
           const std::vector<int> & nvt = data.nvSubtree_fromRow;
@@ -292,7 +292,7 @@ namespace pinocchio
                         const Eigen::MatrixBase<MatRes> & mout
                         )
         {
-          MatRes & mout_ = EIGEN_CONST_CAST(MatRes,mout);
+          MatRes & mout_ = PINOCCHIO_EIGEN_CONST_CAST(MatRes,mout);
           for(int k = 0; k < min.cols(); ++k)
             cholesky::Mv(model,data,min.col(k),mout_.col(k));
         }
@@ -316,7 +316,7 @@ namespace pinocchio
 #endif
           assert(vin.size() == model.nv);
           assert(vout.size() == model.nv);
-          MatRes & vout_ = EIGEN_CONST_CAST(MatRes,vout);
+          MatRes & vout_ = PINOCCHIO_EIGEN_CONST_CAST(MatRes,vout);
           
           const typename Data::MatrixXs & M = data.M;
           const std::vector<int> & nvt = data.nvSubtree_fromRow;
@@ -345,11 +345,11 @@ namespace pinocchio
     }
     
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
-    typename EIGEN_PLAIN_TYPE(Mat) Mv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+    typename PINOCCHIO_EIGEN_PLAIN_TYPE(Mat) Mv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                       const Eigen::MatrixBase<Mat> & min)
     {
-      typedef typename EIGEN_PLAIN_TYPE(Mat) ReturnType;
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Mat) ReturnType;
       ReturnType res(model.nv,min.cols());
       return Mv(model,data,min,res);
     }
@@ -380,7 +380,7 @@ namespace pinocchio
                         const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
+          Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::UDUtv(model,data,m_.col(k));
         }
@@ -400,7 +400,7 @@ namespace pinocchio
 #endif
           assert(v.size() == model.nv);
           
-          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
+          Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
 
           cholesky::Utv(model,data,v_);
           v_.array() *= data.D.array();
@@ -415,7 +415,7 @@ namespace pinocchio
                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & m_ = EIGEN_CONST_CAST(Mat,m);
+      Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
       
       internal::UDUtv<Mat>::run(model,data,m_);
       return m_;
@@ -431,7 +431,7 @@ namespace pinocchio
                         const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<Mat> & m)
         {
-          Mat & m_ = EIGEN_CONST_CAST(Mat,m);
+          Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
           for(int k = 0; k < m_.cols(); ++k)
             cholesky::solve(model,data,m_.col(k));
         }
@@ -450,7 +450,7 @@ namespace pinocchio
           assert(model.check(data) && "data is not consistent with model.");
 #endif
           
-          Mat & v_ = EIGEN_CONST_CAST(Mat,v);
+          Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
           
           cholesky::Uiv(model,data,v_);
           v_.array() *= data.Dinv.array();
@@ -465,7 +465,7 @@ namespace pinocchio
                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & m_ = EIGEN_CONST_CAST(Mat,m);
+      Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
       internal::solve<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
       return m_.derived();
     }
@@ -490,7 +490,7 @@ namespace pinocchio
         
         const typename Data::MatrixXs & U = data.U;
         const std::vector<int> & nvt = data.nvSubtree_fromRow;
-        Mat & v_ = EIGEN_CONST_CAST(Mat,v);
+        Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
         
         const int last_col = std::min(col-1,model.nv-2); // You can start from nv-2 (no child in nv-1)
         v_[col] = 1.;
@@ -524,7 +524,7 @@ namespace pinocchio
       assert(model.check(data) && "data is not consistent with model.");
 #endif
       
-      Mat & Minv_ = EIGEN_CONST_CAST(Mat,Minv);
+      Mat & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,Minv);
       
       for(int k = 0; k < model.nv; ++k)
         internal::Miunit(model,data,k,Minv_.col(k));

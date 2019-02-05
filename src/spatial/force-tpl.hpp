@@ -15,8 +15,8 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,3,1,_Options> Vector3;
     typedef Eigen::Matrix<Scalar,6,1,_Options> Vector6;
     typedef Eigen::Matrix<Scalar,6,6,_Options> Matrix6;
-    typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
-    typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
+    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6) ToVectorConstReturnType;
+    typedef typename PINOCCHIO_EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef typename Vector6::template FixedSegmentReturnType<3>::Type LinearType;
     typedef typename Vector6::template FixedSegmentReturnType<3>::Type AngularType;
     typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstLinearType;

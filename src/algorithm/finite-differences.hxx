@@ -23,7 +23,7 @@ namespace pinocchio
       static void algo(const JointModelBase<JointModel> & jmodel,
                        const Eigen::MatrixBase<TangentVectorType> & fd_increment)
       {
-        jmodel.jointVelocitySelector(EIGEN_CONST_CAST(TangentVectorType,fd_increment))
+        jmodel.jointVelocitySelector(PINOCCHIO_EIGEN_CONST_CAST(TangentVectorType,fd_increment))
         .fill(jmodel.finiteDifferenceIncrement());
       }
       

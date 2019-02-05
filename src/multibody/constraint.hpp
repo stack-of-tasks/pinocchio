@@ -96,8 +96,8 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,Dim,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,Dim,Options> DenseBase;
     
-    typedef typename EIGEN_REF_CONSTTYPE(DenseBase) ConstMatrixReturnType;
-    typedef typename EIGEN_REF_TYPE(DenseBase) MatrixReturnType;
+    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(DenseBase) ConstMatrixReturnType;
+    typedef typename PINOCCHIO_EIGEN_REF_TYPE(DenseBase) MatrixReturnType;
 
   }; // traits ConstraintTpl
 
