@@ -42,8 +42,8 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
     typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
     typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
-    typedef typename EIGEN_REF_CONSTTYPE(Vector6) ToVectorConstReturnType;
-    typedef typename EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
+    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6) ToVectorConstReturnType;
+    typedef typename PINOCCHIO_EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
     typedef Vector3 AngularType;
     typedef Vector3 LinearType;
     typedef const Vector3 ConstAngularType;
@@ -412,7 +412,7 @@ namespace pinocchio
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVectorLike> & q_joint) const
     {
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVectorLike);
-      typedef typename Eigen::Quaternion<typename ConfigVectorLike::Scalar,EIGEN_PLAIN_TYPE(ConfigVectorLike)::Options> Quaternion;
+      typedef typename Eigen::Quaternion<typename ConfigVectorLike::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorLike)::Options> Quaternion;
       typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
 
       ConstQuaternionMap quat(q_joint.derived().data());
@@ -460,7 +460,7 @@ namespace pinocchio
       
       if (update_I)
       {
-        Matrix6Like & I_ = EIGEN_CONST_CAST(Matrix6Like,I);
+        Matrix6Like & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I);
         I_.template block<3,3>(Inertia::LINEAR,Inertia::LINEAR)
         -= data.UDinv.template middleRows<3>(Inertia::LINEAR) * I_.template block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
         I_.template block<6,3>(0,Inertia::ANGULAR).setZero();

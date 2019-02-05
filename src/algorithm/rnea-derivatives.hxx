@@ -92,7 +92,7 @@ namespace pinocchio
       
       motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
       
-      ReturnMatrixType & gravity_partial_dq_ = EIGEN_CONST_CAST(ReturnMatrixType,gravity_partial_dq);
+      ReturnMatrixType & gravity_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(ReturnMatrixType,gravity_partial_dq);
       gravity_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
@@ -115,7 +115,7 @@ namespace pinocchio
                                const Eigen::MatrixBase<Min> & J,
                                const Eigen::MatrixBase<Mout> & F)
     {
-      Mout & F_ = EIGEN_CONST_CAST(Mout,F);
+      Mout & F_ = PINOCCHIO_EIGEN_CONST_CAST(Mout,F);
       motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
@@ -145,7 +145,7 @@ namespace pinocchio
     }
     
     typedef ComputeGeneralizedGravityDerivativeBackwardStep<Scalar,Options,JointCollectionTpl,ReturnMatrixType> Pass2;
-    ReturnMatrixType & gravity_partial_dq_ = EIGEN_CONST_CAST(ReturnMatrixType,gravity_partial_dq);
+    ReturnMatrixType & gravity_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(ReturnMatrixType,gravity_partial_dq);
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],
@@ -244,7 +244,7 @@ namespace pinocchio
     static void addForceCrossMatrix(const ForceDense<ForceDerived> & f,
                                     const Eigen::MatrixBase<M6> & mout)
     {
-      M6 & mout_ = EIGEN_CONST_CAST(M6,mout);
+      M6 & mout_ = PINOCCHIO_EIGEN_CONST_CAST(M6,mout);
       addSkew(-f.linear(),mout_.template block<3,3>(ForceDerived::LINEAR,ForceDerived::ANGULAR));
       addSkew(-f.linear(),mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::LINEAR));
       addSkew(-f.angular(),mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::ANGULAR));
@@ -291,9 +291,9 @@ namespace pinocchio
       ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
       ColsBlock dFda_cols = jmodel.jointCols(data.dFda);
       
-      MatrixType1 & rnea_partial_dq_ = EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq);
-      MatrixType2 & rnea_partial_dv_ = EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv);
-      MatrixType3 & rnea_partial_da_ = EIGEN_CONST_CAST(MatrixType3,rnea_partial_da);
+      MatrixType1 & rnea_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq);
+      MatrixType2 & rnea_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv);
+      MatrixType3 & rnea_partial_da_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,rnea_partial_da);
       
       // tau
       jmodel.jointVelocitySelector(data.tau).noalias() = J_cols.transpose()*data.of[i].toVector();
@@ -364,7 +364,7 @@ namespace pinocchio
                                const Eigen::MatrixBase<Min> & J,
                                const Eigen::MatrixBase<Mout> & F)
     {
-      Mout & F_ = EIGEN_CONST_CAST(Mout,F);
+      Mout & F_ = PINOCCHIO_EIGEN_CONST_CAST(Mout,F);
       motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
@@ -409,9 +409,9 @@ namespace pinocchio
     {
       Pass2::run(model.joints[i],
                  typename Pass2::ArgsType(model,data,
-                                          EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq),
-                                          EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv),
-                                          EIGEN_CONST_CAST(MatrixType3,rnea_partial_da)));
+                                          PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq),
+                                          PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv),
+                                          PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,rnea_partial_da)));
     }
   }
   
@@ -458,9 +458,9 @@ namespace pinocchio
     {
       Pass2::run(model.joints[i],
                  typename Pass2::ArgsType(model,data,
-                                          EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq),
-                                          EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv),
-                                          EIGEN_CONST_CAST(MatrixType3,rnea_partial_da)));
+                                          PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq),
+                                          PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv),
+                                          PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,rnea_partial_da)));
     }
   }
   

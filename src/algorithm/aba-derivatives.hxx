@@ -102,7 +102,7 @@ namespace pinocchio
       ColsBlock U_cols = jmodel.jointCols(data.IS);
       forceSet::se3Action(data.oMi[i],jdata.U(),U_cols); // expressed in the world frame
       
-      MatrixType & Minv_ = EIGEN_CONST_CAST(MatrixType,Minv);
+      MatrixType & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,Minv);
       
       Minv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),jmodel.nv()) = jdata.Dinv();
       const int nv_children = data.nvSubtree[i] - jmodel.nv();
@@ -183,7 +183,7 @@ namespace pinocchio
       ColsBlock UDinv_cols = jmodel.jointCols(data.UDinv);
       forceSet::se3Action(data.oMi[i],jdata.UDinv(),UDinv_cols); // expressed in the world frame
 
-      MatrixType & Minv_ = EIGEN_CONST_CAST(MatrixType,Minv);
+      MatrixType & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,Minv);
       
       if(parent > 0)
       {
@@ -225,7 +225,7 @@ namespace pinocchio
     static void addForceCrossMatrix(const ForceDense<ForceDerived> & f,
                                     const Eigen::MatrixBase<M6> & mout)
     {
-      M6 & mout_ = EIGEN_CONST_CAST(M6,mout);
+      M6 & mout_ = PINOCCHIO_EIGEN_CONST_CAST(M6,mout);
       addSkew(-f.linear(),mout_.template block<3,3>(ForceDerived::LINEAR,ForceDerived::ANGULAR));
       addSkew(-f.linear(),mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::LINEAR));
       addSkew(-f.angular(),mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::ANGULAR));
@@ -354,7 +354,7 @@ namespace pinocchio
     data.oa[0] = -model.gravity;
     data.u = tau;
     
-    MatrixType3 & Minv_ = EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
+    MatrixType3 & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
     Minv_.template triangularView<Eigen::Upper>().setZero();
     
     /// First, compute Minv and a, the joint acceleration vector
@@ -390,8 +390,8 @@ namespace pinocchio
     Minv_.template triangularView<Eigen::StrictlyLower>()
     = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
     
-    EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
-    EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
@@ -424,7 +424,7 @@ namespace pinocchio
     data.oa[0] = -model.gravity;
     data.u = tau;
     
-    MatrixType3 & Minv_ = EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
+    MatrixType3 & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
     Minv_.template triangularView<Eigen::Upper>().setZero();
     
     /// First, compute Minv and a, the joint acceleration vector
@@ -462,8 +462,8 @@ namespace pinocchio
     Minv_.template triangularView<Eigen::StrictlyLower>()
     = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
     
-    EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
-    EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
   }
   
   

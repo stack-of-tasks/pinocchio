@@ -392,7 +392,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
                   const Eigen::MatrixBase<Matrix6Type> & I,
                   const bool update_I = false) const
     {
-      derived().calc_aba(data, EIGEN_CONST_CAST(Matrix6Type,I), update_I);
+      derived().calc_aba(data, PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I), update_I);
     }
     
     ///

@@ -14,26 +14,26 @@ namespace pinocchio
   {
   
     template<typename Vector3Like>
-    Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     exp3_proxy(const Vector3Like & v)
     {
       return exp3(v);
     }
     
     template<typename Vector3Like>
-    Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     Jexp3_proxy(const Vector3Like & v)
     {
-      typedef Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
+      typedef Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
       ReturnType res; Jexp3(v,res);
       return res;
     }
     
     template<typename Matrix3Like>
-    typename EIGEN_PLAIN_TYPE(Matrix3Like)
+    typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)
     Jlog3_proxy(const Matrix3Like & M)
     {
-      typedef typename EIGEN_PLAIN_TYPE(Matrix3Like) ReturnType;
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like) ReturnType;
       ReturnType res; Jlog3(M,res);
       return res;
     }
@@ -62,14 +62,14 @@ namespace pinocchio
     }
     
     template<typename Matrix3Like>
-    Eigen::Matrix<typename Matrix3Like::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
+    Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
     log3_proxy(const Matrix3Like & R)
     {
       return log3(R);
     }
     
     template<typename Matrix4Like>
-    MotionTpl<typename Matrix4Like::Scalar,EIGEN_PLAIN_TYPE(Matrix4Like)::Options>
+    MotionTpl<typename Matrix4Like::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix4Like)::Options>
     log6_proxy(const Matrix4Like & homegenous_matrix)
     {
       return log6(homegenous_matrix);

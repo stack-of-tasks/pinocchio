@@ -240,7 +240,7 @@ struct TestADOnJoints
 
     CPPAD_TESTVECTOR(Scalar) jac = vjoint.Jacobian(x);
     MatrixX S(6,jac.size()/6);
-    S = Eigen::Map<typename EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixX)>(jac.data(),S.rows(),S.cols());
+    S = Eigen::Map<typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixX)>(jac.data(),S.rows(),S.cols());
 
     BOOST_CHECK(m.isApprox(m_ad.template cast<Scalar>()));
 

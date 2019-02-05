@@ -27,11 +27,11 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,4,4,Options> Matrix4;
     typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef Matrix3 AngularType;
-    typedef typename EIGEN_REF_TYPE(Matrix3) AngularRef;
-    typedef typename EIGEN_REF_CONSTTYPE(Matrix3) ConstAngularRef;
+    typedef typename PINOCCHIO_EIGEN_REF_TYPE(Matrix3) AngularRef;
+    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Matrix3) ConstAngularRef;
     typedef Vector3 LinearType;
-    typedef typename EIGEN_REF_TYPE(Vector3) LinearRef;
-    typedef typename EIGEN_REF_CONSTTYPE(Vector3) ConstLinearRef;
+    typedef typename PINOCCHIO_EIGEN_REF_TYPE(Vector3) LinearRef;
+    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector3) ConstLinearRef;
     typedef Matrix6 ActionMatrixType;
     typedef Matrix4 HomogeneousMatrixType;
   }; // traits SE3Tpl

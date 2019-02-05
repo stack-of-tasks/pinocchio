@@ -27,13 +27,13 @@ namespace pinocchio
   /// \return The rotational matrix associated to the integration of the angular velocity during time 1.
   ///
   template<typename Vector3Like>
-  typename Eigen::Matrix<typename Vector3Like::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+  typename Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
   exp3(const Eigen::MatrixBase<Vector3Like> & v)
   {
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector3Like, v, 3, 1);
 
     typedef typename Vector3Like::Scalar Scalar;
-    typedef typename EIGEN_PLAIN_TYPE(Vector3Like) Vector3LikePlain;
+    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like) Vector3LikePlain;
     typedef Eigen::Matrix<Scalar,3,3,Vector3LikePlain::Options> Matrix3;
     
     const Scalar t2 = v.squaredNorm();
@@ -74,14 +74,14 @@ namespace pinocchio
   /// \return The angular velocity vector associated to the rotation matrix.
   ///
   template<typename Matrix3Like>
-  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
+  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
   log3(const Eigen::MatrixBase<Matrix3Like> & R,
        typename Matrix3Like::Scalar & theta)
   {
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, R, 3, 3);
 
     typedef typename Matrix3Like::Scalar Scalar;
-    typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
+    typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
     
     static const Scalar PI_value = PI<Scalar>();
     
@@ -128,7 +128,7 @@ namespace pinocchio
   /// \return The angular velocity vector associated to the rotation matrix.
   ///
   template<typename Matrix3Like>
-  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
+  Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
   log3(const Eigen::MatrixBase<Matrix3Like> & R)
   {
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, R, 3, 3);
@@ -228,7 +228,7 @@ namespace pinocchio
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like2, Jlog, 3, 3);
 
     typedef typename Matrix3Like1::Scalar Scalar;
-    typedef Eigen::Matrix<Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3Like1)::Options> Vector3;
+    typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like1)::Options> Vector3;
 
     Scalar t;
     Vector3 w(log3(R,t));
@@ -244,11 +244,11 @@ namespace pinocchio
   /// \return The rigid transformation associated to the integration of the twist during time 1.
   ///
   template<typename MotionDerived>
-  SE3Tpl<typename MotionDerived::Scalar,EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options>
+  SE3Tpl<typename MotionDerived::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options>
   exp6(const MotionDense<MotionDerived> & nu)
   {
     typedef typename MotionDerived::Scalar Scalar;
-    enum { Options = EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options };
+    enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options };
 
     typedef SE3Tpl<Scalar,Options> SE3;
     
@@ -311,7 +311,7 @@ namespace pinocchio
   /// \return The rigid transformation associated to the integration of the twist vector during time 1..
   ///
   template<typename Vector6Like>
-  SE3Tpl<typename Vector6Like::Scalar,EIGEN_PLAIN_TYPE(Vector6Like)::Options>
+  SE3Tpl<typename Vector6Like::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6Like)::Options>
   exp6(const Eigen::MatrixBase<Vector6Like> & v)
   {
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector6Like, v, 6, 1);

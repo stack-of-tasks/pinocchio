@@ -187,7 +187,7 @@ namespace pinocchio
     
     template<typename Matrix6Like>
     void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
-    { ::pinocchio::calc_aba(*this,data,EIGEN_CONST_CAST(Matrix6Like,I),update_I); }
+    { ::pinocchio::calc_aba(*this,data,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),update_I); }
     
     std::string shortname() const { return ::pinocchio::shortname(*this); }
     static std::string classname() { return "JointModel"; }

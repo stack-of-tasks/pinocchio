@@ -41,10 +41,10 @@ namespace pinocchio
   /// \return The skew matrix representation of v.
   ///
   template <typename D>
-  inline Eigen::Matrix<typename D::Scalar,3,3,EIGEN_PLAIN_TYPE(D)::Options>
+  inline Eigen::Matrix<typename D::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(D)::Options>
   skew(const Eigen::MatrixBase<D> & v)
   {
-    Eigen::Matrix<typename D::Scalar,3,3,EIGEN_PLAIN_TYPE(D)::Options> M;
+    Eigen::Matrix<typename D::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(D)::Options> M;
     skew(v,M);
     return M;
   }
@@ -63,7 +63,7 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3);
     
-    Matrix3Like & M_ = EIGEN_CONST_CAST(Matrix3Like,M);
+    Matrix3Like & M_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,M);
     
                           M_(0,1) -= v[2];      M_(0,2) += v[1];
     M_(1,0) += v[2];                            M_(1,2) -= v[0];
@@ -104,10 +104,10 @@ namespace pinocchio
   /// \return The vector entries of the skew-symmetric matrix.
   ///
   template <typename Matrix3>
-  inline Eigen::Matrix<typename EIGEN_PLAIN_TYPE(Matrix3)::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3)::Options>
+  inline Eigen::Matrix<typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Options>
   unSkew(const Eigen::MatrixBase<Matrix3> & M)
   {
-    Eigen::Matrix<typename EIGEN_PLAIN_TYPE(Matrix3)::Scalar,3,1,EIGEN_PLAIN_TYPE(Matrix3)::Options> v;
+    Eigen::Matrix<typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Options> v;
     unSkew(M,v);
     return v;
   }
@@ -146,11 +146,11 @@ namespace pinocchio
   /// \returns the skew matrix representation of \f$ \alpha v \f$.
   ///
   template <typename Scalar, typename Vector3>
-  inline Eigen::Matrix<typename Vector3::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3)::Options>
+  inline Eigen::Matrix<typename Vector3::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3)::Options>
   alphaSkew(const Scalar alpha,
             const Eigen::MatrixBase<Vector3> & v)
   {
-    Eigen::Matrix<typename Vector3::Scalar,3,3,EIGEN_PLAIN_TYPE(Vector3)::Options> M;
+    Eigen::Matrix<typename Vector3::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3)::Options> M;
     alphaSkew(alpha,v,M);
     return M;
   }
@@ -188,12 +188,12 @@ namespace pinocchio
   /// \return The square cross product matrix C.
   ///
   template <typename V1, typename V2>
-  inline Eigen::Matrix<typename V1::Scalar,3,3,EIGEN_PLAIN_TYPE(V1)::Options>
+  inline Eigen::Matrix<typename V1::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(V1)::Options>
   skewSquare(const Eigen::MatrixBase<V1> & u,
              const Eigen::MatrixBase<V2> & v)
   {
     
-    Eigen::Matrix<typename V1::Scalar,3,3,EIGEN_PLAIN_TYPE(V1)::Options> M;
+    Eigen::Matrix<typename V1::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(V1)::Options> M;
     skewSquare(u,v,M);
     return M;
   }
@@ -232,11 +232,11 @@ namespace pinocchio
   /// \return the results of \f$ [v]_{\times} M \f$.
   ///
   template <typename Vector3, typename Matrix3x>
-  inline typename EIGEN_PLAIN_TYPE(Matrix3x)
+  inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3x)
   cross(const Eigen::MatrixBase<Vector3> & v,
         const Eigen::MatrixBase<Matrix3x> & M)
   {
-    typename EIGEN_PLAIN_TYPE(Matrix3x) res(3,M.cols());
+    typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3x) res(3,M.cols());
     cross(v,M,res);
     return res;
   }

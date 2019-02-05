@@ -20,9 +20,9 @@ namespace pinocchio
                              const Eigen::MatrixBase<V3_out> & vout);
     
     template<typename V3>
-    static typename EIGEN_PLAIN_TYPE(V3) cross(const Eigen::MatrixBase<V3> & vin)
+    static typename PINOCCHIO_EIGEN_PLAIN_TYPE(V3) cross(const Eigen::MatrixBase<V3> & vin)
     {
-      typename EIGEN_PLAIN_TYPE(V3) res;
+      typename PINOCCHIO_EIGEN_PLAIN_TYPE(V3) res;
       cross(vin,res);
       return res;
     }
@@ -33,10 +33,10 @@ namespace pinocchio
                                   const Eigen::MatrixBase<V3_out> & vout);
     
     template<typename Scalar, typename V3>
-    static typename EIGEN_PLAIN_TYPE(V3) alphaCross(const Scalar & s,
+    static typename PINOCCHIO_EIGEN_PLAIN_TYPE(V3) alphaCross(const Scalar & s,
                                                     const Eigen::MatrixBase<V3> & vin)
     {
-      typename EIGEN_PLAIN_TYPE(V3) res;
+      typename PINOCCHIO_EIGEN_PLAIN_TYPE(V3) res;
       alphaCross(s,vin,res);
       return res;
     }
@@ -62,7 +62,7 @@ namespace pinocchio
     template<typename Vector3Like>
     static void setTo(const Eigen::MatrixBase<Vector3Like> v3)
     {
-      Vector3Like & v3_ = EIGEN_CONST_CAST(Vector3Like,v3);
+      Vector3Like & v3_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3Like,v3);
       typedef typename Vector3Like::Scalar Scalar;
       
       for(Eigen::DenseIndex i = 0; i < dim; ++i)

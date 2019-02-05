@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
     BOOST_CHECK(Eigen::Map<Data::TangentVectorType>(tau.data(),model.nv,1).isApprox(data.tau));
     
     CPPAD_TESTVECTOR(Scalar) dtau_dq = ad_fun.Jacobian(x);
-    Data::MatrixXs dtau_dq_mat = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dtau_dq.data(),model.nv,model.nv);
+    Data::MatrixXs dtau_dq_mat = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dtau_dq.data(),model.nv,model.nv);
     BOOST_CHECK(dtau_dq_mat.isApprox(rnea_partial_dq));
   }
   
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
     BOOST_CHECK(Eigen::Map<Data::TangentVectorType>(tau.data(),model.nv,1).isApprox(data.tau));
 
     CPPAD_TESTVECTOR(Scalar) dtau_dv = ad_fun.Jacobian(x);
-    Data::MatrixXs dtau_dv_mat = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dtau_dv.data(),model.nv,model.nv);
+    Data::MatrixXs dtau_dv_mat = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dtau_dv.data(),model.nv,model.nv);
     BOOST_CHECK(dtau_dv_mat.isApprox(rnea_partial_dv));
   }
   
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
     BOOST_CHECK(Eigen::Map<Data::TangentVectorType>(tau.data(),model.nv,1).isApprox(data.tau));
     
     CPPAD_TESTVECTOR(Scalar) dtau_da = ad_fun.Jacobian(x);
-    Data::MatrixXs dtau_da_mat = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dtau_da.data(),model.nv,model.nv);
+    Data::MatrixXs dtau_da_mat = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dtau_da.data(),model.nv,model.nv);
     BOOST_CHECK(dtau_da_mat.isApprox(rnea_partial_da));
     BOOST_CHECK(dtau_da_mat.isApprox(data.M));
   }
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
     BOOST_CHECK(Eigen::Map<Data::TangentVectorType>(ddq.data(),model.nv,1).isApprox(data.ddq));
     
     CPPAD_TESTVECTOR(Scalar) ddq_dq = ad_fun.Jacobian(x);
-    Data::MatrixXs ddq_dq_mat = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(ddq_dq.data(),model.nv,model.nv);
+    Data::MatrixXs ddq_dq_mat = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(ddq_dq.data(),model.nv,model.nv);
     BOOST_CHECK(ddq_dq_mat.isApprox(aba_partial_dq));
   }
   
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
     BOOST_CHECK(Eigen::Map<Data::TangentVectorType>(ddq.data(),model.nv,1).isApprox(data.ddq));
     
     CPPAD_TESTVECTOR(Scalar) ddq_dv = ad_fun.Jacobian(x);
-    Data::MatrixXs ddq_dv_mat = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(ddq_dv.data(),model.nv,model.nv);
+    Data::MatrixXs ddq_dv_mat = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(ddq_dv.data(),model.nv,model.nv);
     BOOST_CHECK(ddq_dv_mat.isApprox(aba_partial_dv));
   }
   
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
     BOOST_CHECK(Eigen::Map<Data::TangentVectorType>(ddq.data(),model.nv,1).isApprox(data.ddq));
     
     CPPAD_TESTVECTOR(Scalar) ddq_dtau = ad_fun.Jacobian(x);
-    Data::MatrixXs ddq_dtau_mat = Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(ddq_dtau.data(),model.nv,model.nv);
+    Data::MatrixXs ddq_dtau_mat = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(ddq_dtau.data(),model.nv,model.nv);
     BOOST_CHECK(ddq_dtau_mat.isApprox(aba_partial_dtau));
     BOOST_CHECK(ddq_dtau_mat.isApprox(data.Minv));
   }

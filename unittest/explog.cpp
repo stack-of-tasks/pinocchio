@@ -179,7 +179,7 @@ template<typename QuaternionLike, typename Matrix43Like>
 void Jexp3QuatLocal(const Eigen::QuaternionBase<QuaternionLike> & quat,
                     const Eigen::MatrixBase<Matrix43Like> & Jexp)
 {
-  Matrix43Like & Jout = EIGEN_CONST_CAST(Matrix43Like,Jexp);
+  Matrix43Like & Jout = PINOCCHIO_EIGEN_CONST_CAST(Matrix43Like,Jexp);
   
   skew(0.5 * quat.vec(),Jout.template topRows<3>());
   Jout.template topRows<3>().diagonal().array() += 0.5 * quat.w();

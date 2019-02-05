@@ -130,7 +130,7 @@ namespace pinocchio
       data.UDinv.noalias() = data.U * data.Dinv[0];
       
       if (update_I)
-        EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
     Scalar finiteDifferenceIncrement() const

@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     = data.M.transpose().triangularView<Eigen::StrictlyLower>();
     
     CPPAD_TESTVECTOR(Scalar) dtau_da = rnea_generated->Jacobian(x);
-    Eigen::Map<EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)> M_map(dtau_da.data(),model.nv,model.nv);
+    Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)> M_map(dtau_da.data(),model.nv,model.nv);
     BOOST_CHECK(M_map.isApprox(data.M));
   }
 

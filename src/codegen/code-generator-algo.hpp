@@ -395,12 +395,12 @@ namespace pinocchio
     typedef typename Base::ADCongigVectorType ADCongigVectorType;
     typedef typename Base::ADTangentVectorType ADTangentVectorType;
     typedef typename Base::MatrixXs MatrixXs;
-    typedef typename EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXs) RowMatrixXs;
+    typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXs) RowMatrixXs;
     typedef typename Base::VectorXs VectorXs;
     
     typedef typename Base::ADData ADData;
     typedef typename ADData::MatrixXs ADMatrixXs;
-    typedef typename EIGEN_PLAIN_ROW_MAJOR_TYPE(ADMatrixXs) RowADMatrixXs;
+    typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(ADMatrixXs) RowADMatrixXs;
     
     CodeGenRNEADerivatives(const Model & model,
                            const std::string & function_name = "partial_rnea",
@@ -504,12 +504,12 @@ namespace pinocchio
     typedef typename Base::ADCongigVectorType ADCongigVectorType;
     typedef typename Base::ADTangentVectorType ADTangentVectorType;
     typedef typename Base::MatrixXs MatrixXs;
-    typedef typename EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXs) RowMatrixXs;
+    typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXs) RowMatrixXs;
     typedef typename Base::VectorXs VectorXs;
     
     typedef typename Base::ADData ADData;
     typedef typename ADData::MatrixXs ADMatrixXs;
-    typedef typename EIGEN_PLAIN_ROW_MAJOR_TYPE(ADMatrixXs) RowADMatrixXs;
+    typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(ADMatrixXs) RowADMatrixXs;
     
     CodeGenABADerivatives(const Model & model,
                           const std::string & function_name = "partial_aba",
