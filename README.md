@@ -8,7 +8,7 @@ Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
 **Pinocchio** instantiates the state-of-the-art Rigid Body Algorithms for poly-articulated systems based on revisited Roy Featherstone's algorithms.
 Besides, **Pinocchio** provides the analytical derivatives of the main Rigid-Body Algorithms like the Recursive Newton-Euler Algorithms or the Articulated-Body Algorithm.
 
-**Pinocchio** is first tailored for legged robotics applications, but it can be used in extra contexts (biomechanics, computer graphics, etc.)
+**Pinocchio** is first tailored for robotics applications, but it can be used in extra contexts (biomechanics, computer graphics, vision, etc.).
 It is built upon Eigen for linear algebra and FCL for collision detection. **Pinocchio** comes with a Python interface for fast code prototyping.
 
 **Pinocchio** is now at the heart of various robotics softwares as the [Stack-of-Tasks](http://stack-of-tasks.github.io) or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc).
@@ -60,19 +60,19 @@ The content of the tutorials are described [here](http://projects.laas.fr/gepett
 To cite **Pinocchio** in your academic research, please use the following bibtex lines:
 ```
 @misc{pinocchioweb,
-      author = {Justin Carpentier and Florian Valenza and Nicolas Mansard and others},
-      title = {Pinocchio: fast forward and inverse dynamics for poly-articulated systems},
-      howpublished = {https://stack-of-tasks.github.io/pinocchio},
-      year = {2015--2019}
-     }
+   author = {Justin Carpentier and Florian Valenza and Nicolas Mansard and others},
+   title = {Pinocchio: fast forward and inverse dynamics for poly-articulated systems},
+   howpublished = {https://stack-of-tasks.github.io/pinocchio},
+   year = {2015--2019}
+}
 ```
 and the following one for the reference to the paper introducing **Pinocchio**:
 ```
 @inproceedings{carpentier2019pinocchio,
-  title={The Pinocchio C++ library -- A fast and flexible implementation of rigid body dynamics algorithms and their analytical derivatives},
-  author={Carpentier, Justin and Saurel, Guilhem and Buondonno, Gabriele and Mirabel, Joseph and Lamiraux, Florent and Stasse, Olivier and Mansard, Nicolas},
-  booktitle={IEEE International Symposium on System Integrations (SII)},
-  year={2019}
+   title={The Pinocchio C++ library -- A fast and flexible implementation of rigid body dynamics algorithms and their analytical derivatives},
+   author={Carpentier, Justin and Saurel, Guilhem and Buondonno, Gabriele and Mirabel, Joseph and Lamiraux, Florent and Stasse, Olivier and Mansard, Nicolas},
+   booktitle={IEEE International Symposium on System Integrations (SII)},
+   year={2019}
 }
 ```
 
