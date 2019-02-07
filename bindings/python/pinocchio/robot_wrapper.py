@@ -47,7 +47,7 @@ class RobotWrapper(object):
 
 
     def __init__(self, model = pin.Model(), collision_model = None, visual_model = None, verbose=False):
-        
+
         self.model = model
         self.data = self.model.createData()
 
@@ -72,6 +72,9 @@ class RobotWrapper(object):
 
         self.v0 = utils.zero(self.nv)
         self.q0 = pin.neutral(self.model)
+
+        # Two viewers are supported: meshcat or gepetto-gui. By default, gepetto-gui is to be used.
+        self.used_viewer = 'gepetto-gui'
 
     @property
     def nq(self):
@@ -212,12 +215,12 @@ class RobotWrapper(object):
             pin.updateGeometryPlacements(self.model, self.data, geom_model, geom_data)
 
     @deprecated("This method is now renamed framesForwardKinematics. Please use framesForwardKinematics instead.")
-    def framesKinematics(self, q): 
+    def framesKinematics(self, q):
         pin.framesForwardKinematics(self.model, self.data, q)
 
-    def framesForwardKinematics(self, q): 
+    def framesForwardKinematics(self, q):
         pin.framesForwardKinematics(self.model, self.data, q)
-    
+
     '''
         It computes the Jacobian of frame given by its id (frame_id) either expressed in the
         local coordinate frame or in the world coordinate frame.
@@ -232,7 +235,7 @@ class RobotWrapper(object):
     def frameJacobian(self, q, frame_id, rf_frame=pin.ReferenceFrame.LOCAL):
         return pin.frameJacobian(self.model, self.data, q, frame_id, rf_frame)
 
-  
+
     # --- ACCESS TO NAMES ----
     # Return the index of the joint whose name is given in argument.
     def index(self, name):
@@ -251,6 +254,8 @@ class RobotWrapper(object):
         """
         Init gepetto-viewer by loading the gui and creating a window.
         """
+        # Set viewer to use to gepetto-gui.
+        self.used_viewer = 'gepetto-gui'
         import gepetto.corbaserver
         try:
             self.viewer = gepetto.corbaserver.Client()
@@ -262,26 +267,63 @@ class RobotWrapper(object):
                 self.windowID = self.viewer.gui.createWindow(windowName)
             else:
                 self.windowID = self.viewer.gui.getWindowID(windowName)
-            
+
             # Create scene if needed
             scene_l = gui.getSceneList()
             if sceneName not in scene_l:
                 gui.createScene(sceneName)
             self.sceneName = sceneName
             gui.addSceneToWindow(sceneName, self.windowID)
-            
+
             if loadModel:
                 self.loadDisplayModel()
         except:
             print("Error while starting the viewer client. ")
             print("Check wheter gepetto-viewer is properly started")
 
+    def initMeshcatDisplay(self, meshcat_visualizer, robot_name = "pinocchio", robot_color = None):
+        """ Load the robot in a MeshCat viewer.
+        Parameters:
+            visualizer: the meshcat.Visualizer instance to use.
+            robot_name: name to give to the robot in the viewer
+            robot_color: optional, color to give to the robot. This overwrites the color present in the urdf.
+                         Format is a list of three RGB floats (between 0 and 1)
+        """
+        import meshcat.geometry
+        # Set viewer to use to gepetto-gui.
+        self.used_viewer = 'meshcat'
+        self.meshcat_viewer = meshcat_visualizer
+        self.viewerRootNodeName = robot_name
+
+        # Load robot meshes in MeshCat
+        for visual in self.visual_model.geometryObjects:
+            viewer_name = self.viewerRootNodeName + visual.name
+            if visual.meshPath == "":
+                raise IOError("Visual mesh file not found for link {}.".format(visual.name))
+            # Get file type from filename extension.
+            _, file_extension = os.path.splitext(visual.meshPath)
+            if file_extension == ".dae" or file_extension == ".DAE":
+                obj = meshcat.geometry.DaeMeshGeometry.from_file(visual.meshPath)
+            elif file_extension == ".obj" or file_extension == ".OBJ":
+                obj = meshcat.geometry.ObjMeshGeometry.from_file(visual.meshPath)
+            elif file_extension == ".stl" or file_extension == ".STL":
+                obj = meshcat.geometry.StlMeshGeometry.from_file(visual.meshPath)
+            else:
+                raise ImportError("Unknown mesh file format: {}.".format(visual.meshPath))
+            material = meshcat.geometry.MeshPhongMaterial()
+            # Set material color from URDF, converting for triplet of doubles to a single int.
+            if robot_color is None:
+                meshColor = visual.meshColor
+            else:
+                meshColor = robot_color
+            material.color = int(meshColor[0] * 255) * 256**2 + int(meshColor[1] * 255) * 256 + int(meshColor[2] * 255)
+            self.meshcat_viewer[viewer_name].set_object(obj, material)
+
     # Create the scene displaying the robot meshes in gepetto-viewer
     def loadDisplayModel(self, rootNodeName="pinocchio"):
-    
         def loadDisplayGeometryObject(geometry_object,geometry_type):
             from .rpy import npToTuple
-            
+
             meshName = self.getViewerNodeName(geometry_object,geometry_type)
             meshPath = geometry_object.meshPath
             meshTexturePath = geometry_object.meshTexturePath
@@ -322,30 +364,40 @@ class RobotWrapper(object):
         # Finally, refresh the layout to obtain your first rendering.
         gui.refresh()
 
-    # Display in gepetto-view the robot at configuration q, by placing all the bodies.
+    # Display the robot at configuration q in the viewer (meshcat or gepetto-gui), by placing all the bodies.
     def display(self, q):
-        if 'viewer' not in self.__dict__:
-            return
+        if self.used_viewer == 'gepetto-gui':
+            if 'viewer' not in self.__dict__:
+                return
 
-        gui = self.viewer.gui
-        # Update the robot kinematics and geometry.
-        self.forwardKinematics(q)
+            gui = self.viewer.gui
+            # Update the robot kinematics and geometry.
+            self.forwardKinematics(q)
 
-        if self.display_collisions:
-            self.updateGeometryPlacements(visual=False)
-            for collision in self.collision_model.geometryObjects:
-                M = self.collision_data.oMg[self.collision_model.getGeometryId(collision.name)]
-                conf = utils.se3ToXYZQUAT(M)
-                gui.applyConfiguration(self.getViewerNodeName(collision,pin.GeometryType.COLLISION), conf)
+            if self.display_collisions:
+                self.updateGeometryPlacements(visual=False)
+                for collision in self.collision_model.geometryObjects:
+                    M = self.collision_data.oMg[self.collision_model.getGeometryId(collision.name)]
+                    conf = utils.se3ToXYZQUAT(M)
+                    gui.applyConfiguration(self.getViewerNodeName(collision,pin.GeometryType.COLLISION), conf)
 
-        if self.display_visuals:
+            if self.display_visuals:
+                self.updateGeometryPlacements(visual=True)
+                for visual in self.visual_model.geometryObjects:
+                    M = self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]
+                    conf = utils.se3ToXYZQUAT(M)
+                    gui.applyConfiguration(self.getViewerNodeName(visual,pin.GeometryType.VISUAL), conf)
+
+            gui.refresh()
+        elif self.used_viewer == 'meshcat':
+            # Update the robot kinematics and geometry.
+            self.forwardKinematics(q)
             self.updateGeometryPlacements(visual=True)
             for visual in self.visual_model.geometryObjects:
+                # Get mesh pose.
                 M = self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]
-                conf = utils.se3ToXYZQUAT(M)
-                gui.applyConfiguration(self.getViewerNodeName(visual,pin.GeometryType.VISUAL), conf)
-
-        gui.refresh()
+                # Update viewer configuration.
+                self.meshcat_viewer[self.viewerRootNodeName + visual.name].set_transform(np.array(M.homogeneous))
 
     def displayCollisions(self,visibility):
         gui = self.viewer.gui
