@@ -32,11 +32,17 @@ class RobotWrapper(object):
         else:
             if verbose and "removeCollisionPairs" not in dir(pin) and meshLoader is not None:
                 print('Info: Pinocchio was compiled without hpp-fcl. meshLoader is ignored.')
-            def _buildGeomFromUrdf (model, filename, geometryType, meshLoader):
+            def _buildGeomFromUrdf (model, filename, geometryType, meshLoader, dirs=None):
                 if "removeCollisionPairs" not in dir(pin):
-                    return pin.buildGeomFromUrdf(model, filename, geometryType)
+                    if dirs:
+                        return pin.buildGeomFromUrdf(model, filename, dirs, geometryType)
+                    else:
+                        return pin.buildGeomFromUrdf(model, filename, geometryType)
                 else:
-                    return pin.buildGeomFromUrdf(model, filename, geometryType,meshLoader)
+                    if dirs:
+                        return pin.buildGeomFromUrdf(model, filename, dirs, geometryType, meshLoader)
+                    else:
+                        return pin.buildGeomFromUrdf(model, filename, geometryType, meshLoader)
 
             if package_dirs is None:
                 self.collision_model = _buildGeomFromUrdf(self.model, filename, pin.GeometryType.COLLISION,meshLoader)
@@ -45,10 +51,10 @@ class RobotWrapper(object):
                 if not all(isinstance(item, str) for item in package_dirs):
                     raise Exception('The list of package directories is wrong. At least one is not a string')
                 else:
-                    collision_model = _buildGeomFromUrdf(model, filename,
-                                                            utils.fromListToVectorOfString(package_dirs), pin.GeometryType.COLLISION, meshLoader)
-                    visual_model = _buildGeomFromUrdf(model, filename,
-                                                         utils.fromListToVectorOfString(package_dirs), pin.GeometryType.VISUAL, meshLoader)
+                    collision_model = _buildGeomFromUrdf(model, filename, pin.GeometryType.COLLISION, meshLoader,
+                                                            dirs = utils.fromListToVectorOfString(package_dirs))
+                    visual_model = _buildGeomFromUrdf(model, filename, pin.GeometryType.VISUAL, meshLoader,
+                                                         dirs = utils.fromListToVectorOfString(package_dirs))
 
 
         RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
