@@ -220,13 +220,12 @@ namespace pinocchio
 
       bp::def("buildGeomFromUrdf",
               static_cast <GeometryModel (*) (const Model &, const std::string &, const std::vector<std::string> &, const GeometryType, const fcl::MeshLoaderPtr&)> (&ParsersPythonVisitor::buildGeomFromUrdf),
-              bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)"
-                       ),
+              bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)","Geometry type", "Mesh loader"),
               "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model ");
       
       bp::def("buildGeomFromUrdf",
               static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType, const fcl::MeshLoaderPtr&)> (&ParsersPythonVisitor::buildGeomFromUrdf),
-              bp::args("Model to assosiate the Geometry","filename (string)"),
+              bp::args("Model to assosiate the Geometry","filename (string)","Geometry type", "Mesh loader"),
               "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model ");
       
       bp::def("removeCollisionPairs",
