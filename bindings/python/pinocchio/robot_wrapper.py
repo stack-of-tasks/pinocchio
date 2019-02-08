@@ -379,18 +379,17 @@ class RobotWrapper(object):
             self.forwardKinematics(q)
 
             if self.display_collisions:
-                self.updateGeometryPlacements(visual=False)
-                for collision in self.collision_model.geometryObjects:
-                    M = self.collision_data.oMg[self.collision_model.getGeometryId(collision.name)]
-                    conf = utils.se3ToXYZQUAT(M)
-                    gui.applyConfiguration(self.getViewerNodeName(collision,pin.GeometryType.COLLISION), conf)
+                gui.applyConfigurations (
+                        [ self.getViewerNodeName(collision,pin.GeometryType.COLLISION) for collision in self.collision_model.geometryObjects ],
+                        [ pin.se3ToXYZQUATtuple(self.collision_data.oMg[self.collision_model.getGeometryId(collision.name)]) for collision in self.collision_model.geometryObjects ]
+                        )
 
             if self.display_visuals:
                 self.updateGeometryPlacements(visual=True)
-                for visual in self.visual_model.geometryObjects:
-                    M = self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]
-                    conf = utils.se3ToXYZQUAT(M)
-                    gui.applyConfiguration(self.getViewerNodeName(visual,pin.GeometryType.VISUAL), conf)
+                gui.applyConfigurations (
+                        [ self.getViewerNodeName(visual,pin.GeometryType.VISUAL) for visual in self.visual_model.geometryObjects ],
+                        [ pin.se3ToXYZQUATtuple(self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]) for visual in self.visual_model.geometryObjects ]
+                        )
 
             gui.refresh()
         elif self.used_viewer == 'meshcat':
