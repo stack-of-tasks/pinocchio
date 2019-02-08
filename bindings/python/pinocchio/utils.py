@@ -28,23 +28,9 @@ def skew(p):
     return np.matrix([[0, -z, y], [z, 0, -x], [-y, x, 0]], np.double)
 
 
-def se3ToXYZQUAT(M):
-    '''
-    Convert the input SE3 object to a 7D tuple of floats [X,Y,Z,Q1,Q2,Q3,Q4] .
-    '''
-    xyz = M.translation
-    quat = pin.Quaternion(M.rotation).coeffs()
-    return [float(xyz[0, 0]), float(xyz[1, 0]), float(xyz[2, 0]),
-            float(quat[0, 0]), float(quat[1, 0]), float(quat[2, 0]), float(quat[3, 0])]
+se3ToXYZQUAT = pin.se3ToXYZQUAT
 
-
-def XYZQUATToSe3(xyzq):
-    '''
-    Reverse function of se3ToXYZQUAT: convert [X,Y,Z,Q1,Q2,Q3,Q4] to a SE3 element
-    '''
-    if isinstance(xyzq, (tuple, list)):
-        xyzq = np.matrix(xyzq, np.float).T
-    return pin.SE3(pin.Quaternion(xyzq[6, 0], xyzq[3, 0], xyzq[4, 0], xyzq[5, 0]).matrix(), xyzq[:3])
+XYZQUATToSe3 = pin.XYZQUATToSe3
 
 
 @deprecated('Now useless.')
