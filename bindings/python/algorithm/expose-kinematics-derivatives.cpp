@@ -4,6 +4,7 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
+#include "pinocchio/algorithm/center-of-mass-derivatives.hpp"
 
 #include <boost/python/tuple.hpp>
 
@@ -47,6 +48,15 @@ namespace pinocchio
 
       return bp::make_tuple(v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
     }
+    Data::Matrix3x getCoMVelocityDerivatives_proxy(const Model & model,
+                                                   Data & data)
+    {
+      typedef Data::Matrix3x Matrix3x;
+      Matrix3x partial_dq(Matrix3x::Zero(3,model.nv));
+      getCenterOfMassVelocityDerivatives(model,data,partial_dq);
+      return partial_dq;
+    }
+    
     
     void exposeKinematicsDerivatives()
     {
@@ -83,6 +93,15 @@ namespace pinocchio
               "the joint configuration, velocity and acceleration and returns them as a tuple.\n"
               "The Jacobians can be either expressed in the LOCAL frame of the joint or in the WORLD coordinate frame depending on the value of the Reference Frame.\n"
               "You must first call computForwardKinematicsDerivatives before calling this function");
+
+      bp::def("getCenterOfMassVelocityDerivatives",
+              getCoMVelocityDerivatives_proxy,
+              bp::args("Model","Data"),
+              "Computes the partial derivaties of the com velocity of a given with respect to\n"
+              "the joint configuration.\n"
+              "You must first call computForwardKinematicsDerivatives and centerOfMass(q,vq) "
+              "before calling this function");
+
     }
     
     

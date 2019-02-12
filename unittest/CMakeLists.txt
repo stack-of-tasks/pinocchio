@@ -107,6 +107,7 @@ ADD_PINOCCHIO_UNIT_TEST(kinematics-derivatives eigen3)
 ADD_PINOCCHIO_UNIT_TEST(rnea-derivatives eigen3)
 ADD_PINOCCHIO_UNIT_TEST(aba-derivatives eigen3)
 ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives eigen3)
+ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives eigen3)
 
 # Automatic differentiation
 IF(CPPAD_FOUND)
