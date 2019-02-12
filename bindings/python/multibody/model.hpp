@@ -7,6 +7,7 @@
 #define __pinocchio_python_model_hpp__
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <boost/python/overloads.hpp>
 #include <eigenpy/memory.hpp>
 
@@ -15,6 +16,7 @@
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-map.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 
@@ -87,6 +89,11 @@ namespace pinocchio
                       make_getter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
                       "Joint's neutral configurations.")
+
+        .add_property("referenceConfigurations",
+                      make_getter(&Model::referenceConfigurations, bp::return_value_policy<bp::return_by_value>()),
+                      make_setter(&Model::referenceConfigurations, bp::return_value_policy<bp::return_by_value>()),
+                      "Model reference configurations.")
         .add_property("rotorInertia",
                       make_getter(&Model::rotorInertia, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::rotorInertia, bp::return_value_policy<bp::return_by_value>()),
@@ -197,7 +204,9 @@ namespace pinocchio
         bp::class_< std::vector<bool> >("StdVec_Bool")
           .def(bp::vector_indexing_suite< std::vector<bool> >());
         bp::class_< std::vector<double> >("StdVec_double")
-          .def(bp::vector_indexing_suite< std::vector<double> >()); 
+          .def(bp::vector_indexing_suite< std::vector<double> >());
+
+        StdAlignedMapPythonVisitor<std::string, Model::ConfigVectorType>::expose("StdMap_string");
 
         bp::class_<Model>("Model",
                           "Articulated rigid body model (const)",

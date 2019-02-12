@@ -208,12 +208,12 @@ namespace pinocchio
               "Parse the URDF file given in input and return a proper pinocchio model");
 #endif // #ifdef PINOCCHIO_WITH_LUA5
 
-      bp::def("getNeutralConfiguration",
-              static_cast<Model::ConfigVectorType (*)(Model &, const std::string &, const bool)>(&srdf::getNeutralConfiguration),
+      bp::def("loadReferenceConfigurations",
+              static_cast<void (*)(Model &, const std::string &, const bool)>(&srdf::loadReferenceConfigurations),
               bp::args("Model for which we want the neutral config","srdf filename (string)", "verbosity"
                        ),
-              "Get the neutral configuration of a given model associated to a SRDF file");
-
+              "Get the reference configurations of a given model from the SRDF file.");
+     
       bp::def("loadRotorParameters",
               static_cast<bool (*)(Model &, const std::string &, const bool)>(&srdf::loadRotorParameters),
               bp::args("Model for which we are loading the rotor parameters",
