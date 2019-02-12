@@ -106,7 +106,45 @@ namespace pinocchio
     
     return a;
   }
-  
+
+  ///
+  /// \brief Computes the inverse of the constraint matrix [[M JT], [J 0]].
+  /// The matrix is defined when we call forwardDynamics. This method makes use of
+  /// the matrix decompositions performed during the forwardDynamics and returns the inverse.
+  /// The jacobian should be the same that was provided to forwardDynamics.
+  /// Thus you should call forward Dynamics first.
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[out] MJtJ_inv inverse of the MJtJ matrix.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+           typename ConstraintMatrixType>
+  inline void getMJtJInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> &
+                             model,
+                             const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                             const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                             typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs& MJtJ_inv)
+  {
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    assert(MJtJ_inv.cols() == data.JMinvJt.cols() + model.nv);
+    assert(MJtJ_inv.rows() == data.JMinvJt.rows() + model.nv);
+    typename Data::MatrixXs::Index nc = data.JMinvJt.cols();
+
+    Eigen::Block<typename Data::MatrixXs> topLeft = MJtJ_inv.topLeftCorner(model.nv, model.nv);
+    Eigen::Block<typename Data::MatrixXs> topRight = MJtJ_inv.topRightCorner(model.nv, nc);
+    Eigen::Block<typename Data::MatrixXs> bottomLeft = MJtJ_inv.bottomLeftCorner(nc, model.nv);
+    Eigen::Block<typename Data::MatrixXs> bottomRight = MJtJ_inv.bottomRightCorner(nc, nc); 
+
+    bottomRight.setIdentity(); topLeft.setIdentity();
+    data.llt_JMinvJt.solveInPlace(bottomRight);    cholesky::solve(model, data, topLeft);
+
+    bottomLeft.noalias() = J*topLeft;
+    topRight.noalias() = bottomLeft.transpose() * bottomRight;
+    topLeft.noalias() -= topRight*bottomLeft;
+    bottomLeft = topRight.transpose();
+    bottomRight *=-1;
+  }
+
   ///
   /// \brief Compute the impulse dynamics with contact constraints.
   /// \note It computes the following problem: <BR>
