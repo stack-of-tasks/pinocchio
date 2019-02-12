@@ -80,15 +80,68 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   Eigen::VectorXd dynamics_residual (data.M * data.ddq + data.nle - tau - J.transpose()*data.lambda_c);
   BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
 
-  ///
+}
+
+BOOST_AUTO_TEST_CASE (test_KKTMatrix)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model);
+  
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.segment <4> (3).normalize();
+  
+  pinocchio::computeJointJacobians(model, data, q);
+  
+  VectorXd v = VectorXd::Ones(model.nv);
+  VectorXd tau = VectorXd::Zero(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
+  
+  Data::Matrix6x J_RF (6, model.nv);
+  J_RF.setZero();
+  getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
+  Data::Matrix6x J_LF (6, model.nv);
+  J_LF.setZero();
+  getJointJacobian(model, data, model.getJointId(LF), LOCAL, J_LF);
+  
+  Eigen::MatrixXd J (12, model.nv);
+  J.setZero();
+  J.topRows<6> () = J_RF;
+  J.bottomRows<6> () = J_LF;
+  
+  Eigen::VectorXd gamma (VectorXd::Ones(12));
+  
+  Eigen::MatrixXd H(J.transpose());
+  
+  //Check Forward Dynamics
+  pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 0.,true);
+  data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+
   Eigen::MatrixXd MJtJ(model.nv+12, model.nv+12);
   MJtJ << data.M, J.transpose(),
     J, Eigen::MatrixXd::Zero(12, 12);
 
   Eigen::MatrixXd MJtJ_inv(model.nv+12, model.nv+12);
-  getMJtJInverse(model, data, J, MJtJ_inv);
+  getKKTContactDynamicMatrixInverse(model, data, J, MJtJ_inv);
 
-  BOOST_CHECK((MJtJ.inverse()-MJtJ_inv).norm() <=1e-12);
+  BOOST_CHECK(MJtJ_inv.isApprox(MJtJ.inverse()));
+
+  //Check Impulse Dynamics
+  const double r_coeff = 1.;
+  VectorXd v_before = VectorXd::Ones(model.nv);
+  pinocchio::impulseDynamics(model, data, q, v_before, J, r_coeff, true);
+  data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  MJtJ << data.M, J.transpose(),
+    J, Eigen::MatrixXd::Zero(12, 12);
+
+  getKKTContactDynamicMatrixInverse(model, data, J, MJtJ_inv);
+
+  BOOST_CHECK(MJtJ_inv.isApprox(MJtJ.inverse()));
+  
 }
 
 BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
@@ -203,6 +256,7 @@ BOOST_AUTO_TEST_CASE ( test_ID )
   
   Eigen::VectorXd dynamics_residual (data.M * data.dq_after - data.M * v_before - J.transpose()*data.impulse_c);
   BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
+
 }
 
 BOOST_AUTO_TEST_CASE (timings_fd_llt)
