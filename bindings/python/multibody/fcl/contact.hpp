@@ -23,8 +23,8 @@ namespace pinocchio
       
       struct ContactPythonVisitor : public bp::def_visitor<ContactPythonVisitor>
       {
-        typedef ::fcl::Contact Contact;
-        typedef ::fcl::CollisionGeometry CollisionGeometry;
+        typedef ::hpp::fcl::Contact Contact;
+        typedef ::hpp::fcl::CollisionGeometry CollisionGeometry;
         
         template<class PyClass>
         void visit(PyClass& cl) const

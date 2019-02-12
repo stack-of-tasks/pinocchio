@@ -22,6 +22,7 @@
 #include <boost/shared_ptr.hpp>
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
+  #include <hpp/fcl/mesh_loader/loader.h>
   #include <hpp/fcl/mesh_loader/assimp.h>
 #endif // PINOCCHIO_WITH_HPP_FCL
 
@@ -82,9 +83,6 @@ namespace pinocchio
      };
 
 #ifdef PINOCCHIO_WITH_HPP_FCL      
-      typedef fcl::BVHModel< fcl::OBBRSS > PolyhedronType;
-      typedef boost::shared_ptr <PolyhedronType> PolyhedronPtrType;
-
       /**
        * @brief      Get a fcl::CollisionObject from an urdf geometry, searching
        *             for it in specified package directories
@@ -98,6 +96,7 @@ namespace pinocchio
        */
       boost::shared_ptr<fcl::CollisionGeometry>
       retrieveCollisionGeometry(const UrdfTree& tree,
+                                fcl::MeshLoaderPtr& meshLoader,
                                 const std::string& linkName,
                                 const std::string& geomName,
                                 const ::urdf::GeometrySharedPtr urdf_geometry,
@@ -130,10 +129,7 @@ namespace pinocchio
           collisionGeometry->scale.z;
           
           // Create FCL mesh by parsing Collada file.
-          PolyhedronPtrType polyhedron (new PolyhedronType);
-          
-          fcl::loadPolyhedronFromResource (meshPath, scale, polyhedron);
-          geometry = polyhedron;
+          geometry = meshLoader->load (meshPath, scale, fcl::BV_OBBRSS);
         }
 
         // Handle the case where collision geometry is a cylinder
@@ -295,6 +291,7 @@ namespace pinocchio
        */
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename GeometryType>
       inline void addLinkGeometryToGeomModel(const UrdfTree & tree,
+                                             fcl::MeshLoaderPtr& meshLoader,
                                              ::urdf::LinkConstSharedPtr link,
                                              const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                              GeometryModel & geomModel,
@@ -332,7 +329,7 @@ namespace pinocchio
             const std::string & geom_name = (*i)->name;
 #endif
             const boost::shared_ptr<fcl::CollisionGeometry> geometry =
-            retrieveCollisionGeometry(tree, link_name, geom_name,
+            retrieveCollisionGeometry(tree, meshLoader, link_name, geom_name,
                                       (*i)->geometry, package_dirs, meshPath, meshScale);
 #else
             ::urdf::MeshSharedPtr urdf_mesh = ::urdf::dynamic_pointer_cast< ::urdf::Mesh> ((*i)->geometry);
@@ -375,6 +372,7 @@ namespace pinocchio
        */
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
       void parseTreeForGeom(const UrdfTree& tree,
+                            fcl::MeshLoaderPtr& meshLoader,
                             ::urdf::LinkConstSharedPtr link,
                             const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             GeometryModel & geomModel,
@@ -385,10 +383,10 @@ namespace pinocchio
         switch(type)
         {
           case COLLISION:
-            addLinkGeometryToGeomModel<Scalar,Options,JointCollectionTpl, ::urdf::Collision >(tree, link, model, geomModel, package_dirs);
+            addLinkGeometryToGeomModel<Scalar,Options,JointCollectionTpl, ::urdf::Collision >(tree, meshLoader, link, model, geomModel, package_dirs);
             break;
           case VISUAL:
-            addLinkGeometryToGeomModel<Scalar,Options,JointCollectionTpl, ::urdf::Visual >(tree, link, model, geomModel, package_dirs);
+            addLinkGeometryToGeomModel<Scalar,Options,JointCollectionTpl, ::urdf::Visual >(tree, meshLoader, link, model, geomModel, package_dirs);
             break;
           default:
             break;
@@ -396,7 +394,7 @@ namespace pinocchio
         
         BOOST_FOREACH(::urdf::LinkConstSharedPtr child,link->child_links)
         {
-          parseTreeForGeom(tree, child, model, geomModel, package_dirs,type);
+          parseTreeForGeom(tree, meshLoader, child, model, geomModel, package_dirs,type);
         }
         
       }
@@ -409,7 +407,8 @@ namespace pinocchio
                                const std::string & filename,
                                const GeometryType type,
                                GeometryModel & geomModel,
-                               const std::vector<std::string> & package_dirs)
+                               const std::vector<std::string> & package_dirs,
+                               fcl::MeshLoaderPtr meshLoader)
       throw(std::invalid_argument)
       {
         std::ifstream xmlStream(filename.c_str());
@@ -418,7 +417,7 @@ namespace pinocchio
           const std::string exception_message (filename + " does not seem to be a valid file.");
           throw std::invalid_argument(exception_message);
         }
-        return buildGeom (model, xmlStream, type, geomModel, package_dirs);
+        return buildGeom (model, xmlStream, type, geomModel, package_dirs, meshLoader);
       }
       
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -426,7 +425,8 @@ namespace pinocchio
                                const std::istream& xmlStream,
                                const GeometryType type,
                                GeometryModel & geomModel,
-                               const std::vector<std::string> & package_dirs)
+                               const std::vector<std::string> & package_dirs,
+                               fcl::MeshLoaderPtr meshLoader)
       throw(std::invalid_argument)
       {
         std::string xmlStr;
@@ -444,8 +444,12 @@ namespace pinocchio
         // Append the ROS_PACKAGE_PATH
         std::vector<std::string> ros_pkg_paths = rosPaths();
         hint_directories.insert(hint_directories.end(), ros_pkg_paths.begin(), ros_pkg_paths.end());
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
+        if (!meshLoader) meshLoader = fcl::MeshLoaderPtr(new fcl::MeshLoader);
+#endif // ifdef PINOCCHIO_WITH_HPP_FCL
         
-        details::parseTreeForGeom(tree, tree.urdf_->getRoot(), model, geomModel, hint_directories,type);
+        details::parseTreeForGeom(tree, meshLoader, tree.urdf_->getRoot(), model, geomModel, hint_directories,type);
         return geomModel;
       }
 

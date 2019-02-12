@@ -23,7 +23,7 @@ namespace pinocchio
       
       struct CollisionResultPythonVisitor : public bp::def_visitor<CollisionResultPythonVisitor>
       {
-        typedef ::fcl::CollisionResult CollisionResult;
+        typedef ::hpp::fcl::CollisionResult CollisionResult;
         
         template<class PyClass>
         void visit(PyClass& cl) const

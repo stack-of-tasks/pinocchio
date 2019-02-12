@@ -10,12 +10,12 @@
 
 namespace pinocchio
 {
-  inline fcl::Transform3f toFclTransform3f(const SE3 & m)
+  inline hpp::fcl::Transform3f toFclTransform3f(const SE3 & m)
   {
-    return fcl::Transform3f(m.rotation(), m.translation());
+    return hpp::fcl::Transform3f(m.rotation(), m.translation());
   }
 
-  inline SE3 toPinocchioSE3(const fcl::Transform3f & tf)
+  inline SE3 toPinocchioSE3(const hpp::fcl::Transform3f & tf)
   {
     return SE3(tf.getRotation(), tf.getTranslation());
   }
