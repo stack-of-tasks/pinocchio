@@ -75,7 +75,7 @@ ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
 ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.0")
 
 find_package(catkin QUIET COMPONENTS hpp-fcl)  # compatability with catkin-packaged hpp-fcl
-ADD_OPTIONAL_DEPENDENCY("hpp-fcl >= 0.5.1")
+ADD_OPTIONAL_DEPENDENCY("hpp-fcl >= 1.0.0")
 
 ADD_OPTIONAL_DEPENDENCY("cppad >= 20180000.0")
 
