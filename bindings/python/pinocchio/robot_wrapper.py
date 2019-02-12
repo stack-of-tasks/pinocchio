@@ -58,7 +58,7 @@ class RobotWrapper(object):
             self.collision_data = None
             self.visual_data = None
             if verbose:
-                print 'Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.'
+                print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
         else:
             if self.collision_model is None:
                 self.collision_data = None
