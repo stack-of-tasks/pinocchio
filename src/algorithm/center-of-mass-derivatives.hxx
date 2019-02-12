@@ -31,23 +31,24 @@ namespace pinocchio
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data,
-                     const Eigen::MatrixBase<Matrix3xOut> & vcom_partial_dq_CONST)
+                     const Eigen::MatrixBase<Matrix3xOut> & vcom_partial_dq)
     {
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
       
       const JointIndex & i = jmodel.id();
 
-      Matrix3xOut & dvcom_dq = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut,vcom_partial_dq_CONST);
+      Matrix3xOut & dvcom_dq = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut,vcom_partial_dq);
       typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix3x>::Type
         dvcom_dqi = jmodel.jointCols(dvcom_dq);
 
-      Motion vpc = (model.parents[i]>0) ? (data.v[i]-(Motion)jdata.v()) : Motion::Zero();
+      Motion & vpc = data.v[0] = (model.parents[i]>0) ? (data.v[i]-(Motion)jdata.v()) : Motion::Zero();
       vpc.linear() -= data.vcom[i]; // vpc = v_{parent+c} = [ v_parent+vc; w_parent ]
       const Eigen::Matrix<Scalar,6,JointModel::NV,Options> & vxS = vpc.cross(jdata.S());
       
       dvcom_dqi = data.mass[i]*data.oMi[i].rotation()
-        *( vxS.template topRows<3>() - cross( data.com[i], vxS.template bottomRows<3>()) );
+        //*( vxS.template topRows<3>() - cross( data.com[i], vxS.template bottomRows<3>()) );
+        *( vxS.template middleRows<3>(Motion::LINEAR) - cross( data.com[i], vxS.template middleRows<3>(Motion::ANGULAR)) );
     }
   };
   
@@ -74,6 +75,7 @@ namespace pinocchio
                    typename Pass1::ArgsType(model,data,vcom_partial_dq));
       }
     vcom_partial_dq /= data.mass[0];
+    data.v[0].setZero();
   }
 
 } // namespace pinocchio

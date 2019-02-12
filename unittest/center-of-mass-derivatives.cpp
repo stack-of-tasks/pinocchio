@@ -35,11 +35,6 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_vcom)
   VectorXd vq(VectorXd::Random(model.nv));
   VectorXd aq(VectorXd::Random(model.nv));
 
-  q.fill(1);
-  q.head<7>() << 0,0,0,1,0,0,0;
-  vq.fill(2);
-  aq.fill(0);
-    
   // Compute dvcom_dq using the algorithm
   Data::Matrix3x dvcom_dq = Data::Matrix3x::Zero(3,model.nv);
   computeForwardKinematicsDerivatives(model,data,q,vq,aq);
@@ -48,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_vcom)
 
   // Approximate dvcom_dq by finite diff.
   Eigen::Vector3d vcom0 = data.vcom[0];
-  const double alpha = 1e-6;
+  const double alpha = 1e-8;
   Eigen::VectorXd dq = VectorXd::Zero(model.nv);
   Data::Matrix3x dvcom_dqn(3,model.nv);
 
@@ -61,8 +56,6 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_vcom)
   }
 
   // Check that algo result and finite-diff approx are similar.
-  //std::cout << dvcom_dqn << std::endl<< std::endl<< std::endl;
-  //std::cout << dvcom_dq << std::endl;
   BOOST_CHECK(dvcom_dq.isApprox(dvcom_dqn,sqrt(alpha)));
 }
 
