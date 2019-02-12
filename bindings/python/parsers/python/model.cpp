@@ -8,6 +8,7 @@
 #include <Python.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/version.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 // Boost 1.58
 #if BOOST_VERSION / 100 % 1000 == 58
@@ -68,11 +69,38 @@ namespace pinocchio
         std::cout << " degrees of freedom." << std::endl;
       }
 
-      // close interpreter
+      // close the interpreter
+      // cf. https://github.com/numpy/numpy/issues/8097
+#if PY_MAJOR_VERSION < 3
       Py_Finalize();
+#else
+
+      PyObject * poMainModule = PyImport_AddModule("__main__");
+      PyObject * poAttrList = PyObject_Dir(poMainModule);
+      PyObject * poAttrIter = PyObject_GetIter(poAttrList);
+      PyObject * poAttrName;
+
+      while ((poAttrName = PyIter_Next(poAttrIter)) != NULL)
+      {
+        std::string oAttrName = PyUnicode_AS_DATA(poAttrName);
+
+        // Make sure we don't delete any private objects.
+        if (!boost::starts_with(oAttrName, "__") || !boost::ends_with(oAttrName, "__"))
+        {
+          PyObject * poAttr = PyObject_GetAttr(poMainModule, poAttrName);
+
+          // Make sure we don't delete any module objects.
+          if (poAttr && poAttr->ob_type != poMainModule->ob_type)
+            PyObject_SetAttr(poMainModule, poAttrName, NULL);
+          Py_DecRef(poAttr);
+        }
+        Py_DecRef(poAttrName);
+      }
+      Py_DecRef(poAttrIter);
+      Py_DecRef(poAttrList);
+#endif
 
       return model;
     }
   } // namespace python
 } // namespace pinocchio
-
