@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(test_removeCollisionPairs)
   BOOST_CHECK(num_init_col_pairs > num_col_pairs);
 }
   
-BOOST_AUTO_TEST_CASE(readNeutralConfig)
+BOOST_AUTO_TEST_CASE(readReferenceConfig)
 {
   using namespace pinocchio::urdf;
   using namespace pinocchio::srdf;
@@ -50,10 +50,16 @@ BOOST_AUTO_TEST_CASE(readNeutralConfig)
   Model model;
   buildModel(model_filename, model);
 
-  Eigen::VectorXd q = getNeutralConfiguration(model,srdf_filename,false);
-  
+  loadReferenceConfigurations(model,srdf_filename,false);
+  Eigen::VectorXd q = model.referenceConfigurations["half_sitting"];
+  Eigen::VectorXd q2 = model.referenceConfigurations["half_sitting2"];
   BOOST_CHECK(q.size() == model.nq);
   BOOST_CHECK(!q.isZero());
+
+  BOOST_CHECK(q2.size() == model.nq);
+  BOOST_CHECK(!q2.isZero());
+
+  
 }
 
 BOOST_AUTO_TEST_CASE(readRotorParams)
