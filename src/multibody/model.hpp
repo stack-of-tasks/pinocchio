@@ -59,6 +59,9 @@ namespace pinocchio
     
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
+
+    typedef std::map<std::string, ConfigVectorType, std::less<std::string>,
+                     Eigen::aligned_allocator<std::pair<const std::string, ConfigVectorType> > >  ConfigVectorMap;
     
     /// \brief Dense vectorized version of a joint tangent vector (e.g. velocity, acceleration, etc).
     ///        It also handles the notion of co-tangent vector (e.g. torque, etc).
@@ -95,7 +98,11 @@ namespace pinocchio
     std::vector<std::string> names;
     
     /// \brief Vector of joint's neutral configurations
+    PINOCCHIO_DEPRECATED
     ConfigVectorType neutralConfiguration;
+
+    /// \brief Map of reference configurations, indexed by user given names.
+    ConfigVectorMap referenceConfigurations;
 
     /// \brief Vector of rotor inertia parameters
     VectorXs rotorInertia;
@@ -184,6 +191,16 @@ namespace pinocchio
       res.lowerPositionLimit = lowerPositionLimit.template cast<NewScalar>();
       res.upperPositionLimit = upperPositionLimit.template cast<NewScalar>();
 
+      typename ReturnType::ConfigVectorMap::iterator rit = res.referenceConfigurations.begin();
+      typename ConfigVectorMap::const_iterator it;
+      for (it = referenceConfigurations.begin();
+           it != referenceConfigurations.end(); it++ )
+      {
+        rit->second = it->second.template cast<NewScalar>();
+        rit++;
+      }
+        
+
       /// reserve vectors
       res.inertias.resize(inertias.size());
       res.jointPlacements.resize(jointPlacements.size());
@@ -226,6 +243,7 @@ namespace pinocchio
       && other.name == name
 
       && other.neutralConfiguration == neutralConfiguration
+      && other.referenceConfigurations == referenceConfigurations
       && other.rotorInertia == rotorInertia
       && other.rotorGearRatio == rotorGearRatio
       && other.effortLimit == effortLimit

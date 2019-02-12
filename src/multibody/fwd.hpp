@@ -8,6 +8,7 @@
 #include "pinocchio/fwd.hpp"
 
 # include <cstddef> // std::size_t
+# include <map> 
 #include "pinocchio/multibody/joint/fwd.hpp"
 
 namespace pinocchio
