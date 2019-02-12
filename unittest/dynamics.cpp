@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   BOOST_CHECK(data.lambda_c.isApprox(lambda_ref, 1e-12));
     
   VectorXd a_ref = Minv*(tau - data.nle + J.transpose()*lambda_ref);
-  
+
   Eigen::VectorXd dynamics_residual_ref (data.M * a_ref + data.nle - tau - J.transpose()*lambda_ref);
   BOOST_CHECK(dynamics_residual_ref.norm() <= 1e-11); // previously 1e-12, may be due to numerical approximations, i obtain 2.03e-12
 
@@ -79,7 +79,16 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   
   Eigen::VectorXd dynamics_residual (data.M * data.ddq + data.nle - tau - J.transpose()*data.lambda_c);
   BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
-  
+
+  ///
+  Eigen::MatrixXd MJtJ(model.nv+12, model.nv+12);
+  MJtJ << data.M, J.transpose(),
+    J, Eigen::MatrixXd::Zero(12, 12);
+
+  Eigen::MatrixXd MJtJ_inv(model.nv+12, model.nv+12);
+  getMJtJInverse(model, data, J, MJtJ_inv);
+
+  BOOST_CHECK((MJtJ.inverse()-MJtJ_inv).norm() <=1e-12);
 }
 
 BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
