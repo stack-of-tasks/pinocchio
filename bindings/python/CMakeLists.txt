@@ -162,7 +162,7 @@ SET(PYTHON_FILES
 FOREACH(python ${PYTHON_FILES})
   PYTHON_BUILD(${PROJECT_NAME} ${python})
   INSTALL(FILES
-    "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/scripts/${python}"
+    "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/pinocchio/${python}"
     DESTINATION ${${PYWRAP}_INSTALL_DIR})
 ENDFOREACH(python)
 
