@@ -1,5 +1,5 @@
 import unittest
-import pinocchio as pio
+import pinocchio as pin
 from pinocchio.utils import *
 from numpy.linalg import norm
 
@@ -16,16 +16,16 @@ def df_dq(model,func,q,h=1e-9):
     res = zero([len(f0),model.nv])
     for iq in range(model.nv):
         dq[iq] = h
-        res[:,iq] = (func(pio.integrate(model,q,dq)) - f0)/h
+        res[:,iq] = (func(pin.integrate(model,q,dq)) - f0)/h
         dq[iq] = 0
     return res
 
 class TestVComDerivativesBindings(unittest.TestCase):
     def setUp(self):
-        self.rmodel = rmodel = pio.buildSampleModelHumanoid()
+        self.rmodel = rmodel = pin.buildSampleModelHumanoid()
         self.rdata  = rmodel.createData()
 
-        self.q = pio.randomConfiguration(rmodel)
+        self.q = pin.randomConfiguration(rmodel)
         self.vq = rand(rmodel.nv)*2-1
         self.aq = zero(rmodel.nv)
         self.dq = rand(rmodel.nv)*2-1
@@ -37,14 +37,14 @@ class TestVComDerivativesBindings(unittest.TestCase):
         q,vq,aq,dq= self.q,self.vq,self.aq,self.dq
 
         #### Compute d/dq VCOM with the algo.
-        pio.computeAllTerms(rmodel,rdata,q,vq)
-        pio.computeForwardKinematicsDerivatives(rmodel,rdata,q,vq,aq)
-        dvc_dq = pio.getCenterOfMassVelocityDerivatives(rmodel,rdata)
+        pin.computeAllTerms(rmodel,rdata,q,vq)
+        pin.computeForwardKinematicsDerivatives(rmodel,rdata,q,vq,aq)
+        dvc_dq = pin.getCenterOfMassVelocityDerivatives(rmodel,rdata)
         
         #### Approximate d/dq VCOM by finite diff.
         def calc_vc(q,vq):
             """ Compute COM velocity """
-            pio.centerOfMass(rmodel,rdata,q,vq)
+            pin.centerOfMass(rmodel,rdata,q,vq)
             return rdata.vcom[0]
         dvc_dqn = df_dq(rmodel,lambda _q: calc_vc(_q,vq),q)
         
