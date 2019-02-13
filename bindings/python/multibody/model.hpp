@@ -7,6 +7,7 @@
 #define __pinocchio_python_model_hpp__
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <boost/python/overloads.hpp>
 #include <eigenpy/memory.hpp>
 
@@ -82,7 +83,7 @@ namespace pinocchio
         .add_property("parents",&Model::parents)
         .add_property("names",&Model::names)
         .add_property("name",&Model::name)
-        
+        .add_property("referenceConfigurations", &Model::referenceConfigurations)
         .add_property("neutralConfiguration",
                       make_getter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
@@ -197,7 +198,9 @@ namespace pinocchio
         bp::class_< std::vector<bool> >("StdVec_Bool")
           .def(bp::vector_indexing_suite< std::vector<bool> >());
         bp::class_< std::vector<double> >("StdVec_double")
-          .def(bp::vector_indexing_suite< std::vector<double> >()); 
+          .def(bp::vector_indexing_suite< std::vector<double> >());
+        bp::class_< std::map<std::string, Eigen::VectorXd> >("StdMap_String_EigenVectorXd")
+          .def(bp::map_indexing_suite< std::map<std::string, Eigen::VectorXd>, true >());
 
         bp::class_<Model>("Model",
                           "Articulated rigid body model (const)",
