@@ -1,7 +1,7 @@
 SET(${PROJECT_NAME}_PYTHON_EXAMPLES
   i-inverse-kinematics
   overview-simple
-  overview-urdf
+  #overview-urdf
   )
 
 FOREACH(PYTHON_EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
