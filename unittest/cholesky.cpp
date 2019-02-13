@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
       BOOST_CHECK(Ui_v_unit.isApprox(Ui_v_unit_ref));
       
 //      std::cout << "Ui_v_unit : " << Ui_v_unit.transpose() << std::endl;
-//      std::cout << "Ui_v_unit_ref : " << Ui_v_unit_ref.transpose() << std::endl << std::endl;;
+//      std::cout << "Ui_v_unit_ref : " << Ui_v_unit_ref.transpose() << std::endl << std::endl;
     }
     
     MatrixXd Minv(model.nv,model.nv);

@@ -308,7 +308,7 @@ struct LieGroup_JintegrateCoeffWise
     typedef Eigen::Matrix<Scalar,T::NQ,T::NV> JacobianCoeffs;
     JacobianCoeffs Jintegrate(JacobianCoeffs::Zero(lg.nq(),lg.nv()));
     lg.integrateCoeffWiseJacobian(q,Jintegrate);
-    JacobianCoeffs Jintegrate_fd(JacobianCoeffs::Zero(lg.nq(),lg.nv()));;
+    JacobianCoeffs Jintegrate_fd(JacobianCoeffs::Zero(lg.nq(),lg.nv()));
 
     const Scalar eps = 1e-8;
     for (int i = 0; i < lg.nv(); ++i)

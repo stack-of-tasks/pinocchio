@@ -60,7 +60,7 @@ namespace pinocchio
 
     ConfigVector_t neutral () const
     {
-      return ConfigVector_t::Zero(size_.value());;
+      return ConfigVector_t::Zero(size_.value());
     }
 
     std::string name () const

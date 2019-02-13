@@ -312,7 +312,7 @@ void bail(lua_State * L, const char *msg)
 
 void stack_print (const char *file, int line, lua_State * L)
 {
-  cout << file << ":" << line << ": stack size: " << lua_gettop(L) << endl;;
+  cout << file << ":" << line << ": stack size: " << lua_gettop(L) << endl;
   for (int i = 1; i < lua_gettop(L) + 1; i++) {
     cout << file << ":" << line << ": ";
     cout << i << ": ";

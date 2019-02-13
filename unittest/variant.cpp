@@ -30,8 +30,8 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_variant )
 {
-	using namespace Eigen;
-  using namespace se3;;
+  using namespace Eigen;
+  using namespace se3;
 
 
   JointModelVariant jmodel = JointModelRX();
