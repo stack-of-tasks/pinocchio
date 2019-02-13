@@ -56,7 +56,7 @@ namespace pinocchio
            typename Matrix3xOut>
   inline void getCenterOfMassVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                 const Eigen::MatrixBase<Matrix3xOut> & vcom_partial_dq_CONST)
+                                                 const Eigen::MatrixBase<Matrix3xOut> & vcom_partial_dq)
   {
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut,Data::Matrix3x);
     
@@ -66,15 +66,15 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
 
-    Matrix3xOut & vcom_partial_dq = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut,vcom_partial_dq_CONST);
+    Matrix3xOut & dvcom_dq = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut,vcom_partial_dq);
       
     typedef CoMVelocityDerivativesForwardStep<Scalar,Options,JointCollectionTpl,Matrix3xOut> Pass1;
     for(JointIndex i = 1; i < (JointIndex)model.njoints; i ++)
       {
         Pass1::run(model.joints[i],data.joints[i],
-                   typename Pass1::ArgsType(model,data,vcom_partial_dq));
+                   typename Pass1::ArgsType(model,data,dvcom_dq));
       }
-    vcom_partial_dq /= data.mass[0];
+    dvcom_dq /= data.mass[0];
     data.v[0].setZero();
   }
 
