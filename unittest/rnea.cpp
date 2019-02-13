@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
 //      }
 //      BOOST_CHECK(v_fd.isApprox(v));
 //      std::cout << "drnea_dv:\n" << drnea_dv.block<6,6>(0,0) << std::endl;
-//      std::cout << "C:\n" << data.C.block<6,6>(0,0) << std::endl;;
+//      std::cout << "C:\n" << data.C.block<6,6>(0,0) << std::endl;
 //    }
     
   }
