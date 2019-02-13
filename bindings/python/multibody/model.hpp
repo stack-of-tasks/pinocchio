@@ -16,7 +16,6 @@
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
-#include "pinocchio/bindings/python/utils/std-aligned-map.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 
@@ -84,16 +83,11 @@ namespace pinocchio
         .add_property("parents",&Model::parents)
         .add_property("names",&Model::names)
         .add_property("name",&Model::name)
-        
+        .add_property("referenceConfigurations", &Model::referenceConfigurations)
         .add_property("neutralConfiguration",
                       make_getter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
                       "Joint's neutral configurations.")
-
-        .add_property("referenceConfigurations",
-                      make_getter(&Model::referenceConfigurations, bp::return_value_policy<bp::return_by_value>()),
-                      make_setter(&Model::referenceConfigurations, bp::return_value_policy<bp::return_by_value>()),
-                      "Model reference configurations.")
         .add_property("rotorInertia",
                       make_getter(&Model::rotorInertia, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::rotorInertia, bp::return_value_policy<bp::return_by_value>()),
@@ -205,8 +199,8 @@ namespace pinocchio
           .def(bp::vector_indexing_suite< std::vector<bool> >());
         bp::class_< std::vector<double> >("StdVec_double")
           .def(bp::vector_indexing_suite< std::vector<double> >());
-
-        StdAlignedMapPythonVisitor<std::string, Model::ConfigVectorType>::expose("StdMap_string");
+        bp::class_< std::map<std::string, Eigen::VectorXd> >("StdMap_String_EigenVectorXd")
+          .def(bp::map_indexing_suite< std::map<std::string, Eigen::VectorXd>, true >());
 
         bp::class_<Model>("Model",
                           "Articulated rigid body model (const)",

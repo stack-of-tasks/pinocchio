@@ -19,6 +19,7 @@
 #include "pinocchio/container/aligned-vector.hpp"
 
 #include <iostream>
+#include <map>
 
 namespace pinocchio
 {
@@ -60,8 +61,7 @@ namespace pinocchio
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
 
-    typedef std::map<std::string, ConfigVectorType, std::less<std::string>,
-                     Eigen::aligned_allocator<std::pair<const std::string, ConfigVectorType> > >  ConfigVectorMap;
+    typedef std::map<std::string, ConfigVectorType>  ConfigVectorMap;
     
     /// \brief Dense vectorized version of a joint tangent vector (e.g. velocity, acceleration, etc).
     ///        It also handles the notion of co-tangent vector (e.g. torque, etc).
