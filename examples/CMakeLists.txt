@@ -1,0 +1,9 @@
+SET(${PROJECT_NAME}_PYTHON_EXAMPLES
+  i-inverse-kinematics
+  overview-simple
+  overview-urdf
+  )
+
+FOREACH(PYTHON_EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
+  ADD_PYTHON_UNIT_TEST("py-example-${PYTHON_EXAMPLE}" "examples/${PYTHON_EXAMPLE}.py" "bindings/python")
+ENDFOREACH(PYTHON_EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
