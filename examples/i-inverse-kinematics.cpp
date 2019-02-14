@@ -20,7 +20,7 @@ int main(int argc, char ** argv)
   pinocchio::Data::Matrix6x J(6,model.nv); J.setZero();
   unsigned int svdOptions = Eigen::ComputeThinU | Eigen::ComputeThinV;
 
-  for (int i=0 ; i<IT_MAX ; ++i)
+  for (int i=0 ; i<=IT_MAX ; ++i)
   {
     pinocchio::forwardKinematics(model,data,q);
     const Eigen::Vector3d & x   = data.oMi[JOINT_ID].translation();
