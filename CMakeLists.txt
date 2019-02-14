@@ -16,6 +16,7 @@ SET(PROJECT_DESCRIPTION "Rigid multi body dynamics algorithms")
 SET(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
 SET(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
 OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" ON)
+OPTION(BUILD_EXAMPLES "Build and test the examples" ON)
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
@@ -241,7 +242,9 @@ ADD_SUBDIRECTORY(utils)
 ADD_SUBDIRECTORY(unittest)
 
 # --- CHECK EXAMPLES -----------------------------------------------------------
-ADD_SUBDIRECTORY(examples)
+IF(BUILD_EXAMPLES)
+  ADD_SUBDIRECTORY(examples)
+ENDIF(BUILD_EXAMPLES)
 
 # --- BENCHMARKS ---------------------------------------------------------------
 ADD_SUBDIRECTORY(benchmark)
