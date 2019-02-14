@@ -4,7 +4,6 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   #bindings_dynamics
   bindings_force
   bindings_frame
-  bindings_geometry_object
   bindings_geometry_object_urdf
   bindings_inertia
   bindings_joint_composite
@@ -15,6 +14,13 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   rpy
   utils
   )
+
+IF(HPP_FCL_FOUND)
+  SET(${PROJECT_NAME}_PYTHON_TESTS
+    ${${PROJECT_NAME}_PYTHON_TESTS}
+    bindings_geometry_object
+    )
+ENDIF(HPP_FCL_FOUND)
 
 FOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
   ADD_PYTHON_UNIT_TEST("py-${TEST}" "unittest/python/${TEST}.py" "bindings/python")
