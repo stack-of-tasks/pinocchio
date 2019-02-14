@@ -19,6 +19,117 @@ namespace pinocchio
 
   // --------------- API with return value as argument ---------------------- //
 
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ReturnType>
+  void
+  integrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+            const Eigen::MatrixBase<ConfigVectorType> & q,
+            const Eigen::MatrixBase<TangentVectorType> & v,
+            const Eigen::MatrixBase<ReturnType> & qout)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    ReturnType & res = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, qout);
+    
+    typedef IntegrateStep<LieGroup_t,ConfigVectorType,TangentVectorType,ReturnType> Algo;
+    typename Algo::ArgsType args(q.derived(),v.derived(),res);
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i], args);
+    }
+  }
+
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  interpolate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+              const Scalar & u,
+              const Eigen::MatrixBase<ReturnType> & qout)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    ReturnType & res = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, qout);
+
+    typedef InterpolateStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar,ReturnType> Algo;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Algo::run(model.joints[i],
+                typename Algo::ArgsType(q0, q1, u, res));
+    }
+  }
+
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  difference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+             const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+             const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+             const Eigen::MatrixBase<ReturnType> & dqout)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    ReturnType & res = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, dqout);
+
+    typedef DifferenceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,ReturnType> Algo;
+    typename Algo::ArgsType args(q0.derived(),q1.derived(),res);
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Algo::run(model.joints[i], args);
+    }
+  }
+
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  squaredDistance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                  const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+                  const Eigen::MatrixBase<ReturnType> & out)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    ReturnType & distances = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, out);
+
+    typedef SquaredDistanceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,ReturnType> Algo;
+    for(JointIndex i=0; i<(JointIndex) model.njoints-1; ++i)
+    {
+      typename Algo::ArgsType args(i,q0.derived(),q1.derived(), distances);
+      Algo::run(model.joints[i+1], args);
+    }
+  }
+
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
+                      const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits,
+                      const Eigen::MatrixBase<ReturnType> & qout)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    ReturnType & q = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, qout);
+
+    typedef RandomConfigurationStep<LieGroup_t,ReturnType,ConfigVectorIn1,ConfigVectorIn2> Algo;
+    typename Algo::ArgsType args(PINOCCHIO_EIGEN_CONST_CAST(ReturnType,q), lowerLimits.derived(), upperLimits.derived());
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Algo::run(model.joints[i], args);
+    }
+  }
+
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ReturnType>
+  void
+  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, const Eigen::MatrixBase<ReturnType> & qout)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    ReturnType & neutral_elt = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, qout);
+    
+    typename NeutralStep<LieGroup_t,ReturnType>::ArgsType args(neutral_elt.derived());
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i )
+    {
+      NeutralStep<LieGroup_t,ReturnType>::run(model.joints[i],args);
+    }
+  }
+
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
   void dIntegrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -101,16 +212,8 @@ namespace pinocchio
             const Eigen::MatrixBase<TangentVectorType> & v)
   {
     typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorType) ReturnType;
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
     ReturnType res(model.nq);
-    
-    typedef IntegrateStep<LieGroup_t,ConfigVectorType,TangentVectorType,ReturnType> Algo;
-    typename Algo::ArgsType args(q.derived(),v.derived(),res);
-    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
-    {
-      Algo::run(model.joints[i], args);
-    }
+    integrate<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,ReturnType>(model, q.derived(), v.derived(), res);
     return res;
   }
 
@@ -121,18 +224,9 @@ namespace pinocchio
               const Eigen::MatrixBase<ConfigVectorIn2> & q1,
               const Scalar & u)
   {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
     typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType;
-    typedef InterpolateStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar,ReturnType> Algo;
-    
     ReturnType res(model.nq);
-    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
-    {
-      Algo::run(model.joints[i],
-                typename Algo::ArgsType(q0, q1, u, res));
-    }
-    
+    interpolate<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, q0, q1, u, res);
     return res;
   }
 
@@ -142,19 +236,9 @@ namespace pinocchio
              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
              const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
     typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType;
-    
     ReturnType res(model.nv);
-    
-    typedef DifferenceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,ReturnType> Algo;
-    typename Algo::ArgsType args(q0.derived(),q1.derived(),res);
-    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
-    {
-      Algo::run(model.joints[i], args);
-    }
-    
+    difference<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),res);
     return res;
   }
 
@@ -164,21 +248,12 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
-    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType;
-    
+    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType; 
     ReturnType distances(ReturnType::Zero(model.njoints-1));
-    typedef SquaredDistanceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,ReturnType> Algo;
-    for(JointIndex i=0; i<(JointIndex) model.njoints-1; ++i)
-    {
-      typename Algo::ArgsType args(i,q0.derived(),q1.derived(), distances);
-      Algo::run(model.joints[i+1], args);
-    }
-    
+    squaredDistance<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),distances);    
     return distances;
   }
-  
+
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   Scalar
   distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -187,7 +262,7 @@ namespace pinocchio
   {
     return math::sqrt(squaredDistance<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
   }
-  
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline Scalar
   distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -203,18 +278,9 @@ namespace pinocchio
                       const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits)
   {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
-    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType)) ReturnType;
-    
+    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType)) ReturnType; 
     ReturnType q(model.nq);
-    typedef RandomConfigurationStep<LieGroup_t,ReturnType,ConfigVectorIn1,ConfigVectorIn2> Algo;
-    typename Algo::ArgsType args(PINOCCHIO_EIGEN_CONST_CAST(ReturnType,q), lowerLimits.derived(), upperLimits.derived());
-    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
-    {
-      Algo::run(model.joints[i], args);
-    }
-    
+    randomConfiguration<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, lowerLimits.derived(), upperLimits.derived(), q);
     return q;
   }
 
@@ -226,31 +292,15 @@ namespace pinocchio
     typedef typename Model::ConfigVectorType ConfigVectorType;
     return randomConfiguration<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorType,ConfigVectorType>(model, model.lowerPositionLimit, model.upperPositionLimit);
   }
-  
+
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
   neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
   {
-    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ReturnType;
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
-    
-    ReturnType neutral_elt(model.nq);
-    
-    typename NeutralStep<LieGroup_t,ReturnType>::ArgsType args(neutral_elt.derived());
-    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i )
-    {
-      NeutralStep<LieGroup_t,ReturnType>::run(model.joints[i],args);
-    }
-    
-    return neutral_elt;
-  }
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
-  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
-  {
-    return neutral<LieGroupMap,Scalar,Options,JointCollectionTpl>(model);
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ReturnType;    
+    ReturnType q(model.nq);
+    neutral<LieGroup_t,Scalar,Options,JointCollectionTpl,ReturnType>(model,q);
+    return q;
   }
 
 } // namespace pinocchio

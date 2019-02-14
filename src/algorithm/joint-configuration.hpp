@@ -15,6 +15,206 @@ namespace pinocchio
   /// \{
 
   /**
+   * @brief      Integrate a configuration for the specified model for a tangent vector during one unit time
+   *
+   * @param[in]  model   Model that must be integrated
+   * @param[in]  q       Initial configuration (size model.nq)
+   * @param[in]  v       Velocity (size model.nv)
+   * @param[out] qout    The integrated configuration (size model.nq)
+   */
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ReturnType>
+  void
+  integrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+            const Eigen::MatrixBase<ConfigVectorType> & q,
+            const Eigen::MatrixBase<TangentVectorType> & v,
+            const Eigen::MatrixBase<ReturnType> & qout);
+
+  /**
+   * @brief      Integrate a configuration for the specified model for a tangent vector during one unit time
+   *
+   * @param[in]  model   Model that must be integrated
+   * @param[in]  q       Initial configuration (size model.nq)
+   * @param[in]  v       Velocity (size model.nv)
+   * @param[out] qout    The integrated configuration (size model.nq)
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ReturnType>
+  void
+  integrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+            const Eigen::MatrixBase<ConfigVectorType> & q,
+            const Eigen::MatrixBase<TangentVectorType> & v,
+            const Eigen::MatrixBase<ReturnType> & qout)
+  {
+    integrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,ReturnType>(model, q.derived(), v.derived(), qout.derived());
+  }
+
+  /**
+   * @brief      Interpolate the model between two configurations
+   *
+   * @param[in]  model   Model to be interpolated
+   * @param[in]  q0      Initial configuration vector (size model.nq)
+   * @param[in]  q1      Final configuration vector (size model.nq)
+   * @param[in]  u       u in [0;1] position along the interpolation.
+   * @param[out] qout    The interpolated configuration (q0 if u = 0, q1 if u = 1)
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  interpolate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+              const Scalar & u,
+              const Eigen::MatrixBase<ReturnType> & qout);
+
+  /**
+   * @brief      Interpolate the model between two configurations
+   *
+   * @param[in]  model   Model to be interpolated
+   * @param[in]  q0      Initial configuration vector (size model.nq)
+   * @param[in]  q1      Final configuration vector (size model.nq)
+   * @param[in]  u       u in [0;1] position along the interpolation.
+   * @param[out] qout    The interpolated configuration (q0 if u = 0, q1 if u = 1)
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  interpolate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+              const Scalar & u,
+              const Eigen::MatrixBase<ReturnType> & qout)
+  {
+    interpolate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, q0, q1, u, qout);
+  }
+
+  /**
+   * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
+   *
+   * @param[in]  model   Model to be differenced
+   * @param[in]  q0      Initial configuration (size model.nq)
+   * @param[in]  q1      Wished configuration (size model.nq)
+   * @param[out] dqout   The corresponding velocity (size model.nv)
+   */
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  difference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+             const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+             const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+             const Eigen::MatrixBase<ReturnType> & dqout);
+
+  /**
+   * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
+   *
+   * @param[in]  model   Model to be differenced
+   * @param[in]  q0      Initial configuration (size model.nq)
+   * @param[in]  q1      Wished configuration (size model.nq)
+   * @param[out] dqout   The corresponding velocity (size model.nv)
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  difference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+             const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+             const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+             const Eigen::MatrixBase<ReturnType> & dqout)
+  {
+    difference<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),dqout.derived());
+  }
+
+  /**
+   * @brief      Squared distance between two configuration vectors
+   *
+   * @param[in]  model      Model we want to compute the distance
+   * @param[in]  q0         Configuration 0 (size model.nq)
+   * @param[in]  q1         Configuration 1 (size model.nq)
+   * @param[out] out        The corresponding squared distances for each joint (size model.njoints-1 = number of joints)
+   */
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  squaredDistance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                  const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+                  const Eigen::MatrixBase<ReturnType> & out);
+
+  /**
+   * @brief      Squared distance between two configuration vectors
+   *
+   * @param[in]  model      Model we want to compute the distance
+   * @param[in]  q0         Configuration 0 (size model.nq)
+   * @param[in]  q1         Configuration 1 (size model.nq)
+   * @param[out] out        The corresponding squared distances for each joint (size model.njoints-1 = number of joints)
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  squaredDistance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                  const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+                  const Eigen::MatrixBase<ReturnType> & out)
+  {
+    squaredDistance<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),out.derived());
+  }
+
+  /**
+   * @brief      Generate a configuration vector uniformly sampled among provided limits.
+   *
+   * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
+   *
+   * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
+   *
+   * @param[in]  model        Model for which we want to generate a configuration vector.
+   * @param[in]  lowerLimits  Joints lower limits
+   * @param[in]  upperLimits  Joints upper limits
+   * @param[out] qout         The resulted configuration vector (size model.nq)
+   */
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
+                      const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits,
+                      const Eigen::MatrixBase<ReturnType> & qout);
+
+ /**
+   * @brief      Generate a configuration vector uniformly sampled among provided limits.
+   *
+   * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
+   *
+   * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
+   *
+   * @param[in]  model        Model for which we want to generate a configuration vector.
+   * @param[in]  lowerLimits  Joints lower limits
+   * @param[in]  upperLimits  Joints upper limits
+   * @param[out] qout         The resulted configuration vector (size model.nq)
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  void
+  randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
+                      const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits,
+                      const Eigen::MatrixBase<ReturnType> & qout)
+  {
+    randomConfiguration<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, lowerLimits.derived(), upperLimits.derived(), qout.derived());
+  }
+
+  /**
+   * @brief         Return the neutral configuration element related to the model configuration space.
+   *
+   * @param[in]     model      Model
+   * @param[out]    qout        The neutral configuration element.
+   */
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ReturnType>
+  void
+  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, const Eigen::MatrixBase<ReturnType> & qout);
+
+  /**
+   * @brief         Return the neutral configuration element related to the model configuration space.
+   *
+   * @param[in]     model      Model
+   * @param[out]    qout        The neutral configuration element.
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ReturnType>
+  void
+  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, const Eigen::MatrixBase<ReturnType> & qout)
+  {
+    neutral<LieGroupMap,Scalar,Options,JointCollectionTpl,ReturnType>(model,qout.derived());
+  }
+
+  /**
    * @brief      Computes the Jacobian of a small variation of the configuration vector or the tangent vector into the tangent space at identity.
    *
    * @param[in]  model   Model that must be integrated
@@ -48,7 +248,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
                   const ArgumentPosition arg)
   {
-    return dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), J.derived(),arg);
+    dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), J.derived(),arg);
   }
 
   /**
@@ -87,7 +287,7 @@ namespace pinocchio
   inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const Eigen::MatrixBase<ConfigVectorType> & qout)
   {
-    return normalize<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType>(model,qout.derived());
+    normalize<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType>(model,qout.derived());
   }
 
   /**
@@ -161,7 +361,7 @@ namespace pinocchio
                              const Eigen::MatrixBase<ConfigVector> & q,
                              const Eigen::MatrixBase<JacobianMatrix> & jacobian)
   {
-    return integrateCoeffWiseJacobian<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVector,JacobianMatrix>(model,q,jacobian);
+    integrateCoeffWiseJacobian<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVector,JacobianMatrix>(model,q,jacobian);
   }
 
   /// \}
@@ -391,6 +591,20 @@ namespace pinocchio
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
   neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model);
+
+  /**
+   * @brief         Return the neutral configuration element related to the model configuration space.
+   *
+   * @param[in]     model      Model
+   *
+   * @return        The neutral configuration element.
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
+  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
+  {
+    return neutral<LieGroupMap,Scalar,Options,JointCollectionTpl>(model);
+  }
 
   /// \}
 
