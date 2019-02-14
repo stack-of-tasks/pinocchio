@@ -150,9 +150,9 @@ namespace pinocchio
 
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   Scalar
-  distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-           const Eigen::MatrixBase<ConfigVectorIn1> & q0,
-           const Eigen::MatrixBase<ConfigVectorIn2> & q1)
+  squaredDistanceSum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                     const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                     const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -165,6 +165,16 @@ namespace pinocchio
       Algo::run(model.joints[i], args);
     }
     
+    return squaredDistance;
+  }
+
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  Scalar
+  distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+           const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+           const Eigen::MatrixBase<ConfigVectorIn2> & q1)
+  {
+    const Scalar & squaredDistance = squaredDistanceSum<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived());
     return math::sqrt(squaredDistance);
   }
 
