@@ -71,11 +71,9 @@ BOOST_AUTO_TEST_CASE(readRotorParams)
   
   Model model;
   buildModel(model_filename, model);
-
   loadRotorParameters(model,srdf_filename,false);
   
-  BOOST_CHECK(model.rotorInertia(model.joints[model.getJointId("WAIST_P")].idx_v())==1.0);
-  BOOST_CHECK(model.rotorGearRatio(model.joints[model.getJointId("WAIST_R")].idx_v())==1.0);
+  BOOST_CHECK(model.armature(model.joints[model.getJointId("WAIST_P")].idx_v())==0.1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

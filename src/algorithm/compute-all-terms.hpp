@@ -233,6 +233,10 @@ namespace pinocchio
       Pass2::run(model.joints[i],data.joints[i],
                  typename Pass2::ArgsType(model,data));
     }
+
+    //Add the armature value. By default, this is a zero vector.
+    assert((model.armature.array() >= 0.0).all());
+    data.M.diagonal() += model.armature;
     
     // CoM
     data.com[0] /= data.mass[0];

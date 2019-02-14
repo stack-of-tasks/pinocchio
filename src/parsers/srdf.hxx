@@ -185,8 +185,7 @@ namespace pinocchio
               {
                 const JointModel & joint = model.joints[joint_id];
                 assert(joint.nv()==1);
-                model.rotorInertia(joint.idx_v()) = rotor_mass;
-                model.rotorGearRatio(joint.idx_v()) = rotor_gr;  // joint with 1 dof
+                model.armature(joint.idx_v()) = rotor_mass*rotor_gr*rotor_gr;
               }
               else
               {

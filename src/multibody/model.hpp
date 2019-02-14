@@ -104,11 +104,8 @@ namespace pinocchio
     /// \brief Map of reference configurations, indexed by user given names.
     ConfigVectorMap referenceConfigurations;
 
-    /// \brief Vector of rotor inertia parameters
-    VectorXs rotorInertia;
-    
-    /// \brief Vector of rotor gear ratio parameters
-    VectorXs rotorGearRatio;
+    /// \brief Vector of armature parameters
+    VectorXs armature;
     
     /// \brief Vector of maximal joint torques
     TangentVectorType effortLimit;
@@ -184,8 +181,7 @@ namespace pinocchio
       
       /// Eigen Vectors
       res.neutralConfiguration = neutralConfiguration.template cast<NewScalar>();
-      res.rotorInertia = rotorInertia.template cast<NewScalar>();
-      res.rotorGearRatio = rotorGearRatio.template cast<NewScalar>();
+      res.armature = armature.template cast<NewScalar>();
       res.effortLimit = effortLimit.template cast<NewScalar>();
       res.velocityLimit = velocityLimit.template cast<NewScalar>();
       res.lowerPositionLimit = lowerPositionLimit.template cast<NewScalar>();
@@ -244,8 +240,7 @@ namespace pinocchio
 
       && other.neutralConfiguration == neutralConfiguration
       && other.referenceConfigurations == referenceConfigurations
-      && other.rotorInertia == rotorInertia
-      && other.rotorGearRatio == rotorGearRatio
+      && other.armature == armature
       && other.effortLimit == effortLimit
       && other.velocityLimit == velocityLimit
       && other.lowerPositionLimit == lowerPositionLimit

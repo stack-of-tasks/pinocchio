@@ -105,10 +105,8 @@ namespace pinocchio
     typedef NeutralStep<LieGroupMap,ConfigVectorType> NeutralVisitor;
     NeutralStepAlgo<NeutralVisitor,JointModelDerived>::run(jmodel,neutralConfiguration);
 
-    rotorInertia.conservativeResize(nv);
-    jmodel.jointVelocitySelector(rotorInertia).setZero();
-    rotorGearRatio.conservativeResize(nv);
-    jmodel.jointVelocitySelector(rotorGearRatio).setZero();
+    armature.conservativeResize(nv);
+    jmodel.jointVelocitySelector(armature).setZero();
     
     // Init and add joint index to its parent subtrees.
     subtrees.push_back(IndexVector(1));
