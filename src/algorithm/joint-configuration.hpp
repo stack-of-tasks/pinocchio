@@ -266,6 +266,24 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1);
 
   /**
+   * @brief      Distance between two configuration vectors
+   *
+   * @param[in]  model      Model we want to compute the distance
+   * @param[in]  q0         Configuration 0 (size model.nq)
+   * @param[in]  q1         Configuration 1 (size model.nq)
+   *
+   * @return     The distance between the two configurations
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  inline Scalar
+  distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+           const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+           const Eigen::MatrixBase<ConfigVectorIn2> & q1)
+  {
+    return distance<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived());
+  }
+
+  /**
    * @brief         Normalize a configuration
    *
    * @param[in]     model      Model

@@ -276,6 +276,38 @@ namespace pinocchio
   };
   
   PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(SquaredDistanceStepAlgo);
+
+  template<typename Visitor, typename JointModel> struct SquaredDistanceSumStepAlgo;
+  
+  template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
+  struct SquaredDistanceSumStep
+  : public fusion::JointVisitorBase<SquaredDistanceSumStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar> >
+  {
+    typedef boost::fusion::vector<const ConfigVectorIn1 &,
+                                  const ConfigVectorIn2 &,
+                                  Scalar &
+                                  > ArgsType;
+    
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_3(SquaredDistanceSumStepAlgo, SquaredDistanceSumStep)
+  };
+  
+  template<typename Visitor, typename JointModel>
+  struct SquaredDistanceSumStepAlgo
+  {
+    template<typename ConfigVectorIn1, typename ConfigVectorIn2>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+                    const Eigen::MatrixBase<ConfigVectorIn2> & q1,
+                    typename ConfigVectorIn1::Scalar & squaredDistance)
+    {
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      squaredDistance += lgo.squaredDistance(jmodel.jointConfigSelector(q0.derived()),
+                                                 jmodel.jointConfigSelector(q1.derived()));
+    }
+  };
+  
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_3(SquaredDistanceSumStepAlgo);
   
   template<typename Visitor, typename JointModel> struct RandomConfigurationStepAlgo;
   

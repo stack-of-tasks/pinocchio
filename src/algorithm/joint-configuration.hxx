@@ -147,7 +147,27 @@ namespace pinocchio
       Algo::run(model.joints[i], args);
     }
   }
-  
+
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  Scalar
+  distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+           const Eigen::MatrixBase<ConfigVectorIn1> & q0,
+           const Eigen::MatrixBase<ConfigVectorIn2> & q1)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    typename ConfigVectorIn1::Scalar squaredDistance = 0.0;
+
+    typedef SquaredDistanceSumStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar> Algo;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      typename Algo::ArgsType args(q0.derived(),q1.derived(), squaredDistance);
+      Algo::run(model.joints[i], args);
+    }
+    
+    return math::sqrt(squaredDistance);
+  }
+
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const Eigen::MatrixBase<ConfigVectorType> & qout)
@@ -248,28 +268,10 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType; 
+    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType;
     ReturnType distances(ReturnType::Zero(model.njoints-1));
     squaredDistance<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),distances);    
     return distances;
-  }
-
-  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  Scalar
-  distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-           const Eigen::MatrixBase<ConfigVectorIn1> & q0,
-           const Eigen::MatrixBase<ConfigVectorIn2> & q1)
-  {
-    return math::sqrt(squaredDistance<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
-  }
-
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline Scalar
-  distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-           const Eigen::MatrixBase<ConfigVectorIn1> & q0,
-           const Eigen::MatrixBase<ConfigVectorIn2> & q1)
-  {
-    return math::sqrt(squaredDistance<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived()).sum());
   }
 
   template<typename LieGroup_t,typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
