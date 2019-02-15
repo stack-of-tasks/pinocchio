@@ -26,10 +26,14 @@ namespace pinocchio
             const Eigen::MatrixBase<TangentVectorType> & v,
             const Eigen::MatrixBase<ReturnType> & qout)
   {
+    assert(q.size() == model.nq && "The configuration vector is not of the right size");
+    assert(v.size() == model.nv && "The joint velocity vector is not of the right size");
+    assert(qout.size() == model.nq && "The output argument is not of the right size");
+
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     ReturnType & res = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, qout);
-    
+
     typedef IntegrateStep<LieGroup_t,ConfigVectorType,TangentVectorType,ReturnType> Algo;
     typename Algo::ArgsType args(q.derived(),v.derived(),res);
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
@@ -46,6 +50,10 @@ namespace pinocchio
               const Scalar & u,
               const Eigen::MatrixBase<ReturnType> & qout)
   {
+    assert(q0.size() == model.nq && "The first configuration vector is not of the right size");
+    assert(q1.size() == model.nq && "The second configuration vector is not of the right size");
+    assert(qout.size() == model.nq && "The output argument is not of the right size");
+
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     ReturnType & res = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, qout);
@@ -63,11 +71,15 @@ namespace pinocchio
   difference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
-             const Eigen::MatrixBase<ReturnType> & dqout)
+             const Eigen::MatrixBase<ReturnType> & dvout)
   {
+    assert(q0.size() == model.nq && "The first configuration vector is not of the right size");
+    assert(q1.size() == model.nq && "The second configuration vector is not of the right size");
+    assert(dvout.size() == model.nv && "The output argument is not of the right size");
+
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
-    ReturnType & res = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, dqout);
+    ReturnType & res = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, dvout);
 
     typedef DifferenceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,ReturnType> Algo;
     typename Algo::ArgsType args(q0.derived(),q1.derived(),res);
@@ -84,6 +96,10 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1,
                   const Eigen::MatrixBase<ReturnType> & out)
   {
+    assert(q0.size() == model.nq && "The first configuration vector is not of the right size");
+    assert(q1.size() == model.nq && "The second configuration vector is not of the right size");
+    assert(out.size() == (model.njoints-1) && "The output argument is not of the right size");
+
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     ReturnType & distances = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, out);
@@ -103,6 +119,10 @@ namespace pinocchio
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits,
                       const Eigen::MatrixBase<ReturnType> & qout)
   {
+    assert(lowerLimits.size() == model.nq && "The lower limits vector is not of the right size");
+    assert(upperLimits.size() == model.nq && "The upper limits vector is not of the right size");
+    assert(qout.size() == model.nq && "The output argument is not of the right size");
+
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     ReturnType & q = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, qout);
@@ -119,6 +139,8 @@ namespace pinocchio
   void
   neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, const Eigen::MatrixBase<ReturnType> & qout)
   {
+    assert(qout.size() == model.nq && "The output argument is not of the right size");
+
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     ReturnType & neutral_elt = PINOCCHIO_EIGEN_CONST_CAST(ReturnType, qout);
@@ -137,6 +159,11 @@ namespace pinocchio
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
                   const ArgumentPosition arg)
   {
+    assert(q.size() == model.nq && "The configuration vector is not of the right size");
+    assert(v.size() == model.nv && "The joint velocity vector is not of the right size");
+    assert(J.rows() == model.nv && "The output argument is not of the right size");
+    assert(J.cols() == model.nv && "The output argument is not of the right size");
+
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
@@ -154,6 +181,9 @@ namespace pinocchio
                      const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                      const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
+    assert(q0.size() == model.nq && "The first configuration vector is not of the right size");
+    assert(q1.size() == model.nq && "The second configuration vector is not of the right size");
+
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     typename ConfigVectorIn1::Scalar squaredDistance = 0.0;
@@ -182,6 +212,8 @@ namespace pinocchio
   inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const Eigen::MatrixBase<ConfigVectorType> & qout)
   {
+    assert(qout.size() == model.nq && "The output argument is not of the right size");
+
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
@@ -200,6 +232,10 @@ namespace pinocchio
                       const Eigen::MatrixBase<ConfigVectorIn2> & q2,
                       const Scalar & prec)
   {
+    assert(q1.size() == model.nq && "The first configuration vector is not of the right size");
+    assert(q2.size() == model.nq && "The second configuration vector is not of the right size");
+    assert(prec >= 0 && "The precision is negative");
+
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
@@ -222,9 +258,10 @@ namespace pinocchio
                              const Eigen::MatrixBase<ConfigVector> & q,
                              const Eigen::MatrixBase<JacobianMatrix> & jacobian)
   {
+    assert(q.size() == model.nq && "The configuration vector is not of the right size");
     assert(jacobian.rows() == model.nq && jacobian.cols() == model.nv
            && "The jacobian does not have the right dimension");
-    
+
     typedef IntegrateCoeffWiseJacobianStep<LieGroup_t,ConfigVector,JacobianMatrix> Algo;
     typename Algo::ArgsType args(q.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrix,jacobian));
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)

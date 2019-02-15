@@ -15,11 +15,11 @@ namespace pinocchio
   /// \{
 
   /**
-   * @brief      Integrate a configuration for the specified model for a tangent vector during one unit time
+   * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time
    *
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Velocity (size model.nv)
+   * @param[in]  v       Joint velocity (size model.nv)
    * @param[out] qout    The integrated configuration (size model.nq)
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ReturnType>
@@ -30,11 +30,11 @@ namespace pinocchio
             const Eigen::MatrixBase<ReturnType> & qout);
 
   /**
-   * @brief      Integrate a configuration for the specified model for a tangent vector during one unit time
+   * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time
    *
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Velocity (size model.nv)
+   * @param[in]  v       Joint velocity (size model.nv)
    * @param[out] qout    The integrated configuration (size model.nq)
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ReturnType>
@@ -48,7 +48,7 @@ namespace pinocchio
   }
 
   /**
-   * @brief      Interpolate the model between two configurations
+   * @brief      Interpolate two configurations for a given model
    *
    * @param[in]  model   Model to be interpolated
    * @param[in]  q0      Initial configuration vector (size model.nq)
@@ -65,7 +65,7 @@ namespace pinocchio
               const Eigen::MatrixBase<ReturnType> & qout);
 
   /**
-   * @brief      Interpolate the model between two configurations
+   * @brief      Interpolate two configurations for a given model
    *
    * @param[in]  model   Model to be interpolated
    * @param[in]  q0      Initial configuration vector (size model.nq)
@@ -87,34 +87,34 @@ namespace pinocchio
   /**
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
-   * @param[in]  model   Model to be differenced
+   * @param[in]  model   Model of the system
    * @param[in]  q0      Initial configuration (size model.nq)
    * @param[in]  q1      Wished configuration (size model.nq)
-   * @param[out] dqout   The corresponding velocity (size model.nv)
+   * @param[out] dvout   The corresponding velocity (size model.nv)
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
   void
   difference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
-             const Eigen::MatrixBase<ReturnType> & dqout);
+             const Eigen::MatrixBase<ReturnType> & dvout);
 
   /**
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
-   * @param[in]  model   Model to be differenced
+   * @param[in]  model   Model of the system
    * @param[in]  q0      Initial configuration (size model.nq)
    * @param[in]  q1      Wished configuration (size model.nq)
-   * @param[out] dqout   The corresponding velocity (size model.nv)
+   * @param[out] dvout   The corresponding velocity (size model.nv)
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
   void
   difference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
-             const Eigen::MatrixBase<ReturnType> & dqout)
+             const Eigen::MatrixBase<ReturnType> & dvout)
   {
-    difference<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),dqout.derived());
+    difference<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),dvout.derived());
   }
 
   /**
@@ -219,7 +219,7 @@ namespace pinocchio
    *
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Velocity (size model.nv)
+   * @param[in]  v       Joint velocity (size model.nv)
    * @param[out] J       Jacobian of the Integrate operation, either with respect to q or v (size model.nv x model.nv).
    * @param[in]  arg     Argument (either q or v) with respect to which the
    *
@@ -236,7 +236,7 @@ namespace pinocchio
    *
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Velocity (size model.nv)
+   * @param[in]  v       Joint velocity (size model.nv)
    * @param[out] J       Jacobian of the Integrate operation, either with respect to q or v (size model.nv x model.nv).
    * @param[in]  arg     Argument (either q or v) with respect to which the
    *
@@ -316,7 +316,7 @@ namespace pinocchio
   }
 
   /**
-   * @brief         Normalize a configuration
+   * @brief         Normalize a configuration vector
    *
    * @param[in]     model      Model
    * @param[in,out] q          Configuration to normalize
@@ -327,7 +327,7 @@ namespace pinocchio
                         const Eigen::MatrixBase<ConfigVectorType> & qout);
 
   /**
-   * @brief         Normalize a configuration
+   * @brief         Normalize a configuration vector
    *
    * @param[in]     model      Model
    * @param[in,out] q          Configuration to normalize
@@ -346,10 +346,10 @@ namespace pinocchio
    *
    * @param[in]     model     Model
    * @param[in]     q1        The first configuraiton to compare
-   * @param[in]     q2        The Second configuraiton to compare
+   * @param[in]     q2        The second configuration to compare
    * @param[in]     prec      precision of the comparison
    *
-   * @return     Wheter the configurations are equivalent or not
+   * @return     Whether the configurations are equivalent or not
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline bool
@@ -364,10 +364,10 @@ namespace pinocchio
    *
    * @param[in]     model     Model
    * @param[in]     q1        The first configuraiton to compare
-   * @param[in]     q2        The Second configuraiton to compare
+   * @param[in]     q2        The second configuration to compare
    * @param[in]     prec      precision of the comparison
    *
-   * @return     Wheter the configurations are equivalent or not
+   * @return     Whether the configurations are equivalent or not
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline bool
@@ -420,11 +420,11 @@ namespace pinocchio
   /// \{
 
   /**
-   * @brief      Integrate a configuration for the specified model for a tangent vector during one unit time
+   * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time
    *
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Velocity (size model.nv)
+   * @param[in]  v       Joint velocity (size model.nv)
    *
    * @return     The integrated configuration (size model.nq)
    */
@@ -435,11 +435,11 @@ namespace pinocchio
             const Eigen::MatrixBase<TangentVectorType> & v);
 
   /**
-   * @brief      Integrate a configuration for the specified model for a tangent vector during one unit time
+   * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time
    *
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Velocity (size model.nv)
+   * @param[in]  v       Joint velocity (size model.nv)
    *
    * @return     The integrated configuration (size model.nq)
    */
@@ -453,7 +453,7 @@ namespace pinocchio
   }
 
   /**
-   * @brief      Interpolate the model between two configurations
+   * @brief      Interpolate two configurations for a given model
    *
    * @param[in]  model   Model to be interpolated
    * @param[in]  q0      Initial configuration vector (size model.nq)
@@ -470,7 +470,7 @@ namespace pinocchio
               const Scalar & u);
 
   /**
-   * @brief      Interpolate the model between two configurations
+   * @brief      Interpolate two configurations for a given model
    *
    * @param[in]  model   Model to be interpolated
    * @param[in]  q0      Initial configuration vector (size model.nq)
@@ -492,7 +492,7 @@ namespace pinocchio
   /**
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
-   * @param[in]  model   Model to be differenced
+   * @param[in]  model   Model of the system
    * @param[in]  q0      Initial configuration (size model.nq)
    * @param[in]  q1      Wished configuration (size model.nq)
    *
@@ -507,7 +507,7 @@ namespace pinocchio
   /**
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
-   * @param[in]  model   Model to be differenced
+   * @param[in]  model   Model of the system
    * @param[in]  q0      Initial configuration (size model.nq)
    * @param[in]  q1      Wished configuration (size model.nq)
    *

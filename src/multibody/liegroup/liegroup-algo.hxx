@@ -271,7 +271,7 @@ namespace pinocchio
       typename LieGroupMap::template operation<JointModel>::type lgo;
       DistanceVectorOut & distances_ = PINOCCHIO_EIGEN_CONST_CAST(DistanceVectorOut,distances);
       distances_[(Eigen::DenseIndex)i] += lgo.squaredDistance(jmodel.jointConfigSelector(q0.derived()),
-                                                 jmodel.jointConfigSelector(q1.derived()));
+                                                              jmodel.jointConfigSelector(q1.derived()));
     }
   };
   
@@ -303,7 +303,7 @@ namespace pinocchio
       typedef typename Visitor::LieGroupMap LieGroupMap;
       typename LieGroupMap::template operation<JointModel>::type lgo;
       squaredDistance += lgo.squaredDistance(jmodel.jointConfigSelector(q0.derived()),
-                                                 jmodel.jointConfigSelector(q1.derived()));
+                                             jmodel.jointConfigSelector(q1.derived()));
     }
   };
   
