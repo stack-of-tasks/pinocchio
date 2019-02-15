@@ -81,6 +81,20 @@ BOOST_AUTO_TEST_CASE ( integration_test )
   BOOST_CHECK_MESSAGE(results[0].isApprox(qs[0], 1e-12), "integration of full body with zero velocity - wrong results");
 }
 
+BOOST_AUTO_TEST_CASE ( interpolate_test )
+{
+  Model model; buildModel(model);
+
+  Eigen::VectorXd q0(randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) ));
+  Eigen::VectorXd q1(randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) ));
+
+  Eigen::VectorXd q01_0 = interpolate(model,q0,q1,0.0);
+  BOOST_CHECK_MESSAGE(isSameConfiguration(model,q01_0,q0), "interpolation: q01_0 != q0");
+
+  Eigen::VectorXd q01_1 = interpolate(model,q0,q1,1.0);
+  BOOST_CHECK_MESSAGE(isSameConfiguration(model,q01_1,q1), "interpolation: q01_1 != q1");
+}
+
 BOOST_AUTO_TEST_CASE ( diff_integration_test )
 {
   Model model; buildModel(model);
@@ -173,14 +187,13 @@ BOOST_AUTO_TEST_CASE ( neutral_configuration_test )
 
   Eigen::VectorXd neutral_config = neutral(model);
   BOOST_CHECK_MESSAGE(neutral_config.isApprox(expected, 1e-12), "neutral configuration - wrong results");
-  BOOST_CHECK_MESSAGE(model.neutralConfiguration.isApprox(expected, 1e-12), "neutral configuration - wrong results");
 }
 
 BOOST_AUTO_TEST_CASE ( distance_configuration_test )
 {
   Model model; buildModel(model);
   
-  Eigen::VectorXd q0(model.neutralConfiguration);
+  Eigen::VectorXd q0 = neutral(model);
   Eigen::VectorXd q1(integrate (model, q0, Eigen::VectorXd::Ones(model.nv)));
 
   double dist = distance(model,q0,q1);
@@ -189,10 +202,25 @@ BOOST_AUTO_TEST_CASE ( distance_configuration_test )
   BOOST_CHECK_SMALL(dist-difference(model,q0,q1).norm(), 1e-12);
 }
 
+BOOST_AUTO_TEST_CASE ( squared_distance_test )
+{
+  Model model; buildModel(model);
+
+  Eigen::VectorXd q0(randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) ));
+  Eigen::VectorXd q1(randomConfiguration(model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq) ));
+
+  double dist = distance(model,q0,q1);
+  Eigen::VectorXd squaredDistance_ = squaredDistance(model,q0,q1);
+
+  BOOST_CHECK_SMALL(dist-math::sqrt(squaredDistance_.sum()), 1e-12);
+}
+
 BOOST_AUTO_TEST_CASE ( uniform_sampling_test )
 {
   Model model; buildModel(model);
 
+  model.lowerPositionLimit = -1 * Eigen::VectorXd::Ones(model.nq);
+  model.upperPositionLimit = Eigen::VectorXd::Ones(model.nq);
   Eigen::VectorXd q1(randomConfiguration(model));
   
   for (int i = 0; i < model.nq; ++i)
