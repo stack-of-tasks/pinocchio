@@ -1,7 +1,7 @@
 SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings
-  #bindings_com
-  #bindings_dynamics
+  bindings_com
+  bindings_dynamics
   bindings_force
   bindings_frame
   bindings_geometry_object_urdf
@@ -9,7 +9,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_joint_composite
   bindings_motion
   bindings_SE3
-  #explog
+  explog
   model
   rpy
   utils
