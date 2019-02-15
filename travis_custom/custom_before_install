@@ -15,7 +15,7 @@ sudo free -m -t
 # Setup environment variables.
 export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils"
 # Add Python dependency
-export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-eigenpy python2.7-dev python-numpy"
+export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py27-eigenpy python2.7-dev python-numpy"
 # Add Geometry dependencies
 export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-hpp-fcl robotpkg-assimp robotpkg-octomap"
 

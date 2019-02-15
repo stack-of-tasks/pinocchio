@@ -160,8 +160,9 @@ SET(PYTHON_FILES
   )
 
 FOREACH(python ${PYTHON_FILES})
+  PYTHON_BUILD(${PROJECT_NAME} ${python})
   INSTALL(FILES
-    "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/scripts/${python}"
+    "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/pinocchio/${python}"
     DESTINATION ${${PYWRAP}_INSTALL_DIR})
 ENDFOREACH(python)
 
@@ -197,4 +198,3 @@ INSTALL(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/pinocchiopy.pc"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
     PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
-
