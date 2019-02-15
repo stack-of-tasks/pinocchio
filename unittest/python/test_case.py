@@ -3,7 +3,7 @@ import unittest
 from pinocchio.utils import isapprox
 
 def tracefunc(frame, event, arg):
-    print "%s, %s: %d" % (event, frame.f_code.co_filename, frame.f_lineno)
+    print("%s, %s: %d" % (event, frame.f_code.co_filename, frame.f_lineno))
     return tracefunc
 
 class TestCase(unittest.TestCase):
