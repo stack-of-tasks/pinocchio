@@ -12,12 +12,12 @@
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
+#include "pinocchio/bindings/python/utils/pickle-map.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Model)
 
@@ -200,7 +200,8 @@ namespace pinocchio
         bp::class_< std::vector<double> >("StdVec_double")
           .def(bp::vector_indexing_suite< std::vector<double> >());
         bp::class_< std::map<std::string, Eigen::VectorXd> >("StdMap_String_EigenVectorXd")
-          .def(bp::map_indexing_suite< std::map<std::string, Eigen::VectorXd>, true >());
+          .def(bp::map_indexing_suite< std::map<std::string, Eigen::VectorXd>, true >())
+          .def_pickle(PickleMap<std::map<std::string, Eigen::VectorXd> >());
 
         bp::class_<Model>("Model",
                           "Articulated rigid body model (const)",

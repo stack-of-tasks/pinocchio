@@ -9,7 +9,8 @@
 
 #include <eigenpy/memory.hpp>
 #include <eigenpy/eigenpy.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Data)
 
@@ -115,11 +116,8 @@ namespace pinocchio
                          "It contains all the data that can be modified by the algorithms.",
                          bp::no_init)
         .def(DataPythonVisitor());
-        
-        bp::class_< container::aligned_vector<Vector3> >("StdVec_vec3d")
-        .def(bp::vector_indexing_suite< container::aligned_vector<Vector3>, true >());
-        bp::class_< std::vector<int> >("StdVec_int")
-        .def(bp::vector_indexing_suite< std::vector<int> >());
+        StdAlignedVectorPythonVisitor<Vector3, true>::expose("StdVec_vec3d");
+        StdVectorPythonVisitor<int>::expose("StdVec_int");
         
         eigenpy::enableEigenPySpecific<Data::RowMatrixXs>();
       }
