@@ -292,6 +292,9 @@ namespace pinocchio
     D_t StU;
 
     JointDataSphericalZYXTpl () : M(1), U(), Dinv(), UDinv() {}
+
+    static std::string classname() { return std::string("JointDataSphericalZYX"); }
+    std::string shortname() const { return classname(); }
     
   }; // strcut JointDataSphericalZYXTpl
 

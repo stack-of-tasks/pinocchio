@@ -9,6 +9,7 @@
 #include <eigenpy/eigenpy.hpp>
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-models.hpp"
+#include "pinocchio/bindings/python/multibody/joint/joints-datas.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
 namespace pinocchio
@@ -17,11 +18,12 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    struct jointModelVariantVisitor : boost::static_visitor<PyObject *>
+    template<typename VariantType>
+    struct JointVariantVisitor : boost::static_visitor<PyObject *>
     {
-      static result_type convert(JointModelVariant const & jv)
+      static result_type convert(VariantType const & jv)
       {
-        return apply_visitor(jointModelVariantVisitor(), jv);
+        return apply_visitor(JointVariantVisitor<VariantType>(), jv);
       }
 
       template<typename T>
@@ -31,7 +33,23 @@ namespace pinocchio
       }
     };
 
-    struct exposer
+    struct data_exposer
+    {
+      template<class T>
+      void operator()(T)
+      {
+        expose_joint_data<T>(
+            bp::class_<T>(T::classname().c_str(),
+                          T::classname().c_str(),
+                          bp::init<>())
+            .def(JointDataDerivedPythonVisitor<T>())
+            //.def(PrintableVisitor<T>())
+        );
+        bp::implicitly_convertible<T,pinocchio::JointDataVariant>();
+      }
+    };
+
+    struct model_exposer
     {
       template<class T>
       void operator()(T)
@@ -40,12 +58,13 @@ namespace pinocchio
             bp::class_<T>(T::classname().c_str(),
                           T::classname().c_str(),
                           bp::init<>())
-            .def(JointPythonVisitor<T>())
+            .def(JointModelDerivedPythonVisitor<T>())
             .def(PrintableVisitor<T>())
         );
         bp::implicitly_convertible<T,pinocchio::JointModelVariant>();
       }
     };
+    
 
   } // namespace python
 } // namespace pinocchio

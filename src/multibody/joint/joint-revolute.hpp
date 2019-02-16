@@ -563,6 +563,9 @@ namespace pinocchio
 
     JointDataRevoluteTpl() {}
 
+    static std::string classname() { return std::string("JointDataRevolute"); }
+    std::string shortname() const { return classname(); }
+    
   }; // struct JointDataRevoluteTpl
   
   template<typename NewScalar, typename Scalar, int Options, int axis>

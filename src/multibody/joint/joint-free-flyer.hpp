@@ -202,6 +202,9 @@ namespace pinocchio
     
     JointDataFreeFlyerTpl() : M(1), U(), Dinv(), UDinv(UD_t::Identity()) {}
 
+    static std::string classname() { return std::string("JointDataFreeFlyer"); }
+    std::string shortname() const { return classname(); }
+    
   }; // struct JointDataFreeFlyerTpl
 
   JOINT_CAST_TYPE_SPECIALIZATION(JointModelFreeFlyerTpl);

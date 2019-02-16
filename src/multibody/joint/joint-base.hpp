@@ -124,6 +124,9 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     UTypeRef U()           { return derived().U_accessor(); }
     DTypeConstRef Dinv() const  { return derived().Dinv_accessor(); }
     UDTypeConstRef UDinv() const { return derived().UDinv_accessor(); }
+
+    std::string shortname() const { return derived().shortname(); }
+    static std::string classname() { return Derived::classname(); }    
     
   protected:
     
