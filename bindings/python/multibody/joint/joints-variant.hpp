@@ -43,7 +43,7 @@ namespace pinocchio
                           T::classname().c_str(),
                           bp::init<>())
             .def(JointDataDerivedPythonVisitor<T>())
-            //.def(PrintableVisitor<T>())
+            .def(PrintableVisitor<T>())
         );
         bp::implicitly_convertible<T,pinocchio::JointDataVariant>();
       }

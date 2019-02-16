@@ -126,7 +126,19 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     UDTypeConstRef UDinv() const { return derived().UDinv_accessor(); }
 
     std::string shortname() const { return derived().shortname(); }
-    static std::string classname() { return Derived::classname(); }    
+    static std::string classname() { return Derived::classname(); }
+
+    void disp(std::ostream & os) const
+    {
+      using namespace std;
+      os << shortname() << endl;
+    }
+    
+    friend std::ostream & operator << (std::ostream & os, const JointDataBase<Derived> & joint)
+    {
+      joint.disp(os);
+      return os;
+    }
     
   protected:
     

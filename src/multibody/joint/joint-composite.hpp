@@ -117,6 +117,19 @@ namespace pinocchio
     std::string shortname() const { return classname(); }
     
   };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline std::ostream & operator <<(std::ostream & os, const JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> & jdata)
+  {
+    typedef typename JointDataCompositeTpl<Scalar,Options,JointCollectionTpl>::JointDataVector JointDataVector;
+    
+    os << "JointDataComposite containing following models:\n" ;
+    for (typename JointDataVector::const_iterator it = jdata.joints.begin();
+         it != jdata.joints.end(); ++it)
+      os << "  " << shortname(*it) << std::endl;
+    return os;
+  }
+  
  
   template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   struct CastType< NewScalar, JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
