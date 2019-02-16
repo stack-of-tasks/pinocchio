@@ -5,8 +5,7 @@
 #ifndef __pinocchio_python_utils_pickle_map_hpp__
 #define __pinocchio_python_utils_pickle_map_hpp__
 
-#include <boost/python.hpp>
-#include <boost/python/tuple.hpp>
+#include "pinocchio/bindings/python/utils/pickle-vector.hpp"
 
 namespace pinocchio
 {
@@ -21,11 +20,8 @@ namespace pinocchio
     /// \sa Pickle
     ///
     template<typename VecType>
-    struct PickleMap : bp::pickle_suite
+    struct PickleMap : public PickleVector<VecType>
     { 
-      static bp::tuple getinitargs(const VecType&) {    return bp::make_tuple();      }
-      static bp::tuple getstate(bp::object op)
-      { return bp::make_tuple(bp::list(bp::extract<const VecType&>(op)()));           }
       static void setstate(bp::object op, bp::tuple tup)
       {
         VecType& o = bp::extract<VecType&>(op)(); 

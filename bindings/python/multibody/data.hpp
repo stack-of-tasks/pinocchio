@@ -117,6 +117,7 @@ namespace pinocchio
                          bp::no_init)
         .def(DataPythonVisitor());
         StdAlignedVectorPythonVisitor<Vector3, true>::expose("StdVec_vec3d");
+        StdAlignedVectorPythonVisitor<Matrix6x, true>::expose("StdMat_Matrix6x");
         StdVectorPythonVisitor<int>::expose("StdVec_int");
         
         eigenpy::enableEigenPySpecific<Data::RowMatrixXs>();

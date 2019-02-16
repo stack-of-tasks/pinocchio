@@ -7,6 +7,7 @@
 
 #include <boost/python.hpp>
 #include <boost/python/tuple.hpp>
+#include <boost/python/stl_iterator.hpp>
 
 namespace pinocchio
 {
