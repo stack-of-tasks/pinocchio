@@ -61,24 +61,33 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         cl
-        // All are add_properties cause ReadOnly
-          //.add_property("id",&JointDataDerivedPythonVisitor::getId)
-          //.add_property("idx_q",&JointDataDerivedPythonVisitor::getIdx_q)
-          //.add_property("idx_v",&JointDataDerivedPythonVisitor::getIdx_v)
-          //.add_property("nq",&JointDataDerivedPythonVisitor::getNq)
-          //.add_property("nv",&JointDataDerivedPythonVisitor::getNv)
-          //.def("setIndexes",&JointDataDerived::setIndexes)
+          // All are add_properties cause ReadOnly
+          .add_property("S",&JointDataDerivedPythonVisitor::getS)
+          .add_property("M",&JointDataDerivedPythonVisitor::getM)
+          .add_property("v",&JointDataDerivedPythonVisitor::getv)
+          .add_property("c",&JointDataDerivedPythonVisitor::getc)
+          .add_property("U",&JointDataDerivedPythonVisitor::getU)
+          .add_property("Dinv",&JointDataDerivedPythonVisitor::getDinv)
+          .add_property("UDinv",&JointDataDerivedPythonVisitor::getUDinv)
           .def("shortname",&JointDataDerived::shortname)
         ;
       }
 
-      //static JointIndex getId( const JointDataDerived & self ) { return self.id(); }
-      //static int getIdx_q(const JointDataDerived & self) {return self.idx_q();}
-      //static int getIdx_v(const JointDataDerived & self) {return self.idx_v();}
-      //static int getNq(const JointDataDerived & self) {return self.nq();}
-      //static int getNv(const JointDataDerived & self) {return self.nv();}
-
-
+      static typename JointDataDerived::Constraint_t getS(const JointDataDerived & self )
+      { return self.S_accessor(); }
+      static typename JointDataDerived::Transformation_t getM(const JointDataDerived & self )
+      { return self.M_accessor(); }
+      static typename JointDataDerived::Motion_t getv(const JointDataDerived & self )
+      { return self.v_accessor(); }
+      static typename JointDataDerived::Bias_t getc(const JointDataDerived & self )
+      { return self.c_accessor(); }
+      static typename JointDataDerived::U_t getU(const JointDataDerived & self )
+      { return self.U_accessor(); }
+      static typename JointDataDerived::D_t getDinv(const JointDataDerived & self )
+      { return self.Dinv_accessor(); }
+      static typename JointDataDerived::UD_t getUDinv(const JointDataDerived & self )
+      { return self.UDinv_accessor(); }
+      
       static void expose()
       {
 
