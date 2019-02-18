@@ -321,15 +321,8 @@ namespace pinocchio
         if (v.first == "group_state")
         {
           const std::string name = v.second.get<std::string>("<xmlattr>.name");
-          if ( !model.referenceConfigurations.insert(std::make_pair(name, Model::ConfigVectorType::Zero(model.nq))).second)
-          {
-            //  Element already present...
-            if (verbose) std::cout << "The reference configuration "
-                                   << name << " has been defined multiple times. "
-                                   <<"Only the last instance of "<<name<<" is being used."
-                                   <<std::endl;
-          }
-          typename Model::ConfigVectorType& ref_config = model.referenceConfigurations.find(name)->second;
+          typename Model::ConfigVectorType ref_config (model.nq);
+          neutral (model, ref_config);
           
           // Iterate over all the joint tags
           BOOST_FOREACH(const ptree::value_type & joint_tag, v.second)
@@ -361,6 +354,15 @@ namespace pinocchio
 
             }
           }          
+
+          if ( !model.referenceConfigurations.insert(std::make_pair(name, ref_config)).second)
+          {
+            //  Element already present...
+            if (verbose) std::cout << "The reference configuration "
+                                   << name << " has been defined multiple times. "
+                                   <<"Only the last instance of "<<name<<" is being used."
+                                   <<std::endl;
+          }
         }
       } // BOOST_FOREACH
     }
