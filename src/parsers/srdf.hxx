@@ -9,6 +9,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include <iostream>
 
 // Read XML file with boost
@@ -277,8 +278,10 @@ namespace pinocchio
         }
       } // BOOST_FOREACH
       
-      assert(false && "no half_sitting configuration found in the srdf file"); // Should we throw something here ?  
-      return ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType::Constant(model.nq,(Scalar)NAN); // warning : uninitialized vector is returned
+      if (verbose) std::cout << "no half_sitting configuration found in the srdf file"; // Should we throw something here ?  
+      typename Model::ConfigVectorType config (model.nq);
+      neutral (model, config);
+      return config;
     }
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
