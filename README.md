@@ -46,6 +46,8 @@ If you want to follow the current developments, you can directly refer to the [d
 
 **Pinocchio** can be easily installed on various Linux (Ubuntu, Fedora, etc.) and Unix distributions (Mac OS X, BSD, etc.). Please refer to the [installation procedure](http://stack-of-tasks.github.io/pinocchio/download.html).
 
+**Pinocchio** is also being deployed on ROS, you may follow its deployment status on [Melodic](https://index.ros.org/r/pinocchio/#melodic) or [Kinetic](https://index.ros.org/r/pinocchio/#kinetic).
+
 ## Examples
 
 We provide some basic examples on how to use **Pinocchio** in Python in the [examples/python](./examples/python) directory.
