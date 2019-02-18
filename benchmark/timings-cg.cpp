@@ -2,6 +2,7 @@
 // Copyright (c) 2018 CNRS
 //
 
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/aba.hpp"
@@ -60,6 +61,7 @@ int main(int argc, const char ** argv)
   std::cout << "--" << std::endl;
 
   pinocchio::Data data(model);
+  VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
   
   CodeGenRNEA<double> rnea_code_gen(model);
   rnea_code_gen.initLib();
@@ -92,8 +94,7 @@ int main(int argc, const char ** argv)
   
   for(size_t i=0;i<NBT;++i)
   {
-    qs[i]     = Eigen::VectorXd::Random(model.nq);
-    qs[i].segment<4>(3) /= qs[i].segment<4>(3).norm();
+    qs[i]     = randomConfiguration(model,-qmax,qmax);
     qdots[i]  = Eigen::VectorXd::Random(model.nv);
     qddots[i] = Eigen::VectorXd::Random(model.nv);
     taus[i] = Eigen::VectorXd::Random(model.nv);

@@ -149,9 +149,7 @@ int main(int argc, const char ** argv)
   std::cout << "nv = " << model.nv << std::endl;
 
   Data data(model);
-  VectorXd q = VectorXd::Random(model.nq);
-  VectorXd qdot = VectorXd::Random(model.nv);
-  VectorXd qddot = VectorXd::Random(model.nv);
+  VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
 
   container::aligned_vector<VectorXd> qs     (NBT);
   container::aligned_vector<VectorXd> qdots  (NBT);
@@ -160,8 +158,7 @@ int main(int argc, const char ** argv)
   
   for(size_t i=0;i<NBT;++i)
   {
-    qs[i]     = Eigen::VectorXd::Random(model.nq);
-    qs[i].segment<4>(3) /= qs[i].segment<4>(3).norm();
+    qs[i]     = randomConfiguration(model,-qmax,qmax);
     qdots[i]  = Eigen::VectorXd::Random(model.nv);
     qddots[i] = Eigen::VectorXd::Random(model.nv);
     taus[i] = Eigen::VectorXd::Random(model.nv);
