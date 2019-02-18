@@ -25,6 +25,8 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
+    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(isIdentity_overload,SE3::isIdentity,0,1)
+
     template<typename SE3>
     struct SE3PythonVisitor
       : public boost::python::def_visitor< SE3PythonVisitor<SE3> >
@@ -96,8 +98,7 @@ namespace pinocchio
         .def("isApprox",(bool (SE3::*)(const SE3 & other, const Scalar & prec)) &SE3::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
         .def("isApprox",(bool (SE3::*)(const SE3 & other)) &SE3::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
         
-        .def("isIdentity",(bool (SE3::*)(const Scalar & prec)) &SE3::isIdentity,bp::args("prec"),"Returns true if *this is approximately equal to the identity placement, within the precision given by prec.")
-        .def("isIdentity",(bool (SE3::*)(void)) &SE3::isIdentity,"Returns true if *this is approximately equal to the identity placement.")
+        .def("isIdentity",&SE3::isIdentity,isIdentity_overload(bp::args("prec"),"Returns true if *this is approximately equal to the identity placement, within the precision given by prec."))
         
         .def("__invert__",&SE3::inverse,"Returns the inverse of *this.")
         .def(bp::self * bp::self)

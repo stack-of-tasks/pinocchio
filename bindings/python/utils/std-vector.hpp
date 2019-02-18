@@ -9,6 +9,7 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <string>
 #include <vector>
+#include "pinocchio/bindings/python/utils/pickle-vector.hpp"
 
 namespace pinocchio
 {
@@ -33,7 +34,8 @@ namespace pinocchio
                          const std::string & doc_string = "")
       {
         bp::class_< std::vector<T> >(class_name.c_str(),doc_string.c_str())
-        .def(StdVectorPythonVisitor());
+        .def(StdVectorPythonVisitor())
+        .def_pickle(PickleVector<typename std::vector<T> >());        
       }
     };
   } // namespace python

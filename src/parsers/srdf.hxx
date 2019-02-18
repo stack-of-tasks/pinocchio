@@ -280,6 +280,87 @@ namespace pinocchio
       assert(false && "no half_sitting configuration found in the srdf file"); // Should we throw something here ?  
       return ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType::Constant(model.nq,(Scalar)NAN); // warning : uninitialized vector is returned
     }
+
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void
+    loadReferenceConfigurations(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                const std::string & filename,
+                                const bool verbose) throw (std::invalid_argument)
+    {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      typedef typename Model::JointModel JointModel;
+
+      // Check extension
+      const std::string extension = filename.substr(filename.find_last_of('.')+1);
+      if (extension != "srdf")
+      {
+        const std::string exception_message (filename + " does not have the right extension.");
+        throw std::invalid_argument(exception_message);
+      }
+      
+      // Open file
+      std::ifstream srdf_stream(filename.c_str());
+      if (! srdf_stream.is_open())
+      {
+        const std::string exception_message (filename + " does not seem to be a valid file.");
+        throw std::invalid_argument(exception_message);
+      }
+      
+      // Read xml stream
+      using boost::property_tree::ptree;
+      ptree pt;
+      read_xml(srdf_stream, pt);
+      
+      // Iterate over all tags directly children of robot
+      BOOST_FOREACH(const ptree::value_type & v, pt.get_child("robot"))
+      {
+        // if we encounter a tag group_state
+        if (v.first == "group_state")
+        {
+          const std::string name = v.second.get<std::string>("<xmlattr>.name");
+          if ( !model.referenceConfigurations.insert(std::make_pair(name, Model::ConfigVectorType::Zero(model.nq))).second)
+          {
+            //  Element already present...
+            if (verbose) std::cout << "The reference configuration "
+                                   << name << " has been defined multiple times. "
+                                   <<"Only the last instance of "<<name<<" is being used."
+                                   <<std::endl;
+          }
+          typename Model::ConfigVectorType& ref_config = model.referenceConfigurations.find(name)->second;
+          
+          // Iterate over all the joint tags
+          BOOST_FOREACH(const ptree::value_type & joint_tag, v.second)
+          {
+            if (joint_tag.first == "joint")
+            {
+              std::string joint_name = joint_tag.second.get<std::string>("<xmlattr>.name");
+              typename Model::JointIndex joint_id = model.getJointId(joint_name);
+
+              // Search in model the joint and its config id
+              if (joint_id != model.joints.size()) // != model.njoints
+              {
+                const JointModel & joint = model.joints[joint_id];
+                typename Model::ConfigVectorType joint_config(joint.nq());
+                const std::string joint_val = joint_tag.second.get<std::string>("<xmlattr>.value");
+                std::istringstream config_string(joint_val);
+                std::vector<double> config_vec((std::istream_iterator<double>(config_string)), std::istream_iterator<double>());
+                joint_config = Eigen::Map<Eigen::VectorXd>(config_vec.data(), config_vec.size());
+                ref_config.segment(joint.idx_q(),joint.nq()) = joint_config;
+                if (verbose)
+                {
+                  std::cout << "(" << joint_name << " , " << joint_config.transpose() << ")" << std::endl;
+                }
+              }
+              else
+              {
+                if (verbose) std::cout << "The Joint " << joint_name << " was not found in model" << std::endl;
+              }
+
+            }
+          }          
+        }
+      } // BOOST_FOREACH
+    }
   }
 } // namespace pinocchio
 

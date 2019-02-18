@@ -79,6 +79,9 @@ IF(BUILD_PYTHON_INTERFACE)
 
   TARGET_LINK_LIBRARIES(python_parser ${PYWRAP})
   TARGET_LINK_LIBRARIES(python_parser ${PYTHON_LIBRARIES})
+  SET_PROPERTY(TEST python_parser PROPERTY ENVIRONMENT
+    "PYTHONPATH=${CMAKE_BINARY_DIR}/bindings/python:$ENV{PYTHONPATH}")
+  ADD_SUBDIRECTORY(python)
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 # Work in progress
@@ -107,6 +110,7 @@ ADD_PINOCCHIO_UNIT_TEST(kinematics-derivatives eigen3)
 ADD_PINOCCHIO_UNIT_TEST(rnea-derivatives eigen3)
 ADD_PINOCCHIO_UNIT_TEST(aba-derivatives eigen3)
 ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives eigen3)
+ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives eigen3)
 
 # Automatic differentiation
 IF(CPPAD_FOUND)

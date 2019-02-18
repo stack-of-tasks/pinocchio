@@ -185,7 +185,7 @@ namespace se3
         }
 
         Model::JointIndex parent_id;
-        SE3 fixed_placement_offset (SE3::Identity());;
+        SE3 fixed_placement_offset (SE3::Identity());
 
         if (body_table_id_map.find (parent_name) != body_table_id_map.end ())
         {

@@ -6,17 +6,18 @@
 #ifndef __pinocchio_python_model_hpp__
 #define __pinocchio_python_model_hpp__
 
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <boost/python/overloads.hpp>
 #include <eigenpy/memory.hpp>
 
-#include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
+#include "pinocchio/bindings/python/utils/pickle-map.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Model)
 
@@ -82,7 +83,7 @@ namespace pinocchio
         .add_property("parents",&Model::parents)
         .add_property("names",&Model::names)
         .add_property("name",&Model::name)
-        
+        .add_property("referenceConfigurations", &Model::referenceConfigurations)
         .add_property("neutralConfiguration",
                       make_getter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
@@ -187,17 +188,14 @@ namespace pinocchio
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-        bp::class_< std::vector<Index> >("StdVec_Index")
-          .def(bp::vector_indexing_suite< std::vector<Index> >());
-        bp::class_< std::vector<Model::IndexVector> >("StdVec_IndexVector")
-        .def(bp::vector_indexing_suite< std::vector<Model::IndexVector> >());
-        bp::class_< std::vector<std::string> >("StdVec_StdString")
-          .def(bp::vector_indexing_suite< std::vector<std::string> >())
-          .def("index", &ModelPythonVisitor::index<std::string>);
-        bp::class_< std::vector<bool> >("StdVec_Bool")
-          .def(bp::vector_indexing_suite< std::vector<bool> >());
-        bp::class_< std::vector<double> >("StdVec_double")
-          .def(bp::vector_indexing_suite< std::vector<double> >()); 
+        StdVectorPythonVisitor<Index>::expose("StdVec_Index");
+        StdVectorPythonVisitor<Model::IndexVector>::expose("StdVec_IndexVector");
+        StdVectorPythonVisitor<std::string>::expose("StdVec_StdString");
+        StdVectorPythonVisitor<bool>::expose("StdVec_Bool");
+        StdVectorPythonVisitor<double>::expose("StdVec_double");
+        bp::class_< std::map<std::string, Eigen::VectorXd> >("StdMap_String_EigenVectorXd")
+          .def(bp::map_indexing_suite< std::map<std::string, Eigen::VectorXd>, true >())
+          .def_pickle(PickleMap<std::map<std::string, Eigen::VectorXd> >());
 
         bp::class_<Model>("Model",
                           "Articulated rigid body model (const)",

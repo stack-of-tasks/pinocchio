@@ -6,7 +6,7 @@ Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
 [![Coverage report](https://gepgitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/coverage.svg?job=doc-coverage)](http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/coverage/)
 
 **Pinocchio** instantiates the state-of-the-art Rigid Body Algorithms for poly-articulated systems based on revisited Roy Featherstone's algorithms.
-Besides, **Pinocchio** provides the analytical derivatives of the main Rigid-Body Algorithms like the Recursive Newton-Euler Algorithms or the Articulated-Body Algorithm.
+Besides, **Pinocchio** provides the analytical derivatives of the main Rigid-Body Algorithms like the Recursive Newton-Euler Algorithm or the Articulated-Body Algorithm.
 
 **Pinocchio** is first tailored for robotics applications, but it can be used in extra contexts (biomechanics, computer graphics, vision, etc.).
 It is built upon Eigen for linear algebra and FCL for collision detection. **Pinocchio** comes with a Python interface for fast code prototyping.
@@ -48,7 +48,7 @@ If you want to follow the current developments, you can directly refer to the [d
 
 ## Examples
 
-We provide some basic examples on how to use **Pinocchio** in Python in the [examples/python](./examples/python/README.md) directory.
+We provide some basic examples on how to use **Pinocchio** in Python in the [examples/python](./examples/python) directory.
 
 ## Tutorials
 

@@ -81,6 +81,7 @@ namespace pinocchio
     /// \return The neutral configuration as an eigen vector
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    PINOCCHIO_DEPRECATED
     typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
     getNeutralConfiguration(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             const std::string & filename,
@@ -94,6 +95,22 @@ namespace pinocchio
                                     const std::string & filename,
                                     const bool verbose = false) throw (std::invalid_argument)
     { return getNeutralConfiguration(model,filename,verbose); }
+
+
+    ///
+    /// \brief Get the reference configurations of a given model associated to a SRDF file.
+    ///        It throws if the SRDF file is incorrect. The reference configurations are
+    ///        saved in a map indexed by the configuration name (model.referenceConfigurations).
+    /// \param[in] model The Model for which we want the reference configs.
+    /// \param[in] filename The complete path to the SRDF file.
+    /// \param[in] verbose Verbosity mode.
+    ///
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void
+    loadReferenceConfigurations(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                const std::string & filename,
+                                const bool verbose) throw (std::invalid_argument);
+      
     
     ///
     /// \brief Load the rotor params of a given model associated to a SRDF file.

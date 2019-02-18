@@ -27,6 +27,16 @@ namespace pinocchio
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamics_overloads, impulseDynamics_proxy, 5, 7)
 
+    static const Eigen::MatrixXd getKKTContactDynamicMatrixInverse_proxy(const Model & model,
+                                                                         Data & data,
+                                                                         const Eigen::MatrixXd & J)
+    {
+      Eigen::MatrixXd MJtJ_inv(model.nv+J.rows(), model.nv+J.rows());
+      getKKTContactDynamicMatrixInverse(model, data, J, MJtJ_inv);
+      return MJtJ_inv;
+    }
+    
+
     void exposeDynamics()
     {
       using namespace Eigen;
@@ -56,6 +66,10 @@ namespace pinocchio
                        "Update kinematics (if true, it updates only the joint space inertia matrix)"),
               "Solve the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c"
               )[bp::return_value_policy<bp::return_by_value>()]);
+      bp::def("getKKTContactDynamicMatrixInverse",getKKTContactDynamicMatrixInverse_proxy,
+              bp::args("Model","Data",
+                       "Contact Jacobian J(size nb_constraint * Model::nv)"),
+              "Computes the inverse of the constraint matrix [[M JT], [J 0]]. forward/impulseDynamics must be called first. The jacobian should be the same that was provided to forward/impulseDynamics.");
     }
     
   } // namespace python

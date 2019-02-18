@@ -103,10 +103,49 @@ namespace pinocchio
     a.noalias() = J.transpose() * lambda_c;
     cholesky::solve(model, data, a);
     a += data.torque_residual;
+
     
     return a;
   }
-  
+
+  ///
+  /// \brief Computes the inverse of the KKT matrix for dynamics with contact constraints, [[M JT], [J 0]].
+  /// The matrix is defined when we call forwardDynamics/impulsedynamics. This method makes use of
+  /// the matrix decompositions performed during the forwardDynamics/impulasedynamics and returns the inverse.
+  /// The jacobian should be the same that was provided to forwardDynamics/impulasedynamics.
+  /// Thus you should call forward Dynamics/impulsedynamics first.
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[out] MJtJ_inv inverse of the MJtJ matrix.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+           typename ConstraintMatrixType, typename KKTMatrixType>
+  inline void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                                const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                                                const Eigen::MatrixBase<KKTMatrixType> & MJtJ_inv)
+  {
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    assert(MJtJ_inv.cols() == data.JMinvJt.cols() + model.nv);
+    assert(MJtJ_inv.rows() == data.JMinvJt.rows() + model.nv);
+    const typename Data::MatrixXs::Index& nc = data.JMinvJt.cols();
+
+    KKTMatrixType& MJtJ_inv_ = PINOCCHIO_EIGEN_CONST_CAST(KKTMatrixType,MJtJ_inv);
+    
+    Eigen::Block<typename Data::MatrixXs> topLeft = MJtJ_inv_.topLeftCorner(model.nv, model.nv);
+    Eigen::Block<typename Data::MatrixXs> topRight = MJtJ_inv_.topRightCorner(model.nv, nc);
+    Eigen::Block<typename Data::MatrixXs> bottomLeft = MJtJ_inv_.bottomLeftCorner(nc, model.nv);
+    Eigen::Block<typename Data::MatrixXs> bottomRight = MJtJ_inv_.bottomRightCorner(nc, nc); 
+
+    bottomRight = -Data::MatrixXs::Identity(nc,nc);    topLeft.setIdentity();
+    data.llt_JMinvJt.solveInPlace(bottomRight);    cholesky::solve(model, data, topLeft);
+
+    bottomLeft.noalias() = J*topLeft;
+    topRight.noalias() = bottomLeft.transpose() * (-bottomRight);
+    topLeft.noalias() -= topRight*bottomLeft;
+    bottomLeft = topRight.transpose();
+  }
+
   ///
   /// \brief Compute the impulse dynamics with contact constraints.
   /// \note It computes the following problem: <BR>

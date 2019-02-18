@@ -1,9 +1,9 @@
 [submodule "cmake"]
 	path = cmake
-	url = git://github.com/jrl-umi3218/jrl-cmakemodules.git
+	url = ../../jrl-umi3218/jrl-cmakemodules
 [submodule ".travis"]
 	path = .travis
-	url = https://github.com/jrl-umi3218/jrl-travis
+	url = ../../jrl-umi3218/jrl-travis
 [submodule "models/romeo"]
 	path = models/romeo
-	url = https://github.com/laas/romeo.git
+	url = ../../laas/romeo.git

@@ -72,9 +72,17 @@ def getJacobianTimeVariation(model,data,jointId,local):
 def differentiate(model,q0,q1):
   return pin.difference(model,q0,q1)
 
-@deprecated("This function has been renamed difference and will be removed in future releases of Pinocchio. Please change for new getNeutralConfiguration function.")
+@deprecated("This function has been renamed loadReferenceConfigurations and will be removed in future releases of Pinocchio. Please change for new loadReferenceConfigurations function.")
 def getNeutralConfigurationFromSrdf(model, filename, verbose):
-  return pin.getNeutralConfiguration(model,filename,verbose)
+  pin.loadReferenceConfigurations(model,filename,verbose)
+  model.neutralConfiguration = model.referenceConfigurations["half_sitting"]
+  return model.referenceConfigurations["half_sitting"]
+
+@deprecated("This function has been renamed loadReferenceConfigurations and will be removed in future releases of Pinocchio. Please change for new loadReferenceConfigurations function.")
+def getNeutralConfiguration(model, filename, verbose):
+  pin.loadReferenceConfigurations(model,filename,verbose)
+  model.neutralConfiguration = model.referenceConfigurations["half_sitting"]
+  return model.referenceConfigurations["half_sitting"]
 
 @deprecated("This function has been renamed difference and will be removed in future releases of Pinocchio. Please change for new loadRotorParameters function.")
 def loadRotorParamsFromSrdf(model, filename, verbose):

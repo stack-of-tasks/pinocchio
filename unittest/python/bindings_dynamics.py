@@ -17,7 +17,7 @@ class TestDynamicsBindings(TestCase):
         self.model = pin.buildSampleModelHumanoidRandom()
         self.data = self.model.createData()
 
-        qmax = np.matrix(np.full((self.model.nv,1),np.pi))
+        qmax = np.matrix(np.full((self.model.nq,1),np.pi))
         self.q = pin.randomConfiguration(self.model,-qmax,qmax)
         self.v = rand(self.model.nv)
         self.tau = rand(self.model.nv)
