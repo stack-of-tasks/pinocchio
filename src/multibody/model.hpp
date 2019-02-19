@@ -183,7 +183,11 @@ namespace pinocchio
       res.name = name;
       
       /// Eigen Vectors
+      /// TODO: remove this pragma when neutralConfiguration will be removed
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
       res.neutralConfiguration = neutralConfiguration.template cast<NewScalar>();
+#pragma GCC diagnostic pop
       res.rotorInertia = rotorInertia.template cast<NewScalar>();
       res.rotorGearRatio = rotorGearRatio.template cast<NewScalar>();
       res.effortLimit = effortLimit.template cast<NewScalar>();
@@ -220,7 +224,11 @@ namespace pinocchio
         res.frames[k] = frames[k].template cast<NewScalar>();
       }
       
+      /// TODO: remove this pragma when neutralConfiguration will be removed
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
       return res;
+#pragma GCC diagnostic pop
     }
     
     ///
@@ -240,10 +248,14 @@ namespace pinocchio
       && other.names == names
       && other.subtrees == subtrees
       && other.gravity == gravity
-      && other.name == name
+      && other.name == name;
 
-      && other.neutralConfiguration == neutralConfiguration
-      && other.referenceConfigurations == referenceConfigurations
+      /// TODO: remove this pragma when neutralConfiguration will be removed
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+      res &= other.neutralConfiguration == neutralConfiguration;
+#pragma GCC diagnostic pop
+      res &= other.referenceConfigurations == referenceConfigurations
       && other.rotorInertia == rotorInertia
       && other.rotorGearRatio == rotorGearRatio
       && other.effortLimit == effortLimit
