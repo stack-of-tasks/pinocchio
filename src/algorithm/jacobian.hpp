@@ -132,7 +132,7 @@ namespace pinocchio
   
   ///
   /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame or in the local frame (rf = LOCAL) of the joint.
-  /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJacobians before calling it.
+  /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJointJacobians before calling it.
   ///
   /// \deprecated This function is now deprecated. Please refer now to pinocchio::getJointJacobian for similar function with updated name.
   ///
@@ -167,9 +167,10 @@ namespace pinocchio
   ///
   /// \return The Jacobian of the specific joint frame expressed in the local frame of the joint (matrix 6 x model.nv).
   ///
-  /// \remark This function is equivalent to call first computeJacobians(model,data,q) and then call getJointJacobian(model,data,jointId,LOCAL,J).
+  /// \remark The result of this function is equivalent to call first computeJointJacobians(model,data,q) and then call getJointJacobian(model,data,jointId,LOCAL,J),
+  ///         but forwardKinematics is not fully computed.
   ///         It is worth to call jacobian if you only need a single Jacobian for a specific joint. Otherwise, for several Jacobians, it is better
-  ///         to call computeJacobians(model,data,q) followed by getJointJacobian(model,data,jointId,LOCAL,J) for each Jacobian.
+  ///         to call computeJointJacobians(model,data,q) followed by getJointJacobian(model,data,jointId,LOCAL,J) for each Jacobian.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
   inline void jointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -191,9 +192,10 @@ namespace pinocchio
   ///
   /// \return The Jacobian of the specific joint frame expressed in the local frame of the joint (matrix 6 x model.nv).
   ///
-  /// \remark This function is equivalent to call first computeJacobians(model,data,q) and then call getJointJacobian<LOCAL>(model,data,jointId,J).
+  /// \remark The result of this function is equivalent to call first computeJointJacobians(model,data,q) and then call getJointJacobian<LOCAL>(model,data,jointId,J),
+  ///         but forwardKinematics is not fully computed.
   ///         It is worth to call jacobian if you only need a single Jacobian for a specific joint. Otherwise, for several Jacobians, it is better
-  ///         to call computeJacobians(model,data,q) followed by getJointJacobian<LOCAL>(model,data,jointId,J) for each Jacobian.
+  ///         to call computeJointJacobians(model,data,q) followed by getJointJacobian<LOCAL>(model,data,jointId,J) for each Jacobian.
   ///
   PINOCCHIO_DEPRECATED
   inline void jacobian(const Model & model,
@@ -271,7 +273,7 @@ namespace pinocchio
   
   ///
   /// \brief Computes the Jacobian time variation of a specific joint frame expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL) of the joint.
-  /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJacobiansTimeVariation before calling it.
+  /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJointJacobiansTimeVariation before calling it.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
@@ -291,7 +293,7 @@ namespace pinocchio
   
   ///
   /// \brief Computes the Jacobian time variation of a specific joint frame expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL) of the joint.
-  /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJacobiansTimeVariation before calling it.
+  /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJointJacobiansTimeVariation before calling it.
   ///
   /// \deprecated This function is now deprecated. Please refer now to pinocchio::getJointJacobianTimeVariation for similar function with updated name.
   ///
