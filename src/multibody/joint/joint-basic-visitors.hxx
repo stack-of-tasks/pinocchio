@@ -283,9 +283,9 @@ namespace pinocchio
 
 
   /**
-   * @brief      JointShortnameVisitor visitor
+   * @brief      JointModelShortnameVisitor visitor
    */
-  struct JointShortnameVisitor
+  struct JointModelShortnameVisitor
   : boost::static_visitor<std::string>
   {
     template<typename JointModelDerived>
@@ -294,12 +294,12 @@ namespace pinocchio
     
     template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
     static std::string run(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
-    { return boost::apply_visitor(JointShortnameVisitor(),jmodel); }
+    { return boost::apply_visitor(JointModelShortnameVisitor(),jmodel); }
   };
   
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline std::string shortname(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
-  { return JointShortnameVisitor::run(jmodel);}
+  { return JointModelShortnameVisitor::run(jmodel);}
   
   template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   struct JointCastVisitor
@@ -523,6 +523,26 @@ namespace pinocchio
   {
     return JointUDInvInertiaVisitor<Scalar,Options,JointCollectionTpl>::run(jdata);
   }
+
+  /**
+   * @brief      JointDataShortnameVisitor visitor
+   */
+  struct JointDataShortnameVisitor
+  : boost::static_visitor<std::string>
+  {
+    template<typename JointDataDerived>
+    std::string operator()(const JointDataBase<JointDataDerived> & jdata) const
+    { return jdata.shortname(); }
+    
+    template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+    static std::string run(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
+    { return boost::apply_visitor(JointDataShortnameVisitor(),jdata); }
+  };
+  
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline std::string shortname(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
+  { return JointDataShortnameVisitor::run(jdata);}
+  
 
   /// @endcond
 

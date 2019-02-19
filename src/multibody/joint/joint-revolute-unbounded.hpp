@@ -73,6 +73,9 @@ namespace pinocchio
 
     JointDataRevoluteUnboundedTpl() {}
 
+    static std::string classname() { return std::string("JointDataRevoluteUnbounded"); }
+    std::string shortname() const { return classname(); }
+    
   }; // struct JointDataRevoluteUnbounded
   
   template<typename NewScalar, typename Scalar, int Options, int axis>

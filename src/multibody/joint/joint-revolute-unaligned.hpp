@@ -437,6 +437,9 @@ namespace pinocchio
     , U(), Dinv(), UDinv()
     {}
 
+    static std::string classname() { return std::string("JointDataRevoluteUnaligned"); }
+    std::string shortname() const { return classname(); }
+    
   }; // struct JointDataRevoluteUnalignedTpl
 
   JOINT_CAST_TYPE_SPECIALIZATION(JointModelRevoluteUnalignedTpl);

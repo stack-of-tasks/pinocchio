@@ -416,6 +416,9 @@ namespace pinocchio
     , U(), Dinv(), UDinv()
     {}
 
+    static std::string classname() { return std::string("JointDataPrismaticUnaligned"); }
+    std::string shortname() const { return classname(); }
+    
   }; // struct JointDataPrismaticUnalignedTpl
   
   template<typename Scalar, int Options>

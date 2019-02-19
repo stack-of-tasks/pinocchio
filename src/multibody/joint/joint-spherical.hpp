@@ -388,6 +388,9 @@ namespace pinocchio
 
     JointDataSphericalTpl () : M(1), U(), Dinv(), UDinv() {}
 
+    static std::string classname() { return std::string("JointDataSpherical"); }
+    std::string shortname() const { return classname(); }
+    
   }; // struct JointDataSphericalTpl
 
   JOINT_CAST_TYPE_SPECIALIZATION(JointModelSphericalTpl);

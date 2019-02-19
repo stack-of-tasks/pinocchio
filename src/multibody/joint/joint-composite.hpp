@@ -73,6 +73,16 @@ namespace pinocchio
     typedef container::aligned_vector<JointDataVariant> JointDataVector;
     
     // JointDataComposite()  {} // can become necessary if we want a vector of JointDataComposite ?
+
+    JointDataCompositeTpl()
+    : joints()
+    , iMlast(0), pjMi(0)
+    , S(0)
+    , M(),v(),c()
+    , U(6,0), Dinv(0,0), UDinv(6,0)
+    , StU(0,0)
+    {}
+
     
     JointDataCompositeTpl(const JointDataVector & joint_data, const int /*nq*/, const int nv)
     : joints(joint_data), iMlast(joint_data.size()), pjMi(joint_data.size())
@@ -103,7 +113,23 @@ namespace pinocchio
     
     D_t StU;
 
+    static std::string classname() { return std::string("JointDataComposite"); }
+    std::string shortname() const { return classname(); }
+    
   };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline std::ostream & operator <<(std::ostream & os, const JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> & jdata)
+  {
+    typedef typename JointDataCompositeTpl<Scalar,Options,JointCollectionTpl>::JointDataVector JointDataVector;
+    
+    os << "JointDataComposite containing following models:\n" ;
+    for (typename JointDataVector::const_iterator it = jdata.joints.begin();
+         it != jdata.joints.end(); ++it)
+      os << "  " << shortname(*it) << std::endl;
+    return os;
+  }
+  
  
   template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   struct CastType< NewScalar, JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
