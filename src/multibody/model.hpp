@@ -21,6 +21,11 @@
 #include <iostream>
 #include <map>
 
+// disable warnings arising from internal manipulation of deprecated instance variables
+// originally inserted for neutralConfiguration
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 namespace pinocchio
 {
   
@@ -491,6 +496,8 @@ namespace pinocchio
   };
 
 } // namespace pinocchio
+
+#pragma GCC diagnostic pop
 
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
