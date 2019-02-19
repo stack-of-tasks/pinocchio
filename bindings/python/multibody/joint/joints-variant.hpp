@@ -33,7 +33,7 @@ namespace pinocchio
       }
     };
 
-    struct data_exposer
+    struct DataExposer
     {
       template<class T>
       void operator()(T)
@@ -49,7 +49,7 @@ namespace pinocchio
       }
     };
 
-    struct model_exposer
+    struct ModelExposer
     {
       template<class T>
       void operator()(T)

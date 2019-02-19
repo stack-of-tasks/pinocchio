@@ -5,8 +5,7 @@
 #ifndef __pinocchio_python_joints_datas_hpp__
 #define __pinocchio_python_joints_datas_hpp__
 
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
+#include<boost/python.hpp>
 
 namespace pinocchio
 {

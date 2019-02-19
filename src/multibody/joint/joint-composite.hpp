@@ -79,7 +79,7 @@ namespace pinocchio
     , iMlast(0), pjMi(0)
     , S(0)
     , M(),v(),c()
-    , U(0,0), Dinv(0,0), UDinv(0,0)
+    , U(6,0), Dinv(0,0), UDinv(6,0)
     , StU(0,0)
     {}
 
