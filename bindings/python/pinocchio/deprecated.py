@@ -6,6 +6,8 @@
 
 from __future__ import print_function
 
+import warnings as _warnings
+
 from . import libpinocchio_pywrap as pin 
 from .deprecation import deprecated, DeprecatedWarning
 
@@ -95,14 +97,8 @@ def removeCollisionPairsFromSrdf(model, geomModel, filename, verbose):
 # This function is only deprecated when using a specific signature. Therefore, it needs special care
 def jacobianCenterOfMass(model, data, *args):
   if len(args)==3:
-    import warnings
-    import inspect
     message = "This function signature has been deprecated and will be removed in future releases of Pinocchio. Please change for one of the new signatures of the jacobianCenterOfMass function."
-    frame = inspect.currentframe().f_back
-    warnings.warn_explicit(message,
-                           category=DeprecatedWarning,
-                           filename=inspect.getfile(frame.f_code),
-                           lineno=frame.f_lineno)
+    _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
     q = args[0]
     computeSubtreeComs = args[1]
     updateKinematics = args[2]
