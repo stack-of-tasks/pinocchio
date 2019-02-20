@@ -3,7 +3,7 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-int main(int argc, char ** argv)
+int main(int /* argc */, char ** /* argv */)
 {
   pinocchio::Model model;
   pinocchio::buildModels::manipulator(model);
