@@ -152,7 +152,6 @@ namespace pinocchio
           
           for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
             v_.segment(k+1,nvt[(size_t)k]-1) += U.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*v_[k];
-            //        v.middleRows(k+1,nvt[(size_t)k]-1) += U.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*v.row(k);
         }
       };
       
@@ -261,7 +260,6 @@ namespace pinocchio
           
           for(int k=0; k<model.nv-1; ++k) // You can stop one step before nv.
             v_.segment(k+1,nvt[(size_t)k]-1) -= U.row(k).segment(k+1,nvt[(size_t)k]-1).transpose() * v_[k];
-          //        v.middleRows(k+1,nvt[(size_t)k]-1).transpose() -= v.row(k).transpose()*();
         }
       };
       
@@ -323,8 +321,6 @@ namespace pinocchio
           {
             vout_[k] = M.row(k).segment(k,nvt[(size_t)k]) * vin.segment(k,nvt[(size_t)k]);
             vout_.segment(k+1,nvt[(size_t)k]-1) += M.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*vin[k];
-//            res.row(k) = M.row(k).segment(k,nvt[(size_t)k]) * v.middleRows(k,nvt[(size_t)k]);
-//            res.middleRows(k+1,nvt[(size_t)k]-1) += M.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*v.row(k);
           }
         }
       };
@@ -351,22 +347,6 @@ namespace pinocchio
       ReturnType res(model.nv,min.cols());
       return Mv(model,data,min,res);
     }
-    
-//    template<typename Mat>
-//    Mat & Mv(const Model & model,
-//             const Data & data,
-//             const Eigen::MatrixBase<Mat> & v,
-//             const bool usingCholesky)
-//    {
-//#ifndef NDEBUG
-//      assert(model.check(data) && "data is not consistent with model.");
-//#endif
-//      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
-//      if(usingCholesky) internal::UDUtv(model,data,v_);
-//      else v_ = internal::Mv(model,data,v_);
-//
-//      return v_.derived();
-//    }
     
     namespace internal
     {
