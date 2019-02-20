@@ -1,3 +1,7 @@
+#
+# Copyright (c) 2015-2019 CNRS INRIA
+#
+
 SET(${PROJECT_NAME}_EXAMPLES
   overview-simple
   #overview-urdf
