@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -425,18 +425,35 @@ namespace pinocchio
       M.rotation(quat.matrix());
       M.translation().setZero();
     }
-
-    template<typename ConfigVector>
+    
+    template<typename QuaternionDerived>
     void calc(JointDataDerived & data,
-              const typename Eigen::MatrixBase<ConfigVector> & qs) const
+              const typename Eigen::QuaternionBase<QuaternionDerived> & quat) const
+    {
+      data.M.rotation(quat.matrix());
+    }
+    
+    template<typename ConfigVector>
+    EIGEN_DONT_INLINE
+    void calc(JointDataDerived & data,
+              const typename Eigen::PlainObjectBase<ConfigVector> & qs) const
     {
       typedef typename Eigen::Quaternion<typename ConfigVector::Scalar,ConfigVector::Options> Quaternion;
       typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
-      
-      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
-      
-      ConstQuaternionMap quat(q.data());
-      data.M.rotation(quat.matrix());
+
+      ConstQuaternionMap quat(qs.template segment<NQ>(idx_q()).data());
+      calc(data,quat);
+    }
+
+    template<typename ConfigVector>
+    EIGEN_DONT_INLINE
+    void calc(JointDataDerived & data,
+              const typename Eigen::MatrixBase<ConfigVector> & qs) const
+    {
+      typedef typename Eigen::Quaternion<Scalar,Options> Quaternion;
+
+      const Quaternion quat(qs.template segment<NQ>(idx_q()));
+      calc(data,quat);
     }
 
     template<typename ConfigVector, typename TangentVector>
