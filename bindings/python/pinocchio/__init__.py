@@ -11,6 +11,3 @@ from .explog import exp, log
 from .libpinocchio_pywrap import *
 from .deprecated import *
 from .shortcuts import *
-
-pin.AngleAxis.__repr__ = lambda s: 'AngleAxis(%s)' % s.vector()
-

@@ -1,5 +1,4 @@
 import functools
-import inspect
 import warnings
 
 class DeprecatedWarning(UserWarning):
@@ -21,17 +20,15 @@ def deprecated(instructions):
                 func.__name__,
                 instructions)
 
-            frame = inspect.currentframe().f_back
-
-            warnings.warn_explicit(message,
-                                   category=DeprecatedWarning,
-                                   filename=inspect.getfile(frame.f_code),
-                                   lineno=frame.f_lineno)
+            warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
 
             return func(*args, **kwargs)
 
+        instructions_doc = 'Deprecated: ' + instructions
         if wrapper.__doc__ is None:
-            wrapper.__doc__ = instructions
+            wrapper.__doc__ = instructions_doc
+        else:
+            wrapper.__doc__ = wrapper.__doc__.rstrip() + '\n\n' + instructions_doc
         return wrapper
 
     return decorator

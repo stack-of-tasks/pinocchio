@@ -6,6 +6,8 @@
 
 from __future__ import print_function
 
+import warnings as _warnings
+
 from . import libpinocchio_pywrap as pin 
 from .deprecation import deprecated, DeprecatedWarning
 
@@ -28,6 +30,21 @@ def _Model__BuildEmptyModel():
     return pin.Model()
 
 pin.Model.BuildEmptyModel = staticmethod(_Model__BuildEmptyModel)
+
+# deprecate Model.neutralConfiguration. Since: 19 feb 2019
+def _Model__neutralConfiguration(self):
+    message = "Using deprecated instance variable Model.neutralConfiguration. Please use Model.referenceConfigurations instead."
+    _warnings.warn(message, DeprecatedWarning, stacklevel=2)
+    return self._neutralConfiguration
+
+pin.Model.neutralConfiguration = property(_Model__neutralConfiguration)
+
+def _Model__set_neutralConfiguration(self,q):
+    message = "Using deprecated instance variable Model.neutralConfiguration. Please use Model.referenceConfigurations instead."
+    _warnings.warn(message, DeprecatedWarning, stacklevel=2)
+    self._neutralConfiguration = q
+
+pin.Model.neutralConfiguration = pin.Model.neutralConfiguration.setter(_Model__set_neutralConfiguration)
 
 @deprecated("This function has been renamed updateFramePlacements when taking two arguments, and framesForwardKinematics when taking three. Please change your code to the appropriate method.")
 def framesKinematics(model,data,q=None):
@@ -95,14 +112,8 @@ def removeCollisionPairsFromSrdf(model, geomModel, filename, verbose):
 # This function is only deprecated when using a specific signature. Therefore, it needs special care
 def jacobianCenterOfMass(model, data, *args):
   if len(args)==3:
-    import warnings
-    import inspect
     message = "This function signature has been deprecated and will be removed in future releases of Pinocchio. Please change for one of the new signatures of the jacobianCenterOfMass function."
-    frame = inspect.currentframe().f_back
-    warnings.warn_explicit(message,
-                           category=DeprecatedWarning,
-                           filename=inspect.getfile(frame.f_code),
-                           lineno=frame.f_lineno)
+    _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
     q = args[0]
     computeSubtreeComs = args[1]
     updateKinematics = args[2]
