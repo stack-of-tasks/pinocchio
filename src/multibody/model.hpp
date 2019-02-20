@@ -224,11 +224,7 @@ namespace pinocchio
         res.frames[k] = frames[k].template cast<NewScalar>();
       }
       
-      /// TODO: remove this pragma when neutralConfiguration will be removed
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
       return res;
-#pragma GCC diagnostic pop
     }
     
     ///
