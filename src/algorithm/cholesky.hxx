@@ -525,7 +525,7 @@ namespace pinocchio
       for(int k = 0; k < model.nv; ++k)
         internal::Miunit(model,data,k,Minv_.col(k));
       
-      return Minv_;
+      return Minv_.derived();
     }
 
   } //   namespace cholesky
