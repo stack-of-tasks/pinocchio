@@ -344,7 +344,7 @@ namespace pinocchio
                 const std::string joint_val = joint_tag.second.get<std::string>("<xmlattr>.value");
                 std::istringstream config_string(joint_val);
                 std::vector<double> config_vec((std::istream_iterator<double>(config_string)), std::istream_iterator<double>());
-                joint_config = Eigen::Map<Eigen::VectorXd>(config_vec.data(), (Eigen::Index)config_vec.size());
+                joint_config = Eigen::Map<Eigen::VectorXd>(config_vec.data(), (Eigen::DenseIndex)config_vec.size());
                 ref_config.segment(joint.idx_q(),joint.nq()) = joint_config;
                 if (verbose)
                 {
