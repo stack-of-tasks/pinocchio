@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -15,6 +15,23 @@
 #include <boost/utility/binary.hpp>
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+
+BOOST_AUTO_TEST_CASE(test_kinematics_constant_vector_input)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  Data data(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  
+  forwardKinematics(model,data,Model::ConfigVectorType::Ones(model.nq));
+}
 
 BOOST_AUTO_TEST_CASE(test_kinematics_zero)
 {
