@@ -31,6 +31,21 @@ def _Model__BuildEmptyModel():
 
 pin.Model.BuildEmptyModel = staticmethod(_Model__BuildEmptyModel)
 
+# deprecate Model.neutralConfiguration. Since: 19 feb 2019
+def _Model__neutralConfiguration(self):
+    message = "Using deprecated instance variable Model.neutralConfiguration. Please use Model.referenceConfigurations instead."
+    _warnings.warn(message, DeprecatedWarning, stacklevel=2)
+    return self._neutralConfiguration
+
+pin.Model.neutralConfiguration = property(_Model__neutralConfiguration)
+
+def _Model__set_neutralConfiguration(self,q):
+    message = "Using deprecated instance variable Model.neutralConfiguration. Please use Model.referenceConfigurations instead."
+    _warnings.warn(message, DeprecatedWarning, stacklevel=2)
+    self._neutralConfiguration = q
+
+pin.Model.neutralConfiguration = pin.Model.neutralConfiguration.setter(_Model__set_neutralConfiguration)
+
 @deprecated("This function has been renamed updateFramePlacements when taking two arguments, and framesForwardKinematics when taking three. Please change your code to the appropriate method.")
 def framesKinematics(model,data,q=None):
   if q is None:

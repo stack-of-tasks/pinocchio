@@ -88,7 +88,7 @@ namespace pinocchio
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         cl
-        .add_property("neutralConfiguration",
+        .add_property("_neutralConfiguration",
                       make_getter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::neutralConfiguration, bp::return_value_policy<bp::return_by_value>()),
                       "Joint's neutral configurations.");
