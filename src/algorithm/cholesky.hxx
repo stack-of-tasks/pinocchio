@@ -195,7 +195,6 @@ namespace pinocchio
           typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
-          PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
           assert(v.size() == model.nv);
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
@@ -250,7 +249,6 @@ namespace pinocchio
           typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
-          PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
           assert(v.size() == model.nv);
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
@@ -374,7 +372,6 @@ namespace pinocchio
         {
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
           
-          PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
           assert(v.size() == model.nv);
           
@@ -425,7 +422,6 @@ namespace pinocchio
         {
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
           
-          PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
 
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
@@ -497,7 +493,6 @@ namespace pinocchio
       assert(Minv.rows() == model.nv);
       assert(Minv.cols() == model.nv);
       
-      PINOCCHIO_UNUSED_VARIABLE(model);
       assert(model.check(data) && "data is not consistent with model.");
 
       Mat & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,Minv);
