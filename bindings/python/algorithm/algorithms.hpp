@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016,2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_algorithm_hpp__
@@ -28,6 +28,7 @@ namespace pinocchio
     void exposeJacobian();
     void exposeGeometryAlgo();
     void exposeRegressor();
+    void exposeCholesky();
     
     void exposeRNEADerivatives();
     void exposeABADerivatives();
