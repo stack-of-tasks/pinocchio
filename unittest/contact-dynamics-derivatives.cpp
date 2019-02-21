@@ -42,6 +42,8 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_contact_cst_gamma )
   Data::Matrix6x J_RF(6,model.nv); J_RF.setZero();
   getJointJacobian(model, data, RF_id, LOCAL, J_RF);
   Motion::Vector6 gamma_RF; gamma_RF.setZero();
+  forwardKinematics(model,data,q,v,VectorXd::Zero(model.nv));
+  gamma_RF += data.a[RF_id].toVector(); // Jdot * qdot
   
   forwardDynamics(model, data, q, v, tau, J_RF, gamma_RF);
   VectorXd ddq_ref = data.ddq;
@@ -54,6 +56,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_contact_cst_gamma )
   rnea(model,data_check,q,v,ddq_ref,fext);
   
   BOOST_CHECK(data_check.tau.isApprox(tau));
+  forwardKinematics(model,data_check,q,VectorXd::Zero(model.nv),ddq_ref);
   BOOST_CHECK(data_check.a[RF_id].toVector().isApprox(-gamma_RF));
   
   Data data_fd(model);
@@ -210,7 +213,8 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_contact_varying_gamma )
   rnea(model,data_check,q,v,ddq_ref,fext);
   
   BOOST_CHECK(data_check.tau.isApprox(tau));
-  BOOST_CHECK(data_check.a[RF_id].toVector().isApprox(-gamma_RF));
+  forwardKinematics(model,data_check,q,v,ddq_ref);
+  BOOST_CHECK(data_check.a[RF_id].toVector().isZero());
   
   Data data_fd(model);
   VectorXd q_plus(model.nq);
