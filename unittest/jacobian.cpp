@@ -56,7 +56,9 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   motionSet::se3Action( data.oMi[idx].inverse(), Jrh,XJrh );
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
 
-  jointJacobian(model,data,q,idx,XJrh);
+  XJrh.setZero();
+  Data data_jointJacobian(model);
+  jointJacobian(model,data_jointJacobian,q,idx,XJrh);
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
   
   /* Test computeJointJacobians with pre-computation of the forward kinematics */
