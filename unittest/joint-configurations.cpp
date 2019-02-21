@@ -193,8 +193,8 @@ BOOST_AUTO_TEST_CASE ( distance_configuration_test )
 {
   Model model; buildModel(model);
   
-  Eigen::VectorXd q0 = neutral(model);
-  Eigen::VectorXd q1(integrate (model, q0, Eigen::VectorXd::Ones(model.nv)));
+  Model::ConfigVectorType q0 = neutral(model);
+  Model::ConfigVectorType q1(integrate (model, q0, Model::TangentVectorType::Ones(model.nv)));
 
   double dist = distance(model,q0,q1);
   

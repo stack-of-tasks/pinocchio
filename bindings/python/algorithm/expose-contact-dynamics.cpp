@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2019 CNRS, INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
-#include "pinocchio/algorithm/dynamics.hpp"
+#include "pinocchio/algorithm/contact-dynamics.hpp"
 
 namespace pinocchio
 {

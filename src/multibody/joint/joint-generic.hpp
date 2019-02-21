@@ -115,6 +115,9 @@ namespace pinocchio
     D_t Dinv_accessor() const { return Dinv(); }
     UD_t UDinv_accessor() const { return UDinv(); }
 
+    static std::string classname() { return "JointData"; }
+    std::string shortname() const { return ::pinocchio::shortname(*this); }
+
   };
   
   template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>

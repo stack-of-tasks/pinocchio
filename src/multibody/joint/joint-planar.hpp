@@ -433,6 +433,9 @@ namespace pinocchio
 
     JointDataPlanarTpl () : M(1), U(), Dinv(), UDinv() {}
 
+    static std::string classname() { return std::string("JointDataPlanar"); }
+    std::string shortname() const { return classname(); }
+    
   }; // struct JointDataPlanarTpl
 
   JOINT_CAST_TYPE_SPECIALIZATION(JointModelPlanarTpl);

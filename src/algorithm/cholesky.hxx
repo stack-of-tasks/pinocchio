@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_cholesky_hxx__
@@ -32,10 +32,9 @@ namespace pinocchio
        *      end
        *    end
        */
-      
-#ifndef NDEBUG
+      PINOCCHIO_UNUSED_VARIABLE(model);
       assert(model.check(data) && "data is not consistent with model.");
-#endif
+      
       typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
       const typename Data::MatrixXs & M = data.M;
@@ -87,10 +86,10 @@ namespace pinocchio
           typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
-#ifndef NDEBUG
+          PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
-#endif
           assert(v.size() == model.nv);
+          
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
           
           const typename Data::MatrixXs & U = data.U;
@@ -142,9 +141,9 @@ namespace pinocchio
           typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
-#ifndef NDEBUG
+          
+          PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
-#endif
           assert(v.size() == model.nv);
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
           
@@ -153,7 +152,6 @@ namespace pinocchio
           
           for( int k=model.nv-2;k>=0;--k ) // You can start from nv-2 (no child in nv-1)
             v_.segment(k+1,nvt[(size_t)k]-1) += U.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*v_[k];
-            //        v.middleRows(k+1,nvt[(size_t)k]-1) += U.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*v.row(k);
         }
       };
       
@@ -197,9 +195,8 @@ namespace pinocchio
           typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
-#ifndef NDEBUG
+          PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
-#endif
           assert(v.size() == model.nv);
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
           
@@ -253,9 +250,8 @@ namespace pinocchio
           typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
-#ifndef NDEBUG
+          PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
-#endif
           assert(v.size() == model.nv);
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
           
@@ -264,7 +260,6 @@ namespace pinocchio
           
           for(int k=0; k<model.nv-1; ++k) // You can stop one step before nv.
             v_.segment(k+1,nvt[(size_t)k]-1) -= U.row(k).segment(k+1,nvt[(size_t)k]-1).transpose() * v_[k];
-          //        v.middleRows(k+1,nvt[(size_t)k]-1).transpose() -= v.row(k).transpose()*();
         }
       };
       
@@ -311,11 +306,12 @@ namespace pinocchio
           
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRes)
-#ifndef NDEBUG
+          
+          PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
-#endif
           assert(vin.size() == model.nv);
           assert(vout.size() == model.nv);
+          
           MatRes & vout_ = PINOCCHIO_EIGEN_CONST_CAST(MatRes,vout);
           
           const typename Data::MatrixXs & M = data.M;
@@ -325,8 +321,6 @@ namespace pinocchio
           {
             vout_[k] = M.row(k).segment(k,nvt[(size_t)k]) * vin.segment(k,nvt[(size_t)k]);
             vout_.segment(k+1,nvt[(size_t)k]-1) += M.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*vin[k];
-//            res.row(k) = M.row(k).segment(k,nvt[(size_t)k]) * v.middleRows(k,nvt[(size_t)k]);
-//            res.middleRows(k+1,nvt[(size_t)k]-1) += M.row(k).segment(k+1,nvt[(size_t)k]-1).transpose()*v.row(k);
           }
         }
       };
@@ -354,22 +348,6 @@ namespace pinocchio
       return Mv(model,data,min,res);
     }
     
-//    template<typename Mat>
-//    Mat & Mv(const Model & model,
-//             const Data & data,
-//             const Eigen::MatrixBase<Mat> & v,
-//             const bool usingCholesky)
-//    {
-//#ifndef NDEBUG
-//      assert(model.check(data) && "data is not consistent with model.");
-//#endif
-//      Mat & v_ = const_cast<Eigen::MatrixBase<Mat> &>(v).derived();
-//      if(usingCholesky) internal::UDUtv(model,data,v_);
-//      else v_ = internal::Mv(model,data,v_);
-//
-//      return v_.derived();
-//    }
-    
     namespace internal
     {
       template<typename Mat, int ColsAtCompileTime = Mat::ColsAtCompileTime>
@@ -395,9 +373,9 @@ namespace pinocchio
                         const Eigen::MatrixBase<Mat> & v)
         {
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
-#ifndef NDEBUG
+          
+          PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
-#endif
           assert(v.size() == model.nv);
           
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
@@ -446,10 +424,10 @@ namespace pinocchio
                         const Eigen::MatrixBase<Mat> & v)
         {
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
-#ifndef NDEBUG
-          assert(model.check(data) && "data is not consistent with model.");
-#endif
           
+          PINOCCHIO_UNUSED_VARIABLE(model);
+          assert(model.check(data) && "data is not consistent with model.");
+
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
           
           cholesky::Uiv(model,data,v_);
@@ -480,9 +458,8 @@ namespace pinocchio
       {
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         
-#ifndef NDEBUG
+        PINOCCHIO_UNUSED_VARIABLE(model);
         assert(model.check(data) && "data is not consistent with model.");
-#endif
         assert(col < model.nv);
         assert(v.rows() == model.nv);
         
@@ -520,16 +497,15 @@ namespace pinocchio
       assert(Minv.rows() == model.nv);
       assert(Minv.cols() == model.nv);
       
-#ifndef NDEBUG
+      PINOCCHIO_UNUSED_VARIABLE(model);
       assert(model.check(data) && "data is not consistent with model.");
-#endif
-      
+
       Mat & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,Minv);
       
       for(int k = 0; k < model.nv; ++k)
         internal::Miunit(model,data,k,Minv_.col(k));
       
-      return Minv_;
+      return Minv_.derived();
     }
 
   } //   namespace cholesky

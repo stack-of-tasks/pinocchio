@@ -469,6 +469,8 @@ namespace pinocchio
 
     JointDataTranslationTpl() {}
 
+    static std::string classname() { return std::string("JointDataTranslation"); }
+    std::string shortname() const { return classname(); }
   }; // struct JointDataTranslationTpl
 
   JOINT_CAST_TYPE_SPECIALIZATION(JointModelTranslationTpl);

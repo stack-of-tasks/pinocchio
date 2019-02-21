@@ -197,7 +197,7 @@ namespace pinocchio
     for(JointIndex i=jointId; i>0; i=model.parents[i])
     {
       Pass::run(model.joints[i],data.joints[i],
-                typename Pass::ArgsType(model,data,q,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J)));
+                typename Pass::ArgsType(model,data,q.derived(),PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J)));
     }
   }
   

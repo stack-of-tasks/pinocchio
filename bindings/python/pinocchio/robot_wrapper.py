@@ -85,7 +85,7 @@ class RobotWrapper(object):
                 self.visual_data = pin.GeometryData(self.visual_model)
 
         self.v0 = utils.zero(self.nv)
-        self.q0 = self.model.neutralConfiguration
+        self.q0 = pin.neutral(self.model)
 
     @property
     def nq(self):

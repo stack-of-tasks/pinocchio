@@ -62,7 +62,7 @@ namespace pinocchio
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Algo::run(model.joints[i],
-                typename Algo::ArgsType(q0, q1, u, res));
+                typename Algo::ArgsType(q0.derived(), q1.derived(), u, res.derived()));
     }
   }
 
@@ -107,7 +107,7 @@ namespace pinocchio
     typedef SquaredDistanceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,ReturnType> Algo;
     for(JointIndex i=0; i<(JointIndex) model.njoints-1; ++i)
     {
-      typename Algo::ArgsType args(i,q0.derived(),q1.derived(), distances);
+      typename Algo::ArgsType args(i,q0.derived(),q1.derived(), distances.derived());
       Algo::run(model.joints[i+1], args);
     }
   }

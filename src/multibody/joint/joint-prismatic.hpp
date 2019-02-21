@@ -485,6 +485,9 @@ namespace pinocchio
 
     JointDataPrismaticTpl() {}
 
+    static std::string classname() { return std::string("JointDataPrismatic"); }
+    std::string shortname() const { return classname(); }
+
   }; // struct JointDataPrismaticTpl
   
   template<typename NewScalar, typename Scalar, int Options, int axis>
