@@ -154,7 +154,7 @@ namespace pinocchio
     void setValues(const OtherScalar & sin, const OtherScalar & cos)
     { m_sin = sin; m_cos = cos; }
 
-    LinearType translation() const { return LinearType::Zero(3); };
+    LinearType translation() const { return LinearType::PlainObject::Zero(3); };
     AngularType rotation() const {
       AngularType m(AngularType::Identity(3));
       _setRotation (m);
