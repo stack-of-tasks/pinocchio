@@ -42,7 +42,7 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_HPP_FCL  
 
-  inline bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
+  inline bool operator == (const hpp::fcl::CollisionObject & lhs, const hpp::fcl::CollisionObject & rhs)
   {
     return lhs.collisionGeometry() == rhs.collisionGeometry()
             && lhs.getAABB().min_ == rhs.getAABB().min_

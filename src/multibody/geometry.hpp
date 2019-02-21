@@ -206,7 +206,7 @@ namespace pinocchio
     /// The object contains a pointer on the collision geometries contained in geomModel.geometryObjects.
     /// \sa GeometryModel::geometryObjects and GeometryObjects
     ///
-    std::vector<fcl::CollisionObject> collisionObjects;
+    std::vector<hpp::fcl::CollisionObject> collisionObjects;
 
     ///
     /// \brief Vector of collision pairs.
@@ -216,22 +216,22 @@ namespace pinocchio
     ///
     /// \brief Defines what information should be computed by distance computation.
     ///
-    fcl::DistanceRequest distanceRequest;
+    hpp::fcl::DistanceRequest distanceRequest;
 
     ///
     /// \brief Vector gathering the result of the distance computation for all the collision pairs.
     ///
-    std::vector<fcl::DistanceResult> distanceResults;
+    std::vector<hpp::fcl::DistanceResult> distanceResults;
     
     ///
     /// \brief Defines what information should be computed by collision test.
     ///
-    fcl::CollisionRequest collisionRequest;
+    hpp::fcl::CollisionRequest collisionRequest;
 
     ///
     /// \brief Vector gathering the result of the collision computation for all the collision pairs.
     ///
-    std::vector<fcl::CollisionResult> collisionResults;
+    std::vector<hpp::fcl::CollisionResult> collisionResults;
 
     ///
     /// \brief Radius of the bodies, i.e. distance of the further point of the geometry model

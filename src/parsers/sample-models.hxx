@@ -131,42 +131,42 @@ namespace pinocchio
         parentFrame = model.getBodyId(pre+"shoulder1_body");
         GeometryObject shoulderBall(pre+"shoulder_object",
                                     parentFrame, model.frames[parentFrame].parent,
-                                    boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                                    boost::shared_ptr<hpp::fcl::Sphere>(new hpp::fcl::Sphere(0.05)),
                                     SE3::Identity());
         geom.addGeometryObject(shoulderBall);
         
         parentFrame = model.getBodyId(pre+"elbow_body");
         GeometryObject elbowBall(pre+"elbow_object",
                                  parentFrame, model.frames[parentFrame].parent,
-                                 boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                                 boost::shared_ptr<hpp::fcl::Sphere>(new hpp::fcl::Sphere(0.05)),
                                  SE3::Identity());
         geom.addGeometryObject(elbowBall);
         
         parentFrame = model.getBodyId(pre+"wrist1_body");
         GeometryObject wristBall(pre+"wrist_object",
                                  parentFrame, model.frames[parentFrame].parent,
-                                 boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                                 boost::shared_ptr<hpp::fcl::Sphere>(new hpp::fcl::Sphere(0.05)),
                                  SE3::Identity());
         geom.addGeometryObject(wristBall);
         
         parentFrame = model.getBodyId(pre+"upperarm_body");
         GeometryObject upperArm(pre+"upperarm_object",
                                 parentFrame, model.frames[parentFrame].parent,
-                                boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
+                                boost::shared_ptr<hpp::fcl::Capsule>(new hpp::fcl::Capsule(0.05, .8)),
                                 SE3(SE3::Matrix3::Identity(), typename  SE3::Vector3(0,0,0.5)) );
         geom.addGeometryObject(upperArm);
         
         parentFrame = model.getBodyId(pre+"lowerarm_body");
         GeometryObject lowerArm(pre+"lowerarm_object",
                                 parentFrame, model.frames[parentFrame].parent,
-                                boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
+                                boost::shared_ptr<hpp::fcl::Capsule>(new hpp::fcl::Capsule(0.05, .8)),
                                 SE3(SE3::Matrix3::Identity(), typename SE3::Vector3(0,0,0.5)) );
         geom.addGeometryObject(lowerArm);
         
         parentFrame = model.getBodyId(pre+"effector_body");
         GeometryObject effectorArm(pre+"effector_object",
                                    parentFrame, model.frames[parentFrame].parent,
-                                   boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .2)),
+                                   boost::shared_ptr<hpp::fcl::Capsule>(new hpp::fcl::Capsule(0.05, .2)),
                                    SE3(SE3::Matrix3::Identity(), typename SE3::Vector3(0,0,0.1)) );
         geom.addGeometryObject(effectorArm);
       }
@@ -411,14 +411,14 @@ namespace pinocchio
       parentFrame = model.getBodyId("chest1_body");
       GeometryObject chestBall("chest_object",
                                parentFrame, model.frames[parentFrame].parent,
-                               boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                               boost::shared_ptr<hpp::fcl::Sphere>(new hpp::fcl::Sphere(0.05)),
                                SE3::Identity());
       geom.addGeometryObject(chestBall);
       
       parentFrame = model.getBodyId("head2_body");
       GeometryObject headBall("head_object",
                               parentFrame, model.frames[parentFrame].parent,
-                              boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.25)),
+                              boost::shared_ptr<hpp::fcl::Sphere>(new hpp::fcl::Sphere(0.25)),
                               SE3(SE3::Matrix3::Identity(),
                                   typename SE3::Vector3(0,0,0.5)));
       geom.addGeometryObject(headBall);
@@ -426,7 +426,7 @@ namespace pinocchio
       parentFrame = model.getBodyId("chest2_body");
       GeometryObject chestArm("chest2_object",
                               parentFrame, model.frames[parentFrame].parent,
-                              boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
+                              boost::shared_ptr<hpp::fcl::Capsule>(new hpp::fcl::Capsule(0.05, .8)),
                               SE3(SE3::Matrix3::Identity(),
                                   typename SE3::Vector3(0,0,0.5)));
       geom.addGeometryObject(chestArm);

@@ -54,7 +54,7 @@ namespace pinocchio
       static GeometryObject maker_capsule( const double radius , const double length)
       {
         return GeometryObject("",FrameIndex(0),JointIndex(0),
-                              boost::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule (radius, length)),
+                              boost::shared_ptr<hpp::fcl::CollisionGeometry>(new hpp::fcl::Capsule (radius, length)),
                               SE3::Identity());
 
       }

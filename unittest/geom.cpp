@@ -22,7 +22,7 @@ using namespace pinocchio;
 typedef std::map <std::string, pinocchio::SE3> PositionsMap_t;
 typedef std::map <std::string, pinocchio::SE3> JointPositionsMap_t;
 typedef std::map <std::string, pinocchio::SE3> GeometryPositionsMap_t;
-typedef std::map <std::pair < std::string , std::string >, fcl::DistanceResult > PairDistanceMap_t;
+typedef std::map <std::pair < std::string , std::string >, hpp::fcl::DistanceResult > PairDistanceMap_t;
 JointPositionsMap_t fillPinocchioJointPositions(const pinocchio::Model& model, const pinocchio::Data & data);
 GeometryPositionsMap_t fillPinocchioGeometryPositions(const pinocchio::GeometryModel & geomModel,
                                                       const pinocchio::GeometryData & geomData);
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
   model.addBodyFrame("planar2_body", idx, SE3::Identity());
   
-  boost::shared_ptr<fcl::Box> sample(new fcl::Box(1, 1, 1));
+  boost::shared_ptr<hpp::fcl::Box> sample(new hpp::fcl::Box(1, 1, 1));
   Model::FrameIndex body_id_1 = model.getBodyId("planar1_body");
   Model::JointIndex joint_parent_1 = model.frames[body_id_1].parent;
   Model::JointIndex idx_geom1 = geomModel.addGeometryObject(GeometryObject("ff1_collision_object",
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   geomModel.geometryObjects[idx_geom1].parentJoint = model.frames[body_id_1].parent;
   
   
-  boost::shared_ptr<fcl::Box> sample2(new fcl::Box(1, 1, 1));
+  boost::shared_ptr<hpp::fcl::Box> sample2(new hpp::fcl::Box(1, 1, 1));
   Model::FrameIndex body_id_2 = model.getBodyId("planar2_body");
   Model::JointIndex joint_parent_2 = model.frames[body_id_2].parent;
   Model::JointIndex idx_geom2 = geomModel.addGeometryObject(GeometryObject("ff2_collision_object",
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 
   Data data(model);
   GeometryData geomData(geomModel);
-  fcl::CollisionResult result;
+  hpp::fcl::CollisionResult result;
 
   Eigen::VectorXd q(model.nq);
   q << 0, 0, 0.840252, 0, 0, 0, 1, 0, 0, -0.3490658, 0.6981317, -0.3490658, 0, 0, 0, -0.3490658,

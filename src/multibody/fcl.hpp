@@ -87,7 +87,7 @@ struct GeometryObject
   JointIndex parentJoint;
 
   /// \brief The actual cloud of points representing the collision mesh of the object after scaling.
-  boost::shared_ptr<fcl::CollisionGeometry> fcl;
+  boost::shared_ptr<hpp::fcl::CollisionGeometry> fcl;
 
   /// \brief Position of geometry object in parent joint frame
   SE3 placement;
@@ -111,7 +111,7 @@ struct GeometryObject
 
   GeometryObject(const std::string & name, const FrameIndex parentF,
                  const JointIndex parentJ,
-                 const boost::shared_ptr<fcl::CollisionGeometry> & collision,
+                 const boost::shared_ptr<hpp::fcl::CollisionGeometry> & collision,
                  const SE3 & placement, const std::string & meshPath = "",
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,

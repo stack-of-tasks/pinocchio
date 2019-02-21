@@ -61,9 +61,9 @@ namespace pinocchio
     assert( pair.first  < geomData.collisionObjects.size() );
     assert( pair.second < geomData.collisionObjects.size() );
 
-    fcl::CollisionResult& collisionResult = geomData.collisionResults[pairId];
+    hpp::fcl::CollisionResult& collisionResult = geomData.collisionResults[pairId];
     collisionResult.clear();
-    fcl::collide (&geomData.collisionObjects[pair.first],
+    hpp::fcl::collide (&geomData.collisionObjects[pair.first],
                   &geomData.collisionObjects[pair.second],
                   geomData.collisionRequest,
                   collisionResult);
@@ -111,7 +111,7 @@ namespace pinocchio
   /* --- DISTANCES ----------------------------------------------------------------- */
   /* --- DISTANCES ----------------------------------------------------------------- */
 
-  inline fcl::DistanceResult & computeDistance(const GeometryModel & geomModel,
+  inline hpp::fcl::DistanceResult & computeDistance(const GeometryModel & geomModel,
                                                GeometryData & geomData,
                                                const PairIndex & pairId)
   {
@@ -123,7 +123,7 @@ namespace pinocchio
     assert( pair.second < geomData.collisionObjects.size() );
 
     geomData.distanceResults[pairId].clear();
-    fcl::distance ( &geomData.collisionObjects[pair.first],
+    hpp::fcl::distance ( &geomData.collisionObjects[pair.first],
                     &geomData.collisionObjects[pair.second],
                     geomData.distanceRequest,
                     geomData.distanceResults[pairId]);
@@ -246,7 +246,7 @@ namespace pinocchio
     geomData.radius.resize(model.joints.size(),0);
     BOOST_FOREACH(const GeometryObject & geom,geomModel.geometryObjects)
     {
-      const boost::shared_ptr<const fcl::CollisionGeometry> & fcl
+      const boost::shared_ptr<const hpp::fcl::CollisionGeometry> & fcl
         = geom.fcl;
       const GeometryModel::SE3 & jMb = geom.placement; // placement in joint.
       const Model::JointIndex & i = geom.parentJoint;

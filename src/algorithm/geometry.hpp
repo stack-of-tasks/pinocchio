@@ -106,7 +106,7 @@ namespace pinocchio
   /// of vector geomData::distanceResults.
   /// \note The complete distance result is also available in geomData.distanceResults[pairId]
   ///
-  fcl::DistanceResult & computeDistance(const GeometryModel & geomModel,
+  hpp::fcl::DistanceResult & computeDistance(const GeometryModel & geomModel,
                                         GeometryData & geomData,
                                         const PairIndex & pairId);
   

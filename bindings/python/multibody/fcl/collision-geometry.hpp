@@ -23,7 +23,7 @@ namespace pinocchio
       
       struct CollisionGeometryPythonVisitor : public bp::def_visitor<CollisionGeometryPythonVisitor>
       {
-        typedef ::fcl::CollisionGeometry CollisionGeometry;
+        typedef ::hpp::fcl::CollisionGeometry CollisionGeometry;
         
         template<class PyClass>
         void visit(PyClass& cl) const
@@ -49,35 +49,35 @@ namespace pinocchio
           .def(CollisionGeometryPythonVisitor())
           ;
           
-          bp::enum_< ::fcl::OBJECT_TYPE >("OBJECT_TYPE")
-          .value("OT_UNKNOWN",::fcl::OT_UNKNOWN)
-          .value("OT_BVH",::fcl::OT_BVH)
-          .value("OT_GEOM",::fcl::OT_GEOM)
-          .value("OT_OCTREE",::fcl::OT_OCTREE)
-          .value("OT_COUNT",::fcl::OT_COUNT)
+          bp::enum_< ::hpp::fcl::OBJECT_TYPE >("OBJECT_TYPE")
+          .value("OT_UNKNOWN",::hpp::fcl::OT_UNKNOWN)
+          .value("OT_BVH",::hpp::fcl::OT_BVH)
+          .value("OT_GEOM",::hpp::fcl::OT_GEOM)
+          .value("OT_OCTREE",::hpp::fcl::OT_OCTREE)
+          .value("OT_COUNT",::hpp::fcl::OT_COUNT)
           ;
           
-          bp::enum_< ::fcl::NODE_TYPE >("NODE_TYPE")
-          .value("BV_UNKNOWN",::fcl::BV_UNKNOWN)
-          .value("BV_AABB",::fcl::BV_AABB)
-          .value("BV_OBB",::fcl::BV_OBB)
-          .value("BV_RSS",::fcl::BV_RSS)
-          .value("BV_kIOS",::fcl::BV_kIOS)
-          .value("BV_OBBRSS",::fcl::BV_OBBRSS)
-          .value("BV_KDOP16",::fcl::BV_KDOP16)
-          .value("BV_KDOP18",::fcl::BV_KDOP18)
-          .value("BV_KDOP24",::fcl::BV_KDOP24)
-          .value("GEOM_BOX",::fcl::GEOM_BOX)
-          .value("GEOM_SPHERE",::fcl::GEOM_SPHERE)
-          .value("GEOM_CAPSULE",::fcl::GEOM_CAPSULE)
-          .value("GEOM_CONE",::fcl::GEOM_CONE)
-          .value("GEOM_CYLINDER",::fcl::GEOM_CYLINDER)
-          .value("GEOM_CONVEX",::fcl::GEOM_CONVEX)
-          .value("GEOM_PLANE",::fcl::GEOM_PLANE)
-          .value("GEOM_HALFSPACE",::fcl::GEOM_HALFSPACE)
-          .value("GEOM_TRIANGLE",::fcl::GEOM_TRIANGLE)
-          .value("GEOM_OCTREE",::fcl::GEOM_OCTREE)
-          .value("NODE_COUNT",::fcl::NODE_COUNT)
+          bp::enum_< ::hpp::fcl::NODE_TYPE >("NODE_TYPE")
+          .value("BV_UNKNOWN",::hpp::fcl::BV_UNKNOWN)
+          .value("BV_AABB",::hpp::fcl::BV_AABB)
+          .value("BV_OBB",::hpp::fcl::BV_OBB)
+          .value("BV_RSS",::hpp::fcl::BV_RSS)
+          .value("BV_kIOS",::hpp::fcl::BV_kIOS)
+          .value("BV_OBBRSS",::hpp::fcl::BV_OBBRSS)
+          .value("BV_KDOP16",::hpp::fcl::BV_KDOP16)
+          .value("BV_KDOP18",::hpp::fcl::BV_KDOP18)
+          .value("BV_KDOP24",::hpp::fcl::BV_KDOP24)
+          .value("GEOM_BOX",::hpp::fcl::GEOM_BOX)
+          .value("GEOM_SPHERE",::hpp::fcl::GEOM_SPHERE)
+          .value("GEOM_CAPSULE",::hpp::fcl::GEOM_CAPSULE)
+          .value("GEOM_CONE",::hpp::fcl::GEOM_CONE)
+          .value("GEOM_CYLINDER",::hpp::fcl::GEOM_CYLINDER)
+          .value("GEOM_CONVEX",::hpp::fcl::GEOM_CONVEX)
+          .value("GEOM_PLANE",::hpp::fcl::GEOM_PLANE)
+          .value("GEOM_HALFSPACE",::hpp::fcl::GEOM_HALFSPACE)
+          .value("GEOM_TRIANGLE",::hpp::fcl::GEOM_TRIANGLE)
+          .value("GEOM_OCTREE",::hpp::fcl::GEOM_OCTREE)
+          .value("NODE_COUNT",::hpp::fcl::NODE_COUNT)
           ;
         }
         
