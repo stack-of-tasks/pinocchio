@@ -74,11 +74,11 @@ namespace pinocchio
     updateFramePlacements(model, data);
   }
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MotionLike>
-  void getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                        const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
-                        const MotionDense<MotionLike> & frame_v)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                   const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
@@ -86,14 +86,14 @@ namespace pinocchio
 
     const typename Model::Frame & frame = model.frames[frame_id];
     const typename Model::JointIndex & parent = frame.parent;
-    const_cast<MotionLike &>(frame_v.derived()) = frame.placement.actInv(data.v[parent]);
-  }
+    return frame.placement.actInv(data.v[parent]);
+  }  
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MotionLike>
-  void getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                            const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
-                            const MotionDense<MotionLike> & frame_a)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
@@ -101,7 +101,7 @@ namespace pinocchio
     
     const typename Model::Frame & frame = model.frames[frame_id];
     const typename Model::JointIndex & parent = frame.parent;
-    const_cast<MotionLike &>(frame_a.derived()) = frame.placement.actInv(data.a[parent]);
+    return frame.placement.actInv(data.a[parent]);
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>

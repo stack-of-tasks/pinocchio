@@ -148,8 +148,7 @@ BOOST_AUTO_TEST_CASE ( test_velocity )
   VectorXd v = VectorXd::Ones(model.nv);
   forwardKinematics(model, data, q, v);
 
-  Motion vf;
-  getFrameVelocity(model, data, frame_idx, vf);
+  Motion vf = getFrameVelocity(model, data, frame_idx);
 
   BOOST_CHECK(vf.isApprox(framePlacement.actInv(data.v[parent_idx])));
 }
@@ -174,8 +173,7 @@ BOOST_AUTO_TEST_CASE ( test_acceleration )
   VectorXd a = VectorXd::Ones(model.nv);
   forwardKinematics(model, data, q, v, a);
 
-  Motion af;
-  getFrameAcceleration(model, data, frame_idx, af);
+  Motion af = getFrameAcceleration(model, data, frame_idx);
 
   BOOST_CHECK(af.isApprox(framePlacement.actInv(data.a[parent_idx])));
 }

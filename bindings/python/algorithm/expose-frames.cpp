@@ -58,26 +58,6 @@ namespace pinocchio
       updateFramePlacements(model,data);
   
       return get_frame_jacobian_time_variation_proxy(model, data, frame_id, rf);
-    }        
-
-    static Motion get_frame_velocity_proxy(const Model & model,
-                                           Data & data,
-                                           const Model::FrameIndex frame_id
-                                           )
-    {
-      Motion v;
-      getFrameVelocity(model,data,frame_id,v);
-      return v;
-    }
-
-    static Motion get_frame_acceleration_proxy(const Model & model,
-                                               Data & data,
-                                               const Model::FrameIndex frame_id
-                                               )
-    {
-      Motion a;
-      getFrameAcceleration(model,data,frame_id,a);
-      return a;
     }
     
     void exposeFramesAlgo()
@@ -97,13 +77,13 @@ namespace pinocchio
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("getFrameVelocity",
-              (Motion (*)(const Model &, Data &, const Model::FrameIndex))&get_frame_velocity_proxy,
+              &getFrameVelocity<double,0,JointCollectionDefaultTpl>,
               bp::args("Model","Data","Operational frame ID (int)"),
               "Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system."
               "Fist or second order forwardKinematics should be called first.");
 
       bp::def("getFrameAcceleration",
-              (Motion (*)(const Model &, Data &, const Model::FrameIndex))&get_frame_acceleration_proxy,
+              &getFrameAcceleration<double,0,JointCollectionDefaultTpl>,
               bp::args("Model","Data","Operational frame ID (int)"),
               "Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system."
               "Second order forwardKinematics should be called first.");
