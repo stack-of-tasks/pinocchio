@@ -24,14 +24,13 @@ namespace pinocchio
     static Data::Matrix6x frame_jacobian_proxy(const Model & model,
                                                Data & data,
                                                const Eigen::VectorXd & q,
-                                               const Model::FrameIndex frame_id,
-                                               ReferenceFrame rf
+                                               const Model::FrameIndex frame_id
                                                )
     {
-      computeJointJacobians(model,data,q);
-      updateFramePlacements(model,data);
+      Data::Matrix6x J(6,model.nv); J.setZero();
+      frameJacobian(model, data, q, frame_id, J);
   
-      return get_frame_jacobian_proxy(model, data, frame_id, rf);
+      return J;
     }
 
 
@@ -121,9 +120,8 @@ namespace pinocchio
               &frame_jacobian_proxy,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
-                       "Operational frame ID (int)",
-                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
-              "Computes the Jacobian of the frame given by its ID either in the local or the world frames."
+                       "Operational frame ID (int)"),
+              "Computes the Jacobian of the frame given by its ID."
               "The columns of the Jacobian are expressed in the frame coordinates.\n"
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
               "where v is the time derivative of the configuration q.");

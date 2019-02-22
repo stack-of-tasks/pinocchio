@@ -80,6 +80,25 @@ jointJacobian.__doc__ =  (
   + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
 )
 
+# This function is only deprecated when using a specific signature. Therefore, it needs special care
+# Marked as deprecated on 19 Feb 2019
+def frameJacobian(model, data, q, jointId, *args):
+  if len(args)==1:
+    message = ("This function signature has been deprecated and will be removed in future releases of Pinocchio. "
+               "Please change for the new signature of frameJacobian or use computeJointJacobian + updateFramePlacements + getFrameJacobian.")
+    _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
+    rf = args[0]
+    pin.computeJointJacobians(model,data,q)
+    pin.updateFramePlacements(model,data)
+    return pin.getFrameJacobian(model, data, frameId, rf);
+  else:
+    return pin.frameJacobian(model,data,q,frameId)
+frameJacobian.__doc__ =  (
+  pin.frameJacobian.__doc__
+  + '\n\nframeJacobian( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (Index)frameId, ReferenceFrame rf) -> object :'
+  + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
+)
+
 @deprecated("This function has been renamed jointJacobian and will be removed in future releases of Pinocchio. Please change for new jointJacobian function.")
 def jacobian(model,data,q,jointId,local,update_kinematics):
   rf = pin.ReferenceFrame.LOCAL if local else pin.ReferenceFrame.WORLD
