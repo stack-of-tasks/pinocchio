@@ -24,7 +24,9 @@ robot = RobotWrapper.BuildFromURDF(romeo_model_path, [romeo_model_dir], se3.Join
 vis = meshcat.Visualizer()
 
 # Load the robot in the viewer.
-robot.initMeshcatDisplay(vis)
+# Color is needed here because the Romeo URDF doesn't contain any color, so the default color results in an
+# invisible robot (alpha value set to 0).
+robot.initMeshcatDisplay(vis, robot_color = [0.0, 0.0, 0.0, 1.0])
 
 q = robot.q0
 # Separate between freeflyer and robot links.
@@ -35,8 +37,8 @@ robot.display(q)
 input("Displaying a single random robot configuration. Press enter to continue")
 
 red_robot = RobotWrapper.BuildFromURDF(romeo_model_path, [romeo_model_dir], se3.JointModelFreeFlyer())
-robot.initMeshcatDisplay(vis, robot_name = "red_robot", robot_color = [1.0, 0.0, 0.0])
+robot.initMeshcatDisplay(vis, robot_name = "red_robot", robot_color = [1.0, 0.0, 0.0, 0.5])
 q[1] = 1.0
 q[n_freeflyer:] = np.matrix(np.random.rand(n_links)).T
 robot.display(q)
-input("Displaying a second robot with color red. Press enter to exit")
+input("Displaying a second robot with color red, semi-transparent. Press enter to exit")

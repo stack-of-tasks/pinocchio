@@ -287,7 +287,7 @@ class RobotWrapper(object):
             visualizer: the meshcat.Visualizer instance to use.
             robot_name: name to give to the robot in the viewer
             robot_color: optional, color to give to the robot. This overwrites the color present in the urdf.
-                         Format is a list of three RGB floats (between 0 and 1)
+                         Format is a list of four RGBA floats (between 0 and 1)
         """
         import meshcat.geometry
         # Set viewer to use to gepetto-gui.
@@ -302,11 +302,11 @@ class RobotWrapper(object):
                 raise IOError("Visual mesh file not found for link {}.".format(visual.name))
             # Get file type from filename extension.
             _, file_extension = os.path.splitext(visual.meshPath)
-            if file_extension == ".dae" or file_extension == ".DAE":
+            if file_extension.lower() == ".dae":
                 obj = meshcat.geometry.DaeMeshGeometry.from_file(visual.meshPath)
-            elif file_extension == ".obj" or file_extension == ".OBJ":
+            elif file_extension.lower() == ".obj":
                 obj = meshcat.geometry.ObjMeshGeometry.from_file(visual.meshPath)
-            elif file_extension == ".stl" or file_extension == ".STL":
+            elif file_extension.lower() == ".stl":
                 obj = meshcat.geometry.StlMeshGeometry.from_file(visual.meshPath)
             else:
                 raise ImportError("Unknown mesh file format: {}.".format(visual.meshPath))
@@ -317,6 +317,10 @@ class RobotWrapper(object):
             else:
                 meshColor = robot_color
             material.color = int(meshColor[0] * 255) * 256**2 + int(meshColor[1] * 255) * 256 + int(meshColor[2] * 255)
+            # Add transparency, if needed.
+            if float(meshColor[3]) != 1.0:
+                material.transparent = True
+                material.opacity = float(meshColor[3])
             self.meshcat_viewer[viewer_name].set_object(obj, material)
 
     # Create the scene displaying the robot meshes in gepetto-viewer
