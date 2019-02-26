@@ -102,5 +102,33 @@ class TestSE3Bindings(unittest.TestCase):
         bma = amb.inverse()
         self.assertTrue(np.allclose(bma.act(p), (bMa * p_homogeneous)[0:3]))
 
+    def test_conversions(self):
+        def compute (m):
+            tq_vec = pin.se3ToXYZQUAT      (m)
+            tq_tup = pin.se3ToXYZQUATtuple (m)
+            mm_vec = pin.XYZQUATToSe3 (tq_vec)
+            mm_tup = pin.XYZQUATToSe3 (tq_tup)
+            mm_lis = pin.XYZQUATToSe3 (list(tq_tup))
+            return tq_vec, tq_tup, mm_vec, mm_tup, mm_lis
+
+        m = pin.SE3.Identity()
+        tq_vec, tq_tup, mm_vec, mm_tup, mm_lis = compute (m)
+        self.assertTrue(np.allclose(m.homogeneous, mm_tup.homogeneous))
+        self.assertTrue(np.allclose(m.homogeneous, mm_vec.homogeneous))
+        self.assertTrue(np.allclose(m.homogeneous, mm_lis.homogeneous))
+        for i in range(6):
+            self.assertTrue(tq_vec[i] == 0 and tq_tup[i] == 0)
+        self.assertTrue(tq_vec[6] == 1 and tq_tup[6] == 1)
+
+        m = pin.SE3.Random()
+        tq_vec, tq_tup, mm_vec, mm_tup, mm_lis = compute (m)
+        self.assertTrue (len(tq_vec) == 7)
+        self.assertTrue (len(tq_tup) == 7)
+        for a,b in zip(tq_vec,tq_tup):
+            self.assertTrue (a==b)
+        self.assertTrue(np.allclose(m.homogeneous, mm_tup.homogeneous))
+        self.assertTrue (mm_vec == mm_tup)
+        self.assertTrue (mm_vec == mm_lis)
+
 if __name__ == '__main__':
     unittest.main()
