@@ -1,9 +1,14 @@
 #
-# Copyright (c) 2015-2018 CNRS INRIA
+# Copyright (c) 2015-2019 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+# Check if the submodule cmake have been initialized
+IF(NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/base.cmake")
+  MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")
+ENDIF()
 
 INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
