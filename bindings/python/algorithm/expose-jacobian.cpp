@@ -14,16 +14,10 @@ namespace pinocchio
     jacobian_proxy(const Model & model,
                    Data & data,
                    const Eigen::VectorXd & q,
-                   Model::JointIndex jointId,
-                   ReferenceFrame rf,
-                   bool update_kinematics)
+                   Model::JointIndex jointId)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
-      
-      if (update_kinematics)
-        computeJointJacobians(model,data,q);
-      
-      getJointJacobian(model,data,jointId,rf,J);
+      jointJacobian(model,data,q,jointId,J);
       
       return J;
     }
@@ -75,11 +69,8 @@ namespace pinocchio
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
                        "Joint configuration q (size Model::nq)",
-                       "Joint ID, the index of the joint.",
-                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)",
-                       "update_kinematics (true = update the value of the total jacobian)"),
-              "Computes the jacobian of a given given joint according to the given input configuration."
-              "If rf is set to LOCAL, it returns the jacobian associated to the joint frame. Otherwise, it returns the jacobian of the frame coinciding with the world frame.");
+                       "Joint ID, the index of the joint"),
+              "Computes the Jacobian of a specific joint frame expressed in the local frame of the joint according to the given input configuration.");
 
       bp::def("getJointJacobian",get_jacobian_proxy,
               bp::args("Model, the model of the kinematic tree",

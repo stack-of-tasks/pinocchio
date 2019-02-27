@@ -74,11 +74,11 @@ namespace pinocchio
     updateFramePlacements(model, data);
   }
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MotionLike>
-  void getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                        const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
-                        const MotionDense<MotionLike> & frame_v)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                   const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
@@ -86,14 +86,14 @@ namespace pinocchio
 
     const typename Model::Frame & frame = model.frames[frame_id];
     const typename Model::JointIndex & parent = frame.parent;
-    const_cast<MotionLike &>(frame_v.derived()) = frame.placement.actInv(data.v[parent]);
-  }
+    return frame.placement.actInv(data.v[parent]);
+  }  
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MotionLike>
-  void getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                            const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
-                            const MotionDense<MotionLike> & frame_a)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
@@ -101,7 +101,7 @@ namespace pinocchio
     
     const typename Model::Frame & frame = model.frames[frame_id];
     const typename Model::JointIndex & parent = frame.parent;
-    const_cast<MotionLike &>(frame_a.derived()) = frame.placement.actInv(data.a[parent]);
+    return frame.placement.actInv(data.a[parent]);
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
@@ -139,6 +139,30 @@ namespace pinocchio
         J_.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector(); // TODO: use MotionRef
       }
       return;
+    }
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+  inline void frameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const Eigen::MatrixBase<ConfigVectorType> & q,
+                            const FrameIndex frameId,
+                            const Eigen::MatrixBase<Matrix6Like> & J)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq && "The configuration vector is not of right size");
+
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+
+    const Frame & frame = model.frames[frameId];
+    const JointIndex & jointId = frame.parent;
+    data.iMf[jointId] = frame.placement;
+    typedef JointJacobianForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6Like> Pass;
+    for(JointIndex i=jointId; i>0; i=model.parents[i])
+    {
+      Pass::run(model.joints[i],data.joints[i],
+                typename Pass::ArgsType(model,data,q.derived(),PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J)));
     }
   }
   

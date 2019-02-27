@@ -148,8 +148,7 @@ BOOST_AUTO_TEST_CASE ( test_velocity )
   VectorXd v = VectorXd::Ones(model.nv);
   forwardKinematics(model, data, q, v);
 
-  Motion vf;
-  getFrameVelocity(model, data, frame_idx, vf);
+  Motion vf = getFrameVelocity(model, data, frame_idx);
 
   BOOST_CHECK(vf.isApprox(framePlacement.actInv(data.v[parent_idx])));
 }
@@ -174,13 +173,12 @@ BOOST_AUTO_TEST_CASE ( test_acceleration )
   VectorXd a = VectorXd::Ones(model.nv);
   forwardKinematics(model, data, q, v, a);
 
-  Motion af;
-  getFrameAcceleration(model, data, frame_idx, af);
+  Motion af = getFrameAcceleration(model, data, frame_idx);
 
   BOOST_CHECK(af.isApprox(framePlacement.actInv(data.a[parent_idx])));
 }
 
-BOOST_AUTO_TEST_CASE ( test_jacobian )
+BOOST_AUTO_TEST_CASE ( test_get_frame_jacobian )
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -227,6 +225,42 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
   getFrameJacobian(model,data,idx,WORLD,Jff);
   getJointJacobian(model, data_ref, parent_idx,WORLD, Jjj);
   BOOST_CHECK(Jff.isApprox(Jjj));
+}
+
+BOOST_AUTO_TEST_CASE ( test_frame_jacobian )
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model);
+  Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
+  const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
+  const SE3 & framePlacement = SE3::Random();
+  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
+  BOOST_CHECK(model.existFrame(frame_name));
+
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
+
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = VectorXd::Ones(model.nv);
+
+  Model::Index idx = model.getFrameId(frame_name);
+  const Frame & frame = model.frames[idx];
+  BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
+  Data::Matrix6x Jf(6,model.nv); Jf.fill(0);
+  Data::Matrix6x Jf_ref(6,model.nv); Jf_ref.fill(0);
+
+  frameJacobian(model, data_ref, q, idx, Jf);
+
+  computeJointJacobians(model, data_ref, q);
+  updateFramePlacement(model,  data_ref, idx);
+  getFrameJacobian(model,      data_ref, idx, LOCAL, Jf_ref);
+
+  BOOST_CHECK(Jf.isApprox(Jf_ref));  
 }
 
 BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )

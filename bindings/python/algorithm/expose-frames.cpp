@@ -24,14 +24,13 @@ namespace pinocchio
     static Data::Matrix6x frame_jacobian_proxy(const Model & model,
                                                Data & data,
                                                const Eigen::VectorXd & q,
-                                               const Model::FrameIndex frame_id,
-                                               ReferenceFrame rf
+                                               const Model::FrameIndex frame_id
                                                )
     {
-      computeJointJacobians(model,data,q);
-      updateFramePlacements(model,data);
+      Data::Matrix6x J(6,model.nv); J.setZero();
+      frameJacobian(model, data, q, frame_id, J);
   
-      return get_frame_jacobian_proxy(model, data, frame_id, rf);
+      return J;
     }
 
 
@@ -59,26 +58,6 @@ namespace pinocchio
       updateFramePlacements(model,data);
   
       return get_frame_jacobian_time_variation_proxy(model, data, frame_id, rf);
-    }        
-
-    static Motion get_frame_velocity_proxy(const Model & model,
-                                           Data & data,
-                                           const Model::FrameIndex frame_id
-                                           )
-    {
-      Motion v;
-      getFrameVelocity(model,data,frame_id,v);
-      return v;
-    }
-
-    static Motion get_frame_acceleration_proxy(const Model & model,
-                                               Data & data,
-                                               const Model::FrameIndex frame_id
-                                               )
-    {
-      Motion a;
-      getFrameAcceleration(model,data,frame_id,a);
-      return a;
     }
     
     void exposeFramesAlgo()
@@ -98,13 +77,13 @@ namespace pinocchio
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("getFrameVelocity",
-              (Motion (*)(const Model &, Data &, const Model::FrameIndex))&get_frame_velocity_proxy,
+              &getFrameVelocity<double,0,JointCollectionDefaultTpl>,
               bp::args("Model","Data","Operational frame ID (int)"),
               "Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system."
               "Fist or second order forwardKinematics should be called first.");
 
       bp::def("getFrameAcceleration",
-              (Motion (*)(const Model &, Data &, const Model::FrameIndex))&get_frame_acceleration_proxy,
+              &getFrameAcceleration<double,0,JointCollectionDefaultTpl>,
               bp::args("Model","Data","Operational frame ID (int)"),
               "Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system."
               "Second order forwardKinematics should be called first.");
@@ -121,9 +100,8 @@ namespace pinocchio
               &frame_jacobian_proxy,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
-                       "Operational frame ID (int)",
-                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
-              "Computes the Jacobian of the frame given by its ID either in the local or the world frames."
+                       "Operational frame ID (int)"),
+              "Computes the Jacobian of the frame given by its ID."
               "The columns of the Jacobian are expressed in the frame coordinates.\n"
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
               "where v is the time derivative of the configuration q.");

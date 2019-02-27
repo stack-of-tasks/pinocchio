@@ -7,6 +7,7 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
@@ -46,9 +47,7 @@ int main(int argc, const char ** argv)
   std::cout << "nq = " << model.nq << std::endl;
 
   pinocchio::Data data(model);
-  VectorXd q = VectorXd::Random(model.nq);
-  VectorXd qdot = VectorXd::Random(model.nv);
-  VectorXd qddot = VectorXd::Random(model.nv);
+  VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
   
   MatrixXd A(model.nv,model.nv), B(model.nv,model.nv);
   A.setZero(); B.setRandom();
@@ -58,7 +57,7 @@ int main(int argc, const char ** argv)
   std::vector<VectorXd> rhs (NBT);
   for(size_t i=0;i<NBT;++i)
   {
-    qs[i] = Eigen::VectorXd::Random(model.nq);
+    qs[i] = randomConfiguration(model,-qmax,qmax);
     lhs[i] = Eigen::VectorXd::Zero(model.nv);
     rhs[i] = Eigen::VectorXd::Random(model.nv);
   }
@@ -145,7 +144,7 @@ int main(int argc, const char ** argv)
   {
     computeMinverse(model,data,qs[_smooth]);
   }
-  std::cout << "M.inverse() = \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "computeMinverse = \t\t"; timer.toc(std::cout,NBT);
   
   return 0;
 }

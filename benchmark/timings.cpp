@@ -7,6 +7,7 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/aba.hpp"
@@ -64,17 +65,14 @@ int main(int argc, const char ** argv)
   
 
   pinocchio::Data data(model);
-  VectorXd q = VectorXd::Random(model.nq);
-  VectorXd qdot = VectorXd::Random(model.nv);
-  VectorXd qddot = VectorXd::Random(model.nv);
+  VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
 
   std::vector<VectorXd> qs     (NBT);
   std::vector<VectorXd> qdots  (NBT);
   std::vector<VectorXd> qddots (NBT);
   for(size_t i=0;i<NBT;++i)
     {
-      qs[i]     = Eigen::VectorXd::Random(model.nq);
-      qs[i].segment<4>(3) /= qs[i].segment<4>(3).norm();
+      qs[i]     = randomConfiguration(model,-qmax,qmax);
       qdots[i]  = Eigen::VectorXd::Random(model.nv);
       qddots[i] = Eigen::VectorXd::Random(model.nv);
     }

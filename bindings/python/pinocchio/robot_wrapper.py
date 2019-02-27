@@ -188,8 +188,13 @@ class RobotWrapper(object):
         else:
             return pin.jointJacobian(self.model, self.data, q, index, pin.ReferenceFrame.WORLD, update_kinematics)
 
-    def jointJacobian(self, q, index, rf_frame=pin.ReferenceFrame.LOCAL, update_kinematics=True):
-        return pin.jointJacobian(self.model, self.data, q, index, rf_frame, update_kinematics)
+    def jointJacobian(self, q, index, *args):
+        if len(args)==0:
+            return pin.jointJacobian(self.model, self.data, q, index)
+        else: # use deprecated signature (19 Feb 2019)
+            update_kinematics = True if len(args)==1 else args[1]
+            rf = args[0]
+            return pin.jointJacobian(self.model, self.data, q, index, rf_frame, update_kinematics)
 
     def getJointJacobian(self, index, rf_frame=pin.ReferenceFrame.LOCAL):
         return pin.getFrameJacobian(self.model, self.data, index, rf_frame)
@@ -229,11 +234,14 @@ class RobotWrapper(object):
         return pin.getFrameJacobian(self.model, self.data, frame_id, rf_frame)
 
     '''
-        Similar to getFrameJacobian but it also calls before pin.computeJointJacobians and
+        Similar to getFrameJacobian but does not need pin.computeJointJacobians and
         pin.updateFramePlacements to update internal value of self.data related to frames.
     '''
-    def frameJacobian(self, q, frame_id, rf_frame=pin.ReferenceFrame.LOCAL):
-        return pin.frameJacobian(self.model, self.data, q, frame_id, rf_frame)
+    def frameJacobian(self, q, frame_id, rf_frame=None):
+        if rf_frame: # use deprecated signature (19 Feb 2019)
+            return pin.frameJacobian(self.model, self.data, q, frame_id, rf_frame)
+        else: # use normal signature
+            return pin.frameJacobian(self.model, self.data, q, frame_id)
 
 
     # --- ACCESS TO NAMES ----

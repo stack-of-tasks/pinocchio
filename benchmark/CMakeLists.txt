@@ -75,3 +75,7 @@ ADD_BENCH(timings-eigen)
 IF(URDFDOM_FOUND AND HPP_FCL_FOUND)
   ADD_BENCH(timings-geometry TRUE)
 ENDIF(URDFDOM_FOUND AND HPP_FCL_FOUND)
+
+# timings-jacobian
+#
+ADD_BENCH(timings-jacobian TRUE)

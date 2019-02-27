@@ -7,6 +7,7 @@
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
@@ -42,7 +43,7 @@ int main()
   
   std::string romeo_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo.urdf";
   std::vector < std::string > package_dirs;
-  std::string romeo_meshDir  = PINOCCHIO_SOURCE_DIR"/models/";
+  std::string romeo_meshDir  = PINOCCHIO_SOURCE_DIR"/models/romeo";
   package_dirs.push_back(romeo_meshDir);
 
   pinocchio::Model model;
@@ -54,6 +55,7 @@ int main()
    
   Data data(model);
   GeometryData geom_data(geom_model);
+  VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
 
 
   std::vector<VectorXd> qs_romeo     (NBT);
@@ -61,8 +63,7 @@ int main()
   std::vector<VectorXd> qddots_romeo (NBT);
   for(size_t i=0;i<NBT;++i)
   {
-    qs_romeo[i]     = Eigen::VectorXd::Random(model.nq);
-    qs_romeo[i].segment<4>(3) /= qs_romeo[i].segment<4>(3).norm();
+    qs_romeo[i]     = randomConfiguration(model,-qmax,qmax);
     qdots_romeo[i]  = Eigen::VectorXd::Random(model.nv);
     qddots_romeo[i] = Eigen::VectorXd::Random(model.nv);
   }
