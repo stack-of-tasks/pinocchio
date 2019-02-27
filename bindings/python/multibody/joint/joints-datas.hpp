@@ -60,7 +60,7 @@ namespace pinocchio
     inline bp::class_<JointDataComposite>& expose_joint_data<JointDataComposite> (bp::class_<JointDataComposite> & cl)
     {
       return cl
-        .def(bp::init<const typename JointDataComposite::JointDataVector&, const int, const int>
+        .def(bp::init<const JointDataComposite::JointDataVector&, const int, const int>
            (bp::args("Vector of joints", "nq", "nv"),
             "Init JointDataComposite with a defined size"))
         .add_property("joints",&JointDataComposite::joints)
