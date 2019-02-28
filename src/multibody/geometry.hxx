@@ -220,6 +220,12 @@ namespace pinocchio
     assert( pairId < activeCollisionPairs.size() );
     activeCollisionPairs[pairId] = flag;
   }
+  
+  inline void GeometryData::activateCollisionPair(const PairIndex pairId)
+  {
+    assert( pairId < activeCollisionPairs.size() );
+    activeCollisionPairs[pairId] = true;
+  }
 
   inline void GeometryData::deactivateCollisionPair(const PairIndex pairId)
   {
