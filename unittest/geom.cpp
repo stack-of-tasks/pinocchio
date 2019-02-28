@@ -3,12 +3,10 @@
 //
 
 #include <iostream>
-#include <iomanip>
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
-#include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
