@@ -32,7 +32,7 @@ namespace pinocchio
     { return derived().checkModel_impl(model); }
   };
 
-#define DEFINE_ALGO_CHECKER(NAME)                                           \
+#define PINOCCHIO_DEFINE_ALGO_CHECKER(NAME)                                           \
   struct NAME##Checker : public AlgorithmCheckerBase<NAME##Checker>         \
   {                                                                         \
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>                                      \
@@ -40,7 +40,7 @@ namespace pinocchio
   }
 
   /// Simple model checker, that assert that model.parents is indeed a tree.
-  DEFINE_ALGO_CHECKER(Parent);
+  PINOCCHIO_DEFINE_ALGO_CHECKER(Parent);
   
 #if !defined(BOOST_FUSION_HAS_VARIADIC_LIST)
   /// Checker having a list of Checker as input argument

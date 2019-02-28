@@ -77,13 +77,13 @@ namespace pinocchio
   using Base::idx_q; \
   using Base::idx_v
 
-#define JOINT_CAST_TYPE_SPECIALIZATION(JointModelTpl) \
+#define PINOCCHIO_JOINT_CAST_TYPE_SPECIALIZATION(JointModelTpl) \
 template<typename Scalar, int Options, typename NewScalar> \
 struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
 { typedef JointModelTpl<NewScalar,Options> type; }
   
   
-#define JOINT_DATA_BASE_DEFAULT_ACCESSOR \
+#define PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR \
   ConstraintTypeConstRef S_accessor() const { return S; } \
   TansformTypeConstRef M_accessor() const { return M; } \
   MotionTypeConstRef v_accessor() const { return v; } \
@@ -93,7 +93,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
   DTypeConstRef Dinv_accessor() const { return Dinv; } \
   UDTypeConstRef UDinv_accessor() const { return UDinv; }
   
-#define JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE \
+#define PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE \
   typedef const Constraint_t & ConstraintTypeConstRef; \
   typedef const Transformation_t & TansformTypeConstRef; \
   typedef const Motion_t & MotionTypeConstRef; \

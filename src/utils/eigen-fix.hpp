@@ -5,12 +5,12 @@
 #ifndef __pinocchio_utils_eigen_fix_hpp__
 #define __pinocchio_utils_eigen_fix_hpp__
 
-/// \brief Fix issue concerning 3.2.90 and more versions of Eigen that do not define size_of_xpr_at_compile_time structure.
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,3,0)
 namespace pinocchio
 {
   namespace internal
   {
+    /// \brief Fix issue concerning 3.2.90 and more versions of Eigen that do not define size_of_xpr_at_compile_time structure.
     template<typename XprType> struct size_of_xpr_at_compile_time
     {
       enum { ret = Eigen::internal::size_at_compile_time<Eigen::internal::traits<XprType>::RowsAtCompileTime,Eigen::internal::traits<XprType>::ColsAtCompileTime>::ret };

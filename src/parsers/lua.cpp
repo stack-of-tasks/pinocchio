@@ -116,7 +116,7 @@ template<> pinocchio::Inertia LuaTableNode::getDefault<pinocchio::Inertia> (cons
   return result;
 }
 
-namespace se3
+namespace pinocchio
 {
   namespace lua
   {
@@ -330,4 +330,4 @@ namespace se3
 
   } // namespace lua
 
-} // namespace se3
+} // namespace pinocchio

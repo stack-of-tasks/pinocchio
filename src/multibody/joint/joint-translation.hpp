@@ -431,7 +431,7 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
     
-    JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
@@ -453,7 +453,7 @@ namespace pinocchio
     
     typedef JointTranslationTpl<_Scalar,_Options> JointDerived;
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
-    JOINT_DATA_BASE_DEFAULT_ACCESSOR
+    PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
 
     Constraint_t S;
     Transformation_t M;
@@ -473,7 +473,7 @@ namespace pinocchio
     std::string shortname() const { return classname(); }
   }; // struct JointDataTranslationTpl
 
-  JOINT_CAST_TYPE_SPECIALIZATION(JointModelTranslationTpl);
+  PINOCCHIO_JOINT_CAST_TYPE_SPECIALIZATION(JointModelTranslationTpl);
   template<typename _Scalar, int _Options>
   struct JointModelTranslationTpl
   : public JointModelBase< JointModelTranslationTpl<_Scalar,_Options> >

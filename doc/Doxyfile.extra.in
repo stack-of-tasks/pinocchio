@@ -599,8 +599,22 @@ EXPAND_ONLY_PREDEF     = YES
 # undefined via #undef or recursively expanded use the := operator
 # instead of the = operator.
 
-PREDEFINED             += WITH_HPP_FCL \
-                          EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+PREDEFINED             += EIGEN_MAKE_ALIGNED_OPERATOR_NEW \
+                          EIGEN_STRONG_INLINE=inline \
+                          PINOCCHIO_WITH_HPP_FCL \
+                          PINOCCHIO_WITH_URDFDOM \
+                          PINOCCHIO_WITH_CPPAD_SUPPORT \
+                          PINOCCHIO_WITH_CPPADCG_SUPPORT \
+                          PINOCCHIO_WITH_LUA5
+
+# The following macros would be better treated with EXPAND_AS_DEFINED.
+# However, it was not working properly
+PREDEFINED             += PINOCCHIO_EIGEN_PLAIN_TYPE(x)=x \
+                          "PINOCCHIO_EIGEN_REF_CONST_TYPE(x)=const x &" \
+                          "PINOCCHIO_EIGEN_DOT_PRODUCT_RETURN_TYPE(D1,D2)=Eigen::ScalarBinaryOpTraits< typename Eigen::internal::traits< D1 >::Scalar, typename Eigen::internal::traits< D2 >::Scalar >::ReturnType" \
+                          "PINOCCHIO_DEFINE_ALGO_CHECKER(NAME)=struct NAME##Checker : public AlgorithmCheckerBase<NAME##Checker>{}" \
+                          PINOCCHIO_JOINT_CAST_TYPE_SPECIALIZATION(JointModelTpl)=
+
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.
