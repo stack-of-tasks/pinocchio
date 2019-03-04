@@ -5,17 +5,14 @@
 #ifndef __pinocchio_python_parsers_hpp__
 #define __pinocchio_python_parsers_hpp__
 
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
-
 #include "pinocchio/bindings/python/multibody/data.hpp"
 
 #ifdef PINOCCHIO_WITH_URDFDOM
   #include "pinocchio/parsers/urdf.hpp"
 #endif
 
-  #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
-  #include "pinocchio/bindings/python/multibody/geometry-data.hpp"
+#include "pinocchio/bindings/python/multibody/geometry-model.hpp"
+#include "pinocchio/bindings/python/multibody/geometry-data.hpp"
 
 #ifdef PINOCCHIO_WITH_LUA5
   #include "pinocchio/parsers/lua.hpp"
@@ -31,9 +28,11 @@ namespace pinocchio
     {
 
       template<class T1, class T2>
-      struct PairToTupleConverter {
-        static PyObject* convert(const std::pair<T1, T2>& pair) {
-          return boost::python::incref(boost::python::make_tuple(pair.first, pair.second).ptr());
+      struct PairToTupleConverter
+      {
+        static PyObject* convert(const std::pair<T1, T2> & pair)
+        {
+          return bp::incref(bp::make_tuple(pair.first, pair.second).ptr());
         }
       };
       
