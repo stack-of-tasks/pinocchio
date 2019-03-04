@@ -166,6 +166,8 @@ namespace pinocchio
         std::vector<std::string> package_dirs_ = extractList<std::string>(package_dirs);
         return buildGeomFromUrdf(model,filename,package_dirs_,type,meshLoader);
       }
+      
+      BOOST_PYTHON_FUNCTION_OVERLOADS(removeCollisionPairs_overload,srdf::removeCollisionPairs,3,4)
 
 #endif // #ifdef PINOCCHIO_WITH_HPP_FCL
 
@@ -261,8 +263,8 @@ namespace pinocchio
       
       bp::def("removeCollisionPairs",
               static_cast<void (*)(const Model &, GeometryModel &, const std::string &, const bool)>(&srdf::removeCollisionPairs),
-              bp::args("Model", "GeometryModel (where pairs are removed)","SRDF filename (string)", "verbosity"),
-              "Parse an SRDF file in order to desactivte collision pairs for a specific GeometryModel.");
+              removeCollisionPairs_overload(bp::args("Model", "GeometryModel (where pairs are removed)","SRDF filename (string)", "verbosity"),
+              "Parse an SRDF file in order to desactivte collision pairs for a specific GeometryModel."));
       
       bp::def("removeCollisionPairsFromXML",
               static_cast<void (*)(const Model &, GeometryModel &, const std::string &, const bool)>(&srdf::removeCollisionPairsFromXML),
