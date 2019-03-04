@@ -177,12 +177,12 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_LUA5
       static Model buildModelFromLua(const std::string & filename,
-                                            bool ff,
-                                            bool verbose
-                                            )
+                                     bool ff,
+                                     bool verbose
+                                     )
       {
         Model model;
-        model = pinocchio::lua::buildModel (filename, ff, verbose);
+        model = pinocchio::lua::buildModel(filename, ff, verbose);
         return model;
       }
 #endif // #ifdef PINOCCHIO_WITH_LUA5
