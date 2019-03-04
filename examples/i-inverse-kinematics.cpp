@@ -19,26 +19,31 @@ int main(int /* argc */, char ** /* argv */)
 
   pinocchio::Data::Matrix6x J(6,model.nv); J.setZero();
   unsigned int svdOptions = Eigen::ComputeThinU | Eigen::ComputeThinV;
+  Eigen::BDCSVD<pinocchio::Data::Matrix3x> svd(3,model.nv,svdOptions);
 
-  for (int i=0 ; i<=IT_MAX ; ++i)
+  Eigen::Vector3d err;
+  for (int i=0;;i++)
   {
     pinocchio::forwardKinematics(model,data,q);
     const Eigen::Vector3d & x   = data.oMi[JOINT_ID].translation();
     const Eigen::Matrix3d & R   = data.oMi[JOINT_ID].rotation();
-    const Eigen::Vector3d & err = R.transpose()*(x-xdes);
+    err = R.transpose()*(x-xdes);
     if(err.norm() < eps)
     {
       std::cout << "Convergence achieved!" << std::endl;
-      std::cout << "\nresult: " << q.transpose() << std::endl;
-      std::cout << "\nfinal error: " << err.transpose() << std::endl;
+      break;
+    }
+    if (i >= IT_MAX)
+    {
+      std::cout << "\nWarning: the iterative algorithm has not reached convergence to the desired precision" << std::endl;
       break;
     }
     pinocchio::jointJacobian(model,data,q,JOINT_ID,J);
-    const Eigen::VectorXd v     = -J.topRows<3>().bdcSvd(svdOptions).solve(err);
+    const Eigen::VectorXd v     = - svd.compute(J.topRows<3>()).solve(err);
     q = pinocchio::integrate(model,q,v*DT);
     if(!(i%10)) std::cout << "error = " << err.transpose() << std::endl;
-
-    if(i==IT_MAX)
-      std::cout << "\nWarning: the iterative algorithm has not reached convergence to the desired precision" << std::endl;
   }
+
+  std::cout << "\nresult: " << q.transpose() << std::endl;
+  std::cout << "\nfinal error: " << err.transpose() << std::endl;
 }
