@@ -391,7 +391,7 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
     
-    JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
     
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
@@ -413,7 +413,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteUnalignedTpl<_Scalar,_Options> JointDerived;
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
-    JOINT_DATA_BASE_DEFAULT_ACCESSOR
+    PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
 
     Transformation_t M;
     Constraint_t S;
@@ -442,7 +442,7 @@ namespace pinocchio
     
   }; // struct JointDataRevoluteUnalignedTpl
 
-  JOINT_CAST_TYPE_SPECIALIZATION(JointModelRevoluteUnalignedTpl);
+  PINOCCHIO_JOINT_CAST_TYPE_SPECIALIZATION(JointModelRevoluteUnalignedTpl);
   template<typename _Scalar, int _Options>
   struct JointModelRevoluteUnalignedTpl
   : public JointModelBase< JointModelRevoluteUnalignedTpl<_Scalar,_Options> >

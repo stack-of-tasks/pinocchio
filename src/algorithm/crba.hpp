@@ -62,7 +62,7 @@ namespace pinocchio
               DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const Eigen::MatrixBase<ConfigVectorType> & q);
 
-  DEFINE_ALGO_CHECKER(CRBA);
+  PINOCCHIO_DEFINE_ALGO_CHECKER(CRBA);
 
 } // namespace pinocchio 
 

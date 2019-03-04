@@ -81,7 +81,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q);
 
 
-  DEFINE_ALGO_CHECKER(ABA);
+  PINOCCHIO_DEFINE_ALGO_CHECKER(ABA);
 
 } // namespace pinocchio
 
