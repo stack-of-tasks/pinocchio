@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_parsers_hpp__
@@ -168,7 +168,6 @@ namespace pinocchio
     {
 #ifdef PINOCCHIO_WITH_URDFDOM
       
-      
       bp::def("buildModelFromUrdf",
               static_cast <Model (*) (const std::string &, bp::object &)> (&ParsersPythonVisitor::buildModelFromUrdf),
               bp::args("Filename (string)","Root Joint Model"),
@@ -207,30 +206,29 @@ namespace pinocchio
       
       bp::def("buildGeomFromUrdf",
               static_cast <GeometryModel (*) (const Model &, const std::string &, const std::vector<std::string> &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
-              bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)"
-                       ),
+              bp::args("Model to assosiate the Geometry","URDF filename (string)", "package_dirs (vector of strings)", "Geometry type (COLLISION or VISUAL)"),
               "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model ");
       
       bp::def("buildGeomFromUrdf",
               static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType)> (&ParsersPythonVisitor::buildGeomFromUrdf),
-              bp::args("Model to assosiate the Geometry","filename (string)"),
+              bp::args("Model to assosiate the Geometry","URDF filename (string)","Geometry type (COLLISION or VISUAL)"),
               "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model ");
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
 
       bp::def("buildGeomFromUrdf",
               static_cast <GeometryModel (*) (const Model &, const std::string &, const std::vector<std::string> &, const GeometryType, const fcl::MeshLoaderPtr&)> (&ParsersPythonVisitor::buildGeomFromUrdf),
-              bp::args("Model to assosiate the Geometry","filename (string)", "package_dirs (vector of strings)","Geometry type", "Mesh loader"),
+              bp::args("Model to assosiate the Geometry","URDF filename (string)", "package_dirs (vector of strings)","Geometry type (COLLISION or VISUAL)", "Mesh loader"),
               "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio geometry model ");
       
       bp::def("buildGeomFromUrdf",
               static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType, const fcl::MeshLoaderPtr&)> (&ParsersPythonVisitor::buildGeomFromUrdf),
-              bp::args("Model to assosiate the Geometry","filename (string)","Geometry type", "Mesh loader"),
+              bp::args("Model to assosiate the Geometry","URDF filename (string)","Geometry type (COLLISION or VISUAL)", "Mesh loader"),
               "Parse the URDF file given in input looking for the geometry of the given Model and return a proper pinocchio  geometry model ");
       
       bp::def("removeCollisionPairs",
               static_cast<void (*)(const Model &, GeometryModel &, const std::string &, const bool)>(&srdf::removeCollisionPairs),
-              bp::args("Model", "GeometryModel (where pairs are removed)","srdf filename (string)", "verbosity"),
+              bp::args("Model", "GeometryModel (where pairs are removed)","SRDF filename (string)", "verbosity"),
               "Parse an SRDF file in order to desactivte collision pairs for a specific GeometryModel.");
       
       bp::def("removeCollisionPairsFromXML",
