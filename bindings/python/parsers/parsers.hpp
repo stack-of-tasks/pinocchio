@@ -167,7 +167,9 @@ namespace pinocchio
         return buildGeomFromUrdf(model,filename,package_dirs_,type,meshLoader);
       }
       
-      BOOST_PYTHON_FUNCTION_OVERLOADS(removeCollisionPairs_overload,srdf::removeCollisionPairs,3,4)
+      BOOST_PYTHON_FUNCTION_OVERLOADS(removeCollisionPairs_overload,
+                                      srdf::removeCollisionPairs,
+                                      3,4)
 
 #endif // #ifdef PINOCCHIO_WITH_HPP_FCL
 
@@ -184,6 +186,14 @@ namespace pinocchio
         return model;
       }
 #endif // #ifdef PINOCCHIO_WITH_LUA5
+      
+      BOOST_PYTHON_FUNCTION_OVERLOADS(loadReferenceConfigurations_overload,
+                                      srdf::loadReferenceConfigurations,
+                                      2,3)
+      
+      BOOST_PYTHON_FUNCTION_OVERLOADS(loadRotorParameters_overload,
+                                      srdf::loadRotorParameters,
+                                      2,3)
       
       /* --- Expose --------------------------------------------------------- */
       static void expose();
@@ -284,16 +294,15 @@ namespace pinocchio
 
       bp::def("loadReferenceConfigurations",
               static_cast<void (*)(Model &, const std::string &, const bool)>(&srdf::loadReferenceConfigurations),
-              bp::args("Model for which we want the neutral config","srdf filename (string)", "verbosity"
-                       ),
-              "Get the reference configurations of a given model from the SRDF file.");
+              loadReferenceConfigurations_overload(bp::args("Model for which we want the neutral config","srdf filename (string)", "verbosity"),
+              "Get the reference configurations of a given model from the SRDF file."));
      
       bp::def("loadRotorParameters",
               static_cast<bool (*)(Model &, const std::string &, const bool)>(&srdf::loadRotorParameters),
-              bp::args("Model for which we are loading the rotor parameters",
+              loadRotorParameters_overload(bp::args("Model for which we are loading the rotor parameters",
                        "SRDF filename (string)", "verbosity"),
               "Load the rotor parameters of a given model from an SRDF file.\n"
-              "Results are stored in model.rotorInertia and model.rotorGearRatio.");
+              "Results are stored in model.rotorInertia and model.rotorGearRatio."));
     }
     
   }
