@@ -109,7 +109,7 @@ namespace pinocchio
     void
     loadReferenceConfigurations(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const std::string & filename,
-                                const bool verbose) throw (std::invalid_argument);
+                                const bool verbose = false) throw (std::invalid_argument);
       
     
     ///
