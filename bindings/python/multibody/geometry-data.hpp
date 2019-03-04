@@ -83,7 +83,7 @@ namespace pinocchio
         .def("fillInnerOuterObjectMaps", &GeometryData::fillInnerOuterObjectMaps,
              bp::args("GeometryModel"),
              "Fill inner and outer objects maps")
-        .def("activateCollisionPair",&GeometryData::activateCollisionPair,
+        .def("activateCollisionPair",static_cast<void (GeometryData::*)(const PairIndex)>(&GeometryData::activateCollisionPair),
              bp::args("pairIndex (int)"),
              "Activate pair ID <pairIndex> in geomModel.collisionPairs."
              "Only active pairs are check for collision and distance computation.")
