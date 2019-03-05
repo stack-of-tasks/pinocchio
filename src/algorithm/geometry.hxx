@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_algo_geometry_hxx__
@@ -172,18 +172,6 @@ namespace pinocchio
       }
     }
     return min_index;
-  }
-  
-  // Required to have a default template argument on templated free function
-  PINOCCHIO_DEPRECATED
-  inline std::size_t computeDistances(const Model & model,
-                                      Data & data,
-                                      const GeometryModel & geomModel,
-                                      GeometryData & geomData,
-                                      const Eigen::VectorXd & q
-                                      )
-  {
-    return computeDistances<true>(model, data, geomModel, geomData, q);
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>

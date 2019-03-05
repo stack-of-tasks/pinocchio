@@ -287,12 +287,33 @@ namespace pinocchio
     /// manner. 
     /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
     /// \param[in] flag value of the activation boolean (true by default).
-    void activateCollisionPair(const PairIndex pairId, const bool flag=true);
+    PINOCCHIO_DEPRECATED
+    void activateCollisionPair(const PairIndex pairId, const bool flag);
+    
+    ///
+    /// Activate a collision pair, for which collisions and distances would now be computed.
+    ///
+    /// A collision (resp distance) between to geometries of GeomModel::geometryObjects
+    /// is computed *iff* the corresponding pair has been added in GeomModel::collisionPairs *AND*
+    /// it is active, i.e. the corresponding boolean in GeomData::activePairs is true. The second
+    /// condition can be used to temporarily remove a pair without touching the model, in a versatile
+    /// manner.
+    ///
+    /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
+    ///
+    /// \sa GeomData
+    ///
+    void activateCollisionPair(const PairIndex pairId);
 
+    ///
     /// Deactivate a collision pair.
     ///
-    /// Calls indeed GeomData::activateCollisionPair(pairId,false)
-    /// \sa activateCollisionPair
+    /// Calls indeed GeomData::activateCollisionPair(pairId)
+    ///
+    /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
+    ///
+    /// \sa GeomData::activateCollisionPair
+    ///
     void deactivateCollisionPair(const PairIndex pairId);
 
 #endif //PINOCCHIO_WITH_HPP_FCL

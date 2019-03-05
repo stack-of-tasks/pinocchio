@@ -3,6 +3,7 @@
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
+#include "pinocchio/bindings/python/utils/namespace.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 
 namespace pinocchio
@@ -16,17 +17,10 @@ namespace pinocchio
     {
       using namespace Eigen;
       using namespace pinocchio::cholesky;
-      
-      bp::scope main_scope;
-      std::string submodule_name(bp::extract<const char*>(main_scope.attr("__name__")));
-      submodule_name.append(".cholesky");
-      
-      bp::object submodule(bp::borrowed(PyImport_AddModule(submodule_name.c_str())));
-      main_scope.attr("cholesky") = submodule;
 
       {
         // using the cholesky scope
-        bp::scope current_scope = submodule;
+        bp::scope current_scope = getOrCreatePythonNamespace("cholesky");
         
         bp::def("decompose",
                 &decompose<double,0,JointCollectionDefaultTpl>,
