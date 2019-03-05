@@ -70,7 +70,8 @@ namespace pinocchio
       else if (tr > Scalar(2) - 1e-2) theta = asin ((R(1,0) - R(0,1)) / Scalar(2));
       else              theta = (pos ? acos (tr/Scalar(2)) : -acos(tr/Scalar(2)));
       assert (theta == theta); // theta != NaN
-      assert (fabs(theta - atan2 (R(1,0), R(0,0))) < 1e-6);
+      assert ((cos (theta) * R(0,0) + sin (theta) * R(1,0) > 0) &&
+              (cos (theta) * R(1,0) - sin (theta) * R(0,0) < 1e-6));
       return theta;
     }
 
