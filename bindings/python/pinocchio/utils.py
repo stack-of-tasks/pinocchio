@@ -75,8 +75,8 @@ def mprint(M, name="ans",eps=1e-15):
     print(name, " = ")
     print()
 
-    Mmin = lambda M: M.min() if np.nonzero(M)[1].shape[1]>0 else M.sum()
-    Mmax = lambda M: M.max() if np.nonzero(M)[1].shape[1]>0 else M.sum()
+    Mmin = lambda M: M.min()
+    Mmax = lambda M: M.max()
     Mm = Mmin(abs(M[np.nonzero(M)]))
     MM = Mmax(abs(M[np.nonzero(M)]))
 
