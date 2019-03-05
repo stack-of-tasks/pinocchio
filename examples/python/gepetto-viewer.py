@@ -2,7 +2,7 @@
 # usage: launch gepetto-gui and then run this test
 
 import unittest
-import pinocchio as se3
+import pinocchio as pin
 import numpy as np
 import os
 
@@ -12,7 +12,7 @@ from pinocchio.robot_wrapper import RobotWrapper
 current_file =  os.path.dirname(os.path.abspath(__file__))
 romeo_model_dir = os.path.abspath(os.path.join(current_file, '../../models/romeo'))
 romeo_model_path = os.path.abspath(os.path.join(romeo_model_dir, 'romeo_description/urdf/romeo.urdf'))
-robot = RobotWrapper.BuildFromURDF(romeo_model_path, [romeo_model_dir], se3.JointModelFreeFlyer())
+robot = RobotWrapper.BuildFromURDF(str(romeo_model_path), [str(romeo_model_dir)], pin.JointModelFreeFlyer())
 
 # Initialize the robot display.
 robot.initDisplay()
