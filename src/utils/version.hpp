@@ -18,7 +18,7 @@ namespace pinocchio
   ///        the following standard:
   ///        PINOCCHIO_MINOR_VERSION.PINOCCHIO_MINOR_VERSION.PINOCCHIO_PATCH_VERSION
   ///
-  std::string printVersion(const std::string & delimiter = ".")
+  inline std::string printVersion(const std::string & delimiter = ".")
   {
     std::ostringstream oss;
     oss
@@ -39,9 +39,9 @@ namespace pinocchio
   /// \returns true if the current version of Pinocchio is greater than the version provided
   ///        by the input arguments.
   ///
-  bool checkVersionAtLeast(unsigned int major_version,
-                           unsigned int minor_version,
-                           unsigned int patch_version)
+  inline bool checkVersionAtLeast(unsigned int major_version,
+                                  unsigned int minor_version,
+                                  unsigned int patch_version)
   {
     return
     PINOCCHIO_MAJOR_VERSION > major_version
