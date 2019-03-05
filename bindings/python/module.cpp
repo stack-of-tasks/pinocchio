@@ -8,6 +8,7 @@
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/utils/version.hpp"
 #include "pinocchio/bindings/python/utils/version.hpp"
 #include "pinocchio/bindings/python/utils/dependencies.hpp"
 #include "pinocchio/bindings/python/utils/conversions.hpp"
@@ -17,6 +18,8 @@ using namespace pinocchio::python;
 
 BOOST_PYTHON_MODULE(libpinocchio_pywrap)
 {
+  bp::scope().attr("__version__") = pinocchio::printVersion();
+  
   eigenpy::enableEigenPy();
   eigenpy::exposeAngleAxis();
   eigenpy::exposeQuaternion();
