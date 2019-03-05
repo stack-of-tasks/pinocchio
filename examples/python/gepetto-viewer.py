@@ -11,7 +11,7 @@ from pinocchio.robot_wrapper import RobotWrapper
 # Load the URDF model.
 current_file =  os.path.dirname(os.path.abspath(__file__))
 romeo_model_dir = os.path.abspath(os.path.join(current_file, '../../models/romeo'))
-romeo_model_path = os.path.abspath(os.path.join(romeo_model_dir, 'romeo_description/urdf/romeo.urdf'))
+romeo_model_path = os.path.abspath(os.path.join(romeo_model_dir, 'romeo_description/urdf/romeo_small.urdf'))
 robot = RobotWrapper.BuildFromURDF(str(romeo_model_path), [str(romeo_model_dir)], pin.JointModelFreeFlyer())
 
 # Initialize the robot display.
