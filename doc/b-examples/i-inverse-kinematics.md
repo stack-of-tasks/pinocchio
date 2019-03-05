@@ -20,7 +20,7 @@ Next, we define an initial configuration
 \skipline q
 
 This is the starting point of the algorithm. *A priori*, any valid configuration would work.
-We decided to use the value returned by `neutralConfiguration`.
+We decided to use the robot's neutral configuration, returned by algorithm `neutral`.
 For a simple manipulator such as the one in this case, it simply corresponds to an all-zero vector,
 but using this method generalizes well to more complex kinds of robots, ensuring validity.
 
@@ -39,6 +39,9 @@ Next, we compute the error between the desired position and the current one. Not
 If the error norm is below the previously-defined threshold, we have found the solution and we break out of the loop
 \until break
 
+If we have reached the maximum number of iterations, it means a solution has not been found. We print an error message and we also break
+\until break
+
 Otherwise, we search for another configuration trying to reduce the error.
 
 We start by computing the Jacobian, also in the local joint frame. Since we are only interested in the position, and not in the orientation, we select the first three lines, corresponding to the translation part
@@ -50,15 +53,10 @@ Next, we can compute the evolution of the configuration by taking the pseudo-inv
 Finally, we can add the obtained tangent vector to the current configuration
 \skipline q
 
-where `integrate` in our case amounts to a simple sum.
+where `integrate` in our case amounts to a simple sum. The resulting error will be verified in the next iteration.
 
-If the loop terminates without ever breaking, it means a solution has not been found.
-We just warn the user
-\skip else
-\until print
-
-Finally, we display the result:
-\skip print
+At the end of the loop, we display the result:
+\skip result
 \until final
 
 ## C++
@@ -68,17 +66,20 @@ The equivalent C++ implemetation is given below
 
 ### Explanation of the code
 The code follows exactly the same steps as Python.
-We can identify two major differences. The first one concerns the Jacobian computation.
-In C++, you need to pre-allocate its memory space, set it to zero, and pass it as an input
+Apart from the usual syntactic discrepancies between Python and C++, we can identify two major differences.
+The first one concerns the Jacobian computation. In C++, you need to pre-allocate its memory space, set it to zero, and pass it as an input
 \skipline J(6,model.nv)
-
 \skipline jointJacobian
 
 This allows to always use the same memory space, avoiding re-allocation and achieving greater efficiency.
 
 The second difference consists in the way the velocity is computed
 
-\skipline bdcSvd
+\dontinclude i-inverse-kinematics.cpp
+\skip svdOptions
+\until BDCSVD
+\skipline svd.compute
 
 This is equivalent to using the pseudo-inverse, but way more efficient.
+Also notice we have chosen to pre-allocate the space for the SVD decomposition instead of using method `bdcSvd(svdOptions)`.
 
