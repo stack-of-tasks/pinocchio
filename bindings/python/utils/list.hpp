@@ -6,6 +6,7 @@
 #define __pinocchio_python_utils_list_hpp__
 
 #include <boost/python.hpp>
+#include <vector>
 
 namespace pinocchio
 {
