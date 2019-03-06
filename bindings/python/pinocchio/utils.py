@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 CNRS
+# Copyright (c) 2015-2019 CNRS INRIA
 #
 
 from __future__ import print_function
@@ -28,9 +28,13 @@ def skew(p):
     return np.matrix([[0, -z, y], [z, 0, -x], [-y, x, 0]], np.double)
 
 
-se3ToXYZQUAT = pin.se3ToXYZQUAT
+@deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
+def se3ToXYZQUAT(M):
+    return pin.se3ToXYZQUATtuple(M)
 
-XYZQUATToSe3 = pin.XYZQUATToSe3
+@deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
+def XYZQUATToSe3(vec):
+    return pin.XYZQUATToSe3(vec)
 
 
 @deprecated('Now useless.')

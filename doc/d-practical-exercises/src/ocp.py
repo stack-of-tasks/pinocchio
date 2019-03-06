@@ -5,7 +5,7 @@ Example of optimal control resolution by direct optimization of a single traject
 from pendulum import Pendulum
 from scipy.optimize import *
 from pinocchio.utils import *
-import pinocchio as se3
+import pinocchio as pin
 from numpy.linalg import norm
 import time
 import signal
@@ -49,6 +49,7 @@ class CallBack:
         if self.withdisplay: r = display(U)        # Display if CTRL-Z has been pressed.
     def setWithDisplay(self,boolean = None):
         self.withdisplay = not self.withdisplay if boolean is None else boolean
+
 callback = CallBack()
 signal.signal(signal.SIGTSTP, lambda x,y:callback.setWithDisplay())
 

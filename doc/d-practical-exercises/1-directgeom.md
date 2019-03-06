@@ -246,7 +246,7 @@ visualRef = robot.viewerNodeNames(visualObj)       # Viewer reference (string) r
 Moving one object
 
 ```py
-q1 = [1, 1, 1, 1, 0, 0, 0]  # x, y, z, quaternion
+q1 = (1, 1, 1, 1, 0, 0, 0)  # x, y, z, quaternion
 robot.viewer.gui.applyConfiguration(visualRef, q1)
 robot.viewer.gui.refresh()  # Refresh the window.
 ```
@@ -273,7 +273,7 @@ Say we have a target at position `[.5, .1, .2]` and we would like the
 robot to grasp it.
 
 ```py
-robot.viewer.gui.applyConfiguration("world/sphere", [.5, .1, .2, 1.,0.,0.,0. ])
+robot.viewer.gui.applyConfiguration("world/sphere", (.5, .1, .2, 1.,0.,0.,0. ))
 robot.viewer.gui.refresh()  # Refresh the window.
 ```
 
