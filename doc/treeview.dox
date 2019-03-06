@@ -113,6 +113,9 @@ namespace pinocchio {
   /// \namespace pinocchio::container
   /// \brief Specialized containers
 
+  /// \namespace pinocchio::cholesky
+  /// \brief Cholesky decompositions
+
   /// \namespace pinocchio::buildModels
   /// \brief Build simple models
 
@@ -133,4 +136,7 @@ namespace pinocchio {
 
   /// \namespace pinocchio::srdf
   /// \brief SRDF parsing
+
+  /// \namespace pinocchio::lua
+  /// \brief Lua parsing
 }

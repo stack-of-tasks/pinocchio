@@ -117,9 +117,9 @@ namespace pinocchio
     
   } // namespace quaternion
   
-  /// Deprecated functions. They are now in the pinocchio::pinocchio namespace
+  // Deprecated functions. They are now in the pinocchio::quaternion namespace
   
-  /// This function has been replaced by quaternion::angleBetweenQuaternions.
+  /// \deprecated This function has been replaced by quaternion::angleBetweenQuaternions.
   template<typename D1, typename D2>
   typename D1::Scalar PINOCCHIO_DEPRECATED
   angleBetweenQuaternions(const Eigen::QuaternionBase<D1> & q1,
@@ -128,7 +128,7 @@ namespace pinocchio
     return quaternion::angleBetweenQuaternions(q1,q2);
   }
   
-  /// This function has been replaced by quaternion::defineSameRotation.
+  /// \deprecated This function has been replaced by quaternion::defineSameRotation.
   template<typename D1, typename D2>
   bool PINOCCHIO_DEPRECATED
   defineSameRotation(const Eigen::QuaternionBase<D1> & q1,
@@ -139,7 +139,7 @@ namespace pinocchio
     return quaternion::defineSameRotation(q1,q2,prec);
   }
   
-  /// This function has been replaced by quaternion::firstOrderNormalize.
+  /// \deprecated This function has been replaced by quaternion::firstOrderNormalize.
   template<typename D>
   void PINOCCHIO_DEPRECATED
   firstOrderNormalize(const Eigen::QuaternionBase<D> & q)
@@ -147,7 +147,7 @@ namespace pinocchio
     quaternion::firstOrderNormalize(q);
   }
   
-  /// This function has been replaced by quaternion::uniformRandom.
+  /// \deprecated This function has been replaced by quaternion::uniformRandom.
   template<typename D>
   void PINOCCHIO_DEPRECATED
   uniformRandom(const Eigen::QuaternionBase<D> & q)
