@@ -7,7 +7,7 @@ from os.path import join
 
 from pinocchio import SE3
 from pinocchio.robot_wrapper import RobotWrapper
-from pinocchio.utils import rotate, zero, eye, se3ToXYZQUAT, urdf
+from pinocchio.utils import rotate, zero, eye, se3ToXYZQUATtuple, urdf
 
 import numpy as np
 
@@ -46,5 +46,5 @@ w, h, d = 0.25, 0.25, 0.005
 color = [red, green, blue, transparency] = [1, 1, 0.78, 1.0]
 gepettoViewer.addBox('world/toolplate', w, h, d, color)
 Mtool = SE3(rotate('z', 1.268), np.matrix([0, 0, .77]).T)
-gepettoViewer.applyConfiguration('world/toolplate', se3ToXYZQUAT(Mtool))
+gepettoViewer.applyConfiguration('world/toolplate', se3ToXYZQUATtuple(Mtool))
 gepettoViewer.refresh()

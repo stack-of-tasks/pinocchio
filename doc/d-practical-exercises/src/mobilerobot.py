@@ -1,6 +1,6 @@
 import pinocchio as se3
 from pinocchio.robot_wrapper import RobotWrapper
-from pinocchio.utils import eye, se3ToXYZQUAT
+from pinocchio.utils import eye, se3ToXYZQUATtuple
 
 import numpy as np
 
@@ -58,13 +58,13 @@ class MobileRobotWrapper(RobotWrapper):
     def display(self, q):
         RobotWrapper.display(self, q)
         M1 = self.data.oMi[1]
-        self.viewer.gui.applyConfiguration('world/mobilebasis', se3ToXYZQUAT(M1))
-        self.viewer.gui.applyConfiguration('world/mobilewheel1', se3ToXYZQUAT(M1))
-        self.viewer.gui.applyConfiguration('world/mobilewheel2', se3ToXYZQUAT(M1))
+        self.viewer.gui.applyConfiguration('world/mobilebasis', se3ToXYZQUATtuple(M1))
+        self.viewer.gui.applyConfiguration('world/mobilewheel1', se3ToXYZQUATtuple(M1))
+        self.viewer.gui.applyConfiguration('world/mobilewheel2', se3ToXYZQUATtuple(M1))
         self.viewer.gui.refresh()
 
         se3.framesKinematics(self.model, self.data)
-        self.viewer.gui.applyConfiguration('world/framebasis', se3ToXYZQUAT(self.data.oMf[-2]))
-        self.viewer.gui.applyConfiguration('world/frametool', se3ToXYZQUAT(self.data.oMf[-1]))
+        self.viewer.gui.applyConfiguration('world/framebasis', se3ToXYZQUATtuple(self.data.oMf[-2]))
+        self.viewer.gui.applyConfiguration('world/frametool', se3ToXYZQUATtuple(self.data.oMf[-1]))
 
         self.viewer.gui.refresh()

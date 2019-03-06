@@ -50,6 +50,6 @@ class Display():
         only at the end of the list.
         '''
         self.viewer.gui.applyConfiguration(objName,
-                                           se3ToXYZQUAT(M))
+                                           se3.se3ToXYZQUATtuple(M))
         if refresh: self.viewer.gui.refresh()
 
