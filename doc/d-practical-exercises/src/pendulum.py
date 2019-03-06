@@ -15,7 +15,7 @@ for i in range(1000):
 from pinocchio.utils import *
 from pinocchio.explog import exp,log
 from numpy.linalg import pinv,norm
-import pinocchio as se3
+import pinocchio as pin
 import gepetto.corbaserver
 from display import Display
 from numpy.linalg import pinv,norm,inv
@@ -56,7 +56,7 @@ class Pendulum:
         '''Create a Pinocchio model of a N-pendulum, with N the argument <nbJoint>.'''
         self.viewer     = Display()
         self.visuals    = []
-        self.model      = se3.Model()
+        self.model      = pin.Model()
         self.createPendulum(nbJoint)
         self.data       = self.model.createData()
 
@@ -74,10 +74,10 @@ class Pendulum:
         colorred = [1.0,0.0,0.0,1.0]
 
         jointId = rootId
-        jointPlacement     = jointPlacement if jointPlacement!=None else se3.SE3.Identity()
+        jointPlacement     = jointPlacement if jointPlacement!=None else pin.SE3.Identity()
         length = 1.0
         mass = length
-        inertia = se3.Inertia(mass,
+        inertia = pin.Inertia(mass,
                               np.matrix([0.0,0.0,length/2]).T,
                               mass/5*np.diagflat([ 1e-2,length**2,  1e-2 ]) )
 
@@ -85,21 +85,21 @@ class Pendulum:
             istr = str(i)
             name               = prefix+"joint"+istr
             jointName,bodyName = [name+"_joint",name+"_body"]
-            jointId = self.model.addJoint(jointId,se3.JointModelRY(),jointPlacement,jointName)
-            self.model.appendBodyToJoint(jointId,inertia,se3.SE3.Identity())
+            jointId = self.model.addJoint(jointId,pin.JointModelRY(),jointPlacement,jointName)
+            self.model.appendBodyToJoint(jointId,inertia,pin.SE3.Identity())
             try:self.viewer.viewer.gui.addSphere('world/'+prefix+'sphere'+istr, 0.15,colorred)
             except: pass
-            self.visuals.append( Visual('world/'+prefix+'sphere'+istr,jointId,se3.SE3.Identity()) )
+            self.visuals.append( Visual('world/'+prefix+'sphere'+istr,jointId,pin.SE3.Identity()) )
             try:self.viewer.viewer.gui.addCapsule('world/'+prefix+'arm'+istr, .1,.8*length,color)
             except:pass
             self.visuals.append( Visual('world/'+prefix+'arm'+istr,jointId,
-                                        se3.SE3(eye(3),np.matrix([0.,0.,length/2]))))
-            jointPlacement     = se3.SE3(eye(3),np.matrix([0.0,0.0,length]).T)
+                                        pin.SE3(eye(3),np.matrix([0.,0.,length/2]))))
+            jointPlacement     = pin.SE3(eye(3),np.matrix([0.0,0.0,length]).T)
 
-        self.model.addFrame( se3.Frame('tip',jointId,0,jointPlacement,se3.FrameType.OP_FRAME) )
+        self.model.addFrame( pin.Frame('tip',jointId,0,jointPlacement,pin.FrameType.OP_FRAME) )
 
     def display(self,q):
-        se3.forwardKinematics(self.model,self.data,q)
+        pin.forwardKinematics(self.model,self.data,q)
         for visual in self.visuals:
             visual.place( self.viewer,self.data.oMi[visual.jointParent] )
         self.viewer.viewer.gui.refresh()
@@ -139,7 +139,7 @@ class Pendulum:
 
     def tip(self,q):
         '''Return the altitude of pendulum tip'''
-        se3.framesKinematics(self.model,self.data,q)
+        pin.framesKinematics(self.model,self.data,q)
         return self.data.oMf[1].translation[2,0]
 
     def dynamics(self,x,u,display=False):
@@ -161,7 +161,7 @@ class Pendulum:
 
         DT = self.DT/self.NDT
         for i in range(self.NDT):
-            se3.computeAllTerms(self.model,self.data,q,v)
+            pin.computeAllTerms(self.model,self.data,q,v)
             M   = self.data.M
             b   = self.data.nle
             #tau = u-self.Kf*v

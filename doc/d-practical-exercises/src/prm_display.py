@@ -1,5 +1,5 @@
 import time
-from pinocchio.utils import se3ToXYZQUAT
+from pinocchio.utils import se3ToXYZQUATtuple
 
 
 def display_prm(robot, graph):
@@ -18,7 +18,7 @@ def display_prm(robot, graph):
     gui.createRoadmap('world/prm', [1., .2, .2, .8], 1e-2, 1e-2, [1., .2, .2, .8])
 
     for q in graph.q:
-        gui.addNodeToRoadmap('world/prm', se3ToXYZQUAT(robot.position(q, 6)))
+        gui.addNodeToRoadmap('world/prm', se3ToXYZQUATtuple(robot.position(q, 6)))
 
         for parent, children in graph.children.items():
             for child in children:

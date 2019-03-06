@@ -1,6 +1,6 @@
-import pinocchio as se3
+import pinocchio as pin
 from pinocchio.robot_wrapper import RobotWrapper
-from pinocchio.utils import eye, se3ToXYZQUATtuple
+from pinocchio.utils import eye
 
 import numpy as np
 
@@ -17,20 +17,20 @@ class MobileRobotWrapper(RobotWrapper):
     '''
 
     def __init__(self, urdf, pkgs):
-        super(MobileRobotWrapper, self).__init__(self, urdf, pkgs, se3.JointModelPlanar())
+        super(MobileRobotWrapper, self).__init__(self, urdf, pkgs, pin.JointModelPlanar())
 
-        M0 = se3.SE3(eye(3), np.matrix([.0, .0, .6]).T)
+        M0 = pin.SE3(eye(3), np.matrix([.0, .0, .6]).T)
         self.model.jointPlacements[2] = M0 * self.model.jointPlacements[2]
         self.visual_model.geometryObjects[0].placement = M0 * self.visual_model.geometryObjects[0].placement
         self.visual_data.oMg[0] = M0 * self.visual_data.oMg[0]
 
         # Placement of the "mobile" frame wrt basis center.
-        basisMop = se3.SE3(eye(3), np.matrix([.3, .0, .1]).T)
-        self.model.addFrame(se3.Frame('mobile', 1, 1, basisMop, se3.FrameType.OP_FRAME))
+        basisMop = pin.SE3(eye(3), np.matrix([.3, .0, .1]).T)
+        self.model.addFrame(pin.Frame('mobile', 1, 1, basisMop, pin.FrameType.OP_FRAME))
 
         # Placement of the tool frame wrt end effector frame (located at the center of the wrist)
-        effMop = se3.SE3(eye(3), np.matrix([.0, .08, .095]).T)
-        self.model.addFrame(se3.Frame('tool', 6, 6, effMop, se3.FrameType.OP_FRAME))
+        effMop = pin.SE3(eye(3), np.matrix([.0, .08, .095]).T)
+        self.model.addFrame(pin.Frame('tool', 6, 6, effMop, pin.FrameType.OP_FRAME))
 
         # Create data again after setting frames
         self.data = self.model.createData()
@@ -58,13 +58,13 @@ class MobileRobotWrapper(RobotWrapper):
     def display(self, q):
         RobotWrapper.display(self, q)
         M1 = self.data.oMi[1]
-        self.viewer.gui.applyConfiguration('world/mobilebasis', se3ToXYZQUATtuple(M1))
-        self.viewer.gui.applyConfiguration('world/mobilewheel1', se3ToXYZQUATtuple(M1))
-        self.viewer.gui.applyConfiguration('world/mobilewheel2', se3ToXYZQUATtuple(M1))
+        self.viewer.gui.applyConfiguration('world/mobilebasis', pin.se3ToXYZQUATtuple(M1))
+        self.viewer.gui.applyConfiguration('world/mobilewheel1', pin.se3ToXYZQUATtuple(M1))
+        self.viewer.gui.applyConfiguration('world/mobilewheel2', pin.se3ToXYZQUATtuple(M1))
         self.viewer.gui.refresh()
 
-        se3.framesKinematics(self.model, self.data)
-        self.viewer.gui.applyConfiguration('world/framebasis', se3ToXYZQUATtuple(self.data.oMf[-2]))
-        self.viewer.gui.applyConfiguration('world/frametool', se3ToXYZQUATtuple(self.data.oMf[-1]))
+        pin.framesKinematics(self.model, self.data)
+        self.viewer.gui.applyConfiguration('world/framebasis', pin.se3ToXYZQUATtuple(self.data.oMf[-2]))
+        self.viewer.gui.applyConfiguration('world/frametool', pin.se3ToXYZQUATtuple(self.data.oMf[-1]))
 
         self.viewer.gui.refresh()
