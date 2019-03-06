@@ -342,9 +342,6 @@ namespace pinocchio
                                 const std::string & filename,
                                 const bool verbose) throw (std::invalid_argument)
     {
-      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-      typedef typename Model::JointModel JointModel;
-
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
       if (extension != "srdf")
@@ -360,11 +357,23 @@ namespace pinocchio
         const std::string exception_message (filename + " does not seem to be a valid file.");
         throw std::invalid_argument(exception_message);
       }
+
+      loadReferenceConfigurations (model, srdf_stream, verbose);
+    }
+
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void
+    loadReferenceConfigurations(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                std::istream & xmlStream,
+                                const bool verbose) throw (std::invalid_argument)
+    {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      typedef typename Model::JointModel JointModel;
       
       // Read xml stream
       using boost::property_tree::ptree;
       ptree pt;
-      read_xml(srdf_stream, pt);
+      read_xml(xmlStream, pt);
       
       // Iterate over all tags directly children of robot
       BOOST_FOREACH(const ptree::value_type & v, pt.get_child("robot"))
