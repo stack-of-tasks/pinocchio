@@ -191,6 +191,18 @@ namespace pinocchio
                                       srdf::loadReferenceConfigurations,
                                       2,3)
       
+      static void loadReferenceConfigurationsFromXML (Model& model,
+          const std::string & xmlStream,
+          const bool verbose = false) throw (std::invalid_argument)
+      {
+        std::istringstream iss (xmlStream);
+        pinocchio::srdf::loadReferenceConfigurationsFromXML(model, iss, verbose);
+      }
+
+      BOOST_PYTHON_FUNCTION_OVERLOADS(loadReferenceConfigurationsFromXML_overload,
+                                      loadReferenceConfigurationsFromXML,
+                                      2,3)
+      
       BOOST_PYTHON_FUNCTION_OVERLOADS(loadRotorParameters_overload,
                                       srdf::loadRotorParameters,
                                       2,3)
@@ -296,6 +308,11 @@ namespace pinocchio
               static_cast<void (*)(Model &, const std::string &, const bool)>(&srdf::loadReferenceConfigurations),
               loadReferenceConfigurations_overload(bp::args("Model for which we want the neutral config","srdf filename (string)", "verbosity"),
               "Get the reference configurations of a given model from the SRDF file."));
+
+      bp::def("loadReferenceConfigurationsFromXML",
+              static_cast<void (*)(Model &, const std::string &, const bool)>(&srdf::loadReferenceConfigurations),
+              loadReferenceConfigurationsFromXML_overload(bp::args("Model for which we want the neutral config","srdf as XML string (string)", "verbosity"),
+              "Get the reference configurations of a given model from the SRDF string."));
      
       bp::def("loadRotorParameters",
               static_cast<bool (*)(Model &, const std::string &, const bool)>(&srdf::loadRotorParameters),
