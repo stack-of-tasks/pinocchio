@@ -121,9 +121,9 @@ namespace pinocchio
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     void
-    loadReferenceConfigurations(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                std::istream & xmlStream,
-                                const bool verbose = false) throw (std::invalid_argument);
+    loadReferenceConfigurationsFromXML(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       std::istream & xmlStream,
+                                       const bool verbose = false) throw (std::invalid_argument);
       
     
     ///

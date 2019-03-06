@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(readReferenceConfig_stream)
   pinocchio::urdf::buildModelFromXML(urdf, model);
 
   std::istringstream iss (srdf);
-  pinocchio::srdf::loadReferenceConfigurations(model,iss,false);
+  pinocchio::srdf::loadReferenceConfigurationsFromXML(model,iss,false);
 
   Eigen::VectorXd q = model.referenceConfigurations["reference"];
   Eigen::VectorXd qexpected (2); qexpected << 1,0;

@@ -358,14 +358,14 @@ namespace pinocchio
         throw std::invalid_argument(exception_message);
       }
 
-      loadReferenceConfigurations (model, srdf_stream, verbose);
+      loadReferenceConfigurationsFromXML (model, srdf_stream, verbose);
     }
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     void
-    loadReferenceConfigurations(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                std::istream & xmlStream,
-                                const bool verbose) throw (std::invalid_argument)
+    loadReferenceConfigurationsFromXML(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       std::istream & xmlStream,
+                                       const bool verbose) throw (std::invalid_argument)
     {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef typename Model::JointModel JointModel;
