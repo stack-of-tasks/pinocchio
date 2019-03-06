@@ -4,7 +4,7 @@
 
 import pinocchio as pin
 from math import pi
-from pinocchio.utils import np, rotate, XYZQUATToViewerConfiguration, se3ToXYZQUAT
+from pinocchio.utils import np, rotate
 
 DENSITY = 1
 
@@ -105,7 +105,7 @@ class RobotDisplay(object):
         self.viewer.gui.refresh()
 
     def place(self, obj_name, m):
-        self.viewer.gui.applyConfiguration(obj_name, XYZQUATToViewerConfiguration(se3ToXYZQUAT(m)))
+        self.viewer.gui.applyConfiguration(obj_name,pin.se3ToXYZQUATtuple(m))
 
 
 class SimplestWalker(ModelWrapper):
