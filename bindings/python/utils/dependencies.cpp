@@ -31,7 +31,7 @@ namespace pinocchio
     
     static bool WITH_LUA5_SUPPORT()
     {
-#ifdef PINOCCHIO_WITH_LU5
+#ifdef PINOCCHIO_WITH_LUA5
       return true;
 #else
       return false;
