@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_math_fwd_hpp__
@@ -42,9 +42,6 @@ namespace pinocchio
   template<typename Scalar>
   const Scalar PI()
   { return boost::math::constants::pi<Scalar>(); }
-  
-  /// The value of PI for double scalar type
-  const double PId = PI<double>();
   
   namespace math
   {
