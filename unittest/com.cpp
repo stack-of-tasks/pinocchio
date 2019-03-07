@@ -76,6 +76,39 @@ BOOST_AUTO_TEST_CASE ( test_com )
 //  std::cout << "M3 = [ " << data.M.topRows<3>() << " ];" << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE ( test_mass )
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+
+  double mass = computeTotalMass(model);
+
+  BOOST_CHECK(mass == mass); // checking it is not NaN
+
+  double mass_check = 0.0;
+  for(size_t i=1; i<(size_t)(model.njoints);++i)
+    mass_check += model.inertias[i].mass();
+
+  BOOST_CHECK_CLOSE(mass, mass_check, 1e-12);
+
+  pinocchio::Data data1(model);
+
+  double mass_data = computeTotalMass(model,data1);
+
+  BOOST_CHECK(mass_data == mass_data); // checking it is not NaN
+  BOOST_CHECK_CLOSE(mass, mass_data, 1e-12);
+  BOOST_CHECK_CLOSE(data1.mass[0], mass_data, 1e-12);
+
+  pinocchio::Data data2(model);
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.middleRows<4> (3).normalize();
+  centerOfMass(model,data2,q);
+
+  BOOST_CHECK_CLOSE(data2.mass[0], mass, 1e-12);
+}
 
 //BOOST_AUTO_TEST_CASE ( test_timings )
 //{

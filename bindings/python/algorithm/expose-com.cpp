@@ -47,6 +47,16 @@ namespace pinocchio
     {
       using namespace Eigen;
       
+      bp::def("computeTotalMass",
+              (double (*)(const Model &))&computeTotalMass<double,0,JointCollectionDefaultTpl>,
+              bp::args("Model"),
+              "Compute the total mass of the model and return it.");
+
+      bp::def("computeTotalMass",
+              (double (*)(const Model &, Data &))&computeTotalMass<double,0,JointCollectionDefaultTpl>,
+              bp::args("Model", "Data"),
+              "Compute the total mass of the model, put it in data.mass[0] and return it.");
+
       bp::def("centerOfMass",com_0_proxy,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)"),

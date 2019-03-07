@@ -20,6 +20,22 @@ class TestComBindings(TestCase):
         qmax = np.matrix(np.full((self.model.nq,1),np.pi))
         self.q = pin.randomConfiguration(self.model,-qmax,qmax)
 
+    def test_mass(self):
+        mass = pin.computeTotalMass(self.model)
+        self.assertIsNot(mass, np.nan)
+
+        mass_check = sum([inertia.mass for inertia in self.model.inertias[1:] ])
+        self.assertApprox(mass,mass_check)
+
+        mass_data = pin.computeTotalMass(self.model,self.data)
+        self.assertIsNot(mass_data, np.nan)
+        self.assertApprox(mass,mass_data)
+        self.assertApprox(mass_data,self.data.mass[0])
+
+        data2 = self.model.createData()
+        pin.centerOfMass(self.model,data2,self.q)
+        self.assertApprox(mass,data2.mass[0])
+
     def test_Jcom_update3(self):
         Jcom = pin.jacobianCenterOfMass(self.model,self.data,self.q)
         self.assertFalse(np.isnan(Jcom).any())

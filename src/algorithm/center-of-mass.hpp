@@ -11,6 +11,26 @@
 namespace pinocchio
 {
   
+  /// \brief Compute the total mass of the model and return it.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  ///
+  /// \return Total mass of the model.
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Scalar computeTotalMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model);
+
+  /// \brief Compute the total mass of the model, put it in data.mass[0] and return it.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
+  /// \warning This method does not fill the whole data.mass vector. Only data.mass[0] is updated.
+  ///
+  /// \return Total mass of the model.
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Scalar computeTotalMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data);
+
   ///
   /// \brief Computes the center of mass position of a given model according to a particular joint configuration.
   ///        The result is accessible through data.com[0] for the full body com and data.com[i] for the subtree supported by joint i (expressed in the joint i frame).
