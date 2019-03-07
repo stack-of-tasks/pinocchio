@@ -240,7 +240,7 @@ You can access the visual object composing the robot model by
 ```py
 visualObj = robot.visual_model.geometryObjects[4]  # 3D object representing the robot forarm
 visualName = visualObj.name                        # Name associated to this object
-visualRef = robot.viewerNodeNames(visualObj)       # Viewer reference (string) representing this object
+visualRef = robot.getViewerNodeNames(visualObj)    # Viewer reference (string) representing this object
 ```
 
 Moving one object
