@@ -58,7 +58,7 @@ class Visual(object):
 
         ab = pinv(np.hstack([a1 - a2, b2 - b1])) * (b2 - a2)
 
-        if all(0 <= ab <= 1):
+        if (0 <= ab).all() and (ab <= 1).all():
             asat = bsat = False
             pa = a2 + ab[0, 0] * (a1 - a2)
             pb = b2 + ab[1, 0] * (b1 - b2)
