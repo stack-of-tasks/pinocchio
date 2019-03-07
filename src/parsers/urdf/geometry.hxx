@@ -92,17 +92,17 @@ namespace pinocchio
        * @param[out] meshPath      The Absolute path of the mesh currently read
        * @param[out] meshScale     Scale of transformation currently applied to the mesh
        *
-       * @return     A shared pointer on the he geometry converted as a fcl::CollisionGeometry
+       * @return     A shared pointer on the geometry converted as a fcl::CollisionGeometry
        */
       boost::shared_ptr<fcl::CollisionGeometry>
-      retrieveCollisionGeometry(const UrdfTree& tree,
-                                fcl::MeshLoaderPtr& meshLoader,
-                                const std::string& linkName,
-                                const std::string& geomName,
-                                const ::urdf::GeometrySharedPtr urdf_geometry,
-                                const std::vector<std::string> & package_dirs,
-                                std::string & meshPath,
-                                Eigen::Vector3d & meshScale)
+      inline retrieveCollisionGeometry(const UrdfTree& tree,
+				       fcl::MeshLoaderPtr& meshLoader,
+				       const std::string& linkName,
+				       const std::string& geomName,
+				       const ::urdf::GeometrySharedPtr urdf_geometry,
+				       const std::vector<std::string> & package_dirs,
+				       std::string & meshPath,
+				       Eigen::Vector3d & meshScale)
       {
         boost::shared_ptr<fcl::CollisionGeometry> geometry;
 
