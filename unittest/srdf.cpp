@@ -91,7 +91,37 @@ BOOST_AUTO_TEST_CASE(readReferenceConfig_stream)
   Eigen::VectorXd qexpected(1); qexpected << 0;
   BOOST_CHECK(q.size() == model.nq);
   BOOST_CHECK(q.isApprox(qexpected));
+}
+
+BOOST_AUTO_TEST_CASE(test_continuous_joint)
+{
+  const string urdf =
+  "<robot name='test'>"
+  "<link name='base_link'/>"
+  "<link name='child_link'/>"
+  "<joint type='continuous' name='joint'>"
+  "  <parent link='base_link'/>"
+  "  <child link='child_link'/>"
+  "  <limit effort='30' velocity='1.0' />"
+  "</joint>"
+  "</robot>";
+  const string srdf =
+  "<robot name='test'>"
+  "<group_state name='reference' group='all'>"
+  "     <joint name='joint'  value='0.0' />"
+  "</group_state>"
+  "</robot>";
   
+  Model model;
+  pinocchio::urdf::buildModelFromXML(urdf, model);
+  
+  std::istringstream iss (srdf);
+  pinocchio::srdf::loadReferenceConfigurationsFromXML(model,iss,false);
+  
+  Eigen::VectorXd q = model.referenceConfigurations["reference"];
+  Eigen::VectorXd qexpected(2); qexpected << 1,0;
+  BOOST_CHECK(q.size() == model.nq);
+  BOOST_CHECK(q.isApprox(qexpected));
 }
 
 BOOST_AUTO_TEST_CASE(readRotorParams)
