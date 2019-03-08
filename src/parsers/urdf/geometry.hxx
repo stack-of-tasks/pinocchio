@@ -96,13 +96,13 @@ namespace pinocchio
        */
       boost::shared_ptr<fcl::CollisionGeometry>
       inline retrieveCollisionGeometry(const UrdfTree& tree,
-				       fcl::MeshLoaderPtr& meshLoader,
-				       const std::string& linkName,
-				       const std::string& geomName,
-				       const ::urdf::GeometrySharedPtr urdf_geometry,
-				       const std::vector<std::string> & package_dirs,
-				       std::string & meshPath,
-				       Eigen::Vector3d & meshScale)
+                                       fcl::MeshLoaderPtr& meshLoader,
+                                       const std::string& linkName,
+                                       const std::string& geomName,
+                                       const ::urdf::GeometrySharedPtr urdf_geometry,
+                                       const std::vector<std::string> & package_dirs,
+                                       std::string & meshPath,
+                                       Eigen::Vector3d & meshScale)
       {
         boost::shared_ptr<fcl::CollisionGeometry> geometry;
 
