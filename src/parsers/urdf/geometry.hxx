@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_parsers_urdf_geometry_hxx__
@@ -291,7 +291,7 @@ namespace pinocchio
        */
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename GeometryType>
       inline void addLinkGeometryToGeomModel(const UrdfTree & tree,
-                                             fcl::MeshLoaderPtr& meshLoader,
+                                             ::hpp::fcl::MeshLoaderPtr & meshLoader,
                                              ::urdf::LinkConstSharedPtr link,
                                              const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                              GeometryModel & geomModel,
@@ -372,7 +372,7 @@ namespace pinocchio
        */
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
       void parseTreeForGeom(const UrdfTree& tree,
-                            fcl::MeshLoaderPtr& meshLoader,
+                            ::hpp::fcl::MeshLoaderPtr& meshLoader,
                             ::urdf::LinkConstSharedPtr link,
                             const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             GeometryModel & geomModel,
@@ -408,7 +408,7 @@ namespace pinocchio
                                const GeometryType type,
                                GeometryModel & geomModel,
                                const std::vector<std::string> & package_dirs,
-                               fcl::MeshLoaderPtr meshLoader)
+                               ::hpp::fcl::MeshLoaderPtr meshLoader)
       throw(std::invalid_argument)
       {
         std::ifstream xmlStream(filename.c_str());
@@ -426,7 +426,7 @@ namespace pinocchio
                                const GeometryType type,
                                GeometryModel & geomModel,
                                const std::vector<std::string> & package_dirs,
-                               fcl::MeshLoaderPtr meshLoader)
+                               ::hpp::fcl::MeshLoaderPtr meshLoader)
       throw(std::invalid_argument)
       {
         std::string xmlStr;
