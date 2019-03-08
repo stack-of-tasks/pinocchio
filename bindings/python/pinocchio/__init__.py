@@ -3,7 +3,7 @@
 #
 
 import numpy as np
-from pinocchio.robot_wrapper import RobotWrapper
+from .robot_wrapper import RobotWrapper
 from libpinocchio_pywrap import __version__
 
 from . import libpinocchio_pywrap as pin
