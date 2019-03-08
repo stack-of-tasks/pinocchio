@@ -3,6 +3,7 @@
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
+#include "pinocchio/bindings/python/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 
 namespace pinocchio
@@ -74,6 +75,15 @@ namespace pinocchio
     void exposeDynamics()
     {
       using namespace Eigen;
+      
+      // Expose type of contacts
+      bp::enum_<ContactType>("ContactType")
+      .value("CONTACT_3D",CONTACT_3D)
+      .value("CONTACT_6D",CONTACT_6D)
+      .value("CONTACT_UNDEFINED",CONTACT_UNDEFINED)
+      ;
+      
+      ContactInfoPythonVisitor<ContactInfo>::expose();
       
       bp::def("forwardDynamics",
               &forwardDynamics_proxy,
