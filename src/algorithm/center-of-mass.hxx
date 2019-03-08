@@ -13,6 +13,25 @@
 
 namespace pinocchio
 {
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Scalar computeTotalMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
+  {
+    Scalar m = Scalar(0);
+    for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
+    {
+      m += model.inertias[i].mass();
+    }
+    return m;
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Scalar computeTotalMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  {
+    data.mass[0] = computeTotalMass(model);
+    return data.mass[0];
+  }
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
   centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
