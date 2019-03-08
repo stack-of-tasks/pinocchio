@@ -299,6 +299,10 @@ namespace pinocchio
                                              GeometryModel & geomModel,
                                              const std::vector<std::string> & package_dirs) throw (std::invalid_argument)
       {
+#ifndef PINOCCHIO_WITH_HPP_FCL
+        PINOCCHIO_UNUSED_VARIABLE(tree);
+        PINOCCHIO_UNUSED_VARIABLE(meshLoader);
+#endif
         typedef std::vector< PINOCCHIO_URDF_SHARED_PTR(GeometryType) > VectorSharedT;
         typedef GeometryModel::SE3 SE3;
 
