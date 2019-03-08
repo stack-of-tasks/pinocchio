@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_parsers_urdf_geometry_hxx__
@@ -96,13 +96,13 @@ namespace pinocchio
        */
       boost::shared_ptr<fcl::CollisionGeometry>
       inline retrieveCollisionGeometry(const UrdfTree& tree,
-				       fcl::MeshLoaderPtr& meshLoader,
-				       const std::string& linkName,
-				       const std::string& geomName,
-				       const ::urdf::GeometrySharedPtr urdf_geometry,
-				       const std::vector<std::string> & package_dirs,
-				       std::string & meshPath,
-				       Eigen::Vector3d & meshScale)
+                                       fcl::MeshLoaderPtr& meshLoader,
+                                       const std::string& linkName,
+                                       const std::string& geomName,
+                                       const ::urdf::GeometrySharedPtr urdf_geometry,
+                                       const std::vector<std::string> & package_dirs,
+                                       std::string & meshPath,
+                                       Eigen::Vector3d & meshScale)
       {
         boost::shared_ptr<fcl::CollisionGeometry> geometry;
 
@@ -280,23 +280,29 @@ namespace pinocchio
       }
 
       /**
-       * @brief      Add the geometries attached to an urdf link to  a GeometryModel, looking
+       * @brief      Add the geometries attached to an URDF link to a GeometryModel, looking
        *             either for collisions or visuals
        *
+       * @param[in]  tree           The URDF kinematic tree
+       * @param[in]  meshLoader     The FCL mesh loader to avoid duplications of already loaded geometries
        * @param[in]  link            The current URDF link
        * @param      model           The model to which is the GeometryModel associated
-       * @param      model_geom      The GeometryModel where the Collision Objects must be added
+       * @param      geomModel      The GeometryModel where the Collision Objects must be added
        * @param[in]  package_dirs    A vector containing the different directories where to search for packages
-       * @param[in]  type            The type of objects that must be loaded ( can be VISUAL or COLLISION)
+       *
        */
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename GeometryType>
       inline void addLinkGeometryToGeomModel(const UrdfTree & tree,
-                                             fcl::MeshLoaderPtr& meshLoader,
+                                             ::hpp::fcl::MeshLoaderPtr & meshLoader,
                                              ::urdf::LinkConstSharedPtr link,
                                              const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                              GeometryModel & geomModel,
                                              const std::vector<std::string> & package_dirs) throw (std::invalid_argument)
       {
+#ifndef PINOCCHIO_WITH_HPP_FCL
+        PINOCCHIO_UNUSED_VARIABLE(tree);
+        PINOCCHIO_UNUSED_VARIABLE(meshLoader);
+#endif
         typedef std::vector< PINOCCHIO_URDF_SHARED_PTR(GeometryType) > VectorSharedT;
         typedef GeometryModel::SE3 SE3;
 
@@ -364,15 +370,18 @@ namespace pinocchio
        * @brief      Recursive procedure for reading the URDF tree, looking for geometries
        *             This function fill the geometric model whith geometry objects retrieved from the URDF tree
        *
-       * @param[in]  link            The current URDF link
-       * @param      model           The model to which is the GeometryModel associated
+       * @param[in]  tree           The URDF kinematic tree
+       * @param[in]  meshLoader     The FCL mesh loader to avoid duplications of already loaded geometries
+       * @param[in]  link           The current URDF link
+       * @param      model          The model to which is the GeometryModel associated
        * @param      geomModel      The GeometryModel where the Collision Objects must be added
-       * @param[in]  package_dirs    A vector containing the different directories where to search for packages
-       * @param[in]  type            The type of objects that must be loaded ( can be VISUAL or COLLISION)
+       * @param[in]  package_dirs   A vector containing the different directories where to search for packages
+       * @param[in]  type           The type of objects that must be loaded ( can be VISUAL or COLLISION)
+       *
        */
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
       void parseTreeForGeom(const UrdfTree& tree,
-                            fcl::MeshLoaderPtr& meshLoader,
+                            ::hpp::fcl::MeshLoaderPtr& meshLoader,
                             ::urdf::LinkConstSharedPtr link,
                             const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             GeometryModel & geomModel,
@@ -408,7 +417,7 @@ namespace pinocchio
                                const GeometryType type,
                                GeometryModel & geomModel,
                                const std::vector<std::string> & package_dirs,
-                               fcl::MeshLoaderPtr meshLoader)
+                               ::hpp::fcl::MeshLoaderPtr meshLoader)
       throw(std::invalid_argument)
       {
         std::ifstream xmlStream(filename.c_str());
@@ -426,7 +435,7 @@ namespace pinocchio
                                const GeometryType type,
                                GeometryModel & geomModel,
                                const std::vector<std::string> & package_dirs,
-                               fcl::MeshLoaderPtr meshLoader)
+                               ::hpp::fcl::MeshLoaderPtr meshLoader)
       throw(std::invalid_argument)
       {
         std::string xmlStr;
