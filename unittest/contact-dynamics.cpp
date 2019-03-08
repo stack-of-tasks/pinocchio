@@ -6,6 +6,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
+#include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
@@ -17,6 +18,33 @@
 #include <boost/utility/binary.hpp>
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
+
+BOOST_AUTO_TEST_CASE(contact_info)
+{
+  using namespace pinocchio;
+  
+  // Check default constructor
+  ContactInfo ci1;
+  BOOST_CHECK(ci1.type == CONTACT_UNDEFINED);
+  
+  // Check complete constructor
+  ContactInfo ci2(CONTACT_3D,0,SE3::Identity());
+  BOOST_CHECK(ci2.type == CONTACT_3D);
+  BOOST_CHECK(ci2.parent == 0);
+  BOOST_CHECK(ci2.placement.isIdentity());
+  BOOST_CHECK(ci2.dim() == 3);
+  
+  // Check default copy constructor
+  ContactInfo ci3(ci2);
+  BOOST_CHECK(ci3 == ci2);
+  
+  // Check complete constructor 6D
+  ContactInfo ci4(CONTACT_6D,0,SE3::Identity());
+  BOOST_CHECK(ci4.type == CONTACT_6D);
+  BOOST_CHECK(ci4.parent == 0);
+  BOOST_CHECK(ci4.placement.isIdentity());
+  BOOST_CHECK(ci4.dim() == 6);
+}
 
 BOOST_AUTO_TEST_CASE ( test_FD )
 {
