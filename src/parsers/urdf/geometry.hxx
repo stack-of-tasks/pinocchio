@@ -280,14 +280,16 @@ namespace pinocchio
       }
 
       /**
-       * @brief      Add the geometries attached to an urdf link to  a GeometryModel, looking
+       * @brief      Add the geometries attached to an URDF link to a GeometryModel, looking
        *             either for collisions or visuals
        *
+       * @param[in]  tree           The URDF kinematic tree
+       * @param[in]  meshLoader     The FCL mesh loader to avoid duplications of already loaded geometries
        * @param[in]  link            The current URDF link
        * @param      model           The model to which is the GeometryModel associated
-       * @param      model_geom      The GeometryModel where the Collision Objects must be added
+       * @param      geomModel      The GeometryModel where the Collision Objects must be added
        * @param[in]  package_dirs    A vector containing the different directories where to search for packages
-       * @param[in]  type            The type of objects that must be loaded ( can be VISUAL or COLLISION)
+       *
        */
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename GeometryType>
       inline void addLinkGeometryToGeomModel(const UrdfTree & tree,
@@ -364,11 +366,14 @@ namespace pinocchio
        * @brief      Recursive procedure for reading the URDF tree, looking for geometries
        *             This function fill the geometric model whith geometry objects retrieved from the URDF tree
        *
-       * @param[in]  link            The current URDF link
-       * @param      model           The model to which is the GeometryModel associated
+       * @param[in]  tree           The URDF kinematic tree
+       * @param[in]  meshLoader     The FCL mesh loader to avoid duplications of already loaded geometries
+       * @param[in]  link           The current URDF link
+       * @param      model          The model to which is the GeometryModel associated
        * @param      geomModel      The GeometryModel where the Collision Objects must be added
-       * @param[in]  package_dirs    A vector containing the different directories where to search for packages
-       * @param[in]  type            The type of objects that must be loaded ( can be VISUAL or COLLISION)
+       * @param[in]  package_dirs   A vector containing the different directories where to search for packages
+       * @param[in]  type           The type of objects that must be loaded ( can be VISUAL or COLLISION)
+       *
        */
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
       void parseTreeForGeom(const UrdfTree& tree,
