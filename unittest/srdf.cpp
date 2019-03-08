@@ -88,9 +88,9 @@ BOOST_AUTO_TEST_CASE(readReferenceConfig_stream)
   pinocchio::srdf::loadReferenceConfigurationsFromXML(model,iss,false);
 
   Eigen::VectorXd q = model.referenceConfigurations["reference"];
-  Eigen::VectorXd qexpected (2); qexpected << 1,0;
+  Eigen::VectorXd qexpected(1); qexpected << 0;
   BOOST_CHECK(q.size() == model.nq);
-  BOOST_CHECK(!q.isApprox(qexpected));
+  BOOST_CHECK(q.isApprox(qexpected));
   
 }
 
