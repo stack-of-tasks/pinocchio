@@ -13,6 +13,18 @@
 
 #include <boost/serialization/serialization.hpp>
 
+namespace boost
+{
+  namespace serialization
+  {
+    /// forward declaration for serialization
+    template<class Archive, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    void serialize(Archive &,
+                   pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> &,
+                   const unsigned int);
+  }
+}
+
 namespace pinocchio
 {
 
