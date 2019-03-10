@@ -7,6 +7,7 @@
 
 #include "pinocchio/serialization/frame.hpp"
 
+#include "pinocchio/serialization/joints.hpp"
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
@@ -84,6 +85,56 @@ BOOST_AUTO_TEST_CASE(test_multibody_serialization)
   
   Frame frame("frame",0,0,SE3::Random(),SENSOR);
   generic_test(frame,TEST_SERIALIZATION_FOLDER"/Frame","Frame");
+}
+
+struct TestJoint
+{
+  template <typename T>
+  void operator()(const T) const
+  {
+    T jmodel;
+    jmodel.setIndexes(0,0,0);
+
+    test(jmodel);
+  }
+  
+  void operator()(const pinocchio::JointModelComposite & ) const
+  {
+    pinocchio::JointModelComposite jmodel((pinocchio::JointModelRX()));
+    jmodel.addJoint(pinocchio::JointModelRY());
+    jmodel.setIndexes(0,0,0);
+    
+    test(jmodel);
+  }
+  
+  void operator()(const pinocchio::JointModelRevoluteUnaligned & ) const
+  {
+    pinocchio::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
+    jmodel.setIndexes(0,0,0);
+
+    test(jmodel);
+  }
+  
+  void operator()(const pinocchio::JointModelPrismaticUnaligned & ) const
+  {
+    pinocchio::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
+    jmodel.setIndexes(0,0,0);
+
+    test(jmodel);
+  }
+  
+  template<typename JointType>
+  static void test(JointType & jmodel)
+  {
+    generic_test(jmodel,TEST_SERIALIZATION_FOLDER"/Joint",jmodel.shortname());
+  }
+  
+};
+
+BOOST_AUTO_TEST_CASE(test_multibody_joints_serialization)
+{
+  using namespace pinocchio;
+  boost::mpl::for_each<JointModelVariant::types>(TestJoint());
 }
 
 BOOST_AUTO_TEST_CASE(test_model_serialization)
