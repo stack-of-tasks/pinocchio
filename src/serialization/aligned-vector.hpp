@@ -17,21 +17,21 @@ namespace boost
   {
     
     template <class Archive, typename T>
-    void save(Archive & ar, const se3::container::aligned_vector<T> & v, const unsigned int version)
+    void save(Archive & ar, const pinocchio::container::aligned_vector<T> & v, const unsigned int version)
     {
-      typedef typename se3::container::aligned_vector<T>::vector_base vector_base;
+      typedef typename pinocchio::container::aligned_vector<T>::vector_base vector_base;
       save(ar, *static_cast<const vector_base*>(&v), version);
     }
     
     template <class Archive, typename T>
-    void load(Archive & ar, se3::container::aligned_vector<T> & v, const unsigned int version)
+    void load(Archive & ar, pinocchio::container::aligned_vector<T> & v, const unsigned int version)
     {
-      typedef typename se3::container::aligned_vector<T>::vector_base vector_base;
+      typedef typename pinocchio::container::aligned_vector<T>::vector_base vector_base;
       load(ar, *static_cast<vector_base*>(&v), version);
     }
     
     template <class Archive, typename T>
-    void serialize(Archive & ar, se3::container::aligned_vector<T> & v, const unsigned int version)
+    void serialize(Archive & ar, pinocchio::container::aligned_vector<T> & v, const unsigned int version)
     {
       split_free(ar,v,version);
     }
