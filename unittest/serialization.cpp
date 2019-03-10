@@ -47,11 +47,11 @@ void generic_test(const T & object,
   
   // Load and save as binary
   const std::string bin_filename = filename + ".bin";
-  saveToBinary(object,xml_filename);
+  saveToBinary(object,bin_filename);
   
   {
     T object_loaded;
-    loadFromBinary(object_loaded,xml_filename);
+    loadFromBinary(object_loaded,bin_filename);
     
     // Check
     BOOST_CHECK(object_loaded == object);
