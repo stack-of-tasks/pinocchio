@@ -8,6 +8,10 @@
 #include "pinocchio/serialization/frame.hpp"
 
 #include "pinocchio/serialization/joints.hpp"
+#include "pinocchio/serialization/model.hpp"
+
+#include "pinocchio/parsers/sample-models.hpp"
+
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
@@ -141,6 +145,10 @@ BOOST_AUTO_TEST_CASE(test_model_serialization)
 {
   using namespace pinocchio;
 
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  generic_test(model,TEST_SERIALIZATION_FOLDER"/Model","Model");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
