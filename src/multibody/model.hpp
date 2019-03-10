@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -18,6 +18,8 @@
 
 #include "pinocchio/container/aligned-vector.hpp"
 
+#include "pinocchio/serialization/serializable.hpp"
+
 #include <iostream>
 #include <map>
 
@@ -26,6 +28,7 @@ namespace pinocchio
   
   template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
   struct ModelTpl
+  : serialization::Serializable< ModelTpl<_Scalar,_Options,JointCollectionTpl> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -258,21 +261,21 @@ namespace pinocchio
       && other.velocityLimit == velocityLimit
       && other.lowerPositionLimit == lowerPositionLimit
       && other.upperPositionLimit == upperPositionLimit;
-      
+
       if(!res) return res;
-      
+
       for(size_t k = 1; k < inertias.size(); ++k)
       {
         res &= other.inertias[k] == inertias[k];
         if(!res) return res;
       }
-      
+
       for(size_t k = 1; k < other.jointPlacements.size(); ++k)
       {
         res &= other.jointPlacements[k] == jointPlacements[k];
         if(!res) return res;
       }
-      
+
       res &=
          other.joints == joints
       && other.frames == frames;
