@@ -1,15 +1,6 @@
 //
 // Copyright (c) 2014-2017 CNRS
 //
-//
-// This file is originally copied from metapod/tools/spatial/lti.hh.
-// Authors: Olivier Stasse (LAAS, CNRS) and Sébastien Barthélémy (Aldebaran Robotics)
-// The file was modified in pinocchio by Nicolas Mansard (LAAS, CNRS)
-//
-// metapod is free software, distributed under the terms of the GNU Lesser
-// General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
 
 #ifndef __pinocchio_symmetric3_hpp__
 #define __pinocchio_symmetric3_hpp__
