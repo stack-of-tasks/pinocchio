@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_composite_hpp__
@@ -10,6 +10,8 @@
 #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
+
+#include <boost/serialization/serialization.hpp>
 
 namespace pinocchio
 {
@@ -410,6 +412,11 @@ namespace pinocchio
     jointCols_impl(Eigen::MatrixBase<D>& A) const { return A.middleCols(Base::i_v,nv()); }
     
   protected:
+    
+    template<class Archive, typename S1, int O1, template<typename,int> class JointCollectionTplOther>
+    friend void boost::serialization::serialize(Archive &,
+                                                JointModelCompositeTpl<S1,O1,JointCollectionTplOther> &,
+                                                const unsigned int);
     
     template<typename, int, template<typename,int> class>
     friend struct JointModelCompositeTpl;
