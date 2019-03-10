@@ -13,6 +13,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   model
   rpy
   utils
+  serialization
   )
 
 IF(HPP_FCL_FOUND)
@@ -25,3 +26,5 @@ ENDIF(HPP_FCL_FOUND)
 FOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
   ADD_PYTHON_UNIT_TEST("py-${TEST}" "unittest/python/${TEST}.py" "bindings/python")
 ENDFOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
+
+MAKE_DIRECTORY("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
