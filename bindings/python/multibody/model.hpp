@@ -150,6 +150,9 @@ namespace pinocchio
         .def("createData",&ModelPythonVisitor::createData)
         
         .def("check",(bool (Model::*)(const Data &) const) &Model::check,bp::arg("data"),"Check consistency of data wrt model.")
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
         ;
       }
 
