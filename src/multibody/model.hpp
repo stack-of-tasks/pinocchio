@@ -252,16 +252,45 @@ namespace pinocchio
       /// TODO: remove this pragma when neutralConfiguration will be removed
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+      if(other.neutralConfiguration.size() != neutralConfiguration.size())
+        return false;
       res &= other.neutralConfiguration == neutralConfiguration;
+      if(!res) return res;
 #pragma GCC diagnostic pop
-      res &= other.referenceConfigurations == referenceConfigurations
-      && other.rotorInertia == rotorInertia
-      && other.rotorGearRatio == rotorGearRatio
-      && other.effortLimit == effortLimit
-      && other.velocityLimit == velocityLimit
-      && other.lowerPositionLimit == lowerPositionLimit
-      && other.upperPositionLimit == upperPositionLimit;
-
+      
+      if(other.referenceConfigurations.size() != referenceConfigurations.size())
+        return false;
+      res &= other.referenceConfigurations == referenceConfigurations;
+      if(!res) return res;
+      
+      if(other.rotorInertia.size() != rotorInertia.size())
+        return false;
+      res &= other.rotorInertia == rotorInertia;
+      if(!res) return res;
+      
+      if(other.rotorGearRatio.size() != rotorGearRatio.size())
+        return false;
+      res &= other.rotorGearRatio == rotorGearRatio;
+      if(!res) return res;
+      
+      if(other.effortLimit.size() != effortLimit.size())
+        return false;
+      res &= other.effortLimit == effortLimit;
+      if(!res) return res;
+      
+      if(other.velocityLimit.size() != velocityLimit.size())
+        return false;
+      res &= other.velocityLimit == velocityLimit;
+      if(!res) return res;
+      
+      if(other.lowerPositionLimit.size() != lowerPositionLimit.size())
+        return false;
+      res &= other.lowerPositionLimit == lowerPositionLimit;
+      if(!res) return res;
+      
+      if(other.upperPositionLimit.size() != upperPositionLimit.size())
+        return false;
+      res &= other.upperPositionLimit == upperPositionLimit;
       if(!res) return res;
 
       for(size_t k = 1; k < inertias.size(); ++k)
