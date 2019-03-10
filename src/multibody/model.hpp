@@ -283,6 +283,12 @@ namespace pinocchio
       return res;
     }
     
+    //
+    /// \returns true if *this is NOT equal to other.
+    ///
+    bool operator!=(const ModelTpl & other) const
+    { return !(*this == other); }
+    
     ///
     /// \brief Add a joint to the kinematic tree with given bounds.
     ///
