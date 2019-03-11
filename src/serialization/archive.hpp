@@ -9,6 +9,7 @@
 
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <stdexcept>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -16,6 +17,9 @@
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+
+// Handle NAN inside TXT or XML archives
+#include <boost/math/special_functions/nonfinite_num_facets.hpp>
 
 namespace pinocchio
 {
@@ -37,7 +41,9 @@ namespace pinocchio
       std::ifstream ifs(filename.c_str());
       if(ifs)
       {
-        boost::archive::text_iarchive ia(ifs);
+        std::locale const new_loc(ifs.getloc(), new boost::math::nonfinite_num_get<char>);
+        ifs.imbue(new_loc);
+        boost::archive::text_iarchive ia(ifs,boost::archive::no_codecvt);
         ia >> object;
       }
       else
@@ -91,7 +97,9 @@ namespace pinocchio
       std::ifstream ifs(filename.c_str());
       if(ifs)
       {
-        boost::archive::xml_iarchive ia(ifs);
+        std::locale const new_loc(ifs.getloc(), new boost::math::nonfinite_num_get<char>);
+        ifs.imbue(new_loc);
+        boost::archive::xml_iarchive ia(ifs,boost::archive::no_codecvt);
         ia >> boost::serialization::make_nvp(tag_name.c_str(),object);
       }
       else
