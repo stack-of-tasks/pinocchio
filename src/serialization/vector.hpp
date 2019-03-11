@@ -8,18 +8,19 @@
 #include <vector>
 
 #include <boost/version.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
 
 namespace boost
 {
   namespace serialization
   {
     
+
+#if BOOST_VERSION / 100 % 1000 == 58
     namespace fixme
     {
-    
-#if BOOST_VERSION / 100 % 1000 == 58
+      
       template<class T>
       struct nvp :
       public std::pair<const char *, T *>,
@@ -125,15 +126,25 @@ namespace boost
         
         BOOST_SERIALIZATION_SPLIT_MEMBER()
       };
-#endif
       
-      template<class T>
-      inline
-      const nvp< T > make_nvp(const char * name, T & t){
-        return nvp< T >(name, t);
-      }
+      
     }
     
+    template<class T, class Allocator>
+    inline const fixme::nvp< std::vector<T,Allocator> >
+    make_nvp(const char * name, std::vector<T,Allocator> & t)
+    {
+      return fixme::nvp< std::vector<T,Allocator> >(name, t);
+    }
+#else
+    template<class T, class Allocator>
+    inline const nvp< std::vector<T,Allocator> >
+    make_nvp(const char * name, std::vector<T,Allocator> & t)
+    {
+      return nvp< std::vector<T,Allocator> >(name, t);
+    }
+#endif
+
   }
 }
 

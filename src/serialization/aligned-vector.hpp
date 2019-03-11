@@ -7,6 +7,7 @@
 
 #include "pinocchio/container/aligned-vector.hpp"
 
+#include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
 #include "pinocchio/serialization/vector.hpp"
 
@@ -25,18 +26,26 @@ namespace boost
       split_free(ar,*static_cast<vector_base*>(&v),version);
     }
     
-    namespace fixme
+#if BOOST_VERSION / 100 % 1000 == 58
+    template<class T>
+    inline
+    const fixme::nvp< typename pinocchio::container::aligned_vector<T>::vector_base >
+    make_nvp(const char * name, pinocchio::container::aligned_vector<T> & t)
     {
-      template<class T>
-      inline
-      const nvp< typename pinocchio::container::aligned_vector<T>::vector_base >
-      make_nvp(const char * name, pinocchio::container::aligned_vector<T> & t)
-      {
-        typedef typename pinocchio::container::aligned_vector<T>::vector_base vector_base;
-        return nvp< vector_base >(name, *static_cast<vector_base*>(&t));
-      }
+      typedef typename pinocchio::container::aligned_vector<T>::vector_base vector_base;
+      return fixme::nvp< vector_base >(name, *static_cast<vector_base*>(&t));
     }
-    
+#else
+    template<class T>
+    inline
+    const nvp< typename pinocchio::container::aligned_vector<T>::vector_base >
+    make_nvp(const char * name, pinocchio::container::aligned_vector<T> & t)
+    {
+      typedef typename pinocchio::container::aligned_vector<T>::vector_base vector_base;
+      return nvp< vector_base >(name, *static_cast<vector_base*>(&t));
+    }
+#endif
+
   }
   
 }
