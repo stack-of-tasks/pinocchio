@@ -9,11 +9,13 @@
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
+
 #include "pinocchio/serialization/fwd.hpp"
 #include "pinocchio/serialization/eigen.hpp"
+#include "pinocchio/serialization/vector.hpp"
+#include "pinocchio/serialization/aligned-vector.hpp"
 
 #include <boost/serialization/split_free.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/serialization/variant.hpp>
 
 namespace pinocchio

@@ -8,7 +8,7 @@
 #include "pinocchio/container/aligned-vector.hpp"
 
 #include <boost/serialization/split_free.hpp>
-#include <boost/serialization/vector.hpp>
+#include "pinocchio/serialization/vector.hpp"
 
 namespace boost
 {

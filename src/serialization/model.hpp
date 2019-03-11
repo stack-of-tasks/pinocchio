@@ -32,7 +32,7 @@ namespace boost
       ar & make_nvp("nframes",model.nframes);
       ar & make_nvp("parents",model.parents);
       ar & make_nvp("names",model.names);
-      ar & make_nvp("subtrees",model.subtrees);
+      ar & fixme::make_nvp("subtrees",model.subtrees);
       ar & make_nvp("gravity",model.gravity);
       ar & make_nvp("name",model.name);
       
