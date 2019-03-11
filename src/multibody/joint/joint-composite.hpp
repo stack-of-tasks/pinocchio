@@ -11,7 +11,7 @@
 #include "pinocchio/container/aligned-vector.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 
-#include <boost/serialization/serialization.hpp>
+#include "pinocchio/serialization/fwd.hpp"
 
 namespace pinocchio
 {
@@ -411,32 +411,10 @@ namespace pinocchio
     typename SizeDepType<Eigen::Dynamic>::template ColsReturn<D>::Type 
     jointCols_impl(Eigen::MatrixBase<D>& A) const { return A.middleCols(Base::i_v,nv()); }
     
+    
   protected:
     
-    friend void boost::serialization::serialize<>(boost::archive::binary_oarchive &,
-                                                  JointModelCompositeTpl &,
-                                                  const unsigned int);
-    
-    friend void boost::serialization::serialize<>(boost::archive::binary_iarchive &,
-                                                  JointModelCompositeTpl &,
-                                                  const unsigned int);
-    
-    friend void boost::serialization::serialize<>(boost::archive::xml_oarchive &,
-                                                  JointModelCompositeTpl &,
-                                                  const unsigned int);
-    
-    friend void boost::serialization::serialize<>(boost::archive::xml_iarchive &,
-                                                  JointModelCompositeTpl &,
-                                                  const unsigned int);
-    
-    friend void boost::serialization::serialize<>(boost::archive::text_oarchive &,
-                                                  JointModelCompositeTpl &,
-                                                  const unsigned int);
-    
-    friend void boost::serialization::serialize<>(boost::archive::text_iarchive &,
-                                                  JointModelCompositeTpl &,
-                                                  const unsigned int);
-    
+    friend struct Serialize<JointModelCompositeTpl>;
     
     template<typename, int, template<typename,int> class>
     friend struct JointModelCompositeTpl;

@@ -9,4 +9,14 @@
 
 #define BOOST_SERIALIZATION_MAKE_NVP(member) boost::serialization::make_nvp(##member,member)
 
+namespace pinocchio
+{
+  template<typename T>
+  struct Serialize
+  {
+    template<typename Archive>
+    static void run(Archive & ar, T & object);
+  };
+}
+
 #endif // ifndef __pinocchio_serialization_fwd_hpp__

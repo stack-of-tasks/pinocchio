@@ -7,6 +7,7 @@
 
 #include "pinocchio/multibody/joint/joints.hpp"
 #include "pinocchio/multibody/joint/joint-generic.hpp"
+#include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/serialization/fwd.hpp"
 #include "pinocchio/serialization/eigen.hpp"
@@ -14,6 +15,31 @@
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/variant.hpp>
+
+namespace pinocchio
+{
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct Serialize< JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
+  {
+    template<typename Archive>
+    static void run(Archive & ar,
+                    JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> & joint)
+    {
+      using boost::serialization::make_nvp;
+      
+      ar & make_nvp("m_nq",joint.m_nq);
+      ar & make_nvp("m_nv",joint.m_nv);
+      ar & make_nvp("m_idx_q",joint.m_idx_q);
+      ar & make_nvp("m_nqs",joint.m_nqs);
+      ar & make_nvp("m_idx_v",joint.m_idx_v);
+      ar & make_nvp("m_nvs",joint.m_nvs);
+      ar & make_nvp("njoints",joint.njoints);
+      
+      ar & make_nvp("joints",joint.joints);
+      ar & make_nvp("jointPlacements",joint.jointPlacements);
+    }
+  };
+}
 
 namespace boost
 {
@@ -146,16 +172,17 @@ namespace boost
 //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType> >(joint));
       fix::serialize(ar,*static_cast<pinocchio::JointModelBase<JointType> *>(&joint),version);
       
-      ar & make_nvp("m_nq",joint.m_nq);
-      ar & make_nvp("m_nv",joint.m_nv);
-      ar & make_nvp("m_idx_q",joint.m_idx_q);
-      ar & make_nvp("m_nqs",joint.m_nqs);
-      ar & make_nvp("m_idx_v",joint.m_idx_v);
-      ar & make_nvp("m_nvs",joint.m_nvs);
-      ar & make_nvp("njoints",joint.njoints);
-      
-      ar & make_nvp("joints",joint.joints);
-      ar & make_nvp("jointPlacements",joint.jointPlacements);
+      ::pinocchio::Serialize<JointType>::run(ar,joint);
+//      ar & make_nvp("m_nq",joint.m_nq);
+//      ar & make_nvp("m_nv",joint.m_nv);
+//      ar & make_nvp("m_idx_q",joint.m_idx_q);
+//      ar & make_nvp("m_nqs",joint.m_nqs);
+//      ar & make_nvp("m_idx_v",joint.m_idx_v);
+//      ar & make_nvp("m_nvs",joint.m_nvs);
+//      ar & make_nvp("njoints",joint.njoints);
+//
+//      ar & make_nvp("joints",joint.joints);
+//      ar & make_nvp("jointPlacements",joint.jointPlacements);
     }
     
     template <class Archive, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
@@ -175,5 +202,3 @@ namespace boost
 }
 
 #endif // ifndef __pinocchio_serialization_joints_hpp__
-
-
