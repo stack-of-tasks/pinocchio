@@ -49,11 +49,11 @@ namespace boost
       ar & make_nvp("lowerPositionLimit",model.lowerPositionLimit);
       ar & make_nvp("upperPositionLimit",model.upperPositionLimit);
       
-      ar & make_nvp("inertias",model.inertias);
-      ar & make_nvp("jointPlacements",model.jointPlacements);
+      ar & fixme::make_nvp("inertias",model.inertias);
+      ar & fixme::make_nvp("jointPlacements",model.jointPlacements);
       
-      ar & make_nvp("joints",model.joints);
-      ar & make_nvp("frames",model.frames);
+      ar & fixme::make_nvp("joints",model.joints);
+      ar & fixme::make_nvp("frames",model.frames);
     }
     
   } // namespace serialization

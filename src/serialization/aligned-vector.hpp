@@ -36,6 +36,18 @@ namespace boost
       split_free(ar,v,version);
     }
     
+    namespace fixme
+    {
+      template<class T>
+      inline
+      const nvp< typename pinocchio::container::aligned_vector<T>::vector_base >
+      make_nvp(const char * name, pinocchio::container::aligned_vector<T> & t)
+      {
+        typedef typename pinocchio::container::aligned_vector<T>::vector_base vector_base;
+        return nvp< vector_base >(name, *static_cast<vector_base*>(&t));
+      }
+    }
+    
   }
   
 }
