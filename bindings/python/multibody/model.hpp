@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -19,6 +19,9 @@
 #include "pinocchio/bindings/python/utils/pickle-map.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
+#include "pinocchio/serialization/model.hpp"
+#include "pinocchio/bindings/python/serialization/serializable.hpp"
+
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Model)
 
 namespace pinocchio
@@ -30,8 +33,7 @@ namespace pinocchio
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(getFrameId_overload,Model::getFrameId,1,2)
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(existFrame_overload,Model::existFrame,1,2)
     
-    struct ModelPythonVisitor
-      : public boost::python::def_visitor< ModelPythonVisitor >
+    struct ModelPythonVisitor : public bp::def_visitor< ModelPythonVisitor >
     {
     public:
       typedef Model::Index Index;
@@ -150,6 +152,9 @@ namespace pinocchio
         .def("createData",&ModelPythonVisitor::createData)
         
         .def("check",(bool (Model::*)(const Data &) const) &Model::check,bp::arg("data"),"Check consistency of data wrt model.")
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
         ;
       }
 
@@ -207,6 +212,7 @@ namespace pinocchio
                           "Articulated rigid body model (const)",
                           bp::no_init)
         .def(ModelPythonVisitor())
+        .def(SerializableVisitor<Model>())
         .def(PrintableVisitor<Model>())
         .def(CopyableVisitor<Model>())
         ;

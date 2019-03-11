@@ -1,15 +1,6 @@
 //
 // Copyright (c) 2014-2017 CNRS
 //
-//
-// This file is originally copied from metapod/tools/spatial/lti.hh.
-// Authors: Olivier Stasse (LAAS, CNRS) and Sébastien Barthélémy (Aldebaran Robotics)
-// The file was modified in pinocchio by Nicolas Mansard (LAAS, CNRS)
-//
-// metapod is free software, distributed under the terms of the GNU Lesser
-// General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
 
 #ifndef __pinocchio_symmetric3_hpp__
 #define __pinocchio_symmetric3_hpp__
@@ -35,16 +26,7 @@ namespace pinocchio
 
   public:    
     Symmetric3Tpl(): m_data() {}
-    
-//    template<typename D>
-//    explicit Symmetric3Tpl(const Eigen::MatrixBase<D> & I)
-//    {
-//      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
-//      assert( (I-I.transpose()).isMuchSmallerThan(I) );
-//      m_data(0) = I(0,0);
-//      m_data(1) = I(1,0); m_data(2) = I(1,1);
-//      m_data(3) = I(2,0); m_data(4) = I(2,1); m_data(5) = I(2,2);
-//    }
+
     template<typename Sc,int N,int Opt>
     explicit Symmetric3Tpl(const Eigen::Matrix<Sc,N,N,Opt> & I)
     {

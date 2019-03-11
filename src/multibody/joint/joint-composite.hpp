@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_composite_hpp__
@@ -10,6 +10,8 @@
 #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
+
+#include "pinocchio/serialization/fwd.hpp"
 
 namespace pinocchio
 {
@@ -409,7 +411,10 @@ namespace pinocchio
     typename SizeDepType<Eigen::Dynamic>::template ColsReturn<D>::Type 
     jointCols_impl(Eigen::MatrixBase<D>& A) const { return A.middleCols(Base::i_v,nv()); }
     
+    
   protected:
+    
+    friend struct Serialize<JointModelCompositeTpl>;
     
     template<typename, int, template<typename,int> class>
     friend struct JointModelCompositeTpl;

@@ -1,21 +1,12 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_collection_hpp__
 #define __pinocchio_joint_collection_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
-#include "pinocchio/multibody/joint/joint-free-flyer.hpp"
-#include "pinocchio/multibody/joint/joint-planar.hpp"
-#include "pinocchio/multibody/joint/joint-prismatic.hpp"
-#include "pinocchio/multibody/joint/joint-revolute-unaligned.hpp"
-#include "pinocchio/multibody/joint/joint-prismatic-unaligned.hpp"
-#include "pinocchio/multibody/joint/joint-revolute.hpp"
-#include "pinocchio/multibody/joint/joint-revolute-unbounded.hpp"
-#include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
-#include "pinocchio/multibody/joint/joint-spherical.hpp"
-#include "pinocchio/multibody/joint/joint-translation.hpp"
+#include "pinocchio/multibody/joint/joints.hpp"
 
 #include <boost/variant.hpp>
 #include <boost/variant/recursive_wrapper.hpp>

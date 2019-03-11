@@ -108,6 +108,9 @@ ADD_PINOCCHIO_UNIT_TEST(liegroups eigen3)
 ADD_PINOCCHIO_UNIT_TEST(regressor eigen3)
 ADD_PINOCCHIO_UNIT_TEST(version eigen3)
 ADD_PINOCCHIO_UNIT_TEST(copy eigen3)
+MAKE_DIRECTORY("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
+ADD_PINOCCHIO_UNIT_TEST(serialization eigen3)
+ADD_TEST_CFLAGS(serialization '-DTEST_SERIALIZATION_FOLDER=\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\"')
 
 # Derivatives algo
 ADD_PINOCCHIO_UNIT_TEST(kinematics-derivatives eigen3)
