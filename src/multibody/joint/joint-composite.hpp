@@ -13,18 +13,6 @@
 
 #include <boost/serialization/serialization.hpp>
 
-namespace boost
-{
-  namespace serialization
-  {
-    /// forward declaration for serialization
-    template<class Archive, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    void serialize(Archive &,
-                   pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> &,
-                   const unsigned int);
-  }
-}
-
 namespace pinocchio
 {
 
@@ -425,10 +413,30 @@ namespace pinocchio
     
   protected:
     
-    template<class Archive, typename S1, int O1, template<typename,int> class JointCollectionTplOther>
-    friend void boost::serialization::serialize(Archive &,
-                                                JointModelCompositeTpl<S1,O1,JointCollectionTplOther> &,
-                                                const unsigned int);
+    friend void boost::serialization::serialize<>(boost::archive::binary_oarchive &,
+                                                  JointModelCompositeTpl &,
+                                                  const unsigned int);
+    
+    friend void boost::serialization::serialize<>(boost::archive::binary_iarchive &,
+                                                  JointModelCompositeTpl &,
+                                                  const unsigned int);
+    
+    friend void boost::serialization::serialize<>(boost::archive::xml_oarchive &,
+                                                  JointModelCompositeTpl &,
+                                                  const unsigned int);
+    
+    friend void boost::serialization::serialize<>(boost::archive::xml_iarchive &,
+                                                  JointModelCompositeTpl &,
+                                                  const unsigned int);
+    
+    friend void boost::serialization::serialize<>(boost::archive::text_oarchive &,
+                                                  JointModelCompositeTpl &,
+                                                  const unsigned int);
+    
+    friend void boost::serialization::serialize<>(boost::archive::text_iarchive &,
+                                                  JointModelCompositeTpl &,
+                                                  const unsigned int);
+    
     
     template<typename, int, template<typename,int> class>
     friend struct JointModelCompositeTpl;
