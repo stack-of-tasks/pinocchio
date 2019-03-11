@@ -173,16 +173,6 @@ namespace boost
       fix::serialize(ar,*static_cast<pinocchio::JointModelBase<JointType> *>(&joint),version);
       
       ::pinocchio::Serialize<JointType>::run(ar,joint);
-//      ar & make_nvp("m_nq",joint.m_nq);
-//      ar & make_nvp("m_nv",joint.m_nv);
-//      ar & make_nvp("m_idx_q",joint.m_idx_q);
-//      ar & make_nvp("m_nqs",joint.m_nqs);
-//      ar & make_nvp("m_idx_v",joint.m_idx_v);
-//      ar & make_nvp("m_nvs",joint.m_nvs);
-//      ar & make_nvp("njoints",joint.njoints);
-//
-//      ar & make_nvp("joints",joint.joints);
-//      ar & make_nvp("jointPlacements",joint.jointPlacements);
     }
     
     template <class Archive, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
