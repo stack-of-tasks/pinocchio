@@ -45,6 +45,70 @@ class TestComBindings(TestCase):
         for i in range(self.model.njoints):
             self.assertApprox(self.data.mass[i],data2.mass[i])
 
+    def test_com_0(self):
+        c0 = pin.centerOfMass(self.model,self.data,self.q)
+
+        data2 = self.model.createData()
+        pin.forwardKinematics(self.model,data2,self.q)
+        pin.centerOfMass(self.model,data2,0)
+
+        self.assertApprox(c0,data2.com[0])
+        self.assertApprox(self.data.com[0],data2.com[0])
+
+    def test_com_1(self):
+        v = rand(self.model.nv)
+        pin.centerOfMass(self.model,self.data,self.q,v)
+
+        data2 = self.model.createData()
+        pin.forwardKinematics(self.model,data2,self.q,v)
+        pin.centerOfMass(self.model,data2,1)
+
+        data3 = self.model.createData()
+        pin.centerOfMass(self.model,data3,self.q)
+
+        self.assertApprox(self.data.com[0],data2.com[0])
+        self.assertApprox(self.data.vcom[0],data2.vcom[0])
+
+        self.assertApprox(self.data.com[0],data3.com[0])
+
+    def test_com_2(self):
+        v = rand(self.model.nv)
+        a = rand(self.model.nv)
+        pin.centerOfMass(self.model,self.data,self.q,v,a)
+
+        data2 = self.model.createData()
+        pin.forwardKinematics(self.model,data2,self.q,v,a)
+        pin.centerOfMass(self.model,data2,2)
+
+        data3 = self.model.createData()
+        pin.centerOfMass(self.model,data3,self.q)
+
+        data4 = self.model.createData()
+        pin.centerOfMass(self.model,data4,self.q,v)
+
+        self.assertApprox(self.data.com[0],data2.com[0])
+        self.assertApprox(self.data.vcom[0],data2.vcom[0])
+        self.assertApprox(self.data.acom[0],data2.acom[0])
+
+        self.assertApprox(self.data.com[0],data3.com[0])
+
+        self.assertApprox(self.data.com[0],data4.com[0])
+        self.assertApprox(self.data.vcom[0],data4.vcom[0])
+
+    def test_com_default(self):
+        v = rand(self.model.nv)
+        a = rand(self.model.nv)
+        pin.centerOfMass(self.model,self.data,self.q,v,a)
+
+        data2 = self.model.createData()
+        pin.forwardKinematics(self.model,data2,self.q,v,a)
+        pin.centerOfMass(self.model,data2)
+
+        for i in range(self.model.njoints):
+            self.assertApprox(self.data.com[i],data2.com[i])
+            self.assertApprox(self.data.vcom[i],data2.vcom[i])
+            self.assertApprox(self.data.acom[i],data2.acom[i])
+
     def test_Jcom_update3(self):
         Jcom = pin.jacobianCenterOfMass(self.model,self.data,self.q)
         self.assertFalse(np.isnan(Jcom).any())
