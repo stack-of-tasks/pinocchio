@@ -39,16 +39,16 @@ BOOST_AUTO_TEST_CASE ( test_com )
   Vector3d com = centerOfMass(model,data,q);
   BOOST_CHECK(data.com[0].isApprox(getComFromCrba(model,data), 1e-12));
 
-	/* Test COM against Jcom (both use different way of compute the COM. */
+	/* Test COM against Jcom (both use different way to compute the COM). */
   com = centerOfMass(model,data,q);
   jacobianCenterOfMass(model,data,q);
   BOOST_CHECK(com.isApprox(data.com[0], 1e-12));
 
-	/* Test COM against Jcom (both use different way of compute the COM. */
+	/* Test COM against Jcom (both use different way to compute the COM). */
   centerOfMass(model,data,q,v,a);
   BOOST_CHECK(com.isApprox(data.com[0], 1e-12));
 
-  /* Test vCoM againt nle algorithm without gravity field */
+  /* Test vCoM against nle algorithm without gravity field */
   a.setZero();
   model.gravity.setZero();
   centerOfMass(model,data,q,v,a);
@@ -61,12 +61,12 @@ BOOST_AUTO_TEST_CASE ( test_com )
   Eigen::MatrixXd Jcom = jacobianCenterOfMass(model,data,q);
   BOOST_CHECK(data.Jcom.isApprox(getJacobianComFromCrba(model,data), 1e-12));
 
-  /* Test CoM vecolity againt jacobianCenterOfMass */
+  /* Test CoM velocity againt jacobianCenterOfMass */
   BOOST_CHECK((Jcom * v).isApprox(data.vcom[0], 1e-12));
   
   
   centerOfMass(model,data,q,v);
-  /* Test CoM vecolity againt jacobianCenterOfMass */
+  /* Test CoM velocity againt jacobianCenterOfMass */
   BOOST_CHECK((Jcom * v).isApprox(data.vcom[0], 1e-12));
 
 
@@ -108,6 +108,29 @@ BOOST_AUTO_TEST_CASE ( test_mass )
   centerOfMass(model,data2,q);
 
   BOOST_CHECK_CLOSE(data2.mass[0], mass, 1e-12);
+}
+
+BOOST_AUTO_TEST_CASE ( test_subtree_masses )
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+
+  pinocchio::Data data1(model);
+
+  computeSubtreeMasses(model,data1);
+
+  pinocchio::Data data2(model);
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.middleRows<4> (3).normalize();
+  centerOfMass(model,data2,q);
+
+  for(size_t i=0; i<(size_t)(model.njoints);++i)
+  {
+    BOOST_CHECK_CLOSE(data1.mass[i], data2.mass[i], 1e-12);
+  }
 }
 
 //BOOST_AUTO_TEST_CASE ( test_timings )

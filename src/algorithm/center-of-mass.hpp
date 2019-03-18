@@ -25,11 +25,22 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   ///
   /// \warning This method does not fill the whole data.mass vector. Only data.mass[0] is updated.
+  /// If you need the whole data.mass vector to be computed, use computeSubtreeMasses
   ///
   /// \return Total mass of the model.
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline Scalar computeTotalMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                  DataTpl<Scalar,Options,JointCollectionTpl> & data);
+
+  /// \brief Compute the mass of each kinematic subtree and store it in data.mass. The element mass[0] corresponds to the total mass of the model.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
+  /// \note If you are only interested in knowing the total mass of the model, computeTotalMass will probably be slightly faster.
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void computeSubtreeMasses(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
   ///
   /// \brief Computes the center of mass position of a given model according to a particular joint configuration.
@@ -106,7 +117,7 @@ namespace pinocchio
                const bool computeSubtreeComs = true);
   
   ///
-  /// \brief Computes the center of mass position, velocity and acceleration of a given model according to the current kinematic values contained in data and the template value parameters.
+  /// \brief Computes the center of mass position, velocity and acceleration of a given model according to the current kinematic values contained in data and the requested level.
   ///        The result is accessible through data.com[0], data.vcom[0] and data.acom[0] for the full body com position and velocity.
   ///        And data.com[i] and data.vcom[i] for the subtree supported by joint i (expressed in the joint i frame).
   ///
@@ -114,7 +125,7 @@ namespace pinocchio
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] LEVEL if =0, compytes CoM position, if =1, also computes CoM velocity and if =2, also computes CoM acceleration.
+  /// \param[in] LEVEL if = 0, computes CoM position, if = 1, also computes CoM velocity and if = 2, also computes CoM acceleration.
   /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -137,7 +148,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                           const bool computeSubtreeComs)
+                           const bool computeSubtreeComs = true)
   { centerOfMass(model,data,2,computeSubtreeComs); }
   
   ///
