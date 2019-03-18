@@ -110,6 +110,29 @@ BOOST_AUTO_TEST_CASE ( test_mass )
   BOOST_CHECK_CLOSE(data2.mass[0], mass, 1e-12);
 }
 
+BOOST_AUTO_TEST_CASE ( test_subtree_masses )
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+
+  pinocchio::Data data1(model);
+
+  computeSubtreeMasses(model,data1);
+
+  pinocchio::Data data2(model);
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.middleRows<4> (3).normalize();
+  centerOfMass(model,data2,q);
+
+  for(size_t i=0; i<(size_t)(model.njoints);++i)
+  {
+    BOOST_CHECK_CLOSE(data1.mass[i], data2.mass[i], 1e-12);
+  }
+}
+
 //BOOST_AUTO_TEST_CASE ( test_timings )
 //{
 //  using namespace Eigen;

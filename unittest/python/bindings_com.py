@@ -36,6 +36,15 @@ class TestComBindings(TestCase):
         pin.centerOfMass(self.model,data2,self.q)
         self.assertApprox(mass,data2.mass[0])
 
+    def test_subtree_masses(self):
+        pin.computeSubtreeMasses(self.model,self.data)
+
+        data2 = self.model.createData()
+        pin.centerOfMass(self.model,data2,self.q)
+
+        for i in range(self.model.njoints):
+            self.assertApprox(self.data.mass[i],data2.mass[i])
+
     def test_Jcom_update3(self):
         Jcom = pin.jacobianCenterOfMass(self.model,self.data,self.q)
         self.assertFalse(np.isnan(Jcom).any())

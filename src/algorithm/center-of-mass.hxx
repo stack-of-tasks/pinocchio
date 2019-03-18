@@ -32,6 +32,24 @@ namespace pinocchio
     return data.mass[0];
   }
 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void computeSubtreeMasses(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  {
+    // Forward Step
+    for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
+    {
+      data.mass[i] = model.inertias[i].mass();
+    }
+
+    // Backward Step
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      const JointIndex & parent = model.parents[i];
+      data.mass[parent] += data.mass[i];
+    }
+  }
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
   centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,

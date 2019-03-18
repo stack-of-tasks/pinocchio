@@ -57,6 +57,11 @@ namespace pinocchio
               bp::args("Model", "Data"),
               "Compute the total mass of the model, put it in data.mass[0] and return it.");
 
+      bp::def("computeSubtreeMasses",
+              (void (*)(const Model &, Data &))&computeSubtreeMasses<double,0,JointCollectionDefaultTpl>,
+              bp::args("Model", "Data"),
+              "Compute the mass of each kinematic subtree and store it in data.mass.");
+
       bp::def("centerOfMass",com_0_proxy,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)"),

@@ -25,11 +25,22 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   ///
   /// \warning This method does not fill the whole data.mass vector. Only data.mass[0] is updated.
+  /// If you need the whole data.mass vector to be computed, use computeSubtreeMasses
   ///
   /// \return Total mass of the model.
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline Scalar computeTotalMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                  DataTpl<Scalar,Options,JointCollectionTpl> & data);
+
+  /// \brief Compute the mass of each kinematic subtree and store it in data.mass. The element mass[0] corresponds to the total mass of the model.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
+  /// \note If you are only interested in knowing the total mass of the model, computeTotalMass will probably be slightly faster.
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void computeSubtreeMasses(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
   ///
   /// \brief Computes the center of mass position of a given model according to a particular joint configuration.
