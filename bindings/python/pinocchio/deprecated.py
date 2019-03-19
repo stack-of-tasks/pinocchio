@@ -82,7 +82,7 @@ jointJacobian.__doc__ =  (
 
 # This function is only deprecated when using a specific signature. Therefore, it needs special care
 # Marked as deprecated on 19 Feb 2019
-def frameJacobian(model, data, q, jointId, *args):
+def frameJacobian(model, data, q, frameId, *args):
   if len(args)==1:
     message = ("This function signature has been deprecated and will be removed in future releases of Pinocchio. "
                "Please change for the new signature of frameJacobian or use computeJointJacobian + updateFramePlacements + getFrameJacobian.")
