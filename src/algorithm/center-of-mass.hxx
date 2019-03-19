@@ -36,6 +36,8 @@ namespace pinocchio
   inline void computeSubtreeMasses(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                    DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
+    data.mass[0] = Scalar(0);
+
     // Forward Step
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
