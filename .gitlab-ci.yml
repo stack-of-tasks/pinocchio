@@ -19,7 +19,6 @@ cache:
     - git pull
     - cd pinocchio
     - make checkout MASTER_REPOSITORY="git ${CI_PROJECT_DIR}/.git"
-    - /ci_deps.sh
     - make install
     - cd $(make show-var VARNAME=WRKSRC)
     - make test
@@ -66,7 +65,6 @@ robotpkg-pinocchio-18.04-debug:
     - cd ..
     - cd py-pinocchio
     - make checkout MASTER_REPOSITORY="git ${CI_PROJECT_DIR}/.git"
-    - /ci_deps.sh
     - make install
     - cd $(make show-var VARNAME=WRKSRC)
     - make test
@@ -144,7 +142,6 @@ doc-coverage:
     - echo -e 'CXXFLAGS+= --coverage\nLDFLAGS+= --coverage\nPKG_DEFAULT_OPTIONS= debug' >> /opt/openrobots/etc/robotpkg.conf
   after_script:
     - cd /root/robotpkg/math/py-pinocchio
-    - /ci_deps.sh
     - cd $(make show-var VARNAME=WRKSRC)
     - make doc
     - mv doc/doxygen-html ${CI_PROJECT_DIR}
