@@ -53,10 +53,17 @@ ENDIF(WIN32)
 OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
 OPTION (BUILD_UNIT_TESTS "Build the unitary tests" ON)
 OPTION (BUILD_UTILS "Build the utils" OFF)
-OPTION (INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 OPTION (BUILD_WITH_LUA_SUPPORT "Build the lua parser" OFF)
 OPTION (BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
+
+# --- OPTIONAL DEPENDENCIES -------------------------
+OPTION(BUILD_WITH_URDF_SUPPORT "Build the library with the URDF format support" ON)
+OPTION(BUILD_WITH_COLLISION_SUPPORT "Build the library with the Collision support (required HPP-FCL)" OFF)
+OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the Automatic Differentiation support" OFF)
+OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the Code Generation support" OFF)
+
+OPTION (INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 
 IF (INITIALIZE_WITH_NAN)
   MESSAGE (STATUS "Initialize with NaN all the Eigen entries.")
@@ -77,12 +84,19 @@ ENDMACRO(TAG_LIBRARY_VERSION)
 # --- DEPENDENCIES -----------------------------------
 # ----------------------------------------------------
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
-ADD_OPTIONAL_DEPENDENCY("urdfdom >= 0.2.0")
 
-find_package(catkin QUIET COMPONENTS hpp-fcl)  # compatability with catkin-packaged hpp-fcl
-ADD_OPTIONAL_DEPENDENCY("hpp-fcl >= 1.0.0")
+IF(BUILD_WITH_URDF_SUPPORT)
+  ADD_REQUIRED_DEPENDENCY("urdfdom >= 0.2.0")
+ENDIF(BUILD_WITH_URDF_SUPPORT)
 
-ADD_OPTIONAL_DEPENDENCY("cppad >= 20180000.0")
+IF(BUILD_WITH_HPP_FCL_SUPPORT)
+  find_package(catkin QUIET COMPONENTS hpp-fcl)  # compatability with catkin-packaged hpp-fcl
+  ADD_REQUIRED_DEPENDENCY("hpp-fcl >= 1.0.0")
+ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
+
+IF(BUILD_WITH_AUTODIFF_SUPPORT)
+  ADD_REQUIRED_DEPENDENCY("cppad >= 20180000.0")
+ENDIF(BUILD_WITH_AUTODIFF_SUPPORT)
 
 IF(CPPAD_FOUND)
   ADD_DEFINITIONS(-DPINOCCHIO_WITH_CPPAD_SUPPORT)
@@ -92,7 +106,9 @@ IF(CPPAD_FOUND)
     PKG_CONFIG_APPEND_CFLAGS("-DPINOCCHIO_CPPAD_REQUIRES_MATRIX_BASE_PLUGIN")
   ENDIF(NOT ${CPPAD_VERSION} VERSION_GREATER "3.3.0")
 
-  ADD_OPTIONAL_DEPENDENCY("cppadcg")
+  IF(BUILD_WITH_CODEGEN_SUPPORT)
+    ADD_OPTIONAL_DEPENDENCY("cppadcg")
+  ENDIF(BUILD_WITH_CODEGEN_SUPPORT)
   IF(CPPADCG_FOUND)
     ADD_DEFINITIONS(-DPINOCCHIO_WITH_CPPADCG_SUPPORT)
     PKG_CONFIG_APPEND_CFLAGS("-DPINOCCHIO_WITH_CPPADCG_SUPPORT")

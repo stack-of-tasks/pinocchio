@@ -16,8 +16,11 @@ sudo free -m -t
 export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils"
 # Add Python dependency
 export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py27-eigenpy python2.7-dev python-numpy"
+
 # Add Geometry dependencies
-export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-hpp-fcl robotpkg-assimp robotpkg-octomap"
+if [[ $BUILD_WITH_COLLISION_SUPPORT -eq ON ]]; then 
+  export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-hpp-fcl"
+fi 
 
 # When this script is called the current directory is ./custom_travis
 . ./.travis/run ../.travis/before_install

@@ -2,38 +2,40 @@ language: generic
 python:
   - "2.7"
 sudo: required
-dist: xenial
 git:
   depth: false
 compiler:
   - gcc
-# - clang
 env:
   global:
     - secure: "SnIBG/xLIHX3CSvUbqqsX8xTVqIqQ7fFS6HWO6KZQVBsT6yugTwYHbyhNiU531JejYJ/I3ZrDhXfYH3qFZiYxnH1sifvwV+fnTtMXpPN7qPZwIymkjcmm6gJF51e0C7VOfUbvKFv0ngwj+ul21rgZSMuoEvxPK0WxtE3/ZSfn9c="
     - APT_DEPENDENCIES="doxygen libeigen3-dev "
     - DEBSIGN_KEYID=5AE5CD75
     - LCOV_IGNORE_RULES="*unittest* /opt/openrobots/*"
-    - CC=gcc
     - DO_COVERAGE_ON_BRANCH="master;release"
     - DO_CPPCHECK_ON_BRANCH=""
     - DO_INSTALL_DOC_EXCEPT_ON_BRANCH=""
-  matrix:
-    # - BUILDTYPE=Release
-    # - BUILDTYPE=Debug
-    - BUILDTYPE=Minsizerel
+    - BUILDTYPE=MinSizeRel
+
 notifications:
 email:
-  - hpp-source@laas.fr
+  - pinocchio-dev@laas.fr
 branches:
-only:
-  - master
-  - debian
-  - devel
-matrix:
+  only:
+    - master
+    - debian
+    - devel
+
+jobs:
   include:
-    - dist: trusty
+    - if: branch = master
+      dist: xenial
+      env: BUILD_WITH_COLLISION_SUPPORT=OFF
+    - dist: trusty 
+      env: BUILD_WITH_COLLISION_SUPPORT=ON
     - dist: xenial
+      env: BUILD_WITH_COLLISION_SUPPORT=ON
+
 allow_failures:
   - compiler:
 before_install: ./travis_custom/custom_before_install
@@ -41,7 +43,7 @@ install:
   - pip install --user coveralls
   - pip install --user numpy
 script:
-  - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE}"
+  - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE} -DBUILD_WITH_COLLISION_SUPPORT=${BUILD_WITH_COLLISION_SUPPORT}"
   - sudo free -m -t
   - travis_wait 40 ./.travis/run ../travis_custom/custom_build
 after_failure: ./.travis/run after_failure
