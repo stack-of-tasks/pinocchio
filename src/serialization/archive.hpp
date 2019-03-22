@@ -18,6 +18,17 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 
+/* undo some macro defs in pyport.h */
+#if defined(_PY_PORT_CTYPE_UTF8_ISSUE)
+#undef isalnum
+#undef isalpha
+#undef islower
+#undef isspace
+#undef isupper
+#undef tolower
+#undef toupper
+#endif
+
 // Handle NAN inside TXT or XML archives
 #include <boost/math/special_functions/nonfinite_num_facets.hpp>
 
