@@ -2,6 +2,7 @@ import unittest
 import pinocchio as pin
 import os
 
+@unittest.skipUnless(pin.WITH_URDFDOM_SUPPORT(),"Needs URDFDOM")
 class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
     def test_load(self):

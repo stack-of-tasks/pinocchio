@@ -2,6 +2,7 @@ import unittest
 import pinocchio as pin
 import numpy as np
 
+@unittest.skipUnless(pin.WITH_FCL_SUPPORT(),"Needs FCL")
 class TestGeometryObjectBindings(unittest.TestCase):
 
     def setUp(self):

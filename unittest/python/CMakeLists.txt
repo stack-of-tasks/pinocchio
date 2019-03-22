@@ -1,10 +1,10 @@
 SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings
   bindings_com
+  bindings_com_velocity_derivatives
   bindings_dynamics
   bindings_force
   bindings_frame
-  bindings_geometry_object_urdf
   bindings_inertia
   bindings_joint_composite
   bindings_motion
@@ -22,6 +22,13 @@ IF(HPP_FCL_FOUND)
     bindings_geometry_object
     )
 ENDIF(HPP_FCL_FOUND)
+
+IF(URDFDOM_FOUND)
+  SET(${PROJECT_NAME}_PYTHON_TESTS
+    ${${PROJECT_NAME}_PYTHON_TESTS}
+    bindings_geometry_object_urdf
+    )
+ENDIF(URDFDOM_FOUND)
 
 FOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
   ADD_PYTHON_UNIT_TEST("py-${TEST}" "unittest/python/${TEST}.py" "bindings/python")
