@@ -16,18 +16,26 @@ env:
     - DO_CPPCHECK_ON_BRANCH=""
     - DO_INSTALL_DOC_EXCEPT_ON_BRANCH=""
     - BUILDTYPE=MinSizeRel
+
 notifications:
 email:
   - pinocchio-dev@laas.fr
 branches:
-only:
-  - master
-  - debian
-  - devel
-matrix:
+  only:
+    - master
+    - debian
+    - devel
+
+jobs:
   include:
-    - dist: trusty
+    - if: branch = master
+      dist: xenial
+      env: BUILD_WITH_COLLISION_SUPPORT=OFF
+    - dist: trusty 
+      env: BUILD_WITH_COLLISION_SUPPORT=ON
     - dist: xenial
+      env: BUILD_WITH_COLLISION_SUPPORT=ON
+
 allow_failures:
   - compiler:
 before_install: ./travis_custom/custom_before_install
@@ -35,7 +43,7 @@ install:
   - pip install --user coveralls
   - pip install --user numpy
 script:
-  - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE}"
+  - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE} -DBUILD_WITH_COLLISION_SUPPORT=${BUILD_WITH_COLLISION_SUPPORT}"
   - sudo free -m -t
   - travis_wait 40 ./.travis/run ../travis_custom/custom_build
 after_failure: ./.travis/run after_failure
