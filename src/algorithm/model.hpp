@@ -10,6 +10,19 @@
 
 namespace pinocchio
 {
+  /**
+   *  \brief Append a child model into a parent model, after a specific frame.
+   *  the model given as reference argument.
+   *
+   *  \param[in] modelA the parent model
+   *  \param[in] modelB the child model
+   *  \param[in] geomModelA the parent geometry model
+   *  \param[in] geomModelB the child geometry model
+   *  \param[in] frameInModelA index of the frame of modelA where to append modelB.
+   *  \param[in] aMb pose of modelB universe joint (index 0) in frameInModelA.
+   *  \param[out] model the resulting model
+   *  \return Return the reference on argument model for convenience.
+   */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   void
   appendModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & modelA,
@@ -17,7 +30,7 @@ namespace pinocchio
               const GeometryModel& geomModelA,
               const GeometryModel& geomModelB,
               FrameIndex frameInModelA,
-              SE3 aMb,
+              const SE3Tpl<Scalar, Options>& aMb,
               ModelTpl<Scalar,Options,JointCollectionTpl>& model,
               GeometryModel& geomModel);
 

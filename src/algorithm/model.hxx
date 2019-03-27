@@ -9,13 +9,12 @@ namespace pinocchio
 {
   namespace details {
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    void appendUniverseToModel (
-        const ModelTpl<Scalar,Options,JointCollectionTpl> & modelAB,
-        const GeometryModel& geomModelAB,
-        FrameIndex parentFrame,
-        SE3 pfMAB, /* parent frame shift */
-        ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-        GeometryModel& geomModel)
+    void appendUniverseToModel (const ModelTpl<Scalar,Options,JointCollectionTpl> & modelAB,
+                                const GeometryModel& geomModelAB,
+                                FrameIndex parentFrame,
+                                const SE3Tpl<Scalar, Options>& pfMAB,
+                                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                GeometryModel& geomModel)
     {
       const Frame& pframe = model.frames[parentFrame];
       JointIndex jid = pframe.parent;
@@ -67,7 +66,7 @@ namespace pinocchio
           const ModelTpl<Scalar,Options,JointCollectionTpl> &,
           const GeometryModel&,
           JointIndex,
-          SE3,
+          const SE3Tpl<Scalar, Options>&,
           ModelTpl<Scalar,Options,JointCollectionTpl> &,
           GeometryModel& > ArgsType;
 
@@ -76,7 +75,7 @@ namespace pinocchio
           const ModelTpl<Scalar,Options,JointCollectionTpl> & modelAB,
           const GeometryModel& geomModelAB,
           JointIndex parentId,
-          SE3 pMi,
+          const SE3Tpl<Scalar, Options>& pMi,
           ModelTpl<Scalar,Options,JointCollectionTpl> & model,
           GeometryModel& geomModel)
       {
@@ -135,7 +134,7 @@ namespace pinocchio
               const GeometryModel& geomModelA,
               const GeometryModel& geomModelB,
               FrameIndex frameInModelA,
-              SE3 aMb,
+              const SE3Tpl<Scalar, Options>& aMb,
               ModelTpl<Scalar,Options,JointCollectionTpl>& model,
               GeometryModel& geomModel)
   {
