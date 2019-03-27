@@ -6,11 +6,14 @@
 #ifndef __pinocchio_python_model_hpp__
 #define __pinocchio_python_model_hpp__
 
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/bindings/python/serialization/serializable.hpp"
+#include "pinocchio/serialization/model.hpp"
+
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <boost/python/overloads.hpp>
 #include <eigenpy/memory.hpp>
 
-#include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
@@ -19,8 +22,6 @@
 #include "pinocchio/bindings/python/utils/pickle-map.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
-#include "pinocchio/serialization/model.hpp"
-#include "pinocchio/bindings/python/serialization/serializable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Model)
 
