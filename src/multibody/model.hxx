@@ -48,7 +48,7 @@ namespace pinocchio
     os << "Nb joints = " << model.njoints << " (nq="<< model.nq<<",nv="<<model.nv<<")" << std::endl;
     for(Index i=0;i<(Index)(model.njoints);++i)
     {
-      os << "  Joint "<< model.names[i] << ": parent=" << model.parents[i]  << std::endl;
+      os << "  Joint " << i << " " << model.names[i] << ": parent=" << model.parents[i]  << std::endl;
     }
     
     return os;
