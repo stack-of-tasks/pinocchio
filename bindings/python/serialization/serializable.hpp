@@ -7,6 +7,8 @@
 
 #include <boost/python.hpp>
 
+#include "pinocchio/serialization/serializable.hpp"
+
 namespace pinocchio
 {
   namespace python
