@@ -149,7 +149,7 @@ namespace pinocchio
     , njoints(1)
     , nbodies(1)
     , nframes(0)
-    , inertias(1)
+    , inertias(1, Inertia::Zero())
     , jointPlacements(1, SE3::Identity())
     , joints(1)
     , parents(1, 0)
@@ -162,10 +162,6 @@ namespace pinocchio
       // in the list of joints ? See comment in definition of
       // Model::addJointFrame and Model::addBodyFrame
       addFrame(Frame("universe", 0, 0, SE3::Identity(), FIXED_JOINT));
-      // Inertia of universe has no sense.
-      inertias[0].mass() = std::numeric_limits<Scalar>::quiet_NaN();
-      inertias[0].lever().fill (std::numeric_limits<Scalar>::quiet_NaN());
-      inertias[0].inertia().fill (std::numeric_limits<Scalar>::quiet_NaN());
     }
     ~ModelTpl() {} // std::cout << "Destroy model" << std::endl; }
     
