@@ -337,6 +337,7 @@ namespace pinocchio
         jff.addJoint(typename JC::JointModelSphericalZYX());
         ffidx = model.addJoint(0,jff,SE3::Identity(),"freeflyer_joint");
       }
+      model.appendBodyToJoint(ffidx,Ijoint);
       model.addJointFrame(ffidx);
       
       /* --- Lower limbs --- */

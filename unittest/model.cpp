@@ -3,6 +3,7 @@
 //
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
 #include <boost/test/unit_test.hpp>
@@ -42,5 +43,111 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     BOOST_CHECK(model.cast<double>() == model);
     BOOST_CHECK(model.cast<long double>().cast<double>() == model);
   }
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
+  struct AddPrefix {
+    std::string p;
+    std::string operator() (const std::string& n) { return p + n; }
+    Frame operator() (const Frame& _f) { Frame f (_f); f.name = p + f.name; return f; }
+    AddPrefix (const char* _p) : p(_p) {}
+  };
+
+  BOOST_AUTO_TEST_CASE(append)
+  {
+    Model manipulator, humanoid, model;
+    GeometryModel geomManipulator, geomHumanoid, geomModel;
+
+    buildModels::manipulator(manipulator);
+    buildModels::manipulatorGeometries(manipulator, geomManipulator);
+    // Add prefix to joint and frame names
+    AddPrefix addManipulatorPrefix ("manipulator/");
+    std::transform (++manipulator.names.begin(), manipulator.names.end(),
+        ++manipulator.names.begin(), addManipulatorPrefix);
+    std::transform (++manipulator.frames.begin(), manipulator.frames.end(),
+        ++manipulator.frames.begin(), addManipulatorPrefix);
+
+    BOOST_MESSAGE(manipulator);
+
+    buildModels::humanoid(humanoid);
+    buildModels::humanoidGeometries(humanoid, geomHumanoid);
+    // Add prefix to joint and frame names
+    AddPrefix addHumanoidPrefix ("humanoid/");
+    std::transform (++humanoid.names.begin(), humanoid.names.end(),
+        ++humanoid.names.begin(), addHumanoidPrefix);
+    std::transform (++humanoid.frames.begin(), humanoid.frames.end(),
+        ++humanoid.frames.begin(), addHumanoidPrefix);
+
+    BOOST_MESSAGE(humanoid);
+    
+    //TODO fix inertia of the base
+    manipulator.inertias[0].setRandom();
+    SE3 aMb = SE3::Random();
+    FrameIndex fid = humanoid.addFrame (Frame ("humanoid/add_manipulator", 
+          humanoid.getJointId("humanoid/chest2_joint"),
+          humanoid.getFrameId("humanoid/chest2_joint"), aMb,
+          OP_FRAME));
+
+    appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, fid,
+        SE3::Identity(), model, geomModel);
+
+    BOOST_MESSAGE(model);
+
+    // Check the model
+    BOOST_CHECK_EQUAL(model.getJointId("humanoid/chest2_joint"),
+        model.parents[model.getJointId("manipulator/shoulder1_joint")]);
+
+    // check the joint order and the inertias
+    JointIndex chest2 = model.getJointId("humanoid/chest2_joint");
+    for (JointIndex jid = 1; jid < chest2; ++jid) {
+      BOOST_MESSAGE("Checking joint " << jid << " " << model.names[jid]);
+      BOOST_CHECK_EQUAL(model.names[jid], humanoid.names[jid]);
+      BOOST_CHECK_EQUAL(model.inertias[jid], humanoid.inertias[jid]);
+      BOOST_CHECK_EQUAL(model.jointPlacements[jid], humanoid.jointPlacements[jid]);
+    }
+    BOOST_MESSAGE("Checking joint " << chest2 << " " << model.names[chest2]);
+    BOOST_CHECK_EQUAL(model.names[chest2], humanoid.names[chest2]);
+    BOOST_CHECK_MESSAGE(model.inertias[chest2].isApprox(manipulator.inertias[0].se3Action(aMb) + humanoid.inertias[chest2]),
+        model.inertias[chest2] << " != " << manipulator.inertias[0].se3Action(aMb) + humanoid.inertias[chest2]);
+    BOOST_CHECK_EQUAL(model.jointPlacements[chest2], humanoid.jointPlacements[chest2]);
+
+    for (JointIndex jid = 1; jid < manipulator.joints.size(); ++jid) {
+      BOOST_MESSAGE("Checking joint " << chest2+jid << " " << model.names[chest2+jid]);
+      BOOST_CHECK_EQUAL(model.names[chest2+jid], manipulator.names[jid]);
+      BOOST_CHECK_EQUAL(model.inertias[chest2+jid], manipulator.inertias[jid]);
+      if (jid==1)
+        BOOST_CHECK_EQUAL(model.jointPlacements[chest2+jid], aMb*manipulator.jointPlacements[jid]);
+      else
+        BOOST_CHECK_EQUAL(model.jointPlacements[chest2+jid], manipulator.jointPlacements[jid]);
+    }
+    for (JointIndex jid = chest2+1; jid < humanoid.joints.size(); ++jid) {
+      BOOST_MESSAGE("Checking joint " << jid+manipulator.joints.size()-1 << " " << model.names[jid+manipulator.joints.size()-1]);
+      BOOST_CHECK_EQUAL(model.names[jid+manipulator.joints.size()-1], humanoid.names[jid]);
+      BOOST_CHECK_EQUAL(model.inertias[jid+manipulator.joints.size()-1], humanoid.inertias[jid]);
+      BOOST_CHECK_EQUAL(model.jointPlacements[jid+manipulator.joints.size()-1], humanoid.jointPlacements[jid]);
+    }
+
+    // Check the frames
+    for (FrameIndex fid = 1; fid < humanoid.frames.size(); ++fid) {
+      const Frame& frame  = humanoid.frames[fid],
+                   parent = humanoid.frames[frame.previousFrame];
+      BOOST_CHECK(model.existFrame (frame.name, frame.type));
+      const Frame& nframe  = model.frames[model.getFrameId(frame.name, frame.type)],
+                   nparent = model.frames[nframe.previousFrame];
+      BOOST_CHECK_EQUAL(parent.name, nparent.name);
+      BOOST_CHECK_EQUAL(frame.placement, nframe.placement);
+    }
+    for (FrameIndex fid = 1; fid < manipulator.frames.size(); ++fid) {
+      const Frame& frame  = manipulator.frames[fid],
+                   parent = manipulator.frames[frame.previousFrame];
+      BOOST_CHECK(model.existFrame (frame.name, frame.type));
+      const Frame& nframe  = model.frames[model.getFrameId(frame.name, frame.type)],
+                   nparent = model.frames[nframe.previousFrame];
+      if (frame.previousFrame > 0) {
+        BOOST_CHECK_EQUAL(parent.name, nparent.name);
+        BOOST_CHECK_EQUAL(frame.placement, nframe.placement);
+      }
+    }
+  }
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()
