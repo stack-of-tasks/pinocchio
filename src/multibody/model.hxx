@@ -58,14 +58,14 @@ namespace pinocchio
   template<typename JointModelDerived>
   typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::addJoint(const JointIndex parent,
-                                                     const JointModelBase<JointModelDerived> & joint_model,
-                                                     const SE3 & joint_placement,
-                                                     const std::string & joint_name,
-                                                     const VectorXs & max_effort,
-                                                     const VectorXs & max_velocity,
-                                                     const VectorXs & min_config,
-                                                     const VectorXs & max_config
-                                                     )
+                                                        const JointModelBase<JointModelDerived> & joint_model,
+                                                        const SE3 & joint_placement,
+                                                        const std::string & joint_name,
+                                                        const VectorXs & max_effort,
+                                                        const VectorXs & max_velocity,
+                                                        const VectorXs & min_config,
+                                                        const VectorXs & max_config
+                                                        )
   {
     assert( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
            &&(njoints==(int)parents.size())&&(njoints==(int)jointPlacements.size()) );
@@ -125,9 +125,9 @@ namespace pinocchio
   template<typename JointModelDerived>
   typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::addJoint(const JointIndex parent,
-                                                     const JointModelBase<JointModelDerived> & joint_model,
-                                                     const SE3 & joint_placement,
-                                                     const std::string & joint_name)
+                                                        const JointModelBase<JointModelDerived> & joint_model,
+                                                        const SE3 & joint_placement,
+                                                        const std::string & joint_name)
   {
     VectorXs max_effort, max_velocity, min_config, max_config;
 
