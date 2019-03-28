@@ -140,6 +140,8 @@ namespace pinocchio
   {
     typedef details::AppendJointOfModelAlgoTpl<Scalar, Options, JointCollectionTpl> AppendJointOfModelAlgo;
     typedef typename AppendJointOfModelAlgo::ArgsType ArgsType;
+    typedef SE3Tpl<Scalar, Options> SE3;
+
     const Frame& frame = modelA.frames[frameInModelA];
     static const SE3 id = SE3::Identity();
 
