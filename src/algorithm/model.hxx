@@ -16,6 +16,8 @@ namespace pinocchio
                                 ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 GeometryModel& geomModel)
     {
+      typedef FrameTpl<Scalar, Options> Frame;
+
       const Frame& pframe = model.frames[parentFrame];
       JointIndex jid = pframe.parent;
       assert (jid < model.joints.size());
@@ -97,7 +99,7 @@ namespace pinocchio
         model.appendBodyToJoint (jid, modelAB.inertias[jmodel.id()]);
         // Add all frames whose parent is this joint.
         for (FrameIndex fid = 1; fid < modelAB.frames.size(); ++fid) {
-          Frame frame = modelAB.frames[fid];
+          FrameTpl<Scalar, Options> frame = modelAB.frames[fid];
           if (frame.parent == jmodel.id()) {
             frame.parent = jid;
             assert (frame.previousFrame > 0 || frame.type == JOINT);
@@ -142,7 +144,7 @@ namespace pinocchio
     typedef typename AppendJointOfModelAlgo::ArgsType ArgsType;
     typedef SE3Tpl<Scalar, Options> SE3;
 
-    const Frame& frame = modelA.frames[frameInModelA];
+    const FrameTpl<Scalar, Options>& frame = modelA.frames[frameInModelA];
     static const SE3 id = SE3::Identity();
 
     int njoints = modelA.njoints + modelB.njoints - 1;
