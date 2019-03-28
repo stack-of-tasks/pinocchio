@@ -133,6 +133,20 @@ namespace pinocchio
   void
   appendModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & modelA,
               const ModelTpl<Scalar,Options,JointCollectionTpl> & modelB,
+              FrameIndex frameInModelA,
+              const SE3Tpl<Scalar, Options>& aMb,
+              ModelTpl<Scalar,Options,JointCollectionTpl>& model)
+  {
+    GeometryModel geomModelA, geomModelB, geomModel;
+
+    appendModel(modelA, modelB, geomModelA, geomModelB, frameInModelA, aMb,
+         model, geomModel);
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  void
+  appendModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & modelA,
+              const ModelTpl<Scalar,Options,JointCollectionTpl> & modelB,
               const GeometryModel& geomModelA,
               const GeometryModel& geomModelB,
               FrameIndex frameInModelA,
