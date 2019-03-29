@@ -63,6 +63,19 @@ namespace pinocchio
     {}
     
     ///
+    /// \brief Contructor with from a given type, parent and placement.
+    ///
+    /// \param[in] type Type of the contact.
+    /// \param[in] parent Index of the parent Frame in the model tree.
+    ///
+    ContactInfoTpl(const ContactType type,
+                   const FrameIndex parent)
+    : type(type)
+    , parent(parent)
+    , placement(SE3::Identity())
+    {}
+    
+    ///
     /// \brief Comparison operator
     ///
     /// \param[in] other Other ContactInfoTpl to compare with.

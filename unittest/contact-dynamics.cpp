@@ -29,11 +29,19 @@ BOOST_AUTO_TEST_CASE(contact_info)
   BOOST_CHECK(ci1.dim() == 0);
   
   // Check complete constructor
-  ContactInfo ci2(CONTACT_3D,0,SE3::Identity());
+  SE3 M(SE3::Random());
+  ContactInfo ci2(CONTACT_3D,0,M);
   BOOST_CHECK(ci2.type == CONTACT_3D);
   BOOST_CHECK(ci2.parent == 0);
-  BOOST_CHECK(ci2.placement.isIdentity());
+  BOOST_CHECK(ci2.placement.isApprox(M));
   BOOST_CHECK(ci2.dim() == 3);
+  
+  // Check contructor with two arguments
+  ContactInfo ci2prime(CONTACT_3D,0);
+  BOOST_CHECK(ci2prime.type == CONTACT_3D);
+  BOOST_CHECK(ci2prime.parent == 0);
+  BOOST_CHECK(ci2prime.placement.isIdentity());
+  BOOST_CHECK(ci2prime.dim() == 3);
   
   // Check default copy constructor
   ContactInfo ci3(ci2);
