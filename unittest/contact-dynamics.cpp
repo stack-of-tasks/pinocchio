@@ -26,6 +26,7 @@ BOOST_AUTO_TEST_CASE(contact_info)
   // Check default constructor
   ContactInfo ci1;
   BOOST_CHECK(ci1.type == CONTACT_UNDEFINED);
+  BOOST_CHECK(ci1.dim() == 0);
   
   // Check complete constructor
   ContactInfo ci2(CONTACT_3D,0,SE3::Identity());
