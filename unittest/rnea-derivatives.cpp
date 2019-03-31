@@ -375,6 +375,13 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_vs_kinematics_derivatives)
   
   BOOST_CHECK(data.J.isApprox(data_ref.J));
   BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
+  
+  for(size_t k = 1; k < (size_t)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
+    BOOST_CHECK(data.ov[k].isApprox(data_ref.ov[k]));
+    BOOST_CHECK(data.oa[k].isApprox(data_ref.oa[k]));
+  }
 }
 
 BOOST_AUTO_TEST_CASE(test_multiple_calls)

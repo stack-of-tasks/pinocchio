@@ -183,6 +183,7 @@ namespace pinocchio
       const JointIndex & parent = model.parents[i];
       Motion & ov = data.ov[i];
       Motion & oa = data.oa[i];
+      Motion & oa_gf = data.oa_gf[i];
       
       jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
@@ -206,10 +207,11 @@ namespace pinocchio
       
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       ov = data.oMi[i].act(data.v[i]);
-      oa = data.oMi[i].act(data.a[i]) + data.oa[0]; // add gravity contribution
+      oa = data.oMi[i].act(data.a[i]);
+      oa_gf = oa - model.gravity; // add gravity contribution
       
       data.oh[i] = data.oYcrb[i] * ov;
-      data.of[i] = data.oYcrb[i] * oa + ov.cross(data.oh[i]);
+      data.of[i] = data.oYcrb[i] * oa_gf + ov.cross(data.oh[i]);
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
@@ -220,7 +222,7 @@ namespace pinocchio
 
       J_cols = data.oMi[i].act(jdata.S());
       motionSet::motionAction(ov,J_cols,dJ_cols);
-      motionSet::motionAction(data.oa[parent],J_cols,dAdq_cols);
+      motionSet::motionAction(data.oa_gf[parent],J_cols,dAdq_cols);
 
       if(parent > 0)
       {
@@ -395,7 +397,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
-    data.oa[0] = -model.gravity;
+    data.oa_gf[0] = -model.gravity;
     
     typedef ComputeRNEADerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
@@ -443,7 +445,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
-    data.oa[0] = -model.gravity;
+    data.oa_gf[0] = -model.gravity;
     
     typedef ComputeRNEADerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
