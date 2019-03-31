@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_data_hpp__
@@ -53,9 +53,18 @@ namespace pinocchio
         .def(bp::init<Model>(bp::arg("model"),"Constructs a data structure from a given model."))
         
         .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a,"Joint spatial acceleration")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a_gf,"Joint spatial acceleration containing also the contribution of the gravity acceleration")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,oa,
+                           "Joint spatial acceleration expressed at the origin of the world frame.")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a_gf,
+                           "Joint spatial acceleration containing also the contribution of the gravity acceleration")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,oa_gf,"Joint spatial acceleration containing also the contribution of the gravity acceleration, but expressed at the origin of the world frame.")
+        
         .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,v,"Joint spatial velocity expressed in the joint frame.")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,ov,"Joint spatial velocity expressed at the origin of the world frame.")
+        
         .ADD_DATA_PROPERTY(container::aligned_vector<Force>,f,"Joint spatial force expresssed in the joint frame.")
+        .ADD_DATA_PROPERTY(container::aligned_vector<Force>,of,"Joint spatial force expresssed at the origin of the world frame.")
+        
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,oMi,"Body absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,oMf,"frames absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,liMi,"Body relative placement (wrt parent)")

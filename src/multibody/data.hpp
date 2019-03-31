@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -74,14 +74,17 @@ namespace pinocchio
     /// encapsulated in JointDataAccessor.
     JointDataVector joints;
     
-    /// \brief Vector of joint accelerations expressed at the centers of the joints.
+    /// \brief Vector of joint accelerations expressed at the centers of the joints frames.
     container::aligned_vector<Motion> a;
     
-    /// \brief Vector of joint accelerations expressed at the origin.
+    /// \brief Vector of joint accelerations expressed at the origin of the world.
     container::aligned_vector<Motion> oa;
     
     /// \brief Vector of joint accelerations due to the gravity field.
     container::aligned_vector<Motion> a_gf;
+    
+    /// \brief Vector of joint accelerations expressed at the origin of the world including gravity contribution.
+    container::aligned_vector<Motion> oa_gf;
     
     /// \brief Vector of joint velocities expressed at the centers of the joints.
     container::aligned_vector<Motion> v;
