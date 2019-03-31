@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
     BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
     BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
     BOOST_CHECK(data.ov[k].isApprox(data_ref.ov[k]));
-    BOOST_CHECK(data.oa[k].isApprox(data_ref.oa[k]));
+    BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oa_gf[k]));
     BOOST_CHECK(data.of[k].isApprox(data_ref.of[k]));
     BOOST_CHECK(data.oYcrb[k].isApprox(data_ref.oYcrb[k]));
     BOOST_CHECK(data.doYcrb[k].isApprox(data_ref.doYcrb[k]));
@@ -291,6 +291,43 @@ BOOST_AUTO_TEST_CASE(test_multiple_calls)
   BOOST_CHECK(data1.ddq_dq.isApprox(data2.ddq_dq));
   BOOST_CHECK(data1.ddq_dv.isApprox(data2.ddq_dv));
   BOOST_CHECK(data1.Minv.isApprox(data2.Minv));
+}
+
+BOOST_AUTO_TEST_CASE(test_aba_derivatives_vs_kinematics_derivatives)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd a(VectorXd::Random(model.nv));
+  
+  VectorXd tau = rnea(model,data_ref,q,v,a);
+  
+  /// Check againt computeGeneralizedGravityDerivatives
+  MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
+  MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
+  MatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
+  
+  computeABADerivatives(model,data,q,v,tau,aba_partial_dq,aba_partial_dv,aba_partial_dtau);
+  computeForwardKinematicsDerivatives(model,data_ref,q,v,a);
+  
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
+  
+  for(size_t k = 1; k < (size_t)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
+    BOOST_CHECK(data.ov[k].isApprox(data_ref.ov[k]));
+    BOOST_CHECK(data.oa[k].isApprox(data_ref.oa[k]));
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -53,7 +53,7 @@ namespace pinocchio
         data.oMi[i] = data.liMi[i];
       
       ov = data.oMi[i].act(data.v[i]);
-      data.a[i] = jdata.c() + (data.v[i] ^ jdata.v());
+      data.a_gf[i] = jdata.c() + (data.v[i] ^ jdata.v());
       data.Yaba[i] = model.inertias[i].matrix();
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       
@@ -133,7 +133,7 @@ namespace pinocchio
       if (parent > 0)
       {
         typename Data::Force & pa = data.f[i];
-        pa.toVector() += Ia * data.a[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+        pa.toVector() += Ia * data.a_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
         data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
@@ -167,15 +167,17 @@ namespace pinocchio
       
       typename Data::Motion & ov = data.ov[i];
       typename Data::Motion & oa = data.oa[i];
+      typename Data::Motion & oa_gf = data.oa_gf[i];
       typename Data::Force & of = data.of[i];
       
-      data.a[i] += data.liMi[i].actInv(data.a[parent]);
+      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
       jmodel.jointVelocitySelector(data.ddq).noalias() =
-      jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.a[i].toVector();
+      jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.a_gf[i].toVector();
       
-      data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
-      oa = data.oMi[i].act(data.a[i]);
-      of = data.oYcrb[i] * oa + ov.cross(data.oh[i]);
+      data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
+      oa_gf = data.oMi[i].act(data.a_gf[i]);
+      oa = oa_gf + model.gravity;
+      of = data.oYcrb[i] * oa_gf + ov.cross(data.oh[i]);
 
       typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
       
@@ -205,7 +207,7 @@ namespace pinocchio
       ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
       
       motionSet::motionAction(ov,J_cols,dJ_cols);
-      motionSet::motionAction(data.oa[parent],J_cols,dAdq_cols);
+      motionSet::motionAction(data.oa_gf[parent],J_cols,dAdq_cols);
       dAdv_cols = dJ_cols;
       if(parent > 0)
       {
@@ -350,8 +352,8 @@ namespace pinocchio
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
-    data.a[0] = -model.gravity;
-    data.oa[0] = -model.gravity;
+    data.a_gf[0] = -model.gravity;
+    data.oa_gf[0] = -model.gravity;
     data.u = tau;
     
     MatrixType3 & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
@@ -420,8 +422,8 @@ namespace pinocchio
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
-    data.a[0] = -model.gravity;
-    data.oa[0] = -model.gravity;
+    data.a_gf[0] = -model.gravity;
+    data.oa_gf[0] = -model.gravity;
     data.u = tau;
     
     MatrixType3 & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
