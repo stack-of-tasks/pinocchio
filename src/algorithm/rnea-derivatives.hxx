@@ -35,7 +35,7 @@ namespace pinocchio
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
-      const Motion & oa_gf = data.oa_gf[0];
+      const Motion & minus_gravity = data.oa_gf[0];
       
       jmodel.calc(jdata.derived(),q.derived());
       
@@ -52,7 +52,7 @@ namespace pinocchio
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
       J_cols = data.oMi[i].act(jdata.S());
-      motionSet::motionAction(oa_gf,J_cols,dAdq_cols);
+      motionSet::motionAction(minus_gravity,J_cols,dAdq_cols);
     }
     
   };
@@ -82,7 +82,7 @@ namespace pinocchio
       const JointIndex & parent = model.parents[i];
       
       typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
-      const Motion & oa_gf = data.oa_gf[0];
+      const Motion & minus_gravity = data.oa_gf[0];
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
 
@@ -96,7 +96,7 @@ namespace pinocchio
       gravity_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
-      data.of[i] = data.oYcrb[i] * oa_gf;
+      data.of[i] = data.oYcrb[i] * minus_gravity;
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
       
       lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
@@ -135,7 +135,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
-    data.oa_gf[0] = -model.gravity;
+    data.oa_gf[0] = -model.gravity; // minus_gravity used in the two Passes
     
     typedef ComputeGeneralizedGravityDerivativeForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
