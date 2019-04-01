@@ -310,6 +310,9 @@ namespace pinocchio
   struct ComputeGeneralizedGravityBackwardStep
   : public fusion::JointVisitorBase< ComputeGeneralizedGravityBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+
     typedef boost::fusion::vector<const Model &,
                                   Data &
                                   > ArgsType;
