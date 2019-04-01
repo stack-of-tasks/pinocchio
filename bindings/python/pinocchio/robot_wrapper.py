@@ -101,7 +101,7 @@ class RobotWrapper(object):
     def com(self, q=None, v=None, a=None):
         if q is None:
             pin.centerOfMass(self.model, self.data)
-            return data.com[0]
+            return self.data.com[0]
         if v is not None:
             if a is None:
                 pin.centerOfMass(self.model, self.data, q, v)
