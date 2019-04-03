@@ -28,8 +28,7 @@ branches:
 
 jobs:
   include:
-    - if: branch = master
-      dist: xenial
+    - dist: xenial
       env: BUILD_WITH_COLLISION_SUPPORT=OFF
     - dist: trusty 
       env: BUILD_WITH_COLLISION_SUPPORT=ON
