@@ -10,12 +10,12 @@ category_list:
     icon: graduation-cap
     links:
       - name: Tutorials
-        url: http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/md_doc_d-labs_1-directgeom.html
+        url: https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html
   - name: Documentation
     icon: book
     links:
       - name: Doxygen
-        url: http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/
+        url: https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/
   - name: Development
     icon: wrench
     links:
