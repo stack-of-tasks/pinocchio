@@ -111,8 +111,6 @@ struct GeometryObject
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
 
-
-
   GeometryObject(const std::string & name, const FrameIndex parentF,
                  const JointIndex parentJ,
                  const boost::shared_ptr<fcl::CollisionGeometry> & collision,
