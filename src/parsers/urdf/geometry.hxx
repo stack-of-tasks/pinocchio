@@ -32,55 +32,55 @@ namespace pinocchio
   {
     namespace details
     {
-     struct UrdfTree
-     {
-       typedef boost::property_tree::ptree ptree;
-       typedef std::map<std::string, const ptree&> LinkMap_t;
-
-       void parse (const std::string & xmlStr)
-       {
-         urdf_ = ::urdf::parseURDF(xmlStr);
-         if (!urdf_) {
-           throw std::invalid_argument ("Enable to parse URDF");
-         }
-
-         std::istringstream iss(xmlStr);
-         using namespace boost::property_tree;
-         read_xml(iss, tree_, xml_parser::no_comments);
-
-         BOOST_FOREACH(const ptree::value_type & link, tree_.get_child("robot")) {
-           if (link.first == "link") {
-             std::string name = link.second.get<std::string>("<xmlattr>.name");
-             links_.insert(std::pair<std::string,const ptree&>(name, link.second));
-           }
-         } // BOOST_FOREACH
-       }
-
-       bool replaceCylinderByCapsule (const std::string & linkName,
-                                      const std::string & geomName) const
-       {
-         LinkMap_t::const_iterator _link = links_.find(linkName);
-         assert (_link != links_.end());
-         const ptree& link = _link->second;
-         if (link.count ("collision_checking") == 0)
-           return false;
-         BOOST_FOREACH(const ptree::value_type & cc, link.get_child("collision_checking")) {
-           if (cc.first == "capsule") {
-             std::string name = cc.second.get<std::string>("<xmlattr>.name");
-             if (geomName == name) return true;
-           }
-         } // BOOST_FOREACH
-
-         return false;
-       }
-
-       // For standard URDF tags
-       ::urdf::ModelInterfaceSharedPtr urdf_;
-       // For other tags
-       ptree tree_;
-       // A mapping from link name to corresponding child of tree_
-       LinkMap_t links_;
-     };
+      struct UrdfTree
+      {
+        typedef boost::property_tree::ptree ptree;
+        typedef std::map<std::string, const ptree&> LinkMap_t;
+        
+        void parse (const std::string & xmlStr)
+        {
+          urdf_ = ::urdf::parseURDF(xmlStr);
+          if (!urdf_) {
+            throw std::invalid_argument ("Enable to parse URDF");
+          }
+          
+          std::istringstream iss(xmlStr);
+          using namespace boost::property_tree;
+          read_xml(iss, tree_, xml_parser::no_comments);
+          
+          BOOST_FOREACH(const ptree::value_type & link, tree_.get_child("robot")) {
+            if (link.first == "link") {
+              std::string name = link.second.get<std::string>("<xmlattr>.name");
+              links_.insert(std::pair<std::string,const ptree&>(name, link.second));
+            }
+          } // BOOST_FOREACH
+        }
+        
+        bool replaceCylinderByCapsule (const std::string & linkName,
+                                       const std::string & geomName) const
+        {
+          LinkMap_t::const_iterator _link = links_.find(linkName);
+          assert (_link != links_.end());
+          const ptree& link = _link->second;
+          if (link.count ("collision_checking") == 0)
+            return false;
+          BOOST_FOREACH(const ptree::value_type & cc, link.get_child("collision_checking")) {
+            if (cc.first == "capsule") {
+              std::string name = cc.second.get<std::string>("<xmlattr>.name");
+              if (geomName == name) return true;
+            }
+          } // BOOST_FOREACH
+          
+          return false;
+        }
+        
+        // For standard URDF tags
+        ::urdf::ModelInterfaceSharedPtr urdf_;
+        // For other tags
+        ptree tree_;
+        // A mapping from link name to corresponding child of tree_
+        LinkMap_t links_;
+      };
 
 #ifdef PINOCCHIO_WITH_HPP_FCL      
       /**
